@@ -1,5 +1,4 @@
 # -*- coding: utf-8 -*-
-
 # Copyright 2020 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -14,16 +13,15 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
-
 import warnings
-from typing import Awaitable, Callable, Dict, Optional, Sequence, Tuple
+from typing import Awaitable, Callable, Dict, Optional, Sequence, Tuple, Union
 
 from google.api_core import gapic_v1  # type: ignore
 from google.api_core import grpc_helpers_async  # type: ignore
 from google.api_core import operations_v1  # type: ignore
-from google import auth  # type: ignore
-from google.auth import credentials  # type: ignore
+from google.auth import credentials as ga_credentials  # type: ignore
 from google.auth.transport.grpc import SslCredentials  # type: ignore
+import packaging.version
 
 import grpc  # type: ignore
 from grpc.experimental import aio  # type: ignore
@@ -31,8 +29,7 @@ from grpc.experimental import aio  # type: ignore
 from google.cloud.aiplatform_v1beta1.types import endpoint
 from google.cloud.aiplatform_v1beta1.types import endpoint as gca_endpoint
 from google.cloud.aiplatform_v1beta1.types import endpoint_service
-from google.longrunning import operations_pb2 as operations  # type: ignore
-
+from google.longrunning import operations_pb2  # type: ignore
 from .base import EndpointServiceTransport, DEFAULT_CLIENT_INFO
 from .grpc import EndpointServiceGrpcTransport
 
@@ -55,7 +52,7 @@ class EndpointServiceGrpcAsyncIOTransport(EndpointServiceTransport):
     def create_channel(
         cls,
         host: str = "aiplatform.googleapis.com",
-        credentials: credentials.Credentials = None,
+        credentials: ga_credentials.Credentials = None,
         credentials_file: Optional[str] = None,
         scopes: Optional[Sequence[str]] = None,
         quota_project_id: Optional[str] = None,
@@ -63,7 +60,7 @@ class EndpointServiceGrpcAsyncIOTransport(EndpointServiceTransport):
     ) -> aio.Channel:
         """Create and return a gRPC AsyncIO channel object.
         Args:
-            address (Optional[str]): The host for the channel to use.
+            host (Optional[str]): The host for the channel to use.
             credentials (Optional[~.Credentials]): The
                 authorization credentials to attach to requests. These
                 credentials identify this application to the service. If
@@ -82,13 +79,15 @@ class EndpointServiceGrpcAsyncIOTransport(EndpointServiceTransport):
         Returns:
             aio.Channel: A gRPC AsyncIO channel object.
         """
-        scopes = scopes or cls.AUTH_SCOPES
+
+        self_signed_jwt_kwargs = cls._get_self_signed_jwt_kwargs(host, scopes)
+
         return grpc_helpers_async.create_channel(
             host,
             credentials=credentials,
             credentials_file=credentials_file,
-            scopes=scopes,
             quota_project_id=quota_project_id,
+            **self_signed_jwt_kwargs,
             **kwargs,
         )
 
@@ -96,20 +95,22 @@ class EndpointServiceGrpcAsyncIOTransport(EndpointServiceTransport):
         self,
         *,
         host: str = "aiplatform.googleapis.com",
-        credentials: credentials.Credentials = None,
+        credentials: ga_credentials.Credentials = None,
         credentials_file: Optional[str] = None,
         scopes: Optional[Sequence[str]] = None,
         channel: aio.Channel = None,
         api_mtls_endpoint: str = None,
         client_cert_source: Callable[[], Tuple[bytes, bytes]] = None,
         ssl_channel_credentials: grpc.ChannelCredentials = None,
+        client_cert_source_for_mtls: Callable[[], Tuple[bytes, bytes]] = None,
         quota_project_id=None,
         client_info: gapic_v1.client_info.ClientInfo = DEFAULT_CLIENT_INFO,
     ) -> None:
         """Instantiate the transport.
 
         Args:
-            host (Optional[str]): The hostname to connect to.
+            host (Optional[str]):
+                 The hostname to connect to.
             credentials (Optional[google.auth.credentials.Credentials]): The
                 authorization credentials to attach to requests. These
                 credentials identify the application to the service; if none
@@ -134,6 +135,10 @@ class EndpointServiceGrpcAsyncIOTransport(EndpointServiceTransport):
                 ``api_mtls_endpoint`` is None.
             ssl_channel_credentials (grpc.ChannelCredentials): SSL credentials
                 for grpc channel. It is ignored if ``channel`` is provided.
+            client_cert_source_for_mtls (Optional[Callable[[], Tuple[bytes, bytes]]]):
+                A callback to provide client certificate bytes and private key bytes,
+                both in PEM format. It is used to configure mutual TLS channel. It is
+                ignored if ``channel`` or ``ssl_channel_credentials`` is provided.
             quota_project_id (Optional[str]): An optional project to use for billing
                 and quota.
             client_info (google.api_core.gapic_v1.client_info.ClientInfo):
@@ -148,82 +153,69 @@ class EndpointServiceGrpcAsyncIOTransport(EndpointServiceTransport):
           google.api_core.exceptions.DuplicateCredentialArgs: If both ``credentials``
               and ``credentials_file`` are passed.
         """
+        self._grpc_channel = None
         self._ssl_channel_credentials = ssl_channel_credentials
+        self._stubs: Dict[str, Callable] = {}
+        self._operations_client = None
+
+        if api_mtls_endpoint:
+            warnings.warn("api_mtls_endpoint is deprecated", DeprecationWarning)
+        if client_cert_source:
+            warnings.warn("client_cert_source is deprecated", DeprecationWarning)
 
         if channel:
-            # Sanity check: Ensure that channel and credentials are not both
-            # provided.
+            # Ignore credentials if a channel was passed.
             credentials = False
-
             # If a channel was explicitly provided, set it.
             self._grpc_channel = channel
             self._ssl_channel_credentials = None
-        elif api_mtls_endpoint:
-            warnings.warn(
-                "api_mtls_endpoint and client_cert_source are deprecated",
-                DeprecationWarning,
-            )
-
-            host = (
-                api_mtls_endpoint
-                if ":" in api_mtls_endpoint
-                else api_mtls_endpoint + ":443"
-            )
-
-            if credentials is None:
-                credentials, _ = auth.default(
-                    scopes=self.AUTH_SCOPES, quota_project_id=quota_project_id
-                )
-
-            # Create SSL credentials with client_cert_source or application
-            # default SSL credentials.
-            if client_cert_source:
-                cert, key = client_cert_source()
-                ssl_credentials = grpc.ssl_channel_credentials(
-                    certificate_chain=cert, private_key=key
-                )
-            else:
-                ssl_credentials = SslCredentials().ssl_credentials
-
-            # create a new channel. The provided one is ignored.
-            self._grpc_channel = type(self).create_channel(
-                host,
-                credentials=credentials,
-                credentials_file=credentials_file,
-                ssl_credentials=ssl_credentials,
-                scopes=scopes or self.AUTH_SCOPES,
-                quota_project_id=quota_project_id,
-            )
-            self._ssl_channel_credentials = ssl_credentials
         else:
-            host = host if ":" in host else host + ":443"
+            if api_mtls_endpoint:
+                host = api_mtls_endpoint
 
-            if credentials is None:
-                credentials, _ = auth.default(
-                    scopes=self.AUTH_SCOPES, quota_project_id=quota_project_id
-                )
+                # Create SSL credentials with client_cert_source or application
+                # default SSL credentials.
+                if client_cert_source:
+                    cert, key = client_cert_source()
+                    self._ssl_channel_credentials = grpc.ssl_channel_credentials(
+                        certificate_chain=cert, private_key=key
+                    )
+                else:
+                    self._ssl_channel_credentials = SslCredentials().ssl_credentials
 
-            # create a new channel. The provided one is ignored.
-            self._grpc_channel = type(self).create_channel(
-                host,
-                credentials=credentials,
-                credentials_file=credentials_file,
-                ssl_credentials=ssl_channel_credentials,
-                scopes=scopes or self.AUTH_SCOPES,
-                quota_project_id=quota_project_id,
-            )
+            else:
+                if client_cert_source_for_mtls and not ssl_channel_credentials:
+                    cert, key = client_cert_source_for_mtls()
+                    self._ssl_channel_credentials = grpc.ssl_channel_credentials(
+                        certificate_chain=cert, private_key=key
+                    )
 
-        # Run the base constructor.
+        # The base transport sets the host, credentials and scopes
         super().__init__(
             host=host,
             credentials=credentials,
             credentials_file=credentials_file,
-            scopes=scopes or self.AUTH_SCOPES,
+            scopes=scopes,
             quota_project_id=quota_project_id,
             client_info=client_info,
         )
 
-        self._stubs = {}
+        if not self._grpc_channel:
+            self._grpc_channel = type(self).create_channel(
+                self._host,
+                credentials=self._credentials,
+                credentials_file=credentials_file,
+                scopes=self._scopes,
+                ssl_credentials=self._ssl_channel_credentials,
+                quota_project_id=quota_project_id,
+                options=[
+                    ("grpc.max_send_message_length", -1),
+                    ("grpc.max_receive_message_length", -1),
+                ],
+            )
+
+        # Wrap messages. This must be done after self._grpc_channel exists
+        self._prep_wrapped_messages(client_info)
 
     @property
     def grpc_channel(self) -> aio.Channel:
@@ -243,19 +235,19 @@ class EndpointServiceGrpcAsyncIOTransport(EndpointServiceTransport):
         client.
         """
         # Sanity check: Only create a new client if we do not already have one.
-        if "operations_client" not in self.__dict__:
-            self.__dict__["operations_client"] = operations_v1.OperationsAsyncClient(
+        if self._operations_client is None:
+            self._operations_client = operations_v1.OperationsAsyncClient(
                 self.grpc_channel
             )
 
         # Return the client from cache.
-        return self.__dict__["operations_client"]
+        return self._operations_client
 
     @property
     def create_endpoint(
         self,
     ) -> Callable[
-        [endpoint_service.CreateEndpointRequest], Awaitable[operations.Operation]
+        [endpoint_service.CreateEndpointRequest], Awaitable[operations_pb2.Operation]
     ]:
         r"""Return a callable for the create endpoint method over gRPC.
 
@@ -275,7 +267,7 @@ class EndpointServiceGrpcAsyncIOTransport(EndpointServiceTransport):
             self._stubs["create_endpoint"] = self.grpc_channel.unary_unary(
                 "/google.cloud.aiplatform.v1beta1.EndpointService/CreateEndpoint",
                 request_serializer=endpoint_service.CreateEndpointRequest.serialize,
-                response_deserializer=operations.Operation.FromString,
+                response_deserializer=operations_pb2.Operation.FromString,
             )
         return self._stubs["create_endpoint"]
 
@@ -366,7 +358,7 @@ class EndpointServiceGrpcAsyncIOTransport(EndpointServiceTransport):
     def delete_endpoint(
         self,
     ) -> Callable[
-        [endpoint_service.DeleteEndpointRequest], Awaitable[operations.Operation]
+        [endpoint_service.DeleteEndpointRequest], Awaitable[operations_pb2.Operation]
     ]:
         r"""Return a callable for the delete endpoint method over gRPC.
 
@@ -386,7 +378,7 @@ class EndpointServiceGrpcAsyncIOTransport(EndpointServiceTransport):
             self._stubs["delete_endpoint"] = self.grpc_channel.unary_unary(
                 "/google.cloud.aiplatform.v1beta1.EndpointService/DeleteEndpoint",
                 request_serializer=endpoint_service.DeleteEndpointRequest.serialize,
-                response_deserializer=operations.Operation.FromString,
+                response_deserializer=operations_pb2.Operation.FromString,
             )
         return self._stubs["delete_endpoint"]
 
@@ -394,7 +386,7 @@ class EndpointServiceGrpcAsyncIOTransport(EndpointServiceTransport):
     def deploy_model(
         self,
     ) -> Callable[
-        [endpoint_service.DeployModelRequest], Awaitable[operations.Operation]
+        [endpoint_service.DeployModelRequest], Awaitable[operations_pb2.Operation]
     ]:
         r"""Return a callable for the deploy model method over gRPC.
 
@@ -415,7 +407,7 @@ class EndpointServiceGrpcAsyncIOTransport(EndpointServiceTransport):
             self._stubs["deploy_model"] = self.grpc_channel.unary_unary(
                 "/google.cloud.aiplatform.v1beta1.EndpointService/DeployModel",
                 request_serializer=endpoint_service.DeployModelRequest.serialize,
-                response_deserializer=operations.Operation.FromString,
+                response_deserializer=operations_pb2.Operation.FromString,
             )
         return self._stubs["deploy_model"]
 
@@ -423,7 +415,7 @@ class EndpointServiceGrpcAsyncIOTransport(EndpointServiceTransport):
     def undeploy_model(
         self,
     ) -> Callable[
-        [endpoint_service.UndeployModelRequest], Awaitable[operations.Operation]
+        [endpoint_service.UndeployModelRequest], Awaitable[operations_pb2.Operation]
     ]:
         r"""Return a callable for the undeploy model method over gRPC.
 
@@ -445,7 +437,7 @@ class EndpointServiceGrpcAsyncIOTransport(EndpointServiceTransport):
             self._stubs["undeploy_model"] = self.grpc_channel.unary_unary(
                 "/google.cloud.aiplatform.v1beta1.EndpointService/UndeployModel",
                 request_serializer=endpoint_service.UndeployModelRequest.serialize,
-                response_deserializer=operations.Operation.FromString,
+                response_deserializer=operations_pb2.Operation.FromString,
             )
         return self._stubs["undeploy_model"]
 

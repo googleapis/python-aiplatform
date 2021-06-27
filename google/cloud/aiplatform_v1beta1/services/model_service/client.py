@@ -1,5 +1,4 @@
 # -*- coding: utf-8 -*-
-
 # Copyright 2020 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -14,7 +13,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
-
 from collections import OrderedDict
 from distutils import util
 import os
@@ -23,19 +21,20 @@ from typing import Callable, Dict, Optional, Sequence, Tuple, Type, Union
 import pkg_resources
 
 from google.api_core import client_options as client_options_lib  # type: ignore
-from google.api_core import exceptions  # type: ignore
+from google.api_core import exceptions as core_exceptions  # type: ignore
 from google.api_core import gapic_v1  # type: ignore
 from google.api_core import retry as retries  # type: ignore
-from google.auth import credentials  # type: ignore
+from google.auth import credentials as ga_credentials  # type: ignore
 from google.auth.transport import mtls  # type: ignore
 from google.auth.transport.grpc import SslCredentials  # type: ignore
 from google.auth.exceptions import MutualTLSChannelError  # type: ignore
 from google.oauth2 import service_account  # type: ignore
 
-from google.api_core import operation as ga_operation  # type: ignore
+from google.api_core import operation as gac_operation  # type: ignore
 from google.api_core import operation_async  # type: ignore
 from google.cloud.aiplatform_v1beta1.services.model_service import pagers
 from google.cloud.aiplatform_v1beta1.types import deployed_model_ref
+from google.cloud.aiplatform_v1beta1.types import encryption_spec
 from google.cloud.aiplatform_v1beta1.types import explanation
 from google.cloud.aiplatform_v1beta1.types import model
 from google.cloud.aiplatform_v1beta1.types import model as gca_model
@@ -43,11 +42,10 @@ from google.cloud.aiplatform_v1beta1.types import model_evaluation
 from google.cloud.aiplatform_v1beta1.types import model_evaluation_slice
 from google.cloud.aiplatform_v1beta1.types import model_service
 from google.cloud.aiplatform_v1beta1.types import operation as gca_operation
-from google.protobuf import empty_pb2 as empty  # type: ignore
-from google.protobuf import field_mask_pb2 as field_mask  # type: ignore
-from google.protobuf import struct_pb2 as struct  # type: ignore
-from google.protobuf import timestamp_pb2 as timestamp  # type: ignore
-
+from google.protobuf import empty_pb2  # type: ignore
+from google.protobuf import field_mask_pb2  # type: ignore
+from google.protobuf import struct_pb2  # type: ignore
+from google.protobuf import timestamp_pb2  # type: ignore
 from .transports.base import ModelServiceTransport, DEFAULT_CLIENT_INFO
 from .transports.grpc import ModelServiceGrpcTransport
 from .transports.grpc_asyncio import ModelServiceGrpcAsyncIOTransport
@@ -66,7 +64,7 @@ class ModelServiceClientMeta(type):
     _transport_registry["grpc_asyncio"] = ModelServiceGrpcAsyncIOTransport
 
     def get_transport_class(cls, label: str = None,) -> Type[ModelServiceTransport]:
-        """Return an appropriate transport class.
+        """Returns an appropriate transport class.
 
         Args:
             label: The name of the desired transport. If none is
@@ -85,11 +83,12 @@ class ModelServiceClientMeta(type):
 
 
 class ModelServiceClient(metaclass=ModelServiceClientMeta):
-    """A service for managing AI Platform's machine learning Models."""
+    """A service for managing Vertex AI's machine learning Models."""
 
     @staticmethod
     def _get_default_mtls_endpoint(api_endpoint):
-        """Convert api endpoint to mTLS endpoint.
+        """Converts api endpoint to mTLS endpoint.
+
         Convert "*.sandbox.googleapis.com" and "*.googleapis.com" to
         "*.mtls.sandbox.googleapis.com" and "*.mtls.googleapis.com" respectively.
         Args:
@@ -122,9 +121,26 @@ class ModelServiceClient(metaclass=ModelServiceClientMeta):
     )
 
     @classmethod
+    def from_service_account_info(cls, info: dict, *args, **kwargs):
+        """Creates an instance of this client using the provided credentials
+            info.
+
+        Args:
+            info (dict): The service account private key info.
+            args: Additional arguments to pass to the constructor.
+            kwargs: Additional arguments to pass to the constructor.
+
+        Returns:
+            ModelServiceClient: The constructed client.
+        """
+        credentials = service_account.Credentials.from_service_account_info(info)
+        kwargs["credentials"] = credentials
+        return cls(*args, **kwargs)
+
+    @classmethod
     def from_service_account_file(cls, filename: str, *args, **kwargs):
         """Creates an instance of this client using the provided credentials
-        file.
+            file.
 
         Args:
             filename (str): The path to the service account private key json
@@ -133,7 +149,7 @@ class ModelServiceClient(metaclass=ModelServiceClientMeta):
             kwargs: Additional arguments to pass to the constructor.
 
         Returns:
-            {@api.name}: The constructed client.
+            ModelServiceClient: The constructed client.
         """
         credentials = service_account.Credentials.from_service_account_file(filename)
         kwargs["credentials"] = credentials
@@ -143,23 +159,24 @@ class ModelServiceClient(metaclass=ModelServiceClientMeta):
 
     @property
     def transport(self) -> ModelServiceTransport:
-        """Return the transport used by the client instance.
+        """Returns the transport used by the client instance.
 
         Returns:
-            ModelServiceTransport: The transport used by the client instance.
+            ModelServiceTransport: The transport used by the client
+                instance.
         """
         return self._transport
 
     @staticmethod
     def endpoint_path(project: str, location: str, endpoint: str,) -> str:
-        """Return a fully-qualified endpoint string."""
+        """Returns a fully-qualified endpoint string."""
         return "projects/{project}/locations/{location}/endpoints/{endpoint}".format(
             project=project, location=location, endpoint=endpoint,
         )
 
     @staticmethod
     def parse_endpoint_path(path: str) -> Dict[str, str]:
-        """Parse a endpoint path into its component segments."""
+        """Parses a endpoint path into its component segments."""
         m = re.match(
             r"^projects/(?P<project>.+?)/locations/(?P<location>.+?)/endpoints/(?P<endpoint>.+?)$",
             path,
@@ -168,14 +185,14 @@ class ModelServiceClient(metaclass=ModelServiceClientMeta):
 
     @staticmethod
     def model_path(project: str, location: str, model: str,) -> str:
-        """Return a fully-qualified model string."""
+        """Returns a fully-qualified model string."""
         return "projects/{project}/locations/{location}/models/{model}".format(
             project=project, location=location, model=model,
         )
 
     @staticmethod
     def parse_model_path(path: str) -> Dict[str, str]:
-        """Parse a model path into its component segments."""
+        """Parses a model path into its component segments."""
         m = re.match(
             r"^projects/(?P<project>.+?)/locations/(?P<location>.+?)/models/(?P<model>.+?)$",
             path,
@@ -186,14 +203,14 @@ class ModelServiceClient(metaclass=ModelServiceClientMeta):
     def model_evaluation_path(
         project: str, location: str, model: str, evaluation: str,
     ) -> str:
-        """Return a fully-qualified model_evaluation string."""
+        """Returns a fully-qualified model_evaluation string."""
         return "projects/{project}/locations/{location}/models/{model}/evaluations/{evaluation}".format(
             project=project, location=location, model=model, evaluation=evaluation,
         )
 
     @staticmethod
     def parse_model_evaluation_path(path: str) -> Dict[str, str]:
-        """Parse a model_evaluation path into its component segments."""
+        """Parses a model_evaluation path into its component segments."""
         m = re.match(
             r"^projects/(?P<project>.+?)/locations/(?P<location>.+?)/models/(?P<model>.+?)/evaluations/(?P<evaluation>.+?)$",
             path,
@@ -204,7 +221,7 @@ class ModelServiceClient(metaclass=ModelServiceClientMeta):
     def model_evaluation_slice_path(
         project: str, location: str, model: str, evaluation: str, slice: str,
     ) -> str:
-        """Return a fully-qualified model_evaluation_slice string."""
+        """Returns a fully-qualified model_evaluation_slice string."""
         return "projects/{project}/locations/{location}/models/{model}/evaluations/{evaluation}/slices/{slice}".format(
             project=project,
             location=location,
@@ -215,7 +232,7 @@ class ModelServiceClient(metaclass=ModelServiceClientMeta):
 
     @staticmethod
     def parse_model_evaluation_slice_path(path: str) -> Dict[str, str]:
-        """Parse a model_evaluation_slice path into its component segments."""
+        """Parses a model_evaluation_slice path into its component segments."""
         m = re.match(
             r"^projects/(?P<project>.+?)/locations/(?P<location>.+?)/models/(?P<model>.+?)/evaluations/(?P<evaluation>.+?)/slices/(?P<slice>.+?)$",
             path,
@@ -226,14 +243,14 @@ class ModelServiceClient(metaclass=ModelServiceClientMeta):
     def training_pipeline_path(
         project: str, location: str, training_pipeline: str,
     ) -> str:
-        """Return a fully-qualified training_pipeline string."""
+        """Returns a fully-qualified training_pipeline string."""
         return "projects/{project}/locations/{location}/trainingPipelines/{training_pipeline}".format(
             project=project, location=location, training_pipeline=training_pipeline,
         )
 
     @staticmethod
     def parse_training_pipeline_path(path: str) -> Dict[str, str]:
-        """Parse a training_pipeline path into its component segments."""
+        """Parses a training_pipeline path into its component segments."""
         m = re.match(
             r"^projects/(?P<project>.+?)/locations/(?P<location>.+?)/trainingPipelines/(?P<training_pipeline>.+?)$",
             path,
@@ -242,7 +259,7 @@ class ModelServiceClient(metaclass=ModelServiceClientMeta):
 
     @staticmethod
     def common_billing_account_path(billing_account: str,) -> str:
-        """Return a fully-qualified billing_account string."""
+        """Returns a fully-qualified billing_account string."""
         return "billingAccounts/{billing_account}".format(
             billing_account=billing_account,
         )
@@ -255,7 +272,7 @@ class ModelServiceClient(metaclass=ModelServiceClientMeta):
 
     @staticmethod
     def common_folder_path(folder: str,) -> str:
-        """Return a fully-qualified folder string."""
+        """Returns a fully-qualified folder string."""
         return "folders/{folder}".format(folder=folder,)
 
     @staticmethod
@@ -266,7 +283,7 @@ class ModelServiceClient(metaclass=ModelServiceClientMeta):
 
     @staticmethod
     def common_organization_path(organization: str,) -> str:
-        """Return a fully-qualified organization string."""
+        """Returns a fully-qualified organization string."""
         return "organizations/{organization}".format(organization=organization,)
 
     @staticmethod
@@ -277,7 +294,7 @@ class ModelServiceClient(metaclass=ModelServiceClientMeta):
 
     @staticmethod
     def common_project_path(project: str,) -> str:
-        """Return a fully-qualified project string."""
+        """Returns a fully-qualified project string."""
         return "projects/{project}".format(project=project,)
 
     @staticmethod
@@ -288,7 +305,7 @@ class ModelServiceClient(metaclass=ModelServiceClientMeta):
 
     @staticmethod
     def common_location_path(project: str, location: str,) -> str:
-        """Return a fully-qualified location string."""
+        """Returns a fully-qualified location string."""
         return "projects/{project}/locations/{location}".format(
             project=project, location=location,
         )
@@ -302,12 +319,12 @@ class ModelServiceClient(metaclass=ModelServiceClientMeta):
     def __init__(
         self,
         *,
-        credentials: Optional[credentials.Credentials] = None,
+        credentials: Optional[ga_credentials.Credentials] = None,
         transport: Union[str, ModelServiceTransport, None] = None,
         client_options: Optional[client_options_lib.ClientOptions] = None,
         client_info: gapic_v1.client_info.ClientInfo = DEFAULT_CLIENT_INFO,
     ) -> None:
-        """Instantiate the model service client.
+        """Instantiates the model service client.
 
         Args:
             credentials (Optional[google.auth.credentials.Credentials]): The
@@ -315,10 +332,10 @@ class ModelServiceClient(metaclass=ModelServiceClientMeta):
                 credentials identify the application to the service; if none
                 are specified, the client will attempt to ascertain the
                 credentials from the environment.
-            transport (Union[str, ~.ModelServiceTransport]): The
+            transport (Union[str, ModelServiceTransport]): The
                 transport to use. If set to None, a transport is chosen
                 automatically.
-            client_options (client_options_lib.ClientOptions): Custom options for the
+            client_options (google.api_core.client_options.ClientOptions): Custom options for the
                 client. It won't take effect if a ``transport`` instance is provided.
                 (1) The ``api_endpoint`` property can be used to override the
                 default endpoint provided by the client. GOOGLE_API_USE_MTLS_ENDPOINT
@@ -354,21 +371,18 @@ class ModelServiceClient(metaclass=ModelServiceClientMeta):
             util.strtobool(os.getenv("GOOGLE_API_USE_CLIENT_CERTIFICATE", "false"))
         )
 
-        ssl_credentials = None
+        client_cert_source_func = None
         is_mtls = False
         if use_client_cert:
             if client_options.client_cert_source:
-                import grpc  # type: ignore
-
-                cert, key = client_options.client_cert_source()
-                ssl_credentials = grpc.ssl_channel_credentials(
-                    certificate_chain=cert, private_key=key
-                )
                 is_mtls = True
+                client_cert_source_func = client_options.client_cert_source
             else:
-                creds = SslCredentials()
-                is_mtls = creds.is_mtls
-                ssl_credentials = creds.ssl_credentials if is_mtls else None
+                is_mtls = mtls.has_default_client_cert_source()
+                if is_mtls:
+                    client_cert_source_func = mtls.default_client_cert_source()
+                else:
+                    client_cert_source_func = None
 
         # Figure out which api endpoint to use.
         if client_options.api_endpoint is not None:
@@ -380,12 +394,14 @@ class ModelServiceClient(metaclass=ModelServiceClientMeta):
             elif use_mtls_env == "always":
                 api_endpoint = self.DEFAULT_MTLS_ENDPOINT
             elif use_mtls_env == "auto":
-                api_endpoint = (
-                    self.DEFAULT_MTLS_ENDPOINT if is_mtls else self.DEFAULT_ENDPOINT
-                )
+                if is_mtls:
+                    api_endpoint = self.DEFAULT_MTLS_ENDPOINT
+                else:
+                    api_endpoint = self.DEFAULT_ENDPOINT
             else:
                 raise MutualTLSChannelError(
-                    "Unsupported GOOGLE_API_USE_MTLS_ENDPOINT value. Accepted values: never, auto, always"
+                    "Unsupported GOOGLE_API_USE_MTLS_ENDPOINT value. Accepted "
+                    "values: never, auto, always"
                 )
 
         # Save or instantiate the transport.
@@ -400,8 +416,8 @@ class ModelServiceClient(metaclass=ModelServiceClientMeta):
                 )
             if client_options.scopes:
                 raise ValueError(
-                    "When providing a transport instance, "
-                    "provide its scopes directly."
+                    "When providing a transport instance, provide its scopes "
+                    "directly."
                 )
             self._transport = transport
         else:
@@ -411,7 +427,7 @@ class ModelServiceClient(metaclass=ModelServiceClientMeta):
                 credentials_file=client_options.credentials_file,
                 host=api_endpoint,
                 scopes=client_options.scopes,
-                ssl_channel_credentials=ssl_credentials,
+                client_cert_source_for_mtls=client_cert_source_func,
                 quota_project_id=client_options.quota_project_id,
                 client_info=client_info,
             )
@@ -425,26 +441,26 @@ class ModelServiceClient(metaclass=ModelServiceClientMeta):
         retry: retries.Retry = gapic_v1.method.DEFAULT,
         timeout: float = None,
         metadata: Sequence[Tuple[str, str]] = (),
-    ) -> ga_operation.Operation:
-        r"""Uploads a Model artifact into AI Platform.
+    ) -> gac_operation.Operation:
+        r"""Uploads a Model artifact into Vertex AI.
 
         Args:
-            request (:class:`~.model_service.UploadModelRequest`):
+            request (google.cloud.aiplatform_v1beta1.types.UploadModelRequest):
                 The request object. Request message for
-                ``ModelService.UploadModel``.
-            parent (:class:`str`):
+                [ModelService.UploadModel][google.cloud.aiplatform.v1beta1.ModelService.UploadModel].
+            parent (str):
                 Required. The resource name of the Location into which
                 to upload the Model. Format:
                 ``projects/{project}/locations/{location}``
+
                 This corresponds to the ``parent`` field
                 on the ``request`` instance; if ``request`` is provided, this
                 should not be set.
-            model (:class:`~.gca_model.Model`):
+            model (google.cloud.aiplatform_v1beta1.types.Model):
                 Required. The Model to create.
                 This corresponds to the ``model`` field
                 on the ``request`` instance; if ``request`` is provided, this
                 should not be set.
-
             retry (google.api_core.retry.Retry): Designation of what errors, if any,
                 should be retried.
             timeout (float): The timeout for this request.
@@ -452,13 +468,13 @@ class ModelServiceClient(metaclass=ModelServiceClientMeta):
                 sent along with the request as metadata.
 
         Returns:
-            ~.ga_operation.Operation:
+            google.api_core.operation.Operation:
                 An object representing a long-running operation.
 
                 The result type for the operation will be
-                :class:`~.model_service.UploadModelResponse`: Response
-                message of
-                ``ModelService.UploadModel``
+                :class:`google.cloud.aiplatform_v1beta1.types.UploadModelResponse`
+                Response message of
+                [ModelService.UploadModel][google.cloud.aiplatform.v1beta1.ModelService.UploadModel]
                 operation.
 
         """
@@ -478,10 +494,8 @@ class ModelServiceClient(metaclass=ModelServiceClientMeta):
         # there are no flattened fields.
         if not isinstance(request, model_service.UploadModelRequest):
             request = model_service.UploadModelRequest(request)
-
             # If we have keyword arguments corresponding to fields on the
             # request, apply these.
-
             if parent is not None:
                 request.parent = parent
             if model is not None:
@@ -501,7 +515,7 @@ class ModelServiceClient(metaclass=ModelServiceClientMeta):
         response = rpc(request, retry=retry, timeout=timeout, metadata=metadata,)
 
         # Wrap the response in an operation future.
-        response = ga_operation.from_gapic(
+        response = gac_operation.from_gapic(
             response,
             self._transport.operations_client,
             model_service.UploadModelResponse,
@@ -523,16 +537,16 @@ class ModelServiceClient(metaclass=ModelServiceClientMeta):
         r"""Gets a Model.
 
         Args:
-            request (:class:`~.model_service.GetModelRequest`):
+            request (google.cloud.aiplatform_v1beta1.types.GetModelRequest):
                 The request object. Request message for
-                ``ModelService.GetModel``.
-            name (:class:`str`):
+                [ModelService.GetModel][google.cloud.aiplatform.v1beta1.ModelService.GetModel].
+            name (str):
                 Required. The name of the Model resource. Format:
                 ``projects/{project}/locations/{location}/models/{model}``
+
                 This corresponds to the ``name`` field
                 on the ``request`` instance; if ``request`` is provided, this
                 should not be set.
-
             retry (google.api_core.retry.Retry): Designation of what errors, if any,
                 should be retried.
             timeout (float): The timeout for this request.
@@ -540,7 +554,7 @@ class ModelServiceClient(metaclass=ModelServiceClientMeta):
                 sent along with the request as metadata.
 
         Returns:
-            ~.model.Model:
+            google.cloud.aiplatform_v1beta1.types.Model:
                 A trained machine learning Model.
         """
         # Create or coerce a protobuf request object.
@@ -559,10 +573,8 @@ class ModelServiceClient(metaclass=ModelServiceClientMeta):
         # there are no flattened fields.
         if not isinstance(request, model_service.GetModelRequest):
             request = model_service.GetModelRequest(request)
-
             # If we have keyword arguments corresponding to fields on the
             # request, apply these.
-
             if name is not None:
                 request.name = name
 
@@ -594,17 +606,17 @@ class ModelServiceClient(metaclass=ModelServiceClientMeta):
         r"""Lists Models in a Location.
 
         Args:
-            request (:class:`~.model_service.ListModelsRequest`):
+            request (google.cloud.aiplatform_v1beta1.types.ListModelsRequest):
                 The request object. Request message for
-                ``ModelService.ListModels``.
-            parent (:class:`str`):
+                [ModelService.ListModels][google.cloud.aiplatform.v1beta1.ModelService.ListModels].
+            parent (str):
                 Required. The resource name of the Location to list the
                 Models from. Format:
                 ``projects/{project}/locations/{location}``
+
                 This corresponds to the ``parent`` field
                 on the ``request`` instance; if ``request`` is provided, this
                 should not be set.
-
             retry (google.api_core.retry.Retry): Designation of what errors, if any,
                 should be retried.
             timeout (float): The timeout for this request.
@@ -612,9 +624,9 @@ class ModelServiceClient(metaclass=ModelServiceClientMeta):
                 sent along with the request as metadata.
 
         Returns:
-            ~.pagers.ListModelsPager:
+            google.cloud.aiplatform_v1beta1.services.model_service.pagers.ListModelsPager:
                 Response message for
-                ``ModelService.ListModels``
+                [ModelService.ListModels][google.cloud.aiplatform.v1beta1.ModelService.ListModels]
 
                 Iterating over this object will yield results and
                 resolve additional pages automatically.
@@ -636,10 +648,8 @@ class ModelServiceClient(metaclass=ModelServiceClientMeta):
         # there are no flattened fields.
         if not isinstance(request, model_service.ListModelsRequest):
             request = model_service.ListModelsRequest(request)
-
             # If we have keyword arguments corresponding to fields on the
             # request, apply these.
-
             if parent is not None:
                 request.parent = parent
 
@@ -670,7 +680,7 @@ class ModelServiceClient(metaclass=ModelServiceClientMeta):
         request: model_service.UpdateModelRequest = None,
         *,
         model: gca_model.Model = None,
-        update_mask: field_mask.FieldMask = None,
+        update_mask: field_mask_pb2.FieldMask = None,
         retry: retries.Retry = gapic_v1.method.DEFAULT,
         timeout: float = None,
         metadata: Sequence[Tuple[str, str]] = (),
@@ -678,24 +688,24 @@ class ModelServiceClient(metaclass=ModelServiceClientMeta):
         r"""Updates a Model.
 
         Args:
-            request (:class:`~.model_service.UpdateModelRequest`):
+            request (google.cloud.aiplatform_v1beta1.types.UpdateModelRequest):
                 The request object. Request message for
-                ``ModelService.UpdateModel``.
-            model (:class:`~.gca_model.Model`):
+                [ModelService.UpdateModel][google.cloud.aiplatform.v1beta1.ModelService.UpdateModel].
+            model (google.cloud.aiplatform_v1beta1.types.Model):
                 Required. The Model which replaces
                 the resource on the server.
+
                 This corresponds to the ``model`` field
                 on the ``request`` instance; if ``request`` is provided, this
                 should not be set.
-            update_mask (:class:`~.field_mask.FieldMask`):
+            update_mask (google.protobuf.field_mask_pb2.FieldMask):
                 Required. The update mask applies to the resource. For
                 the ``FieldMask`` definition, see
+                [google.protobuf.FieldMask][google.protobuf.FieldMask].
 
-                [FieldMask](https://developers.google.com/protocol-buffers/docs/reference/google.protobuf#fieldmask).
                 This corresponds to the ``update_mask`` field
                 on the ``request`` instance; if ``request`` is provided, this
                 should not be set.
-
             retry (google.api_core.retry.Retry): Designation of what errors, if any,
                 should be retried.
             timeout (float): The timeout for this request.
@@ -703,7 +713,7 @@ class ModelServiceClient(metaclass=ModelServiceClientMeta):
                 sent along with the request as metadata.
 
         Returns:
-            ~.gca_model.Model:
+            google.cloud.aiplatform_v1beta1.types.Model:
                 A trained machine learning Model.
         """
         # Create or coerce a protobuf request object.
@@ -722,10 +732,8 @@ class ModelServiceClient(metaclass=ModelServiceClientMeta):
         # there are no flattened fields.
         if not isinstance(request, model_service.UpdateModelRequest):
             request = model_service.UpdateModelRequest(request)
-
             # If we have keyword arguments corresponding to fields on the
             # request, apply these.
-
             if model is not None:
                 request.model = model
             if update_mask is not None:
@@ -757,23 +765,23 @@ class ModelServiceClient(metaclass=ModelServiceClientMeta):
         retry: retries.Retry = gapic_v1.method.DEFAULT,
         timeout: float = None,
         metadata: Sequence[Tuple[str, str]] = (),
-    ) -> ga_operation.Operation:
+    ) -> gac_operation.Operation:
         r"""Deletes a Model.
         Note: Model can only be deleted if there are no
         DeployedModels created from it.
 
         Args:
-            request (:class:`~.model_service.DeleteModelRequest`):
+            request (google.cloud.aiplatform_v1beta1.types.DeleteModelRequest):
                 The request object. Request message for
-                ``ModelService.DeleteModel``.
-            name (:class:`str`):
+                [ModelService.DeleteModel][google.cloud.aiplatform.v1beta1.ModelService.DeleteModel].
+            name (str):
                 Required. The name of the Model resource to be deleted.
                 Format:
                 ``projects/{project}/locations/{location}/models/{model}``
+
                 This corresponds to the ``name`` field
                 on the ``request`` instance; if ``request`` is provided, this
                 should not be set.
-
             retry (google.api_core.retry.Retry): Designation of what errors, if any,
                 should be retried.
             timeout (float): The timeout for this request.
@@ -781,24 +789,22 @@ class ModelServiceClient(metaclass=ModelServiceClientMeta):
                 sent along with the request as metadata.
 
         Returns:
-            ~.ga_operation.Operation:
+            google.api_core.operation.Operation:
                 An object representing a long-running operation.
 
-                The result type for the operation will be
-                :class:`~.empty.Empty`: A generic empty message that
-                you can re-use to avoid defining duplicated empty
-                messages in your APIs. A typical example is to use it as
-                the request or the response type of an API method. For
-                instance:
+                The result type for the operation will be :class:`google.protobuf.empty_pb2.Empty` A generic empty message that you can re-use to avoid defining duplicated
+                   empty messages in your APIs. A typical example is to
+                   use it as the request or the response type of an API
+                   method. For instance:
 
-                ::
+                      service Foo {
+                         rpc Bar(google.protobuf.Empty) returns
+                         (google.protobuf.Empty);
 
-                    service Foo {
-                      rpc Bar(google.protobuf.Empty) returns (google.protobuf.Empty);
-                    }
+                      }
 
-                The JSON representation for ``Empty`` is empty JSON
-                object ``{}``.
+                   The JSON representation for Empty is empty JSON
+                   object {}.
 
         """
         # Create or coerce a protobuf request object.
@@ -817,10 +823,8 @@ class ModelServiceClient(metaclass=ModelServiceClientMeta):
         # there are no flattened fields.
         if not isinstance(request, model_service.DeleteModelRequest):
             request = model_service.DeleteModelRequest(request)
-
             # If we have keyword arguments corresponding to fields on the
             # request, apply these.
-
             if name is not None:
                 request.name = name
 
@@ -838,10 +842,10 @@ class ModelServiceClient(metaclass=ModelServiceClientMeta):
         response = rpc(request, retry=retry, timeout=timeout, metadata=metadata,)
 
         # Wrap the response in an operation future.
-        response = ga_operation.from_gapic(
+        response = gac_operation.from_gapic(
             response,
             self._transport.operations_client,
-            empty.Empty,
+            empty_pb2.Empty,
             metadata_type=gca_operation.DeleteOperationMetadata,
         )
 
@@ -857,30 +861,31 @@ class ModelServiceClient(metaclass=ModelServiceClientMeta):
         retry: retries.Retry = gapic_v1.method.DEFAULT,
         timeout: float = None,
         metadata: Sequence[Tuple[str, str]] = (),
-    ) -> ga_operation.Operation:
+    ) -> gac_operation.Operation:
         r"""Exports a trained, exportable, Model to a location specified by
         the user. A Model is considered to be exportable if it has at
         least one [supported export
         format][google.cloud.aiplatform.v1beta1.Model.supported_export_formats].
 
         Args:
-            request (:class:`~.model_service.ExportModelRequest`):
+            request (google.cloud.aiplatform_v1beta1.types.ExportModelRequest):
                 The request object. Request message for
-                ``ModelService.ExportModel``.
-            name (:class:`str`):
+                [ModelService.ExportModel][google.cloud.aiplatform.v1beta1.ModelService.ExportModel].
+            name (str):
                 Required. The resource name of the Model to export.
                 Format:
                 ``projects/{project}/locations/{location}/models/{model}``
+
                 This corresponds to the ``name`` field
                 on the ``request`` instance; if ``request`` is provided, this
                 should not be set.
-            output_config (:class:`~.model_service.ExportModelRequest.OutputConfig`):
+            output_config (google.cloud.aiplatform_v1beta1.types.ExportModelRequest.OutputConfig):
                 Required. The desired output location
                 and configuration.
+
                 This corresponds to the ``output_config`` field
                 on the ``request`` instance; if ``request`` is provided, this
                 should not be set.
-
             retry (google.api_core.retry.Retry): Designation of what errors, if any,
                 should be retried.
             timeout (float): The timeout for this request.
@@ -888,13 +893,13 @@ class ModelServiceClient(metaclass=ModelServiceClientMeta):
                 sent along with the request as metadata.
 
         Returns:
-            ~.ga_operation.Operation:
+            google.api_core.operation.Operation:
                 An object representing a long-running operation.
 
                 The result type for the operation will be
-                :class:`~.model_service.ExportModelResponse`: Response
-                message of
-                ``ModelService.ExportModel``
+                :class:`google.cloud.aiplatform_v1beta1.types.ExportModelResponse`
+                Response message of
+                [ModelService.ExportModel][google.cloud.aiplatform.v1beta1.ModelService.ExportModel]
                 operation.
 
         """
@@ -914,10 +919,8 @@ class ModelServiceClient(metaclass=ModelServiceClientMeta):
         # there are no flattened fields.
         if not isinstance(request, model_service.ExportModelRequest):
             request = model_service.ExportModelRequest(request)
-
             # If we have keyword arguments corresponding to fields on the
             # request, apply these.
-
             if name is not None:
                 request.name = name
             if output_config is not None:
@@ -937,7 +940,7 @@ class ModelServiceClient(metaclass=ModelServiceClientMeta):
         response = rpc(request, retry=retry, timeout=timeout, metadata=metadata,)
 
         # Wrap the response in an operation future.
-        response = ga_operation.from_gapic(
+        response = gac_operation.from_gapic(
             response,
             self._transport.operations_client,
             model_service.ExportModelResponse,
@@ -959,18 +962,17 @@ class ModelServiceClient(metaclass=ModelServiceClientMeta):
         r"""Gets a ModelEvaluation.
 
         Args:
-            request (:class:`~.model_service.GetModelEvaluationRequest`):
+            request (google.cloud.aiplatform_v1beta1.types.GetModelEvaluationRequest):
                 The request object. Request message for
-                ``ModelService.GetModelEvaluation``.
-            name (:class:`str`):
+                [ModelService.GetModelEvaluation][google.cloud.aiplatform.v1beta1.ModelService.GetModelEvaluation].
+            name (str):
                 Required. The name of the ModelEvaluation resource.
                 Format:
-
                 ``projects/{project}/locations/{location}/models/{model}/evaluations/{evaluation}``
+
                 This corresponds to the ``name`` field
                 on the ``request`` instance; if ``request`` is provided, this
                 should not be set.
-
             retry (google.api_core.retry.Retry): Designation of what errors, if any,
                 should be retried.
             timeout (float): The timeout for this request.
@@ -978,7 +980,7 @@ class ModelServiceClient(metaclass=ModelServiceClientMeta):
                 sent along with the request as metadata.
 
         Returns:
-            ~.model_evaluation.ModelEvaluation:
+            google.cloud.aiplatform_v1beta1.types.ModelEvaluation:
                 A collection of metrics calculated by
                 comparing Model's predictions on all of
                 the test data against annotations from
@@ -1001,10 +1003,8 @@ class ModelServiceClient(metaclass=ModelServiceClientMeta):
         # there are no flattened fields.
         if not isinstance(request, model_service.GetModelEvaluationRequest):
             request = model_service.GetModelEvaluationRequest(request)
-
             # If we have keyword arguments corresponding to fields on the
             # request, apply these.
-
             if name is not None:
                 request.name = name
 
@@ -1036,17 +1036,17 @@ class ModelServiceClient(metaclass=ModelServiceClientMeta):
         r"""Lists ModelEvaluations in a Model.
 
         Args:
-            request (:class:`~.model_service.ListModelEvaluationsRequest`):
+            request (google.cloud.aiplatform_v1beta1.types.ListModelEvaluationsRequest):
                 The request object. Request message for
-                ``ModelService.ListModelEvaluations``.
-            parent (:class:`str`):
+                [ModelService.ListModelEvaluations][google.cloud.aiplatform.v1beta1.ModelService.ListModelEvaluations].
+            parent (str):
                 Required. The resource name of the Model to list the
                 ModelEvaluations from. Format:
                 ``projects/{project}/locations/{location}/models/{model}``
+
                 This corresponds to the ``parent`` field
                 on the ``request`` instance; if ``request`` is provided, this
                 should not be set.
-
             retry (google.api_core.retry.Retry): Designation of what errors, if any,
                 should be retried.
             timeout (float): The timeout for this request.
@@ -1054,9 +1054,9 @@ class ModelServiceClient(metaclass=ModelServiceClientMeta):
                 sent along with the request as metadata.
 
         Returns:
-            ~.pagers.ListModelEvaluationsPager:
+            google.cloud.aiplatform_v1beta1.services.model_service.pagers.ListModelEvaluationsPager:
                 Response message for
-                ``ModelService.ListModelEvaluations``.
+                [ModelService.ListModelEvaluations][google.cloud.aiplatform.v1beta1.ModelService.ListModelEvaluations].
 
                 Iterating over this object will yield results and
                 resolve additional pages automatically.
@@ -1078,10 +1078,8 @@ class ModelServiceClient(metaclass=ModelServiceClientMeta):
         # there are no flattened fields.
         if not isinstance(request, model_service.ListModelEvaluationsRequest):
             request = model_service.ListModelEvaluationsRequest(request)
-
             # If we have keyword arguments corresponding to fields on the
             # request, apply these.
-
             if parent is not None:
                 request.parent = parent
 
@@ -1119,18 +1117,17 @@ class ModelServiceClient(metaclass=ModelServiceClientMeta):
         r"""Gets a ModelEvaluationSlice.
 
         Args:
-            request (:class:`~.model_service.GetModelEvaluationSliceRequest`):
+            request (google.cloud.aiplatform_v1beta1.types.GetModelEvaluationSliceRequest):
                 The request object. Request message for
-                ``ModelService.GetModelEvaluationSlice``.
-            name (:class:`str`):
+                [ModelService.GetModelEvaluationSlice][google.cloud.aiplatform.v1beta1.ModelService.GetModelEvaluationSlice].
+            name (str):
                 Required. The name of the ModelEvaluationSlice resource.
                 Format:
-
                 ``projects/{project}/locations/{location}/models/{model}/evaluations/{evaluation}/slices/{slice}``
+
                 This corresponds to the ``name`` field
                 on the ``request`` instance; if ``request`` is provided, this
                 should not be set.
-
             retry (google.api_core.retry.Retry): Designation of what errors, if any,
                 should be retried.
             timeout (float): The timeout for this request.
@@ -1138,7 +1135,7 @@ class ModelServiceClient(metaclass=ModelServiceClientMeta):
                 sent along with the request as metadata.
 
         Returns:
-            ~.model_evaluation_slice.ModelEvaluationSlice:
+            google.cloud.aiplatform_v1beta1.types.ModelEvaluationSlice:
                 A collection of metrics calculated by
                 comparing Model's predictions on a slice
                 of the test data against ground truth
@@ -1161,10 +1158,8 @@ class ModelServiceClient(metaclass=ModelServiceClientMeta):
         # there are no flattened fields.
         if not isinstance(request, model_service.GetModelEvaluationSliceRequest):
             request = model_service.GetModelEvaluationSliceRequest(request)
-
             # If we have keyword arguments corresponding to fields on the
             # request, apply these.
-
             if name is not None:
                 request.name = name
 
@@ -1198,18 +1193,17 @@ class ModelServiceClient(metaclass=ModelServiceClientMeta):
         r"""Lists ModelEvaluationSlices in a ModelEvaluation.
 
         Args:
-            request (:class:`~.model_service.ListModelEvaluationSlicesRequest`):
+            request (google.cloud.aiplatform_v1beta1.types.ListModelEvaluationSlicesRequest):
                 The request object. Request message for
-                ``ModelService.ListModelEvaluationSlices``.
-            parent (:class:`str`):
+                [ModelService.ListModelEvaluationSlices][google.cloud.aiplatform.v1beta1.ModelService.ListModelEvaluationSlices].
+            parent (str):
                 Required. The resource name of the ModelEvaluation to
                 list the ModelEvaluationSlices from. Format:
-
                 ``projects/{project}/locations/{location}/models/{model}/evaluations/{evaluation}``
+
                 This corresponds to the ``parent`` field
                 on the ``request`` instance; if ``request`` is provided, this
                 should not be set.
-
             retry (google.api_core.retry.Retry): Designation of what errors, if any,
                 should be retried.
             timeout (float): The timeout for this request.
@@ -1217,9 +1211,9 @@ class ModelServiceClient(metaclass=ModelServiceClientMeta):
                 sent along with the request as metadata.
 
         Returns:
-            ~.pagers.ListModelEvaluationSlicesPager:
+            google.cloud.aiplatform_v1beta1.services.model_service.pagers.ListModelEvaluationSlicesPager:
                 Response message for
-                ``ModelService.ListModelEvaluationSlices``.
+                [ModelService.ListModelEvaluationSlices][google.cloud.aiplatform.v1beta1.ModelService.ListModelEvaluationSlices].
 
                 Iterating over this object will yield results and
                 resolve additional pages automatically.
@@ -1241,10 +1235,8 @@ class ModelServiceClient(metaclass=ModelServiceClientMeta):
         # there are no flattened fields.
         if not isinstance(request, model_service.ListModelEvaluationSlicesRequest):
             request = model_service.ListModelEvaluationSlicesRequest(request)
-
             # If we have keyword arguments corresponding to fields on the
             # request, apply these.
-
             if parent is not None:
                 request.parent = parent
 

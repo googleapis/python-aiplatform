@@ -23,7 +23,9 @@ def make_output_config(gcs_destination_output_uri_prefix: str) -> google.cloud.a
     output_config = {
         'artifact_destination': {
             'output_uri_prefix': gcs_destination_output_uri_prefix
-        }
+        },
+        # For information about export formats: https://cloud.google.com/ai-platform-unified/docs/export/export-edge-model#aiplatform_export_model_sample-drest
+        'export_format_id': 'tf-saved-model'
     }
 
     return output_config

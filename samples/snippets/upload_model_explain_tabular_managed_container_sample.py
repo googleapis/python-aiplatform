@@ -13,7 +13,7 @@
 # limitations under the License.
 
 # [START aiplatform_upload_model_explain_tabular_managed_container_sample]
-from google.cloud import aiplatform
+from google.cloud import aiplatform_v1beta1
 
 
 def upload_model_explain_tabular_managed_container_sample(
@@ -32,19 +32,19 @@ def upload_model_explain_tabular_managed_container_sample(
     client_options = {"api_endpoint": api_endpoint}
     # Initialize client that will be used to create and send requests.
     # This client only needs to be created once, and can be reused for multiple requests.
-    client = aiplatform.gapic.ModelServiceClient(client_options=client_options)
+    client = aiplatform_v1beta1.ModelServiceClient(client_options=client_options)
 
     # Container specification for deploying the model
     container_spec = {"image_uri": container_spec_image_uri, "command": [], "args": []}
 
     # The explainabilty method and corresponding parameters
-    parameters = aiplatform.gapic.ExplanationParameters(
+    parameters = aiplatform_v1beta1.ExplanationParameters(
         {"xrai_attribution": {"step_count": 1}}
     )
 
     # The input tensor for feature attribution to the output
     # For single input model, y = f(x), this will be the serving input layer.
-    input_metadata = aiplatform.gapic.ExplanationMetadata.InputMetadata(
+    input_metadata = aiplatform_v1beta1.ExplanationMetadata.InputMetadata(
         {
             "input_tensor_name": input_tensor_name,
             # Input is tabular data
@@ -57,21 +57,21 @@ def upload_model_explain_tabular_managed_container_sample(
 
     # The output tensor to explain
     # For single output model, y = f(x), this will be the serving output layer.
-    output_metadata = aiplatform.gapic.ExplanationMetadata.OutputMetadata(
+    output_metadata = aiplatform_v1beta1.ExplanationMetadata.OutputMetadata(
         {"output_tensor_name": output_tensor_name}
     )
 
     # Assemble the explanation metadata
-    metadata = aiplatform.gapic.ExplanationMetadata(
+    metadata = aiplatform_v1beta1.ExplanationMetadata(
         inputs={"features": input_metadata}, outputs={"prediction": output_metadata}
     )
 
     # Assemble the explanation specification
-    explanation_spec = aiplatform.gapic.ExplanationSpec(
+    explanation_spec = aiplatform_v1beta1.ExplanationSpec(
         parameters=parameters, metadata=metadata
     )
 
-    model = aiplatform.gapic.Model(
+    model = aiplatform_v1beta1.Model(
         display_name=display_name,
         # The Cloud Storage location of the custom model
         artifact_uri=artifact_uri,

@@ -1,5 +1,4 @@
 # -*- coding: utf-8 -*-
-
 # Copyright 2020 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -14,7 +13,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
-
 import proto  # type: ignore
 
 
@@ -37,18 +35,16 @@ class UserActionReference(proto.Message):
         data_labeling_job (str):
             For API calls that start a LabelingJob. Resource name of the
             LabelingJob. Format:
-
             'projects/{project}/locations/{location}/dataLabelingJobs/{data_labeling_job}'
         method (str):
-            The method name of the API call. For example,
-            "/google.cloud.aiplatform.v1alpha1.DatasetService.CreateDataset".
+            The method name of the API RPC call. For
+            example,
+            "/google.cloud.aiplatform.{apiVersion}.DatasetService.CreateDataset".
     """
 
-    operation = proto.Field(proto.STRING, number=1, oneof="reference")
-
-    data_labeling_job = proto.Field(proto.STRING, number=2, oneof="reference")
-
-    method = proto.Field(proto.STRING, number=3)
+    operation = proto.Field(proto.STRING, number=1, oneof="reference",)
+    data_labeling_job = proto.Field(proto.STRING, number=2, oneof="reference",)
+    method = proto.Field(proto.STRING, number=3,)
 
 
 __all__ = tuple(sorted(__protobuf__.manifest))

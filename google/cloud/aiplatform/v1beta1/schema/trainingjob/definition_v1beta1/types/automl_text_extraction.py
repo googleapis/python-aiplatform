@@ -1,5 +1,4 @@
 # -*- coding: utf-8 -*-
-
 # Copyright 2020 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -14,7 +13,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
-
 import proto  # type: ignore
 
 
@@ -29,7 +27,7 @@ class AutoMlTextExtraction(proto.Message):
     Extraction Model.
 
     Attributes:
-        inputs (~.automl_text_extraction.AutoMlTextExtractionInputs):
+        inputs (google.cloud.aiplatform.v1beta1.schema.trainingjob.definition_v1beta1.types.AutoMlTextExtractionInputs):
             The input parameters of this TrainingJob.
     """
 
@@ -37,7 +35,7 @@ class AutoMlTextExtraction(proto.Message):
 
 
 class AutoMlTextExtractionInputs(proto.Message):
-    r""""""
+    r"""    """
 
 
 __all__ = tuple(sorted(__protobuf__.manifest))

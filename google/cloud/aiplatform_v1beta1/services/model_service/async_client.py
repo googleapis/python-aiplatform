@@ -1,5 +1,4 @@
 # -*- coding: utf-8 -*-
-
 # Copyright 2020 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -14,7 +13,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
-
 from collections import OrderedDict
 import functools
 import re
@@ -22,16 +20,17 @@ from typing import Dict, Sequence, Tuple, Type, Union
 import pkg_resources
 
 import google.api_core.client_options as ClientOptions  # type: ignore
-from google.api_core import exceptions  # type: ignore
+from google.api_core import exceptions as core_exceptions  # type: ignore
 from google.api_core import gapic_v1  # type: ignore
 from google.api_core import retry as retries  # type: ignore
-from google.auth import credentials  # type: ignore
+from google.auth import credentials as ga_credentials  # type: ignore
 from google.oauth2 import service_account  # type: ignore
 
-from google.api_core import operation as ga_operation  # type: ignore
+from google.api_core import operation as gac_operation  # type: ignore
 from google.api_core import operation_async  # type: ignore
 from google.cloud.aiplatform_v1beta1.services.model_service import pagers
 from google.cloud.aiplatform_v1beta1.types import deployed_model_ref
+from google.cloud.aiplatform_v1beta1.types import encryption_spec
 from google.cloud.aiplatform_v1beta1.types import explanation
 from google.cloud.aiplatform_v1beta1.types import model
 from google.cloud.aiplatform_v1beta1.types import model as gca_model
@@ -39,18 +38,17 @@ from google.cloud.aiplatform_v1beta1.types import model_evaluation
 from google.cloud.aiplatform_v1beta1.types import model_evaluation_slice
 from google.cloud.aiplatform_v1beta1.types import model_service
 from google.cloud.aiplatform_v1beta1.types import operation as gca_operation
-from google.protobuf import empty_pb2 as empty  # type: ignore
-from google.protobuf import field_mask_pb2 as field_mask  # type: ignore
-from google.protobuf import struct_pb2 as struct  # type: ignore
-from google.protobuf import timestamp_pb2 as timestamp  # type: ignore
-
+from google.protobuf import empty_pb2  # type: ignore
+from google.protobuf import field_mask_pb2  # type: ignore
+from google.protobuf import struct_pb2  # type: ignore
+from google.protobuf import timestamp_pb2  # type: ignore
 from .transports.base import ModelServiceTransport, DEFAULT_CLIENT_INFO
 from .transports.grpc_asyncio import ModelServiceGrpcAsyncIOTransport
 from .client import ModelServiceClient
 
 
 class ModelServiceAsyncClient:
-    """A service for managing AI Platform's machine learning Models."""
+    """A service for managing Vertex AI's machine learning Models."""
 
     _client: ModelServiceClient
 
@@ -75,38 +73,63 @@ class ModelServiceAsyncClient:
     parse_training_pipeline_path = staticmethod(
         ModelServiceClient.parse_training_pipeline_path
     )
-
     common_billing_account_path = staticmethod(
         ModelServiceClient.common_billing_account_path
     )
     parse_common_billing_account_path = staticmethod(
         ModelServiceClient.parse_common_billing_account_path
     )
-
     common_folder_path = staticmethod(ModelServiceClient.common_folder_path)
     parse_common_folder_path = staticmethod(ModelServiceClient.parse_common_folder_path)
-
     common_organization_path = staticmethod(ModelServiceClient.common_organization_path)
     parse_common_organization_path = staticmethod(
         ModelServiceClient.parse_common_organization_path
     )
-
     common_project_path = staticmethod(ModelServiceClient.common_project_path)
     parse_common_project_path = staticmethod(
         ModelServiceClient.parse_common_project_path
     )
-
     common_location_path = staticmethod(ModelServiceClient.common_location_path)
     parse_common_location_path = staticmethod(
         ModelServiceClient.parse_common_location_path
     )
 
-    from_service_account_file = ModelServiceClient.from_service_account_file
+    @classmethod
+    def from_service_account_info(cls, info: dict, *args, **kwargs):
+        """Creates an instance of this client using the provided credentials
+            info.
+
+        Args:
+            info (dict): The service account private key info.
+            args: Additional arguments to pass to the constructor.
+            kwargs: Additional arguments to pass to the constructor.
+
+        Returns:
+            ModelServiceAsyncClient: The constructed client.
+        """
+        return ModelServiceClient.from_service_account_info.__func__(ModelServiceAsyncClient, info, *args, **kwargs)  # type: ignore
+
+    @classmethod
+    def from_service_account_file(cls, filename: str, *args, **kwargs):
+        """Creates an instance of this client using the provided credentials
+            file.
+
+        Args:
+            filename (str): The path to the service account private key json
+                file.
+            args: Additional arguments to pass to the constructor.
+            kwargs: Additional arguments to pass to the constructor.
+
+        Returns:
+            ModelServiceAsyncClient: The constructed client.
+        """
+        return ModelServiceClient.from_service_account_file.__func__(ModelServiceAsyncClient, filename, *args, **kwargs)  # type: ignore
+
     from_service_account_json = from_service_account_file
 
     @property
     def transport(self) -> ModelServiceTransport:
-        """Return the transport used by the client instance.
+        """Returns the transport used by the client instance.
 
         Returns:
             ModelServiceTransport: The transport used by the client instance.
@@ -120,12 +143,12 @@ class ModelServiceAsyncClient:
     def __init__(
         self,
         *,
-        credentials: credentials.Credentials = None,
+        credentials: ga_credentials.Credentials = None,
         transport: Union[str, ModelServiceTransport] = "grpc_asyncio",
         client_options: ClientOptions = None,
         client_info: gapic_v1.client_info.ClientInfo = DEFAULT_CLIENT_INFO,
     ) -> None:
-        """Instantiate the model service client.
+        """Instantiates the model service client.
 
         Args:
             credentials (Optional[google.auth.credentials.Credentials]): The
@@ -157,7 +180,6 @@ class ModelServiceAsyncClient:
             google.auth.exceptions.MutualTlsChannelError: If mutual TLS transport
                 creation failed for any reason.
         """
-
         self._client = ModelServiceClient(
             credentials=credentials,
             transport=transport,
@@ -175,25 +197,25 @@ class ModelServiceAsyncClient:
         timeout: float = None,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> operation_async.AsyncOperation:
-        r"""Uploads a Model artifact into AI Platform.
+        r"""Uploads a Model artifact into Vertex AI.
 
         Args:
-            request (:class:`~.model_service.UploadModelRequest`):
+            request (:class:`google.cloud.aiplatform_v1beta1.types.UploadModelRequest`):
                 The request object. Request message for
-                ``ModelService.UploadModel``.
+                [ModelService.UploadModel][google.cloud.aiplatform.v1beta1.ModelService.UploadModel].
             parent (:class:`str`):
                 Required. The resource name of the Location into which
                 to upload the Model. Format:
                 ``projects/{project}/locations/{location}``
+
                 This corresponds to the ``parent`` field
                 on the ``request`` instance; if ``request`` is provided, this
                 should not be set.
-            model (:class:`~.gca_model.Model`):
+            model (:class:`google.cloud.aiplatform_v1beta1.types.Model`):
                 Required. The Model to create.
                 This corresponds to the ``model`` field
                 on the ``request`` instance; if ``request`` is provided, this
                 should not be set.
-
             retry (google.api_core.retry.Retry): Designation of what errors, if any,
                 should be retried.
             timeout (float): The timeout for this request.
@@ -201,13 +223,13 @@ class ModelServiceAsyncClient:
                 sent along with the request as metadata.
 
         Returns:
-            ~.operation_async.AsyncOperation:
+            google.api_core.operation_async.AsyncOperation:
                 An object representing a long-running operation.
 
                 The result type for the operation will be
-                :class:`~.model_service.UploadModelResponse`: Response
-                message of
-                ``ModelService.UploadModel``
+                :class:`google.cloud.aiplatform_v1beta1.types.UploadModelResponse`
+                Response message of
+                [ModelService.UploadModel][google.cloud.aiplatform.v1beta1.ModelService.UploadModel]
                 operation.
 
         """
@@ -225,7 +247,6 @@ class ModelServiceAsyncClient:
 
         # If we have keyword arguments corresponding to fields on the
         # request, apply these.
-
         if parent is not None:
             request.parent = parent
         if model is not None:
@@ -271,16 +292,16 @@ class ModelServiceAsyncClient:
         r"""Gets a Model.
 
         Args:
-            request (:class:`~.model_service.GetModelRequest`):
+            request (:class:`google.cloud.aiplatform_v1beta1.types.GetModelRequest`):
                 The request object. Request message for
-                ``ModelService.GetModel``.
+                [ModelService.GetModel][google.cloud.aiplatform.v1beta1.ModelService.GetModel].
             name (:class:`str`):
                 Required. The name of the Model resource. Format:
                 ``projects/{project}/locations/{location}/models/{model}``
+
                 This corresponds to the ``name`` field
                 on the ``request`` instance; if ``request`` is provided, this
                 should not be set.
-
             retry (google.api_core.retry.Retry): Designation of what errors, if any,
                 should be retried.
             timeout (float): The timeout for this request.
@@ -288,7 +309,7 @@ class ModelServiceAsyncClient:
                 sent along with the request as metadata.
 
         Returns:
-            ~.model.Model:
+            google.cloud.aiplatform_v1beta1.types.Model:
                 A trained machine learning Model.
         """
         # Create or coerce a protobuf request object.
@@ -305,7 +326,6 @@ class ModelServiceAsyncClient:
 
         # If we have keyword arguments corresponding to fields on the
         # request, apply these.
-
         if name is not None:
             request.name = name
 
@@ -341,17 +361,17 @@ class ModelServiceAsyncClient:
         r"""Lists Models in a Location.
 
         Args:
-            request (:class:`~.model_service.ListModelsRequest`):
+            request (:class:`google.cloud.aiplatform_v1beta1.types.ListModelsRequest`):
                 The request object. Request message for
-                ``ModelService.ListModels``.
+                [ModelService.ListModels][google.cloud.aiplatform.v1beta1.ModelService.ListModels].
             parent (:class:`str`):
                 Required. The resource name of the Location to list the
                 Models from. Format:
                 ``projects/{project}/locations/{location}``
+
                 This corresponds to the ``parent`` field
                 on the ``request`` instance; if ``request`` is provided, this
                 should not be set.
-
             retry (google.api_core.retry.Retry): Designation of what errors, if any,
                 should be retried.
             timeout (float): The timeout for this request.
@@ -359,9 +379,9 @@ class ModelServiceAsyncClient:
                 sent along with the request as metadata.
 
         Returns:
-            ~.pagers.ListModelsAsyncPager:
+            google.cloud.aiplatform_v1beta1.services.model_service.pagers.ListModelsAsyncPager:
                 Response message for
-                ``ModelService.ListModels``
+                [ModelService.ListModels][google.cloud.aiplatform.v1beta1.ModelService.ListModels]
 
                 Iterating over this object will yield results and
                 resolve additional pages automatically.
@@ -381,7 +401,6 @@ class ModelServiceAsyncClient:
 
         # If we have keyword arguments corresponding to fields on the
         # request, apply these.
-
         if parent is not None:
             request.parent = parent
 
@@ -416,7 +435,7 @@ class ModelServiceAsyncClient:
         request: model_service.UpdateModelRequest = None,
         *,
         model: gca_model.Model = None,
-        update_mask: field_mask.FieldMask = None,
+        update_mask: field_mask_pb2.FieldMask = None,
         retry: retries.Retry = gapic_v1.method.DEFAULT,
         timeout: float = None,
         metadata: Sequence[Tuple[str, str]] = (),
@@ -424,24 +443,24 @@ class ModelServiceAsyncClient:
         r"""Updates a Model.
 
         Args:
-            request (:class:`~.model_service.UpdateModelRequest`):
+            request (:class:`google.cloud.aiplatform_v1beta1.types.UpdateModelRequest`):
                 The request object. Request message for
-                ``ModelService.UpdateModel``.
-            model (:class:`~.gca_model.Model`):
+                [ModelService.UpdateModel][google.cloud.aiplatform.v1beta1.ModelService.UpdateModel].
+            model (:class:`google.cloud.aiplatform_v1beta1.types.Model`):
                 Required. The Model which replaces
                 the resource on the server.
+
                 This corresponds to the ``model`` field
                 on the ``request`` instance; if ``request`` is provided, this
                 should not be set.
-            update_mask (:class:`~.field_mask.FieldMask`):
+            update_mask (:class:`google.protobuf.field_mask_pb2.FieldMask`):
                 Required. The update mask applies to the resource. For
                 the ``FieldMask`` definition, see
+                [google.protobuf.FieldMask][google.protobuf.FieldMask].
 
-                [FieldMask](https://developers.google.com/protocol-buffers/docs/reference/google.protobuf#fieldmask).
                 This corresponds to the ``update_mask`` field
                 on the ``request`` instance; if ``request`` is provided, this
                 should not be set.
-
             retry (google.api_core.retry.Retry): Designation of what errors, if any,
                 should be retried.
             timeout (float): The timeout for this request.
@@ -449,7 +468,7 @@ class ModelServiceAsyncClient:
                 sent along with the request as metadata.
 
         Returns:
-            ~.gca_model.Model:
+            google.cloud.aiplatform_v1beta1.types.Model:
                 A trained machine learning Model.
         """
         # Create or coerce a protobuf request object.
@@ -466,7 +485,6 @@ class ModelServiceAsyncClient:
 
         # If we have keyword arguments corresponding to fields on the
         # request, apply these.
-
         if model is not None:
             request.model = model
         if update_mask is not None:
@@ -508,17 +526,17 @@ class ModelServiceAsyncClient:
         DeployedModels created from it.
 
         Args:
-            request (:class:`~.model_service.DeleteModelRequest`):
+            request (:class:`google.cloud.aiplatform_v1beta1.types.DeleteModelRequest`):
                 The request object. Request message for
-                ``ModelService.DeleteModel``.
+                [ModelService.DeleteModel][google.cloud.aiplatform.v1beta1.ModelService.DeleteModel].
             name (:class:`str`):
                 Required. The name of the Model resource to be deleted.
                 Format:
                 ``projects/{project}/locations/{location}/models/{model}``
+
                 This corresponds to the ``name`` field
                 on the ``request`` instance; if ``request`` is provided, this
                 should not be set.
-
             retry (google.api_core.retry.Retry): Designation of what errors, if any,
                 should be retried.
             timeout (float): The timeout for this request.
@@ -526,24 +544,22 @@ class ModelServiceAsyncClient:
                 sent along with the request as metadata.
 
         Returns:
-            ~.operation_async.AsyncOperation:
+            google.api_core.operation_async.AsyncOperation:
                 An object representing a long-running operation.
 
-                The result type for the operation will be
-                :class:`~.empty.Empty`: A generic empty message that
-                you can re-use to avoid defining duplicated empty
-                messages in your APIs. A typical example is to use it as
-                the request or the response type of an API method. For
-                instance:
+                The result type for the operation will be :class:`google.protobuf.empty_pb2.Empty` A generic empty message that you can re-use to avoid defining duplicated
+                   empty messages in your APIs. A typical example is to
+                   use it as the request or the response type of an API
+                   method. For instance:
 
-                ::
+                      service Foo {
+                         rpc Bar(google.protobuf.Empty) returns
+                         (google.protobuf.Empty);
 
-                    service Foo {
-                      rpc Bar(google.protobuf.Empty) returns (google.protobuf.Empty);
-                    }
+                      }
 
-                The JSON representation for ``Empty`` is empty JSON
-                object ``{}``.
+                   The JSON representation for Empty is empty JSON
+                   object {}.
 
         """
         # Create or coerce a protobuf request object.
@@ -560,7 +576,6 @@ class ModelServiceAsyncClient:
 
         # If we have keyword arguments corresponding to fields on the
         # request, apply these.
-
         if name is not None:
             request.name = name
 
@@ -585,7 +600,7 @@ class ModelServiceAsyncClient:
         response = operation_async.from_gapic(
             response,
             self._client._transport.operations_client,
-            empty.Empty,
+            empty_pb2.Empty,
             metadata_type=gca_operation.DeleteOperationMetadata,
         )
 
@@ -608,23 +623,24 @@ class ModelServiceAsyncClient:
         format][google.cloud.aiplatform.v1beta1.Model.supported_export_formats].
 
         Args:
-            request (:class:`~.model_service.ExportModelRequest`):
+            request (:class:`google.cloud.aiplatform_v1beta1.types.ExportModelRequest`):
                 The request object. Request message for
-                ``ModelService.ExportModel``.
+                [ModelService.ExportModel][google.cloud.aiplatform.v1beta1.ModelService.ExportModel].
             name (:class:`str`):
                 Required. The resource name of the Model to export.
                 Format:
                 ``projects/{project}/locations/{location}/models/{model}``
+
                 This corresponds to the ``name`` field
                 on the ``request`` instance; if ``request`` is provided, this
                 should not be set.
-            output_config (:class:`~.model_service.ExportModelRequest.OutputConfig`):
+            output_config (:class:`google.cloud.aiplatform_v1beta1.types.ExportModelRequest.OutputConfig`):
                 Required. The desired output location
                 and configuration.
+
                 This corresponds to the ``output_config`` field
                 on the ``request`` instance; if ``request`` is provided, this
                 should not be set.
-
             retry (google.api_core.retry.Retry): Designation of what errors, if any,
                 should be retried.
             timeout (float): The timeout for this request.
@@ -632,13 +648,13 @@ class ModelServiceAsyncClient:
                 sent along with the request as metadata.
 
         Returns:
-            ~.operation_async.AsyncOperation:
+            google.api_core.operation_async.AsyncOperation:
                 An object representing a long-running operation.
 
                 The result type for the operation will be
-                :class:`~.model_service.ExportModelResponse`: Response
-                message of
-                ``ModelService.ExportModel``
+                :class:`google.cloud.aiplatform_v1beta1.types.ExportModelResponse`
+                Response message of
+                [ModelService.ExportModel][google.cloud.aiplatform.v1beta1.ModelService.ExportModel]
                 operation.
 
         """
@@ -656,7 +672,6 @@ class ModelServiceAsyncClient:
 
         # If we have keyword arguments corresponding to fields on the
         # request, apply these.
-
         if name is not None:
             request.name = name
         if output_config is not None:
@@ -702,18 +717,17 @@ class ModelServiceAsyncClient:
         r"""Gets a ModelEvaluation.
 
         Args:
-            request (:class:`~.model_service.GetModelEvaluationRequest`):
+            request (:class:`google.cloud.aiplatform_v1beta1.types.GetModelEvaluationRequest`):
                 The request object. Request message for
-                ``ModelService.GetModelEvaluation``.
+                [ModelService.GetModelEvaluation][google.cloud.aiplatform.v1beta1.ModelService.GetModelEvaluation].
             name (:class:`str`):
                 Required. The name of the ModelEvaluation resource.
                 Format:
-
                 ``projects/{project}/locations/{location}/models/{model}/evaluations/{evaluation}``
+
                 This corresponds to the ``name`` field
                 on the ``request`` instance; if ``request`` is provided, this
                 should not be set.
-
             retry (google.api_core.retry.Retry): Designation of what errors, if any,
                 should be retried.
             timeout (float): The timeout for this request.
@@ -721,7 +735,7 @@ class ModelServiceAsyncClient:
                 sent along with the request as metadata.
 
         Returns:
-            ~.model_evaluation.ModelEvaluation:
+            google.cloud.aiplatform_v1beta1.types.ModelEvaluation:
                 A collection of metrics calculated by
                 comparing Model's predictions on all of
                 the test data against annotations from
@@ -742,7 +756,6 @@ class ModelServiceAsyncClient:
 
         # If we have keyword arguments corresponding to fields on the
         # request, apply these.
-
         if name is not None:
             request.name = name
 
@@ -778,17 +791,17 @@ class ModelServiceAsyncClient:
         r"""Lists ModelEvaluations in a Model.
 
         Args:
-            request (:class:`~.model_service.ListModelEvaluationsRequest`):
+            request (:class:`google.cloud.aiplatform_v1beta1.types.ListModelEvaluationsRequest`):
                 The request object. Request message for
-                ``ModelService.ListModelEvaluations``.
+                [ModelService.ListModelEvaluations][google.cloud.aiplatform.v1beta1.ModelService.ListModelEvaluations].
             parent (:class:`str`):
                 Required. The resource name of the Model to list the
                 ModelEvaluations from. Format:
                 ``projects/{project}/locations/{location}/models/{model}``
+
                 This corresponds to the ``parent`` field
                 on the ``request`` instance; if ``request`` is provided, this
                 should not be set.
-
             retry (google.api_core.retry.Retry): Designation of what errors, if any,
                 should be retried.
             timeout (float): The timeout for this request.
@@ -796,9 +809,9 @@ class ModelServiceAsyncClient:
                 sent along with the request as metadata.
 
         Returns:
-            ~.pagers.ListModelEvaluationsAsyncPager:
+            google.cloud.aiplatform_v1beta1.services.model_service.pagers.ListModelEvaluationsAsyncPager:
                 Response message for
-                ``ModelService.ListModelEvaluations``.
+                [ModelService.ListModelEvaluations][google.cloud.aiplatform.v1beta1.ModelService.ListModelEvaluations].
 
                 Iterating over this object will yield results and
                 resolve additional pages automatically.
@@ -818,7 +831,6 @@ class ModelServiceAsyncClient:
 
         # If we have keyword arguments corresponding to fields on the
         # request, apply these.
-
         if parent is not None:
             request.parent = parent
 
@@ -860,18 +872,17 @@ class ModelServiceAsyncClient:
         r"""Gets a ModelEvaluationSlice.
 
         Args:
-            request (:class:`~.model_service.GetModelEvaluationSliceRequest`):
+            request (:class:`google.cloud.aiplatform_v1beta1.types.GetModelEvaluationSliceRequest`):
                 The request object. Request message for
-                ``ModelService.GetModelEvaluationSlice``.
+                [ModelService.GetModelEvaluationSlice][google.cloud.aiplatform.v1beta1.ModelService.GetModelEvaluationSlice].
             name (:class:`str`):
                 Required. The name of the ModelEvaluationSlice resource.
                 Format:
-
                 ``projects/{project}/locations/{location}/models/{model}/evaluations/{evaluation}/slices/{slice}``
+
                 This corresponds to the ``name`` field
                 on the ``request`` instance; if ``request`` is provided, this
                 should not be set.
-
             retry (google.api_core.retry.Retry): Designation of what errors, if any,
                 should be retried.
             timeout (float): The timeout for this request.
@@ -879,7 +890,7 @@ class ModelServiceAsyncClient:
                 sent along with the request as metadata.
 
         Returns:
-            ~.model_evaluation_slice.ModelEvaluationSlice:
+            google.cloud.aiplatform_v1beta1.types.ModelEvaluationSlice:
                 A collection of metrics calculated by
                 comparing Model's predictions on a slice
                 of the test data against ground truth
@@ -900,7 +911,6 @@ class ModelServiceAsyncClient:
 
         # If we have keyword arguments corresponding to fields on the
         # request, apply these.
-
         if name is not None:
             request.name = name
 
@@ -936,18 +946,17 @@ class ModelServiceAsyncClient:
         r"""Lists ModelEvaluationSlices in a ModelEvaluation.
 
         Args:
-            request (:class:`~.model_service.ListModelEvaluationSlicesRequest`):
+            request (:class:`google.cloud.aiplatform_v1beta1.types.ListModelEvaluationSlicesRequest`):
                 The request object. Request message for
-                ``ModelService.ListModelEvaluationSlices``.
+                [ModelService.ListModelEvaluationSlices][google.cloud.aiplatform.v1beta1.ModelService.ListModelEvaluationSlices].
             parent (:class:`str`):
                 Required. The resource name of the ModelEvaluation to
                 list the ModelEvaluationSlices from. Format:
-
                 ``projects/{project}/locations/{location}/models/{model}/evaluations/{evaluation}``
+
                 This corresponds to the ``parent`` field
                 on the ``request`` instance; if ``request`` is provided, this
                 should not be set.
-
             retry (google.api_core.retry.Retry): Designation of what errors, if any,
                 should be retried.
             timeout (float): The timeout for this request.
@@ -955,9 +964,9 @@ class ModelServiceAsyncClient:
                 sent along with the request as metadata.
 
         Returns:
-            ~.pagers.ListModelEvaluationSlicesAsyncPager:
+            google.cloud.aiplatform_v1beta1.services.model_service.pagers.ListModelEvaluationSlicesAsyncPager:
                 Response message for
-                ``ModelService.ListModelEvaluationSlices``.
+                [ModelService.ListModelEvaluationSlices][google.cloud.aiplatform.v1beta1.ModelService.ListModelEvaluationSlices].
 
                 Iterating over this object will yield results and
                 resolve additional pages automatically.
@@ -977,7 +986,6 @@ class ModelServiceAsyncClient:
 
         # If we have keyword arguments corresponding to fields on the
         # request, apply these.
-
         if parent is not None:
             request.parent = parent
 

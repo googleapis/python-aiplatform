@@ -1,5 +1,4 @@
 # -*- coding: utf-8 -*-
-
 # Copyright 2020 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -14,8 +13,16 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
-
-from typing import Any, AsyncIterable, Awaitable, Callable, Iterable, Sequence, Tuple
+from typing import (
+    Any,
+    AsyncIterable,
+    Awaitable,
+    Callable,
+    Iterable,
+    Sequence,
+    Tuple,
+    Optional,
+)
 
 from google.cloud.aiplatform_v1beta1.types import annotation
 from google.cloud.aiplatform_v1beta1.types import data_item
@@ -27,7 +34,7 @@ class ListDatasetsPager:
     """A pager for iterating through ``list_datasets`` requests.
 
     This class thinly wraps an initial
-    :class:`~.dataset_service.ListDatasetsResponse` object, and
+    :class:`google.cloud.aiplatform_v1beta1.types.ListDatasetsResponse` object, and
     provides an ``__iter__`` method to iterate through its
     ``datasets`` field.
 
@@ -36,7 +43,7 @@ class ListDatasetsPager:
     through the ``datasets`` field on the
     corresponding responses.
 
-    All the usual :class:`~.dataset_service.ListDatasetsResponse`
+    All the usual :class:`google.cloud.aiplatform_v1beta1.types.ListDatasetsResponse`
     attributes are available on the pager. If multiple requests are made, only
     the most recent response is retained, and thus used for attribute lookup.
     """
@@ -54,9 +61,9 @@ class ListDatasetsPager:
         Args:
             method (Callable): The method that was originally called, and
                 which instantiated this pager.
-            request (:class:`~.dataset_service.ListDatasetsRequest`):
+            request (google.cloud.aiplatform_v1beta1.types.ListDatasetsRequest):
                 The initial request object.
-            response (:class:`~.dataset_service.ListDatasetsResponse`):
+            response (google.cloud.aiplatform_v1beta1.types.ListDatasetsResponse):
                 The initial response object.
             metadata (Sequence[Tuple[str, str]]): Strings which should be
                 sent along with the request as metadata.
@@ -89,7 +96,7 @@ class ListDatasetsAsyncPager:
     """A pager for iterating through ``list_datasets`` requests.
 
     This class thinly wraps an initial
-    :class:`~.dataset_service.ListDatasetsResponse` object, and
+    :class:`google.cloud.aiplatform_v1beta1.types.ListDatasetsResponse` object, and
     provides an ``__aiter__`` method to iterate through its
     ``datasets`` field.
 
@@ -98,7 +105,7 @@ class ListDatasetsAsyncPager:
     through the ``datasets`` field on the
     corresponding responses.
 
-    All the usual :class:`~.dataset_service.ListDatasetsResponse`
+    All the usual :class:`google.cloud.aiplatform_v1beta1.types.ListDatasetsResponse`
     attributes are available on the pager. If multiple requests are made, only
     the most recent response is retained, and thus used for attribute lookup.
     """
@@ -111,14 +118,14 @@ class ListDatasetsAsyncPager:
         *,
         metadata: Sequence[Tuple[str, str]] = ()
     ):
-        """Instantiate the pager.
+        """Instantiates the pager.
 
         Args:
             method (Callable): The method that was originally called, and
                 which instantiated this pager.
-            request (:class:`~.dataset_service.ListDatasetsRequest`):
+            request (google.cloud.aiplatform_v1beta1.types.ListDatasetsRequest):
                 The initial request object.
-            response (:class:`~.dataset_service.ListDatasetsResponse`):
+            response (google.cloud.aiplatform_v1beta1.types.ListDatasetsResponse):
                 The initial response object.
             metadata (Sequence[Tuple[str, str]]): Strings which should be
                 sent along with the request as metadata.
@@ -155,7 +162,7 @@ class ListDataItemsPager:
     """A pager for iterating through ``list_data_items`` requests.
 
     This class thinly wraps an initial
-    :class:`~.dataset_service.ListDataItemsResponse` object, and
+    :class:`google.cloud.aiplatform_v1beta1.types.ListDataItemsResponse` object, and
     provides an ``__iter__`` method to iterate through its
     ``data_items`` field.
 
@@ -164,7 +171,7 @@ class ListDataItemsPager:
     through the ``data_items`` field on the
     corresponding responses.
 
-    All the usual :class:`~.dataset_service.ListDataItemsResponse`
+    All the usual :class:`google.cloud.aiplatform_v1beta1.types.ListDataItemsResponse`
     attributes are available on the pager. If multiple requests are made, only
     the most recent response is retained, and thus used for attribute lookup.
     """
@@ -182,9 +189,9 @@ class ListDataItemsPager:
         Args:
             method (Callable): The method that was originally called, and
                 which instantiated this pager.
-            request (:class:`~.dataset_service.ListDataItemsRequest`):
+            request (google.cloud.aiplatform_v1beta1.types.ListDataItemsRequest):
                 The initial request object.
-            response (:class:`~.dataset_service.ListDataItemsResponse`):
+            response (google.cloud.aiplatform_v1beta1.types.ListDataItemsResponse):
                 The initial response object.
             metadata (Sequence[Tuple[str, str]]): Strings which should be
                 sent along with the request as metadata.
@@ -217,7 +224,7 @@ class ListDataItemsAsyncPager:
     """A pager for iterating through ``list_data_items`` requests.
 
     This class thinly wraps an initial
-    :class:`~.dataset_service.ListDataItemsResponse` object, and
+    :class:`google.cloud.aiplatform_v1beta1.types.ListDataItemsResponse` object, and
     provides an ``__aiter__`` method to iterate through its
     ``data_items`` field.
 
@@ -226,7 +233,7 @@ class ListDataItemsAsyncPager:
     through the ``data_items`` field on the
     corresponding responses.
 
-    All the usual :class:`~.dataset_service.ListDataItemsResponse`
+    All the usual :class:`google.cloud.aiplatform_v1beta1.types.ListDataItemsResponse`
     attributes are available on the pager. If multiple requests are made, only
     the most recent response is retained, and thus used for attribute lookup.
     """
@@ -239,14 +246,14 @@ class ListDataItemsAsyncPager:
         *,
         metadata: Sequence[Tuple[str, str]] = ()
     ):
-        """Instantiate the pager.
+        """Instantiates the pager.
 
         Args:
             method (Callable): The method that was originally called, and
                 which instantiated this pager.
-            request (:class:`~.dataset_service.ListDataItemsRequest`):
+            request (google.cloud.aiplatform_v1beta1.types.ListDataItemsRequest):
                 The initial request object.
-            response (:class:`~.dataset_service.ListDataItemsResponse`):
+            response (google.cloud.aiplatform_v1beta1.types.ListDataItemsResponse):
                 The initial response object.
             metadata (Sequence[Tuple[str, str]]): Strings which should be
                 sent along with the request as metadata.
@@ -283,7 +290,7 @@ class ListAnnotationsPager:
     """A pager for iterating through ``list_annotations`` requests.
 
     This class thinly wraps an initial
-    :class:`~.dataset_service.ListAnnotationsResponse` object, and
+    :class:`google.cloud.aiplatform_v1beta1.types.ListAnnotationsResponse` object, and
     provides an ``__iter__`` method to iterate through its
     ``annotations`` field.
 
@@ -292,7 +299,7 @@ class ListAnnotationsPager:
     through the ``annotations`` field on the
     corresponding responses.
 
-    All the usual :class:`~.dataset_service.ListAnnotationsResponse`
+    All the usual :class:`google.cloud.aiplatform_v1beta1.types.ListAnnotationsResponse`
     attributes are available on the pager. If multiple requests are made, only
     the most recent response is retained, and thus used for attribute lookup.
     """
@@ -310,9 +317,9 @@ class ListAnnotationsPager:
         Args:
             method (Callable): The method that was originally called, and
                 which instantiated this pager.
-            request (:class:`~.dataset_service.ListAnnotationsRequest`):
+            request (google.cloud.aiplatform_v1beta1.types.ListAnnotationsRequest):
                 The initial request object.
-            response (:class:`~.dataset_service.ListAnnotationsResponse`):
+            response (google.cloud.aiplatform_v1beta1.types.ListAnnotationsResponse):
                 The initial response object.
             metadata (Sequence[Tuple[str, str]]): Strings which should be
                 sent along with the request as metadata.
@@ -345,7 +352,7 @@ class ListAnnotationsAsyncPager:
     """A pager for iterating through ``list_annotations`` requests.
 
     This class thinly wraps an initial
-    :class:`~.dataset_service.ListAnnotationsResponse` object, and
+    :class:`google.cloud.aiplatform_v1beta1.types.ListAnnotationsResponse` object, and
     provides an ``__aiter__`` method to iterate through its
     ``annotations`` field.
 
@@ -354,7 +361,7 @@ class ListAnnotationsAsyncPager:
     through the ``annotations`` field on the
     corresponding responses.
 
-    All the usual :class:`~.dataset_service.ListAnnotationsResponse`
+    All the usual :class:`google.cloud.aiplatform_v1beta1.types.ListAnnotationsResponse`
     attributes are available on the pager. If multiple requests are made, only
     the most recent response is retained, and thus used for attribute lookup.
     """
@@ -367,14 +374,14 @@ class ListAnnotationsAsyncPager:
         *,
         metadata: Sequence[Tuple[str, str]] = ()
     ):
-        """Instantiate the pager.
+        """Instantiates the pager.
 
         Args:
             method (Callable): The method that was originally called, and
                 which instantiated this pager.
-            request (:class:`~.dataset_service.ListAnnotationsRequest`):
+            request (google.cloud.aiplatform_v1beta1.types.ListAnnotationsRequest):
                 The initial request object.
-            response (:class:`~.dataset_service.ListAnnotationsResponse`):
+            response (google.cloud.aiplatform_v1beta1.types.ListAnnotationsResponse):
                 The initial response object.
             metadata (Sequence[Tuple[str, str]]): Strings which should be
                 sent along with the request as metadata.

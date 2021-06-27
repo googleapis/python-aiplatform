@@ -21,7 +21,7 @@ import os
 import setuptools  # type: ignore
 
 name = "google-cloud-aiplatform"
-version = "0.4.0"
+version = "1.1.1"
 description = "Cloud AI Platform API client library"
 
 package_root = os.path.abspath(os.path.dirname(__file__))
@@ -29,12 +29,31 @@ readme_filename = os.path.join(package_root, "README.rst")
 with io.open(readme_filename, encoding="utf-8") as readme_file:
     readme = readme_file.read()
 
+tensorboard_extra_require = [
+    "tensorflow-cpu>=2.3.0, <=2.5.0",
+    "grpcio~=1.38.1",
+    "six~=1.15.0",
+]
+metadata_extra_require = ["pandas >= 1.0.0"]
+full_extra_require = tensorboard_extra_require + metadata_extra_require
+testing_extra_require = full_extra_require + ["grpcio-testing~=1.38.1"]
+
+
 setuptools.setup(
     name=name,
     version=version,
     description=description,
     long_description=readme,
-    packages=setuptools.PEP420PackageFinder.find(),
+    packages=[
+        package
+        for package in setuptools.PEP420PackageFinder.find()
+        if package.startswith("google")
+    ],
+    entry_points={
+        "console_scripts": [
+            "tb-gcp-uploader=google.cloud.aiplatform.tensorboard.uploader_main:run_main"
+        ],
+    },
     namespace_packages=("google", "google.cloud"),
     author="Google LLC",
     author_email="googleapis-packages@google.com",
@@ -44,15 +63,21 @@ setuptools.setup(
     include_package_data=True,
     install_requires=(
         "google-api-core[grpc] >= 1.22.2, < 2.0.0dev",
-        "libcst >= 0.2.5",
         "proto-plus >= 1.10.1",
-        "mock >= 4.0.2",
-        "google-cloud-storage >= 1.26.0, < 2.0.0dev",
+        "packaging >= 14.3",
+        "google-cloud-storage >= 1.32.0, < 2.0.0dev",
+        "google-cloud-bigquery >= 1.15.0, < 3.0.0dev",
     ),
+    extras_require={
+        "full": full_extra_require,
+        "metadata": metadata_extra_require,
+        "tensorboard": tensorboard_extra_require,
+        "testing": testing_extra_require,
+    },
     python_requires=">=3.6",
     scripts=[],
     classifiers=[
-        "Development Status :: 4 - Beta",
+        "Development Status :: 5 - Production/Stable",
         "Intended Audience :: Developers",
         "Operating System :: OS Independent",
         "Programming Language :: Python :: 3.6",

@@ -21,7 +21,7 @@ import create_hyperparameter_tuning_job_sample
 import helpers
 
 PROJECT_ID = os.getenv("BUILD_SPECIFIC_GCLOUD_PROJECT")
-CONTAINER_IMAGE_URI = "gcr.io/ucaip-test/ucaip-training-test:latest"
+CONTAINER_IMAGE_URI = "gcr.io/ucaip-sample-tests/ucaip-training-test:latest"
 
 
 @pytest.fixture(scope="function", autouse=True)

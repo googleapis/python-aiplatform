@@ -1,5 +1,4 @@
 # -*- coding: utf-8 -*-
-
 # Copyright 2020 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -14,8 +13,16 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
-
-from typing import Any, AsyncIterable, Awaitable, Callable, Iterable, Sequence, Tuple
+from typing import (
+    Any,
+    AsyncIterable,
+    Awaitable,
+    Callable,
+    Iterable,
+    Sequence,
+    Tuple,
+    Optional,
+)
 
 from google.cloud.aiplatform_v1beta1.types import model
 from google.cloud.aiplatform_v1beta1.types import model_evaluation
@@ -27,7 +34,7 @@ class ListModelsPager:
     """A pager for iterating through ``list_models`` requests.
 
     This class thinly wraps an initial
-    :class:`~.model_service.ListModelsResponse` object, and
+    :class:`google.cloud.aiplatform_v1beta1.types.ListModelsResponse` object, and
     provides an ``__iter__`` method to iterate through its
     ``models`` field.
 
@@ -36,7 +43,7 @@ class ListModelsPager:
     through the ``models`` field on the
     corresponding responses.
 
-    All the usual :class:`~.model_service.ListModelsResponse`
+    All the usual :class:`google.cloud.aiplatform_v1beta1.types.ListModelsResponse`
     attributes are available on the pager. If multiple requests are made, only
     the most recent response is retained, and thus used for attribute lookup.
     """
@@ -54,9 +61,9 @@ class ListModelsPager:
         Args:
             method (Callable): The method that was originally called, and
                 which instantiated this pager.
-            request (:class:`~.model_service.ListModelsRequest`):
+            request (google.cloud.aiplatform_v1beta1.types.ListModelsRequest):
                 The initial request object.
-            response (:class:`~.model_service.ListModelsResponse`):
+            response (google.cloud.aiplatform_v1beta1.types.ListModelsResponse):
                 The initial response object.
             metadata (Sequence[Tuple[str, str]]): Strings which should be
                 sent along with the request as metadata.
@@ -89,7 +96,7 @@ class ListModelsAsyncPager:
     """A pager for iterating through ``list_models`` requests.
 
     This class thinly wraps an initial
-    :class:`~.model_service.ListModelsResponse` object, and
+    :class:`google.cloud.aiplatform_v1beta1.types.ListModelsResponse` object, and
     provides an ``__aiter__`` method to iterate through its
     ``models`` field.
 
@@ -98,7 +105,7 @@ class ListModelsAsyncPager:
     through the ``models`` field on the
     corresponding responses.
 
-    All the usual :class:`~.model_service.ListModelsResponse`
+    All the usual :class:`google.cloud.aiplatform_v1beta1.types.ListModelsResponse`
     attributes are available on the pager. If multiple requests are made, only
     the most recent response is retained, and thus used for attribute lookup.
     """
@@ -111,14 +118,14 @@ class ListModelsAsyncPager:
         *,
         metadata: Sequence[Tuple[str, str]] = ()
     ):
-        """Instantiate the pager.
+        """Instantiates the pager.
 
         Args:
             method (Callable): The method that was originally called, and
                 which instantiated this pager.
-            request (:class:`~.model_service.ListModelsRequest`):
+            request (google.cloud.aiplatform_v1beta1.types.ListModelsRequest):
                 The initial request object.
-            response (:class:`~.model_service.ListModelsResponse`):
+            response (google.cloud.aiplatform_v1beta1.types.ListModelsResponse):
                 The initial response object.
             metadata (Sequence[Tuple[str, str]]): Strings which should be
                 sent along with the request as metadata.
@@ -155,7 +162,7 @@ class ListModelEvaluationsPager:
     """A pager for iterating through ``list_model_evaluations`` requests.
 
     This class thinly wraps an initial
-    :class:`~.model_service.ListModelEvaluationsResponse` object, and
+    :class:`google.cloud.aiplatform_v1beta1.types.ListModelEvaluationsResponse` object, and
     provides an ``__iter__`` method to iterate through its
     ``model_evaluations`` field.
 
@@ -164,7 +171,7 @@ class ListModelEvaluationsPager:
     through the ``model_evaluations`` field on the
     corresponding responses.
 
-    All the usual :class:`~.model_service.ListModelEvaluationsResponse`
+    All the usual :class:`google.cloud.aiplatform_v1beta1.types.ListModelEvaluationsResponse`
     attributes are available on the pager. If multiple requests are made, only
     the most recent response is retained, and thus used for attribute lookup.
     """
@@ -182,9 +189,9 @@ class ListModelEvaluationsPager:
         Args:
             method (Callable): The method that was originally called, and
                 which instantiated this pager.
-            request (:class:`~.model_service.ListModelEvaluationsRequest`):
+            request (google.cloud.aiplatform_v1beta1.types.ListModelEvaluationsRequest):
                 The initial request object.
-            response (:class:`~.model_service.ListModelEvaluationsResponse`):
+            response (google.cloud.aiplatform_v1beta1.types.ListModelEvaluationsResponse):
                 The initial response object.
             metadata (Sequence[Tuple[str, str]]): Strings which should be
                 sent along with the request as metadata.
@@ -217,7 +224,7 @@ class ListModelEvaluationsAsyncPager:
     """A pager for iterating through ``list_model_evaluations`` requests.
 
     This class thinly wraps an initial
-    :class:`~.model_service.ListModelEvaluationsResponse` object, and
+    :class:`google.cloud.aiplatform_v1beta1.types.ListModelEvaluationsResponse` object, and
     provides an ``__aiter__`` method to iterate through its
     ``model_evaluations`` field.
 
@@ -226,7 +233,7 @@ class ListModelEvaluationsAsyncPager:
     through the ``model_evaluations`` field on the
     corresponding responses.
 
-    All the usual :class:`~.model_service.ListModelEvaluationsResponse`
+    All the usual :class:`google.cloud.aiplatform_v1beta1.types.ListModelEvaluationsResponse`
     attributes are available on the pager. If multiple requests are made, only
     the most recent response is retained, and thus used for attribute lookup.
     """
@@ -239,14 +246,14 @@ class ListModelEvaluationsAsyncPager:
         *,
         metadata: Sequence[Tuple[str, str]] = ()
     ):
-        """Instantiate the pager.
+        """Instantiates the pager.
 
         Args:
             method (Callable): The method that was originally called, and
                 which instantiated this pager.
-            request (:class:`~.model_service.ListModelEvaluationsRequest`):
+            request (google.cloud.aiplatform_v1beta1.types.ListModelEvaluationsRequest):
                 The initial request object.
-            response (:class:`~.model_service.ListModelEvaluationsResponse`):
+            response (google.cloud.aiplatform_v1beta1.types.ListModelEvaluationsResponse):
                 The initial response object.
             metadata (Sequence[Tuple[str, str]]): Strings which should be
                 sent along with the request as metadata.
@@ -283,7 +290,7 @@ class ListModelEvaluationSlicesPager:
     """A pager for iterating through ``list_model_evaluation_slices`` requests.
 
     This class thinly wraps an initial
-    :class:`~.model_service.ListModelEvaluationSlicesResponse` object, and
+    :class:`google.cloud.aiplatform_v1beta1.types.ListModelEvaluationSlicesResponse` object, and
     provides an ``__iter__`` method to iterate through its
     ``model_evaluation_slices`` field.
 
@@ -292,7 +299,7 @@ class ListModelEvaluationSlicesPager:
     through the ``model_evaluation_slices`` field on the
     corresponding responses.
 
-    All the usual :class:`~.model_service.ListModelEvaluationSlicesResponse`
+    All the usual :class:`google.cloud.aiplatform_v1beta1.types.ListModelEvaluationSlicesResponse`
     attributes are available on the pager. If multiple requests are made, only
     the most recent response is retained, and thus used for attribute lookup.
     """
@@ -310,9 +317,9 @@ class ListModelEvaluationSlicesPager:
         Args:
             method (Callable): The method that was originally called, and
                 which instantiated this pager.
-            request (:class:`~.model_service.ListModelEvaluationSlicesRequest`):
+            request (google.cloud.aiplatform_v1beta1.types.ListModelEvaluationSlicesRequest):
                 The initial request object.
-            response (:class:`~.model_service.ListModelEvaluationSlicesResponse`):
+            response (google.cloud.aiplatform_v1beta1.types.ListModelEvaluationSlicesResponse):
                 The initial response object.
             metadata (Sequence[Tuple[str, str]]): Strings which should be
                 sent along with the request as metadata.
@@ -345,7 +352,7 @@ class ListModelEvaluationSlicesAsyncPager:
     """A pager for iterating through ``list_model_evaluation_slices`` requests.
 
     This class thinly wraps an initial
-    :class:`~.model_service.ListModelEvaluationSlicesResponse` object, and
+    :class:`google.cloud.aiplatform_v1beta1.types.ListModelEvaluationSlicesResponse` object, and
     provides an ``__aiter__`` method to iterate through its
     ``model_evaluation_slices`` field.
 
@@ -354,7 +361,7 @@ class ListModelEvaluationSlicesAsyncPager:
     through the ``model_evaluation_slices`` field on the
     corresponding responses.
 
-    All the usual :class:`~.model_service.ListModelEvaluationSlicesResponse`
+    All the usual :class:`google.cloud.aiplatform_v1beta1.types.ListModelEvaluationSlicesResponse`
     attributes are available on the pager. If multiple requests are made, only
     the most recent response is retained, and thus used for attribute lookup.
     """
@@ -369,14 +376,14 @@ class ListModelEvaluationSlicesAsyncPager:
         *,
         metadata: Sequence[Tuple[str, str]] = ()
     ):
-        """Instantiate the pager.
+        """Instantiates the pager.
 
         Args:
             method (Callable): The method that was originally called, and
                 which instantiated this pager.
-            request (:class:`~.model_service.ListModelEvaluationSlicesRequest`):
+            request (google.cloud.aiplatform_v1beta1.types.ListModelEvaluationSlicesRequest):
                 The initial request object.
-            response (:class:`~.model_service.ListModelEvaluationSlicesResponse`):
+            response (google.cloud.aiplatform_v1beta1.types.ListModelEvaluationSlicesResponse):
                 The initial response object.
             metadata (Sequence[Tuple[str, str]]): Strings which should be
                 sent along with the request as metadata.

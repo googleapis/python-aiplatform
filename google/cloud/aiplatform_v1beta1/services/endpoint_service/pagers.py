@@ -1,5 +1,4 @@
 # -*- coding: utf-8 -*-
-
 # Copyright 2020 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -14,8 +13,16 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
-
-from typing import Any, AsyncIterable, Awaitable, Callable, Iterable, Sequence, Tuple
+from typing import (
+    Any,
+    AsyncIterable,
+    Awaitable,
+    Callable,
+    Iterable,
+    Sequence,
+    Tuple,
+    Optional,
+)
 
 from google.cloud.aiplatform_v1beta1.types import endpoint
 from google.cloud.aiplatform_v1beta1.types import endpoint_service
@@ -25,7 +32,7 @@ class ListEndpointsPager:
     """A pager for iterating through ``list_endpoints`` requests.
 
     This class thinly wraps an initial
-    :class:`~.endpoint_service.ListEndpointsResponse` object, and
+    :class:`google.cloud.aiplatform_v1beta1.types.ListEndpointsResponse` object, and
     provides an ``__iter__`` method to iterate through its
     ``endpoints`` field.
 
@@ -34,7 +41,7 @@ class ListEndpointsPager:
     through the ``endpoints`` field on the
     corresponding responses.
 
-    All the usual :class:`~.endpoint_service.ListEndpointsResponse`
+    All the usual :class:`google.cloud.aiplatform_v1beta1.types.ListEndpointsResponse`
     attributes are available on the pager. If multiple requests are made, only
     the most recent response is retained, and thus used for attribute lookup.
     """
@@ -52,9 +59,9 @@ class ListEndpointsPager:
         Args:
             method (Callable): The method that was originally called, and
                 which instantiated this pager.
-            request (:class:`~.endpoint_service.ListEndpointsRequest`):
+            request (google.cloud.aiplatform_v1beta1.types.ListEndpointsRequest):
                 The initial request object.
-            response (:class:`~.endpoint_service.ListEndpointsResponse`):
+            response (google.cloud.aiplatform_v1beta1.types.ListEndpointsResponse):
                 The initial response object.
             metadata (Sequence[Tuple[str, str]]): Strings which should be
                 sent along with the request as metadata.
@@ -87,7 +94,7 @@ class ListEndpointsAsyncPager:
     """A pager for iterating through ``list_endpoints`` requests.
 
     This class thinly wraps an initial
-    :class:`~.endpoint_service.ListEndpointsResponse` object, and
+    :class:`google.cloud.aiplatform_v1beta1.types.ListEndpointsResponse` object, and
     provides an ``__aiter__`` method to iterate through its
     ``endpoints`` field.
 
@@ -96,7 +103,7 @@ class ListEndpointsAsyncPager:
     through the ``endpoints`` field on the
     corresponding responses.
 
-    All the usual :class:`~.endpoint_service.ListEndpointsResponse`
+    All the usual :class:`google.cloud.aiplatform_v1beta1.types.ListEndpointsResponse`
     attributes are available on the pager. If multiple requests are made, only
     the most recent response is retained, and thus used for attribute lookup.
     """
@@ -109,14 +116,14 @@ class ListEndpointsAsyncPager:
         *,
         metadata: Sequence[Tuple[str, str]] = ()
     ):
-        """Instantiate the pager.
+        """Instantiates the pager.
 
         Args:
             method (Callable): The method that was originally called, and
                 which instantiated this pager.
-            request (:class:`~.endpoint_service.ListEndpointsRequest`):
+            request (google.cloud.aiplatform_v1beta1.types.ListEndpointsRequest):
                 The initial request object.
-            response (:class:`~.endpoint_service.ListEndpointsResponse`):
+            response (google.cloud.aiplatform_v1beta1.types.ListEndpointsResponse):
                 The initial response object.
             metadata (Sequence[Tuple[str, str]]): Strings which should be
                 sent along with the request as metadata.

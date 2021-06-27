@@ -1,5 +1,4 @@
 # -*- coding: utf-8 -*-
-
 # Copyright 2020 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -14,7 +13,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
-
 from collections import OrderedDict
 from distutils import util
 import os
@@ -23,31 +21,33 @@ from typing import Callable, Dict, Optional, Sequence, Tuple, Type, Union
 import pkg_resources
 
 from google.api_core import client_options as client_options_lib  # type: ignore
-from google.api_core import exceptions  # type: ignore
+from google.api_core import exceptions as core_exceptions  # type: ignore
 from google.api_core import gapic_v1  # type: ignore
 from google.api_core import retry as retries  # type: ignore
-from google.auth import credentials  # type: ignore
+from google.auth import credentials as ga_credentials  # type: ignore
 from google.auth.transport import mtls  # type: ignore
 from google.auth.transport.grpc import SslCredentials  # type: ignore
 from google.auth.exceptions import MutualTLSChannelError  # type: ignore
 from google.oauth2 import service_account  # type: ignore
 
-from google.api_core import operation as ga_operation  # type: ignore
+from google.api_core import operation as gac_operation  # type: ignore
 from google.api_core import operation_async  # type: ignore
 from google.cloud.aiplatform_v1beta1.services.pipeline_service import pagers
+from google.cloud.aiplatform_v1beta1.types import encryption_spec
 from google.cloud.aiplatform_v1beta1.types import model
 from google.cloud.aiplatform_v1beta1.types import operation as gca_operation
+from google.cloud.aiplatform_v1beta1.types import pipeline_job
+from google.cloud.aiplatform_v1beta1.types import pipeline_job as gca_pipeline_job
 from google.cloud.aiplatform_v1beta1.types import pipeline_service
 from google.cloud.aiplatform_v1beta1.types import pipeline_state
 from google.cloud.aiplatform_v1beta1.types import training_pipeline
 from google.cloud.aiplatform_v1beta1.types import (
     training_pipeline as gca_training_pipeline,
 )
-from google.protobuf import empty_pb2 as empty  # type: ignore
-from google.protobuf import struct_pb2 as struct  # type: ignore
-from google.protobuf import timestamp_pb2 as timestamp  # type: ignore
-from google.rpc import status_pb2 as status  # type: ignore
-
+from google.protobuf import empty_pb2  # type: ignore
+from google.protobuf import struct_pb2  # type: ignore
+from google.protobuf import timestamp_pb2  # type: ignore
+from google.rpc import status_pb2  # type: ignore
 from .transports.base import PipelineServiceTransport, DEFAULT_CLIENT_INFO
 from .transports.grpc import PipelineServiceGrpcTransport
 from .transports.grpc_asyncio import PipelineServiceGrpcAsyncIOTransport
@@ -68,7 +68,7 @@ class PipelineServiceClientMeta(type):
     _transport_registry["grpc_asyncio"] = PipelineServiceGrpcAsyncIOTransport
 
     def get_transport_class(cls, label: str = None,) -> Type[PipelineServiceTransport]:
-        """Return an appropriate transport class.
+        """Returns an appropriate transport class.
 
         Args:
             label: The name of the desired transport. If none is
@@ -87,11 +87,16 @@ class PipelineServiceClientMeta(type):
 
 
 class PipelineServiceClient(metaclass=PipelineServiceClientMeta):
-    """A service for creating and managing AI Platform's pipelines."""
+    """A service for creating and managing Vertex AI's pipelines. This
+    includes both ``TrainingPipeline`` resources (used for AutoML and
+    custom training) and ``PipelineJob`` resources (used for Vertex
+    Pipelines).
+    """
 
     @staticmethod
     def _get_default_mtls_endpoint(api_endpoint):
-        """Convert api endpoint to mTLS endpoint.
+        """Converts api endpoint to mTLS endpoint.
+
         Convert "*.sandbox.googleapis.com" and "*.googleapis.com" to
         "*.mtls.sandbox.googleapis.com" and "*.mtls.googleapis.com" respectively.
         Args:
@@ -124,9 +129,26 @@ class PipelineServiceClient(metaclass=PipelineServiceClientMeta):
     )
 
     @classmethod
+    def from_service_account_info(cls, info: dict, *args, **kwargs):
+        """Creates an instance of this client using the provided credentials
+            info.
+
+        Args:
+            info (dict): The service account private key info.
+            args: Additional arguments to pass to the constructor.
+            kwargs: Additional arguments to pass to the constructor.
+
+        Returns:
+            PipelineServiceClient: The constructed client.
+        """
+        credentials = service_account.Credentials.from_service_account_info(info)
+        kwargs["credentials"] = credentials
+        return cls(*args, **kwargs)
+
+    @classmethod
     def from_service_account_file(cls, filename: str, *args, **kwargs):
         """Creates an instance of this client using the provided credentials
-        file.
+            file.
 
         Args:
             filename (str): The path to the service account private key json
@@ -135,7 +157,7 @@ class PipelineServiceClient(metaclass=PipelineServiceClientMeta):
             kwargs: Additional arguments to pass to the constructor.
 
         Returns:
-            {@api.name}: The constructed client.
+            PipelineServiceClient: The constructed client.
         """
         credentials = service_account.Credentials.from_service_account_file(filename)
         kwargs["credentials"] = credentials
@@ -145,23 +167,82 @@ class PipelineServiceClient(metaclass=PipelineServiceClientMeta):
 
     @property
     def transport(self) -> PipelineServiceTransport:
-        """Return the transport used by the client instance.
+        """Returns the transport used by the client instance.
 
         Returns:
-            PipelineServiceTransport: The transport used by the client instance.
+            PipelineServiceTransport: The transport used by the client
+                instance.
         """
         return self._transport
 
     @staticmethod
+    def artifact_path(
+        project: str, location: str, metadata_store: str, artifact: str,
+    ) -> str:
+        """Returns a fully-qualified artifact string."""
+        return "projects/{project}/locations/{location}/metadataStores/{metadata_store}/artifacts/{artifact}".format(
+            project=project,
+            location=location,
+            metadata_store=metadata_store,
+            artifact=artifact,
+        )
+
+    @staticmethod
+    def parse_artifact_path(path: str) -> Dict[str, str]:
+        """Parses a artifact path into its component segments."""
+        m = re.match(
+            r"^projects/(?P<project>.+?)/locations/(?P<location>.+?)/metadataStores/(?P<metadata_store>.+?)/artifacts/(?P<artifact>.+?)$",
+            path,
+        )
+        return m.groupdict() if m else {}
+
+    @staticmethod
+    def context_path(
+        project: str, location: str, metadata_store: str, context: str,
+    ) -> str:
+        """Returns a fully-qualified context string."""
+        return "projects/{project}/locations/{location}/metadataStores/{metadata_store}/contexts/{context}".format(
+            project=project,
+            location=location,
+            metadata_store=metadata_store,
+            context=context,
+        )
+
+    @staticmethod
+    def parse_context_path(path: str) -> Dict[str, str]:
+        """Parses a context path into its component segments."""
+        m = re.match(
+            r"^projects/(?P<project>.+?)/locations/(?P<location>.+?)/metadataStores/(?P<metadata_store>.+?)/contexts/(?P<context>.+?)$",
+            path,
+        )
+        return m.groupdict() if m else {}
+
+    @staticmethod
+    def custom_job_path(project: str, location: str, custom_job: str,) -> str:
+        """Returns a fully-qualified custom_job string."""
+        return "projects/{project}/locations/{location}/customJobs/{custom_job}".format(
+            project=project, location=location, custom_job=custom_job,
+        )
+
+    @staticmethod
+    def parse_custom_job_path(path: str) -> Dict[str, str]:
+        """Parses a custom_job path into its component segments."""
+        m = re.match(
+            r"^projects/(?P<project>.+?)/locations/(?P<location>.+?)/customJobs/(?P<custom_job>.+?)$",
+            path,
+        )
+        return m.groupdict() if m else {}
+
+    @staticmethod
     def endpoint_path(project: str, location: str, endpoint: str,) -> str:
-        """Return a fully-qualified endpoint string."""
+        """Returns a fully-qualified endpoint string."""
         return "projects/{project}/locations/{location}/endpoints/{endpoint}".format(
             project=project, location=location, endpoint=endpoint,
         )
 
     @staticmethod
     def parse_endpoint_path(path: str) -> Dict[str, str]:
-        """Parse a endpoint path into its component segments."""
+        """Parses a endpoint path into its component segments."""
         m = re.match(
             r"^projects/(?P<project>.+?)/locations/(?P<location>.+?)/endpoints/(?P<endpoint>.+?)$",
             path,
@@ -169,17 +250,69 @@ class PipelineServiceClient(metaclass=PipelineServiceClientMeta):
         return m.groupdict() if m else {}
 
     @staticmethod
+    def execution_path(
+        project: str, location: str, metadata_store: str, execution: str,
+    ) -> str:
+        """Returns a fully-qualified execution string."""
+        return "projects/{project}/locations/{location}/metadataStores/{metadata_store}/executions/{execution}".format(
+            project=project,
+            location=location,
+            metadata_store=metadata_store,
+            execution=execution,
+        )
+
+    @staticmethod
+    def parse_execution_path(path: str) -> Dict[str, str]:
+        """Parses a execution path into its component segments."""
+        m = re.match(
+            r"^projects/(?P<project>.+?)/locations/(?P<location>.+?)/metadataStores/(?P<metadata_store>.+?)/executions/(?P<execution>.+?)$",
+            path,
+        )
+        return m.groupdict() if m else {}
+
+    @staticmethod
     def model_path(project: str, location: str, model: str,) -> str:
-        """Return a fully-qualified model string."""
+        """Returns a fully-qualified model string."""
         return "projects/{project}/locations/{location}/models/{model}".format(
             project=project, location=location, model=model,
         )
 
     @staticmethod
     def parse_model_path(path: str) -> Dict[str, str]:
-        """Parse a model path into its component segments."""
+        """Parses a model path into its component segments."""
         m = re.match(
             r"^projects/(?P<project>.+?)/locations/(?P<location>.+?)/models/(?P<model>.+?)$",
+            path,
+        )
+        return m.groupdict() if m else {}
+
+    @staticmethod
+    def network_path(project: str, network: str,) -> str:
+        """Returns a fully-qualified network string."""
+        return "projects/{project}/global/networks/{network}".format(
+            project=project, network=network,
+        )
+
+    @staticmethod
+    def parse_network_path(path: str) -> Dict[str, str]:
+        """Parses a network path into its component segments."""
+        m = re.match(
+            r"^projects/(?P<project>.+?)/global/networks/(?P<network>.+?)$", path
+        )
+        return m.groupdict() if m else {}
+
+    @staticmethod
+    def pipeline_job_path(project: str, location: str, pipeline_job: str,) -> str:
+        """Returns a fully-qualified pipeline_job string."""
+        return "projects/{project}/locations/{location}/pipelineJobs/{pipeline_job}".format(
+            project=project, location=location, pipeline_job=pipeline_job,
+        )
+
+    @staticmethod
+    def parse_pipeline_job_path(path: str) -> Dict[str, str]:
+        """Parses a pipeline_job path into its component segments."""
+        m = re.match(
+            r"^projects/(?P<project>.+?)/locations/(?P<location>.+?)/pipelineJobs/(?P<pipeline_job>.+?)$",
             path,
         )
         return m.groupdict() if m else {}
@@ -188,14 +321,14 @@ class PipelineServiceClient(metaclass=PipelineServiceClientMeta):
     def training_pipeline_path(
         project: str, location: str, training_pipeline: str,
     ) -> str:
-        """Return a fully-qualified training_pipeline string."""
+        """Returns a fully-qualified training_pipeline string."""
         return "projects/{project}/locations/{location}/trainingPipelines/{training_pipeline}".format(
             project=project, location=location, training_pipeline=training_pipeline,
         )
 
     @staticmethod
     def parse_training_pipeline_path(path: str) -> Dict[str, str]:
-        """Parse a training_pipeline path into its component segments."""
+        """Parses a training_pipeline path into its component segments."""
         m = re.match(
             r"^projects/(?P<project>.+?)/locations/(?P<location>.+?)/trainingPipelines/(?P<training_pipeline>.+?)$",
             path,
@@ -204,7 +337,7 @@ class PipelineServiceClient(metaclass=PipelineServiceClientMeta):
 
     @staticmethod
     def common_billing_account_path(billing_account: str,) -> str:
-        """Return a fully-qualified billing_account string."""
+        """Returns a fully-qualified billing_account string."""
         return "billingAccounts/{billing_account}".format(
             billing_account=billing_account,
         )
@@ -217,7 +350,7 @@ class PipelineServiceClient(metaclass=PipelineServiceClientMeta):
 
     @staticmethod
     def common_folder_path(folder: str,) -> str:
-        """Return a fully-qualified folder string."""
+        """Returns a fully-qualified folder string."""
         return "folders/{folder}".format(folder=folder,)
 
     @staticmethod
@@ -228,7 +361,7 @@ class PipelineServiceClient(metaclass=PipelineServiceClientMeta):
 
     @staticmethod
     def common_organization_path(organization: str,) -> str:
-        """Return a fully-qualified organization string."""
+        """Returns a fully-qualified organization string."""
         return "organizations/{organization}".format(organization=organization,)
 
     @staticmethod
@@ -239,7 +372,7 @@ class PipelineServiceClient(metaclass=PipelineServiceClientMeta):
 
     @staticmethod
     def common_project_path(project: str,) -> str:
-        """Return a fully-qualified project string."""
+        """Returns a fully-qualified project string."""
         return "projects/{project}".format(project=project,)
 
     @staticmethod
@@ -250,7 +383,7 @@ class PipelineServiceClient(metaclass=PipelineServiceClientMeta):
 
     @staticmethod
     def common_location_path(project: str, location: str,) -> str:
-        """Return a fully-qualified location string."""
+        """Returns a fully-qualified location string."""
         return "projects/{project}/locations/{location}".format(
             project=project, location=location,
         )
@@ -264,12 +397,12 @@ class PipelineServiceClient(metaclass=PipelineServiceClientMeta):
     def __init__(
         self,
         *,
-        credentials: Optional[credentials.Credentials] = None,
+        credentials: Optional[ga_credentials.Credentials] = None,
         transport: Union[str, PipelineServiceTransport, None] = None,
         client_options: Optional[client_options_lib.ClientOptions] = None,
         client_info: gapic_v1.client_info.ClientInfo = DEFAULT_CLIENT_INFO,
     ) -> None:
-        """Instantiate the pipeline service client.
+        """Instantiates the pipeline service client.
 
         Args:
             credentials (Optional[google.auth.credentials.Credentials]): The
@@ -277,10 +410,10 @@ class PipelineServiceClient(metaclass=PipelineServiceClientMeta):
                 credentials identify the application to the service; if none
                 are specified, the client will attempt to ascertain the
                 credentials from the environment.
-            transport (Union[str, ~.PipelineServiceTransport]): The
+            transport (Union[str, PipelineServiceTransport]): The
                 transport to use. If set to None, a transport is chosen
                 automatically.
-            client_options (client_options_lib.ClientOptions): Custom options for the
+            client_options (google.api_core.client_options.ClientOptions): Custom options for the
                 client. It won't take effect if a ``transport`` instance is provided.
                 (1) The ``api_endpoint`` property can be used to override the
                 default endpoint provided by the client. GOOGLE_API_USE_MTLS_ENDPOINT
@@ -316,21 +449,18 @@ class PipelineServiceClient(metaclass=PipelineServiceClientMeta):
             util.strtobool(os.getenv("GOOGLE_API_USE_CLIENT_CERTIFICATE", "false"))
         )
 
-        ssl_credentials = None
+        client_cert_source_func = None
         is_mtls = False
         if use_client_cert:
             if client_options.client_cert_source:
-                import grpc  # type: ignore
-
-                cert, key = client_options.client_cert_source()
-                ssl_credentials = grpc.ssl_channel_credentials(
-                    certificate_chain=cert, private_key=key
-                )
                 is_mtls = True
+                client_cert_source_func = client_options.client_cert_source
             else:
-                creds = SslCredentials()
-                is_mtls = creds.is_mtls
-                ssl_credentials = creds.ssl_credentials if is_mtls else None
+                is_mtls = mtls.has_default_client_cert_source()
+                if is_mtls:
+                    client_cert_source_func = mtls.default_client_cert_source()
+                else:
+                    client_cert_source_func = None
 
         # Figure out which api endpoint to use.
         if client_options.api_endpoint is not None:
@@ -342,12 +472,14 @@ class PipelineServiceClient(metaclass=PipelineServiceClientMeta):
             elif use_mtls_env == "always":
                 api_endpoint = self.DEFAULT_MTLS_ENDPOINT
             elif use_mtls_env == "auto":
-                api_endpoint = (
-                    self.DEFAULT_MTLS_ENDPOINT if is_mtls else self.DEFAULT_ENDPOINT
-                )
+                if is_mtls:
+                    api_endpoint = self.DEFAULT_MTLS_ENDPOINT
+                else:
+                    api_endpoint = self.DEFAULT_ENDPOINT
             else:
                 raise MutualTLSChannelError(
-                    "Unsupported GOOGLE_API_USE_MTLS_ENDPOINT value. Accepted values: never, auto, always"
+                    "Unsupported GOOGLE_API_USE_MTLS_ENDPOINT value. Accepted "
+                    "values: never, auto, always"
                 )
 
         # Save or instantiate the transport.
@@ -362,8 +494,8 @@ class PipelineServiceClient(metaclass=PipelineServiceClientMeta):
                 )
             if client_options.scopes:
                 raise ValueError(
-                    "When providing a transport instance, "
-                    "provide its scopes directly."
+                    "When providing a transport instance, provide its scopes "
+                    "directly."
                 )
             self._transport = transport
         else:
@@ -373,7 +505,7 @@ class PipelineServiceClient(metaclass=PipelineServiceClientMeta):
                 credentials_file=client_options.credentials_file,
                 host=api_endpoint,
                 scopes=client_options.scopes,
-                ssl_channel_credentials=ssl_credentials,
+                client_cert_source_for_mtls=client_cert_source_func,
                 quota_project_id=client_options.quota_project_id,
                 client_info=client_info,
             )
@@ -392,23 +524,24 @@ class PipelineServiceClient(metaclass=PipelineServiceClientMeta):
         TrainingPipeline right away will be attempted to be run.
 
         Args:
-            request (:class:`~.pipeline_service.CreateTrainingPipelineRequest`):
+            request (google.cloud.aiplatform_v1beta1.types.CreateTrainingPipelineRequest):
                 The request object. Request message for
-                ``PipelineService.CreateTrainingPipeline``.
-            parent (:class:`str`):
+                [PipelineService.CreateTrainingPipeline][google.cloud.aiplatform.v1beta1.PipelineService.CreateTrainingPipeline].
+            parent (str):
                 Required. The resource name of the Location to create
                 the TrainingPipeline in. Format:
                 ``projects/{project}/locations/{location}``
+
                 This corresponds to the ``parent`` field
                 on the ``request`` instance; if ``request`` is provided, this
                 should not be set.
-            training_pipeline (:class:`~.gca_training_pipeline.TrainingPipeline`):
+            training_pipeline (google.cloud.aiplatform_v1beta1.types.TrainingPipeline):
                 Required. The TrainingPipeline to
                 create.
+
                 This corresponds to the ``training_pipeline`` field
                 on the ``request`` instance; if ``request`` is provided, this
                 should not be set.
-
             retry (google.api_core.retry.Retry): Designation of what errors, if any,
                 should be retried.
             timeout (float): The timeout for this request.
@@ -416,13 +549,13 @@ class PipelineServiceClient(metaclass=PipelineServiceClientMeta):
                 sent along with the request as metadata.
 
         Returns:
-            ~.gca_training_pipeline.TrainingPipeline:
-                The TrainingPipeline orchestrates tasks associated with
-                training a Model. It always executes the training task,
-                and optionally may also export data from AI Platform's
-                Dataset which becomes the training input,
-                ``upload``
-                the Model to AI Platform, and evaluate the Model.
+            google.cloud.aiplatform_v1beta1.types.TrainingPipeline:
+                The TrainingPipeline orchestrates tasks associated with training a Model. It
+                   always executes the training task, and optionally may
+                   also export data from Vertex AI's Dataset which
+                   becomes the training input,
+                   [upload][google.cloud.aiplatform.v1beta1.ModelService.UploadModel]
+                   the Model to Vertex AI, and evaluate the Model.
 
         """
         # Create or coerce a protobuf request object.
@@ -441,10 +574,8 @@ class PipelineServiceClient(metaclass=PipelineServiceClientMeta):
         # there are no flattened fields.
         if not isinstance(request, pipeline_service.CreateTrainingPipelineRequest):
             request = pipeline_service.CreateTrainingPipelineRequest(request)
-
             # If we have keyword arguments corresponding to fields on the
             # request, apply these.
-
             if parent is not None:
                 request.parent = parent
             if training_pipeline is not None:
@@ -478,18 +609,17 @@ class PipelineServiceClient(metaclass=PipelineServiceClientMeta):
         r"""Gets a TrainingPipeline.
 
         Args:
-            request (:class:`~.pipeline_service.GetTrainingPipelineRequest`):
+            request (google.cloud.aiplatform_v1beta1.types.GetTrainingPipelineRequest):
                 The request object. Request message for
-                ``PipelineService.GetTrainingPipeline``.
-            name (:class:`str`):
+                [PipelineService.GetTrainingPipeline][google.cloud.aiplatform.v1beta1.PipelineService.GetTrainingPipeline].
+            name (str):
                 Required. The name of the TrainingPipeline resource.
                 Format:
-
                 ``projects/{project}/locations/{location}/trainingPipelines/{training_pipeline}``
+
                 This corresponds to the ``name`` field
                 on the ``request`` instance; if ``request`` is provided, this
                 should not be set.
-
             retry (google.api_core.retry.Retry): Designation of what errors, if any,
                 should be retried.
             timeout (float): The timeout for this request.
@@ -497,13 +627,13 @@ class PipelineServiceClient(metaclass=PipelineServiceClientMeta):
                 sent along with the request as metadata.
 
         Returns:
-            ~.training_pipeline.TrainingPipeline:
-                The TrainingPipeline orchestrates tasks associated with
-                training a Model. It always executes the training task,
-                and optionally may also export data from AI Platform's
-                Dataset which becomes the training input,
-                ``upload``
-                the Model to AI Platform, and evaluate the Model.
+            google.cloud.aiplatform_v1beta1.types.TrainingPipeline:
+                The TrainingPipeline orchestrates tasks associated with training a Model. It
+                   always executes the training task, and optionally may
+                   also export data from Vertex AI's Dataset which
+                   becomes the training input,
+                   [upload][google.cloud.aiplatform.v1beta1.ModelService.UploadModel]
+                   the Model to Vertex AI, and evaluate the Model.
 
         """
         # Create or coerce a protobuf request object.
@@ -522,10 +652,8 @@ class PipelineServiceClient(metaclass=PipelineServiceClientMeta):
         # there are no flattened fields.
         if not isinstance(request, pipeline_service.GetTrainingPipelineRequest):
             request = pipeline_service.GetTrainingPipelineRequest(request)
-
             # If we have keyword arguments corresponding to fields on the
             # request, apply these.
-
             if name is not None:
                 request.name = name
 
@@ -557,17 +685,17 @@ class PipelineServiceClient(metaclass=PipelineServiceClientMeta):
         r"""Lists TrainingPipelines in a Location.
 
         Args:
-            request (:class:`~.pipeline_service.ListTrainingPipelinesRequest`):
+            request (google.cloud.aiplatform_v1beta1.types.ListTrainingPipelinesRequest):
                 The request object. Request message for
-                ``PipelineService.ListTrainingPipelines``.
-            parent (:class:`str`):
+                [PipelineService.ListTrainingPipelines][google.cloud.aiplatform.v1beta1.PipelineService.ListTrainingPipelines].
+            parent (str):
                 Required. The resource name of the Location to list the
                 TrainingPipelines from. Format:
                 ``projects/{project}/locations/{location}``
+
                 This corresponds to the ``parent`` field
                 on the ``request`` instance; if ``request`` is provided, this
                 should not be set.
-
             retry (google.api_core.retry.Retry): Designation of what errors, if any,
                 should be retried.
             timeout (float): The timeout for this request.
@@ -575,9 +703,9 @@ class PipelineServiceClient(metaclass=PipelineServiceClientMeta):
                 sent along with the request as metadata.
 
         Returns:
-            ~.pagers.ListTrainingPipelinesPager:
+            google.cloud.aiplatform_v1beta1.services.pipeline_service.pagers.ListTrainingPipelinesPager:
                 Response message for
-                ``PipelineService.ListTrainingPipelines``
+                [PipelineService.ListTrainingPipelines][google.cloud.aiplatform.v1beta1.PipelineService.ListTrainingPipelines]
 
                 Iterating over this object will yield results and
                 resolve additional pages automatically.
@@ -599,10 +727,8 @@ class PipelineServiceClient(metaclass=PipelineServiceClientMeta):
         # there are no flattened fields.
         if not isinstance(request, pipeline_service.ListTrainingPipelinesRequest):
             request = pipeline_service.ListTrainingPipelinesRequest(request)
-
             # If we have keyword arguments corresponding to fields on the
             # request, apply these.
-
             if parent is not None:
                 request.parent = parent
 
@@ -636,22 +762,21 @@ class PipelineServiceClient(metaclass=PipelineServiceClientMeta):
         retry: retries.Retry = gapic_v1.method.DEFAULT,
         timeout: float = None,
         metadata: Sequence[Tuple[str, str]] = (),
-    ) -> ga_operation.Operation:
+    ) -> gac_operation.Operation:
         r"""Deletes a TrainingPipeline.
 
         Args:
-            request (:class:`~.pipeline_service.DeleteTrainingPipelineRequest`):
+            request (google.cloud.aiplatform_v1beta1.types.DeleteTrainingPipelineRequest):
                 The request object. Request message for
-                ``PipelineService.DeleteTrainingPipeline``.
-            name (:class:`str`):
+                [PipelineService.DeleteTrainingPipeline][google.cloud.aiplatform.v1beta1.PipelineService.DeleteTrainingPipeline].
+            name (str):
                 Required. The name of the TrainingPipeline resource to
                 be deleted. Format:
-
                 ``projects/{project}/locations/{location}/trainingPipelines/{training_pipeline}``
+
                 This corresponds to the ``name`` field
                 on the ``request`` instance; if ``request`` is provided, this
                 should not be set.
-
             retry (google.api_core.retry.Retry): Designation of what errors, if any,
                 should be retried.
             timeout (float): The timeout for this request.
@@ -659,24 +784,22 @@ class PipelineServiceClient(metaclass=PipelineServiceClientMeta):
                 sent along with the request as metadata.
 
         Returns:
-            ~.ga_operation.Operation:
+            google.api_core.operation.Operation:
                 An object representing a long-running operation.
 
-                The result type for the operation will be
-                :class:`~.empty.Empty`: A generic empty message that
-                you can re-use to avoid defining duplicated empty
-                messages in your APIs. A typical example is to use it as
-                the request or the response type of an API method. For
-                instance:
+                The result type for the operation will be :class:`google.protobuf.empty_pb2.Empty` A generic empty message that you can re-use to avoid defining duplicated
+                   empty messages in your APIs. A typical example is to
+                   use it as the request or the response type of an API
+                   method. For instance:
 
-                ::
+                      service Foo {
+                         rpc Bar(google.protobuf.Empty) returns
+                         (google.protobuf.Empty);
 
-                    service Foo {
-                      rpc Bar(google.protobuf.Empty) returns (google.protobuf.Empty);
-                    }
+                      }
 
-                The JSON representation for ``Empty`` is empty JSON
-                object ``{}``.
+                   The JSON representation for Empty is empty JSON
+                   object {}.
 
         """
         # Create or coerce a protobuf request object.
@@ -695,10 +818,8 @@ class PipelineServiceClient(metaclass=PipelineServiceClientMeta):
         # there are no flattened fields.
         if not isinstance(request, pipeline_service.DeleteTrainingPipelineRequest):
             request = pipeline_service.DeleteTrainingPipelineRequest(request)
-
             # If we have keyword arguments corresponding to fields on the
             # request, apply these.
-
             if name is not None:
                 request.name = name
 
@@ -716,10 +837,10 @@ class PipelineServiceClient(metaclass=PipelineServiceClientMeta):
         response = rpc(request, retry=retry, timeout=timeout, metadata=metadata,)
 
         # Wrap the response in an operation future.
-        response = ga_operation.from_gapic(
+        response = gac_operation.from_gapic(
             response,
             self._transport.operations_client,
-            empty.Empty,
+            empty_pb2.Empty,
             metadata_type=gca_operation.DeleteOperationMetadata,
         )
 
@@ -738,30 +859,29 @@ class PipelineServiceClient(metaclass=PipelineServiceClientMeta):
         r"""Cancels a TrainingPipeline. Starts asynchronous cancellation on
         the TrainingPipeline. The server makes a best effort to cancel
         the pipeline, but success is not guaranteed. Clients can use
-        ``PipelineService.GetTrainingPipeline``
+        [PipelineService.GetTrainingPipeline][google.cloud.aiplatform.v1beta1.PipelineService.GetTrainingPipeline]
         or other methods to check whether the cancellation succeeded or
         whether the pipeline completed despite cancellation. On
         successful cancellation, the TrainingPipeline is not deleted;
         instead it becomes a pipeline with a
-        ``TrainingPipeline.error``
-        value with a ``google.rpc.Status.code`` of
+        [TrainingPipeline.error][google.cloud.aiplatform.v1beta1.TrainingPipeline.error]
+        value with a [google.rpc.Status.code][google.rpc.Status.code] of
         1, corresponding to ``Code.CANCELLED``, and
-        ``TrainingPipeline.state``
+        [TrainingPipeline.state][google.cloud.aiplatform.v1beta1.TrainingPipeline.state]
         is set to ``CANCELLED``.
 
         Args:
-            request (:class:`~.pipeline_service.CancelTrainingPipelineRequest`):
+            request (google.cloud.aiplatform_v1beta1.types.CancelTrainingPipelineRequest):
                 The request object. Request message for
-                ``PipelineService.CancelTrainingPipeline``.
-            name (:class:`str`):
+                [PipelineService.CancelTrainingPipeline][google.cloud.aiplatform.v1beta1.PipelineService.CancelTrainingPipeline].
+            name (str):
                 Required. The name of the TrainingPipeline to cancel.
                 Format:
-
                 ``projects/{project}/locations/{location}/trainingPipelines/{training_pipeline}``
+
                 This corresponds to the ``name`` field
                 on the ``request`` instance; if ``request`` is provided, this
                 should not be set.
-
             retry (google.api_core.retry.Retry): Designation of what errors, if any,
                 should be retried.
             timeout (float): The timeout for this request.
@@ -784,16 +904,430 @@ class PipelineServiceClient(metaclass=PipelineServiceClientMeta):
         # there are no flattened fields.
         if not isinstance(request, pipeline_service.CancelTrainingPipelineRequest):
             request = pipeline_service.CancelTrainingPipelineRequest(request)
-
             # If we have keyword arguments corresponding to fields on the
             # request, apply these.
-
             if name is not None:
                 request.name = name
 
         # Wrap the RPC method; this adds retry and timeout information,
         # and friendly error handling.
         rpc = self._transport._wrapped_methods[self._transport.cancel_training_pipeline]
+
+        # Certain fields should be provided within the metadata header;
+        # add these here.
+        metadata = tuple(metadata) + (
+            gapic_v1.routing_header.to_grpc_metadata((("name", request.name),)),
+        )
+
+        # Send the request.
+        rpc(
+            request, retry=retry, timeout=timeout, metadata=metadata,
+        )
+
+    def create_pipeline_job(
+        self,
+        request: pipeline_service.CreatePipelineJobRequest = None,
+        *,
+        parent: str = None,
+        pipeline_job: gca_pipeline_job.PipelineJob = None,
+        pipeline_job_id: str = None,
+        retry: retries.Retry = gapic_v1.method.DEFAULT,
+        timeout: float = None,
+        metadata: Sequence[Tuple[str, str]] = (),
+    ) -> gca_pipeline_job.PipelineJob:
+        r"""Creates a PipelineJob. A PipelineJob will run
+        immediately when created.
+
+        Args:
+            request (google.cloud.aiplatform_v1beta1.types.CreatePipelineJobRequest):
+                The request object. Request message for
+                [PipelineService.CreatePipelineJob][google.cloud.aiplatform.v1beta1.PipelineService.CreatePipelineJob].
+            parent (str):
+                Required. The resource name of the Location to create
+                the PipelineJob in. Format:
+                ``projects/{project}/locations/{location}``
+
+                This corresponds to the ``parent`` field
+                on the ``request`` instance; if ``request`` is provided, this
+                should not be set.
+            pipeline_job (google.cloud.aiplatform_v1beta1.types.PipelineJob):
+                Required. The PipelineJob to create.
+                This corresponds to the ``pipeline_job`` field
+                on the ``request`` instance; if ``request`` is provided, this
+                should not be set.
+            pipeline_job_id (str):
+                The ID to use for the PipelineJob, which will become the
+                final component of the PipelineJob name. If not
+                provided, an ID will be automatically generated.
+
+                This value should be less than 128 characters, and valid
+                characters are /[a-z][0-9]-/.
+
+                This corresponds to the ``pipeline_job_id`` field
+                on the ``request`` instance; if ``request`` is provided, this
+                should not be set.
+            retry (google.api_core.retry.Retry): Designation of what errors, if any,
+                should be retried.
+            timeout (float): The timeout for this request.
+            metadata (Sequence[Tuple[str, str]]): Strings which should be
+                sent along with the request as metadata.
+
+        Returns:
+            google.cloud.aiplatform_v1beta1.types.PipelineJob:
+                An instance of a machine learning
+                PipelineJob.
+
+        """
+        # Create or coerce a protobuf request object.
+        # Sanity check: If we got a request object, we should *not* have
+        # gotten any keyword arguments that map to the request.
+        has_flattened_params = any([parent, pipeline_job, pipeline_job_id])
+        if request is not None and has_flattened_params:
+            raise ValueError(
+                "If the `request` argument is set, then none of "
+                "the individual field arguments should be set."
+            )
+
+        # Minor optimization to avoid making a copy if the user passes
+        # in a pipeline_service.CreatePipelineJobRequest.
+        # There's no risk of modifying the input as we've already verified
+        # there are no flattened fields.
+        if not isinstance(request, pipeline_service.CreatePipelineJobRequest):
+            request = pipeline_service.CreatePipelineJobRequest(request)
+            # If we have keyword arguments corresponding to fields on the
+            # request, apply these.
+            if parent is not None:
+                request.parent = parent
+            if pipeline_job is not None:
+                request.pipeline_job = pipeline_job
+            if pipeline_job_id is not None:
+                request.pipeline_job_id = pipeline_job_id
+
+        # Wrap the RPC method; this adds retry and timeout information,
+        # and friendly error handling.
+        rpc = self._transport._wrapped_methods[self._transport.create_pipeline_job]
+
+        # Certain fields should be provided within the metadata header;
+        # add these here.
+        metadata = tuple(metadata) + (
+            gapic_v1.routing_header.to_grpc_metadata((("parent", request.parent),)),
+        )
+
+        # Send the request.
+        response = rpc(request, retry=retry, timeout=timeout, metadata=metadata,)
+
+        # Done; return the response.
+        return response
+
+    def get_pipeline_job(
+        self,
+        request: pipeline_service.GetPipelineJobRequest = None,
+        *,
+        name: str = None,
+        retry: retries.Retry = gapic_v1.method.DEFAULT,
+        timeout: float = None,
+        metadata: Sequence[Tuple[str, str]] = (),
+    ) -> pipeline_job.PipelineJob:
+        r"""Gets a PipelineJob.
+
+        Args:
+            request (google.cloud.aiplatform_v1beta1.types.GetPipelineJobRequest):
+                The request object. Request message for
+                [PipelineService.GetPipelineJob][google.cloud.aiplatform.v1beta1.PipelineService.GetPipelineJob].
+            name (str):
+                Required. The name of the PipelineJob resource. Format:
+                ``projects/{project}/locations/{location}/pipelineJobs/{pipeline_job}``
+
+                This corresponds to the ``name`` field
+                on the ``request`` instance; if ``request`` is provided, this
+                should not be set.
+            retry (google.api_core.retry.Retry): Designation of what errors, if any,
+                should be retried.
+            timeout (float): The timeout for this request.
+            metadata (Sequence[Tuple[str, str]]): Strings which should be
+                sent along with the request as metadata.
+
+        Returns:
+            google.cloud.aiplatform_v1beta1.types.PipelineJob:
+                An instance of a machine learning
+                PipelineJob.
+
+        """
+        # Create or coerce a protobuf request object.
+        # Sanity check: If we got a request object, we should *not* have
+        # gotten any keyword arguments that map to the request.
+        has_flattened_params = any([name])
+        if request is not None and has_flattened_params:
+            raise ValueError(
+                "If the `request` argument is set, then none of "
+                "the individual field arguments should be set."
+            )
+
+        # Minor optimization to avoid making a copy if the user passes
+        # in a pipeline_service.GetPipelineJobRequest.
+        # There's no risk of modifying the input as we've already verified
+        # there are no flattened fields.
+        if not isinstance(request, pipeline_service.GetPipelineJobRequest):
+            request = pipeline_service.GetPipelineJobRequest(request)
+            # If we have keyword arguments corresponding to fields on the
+            # request, apply these.
+            if name is not None:
+                request.name = name
+
+        # Wrap the RPC method; this adds retry and timeout information,
+        # and friendly error handling.
+        rpc = self._transport._wrapped_methods[self._transport.get_pipeline_job]
+
+        # Certain fields should be provided within the metadata header;
+        # add these here.
+        metadata = tuple(metadata) + (
+            gapic_v1.routing_header.to_grpc_metadata((("name", request.name),)),
+        )
+
+        # Send the request.
+        response = rpc(request, retry=retry, timeout=timeout, metadata=metadata,)
+
+        # Done; return the response.
+        return response
+
+    def list_pipeline_jobs(
+        self,
+        request: pipeline_service.ListPipelineJobsRequest = None,
+        *,
+        parent: str = None,
+        retry: retries.Retry = gapic_v1.method.DEFAULT,
+        timeout: float = None,
+        metadata: Sequence[Tuple[str, str]] = (),
+    ) -> pagers.ListPipelineJobsPager:
+        r"""Lists PipelineJobs in a Location.
+
+        Args:
+            request (google.cloud.aiplatform_v1beta1.types.ListPipelineJobsRequest):
+                The request object. Request message for
+                [PipelineService.ListPipelineJobs][google.cloud.aiplatform.v1beta1.PipelineService.ListPipelineJobs].
+            parent (str):
+                Required. The resource name of the Location to list the
+                PipelineJobs from. Format:
+                ``projects/{project}/locations/{location}``
+
+                This corresponds to the ``parent`` field
+                on the ``request`` instance; if ``request`` is provided, this
+                should not be set.
+            retry (google.api_core.retry.Retry): Designation of what errors, if any,
+                should be retried.
+            timeout (float): The timeout for this request.
+            metadata (Sequence[Tuple[str, str]]): Strings which should be
+                sent along with the request as metadata.
+
+        Returns:
+            google.cloud.aiplatform_v1beta1.services.pipeline_service.pagers.ListPipelineJobsPager:
+                Response message for
+                [PipelineService.ListPipelineJobs][google.cloud.aiplatform.v1beta1.PipelineService.ListPipelineJobs]
+
+                Iterating over this object will yield results and
+                resolve additional pages automatically.
+
+        """
+        # Create or coerce a protobuf request object.
+        # Sanity check: If we got a request object, we should *not* have
+        # gotten any keyword arguments that map to the request.
+        has_flattened_params = any([parent])
+        if request is not None and has_flattened_params:
+            raise ValueError(
+                "If the `request` argument is set, then none of "
+                "the individual field arguments should be set."
+            )
+
+        # Minor optimization to avoid making a copy if the user passes
+        # in a pipeline_service.ListPipelineJobsRequest.
+        # There's no risk of modifying the input as we've already verified
+        # there are no flattened fields.
+        if not isinstance(request, pipeline_service.ListPipelineJobsRequest):
+            request = pipeline_service.ListPipelineJobsRequest(request)
+            # If we have keyword arguments corresponding to fields on the
+            # request, apply these.
+            if parent is not None:
+                request.parent = parent
+
+        # Wrap the RPC method; this adds retry and timeout information,
+        # and friendly error handling.
+        rpc = self._transport._wrapped_methods[self._transport.list_pipeline_jobs]
+
+        # Certain fields should be provided within the metadata header;
+        # add these here.
+        metadata = tuple(metadata) + (
+            gapic_v1.routing_header.to_grpc_metadata((("parent", request.parent),)),
+        )
+
+        # Send the request.
+        response = rpc(request, retry=retry, timeout=timeout, metadata=metadata,)
+
+        # This method is paged; wrap the response in a pager, which provides
+        # an `__iter__` convenience method.
+        response = pagers.ListPipelineJobsPager(
+            method=rpc, request=request, response=response, metadata=metadata,
+        )
+
+        # Done; return the response.
+        return response
+
+    def delete_pipeline_job(
+        self,
+        request: pipeline_service.DeletePipelineJobRequest = None,
+        *,
+        name: str = None,
+        retry: retries.Retry = gapic_v1.method.DEFAULT,
+        timeout: float = None,
+        metadata: Sequence[Tuple[str, str]] = (),
+    ) -> gac_operation.Operation:
+        r"""Deletes a PipelineJob.
+
+        Args:
+            request (google.cloud.aiplatform_v1beta1.types.DeletePipelineJobRequest):
+                The request object. Request message for
+                [PipelineService.DeletePipelineJob][google.cloud.aiplatform.v1beta1.PipelineService.DeletePipelineJob].
+            name (str):
+                Required. The name of the PipelineJob resource to be
+                deleted. Format:
+                ``projects/{project}/locations/{location}/pipelineJobs/{pipeline_job}``
+
+                This corresponds to the ``name`` field
+                on the ``request`` instance; if ``request`` is provided, this
+                should not be set.
+            retry (google.api_core.retry.Retry): Designation of what errors, if any,
+                should be retried.
+            timeout (float): The timeout for this request.
+            metadata (Sequence[Tuple[str, str]]): Strings which should be
+                sent along with the request as metadata.
+
+        Returns:
+            google.api_core.operation.Operation:
+                An object representing a long-running operation.
+
+                The result type for the operation will be :class:`google.protobuf.empty_pb2.Empty` A generic empty message that you can re-use to avoid defining duplicated
+                   empty messages in your APIs. A typical example is to
+                   use it as the request or the response type of an API
+                   method. For instance:
+
+                      service Foo {
+                         rpc Bar(google.protobuf.Empty) returns
+                         (google.protobuf.Empty);
+
+                      }
+
+                   The JSON representation for Empty is empty JSON
+                   object {}.
+
+        """
+        # Create or coerce a protobuf request object.
+        # Sanity check: If we got a request object, we should *not* have
+        # gotten any keyword arguments that map to the request.
+        has_flattened_params = any([name])
+        if request is not None and has_flattened_params:
+            raise ValueError(
+                "If the `request` argument is set, then none of "
+                "the individual field arguments should be set."
+            )
+
+        # Minor optimization to avoid making a copy if the user passes
+        # in a pipeline_service.DeletePipelineJobRequest.
+        # There's no risk of modifying the input as we've already verified
+        # there are no flattened fields.
+        if not isinstance(request, pipeline_service.DeletePipelineJobRequest):
+            request = pipeline_service.DeletePipelineJobRequest(request)
+            # If we have keyword arguments corresponding to fields on the
+            # request, apply these.
+            if name is not None:
+                request.name = name
+
+        # Wrap the RPC method; this adds retry and timeout information,
+        # and friendly error handling.
+        rpc = self._transport._wrapped_methods[self._transport.delete_pipeline_job]
+
+        # Certain fields should be provided within the metadata header;
+        # add these here.
+        metadata = tuple(metadata) + (
+            gapic_v1.routing_header.to_grpc_metadata((("name", request.name),)),
+        )
+
+        # Send the request.
+        response = rpc(request, retry=retry, timeout=timeout, metadata=metadata,)
+
+        # Wrap the response in an operation future.
+        response = gac_operation.from_gapic(
+            response,
+            self._transport.operations_client,
+            empty_pb2.Empty,
+            metadata_type=gca_operation.DeleteOperationMetadata,
+        )
+
+        # Done; return the response.
+        return response
+
+    def cancel_pipeline_job(
+        self,
+        request: pipeline_service.CancelPipelineJobRequest = None,
+        *,
+        name: str = None,
+        retry: retries.Retry = gapic_v1.method.DEFAULT,
+        timeout: float = None,
+        metadata: Sequence[Tuple[str, str]] = (),
+    ) -> None:
+        r"""Cancels a PipelineJob. Starts asynchronous cancellation on the
+        PipelineJob. The server makes a best effort to cancel the
+        pipeline, but success is not guaranteed. Clients can use
+        [PipelineService.GetPipelineJob][google.cloud.aiplatform.v1beta1.PipelineService.GetPipelineJob]
+        or other methods to check whether the cancellation succeeded or
+        whether the pipeline completed despite cancellation. On
+        successful cancellation, the PipelineJob is not deleted; instead
+        it becomes a pipeline with a
+        [PipelineJob.error][google.cloud.aiplatform.v1beta1.PipelineJob.error]
+        value with a [google.rpc.Status.code][google.rpc.Status.code] of
+        1, corresponding to ``Code.CANCELLED``, and
+        [PipelineJob.state][google.cloud.aiplatform.v1beta1.PipelineJob.state]
+        is set to ``CANCELLED``.
+
+        Args:
+            request (google.cloud.aiplatform_v1beta1.types.CancelPipelineJobRequest):
+                The request object. Request message for
+                [PipelineService.CancelPipelineJob][google.cloud.aiplatform.v1beta1.PipelineService.CancelPipelineJob].
+            name (str):
+                Required. The name of the PipelineJob to cancel. Format:
+                ``projects/{project}/locations/{location}/pipelineJobs/{pipeline_job}``
+
+                This corresponds to the ``name`` field
+                on the ``request`` instance; if ``request`` is provided, this
+                should not be set.
+            retry (google.api_core.retry.Retry): Designation of what errors, if any,
+                should be retried.
+            timeout (float): The timeout for this request.
+            metadata (Sequence[Tuple[str, str]]): Strings which should be
+                sent along with the request as metadata.
+        """
+        # Create or coerce a protobuf request object.
+        # Sanity check: If we got a request object, we should *not* have
+        # gotten any keyword arguments that map to the request.
+        has_flattened_params = any([name])
+        if request is not None and has_flattened_params:
+            raise ValueError(
+                "If the `request` argument is set, then none of "
+                "the individual field arguments should be set."
+            )
+
+        # Minor optimization to avoid making a copy if the user passes
+        # in a pipeline_service.CancelPipelineJobRequest.
+        # There's no risk of modifying the input as we've already verified
+        # there are no flattened fields.
+        if not isinstance(request, pipeline_service.CancelPipelineJobRequest):
+            request = pipeline_service.CancelPipelineJobRequest(request)
+            # If we have keyword arguments corresponding to fields on the
+            # request, apply these.
+            if name is not None:
+                request.name = name
+
+        # Wrap the RPC method; this adds retry and timeout information,
+        # and friendly error handling.
+        rpc = self._transport._wrapped_methods[self._transport.cancel_pipeline_job]
 
         # Certain fields should be provided within the metadata header;
         # add these here.
