@@ -36,6 +36,7 @@ def teardown(teardown_model):
     yield
 
 
+@pytest.mark.skip(reason="https://github.com/googleapis/java-aiplatform/issues/420")
 def test_ucaip_generated_upload_model_explain_tabular_managed_constainer_sample(capsys, shared_state):
 
     upload_model_explain_tabular_managed_container_sample.upload_model_explain_tabular_managed_container_sample(

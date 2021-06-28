@@ -38,6 +38,7 @@ def teardown(storage_client):
         blob.delete()
 
 
+@pytest.mark.skip(reason="https://github.com/googleapis/java-aiplatform/issues/420")
 def test_export_model_video_action_recognition_sample(capsys):
     export_model_video_action_recognition_sample.export_model_video_action_recognition_sample(
         project=PROJECT_ID,
