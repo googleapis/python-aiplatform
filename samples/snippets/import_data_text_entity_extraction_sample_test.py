@@ -24,6 +24,7 @@ def teardown(teardown_dataset):
     yield
 
 
+@pytest.mark.skip(reason="https://github.com/googleapis/java-aiplatform/issues/420")
 def test_ucaip_generated_import_data_text_entity_extraction_sample(
     capsys, shared_state
 ):

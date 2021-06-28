@@ -35,6 +35,7 @@ def teardown(teardown_batch_prediction_job):
     yield
 
 
+@pytest.mark.skip(reason="https://github.com/googleapis/java-aiplatform/issues/420")
 # Creating AutoML Text Entity Extraction batch prediction job
 def test_ucaip_generated_create_batch_prediction_ten_sample(capsys, shared_state):
 

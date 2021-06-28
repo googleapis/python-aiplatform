@@ -38,6 +38,7 @@ def teardown(teardown_dataset):
     yield
 
 
+@pytest.mark.skip(reason="https://github.com/googleapis/java-aiplatform/issues/420")
 def test_import_data_video_action_recognition_sample(
     capsys, shared_state, dataset_client
 ):
