@@ -43,9 +43,6 @@ from google.cloud.aiplatform_v1beta1.services.migration_service import (
 from google.cloud.aiplatform_v1beta1.services.migration_service import pagers
 from google.cloud.aiplatform_v1beta1.services.migration_service import transports
 from google.cloud.aiplatform_v1beta1.services.migration_service.transports.base import (
-    _API_CORE_VERSION,
-)
-from google.cloud.aiplatform_v1beta1.services.migration_service.transports.base import (
     _GOOGLE_AUTH_VERSION,
 )
 from google.cloud.aiplatform_v1beta1.types import migratable_resource
@@ -55,8 +52,9 @@ from google.oauth2 import service_account
 import google.auth
 
 
-# TODO(busunkim): Once google-api-core >= 1.26.0 is required:
-# - Delete all the api-core and auth "less than" test cases
+# TODO(busunkim): Once google-auth >= 1.25.0 is required transitively
+# through google-api-core:
+# - Delete the auth "less than" test cases
 # - Delete these pytest markers (Make the "greater than or equal to" tests the default).
 requires_google_auth_lt_1_25_0 = pytest.mark.skipif(
     packaging.version.parse(_GOOGLE_AUTH_VERSION) >= packaging.version.parse("1.25.0"),
@@ -65,16 +63,6 @@ requires_google_auth_lt_1_25_0 = pytest.mark.skipif(
 requires_google_auth_gte_1_25_0 = pytest.mark.skipif(
     packaging.version.parse(_GOOGLE_AUTH_VERSION) < packaging.version.parse("1.25.0"),
     reason="This test requires google-auth >= 1.25.0",
-)
-
-requires_api_core_lt_1_26_0 = pytest.mark.skipif(
-    packaging.version.parse(_API_CORE_VERSION) >= packaging.version.parse("1.26.0"),
-    reason="This test requires google-api-core < 1.26.0",
-)
-
-requires_api_core_gte_1_26_0 = pytest.mark.skipif(
-    packaging.version.parse(_API_CORE_VERSION) < packaging.version.parse("1.26.0"),
-    reason="This test requires google-api-core >= 1.26.0",
 )
 
 
@@ -138,6 +126,18 @@ def test_migration_service_client_from_service_account_info(client_class):
         assert isinstance(client, client_class)
 
         assert client.transport._host == "aiplatform.googleapis.com:443"
+
+
+@pytest.mark.parametrize(
+    "client_class", [MigrationServiceClient, MigrationServiceAsyncClient,]
+)
+def test_migration_service_client_service_account_always_use_jwt(client_class):
+    with mock.patch.object(
+        service_account.Credentials, "with_always_use_jwt_access", create=True
+    ) as use_jwt:
+        creds = service_account.Credentials(None, None, None)
+        client = client_class(credentials=creds)
+        use_jwt.assert_called_with(True)
 
 
 @pytest.mark.parametrize(
@@ -1389,7 +1389,6 @@ def test_migration_service_transport_auth_adc_old_google_auth(transport_class):
         (transports.MigrationServiceGrpcAsyncIOTransport, grpc_helpers_async),
     ],
 )
-@requires_api_core_gte_1_26_0
 def test_migration_service_transport_create_channel(transport_class, grpc_helpers):
     # If credentials and host are not provided, the transport class should use
     # ADC credentials.
@@ -1410,79 +1409,6 @@ def test_migration_service_transport_create_channel(transport_class, grpc_helper
             default_scopes=("https://www.googleapis.com/auth/cloud-platform",),
             scopes=["1", "2"],
             default_host="aiplatform.googleapis.com",
-            ssl_credentials=None,
-            options=[
-                ("grpc.max_send_message_length", -1),
-                ("grpc.max_receive_message_length", -1),
-            ],
-        )
-
-
-@pytest.mark.parametrize(
-    "transport_class,grpc_helpers",
-    [
-        (transports.MigrationServiceGrpcTransport, grpc_helpers),
-        (transports.MigrationServiceGrpcAsyncIOTransport, grpc_helpers_async),
-    ],
-)
-@requires_api_core_lt_1_26_0
-def test_migration_service_transport_create_channel_old_api_core(
-    transport_class, grpc_helpers
-):
-    # If credentials and host are not provided, the transport class should use
-    # ADC credentials.
-    with mock.patch.object(
-        google.auth, "default", autospec=True
-    ) as adc, mock.patch.object(
-        grpc_helpers, "create_channel", autospec=True
-    ) as create_channel:
-        creds = ga_credentials.AnonymousCredentials()
-        adc.return_value = (creds, None)
-        transport_class(quota_project_id="octopus")
-
-        create_channel.assert_called_with(
-            "aiplatform.googleapis.com:443",
-            credentials=creds,
-            credentials_file=None,
-            quota_project_id="octopus",
-            scopes=("https://www.googleapis.com/auth/cloud-platform",),
-            ssl_credentials=None,
-            options=[
-                ("grpc.max_send_message_length", -1),
-                ("grpc.max_receive_message_length", -1),
-            ],
-        )
-
-
-@pytest.mark.parametrize(
-    "transport_class,grpc_helpers",
-    [
-        (transports.MigrationServiceGrpcTransport, grpc_helpers),
-        (transports.MigrationServiceGrpcAsyncIOTransport, grpc_helpers_async),
-    ],
-)
-@requires_api_core_lt_1_26_0
-def test_migration_service_transport_create_channel_user_scopes(
-    transport_class, grpc_helpers
-):
-    # If credentials and host are not provided, the transport class should use
-    # ADC credentials.
-    with mock.patch.object(
-        google.auth, "default", autospec=True
-    ) as adc, mock.patch.object(
-        grpc_helpers, "create_channel", autospec=True
-    ) as create_channel:
-        creds = ga_credentials.AnonymousCredentials()
-        adc.return_value = (creds, None)
-
-        transport_class(quota_project_id="octopus", scopes=["1", "2"])
-
-        create_channel.assert_called_with(
-            "aiplatform.googleapis.com:443",
-            credentials=creds,
-            credentials_file=None,
-            quota_project_id="octopus",
-            scopes=["1", "2"],
             ssl_credentials=None,
             options=[
                 ("grpc.max_send_message_length", -1),
@@ -1513,7 +1439,7 @@ def test_migration_service_grpc_transport_client_cert_source_for_mtls(transport_
             "squid.clam.whelk:443",
             credentials=cred,
             credentials_file=None,
-            scopes=("https://www.googleapis.com/auth/cloud-platform",),
+            scopes=None,
             ssl_credentials=mock_ssl_channel_creds,
             quota_project_id=None,
             options=[
@@ -1622,7 +1548,7 @@ def test_migration_service_transport_channel_mtls_with_client_cert_source(
                 "mtls.squid.clam.whelk:443",
                 credentials=cred,
                 credentials_file=None,
-                scopes=("https://www.googleapis.com/auth/cloud-platform",),
+                scopes=None,
                 ssl_credentials=mock_ssl_cred,
                 quota_project_id=None,
                 options=[
@@ -1669,7 +1595,7 @@ def test_migration_service_transport_channel_mtls_with_adc(transport_class):
                 "mtls.squid.clam.whelk:443",
                 credentials=mock_cred,
                 credentials_file=None,
-                scopes=("https://www.googleapis.com/auth/cloud-platform",),
+                scopes=None,
                 ssl_credentials=mock_ssl_cred,
                 quota_project_id=None,
                 options=[
@@ -1758,31 +1684,7 @@ def test_parse_dataset_path():
 
 def test_dataset_path():
     project = "squid"
-    location = "clam"
-    dataset = "whelk"
-    expected = "projects/{project}/locations/{location}/datasets/{dataset}".format(
-        project=project, location=location, dataset=dataset,
-    )
-    actual = MigrationServiceClient.dataset_path(project, location, dataset)
-    assert expected == actual
-
-
-def test_parse_dataset_path():
-    expected = {
-        "project": "octopus",
-        "location": "oyster",
-        "dataset": "nudibranch",
-    }
-    path = MigrationServiceClient.dataset_path(**expected)
-
-    # Check that the path construction is reversible.
-    actual = MigrationServiceClient.parse_dataset_path(path)
-    assert expected == actual
-
-
-def test_dataset_path():
-    project = "cuttlefish"
-    dataset = "mussel"
+    dataset = "clam"
     expected = "projects/{project}/datasets/{dataset}".format(
         project=project, dataset=dataset,
     )
@@ -1792,7 +1694,31 @@ def test_dataset_path():
 
 def test_parse_dataset_path():
     expected = {
-        "project": "winkle",
+        "project": "whelk",
+        "dataset": "octopus",
+    }
+    path = MigrationServiceClient.dataset_path(**expected)
+
+    # Check that the path construction is reversible.
+    actual = MigrationServiceClient.parse_dataset_path(path)
+    assert expected == actual
+
+
+def test_dataset_path():
+    project = "oyster"
+    location = "nudibranch"
+    dataset = "cuttlefish"
+    expected = "projects/{project}/locations/{location}/datasets/{dataset}".format(
+        project=project, location=location, dataset=dataset,
+    )
+    actual = MigrationServiceClient.dataset_path(project, location, dataset)
+    assert expected == actual
+
+
+def test_parse_dataset_path():
+    expected = {
+        "project": "mussel",
+        "location": "winkle",
         "dataset": "nautilus",
     }
     path = MigrationServiceClient.dataset_path(**expected)
