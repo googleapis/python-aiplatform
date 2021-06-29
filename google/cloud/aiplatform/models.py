@@ -116,6 +116,11 @@ class Endpoint(base.VertexAiResourceNounWithFutureManager):
             resource_name=endpoint_name,
         )
         self._gca_resource = self._get_gca_resource(resource_name=endpoint_name)
+
+        project, location = self._get_and_validate_project_location(
+            resource_name=self._gca_resource.name, project=project, location=location
+        )
+
         self._prediction_client = self._instantiate_prediction_client(
             location=location or initializer.global_config.location,
             credentials=credentials,
@@ -324,8 +329,9 @@ class Endpoint(base.VertexAiResourceNounWithFutureManager):
             credentials=credentials,
         )
 
+    @classmethod
     def _construct_sdk_resource_from_gapic(
-        self,
+        cls,
         gapic_resource: proto.Message,
         project: Optional[str] = None,
         location: Optional[str] = None,
@@ -351,12 +357,21 @@ class Endpoint(base.VertexAiResourceNounWithFutureManager):
             Endpoint:
                 An initialized Endpoint resource.
         """
-        endpoint = self._empty_constructor(
+        endpoint = cls._empty_constructor(
             project=project, location=location, credentials=credentials
         )
 
         endpoint._gca_resource = gapic_resource
-        endpoint._prediction_client = self._instantiate_prediction_client(
+
+        project, location = endpoint._get_and_validate_project_location(
+            resource_name=gapic_resource.name, project=project, location=location
+        )
+
+        endpoint.project = project or initializer.global_config.project
+        endpoint.location = location or initializer.global_config.location
+        endpoint.credentials = credentials or initializer.global_config.credentials
+
+        endpoint._prediction_client = cls._instantiate_prediction_client(
             location=location or initializer.global_config.location,
             credentials=credentials,
         )
