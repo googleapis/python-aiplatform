@@ -401,10 +401,12 @@ class TestEndpoint:
 
     @pytest.mark.usefixtures("get_endpoint_mock")
     def test_constructor_with_conflicting_location(self):
-        """get_endpoint_mock returns resource name with `_TEST_LOCATION` instead of `_TEST_LOCATION_2`"""
+        """Passing a full resource name with `_TEST_LOCATION` and providing `_TEST_LOCATION_2` as location"""
 
         with pytest.raises(RuntimeError) as err:
-            models.Endpoint(endpoint_name=_TEST_ID, location=_TEST_LOCATION_2)
+            models.Endpoint(
+                endpoint_name=_TEST_ENDPOINT_NAME, location=_TEST_LOCATION_2
+            )
 
         assert err.match(
             regexp=r"is provided, but different from the resource location"

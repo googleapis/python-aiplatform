@@ -117,13 +117,8 @@ class Endpoint(base.VertexAiResourceNounWithFutureManager):
         )
         self._gca_resource = self._get_gca_resource(resource_name=endpoint_name)
 
-        project, location = self._get_and_validate_project_location(
-            resource_name=self._gca_resource.name, project=project, location=location
-        )
-
         self._prediction_client = self._instantiate_prediction_client(
-            location=location or initializer.global_config.location,
-            credentials=credentials,
+            location=self.location, credentials=credentials,
         )
 
     @property
@@ -363,17 +358,8 @@ class Endpoint(base.VertexAiResourceNounWithFutureManager):
 
         endpoint._gca_resource = gapic_resource
 
-        project, location = endpoint._get_and_validate_project_location(
-            resource_name=gapic_resource.name, project=project, location=location
-        )
-
-        endpoint.project = project or initializer.global_config.project
-        endpoint.location = location or initializer.global_config.location
-        endpoint.credentials = credentials or initializer.global_config.credentials
-
         endpoint._prediction_client = cls._instantiate_prediction_client(
-            location=location or initializer.global_config.location,
-            credentials=credentials,
+            location=endpoint.location, credentials=credentials,
         )
 
         return endpoint
