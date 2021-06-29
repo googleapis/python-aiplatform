@@ -385,17 +385,14 @@ class TestEndpoint:
         )
 
     def test_constructor_with_endpoint_id(self, get_endpoint_mock):
-        aiplatform.init(project=_TEST_PROJECT, location=_TEST_LOCATION)
         models.Endpoint(_TEST_ID)
         get_endpoint_mock.assert_called_with(name=_TEST_ENDPOINT_NAME)
 
     def test_constructor_with_endpoint_name(self, get_endpoint_mock):
-        aiplatform.init(project=_TEST_PROJECT, location=_TEST_LOCATION)
         models.Endpoint(_TEST_ENDPOINT_NAME)
         get_endpoint_mock.assert_called_with(name=_TEST_ENDPOINT_NAME)
 
     def test_constructor_with_custom_project(self, get_endpoint_mock):
-        aiplatform.init(project=_TEST_PROJECT, location=_TEST_LOCATION)
         models.Endpoint(endpoint_name=_TEST_ID, project=_TEST_PROJECT_2)
         test_endpoint_resource_name = endpoint_service_client.EndpointServiceClient.endpoint_path(
             _TEST_PROJECT_2, _TEST_LOCATION, _TEST_ID
@@ -405,7 +402,6 @@ class TestEndpoint:
     @pytest.mark.usefixtures("get_endpoint_mock")
     def test_constructor_with_conflicting_location(self):
         """get_endpoint_mock returns resource name with `_TEST_LOCATION` instead of `_TEST_LOCATION_2`"""
-        aiplatform.init(project=_TEST_PROJECT, location=_TEST_LOCATION)
 
         with pytest.raises(RuntimeError) as err:
             models.Endpoint(endpoint_name=_TEST_ID, location=_TEST_LOCATION_2)
@@ -415,7 +411,6 @@ class TestEndpoint:
         )
 
     def test_constructor_with_custom_location(self, get_endpoint_alt_location_mock):
-        aiplatform.init(project=_TEST_PROJECT, location=_TEST_LOCATION)
         models.Endpoint(endpoint_name=_TEST_ID, location=_TEST_LOCATION_2)
         test_endpoint_resource_name = endpoint_service_client.EndpointServiceClient.endpoint_path(
             _TEST_PROJECT, _TEST_LOCATION_2, _TEST_ID
@@ -425,7 +420,6 @@ class TestEndpoint:
         )
 
     def test_constructor_with_custom_credentials(self, create_endpoint_client_mock):
-        aiplatform.init(project=_TEST_PROJECT, location=_TEST_LOCATION)
         creds = auth_credentials.AnonymousCredentials()
 
         models.Endpoint(_TEST_ENDPOINT_NAME, credentials=creds)
@@ -474,7 +468,6 @@ class TestEndpoint:
     @pytest.mark.usefixtures("get_endpoint_mock")
     @pytest.mark.parametrize("sync", [True, False])
     def test_create(self, create_endpoint_mock, sync):
-        aiplatform.init(project=_TEST_PROJECT, location=_TEST_LOCATION)
         my_endpoint = models.Endpoint.create(
             display_name=_TEST_DISPLAY_NAME,
             encryption_spec_key_name=_TEST_ENCRYPTION_KEY_NAME,
@@ -497,7 +490,6 @@ class TestEndpoint:
     @pytest.mark.usefixtures("get_endpoint_mock")
     @pytest.mark.parametrize("sync", [True, False])
     def test_create_with_description(self, create_endpoint_mock, sync):
-        aiplatform.init(project=_TEST_PROJECT, location=_TEST_LOCATION)
         my_endpoint = models.Endpoint.create(
             display_name=_TEST_DISPLAY_NAME, description=_TEST_DESCRIPTION, sync=sync
         )
@@ -514,7 +506,6 @@ class TestEndpoint:
     @pytest.mark.usefixtures("get_endpoint_mock", "get_model_mock")
     @pytest.mark.parametrize("sync", [True, False])
     def test_deploy(self, deploy_model_mock, sync):
-        aiplatform.init(project=_TEST_PROJECT, location=_TEST_LOCATION)
         test_endpoint = models.Endpoint(_TEST_ENDPOINT_NAME)
         test_model = models.Model(_TEST_ID)
         test_endpoint.deploy(test_model, sync=sync)
@@ -540,7 +531,6 @@ class TestEndpoint:
     @pytest.mark.usefixtures("get_endpoint_mock", "get_model_mock")
     @pytest.mark.parametrize("sync", [True, False])
     def test_deploy_with_display_name(self, deploy_model_mock, sync):
-        aiplatform.init(project=_TEST_PROJECT, location=_TEST_LOCATION)
         test_endpoint = models.Endpoint(_TEST_ENDPOINT_NAME)
         test_model = models.Model(_TEST_ID)
         test_endpoint.deploy(
@@ -569,7 +559,6 @@ class TestEndpoint:
     @pytest.mark.parametrize("sync", [True, False])
     def test_deploy_raise_error_traffic_80(self, sync):
         with pytest.raises(ValueError):
-            aiplatform.init(project=_TEST_PROJECT, location=_TEST_LOCATION)
             test_endpoint = models.Endpoint(_TEST_ENDPOINT_NAME)
             test_model = models.Model(_TEST_ID)
             test_endpoint.deploy(model=test_model, traffic_percentage=80, sync=sync)
@@ -581,7 +570,6 @@ class TestEndpoint:
     @pytest.mark.parametrize("sync", [True, False])
     def test_deploy_raise_error_traffic_120(self, sync):
         with pytest.raises(ValueError):
-            aiplatform.init(project=_TEST_PROJECT, location=_TEST_LOCATION)
             test_endpoint = models.Endpoint(_TEST_ENDPOINT_NAME)
             test_model = models.Model(_TEST_ID)
             test_endpoint.deploy(model=test_model, traffic_percentage=120, sync=sync)
@@ -590,7 +578,6 @@ class TestEndpoint:
     @pytest.mark.parametrize("sync", [True, False])
     def test_deploy_raise_error_traffic_negative(self, sync):
         with pytest.raises(ValueError):
-            aiplatform.init(project=_TEST_PROJECT, location=_TEST_LOCATION)
             test_endpoint = models.Endpoint(_TEST_ENDPOINT_NAME)
             test_model = models.Model(_TEST_ID)
             test_endpoint.deploy(model=test_model, traffic_percentage=-18, sync=sync)
@@ -599,7 +586,6 @@ class TestEndpoint:
     @pytest.mark.parametrize("sync", [True, False])
     def test_deploy_raise_error_min_replica(self, sync):
         with pytest.raises(ValueError):
-            aiplatform.init(project=_TEST_PROJECT, location=_TEST_LOCATION)
             test_endpoint = models.Endpoint(_TEST_ENDPOINT_NAME)
             test_model = models.Model(_TEST_ID)
             test_endpoint.deploy(model=test_model, min_replica_count=-1, sync=sync)
@@ -608,7 +594,6 @@ class TestEndpoint:
     @pytest.mark.parametrize("sync", [True, False])
     def test_deploy_raise_error_max_replica(self, sync):
         with pytest.raises(ValueError):
-            aiplatform.init(project=_TEST_PROJECT, location=_TEST_LOCATION)
             test_endpoint = models.Endpoint(_TEST_ENDPOINT_NAME)
             test_model = models.Model(_TEST_ID)
             test_endpoint.deploy(model=test_model, max_replica_count=-2, sync=sync)
@@ -617,7 +602,6 @@ class TestEndpoint:
     @pytest.mark.parametrize("sync", [True, False])
     def test_deploy_raise_error_traffic_split(self, sync):
         with pytest.raises(ValueError):
-            aiplatform.init(project=_TEST_PROJECT, location=_TEST_LOCATION)
             test_endpoint = models.Endpoint(_TEST_ENDPOINT_NAME)
             test_model = models.Model(_TEST_ID)
             test_endpoint.deploy(model=test_model, traffic_split={"a": 99}, sync=sync)
@@ -625,7 +609,6 @@ class TestEndpoint:
     @pytest.mark.usefixtures("get_model_mock")
     @pytest.mark.parametrize("sync", [True, False])
     def test_deploy_with_traffic_percent(self, deploy_model_mock, sync):
-        aiplatform.init(project=_TEST_PROJECT, location=_TEST_LOCATION)
         with mock.patch.object(
             endpoint_service_client.EndpointServiceClient, "get_endpoint"
         ) as get_endpoint_mock:
@@ -658,7 +641,6 @@ class TestEndpoint:
     @pytest.mark.usefixtures("get_model_mock")
     @pytest.mark.parametrize("sync", [True, False])
     def test_deploy_with_traffic_split(self, deploy_model_mock, sync):
-        aiplatform.init(project=_TEST_PROJECT, location=_TEST_LOCATION)
         with mock.patch.object(
             endpoint_service_client.EndpointServiceClient, "get_endpoint"
         ) as get_endpoint_mock:
@@ -694,7 +676,6 @@ class TestEndpoint:
     @pytest.mark.usefixtures("get_endpoint_mock", "get_model_mock")
     @pytest.mark.parametrize("sync", [True, False])
     def test_deploy_with_dedicated_resources(self, deploy_model_mock, sync):
-        aiplatform.init(project=_TEST_PROJECT, location=_TEST_LOCATION)
         test_endpoint = models.Endpoint(_TEST_ENDPOINT_NAME)
         test_model = models.Model(_TEST_ID)
         test_endpoint.deploy(
@@ -735,7 +716,6 @@ class TestEndpoint:
     @pytest.mark.usefixtures("get_endpoint_mock", "get_model_mock")
     @pytest.mark.parametrize("sync", [True, False])
     def test_deploy_with_explanations(self, deploy_model_with_explanations_mock, sync):
-        aiplatform.init(project=_TEST_PROJECT, location=_TEST_LOCATION)
         test_endpoint = models.Endpoint(_TEST_ENDPOINT_NAME)
         test_model = models.Model(_TEST_ID)
         test_endpoint.deploy(
@@ -780,7 +760,6 @@ class TestEndpoint:
     @pytest.mark.usefixtures("get_endpoint_mock", "get_model_mock")
     @pytest.mark.parametrize("sync", [True, False])
     def test_deploy_with_min_replica_count(self, deploy_model_mock, sync):
-        aiplatform.init(project=_TEST_PROJECT, location=_TEST_LOCATION)
         test_endpoint = models.Endpoint(_TEST_ENDPOINT_NAME)
         test_model = models.Model(_TEST_ID)
         test_endpoint.deploy(model=test_model, min_replica_count=2, sync=sync)
@@ -805,7 +784,6 @@ class TestEndpoint:
     @pytest.mark.usefixtures("get_endpoint_mock", "get_model_mock")
     @pytest.mark.parametrize("sync", [True, False])
     def test_deploy_with_max_replica_count(self, deploy_model_mock, sync):
-        aiplatform.init(project=_TEST_PROJECT, location=_TEST_LOCATION)
         test_endpoint = models.Endpoint(_TEST_ENDPOINT_NAME)
         test_model = models.Model(_TEST_ID)
         test_endpoint.deploy(model=test_model, max_replica_count=2, sync=sync)
@@ -894,7 +872,6 @@ class TestEndpoint:
 
     @pytest.mark.parametrize("sync", [True, False])
     def test_undeploy(self, undeploy_model_mock, sync):
-        aiplatform.init(project=_TEST_PROJECT, location=_TEST_LOCATION)
         with mock.patch.object(
             endpoint_service_client.EndpointServiceClient, "get_endpoint"
         ) as get_endpoint_mock:
@@ -918,7 +895,6 @@ class TestEndpoint:
 
     @pytest.mark.parametrize("sync", [True, False])
     def test_undeploy_with_traffic_split(self, undeploy_model_mock, sync):
-        aiplatform.init(project=_TEST_PROJECT, location=_TEST_LOCATION)
         with mock.patch.object(
             endpoint_service_client.EndpointServiceClient, "get_endpoint"
         ) as get_endpoint_mock:
@@ -948,7 +924,6 @@ class TestEndpoint:
     @pytest.mark.parametrize("sync", [True, False])
     def test_undeploy_raise_error_traffic_split_total(self, sync):
         with pytest.raises(ValueError):
-            aiplatform.init(project=_TEST_PROJECT, location=_TEST_LOCATION)
             test_endpoint = models.Endpoint(_TEST_ENDPOINT_NAME)
             test_endpoint.undeploy(
                 deployed_model_id="model1", traffic_split={"model2": 99}, sync=sync
@@ -958,7 +933,6 @@ class TestEndpoint:
     @pytest.mark.parametrize("sync", [True, False])
     def test_undeploy_raise_error_undeployed_model_traffic(self, sync):
         with pytest.raises(ValueError):
-            aiplatform.init(project=_TEST_PROJECT, location=_TEST_LOCATION)
             test_endpoint = models.Endpoint(_TEST_ENDPOINT_NAME)
             test_endpoint.undeploy(
                 deployed_model_id="model1",
@@ -967,7 +941,6 @@ class TestEndpoint:
             )
 
     def test_predict(self, get_endpoint_mock, predict_client_predict_mock):
-        aiplatform.init(project=_TEST_PROJECT, location=_TEST_LOCATION)
 
         test_endpoint = models.Endpoint(_TEST_ID)
         test_prediction = test_endpoint.predict(
@@ -986,7 +959,6 @@ class TestEndpoint:
         )
 
     def test_explain(self, get_endpoint_mock, predict_client_explain_mock):
-        aiplatform.init(project=_TEST_PROJECT, location=_TEST_LOCATION)
 
         test_endpoint = models.Endpoint(_TEST_ID)
         test_prediction = test_endpoint.explain(
@@ -1012,7 +984,6 @@ class TestEndpoint:
         )
 
     def test_list_models(self, get_endpoint_with_models_mock):
-        aiplatform.init(project=_TEST_PROJECT, location=_TEST_LOCATION)
 
         ept = aiplatform.Endpoint(_TEST_ID)
         my_models = ept.list_models()
@@ -1022,7 +993,6 @@ class TestEndpoint:
     @pytest.mark.usefixtures("get_endpoint_with_models_mock")
     @pytest.mark.parametrize("sync", [True, False])
     def test_undeploy_all(self, sdk_private_undeploy_mock, sync):
-        aiplatform.init(project=_TEST_PROJECT, location=_TEST_LOCATION)
 
         ept = aiplatform.Endpoint(_TEST_ID)
         ept.undeploy_all(sync=sync)
@@ -1101,7 +1071,6 @@ class TestEndpoint:
     def test_delete_endpoint_without_force(
         self, sdk_undeploy_all_mock, delete_endpoint_mock, sync
     ):
-        aiplatform.init(project=_TEST_PROJECT, location=_TEST_LOCATION)
 
         ept = aiplatform.Endpoint(_TEST_ID)
         ept.delete(sync=sync)
@@ -1119,7 +1088,6 @@ class TestEndpoint:
     def test_delete_endpoint_with_force(
         self, sdk_undeploy_all_mock, delete_endpoint_mock, sync
     ):
-        aiplatform.init(project=_TEST_PROJECT, location=_TEST_LOCATION)
 
         ept = aiplatform.Endpoint(_TEST_ID)
         ept.delete(force=True, sync=sync)
