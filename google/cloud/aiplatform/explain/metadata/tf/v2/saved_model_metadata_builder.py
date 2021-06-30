@@ -30,7 +30,7 @@ class SavedModelMetadataBuilder(metadata_builder.MetadataBuilder):
         self,
         model_path: str,
         signature_name: Optional[str] = None,
-        outputs_to_explain: Optional[List[str]] = (),
+        outputs_to_explain: Optional[List[str]] = None,
         **kwargs
     ) -> None:
         """Initializes a SavedModelMetadataBuilder object.
@@ -93,7 +93,7 @@ class SavedModelMetadataBuilder(metadata_builder.MetadataBuilder):
               Inferred input metadata and output metadata from the model.
 
         Raises:
-            ValueError if specified name is not found in signature outputs.
+              ValueError if specified name is not found in signature outputs.
         """
 
         loaded_sig = self._loaded_model.signatures[signature_name]
@@ -101,18 +101,10 @@ class SavedModelMetadataBuilder(metadata_builder.MetadataBuilder):
         output_sig = loaded_sig.structured_outputs
         input_mds = {}
         for name, tensor_spec in input_sig.items():
-            if tensor_spec.dtype.is_floating:
-                input_mds[
-                    name
-                ] = explanation_metadata.ExplanationMetadata.InputMetadata(
-                    input_tensor_name=name
-                )
-            else:
-                input_mds[
-                    name
-                ] = explanation_metadata.ExplanationMetadata.InputMetadata(
-                    input_tensor_name=name, modality="categorical",
-                )
+            input_mds[name] = explanation_metadata.ExplanationMetadata.InputMetadata(
+                input_tensor_name=name,
+                modality=None if tensor_spec.dtype.is_floating else "categorical",
+            )
 
         output_mds = {}
         for name in output_sig:

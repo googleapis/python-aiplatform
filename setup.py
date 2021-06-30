@@ -36,8 +36,8 @@ tensorboard_extra_require = [
 ]
 metadata_extra_require = ["pandas >= 1.0.0"]
 xai_extra_require = ["tensorflow-cpu>=2.3.0, <=2.5.0"]
-full_extra_require = (
-    tensorboard_extra_require + metadata_extra_require + xai_extra_require
+full_extra_require = list(
+    set(tensorboard_extra_require + metadata_extra_require + xai_extra_require)
 )
 testing_extra_require = full_extra_require + ["grpcio-testing ~= 1.34.0"]
 
