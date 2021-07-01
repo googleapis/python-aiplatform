@@ -433,7 +433,7 @@ class PredictionServiceClient(metaclass=PredictionServiceClientMeta):
             if endpoint is not None:
                 request.endpoint = endpoint
             if instances is not None:
-                request.instances.extend(instances)
+                request.instances = instances
             if parameters is not None:
                 request.parameters = parameters
 

@@ -25,24 +25,6 @@ common = gcp.CommonTemplates()
 default_version = "v1"
 
 for library in s.get_staging_dirs(default_version):
-    # ---------------------------------------------------------------------
-    # Patch each version of the library
-    # ---------------------------------------------------------------------
-
-    # https://github.com/googleapis/gapic-generator-python/issues/413
-    s.replace(
-        library / f"google/cloud/aiplatform_{library.name}/services/prediction_service/client.py",
-        "request.instances = instances",
-        "request.instances.extend(instances)",
-    )
-
-    # https://github.com/googleapis/gapic-generator-python/issues/672
-    s.replace(
-        library / f"google/cloud/aiplatform_{library.name}/services/endpoint_service/client.py",
-        "request.traffic_split.extend\(traffic_split\)",
-        "request.traffic_split = traffic_split",
-    )
-
     s.move(
         library,
         excludes=[
@@ -61,11 +43,6 @@ for library in s.get_staging_dirs(default_version):
             f"scripts/fixup_prediction_{library.name}_keywords.py",
             "google/cloud/aiplatform/__init__.py",
             f"google/cloud/aiplatform/{library.name}/schema/**/services/",
-            f"tests/unit/gapic/aiplatform_{library.name}/test_prediction_service.py",
-            f"tests/unit/gapic/definition_{library.name}/",
-            f"tests/unit/gapic/instance_{library.name}/",
-            f"tests/unit/gapic/params_{library.name}/",
-            f"tests/unit/gapic/prediction_{library.name}/",
         ],
     )
 
