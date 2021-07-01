@@ -35,6 +35,7 @@ def teardown(storage_client):
         blob.delete()
 
 
+@pytest.mark.skip(reason="https://github.com/googleapis/java-aiplatform/issues/420")
 def test_ucaip_generated_export_model_tabular_classification_sample(capsys):
     export_model_tabular_classification_sample.export_model_tabular_classification_sample(
         project=PROJECT_ID,

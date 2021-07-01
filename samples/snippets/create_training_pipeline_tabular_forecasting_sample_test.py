@@ -64,6 +64,7 @@ def teardown(shared_state):
     )
 
 
+@pytest.mark.skip(reason="https://github.com/googleapis/java-aiplatform/issues/420")
 def test_ucaip_generated_create_training_pipeline_sample(capsys, shared_state):
 
     create_training_pipeline_tabular_forecasting_sample.create_training_pipeline_tabular_forecasting_sample(

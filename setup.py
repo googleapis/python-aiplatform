@@ -21,7 +21,7 @@ import os
 import setuptools  # type: ignore
 
 name = "google-cloud-aiplatform"
-version = "1.1.0"
+version = "1.1.1"
 description = "Cloud AI Platform API client library"
 
 package_root = os.path.abspath(os.path.dirname(__file__))
@@ -29,14 +29,10 @@ readme_filename = os.path.join(package_root, "README.rst")
 with io.open(readme_filename, encoding="utf-8") as readme_file:
     readme = readme_file.read()
 
-tensorboard_extra_require = [
-    "tensorflow-cpu>=2.3.0, <=2.5.0",
-    "grpcio~=1.34.0",
-    "six~=1.15.0",
-]
+tensorboard_extra_require = ["tensorflow >=2.3.0, <=2.5.0"]
 metadata_extra_require = ["pandas >= 1.0.0"]
 full_extra_require = tensorboard_extra_require + metadata_extra_require
-testing_extra_require = full_extra_require + ["grpcio-testing ~= 1.34.0"]
+testing_extra_require = full_extra_require + ["grpcio-testing"]
 
 
 setuptools.setup(

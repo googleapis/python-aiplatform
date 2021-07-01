@@ -819,8 +819,9 @@ class VertexAiResourceNounWithFutureManager(VertexAiResourceNoun, FutureManager)
             if value:
                 setattr(self, attribute, value)
 
+    @classmethod
     def _construct_sdk_resource_from_gapic(
-        self,
+        cls,
         gapic_resource: proto.Message,
         project: Optional[str] = None,
         location: Optional[str] = None,
@@ -846,7 +847,7 @@ class VertexAiResourceNounWithFutureManager(VertexAiResourceNoun, FutureManager)
             VertexAiResourceNoun:
                 An initialized SDK object that represents GAPIC type.
         """
-        sdk_resource = self._empty_constructor(
+        sdk_resource = cls._empty_constructor(
             project=project, location=location, credentials=credentials
         )
         sdk_resource._gca_resource = gapic_resource
@@ -894,14 +895,14 @@ class VertexAiResourceNounWithFutureManager(VertexAiResourceNoun, FutureManager)
         Returns:
             List[VertexAiResourceNoun] - A list of SDK resource objects
         """
-        self = cls._empty_constructor(
+        resource = cls._empty_constructor(
             project=project, location=location, credentials=credentials
         )
 
         # Fetch credentials once and re-use for all `_empty_constructor()` calls
         creds = initializer.global_config.credentials
 
-        resource_list_method = getattr(self.api_client, self._list_method)
+        resource_list_method = getattr(resource.api_client, resource._list_method)
 
         list_request = {
             "parent": initializer.global_config.common_location_path(
@@ -916,7 +917,7 @@ class VertexAiResourceNounWithFutureManager(VertexAiResourceNoun, FutureManager)
         resource_list = resource_list_method(request=list_request) or []
 
         return [
-            self._construct_sdk_resource_from_gapic(
+            cls._construct_sdk_resource_from_gapic(
                 gapic_resource, project=project, location=location, credentials=creds
             )
             for gapic_resource in resource_list

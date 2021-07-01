@@ -29,6 +29,7 @@ def teardown(teardown_dataset):
     yield
 
 
+@pytest.mark.skip(reason="https://github.com/googleapis/java-aiplatform/issues/420")
 def test_ucaip_generated_create_dataset_tabular_gcs(capsys, shared_state):
     create_dataset_tabular_gcs_sample.create_dataset_tabular_gcs_sample(
         display_name=f"temp_create_dataset_test_{uuid4()}",
