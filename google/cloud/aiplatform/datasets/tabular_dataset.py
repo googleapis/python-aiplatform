@@ -195,6 +195,7 @@ class TabularDataset(datasets._Dataset):
             )
         ]
 
+        # Only return "leaf nodes", basically any field that doesn't have children
         if len(ancestor_names) == 0:
             return {schema_field.name}
         else:
