@@ -20,6 +20,8 @@ import logging
 
 from typing import List, Optional, Sequence, Tuple, Union
 
+from google.cloud.bigquery.schema import SchemaField
+
 from google.auth import credentials as auth_credentials
 
 from google.cloud import bigquery
@@ -166,12 +168,47 @@ class TabularDataset(datasets._Dataset):
         return next(csv_reader)
 
     @staticmethod
+    def _get_schema_field_names_recursively(schema_field: SchemaField) -> List[str]:
+        """Retrieve the name for a schema field along with ancestor fields.
+        Nested schema fields are flattened and concatenated with a ".".
+        Schema fields with child fields are not included, but the children are.
+
+        Args:
+            project (str):
+                Required. Project to initiate the BigQuery client with.
+            bq_table_uri (str):
+                Required. A URI to a BigQuery table.
+                Can include "bq://" prefix but not required.
+            credentials (auth_credentials.Credentials):
+                Credentials to use with BQ Client.
+
+        Returns:
+            List[str]
+                A list of columns names in the BigQuery table.
+        """
+
+        ancestor_names = [
+            nested_field_name
+            for field in schema_field.fields
+            for nested_field_name in TabularDataset._get_schema_field_names_recursively(
+                field
+            )
+        ]
+
+        if len(ancestor_names) == 0:
+            return [schema_field.name]
+        else:
+            return [f"{schema_field.name}.{name}" for name in ancestor_names]
+
+    @staticmethod
     def _retrieve_bq_source_columns(
         project: str,
         bq_table_uri: str,
         credentials: Optional[auth_credentials.Credentials] = None,
     ) -> List[str]:
-        """Retrieve the columns from a table on Google BigQuery
+        """Retrieve the column names from a table on Google BigQuery
+        Nested schema fields are flattened and concatenated with a ".".
+        Schema fields with child fields are not included, but the children are.
 
         Example Usage:
 
@@ -180,7 +217,7 @@ class TabularDataset(datasets._Dataset):
                 "bq://project_id.dataset.table"
             )
 
-            # column_names = ["column_1", "column_2"]
+            # column_names = ["column_1", "column_2", "column_3.nested_field"]
 
         Args:
             project (str):
@@ -204,7 +241,12 @@ class TabularDataset(datasets._Dataset):
         client = bigquery.Client(project=project, credentials=credentials)
         table = client.get_table(bq_table_uri)
         schema = table.schema
-        return [schema.name for schema in schema]
+
+        return [
+            field_name
+            for field in schema
+            for field_name in TabularDataset._get_schema_field_names_recursively(field)
+        ]
 
     @classmethod
     def create(
