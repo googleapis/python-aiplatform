@@ -18,7 +18,7 @@
 import csv
 import logging
 
-from typing import List, Optional, Sequence, Tuple, Union
+from typing import List, Optional, Sequence, Set, Tuple, Union
 
 from google.cloud.bigquery.schema import SchemaField
 
@@ -42,7 +42,7 @@ class TabularDataset(datasets._Dataset):
     )
 
     @property
-    def column_names(self) -> List[str]:
+    def column_names(self) -> Set[str]:
         """Retrieve the columns for the dataset by extracting it from the Google Cloud Storage or
         Google BigQuery source.
 
@@ -96,7 +96,7 @@ class TabularDataset(datasets._Dataset):
         project: str,
         gcs_csv_file_path: str,
         credentials: Optional[auth_credentials.Credentials] = None,
-    ) -> List[str]:
+    ) -> Set[str]:
         """Retrieve the columns from a comma-delimited CSV file stored on Google Cloud Storage
 
         Example Usage:
@@ -106,7 +106,7 @@ class TabularDataset(datasets._Dataset):
                 "gs://example-bucket/path/to/csv_file"
             )
 
-            # column_names = ["column_1", "column_2"]
+            # column_names = {"column_1", "column_2"}
 
         Args:
             project (str):
@@ -117,8 +117,8 @@ class TabularDataset(datasets._Dataset):
             credentials (auth_credentials.Credentials):
                 Credentials to use to with GCS Client.
         Returns:
-            List[str]
-                A list of columns names in the CSV file.
+            Set[str]
+                A set of columns names in the CSV file.
 
         Raises:
             RuntimeError: When the retrieved CSV file is invalid.
@@ -165,10 +165,10 @@ class TabularDataset(datasets._Dataset):
         finally:
             logger.removeFilter(logging_warning_filter)
 
-        return next(csv_reader)
+        return Set(next(csv_reader))
 
     @staticmethod
-    def _get_schema_field_names_recursively(schema_field: SchemaField) -> List[str]:
+    def _get_bq_schema_field_names_recursively(schema_field: SchemaField) -> Set[str]:
         """Retrieve the name for a schema field along with ancestor fields.
         Nested schema fields are flattened and concatenated with a ".".
         Schema fields with child fields are not included, but the children are.
@@ -183,29 +183,29 @@ class TabularDataset(datasets._Dataset):
                 Credentials to use with BQ Client.
 
         Returns:
-            List[str]
-                A list of columns names in the BigQuery table.
+            Set[str]
+                A set of columns names in the BigQuery table.
         """
 
         ancestor_names = [
             nested_field_name
             for field in schema_field.fields
-            for nested_field_name in TabularDataset._get_schema_field_names_recursively(
+            for nested_field_name in TabularDataset._get_bq_schema_field_names_recursively(
                 field
             )
         ]
 
         if len(ancestor_names) == 0:
-            return [schema_field.name]
+            return {schema_field.name}
         else:
-            return [f"{schema_field.name}.{name}" for name in ancestor_names]
+            return {f"{schema_field.name}.{name}" for name in ancestor_names}
 
     @staticmethod
     def _retrieve_bq_source_columns(
         project: str,
         bq_table_uri: str,
         credentials: Optional[auth_credentials.Credentials] = None,
-    ) -> List[str]:
+    ) -> Set[str]:
         """Retrieve the column names from a table on Google BigQuery
         Nested schema fields are flattened and concatenated with a ".".
         Schema fields with child fields are not included, but the children are.
@@ -217,7 +217,7 @@ class TabularDataset(datasets._Dataset):
                 "bq://project_id.dataset.table"
             )
 
-            # column_names = ["column_1", "column_2", "column_3.nested_field"]
+            # column_names = {"column_1", "column_2", "column_3.nested_field"}
 
         Args:
             project (str):
@@ -229,7 +229,7 @@ class TabularDataset(datasets._Dataset):
                 Credentials to use with BQ Client.
 
         Returns:
-            List[str]
+            Set[str]
                 A list of columns names in the BigQuery table.
         """
 
@@ -242,11 +242,13 @@ class TabularDataset(datasets._Dataset):
         table = client.get_table(bq_table_uri)
         schema = table.schema
 
-        return [
+        return {
             field_name
             for field in schema
-            for field_name in TabularDataset._get_schema_field_names_recursively(field)
-        ]
+            for field_name in TabularDataset._get_bq_schema_field_names_recursively(
+                field
+            )
+        }
 
     @classmethod
     def create(
