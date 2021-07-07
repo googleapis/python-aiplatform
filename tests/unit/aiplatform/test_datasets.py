@@ -1060,7 +1060,7 @@ class TestTabularDataset:
     def test_tabular_dataset_column_name_gcs(self):
         my_dataset = datasets.TabularDataset(dataset_name=_TEST_NAME)
 
-        assert my_dataset.column_names == ["column_1", "column_2"]
+        assert set(my_dataset.column_names) == {"column_1", "column_2"}
 
     @pytest.mark.usefixtures("get_dataset_tabular_gcs_mock")
     def test_tabular_dataset_column_name_gcs_with_creds(self, gcs_client_mock):
@@ -1098,7 +1098,7 @@ class TestTabularDataset:
     def test_tabular_dataset_column_name_bigquery(self):
         my_dataset = datasets.TabularDataset(dataset_name=_TEST_NAME)
 
-        assert my_dataset.column_names == set(
+        assert set(my_dataset.column_names) == set(
             [
                 "column_1",
                 "column_2",

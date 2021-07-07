@@ -20,8 +20,6 @@ import logging
 
 from typing import List, Optional, Sequence, Set, Tuple, Union
 
-from google.cloud.bigquery.schema import SchemaField
-
 from google.auth import credentials as auth_credentials
 
 from google.cloud import bigquery
@@ -42,7 +40,7 @@ class TabularDataset(datasets._Dataset):
     )
 
     @property
-    def column_names(self) -> Set[str]:
+    def column_names(self) -> List[str]:
         """Retrieve the columns for the dataset by extracting it from the Google Cloud Storage or
         Google BigQuery source.
 
@@ -75,18 +73,24 @@ class TabularDataset(datasets._Dataset):
                 gcs_source_uris.sort()
 
                 # Get the first file in sorted list
-                return self._retrieve_gcs_source_columns(
-                    project=self.project,
-                    gcs_csv_file_path=gcs_source_uris[0],
-                    credentials=self.credentials,
+                # TODO(b/193044977): Return as Set instead of List
+                return list(
+                    self._retrieve_gcs_source_columns(
+                        project=self.project,
+                        gcs_csv_file_path=gcs_source_uris[0],
+                        credentials=self.credentials,
+                    )
                 )
         elif bq_source:
             bq_table_uri = bq_source.get("uri")
             if bq_table_uri:
-                return self._retrieve_bq_source_columns(
-                    project=self.project,
-                    bq_table_uri=bq_table_uri,
-                    credentials=self.credentials,
+                # TODO(b/193044977): Return as Set instead of List
+                return list(
+                    self._retrieve_bq_source_columns(
+                        project=self.project,
+                        bq_table_uri=bq_table_uri,
+                        credentials=self.credentials,
+                    )
                 )
 
         raise RuntimeError("No valid CSV or BigQuery datasource found.")
@@ -168,7 +172,9 @@ class TabularDataset(datasets._Dataset):
         return set(next(csv_reader))
 
     @staticmethod
-    def _get_bq_schema_field_names_recursively(schema_field: SchemaField) -> Set[str]:
+    def _get_bq_schema_field_names_recursively(
+        schema_field: bigquery.SchemaField,
+    ) -> Set[str]:
         """Retrieve the name for a schema field along with ancestor fields.
         Nested schema fields are flattened and concatenated with a ".".
         Schema fields with child fields are not included, but the children are.
@@ -231,7 +237,7 @@ class TabularDataset(datasets._Dataset):
 
         Returns:
             Set[str]
-                A list of columns names in the BigQuery table.
+                A set of column names in the BigQuery table.
         """
 
         # Remove bq:// prefix
