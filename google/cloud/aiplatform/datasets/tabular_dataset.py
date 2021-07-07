@@ -165,7 +165,7 @@ class TabularDataset(datasets._Dataset):
         finally:
             logger.removeFilter(logging_warning_filter)
 
-        return Set(next(csv_reader))
+        return set(next(csv_reader))
 
     @staticmethod
     def _get_bq_schema_field_names_recursively(schema_field: SchemaField) -> Set[str]:
@@ -187,13 +187,13 @@ class TabularDataset(datasets._Dataset):
                 A set of columns names in the BigQuery table.
         """
 
-        ancestor_names = [
+        ancestor_names = {
             nested_field_name
             for field in schema_field.fields
             for nested_field_name in TabularDataset._get_bq_schema_field_names_recursively(
                 field
             )
-        ]
+        }
 
         # Only return "leaf nodes", basically any field that doesn't have children
         if len(ancestor_names) == 0:

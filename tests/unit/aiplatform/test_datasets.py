@@ -377,13 +377,13 @@ def bigquery_table_schema_mock():
             bigquery.SchemaField("column_2", "FLOAT", "NULLABLE", "", (), None),
             bigquery.SchemaField(
                 "column_3",
-                "FLOAT",
+                "RECORD",
                 "NULLABLE",
                 "",
                 (
                     bigquery.SchemaField(
                         "nested_3_1",
-                        "FLOAT",
+                        "RECORD",
                         "NULLABLE",
                         "",
                         (
@@ -401,13 +401,13 @@ def bigquery_table_schema_mock():
                     ),
                     bigquery.SchemaField(
                         "nested_3_3",
-                        "FLOAT",
+                        "RECORD",
                         "NULLABLE",
                         "",
                         (
                             bigquery.SchemaField(
                                 "nested_3_3_1",
-                                "FLOAT",
+                                "RECORD",
                                 "NULLABLE",
                                 "",
                                 (
