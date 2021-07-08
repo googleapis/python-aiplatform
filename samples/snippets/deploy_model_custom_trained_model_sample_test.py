@@ -38,6 +38,7 @@ def teardown(teardown_endpoint):
     yield
 
 
+@pytest.mark.skip(reason="https://github.com/googleapis/java-aiplatform/issues/420")
 def test_ucaip_generated_deploy_model_custom_trained_model_sample(capsys, shared_state):
 
     assert shared_state["endpoint_name"] is not None

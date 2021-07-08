@@ -30,6 +30,7 @@ def teardown(teardown_training_pipeline):
     yield
 
 
+@pytest.mark.skip(reason="https://github.com/googleapis/java-aiplatform/issues/420")
 # Training Text Sentiment Analysis Model
 def test_ucaip_generated_create_training_pipeline_text_sentiment_analysis_sample(
     capsys, shared_state
