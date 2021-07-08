@@ -23,7 +23,8 @@ from google.cloud.aiplatform.explain.metadata.tf.v2 import saved_model_metadata_
 
 
 class SavedModelMetadataBuilderTest(tf.test.TestCase):
-    def _set_up(self):
+    def test_get_metadata_sequential(self):
+        # Set up for the sequential.
         self.seq_model = tf.keras.models.Sequential()
         self.seq_model.add(tf.keras.layers.Dense(32, activation="relu", input_dim=10))
         self.seq_model.add(tf.keras.layers.Dense(32, activation="relu"))
@@ -31,8 +32,6 @@ class SavedModelMetadataBuilderTest(tf.test.TestCase):
         self.saved_model_path = self.get_temp_dir()
         tf.saved_model.save(self.seq_model, self.saved_model_path)
 
-    def test_get_metadata_sequential(self):
-        self._set_up()
         builder = saved_model_metadata_builder.SavedModelMetadataBuilder(
             self.saved_model_path
         )
