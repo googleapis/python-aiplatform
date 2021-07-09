@@ -23,6 +23,7 @@ import inspect
 import logging
 import sys
 import threading
+import time
 from typing import (
     Any,
     Callable,
@@ -540,21 +541,25 @@ class VertexAiResourceNoun(metaclass=abc.ABCMeta):
     @property
     def name(self) -> str:
         """Name of this resource."""
+        self._assert_gca_resource_is_available()
         return self._gca_resource.name.split("/")[-1]
 
     @property
     def resource_name(self) -> str:
         """Full qualified resource name."""
+        self._assert_gca_resource_is_available()
         return self._gca_resource.name
 
     @property
     def display_name(self) -> str:
         """Display name of this resource."""
+        self._assert_gca_resource_is_available()
         return self._gca_resource.display_name
 
     @property
     def create_time(self) -> datetime.datetime:
         """Time this resource was created."""
+        self._assert_gca_resource_is_available()
         return self._gca_resource.create_time
 
     @property
@@ -570,6 +575,7 @@ class VertexAiResourceNoun(metaclass=abc.ABCMeta):
         If this is set, then all resources created by this Vertex AI resource will
         be encrypted with the provided encryption key.
         """
+        self._assert_gca_resource_is_available()
         return getattr(self._gca_resource, "encryption_spec")
 
     @property
@@ -578,12 +584,18 @@ class VertexAiResourceNoun(metaclass=abc.ABCMeta):
 
         Read more about labels at https://goo.gl/xmQnxf
         """
+        self._assert_gca_resource_is_available()
         return self._gca_resource.labels
 
     @property
     def gca_resource(self) -> proto.Message:
         """The underlying resource proto represenation."""
+        self._assert_gca_resource_is_available()
         return self._gca_resource
+
+    def _assert_gca_resource_is_available(self, remediation_str: str=''):
+        if self._gca_resource is None:
+            raise RuntimeError(f"{self.__class__} resource has not been created. {remediation_str}")
 
     def __repr__(self) -> str:
         return f"{object.__repr__(self)} \nresource name: {self.resource_name}"
@@ -1061,6 +1073,16 @@ class VertexAiResourceNounWithFutureManager(VertexAiResourceNoun, FutureManager)
 
         return FutureManager.__repr__(self)
 
+    def wait_for_resource_creation(self) -> None:
+        """Wait until underlying resource is created."""
+        while getattr(self._gca_resource, 'name', None) is None:
+            self._raise_future_exception()  # will raise if exception occured async
+            time.sleep(1)
+
+    def _assert_gca_resource_is_available(self, remediation_str: str = '') -> None:
+        super(self, VertexAiResourceNounWithFutureManager)._assert_gca_resource_is_available(
+            remediation_str or 'To wait for resource creation use wait_for_resource_creation.')
+    
 
 def get_annotation_class(annotation: type) -> type:
     """Helper method to retrieve type annotation.

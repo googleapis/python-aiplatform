@@ -330,6 +330,7 @@ class BatchPredictionJob(_Job):
 
         This is only available for batch predicition jobs that have run successfully.
         """
+        self._assert_gca_resource_is_available()
         return self._gca_resource.output_info
 
     @property
@@ -337,11 +338,13 @@ class BatchPredictionJob(_Job):
         """Partial failures encountered. For example, single files that can't be read.
         This field never exceeds 20 entries. Status details fields contain standard
         GCP error details."""
+        self._assert_gca_resource_is_available()
         return getattr(self._gca_resource, "partial_failures")
 
     @property
     def completion_stats(self) -> Optional[gca_completion_stats.CompletionStats]:
         """Statistics on completed and failed prediction instances."""
+        self._assert_gca_resource_is_available()
         return getattr(self._gca_resource, "completion_stats")
 
     @classmethod
