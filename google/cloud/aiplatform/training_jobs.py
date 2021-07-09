@@ -697,9 +697,7 @@ class _TrainingJob(base.VertexAiResourceNounWithFutureManager):
             )
 
             return models.Model(
-                fields.id,
-                project=fields.project,
-                location=fields.location,
+                fields.id, project=fields.project, location=fields.location,
             )
 
     def _wait_callback(self):
@@ -1163,14 +1161,12 @@ class _CustomTrainingJob(_TrainingJob):
             model_display_name = model_display_name or self._display_name + "-model"
 
         # validates args and will raise
-        worker_pool_specs = (
-            worker_spec_utils._DistributedTrainingSpec.chief_worker_pool(
-                replica_count=replica_count,
-                machine_type=machine_type,
-                accelerator_count=accelerator_count,
-                accelerator_type=accelerator_type,
-            ).pool_specs
-        )
+        worker_pool_specs = worker_spec_utils._DistributedTrainingSpec.chief_worker_pool(
+            replica_count=replica_count,
+            machine_type=machine_type,
+            accelerator_count=accelerator_count,
+            accelerator_type=accelerator_type,
+        ).pool_specs
 
         managed_model = self._managed_model
         if model_display_name:
@@ -2540,6 +2536,15 @@ class AutoMLTabularTrainingJob(_TrainingJob):
     ):
         """Constructs a AutoML Tabular Training Job.
 
+        Example usage:
+
+        job = training_jobs.AutoMLTabularTrainingJob(
+            display_name="my_display_name",
+            optimization_prediction_type="classification",
+            optimization_objective="minimize-log-loss",
+            column_specs=my_column_specs,
+        )
+
         Args:
             display_name (str):
                 Required. The user-defined name of this TrainingPipeline.
@@ -2580,16 +2585,7 @@ class AutoMLTabularTrainingJob(_TrainingJob):
                 "minimize-rmse" (default) - Minimize root-mean-squared error (RMSE).
                 "minimize-mae" - Minimize mean-absolute error (MAE).
                 "minimize-rmsle" - Minimize root-mean-squared log error (RMSLE).
-            column_specs (Optional[Dict[str, str]]):
-                Optional. Transformations to apply to the input columns (i.e. columns other
-                than the targetColumn). Each transformation may produce multiple
-                result values from the column's value, and all are used for training.
-                When creating transformation for BigQuery Struct column, the column
-                should be flattened using "." as the delimiter.
-                If an input column has no transformations on it, such a column is
-                ignored by the training, except for the targetColumn, which should have
-                no transformations defined on.
-            column_transformations (Optional[Union[Dict, List[Dict]]]):
+            column_specs (Dict[str, str]):
                 Optional. Transformations to apply to the input columns (i.e. columns other
                 than the targetColumn). Each transformation may produce multiple
                 result values from the column's value, and all are used for training.
@@ -2599,6 +2595,15 @@ class AutoMLTabularTrainingJob(_TrainingJob):
                 ignored by the training, except for the targetColumn, which should have
                 no transformations defined on.
                 Only one of column_transformations or column_specs should be passed.
+            column_transformations (Union[Dict, List[Dict]]):
+                Optional. Transformations to apply to the input columns (i.e. columns other
+                than the targetColumn). Each transformation may produce multiple
+                result values from the column's value, and all are used for training.
+                When creating transformation for BigQuery Struct column, the column
+                should be flattened using "." as the delimiter.
+                If an input column has no transformations on it, such a column is
+                ignored by the training, except for the targetColumn, which should have
+                no transformations defined on.
                 Only one of column_transformations or column_specs should be passed.
             optimization_objective_recall_value (float):
                 Optional. Required when maximize-precision-at-recall optimizationObjective was
@@ -2652,8 +2657,16 @@ class AutoMLTabularTrainingJob(_TrainingJob):
             training_encryption_spec_key_name=training_encryption_spec_key_name,
             model_encryption_spec_key_name=model_encryption_spec_key_name,
         )
-        self._column_transformations = column_transformations
-        self._column_specs = column_specs
+        # user populated transformations
+        if self._column_transformations is not None and self._column_specs is not None:
+            _LOGGER.info(
+                "column_transformations and column_specs were both passed. column_transformations was used."
+            )
+        if column_transformations is not None:
+            self._column_transformations = column_transformations
+            self._column_specs = None
+        elif column_specs is not None:
+            self._column_specs = column_specs
         self._optimization_objective = optimization_objective
         self._optimization_prediction_type = optimization_prediction_type
         self._optimization_objective_recall_value = optimization_objective_recall_value
@@ -2880,28 +2893,13 @@ class AutoMLTabularTrainingJob(_TrainingJob):
         training_task_definition = schema.training_job.definition.automl_tabular
         column_transformations = None
 
-        # user populated transformations
-        if self._column_transformations is not None and self._column_specs is not None:
-            _LOGGER.info(
-                "column_transformations and column_specs were both passed. column_transformations was used."
-            )
-        if self._column_transformations is not None:
-            column_transformations = self._column_transformations
-            column_names = dataset.column_names
-            for transformation in column_transformations:
-                for data_type in transformation:
-                    column = transformation[data_type]
-                    if column["column_name"] not in column_names:
-                        raise ValueError(f"'{column}' is not in the dataset.")
-                    if column["column_name"] is target_column:
-                        raise ValueError("Target column is in transformations.")
-        elif self._column_specs is not None:
-            column_transformations = [
-                {self._column_specs[column]: {"column_name": column}}
-                for column in self._column_specs
+        # convert column specs to column transformations
+        if self._column_specs is not None:
+            self._column_transformations = [
+                {item[1]: {"column_name": item[0]}} for item in self._column_specs.items
             ]
         # auto-populate transformations
-        if column_transformations is None:
+        if self._column_transformations is None:
             _LOGGER.info(
                 "No column transformations provided, so now retrieving columns from dataset in order to set default column transformations."
             )
@@ -2911,7 +2909,7 @@ class AutoMLTabularTrainingJob(_TrainingJob):
                 for column_name in dataset.column_names
                 if column_name != target_column
             ]
-            column_transformations = [
+            self._column_transformations = [
                 {"auto": {"column_name": column_name}} for column_name in column_names
             ]
 
@@ -2923,7 +2921,7 @@ class AutoMLTabularTrainingJob(_TrainingJob):
         training_task_inputs_dict = {
             # required inputs
             "targetColumn": target_column,
-            "transformations": column_transformations,
+            "transformations": self._column_transformations,
             "trainBudgetMilliNodeHours": budget_milli_node_hours,
             # optional inputs
             "weightColumnName": weight_column,
@@ -2974,11 +2972,19 @@ class AutoMLTabularTrainingJob(_TrainingJob):
         """
         self._additional_experiments.extend(additional_experiments)
 
+    @staticmethod
     def get_auto_column_specs(
-        dataset: datasets.TabularDataset,
-        target_column: str,
+        dataset: datasets.TabularDataset, target_column: str,
     ) -> Dict[str, str]:
         """Returns a dict with all non-target columns as keys and 'auto' as values.
+        
+        Example usage:
+
+        column_specs = training_jobs.AutoMLTabularTrainingJob.get_auto_column_specs(
+            dataset=my_dataset,
+            target_column="my_target_column",
+        )
+
         Args:
             dataset (datasets.TabularDataset):
                 Required. Intended dataset.
@@ -3001,7 +3007,6 @@ class AutoMLTabularTrainingJob(_TrainingJob):
         return column_specs
 
 
-# TODO: add tabular sugar to forecasting
 class AutoMLForecastingTrainingJob(_TrainingJob):
     _supported_training_schemas = (schema.training_job.definition.automl_forecasting,)
 
@@ -4796,10 +4801,8 @@ class AutoMLTextTrainingJob(_TrainingJob):
                 schema.training_job.definition.automl_text_classification
             )
 
-            training_task_inputs_dict = (
-                training_job_inputs.AutoMlTextClassificationInputs(
-                    multi_label=multi_label
-                )
+            training_task_inputs_dict = training_job_inputs.AutoMlTextClassificationInputs(
+                multi_label=multi_label
             )
         elif prediction_type == "extraction":
             training_task_definition = (

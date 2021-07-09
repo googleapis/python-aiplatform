@@ -18,12 +18,13 @@
 """Vertex AI tabular data types"""
 
 
-class data_types:
-    AUTO = "auto"
-    NUMERIC = "numeric"
-    CATEGORICAL = "categorical"
-    TIMESTAMP = "timestamp"
-    TEXT = "text"
-    REPEATED_NUMERIC = "repeated_numeric"
-    REPEATED_CATEGORICAL = "repeated_categorical"
-    REPEATED_TEXT = "repeated_text"
+class tabular:
+    class column_data_types:
+        AUTO = "auto"
+        NUMERIC = "numeric"
+        CATEGORICAL = "categorical"
+        TIMESTAMP = "timestamp"
+        TEXT = "text"
+        REPEATED_NUMERIC = "repeated_numeric"
+        REPEATED_CATEGORICAL = "repeated_categorical"
+        REPEATED_TEXT = "repeated_text"
