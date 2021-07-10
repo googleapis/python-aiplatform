@@ -15,6 +15,7 @@
 """This script is used to synthesize generated parts of this library."""
 
 import os
+import re
 
 import synthtool as s
 import synthtool.gcp as gcp
@@ -34,6 +35,24 @@ for library in s.get_staging_dirs(default_version):
         library / f"google/cloud/aiplatform_{library.name}/services/prediction_service/client.py",
         "request.instances = instances",
         "request.instances.extend(instances)",
+    )
+
+    # Remove test_predict_flattened/test_predict_flattened_async due to gapic generator bug
+    # https://github.com/googleapis/gapic-generator-python/issues/414
+    s.replace(
+        library / f"tests/unit/gapic/aiplatform_{library.name}/test_prediction_service.py",
+        """def test_predict_flattened.*?def test_predict_flattened_error""",
+        "def test_predict_flattened_error",
+        flags=re.MULTILINE | re.DOTALL,
+    )
+
+    # Remove test_explain_flattened/test_explain_flattened_async due to gapic generator bug
+    # https://github.com/googleapis/gapic-generator-python/issues/414
+    s.replace(
+        library / f"tests/unit/gapic/aiplatform_{library.name}/test_prediction_service.py",
+        """def test_explain_flattened.*?def test_explain_flattened_error""",
+        "def test_explain_flattened_error",
+        flags=re.MULTILINE | re.DOTALL,
     )
 
     s.move(

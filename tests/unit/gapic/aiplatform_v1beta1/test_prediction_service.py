@@ -643,34 +643,6 @@ async def test_predict_field_headers_async():
     assert ("x-goog-request-params", "endpoint=endpoint/value",) in kw["metadata"]
 
 
-def test_predict_flattened():
-    client = PredictionServiceClient(credentials=ga_credentials.AnonymousCredentials(),)
-
-    # Mock the actual call within the gRPC stub, and fake the request.
-    with mock.patch.object(type(client.transport.predict), "__call__") as call:
-        # Designate an appropriate return value for the call.
-        call.return_value = prediction_service.PredictResponse()
-        # Call the method with a truthy value for each flattened field,
-        # using the keyword arguments to the method.
-        client.predict(
-            endpoint="endpoint_value",
-            instances=[struct_pb2.Value(null_value=struct_pb2.NullValue.NULL_VALUE)],
-            parameters=struct_pb2.Value(null_value=struct_pb2.NullValue.NULL_VALUE),
-        )
-
-        # Establish that the underlying call was made with the expected
-        # request object values.
-        assert len(call.mock_calls) == 1
-        _, args, _ = call.mock_calls[0]
-        assert args[0].endpoint == "endpoint_value"
-        assert args[0].instances == [
-            struct_pb2.Value(null_value=struct_pb2.NullValue.NULL_VALUE)
-        ]
-        assert args[0].parameters == struct_pb2.Value(
-            null_value=struct_pb2.NullValue.NULL_VALUE
-        )
-
-
 def test_predict_flattened_error():
     client = PredictionServiceClient(credentials=ga_credentials.AnonymousCredentials(),)
 
@@ -682,41 +654,6 @@ def test_predict_flattened_error():
             endpoint="endpoint_value",
             instances=[struct_pb2.Value(null_value=struct_pb2.NullValue.NULL_VALUE)],
             parameters=struct_pb2.Value(null_value=struct_pb2.NullValue.NULL_VALUE),
-        )
-
-
-@pytest.mark.asyncio
-async def test_predict_flattened_async():
-    client = PredictionServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(),
-    )
-
-    # Mock the actual call within the gRPC stub, and fake the request.
-    with mock.patch.object(type(client.transport.predict), "__call__") as call:
-        # Designate an appropriate return value for the call.
-        call.return_value = prediction_service.PredictResponse()
-
-        call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(
-            prediction_service.PredictResponse()
-        )
-        # Call the method with a truthy value for each flattened field,
-        # using the keyword arguments to the method.
-        response = await client.predict(
-            endpoint="endpoint_value",
-            instances=[struct_pb2.Value(null_value=struct_pb2.NullValue.NULL_VALUE)],
-            parameters=struct_pb2.Value(null_value=struct_pb2.NullValue.NULL_VALUE),
-        )
-
-        # Establish that the underlying call was made with the expected
-        # request object values.
-        assert len(call.mock_calls)
-        _, args, _ = call.mock_calls[0]
-        assert args[0].endpoint == "endpoint_value"
-        assert args[0].instances == [
-            struct_pb2.Value(null_value=struct_pb2.NullValue.NULL_VALUE)
-        ]
-        assert args[0].parameters == struct_pb2.Value(
-            null_value=struct_pb2.NullValue.NULL_VALUE
         )
 
 
@@ -875,36 +812,6 @@ async def test_explain_field_headers_async():
     assert ("x-goog-request-params", "endpoint=endpoint/value",) in kw["metadata"]
 
 
-def test_explain_flattened():
-    client = PredictionServiceClient(credentials=ga_credentials.AnonymousCredentials(),)
-
-    # Mock the actual call within the gRPC stub, and fake the request.
-    with mock.patch.object(type(client.transport.explain), "__call__") as call:
-        # Designate an appropriate return value for the call.
-        call.return_value = prediction_service.ExplainResponse()
-        # Call the method with a truthy value for each flattened field,
-        # using the keyword arguments to the method.
-        client.explain(
-            endpoint="endpoint_value",
-            instances=[struct_pb2.Value(null_value=struct_pb2.NullValue.NULL_VALUE)],
-            parameters=struct_pb2.Value(null_value=struct_pb2.NullValue.NULL_VALUE),
-            deployed_model_id="deployed_model_id_value",
-        )
-
-        # Establish that the underlying call was made with the expected
-        # request object values.
-        assert len(call.mock_calls) == 1
-        _, args, _ = call.mock_calls[0]
-        assert args[0].endpoint == "endpoint_value"
-        assert args[0].instances == [
-            struct_pb2.Value(null_value=struct_pb2.NullValue.NULL_VALUE)
-        ]
-        assert args[0].parameters == struct_pb2.Value(
-            null_value=struct_pb2.NullValue.NULL_VALUE
-        )
-        assert args[0].deployed_model_id == "deployed_model_id_value"
-
-
 def test_explain_flattened_error():
     client = PredictionServiceClient(credentials=ga_credentials.AnonymousCredentials(),)
 
@@ -918,43 +825,6 @@ def test_explain_flattened_error():
             parameters=struct_pb2.Value(null_value=struct_pb2.NullValue.NULL_VALUE),
             deployed_model_id="deployed_model_id_value",
         )
-
-
-@pytest.mark.asyncio
-async def test_explain_flattened_async():
-    client = PredictionServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(),
-    )
-
-    # Mock the actual call within the gRPC stub, and fake the request.
-    with mock.patch.object(type(client.transport.explain), "__call__") as call:
-        # Designate an appropriate return value for the call.
-        call.return_value = prediction_service.ExplainResponse()
-
-        call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(
-            prediction_service.ExplainResponse()
-        )
-        # Call the method with a truthy value for each flattened field,
-        # using the keyword arguments to the method.
-        response = await client.explain(
-            endpoint="endpoint_value",
-            instances=[struct_pb2.Value(null_value=struct_pb2.NullValue.NULL_VALUE)],
-            parameters=struct_pb2.Value(null_value=struct_pb2.NullValue.NULL_VALUE),
-            deployed_model_id="deployed_model_id_value",
-        )
-
-        # Establish that the underlying call was made with the expected
-        # request object values.
-        assert len(call.mock_calls)
-        _, args, _ = call.mock_calls[0]
-        assert args[0].endpoint == "endpoint_value"
-        assert args[0].instances == [
-            struct_pb2.Value(null_value=struct_pb2.NullValue.NULL_VALUE)
-        ]
-        assert args[0].parameters == struct_pb2.Value(
-            null_value=struct_pb2.NullValue.NULL_VALUE
-        )
-        assert args[0].deployed_model_id == "deployed_model_id_value"
 
 
 @pytest.mark.asyncio
