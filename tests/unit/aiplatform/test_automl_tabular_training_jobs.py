@@ -620,10 +620,7 @@ class TestAutoMLTabularTrainingJob:
             test_fraction=_TEST_TEST_FRACTION_SPLIT,
         )
 
-        true_managed_model = gca_model.Model(
-            display_name=_TEST_MODEL_DISPLAY_NAME,
-            encryption_spec=_TEST_DEFAULT_ENCRYPTION_SPEC,
-        )
+        true_managed_model = gca_model.Model(display_name=_TEST_MODEL_DISPLAY_NAME)
 
         true_input_data_config = gca_training_pipeline.InputDataConfig(
             fraction_split=true_fraction_split,
@@ -639,7 +636,6 @@ class TestAutoMLTabularTrainingJob:
             training_task_inputs=_TEST_TRAINING_TASK_INPUTS_ALTERNATIVE,
             model_to_upload=true_managed_model,
             input_data_config=true_input_data_config,
-            encryption_spec=_TEST_DEFAULT_ENCRYPTION_SPEC,
         )
 
         mock_pipeline_service_create.assert_called_once_with(
@@ -788,10 +784,7 @@ class TestAutoMLTabularTrainingJob:
             test_fraction=_TEST_TEST_FRACTION_SPLIT,
         )
 
-        true_managed_model = gca_model.Model(
-            display_name=_TEST_MODEL_DISPLAY_NAME,
-            encryption_spec=_TEST_DEFAULT_ENCRYPTION_SPEC,
-        )
+        true_managed_model = gca_model.Model(display_name=_TEST_MODEL_DISPLAY_NAME)
 
         true_input_data_config = gca_training_pipeline.InputDataConfig(
             fraction_split=true_fraction_split,
@@ -807,7 +800,6 @@ class TestAutoMLTabularTrainingJob:
             training_task_inputs=_TEST_TRAINING_TASK_INPUTS_ALTERNATIVE_NOT_AUTO,
             model_to_upload=true_managed_model,
             input_data_config=true_input_data_config,
-            encryption_spec=_TEST_DEFAULT_ENCRYPTION_SPEC,
         )
 
         mock_pipeline_service_create.assert_called_once_with(

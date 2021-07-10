@@ -2663,12 +2663,14 @@ class AutoMLTabularTrainingJob(_TrainingJob):
                 "column_transformations and column_specs were both passed. column_transformations was used."
             )
         if column_transformations is not None:
-            self._column_transformations = column_transformations
             self._column_specs = None
+            self._column_transformations = column_transformations
         elif column_specs is not None:
             self._column_specs = column_specs
+            self._column_transformations = None
         else:
             self._column_specs = None
+            self._column_transformations = None
         self._optimization_objective = optimization_objective
         self._optimization_prediction_type = optimization_prediction_type
         self._optimization_objective_recall_value = optimization_objective_recall_value
@@ -2887,9 +2889,6 @@ class AutoMLTabularTrainingJob(_TrainingJob):
         Returns:
             model: The trained Vertex AI Model resource or None if training did not
                 produce an Vertex AI Model.
-        Raises:
-            ValueError: When column doesn't exist in dataset.
-            ValueError: When target column is in transformations.
         """
 
         training_task_definition = schema.training_job.definition.automl_tabular
