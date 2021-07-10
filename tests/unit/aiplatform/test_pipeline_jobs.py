@@ -134,6 +134,26 @@ def mock_pipeline_service_get():
 
 
 @pytest.fixture
+def mock_pipeline_service_get_with_fail():
+    with mock.patch.object(
+        pipeline_service_client_v1beta1.PipelineServiceClient, "get_pipeline_job"
+    ) as mock_get_pipeline_job:
+        mock_get_pipeline_job.side_effect = [
+            make_pipeline_job(
+                gca_pipeline_state_v1beta1.PipelineState.PIPELINE_STATE_RUNNING
+            ),
+            make_pipeline_job(
+                gca_pipeline_state_v1beta1.PipelineState.PIPELINE_STATE_RUNNING
+            ),
+            make_pipeline_job(
+                gca_pipeline_state_v1beta1.PipelineState.PIPELINE_STATE_FAILED
+            ),
+        ]
+
+        yield mock_get_pipeline_job
+
+
+@pytest.fixture
 def mock_pipeline_service_cancel():
     with mock.patch.object(
         pipeline_service_client_v1beta1.PipelineServiceClient, "cancel_pipeline_job"
@@ -269,3 +289,33 @@ class TestPipelineJob:
             job.cancel()
 
         assert e.match(regexp=r"PipelineJob has not been launched")
+
+    @pytest.mark.usefixtures(
+        "mock_pipeline_service_create",
+        "mock_pipeline_service_get_with_fail",
+        "mock_load_json",
+    )
+    @pytest.mark.parametrize("sync", [True, False])
+    def test_pipeline_failure_raises(self, sync):
+        aiplatform.init(
+            project=_TEST_PROJECT,
+            staging_bucket=_TEST_GCS_BUCKET_NAME,
+            location=_TEST_LOCATION,
+            credentials=_TEST_CREDENTIALS,
+        )
+
+        job = pipeline_jobs.PipelineJob(
+            display_name=_TEST_PIPELINE_JOB_ID,
+            template_path=_TEST_TEMPLATE_PATH,
+            job_id=_TEST_PIPELINE_JOB_ID,
+            parameter_values=_TEST_PIPELINE_PARAMETER_VALUES,
+            enable_caching=True,
+        )
+
+        with pytest.raises(RuntimeError):
+            job.run(
+                service_account=_TEST_SERVICE_ACCOUNT, network=_TEST_NETWORK, sync=sync,
+            )
+
+            if not sync:
+                job.wait()

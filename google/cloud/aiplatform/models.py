@@ -116,9 +116,9 @@ class Endpoint(base.VertexAiResourceNounWithFutureManager):
             resource_name=endpoint_name,
         )
         self._gca_resource = self._get_gca_resource(resource_name=endpoint_name)
+
         self._prediction_client = self._instantiate_prediction_client(
-            location=location or initializer.global_config.location,
-            credentials=credentials,
+            location=self.location, credentials=credentials,
         )
 
     @property
@@ -323,6 +323,46 @@ class Endpoint(base.VertexAiResourceNounWithFutureManager):
             location=location,
             credentials=credentials,
         )
+
+    @classmethod
+    def _construct_sdk_resource_from_gapic(
+        cls,
+        gapic_resource: proto.Message,
+        project: Optional[str] = None,
+        location: Optional[str] = None,
+        credentials: Optional[auth_credentials.Credentials] = None,
+    ) -> "Endpoint":
+        """Given a GAPIC Endpoint object, return the SDK representation.
+
+        Args:
+            gapic_resource (proto.Message):
+                A GAPIC representation of a Endpoint resource, usually
+                retrieved by a get_* or in a list_* API call.
+            project (str):
+                Optional. Project to construct Endpoint object from. If not set,
+                project set in aiplatform.init will be used.
+            location (str):
+                Optional. Location to construct Endpoint object from. If not set,
+                location set in aiplatform.init will be used.
+            credentials (auth_credentials.Credentials):
+                Optional. Custom credentials to use to construct Endpoint.
+                Overrides credentials set in aiplatform.init.
+
+        Returns:
+            Endpoint:
+                An initialized Endpoint resource.
+        """
+        endpoint = cls._empty_constructor(
+            project=project, location=location, credentials=credentials
+        )
+
+        endpoint._gca_resource = gapic_resource
+
+        endpoint._prediction_client = cls._instantiate_prediction_client(
+            location=endpoint.location, credentials=credentials,
+        )
+
+        return endpoint
 
     @staticmethod
     def _allocate_traffic(

@@ -375,6 +375,59 @@ def bigquery_table_schema_mock():
         bigquery_table_schema_mock.return_value = [
             bigquery.SchemaField("column_1", "FLOAT", "NULLABLE", "", (), None),
             bigquery.SchemaField("column_2", "FLOAT", "NULLABLE", "", (), None),
+            bigquery.SchemaField(
+                "column_3",
+                "RECORD",
+                "NULLABLE",
+                "",
+                (
+                    bigquery.SchemaField(
+                        "nested_3_1",
+                        "RECORD",
+                        "NULLABLE",
+                        "",
+                        (
+                            bigquery.SchemaField(
+                                "nested_3_1_1", "FLOAT", "NULLABLE", "", (), None
+                            ),
+                            bigquery.SchemaField(
+                                "nested_3_1_2", "FLOAT", "NULLABLE", "", (), None
+                            ),
+                        ),
+                        None,
+                    ),
+                    bigquery.SchemaField(
+                        "nested_3_2", "FLOAT", "NULLABLE", "", (), None
+                    ),
+                    bigquery.SchemaField(
+                        "nested_3_3",
+                        "RECORD",
+                        "NULLABLE",
+                        "",
+                        (
+                            bigquery.SchemaField(
+                                "nested_3_3_1",
+                                "RECORD",
+                                "NULLABLE",
+                                "",
+                                (
+                                    bigquery.SchemaField(
+                                        "nested_3_3_1_1",
+                                        "FLOAT",
+                                        "NULLABLE",
+                                        "",
+                                        (),
+                                        None,
+                                    ),
+                                ),
+                                None,
+                            ),
+                        ),
+                        None,
+                    ),
+                ),
+                None,
+            ),
         ]
         yield bigquery_table_schema_mock
 
@@ -1007,7 +1060,7 @@ class TestTabularDataset:
     def test_tabular_dataset_column_name_gcs(self):
         my_dataset = datasets.TabularDataset(dataset_name=_TEST_NAME)
 
-        assert my_dataset.column_names == ["column_1", "column_2"]
+        assert set(my_dataset.column_names) == {"column_1", "column_2"}
 
     @pytest.mark.usefixtures("get_dataset_tabular_gcs_mock")
     def test_tabular_dataset_column_name_gcs_with_creds(self, gcs_client_mock):
@@ -1045,7 +1098,16 @@ class TestTabularDataset:
     def test_tabular_dataset_column_name_bigquery(self):
         my_dataset = datasets.TabularDataset(dataset_name=_TEST_NAME)
 
-        assert my_dataset.column_names == ["column_1", "column_2"]
+        assert set(my_dataset.column_names) == set(
+            [
+                "column_1",
+                "column_2",
+                "column_3.nested_3_1.nested_3_1_1",
+                "column_3.nested_3_1.nested_3_1_2",
+                "column_3.nested_3_2",
+                "column_3.nested_3_3.nested_3_3_1.nested_3_3_1_1",
+            ]
+        )
 
 
 class TestTextDataset:

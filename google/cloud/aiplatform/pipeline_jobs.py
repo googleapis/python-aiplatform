@@ -44,6 +44,10 @@ _PIPELINE_COMPLETE_STATES = set(
     ]
 )
 
+_PIPELINE_ERROR_STATES = set(
+    [gca_pipeline_state_v1beta1.PipelineState.PIPELINE_STATE_FAILED]
+)
+
 # Vertex AI Pipelines service API job name relative name prefix pattern.
 _JOB_NAME_PATTERN = "{parent}/pipelineJobs/{job_id}"
 
@@ -310,6 +314,13 @@ class PipelineJob(base.VertexAiResourceNounWithFutureManager):
                 log_wait = min(log_wait * multiplier, max_wait)
                 previous_time = current_time
             time.sleep(wait)
+
+        # Error is only populated when the job state is
+        # JOB_STATE_FAILED or JOB_STATE_CANCELLED.
+        if self._gca_resource.state in _PIPELINE_ERROR_STATES:
+            raise RuntimeError("Job failed with:\n%s" % self._gca_resource.error)
+        else:
+            _LOGGER.log_action_completed_against_resource("run", "completed", self)
 
     def cancel(self) -> None:
         """Starts asynchronous cancellation on the PipelineJob. The server
