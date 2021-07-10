@@ -2667,6 +2667,8 @@ class AutoMLTabularTrainingJob(_TrainingJob):
             self._column_specs = None
         elif column_specs is not None:
             self._column_specs = column_specs
+        else:
+            self._column_specs = None
         self._optimization_objective = optimization_objective
         self._optimization_prediction_type = optimization_prediction_type
         self._optimization_objective_recall_value = optimization_objective_recall_value
@@ -2895,7 +2897,8 @@ class AutoMLTabularTrainingJob(_TrainingJob):
         # convert column specs to column transformations
         if self._column_specs is not None:
             self._column_transformations = [
-                {item[1]: {"column_name": item[0]}} for item in self._column_specs.items
+                {item[1]: {"column_name": item[0]}}
+                for item in self._column_specs.items()
             ]
         # auto-populate transformations
         if self._column_transformations is None:
