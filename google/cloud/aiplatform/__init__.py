@@ -46,7 +46,6 @@ from google.cloud.aiplatform.training_jobs import (
     AutoMLTextTrainingJob,
     AutoMLVideoTrainingJob,
 )
-from google.cloud.aiplatform.automl import column_data_types
 
 """
 Usage:
@@ -92,5 +91,4 @@ __all__ = (
     "TextDataset",
     "TimeSeriesDataset",
     "VideoDataset",
-    "column_data_types",
 )

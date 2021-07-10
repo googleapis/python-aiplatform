@@ -2891,7 +2891,6 @@ class AutoMLTabularTrainingJob(_TrainingJob):
         """
 
         training_task_definition = schema.training_job.definition.automl_tabular
-        column_transformations = None
 
         # convert column specs to column transformations
         if self._column_specs is not None:
@@ -2977,7 +2976,7 @@ class AutoMLTabularTrainingJob(_TrainingJob):
         dataset: datasets.TabularDataset, target_column: str,
     ) -> Dict[str, str]:
         """Returns a dict with all non-target columns as keys and 'auto' as values.
-        
+
         Example usage:
 
         column_specs = training_jobs.AutoMLTabularTrainingJob.get_auto_column_specs(
@@ -3005,6 +3004,16 @@ class AutoMLTabularTrainingJob(_TrainingJob):
         ]
         column_specs = {column: "auto" for column in column_names}
         return column_specs
+
+    class column_data_types:
+        AUTO = "auto"
+        NUMERIC = "numeric"
+        CATEGORICAL = "categorical"
+        TIMESTAMP = "timestamp"
+        TEXT = "text"
+        REPEATED_NUMERIC = "repeated_numeric"
+        REPEATED_CATEGORICAL = "repeated_categorical"
+        REPEATED_TEXT = "repeated_text"
 
 
 class AutoMLForecastingTrainingJob(_TrainingJob):

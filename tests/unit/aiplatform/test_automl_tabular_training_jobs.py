@@ -45,6 +45,13 @@ _TEST_TRAINING_COLUMN_NAMES = [
     "target",
 ]
 
+_TEST_TRAINING_COLUMN_NAMES_ALTERNATIVE = [
+    "apple",
+    "banana",
+    "coconut",
+    "target",
+]
+
 _TEST_TRAINING_COLUMN_TRANSFORMATIONS = [
     {"auto": {"column_name": "sepal_width"}},
     {"auto": {"column_name": "sepal_length"}},
@@ -52,11 +59,20 @@ _TEST_TRAINING_COLUMN_TRANSFORMATIONS = [
     {"auto": {"column_name": "petal_width"}},
 ]
 _TEST_TRAINING_COLUMN_SPECS = {
-    "sepal_width": "auto",
-    "sepal_length": "auto",
-    "petal_width": "auto",
-    "petal_length": "auto",
+    "apple": "auto",
+    "banana": "auto",
+    "coconut": "auto",
 }
+_TEST_TRAINING_COLUMN_TRANSFORMATIONS_ALTERNATIVE = [
+    {"auto": {"column_name": "apple"}},
+    {"auto": {"column_name": "banana"}},
+    {"auto": {"column_name": "coconut"}},
+]
+_TEST_TRAINING_COLUMN_TRANSFORMATIONS_ALTERNATIVE_NOT_AUTO = [
+    {"numeric": {"column_name": "apple"}},
+    {"categorical": {"column_name": "banana"}},
+    {"text": {"column_name": "coconut"}},
+]
 _TEST_TRAINING_TARGET_COLUMN = "target"
 _TEST_TRAINING_BUDGET_MILLI_NODE_HOURS = 1000
 _TEST_TRAINING_WEIGHT_COLUMN = "weight"
@@ -84,6 +100,20 @@ _TEST_TRAINING_TASK_INPUTS_WITH_ADDITIONAL_EXPERIMENTS = json_format.ParseDict(
     {
         **_TEST_TRAINING_TASK_INPUTS_DICT,
         "additionalExperiments": _TEST_ADDITIONAL_EXPERIMENTS,
+    },
+    struct_pb2.Value(),
+)
+_TEST_TRAINING_TASK_INPUTS_ALTERNATIVE = json_format.ParseDict(
+    {
+        **_TEST_TRAINING_TASK_INPUTS_DICT,
+        "transformations": _TEST_TRAINING_COLUMN_TRANSFORMATIONS_ALTERNATIVE,
+    },
+    struct_pb2.Value(),
+)
+_TEST_TRAINING_TASK_INPUTS_ALTERNATIVE_NOT_AUTO = json_format.ParseDict(
+    {
+        **_TEST_TRAINING_TASK_INPUTS_DICT,
+        "transformations": _TEST_TRAINING_COLUMN_TRANSFORMATIONS_ALTERNATIVE_NOT_AUTO,
     },
     struct_pb2.Value(),
 )
@@ -196,6 +226,24 @@ def mock_dataset_tabular():
 
 
 @pytest.fixture
+def mock_dataset_tabular_alternative():
+    ds = mock.MagicMock(datasets.TabularDataset)
+    ds.name = _TEST_DATASET_NAME
+    ds._latest_future = None
+    ds._exception = None
+    ds._gca_resource = gca_dataset.Dataset(
+        display_name=_TEST_DATASET_DISPLAY_NAME,
+        metadata_schema_uri=_TEST_METADATA_SCHEMA_URI_TABULAR,
+        labels={},
+        name=_TEST_DATASET_NAME,
+        metadata={},
+    )
+    ds.column_names = _TEST_TRAINING_COLUMN_NAMES_ALTERNATIVE
+
+    yield ds
+
+
+@pytest.fixture
 def mock_dataset_nontabular():
     ds = mock.MagicMock(datasets.ImageDataset)
     ds.name = _TEST_DATASET_NAME
@@ -234,24 +282,11 @@ class TestAutoMLTabularTrainingJob:
             encryption_spec_key_name=_TEST_DEFAULT_ENCRYPTION_KEY_NAME,
         )
 
-        column_specs = training_jobs.AutoMLTabularTrainingJob.get_auto_column_specs(
-            dataset=mock_dataset_tabular, target_column=_TEST_TRAINING_TARGET_COLUMN,
-        )
-
-        assert column_specs == _TEST_TRAINING_COLUMN_SPECS
-        column_specs[
-            _TEST_TRAINING_COLUMN_NAMES[0]
-        ] = aiplatform.automl.tabular.column_data_types.NUMERIC
-        assert column_specs[_TEST_TRAINING_COLUMN_NAMES[0]] == "numeric"
-        column_specs[
-            _TEST_TRAINING_COLUMN_NAMES[0]
-        ] = aiplatform.tabular.column.data_types.AUTO
-
         job = training_jobs.AutoMLTabularTrainingJob(
             display_name=_TEST_DISPLAY_NAME,
             optimization_objective=_TEST_TRAINING_OPTIMIZATION_OBJECTIVE_NAME,
             optimization_prediction_type=_TEST_TRAINING_OPTIMIZATION_PREDICTION_TYPE,
-            column_specs=column_specs,
+            column_transformations=_TEST_TRAINING_COLUMN_TRANSFORMATIONS,
             optimization_objective_recall_value=None,
             optimization_objective_precision_value=None,
         )
@@ -329,17 +364,11 @@ class TestAutoMLTabularTrainingJob:
     ):
         aiplatform.init(project=_TEST_PROJECT, staging_bucket=_TEST_BUCKET_NAME)
 
-        column_specs = training_jobs.AutoMLTabularTrainingJob.get_auto_column_specs(
-            dataset=mock_dataset_tabular, target_column=_TEST_TRAINING_TARGET_COLUMN,
-        )
-
-        assert column_specs == _TEST_TRAINING_COLUMN_SPECS
-
         job = training_jobs.AutoMLTabularTrainingJob(
             display_name=_TEST_DISPLAY_NAME,
             optimization_objective=_TEST_TRAINING_OPTIMIZATION_OBJECTIVE_NAME,
             optimization_prediction_type=_TEST_TRAINING_OPTIMIZATION_PREDICTION_TYPE,
-            column_specs=column_specs,
+            column_transformations=_TEST_TRAINING_COLUMN_TRANSFORMATIONS,
             optimization_objective_recall_value=None,
             optimization_objective_precision_value=None,
             training_encryption_spec_key_name=_TEST_PIPELINE_ENCRYPTION_KEY_NAME,
@@ -541,12 +570,262 @@ class TestAutoMLTabularTrainingJob:
             training_pipeline=true_training_pipeline,
         )
 
+    @pytest.mark.parametrize("sync", [True, False])
+    def test_run_call_pipeline_service_create_with_column_specs(
+        self,
+        mock_pipeline_service_create,
+        mock_pipeline_service_get,
+        mock_dataset_tabular_alternative,
+        mock_model_service_get,
+        sync,
+    ):
+        aiplatform.init(project=_TEST_PROJECT, staging_bucket=_TEST_BUCKET_NAME)
+
+        column_specs = training_jobs.AutoMLTabularTrainingJob.get_auto_column_specs(
+            dataset=mock_dataset_tabular_alternative,
+            target_column=_TEST_TRAINING_TARGET_COLUMN,
+        )
+
+        assert column_specs == _TEST_TRAINING_COLUMN_SPECS
+
+        job = training_jobs.AutoMLTabularTrainingJob(
+            display_name=_TEST_DISPLAY_NAME,
+            optimization_objective=_TEST_TRAINING_OPTIMIZATION_OBJECTIVE_NAME,
+            optimization_prediction_type=_TEST_TRAINING_OPTIMIZATION_PREDICTION_TYPE,
+            column_specs=column_specs,
+            optimization_objective_recall_value=None,
+            optimization_objective_precision_value=None,
+        )
+
+        model_from_job = job.run(
+            dataset=mock_dataset_tabular_alternative,
+            target_column=_TEST_TRAINING_TARGET_COLUMN,
+            model_display_name=_TEST_MODEL_DISPLAY_NAME,
+            training_fraction_split=_TEST_TRAINING_FRACTION_SPLIT,
+            validation_fraction_split=_TEST_VALIDATION_FRACTION_SPLIT,
+            test_fraction_split=_TEST_TEST_FRACTION_SPLIT,
+            predefined_split_column_name=_TEST_PREDEFINED_SPLIT_COLUMN_NAME,
+            weight_column=_TEST_TRAINING_WEIGHT_COLUMN,
+            budget_milli_node_hours=_TEST_TRAINING_BUDGET_MILLI_NODE_HOURS,
+            disable_early_stopping=_TEST_TRAINING_DISABLE_EARLY_STOPPING,
+            sync=sync,
+        )
+
+        if not sync:
+            model_from_job.wait()
+
+        true_fraction_split = gca_training_pipeline.FractionSplit(
+            training_fraction=_TEST_TRAINING_FRACTION_SPLIT,
+            validation_fraction=_TEST_VALIDATION_FRACTION_SPLIT,
+            test_fraction=_TEST_TEST_FRACTION_SPLIT,
+        )
+
+        true_managed_model = gca_model.Model(
+            display_name=_TEST_MODEL_DISPLAY_NAME,
+            encryption_spec=_TEST_DEFAULT_ENCRYPTION_SPEC,
+        )
+
+        true_input_data_config = gca_training_pipeline.InputDataConfig(
+            fraction_split=true_fraction_split,
+            predefined_split=gca_training_pipeline.PredefinedSplit(
+                key=_TEST_PREDEFINED_SPLIT_COLUMN_NAME
+            ),
+            dataset_id=mock_dataset_tabular_alternative.name,
+        )
+
+        true_training_pipeline = gca_training_pipeline.TrainingPipeline(
+            display_name=_TEST_DISPLAY_NAME,
+            training_task_definition=schema.training_job.definition.automl_tabular,
+            training_task_inputs=_TEST_TRAINING_TASK_INPUTS_ALTERNATIVE,
+            model_to_upload=true_managed_model,
+            input_data_config=true_input_data_config,
+            encryption_spec=_TEST_DEFAULT_ENCRYPTION_SPEC,
+        )
+
+        mock_pipeline_service_create.assert_called_once_with(
+            parent=initializer.global_config.common_location_path(),
+            training_pipeline=true_training_pipeline,
+        )
+
+    @pytest.mark.parametrize("sync", [True, False])
+    # Should default to column_transformation when column_specs also passed
+    def test_run_call_pipeline_service_create_with_column_specs_and_transformations(
+        self,
+        mock_pipeline_service_create,
+        mock_pipeline_service_get,
+        mock_dataset_tabular,
+        mock_dataset_alternative,
+        mock_model_service_get,
+        sync,
+    ):
+        aiplatform.init(
+            project=_TEST_PROJECT,
+            staging_bucket=_TEST_BUCKET_NAME,
+            encryption_spec_key_name=_TEST_DEFAULT_ENCRYPTION_KEY_NAME,
+        )
+
+        column_specs = training_jobs.AutoMLTabularTrainingJob.get_auto_column_specs(
+            dataset=mock_dataset_tabular_alternative,
+            target_column=_TEST_TRAINING_TARGET_COLUMN,
+        )
+
+        assert column_specs == _TEST_TRAINING_COLUMN_SPECS
+
+        job = training_jobs.AutoMLTabularTrainingJob(
+            display_name=_TEST_DISPLAY_NAME,
+            optimization_objective=_TEST_TRAINING_OPTIMIZATION_OBJECTIVE_NAME,
+            optimization_prediction_type=_TEST_TRAINING_OPTIMIZATION_PREDICTION_TYPE,
+            column_transformations=_TEST_TRAINING_COLUMN_TRANSFORMATIONS,
+            column_specs=column_specs,
+            optimization_objective_recall_value=None,
+            optimization_objective_precision_value=None,
+        )
+
+        model_from_job = job.run(
+            dataset=mock_dataset_tabular,
+            target_column=_TEST_TRAINING_TARGET_COLUMN,
+            model_display_name=_TEST_MODEL_DISPLAY_NAME,
+            training_fraction_split=_TEST_TRAINING_FRACTION_SPLIT,
+            validation_fraction_split=_TEST_VALIDATION_FRACTION_SPLIT,
+            test_fraction_split=_TEST_TEST_FRACTION_SPLIT,
+            predefined_split_column_name=_TEST_PREDEFINED_SPLIT_COLUMN_NAME,
+            weight_column=_TEST_TRAINING_WEIGHT_COLUMN,
+            budget_milli_node_hours=_TEST_TRAINING_BUDGET_MILLI_NODE_HOURS,
+            disable_early_stopping=_TEST_TRAINING_DISABLE_EARLY_STOPPING,
+            sync=sync,
+        )
+
+        if not sync:
+            model_from_job.wait()
+
+        true_fraction_split = gca_training_pipeline.FractionSplit(
+            training_fraction=_TEST_TRAINING_FRACTION_SPLIT,
+            validation_fraction=_TEST_VALIDATION_FRACTION_SPLIT,
+            test_fraction=_TEST_TEST_FRACTION_SPLIT,
+        )
+
+        true_managed_model = gca_model.Model(
+            display_name=_TEST_MODEL_DISPLAY_NAME,
+            encryption_spec=_TEST_DEFAULT_ENCRYPTION_SPEC,
+        )
+
+        true_input_data_config = gca_training_pipeline.InputDataConfig(
+            fraction_split=true_fraction_split,
+            predefined_split=gca_training_pipeline.PredefinedSplit(
+                key=_TEST_PREDEFINED_SPLIT_COLUMN_NAME
+            ),
+            dataset_id=mock_dataset_tabular.name,
+        )
+
+        true_training_pipeline = gca_training_pipeline.TrainingPipeline(
+            display_name=_TEST_DISPLAY_NAME,
+            training_task_definition=schema.training_job.definition.automl_tabular,
+            training_task_inputs=_TEST_TRAINING_TASK_INPUTS,
+            model_to_upload=true_managed_model,
+            input_data_config=true_input_data_config,
+            encryption_spec=_TEST_DEFAULT_ENCRYPTION_SPEC,
+        )
+
+        mock_pipeline_service_create.assert_called_once_with(
+            parent=initializer.global_config.common_location_path(),
+            training_pipeline=true_training_pipeline,
+        )
+
+    @pytest.mark.parametrize("sync", [True, False])
+    def test_run_call_pipeline_service_create_with_column_specs_not_auto(
+        self,
+        mock_pipeline_service_create,
+        mock_pipeline_service_get,
+        mock_dataset_tabular_alternative,
+        mock_model_service_get,
+        sync,
+    ):
+        aiplatform.init(project=_TEST_PROJECT, staging_bucket=_TEST_BUCKET_NAME)
+
+        column_specs = training_jobs.AutoMLTabularTrainingJob.get_auto_column_specs(
+            dataset=mock_dataset_tabular_alternative,
+            target_column=_TEST_TRAINING_TARGET_COLUMN,
+        )
+        column_specs[
+            _TEST_TRAINING_COLUMN_NAMES_ALTERNATIVE[0]
+        ] = training_jobs.AutoMLTabularTrainingJob.column_data_types.NUMERIC
+        column_specs[
+            _TEST_TRAINING_COLUMN_NAMES_ALTERNATIVE[1]
+        ] = training_jobs.AutoMLTabularTrainingJob.column_data_types.CATEGORICAL
+        column_specs[
+            _TEST_TRAINING_COLUMN_NAMES_ALTERNATIVE[2]
+        ] = training_jobs.AutoMLTabularTrainingJob.column_data_types.TEXT
+
+        assert (
+            column_specs == _TEST_TRAINING_COLUMN_TRANSFORMATIONS_ALTERNATIVE_NOT_AUTO
+        )
+
+        job = training_jobs.AutoMLTabularTrainingJob(
+            display_name=_TEST_DISPLAY_NAME,
+            optimization_objective=_TEST_TRAINING_OPTIMIZATION_OBJECTIVE_NAME,
+            optimization_prediction_type=_TEST_TRAINING_OPTIMIZATION_PREDICTION_TYPE,
+            column_specs=column_specs,
+            optimization_objective_recall_value=None,
+            optimization_objective_precision_value=None,
+        )
+
+        model_from_job = job.run(
+            dataset=mock_dataset_tabular_alternative,
+            target_column=_TEST_TRAINING_TARGET_COLUMN,
+            model_display_name=_TEST_MODEL_DISPLAY_NAME,
+            training_fraction_split=_TEST_TRAINING_FRACTION_SPLIT,
+            validation_fraction_split=_TEST_VALIDATION_FRACTION_SPLIT,
+            test_fraction_split=_TEST_TEST_FRACTION_SPLIT,
+            predefined_split_column_name=_TEST_PREDEFINED_SPLIT_COLUMN_NAME,
+            weight_column=_TEST_TRAINING_WEIGHT_COLUMN,
+            budget_milli_node_hours=_TEST_TRAINING_BUDGET_MILLI_NODE_HOURS,
+            disable_early_stopping=_TEST_TRAINING_DISABLE_EARLY_STOPPING,
+            sync=sync,
+        )
+
+        if not sync:
+            model_from_job.wait()
+
+        true_fraction_split = gca_training_pipeline.FractionSplit(
+            training_fraction=_TEST_TRAINING_FRACTION_SPLIT,
+            validation_fraction=_TEST_VALIDATION_FRACTION_SPLIT,
+            test_fraction=_TEST_TEST_FRACTION_SPLIT,
+        )
+
+        true_managed_model = gca_model.Model(
+            display_name=_TEST_MODEL_DISPLAY_NAME,
+            encryption_spec=_TEST_DEFAULT_ENCRYPTION_SPEC,
+        )
+
+        true_input_data_config = gca_training_pipeline.InputDataConfig(
+            fraction_split=true_fraction_split,
+            predefined_split=gca_training_pipeline.PredefinedSplit(
+                key=_TEST_PREDEFINED_SPLIT_COLUMN_NAME
+            ),
+            dataset_id=mock_dataset_tabular_alternative.name,
+        )
+
+        true_training_pipeline = gca_training_pipeline.TrainingPipeline(
+            display_name=_TEST_DISPLAY_NAME,
+            training_task_definition=schema.training_job.definition.automl_tabular,
+            training_task_inputs=_TEST_TRAINING_TASK_INPUTS_ALTERNATIVE_NOT_AUTO,
+            model_to_upload=true_managed_model,
+            input_data_config=true_input_data_config,
+            encryption_spec=_TEST_DEFAULT_ENCRYPTION_SPEC,
+        )
+
+        mock_pipeline_service_create.assert_called_once_with(
+            parent=initializer.global_config.common_location_path(),
+            training_pipeline=true_training_pipeline,
+        )
+
     @pytest.mark.usefixtures(
         "mock_pipeline_service_create",
         "mock_pipeline_service_get",
         "mock_model_service_get",
     )
     @pytest.mark.parametrize("sync", [True, False])
+    # Also acts as a custom column_transformations test as it should not error during first call
     def test_run_called_twice_raises(self, mock_dataset_tabular, sync):
         aiplatform.init(project=_TEST_PROJECT, staging_bucket=_TEST_BUCKET_NAME)
 
