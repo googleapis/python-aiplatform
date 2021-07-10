@@ -15,6 +15,7 @@
 """This script is used to synthesize generated parts of this library."""
 
 import os
+import re
 
 import synthtool as s
 import synthtool.gcp as gcp
@@ -36,11 +37,22 @@ for library in s.get_staging_dirs(default_version):
         "request.instances.extend(instances)",
     )
 
-    # https://github.com/googleapis/gapic-generator-python/issues/672
+    # Remove test_predict_flattened/test_predict_flattened_async due to gapic generator bug
+    # https://github.com/googleapis/gapic-generator-python/issues/414
     s.replace(
-        library / f"google/cloud/aiplatform_{library.name}/services/endpoint_service/client.py",
-        "request.traffic_split.extend\(traffic_split\)",
-        "request.traffic_split = traffic_split",
+        library / f"tests/unit/gapic/aiplatform_{library.name}/test_prediction_service.py",
+        """def test_predict_flattened.*?def test_predict_flattened_error""",
+        "def test_predict_flattened_error",
+        flags=re.MULTILINE | re.DOTALL,
+    )
+
+    # Remove test_explain_flattened/test_explain_flattened_async due to gapic generator bug
+    # https://github.com/googleapis/gapic-generator-python/issues/414
+    s.replace(
+        library / f"tests/unit/gapic/aiplatform_{library.name}/test_prediction_service.py",
+        """def test_explain_flattened.*?def test_explain_flattened_error""",
+        "def test_explain_flattened_error",
+        flags=re.MULTILINE | re.DOTALL,
     )
 
     s.move(
@@ -61,11 +73,6 @@ for library in s.get_staging_dirs(default_version):
             f"scripts/fixup_prediction_{library.name}_keywords.py",
             "google/cloud/aiplatform/__init__.py",
             f"google/cloud/aiplatform/{library.name}/schema/**/services/",
-            f"tests/unit/gapic/aiplatform_{library.name}/test_prediction_service.py",
-            f"tests/unit/gapic/definition_{library.name}/",
-            f"tests/unit/gapic/instance_{library.name}/",
-            f"tests/unit/gapic/params_{library.name}/",
-            f"tests/unit/gapic/prediction_{library.name}/",
         ],
     )
 
