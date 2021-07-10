@@ -2658,7 +2658,7 @@ class AutoMLTabularTrainingJob(_TrainingJob):
             model_encryption_spec_key_name=model_encryption_spec_key_name,
         )
         # user populated transformations
-        if self._column_transformations is not None and self._column_specs is not None:
+        if column_transformations is not None and column_specs is not None:
             _LOGGER.info(
                 "column_transformations and column_specs were both passed. column_transformations was used."
             )

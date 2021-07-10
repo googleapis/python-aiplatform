@@ -654,7 +654,7 @@ class TestAutoMLTabularTrainingJob:
         mock_pipeline_service_create,
         mock_pipeline_service_get,
         mock_dataset_tabular,
-        mock_dataset_alternative,
+        mock_dataset_tabular_alternative,
         mock_model_service_get,
         sync,
     ):
@@ -755,10 +755,6 @@ class TestAutoMLTabularTrainingJob:
         column_specs[
             _TEST_TRAINING_COLUMN_NAMES_ALTERNATIVE[2]
         ] = training_jobs.AutoMLTabularTrainingJob.column_data_types.TEXT
-
-        assert (
-            column_specs == _TEST_TRAINING_COLUMN_TRANSFORMATIONS_ALTERNATIVE_NOT_AUTO
-        )
 
         job = training_jobs.AutoMLTabularTrainingJob(
             display_name=_TEST_DISPLAY_NAME,
