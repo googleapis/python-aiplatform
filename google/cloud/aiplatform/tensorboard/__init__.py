@@ -14,3 +14,12 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
+
+from google.cloud.aiplatform.tensorboard.tensorboard import Tensorboard
+from google.cloud.aiplatform.tensorboard.uploader import TensorBoardUploader
+
+
+__all__ = (
+    "Tensorboard",
+    "TensorBoardUploader",
+)
