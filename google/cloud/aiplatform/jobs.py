@@ -775,6 +775,8 @@ class BatchPredictionJob(_Job):
                 GCS or BQ output provided.
         """
 
+        self._assert_gca_resource_is_available()
+
         if self.state != gca_job_state.JobState.JOB_STATE_SUCCEEDED:
             raise RuntimeError(
                 f"Cannot read outputs until BatchPredictionJob has succeeded, "
@@ -858,26 +860,16 @@ class _RunnableJob(_Job):
             project=project, location=location
         )
 
+    def _assert_gca_resource_is_available(self):
+        if getattr(self._gca_resource, 'name', None) is None:
+            raise RuntimeError(
+                f"{self.__class__} resource has not been created."
+                "If job run has alaready been invoked use wait_for_resource_creation."
+                "Otherwise run the job with job.run.")
+
     @abc.abstractmethod
     def run(self) -> None:
         pass
-
-    @property
-    def _has_run(self) -> bool:
-        """Property returns true if this class has a resource name."""
-        return bool(self._gca_resource.name)
-
-    @property
-    def state(self) -> gca_job_state.JobState:
-        """Current state of job.
-
-        Raises:
-            RuntimeError if job run has not been called.
-        """
-        if not self._has_run:
-            raise RuntimeError("Job has not run. No state available.")
-
-        return super().state
 
     @classmethod
     def get(
@@ -1044,6 +1036,7 @@ class CustomJob(_RunnableJob):
         Private services access must already be configured for the network. If left
         unspecified, the CustomJob is not peered with any network.
         """
+        self._assert_gca_resource_is_available()
         return getattr(self._gca_resource, "network")
 
     @classmethod
@@ -1515,6 +1508,7 @@ class HyperparameterTuningJob(_RunnableJob):
         Private services access must already be configured for the network. If left
         unspecified, the HyperparameterTuningJob is not peered with any network.
         """
+        self._assert_gca_resource_is_available()
         return getattr(self._gca_resource.trial_job_spec, "network")
 
     @base.optional_sync()
@@ -1615,4 +1609,5 @@ class HyperparameterTuningJob(_RunnableJob):
 
     @property
     def trials(self) -> List[gca_study_compat.Trial]:
+        self._assert_gca_resource_is_available()
         return list(self._gca_resource.trials)

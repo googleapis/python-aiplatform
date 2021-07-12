@@ -52,7 +52,7 @@ class TabularDataset(datasets._Dataset):
             RuntimeError: When no valid source is found.
         """
 
-        self._assert_gca_resource_is_available_and_wait_for_creation()
+        self._assert_gca_resource_is_available()
 
         metadata = self._gca_resource.metadata
 

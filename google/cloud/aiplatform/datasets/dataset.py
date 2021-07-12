@@ -84,7 +84,7 @@ class _Dataset(base.VertexAiResourceNounWithFutureManager):
     @property
     def metadata_schema_uri(self) -> str:
         """The metadata schema uri of this dataset resource."""
-        self._assert_gca_resource_is_available_and_wait_for_creation()
+        self._assert_gca_resource_is_available()
         return self._gca_resource.metadata_schema_uri
 
     def _validate_metadata_schema_uri(self) -> None:

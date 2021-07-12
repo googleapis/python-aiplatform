@@ -1079,9 +1079,9 @@ class VertexAiResourceNounWithFutureManager(VertexAiResourceNoun, FutureManager)
             self._raise_future_exception()  # will raise if exception occured async
             time.sleep(1)
 
-    def _assert_gca_resource_is_available(self, remediation_str: str = '') -> None:
+    def _assert_gca_resource_is_available(self) -> None:
         super(self, VertexAiResourceNounWithFutureManager)._assert_gca_resource_is_available(
-            remediation_str or 'To wait for resource creation use wait_for_resource_creation.')
+            'To wait for resource creation use wait_for_resource_creation.')
     
 
 def get_annotation_class(annotation: type) -> type:
