@@ -26,8 +26,8 @@ class ImageClassificationPredictionInstance(proto.Message):
     r"""Prediction input format for Image Classification.
     Attributes:
         content (str):
-            The image bytes or GCS URI to make the
-            prediction on.
+            The image bytes or Cloud Storage URI to make
+            the prediction on.
         mime_type (str):
             The MIME type of the content of the image.
             Only the images in below listed MIME types are
