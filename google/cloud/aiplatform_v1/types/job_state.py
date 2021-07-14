@@ -32,6 +32,7 @@ class JobState(proto.Enum):
     JOB_STATE_CANCELLING = 6
     JOB_STATE_CANCELLED = 7
     JOB_STATE_PAUSED = 8
+    JOB_STATE_EXPIRED = 9
 
 
 __all__ = tuple(sorted(__protobuf__.manifest))
