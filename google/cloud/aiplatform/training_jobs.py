@@ -2542,7 +2542,7 @@ class AutoMLTabularTrainingJob(_TrainingJob):
             display_name="my_display_name",
             optimization_prediction_type="classification",
             optimization_objective="minimize-log-loss",
-            column_specs=my_column_specs,
+            column_specs={"column_1": "auto", "column_2": "numeric"},
         )
 
         Args:
@@ -2586,11 +2586,12 @@ class AutoMLTabularTrainingJob(_TrainingJob):
                 "minimize-mae" - Minimize mean-absolute error (MAE).
                 "minimize-rmsle" - Minimize root-mean-squared log error (RMSLE).
             column_specs (Dict[str, str]):
-                Optional. Transformations to apply to the input columns (i.e. columns other
-                than the targetColumn). Each transformation may produce multiple
-                result values from the column's value, and all are used for training.
+                Optional. Alternative to column_transformations where the keys of the dict
+                are column names and their respective values are one of
+                AutoMLTabularTrainingJob.column_data_types.
                 When creating transformation for BigQuery Struct column, the column
-                should be flattened using "." as the delimiter.
+                should be flattened using "." as the delimiter. Only columns with no child
+                should have a transformation.
                 If an input column has no transformations on it, such a column is
                 ignored by the training, except for the targetColumn, which should have
                 no transformations defined on.
@@ -2600,7 +2601,8 @@ class AutoMLTabularTrainingJob(_TrainingJob):
                 than the targetColumn). Each transformation may produce multiple
                 result values from the column's value, and all are used for training.
                 When creating transformation for BigQuery Struct column, the column
-                should be flattened using "." as the delimiter.
+                should be flattened using "." as the delimiter. Only columns with no child
+                should have a transformation.
                 If an input column has no transformations on it, such a column is
                 ignored by the training, except for the targetColumn, which should have
                 no transformations defined on.
@@ -2648,6 +2650,9 @@ class AutoMLTabularTrainingJob(_TrainingJob):
                 If set, the trained Model will be secured by this key.
 
                 Overrides encryption_spec_key_name set in aiplatform.init.
+
+            Raises:
+                ValueError: When both column_transforations and column_specs were passed
         """
         super().__init__(
             display_name=display_name,
@@ -2659,8 +2664,8 @@ class AutoMLTabularTrainingJob(_TrainingJob):
         )
         # user populated transformations
         if column_transformations is not None and column_specs is not None:
-            _LOGGER.info(
-                "column_transformations and column_specs were both passed. column_transformations was used."
+            raise ValueError(
+                "Both column_transformations and column_specs were passed. Only one is allowed."
             )
         if column_transformations is not None:
             self._column_specs = None
@@ -2888,7 +2893,7 @@ class AutoMLTabularTrainingJob(_TrainingJob):
 
         Returns:
             model: The trained Vertex AI Model resource or None if training did not
-                produce an Vertex AI Model.
+                produce a Vertex AI Model.
         """
 
         training_task_definition = schema.training_job.definition.automl_tabular
@@ -2994,13 +2999,7 @@ class AutoMLTabularTrainingJob(_TrainingJob):
         Returns:
             Dict[str, str]
                 Column names as keys and 'auto' as values
-
-        Raises:
-            RuntimeError: When no valid source is found.
-            ValueError: When target_column is not in dataset
         """
-        if target_column not in dataset.column_names:
-            raise ValueError("Target column not in dataset.")
         column_names = [
             column for column in dataset.column_names if column != target_column
         ]
