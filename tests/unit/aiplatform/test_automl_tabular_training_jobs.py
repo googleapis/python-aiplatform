@@ -572,7 +572,12 @@ class TestAutoMLTabularTrainingJob:
 
     @pytest.mark.parametrize("sync", [True, False])
     def test_run_call_pipeline_service_create_with_column_specs(
-        self, mock_pipeline_service_create, mock_dataset_tabular_alternative, sync,
+        self,
+        mock_pipeline_service_create,
+        mock_pipeline_service_get,
+        mock_dataset_tabular_alternative,
+        mock_model_service_get,
+        sync,
     ):
         aiplatform.init(project=_TEST_PROJECT, staging_bucket=_TEST_BUCKET_NAME)
 
@@ -672,7 +677,12 @@ class TestAutoMLTabularTrainingJob:
 
     @pytest.mark.parametrize("sync", [True, False])
     def test_run_call_pipeline_service_create_with_column_specs_not_auto(
-        self, mock_pipeline_service_create, mock_dataset_tabular_alternative, sync,
+        self,
+        mock_pipeline_service_create,
+        mock_pipeline_service_get,
+        mock_dataset_tabular_alternative,
+        mock_model_service_get,
+        sync,
     ):
         aiplatform.init(project=_TEST_PROJECT, staging_bucket=_TEST_BUCKET_NAME)
 
