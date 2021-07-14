@@ -572,12 +572,7 @@ class TestAutoMLTabularTrainingJob:
 
     @pytest.mark.parametrize("sync", [True, False])
     def test_run_call_pipeline_service_create_with_column_specs(
-        self,
-        mock_pipeline_service_create,
-        mock_pipeline_service_get,
-        mock_dataset_tabular_alternative,
-        mock_model_service_get,
-        sync,
+        self, mock_pipeline_service_create, mock_dataset_tabular_alternative, sync,
     ):
         aiplatform.init(project=_TEST_PROJECT, staging_bucket=_TEST_BUCKET_NAME)
 
@@ -644,21 +639,10 @@ class TestAutoMLTabularTrainingJob:
         )
 
     @pytest.mark.parametrize("sync", [True, False])
-    # Should default to column_transformation when column_specs also passed
-    def test_run_call_pipeline_service_create_with_column_specs_and_transformations(
-        self,
-        mock_pipeline_service_create,
-        mock_pipeline_service_get,
-        mock_dataset_tabular,
-        mock_dataset_tabular_alternative,
-        mock_model_service_get,
-        sync,
+    def test_call_pipeline_service_create_with_column_specs_and_transformations_raises(
+        self, mock_dataset_tabular_alternative, sync,
     ):
-        aiplatform.init(
-            project=_TEST_PROJECT,
-            staging_bucket=_TEST_BUCKET_NAME,
-            encryption_spec_key_name=_TEST_DEFAULT_ENCRYPTION_KEY_NAME,
-        )
+        aiplatform.init()
 
         column_specs = training_jobs.AutoMLTabularTrainingJob.get_auto_column_specs(
             dataset=mock_dataset_tabular_alternative,
@@ -670,22 +654,25 @@ class TestAutoMLTabularTrainingJob:
         with pytest.raises(ValueError):
             training_jobs.AutoMLTabularTrainingJob(
                 display_name=_TEST_DISPLAY_NAME,
-                optimization_objective=_TEST_TRAINING_OPTIMIZATION_OBJECTIVE_NAME,
                 optimization_prediction_type=_TEST_TRAINING_OPTIMIZATION_PREDICTION_TYPE,
                 column_transformations=_TEST_TRAINING_COLUMN_TRANSFORMATIONS,
                 column_specs=column_specs,
-                optimization_objective_recall_value=None,
-                optimization_objective_precision_value=None,
+            )
+
+    @pytest.mark.parametrize("sync", [True, False])
+    def test_get_column_specs_no_target_raises(
+        self, mock_dataset_tabular_alternative, sync,
+    ):
+        aiplatform.init()
+
+        with pytest.raises(TypeError):
+            training_jobs.AutoMLTabularTrainingJob.get_auto_column_specs(
+                dataset=mock_dataset_tabular_alternative
             )
 
     @pytest.mark.parametrize("sync", [True, False])
     def test_run_call_pipeline_service_create_with_column_specs_not_auto(
-        self,
-        mock_pipeline_service_create,
-        mock_pipeline_service_get,
-        mock_dataset_tabular_alternative,
-        mock_model_service_get,
-        sync,
+        self, mock_pipeline_service_create, mock_dataset_tabular_alternative, sync,
     ):
         aiplatform.init(project=_TEST_PROJECT, staging_bucket=_TEST_BUCKET_NAME)
 
