@@ -18,6 +18,7 @@
 import datetime
 import time
 from typing import Dict, List, Optional, Sequence, Tuple, Union
+import warnings
 
 import abc
 
@@ -2607,6 +2608,7 @@ class AutoMLTabularTrainingJob(_TrainingJob):
                 ignored by the training, except for the targetColumn, which should have
                 no transformations defined on.
                 Only one of column_transformations or column_specs should be passed.
+                Consider using column_specs as column_transformations will be deprecated eventually.
             optimization_objective_recall_value (float):
                 Optional. Required when maximize-precision-at-recall optimizationObjective was
                 picked, represents the recall value at which the optimization is done.
@@ -2668,13 +2670,19 @@ class AutoMLTabularTrainingJob(_TrainingJob):
                 "Both column_transformations and column_specs were passed. Only one is allowed."
             )
         if column_transformations is not None:
-            self._column_specs = None
             self._column_transformations = column_transformations
+            warnings.simplefilter("always", DeprecationWarning)
+            warnings.warn(
+                "consider using column_specs instead. column_transformations will be deprecated in the future.",
+                DeprecationWarning,
+                stacklevel=2,
+            )
         elif column_specs is not None:
-            self._column_specs = column_specs
-            self._column_transformations = None
+            self._column_transformations = [
+                {transformation: {"column_name": column_name}}
+                for column_name, transformation in column_specs.items()
+            ]
         else:
-            self._column_specs = None
             self._column_transformations = None
         self._optimization_objective = optimization_objective
         self._optimization_prediction_type = optimization_prediction_type
@@ -2898,12 +2906,6 @@ class AutoMLTabularTrainingJob(_TrainingJob):
 
         training_task_definition = schema.training_job.definition.automl_tabular
 
-        # convert column specs to column transformations
-        if self._column_specs is not None:
-            self._column_transformations = [
-                {item[1]: {"column_name": item[0]}}
-                for item in self._column_specs.items()
-            ]
         # auto-populate transformations
         if self._column_transformations is None:
             _LOGGER.info(
