@@ -94,7 +94,7 @@ def vertex_function_wrapper(method, training_mode):
 
         return method.__self__.model.batch_predict(
                                         gcs_source_uri=test_data_uri
-                                        gcs_destination_prefix=output_directory,
+                                        gcs_destination_prefix=target,
                                         job_display_name='my_batch_predict_job')
 
     def e(*args, **kwargs):
@@ -138,17 +138,17 @@ class VertexModel:
         pass
 
     @abc.abstractmethod
-    def predict(self, data):
+    def predict(self, data, target, dataset: pd.DataFrame):
         """ Make predictions on training data. """
         pass
 
     @abc.abstractmethod
-    def batch_predict(self, data, target, dataset: pd.DataFrame, output_directory):
+    def batch_predict(self, data, target, dataset: pd.DataFrame):
         """ Make predictions on training data. """
         pass
 
     @abc.abstractmethod
-    def eval(self, data):
+    def eval(self, data, target, dataset: pd.DataFrame):
         """ Evaluate model. """
         pass
 
