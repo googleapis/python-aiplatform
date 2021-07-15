@@ -1,0 +1,69 @@
+# -*- coding: utf-8 -*-
+
+# Copyright 2020 Google LLC
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+#
+
+from concurrent import futures
+import datetime
+import functools
+import inspect
+import logging
+import pandas as pd
+import sys
+import threading
+from typing import (
+    Any,
+    Callable,
+    Dict,
+    List,
+    Iterable,
+    Optional,
+    Sequence,
+    Tuple,
+    Type,
+    Union,
+)
+
+import proto
+import torch 
+
+from google.api_core import operation
+from google.auth import credentials as auth_credentials
+from google.cloud.aiplatform import initializer
+from google.cloud.aiplatform import utils
+from google.cloud.aiplatform.compat.types import encryption_spec as gca_encryption_spec
+from google.cloud import aiplatform
+                         
+from torch.utils.data import Dataset, Dataloader
+import inspect
+
+class SourceMaker:
+    def __init__(self, cls_name: str):
+        self.source = ["class {}".format(cls_name)]
+
+    def add_method(self, method_str: str):
+        self.source.extend(method_str.split('\n'))
+
+def _make_class_source(obj):
+    source_maker = SourceMaker(obj.__class__.__name__)
+
+    for key, value in inspect.getmembers(m):
+        if inspect.ismethod(value): 
+            source_maker.add_method(inspect.getsource(value))
+    
+    return source_maker.source
+
+# print('\n'.join(make_class_source(m)))
+# inspect.getsource(m.f).split('\n')
