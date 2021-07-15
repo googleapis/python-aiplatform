@@ -208,10 +208,10 @@ class PipelineJob(base.VertexAiResourceNounWithFutureManager):
         )
 
     def _assert_gca_resource_is_available(self):
-        if not getattr(self._gca_resource, 'name', None):
-            raise RuntimeError(f"{self.__class__} resource has not been created." +
-                (f" Resource failed with: {self._exception}" if self._exception else
-                    "  To wait for resource creation use wait_for_resource_creation."))
+        # TODO(b/193800063) Change this to name after this fix
+        if not getattr(self._gca_resource, 'create_time', None):
+            raise RuntimeError(f"{self.__class__.__name__} resource has not been created." +
+                (f" Resource failed with: {self._exception}" if self._exception else ""))
 
     @base.optional_sync()
     def run(

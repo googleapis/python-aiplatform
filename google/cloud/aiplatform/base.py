@@ -1075,16 +1075,23 @@ class VertexAiResourceNounWithFutureManager(VertexAiResourceNoun, FutureManager)
 
     def wait_for_resource_creation(self) -> None:
         """Wait until underlying resource is created."""
+
         self._raise_future_exception()
+        
+        # If the user calls this but didn't actually invoke an API to create 
+        if self._are_futures_done() and getattr(self, '_gca_resource', None) is None:
+            self._raise_future_exception()
+            raise RuntimeError('Resource is not scheduled to be created.')
+
+        
         while getattr(self._gca_resource, 'name', None) is None:
             self._raise_future_exception()  # will raise if exception occured async
             time.sleep(1)
 
     def _assert_gca_resource_is_available(self):
         if self._gca_resource is None:
-            raise RuntimeError(f"{self.__class__} resource has not been created." +
-                (f" Resource failed with: {self._exception}" if self._exception else
-                    "  To wait for resource creation use wait_for_resource_creation."))
+            raise RuntimeError(f"{self.__class__.__name__} resource has not been created." +
+                (f" Resource failed with: {self._exception}" if self._exception else ""))
 
 def get_annotation_class(annotation: type) -> type:
     """Helper method to retrieve type annotation.

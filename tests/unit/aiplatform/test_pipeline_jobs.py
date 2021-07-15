@@ -268,4 +268,4 @@ class TestPipelineJob:
         with pytest.raises(RuntimeError) as e:
             job.cancel()
 
-        assert e.match(regexp=r"PipelineJob has not been launched")
+        assert e.match(regexp=r"PipelineJob resource has not been created")
