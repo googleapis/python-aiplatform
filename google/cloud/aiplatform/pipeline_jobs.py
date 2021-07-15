@@ -208,11 +208,10 @@ class PipelineJob(base.VertexAiResourceNounWithFutureManager):
         )
 
     def _assert_gca_resource_is_available(self):
-        if getattr(self._gca_resource, 'name', None) is None:
-            raise RuntimeError(
-                f"{self.__class__} resource has not been created."
-                "If job run has alaready been invoked use wait_for_resource_creation."
-                "Otherwise run the job with job.run.")
+        if not getattr(self._gca_resource, 'name', None):
+            raise RuntimeError(f"{self.__class__} resource has not been created." +
+                (f" Resource failed with: {self._exception}" if self._exception else
+                    "  To wait for resource creation use wait_for_resource_creation."))
 
     @base.optional_sync()
     def run(
@@ -230,6 +229,7 @@ class PipelineJob(base.VertexAiResourceNounWithFutureManager):
             network (str):
                 Optional. The full name of the Compute Engine network to which the job
                 should be peered. For example, projects/12345/global/networks/myVPC.
+                
                 Private services access must already be configured for the network.
                 If left unspecified, the job is not peered with any network.
             sync (bool):

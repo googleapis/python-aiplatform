@@ -593,9 +593,9 @@ class VertexAiResourceNoun(metaclass=abc.ABCMeta):
         self._assert_gca_resource_is_available()
         return self._gca_resource
 
-    def _assert_gca_resource_is_available(self, remediation_str: str=''):
+    def _assert_gca_resource_is_available(self):
         if self._gca_resource is None:
-            raise RuntimeError(f"{self.__class__} resource has not been created. {remediation_str}")
+            raise RuntimeError(f"{self.__class__} resource has not been created")
 
     def __repr__(self) -> str:
         return f"{object.__repr__(self)} \nresource name: {self.resource_name}"
@@ -1075,14 +1075,16 @@ class VertexAiResourceNounWithFutureManager(VertexAiResourceNoun, FutureManager)
 
     def wait_for_resource_creation(self) -> None:
         """Wait until underlying resource is created."""
+        self._raise_future_exception()
         while getattr(self._gca_resource, 'name', None) is None:
             self._raise_future_exception()  # will raise if exception occured async
             time.sleep(1)
 
-    def _assert_gca_resource_is_available(self) -> None:
-        super(self, VertexAiResourceNounWithFutureManager)._assert_gca_resource_is_available(
-            'To wait for resource creation use wait_for_resource_creation.')
-    
+    def _assert_gca_resource_is_available(self):
+        if self._gca_resource is None:
+            raise RuntimeError(f"{self.__class__} resource has not been created." +
+                (f" Resource failed with: {self._exception}" if self._exception else
+                    "  To wait for resource creation use wait_for_resource_creation."))
 
 def get_annotation_class(annotation: type) -> type:
     """Helper method to retrieve type annotation.
