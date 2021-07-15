@@ -48,7 +48,7 @@ from google.cloud import aiplatform
                          
 from torch.utils.data import Dataset, Dataloader
 
-def _serialize_data_in_memory(self, artifact_uri, obj: pd.Dataframe, 
+def _serialize_data_in_memory(artifact_uri, obj: pd.Dataframe, 
                                  temp_dir: str, dataset_type: str):
         # Designate csv path and write the pandas DataFrame to the path
         # Convention: file name is my_training_dataset, my_test_dataset, etc.

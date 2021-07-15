@@ -49,6 +49,7 @@ from google.cloud import aiplatform
                          
 from torch.utils.data import Dataset, Dataloader
 from . import serializers  
+from . import source
 
 # Wrapper function to handle cloud training extension of user code
 def vertex_function_wrapper(method, training_mode):
@@ -64,25 +65,40 @@ def vertex_function_wrapper(method, training_mode):
 
         serializer = 
             method.__self__.__class__._data_serialization_mapping[type(dataset)][1]
-        serializer(dataset, staging_bucket + 'dataset.csv', args[1], '~/temp_dir', 'training')
+        training_data_uri = 
+            serializer(staging_bucket + 'dataset.csv', data, args[1], '~/temp_dir/', 'training')
 
-        """            
-        # Edit run of job here
-        job = aiplatform.CustomTrainingJob(...)
-        job.run(
-            args = ['dataset',  staging_bucket + 'dataset.csv',
-                    'dataset_type', dataset] 
-        ) 
-        """
+        make_class_source(method.__self__.__class__, '~/temp_dir/')
+
+        job = aiplatform.CustomTrainingJob(
+            display_name='my_training_job',
+            script='~/temp_dir/' + method.__self__.__class__.__name__ + '.py',
+            requirements = ['pandas>=1.8'],
+            container_uri='pytorch/pytorch')
+        )
+
+        method.__self__.model = job.run(training_data_uri, 
+                        output_dir=output_directory) 
 
     def p(*args, **kwargs):
-        pass
+        # for now, rely on batch predict to avoid Endpoint object generation
+        return bp
 
     def bp(*args, **kwargs):
-        pass
-    
+        dataset = kwargs['dataset']
+
+        serializer = 
+            method.__self__.__class__._data_serialization_mapping[type(dataset)][1]
+        test_data_uri = 
+            serializer(staging_bucket + 'dataset.csv', data, args[1], '~/temp_dir/', 'test')
+
+        return method.__self__.model.batch_predict(
+                                        gcs_source_uri=test_data_uri
+                                        gcs_destination_prefix=output_directory,
+                                        job_display_name='my_batch_predict_job')
+
     def e(*args, **kwargs):
-        pass
+        return bp
 
     if method.__name__ == 'fit':
         return f
@@ -106,13 +122,18 @@ class VertexModel:
         # Default to local training on creation, at least for this prototype.
         self.training_mode = 'local'
 
+        # TODO: define default output directory for results (timestapped in user's
+        #       GCS bucket)
+
+        self.model = None
+
         self.fit = vertex_function_wrapper(self.fit, self.training_mode)
         self.predict = vertex_function_wrapper(self.predict, self.training_mode)
         self.batch_predict = vertex_function_wrapper(self.batch_predict, self.training_mode)
         self.eval = vertex_function_wrapper(self.eval, self.training_mode)
 
     @abc.abstractmethod
-    def fit(self, data, epochs, learning_rate, dataset: pd.DataFrame):
+    def fit(self, data, epochs, learning_rate, dataset: pd.DataFrame, output_directory):
         """ Train model. """
         pass
 
@@ -122,7 +143,7 @@ class VertexModel:
         pass
 
     @abc.abstractmethod
-    def batch_predict(self, data, target):
+    def batch_predict(self, data, target, dataset: pd.DataFrame, output_directory):
         """ Make predictions on training data. """
         pass
 

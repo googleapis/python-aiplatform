@@ -56,14 +56,16 @@ class SourceMaker:
     def add_method(self, method_str: str):
         self.source.extend(method_str.split('\n'))
 
-def _make_class_source(obj):
+def _make_class_source(obj, temp_dir):
     source_maker = SourceMaker(obj.__class__.__name__)
 
-    for key, value in inspect.getmembers(m):
+    for key, value in inspect.getmembers(obj):
         if inspect.ismethod(value): 
             source_maker.add_method(inspect.getsource(value))
+
+    temp_path = temp_dir + obj.__class__.__name__ + '.py'
+
+    with open(file_name, 'w') as f:
+        f.write('\n'.join(make_class_source(m)))
     
     return source_maker.source
-
-# print('\n'.join(make_class_source(m)))
-# inspect.getsource(m.f).split('\n')
