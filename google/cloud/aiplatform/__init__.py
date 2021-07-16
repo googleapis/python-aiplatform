@@ -36,10 +36,7 @@ from google.cloud.aiplatform.jobs import (
     CustomJob,
     HyperparameterTuningJob,
 )
-from google.cloud.aiplatform.tensorboard import (
-    Tensorboard,
-    TensorBoardUploader,
-)
+from google.cloud.aiplatform.tensorboard import Tensorboard
 from google.cloud.aiplatform.training_jobs import (
     CustomTrainingJob,
     CustomContainerTrainingJob,
@@ -96,5 +93,4 @@ __all__ = (
     "TimeSeriesDataset",
     "VideoDataset",
     "Tensorboard",
-    "TensorBoardUploader",
 )

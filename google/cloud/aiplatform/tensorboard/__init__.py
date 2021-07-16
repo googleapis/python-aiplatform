@@ -16,10 +16,6 @@
 #
 
 from google.cloud.aiplatform.tensorboard.tensorboard import Tensorboard
-from google.cloud.aiplatform.tensorboard.uploader import TensorBoardUploader
 
 
-__all__ = (
-    "Tensorboard",
-    "TensorBoardUploader",
-)
+__all__ = ("Tensorboard",)

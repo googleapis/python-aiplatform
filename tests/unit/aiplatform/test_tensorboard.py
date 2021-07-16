@@ -20,8 +20,8 @@ import os
 import pytest
 
 from unittest import mock
-from importlib import reload
 from unittest.mock import patch
+from importlib import reload
 
 from google.api_core import operation
 from google.auth.exceptions import GoogleAuthError
@@ -85,17 +85,6 @@ def get_tensorboard_mock():
             name=_TEST_NAME,
             display_name=_TEST_DISPLAY_NAME,
             encryption_spec=_TEST_ENCRYPTION_SPEC,
-        )
-        yield get_tensorboard_mock
-
-
-@pytest.fixture
-def get_tensorboard_without_name_mock():
-    with patch.object(
-        tensorboard_service_client.TensorboardServiceClient, "get_tensorboard"
-    ) as get_tensorboard_mock:
-        get_tensorboard_mock.return_value = gca_tensorboard.Tensorboard(
-            display_name=_TEST_DISPLAY_NAME, encryption_spec=_TEST_ENCRYPTION_SPEC,
         )
         yield get_tensorboard_mock
 
@@ -195,7 +184,6 @@ class TestTensorboard:
                 location=_TEST_ALT_LOCATION,
             )
 
-    @pytest.mark.usefixtures("get_tensorboard_without_name_mock")
     @patch.dict(
         os.environ, {"GOOGLE_CLOUD_PROJECT": "", "GOOGLE_APPLICATION_CREDENTIALS": ""}
     )
@@ -277,7 +265,7 @@ class TestTensorboard:
         my_tensorboard.update(display_name=_TEST_DISPLAY_NAME_UPDATE)
 
         expected_tensorboard = gca_tensorboard.Tensorboard(
-            display_name=_TEST_DISPLAY_NAME_UPDATE,
+            name=_TEST_NAME, display_name=_TEST_DISPLAY_NAME_UPDATE,
         )
         update_tensorboard_mock.assert_called_once_with(
             update_mask=field_mask_pb2.FieldMask(paths=["display_name"]),
@@ -293,7 +281,7 @@ class TestTensorboard:
         my_tensorboard.update(encryption_spec_key_name=_TEST_ENCRYPTION_KEY_NAME)
 
         expected_tensorboard = gca_tensorboard.Tensorboard(
-            encryption_spec=_TEST_ENCRYPTION_SPEC,
+            name=_TEST_NAME, encryption_spec=_TEST_ENCRYPTION_SPEC,
         )
         update_tensorboard_mock.assert_called_once_with(
             update_mask=field_mask_pb2.FieldMask(paths=["encryption_spec"]),
