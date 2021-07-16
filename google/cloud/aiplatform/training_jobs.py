@@ -492,6 +492,7 @@ class _TrainingJob(base.VertexAiResourceNounWithFutureManager):
                     key=timestamp_split_column_name,
                 )
 
+            fraction_split = None
             if all(
                 [
                     filter_split is None,

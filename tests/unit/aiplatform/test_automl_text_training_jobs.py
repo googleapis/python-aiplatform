@@ -55,6 +55,9 @@ _TEST_TRAINING_TASK_INPUTS_SENTIMENT = training_job_inputs.AutoMlTextSentimentIn
 _TEST_FRACTION_SPLIT_TRAINING = 0.6
 _TEST_FRACTION_SPLIT_VALIDATION = 0.2
 _TEST_FRACTION_SPLIT_TEST = 0.2
+_TEST_DEFAULT_TRAINING_FRACTION_SPLIT = 0.8
+_TEST_DEFAULT_VALIDATION_FRACTION_SPLIT = 0.1
+_TEST_DEFAULT_TEST_FRACTION_SPLIT = 0.1
 _TEST_FILTER_SPLIT_TRAINING = "train"
 _TEST_FILTER_SPLIT_VALIDATION = "validate"
 _TEST_FILTER_SPLIT_TEST = "test"
@@ -276,9 +279,9 @@ class TestAutoMLTextTrainingJob:
             model_from_job.wait()
 
         true_fraction_split = gca_training_pipeline.FractionSplit(
-            training_fraction=_TEST_FRACTION_SPLIT_TRAINING,
-            validation_fraction=_TEST_FRACTION_SPLIT_VALIDATION,
-            test_fraction=_TEST_FRACTION_SPLIT_TEST,
+            training_fraction=_TEST_DEFAULT_TRAINING_FRACTION_SPLIT,
+            validation_fraction=_TEST_DEFAULT_VALIDATION_FRACTION_SPLIT,
+            test_fraction=_TEST_DEFAULT_TEST_FRACTION_SPLIT,
         )
 
         true_managed_model = gca_model.Model(
@@ -529,9 +532,9 @@ class TestAutoMLTextTrainingJob:
             model_from_job.wait()
 
         true_fraction_split = gca_training_pipeline.FractionSplit(
-            training_fraction=_TEST_FRACTION_SPLIT_TRAINING,
-            validation_fraction=_TEST_FRACTION_SPLIT_VALIDATION,
-            test_fraction=_TEST_FRACTION_SPLIT_TEST,
+            training_fraction=_TEST_DEFAULT_TRAINING_FRACTION_SPLIT,
+            validation_fraction=_TEST_DEFAULT_VALIDATION_FRACTION_SPLIT,
+            test_fraction=_TEST_DEFAULT_TEST_FRACTION_SPLIT,
         )
 
         # Test that if defaults to the job display name

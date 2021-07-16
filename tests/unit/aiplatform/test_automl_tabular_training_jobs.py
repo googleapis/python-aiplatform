@@ -124,6 +124,9 @@ _TEST_MODEL_DISPLAY_NAME = "model-display-name"
 _TEST_TRAINING_FRACTION_SPLIT = 0.6
 _TEST_VALIDATION_FRACTION_SPLIT = 0.2
 _TEST_TEST_FRACTION_SPLIT = 0.2
+_TEST_DEFAULT_TRAINING_FRACTION_SPLIT = 0.8
+_TEST_DEFAULT_VALIDATION_FRACTION_SPLIT = 0.1
+_TEST_DEFAULT_TEST_FRACTION_SPLIT = 0.1
 _TEST_PREDEFINED_SPLIT_COLUMN_NAME = "split"
 _TEST_TIMESTAMP_SPLIT_COLUMN_NAME = "timestamp"
 
@@ -390,9 +393,9 @@ class TestAutoMLTabularTrainingJob:
             model_from_job.wait()
 
         true_fraction_split = gca_training_pipeline.FractionSplit(
-            training_fraction=_TEST_TRAINING_FRACTION_SPLIT,
-            validation_fraction=_TEST_VALIDATION_FRACTION_SPLIT,
-            test_fraction=_TEST_TEST_FRACTION_SPLIT,
+            training_fraction=_TEST_DEFAULT_TRAINING_FRACTION_SPLIT,
+            validation_fraction=_TEST_DEFAULT_VALIDATION_FRACTION_SPLIT,
+            test_fraction=_TEST_DEFAULT_TEST_FRACTION_SPLIT,
         )
 
         # Test that if defaults to the job display name
@@ -529,9 +532,9 @@ class TestAutoMLTabularTrainingJob:
             model_from_job.wait()
 
         true_fraction_split = gca_training_pipeline.FractionSplit(
-            training_fraction=_TEST_TRAINING_FRACTION_SPLIT,
-            validation_fraction=_TEST_VALIDATION_FRACTION_SPLIT,
-            test_fraction=_TEST_TEST_FRACTION_SPLIT,
+            training_fraction=_TEST_DEFAULT_TRAINING_FRACTION_SPLIT,
+            validation_fraction=_TEST_DEFAULT_VALIDATION_FRACTION_SPLIT,
+            test_fraction=_TEST_DEFAULT_TEST_FRACTION_SPLIT,
         )
 
         true_managed_model = gca_model.Model(
