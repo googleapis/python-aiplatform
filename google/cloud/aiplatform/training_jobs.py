@@ -419,20 +419,24 @@ class _TrainingJob(base.VertexAiResourceNounWithFutureManager):
         if dataset:
             filter_split = None
             if any(
-                training_filter_split is not None,
-                validation_filter_split is not None,
-                test_filter_split is not None,
-            ):
-                if all(
+                [
                     training_filter_split is not None,
                     validation_filter_split is not None,
                     test_filter_split is not None,
-                    dataset._gca_resource.metadata_schema_uri
-                    in (
-                        schema.dataset.metadata.image,
-                        schema.dataset.metadata.text,
-                        schema.dataset.metadata.video,
-                    ),
+                ]
+            ):
+                if all(
+                    [
+                        training_filter_split is not None,
+                        validation_filter_split is not None,
+                        test_filter_split is not None,
+                        dataset._gca_resource.metadata_schema_uri
+                        in (
+                            schema.dataset.metadata.image,
+                            schema.dataset.metadata.text,
+                            schema.dataset.metadata.video,
+                        ),
+                    ]
                 ):
                     # Create filter split spec
                     filter_split = gca_training_pipeline.FilterSplit(
@@ -441,9 +445,11 @@ class _TrainingJob(base.VertexAiResourceNounWithFutureManager):
                         test_filter=test_filter_split,
                     )
                 elif any(
-                    training_filter_split is None,
-                    validation_filter_split is None,
-                    test_filter_split is None,
+                    [
+                        training_filter_split is None,
+                        validation_filter_split is None,
+                        test_filter_split is None,
+                    ]
                 ):
                     raise TypeError(
                         "To use filter split, all of the following have to be provided: training_filter_split, validation_filter_split, test_filter_split"
@@ -487,7 +493,11 @@ class _TrainingJob(base.VertexAiResourceNounWithFutureManager):
                 )
 
             if all(
-                filter_split is None, predefined_split is None, timestamp_split is None,
+                [
+                    filter_split is None,
+                    predefined_split is None,
+                    timestamp_split is None,
+                ]
             ):
                 fraction_split = gca_training_pipeline.FractionSplit(
                     training_fraction=training_fraction_split,
