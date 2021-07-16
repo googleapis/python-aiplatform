@@ -51,6 +51,8 @@ _TEST_TRAINING_TASK_INPUTS = json_format.ParseDict(
 
 _TEST_FRACTION_SPLIT_TRAINING = 0.8
 _TEST_FRACTION_SPLIT_TEST = 0.2
+_TEST_FILTER_SPLIT_TRAINING = "train"
+_TEST_FILTER_SPLIT_TEST = "test"
 
 _TEST_MODEL_NAME = (
     f"projects/{_TEST_PROJECT}/locations/{_TEST_LOCATION}/models/{_TEST_MODEL_ID}"
@@ -301,15 +303,17 @@ class TestAutoMLVideoTrainingJob:
             model_display_name=_TEST_MODEL_DISPLAY_NAME,
             training_fraction_split=_TEST_FRACTION_SPLIT_TRAINING,
             test_fraction_split=_TEST_FRACTION_SPLIT_TEST,
+            training_filter_split=_TEST_FILTER_SPLIT_TRAINING,
+            test_filter_split=_TEST_FILTER_SPLIT_TEST,
             sync=sync,
         )
 
         if not sync:
             model_from_job.wait()
 
-        true_fraction_split = gca_training_pipeline.FractionSplit(
-            training_fraction=_TEST_FRACTION_SPLIT_TRAINING,
-            test_fraction=_TEST_FRACTION_SPLIT_TEST,
+        true_filter_split = gca_training_pipeline.FilterSplit(
+            training_filter=_TEST_FILTER_SPLIT_TRAINING,
+            test_filter=_TEST_FILTER_SPLIT_TEST,
         )
 
         true_managed_model = gca_model.Model(
@@ -319,7 +323,7 @@ class TestAutoMLVideoTrainingJob:
         )
 
         true_input_data_config = gca_training_pipeline.InputDataConfig(
-            fraction_split=true_fraction_split, dataset_id=mock_dataset_video.name,
+            filter_split=true_filter_split, dataset_id=mock_dataset_video.name,
         )
 
         true_training_pipeline = gca_training_pipeline.TrainingPipeline(
@@ -360,11 +364,7 @@ class TestAutoMLVideoTrainingJob:
             model_type=_TEST_MODEL_TYPE_CLOUD,
         )
 
-        model_from_job = job.run(
-            dataset=mock_dataset_video,
-            training_fraction_split=_TEST_FRACTION_SPLIT_TRAINING,
-            test_fraction_split=_TEST_FRACTION_SPLIT_TEST,
-        )
+        model_from_job = job.run(dataset=mock_dataset_video)
 
         if not sync:
             model_from_job.wait()
@@ -410,8 +410,6 @@ class TestAutoMLVideoTrainingJob:
         job.run(
             dataset=mock_dataset_video,
             model_display_name=_TEST_MODEL_DISPLAY_NAME,
-            training_fraction_split=_TEST_FRACTION_SPLIT_TRAINING,
-            test_fraction_split=_TEST_FRACTION_SPLIT_TEST,
             sync=sync,
         )
 
@@ -419,8 +417,6 @@ class TestAutoMLVideoTrainingJob:
             job.run(
                 dataset=mock_dataset_video,
                 model_display_name=_TEST_MODEL_DISPLAY_NAME,
-                training_fraction_split=_TEST_FRACTION_SPLIT_TRAINING,
-                test_fraction_split=_TEST_FRACTION_SPLIT_TEST,
                 sync=sync,
             )
 
