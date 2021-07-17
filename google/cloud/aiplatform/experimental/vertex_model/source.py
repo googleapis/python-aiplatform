@@ -51,17 +51,19 @@ import inspect
 
 class SourceMaker:
     def __init__(self, cls_name: str):
-        self.source = ["class {}".format(cls_name)]
+        self.source = ["class {}:".format(cls_name)]
 
     def add_method(self, method_str: str):
         self.source.extend(method_str.split('\n'))
 
-def _make_class_source(obj, temp_dir):
+def _make_class_source(obj):
     source_maker = SourceMaker(obj.__class__.__name__)
 
     for key, value in inspect.getmembers(obj):
-        if inspect.ismethod(value): 
+        if inspect.ismethod(value) or inspect.isfunction(value): 
             source_maker.add_method(inspect.getsource(value))
+            
+    return '\n'.join(source_maker.source)
 
     temp_path = temp_dir + obj.__class__.__name__ + '.py'
 
@@ -69,3 +71,8 @@ def _make_class_source(obj, temp_dir):
         f.write('\n'.join(make_class_source(m)))
     
     return source_maker.source
+
+def _make_source(cls_source: str, cls_name: str, instance_method: str):
+    src = "import torch" + "\n" + "import pandas as pd" + "\n" + cls_source + "\n"
+    src = src + "if __name__ == '__main__':\n" + f"\t{cls_name}().{instance_method}()"
+    return src

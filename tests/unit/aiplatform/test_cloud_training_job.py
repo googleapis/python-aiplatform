@@ -136,9 +136,13 @@ class TestLocalModelClass:
             for t in range(epochs):
                 self.train_loop(data, loss_fn, optimizer)
 
-    def test_create_local_class(self):
+    def test_create_cloud_class(self):
         aiplatform.init(staging_bucket=_TEST_STAGING_BUCKET)
 
-        model = LinearRegression(1, 1)
-        assert model != None
+        aiplatform.init(project='sashaproject-1', staging_bucket='gs://ucaip-mb-sasha-dev')
 
+        my_model = LinearRegression()
+        my_model.training_mode = 'cloud'
+        my_model.fit(pd.DataFrame())
+
+        assert(my_model != None)

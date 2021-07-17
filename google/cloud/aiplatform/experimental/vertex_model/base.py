@@ -52,69 +52,64 @@ from . import serializers
 from . import source
 
 # Wrapper function to handle cloud training extension of user code
-def vertex_function_wrapper(method, training_mode):
+def vertex_fit_function_wrapper(method):
 
-    # Check we are using the subclass definition
-    print(method.__self__.__class__)
-
-    if training_mode == 'local':
-        return method
-
+    @functools.wraps(method)
     def f(*args, **kwargs):
-        dataset = kwargs['dataset']
+        if method.__self__.training_mode == 'local':
+            return method(*args, **kwargs)
+        
+        obj = method.__self__
+        cls_name = obj.__class__.__name__
 
-        serializer = 
-            method.__self__.__class__._data_serialization_mapping[type(dataset)][1]
-        training_data_uri = 
-            serializer(staging_bucket + 'dataset.csv', data, args[1], '~/temp_dir/', 'training')
+        training_source = _make_class_source(obj)
 
-        make_class_source(method.__self__.__class__, '~/temp_dir/')
+        source = _make_source(
+            cls_source=training_source,
+            cls_name=cls_name,
+            instance_method=method.__name__)
+            
+        with tempfile.TemporaryDirectory() as tmpdirname:
+            script_path = pathlib.Path(tmpdirname) / "training_script.py"
 
-        job = aiplatform.CustomTrainingJob(
-            display_name='my_training_job',
-            script='~/temp_dir/' + method.__self__.__class__.__name__ + '.py',
-            requirements = ['pandas>=1.8'],
-            container_uri='pytorch/pytorch')
-        )
+            with open(script_path, 'w') as f:
+                f.write(source)
+        
+            bound_args = inspect.signature(method).bind(*args, **kwargs)
+            dataset = bound_args.arguments.get('dataset')
+              
+            # may need to throw here if this is not set
+            # they didn't call aiplatform.init(staging_bucket='gs://....')
+            staging_bucket = aiplatform.initializer.global_config.staging_bucket
 
-        method.__self__.model = job.run(training_data_uri, 
-                        output_dir=output_directory) 
+            # TODO: serialize data to GCS
+            # serializer = method.__self__.__class__._data_serialization_mapping[type(dataset)][1]
+            # training_data_uri = 
+            #   serializer(staging_bucket + 'dataset.csv', data, args[1], '~/temp_dir/', 'training')
 
-    def p(*args, **kwargs):
-        # for now, rely on batch predict to avoid Endpoint object generation
-        return bp
+            method.__self__._training_job = aiplatform.CustomTrainingJob(
+                display_name='my_training_job',
+                script_path=str(script_path),
 
-    def bp(*args, **kwargs):
-        dataset = kwargs['dataset']
+                # programatically determine the dependency in the future
+                requirements = ['pandas>=1.8'],
 
-        serializer = 
-            method.__self__.__class__._data_serialization_mapping[type(dataset)][1]
-        test_data_uri = 
-            serializer(staging_bucket + 'dataset.csv', data, args[1], '~/temp_dir/', 'test')
+                # https://cloud.google.com/vertex-ai/docs/training/pre-built-containers
+                container_uri='us-docker.pkg.dev/vertex-ai/training/pytorch-xla.1-7:latest')
+            
+            # In the custom training job, a MODEL directory will be provided as an env var
+            # our code should serialize our MODEL to that directory
 
-        return method.__self__.model.batch_predict(
-                                        gcs_source_uri=test_data_uri
-                                        gcs_destination_prefix=target,
-                                        job_display_name='my_batch_predict_job')
+            method.__self__._training_job.run(replica_count=1)
 
-    def e(*args, **kwargs):
-        return bp
-
-    if method.__name__ == 'fit':
-        return f
-    elif method.__name__ == 'predict':
-        return p
-    elif method.__name__ == 'batch_predict':
-        return bp
-    else:
-        return e
+    return f
 
 
 class VertexModel:
 
     _data_serialization_mapping = {
         pd.DataFrame : (deserialize_data_in_memory, serialize_data_in_memory).
-        DataLoader: (deserialize_dataloader, serialize_dataloader)
+        # DataLoader: (deserialize_dataloader, serialize_dataloader)
     }
 
     """ Parent class that users can extend to use the Vertex AI SDK """
@@ -125,12 +120,12 @@ class VertexModel:
         # TODO: define default output directory for results (timestapped in user's
         #       GCS bucket)
 
-        self.model = None
+        self._model = None
 
-        self.fit = vertex_function_wrapper(self.fit, self.training_mode)
-        self.predict = vertex_function_wrapper(self.predict, self.training_mode)
-        self.batch_predict = vertex_function_wrapper(self.batch_predict, self.training_mode)
-        self.eval = vertex_function_wrapper(self.eval, self.training_mode)
+        self.fit = vertex_function_wrapper(self.fit) # self.training_mode)
+        # self.predict = vertex_function_wrapper(self.predict, self.training_mode)
+        # self.batch_predict = vertex_function_wrapper(self.batch_predict, self.training_mode)
+        # self.eval = vertex_function_wrapper(self.eval, self.training_mode)
 
     @abc.abstractmethod
     def fit(self, data, epochs, learning_rate, dataset: pd.DataFrame, output_directory):
@@ -151,4 +146,3 @@ class VertexModel:
     def eval(self, data, target, dataset: pd.DataFrame):
         """ Evaluate model. """
         pass
-
