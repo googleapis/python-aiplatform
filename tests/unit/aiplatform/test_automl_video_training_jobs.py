@@ -52,6 +52,7 @@ _TEST_TRAINING_TASK_INPUTS = json_format.ParseDict(
 _TEST_FRACTION_SPLIT_TRAINING = 0.8
 _TEST_FRACTION_SPLIT_TEST = 0.2
 _TEST_FILTER_SPLIT_TRAINING = "train"
+_TEST_FILTER_SPLIT_VALIDATION = "-"
 _TEST_FILTER_SPLIT_TEST = "test"
 
 _TEST_MODEL_NAME = (
@@ -313,6 +314,7 @@ class TestAutoMLVideoTrainingJob:
 
         true_filter_split = gca_training_pipeline.FilterSplit(
             training_filter=_TEST_FILTER_SPLIT_TRAINING,
+            validation_filter=_TEST_FILTER_SPLIT_VALIDATION,
             test_filter=_TEST_FILTER_SPLIT_TEST,
         )
 
