@@ -47,28 +47,41 @@ from torch.utils.data import Dataset, Dataloader
 
 def _serialize_dataframe(artifact_uri: str, obj: pd.DataFrame, 
                                  temp_dir: str, dataset_type: str) -> str:
-        # Designate csv path and write the pandas DataFrame to the path
-        # Convention: file name is my_training_dataset, my_test_dataset, etc.
-        path_to_csv = temp_dir + "/" + "my_" + dataset_type + "_dataset.csv"
-        obj.to_csv(path_to_csv)
 
-        gcs_bucket, gcs_blob_prefix = extract_bucket_and_prefix_from_gcs_path(artifact_uri)
+    """Serializes pandas DataFrame object to GCS.
 
-        local_file_name = pathlib.Path(path_to_csv).name
-        blob_path = local_file_name
+    Args:
+        artifact_uri: the GCS bucket where the serialized object will reside.
+        obj: the pandas DataFrame to serialize.
+        temp_dir: the temporary path where this method will write a csv representation
+                  of obj.
 
-        if gcs_blob_prefix:
-            blob_path = "/".join([gcs_blob_prefix, blob_path])
+    Returns:
+        The GCS path pointing to the serialized DataFrame.
+    """   
+        
+    # Designate csv path and write the pandas DataFrame to the path
+    # Convention: file name is my_training_dataset, my_test_dataset, etc.
+    path_to_csv = temp_dir + "/" + "my_" + dataset_type + "_dataset.csv"
+    obj.to_csv(path_to_csv)
 
-        client = storage.Client(project=initializer.global_config.project, 
-                                credentials=initializer.global_config.credentials)
+    gcs_bucket, gcs_blob_prefix = extract_bucket_and_prefix_from_gcs_path(artifact_uri)
 
-        bucket = client.bucket(gcs_bucket)
-        blob = bucket.blob(blob_path)
-        blob.upload_from_filename(path_to_csv)
+    local_file_name = pathlib.Path(path_to_csv).name
+    blob_path = local_file_name
 
-        gcs_path = "".join(["gs://", "/".join([blob.bucket.name, blob.name])])
-        return gcs_path
+    if gcs_blob_prefix:
+        blob_path = "/".join([gcs_blob_prefix, blob_path])
+
+    client = storage.Client(project=initializer.global_config.project, 
+                            credentials=initializer.global_config.credentials)
+
+    bucket = client.bucket(gcs_bucket)
+    blob = bucket.blob(blob_path)
+    blob.upload_from_filename(path_to_csv)
+
+    gcs_path = "".join(["gs://", "/".join([blob.bucket.name, blob.name])])
+    return gcs_path
 
 def _deserialize_dataframe(cls, artifact_uri: str) -> str:
     """ Provides out-of-the-box deserialization after training and prediction is complete """

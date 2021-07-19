@@ -57,8 +57,22 @@ try:
 except ImportError:
     raise ImportError("PyTorch is not installed. Please install torch to use VertexModel")
 
-# Wrapper function to handle cloud training extension of user code
+
 def vertex_fit_function_wrapper(method):
+    """Adapts code in the user-written child class for cloud training and prediction
+
+    If the user wishes to conduct local development, will return the original function.
+    If not, converts the child class to an executable inner script and calls the Vertex
+    AI SDK using the custom training job interface.
+
+    Returns:
+        A function that will complete local or cloud training based off of the user's
+        implementation of the VertexModel class. The training mode is determined by the
+        user-designated training_mode variable.
+
+    Raises:
+        RuntimeError: An error occurred trying to access the staging bucket.
+    """
 
     @functools.wraps(method)
     def f(*args, **kwargs):
@@ -118,7 +132,6 @@ class VertexModel(metaclass=abc.ABCMeta):
     def __init__(self):
         # Default to local training on creation, at least for this prototype.
         self.training_mode = 'local'
-
         self.fit = vertex_function_wrapper(self.fit)
 
     @abc.abstractmethod

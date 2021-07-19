@@ -54,18 +54,33 @@ class SourceMaker:
         self.source.extend(method_str.split('\n'))
 
 def _make_class_source(obj):
+    """Retrieves the source code for the class obj represents.
+
+    Args:
+        obj: An instantiation of a user-written class
+    """
     source_maker = SourceMaker(obj.__class__.__name__)
 
     for key, value in inspect.getmembers(obj):
         if inspect.ismethod(value) or inspect.isfunction(value): 
             source_maker.add_method(inspect.getsource(value))
-
-    with open(file_name, 'w') as f:
-        f.write('\n'.join(make_class_source(m)))
     
     return source_maker.source
 
 def _make_source(cls_source: str, cls_name: str, instance_method: str):
+    """Converts a class source to a string including necessary imports.
+
+    Args:
+        cls_source: A string representing the source code of a user-written class.
+        cls_name: The name of the class cls_source represents.
+        instance_method: The method within the class that should be called from __main__
+
+    Returns:
+        A string representing a user-written class that can be written to a file in 
+        order to yield an inner script for the ModelBuilder SDK. The only difference
+        between the user-written code and the string returned by this method is that
+        the user has the option to specify a method to call from __main__.
+    """
     src = "\n".join(["import torch", "import pandas as pd", cls_source])    
     src = src + "if __name__ == '__main__':\n" + f"\t{cls_name}().{instance_method}()"
     return src
