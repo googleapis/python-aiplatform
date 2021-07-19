@@ -58,24 +58,6 @@ _TEST_PARENT = f"projects/{_TEST_PROJECT}/locations/{_TEST_LOCATION}"
 _TEST_CUSTOM_JOB_NAME = f"{_TEST_PARENT}/customJobs/{_TEST_ID}"
 _TEST_TENSORBOARD_NAME = f"{_TEST_PARENT}/tensorboards/{_TEST_ID}"
 
-_TEST_TRAINING_CONTAINER_IMAGE = "gcr.io/test-training/container:image"
-
-_TEST_WORKER_POOL_SPEC = [
-    {
-        "machine_spec": {
-            "machine_type": "n1-standard-4",
-            "accelerator_type": "NVIDIA_TESLA_K80",
-            "accelerator_count": 1,
-        },
-        "replica_count": 1,
-        "container_spec": {
-            "image_uri": _TEST_TRAINING_CONTAINER_IMAGE,
-            "command": [],
-            "args": [],
-        },
-    }
-]
-
 _TEST_STAGING_BUCKET = "gs://test-staging-bucket"
 
 # CMEK encryption
@@ -85,11 +67,6 @@ _TEST_DEFAULT_ENCRYPTION_SPEC = gca_encryption_spec_compat.EncryptionSpec(
 )
 
 _TEST_SERVICE_ACCOUNT = "vinnys@my-project.iam.gserviceaccount.com"
-
-_TEST_NETWORK = f"projects/{_TEST_PROJECT}/global/networks/{_TEST_ID}"
-
-_TEST_TIMEOUT = 8000
-_TEST_RESTART_JOB_ON_WORKER_RESTART = True
 
 _TEST_BASE_CUSTOM_JOB_PROTO = gca_custom_job_compat.CustomJob(
     display_name=_TEST_DISPLAY_NAME,
@@ -182,11 +159,11 @@ class LinearRegression(VertexModel):
                 loss.backward()
                 optimizer.step()
 
-        def fit(self, dataset):
+        def fit(self):
             loss_fn = nn.CrossEntropyLoss()
             optimizer = torch.optim.SGD(model.parameters(), lr=0.01)
             for t in range(epochs):
-                self.train_loop(data, loss_fn, optimizer)
+                self.train_loop(pd.DataFrame(), loss_fn, optimizer)
 
 
 class TestCloudModelClass:
@@ -202,23 +179,13 @@ class TestCloudModelClass:
         my_model = LinearRegression()
         my_model.training_mode = 'cloud'
 
-        assert(my_model != None)
+        assert(my_model is not None)
 
-    def test_fit_cloud_class(self, create_custom_job_mock, get_custom_job_mock):
 
-        aiplatform.init(
-            project=_TEST_PROJECT,
-            location=_TEST_LOCATION,
-            staging_bucket=_TEST_STAGING_BUCKET,
-            encryption_spec_key_name=_TEST_DEFAULT_ENCRYPTION_KEY_NAME,
-        )
+class TestLocalModelClass:
 
-        my_model = LinearRegression()
-        my_model.training_mode = 'cloud'
-        my_model.fit(pd.DataFrame())
+    def test_create_local_class(self):
+        aiplatform.init(project=_TEST_PROJECT, staging_bucket=_TEST_STAGING_BUCKET)
 
-        with tempfile.TemporaryDirectory() as tmpdirname:
-            script_path = pathlib.Path(tmpdirname) / "training_script.py"
-
-        assert(os.path.isfile(script_path))
-
+        model = LinearRegression(1, 1)
+        assert(model is not None)
