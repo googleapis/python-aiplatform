@@ -27,7 +27,7 @@ from google.cloud.aiplatform.experimental.vertex_model import serializers
 from google.cloud.aiplatform.experimental.vertex_model import source
 from google.cloud.aiplatform import initializer
 
-rom google.protobuf import duration_pb2  # type: ignore
+from google.protobuf import duration_pb2  # type: ignore
 from google.rpc import status_pb2
 
 import test_training_jobs
@@ -180,6 +180,26 @@ class TestCloudModelClass:
         my_model.training_mode = 'cloud'
 
         assert(my_model is not None)
+
+    def test_api_call(self, create_custom_job_mock, get_custom_job_mock):
+        aiplatform.init(
+            project=_TEST_PROJECT,
+            location=_TEST_LOCATION,
+            staging_bucket=_TEST_STAGING_BUCKET,
+            encryption_spec_key_name=_TEST_DEFAULT_ENCRYPTION_KEY_NAME,
+        )
+
+        my_model = LinearRegression()
+        my_model.training_mode = 'cloud'
+
+        my_model.fit()
+
+        expected_custom_job = _get_custom_job_proto()
+
+        create_custom_job_mock.assert_called_once_with(
+            parent=_TEST_PARENT, custom_job=expected_custom_job
+        )
+
 
 
 class TestLocalModelClass:
