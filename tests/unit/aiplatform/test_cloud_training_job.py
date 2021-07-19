@@ -19,6 +19,7 @@ from importlib import reload
 import pytest
 import time
 import torch
+import os
 from typing import Optional
 
 from google.cloud.aiplatform.experimental.vertex_model import base
@@ -107,6 +108,58 @@ _TEST_BASE_CUSTOM_JOB_PROTO = gca_custom_job_compat.CustomJob(
     encryption_spec=_TEST_DEFAULT_ENCRYPTION_SPEC,
 )
 
+
+@pytest.fixture
+def create_custom_job_mock():
+    with mock.patch.object(
+        job_service_client.JobServiceClient, "create_custom_job"
+    ) as create_custom_job_mock:
+        create_custom_job_mock.return_value = _get_custom_job_proto(
+            name=_TEST_CUSTOM_JOB_NAME,
+            state=gca_job_state_compat.JobState.JOB_STATE_PENDING,
+        )
+        yield create_custom_job_mock
+
+
+@pytest.fixture
+def get_custom_job_mock():
+    with patch.object(
+        job_service_client.JobServiceClient, "get_custom_job"
+    ) as get_custom_job_mock:
+        get_custom_job_mock.side_effect = [
+            _get_custom_job_proto(
+                name=_TEST_CUSTOM_JOB_NAME,
+                state=gca_job_state_compat.JobState.JOB_STATE_PENDING,
+            ),
+            _get_custom_job_proto(
+                name=_TEST_CUSTOM_JOB_NAME,
+                state=gca_job_state_compat.JobState.JOB_STATE_RUNNING,
+            ),
+            _get_custom_job_proto(
+                name=_TEST_CUSTOM_JOB_NAME,
+                state=gca_job_state_compat.JobState.JOB_STATE_SUCCEEDED,
+            ),
+        ]
+        yield get_custom_job_mock
+
+
+def _get_custom_job_proto(state=None, name=None, error=None, version="v1"):
+    custom_job_proto = copy.deepcopy(_TEST_BASE_CUSTOM_JOB_PROTO)
+    custom_job_proto.name = name
+    custom_job_proto.state = state
+    custom_job_proto.error = error
+
+    if version == "v1beta1":
+        v1beta1_custom_job_proto = gca_custom_job_v1beta1.CustomJob()
+        v1beta1_custom_job_proto._pb.MergeFromString(
+            custom_job_proto._pb.SerializeToString()
+        )
+        custom_job_proto = v1beta1_custom_job_proto
+        custom_job_proto.job_spec.tensorboard = _TEST_TENSORBOARD_NAME
+
+    return custom_job_proto
+
+
 class LinearRegression(VertexModel): 
  
         # constraint on no constructor arguments
@@ -135,24 +188,37 @@ class LinearRegression(VertexModel):
             for t in range(epochs):
                 self.train_loop(data, loss_fn, optimizer)
 
+
 class TestCloudModelClass:
 
     def test_create_cloud_class(self):
-        aiplatform.init(project=_TEST_PROJECT, staging_bucket=_TEST_STAGING_BUCKET)
+        aiplatform.init(
+            project=_TEST_PROJECT,
+            location=_TEST_LOCATION,
+            staging_bucket=_TEST_STAGING_BUCKET,
+            encryption_spec_key_name=_TEST_DEFAULT_ENCRYPTION_KEY_NAME,
+        )
 
         my_model = LinearRegression()
         my_model.training_mode = 'cloud'
 
         assert(my_model != None)
 
-    def test_fit_cloud_class(self):
-        aiplatform.init(project=_TEST_PROJECT, staging_bucket=_TEST_STAGING_BUCKET)
+    def test_fit_cloud_class(self, create_custom_job_mock, get_custom_job_mock):
 
-        # mock custom training job
+        aiplatform.init(
+            project=_TEST_PROJECT,
+            location=_TEST_LOCATION,
+            staging_bucket=_TEST_STAGING_BUCKET,
+            encryption_spec_key_name=_TEST_DEFAULT_ENCRYPTION_KEY_NAME,
+        )
 
         my_model = LinearRegression()
         my_model.training_mode = 'cloud'
         my_model.fit(pd.DataFrame())
 
-        # assert custom training job creation
+        with tempfile.TemporaryDirectory() as tmpdirname:
+            script_path = pathlib.Path(tmpdirname) / "training_script.py"
+
+        assert(os.path.isfile(script_path))
 

@@ -108,6 +108,7 @@ _TEST_BASE_CUSTOM_JOB_PROTO = gca_custom_job_compat.CustomJob(
     encryption_spec=_TEST_DEFAULT_ENCRYPTION_SPEC,
 )
 
+
 class LinearRegression(VertexModel): 
  
     # constraint on no constructor arguments
@@ -133,9 +134,10 @@ class LinearRegression(VertexModel):
     def fit(self, dataset):
         loss_fn = nn.CrossEntropyLoss()
         optimizer = torch.optim.SGD(model.parameters(), lr=0.01)
-        
+
         for t in range(epochs):
             self.train_loop(data, loss_fn, optimizer)
+
 
 class TestLocalModelClass:
 
