@@ -57,13 +57,13 @@ class Tensorboard(base.VertexAiResourceNounWithFutureManager):
                 Example: "projects/123/locations/us-central1/tensorboards/456" or
                 "456" when project and location are initialized or passed.
             project (str):
-                Optional project to retrieve tensorboard from. If not set, project
+                Optional. Project to retrieve tensorboard from. If not set, project
                 set in aiplatform.init will be used.
             location (str):
-                Optional location to retrieve tensorboard from. If not set, location
+                Optional. Location to retrieve tensorboard from. If not set, location
                 set in aiplatform.init will be used.
             credentials (auth_credentials.Credentials):
-                Optional custom credentials to use to retreive this Tensorboard. Overrides
+                Optional. Custom credentials to use to retreive this Tensorboard. Overrides
                 credentials set in aiplatform.init.
         """
 
@@ -106,9 +106,9 @@ class Tensorboard(base.VertexAiResourceNounWithFutureManager):
                 The name can be up to 128 characters long and can be consist
                 of any UTF-8 characters.
             description (str):
-                Optional description of this Tensorboard.
+                Optional. Description of this Tensorboard.
             labels (Dict[str, str]):
-                Optional labels with user-defined metadata to organize your Tensorboards.
+                Optional. Labels with user-defined metadata to organize your Tensorboards.
                 Label keys and values can be no longer than 64 characters
                 (Unicode codepoints), can only contain lowercase letters, numeric
                 characters, underscores and dashes. International characters are allowed.
@@ -118,18 +118,18 @@ class Tensorboard(base.VertexAiResourceNounWithFutureManager):
                 System reserved label keys are prefixed with "aiplatform.googleapis.com/"
                 and are immutable.
             project (str):
-                Optional project to upload this model to. Overrides project set in
+                Optional. Project to upload this model to. Overrides project set in
                 aiplatform.init.
             location (str):
-                Optional location to upload this model to. Overrides location set in
+                Optional. Location to upload this model to. Overrides location set in
                 aiplatform.init.
             credentials (auth_credentials.Credentials):
-                Optional custom credentials to use to upload this model. Overrides
+                Optional. Custom credentials to use to upload this model. Overrides
                 credentials set in aiplatform.init.
             request_metadata (Sequence[Tuple[str, str]]):
-                Optional strings which should be sent along with the request as metadata.
+                Optional. Strings which should be sent along with the request as metadata.
             encryption_spec_key_name (str):
-                Optional Cloud KMS resource identifier of the customer
+                Optional. Cloud KMS resource identifier of the customer
                 managed encryption key used to protect the tensorboard. Has the
                 form:
                 ``projects/my-project/locations/my-region/keyRings/my-kr/cryptoKeys/my-key``.
@@ -202,13 +202,13 @@ class Tensorboard(base.VertexAiResourceNounWithFutureManager):
 
         Args:
             display_name (str):
-                Optional user-defined name of the Tensorboard.
+                Optional. User-defined name of the Tensorboard.
                 The name can be up to 128 characters long and can be consist
                 of any UTF-8 characters.
             description (str):
-                Optional description of this Tensorboard.
+                Optional. Description of this Tensorboard.
             labels (Dict[str, str]):
-                Optional labels with user-defined metadata to organize your Tensorboards.
+                Optional. Labels with user-defined metadata to organize your Tensorboards.
                 Label keys and values can be no longer than 64 characters
                 (Unicode codepoints), can only contain lowercase letters, numeric
                 characters, underscores and dashes. International characters are allowed.
@@ -218,9 +218,9 @@ class Tensorboard(base.VertexAiResourceNounWithFutureManager):
                 System reserved label keys are prefixed with "aiplatform.googleapis.com/"
                 and are immutable.
             request_metadata (Sequence[Tuple[str, str]]):
-                Optional strings which should be sent along with the request as metadata.
+                Optional. Strings which should be sent along with the request as metadata.
             encryption_spec_key_name (str):
-                Optional Cloud KMS resource identifier of the customer
+                Optional. Cloud KMS resource identifier of the customer
                 managed encryption key used to protect the tensorboard. Has the
                 form:
                 ``projects/my-project/locations/my-region/keyRings/my-kr/cryptoKeys/my-key``.
