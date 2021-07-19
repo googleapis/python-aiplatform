@@ -87,7 +87,7 @@ def vertex_fit_function_wrapper(method):
             # training_data_uri = 
             #   serializer(staging_bucket + 'dataset.csv', data, args[1], '~/temp_dir/', 'training')
 
-            method.__self__._training_job = aiplatform.CustomTrainingJob(
+            obj._training_job = aiplatform.CustomTrainingJob(
                 display_name='my_training_job',
                 script_path=str(script_path),
 
