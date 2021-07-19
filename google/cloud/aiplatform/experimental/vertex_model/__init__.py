@@ -15,7 +15,3 @@
 # limitations under the License.
 #
 
-from google.cloud.aiplatform_v1 import *
-from google.cloud.aiplatform.gapic import schema
-
-from google.cloud import aiplatform_v1 as v1

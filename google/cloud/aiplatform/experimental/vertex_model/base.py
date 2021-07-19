@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-# Copyright 2020 Google LLC
+# Copyright 2021 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -16,8 +16,6 @@
 #
 
 import abc
-from concurrent import futures
-import datetime
 import functools
 import inspect
 import logging
@@ -78,15 +76,14 @@ def vertex_fit_function_wrapper(method):
             bound_args = inspect.signature(method).bind(*args, **kwargs)
             dataset = bound_args.arguments.get('dataset')
               
-            # may need to throw here if this is not set, users must
-            # call aiplatform.init(staging_bucket='gs://....')
             staging_bucket = aiplatform.initializer.global_config.staging_bucket
+            if staging_bucket is None:
+                raise RuntimeError(
+                    "Staging bucket must be set to run training in cloud mode: `aiplatform.init(staging_bucket='gs://my/staging/bucket')`")
 
-            # TODO: serialize data to GCS
-            # serializer = method.__self__.__class__._data_serialization_mapping[type(dataset)][1]
-            # training_data_uri = 
-            #   serializer(staging_bucket + 'dataset.csv', data, args[1], '~/temp_dir/', 'training')
 
+            # TODO(b/194105761) serialize data to GCS 
+            
             method.__self__._training_job = aiplatform.CustomTrainingJob(
                 display_name='my_training_job',
                 script_path=str(script_path),
