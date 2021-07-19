@@ -22,6 +22,8 @@ import torch
 from typing import Optional
 
 from google.cloud.aiplatform.experimental.vertex_model import base
+from google.cloud.aiplatform.experimental.vertex_model import serializers
+from google.cloud.aiplatform.experimental.vertex_model import source
 from google.cloud.aiplatform import initializer
 
 rom google.protobuf import duration_pb2  # type: ignore
@@ -106,38 +108,39 @@ _TEST_BASE_CUSTOM_JOB_PROTO = gca_custom_job_compat.CustomJob(
     encryption_spec=_TEST_DEFAULT_ENCRYPTION_SPEC,
 )
 
-class TestLocalModelClass:
-    
-    class LinearRegression(VertexModel): 
+class LinearRegression(VertexModel): 
  
-        # constraint on no constructor arguments
-        def __init__(self):
-            input_size = 10
-            output_size = 10
-            super(LinearRegression, self).__init__()
-            self.linear = torch.nn.Linear(input_size, output_size)
+    # constraint on no constructor arguments
+    def __init__(self):
+        input_size = 10
+        output_size = 10
+        super(LinearRegression, self).__init__()
+        self.linear = torch.nn.Linear(input_size, output_size)
 
-        def forward(self, x):
-            return self.linear(x)
+    def forward(self, x):
+        return self.linear(x)
 
-        def train_loop(self, dataloader, loss_fn, optimizer):
-            size = len(dataloader.size)
-            for batch, (X, y) in enumerate(dataloader):
-                pred = self.predict(X)
-                loss = loss_fn(pred, y)
+    def train_loop(self, dataloader, loss_fn, optimizer):
+        size = len(dataloader.size)
+        for batch, (X, y) in enumerate(dataloader):
+            pred = self.predict(X)
+            loss = loss_fn(pred, y)
 
-                optimizer.zero_grad()
-                loss.backward()
-                optimizer.step()
+            optimizer.zero_grad()
+            loss.backward()
+            optimizer.step()
 
-        def fit(self, dataset):
-            loss_fn = nn.CrossEntropyLoss()
-            optimizer = torch.optim.SGD(model.parameters(), lr=0.01)
-            for t in range(epochs):
-                self.train_loop(data, loss_fn, optimizer)
+    def fit(self, dataset):
+        loss_fn = nn.CrossEntropyLoss()
+        optimizer = torch.optim.SGD(model.parameters(), lr=0.01)
+        
+        for t in range(epochs):
+            self.train_loop(data, loss_fn, optimizer)
+
+class TestLocalModelClass:
 
     def test_create_local_class(self):
-        aiplatform.init(staging_bucket=_TEST_STAGING_BUCKET)
+        aiplatform.init(project=_TEST_PROJECT, staging_bucket=_TEST_STAGING_BUCKET)
 
         model = LinearRegression(1, 1)
         assert model != None

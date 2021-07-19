@@ -48,7 +48,7 @@ from google.cloud import aiplatform
                          
 from torch.utils.data import Dataset, Dataloader
 
-def _serialize_data_in_memory(artifact_uri, obj: pd.DataFrame, 
+def _serialize_dataframe(artifact_uri, obj: pd.DataFrame, 
                                  temp_dir: str, dataset_type: str):
         # Designate csv path and write the pandas DataFrame to the path
         # Convention: file name is my_training_dataset, my_test_dataset, etc.
@@ -73,7 +73,7 @@ def _serialize_data_in_memory(artifact_uri, obj: pd.DataFrame,
         gcs_path = "".join(["gs://", "/".join([blob.bucket.name, blob.name])])
         return gcs_path
 
-def _deserialize_data_in_memory(cls, artifact_uri):
+def _deserialize_dataframe(cls, artifact_uri):
     """ Provides out-of-the-box deserialization after training and prediction is complete """
     
     gcs_bucket, gcs_blob = utils.extract_bucket_and_prefix_from_gcs_path(

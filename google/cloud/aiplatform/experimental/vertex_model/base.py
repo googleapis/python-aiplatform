@@ -78,8 +78,8 @@ def vertex_fit_function_wrapper(method):
             bound_args = inspect.signature(method).bind(*args, **kwargs)
             dataset = bound_args.arguments.get('dataset')
               
-            # may need to throw here if this is not set
-            # they didn't call aiplatform.init(staging_bucket='gs://....')
+            # may need to throw here if this is not set, users must
+            # call aiplatform.init(staging_bucket='gs://....')
             staging_bucket = aiplatform.initializer.global_config.staging_bucket
 
             # TODO: serialize data to GCS
@@ -108,7 +108,7 @@ def vertex_fit_function_wrapper(method):
 class VertexModel:
 
     _data_serialization_mapping = {
-        pd.DataFrame : (deserialize_data_in_memory, serialize_data_in_memory).
+        pd.DataFrame : (_deserialize_dataframe, _serialize_dataframe).
         # DataLoader: (deserialize_dataloader, serialize_dataloader)
     }
 
@@ -122,7 +122,7 @@ class VertexModel:
 
         self._model = None
 
-        self.fit = vertex_function_wrapper(self.fit) # self.training_mode)
+        self.fit = vertex_function_wrapper(self.fit) 
         # self.predict = vertex_function_wrapper(self.predict, self.training_mode)
         # self.batch_predict = vertex_function_wrapper(self.batch_predict, self.training_mode)
         # self.eval = vertex_function_wrapper(self.eval, self.training_mode)

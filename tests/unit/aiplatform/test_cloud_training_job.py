@@ -22,6 +22,8 @@ import torch
 from typing import Optional
 
 from google.cloud.aiplatform.experimental.vertex_model import base
+from google.cloud.aiplatform.experimental.vertex_model import serializers
+from google.cloud.aiplatform.experimental.vertex_model import source
 from google.cloud.aiplatform import initializer
 
 rom google.protobuf import duration_pb2  # type: ignore
@@ -83,7 +85,6 @@ _TEST_DEFAULT_ENCRYPTION_SPEC = gca_encryption_spec_compat.EncryptionSpec(
 
 _TEST_SERVICE_ACCOUNT = "vinnys@my-project.iam.gserviceaccount.com"
 
-
 _TEST_NETWORK = f"projects/{_TEST_PROJECT}/global/networks/{_TEST_ID}"
 
 _TEST_TIMEOUT = 8000
@@ -106,9 +107,7 @@ _TEST_BASE_CUSTOM_JOB_PROTO = gca_custom_job_compat.CustomJob(
     encryption_spec=_TEST_DEFAULT_ENCRYPTION_SPEC,
 )
 
-class TestLocalModelClass:
-    
-    class LinearRegression(VertexModel): 
+class LinearRegression(VertexModel): 
  
         # constraint on no constructor arguments
         def __init__(self):
@@ -136,13 +135,24 @@ class TestLocalModelClass:
             for t in range(epochs):
                 self.train_loop(data, loss_fn, optimizer)
 
-    def test_create_cloud_class(self):
-        aiplatform.init(staging_bucket=_TEST_STAGING_BUCKET)
+class TestCloudModelClass:
 
-        aiplatform.init(project='sashaproject-1', staging_bucket='gs://ucaip-mb-sasha-dev')
+    def test_create_cloud_class(self):
+        aiplatform.init(project=_TEST_PROJECT, staging_bucket=_TEST_STAGING_BUCKET)
+
+        my_model = LinearRegression()
+        my_model.training_mode = 'cloud'
+
+        assert(my_model != None)
+
+    def test_fit_cloud_class(self):
+        aiplatform.init(project=_TEST_PROJECT, staging_bucket=_TEST_STAGING_BUCKET)
+
+        # mock custom training job
 
         my_model = LinearRegression()
         my_model.training_mode = 'cloud'
         my_model.fit(pd.DataFrame())
 
-        assert(my_model != None)
+        # assert custom training job creation
+
