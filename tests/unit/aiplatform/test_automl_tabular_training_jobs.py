@@ -783,11 +783,3 @@ class TestAutoMLTabularTrainingJob:
         with pytest.raises(RuntimeError) as e:
             name = job.gca_resource
             assert e.match(regexp=r"AutoMLTabularTrainingJob resource has not been created")
-
-
-
-
-
-
-
-

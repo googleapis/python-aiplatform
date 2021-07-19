@@ -472,6 +472,8 @@ class TestBatchPredictionJob:
         if not sync:
             batch_prediction_job.wait()
 
+        assert batch_prediction_job.output_info == gca_batch_prediction_job.BatchPredictionJob.OutputInfo()
+
         # Construct expected request
         expected_gapic_batch_prediction_job = gca_batch_prediction_job.BatchPredictionJob(
             display_name=_TEST_BATCH_PREDICTION_JOB_DISPLAY_NAME,

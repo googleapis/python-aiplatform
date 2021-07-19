@@ -313,3 +313,7 @@ class PipelineJob(base.VertexAiResourceNounWithFutureManager):
         becomes a job with state set to `CANCELLED`.
         """
         self.api_client.cancel_pipeline_job(name=self.resource_name)
+
+    def wait_for_resource_creation(self):
+        """Waits until resource has been created."""
+        self._wait_for_resource_creation()

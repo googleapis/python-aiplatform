@@ -852,6 +852,10 @@ class _TrainingJob(base.VertexAiResourceNounWithFutureManager):
             )
         self.api_client.cancel_training_pipeline(name=self.resource_name)
 
+    def wait_for_resource_creation(self):
+        """Waits until resource has been created."""
+        self._wait_for_resource_creation()
+
 
 class _CustomTrainingJob(_TrainingJob):
     """ABC for Custom Training Pipelines.."""

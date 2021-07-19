@@ -907,6 +907,10 @@ class _RunnableJob(_Job):
 
         return self
 
+    def wait_for_resource_creation(self):
+        """Waits until resource has been created."""
+        self._wait_for_resource_creation()
+
 
 class DataLabelingJob(_Job):
     _resource_noun = "dataLabelingJobs"

@@ -1073,8 +1073,22 @@ class VertexAiResourceNounWithFutureManager(VertexAiResourceNoun, FutureManager)
 
         return FutureManager.__repr__(self)
 
-    def wait_for_resource_creation(self) -> None:
-        """Wait until underlying resource is created."""
+    def _wait_for_resource_creation(self) -> None:
+        """Wait until underlying resource is created.
+
+        Currently this should only be used on subclasses that implement the construct then
+        `run` pattern because the underlying sync=False implementation will not update
+        downstream resource noun object's _gca_resource until the entire invoked method is complete.
+
+        Ex:
+        
+        job = CustomTrainingJob()
+        job.run(sync=False, ...)
+        job._wait_for_resource_creation() 
+    
+        Raises:
+            RuntimeError if the resource has not been scheduled to be created.
+        """
         
         # If the user calls this but didn't actually invoke an API to create 
         if self._are_futures_done() and getattr(self, '_gca_resource', None) is None:
@@ -1090,9 +1104,15 @@ class VertexAiResourceNounWithFutureManager(VertexAiResourceNoun, FutureManager)
             time.sleep(1)
 
     def _assert_gca_resource_is_available(self):
+        """Helper method to raise when accessing properties that do not exist.
+
+        Raises:
+            RuntimeError when resource has not been created.
+        """
         if self._gca_resource is None:
             raise RuntimeError(f"{self.__class__.__name__} resource has not been created." +
                 (f" Resource failed with: {self._exception}" if self._exception else ""))
+
 
 def get_annotation_class(annotation: type) -> type:
     """Helper method to retrieve type annotation.
