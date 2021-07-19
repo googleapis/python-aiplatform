@@ -22,14 +22,6 @@ from google.cloud.aiplatform.compat.types import (
 )
 from google.cloud.aiplatform.explain.metadata import metadata_builder
 
-try:
-    import tensorflow.compat.v1 as tf
-except ImportError:
-    raise ImportError(
-        "Tensorflow is not installed and is required to load saved model. "
-        'Please install the SDK using "pip install google-cloud-aiplatform[full]"'
-    )
-
 
 class SavedModelMetadataBuilder(metadata_builder.MetadataBuilder):
     """Metadata builder class that accepts a TF1 saved model."""
@@ -45,7 +37,7 @@ class SavedModelMetadataBuilder(metadata_builder.MetadataBuilder):
 
         Args:
           model_path:
-              Required. Path to load the saved model from.
+              Required. Local or GCS path to load the saved model from.
           tags:
               Optional. Tags to identify the model graph. If None or empty,
               TensorFlow's default serving tag will be used.
@@ -70,6 +62,14 @@ class SavedModelMetadataBuilder(metadata_builder.MetadataBuilder):
                     f"Received: {outputs_to_explain}."
                 )
             self._output_to_explain = next(iter(outputs_to_explain))
+
+        try:
+            import tensorflow.compat.v1 as tf
+        except ImportError:
+            raise ImportError(
+                "Tensorflow is not installed and is required to load saved model. "
+                'Please install the SDK using "pip install "tensorflow>=1.15,<2.0""'
+            )
 
         if not signature_name:
             signature_name = tf.saved_model.DEFAULT_SERVING_SIGNATURE_DEF_KEY
@@ -100,11 +100,11 @@ class SavedModelMetadataBuilder(metadata_builder.MetadataBuilder):
         )
 
     @property
-    def graph(self) -> tf.Graph:
+    def graph(self) -> "tf.Graph":  # noqa: F821
         return self._graph
 
     @property
-    def session(self) -> tf.Session:
+    def session(self) -> "tf.Session":  # noqa: F821
         return self._session
 
     def get_metadata(self) -> Dict[str, Any]:
@@ -120,7 +120,7 @@ class SavedModelMetadataBuilder(metadata_builder.MetadataBuilder):
 
 
 def _create_input_metadata_from_signature(
-    signature_inputs: Dict[str, tf.Tensor]
+    signature_inputs: Dict[str, "tf.Tensor"]  # noqa: F821
 ) -> Dict[str, explanation_metadata.ExplanationMetadata.InputMetadata]:
     """Creates InputMetadata from signature inputs.
 
@@ -141,7 +141,8 @@ def _create_input_metadata_from_signature(
 
 
 def _create_output_metadata_from_signature(
-    signature_outputs: Dict[str, tf.Tensor], output_to_explain: Optional[str] = None,
+    signature_outputs: Dict[str, "tf.Tensor"],  # noqa: F821
+    output_to_explain: Optional[str] = None,
 ) -> Dict[str, explanation_metadata.ExplanationMetadata.OutputMetadata]:
     """Creates OutputMetadata from signature inputs.
 
