@@ -45,8 +45,8 @@ from google.cloud import aiplatform
                          
 from torch.utils.data import Dataset, Dataloader
 
-def _serialize_dataframe(artifact_uri, obj: pd.DataFrame, 
-                                 temp_dir: str, dataset_type: str):
+def _serialize_dataframe(artifact_uri: str, obj: pd.DataFrame, 
+                                 temp_dir: str, dataset_type: str) -> str:
         # Designate csv path and write the pandas DataFrame to the path
         # Convention: file name is my_training_dataset, my_test_dataset, etc.
         path_to_csv = temp_dir + "/" + "my_" + dataset_type + "_dataset.csv"
@@ -70,7 +70,7 @@ def _serialize_dataframe(artifact_uri, obj: pd.DataFrame,
         gcs_path = "".join(["gs://", "/".join([blob.bucket.name, blob.name])])
         return gcs_path
 
-def _deserialize_dataframe(cls, artifact_uri):
+def _deserialize_dataframe(cls, artifact_uri: str) -> str:
     """ Provides out-of-the-box deserialization after training and prediction is complete """
     
     gcs_bucket, gcs_blob = utils.extract_bucket_and_prefix_from_gcs_path(
@@ -82,66 +82,31 @@ def _deserialize_dataframe(cls, artifact_uri):
     bucket = client.bucket(gcs_bucket)
     blob = bucket.blob(gcs_blob)
 
-    # Incrementally download the CSV file until the header is retrieved
-    first_new_line_index = -1
-    start_index = 0
-    increment = 1000
-    line = ""
-
-    try:
-        logger = logging.getLogger("google.resumable_media._helpers")
-        logging_warning_filter = utils.LoggingFilter(logging.INFO)
-        logger.addFilter(logging_warning_filter)
-
-        while first_new_line_index == -1:
-            line += blob.download_as_bytes(
-                start=start_index, end=start_index + increment
-            ).decode("utf-8")
-
-            first_new_line_index = line.find("\n")
-            start_index += increment
-
-        header_line = line[:first_new_line_index]
-
-        # Split to make it an iterable
-        header_line = header_line.split("\n")[:1]
-
-        csv_reader = csv.reader(header_line, delimiter=",")
-    except (ValueError, RuntimeError) as err:
-        raise RuntimeError(
-            "There was a problem extracting the headers from the CSV file at '{}': {}".format(
-                gcs_csv_file_path, err
-            )
-        )
-    finally:
-        logger.removeFilter(logging_warning_filter)
-
-    # Return a pandas DataFrame read from the csv in the cloud
-    return pandas.read_csv(next(csv_reader))
+    raise NotImplementedError
 
 def _serialize_remote_dataloader:
     # writes the referenced data to the run-time bucket
-    pass
+    raise NotImplementedError
 
 def _deserialize_remote_dataloader:
     # read the data from a run-time bucket 
     # and reformat to a DataLoader
-    pass
+    raise NotImplementedError
 
 def _serialize_local_dataloader:
     # finds the local source, and copies 
     # data to the user-designated staging bucket
-    pass
+    raise NotImplementedError
 
 def _deserialize_local_dataloader:
     # read the data from user-designated staging bucket and
     # reformat to a DataLoader
-    pass
+    raise NotImplementedError
 
 def _serialize_dataloader:
     # introspect to determine which method is called
-    pass
+    raise NotImplementedError
 
 def _deserialize_dataloader:
     # introspect to determine which method is called
-    pass
+    raise NotImplementedError

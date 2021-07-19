@@ -17,7 +17,6 @@
 
 from google.cloud.aiplatform import gapic
 from google.cloud.aiplatform import explain
-from google.cloud.aiplatform import experimental
 
 from google.cloud.aiplatform import initializer
 from google.cloud.aiplatform.datasets import (

@@ -59,10 +59,6 @@ def _make_class_source(obj):
     for key, value in inspect.getmembers(obj):
         if inspect.ismethod(value) or inspect.isfunction(value): 
             source_maker.add_method(inspect.getsource(value))
-            
-    return '\n'.join(source_maker.source)
-
-    temp_path = temp_dir + obj.__class__.__name__ + '.py'
 
     with open(file_name, 'w') as f:
         f.write('\n'.join(make_class_source(m)))
@@ -70,6 +66,6 @@ def _make_class_source(obj):
     return source_maker.source
 
 def _make_source(cls_source: str, cls_name: str, instance_method: str):
-    src = "import torch" + "\n" + "import pandas as pd" + "\n" + cls_source + "\n"
+    src = "\n".join(["import torch", "import pandas as pd", cls_source])    
     src = src + "if __name__ == '__main__':\n" + f"\t{cls_name}().{instance_method}()"
     return src
