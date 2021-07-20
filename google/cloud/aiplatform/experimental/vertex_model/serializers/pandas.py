@@ -18,23 +18,15 @@
 import functools
 import inspect
 import logging
-import pandas as pd
 import sys
 from typing import (
     Any,
-    Callable,
     Dict,
     List,
-    Iterable,
-    Optional,
     Sequence,
     Tuple,
     Type,
-    Union,
 )
-
-import proto
-import torch 
 
 from google.api_core import operation
 from google.auth import credentials as auth_credentials
@@ -43,18 +35,22 @@ from google.cloud.aiplatform import utils
 from google.cloud.aiplatform.compat.types import encryption_spec as gca_encryption_spec
 from google.cloud import aiplatform
                          
-from torch.utils.data import Dataset, Dataloader
+try:
+    import pandas as pd
+except ImportError:
+    raise ImportError("Pandas is not installed. Please install pandas to use VertexModel")
+
 
 def _serialize_dataframe(artifact_uri: str, obj: pd.DataFrame, 
-                                 temp_dir: str, dataset_type: str) -> str:
+                         temp_dir: str) -> str:
 
     """Serializes pandas DataFrame object to GCS.
 
     Args:
-        artifact_uri: the GCS bucket where the serialized object will reside.
-        obj: the pandas DataFrame to serialize.
-        temp_dir: the temporary path where this method will write a csv representation
-                  of obj.
+        artifact_uri (str): the GCS bucket where the serialized object will reside.
+        obj (pd.DataFrame): the pandas DataFrame to serialize.
+        temp_dir (str): the temporary path where this method will write a csv representation
+                        of obj.
 
     Returns:
         The GCS path pointing to the serialized DataFrame.
@@ -62,12 +58,12 @@ def _serialize_dataframe(artifact_uri: str, obj: pd.DataFrame,
         
     # Designate csv path and write the pandas DataFrame to the path
     # Convention: file name is my_training_dataset, my_test_dataset, etc.
-    path_to_csv = temp_dir + "/" + "my_" + dataset_type + "_dataset.csv"
+    path_to_csv = pathlib.Path(temp_dir) / ('my_' + dataset_type + '_dataset.csv')
     obj.to_csv(path_to_csv)
 
     gcs_bucket, gcs_blob_prefix = extract_bucket_and_prefix_from_gcs_path(artifact_uri)
 
-    local_file_name = pathlib.Path(path_to_csv).name
+    local_file_name = path_to_csv.name
     blob_path = local_file_name
 
     if gcs_blob_prefix:
@@ -83,7 +79,7 @@ def _serialize_dataframe(artifact_uri: str, obj: pd.DataFrame,
     gcs_path = "".join(["gs://", "/".join([blob.bucket.name, blob.name])])
     return gcs_path
 
-def _deserialize_dataframe(cls, artifact_uri: str) -> str:
+def _deserialize_dataframe(artifact_uri: str) -> str:
     """ Provides out-of-the-box deserialization after training and prediction is complete """
     
     gcs_bucket, gcs_blob = utils.extract_bucket_and_prefix_from_gcs_path(
@@ -97,29 +93,4 @@ def _deserialize_dataframe(cls, artifact_uri: str) -> str:
 
     raise NotImplementedError
 
-def _serialize_remote_dataloader:
-    # writes the referenced data to the run-time bucket
-    raise NotImplementedError
 
-def _deserialize_remote_dataloader:
-    # read the data from a run-time bucket 
-    # and reformat to a DataLoader
-    raise NotImplementedError
-
-def _serialize_local_dataloader:
-    # finds the local source, and copies 
-    # data to the user-designated staging bucket
-    raise NotImplementedError
-
-def _deserialize_local_dataloader:
-    # read the data from user-designated staging bucket and
-    # reformat to a DataLoader
-    raise NotImplementedError
-
-def _serialize_dataloader:
-    # introspect to determine which method is called
-    raise NotImplementedError
-
-def _deserialize_dataloader:
-    # introspect to determine which method is called
-    raise NotImplementedError

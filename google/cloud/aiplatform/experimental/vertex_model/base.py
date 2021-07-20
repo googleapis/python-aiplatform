@@ -19,43 +19,28 @@ import abc
 import functools
 import inspect
 import logging
-import sys
-import threading
 from typing import (
     Any,
     Callable,
     Dict,
     List,
-    Iterable,
-    Optional,
-    Sequence,
     Tuple,
     Type,
-    Union,
 )
 
-import proto
-
-from google.api_core import operation
 from google.auth import credentials as auth_credentials
 from google.cloud.aiplatform import initializer
 from google.cloud.aiplatform import utils
 from google.cloud.aiplatform.compat.types import encryption_spec as gca_encryption_spec
 from google.cloud import aiplatform
                          
-from torch.utils.data import Dataset, Dataloader
-from google.cloud.aiplatform.experimental.vertex_model import serializers
-from google.cloud.aiplatform.experimental.vertex_model import source
+from google.cloud.aiplatform.experimental.vertex_model.serializers import pandas
+from google.cloud.aiplatform.experimental.vertex_model.utils import source_utils
 
 try:
     import pandas as pd
 except ImportError:
     raise ImportError("Pandas is not installed. Please install pandas to use VertexModel")
-
-try:
-    import torch 
-except ImportError:
-    raise ImportError("PyTorch is not installed. Please install torch to use VertexModel")
 
 
 def vertex_fit_function_wrapper(method):
@@ -64,6 +49,9 @@ def vertex_fit_function_wrapper(method):
     If the user wishes to conduct local development, will return the original function.
     If not, converts the child class to an executable inner script and calls the Vertex
     AI SDK using the custom training job interface.
+
+    Args:
+        method (classmethod): the method to be wrapped.
 
     Returns:
         A function that will complete local or cloud training based off of the user's
@@ -82,9 +70,9 @@ def vertex_fit_function_wrapper(method):
         obj = method.__self__
         cls_name = obj.__class__.__name__
 
-        training_source = _make_class_source(obj)
+        training_source = source_utils._make_class_source(obj)
 
-        source = _make_source(
+        source = source_utils._make_source(
             cls_source=training_source,
             cls_name=cls_name,
             instance_method=method.__name__)
@@ -125,7 +113,7 @@ def vertex_fit_function_wrapper(method):
 class VertexModel(metaclass=abc.ABCMeta):
 
     _data_serialization_mapping = {
-        pd.DataFrame : (_deserialize_dataframe, _serialize_dataframe)
+        pd.DataFrame : (pandas._deserialize_dataframe, pandas._serialize_dataframe)
     }
 
     """ Parent class that users can extend to use the Vertex AI SDK """
@@ -139,17 +127,14 @@ class VertexModel(metaclass=abc.ABCMeta):
         """ Train model. """
         pass
 
-    @abc.abstractmethod
     def predict(self):
         """ Make predictions on training data. """
-        raise NotImplementedError
+        raise NotImplementedError("predict is currently not implemented.")
 
-    @abc.abstractmethod
     def batch_predict(self):
         """ Make predictions on training data. """
-        raise NotImplementedError
+        raise NotImplementedError("batch_predict is currently not implemented.")
 
-    @abc.abstractmethod
     def eval(self):
         """ Evaluate model. """
-        raise NotImplementedError
+        raise NotImplementedError("eval is currently not implemented.")
