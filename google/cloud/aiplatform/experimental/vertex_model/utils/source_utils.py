@@ -56,7 +56,7 @@ def _make_class_source(obj: Any):
         if inspect.ismethod(value) or inspect.isfunction(value): 
             source_maker.add_method(inspect.getsource(value))
     
-    return source_maker.source
+    return '\n'.join(source_maker.source)
 
 def _make_source(cls_source: str, cls_name: str, instance_method: str):
     """Converts a class source to a string including necessary imports.
