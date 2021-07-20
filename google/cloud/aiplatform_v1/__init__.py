@@ -34,8 +34,10 @@ from .services.specialist_pool_service import SpecialistPoolServiceAsyncClient
 from .types.accelerator_type import AcceleratorType
 from .types.annotation import Annotation
 from .types.annotation_spec import AnnotationSpec
+from .types.artifact import Artifact
 from .types.batch_prediction_job import BatchPredictionJob
 from .types.completion_stats import CompletionStats
+from .types.context import Context
 from .types.custom_job import ContainerSpec
 from .types.custom_job import CustomJob
 from .types.custom_job import CustomJobSpec
@@ -86,6 +88,7 @@ from .types.endpoint_service import UndeployModelRequest
 from .types.endpoint_service import UndeployModelResponse
 from .types.endpoint_service import UpdateEndpointRequest
 from .types.env_var import EnvVar
+from .types.execution import Execution
 from .types.hyperparameter_tuning_job import HyperparameterTuningJob
 from .types.io import BigQueryDestination
 from .types.io import BigQuerySource
@@ -118,6 +121,7 @@ from .types.job_service import ListHyperparameterTuningJobsRequest
 from .types.job_service import ListHyperparameterTuningJobsResponse
 from .types.job_state import JobState
 from .types.machine_resources import AutomaticResources
+from .types.machine_resources import AutoscalingMetricSpec
 from .types.machine_resources import BatchDedicatedResources
 from .types.machine_resources import DedicatedResources
 from .types.machine_resources import DiskSpec
@@ -157,10 +161,20 @@ from .types.model_service import UploadModelRequest
 from .types.model_service import UploadModelResponse
 from .types.operation import DeleteOperationMetadata
 from .types.operation import GenericOperationMetadata
+from .types.pipeline_job import PipelineJob
+from .types.pipeline_job import PipelineJobDetail
+from .types.pipeline_job import PipelineTaskDetail
+from .types.pipeline_job import PipelineTaskExecutorDetail
+from .types.pipeline_service import CancelPipelineJobRequest
 from .types.pipeline_service import CancelTrainingPipelineRequest
+from .types.pipeline_service import CreatePipelineJobRequest
 from .types.pipeline_service import CreateTrainingPipelineRequest
+from .types.pipeline_service import DeletePipelineJobRequest
 from .types.pipeline_service import DeleteTrainingPipelineRequest
+from .types.pipeline_service import GetPipelineJobRequest
 from .types.pipeline_service import GetTrainingPipelineRequest
+from .types.pipeline_service import ListPipelineJobsRequest
+from .types.pipeline_service import ListPipelineJobsResponse
 from .types.pipeline_service import ListTrainingPipelinesRequest
 from .types.pipeline_service import ListTrainingPipelinesResponse
 from .types.pipeline_state import PipelineState
@@ -185,6 +199,7 @@ from .types.training_pipeline import PredefinedSplit
 from .types.training_pipeline import TimestampSplit
 from .types.training_pipeline import TrainingPipeline
 from .types.user_action_reference import UserActionReference
+from .types.value import Value
 
 __all__ = (
     "DatasetServiceAsyncClient",
@@ -199,7 +214,9 @@ __all__ = (
     "ActiveLearningConfig",
     "Annotation",
     "AnnotationSpec",
+    "Artifact",
     "AutomaticResources",
+    "AutoscalingMetricSpec",
     "BatchDedicatedResources",
     "BatchMigrateResourcesOperationMetadata",
     "BatchMigrateResourcesRequest",
@@ -211,10 +228,12 @@ __all__ = (
     "CancelCustomJobRequest",
     "CancelDataLabelingJobRequest",
     "CancelHyperparameterTuningJobRequest",
+    "CancelPipelineJobRequest",
     "CancelTrainingPipelineRequest",
     "CompletionStats",
     "ContainerRegistryDestination",
     "ContainerSpec",
+    "Context",
     "CreateBatchPredictionJobRequest",
     "CreateCustomJobRequest",
     "CreateDataLabelingJobRequest",
@@ -223,6 +242,7 @@ __all__ = (
     "CreateEndpointOperationMetadata",
     "CreateEndpointRequest",
     "CreateHyperparameterTuningJobRequest",
+    "CreatePipelineJobRequest",
     "CreateSpecialistPoolOperationMetadata",
     "CreateSpecialistPoolRequest",
     "CreateTrainingPipelineRequest",
@@ -241,6 +261,7 @@ __all__ = (
     "DeleteHyperparameterTuningJobRequest",
     "DeleteModelRequest",
     "DeleteOperationMetadata",
+    "DeletePipelineJobRequest",
     "DeleteSpecialistPoolRequest",
     "DeleteTrainingPipelineRequest",
     "DeployModelOperationMetadata",
@@ -253,6 +274,7 @@ __all__ = (
     "Endpoint",
     "EndpointServiceClient",
     "EnvVar",
+    "Execution",
     "ExportDataConfig",
     "ExportDataOperationMetadata",
     "ExportDataRequest",
@@ -275,6 +297,7 @@ __all__ = (
     "GetModelEvaluationRequest",
     "GetModelEvaluationSliceRequest",
     "GetModelRequest",
+    "GetPipelineJobRequest",
     "GetSpecialistPoolRequest",
     "GetTrainingPipelineRequest",
     "HyperparameterTuningJob",
@@ -307,6 +330,8 @@ __all__ = (
     "ListModelEvaluationsResponse",
     "ListModelsRequest",
     "ListModelsResponse",
+    "ListPipelineJobsRequest",
+    "ListPipelineJobsResponse",
     "ListSpecialistPoolsRequest",
     "ListSpecialistPoolsResponse",
     "ListTrainingPipelinesRequest",
@@ -323,8 +348,12 @@ __all__ = (
     "ModelEvaluation",
     "ModelEvaluationSlice",
     "ModelServiceClient",
+    "PipelineJob",
+    "PipelineJobDetail",
     "PipelineServiceClient",
     "PipelineState",
+    "PipelineTaskDetail",
+    "PipelineTaskExecutorDetail",
     "Port",
     "PredefinedSplit",
     "PredictRequest",
@@ -356,5 +385,6 @@ __all__ = (
     "UploadModelRequest",
     "UploadModelResponse",
     "UserActionReference",
+    "Value",
     "WorkerPoolSpec",
 )

@@ -16,20 +16,23 @@
 import proto  # type: ignore
 
 
-__protobuf__ = proto.module(
-    package="google.cloud.aiplatform.v1", manifest={"AcceleratorType",},
-)
+__protobuf__ = proto.module(package="google.cloud.aiplatform.v1", manifest={"Value",},)
 
 
-class AcceleratorType(proto.Enum):
-    r"""Represents a hardware accelerator type."""
-    ACCELERATOR_TYPE_UNSPECIFIED = 0
-    NVIDIA_TESLA_K80 = 1
-    NVIDIA_TESLA_P100 = 2
-    NVIDIA_TESLA_V100 = 3
-    NVIDIA_TESLA_P4 = 4
-    NVIDIA_TESLA_T4 = 5
-    NVIDIA_TESLA_A100 = 8
+class Value(proto.Message):
+    r"""Value is the value of the field.
+    Attributes:
+        int_value (int):
+            An integer value.
+        double_value (float):
+            A double value.
+        string_value (str):
+            A string value.
+    """
+
+    int_value = proto.Field(proto.INT64, number=1, oneof="value",)
+    double_value = proto.Field(proto.DOUBLE, number=2, oneof="value",)
+    string_value = proto.Field(proto.STRING, number=3, oneof="value",)
 
 
 __all__ = tuple(sorted(__protobuf__.manifest))
