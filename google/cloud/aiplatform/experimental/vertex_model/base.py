@@ -120,7 +120,7 @@ class VertexModel(metaclass=abc.ABCMeta):
     def __init__(self):
         # Default to local training on creation, at least for this prototype.
         self.training_mode = 'local'
-        self.fit = vertex_function_wrapper(self.fit)
+        self.fit = vertex_fit_function_wrapper(self.fit)
 
     @abc.abstractmethod
     def fit(self):
