@@ -23,8 +23,8 @@ import os
 from typing import Optional
 
 from google.cloud.aiplatform.experimental.vertex_model import base
-from google.cloud.aiplatform.experimental.vertex_model import serializers
-from google.cloud.aiplatform.experimental.vertex_model import source
+from google.cloud.aiplatform.experimental.vertex_model.serializers import pandas
+from google.cloud.aiplatform.experimental.vertex_model.utils import source_utils
 from google.cloud.aiplatform import initializer
 
 from google.protobuf import duration_pb2  # type: ignore
