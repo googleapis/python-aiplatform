@@ -161,7 +161,7 @@ def _get_custom_job_proto(state=None, name=None, error=None, version="v1"):
     return custom_job_proto
 
 
-class LinearRegression(VertexModel): 
+class LinearRegression(base.VertexModel): 
  
         # constraint on no constructor arguments
         def __init__(self):
