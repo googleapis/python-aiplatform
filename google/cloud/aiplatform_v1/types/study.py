@@ -15,6 +15,7 @@
 #
 import proto  # type: ignore
 
+from google.protobuf import duration_pb2  # type: ignore
 from google.protobuf import struct_pb2  # type: ignore
 from google.protobuf import timestamp_pb2  # type: ignore
 
@@ -31,6 +32,9 @@ class Trial(proto.Message):
     objective metrics got by running the Trial.
 
     Attributes:
+        name (str):
+            Output only. Resource name of the Trial
+            assigned by the service.
         id (str):
             Output only. The identifier of the Trial
             assigned by the service.
@@ -41,11 +45,30 @@ class Trial(proto.Message):
         final_measurement (google.cloud.aiplatform_v1.types.Measurement):
             Output only. The final measurement containing
             the objective value.
+        measurements (Sequence[google.cloud.aiplatform_v1.types.Measurement]):
+            Output only. A list of measurements that are strictly
+            lexicographically ordered by their induced tuples (steps,
+            elapsed_duration). These are used for early stopping
+            computations.
         start_time (google.protobuf.timestamp_pb2.Timestamp):
             Output only. Time when the Trial was started.
         end_time (google.protobuf.timestamp_pb2.Timestamp):
             Output only. Time when the Trial's status changed to
             ``SUCCEEDED`` or ``INFEASIBLE``.
+        client_id (str):
+            Output only. The identifier of the client that originally
+            requested this Trial. Each client is identified by a unique
+            client_id. When a client asks for a suggestion, Vizier will
+            assign it a Trial. The client should evaluate the Trial,
+            complete it, and report back to Vizier. If suggestion is
+            asked again by same client_id before the Trial is completed,
+            the same Trial will be returned. Multiple clients with
+            different client_ids can ask for suggestions simultaneously,
+            each of them will get their own Trial.
+        infeasible_reason (str):
+            Output only. A human readable string describing why the
+            Trial is infeasible. This is set only if Trial state is
+            ``INFEASIBLE``.
         custom_job (str):
             Output only. The CustomJob name linked to the
             Trial. It's set for a HyperparameterTuningJob's
@@ -79,12 +102,16 @@ class Trial(proto.Message):
         parameter_id = proto.Field(proto.STRING, number=1,)
         value = proto.Field(proto.MESSAGE, number=2, message=struct_pb2.Value,)
 
+    name = proto.Field(proto.STRING, number=1,)
     id = proto.Field(proto.STRING, number=2,)
     state = proto.Field(proto.ENUM, number=3, enum=State,)
     parameters = proto.RepeatedField(proto.MESSAGE, number=4, message=Parameter,)
     final_measurement = proto.Field(proto.MESSAGE, number=5, message="Measurement",)
+    measurements = proto.RepeatedField(proto.MESSAGE, number=6, message="Measurement",)
     start_time = proto.Field(proto.MESSAGE, number=7, message=timestamp_pb2.Timestamp,)
     end_time = proto.Field(proto.MESSAGE, number=8, message=timestamp_pb2.Timestamp,)
+    client_id = proto.Field(proto.STRING, number=9,)
+    infeasible_reason = proto.Field(proto.STRING, number=10,)
     custom_job = proto.Field(proto.STRING, number=11,)
 
 
@@ -203,10 +230,18 @@ class StudySpec(proto.Message):
                 max_value (float):
                     Required. Inclusive maximum value of the
                     parameter.
+                default_value (float):
+                    A default value for a ``DOUBLE`` parameter that is assumed
+                    to be a relatively good starting point. Unset value signals
+                    that there is no offered starting point.
+
+                    Currently only supported by the Vizier service. Not
+                    supported by HyperparamterTuningJob or TrainingPipeline.
             """
 
             min_value = proto.Field(proto.DOUBLE, number=1,)
             max_value = proto.Field(proto.DOUBLE, number=2,)
+            default_value = proto.Field(proto.DOUBLE, number=4, optional=True,)
 
         class IntegerValueSpec(proto.Message):
             r"""Value specification for a parameter in ``INTEGER`` type.
@@ -217,19 +252,35 @@ class StudySpec(proto.Message):
                 max_value (int):
                     Required. Inclusive maximum value of the
                     parameter.
+                default_value (int):
+                    A default value for an ``INTEGER`` parameter that is assumed
+                    to be a relatively good starting point. Unset value signals
+                    that there is no offered starting point.
+
+                    Currently only supported by the Vizier service. Not
+                    supported by HyperparamterTuningJob or TrainingPipeline.
             """
 
             min_value = proto.Field(proto.INT64, number=1,)
             max_value = proto.Field(proto.INT64, number=2,)
+            default_value = proto.Field(proto.INT64, number=4, optional=True,)
 
         class CategoricalValueSpec(proto.Message):
             r"""Value specification for a parameter in ``CATEGORICAL`` type.
             Attributes:
                 values (Sequence[str]):
                     Required. The list of possible categories.
+                default_value (str):
+                    A default value for a ``CATEGORICAL`` parameter that is
+                    assumed to be a relatively good starting point. Unset value
+                    signals that there is no offered starting point.
+
+                    Currently only supported by the Vizier service. Not
+                    supported by HyperparamterTuningJob or TrainingPipeline.
             """
 
             values = proto.RepeatedField(proto.STRING, number=1,)
+            default_value = proto.Field(proto.STRING, number=3, optional=True,)
 
         class DiscreteValueSpec(proto.Message):
             r"""Value specification for a parameter in ``DISCRETE`` type.
@@ -241,9 +292,18 @@ class StudySpec(proto.Message):
                     might have possible settings of 1.5, 2.5, and
                     4.0. This list should not contain more than
                     1,000 values.
+                default_value (float):
+                    A default value for a ``DISCRETE`` parameter that is assumed
+                    to be a relatively good starting point. Unset value signals
+                    that there is no offered starting point. It automatically
+                    rounds to the nearest feasible discrete point.
+
+                    Currently only supported by the Vizier service. Not
+                    supported by HyperparamterTuningJob or TrainingPipeline.
             """
 
             values = proto.RepeatedField(proto.DOUBLE, number=1,)
+            default_value = proto.Field(proto.DOUBLE, number=3, optional=True,)
 
         class ConditionalParameterSpec(proto.Message):
             r"""Represents a parameter spec with condition from its parent
@@ -376,6 +436,9 @@ class Measurement(proto.Message):
     suggested hyperparameter values.
 
     Attributes:
+        elapsed_duration (google.protobuf.duration_pb2.Duration):
+            Output only. Time that the Trial has been
+            running at the point of this Measurement.
         step_count (int):
             Output only. The number of steps the machine
             learning model has been trained for. Must be
@@ -400,6 +463,9 @@ class Measurement(proto.Message):
         metric_id = proto.Field(proto.STRING, number=1,)
         value = proto.Field(proto.DOUBLE, number=2,)
 
+    elapsed_duration = proto.Field(
+        proto.MESSAGE, number=1, message=duration_pb2.Duration,
+    )
     step_count = proto.Field(proto.INT64, number=2,)
     metrics = proto.RepeatedField(proto.MESSAGE, number=3, message=Metric,)
 

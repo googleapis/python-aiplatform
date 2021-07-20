@@ -33,7 +33,6 @@ class ExportEvaluatedDataItemsConfig(proto.Message):
 
             If not specified, then results are exported to the following
             auto-created BigQuery table:
-
             <project_id>:export_evaluated_examples_<model_name>_<yyyy_MM_dd'T'HH_mm_ss_SSS'Z'>.evaluated_examples
         override_existing_table (bool):
             If true and an export destination is

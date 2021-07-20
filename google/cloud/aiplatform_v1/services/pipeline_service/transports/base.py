@@ -26,6 +26,8 @@ from google.api_core import retry as retries  # type: ignore
 from google.api_core import operations_v1  # type: ignore
 from google.auth import credentials as ga_credentials  # type: ignore
 
+from google.cloud.aiplatform_v1.types import pipeline_job
+from google.cloud.aiplatform_v1.types import pipeline_job as gca_pipeline_job
 from google.cloud.aiplatform_v1.types import pipeline_service
 from google.cloud.aiplatform_v1.types import training_pipeline
 from google.cloud.aiplatform_v1.types import training_pipeline as gca_training_pipeline
@@ -196,6 +198,21 @@ class PipelineServiceTransport(abc.ABC):
                 default_timeout=5.0,
                 client_info=client_info,
             ),
+            self.create_pipeline_job: gapic_v1.method.wrap_method(
+                self.create_pipeline_job, default_timeout=None, client_info=client_info,
+            ),
+            self.get_pipeline_job: gapic_v1.method.wrap_method(
+                self.get_pipeline_job, default_timeout=None, client_info=client_info,
+            ),
+            self.list_pipeline_jobs: gapic_v1.method.wrap_method(
+                self.list_pipeline_jobs, default_timeout=None, client_info=client_info,
+            ),
+            self.delete_pipeline_job: gapic_v1.method.wrap_method(
+                self.delete_pipeline_job, default_timeout=None, client_info=client_info,
+            ),
+            self.cancel_pipeline_job: gapic_v1.method.wrap_method(
+                self.cancel_pipeline_job, default_timeout=None, client_info=client_info,
+            ),
         }
 
     @property
@@ -253,6 +270,54 @@ class PipelineServiceTransport(abc.ABC):
         self,
     ) -> Callable[
         [pipeline_service.CancelTrainingPipelineRequest],
+        Union[empty_pb2.Empty, Awaitable[empty_pb2.Empty]],
+    ]:
+        raise NotImplementedError()
+
+    @property
+    def create_pipeline_job(
+        self,
+    ) -> Callable[
+        [pipeline_service.CreatePipelineJobRequest],
+        Union[gca_pipeline_job.PipelineJob, Awaitable[gca_pipeline_job.PipelineJob]],
+    ]:
+        raise NotImplementedError()
+
+    @property
+    def get_pipeline_job(
+        self,
+    ) -> Callable[
+        [pipeline_service.GetPipelineJobRequest],
+        Union[pipeline_job.PipelineJob, Awaitable[pipeline_job.PipelineJob]],
+    ]:
+        raise NotImplementedError()
+
+    @property
+    def list_pipeline_jobs(
+        self,
+    ) -> Callable[
+        [pipeline_service.ListPipelineJobsRequest],
+        Union[
+            pipeline_service.ListPipelineJobsResponse,
+            Awaitable[pipeline_service.ListPipelineJobsResponse],
+        ],
+    ]:
+        raise NotImplementedError()
+
+    @property
+    def delete_pipeline_job(
+        self,
+    ) -> Callable[
+        [pipeline_service.DeletePipelineJobRequest],
+        Union[operations_pb2.Operation, Awaitable[operations_pb2.Operation]],
+    ]:
+        raise NotImplementedError()
+
+    @property
+    def cancel_pipeline_job(
+        self,
+    ) -> Callable[
+        [pipeline_service.CancelPipelineJobRequest],
         Union[empty_pb2.Empty, Awaitable[empty_pb2.Empty]],
     ]:
         raise NotImplementedError()

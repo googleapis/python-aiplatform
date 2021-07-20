@@ -167,6 +167,9 @@ class AutoMlForecastingInputs(proto.Message):
 
             -  "ignore-validation" - ignore the results of the
                validation and continue
+        additional_experiments (Sequence[str]):
+            Additional experiment flags for the time
+            series forcasting training.
     """
 
     class Transformation(proto.Message):
@@ -376,6 +379,7 @@ class AutoMlForecastingInputs(proto.Message):
     )
     quantiles = proto.RepeatedField(proto.DOUBLE, number=16,)
     validation_options = proto.Field(proto.STRING, number=17,)
+    additional_experiments = proto.RepeatedField(proto.STRING, number=25,)
 
 
 class AutoMlForecastingMetadata(proto.Message):

@@ -166,8 +166,8 @@ class PredictionServiceAsyncClient:
         request: prediction_service.PredictRequest = None,
         *,
         endpoint: str = None,
-        instances: Sequence[struct_pb2.Value] = None,
         parameters: struct_pb2.Value = None,
+        instances: Sequence[struct_pb2.Value] = None,
         retry: retries.Retry = gapic_v1.method.DEFAULT,
         timeout: float = None,
         metadata: Sequence[Tuple[str, str]] = (),
@@ -186,6 +186,17 @@ class PredictionServiceAsyncClient:
                 This corresponds to the ``endpoint`` field
                 on the ``request`` instance; if ``request`` is provided, this
                 should not be set.
+            parameters (:class:`google.protobuf.struct_pb2.Value`):
+                The parameters that govern the prediction. The schema of
+                the parameters may be specified via Endpoint's
+                DeployedModels' [Model's
+                ][google.cloud.aiplatform.v1.DeployedModel.model]
+                [PredictSchemata's][google.cloud.aiplatform.v1.Model.predict_schemata]
+                [parameters_schema_uri][google.cloud.aiplatform.v1.PredictSchemata.parameters_schema_uri].
+
+                This corresponds to the ``parameters`` field
+                on the ``request`` instance; if ``request`` is provided, this
+                should not be set.
             instances (:class:`Sequence[google.protobuf.struct_pb2.Value]`):
                 Required. The instances that are the input to the
                 prediction call. A DeployedModel may have an upper limit
@@ -200,17 +211,6 @@ class PredictionServiceAsyncClient:
                 [instance_schema_uri][google.cloud.aiplatform.v1.PredictSchemata.instance_schema_uri].
 
                 This corresponds to the ``instances`` field
-                on the ``request`` instance; if ``request`` is provided, this
-                should not be set.
-            parameters (:class:`google.protobuf.struct_pb2.Value`):
-                The parameters that govern the prediction. The schema of
-                the parameters may be specified via Endpoint's
-                DeployedModels' [Model's
-                ][google.cloud.aiplatform.v1.DeployedModel.model]
-                [PredictSchemata's][google.cloud.aiplatform.v1.Model.predict_schemata]
-                [parameters_schema_uri][google.cloud.aiplatform.v1.PredictSchemata.parameters_schema_uri].
-
-                This corresponds to the ``parameters`` field
                 on the ``request`` instance; if ``request`` is provided, this
                 should not be set.
             retry (google.api_core.retry.Retry): Designation of what errors, if any,
@@ -228,7 +228,7 @@ class PredictionServiceAsyncClient:
         # Create or coerce a protobuf request object.
         # Sanity check: If we got a request object, we should *not* have
         # gotten any keyword arguments that map to the request.
-        has_flattened_params = any([endpoint, instances, parameters])
+        has_flattened_params = any([endpoint, parameters, instances])
         if request is not None and has_flattened_params:
             raise ValueError(
                 "If the `request` argument is set, then none of "
