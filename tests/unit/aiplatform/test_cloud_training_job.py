@@ -58,6 +58,24 @@ _TEST_PARENT = f"projects/{_TEST_PROJECT}/locations/{_TEST_LOCATION}"
 _TEST_CUSTOM_JOB_NAME = f"{_TEST_PARENT}/customJobs/{_TEST_ID}"
 _TEST_TENSORBOARD_NAME = f"{_TEST_PARENT}/tensorboards/{_TEST_ID}"
 
+_TEST_TRAINING_CONTAINER_IMAGE = "gcr.io/test-training/container:image"
+
+_TEST_WORKER_POOL_SPEC = [
+    {
+        "machine_spec": {
+            "machine_type": "n1-standard-4",
+            "accelerator_type": "NVIDIA_TESLA_K80",
+            "accelerator_count": 1,
+        },
+        "replica_count": 1,
+        "container_spec": {
+            "image_uri": _TEST_TRAINING_CONTAINER_IMAGE,
+            "command": [],
+            "args": [],
+        },
+    }
+]
+
 _TEST_STAGING_BUCKET = "gs://test-staging-bucket"
 
 # CMEK encryption
@@ -67,6 +85,12 @@ _TEST_DEFAULT_ENCRYPTION_SPEC = gca_encryption_spec_compat.EncryptionSpec(
 )
 
 _TEST_SERVICE_ACCOUNT = "vinnys@my-project.iam.gserviceaccount.com"
+
+
+_TEST_NETWORK = f"projects/{_TEST_PROJECT}/global/networks/{_TEST_ID}"
+
+_TEST_TIMEOUT = 8000
+_TEST_RESTART_JOB_ON_WORKER_RESTART = True
 
 _TEST_BASE_CUSTOM_JOB_PROTO = gca_custom_job_compat.CustomJob(
     display_name=_TEST_DISPLAY_NAME,
