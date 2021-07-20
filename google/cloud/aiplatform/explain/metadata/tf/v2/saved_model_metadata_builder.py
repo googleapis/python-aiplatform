@@ -37,7 +37,7 @@ class SavedModelMetadataBuilder(metadata_builder.MetadataBuilder):
 
         Args:
           model_path:
-              Required. Path to load the saved model from.
+              Required. Local or GCS path to load the saved model from.
           signature_name:
               Optional. Name of the signature to be explained. Inputs and
               outputs of this signature will be written in the metadata. If not

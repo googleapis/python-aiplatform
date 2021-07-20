@@ -22,7 +22,7 @@ import numpy as np
 from google.cloud.aiplatform.explain.metadata.tf.v2 import saved_model_metadata_builder
 
 
-class SavedModelMetadataBuilderTest(tf.test.TestCase):
+class SavedModelMetadataBuilderTF2Test(tf.test.TestCase):
     def test_get_metadata_sequential(self):
         # Set up for the sequential.
         self.seq_model = tf.keras.models.Sequential()
