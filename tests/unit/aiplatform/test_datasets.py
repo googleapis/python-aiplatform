@@ -948,7 +948,11 @@ class TestTabularDataset:
         assert e.match(regexp=r"Mock fail")
 
         with pytest.raises(RuntimeError) as e:
-            my_dataset.metadata_schema_uri == _TEST_METADATA_SCHEMA_URI_TABULAR
+            metadata_schema_uri = my_dataset.metadata_schema_uri
+        assert e.match(regexp=r"TabularDataset resource has not been created. Resource failed with: Mock fail")
+
+        with pytest.raises(RuntimeError) as e:
+            column_names = my_dataset.column_names
         assert e.match(regexp=r"TabularDataset resource has not been created. Resource failed with: Mock fail")
 
 

@@ -594,6 +594,11 @@ class VertexAiResourceNoun(metaclass=abc.ABCMeta):
         return self._gca_resource
 
     def _assert_gca_resource_is_available(self):
+        """Helper method to raise when property is not accessible.
+
+        Raises:
+            RuntimeError if _gca_resource is has not been created.
+        """
         if self._gca_resource is None:
             raise RuntimeError(f"{self.__class__.__name__} resource has not been created")
 
@@ -1091,14 +1096,13 @@ class VertexAiResourceNounWithFutureManager(VertexAiResourceNoun, FutureManager)
         """
         
         # If the user calls this but didn't actually invoke an API to create 
-        if self._are_futures_done() and getattr(self, '_gca_resource', None) is None:
+        if self._are_futures_done() and not getattr(self._gca_resource, 'name', None):
             self._raise_future_exception()
             raise RuntimeError(f'{self.__class__.__name__} resource is not scheduled to be created.')
 
-        
-        while getattr(self._gca_resource, 'name', None) is None:
+        while not getattr(self._gca_resource, 'name', None):
             # breaks out of loop if creation has failed async
-            if self._are_futures_done() and getattr(self, '_gca_resource', None) is None:
+            if self._are_futures_done() and not getattr(self._gca_resource, 'name', None):
                 self._raise_future_exception()
             
             time.sleep(1)
@@ -1109,7 +1113,7 @@ class VertexAiResourceNounWithFutureManager(VertexAiResourceNoun, FutureManager)
         Raises:
             RuntimeError when resource has not been created.
         """
-        if self._gca_resource is None:
+        if not getattr(self._gca_resource, 'name', None):
             raise RuntimeError(f"{self.__class__.__name__} resource has not been created." +
                 (f" Resource failed with: {self._exception}" if self._exception else ""))
 

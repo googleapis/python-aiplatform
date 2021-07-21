@@ -860,12 +860,6 @@ class _RunnableJob(_Job):
             project=project, location=location
         )
 
-    def _assert_gca_resource_is_available(self):
-        if not getattr(self._gca_resource, 'name', None):
-            raise RuntimeError(f"{self.__class__} resource has not been created." +
-                (f" Resource failed with: {self._exception}" if self._exception else
-                    "  To wait for resource creation use wait_for_resource_creation."))
-
     @abc.abstractmethod
     def run(self) -> None:
         pass
@@ -1040,7 +1034,7 @@ class CustomJob(_RunnableJob):
         unspecified, the CustomJob is not peered with any network.
         """
         self._assert_gca_resource_is_available()
-        return getattr(self._gca_resource, "network")
+        return self._gca_resource.job_spec.network
 
     @classmethod
     def from_local_script(

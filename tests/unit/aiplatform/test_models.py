@@ -255,6 +255,8 @@ def get_model_with_custom_project_mock():
         get_model_mock.return_value = gca_model.Model(
             display_name=_TEST_MODEL_NAME,
             name=_TEST_MODEL_RESOURCE_NAME_CUSTOM_PROJECT,
+            artifact_uri=_TEST_ARTIFACT_URI,
+            description=_TEST_DESCRIPTION
         )
         yield get_model_mock
 
@@ -725,6 +727,37 @@ class TestModel:
         get_model_with_custom_project_mock.assert_called_once_with(
             name=test_model_resource_name
         )
+
+        assert my_model.uri == _TEST_ARTIFACT_URI
+        assert my_model.supported_export_formats == {}
+        assert my_model.supported_deployment_resources_types == []
+        assert my_model.supported_input_storage_formats == []
+        assert my_model.supported_output_storage_formats == []
+        assert my_model.description == _TEST_DESCRIPTION
+
+    @pytest.mark.usefixtures("get_model_with_custom_project_mock")
+    def test_accessing_properties_with_no_resource_raises(
+        self,
+        upload_model_with_custom_project_mock,
+        get_model_with_custom_project_mock,
+        sync,
+    ):
+
+        test_model_resource_name = model_service_client.ModelServiceClient.model_path(
+            _TEST_PROJECT_2, _TEST_LOCATION, _TEST_ID
+        )
+
+        my_model = models.Model(test_model_resource_name)
+        my_model._gca_resource = None
+
+        assert my_model.uri == _TEST_ARTIFACT_URI
+        assert my_model.supported_export_formats == {}
+        assert my_model.supported_deployment_resources_types == []
+        assert my_model.supported_input_storage_formats == []
+        assert my_model.supported_output_storage_formats == []
+        assert my_model.description == _TEST_DESCRIPTION
+
+
 
     @pytest.mark.usefixtures("get_model_with_custom_location_mock")
     @pytest.mark.parametrize("sync", [True, False])
