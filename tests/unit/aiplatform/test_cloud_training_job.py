@@ -22,6 +22,16 @@ import torch
 import os
 from typing import Optional
 
+import copy
+from unittest import mock
+from unittest.mock import patch
+
+from google.protobuf import duration_pb2  # type: ignore
+from google.rpc import status_pb2
+
+import test_training_jobs
+from test_training_jobs import mock_python_package_to_gcs  # noqa: F401
+
 from google.cloud.aiplatform.experimental.vertex_model import base
 from google.cloud.aiplatform.experimental.vertex_model.serializers import pandas
 from google.cloud.aiplatform.experimental.vertex_model.utils import source_utils
@@ -231,5 +241,5 @@ class TestLocalModelClass:
     def test_create_local_class(self):
         aiplatform.init(project=_TEST_PROJECT, staging_bucket=_TEST_STAGING_BUCKET)
 
-        model = LinearRegression(1, 1)
+        model = LinearRegression()
         assert(model is not None)
