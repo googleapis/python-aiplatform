@@ -21,6 +21,7 @@ import time
 import torch
 import os
 from typing import Optional
+import importlib
 
 import copy
 from unittest import mock
@@ -192,33 +193,45 @@ def _get_custom_job_proto(state=None, name=None, error=None, version="v1"):
     return custom_job_proto
 
 
-class LinearRegression(base.VertexModel): 
- 
-        # constraint on no constructor arguments
-        def __init__(self):
-            input_size = 10
-            output_size = 10
-            super(LinearRegression, self).__init__()
-            self.linear = torch.nn.Linear(input_size, output_size)
+class LinearRegression(VertexModel, torch.nn.Module): 
+    def __init__(self, input_size: int, output_size: int):
+        VertexModel.__init__(self)
+        torch.nn.Module.__init__(self)
+        self.linear = torch.nn.Linear(input_size, output_size)
 
-        def forward(self, x):
-            return self.linear(x)
+    def forward(self, x):
+        return self.linear(x)
 
-        def train_loop(self, data, loss_fn, optimizer):
-            size = data.shape[0]
-            for batch, (X, y) in enumerate(data):
-                pred = self.predict(X)
-                loss = loss_fn(pred, y)
+    def train_loop(self, dataloader, loss_fn, optimizer):
+        size = len(dataloader.dataset)
 
-                optimizer.zero_grad()
-                loss.backward()
-                optimizer.step()
+        for batch, (X, y) in enumerate(dataloader):
+            pred = self.predict(X.float())
+            loss = loss_fn(pred.float(), y.float())
 
-        def fit(self):
-            loss_fn = nn.CrossEntropyLoss()
-            optimizer = torch.optim.SGD(model.parameters(), lr=0.01)
-            for t in range(epochs):
-                self.train_loop(pd.DataFrame(), loss_fn, optimizer)
+            optimizer.zero_grad()
+            loss.backward()
+            optimizer.step()
+
+    def fit(self, data: pd.DataFrame, target_column: str, epochs: int, learning_rate: float):
+        feature_columns = list(data.columns)
+        feature_columns.remove(target_column)
+
+        features = torch.tensor(data[feature_columns].values)
+        target = torch.tensor(data[target_column].values)
+        
+        dataloader = torch.utils.data.DataLoader(
+            torch.utils.data.TensorDataset(features, target),
+            batch_size=10, shuffle=True)
+
+        loss_fn = torch.nn.MSELoss()
+        optimizer = torch.optim.SGD(self.parameters(), lr=learning_rate)
+        
+        for t in range(epochs):
+            self.train_loop(dataloader, loss_fn, optimizer)
+
+    def predict(self, data):
+        return self.forward(data)
 
 
 class TestCloudModelClass:
