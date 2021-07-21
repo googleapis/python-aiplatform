@@ -183,9 +183,9 @@ class LinearRegression(base.VertexModel):
         def forward(self, x):
             return self.linear(x)
 
-        def train_loop(self, dataloader, loss_fn, optimizer):
-            size = len(dataloader.size)
-            for batch, (X, y) in enumerate(dataloader):
+        def train_loop(self, data, loss_fn, optimizer):
+            size = data.shape[0]
+            for batch, (X, y) in enumerate(data):
                 pred = self.predict(X)
                 loss = loss_fn(pred, y)
 
@@ -201,6 +201,9 @@ class LinearRegression(base.VertexModel):
 
 
 class TestCloudModelClass:
+    def setup_method(self):
+        importlib.reload(initializer)
+        importlib.reload(aiplatform)
 
     def test_create_cloud_class(self):
         aiplatform.init(
@@ -228,12 +231,19 @@ class TestCloudModelClass:
 
         my_model.fit()
 
+        # mock CustomTrainingJob class
+        # test that the class is created
+        # test that the class is calling run() API w/ replica count = 1
+
+        # https://github.com/googleapis/python-aiplatform/blob/master/samples/model-builder/conftest.py#L157
+        # https://github.com/googleapis/python-aiplatform/blob/master/samples/model-builder/conftest.py#L238
+
+
         expected_custom_job = _get_custom_job_proto()
 
         create_custom_job_mock.assert_called_once_with(
             parent=_TEST_PARENT, custom_job=expected_custom_job
         )
-
 
 
 class TestLocalModelClass:
