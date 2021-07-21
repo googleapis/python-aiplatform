@@ -322,6 +322,43 @@ class PipelineJob(base.VertexAiResourceNounWithFutureManager):
         else:
             _LOGGER.log_action_completed_against_resource("run", "completed", self)
 
+    @classmethod
+    def get(
+        cls,
+        resource_name: str,
+        project: Optional[str] = None,
+        location: Optional[str] = None,
+        credentials: Optional[auth_credentials.Credentials] = None,
+    ) -> "PipelineJob":
+        """Get a Vertex AI Job for the given resource_name.
+
+        Args:
+            resource_name (str):
+                Required. A fully-qualified resource name or ID.
+            project (str):
+                Optional. Project to retrieve dataset from. If not set, project
+                set in aiplatform.init will be used.
+            location (str):
+                Optional. Location to retrieve dataset from. If not set,
+                location set in aiplatform.init will be used.
+            credentials (auth_credentials.Credentials):
+                Optional. Custom credentials to use to upload this model.
+                Overrides credentials set in aiplatform.init.
+
+        Returns:
+            A Vertex AI PipelineJob.
+        """
+        self = cls._empty_constructor(
+            project=project,
+            location=location,
+            credentials=credentials,
+            resource_name=resource_name,
+        )
+
+        self._gca_resource = self._get_gca_resource(resource_name=resource_name)
+
+        return self
+
     def cancel(self) -> None:
         """Starts asynchronous cancellation on the PipelineJob. The server
         makes a best effort to cancel the job, but success is not guaranteed.

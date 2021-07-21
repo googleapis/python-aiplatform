@@ -267,6 +267,14 @@ class TestPipelineJob:
             name=_TEST_PIPELINE_JOB_NAME
         )
 
+    @pytest.mark.usefixtures("mock_pipeline_service_get")
+    def test_get_training_job(self, mock_pipeline_service_get):
+        aiplatform.init(project=_TEST_PROJECT)
+        job = pipeline_jobs.PipelineJob.get(resource_name=_TEST_PIPELINE_JOB_ID)
+
+        mock_pipeline_service_get.assert_called_once_with(name=_TEST_PIPELINE_JOB_NAME)
+        assert isinstance(job, pipeline_jobs.PipelineJob)
+
     @pytest.mark.usefixtures(
         "mock_pipeline_service_create", "mock_pipeline_service_get", "mock_load_json",
     )
