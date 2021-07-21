@@ -330,7 +330,7 @@ class PipelineJob(base.VertexAiResourceNounWithFutureManager):
         location: Optional[str] = None,
         credentials: Optional[auth_credentials.Credentials] = None,
     ) -> "PipelineJob":
-        """Get a Vertex AI Job for the given resource_name.
+        """Get a Vertex AI Pipeline Job for the given resource_name.
 
         Args:
             resource_name (str):
