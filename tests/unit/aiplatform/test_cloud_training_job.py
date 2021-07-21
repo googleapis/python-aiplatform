@@ -59,7 +59,7 @@ from google.cloud.aiplatform_v1beta1.services.job_service import (
     client as job_service_client_v1beta1,
 )
 
-import samples.test_constants as constants
+import samples.model-builder.test_constants as constants
 
 _TEST_PROJECT = "test-project"
 _TEST_LOCATION = "us-central1"
