@@ -111,6 +111,12 @@ class Trial(proto.Message):
             Output only. The CustomJob name linked to the
             Trial. It's set for a HyperparameterTuningJob's
             Trial.
+        web_access_uris (Sequence[google.cloud.aiplatform_v1beta1.types.Trial.WebAccessUrisEntry]):
+            Output only. The web access URIs for the
+            training job. The keys are the node names in the
+            training jobs, e.g. workerpool0-0. The values
+            are the URIs for each node's web portal in the
+            job.
     """
 
     class State(proto.Enum):
@@ -151,6 +157,7 @@ class Trial(proto.Message):
     client_id = proto.Field(proto.STRING, number=9,)
     infeasible_reason = proto.Field(proto.STRING, number=10,)
     custom_job = proto.Field(proto.STRING, number=11,)
+    web_access_uris = proto.MapField(proto.STRING, proto.STRING, number=12,)
 
 
 class StudySpec(proto.Message):
@@ -277,10 +284,18 @@ class StudySpec(proto.Message):
                 max_value (float):
                     Required. Inclusive maximum value of the
                     parameter.
+                default_value (float):
+                    A default value for a ``DOUBLE`` parameter that is assumed
+                    to be a relatively good starting point. Unset value signals
+                    that there is no offered starting point.
+
+                    Currently only supported by the Vizier service. Not
+                    supported by HyperparamterTuningJob or TrainingPipeline.
             """
 
             min_value = proto.Field(proto.DOUBLE, number=1,)
             max_value = proto.Field(proto.DOUBLE, number=2,)
+            default_value = proto.Field(proto.DOUBLE, number=4, optional=True,)
 
         class IntegerValueSpec(proto.Message):
             r"""Value specification for a parameter in ``INTEGER`` type.
@@ -291,19 +306,35 @@ class StudySpec(proto.Message):
                 max_value (int):
                     Required. Inclusive maximum value of the
                     parameter.
+                default_value (int):
+                    A default value for an ``INTEGER`` parameter that is assumed
+                    to be a relatively good starting point. Unset value signals
+                    that there is no offered starting point.
+
+                    Currently only supported by the Vizier service. Not
+                    supported by HyperparamterTuningJob or TrainingPipeline.
             """
 
             min_value = proto.Field(proto.INT64, number=1,)
             max_value = proto.Field(proto.INT64, number=2,)
+            default_value = proto.Field(proto.INT64, number=4, optional=True,)
 
         class CategoricalValueSpec(proto.Message):
             r"""Value specification for a parameter in ``CATEGORICAL`` type.
             Attributes:
                 values (Sequence[str]):
                     Required. The list of possible categories.
+                default_value (str):
+                    A default value for a ``CATEGORICAL`` parameter that is
+                    assumed to be a relatively good starting point. Unset value
+                    signals that there is no offered starting point.
+
+                    Currently only supported by the Vizier service. Not
+                    supported by HyperparamterTuningJob or TrainingPipeline.
             """
 
             values = proto.RepeatedField(proto.STRING, number=1,)
+            default_value = proto.Field(proto.STRING, number=3, optional=True,)
 
         class DiscreteValueSpec(proto.Message):
             r"""Value specification for a parameter in ``DISCRETE`` type.
@@ -315,9 +346,18 @@ class StudySpec(proto.Message):
                     might have possible settings of 1.5, 2.5, and
                     4.0. This list should not contain more than
                     1,000 values.
+                default_value (float):
+                    A default value for a ``DISCRETE`` parameter that is assumed
+                    to be a relatively good starting point. Unset value signals
+                    that there is no offered starting point. It automatically
+                    rounds to the nearest feasible discrete point.
+
+                    Currently only supported by the Vizier service. Not
+                    supported by HyperparamterTuningJob or TrainingPipeline.
             """
 
             values = proto.RepeatedField(proto.DOUBLE, number=1,)
+            default_value = proto.Field(proto.DOUBLE, number=3, optional=True,)
 
         class ConditionalParameterSpec(proto.Message):
             r"""Represents a parameter spec with condition from its parent

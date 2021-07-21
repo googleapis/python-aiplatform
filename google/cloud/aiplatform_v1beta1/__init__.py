@@ -93,6 +93,7 @@ from .types.deployed_model_ref import DeployedModelRef
 from .types.encryption_spec import EncryptionSpec
 from .types.endpoint import DeployedModel
 from .types.endpoint import Endpoint
+from .types.endpoint import PrivateEndpoints
 from .types.endpoint_service import CreateEndpointOperationMetadata
 from .types.endpoint_service import CreateEndpointRequest
 from .types.endpoint_service import DeleteEndpointRequest
@@ -267,7 +268,9 @@ from .types.metadata_service import CreateExecutionRequest
 from .types.metadata_service import CreateMetadataSchemaRequest
 from .types.metadata_service import CreateMetadataStoreOperationMetadata
 from .types.metadata_service import CreateMetadataStoreRequest
+from .types.metadata_service import DeleteArtifactRequest
 from .types.metadata_service import DeleteContextRequest
+from .types.metadata_service import DeleteExecutionRequest
 from .types.metadata_service import DeleteMetadataStoreOperationMetadata
 from .types.metadata_service import DeleteMetadataStoreRequest
 from .types.metadata_service import GetArtifactRequest
@@ -285,6 +288,15 @@ from .types.metadata_service import ListMetadataSchemasRequest
 from .types.metadata_service import ListMetadataSchemasResponse
 from .types.metadata_service import ListMetadataStoresRequest
 from .types.metadata_service import ListMetadataStoresResponse
+from .types.metadata_service import PurgeArtifactsMetadata
+from .types.metadata_service import PurgeArtifactsRequest
+from .types.metadata_service import PurgeArtifactsResponse
+from .types.metadata_service import PurgeContextsMetadata
+from .types.metadata_service import PurgeContextsRequest
+from .types.metadata_service import PurgeContextsResponse
+from .types.metadata_service import PurgeExecutionsMetadata
+from .types.metadata_service import PurgeExecutionsRequest
+from .types.metadata_service import PurgeExecutionsResponse
 from .types.metadata_service import QueryArtifactLineageSubgraphRequest
 from .types.metadata_service import QueryContextLineageSubgraphRequest
 from .types.metadata_service import QueryExecutionInputsAndOutputsRequest
@@ -561,6 +573,7 @@ __all__ = (
     "Dataset",
     "DatasetServiceClient",
     "DedicatedResources",
+    "DeleteArtifactRequest",
     "DeleteBatchPredictionJobRequest",
     "DeleteContextRequest",
     "DeleteCustomJobRequest",
@@ -568,6 +581,7 @@ __all__ = (
     "DeleteDatasetRequest",
     "DeleteEndpointRequest",
     "DeleteEntityTypeRequest",
+    "DeleteExecutionRequest",
     "DeleteFeatureRequest",
     "DeleteFeaturestoreRequest",
     "DeleteHyperparameterTuningJobRequest",
@@ -797,6 +811,16 @@ __all__ = (
     "PredictResponse",
     "PredictSchemata",
     "PredictionServiceClient",
+    "PrivateEndpoints",
+    "PurgeArtifactsMetadata",
+    "PurgeArtifactsRequest",
+    "PurgeArtifactsResponse",
+    "PurgeContextsMetadata",
+    "PurgeContextsRequest",
+    "PurgeContextsResponse",
+    "PurgeExecutionsMetadata",
+    "PurgeExecutionsRequest",
+    "PurgeExecutionsResponse",
     "PythonPackageSpec",
     "QueryArtifactLineageSubgraphRequest",
     "QueryContextLineageSubgraphRequest",

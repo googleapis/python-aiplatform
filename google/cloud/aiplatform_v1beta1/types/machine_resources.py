@@ -80,15 +80,14 @@ class DedicatedResources(proto.Message):
             Required. Immutable. The specification of a
             single machine used by the prediction.
         min_replica_count (int):
-            Required. Immutable. The minimum number of machine replicas
-            this DeployedModel will be always deployed on. If traffic
-            against it increases, it may dynamically be deployed onto
-            more replicas, and as traffic decreases, some of these extra
-            replicas may be freed. Note: if
-            [machine_spec.accelerator_count][google.cloud.aiplatform.v1beta1.MachineSpec.accelerator_count]
-            is above 0, currently the model will be always deployed
-            precisely on
-            [min_replica_count][google.cloud.aiplatform.v1beta1.DedicatedResources.min_replica_count].
+            Required. Immutable. The minimum number of
+            machine replicas this DeployedModel will be
+            always deployed on. This value must be greater
+            than or equal to 1.
+            If traffic against the DeployedModel increases,
+            it may dynamically be deployed onto more
+            replicas, and as traffic decreases, some of
+            these extra replicas may be freed.
         max_replica_count (int):
             Immutable. The maximum number of replicas this DeployedModel
             may be deployed on when the traffic against it increases. If
