@@ -25,6 +25,7 @@ from typing import Optional
 import copy
 from unittest import mock
 from unittest.mock import patch
+import pandas as pd
 
 from google.protobuf import duration_pb2  # type: ignore
 from google.rpc import status_pb2
@@ -57,6 +58,8 @@ from google.cloud.aiplatform_v1.services.job_service import client as job_servic
 from google.cloud.aiplatform_v1beta1.services.job_service import (
     client as job_service_client_v1beta1,
 )
+
+import samples.test_constants as constants
 
 _TEST_PROJECT = "test-project"
 _TEST_LOCATION = "us-central1"
@@ -119,6 +122,24 @@ _TEST_BASE_CUSTOM_JOB_PROTO = gca_custom_job_compat.CustomJob(
     encryption_spec=_TEST_DEFAULT_ENCRYPTION_SPEC,
 )
 
+
+@pytest.fixture
+def mock_custom_training_job():
+    mock = MagicMock(aiplatform.training_jobs.CustomTrainingJob)
+    yield mock
+
+
+@pytest.fixture
+def mock_get_custom_training_job(mock_custom_training_job):
+    with patch.object(aiplatform, "CustomTrainingJob") as mock:
+        mock.return_value = mock_custom_training_job
+        yield mock
+
+
+@pytest.fixture
+def mock_run_custom_training_job(mock_custom_training_job):
+    with patch.object(mock_custom_training_job, "run") as mock:
+        yield mock
 
 @pytest.fixture
 def create_custom_job_mock():
@@ -218,7 +239,8 @@ class TestCloudModelClass:
 
         assert(my_model is not None)
 
-    def test_api_call(self, create_custom_job_mock, get_custom_job_mock):
+    def test_custom_job_call(self, create_custom_job_mock, get_custom_job_mock, 
+                             mock_custom_training_job, mock_get_custom_training_job):
         aiplatform.init(
             project=_TEST_PROJECT,
             location=_TEST_LOCATION,
@@ -231,18 +253,25 @@ class TestCloudModelClass:
 
         my_model.fit()
 
-        # mock CustomTrainingJob class
-        # test that the class is created
-        # test that the class is calling run() API w/ replica count = 1
+        mock_get_custom_training_job.assert_called_once_with(
+            display_name=constants.DISPLAY_NAME,
+            script_path=constants.SCRIPT_PATH,
+            container_uri=constants.CONTAINER_URI,
+            model_serving_container_image_uri=constants.CONTAINER_URI,
+        )
 
-        # https://github.com/googleapis/python-aiplatform/blob/master/samples/model-builder/conftest.py#L157
-        # https://github.com/googleapis/python-aiplatform/blob/master/samples/model-builder/conftest.py#L238
-
-
-        expected_custom_job = _get_custom_job_proto()
-
-        create_custom_job_mock.assert_called_once_with(
-            parent=_TEST_PARENT, custom_job=expected_custom_job
+        mock_run_custom_training_job.assert_called_once_with(
+            dataset=pd.DataFrame(),
+            model_display_name=constants.DISPLAY_NAME_2,
+            replica_count=constants.REPLICA_COUNT,
+            machine_type=constants.MACHINE_TYPE,
+            accelerator_type=constants.ACCELERATOR_TYPE,
+            accelerator_count=constants.ACCELERATOR_COUNT,
+            args=constants.ARGS,
+            training_fraction_split=constants.TRAINING_FRACTION_SPLIT,
+            validation_fraction_split=constants.VALIDATION_FRACTION_SPLIT,
+            test_fraction_split=constants.TEST_FRACTION_SPLIT,
+            sync=True,
         )
 
 
