@@ -48,6 +48,8 @@ class AutoMlVideoActionRecognitionInputs(proto.Message):
         MODEL_TYPE_UNSPECIFIED = 0
         CLOUD = 1
         MOBILE_VERSATILE_1 = 2
+        MOBILE_JETSON_VERSATILE_1 = 3
+        MOBILE_CORAL_VERSATILE_1 = 4
 
     model_type = proto.Field(proto.ENUM, number=1, enum=ModelType,)
 

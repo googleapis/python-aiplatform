@@ -27,8 +27,7 @@ class ClassificationPredictionResult(proto.Message):
     Attributes:
         ids (Sequence[int]):
             The resource IDs of the AnnotationSpecs that
-            had been identified, ordered by the confidence
-            score descendingly.
+            had been identified.
         display_names (Sequence[str]):
             The display names of the AnnotationSpecs that
             had been identified, order matches the IDs.
