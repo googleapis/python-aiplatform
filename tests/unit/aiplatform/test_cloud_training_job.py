@@ -281,13 +281,13 @@ class TestCloudModelClass:
 
         for key, value in expected.items():
             print(key)
-            assert call_args.kwargs[key] == value
+            assert call_args[1][key] == value
 
-        assert call_args.kwargs['script_path'].endswith('/training_script.py')
-        assert sorted(list(call_args.kwargs.keys())) == sorted(list(expected.keys()) + ['script_path']) 
+        assert call_args[1]['script_path'].endswith('/training_script.py')
+        assert sorted(list(call_args[1].keys())) == sorted(list(expected.keys()) + ['script_path']) 
         
         mock_get_custom_training_job.assert_called_once()
-        assert len(call_args.args) == 0
+        assert len(call_args[0]) == 0
 
         mock_run_custom_training_job.assert_called_once_with(
             replica_count=1,
