@@ -18,6 +18,7 @@
 import functools
 import inspect
 import logging
+import tempfile
 import io
 import sys
 from typing import (
@@ -89,16 +90,17 @@ def _deserialize_dataframe(artifact_uri: str) -> str:
 
     client = storage.Client(project=initializer.global_config.project, 
                             credentials=initializer.global_config.credentials)
+
     bucket = client.bucket(gcs_bucket)
     blob = bucket.blob(gcs_blob)
     df = pandas.DataFrame()
 
     try:
-        logger = logging.getLogger("google.resumable_media._helpers")
-        logging_warning_filter = utils.LoggingFilter(logging.INFO)
-        logger.addFilter(logging_warning_filter)
-        data = blob.download_as_string()
-        df = pd.read_csv(io.BytesIO(data))
+        with tempfile.TemporaryDirectory() as tmpdirname:
+            dest_file = pathlib.Path(tmpdirname) / "deserialized_data.csv"
+            blob.download_to_filename(dest_file)
+            df = pd.read_csv(dest_file)
+
     except (ValueError, RuntimeError) as err:
         raise RuntimeError(
             "There was a problem reading the CSV file at '{}': {}".format(
