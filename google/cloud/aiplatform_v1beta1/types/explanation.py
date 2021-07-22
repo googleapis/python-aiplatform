@@ -192,7 +192,7 @@ class Attribution(proto.Message):
             For example, the predicted class name by a
             multi-classification Model.
 
-            This field is only populated iff the Model predicts display
+            This field is only populated if the Model predicts display
             names as a separate field along with the explained output.
             The predicted display name must has the same shape of the
             explained output, and can be located using output_index.

@@ -157,7 +157,7 @@ class _DistributedTrainingSpec(NamedTuple):
         accelerator_count: int = 0,
         accelerator_type: str = "ACCELERATOR_TYPE_UNSPECIFIED",
     ) -> "_DistributedTrainingSpec":
-        """Parameterizes Config to support only chief with worker replicas.
+        """Parametrizes Config to support only chief with worker replicas.
 
         For replica is assigned to chief and the remainder to workers. All spec have the
         same machine type, accelerator count, and accelerator type.

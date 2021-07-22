@@ -68,7 +68,7 @@ class _Dataset(base.VertexAiResourceNounWithFutureManager):
                 Optional location to retrieve dataset from. If not set, location
                 set in aiplatform.init will be used.
             credentials (auth_credentials.Credentials):
-                Custom credentials to use to retreive this Dataset. Overrides
+                Custom credentials to use to retrieve this Dataset. Overrides
                 credentials set in aiplatform.init.
         """
 

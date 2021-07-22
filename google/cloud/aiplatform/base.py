@@ -582,7 +582,7 @@ class VertexAiResourceNoun(metaclass=abc.ABCMeta):
 
     @property
     def gca_resource(self) -> proto.Message:
-        """The underlying resource proto represenation."""
+        """The underlying resource proto representation."""
         return self._gca_resource
 
     def __repr__(self) -> str:
@@ -1038,8 +1038,7 @@ class VertexAiResourceNounWithFutureManager(VertexAiResourceNoun, FutureManager)
 
     @optional_sync()
     def delete(self, sync: bool = True) -> None:
-        """Deletes this Vertex AI resource. WARNING: This deletion is
-        permament.
+        """Deletes this Vertex AI resource. WARNING: This deletion is permanent.
 
         Args:
             sync (bool):
