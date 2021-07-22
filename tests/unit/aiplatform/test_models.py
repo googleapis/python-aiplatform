@@ -738,9 +738,6 @@ class TestModel:
     @pytest.mark.usefixtures("get_model_with_custom_project_mock")
     def test_accessing_properties_with_no_resource_raises(
         self,
-        upload_model_with_custom_project_mock,
-        get_model_with_custom_project_mock,
-        sync,
     ):
 
         test_model_resource_name = model_service_client.ModelServiceClient.model_path(
@@ -750,13 +747,31 @@ class TestModel:
         my_model = models.Model(test_model_resource_name)
         my_model._gca_resource = None
 
-        assert my_model.uri == _TEST_ARTIFACT_URI
-        assert my_model.supported_export_formats == {}
-        assert my_model.supported_deployment_resources_types == []
-        assert my_model.supported_input_storage_formats == []
-        assert my_model.supported_output_storage_formats == []
-        assert my_model.description == _TEST_DESCRIPTION
+        with pytest.raises(RuntimeError) as e:
+            uri = my_model.uri
+        e.match(regexp=r"Model resource has not been created.")
 
+        with pytest.raises(RuntimeError) as e:
+            supported_export_formats = my_model.supported_export_formats
+        e.match(regexp=r"Model resource has not been created.")
+
+        with pytest.raises(RuntimeError) as e:
+            supported_deployment_resources_types = my_model.supported_deployment_resources_types
+        e.match(regexp=r"Model resource has not been created.")
+
+
+        with pytest.raises(RuntimeError) as e:
+            supported_input_storage_formats = my_model.supported_input_storage_formats
+        e.match(regexp=r"Model resource has not been created.")
+
+
+        with pytest.raises(RuntimeError) as e:
+            supported_output_storage_formats = my_model.supported_output_storage_formats
+        e.match(regexp=r"Model resource has not been created.")
+
+        with pytest.raises(RuntimeError) as e:
+            description = my_model.description
+        e.match(regexp=r"Model resource has not been created.")
 
 
     @pytest.mark.usefixtures("get_model_with_custom_location_mock")

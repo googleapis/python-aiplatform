@@ -147,7 +147,7 @@ class Endpoint(base.VertexAiResourceNounWithFutureManager):
         unspecified, the Endpoint is not peered with any network.
         """
         self._assert_gca_resource_is_available()
-        return getattr(self._gca_resource, "network")
+        return getattr(self._gca_resource, "network", None)
 
     @classmethod
     def create(
