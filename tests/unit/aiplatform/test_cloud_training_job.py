@@ -26,7 +26,9 @@ import importlib
 import copy
 from unittest import mock
 from unittest.mock import patch
+from unittest.mock import MagicMock
 import pandas as pd
+import numpy as np
 
 from google.protobuf import duration_pb2  # type: ignore
 from google.rpc import status_pb2
@@ -248,7 +250,7 @@ class TestCloudModelClass:
             encryption_spec_key_name=_TEST_DEFAULT_ENCRYPTION_KEY_NAME,
         )
 
-        my_model = LinearRegression()
+        my_model = LinearRegression(2, 1)
         my_model.training_mode = 'cloud'
 
         assert(my_model is not None)
@@ -262,10 +264,12 @@ class TestCloudModelClass:
             encryption_spec_key_name=_TEST_DEFAULT_ENCRYPTION_KEY_NAME,
         )
 
-        my_model = LinearRegression()
+        my_model = LinearRegression(2, 1)
         my_model.training_mode = 'cloud'
 
-        my_model.fit()
+        df = pd.DataFrame(np.random.random(size=(100, 3)), 
+                          columns=['feat_1', 'feat_2', 'target'])
+        my_model.fit(df, 'target', 1, 0.1)
 
         mock_get_custom_training_job.assert_called_once_with(
             display_name=constants.DISPLAY_NAME,
@@ -294,5 +298,5 @@ class TestLocalModelClass:
     def test_create_local_class(self):
         aiplatform.init(project=_TEST_PROJECT, staging_bucket=_TEST_STAGING_BUCKET)
 
-        model = LinearRegression()
+        model = LinearRegression(2, 1)
         assert(model is not None)
