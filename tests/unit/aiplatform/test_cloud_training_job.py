@@ -255,8 +255,8 @@ class TestCloudModelClass:
 
         assert(my_model is not None)
 
-    def test_custom_job_call(self, create_custom_job_mock, get_custom_job_mock, 
-                             mock_custom_training_job, mock_get_custom_training_job):
+    def test_custom_job_call(self, mock_get_custom_training_job, 
+                             mock_run_custom_training_job):
         aiplatform.init(
             project=_TEST_PROJECT,
             location=_TEST_LOCATION,
@@ -271,25 +271,26 @@ class TestCloudModelClass:
                           columns=['feat_1', 'feat_2', 'target'])
         my_model.fit(df, 'target', 1, 0.1)
 
-        mock_get_custom_training_job.assert_called_once_with(
-            display_name=constants.DISPLAY_NAME,
-            script_path=constants.SCRIPT_PATH,
-            container_uri=constants.CONTAINER_URI,
-            model_serving_container_image_uri=constants.CONTAINER_URI,
-        )
+        call_args = mock_get_custom_training_job.call_args
+
+        expected = {
+            'display_name': 'my_training_job',
+            'requirements': ['pandas>=1.3'],
+            'container_uri': 'us-docker.pkg.dev/vertex-ai/training/pytorch-xla.1-7:latest'
+        }
+
+        for key, value in expected.items():
+            print(key)
+            assert call_args.kwargs[key] == value
+
+        assert call_args.kwargs['script_path'].endswith('/training_script.py')
+        assert sorted(list(call_args.kwargs.keys())) == sorted(list(expected.keys()) + ['script_path']) 
+        
+        mock_get_custom_training_job.assert_called_once()
+        assert len(call_args.args) == 0
 
         mock_run_custom_training_job.assert_called_once_with(
-            dataset=pd.DataFrame(),
-            model_display_name=constants.DISPLAY_NAME_2,
-            replica_count=constants.REPLICA_COUNT,
-            machine_type=constants.MACHINE_TYPE,
-            accelerator_type=constants.ACCELERATOR_TYPE,
-            accelerator_count=constants.ACCELERATOR_COUNT,
-            args=constants.ARGS,
-            training_fraction_split=constants.TRAINING_FRACTION_SPLIT,
-            validation_fraction_split=constants.VALIDATION_FRACTION_SPLIT,
-            test_fraction_split=constants.TEST_FRACTION_SPLIT,
-            sync=True,
+            replica_count=1,
         )
 
 
