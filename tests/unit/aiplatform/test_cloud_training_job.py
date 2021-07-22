@@ -237,12 +237,12 @@ class LinearRegression(base.VertexModel, torch.nn.Module):
         return self.forward(data)
 
 
-class TestCloudModelClass:
+class TestCloudVertexModelClass:
     def setup_method(self):
         importlib.reload(initializer)
         importlib.reload(aiplatform)
 
-    def test_create_cloud_class(self):
+    def test_create_vertex_model_cloud_class(self):
         aiplatform.init(
             project=_TEST_PROJECT,
             location=_TEST_LOCATION,
@@ -255,7 +255,7 @@ class TestCloudModelClass:
 
         assert(my_model is not None)
 
-    def test_custom_job_call(self, mock_get_custom_training_job, 
+    def test_custom_job_call_from_vertex_model(self, mock_get_custom_training_job, 
                              mock_run_custom_training_job):
         aiplatform.init(
             project=_TEST_PROJECT,
@@ -294,9 +294,9 @@ class TestCloudModelClass:
         )
 
 
-class TestLocalModelClass:
+class TestLocalVertexModelClass:
 
-    def test_create_local_class(self):
+    def test_create_local_vertex_model_class(self):
         aiplatform.init(project=_TEST_PROJECT, staging_bucket=_TEST_STAGING_BUCKET)
 
         model = LinearRegression(2, 1)
