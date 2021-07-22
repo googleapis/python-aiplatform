@@ -18,6 +18,7 @@
 import functools
 import inspect
 import logging
+import io
 import sys
 from typing import (
     Any,
@@ -90,7 +91,24 @@ def _deserialize_dataframe(artifact_uri: str) -> str:
                             credentials=initializer.global_config.credentials)
     bucket = client.bucket(gcs_bucket)
     blob = bucket.blob(gcs_blob)
+    df = pandas.DataFrame()
 
-    raise NotImplementedError
+    try:
+        logger = logging.getLogger("google.resumable_media._helpers")
+        logging_warning_filter = utils.LoggingFilter(logging.INFO)
+        logger.addFilter(logging_warning_filter)
+        data = blob.download_as_string()
+        df = pd.read_csv(io.BytesIO(data))
+    except (ValueError, RuntimeError) as err:
+        raise RuntimeError(
+            "There was a problem reading the CSV file at '{}': {}".format(
+                artifact_uri, err
+            )
+        )
+    finally:
+        logger.removeFilter(logging_warning_filter)
+
+    # Return a pandas DataFrame read from the csv in the cloud
+    return df
 
 

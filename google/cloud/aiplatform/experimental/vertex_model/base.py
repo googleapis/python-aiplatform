@@ -94,6 +94,10 @@ def vertex_fit_function_wrapper(method):
                     "Staging bucket must be set to run training in cloud mode: `aiplatform.init(staging_bucket='gs://my/staging/bucket')`")
 
 
+            serializer = method.__self__.__class__._data_serialization_mapping[type(dataset)][1]
+            training_data_uri = 
+                serializer(staging_bucket + 'dataset.csv', data, args[1], '~/temp_dir/', 'training')
+
             obj._training_job = aiplatform.CustomTrainingJob(
                 display_name='my_training_job',
                 script_path=str(script_path),

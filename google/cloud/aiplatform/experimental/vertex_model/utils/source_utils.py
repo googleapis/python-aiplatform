@@ -30,12 +30,6 @@ from typing import (
 
 from google.cloud import aiplatform
 
-try:
-    import torch 
-except ImportError:
-    raise ImportError("PyTorch is not installed. Please install torch to use VertexModel")
-
-
 class SourceMaker:
     def __init__(self, cls_name: str):
         self.source = ["class {}:".format(cls_name)]
