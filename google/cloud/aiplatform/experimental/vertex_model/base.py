@@ -96,7 +96,14 @@ def vertex_fit_function_wrapper(method):
 
             serializer = method.__self__.__class__._data_serialization_mapping[type(dataset)][1]
             training_data_uri = 
-                serializer(staging_bucket + 'dataset.csv', data, args[1], '~/temp_dir/', 'training')
+                serializer(staging_bucket, data, args[1], 'training')
+
+            my_dataset = aiplatform.Dataset.create(
+                         display_name='my_dataset',
+                         metadata_schema_uri=aiplatform.schema.dataset.metadata.TABLES,
+                         source=training_data_uri)
+
+            # add deserialization to fit method? check how inner scripts work otherwise.
 
             obj._training_job = aiplatform.CustomTrainingJob(
                 display_name='my_training_job',
@@ -111,7 +118,7 @@ def vertex_fit_function_wrapper(method):
             # In the custom training job, a MODEL directory will be provided as an env var
             # our code should serialize our MODEL to that directory
 
-            obj._training_job.run(replica_count=1)
+            obj._training_job.run(my_dataset, replica_count=1)
 
     return f
 

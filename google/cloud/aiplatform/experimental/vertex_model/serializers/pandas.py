@@ -43,8 +43,7 @@ except ImportError:
     raise ImportError("Pandas is not installed. Please install pandas to use VertexModel")
 
 
-def _serialize_dataframe(artifact_uri: str, obj: pd.DataFrame, 
-                         temp_dir: str) -> str:
+def _serialize_dataframe(artifact_uri: str, obj: pd.DataFrame, dataset_type: str) -> str:
 
     """Serializes pandas DataFrame object to GCS.
 
@@ -60,8 +59,10 @@ def _serialize_dataframe(artifact_uri: str, obj: pd.DataFrame,
         
     # Designate csv path and write the pandas DataFrame to the path
     # Convention: file name is my_training_dataset, my_test_dataset, etc.
-    path_to_csv = pathlib.Path(temp_dir) / ('my_' + dataset_type + '_dataset.csv')
-    obj.to_csv(path_to_csv)
+    with tempfile.TemporaryDirectory() as tmpdirname:
+        temp_dir = pathlib.Path(tmpdirname) / ('my_' + dataset_type + '_dataset.csv')
+        path_to_csv = pathlib.Path(temp_dir)
+        obj.to_csv(path_to_csv)
 
     gcs_bucket, gcs_blob_prefix = extract_bucket_and_prefix_from_gcs_path(artifact_uri)
 
