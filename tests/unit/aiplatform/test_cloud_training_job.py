@@ -193,9 +193,9 @@ def _get_custom_job_proto(state=None, name=None, error=None, version="v1"):
     return custom_job_proto
 
 
-class LinearRegression(VertexModel, torch.nn.Module): 
+class LinearRegression(base.VertexModel, torch.nn.Module): 
     def __init__(self, input_size: int, output_size: int):
-        VertexModel.__init__(self)
+        base.VertexModel.__init__(self)
         torch.nn.Module.__init__(self)
         self.linear = torch.nn.Linear(input_size, output_size)
 
@@ -213,7 +213,8 @@ class LinearRegression(VertexModel, torch.nn.Module):
             loss.backward()
             optimizer.step()
 
-    def fit(self, data: pd.DataFrame, target_column: str, epochs: int, learning_rate: float):
+    def fit(self, data: pd.DataFrame, target_column: str, 
+            epochs: int, learning_rate: float):
         feature_columns = list(data.columns)
         feature_columns.remove(target_column)
 
