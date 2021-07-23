@@ -1038,7 +1038,8 @@ class VertexAiResourceNounWithFutureManager(VertexAiResourceNoun, FutureManager)
 
     @optional_sync()
     def delete(self, sync: bool = True) -> None:
-        """Deletes this Vertex AI resource. WARNING: This deletion is permanent.
+        """Deletes this Vertex AI resource. WARNING: This deletion is
+        permanent.
 
         Args:
             sync (bool):
