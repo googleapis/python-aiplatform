@@ -17,23 +17,9 @@
 
 import abc
 import functools
-import inspect
-import logging
 import tempfile
 import pathlib
-from typing import (
-    Any,
-    Callable,
-    Dict,
-    List,
-    Tuple,
-    Type,
-)
 
-from google.auth import credentials as auth_credentials
-from google.cloud.aiplatform import initializer
-from google.cloud.aiplatform import utils
-from google.cloud.aiplatform.compat.types import encryption_spec as gca_encryption_spec
 from google.cloud import aiplatform
 
 from google.cloud.aiplatform.experimental.vertex_model.serializers import pandas
@@ -87,9 +73,6 @@ def vertex_fit_function_wrapper(method):
 
             with open(script_path, "w") as f:
                 f.write(source)
-
-            bound_args = inspect.signature(method).bind(*args, **kwargs)
-            dataset = bound_args.arguments.get("dataset")
 
             staging_bucket = aiplatform.initializer.global_config.staging_bucket
             if staging_bucket is None:

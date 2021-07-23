@@ -16,26 +16,7 @@
 #
 
 import inspect
-import logging
-import pandas as pd
-import sys
-import threading
-from typing import (
-    Any,
-    Dict,
-    List,
-    Tuple,
-    Type,
-)
-
-from google.cloud import aiplatform
-
-try:
-    import torch
-except ImportError:
-    raise ImportError(
-        "PyTorch is not installed. Please install torch to use VertexModel"
-    )
+from typing import Any
 
 
 class SourceMaker:

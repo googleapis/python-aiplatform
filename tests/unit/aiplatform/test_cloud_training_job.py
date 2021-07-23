@@ -15,12 +15,8 @@
 # limitations under the License.
 #
 
-from importlib import reload
 import pytest
-import time
 import torch
-import os
-from typing import Optional
 import importlib
 
 import copy
@@ -30,22 +26,10 @@ from unittest.mock import MagicMock
 import pandas as pd
 import numpy as np
 
-from google.protobuf import duration_pb2  # type: ignore
-from google.rpc import status_pb2
-
-import test_training_jobs
-from test_training_jobs import mock_python_package_to_gcs  # noqa: F401
-
+from google.protobuf import duration_pb2
 from google.cloud.aiplatform.experimental.vertex_model import base
 from google.cloud.aiplatform.experimental.vertex_model.serializers import pandas
-from google.cloud.aiplatform.experimental.vertex_model.utils import source_utils
 from google.cloud.aiplatform import initializer
-
-from google.protobuf import duration_pb2  # type: ignore
-from google.rpc import status_pb2
-
-import test_training_jobs
-from test_training_jobs import mock_python_package_to_gcs  # noqa: F401
 
 from google.cloud import aiplatform
 from google.cloud.aiplatform.compat.types import custom_job as gca_custom_job_compat
@@ -58,11 +42,6 @@ from google.cloud.aiplatform.compat.types import (
     encryption_spec as gca_encryption_spec_compat,
 )
 from google.cloud.aiplatform_v1.services.job_service import client as job_service_client
-from google.cloud.aiplatform_v1beta1.services.job_service import (
-    client as job_service_client_v1beta1,
-)
-
-import test_constants as constants
 
 _TEST_PROJECT = "test-project"
 _TEST_LOCATION = "us-central1"
@@ -206,8 +185,6 @@ class LinearRegression(base.VertexModel, torch.nn.Module):
         return self.linear(x)
 
     def train_loop(self, dataloader, loss_fn, optimizer):
-        size = len(dataloader.dataset)
-
         for batch, (X, y) in enumerate(dataloader):
             pred = self.predict(X.float())
             loss = loss_fn(pred.float(), y.float())
