@@ -66,7 +66,10 @@ scalar_v2_pb = summary_v1._scalar_summary.scalar_pb
 image_pb = summary_v1._image_summary.pb
 
 _SCALARS_HISTOGRAMS_AND_GRAPHS = frozenset(
-    (scalars_metadata.PLUGIN_NAME, graphs_metadata.PLUGIN_NAME,)
+    (
+        scalars_metadata.PLUGIN_NAME,
+        graphs_metadata.PLUGIN_NAME,
+    )
 )
 
 # Sentinel for `_create_*` helpers, for arguments for which we want to
@@ -577,7 +580,8 @@ class TensorboardUploaderTest(tf.test.TestCase):
                 raise SuccessError()
 
         uploader = _create_uploader(
-            logdir=self.get_temp_dir(), logdir_poll_rate_limiter=mock_rate_limiter,
+            logdir=self.get_temp_dir(),
+            logdir_poll_rate_limiter=mock_rate_limiter,
         )
         uploader._upload_once = mock_upload_once
 
@@ -965,7 +969,9 @@ class BatchedRequestSenderTest(tf.test.TestCase):
             step=1, wall_time=123.456, summary=scalar_v2_pb("foo", 5.0)
         )
         call_args_lists = self._populate_run_from_events(
-            0, [event], allowed_plugins=frozenset("not-scalars"),
+            0,
+            [event],
+            allowed_plugins=frozenset("not-scalars"),
         )
         self.assertEqual(call_args_lists, [])
 
@@ -1025,7 +1031,8 @@ class ScalarBatchedRequestSenderTest(tf.test.TestCase):
     def _add_events_and_flush(self, events, expected_n_time_series):
         mock_client = _create_mock_client()
         sender = _create_scalar_request_sender(
-            run_resource_id=_TEST_RUN_NAME, api=mock_client,
+            run_resource_id=_TEST_RUN_NAME,
+            api=mock_client,
         )
         self._add_events(sender, events)
         sender.flush()
@@ -1038,7 +1045,9 @@ class ScalarBatchedRequestSenderTest(tf.test.TestCase):
     def test_aggregation_by_tag(self):
         def make_event(step, wall_time, tag, value):
             return event_pb2.Event(
-                step=step, wall_time=wall_time, summary=scalar_v2_pb(tag, value),
+                step=step,
+                wall_time=wall_time,
+                summary=scalar_v2_pb(tag, value),
             )
 
         events = [
@@ -1161,7 +1170,9 @@ class ScalarBatchedRequestSenderTest(tf.test.TestCase):
         long_run_id = "A" * 12
         with self.assertRaises(uploader_lib._OutOfSpaceError) as cm:
             _create_scalar_request_sender(
-                run_resource_id=long_run_id, api=mock_client, max_request_size=12,
+                run_resource_id=long_run_id,
+                api=mock_client,
+                max_request_size=12,
             )
         self.assertEqual(str(cm.exception), "Byte budget too small for base request")
 
@@ -1347,7 +1358,9 @@ class ScalarBatchedRequestSenderTest(tf.test.TestCase):
                 raise uploader_lib._OutOfSpaceError()
 
         with mock.patch.object(
-            uploader_lib._ByteBudgetManager, "add_point", mock_add_point,
+            uploader_lib._ByteBudgetManager,
+            "add_point",
+            mock_add_point,
         ):
             sender = _create_scalar_request_sender("123", mock_client)
             self._add_events(sender, _apply_compat([event_1]))
