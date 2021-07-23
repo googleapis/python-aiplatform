@@ -76,35 +76,17 @@ class ModelMonitoringObjectiveConfig(proto.Message):
                 dataset.
         """
 
-        dataset = proto.Field(
-            proto.STRING,
-            number=3,
-            oneof="data_source",
-        )
+        dataset = proto.Field(proto.STRING, number=3, oneof="data_source",)
         gcs_source = proto.Field(
-            proto.MESSAGE,
-            number=4,
-            oneof="data_source",
-            message=io.GcsSource,
+            proto.MESSAGE, number=4, oneof="data_source", message=io.GcsSource,
         )
         bigquery_source = proto.Field(
-            proto.MESSAGE,
-            number=5,
-            oneof="data_source",
-            message=io.BigQuerySource,
+            proto.MESSAGE, number=5, oneof="data_source", message=io.BigQuerySource,
         )
-        data_format = proto.Field(
-            proto.STRING,
-            number=2,
-        )
-        target_field = proto.Field(
-            proto.STRING,
-            number=6,
-        )
+        data_format = proto.Field(proto.STRING, number=2,)
+        target_field = proto.Field(proto.STRING, number=6,)
         logging_sampling_strategy = proto.Field(
-            proto.MESSAGE,
-            number=7,
-            message="SamplingStrategy",
+            proto.MESSAGE, number=7, message="SamplingStrategy",
         )
 
     class TrainingPredictionSkewDetectionConfig(proto.Message):
@@ -123,10 +105,7 @@ class ModelMonitoringObjectiveConfig(proto.Message):
         """
 
         skew_thresholds = proto.MapField(
-            proto.STRING,
-            proto.MESSAGE,
-            number=1,
-            message="ThresholdConfig",
+            proto.STRING, proto.MESSAGE, number=1, message="ThresholdConfig",
         )
 
     class PredictionDriftDetectionConfig(proto.Message):
@@ -142,26 +121,15 @@ class ModelMonitoringObjectiveConfig(proto.Message):
         """
 
         drift_thresholds = proto.MapField(
-            proto.STRING,
-            proto.MESSAGE,
-            number=1,
-            message="ThresholdConfig",
+            proto.STRING, proto.MESSAGE, number=1, message="ThresholdConfig",
         )
 
-    training_dataset = proto.Field(
-        proto.MESSAGE,
-        number=1,
-        message=TrainingDataset,
-    )
+    training_dataset = proto.Field(proto.MESSAGE, number=1, message=TrainingDataset,)
     training_prediction_skew_detection_config = proto.Field(
-        proto.MESSAGE,
-        number=2,
-        message=TrainingPredictionSkewDetectionConfig,
+        proto.MESSAGE, number=2, message=TrainingPredictionSkewDetectionConfig,
     )
     prediction_drift_detection_config = proto.Field(
-        proto.MESSAGE,
-        number=3,
-        message=PredictionDriftDetectionConfig,
+        proto.MESSAGE, number=3, message=PredictionDriftDetectionConfig,
     )
 
 
@@ -179,16 +147,10 @@ class ModelMonitoringAlertConfig(proto.Message):
                 The email addresses to send the alert.
         """
 
-        user_emails = proto.RepeatedField(
-            proto.STRING,
-            number=1,
-        )
+        user_emails = proto.RepeatedField(proto.STRING, number=1,)
 
     email_alert_config = proto.Field(
-        proto.MESSAGE,
-        number=1,
-        oneof="alert",
-        message=EmailAlertConfig,
+        proto.MESSAGE, number=1, oneof="alert", message=EmailAlertConfig,
     )
 
 
@@ -211,11 +173,7 @@ class ThresholdConfig(proto.Message):
             will be triggered for that feature.
     """
 
-    value = proto.Field(
-        proto.DOUBLE,
-        number=1,
-        oneof="threshold",
-    )
+    value = proto.Field(proto.DOUBLE, number=1, oneof="threshold",)
 
 
 class SamplingStrategy(proto.Message):
@@ -236,15 +194,10 @@ class SamplingStrategy(proto.Message):
                 Sample rate (0, 1]
         """
 
-        sample_rate = proto.Field(
-            proto.DOUBLE,
-            number=1,
-        )
+        sample_rate = proto.Field(proto.DOUBLE, number=1,)
 
     random_sample_config = proto.Field(
-        proto.MESSAGE,
-        number=1,
-        message=RandomSampleConfig,
+        proto.MESSAGE, number=1, message=RandomSampleConfig,
     )
 
 

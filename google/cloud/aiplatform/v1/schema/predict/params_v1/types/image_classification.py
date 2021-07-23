@@ -18,9 +18,7 @@ import proto  # type: ignore
 
 __protobuf__ = proto.module(
     package="google.cloud.aiplatform.v1.schema.predict.params",
-    manifest={
-        "ImageClassificationPredictionParams",
-    },
+    manifest={"ImageClassificationPredictionParams",},
 )
 
 
@@ -38,14 +36,8 @@ class ImageClassificationPredictionParams(proto.Message):
             return fewer predictions. Default value is 10.
     """
 
-    confidence_threshold = proto.Field(
-        proto.FLOAT,
-        number=1,
-    )
-    max_predictions = proto.Field(
-        proto.INT32,
-        number=2,
-    )
+    confidence_threshold = proto.Field(proto.FLOAT, number=1,)
+    max_predictions = proto.Field(proto.INT32, number=2,)
 
 
 __all__ = tuple(sorted(__protobuf__.manifest))

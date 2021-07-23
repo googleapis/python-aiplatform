@@ -13,20 +13,17 @@
 # limitations under the License.
 #
 
-
 def make_parent(parent: str) -> str:
     # Sample function parameter parent in create_dataset_sample
     parent = parent
 
     return parent
 
-
-def make_dataset(
-    display_name: str,
-) -> google.cloud.aiplatform_v1alpha1.types.dataset.Dataset:
+def make_dataset(display_name: str) -> google.cloud.aiplatform_v1alpha1.types.dataset.Dataset:
     dataset = {
-        "display_name": display_name,
-        "metadata_schema_uri": "gs://google-cloud-aiplatform/schema/dataset/metadata/text_1.0.0.yaml",
+        'display_name': display_name,
+        'metadata_schema_uri': 'gs://google-cloud-aiplatform/schema/dataset/metadata/text_1.0.0.yaml'
     }
 
     return dataset
+

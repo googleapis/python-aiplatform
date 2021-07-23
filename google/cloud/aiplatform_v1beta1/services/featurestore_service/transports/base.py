@@ -174,59 +174,37 @@ class FeaturestoreServiceTransport(abc.ABC):
         # Precompute the wrapped methods.
         self._wrapped_methods = {
             self.create_featurestore: gapic_v1.method.wrap_method(
-                self.create_featurestore,
-                default_timeout=5.0,
-                client_info=client_info,
+                self.create_featurestore, default_timeout=5.0, client_info=client_info,
             ),
             self.get_featurestore: gapic_v1.method.wrap_method(
-                self.get_featurestore,
-                default_timeout=5.0,
-                client_info=client_info,
+                self.get_featurestore, default_timeout=5.0, client_info=client_info,
             ),
             self.list_featurestores: gapic_v1.method.wrap_method(
-                self.list_featurestores,
-                default_timeout=5.0,
-                client_info=client_info,
+                self.list_featurestores, default_timeout=5.0, client_info=client_info,
             ),
             self.update_featurestore: gapic_v1.method.wrap_method(
-                self.update_featurestore,
-                default_timeout=5.0,
-                client_info=client_info,
+                self.update_featurestore, default_timeout=5.0, client_info=client_info,
             ),
             self.delete_featurestore: gapic_v1.method.wrap_method(
-                self.delete_featurestore,
-                default_timeout=5.0,
-                client_info=client_info,
+                self.delete_featurestore, default_timeout=5.0, client_info=client_info,
             ),
             self.create_entity_type: gapic_v1.method.wrap_method(
-                self.create_entity_type,
-                default_timeout=5.0,
-                client_info=client_info,
+                self.create_entity_type, default_timeout=5.0, client_info=client_info,
             ),
             self.get_entity_type: gapic_v1.method.wrap_method(
-                self.get_entity_type,
-                default_timeout=5.0,
-                client_info=client_info,
+                self.get_entity_type, default_timeout=5.0, client_info=client_info,
             ),
             self.list_entity_types: gapic_v1.method.wrap_method(
-                self.list_entity_types,
-                default_timeout=5.0,
-                client_info=client_info,
+                self.list_entity_types, default_timeout=5.0, client_info=client_info,
             ),
             self.update_entity_type: gapic_v1.method.wrap_method(
-                self.update_entity_type,
-                default_timeout=5.0,
-                client_info=client_info,
+                self.update_entity_type, default_timeout=5.0, client_info=client_info,
             ),
             self.delete_entity_type: gapic_v1.method.wrap_method(
-                self.delete_entity_type,
-                default_timeout=5.0,
-                client_info=client_info,
+                self.delete_entity_type, default_timeout=5.0, client_info=client_info,
             ),
             self.create_feature: gapic_v1.method.wrap_method(
-                self.create_feature,
-                default_timeout=5.0,
-                client_info=client_info,
+                self.create_feature, default_timeout=5.0, client_info=client_info,
             ),
             self.batch_create_features: gapic_v1.method.wrap_method(
                 self.batch_create_features,
@@ -234,24 +212,16 @@ class FeaturestoreServiceTransport(abc.ABC):
                 client_info=client_info,
             ),
             self.get_feature: gapic_v1.method.wrap_method(
-                self.get_feature,
-                default_timeout=5.0,
-                client_info=client_info,
+                self.get_feature, default_timeout=5.0, client_info=client_info,
             ),
             self.list_features: gapic_v1.method.wrap_method(
-                self.list_features,
-                default_timeout=5.0,
-                client_info=client_info,
+                self.list_features, default_timeout=5.0, client_info=client_info,
             ),
             self.update_feature: gapic_v1.method.wrap_method(
-                self.update_feature,
-                default_timeout=5.0,
-                client_info=client_info,
+                self.update_feature, default_timeout=5.0, client_info=client_info,
             ),
             self.delete_feature: gapic_v1.method.wrap_method(
-                self.delete_feature,
-                default_timeout=5.0,
-                client_info=client_info,
+                self.delete_feature, default_timeout=5.0, client_info=client_info,
             ),
             self.import_feature_values: gapic_v1.method.wrap_method(
                 self.import_feature_values,
@@ -269,9 +239,7 @@ class FeaturestoreServiceTransport(abc.ABC):
                 client_info=client_info,
             ),
             self.search_features: gapic_v1.method.wrap_method(
-                self.search_features,
-                default_timeout=5.0,
-                client_info=client_info,
+                self.search_features, default_timeout=5.0, client_info=client_info,
             ),
         }
 

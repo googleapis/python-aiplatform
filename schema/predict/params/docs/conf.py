@@ -80,7 +80,7 @@ master_doc = "index"
 # General information about the project.
 project = u"google-cloud-aiplatform-v1-schema-predict-params"
 copyright = u"2020, Google, LLC"
-author = u"Google APIs"  # TODO: autogenerate this bit
+author = u"Google APIs"         # TODO: autogenerate this bit
 
 # The version info for the project you're documenting, acts as replacement for
 # |version| and |release|, also used in various other places throughout the

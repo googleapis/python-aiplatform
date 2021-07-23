@@ -13,7 +13,6 @@
 # limitations under the License.
 #
 
-
 def make_parent(parent: str) -> str:
     # Sample function parameter parent in create_training_pipeline_custom_job_sample
     parent = parent

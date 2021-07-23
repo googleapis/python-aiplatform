@@ -18,9 +18,7 @@ import proto  # type: ignore
 
 __protobuf__ = proto.module(
     package="google.cloud.aiplatform.v1.schema.predict.prediction",
-    manifest={
-        "TabularRegressionPredictionResult",
-    },
+    manifest={"TabularRegressionPredictionResult",},
 )
 
 
@@ -35,18 +33,9 @@ class TabularRegressionPredictionResult(proto.Message):
             The upper bound of the prediction interval.
     """
 
-    value = proto.Field(
-        proto.FLOAT,
-        number=1,
-    )
-    lower_bound = proto.Field(
-        proto.FLOAT,
-        number=2,
-    )
-    upper_bound = proto.Field(
-        proto.FLOAT,
-        number=3,
-    )
+    value = proto.Field(proto.FLOAT, number=1,)
+    lower_bound = proto.Field(proto.FLOAT, number=2,)
+    upper_bound = proto.Field(proto.FLOAT, number=3,)
 
 
 __all__ = tuple(sorted(__protobuf__.manifest))

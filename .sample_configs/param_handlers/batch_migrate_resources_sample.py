@@ -13,22 +13,15 @@
 # limitations under the License.
 #
 
-
 def make_parent(parent: str) -> str:
     # Sample function parameter parent in batch_migrate_resources_sample
     parent = parent
 
     return parent
 
-
-def make_migrate_resource_requests(
-    migrate_resource_requests: typing.Sequence[
-        google.cloud.aiplatform_v1beta1.types.migration_service.MigrateResourceRequest
-    ],
-) -> typing.Sequence[
-    google.cloud.aiplatform_v1beta1.types.migration_service.MigrateResourceRequest
-]:
+def make_migrate_resource_requests(migrate_resource_requests: typing.Sequence[google.cloud.aiplatform_v1beta1.types.migration_service.MigrateResourceRequest]) -> typing.Sequence[google.cloud.aiplatform_v1beta1.types.migration_service.MigrateResourceRequest]:
     # Sample function parameter migrate_resource_requests in batch_migrate_resources_sample
     migrate_resource_requests = migrate_resource_requests
 
     return migrate_resource_requests
+

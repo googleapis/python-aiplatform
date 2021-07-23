@@ -13,9 +13,9 @@
 # limitations under the License.
 #
 
-
 def make_name(name: str) -> str:
     # Sample function parameter name in delete_annotation_sample
     name = name
 
     return name
+

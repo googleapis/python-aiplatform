@@ -13,16 +13,15 @@
 # limitations under the License.
 #
 
-
 def make_parent(parent: str) -> str:
     # Sample function parameter parent in batch_delete_data_items_sample
     parent = parent
 
     return parent
 
-
 def make_names(data_item_name_1: str, data_item_name_2: str) -> typing.Sequence[str]:
     # The list of full name of data items in the same dataset to be deleted.
     names = [data_item_name_1, data_item_name_2]
 
     return names
+

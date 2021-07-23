@@ -128,11 +128,7 @@ def test__get_default_mtls_endpoint():
 
 
 @pytest.mark.parametrize(
-    "client_class",
-    [
-        EndpointServiceClient,
-        EndpointServiceAsyncClient,
-    ],
+    "client_class", [EndpointServiceClient, EndpointServiceAsyncClient,]
 )
 def test_endpoint_service_client_from_service_account_info(client_class):
     creds = ga_credentials.AnonymousCredentials()
@@ -149,11 +145,7 @@ def test_endpoint_service_client_from_service_account_info(client_class):
 
 
 @pytest.mark.parametrize(
-    "client_class",
-    [
-        EndpointServiceClient,
-        EndpointServiceAsyncClient,
-    ],
+    "client_class", [EndpointServiceClient, EndpointServiceAsyncClient,]
 )
 def test_endpoint_service_client_from_service_account_file(client_class):
     creds = ga_credentials.AnonymousCredentials()
@@ -439,9 +431,7 @@ def test_endpoint_service_client_client_options_scopes(
     client_class, transport_class, transport_name
 ):
     # Check the case scopes are provided.
-    options = client_options.ClientOptions(
-        scopes=["1", "2"],
-    )
+    options = client_options.ClientOptions(scopes=["1", "2"],)
     with mock.patch.object(transport_class, "__init__") as patched:
         patched.return_value = None
         client = client_class(client_options=options)
@@ -509,8 +499,7 @@ def test_create_endpoint(
     transport: str = "grpc", request_type=endpoint_service.CreateEndpointRequest
 ):
     client = EndpointServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(),
-        transport=transport,
+        credentials=ga_credentials.AnonymousCredentials(), transport=transport,
     )
 
     # Everything is optional in proto3 as far as the runtime is concerned,
@@ -540,8 +529,7 @@ def test_create_endpoint_empty_call():
     # This test is a coverage failsafe to make sure that totally empty calls,
     # i.e. request == None and no flattened fields passed, work.
     client = EndpointServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(),
-        transport="grpc",
+        credentials=ga_credentials.AnonymousCredentials(), transport="grpc",
     )
 
     # Mock the actual call within the gRPC stub, and fake the request.
@@ -557,8 +545,7 @@ async def test_create_endpoint_async(
     transport: str = "grpc_asyncio", request_type=endpoint_service.CreateEndpointRequest
 ):
     client = EndpointServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(),
-        transport=transport,
+        credentials=ga_credentials.AnonymousCredentials(), transport=transport,
     )
 
     # Everything is optional in proto3 as far as the runtime is concerned,
@@ -588,9 +575,7 @@ async def test_create_endpoint_async_from_dict():
 
 
 def test_create_endpoint_field_headers():
-    client = EndpointServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(),
-    )
+    client = EndpointServiceClient(credentials=ga_credentials.AnonymousCredentials(),)
 
     # Any value that is part of the HTTP/1.1 URI should be sent as
     # a field header. Set these to a non-empty value.
@@ -610,10 +595,7 @@ def test_create_endpoint_field_headers():
 
     # Establish that the field header was sent.
     _, _, kw = call.mock_calls[0]
-    assert (
-        "x-goog-request-params",
-        "parent=parent/value",
-    ) in kw["metadata"]
+    assert ("x-goog-request-params", "parent=parent/value",) in kw["metadata"]
 
 
 @pytest.mark.asyncio
@@ -642,16 +624,11 @@ async def test_create_endpoint_field_headers_async():
 
     # Establish that the field header was sent.
     _, _, kw = call.mock_calls[0]
-    assert (
-        "x-goog-request-params",
-        "parent=parent/value",
-    ) in kw["metadata"]
+    assert ("x-goog-request-params", "parent=parent/value",) in kw["metadata"]
 
 
 def test_create_endpoint_flattened():
-    client = EndpointServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(),
-    )
+    client = EndpointServiceClient(credentials=ga_credentials.AnonymousCredentials(),)
 
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(type(client.transport.create_endpoint), "__call__") as call:
@@ -660,8 +637,7 @@ def test_create_endpoint_flattened():
         # Call the method with a truthy value for each flattened field,
         # using the keyword arguments to the method.
         client.create_endpoint(
-            parent="parent_value",
-            endpoint=gca_endpoint.Endpoint(name="name_value"),
+            parent="parent_value", endpoint=gca_endpoint.Endpoint(name="name_value"),
         )
 
         # Establish that the underlying call was made with the expected
@@ -673,9 +649,7 @@ def test_create_endpoint_flattened():
 
 
 def test_create_endpoint_flattened_error():
-    client = EndpointServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(),
-    )
+    client = EndpointServiceClient(credentials=ga_credentials.AnonymousCredentials(),)
 
     # Attempting to call a method with both a request object and flattened
     # fields is an error.
@@ -704,8 +678,7 @@ async def test_create_endpoint_flattened_async():
         # Call the method with a truthy value for each flattened field,
         # using the keyword arguments to the method.
         response = await client.create_endpoint(
-            parent="parent_value",
-            endpoint=gca_endpoint.Endpoint(name="name_value"),
+            parent="parent_value", endpoint=gca_endpoint.Endpoint(name="name_value"),
         )
 
         # Establish that the underlying call was made with the expected
@@ -736,8 +709,7 @@ def test_get_endpoint(
     transport: str = "grpc", request_type=endpoint_service.GetEndpointRequest
 ):
     client = EndpointServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(),
-        transport=transport,
+        credentials=ga_credentials.AnonymousCredentials(), transport=transport,
     )
 
     # Everything is optional in proto3 as far as the runtime is concerned,
@@ -776,8 +748,7 @@ def test_get_endpoint_empty_call():
     # This test is a coverage failsafe to make sure that totally empty calls,
     # i.e. request == None and no flattened fields passed, work.
     client = EndpointServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(),
-        transport="grpc",
+        credentials=ga_credentials.AnonymousCredentials(), transport="grpc",
     )
 
     # Mock the actual call within the gRPC stub, and fake the request.
@@ -793,8 +764,7 @@ async def test_get_endpoint_async(
     transport: str = "grpc_asyncio", request_type=endpoint_service.GetEndpointRequest
 ):
     client = EndpointServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(),
-        transport=transport,
+        credentials=ga_credentials.AnonymousCredentials(), transport=transport,
     )
 
     # Everything is optional in proto3 as far as the runtime is concerned,
@@ -833,9 +803,7 @@ async def test_get_endpoint_async_from_dict():
 
 
 def test_get_endpoint_field_headers():
-    client = EndpointServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(),
-    )
+    client = EndpointServiceClient(credentials=ga_credentials.AnonymousCredentials(),)
 
     # Any value that is part of the HTTP/1.1 URI should be sent as
     # a field header. Set these to a non-empty value.
@@ -855,10 +823,7 @@ def test_get_endpoint_field_headers():
 
     # Establish that the field header was sent.
     _, _, kw = call.mock_calls[0]
-    assert (
-        "x-goog-request-params",
-        "name=name/value",
-    ) in kw["metadata"]
+    assert ("x-goog-request-params", "name=name/value",) in kw["metadata"]
 
 
 @pytest.mark.asyncio
@@ -885,16 +850,11 @@ async def test_get_endpoint_field_headers_async():
 
     # Establish that the field header was sent.
     _, _, kw = call.mock_calls[0]
-    assert (
-        "x-goog-request-params",
-        "name=name/value",
-    ) in kw["metadata"]
+    assert ("x-goog-request-params", "name=name/value",) in kw["metadata"]
 
 
 def test_get_endpoint_flattened():
-    client = EndpointServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(),
-    )
+    client = EndpointServiceClient(credentials=ga_credentials.AnonymousCredentials(),)
 
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(type(client.transport.get_endpoint), "__call__") as call:
@@ -902,9 +862,7 @@ def test_get_endpoint_flattened():
         call.return_value = endpoint.Endpoint()
         # Call the method with a truthy value for each flattened field,
         # using the keyword arguments to the method.
-        client.get_endpoint(
-            name="name_value",
-        )
+        client.get_endpoint(name="name_value",)
 
         # Establish that the underlying call was made with the expected
         # request object values.
@@ -914,16 +872,13 @@ def test_get_endpoint_flattened():
 
 
 def test_get_endpoint_flattened_error():
-    client = EndpointServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(),
-    )
+    client = EndpointServiceClient(credentials=ga_credentials.AnonymousCredentials(),)
 
     # Attempting to call a method with both a request object and flattened
     # fields is an error.
     with pytest.raises(ValueError):
         client.get_endpoint(
-            endpoint_service.GetEndpointRequest(),
-            name="name_value",
+            endpoint_service.GetEndpointRequest(), name="name_value",
         )
 
 
@@ -941,9 +896,7 @@ async def test_get_endpoint_flattened_async():
         call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(endpoint.Endpoint())
         # Call the method with a truthy value for each flattened field,
         # using the keyword arguments to the method.
-        response = await client.get_endpoint(
-            name="name_value",
-        )
+        response = await client.get_endpoint(name="name_value",)
 
         # Establish that the underlying call was made with the expected
         # request object values.
@@ -962,8 +915,7 @@ async def test_get_endpoint_flattened_error_async():
     # fields is an error.
     with pytest.raises(ValueError):
         await client.get_endpoint(
-            endpoint_service.GetEndpointRequest(),
-            name="name_value",
+            endpoint_service.GetEndpointRequest(), name="name_value",
         )
 
 
@@ -971,8 +923,7 @@ def test_list_endpoints(
     transport: str = "grpc", request_type=endpoint_service.ListEndpointsRequest
 ):
     client = EndpointServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(),
-        transport=transport,
+        credentials=ga_credentials.AnonymousCredentials(), transport=transport,
     )
 
     # Everything is optional in proto3 as far as the runtime is concerned,
@@ -1005,8 +956,7 @@ def test_list_endpoints_empty_call():
     # This test is a coverage failsafe to make sure that totally empty calls,
     # i.e. request == None and no flattened fields passed, work.
     client = EndpointServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(),
-        transport="grpc",
+        credentials=ga_credentials.AnonymousCredentials(), transport="grpc",
     )
 
     # Mock the actual call within the gRPC stub, and fake the request.
@@ -1022,8 +972,7 @@ async def test_list_endpoints_async(
     transport: str = "grpc_asyncio", request_type=endpoint_service.ListEndpointsRequest
 ):
     client = EndpointServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(),
-        transport=transport,
+        credentials=ga_credentials.AnonymousCredentials(), transport=transport,
     )
 
     # Everything is optional in proto3 as far as the runtime is concerned,
@@ -1056,9 +1005,7 @@ async def test_list_endpoints_async_from_dict():
 
 
 def test_list_endpoints_field_headers():
-    client = EndpointServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(),
-    )
+    client = EndpointServiceClient(credentials=ga_credentials.AnonymousCredentials(),)
 
     # Any value that is part of the HTTP/1.1 URI should be sent as
     # a field header. Set these to a non-empty value.
@@ -1078,10 +1025,7 @@ def test_list_endpoints_field_headers():
 
     # Establish that the field header was sent.
     _, _, kw = call.mock_calls[0]
-    assert (
-        "x-goog-request-params",
-        "parent=parent/value",
-    ) in kw["metadata"]
+    assert ("x-goog-request-params", "parent=parent/value",) in kw["metadata"]
 
 
 @pytest.mark.asyncio
@@ -1110,16 +1054,11 @@ async def test_list_endpoints_field_headers_async():
 
     # Establish that the field header was sent.
     _, _, kw = call.mock_calls[0]
-    assert (
-        "x-goog-request-params",
-        "parent=parent/value",
-    ) in kw["metadata"]
+    assert ("x-goog-request-params", "parent=parent/value",) in kw["metadata"]
 
 
 def test_list_endpoints_flattened():
-    client = EndpointServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(),
-    )
+    client = EndpointServiceClient(credentials=ga_credentials.AnonymousCredentials(),)
 
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(type(client.transport.list_endpoints), "__call__") as call:
@@ -1127,9 +1066,7 @@ def test_list_endpoints_flattened():
         call.return_value = endpoint_service.ListEndpointsResponse()
         # Call the method with a truthy value for each flattened field,
         # using the keyword arguments to the method.
-        client.list_endpoints(
-            parent="parent_value",
-        )
+        client.list_endpoints(parent="parent_value",)
 
         # Establish that the underlying call was made with the expected
         # request object values.
@@ -1139,16 +1076,13 @@ def test_list_endpoints_flattened():
 
 
 def test_list_endpoints_flattened_error():
-    client = EndpointServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(),
-    )
+    client = EndpointServiceClient(credentials=ga_credentials.AnonymousCredentials(),)
 
     # Attempting to call a method with both a request object and flattened
     # fields is an error.
     with pytest.raises(ValueError):
         client.list_endpoints(
-            endpoint_service.ListEndpointsRequest(),
-            parent="parent_value",
+            endpoint_service.ListEndpointsRequest(), parent="parent_value",
         )
 
 
@@ -1168,9 +1102,7 @@ async def test_list_endpoints_flattened_async():
         )
         # Call the method with a truthy value for each flattened field,
         # using the keyword arguments to the method.
-        response = await client.list_endpoints(
-            parent="parent_value",
-        )
+        response = await client.list_endpoints(parent="parent_value",)
 
         # Establish that the underlying call was made with the expected
         # request object values.
@@ -1189,15 +1121,12 @@ async def test_list_endpoints_flattened_error_async():
     # fields is an error.
     with pytest.raises(ValueError):
         await client.list_endpoints(
-            endpoint_service.ListEndpointsRequest(),
-            parent="parent_value",
+            endpoint_service.ListEndpointsRequest(), parent="parent_value",
         )
 
 
 def test_list_endpoints_pager():
-    client = EndpointServiceClient(
-        credentials=ga_credentials.AnonymousCredentials,
-    )
+    client = EndpointServiceClient(credentials=ga_credentials.AnonymousCredentials,)
 
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(type(client.transport.list_endpoints), "__call__") as call:
@@ -1212,20 +1141,13 @@ def test_list_endpoints_pager():
                 next_page_token="abc",
             ),
             endpoint_service.ListEndpointsResponse(
-                endpoints=[],
-                next_page_token="def",
+                endpoints=[], next_page_token="def",
             ),
             endpoint_service.ListEndpointsResponse(
-                endpoints=[
-                    endpoint.Endpoint(),
-                ],
-                next_page_token="ghi",
+                endpoints=[endpoint.Endpoint(),], next_page_token="ghi",
             ),
             endpoint_service.ListEndpointsResponse(
-                endpoints=[
-                    endpoint.Endpoint(),
-                    endpoint.Endpoint(),
-                ],
+                endpoints=[endpoint.Endpoint(), endpoint.Endpoint(),],
             ),
             RuntimeError,
         )
@@ -1244,9 +1166,7 @@ def test_list_endpoints_pager():
 
 
 def test_list_endpoints_pages():
-    client = EndpointServiceClient(
-        credentials=ga_credentials.AnonymousCredentials,
-    )
+    client = EndpointServiceClient(credentials=ga_credentials.AnonymousCredentials,)
 
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(type(client.transport.list_endpoints), "__call__") as call:
@@ -1261,20 +1181,13 @@ def test_list_endpoints_pages():
                 next_page_token="abc",
             ),
             endpoint_service.ListEndpointsResponse(
-                endpoints=[],
-                next_page_token="def",
+                endpoints=[], next_page_token="def",
             ),
             endpoint_service.ListEndpointsResponse(
-                endpoints=[
-                    endpoint.Endpoint(),
-                ],
-                next_page_token="ghi",
+                endpoints=[endpoint.Endpoint(),], next_page_token="ghi",
             ),
             endpoint_service.ListEndpointsResponse(
-                endpoints=[
-                    endpoint.Endpoint(),
-                    endpoint.Endpoint(),
-                ],
+                endpoints=[endpoint.Endpoint(), endpoint.Endpoint(),],
             ),
             RuntimeError,
         )
@@ -1304,26 +1217,17 @@ async def test_list_endpoints_async_pager():
                 next_page_token="abc",
             ),
             endpoint_service.ListEndpointsResponse(
-                endpoints=[],
-                next_page_token="def",
+                endpoints=[], next_page_token="def",
             ),
             endpoint_service.ListEndpointsResponse(
-                endpoints=[
-                    endpoint.Endpoint(),
-                ],
-                next_page_token="ghi",
+                endpoints=[endpoint.Endpoint(),], next_page_token="ghi",
             ),
             endpoint_service.ListEndpointsResponse(
-                endpoints=[
-                    endpoint.Endpoint(),
-                    endpoint.Endpoint(),
-                ],
+                endpoints=[endpoint.Endpoint(), endpoint.Endpoint(),],
             ),
             RuntimeError,
         )
-        async_pager = await client.list_endpoints(
-            request={},
-        )
+        async_pager = await client.list_endpoints(request={},)
         assert async_pager.next_page_token == "abc"
         responses = []
         async for response in async_pager:
@@ -1354,20 +1258,13 @@ async def test_list_endpoints_async_pages():
                 next_page_token="abc",
             ),
             endpoint_service.ListEndpointsResponse(
-                endpoints=[],
-                next_page_token="def",
+                endpoints=[], next_page_token="def",
             ),
             endpoint_service.ListEndpointsResponse(
-                endpoints=[
-                    endpoint.Endpoint(),
-                ],
-                next_page_token="ghi",
+                endpoints=[endpoint.Endpoint(),], next_page_token="ghi",
             ),
             endpoint_service.ListEndpointsResponse(
-                endpoints=[
-                    endpoint.Endpoint(),
-                    endpoint.Endpoint(),
-                ],
+                endpoints=[endpoint.Endpoint(), endpoint.Endpoint(),],
             ),
             RuntimeError,
         )
@@ -1382,8 +1279,7 @@ def test_update_endpoint(
     transport: str = "grpc", request_type=endpoint_service.UpdateEndpointRequest
 ):
     client = EndpointServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(),
-        transport=transport,
+        credentials=ga_credentials.AnonymousCredentials(), transport=transport,
     )
 
     # Everything is optional in proto3 as far as the runtime is concerned,
@@ -1422,8 +1318,7 @@ def test_update_endpoint_empty_call():
     # This test is a coverage failsafe to make sure that totally empty calls,
     # i.e. request == None and no flattened fields passed, work.
     client = EndpointServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(),
-        transport="grpc",
+        credentials=ga_credentials.AnonymousCredentials(), transport="grpc",
     )
 
     # Mock the actual call within the gRPC stub, and fake the request.
@@ -1439,8 +1334,7 @@ async def test_update_endpoint_async(
     transport: str = "grpc_asyncio", request_type=endpoint_service.UpdateEndpointRequest
 ):
     client = EndpointServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(),
-        transport=transport,
+        credentials=ga_credentials.AnonymousCredentials(), transport=transport,
     )
 
     # Everything is optional in proto3 as far as the runtime is concerned,
@@ -1479,9 +1373,7 @@ async def test_update_endpoint_async_from_dict():
 
 
 def test_update_endpoint_field_headers():
-    client = EndpointServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(),
-    )
+    client = EndpointServiceClient(credentials=ga_credentials.AnonymousCredentials(),)
 
     # Any value that is part of the HTTP/1.1 URI should be sent as
     # a field header. Set these to a non-empty value.
@@ -1501,10 +1393,9 @@ def test_update_endpoint_field_headers():
 
     # Establish that the field header was sent.
     _, _, kw = call.mock_calls[0]
-    assert (
-        "x-goog-request-params",
-        "endpoint.name=endpoint.name/value",
-    ) in kw["metadata"]
+    assert ("x-goog-request-params", "endpoint.name=endpoint.name/value",) in kw[
+        "metadata"
+    ]
 
 
 @pytest.mark.asyncio
@@ -1533,16 +1424,13 @@ async def test_update_endpoint_field_headers_async():
 
     # Establish that the field header was sent.
     _, _, kw = call.mock_calls[0]
-    assert (
-        "x-goog-request-params",
-        "endpoint.name=endpoint.name/value",
-    ) in kw["metadata"]
+    assert ("x-goog-request-params", "endpoint.name=endpoint.name/value",) in kw[
+        "metadata"
+    ]
 
 
 def test_update_endpoint_flattened():
-    client = EndpointServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(),
-    )
+    client = EndpointServiceClient(credentials=ga_credentials.AnonymousCredentials(),)
 
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(type(client.transport.update_endpoint), "__call__") as call:
@@ -1564,9 +1452,7 @@ def test_update_endpoint_flattened():
 
 
 def test_update_endpoint_flattened_error():
-    client = EndpointServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(),
-    )
+    client = EndpointServiceClient(credentials=ga_credentials.AnonymousCredentials(),)
 
     # Attempting to call a method with both a request object and flattened
     # fields is an error.
@@ -1627,8 +1513,7 @@ def test_delete_endpoint(
     transport: str = "grpc", request_type=endpoint_service.DeleteEndpointRequest
 ):
     client = EndpointServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(),
-        transport=transport,
+        credentials=ga_credentials.AnonymousCredentials(), transport=transport,
     )
 
     # Everything is optional in proto3 as far as the runtime is concerned,
@@ -1658,8 +1543,7 @@ def test_delete_endpoint_empty_call():
     # This test is a coverage failsafe to make sure that totally empty calls,
     # i.e. request == None and no flattened fields passed, work.
     client = EndpointServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(),
-        transport="grpc",
+        credentials=ga_credentials.AnonymousCredentials(), transport="grpc",
     )
 
     # Mock the actual call within the gRPC stub, and fake the request.
@@ -1675,8 +1559,7 @@ async def test_delete_endpoint_async(
     transport: str = "grpc_asyncio", request_type=endpoint_service.DeleteEndpointRequest
 ):
     client = EndpointServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(),
-        transport=transport,
+        credentials=ga_credentials.AnonymousCredentials(), transport=transport,
     )
 
     # Everything is optional in proto3 as far as the runtime is concerned,
@@ -1706,9 +1589,7 @@ async def test_delete_endpoint_async_from_dict():
 
 
 def test_delete_endpoint_field_headers():
-    client = EndpointServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(),
-    )
+    client = EndpointServiceClient(credentials=ga_credentials.AnonymousCredentials(),)
 
     # Any value that is part of the HTTP/1.1 URI should be sent as
     # a field header. Set these to a non-empty value.
@@ -1728,10 +1609,7 @@ def test_delete_endpoint_field_headers():
 
     # Establish that the field header was sent.
     _, _, kw = call.mock_calls[0]
-    assert (
-        "x-goog-request-params",
-        "name=name/value",
-    ) in kw["metadata"]
+    assert ("x-goog-request-params", "name=name/value",) in kw["metadata"]
 
 
 @pytest.mark.asyncio
@@ -1760,16 +1638,11 @@ async def test_delete_endpoint_field_headers_async():
 
     # Establish that the field header was sent.
     _, _, kw = call.mock_calls[0]
-    assert (
-        "x-goog-request-params",
-        "name=name/value",
-    ) in kw["metadata"]
+    assert ("x-goog-request-params", "name=name/value",) in kw["metadata"]
 
 
 def test_delete_endpoint_flattened():
-    client = EndpointServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(),
-    )
+    client = EndpointServiceClient(credentials=ga_credentials.AnonymousCredentials(),)
 
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(type(client.transport.delete_endpoint), "__call__") as call:
@@ -1777,9 +1650,7 @@ def test_delete_endpoint_flattened():
         call.return_value = operations_pb2.Operation(name="operations/op")
         # Call the method with a truthy value for each flattened field,
         # using the keyword arguments to the method.
-        client.delete_endpoint(
-            name="name_value",
-        )
+        client.delete_endpoint(name="name_value",)
 
         # Establish that the underlying call was made with the expected
         # request object values.
@@ -1789,16 +1660,13 @@ def test_delete_endpoint_flattened():
 
 
 def test_delete_endpoint_flattened_error():
-    client = EndpointServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(),
-    )
+    client = EndpointServiceClient(credentials=ga_credentials.AnonymousCredentials(),)
 
     # Attempting to call a method with both a request object and flattened
     # fields is an error.
     with pytest.raises(ValueError):
         client.delete_endpoint(
-            endpoint_service.DeleteEndpointRequest(),
-            name="name_value",
+            endpoint_service.DeleteEndpointRequest(), name="name_value",
         )
 
 
@@ -1818,9 +1686,7 @@ async def test_delete_endpoint_flattened_async():
         )
         # Call the method with a truthy value for each flattened field,
         # using the keyword arguments to the method.
-        response = await client.delete_endpoint(
-            name="name_value",
-        )
+        response = await client.delete_endpoint(name="name_value",)
 
         # Establish that the underlying call was made with the expected
         # request object values.
@@ -1839,8 +1705,7 @@ async def test_delete_endpoint_flattened_error_async():
     # fields is an error.
     with pytest.raises(ValueError):
         await client.delete_endpoint(
-            endpoint_service.DeleteEndpointRequest(),
-            name="name_value",
+            endpoint_service.DeleteEndpointRequest(), name="name_value",
         )
 
 
@@ -1848,8 +1713,7 @@ def test_deploy_model(
     transport: str = "grpc", request_type=endpoint_service.DeployModelRequest
 ):
     client = EndpointServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(),
-        transport=transport,
+        credentials=ga_credentials.AnonymousCredentials(), transport=transport,
     )
 
     # Everything is optional in proto3 as far as the runtime is concerned,
@@ -1879,8 +1743,7 @@ def test_deploy_model_empty_call():
     # This test is a coverage failsafe to make sure that totally empty calls,
     # i.e. request == None and no flattened fields passed, work.
     client = EndpointServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(),
-        transport="grpc",
+        credentials=ga_credentials.AnonymousCredentials(), transport="grpc",
     )
 
     # Mock the actual call within the gRPC stub, and fake the request.
@@ -1896,8 +1759,7 @@ async def test_deploy_model_async(
     transport: str = "grpc_asyncio", request_type=endpoint_service.DeployModelRequest
 ):
     client = EndpointServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(),
-        transport=transport,
+        credentials=ga_credentials.AnonymousCredentials(), transport=transport,
     )
 
     # Everything is optional in proto3 as far as the runtime is concerned,
@@ -1927,9 +1789,7 @@ async def test_deploy_model_async_from_dict():
 
 
 def test_deploy_model_field_headers():
-    client = EndpointServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(),
-    )
+    client = EndpointServiceClient(credentials=ga_credentials.AnonymousCredentials(),)
 
     # Any value that is part of the HTTP/1.1 URI should be sent as
     # a field header. Set these to a non-empty value.
@@ -1949,10 +1809,7 @@ def test_deploy_model_field_headers():
 
     # Establish that the field header was sent.
     _, _, kw = call.mock_calls[0]
-    assert (
-        "x-goog-request-params",
-        "endpoint=endpoint/value",
-    ) in kw["metadata"]
+    assert ("x-goog-request-params", "endpoint=endpoint/value",) in kw["metadata"]
 
 
 @pytest.mark.asyncio
@@ -1981,16 +1838,11 @@ async def test_deploy_model_field_headers_async():
 
     # Establish that the field header was sent.
     _, _, kw = call.mock_calls[0]
-    assert (
-        "x-goog-request-params",
-        "endpoint=endpoint/value",
-    ) in kw["metadata"]
+    assert ("x-goog-request-params", "endpoint=endpoint/value",) in kw["metadata"]
 
 
 def test_deploy_model_flattened():
-    client = EndpointServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(),
-    )
+    client = EndpointServiceClient(credentials=ga_credentials.AnonymousCredentials(),)
 
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(type(client.transport.deploy_model), "__call__") as call:
@@ -2026,9 +1878,7 @@ def test_deploy_model_flattened():
 
 
 def test_deploy_model_flattened_error():
-    client = EndpointServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(),
-    )
+    client = EndpointServiceClient(credentials=ga_credentials.AnonymousCredentials(),)
 
     # Attempting to call a method with both a request object and flattened
     # fields is an error.
@@ -2117,8 +1967,7 @@ def test_undeploy_model(
     transport: str = "grpc", request_type=endpoint_service.UndeployModelRequest
 ):
     client = EndpointServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(),
-        transport=transport,
+        credentials=ga_credentials.AnonymousCredentials(), transport=transport,
     )
 
     # Everything is optional in proto3 as far as the runtime is concerned,
@@ -2148,8 +1997,7 @@ def test_undeploy_model_empty_call():
     # This test is a coverage failsafe to make sure that totally empty calls,
     # i.e. request == None and no flattened fields passed, work.
     client = EndpointServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(),
-        transport="grpc",
+        credentials=ga_credentials.AnonymousCredentials(), transport="grpc",
     )
 
     # Mock the actual call within the gRPC stub, and fake the request.
@@ -2165,8 +2013,7 @@ async def test_undeploy_model_async(
     transport: str = "grpc_asyncio", request_type=endpoint_service.UndeployModelRequest
 ):
     client = EndpointServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(),
-        transport=transport,
+        credentials=ga_credentials.AnonymousCredentials(), transport=transport,
     )
 
     # Everything is optional in proto3 as far as the runtime is concerned,
@@ -2196,9 +2043,7 @@ async def test_undeploy_model_async_from_dict():
 
 
 def test_undeploy_model_field_headers():
-    client = EndpointServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(),
-    )
+    client = EndpointServiceClient(credentials=ga_credentials.AnonymousCredentials(),)
 
     # Any value that is part of the HTTP/1.1 URI should be sent as
     # a field header. Set these to a non-empty value.
@@ -2218,10 +2063,7 @@ def test_undeploy_model_field_headers():
 
     # Establish that the field header was sent.
     _, _, kw = call.mock_calls[0]
-    assert (
-        "x-goog-request-params",
-        "endpoint=endpoint/value",
-    ) in kw["metadata"]
+    assert ("x-goog-request-params", "endpoint=endpoint/value",) in kw["metadata"]
 
 
 @pytest.mark.asyncio
@@ -2250,16 +2092,11 @@ async def test_undeploy_model_field_headers_async():
 
     # Establish that the field header was sent.
     _, _, kw = call.mock_calls[0]
-    assert (
-        "x-goog-request-params",
-        "endpoint=endpoint/value",
-    ) in kw["metadata"]
+    assert ("x-goog-request-params", "endpoint=endpoint/value",) in kw["metadata"]
 
 
 def test_undeploy_model_flattened():
-    client = EndpointServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(),
-    )
+    client = EndpointServiceClient(credentials=ga_credentials.AnonymousCredentials(),)
 
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(type(client.transport.undeploy_model), "__call__") as call:
@@ -2283,9 +2120,7 @@ def test_undeploy_model_flattened():
 
 
 def test_undeploy_model_flattened_error():
-    client = EndpointServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(),
-    )
+    client = EndpointServiceClient(credentials=ga_credentials.AnonymousCredentials(),)
 
     # Attempting to call a method with both a request object and flattened
     # fields is an error.
@@ -2353,8 +2188,7 @@ def test_credentials_transport_error():
     )
     with pytest.raises(ValueError):
         client = EndpointServiceClient(
-            credentials=ga_credentials.AnonymousCredentials(),
-            transport=transport,
+            credentials=ga_credentials.AnonymousCredentials(), transport=transport,
         )
 
     # It is an error to provide a credentials file and a transport instance.
@@ -2373,8 +2207,7 @@ def test_credentials_transport_error():
     )
     with pytest.raises(ValueError):
         client = EndpointServiceClient(
-            client_options={"scopes": ["1", "2"]},
-            transport=transport,
+            client_options={"scopes": ["1", "2"]}, transport=transport,
         )
 
 
@@ -2419,13 +2252,8 @@ def test_transport_adc(transport_class):
 
 def test_transport_grpc_default():
     # A client should use the gRPC transport by default.
-    client = EndpointServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(),
-    )
-    assert isinstance(
-        client.transport,
-        transports.EndpointServiceGrpcTransport,
-    )
+    client = EndpointServiceClient(credentials=ga_credentials.AnonymousCredentials(),)
+    assert isinstance(client.transport, transports.EndpointServiceGrpcTransport,)
 
 
 def test_endpoint_service_base_transport_error():
@@ -2479,8 +2307,7 @@ def test_endpoint_service_base_transport_with_credentials_file():
         Transport.return_value = None
         load_creds.return_value = (ga_credentials.AnonymousCredentials(), None)
         transport = transports.EndpointServiceTransport(
-            credentials_file="credentials.json",
-            quota_project_id="octopus",
+            credentials_file="credentials.json", quota_project_id="octopus",
         )
         load_creds.assert_called_once_with(
             "credentials.json",
@@ -2501,8 +2328,7 @@ def test_endpoint_service_base_transport_with_credentials_file_old_google_auth()
         Transport.return_value = None
         load_creds.return_value = (ga_credentials.AnonymousCredentials(), None)
         transport = transports.EndpointServiceTransport(
-            credentials_file="credentials.json",
-            quota_project_id="octopus",
+            credentials_file="credentials.json", quota_project_id="octopus",
         )
         load_creds.assert_called_once_with(
             "credentials.json",
@@ -2767,8 +2593,7 @@ def test_endpoint_service_grpc_transport_channel():
 
     # Check that channel is used if provided.
     transport = transports.EndpointServiceGrpcTransport(
-        host="squid.clam.whelk",
-        channel=channel,
+        host="squid.clam.whelk", channel=channel,
     )
     assert transport.grpc_channel == channel
     assert transport._host == "squid.clam.whelk:443"
@@ -2780,8 +2605,7 @@ def test_endpoint_service_grpc_asyncio_transport_channel():
 
     # Check that channel is used if provided.
     transport = transports.EndpointServiceGrpcAsyncIOTransport(
-        host="squid.clam.whelk",
-        channel=channel,
+        host="squid.clam.whelk", channel=channel,
     )
     assert transport.grpc_channel == channel
     assert transport._host == "squid.clam.whelk:443"
@@ -2890,16 +2714,12 @@ def test_endpoint_service_transport_channel_mtls_with_adc(transport_class):
 
 def test_endpoint_service_grpc_lro_client():
     client = EndpointServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(),
-        transport="grpc",
+        credentials=ga_credentials.AnonymousCredentials(), transport="grpc",
     )
     transport = client.transport
 
     # Ensure that we have a api-core operations client.
-    assert isinstance(
-        transport.operations_client,
-        operations_v1.OperationsClient,
-    )
+    assert isinstance(transport.operations_client, operations_v1.OperationsClient,)
 
     # Ensure that subsequent calls to the property send the exact same object.
     assert transport.operations_client is transport.operations_client
@@ -2907,16 +2727,12 @@ def test_endpoint_service_grpc_lro_client():
 
 def test_endpoint_service_grpc_lro_async_client():
     client = EndpointServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(),
-        transport="grpc_asyncio",
+        credentials=ga_credentials.AnonymousCredentials(), transport="grpc_asyncio",
     )
     transport = client.transport
 
     # Ensure that we have a api-core operations client.
-    assert isinstance(
-        transport.operations_client,
-        operations_v1.OperationsAsyncClient,
-    )
+    assert isinstance(transport.operations_client, operations_v1.OperationsAsyncClient,)
 
     # Ensure that subsequent calls to the property send the exact same object.
     assert transport.operations_client is transport.operations_client
@@ -2927,9 +2743,7 @@ def test_endpoint_path():
     location = "clam"
     endpoint = "whelk"
     expected = "projects/{project}/locations/{location}/endpoints/{endpoint}".format(
-        project=project,
-        location=location,
-        endpoint=endpoint,
+        project=project, location=location, endpoint=endpoint,
     )
     actual = EndpointServiceClient.endpoint_path(project, location, endpoint)
     assert expected == actual
@@ -2953,9 +2767,7 @@ def test_model_path():
     location = "mussel"
     model = "winkle"
     expected = "projects/{project}/locations/{location}/models/{model}".format(
-        project=project,
-        location=location,
-        model=model,
+        project=project, location=location, model=model,
     )
     actual = EndpointServiceClient.model_path(project, location, model)
     assert expected == actual
@@ -2996,9 +2808,7 @@ def test_parse_common_billing_account_path():
 
 def test_common_folder_path():
     folder = "whelk"
-    expected = "folders/{folder}".format(
-        folder=folder,
-    )
+    expected = "folders/{folder}".format(folder=folder,)
     actual = EndpointServiceClient.common_folder_path(folder)
     assert expected == actual
 
@@ -3016,9 +2826,7 @@ def test_parse_common_folder_path():
 
 def test_common_organization_path():
     organization = "oyster"
-    expected = "organizations/{organization}".format(
-        organization=organization,
-    )
+    expected = "organizations/{organization}".format(organization=organization,)
     actual = EndpointServiceClient.common_organization_path(organization)
     assert expected == actual
 
@@ -3036,9 +2844,7 @@ def test_parse_common_organization_path():
 
 def test_common_project_path():
     project = "cuttlefish"
-    expected = "projects/{project}".format(
-        project=project,
-    )
+    expected = "projects/{project}".format(project=project,)
     actual = EndpointServiceClient.common_project_path(project)
     assert expected == actual
 
@@ -3058,8 +2864,7 @@ def test_common_location_path():
     project = "winkle"
     location = "nautilus"
     expected = "projects/{project}/locations/{location}".format(
-        project=project,
-        location=location,
+        project=project, location=location,
     )
     actual = EndpointServiceClient.common_location_path(project, location)
     assert expected == actual
@@ -3084,8 +2889,7 @@ def test_client_withDEFAULT_CLIENT_INFO():
         transports.EndpointServiceTransport, "_prep_wrapped_messages"
     ) as prep:
         client = EndpointServiceClient(
-            credentials=ga_credentials.AnonymousCredentials(),
-            client_info=client_info,
+            credentials=ga_credentials.AnonymousCredentials(), client_info=client_info,
         )
         prep.assert_called_once_with(client_info)
 
@@ -3094,7 +2898,6 @@ def test_client_withDEFAULT_CLIENT_INFO():
     ) as prep:
         transport_class = EndpointServiceClient.get_transport_class()
         transport = transport_class(
-            credentials=ga_credentials.AnonymousCredentials(),
-            client_info=client_info,
+            credentials=ga_credentials.AnonymousCredentials(), client_info=client_info,
         )
         prep.assert_called_once_with(client_info)

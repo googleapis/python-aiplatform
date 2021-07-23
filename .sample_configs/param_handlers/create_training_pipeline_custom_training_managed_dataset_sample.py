@@ -13,7 +13,6 @@
 # limitations under the License.
 #
 
-
 def make_parent(parent: str) -> str:
     # Sample function parameter parent in create_training_pipeline_custom_training_with_managed_dataset_sample
     parent = parent

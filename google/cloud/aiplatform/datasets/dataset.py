@@ -323,9 +323,7 @@ class _Dataset(base.VertexAiResourceNounWithFutureManager):
 
     def _import_and_wait(self, datasource):
         _LOGGER.log_action_start_against_resource(
-            "Importing",
-            "data",
-            self,
+            "Importing", "data", self,
         )
 
         import_lro = self._import(datasource=datasource)
@@ -397,8 +395,7 @@ class _Dataset(base.VertexAiResourceNounWithFutureManager):
         )
 
     def _import(
-        self,
-        datasource: _datasources.DatasourceImportable,
+        self, datasource: _datasources.DatasourceImportable,
     ) -> operation.Operation:
         """Imports data into managed dataset by directly calling API client.
 

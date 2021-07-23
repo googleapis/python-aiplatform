@@ -31,16 +31,14 @@ for library in s.get_staging_dirs(default_version):
 
     # https://github.com/googleapis/gapic-generator-python/issues/413
     s.replace(
-        library
-        / f"google/cloud/aiplatform_{library.name}/services/prediction_service/client.py",
+        library / f"google/cloud/aiplatform_{library.name}/services/prediction_service/client.py",
         "request.instances = instances",
         "request.instances.extend(instances)",
     )
 
     # https://github.com/googleapis/gapic-generator-python/issues/672
     s.replace(
-        library
-        / f"google/cloud/aiplatform_{library.name}/services/endpoint_service/client.py",
+        library / f"google/cloud/aiplatform_{library.name}/services/endpoint_service/client.py",
         "request.traffic_split.extend\(traffic_split\)",
         "request.traffic_split = traffic_split",
     )
@@ -79,7 +77,11 @@ s.remove_staging_dirs()
 
 templated_files = common.py_library(cov_level=99, microgenerator=True)
 s.move(
-    templated_files, excludes=[".coveragerc", ".kokoro/samples/**"]
+    templated_files,
+    excludes=[
+        ".coveragerc",
+        ".kokoro/samples/**"
+    ]
 )  # the microgenerator has a good coveragerc file
 
 # Don't treat docs warnings as errors
@@ -89,7 +91,7 @@ s.replace("noxfile.py", """["']-W["'],  # warnings as errors""", "")
 s.replace(
     "noxfile.py",
     """session.install\("-e", ".", "-c", constraints_path\)""",
-    """session.install("-e", ".[testing]", "-c", constraints_path)""",
+    """session.install("-e", ".[testing]", "-c", constraints_path)"""
 )
 
 s.shell.run(["nox", "-s", "blacken"], hide_output=False)

@@ -13,61 +13,57 @@
 # limitations under the License.
 #
 
-
 def make_parent(parent: str) -> str:
     parent = parent
 
     return parent
-
 
 def make_model(
     display_name: str,
     container_spec_image_uri: str,
     artifact_uri: str,
     input_tensor_name: str,
-    output_tensor_name: str,
+    output_tensor_name: str
 ) -> google.cloud.aiplatform_v1beta1.types.model.Model:
 
     # Container specification for deploying the model
     container_spec = {"image_uri": container_spec_image_uri, "command": [], "args": []}
 
     # The explainabilty method and corresponding parameters
-    parameters = aiplatform_v1beta1.ExplanationParameters(
-        {"xrai_attribution": {"step_count": 1}}
-    )
+    parameters = aiplatform_v1beta1.ExplanationParameters({"xrai_attribution": { "step_count": 1}})
 
     # The input tensor for feature attribution to the output
     # For single input model, y = f(x), this will be the serving input layer.
-    input_metadata = aiplatform_v1beta1.ExplanationMetadata.InputMetadata(
-        {
-            "input_tensor_name": input_tensor_name,
-            # Input is image data
-            "modality": "image",
-        }
-    )
+    input_metadata = aiplatform_v1beta1.ExplanationMetadata.InputMetadata({
+        "input_tensor_name": input_tensor_name,
+        # Input is image data
+        "modality": "image",
+    })
 
     # The output tensor to explain
     # For single output model, y = f(x), this will be the serving output layer.
-    output_metadata = aiplatform_v1beta1.ExplanationMetadata.OutputMetadata(
-        {"output_tensor_name": output_tensor_name}
-    )
+    output_metadata = aiplatform_v1beta1.ExplanationMetadata.OutputMetadata({
+        "output_tensor_name": output_tensor_name
+    })
 
     # Assemble the explanation metadata
     metadata = aiplatform_v1beta1.ExplanationMetadata(
-        inputs={"image": input_metadata}, outputs={"prediction": output_metadata}
+        inputs={'image': input_metadata},
+        outputs={'prediction' : output_metadata}
     )
 
     # Assemble the explanation specification
     explanation_spec = aiplatform_v1beta1.ExplanationSpec(
-        parameters=parameters, metadata=metadata
+        parameters=parameters,
+        metadata=metadata
     )
 
-    model = aiplatform_v1beta1.Model(
-        display_name=display_name,
-        # The Cloud Storage location of the custom model
-        artifact_uri=artifact_uri,
-        explanation_spec=explanation_spec,
-        container_spec=container_spec,
-    )
+    model = aiplatform_v1beta1.Model(display_name=display_name,
+                                   # The Cloud Storage location of the custom model
+                                   artifact_uri=artifact_uri,
+                                   explanation_spec=explanation_spec,
+                                   container_spec=container_spec
+                                 )
 
     return model
+

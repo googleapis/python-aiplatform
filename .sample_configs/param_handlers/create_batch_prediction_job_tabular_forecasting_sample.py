@@ -25,3 +25,4 @@ def make_batch_prediction_job(
         },
     }
     return batch_prediction_job
+

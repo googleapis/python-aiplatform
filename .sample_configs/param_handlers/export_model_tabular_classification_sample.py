@@ -13,21 +13,20 @@
 # limitations under the License.
 #
 
-
 def make_name(name: str) -> str:
     # Sample function parameter name in export_model_sample
     name = name
 
     return name
 
-
-def make_output_config(
-    gcs_destination_output_uri_prefix: str,
-) -> google.cloud.aiplatform_v1alpha1.types.model_service.ExportModelRequest.OutputConfig:
-    gcs_destination = {"output_uri_prefix": gcs_destination_output_uri_prefix}
+def make_output_config(gcs_destination_output_uri_prefix: str) -> google.cloud.aiplatform_v1alpha1.types.model_service.ExportModelRequest.OutputConfig:
+    gcs_destination = {
+        'output_uri_prefix': gcs_destination_output_uri_prefix
+    }
     output_config = {
-        "artifact_destination": gcs_destination,
-        "export_format_id": "tf-saved-model",
+        'artifact_destination': gcs_destination,
+        'export_format_id': 'tf-saved-model'
     }
 
     return output_config
+

@@ -32,9 +32,7 @@ def test_explain_tabular_sample(
         project=constants.PROJECT, location=constants.LOCATION
     )
 
-    mock_get_endpoint.assert_called_once_with(
-        constants.ENDPOINT_NAME,
-    )
+    mock_get_endpoint.assert_called_once_with(constants.ENDPOINT_NAME,)
 
     mock_endpoint_explain.assert_called_once_with(
         instances=[constants.PREDICTION_TABULAR_INSTANCE], parameters={}

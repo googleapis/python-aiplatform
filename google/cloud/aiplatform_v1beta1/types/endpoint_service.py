@@ -53,15 +53,8 @@ class CreateEndpointRequest(proto.Message):
             Required. The Endpoint to create.
     """
 
-    parent = proto.Field(
-        proto.STRING,
-        number=1,
-    )
-    endpoint = proto.Field(
-        proto.MESSAGE,
-        number=2,
-        message=gca_endpoint.Endpoint,
-    )
+    parent = proto.Field(proto.STRING, number=1,)
+    endpoint = proto.Field(proto.MESSAGE, number=2, message=gca_endpoint.Endpoint,)
 
 
 class CreateEndpointOperationMetadata(proto.Message):
@@ -74,9 +67,7 @@ class CreateEndpointOperationMetadata(proto.Message):
     """
 
     generic_metadata = proto.Field(
-        proto.MESSAGE,
-        number=1,
-        message=operation.GenericOperationMetadata,
+        proto.MESSAGE, number=1, message=operation.GenericOperationMetadata,
     )
 
 
@@ -90,10 +81,7 @@ class GetEndpointRequest(proto.Message):
             ``projects/{project}/locations/{location}/endpoints/{endpoint}``
     """
 
-    name = proto.Field(
-        proto.STRING,
-        number=1,
-    )
+    name = proto.Field(proto.STRING, number=1,)
 
 
 class ListEndpointsRequest(proto.Message):
@@ -141,27 +129,11 @@ class ListEndpointsRequest(proto.Message):
             read.
     """
 
-    parent = proto.Field(
-        proto.STRING,
-        number=1,
-    )
-    filter = proto.Field(
-        proto.STRING,
-        number=2,
-    )
-    page_size = proto.Field(
-        proto.INT32,
-        number=3,
-    )
-    page_token = proto.Field(
-        proto.STRING,
-        number=4,
-    )
-    read_mask = proto.Field(
-        proto.MESSAGE,
-        number=5,
-        message=field_mask_pb2.FieldMask,
-    )
+    parent = proto.Field(proto.STRING, number=1,)
+    filter = proto.Field(proto.STRING, number=2,)
+    page_size = proto.Field(proto.INT32, number=3,)
+    page_token = proto.Field(proto.STRING, number=4,)
+    read_mask = proto.Field(proto.MESSAGE, number=5, message=field_mask_pb2.FieldMask,)
 
 
 class ListEndpointsResponse(proto.Message):
@@ -182,14 +154,9 @@ class ListEndpointsResponse(proto.Message):
         return self
 
     endpoints = proto.RepeatedField(
-        proto.MESSAGE,
-        number=1,
-        message=gca_endpoint.Endpoint,
+        proto.MESSAGE, number=1, message=gca_endpoint.Endpoint,
     )
-    next_page_token = proto.Field(
-        proto.STRING,
-        number=2,
-    )
+    next_page_token = proto.Field(proto.STRING, number=2,)
 
 
 class UpdateEndpointRequest(proto.Message):
@@ -205,15 +172,9 @@ class UpdateEndpointRequest(proto.Message):
             [google.protobuf.FieldMask][google.protobuf.FieldMask].
     """
 
-    endpoint = proto.Field(
-        proto.MESSAGE,
-        number=1,
-        message=gca_endpoint.Endpoint,
-    )
+    endpoint = proto.Field(proto.MESSAGE, number=1, message=gca_endpoint.Endpoint,)
     update_mask = proto.Field(
-        proto.MESSAGE,
-        number=2,
-        message=field_mask_pb2.FieldMask,
+        proto.MESSAGE, number=2, message=field_mask_pb2.FieldMask,
     )
 
 
@@ -228,10 +189,7 @@ class DeleteEndpointRequest(proto.Message):
             ``projects/{project}/locations/{location}/endpoints/{endpoint}``
     """
 
-    name = proto.Field(
-        proto.STRING,
-        number=1,
-    )
+    name = proto.Field(proto.STRING, number=1,)
 
 
 class DeployModelRequest(proto.Message):
@@ -268,20 +226,11 @@ class DeployModelRequest(proto.Message):
             is not updated.
     """
 
-    endpoint = proto.Field(
-        proto.STRING,
-        number=1,
-    )
+    endpoint = proto.Field(proto.STRING, number=1,)
     deployed_model = proto.Field(
-        proto.MESSAGE,
-        number=2,
-        message=gca_endpoint.DeployedModel,
+        proto.MESSAGE, number=2, message=gca_endpoint.DeployedModel,
     )
-    traffic_split = proto.MapField(
-        proto.STRING,
-        proto.INT32,
-        number=3,
-    )
+    traffic_split = proto.MapField(proto.STRING, proto.INT32, number=3,)
 
 
 class DeployModelResponse(proto.Message):
@@ -295,9 +244,7 @@ class DeployModelResponse(proto.Message):
     """
 
     deployed_model = proto.Field(
-        proto.MESSAGE,
-        number=1,
-        message=gca_endpoint.DeployedModel,
+        proto.MESSAGE, number=1, message=gca_endpoint.DeployedModel,
     )
 
 
@@ -311,9 +258,7 @@ class DeployModelOperationMetadata(proto.Message):
     """
 
     generic_metadata = proto.Field(
-        proto.MESSAGE,
-        number=1,
-        message=operation.GenericOperationMetadata,
+        proto.MESSAGE, number=1, message=operation.GenericOperationMetadata,
     )
 
 
@@ -340,25 +285,15 @@ class UndeployModelRequest(proto.Message):
             executes, or if this field unassigns any traffic to it.
     """
 
-    endpoint = proto.Field(
-        proto.STRING,
-        number=1,
-    )
-    deployed_model_id = proto.Field(
-        proto.STRING,
-        number=2,
-    )
-    traffic_split = proto.MapField(
-        proto.STRING,
-        proto.INT32,
-        number=3,
-    )
+    endpoint = proto.Field(proto.STRING, number=1,)
+    deployed_model_id = proto.Field(proto.STRING, number=2,)
+    traffic_split = proto.MapField(proto.STRING, proto.INT32, number=3,)
 
 
 class UndeployModelResponse(proto.Message):
     r"""Response message for
     [EndpointService.UndeployModel][google.cloud.aiplatform.v1beta1.EndpointService.UndeployModel].
-    """
+        """
 
 
 class UndeployModelOperationMetadata(proto.Message):
@@ -371,9 +306,7 @@ class UndeployModelOperationMetadata(proto.Message):
     """
 
     generic_metadata = proto.Field(
-        proto.MESSAGE,
-        number=1,
-        message=operation.GenericOperationMetadata,
+        proto.MESSAGE, number=1, message=operation.GenericOperationMetadata,
     )
 
 

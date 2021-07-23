@@ -18,12 +18,7 @@ import proto  # type: ignore
 
 __protobuf__ = proto.module(
     package="google.cloud.aiplatform.v1beta1",
-    manifest={
-        "BoolArray",
-        "DoubleArray",
-        "Int64Array",
-        "StringArray",
-    },
+    manifest={"BoolArray", "DoubleArray", "Int64Array", "StringArray",},
 )
 
 
@@ -34,10 +29,7 @@ class BoolArray(proto.Message):
             A list of bool values.
     """
 
-    values = proto.RepeatedField(
-        proto.BOOL,
-        number=1,
-    )
+    values = proto.RepeatedField(proto.BOOL, number=1,)
 
 
 class DoubleArray(proto.Message):
@@ -47,10 +39,7 @@ class DoubleArray(proto.Message):
             A list of bool values.
     """
 
-    values = proto.RepeatedField(
-        proto.DOUBLE,
-        number=1,
-    )
+    values = proto.RepeatedField(proto.DOUBLE, number=1,)
 
 
 class Int64Array(proto.Message):
@@ -60,10 +49,7 @@ class Int64Array(proto.Message):
             A list of int64 values.
     """
 
-    values = proto.RepeatedField(
-        proto.INT64,
-        number=1,
-    )
+    values = proto.RepeatedField(proto.INT64, number=1,)
 
 
 class StringArray(proto.Message):
@@ -73,10 +59,7 @@ class StringArray(proto.Message):
             A list of string values.
     """
 
-    values = proto.RepeatedField(
-        proto.STRING,
-        number=1,
-    )
+    values = proto.RepeatedField(proto.STRING, number=1,)
 
 
 __all__ = tuple(sorted(__protobuf__.manifest))

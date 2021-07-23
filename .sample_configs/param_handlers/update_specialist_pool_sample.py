@@ -13,19 +13,20 @@
 # limitations under the License.
 #
 
-
-def make_specialist_pool(
-    specialist_pool_name: str, new_display_name: str
-) -> google.cloud.aiplatform_v1alpha1.types.specialist_pool.SpecialistPool:
+def make_specialist_pool(specialist_pool_name: str, new_display_name: str) -> google.cloud.aiplatform_v1alpha1.types.specialist_pool.SpecialistPool:
     specialist_pool = {
-        "name": specialist_pool_name,
-        "display_name": new_display_name,
+        'name': specialist_pool_name,
+        'display_name': new_display_name,
     }
 
     return specialist_pool
 
-
 def make_update_mask() -> google.protobuf.field_mask_pb2.FieldMask:
-    update_mask = {"paths": ["display_name"]}
+    update_mask = {
+        'paths': [
+            'display_name'
+        ]
+    }
 
     return update_mask
+

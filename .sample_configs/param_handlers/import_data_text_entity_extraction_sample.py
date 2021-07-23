@@ -13,19 +13,20 @@
 # limitations under the License.
 #
 
-
 def make_name(name: str) -> str:
     return name
 
-
-def make_import_configs(
-    gcs_source_uri: str,
-) -> typing.Sequence[google.cloud.aiplatform_v1alpha1.types.dataset.ImportDataConfig]:
+def make_import_configs(gcs_source_uri: str) -> typing.Sequence[google.cloud.aiplatform_v1alpha1.types.dataset.ImportDataConfig]:
     import_configs = [
         {
-            "gcs_source": {"uris": [gcs_source_uri]},
-            "import_schema_uri": "gs://google-cloud-aiplatform/schema/dataset/ioformat/text_extraction_io_format_1.0.0.yaml",
+            "gcs_source": {
+                "uris": [
+                    gcs_source_uri
+                ]
+            },
+            "import_schema_uri": "gs://google-cloud-aiplatform/schema/dataset/ioformat/text_extraction_io_format_1.0.0.yaml"
         }
     ]
 
     return import_configs
+

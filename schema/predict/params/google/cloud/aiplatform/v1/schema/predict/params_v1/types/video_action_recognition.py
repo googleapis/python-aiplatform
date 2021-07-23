@@ -17,9 +17,9 @@ import proto  # type: ignore
 
 
 __protobuf__ = proto.module(
-    package="google.cloud.aiplatform.v1.schema.predict.params",
+    package='google.cloud.aiplatform.v1.schema.predict.params',
     manifest={
-        "VideoActionRecognitionPredictionParams",
+        'VideoActionRecognitionPredictionParams',
     },
 )
 

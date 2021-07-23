@@ -13,20 +13,20 @@
 # limitations under the License.
 #
 
-
 def make_parent(parent: str) -> str:
     # Sample function parameter parent in create_annotation_sample
     parent = parent
 
     return parent
 
-
-def make_annotation(
-    payload_schema_uri: str,
-) -> google.cloud.aiplatform_v1alpha1.types.annotation.Annotation:
+def make_annotation(payload_schema_uri: str) -> google.cloud.aiplatform_v1alpha1.types.annotation.Annotation:
     payload_dict = {}
     payload = to_protobuf_value(payload_dict)
 
-    annotation = {"payload_schema_uri": "", "payload": payload}
+    annotation = {
+        'payload_schema_uri': '',
+        'payload': payload
+    }
 
     return annotation
+

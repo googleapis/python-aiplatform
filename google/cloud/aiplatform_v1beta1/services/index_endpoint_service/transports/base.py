@@ -176,14 +176,10 @@ class IndexEndpointServiceTransport(abc.ABC):
                 client_info=client_info,
             ),
             self.get_index_endpoint: gapic_v1.method.wrap_method(
-                self.get_index_endpoint,
-                default_timeout=5.0,
-                client_info=client_info,
+                self.get_index_endpoint, default_timeout=5.0, client_info=client_info,
             ),
             self.list_index_endpoints: gapic_v1.method.wrap_method(
-                self.list_index_endpoints,
-                default_timeout=5.0,
-                client_info=client_info,
+                self.list_index_endpoints, default_timeout=5.0, client_info=client_info,
             ),
             self.update_index_endpoint: gapic_v1.method.wrap_method(
                 self.update_index_endpoint,
@@ -196,14 +192,10 @@ class IndexEndpointServiceTransport(abc.ABC):
                 client_info=client_info,
             ),
             self.deploy_index: gapic_v1.method.wrap_method(
-                self.deploy_index,
-                default_timeout=5.0,
-                client_info=client_info,
+                self.deploy_index, default_timeout=5.0, client_info=client_info,
             ),
             self.undeploy_index: gapic_v1.method.wrap_method(
-                self.undeploy_index,
-                default_timeout=5.0,
-                client_info=client_info,
+                self.undeploy_index, default_timeout=5.0, client_info=client_info,
             ),
         }
 

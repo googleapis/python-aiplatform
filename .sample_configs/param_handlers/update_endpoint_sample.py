@@ -13,16 +13,20 @@
 # limitations under the License.
 #
 
-
-def make_endpoint(
-    endpoint_name: str, new_display_name: str
-) -> google.cloud.aiplatform_v1alpha1.types.endpoint.Endpoint:
-    endpoint = {"name": endpoint_name, "display_name": new_display_name}
+def make_endpoint(endpoint_name: str, new_display_name: str) -> google.cloud.aiplatform_v1alpha1.types.endpoint.Endpoint:
+    endpoint = {
+        'name': endpoint_name,
+        'display_name': new_display_name
+    }
 
     return endpoint
 
-
 def make_update_mask() -> google.protobuf.field_mask_pb2.FieldMask:
-    update_mask = {"paths": ["display_name"]}
+    update_mask = {
+        'paths': [
+            'display_name'
+        ]
+    }
 
     return update_mask
+

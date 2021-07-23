@@ -19,10 +19,7 @@ from google.protobuf import timestamp_pb2  # type: ignore
 
 
 __protobuf__ = proto.module(
-    package="google.cloud.aiplatform.v1",
-    manifest={
-        "Context",
-    },
+    package="google.cloud.aiplatform.v1", manifest={"Context",},
 )
 
 
@@ -61,37 +58,17 @@ class Context(proto.Message):
             parent_contexts.
     """
 
-    name = proto.Field(
-        proto.STRING,
-        number=1,
-    )
-    display_name = proto.Field(
-        proto.STRING,
-        number=2,
-    )
-    etag = proto.Field(
-        proto.STRING,
-        number=8,
-    )
-    labels = proto.MapField(
-        proto.STRING,
-        proto.STRING,
-        number=9,
-    )
+    name = proto.Field(proto.STRING, number=1,)
+    display_name = proto.Field(proto.STRING, number=2,)
+    etag = proto.Field(proto.STRING, number=8,)
+    labels = proto.MapField(proto.STRING, proto.STRING, number=9,)
     create_time = proto.Field(
-        proto.MESSAGE,
-        number=10,
-        message=timestamp_pb2.Timestamp,
+        proto.MESSAGE, number=10, message=timestamp_pb2.Timestamp,
     )
     update_time = proto.Field(
-        proto.MESSAGE,
-        number=11,
-        message=timestamp_pb2.Timestamp,
+        proto.MESSAGE, number=11, message=timestamp_pb2.Timestamp,
     )
-    parent_contexts = proto.RepeatedField(
-        proto.STRING,
-        number=12,
-    )
+    parent_contexts = proto.RepeatedField(proto.STRING, number=12,)
 
 
 __all__ = tuple(sorted(__protobuf__.manifest))

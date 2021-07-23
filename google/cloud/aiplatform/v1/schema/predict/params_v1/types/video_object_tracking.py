@@ -18,9 +18,7 @@ import proto  # type: ignore
 
 __protobuf__ = proto.module(
     package="google.cloud.aiplatform.v1.schema.predict.params",
-    manifest={
-        "VideoObjectTrackingPredictionParams",
-    },
+    manifest={"VideoObjectTrackingPredictionParams",},
 )
 
 
@@ -43,18 +41,9 @@ class VideoObjectTrackingPredictionParams(proto.Message):
             frame size are returned. Default value is 0.0.
     """
 
-    confidence_threshold = proto.Field(
-        proto.FLOAT,
-        number=1,
-    )
-    max_predictions = proto.Field(
-        proto.INT32,
-        number=2,
-    )
-    min_bounding_box_size = proto.Field(
-        proto.FLOAT,
-        number=3,
-    )
+    confidence_threshold = proto.Field(proto.FLOAT, number=1,)
+    max_predictions = proto.Field(proto.INT32, number=2,)
+    min_bounding_box_size = proto.Field(proto.FLOAT, number=3,)
 
 
 __all__ = tuple(sorted(__protobuf__.manifest))

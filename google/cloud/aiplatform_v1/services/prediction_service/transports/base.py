@@ -167,9 +167,7 @@ class PredictionServiceTransport(abc.ABC):
         # Precompute the wrapped methods.
         self._wrapped_methods = {
             self.predict: gapic_v1.method.wrap_method(
-                self.predict,
-                default_timeout=5.0,
-                client_info=client_info,
+                self.predict, default_timeout=5.0, client_info=client_info,
             ),
         }
 

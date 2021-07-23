@@ -13,47 +13,43 @@
 # limitations under the License.
 #
 
-
 def make_parent(parent: str) -> str:
     parent = parent
 
     return parent
 
-
-def make_batch_prediction_job(
-    display_name: str,
-    model_name: str,
-    instances_format: str,
-    gcs_source_uri: str,
-    predictions_format: str,
-    gcs_destination_output_uri_prefix: str,
-) -> google.cloud.aiplatform_v1alpha1.types.batch_prediction_job.BatchPredictionJob:
+def make_batch_prediction_job(display_name: str, model_name: str, instances_format: str, gcs_source_uri: str, predictions_format: str, gcs_destination_output_uri_prefix: str) -> google.cloud.aiplatform_v1alpha1.types.batch_prediction_job.BatchPredictionJob:
     model_parameters_dict = {}
     model_parameters = to_protobuf_value(model_parameters_dict)
 
     batch_prediction_job = {
-        "display_name": display_name,
+        'display_name': display_name,
         # Format: 'projects/{project}/locations/{location}/models/{model_id}'
-        "model": model_name,
-        "model_parameters": model_parameters,
-        "input_config": {
-            "instances_format": instances_format,
-            "gcs_source": {"uris": [gcs_source_uri]},
-        },
-        "output_config": {
-            "predictions_format": predictions_format,
-            "gcs_destination": {"output_uri_prefix": gcs_destination_output_uri_prefix},
-        },
-        "dedicated_resources": {
-            "machine_spec": {
-                "machine_type": "n1-standard-2",
-                "accelerator_type": aiplatform.gapic.AcceleratorType.NVIDIA_TESLA_K80,
-                "accelerator_count": 1,
+        'model': model_name,
+        'model_parameters': model_parameters,
+        'input_config': {
+            'instances_format': instances_format,
+            'gcs_source': {
+                'uris': [gcs_source_uri]
             },
-            "starting_replica_count": 1,
-            "max_replica_count": 1,
         },
-        "generate_explanation": True,
+        'output_config': {
+            'predictions_format': predictions_format,
+            'gcs_destination': {
+                'output_uri_prefix': gcs_destination_output_uri_prefix
+            },
+        },
+        'dedicated_resources': {
+            'machine_spec': {
+                'machine_type': 'n1-standard-2',
+                'accelerator_type': aiplatform.gapic.AcceleratorType.NVIDIA_TESLA_K80,
+                'accelerator_count': 1
+            },
+            'starting_replica_count': 1,
+            'max_replica_count': 1
+        },
+        'generate_explanation': True
     }
 
     return batch_prediction_job
+

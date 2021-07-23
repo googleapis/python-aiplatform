@@ -13,9 +13,8 @@
 # limitations under the License.
 #
 
-
 def read_file(filename):
-    with open(filename, "rb") as f:
+    with open(filename, 'rb') as f:
         file_content = f.read()
     return file_content
 

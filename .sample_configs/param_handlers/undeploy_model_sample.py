@@ -13,12 +13,10 @@
 # limitations under the License.
 #
 
-
 def make_endpoint(endpoint: str) -> str:
     endpoint = endpoint
 
     return endpoint
-
 
 def make_deployed_model_id(deployed_model_id: str) -> str:
     # Sample function parameter deployed_model_id in undeploy_model_sample
@@ -26,9 +24,9 @@ def make_deployed_model_id(deployed_model_id: str) -> str:
 
     return deployed_model_id
 
-
 def make_traffic_split() -> dict:
     # If after the undeployment there is at least one deployed model remaining in the endpoint, traffic_split should be set to a mapping from remaining deployed models' ids to integer percentages that sum to 100.
     traffic_split = {}
 
     return traffic_split
+

@@ -167,9 +167,7 @@ class FeaturestoreOnlineServingServiceTransport(abc.ABC):
         # Precompute the wrapped methods.
         self._wrapped_methods = {
             self.read_feature_values: gapic_v1.method.wrap_method(
-                self.read_feature_values,
-                default_timeout=5.0,
-                client_info=client_info,
+                self.read_feature_values, default_timeout=5.0, client_info=client_info,
             ),
             self.streaming_read_feature_values: gapic_v1.method.wrap_method(
                 self.streaming_read_feature_values,

@@ -17,10 +17,7 @@ import proto  # type: ignore
 
 
 __protobuf__ = proto.module(
-    package="google.cloud.aiplatform.v1beta1",
-    manifest={
-        "EncryptionSpec",
-    },
+    package="google.cloud.aiplatform.v1beta1", manifest={"EncryptionSpec",},
 )
 
 
@@ -38,10 +35,7 @@ class EncryptionSpec(proto.Message):
             resource is created.
     """
 
-    kms_key_name = proto.Field(
-        proto.STRING,
-        number=1,
-    )
+    kms_key_name = proto.Field(proto.STRING, number=1,)
 
 
 __all__ = tuple(sorted(__protobuf__.manifest))

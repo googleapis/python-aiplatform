@@ -13,17 +13,16 @@
 # limitations under the License.
 #
 
-
 def make_parent(parent: str) -> str:
     # Sample function parameter parent in create_specialist_pool_sample
     parent = parent
 
     return parent
 
-
-def make_specialist_pool(
-    display_name: str,
-) -> google.cloud.aiplatform_v1alpha1.types.specialist_pool.SpecialistPool:
-    specialist_pool = {"display_name": display_name}
+def make_specialist_pool(display_name: str) -> google.cloud.aiplatform_v1alpha1.types.specialist_pool.SpecialistPool:
+    specialist_pool = {
+    	'display_name': display_name
+    }
 
     return specialist_pool
+

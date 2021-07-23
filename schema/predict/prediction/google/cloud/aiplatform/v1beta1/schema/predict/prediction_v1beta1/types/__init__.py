@@ -48,15 +48,15 @@ from .video_object_tracking import (
 )
 
 __all__ = (
-    "ClassificationPredictionResult",
-    "ImageObjectDetectionPredictionResult",
-    "ImageSegmentationPredictionResult",
-    "TabularClassificationPredictionResult",
-    "TabularRegressionPredictionResult",
-    "TextExtractionPredictionResult",
-    "TextSentimentPredictionResult",
-    "TimeSeriesForecastingPredictionResult",
-    "VideoActionRecognitionPredictionResult",
-    "VideoClassificationPredictionResult",
-    "VideoObjectTrackingPredictionResult",
+    'ClassificationPredictionResult',
+    'ImageObjectDetectionPredictionResult',
+    'ImageSegmentationPredictionResult',
+    'TabularClassificationPredictionResult',
+    'TabularRegressionPredictionResult',
+    'TextExtractionPredictionResult',
+    'TextSentimentPredictionResult',
+    'TimeSeriesForecastingPredictionResult',
+    'VideoActionRecognitionPredictionResult',
+    'VideoClassificationPredictionResult',
+    'VideoObjectTrackingPredictionResult',
 )

@@ -33,10 +33,10 @@ from .video_object_tracking import (
 )
 
 __all__ = (
-    "ImageClassificationPredictionParams",
-    "ImageObjectDetectionPredictionParams",
-    "ImageSegmentationPredictionParams",
-    "VideoActionRecognitionPredictionParams",
-    "VideoClassificationPredictionParams",
-    "VideoObjectTrackingPredictionParams",
+    'ImageClassificationPredictionParams',
+    'ImageObjectDetectionPredictionParams',
+    'ImageSegmentationPredictionParams',
+    'VideoActionRecognitionPredictionParams',
+    'VideoClassificationPredictionParams',
+    'VideoObjectTrackingPredictionParams',
 )

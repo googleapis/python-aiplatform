@@ -13,42 +13,40 @@
 # limitations under the License.
 #
 
-
 def make_parent(parent: str) -> str:
     # Sample function parameter parent in create_batch_prediction_job_sample
     parent = parent
 
     return parent
 
-
-def make_batch_prediction_job(
-    display_name: str,
-    model_name: str,
-    gcs_source_uri: str,
-    gcs_destination_output_uri_prefix: str,
-) -> google.cloud.aiplatform_v1alpha1.types.batch_prediction_job.BatchPredictionJob:
+def make_batch_prediction_job(display_name: str, model_name: str, gcs_source_uri: str, gcs_destination_output_uri_prefix: str) -> google.cloud.aiplatform_v1alpha1.types.batch_prediction_job.BatchPredictionJob:
     model_parameters_dict = {
-        "confidenceThreshold": 0.5,
-        "maxPredictions": 10000,
-        "segmentClassification": True,
-        "shotClassification": True,
-        "oneSecIntervalClassification": True,
+        'confidenceThreshold': 0.5,
+        'maxPredictions': 10000,
+        'segmentClassification': True,
+        'shotClassification': True,
+        'oneSecIntervalClassification': True
     }
     model_parameters = to_protobuf_value(model_parameters_dict)
 
     batch_prediction_job = {
-        "display_name": display_name,
+        'display_name': display_name,
         # Format: 'projects/{project}/locations/{location}/models/{model_id}'
-        "model": model_name,
-        "model_parameters": model_parameters,
-        "input_config": {
-            "instances_format": "jsonl",
-            "gcs_source": {"uris": [gcs_source_uri]},
+        'model': model_name,
+        'model_parameters': model_parameters,
+        'input_config': {
+            'instances_format': 'jsonl',
+            'gcs_source': {
+                'uris': [gcs_source_uri]
+            },
         },
-        "output_config": {
-            "predictions_format": "jsonl",
-            "gcs_destination": {"output_uri_prefix": gcs_destination_output_uri_prefix},
-        },
+        'output_config': {
+            'predictions_format': 'jsonl',
+            'gcs_destination': {
+                'output_uri_prefix': gcs_destination_output_uri_prefix
+            },
+        }
     }
 
     return batch_prediction_job
+

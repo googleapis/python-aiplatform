@@ -18,9 +18,7 @@ import proto  # type: ignore
 
 __protobuf__ = proto.module(
     package="google.cloud.aiplatform.v1beta1.schema.predict.instance",
-    manifest={
-        "TextExtractionPredictionInstance",
-    },
+    manifest={"TextExtractionPredictionInstance",},
 )
 
 
@@ -44,18 +42,9 @@ class TextExtractionPredictionInstance(proto.Message):
             unique.
     """
 
-    content = proto.Field(
-        proto.STRING,
-        number=1,
-    )
-    mime_type = proto.Field(
-        proto.STRING,
-        number=2,
-    )
-    key = proto.Field(
-        proto.STRING,
-        number=3,
-    )
+    content = proto.Field(proto.STRING, number=1,)
+    mime_type = proto.Field(proto.STRING, number=2,)
+    key = proto.Field(proto.STRING, number=3,)
 
 
 __all__ = tuple(sorted(__protobuf__.manifest))

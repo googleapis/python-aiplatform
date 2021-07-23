@@ -23,10 +23,10 @@ from .types.video_classification import VideoClassificationPredictionParams
 from .types.video_object_tracking import VideoObjectTrackingPredictionParams
 
 __all__ = (
-    "ImageClassificationPredictionParams",
-    "ImageObjectDetectionPredictionParams",
-    "ImageSegmentationPredictionParams",
-    "VideoActionRecognitionPredictionParams",
-    "VideoClassificationPredictionParams",
-    "VideoObjectTrackingPredictionParams",
+'ImageClassificationPredictionParams',
+'ImageObjectDetectionPredictionParams',
+'ImageSegmentationPredictionParams',
+'VideoActionRecognitionPredictionParams',
+'VideoClassificationPredictionParams',
+'VideoObjectTrackingPredictionParams',
 )

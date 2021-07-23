@@ -13,9 +13,9 @@
 # limitations under the License.
 #
 
-
 def make_parent(parent: str) -> str:
     # Sample function parameter parent in list_hyperparameter_tuning_jobs_sample
     parent = parent
 
     return parent
+

@@ -13,18 +13,15 @@
 # limitations under the License.
 #
 
-
 def make_parent(parent: str) -> str:
     # Sample function parameter parent in create_data_labeling_job_text_sample
     parent = parent
 
     return parent
 
-
-def make_data_labeling_job(
-    data_labeling_job: google.cloud.aiplatform_v1alpha1.types.data_labeling_job.DataLabelingJob,
-) -> google.cloud.aiplatform_v1alpha1.types.data_labeling_job.DataLabelingJob:
+def make_data_labeling_job(data_labeling_job: google.cloud.aiplatform_v1alpha1.types.data_labeling_job.DataLabelingJob) -> google.cloud.aiplatform_v1alpha1.types.data_labeling_job.DataLabelingJob:
     # Sample function parameter data_labeling_job in create_data_labeling_job_text_sample
     data_labeling_job = data_labeling_job
 
     return data_labeling_job
+

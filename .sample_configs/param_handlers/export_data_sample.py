@@ -13,16 +13,15 @@
 # limitations under the License.
 #
 
-
 def make_name(name: str) -> str:
     return name
 
-
-def make_export_config(
-    gcs_destination_output_uri_prefix: str,
-) -> google.cloud.aiplatform_v1alpha1.types.dataset.ExportDataConfig:
+def make_export_config(gcs_destination_output_uri_prefix: str) -> google.cloud.aiplatform_v1alpha1.types.dataset.ExportDataConfig:
     export_config = {
-        "gcs_destination": {"output_uri_prefix": gcs_destination_output_uri_prefix}
+        'gcs_destination': {
+            'output_uri_prefix': gcs_destination_output_uri_prefix
+        }
     }
 
     return export_config
+

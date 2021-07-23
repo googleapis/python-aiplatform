@@ -75,9 +75,7 @@ class _Resource(base.VertexAiResourceNounWithFutureManager, abc.ABC):
         """
 
         super().__init__(
-            project=project,
-            location=location,
-            credentials=credentials,
+            project=project, location=location, credentials=credentials,
         )
 
         if resource:
@@ -215,8 +213,7 @@ class _Resource(base.VertexAiResourceNounWithFutureManager, abc.ABC):
         api_client = self._instantiate_client(credentials=credentials)
 
         update_gca_resource = self._update_resource(
-            client=api_client,
-            resource=gca_resource,
+            client=api_client, resource=gca_resource,
         )
         self._gca_resource = update_gca_resource
 
@@ -266,9 +263,7 @@ class _Resource(base.VertexAiResourceNounWithFutureManager, abc.ABC):
 
         try:
             resources = cls._list_resources(
-                client=api_client,
-                parent=parent,
-                filter=filter,
+                client=api_client, parent=parent, filter=filter,
             )
         except exceptions.NotFound:
             logging.info(
@@ -436,9 +431,7 @@ class _Resource(base.VertexAiResourceNounWithFutureManager, abc.ABC):
     @classmethod
     @abc.abstractmethod
     def _update_resource(
-        cls,
-        client: utils.MetadataClientWithOverride,
-        resource: proto.Message,
+        cls, client: utils.MetadataClientWithOverride, resource: proto.Message,
     ) -> proto.Message:
         """Update resource method."""
         pass
