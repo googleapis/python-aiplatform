@@ -13,29 +13,28 @@
 # limitations under the License.
 #
 
+
 def make_endpoint(endpoint: str) -> str:
     endpoint = endpoint
     return endpoint
+
 
 def make_instances(filename: str) -> typing.Sequence[google.protobuf.struct_pb2.Value]:
     content = read_file(filename)
 
     # The format of each instance should conform to the deployed model's prediction input schema.
     encoded_content = b64_encode(content)
-    instance_dict = {'content': encoded_content}
+    instance_dict = {"content": encoded_content}
 
     instance = to_protobuf_value(instance_dict)
     instances = [instance]
 
     return instances
 
+
 def make_parameters() -> google.protobuf.struct_pb2.Value:
     # See gs://google-cloud-aiplatform/schema/predict/params/image_classification_1.0.0.yaml for the format of the parameters.
-    parameters_dict = {
-        "confidenceThreshold": 0.5,
-        "maxPredictions": 5
-    }
+    parameters_dict = {"confidenceThreshold": 0.5, "maxPredictions": 5}
     parameters = to_protobuf_value(parameters_dict)
 
     return parameters
-

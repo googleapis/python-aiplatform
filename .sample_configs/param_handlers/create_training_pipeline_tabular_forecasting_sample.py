@@ -77,4 +77,3 @@ def make_training_pipeline(
     }
 
     return training_pipeline
-

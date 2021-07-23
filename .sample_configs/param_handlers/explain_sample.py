@@ -13,17 +13,22 @@
 # limitations under the License.
 #
 
+
 def make_endpoint(endpoint: str) -> str:
     # Sample function parameter endpoint in explain_sample
     endpoint = endpoint
 
     return endpoint
 
-def make_instances(instance_dict: Dict) -> typing.Sequence[google.protobuf.struct_pb2.Value]:
+
+def make_instances(
+    instance_dict: Dict,
+) -> typing.Sequence[google.protobuf.struct_pb2.Value]:
     instance = to_protobuf_value(instance_dict)
     instances = [instance]
 
     return instances
+
 
 def make_parameters() -> google.protobuf.struct_pb2.Value:
     parameters_dict = {}
@@ -31,9 +36,9 @@ def make_parameters() -> google.protobuf.struct_pb2.Value:
 
     return parameters
 
+
 def make_deployed_model_id(deployed_model_id: str) -> str:
     # Sample function parameter deployed_model_id in explain_sample
     deployed_model_id = deployed_model_id
 
     return deployed_model_id
-

@@ -13,6 +13,7 @@
 # limitations under the License.
 #
 
+
 def make_parent(parent: str) -> str:
     # Sample function parameter parent in create_hyperparameter_tuning_job_using_python_package_sample
     parent = parent
@@ -21,7 +22,10 @@ def make_parent(parent: str) -> str:
 
 
 def make_hyperparameter_tuning_job(
-    display_name: str, executor_image_uri: str, package_uri: str, python_module: str,
+    display_name: str,
+    executor_image_uri: str,
+    package_uri: str,
+    python_module: str,
 ) -> google.cloud.aiplatform_v1beta1.types.hyperparameter_tuning_job.HyperparameterTuningJob:
 
     # study_spec

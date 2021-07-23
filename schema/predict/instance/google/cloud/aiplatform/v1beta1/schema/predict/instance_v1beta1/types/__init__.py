@@ -42,13 +42,13 @@ from .video_object_tracking import (
 )
 
 __all__ = (
-    'ImageClassificationPredictionInstance',
-    'ImageObjectDetectionPredictionInstance',
-    'ImageSegmentationPredictionInstance',
-    'TextClassificationPredictionInstance',
-    'TextExtractionPredictionInstance',
-    'TextSentimentPredictionInstance',
-    'VideoActionRecognitionPredictionInstance',
-    'VideoClassificationPredictionInstance',
-    'VideoObjectTrackingPredictionInstance',
+    "ImageClassificationPredictionInstance",
+    "ImageObjectDetectionPredictionInstance",
+    "ImageSegmentationPredictionInstance",
+    "TextClassificationPredictionInstance",
+    "TextExtractionPredictionInstance",
+    "TextSentimentPredictionInstance",
+    "VideoActionRecognitionPredictionInstance",
+    "VideoClassificationPredictionInstance",
+    "VideoObjectTrackingPredictionInstance",
 )

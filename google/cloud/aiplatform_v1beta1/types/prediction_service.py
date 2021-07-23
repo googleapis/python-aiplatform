@@ -60,9 +60,20 @@ class PredictRequest(proto.Message):
             [parameters_schema_uri][google.cloud.aiplatform.v1beta1.PredictSchemata.parameters_schema_uri].
     """
 
-    endpoint = proto.Field(proto.STRING, number=1,)
-    instances = proto.RepeatedField(proto.MESSAGE, number=2, message=struct_pb2.Value,)
-    parameters = proto.Field(proto.MESSAGE, number=3, message=struct_pb2.Value,)
+    endpoint = proto.Field(
+        proto.STRING,
+        number=1,
+    )
+    instances = proto.RepeatedField(
+        proto.MESSAGE,
+        number=2,
+        message=struct_pb2.Value,
+    )
+    parameters = proto.Field(
+        proto.MESSAGE,
+        number=3,
+        message=struct_pb2.Value,
+    )
 
 
 class PredictResponse(proto.Message):
@@ -83,9 +94,14 @@ class PredictResponse(proto.Message):
     """
 
     predictions = proto.RepeatedField(
-        proto.MESSAGE, number=1, message=struct_pb2.Value,
+        proto.MESSAGE,
+        number=1,
+        message=struct_pb2.Value,
     )
-    deployed_model_id = proto.Field(proto.STRING, number=2,)
+    deployed_model_id = proto.Field(
+        proto.STRING,
+        number=2,
+    )
 
 
 class ExplainRequest(proto.Message):
@@ -133,13 +149,29 @@ class ExplainRequest(proto.Message):
             [Endpoint.traffic_split][google.cloud.aiplatform.v1beta1.Endpoint.traffic_split].
     """
 
-    endpoint = proto.Field(proto.STRING, number=1,)
-    instances = proto.RepeatedField(proto.MESSAGE, number=2, message=struct_pb2.Value,)
-    parameters = proto.Field(proto.MESSAGE, number=4, message=struct_pb2.Value,)
-    explanation_spec_override = proto.Field(
-        proto.MESSAGE, number=5, message=explanation.ExplanationSpecOverride,
+    endpoint = proto.Field(
+        proto.STRING,
+        number=1,
     )
-    deployed_model_id = proto.Field(proto.STRING, number=3,)
+    instances = proto.RepeatedField(
+        proto.MESSAGE,
+        number=2,
+        message=struct_pb2.Value,
+    )
+    parameters = proto.Field(
+        proto.MESSAGE,
+        number=4,
+        message=struct_pb2.Value,
+    )
+    explanation_spec_override = proto.Field(
+        proto.MESSAGE,
+        number=5,
+        message=explanation.ExplanationSpecOverride,
+    )
+    deployed_model_id = proto.Field(
+        proto.STRING,
+        number=3,
+    )
 
 
 class ExplainResponse(proto.Message):
@@ -164,11 +196,18 @@ class ExplainResponse(proto.Message):
     """
 
     explanations = proto.RepeatedField(
-        proto.MESSAGE, number=1, message=explanation.Explanation,
+        proto.MESSAGE,
+        number=1,
+        message=explanation.Explanation,
     )
-    deployed_model_id = proto.Field(proto.STRING, number=2,)
+    deployed_model_id = proto.Field(
+        proto.STRING,
+        number=2,
+    )
     predictions = proto.RepeatedField(
-        proto.MESSAGE, number=3, message=struct_pb2.Value,
+        proto.MESSAGE,
+        number=3,
+        message=struct_pb2.Value,
     )
 
 

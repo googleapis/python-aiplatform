@@ -180,19 +180,29 @@ class TensorboardServiceTransport(abc.ABC):
         # Precompute the wrapped methods.
         self._wrapped_methods = {
             self.create_tensorboard: gapic_v1.method.wrap_method(
-                self.create_tensorboard, default_timeout=None, client_info=client_info,
+                self.create_tensorboard,
+                default_timeout=None,
+                client_info=client_info,
             ),
             self.get_tensorboard: gapic_v1.method.wrap_method(
-                self.get_tensorboard, default_timeout=None, client_info=client_info,
+                self.get_tensorboard,
+                default_timeout=None,
+                client_info=client_info,
             ),
             self.update_tensorboard: gapic_v1.method.wrap_method(
-                self.update_tensorboard, default_timeout=None, client_info=client_info,
+                self.update_tensorboard,
+                default_timeout=None,
+                client_info=client_info,
             ),
             self.list_tensorboards: gapic_v1.method.wrap_method(
-                self.list_tensorboards, default_timeout=None, client_info=client_info,
+                self.list_tensorboards,
+                default_timeout=None,
+                client_info=client_info,
             ),
             self.delete_tensorboard: gapic_v1.method.wrap_method(
-                self.delete_tensorboard, default_timeout=None, client_info=client_info,
+                self.delete_tensorboard,
+                default_timeout=None,
+                client_info=client_info,
             ),
             self.create_tensorboard_experiment: gapic_v1.method.wrap_method(
                 self.create_tensorboard_experiment,
@@ -225,7 +235,9 @@ class TensorboardServiceTransport(abc.ABC):
                 client_info=client_info,
             ),
             self.get_tensorboard_run: gapic_v1.method.wrap_method(
-                self.get_tensorboard_run, default_timeout=None, client_info=client_info,
+                self.get_tensorboard_run,
+                default_timeout=None,
+                client_info=client_info,
             ),
             self.update_tensorboard_run: gapic_v1.method.wrap_method(
                 self.update_tensorboard_run,

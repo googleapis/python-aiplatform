@@ -80,7 +80,10 @@ RESOURCE_NAME_PATTERN = re.compile(
 )
 RESOURCE_ID_PATTERN = re.compile(r"^[\w-]+$")
 
-Fields = namedtuple("Fields", ["project", "location", "resource", "id"],)
+Fields = namedtuple(
+    "Fields",
+    ["project", "location", "resource", "id"],
+)
 
 
 def _match_to_fields(match: Match) -> Optional[Fields]:

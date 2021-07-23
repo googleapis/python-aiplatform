@@ -19,7 +19,10 @@ from google.protobuf import timestamp_pb2  # type: ignore
 
 
 __protobuf__ = proto.module(
-    package="google.cloud.aiplatform.v1", manifest={"Artifact",},
+    package="google.cloud.aiplatform.v1",
+    manifest={
+        "Artifact",
+    },
 )
 
 
@@ -71,18 +74,42 @@ class Artifact(proto.Message):
         PENDING = 1
         LIVE = 2
 
-    name = proto.Field(proto.STRING, number=1,)
-    display_name = proto.Field(proto.STRING, number=2,)
-    uri = proto.Field(proto.STRING, number=6,)
-    etag = proto.Field(proto.STRING, number=9,)
-    labels = proto.MapField(proto.STRING, proto.STRING, number=10,)
+    name = proto.Field(
+        proto.STRING,
+        number=1,
+    )
+    display_name = proto.Field(
+        proto.STRING,
+        number=2,
+    )
+    uri = proto.Field(
+        proto.STRING,
+        number=6,
+    )
+    etag = proto.Field(
+        proto.STRING,
+        number=9,
+    )
+    labels = proto.MapField(
+        proto.STRING,
+        proto.STRING,
+        number=10,
+    )
     create_time = proto.Field(
-        proto.MESSAGE, number=11, message=timestamp_pb2.Timestamp,
+        proto.MESSAGE,
+        number=11,
+        message=timestamp_pb2.Timestamp,
     )
     update_time = proto.Field(
-        proto.MESSAGE, number=12, message=timestamp_pb2.Timestamp,
+        proto.MESSAGE,
+        number=12,
+        message=timestamp_pb2.Timestamp,
     )
-    state = proto.Field(proto.ENUM, number=13, enum=State,)
+    state = proto.Field(
+        proto.ENUM,
+        number=13,
+        enum=State,
+    )
 
 
 __all__ = tuple(sorted(__protobuf__.manifest))

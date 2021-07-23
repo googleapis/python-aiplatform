@@ -13,6 +13,7 @@
 # limitations under the License.
 #
 
+
 def make_name(name: str) -> str:
     # Sample function parameter name in import_data_video_action_recognition_sample
     name = name

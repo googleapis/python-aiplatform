@@ -129,7 +129,11 @@ def test__get_default_mtls_endpoint():
 
 
 @pytest.mark.parametrize(
-    "client_class", [IndexEndpointServiceClient, IndexEndpointServiceAsyncClient,]
+    "client_class",
+    [
+        IndexEndpointServiceClient,
+        IndexEndpointServiceAsyncClient,
+    ],
 )
 def test_index_endpoint_service_client_from_service_account_info(client_class):
     creds = ga_credentials.AnonymousCredentials()
@@ -146,7 +150,11 @@ def test_index_endpoint_service_client_from_service_account_info(client_class):
 
 
 @pytest.mark.parametrize(
-    "client_class", [IndexEndpointServiceClient, IndexEndpointServiceAsyncClient,]
+    "client_class",
+    [
+        IndexEndpointServiceClient,
+        IndexEndpointServiceAsyncClient,
+    ],
 )
 def test_index_endpoint_service_client_from_service_account_file(client_class):
     creds = ga_credentials.AnonymousCredentials()
@@ -440,7 +448,9 @@ def test_index_endpoint_service_client_client_options_scopes(
     client_class, transport_class, transport_name
 ):
     # Check the case scopes are provided.
-    options = client_options.ClientOptions(scopes=["1", "2"],)
+    options = client_options.ClientOptions(
+        scopes=["1", "2"],
+    )
     with mock.patch.object(transport_class, "__init__") as patched:
         patched.return_value = None
         client = client_class(client_options=options)
@@ -513,7 +523,8 @@ def test_create_index_endpoint(
     request_type=index_endpoint_service.CreateIndexEndpointRequest,
 ):
     client = IndexEndpointServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(), transport=transport,
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport=transport,
     )
 
     # Everything is optional in proto3 as far as the runtime is concerned,
@@ -545,7 +556,8 @@ def test_create_index_endpoint_empty_call():
     # This test is a coverage failsafe to make sure that totally empty calls,
     # i.e. request == None and no flattened fields passed, work.
     client = IndexEndpointServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(), transport="grpc",
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="grpc",
     )
 
     # Mock the actual call within the gRPC stub, and fake the request.
@@ -564,7 +576,8 @@ async def test_create_index_endpoint_async(
     request_type=index_endpoint_service.CreateIndexEndpointRequest,
 ):
     client = IndexEndpointServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(), transport=transport,
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport=transport,
     )
 
     # Everything is optional in proto3 as far as the runtime is concerned,
@@ -620,7 +633,10 @@ def test_create_index_endpoint_field_headers():
 
     # Establish that the field header was sent.
     _, _, kw = call.mock_calls[0]
-    assert ("x-goog-request-params", "parent=parent/value",) in kw["metadata"]
+    assert (
+        "x-goog-request-params",
+        "parent=parent/value",
+    ) in kw["metadata"]
 
 
 @pytest.mark.asyncio
@@ -651,7 +667,10 @@ async def test_create_index_endpoint_field_headers_async():
 
     # Establish that the field header was sent.
     _, _, kw = call.mock_calls[0]
-    assert ("x-goog-request-params", "parent=parent/value",) in kw["metadata"]
+    assert (
+        "x-goog-request-params",
+        "parent=parent/value",
+    ) in kw["metadata"]
 
 
 def test_create_index_endpoint_flattened():
@@ -750,7 +769,8 @@ def test_get_index_endpoint(
     transport: str = "grpc", request_type=index_endpoint_service.GetIndexEndpointRequest
 ):
     client = IndexEndpointServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(), transport=transport,
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport=transport,
     )
 
     # Everything is optional in proto3 as far as the runtime is concerned,
@@ -793,7 +813,8 @@ def test_get_index_endpoint_empty_call():
     # This test is a coverage failsafe to make sure that totally empty calls,
     # i.e. request == None and no flattened fields passed, work.
     client = IndexEndpointServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(), transport="grpc",
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="grpc",
     )
 
     # Mock the actual call within the gRPC stub, and fake the request.
@@ -812,7 +833,8 @@ async def test_get_index_endpoint_async(
     request_type=index_endpoint_service.GetIndexEndpointRequest,
 ):
     client = IndexEndpointServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(), transport=transport,
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport=transport,
     )
 
     # Everything is optional in proto3 as far as the runtime is concerned,
@@ -879,7 +901,10 @@ def test_get_index_endpoint_field_headers():
 
     # Establish that the field header was sent.
     _, _, kw = call.mock_calls[0]
-    assert ("x-goog-request-params", "name=name/value",) in kw["metadata"]
+    assert (
+        "x-goog-request-params",
+        "name=name/value",
+    ) in kw["metadata"]
 
 
 @pytest.mark.asyncio
@@ -910,7 +935,10 @@ async def test_get_index_endpoint_field_headers_async():
 
     # Establish that the field header was sent.
     _, _, kw = call.mock_calls[0]
-    assert ("x-goog-request-params", "name=name/value",) in kw["metadata"]
+    assert (
+        "x-goog-request-params",
+        "name=name/value",
+    ) in kw["metadata"]
 
 
 def test_get_index_endpoint_flattened():
@@ -926,7 +954,9 @@ def test_get_index_endpoint_flattened():
         call.return_value = index_endpoint.IndexEndpoint()
         # Call the method with a truthy value for each flattened field,
         # using the keyword arguments to the method.
-        client.get_index_endpoint(name="name_value",)
+        client.get_index_endpoint(
+            name="name_value",
+        )
 
         # Establish that the underlying call was made with the expected
         # request object values.
@@ -944,7 +974,8 @@ def test_get_index_endpoint_flattened_error():
     # fields is an error.
     with pytest.raises(ValueError):
         client.get_index_endpoint(
-            index_endpoint_service.GetIndexEndpointRequest(), name="name_value",
+            index_endpoint_service.GetIndexEndpointRequest(),
+            name="name_value",
         )
 
 
@@ -966,7 +997,9 @@ async def test_get_index_endpoint_flattened_async():
         )
         # Call the method with a truthy value for each flattened field,
         # using the keyword arguments to the method.
-        response = await client.get_index_endpoint(name="name_value",)
+        response = await client.get_index_endpoint(
+            name="name_value",
+        )
 
         # Establish that the underlying call was made with the expected
         # request object values.
@@ -985,7 +1018,8 @@ async def test_get_index_endpoint_flattened_error_async():
     # fields is an error.
     with pytest.raises(ValueError):
         await client.get_index_endpoint(
-            index_endpoint_service.GetIndexEndpointRequest(), name="name_value",
+            index_endpoint_service.GetIndexEndpointRequest(),
+            name="name_value",
         )
 
 
@@ -994,7 +1028,8 @@ def test_list_index_endpoints(
     request_type=index_endpoint_service.ListIndexEndpointsRequest,
 ):
     client = IndexEndpointServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(), transport=transport,
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport=transport,
     )
 
     # Everything is optional in proto3 as far as the runtime is concerned,
@@ -1029,7 +1064,8 @@ def test_list_index_endpoints_empty_call():
     # This test is a coverage failsafe to make sure that totally empty calls,
     # i.e. request == None and no flattened fields passed, work.
     client = IndexEndpointServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(), transport="grpc",
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="grpc",
     )
 
     # Mock the actual call within the gRPC stub, and fake the request.
@@ -1048,7 +1084,8 @@ async def test_list_index_endpoints_async(
     request_type=index_endpoint_service.ListIndexEndpointsRequest,
 ):
     client = IndexEndpointServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(), transport=transport,
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport=transport,
     )
 
     # Everything is optional in proto3 as far as the runtime is concerned,
@@ -1107,7 +1144,10 @@ def test_list_index_endpoints_field_headers():
 
     # Establish that the field header was sent.
     _, _, kw = call.mock_calls[0]
-    assert ("x-goog-request-params", "parent=parent/value",) in kw["metadata"]
+    assert (
+        "x-goog-request-params",
+        "parent=parent/value",
+    ) in kw["metadata"]
 
 
 @pytest.mark.asyncio
@@ -1138,7 +1178,10 @@ async def test_list_index_endpoints_field_headers_async():
 
     # Establish that the field header was sent.
     _, _, kw = call.mock_calls[0]
-    assert ("x-goog-request-params", "parent=parent/value",) in kw["metadata"]
+    assert (
+        "x-goog-request-params",
+        "parent=parent/value",
+    ) in kw["metadata"]
 
 
 def test_list_index_endpoints_flattened():
@@ -1154,7 +1197,9 @@ def test_list_index_endpoints_flattened():
         call.return_value = index_endpoint_service.ListIndexEndpointsResponse()
         # Call the method with a truthy value for each flattened field,
         # using the keyword arguments to the method.
-        client.list_index_endpoints(parent="parent_value",)
+        client.list_index_endpoints(
+            parent="parent_value",
+        )
 
         # Establish that the underlying call was made with the expected
         # request object values.
@@ -1172,7 +1217,8 @@ def test_list_index_endpoints_flattened_error():
     # fields is an error.
     with pytest.raises(ValueError):
         client.list_index_endpoints(
-            index_endpoint_service.ListIndexEndpointsRequest(), parent="parent_value",
+            index_endpoint_service.ListIndexEndpointsRequest(),
+            parent="parent_value",
         )
 
 
@@ -1194,7 +1240,9 @@ async def test_list_index_endpoints_flattened_async():
         )
         # Call the method with a truthy value for each flattened field,
         # using the keyword arguments to the method.
-        response = await client.list_index_endpoints(parent="parent_value",)
+        response = await client.list_index_endpoints(
+            parent="parent_value",
+        )
 
         # Establish that the underlying call was made with the expected
         # request object values.
@@ -1213,7 +1261,8 @@ async def test_list_index_endpoints_flattened_error_async():
     # fields is an error.
     with pytest.raises(ValueError):
         await client.list_index_endpoints(
-            index_endpoint_service.ListIndexEndpointsRequest(), parent="parent_value",
+            index_endpoint_service.ListIndexEndpointsRequest(),
+            parent="parent_value",
         )
 
 
@@ -1237,10 +1286,13 @@ def test_list_index_endpoints_pager():
                 next_page_token="abc",
             ),
             index_endpoint_service.ListIndexEndpointsResponse(
-                index_endpoints=[], next_page_token="def",
+                index_endpoints=[],
+                next_page_token="def",
             ),
             index_endpoint_service.ListIndexEndpointsResponse(
-                index_endpoints=[index_endpoint.IndexEndpoint(),],
+                index_endpoints=[
+                    index_endpoint.IndexEndpoint(),
+                ],
                 next_page_token="ghi",
             ),
             index_endpoint_service.ListIndexEndpointsResponse(
@@ -1285,10 +1337,13 @@ def test_list_index_endpoints_pages():
                 next_page_token="abc",
             ),
             index_endpoint_service.ListIndexEndpointsResponse(
-                index_endpoints=[], next_page_token="def",
+                index_endpoints=[],
+                next_page_token="def",
             ),
             index_endpoint_service.ListIndexEndpointsResponse(
-                index_endpoints=[index_endpoint.IndexEndpoint(),],
+                index_endpoints=[
+                    index_endpoint.IndexEndpoint(),
+                ],
                 next_page_token="ghi",
             ),
             index_endpoint_service.ListIndexEndpointsResponse(
@@ -1327,10 +1382,13 @@ async def test_list_index_endpoints_async_pager():
                 next_page_token="abc",
             ),
             index_endpoint_service.ListIndexEndpointsResponse(
-                index_endpoints=[], next_page_token="def",
+                index_endpoints=[],
+                next_page_token="def",
             ),
             index_endpoint_service.ListIndexEndpointsResponse(
-                index_endpoints=[index_endpoint.IndexEndpoint(),],
+                index_endpoints=[
+                    index_endpoint.IndexEndpoint(),
+                ],
                 next_page_token="ghi",
             ),
             index_endpoint_service.ListIndexEndpointsResponse(
@@ -1341,7 +1399,9 @@ async def test_list_index_endpoints_async_pager():
             ),
             RuntimeError,
         )
-        async_pager = await client.list_index_endpoints(request={},)
+        async_pager = await client.list_index_endpoints(
+            request={},
+        )
         assert async_pager.next_page_token == "abc"
         responses = []
         async for response in async_pager:
@@ -1374,10 +1434,13 @@ async def test_list_index_endpoints_async_pages():
                 next_page_token="abc",
             ),
             index_endpoint_service.ListIndexEndpointsResponse(
-                index_endpoints=[], next_page_token="def",
+                index_endpoints=[],
+                next_page_token="def",
             ),
             index_endpoint_service.ListIndexEndpointsResponse(
-                index_endpoints=[index_endpoint.IndexEndpoint(),],
+                index_endpoints=[
+                    index_endpoint.IndexEndpoint(),
+                ],
                 next_page_token="ghi",
             ),
             index_endpoint_service.ListIndexEndpointsResponse(
@@ -1400,7 +1463,8 @@ def test_update_index_endpoint(
     request_type=index_endpoint_service.UpdateIndexEndpointRequest,
 ):
     client = IndexEndpointServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(), transport=transport,
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport=transport,
     )
 
     # Everything is optional in proto3 as far as the runtime is concerned,
@@ -1443,7 +1507,8 @@ def test_update_index_endpoint_empty_call():
     # This test is a coverage failsafe to make sure that totally empty calls,
     # i.e. request == None and no flattened fields passed, work.
     client = IndexEndpointServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(), transport="grpc",
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="grpc",
     )
 
     # Mock the actual call within the gRPC stub, and fake the request.
@@ -1462,7 +1527,8 @@ async def test_update_index_endpoint_async(
     request_type=index_endpoint_service.UpdateIndexEndpointRequest,
 ):
     client = IndexEndpointServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(), transport=transport,
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport=transport,
     )
 
     # Everything is optional in proto3 as far as the runtime is concerned,
@@ -1666,7 +1732,8 @@ def test_delete_index_endpoint(
     request_type=index_endpoint_service.DeleteIndexEndpointRequest,
 ):
     client = IndexEndpointServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(), transport=transport,
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport=transport,
     )
 
     # Everything is optional in proto3 as far as the runtime is concerned,
@@ -1698,7 +1765,8 @@ def test_delete_index_endpoint_empty_call():
     # This test is a coverage failsafe to make sure that totally empty calls,
     # i.e. request == None and no flattened fields passed, work.
     client = IndexEndpointServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(), transport="grpc",
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="grpc",
     )
 
     # Mock the actual call within the gRPC stub, and fake the request.
@@ -1717,7 +1785,8 @@ async def test_delete_index_endpoint_async(
     request_type=index_endpoint_service.DeleteIndexEndpointRequest,
 ):
     client = IndexEndpointServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(), transport=transport,
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport=transport,
     )
 
     # Everything is optional in proto3 as far as the runtime is concerned,
@@ -1773,7 +1842,10 @@ def test_delete_index_endpoint_field_headers():
 
     # Establish that the field header was sent.
     _, _, kw = call.mock_calls[0]
-    assert ("x-goog-request-params", "name=name/value",) in kw["metadata"]
+    assert (
+        "x-goog-request-params",
+        "name=name/value",
+    ) in kw["metadata"]
 
 
 @pytest.mark.asyncio
@@ -1804,7 +1876,10 @@ async def test_delete_index_endpoint_field_headers_async():
 
     # Establish that the field header was sent.
     _, _, kw = call.mock_calls[0]
-    assert ("x-goog-request-params", "name=name/value",) in kw["metadata"]
+    assert (
+        "x-goog-request-params",
+        "name=name/value",
+    ) in kw["metadata"]
 
 
 def test_delete_index_endpoint_flattened():
@@ -1820,7 +1895,9 @@ def test_delete_index_endpoint_flattened():
         call.return_value = operations_pb2.Operation(name="operations/op")
         # Call the method with a truthy value for each flattened field,
         # using the keyword arguments to the method.
-        client.delete_index_endpoint(name="name_value",)
+        client.delete_index_endpoint(
+            name="name_value",
+        )
 
         # Establish that the underlying call was made with the expected
         # request object values.
@@ -1838,7 +1915,8 @@ def test_delete_index_endpoint_flattened_error():
     # fields is an error.
     with pytest.raises(ValueError):
         client.delete_index_endpoint(
-            index_endpoint_service.DeleteIndexEndpointRequest(), name="name_value",
+            index_endpoint_service.DeleteIndexEndpointRequest(),
+            name="name_value",
         )
 
 
@@ -1860,7 +1938,9 @@ async def test_delete_index_endpoint_flattened_async():
         )
         # Call the method with a truthy value for each flattened field,
         # using the keyword arguments to the method.
-        response = await client.delete_index_endpoint(name="name_value",)
+        response = await client.delete_index_endpoint(
+            name="name_value",
+        )
 
         # Establish that the underlying call was made with the expected
         # request object values.
@@ -1879,7 +1959,8 @@ async def test_delete_index_endpoint_flattened_error_async():
     # fields is an error.
     with pytest.raises(ValueError):
         await client.delete_index_endpoint(
-            index_endpoint_service.DeleteIndexEndpointRequest(), name="name_value",
+            index_endpoint_service.DeleteIndexEndpointRequest(),
+            name="name_value",
         )
 
 
@@ -1887,7 +1968,8 @@ def test_deploy_index(
     transport: str = "grpc", request_type=index_endpoint_service.DeployIndexRequest
 ):
     client = IndexEndpointServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(), transport=transport,
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport=transport,
     )
 
     # Everything is optional in proto3 as far as the runtime is concerned,
@@ -1917,7 +1999,8 @@ def test_deploy_index_empty_call():
     # This test is a coverage failsafe to make sure that totally empty calls,
     # i.e. request == None and no flattened fields passed, work.
     client = IndexEndpointServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(), transport="grpc",
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="grpc",
     )
 
     # Mock the actual call within the gRPC stub, and fake the request.
@@ -1934,7 +2017,8 @@ async def test_deploy_index_async(
     request_type=index_endpoint_service.DeployIndexRequest,
 ):
     client = IndexEndpointServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(), transport=transport,
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport=transport,
     )
 
     # Everything is optional in proto3 as far as the runtime is concerned,
@@ -1986,9 +2070,10 @@ def test_deploy_index_field_headers():
 
     # Establish that the field header was sent.
     _, _, kw = call.mock_calls[0]
-    assert ("x-goog-request-params", "index_endpoint=index_endpoint/value",) in kw[
-        "metadata"
-    ]
+    assert (
+        "x-goog-request-params",
+        "index_endpoint=index_endpoint/value",
+    ) in kw["metadata"]
 
 
 @pytest.mark.asyncio
@@ -2017,9 +2102,10 @@ async def test_deploy_index_field_headers_async():
 
     # Establish that the field header was sent.
     _, _, kw = call.mock_calls[0]
-    assert ("x-goog-request-params", "index_endpoint=index_endpoint/value",) in kw[
-        "metadata"
-    ]
+    assert (
+        "x-goog-request-params",
+        "index_endpoint=index_endpoint/value",
+    ) in kw["metadata"]
 
 
 def test_deploy_index_flattened():
@@ -2110,7 +2196,8 @@ def test_undeploy_index(
     transport: str = "grpc", request_type=index_endpoint_service.UndeployIndexRequest
 ):
     client = IndexEndpointServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(), transport=transport,
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport=transport,
     )
 
     # Everything is optional in proto3 as far as the runtime is concerned,
@@ -2140,7 +2227,8 @@ def test_undeploy_index_empty_call():
     # This test is a coverage failsafe to make sure that totally empty calls,
     # i.e. request == None and no flattened fields passed, work.
     client = IndexEndpointServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(), transport="grpc",
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="grpc",
     )
 
     # Mock the actual call within the gRPC stub, and fake the request.
@@ -2157,7 +2245,8 @@ async def test_undeploy_index_async(
     request_type=index_endpoint_service.UndeployIndexRequest,
 ):
     client = IndexEndpointServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(), transport=transport,
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport=transport,
     )
 
     # Everything is optional in proto3 as far as the runtime is concerned,
@@ -2209,9 +2298,10 @@ def test_undeploy_index_field_headers():
 
     # Establish that the field header was sent.
     _, _, kw = call.mock_calls[0]
-    assert ("x-goog-request-params", "index_endpoint=index_endpoint/value",) in kw[
-        "metadata"
-    ]
+    assert (
+        "x-goog-request-params",
+        "index_endpoint=index_endpoint/value",
+    ) in kw["metadata"]
 
 
 @pytest.mark.asyncio
@@ -2240,9 +2330,10 @@ async def test_undeploy_index_field_headers_async():
 
     # Establish that the field header was sent.
     _, _, kw = call.mock_calls[0]
-    assert ("x-goog-request-params", "index_endpoint=index_endpoint/value",) in kw[
-        "metadata"
-    ]
+    assert (
+        "x-goog-request-params",
+        "index_endpoint=index_endpoint/value",
+    ) in kw["metadata"]
 
 
 def test_undeploy_index_flattened():
@@ -2336,7 +2427,8 @@ def test_credentials_transport_error():
     )
     with pytest.raises(ValueError):
         client = IndexEndpointServiceClient(
-            credentials=ga_credentials.AnonymousCredentials(), transport=transport,
+            credentials=ga_credentials.AnonymousCredentials(),
+            transport=transport,
         )
 
     # It is an error to provide a credentials file and a transport instance.
@@ -2355,7 +2447,8 @@ def test_credentials_transport_error():
     )
     with pytest.raises(ValueError):
         client = IndexEndpointServiceClient(
-            client_options={"scopes": ["1", "2"]}, transport=transport,
+            client_options={"scopes": ["1", "2"]},
+            transport=transport,
         )
 
 
@@ -2403,7 +2496,10 @@ def test_transport_grpc_default():
     client = IndexEndpointServiceClient(
         credentials=ga_credentials.AnonymousCredentials(),
     )
-    assert isinstance(client.transport, transports.IndexEndpointServiceGrpcTransport,)
+    assert isinstance(
+        client.transport,
+        transports.IndexEndpointServiceGrpcTransport,
+    )
 
 
 def test_index_endpoint_service_base_transport_error():
@@ -2457,7 +2553,8 @@ def test_index_endpoint_service_base_transport_with_credentials_file():
         Transport.return_value = None
         load_creds.return_value = (ga_credentials.AnonymousCredentials(), None)
         transport = transports.IndexEndpointServiceTransport(
-            credentials_file="credentials.json", quota_project_id="octopus",
+            credentials_file="credentials.json",
+            quota_project_id="octopus",
         )
         load_creds.assert_called_once_with(
             "credentials.json",
@@ -2478,7 +2575,8 @@ def test_index_endpoint_service_base_transport_with_credentials_file_old_google_
         Transport.return_value = None
         load_creds.return_value = (ga_credentials.AnonymousCredentials(), None)
         transport = transports.IndexEndpointServiceTransport(
-            credentials_file="credentials.json", quota_project_id="octopus",
+            credentials_file="credentials.json",
+            quota_project_id="octopus",
         )
         load_creds.assert_called_once_with(
             "credentials.json",
@@ -2745,7 +2843,8 @@ def test_index_endpoint_service_grpc_transport_channel():
 
     # Check that channel is used if provided.
     transport = transports.IndexEndpointServiceGrpcTransport(
-        host="squid.clam.whelk", channel=channel,
+        host="squid.clam.whelk",
+        channel=channel,
     )
     assert transport.grpc_channel == channel
     assert transport._host == "squid.clam.whelk:443"
@@ -2757,7 +2856,8 @@ def test_index_endpoint_service_grpc_asyncio_transport_channel():
 
     # Check that channel is used if provided.
     transport = transports.IndexEndpointServiceGrpcAsyncIOTransport(
-        host="squid.clam.whelk", channel=channel,
+        host="squid.clam.whelk",
+        channel=channel,
     )
     assert transport.grpc_channel == channel
     assert transport._host == "squid.clam.whelk:443"
@@ -2866,12 +2966,16 @@ def test_index_endpoint_service_transport_channel_mtls_with_adc(transport_class)
 
 def test_index_endpoint_service_grpc_lro_client():
     client = IndexEndpointServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(), transport="grpc",
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="grpc",
     )
     transport = client.transport
 
     # Ensure that we have a api-core operations client.
-    assert isinstance(transport.operations_client, operations_v1.OperationsClient,)
+    assert isinstance(
+        transport.operations_client,
+        operations_v1.OperationsClient,
+    )
 
     # Ensure that subsequent calls to the property send the exact same object.
     assert transport.operations_client is transport.operations_client
@@ -2879,12 +2983,16 @@ def test_index_endpoint_service_grpc_lro_client():
 
 def test_index_endpoint_service_grpc_lro_async_client():
     client = IndexEndpointServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(), transport="grpc_asyncio",
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="grpc_asyncio",
     )
     transport = client.transport
 
     # Ensure that we have a api-core operations client.
-    assert isinstance(transport.operations_client, operations_v1.OperationsAsyncClient,)
+    assert isinstance(
+        transport.operations_client,
+        operations_v1.OperationsAsyncClient,
+    )
 
     # Ensure that subsequent calls to the property send the exact same object.
     assert transport.operations_client is transport.operations_client
@@ -2895,7 +3003,9 @@ def test_index_path():
     location = "clam"
     index = "whelk"
     expected = "projects/{project}/locations/{location}/indexes/{index}".format(
-        project=project, location=location, index=index,
+        project=project,
+        location=location,
+        index=index,
     )
     actual = IndexEndpointServiceClient.index_path(project, location, index)
     assert expected == actual
@@ -2919,7 +3029,9 @@ def test_index_endpoint_path():
     location = "mussel"
     index_endpoint = "winkle"
     expected = "projects/{project}/locations/{location}/indexEndpoints/{index_endpoint}".format(
-        project=project, location=location, index_endpoint=index_endpoint,
+        project=project,
+        location=location,
+        index_endpoint=index_endpoint,
     )
     actual = IndexEndpointServiceClient.index_endpoint_path(
         project, location, index_endpoint
@@ -2962,7 +3074,9 @@ def test_parse_common_billing_account_path():
 
 def test_common_folder_path():
     folder = "whelk"
-    expected = "folders/{folder}".format(folder=folder,)
+    expected = "folders/{folder}".format(
+        folder=folder,
+    )
     actual = IndexEndpointServiceClient.common_folder_path(folder)
     assert expected == actual
 
@@ -2980,7 +3094,9 @@ def test_parse_common_folder_path():
 
 def test_common_organization_path():
     organization = "oyster"
-    expected = "organizations/{organization}".format(organization=organization,)
+    expected = "organizations/{organization}".format(
+        organization=organization,
+    )
     actual = IndexEndpointServiceClient.common_organization_path(organization)
     assert expected == actual
 
@@ -2998,7 +3114,9 @@ def test_parse_common_organization_path():
 
 def test_common_project_path():
     project = "cuttlefish"
-    expected = "projects/{project}".format(project=project,)
+    expected = "projects/{project}".format(
+        project=project,
+    )
     actual = IndexEndpointServiceClient.common_project_path(project)
     assert expected == actual
 
@@ -3018,7 +3136,8 @@ def test_common_location_path():
     project = "winkle"
     location = "nautilus"
     expected = "projects/{project}/locations/{location}".format(
-        project=project, location=location,
+        project=project,
+        location=location,
     )
     actual = IndexEndpointServiceClient.common_location_path(project, location)
     assert expected == actual
@@ -3043,7 +3162,8 @@ def test_client_withDEFAULT_CLIENT_INFO():
         transports.IndexEndpointServiceTransport, "_prep_wrapped_messages"
     ) as prep:
         client = IndexEndpointServiceClient(
-            credentials=ga_credentials.AnonymousCredentials(), client_info=client_info,
+            credentials=ga_credentials.AnonymousCredentials(),
+            client_info=client_info,
         )
         prep.assert_called_once_with(client_info)
 
@@ -3052,6 +3172,7 @@ def test_client_withDEFAULT_CLIENT_INFO():
     ) as prep:
         transport_class = IndexEndpointServiceClient.get_transport_class()
         transport = transport_class(
-            credentials=ga_credentials.AnonymousCredentials(), client_info=client_info,
+            credentials=ga_credentials.AnonymousCredentials(),
+            client_info=client_info,
         )
         prep.assert_called_once_with(client_info)

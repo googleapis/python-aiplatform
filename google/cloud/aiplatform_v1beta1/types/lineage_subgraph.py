@@ -21,7 +21,10 @@ from google.cloud.aiplatform_v1beta1.types import execution
 
 
 __protobuf__ = proto.module(
-    package="google.cloud.aiplatform.v1beta1", manifest={"LineageSubgraph",},
+    package="google.cloud.aiplatform.v1beta1",
+    manifest={
+        "LineageSubgraph",
+    },
 )
 
 
@@ -39,11 +42,21 @@ class LineageSubgraph(proto.Message):
             Executions in the subgraph.
     """
 
-    artifacts = proto.RepeatedField(proto.MESSAGE, number=1, message=artifact.Artifact,)
-    executions = proto.RepeatedField(
-        proto.MESSAGE, number=2, message=execution.Execution,
+    artifacts = proto.RepeatedField(
+        proto.MESSAGE,
+        number=1,
+        message=artifact.Artifact,
     )
-    events = proto.RepeatedField(proto.MESSAGE, number=3, message=event.Event,)
+    executions = proto.RepeatedField(
+        proto.MESSAGE,
+        number=2,
+        message=execution.Execution,
+    )
+    events = proto.RepeatedField(
+        proto.MESSAGE,
+        number=3,
+        message=event.Event,
+    )
 
 
 __all__ = tuple(sorted(__protobuf__.manifest))

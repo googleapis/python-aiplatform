@@ -594,8 +594,8 @@ class SearchModelDeploymentMonitoringStatsAnomaliesPager:
                 sent along with the request as metadata.
         """
         self._method = method
-        self._request = job_service.SearchModelDeploymentMonitoringStatsAnomaliesRequest(
-            request
+        self._request = (
+            job_service.SearchModelDeploymentMonitoringStatsAnomaliesRequest(request)
         )
         self._response = response
         self._metadata = metadata
@@ -667,8 +667,8 @@ class SearchModelDeploymentMonitoringStatsAnomaliesAsyncPager:
                 sent along with the request as metadata.
         """
         self._method = method
-        self._request = job_service.SearchModelDeploymentMonitoringStatsAnomaliesRequest(
-            request
+        self._request = (
+            job_service.SearchModelDeploymentMonitoringStatsAnomaliesRequest(request)
         )
         self._response = response
         self._metadata = metadata

@@ -35,4 +35,4 @@ def test_ucaip_generated_predict_tabular_classification_sample(capsys):
     )
 
     out, _ = capsys.readouterr()
-    assert 'setosa' in out
+    assert "setosa" in out

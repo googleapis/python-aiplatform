@@ -927,9 +927,9 @@ class _TensorBatchedRequestSender(object):
     ):
         """Attempts to add the given event to the current request.
 
-          If the event cannot be added to the current request because the byte
-          budget is exhausted, the request is flushed, and the event is added
-          to the next request.
+        If the event cannot be added to the current request because the byte
+        budget is exhausted, the request is flushed, and the event is added
+        to the next request.
         """
         try:
             self._add_event_internal(event, value, metadata)
@@ -1359,7 +1359,9 @@ def _request_logger(request: tensorboard_service.WriteTensorboardRunDataRequest)
     yield
     upload_duration_secs = time.time() - upload_start_time
     logger.info(
-        "Upload of (%d bytes) took %.3f seconds", request_bytes, upload_duration_secs,
+        "Upload of (%d bytes) took %.3f seconds",
+        request_bytes,
+        upload_duration_secs,
     )
 
 
@@ -1433,7 +1435,8 @@ def _filtered_graph_bytes(graph_bytes: bytes):
     # a combination of mysterious circumstances.
     except (message.DecodeError, RuntimeWarning):
         logger.warning(
-            "Could not parse GraphDef of size %d. Skipping.", len(graph_bytes),
+            "Could not parse GraphDef of size %d. Skipping.",
+            len(graph_bytes),
         )
         return None
     # Use the default filter parameters:

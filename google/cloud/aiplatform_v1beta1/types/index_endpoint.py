@@ -88,17 +88,46 @@ class IndexEndpoint(proto.Message):
             is network name.
     """
 
-    name = proto.Field(proto.STRING, number=1,)
-    display_name = proto.Field(proto.STRING, number=2,)
-    description = proto.Field(proto.STRING, number=3,)
-    deployed_indexes = proto.RepeatedField(
-        proto.MESSAGE, number=4, message="DeployedIndex",
+    name = proto.Field(
+        proto.STRING,
+        number=1,
     )
-    etag = proto.Field(proto.STRING, number=5,)
-    labels = proto.MapField(proto.STRING, proto.STRING, number=6,)
-    create_time = proto.Field(proto.MESSAGE, number=7, message=timestamp_pb2.Timestamp,)
-    update_time = proto.Field(proto.MESSAGE, number=8, message=timestamp_pb2.Timestamp,)
-    network = proto.Field(proto.STRING, number=9,)
+    display_name = proto.Field(
+        proto.STRING,
+        number=2,
+    )
+    description = proto.Field(
+        proto.STRING,
+        number=3,
+    )
+    deployed_indexes = proto.RepeatedField(
+        proto.MESSAGE,
+        number=4,
+        message="DeployedIndex",
+    )
+    etag = proto.Field(
+        proto.STRING,
+        number=5,
+    )
+    labels = proto.MapField(
+        proto.STRING,
+        proto.STRING,
+        number=6,
+    )
+    create_time = proto.Field(
+        proto.MESSAGE,
+        number=7,
+        message=timestamp_pb2.Timestamp,
+    )
+    update_time = proto.Field(
+        proto.MESSAGE,
+        number=8,
+        message=timestamp_pb2.Timestamp,
+    )
+    network = proto.Field(
+        proto.STRING,
+        number=9,
+    )
 
 
 class DeployedIndex(proto.Message):
@@ -173,22 +202,46 @@ class DeployedIndex(proto.Message):
             enabled for the private endpoint.
     """
 
-    id = proto.Field(proto.STRING, number=1,)
-    index = proto.Field(proto.STRING, number=2,)
-    display_name = proto.Field(proto.STRING, number=3,)
-    create_time = proto.Field(proto.MESSAGE, number=4, message=timestamp_pb2.Timestamp,)
+    id = proto.Field(
+        proto.STRING,
+        number=1,
+    )
+    index = proto.Field(
+        proto.STRING,
+        number=2,
+    )
+    display_name = proto.Field(
+        proto.STRING,
+        number=3,
+    )
+    create_time = proto.Field(
+        proto.MESSAGE,
+        number=4,
+        message=timestamp_pb2.Timestamp,
+    )
     private_endpoints = proto.Field(
-        proto.MESSAGE, number=5, message="IndexPrivateEndpoints",
+        proto.MESSAGE,
+        number=5,
+        message="IndexPrivateEndpoints",
     )
     index_sync_time = proto.Field(
-        proto.MESSAGE, number=6, message=timestamp_pb2.Timestamp,
+        proto.MESSAGE,
+        number=6,
+        message=timestamp_pb2.Timestamp,
     )
     automatic_resources = proto.Field(
-        proto.MESSAGE, number=7, message=machine_resources.AutomaticResources,
+        proto.MESSAGE,
+        number=7,
+        message=machine_resources.AutomaticResources,
     )
-    enable_access_logging = proto.Field(proto.BOOL, number=8,)
+    enable_access_logging = proto.Field(
+        proto.BOOL,
+        number=8,
+    )
     deployed_index_auth_config = proto.Field(
-        proto.MESSAGE, number=9, message="DeployedIndexAuthConfig",
+        proto.MESSAGE,
+        number=9,
+        message="DeployedIndexAuthConfig",
     )
 
 
@@ -220,10 +273,20 @@ class DeployedIndexAuthConfig(proto.Message):
                 ``service-account-name@project-id.iam.gserviceaccount.com``
         """
 
-        audiences = proto.RepeatedField(proto.STRING, number=1,)
-        allowed_issuers = proto.RepeatedField(proto.STRING, number=2,)
+        audiences = proto.RepeatedField(
+            proto.STRING,
+            number=1,
+        )
+        allowed_issuers = proto.RepeatedField(
+            proto.STRING,
+            number=2,
+        )
 
-    auth_provider = proto.Field(proto.MESSAGE, number=1, message=AuthProvider,)
+    auth_provider = proto.Field(
+        proto.MESSAGE,
+        number=1,
+        message=AuthProvider,
+    )
 
 
 class IndexPrivateEndpoints(proto.Message):
@@ -236,7 +299,10 @@ class IndexPrivateEndpoints(proto.Message):
             match gRPC requests.
     """
 
-    match_grpc_address = proto.Field(proto.STRING, number=1,)
+    match_grpc_address = proto.Field(
+        proto.STRING,
+        number=1,
+    )
 
 
 __all__ = tuple(sorted(__protobuf__.manifest))

@@ -13,9 +13,9 @@
 # limitations under the License.
 #
 
+
 def make_name(name: str) -> str:
     # Sample function parameter name in delete_specialist_pool_sample
     name = name
 
     return name
-

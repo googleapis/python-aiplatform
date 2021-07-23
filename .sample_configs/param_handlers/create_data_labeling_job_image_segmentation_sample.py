@@ -13,6 +13,7 @@
 # limitations under the License.
 #
 
+
 def make_parent(parent: str) -> str:
     # Sample function parameter parent in create_data_labeling_job_image_segmentation_sample
     parent = parent
@@ -26,7 +27,7 @@ def make_data_labeling_job(
     instruction_uri: str,
     inputs_schema_uri: str,
     annotation_spec: dict,
-    annotation_set_name: str
+    annotation_set_name: str,
 ) -> google.cloud.aiplatform_v1beta1.types.data_labeling_job.DataLabelingJob:
     inputs_dict = {"annotationSpecColors": [annotation_spec]}
     inputs = to_protobuf_value(inputs_dict)

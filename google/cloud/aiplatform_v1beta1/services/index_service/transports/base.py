@@ -170,19 +170,29 @@ class IndexServiceTransport(abc.ABC):
         # Precompute the wrapped methods.
         self._wrapped_methods = {
             self.create_index: gapic_v1.method.wrap_method(
-                self.create_index, default_timeout=5.0, client_info=client_info,
+                self.create_index,
+                default_timeout=5.0,
+                client_info=client_info,
             ),
             self.get_index: gapic_v1.method.wrap_method(
-                self.get_index, default_timeout=5.0, client_info=client_info,
+                self.get_index,
+                default_timeout=5.0,
+                client_info=client_info,
             ),
             self.list_indexes: gapic_v1.method.wrap_method(
-                self.list_indexes, default_timeout=5.0, client_info=client_info,
+                self.list_indexes,
+                default_timeout=5.0,
+                client_info=client_info,
             ),
             self.update_index: gapic_v1.method.wrap_method(
-                self.update_index, default_timeout=5.0, client_info=client_info,
+                self.update_index,
+                default_timeout=5.0,
+                client_info=client_info,
             ),
             self.delete_index: gapic_v1.method.wrap_method(
-                self.delete_index, default_timeout=5.0, client_info=client_info,
+                self.delete_index,
+                default_timeout=5.0,
+                client_info=client_info,
             ),
         }
 

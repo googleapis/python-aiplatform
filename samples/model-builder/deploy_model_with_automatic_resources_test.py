@@ -18,7 +18,10 @@ import test_constants as constants
 
 
 def test_deploy_model_with_automatic_resources_sample(
-    mock_sdk_init, mock_model, mock_init_model, mock_deploy_model,
+    mock_sdk_init,
+    mock_model,
+    mock_init_model,
+    mock_deploy_model,
 ):
 
     deploy_model_with_automatic_resources_sample.deploy_model_with_automatic_resources_sample(

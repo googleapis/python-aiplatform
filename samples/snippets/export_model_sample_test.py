@@ -22,9 +22,7 @@ PROJECT_ID = os.getenv("BUILD_SPECIFIC_GCLOUD_PROJECT")
 MODEL_ID = (
     "3422489426196955136"  # permanent_swim_run_videos_action_recognition_edge_model
 )
-GCS_URI = (
-    "gs://ucaip-samples-test-output/tmp/export_model_sample"
-)
+GCS_URI = "gs://ucaip-samples-test-output/tmp/export_model_sample"
 
 
 @pytest.fixture(scope="function", autouse=True)
@@ -39,9 +37,7 @@ def teardown(storage_client):
 
 def test_export_model_sample(capsys):
     export_model_sample.export_model_sample(
-        project=PROJECT_ID,
-        model_id=MODEL_ID,
-        gcs_destination_output_uri_prefix=GCS_URI
+        project=PROJECT_ID, model_id=MODEL_ID, gcs_destination_output_uri_prefix=GCS_URI
     )
     out, _ = capsys.readouterr()
     assert "output_info" in out

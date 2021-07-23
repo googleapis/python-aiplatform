@@ -128,6 +128,7 @@ class SavedModelMetadataBuilder(metadata_builder.MetadataBuilder):
             Json format of the explanation metadata.
         """
         current_md = explanation_metadata.ExplanationMetadata(
-            inputs=self._inputs, outputs=self._outputs,
+            inputs=self._inputs,
+            outputs=self._outputs,
         )
         return json_format.MessageToDict(current_md._pb)

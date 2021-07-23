@@ -13,16 +13,17 @@
 # limitations under the License.
 #
 
+
 def make_parent(parent: str) -> str:
     # Sample function parameter parent in create_annotation_spec_sample
     parent = parent
 
     return parent
 
-def make_annotation_spec(display_name: str) -> google.cloud.aiplatform_v1alpha1.types.annotation_spec.AnnotationSpec:
-    annotation_spec = {
-        'display_name': display_name
-    }
+
+def make_annotation_spec(
+    display_name: str,
+) -> google.cloud.aiplatform_v1alpha1.types.annotation_spec.AnnotationSpec:
+    annotation_spec = {"display_name": display_name}
 
     return annotation_spec
-

@@ -13,9 +13,9 @@
 # limitations under the License.
 #
 
+
 def make_name(name: str) -> str:
     # Sample function parameter name in get_model_evaluation_video_object_tracking_sample
     name = name
 
     return name
-

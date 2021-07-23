@@ -13,21 +13,20 @@
 # limitations under the License.
 #
 
+
 def make_name(name: str) -> str:
     return name
 
-def make_import_configs(gcs_source_uri: str, import_schema_uri: str) -> typing.Sequence[google.cloud.aiplatform_v1alpha1.types.dataset.ImportDataConfig]:
+
+def make_import_configs(
+    gcs_source_uri: str, import_schema_uri: str
+) -> typing.Sequence[google.cloud.aiplatform_v1alpha1.types.dataset.ImportDataConfig]:
     # Here we use only one import config with one source
     import_configs = [
         {
-            "gcs_source": {
-            	"uris": [
-            		gcs_source_uri
-            	]
-            },
+            "gcs_source": {"uris": [gcs_source_uri]},
             "import_schema_uri": import_schema_uri,
         }
     ]
 
     return import_configs
-

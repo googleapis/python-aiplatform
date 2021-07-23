@@ -175,7 +175,9 @@ class SpecialistPoolServiceTransport(abc.ABC):
                 client_info=client_info,
             ),
             self.get_specialist_pool: gapic_v1.method.wrap_method(
-                self.get_specialist_pool, default_timeout=5.0, client_info=client_info,
+                self.get_specialist_pool,
+                default_timeout=5.0,
+                client_info=client_info,
             ),
             self.list_specialist_pools: gapic_v1.method.wrap_method(
                 self.list_specialist_pools,

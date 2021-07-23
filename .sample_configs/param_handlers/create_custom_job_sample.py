@@ -13,31 +13,36 @@
 # limitations under the License.
 #
 
+
 def make_parent(parent: str) -> str:
     # Sample function parameter parent in create_custom_job_sample
     parent = parent
 
     return parent
 
-def make_custom_job(display_name: str, container_image_uri: str) -> google.cloud.aiplatform_v1alpha1.types.custom_job.CustomJob:
+
+def make_custom_job(
+    display_name: str, container_image_uri: str
+) -> google.cloud.aiplatform_v1alpha1.types.custom_job.CustomJob:
     custom_job = {
-        'display_name': display_name,
-        'job_spec': {
-            'worker_pool_specs': [{
-                'machine_spec': {
-                    'machine_type': 'n1-standard-4',
-                    'accelerator_type': aiplatform.gapic.AcceleratorType.NVIDIA_TESLA_K80,
-                    'accelerator_count': 1
-                },
-                'replica_count': 1,
-                'container_spec': {
-                    'image_uri': container_image_uri,
-                    'command': [],
-                    'args': []
+        "display_name": display_name,
+        "job_spec": {
+            "worker_pool_specs": [
+                {
+                    "machine_spec": {
+                        "machine_type": "n1-standard-4",
+                        "accelerator_type": aiplatform.gapic.AcceleratorType.NVIDIA_TESLA_K80,
+                        "accelerator_count": 1,
+                    },
+                    "replica_count": 1,
+                    "container_spec": {
+                        "image_uri": container_image_uri,
+                        "command": [],
+                        "args": [],
+                    },
                 }
-            }]
-        }
+            ]
+        },
     }
 
     return custom_job
-

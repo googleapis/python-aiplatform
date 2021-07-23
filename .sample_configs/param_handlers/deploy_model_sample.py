@@ -13,31 +13,34 @@
 # limitations under the License.
 #
 
+
 def make_endpoint(endpoint: str) -> str:
     endpoint = endpoint
 
     return endpoint
 
-def make_deployed_model(model_name: str, deployed_model_display_name: str) -> google.cloud.aiplatform_v1alpha1.types.endpoint.DeployedModel:
+
+def make_deployed_model(
+    model_name: str, deployed_model_display_name: str
+) -> google.cloud.aiplatform_v1alpha1.types.endpoint.DeployedModel:
     deployed_model = {
         # format: 'projects/{project}/locations/{location}/models/{model}'
-        'model': model_name,
-        'display_name': deployed_model_display_name,
+        "model": model_name,
+        "display_name": deployed_model_display_name,
         # AutoML Vision models require `automatic_resources` field
         # Other model types may require `dedicated_resources` field instead
-        'automatic_resources': {
-            'min_replica_count': 1,
-            'max_replica_count': 1
-        }
+        "automatic_resources": {"min_replica_count": 1, "max_replica_count": 1},
     }
 
     return deployed_model
 
-def make_traffic_split() -> typing.Sequence[google.cloud.aiplatform_v1alpha1.types.endpoint_service.DeployModelRequest.TrafficSplitEntry]:
+
+def make_traffic_split() -> typing.Sequence[
+    google.cloud.aiplatform_v1alpha1.types.endpoint_service.DeployModelRequest.TrafficSplitEntry
+]:
     # key '0' assigns traffic for the newly deployed model
     # Traffic percentage values must add up to 100
-    # Leave dictionary empty if endpoint should not accept any traffic 
-    traffic_split = {'0': 100}
+    # Leave dictionary empty if endpoint should not accept any traffic
+    traffic_split = {"0": 100}
 
     return traffic_split
-

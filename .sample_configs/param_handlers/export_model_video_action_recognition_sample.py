@@ -13,6 +13,7 @@
 # limitations under the License.
 #
 
+
 def make_name(name: str) -> str:
     # Sample function parameter name in export_model_video_action_recognition_sample
     name = name
@@ -21,8 +22,7 @@ def make_name(name: str) -> str:
 
 
 def make_output_config(
-    gcs_destination_output_uri_prefix: str,
-    export_format: str
+    gcs_destination_output_uri_prefix: str, export_format: str
 ) -> google.cloud.aiplatform_v1beta1.types.model_service.OutputConfig:
     gcs_destination = {"output_uri_prefix": gcs_destination_output_uri_prefix}
     output_config = {

@@ -21,7 +21,11 @@ from google.protobuf import timestamp_pb2  # type: ignore
 
 
 __protobuf__ = proto.module(
-    package="google.cloud.aiplatform.v1", manifest={"Endpoint", "DeployedModel",},
+    package="google.cloud.aiplatform.v1",
+    manifest={
+        "Endpoint",
+        "DeployedModel",
+    },
 )
 
 
@@ -83,19 +87,51 @@ class Endpoint(proto.Message):
             this key.
     """
 
-    name = proto.Field(proto.STRING, number=1,)
-    display_name = proto.Field(proto.STRING, number=2,)
-    description = proto.Field(proto.STRING, number=3,)
-    deployed_models = proto.RepeatedField(
-        proto.MESSAGE, number=4, message="DeployedModel",
+    name = proto.Field(
+        proto.STRING,
+        number=1,
     )
-    traffic_split = proto.MapField(proto.STRING, proto.INT32, number=5,)
-    etag = proto.Field(proto.STRING, number=6,)
-    labels = proto.MapField(proto.STRING, proto.STRING, number=7,)
-    create_time = proto.Field(proto.MESSAGE, number=8, message=timestamp_pb2.Timestamp,)
-    update_time = proto.Field(proto.MESSAGE, number=9, message=timestamp_pb2.Timestamp,)
+    display_name = proto.Field(
+        proto.STRING,
+        number=2,
+    )
+    description = proto.Field(
+        proto.STRING,
+        number=3,
+    )
+    deployed_models = proto.RepeatedField(
+        proto.MESSAGE,
+        number=4,
+        message="DeployedModel",
+    )
+    traffic_split = proto.MapField(
+        proto.STRING,
+        proto.INT32,
+        number=5,
+    )
+    etag = proto.Field(
+        proto.STRING,
+        number=6,
+    )
+    labels = proto.MapField(
+        proto.STRING,
+        proto.STRING,
+        number=7,
+    )
+    create_time = proto.Field(
+        proto.MESSAGE,
+        number=8,
+        message=timestamp_pb2.Timestamp,
+    )
+    update_time = proto.Field(
+        proto.MESSAGE,
+        number=9,
+        message=timestamp_pb2.Timestamp,
+    )
     encryption_spec = proto.Field(
-        proto.MESSAGE, number=10, message=gca_encryption_spec.EncryptionSpec,
+        proto.MESSAGE,
+        number=10,
+        message=gca_encryption_spec.EncryptionSpec,
     )
 
 
@@ -168,13 +204,35 @@ class DeployedModel(proto.Message):
         oneof="prediction_resources",
         message=machine_resources.AutomaticResources,
     )
-    id = proto.Field(proto.STRING, number=1,)
-    model = proto.Field(proto.STRING, number=2,)
-    display_name = proto.Field(proto.STRING, number=3,)
-    create_time = proto.Field(proto.MESSAGE, number=6, message=timestamp_pb2.Timestamp,)
-    service_account = proto.Field(proto.STRING, number=11,)
-    disable_container_logging = proto.Field(proto.BOOL, number=15,)
-    enable_access_logging = proto.Field(proto.BOOL, number=13,)
+    id = proto.Field(
+        proto.STRING,
+        number=1,
+    )
+    model = proto.Field(
+        proto.STRING,
+        number=2,
+    )
+    display_name = proto.Field(
+        proto.STRING,
+        number=3,
+    )
+    create_time = proto.Field(
+        proto.MESSAGE,
+        number=6,
+        message=timestamp_pb2.Timestamp,
+    )
+    service_account = proto.Field(
+        proto.STRING,
+        number=11,
+    )
+    disable_container_logging = proto.Field(
+        proto.BOOL,
+        number=15,
+    )
+    enable_access_logging = proto.Field(
+        proto.BOOL,
+        number=13,
+    )
 
 
 __all__ = tuple(sorted(__protobuf__.manifest))

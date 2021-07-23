@@ -201,19 +201,29 @@ class PipelineServiceTransport(abc.ABC):
                 client_info=client_info,
             ),
             self.create_pipeline_job: gapic_v1.method.wrap_method(
-                self.create_pipeline_job, default_timeout=None, client_info=client_info,
+                self.create_pipeline_job,
+                default_timeout=None,
+                client_info=client_info,
             ),
             self.get_pipeline_job: gapic_v1.method.wrap_method(
-                self.get_pipeline_job, default_timeout=None, client_info=client_info,
+                self.get_pipeline_job,
+                default_timeout=None,
+                client_info=client_info,
             ),
             self.list_pipeline_jobs: gapic_v1.method.wrap_method(
-                self.list_pipeline_jobs, default_timeout=None, client_info=client_info,
+                self.list_pipeline_jobs,
+                default_timeout=None,
+                client_info=client_info,
             ),
             self.delete_pipeline_job: gapic_v1.method.wrap_method(
-                self.delete_pipeline_job, default_timeout=None, client_info=client_info,
+                self.delete_pipeline_job,
+                default_timeout=None,
+                client_info=client_info,
             ),
             self.cancel_pipeline_job: gapic_v1.method.wrap_method(
-                self.cancel_pipeline_job, default_timeout=None, client_info=client_info,
+                self.cancel_pipeline_job,
+                default_timeout=None,
+                client_info=client_info,
             ),
         }
 

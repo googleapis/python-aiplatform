@@ -96,7 +96,8 @@ def main(argv):
     project_id = m[1]
     region = m[2]
     api_client = aiplatform.initializer.global_config.create_client(
-        client_class=TensorboardClientWithOverride, location_override=region,
+        client_class=TensorboardClientWithOverride,
+        location_override=region,
     )
 
     try:

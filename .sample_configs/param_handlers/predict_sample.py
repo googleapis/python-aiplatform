@@ -13,19 +13,23 @@
 # limitations under the License.
 #
 
+
 def make_endpoint(endpoint: str) -> str:
     endpoint = endpoint
     return endpoint
 
-def make_instances(instance_dict: Dict) -> typing.Sequence[google.protobuf.struct_pb2.Value]:
+
+def make_instances(
+    instance_dict: Dict,
+) -> typing.Sequence[google.protobuf.struct_pb2.Value]:
     instance = to_protobuf_value(instance_dict)
     instances = [instance]
 
     return instances
+
 
 def make_parameters() -> google.protobuf.struct_pb2.Value:
     parameters_dict = {}
     parameters = to_protobuf_value(parameters_dict)
 
     return parameters
-

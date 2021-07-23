@@ -119,7 +119,11 @@ def test__get_default_mtls_endpoint():
 
 
 @pytest.mark.parametrize(
-    "client_class", [PredictionServiceClient, PredictionServiceAsyncClient,]
+    "client_class",
+    [
+        PredictionServiceClient,
+        PredictionServiceAsyncClient,
+    ],
 )
 def test_prediction_service_client_from_service_account_info(client_class):
     creds = ga_credentials.AnonymousCredentials()
@@ -136,7 +140,11 @@ def test_prediction_service_client_from_service_account_info(client_class):
 
 
 @pytest.mark.parametrize(
-    "client_class", [PredictionServiceClient, PredictionServiceAsyncClient,]
+    "client_class",
+    [
+        PredictionServiceClient,
+        PredictionServiceAsyncClient,
+    ],
 )
 def test_prediction_service_client_from_service_account_file(client_class):
     creds = ga_credentials.AnonymousCredentials()
@@ -422,7 +430,9 @@ def test_prediction_service_client_client_options_scopes(
     client_class, transport_class, transport_name
 ):
     # Check the case scopes are provided.
-    options = client_options.ClientOptions(scopes=["1", "2"],)
+    options = client_options.ClientOptions(
+        scopes=["1", "2"],
+    )
     with mock.patch.object(transport_class, "__init__") as patched:
         patched.return_value = None
         client = client_class(client_options=options)
@@ -490,7 +500,8 @@ def test_predict(
     transport: str = "grpc", request_type=prediction_service.PredictRequest
 ):
     client = PredictionServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(), transport=transport,
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport=transport,
     )
 
     # Everything is optional in proto3 as far as the runtime is concerned,
@@ -523,7 +534,8 @@ def test_predict_empty_call():
     # This test is a coverage failsafe to make sure that totally empty calls,
     # i.e. request == None and no flattened fields passed, work.
     client = PredictionServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(), transport="grpc",
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="grpc",
     )
 
     # Mock the actual call within the gRPC stub, and fake the request.
@@ -539,7 +551,8 @@ async def test_predict_async(
     transport: str = "grpc_asyncio", request_type=prediction_service.PredictRequest
 ):
     client = PredictionServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(), transport=transport,
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport=transport,
     )
 
     # Everything is optional in proto3 as far as the runtime is concerned,
@@ -572,7 +585,9 @@ async def test_predict_async_from_dict():
 
 
 def test_predict_field_headers():
-    client = PredictionServiceClient(credentials=ga_credentials.AnonymousCredentials(),)
+    client = PredictionServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+    )
 
     # Any value that is part of the HTTP/1.1 URI should be sent as
     # a field header. Set these to a non-empty value.
@@ -592,7 +607,10 @@ def test_predict_field_headers():
 
     # Establish that the field header was sent.
     _, _, kw = call.mock_calls[0]
-    assert ("x-goog-request-params", "endpoint=endpoint/value",) in kw["metadata"]
+    assert (
+        "x-goog-request-params",
+        "endpoint=endpoint/value",
+    ) in kw["metadata"]
 
 
 @pytest.mark.asyncio
@@ -621,11 +639,16 @@ async def test_predict_field_headers_async():
 
     # Establish that the field header was sent.
     _, _, kw = call.mock_calls[0]
-    assert ("x-goog-request-params", "endpoint=endpoint/value",) in kw["metadata"]
+    assert (
+        "x-goog-request-params",
+        "endpoint=endpoint/value",
+    ) in kw["metadata"]
 
 
 def test_predict_flattened():
-    client = PredictionServiceClient(credentials=ga_credentials.AnonymousCredentials(),)
+    client = PredictionServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+    )
 
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(type(client.transport.predict), "__call__") as call:
@@ -652,7 +675,9 @@ def test_predict_flattened():
 
 
 def test_predict_flattened_error():
-    client = PredictionServiceClient(credentials=ga_credentials.AnonymousCredentials(),)
+    client = PredictionServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+    )
 
     # Attempting to call a method with both a request object and flattened
     # fields is an error.
@@ -723,7 +748,8 @@ def test_credentials_transport_error():
     )
     with pytest.raises(ValueError):
         client = PredictionServiceClient(
-            credentials=ga_credentials.AnonymousCredentials(), transport=transport,
+            credentials=ga_credentials.AnonymousCredentials(),
+            transport=transport,
         )
 
     # It is an error to provide a credentials file and a transport instance.
@@ -742,7 +768,8 @@ def test_credentials_transport_error():
     )
     with pytest.raises(ValueError):
         client = PredictionServiceClient(
-            client_options={"scopes": ["1", "2"]}, transport=transport,
+            client_options={"scopes": ["1", "2"]},
+            transport=transport,
         )
 
 
@@ -787,8 +814,13 @@ def test_transport_adc(transport_class):
 
 def test_transport_grpc_default():
     # A client should use the gRPC transport by default.
-    client = PredictionServiceClient(credentials=ga_credentials.AnonymousCredentials(),)
-    assert isinstance(client.transport, transports.PredictionServiceGrpcTransport,)
+    client = PredictionServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+    )
+    assert isinstance(
+        client.transport,
+        transports.PredictionServiceGrpcTransport,
+    )
 
 
 def test_prediction_service_base_transport_error():
@@ -829,7 +861,8 @@ def test_prediction_service_base_transport_with_credentials_file():
         Transport.return_value = None
         load_creds.return_value = (ga_credentials.AnonymousCredentials(), None)
         transport = transports.PredictionServiceTransport(
-            credentials_file="credentials.json", quota_project_id="octopus",
+            credentials_file="credentials.json",
+            quota_project_id="octopus",
         )
         load_creds.assert_called_once_with(
             "credentials.json",
@@ -850,7 +883,8 @@ def test_prediction_service_base_transport_with_credentials_file_old_google_auth
         Transport.return_value = None
         load_creds.return_value = (ga_credentials.AnonymousCredentials(), None)
         transport = transports.PredictionServiceTransport(
-            credentials_file="credentials.json", quota_project_id="octopus",
+            credentials_file="credentials.json",
+            quota_project_id="octopus",
         )
         load_creds.assert_called_once_with(
             "credentials.json",
@@ -1115,7 +1149,8 @@ def test_prediction_service_grpc_transport_channel():
 
     # Check that channel is used if provided.
     transport = transports.PredictionServiceGrpcTransport(
-        host="squid.clam.whelk", channel=channel,
+        host="squid.clam.whelk",
+        channel=channel,
     )
     assert transport.grpc_channel == channel
     assert transport._host == "squid.clam.whelk:443"
@@ -1127,7 +1162,8 @@ def test_prediction_service_grpc_asyncio_transport_channel():
 
     # Check that channel is used if provided.
     transport = transports.PredictionServiceGrpcAsyncIOTransport(
-        host="squid.clam.whelk", channel=channel,
+        host="squid.clam.whelk",
+        channel=channel,
     )
     assert transport.grpc_channel == channel
     assert transport._host == "squid.clam.whelk:443"
@@ -1239,7 +1275,9 @@ def test_endpoint_path():
     location = "clam"
     endpoint = "whelk"
     expected = "projects/{project}/locations/{location}/endpoints/{endpoint}".format(
-        project=project, location=location, endpoint=endpoint,
+        project=project,
+        location=location,
+        endpoint=endpoint,
     )
     actual = PredictionServiceClient.endpoint_path(project, location, endpoint)
     assert expected == actual
@@ -1280,7 +1318,9 @@ def test_parse_common_billing_account_path():
 
 def test_common_folder_path():
     folder = "winkle"
-    expected = "folders/{folder}".format(folder=folder,)
+    expected = "folders/{folder}".format(
+        folder=folder,
+    )
     actual = PredictionServiceClient.common_folder_path(folder)
     assert expected == actual
 
@@ -1298,7 +1338,9 @@ def test_parse_common_folder_path():
 
 def test_common_organization_path():
     organization = "scallop"
-    expected = "organizations/{organization}".format(organization=organization,)
+    expected = "organizations/{organization}".format(
+        organization=organization,
+    )
     actual = PredictionServiceClient.common_organization_path(organization)
     assert expected == actual
 
@@ -1316,7 +1358,9 @@ def test_parse_common_organization_path():
 
 def test_common_project_path():
     project = "squid"
-    expected = "projects/{project}".format(project=project,)
+    expected = "projects/{project}".format(
+        project=project,
+    )
     actual = PredictionServiceClient.common_project_path(project)
     assert expected == actual
 
@@ -1336,7 +1380,8 @@ def test_common_location_path():
     project = "whelk"
     location = "octopus"
     expected = "projects/{project}/locations/{location}".format(
-        project=project, location=location,
+        project=project,
+        location=location,
     )
     actual = PredictionServiceClient.common_location_path(project, location)
     assert expected == actual
@@ -1361,7 +1406,8 @@ def test_client_withDEFAULT_CLIENT_INFO():
         transports.PredictionServiceTransport, "_prep_wrapped_messages"
     ) as prep:
         client = PredictionServiceClient(
-            credentials=ga_credentials.AnonymousCredentials(), client_info=client_info,
+            credentials=ga_credentials.AnonymousCredentials(),
+            client_info=client_info,
         )
         prep.assert_called_once_with(client_info)
 
@@ -1370,6 +1416,7 @@ def test_client_withDEFAULT_CLIENT_INFO():
     ) as prep:
         transport_class = PredictionServiceClient.get_transport_class()
         transport = transport_class(
-            credentials=ga_credentials.AnonymousCredentials(), client_info=client_info,
+            credentials=ga_credentials.AnonymousCredentials(),
+            client_info=client_info,
         )
         prep.assert_called_once_with(client_info)

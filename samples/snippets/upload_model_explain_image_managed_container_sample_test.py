@@ -37,7 +37,9 @@ def teardown(teardown_model):
 
 
 @pytest.mark.skip(reason="https://github.com/googleapis/java-aiplatform/issues/420")
-def test_ucaip_generated_upload_model_explain_image_managed_container_sample(capsys, shared_state):
+def test_ucaip_generated_upload_model_explain_image_managed_container_sample(
+    capsys, shared_state
+):
 
     upload_model_explain_image_managed_container_sample.upload_model_explain_image_managed_container_sample(
         display_name=DISPLAY_NAME,
@@ -45,7 +47,7 @@ def test_ucaip_generated_upload_model_explain_image_managed_container_sample(cap
         container_spec_image_uri=IMAGE_URI,
         project=PROJECT_ID,
         input_tensor_name=INPUT_TENSOR_NAME,
-        output_tensor_name=OUTPUT_TENSOR_NAME
+        output_tensor_name=OUTPUT_TENSOR_NAME,
     )
 
     out, _ = capsys.readouterr()

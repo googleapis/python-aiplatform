@@ -13,9 +13,9 @@
 # limitations under the License.
 #
 
+
 def make_name(name: str) -> str:
     # Sample function parameter name in get_custom_job_sample
     name = name
 
     return name
-

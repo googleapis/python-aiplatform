@@ -37,7 +37,9 @@ def teardown(teardown_model):
 
 
 @pytest.mark.skip(reason="https://github.com/googleapis/java-aiplatform/issues/420")
-def test_ucaip_generated_upload_model_explain_tabular_managed_constainer_sample(capsys, shared_state):
+def test_ucaip_generated_upload_model_explain_tabular_managed_constainer_sample(
+    capsys, shared_state
+):
 
     upload_model_explain_tabular_managed_container_sample.upload_model_explain_tabular_managed_container_sample(
         display_name=DISPLAY_NAME,
@@ -46,8 +48,21 @@ def test_ucaip_generated_upload_model_explain_tabular_managed_constainer_sample(
         project=PROJECT_ID,
         input_tensor_name=INPUT_TENSOR_NAME,
         output_tensor_name=OUTPUT_TENSOR_NAME,
-        feature_names=["crim", "zn", "indus", "chas", "nox", "rm", "age",
-                       "dis", "rad", "tax", "ptratio", "b", "lstat"]
+        feature_names=[
+            "crim",
+            "zn",
+            "indus",
+            "chas",
+            "nox",
+            "rm",
+            "age",
+            "dis",
+            "rad",
+            "tax",
+            "ptratio",
+            "b",
+            "lstat",
+        ],
     )
 
     out, _ = capsys.readouterr()

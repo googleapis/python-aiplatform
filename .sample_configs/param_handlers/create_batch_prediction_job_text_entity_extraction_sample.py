@@ -13,10 +13,12 @@
 # limitations under the License.
 #
 
+
 def make_parent(parent: str) -> str:
     parent = parent
 
     return parent
+
 
 def make_batch_prediction_job(
     display_name: str,
@@ -43,4 +45,3 @@ def make_batch_prediction_job(
     }
 
     return batch_prediction_job
-

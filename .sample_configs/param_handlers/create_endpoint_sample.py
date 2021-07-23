@@ -13,16 +13,17 @@
 # limitations under the License.
 #
 
+
 def make_parent(parent: str) -> str:
     # Sample function parameter parent in create_endpoint_sample
     parent = parent
 
     return parent
 
-def make_endpoint(display_name: str) -> google.cloud.aiplatform_v1alpha1.types.endpoint.Endpoint:
-    endpoint = {
-        'display_name': display_name
-    }
+
+def make_endpoint(
+    display_name: str,
+) -> google.cloud.aiplatform_v1alpha1.types.endpoint.Endpoint:
+    endpoint = {"display_name": display_name}
 
     return endpoint
-

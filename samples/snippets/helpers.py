@@ -25,7 +25,7 @@ def wait_for_job_state(
     timeout: int = 90,
     freq: float = 1.5,
 ) -> None:
-    """ Waits until the Job state of provided resource name is a particular state.
+    """Waits until the Job state of provided resource name is a particular state.
 
     Args:
         get_job_method: Callable[[str], "proto.Message"]

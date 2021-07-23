@@ -34,7 +34,8 @@ def teardown(shared_state, job_client):
 
     # Waiting for custom job to be in CANCELLED state
     helpers.wait_for_job_state(
-        get_job_method=job_client.get_custom_job, name=shared_state["custom_job_name"],
+        get_job_method=job_client.get_custom_job,
+        name=shared_state["custom_job_name"],
     )
 
     # Delete the created custom job

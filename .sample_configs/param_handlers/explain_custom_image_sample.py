@@ -13,17 +13,22 @@
 # limitations under the License.
 #
 
+
 def make_endpoint(endpoint: str) -> str:
     endpoint = endpoint
 
     return endpoint
 
-def make_instances(instance_dict: Dict) -> typing.Sequence[google.protobuf.struct_pb2.Value]:
+
+def make_instances(
+    instance_dict: Dict,
+) -> typing.Sequence[google.protobuf.struct_pb2.Value]:
     # The format of each instance should conform to the deployed model's prediction input schema.
     instance = to_protobuf_value(instance_dict)
     instances = [instance]
 
     return instances
+
 
 def make_parameters() -> google.protobuf.struct_pb2.Value:
     # custom models do not have additional parameters
@@ -31,6 +36,7 @@ def make_parameters() -> google.protobuf.struct_pb2.Value:
     parameters = to_protobuf_value(parameters_dict)
 
     return parameters
+
 
 def make_deployed_model_id():
     # This works when there is only one deployed model.

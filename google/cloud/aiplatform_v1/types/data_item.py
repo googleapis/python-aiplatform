@@ -20,7 +20,10 @@ from google.protobuf import timestamp_pb2  # type: ignore
 
 
 __protobuf__ = proto.module(
-    package="google.cloud.aiplatform.v1", manifest={"DataItem",},
+    package="google.cloud.aiplatform.v1",
+    manifest={
+        "DataItem",
+    },
 )
 
 
@@ -65,12 +68,34 @@ class DataItem(proto.Message):
             "overwrite" update happens.
     """
 
-    name = proto.Field(proto.STRING, number=1,)
-    create_time = proto.Field(proto.MESSAGE, number=2, message=timestamp_pb2.Timestamp,)
-    update_time = proto.Field(proto.MESSAGE, number=6, message=timestamp_pb2.Timestamp,)
-    labels = proto.MapField(proto.STRING, proto.STRING, number=3,)
-    payload = proto.Field(proto.MESSAGE, number=4, message=struct_pb2.Value,)
-    etag = proto.Field(proto.STRING, number=7,)
+    name = proto.Field(
+        proto.STRING,
+        number=1,
+    )
+    create_time = proto.Field(
+        proto.MESSAGE,
+        number=2,
+        message=timestamp_pb2.Timestamp,
+    )
+    update_time = proto.Field(
+        proto.MESSAGE,
+        number=6,
+        message=timestamp_pb2.Timestamp,
+    )
+    labels = proto.MapField(
+        proto.STRING,
+        proto.STRING,
+        number=3,
+    )
+    payload = proto.Field(
+        proto.MESSAGE,
+        number=4,
+        message=struct_pb2.Value,
+    )
+    etag = proto.Field(
+        proto.STRING,
+        number=7,
+    )
 
 
 __all__ = tuple(sorted(__protobuf__.manifest))

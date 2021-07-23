@@ -32,4 +32,6 @@ def test_predict_text_classification_single_label_sample(
         project=constants.PROJECT, location=constants.LOCATION
     )
 
-    mock_get_endpoint.assert_called_once_with(constants.ENDPOINT_NAME,)
+    mock_get_endpoint.assert_called_once_with(
+        constants.ENDPOINT_NAME,
+    )

@@ -20,7 +20,10 @@ from google.protobuf import timestamp_pb2  # type: ignore
 
 
 __protobuf__ = proto.module(
-    package="google.cloud.aiplatform.v1", manifest={"ModelEvaluation",},
+    package="google.cloud.aiplatform.v1",
+    manifest={
+        "ModelEvaluation",
+    },
 )
 
 
@@ -56,11 +59,28 @@ class ModelEvaluation(proto.Message):
             request, in the form of ``slice.dimension = <dimension>``.
     """
 
-    name = proto.Field(proto.STRING, number=1,)
-    metrics_schema_uri = proto.Field(proto.STRING, number=2,)
-    metrics = proto.Field(proto.MESSAGE, number=3, message=struct_pb2.Value,)
-    create_time = proto.Field(proto.MESSAGE, number=4, message=timestamp_pb2.Timestamp,)
-    slice_dimensions = proto.RepeatedField(proto.STRING, number=5,)
+    name = proto.Field(
+        proto.STRING,
+        number=1,
+    )
+    metrics_schema_uri = proto.Field(
+        proto.STRING,
+        number=2,
+    )
+    metrics = proto.Field(
+        proto.MESSAGE,
+        number=3,
+        message=struct_pb2.Value,
+    )
+    create_time = proto.Field(
+        proto.MESSAGE,
+        number=4,
+        message=timestamp_pb2.Timestamp,
+    )
+    slice_dimensions = proto.RepeatedField(
+        proto.STRING,
+        number=5,
+    )
 
 
 __all__ = tuple(sorted(__protobuf__.manifest))

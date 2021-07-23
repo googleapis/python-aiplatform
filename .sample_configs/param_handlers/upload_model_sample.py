@@ -13,31 +13,34 @@
 # limitations under the License.
 #
 
+
 def make_parent(parent: str) -> str:
     # Sample function parameter parent in upload_model_sample
     parent = parent
 
     return parent
 
-def make_model(display_name: str, metadata_schema_uri: str, image_uri: str, artifact_uri: str) -> google.cloud.aiplatform_v1alpha1.types.model.Model:
+
+def make_model(
+    display_name: str, metadata_schema_uri: str, image_uri: str, artifact_uri: str
+) -> google.cloud.aiplatform_v1alpha1.types.model.Model:
     model = {
-        'display_name': display_name,
-        'metadata_schema_uri': metadata_schema_uri,
+        "display_name": display_name,
+        "metadata_schema_uri": metadata_schema_uri,
         # The artifact_uri should be the path to a GCS directory containing
         # saved model artifacts.  The bucket must be accessible for the
         # project's AI Platform service account and in the same region as
         # the api endpoint.
-        'artifact_uri': artifact_uri,
-        'container_spec': {
-            'image_uri': image_uri,
-            'command': [],
-            'args': [],
-            'env': [],
-            'ports': [],
-            'predict_route': '',
-            'health_route': ''
-        }
+        "artifact_uri": artifact_uri,
+        "container_spec": {
+            "image_uri": image_uri,
+            "command": [],
+            "args": [],
+            "env": [],
+            "ports": [],
+            "predict_route": "",
+            "health_route": "",
+        },
     }
 
     return model
-

@@ -118,7 +118,8 @@ class Endpoint(base.VertexAiResourceNounWithFutureManager):
         self._gca_resource = self._get_gca_resource(resource_name=endpoint_name)
 
         self._prediction_client = self._instantiate_prediction_client(
-            location=self.location, credentials=credentials,
+            location=self.location,
+            credentials=credentials,
         )
 
     @property
@@ -359,14 +360,16 @@ class Endpoint(base.VertexAiResourceNounWithFutureManager):
         endpoint._gca_resource = gapic_resource
 
         endpoint._prediction_client = cls._instantiate_prediction_client(
-            location=endpoint.location, credentials=credentials,
+            location=endpoint.location,
+            credentials=credentials,
         )
 
         return endpoint
 
     @staticmethod
     def _allocate_traffic(
-        traffic_split: Dict[str, int], traffic_percentage: int,
+        traffic_split: Dict[str, int],
+        traffic_percentage: int,
     ) -> Dict[str, int]:
         """Allocates desired traffic to new deployed model and scales traffic
         of older deployed models.
@@ -402,7 +405,8 @@ class Endpoint(base.VertexAiResourceNounWithFutureManager):
 
     @staticmethod
     def _unallocate_traffic(
-        traffic_split: Dict[str, int], deployed_model_id: str,
+        traffic_split: Dict[str, int],
+        deployed_model_id: str,
     ) -> Dict[str, int]:
         """Sets deployed model id's traffic to 0 and scales the traffic of
         other deployed models.
@@ -896,16 +900,20 @@ class Endpoint(base.VertexAiResourceNounWithFutureManager):
                 machine_spec.accelerator_type = accelerator_type
                 machine_spec.accelerator_count = accelerator_count
 
-            deployed_model.dedicated_resources = gca_machine_resources.DedicatedResources(
-                machine_spec=machine_spec,
-                min_replica_count=min_replica_count,
-                max_replica_count=max_replica_count,
+            deployed_model.dedicated_resources = (
+                gca_machine_resources.DedicatedResources(
+                    machine_spec=machine_spec,
+                    min_replica_count=min_replica_count,
+                    max_replica_count=max_replica_count,
+                )
             )
 
         else:
-            deployed_model.automatic_resources = gca_machine_resources.AutomaticResources(
-                min_replica_count=min_replica_count,
-                max_replica_count=max_replica_count,
+            deployed_model.automatic_resources = (
+                gca_machine_resources.AutomaticResources(
+                    min_replica_count=min_replica_count,
+                    max_replica_count=max_replica_count,
+                )
             )
 
         # Service will throw error if both metadata and parameters are not provided
@@ -2334,8 +2342,8 @@ class Model(base.VertexAiResourceNounWithFutureManager):
             )
 
         if image_destination:
-            output_config.image_destination = gca_io_compat.ContainerRegistryDestination(
-                output_uri=image_destination
+            output_config.image_destination = (
+                gca_io_compat.ContainerRegistryDestination(output_uri=image_destination)
             )
 
         _LOGGER.log_action_start_against_resource("Exporting", "model", self)

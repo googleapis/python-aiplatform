@@ -32,5 +32,6 @@ def test_create_and_import_dataset_tabular_bigquery_sample(
         project=constants.PROJECT, location=constants.LOCATION
     )
     mock_create_tabular_dataset.assert_called_once_with(
-        display_name=constants.DISPLAY_NAME, bigquery_source=constants.BIGQUERY_SOURCE,
+        display_name=constants.DISPLAY_NAME,
+        bigquery_source=constants.BIGQUERY_SOURCE,
     )

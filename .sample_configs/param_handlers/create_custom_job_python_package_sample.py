@@ -13,29 +13,35 @@
 # limitations under the License.
 #
 
+
 def make_parent(parent: str) -> str:
     # Sample function parameter parent in create_custom_job_python_package_sample
     parent = parent
 
     return parent
 
-def make_custom_job(display_name: str, package_executor_image_uri: str, gcs_python_package_uri: str) -> google.cloud.aiplatform_v1alpha1.types.custom_job.CustomJob:
+
+def make_custom_job(
+    display_name: str, package_executor_image_uri: str, gcs_python_package_uri: str
+) -> google.cloud.aiplatform_v1alpha1.types.custom_job.CustomJob:
     custom_job = {
-        'display_name': display_name,
-        'job_spec': {
-            'worker_pool_specs': [{
-                'machine_spec': {
-                    'machine_type': 'n1-standard-2',
-                    'accelerator_type': aiplatform.gapic.AcceleratorType.NVIDIA_TESLA_K80,
-                    'accelerator_count': 1
-                },
-                'replica_count': 1,
-                'python_package_spec': {
-                    'executor_image_uri': package_executor_image_uri,
-                    'package_uris': [gcs_python_package_uri]
+        "display_name": display_name,
+        "job_spec": {
+            "worker_pool_specs": [
+                {
+                    "machine_spec": {
+                        "machine_type": "n1-standard-2",
+                        "accelerator_type": aiplatform.gapic.AcceleratorType.NVIDIA_TESLA_K80,
+                        "accelerator_count": 1,
+                    },
+                    "replica_count": 1,
+                    "python_package_spec": {
+                        "executor_image_uri": package_executor_image_uri,
+                        "package_uris": [gcs_python_package_uri],
+                    },
                 }
-            }]
-        }
+            ]
+        },
     }
 
     return custom_job

@@ -17,7 +17,10 @@ import proto  # type: ignore
 
 
 __protobuf__ = proto.module(
-    package="google.cloud.aiplatform.v1beta1", manifest={"EnvVar",},
+    package="google.cloud.aiplatform.v1beta1",
+    manifest={
+        "EnvVar",
+    },
 )
 
 
@@ -40,8 +43,14 @@ class EnvVar(proto.Message):
             variable exists or not.
     """
 
-    name = proto.Field(proto.STRING, number=1,)
-    value = proto.Field(proto.STRING, number=2,)
+    name = proto.Field(
+        proto.STRING,
+        number=1,
+    )
+    value = proto.Field(
+        proto.STRING,
+        number=2,
+    )
 
 
 __all__ = tuple(sorted(__protobuf__.manifest))

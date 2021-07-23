@@ -456,7 +456,9 @@ def test_featurestore_online_serving_service_client_client_options_scopes(
     client_class, transport_class, transport_name
 ):
     # Check the case scopes are provided.
-    options = client_options.ClientOptions(scopes=["1", "2"],)
+    options = client_options.ClientOptions(
+        scopes=["1", "2"],
+    )
     with mock.patch.object(transport_class, "__init__") as patched:
         patched.return_value = None
         client = client_class(client_options=options)
@@ -529,7 +531,8 @@ def test_read_feature_values(
     request_type=featurestore_online_service.ReadFeatureValuesRequest,
 ):
     client = FeaturestoreOnlineServingServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(), transport=transport,
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport=transport,
     )
 
     # Everything is optional in proto3 as far as the runtime is concerned,
@@ -561,7 +564,8 @@ def test_read_feature_values_empty_call():
     # This test is a coverage failsafe to make sure that totally empty calls,
     # i.e. request == None and no flattened fields passed, work.
     client = FeaturestoreOnlineServingServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(), transport="grpc",
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="grpc",
     )
 
     # Mock the actual call within the gRPC stub, and fake the request.
@@ -580,7 +584,8 @@ async def test_read_feature_values_async(
     request_type=featurestore_online_service.ReadFeatureValuesRequest,
 ):
     client = FeaturestoreOnlineServingServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(), transport=transport,
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport=transport,
     )
 
     # Everything is optional in proto3 as far as the runtime is concerned,
@@ -636,7 +641,10 @@ def test_read_feature_values_field_headers():
 
     # Establish that the field header was sent.
     _, _, kw = call.mock_calls[0]
-    assert ("x-goog-request-params", "entity_type=entity_type/value",) in kw["metadata"]
+    assert (
+        "x-goog-request-params",
+        "entity_type=entity_type/value",
+    ) in kw["metadata"]
 
 
 @pytest.mark.asyncio
@@ -667,7 +675,10 @@ async def test_read_feature_values_field_headers_async():
 
     # Establish that the field header was sent.
     _, _, kw = call.mock_calls[0]
-    assert ("x-goog-request-params", "entity_type=entity_type/value",) in kw["metadata"]
+    assert (
+        "x-goog-request-params",
+        "entity_type=entity_type/value",
+    ) in kw["metadata"]
 
 
 def test_read_feature_values_flattened():
@@ -683,7 +694,9 @@ def test_read_feature_values_flattened():
         call.return_value = featurestore_online_service.ReadFeatureValuesResponse()
         # Call the method with a truthy value for each flattened field,
         # using the keyword arguments to the method.
-        client.read_feature_values(entity_type="entity_type_value",)
+        client.read_feature_values(
+            entity_type="entity_type_value",
+        )
 
         # Establish that the underlying call was made with the expected
         # request object values.
@@ -724,7 +737,9 @@ async def test_read_feature_values_flattened_async():
         )
         # Call the method with a truthy value for each flattened field,
         # using the keyword arguments to the method.
-        response = await client.read_feature_values(entity_type="entity_type_value",)
+        response = await client.read_feature_values(
+            entity_type="entity_type_value",
+        )
 
         # Establish that the underlying call was made with the expected
         # request object values.
@@ -753,7 +768,8 @@ def test_streaming_read_feature_values(
     request_type=featurestore_online_service.StreamingReadFeatureValuesRequest,
 ):
     client = FeaturestoreOnlineServingServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(), transport=transport,
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport=transport,
     )
 
     # Everything is optional in proto3 as far as the runtime is concerned,
@@ -792,7 +808,8 @@ def test_streaming_read_feature_values_empty_call():
     # This test is a coverage failsafe to make sure that totally empty calls,
     # i.e. request == None and no flattened fields passed, work.
     client = FeaturestoreOnlineServingServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(), transport="grpc",
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="grpc",
     )
 
     # Mock the actual call within the gRPC stub, and fake the request.
@@ -813,7 +830,8 @@ async def test_streaming_read_feature_values_async(
     request_type=featurestore_online_service.StreamingReadFeatureValuesRequest,
 ):
     client = FeaturestoreOnlineServingServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(), transport=transport,
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport=transport,
     )
 
     # Everything is optional in proto3 as far as the runtime is concerned,
@@ -875,7 +893,10 @@ def test_streaming_read_feature_values_field_headers():
 
     # Establish that the field header was sent.
     _, _, kw = call.mock_calls[0]
-    assert ("x-goog-request-params", "entity_type=entity_type/value",) in kw["metadata"]
+    assert (
+        "x-goog-request-params",
+        "entity_type=entity_type/value",
+    ) in kw["metadata"]
 
 
 @pytest.mark.asyncio
@@ -907,7 +928,10 @@ async def test_streaming_read_feature_values_field_headers_async():
 
     # Establish that the field header was sent.
     _, _, kw = call.mock_calls[0]
-    assert ("x-goog-request-params", "entity_type=entity_type/value",) in kw["metadata"]
+    assert (
+        "x-goog-request-params",
+        "entity_type=entity_type/value",
+    ) in kw["metadata"]
 
 
 def test_streaming_read_feature_values_flattened():
@@ -925,7 +949,9 @@ def test_streaming_read_feature_values_flattened():
         )
         # Call the method with a truthy value for each flattened field,
         # using the keyword arguments to the method.
-        client.streaming_read_feature_values(entity_type="entity_type_value",)
+        client.streaming_read_feature_values(
+            entity_type="entity_type_value",
+        )
 
         # Establish that the underlying call was made with the expected
         # request object values.
@@ -999,7 +1025,8 @@ def test_credentials_transport_error():
     )
     with pytest.raises(ValueError):
         client = FeaturestoreOnlineServingServiceClient(
-            credentials=ga_credentials.AnonymousCredentials(), transport=transport,
+            credentials=ga_credentials.AnonymousCredentials(),
+            transport=transport,
         )
 
     # It is an error to provide a credentials file and a transport instance.
@@ -1018,7 +1045,8 @@ def test_credentials_transport_error():
     )
     with pytest.raises(ValueError):
         client = FeaturestoreOnlineServingServiceClient(
-            client_options={"scopes": ["1", "2"]}, transport=transport,
+            client_options={"scopes": ["1", "2"]},
+            transport=transport,
         )
 
 
@@ -1067,7 +1095,8 @@ def test_transport_grpc_default():
         credentials=ga_credentials.AnonymousCredentials(),
     )
     assert isinstance(
-        client.transport, transports.FeaturestoreOnlineServingServiceGrpcTransport,
+        client.transport,
+        transports.FeaturestoreOnlineServingServiceGrpcTransport,
     )
 
 
@@ -1112,7 +1141,8 @@ def test_featurestore_online_serving_service_base_transport_with_credentials_fil
         Transport.return_value = None
         load_creds.return_value = (ga_credentials.AnonymousCredentials(), None)
         transport = transports.FeaturestoreOnlineServingServiceTransport(
-            credentials_file="credentials.json", quota_project_id="octopus",
+            credentials_file="credentials.json",
+            quota_project_id="octopus",
         )
         load_creds.assert_called_once_with(
             "credentials.json",
@@ -1133,7 +1163,8 @@ def test_featurestore_online_serving_service_base_transport_with_credentials_fil
         Transport.return_value = None
         load_creds.return_value = (ga_credentials.AnonymousCredentials(), None)
         transport = transports.FeaturestoreOnlineServingServiceTransport(
-            credentials_file="credentials.json", quota_project_id="octopus",
+            credentials_file="credentials.json",
+            quota_project_id="octopus",
         )
         load_creds.assert_called_once_with(
             "credentials.json",
@@ -1413,7 +1444,8 @@ def test_featurestore_online_serving_service_grpc_transport_channel():
 
     # Check that channel is used if provided.
     transport = transports.FeaturestoreOnlineServingServiceGrpcTransport(
-        host="squid.clam.whelk", channel=channel,
+        host="squid.clam.whelk",
+        channel=channel,
     )
     assert transport.grpc_channel == channel
     assert transport._host == "squid.clam.whelk:443"
@@ -1425,7 +1457,8 @@ def test_featurestore_online_serving_service_grpc_asyncio_transport_channel():
 
     # Check that channel is used if provided.
     transport = transports.FeaturestoreOnlineServingServiceGrpcAsyncIOTransport(
-        host="squid.clam.whelk", channel=channel,
+        host="squid.clam.whelk",
+        channel=channel,
     )
     assert transport.grpc_channel == channel
     assert transport._host == "squid.clam.whelk:443"
@@ -1593,7 +1626,9 @@ def test_parse_common_billing_account_path():
 
 def test_common_folder_path():
     folder = "scallop"
-    expected = "folders/{folder}".format(folder=folder,)
+    expected = "folders/{folder}".format(
+        folder=folder,
+    )
     actual = FeaturestoreOnlineServingServiceClient.common_folder_path(folder)
     assert expected == actual
 
@@ -1611,7 +1646,9 @@ def test_parse_common_folder_path():
 
 def test_common_organization_path():
     organization = "squid"
-    expected = "organizations/{organization}".format(organization=organization,)
+    expected = "organizations/{organization}".format(
+        organization=organization,
+    )
     actual = FeaturestoreOnlineServingServiceClient.common_organization_path(
         organization
     )
@@ -1631,7 +1668,9 @@ def test_parse_common_organization_path():
 
 def test_common_project_path():
     project = "whelk"
-    expected = "projects/{project}".format(project=project,)
+    expected = "projects/{project}".format(
+        project=project,
+    )
     actual = FeaturestoreOnlineServingServiceClient.common_project_path(project)
     assert expected == actual
 
@@ -1651,7 +1690,8 @@ def test_common_location_path():
     project = "oyster"
     location = "nudibranch"
     expected = "projects/{project}/locations/{location}".format(
-        project=project, location=location,
+        project=project,
+        location=location,
     )
     actual = FeaturestoreOnlineServingServiceClient.common_location_path(
         project, location
@@ -1678,7 +1718,8 @@ def test_client_withDEFAULT_CLIENT_INFO():
         transports.FeaturestoreOnlineServingServiceTransport, "_prep_wrapped_messages"
     ) as prep:
         client = FeaturestoreOnlineServingServiceClient(
-            credentials=ga_credentials.AnonymousCredentials(), client_info=client_info,
+            credentials=ga_credentials.AnonymousCredentials(),
+            client_info=client_info,
         )
         prep.assert_called_once_with(client_info)
 
@@ -1687,6 +1728,7 @@ def test_client_withDEFAULT_CLIENT_INFO():
     ) as prep:
         transport_class = FeaturestoreOnlineServingServiceClient.get_transport_class()
         transport = transport_class(
-            credentials=ga_credentials.AnonymousCredentials(), client_info=client_info,
+            credentials=ga_credentials.AnonymousCredentials(),
+            client_info=client_info,
         )
         prep.assert_called_once_with(client_info)

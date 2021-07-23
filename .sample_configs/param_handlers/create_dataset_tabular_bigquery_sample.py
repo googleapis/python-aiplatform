@@ -13,25 +13,23 @@
 # limitations under the License.
 #
 
+
 def make_parent(parent: str) -> str:
     parent = parent
 
     return parent
 
-def make_dataset(display_name: str, bigquery_uri: str) -> google.cloud.aiplatform_v1alpha1.types.dataset.Dataset:
-    metadata_dict = {
-        'input_config': {
-            'bigquery_source': {
-                'uri': bigquery_uri
-            }
-        }
-    }
+
+def make_dataset(
+    display_name: str, bigquery_uri: str
+) -> google.cloud.aiplatform_v1alpha1.types.dataset.Dataset:
+    metadata_dict = {"input_config": {"bigquery_source": {"uri": bigquery_uri}}}
     metadata = to_protobuf_value(metadata_dict)
 
     dataset = {
-        'display_name': display_name,
-        'metadata_schema_uri': "gs://google-cloud-aiplatform/schema/dataset/metadata/tabular_1.0.0.yaml",
-        'metadata': metadata
+        "display_name": display_name,
+        "metadata_schema_uri": "gs://google-cloud-aiplatform/schema/dataset/metadata/tabular_1.0.0.yaml",
+        "metadata": metadata,
     }
 
     return dataset

@@ -45,7 +45,9 @@ def test_import_data_video_action_recognition_sample(
     dataset_id = shared_state["dataset_name"].split("/")[-1]
 
     import_data_video_action_recognition_sample.import_data_video_action_recognition_sample(
-        project=PROJECT_ID, dataset_id=dataset_id, gcs_source_uri=GCS_SOURCE,
+        project=PROJECT_ID,
+        dataset_id=dataset_id,
+        gcs_source_uri=GCS_SOURCE,
     )
     out, _ = capsys.readouterr()
 
