@@ -34,36 +34,43 @@ from google.cloud.aiplatform import initializer
 from google.cloud.aiplatform import utils
 from google.cloud.aiplatform.compat.types import encryption_spec as gca_encryption_spec
 from google.cloud import aiplatform
-                         
+
 try:
-    import torch 
+    import torch
 except ImportError:
-    raise ImportError("PyTorch is not installed. Please install torch to use VertexModel")
+    raise ImportError(
+        "PyTorch is not installed. Please install torch to use VertexModel"
+    )
 
 
-def _serialize_remote_dataloader:
+def _serialize_remote_dataloader():
     # writes the referenced data to the run-time bucket
     raise NotImplementedError
 
-def _deserialize_remote_dataloader:
-    # read the data from a run-time bucket 
+
+def _deserialize_remote_dataloader():
+    # read the data from a run-time bucket
     # and reformat to a DataLoader
     raise NotImplementedError
 
-def _serialize_local_dataloader:
-    # finds the local source, and copies 
+
+def _serialize_local_dataloader():
+    # finds the local source, and copies
     # data to the user-designated staging bucket
     raise NotImplementedError
 
-def _deserialize_local_dataloader:
+
+def _deserialize_local_dataloader():
     # read the data from user-designated staging bucket and
     # reformat to a DataLoader
     raise NotImplementedError
 
-def _serialize_dataloader:
+
+def _serialize_dataloader():
     # introspect to determine which method is called
     raise NotImplementedError
 
-def _deserialize_dataloader:
+
+def _deserialize_dataloader():
     # introspect to determine which method is called
     raise NotImplementedError
