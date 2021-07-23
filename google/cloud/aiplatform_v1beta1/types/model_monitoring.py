@@ -98,8 +98,8 @@ class ModelMonitoringObjectiveConfig(proto.Message):
             skew_thresholds (Sequence[google.cloud.aiplatform_v1beta1.types.ModelMonitoringObjectiveConfig.TrainingPredictionSkewDetectionConfig.SkewThresholdsEntry]):
                 Key is the feature name and value is the
                 threshold. If a feature needs to be monitored
-                for skew, a value threshold must be confinged for
-                that feature. The threshold here is against
+                for skew, a value threshold must be configured
+                for that feature. The threshold here is against
                 feature distribution distance between the
                 training and prediction feature.
         """
@@ -114,7 +114,7 @@ class ModelMonitoringObjectiveConfig(proto.Message):
             drift_thresholds (Sequence[google.cloud.aiplatform_v1beta1.types.ModelMonitoringObjectiveConfig.PredictionDriftDetectionConfig.DriftThresholdsEntry]):
                 Key is the feature name and value is the
                 threshold. If a feature needs to be monitored
-                for drift, a value threshold must be confinged
+                for drift, a value threshold must be configured
                 for that feature. The threshold here is against
                 feature distribution distance between different
                 time windws.
