@@ -51,9 +51,12 @@ _TEST_TRAINING_TASK_INPUTS = json_format.ParseDict(
 
 _TEST_FRACTION_SPLIT_TRAINING = 0.8
 _TEST_FRACTION_SPLIT_TEST = 0.2
+_TEST_ALTERNATE_FRACTION_SPLIT_TRAINING = 0.7
+_TEST_ALTERNATE_FRACTION_SPLIT_TEST = 0.3
 _TEST_FILTER_SPLIT_TRAINING = "train"
 _TEST_FILTER_SPLIT_VALIDATION = "-"
 _TEST_FILTER_SPLIT_TEST = "test"
+_TEST_PREDEFINED_SPLIT_COLUMN_NAME = "predefined_column"
 
 _TEST_MODEL_NAME = (
     f"projects/{_TEST_PROJECT}/locations/{_TEST_LOCATION}/models/{_TEST_MODEL_ID}"
@@ -233,8 +236,6 @@ class TestAutoMLVideoTrainingJob:
         model_from_job = job.run(
             dataset=mock_dataset_video,
             model_display_name=_TEST_MODEL_DISPLAY_NAME,
-            training_fraction_split=_TEST_FRACTION_SPLIT_TRAINING,
-            test_fraction_split=_TEST_FRACTION_SPLIT_TEST,
             sync=sync,
         )
 
@@ -302,8 +303,6 @@ class TestAutoMLVideoTrainingJob:
         model_from_job = job.run(
             dataset=mock_dataset_video,
             model_display_name=_TEST_MODEL_DISPLAY_NAME,
-            training_fraction_split=_TEST_FRACTION_SPLIT_TRAINING,
-            test_fraction_split=_TEST_FRACTION_SPLIT_TEST,
             training_filter_split=_TEST_FILTER_SPLIT_TRAINING,
             test_filter_split=_TEST_FILTER_SPLIT_TEST,
             sync=sync,
@@ -366,14 +365,18 @@ class TestAutoMLVideoTrainingJob:
             model_type=_TEST_MODEL_TYPE_CLOUD,
         )
 
-        model_from_job = job.run(dataset=mock_dataset_video)
+        model_from_job = job.run(
+            dataset=mock_dataset_video,
+            training_fraction_split=_TEST_ALTERNATE_FRACTION_SPLIT_TRAINING,
+            test_fraction_split=_TEST_ALTERNATE_FRACTION_SPLIT_TEST,
+        )
 
         if not sync:
             model_from_job.wait()
 
         true_fraction_split = gca_training_pipeline.FractionSplit(
-            training_fraction=_TEST_FRACTION_SPLIT_TRAINING,
-            test_fraction=_TEST_FRACTION_SPLIT_TEST,
+            training_fraction=_TEST_ALTERNATE_FRACTION_SPLIT_TRAINING,
+            test_fraction=_TEST_ALTERNATE_FRACTION_SPLIT_TEST,
         )
 
         # Test that if defaults to the job display name
@@ -412,6 +415,7 @@ class TestAutoMLVideoTrainingJob:
         job.run(
             dataset=mock_dataset_video,
             model_display_name=_TEST_MODEL_DISPLAY_NAME,
+            predefined_split_column_name=_TEST_PREDEFINED_SPLIT_COLUMN_NAME,
             sync=sync,
         )
 

@@ -61,6 +61,7 @@ _TEST_DEFAULT_TEST_FRACTION_SPLIT = 0.1
 _TEST_FILTER_SPLIT_TRAINING = "train"
 _TEST_FILTER_SPLIT_VALIDATION = "validate"
 _TEST_FILTER_SPLIT_TEST = "test"
+_TEST_PREDEFINED_SPLIT_COLUMN_NAME = "predefined_column"
 
 _TEST_MODEL_NAME = (
     f"projects/{_TEST_PROJECT}/locations/{_TEST_LOCATION}/models/{_TEST_MODEL_ID}"
@@ -331,9 +332,6 @@ class TestAutoMLTextTrainingJob:
         model_from_job = job.run(
             dataset=mock_dataset_text,
             model_display_name=_TEST_MODEL_DISPLAY_NAME,
-            training_fraction_split=_TEST_FRACTION_SPLIT_TRAINING,
-            validation_fraction_split=_TEST_FRACTION_SPLIT_VALIDATION,
-            test_fraction_split=_TEST_FRACTION_SPLIT_TEST,
             training_filter_split=_TEST_FILTER_SPLIT_TRAINING,
             validation_filter_split=_TEST_FILTER_SPLIT_VALIDATION,
             test_filter_split=_TEST_FILTER_SPLIT_TEST,
@@ -525,23 +523,22 @@ class TestAutoMLTextTrainingJob:
         model_from_job = job.run(
             dataset=mock_dataset_text,
             model_display_name=None,  # Omit model_display_name
+            predefined_split_column_name=_TEST_PREDEFINED_SPLIT_COLUMN_NAME,
             sync=sync,
         )
 
         if not sync:
             model_from_job.wait()
 
-        true_fraction_split = gca_training_pipeline.FractionSplit(
-            training_fraction=_TEST_DEFAULT_TRAINING_FRACTION_SPLIT,
-            validation_fraction=_TEST_DEFAULT_VALIDATION_FRACTION_SPLIT,
-            test_fraction=_TEST_DEFAULT_TEST_FRACTION_SPLIT,
+        true_predefined_split = gca_training_pipeline.PredefinedSplit(
+            key=_TEST_PREDEFINED_SPLIT_COLUMN_NAME
         )
 
         # Test that if defaults to the job display name
         true_managed_model = gca_model.Model(display_name=_TEST_DISPLAY_NAME)
 
         true_input_data_config = gca_training_pipeline.InputDataConfig(
-            fraction_split=true_fraction_split, dataset_id=mock_dataset_text.name,
+            predefined_split=true_predefined_split, dataset_id=mock_dataset_text.name,
         )
 
         true_training_pipeline = gca_training_pipeline.TrainingPipeline(
@@ -575,6 +572,9 @@ class TestAutoMLTextTrainingJob:
         job.run(
             dataset=mock_dataset_text,
             model_display_name=_TEST_MODEL_DISPLAY_NAME,
+            training_fraction_split=_TEST_FRACTION_SPLIT_TRAINING,
+            validation_fraction_split=_TEST_FRACTION_SPLIT_VALIDATION,
+            test_fraction_split=_TEST_FRACTION_SPLIT_TEST,
             sync=sync,
         )
 

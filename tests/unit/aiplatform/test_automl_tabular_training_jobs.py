@@ -302,7 +302,6 @@ class TestAutoMLTabularTrainingJob:
             training_fraction_split=_TEST_TRAINING_FRACTION_SPLIT,
             validation_fraction_split=_TEST_VALIDATION_FRACTION_SPLIT,
             test_fraction_split=_TEST_TEST_FRACTION_SPLIT,
-            predefined_split_column_name=_TEST_PREDEFINED_SPLIT_COLUMN_NAME,
             timestamp_split_column_name=_TEST_TIMESTAMP_SPLIT_COLUMN_NAME,
             weight_column=_TEST_TRAINING_WEIGHT_COLUMN,
             budget_milli_node_hours=_TEST_TRAINING_BUDGET_MILLI_NODE_HOURS,
@@ -326,11 +325,7 @@ class TestAutoMLTabularTrainingJob:
         )
 
         true_input_data_config = gca_training_pipeline.InputDataConfig(
-            predefined_split=gca_training_pipeline.PredefinedSplit(
-                key=_TEST_PREDEFINED_SPLIT_COLUMN_NAME
-            ),
-            timestamp_split=true_timestamp_split,
-            dataset_id=mock_dataset_tabular.name,
+            timestamp_split=true_timestamp_split, dataset_id=mock_dataset_tabular.name,
         )
 
         true_training_pipeline = gca_training_pipeline.TrainingPipeline(
@@ -756,6 +751,9 @@ class TestAutoMLTabularTrainingJob:
             dataset=mock_dataset_tabular,
             target_column=_TEST_TRAINING_TARGET_COLUMN,
             model_display_name=_TEST_MODEL_DISPLAY_NAME,
+            training_fraction_split=_TEST_TRAINING_FRACTION_SPLIT,
+            validation_fraction_split=_TEST_VALIDATION_FRACTION_SPLIT,
+            test_fraction_split=_TEST_TEST_FRACTION_SPLIT,
             sync=sync,
         )
 

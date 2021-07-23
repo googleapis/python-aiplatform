@@ -73,6 +73,7 @@ _TEST_FRACTION_SPLIT_TEST = 0.2
 _TEST_FILTER_SPLIT_TRAINING = "train"
 _TEST_FILTER_SPLIT_VALIDATION = "validate"
 _TEST_FILTER_SPLIT_TEST = "test"
+_TEST_PREDEFINED_SPLIT_COLUMN_NAME = "predefined_column"
 
 _TEST_MODEL_NAME = (
     f"projects/{_TEST_PROJECT}/locations/{_TEST_LOCATION}/models/{_TEST_MODEL_ID}"
@@ -260,9 +261,6 @@ class TestAutoMLImageTrainingJob:
         model_from_job = job.run(
             dataset=mock_dataset_image,
             model_display_name=_TEST_MODEL_DISPLAY_NAME,
-            training_fraction_split=_TEST_FRACTION_SPLIT_TRAINING,
-            validation_fraction_split=_TEST_FRACTION_SPLIT_VALIDATION,
-            test_fraction_split=_TEST_FRACTION_SPLIT_TEST,
             training_filter_split=_TEST_FILTER_SPLIT_TRAINING,
             validation_filter_split=_TEST_FILTER_SPLIT_VALIDATION,
             test_filter_split=_TEST_FILTER_SPLIT_TEST,
@@ -330,9 +328,7 @@ class TestAutoMLImageTrainingJob:
 
         model_from_job = job.run(
             dataset=mock_dataset_image,
-            training_fraction_split=_TEST_FRACTION_SPLIT_TRAINING,
-            validation_fraction_split=_TEST_FRACTION_SPLIT_VALIDATION,
-            test_fraction_split=_TEST_FRACTION_SPLIT_TEST,
+            predefined_split_column_name=_TEST_PREDEFINED_SPLIT_COLUMN_NAME,
             budget_milli_node_hours=_TEST_TRAINING_BUDGET_MILLI_NODE_HOURS,
             disable_early_stopping=_TEST_TRAINING_DISABLE_EARLY_STOPPING,
         )
@@ -340,10 +336,8 @@ class TestAutoMLImageTrainingJob:
         if not sync:
             model_from_job.wait()
 
-        true_fraction_split = gca_training_pipeline.FractionSplit(
-            training_fraction=_TEST_FRACTION_SPLIT_TRAINING,
-            validation_fraction=_TEST_FRACTION_SPLIT_VALIDATION,
-            test_fraction=_TEST_FRACTION_SPLIT_TEST,
+        true_predefined_split = gca_training_pipeline.PredefinedSplit(
+            key=_TEST_PREDEFINED_SPLIT_COLUMN_NAME
         )
 
         # Test that if defaults to the job display name
@@ -352,7 +346,7 @@ class TestAutoMLImageTrainingJob:
         )
 
         true_input_data_config = gca_training_pipeline.InputDataConfig(
-            fraction_split=true_fraction_split, dataset_id=mock_dataset_image.name,
+            predefined_split=true_predefined_split, dataset_id=mock_dataset_image.name
         )
 
         true_training_pipeline = gca_training_pipeline.TrainingPipeline(
@@ -383,6 +377,9 @@ class TestAutoMLImageTrainingJob:
         job.run(
             dataset=mock_dataset_image,
             model_display_name=_TEST_MODEL_DISPLAY_NAME,
+            training_fraction_split=_TEST_FRACTION_SPLIT_TRAINING,
+            validation_fraction_split=_TEST_FRACTION_SPLIT_VALIDATION,
+            test_fraction_split=_TEST_FRACTION_SPLIT_TEST,
             disable_early_stopping=_TEST_TRAINING_DISABLE_EARLY_STOPPING,
             sync=sync,
         )
