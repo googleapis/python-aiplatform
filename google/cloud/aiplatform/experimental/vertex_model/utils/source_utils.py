@@ -29,6 +29,8 @@ from typing import (
 )
 
 from google.cloud import aiplatform
+from google.cloud.experimental.vertex_model import base
+from google.cloud.experimental.vertex_model.serializers import *
 
 
 class SourceMaker:
@@ -39,7 +41,7 @@ class SourceMaker:
         self.source.extend(method_str.split("\n"))
 
 
-def _make_class_source(obj: Any):
+def _make_class_source(obj: Any) -> str:
     """Retrieves the source code for the class obj represents, usually an extension
        of VertexModel.
 
@@ -55,7 +57,7 @@ def _make_class_source(obj: Any):
     return "\n".join(source_maker.source)
 
 
-def _make_source(cls_source: str, cls_name: str, instance_method: str):
+def _make_source(cls_source: str, cls_name: str, instance_method: str, deserializer: str) -> str:
     """Converts a class source to a string including necessary imports.
 
     Args:
@@ -69,6 +71,30 @@ def _make_source(cls_source: str, cls_name: str, instance_method: str):
         between the user-written code and the string returned by this method is that
         the user has the option to specify a method to call from __main__.
     """
-    src = "\n".join(["import torch", "import pandas as pd", cls_source])
-    src = src + "if __name__ == '__main__':\n" + f"\t{cls_name}().{instance_method}()"
+    src = "\n".join(["import torch", "import pandas as pd", "from google.cloud.aiplatform import training_util",
+                     "from google.cloud.aiplatform.experimental.vertex_model.serializers import *" cls_source])
+
+    # First, add __main__ header
+    src = src + "if __name__ == '__main__':\n" 
+
+    '''
+     model = TwoLayerNet(D_in, H, D_out)
+     data = torch.utils.data.DataLoader(training_util.input_training_data_uri
+                                    batch_size=args['batch_size'],
+                                    shuffle=True)
+    '''
+
+    # Then, instantiate model
+    # How to get class parameters?
+    src = src +  f"\tmodel = {cls_name}()"
+
+
+    # Next, access dataset
+
+    # Then, deserialize dataset
+
+    # Finally, make call to fit with the dataset
+    
+    # + f"\t{cls_name}().{instance_method}()"
+
     return src

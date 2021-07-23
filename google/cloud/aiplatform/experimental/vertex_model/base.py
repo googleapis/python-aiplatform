@@ -76,10 +76,15 @@ def vertex_fit_function_wrapper(method):
 
         training_source = source_utils._make_class_source(obj)
 
+        deserializer = method.__self__.__class__._data_serialization_mapping[
+            type(dataset)
+        ][0]
+
         source = source_utils._make_source(
             cls_source=training_source,
             cls_name=cls_name,
             instance_method=method.__name__,
+            deserializer=deserializer.__name__,
         )
 
         with tempfile.TemporaryDirectory() as tmpdirname:
