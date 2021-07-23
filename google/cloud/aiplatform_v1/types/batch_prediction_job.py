@@ -212,7 +212,7 @@ class BatchPredictionJob(proto.Message):
                 files are created (N depends on total number of failed
                 predictions). These files contain the failed instances, as
                 per their schema, followed by an additional ``error`` field
-                which as value has ```google.rpc.Status`` <Status>`__
+                which as value has [google.rpc.Status][google.rpc.Status]
                 containing only ``code`` and ``message`` fields.
             bigquery_destination (google.cloud.aiplatform_v1.types.BigQueryDestination):
                 The BigQuery project or dataset location where the output is
@@ -234,8 +234,8 @@ class BatchPredictionJob(proto.Message):
                 ``errors`` table contains rows for which the prediction has
                 failed, it has instance columns, as per the instance schema,
                 followed by a single "errors" column, which as values has
-                ```google.rpc.Status`` <Status>`__ represented as a STRUCT,
-                and containing only ``code`` and ``message``.
+                [google.rpc.Status][google.rpc.Status] represented as a
+                STRUCT, and containing only ``code`` and ``message``.
             predictions_format (str):
                 Required. The format in which Vertex AI gives the
                 predictions, must be one of the
@@ -267,6 +267,11 @@ class BatchPredictionJob(proto.Message):
                 Output only. The path of the BigQuery dataset created, in
                 ``bq://projectId.bqDatasetId`` format, into which the
                 prediction output is written.
+            bigquery_output_table (str):
+                Output only. The name of the BigQuery table created, in
+                ``predictions_<timestamp>`` format, into which the
+                prediction output is written. Can be used by UI to generate
+                the BigQuery output path, for example.
         """
 
         gcs_output_directory = proto.Field(
@@ -275,6 +280,7 @@ class BatchPredictionJob(proto.Message):
         bigquery_output_dataset = proto.Field(
             proto.STRING, number=2, oneof="output_location",
         )
+        bigquery_output_table = proto.Field(proto.STRING, number=4,)
 
     name = proto.Field(proto.STRING, number=1,)
     display_name = proto.Field(proto.STRING, number=2,)

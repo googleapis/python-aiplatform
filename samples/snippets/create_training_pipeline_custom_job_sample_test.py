@@ -29,6 +29,7 @@ def teardown(teardown_training_pipeline):
     yield
 
 
+@pytest.mark.skip(reason="https://github.com/googleapis/java-aiplatform/issues/420")
 def test_ucaip_generated_create_training_pipeline_custom_job_sample(
     capsys, shared_state
 ):

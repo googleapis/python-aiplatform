@@ -44,6 +44,10 @@ _PIPELINE_COMPLETE_STATES = set(
     ]
 )
 
+_PIPELINE_ERROR_STATES = set(
+    [gca_pipeline_state_v1beta1.PipelineState.PIPELINE_STATE_FAILED]
+)
+
 # Vertex AI Pipelines service API job name relative name prefix pattern.
 _JOB_NAME_PATTERN = "{parent}/pipelineJobs/{job_id}"
 
@@ -92,7 +96,7 @@ class PipelineJob(base.VertexAiResourceNounWithFutureManager):
         job_id: Optional[str] = None,
         pipeline_root: Optional[str] = None,
         parameter_values: Optional[Dict[str, Any]] = None,
-        enable_caching: Optional[bool] = True,
+        enable_caching: Optional[bool] = None,
         encryption_spec_key_name: Optional[str] = None,
         labels: Optional[Dict[str, str]] = None,
         credentials: Optional[auth_credentials.Credentials] = None,
@@ -117,7 +121,15 @@ class PipelineJob(base.VertexAiResourceNounWithFutureManager):
                 Optional. The mapping from runtime parameter names to its values that
                 control the pipeline run.
             enable_caching (bool):
-                Optional. Whether to turn on caching for the run. Defaults to True.
+                Optional. Whether to turn on caching for the run.
+
+                If this is not set, defaults to the compile time settings, which
+                are True for all tasks by default, while users may specify
+                different caching options for individual tasks.
+
+                If this is set, the setting applies to all tasks in the pipeline.
+
+                Overrides the compile time settings.
             encryption_spec_key_name (str):
                 Optional. The Cloud KMS resource identifier of the customer
                 managed encryption key used to protect the job. Has the
@@ -194,7 +206,8 @@ class PipelineJob(base.VertexAiResourceNounWithFutureManager):
         runtime_config = gca_pipeline_job_v1beta1.PipelineJob.RuntimeConfig()._pb
         json_format.ParseDict(runtime_config_dict, runtime_config)
 
-        _set_enable_caching_value(pipeline_job["pipelineSpec"], enable_caching)
+        if enable_caching is not None:
+            _set_enable_caching_value(pipeline_job["pipelineSpec"], enable_caching)
 
         self._gca_resource = gca_pipeline_job_v1beta1.PipelineJob(
             display_name=display_name,
@@ -310,6 +323,50 @@ class PipelineJob(base.VertexAiResourceNounWithFutureManager):
                 log_wait = min(log_wait * multiplier, max_wait)
                 previous_time = current_time
             time.sleep(wait)
+
+        # Error is only populated when the job state is
+        # JOB_STATE_FAILED or JOB_STATE_CANCELLED.
+        if self._gca_resource.state in _PIPELINE_ERROR_STATES:
+            raise RuntimeError("Job failed with:\n%s" % self._gca_resource.error)
+        else:
+            _LOGGER.log_action_completed_against_resource("run", "completed", self)
+
+    @classmethod
+    def get(
+        cls,
+        resource_name: str,
+        project: Optional[str] = None,
+        location: Optional[str] = None,
+        credentials: Optional[auth_credentials.Credentials] = None,
+    ) -> "PipelineJob":
+        """Get a Vertex AI Pipeline Job for the given resource_name.
+
+        Args:
+            resource_name (str):
+                Required. A fully-qualified resource name or ID.
+            project (str):
+                Optional. Project to retrieve dataset from. If not set, project
+                set in aiplatform.init will be used.
+            location (str):
+                Optional. Location to retrieve dataset from. If not set,
+                location set in aiplatform.init will be used.
+            credentials (auth_credentials.Credentials):
+                Optional. Custom credentials to use to upload this model.
+                Overrides credentials set in aiplatform.init.
+
+        Returns:
+            A Vertex AI PipelineJob.
+        """
+        self = cls._empty_constructor(
+            project=project,
+            location=location,
+            credentials=credentials,
+            resource_name=resource_name,
+        )
+
+        self._gca_resource = self._get_gca_resource(resource_name=resource_name)
+
+        return self
 
     def cancel(self) -> None:
         """Starts asynchronous cancellation on the PipelineJob. The server

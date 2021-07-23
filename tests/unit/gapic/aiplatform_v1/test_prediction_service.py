@@ -660,8 +660,8 @@ def test_predict_flattened_error():
         client.predict(
             prediction_service.PredictRequest(),
             endpoint="endpoint_value",
-            instances=[struct_pb2.Value(null_value=struct_pb2.NullValue.NULL_VALUE)],
             parameters=struct_pb2.Value(null_value=struct_pb2.NullValue.NULL_VALUE),
+            instances=[struct_pb2.Value(null_value=struct_pb2.NullValue.NULL_VALUE)],
         )
 
 
@@ -711,8 +711,8 @@ async def test_predict_flattened_error_async():
         await client.predict(
             prediction_service.PredictRequest(),
             endpoint="endpoint_value",
-            instances=[struct_pb2.Value(null_value=struct_pb2.NullValue.NULL_VALUE)],
             parameters=struct_pb2.Value(null_value=struct_pb2.NullValue.NULL_VALUE),
+            instances=[struct_pb2.Value(null_value=struct_pb2.NullValue.NULL_VALUE)],
         )
 
 

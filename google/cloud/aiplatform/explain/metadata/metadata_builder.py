@@ -26,9 +26,5 @@ class MetadataBuilder(_ABC):
     """Abstract base class for metadata builders."""
 
     @abc.abstractmethod
-    def save_model_with_metadata(self, filepath: str):
-        """Saves the model with metadata."""
-
-    @abc.abstractmethod
     def get_metadata(self):
         """Returns the current metadata as a dictionary."""
