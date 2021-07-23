@@ -79,7 +79,7 @@ class ModelDeploymentMonitoringJob(proto.Message):
         model_deployment_monitoring_objective_configs (Sequence[google.cloud.aiplatform_v1beta1.types.ModelDeploymentMonitoringObjectiveConfig]):
             Required. The config for monitoring
             objectives. This is a per DeployedModel config.
-            Each DeployedModel needs to be configed
+            Each DeployedModel needs to be configured
             separately.
         model_deployment_monitoring_schedule_config (google.cloud.aiplatform_v1beta1.types.ModelDeploymentMonitoringScheduleConfig):
             Required. Schedule config for running the

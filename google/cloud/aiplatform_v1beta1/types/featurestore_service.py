@@ -396,6 +396,8 @@ class BatchReadFeatureValuesRequest(proto.Message):
 
             Values in the timestamp column must use the RFC 3339 format,
             e.g. ``2012-07-30T10:43:17.123Z``.
+        bigquery_read_instances (google.cloud.aiplatform_v1beta1.types.BigQuerySource):
+            Similar to csv_read_instances, but from BigQuery source.
         featurestore (str):
             Required. The resource name of the Featurestore from which
             to query Feature values. Format:
@@ -403,13 +405,33 @@ class BatchReadFeatureValuesRequest(proto.Message):
         destination (google.cloud.aiplatform_v1beta1.types.FeatureValueDestination):
             Required. Specifies output location and
             format.
+        pass_through_fields (Sequence[google.cloud.aiplatform_v1beta1.types.BatchReadFeatureValuesRequest.PassThroughField]):
+            When not empty, the specified fields in the
+            \*_read_instances source will be joined as-is in the output,
+            in addition to those fields from the Featurestore Entity.
+
+            For BigQuery source, the type of the pass-through values
+            will be automatically inferred. For CSV source, the
+            pass-through values will be passed as opaque bytes.
         entity_type_specs (Sequence[google.cloud.aiplatform_v1beta1.types.BatchReadFeatureValuesRequest.EntityTypeSpec]):
             Required. Specifies EntityType grouping Features to read
             values of and settings. Each EntityType referenced in
             [BatchReadFeatureValuesRequest.entity_type_specs] must have
-            a column specifying entity IDs in tha EntityType in
+            a column specifying entity IDs in the EntityType in
             [BatchReadFeatureValuesRequest.request][] .
     """
+
+    class PassThroughField(proto.Message):
+        r"""Describe pass-through fields in read_instance source.
+        Attributes:
+            field_name (str):
+                Required. The name of the field in the CSV header or the
+                name of the column in BigQuery table. The naming restriction
+                is the same as
+                [Feature.name][google.cloud.aiplatform.v1beta1.Feature.name].
+        """
+
+        field_name = proto.Field(proto.STRING, number=1,)
 
     class EntityTypeSpec(proto.Message):
         r"""Selects Features of an EntityType to read values of and
@@ -439,9 +461,15 @@ class BatchReadFeatureValuesRequest(proto.Message):
     csv_read_instances = proto.Field(
         proto.MESSAGE, number=3, oneof="read_option", message=io.CsvSource,
     )
+    bigquery_read_instances = proto.Field(
+        proto.MESSAGE, number=5, oneof="read_option", message=io.BigQuerySource,
+    )
     featurestore = proto.Field(proto.STRING, number=1,)
     destination = proto.Field(
         proto.MESSAGE, number=4, message="FeatureValueDestination",
+    )
+    pass_through_fields = proto.RepeatedField(
+        proto.MESSAGE, number=8, message=PassThroughField,
     )
     entity_type_specs = proto.RepeatedField(
         proto.MESSAGE, number=7, message=EntityTypeSpec,
