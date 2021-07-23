@@ -144,6 +144,7 @@ def mock_run_custom_training_job(mock_custom_training_job):
     with patch.object(mock_custom_training_job, "run") as mock:
         yield mock
 
+
 @pytest.fixture
 def create_custom_job_mock():
     with mock.patch.object(
@@ -195,7 +196,7 @@ def _get_custom_job_proto(state=None, name=None, error=None, version="v1"):
     return custom_job_proto
 
 
-class LinearRegression(base.VertexModel, torch.nn.Module): 
+class LinearRegression(base.VertexModel, torch.nn.Module):
     def __init__(self, input_size: int, output_size: int):
         base.VertexModel.__init__(self)
         torch.nn.Module.__init__(self)
@@ -215,21 +216,24 @@ class LinearRegression(base.VertexModel, torch.nn.Module):
             loss.backward()
             optimizer.step()
 
-    def fit(self, data: pd.DataFrame, target_column: str, 
-            epochs: int, learning_rate: float):
+    def fit(
+        self, data: pd.DataFrame, target_column: str, epochs: int, learning_rate: float
+    ):
         feature_columns = list(data.columns)
         feature_columns.remove(target_column)
 
         features = torch.tensor(data[feature_columns].values)
         target = torch.tensor(data[target_column].values)
-        
+
         dataloader = torch.utils.data.DataLoader(
             torch.utils.data.TensorDataset(features, target),
-            batch_size=10, shuffle=True)
+            batch_size=10,
+            shuffle=True,
+        )
 
         loss_fn = torch.nn.MSELoss()
         optimizer = torch.optim.SGD(self.parameters(), lr=learning_rate)
-        
+
         for t in range(epochs):
             self.train_loop(dataloader, loss_fn, optimizer)
 
@@ -251,12 +255,13 @@ class TestCloudVertexModelClass:
         )
 
         my_model = LinearRegression(2, 1)
-        my_model.training_mode = 'cloud'
+        my_model.training_mode = "cloud"
 
-        assert(my_model is not None)
+        assert my_model is not None
 
-    def test_custom_job_call_from_vertex_model(self, mock_get_custom_training_job, 
-                             mock_run_custom_training_job):
+    def test_custom_job_call_from_vertex_model(
+        self, mock_get_custom_training_job, mock_run_custom_training_job
+    ):
         aiplatform.init(
             project=_TEST_PROJECT,
             location=_TEST_LOCATION,
@@ -265,27 +270,30 @@ class TestCloudVertexModelClass:
         )
 
         my_model = LinearRegression(2, 1)
-        my_model.training_mode = 'cloud'
+        my_model.training_mode = "cloud"
 
-        df = pd.DataFrame(np.random.random(size=(100, 3)), 
-                          columns=['feat_1', 'feat_2', 'target'])
-        my_model.fit(df, 'target', 1, 0.1)
+        df = pd.DataFrame(
+            np.random.random(size=(100, 3)), columns=["feat_1", "feat_2", "target"]
+        )
+        my_model.fit(df, "target", 1, 0.1)
 
         call_args = mock_get_custom_training_job.call_args
 
         expected = {
-            'display_name': 'my_training_job',
-            'requirements': ['pandas>=1.3'],
-            'container_uri': 'us-docker.pkg.dev/vertex-ai/training/pytorch-xla.1-7:latest'
+            "display_name": "my_training_job",
+            "requirements": ["pandas>=1.3"],
+            "container_uri": "us-docker.pkg.dev/vertex-ai/training/pytorch-xla.1-7:latest",
         }
 
         for key, value in expected.items():
             print(key)
             assert call_args[1][key] == value
 
-        assert call_args[1]['script_path'].endswith('/training_script.py')
-        assert sorted(list(call_args[1].keys())) == sorted(list(expected.keys()) + ['script_path']) 
-        
+        assert call_args[1]["script_path"].endswith("/training_script.py")
+        assert sorted(list(call_args[1].keys())) == sorted(
+            list(expected.keys()) + ["script_path"]
+        )
+
         mock_get_custom_training_job.assert_called_once()
         assert len(call_args[0]) == 0
 
@@ -295,9 +303,8 @@ class TestCloudVertexModelClass:
 
 
 class TestLocalVertexModelClass:
-
     def test_create_local_vertex_model_class(self):
         aiplatform.init(project=_TEST_PROJECT, staging_bucket=_TEST_STAGING_BUCKET)
 
         model = LinearRegression(2, 1)
-        assert(model is not None)
+        assert model is not None
