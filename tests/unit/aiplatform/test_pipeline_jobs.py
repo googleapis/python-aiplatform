@@ -189,10 +189,7 @@ class TestPipelineJob:
     @pytest.mark.usefixtures("mock_load_json")
     @pytest.mark.parametrize("sync", [True, False])
     def test_run_call_pipeline_service_create(
-        self,
-        mock_pipeline_service_create,
-        mock_pipeline_service_get,
-        sync,
+        self, mock_pipeline_service_create, mock_pipeline_service_get, sync,
     ):
         aiplatform.init(
             project=_TEST_PROJECT,
@@ -210,9 +207,7 @@ class TestPipelineJob:
         )
 
         job.run(
-            service_account=_TEST_SERVICE_ACCOUNT,
-            network=_TEST_NETWORK,
-            sync=sync,
+            service_account=_TEST_SERVICE_ACCOUNT, network=_TEST_NETWORK, sync=sync,
         )
 
         if not sync:
@@ -238,8 +233,7 @@ class TestPipelineJob:
         )
 
         mock_pipeline_service_create.assert_called_once_with(
-            parent=_TEST_PARENT,
-            pipeline_job=expected_gapic_pipeline_job,
+            parent=_TEST_PARENT, pipeline_job=expected_gapic_pipeline_job,
         )
 
         mock_pipeline_service_get.assert_called_with(name=_TEST_PIPELINE_JOB_NAME)
@@ -249,13 +243,10 @@ class TestPipelineJob:
         )
 
     @pytest.mark.usefixtures(
-        "mock_pipeline_service_create",
-        "mock_pipeline_service_get",
-        "mock_load_json",
+        "mock_pipeline_service_create", "mock_pipeline_service_get", "mock_load_json",
     )
     def test_cancel_pipeline_job(
-        self,
-        mock_pipeline_service_cancel,
+        self, mock_pipeline_service_cancel,
     ):
         aiplatform.init(
             project=_TEST_PROJECT,
@@ -277,13 +268,10 @@ class TestPipelineJob:
         )
 
     @pytest.mark.usefixtures(
-        "mock_pipeline_service_create",
-        "mock_pipeline_service_get",
-        "mock_load_json",
+        "mock_pipeline_service_create", "mock_pipeline_service_get", "mock_load_json",
     )
     def test_cancel_pipeline_job_without_running(
-        self,
-        mock_pipeline_service_cancel,
+        self, mock_pipeline_service_cancel,
     ):
         aiplatform.init(
             project=_TEST_PROJECT,
@@ -326,9 +314,7 @@ class TestPipelineJob:
 
         with pytest.raises(RuntimeError):
             job.run(
-                service_account=_TEST_SERVICE_ACCOUNT,
-                network=_TEST_NETWORK,
-                sync=sync,
+                service_account=_TEST_SERVICE_ACCOUNT, network=_TEST_NETWORK, sync=sync,
             )
 
             if not sync:

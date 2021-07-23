@@ -525,8 +525,7 @@ class TestDataset:
         self, create_dataset_mock, sync
     ):
         aiplatform.init(
-            project=_TEST_PROJECT,
-            encryption_spec_key_name=_TEST_ENCRYPTION_KEY_NAME,
+            project=_TEST_PROJECT, encryption_spec_key_name=_TEST_ENCRYPTION_KEY_NAME,
         )
 
         my_dataset = datasets._Dataset.create(
@@ -781,13 +780,11 @@ class TestImageDataset:
     @pytest.mark.parametrize("sync", [True, False])
     def test_create_dataset(self, create_dataset_mock, sync):
         aiplatform.init(
-            project=_TEST_PROJECT,
-            encryption_spec_key_name=_TEST_ENCRYPTION_KEY_NAME,
+            project=_TEST_PROJECT, encryption_spec_key_name=_TEST_ENCRYPTION_KEY_NAME,
         )
 
         my_dataset = datasets.ImageDataset.create(
-            display_name=_TEST_DISPLAY_NAME,
-            sync=sync,
+            display_name=_TEST_DISPLAY_NAME, sync=sync,
         )
 
         if not sync:
@@ -948,14 +945,11 @@ class TestTabularDataset:
         self, create_dataset_mock, sync
     ):
         aiplatform.init(
-            project=_TEST_PROJECT,
-            encryption_spec_key_name=_TEST_ENCRYPTION_KEY_NAME,
+            project=_TEST_PROJECT, encryption_spec_key_name=_TEST_ENCRYPTION_KEY_NAME,
         )
 
         my_dataset = datasets.TabularDataset.create(
-            display_name=_TEST_DISPLAY_NAME,
-            bq_source=_TEST_SOURCE_URI_BQ,
-            sync=sync,
+            display_name=_TEST_DISPLAY_NAME, bq_source=_TEST_SOURCE_URI_BQ, sync=sync,
         )
 
         if not sync:
@@ -1085,9 +1079,7 @@ class TestTabularDataset:
             project=_TEST_PROJECT, credentials=creds
         )
 
-    @pytest.mark.usefixtures(
-        "get_dataset_tabular_bq_mock",
-    )
+    @pytest.mark.usefixtures("get_dataset_tabular_bq_mock",)
     def test_tabular_dataset_column_name_bq_with_creds(self, bq_client_mock):
         creds = auth_credentials.AnonymousCredentials()
         my_dataset = datasets.TabularDataset(dataset_name=_TEST_NAME, credentials=creds)
@@ -1141,13 +1133,11 @@ class TestTextDataset:
     @pytest.mark.parametrize("sync", [True, False])
     def test_create_dataset(self, create_dataset_mock, sync):
         aiplatform.init(
-            project=_TEST_PROJECT,
-            encryption_spec_key_name=_TEST_ENCRYPTION_KEY_NAME,
+            project=_TEST_PROJECT, encryption_spec_key_name=_TEST_ENCRYPTION_KEY_NAME,
         )
 
         my_dataset = datasets.TextDataset.create(
-            display_name=_TEST_DISPLAY_NAME,
-            sync=sync,
+            display_name=_TEST_DISPLAY_NAME, sync=sync,
         )
 
         if not sync:
@@ -1311,8 +1301,7 @@ class TestVideoDataset:
         )
 
         my_dataset = datasets.VideoDataset.create(
-            display_name=_TEST_DISPLAY_NAME,
-            sync=sync,
+            display_name=_TEST_DISPLAY_NAME, sync=sync,
         )
 
         if not sync:

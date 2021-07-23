@@ -118,10 +118,8 @@ _TEST_BATCH_PREDICTION_BQ_DEST_PREFIX_WITH_PROTOCOL = (
     f"bq://{_TEST_BATCH_PREDICTION_BQ_PREFIX}"
 )
 _TEST_BATCH_PREDICTION_DISPLAY_NAME = "test-batch-prediction-job"
-_TEST_BATCH_PREDICTION_JOB_NAME = (
-    job_service_client.JobServiceClient.batch_prediction_job_path(
-        project=_TEST_PROJECT, location=_TEST_LOCATION, batch_prediction_job=_TEST_ID
-    )
+_TEST_BATCH_PREDICTION_JOB_NAME = job_service_client.JobServiceClient.batch_prediction_job_path(
+    project=_TEST_PROJECT, location=_TEST_LOCATION, batch_prediction_job=_TEST_ID
 )
 
 _TEST_INSTANCE_SCHEMA_URI = "gs://test/schema/instance.yaml"
@@ -158,15 +156,11 @@ _TEST_ENCRYPTION_SPEC_V1BETA1 = gca_encryption_spec_v1beta1.EncryptionSpec(
 _TEST_MODEL_RESOURCE_NAME = model_service_client.ModelServiceClient.model_path(
     _TEST_PROJECT, _TEST_LOCATION, _TEST_ID
 )
-_TEST_MODEL_RESOURCE_NAME_CUSTOM_PROJECT = (
-    model_service_client.ModelServiceClient.model_path(
-        _TEST_PROJECT_2, _TEST_LOCATION, _TEST_ID
-    )
+_TEST_MODEL_RESOURCE_NAME_CUSTOM_PROJECT = model_service_client.ModelServiceClient.model_path(
+    _TEST_PROJECT_2, _TEST_LOCATION, _TEST_ID
 )
-_TEST_MODEL_RESOURCE_NAME_CUSTOM_LOCATION = (
-    model_service_client.ModelServiceClient.model_path(
-        _TEST_PROJECT, _TEST_LOCATION_2, _TEST_ID
-    )
+_TEST_MODEL_RESOURCE_NAME_CUSTOM_LOCATION = model_service_client.ModelServiceClient.model_path(
+    _TEST_PROJECT, _TEST_LOCATION_2, _TEST_ID
 )
 
 _TEST_OUTPUT_DIR = "gs://my-output-bucket"
@@ -210,14 +204,11 @@ def get_endpoint_mock():
     with mock.patch.object(
         endpoint_service_client.EndpointServiceClient, "get_endpoint"
     ) as get_endpoint_mock:
-        test_endpoint_resource_name = (
-            endpoint_service_client.EndpointServiceClient.endpoint_path(
-                _TEST_PROJECT, _TEST_LOCATION, _TEST_ID
-            )
+        test_endpoint_resource_name = endpoint_service_client.EndpointServiceClient.endpoint_path(
+            _TEST_PROJECT, _TEST_LOCATION, _TEST_ID
         )
         get_endpoint_mock.return_value = gca_endpoint.Endpoint(
-            display_name=_TEST_MODEL_NAME,
-            name=test_endpoint_resource_name,
+            display_name=_TEST_MODEL_NAME, name=test_endpoint_resource_name,
         )
         yield get_endpoint_mock
 
@@ -228,8 +219,7 @@ def get_model_mock():
         model_service_client.ModelServiceClient, "get_model"
     ) as get_model_mock:
         get_model_mock.return_value = gca_model.Model(
-            display_name=_TEST_MODEL_NAME,
-            name=_TEST_MODEL_RESOURCE_NAME,
+            display_name=_TEST_MODEL_NAME, name=_TEST_MODEL_RESOURCE_NAME,
         )
         yield get_model_mock
 
@@ -240,8 +230,7 @@ def get_model_with_explanations_mock():
         model_service_client_v1beta1.ModelServiceClient, "get_model"
     ) as get_model_mock:
         get_model_mock.return_value = gca_model_v1beta1.Model(
-            display_name=_TEST_MODEL_NAME,
-            name=_TEST_MODEL_RESOURCE_NAME,
+            display_name=_TEST_MODEL_NAME, name=_TEST_MODEL_RESOURCE_NAME,
         )
         yield get_model_mock
 
@@ -422,14 +411,11 @@ def deploy_model_mock():
         endpoint_service_client.EndpointServiceClient, "deploy_model"
     ) as deploy_model_mock:
         deployed_model = gca_endpoint.DeployedModel(
-            model=_TEST_MODEL_RESOURCE_NAME,
-            display_name=_TEST_MODEL_NAME,
+            model=_TEST_MODEL_RESOURCE_NAME, display_name=_TEST_MODEL_NAME,
         )
         deploy_model_lro_mock = mock.Mock(ga_operation.Operation)
-        deploy_model_lro_mock.result.return_value = (
-            gca_endpoint_service.DeployModelResponse(
-                deployed_model=deployed_model,
-            )
+        deploy_model_lro_mock.result.return_value = gca_endpoint_service.DeployModelResponse(
+            deployed_model=deployed_model,
         )
         deploy_model_mock.return_value = deploy_model_lro_mock
         yield deploy_model_mock
@@ -441,14 +427,11 @@ def deploy_model_with_explanations_mock():
         endpoint_service_client_v1beta1.EndpointServiceClient, "deploy_model"
     ) as deploy_model_mock:
         deployed_model = gca_endpoint_v1beta1.DeployedModel(
-            model=_TEST_MODEL_RESOURCE_NAME,
-            display_name=_TEST_MODEL_NAME,
+            model=_TEST_MODEL_RESOURCE_NAME, display_name=_TEST_MODEL_NAME,
         )
         deploy_model_lro_mock = mock.Mock(ga_operation.Operation)
-        deploy_model_lro_mock.result.return_value = (
-            gca_endpoint_service_v1beta1.DeployModelResponse(
-                deployed_model=deployed_model,
-            )
+        deploy_model_lro_mock.result.return_value = gca_endpoint_service_v1beta1.DeployModelResponse(
+            deployed_model=deployed_model,
         )
         deploy_model_mock.return_value = deploy_model_lro_mock
         yield deploy_model_mock
@@ -604,8 +587,7 @@ class TestModel:
         )
 
         managed_model = gca_model.Model(
-            display_name=_TEST_MODEL_NAME,
-            container_spec=container_spec,
+            display_name=_TEST_MODEL_NAME, container_spec=container_spec,
         )
 
         upload_model_mock.assert_called_once_with(
@@ -797,20 +779,13 @@ class TestModel:
         test_model = models.Model(_TEST_ID)
         test_endpoint = models.Endpoint(_TEST_ID)
 
-        assert (
-            test_model.deploy(
-                test_endpoint,
-                sync=sync,
-            )
-            == test_endpoint
-        )
+        assert test_model.deploy(test_endpoint, sync=sync,) == test_endpoint
 
         if not sync:
             test_endpoint.wait()
 
         automatic_resources = gca_machine_resources.AutomaticResources(
-            min_replica_count=1,
-            max_replica_count=1,
+            min_replica_count=1, max_replica_count=1,
         )
         deployed_model = gca_endpoint.DeployedModel(
             automatic_resources=automatic_resources,
@@ -837,8 +812,7 @@ class TestModel:
             test_endpoint.wait()
 
         automatic_resources = gca_machine_resources.AutomaticResources(
-            min_replica_count=1,
-            max_replica_count=1,
+            min_replica_count=1, max_replica_count=1,
         )
         deployed_model = gca_endpoint.DeployedModel(
             automatic_resources=automatic_resources,
@@ -977,26 +951,22 @@ class TestModel:
             batch_prediction_job.wait()
 
         # Construct expected request
-        expected_gapic_batch_prediction_job = (
-            gca_batch_prediction_job.BatchPredictionJob(
-                display_name=_TEST_BATCH_PREDICTION_DISPLAY_NAME,
-                model=model_service_client.ModelServiceClient.model_path(
-                    _TEST_PROJECT, _TEST_LOCATION, _TEST_ID
+        expected_gapic_batch_prediction_job = gca_batch_prediction_job.BatchPredictionJob(
+            display_name=_TEST_BATCH_PREDICTION_DISPLAY_NAME,
+            model=model_service_client.ModelServiceClient.model_path(
+                _TEST_PROJECT, _TEST_LOCATION, _TEST_ID
+            ),
+            input_config=gca_batch_prediction_job.BatchPredictionJob.InputConfig(
+                instances_format="jsonl",
+                gcs_source=gca_io.GcsSource(uris=[_TEST_BATCH_PREDICTION_GCS_SOURCE]),
+            ),
+            output_config=gca_batch_prediction_job.BatchPredictionJob.OutputConfig(
+                gcs_destination=gca_io.GcsDestination(
+                    output_uri_prefix=_TEST_BATCH_PREDICTION_GCS_DEST_PREFIX
                 ),
-                input_config=gca_batch_prediction_job.BatchPredictionJob.InputConfig(
-                    instances_format="jsonl",
-                    gcs_source=gca_io.GcsSource(
-                        uris=[_TEST_BATCH_PREDICTION_GCS_SOURCE]
-                    ),
-                ),
-                output_config=gca_batch_prediction_job.BatchPredictionJob.OutputConfig(
-                    gcs_destination=gca_io.GcsDestination(
-                        output_uri_prefix=_TEST_BATCH_PREDICTION_GCS_DEST_PREFIX
-                    ),
-                    predictions_format="jsonl",
-                ),
-                encryption_spec=_TEST_ENCRYPTION_SPEC,
-            )
+                predictions_format="jsonl",
+            ),
+            encryption_spec=_TEST_ENCRYPTION_SPEC,
         )
 
         create_batch_prediction_job_mock.assert_called_once_with(
@@ -1024,25 +994,21 @@ class TestModel:
             batch_prediction_job.wait()
 
         # Construct expected request
-        expected_gapic_batch_prediction_job = (
-            gca_batch_prediction_job.BatchPredictionJob(
-                display_name=_TEST_BATCH_PREDICTION_DISPLAY_NAME,
-                model=model_service_client.ModelServiceClient.model_path(
-                    _TEST_PROJECT, _TEST_LOCATION, _TEST_ID
+        expected_gapic_batch_prediction_job = gca_batch_prediction_job.BatchPredictionJob(
+            display_name=_TEST_BATCH_PREDICTION_DISPLAY_NAME,
+            model=model_service_client.ModelServiceClient.model_path(
+                _TEST_PROJECT, _TEST_LOCATION, _TEST_ID
+            ),
+            input_config=gca_batch_prediction_job.BatchPredictionJob.InputConfig(
+                instances_format="jsonl",
+                gcs_source=gca_io.GcsSource(uris=[_TEST_BATCH_PREDICTION_GCS_SOURCE]),
+            ),
+            output_config=gca_batch_prediction_job.BatchPredictionJob.OutputConfig(
+                gcs_destination=gca_io.GcsDestination(
+                    output_uri_prefix=_TEST_BATCH_PREDICTION_GCS_DEST_PREFIX
                 ),
-                input_config=gca_batch_prediction_job.BatchPredictionJob.InputConfig(
-                    instances_format="jsonl",
-                    gcs_source=gca_io.GcsSource(
-                        uris=[_TEST_BATCH_PREDICTION_GCS_SOURCE]
-                    ),
-                ),
-                output_config=gca_batch_prediction_job.BatchPredictionJob.OutputConfig(
-                    gcs_destination=gca_io.GcsDestination(
-                        output_uri_prefix=_TEST_BATCH_PREDICTION_GCS_DEST_PREFIX
-                    ),
-                    predictions_format="jsonl",
-                ),
-            )
+                predictions_format="jsonl",
+            ),
         )
 
         create_batch_prediction_job_mock.assert_called_once_with(
@@ -1070,25 +1036,21 @@ class TestModel:
             batch_prediction_job.wait()
 
         # Construct expected request
-        expected_gapic_batch_prediction_job = (
-            gca_batch_prediction_job.BatchPredictionJob(
-                display_name=_TEST_BATCH_PREDICTION_DISPLAY_NAME,
-                model=model_service_client.ModelServiceClient.model_path(
-                    _TEST_PROJECT, _TEST_LOCATION, _TEST_ID
+        expected_gapic_batch_prediction_job = gca_batch_prediction_job.BatchPredictionJob(
+            display_name=_TEST_BATCH_PREDICTION_DISPLAY_NAME,
+            model=model_service_client.ModelServiceClient.model_path(
+                _TEST_PROJECT, _TEST_LOCATION, _TEST_ID
+            ),
+            input_config=gca_batch_prediction_job.BatchPredictionJob.InputConfig(
+                instances_format="jsonl",
+                gcs_source=gca_io.GcsSource(uris=[_TEST_BATCH_PREDICTION_GCS_SOURCE]),
+            ),
+            output_config=gca_batch_prediction_job.BatchPredictionJob.OutputConfig(
+                bigquery_destination=gca_io.BigQueryDestination(
+                    output_uri=_TEST_BATCH_PREDICTION_BQ_DEST_PREFIX_WITH_PROTOCOL
                 ),
-                input_config=gca_batch_prediction_job.BatchPredictionJob.InputConfig(
-                    instances_format="jsonl",
-                    gcs_source=gca_io.GcsSource(
-                        uris=[_TEST_BATCH_PREDICTION_GCS_SOURCE]
-                    ),
-                ),
-                output_config=gca_batch_prediction_job.BatchPredictionJob.OutputConfig(
-                    bigquery_destination=gca_io.BigQueryDestination(
-                        output_uri=_TEST_BATCH_PREDICTION_BQ_DEST_PREFIX_WITH_PROTOCOL
-                    ),
-                    predictions_format="bigquery",
-                ),
-            )
+                predictions_format="bigquery",
+            ),
         )
 
         create_batch_prediction_job_mock.assert_called_once_with(
@@ -1407,8 +1369,7 @@ class TestModel:
             test_model = models.Model(_TEST_ID)
 
             test_model.export_model(
-                export_format_id=_TEST_EXPORT_FORMAT_ID_IMAGE,
-                sync=sync,
+                export_format_id=_TEST_EXPORT_FORMAT_ID_IMAGE, sync=sync,
             )
 
             if not sync:

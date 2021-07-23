@@ -297,9 +297,7 @@ class TestCloudVertexModelClass:
         mock_get_custom_training_job.assert_called_once()
         assert len(call_args[0]) == 0
 
-        mock_run_custom_training_job.assert_called_once_with(
-            replica_count=1,
-        )
+        mock_run_custom_training_job.assert_called_once_with(replica_count=1,)
 
 
 class TestLocalVertexModelClass:
