@@ -64,6 +64,18 @@ _PIPELINE_COMPLETE_STATES = set(
     ]
 )
 
+_DATASETS_WITH_DATA_ITEMS = set(
+    [
+        schema.dataset.metadata.image,
+        schema.dataset.metadata.text,
+        schema.dataset.metadata.video,
+    ]
+)
+
+_DATASETS_WITH_STRUCTURED_DATA = set(
+    [schema.dataset.metadata.tabular, schema.dataset.metadata.time_series]
+)
+
 
 class _TrainingJob(base.VertexAiResourceNounWithFutureManager):
 
@@ -294,9 +306,9 @@ class _TrainingJob(base.VertexAiResourceNounWithFutureManager):
     def _create_input_data_config(
         dataset: Optional[datasets._Dataset] = None,
         annotation_schema_uri: Optional[str] = None,
-        training_fraction_split: Optional[float] = 0.8,
-        validation_fraction_split: Optional[float] = 0.1,
-        test_fraction_split: Optional[float] = 0.1,
+        training_fraction_split: Optional[float] = None,
+        validation_fraction_split: Optional[float] = None,
+        test_fraction_split: Optional[float] = None,
         training_filter_split: Optional[str] = None,
         validation_filter_split: Optional[str] = None,
         test_filter_split: Optional[str] = None,
@@ -413,59 +425,46 @@ class _TrainingJob(base.VertexAiResourceNounWithFutureManager):
                 -  AIP_TRAINING_DATA_URI ="bigquery_destination.dataset_*.training"
                 -  AIP_VALIDATION_DATA_URI = "bigquery_destination.dataset_*.validation"
                 -  AIP_TEST_DATA_URI = "bigquery_destination.dataset_*.test"
+        Raises:
+            ValueError: When more than 1 type of split configuration is passed or when
+                the split configuartion passed is incompatible with the dataset schema.
         """
 
         input_data_config = None
         if dataset:
+            # all possible splits
             filter_split = None
-            if any(
-                [
-                    training_filter_split is not None,
-                    validation_filter_split is not None,
-                    test_filter_split is not None,
-                ]
-            ):
-                if all(
-                    [
-                        training_filter_split is not None,
-                        validation_filter_split is not None,
-                        test_filter_split is not None,
-                        dataset._gca_resource.metadata_schema_uri
-                        in (
-                            schema.dataset.metadata.image,
-                            schema.dataset.metadata.text,
-                            schema.dataset.metadata.video,
-                        ),
-                    ]
-                ):
-                    # Create filter split spec
-                    filter_split = gca_training_pipeline.FilterSplit(
-                        training_filter=training_filter_split,
-                        validation_filter=validation_filter_split,
-                        test_filter=test_filter_split,
+            predefined_split = None
+            timestamp_split = None
+            fraction_split = None
+
+            # filter split config
+            if any([training_filter_split, validation_filter_split, test_filter_split]):
+                if dataset.metadata_schema_uri not in _DATASETS_WITH_DATA_ITEMS:
+                    raise ValueError(
+                        "A filter split may only be used with datesets with DataItems (image, text, video)"
                     )
-                elif any(
+                if any(
                     [
                         training_filter_split is None,
                         validation_filter_split is None,
                         test_filter_split is None,
                     ]
                 ):
-                    raise TypeError(
-                        "To use filter split, all of the following have to be provided: training_filter_split, validation_filter_split, test_filter_split"
-                    )
-                else:
                     raise ValueError(
-                        "A filter split may only be used with datesets with DataItems"
+                        """To use filter split, all of the following have to be provided:
+                        training_filter_split, validation_filter_split, test_filter_split"""
                     )
 
-            # Create predefined split spec
-            predefined_split = None
+                filter_split = gca_training_pipeline.FilterSplit(
+                    training_filter=training_filter_split,
+                    validation_filter=validation_filter_split,
+                    test_filter=test_filter_split,
+                )
+
+            # predefined split config
             if predefined_split_column_name:
-                if dataset._gca_resource.metadata_schema_uri not in (
-                    schema.dataset.metadata.tabular,
-                    schema.dataset.metadata.time_series,
-                ):
+                if dataset.metadata_schema_uri not in _DATASETS_WITH_STRUCTURED_DATA:
                     raise ValueError(
                         "A pre-defined split may only be used with a tabular or time series Dataset"
                     )
@@ -474,15 +473,23 @@ class _TrainingJob(base.VertexAiResourceNounWithFutureManager):
                     key=predefined_split_column_name
                 )
 
-            # Create timestamp split spec
-            timestamp_split = None
+            # timestamp split config
             if timestamp_split_column_name:
-                if dataset._gca_resource.metadata_schema_uri not in (
-                    schema.dataset.metadata.tabular,
-                    schema.dataset.metadata.time_series,
-                ):
+                if dataset.metadata_schema_uri not in _DATASETS_WITH_STRUCTURED_DATA:
                     raise ValueError(
                         "A timestamp split may only be used with a tabular or time series Dataset"
+                    )
+                if any(
+                    [
+                        training_fraction_split is None,
+                        validation_fraction_split is None,
+                        test_fraction_split is None,
+                    ]
+                ):
+                    raise ValueError(
+                        """To use timestamp split, all of the following have to be provided:
+                        timestamp_split_column_name, training_fraction_split, validation_fraction_split,
+                        test_fraction_split"""
                     )
 
                 timestamp_split = gca_training_pipeline.TimestampSplit(
@@ -492,21 +499,64 @@ class _TrainingJob(base.VertexAiResourceNounWithFutureManager):
                     key=timestamp_split_column_name,
                 )
 
-            fraction_split = None
-            if all(
+            # (custom) fraction split config
+            if any(
                 [
-                    filter_split is None,
-                    predefined_split is None,
-                    timestamp_split is None,
+                    training_fraction_split,
+                    validation_fraction_split,
+                    test_fraction_split,
                 ]
             ):
+                if any(
+                    [
+                        training_fraction_split is None,
+                        validation_fraction_split is None,
+                        test_fraction_split is None,
+                    ]
+                ):
+                    raise ValueError(
+                        """To use fraction split, all of the following have to be provided:
+                        training_fraction_split, validation_fraction_split, test_fraction_split"""
+                    )
+
                 fraction_split = gca_training_pipeline.FractionSplit(
                     training_fraction=training_fraction_split,
                     validation_fraction=validation_fraction_split,
                     test_fraction=test_fraction_split,
                 )
 
-            # Create GCS destination
+            split_configs = [
+                filter_split,
+                predefined_split,
+                timestamp_split,
+                fraction_split,
+            ]
+            split_configs_count = sum(
+                split_config is not None for split_config in split_configs
+            )
+            if split_configs_count > 1:
+                raise ValueError(
+                    """Can only specify one of:
+                    1. training_filter_split, validation_filter_split, test_filter_split OR
+                    2. predefined_split_column_name OR
+                    3. timestamp_split_column_name, training_fraction_split, validation_fraction_split, test_fraction_split OR
+                    4. training_fraction_split, validation_fraction_split, test_fraction_split"""
+                )
+
+            # (default) fraction split config
+            if split_configs_count == 0:
+                if dataset.metadata_schema_uri is schema.dataset.metadata.video:
+                    fraction_split = gca_training_pipeline.FractionSplit(
+                        training_fraction=0.8, test_fraction=0.2
+                    )
+                else:
+                    fraction_split = gca_training_pipeline.FractionSplit(
+                        training_fraction=0.8,
+                        validation_fraction=0.1,
+                        test_fraction=0.1,
+                    )
+
+            # create GCS destination
             gcs_destination = None
             if gcs_destination_uri_prefix:
                 gcs_destination = gca_io.GcsDestination(
@@ -539,9 +589,9 @@ class _TrainingJob(base.VertexAiResourceNounWithFutureManager):
         training_task_definition: str,
         training_task_inputs: Union[dict, proto.Message],
         dataset: Optional[datasets._Dataset],
-        training_fraction_split: Optional[float] = 0.8,
-        validation_fraction_split: Optional[float] = 0.1,
-        test_fraction_split: Optional[float] = 0.1,
+        training_fraction_split: Optional[float] = None,
+        validation_fraction_split: Optional[float] = None,
+        test_fraction_split: Optional[float] = None,
         training_filter_split: Optional[str] = None,
         validation_filter_split: Optional[str] = None,
         test_filter_split: Optional[str] = None,
@@ -1662,9 +1712,9 @@ class CustomTrainingJob(_CustomTrainingJob):
         machine_type: str = "n1-standard-4",
         accelerator_type: str = "ACCELERATOR_TYPE_UNSPECIFIED",
         accelerator_count: int = 0,
-        training_fraction_split: Optional[float] = 0.8,
-        validation_fraction_split: Optional[float] = 0.1,
-        test_fraction_split: Optional[float] = 0.1,
+        training_fraction_split: Optional[float] = None,
+        validation_fraction_split: Optional[float] = None,
+        test_fraction_split: Optional[float] = None,
         training_filter_split: Optional[str] = None,
         validation_filter_split: Optional[str] = None,
         test_filter_split: Optional[str] = None,
@@ -1923,9 +1973,9 @@ class CustomTrainingJob(_CustomTrainingJob):
         service_account: Optional[str] = None,
         network: Optional[str] = None,
         bigquery_destination: Optional[str] = None,
-        training_fraction_split: Optional[float] = 0.8,
-        validation_fraction_split: Optional[float] = 0.1,
-        test_fraction_split: Optional[float] = 0.1,
+        training_fraction_split: Optional[float] = None,
+        validation_fraction_split: Optional[float] = None,
+        test_fraction_split: Optional[float] = None,
         training_filter_split: Optional[str] = None,
         validation_filter_split: Optional[str] = None,
         test_filter_split: Optional[str] = None,
@@ -2358,9 +2408,9 @@ class CustomContainerTrainingJob(_CustomTrainingJob):
         machine_type: str = "n1-standard-4",
         accelerator_type: str = "ACCELERATOR_TYPE_UNSPECIFIED",
         accelerator_count: int = 0,
-        training_fraction_split: Optional[float] = 0.8,
-        validation_fraction_split: Optional[float] = 0.1,
-        test_fraction_split: Optional[float] = 0.1,
+        training_fraction_split: Optional[float] = None,
+        validation_fraction_split: Optional[float] = None,
+        test_fraction_split: Optional[float] = None,
         training_filter_split: Optional[str] = None,
         validation_filter_split: Optional[str] = None,
         test_filter_split: Optional[str] = None,
@@ -2610,9 +2660,9 @@ class CustomContainerTrainingJob(_CustomTrainingJob):
         service_account: Optional[str] = None,
         network: Optional[str] = None,
         bigquery_destination: Optional[str] = None,
-        training_fraction_split: Optional[float] = 0.8,
-        validation_fraction_split: Optional[float] = 0.1,
-        test_fraction_split: Optional[float] = 0.1,
+        training_fraction_split: Optional[float] = None,
+        validation_fraction_split: Optional[float] = None,
+        test_fraction_split: Optional[float] = None,
         training_filter_split: Optional[str] = None,
         validation_filter_split: Optional[str] = None,
         test_filter_split: Optional[str] = None,
@@ -2984,9 +3034,9 @@ class AutoMLTabularTrainingJob(_TrainingJob):
         self,
         dataset: datasets.TabularDataset,
         target_column: str,
-        training_fraction_split: Optional[float] = 0.8,
-        validation_fraction_split: Optional[float] = 0.1,
-        test_fraction_split: Optional[float] = 0.1,
+        training_fraction_split: Optional[float] = None,
+        validation_fraction_split: Optional[float] = None,
+        test_fraction_split: Optional[float] = None,
         predefined_split_column_name: Optional[str] = None,
         timestamp_split_column_name: Optional[str] = None,
         weight_column: Optional[str] = None,
@@ -3112,9 +3162,9 @@ class AutoMLTabularTrainingJob(_TrainingJob):
         self,
         dataset: datasets.TabularDataset,
         target_column: str,
-        training_fraction_split: Optional[float] = 0.8,
-        validation_fraction_split: Optional[float] = 0.1,
-        test_fraction_split: Optional[float] = 0.1,
+        training_fraction_split: Optional[float] = None,
+        validation_fraction_split: Optional[float] = None,
+        test_fraction_split: Optional[float] = None,
         predefined_split_column_name: Optional[str] = None,
         timestamp_split_column_name: Optional[str] = None,
         weight_column: Optional[str] = None,
@@ -3947,9 +3997,9 @@ class AutoMLImageTrainingJob(_TrainingJob):
     def run(
         self,
         dataset: datasets.ImageDataset,
-        training_fraction_split: Optional[float] = 0.8,
-        validation_fraction_split: Optional[float] = 0.1,
-        test_fraction_split: Optional[float] = 0.1,
+        training_fraction_split: Optional[float] = None,
+        validation_fraction_split: Optional[float] = None,
+        test_fraction_split: Optional[float] = None,
         training_filter_split: Optional[str] = None,
         validation_filter_split: Optional[str] = None,
         test_filter_split: Optional[str] = None,
@@ -4066,9 +4116,9 @@ class AutoMLImageTrainingJob(_TrainingJob):
         self,
         dataset: datasets.ImageDataset,
         base_model: Optional[models.Model] = None,
-        training_fraction_split: Optional[float] = 0.8,
-        validation_fraction_split: Optional[float] = 0.1,
-        test_fraction_split: Optional[float] = 0.1,
+        training_fraction_split: Optional[float] = None,
+        validation_fraction_split: Optional[float] = None,
+        test_fraction_split: Optional[float] = None,
         training_filter_split: Optional[str] = None,
         validation_filter_split: Optional[str] = None,
         test_filter_split: Optional[str] = None,
@@ -4462,9 +4512,9 @@ class CustomPythonPackageTrainingJob(_CustomTrainingJob):
         machine_type: str = "n1-standard-4",
         accelerator_type: str = "ACCELERATOR_TYPE_UNSPECIFIED",
         accelerator_count: int = 0,
-        training_fraction_split: Optional[float] = 0.8,
-        validation_fraction_split: Optional[float] = 0.1,
-        test_fraction_split: Optional[float] = 0.1,
+        training_fraction_split: Optional[float] = None,
+        validation_fraction_split: Optional[float] = None,
+        test_fraction_split: Optional[float] = None,
         training_filter_split: Optional[str] = None,
         validation_filter_split: Optional[str] = None,
         test_filter_split: Optional[str] = None,
@@ -4708,9 +4758,9 @@ class CustomPythonPackageTrainingJob(_CustomTrainingJob):
         base_output_dir: Optional[str] = None,
         service_account: Optional[str] = None,
         network: Optional[str] = None,
-        training_fraction_split: Optional[float] = 0.8,
-        validation_fraction_split: Optional[float] = 0.1,
-        test_fraction_split: Optional[float] = 0.1,
+        training_fraction_split: Optional[float] = None,
+        validation_fraction_split: Optional[float] = None,
+        test_fraction_split: Optional[float] = None,
         training_filter_split: Optional[str] = None,
         validation_filter_split: Optional[str] = None,
         test_filter_split: Optional[str] = None,
@@ -5014,8 +5064,8 @@ class AutoMLVideoTrainingJob(_TrainingJob):
     def run(
         self,
         dataset: datasets.VideoDataset,
-        training_fraction_split: Optional[float] = 0.8,
-        test_fraction_split: Optional[float] = 0.2,
+        training_fraction_split: Optional[float] = None,
+        test_fraction_split: Optional[float] = None,
         training_filter_split: Optional[str] = None,
         test_filter_split: Optional[str] = None,
         model_display_name: Optional[str] = None,
@@ -5093,8 +5143,8 @@ class AutoMLVideoTrainingJob(_TrainingJob):
     def _run(
         self,
         dataset: datasets.VideoDataset,
-        training_fraction_split: Optional[float] = 0.8,
-        test_fraction_split: Optional[float] = 0.2,
+        training_fraction_split: Optional[float] = None,
+        test_fraction_split: Optional[float] = None,
         training_filter_split: Optional[str] = None,
         test_filter_split: Optional[str] = None,
         model_display_name: Optional[str] = None,
@@ -5321,9 +5371,9 @@ class AutoMLTextTrainingJob(_TrainingJob):
     def run(
         self,
         dataset: datasets.TextDataset,
-        training_fraction_split: Optional[float] = 0.8,
-        validation_fraction_split: Optional[float] = 0.1,
-        test_fraction_split: Optional[float] = 0.1,
+        training_fraction_split: Optional[float] = None,
+        validation_fraction_split: Optional[float] = None,
+        test_fraction_split: Optional[float] = None,
         training_filter_split: Optional[str] = None,
         validation_filter_split: Optional[str] = None,
         test_filter_split: Optional[str] = None,
@@ -5415,9 +5465,9 @@ class AutoMLTextTrainingJob(_TrainingJob):
     def _run(
         self,
         dataset: datasets.TextDataset,
-        training_fraction_split: Optional[float] = 0.8,
-        validation_fraction_split: Optional[float] = 0.1,
-        test_fraction_split: Optional[float] = 0.1,
+        training_fraction_split: Optional[float] = None,
+        validation_fraction_split: Optional[float] = None,
+        test_fraction_split: Optional[float] = None,
         training_filter_split: Optional[str] = None,
         validation_filter_split: Optional[str] = None,
         test_filter_split: Optional[str] = None,
