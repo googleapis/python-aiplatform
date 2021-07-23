@@ -35,7 +35,7 @@ env | grep KOKORO
 # Install nox
 python3.6 -m pip install --upgrade --quiet nox
 
-# Use secrets accessor service account to get secrets
+# Use secrets acessor service account to get secrets
 if [[ -f "${KOKORO_GFILE_DIR}/secrets_viewer_service_account.json" ]]; then
     gcloud auth activate-service-account \
 	   --key-file="${KOKORO_GFILE_DIR}/secrets_viewer_service_account.json" \
