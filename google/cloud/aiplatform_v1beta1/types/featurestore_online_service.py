@@ -167,12 +167,14 @@ class StreamingReadFeatureValuesRequest(proto.Message):
             For example, for a machine learning model predicting user
             clicks on a website, an EntityType ID could be "user".
         entity_ids (Sequence[str]):
-            Required. IDs of entities to read Feature values of. For
-            example, for a machine learning model predicting user clicks
-            on a website, an entity ID could be "user_123".
+            Required. IDs of entities to read Feature values of. The
+            maximum number of IDs is 100. For example, for a machine
+            learning model predicting user clicks on a website, an
+            entity ID could be "user_123".
         feature_selector (google.cloud.aiplatform_v1beta1.types.FeatureSelector):
             Required. Selector choosing Features of the
-            target EntityType.
+            target EntityType. Feature IDs will be
+            deduplicated.
     """
 
     entity_type = proto.Field(proto.STRING, number=1,)
@@ -206,7 +208,7 @@ class FeatureValue(proto.Message):
         bytes_value (bytes):
             Bytes feature value.
         metadata (google.cloud.aiplatform_v1beta1.types.FeatureValue.Metadata):
-            Output only. Metadata of feature value.
+            Metadata of feature value.
     """
 
     class Metadata(proto.Message):
