@@ -76,10 +76,6 @@ def vertex_fit_function_wrapper(method):
 
         training_source = source_utils._make_class_source(obj)
 
-        deserializer = method.__self__.__class__._data_serialization_mapping[
-            type(dataset)
-        ][0]
-
         with tempfile.TemporaryDirectory() as tmpdirname:
             script_path = pathlib.Path(tmpdirname) / "training_script.py"
 
@@ -91,10 +87,10 @@ def vertex_fit_function_wrapper(method):
             # get the mapping of parameter names to types
             # split the arguments into those that we need to serialize and those that can
             # be hard coded into the source
-            dataset = bound_args.arguments.get("dataset")
 
             pass_through_params = {}
             serialized_params = {}
+
             for parameter_name, parameter in bound_args.args.items():
                 parameter_type = type(parameter)
                 valid_types = [int, float, str] + list(
@@ -116,10 +112,6 @@ def vertex_fit_function_wrapper(method):
                     "Staging bucket must be set to run training in cloud mode: `aiplatform.init(staging_bucket='gs://my/staging/bucket')`"
                 )
 
-            serializer = method.__self__.__class__._data_serialization_mapping[
-                type(dataset)
-            ][1]
-
             param_name_to_serialized_info = {}
             for parameter_name, parameter in serialized_params.items():
                 serializer = obj._data_serialization_mapping[type[parameter]][1]
@@ -137,15 +129,8 @@ def vertex_fit_function_wrapper(method):
                 instance_method=method.__name__,
                 pass_through_params=pass_through_params,
                 param_name_to_serialized_info=param_name_to_serialized_uri,
+                obj=obj,
             )
-
-            my_dataset = aiplatform.Dataset.create(
-                display_name="my_dataset",
-                metadata_schema_uri=aiplatform.schema.dataset.metadata.TABLES,
-                source=training_data_uri,
-            )
-
-            # add deserialization to fit method? check how inner scripts work otherwise.
 
             obj._training_job = aiplatform.CustomTrainingJob(
                 display_name="my_training_job",

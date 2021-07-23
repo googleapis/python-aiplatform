@@ -63,6 +63,7 @@ def _make_source(
     instance_method: str,
     pass_through_params=pass_through_params,
     param_name_to_serialized_info=param_name_to_serialized_uri,
+    obj
 ) -> str:
     """Converts a class source to a string including necessary imports.
 
@@ -90,23 +91,22 @@ def _make_source(
     # First, add __main__ header
     src = src + "if __name__ == '__main__':\n"
 
-    """
-     model = TwoLayerNet(D_in, H, D_out)
-     data = torch.utils.data.DataLoader(training_util.input_training_data_uri
-                                    batch_size=args['batch_size'],
-                                    shuffle=True)
-    """
-
     # Then, instantiate model
-    # How to get class parameters?
-    src = src + f"\tmodel = {cls_name}()"
+    src = src + f"\tmodel = {cls_name}()\n"
 
-    # Next, access dataset
+    src = src + f"\tmodel.{instance_method}("
 
-    # Then, deserialize dataset
+    # Iterate through parameters:
+    for parameter_name, (parameter_uri, parameter_type) in param_name_to_serialized_info.items():
+        deserializer = obj._data_serialization_mapping[parameter_type][0]
 
-    # Finally, make call to fit with the dataset
+        # Can also make individual calls for each serialized parameter, but was unsure 
+        # for situations such as when a dataloader format is serialized.
+        src = src + f"{parameter_name}={deserializer.__name__}({parameter_uri}), "
 
-    # + f"\t{cls_name}().{instance_method}()"
+    for parameter_name, parameter_value in pass_through_params.items():
+        src = src + f"{parameter_name}={parameter_value}, "
+
+    src = src + f")\n"
 
     return src
