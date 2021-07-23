@@ -201,11 +201,9 @@ def create_hyperparameter_tuning_job_mock():
     with mock.patch.object(
         job_service_client.JobServiceClient, "create_hyperparameter_tuning_job"
     ) as create_hyperparameter_tuning_job_mock:
-        create_hyperparameter_tuning_job_mock.return_value = (
-            _get_hyperparameter_tuning_job_proto(
-                name=_TEST_HYPERPARAMETERTUNING_JOB_NAME,
-                state=gca_job_state_compat.JobState.JOB_STATE_PENDING,
-            )
+        create_hyperparameter_tuning_job_mock.return_value = _get_hyperparameter_tuning_job_proto(
+            name=_TEST_HYPERPARAMETERTUNING_JOB_NAME,
+            state=gca_job_state_compat.JobState.JOB_STATE_PENDING,
         )
         yield create_hyperparameter_tuning_job_mock
 
@@ -215,12 +213,10 @@ def create_hyperparameter_tuning_job_v1beta1_mock():
     with mock.patch.object(
         job_service_client_v1beta1.JobServiceClient, "create_hyperparameter_tuning_job"
     ) as create_hyperparameter_tuning_job_mock:
-        create_hyperparameter_tuning_job_mock.return_value = (
-            _get_hyperparameter_tuning_job_proto(
-                name=_TEST_HYPERPARAMETERTUNING_JOB_NAME,
-                state=gca_job_state_compat.JobState.JOB_STATE_PENDING,
-                version="v1beta1",
-            )
+        create_hyperparameter_tuning_job_mock.return_value = _get_hyperparameter_tuning_job_proto(
+            name=_TEST_HYPERPARAMETERTUNING_JOB_NAME,
+            state=gca_job_state_compat.JobState.JOB_STATE_PENDING,
+            version="v1beta1",
         )
         yield create_hyperparameter_tuning_job_mock
 

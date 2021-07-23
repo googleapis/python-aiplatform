@@ -80,13 +80,6 @@ def vertex_fit_function_wrapper(method):
             type(dataset)
         ][0]
 
-        source = source_utils._make_source(
-            cls_source=training_source,
-            cls_name=cls_name,
-            instance_method=method.__name__,
-            deserializer=deserializer.__name__,
-        )
-
         with tempfile.TemporaryDirectory() as tmpdirname:
             script_path = pathlib.Path(tmpdirname) / "training_script.py"
 
@@ -94,7 +87,28 @@ def vertex_fit_function_wrapper(method):
                 f.write(source)
 
             bound_args = inspect.signature(method).bind(*args, **kwargs)
+
+            # get the mapping of parameter names to types
+            # split the arguments into those that we need to serialize and those that can
+            # be hard coded into the source
             dataset = bound_args.arguments.get("dataset")
+
+            pass_through_params = {}
+            serialized_params = {}
+            for parameter_name, parameter in bound_args.args.items():
+                parameter_type = type(parameter)
+                valid_types = [int, float, str] + list(
+                    obj._data_serialization_mapping.keys()
+                )
+                if parameter_type not in valid_types:
+                    raise RuntimeError(
+                        f"{parameter_type} not supported. parameter_name = {parameter_name}. The only supported types are {value_types}"
+                    )
+
+                if type(parameter) in obj._data_serialization_mapping:
+                    serialized_params[parameter_name] = parameter
+                else:  # assume primitive
+                    pass_through_params[parameter_name] = parameter
 
             staging_bucket = aiplatform.initializer.global_config.staging_bucket
             if staging_bucket is None:
@@ -105,7 +119,25 @@ def vertex_fit_function_wrapper(method):
             serializer = method.__self__.__class__._data_serialization_mapping[
                 type(dataset)
             ][1]
-            training_data_uri = serializer(staging_bucket, data, args[1], "training")
+
+            param_name_to_serialized_info = {}
+            for parameter_name, parameter in serialized_params.items():
+                serializer = obj._data_serialization_mapping[type[parameter]][1]
+                parameter_uri = serializer(staging_bucket, parameter, parameter_name)
+
+                # namedtuple
+                param_name_to_serialized_uri[parameter_name] = (
+                    parameter_uri,
+                    type(parameter).__name__,
+                )  # "pd.DataFrame"
+
+            source = source_utils._make_source(
+                cls_source=training_source,
+                cls_name=cls_name,
+                instance_method=method.__name__,
+                pass_through_params=pass_through_params,
+                param_name_to_serialized_info=param_name_to_serialized_uri,
+            )
 
             my_dataset = aiplatform.Dataset.create(
                 display_name="my_dataset",
