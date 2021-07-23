@@ -166,7 +166,7 @@ def get_custom_job_mock_with_fail():
                 name=_TEST_CUSTOM_JOB_NAME,
                 state=gca_job_state_compat.JobState.JOB_STATE_FAILED,
                 error=status_pb2.Status(message="Test Error"),
-            )
+            ),
         ]
         yield get_custom_job_mock
 
@@ -182,12 +182,13 @@ def create_custom_job_mock():
         )
         yield create_custom_job_mock
 
+
 @pytest.fixture
 def create_custom_job_mock_fail():
     with mock.patch.object(
         job_service_client.JobServiceClient, "create_custom_job"
     ) as create_custom_job_mock:
-        create_custom_job_mock.side_effect = RuntimeError('Mock fail')
+        create_custom_job_mock.side_effect = RuntimeError("Mock fail")
         yield create_custom_job_mock
 
 
@@ -271,7 +272,6 @@ class TestCustomJob:
             job.wait_for_resource_creation()
         assert e.match(r"CustomJob resource is not scheduled to be created.")
 
-
         with pytest.raises(RuntimeError):
             job.run(
                 service_account=_TEST_SERVICE_ACCOUNT,
@@ -296,7 +296,7 @@ class TestCustomJob:
         assert job.job_spec == expected_custom_job.job_spec
         assert job.state == gca_job_state_compat.JobState.JOB_STATE_FAILED
 
-    @pytest.mark.usefixtures('create_custom_job_mock_fail')
+    @pytest.mark.usefixtures("create_custom_job_mock_fail")
     def test_run_custom_job_with_fail_at_creation(self):
         aiplatform.init(
             project=_TEST_PROJECT,
@@ -319,15 +319,19 @@ class TestCustomJob:
 
         with pytest.raises(RuntimeError) as e:
             job.wait_for_resource_creation()
-        assert e.match('Mock fail')
+        assert e.match("Mock fail")
 
         with pytest.raises(RuntimeError) as e:
-            resource_name = job.resource_name
-        assert e.match('CustomJob resource has not been created. Resource failed with: Mock fail')
+            job.resource_name
+        assert e.match(
+            "CustomJob resource has not been created. Resource failed with: Mock fail"
+        )
 
         with pytest.raises(RuntimeError) as e:
-            network = job.network
-        assert e.match('CustomJob resource has not been created. Resource failed with: Mock fail')
+            job.network
+        assert e.match(
+            "CustomJob resource has not been created. Resource failed with: Mock fail"
+        )
 
     def test_custom_job_get_state_raises_without_run(self):
         aiplatform.init(

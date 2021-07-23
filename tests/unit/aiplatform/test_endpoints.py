@@ -147,13 +147,19 @@ _TEST_ENDPOINT_GAPIC = gca_endpoint.Endpoint(
 
 _TEST_ENDPOINT_LIST = [
     gca_endpoint.Endpoint(
-        name=_TEST_ENDPOINT_NAME, display_name="aac", create_time=datetime.now() - timedelta(minutes=15)
+        name=_TEST_ENDPOINT_NAME,
+        display_name="aac",
+        create_time=datetime.now() - timedelta(minutes=15),
     ),
     gca_endpoint.Endpoint(
-        name=_TEST_ENDPOINT_NAME, display_name="aab", create_time=datetime.now() - timedelta(minutes=5)
+        name=_TEST_ENDPOINT_NAME,
+        display_name="aab",
+        create_time=datetime.now() - timedelta(minutes=5),
     ),
     gca_endpoint.Endpoint(
-        name=_TEST_ENDPOINT_NAME, display_name="aaa", create_time=datetime.now() - timedelta(minutes=10)
+        name=_TEST_ENDPOINT_NAME,
+        display_name="aaa",
+        create_time=datetime.now() - timedelta(minutes=10),
     ),
 ]
 
@@ -488,28 +494,22 @@ class TestEndpoint:
 
         expected_endpoint.name = _TEST_ENDPOINT_NAME
         assert my_endpoint.gca_resource == expected_endpoint
-        assert my_endpoint.network == None
-
+        assert my_endpoint.network is None
 
     @pytest.mark.usefixtures("get_endpoint_mock")
-    def test_accessing_properties_with_no_resource_raises(
-        self,
-    ):
+    def test_accessing_properties_with_no_resource_raises(self,):
 
         my_endpoint = aiplatform.Endpoint(_TEST_ENDPOINT_NAME)
-
 
         my_endpoint._gca_resource = None
 
         with pytest.raises(RuntimeError) as e:
-            gca_resource = my_endpoint.gca_resource
+            my_endpoint.gca_resource
         e.match(regexp=r"Endpoint resource has not been created.")
 
         with pytest.raises(RuntimeError) as e:
-            network = my_endpoint.network
+            my_endpoint.network
         e.match(regexp=r"Endpoint resource has not been created.")
-
-
 
     @pytest.mark.usefixtures("get_endpoint_mock")
     @pytest.mark.parametrize("sync", [True, False])

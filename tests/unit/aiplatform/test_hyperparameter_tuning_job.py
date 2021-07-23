@@ -211,12 +211,13 @@ def create_hyperparameter_tuning_job_mock():
         )
         yield create_hyperparameter_tuning_job_mock
 
+
 @pytest.fixture
 def create_hyperparameter_tuning_job_mock_fail():
     with mock.patch.object(
         job_service_client.JobServiceClient, "create_hyperparameter_tuning_job"
     ) as create_hyperparameter_tuning_job_mock:
-        create_hyperparameter_tuning_job_mock.side_effect = RuntimeError('Mock fail')
+        create_hyperparameter_tuning_job_mock.side_effect = RuntimeError("Mock fail")
         yield create_hyperparameter_tuning_job_mock
 
 
@@ -303,7 +304,6 @@ class TestHyperparameterTuningJob:
         assert job.network == _TEST_NETWORK
         assert job.trials == []
 
-
     @pytest.mark.parametrize("sync", [True, False])
     def test_run_hyperparameter_tuning_job_with_fail_raises(
         self,
@@ -364,8 +364,7 @@ class TestHyperparameterTuningJob:
 
         assert job._gca_resource.state == gca_job_state_compat.JobState.JOB_STATE_FAILED
 
-
-    @pytest.mark.usefixtures('create_hyperparameter_tuning_job_mock_fail')
+    @pytest.mark.usefixtures("create_hyperparameter_tuning_job_mock_fail")
     def test_run_hyperparameter_tuning_job_with_fail_at_creation(self):
         aiplatform.init(
             project=_TEST_PROJECT,
@@ -410,19 +409,25 @@ class TestHyperparameterTuningJob:
 
         with pytest.raises(RuntimeError) as e:
             job.wait_for_resource_creation()
-        assert e.match('Mock fail')
+        assert e.match("Mock fail")
 
         with pytest.raises(RuntimeError) as e:
-            resource_name = job.resource_name
-        assert e.match('HyperparameterTuningJob resource has not been created. Resource failed with: Mock fail')
+            job.resource_name
+        assert e.match(
+            "HyperparameterTuningJob resource has not been created. Resource failed with: Mock fail"
+        )
 
         with pytest.raises(RuntimeError) as e:
-            network = job.network
-        assert e.match('HyperparameterTuningJob resource has not been created. Resource failed with: Mock fail')
+            job.network
+        assert e.match(
+            "HyperparameterTuningJob resource has not been created. Resource failed with: Mock fail"
+        )
 
         with pytest.raises(RuntimeError) as e:
-            trials = job.trials
-        assert e.match('HyperparameterTuningJob resource has not been created. Resource failed with: Mock fail')
+            job.trials
+        assert e.match(
+            "HyperparameterTuningJob resource has not been created. Resource failed with: Mock fail"
+        )
 
     def test_hyperparameter_tuning_job_get_state_raises_without_run(self):
         aiplatform.init(
