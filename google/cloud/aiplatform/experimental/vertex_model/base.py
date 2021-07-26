@@ -17,11 +17,12 @@
 
 import abc
 import functools
-import tempfile
 import pathlib
+import tempfile
+from typing import Any
+from typing import Callable
 
 from google.cloud import aiplatform
-
 from google.cloud.aiplatform.experimental.vertex_model.serializers import pandas
 from google.cloud.aiplatform.experimental.vertex_model.utils import source_utils
 
@@ -33,7 +34,7 @@ except ImportError:
     )
 
 
-def vertex_fit_function_wrapper(method):
+def vertex_fit_function_wrapper(method: Callable[..., Any]):
     """Adapts code in the user-written child class for cloud training and prediction
 
     If the user wishes to conduct local development, will return the original function.

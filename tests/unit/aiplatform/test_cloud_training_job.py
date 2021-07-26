@@ -15,23 +15,20 @@
 # limitations under the License.
 #
 
+import importlib
 import pytest
 import torch
-import importlib
 
 import copy
+import numpy as np
+import pandas as pd
 from unittest import mock
 from unittest.mock import patch
 from unittest.mock import MagicMock
-import pandas as pd
-import numpy as np
 
-from google.protobuf import duration_pb2
-from google.cloud.aiplatform.experimental.vertex_model import base
-from google.cloud.aiplatform.experimental.vertex_model.serializers import pandas
 from google.cloud.aiplatform import initializer
-
 from google.cloud import aiplatform
+
 from google.cloud.aiplatform.compat.types import custom_job as gca_custom_job_compat
 from google.cloud.aiplatform.compat.types import (
     custom_job_v1beta1 as gca_custom_job_v1beta1,
@@ -41,7 +38,14 @@ from google.cloud.aiplatform.compat.types import job_state as gca_job_state_comp
 from google.cloud.aiplatform.compat.types import (
     encryption_spec as gca_encryption_spec_compat,
 )
+
+from google.cloud.aiplatform.experimental.vertex_model import base
+from google.cloud.aiplatform.experimental.vertex_model.serializers import pandas
+
 from google.cloud.aiplatform_v1.services.job_service import client as job_service_client
+
+from google.protobuf import duration_pb2
+
 
 _TEST_PROJECT = "test-project"
 _TEST_LOCATION = "us-central1"
@@ -80,8 +84,6 @@ _TEST_DEFAULT_ENCRYPTION_SPEC = gca_encryption_spec_compat.EncryptionSpec(
 )
 
 _TEST_SERVICE_ACCOUNT = "vinnys@my-project.iam.gserviceaccount.com"
-
-
 _TEST_NETWORK = f"projects/{_TEST_PROJECT}/global/networks/{_TEST_ID}"
 
 _TEST_TIMEOUT = 8000
