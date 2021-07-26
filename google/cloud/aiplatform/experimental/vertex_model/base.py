@@ -68,6 +68,7 @@ def vertex_fit_function_wrapper(method: Callable[..., Any]):
             script_path = pathlib.Path(tmpdirname) / "training_script.py"
 
             bound_args = inspect.signature(method).bind(*args, **kwargs)
+            print(type(bound_args))
 
             # get the mapping of parameter names to types
             # split the arguments into those that we need to serialize and those that can
@@ -76,20 +77,24 @@ def vertex_fit_function_wrapper(method: Callable[..., Any]):
             pass_through_params = {}
             serialized_params = {}
 
-            for parameter_name, parameter in bound_args.args.items():
-                parameter_type = type(parameter)
-                valid_types = [int, float, str] + list(
-                    obj._data_serialization_mapping.keys()
-                )
-                if parameter_type not in valid_types:
-                    raise RuntimeError(
-                        f"{parameter_type} not supported. parameter_name = {parameter_name}. The only supported types are {valid_types}"
+            for parameter_name, parameter in bound_args.arguments.items():
+                if (
+                    bound_args.signature.parameters[parameter_name].kind
+                    is inspect.Parameter.VAR_POSITIONAL
+                ):
+                    parameter_type = type(parameter)
+                    valid_types = [int, float, str] + list(
+                        obj._data_serialization_mapping.keys()
                     )
+                    if parameter_type not in valid_types:
+                        raise RuntimeError(
+                            f"{parameter_type} not supported. parameter_name = {parameter_name}. The only supported types are {valid_types}"
+                        )
 
-                if type(parameter) in obj._data_serialization_mapping:
-                    serialized_params[parameter_name] = parameter
-                else:  # assume primitive
-                    pass_through_params[parameter_name] = parameter
+                    if type(parameter) in obj._data_serialization_mapping:
+                        serialized_params[parameter_name] = parameter
+                    else:  # assume primitive
+                        pass_through_params[parameter_name] = parameter
 
             staging_bucket = aiplatform.initializer.global_config.staging_bucket
             if staging_bucket is None:
