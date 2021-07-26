@@ -43,16 +43,13 @@ def _make_class_source(obj: Any) -> str:
     return "\n".join(source_maker.source)
 
 
-    return "\n".join(source_maker.source)
-
-
 def _make_source(
     cls_source: str,
     cls_name: str,
     instance_method: str,
-    pass_through_params=pass_through_params,
-    param_name_to_serialized_info=param_name_to_serialized_uri,
-    obj
+    pass_through_params,
+    param_name_to_serialized_info,
+    obj,
 ) -> str:
     """Converts a class source to a string including necessary imports.
 
@@ -86,16 +83,19 @@ def _make_source(
     src = src + f"\tmodel.{instance_method}("
 
     # Iterate through parameters:
-    for parameter_name, (parameter_uri, parameter_type) in param_name_to_serialized_info.items():
+    for (
+        parameter_name,
+        (parameter_uri, parameter_type),
+    ) in param_name_to_serialized_info.items():
         deserializer = obj._data_serialization_mapping[parameter_type][0]
 
-        # Can also make individual calls for each serialized parameter, but was unsure 
+        # Can also make individual calls for each serialized parameter, but was unsure
         # for situations such as when a dataloader format is serialized.
         src = src + f"{parameter_name}={deserializer.__name__}({parameter_uri}), "
 
     for parameter_name, parameter_value in pass_through_params.items():
         src = src + f"{parameter_name}={parameter_value}, "
 
-    src = src + f")\n"
+    src = src + ")\n"
 
     return src

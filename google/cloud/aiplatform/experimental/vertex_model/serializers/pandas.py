@@ -16,6 +16,7 @@
 #
 
 import pathlib
+import tempfile
 
 from google.cloud import storage
 from google.cloud.aiplatform import initializer
@@ -87,7 +88,7 @@ def _deserialize_dataframe(artifact_uri: str) -> str:
 
     bucket = client.bucket(gcs_bucket)
     blob = bucket.blob(gcs_blob)
-    df = pandas.DataFrame()
+    df = pd.DataFrame()
 
     try:
         with tempfile.TemporaryDirectory() as tmpdirname:
@@ -101,8 +102,6 @@ def _deserialize_dataframe(artifact_uri: str) -> str:
                 artifact_uri, err
             )
         )
-    finally:
-        logger.removeFilter(logging_warning_filter)
 
     # Return a pandas DataFrame read from the csv in the cloud
     return df

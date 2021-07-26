@@ -15,33 +15,6 @@
 # limitations under the License.
 #
 
-import functools
-import inspect
-import logging
-import sys
-from typing import (
-    Any,
-    Dict,
-    List,
-    Sequence,
-    Tuple,
-    Type,
-)
-
-from google.api_core import operation
-from google.auth import credentials as auth_credentials
-from google.cloud.aiplatform import initializer
-from google.cloud.aiplatform import utils
-from google.cloud.aiplatform.compat.types import encryption_spec as gca_encryption_spec
-from google.cloud import aiplatform
-
-try:
-    import torch
-except ImportError:
-    raise ImportError(
-        "PyTorch is not installed. Please install torch to use VertexModel"
-    )
-
 
 def _serialize_remote_dataloader():
     # writes the referenced data to the run-time bucket

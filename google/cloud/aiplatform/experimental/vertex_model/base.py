@@ -17,6 +17,7 @@
 
 import abc
 import functools
+import inspect
 import pathlib
 import tempfile
 from typing import Any
@@ -66,9 +67,6 @@ def vertex_fit_function_wrapper(method: Callable[..., Any]):
         with tempfile.TemporaryDirectory() as tmpdirname:
             script_path = pathlib.Path(tmpdirname) / "training_script.py"
 
-            with open(script_path, "w") as f:
-                f.write(source)
-
             bound_args = inspect.signature(method).bind(*args, **kwargs)
 
             # get the mapping of parameter names to types
@@ -85,7 +83,7 @@ def vertex_fit_function_wrapper(method: Callable[..., Any]):
                 )
                 if parameter_type not in valid_types:
                     raise RuntimeError(
-                        f"{parameter_type} not supported. parameter_name = {parameter_name}. The only supported types are {value_types}"
+                        f"{parameter_type} not supported. parameter_name = {parameter_name}. The only supported types are {valid_types}"
                     )
 
                 if type(parameter) in obj._data_serialization_mapping:
@@ -105,7 +103,7 @@ def vertex_fit_function_wrapper(method: Callable[..., Any]):
                 parameter_uri = serializer(staging_bucket, parameter, parameter_name)
 
                 # namedtuple
-                param_name_to_serialized_uri[parameter_name] = (
+                param_name_to_serialized_info[parameter_name] = (
                     parameter_uri,
                     type(parameter).__name__,
                 )  # "pd.DataFrame"
@@ -115,23 +113,26 @@ def vertex_fit_function_wrapper(method: Callable[..., Any]):
                 cls_name=cls_name,
                 instance_method=method.__name__,
                 pass_through_params=pass_through_params,
-                param_name_to_serialized_info=param_name_to_serialized_uri,
+                param_name_to_serialized_info=param_name_to_serialized_info,
                 obj=obj,
             )
 
-            obj._training_job = aiplatform.CustomTrainingJob(
-                display_name="my_training_job",
-                script_path=str(script_path),
-                # programatically determine the dependency in the future
-                requirements=["pandas>=1.3"],
-                # https://cloud.google.com/vertex-ai/docs/training/pre-built-containers
-                container_uri="us-docker.pkg.dev/vertex-ai/training/pytorch-xla.1-7:latest",
-            )
+            with open(script_path, "w") as f:
+                f.write(source)
 
-            # In the custom training job, a MODEL directory will be provided as an env var
-            # our code should serialize our MODEL to that directory
+                obj._training_job = aiplatform.CustomTrainingJob(
+                    display_name="my_training_job",
+                    script_path=str(script_path),
+                    # programatically determine the dependency in the future
+                    requirements=["pandas>=1.3"],
+                    # https://cloud.google.com/vertex-ai/docs/training/pre-built-containers
+                    container_uri="us-docker.pkg.dev/vertex-ai/training/pytorch-xla.1-7:latest",
+                )
 
-            obj._training_job.run(my_dataset, replica_count=1)
+                # In the custom training job, a MODEL directory will be provided as an env var
+                # our code should serialize our MODEL to that directory
+
+                obj._training_job.run(replica_count=1)
 
     return f
 
