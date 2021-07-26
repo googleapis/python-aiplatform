@@ -88,6 +88,8 @@ class Execution(proto.Message):
         RUNNING = 2
         COMPLETE = 3
         FAILED = 4
+        CACHED = 5
+        CANCELLED = 6
 
     name = proto.Field(proto.STRING, number=1,)
     display_name = proto.Field(proto.STRING, number=2,)

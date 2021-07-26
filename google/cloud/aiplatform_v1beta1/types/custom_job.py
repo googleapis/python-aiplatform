@@ -86,6 +86,12 @@ class CustomJob(proto.Message):
             CustomJob. If this is set, then all resources
             created by the CustomJob will be encrypted with
             the provided encryption key.
+        web_access_uris (Sequence[google.cloud.aiplatform_v1beta1.types.CustomJob.WebAccessUrisEntry]):
+            Output only. The web access URIs for the
+            training job. The keys are the node names in the
+            training jobs, e.g. workerpool0-0. The values
+            are the URIs for each node's web portal in the
+            job.
     """
 
     name = proto.Field(proto.STRING, number=1,)
@@ -101,6 +107,7 @@ class CustomJob(proto.Message):
     encryption_spec = proto.Field(
         proto.MESSAGE, number=12, message=gca_encryption_spec.EncryptionSpec,
     )
+    web_access_uris = proto.MapField(proto.STRING, proto.STRING, number=16,)
 
 
 class CustomJobSpec(proto.Message):
@@ -167,6 +174,10 @@ class CustomJobSpec(proto.Message):
             resource to which this CustomJob will upload Tensorboard
             logs. Format:
             ``projects/{project}/locations/{location}/tensorboards/{tensorboard}``
+        enable_web_access (bool):
+            Optional. Vertex AI will enable web portal access to the
+            containers. The portals can be accessed on web via the URLs
+            given by [web_access_uris][].
     """
 
     worker_pool_specs = proto.RepeatedField(
@@ -179,6 +190,7 @@ class CustomJobSpec(proto.Message):
         proto.MESSAGE, number=6, message=io.GcsDestination,
     )
     tensorboard = proto.Field(proto.STRING, number=7,)
+    enable_web_access = proto.Field(proto.BOOL, number=10,)
 
 
 class WorkerPoolSpec(proto.Message):

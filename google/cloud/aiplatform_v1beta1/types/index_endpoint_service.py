@@ -240,11 +240,14 @@ class DeployIndexOperationMetadata(proto.Message):
     Attributes:
         generic_metadata (google.cloud.aiplatform_v1beta1.types.GenericOperationMetadata):
             The operation generic information.
+        deployed_index_id (str):
+            The unique index id specified by user
     """
 
     generic_metadata = proto.Field(
         proto.MESSAGE, number=1, message=operation.GenericOperationMetadata,
     )
+    deployed_index_id = proto.Field(proto.STRING, number=2,)
 
 
 class UndeployIndexRequest(proto.Message):

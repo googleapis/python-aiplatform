@@ -54,6 +54,8 @@ class EndpointServiceAsyncClient:
     parse_endpoint_path = staticmethod(EndpointServiceClient.parse_endpoint_path)
     model_path = staticmethod(EndpointServiceClient.model_path)
     parse_model_path = staticmethod(EndpointServiceClient.parse_model_path)
+    network_path = staticmethod(EndpointServiceClient.network_path)
+    parse_network_path = staticmethod(EndpointServiceClient.parse_network_path)
     common_billing_account_path = staticmethod(
         EndpointServiceClient.common_billing_account_path
     )
