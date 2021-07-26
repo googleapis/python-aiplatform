@@ -690,7 +690,7 @@ class _ScalarBatchedRequestSender(object):
         max_request_size: int,
         tracker: upload_tracker.UploadTracker,
     ):
-        """Constructer for _ScalarBatchedRequestSender.
+        """Constructor for _ScalarBatchedRequestSender.
 
         Args:
           run_resource_id: The resource id for the run with the following format
@@ -881,7 +881,7 @@ class _TensorBatchedRequestSender(object):
         max_tensor_point_size: int,
         tracker: upload_tracker.UploadTracker,
     ):
-        """Constructer for _TensorBatchedRequestSender.
+        """Constructor for _TensorBatchedRequestSender.
 
         Args:
           run_resource_id: The resource id for the run with the following format
