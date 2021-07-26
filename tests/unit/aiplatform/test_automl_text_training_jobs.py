@@ -173,7 +173,7 @@ class TestAutoMLTextTrainingJob:
         initializer.global_pool.shutdown(wait=True)
 
     def test_init_all_parameters_classification(self):
-        """Ensure all private members are set correctly at initalization"""
+        """Ensure all private members are set correctly at initialization"""
 
         aiplatform.init(project=_TEST_PROJECT)
 
@@ -196,7 +196,7 @@ class TestAutoMLTextTrainingJob:
         )
 
     def test_init_all_parameters_extraction(self):
-        """Ensure all private members are set correctly at initalization"""
+        """Ensure all private members are set correctly at initialization"""
 
         aiplatform.init(project=_TEST_PROJECT)
 
@@ -216,7 +216,7 @@ class TestAutoMLTextTrainingJob:
         )
 
     def test_init_all_parameters_sentiment(self):
-        """Ensure all private members are set correctly at initalization"""
+        """Ensure all private members are set correctly at initialization"""
 
         aiplatform.init(project=_TEST_PROJECT)
 

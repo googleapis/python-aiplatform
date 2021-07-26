@@ -99,7 +99,7 @@ class _Job(base.VertexAiResourceNounWithFutureManager):
         location: Optional[str] = None,
         credentials: Optional[auth_credentials.Credentials] = None,
     ):
-        """Retrives Job subclass resource by calling a subclass-specific getter
+        """Retrieves Job subclass resource by calling a subclass-specific getter
         method.
 
         Args:
@@ -391,12 +391,12 @@ class BatchPredictionJob(_Job):
                 Required. The format in which instances are given, must be one
                 of "jsonl", "csv", "bigquery", "tf-record", "tf-record-gzip",
                 or "file-list". Default is "jsonl" when using `gcs_source`. If a
-                `bigquery_source` is provided, this is overriden to "bigquery".
+                `bigquery_source` is provided, this is overridden to "bigquery".
             predictions_format (str):
                 Required. The format in which Vertex AI gives the
                 predictions, must be one of "jsonl", "csv", or "bigquery".
                 Default is "jsonl" when using `gcs_destination_prefix`. If a
-                `bigquery_destination_prefix` is provided, this is overriden to
+                `bigquery_destination_prefix` is provided, this is overridden to
                 "bigquery".
             gcs_source (Optional[Sequence[str]]):
                 Google Cloud Storage URI(-s) to your instances to run
@@ -1384,7 +1384,7 @@ class HyperparameterTuningJob(_RunnableJob):
 
             parameter_spec (Dict[str, hyperparameter_tuning._ParameterSpec]):
                 Required. Dictionary representing parameters to optimize. The dictionary key is the metric_id,
-                which is passed into your training job as a command line key word arguemnt, and the
+                which is passed into your training job as a command line key word argument, and the
                 dictionary value is the parameter specification of the metric.
 
 

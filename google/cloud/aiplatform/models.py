@@ -1066,7 +1066,7 @@ class Endpoint(base.VertexAiResourceNounWithFutureManager):
                 the prediction client.
         Returns:
             prediction_client (prediction_service_client.PredictionServiceClient):
-                Initalized prediction client with optional overrides.
+                Initialized prediction client with optional overrides.
         """
         return initializer.global_config.create_client(
             client_class=utils.PredictionClientWithOverride,
@@ -2027,7 +2027,7 @@ class Model(base.VertexAiResourceNounWithFutureManager):
                 Required. The format in which instances are given, must be one
                 of "jsonl", "csv", "bigquery", "tf-record", "tf-record-gzip",
                 or "file-list". Default is "jsonl" when using `gcs_source`. If a
-                `bigquery_source` is provided, this is overriden to "bigquery".
+                `bigquery_source` is provided, this is overridden to "bigquery".
             gcs_destination_prefix: Optional[str] = None
                 The Google Cloud Storage location of the directory where the
                 output is to be written to. In the given directory a new
@@ -2073,7 +2073,7 @@ class Model(base.VertexAiResourceNounWithFutureManager):
                 Required. The format in which Vertex AI gives the
                 predictions, must be one of "jsonl", "csv", or "bigquery".
                 Default is "jsonl" when using `gcs_destination_prefix`. If a
-                `bigquery_destination_prefix` is provided, this is overriden to
+                `bigquery_destination_prefix` is provided, this is overridden to
                 "bigquery".
             model_parameters: Optional[Dict] = None
                 Optional. The parameters that govern the predictions. The schema of
