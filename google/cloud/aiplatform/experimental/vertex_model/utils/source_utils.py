@@ -16,21 +16,7 @@
 #
 
 import inspect
-import logging
-import pandas as pd
-import sys
-import threading
-from typing import (
-    Any,
-    Dict,
-    List,
-    Tuple,
-    Type,
-)
-
-from google.cloud import aiplatform
-from google.cloud.experimental.vertex_model import base
-from google.cloud.experimental.vertex_model.serializers import *
+from typing import Any
 
 
 class SourceMaker:
@@ -53,6 +39,9 @@ def _make_class_source(obj: Any) -> str:
     for key, value in inspect.getmembers(obj):
         if inspect.ismethod(value) or inspect.isfunction(value):
             source_maker.add_method(inspect.getsource(value))
+
+    return "\n".join(source_maker.source)
+
 
     return "\n".join(source_maker.source)
 

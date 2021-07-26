@@ -17,25 +17,12 @@
 
 import abc
 import functools
-import inspect
-import logging
-import tempfile
 import pathlib
-from typing import (
-    Any,
-    Callable,
-    Dict,
-    List,
-    Tuple,
-    Type,
-)
+import tempfile
+from typing import Any
+from typing import Callable
 
-from google.auth import credentials as auth_credentials
-from google.cloud.aiplatform import initializer
-from google.cloud.aiplatform import utils
-from google.cloud.aiplatform.compat.types import encryption_spec as gca_encryption_spec
 from google.cloud import aiplatform
-
 from google.cloud.aiplatform.experimental.vertex_model.serializers import pandas
 from google.cloud.aiplatform.experimental.vertex_model.utils import source_utils
 
@@ -47,7 +34,7 @@ except ImportError:
     )
 
 
-def vertex_fit_function_wrapper(method):
+def vertex_fit_function_wrapper(method: Callable[..., Any]):
     """Adapts code in the user-written child class for cloud training and prediction
 
     If the user wishes to conduct local development, will return the original function.

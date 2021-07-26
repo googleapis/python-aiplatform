@@ -15,27 +15,11 @@
 # limitations under the License.
 #
 
-import functools
-import inspect
-import logging
-import tempfile
-import io
-import sys
-from typing import (
-    Any,
-    Dict,
-    List,
-    Sequence,
-    Tuple,
-    Type,
-)
+import pathlib
 
-from google.api_core import operation
-from google.auth import credentials as auth_credentials
+from google.cloud import storage
 from google.cloud.aiplatform import initializer
 from google.cloud.aiplatform import utils
-from google.cloud.aiplatform.compat.types import encryption_spec as gca_encryption_spec
-from google.cloud import aiplatform
 
 try:
     import pandas as pd
@@ -68,7 +52,9 @@ def _serialize_dataframe(
         path_to_csv = pathlib.Path(temp_dir)
         obj.to_csv(path_to_csv)
 
-    gcs_bucket, gcs_blob_prefix = extract_bucket_and_prefix_from_gcs_path(artifact_uri)
+    gcs_bucket, gcs_blob_prefix = utils.extract_bucket_and_prefix_from_gcs_path(
+        artifact_uri
+    )
 
     local_file_name = path_to_csv.name
     blob_path = local_file_name
