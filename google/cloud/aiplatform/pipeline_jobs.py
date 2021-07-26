@@ -249,6 +249,7 @@ class PipelineJob(base.VertexAiResourceNounWithFutureManager):
 
         _LOGGER.log_create_with_lro(self.__class__)
 
+        # PipelineJob.name is not used by pipeline service
         pipeline_job_id = self._gca_resource.name.split("/")[-1]
         self._gca_resource = self.api_client.create_pipeline_job(
             parent=self._parent,
