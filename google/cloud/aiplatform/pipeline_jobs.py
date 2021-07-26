@@ -220,7 +220,7 @@ class PipelineJob(base.VertexAiResourceNounWithFutureManager):
             ),
         )
 
-    def _assert_gca_resource_is_available(self):
+    def _assert_gca_resource_is_available(self) -> None:
         # TODO(b/193800063) Change this to name after this fix
         if not getattr(self._gca_resource, "create_time", None):
             raise RuntimeError(
@@ -377,6 +377,6 @@ class PipelineJob(base.VertexAiResourceNounWithFutureManager):
         """
         self.api_client.cancel_pipeline_job(name=self.resource_name)
 
-    def wait_for_resource_creation(self):
+    def wait_for_resource_creation(self) -> None:
         """Waits until resource has been created."""
         self._wait_for_resource_creation()

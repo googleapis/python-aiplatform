@@ -901,7 +901,7 @@ class _RunnableJob(_Job):
 
         return self
 
-    def wait_for_resource_creation(self):
+    def wait_for_resource_creation(self) -> None:
         """Waits until resource has been created."""
         self._wait_for_resource_creation()
 

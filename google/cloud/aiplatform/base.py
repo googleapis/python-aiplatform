@@ -593,7 +593,7 @@ class VertexAiResourceNoun(metaclass=abc.ABCMeta):
         self._assert_gca_resource_is_available()
         return self._gca_resource
 
-    def _assert_gca_resource_is_available(self):
+    def _assert_gca_resource_is_available(self) -> None:
         """Helper method to raise when property is not accessible.
 
         Raises:
@@ -1111,7 +1111,7 @@ class VertexAiResourceNounWithFutureManager(VertexAiResourceNoun, FutureManager)
 
             time.sleep(1)
 
-    def _assert_gca_resource_is_available(self):
+    def _assert_gca_resource_is_available(self) -> None:
         """Helper method to raise when accessing properties that do not exist.
 
         Raises:
