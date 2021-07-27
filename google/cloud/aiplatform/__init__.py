@@ -36,6 +36,7 @@ from google.cloud.aiplatform.jobs import (
     CustomJob,
     HyperparameterTuningJob,
 )
+from google.cloud.aiplatform.tensorboard import Tensorboard
 from google.cloud.aiplatform.training_jobs import (
     CustomTrainingJob,
     CustomContainerTrainingJob,
@@ -64,6 +65,7 @@ start_run = metadata.metadata_service.start_run
 
 __all__ = (
     "explain",
+    "experimental",
     "gapic",
     "init",
     "hyperparameter_tuning",
@@ -88,8 +90,8 @@ __all__ = (
     "Model",
     "PipelineJob",
     "TabularDataset",
+    "Tensorboard",
     "TextDataset",
     "TimeSeriesDataset",
     "VideoDataset",
-    "experimental",
 )

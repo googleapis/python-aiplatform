@@ -170,7 +170,7 @@ class TestAutoMLVideoTrainingJob:
         initializer.global_pool.shutdown(wait=True)
 
     def test_init_all_parameters(self):
-        """Ensure all private members are set correctly at initalization"""
+        """Ensure all private members are set correctly at initialization"""
 
         aiplatform.init(project=_TEST_PROJECT)
 
