@@ -187,6 +187,81 @@ class TestCloudVertexModelClass:
 
         mock_run_custom_training_job.assert_called_once_with(replica_count=1,)
 
+    def test_source_script_compiles(
+        self,
+        mock_client_bucket,
+    ):
+        my_model = LinearRegression(2, 1)
+        cls_name = my_model.__class__.__name__
+
+        training_source = source_utils._make_class_source(my_model)
+        bound_args = inspect.signature(my_model.fit).bind(*args, **kwargs)
+
+        pass_through_params = {}
+        serialized_params = {}
+
+        for parameter_name, parameter in bound_args.arguments.items():
+            parameter_type = type(parameter)
+            valid_types = [int, float, str] + list(
+                my_model._data_serialization_mapping.keys()
+            )
+            if parameter_type not in valid_types:
+                raise RuntimeError(
+                    f"{parameter_type} not supported. parameter_name = {parameter_name}. The only supported types are {valid_types}"
+                )
+
+            if type(parameter) in my_model._data_serialization_mapping.keys():
+                serialized_params[parameter_name] = parameter
+            else:  # assume primitive
+                pass_through_params[parameter_name] = parameter
+
+        staging_bucket = _TEST_STAGING_BUCKET
+
+        timestamp = datetime.datetime.now().isoformat(sep="-", timespec="milliseconds")
+        vertex_model_root_folder = "/".join(
+            [staging_bucket, f"vertex_model_run_{timestamp}"]
+        )
+
+        param_name_to_serialized_info = {}
+        serialized_inputs_artifacts_folder = "/".join(
+            [vertex_model_root_folder, "serialized_input_parameters"]
+        )
+
+        for parameter_name, parameter in serialized_params.items():
+            serializer = my_model._data_serialization_mapping[type(parameter)][1]
+            parameter_uri = serializer(
+                serialized_inputs_artifacts_folder, parameter, parameter_name
+            )
+
+            param_name_to_serialized_info[parameter_name] = (
+                parameter_uri,
+                type(parameter),
+            )
+
+        with tempfile.TemporaryDirectory() as tmpdirname:
+            script_path = pathlib.Path(tmpdirname) / "training_script.py"
+
+            source = source_utils._make_source(
+                cls_source=training_source,
+                cls_name=cls_name,
+                instance_method=method.__name__,
+                pass_through_params=pass_through_params,
+                param_name_to_serialized_info=param_name_to_serialized_info,
+                obj=obj,
+            )
+
+            with open(script_path, "w") as f:
+                f.write(source)
+
+            module_ok = True
+
+            try:
+                py_compile.compile(script_path, doraise=True)
+            except py_compile.PyCompileError:
+                module_ok = False
+
+            assert module_ok
+
 
 class TestLocalVertexModelClass:
     def test_create_local_vertex_model_class(self):
