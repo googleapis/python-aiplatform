@@ -15,10 +15,14 @@
 # limitations under the License.
 #
 
+import datetime
 import functools
 import importlib
+import inspect
+import pathlib
 import py_compile
 import pytest
+import tempfile
 import torch
 
 import numpy as np
@@ -32,6 +36,7 @@ from google.cloud import aiplatform
 from google.cloud import storage
 
 from google.cloud.aiplatform.experimental.vertex_model import base
+from google.cloud.aiplatform.experimental.vertex_model import source_utils
 from google.cloud.aiplatform.experimental.vertex_model.serializers import pandas
 
 
@@ -189,14 +194,13 @@ class TestCloudVertexModelClass:
         mock_run_custom_training_job.assert_called_once_with(replica_count=1,)
 
     def test_source_script_compiles(
-        self,
-        mock_client_bucket,
+        self, mock_client_bucket,
     ):
         my_model = LinearRegression(2, 1)
         cls_name = my_model.__class__.__name__
 
         training_source = source_utils._make_class_source(my_model)
-        bound_args = inspect.signature(my_model.fit).bind(*args, **kwargs)
+        bound_args = inspect.signature(my_model.fit)
 
         pass_through_params = {}
         serialized_params = {}
@@ -245,10 +249,10 @@ class TestCloudVertexModelClass:
             source = source_utils._make_source(
                 cls_source=training_source,
                 cls_name=cls_name,
-                instance_method=method.__name__,
+                instance_method=my_model.fit.__name__,
                 pass_through_params=pass_through_params,
                 param_name_to_serialized_info=param_name_to_serialized_info,
-                obj=obj,
+                obj=my_model,
             )
 
             with open(script_path, "w") as f:
