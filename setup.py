@@ -35,9 +35,15 @@ tensorboard_extra_require = [
     "six~=1.15.0",
 ]
 metadata_extra_require = ["pandas >= 1.0.0"]
+vertex_model_extra_require = ["pandas > 1.0.0", "torch >= 1.0.0"]
 xai_extra_require = ["tensorflow >=2.3.0, <=2.5.0"]
 full_extra_require = list(
-    set(tensorboard_extra_require + metadata_extra_require + xai_extra_require)
+    set(
+        tensorboard_extra_require
+        + metadata_extra_require
+        + xai_extra_require
+        + vertex_model_extra_require
+    )
 )
 testing_extra_require = full_extra_require + ["grpcio-testing"]
 
@@ -80,6 +86,7 @@ setuptools.setup(
         "tensorboard": tensorboard_extra_require,
         "testing": testing_extra_require,
         "xai": xai_extra_require,
+        "vertex_model": vertex_model_extra_require,
     },
     python_requires=">=3.6",
     scripts=[],
