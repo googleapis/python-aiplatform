@@ -15,17 +15,20 @@
 # limitations under the License.
 #
 
+import functools
 import importlib
 import pytest
 import torch
 
 import numpy as np
 import pandas as pd
+import unittest.mock as mock
 from unittest.mock import patch
 from unittest.mock import MagicMock
 
 from google.cloud.aiplatform import initializer
 from google.cloud import aiplatform
+from google.cloud import storage
 
 from google.cloud.aiplatform.experimental.vertex_model import base
 from google.cloud.aiplatform.experimental.vertex_model.serializers import pandas
@@ -34,6 +37,7 @@ from google.cloud.aiplatform.experimental.vertex_model.serializers import pandas
 _TEST_PROJECT = "test-project"
 _TEST_LOCATION = "us-central1"
 
+_TEST_BUCKET_NAME = "test-bucket"
 _TEST_STAGING_BUCKET = "gs://test-staging-bucket"
 
 # CMEK encryption
@@ -57,6 +61,26 @@ def mock_get_custom_training_job(mock_custom_training_job):
 def mock_run_custom_training_job(mock_custom_training_job):
     with patch.object(mock_custom_training_job, "run") as mock:
         yield mock
+
+
+@pytest.fixture
+def mock_client_bucket():
+    with patch.object(storage.Client, "bucket") as mock_client_bucket:
+
+        def blob_side_effect(name, mock_blob, bucket):
+            mock_blob.name = name
+            mock_blob.bucket = bucket
+            return mock_blob
+
+        MockBucket = mock.Mock(autospec=storage.Bucket)
+        MockBucket.name = _TEST_BUCKET_NAME
+        MockBlob = mock.Mock(autospec=storage.Blob)
+        MockBucket.blob.side_effect = functools.partial(
+            blob_side_effect, mock_blob=MockBlob, bucket=MockBucket
+        )
+        mock_client_bucket.return_value = MockBucket
+
+        yield mock_client_bucket, MockBlob
 
 
 class LinearRegression(base.VertexModel, torch.nn.Module):
@@ -121,7 +145,10 @@ class TestCloudVertexModelClass:
         assert my_model is not None
 
     def test_custom_job_call_from_vertex_model(
-        self, mock_get_custom_training_job, mock_run_custom_training_job
+        self,
+        mock_get_custom_training_job,
+        mock_run_custom_training_job,
+        mock_client_bucket,
     ):
         aiplatform.init(
             project=_TEST_PROJECT,
