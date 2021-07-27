@@ -499,46 +499,27 @@ class _TrainingJob(base.VertexAiResourceNounWithFutureManager):
                     key=timestamp_split_column_name,
                 )
 
-            split_configs = [
-                filter_split,
-                predefined_split,
-                timestamp_split,
-                fraction_split,
-            ]
-            split_configs_count = sum(
-                split_config is not None for split_config in split_configs
-            )
-            if split_configs_count > 1:
-                raise ValueError(
-                    """Can only specify one of:
-                    1. training_filter_split, validation_filter_split, test_filter_split OR
-                    2. predefined_split_column_name OR
-                    3. timestamp_split_column_name, training_fraction_split, validation_fraction_split, test_fraction_split OR
-                    4. training_fraction_split, validation_fraction_split, test_fraction_split"""
-                )
-
             # fraction split config
-            if split_configs_count == 0:
-                # check for custom values and set default values
+            if any(
+                [
+                    training_fraction_split,
+                    validation_fraction_split,
+                    test_fraction_split,
+                ]
+            ):
                 if any(
                     [
-                        training_fraction_split,
-                        validation_fraction_split,
-                        test_fraction_split,
+                        training_fraction_split is None,
+                        validation_fraction_split is None,
+                        test_fraction_split is None,
                     ]
                 ):
-                    if any(
-                        [
-                            training_fraction_split is None,
-                            validation_fraction_split is None,
-                            test_fraction_split is None,
-                        ]
-                    ):
-                        raise ValueError(
-                            """To use fraction split, all of the following have to be provided:
-                            training_fraction_split, validation_fraction_split, test_fraction_split"""
-                        )
-                elif dataset.metadata_schema_uri is schema.dataset.metadata.video:
+                    raise ValueError(
+                        """To use fraction split, all of the following have to be provided:
+                        training_fraction_split, validation_fraction_split, test_fraction_split"""
+                    )
+            else:
+                if dataset.metadata_schema_uri is schema.dataset.metadata.video:
                     training_fraction_split = 0.8
                     validation_fraction_split = 0.0
                     test_fraction_split = 0.2
@@ -546,11 +527,31 @@ class _TrainingJob(base.VertexAiResourceNounWithFutureManager):
                     training_fraction_split = 0.8
                     validation_fraction_split = 0.1
                     test_fraction_split = 0.1
+            fraction_split = gca_training_pipeline.FractionSplit(
+                training_fraction=training_fraction_split,
+                validation_fraction=validation_fraction_split,
+                test_fraction=test_fraction_split,
+            )
 
-                fraction_split = gca_training_pipeline.FractionSplit(
-                    training_fraction=training_fraction_split,
-                    validation_fraction=validation_fraction_split,
-                    test_fraction=test_fraction_split,
+            split_configs = [
+                filter_split,
+                predefined_split,
+                fraction_split,
+                timestamp_split,
+            ]
+            # timestamp split requires fraction split to be set
+            if timestamp_split is not None:
+                split_configs.pop()
+            split_configs_count = sum(
+                split_config is not None for split_config in split_configs
+            )
+            if split_configs_count > 1:
+                raise ValueError(
+                    """Can only specify one of:
+                        1. training_filter_split, validation_filter_split, test_filter_split OR
+                        2. predefined_split_column_name OR
+                        3. timestamp_split_column_name, training_fraction_split, validation_fraction_split, test_fraction_split OR
+                        4. training_fraction_split, validation_fraction_split, test_fraction_split"""
                 )
 
             # create GCS destination

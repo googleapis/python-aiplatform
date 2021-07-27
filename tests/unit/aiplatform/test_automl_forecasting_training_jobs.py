@@ -266,9 +266,6 @@ class TestAutoMLForecastingTrainingJob:
 
         true_input_data_config = gca_training_pipeline.InputDataConfig(
             fraction_split=true_fraction_split,
-            predefined_split=gca_training_pipeline.PredefinedSplit(
-                key=_TEST_PREDEFINED_SPLIT_COLUMN_NAME
-            ),
             dataset_id=mock_dataset_time_series.name,
         )
 

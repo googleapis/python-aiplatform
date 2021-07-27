@@ -524,7 +524,6 @@ class TestAutoMLTextTrainingJob:
         model_from_job = job.run(
             dataset=mock_dataset_text,
             model_display_name=None,  # Omit model_display_name
-            predefined_split_column_name=_TEST_PREDEFINED_SPLIT_COLUMN_NAME,
             sync=sync,
         )
 
