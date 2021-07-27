@@ -70,10 +70,12 @@ _TEST_TRAINING_TASK_INPUTS_WITH_BASE_MODEL = json_format.ParseDict(
 _TEST_FRACTION_SPLIT_TRAINING = 0.6
 _TEST_FRACTION_SPLIT_VALIDATION = 0.2
 _TEST_FRACTION_SPLIT_TEST = 0.2
+_TEST_DEFAULT_TRAINING_FRACTION_SPLIT = 0.8
+_TEST_DEFAULT_VALIDATION_FRACTION_SPLIT = 0.1
+_TEST_DEFAULT_TEST_FRACTION_SPLIT = 0.1
 _TEST_FILTER_SPLIT_TRAINING = "train"
 _TEST_FILTER_SPLIT_VALIDATION = "validate"
 _TEST_FILTER_SPLIT_TEST = "test"
-_TEST_PREDEFINED_SPLIT_COLUMN_NAME = "predefined_column"
 
 _TEST_MODEL_NAME = (
     f"projects/{_TEST_PROJECT}/locations/{_TEST_LOCATION}/models/{_TEST_MODEL_ID}"
@@ -160,6 +162,7 @@ def mock_model_service_get():
 def mock_dataset_image():
     ds = mock.MagicMock(datasets.ImageDataset)
     ds.name = _TEST_DATASET_NAME
+    ds.metadata_schema_uri = _TEST_METADATA_SCHEMA_URI_IMAGE
     ds._latest_future = None
     ds._exception = None
     ds._gca_resource = gca_dataset.Dataset(
@@ -328,7 +331,6 @@ class TestAutoMLImageTrainingJob:
 
         model_from_job = job.run(
             dataset=mock_dataset_image,
-            predefined_split_column_name=_TEST_PREDEFINED_SPLIT_COLUMN_NAME,
             budget_milli_node_hours=_TEST_TRAINING_BUDGET_MILLI_NODE_HOURS,
             disable_early_stopping=_TEST_TRAINING_DISABLE_EARLY_STOPPING,
         )
@@ -336,8 +338,10 @@ class TestAutoMLImageTrainingJob:
         if not sync:
             model_from_job.wait()
 
-        true_predefined_split = gca_training_pipeline.PredefinedSplit(
-            key=_TEST_PREDEFINED_SPLIT_COLUMN_NAME
+        true_fraction_split = gca_training_pipeline.FractionSplit(
+            training_fraction=_TEST_DEFAULT_TRAINING_FRACTION_SPLIT,
+            validation_fraction=_TEST_DEFAULT_VALIDATION_FRACTION_SPLIT,
+            test_fraction=_TEST_DEFAULT_TEST_FRACTION_SPLIT,
         )
 
         # Test that if defaults to the job display name
@@ -346,7 +350,7 @@ class TestAutoMLImageTrainingJob:
         )
 
         true_input_data_config = gca_training_pipeline.InputDataConfig(
-            predefined_split=true_predefined_split, dataset_id=mock_dataset_image.name
+            fraction_split=true_fraction_split, dataset_id=mock_dataset_image.name
         )
 
         true_training_pipeline = gca_training_pipeline.TrainingPipeline(

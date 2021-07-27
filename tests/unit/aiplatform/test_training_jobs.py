@@ -576,6 +576,7 @@ def mock_python_package_to_gcs():
 def mock_tabular_dataset():
     ds = mock.MagicMock(datasets.TabularDataset)
     ds.name = _TEST_DATASET_NAME
+    ds.metadata_schema_uri = _TEST_METADATA_SCHEMA_URI_TABULAR
     ds._latest_future = None
     ds._exception = None
     ds._gca_resource = gca_dataset.Dataset(
@@ -592,6 +593,7 @@ def mock_tabular_dataset():
 def mock_nontabular_dataset():
     ds = mock.MagicMock(datasets.ImageDataset)
     ds.name = _TEST_DATASET_NAME
+    ds.metadata_schema_uri = _TEST_METADATA_SCHEMA_URI_NONTABULAR
     ds._latest_future = None
     ds._exception = None
     ds._gca_resource = gca_dataset.Dataset(

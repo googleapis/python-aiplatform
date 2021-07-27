@@ -148,6 +148,7 @@ def mock_model_service_get():
 def mock_dataset_text():
     ds = mock.MagicMock(datasets.TextDataset)
     ds.name = _TEST_DATASET_NAME
+    ds.metadata_schema_uri = _TEST_METADATA_SCHEMA_URI_TEXT
     ds._latest_future = None
     ds._exception = None
     ds._gca_resource = gca_dataset.Dataset(
@@ -530,15 +531,17 @@ class TestAutoMLTextTrainingJob:
         if not sync:
             model_from_job.wait()
 
-        true_predefined_split = gca_training_pipeline.PredefinedSplit(
-            key=_TEST_PREDEFINED_SPLIT_COLUMN_NAME
+        true_fraction_split = gca_training_pipeline.FractionSplit(
+            training_fraction=_TEST_DEFAULT_TRAINING_FRACTION_SPLIT,
+            validation_fraction=_TEST_DEFAULT_VALIDATION_FRACTION_SPLIT,
+            test_fraction=_TEST_DEFAULT_TEST_FRACTION_SPLIT,
         )
 
         # Test that if defaults to the job display name
         true_managed_model = gca_model.Model(display_name=_TEST_DISPLAY_NAME)
 
         true_input_data_config = gca_training_pipeline.InputDataConfig(
-            predefined_split=true_predefined_split, dataset_id=mock_dataset_text.name,
+            fraction_split=true_fraction_split, dataset_id=mock_dataset_text.name,
         )
 
         true_training_pipeline = gca_training_pipeline.TrainingPipeline(
