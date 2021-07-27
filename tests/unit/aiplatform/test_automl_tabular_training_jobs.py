@@ -654,6 +654,37 @@ class TestAutoMLTabularTrainingJob:
             )
 
     @pytest.mark.parametrize("sync", [True, False])
+    def test_run_with_two_split_raises(
+        self,
+        mock_pipeline_service_create,
+        mock_python_package_to_gcs,
+        mock_tabular_dataset,
+        mock_model_service_get,
+        sync,
+    ):
+        aiplatform.init()
+
+        job = training_jobs.AutoMLTabularTrainingJob(
+            display_name=_TEST_DISPLAY_NAME,
+            optimization_prediction_type=_TEST_TRAINING_OPTIMIZATION_PREDICTION_TYPE,
+            optimization_objective=_TEST_TRAINING_OPTIMIZATION_OBJECTIVE_NAME,
+            column_transformations=_TEST_TRAINING_COLUMN_TRANSFORMATIONS,
+            optimization_objective_recall_value=None,
+            optimization_objective_precision_value=None,
+        )
+
+        with pytest.raises(ValueError):
+            job.run(
+                dataset=mock_tabular_dataset,
+                target_column=_TEST_TRAINING_TARGET_COLUMN,
+                predefined_split_column_name=_TEST_PREDEFINED_SPLIT_COLUMN_NAME,
+                training_fraction_split=_TEST_TRAINING_FRACTION_SPLIT,
+                validation_fraction_split=_TEST_VALIDATION_FRACTION_SPLIT,
+                test_fraction_split=_TEST_TEST_FRACTION_SPLIT,
+                sync=sync,
+            )
+
+    @pytest.mark.parametrize("sync", [True, False])
     def test_run_call_pipeline_service_create_with_column_specs_not_auto(
         self,
         mock_pipeline_service_create,

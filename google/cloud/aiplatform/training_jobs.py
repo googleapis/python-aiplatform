@@ -499,32 +499,6 @@ class _TrainingJob(base.VertexAiResourceNounWithFutureManager):
                     key=timestamp_split_column_name,
                 )
 
-            # (custom) fraction split config
-            if any(
-                [
-                    training_fraction_split,
-                    validation_fraction_split,
-                    test_fraction_split,
-                ]
-            ):
-                if any(
-                    [
-                        training_fraction_split is None,
-                        validation_fraction_split is None,
-                        test_fraction_split is None,
-                    ]
-                ):
-                    raise ValueError(
-                        """To use fraction split, all of the following have to be provided:
-                        training_fraction_split, validation_fraction_split, test_fraction_split"""
-                    )
-
-                fraction_split = gca_training_pipeline.FractionSplit(
-                    training_fraction=training_fraction_split,
-                    validation_fraction=validation_fraction_split,
-                    test_fraction=test_fraction_split,
-                )
-
             split_configs = [
                 filter_split,
                 predefined_split,
@@ -543,18 +517,41 @@ class _TrainingJob(base.VertexAiResourceNounWithFutureManager):
                     4. training_fraction_split, validation_fraction_split, test_fraction_split"""
                 )
 
-            # (default) fraction split config
+            # fraction split config
             if split_configs_count == 0:
-                if dataset.metadata_schema_uri is schema.dataset.metadata.video:
-                    fraction_split = gca_training_pipeline.FractionSplit(
-                        training_fraction=0.8, test_fraction=0.2
-                    )
+                # check for custom values and set default values
+                if any(
+                    [
+                        training_fraction_split,
+                        validation_fraction_split,
+                        test_fraction_split,
+                    ]
+                ):
+                    if any(
+                        [
+                            training_fraction_split is None,
+                            validation_fraction_split is None,
+                            test_fraction_split is None,
+                        ]
+                    ):
+                        raise ValueError(
+                            """To use fraction split, all of the following have to be provided:
+                            training_fraction_split, validation_fraction_split, test_fraction_split"""
+                        )
+                elif dataset.metadata_schema_uri is schema.dataset.metadata.video:
+                    training_fraction_split = 0.8
+                    validation_fraction_split = 0.0
+                    test_fraction_split = 0.2
                 else:
-                    fraction_split = gca_training_pipeline.FractionSplit(
-                        training_fraction=0.8,
-                        validation_fraction=0.1,
-                        test_fraction=0.1,
-                    )
+                    training_fraction_split = 0.8
+                    validation_fraction_split = 0.1
+                    test_fraction_split = 0.1
+
+                fraction_split = gca_training_pipeline.FractionSplit(
+                    training_fraction=training_fraction_split,
+                    validation_fraction=validation_fraction_split,
+                    test_fraction=test_fraction_split,
+                )
 
             # create GCS destination
             gcs_destination = None
@@ -5219,12 +5216,16 @@ class AutoMLVideoTrainingJob(_TrainingJob):
         if training_filter_split is not None and test_filter_split is not None:
             validation_filter_split = "-"
 
+        validation_fraction_split = None
+        if training_fraction_split is not None and test_fraction_split is not None:
+            validation_fraction_split = 0.0
+
         return self._run_job(
             training_task_definition=training_task_definition,
             training_task_inputs=training_task_inputs_dict,
             dataset=dataset,
             training_fraction_split=training_fraction_split,
-            validation_fraction_split=0.0,
+            validation_fraction_split=validation_fraction_split,
             test_fraction_split=test_fraction_split,
             training_filter_split=training_filter_split,
             validation_filter_split=validation_filter_split,

@@ -241,7 +241,6 @@ class TestAutoMLForecastingTrainingJob:
             data_granularity_unit=_TEST_TRAINING_DATA_GRANULARITY_UNIT,
             data_granularity_count=_TEST_TRAINING_DATA_GRANULARITY_COUNT,
             model_display_name=_TEST_MODEL_DISPLAY_NAME,
-            predefined_split_column_name=_TEST_PREDEFINED_SPLIT_COLUMN_NAME,
             weight_column=_TEST_TRAINING_WEIGHT_COLUMN,
             time_series_attribute_columns=_TEST_TRAINING_TIME_SERIES_ATTRIBUTE_COLUMNS,
             context_window=_TEST_TRAINING_CONTEXT_WINDOW,

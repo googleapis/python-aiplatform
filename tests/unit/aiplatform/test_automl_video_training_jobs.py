@@ -426,6 +426,30 @@ class TestAutoMLVideoTrainingJob:
                 sync=sync,
             )
 
+    @pytest.mark.usefixtures(
+        "mock_pipeline_service_create",
+        "mock_pipeline_service_get",
+        "mock_model_service_get",
+    )
+    @pytest.mark.parametrize("sync", [True, False])
+    def test_run_with_two_split_raises(
+        self, mock_dataset_video, sync,
+    ):
+        aiplatform.init(project=_TEST_PROJECT)
+
+        job = training_jobs.AutoMLVideoTrainingJob(display_name=_TEST_DISPLAY_NAME,)
+
+        with pytest.raises(RuntimeError):
+            job.run(
+                dataset=mock_dataset_video,
+                model_display_name=_TEST_MODEL_DISPLAY_NAME,
+                training_fraction_split=_TEST_FRACTION_SPLIT_TRAINING,
+                test_fraction_split=_TEST_FRACTION_SPLIT_TEST,
+                training_filter_split=_TEST_FILTER_SPLIT_TRAINING,
+                test_filter_split=_TEST_FILTER_SPLIT_TEST,
+                sync=sync,
+            )
+
     @pytest.mark.parametrize("sync", [True, False])
     def test_run_raises_if_pipeline_fails(
         self, mock_pipeline_service_create_and_get_with_fail, mock_dataset_video, sync

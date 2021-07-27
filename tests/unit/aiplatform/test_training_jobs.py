@@ -1030,6 +1030,37 @@ class TestCustomTrainingJob:
             )
 
     @pytest.mark.parametrize("sync", [True, False])
+    def test_run_with_two_splits_raises(
+        self,
+        mock_pipeline_service_create,
+        mock_python_package_to_gcs,
+        mock_tabular_dataset,
+        mock_model_service_get,
+        sync,
+    ):
+        aiplatform.init(project=_TEST_PROJECT, staging_bucket=_TEST_BUCKET_NAME)
+
+        job = training_jobs.CustomTrainingJob(
+            display_name=_TEST_DISPLAY_NAME,
+            script_path=_TEST_LOCAL_SCRIPT_FILE_NAME,
+            container_uri=_TEST_TRAINING_CONTAINER_IMAGE,
+        )
+
+        with pytest.raises(ValueError):
+            job.run(
+                dataset=mock_tabular_dataset,
+                replica_count=1,
+                machine_type=_TEST_MACHINE_TYPE,
+                accelerator_type=_TEST_INVALID_ACCELERATOR_TYPE,
+                accelerator_count=_TEST_ACCELERATOR_COUNT,
+                predefined_split_column_name=_TEST_PREDEFINED_SPLIT_COLUMN_NAME,
+                training_fraction_split=_TEST_TRAINING_FRACTION_SPLIT,
+                validation_fraction_split=_TEST_VALIDATION_FRACTION_SPLIT,
+                test_fraction_split=_TEST_TEST_FRACTION_SPLIT,
+                sync=sync,
+            )
+
+    @pytest.mark.parametrize("sync", [True, False])
     def test_run_with_incomplete_model_info_raises_with_model_to_upload(
         self,
         mock_pipeline_service_create,
@@ -2215,6 +2246,36 @@ class TestCustomContainerTrainingJob:
                 accelerator_type=_TEST_INVALID_ACCELERATOR_TYPE,
                 accelerator_count=_TEST_ACCELERATOR_COUNT,
                 model_display_name=_TEST_MODEL_DISPLAY_NAME,
+                sync=sync,
+            )
+
+    @pytest.mark.parametrize("sync", [True, False])
+    def test_run_with_two_split_raises(
+        self,
+        mock_pipeline_service_create,
+        mock_python_package_to_gcs,
+        mock_tabular_dataset,
+        mock_model_service_get,
+        sync,
+    ):
+        aiplatform.init(project=_TEST_PROJECT, staging_bucket=_TEST_BUCKET_NAME)
+
+        job = training_jobs.CustomContainerTrainingJob(
+            display_name=_TEST_DISPLAY_NAME,
+            container_uri=_TEST_TRAINING_CONTAINER_IMAGE,
+        )
+
+        with pytest.raises(ValueError):
+            job.run(
+                dataset=mock_tabular_dataset,
+                replica_count=1,
+                machine_type=_TEST_MACHINE_TYPE,
+                accelerator_type=_TEST_INVALID_ACCELERATOR_TYPE,
+                accelerator_count=_TEST_ACCELERATOR_COUNT,
+                predefined_split_column_name=_TEST_PREDEFINED_SPLIT_COLUMN_NAME,
+                training_fraction_split=_TEST_TRAINING_FRACTION_SPLIT,
+                validation_fraction_split=_TEST_VALIDATION_FRACTION_SPLIT,
+                test_fraction_split=_TEST_TEST_FRACTION_SPLIT,
                 sync=sync,
             )
 
@@ -3586,6 +3647,38 @@ class TestCustomPythonPackageTrainingJob:
                 accelerator_type=_TEST_INVALID_ACCELERATOR_TYPE,
                 accelerator_count=_TEST_ACCELERATOR_COUNT,
                 model_display_name=_TEST_MODEL_DISPLAY_NAME,
+                training_fraction_split=_TEST_TRAINING_FRACTION_SPLIT,
+                validation_fraction_split=_TEST_VALIDATION_FRACTION_SPLIT,
+                test_fraction_split=_TEST_TEST_FRACTION_SPLIT,
+                sync=sync,
+            )
+
+    @pytest.mark.parametrize("sync", [True, False])
+    def test_run_with_two_split_raises(
+        self,
+        mock_pipeline_service_create,
+        mock_python_package_to_gcs,
+        mock_tabular_dataset,
+        mock_model_service_get,
+        sync,
+    ):
+        aiplatform.init(project=_TEST_PROJECT, staging_bucket=_TEST_BUCKET_NAME)
+
+        job = training_jobs.CustomPythonPackageTrainingJob(
+            display_name=_TEST_DISPLAY_NAME,
+            python_package_gcs_uri=_TEST_OUTPUT_PYTHON_PACKAGE_PATH,
+            python_module_name=_TEST_PYTHON_MODULE_NAME,
+            container_uri=_TEST_TRAINING_CONTAINER_IMAGE,
+        )
+
+        with pytest.raises(ValueError):
+            job.run(
+                dataset=mock_tabular_dataset,
+                replica_count=1,
+                machine_type=_TEST_MACHINE_TYPE,
+                accelerator_type=_TEST_INVALID_ACCELERATOR_TYPE,
+                accelerator_count=_TEST_ACCELERATOR_COUNT,
+                predefined_split_column_name=_TEST_PREDEFINED_SPLIT_COLUMN_NAME,
                 training_fraction_split=_TEST_TRAINING_FRACTION_SPLIT,
                 validation_fraction_split=_TEST_VALIDATION_FRACTION_SPLIT,
                 test_fraction_split=_TEST_TEST_FRACTION_SPLIT,
