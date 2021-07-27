@@ -78,8 +78,13 @@ def _make_source(
     src = src + "if __name__ == '__main__':\n"
 
     # Then, instantiate model
-    src = src + f"\tmodel = {cls_name}()\n"
+    class_args = inspect.signature(obj.__class__.__init__).bind(*args, **kwargs)
+    class_args_arg = [locals()[arg] for arg in class_args.args]
+    class_args_kwarg = [locals()[kwarg] for kwarg in class_args.kwargs]
 
+    src = src + f"\tmodel = {cls_name}({class_args_arg}, {class_args_kwarg})\n"
+
+    # Start function call
     src = src + f"\tmodel.{instance_method}("
 
     # Iterate through parameters:
