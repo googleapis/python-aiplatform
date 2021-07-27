@@ -167,10 +167,11 @@ class VertexModel(metaclass=abc.ABCMeta):
 
     """ Parent class that users can extend to use the Vertex AI SDK """
 
-    def __init__(self):
+    def __init__(self, *args, **kwargs):
         # Default to local training on creation, at least for this prototype.
         self.training_mode = "local"
         self.fit = vertex_fit_function_wrapper(self.fit)
+        self._constructor_arguments = (args, kwargs)
 
     @abc.abstractmethod
     def fit(self):

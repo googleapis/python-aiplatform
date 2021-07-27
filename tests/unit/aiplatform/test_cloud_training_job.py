@@ -85,7 +85,7 @@ def mock_client_bucket():
 
 class LinearRegression(base.VertexModel, torch.nn.Module):
     def __init__(self, input_size: int, output_size: int):
-        base.VertexModel.__init__(self)
+        base.VertexModel.__init__(self, input_size=10, output_size=10)
         torch.nn.Module.__init__(self)
         self.linear = torch.nn.Linear(input_size, output_size)
 

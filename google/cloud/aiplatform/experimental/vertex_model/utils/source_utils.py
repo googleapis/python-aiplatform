@@ -87,11 +87,13 @@ def _make_source(
     src = src + "if __name__ == '__main__':\n"
 
     # Then, instantiate model
-    class_args = inspect.signature(obj.__class__.__init__).bind(*args, **kwargs)
-    class_args_arg = [locals()[arg] for arg in class_args.args]
-    class_args_kwarg = [locals()[kwarg] for kwarg in class_args.kwargs]
+    # First, grab args and kwargs using the _constructor_arguments variable in VertexModel
+    print(inspect.signature(obj.__class__.__init__))
+    class_args = inspect.signature(obj.__class__.__init__).bind(
+        obj, *obj._constructor_arguments[0], **obj._constructor_arguments[1]
+    )
 
-    src = src + f"\tmodel = {cls_name}({class_args_arg}, {class_args_kwarg})\n"
+    src = src + f"\tmodel = {cls_name}({class_args.args}, {class_args.kwargs})\n"
 
     # Start function call
     src = src + f"\tmodel.{instance_method}("
