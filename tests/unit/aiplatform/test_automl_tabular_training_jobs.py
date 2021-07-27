@@ -657,8 +657,8 @@ class TestAutoMLTabularTrainingJob:
     def test_run_with_two_split_raises(
         self,
         mock_pipeline_service_create,
-        mock_python_package_to_gcs,
-        mock_tabular_dataset,
+        mock_pipeline_service_get,
+        mock_dataset_tabular_alternative,
         mock_model_service_get,
         sync,
     ):

@@ -473,32 +473,6 @@ class _TrainingJob(base.VertexAiResourceNounWithFutureManager):
                     key=predefined_split_column_name
                 )
 
-            # timestamp split config
-            if timestamp_split_column_name:
-                if dataset.metadata_schema_uri not in _DATASETS_WITH_STRUCTURED_DATA:
-                    raise ValueError(
-                        "A timestamp split may only be used with a tabular or time series Dataset"
-                    )
-                if any(
-                    [
-                        training_fraction_split is None,
-                        validation_fraction_split is None,
-                        test_fraction_split is None,
-                    ]
-                ):
-                    raise ValueError(
-                        """To use timestamp split, all of the following have to be provided:
-                        timestamp_split_column_name, training_fraction_split, validation_fraction_split,
-                        test_fraction_split"""
-                    )
-
-                timestamp_split = gca_training_pipeline.TimestampSplit(
-                    training_fraction=training_fraction_split,
-                    validation_fraction=validation_fraction_split,
-                    test_fraction=test_fraction_split,
-                    key=timestamp_split_column_name,
-                )
-
             # fraction split config
             if any(
                 [
@@ -533,15 +507,27 @@ class _TrainingJob(base.VertexAiResourceNounWithFutureManager):
                 test_fraction=test_fraction_split,
             )
 
+            # timestamp split config
+            if timestamp_split_column_name:
+                if dataset.metadata_schema_uri not in _DATASETS_WITH_STRUCTURED_DATA:
+                    raise ValueError(
+                        "A timestamp split may only be used with a tabular or time series Dataset"
+                    )
+
+                timestamp_split = gca_training_pipeline.TimestampSplit(
+                    training_fraction=training_fraction_split,
+                    validation_fraction=validation_fraction_split,
+                    test_fraction=test_fraction_split,
+                    key=timestamp_split_column_name,
+                )
+                fraction_split = None
+
             split_configs = [
                 filter_split,
                 predefined_split,
                 fraction_split,
                 timestamp_split,
             ]
-            # timestamp split requires fraction split to be set
-            if timestamp_split is not None:
-                split_configs.pop()
             split_configs_count = sum(
                 split_config is not None for split_config in split_configs
             )

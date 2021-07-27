@@ -410,7 +410,7 @@ class TestAutoMLImageTrainingJob:
 
         with pytest.raises(RuntimeError):
             job.run(
-                dataset=mock_dataset_text,
+                dataset=mock_dataset_image,
                 model_display_name=_TEST_MODEL_DISPLAY_NAME,
                 training_fraction_split=_TEST_FRACTION_SPLIT_TRAINING,
                 validation_fraction_split=_TEST_FRACTION_SPLIT_VALIDATION,
