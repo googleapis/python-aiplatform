@@ -17,6 +17,7 @@
 
 import functools
 import importlib
+import py_compile
 import pytest
 import torch
 
