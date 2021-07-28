@@ -604,7 +604,7 @@ class TestAutoMLTextTrainingJob:
             multi_label=True,
         )
 
-        with pytest.raises(RuntimeError):
+        with pytest.raises(ValueError):
             job.run(
                 dataset=mock_dataset_text,
                 model_display_name=_TEST_MODEL_DISPLAY_NAME,

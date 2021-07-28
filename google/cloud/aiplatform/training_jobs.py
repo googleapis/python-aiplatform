@@ -492,7 +492,7 @@ class _TrainingJob(base.VertexAiResourceNounWithFutureManager):
                         """To use fraction split, all of the following have to be provided:
                         training_fraction_split, validation_fraction_split, test_fraction_split"""
                     )
-            else:
+            elif filter_split is None and predefined_split is None:
                 if dataset.metadata_schema_uri is schema.dataset.metadata.video:
                     training_fraction_split = 0.8
                     validation_fraction_split = 0.0

@@ -408,7 +408,7 @@ class TestAutoMLImageTrainingJob:
 
         job = training_jobs.AutoMLImageTrainingJob(display_name=_TEST_DISPLAY_NAME,)
 
-        with pytest.raises(RuntimeError):
+        with pytest.raises(ValueError):
             job.run(
                 dataset=mock_dataset_image,
                 model_display_name=_TEST_MODEL_DISPLAY_NAME,

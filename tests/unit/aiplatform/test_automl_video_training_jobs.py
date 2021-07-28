@@ -439,7 +439,7 @@ class TestAutoMLVideoTrainingJob:
 
         job = training_jobs.AutoMLVideoTrainingJob(display_name=_TEST_DISPLAY_NAME,)
 
-        with pytest.raises(RuntimeError):
+        with pytest.raises(ValueError):
             job.run(
                 dataset=mock_dataset_video,
                 model_display_name=_TEST_MODEL_DISPLAY_NAME,
