@@ -16,6 +16,7 @@
 #
 
 import pathlib
+import tempfile
 
 from google.cloud import storage
 from google.cloud.aiplatform import initializer
@@ -29,15 +30,19 @@ except ImportError:
     )
 
 
-def _serialize_dataframe(artifact_uri: str, obj: pd.DataFrame, temp_dir: str) -> str:
+# TODO (b/194815913): unit test serialization and source generation
+
+
+def _serialize_dataframe(
+    artifact_uri: str, obj: pd.DataFrame, dataset_type: str
+) -> str:
 
     """Serializes pandas DataFrame object to GCS.
 
     Args:
         artifact_uri (str): the GCS bucket where the serialized object will reside.
         obj (pd.DataFrame): the pandas DataFrame to serialize.
-        temp_dir (str): the temporary path where this method will write a csv representation
-                        of obj.
+        dataset_type (str): the intended use of the dataset (ie. training, testing)
 
     Returns:
         The GCS path pointing to the serialized DataFrame.
@@ -45,18 +50,48 @@ def _serialize_dataframe(artifact_uri: str, obj: pd.DataFrame, temp_dir: str) ->
 
     # Designate csv path and write the pandas DataFrame to the path
     # Convention: file name is my_training_dataset, my_test_dataset, etc.
-    path_to_csv = pathlib.Path(temp_dir) / ("my_dataset.csv")
-    obj.to_csv(path_to_csv)
+    with tempfile.TemporaryDirectory() as tmpdirname:
+        temp_dir = pathlib.Path(tmpdirname) / ("my_" + dataset_type + "_dataset.csv")
+        path_to_csv = pathlib.Path(temp_dir)
+        obj.to_csv(path_to_csv)
 
-    gcs_bucket, gcs_blob_prefix = utils.extract_bucket_and_prefix_from_gcs_path(
-        artifact_uri
-    )
+        gcs_bucket, gcs_blob_prefix = utils.extract_bucket_and_prefix_from_gcs_path(
+            artifact_uri
+        )
 
-    local_file_name = path_to_csv.name
-    blob_path = local_file_name
+        local_file_name = path_to_csv.name
+        blob_path = local_file_name
 
-    if gcs_blob_prefix:
-        blob_path = "/".join([gcs_blob_prefix, blob_path])
+        if gcs_blob_prefix:
+            blob_path = "/".join([gcs_blob_prefix, blob_path])
+
+        client = storage.Client(
+            project=initializer.global_config.project,
+            credentials=initializer.global_config.credentials,
+        )
+
+        bucket = client.bucket(gcs_bucket)
+        blob = bucket.blob(blob_path)
+        blob.upload_from_filename(str(path_to_csv))
+
+        gcs_path = "".join(["gs://", "/".join([blob.bucket.name, blob.name])])
+        return gcs_path
+
+
+def _deserialize_dataframe(artifact_uri: str) -> pd.DataFrame:
+    """Deserializes a csv on GCS to a pandas DataFrame object.
+
+    Args:
+        artifact_uri (str): the GCS bucket where the serialized object resides.
+
+    Returns:
+        The deserialized DataFrame.
+
+    Raises:
+        Runtime Error should the CSV object referenced by artifact_uri be invalid.
+    """
+
+    gcs_bucket, gcs_blob = utils.extract_bucket_and_prefix_from_gcs_path(artifact_uri)
 
     client = storage.Client(
         project=initializer.global_config.project,
@@ -64,14 +99,21 @@ def _serialize_dataframe(artifact_uri: str, obj: pd.DataFrame, temp_dir: str) ->
     )
 
     bucket = client.bucket(gcs_bucket)
-    blob = bucket.blob(blob_path)
-    blob.upload_from_filename(path_to_csv)
+    blob = bucket.blob(gcs_blob)
+    df = pd.DataFrame()
 
-    gcs_path = "".join(["gs://", "/".join([blob.bucket.name, blob.name])])
-    return gcs_path
+    try:
+        with tempfile.TemporaryDirectory() as tmpdirname:
+            dest_file = pathlib.Path(tmpdirname) / "deserialized_data.csv"
+            blob.download_to_filename(dest_file)
+            df = pd.read_csv(dest_file)
 
+    except (ValueError, RuntimeError) as err:
+        raise RuntimeError(
+            "There was a problem reading the CSV file at '{}': {}".format(
+                artifact_uri, err
+            )
+        )
 
-def _deserialize_dataframe(artifact_uri: str) -> str:
-    """Provides out-of-the-box deserialization after training and prediction is complete"""
-
-    raise NotImplementedError
+    # Return a pandas DataFrame read from the csv in the cloud
+    return df
