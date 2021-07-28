@@ -15,10 +15,8 @@
 # limitations under the License.
 #
 
-import datetime
 import functools
 import importlib
-import inspect
 import pathlib
 import py_compile
 import pytest
@@ -196,7 +194,7 @@ class TestCloudVertexModelClass:
     def test_source_script_compiles(
         self, mock_client_bucket,
     ):
-        my_model = LinearRegression(2, 1)
+        my_model = LinearRegression(input_size=10, output_size=10)
         cls_name = my_model.__class__.__name__
 
         training_source = source_utils._make_class_source(my_model)
