@@ -18,6 +18,10 @@
 import pathlib
 import torch
 
+from torch.data.utils import DataLoader
+from torchvision import datasets
+from torchvision.transforms import ToTensor
+
 from google.cloud import storage
 from google.cloud.aiplatform import initializer
 from google.cloud.aiplatform import utils
@@ -47,7 +51,7 @@ def _serialize_remote_dataloader(
 
     # Retrieve the blob and bucket name of the original GCS object
     dataloader_path = pathlib.Path(dataloader_path)
-    local_file_name = dataloader_path.name
+    local_file_name = dataset_type + '_' + dataloader_path.name
     source_blob_name = local_file_name
 
     if source_blob_prefix:
@@ -73,12 +77,6 @@ def _serialize_remote_dataloader(
     return gcs_path
 
 
-def _deserialize_remote_dataloader():
-    # read the data from a run-time bucket
-    # and reformat to a DataLoader
-    raise NotImplementedError
-
-
 def _serialize_local_dataloader(
     artifact_uri: str, dataloader_path: str, dataset_type: str
 ) -> str:
@@ -89,7 +87,7 @@ def _serialize_local_dataloader(
         artifact_uri
     )
 
-    local_file_name = dataloader_path.name
+    local_file_name = dataset_type + '_' + dataloader_path.name
     blob_path = local_file_name
 
     if gcs_blob_prefix:
@@ -106,12 +104,6 @@ def _serialize_local_dataloader(
 
     gcs_path = "".join(["gs://", "/".join([blob.bucket.name, blob.name])])
     return gcs_path
-
-
-def _deserialize_local_dataloader():
-    # read the data from user-designated staging bucket and
-    # reformat to a DataLoader
-    raise NotImplementedError
 
 
 def _serialize_dataloader(
@@ -134,6 +126,15 @@ def _serialize_dataloader(
         )
 
 
-def _deserialize_dataloader():
-    # introspect to determine which method is called
-    raise NotImplementedError
+def _deserialize_dataloader(artifact_uri: str) -> DataLoader:
+    # Most basic implementation, which ignores configuration details
+    dataset = datasets.FashionMNIST(
+        root=artifact_uri,
+        train=True,
+        download=True,
+        transform=ToTensor()
+    )
+
+    dataloader = DataLoader(dataset)
+    return dataloader
+
