@@ -501,11 +501,18 @@ class _TrainingJob(base.VertexAiResourceNounWithFutureManager):
                     training_fraction_split = 0.8
                     validation_fraction_split = 0.1
                     test_fraction_split = 0.1
-            fraction_split = gca_training_pipeline.FractionSplit(
-                training_fraction=training_fraction_split,
-                validation_fraction=validation_fraction_split,
-                test_fraction=test_fraction_split,
-            )
+            if all(
+                [
+                    training_fraction_split,
+                    validation_fraction_split,
+                    test_fraction_split,
+                ]
+            ):
+                fraction_split = gca_training_pipeline.FractionSplit(
+                    training_fraction=training_fraction_split,
+                    validation_fraction=validation_fraction_split,
+                    test_fraction=test_fraction_split,
+                )
 
             # timestamp split config
             if timestamp_split_column_name:
