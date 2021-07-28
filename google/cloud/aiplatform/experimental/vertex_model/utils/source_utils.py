@@ -88,16 +88,12 @@ def _make_source(
 
     # Then, instantiate model
     # First, grab args and kwargs using the _constructor_arguments variable in VertexModel
-    print(inspect.signature(obj.__class__.__init__))
     class_args = inspect.signature(obj.__class__.__init__).bind(
         obj, *obj._constructor_arguments[0], **obj._constructor_arguments[1]
     )
 
     # need to index pass the first arg to avoid the call to self.
     src = src + f"\tmodel = {cls_name}({class_args.args[1:]}, {class_args.kwargs})\n"
-
-    print(class_args.args)
-    print(class_args.kwargs)
 
     if instance_method is not None:
         # Start function call
