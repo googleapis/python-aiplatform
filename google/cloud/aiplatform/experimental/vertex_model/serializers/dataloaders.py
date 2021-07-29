@@ -16,11 +16,10 @@
 #
 
 import pathlib
+import tempfile
 import torch
 
 from torch.data.utils import DataLoader
-from torchvision import datasets
-from torchvision.transforms import ToTensor
 
 from google.cloud import storage
 from google.cloud.aiplatform import initializer
@@ -28,7 +27,10 @@ from google.cloud.aiplatform import utils
 
 
 def _serialize_remote_dataloader(
-    artifact_uri: str, dataloader_path: str, dataset_type: str
+    artifact_uri: str,
+    dataloader_path: str,
+    obj: torch.utils.data.DataLoader,
+    dataset_type: str,
 ) -> str:
     """writes the referenced data to the run-time bucket"""
     # Create a client object
@@ -51,7 +53,7 @@ def _serialize_remote_dataloader(
 
     # Retrieve the blob and bucket name of the original GCS object
     dataloader_path = pathlib.Path(dataloader_path)
-    local_file_name = dataset_type + '_' + dataloader_path.name
+    local_file_name = dataset_type + "_" + dataloader_path.name
     source_blob_name = local_file_name
 
     if source_blob_prefix:
@@ -65,20 +67,43 @@ def _serialize_remote_dataloader(
 
     destination_blob_name = source_blob_name
     if destination_blob_prefix:
-        destination_blob_name = "/".join([destination_blob_prefix, destination_blob_name])
+        destination_blob_name = "/".join(
+            [destination_blob_prefix, destination_blob_name]
+        )
 
     # Copy over the object from the source bucket to the new bucket
     blob_copy = source_bucket.copy_blob(
         source_blob, destination_bucket, destination_blob_name
     )
 
-    # Return the final GCS path
-    gcs_path = "".join(["gs://", "/".join([destination_bucket_name, blob_copy.name])])
-    return gcs_path
+    data_gcs_path = "".join(
+        ["gs://", "/".join([destination_bucket_name, blob_copy.name])]
+    )
+
+    # Return the final GCS path (of the DataLoader) with data path
+    with tempfile.TemporaryDirectory() as tmpdirname:
+        temp_dir = pathlib.Path(tmpdirname) / ("my_" + dataset_type + "_dataloader.pth")
+        path_to_dataloader = pathlib.Path(temp_dir)
+        torch.save(obj, temp_dir)
+
+        local_file_name = path_to_dataloader.name
+        blob_path = local_file_name
+
+        if destination_blob_prefix:
+            blob_path = "/".join([destination_blob_prefix, blob_path])
+
+        blob = destination_bucket.blob(blob_path)
+        blob.upload_from_filename(str(path_to_dataloader))
+
+        gcs_path = "".join(["gs://", "/".join([blob.bucket.name, blob.name])])
+        return gcs_path, data_gcs_path
 
 
 def _serialize_local_dataloader(
-    artifact_uri: str, dataloader_path: str, dataset_type: str
+    artifact_uri: str,
+    dataloader_path: str,
+    obj: torch.utils.data.DataLoader,
+    dataset_type: str,
 ) -> str:
 
     dataloader_path = pathlib.Path(dataloader_path)
@@ -87,11 +112,11 @@ def _serialize_local_dataloader(
         artifact_uri
     )
 
-    local_file_name = dataset_type + '_' + dataloader_path.name
-    blob_path = local_file_name
+    data_local_file_name = dataset_type + "_" + dataloader_path.name
+    data_blob_path = data_local_file_name
 
     if gcs_blob_prefix:
-        blob_path = "/".join([gcs_blob_prefix, blob_path])
+        data_blob_path = "/".join([gcs_blob_prefix, data_blob_path])
 
     client = storage.Client(
         project=initializer.global_config.project,
@@ -99,11 +124,30 @@ def _serialize_local_dataloader(
     )
 
     bucket = client.bucket(gcs_bucket)
-    blob = bucket.blob(blob_path)
-    blob.upload_from_filename(str(dataloader_path))
+    data_blob = bucket.blob(data_blob_path)
+    data_blob.upload_from_filename(str(dataloader_path))
 
-    gcs_path = "".join(["gs://", "/".join([blob.bucket.name, blob.name])])
-    return gcs_path
+    data_gcs_path = "".join(
+        ["gs://", "/".join([data_blob.bucket.name, data_blob.name])]
+    )
+
+    # Return the final GCS path (of the DataLoader) with data path
+    with tempfile.TemporaryDirectory() as tmpdirname:
+        temp_dir = pathlib.Path(tmpdirname) / ("my_" + dataset_type + "_dataloader.pth")
+        path_to_dataloader = pathlib.Path(temp_dir)
+        torch.save(obj, temp_dir)
+
+        local_file_name = path_to_dataloader.name
+        blob_path = local_file_name
+
+        if gcs_blob_prefix:
+            blob_path = "/".join([gcs_blob_prefix, blob_path])
+
+        blob = gcs_bucket.blob(blob_path)
+        blob.upload_from_filename(str(path_to_dataloader))
+
+        gcs_path = "".join(["gs://", "/".join([blob.bucket.name, blob.name])])
+        return gcs_path, data_gcs_path
 
 
 def _serialize_dataloader(
@@ -117,24 +161,13 @@ def _serialize_dataloader(
 
     # Decide whether to pass to remote or local serialization
     if root[0:6] == "gs://":
-        return _serialize_remote_dataloader(
-            artifact_uri, root, dataset_type
-        )
+        return _serialize_remote_dataloader(artifact_uri, root, obj, dataset_type)
     else:
-        return _serialize_local_dataloader(
-            artifact_uri, root, dataset_type
-        )
+        return _serialize_local_dataloader(artifact_uri, root, obj, dataset_type)
 
 
 def _deserialize_dataloader(artifact_uri: str) -> DataLoader:
-    # Most basic implementation, which ignores configuration details
-    dataset = datasets.FashionMNIST(
-        root=artifact_uri,
-        train=True,
-        download=True,
-        transform=ToTensor()
-    )
-
-    dataloader = DataLoader(dataset)
+    # Tentatively using torch.load, which should support dataloader
+    # serialization.
+    dataloader = torch.load(artifact_uri)
     return dataloader
-
