@@ -146,7 +146,8 @@ class Endpoint(base.VertexAiResourceNounWithFutureManager):
         Private services access must already be configured for the network. If left
         unspecified, the Endpoint is not peered with any network.
         """
-        return getattr(self._gca_resource, "network")
+        self._assert_gca_resource_is_available()
+        return getattr(self._gca_resource, "network", None)
 
     @classmethod
     def create(
@@ -1065,7 +1066,7 @@ class Endpoint(base.VertexAiResourceNounWithFutureManager):
                 the prediction client.
         Returns:
             prediction_client (prediction_service_client.PredictionServiceClient):
-                Initalized prediction client with optional overrides.
+                Initialized prediction client with optional overrides.
         """
         return initializer.global_config.create_client(
             client_class=utils.PredictionClientWithOverride,
@@ -1283,11 +1284,13 @@ class Model(base.VertexAiResourceNounWithFutureManager):
     def uri(self) -> Optional[str]:
         """Path to the directory containing the Model artifact and any of its
         supporting files. Not present for AutoML Models."""
+        self._assert_gca_resource_is_available()
         return self._gca_resource.artifact_uri or None
 
     @property
     def description(self) -> str:
         """Description of the model."""
+        self._assert_gca_resource_is_available()
         return self._gca_resource.description
 
     @property
@@ -1302,6 +1305,7 @@ class Model(base.VertexAiResourceNounWithFutureManager):
 
             {'tf-saved-model': [<ExportableContent.ARTIFACT: 1>]}
         """
+        self._assert_gca_resource_is_available()
         return {
             export_format.id: [
                 gca_model_compat.Model.ExportFormat.ExportableContent(content)
@@ -1328,6 +1332,7 @@ class Model(base.VertexAiResourceNounWithFutureManager):
         predictions by using a `BatchPredictionJob`, if it has at least one entry
         each in `Model.supported_input_storage_formats` and
         `Model.supported_output_storage_formats`."""
+        self._assert_gca_resource_is_available()
         return list(self._gca_resource.supported_deployment_resources_types)
 
     @property
@@ -1343,6 +1348,7 @@ class Model(base.VertexAiResourceNounWithFutureManager):
         `supported_deployment_resources_types`, it could serve online predictions
         by using `Endpoint.predict()` or `Endpoint.explain()`.
         """
+        self._assert_gca_resource_is_available()
         return list(self._gca_resource.supported_input_storage_formats)
 
     @property
@@ -1363,12 +1369,14 @@ class Model(base.VertexAiResourceNounWithFutureManager):
         `supported_deployment_resources_types`, it could serve online predictions
         by using `Endpoint.predict()` or `Endpoint.explain()`.
         """
+        self._assert_gca_resource_is_available()
         return list(self._gca_resource.supported_output_storage_formats)
 
     @property
     def predict_schemata(self) -> Optional[aiplatform.gapic.PredictSchemata]:
         """The schemata that describe formats of the Model's predictions and
         explanations, if available."""
+        self._assert_gca_resource_is_available()
         return getattr(self._gca_resource, "predict_schemata")
 
     @property
@@ -1379,6 +1387,7 @@ class Model(base.VertexAiResourceNounWithFutureManager):
             api_core.exceptions.NotFound: If the Model's training job resource
                 cannot be found on the Vertex service.
         """
+        self._assert_gca_resource_is_available()
         job_name = getattr(self._gca_resource, "training_pipeline")
 
         if not job_name:
@@ -1400,6 +1409,7 @@ class Model(base.VertexAiResourceNounWithFutureManager):
     def container_spec(self) -> Optional[aiplatform.gapic.ModelContainerSpec]:
         """The specification of the container that is to be used when deploying
         this Model. Not present for AutoML Models."""
+        self._assert_gca_resource_is_available()
         return getattr(self._gca_resource, "container_spec")
 
     def __init__(
@@ -2017,7 +2027,7 @@ class Model(base.VertexAiResourceNounWithFutureManager):
                 Required. The format in which instances are given, must be one
                 of "jsonl", "csv", "bigquery", "tf-record", "tf-record-gzip",
                 or "file-list". Default is "jsonl" when using `gcs_source`. If a
-                `bigquery_source` is provided, this is overriden to "bigquery".
+                `bigquery_source` is provided, this is overridden to "bigquery".
             gcs_destination_prefix: Optional[str] = None
                 The Google Cloud Storage location of the directory where the
                 output is to be written to. In the given directory a new
@@ -2063,7 +2073,7 @@ class Model(base.VertexAiResourceNounWithFutureManager):
                 Required. The format in which Vertex AI gives the
                 predictions, must be one of "jsonl", "csv", or "bigquery".
                 Default is "jsonl" when using `gcs_destination_prefix`. If a
-                `bigquery_destination_prefix` is provided, this is overriden to
+                `bigquery_destination_prefix` is provided, this is overridden to
                 "bigquery".
             model_parameters: Optional[Dict] = None
                 Optional. The parameters that govern the predictions. The schema of

@@ -61,7 +61,7 @@ _TEST_MODEL_NAME = (
 )
 
 _TEST_PIPELINE_RESOURCE_NAME = (
-    f"projects/{_TEST_PROJECT}/locations/{_TEST_LOCATION}/trainingPipeline/12345"
+    f"projects/{_TEST_PROJECT}/locations/{_TEST_LOCATION}/trainingPipelines/12345"
 )
 
 # CMEK encryption
@@ -173,7 +173,7 @@ class TestAutoMLTextTrainingJob:
         initializer.global_pool.shutdown(wait=True)
 
     def test_init_all_parameters_classification(self):
-        """Ensure all private members are set correctly at initalization"""
+        """Ensure all private members are set correctly at initialization"""
 
         aiplatform.init(project=_TEST_PROJECT)
 
@@ -196,7 +196,7 @@ class TestAutoMLTextTrainingJob:
         )
 
     def test_init_all_parameters_extraction(self):
-        """Ensure all private members are set correctly at initalization"""
+        """Ensure all private members are set correctly at initialization"""
 
         aiplatform.init(project=_TEST_PROJECT)
 
@@ -216,7 +216,7 @@ class TestAutoMLTextTrainingJob:
         )
 
     def test_init_all_parameters_sentiment(self):
-        """Ensure all private members are set correctly at initalization"""
+        """Ensure all private members are set correctly at initialization"""
 
         aiplatform.init(project=_TEST_PROJECT)
 

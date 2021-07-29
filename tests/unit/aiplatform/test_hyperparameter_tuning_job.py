@@ -169,6 +169,10 @@ def get_hyperparameter_tuning_job_mock():
                 name=_TEST_HYPERPARAMETERTUNING_JOB_NAME,
                 state=gca_job_state_compat.JobState.JOB_STATE_SUCCEEDED,
             ),
+            _get_hyperparameter_tuning_job_proto(
+                name=_TEST_HYPERPARAMETERTUNING_JOB_NAME,
+                state=gca_job_state_compat.JobState.JOB_STATE_SUCCEEDED,
+            ),
         ]
         yield get_hyperparameter_tuning_job_mock
 
@@ -205,6 +209,15 @@ def create_hyperparameter_tuning_job_mock():
             name=_TEST_HYPERPARAMETERTUNING_JOB_NAME,
             state=gca_job_state_compat.JobState.JOB_STATE_PENDING,
         )
+        yield create_hyperparameter_tuning_job_mock
+
+
+@pytest.fixture
+def create_hyperparameter_tuning_job_mock_fail():
+    with mock.patch.object(
+        job_service_client.JobServiceClient, "create_hyperparameter_tuning_job"
+    ) as create_hyperparameter_tuning_job_mock:
+        create_hyperparameter_tuning_job_mock.side_effect = RuntimeError("Mock fail")
         yield create_hyperparameter_tuning_job_mock
 
 
@@ -287,9 +300,9 @@ class TestHyperparameterTuningJob:
             hyperparameter_tuning_job=expected_hyperparameter_tuning_job,
         )
 
-        assert (
-            job._gca_resource.state == gca_job_state_compat.JobState.JOB_STATE_SUCCEEDED
-        )
+        assert job.state == gca_job_state_compat.JobState.JOB_STATE_SUCCEEDED
+        assert job.network == _TEST_NETWORK
+        assert job.trials == []
 
     @pytest.mark.parametrize("sync", [True, False])
     def test_run_hyperparameter_tuning_job_with_fail_raises(
@@ -350,6 +363,71 @@ class TestHyperparameterTuningJob:
         )
 
         assert job._gca_resource.state == gca_job_state_compat.JobState.JOB_STATE_FAILED
+
+    @pytest.mark.usefixtures("create_hyperparameter_tuning_job_mock_fail")
+    def test_run_hyperparameter_tuning_job_with_fail_at_creation(self):
+        aiplatform.init(
+            project=_TEST_PROJECT,
+            location=_TEST_LOCATION,
+            staging_bucket=_TEST_STAGING_BUCKET,
+            encryption_spec_key_name=_TEST_DEFAULT_ENCRYPTION_KEY_NAME,
+        )
+
+        custom_job = aiplatform.CustomJob(
+            display_name=test_custom_job._TEST_DISPLAY_NAME,
+            worker_pool_specs=test_custom_job._TEST_WORKER_POOL_SPEC,
+        )
+
+        job = aiplatform.HyperparameterTuningJob(
+            display_name=_TEST_DISPLAY_NAME,
+            custom_job=custom_job,
+            metric_spec={_TEST_METRIC_SPEC_KEY: _TEST_METRIC_SPEC_VALUE},
+            parameter_spec={
+                "lr": hpt.DoubleParameterSpec(min=0.001, max=0.1, scale="log"),
+                "units": hpt.IntegerParameterSpec(min=4, max=1028, scale="linear"),
+                "activation": hpt.CategoricalParameterSpec(
+                    values=["relu", "sigmoid", "elu", "selu", "tanh"]
+                ),
+                "batch_size": hpt.DiscreteParameterSpec(
+                    values=[16, 32], scale="linear"
+                ),
+            },
+            parallel_trial_count=_TEST_PARALLEL_TRIAL_COUNT,
+            max_trial_count=_TEST_MAX_TRIAL_COUNT,
+            max_failed_trial_count=_TEST_MAX_FAILED_TRIAL_COUNT,
+            search_algorithm=_TEST_SEARCH_ALGORITHM,
+            measurement_selection=_TEST_MEASUREMENT_SELECTION,
+        )
+
+        job.run(
+            service_account=_TEST_SERVICE_ACCOUNT,
+            network=_TEST_NETWORK,
+            timeout=_TEST_TIMEOUT,
+            restart_job_on_worker_restart=_TEST_RESTART_JOB_ON_WORKER_RESTART,
+            sync=False,
+        )
+
+        with pytest.raises(RuntimeError) as e:
+            job.wait_for_resource_creation()
+        assert e.match("Mock fail")
+
+        with pytest.raises(RuntimeError) as e:
+            job.resource_name
+        assert e.match(
+            "HyperparameterTuningJob resource has not been created. Resource failed with: Mock fail"
+        )
+
+        with pytest.raises(RuntimeError) as e:
+            job.network
+        assert e.match(
+            "HyperparameterTuningJob resource has not been created. Resource failed with: Mock fail"
+        )
+
+        with pytest.raises(RuntimeError) as e:
+            job.trials
+        assert e.match(
+            "HyperparameterTuningJob resource has not been created. Resource failed with: Mock fail"
+        )
 
     def test_hyperparameter_tuning_job_get_state_raises_without_run(self):
         aiplatform.init(

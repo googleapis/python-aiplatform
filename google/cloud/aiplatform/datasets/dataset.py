@@ -68,7 +68,7 @@ class _Dataset(base.VertexAiResourceNounWithFutureManager):
                 Optional location to retrieve dataset from. If not set, location
                 set in aiplatform.init will be used.
             credentials (auth_credentials.Credentials):
-                Custom credentials to use to retreive this Dataset. Overrides
+                Custom credentials to use to retrieve this Dataset. Overrides
                 credentials set in aiplatform.init.
         """
 
@@ -84,6 +84,7 @@ class _Dataset(base.VertexAiResourceNounWithFutureManager):
     @property
     def metadata_schema_uri(self) -> str:
         """The metadata schema uri of this dataset resource."""
+        self._assert_gca_resource_is_available()
         return self._gca_resource.metadata_schema_uri
 
     def _validate_metadata_schema_uri(self) -> None:

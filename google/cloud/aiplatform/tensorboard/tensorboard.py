@@ -63,7 +63,7 @@ class Tensorboard(base.VertexAiResourceNounWithFutureManager):
                 Optional. Location to retrieve tensorboard from. If not set, location
                 set in aiplatform.init will be used.
             credentials (auth_credentials.Credentials):
-                Optional. Custom credentials to use to retreive this Tensorboard. Overrides
+                Optional. Custom credentials to use to retrieve this Tensorboard. Overrides
                 credentials set in aiplatform.init.
         """
 

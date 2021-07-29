@@ -767,12 +767,6 @@ class _TrainingJob(base.VertexAiResourceNounWithFutureManager):
         url = f"https://console.cloud.google.com/ai/platform/locations/{fields.location}/training/{fields.id}?project={fields.project}"
         return url
 
-    def _sync_gca_resource(self):
-        """Helper method to sync the local gca_source against the service."""
-        self._gca_resource = self.api_client.get_training_pipeline(
-            name=self.resource_name
-        )
-
     @property
     def _has_run(self) -> bool:
         """Helper property to check if this training job has been run."""
@@ -858,6 +852,10 @@ class _TrainingJob(base.VertexAiResourceNounWithFutureManager):
                 "to start. `cancel()` can only be called on a job that is running."
             )
         self.api_client.cancel_training_pipeline(name=self.resource_name)
+
+    def wait_for_resource_creation(self) -> None:
+        """Waits until resource has been created."""
+        self._wait_for_resource_creation()
 
 
 class _CustomTrainingJob(_TrainingJob):
@@ -1103,6 +1101,7 @@ class _CustomTrainingJob(_TrainingJob):
         unspecified, the CustomTrainingJob is not peered with any network.
         """
         # Return `network` value in training task inputs if set in Map
+        self._assert_gca_resource_is_available()
         return self._gca_resource.training_task_inputs.get("network")
 
     def _prepare_and_validate_run(

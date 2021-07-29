@@ -99,7 +99,7 @@ class _Job(base.VertexAiResourceNounWithFutureManager):
         location: Optional[str] = None,
         credentials: Optional[auth_credentials.Credentials] = None,
     ):
-        """Retrives Job subclass resource by calling a subclass-specific getter
+        """Retrieves Job subclass resource by calling a subclass-specific getter
         method.
 
         Args:
@@ -330,6 +330,7 @@ class BatchPredictionJob(_Job):
 
         This is only available for batch predicition jobs that have run successfully.
         """
+        self._assert_gca_resource_is_available()
         return self._gca_resource.output_info
 
     @property
@@ -337,11 +338,13 @@ class BatchPredictionJob(_Job):
         """Partial failures encountered. For example, single files that can't be read.
         This field never exceeds 20 entries. Status details fields contain standard
         GCP error details."""
+        self._assert_gca_resource_is_available()
         return getattr(self._gca_resource, "partial_failures")
 
     @property
     def completion_stats(self) -> Optional[gca_completion_stats.CompletionStats]:
         """Statistics on completed and failed prediction instances."""
+        self._assert_gca_resource_is_available()
         return getattr(self._gca_resource, "completion_stats")
 
     @classmethod
@@ -388,12 +391,12 @@ class BatchPredictionJob(_Job):
                 Required. The format in which instances are given, must be one
                 of "jsonl", "csv", "bigquery", "tf-record", "tf-record-gzip",
                 or "file-list". Default is "jsonl" when using `gcs_source`. If a
-                `bigquery_source` is provided, this is overriden to "bigquery".
+                `bigquery_source` is provided, this is overridden to "bigquery".
             predictions_format (str):
                 Required. The format in which Vertex AI gives the
                 predictions, must be one of "jsonl", "csv", or "bigquery".
                 Default is "jsonl" when using `gcs_destination_prefix`. If a
-                `bigquery_destination_prefix` is provided, this is overriden to
+                `bigquery_destination_prefix` is provided, this is overridden to
                 "bigquery".
             gcs_source (Optional[Sequence[str]]):
                 Google Cloud Storage URI(-s) to your instances to run
@@ -772,6 +775,8 @@ class BatchPredictionJob(_Job):
                 GCS or BQ output provided.
         """
 
+        self._assert_gca_resource_is_available()
+
         if self.state != gca_job_state.JobState.JOB_STATE_SUCCEEDED:
             raise RuntimeError(
                 f"Cannot read outputs until BatchPredictionJob has succeeded, "
@@ -859,23 +864,6 @@ class _RunnableJob(_Job):
     def run(self) -> None:
         pass
 
-    @property
-    def _has_run(self) -> bool:
-        """Property returns true if this class has a resource name."""
-        return bool(self._gca_resource.name)
-
-    @property
-    def state(self) -> gca_job_state.JobState:
-        """Current state of job.
-
-        Raises:
-            RuntimeError if job run has not been called.
-        """
-        if not self._has_run:
-            raise RuntimeError("Job has not run. No state available.")
-
-        return super().state
-
     @classmethod
     def get(
         cls,
@@ -912,6 +900,10 @@ class _RunnableJob(_Job):
         self._gca_resource = self._get_gca_resource(resource_name=resource_name)
 
         return self
+
+    def wait_for_resource_creation(self) -> None:
+        """Waits until resource has been created."""
+        self._wait_for_resource_creation()
 
 
 class DataLabelingJob(_Job):
@@ -1041,7 +1033,8 @@ class CustomJob(_RunnableJob):
         Private services access must already be configured for the network. If left
         unspecified, the CustomJob is not peered with any network.
         """
-        return getattr(self._gca_resource, "network")
+        self._assert_gca_resource_is_available()
+        return self._gca_resource.job_spec.network
 
     @classmethod
     def from_local_script(
@@ -1391,7 +1384,7 @@ class HyperparameterTuningJob(_RunnableJob):
 
             parameter_spec (Dict[str, hyperparameter_tuning._ParameterSpec]):
                 Required. Dictionary representing parameters to optimize. The dictionary key is the metric_id,
-                which is passed into your training job as a command line key word arguemnt, and the
+                which is passed into your training job as a command line key word argument, and the
                 dictionary value is the parameter specification of the metric.
 
 
@@ -1512,6 +1505,7 @@ class HyperparameterTuningJob(_RunnableJob):
         Private services access must already be configured for the network. If left
         unspecified, the HyperparameterTuningJob is not peered with any network.
         """
+        self._assert_gca_resource_is_available()
         return getattr(self._gca_resource.trial_job_spec, "network")
 
     @base.optional_sync()
@@ -1612,4 +1606,5 @@ class HyperparameterTuningJob(_RunnableJob):
 
     @property
     def trials(self) -> List[gca_study_compat.Trial]:
+        self._assert_gca_resource_is_available()
         return list(self._gca_resource.trials)

@@ -115,19 +115,29 @@ _TEST_OUTPUT_DIR = "gs://my-output-bucket"
 
 _TEST_DATASET_LIST = [
     gca_dataset.Dataset(
-        display_name="a", metadata_schema_uri=_TEST_METADATA_SCHEMA_URI_TABULAR
+        name=_TEST_NAME,
+        display_name="a",
+        metadata_schema_uri=_TEST_METADATA_SCHEMA_URI_TABULAR,
     ),
     gca_dataset.Dataset(
-        display_name="d", metadata_schema_uri=_TEST_METADATA_SCHEMA_URI_NONTABULAR
+        name=_TEST_NAME,
+        display_name="d",
+        metadata_schema_uri=_TEST_METADATA_SCHEMA_URI_NONTABULAR,
     ),
     gca_dataset.Dataset(
-        display_name="b", metadata_schema_uri=_TEST_METADATA_SCHEMA_URI_TABULAR
+        name=_TEST_NAME,
+        display_name="b",
+        metadata_schema_uri=_TEST_METADATA_SCHEMA_URI_TABULAR,
     ),
     gca_dataset.Dataset(
-        display_name="e", metadata_schema_uri=_TEST_METADATA_SCHEMA_URI_TEXT
+        name=_TEST_NAME,
+        display_name="e",
+        metadata_schema_uri=_TEST_METADATA_SCHEMA_URI_TEXT,
     ),
     gca_dataset.Dataset(
-        display_name="c", metadata_schema_uri=_TEST_METADATA_SCHEMA_URI_TABULAR
+        name=_TEST_NAME,
+        display_name="c",
+        metadata_schema_uri=_TEST_METADATA_SCHEMA_URI_TABULAR,
     ),
 ]
 
@@ -300,6 +310,15 @@ def create_dataset_mock():
 
 
 @pytest.fixture
+def create_dataset_mock_fail():
+    with patch.object(
+        dataset_service_client.DatasetServiceClient, "create_dataset"
+    ) as create_dataset_mock:
+        create_dataset_mock.side_effect = RuntimeError("Mock fail")
+        yield create_dataset_mock
+
+
+@pytest.fixture
 def delete_dataset_mock():
     with mock.patch.object(
         dataset_service_client.DatasetServiceClient, "delete_dataset"
@@ -318,6 +337,15 @@ def import_data_mock():
         dataset_service_client.DatasetServiceClient, "import_data"
     ) as import_data_mock:
         import_data_mock.return_value = mock.Mock(operation.Operation)
+        yield import_data_mock
+
+
+@pytest.fixture
+def import_data_mock_fail():
+    with patch.object(
+        dataset_service_client.DatasetServiceClient, "import_data"
+    ) as import_data_mock:
+        import_data_mock.side_effect = RuntimeError("Mock fail")
         yield import_data_mock
 
 
@@ -955,6 +983,8 @@ class TestTabularDataset:
         if not sync:
             my_dataset.wait()
 
+        assert my_dataset.metadata_schema_uri == _TEST_METADATA_SCHEMA_URI_TABULAR
+
         expected_dataset = gca_dataset.Dataset(
             display_name=_TEST_DISPLAY_NAME,
             metadata_schema_uri=_TEST_METADATA_SCHEMA_URI_TABULAR,
@@ -966,6 +996,32 @@ class TestTabularDataset:
             parent=_TEST_PARENT,
             dataset=expected_dataset,
             metadata=_TEST_REQUEST_METADATA,
+        )
+
+    @pytest.mark.usefixtures("create_dataset_mock_fail")
+    def test_create_dataset_fail(self):
+        aiplatform.init(
+            project=_TEST_PROJECT, encryption_spec_key_name=_TEST_ENCRYPTION_KEY_NAME,
+        )
+
+        my_dataset = datasets.TabularDataset.create(
+            display_name=_TEST_DISPLAY_NAME, bq_source=_TEST_SOURCE_URI_BQ, sync=False,
+        )
+
+        with pytest.raises(RuntimeError) as e:
+            my_dataset.wait()
+        assert e.match(regexp=r"Mock fail")
+
+        with pytest.raises(RuntimeError) as e:
+            my_dataset.metadata_schema_uri
+        assert e.match(
+            regexp=r"TabularDataset resource has not been created. Resource failed with: Mock fail"
+        )
+
+        with pytest.raises(RuntimeError) as e:
+            my_dataset.column_names
+        assert e.match(
+            regexp=r"TabularDataset resource has not been created. Resource failed with: Mock fail"
         )
 
     @pytest.mark.usefixtures("get_dataset_tabular_bq_mock")
@@ -1197,6 +1253,41 @@ class TestTextDataset:
 
         expected_dataset.name = _TEST_NAME
         assert my_dataset._gca_resource == expected_dataset
+
+    @pytest.mark.usefixtures(
+        "create_dataset_mock", "get_dataset_text_mock", "import_data_mock_fail"
+    )
+    @pytest.mark.parametrize("sync", [True, False])
+    def test_create_then_import_dataset_fails(self, sync):
+        aiplatform.init(project=_TEST_PROJECT)
+
+        my_dataset = datasets.TextDataset.create(
+            display_name=_TEST_DISPLAY_NAME,
+            encryption_spec_key_name=_TEST_ENCRYPTION_KEY_NAME,
+            sync=sync,
+        )
+
+        if sync:
+
+            with pytest.raises(RuntimeError) as e:
+                my_dataset.import_data(
+                    gcs_source=[_TEST_SOURCE_URI_GCS],
+                    import_schema_uri=_TEST_IMPORT_SCHEMA_URI_TEXT,
+                    sync=sync,
+                )
+            e.match(regexp=r"Mock fail")
+
+        else:
+
+            my_dataset.import_data(
+                gcs_source=[_TEST_SOURCE_URI_GCS],
+                import_schema_uri=_TEST_IMPORT_SCHEMA_URI_TEXT,
+                sync=sync,
+            )
+
+            with pytest.raises(RuntimeError) as e:
+                my_dataset.wait()
+            e.match(regexp=r"Mock fail")
 
     @pytest.mark.usefixtures("get_dataset_text_mock")
     @pytest.mark.parametrize("sync", [True, False])
