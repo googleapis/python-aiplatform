@@ -227,7 +227,7 @@ def mock_dataset_tabular():
     )
     ds.column_names = _TEST_TRAINING_COLUMN_NAMES
 
-    yield ds
+    return ds
 
 
 @pytest.fixture
@@ -246,7 +246,7 @@ def mock_dataset_tabular_alternative():
     )
     ds.column_names = _TEST_TRAINING_COLUMN_NAMES_ALTERNATIVE
 
-    yield ds
+    return ds
 
 
 @pytest.fixture
