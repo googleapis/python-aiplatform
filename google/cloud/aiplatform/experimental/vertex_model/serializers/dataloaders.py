@@ -31,8 +31,21 @@ def _serialize_remote_dataloader(
     dataloader_path: str,
     obj: torch.utils.data.DataLoader,
     dataset_type: str,
-) -> str:
-    """writes the referenced data to the run-time bucket"""
+) -> (str, str):
+    """Serializes DataLoader object to GCS and stores remotely-sourced data in
+       a run-time bucket
+
+    Args:
+        artifact_uri (str): the GCS bucket where the serialized object will reside.
+        dataloader_path (str): the path where the origin data used to construct the DataLoader
+                               resides.
+        obj (torch.utils.data.DataLoader): the pytorch DataLoader to serialize.
+        dataset_type (str): the intended use of the dataset (ie. training, testing)
+
+    Returns:
+        The GCS path pointing to the serialized DataLoader, the GCS path pointing to the
+        serialized origin data.
+    """
     # Create a client object
     client = storage.Client(
         project=initializer.global_config.project,
@@ -104,8 +117,21 @@ def _serialize_local_dataloader(
     dataloader_path: str,
     obj: torch.utils.data.DataLoader,
     dataset_type: str,
-) -> str:
+) -> (str, str):
+    """Serializes DataLoader object to GCS and stores locally-sourced data in
+       a run-time bucket
 
+    Args:
+        artifact_uri (str): the GCS bucket where the serialized object will reside.
+        dataloader_path (str): the path where the origin data used to construct the DataLoader
+                               resides.
+        obj (torch.utils.data.DataLoader): the pytorch DataLoader to serialize.
+        dataset_type (str): the intended use of the dataset (ie. training, testing)
+
+    Returns:
+        The GCS path pointing to the serialized DataLoader, the GCS path pointing to the
+        serialized origin data.
+    """
     dataloader_path = pathlib.Path(dataloader_path)
 
     gcs_bucket, gcs_blob_prefix = utils.extract_bucket_and_prefix_from_gcs_path(
@@ -152,7 +178,21 @@ def _serialize_local_dataloader(
 
 def _serialize_dataloader(
     artifact_uri: str, obj: torch.data.utils.DataLoader, dataset_type: str
-) -> str:
+) -> (str, str):
+    """Serializes DataLoader object to GCS and stores remotely-sourced data in
+       a run-time bucket. Determines which helper method to use by introspecting
+       the user-specified DataLoader object.
+
+    Args:
+        artifact_uri (str): the GCS bucket where the serialized object will reside.
+        dataloader_path (str): the path where the origin data used to construct the DataLoader
+                               resides.
+        dataset_type (str): the intended use of the dataset (ie. training, testing)
+
+    Returns:
+        The GCS path pointing to the serialized DataLoader, the GCS path pointing to the
+        serialized origin data.
+    """
     # First, access the Dataset
     my_dataset = getattr(obj, "dataset")
 
@@ -167,6 +207,14 @@ def _serialize_dataloader(
 
 
 def _deserialize_dataloader(artifact_uri: str) -> DataLoader:
+    """Deserializes DataLoader object from a GCS uri
+
+    Args:
+        artifact_uri (str): the GCS bucket where the serialized object will resides
+
+    Returns:
+        The DataLoader object stored at the given location.
+    """
     # Tentatively using torch.load, which should support dataloader
     # serialization.
     dataloader = torch.load(artifact_uri)
