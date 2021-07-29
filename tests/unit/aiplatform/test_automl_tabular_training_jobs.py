@@ -908,7 +908,7 @@ class TestAutoMLTabularTrainingJob:
         )
 
         if sync:
-            with pytest.raises(RuntimeError):
+            with pytest.raises(RuntimeError) as e:
                 job.run(
                     model_display_name=_TEST_MODEL_DISPLAY_NAME,
                     dataset=mock_dataset_tabular,
@@ -918,6 +918,7 @@ class TestAutoMLTabularTrainingJob:
                     test_fraction_split=_TEST_TEST_FRACTION_SPLIT,
                     sync=sync,
                 )
+            assert e.match("Mock fail")
 
             with pytest.raises(RuntimeError) as e:
                 job.wait_for_resource_creation()
@@ -993,7 +994,6 @@ class TestAutoMLTabularTrainingJob:
             regexp=r"AutoMLTabularTrainingJob resource is not scheduled to be created."
         )
 
-    # pytest.usefixtures('mock_pipeline_service_get')
     def test_properties_throw_if_not_available(self):
 
         job = training_jobs.AutoMLTabularTrainingJob(

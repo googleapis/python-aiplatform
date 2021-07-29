@@ -1114,6 +1114,9 @@ class VertexAiResourceNounWithFutureManager(VertexAiResourceNoun, FutureManager)
     def _assert_gca_resource_is_available(self) -> None:
         """Helper method to raise when accessing properties that do not exist.
 
+        Overrides VertexAiResourceNoun to provide a more informative exception if
+        resource creation has failed asynchronously.
+
         Raises:
             RuntimeError when resource has not been created.
         """
