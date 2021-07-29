@@ -89,7 +89,7 @@ def vertex_fit_function_wrapper(method: Callable[..., Any]):
                     f"{parameter_type} not supported. parameter_name = {parameter_name}. The only supported types are {valid_types}"
                 )
 
-            if type(parameter) in obj._data_serialization_mapping.keys():
+            if parameter_type in obj._data_serialization_mapping.keys():
                 serialized_params[parameter_name] = parameter
             else:  # assume primitive
                 pass_through_params[parameter_name] = parameter
@@ -109,10 +109,11 @@ def vertex_fit_function_wrapper(method: Callable[..., Any]):
         serialized_inputs_artifacts_folder = "/".join(
             [vertex_model_root_folder, "serialized_input_parameters"]
         )
-        print(serialized_inputs_artifacts_folder)
 
         for parameter_name, parameter in serialized_params.items():
-            serializer = obj._data_serialization_mapping[type(parameter)][1]
+            parameter_type = type(parameter)
+
+            serializer = obj._data_serialization_mapping[parameter_type][1]
             parameter_uri = serializer(
                 serialized_inputs_artifacts_folder, parameter, parameter_name
             )
@@ -120,7 +121,7 @@ def vertex_fit_function_wrapper(method: Callable[..., Any]):
             # namedtuple
             param_name_to_serialized_info[parameter_name] = (
                 parameter_uri,
-                type(parameter),
+                parameter_type,
             )  # "pd.DataFrame"
 
             _LOGGER.info(

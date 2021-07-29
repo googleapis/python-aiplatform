@@ -86,6 +86,9 @@ def _deserialize_dataframe(artifact_uri: str) -> pd.DataFrame:
 
     Returns:
         The deserialized DataFrame.
+
+    Raises:
+        Runtime Error should the CSV object referenced by artifact_uri be invalid.
     """
 
     gcs_bucket, gcs_blob = utils.extract_bucket_and_prefix_from_gcs_path(artifact_uri)
