@@ -55,5 +55,6 @@ fi
 if [[ -n "${NOX_SESSION:-}" ]]; then
     python3 -m nox -s ${NOX_SESSION:-}
 else
-    python3 -m nox
+    # Skip any sessions with a name matching 'system'
+    python3 -m nox -k "not system"
 fi
