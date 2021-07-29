@@ -80,9 +80,20 @@ s.move(
     templated_files,
     excludes=[
         ".coveragerc",
-        ".kokoro/samples/**"
     ]
 )  # the microgenerator has a good coveragerc file
+
+# Update samples config to use `ucaip-sample-tests` project
+s.replace(".kokoro/samples/python3.*/common.cfg",
+    """env_vars: \{
+    key: "BUILD_SPECIFIC_GCLOUD_PROJECT"
+    value: "python-docs-samples-tests-py3.*?"
+\}""",
+    """env_vars: {
+    key: "BUILD_SPECIFIC_GCLOUD_PROJECT"
+    value: "ucaip-sample-tests"
+}"""
+)
 
 # Don't treat docs warnings as errors
 s.replace("noxfile.py", """["']-W["'],  # warnings as errors""", "")
