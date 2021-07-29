@@ -493,19 +493,14 @@ class _TrainingJob(base.VertexAiResourceNounWithFutureManager):
                         training_fraction_split, validation_fraction_split, test_fraction_split"""
                     )
             elif filter_split is None and predefined_split is None:
-                if dataset.metadata_schema_uri is schema.dataset.metadata.video:
-                    training_fraction_split = 0.8
-                    validation_fraction_split = 0.0
-                    test_fraction_split = 0.2
-                else:
-                    training_fraction_split = 0.8
-                    validation_fraction_split = 0.1
-                    test_fraction_split = 0.1
+                training_fraction_split = 0.8
+                validation_fraction_split = 0.1
+                test_fraction_split = 0.1
             if all(
                 [
-                    training_fraction_split,
-                    validation_fraction_split,
-                    test_fraction_split,
+                    training_fraction_split is not None,
+                    validation_fraction_split is not None,
+                    test_fraction_split is not None,
                 ]
             ):
                 fraction_split = gca_training_pipeline.FractionSplit(
@@ -5213,6 +5208,11 @@ class AutoMLVideoTrainingJob(_TrainingJob):
         validation_fraction_split = None
         if training_fraction_split is not None and test_fraction_split is not None:
             validation_fraction_split = 0.0
+
+        if validation_filter_split is None and validation_fraction_split is None:
+            training_fraction_split = 0.8
+            validation_fraction_split = 0.0
+            test_fraction_split = 0.2
 
         return self._run_job(
             training_task_definition=training_task_definition,

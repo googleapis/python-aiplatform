@@ -50,6 +50,7 @@ _TEST_TRAINING_TASK_INPUTS = json_format.ParseDict(
 )
 
 _TEST_FRACTION_SPLIT_TRAINING = 0.8
+_TEST_FRACTION_SPLIT_VALIDATION = 0.0
 _TEST_FRACTION_SPLIT_TEST = 0.2
 _TEST_ALTERNATE_FRACTION_SPLIT_TRAINING = 0.7
 _TEST_ALTERNATE_FRACTION_SPLIT_TEST = 0.3
@@ -245,6 +246,7 @@ class TestAutoMLVideoTrainingJob:
 
         true_fraction_split = gca_training_pipeline.FractionSplit(
             training_fraction=_TEST_FRACTION_SPLIT_TRAINING,
+            validation_fraction=_TEST_FRACTION_SPLIT_VALIDATION,
             test_fraction=_TEST_FRACTION_SPLIT_TEST,
         )
 
@@ -377,6 +379,7 @@ class TestAutoMLVideoTrainingJob:
 
         true_fraction_split = gca_training_pipeline.FractionSplit(
             training_fraction=_TEST_ALTERNATE_FRACTION_SPLIT_TRAINING,
+            validation_fraction=_TEST_FRACTION_SPLIT_VALIDATION,
             test_fraction=_TEST_ALTERNATE_FRACTION_SPLIT_TEST,
         )
 
@@ -440,7 +443,7 @@ class TestAutoMLVideoTrainingJob:
         job = training_jobs.AutoMLVideoTrainingJob(display_name=_TEST_DISPLAY_NAME,)
 
         with pytest.raises(ValueError):
-            job.run(
+            model_from_job = job.run(
                 dataset=mock_dataset_video,
                 model_display_name=_TEST_MODEL_DISPLAY_NAME,
                 training_fraction_split=_TEST_FRACTION_SPLIT_TRAINING,
@@ -449,6 +452,8 @@ class TestAutoMLVideoTrainingJob:
                 test_filter_split=_TEST_FILTER_SPLIT_TEST,
                 sync=sync,
             )
+            if not sync:
+                model_from_job.wait()
 
     @pytest.mark.parametrize("sync", [True, False])
     def test_run_raises_if_pipeline_fails(

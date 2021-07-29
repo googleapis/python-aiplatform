@@ -409,7 +409,7 @@ class TestAutoMLImageTrainingJob:
         job = training_jobs.AutoMLImageTrainingJob(display_name=_TEST_DISPLAY_NAME,)
 
         with pytest.raises(ValueError):
-            job.run(
+            model_from_job = job.run(
                 dataset=mock_dataset_image,
                 model_display_name=_TEST_MODEL_DISPLAY_NAME,
                 training_fraction_split=_TEST_FRACTION_SPLIT_TRAINING,
@@ -420,6 +420,8 @@ class TestAutoMLImageTrainingJob:
                 test_filter_split=_TEST_FILTER_SPLIT_TEST,
                 sync=sync,
             )
+            if not sync:
+                model_from_job.wait()
 
     @pytest.mark.parametrize("sync", [True, False])
     def test_run_raises_if_pipeline_fails(

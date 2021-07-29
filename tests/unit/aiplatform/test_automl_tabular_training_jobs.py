@@ -674,8 +674,8 @@ class TestAutoMLTabularTrainingJob:
         )
 
         with pytest.raises(ValueError):
-            job.run(
-                dataset=mock_tabular_dataset,
+            model_from_job = job.run(
+                dataset=mock_dataset_tabular,
                 target_column=_TEST_TRAINING_TARGET_COLUMN,
                 predefined_split_column_name=_TEST_PREDEFINED_SPLIT_COLUMN_NAME,
                 training_fraction_split=_TEST_TRAINING_FRACTION_SPLIT,
@@ -683,6 +683,8 @@ class TestAutoMLTabularTrainingJob:
                 test_fraction_split=_TEST_TEST_FRACTION_SPLIT,
                 sync=sync,
             )
+            if not sync:
+                model_from_job.wait()
 
     @pytest.mark.parametrize("sync", [True, False])
     def test_run_call_pipeline_service_create_with_column_specs_not_auto(
