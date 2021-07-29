@@ -17,7 +17,10 @@
 
 import functools
 import importlib
+import pathlib
+import py_compile
 import pytest
+import tempfile
 import torch
 
 import numpy as np
@@ -31,6 +34,7 @@ from google.cloud import aiplatform
 from google.cloud import storage
 
 from google.cloud.aiplatform.experimental.vertex_model import base
+from google.cloud.aiplatform.experimental.vertex_model.utils import source_utils
 from google.cloud.aiplatform.experimental.vertex_model.serializers import pandas
 
 
@@ -85,7 +89,7 @@ def mock_client_bucket():
 
 class LinearRegression(base.VertexModel, torch.nn.Module):
     def __init__(self, input_size: int, output_size: int):
-        base.VertexModel.__init__(self)
+        base.VertexModel.__init__(self, input_size=input_size, output_size=output_size)
         torch.nn.Module.__init__(self)
         self.linear = torch.nn.Linear(input_size, output_size)
 
@@ -186,6 +190,40 @@ class TestCloudVertexModelClass:
         assert len(call_args[0]) == 0
 
         mock_run_custom_training_job.assert_called_once_with(replica_count=1,)
+
+    def test_source_script_compiles(
+        self, mock_client_bucket,
+    ):
+        my_model = LinearRegression(input_size=10, output_size=10)
+        cls_name = my_model.__class__.__name__
+
+        training_source = source_utils._make_class_source(my_model)
+
+        with tempfile.TemporaryDirectory() as tmpdirname:
+            script_path = pathlib.Path(tmpdirname) / "training_script.py"
+
+            source = source_utils._make_source(
+                cls_source=training_source,
+                cls_name=cls_name,
+                instance_method=None,
+                pass_through_params=None,
+                param_name_to_serialized_info=None,
+                obj=my_model,
+            )
+
+            with open(script_path, "w") as f:
+                f.write(source)
+                print(source)
+
+                module_ok = True
+
+                try:
+                    py_compile.compile(script_path, doraise=True)
+                except py_compile.PyCompileError as e:
+                    print(e.exc_value)
+                    module_ok = False
+
+                assert module_ok
 
 
 class TestLocalVertexModelClass:
