@@ -87,28 +87,36 @@ def _make_source(
     src = src + "if __name__ == '__main__':\n"
 
     # Then, instantiate model
-    src = src + f"\tmodel = {cls_name}()\n"
+    # First, grab args and kwargs using the _constructor_arguments variable in VertexModel
+    class_args = inspect.signature(obj.__class__.__init__).bind(
+        obj, *obj._constructor_arguments[0], **obj._constructor_arguments[1]
+    )
 
-    src = src + f"\tmodel.{instance_method}("
+    # need to index pass the first arg to avoid the call to self.
+    src = src + f"\tmodel = {cls_name}({class_args.args[1:]}, {class_args.kwargs})\n"
 
-    # Iterate through parameters.
-    # We are currently working around not including the _serialization_mapping
-    # with our generated source and assume the serializer/deserializer is in
-    # our serializer module.
-    for (
-        parameter_name,
-        (parameter_uri, parameter_type),
-    ) in param_name_to_serialized_info.items():
-        print(obj._data_serialization_mapping.keys())
-        deserializer = obj._data_serialization_mapping[parameter_type][0]
+    if instance_method is not None:
+        # Start function call
+        src = src + f"\tmodel.{instance_method}("
 
-        # Can also make individual calls for each serialized parameter, but was unsure
-        # for situations such as when a dataloader format is serialized.
-        src = src + f"{parameter_name}={deserializer.__name__}({parameter_uri}), "
+        # Iterate through parameters.
+        # We are currently working around not including the _serialization_mapping
+        # with our generated source and assume the serializer/deserializer is in
+        # our serializer module.
+        for (
+            parameter_name,
+            (parameter_uri, parameter_type),
+        ) in param_name_to_serialized_info.items():
+            print(obj._data_serialization_mapping.keys())
+            deserializer = obj._data_serialization_mapping[parameter_type][0]
 
-    for parameter_name, parameter_value in pass_through_params.items():
-        src = src + f"{parameter_name}={parameter_value}, "
+            # Can also make individual calls for each serialized parameter, but was unsure
+            # for situations such as when a dataloader format is serialized.
+            src = src + f"{parameter_name}={deserializer.__name__}({parameter_uri}), "
 
-    src = src + ")\n"
+        for parameter_name, parameter_value in pass_through_params.items():
+            src = src + f"{parameter_name}={parameter_value}, "
+
+        src = src + ")\n"
 
     return src
