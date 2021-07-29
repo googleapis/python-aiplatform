@@ -653,14 +653,14 @@ class TestAutoMLTabularTrainingJob:
                 dataset=mock_dataset_tabular_alternative
             )
 
+    @pytest.mark.usefixtures(
+        "mock_pipeline_service_create",
+        "mock_pipeline_service_get",
+        "mock_model_service_get",
+    )
     @pytest.mark.parametrize("sync", [True, False])
     def test_run_with_two_split_raises(
-        self,
-        mock_pipeline_service_create,
-        mock_pipeline_service_get,
-        mock_dataset_tabular_alternative,
-        mock_model_service_get,
-        sync,
+        self, mock_dataset_tabular, sync,
     ):
         aiplatform.init()
 
