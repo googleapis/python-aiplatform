@@ -113,7 +113,7 @@ _TEST_OUTPUT_PYTHON_PACKAGE_PATH = "gs://test/ouput/python/trainer.tar.gz"
 _TEST_MODEL_NAME = "projects/my-project/locations/us-central1/models/12345"
 
 _TEST_PIPELINE_RESOURCE_NAME = (
-    "projects/my-project/locations/us-central1/trainingPipeline/12345"
+    "projects/my-project/locations/us-central1/trainingPipelines/12345"
 )
 
 

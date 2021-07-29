@@ -141,7 +141,7 @@ _TEST_PYTHON_MODULE_NAME = "aiplatform.task"
 _TEST_MODEL_NAME = "projects/my-project/locations/us-central1/models/12345"
 
 _TEST_PIPELINE_RESOURCE_NAME = (
-    "projects/my-project/locations/us-central1/trainingPipeline/12345"
+    "projects/my-project/locations/us-central1/trainingPipelines/12345"
 )
 _TEST_CREDENTIALS = mock.Mock(spec=auth_credentials.AnonymousCredentials())
 

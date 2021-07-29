@@ -241,6 +241,15 @@ def create_batch_prediction_job_mock():
 
 
 @pytest.fixture
+def create_batch_prediction_job_mock_fail():
+    with mock.patch.object(
+        job_service_client.JobServiceClient, "create_batch_prediction_job"
+    ) as create_batch_prediction_job_mock:
+        create_batch_prediction_job_mock.side_effect = RuntimeError("Mock fail")
+        yield create_batch_prediction_job_mock
+
+
+@pytest.fixture
 def create_batch_prediction_job_with_explanations_mock():
     with mock.patch.object(
         job_service_client_v1beta1.JobServiceClient, "create_batch_prediction_job"
@@ -472,6 +481,11 @@ class TestBatchPredictionJob:
         if not sync:
             batch_prediction_job.wait()
 
+        assert (
+            batch_prediction_job.output_info
+            == gca_batch_prediction_job.BatchPredictionJob.OutputInfo()
+        )
+
         # Construct expected request
         expected_gapic_batch_prediction_job = gca_batch_prediction_job.BatchPredictionJob(
             display_name=_TEST_BATCH_PREDICTION_JOB_DISPLAY_NAME,
@@ -560,6 +574,46 @@ class TestBatchPredictionJob:
         create_batch_prediction_job_with_explanations_mock.assert_called_once_with(
             parent=f"projects/{_TEST_PROJECT}/locations/{_TEST_LOCATION}",
             batch_prediction_job=expected_gapic_batch_prediction_job,
+        )
+
+    @pytest.mark.usefixtures("create_batch_prediction_job_mock_fail")
+    def test_batch_predict_create_fails(self):
+        aiplatform.init(project=_TEST_PROJECT, location=_TEST_LOCATION)
+
+        batch_prediction_job = jobs.BatchPredictionJob.create(
+            model_name=_TEST_MODEL_NAME,
+            job_display_name=_TEST_BATCH_PREDICTION_JOB_DISPLAY_NAME,
+            gcs_source=_TEST_BATCH_PREDICTION_GCS_SOURCE,
+            bigquery_destination_prefix=_TEST_BATCH_PREDICTION_BQ_PREFIX,
+            sync=False,
+        )
+
+        with pytest.raises(RuntimeError) as e:
+            batch_prediction_job.wait()
+        assert e.match(regexp=r"Mock fail")
+
+        with pytest.raises(RuntimeError) as e:
+            batch_prediction_job.output_info
+        assert e.match(
+            regexp=r"BatchPredictionJob resource has not been created. Resource failed with: Mock fail"
+        )
+
+        with pytest.raises(RuntimeError) as e:
+            batch_prediction_job.partial_failures
+        assert e.match(
+            regexp=r"BatchPredictionJob resource has not been created. Resource failed with: Mock fail"
+        )
+
+        with pytest.raises(RuntimeError) as e:
+            batch_prediction_job.completion_stats
+        assert e.match(
+            regexp=r"BatchPredictionJob resource has not been created. Resource failed with: Mock fail"
+        )
+
+        with pytest.raises(RuntimeError) as e:
+            batch_prediction_job.iter_outputs()
+        assert e.match(
+            regexp=r"BatchPredictionJob resource has not been created. Resource failed with: Mock fail"
         )
 
     @pytest.mark.usefixtures("get_batch_prediction_job_mock")

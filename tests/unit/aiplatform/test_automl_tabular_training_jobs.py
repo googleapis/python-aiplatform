@@ -131,7 +131,7 @@ _TEST_OUTPUT_PYTHON_PACKAGE_PATH = "gs://test/ouput/python/trainer.tar.gz"
 _TEST_MODEL_NAME = "projects/my-project/locations/us-central1/models/12345"
 
 _TEST_PIPELINE_RESOURCE_NAME = (
-    "projects/my-project/locations/us-central1/trainingPipeline/12345"
+    "projects/my-project/locations/us-central1/trainingPipelines/12345"
 )
 
 # CMEK encryption
@@ -161,6 +161,15 @@ def mock_pipeline_service_create():
             state=gca_pipeline_state.PipelineState.PIPELINE_STATE_SUCCEEDED,
             model_to_upload=gca_model.Model(name=_TEST_MODEL_NAME),
         )
+        yield mock_create_training_pipeline
+
+
+@pytest.fixture
+def mock_pipeline_service_create_fail():
+    with mock.patch.object(
+        pipeline_service_client.PipelineServiceClient, "create_training_pipeline"
+    ) as mock_create_training_pipeline:
+        mock_create_training_pipeline.side_effect = RuntimeError("Mock fail")
         yield mock_create_training_pipeline
 
 
@@ -305,6 +314,10 @@ class TestAutoMLTabularTrainingJob:
             sync=sync,
         )
 
+        job.wait_for_resource_creation()
+
+        assert job.resource_name == _TEST_PIPELINE_RESOURCE_NAME
+
         if not sync:
             model_from_job.wait()
 
@@ -386,6 +399,10 @@ class TestAutoMLTabularTrainingJob:
             disable_early_stopping=_TEST_TRAINING_DISABLE_EARLY_STOPPING,
         )
 
+        job.wait_for_resource_creation()
+
+        assert job.resource_name == _TEST_PIPELINE_RESOURCE_NAME
+
         if not sync:
             model_from_job.wait()
 
@@ -456,6 +473,10 @@ class TestAutoMLTabularTrainingJob:
             disable_early_stopping=_TEST_TRAINING_DISABLE_EARLY_STOPPING,
             sync=sync,
         )
+
+        job.wait_for_resource_creation()
+
+        assert job.resource_name == _TEST_PIPELINE_RESOURCE_NAME
 
         if not sync:
             model_from_job.wait()
@@ -533,6 +554,10 @@ class TestAutoMLTabularTrainingJob:
             disable_early_stopping=_TEST_TRAINING_DISABLE_EARLY_STOPPING,
             sync=sync,
         )
+
+        job.wait_for_resource_creation()
+
+        assert job.resource_name == _TEST_PIPELINE_RESOURCE_NAME
 
         if not sync:
             model_from_job.wait()
@@ -784,6 +809,10 @@ class TestAutoMLTabularTrainingJob:
             sync=sync,
         )
 
+        job.wait_for_resource_creation()
+
+        assert job.resource_name == _TEST_PIPELINE_RESOURCE_NAME
+
         with pytest.raises(RuntimeError):
             job.run(
                 dataset=mock_dataset_tabular,
@@ -828,6 +857,116 @@ class TestAutoMLTabularTrainingJob:
         with pytest.raises(RuntimeError):
             job.get_model()
 
+    def test_wait_for_resource_creation_does_not_fail_if_creation_does_not_fail(
+        self, mock_pipeline_service_create_and_get_with_fail, mock_dataset_tabular
+    ):
+
+        aiplatform.init(project=_TEST_PROJECT, staging_bucket=_TEST_BUCKET_NAME)
+
+        job = training_jobs.AutoMLTabularTrainingJob(
+            display_name=_TEST_DISPLAY_NAME,
+            optimization_prediction_type=_TEST_TRAINING_OPTIMIZATION_PREDICTION_TYPE,
+            optimization_objective=_TEST_TRAINING_OPTIMIZATION_OBJECTIVE_NAME,
+            column_transformations=_TEST_TRAINING_COLUMN_TRANSFORMATIONS,
+            optimization_objective_recall_value=None,
+            optimization_objective_precision_value=None,
+        )
+
+        job.run(
+            model_display_name=_TEST_MODEL_DISPLAY_NAME,
+            dataset=mock_dataset_tabular,
+            target_column=_TEST_TRAINING_TARGET_COLUMN,
+            training_fraction_split=_TEST_TRAINING_FRACTION_SPLIT,
+            validation_fraction_split=_TEST_VALIDATION_FRACTION_SPLIT,
+            test_fraction_split=_TEST_TEST_FRACTION_SPLIT,
+            sync=False,
+        )
+
+        job.wait_for_resource_creation()
+
+        assert job.resource_name == _TEST_PIPELINE_RESOURCE_NAME
+
+        with pytest.raises(RuntimeError):
+            job.wait()
+
+        with pytest.raises(RuntimeError):
+            job.get_model()
+
+    @pytest.mark.usefixtures("mock_pipeline_service_create_fail")
+    @pytest.mark.parametrize("sync", [True, False])
+    def test_create_fails(self, mock_dataset_tabular, sync):
+
+        aiplatform.init(project=_TEST_PROJECT, staging_bucket=_TEST_BUCKET_NAME)
+
+        job = training_jobs.AutoMLTabularTrainingJob(
+            display_name=_TEST_DISPLAY_NAME,
+            optimization_prediction_type=_TEST_TRAINING_OPTIMIZATION_PREDICTION_TYPE,
+            optimization_objective=_TEST_TRAINING_OPTIMIZATION_OBJECTIVE_NAME,
+            column_transformations=_TEST_TRAINING_COLUMN_TRANSFORMATIONS,
+            optimization_objective_recall_value=None,
+            optimization_objective_precision_value=None,
+        )
+
+        if sync:
+            with pytest.raises(RuntimeError) as e:
+                job.run(
+                    model_display_name=_TEST_MODEL_DISPLAY_NAME,
+                    dataset=mock_dataset_tabular,
+                    target_column=_TEST_TRAINING_TARGET_COLUMN,
+                    training_fraction_split=_TEST_TRAINING_FRACTION_SPLIT,
+                    validation_fraction_split=_TEST_VALIDATION_FRACTION_SPLIT,
+                    test_fraction_split=_TEST_TEST_FRACTION_SPLIT,
+                    sync=sync,
+                )
+            assert e.match("Mock fail")
+
+            with pytest.raises(RuntimeError) as e:
+                job.wait_for_resource_creation()
+            assert e.match(
+                regexp=r"AutoMLTabularTrainingJob resource is not scheduled to be created."
+            )
+
+            with pytest.raises(RuntimeError) as e:
+                assert job.resource_name == _TEST_PIPELINE_RESOURCE_NAME
+            assert e.match(
+                regexp=r"AutoMLTabularTrainingJob resource has not been created."
+            )
+
+            job.wait()
+
+            with pytest.raises(RuntimeError) as e:
+                job.get_model()
+                e.match(
+                    regexp="TrainingPipeline has not been launched. You must run this TrainingPipeline using TrainingPipeline.run."
+                )
+
+        else:
+            job.run(
+                model_display_name=_TEST_MODEL_DISPLAY_NAME,
+                dataset=mock_dataset_tabular,
+                target_column=_TEST_TRAINING_TARGET_COLUMN,
+                training_fraction_split=_TEST_TRAINING_FRACTION_SPLIT,
+                validation_fraction_split=_TEST_VALIDATION_FRACTION_SPLIT,
+                test_fraction_split=_TEST_TEST_FRACTION_SPLIT,
+                sync=sync,
+            )
+
+            with pytest.raises(RuntimeError) as e:
+                job.wait_for_resource_creation()
+            assert e.match(regexp=r"Mock fail")
+
+            with pytest.raises(RuntimeError) as e:
+                assert job.resource_name == _TEST_PIPELINE_RESOURCE_NAME
+            assert e.match(
+                regexp=r"AutoMLTabularTrainingJob resource has not been created. Resource failed with: Mock fail"
+            )
+
+            with pytest.raises(RuntimeError):
+                job.wait()
+
+            with pytest.raises(RuntimeError):
+                job.get_model()
+
     def test_raises_before_run_is_called(self, mock_pipeline_service_create):
         aiplatform.init(project=_TEST_PROJECT, staging_bucket=_TEST_BUCKET_NAME)
 
@@ -848,3 +987,59 @@ class TestAutoMLTabularTrainingJob:
 
         with pytest.raises(RuntimeError):
             job.state
+
+        with pytest.raises(RuntimeError) as e:
+            job.wait_for_resource_creation()
+        assert e.match(
+            regexp=r"AutoMLTabularTrainingJob resource is not scheduled to be created."
+        )
+
+    def test_properties_throw_if_not_available(self):
+
+        job = training_jobs.AutoMLTabularTrainingJob(
+            display_name=_TEST_DISPLAY_NAME,
+            optimization_prediction_type=_TEST_TRAINING_OPTIMIZATION_PREDICTION_TYPE,
+            optimization_objective=_TEST_TRAINING_OPTIMIZATION_OBJECTIVE_NAME,
+        )
+
+        with pytest.raises(RuntimeError) as e:
+            job.name
+            assert e.match(
+                regexp=r"AutoMLTabularTrainingJob resource has not been created"
+            )
+
+        with pytest.raises(RuntimeError) as e:
+            job.resource_name
+            assert e.match(
+                regexp=r"AutoMLTabularTrainingJob resource has not been created"
+            )
+
+        with pytest.raises(RuntimeError) as e:
+            job.display_name
+            assert e.match(
+                regexp=r"AutoMLTabularTrainingJob resource has not been created"
+            )
+
+        with pytest.raises(RuntimeError) as e:
+            job.create_time
+            assert e.match(
+                regexp=r"AutoMLTabularTrainingJob resource has not been created"
+            )
+
+        with pytest.raises(RuntimeError) as e:
+            job.encryption_spec
+            assert e.match(
+                regexp=r"AutoMLTabularTrainingJob resource has not been created"
+            )
+
+        with pytest.raises(RuntimeError) as e:
+            job.labels
+            assert e.match(
+                regexp=r"AutoMLTabularTrainingJob resource has not been created"
+            )
+
+        with pytest.raises(RuntimeError) as e:
+            job.gca_resource
+            assert e.match(
+                regexp=r"AutoMLTabularTrainingJob resource has not been created"
+            )

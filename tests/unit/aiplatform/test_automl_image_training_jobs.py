@@ -76,7 +76,7 @@ _TEST_MODEL_NAME = (
 )
 
 _TEST_PIPELINE_RESOURCE_NAME = (
-    f"projects/{_TEST_PROJECT}/locations/{_TEST_LOCATION}/trainingPipeline/12345"
+    f"projects/{_TEST_PROJECT}/locations/{_TEST_LOCATION}/trainingPipelines/12345"
 )
 
 # CMEK encryption
