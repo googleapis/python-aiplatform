@@ -171,6 +171,18 @@ class DeployedIndex(proto.Message):
         deployed_index_auth_config (google.cloud.aiplatform_v1beta1.types.DeployedIndexAuthConfig):
             Optional. If set, the authentication is
             enabled for the private endpoint.
+        reserved_ip_ranges (Sequence[str]):
+            Optional. A list of reserved ip ranges under
+            the VPC network that can be used for this
+            DeployedIndex.
+            If set, we will deploy the index within the
+            provided ip ranges. Otherwise, the index might
+            be deployed to any ip ranges under the provided
+            VPC network.
+
+            The value sohuld be the name of the address
+            (https://cloud.google.com/compute/docs/reference/rest/v1/addresses)
+            Example: 'vertex-ai-ip-range'.
     """
 
     id = proto.Field(proto.STRING, number=1,)
@@ -190,6 +202,7 @@ class DeployedIndex(proto.Message):
     deployed_index_auth_config = proto.Field(
         proto.MESSAGE, number=9, message="DeployedIndexAuthConfig",
     )
+    reserved_ip_ranges = proto.RepeatedField(proto.STRING, number=10,)
 
 
 class DeployedIndexAuthConfig(proto.Message):
