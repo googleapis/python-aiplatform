@@ -938,9 +938,19 @@
                 "create_metadata_store"
               ]
             },
+            "DeleteArtifact": {
+              "methods": [
+                "delete_artifact"
+              ]
+            },
             "DeleteContext": {
               "methods": [
                 "delete_context"
+              ]
+            },
+            "DeleteExecution": {
+              "methods": [
+                "delete_execution"
               ]
             },
             "DeleteMetadataStore": {
@@ -996,6 +1006,21 @@
             "ListMetadataStores": {
               "methods": [
                 "list_metadata_stores"
+              ]
+            },
+            "PurgeArtifacts": {
+              "methods": [
+                "purge_artifacts"
+              ]
+            },
+            "PurgeContexts": {
+              "methods": [
+                "purge_contexts"
+              ]
+            },
+            "PurgeExecutions": {
+              "methods": [
+                "purge_executions"
               ]
             },
             "QueryArtifactLineageSubgraph": {
@@ -1073,9 +1098,19 @@
                 "create_metadata_store"
               ]
             },
+            "DeleteArtifact": {
+              "methods": [
+                "delete_artifact"
+              ]
+            },
             "DeleteContext": {
               "methods": [
                 "delete_context"
+              ]
+            },
+            "DeleteExecution": {
+              "methods": [
+                "delete_execution"
               ]
             },
             "DeleteMetadataStore": {
@@ -1131,6 +1166,21 @@
             "ListMetadataStores": {
               "methods": [
                 "list_metadata_stores"
+              ]
+            },
+            "PurgeArtifacts": {
+              "methods": [
+                "purge_artifacts"
+              ]
+            },
+            "PurgeContexts": {
+              "methods": [
+                "purge_contexts"
+              ]
+            },
+            "PurgeExecutions": {
+              "methods": [
+                "purge_executions"
               ]
             },
             "QueryArtifactLineageSubgraph": {
