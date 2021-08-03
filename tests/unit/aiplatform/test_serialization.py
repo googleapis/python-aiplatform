@@ -19,6 +19,7 @@ import datetime
 import functools
 import pytest
 import tempfile
+import timestamp
 import torch
 
 from torch.utils.data import DataLoader
@@ -130,8 +131,8 @@ class LinearRegression(base.VertexModel, torch.nn.Module):
         return self.forward(data)
 
 
-class TestDataLoaderSerialization:
-    def test_serialization_works(mock_client_bucket):
+class TestModelSerialization:
+    def test_local_serialization_works(mock_client_bucket):
         aiplatform.init(
             project=_TEST_PROJECT,
             location=_TEST_LOCATION,
@@ -139,25 +140,29 @@ class TestDataLoaderSerialization:
             encryption_spec_key_name=_TEST_DEFAULT_ENCRYPTION_KEY_NAME,
         )
 
+        # Create model object
         my_model = LinearRegression(2, 1)
         my_model.training_mode = "cloud"
 
-        staging_bucket = aiplatform.initializer.global_config.staging_bucket
+        # Serialize and deserialize locally
+        with tempfile.TemporaryDirectory() as tmpdirname:
+            timestamp = datetime.datetime.now().isoformat(
+                sep="-", timespec="milliseconds"
+            )
+            model_root_folder = "/".join([tmpdirname, f"model_{timestamp}"])
 
-        timestamp = datetime.datetime.now().isoformat(sep="-", timespec="milliseconds")
-        model_root_folder = "/".join([staging_bucket, f"model_{timestamp}"])
+            model_uri = serializers.model._serialize_local_model(
+                model_root_folder, my_model, "test"
+            )
+            deserialized_model = serializers.model._deserialize_remote_model(model_uri)
 
-        model_uri = serializers.model._serialize_local_model(
-            model_root_folder, my_model, "test"
-        )
-        deserialized_model = serializers.model._deserialize_remote_model(model_uri)
-
-        assert my_model.state_dict() == deserialized_model.state_dict()
+            assert my_model.state_dict() == deserialized_model.state_dict()
 
 
-class TestModelSerialization:
+class TestDataLoaderSerialization:
     def test_local_serialization_works():
         with tempfile.TemporaryDirectory() as tmpdirname:
+            # Create DataLoader from random data
             random_df = pd.DataFrame(
                 np.random.random(size=(100, 3)), columns=["feat_1", "feat_2", "target"]
             )
@@ -171,19 +176,14 @@ class TestModelSerialization:
 
             dataloader = DataLoader(dataset, batch_size=64)
 
-            staging_bucket = aiplatform.initializer.global_config.staging_bucket
-            timestamp = datetime.datetime.now().isoformat(
-                sep="-", timespec="milliseconds"
-            )
-            dataloader_root_folder = "/".join(
-                [staging_bucket, f"dataloader_{timestamp}"]
-            )
+            dataloader_root_folder = "/".join([tmpdirname, f"dataloader_{timestamp}"])
 
-            gcs_path, data_gcs_path = serializers.dataloaders._serialize_dataloader(
+            # Locally serialize and deserialize
+            obj_path, data_path = serializers.dataloaders._serialize_dataloader(
                 dataloader_root_folder, dataloader, "local"
             )
             deserialized_dataloader = serializers.dataloaders._deserialize_dataloader(
-                gcs_path
+                obj_path
             )
 
             assert dataloader == deserialized_dataloader

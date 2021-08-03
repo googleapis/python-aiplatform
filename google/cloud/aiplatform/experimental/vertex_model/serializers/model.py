@@ -36,11 +36,17 @@ def _serialize_local_model(artifact_uri: str, obj: torch.nn.Module, model_type: 
         The GCS path pointing to the serialized objet.
     """
 
+    compiled_custom_model = torch.jit.script(obj)
+
+    if artifact_uri[0:6] != "gs://":
+        path_to_model = artifact_uri + "my_" + model_type + "model.pt"
+        torch.jit.save(compiled_custom_model, path_to_model)
+        return path_to_model
+
     with tempfile.TemporaryDirectory() as tmpdirname:
         temp_dir = pathlib.Path(tmpdirname) / ("my_" + model_type + "_model.pt")
         path_to_model = pathlib.Path(temp_dir)
-
-        compiled_custom_model = torch.jit.script(obj)
+        
         torch.jit.save(compiled_custom_model, path_to_model)
 
         gcs_bucket, gcs_blob_prefix = utils.extract_bucket_and_prefix_from_gcs_path(
@@ -80,6 +86,10 @@ def _deserialize_remote_model(artifact_uri: str) -> torch.nn.Module:
         Runtime Error should the model object referenced by artifact_uri be invalid.
     """
 
+    if artifact_uri[0:6] != "gs://":
+        loaded_compiled_custom_model = torch.jit.load(artifact_uri)
+        return loaded_compiled_custom_model
+
     gcs_bucket, gcs_blob = utils.extract_bucket_and_prefix_from_gcs_path(artifact_uri)
 
     client = storage.Client(
@@ -95,7 +105,7 @@ def _deserialize_remote_model(artifact_uri: str) -> torch.nn.Module:
         with tempfile.TemporaryDirectory() as tmpdirname:
             dest_file = pathlib.Path(tmpdirname) / "deserialized_model.pt"
             blob.download_to_filename(dest_file)
-            loaded_compiled_custom_model = torch.jit.load("compiled_custom_model.pt")
+            loaded_compiled_custom_model = torch.jit.load(dest_file)
 
     except (ValueError, RuntimeError) as err:
         raise RuntimeError(

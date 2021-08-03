@@ -134,6 +134,11 @@ def _serialize_local_dataloader(
     """
     dataloader_path = pathlib.Path(dataloader_path)
 
+    if artifact_uri[0:6] != "gs://":
+        local_path = artifact_uri + "my_" + dataset_type + "_dataloader.pth"
+        torch.save(obj, local_path)
+        return local_path, dataloader_path
+
     gcs_bucket, gcs_blob_prefix = utils.extract_bucket_and_prefix_from_gcs_path(
         artifact_uri
     )
@@ -218,4 +223,38 @@ def _deserialize_dataloader(artifact_uri: str) -> DataLoader:
     # Tentatively using torch.load, which should support dataloader
     # serialization.
     dataloader = torch.load(artifact_uri)
+    return dataloader
+
+    if artifact_uri[0:6] != "gs://":
+        dataloader = torch.load(artifact_uri)
+        return dataloader
+
+    gcs_bucket, gcs_blob = utils.extract_bucket_and_prefix_from_gcs_path(artifact_uri)
+
+    client = storage.Client(
+        project=initializer.global_config.project,
+        credentials=initializer.global_config.credentials,
+    )
+
+    bucket = client.bucket(gcs_bucket)
+    blob = bucket.blob(gcs_blob)
+    dataloader = None
+
+
+    # This code may not be necessary, as torch may be able to read from a remote path, but
+    # I need to double check this.
+    try:
+        with tempfile.TemporaryDirectory() as tmpdirname:
+            dest_file = pathlib.Path(tmpdirname) / "deserialized_dataloader.pth"
+            blob.download_to_filename(dest_file)
+            dataloader = torch.load(dest_file)
+
+    except (ValueError, RuntimeError) as err:
+        raise RuntimeError(
+            "There was a problem reading the model at '{}': {}".format(
+                artifact_uri, err
+            )
+        )
+
+    # Return a pandas DataFrame read from the csv in the cloud
     return dataloader
