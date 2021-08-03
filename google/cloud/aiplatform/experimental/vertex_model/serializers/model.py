@@ -39,12 +39,12 @@ def _serialize_local_model(artifact_uri: str, obj: torch.nn.Module, model_type: 
     compiled_custom_model = torch.jit.script(obj)
 
     if artifact_uri[0:6] != "gs://":
-        path_to_model = artifact_uri + "my_" + model_type + "model.pt"
+        path_to_model = artifact_uri + "/my_" + model_type + "_model.pth"
         torch.jit.save(compiled_custom_model, path_to_model)
         return path_to_model
 
     with tempfile.TemporaryDirectory() as tmpdirname:
-        temp_dir = pathlib.Path(tmpdirname) / ("my_" + model_type + "_model.pt")
+        temp_dir = pathlib.Path(tmpdirname) / ("my_" + model_type + "_model.pth")
         path_to_model = pathlib.Path(temp_dir)
         
         torch.jit.save(compiled_custom_model, path_to_model)

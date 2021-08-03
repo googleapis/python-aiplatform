@@ -19,7 +19,7 @@ import pathlib
 import tempfile
 import torch
 
-from torch.data.utils import DataLoader
+from torch.utils.data import DataLoader
 
 from google.cloud import storage
 from google.cloud.aiplatform import initializer
@@ -46,6 +46,10 @@ def _serialize_remote_dataloader(
         The GCS path pointing to the serialized DataLoader, the GCS path pointing to the
         serialized origin data.
     """
+
+    # TODO(b/195442091): Check if uri is actually a local path and write to a local 
+    #                    location if that is the case.
+
     # Create a client object
     client = storage.Client(
         project=initializer.global_config.project,
@@ -132,12 +136,13 @@ def _serialize_local_dataloader(
         The GCS path pointing to the serialized DataLoader, the GCS path pointing to the
         serialized origin data.
     """
-    dataloader_path = pathlib.Path(dataloader_path)
 
     if artifact_uri[0:6] != "gs://":
         local_path = artifact_uri + "my_" + dataset_type + "_dataloader.pth"
         torch.save(obj, local_path)
         return local_path, dataloader_path
+
+    dataloader_path = pathlib.Path(dataloader_path)
 
     gcs_bucket, gcs_blob_prefix = utils.extract_bucket_and_prefix_from_gcs_path(
         artifact_uri
@@ -182,7 +187,7 @@ def _serialize_local_dataloader(
 
 
 def _serialize_dataloader(
-    artifact_uri: str, obj: torch.data.utils.DataLoader, dataset_type: str
+    artifact_uri: str, obj: torch.utils.data.DataLoader, dataset_type: str
 ) -> (str, str):
     """Serializes DataLoader object to GCS and stores remotely-sourced data in
        a run-time bucket. Determines which helper method to use by introspecting
@@ -202,7 +207,10 @@ def _serialize_dataloader(
     my_dataset = getattr(obj, "dataset")
 
     # Then, get the source path
-    root = getattr(my_dataset, "root")
+    if hasattr(my_dataset, "root"):
+        root = getattr(my_dataset, "root")
+    else:
+        root = "No root data found for this dataloader, assuming local"
 
     # Decide whether to pass to remote or local serialization
     if root[0:6] == "gs://":
