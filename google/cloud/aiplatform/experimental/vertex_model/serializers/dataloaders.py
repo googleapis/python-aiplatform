@@ -47,7 +47,7 @@ def _serialize_remote_dataloader(
         serialized origin data.
     """
 
-    # TODO(b/195442091): Check if uri is actually a local path and write to a local 
+    # TODO(b/195442091): Check if uri is actually a local path and write to a local
     #                    location if that is the case.
 
     # Create a client object
@@ -247,7 +247,6 @@ def _deserialize_dataloader(artifact_uri: str) -> DataLoader:
     bucket = client.bucket(gcs_bucket)
     blob = bucket.blob(gcs_blob)
     dataloader = None
-
 
     # This code may not be necessary, as torch may be able to read from a remote path, but
     # I need to double check this.

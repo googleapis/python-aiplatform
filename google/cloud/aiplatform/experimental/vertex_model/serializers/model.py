@@ -46,7 +46,7 @@ def _serialize_local_model(artifact_uri: str, obj: torch.nn.Module, model_type: 
     with tempfile.TemporaryDirectory() as tmpdirname:
         temp_dir = pathlib.Path(tmpdirname) / ("my_" + model_type + "_model.pth")
         path_to_model = pathlib.Path(temp_dir)
-        
+
         torch.jit.save(compiled_custom_model, path_to_model)
 
         gcs_bucket, gcs_blob_prefix = utils.extract_bucket_and_prefix_from_gcs_path(
