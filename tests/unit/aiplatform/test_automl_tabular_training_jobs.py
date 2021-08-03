@@ -79,6 +79,11 @@ _TEST_TRAINING_WEIGHT_COLUMN = "weight"
 _TEST_TRAINING_DISABLE_EARLY_STOPPING = True
 _TEST_TRAINING_OPTIMIZATION_OBJECTIVE_NAME = "minimize-log-loss"
 _TEST_TRAINING_OPTIMIZATION_PREDICTION_TYPE = "classification"
+_TEST_TRAINING_EXPORT_EVALUATED_DATA_ITEMS = True
+_TEST_TRAINING_EXPORT_EVALUATED_DATA_ITEMS_BIGQUERY_DESTINATION_URI = (
+    "bq://path.to.table"
+)
+_TEST_TRAINING_EXPORT_EVALUATED_DATA_ITEMS_OVERRIDE_DESTINATION = False
 _TEST_ADDITIONAL_EXPERIMENTS = ["exp1", "exp2"]
 _TEST_TRAINING_TASK_INPUTS_DICT = {
     # required inputs
@@ -114,6 +119,16 @@ _TEST_TRAINING_TASK_INPUTS_ALTERNATIVE_NOT_AUTO = json_format.ParseDict(
     {
         **_TEST_TRAINING_TASK_INPUTS_DICT,
         "transformations": _TEST_TRAINING_COLUMN_TRANSFORMATIONS_ALTERNATIVE_NOT_AUTO,
+    },
+    struct_pb2.Value(),
+)
+_TEST_TRAINING_TASK_INPUTS_WITH_EXPORT_EVAL_DATA_ITEMS = json_format.ParseDict(
+    {
+        **_TEST_TRAINING_TASK_INPUTS_DICT,
+        "exportEvaluatedDataItemsConfig": {
+            "destinationBigqueryUri": _TEST_TRAINING_EXPORT_EVALUATED_DATA_ITEMS_BIGQUERY_DESTINATION_URI,
+            "overrideExistingTable": _TEST_TRAINING_EXPORT_EVALUATED_DATA_ITEMS_OVERRIDE_DESTINATION,
+        },
     },
     struct_pb2.Value(),
 )
@@ -344,6 +359,99 @@ class TestAutoMLTabularTrainingJob:
             display_name=_TEST_DISPLAY_NAME,
             training_task_definition=schema.training_job.definition.automl_tabular,
             training_task_inputs=_TEST_TRAINING_TASK_INPUTS,
+            model_to_upload=true_managed_model,
+            input_data_config=true_input_data_config,
+            encryption_spec=_TEST_DEFAULT_ENCRYPTION_SPEC,
+        )
+
+        mock_pipeline_service_create.assert_called_once_with(
+            parent=initializer.global_config.common_location_path(),
+            training_pipeline=true_training_pipeline,
+        )
+
+        assert job._gca_resource is mock_pipeline_service_get.return_value
+
+        mock_model_service_get.assert_called_once_with(name=_TEST_MODEL_NAME)
+
+        assert model_from_job._gca_resource is mock_model_service_get.return_value
+
+        assert job.get_model()._gca_resource is mock_model_service_get.return_value
+
+        assert not job.has_failed
+
+        assert job.state == gca_pipeline_state.PipelineState.PIPELINE_STATE_SUCCEEDED
+
+    @pytest.mark.parametrize("sync", [True, False])
+    def test_run_call_pipeline_service_create_with_export_eval_data_items(
+        self,
+        mock_pipeline_service_create,
+        mock_pipeline_service_get,
+        mock_dataset_tabular,
+        mock_model_service_get,
+        sync,
+    ):
+        aiplatform.init(
+            project=_TEST_PROJECT,
+            staging_bucket=_TEST_BUCKET_NAME,
+            encryption_spec_key_name=_TEST_DEFAULT_ENCRYPTION_KEY_NAME,
+        )
+
+        job = training_jobs.AutoMLTabularTrainingJob(
+            display_name=_TEST_DISPLAY_NAME,
+            optimization_objective=_TEST_TRAINING_OPTIMIZATION_OBJECTIVE_NAME,
+            optimization_prediction_type=_TEST_TRAINING_OPTIMIZATION_PREDICTION_TYPE,
+            column_transformations=_TEST_TRAINING_COLUMN_TRANSFORMATIONS,
+            optimization_objective_recall_value=None,
+            optimization_objective_precision_value=None,
+        )
+
+        model_from_job = job.run(
+            dataset=mock_dataset_tabular,
+            target_column=_TEST_TRAINING_TARGET_COLUMN,
+            model_display_name=_TEST_MODEL_DISPLAY_NAME,
+            training_fraction_split=_TEST_TRAINING_FRACTION_SPLIT,
+            validation_fraction_split=_TEST_VALIDATION_FRACTION_SPLIT,
+            test_fraction_split=_TEST_TEST_FRACTION_SPLIT,
+            predefined_split_column_name=_TEST_PREDEFINED_SPLIT_COLUMN_NAME,
+            weight_column=_TEST_TRAINING_WEIGHT_COLUMN,
+            budget_milli_node_hours=_TEST_TRAINING_BUDGET_MILLI_NODE_HOURS,
+            disable_early_stopping=_TEST_TRAINING_DISABLE_EARLY_STOPPING,
+            export_evaluated_data_items=_TEST_TRAINING_EXPORT_EVALUATED_DATA_ITEMS,
+            export_evaluated_data_items_bigquery_destination_uri=_TEST_TRAINING_EXPORT_EVALUATED_DATA_ITEMS_BIGQUERY_DESTINATION_URI,
+            export_evaluated_data_items_override_destination=_TEST_TRAINING_EXPORT_EVALUATED_DATA_ITEMS_OVERRIDE_DESTINATION,
+            sync=sync,
+        )
+
+        job.wait_for_resource_creation()
+
+        assert job.resource_name == _TEST_PIPELINE_RESOURCE_NAME
+
+        if not sync:
+            model_from_job.wait()
+
+        true_fraction_split = gca_training_pipeline.FractionSplit(
+            training_fraction=_TEST_TRAINING_FRACTION_SPLIT,
+            validation_fraction=_TEST_VALIDATION_FRACTION_SPLIT,
+            test_fraction=_TEST_TEST_FRACTION_SPLIT,
+        )
+
+        true_managed_model = gca_model.Model(
+            display_name=_TEST_MODEL_DISPLAY_NAME,
+            encryption_spec=_TEST_DEFAULT_ENCRYPTION_SPEC,
+        )
+
+        true_input_data_config = gca_training_pipeline.InputDataConfig(
+            fraction_split=true_fraction_split,
+            predefined_split=gca_training_pipeline.PredefinedSplit(
+                key=_TEST_PREDEFINED_SPLIT_COLUMN_NAME
+            ),
+            dataset_id=mock_dataset_tabular.name,
+        )
+
+        true_training_pipeline = gca_training_pipeline.TrainingPipeline(
+            display_name=_TEST_DISPLAY_NAME,
+            training_task_definition=schema.training_job.definition.automl_tabular,
+            training_task_inputs=_TEST_TRAINING_TASK_INPUTS_WITH_EXPORT_EVAL_DATA_ITEMS,
             model_to_upload=true_managed_model,
             input_data_config=true_input_data_config,
             encryption_spec=_TEST_DEFAULT_ENCRYPTION_SPEC,
