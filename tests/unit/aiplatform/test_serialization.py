@@ -24,7 +24,6 @@ import torch
 from torch.utils.data import DataLoader
 from torch.utils.data import Dataset
 
-import numpy as np
 import pandas as pd
 import unittest.mock as mock
 from unittest.mock import patch
@@ -161,7 +160,9 @@ class TestModelSerialization:
             )
             model_root_folder = "/".join([tmpdirname, f"model_{timestamp}"])
 
-            model_uri = model._serialize_local_model(model_root_folder, my_model, "test")
+            model_uri = model._serialize_local_model(
+                model_root_folder, my_model, "test"
+            )
             deserialized_model = model._deserialize_remote_model(model_uri)
 
             assert my_model.state_dict() == deserialized_model.state_dict()
@@ -170,14 +171,6 @@ class TestModelSerialization:
 class TestDataLoaderSerialization:
     def test_local_serialization_works(self):
         with tempfile.TemporaryDirectory() as tmpdirname:
-            # Create DataLoader from random data
-            random_df = pd.DataFrame(
-                np.random.random(size=(100, 3)), columns=["feat_1", "feat_2", "target"]
-            )
-
-            source_path = tmpdirname + "/my_dataset.csv"
-            random_df.to_csv(source_path)
-
             dataset = NumbersDataset()
             dataloader = DataLoader(dataset, batch_size=64)
 
@@ -194,5 +187,5 @@ class TestDataLoaderSerialization:
 
             original_tensor = next(iter(dataloader))
             new_tensor = next(iter(deserialized_dataloader))
+
             assert torch.all(original_tensor.eq(new_tensor))
-            
