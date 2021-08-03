@@ -19,12 +19,10 @@ import datetime
 import functools
 import pytest
 import tempfile
-import timestamp
 import torch
 
 from torch.utils.data import DataLoader
-import torchvision.datasets as datasets
-from torchvision.transforms import ToTensor
+from torch.utils.data import Dataset
 
 import numpy as np
 import pandas as pd
@@ -36,7 +34,8 @@ from google.cloud import aiplatform
 from google.cloud import storage
 
 from google.cloud.aiplatform.experimental.vertex_model import base
-import google.cloud.aiplatform.experimental.vertex_model.serializers as serializers
+from google.cloud.aiplatform.experimental.vertex_model.serializers import dataloaders
+from google.cloud.aiplatform.experimental.vertex_model.serializers import model
 
 
 _TEST_PROJECT = "test-project"
@@ -131,8 +130,19 @@ class LinearRegression(base.VertexModel, torch.nn.Module):
         return self.forward(data)
 
 
+class NumbersDataset(Dataset):
+    def __init__(self):
+        self.samples = list(range(1, 1001))
+
+    def __len__(self):
+        return len(self.samples)
+
+    def __getitem__(self, idx):
+        return self.samples[idx]
+
+
 class TestModelSerialization:
-    def test_local_serialization_works(mock_client_bucket):
+    def test_local_serialization_works(self, mock_client_bucket):
         aiplatform.init(
             project=_TEST_PROJECT,
             location=_TEST_LOCATION,
@@ -151,16 +161,14 @@ class TestModelSerialization:
             )
             model_root_folder = "/".join([tmpdirname, f"model_{timestamp}"])
 
-            model_uri = serializers.model._serialize_local_model(
-                model_root_folder, my_model, "test"
-            )
-            deserialized_model = serializers.model._deserialize_remote_model(model_uri)
+            model_uri = model._serialize_local_model(model_root_folder, my_model, "test")
+            deserialized_model = model._deserialize_remote_model(model_uri)
 
             assert my_model.state_dict() == deserialized_model.state_dict()
 
 
 class TestDataLoaderSerialization:
-    def test_local_serialization_works():
+    def test_local_serialization_works(self):
         with tempfile.TemporaryDirectory() as tmpdirname:
             # Create DataLoader from random data
             random_df = pd.DataFrame(
@@ -170,20 +178,21 @@ class TestDataLoaderSerialization:
             source_path = tmpdirname + "/my_dataset.csv"
             random_df.to_csv(source_path)
 
-            dataset = datasets.FashionMNIST(
-                root=source_path, train=True, download=True, transform=ToTensor()
-            )
-
+            dataset = NumbersDataset()
             dataloader = DataLoader(dataset, batch_size=64)
 
+            timestamp = datetime.datetime.now().isoformat(
+                sep="-", timespec="milliseconds"
+            )
             dataloader_root_folder = "/".join([tmpdirname, f"dataloader_{timestamp}"])
 
             # Locally serialize and deserialize
-            obj_path, data_path = serializers.dataloaders._serialize_dataloader(
+            obj_path, data_path = dataloaders._serialize_dataloader(
                 dataloader_root_folder, dataloader, "local"
             )
-            deserialized_dataloader = serializers.dataloaders._deserialize_dataloader(
-                obj_path
-            )
+            deserialized_dataloader = dataloaders._deserialize_dataloader(obj_path)
 
-            assert dataloader == deserialized_dataloader
+            original_tensor = next(iter(dataloader))
+            new_tensor = next(iter(deserialized_dataloader))
+            assert torch.all(original_tensor.eq(new_tensor))
+            

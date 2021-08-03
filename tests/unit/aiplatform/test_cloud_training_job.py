@@ -35,7 +35,6 @@ from google.cloud import storage
 
 from google.cloud.aiplatform.experimental.vertex_model import base
 from google.cloud.aiplatform.experimental.vertex_model.utils import source_utils
-from google.cloud.aiplatform.experimental.vertex_model.serializers import pandas
 
 
 _TEST_PROJECT = "test-project"
