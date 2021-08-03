@@ -59,6 +59,7 @@ from google.cloud.aiplatform.compat.types import (
     study as gca_study_compat,
 )
 
+
 _LOGGER = base.Logger(__name__)
 
 _JOB_COMPLETE_STATES = (
@@ -930,6 +931,7 @@ class CustomJob(_RunnableJob):
         self,
         display_name: str,
         worker_pool_specs: Union[List[Dict], List[aiplatform.gapic.WorkerPoolSpec]],
+        base_output_dir: Optional[str] = None,
         project: Optional[str] = None,
         location: Optional[str] = None,
         credentials: Optional[auth_credentials.Credentials] = None,
@@ -977,6 +979,9 @@ class CustomJob(_RunnableJob):
             worker_pool_specs (Union[List[Dict], List[aiplatform.gapic.WorkerPoolSpec]]):
                 Required. The spec of the worker pools including machine type and Docker image.
                 Can provided as a list of dictionaries or list of WorkerPoolSpec proto messages.
+            base_output_dir (str):
+                Optional. GCS output directory of job. If not provided a
+                timestamped directory in the staging directory will be used.
             project (str):
                 Optional.Project to run the custom job in. Overrides project set in aiplatform.init.
             location (str):
@@ -1008,12 +1013,17 @@ class CustomJob(_RunnableJob):
                 "should be set using aiplatform.init(staging_bucket='gs://my-bucket')"
             )
 
+        # default directory if not given
+        base_output_dir = base_output_dir or utils._timestamped_gcs_dir(
+            staging_bucket, "aiplatform-custom-job"
+        )
+
         self._gca_resource = gca_custom_job_compat.CustomJob(
             display_name=display_name,
             job_spec=gca_custom_job_compat.CustomJobSpec(
                 worker_pool_specs=worker_pool_specs,
                 base_output_directory=gca_io_compat.GcsDestination(
-                    output_uri_prefix=staging_bucket
+                    output_uri_prefix=base_output_dir
                 ),
             ),
             encryption_spec=initializer.global_config.get_encryption_spec(
@@ -1049,6 +1059,7 @@ class CustomJob(_RunnableJob):
         machine_type: str = "n1-standard-4",
         accelerator_type: str = "ACCELERATOR_TYPE_UNSPECIFIED",
         accelerator_count: int = 0,
+        base_output_dir: Optional[str] = None,
         project: Optional[str] = None,
         location: Optional[str] = None,
         credentials: Optional[auth_credentials.Credentials] = None,
@@ -1105,6 +1116,9 @@ class CustomJob(_RunnableJob):
                 NVIDIA_TESLA_T4
             accelerator_count (int):
                 Optional. The number of accelerators to attach to a worker replica.
+            base_output_dir (str):
+                Optional. GCS output directory of job. If not provided a
+                timestamped directory in the staging directory will be used.
             project (str):
                 Optional. Project to run the custom job in. Overrides project set in aiplatform.init.
             location (str):
@@ -1170,6 +1184,7 @@ class CustomJob(_RunnableJob):
         return cls(
             display_name=display_name,
             worker_pool_specs=worker_pool_specs,
+            base_output_dir=base_output_dir,
             project=project,
             location=location,
             credentials=credentials,
