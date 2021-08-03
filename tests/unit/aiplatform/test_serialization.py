@@ -155,17 +155,13 @@ class TestModelSerialization:
 
         # Serialize and deserialize locally
         with tempfile.TemporaryDirectory() as tmpdirname:
-            timestamp = datetime.datetime.now().isoformat(
-                sep="-", timespec="milliseconds"
-            )
-            model_root_folder = "/".join([tmpdirname, f"model_{timestamp}"])
-
-            model_uri = model._serialize_local_model(
-                model_root_folder, my_model, "test"
-            )
+            model_uri = model._serialize_local_model(tmpdirname, my_model, "test")
             deserialized_model = model._deserialize_remote_model(model_uri)
 
-            assert my_model.state_dict() == deserialized_model.state_dict()
+            for key_item_1, key_item_2 in zip(
+                my_model.state_dict().items(), deserialized_model.state_dict().items()
+            ):
+                assert torch.equal(key_item_1[1], key_item_2[1])
 
 
 class TestDataLoaderSerialization:
