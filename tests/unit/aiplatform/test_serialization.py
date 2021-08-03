@@ -27,7 +27,6 @@ from torch.utils.data import Dataset
 import pandas as pd
 import unittest.mock as mock
 from unittest.mock import patch
-from unittest.mock import MagicMock
 
 from google.cloud import aiplatform
 from google.cloud import storage
@@ -45,25 +44,6 @@ _TEST_STAGING_BUCKET = "gs://test-staging-bucket"
 
 # CMEK encryption
 _TEST_DEFAULT_ENCRYPTION_KEY_NAME = "key_default"
-
-
-@pytest.fixture
-def mock_custom_training_job():
-    mock = MagicMock(aiplatform.training_jobs.CustomTrainingJob)
-    yield mock
-
-
-@pytest.fixture
-def mock_get_custom_training_job(mock_custom_training_job):
-    with patch.object(aiplatform, "CustomTrainingJob") as mock:
-        mock.return_value = mock_custom_training_job
-        yield mock
-
-
-@pytest.fixture
-def mock_run_custom_training_job(mock_custom_training_job):
-    with patch.object(mock_custom_training_job, "run") as mock:
-        yield mock
 
 
 @pytest.fixture
