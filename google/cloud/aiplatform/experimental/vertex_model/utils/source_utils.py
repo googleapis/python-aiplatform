@@ -96,11 +96,11 @@ def _make_source(
     )
 
     # need to index pass the first arg to avoid the call to self.
-    src = src + f"\tmy_model = {cls_name}({class_args.args[1:]}, {class_args.kwargs})\n"
+    src = src + f"  my_model = {cls_name}({class_args.args[1:]}, {class_args.kwargs})\n"
 
     if instance_method is not None:
         # Start function call
-        src = src + f"\tmy_model.{instance_method}("
+        src = src + f"  my_model.{instance_method}("
 
         # Iterate through parameters.
         # We are currently working around not including the _serialization_mapping
@@ -125,7 +125,8 @@ def _make_source(
     if obj.training_mode == "cloud":
         src = (
             src
-            + "\tmodel._serialize_local_model(os.getenv('AIP_MODEL_DIR'), my_model, my_model.training_mode)"
+            + "  model._serialize_local_model(os.getenv('AIP_MODEL_DIR'), my_model, my_model.training_mode)"
         )
 
+    print(src)
     return src
