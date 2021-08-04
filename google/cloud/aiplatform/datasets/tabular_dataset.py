@@ -150,7 +150,7 @@ class TabularDataset(datasets._Dataset):
 
             while first_new_line_index == -1:
                 line += blob.download_as_bytes(
-                    start=start_index, end=start_index + increment
+                    start=start_index, end=start_index + increment - 1
                 ).decode("utf-8")
 
                 first_new_line_index = line.find("\n")
