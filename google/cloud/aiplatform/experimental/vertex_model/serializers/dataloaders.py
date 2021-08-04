@@ -228,10 +228,6 @@ def _deserialize_dataloader(artifact_uri: str) -> DataLoader:
     Returns:
         The DataLoader object stored at the given location.
     """
-    # Tentatively using torch.load, which should support dataloader
-    # serialization.
-    dataloader = torch.load(artifact_uri)
-    return dataloader
 
     if artifact_uri[0:6] != "gs://":
         dataloader = torch.load(artifact_uri)
