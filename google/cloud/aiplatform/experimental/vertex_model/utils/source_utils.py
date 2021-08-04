@@ -96,11 +96,11 @@ def _make_source(
     )
 
     # need to index pass the first arg to avoid the call to self.
-    src = src + f"  my_model = {cls_name}({class_args.args[1:]}, {class_args.kwargs})\n"
+    src = src + f"    my_model = {cls_name}({class_args.args[1:]}, {class_args.kwargs})\n"
 
     if instance_method is not None:
         # Start function call
-        src = src + f"  my_model.{instance_method}("
+        src = src + f"    my_model.{instance_method}("
 
         # Iterate through parameters.
         # We are currently working around not including the _serialization_mapping
@@ -115,7 +115,7 @@ def _make_source(
 
             # Can also make individual calls for each serialized parameter, but was unsure
             # for situations such as when a dataloader format is serialized.
-            src = src + f"{parameter_name}={deserializer.__name__}({parameter_uri}), "
+            src = src + f"{parameter_name}={deserializer.__module__}.{deserializer.__name__}({parameter_uri}), "
 
         for parameter_name, parameter_value in pass_through_params.items():
             src = src + f"{parameter_name}={parameter_value}, "
@@ -125,7 +125,7 @@ def _make_source(
     if obj.training_mode == "cloud":
         src = (
             src
-            + "  model._serialize_local_model(os.getenv('AIP_MODEL_DIR'), my_model, my_model.training_mode)"
+            + "    model._serialize_local_model(os.getenv('AIP_MODEL_DIR'), my_model, my_model.training_mode)"
         )
 
     print(src)
