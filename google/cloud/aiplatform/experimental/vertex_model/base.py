@@ -177,13 +177,13 @@ def vertex_fit_function_wrapper(method: Callable[..., Any]):
 def vertex_predict_function_wrapper(method: Callable[..., Any]):
     @functools.wraps(method)
     def p(*args, **kwargs):
+        obj = method.__self__
+
         # Local predictions can be made
         if method.__self__.training_mode == "local" or obj._model is None:
             return method(*args, **kwargs)
 
         # Assuming only local prediction for now
-        obj = method.__self__
-
         output_dir = obj._model._gca_resource.artifact_uri
         model_uri = pathlib.Path(output_dir) / (
             "my_" + obj.training_mode + "_model.pth"
