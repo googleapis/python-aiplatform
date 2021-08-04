@@ -178,7 +178,7 @@ def vertex_predict_function_wrapper(method: Callable[..., Any]):
     @functools.wraps(method)
     def p(*args, **kwargs):
         # Local predictions can be made
-        if method.__self__.training_mode == "local":
+        if method.__self__.training_mode == "local" or obj._model is None:
             return method(*args, **kwargs)
 
         # Assuming only local prediction for now
@@ -188,8 +188,8 @@ def vertex_predict_function_wrapper(method: Callable[..., Any]):
         model_uri = pathlib.Path(output_dir) / (
             "my_" + obj.training_mode + "_model.pth"
         )
-        my_model = model._deserialize_remote_model(str(model_uri))
 
+        my_model = model._deserialize_remote_model(str(model_uri))
         return my_model.predict(*args, **kwargs)
 
     return p
