@@ -174,6 +174,7 @@ class TestCloudVertexModelClass:
             "display_name": "my_training_job",
             "requirements": ["pandas>=1.3", "torch>=1.7"],
             "container_uri": "us-docker.pkg.dev/vertex-ai/training/pytorch-xla.1-7:latest",
+            "model_serving_container_image_uri":"us-docker.pkg.dev/vertex-ai/prediction/tf2-cpu.2-5:latest",
         }
 
         for key, value in expected.items():
