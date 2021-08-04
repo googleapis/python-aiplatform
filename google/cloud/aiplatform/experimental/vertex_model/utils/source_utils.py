@@ -75,10 +75,13 @@ def _make_source(
     # moment.
     src = "\n".join(
         [
+            "import os",
             "import torch",
             "import pandas as pd",
             "from google.cloud.aiplatform import training_util",
-            "from google.cloud.aiplatform.experimental.vertex_model.serializers.pandas import *",
+            "from google.cloud.aiplatform.experimental.vertex_model.serializers import pandas",
+            "from google.cloud.aiplatform.experimental.vertex_model.serializers import dataloaders",
+            "from google.cloud.aiplatform.experimental.vertex_model.serializers import model",
             cls_source,
         ]
     )
@@ -93,11 +96,11 @@ def _make_source(
     )
 
     # need to index pass the first arg to avoid the call to self.
-    src = src + f"\tmodel = {cls_name}({class_args.args[1:]}, {class_args.kwargs})\n"
+    src = src + f"\tmy_model = {cls_name}({class_args.args[1:]}, {class_args.kwargs})\n"
 
     if instance_method is not None:
         # Start function call
-        src = src + f"\tmodel.{instance_method}("
+        src = src + f"\tmy_model.{instance_method}("
 
         # Iterate through parameters.
         # We are currently working around not including the _serialization_mapping
@@ -118,5 +121,11 @@ def _make_source(
             src = src + f"{parameter_name}={parameter_value}, "
 
         src = src + ")\n"
+
+    if obj.training_mode == "cloud":
+        src = (
+            src
+            + "\tmodel._serialize_local_model(os.getenv('AIP_MODEL_DIR'), my_model, my_model.training_mode)"
+        )
 
     return src

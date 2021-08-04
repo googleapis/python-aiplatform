@@ -28,6 +28,8 @@ from typing import Callable
 from google.cloud import aiplatform
 from google.cloud.aiplatform import base
 from google.cloud.aiplatform.experimental.vertex_model.serializers import pandas
+from google.cloud.aiplatform.experimental.vertex_model.serializers import dataloaders
+from google.cloud.aiplatform.experimental.vertex_model.serializers import model
 from google.cloud.aiplatform.experimental.vertex_model.utils import source_utils
 
 try:
@@ -37,6 +39,12 @@ except ImportError:
         "Pandas is not installed. Please install pandas to use VertexModel"
     )
 
+try:
+    import torch
+except ImportError:
+    raise ImportError(
+        "PyTorch is not installed. Please install torch to use VertexModel"
+    )
 
 _LOGGER = base.Logger(__name__)
 
@@ -147,7 +155,7 @@ def vertex_fit_function_wrapper(method: Callable[..., Any]):
                     display_name="my_training_job",
                     script_path=str(script_path),
                     # programatically determine the dependency in the future
-                    requirements=["pandas>=1.3"],
+                    requirements=["pandas>=1.3", "torch>=1.7"],
                     # https://cloud.google.com/vertex-ai/docs/training/pre-built-containers
                     container_uri="us-docker.pkg.dev/vertex-ai/training/pytorch-xla.1-7:latest",
                 )
@@ -155,15 +163,45 @@ def vertex_fit_function_wrapper(method: Callable[..., Any]):
                 # In the custom training job, a MODEL directory will be provided as an env var
                 # our code should serialize our MODEL to that directory
 
-                obj._training_job.run(replica_count=1)
+                obj._model = obj._training_job.run(
+                    model_display_name="my_model",
+                    replica_count=1,
+                    machine_type="n1-standard-4",
+                    accelerator_type="NVIDIA_TESLA_K80",
+                    accelerator_count=1,
+                )
 
     return f
+
+
+def vertex_predict_function_wrapper(method: Callable[..., Any]):
+    @functools.wraps(method)
+    def p(*args, **kwargs):
+        # Local predictions can be made
+        if method.__self__.training_mode == "local":
+            return method(*args, **kwargs)
+
+        obj = method.__self__
+
+        output_dir = obj._model._gca_resource.artifact_uri
+        model_uri = pathlib.Path(output_dir) / (
+            "my_" + obj.training_mode + "_model.pth"
+        )
+        my_model = model._deserialize_remote_model(str(model_uri))
+
+        return my_model.predict(*args, **kwargs)
+
+    return p
 
 
 class VertexModel(metaclass=abc.ABCMeta):
 
     _data_serialization_mapping = {
-        pd.DataFrame: (pandas._deserialize_dataframe, pandas._serialize_dataframe)
+        pd.DataFrame: (pandas._deserialize_dataframe, pandas._serialize_dataframe),
+        torch.utils.data.DataLoader: (
+            dataloaders._deserialize_dataloader,
+            dataloaders._serialize_dataloader,
+        ),
     }
 
     """ Parent class that users can extend to use the Vertex AI SDK """
@@ -172,18 +210,24 @@ class VertexModel(metaclass=abc.ABCMeta):
         """Initializes child class. All constructor arguments must be passed to the
            VertexModel constructor as well."""
         # Default to local training on creation, at least for this prototype.
-        self.training_mode = "local"
-        self.fit = vertex_fit_function_wrapper(self.fit)
+        self._training_job = None
+        self._model = None
         self._constructor_arguments = (args, kwargs)
+
+        self.training_mode = "local"
+
+        self.fit = vertex_fit_function_wrapper(self.fit)
+        self.fit = vertex_predict_function_wrapper(self.predict)
 
     @abc.abstractmethod
     def fit(self):
         """Train model."""
         pass
 
+    @abc.abstractmethod
     def predict(self):
         """Make predictions on training data."""
-        raise NotImplementedError("predict is currently not implemented.")
+        pass
 
     def batch_predict(self):
         """Make predictions on training data."""
