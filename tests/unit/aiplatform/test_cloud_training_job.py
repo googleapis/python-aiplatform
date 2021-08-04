@@ -172,7 +172,7 @@ class TestCloudVertexModelClass:
 
         expected = {
             "display_name": "my_training_job",
-            "requirements": ["pandas>=1.3"],
+            "requirements": ["pandas>=1.3", "torch>=1.7"],
             "container_uri": "us-docker.pkg.dev/vertex-ai/training/pytorch-xla.1-7:latest",
         }
 
@@ -188,7 +188,13 @@ class TestCloudVertexModelClass:
         mock_get_custom_training_job.assert_called_once()
         assert len(call_args[0]) == 0
 
-        mock_run_custom_training_job.assert_called_once_with(replica_count=1,)
+        mock_run_custom_training_job.assert_called_once_with(
+            model_display_name="my_model",
+            replica_count=1,
+            machine_type="n1-standard-4",
+            accelerator_type="NVIDIA_TESLA_K80",
+            accelerator_count=1,
+        )
 
     def test_source_script_compiles(
         self, mock_client_bucket,

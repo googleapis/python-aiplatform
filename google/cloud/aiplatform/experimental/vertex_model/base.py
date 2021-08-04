@@ -218,7 +218,7 @@ class VertexModel(metaclass=abc.ABCMeta):
         self.training_mode = "local"
 
         self.fit = vertex_fit_function_wrapper(self.fit)
-        self.fit = vertex_predict_function_wrapper(self.predict)
+        self.predict = vertex_predict_function_wrapper(self.predict)
 
     @abc.abstractmethod
     def fit(self):
