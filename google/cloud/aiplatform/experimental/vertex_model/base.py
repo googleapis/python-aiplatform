@@ -181,6 +181,7 @@ def vertex_predict_function_wrapper(method: Callable[..., Any]):
         if method.__self__.training_mode == "local":
             return method(*args, **kwargs)
 
+        # Assuming only local prediction for now
         obj = method.__self__
 
         output_dir = obj._model._gca_resource.artifact_uri
