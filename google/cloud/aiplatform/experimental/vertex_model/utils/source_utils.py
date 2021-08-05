@@ -94,7 +94,7 @@ def _make_source(
     )
 
     # First, add __main__ header
-    src = src + "if __name__ == '__main__':\n"
+    # src = src + "if __name__ == '__main__':\n"
 
     # Then, instantiate model
     # First, grab args and kwargs using the _constructor_arguments variable in VertexModel
@@ -103,11 +103,11 @@ def _make_source(
     )
 
     # need to index pass the first arg to avoid the call to self.
-    src = src + f"\tmy_model = {cls_name}({','.join(map(str, class_args.args[1:]))})\n"
+    src = src + f"my_model = {cls_name}({','.join(map(str, class_args.args[1:]))})\n"
 
     if instance_method is not None:
         # Start function call
-        src = src + f"\tmy_model.{instance_method}("
+        src = src + f"my_model.{instance_method}("
 
         # Iterate through parameters.
         # We are currently working around not including the _serialization_mapping
@@ -135,7 +135,7 @@ def _make_source(
     if obj.training_mode == "cloud":
         src = (
             src
-            + "\tmodel._serialize_local_model(os.getenv('AIP_MODEL_DIR'), my_model, my_model.training_mode)"
+            + "model._serialize_local_model(os.getenv('AIP_MODEL_DIR'), my_model, my_model.training_mode)"
         )
 
     return src
