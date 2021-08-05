@@ -29,11 +29,7 @@ readme_filename = os.path.join(package_root, "README.rst")
 with io.open(readme_filename, encoding="utf-8") as readme_file:
     readme = readme_file.read()
 
-tensorboard_extra_require = [
-    "tensorflow >=2.3.0, <=2.5.0",
-    "grpcio~=1.39.0",
-    "six~=1.15.0",
-]
+tensorboard_extra_require = ["tensorflow >=2.3.0, <=2.5.0"]
 metadata_extra_require = ["pandas >= 1.0.0"]
 xai_extra_require = ["tensorflow >=2.3.0, <=2.5.0"]
 full_extra_require = list(
