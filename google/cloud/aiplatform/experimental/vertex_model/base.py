@@ -161,7 +161,7 @@ def vertex_fit_function_wrapper(method: Callable[..., Any]):
                     "google-cloud-aiplatform @ git+https://github.com/googleapis/python-aiplatform@refs/pull/594/head#egg=google-cloud-aiplatform",
                 ],
                 # https://cloud.google.com/vertex-ai/docs/training/pre-built-containers
-                container_uri="us-docker.pkg.dev/vertex-ai/training/pytorch-xla.1-7:latest",
+                container_uri="us-docker.pkg.dev/vertex-ai/training/scikit-learn-cpu.0-23:latest",
                 model_serving_container_image_uri="us-docker.pkg.dev/vertex-ai/prediction/tf2-cpu.2-5:latest",
             )
 
