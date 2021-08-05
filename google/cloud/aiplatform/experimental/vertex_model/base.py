@@ -151,22 +151,25 @@ def vertex_fit_function_wrapper(method: Callable[..., Any]):
             with open(script_path, "w") as f:
                 f.write(source)
 
-                obj._training_job = aiplatform.CustomTrainingJob(
-                    display_name="my_training_job",
-                    script_path=str(script_path),
-                    # programatically determine the dependency in the future
-                    requirements=["pandas>=1.3", "torch>=1.7"],
-                    # https://cloud.google.com/vertex-ai/docs/training/pre-built-containers
-                    container_uri="us-docker.pkg.dev/vertex-ai/training/pytorch-xla.1-7:latest",
-                    model_serving_container_image_uri="us-docker.pkg.dev/vertex-ai/prediction/tf2-cpu.2-5:latest",
-                )
+            obj._training_job = aiplatform.CustomTrainingJob(
+                display_name="my_training_job",
+                script_path=str(script_path),
+                # programatically determine the dependency in the future
+                requirements=[
+                    "pandas>=1.3",
+                    "google-cloud-aiplatform @ git+https://github.com/googleapis/python-aiplatform@refs/pull/594/head#egg=google-cloud-aiplatform",
+                ],
+                # https://cloud.google.com/vertex-ai/docs/training/pre-built-containers
+                container_uri="us-docker.pkg.dev/vertex-ai/training/pytorch-xla.1-7:latest",
+                model_serving_container_image_uri="us-docker.pkg.dev/vertex-ai/prediction/tf2-cpu.2-5:latest",
+            )
 
-                # In the custom training job, a MODEL directory will be provided as an env var
-                # our code should serialize our MODEL to that directory
+            # In the custom training job, a MODEL directory will be provided as an env var
+            # our code should serialize our MODEL to that directory
 
-                obj._model = obj._training_job.run(
-                    model_display_name="my_model", replica_count=1,
-                )
+            obj._model = obj._training_job.run(
+                model_display_name="my_model", replica_count=1,
+            )
 
     return f
 
