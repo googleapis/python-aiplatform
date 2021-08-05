@@ -132,10 +132,9 @@ def _make_source(
 
         src = src + ")\n"
 
-    if obj.training_mode == "cloud":
-        src = (
-            src
-            + "model._serialize_local_model(os.getenv('AIP_MODEL_DIR'), my_model, my_model.training_mode)"
-        )
+    src = (
+        src
+        + "model._serialize_local_model(os.getenv('AIP_MODEL_DIR'), my_model, my_model.training_mode)"
+    )
 
     return src
