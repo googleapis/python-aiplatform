@@ -98,7 +98,7 @@ class _Resource(base.VertexAiResourceNounWithFutureManager, abc.ABC):
 
     @property
     def metadata(self) -> Dict:
-        return json_format.MessageToDict(self._gca_resource._pb)["metadata"]
+        return self.to_dict()["metadata"]
 
     @property
     def schema_title(self) -> str:
