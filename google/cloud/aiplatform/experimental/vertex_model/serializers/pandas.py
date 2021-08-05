@@ -53,7 +53,7 @@ def _serialize_dataframe(
     with tempfile.TemporaryDirectory() as tmpdirname:
         temp_dir = pathlib.Path(tmpdirname) / ("my_" + dataset_type + "_dataset.csv")
         path_to_csv = pathlib.Path(temp_dir)
-        obj.to_csv(path_to_csv)
+        obj.to_csv(path_to_csv, index=False)
 
         gcs_bucket, gcs_blob_prefix = utils.extract_bucket_and_prefix_from_gcs_path(
             artifact_uri

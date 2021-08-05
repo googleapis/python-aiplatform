@@ -157,6 +157,7 @@ def vertex_fit_function_wrapper(method: Callable[..., Any]):
                 # programatically determine the dependency in the future
                 requirements=[
                     "pandas>=1.3",
+                    "torch>=1.7",
                     "google-cloud-aiplatform @ git+https://github.com/googleapis/python-aiplatform@refs/pull/594/head#egg=google-cloud-aiplatform",
                 ],
                 # https://cloud.google.com/vertex-ai/docs/training/pre-built-containers
