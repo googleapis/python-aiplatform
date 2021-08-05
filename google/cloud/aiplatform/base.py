@@ -608,7 +608,7 @@ class VertexAiResourceNoun(metaclass=abc.ABCMeta):
     def __repr__(self) -> str:
         return f"{object.__repr__(self)} \nresource name: {self.resource_name}"
 
-    def to_dict(self) -> dict:
+    def to_dict(self) -> Dict[str, Any]:
         """Returns the resource proto as a dictionary."""
         return json_format.MessageToDict(self.gca_resource._pb)
 
