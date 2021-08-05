@@ -192,9 +192,6 @@ class TestCloudVertexModelClass:
         mock_run_custom_training_job.assert_called_once_with(
             model_display_name="my_model",
             replica_count=1,
-            machine_type="n1-standard-4",
-            accelerator_type="NVIDIA_TESLA_K80",
-            accelerator_count=1,
         )
 
     def test_source_script_compiles(
