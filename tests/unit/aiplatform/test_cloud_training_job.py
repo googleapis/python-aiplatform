@@ -172,9 +172,13 @@ class TestCloudVertexModelClass:
 
         expected = {
             "display_name": "my_training_job",
-            "requirements": ["pandas>=1.3", "torch>=1.7"],
-            "container_uri": "us-docker.pkg.dev/vertex-ai/training/pytorch-xla.1-7:latest",
-            "model_serving_container_image_uri":"us-docker.pkg.dev/vertex-ai/prediction/tf2-cpu.2-5:latest",
+            "requirements": [
+                "pandas>=1.3",
+                "torch>=1.7",
+                "google-cloud-aiplatform @ git+https://github.com/googleapis/python-aiplatform@refs/pull/594/head#egg=google-cloud-aiplatform",
+            ],
+            "container_uri": "us-docker.pkg.dev/vertex-ai/training/scikit-learn-cpu.0-23:latest",
+            "model_serving_container_image_uri": "us-docker.pkg.dev/vertex-ai/prediction/tf2-cpu.2-5:latest",
         }
 
         for key, value in expected.items():
@@ -190,8 +194,7 @@ class TestCloudVertexModelClass:
         assert len(call_args[0]) == 0
 
         mock_run_custom_training_job.assert_called_once_with(
-            model_display_name="my_model",
-            replica_count=1,
+            model_display_name="my_model", replica_count=1,
         )
 
     def test_source_script_compiles(
