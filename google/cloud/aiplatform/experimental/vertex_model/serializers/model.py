@@ -38,7 +38,7 @@ def _serialize_local_model(artifact_uri: str, obj: torch.nn.Module, model_type: 
 
     compiled_custom_model = torch.jit.script(obj)
 
-    if artifact_uri[0:6] != "gs://":
+    if not artifact_uri.startswith("gs://"):
         path_to_model = artifact_uri + "/my_" + model_type + "_model.pth"
         torch.jit.save(compiled_custom_model, path_to_model)
         return path_to_model
@@ -92,7 +92,7 @@ def _deserialize_remote_model(artifact_uri: str) -> torch.nn.Module:
         Runtime Error should the model object referenced by artifact_uri be invalid.
     """
 
-    if artifact_uri[0:6] != "gs://":
+    if not artifact_uri.startswith("gs://"):
         loaded_compiled_custom_model = torch.jit.load(artifact_uri)
         return loaded_compiled_custom_model
 

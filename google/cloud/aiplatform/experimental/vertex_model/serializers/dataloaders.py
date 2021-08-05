@@ -137,7 +137,7 @@ def _serialize_local_dataloader(
         serialized origin data.
     """
 
-    if artifact_uri[0:6] != "gs://":
+    if not artifact_uri.startswith("gs://"):
         local_path = artifact_uri + "my_" + dataset_type + "_dataloader.pth"
         torch.save(obj, local_path)
         return local_path, dataloader_path
@@ -213,7 +213,7 @@ def _serialize_dataloader(
         root = "No root data found for this dataloader, assuming local"
 
     # Decide whether to pass to remote or local serialization
-    if root[0:6] == "gs://":
+    if not root.startswith("gs://"):
         return _serialize_remote_dataloader(artifact_uri, root, obj, dataset_type)
     else:
         return _serialize_local_dataloader(artifact_uri, root, obj, dataset_type)
@@ -229,7 +229,7 @@ def _deserialize_dataloader(artifact_uri: str) -> DataLoader:
         The DataLoader object stored at the given location.
     """
 
-    if artifact_uri[0:6] != "gs://":
+    if not artifact_uri.startswith("gs://"):
         dataloader = torch.load(artifact_uri)
         return dataloader
 
