@@ -49,6 +49,8 @@ def _serialize_local_model(artifact_uri: str, obj: torch.nn.Module, model_type: 
 
         torch.jit.save(compiled_custom_model, path_to_model)
 
+        print("saved model locally")
+
         gcs_bucket, gcs_blob_prefix = utils.extract_bucket_and_prefix_from_gcs_path(
             artifact_uri
         )
@@ -68,6 +70,9 @@ def _serialize_local_model(artifact_uri: str, obj: torch.nn.Module, model_type: 
         bucket = client.bucket(gcs_bucket)
         blob = bucket.blob(blob_path)
         blob.upload_from_filename(str(path_to_model))
+
+        print(bucket.name)
+        print("uploaded model to gcs")
 
         gcs_path = "".join(["gs://", "/".join([blob.bucket.name, blob.name])])
         return gcs_path
