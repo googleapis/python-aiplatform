@@ -75,6 +75,7 @@ def _serialize_local_model(artifact_uri: str, obj: torch.nn.Module, model_type: 
         print("uploaded model to gcs")
 
         gcs_path = "".join(["gs://", "/".join([blob.bucket.name, blob.name])])
+        print("model was written to: ", gcs_path)
         return gcs_path
 
 
