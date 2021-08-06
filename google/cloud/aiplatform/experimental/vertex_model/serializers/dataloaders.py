@@ -17,13 +17,18 @@
 
 import pathlib
 import tempfile
-import torch
-
-from torch.utils.data import DataLoader
 
 from google.cloud import storage
 from google.cloud.aiplatform import initializer
 from google.cloud.aiplatform import utils
+
+try:
+    import torch
+    from torch.utils.data import DataLoader
+except ImportError:
+    raise ImportError(
+        "PyTorch is not installed. Please install torch to use VertexModel"
+    )
 
 
 def _serialize_remote_dataloader(
@@ -137,7 +142,7 @@ def _serialize_local_dataloader(
         serialized origin data.
     """
 
-    if artifact_uri[0:6] != "gs://":
+    if not artifact_uri.startswith("gs://"):
         local_path = artifact_uri + "my_" + dataset_type + "_dataloader.pth"
         torch.save(obj, local_path)
         return local_path, dataloader_path
@@ -148,8 +153,7 @@ def _serialize_local_dataloader(
         artifact_uri
     )
 
-    data_local_file_name = dataset_type + "_" + dataloader_path.name
-    data_blob_path = data_local_file_name
+    data_blob_path = dataset_type + "_" + dataloader_path.name
 
     if gcs_blob_prefix:
         data_blob_path = "/".join([gcs_blob_prefix, data_blob_path])
@@ -195,25 +199,21 @@ def _serialize_dataloader(
 
     Args:
         artifact_uri (str): the GCS bucket where the serialized object will reside.
-        dataloader_path (str): the path where the origin data used to construct the DataLoader
-                               resides.
+        obj (torch.utils.data.DataLoader): the DataLoader to be serialized
         dataset_type (str): the intended use of the dataset (ie. training, testing)
 
     Returns:
         The GCS path pointing to the serialized DataLoader, the GCS path pointing to the
         serialized origin data.
     """
-    # First, access the Dataset
-    my_dataset = getattr(obj, "dataset")
+    my_dataset = obj.dataset
+    root = getattr(my_dataset, 'root', None)
 
-    # Then, get the source path
-    if hasattr(my_dataset, "root"):
-        root = getattr(my_dataset, "root")
-    else:
-        root = "No root data found for this dataloader, assuming local"
+    if root is None:
+        return _serialize_local_dataloader(artifact_uri, root, obj, dataset_type)
 
     # Decide whether to pass to remote or local serialization
-    if root[0:6] == "gs://":
+    if root.startswith("gs://"):
         return _serialize_remote_dataloader(artifact_uri, root, obj, dataset_type)
     else:
         return _serialize_local_dataloader(artifact_uri, root, obj, dataset_type)
@@ -229,7 +229,7 @@ def _deserialize_dataloader(artifact_uri: str) -> DataLoader:
         The DataLoader object stored at the given location.
     """
 
-    if artifact_uri[0:6] != "gs://":
+    if not artifact_uri.startswith("gs://"):
         dataloader = torch.load(artifact_uri)
         return dataloader
 
