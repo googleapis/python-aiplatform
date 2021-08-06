@@ -21,7 +21,6 @@ import pytest
 import importlib
 
 from google import auth as google_auth
-from google.protobuf import json_format
 from google.api_core import exceptions
 from google.api_core import client_options
 
