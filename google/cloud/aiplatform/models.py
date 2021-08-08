@@ -1467,6 +1467,7 @@ class Model(base.VertexAiResourceNounWithFutureManager):
         prediction_schema_uri: Optional[str] = None,
         explanation_metadata: Optional[explain.ExplanationMetadata] = None,
         explanation_parameters: Optional[explain.ExplanationParameters] = None,
+        labels: Optional[Dict] = None,
         project: Optional[str] = None,
         location: Optional[str] = None,
         credentials: Optional[auth_credentials.Credentials] = None,
@@ -1584,6 +1585,13 @@ class Model(base.VertexAiResourceNounWithFutureManager):
             explanation_parameters (explain.ExplanationParameters):
                 Optional. Parameters to configure explaining for Model's predictions.
                 For more details, see `Ref docs <http://tinyurl.com/1an4zake>`
+            labels: Optional[dict] = None
+                Optional. The labels with user-defined metadata to organize your
+                BatchPredictionJobs. Label keys and values can be no longer than
+                64 characters (Unicode codepoints), can only contain lowercase
+                letters, numeric characters, underscores and dashes.
+                International characters are allowed. See https://goo.gl/xmQnxf
+                for more information and examples of labels.
             project: Optional[str]=None,
                 Project to upload this model to. Overrides project set in
                 aiplatform.init.
@@ -1668,6 +1676,7 @@ class Model(base.VertexAiResourceNounWithFutureManager):
             container_spec=container_spec,
             predict_schemata=model_predict_schemata,
             encryption_spec=encryption_spec,
+            labels=labels,
         )
 
         if artifact_uri:
