@@ -14,9 +14,9 @@
 
 import os
 
+import export_model_sample
 import pytest
 
-import export_model_sample
 
 PROJECT_ID = os.getenv("BUILD_SPECIFIC_GCLOUD_PROJECT")
 MODEL_ID = (

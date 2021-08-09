@@ -15,9 +15,9 @@
 import os
 from uuid import uuid4
 
+import create_endpoint_sample
 import pytest
 
-import create_endpoint_sample
 import helpers
 
 DISPLAY_NAME = f"temp_create_endpoint_test_{uuid4()}"

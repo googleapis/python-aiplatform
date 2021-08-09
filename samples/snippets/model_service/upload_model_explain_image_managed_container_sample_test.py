@@ -17,10 +17,10 @@ import os
 from uuid import uuid4
 
 import pytest
+import upload_model_explain_image_managed_container_sample
 
 import helpers
 
-import upload_model_explain_image_managed_container_sample
 
 PROJECT_ID = os.getenv("BUILD_SPECIFIC_GCLOUD_PROJECT")
 IMAGE_URI = "gcr.io/cloud-aiplatform/prediction/tf2-cpu.2-1:latest"

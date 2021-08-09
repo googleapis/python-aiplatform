@@ -15,9 +15,9 @@
 import os
 import uuid
 
+import create_hyperparameter_tuning_job_sample
 import pytest
 
-import create_hyperparameter_tuning_job_sample
 import helpers
 
 PROJECT_ID = os.getenv("BUILD_SPECIFIC_GCLOUD_PROJECT")

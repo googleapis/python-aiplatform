@@ -15,9 +15,9 @@
 import os
 from uuid import uuid4
 
+import deploy_model_sample
 import pytest
 
-import deploy_model_sample
 import helpers
 
 PROJECT_ID = os.getenv("BUILD_SPECIFIC_GCLOUD_PROJECT")

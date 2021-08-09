@@ -15,9 +15,9 @@
 import os
 from uuid import uuid4
 
+import create_batch_prediction_job_text_sentiment_analysis_sample
 import pytest
 
-import create_batch_prediction_job_text_sentiment_analysis_sample
 import helpers
 
 PROJECT_ID = os.getenv("BUILD_SPECIFIC_GCLOUD_PROJECT")

@@ -17,8 +17,10 @@ from uuid import uuid4
 
 import pytest
 
-import helpers
 import upload_model_sample
+
+import helpers
+
 
 PROJECT_ID = os.getenv("BUILD_SPECIFIC_GCLOUD_PROJECT")
 IMAGE_URI = "gcr.io/cloud-ml-service-public/cloud-ml-online-prediction-model-server-cpu:v1_15py3cmle_op_images_20200229_0210_RC00"

@@ -14,7 +14,6 @@
 
 import os
 
-
 import get_hyperparameter_tuning_job_sample
 
 PROJECT_ID = os.getenv("BUILD_SPECIFIC_GCLOUD_PROJECT")

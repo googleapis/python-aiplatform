@@ -15,9 +15,9 @@
 import os
 from uuid import uuid4
 
+import export_model_tabular_classification_sample
 import pytest
 
-import export_model_tabular_classification_sample
 
 PROJECT_ID = os.getenv("BUILD_SPECIFIC_GCLOUD_PROJECT")
 MODEL_ID = "6036688272397172736"  # iris 1000

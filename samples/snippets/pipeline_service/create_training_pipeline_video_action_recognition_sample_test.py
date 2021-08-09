@@ -15,9 +15,9 @@
 import os
 import uuid
 
+import create_training_pipeline_video_action_recognition_sample
 import pytest
 
-import create_training_pipeline_video_action_recognition_sample
 import helpers
 
 LOCATION = "us-central1"

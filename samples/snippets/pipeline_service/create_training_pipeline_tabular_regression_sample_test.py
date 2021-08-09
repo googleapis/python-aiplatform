@@ -15,9 +15,9 @@
 import os
 from uuid import uuid4
 
+import create_training_pipeline_tabular_regression_sample
 import pytest
 
-import create_training_pipeline_tabular_regression_sample
 import helpers
 
 PROJECT_ID = os.getenv("BUILD_SPECIFIC_GCLOUD_PROJECT")

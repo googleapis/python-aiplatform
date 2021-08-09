@@ -15,9 +15,8 @@
 
 import os
 
-import pytest
-
 import import_data_video_action_recognition_sample
+import pytest
 
 PROJECT_ID = os.getenv("BUILD_SPECIFIC_GCLOUD_PROJECT")
 LOCATION = "us-central1"

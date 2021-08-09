@@ -15,11 +15,11 @@
 import os
 from uuid import uuid4
 
+import cancel_training_pipeline_sample
 from google.protobuf import json_format
 from google.protobuf.struct_pb2 import Value
 import pytest
 
-import cancel_training_pipeline_sample
 import helpers
 
 PROJECT_ID = os.getenv("BUILD_SPECIFIC_GCLOUD_PROJECT")

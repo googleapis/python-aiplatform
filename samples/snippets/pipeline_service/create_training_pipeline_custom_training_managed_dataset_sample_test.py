@@ -15,9 +15,9 @@
 import os
 import uuid
 
+import create_training_pipeline_custom_training_managed_dataset_sample
 import pytest
 
-import create_training_pipeline_custom_training_managed_dataset_sample
 import helpers
 
 PROJECT_ID = os.getenv("BUILD_SPECIFIC_GCLOUD_PROJECT")

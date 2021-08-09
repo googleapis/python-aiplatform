@@ -15,9 +15,9 @@
 import os
 from uuid import uuid4
 
+import create_data_labeling_job_video_sample
 import pytest
 
-import create_data_labeling_job_video_sample
 import helpers
 
 PROJECT_ID = os.getenv("BUILD_SPECIFIC_GCLOUD_PROJECT")
