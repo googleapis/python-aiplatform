@@ -17,6 +17,7 @@
 
 import pathlib
 import tempfile
+from typing import Callable
 
 from google.cloud import storage
 from google.cloud.aiplatform import initializer
@@ -102,23 +103,14 @@ def _serialize_remote_dataloader(
         ["gs://", "/".join([destination_bucket_name, blob_copy.name])]
     )
 
-    # Return the final GCS path (of the DataLoader) with data path
-    with tempfile.TemporaryDirectory() as tmpdirname:
-        temp_dir = pathlib.Path(tmpdirname) / ("my_" + dataset_type + "_dataloader.pth")
-        path_to_dataloader = pathlib.Path(temp_dir)
-        torch.save(obj, temp_dir)
+    path = serialize_to_tmp_and_copy_to_gcs(
+        "my_" + dataset_type + "_dataloader.pth",
+        destination_bucket,
+        destination_blob_prefix,
+        torch.save,
+    )
 
-        local_file_name = path_to_dataloader.name
-        blob_path = local_file_name
-
-        if destination_blob_prefix:
-            blob_path = "/".join([destination_blob_prefix, blob_path])
-
-        blob = destination_bucket.blob(blob_path)
-        blob.upload_from_filename(str(path_to_dataloader))
-
-        gcs_path = "".join(["gs://", "/".join([blob.bucket.name, blob.name])])
-        return gcs_path, data_gcs_path
+    return path, data_gcs_path
 
 
 def _serialize_local_dataloader(
@@ -171,23 +163,14 @@ def _serialize_local_dataloader(
         ["gs://", "/".join([data_blob.bucket.name, data_blob.name])]
     )
 
-    # Return the final GCS path (of the DataLoader) with data path
-    with tempfile.TemporaryDirectory() as tmpdirname:
-        temp_dir = pathlib.Path(tmpdirname) / ("my_" + dataset_type + "_dataloader.pth")
-        path_to_dataloader = pathlib.Path(temp_dir)
-        torch.save(obj, temp_dir)
+    path = serialize_to_tmp_and_copy_to_gcs(
+        "my_" + dataset_type + "_dataloader.pth",
+        gcs_bucket,
+        gcs_blob_prefix,
+        torch.save,
+    )
 
-        local_file_name = path_to_dataloader.name
-        blob_path = local_file_name
-
-        if gcs_blob_prefix:
-            blob_path = "/".join([gcs_blob_prefix, blob_path])
-
-        blob = gcs_bucket.blob(blob_path)
-        blob.upload_from_filename(str(path_to_dataloader))
-
-        gcs_path = "".join(["gs://", "/".join([blob.bucket.name, blob.name])])
-        return gcs_path, data_gcs_path
+    return path, data_gcs_path
 
 
 def _serialize_dataloader(
@@ -207,7 +190,7 @@ def _serialize_dataloader(
         serialized origin data.
     """
     my_dataset = obj.dataset
-    root = getattr(my_dataset, 'root', None)
+    root = getattr(my_dataset, "root", None)
 
     if root is None:
         return _serialize_local_dataloader(artifact_uri, root, obj, dataset_type)
@@ -261,3 +244,27 @@ def _deserialize_dataloader(artifact_uri: str) -> DataLoader:
 
     # Return a pandas DataFrame read from the csv in the cloud
     return dataloader
+
+
+def serialize_to_tmp_and_copy_to_gcs(
+    file_name: str,
+    destination_bucket: storage.Bucket,
+    blob_prefix: str,
+    serialize_fn: Callable[[str], None],
+):
+    with tempfile.TemporaryDirectory() as tmpdirname:
+        temp_dir = pathlib.Path(tmpdirname) / file_name
+        tmp_dir_path = pathlib.Path(temp_dir)
+        serialize_fn(temp_dir)
+
+        local_file_name = tmp_dir_path.name
+        blob_path = local_file_name
+
+        if blob_prefix:
+            blob_path = "/".join([blob_prefix, blob_path])
+
+        blob = destination_bucket.blob(blob_path)
+        blob.upload_from_filename(str(tmp_dir_path))
+
+        gcs_path = "".join(["gs://", "/".join([blob.bucket.name, blob.name])])
+        return gcs_path
