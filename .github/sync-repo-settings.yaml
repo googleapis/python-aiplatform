@@ -6,6 +6,6 @@ branchProtectionRules:
 # Defaults to `master`
 - pattern: master
   requiredStatusCheckContexts:
-    - 'Kokoro'
     - 'cla/google'
     - 'Samples - Lint'
+    - 'Presubmit - Unit Tests'
