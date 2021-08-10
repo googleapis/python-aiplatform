@@ -19,7 +19,7 @@ import pathlib
 import tempfile
 from typing import Callable
 
-from google.cloud import initializer
+from google.cloud.aiplatform import initializer
 from google.cloud import storage
 
 
