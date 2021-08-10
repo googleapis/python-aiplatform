@@ -148,7 +148,7 @@ class TestDataLoaderSerialization:
     def test_local_serialization_works(self):
         with tempfile.TemporaryDirectory() as tmpdirname:
             dataset = NumbersDataset()
-            root = getattr(dataset, 'root', None)
+            root = getattr(dataset, "root", None)
             print(root)
 
             dataloader = DataLoader(dataset, batch_size=64)
