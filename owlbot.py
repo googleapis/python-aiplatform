@@ -86,6 +86,7 @@ s.move(
     templated_files,
     excludes=[
         ".coveragerc",
+        ".kokoro/**/.cfg"
     ]
 )  # the microgenerator has a good coveragerc file
 
