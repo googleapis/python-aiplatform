@@ -48,11 +48,6 @@ def _serialize_dataframe(
         The GCS path pointing to the serialized DataFrame.
     """
 
-    if not artifact_uri.startswith("gs://"):
-        local_path = artifact_uri + "my_" + dataset_type + "_dataset.csv"
-        torch.save(obj, local_path)
-        return local_path, dataloader_path
-
     # Designate csv path and write the pandas DataFrame to the path
     # Convention: file name is my_training_dataset, my_test_dataset, etc.
     with tempfile.TemporaryDirectory() as tmpdirname:
