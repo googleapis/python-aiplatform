@@ -1,2 +1,0 @@
-pytest >= 6.2
-git+https://github.com/googleapis/python-aiplatform.git@mb-release#egg=google-cloud-aiplatform
