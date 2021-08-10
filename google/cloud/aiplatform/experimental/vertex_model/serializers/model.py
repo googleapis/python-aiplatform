@@ -15,6 +15,7 @@
 # limitations under the License.
 #
 
+import functools
 import pathlib
 import tempfile
 import torch
@@ -22,6 +23,7 @@ import torch
 from google.cloud import storage
 from google.cloud.aiplatform import initializer
 from google.cloud.aiplatform import utils
+from google.cloud.aiplatform.experimental.serializers import serializer_utils
 
 
 def _serialize_local_model(artifact_uri: str, obj: torch.nn.Module, model_type: str):
@@ -43,40 +45,16 @@ def _serialize_local_model(artifact_uri: str, obj: torch.nn.Module, model_type: 
         torch.jit.save(compiled_custom_model, path_to_model)
         return path_to_model
 
-    with tempfile.TemporaryDirectory() as tmpdirname:
-        temp_dir = pathlib.Path(tmpdirname) / ("my_" + model_type + "_model.pth")
-        path_to_model = pathlib.Path(temp_dir)
+    gcs_bucket, gcs_blob_prefix = utils.extract_bucket_and_prefix_from_gcs_path(
+        artifact_uri
+    )
 
-        torch.jit.save(compiled_custom_model, path_to_model)
-
-        print("saved model locally")
-
-        gcs_bucket, gcs_blob_prefix = utils.extract_bucket_and_prefix_from_gcs_path(
-            artifact_uri
-        )
-
-        local_file_name = path_to_model.name
-        blob_path = local_file_name
-
-        if gcs_blob_prefix:
-            blob_path = "/".join([gcs_blob_prefix, blob_path])
-
-        # Create a client object
-        client = storage.Client(
-            project=initializer.global_config.project,
-            credentials=initializer.global_config.credentials,
-        )
-
-        bucket = client.bucket(gcs_bucket)
-        blob = bucket.blob(blob_path)
-        blob.upload_from_filename(str(path_to_model))
-
-        print(bucket.name)
-        print("uploaded model to gcs")
-
-        gcs_path = "".join(["gs://", "/".join([blob.bucket.name, blob.name])])
-        print("model was written to: ", gcs_path)
-        return gcs_path
+    path_to_model = serializer_utils.serialize_to_tmp_and_copy_to_gcs(
+        "my_" + model_type + "_model.pth",
+        gcs_bucket,
+        gcs_blob_prefix,
+        functools.partial(torch.jit.save, compiled_custom_model),
+    )
 
 
 def _deserialize_remote_model(artifact_uri: str) -> torch.nn.Module:
