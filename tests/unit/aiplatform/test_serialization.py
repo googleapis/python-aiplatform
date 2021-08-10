@@ -24,6 +24,7 @@ import torch
 from torch.utils.data import DataLoader
 from torch.utils.data import Dataset
 
+import numpy as np
 import pandas as pd
 import unittest.mock as mock
 from unittest.mock import patch
@@ -34,6 +35,7 @@ from google.cloud import storage
 from google.cloud.aiplatform.experimental.vertex_model import base
 from google.cloud.aiplatform.experimental.vertex_model.serializers import dataloaders
 from google.cloud.aiplatform.experimental.vertex_model.serializers import model
+from google.cloud.aiplatform.experimental.vertex_model.serializers import pandas
 
 
 _TEST_PROJECT = "test-project"
@@ -168,3 +170,16 @@ class TestDataLoaderSerialization:
             new_tensor = next(iter(deserialized_dataloader))
 
             assert torch.all(original_tensor.eq(new_tensor))
+
+
+class TestDataFrameSerialization:
+    def test_local_serialization_works(self):
+        df = pd.DataFrame(
+            np.random.random(size=(100, 3)), columns=["feat_1", "feat_2", "target"]
+        )
+
+        with tempfile.TemporaryDirectory() as tmpdirname:
+            df_path = pandas._serialize_dataframe(tmpdirname, df, "test")
+            new_df = pandas._deserialize_dataframe(df_path)
+
+            pd.testing.assert_frame_equal(df, new_df, check_dtype=True)
