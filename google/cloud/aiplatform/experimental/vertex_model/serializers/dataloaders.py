@@ -76,38 +76,6 @@ def _serialize_remote_dataloader(
         destination_blob_prefix,
     ) = utils.extract_bucket_and_prefix_from_gcs_path(artifact_uri)
 
-    # Retrieve the blob and bucket name of the original GCS object
-    data_gcs_path = None
-
-    if dataloader_path is not None:
-        dataloader_path = pathlib.Path(dataloader_path)
-        local_file_name = dataset_type + "_" + dataloader_path.name
-        source_blob_name = local_file_name
-
-        if source_blob_prefix:
-            source_blob_name = "/".join([source_blob_prefix, source_blob_name])
-
-        source_bucket = client.bucket(source_bucket_name)
-        source_blob = source_bucket.blob(source_blob_name)
-
-        # Create a bucket and blob using the artifact URI
-        destination_bucket = client.bucket(destination_bucket_name)
-
-        destination_blob_name = source_blob_name
-        if destination_blob_prefix:
-            destination_blob_name = "/".join(
-                [destination_blob_prefix, destination_blob_name]
-            )
-
-        # Copy over the object from the source bucket to the new bucket
-        blob_copy = source_bucket.copy_blob(
-            source_blob, destination_bucket, destination_blob_name
-        )
-
-        data_gcs_path = "".join(
-            ["gs://", "/".join([destination_bucket_name, blob_copy.name])]
-        )
-
     path = serializer_utils.serialize_to_tmp_and_copy_to_gcs(
         "my_" + dataset_type + "_dataloader.pth",
         destination_bucket,
@@ -115,7 +83,7 @@ def _serialize_remote_dataloader(
         functools.partial(torch.save, obj),
     )
 
-    return path, data_gcs_path
+    return path, dataloader_path
 
 
 def _serialize_local_dataloader(
