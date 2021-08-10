@@ -44,8 +44,6 @@ def _make_class_source(obj: Any) -> str:
         ].startswith(obj.__class__.__name__):
             source_maker.add_method(inspect.getsource(value))
 
-        # source_maker.add_method(inspect.getsource(obj.fit))
-
     source_maker.add_method(inspect.getsource(obj.fit))
     source_maker.add_method(inspect.getsource(obj.predict))
 
@@ -92,9 +90,6 @@ def _make_source(
             cls_source,
         ]
     )
-
-    # First, add __main__ header
-    # src = src + "if __name__ == '__main__':\n"
 
     # Then, instantiate model
     # First, grab args and kwargs using the _constructor_arguments variable in VertexModel

@@ -181,7 +181,9 @@ def vertex_predict_function_wrapper(method: Callable[..., Any]):
         obj = method.__self__
 
         if method.__self__.training_mode == "cloud" and obj._model is None:
-            _LOGGER.info("training_mode is 'cloud' but fit has not been called, running predict directly")
+            _LOGGER.info(
+                "training_mode is 'cloud' but fit has not been called, running predict directly"
+            )
 
         # Local predictions can be made
         if method.__self__.training_mode == "local" or obj._model is None:
