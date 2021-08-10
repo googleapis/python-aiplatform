@@ -167,6 +167,8 @@ _TEST_LIST_FILTER = 'display_name="abc"'
 _TEST_LIST_ORDER_BY_CREATE_TIME = "create_time desc"
 _TEST_LIST_ORDER_BY_DISPLAY_NAME = "display_name"
 
+_TEST_LABELS = {"my_key": "my_value"}
+
 
 @pytest.fixture
 def get_endpoint_mock():
@@ -522,6 +524,22 @@ class TestEndpoint:
 
         expected_endpoint = gca_endpoint.Endpoint(
             display_name=_TEST_DISPLAY_NAME, description=_TEST_DESCRIPTION,
+        )
+        create_endpoint_mock.assert_called_once_with(
+            parent=_TEST_PARENT, endpoint=expected_endpoint, metadata=(),
+        )
+
+    @pytest.mark.usefixtures("get_endpoint_mock")
+    @pytest.mark.parametrize("sync", [True, False])
+    def test_create_with_labels(self, create_endpoint_mock, sync):
+        my_endpoint = models.Endpoint.create(
+            display_name=_TEST_DISPLAY_NAME, labels=_TEST_LABELS, sync=sync
+        )
+        if not sync:
+            my_endpoint.wait()
+
+        expected_endpoint = gca_endpoint.Endpoint(
+            display_name=_TEST_DISPLAY_NAME, labels=_TEST_LABELS,
         )
         create_endpoint_mock.assert_called_once_with(
             parent=_TEST_PARENT, endpoint=expected_endpoint, metadata=(),

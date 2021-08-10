@@ -87,6 +87,8 @@ _TEST_NETWORK = f"projects/{_TEST_PROJECT}/global/networks/{_TEST_ID}"
 _TEST_TIMEOUT = 8000
 _TEST_RESTART_JOB_ON_WORKER_RESTART = True
 
+_TEST_LABELS = {"my_key": "my_value"}
+
 _TEST_BASE_CUSTOM_JOB_PROTO = gca_custom_job_compat.CustomJob(
     display_name=_TEST_DISPLAY_NAME,
     job_spec=gca_custom_job_compat.CustomJobSpec(
@@ -101,6 +103,7 @@ _TEST_BASE_CUSTOM_JOB_PROTO = gca_custom_job_compat.CustomJob(
         service_account=_TEST_SERVICE_ACCOUNT,
         network=_TEST_NETWORK,
     ),
+    labels=_TEST_LABELS,
     encryption_spec=_TEST_DEFAULT_ENCRYPTION_SPEC,
 )
 
@@ -228,6 +231,7 @@ class TestCustomJob:
             display_name=_TEST_DISPLAY_NAME,
             worker_pool_specs=_TEST_WORKER_POOL_SPEC,
             base_output_dir=_TEST_BASE_OUTPUT_DIR,
+            labels=_TEST_LABELS,
         )
 
         job.run(
@@ -271,6 +275,7 @@ class TestCustomJob:
             display_name=_TEST_DISPLAY_NAME,
             worker_pool_specs=_TEST_WORKER_POOL_SPEC,
             base_output_dir=_TEST_BASE_OUTPUT_DIR,
+            labels=_TEST_LABELS,
         )
 
         with pytest.raises(RuntimeError) as e:
@@ -395,6 +400,7 @@ class TestCustomJob:
             script_path=test_training_jobs._TEST_LOCAL_SCRIPT_FILE_NAME,
             container_uri=_TEST_TRAINING_CONTAINER_IMAGE,
             base_output_dir=_TEST_BASE_OUTPUT_DIR,
+            labels=_TEST_LABELS,
         )
 
         job.run(sync=sync)
@@ -441,6 +447,7 @@ class TestCustomJob:
             display_name=_TEST_DISPLAY_NAME,
             worker_pool_specs=_TEST_WORKER_POOL_SPEC,
             base_output_dir=_TEST_BASE_OUTPUT_DIR,
+            labels=_TEST_LABELS,
         )
 
         job.run(
