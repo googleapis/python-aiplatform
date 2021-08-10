@@ -23,7 +23,7 @@ from typing import Optional
 from google.cloud import storage
 from google.cloud.aiplatform import initializer
 from google.cloud.aiplatform import utils
-from google.cloud.aiplatform.experimental.serializers import serializer_utils
+from google.cloud.aiplatform.experimental.vertex_model.serializers import serializer_utils
 
 try:
     import torch
