@@ -15,13 +15,15 @@
 # limitations under the License.
 #
 
+import functools
 import pathlib
 import tempfile
-from typing import Callable
+from typing import Optional
 
 from google.cloud import storage
 from google.cloud.aiplatform import initializer
 from google.cloud.aiplatform import utils
+from google.cloud.aiplatform.experimental.serializers import serializer_utils
 
 try:
     import torch
@@ -34,7 +36,7 @@ except ImportError:
 
 def _serialize_remote_dataloader(
     artifact_uri: str,
-    dataloader_path: str,
+    dataloader_path: Optional[str],
     obj: torch.utils.data.DataLoader,
     dataset_type: str,
 ) -> (str, str):
@@ -75,39 +77,42 @@ def _serialize_remote_dataloader(
     ) = utils.extract_bucket_and_prefix_from_gcs_path(artifact_uri)
 
     # Retrieve the blob and bucket name of the original GCS object
-    dataloader_path = pathlib.Path(dataloader_path)
-    local_file_name = dataset_type + "_" + dataloader_path.name
-    source_blob_name = local_file_name
+    data_gcs_path = None
 
-    if source_blob_prefix:
-        source_blob_name = "/".join([source_blob_prefix, source_blob_name])
+    if dataloader_path is not None:
+        dataloader_path = pathlib.Path(dataloader_path)
+        local_file_name = dataset_type + "_" + dataloader_path.name
+        source_blob_name = local_file_name
 
-    source_bucket = client.bucket(source_bucket_name)
-    source_blob = source_bucket.blob(source_blob_name)
+        if source_blob_prefix:
+            source_blob_name = "/".join([source_blob_prefix, source_blob_name])
 
-    # Create a bucket and blob using the artifact URI
-    destination_bucket = client.bucket(destination_bucket_name)
+        source_bucket = client.bucket(source_bucket_name)
+        source_blob = source_bucket.blob(source_blob_name)
 
-    destination_blob_name = source_blob_name
-    if destination_blob_prefix:
-        destination_blob_name = "/".join(
-            [destination_blob_prefix, destination_blob_name]
+        # Create a bucket and blob using the artifact URI
+        destination_bucket = client.bucket(destination_bucket_name)
+
+        destination_blob_name = source_blob_name
+        if destination_blob_prefix:
+            destination_blob_name = "/".join(
+                [destination_blob_prefix, destination_blob_name]
+            )
+
+        # Copy over the object from the source bucket to the new bucket
+        blob_copy = source_bucket.copy_blob(
+            source_blob, destination_bucket, destination_blob_name
         )
 
-    # Copy over the object from the source bucket to the new bucket
-    blob_copy = source_bucket.copy_blob(
-        source_blob, destination_bucket, destination_blob_name
-    )
+        data_gcs_path = "".join(
+            ["gs://", "/".join([destination_bucket_name, blob_copy.name])]
+        )
 
-    data_gcs_path = "".join(
-        ["gs://", "/".join([destination_bucket_name, blob_copy.name])]
-    )
-
-    path = serialize_to_tmp_and_copy_to_gcs(
+    path = serializer_utils.serialize_to_tmp_and_copy_to_gcs(
         "my_" + dataset_type + "_dataloader.pth",
         destination_bucket,
         destination_blob_prefix,
-        torch.save,
+        functools.partial(torch.save, obj),
     )
 
     return path, data_gcs_path
@@ -163,11 +168,11 @@ def _serialize_local_dataloader(
         ["gs://", "/".join([data_blob.bucket.name, data_blob.name])]
     )
 
-    path = serialize_to_tmp_and_copy_to_gcs(
+    path = serializer_utils.serialize_to_tmp_and_copy_to_gcs(
         "my_" + dataset_type + "_dataloader.pth",
         gcs_bucket,
         gcs_blob_prefix,
-        torch.save,
+        functools.partial(torch.save, obj),
     )
 
     return path, data_gcs_path
@@ -192,11 +197,8 @@ def _serialize_dataloader(
     my_dataset = obj.dataset
     root = getattr(my_dataset, "root", None)
 
-    if root is None:
-        return _serialize_local_dataloader(artifact_uri, root, obj, dataset_type)
-
     # Decide whether to pass to remote or local serialization
-    if root.startswith("gs://"):
+    if root and root.startswith("gs://"):
         return _serialize_remote_dataloader(artifact_uri, root, obj, dataset_type)
     else:
         return _serialize_local_dataloader(artifact_uri, root, obj, dataset_type)
@@ -244,27 +246,3 @@ def _deserialize_dataloader(artifact_uri: str) -> DataLoader:
 
     # Return a pandas DataFrame read from the csv in the cloud
     return dataloader
-
-
-def serialize_to_tmp_and_copy_to_gcs(
-    file_name: str,
-    destination_bucket: storage.Bucket,
-    blob_prefix: str,
-    serialize_fn: Callable[[str], None],
-):
-    with tempfile.TemporaryDirectory() as tmpdirname:
-        temp_dir = pathlib.Path(tmpdirname) / file_name
-        tmp_dir_path = pathlib.Path(temp_dir)
-        serialize_fn(temp_dir)
-
-        local_file_name = tmp_dir_path.name
-        blob_path = local_file_name
-
-        if blob_prefix:
-            blob_path = "/".join([blob_prefix, blob_path])
-
-        blob = destination_bucket.blob(blob_path)
-        blob.upload_from_filename(str(tmp_dir_path))
-
-        gcs_path = "".join(["gs://", "/".join([blob.bucket.name, blob.name])])
-        return gcs_path
