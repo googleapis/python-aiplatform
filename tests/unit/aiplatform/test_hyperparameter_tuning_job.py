@@ -49,6 +49,7 @@ _TEST_DISPLAY_NAME = "my_hp_job_1234"
 _TEST_PARENT = f"projects/{_TEST_PROJECT}/locations/{_TEST_LOCATION}"
 
 _TEST_STAGING_BUCKET = test_custom_job._TEST_STAGING_BUCKET
+_TEST_BASE_OUTPUT_DIR = test_custom_job._TEST_BASE_OUTPUT_DIR
 
 _TEST_HYPERPARAMETERTUNING_JOB_NAME = (
     f"{_TEST_PARENT}/hyperparameterTuningJobs/{_TEST_ID}"
@@ -260,6 +261,7 @@ class TestHyperparameterTuningJob:
         custom_job = aiplatform.CustomJob(
             display_name=test_custom_job._TEST_DISPLAY_NAME,
             worker_pool_specs=test_custom_job._TEST_WORKER_POOL_SPEC,
+            base_output_dir=test_custom_job._TEST_BASE_OUTPUT_DIR,
         )
 
         job = aiplatform.HyperparameterTuningJob(
@@ -321,6 +323,7 @@ class TestHyperparameterTuningJob:
         custom_job = aiplatform.CustomJob(
             display_name=test_custom_job._TEST_DISPLAY_NAME,
             worker_pool_specs=test_custom_job._TEST_WORKER_POOL_SPEC,
+            base_output_dir=test_custom_job._TEST_BASE_OUTPUT_DIR,
         )
 
         job = aiplatform.HyperparameterTuningJob(
@@ -376,6 +379,7 @@ class TestHyperparameterTuningJob:
         custom_job = aiplatform.CustomJob(
             display_name=test_custom_job._TEST_DISPLAY_NAME,
             worker_pool_specs=test_custom_job._TEST_WORKER_POOL_SPEC,
+            base_output_dir=test_custom_job._TEST_BASE_OUTPUT_DIR,
         )
 
         job = aiplatform.HyperparameterTuningJob(
@@ -440,6 +444,7 @@ class TestHyperparameterTuningJob:
         custom_job = aiplatform.CustomJob(
             display_name=test_custom_job._TEST_DISPLAY_NAME,
             worker_pool_specs=test_custom_job._TEST_WORKER_POOL_SPEC,
+            base_output_dir=test_custom_job._TEST_BASE_OUTPUT_DIR,
         )
 
         job = aiplatform.HyperparameterTuningJob(
@@ -497,6 +502,7 @@ class TestHyperparameterTuningJob:
         custom_job = aiplatform.CustomJob(
             display_name=test_custom_job._TEST_DISPLAY_NAME,
             worker_pool_specs=test_custom_job._TEST_WORKER_POOL_SPEC,
+            base_output_dir=test_custom_job._TEST_BASE_OUTPUT_DIR,
         )
 
         job = aiplatform.HyperparameterTuningJob(

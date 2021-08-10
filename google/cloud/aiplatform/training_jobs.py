@@ -2705,6 +2705,9 @@ class AutoMLTabularTrainingJob(_TrainingJob):
         budget_milli_node_hours: int = 1000,
         model_display_name: Optional[str] = None,
         disable_early_stopping: bool = False,
+        export_evaluated_data_items: bool = False,
+        export_evaluated_data_items_bigquery_destination_uri: Optional[str] = None,
+        export_evaluated_data_items_override_destination: bool = False,
         sync: bool = True,
     ) -> models.Model:
         """Runs the training job and returns a model.
@@ -2777,6 +2780,27 @@ class AutoMLTabularTrainingJob(_TrainingJob):
                 that training might stop before the entire training budget has been
                 used, if further training does no longer brings significant improvement
                 to the model.
+            export_evaluated_data_items (bool):
+                Whether to export the test set predictions to a BigQuery table.
+                If False, then the export is not performed.
+            export_evaluated_data_items_bigquery_destination_uri (string):
+                Optional. URI of desired destination BigQuery table for exported test set predictions.
+
+                Expected format:
+                ``bq://<project_id>:<dataset_id>:<table>``
+
+                If not specified, then results are exported to the following auto-created BigQuery
+                table:
+                ``<project_id>:export_evaluated_examples_<model_name>_<yyyy_MM_dd'T'HH_mm_ss_SSS'Z'>.evaluated_examples``
+
+                Applies only if [export_evaluated_data_items] is True.
+            export_evaluated_data_items_override_destination (bool):
+                Whether to override the contents of [export_evaluated_data_items_bigquery_destination_uri],
+                if the table exists, for exported test set predictions. If False, and the
+                table exists, then the training job will fail.
+
+                Applies only if [export_evaluated_data_items] is True and
+                [export_evaluated_data_items_bigquery_destination_uri] is specified.
             sync (bool):
                 Whether to execute this method synchronously. If False, this method
                 will be executed in concurrent Future and any downstream object will
@@ -2806,6 +2830,9 @@ class AutoMLTabularTrainingJob(_TrainingJob):
             budget_milli_node_hours=budget_milli_node_hours,
             model_display_name=model_display_name,
             disable_early_stopping=disable_early_stopping,
+            export_evaluated_data_items=export_evaluated_data_items,
+            export_evaluated_data_items_bigquery_destination_uri=export_evaluated_data_items_bigquery_destination_uri,
+            export_evaluated_data_items_override_destination=export_evaluated_data_items_override_destination,
             sync=sync,
         )
 
@@ -2822,6 +2849,9 @@ class AutoMLTabularTrainingJob(_TrainingJob):
         budget_milli_node_hours: int = 1000,
         model_display_name: Optional[str] = None,
         disable_early_stopping: bool = False,
+        export_evaluated_data_items: bool = False,
+        export_evaluated_data_items_bigquery_destination_uri: Optional[str] = None,
+        export_evaluated_data_items_override_destination: bool = False,
         sync: bool = True,
     ) -> models.Model:
         """Runs the training job and returns a model.
@@ -2894,6 +2924,27 @@ class AutoMLTabularTrainingJob(_TrainingJob):
                 that training might stop before the entire training budget has been
                 used, if further training does no longer brings significant improvement
                 to the model.
+            export_evaluated_data_items (bool):
+                Whether to export the test set predictions to a BigQuery table.
+                If False, then the export is not performed.
+            export_evaluated_data_items_bigquery_destination_uri (string):
+                Optional. URI of desired destination BigQuery table for exported test set predictions.
+
+                Expected format:
+                ``bq://<project_id>:<dataset_id>:<table>``
+
+                If not specified, then results are exported to the following auto-created BigQuery
+                table:
+                ``<project_id>:export_evaluated_examples_<model_name>_<yyyy_MM_dd'T'HH_mm_ss_SSS'Z'>.evaluated_examples``
+
+                Applies only if [export_evaluated_data_items] is True.
+            export_evaluated_data_items_override_destination (bool):
+                Whether to override the contents of [export_evaluated_data_items_bigquery_destination_uri],
+                if the table exists, for exported test set predictions. If False, and the
+                table exists, then the training job will fail.
+
+                Applies only if [export_evaluated_data_items] is True and
+                [export_evaluated_data_items_bigquery_destination_uri] is specified.
             sync (bool):
                 Whether to execute this method synchronously. If False, this method
                 will be executed in concurrent Future and any downstream object will
@@ -2939,6 +2990,18 @@ class AutoMLTabularTrainingJob(_TrainingJob):
             "optimizationObjectiveRecallValue": self._optimization_objective_recall_value,
             "optimizationObjectivePrecisionValue": self._optimization_objective_precision_value,
         }
+
+        final_export_eval_bq_uri = export_evaluated_data_items_bigquery_destination_uri
+        if final_export_eval_bq_uri and not final_export_eval_bq_uri.startswith(
+            "bq://"
+        ):
+            final_export_eval_bq_uri = f"bq://{final_export_eval_bq_uri}"
+
+        if export_evaluated_data_items:
+            training_task_inputs_dict["exportEvaluatedDataItemsConfig"] = {
+                "destinationBigqueryUri": final_export_eval_bq_uri,
+                "overrideExistingTable": export_evaluated_data_items_override_destination,
+            }
 
         if self._additional_experiments:
             training_task_inputs_dict[

@@ -225,6 +225,7 @@ def _create_request_sender(
         max_scalar_request_size=128000,
         max_tensor_request_size=128000,
         max_tensor_point_size=52000,
+        max_blob_request_size=128000,
     )
 
     rpc_rate_limiter = util.RateLimiter(0)
@@ -771,8 +772,7 @@ class TensorboardUploaderTest(tf.test.TestCase):
             uploader = _create_uploader(
                 writer_client=mock_client,
                 logdir=_TEST_LOG_DIR_NAME,
-                # Verify behavior with lots of small chunks
-                max_blob_request_size=100,
+                max_blob_request_size=1000,
                 rpc_rate_limiter=mock_rate_limiter,
                 blob_storage_bucket=mock_bucket,
                 verbosity=1,  # In order to test tracker.
@@ -829,7 +829,7 @@ class TensorboardUploaderTest(tf.test.TestCase):
             self.assertEqual(
                 time_series_data[0].tensorboard_time_series_id, _TEST_TIME_SERIES_NAME
             )
-            self.assertEqual(len(time_series_data[0].values), 1)
+            self.assertEqual(len(time_series_data[0].values), 2)
             blobs = time_series_data[0].values[0].blobs.values
             self.assertEqual(len(blobs), 1)
             self.assertIn(blobs[0].id, blob_ids)
@@ -838,9 +838,7 @@ class TensorboardUploaderTest(tf.test.TestCase):
         self.assertEqual(mock_tracker.send_tracker.call_count, 2)
         self.assertEqual(mock_tracker.scalars_tracker.call_count, 0)
         self.assertEqual(mock_tracker.tensors_tracker.call_count, 0)
-        self.assertEqual(mock_tracker.blob_tracker.call_count, 10)
-        self.assertLen(mock_tracker.blob_tracker.call_args[0], 1)
-        self.assertGreater(mock_tracker.blob_tracker.call_args[0][0], 0)
+        self.assertEqual(mock_tracker.blob_tracker.call_count, 15)
 
     def test_filter_graphs(self):
         # Three graphs: one short, one long, one corrupt.

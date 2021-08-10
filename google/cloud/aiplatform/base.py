@@ -44,6 +44,7 @@ from google.auth import credentials as auth_credentials
 from google.cloud.aiplatform import initializer
 from google.cloud.aiplatform import utils
 from google.cloud.aiplatform.compat.types import encryption_spec as gca_encryption_spec
+from google.protobuf import json_format
 
 logging.basicConfig(level=logging.INFO, stream=sys.stdout)
 
@@ -606,6 +607,10 @@ class VertexAiResourceNoun(metaclass=abc.ABCMeta):
 
     def __repr__(self) -> str:
         return f"{object.__repr__(self)} \nresource name: {self.resource_name}"
+
+    def to_dict(self) -> Dict[str, Any]:
+        """Returns the resource proto as a dictionary."""
+        return json_format.MessageToDict(self.gca_resource._pb)
 
 
 def optional_sync(

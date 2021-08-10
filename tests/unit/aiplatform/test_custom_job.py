@@ -71,6 +71,7 @@ _TEST_WORKER_POOL_SPEC = [
 ]
 
 _TEST_STAGING_BUCKET = "gs://test-staging-bucket"
+_TEST_BASE_OUTPUT_DIR = f"{_TEST_STAGING_BUCKET}/{_TEST_DISPLAY_NAME}"
 
 # CMEK encryption
 _TEST_DEFAULT_ENCRYPTION_KEY_NAME = "key_default"
@@ -91,7 +92,7 @@ _TEST_BASE_CUSTOM_JOB_PROTO = gca_custom_job_compat.CustomJob(
     job_spec=gca_custom_job_compat.CustomJobSpec(
         worker_pool_specs=_TEST_WORKER_POOL_SPEC,
         base_output_directory=gca_io_compat.GcsDestination(
-            output_uri_prefix=_TEST_STAGING_BUCKET
+            output_uri_prefix=_TEST_BASE_OUTPUT_DIR
         ),
         scheduling=gca_custom_job_compat.Scheduling(
             timeout=duration_pb2.Duration(seconds=_TEST_TIMEOUT),
@@ -224,7 +225,9 @@ class TestCustomJob:
         )
 
         job = aiplatform.CustomJob(
-            display_name=_TEST_DISPLAY_NAME, worker_pool_specs=_TEST_WORKER_POOL_SPEC
+            display_name=_TEST_DISPLAY_NAME,
+            worker_pool_specs=_TEST_WORKER_POOL_SPEC,
+            base_output_dir=_TEST_BASE_OUTPUT_DIR,
         )
 
         job.run(
@@ -265,7 +268,9 @@ class TestCustomJob:
         )
 
         job = aiplatform.CustomJob(
-            display_name=_TEST_DISPLAY_NAME, worker_pool_specs=_TEST_WORKER_POOL_SPEC
+            display_name=_TEST_DISPLAY_NAME,
+            worker_pool_specs=_TEST_WORKER_POOL_SPEC,
+            base_output_dir=_TEST_BASE_OUTPUT_DIR,
         )
 
         with pytest.raises(RuntimeError) as e:
@@ -306,7 +311,9 @@ class TestCustomJob:
         )
 
         job = aiplatform.CustomJob(
-            display_name=_TEST_DISPLAY_NAME, worker_pool_specs=_TEST_WORKER_POOL_SPEC
+            display_name=_TEST_DISPLAY_NAME,
+            worker_pool_specs=_TEST_WORKER_POOL_SPEC,
+            base_output_dir=_TEST_BASE_OUTPUT_DIR,
         )
 
         job.run(
@@ -342,7 +349,9 @@ class TestCustomJob:
         )
 
         job = aiplatform.CustomJob(
-            display_name=_TEST_DISPLAY_NAME, worker_pool_specs=_TEST_WORKER_POOL_SPEC
+            display_name=_TEST_DISPLAY_NAME,
+            worker_pool_specs=_TEST_WORKER_POOL_SPEC,
+            base_output_dir=_TEST_BASE_OUTPUT_DIR,
         )
 
         with pytest.raises(RuntimeError):
@@ -385,6 +394,7 @@ class TestCustomJob:
             display_name=_TEST_DISPLAY_NAME,
             script_path=test_training_jobs._TEST_LOCAL_SCRIPT_FILE_NAME,
             container_uri=_TEST_TRAINING_CONTAINER_IMAGE,
+            base_output_dir=_TEST_BASE_OUTPUT_DIR,
         )
 
         job.run(sync=sync)
@@ -428,7 +438,9 @@ class TestCustomJob:
         )
 
         job = aiplatform.CustomJob(
-            display_name=_TEST_DISPLAY_NAME, worker_pool_specs=_TEST_WORKER_POOL_SPEC
+            display_name=_TEST_DISPLAY_NAME,
+            worker_pool_specs=_TEST_WORKER_POOL_SPEC,
+            base_output_dir=_TEST_BASE_OUTPUT_DIR,
         )
 
         job.run(
@@ -453,4 +465,21 @@ class TestCustomJob:
         assert job.job_spec == expected_custom_job.job_spec
         assert (
             job._gca_resource.state == gca_job_state_compat.JobState.JOB_STATE_SUCCEEDED
+        )
+
+    def test_create_custom_job_without_base_output_dir(self,):
+
+        aiplatform.init(
+            project=_TEST_PROJECT,
+            location=_TEST_LOCATION,
+            staging_bucket=_TEST_STAGING_BUCKET,
+            encryption_spec_key_name=_TEST_DEFAULT_ENCRYPTION_KEY_NAME,
+        )
+
+        job = aiplatform.CustomJob(
+            display_name=_TEST_DISPLAY_NAME, worker_pool_specs=_TEST_WORKER_POOL_SPEC,
+        )
+
+        assert job.job_spec.base_output_directory.output_uri_prefix.startswith(
+            f"{_TEST_STAGING_BUCKET}/aiplatform-custom-job"
         )
