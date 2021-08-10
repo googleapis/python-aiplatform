@@ -23,7 +23,9 @@ from typing import Optional
 from google.cloud import storage
 from google.cloud.aiplatform import initializer
 from google.cloud.aiplatform import utils
-from google.cloud.aiplatform.experimental.vertex_model.serializers import serializer_utils
+from google.cloud.aiplatform.experimental.vertex_model.serializers import (
+    serializer_utils,
+)
 
 try:
     import torch
@@ -58,18 +60,6 @@ def _serialize_remote_dataloader(
     # TODO(b/195442091): Check if uri is actually a local path and write to a local
     #                    location if that is the case.
 
-    # Create a client object
-    client = storage.Client(
-        project=initializer.global_config.project,
-        credentials=initializer.global_config.credentials,
-    )
-
-    # Retrieve the source and blob names from the dataloader path
-    (
-        source_bucket_name,
-        source_blob_prefix,
-    ) = utils.extract_bucket_and_prefix_from_gcs_path(dataloader_path)
-
     # Retrieve the source and blob names from the artifact URI
     (
         destination_bucket_name,
@@ -78,7 +68,7 @@ def _serialize_remote_dataloader(
 
     path = serializer_utils.serialize_to_tmp_and_copy_to_gcs(
         "my_" + dataset_type + "_dataloader.pth",
-        destination_bucket,
+        destination_bucket_name,
         destination_blob_prefix,
         functools.partial(torch.save, obj),
     )

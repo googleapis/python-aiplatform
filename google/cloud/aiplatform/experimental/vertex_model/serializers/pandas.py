@@ -50,6 +50,11 @@ def _serialize_dataframe(
 
     # Designate csv path and write the pandas DataFrame to the path
     # Convention: file name is my_training_dataset, my_test_dataset, etc.
+    if not artifact_uri.startswith("gs://"):
+        path_to_csv = "/".join([artifact_uri, "my_" + dataset_type + "_dataset.csv"])
+        obj.to_csv(path_to_csv, index=False)
+        return path_to_csv
+
     with tempfile.TemporaryDirectory() as tmpdirname:
         temp_dir = pathlib.Path(tmpdirname) / ("my_" + dataset_type + "_dataset.csv")
         path_to_csv = pathlib.Path(temp_dir)
@@ -90,6 +95,9 @@ def _deserialize_dataframe(artifact_uri: str) -> pd.DataFrame:
     Raises:
         Runtime Error should the CSV object referenced by artifact_uri be invalid.
     """
+
+    if not artifact_uri.startswith("gs://"):
+        return pd.read_csv(artifact_uri)
 
     gcs_bucket, gcs_blob = utils.extract_bucket_and_prefix_from_gcs_path(artifact_uri)
 

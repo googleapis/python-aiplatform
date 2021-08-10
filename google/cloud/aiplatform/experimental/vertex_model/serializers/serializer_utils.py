@@ -19,8 +19,8 @@ import pathlib
 import tempfile
 from typing import Callable
 
-from google.cloud.aiplatform import initializer
 from google.cloud import storage
+from google.cloud.aiplatform import initializer
 
 
 def serialize_to_tmp_and_copy_to_gcs(

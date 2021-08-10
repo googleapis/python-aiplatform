@@ -23,7 +23,9 @@ import torch
 from google.cloud import storage
 from google.cloud.aiplatform import initializer
 from google.cloud.aiplatform import utils
-from google.cloud.aiplatform.experimental.vertex_model.serializers import serializer_utils
+from google.cloud.aiplatform.experimental.vertex_model.serializers import (
+    serializer_utils,
+)
 
 
 def _serialize_local_model(artifact_uri: str, obj: torch.nn.Module, model_type: str):
