@@ -96,7 +96,7 @@ def _make_source(
         the user has the option to specify a method to call from __main__.
     """
 
-    module = inspect.getmodule(method)
+    module = inspect.getmodule(obj.__class__)
     imports = get_imports(module)
 
     # Hard-coded specific files as imports because (for now) all data serialization methods
