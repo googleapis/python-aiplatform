@@ -102,29 +102,31 @@ def _serialize_local_dataloader(
         torch.save(obj, local_path)
         return local_path, dataloader_path
 
-    dataloader_path = pathlib.Path(dataloader_path)
-
     gcs_bucket, gcs_blob_prefix = utils.extract_bucket_and_prefix_from_gcs_path(
         artifact_uri
     )
 
-    data_blob_path = dataset_type + "_" + dataloader_path.name
+    if dataloader_path:
+        dataloader_path = pathlib.Path(dataloader_path)
+        data_blob_path = dataset_type + "_" + dataloader_path.name
 
-    if gcs_blob_prefix:
-        data_blob_path = "/".join([gcs_blob_prefix, data_blob_path])
+        if gcs_blob_prefix:
+            data_blob_path = "/".join([gcs_blob_prefix, data_blob_path])
 
-    client = storage.Client(
-        project=initializer.global_config.project,
-        credentials=initializer.global_config.credentials,
-    )
+        client = storage.Client(
+            project=initializer.global_config.project,
+            credentials=initializer.global_config.credentials,
+        )
 
-    bucket = client.bucket(gcs_bucket)
-    data_blob = bucket.blob(data_blob_path)
-    data_blob.upload_from_filename(str(dataloader_path))
+        bucket = client.bucket(gcs_bucket)
+        data_blob = bucket.blob(data_blob_path)
+        data_blob.upload_from_filename(str(dataloader_path))
 
-    data_gcs_path = "".join(
-        ["gs://", "/".join([data_blob.bucket.name, data_blob.name])]
-    )
+        data_gcs_path = "".join(
+            ["gs://", "/".join([data_blob.bucket.name, data_blob.name])]
+        )
+    else:
+        data_gcs_path = None
 
     path = serializer_utils.serialize_to_tmp_and_copy_to_gcs(
         "my_" + dataset_type + "_dataloader.pth",
