@@ -9,5 +9,4 @@ branchProtectionRules:
   requiresStrictStatusChecks: true
   requiredStatusCheckContexts:
     - 'cla/google'
-    - 'Samples - Lint'
     - 'Presubmit - Unit Tests'
