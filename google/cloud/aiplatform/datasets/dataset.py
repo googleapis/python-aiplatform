@@ -15,7 +15,7 @@
 # limitations under the License.
 #
 
-from typing import Optional, Sequence, Dict, Tuple, Union, List
+from typing import Dict, List, Optional, Sequence, Tuple, Union
 
 from google.api_core import operation
 from google.auth import credentials as auth_credentials
@@ -115,6 +115,7 @@ class _Dataset(base.VertexAiResourceNounWithFutureManager):
         location: Optional[str] = None,
         credentials: Optional[auth_credentials.Credentials] = None,
         request_metadata: Optional[Sequence[Tuple[str, str]]] = (),
+        labels: Optional[Dict[str, str]] = None,
         encryption_spec_key_name: Optional[str] = None,
         sync: bool = True,
     ) -> "_Dataset":
@@ -176,6 +177,16 @@ class _Dataset(base.VertexAiResourceNounWithFutureManager):
                 credentials set in aiplatform.init.
             request_metadata (Sequence[Tuple[str, str]]):
                 Strings which should be sent along with the request as metadata.
+            labels (Dict[str, str]):
+                Optional. Labels with user-defined metadata to organize your Tensorboards.
+                Label keys and values can be no longer than 64 characters
+                (Unicode codepoints), can only contain lowercase letters, numeric
+                characters, underscores and dashes. International characters are allowed.
+                No more than 64 user labels can be associated with one Tensorboard
+                (System labels are excluded).
+                See https://goo.gl/xmQnxf for more information and examples of labels.
+                System reserved label keys are prefixed with "aiplatform.googleapis.com/"
+                and are immutable.
             encryption_spec_key_name (Optional[str]):
                 Optional. The Cloud KMS resource identifier of the customer
                 managed encryption key used to protect the dataset. Has the
@@ -198,6 +209,8 @@ class _Dataset(base.VertexAiResourceNounWithFutureManager):
         """
 
         utils.validate_display_name(display_name)
+        if labels:
+            utils.validate_labels(labels)
 
         api_client = cls._instantiate_client(location=location, credentials=credentials)
 
@@ -221,6 +234,7 @@ class _Dataset(base.VertexAiResourceNounWithFutureManager):
             location=location or initializer.global_config.location,
             credentials=credentials or initializer.global_config.credentials,
             request_metadata=request_metadata,
+            labels=labels,
             encryption_spec=initializer.global_config.get_encryption_spec(
                 encryption_spec_key_name=encryption_spec_key_name
             ),
@@ -240,6 +254,7 @@ class _Dataset(base.VertexAiResourceNounWithFutureManager):
         location: str,
         credentials: Optional[auth_credentials.Credentials],
         request_metadata: Optional[Sequence[Tuple[str, str]]] = (),
+        labels: Optional[Dict[str, str]] = None,
         encryption_spec: Optional[gca_encryption_spec.EncryptionSpec] = None,
         sync: bool = True,
     ) -> "_Dataset":
@@ -277,6 +292,16 @@ class _Dataset(base.VertexAiResourceNounWithFutureManager):
                 credentials set in aiplatform.init.
             request_metadata (Sequence[Tuple[str, str]]):
                 Strings which should be sent along with the request as metadata.
+            labels (Dict[str, str]):
+                Optional. Labels with user-defined metadata to organize your Tensorboards.
+                Label keys and values can be no longer than 64 characters
+                (Unicode codepoints), can only contain lowercase letters, numeric
+                characters, underscores and dashes. International characters are allowed.
+                No more than 64 user labels can be associated with one Tensorboard
+                (System labels are excluded).
+                See https://goo.gl/xmQnxf for more information and examples of labels.
+                System reserved label keys are prefixed with "aiplatform.googleapis.com/"
+                and are immutable.
             encryption_spec (Optional[gca_encryption_spec.EncryptionSpec]):
                 Optional. The Cloud KMS customer managed encryption key used to protect the dataset.
                 The key needs to be in the same region as where the compute
@@ -300,6 +325,7 @@ class _Dataset(base.VertexAiResourceNounWithFutureManager):
             metadata_schema_uri=metadata_schema_uri,
             datasource=datasource,
             request_metadata=request_metadata,
+            labels=labels,
             encryption_spec=encryption_spec,
         )
 
@@ -346,6 +372,7 @@ class _Dataset(base.VertexAiResourceNounWithFutureManager):
         metadata_schema_uri: str,
         datasource: _datasources.Datasource,
         request_metadata: Sequence[Tuple[str, str]] = (),
+        labels: Optional[Dict[str, str]] = None,
         encryption_spec: Optional[gca_encryption_spec.EncryptionSpec] = None,
     ) -> operation.Operation:
         """Creates a new managed dataset by directly calling API client.
@@ -373,6 +400,16 @@ class _Dataset(base.VertexAiResourceNounWithFutureManager):
             request_metadata (Sequence[Tuple[str, str]]):
                 Strings which should be sent along with the create_dataset
                 request as metadata. Usually to specify special dataset config.
+            labels (Dict[str, str]):
+                Optional. Labels with user-defined metadata to organize your Tensorboards.
+                Label keys and values can be no longer than 64 characters
+                (Unicode codepoints), can only contain lowercase letters, numeric
+                characters, underscores and dashes. International characters are allowed.
+                No more than 64 user labels can be associated with one Tensorboard
+                (System labels are excluded).
+                See https://goo.gl/xmQnxf for more information and examples of labels.
+                System reserved label keys are prefixed with "aiplatform.googleapis.com/"
+                and are immutable.
             encryption_spec (Optional[gca_encryption_spec.EncryptionSpec]):
                 Optional. The Cloud KMS customer managed encryption key used to protect the dataset.
                 The key needs to be in the same region as where the compute
@@ -388,6 +425,7 @@ class _Dataset(base.VertexAiResourceNounWithFutureManager):
             display_name=display_name,
             metadata_schema_uri=metadata_schema_uri,
             metadata=datasource.dataset_metadata,
+            labels=labels,
             encryption_spec=encryption_spec,
         )
 

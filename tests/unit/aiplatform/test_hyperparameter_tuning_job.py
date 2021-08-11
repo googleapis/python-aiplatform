@@ -78,6 +78,7 @@ _TEST_MAX_FAILED_TRIAL_COUNT = 4
 _TEST_SEARCH_ALGORITHM = "random"
 _TEST_MEASUREMENT_SELECTION = "best"
 
+_TEST_LABELS = {"my_hp_key": "my_hp_value"}
 
 _TEST_BASE_HYPERPARAMETER_TUNING_JOB_PROTO = gca_hyperparameter_tuning_job_compat.HyperparameterTuningJob(
     display_name=_TEST_DISPLAY_NAME,
@@ -123,6 +124,7 @@ _TEST_BASE_HYPERPARAMETER_TUNING_JOB_PROTO = gca_hyperparameter_tuning_job_compa
     max_trial_count=_TEST_MAX_TRIAL_COUNT,
     max_failed_trial_count=_TEST_MAX_FAILED_TRIAL_COUNT,
     trial_job_spec=test_custom_job._TEST_BASE_CUSTOM_JOB_PROTO.job_spec,
+    labels=_TEST_LABELS,
     encryption_spec=_TEST_DEFAULT_ENCRYPTION_SPEC,
 )
 
@@ -283,6 +285,7 @@ class TestHyperparameterTuningJob:
             max_failed_trial_count=_TEST_MAX_FAILED_TRIAL_COUNT,
             search_algorithm=_TEST_SEARCH_ALGORITHM,
             measurement_selection=_TEST_MEASUREMENT_SELECTION,
+            labels=_TEST_LABELS,
         )
 
         job.run(
@@ -345,6 +348,7 @@ class TestHyperparameterTuningJob:
             max_failed_trial_count=_TEST_MAX_FAILED_TRIAL_COUNT,
             search_algorithm=_TEST_SEARCH_ALGORITHM,
             measurement_selection=_TEST_MEASUREMENT_SELECTION,
+            labels=_TEST_LABELS,
         )
 
         with pytest.raises(RuntimeError):
@@ -524,6 +528,7 @@ class TestHyperparameterTuningJob:
             max_failed_trial_count=_TEST_MAX_FAILED_TRIAL_COUNT,
             search_algorithm=_TEST_SEARCH_ALGORITHM,
             measurement_selection=_TEST_MEASUREMENT_SELECTION,
+            labels=_TEST_LABELS,
         )
 
         job.run(

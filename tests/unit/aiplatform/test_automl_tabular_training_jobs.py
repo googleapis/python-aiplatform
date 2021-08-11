@@ -136,6 +136,10 @@ _TEST_TRAINING_TASK_INPUTS_WITH_EXPORT_EVAL_DATA_ITEMS = json_format.ParseDict(
 _TEST_DATASET_NAME = "test-dataset-name"
 
 _TEST_MODEL_DISPLAY_NAME = "model-display-name"
+
+_TEST_LABELS = {"key": "value"}
+_TEST_MODEL_LABELS = {"model_key": "model_value"}
+
 _TEST_TRAINING_FRACTION_SPLIT = 0.6
 _TEST_VALIDATION_FRACTION_SPLIT = 0.2
 _TEST_TEST_FRACTION_SPLIT = 0.2
@@ -308,6 +312,7 @@ class TestAutoMLTabularTrainingJob:
 
         job = training_jobs.AutoMLTabularTrainingJob(
             display_name=_TEST_DISPLAY_NAME,
+            labels=_TEST_LABELS,
             optimization_objective=_TEST_TRAINING_OPTIMIZATION_OBJECTIVE_NAME,
             optimization_prediction_type=_TEST_TRAINING_OPTIMIZATION_PREDICTION_TYPE,
             column_transformations=_TEST_TRAINING_COLUMN_TRANSFORMATIONS,
@@ -319,6 +324,7 @@ class TestAutoMLTabularTrainingJob:
             dataset=mock_dataset_tabular,
             target_column=_TEST_TRAINING_TARGET_COLUMN,
             model_display_name=_TEST_MODEL_DISPLAY_NAME,
+            model_labels=_TEST_MODEL_LABELS,
             training_fraction_split=_TEST_TRAINING_FRACTION_SPLIT,
             validation_fraction_split=_TEST_VALIDATION_FRACTION_SPLIT,
             test_fraction_split=_TEST_TEST_FRACTION_SPLIT,
@@ -344,6 +350,7 @@ class TestAutoMLTabularTrainingJob:
 
         true_managed_model = gca_model.Model(
             display_name=_TEST_MODEL_DISPLAY_NAME,
+            labels=_TEST_MODEL_LABELS,
             encryption_spec=_TEST_DEFAULT_ENCRYPTION_SPEC,
         )
 
@@ -357,6 +364,7 @@ class TestAutoMLTabularTrainingJob:
 
         true_training_pipeline = gca_training_pipeline.TrainingPipeline(
             display_name=_TEST_DISPLAY_NAME,
+            labels=_TEST_LABELS,
             training_task_definition=schema.training_job.definition.automl_tabular,
             training_task_inputs=_TEST_TRAINING_TASK_INPUTS,
             model_to_upload=true_managed_model,
@@ -476,7 +484,7 @@ class TestAutoMLTabularTrainingJob:
 
     @pytest.mark.usefixtures("mock_pipeline_service_get")
     @pytest.mark.parametrize("sync", [True, False])
-    def test_run_call_pipeline_if_no_model_display_name(
+    def test_run_call_pipeline_if_no_model_display_name_nor_model_labels(
         self,
         mock_pipeline_service_create,
         mock_dataset_tabular,
@@ -487,6 +495,7 @@ class TestAutoMLTabularTrainingJob:
 
         job = training_jobs.AutoMLTabularTrainingJob(
             display_name=_TEST_DISPLAY_NAME,
+            labels=_TEST_LABELS,
             optimization_objective=_TEST_TRAINING_OPTIMIZATION_OBJECTIVE_NAME,
             optimization_prediction_type=_TEST_TRAINING_OPTIMIZATION_PREDICTION_TYPE,
             column_transformations=_TEST_TRAINING_COLUMN_TRANSFORMATIONS,
@@ -522,7 +531,9 @@ class TestAutoMLTabularTrainingJob:
 
         # Test that if defaults to the job display name
         true_managed_model = gca_model.Model(
-            display_name=_TEST_DISPLAY_NAME, encryption_spec=_TEST_MODEL_ENCRYPTION_SPEC
+            display_name=_TEST_DISPLAY_NAME,
+            labels=_TEST_LABELS,
+            encryption_spec=_TEST_MODEL_ENCRYPTION_SPEC,
         )
 
         true_input_data_config = gca_training_pipeline.InputDataConfig(
@@ -531,6 +542,7 @@ class TestAutoMLTabularTrainingJob:
 
         true_training_pipeline = gca_training_pipeline.TrainingPipeline(
             display_name=_TEST_DISPLAY_NAME,
+            labels=_TEST_LABELS,
             training_task_definition=schema.training_job.definition.automl_tabular,
             training_task_inputs=_TEST_TRAINING_TASK_INPUTS,
             model_to_upload=true_managed_model,
