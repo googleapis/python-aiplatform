@@ -106,28 +106,6 @@ def _serialize_local_dataloader(
         artifact_uri
     )
 
-    if dataloader_path:
-        dataloader_path = pathlib.Path(dataloader_path)
-        data_blob_path = dataset_type + "_" + dataloader_path.name
-
-        if gcs_blob_prefix:
-            data_blob_path = "/".join([gcs_blob_prefix, data_blob_path])
-
-        client = storage.Client(
-            project=initializer.global_config.project,
-            credentials=initializer.global_config.credentials,
-        )
-
-        bucket = client.bucket(gcs_bucket)
-        data_blob = bucket.blob(data_blob_path)
-        data_blob.upload_from_filename(str(dataloader_path))
-
-        data_gcs_path = "".join(
-            ["gs://", "/".join([data_blob.bucket.name, data_blob.name])]
-        )
-    else:
-        data_gcs_path = None
-
     path = serializer_utils.serialize_to_tmp_and_copy_to_gcs(
         "my_" + dataset_type + "_dataloader.pth",
         gcs_bucket,
@@ -135,7 +113,7 @@ def _serialize_local_dataloader(
         functools.partial(torch.save, obj),
     )
 
-    return path, data_gcs_path
+    return path, dataloader_path
 
 
 def _serialize_dataloader(
@@ -158,8 +136,14 @@ def _serialize_dataloader(
     root = getattr(my_dataset, "root", None)
 
     # Decide whether to pass to remote or local serialization
-    if root and root.startswith("gs://"):
-        return _serialize_remote_dataloader(artifact_uri, root, obj, dataset_type)
+    if root:
+        if root.startswith("gs://"):
+            return _serialize_remote_dataloader(artifact_uri, root, obj, dataset_type)
+        else:
+            raise RuntimeError(
+                "VertexModel does not accomodate DataLoaders with local data references"
+            )
+
     else:
         return _serialize_local_dataloader(artifact_uri, root, obj, dataset_type)
 
