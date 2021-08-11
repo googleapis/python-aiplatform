@@ -22,12 +22,12 @@ from google.cloud.aiplatform.compat.types import (
 )
 
 
-class _MachineSpec(NamedTuple):
-    """Specification container for Machine specs used for distributed training.
+class _WorkerPoolSpec(NamedTuple):
+    """Specification container for Worker Pool specs used for distributed training.
 
     Usage:
 
-    spec = _MachineSpec(
+    spec = _WorkerPoolSpec(
                 replica_count=10,
                 machine_type='n1-standard-4',
                 accelerator_count=2,
@@ -108,7 +108,7 @@ class _DistributedTrainingSpec(NamedTuple):
     Usage:
 
     dist_training_spec = _DistributedTrainingSpec(
-        chief_spec = _MachineSpec(
+        chief_spec = _WorkerPoolSpec(
                 replica_count=1,
                 machine_type='n1-standard-4',
                 accelerator_count=2,
@@ -116,7 +116,7 @@ class _DistributedTrainingSpec(NamedTuple):
                 boot_disk_type='pd-ssd',
                 boot_disk_size_gb=100,
             ),
-        worker_spec = _MachineSpec(
+        worker_spec = _WorkerPoolSpec(
                 replica_count=10,
                 machine_type='n1-standard-4',
                 accelerator_count=2,
@@ -127,10 +127,10 @@ class _DistributedTrainingSpec(NamedTuple):
     )
     """
 
-    chief_spec: _MachineSpec = _MachineSpec()
-    worker_spec: _MachineSpec = _MachineSpec()
-    parameter_server_spec: _MachineSpec = _MachineSpec()
-    evaluator_spec: _MachineSpec = _MachineSpec()
+    chief_spec: _WorkerPoolSpec = _WorkerPoolSpec()
+    worker_spec: _WorkerPoolSpec = _WorkerPoolSpec()
+    parameter_server_spec: _WorkerPoolSpec = _WorkerPoolSpec()
+    evaluator_spec: _WorkerPoolSpec = _WorkerPoolSpec()
 
     @property
     def pool_specs(
@@ -205,7 +205,7 @@ class _DistributedTrainingSpec(NamedTuple):
         if replica_count <= 0:
             return cls()
 
-        chief_spec = _MachineSpec(
+        chief_spec = _WorkerPoolSpec(
             replica_count=1,
             machine_type=machine_type,
             accelerator_count=accelerator_count,
@@ -214,7 +214,7 @@ class _DistributedTrainingSpec(NamedTuple):
             boot_disk_size_gb=boot_disk_size_gb,
         )
 
-        worker_spec = _MachineSpec(
+        worker_spec = _WorkerPoolSpec(
             replica_count=replica_count - 1,
             machine_type=machine_type,
             accelerator_count=accelerator_count,

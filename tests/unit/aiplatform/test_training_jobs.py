@@ -2882,9 +2882,9 @@ class TestCustomContainerTrainingJob:
             )
 
 
-class Test_MachineSpec:
+class Test_WorkerPoolSpec:
     def test_machine_spec_return_spec_dict(self):
-        test_spec = worker_spec_utils._MachineSpec(
+        test_spec = worker_spec_utils._WorkerPoolSpec(
             replica_count=_TEST_REPLICA_COUNT,
             machine_type=_TEST_MACHINE_TYPE,
             accelerator_count=_TEST_ACCELERATOR_COUNT,
@@ -2907,7 +2907,7 @@ class Test_MachineSpec:
         assert test_spec.spec_dict == true_spec_dict
 
     def test_machine_spec_return_spec_with_boot_disk_dict(self):
-        test_spec = worker_spec_utils._MachineSpec(
+        test_spec = worker_spec_utils._WorkerPoolSpec(
             replica_count=_TEST_REPLICA_COUNT,
             machine_type=_TEST_MACHINE_TYPE,
             accelerator_count=_TEST_ACCELERATOR_COUNT,
@@ -2932,7 +2932,7 @@ class Test_MachineSpec:
         assert test_spec.spec_dict == true_spec_dict
 
     def test_machine_spec_return_spec_dict_with_no_accelerator(self):
-        test_spec = worker_spec_utils._MachineSpec(
+        test_spec = worker_spec_utils._WorkerPoolSpec(
             replica_count=_TEST_REPLICA_COUNT,
             machine_type=_TEST_MACHINE_TYPE,
             accelerator_count=0,
@@ -2951,7 +2951,7 @@ class Test_MachineSpec:
         assert test_spec.spec_dict == true_spec_dict
 
     def test_machine_spec_spec_dict_raises_invalid_accelerator(self):
-        test_spec = worker_spec_utils._MachineSpec(
+        test_spec = worker_spec_utils._WorkerPoolSpec(
             replica_count=_TEST_REPLICA_COUNT,
             machine_type=_TEST_MACHINE_TYPE,
             accelerator_count=_TEST_ACCELERATOR_COUNT,
@@ -2962,7 +2962,7 @@ class Test_MachineSpec:
             test_spec.spec_dict
 
     def test_machine_spec_spec_dict_is_empty(self):
-        test_spec = worker_spec_utils._MachineSpec(
+        test_spec = worker_spec_utils._WorkerPoolSpec(
             replica_count=0,
             machine_type=_TEST_MACHINE_TYPE,
             accelerator_count=_TEST_ACCELERATOR_COUNT,
@@ -2972,7 +2972,7 @@ class Test_MachineSpec:
         assert test_spec.is_empty
 
     def test_machine_spec_spec_dict_is_not_empty(self):
-        test_spec = worker_spec_utils._MachineSpec(
+        test_spec = worker_spec_utils._WorkerPoolSpec(
             replica_count=_TEST_REPLICA_COUNT,
             machine_type=_TEST_MACHINE_TYPE,
             accelerator_count=_TEST_ACCELERATOR_COUNT,
@@ -2986,25 +2986,25 @@ class Test_DistributedTrainingSpec:
     def test_machine_spec_returns_pool_spec(self):
 
         spec = worker_spec_utils._DistributedTrainingSpec(
-            chief_spec=worker_spec_utils._MachineSpec(
+            chief_spec=worker_spec_utils._WorkerPoolSpec(
                 replica_count=1,
                 machine_type=_TEST_MACHINE_TYPE,
                 accelerator_count=_TEST_ACCELERATOR_COUNT,
                 accelerator_type=_TEST_ACCELERATOR_TYPE,
             ),
-            worker_spec=worker_spec_utils._MachineSpec(
+            worker_spec=worker_spec_utils._WorkerPoolSpec(
                 replica_count=10,
                 machine_type=_TEST_MACHINE_TYPE,
                 accelerator_count=_TEST_ACCELERATOR_COUNT,
                 accelerator_type=_TEST_ACCELERATOR_TYPE,
             ),
-            parameter_server_spec=worker_spec_utils._MachineSpec(
+            parameter_server_spec=worker_spec_utils._WorkerPoolSpec(
                 replica_count=3,
                 machine_type=_TEST_MACHINE_TYPE,
                 accelerator_count=_TEST_ACCELERATOR_COUNT,
                 accelerator_type=_TEST_ACCELERATOR_TYPE,
             ),
-            evaluator_spec=worker_spec_utils._MachineSpec(
+            evaluator_spec=worker_spec_utils._WorkerPoolSpec(
                 replica_count=1,
                 machine_type=_TEST_MACHINE_TYPE,
                 accelerator_count=_TEST_ACCELERATOR_COUNT,
@@ -3132,7 +3132,7 @@ class Test_DistributedTrainingSpec:
     def test_machine_spec_raise_with_more_than_one_chief_replica(self):
 
         spec = worker_spec_utils._DistributedTrainingSpec(
-            chief_spec=worker_spec_utils._MachineSpec(
+            chief_spec=worker_spec_utils._WorkerPoolSpec(
                 replica_count=2,
                 machine_type=_TEST_MACHINE_TYPE,
                 accelerator_count=_TEST_ACCELERATOR_COUNT,
@@ -3146,20 +3146,20 @@ class Test_DistributedTrainingSpec:
     def test_machine_spec_handles_missing_pools(self):
 
         spec = worker_spec_utils._DistributedTrainingSpec(
-            chief_spec=worker_spec_utils._MachineSpec(
+            chief_spec=worker_spec_utils._WorkerPoolSpec(
                 replica_count=1,
                 machine_type=_TEST_MACHINE_TYPE,
                 accelerator_count=_TEST_ACCELERATOR_COUNT,
                 accelerator_type=_TEST_ACCELERATOR_TYPE,
             ),
-            worker_spec=worker_spec_utils._MachineSpec(replica_count=0),
-            parameter_server_spec=worker_spec_utils._MachineSpec(
+            worker_spec=worker_spec_utils._WorkerPoolSpec(replica_count=0),
+            parameter_server_spec=worker_spec_utils._WorkerPoolSpec(
                 replica_count=3,
                 machine_type=_TEST_MACHINE_TYPE,
                 accelerator_count=_TEST_ACCELERATOR_COUNT,
                 accelerator_type=_TEST_ACCELERATOR_TYPE,
             ),
-            evaluator_spec=worker_spec_utils._MachineSpec(replica_count=0),
+            evaluator_spec=worker_spec_utils._WorkerPoolSpec(replica_count=0),
         )
 
         true_pool_spec = [
