@@ -38,7 +38,7 @@ except ImportError:
 
 def _serialize_remote_dataloader(
     artifact_uri: str,
-    dataloader_path: Optional[str],
+    dataloader_path: str,
     obj: torch.utils.data.DataLoader,
     dataset_type: str,
 ) -> (str, str):
@@ -78,7 +78,7 @@ def _serialize_remote_dataloader(
 
 def _serialize_local_dataloader(
     artifact_uri: str,
-    dataloader_path: str,
+    dataloader_path: Optional[str],
     obj: torch.utils.data.DataLoader,
     dataset_type: str,
 ) -> (str, str):
