@@ -599,6 +599,42 @@ class TestModel:
 
         get_model_mock.assert_called_once_with(name=_TEST_MODEL_RESOURCE_NAME)
 
+    @pytest.mark.parametrize("sync", [True, False])
+    def test_upload_uploads_and_gets_model_with_labels(
+        self, upload_model_mock, get_model_mock, sync
+    ):
+
+        my_model = models.Model.upload(
+            display_name=_TEST_MODEL_NAME,
+            serving_container_image_uri=_TEST_SERVING_CONTAINER_IMAGE,
+            serving_container_predict_route=_TEST_SERVING_CONTAINER_PREDICTION_ROUTE,
+            serving_container_health_route=_TEST_SERVING_CONTAINER_HEALTH_ROUTE,
+            labels=_TEST_LABEL,
+            sync=sync,
+        )
+
+        if not sync:
+            my_model.wait()
+
+        container_spec = gca_model.ModelContainerSpec(
+            image_uri=_TEST_SERVING_CONTAINER_IMAGE,
+            predict_route=_TEST_SERVING_CONTAINER_PREDICTION_ROUTE,
+            health_route=_TEST_SERVING_CONTAINER_HEALTH_ROUTE,
+        )
+
+        managed_model = gca_model.Model(
+            display_name=_TEST_MODEL_NAME,
+            container_spec=container_spec,
+            labels=_TEST_LABEL,
+        )
+
+        upload_model_mock.assert_called_once_with(
+            parent=initializer.global_config.common_location_path(),
+            model=managed_model,
+        )
+
+        get_model_mock.assert_called_once_with(name=_TEST_MODEL_RESOURCE_NAME)
+
     def test_upload_raises_with_impartial_explanation_spec(self):
 
         with pytest.raises(ValueError) as e:
@@ -633,6 +669,7 @@ class TestModel:
             serving_container_ports=_TEST_SERVING_CONTAINER_PORTS,
             explanation_metadata=_TEST_EXPLANATION_METADATA,
             explanation_parameters=_TEST_EXPLANATION_PARAMETERS,
+            labels=_TEST_LABEL,
             sync=sync,
         )
 
@@ -673,6 +710,7 @@ class TestModel:
                 metadata=_TEST_EXPLANATION_METADATA,
                 parameters=_TEST_EXPLANATION_PARAMETERS,
             ),
+            labels=_TEST_LABEL,
         )
 
         upload_model_with_explanations_mock.assert_called_once_with(
