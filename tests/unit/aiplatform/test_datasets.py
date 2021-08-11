@@ -144,6 +144,8 @@ _TEST_DATASET_LIST = [
 _TEST_LIST_FILTER = 'display_name="abc"'
 _TEST_LIST_ORDER_BY = "create_time desc"
 
+_TEST_LABELS = {"my_key": "my_value"}
+
 
 @pytest.fixture
 def get_dataset_mock():
@@ -946,6 +948,34 @@ class TestImageDataset:
         expected_dataset.name = _TEST_NAME
         assert my_dataset._gca_resource == expected_dataset
 
+    @pytest.mark.usefixtures("get_dataset_image_mock")
+    @pytest.mark.parametrize("sync", [True, False])
+    def test_create_dataset_with_labels(self, create_dataset_mock, sync):
+        aiplatform.init(
+            project=_TEST_PROJECT, encryption_spec_key_name=_TEST_ENCRYPTION_KEY_NAME,
+        )
+
+        my_dataset = datasets.ImageDataset.create(
+            display_name=_TEST_DISPLAY_NAME, labels=_TEST_LABELS, sync=sync,
+        )
+
+        if not sync:
+            my_dataset.wait()
+
+        expected_dataset = gca_dataset.Dataset(
+            display_name=_TEST_DISPLAY_NAME,
+            metadata_schema_uri=_TEST_METADATA_SCHEMA_URI_IMAGE,
+            metadata=_TEST_NONTABULAR_DATASET_METADATA,
+            labels=_TEST_LABELS,
+            encryption_spec=_TEST_ENCRYPTION_SPEC,
+        )
+
+        create_dataset_mock.assert_called_once_with(
+            parent=_TEST_PARENT,
+            dataset=expected_dataset,
+            metadata=_TEST_REQUEST_METADATA,
+        )
+
 
 class TestTabularDataset:
     def setup_method(self):
@@ -1165,6 +1195,35 @@ class TestTabularDataset:
             ]
         )
 
+    @pytest.mark.usefixtures("get_dataset_tabular_bq_mock")
+    @pytest.mark.parametrize("sync", [True, False])
+    def test_create_dataset_with_labels(self, create_dataset_mock, sync):
+
+        my_dataset = datasets.TabularDataset.create(
+            display_name=_TEST_DISPLAY_NAME,
+            bq_source=_TEST_SOURCE_URI_BQ,
+            labels=_TEST_LABELS,
+            encryption_spec_key_name=_TEST_ENCRYPTION_KEY_NAME,
+            sync=sync,
+        )
+
+        if not sync:
+            my_dataset.wait()
+
+        expected_dataset = gca_dataset.Dataset(
+            display_name=_TEST_DISPLAY_NAME,
+            metadata_schema_uri=_TEST_METADATA_SCHEMA_URI_TABULAR,
+            metadata=_TEST_METADATA_TABULAR_BQ,
+            labels=_TEST_LABELS,
+            encryption_spec=_TEST_ENCRYPTION_SPEC,
+        )
+
+        create_dataset_mock.assert_called_once_with(
+            parent=_TEST_PARENT,
+            dataset=expected_dataset,
+            metadata=_TEST_REQUEST_METADATA,
+        )
+
 
 class TestTextDataset:
     def setup_method(self):
@@ -1364,6 +1423,34 @@ class TestTextDataset:
         expected_dataset.name = _TEST_NAME
         assert my_dataset._gca_resource == expected_dataset
 
+    @pytest.mark.usefixtures("get_dataset_text_mock")
+    @pytest.mark.parametrize("sync", [True, False])
+    def test_create_dataset_with_labels(self, create_dataset_mock, sync):
+        aiplatform.init(
+            project=_TEST_PROJECT, encryption_spec_key_name=_TEST_ENCRYPTION_KEY_NAME,
+        )
+
+        my_dataset = datasets.TextDataset.create(
+            display_name=_TEST_DISPLAY_NAME, labels=_TEST_LABELS, sync=sync,
+        )
+
+        if not sync:
+            my_dataset.wait()
+
+        expected_dataset = gca_dataset.Dataset(
+            display_name=_TEST_DISPLAY_NAME,
+            metadata_schema_uri=_TEST_METADATA_SCHEMA_URI_TEXT,
+            metadata=_TEST_NONTABULAR_DATASET_METADATA,
+            labels=_TEST_LABELS,
+            encryption_spec=_TEST_ENCRYPTION_SPEC,
+        )
+
+        create_dataset_mock.assert_called_once_with(
+            parent=_TEST_PARENT,
+            dataset=expected_dataset,
+            metadata=_TEST_REQUEST_METADATA,
+        )
+
 
 class TestVideoDataset:
     def setup_method(self):
@@ -1525,3 +1612,31 @@ class TestVideoDataset:
 
         expected_dataset.name = _TEST_NAME
         assert my_dataset._gca_resource == expected_dataset
+
+    @pytest.mark.usefixtures("get_dataset_video_mock")
+    @pytest.mark.parametrize("sync", [True, False])
+    def test_create_dataset_with_labels(self, create_dataset_mock, sync):
+        aiplatform.init(
+            project=_TEST_PROJECT, encryption_spec_key_name=_TEST_ENCRYPTION_KEY_NAME
+        )
+
+        my_dataset = datasets.VideoDataset.create(
+            display_name=_TEST_DISPLAY_NAME, labels=_TEST_LABELS, sync=sync,
+        )
+
+        if not sync:
+            my_dataset.wait()
+
+        expected_dataset = gca_dataset.Dataset(
+            display_name=_TEST_DISPLAY_NAME,
+            metadata_schema_uri=_TEST_METADATA_SCHEMA_URI_VIDEO,
+            metadata=_TEST_NONTABULAR_DATASET_METADATA,
+            labels=_TEST_LABELS,
+            encryption_spec=_TEST_ENCRYPTION_SPEC,
+        )
+
+        create_dataset_mock.assert_called_once_with(
+            parent=_TEST_PARENT,
+            dataset=expected_dataset,
+            metadata=_TEST_REQUEST_METADATA,
+        )

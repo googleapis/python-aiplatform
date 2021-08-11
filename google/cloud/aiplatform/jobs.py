@@ -370,7 +370,7 @@ class BatchPredictionJob(_Job):
         explanation_parameters: Optional[
             "aiplatform.explain.ExplanationParameters"
         ] = None,
-        labels: Optional[dict] = None,
+        labels: Optional[Dict[str, str]] = None,
         project: Optional[str] = None,
         location: Optional[str] = None,
         credentials: Optional[auth_credentials.Credentials] = None,
@@ -499,8 +499,8 @@ class BatchPredictionJob(_Job):
                 a field of the `explanation_parameters` object is not populated, the
                 corresponding field of the `Model.explanation_parameters` object is inherited.
                 For more details, see `Ref docs <http://tinyurl.com/1an4zake>`
-            labels (Optional[dict]):
-                The labels with user-defined metadata to organize your
+            labels (Dict[str, str]):
+                Optional. The labels with user-defined metadata to organize your
                 BatchPredictionJobs. Label keys and values can be no longer than
                 64 characters (Unicode codepoints), can only contain lowercase
                 letters, numeric characters, underscores and dashes.
@@ -533,6 +533,8 @@ class BatchPredictionJob(_Job):
         """
 
         utils.validate_display_name(job_display_name)
+        if labels:
+            utils.validate_labels(labels)
 
         model_name = utils.full_resource_name(
             resource_name=model_name,
@@ -935,6 +937,7 @@ class CustomJob(_RunnableJob):
         project: Optional[str] = None,
         location: Optional[str] = None,
         credentials: Optional[auth_credentials.Credentials] = None,
+        labels: Optional[Dict[str, str]] = None,
         encryption_spec_key_name: Optional[str] = None,
         staging_bucket: Optional[str] = None,
     ):
@@ -960,7 +963,8 @@ class CustomJob(_RunnableJob):
 
         my_job = aiplatform.CustomJob(
             display_name='my_job',
-            worker_pool_specs=worker_pool_specs
+            worker_pool_specs=worker_pool_specs,
+            labels={'my_key': 'my_value'},
         )
 
         my_job.run()
@@ -989,6 +993,16 @@ class CustomJob(_RunnableJob):
             credentials (auth_credentials.Credentials):
                 Optional.Custom credentials to use to run call custom job service. Overrides
                 credentials set in aiplatform.init.
+            labels (Dict[str, str]):
+                Optional. The labels with user-defined metadata to
+                organize CustomJobs.
+                Label keys and values can be no longer than 64
+                characters (Unicode codepoints), can only
+                contain lowercase letters, numeric characters,
+                underscores and dashes. International characters
+                are allowed.
+                See https://goo.gl/xmQnxf for more information
+                and examples of labels.
             encryption_spec_key_name (str):
                 Optional.Customer-managed encryption key name for a
                 CustomJob. If this is set, then all resources
@@ -1013,6 +1027,9 @@ class CustomJob(_RunnableJob):
                 "should be set using aiplatform.init(staging_bucket='gs://my-bucket')"
             )
 
+        if labels:
+            utils.validate_labels(labels)
+
         # default directory if not given
         base_output_dir = base_output_dir or utils._timestamped_gcs_dir(
             staging_bucket, "aiplatform-custom-job"
@@ -1026,6 +1043,7 @@ class CustomJob(_RunnableJob):
                     output_uri_prefix=base_output_dir
                 ),
             ),
+            labels=labels,
             encryption_spec=initializer.global_config.get_encryption_spec(
                 encryption_spec_key_name=encryption_spec_key_name
             ),
@@ -1063,6 +1081,7 @@ class CustomJob(_RunnableJob):
         project: Optional[str] = None,
         location: Optional[str] = None,
         credentials: Optional[auth_credentials.Credentials] = None,
+        labels: Optional[Dict[str, str]] = None,
         encryption_spec_key_name: Optional[str] = None,
         staging_bucket: Optional[str] = None,
     ) -> "CustomJob":
@@ -1078,6 +1097,7 @@ class CustomJob(_RunnableJob):
             replica_count=1,
             args=['--dataset', 'gs://my-bucket/my-dataset',
             '--model_output_uri', 'gs://my-bucket/model']
+            labels={'my_key': 'my_value'},
         )
 
         job.run()
@@ -1126,6 +1146,16 @@ class CustomJob(_RunnableJob):
             credentials (auth_credentials.Credentials):
                 Optional. Custom credentials to use to run call custom job service. Overrides
                 credentials set in aiplatform.init.
+            labels (Dict[str, str]):
+                Optional. The labels with user-defined metadata to
+                organize CustomJobs.
+                Label keys and values can be no longer than 64
+                characters (Unicode codepoints), can only
+                contain lowercase letters, numeric characters,
+                underscores and dashes. International characters
+                are allowed.
+                See https://goo.gl/xmQnxf for more information
+                and examples of labels.
             encryption_spec_key_name (str):
                 Optional. Customer-managed encryption key name for a
                 CustomJob. If this is set, then all resources
@@ -1149,6 +1179,9 @@ class CustomJob(_RunnableJob):
                 "staging_bucket should be passed to CustomJob.from_local_script or "
                 "should be set using aiplatform.init(staging_bucket='gs://my-bucket')"
             )
+
+        if labels:
+            utils.validate_labels(labels)
 
         worker_pool_specs = worker_spec_utils._DistributedTrainingSpec.chief_worker_pool(
             replica_count=replica_count,
@@ -1188,6 +1221,7 @@ class CustomJob(_RunnableJob):
             project=project,
             location=location,
             credentials=credentials,
+            labels=labels,
             encryption_spec_key_name=encryption_spec_key_name,
             staging_bucket=staging_bucket,
         )
@@ -1325,6 +1359,7 @@ class HyperparameterTuningJob(_RunnableJob):
         project: Optional[str] = None,
         location: Optional[str] = None,
         credentials: Optional[auth_credentials.Credentials] = None,
+        labels: Optional[Dict[str, str]] = None,
         encryption_spec_key_name: Optional[str] = None,
     ):
         """
@@ -1353,7 +1388,8 @@ class HyperparameterTuningJob(_RunnableJob):
 
         custom_job = aiplatform.CustomJob(
             display_name='my_job',
-            worker_pool_specs=worker_pool_specs
+            worker_pool_specs=worker_pool_specs,
+            labels={'my_key': 'my_value'},
         )
 
 
@@ -1371,6 +1407,7 @@ class HyperparameterTuningJob(_RunnableJob):
             },
             max_trial_count=128,
             parallel_trial_count=8,
+            labels={'my_key': 'my_value'},
             )
 
         hp_job.run()
@@ -1466,6 +1503,16 @@ class HyperparameterTuningJob(_RunnableJob):
             credentials (auth_credentials.Credentials):
                 Optional. Custom credentials to use to run call HyperparameterTuning service. Overrides
                 credentials set in aiplatform.init.
+            labels (Dict[str, str]):
+                Optional. The labels with user-defined metadata to
+                organize HyperparameterTuningJobs.
+                Label keys and values can be no longer than 64
+                characters (Unicode codepoints), can only
+                contain lowercase letters, numeric characters,
+                underscores and dashes. International characters
+                are allowed.
+                See https://goo.gl/xmQnxf for more information
+                and examples of labels.
             encryption_spec_key_name (str):
                 Optional. Customer-managed encryption key options for a
                 HyperparameterTuningJob. If this is set, then
@@ -1503,6 +1550,7 @@ class HyperparameterTuningJob(_RunnableJob):
             parallel_trial_count=parallel_trial_count,
             max_failed_trial_count=max_failed_trial_count,
             trial_job_spec=copy.deepcopy(custom_job.job_spec),
+            labels=labels,
             encryption_spec=initializer.global_config.get_encryption_spec(
                 encryption_spec_key_name=encryption_spec_key_name
             ),

@@ -161,12 +161,7 @@ class PipelineJob(base.VertexAiResourceNounWithFutureManager):
         utils.validate_display_name(display_name)
 
         if labels:
-            for k, v in labels.items():
-                if not isinstance(k, str) or not isinstance(v, str):
-                    raise ValueError(
-                        "Expect labels to be a mapping of string key value pairs. "
-                        'Got "{}".'.format(labels)
-                    )
+            utils.validate_labels(labels)
 
         super().__init__(project=project, location=location, credentials=credentials)
 
