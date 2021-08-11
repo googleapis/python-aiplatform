@@ -33,7 +33,7 @@ from google.cloud import aiplatform
 from google.cloud import storage
 
 from google.cloud.aiplatform.experimental.vertex_model import base
-from google.cloud.aiplatform.experimental.vertex_model.serializers import dataloaders
+from google.cloud.aiplatform.experimental.vertex_model.serializers import pytorch
 from google.cloud.aiplatform.experimental.vertex_model.serializers import model
 from google.cloud.aiplatform.experimental.vertex_model.serializers import pandas
 
@@ -161,10 +161,10 @@ class TestDataLoaderSerialization:
             dataloader_root_folder = "/".join([tmpdirname, f"dataloader_{timestamp}"])
 
             # Locally serialize and deserialize
-            obj_path, data_path = dataloaders._serialize_dataloader(
+            obj_path, data_path = pytorch._serialize_dataloader(
                 dataloader_root_folder, dataloader, "local"
             )
-            deserialized_dataloader = dataloaders._deserialize_dataloader(obj_path)
+            deserialized_dataloader = pytorch._deserialize_dataloader(obj_path)
 
             original_tensor = next(iter(dataloader))
             new_tensor = next(iter(deserialized_dataloader))

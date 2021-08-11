@@ -85,7 +85,7 @@ def _make_source(
             "import pandas as pd",
             "from google.cloud.aiplatform.experimental.vertex_model import base",
             "from google.cloud.aiplatform.experimental.vertex_model.serializers.pandas import _deserialize_dataframe",
-            "from google.cloud.aiplatform.experimental.vertex_model.serializers.dataloaders import _deserialize_dataloader",
+            "from google.cloud.aiplatform.experimental.vertex_model.serializers.pytorch import _deserialize_dataloader",
             "from google.cloud.aiplatform.experimental.vertex_model.serializers import model",
             cls_source,
         ]

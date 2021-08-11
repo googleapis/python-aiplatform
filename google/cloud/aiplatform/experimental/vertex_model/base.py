@@ -28,7 +28,7 @@ from typing import Callable
 from google.cloud import aiplatform
 from google.cloud.aiplatform import base
 from google.cloud.aiplatform.experimental.vertex_model.serializers import pandas
-from google.cloud.aiplatform.experimental.vertex_model.serializers import dataloaders
+from google.cloud.aiplatform.experimental.vertex_model.serializers import pytorch
 from google.cloud.aiplatform.experimental.vertex_model.serializers import model
 from google.cloud.aiplatform.experimental.vertex_model.utils import source_utils
 
@@ -206,8 +206,8 @@ class VertexModel(metaclass=abc.ABCMeta):
     _data_serialization_mapping = {
         pd.DataFrame: (pandas._deserialize_dataframe, pandas._serialize_dataframe),
         torch.utils.data.DataLoader: (
-            dataloaders._deserialize_dataloader,
-            dataloaders._serialize_dataloader,
+            pytorch._deserialize_dataloader,
+            pytorch._serialize_dataloader,
         ),
     }
 
