@@ -99,14 +99,44 @@ def _make_source(
     module = inspect.getmodule(obj.__class__)
     imports = get_imports(module)
 
+    for my_import in imports:
+        if len(my_import[1][0]) > 0:
+            src = src + "from "
+            modules = my_import[1][0]
+
+            for module in modules:
+                src = src + module + "."
+
+            src = src[:-1]
+
+        if len(my_import[1][1]) > 0:
+            src = src + " import "
+            import_list = my_import[1][1]
+
+            for import_item in import_list:
+                src = src + import_item + "."
+
+            src = src[:-1]
+
+        if len(my_import[1][2]) > 0:
+            src = src + " as "
+            aliases = my_import[1][2]
+
+            for alias in aliases:
+                src = src + alias + "."
+
+            src = src[:-1]
+
+        src = src + "\n"
+
     # Hard-coded specific files as imports because (for now) all data serialization methods
     # come from one of two files and we do not retrieve the modules for the methods at this
     # moment.
     src = "\n".join(
         [
             "import os",
-            "import torch",
-            "import pandas as pd",
+            #    "import torch",
+            #    "import pandas as pd",
             "from google.cloud.aiplatform.experimental.vertex_model import base",
             "from google.cloud.aiplatform.experimental.vertex_model.serializers.pandas import _deserialize_dataframe",
             "from google.cloud.aiplatform.experimental.vertex_model.serializers.pytorch import _deserialize_dataloader",
