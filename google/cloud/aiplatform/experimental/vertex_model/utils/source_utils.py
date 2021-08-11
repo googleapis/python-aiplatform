@@ -20,6 +20,27 @@ from typing import Any
 from typing import Dict
 from typing import Tuple
 
+import ast
+from collections import namedtuple
+
+Import = namedtuple("Import", ["module", "name", "alias"])
+
+
+def get_imports(path):
+    with open(path) as fh:
+        root = ast.parse(fh.read(), path)
+
+    for node in ast.iter_child_nodes(root):
+        if isinstance(node, ast.Import):
+            module = []
+        elif isinstance(node, ast.ImportFrom):
+            module = node.module.split(".")
+        else:
+            continue
+
+        for n in node.names:
+            yield Import(module, n.name.split("."), n.asname)
+
 
 class SourceMaker:
     def __init__(self, cls_name: str):
@@ -74,6 +95,9 @@ def _make_source(
         between the user-written code and the string returned by this method is that
         the user has the option to specify a method to call from __main__.
     """
+
+    module = inspect.getmodule(method)
+    imports = get_imports(module)
 
     # Hard-coded specific files as imports because (for now) all data serialization methods
     # come from one of two files and we do not retrieve the modules for the methods at this
