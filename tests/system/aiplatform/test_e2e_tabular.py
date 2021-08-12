@@ -126,7 +126,7 @@ class TestEndToEndTabular:
             display_name=f"{_TEMP_PREFIX}-train-housing-custom-{uuid.uuid4()}",
             script_path=_LOCAL_TRAINING_SCRIPT_PATH,
             container_uri="gcr.io/cloud-aiplatform/training/tf-cpu.2-2:latest",
-            requirements=["gcsfs==0.7.1",],
+            requirements=["gcsfs==0.7.1"],
             model_serving_container_image_uri="gcr.io/cloud-aiplatform/prediction/tf2-cpu.2-2:latest",
         )
 
