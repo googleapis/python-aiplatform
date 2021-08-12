@@ -18,7 +18,6 @@
 import functools
 import pathlib
 import tempfile
-from typing import Optional
 
 from google.cloud import storage
 from google.cloud.aiplatform import initializer
@@ -37,24 +36,18 @@ except ImportError:
 
 
 def _serialize_remote_dataloader(
-    artifact_uri: str,
-    dataloader_path: Optional[str],
-    obj: torch.utils.data.DataLoader,
-    dataset_type: str,
-) -> (str, str):
+    artifact_uri: str, obj: torch.utils.data.DataLoader, dataset_type: str,
+) -> str:
     """Serializes DataLoader object to GCS and stores remotely-sourced data in
        a run-time bucket
 
     Args:
         artifact_uri (str): the GCS bucket where the serialized object will reside.
-        dataloader_path (str): the path where the origin data used to construct the DataLoader
-                               resides.
         obj (torch.utils.data.DataLoader): the pytorch DataLoader to serialize.
         dataset_type (str): the intended use of the dataset (ie. training, testing)
 
     Returns:
-        The GCS path pointing to the serialized DataLoader, the GCS path pointing to the
-        serialized origin data.
+        The GCS path pointing to the serialized DataLoader
     """
 
     # TODO(b/195442091): Check if uri is actually a local path and write to a local
@@ -73,57 +66,31 @@ def _serialize_remote_dataloader(
         functools.partial(torch.save, obj),
     )
 
-    return path, dataloader_path
+    return path
 
 
 def _serialize_local_dataloader(
-    artifact_uri: str,
-    dataloader_path: str,
-    obj: torch.utils.data.DataLoader,
-    dataset_type: str,
-) -> (str, str):
+    artifact_uri: str, obj: torch.utils.data.DataLoader, dataset_type: str,
+) -> str:
     """Serializes DataLoader object to GCS and stores locally-sourced data in
        a run-time bucket
 
     Args:
         artifact_uri (str): the GCS bucket where the serialized object will reside.
-        dataloader_path (str): the path where the origin data used to construct the DataLoader
-                               resides.
         obj (torch.utils.data.DataLoader): the pytorch DataLoader to serialize.
         dataset_type (str): the intended use of the dataset (ie. training, testing)
 
     Returns:
-        The GCS path pointing to the serialized DataLoader, the GCS path pointing to the
-        serialized origin data.
+        The GCS path pointing to the serialized DataLoader
     """
 
     if not artifact_uri.startswith("gs://"):
         local_path = artifact_uri + "my_" + dataset_type + "_dataloader.pth"
         torch.save(obj, local_path)
-        return local_path, dataloader_path
-
-    dataloader_path = pathlib.Path(dataloader_path)
+        return local_path
 
     gcs_bucket, gcs_blob_prefix = utils.extract_bucket_and_prefix_from_gcs_path(
         artifact_uri
-    )
-
-    data_blob_path = dataset_type + "_" + dataloader_path.name
-
-    if gcs_blob_prefix:
-        data_blob_path = "/".join([gcs_blob_prefix, data_blob_path])
-
-    client = storage.Client(
-        project=initializer.global_config.project,
-        credentials=initializer.global_config.credentials,
-    )
-
-    bucket = client.bucket(gcs_bucket)
-    data_blob = bucket.blob(data_blob_path)
-    data_blob.upload_from_filename(str(dataloader_path))
-
-    data_gcs_path = "".join(
-        ["gs://", "/".join([data_blob.bucket.name, data_blob.name])]
     )
 
     path = serializer_utils.serialize_to_tmp_and_copy_to_gcs(
@@ -133,12 +100,12 @@ def _serialize_local_dataloader(
         functools.partial(torch.save, obj),
     )
 
-    return path, data_gcs_path
+    return path
 
 
 def _serialize_dataloader(
     artifact_uri: str, obj: torch.utils.data.DataLoader, dataset_type: str
-) -> (str, str):
+) -> str:
     """Serializes DataLoader object to GCS and stores remotely-sourced data in
        a run-time bucket. Determines which helper method to use by introspecting
        the user-specified DataLoader object.
@@ -149,17 +116,22 @@ def _serialize_dataloader(
         dataset_type (str): the intended use of the dataset (ie. training, testing)
 
     Returns:
-        The GCS path pointing to the serialized DataLoader, the GCS path pointing to the
-        serialized origin data.
+        The GCS path pointing to the serialized DataLoader
     """
     my_dataset = obj.dataset
     root = getattr(my_dataset, "root", None)
 
     # Decide whether to pass to remote or local serialization
-    if root and root.startswith("gs://"):
-        return _serialize_remote_dataloader(artifact_uri, root, obj, dataset_type)
+    if root:
+        if root.startswith("gs://"):
+            return _serialize_remote_dataloader(artifact_uri, obj, dataset_type)
+        else:
+            raise RuntimeError(
+                "VertexModel does not accomodate DataLoaders with local data references"
+            )
+
     else:
-        return _serialize_local_dataloader(artifact_uri, root, obj, dataset_type)
+        return _serialize_local_dataloader(artifact_uri, obj, dataset_type)
 
 
 def _deserialize_dataloader(artifact_uri: str) -> DataLoader:
@@ -185,7 +157,6 @@ def _deserialize_dataloader(artifact_uri: str) -> DataLoader:
 
     bucket = client.bucket(gcs_bucket)
     blob = bucket.blob(gcs_blob)
-    dataloader = None
 
     # This code may not be necessary, as torch may be able to read from a remote path, but
     # I need to double check this.
