@@ -97,30 +97,33 @@ def _make_source(
     """
 
     module = inspect.getmodule(obj.__class__)
-    imports = get_imports(module)
+    imports = get_imports(module.__file__)
+
+    src = ""
 
     for my_import in imports:
-        if len(my_import[1][0]) > 0:
+        print(my_import)
+        if len(my_import.module) > 0:
             src = src + "from "
-            modules = my_import[1][0]
+            modules = my_import.module
 
             for module in modules:
                 src = src + module + "."
 
             src = src[:-1]
 
-        if len(my_import[1][1]) > 0:
+        if len(my_import.name) > 0:
             src = src + " import "
-            import_list = my_import[1][1]
+            import_list = my_import.name
 
             for import_item in import_list:
                 src = src + import_item + "."
 
             src = src[:-1]
 
-        if len(my_import[1][2]) > 0:
+        if my_import.alias is not None and len(my_import.alias) > 0:
             src = src + " as "
-            aliases = my_import[1][2]
+            aliases = my_import.alias
 
             for alias in aliases:
                 src = src + alias + "."
@@ -132,7 +135,7 @@ def _make_source(
     # Hard-coded specific files as imports because (for now) all data serialization methods
     # come from one of two files and we do not retrieve the modules for the methods at this
     # moment.
-    src = "\n".join(
+    src = src + "\n".join(
         [
             "import os",
             #    "import torch",
