@@ -38,7 +38,7 @@ Installation
 ~~~~~~~~~~~~
 
 Install this library in a `virtualenv`_ using pip. `virtualenv`_ is a tool to
-create isolated Python environments. The basic problem it addresses is one of
+create isolated Python environments. The problem it addresses is one of
 dependencies and versions, and indirectly permissions.
 
 With `virtualenv`_, it's possible to install this library without needing system
