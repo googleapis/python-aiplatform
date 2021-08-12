@@ -23,7 +23,7 @@ from typing import Tuple
 
 class SourceMaker:
     def __init__(self, cls_name: str):
-        self.source = ["class {}:".format(cls_name)]
+        self.source = ["class {}(torch.nn.Module):".format(cls_name)]
 
     def add_method(self, method_str: str):
         self.source.extend(method_str.split("\n"))
@@ -39,8 +39,13 @@ def _make_class_source(obj: Any) -> str:
     source_maker = SourceMaker(obj.__class__.__name__)
 
     for key, value in inspect.getmembers(obj):
-        if inspect.ismethod(value) or inspect.isfunction(value):
+        if (inspect.ismethod(value) or inspect.isfunction(value)) and value.__repr__()[
+            len("<bound method ") :
+        ].startswith(obj.__class__.__name__):
             source_maker.add_method(inspect.getsource(value))
+
+    source_maker.add_method(inspect.getsource(obj.fit))
+    source_maker.add_method(inspect.getsource(obj.predict))
 
     return "\n".join(source_maker.source)
 
@@ -75,16 +80,16 @@ def _make_source(
     # moment.
     src = "\n".join(
         [
+            "import os",
             "import torch",
             "import pandas as pd",
-            "from google.cloud.aiplatform import training_util",
-            "from google.cloud.aiplatform.experimental.vertex_model.serializers.pandas import *",
+            "from google.cloud.aiplatform.experimental.vertex_model import base",
+            "from google.cloud.aiplatform.experimental.vertex_model.serializers.pandas import _deserialize_dataframe",
+            "from google.cloud.aiplatform.experimental.vertex_model.serializers.pytorch import _deserialize_dataloader",
+            "from google.cloud.aiplatform.experimental.vertex_model.serializers import model",
             cls_source,
         ]
     )
-
-    # First, add __main__ header
-    src = src + "if __name__ == '__main__':\n"
 
     # Then, instantiate model
     # First, grab args and kwargs using the _constructor_arguments variable in VertexModel
@@ -93,11 +98,11 @@ def _make_source(
     )
 
     # need to index pass the first arg to avoid the call to self.
-    src = src + f"\tmodel = {cls_name}({class_args.args[1:]}, {class_args.kwargs})\n"
+    src = src + f"my_model = {cls_name}({','.join(map(str, class_args.args[1:]))})\n"
 
     if instance_method is not None:
         # Start function call
-        src = src + f"\tmodel.{instance_method}("
+        src = src + f"my_model.{instance_method}("
 
         # Iterate through parameters.
         # We are currently working around not including the _serialization_mapping
@@ -112,11 +117,19 @@ def _make_source(
 
             # Can also make individual calls for each serialized parameter, but was unsure
             # for situations such as when a dataloader format is serialized.
-            src = src + f"{parameter_name}={deserializer.__name__}({parameter_uri}), "
+            src = src + f"{parameter_name}={deserializer.__name__}('{parameter_uri}'), "
 
         for parameter_name, parameter_value in pass_through_params.items():
-            src = src + f"{parameter_name}={parameter_value}, "
+            if type(parameter_value) is str:
+                src = src + f"{parameter_name}='{parameter_value}', "
+            else:
+                src = src + f"{parameter_name}={parameter_value}, "
 
         src = src + ")\n"
+
+    src = (
+        src
+        + "model._serialize_local_model(os.getenv('AIP_MODEL_DIR'), my_model, my_model.training_mode)"
+    )
 
     return src
