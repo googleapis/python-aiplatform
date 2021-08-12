@@ -1070,13 +1070,15 @@ class CustomJob(_RunnableJob):
         display_name: str,
         script_path: str,
         container_uri: str,
-        args: Optional[List[Union[str, float, int]]] = None,
+        args: Optional[Sequence[str]] = None,
         requirements: Optional[Sequence[str]] = None,
         environment_variables: Optional[Dict[str, str]] = None,
         replica_count: int = 1,
         machine_type: str = "n1-standard-4",
         accelerator_type: str = "ACCELERATOR_TYPE_UNSPECIFIED",
         accelerator_count: int = 0,
+        boot_disk_type: str = "pd-ssd",
+        boot_disk_size_gb: int = 100,
         base_output_dir: Optional[str] = None,
         project: Optional[str] = None,
         location: Optional[str] = None,
@@ -1110,7 +1112,7 @@ class CustomJob(_RunnableJob):
                 Required. Local path to training script.
             container_uri (str):
                 Required: Uri of the training container image to use for custom job.
-            args (Optional[List[Union[str, float, int]]]):
+            args (Optional[Sequence[str]]):
                 Optional. Command line arguments to be passed to the Python task.
             requirements (Sequence[str]):
                 Optional. List of python packages dependencies of script.
@@ -1136,6 +1138,13 @@ class CustomJob(_RunnableJob):
                 NVIDIA_TESLA_T4
             accelerator_count (int):
                 Optional. The number of accelerators to attach to a worker replica.
+            boot_disk_type (str):
+                Optional. Type of the boot disk, default is `pd-ssd`.
+                Valid values: `pd-ssd` (Persistent Disk Solid State Drive) or
+                `pd-standard` (Persistent Disk Hard Disk Drive).
+            boot_disk_size_gb (int):
+                Optional. Size in GB of the boot disk, default is 100GB.
+                boot disk size must be within the range of [100, 64000].
             base_output_dir (str):
                 Optional. GCS output directory of job. If not provided a
                 timestamped directory in the staging directory will be used.
@@ -1188,6 +1197,8 @@ class CustomJob(_RunnableJob):
             machine_type=machine_type,
             accelerator_count=accelerator_count,
             accelerator_type=accelerator_type,
+            boot_disk_type=boot_disk_type,
+            boot_disk_size_gb=boot_disk_size_gb,
         ).pool_specs
 
         python_packager = source_utils._TrainingScriptPythonPackager(
