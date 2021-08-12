@@ -102,31 +102,25 @@ def _make_source(
     src = ""
 
     for my_import in imports:
-        if len(my_import.module) > 0:
+        if my_import.module is not None and len(my_import.module) > 0:
             src = src + "from "
             modules = my_import.module
-
             for module in modules:
                 src = src + module + "."
-
             src = src[:-1]
 
-        if len(my_import.name) > 0:
+        if my_import.name is not None and len(my_import.name) > 0:
             src = src + " import "
             import_list = my_import.name
-
             for import_item in import_list:
                 src = src + import_item + "."
-
             src = src[:-1]
 
         if my_import.alias is not None and len(my_import.alias) > 0:
             src = src + " as "
             aliases = my_import.alias
-
             for alias in aliases:
                 src = src + alias + "."
-
             src = src[:-1]
 
         src = src + "\n"
