@@ -25,6 +25,7 @@ from google.api_core import gapic_v1  # type: ignore
 from google.api_core import retry as retries  # type: ignore
 from google.api_core import operations_v1  # type: ignore
 from google.auth import credentials as ga_credentials  # type: ignore
+from google.oauth2 import service_account  # type: ignore
 
 from google.cloud.aiplatform_v1beta1.types import artifact
 from google.cloud.aiplatform_v1beta1.types import artifact as gca_artifact
@@ -57,8 +58,6 @@ except AttributeError:
     except pkg_resources.DistributionNotFound:  # pragma: NO COVER
         _GOOGLE_AUTH_VERSION = None
 
-_API_CORE_VERSION = google.api_core.__version__
-
 
 class MetadataServiceTransport(abc.ABC):
     """Abstract transport class for MetadataService."""
@@ -76,6 +75,7 @@ class MetadataServiceTransport(abc.ABC):
         scopes: Optional[Sequence[str]] = None,
         quota_project_id: Optional[str] = None,
         client_info: gapic_v1.client_info.ClientInfo = DEFAULT_CLIENT_INFO,
+        always_use_jwt_access: Optional[bool] = False,
         **kwargs,
     ) -> None:
         """Instantiate the transport.
@@ -99,6 +99,8 @@ class MetadataServiceTransport(abc.ABC):
                 API requests. If ``None``, then default info will be used.
                 Generally, you only need to set this if you're developing
                 your own client library.
+            always_use_jwt_access (Optional[bool]): Whether self signed JWT should
+                be used for service account credentials.
         """
         # Save the hostname. Default to port 443 (HTTPS) if none is specified.
         if ":" not in host:
@@ -108,7 +110,7 @@ class MetadataServiceTransport(abc.ABC):
         scopes_kwargs = self._get_scopes_kwargs(self._host, scopes)
 
         # Save the scopes.
-        self._scopes = scopes or self.AUTH_SCOPES
+        self._scopes = scopes
 
         # If no credentials are provided, then determine the appropriate
         # defaults.
@@ -127,13 +129,20 @@ class MetadataServiceTransport(abc.ABC):
                 **scopes_kwargs, quota_project_id=quota_project_id
             )
 
+        # If the credentials is service account credentials, then always try to use self signed JWT.
+        if (
+            always_use_jwt_access
+            and isinstance(credentials, service_account.Credentials)
+            and hasattr(service_account.Credentials, "with_always_use_jwt_access")
+        ):
+            credentials = credentials.with_always_use_jwt_access(True)
+
         # Save the credentials.
         self._credentials = credentials
 
-    # TODO(busunkim): These two class methods are in the base transport
+    # TODO(busunkim): This method is in the base transport
     # to avoid duplicating code across the transport classes. These functions
-    # should be deleted once the minimum required versions of google-api-core
-    # and google-auth are increased.
+    # should be deleted once the minimum required versions of google-auth is increased.
 
     # TODO: Remove this function once google-auth >= 1.25.0 is required
     @classmethod
@@ -153,27 +162,6 @@ class MetadataServiceTransport(abc.ABC):
             scopes_kwargs = {"scopes": scopes or cls.AUTH_SCOPES}
 
         return scopes_kwargs
-
-    # TODO: Remove this function once google-api-core >= 1.26.0 is required
-    @classmethod
-    def _get_self_signed_jwt_kwargs(
-        cls, host: str, scopes: Optional[Sequence[str]]
-    ) -> Dict[str, Union[Optional[Sequence[str]], str]]:
-        """Returns kwargs to pass to grpc_helpers.create_channel depending on the google-api-core version"""
-
-        self_signed_jwt_kwargs: Dict[str, Union[Optional[Sequence[str]], str]] = {}
-
-        if _API_CORE_VERSION and (
-            packaging.version.parse(_API_CORE_VERSION)
-            >= packaging.version.parse("1.26.0")
-        ):
-            self_signed_jwt_kwargs["default_scopes"] = cls.AUTH_SCOPES
-            self_signed_jwt_kwargs["scopes"] = scopes
-            self_signed_jwt_kwargs["default_host"] = cls.DEFAULT_HOST
-        else:
-            self_signed_jwt_kwargs["scopes"] = scopes or cls.AUTH_SCOPES
-
-        return self_signed_jwt_kwargs
 
     def _prep_wrapped_messages(self, client_info):
         # Precompute the wrapped methods.
@@ -206,6 +194,12 @@ class MetadataServiceTransport(abc.ABC):
             self.update_artifact: gapic_v1.method.wrap_method(
                 self.update_artifact, default_timeout=5.0, client_info=client_info,
             ),
+            self.delete_artifact: gapic_v1.method.wrap_method(
+                self.delete_artifact, default_timeout=None, client_info=client_info,
+            ),
+            self.purge_artifacts: gapic_v1.method.wrap_method(
+                self.purge_artifacts, default_timeout=None, client_info=client_info,
+            ),
             self.create_context: gapic_v1.method.wrap_method(
                 self.create_context, default_timeout=5.0, client_info=client_info,
             ),
@@ -220,6 +214,9 @@ class MetadataServiceTransport(abc.ABC):
             ),
             self.delete_context: gapic_v1.method.wrap_method(
                 self.delete_context, default_timeout=5.0, client_info=client_info,
+            ),
+            self.purge_contexts: gapic_v1.method.wrap_method(
+                self.purge_contexts, default_timeout=None, client_info=client_info,
             ),
             self.add_context_artifacts_and_executions: gapic_v1.method.wrap_method(
                 self.add_context_artifacts_and_executions,
@@ -245,6 +242,12 @@ class MetadataServiceTransport(abc.ABC):
             ),
             self.update_execution: gapic_v1.method.wrap_method(
                 self.update_execution, default_timeout=5.0, client_info=client_info,
+            ),
+            self.delete_execution: gapic_v1.method.wrap_method(
+                self.delete_execution, default_timeout=None, client_info=client_info,
+            ),
+            self.purge_executions: gapic_v1.method.wrap_method(
+                self.purge_executions, default_timeout=None, client_info=client_info,
             ),
             self.add_execution_events: gapic_v1.method.wrap_method(
                 self.add_execution_events, default_timeout=5.0, client_info=client_info,
@@ -358,6 +361,24 @@ class MetadataServiceTransport(abc.ABC):
         raise NotImplementedError()
 
     @property
+    def delete_artifact(
+        self,
+    ) -> Callable[
+        [metadata_service.DeleteArtifactRequest],
+        Union[operations_pb2.Operation, Awaitable[operations_pb2.Operation]],
+    ]:
+        raise NotImplementedError()
+
+    @property
+    def purge_artifacts(
+        self,
+    ) -> Callable[
+        [metadata_service.PurgeArtifactsRequest],
+        Union[operations_pb2.Operation, Awaitable[operations_pb2.Operation]],
+    ]:
+        raise NotImplementedError()
+
+    @property
     def create_context(
         self,
     ) -> Callable[
@@ -401,6 +422,15 @@ class MetadataServiceTransport(abc.ABC):
         self,
     ) -> Callable[
         [metadata_service.DeleteContextRequest],
+        Union[operations_pb2.Operation, Awaitable[operations_pb2.Operation]],
+    ]:
+        raise NotImplementedError()
+
+    @property
+    def purge_contexts(
+        self,
+    ) -> Callable[
+        [metadata_service.PurgeContextsRequest],
         Union[operations_pb2.Operation, Awaitable[operations_pb2.Operation]],
     ]:
         raise NotImplementedError()
@@ -477,6 +507,24 @@ class MetadataServiceTransport(abc.ABC):
     ) -> Callable[
         [metadata_service.UpdateExecutionRequest],
         Union[gca_execution.Execution, Awaitable[gca_execution.Execution]],
+    ]:
+        raise NotImplementedError()
+
+    @property
+    def delete_execution(
+        self,
+    ) -> Callable[
+        [metadata_service.DeleteExecutionRequest],
+        Union[operations_pb2.Operation, Awaitable[operations_pb2.Operation]],
+    ]:
+        raise NotImplementedError()
+
+    @property
+    def purge_executions(
+        self,
+    ) -> Callable[
+        [metadata_service.PurgeExecutionsRequest],
+        Union[operations_pb2.Operation, Awaitable[operations_pb2.Operation]],
     ]:
         raise NotImplementedError()
 

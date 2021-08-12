@@ -43,6 +43,10 @@ _TEST_PREDICTION_TYPE_VOR = "object_tracking"
 
 _TEST_DATASET_NAME = "test-dataset-name"
 _TEST_MODEL_DISPLAY_NAME = "model-display-name"
+
+_TEST_LABELS = {"key": "value"}
+_TEST_MODEL_LABELS = {"model_key": "model_value"}
+
 _TEST_MODEL_ID = "98777645321"  # TODO
 
 _TEST_TRAINING_TASK_INPUTS = json_format.ParseDict(
@@ -57,7 +61,7 @@ _TEST_MODEL_NAME = (
 )
 
 _TEST_PIPELINE_RESOURCE_NAME = (
-    f"projects/{_TEST_PROJECT}/locations/{_TEST_LOCATION}/trainingPipeline/12345"
+    f"projects/{_TEST_PROJECT}/locations/{_TEST_LOCATION}/trainingPipelines/12345"
 )
 
 # CMEK encryption
@@ -290,6 +294,7 @@ class TestAutoMLVideoTrainingJob:
 
         job = training_jobs.AutoMLVideoTrainingJob(
             display_name=_TEST_DISPLAY_NAME,
+            labels=_TEST_LABELS,
             prediction_type=_TEST_PREDICTION_TYPE_VCN,
             model_type=_TEST_MODEL_TYPE_CLOUD,
             training_encryption_spec_key_name=_TEST_PIPELINE_ENCRYPTION_KEY_NAME,
@@ -299,6 +304,7 @@ class TestAutoMLVideoTrainingJob:
         model_from_job = job.run(
             dataset=mock_dataset_video,
             model_display_name=_TEST_MODEL_DISPLAY_NAME,
+            model_labels=_TEST_MODEL_LABELS,
             training_fraction_split=_TEST_FRACTION_SPLIT_TRAINING,
             test_fraction_split=_TEST_FRACTION_SPLIT_TEST,
             sync=sync,
@@ -314,6 +320,7 @@ class TestAutoMLVideoTrainingJob:
 
         true_managed_model = gca_model.Model(
             display_name=_TEST_MODEL_DISPLAY_NAME,
+            labels=_TEST_MODEL_LABELS,
             description=mock_model._gca_resource.description,
             encryption_spec=_TEST_MODEL_ENCRYPTION_SPEC,
         )
@@ -324,6 +331,7 @@ class TestAutoMLVideoTrainingJob:
 
         true_training_pipeline = gca_training_pipeline.TrainingPipeline(
             display_name=_TEST_DISPLAY_NAME,
+            labels=_TEST_LABELS,
             training_task_definition=schema.training_job.definition.automl_video_classification,
             training_task_inputs=_TEST_TRAINING_TASK_INPUTS,
             model_to_upload=true_managed_model,
@@ -345,7 +353,7 @@ class TestAutoMLVideoTrainingJob:
 
     @pytest.mark.usefixtures("mock_pipeline_service_get")
     @pytest.mark.parametrize("sync", [True, False])
-    def test_run_call_pipeline_if_no_model_display_name(
+    def test_run_call_pipeline_if_no_model_display_name_nor_model_labels(
         self,
         mock_pipeline_service_create,
         mock_dataset_video,
@@ -356,6 +364,7 @@ class TestAutoMLVideoTrainingJob:
 
         job = training_jobs.AutoMLVideoTrainingJob(
             display_name=_TEST_DISPLAY_NAME,
+            labels=_TEST_LABELS,
             prediction_type=_TEST_PREDICTION_TYPE_VCN,
             model_type=_TEST_MODEL_TYPE_CLOUD,
         )
@@ -375,7 +384,9 @@ class TestAutoMLVideoTrainingJob:
         )
 
         # Test that if defaults to the job display name
-        true_managed_model = gca_model.Model(display_name=_TEST_DISPLAY_NAME)
+        true_managed_model = gca_model.Model(
+            display_name=_TEST_DISPLAY_NAME, labels=_TEST_LABELS,
+        )
 
         true_input_data_config = gca_training_pipeline.InputDataConfig(
             fraction_split=true_fraction_split, dataset_id=mock_dataset_video.name,
@@ -383,6 +394,7 @@ class TestAutoMLVideoTrainingJob:
 
         true_training_pipeline = gca_training_pipeline.TrainingPipeline(
             display_name=_TEST_DISPLAY_NAME,
+            labels=_TEST_LABELS,
             training_task_definition=schema.training_job.definition.automl_video_classification,
             training_task_inputs=_TEST_TRAINING_TASK_INPUTS,
             model_to_upload=true_managed_model,

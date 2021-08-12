@@ -18,7 +18,7 @@
 import csv
 import logging
 
-from typing import List, Optional, Sequence, Set, Tuple, Union
+from typing import Dict, List, Optional, Sequence, Set, Tuple, Union
 
 from google.auth import credentials as auth_credentials
 
@@ -51,6 +51,8 @@ class TabularDataset(datasets._Dataset):
         Raises:
             RuntimeError: When no valid source is found.
         """
+
+        self._assert_gca_resource_is_available()
 
         metadata = self._gca_resource.metadata
 
@@ -148,7 +150,7 @@ class TabularDataset(datasets._Dataset):
 
             while first_new_line_index == -1:
                 line += blob.download_as_bytes(
-                    start=start_index, end=start_index + increment
+                    start=start_index, end=start_index + increment - 1
                 ).decode("utf-8")
 
                 first_new_line_index = line.find("\n")
@@ -267,6 +269,7 @@ class TabularDataset(datasets._Dataset):
         location: Optional[str] = None,
         credentials: Optional[auth_credentials.Credentials] = None,
         request_metadata: Optional[Sequence[Tuple[str, str]]] = (),
+        labels: Optional[Dict[str, str]] = None,
         encryption_spec_key_name: Optional[str] = None,
         sync: bool = True,
     ) -> "TabularDataset":
@@ -300,6 +303,16 @@ class TabularDataset(datasets._Dataset):
                 credentials set in aiplatform.init.
             request_metadata (Sequence[Tuple[str, str]]):
                 Strings which should be sent along with the request as metadata.
+            labels (Dict[str, str]):
+                Optional. Labels with user-defined metadata to organize your Tensorboards.
+                Label keys and values can be no longer than 64 characters
+                (Unicode codepoints), can only contain lowercase letters, numeric
+                characters, underscores and dashes. International characters are allowed.
+                No more than 64 user labels can be associated with one Tensorboard
+                (System labels are excluded).
+                See https://goo.gl/xmQnxf for more information and examples of labels.
+                System reserved label keys are prefixed with "aiplatform.googleapis.com/"
+                and are immutable.
             encryption_spec_key_name (Optional[str]):
                 Optional. The Cloud KMS resource identifier of the customer
                 managed encryption key used to protect the dataset. Has the
@@ -322,6 +335,8 @@ class TabularDataset(datasets._Dataset):
         """
 
         utils.validate_display_name(display_name)
+        if labels:
+            utils.validate_labels(labels)
 
         api_client = cls._instantiate_client(location=location, credentials=credentials)
 
@@ -345,6 +360,7 @@ class TabularDataset(datasets._Dataset):
             location=location or initializer.global_config.location,
             credentials=credentials or initializer.global_config.credentials,
             request_metadata=request_metadata,
+            labels=labels,
             encryption_spec=initializer.global_config.get_encryption_spec(
                 encryption_spec_key_name=encryption_spec_key_name
             ),
