@@ -161,12 +161,7 @@ class PipelineJob(base.VertexAiResourceNounWithFutureManager):
         utils.validate_display_name(display_name)
 
         if labels:
-            for k, v in labels.items():
-                if not isinstance(k, str) or not isinstance(v, str):
-                    raise ValueError(
-                        "Expect labels to be a mapping of string key value pairs. "
-                        'Got "{}".'.format(labels)
-                    )
+            utils.validate_labels(labels)
 
         super().__init__(project=project, location=location, credentials=credentials)
 
@@ -220,6 +215,18 @@ class PipelineJob(base.VertexAiResourceNounWithFutureManager):
             ),
         )
 
+    def _assert_gca_resource_is_available(self) -> None:
+        # TODO(b/193800063) Change this to name after this fix
+        if not getattr(self._gca_resource, "create_time", None):
+            raise RuntimeError(
+                f"{self.__class__.__name__} resource has not been created."
+                + (
+                    f" Resource failed with: {self._exception}"
+                    if self._exception
+                    else ""
+                )
+            )
+
     @base.optional_sync()
     def run(
         self,
@@ -236,6 +243,7 @@ class PipelineJob(base.VertexAiResourceNounWithFutureManager):
             network (str):
                 Optional. The full name of the Compute Engine network to which the job
                 should be peered. For example, projects/12345/global/networks/myVPC.
+
                 Private services access must already be configured for the network.
                 If left unspecified, the job is not peered with any network.
             sync (bool):
@@ -272,16 +280,8 @@ class PipelineJob(base.VertexAiResourceNounWithFutureManager):
     @property
     def state(self) -> Optional[gca_pipeline_state_v1beta1.PipelineState]:
         """Current pipeline state."""
-        if not self._has_run:
-            raise RuntimeError("Job has not run. No state available.")
-
         self._sync_gca_resource()
         return self._gca_resource.state
-
-    @property
-    def _has_run(self) -> bool:
-        """Helper property to check if this pipeline job has been run."""
-        return bool(self._gca_resource.create_time)
 
     @property
     def has_failed(self) -> bool:
@@ -299,10 +299,6 @@ class PipelineJob(base.VertexAiResourceNounWithFutureManager):
         fields = utils.extract_fields_from_resource_name(self.resource_name)
         url = f"https://console.cloud.google.com/vertex-ai/locations/{fields.location}/pipelines/runs/{fields.id}?project={fields.project}"
         return url
-
-    def _sync_gca_resource(self):
-        """Helper method to sync the local gca_source against the service."""
-        self._gca_resource = self.api_client.get_pipeline_job(name=self.resource_name)
 
     def _block_until_complete(self):
         """Helper method to block and check on job until complete."""
@@ -377,13 +373,9 @@ class PipelineJob(base.VertexAiResourceNounWithFutureManager):
         makes a best effort to cancel the job, but success is not guaranteed.
         On successful cancellation, the PipelineJob is not deleted; instead it
         becomes a job with state set to `CANCELLED`.
-
-        Raises:
-            RuntimeError: If this PipelineJob has not started running.
         """
-        if not self._has_run:
-            raise RuntimeError(
-                "This PipelineJob has not been launched, use the `run()` method "
-                "to start. `cancel()` can only be called on a job that is running."
-            )
         self.api_client.cancel_pipeline_job(name=self.resource_name)
+
+    def wait_for_resource_creation(self) -> None:
+        """Waits until resource has been created."""
+        self._wait_for_resource_creation()

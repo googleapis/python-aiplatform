@@ -23,6 +23,7 @@ import inspect
 import logging
 import sys
 import threading
+import time
 from typing import (
     Any,
     Callable,
@@ -43,6 +44,7 @@ from google.auth import credentials as auth_credentials
 from google.cloud.aiplatform import initializer
 from google.cloud.aiplatform import utils
 from google.cloud.aiplatform.compat.types import encryption_spec as gca_encryption_spec
+from google.protobuf import json_format
 
 logging.basicConfig(level=logging.INFO, stream=sys.stdout)
 
@@ -540,21 +542,25 @@ class VertexAiResourceNoun(metaclass=abc.ABCMeta):
     @property
     def name(self) -> str:
         """Name of this resource."""
+        self._assert_gca_resource_is_available()
         return self._gca_resource.name.split("/")[-1]
 
     @property
     def resource_name(self) -> str:
         """Full qualified resource name."""
+        self._assert_gca_resource_is_available()
         return self._gca_resource.name
 
     @property
     def display_name(self) -> str:
         """Display name of this resource."""
+        self._assert_gca_resource_is_available()
         return self._gca_resource.display_name
 
     @property
     def create_time(self) -> datetime.datetime:
         """Time this resource was created."""
+        self._assert_gca_resource_is_available()
         return self._gca_resource.create_time
 
     @property
@@ -570,6 +576,7 @@ class VertexAiResourceNoun(metaclass=abc.ABCMeta):
         If this is set, then all resources created by this Vertex AI resource will
         be encrypted with the provided encryption key.
         """
+        self._assert_gca_resource_is_available()
         return getattr(self._gca_resource, "encryption_spec")
 
     @property
@@ -578,15 +585,32 @@ class VertexAiResourceNoun(metaclass=abc.ABCMeta):
 
         Read more about labels at https://goo.gl/xmQnxf
         """
+        self._assert_gca_resource_is_available()
         return self._gca_resource.labels
 
     @property
     def gca_resource(self) -> proto.Message:
         """The underlying resource proto representation."""
+        self._assert_gca_resource_is_available()
         return self._gca_resource
+
+    def _assert_gca_resource_is_available(self) -> None:
+        """Helper method to raise when property is not accessible.
+
+        Raises:
+            RuntimeError if _gca_resource is has not been created.
+        """
+        if self._gca_resource is None:
+            raise RuntimeError(
+                f"{self.__class__.__name__} resource has not been created"
+            )
 
     def __repr__(self) -> str:
         return f"{object.__repr__(self)} \nresource name: {self.resource_name}"
+
+    def to_dict(self) -> Dict[str, Any]:
+        """Returns the resource proto as a dictionary."""
+        return json_format.MessageToDict(self.gca_resource._pb)
 
 
 def optional_sync(
@@ -1060,6 +1084,56 @@ class VertexAiResourceNounWithFutureManager(VertexAiResourceNoun, FutureManager)
             return VertexAiResourceNoun.__repr__(self)
 
         return FutureManager.__repr__(self)
+
+    def _wait_for_resource_creation(self) -> None:
+        """Wait until underlying resource is created.
+
+        Currently this should only be used on subclasses that implement the construct then
+        `run` pattern because the underlying sync=False implementation will not update
+        downstream resource noun object's _gca_resource until the entire invoked method is complete.
+
+        Ex:
+        job = CustomTrainingJob()
+        job.run(sync=False, ...)
+        job._wait_for_resource_creation()
+        Raises:
+            RuntimeError if the resource has not been scheduled to be created.
+        """
+
+        # If the user calls this but didn't actually invoke an API to create
+        if self._are_futures_done() and not getattr(self._gca_resource, "name", None):
+            self._raise_future_exception()
+            raise RuntimeError(
+                f"{self.__class__.__name__} resource is not scheduled to be created."
+            )
+
+        while not getattr(self._gca_resource, "name", None):
+            # breaks out of loop if creation has failed async
+            if self._are_futures_done() and not getattr(
+                self._gca_resource, "name", None
+            ):
+                self._raise_future_exception()
+
+            time.sleep(1)
+
+    def _assert_gca_resource_is_available(self) -> None:
+        """Helper method to raise when accessing properties that do not exist.
+
+        Overrides VertexAiResourceNoun to provide a more informative exception if
+        resource creation has failed asynchronously.
+
+        Raises:
+            RuntimeError when resource has not been created.
+        """
+        if not getattr(self._gca_resource, "name", None):
+            raise RuntimeError(
+                f"{self.__class__.__name__} resource has not been created."
+                + (
+                    f" Resource failed with: {self._exception}"
+                    if self._exception
+                    else ""
+                )
+            )
 
 
 def get_annotation_class(annotation: type) -> type:
