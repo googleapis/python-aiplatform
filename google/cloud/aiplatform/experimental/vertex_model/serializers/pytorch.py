@@ -18,7 +18,6 @@
 import functools
 import pathlib
 import tempfile
-from typing import Optional
 
 from google.cloud import storage
 from google.cloud.aiplatform import initializer
@@ -37,18 +36,13 @@ except ImportError:
 
 
 def _serialize_remote_dataloader(
-    artifact_uri: str,
-    dataloader_path: str,
-    obj: torch.utils.data.DataLoader,
-    dataset_type: str,
+    artifact_uri: str, obj: torch.utils.data.DataLoader, dataset_type: str,
 ) -> str:
     """Serializes DataLoader object to GCS and stores remotely-sourced data in
        a run-time bucket
 
     Args:
         artifact_uri (str): the GCS bucket where the serialized object will reside.
-        dataloader_path (str): the path where the origin data used to construct the DataLoader
-                               resides.
         obj (torch.utils.data.DataLoader): the pytorch DataLoader to serialize.
         dataset_type (str): the intended use of the dataset (ie. training, testing)
 
@@ -76,18 +70,13 @@ def _serialize_remote_dataloader(
 
 
 def _serialize_local_dataloader(
-    artifact_uri: str,
-    dataloader_path: Optional[str],
-    obj: torch.utils.data.DataLoader,
-    dataset_type: str,
+    artifact_uri: str, obj: torch.utils.data.DataLoader, dataset_type: str,
 ) -> str:
     """Serializes DataLoader object to GCS and stores locally-sourced data in
        a run-time bucket
 
     Args:
         artifact_uri (str): the GCS bucket where the serialized object will reside.
-        dataloader_path (str): the path where the origin data used to construct the DataLoader
-                               resides.
         obj (torch.utils.data.DataLoader): the pytorch DataLoader to serialize.
         dataset_type (str): the intended use of the dataset (ie. training, testing)
 
@@ -135,14 +124,14 @@ def _serialize_dataloader(
     # Decide whether to pass to remote or local serialization
     if root:
         if root.startswith("gs://"):
-            return _serialize_remote_dataloader(artifact_uri, root, obj, dataset_type)
+            return _serialize_remote_dataloader(artifact_uri, obj, dataset_type)
         else:
             raise RuntimeError(
                 "VertexModel does not accomodate DataLoaders with local data references"
             )
 
     else:
-        return _serialize_local_dataloader(artifact_uri, root, obj, dataset_type)
+        return _serialize_local_dataloader(artifact_uri, obj, dataset_type)
 
 
 def _deserialize_dataloader(artifact_uri: str) -> DataLoader:
