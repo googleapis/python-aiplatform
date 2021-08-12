@@ -102,7 +102,6 @@ def _make_source(
     src = ""
 
     for my_import in imports:
-        print(my_import)
         if len(my_import.module) > 0:
             src = src + "from "
             modules = my_import.module
