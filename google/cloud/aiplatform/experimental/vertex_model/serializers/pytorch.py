@@ -157,7 +157,6 @@ def _deserialize_dataloader(artifact_uri: str) -> DataLoader:
 
     bucket = client.bucket(gcs_bucket)
     blob = bucket.blob(gcs_blob)
-    dataloader = None
 
     # This code may not be necessary, as torch may be able to read from a remote path, but
     # I need to double check this.

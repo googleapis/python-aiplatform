@@ -126,9 +126,6 @@ def vertex_fit_function_wrapper(method: Callable[..., Any]):
                 serialized_inputs_artifacts_folder, parameter, parameter_name
             )
 
-            if len(parameter_uri) > 1 and not isinstance(parameter_uri, str):
-                parameter_uri = parameter_uri[0]
-
             # namedtuple
             param_name_to_serialized_info[parameter_name] = (
                 parameter_uri,
