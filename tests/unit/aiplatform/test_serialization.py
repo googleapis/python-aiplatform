@@ -161,7 +161,7 @@ class TestDataLoaderSerialization:
             dataloader_root_folder = "/".join([tmpdirname, f"dataloader_{timestamp}"])
 
             # Locally serialize and deserialize
-            obj_path, data_path = pytorch._serialize_dataloader(
+            obj_path = pytorch._serialize_dataloader(
                 dataloader_root_folder, dataloader, "local"
             )
             deserialized_dataloader = pytorch._deserialize_dataloader(obj_path)
