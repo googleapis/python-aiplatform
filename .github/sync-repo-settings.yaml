@@ -8,6 +8,5 @@ branchProtectionRules:
   requiresCodeOwnerReviews: true
   requiresStrictStatusChecks: true
   requiredStatusCheckContexts:
-    - 'Kokoro'
     - 'cla/google'
-    - 'Samples - Lint'
+    - 'Presubmit - Unit Tests'
