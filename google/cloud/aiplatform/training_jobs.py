@@ -1139,6 +1139,8 @@ class _CustomTrainingJob(_TrainingJob):
         machine_type: str = "n1-standard-4",
         accelerator_type: str = "ACCELERATOR_TYPE_UNSPECIFIED",
         accelerator_count: int = 0,
+        boot_disk_type: str = "pd-ssd",
+        boot_disk_size_gb: int = 100,
     ) -> Tuple[worker_spec_utils._DistributedTrainingSpec, Optional[gca_model.Model]]:
         """Create worker pool specs and managed model as well validating the
         run.
@@ -1172,6 +1174,13 @@ class _CustomTrainingJob(_TrainingJob):
                 NVIDIA_TESLA_T4
             accelerator_count (int):
                 The number of accelerators to attach to a worker replica.
+            boot_disk_type (str):
+                Type of the boot disk, default is `pd-ssd`.
+                Valid values: `pd-ssd` (Persistent Disk Solid State Drive) or
+                `pd-standard` (Persistent Disk Hard Disk Drive).
+            boot_disk_size_gb (int):
+                Size in GB of the boot disk, default is 100GB.
+                boot disk size must be within the range of [100, 64000].
         Returns:
             Worker pools specs and managed model for run.
 
@@ -1204,6 +1213,8 @@ class _CustomTrainingJob(_TrainingJob):
             machine_type=machine_type,
             accelerator_count=accelerator_count,
             accelerator_type=accelerator_type,
+            boot_disk_type=boot_disk_type,
+            boot_disk_size_gb=boot_disk_size_gb,
         ).pool_specs
 
         managed_model = self._managed_model
@@ -1588,6 +1599,8 @@ class CustomTrainingJob(_CustomTrainingJob):
         machine_type: str = "n1-standard-4",
         accelerator_type: str = "ACCELERATOR_TYPE_UNSPECIFIED",
         accelerator_count: int = 0,
+        boot_disk_type: str = "pd-ssd",
+        boot_disk_size_gb: int = 100,
         training_fraction_split: float = 0.8,
         validation_fraction_split: float = 0.1,
         test_fraction_split: float = 0.1,
@@ -1724,6 +1737,13 @@ class CustomTrainingJob(_CustomTrainingJob):
                 NVIDIA_TESLA_T4
             accelerator_count (int):
                 The number of accelerators to attach to a worker replica.
+            boot_disk_type (str):
+                Type of the boot disk, default is `pd-ssd`.
+                Valid values: `pd-ssd` (Persistent Disk Solid State Drive) or
+                `pd-standard` (Persistent Disk Hard Disk Drive).
+            boot_disk_size_gb (int):
+                Size in GB of the boot disk, default is 100GB.
+                boot disk size must be within the range of [100, 64000].
             training_fraction_split (float):
                 The fraction of the input data that is to be
                 used to train the Model. This is ignored if Dataset is not provided.
@@ -1774,6 +1794,8 @@ class CustomTrainingJob(_CustomTrainingJob):
             machine_type=machine_type,
             accelerator_count=accelerator_count,
             accelerator_type=accelerator_type,
+            boot_disk_type=boot_disk_type,
+            boot_disk_size_gb=boot_disk_size_gb,
         )
 
         # make and copy package
@@ -2241,6 +2263,8 @@ class CustomContainerTrainingJob(_CustomTrainingJob):
         machine_type: str = "n1-standard-4",
         accelerator_type: str = "ACCELERATOR_TYPE_UNSPECIFIED",
         accelerator_count: int = 0,
+        boot_disk_type: str = "pd-ssd",
+        boot_disk_size_gb: int = 100,
         training_fraction_split: float = 0.8,
         validation_fraction_split: float = 0.1,
         test_fraction_split: float = 0.1,
@@ -2370,6 +2394,13 @@ class CustomContainerTrainingJob(_CustomTrainingJob):
                 NVIDIA_TESLA_T4
             accelerator_count (int):
                 The number of accelerators to attach to a worker replica.
+            boot_disk_type (str):
+                Type of the boot disk, default is `pd-ssd`.
+                Valid values: `pd-ssd` (Persistent Disk Solid State Drive) or
+                `pd-standard` (Persistent Disk Hard Disk Drive).
+            boot_disk_size_gb (int):
+                Size in GB of the boot disk, default is 100GB.
+                boot disk size must be within the range of [100, 64000].
             training_fraction_split (float):
                 The fraction of the input data that is to be
                 used to train the Model. This is ignored if Dataset is not provided.
@@ -2425,6 +2456,8 @@ class CustomContainerTrainingJob(_CustomTrainingJob):
             machine_type=machine_type,
             accelerator_count=accelerator_count,
             accelerator_type=accelerator_type,
+            boot_disk_type=boot_disk_type,
+            boot_disk_size_gb=boot_disk_size_gb,
         )
 
         return self._run(
@@ -4402,6 +4435,8 @@ class CustomPythonPackageTrainingJob(_CustomTrainingJob):
         machine_type: str = "n1-standard-4",
         accelerator_type: str = "ACCELERATOR_TYPE_UNSPECIFIED",
         accelerator_count: int = 0,
+        boot_disk_type: str = "pd-ssd",
+        boot_disk_size_gb: int = 100,
         training_fraction_split: float = 0.8,
         validation_fraction_split: float = 0.1,
         test_fraction_split: float = 0.1,
@@ -4531,6 +4566,13 @@ class CustomPythonPackageTrainingJob(_CustomTrainingJob):
                 NVIDIA_TESLA_T4
             accelerator_count (int):
                 The number of accelerators to attach to a worker replica.
+            boot_disk_type (str):
+                Type of the boot disk, default is `pd-ssd`.
+                Valid values: `pd-ssd` (Persistent Disk Solid State Drive) or
+                `pd-standard` (Persistent Disk Hard Disk Drive).
+            boot_disk_size_gb (int):
+                Size in GB of the boot disk, default is 100GB.
+                boot disk size must be within the range of [100, 64000].
             training_fraction_split (float):
                 The fraction of the input data that is to be
                 used to train the Model. This is ignored if Dataset is not provided.
@@ -4581,6 +4623,8 @@ class CustomPythonPackageTrainingJob(_CustomTrainingJob):
             machine_type=machine_type,
             accelerator_count=accelerator_count,
             accelerator_type=accelerator_type,
+            boot_disk_type=boot_disk_type,
+            boot_disk_size_gb=boot_disk_size_gb,
         )
 
         return self._run(
