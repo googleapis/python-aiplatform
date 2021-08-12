@@ -570,9 +570,19 @@
         "grpc": {
           "libraryClient": "PipelineServiceClient",
           "rpcs": {
+            "CancelPipelineJob": {
+              "methods": [
+                "cancel_pipeline_job"
+              ]
+            },
             "CancelTrainingPipeline": {
               "methods": [
                 "cancel_training_pipeline"
+              ]
+            },
+            "CreatePipelineJob": {
+              "methods": [
+                "create_pipeline_job"
               ]
             },
             "CreateTrainingPipeline": {
@@ -580,14 +590,29 @@
                 "create_training_pipeline"
               ]
             },
+            "DeletePipelineJob": {
+              "methods": [
+                "delete_pipeline_job"
+              ]
+            },
             "DeleteTrainingPipeline": {
               "methods": [
                 "delete_training_pipeline"
               ]
             },
+            "GetPipelineJob": {
+              "methods": [
+                "get_pipeline_job"
+              ]
+            },
             "GetTrainingPipeline": {
               "methods": [
                 "get_training_pipeline"
+              ]
+            },
+            "ListPipelineJobs": {
+              "methods": [
+                "list_pipeline_jobs"
               ]
             },
             "ListTrainingPipelines": {
@@ -600,9 +625,19 @@
         "grpc-async": {
           "libraryClient": "PipelineServiceAsyncClient",
           "rpcs": {
+            "CancelPipelineJob": {
+              "methods": [
+                "cancel_pipeline_job"
+              ]
+            },
             "CancelTrainingPipeline": {
               "methods": [
                 "cancel_training_pipeline"
+              ]
+            },
+            "CreatePipelineJob": {
+              "methods": [
+                "create_pipeline_job"
               ]
             },
             "CreateTrainingPipeline": {
@@ -610,14 +645,29 @@
                 "create_training_pipeline"
               ]
             },
+            "DeletePipelineJob": {
+              "methods": [
+                "delete_pipeline_job"
+              ]
+            },
             "DeleteTrainingPipeline": {
               "methods": [
                 "delete_training_pipeline"
               ]
             },
+            "GetPipelineJob": {
+              "methods": [
+                "get_pipeline_job"
+              ]
+            },
             "GetTrainingPipeline": {
               "methods": [
                 "get_training_pipeline"
+              ]
+            },
+            "ListPipelineJobs": {
+              "methods": [
+                "list_pipeline_jobs"
               ]
             },
             "ListTrainingPipelines": {

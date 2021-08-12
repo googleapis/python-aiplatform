@@ -34,6 +34,7 @@ def teardown(teardown_batch_prediction_job):
     yield
 
 
+@pytest.mark.skip(reason="https://github.com/googleapis/java-aiplatform/issues/420")
 # Creating AutoML Tabular Forecasting Classification batch prediction job
 def test_create_batch_prediction_job_tabular_forecasting_sample(capsys, shared_state):
 

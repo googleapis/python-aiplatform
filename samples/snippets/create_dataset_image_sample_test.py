@@ -28,6 +28,7 @@ def teardown(teardown_dataset):
     yield
 
 
+@pytest.mark.skip(reason="https://github.com/googleapis/java-aiplatform/issues/420")
 def test_ucaip_generated_create_dataset_image(capsys, shared_state):
     create_dataset_image_sample.create_dataset_image_sample(
         display_name=f"temp_create_dataset_image_test_{uuid4()}", project=PROJECT_ID

@@ -116,9 +116,9 @@ class Endpoint(base.VertexAiResourceNounWithFutureManager):
             resource_name=endpoint_name,
         )
         self._gca_resource = self._get_gca_resource(resource_name=endpoint_name)
+
         self._prediction_client = self._instantiate_prediction_client(
-            location=location or initializer.global_config.location,
-            credentials=credentials,
+            location=self.location, credentials=credentials,
         )
 
     @property
@@ -146,14 +146,15 @@ class Endpoint(base.VertexAiResourceNounWithFutureManager):
         Private services access must already be configured for the network. If left
         unspecified, the Endpoint is not peered with any network.
         """
-        return getattr(self._gca_resource, "network")
+        self._assert_gca_resource_is_available()
+        return getattr(self._gca_resource, "network", None)
 
     @classmethod
     def create(
         cls,
         display_name: str,
         description: Optional[str] = None,
-        labels: Optional[Dict] = None,
+        labels: Optional[Dict[str, str]] = None,
         metadata: Optional[Sequence[Tuple[str, str]]] = (),
         project: Optional[str] = None,
         location: Optional[str] = None,
@@ -176,7 +177,7 @@ class Endpoint(base.VertexAiResourceNounWithFutureManager):
                 set in aiplatform.init will be used.
             description (str):
                 Optional. The description of the Endpoint.
-            labels (Dict):
+            labels (Dict[str, str]):
                 Optional. The labels with user-defined metadata to
                 organize your Endpoints.
                 Label keys and values can be no longer than 64
@@ -215,6 +216,8 @@ class Endpoint(base.VertexAiResourceNounWithFutureManager):
         api_client = cls._instantiate_client(location=location, credentials=credentials)
 
         utils.validate_display_name(display_name)
+        if labels:
+            utils.validate_labels(labels)
 
         project = project or initializer.global_config.project
         location = location or initializer.global_config.location
@@ -243,7 +246,7 @@ class Endpoint(base.VertexAiResourceNounWithFutureManager):
         project: str,
         location: str,
         description: Optional[str] = None,
-        labels: Optional[Dict] = None,
+        labels: Optional[Dict[str, str]] = None,
         metadata: Optional[Sequence[Tuple[str, str]]] = (),
         credentials: Optional[auth_credentials.Credentials] = None,
         encryption_spec: Optional[gca_encryption_spec.EncryptionSpec] = None,
@@ -267,7 +270,7 @@ class Endpoint(base.VertexAiResourceNounWithFutureManager):
                 set in aiplatform.init will be used.
             description (str):
                 Optional. The description of the Endpoint.
-            labels (Dict):
+            labels (Dict[str, str]):
                 Optional. The labels with user-defined metadata to
                 organize your Endpoints.
                 Label keys and values can be no longer than 64
@@ -323,6 +326,46 @@ class Endpoint(base.VertexAiResourceNounWithFutureManager):
             location=location,
             credentials=credentials,
         )
+
+    @classmethod
+    def _construct_sdk_resource_from_gapic(
+        cls,
+        gapic_resource: proto.Message,
+        project: Optional[str] = None,
+        location: Optional[str] = None,
+        credentials: Optional[auth_credentials.Credentials] = None,
+    ) -> "Endpoint":
+        """Given a GAPIC Endpoint object, return the SDK representation.
+
+        Args:
+            gapic_resource (proto.Message):
+                A GAPIC representation of a Endpoint resource, usually
+                retrieved by a get_* or in a list_* API call.
+            project (str):
+                Optional. Project to construct Endpoint object from. If not set,
+                project set in aiplatform.init will be used.
+            location (str):
+                Optional. Location to construct Endpoint object from. If not set,
+                location set in aiplatform.init will be used.
+            credentials (auth_credentials.Credentials):
+                Optional. Custom credentials to use to construct Endpoint.
+                Overrides credentials set in aiplatform.init.
+
+        Returns:
+            Endpoint:
+                An initialized Endpoint resource.
+        """
+        endpoint = cls._empty_constructor(
+            project=project, location=location, credentials=credentials
+        )
+
+        endpoint._gca_resource = gapic_resource
+
+        endpoint._prediction_client = cls._instantiate_prediction_client(
+            location=endpoint.location, credentials=credentials,
+        )
+
+        return endpoint
 
     @staticmethod
     def _allocate_traffic(
@@ -1025,7 +1068,7 @@ class Endpoint(base.VertexAiResourceNounWithFutureManager):
                 the prediction client.
         Returns:
             prediction_client (prediction_service_client.PredictionServiceClient):
-                Initalized prediction client with optional overrides.
+                Initialized prediction client with optional overrides.
         """
         return initializer.global_config.create_client(
             client_class=utils.PredictionClientWithOverride,
@@ -1243,11 +1286,13 @@ class Model(base.VertexAiResourceNounWithFutureManager):
     def uri(self) -> Optional[str]:
         """Path to the directory containing the Model artifact and any of its
         supporting files. Not present for AutoML Models."""
+        self._assert_gca_resource_is_available()
         return self._gca_resource.artifact_uri or None
 
     @property
     def description(self) -> str:
         """Description of the model."""
+        self._assert_gca_resource_is_available()
         return self._gca_resource.description
 
     @property
@@ -1262,6 +1307,7 @@ class Model(base.VertexAiResourceNounWithFutureManager):
 
             {'tf-saved-model': [<ExportableContent.ARTIFACT: 1>]}
         """
+        self._assert_gca_resource_is_available()
         return {
             export_format.id: [
                 gca_model_compat.Model.ExportFormat.ExportableContent(content)
@@ -1288,6 +1334,7 @@ class Model(base.VertexAiResourceNounWithFutureManager):
         predictions by using a `BatchPredictionJob`, if it has at least one entry
         each in `Model.supported_input_storage_formats` and
         `Model.supported_output_storage_formats`."""
+        self._assert_gca_resource_is_available()
         return list(self._gca_resource.supported_deployment_resources_types)
 
     @property
@@ -1303,6 +1350,7 @@ class Model(base.VertexAiResourceNounWithFutureManager):
         `supported_deployment_resources_types`, it could serve online predictions
         by using `Endpoint.predict()` or `Endpoint.explain()`.
         """
+        self._assert_gca_resource_is_available()
         return list(self._gca_resource.supported_input_storage_formats)
 
     @property
@@ -1323,12 +1371,14 @@ class Model(base.VertexAiResourceNounWithFutureManager):
         `supported_deployment_resources_types`, it could serve online predictions
         by using `Endpoint.predict()` or `Endpoint.explain()`.
         """
+        self._assert_gca_resource_is_available()
         return list(self._gca_resource.supported_output_storage_formats)
 
     @property
     def predict_schemata(self) -> Optional[aiplatform.gapic.PredictSchemata]:
         """The schemata that describe formats of the Model's predictions and
         explanations, if available."""
+        self._assert_gca_resource_is_available()
         return getattr(self._gca_resource, "predict_schemata")
 
     @property
@@ -1339,6 +1389,7 @@ class Model(base.VertexAiResourceNounWithFutureManager):
             api_core.exceptions.NotFound: If the Model's training job resource
                 cannot be found on the Vertex service.
         """
+        self._assert_gca_resource_is_available()
         job_name = getattr(self._gca_resource, "training_pipeline")
 
         if not job_name:
@@ -1360,6 +1411,7 @@ class Model(base.VertexAiResourceNounWithFutureManager):
     def container_spec(self) -> Optional[aiplatform.gapic.ModelContainerSpec]:
         """The specification of the container that is to be used when deploying
         this Model. Not present for AutoML Models."""
+        self._assert_gca_resource_is_available()
         return getattr(self._gca_resource, "container_spec")
 
     def __init__(
@@ -1420,6 +1472,7 @@ class Model(base.VertexAiResourceNounWithFutureManager):
         project: Optional[str] = None,
         location: Optional[str] = None,
         credentials: Optional[auth_credentials.Credentials] = None,
+        labels: Optional[Dict[str, str]] = None,
         encryption_spec_key_name: Optional[str] = None,
         sync=True,
     ) -> "Model":
@@ -1543,6 +1596,16 @@ class Model(base.VertexAiResourceNounWithFutureManager):
             credentials: Optional[auth_credentials.Credentials]=None,
                 Custom credentials to use to upload this model. Overrides credentials
                 set in aiplatform.init.
+            labels (Dict[str, str]):
+                Optional. The labels with user-defined metadata to
+                organize your Models.
+                Label keys and values can be no longer than 64
+                characters (Unicode codepoints), can only
+                contain lowercase letters, numeric characters,
+                underscores and dashes. International characters
+                are allowed.
+                See https://goo.gl/xmQnxf for more information
+                and examples of labels.
             encryption_spec_key_name (Optional[str]):
                 Optional. The Cloud KMS resource identifier of the customer
                 managed encryption key used to protect the model. Has the
@@ -1561,6 +1624,8 @@ class Model(base.VertexAiResourceNounWithFutureManager):
                 is specified.
         """
         utils.validate_display_name(display_name)
+        if labels:
+            utils.validate_labels(labels)
 
         if bool(explanation_metadata) != bool(explanation_parameters):
             raise ValueError(
@@ -1617,6 +1682,7 @@ class Model(base.VertexAiResourceNounWithFutureManager):
             description=description,
             container_spec=container_spec,
             predict_schemata=model_predict_schemata,
+            labels=labels,
             encryption_spec=encryption_spec,
         )
 
@@ -1941,7 +2007,7 @@ class Model(base.VertexAiResourceNounWithFutureManager):
         generate_explanation: Optional[bool] = False,
         explanation_metadata: Optional[explain.ExplanationMetadata] = None,
         explanation_parameters: Optional[explain.ExplanationParameters] = None,
-        labels: Optional[dict] = None,
+        labels: Optional[Dict[str, str]] = None,
         credentials: Optional[auth_credentials.Credentials] = None,
         encryption_spec_key_name: Optional[str] = None,
         sync: bool = True,
@@ -1977,7 +2043,7 @@ class Model(base.VertexAiResourceNounWithFutureManager):
                 Required. The format in which instances are given, must be one
                 of "jsonl", "csv", "bigquery", "tf-record", "tf-record-gzip",
                 or "file-list". Default is "jsonl" when using `gcs_source`. If a
-                `bigquery_source` is provided, this is overriden to "bigquery".
+                `bigquery_source` is provided, this is overridden to "bigquery".
             gcs_destination_prefix: Optional[str] = None
                 The Google Cloud Storage location of the directory where the
                 output is to be written to. In the given directory a new
@@ -2023,7 +2089,7 @@ class Model(base.VertexAiResourceNounWithFutureManager):
                 Required. The format in which Vertex AI gives the
                 predictions, must be one of "jsonl", "csv", or "bigquery".
                 Default is "jsonl" when using `gcs_destination_prefix`. If a
-                `bigquery_destination_prefix` is provided, this is overriden to
+                `bigquery_destination_prefix` is provided, this is overridden to
                 "bigquery".
             model_parameters: Optional[Dict] = None
                 Optional. The parameters that govern the predictions. The schema of
@@ -2076,7 +2142,7 @@ class Model(base.VertexAiResourceNounWithFutureManager):
                 a field of the `explanation_parameters` object is not populated, the
                 corresponding field of the `Model.explanation_parameters` object is inherited.
                 For more details, see `Ref docs <http://tinyurl.com/1an4zake>`
-            labels: Optional[dict] = None
+            labels: Optional[Dict[str, str]] = None
                 Optional. The labels with user-defined metadata to organize your
                 BatchPredictionJobs. Label keys and values can be no longer than
                 64 characters (Unicode codepoints), can only contain lowercase

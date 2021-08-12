@@ -38,7 +38,7 @@ class TextExtractionPredictionInstance(proto.Message):
             If a key is provided, the batch prediction
             result will by mapped to this key. If omitted,
             then the batch prediction result will contain
-            the entire input instance. AI Platform will not
+            the entire input instance. Vertex AI will not
             check if keys in the request are duplicates, so
             it is up to the caller to ensure the keys are
             unique.

@@ -35,6 +35,7 @@ def teardown(teardown_hyperparameter_tuning_job):
     yield
 
 
+@pytest.mark.skip(reason="https://github.com/googleapis/java-aiplatform/issues/420")
 def test_create_hyperparameter_tuning_job_python_package_sample(capsys, shared_state):
 
     create_hyperparameter_tuning_job_python_package_sample.create_hyperparameter_tuning_job_python_package_sample(

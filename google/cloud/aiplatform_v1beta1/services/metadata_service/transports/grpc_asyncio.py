@@ -90,14 +90,14 @@ class MetadataServiceGrpcAsyncIOTransport(MetadataServiceTransport):
             aio.Channel: A gRPC AsyncIO channel object.
         """
 
-        self_signed_jwt_kwargs = cls._get_self_signed_jwt_kwargs(host, scopes)
-
         return grpc_helpers_async.create_channel(
             host,
             credentials=credentials,
             credentials_file=credentials_file,
             quota_project_id=quota_project_id,
-            **self_signed_jwt_kwargs,
+            default_scopes=cls.AUTH_SCOPES,
+            scopes=scopes,
+            default_host=cls.DEFAULT_HOST,
             **kwargs,
         )
 
@@ -115,6 +115,7 @@ class MetadataServiceGrpcAsyncIOTransport(MetadataServiceTransport):
         client_cert_source_for_mtls: Callable[[], Tuple[bytes, bytes]] = None,
         quota_project_id=None,
         client_info: gapic_v1.client_info.ClientInfo = DEFAULT_CLIENT_INFO,
+        always_use_jwt_access: Optional[bool] = False,
     ) -> None:
         """Instantiate the transport.
 
@@ -138,7 +139,7 @@ class MetadataServiceGrpcAsyncIOTransport(MetadataServiceTransport):
             api_mtls_endpoint (Optional[str]): Deprecated. The mutual TLS endpoint.
                 If provided, it overrides the ``host`` argument and tries to create
                 a mutual TLS channel with client SSL credentials from
-                ``client_cert_source`` or applicatin default SSL credentials.
+                ``client_cert_source`` or application default SSL credentials.
             client_cert_source (Optional[Callable[[], Tuple[bytes, bytes]]]):
                 Deprecated. A callback to provide client SSL certificate bytes and
                 private key bytes, both in PEM format. It is ignored if
@@ -156,6 +157,8 @@ class MetadataServiceGrpcAsyncIOTransport(MetadataServiceTransport):
                 API requests. If ``None``, then default info will be used.
                 Generally, you only need to set this if you're developing
                 your own client library.
+            always_use_jwt_access (Optional[bool]): Whether self signed JWT should
+                be used for service account credentials.
 
         Raises:
             google.auth.exceptions.MutualTlsChannelError: If mutual TLS transport
@@ -208,6 +211,7 @@ class MetadataServiceGrpcAsyncIOTransport(MetadataServiceTransport):
             scopes=scopes,
             quota_project_id=quota_project_id,
             client_info=client_info,
+            always_use_jwt_access=always_use_jwt_access,
         )
 
         if not self._grpc_channel:
@@ -482,6 +486,62 @@ class MetadataServiceGrpcAsyncIOTransport(MetadataServiceTransport):
         return self._stubs["update_artifact"]
 
     @property
+    def delete_artifact(
+        self,
+    ) -> Callable[
+        [metadata_service.DeleteArtifactRequest], Awaitable[operations_pb2.Operation]
+    ]:
+        r"""Return a callable for the delete artifact method over gRPC.
+
+        Deletes an Artifact.
+
+        Returns:
+            Callable[[~.DeleteArtifactRequest],
+                    Awaitable[~.Operation]]:
+                A function that, when called, will call the underlying RPC
+                on the server.
+        """
+        # Generate a "stub function" on-the-fly which will actually make
+        # the request.
+        # gRPC handles serialization and deserialization, so we just need
+        # to pass in the functions for each.
+        if "delete_artifact" not in self._stubs:
+            self._stubs["delete_artifact"] = self.grpc_channel.unary_unary(
+                "/google.cloud.aiplatform.v1beta1.MetadataService/DeleteArtifact",
+                request_serializer=metadata_service.DeleteArtifactRequest.serialize,
+                response_deserializer=operations_pb2.Operation.FromString,
+            )
+        return self._stubs["delete_artifact"]
+
+    @property
+    def purge_artifacts(
+        self,
+    ) -> Callable[
+        [metadata_service.PurgeArtifactsRequest], Awaitable[operations_pb2.Operation]
+    ]:
+        r"""Return a callable for the purge artifacts method over gRPC.
+
+        Purges Artifacts.
+
+        Returns:
+            Callable[[~.PurgeArtifactsRequest],
+                    Awaitable[~.Operation]]:
+                A function that, when called, will call the underlying RPC
+                on the server.
+        """
+        # Generate a "stub function" on-the-fly which will actually make
+        # the request.
+        # gRPC handles serialization and deserialization, so we just need
+        # to pass in the functions for each.
+        if "purge_artifacts" not in self._stubs:
+            self._stubs["purge_artifacts"] = self.grpc_channel.unary_unary(
+                "/google.cloud.aiplatform.v1beta1.MetadataService/PurgeArtifacts",
+                request_serializer=metadata_service.PurgeArtifactsRequest.serialize,
+                response_deserializer=operations_pb2.Operation.FromString,
+            )
+        return self._stubs["purge_artifacts"]
+
+    @property
     def create_context(
         self,
     ) -> Callable[
@@ -619,6 +679,34 @@ class MetadataServiceGrpcAsyncIOTransport(MetadataServiceTransport):
                 response_deserializer=operations_pb2.Operation.FromString,
             )
         return self._stubs["delete_context"]
+
+    @property
+    def purge_contexts(
+        self,
+    ) -> Callable[
+        [metadata_service.PurgeContextsRequest], Awaitable[operations_pb2.Operation]
+    ]:
+        r"""Return a callable for the purge contexts method over gRPC.
+
+        Purges Contexts.
+
+        Returns:
+            Callable[[~.PurgeContextsRequest],
+                    Awaitable[~.Operation]]:
+                A function that, when called, will call the underlying RPC
+                on the server.
+        """
+        # Generate a "stub function" on-the-fly which will actually make
+        # the request.
+        # gRPC handles serialization and deserialization, so we just need
+        # to pass in the functions for each.
+        if "purge_contexts" not in self._stubs:
+            self._stubs["purge_contexts"] = self.grpc_channel.unary_unary(
+                "/google.cloud.aiplatform.v1beta1.MetadataService/PurgeContexts",
+                request_serializer=metadata_service.PurgeContextsRequest.serialize,
+                response_deserializer=operations_pb2.Operation.FromString,
+            )
+        return self._stubs["purge_contexts"]
 
     @property
     def add_context_artifacts_and_executions(
@@ -832,6 +920,62 @@ class MetadataServiceGrpcAsyncIOTransport(MetadataServiceTransport):
                 response_deserializer=gca_execution.Execution.deserialize,
             )
         return self._stubs["update_execution"]
+
+    @property
+    def delete_execution(
+        self,
+    ) -> Callable[
+        [metadata_service.DeleteExecutionRequest], Awaitable[operations_pb2.Operation]
+    ]:
+        r"""Return a callable for the delete execution method over gRPC.
+
+        Deletes an Execution.
+
+        Returns:
+            Callable[[~.DeleteExecutionRequest],
+                    Awaitable[~.Operation]]:
+                A function that, when called, will call the underlying RPC
+                on the server.
+        """
+        # Generate a "stub function" on-the-fly which will actually make
+        # the request.
+        # gRPC handles serialization and deserialization, so we just need
+        # to pass in the functions for each.
+        if "delete_execution" not in self._stubs:
+            self._stubs["delete_execution"] = self.grpc_channel.unary_unary(
+                "/google.cloud.aiplatform.v1beta1.MetadataService/DeleteExecution",
+                request_serializer=metadata_service.DeleteExecutionRequest.serialize,
+                response_deserializer=operations_pb2.Operation.FromString,
+            )
+        return self._stubs["delete_execution"]
+
+    @property
+    def purge_executions(
+        self,
+    ) -> Callable[
+        [metadata_service.PurgeExecutionsRequest], Awaitable[operations_pb2.Operation]
+    ]:
+        r"""Return a callable for the purge executions method over gRPC.
+
+        Purges Executions.
+
+        Returns:
+            Callable[[~.PurgeExecutionsRequest],
+                    Awaitable[~.Operation]]:
+                A function that, when called, will call the underlying RPC
+                on the server.
+        """
+        # Generate a "stub function" on-the-fly which will actually make
+        # the request.
+        # gRPC handles serialization and deserialization, so we just need
+        # to pass in the functions for each.
+        if "purge_executions" not in self._stubs:
+            self._stubs["purge_executions"] = self.grpc_channel.unary_unary(
+                "/google.cloud.aiplatform.v1beta1.MetadataService/PurgeExecutions",
+                request_serializer=metadata_service.PurgeExecutionsRequest.serialize,
+                response_deserializer=operations_pb2.Operation.FromString,
+            )
+        return self._stubs["purge_executions"]
 
     @property
     def add_execution_events(

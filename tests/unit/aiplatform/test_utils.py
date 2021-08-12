@@ -257,6 +257,20 @@ def test_validate_display_name():
     aiplatform.utils.validate_display_name("my_model_abc")
 
 
+def test_validate_labels_raises_value_not_str():
+    with pytest.raises(ValueError):
+        aiplatform.utils.validate_labels({"my_key1": 1, "my_key2": 2})
+
+
+def test_validate_labels_raises_key_not_str():
+    with pytest.raises(ValueError):
+        aiplatform.utils.validate_labels({1: "my_value1", 2: "my_value2"})
+
+
+def test_validate_labels():
+    aiplatform.utils.validate_labels({"my_key1": "my_value1", "my_key2": "my_value2"})
+
+
 @pytest.mark.parametrize(
     "accelerator_type, expected",
     [

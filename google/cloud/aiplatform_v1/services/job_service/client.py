@@ -286,6 +286,21 @@ class JobServiceClient(metaclass=JobServiceClientMeta):
         return m.groupdict() if m else {}
 
     @staticmethod
+    def network_path(project: str, network: str,) -> str:
+        """Returns a fully-qualified network string."""
+        return "projects/{project}/global/networks/{network}".format(
+            project=project, network=network,
+        )
+
+    @staticmethod
+    def parse_network_path(path: str) -> Dict[str, str]:
+        """Parses a network path into its component segments."""
+        m = re.match(
+            r"^projects/(?P<project>.+?)/global/networks/(?P<network>.+?)$", path
+        )
+        return m.groupdict() if m else {}
+
+    @staticmethod
     def trial_path(project: str, location: str, study: str, trial: str,) -> str:
         """Returns a fully-qualified trial string."""
         return "projects/{project}/locations/{location}/studies/{study}/trials/{trial}".format(
@@ -474,6 +489,10 @@ class JobServiceClient(metaclass=JobServiceClientMeta):
                 client_cert_source_for_mtls=client_cert_source_func,
                 quota_project_id=client_options.quota_project_id,
                 client_info=client_info,
+                always_use_jwt_access=(
+                    Transport == type(self).get_transport_class("grpc")
+                    or Transport == type(self).get_transport_class("grpc_asyncio")
+                ),
             )
 
     def create_custom_job(

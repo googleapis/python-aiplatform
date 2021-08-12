@@ -18,7 +18,7 @@
 import csv
 import logging
 
-from typing import List, Optional, Sequence, Tuple, Union
+from typing import Dict, List, Optional, Sequence, Set, Tuple, Union
 
 from google.auth import credentials as auth_credentials
 
@@ -52,6 +52,8 @@ class TabularDataset(datasets._Dataset):
             RuntimeError: When no valid source is found.
         """
 
+        self._assert_gca_resource_is_available()
+
         metadata = self._gca_resource.metadata
 
         if metadata is None:
@@ -73,18 +75,24 @@ class TabularDataset(datasets._Dataset):
                 gcs_source_uris.sort()
 
                 # Get the first file in sorted list
-                return self._retrieve_gcs_source_columns(
-                    project=self.project,
-                    gcs_csv_file_path=gcs_source_uris[0],
-                    credentials=self.credentials,
+                # TODO(b/193044977): Return as Set instead of List
+                return list(
+                    self._retrieve_gcs_source_columns(
+                        project=self.project,
+                        gcs_csv_file_path=gcs_source_uris[0],
+                        credentials=self.credentials,
+                    )
                 )
         elif bq_source:
             bq_table_uri = bq_source.get("uri")
             if bq_table_uri:
-                return self._retrieve_bq_source_columns(
-                    project=self.project,
-                    bq_table_uri=bq_table_uri,
-                    credentials=self.credentials,
+                # TODO(b/193044977): Return as Set instead of List
+                return list(
+                    self._retrieve_bq_source_columns(
+                        project=self.project,
+                        bq_table_uri=bq_table_uri,
+                        credentials=self.credentials,
+                    )
                 )
 
         raise RuntimeError("No valid CSV or BigQuery datasource found.")
@@ -94,7 +102,7 @@ class TabularDataset(datasets._Dataset):
         project: str,
         gcs_csv_file_path: str,
         credentials: Optional[auth_credentials.Credentials] = None,
-    ) -> List[str]:
+    ) -> Set[str]:
         """Retrieve the columns from a comma-delimited CSV file stored on Google Cloud Storage
 
         Example Usage:
@@ -104,7 +112,7 @@ class TabularDataset(datasets._Dataset):
                 "gs://example-bucket/path/to/csv_file"
             )
 
-            # column_names = ["column_1", "column_2"]
+            # column_names = {"column_1", "column_2"}
 
         Args:
             project (str):
@@ -115,8 +123,8 @@ class TabularDataset(datasets._Dataset):
             credentials (auth_credentials.Credentials):
                 Credentials to use to with GCS Client.
         Returns:
-            List[str]
-                A list of columns names in the CSV file.
+            Set[str]
+                A set of columns names in the CSV file.
 
         Raises:
             RuntimeError: When the retrieved CSV file is invalid.
@@ -142,7 +150,7 @@ class TabularDataset(datasets._Dataset):
 
             while first_new_line_index == -1:
                 line += blob.download_as_bytes(
-                    start=start_index, end=start_index + increment
+                    start=start_index, end=start_index + increment - 1
                 ).decode("utf-8")
 
                 first_new_line_index = line.find("\n")
@@ -163,24 +171,15 @@ class TabularDataset(datasets._Dataset):
         finally:
             logger.removeFilter(logging_warning_filter)
 
-        return next(csv_reader)
+        return set(next(csv_reader))
 
     @staticmethod
-    def _retrieve_bq_source_columns(
-        project: str,
-        bq_table_uri: str,
-        credentials: Optional[auth_credentials.Credentials] = None,
-    ) -> List[str]:
-        """Retrieve the columns from a table on Google BigQuery
-
-        Example Usage:
-
-            column_names = _retrieve_bq_source_columns(
-                "project_id",
-                "bq://project_id.dataset.table"
-            )
-
-            # column_names = ["column_1", "column_2"]
+    def _get_bq_schema_field_names_recursively(
+        schema_field: bigquery.SchemaField,
+    ) -> Set[str]:
+        """Retrieve the name for a schema field along with ancestor fields.
+        Nested schema fields are flattened and concatenated with a ".".
+        Schema fields with child fields are not included, but the children are.
 
         Args:
             project (str):
@@ -192,8 +191,55 @@ class TabularDataset(datasets._Dataset):
                 Credentials to use with BQ Client.
 
         Returns:
-            List[str]
-                A list of columns names in the BigQuery table.
+            Set[str]
+                A set of columns names in the BigQuery table.
+        """
+
+        ancestor_names = {
+            nested_field_name
+            for field in schema_field.fields
+            for nested_field_name in TabularDataset._get_bq_schema_field_names_recursively(
+                field
+            )
+        }
+
+        # Only return "leaf nodes", basically any field that doesn't have children
+        if len(ancestor_names) == 0:
+            return {schema_field.name}
+        else:
+            return {f"{schema_field.name}.{name}" for name in ancestor_names}
+
+    @staticmethod
+    def _retrieve_bq_source_columns(
+        project: str,
+        bq_table_uri: str,
+        credentials: Optional[auth_credentials.Credentials] = None,
+    ) -> Set[str]:
+        """Retrieve the column names from a table on Google BigQuery
+        Nested schema fields are flattened and concatenated with a ".".
+        Schema fields with child fields are not included, but the children are.
+
+        Example Usage:
+
+            column_names = _retrieve_bq_source_columns(
+                "project_id",
+                "bq://project_id.dataset.table"
+            )
+
+            # column_names = {"column_1", "column_2", "column_3.nested_field"}
+
+        Args:
+            project (str):
+                Required. Project to initiate the BigQuery client with.
+            bq_table_uri (str):
+                Required. A URI to a BigQuery table.
+                Can include "bq://" prefix but not required.
+            credentials (auth_credentials.Credentials):
+                Credentials to use with BQ Client.
+
+        Returns:
+            Set[str]
+                A set of column names in the BigQuery table.
         """
 
         # Remove bq:// prefix
@@ -204,7 +250,14 @@ class TabularDataset(datasets._Dataset):
         client = bigquery.Client(project=project, credentials=credentials)
         table = client.get_table(bq_table_uri)
         schema = table.schema
-        return [schema.name for schema in schema]
+
+        return {
+            field_name
+            for field in schema
+            for field_name in TabularDataset._get_bq_schema_field_names_recursively(
+                field
+            )
+        }
 
     @classmethod
     def create(
@@ -216,6 +269,7 @@ class TabularDataset(datasets._Dataset):
         location: Optional[str] = None,
         credentials: Optional[auth_credentials.Credentials] = None,
         request_metadata: Optional[Sequence[Tuple[str, str]]] = (),
+        labels: Optional[Dict[str, str]] = None,
         encryption_spec_key_name: Optional[str] = None,
         sync: bool = True,
     ) -> "TabularDataset":
@@ -249,6 +303,16 @@ class TabularDataset(datasets._Dataset):
                 credentials set in aiplatform.init.
             request_metadata (Sequence[Tuple[str, str]]):
                 Strings which should be sent along with the request as metadata.
+            labels (Dict[str, str]):
+                Optional. Labels with user-defined metadata to organize your Tensorboards.
+                Label keys and values can be no longer than 64 characters
+                (Unicode codepoints), can only contain lowercase letters, numeric
+                characters, underscores and dashes. International characters are allowed.
+                No more than 64 user labels can be associated with one Tensorboard
+                (System labels are excluded).
+                See https://goo.gl/xmQnxf for more information and examples of labels.
+                System reserved label keys are prefixed with "aiplatform.googleapis.com/"
+                and are immutable.
             encryption_spec_key_name (Optional[str]):
                 Optional. The Cloud KMS resource identifier of the customer
                 managed encryption key used to protect the dataset. Has the
@@ -271,6 +335,8 @@ class TabularDataset(datasets._Dataset):
         """
 
         utils.validate_display_name(display_name)
+        if labels:
+            utils.validate_labels(labels)
 
         api_client = cls._instantiate_client(location=location, credentials=credentials)
 
@@ -294,6 +360,7 @@ class TabularDataset(datasets._Dataset):
             location=location or initializer.global_config.location,
             credentials=credentials or initializer.global_config.credentials,
             request_metadata=request_metadata,
+            labels=labels,
             encryption_spec=initializer.global_config.get_encryption_spec(
                 encryption_spec_key_name=encryption_spec_key_name
             ),

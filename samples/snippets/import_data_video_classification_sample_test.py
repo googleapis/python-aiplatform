@@ -38,6 +38,7 @@ def teardown(teardown_dataset):
     yield
 
 
+@pytest.mark.skip(reason="https://github.com/googleapis/java-aiplatform/issues/420")
 def test_ucaip_generated_import_data_video_classification_sample_single_label_image(
     capsys, shared_state
 ):

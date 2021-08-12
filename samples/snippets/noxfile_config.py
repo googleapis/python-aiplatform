@@ -19,7 +19,7 @@
 
 TEST_CONFIG_OVERRIDE = {
     # You can opt out from the test for specific Python versions.
-    "ignored_versions": ["2.7"],
+    "ignored_versions": ["2.7", "3.6", "3.8", "3.9"],
     # An envvar key for determining the project id to use. Change it
     # to 'BUILD_SPECIFIC_GCLOUD_PROJECT' if you want to opt in using a
     # build specific Cloud project. You can also use your own string
@@ -29,6 +29,7 @@ TEST_CONFIG_OVERRIDE = {
     # A dictionary you want to inject into your test. Don't put any
     # secrets here. These values will override predefined values.
     "envs": {
-        "DATA_LABELING_API_ENDPOINT": "us-central1-autopush-aiplatform.sandbox.googleapis.com"
+        "DATA_LABELING_API_ENDPOINT": "us-central1-autopush-aiplatform.sandbox.googleapis.com",
+        "PYTEST_ADDOPTS": "-n=auto"  # Run tests parallel using all available CPUs
     },
 }

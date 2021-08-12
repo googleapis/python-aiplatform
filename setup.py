@@ -21,7 +21,7 @@ import os
 import setuptools  # type: ignore
 
 name = "google-cloud-aiplatform"
-version = "1.1.0"
+version = "1.3.0"
 description = "Cloud AI Platform API client library"
 
 package_root = os.path.abspath(os.path.dirname(__file__))
@@ -29,14 +29,13 @@ readme_filename = os.path.join(package_root, "README.rst")
 with io.open(readme_filename, encoding="utf-8") as readme_file:
     readme = readme_file.read()
 
-tensorboard_extra_require = [
-    "tensorflow-cpu>=2.3.0, <=2.5.0",
-    "grpcio~=1.34.0",
-    "six~=1.15.0",
-]
+tensorboard_extra_require = ["tensorflow >=2.3.0, <=2.5.0"]
 metadata_extra_require = ["pandas >= 1.0.0"]
-full_extra_require = tensorboard_extra_require + metadata_extra_require
-testing_extra_require = full_extra_require + ["grpcio-testing ~= 1.34.0"]
+xai_extra_require = ["tensorflow >=2.3.0, <=2.5.0"]
+full_extra_require = list(
+    set(tensorboard_extra_require + metadata_extra_require + xai_extra_require)
+)
+testing_extra_require = full_extra_require + ["grpcio-testing", "pytest-xdist"]
 
 
 setuptools.setup(
@@ -62,7 +61,10 @@ setuptools.setup(
     platforms="Posix; MacOS X; Windows",
     include_package_data=True,
     install_requires=(
-        "google-api-core[grpc] >= 1.22.2, < 2.0.0dev",
+        # NOTE: Maintainers, please do not require google-api-core>=2.x.x
+        # Until this issue is closed
+        # https://github.com/googleapis/google-cloud-python/issues/10566
+        "google-api-core[grpc] >= 1.26.0, <3.0.0dev",
         "proto-plus >= 1.10.1",
         "packaging >= 14.3",
         "google-cloud-storage >= 1.32.0, < 2.0.0dev",
@@ -73,6 +75,7 @@ setuptools.setup(
         "metadata": metadata_extra_require,
         "tensorboard": tensorboard_extra_require,
         "testing": testing_extra_require,
+        "xai": xai_extra_require,
     },
     python_requires=">=3.6",
     scripts=[],

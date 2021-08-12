@@ -59,6 +59,7 @@ from google.cloud.aiplatform.compat.types import (
     study as gca_study_compat,
 )
 
+
 _LOGGER = base.Logger(__name__)
 
 _JOB_COMPLETE_STATES = (
@@ -99,7 +100,7 @@ class _Job(base.VertexAiResourceNounWithFutureManager):
         location: Optional[str] = None,
         credentials: Optional[auth_credentials.Credentials] = None,
     ):
-        """Retrives Job subclass resource by calling a subclass-specific getter
+        """Retrieves Job subclass resource by calling a subclass-specific getter
         method.
 
         Args:
@@ -330,6 +331,7 @@ class BatchPredictionJob(_Job):
 
         This is only available for batch predicition jobs that have run successfully.
         """
+        self._assert_gca_resource_is_available()
         return self._gca_resource.output_info
 
     @property
@@ -337,11 +339,13 @@ class BatchPredictionJob(_Job):
         """Partial failures encountered. For example, single files that can't be read.
         This field never exceeds 20 entries. Status details fields contain standard
         GCP error details."""
+        self._assert_gca_resource_is_available()
         return getattr(self._gca_resource, "partial_failures")
 
     @property
     def completion_stats(self) -> Optional[gca_completion_stats.CompletionStats]:
         """Statistics on completed and failed prediction instances."""
+        self._assert_gca_resource_is_available()
         return getattr(self._gca_resource, "completion_stats")
 
     @classmethod
@@ -366,7 +370,7 @@ class BatchPredictionJob(_Job):
         explanation_parameters: Optional[
             "aiplatform.explain.ExplanationParameters"
         ] = None,
-        labels: Optional[dict] = None,
+        labels: Optional[Dict[str, str]] = None,
         project: Optional[str] = None,
         location: Optional[str] = None,
         credentials: Optional[auth_credentials.Credentials] = None,
@@ -388,12 +392,12 @@ class BatchPredictionJob(_Job):
                 Required. The format in which instances are given, must be one
                 of "jsonl", "csv", "bigquery", "tf-record", "tf-record-gzip",
                 or "file-list". Default is "jsonl" when using `gcs_source`. If a
-                `bigquery_source` is provided, this is overriden to "bigquery".
+                `bigquery_source` is provided, this is overridden to "bigquery".
             predictions_format (str):
                 Required. The format in which Vertex AI gives the
                 predictions, must be one of "jsonl", "csv", or "bigquery".
                 Default is "jsonl" when using `gcs_destination_prefix`. If a
-                `bigquery_destination_prefix` is provided, this is overriden to
+                `bigquery_destination_prefix` is provided, this is overridden to
                 "bigquery".
             gcs_source (Optional[Sequence[str]]):
                 Google Cloud Storage URI(-s) to your instances to run
@@ -495,8 +499,8 @@ class BatchPredictionJob(_Job):
                 a field of the `explanation_parameters` object is not populated, the
                 corresponding field of the `Model.explanation_parameters` object is inherited.
                 For more details, see `Ref docs <http://tinyurl.com/1an4zake>`
-            labels (Optional[dict]):
-                The labels with user-defined metadata to organize your
+            labels (Dict[str, str]):
+                Optional. The labels with user-defined metadata to organize your
                 BatchPredictionJobs. Label keys and values can be no longer than
                 64 characters (Unicode codepoints), can only contain lowercase
                 letters, numeric characters, underscores and dashes.
@@ -529,6 +533,8 @@ class BatchPredictionJob(_Job):
         """
 
         utils.validate_display_name(job_display_name)
+        if labels:
+            utils.validate_labels(labels)
 
         model_name = utils.full_resource_name(
             resource_name=model_name,
@@ -772,6 +778,8 @@ class BatchPredictionJob(_Job):
                 GCS or BQ output provided.
         """
 
+        self._assert_gca_resource_is_available()
+
         if self.state != gca_job_state.JobState.JOB_STATE_SUCCEEDED:
             raise RuntimeError(
                 f"Cannot read outputs until BatchPredictionJob has succeeded, "
@@ -859,23 +867,6 @@ class _RunnableJob(_Job):
     def run(self) -> None:
         pass
 
-    @property
-    def _has_run(self) -> bool:
-        """Property returns true if this class has a resource name."""
-        return bool(self._gca_resource.name)
-
-    @property
-    def state(self) -> gca_job_state.JobState:
-        """Current state of job.
-
-        Raises:
-            RuntimeError if job run has not been called.
-        """
-        if not self._has_run:
-            raise RuntimeError("Job has not run. No state available.")
-
-        return super().state
-
     @classmethod
     def get(
         cls,
@@ -913,6 +904,10 @@ class _RunnableJob(_Job):
 
         return self
 
+    def wait_for_resource_creation(self) -> None:
+        """Waits until resource has been created."""
+        self._wait_for_resource_creation()
+
 
 class DataLabelingJob(_Job):
     _resource_noun = "dataLabelingJobs"
@@ -938,9 +933,11 @@ class CustomJob(_RunnableJob):
         self,
         display_name: str,
         worker_pool_specs: Union[List[Dict], List[aiplatform.gapic.WorkerPoolSpec]],
+        base_output_dir: Optional[str] = None,
         project: Optional[str] = None,
         location: Optional[str] = None,
         credentials: Optional[auth_credentials.Credentials] = None,
+        labels: Optional[Dict[str, str]] = None,
         encryption_spec_key_name: Optional[str] = None,
         staging_bucket: Optional[str] = None,
     ):
@@ -966,7 +963,8 @@ class CustomJob(_RunnableJob):
 
         my_job = aiplatform.CustomJob(
             display_name='my_job',
-            worker_pool_specs=worker_pool_specs
+            worker_pool_specs=worker_pool_specs,
+            labels={'my_key': 'my_value'},
         )
 
         my_job.run()
@@ -985,6 +983,9 @@ class CustomJob(_RunnableJob):
             worker_pool_specs (Union[List[Dict], List[aiplatform.gapic.WorkerPoolSpec]]):
                 Required. The spec of the worker pools including machine type and Docker image.
                 Can provided as a list of dictionaries or list of WorkerPoolSpec proto messages.
+            base_output_dir (str):
+                Optional. GCS output directory of job. If not provided a
+                timestamped directory in the staging directory will be used.
             project (str):
                 Optional.Project to run the custom job in. Overrides project set in aiplatform.init.
             location (str):
@@ -992,6 +993,16 @@ class CustomJob(_RunnableJob):
             credentials (auth_credentials.Credentials):
                 Optional.Custom credentials to use to run call custom job service. Overrides
                 credentials set in aiplatform.init.
+            labels (Dict[str, str]):
+                Optional. The labels with user-defined metadata to
+                organize CustomJobs.
+                Label keys and values can be no longer than 64
+                characters (Unicode codepoints), can only
+                contain lowercase letters, numeric characters,
+                underscores and dashes. International characters
+                are allowed.
+                See https://goo.gl/xmQnxf for more information
+                and examples of labels.
             encryption_spec_key_name (str):
                 Optional.Customer-managed encryption key name for a
                 CustomJob. If this is set, then all resources
@@ -1016,14 +1027,23 @@ class CustomJob(_RunnableJob):
                 "should be set using aiplatform.init(staging_bucket='gs://my-bucket')"
             )
 
+        if labels:
+            utils.validate_labels(labels)
+
+        # default directory if not given
+        base_output_dir = base_output_dir or utils._timestamped_gcs_dir(
+            staging_bucket, "aiplatform-custom-job"
+        )
+
         self._gca_resource = gca_custom_job_compat.CustomJob(
             display_name=display_name,
             job_spec=gca_custom_job_compat.CustomJobSpec(
                 worker_pool_specs=worker_pool_specs,
                 base_output_directory=gca_io_compat.GcsDestination(
-                    output_uri_prefix=staging_bucket
+                    output_uri_prefix=base_output_dir
                 ),
             ),
+            labels=labels,
             encryption_spec=initializer.global_config.get_encryption_spec(
                 encryption_spec_key_name=encryption_spec_key_name
             ),
@@ -1041,7 +1061,8 @@ class CustomJob(_RunnableJob):
         Private services access must already be configured for the network. If left
         unspecified, the CustomJob is not peered with any network.
         """
-        return getattr(self._gca_resource, "network")
+        self._assert_gca_resource_is_available()
+        return self._gca_resource.job_spec.network
 
     @classmethod
     def from_local_script(
@@ -1056,9 +1077,11 @@ class CustomJob(_RunnableJob):
         machine_type: str = "n1-standard-4",
         accelerator_type: str = "ACCELERATOR_TYPE_UNSPECIFIED",
         accelerator_count: int = 0,
+        base_output_dir: Optional[str] = None,
         project: Optional[str] = None,
         location: Optional[str] = None,
         credentials: Optional[auth_credentials.Credentials] = None,
+        labels: Optional[Dict[str, str]] = None,
         encryption_spec_key_name: Optional[str] = None,
         staging_bucket: Optional[str] = None,
     ) -> "CustomJob":
@@ -1074,6 +1097,7 @@ class CustomJob(_RunnableJob):
             replica_count=1,
             args=['--dataset', 'gs://my-bucket/my-dataset',
             '--model_output_uri', 'gs://my-bucket/model']
+            labels={'my_key': 'my_value'},
         )
 
         job.run()
@@ -1112,6 +1136,9 @@ class CustomJob(_RunnableJob):
                 NVIDIA_TESLA_T4
             accelerator_count (int):
                 Optional. The number of accelerators to attach to a worker replica.
+            base_output_dir (str):
+                Optional. GCS output directory of job. If not provided a
+                timestamped directory in the staging directory will be used.
             project (str):
                 Optional. Project to run the custom job in. Overrides project set in aiplatform.init.
             location (str):
@@ -1119,6 +1146,16 @@ class CustomJob(_RunnableJob):
             credentials (auth_credentials.Credentials):
                 Optional. Custom credentials to use to run call custom job service. Overrides
                 credentials set in aiplatform.init.
+            labels (Dict[str, str]):
+                Optional. The labels with user-defined metadata to
+                organize CustomJobs.
+                Label keys and values can be no longer than 64
+                characters (Unicode codepoints), can only
+                contain lowercase letters, numeric characters,
+                underscores and dashes. International characters
+                are allowed.
+                See https://goo.gl/xmQnxf for more information
+                and examples of labels.
             encryption_spec_key_name (str):
                 Optional. Customer-managed encryption key name for a
                 CustomJob. If this is set, then all resources
@@ -1142,6 +1179,9 @@ class CustomJob(_RunnableJob):
                 "staging_bucket should be passed to CustomJob.from_local_script or "
                 "should be set using aiplatform.init(staging_bucket='gs://my-bucket')"
             )
+
+        if labels:
+            utils.validate_labels(labels)
 
         worker_pool_specs = worker_spec_utils._DistributedTrainingSpec.chief_worker_pool(
             replica_count=replica_count,
@@ -1177,9 +1217,11 @@ class CustomJob(_RunnableJob):
         return cls(
             display_name=display_name,
             worker_pool_specs=worker_pool_specs,
+            base_output_dir=base_output_dir,
             project=project,
             location=location,
             credentials=credentials,
+            labels=labels,
             encryption_spec_key_name=encryption_spec_key_name,
             staging_bucket=staging_bucket,
         )
@@ -1317,6 +1359,7 @@ class HyperparameterTuningJob(_RunnableJob):
         project: Optional[str] = None,
         location: Optional[str] = None,
         credentials: Optional[auth_credentials.Credentials] = None,
+        labels: Optional[Dict[str, str]] = None,
         encryption_spec_key_name: Optional[str] = None,
     ):
         """
@@ -1345,7 +1388,8 @@ class HyperparameterTuningJob(_RunnableJob):
 
         custom_job = aiplatform.CustomJob(
             display_name='my_job',
-            worker_pool_specs=worker_pool_specs
+            worker_pool_specs=worker_pool_specs,
+            labels={'my_key': 'my_value'},
         )
 
 
@@ -1363,6 +1407,7 @@ class HyperparameterTuningJob(_RunnableJob):
             },
             max_trial_count=128,
             parallel_trial_count=8,
+            labels={'my_key': 'my_value'},
             )
 
         hp_job.run()
@@ -1391,7 +1436,7 @@ class HyperparameterTuningJob(_RunnableJob):
 
             parameter_spec (Dict[str, hyperparameter_tuning._ParameterSpec]):
                 Required. Dictionary representing parameters to optimize. The dictionary key is the metric_id,
-                which is passed into your training job as a command line key word arguemnt, and the
+                which is passed into your training job as a command line key word argument, and the
                 dictionary value is the parameter specification of the metric.
 
 
@@ -1458,6 +1503,16 @@ class HyperparameterTuningJob(_RunnableJob):
             credentials (auth_credentials.Credentials):
                 Optional. Custom credentials to use to run call HyperparameterTuning service. Overrides
                 credentials set in aiplatform.init.
+            labels (Dict[str, str]):
+                Optional. The labels with user-defined metadata to
+                organize HyperparameterTuningJobs.
+                Label keys and values can be no longer than 64
+                characters (Unicode codepoints), can only
+                contain lowercase letters, numeric characters,
+                underscores and dashes. International characters
+                are allowed.
+                See https://goo.gl/xmQnxf for more information
+                and examples of labels.
             encryption_spec_key_name (str):
                 Optional. Customer-managed encryption key options for a
                 HyperparameterTuningJob. If this is set, then
@@ -1495,6 +1550,7 @@ class HyperparameterTuningJob(_RunnableJob):
             parallel_trial_count=parallel_trial_count,
             max_failed_trial_count=max_failed_trial_count,
             trial_job_spec=copy.deepcopy(custom_job.job_spec),
+            labels=labels,
             encryption_spec=initializer.global_config.get_encryption_spec(
                 encryption_spec_key_name=encryption_spec_key_name
             ),
@@ -1512,6 +1568,7 @@ class HyperparameterTuningJob(_RunnableJob):
         Private services access must already be configured for the network. If left
         unspecified, the HyperparameterTuningJob is not peered with any network.
         """
+        self._assert_gca_resource_is_available()
         return getattr(self._gca_resource.trial_job_spec, "network")
 
     @base.optional_sync()
@@ -1612,4 +1669,5 @@ class HyperparameterTuningJob(_RunnableJob):
 
     @property
     def trials(self) -> List[gca_study_compat.Trial]:
+        self._assert_gca_resource_is_available()
         return list(self._gca_resource.trials)
