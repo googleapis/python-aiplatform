@@ -226,7 +226,7 @@ def teardown_endpoint(shared_state, endpoint_client):
     )
     undeploy_model_operation.result()
 
-    # Delete the endpoint
+    # Delete the endpoint after undeploying model
     endpoint_client.delete_endpoint(name=shared_state["endpoint_name"])
 
 
