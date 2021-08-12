@@ -21,7 +21,6 @@ import pytest
 import importlib
 
 from google import auth as google_auth
-from google.protobuf import json_format
 from google.api_core import exceptions
 from google.api_core import client_options
 
@@ -239,16 +238,15 @@ class TestDataset:
             gcs_source=[_TEST_TABULAR_CLASSIFICATION_GCS_SOURCE],
         )
 
-        gapic_dataset = tabular_dataset._gca_resource
         shared_state["dataset_name"] = tabular_dataset.resource_name
 
-        gapic_metadata = json_format.MessageToDict(gapic_dataset._pb.metadata)
+        gapic_metadata = tabular_dataset.to_dict()["metadata"]
         gcs_source_uris = gapic_metadata["inputConfig"]["gcsSource"]["uri"]
 
         assert len(gcs_source_uris) == 1
         assert _TEST_TABULAR_CLASSIFICATION_GCS_SOURCE == gcs_source_uris[0]
         assert (
-            gapic_dataset.metadata_schema_uri
+            tabular_dataset.metadata_schema_uri
             == aiplatform.schema.dataset.metadata.tabular
         )
 

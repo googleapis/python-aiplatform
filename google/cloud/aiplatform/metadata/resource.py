@@ -24,7 +24,6 @@ from typing import Optional, Dict, Union, Sequence
 import proto
 from google.api_core import exceptions
 from google.auth import credentials as auth_credentials
-from google.protobuf import json_format
 
 from google.cloud.aiplatform import base, initializer
 from google.cloud.aiplatform import utils
@@ -98,7 +97,7 @@ class _Resource(base.VertexAiResourceNounWithFutureManager, abc.ABC):
 
     @property
     def metadata(self) -> Dict:
-        return json_format.MessageToDict(self._gca_resource._pb)["metadata"]
+        return self.to_dict()["metadata"]
 
     @property
     def schema_title(self) -> str:
