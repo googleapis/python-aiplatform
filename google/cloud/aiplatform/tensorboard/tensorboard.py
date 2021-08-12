@@ -146,6 +146,8 @@ class Tensorboard(base.VertexAiResourceNounWithFutureManager):
         """
 
         utils.validate_display_name(display_name)
+        if labels:
+            utils.validate_labels(labels)
 
         api_client = cls._instantiate_client(location=location, credentials=credentials)
 
@@ -245,6 +247,7 @@ class Tensorboard(base.VertexAiResourceNounWithFutureManager):
             update_mask.append("description")
 
         if labels:
+            utils.validate_labels(labels)
             update_mask.append("labels")
 
         encryption_spec = None

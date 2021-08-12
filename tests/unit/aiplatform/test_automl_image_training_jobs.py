@@ -46,6 +46,9 @@ _TEST_DATASET_NAME = "test-dataset-name"
 _TEST_MODEL_DISPLAY_NAME = "model-display-name"
 _TEST_MODEL_ID = "98777645321"
 
+_TEST_LABELS = {"key": "value"}
+_TEST_MODEL_LABELS = {"model_key": "model_value"}
+
 _TEST_TRAINING_TASK_INPUTS = json_format.ParseDict(
     {
         "modelType": "CLOUD",
@@ -76,7 +79,7 @@ _TEST_MODEL_NAME = (
 )
 
 _TEST_PIPELINE_RESOURCE_NAME = (
-    f"projects/{_TEST_PROJECT}/locations/{_TEST_LOCATION}/trainingPipeline/12345"
+    f"projects/{_TEST_PROJECT}/locations/{_TEST_LOCATION}/trainingPipelines/12345"
 )
 
 # CMEK encryption
@@ -251,12 +254,15 @@ class TestAutoMLImageTrainingJob:
         )
 
         job = training_jobs.AutoMLImageTrainingJob(
-            display_name=_TEST_DISPLAY_NAME, base_model=mock_model_image
+            display_name=_TEST_DISPLAY_NAME,
+            base_model=mock_model_image,
+            labels=_TEST_LABELS,
         )
 
         model_from_job = job.run(
             dataset=mock_dataset_image,
             model_display_name=_TEST_MODEL_DISPLAY_NAME,
+            model_labels=_TEST_MODEL_LABELS,
             training_fraction_split=_TEST_FRACTION_SPLIT_TRAINING,
             validation_fraction_split=_TEST_FRACTION_SPLIT_VALIDATION,
             test_fraction_split=_TEST_FRACTION_SPLIT_TEST,
@@ -276,6 +282,7 @@ class TestAutoMLImageTrainingJob:
 
         true_managed_model = gca_model.Model(
             display_name=_TEST_MODEL_DISPLAY_NAME,
+            labels=mock_model_image._gca_resource.labels,
             description=mock_model_image._gca_resource.description,
             encryption_spec=_TEST_DEFAULT_ENCRYPTION_SPEC,
         )
@@ -286,6 +293,7 @@ class TestAutoMLImageTrainingJob:
 
         true_training_pipeline = gca_training_pipeline.TrainingPipeline(
             display_name=_TEST_DISPLAY_NAME,
+            labels=_TEST_LABELS,
             training_task_definition=schema.training_job.definition.automl_image_classification,
             training_task_inputs=_TEST_TRAINING_TASK_INPUTS_WITH_BASE_MODEL,
             model_to_upload=true_managed_model,
@@ -307,7 +315,7 @@ class TestAutoMLImageTrainingJob:
 
     @pytest.mark.usefixtures("mock_pipeline_service_get")
     @pytest.mark.parametrize("sync", [True, False])
-    def test_run_call_pipeline_if_no_model_display_name(
+    def test_run_call_pipeline_if_no_model_display_name_nor_model_labels(
         self,
         mock_pipeline_service_create,
         mock_dataset_image,
@@ -318,6 +326,7 @@ class TestAutoMLImageTrainingJob:
 
         job = training_jobs.AutoMLImageTrainingJob(
             display_name=_TEST_DISPLAY_NAME,
+            labels=_TEST_LABELS,
             training_encryption_spec_key_name=_TEST_PIPELINE_ENCRYPTION_KEY_NAME,
             model_encryption_spec_key_name=_TEST_MODEL_ENCRYPTION_KEY_NAME,
         )
@@ -342,7 +351,9 @@ class TestAutoMLImageTrainingJob:
 
         # Test that if defaults to the job display name
         true_managed_model = gca_model.Model(
-            display_name=_TEST_DISPLAY_NAME, encryption_spec=_TEST_MODEL_ENCRYPTION_SPEC
+            display_name=_TEST_DISPLAY_NAME,
+            labels=_TEST_LABELS,
+            encryption_spec=_TEST_MODEL_ENCRYPTION_SPEC,
         )
 
         true_input_data_config = gca_training_pipeline.InputDataConfig(
@@ -351,6 +362,7 @@ class TestAutoMLImageTrainingJob:
 
         true_training_pipeline = gca_training_pipeline.TrainingPipeline(
             display_name=_TEST_DISPLAY_NAME,
+            labels=_TEST_LABELS,
             training_task_definition=schema.training_job.definition.automl_image_classification,
             training_task_inputs=_TEST_TRAINING_TASK_INPUTS,
             model_to_upload=true_managed_model,

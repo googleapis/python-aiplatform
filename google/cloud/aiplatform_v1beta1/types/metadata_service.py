@@ -40,12 +40,19 @@ __protobuf__ = proto.module(
         "ListArtifactsRequest",
         "ListArtifactsResponse",
         "UpdateArtifactRequest",
+        "DeleteArtifactRequest",
+        "PurgeArtifactsRequest",
+        "PurgeArtifactsResponse",
+        "PurgeArtifactsMetadata",
         "CreateContextRequest",
         "GetContextRequest",
         "ListContextsRequest",
         "ListContextsResponse",
         "UpdateContextRequest",
         "DeleteContextRequest",
+        "PurgeContextsRequest",
+        "PurgeContextsResponse",
+        "PurgeContextsMetadata",
         "AddContextArtifactsAndExecutionsRequest",
         "AddContextArtifactsAndExecutionsResponse",
         "AddContextChildrenRequest",
@@ -56,6 +63,10 @@ __protobuf__ = proto.module(
         "ListExecutionsRequest",
         "ListExecutionsResponse",
         "UpdateExecutionRequest",
+        "DeleteExecutionRequest",
+        "PurgeExecutionsRequest",
+        "PurgeExecutionsResponse",
+        "PurgeExecutionsMetadata",
         "AddExecutionEventsRequest",
         "AddExecutionEventsResponse",
         "QueryExecutionInputsAndOutputsRequest",
@@ -369,6 +380,81 @@ class UpdateArtifactRequest(proto.Message):
     allow_missing = proto.Field(proto.BOOL, number=3,)
 
 
+class DeleteArtifactRequest(proto.Message):
+    r"""Request message for
+    [MetadataService.DeleteArtifact][google.cloud.aiplatform.v1beta1.MetadataService.DeleteArtifact].
+
+    Attributes:
+        name (str):
+            Required. The resource name of the Artifact
+            to delete. Format:
+            projects/{project}/locations/{location}/metadataStores/{metadatastore}/artifacts/{artifact}
+        etag (str):
+            Optional. The etag of the Artifact to delete. If this is
+            provided, it must match the server's etag. Otherwise, the
+            request will fail with a FAILED_PRECONDITION.
+    """
+
+    name = proto.Field(proto.STRING, number=1,)
+    etag = proto.Field(proto.STRING, number=2,)
+
+
+class PurgeArtifactsRequest(proto.Message):
+    r"""Request message for
+    [MetadataService.PurgeArtifacts][google.cloud.aiplatform.v1beta1.MetadataService.PurgeArtifacts].
+
+    Attributes:
+        parent (str):
+            Required. The metadata store to purge
+            Artifacts from. Format:
+            projects/{project}/locations/{location}/metadataStores/{metadatastore}
+        filter (str):
+            Required. A required filter matching the Artifacts to be
+            purged. E.g., update_time <= 2020-11-19T11:30:00-04:00.
+        force (bool):
+            Optional. Flag to indicate to actually perform the purge. If
+            ``force`` is set to false, the method will return a sample
+            of Artifact names that would be deleted.
+    """
+
+    parent = proto.Field(proto.STRING, number=1,)
+    filter = proto.Field(proto.STRING, number=2,)
+    force = proto.Field(proto.BOOL, number=3,)
+
+
+class PurgeArtifactsResponse(proto.Message):
+    r"""Response message for
+    [MetadataService.PurgeArtifacts][google.cloud.aiplatform.v1beta1.MetadataService.PurgeArtifacts].
+
+    Attributes:
+        purge_count (int):
+            The number of Artifacts that this request deleted (or, if
+            ``force`` is false, the number of Artifacts that will be
+            deleted). This can be an estimate.
+        purge_sample (Sequence[str]):
+            A sample of the Artifact names that will be deleted. Only
+            populated if ``force`` is set to false. The maximum number
+            of samples is 100 (it is possible to return fewer).
+    """
+
+    purge_count = proto.Field(proto.INT64, number=1,)
+    purge_sample = proto.RepeatedField(proto.STRING, number=2,)
+
+
+class PurgeArtifactsMetadata(proto.Message):
+    r"""Details of operations that perform
+    [MetadataService.PurgeArtifacts][google.cloud.aiplatform.v1beta1.MetadataService.PurgeArtifacts].
+
+    Attributes:
+        generic_metadata (google.cloud.aiplatform_v1beta1.types.GenericOperationMetadata):
+            Operation metadata for purging Artifacts.
+    """
+
+    generic_metadata = proto.Field(
+        proto.MESSAGE, number=1, message=operation.GenericOperationMetadata,
+    )
+
+
 class CreateContextRequest(proto.Message):
     r"""Request message for
     [MetadataService.CreateContext][google.cloud.aiplatform.v1beta1.MetadataService.CreateContext].
@@ -535,17 +621,76 @@ class DeleteContextRequest(proto.Message):
     Attributes:
         name (str):
             Required. The resource name of the Context to
-            retrieve. Format:
+            delete. Format:
             projects/{project}/locations/{location}/metadataStores/{metadatastore}/contexts/{context}
         force (bool):
-            If set to true, any child resources of this Context will be
-            deleted. (Otherwise, the request will fail with a
-            FAILED_PRECONDITION error if the Context has any child
-            resources, such as another Context, Artifact, or Execution).
+            The force deletion semantics is still
+            undefined. Users should not use this field.
+        etag (str):
+            Optional. The etag of the Context to delete. If this is
+            provided, it must match the server's etag. Otherwise, the
+            request will fail with a FAILED_PRECONDITION.
     """
 
     name = proto.Field(proto.STRING, number=1,)
     force = proto.Field(proto.BOOL, number=2,)
+    etag = proto.Field(proto.STRING, number=3,)
+
+
+class PurgeContextsRequest(proto.Message):
+    r"""Request message for
+    [MetadataService.PurgeContexts][google.cloud.aiplatform.v1beta1.MetadataService.PurgeContexts].
+
+    Attributes:
+        parent (str):
+            Required. The metadata store to purge
+            Contexts from. Format:
+            projects/{project}/locations/{location}/metadataStores/{metadatastore}
+        filter (str):
+            Required. A required filter matching the Contexts to be
+            purged. E.g., update_time <= 2020-11-19T11:30:00-04:00.
+        force (bool):
+            Optional. Flag to indicate to actually perform the purge. If
+            ``force`` is set to false, the method will return a sample
+            of Context names that would be deleted.
+    """
+
+    parent = proto.Field(proto.STRING, number=1,)
+    filter = proto.Field(proto.STRING, number=2,)
+    force = proto.Field(proto.BOOL, number=3,)
+
+
+class PurgeContextsResponse(proto.Message):
+    r"""Response message for
+    [MetadataService.PurgeContexts][google.cloud.aiplatform.v1beta1.MetadataService.PurgeContexts].
+
+    Attributes:
+        purge_count (int):
+            The number of Contexts that this request deleted (or, if
+            ``force`` is false, the number of Contexts that will be
+            deleted). This can be an estimate.
+        purge_sample (Sequence[str]):
+            A sample of the Context names that will be deleted. Only
+            populated if ``force`` is set to false. The maximum number
+            of samples is 100 (it is possible to return fewer).
+    """
+
+    purge_count = proto.Field(proto.INT64, number=1,)
+    purge_sample = proto.RepeatedField(proto.STRING, number=2,)
+
+
+class PurgeContextsMetadata(proto.Message):
+    r"""Details of operations that perform
+    [MetadataService.PurgeContexts][google.cloud.aiplatform.v1beta1.MetadataService.PurgeContexts].
+
+    Attributes:
+        generic_metadata (google.cloud.aiplatform_v1beta1.types.GenericOperationMetadata):
+            Operation metadata for purging Contexts.
+    """
+
+    generic_metadata = proto.Field(
+        proto.MESSAGE, number=1, message=operation.GenericOperationMetadata,
+    )
 
 
 class AddContextArtifactsAndExecutionsRequest(proto.Message):
@@ -776,6 +921,81 @@ class UpdateExecutionRequest(proto.Message):
         proto.MESSAGE, number=2, message=field_mask_pb2.FieldMask,
     )
     allow_missing = proto.Field(proto.BOOL, number=3,)
+
+
+class DeleteExecutionRequest(proto.Message):
+    r"""Request message for
+    [MetadataService.DeleteExecution][google.cloud.aiplatform.v1beta1.MetadataService.DeleteExecution].
+
+    Attributes:
+        name (str):
+            Required. The resource name of the Execution
+            to delete. Format:
+            projects/{project}/locations/{location}/metadataStores/{metadatastore}/executions/{execution}
+        etag (str):
+            Optional. The etag of the Execution to delete. If this is
+            provided, it must match the server's etag. Otherwise, the
+            request will fail with a FAILED_PRECONDITION.
+    """
+
+    name = proto.Field(proto.STRING, number=1,)
+    etag = proto.Field(proto.STRING, number=2,)
+
+
+class PurgeExecutionsRequest(proto.Message):
+    r"""Request message for
+    [MetadataService.PurgeExecutions][google.cloud.aiplatform.v1beta1.MetadataService.PurgeExecutions].
+
+    Attributes:
+        parent (str):
+            Required. The metadata store to purge
+            Executions from. Format:
+            projects/{project}/locations/{location}/metadataStores/{metadatastore}
+        filter (str):
+            Required. A required filter matching the Executions to be
+            purged. E.g., update_time <= 2020-11-19T11:30:00-04:00.
+        force (bool):
+            Optional. Flag to indicate to actually perform the purge. If
+            ``force`` is set to false, the method will return a sample
+            of Execution names that would be deleted.
+    """
+
+    parent = proto.Field(proto.STRING, number=1,)
+    filter = proto.Field(proto.STRING, number=2,)
+    force = proto.Field(proto.BOOL, number=3,)
+
+
+class PurgeExecutionsResponse(proto.Message):
+    r"""Response message for
+    [MetadataService.PurgeExecutions][google.cloud.aiplatform.v1beta1.MetadataService.PurgeExecutions].
+
+    Attributes:
+        purge_count (int):
+            The number of Executions that this request deleted (or, if
+            ``force`` is false, the number of Executions that will be
+            deleted). This can be an estimate.
+        purge_sample (Sequence[str]):
+            A sample of the Execution names that will be deleted. Only
+            populated if ``force`` is set to false. The maximum number
+            of samples is 100 (it is possible to return fewer).
+    """
+
+    purge_count = proto.Field(proto.INT64, number=1,)
+    purge_sample = proto.RepeatedField(proto.STRING, number=2,)
+
+
+class PurgeExecutionsMetadata(proto.Message):
+    r"""Details of operations that perform
+    [MetadataService.PurgeExecutions][google.cloud.aiplatform.v1beta1.MetadataService.PurgeExecutions].
+
+    Attributes:
+        generic_metadata (google.cloud.aiplatform_v1beta1.types.GenericOperationMetadata):
+            Operation metadata for purging Executions.
+    """
+
+    generic_metadata = proto.Field(
+        proto.MESSAGE, number=1, message=operation.GenericOperationMetadata,
+    )
 
 
 class AddExecutionEventsRequest(proto.Message):

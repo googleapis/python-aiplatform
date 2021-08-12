@@ -96,6 +96,9 @@ _TEST_ACCELERATOR_TYPE = "NVIDIA_TESLA_K80"
 _TEST_INVALID_ACCELERATOR_TYPE = "NVIDIA_DOES_NOT_EXIST"
 _TEST_ACCELERATOR_COUNT = 1
 _TEST_MODEL_DISPLAY_NAME = "model-display-name"
+_TEST_LABELS = {"key": "value"}
+_TEST_MODEL_LABELS = {"model_key": "model_value"}
+
 _TEST_DEFAULT_TRAINING_FRACTION_SPLIT = 0.8
 _TEST_DEFAULT_VALIDATION_FRACTION_SPLIT = 0.1
 _TEST_DEFAULT_TEST_FRACTION_SPLIT = 0.1
@@ -141,7 +144,7 @@ _TEST_PYTHON_MODULE_NAME = "aiplatform.task"
 _TEST_MODEL_NAME = "projects/my-project/locations/us-central1/models/12345"
 
 _TEST_PIPELINE_RESOURCE_NAME = (
-    "projects/my-project/locations/us-central1/trainingPipeline/12345"
+    "projects/my-project/locations/us-central1/trainingPipelines/12345"
 )
 _TEST_CREDENTIALS = mock.Mock(spec=auth_credentials.AnonymousCredentials())
 
@@ -630,6 +633,7 @@ class TestCustomTrainingJob:
 
         job = training_jobs.CustomTrainingJob(
             display_name=_TEST_DISPLAY_NAME,
+            labels=_TEST_LABELS,
             script_path=_TEST_LOCAL_SCRIPT_FILE_NAME,
             container_uri=_TEST_TRAINING_CONTAINER_IMAGE,
             model_serving_container_image_uri=_TEST_SERVING_CONTAINER_IMAGE,
@@ -652,11 +656,11 @@ class TestCustomTrainingJob:
             network=_TEST_NETWORK,
             args=_TEST_RUN_ARGS,
             environment_variables=_TEST_ENVIRONMENT_VARIABLES,
-            replica_count=1,
             machine_type=_TEST_MACHINE_TYPE,
             accelerator_type=_TEST_ACCELERATOR_TYPE,
             accelerator_count=_TEST_ACCELERATOR_COUNT,
             model_display_name=_TEST_MODEL_DISPLAY_NAME,
+            model_labels=_TEST_MODEL_LABELS,
             training_fraction_split=_TEST_TRAINING_FRACTION_SPLIT,
             validation_fraction_split=_TEST_VALIDATION_FRACTION_SPLIT,
             test_fraction_split=_TEST_TEST_FRACTION_SPLIT,
@@ -724,6 +728,7 @@ class TestCustomTrainingJob:
 
         true_managed_model = gca_model.Model(
             display_name=_TEST_MODEL_DISPLAY_NAME,
+            labels=_TEST_MODEL_LABELS,
             description=_TEST_MODEL_DESCRIPTION,
             container_spec=true_container_spec,
             predict_schemata=gca_model.PredictSchemata(
@@ -762,6 +767,7 @@ class TestCustomTrainingJob:
             ),
             model_to_upload=true_managed_model,
             input_data_config=true_input_data_config,
+            labels=_TEST_LABELS,
             encryption_spec=_TEST_DEFAULT_ENCRYPTION_SPEC,
         )
 
@@ -825,7 +831,6 @@ class TestCustomTrainingJob:
             bigquery_destination=_TEST_BIGQUERY_DESTINATION,
             args=_TEST_RUN_ARGS,
             environment_variables=_TEST_ENVIRONMENT_VARIABLES,
-            replica_count=1,
             machine_type=_TEST_MACHINE_TYPE,
             accelerator_type=_TEST_ACCELERATOR_TYPE,
             accelerator_count=_TEST_ACCELERATOR_COUNT,
@@ -1099,7 +1104,6 @@ class TestCustomTrainingJob:
             base_output_dir=_TEST_BASE_OUTPUT_DIR,
             args=_TEST_RUN_ARGS,
             environment_variables=_TEST_ENVIRONMENT_VARIABLES,
-            replica_count=1,
             machine_type=_TEST_MACHINE_TYPE,
             accelerator_type=_TEST_ACCELERATOR_TYPE,
             accelerator_count=_TEST_ACCELERATOR_COUNT,
@@ -1591,7 +1595,7 @@ class TestCustomTrainingJob:
         assert isinstance(subcls, aiplatform.training_jobs.CustomTrainingJob)
 
     @pytest.mark.parametrize("sync", [True, False])
-    def test_run_call_pipeline_service_create_with_nontabular_dataset(
+    def test_run_call_pipeline_service_create_with_nontabular_dataset_without_model_display_name_nor_model_labels(
         self,
         mock_pipeline_service_create,
         mock_pipeline_service_get,
@@ -1608,6 +1612,7 @@ class TestCustomTrainingJob:
 
         job = training_jobs.CustomTrainingJob(
             display_name=_TEST_DISPLAY_NAME,
+            labels=_TEST_LABELS,
             script_path=_TEST_LOCAL_SCRIPT_FILE_NAME,
             container_uri=_TEST_TRAINING_CONTAINER_IMAGE,
             model_serving_container_image_uri=_TEST_SERVING_CONTAINER_IMAGE,
@@ -1628,11 +1633,9 @@ class TestCustomTrainingJob:
             annotation_schema_uri=_TEST_ANNOTATION_SCHEMA_URI,
             base_output_dir=_TEST_BASE_OUTPUT_DIR,
             args=_TEST_RUN_ARGS,
-            replica_count=1,
             machine_type=_TEST_MACHINE_TYPE,
             accelerator_type=_TEST_ACCELERATOR_TYPE,
             accelerator_count=_TEST_ACCELERATOR_COUNT,
-            model_display_name=_TEST_MODEL_DISPLAY_NAME,
             sync=sync,
         )
 
@@ -1689,7 +1692,8 @@ class TestCustomTrainingJob:
         )
 
         true_managed_model = gca_model.Model(
-            display_name=_TEST_MODEL_DISPLAY_NAME,
+            display_name=_TEST_DISPLAY_NAME + "-model",
+            labels=_TEST_LABELS,
             description=_TEST_MODEL_DESCRIPTION,
             container_spec=true_container_spec,
             predict_schemata=gca_model.PredictSchemata(
@@ -1710,6 +1714,7 @@ class TestCustomTrainingJob:
 
         true_training_pipeline = gca_training_pipeline.TrainingPipeline(
             display_name=_TEST_DISPLAY_NAME,
+            labels=_TEST_LABELS,
             training_task_definition=schema.training_job.definition.custom_task,
             training_task_inputs=json_format.ParseDict(
                 {
@@ -1850,6 +1855,7 @@ class TestCustomContainerTrainingJob:
 
         job = training_jobs.CustomContainerTrainingJob(
             display_name=_TEST_DISPLAY_NAME,
+            labels=_TEST_LABELS,
             container_uri=_TEST_TRAINING_CONTAINER_IMAGE,
             command=_TEST_TRAINING_CONTAINER_CMD,
             model_serving_container_image_uri=_TEST_SERVING_CONTAINER_IMAGE,
@@ -1870,11 +1876,11 @@ class TestCustomContainerTrainingJob:
             base_output_dir=_TEST_BASE_OUTPUT_DIR,
             args=_TEST_RUN_ARGS,
             environment_variables=_TEST_ENVIRONMENT_VARIABLES,
-            replica_count=1,
             machine_type=_TEST_MACHINE_TYPE,
             accelerator_type=_TEST_ACCELERATOR_TYPE,
             accelerator_count=_TEST_ACCELERATOR_COUNT,
             model_display_name=_TEST_MODEL_DISPLAY_NAME,
+            model_labels=_TEST_MODEL_LABELS,
             training_fraction_split=_TEST_TRAINING_FRACTION_SPLIT,
             validation_fraction_split=_TEST_VALIDATION_FRACTION_SPLIT,
             test_fraction_split=_TEST_TEST_FRACTION_SPLIT,
@@ -1936,6 +1942,7 @@ class TestCustomContainerTrainingJob:
 
         true_managed_model = gca_model.Model(
             display_name=_TEST_MODEL_DISPLAY_NAME,
+            labels=_TEST_MODEL_LABELS,
             description=_TEST_MODEL_DESCRIPTION,
             container_spec=true_container_spec,
             predict_schemata=gca_model.PredictSchemata(
@@ -1959,6 +1966,7 @@ class TestCustomContainerTrainingJob:
 
         true_training_pipeline = gca_training_pipeline.TrainingPipeline(
             display_name=_TEST_DISPLAY_NAME,
+            labels=_TEST_LABELS,
             training_task_definition=schema.training_job.definition.custom_task,
             training_task_inputs=json_format.ParseDict(
                 {
@@ -2032,7 +2040,6 @@ class TestCustomContainerTrainingJob:
             base_output_dir=_TEST_BASE_OUTPUT_DIR,
             bigquery_destination=_TEST_BIGQUERY_DESTINATION,
             args=_TEST_RUN_ARGS,
-            replica_count=1,
             machine_type=_TEST_MACHINE_TYPE,
             accelerator_type=_TEST_ACCELERATOR_TYPE,
             accelerator_count=_TEST_ACCELERATOR_COUNT,
@@ -2294,7 +2301,6 @@ class TestCustomContainerTrainingJob:
         model_from_job = job.run(
             base_output_dir=_TEST_BASE_OUTPUT_DIR,
             args=_TEST_RUN_ARGS,
-            replica_count=1,
             machine_type=_TEST_MACHINE_TYPE,
             accelerator_type=_TEST_ACCELERATOR_TYPE,
             accelerator_count=_TEST_ACCELERATOR_COUNT,
@@ -2652,6 +2658,7 @@ class TestCustomContainerTrainingJob:
 
         job = training_jobs.CustomContainerTrainingJob(
             display_name=_TEST_DISPLAY_NAME,
+            labels=_TEST_LABELS,
             container_uri=_TEST_TRAINING_CONTAINER_IMAGE,
             command=_TEST_TRAINING_CONTAINER_CMD,
             model_serving_container_image_uri=_TEST_SERVING_CONTAINER_IMAGE,
@@ -2674,11 +2681,11 @@ class TestCustomContainerTrainingJob:
             service_account=_TEST_SERVICE_ACCOUNT,
             network=_TEST_NETWORK,
             args=_TEST_RUN_ARGS,
-            replica_count=1,
             machine_type=_TEST_MACHINE_TYPE,
             accelerator_type=_TEST_ACCELERATOR_TYPE,
             accelerator_count=_TEST_ACCELERATOR_COUNT,
             model_display_name=_TEST_MODEL_DISPLAY_NAME,
+            model_labels=_TEST_MODEL_LABELS,
             sync=sync,
         )
 
@@ -2729,6 +2736,7 @@ class TestCustomContainerTrainingJob:
 
         true_managed_model = gca_model.Model(
             display_name=_TEST_MODEL_DISPLAY_NAME,
+            labels=_TEST_MODEL_LABELS,
             description=_TEST_MODEL_DESCRIPTION,
             container_spec=true_container_spec,
             predict_schemata=gca_model.PredictSchemata(
@@ -2763,6 +2771,7 @@ class TestCustomContainerTrainingJob:
             ),
             model_to_upload=true_managed_model,
             input_data_config=true_input_data_config,
+            labels=_TEST_LABELS,
         )
 
         mock_pipeline_service_create.assert_called_once_with(
@@ -3088,6 +3097,7 @@ class TestCustomPythonPackageTrainingJob:
 
         job = training_jobs.CustomPythonPackageTrainingJob(
             display_name=_TEST_DISPLAY_NAME,
+            labels=_TEST_LABELS,
             python_package_gcs_uri=_TEST_OUTPUT_PYTHON_PACKAGE_PATH,
             python_module_name=_TEST_PYTHON_MODULE_NAME,
             container_uri=_TEST_TRAINING_CONTAINER_IMAGE,
@@ -3107,12 +3117,12 @@ class TestCustomPythonPackageTrainingJob:
         model_from_job = job.run(
             dataset=mock_tabular_dataset,
             model_display_name=_TEST_MODEL_DISPLAY_NAME,
+            model_labels=_TEST_MODEL_LABELS,
             base_output_dir=_TEST_BASE_OUTPUT_DIR,
             service_account=_TEST_SERVICE_ACCOUNT,
             network=_TEST_NETWORK,
             args=_TEST_RUN_ARGS,
             environment_variables=_TEST_ENVIRONMENT_VARIABLES,
-            replica_count=1,
             machine_type=_TEST_MACHINE_TYPE,
             accelerator_type=_TEST_ACCELERATOR_TYPE,
             accelerator_count=_TEST_ACCELERATOR_COUNT,
@@ -3176,6 +3186,7 @@ class TestCustomPythonPackageTrainingJob:
 
         true_managed_model = gca_model.Model(
             display_name=_TEST_MODEL_DISPLAY_NAME,
+            labels=_TEST_MODEL_LABELS,
             description=_TEST_MODEL_DESCRIPTION,
             container_spec=true_container_spec,
             predict_schemata=gca_model.PredictSchemata(
@@ -3199,6 +3210,7 @@ class TestCustomPythonPackageTrainingJob:
 
         true_training_pipeline = gca_training_pipeline.TrainingPipeline(
             display_name=_TEST_DISPLAY_NAME,
+            labels=_TEST_LABELS,
             training_task_definition=schema.training_job.definition.custom_task,
             training_task_inputs=json_format.ParseDict(
                 {
@@ -3236,7 +3248,7 @@ class TestCustomPythonPackageTrainingJob:
         assert job.state == gca_pipeline_state.PipelineState.PIPELINE_STATE_SUCCEEDED
 
     @pytest.mark.parametrize("sync", [True, False])
-    def test_run_call_pipeline_service_create_with_tabular_dataset_without_model_display_name(
+    def test_run_call_pipeline_service_create_with_tabular_dataset_without_model_display_name_nor_model_labels(
         self,
         mock_pipeline_service_create,
         mock_pipeline_service_get,
@@ -3252,6 +3264,7 @@ class TestCustomPythonPackageTrainingJob:
 
         job = training_jobs.CustomPythonPackageTrainingJob(
             display_name=_TEST_DISPLAY_NAME,
+            labels=_TEST_LABELS,
             python_package_gcs_uri=_TEST_OUTPUT_PYTHON_PACKAGE_PATH,
             python_module_name=_TEST_PYTHON_MODULE_NAME,
             container_uri=_TEST_TRAINING_CONTAINER_IMAGE,
@@ -3273,7 +3286,6 @@ class TestCustomPythonPackageTrainingJob:
             # model_display_name=_TEST_MODEL_DISPLAY_NAME,
             base_output_dir=_TEST_BASE_OUTPUT_DIR,
             args=_TEST_RUN_ARGS,
-            replica_count=1,
             machine_type=_TEST_MACHINE_TYPE,
             accelerator_type=_TEST_ACCELERATOR_TYPE,
             accelerator_count=_TEST_ACCELERATOR_COUNT,
@@ -3332,6 +3344,7 @@ class TestCustomPythonPackageTrainingJob:
 
         true_managed_model = gca_model.Model(
             display_name=_TEST_DISPLAY_NAME + "-model",
+            labels=_TEST_LABELS,
             description=_TEST_MODEL_DESCRIPTION,
             container_spec=true_container_spec,
             predict_schemata=gca_model.PredictSchemata(
@@ -3355,6 +3368,7 @@ class TestCustomPythonPackageTrainingJob:
 
         true_training_pipeline = gca_training_pipeline.TrainingPipeline(
             display_name=_TEST_DISPLAY_NAME,
+            labels=_TEST_LABELS,
             training_task_definition=schema.training_job.definition.custom_task,
             training_task_inputs=json_format.ParseDict(
                 {
@@ -3426,7 +3440,6 @@ class TestCustomPythonPackageTrainingJob:
             base_output_dir=_TEST_BASE_OUTPUT_DIR,
             bigquery_destination=_TEST_BIGQUERY_DESTINATION,
             args=_TEST_RUN_ARGS,
-            replica_count=1,
             machine_type=_TEST_MACHINE_TYPE,
             accelerator_type=_TEST_ACCELERATOR_TYPE,
             accelerator_count=_TEST_ACCELERATOR_COUNT,
@@ -3693,7 +3706,6 @@ class TestCustomPythonPackageTrainingJob:
             model_display_name=_TEST_MODEL_DISPLAY_NAME,
             base_output_dir=_TEST_BASE_OUTPUT_DIR,
             args=_TEST_RUN_ARGS,
-            replica_count=1,
             machine_type=_TEST_MACHINE_TYPE,
             accelerator_type=_TEST_ACCELERATOR_TYPE,
             accelerator_count=_TEST_ACCELERATOR_COUNT,
@@ -4044,7 +4056,7 @@ class TestCustomPythonPackageTrainingJob:
         assert job.state == gca_pipeline_state.PipelineState.PIPELINE_STATE_SUCCEEDED
 
     @pytest.mark.parametrize("sync", [True, False])
-    def test_run_call_pipeline_service_create_with_nontabular_dataset(
+    def test_run_call_pipeline_service_create_with_nontabular_dataset_without_model_display_name_nor_model_labels(
         self,
         mock_pipeline_service_create,
         mock_pipeline_service_get,
@@ -4059,6 +4071,7 @@ class TestCustomPythonPackageTrainingJob:
 
         job = training_jobs.CustomPythonPackageTrainingJob(
             display_name=_TEST_DISPLAY_NAME,
+            labels=_TEST_LABELS,
             python_package_gcs_uri=_TEST_OUTPUT_PYTHON_PACKAGE_PATH,
             python_module_name=_TEST_PYTHON_MODULE_NAME,
             container_uri=_TEST_TRAINING_CONTAINER_IMAGE,
@@ -4080,11 +4093,9 @@ class TestCustomPythonPackageTrainingJob:
             annotation_schema_uri=_TEST_ANNOTATION_SCHEMA_URI,
             base_output_dir=_TEST_BASE_OUTPUT_DIR,
             args=_TEST_RUN_ARGS,
-            replica_count=1,
             machine_type=_TEST_MACHINE_TYPE,
             accelerator_type=_TEST_ACCELERATOR_TYPE,
             accelerator_count=_TEST_ACCELERATOR_COUNT,
-            model_display_name=_TEST_MODEL_DISPLAY_NAME,
             service_account=_TEST_SERVICE_ACCOUNT,
             tensorboard=_TEST_TENSORBOARD_RESOURCE_NAME,
             sync=sync,
@@ -4137,7 +4148,8 @@ class TestCustomPythonPackageTrainingJob:
         )
 
         true_managed_model = gca_model.Model(
-            display_name=_TEST_MODEL_DISPLAY_NAME,
+            display_name=_TEST_DISPLAY_NAME + "-model",
+            labels=_TEST_LABELS,
             description=_TEST_MODEL_DESCRIPTION,
             container_spec=true_container_spec,
             predict_schemata=gca_model.PredictSchemata(
@@ -4158,6 +4170,7 @@ class TestCustomPythonPackageTrainingJob:
 
         true_training_pipeline = gca_training_pipeline.TrainingPipeline(
             display_name=_TEST_DISPLAY_NAME,
+            labels=_TEST_LABELS,
             training_task_definition=schema.training_job.definition.custom_task,
             training_task_inputs=json_format.ParseDict(
                 {

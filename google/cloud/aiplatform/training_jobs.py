@@ -80,6 +80,7 @@ class _TrainingJob(base.VertexAiResourceNounWithFutureManager):
         project: Optional[str] = None,
         location: Optional[str] = None,
         credentials: Optional[auth_credentials.Credentials] = None,
+        labels: Optional[Dict[str, str]] = None,
         training_encryption_spec_key_name: Optional[str] = None,
         model_encryption_spec_key_name: Optional[str] = None,
     ):
@@ -96,6 +97,16 @@ class _TrainingJob(base.VertexAiResourceNounWithFutureManager):
                 aiplatform.init will be used.
             credentials (auth_credentials.Credentials):
                 Optional credentials to use to retrieve the model.
+            labels (Dict[str, str]):
+                Optional. The labels with user-defined metadata to
+                organize TrainingPipelines.
+                Label keys and values can be no longer than 64
+                characters (Unicode codepoints), can only
+                contain lowercase letters, numeric characters,
+                underscores and dashes. International characters
+                are allowed.
+                See https://goo.gl/xmQnxf for more information
+                and examples of labels.
             training_encryption_spec_key_name (Optional[str]):
                 Optional. The Cloud KMS resource identifier of the customer
                 managed encryption key used to protect the training pipeline. Has the
@@ -123,9 +134,12 @@ class _TrainingJob(base.VertexAiResourceNounWithFutureManager):
                 Overrides encryption_spec_key_name set in aiplatform.init.
         """
         utils.validate_display_name(display_name)
+        if labels:
+            utils.validate_labels(labels)
 
         super().__init__(project=project, location=location, credentials=credentials)
         self._display_name = display_name
+        self._labels = labels
         self._training_encryption_spec = initializer.global_config.get_encryption_spec(
             encryption_spec_key_name=training_encryption_spec_key_name
         )
@@ -581,6 +595,7 @@ class _TrainingJob(base.VertexAiResourceNounWithFutureManager):
             training_task_inputs=training_task_inputs,
             model_to_upload=model,
             input_data_config=input_data_config,
+            labels=self._labels,
             encryption_spec=self._training_encryption_spec,
         )
 
@@ -767,12 +782,6 @@ class _TrainingJob(base.VertexAiResourceNounWithFutureManager):
         url = f"https://console.cloud.google.com/ai/platform/locations/{fields.location}/training/{fields.id}?project={fields.project}"
         return url
 
-    def _sync_gca_resource(self):
-        """Helper method to sync the local gca_source against the service."""
-        self._gca_resource = self.api_client.get_training_pipeline(
-            name=self.resource_name
-        )
-
     @property
     def _has_run(self) -> bool:
         """Helper property to check if this training job has been run."""
@@ -859,6 +868,10 @@ class _TrainingJob(base.VertexAiResourceNounWithFutureManager):
             )
         self.api_client.cancel_training_pipeline(name=self.resource_name)
 
+    def wait_for_resource_creation(self) -> None:
+        """Waits until resource has been created."""
+        self._wait_for_resource_creation()
+
 
 class _CustomTrainingJob(_TrainingJob):
     """ABC for Custom Training Pipelines.."""
@@ -883,6 +896,7 @@ class _CustomTrainingJob(_TrainingJob):
         project: Optional[str] = None,
         location: Optional[str] = None,
         credentials: Optional[auth_credentials.Credentials] = None,
+        labels: Optional[Dict[str, str]] = None,
         training_encryption_spec_key_name: Optional[str] = None,
         model_encryption_spec_key_name: Optional[str] = None,
         staging_bucket: Optional[str] = None,
@@ -987,6 +1001,16 @@ class _CustomTrainingJob(_TrainingJob):
             credentials (auth_credentials.Credentials):
                 Custom credentials to use to run call training service. Overrides
                 credentials set in aiplatform.init.
+            labels (Dict[str, str]):
+                Optional. The labels with user-defined metadata to
+                organize TrainingPipelines.
+                Label keys and values can be no longer than 64
+                characters (Unicode codepoints), can only
+                contain lowercase letters, numeric characters,
+                underscores and dashes. International characters
+                are allowed.
+                See https://goo.gl/xmQnxf for more information
+                and examples of labels.
             training_encryption_spec_key_name (Optional[str]):
                 Optional. The Cloud KMS resource identifier of the customer
                 managed encryption key used to protect the training pipeline. Has the
@@ -1021,6 +1045,7 @@ class _CustomTrainingJob(_TrainingJob):
             project=project,
             location=location,
             credentials=credentials,
+            labels=labels,
             training_encryption_spec_key_name=training_encryption_spec_key_name,
             model_encryption_spec_key_name=model_encryption_spec_key_name,
         )
@@ -1103,12 +1128,14 @@ class _CustomTrainingJob(_TrainingJob):
         unspecified, the CustomTrainingJob is not peered with any network.
         """
         # Return `network` value in training task inputs if set in Map
+        self._assert_gca_resource_is_available()
         return self._gca_resource.training_task_inputs.get("network")
 
     def _prepare_and_validate_run(
         self,
         model_display_name: Optional[str] = None,
-        replica_count: int = 0,
+        model_labels: Optional[Dict[str, str]] = None,
+        replica_count: int = 1,
         machine_type: str = "n1-standard-4",
         accelerator_type: str = "ACCELERATOR_TYPE_UNSPECIFIED",
         accelerator_count: int = 0,
@@ -1123,6 +1150,16 @@ class _CustomTrainingJob(_TrainingJob):
                 of any UTF-8 characters.
 
                 If not provided upon creation, the job's display_name is used.
+            model_labels (Dict[str, str]):
+                Optional. The labels with user-defined metadata to
+                organize your Models.
+                Label keys and values can be no longer than 64
+                characters (Unicode codepoints), can only
+                contain lowercase letters, numeric characters,
+                underscores and dashes. International characters
+                are allowed.
+                See https://goo.gl/xmQnxf for more information
+                and examples of labels.
             replica_count (int):
                 The number of worker replicas. If replica count = 1 then one chief
                 replica will be provisioned. If replica_count > 1 the remainder will be
@@ -1173,6 +1210,11 @@ class _CustomTrainingJob(_TrainingJob):
         if model_display_name:
             utils.validate_display_name(model_display_name)
             managed_model.display_name = model_display_name
+            if model_labels:
+                utils.validate_labels(model_labels)
+                managed_model.labels = model_labels
+            else:
+                managed_model.labels = self._labels
         else:
             managed_model = None
 
@@ -1314,6 +1356,7 @@ class CustomTrainingJob(_CustomTrainingJob):
         project: Optional[str] = None,
         location: Optional[str] = None,
         credentials: Optional[auth_credentials.Credentials] = None,
+        labels: Optional[Dict[str, str]] = None,
         training_encryption_spec_key_name: Optional[str] = None,
         model_encryption_spec_key_name: Optional[str] = None,
         staging_bucket: Optional[str] = None,
@@ -1327,14 +1370,21 @@ class CustomTrainingJob(_CustomTrainingJob):
             container_uri='gcr.io/cloud-aiplatform/training/tf-cpu.2-2:latest',
             model_serving_container_image_uri='gcr.io/my-trainer/serving:1',
             model_serving_container_predict_route='predict',
-            model_serving_container_health_route='metadata)
+            model_serving_container_health_route='metadata,
+            labels={'key': 'value'},
+        )
 
         Usage with Dataset:
 
         ds = aiplatform.TabularDataset(
             'projects/my-project/locations/us-central1/datasets/12345')
 
-        job.run(ds, replica_count=1, model_display_name='my-trained-model')
+        job.run(
+            ds,
+            replica_count=1,
+            model_display_name='my-trained-model',
+            model_labels={'key': 'value'},
+        )
 
         Usage without Dataset:
 
@@ -1448,6 +1498,16 @@ class CustomTrainingJob(_CustomTrainingJob):
             credentials (auth_credentials.Credentials):
                 Custom credentials to use to run call training service. Overrides
                 credentials set in aiplatform.init.
+            labels (Dict[str, str]):
+                Optional. The labels with user-defined metadata to
+                organize TrainingPipelines.
+                Label keys and values can be no longer than 64
+                characters (Unicode codepoints), can only
+                contain lowercase letters, numeric characters,
+                underscores and dashes. International characters
+                are allowed.
+                See https://goo.gl/xmQnxf for more information
+                and examples of labels.
             training_encryption_spec_key_name (Optional[str]):
                 Optional. The Cloud KMS resource identifier of the customer
                 managed encryption key used to protect the training pipeline. Has the
@@ -1482,6 +1542,7 @@ class CustomTrainingJob(_CustomTrainingJob):
             project=project,
             location=location,
             credentials=credentials,
+            labels=labels,
             training_encryption_spec_key_name=training_encryption_spec_key_name,
             model_encryption_spec_key_name=model_encryption_spec_key_name,
             container_uri=container_uri,
@@ -1516,13 +1577,14 @@ class CustomTrainingJob(_CustomTrainingJob):
         ] = None,
         annotation_schema_uri: Optional[str] = None,
         model_display_name: Optional[str] = None,
+        model_labels: Optional[Dict[str, str]] = None,
         base_output_dir: Optional[str] = None,
         service_account: Optional[str] = None,
         network: Optional[str] = None,
         bigquery_destination: Optional[str] = None,
         args: Optional[List[Union[str, float, int]]] = None,
         environment_variables: Optional[Dict[str, str]] = None,
-        replica_count: int = 0,
+        replica_count: int = 1,
         machine_type: str = "n1-standard-4",
         accelerator_type: str = "ACCELERATOR_TYPE_UNSPECIFIED",
         accelerator_count: int = 0,
@@ -1595,6 +1657,16 @@ class CustomTrainingJob(_CustomTrainingJob):
                 of any UTF-8 characters.
 
                 If not provided upon creation, the job's display_name is used.
+            model_labels (Dict[str, str]):
+                Optional. The labels with user-defined metadata to
+                organize your Models.
+                Label keys and values can be no longer than 64
+                characters (Unicode codepoints), can only
+                contain lowercase letters, numeric characters,
+                underscores and dashes. International characters
+                are allowed.
+                See https://goo.gl/xmQnxf for more information
+                and examples of labels.
             base_output_dir (str):
                 GCS output directory of job. If not provided a
                 timestamped directory in the staging directory will be used.
@@ -1697,6 +1769,7 @@ class CustomTrainingJob(_CustomTrainingJob):
         """
         worker_pool_specs, managed_model = self._prepare_and_validate_run(
             model_display_name=model_display_name,
+            model_labels=model_labels,
             replica_count=replica_count,
             machine_type=machine_type,
             accelerator_count=accelerator_count,
@@ -1938,6 +2011,7 @@ class CustomContainerTrainingJob(_CustomTrainingJob):
         project: Optional[str] = None,
         location: Optional[str] = None,
         credentials: Optional[auth_credentials.Credentials] = None,
+        labels: Optional[Dict[str, str]] = None,
         training_encryption_spec_key_name: Optional[str] = None,
         model_encryption_spec_key_name: Optional[str] = None,
         staging_bucket: Optional[str] = None,
@@ -1950,14 +2024,21 @@ class CustomContainerTrainingJob(_CustomTrainingJob):
             command=['python3', 'run_script.py']
             model_serving_container_image_uri='gcr.io/my-trainer/serving:1',
             model_serving_container_predict_route='predict',
-            model_serving_container_health_route='metadata)
+            model_serving_container_health_route='metadata,
+            labels={'key': 'value'},
+        )
 
         Usage with Dataset:
 
         ds = aiplatform.TabularDataset(
             'projects/my-project/locations/us-central1/datasets/12345')
 
-        job.run(ds, replica_count=1, model_display_name='my-trained-model')
+        job.run(
+            ds,
+            replica_count=1,
+            model_display_name='my-trained-model',
+            model_labels={'key': 'value'},
+        )
 
         Usage without Dataset:
 
@@ -2071,6 +2152,16 @@ class CustomContainerTrainingJob(_CustomTrainingJob):
             credentials (auth_credentials.Credentials):
                 Custom credentials to use to run call training service. Overrides
                 credentials set in aiplatform.init.
+            labels (Dict[str, str]):
+                Optional. The labels with user-defined metadata to
+                organize TrainingPipelines.
+                Label keys and values can be no longer than 64
+                characters (Unicode codepoints), can only
+                contain lowercase letters, numeric characters,
+                underscores and dashes. International characters
+                are allowed.
+                See https://goo.gl/xmQnxf for more information
+                and examples of labels.
             training_encryption_spec_key_name (Optional[str]):
                 Optional. The Cloud KMS resource identifier of the customer
                 managed encryption key used to protect the training pipeline. Has the
@@ -2105,6 +2196,7 @@ class CustomContainerTrainingJob(_CustomTrainingJob):
             project=project,
             location=location,
             credentials=credentials,
+            labels=labels,
             training_encryption_spec_key_name=training_encryption_spec_key_name,
             model_encryption_spec_key_name=model_encryption_spec_key_name,
             container_uri=container_uri,
@@ -2138,13 +2230,14 @@ class CustomContainerTrainingJob(_CustomTrainingJob):
         ] = None,
         annotation_schema_uri: Optional[str] = None,
         model_display_name: Optional[str] = None,
+        model_labels: Optional[Dict[str, str]] = None,
         base_output_dir: Optional[str] = None,
         service_account: Optional[str] = None,
         network: Optional[str] = None,
         bigquery_destination: Optional[str] = None,
         args: Optional[List[Union[str, float, int]]] = None,
         environment_variables: Optional[Dict[str, str]] = None,
-        replica_count: int = 0,
+        replica_count: int = 1,
         machine_type: str = "n1-standard-4",
         accelerator_type: str = "ACCELERATOR_TYPE_UNSPECIFIED",
         accelerator_count: int = 0,
@@ -2210,6 +2303,16 @@ class CustomContainerTrainingJob(_CustomTrainingJob):
                 of any UTF-8 characters.
 
                 If not provided upon creation, the job's display_name is used.
+            model_labels (Dict[str, str]):
+                Optional. The labels with user-defined metadata to
+                organize your Models.
+                Label keys and values can be no longer than 64
+                characters (Unicode codepoints), can only
+                contain lowercase letters, numeric characters,
+                underscores and dashes. International characters
+                are allowed.
+                See https://goo.gl/xmQnxf for more information
+                and examples of labels.
             base_output_dir (str):
                 GCS output directory of job. If not provided a
                 timestamped directory in the staging directory will be used.
@@ -2317,6 +2420,7 @@ class CustomContainerTrainingJob(_CustomTrainingJob):
         """
         worker_pool_specs, managed_model = self._prepare_and_validate_run(
             model_display_name=model_display_name,
+            model_labels=model_labels,
             replica_count=replica_count,
             machine_type=machine_type,
             accelerator_count=accelerator_count,
@@ -2533,6 +2637,7 @@ class AutoMLTabularTrainingJob(_TrainingJob):
         project: Optional[str] = None,
         location: Optional[str] = None,
         credentials: Optional[auth_credentials.Credentials] = None,
+        labels: Optional[Dict[str, str]] = None,
         training_encryption_spec_key_name: Optional[str] = None,
         model_encryption_spec_key_name: Optional[str] = None,
     ):
@@ -2545,6 +2650,7 @@ class AutoMLTabularTrainingJob(_TrainingJob):
             optimization_prediction_type="classification",
             optimization_objective="minimize-log-loss",
             column_specs={"column_1": "auto", "column_2": "numeric"},
+            labels={'key': 'value'},
         )
 
         Args:
@@ -2628,6 +2734,16 @@ class AutoMLTabularTrainingJob(_TrainingJob):
             credentials (auth_credentials.Credentials):
                 Optional. Custom credentials to use to run call training service. Overrides
                 credentials set in aiplatform.init.
+            labels (Dict[str, str]):
+                Optional. The labels with user-defined metadata to
+                organize TrainingPipelines.
+                Label keys and values can be no longer than 64
+                characters (Unicode codepoints), can only
+                contain lowercase letters, numeric characters,
+                underscores and dashes. International characters
+                are allowed.
+                See https://goo.gl/xmQnxf for more information
+                and examples of labels.
             training_encryption_spec_key_name (Optional[str]):
                 Optional. The Cloud KMS resource identifier of the customer
                 managed encryption key used to protect the training pipeline. Has the
@@ -2662,6 +2778,7 @@ class AutoMLTabularTrainingJob(_TrainingJob):
             project=project,
             location=location,
             credentials=credentials,
+            labels=labels,
             training_encryption_spec_key_name=training_encryption_spec_key_name,
             model_encryption_spec_key_name=model_encryption_spec_key_name,
         )
@@ -2705,7 +2822,11 @@ class AutoMLTabularTrainingJob(_TrainingJob):
         weight_column: Optional[str] = None,
         budget_milli_node_hours: int = 1000,
         model_display_name: Optional[str] = None,
+        model_labels: Optional[Dict[str, str]] = None,
         disable_early_stopping: bool = False,
+        export_evaluated_data_items: bool = False,
+        export_evaluated_data_items_bigquery_destination_uri: Optional[str] = None,
+        export_evaluated_data_items_override_destination: bool = False,
         sync: bool = True,
     ) -> models.Model:
         """Runs the training job and returns a model.
@@ -2772,12 +2893,43 @@ class AutoMLTabularTrainingJob(_TrainingJob):
                 of any UTF-8 characters.
 
                 If not provided upon creation, the job's display_name is used.
+            model_labels (Dict[str, str]):
+                Optional. The labels with user-defined metadata to
+                organize your Models.
+                Label keys and values can be no longer than 64
+                characters (Unicode codepoints), can only
+                contain lowercase letters, numeric characters,
+                underscores and dashes. International characters
+                are allowed.
+                See https://goo.gl/xmQnxf for more information
+                and examples of labels.
             disable_early_stopping (bool):
                 Required. If true, the entire budget is used. This disables the early stopping
                 feature. By default, the early stopping feature is enabled, which means
                 that training might stop before the entire training budget has been
                 used, if further training does no longer brings significant improvement
                 to the model.
+            export_evaluated_data_items (bool):
+                Whether to export the test set predictions to a BigQuery table.
+                If False, then the export is not performed.
+            export_evaluated_data_items_bigquery_destination_uri (string):
+                Optional. URI of desired destination BigQuery table for exported test set predictions.
+
+                Expected format:
+                ``bq://<project_id>:<dataset_id>:<table>``
+
+                If not specified, then results are exported to the following auto-created BigQuery
+                table:
+                ``<project_id>:export_evaluated_examples_<model_name>_<yyyy_MM_dd'T'HH_mm_ss_SSS'Z'>.evaluated_examples``
+
+                Applies only if [export_evaluated_data_items] is True.
+            export_evaluated_data_items_override_destination (bool):
+                Whether to override the contents of [export_evaluated_data_items_bigquery_destination_uri],
+                if the table exists, for exported test set predictions. If False, and the
+                table exists, then the training job will fail.
+
+                Applies only if [export_evaluated_data_items] is True and
+                [export_evaluated_data_items_bigquery_destination_uri] is specified.
             sync (bool):
                 Whether to execute this method synchronously. If False, this method
                 will be executed in concurrent Future and any downstream object will
@@ -2789,6 +2941,10 @@ class AutoMLTabularTrainingJob(_TrainingJob):
         Raises:
             RuntimeError: If Training job has already been run or is waiting to run.
         """
+        if model_display_name:
+            utils.validate_display_name(model_display_name)
+        if model_labels:
+            utils.validate_labels(model_labels)
 
         if self._is_waiting_to_run():
             raise RuntimeError("AutoML Tabular Training is already scheduled to run.")
@@ -2806,7 +2962,11 @@ class AutoMLTabularTrainingJob(_TrainingJob):
             weight_column=weight_column,
             budget_milli_node_hours=budget_milli_node_hours,
             model_display_name=model_display_name,
+            model_labels=model_labels,
             disable_early_stopping=disable_early_stopping,
+            export_evaluated_data_items=export_evaluated_data_items,
+            export_evaluated_data_items_bigquery_destination_uri=export_evaluated_data_items_bigquery_destination_uri,
+            export_evaluated_data_items_override_destination=export_evaluated_data_items_override_destination,
             sync=sync,
         )
 
@@ -2822,7 +2982,11 @@ class AutoMLTabularTrainingJob(_TrainingJob):
         weight_column: Optional[str] = None,
         budget_milli_node_hours: int = 1000,
         model_display_name: Optional[str] = None,
+        model_labels: Optional[Dict[str, str]] = None,
         disable_early_stopping: bool = False,
+        export_evaluated_data_items: bool = False,
+        export_evaluated_data_items_bigquery_destination_uri: Optional[str] = None,
+        export_evaluated_data_items_override_destination: bool = False,
         sync: bool = True,
     ) -> models.Model:
         """Runs the training job and returns a model.
@@ -2889,12 +3053,43 @@ class AutoMLTabularTrainingJob(_TrainingJob):
                 of any UTF-8 characters.
 
                 If not provided upon creation, the job's display_name is used.
+            model_labels (Dict[str, str]):
+                Optional. The labels with user-defined metadata to
+                organize your Models.
+                Label keys and values can be no longer than 64
+                characters (Unicode codepoints), can only
+                contain lowercase letters, numeric characters,
+                underscores and dashes. International characters
+                are allowed.
+                See https://goo.gl/xmQnxf for more information
+                and examples of labels.
             disable_early_stopping (bool):
                 Required. If true, the entire budget is used. This disables the early stopping
                 feature. By default, the early stopping feature is enabled, which means
                 that training might stop before the entire training budget has been
                 used, if further training does no longer brings significant improvement
                 to the model.
+            export_evaluated_data_items (bool):
+                Whether to export the test set predictions to a BigQuery table.
+                If False, then the export is not performed.
+            export_evaluated_data_items_bigquery_destination_uri (string):
+                Optional. URI of desired destination BigQuery table for exported test set predictions.
+
+                Expected format:
+                ``bq://<project_id>:<dataset_id>:<table>``
+
+                If not specified, then results are exported to the following auto-created BigQuery
+                table:
+                ``<project_id>:export_evaluated_examples_<model_name>_<yyyy_MM_dd'T'HH_mm_ss_SSS'Z'>.evaluated_examples``
+
+                Applies only if [export_evaluated_data_items] is True.
+            export_evaluated_data_items_override_destination (bool):
+                Whether to override the contents of [export_evaluated_data_items_bigquery_destination_uri],
+                if the table exists, for exported test set predictions. If False, and the
+                table exists, then the training job will fail.
+
+                Applies only if [export_evaluated_data_items] is True and
+                [export_evaluated_data_items_bigquery_destination_uri] is specified.
             sync (bool):
                 Whether to execute this method synchronously. If False, this method
                 will be executed in concurrent Future and any downstream object will
@@ -2941,16 +3136,26 @@ class AutoMLTabularTrainingJob(_TrainingJob):
             "optimizationObjectivePrecisionValue": self._optimization_objective_precision_value,
         }
 
+        final_export_eval_bq_uri = export_evaluated_data_items_bigquery_destination_uri
+        if final_export_eval_bq_uri and not final_export_eval_bq_uri.startswith(
+            "bq://"
+        ):
+            final_export_eval_bq_uri = f"bq://{final_export_eval_bq_uri}"
+
+        if export_evaluated_data_items:
+            training_task_inputs_dict["exportEvaluatedDataItemsConfig"] = {
+                "destinationBigqueryUri": final_export_eval_bq_uri,
+                "overrideExistingTable": export_evaluated_data_items_override_destination,
+            }
+
         if self._additional_experiments:
             training_task_inputs_dict[
                 "additionalExperiments"
             ] = self._additional_experiments
 
-        if model_display_name is None:
-            model_display_name = self._display_name
-
         model = gca_model.Model(
-            display_name=model_display_name,
+            display_name=model_display_name or self._display_name,
+            labels=model_labels or self._labels,
             encryption_spec=self._model_encryption_spec,
         )
 
@@ -3026,6 +3231,7 @@ class AutoMLForecastingTrainingJob(_TrainingJob):
     def __init__(
         self,
         display_name: str,
+        labels: Optional[Dict[str, str]] = None,
         optimization_objective: Optional[str] = None,
         column_transformations: Optional[Union[Dict, List[Dict]]] = None,
         project: Optional[str] = None,
@@ -3037,6 +3243,16 @@ class AutoMLForecastingTrainingJob(_TrainingJob):
         Args:
             display_name (str):
                 Required. The user-defined name of this TrainingPipeline.
+            labels (Dict[str, str]):
+                Optional. The labels with user-defined metadata to
+                organize TrainingPipelines.
+                Label keys and values can be no longer than 64
+                characters (Unicode codepoints), can only
+                contain lowercase letters, numeric characters,
+                underscores and dashes. International characters
+                are allowed.
+                See https://goo.gl/xmQnxf for more information
+                and examples of labels.
             optimization_objective (str):
                 Optional. Objective function the model is to be optimized towards.
                 The training process creates a Model that optimizes the value of the objective
@@ -3068,6 +3284,7 @@ class AutoMLForecastingTrainingJob(_TrainingJob):
         """
         super().__init__(
             display_name=display_name,
+            labels=labels,
             project=project,
             location=location,
             credentials=credentials,
@@ -3098,6 +3315,7 @@ class AutoMLForecastingTrainingJob(_TrainingJob):
         validation_options: Optional[str] = None,
         budget_milli_node_hours: int = 1000,
         model_display_name: Optional[str] = None,
+        model_labels: Optional[Dict[str, str]] = None,
         sync: bool = True,
     ) -> models.Model:
         """Runs the training job and returns a model.
@@ -3217,6 +3435,16 @@ class AutoMLForecastingTrainingJob(_TrainingJob):
                 of any UTF-8 characters.
 
                 If not provided upon creation, the job's display_name is used.
+            model_labels (Dict[str, str]):
+                Optional. The labels with user-defined metadata to
+                organize your Models.
+                Label keys and values can be no longer than 64
+                characters (Unicode codepoints), can only
+                contain lowercase letters, numeric characters,
+                underscores and dashes. International characters
+                are allowed.
+                See https://goo.gl/xmQnxf for more information
+                and examples of labels.
             sync (bool):
                 Whether to execute this method synchronously. If False, this method
                 will be executed in concurrent Future and any downstream object will
@@ -3228,6 +3456,11 @@ class AutoMLForecastingTrainingJob(_TrainingJob):
         Raises:
             RuntimeError if Training job has already been run or is waiting to run.
         """
+
+        if model_display_name:
+            utils.validate_display_name(model_display_name)
+        if model_labels:
+            utils.validate_labels(model_labels)
 
         if self._is_waiting_to_run():
             raise RuntimeError(
@@ -3258,6 +3491,7 @@ class AutoMLForecastingTrainingJob(_TrainingJob):
             quantiles=quantiles,
             validation_options=validation_options,
             model_display_name=model_display_name,
+            model_labels=model_labels,
             sync=sync,
         )
 
@@ -3284,6 +3518,7 @@ class AutoMLForecastingTrainingJob(_TrainingJob):
         validation_options: Optional[str] = None,
         budget_milli_node_hours: int = 1000,
         model_display_name: Optional[str] = None,
+        model_labels: Optional[Dict[str, str]] = None,
         sync: bool = True,
     ) -> models.Model:
         """Runs the training job and returns a model.
@@ -3402,6 +3637,16 @@ class AutoMLForecastingTrainingJob(_TrainingJob):
                 of any UTF-8 characters.
 
                 If not provided upon creation, the job's display_name is used.
+            model_labels (Dict[str, str]):
+                Optional. The labels with user-defined metadata to
+                organize your Models.
+                Label keys and values can be no longer than 64
+                characters (Unicode codepoints), can only
+                contain lowercase letters, numeric characters,
+                underscores and dashes. International characters
+                are allowed.
+                See https://goo.gl/xmQnxf for more information
+                and examples of labels.
             sync (bool):
                 Whether to execute this method synchronously. If False, this method
                 will be executed in concurrent Future and any downstream object will
@@ -3453,10 +3698,10 @@ class AutoMLForecastingTrainingJob(_TrainingJob):
                 "additionalExperiments"
             ] = self._additional_experiments
 
-        if model_display_name is None:
-            model_display_name = self._display_name
-
-        model = gca_model.Model(display_name=model_display_name)
+        model = gca_model.Model(
+            display_name=model_display_name or self._display_name,
+            labels=model_labels or self._labels,
+        )
 
         return self._run_job(
             training_task_definition=training_task_definition,
@@ -3502,6 +3747,7 @@ class AutoMLImageTrainingJob(_TrainingJob):
         project: Optional[str] = None,
         location: Optional[str] = None,
         credentials: Optional[auth_credentials.Credentials] = None,
+        labels: Optional[Dict[str, str]] = None,
         training_encryption_spec_key_name: Optional[str] = None,
         model_encryption_spec_key_name: Optional[str] = None,
     ):
@@ -3567,6 +3813,16 @@ class AutoMLImageTrainingJob(_TrainingJob):
             credentials (auth_credentials.Credentials):
                 Optional. Custom credentials to use to run call training service. Overrides
                 credentials set in aiplatform.init.
+            labels (Dict[str, str]):
+                Optional. The labels with user-defined metadata to
+                organize TrainingPipelines.
+                Label keys and values can be no longer than 64
+                characters (Unicode codepoints), can only
+                contain lowercase letters, numeric characters,
+                underscores and dashes. International characters
+                are allowed.
+                See https://goo.gl/xmQnxf for more information
+                and examples of labels.
             training_encryption_spec_key_name (Optional[str]):
                 Optional. The Cloud KMS resource identifier of the customer
                 managed encryption key used to protect the training pipeline. Has the
@@ -3627,6 +3883,7 @@ class AutoMLImageTrainingJob(_TrainingJob):
             project=project,
             location=location,
             credentials=credentials,
+            labels=labels,
             training_encryption_spec_key_name=training_encryption_spec_key_name,
             model_encryption_spec_key_name=model_encryption_spec_key_name,
         )
@@ -3644,6 +3901,7 @@ class AutoMLImageTrainingJob(_TrainingJob):
         test_fraction_split: float = 0.1,
         budget_milli_node_hours: int = 1000,
         model_display_name: Optional[str] = None,
+        model_labels: Optional[Dict[str, str]] = None,
         disable_early_stopping: bool = False,
         sync: bool = True,
     ) -> models.Model:
@@ -3690,6 +3948,16 @@ class AutoMLImageTrainingJob(_TrainingJob):
                 Optional. The display name of the managed Vertex AI Model. The name
                 can be up to 128 characters long and can be consist of any UTF-8
                 characters. If not provided upon creation, the job's display_name is used.
+            model_labels (Dict[str, str]):
+                Optional. The labels with user-defined metadata to
+                organize your Models.
+                Label keys and values can be no longer than 64
+                characters (Unicode codepoints), can only
+                contain lowercase letters, numeric characters,
+                underscores and dashes. International characters
+                are allowed.
+                See https://goo.gl/xmQnxf for more information
+                and examples of labels.
             disable_early_stopping: bool = False
                 Required. If true, the entire budget is used. This disables the early stopping
                 feature. By default, the early stopping feature is enabled, which means
@@ -3708,6 +3976,11 @@ class AutoMLImageTrainingJob(_TrainingJob):
             RuntimeError: If Training job has already been run or is waiting to run.
         """
 
+        if model_display_name:
+            utils.validate_display_name(model_display_name)
+        if model_labels:
+            utils.validate_labels(model_labels)
+
         if self._is_waiting_to_run():
             raise RuntimeError("AutoML Image Training is already scheduled to run.")
 
@@ -3722,6 +3995,7 @@ class AutoMLImageTrainingJob(_TrainingJob):
             test_fraction_split=test_fraction_split,
             budget_milli_node_hours=budget_milli_node_hours,
             model_display_name=model_display_name,
+            model_labels=model_labels,
             disable_early_stopping=disable_early_stopping,
             sync=sync,
         )
@@ -3736,6 +4010,7 @@ class AutoMLImageTrainingJob(_TrainingJob):
         test_fraction_split: float = 0.1,
         budget_milli_node_hours: int = 1000,
         model_display_name: Optional[str] = None,
+        model_labels: Optional[Dict[str, str]] = None,
         disable_early_stopping: bool = False,
         sync: bool = True,
     ) -> models.Model:
@@ -3790,6 +4065,16 @@ class AutoMLImageTrainingJob(_TrainingJob):
                 characters. If a `base_model` was provided, the display_name in the
                 base_model will be overritten with this value. If not provided upon
                 creation, the job's display_name is used.
+            model_labels (Dict[str, str]):
+                Optional. The labels with user-defined metadata to
+                organize your Models.
+                Label keys and values can be no longer than 64
+                characters (Unicode codepoints), can only
+                contain lowercase letters, numeric characters,
+                underscores and dashes. International characters
+                are allowed.
+                See https://goo.gl/xmQnxf for more information
+                and examples of labels.
             disable_early_stopping (bool):
                 Required. If true, the entire budget is used. This disables the early stopping
                 feature. By default, the early stopping feature is enabled, which means
@@ -3826,6 +4111,7 @@ class AutoMLImageTrainingJob(_TrainingJob):
         model_tbt = gca_model.Model(encryption_spec=self._model_encryption_spec)
 
         model_tbt.display_name = model_display_name or self._display_name
+        model_tbt.labels = model_labels or self._labels
 
         if base_model:
             # Use provided base_model to pass to model_to_upload causing the
@@ -3883,6 +4169,7 @@ class CustomPythonPackageTrainingJob(_CustomTrainingJob):
         project: Optional[str] = None,
         location: Optional[str] = None,
         credentials: Optional[auth_credentials.Credentials] = None,
+        labels: Optional[Dict[str, str]] = None,
         training_encryption_spec_key_name: Optional[str] = None,
         model_encryption_spec_key_name: Optional[str] = None,
         staging_bucket: Optional[str] = None,
@@ -3896,7 +4183,8 @@ class CustomPythonPackageTrainingJob(_CustomTrainingJob):
             container_uri='gcr.io/cloud-aiplatform/training/tf-cpu.2-2:latest',
             model_serving_container_image_uri='gcr.io/my-trainer/serving:1',
             model_serving_container_predict_route='predict',
-            model_serving_container_health_route='metadata
+            model_serving_container_health_route='metadata,
+            labels={'key': 'value'},
         )
 
         Usage with Dataset:
@@ -3908,14 +4196,16 @@ class CustomPythonPackageTrainingJob(_CustomTrainingJob):
             job.run(
                 ds,
                 replica_count=1,
-                model_display_name='my-trained-model'
+                model_display_name='my-trained-model',
+                model_labels={'key': 'value'},
             )
 
         Usage without Dataset:
 
             job.run(
                 replica_count=1,
-                model_display_name='my-trained-model'
+                model_display_name='my-trained-model',
+                model_labels={'key': 'value'},
             )
 
         To ensure your model gets saved in Vertex AI, write your saved model to
@@ -4024,6 +4314,16 @@ class CustomPythonPackageTrainingJob(_CustomTrainingJob):
             credentials (auth_credentials.Credentials):
                 Custom credentials to use to run call training service. Overrides
                 credentials set in aiplatform.init.
+            labels (Dict[str, str]):
+                Optional. The labels with user-defined metadata to
+                organize TrainingPipelines.
+                Label keys and values can be no longer than 64
+                characters (Unicode codepoints), can only
+                contain lowercase letters, numeric characters,
+                underscores and dashes. International characters
+                are allowed.
+                See https://goo.gl/xmQnxf for more information
+                and examples of labels.
             training_encryption_spec_key_name (Optional[str]):
                 Optional. The Cloud KMS resource identifier of the customer
                 managed encryption key used to protect the training pipeline. Has the
@@ -4058,6 +4358,7 @@ class CustomPythonPackageTrainingJob(_CustomTrainingJob):
             project=project,
             location=location,
             credentials=credentials,
+            labels=labels,
             training_encryption_spec_key_name=training_encryption_spec_key_name,
             model_encryption_spec_key_name=model_encryption_spec_key_name,
             container_uri=container_uri,
@@ -4090,13 +4391,14 @@ class CustomPythonPackageTrainingJob(_CustomTrainingJob):
         ] = None,
         annotation_schema_uri: Optional[str] = None,
         model_display_name: Optional[str] = None,
+        model_labels: Optional[Dict[str, str]] = None,
         base_output_dir: Optional[str] = None,
         service_account: Optional[str] = None,
         network: Optional[str] = None,
         bigquery_destination: Optional[str] = None,
         args: Optional[List[Union[str, float, int]]] = None,
         environment_variables: Optional[Dict[str, str]] = None,
-        replica_count: int = 0,
+        replica_count: int = 1,
         machine_type: str = "n1-standard-4",
         accelerator_type: str = "ACCELERATOR_TYPE_UNSPECIFIED",
         accelerator_count: int = 0,
@@ -4162,6 +4464,16 @@ class CustomPythonPackageTrainingJob(_CustomTrainingJob):
                 of any UTF-8 characters.
 
                 If not provided upon creation, the job's display_name is used.
+            model_labels (Dict[str, str]):
+                Optional. The labels with user-defined metadata to
+                organize your Models.
+                Label keys and values can be no longer than 64
+                characters (Unicode codepoints), can only
+                contain lowercase letters, numeric characters,
+                underscores and dashes. International characters
+                are allowed.
+                See https://goo.gl/xmQnxf for more information
+                and examples of labels.
             base_output_dir (str):
                 GCS output directory of job. If not provided a
                 timestamped directory in the staging directory will be used.
@@ -4264,6 +4576,7 @@ class CustomPythonPackageTrainingJob(_CustomTrainingJob):
         """
         worker_pool_specs, managed_model = self._prepare_and_validate_run(
             model_display_name=model_display_name,
+            model_labels=model_labels,
             replica_count=replica_count,
             machine_type=machine_type,
             accelerator_count=accelerator_count,
@@ -4468,6 +4781,7 @@ class AutoMLVideoTrainingJob(_TrainingJob):
         project: Optional[str] = None,
         location: Optional[str] = None,
         credentials: Optional[auth_credentials.Credentials] = None,
+        labels: Optional[Dict[str, str]] = None,
         training_encryption_spec_key_name: Optional[str] = None,
         model_encryption_spec_key_name: Optional[str] = None,
     ):
@@ -4517,6 +4831,16 @@ class AutoMLVideoTrainingJob(_TrainingJob):
             credentials (auth_credentials.Credentials):
                 Optional. Custom credentials to use to run call training service. Overrides
                 credentials set in aiplatform.init.
+            labels (Dict[str, str]):
+                Optional. The labels with user-defined metadata to
+                organize TrainingPipelines.
+                Label keys and values can be no longer than 64
+                characters (Unicode codepoints), can only
+                contain lowercase letters, numeric characters,
+                underscores and dashes. International characters
+                are allowed.
+                See https://goo.gl/xmQnxf for more information
+                and examples of labels.
             training_encryption_spec_key_name (Optional[str]):
                 Optional. The Cloud KMS resource identifier of the customer
                 managed encryption key used to protect the training pipeline. Has the
@@ -4566,6 +4890,7 @@ class AutoMLVideoTrainingJob(_TrainingJob):
             project=project,
             location=location,
             credentials=credentials,
+            labels=labels,
             training_encryption_spec_key_name=training_encryption_spec_key_name,
             model_encryption_spec_key_name=model_encryption_spec_key_name,
         )
@@ -4579,6 +4904,7 @@ class AutoMLVideoTrainingJob(_TrainingJob):
         training_fraction_split: float = 0.8,
         test_fraction_split: float = 0.2,
         model_display_name: Optional[str] = None,
+        model_labels: Optional[Dict[str, str]] = None,
         sync: bool = True,
     ) -> models.Model:
         """Runs the AutoML Image training job and returns a model.
@@ -4607,6 +4933,16 @@ class AutoMLVideoTrainingJob(_TrainingJob):
                 Optional. The display name of the managed Vertex AI Model. The name
                 can be up to 128 characters long and can be consist of any UTF-8
                 characters. If not provided upon creation, the job's display_name is used.
+            model_labels (Dict[str, str]):
+                Optional. The labels with user-defined metadata to
+                organize your Models.
+                Label keys and values can be no longer than 64
+                characters (Unicode codepoints), can only
+                contain lowercase letters, numeric characters,
+                underscores and dashes. International characters
+                are allowed.
+                See https://goo.gl/xmQnxf for more information
+                and examples of labels.
             sync: bool = True
                 Whether to execute this method synchronously. If False, this method
                 will be executed in concurrent Future and any downstream object will
@@ -4619,6 +4955,11 @@ class AutoMLVideoTrainingJob(_TrainingJob):
             RuntimeError: If Training job has already been run or is waiting to run.
         """
 
+        if model_display_name:
+            utils.validate_display_name(model_display_name)
+        if model_labels:
+            utils.validate_labels(model_labels)
+
         if self._is_waiting_to_run():
             raise RuntimeError("AutoML Video Training is already scheduled to run.")
 
@@ -4630,6 +4971,7 @@ class AutoMLVideoTrainingJob(_TrainingJob):
             training_fraction_split=training_fraction_split,
             test_fraction_split=test_fraction_split,
             model_display_name=model_display_name,
+            model_labels=model_labels,
             sync=sync,
         )
 
@@ -4640,6 +4982,7 @@ class AutoMLVideoTrainingJob(_TrainingJob):
         training_fraction_split: float = 0.8,
         test_fraction_split: float = 0.2,
         model_display_name: Optional[str] = None,
+        model_labels: Optional[Dict[str, str]] = None,
         sync: bool = True,
     ) -> models.Model:
         """Runs the training job and returns a model.
@@ -4670,6 +5013,16 @@ class AutoMLVideoTrainingJob(_TrainingJob):
                 characters. If a `base_model` was provided, the display_name in the
                 base_model will be overritten with this value. If not provided upon
                 creation, the job's display_name is used.
+            model_labels (Dict[str, str]):
+                Optional. The labels with user-defined metadata to
+                organize your Models.
+                Label keys and values can be no longer than 64
+                characters (Unicode codepoints), can only
+                contain lowercase letters, numeric characters,
+                underscores and dashes. International characters
+                are allowed.
+                See https://goo.gl/xmQnxf for more information
+                and examples of labels.
             sync (bool):
                 Whether to execute this method synchronously. If False, this method
                 will be executed in concurrent Future and any downstream object will
@@ -4692,6 +5045,7 @@ class AutoMLVideoTrainingJob(_TrainingJob):
         # gca Model to be trained
         model_tbt = gca_model.Model(encryption_spec=self._model_encryption_spec)
         model_tbt.display_name = model_display_name or self._display_name
+        model_tbt.labels = model_labels or self._labels
 
         return self._run_job(
             training_task_definition=training_task_definition,
@@ -4728,6 +5082,7 @@ class AutoMLTextTrainingJob(_TrainingJob):
         project: Optional[str] = None,
         location: Optional[str] = None,
         credentials: Optional[auth_credentials.Credentials] = None,
+        labels: Optional[Dict[str, str]] = None,
         training_encryption_spec_key_name: Optional[str] = None,
         model_encryption_spec_key_name: Optional[str] = None,
     ):
@@ -4771,6 +5126,16 @@ class AutoMLTextTrainingJob(_TrainingJob):
             credentials (auth_credentials.Credentials):
                 Optional. Custom credentials to use to run call training service. Overrides
                 credentials set in aiplatform.init.
+            labels (Dict[str, str]):
+                Optional. The labels with user-defined metadata to
+                organize TrainingPipelines.
+                Label keys and values can be no longer than 64
+                characters (Unicode codepoints), can only
+                contain lowercase letters, numeric characters,
+                underscores and dashes. International characters
+                are allowed.
+                See https://goo.gl/xmQnxf for more information
+                and examples of labels.
             training_encryption_spec_key_name (Optional[str]):
                 Optional. The Cloud KMS resource identifier of the customer
                 managed encryption key used to protect the training pipeline. Has the
@@ -4802,6 +5167,7 @@ class AutoMLTextTrainingJob(_TrainingJob):
             project=project,
             location=location,
             credentials=credentials,
+            labels=labels,
             training_encryption_spec_key_name=training_encryption_spec_key_name,
             model_encryption_spec_key_name=model_encryption_spec_key_name,
         )
@@ -4846,6 +5212,7 @@ class AutoMLTextTrainingJob(_TrainingJob):
         validation_fraction_split: float = 0.1,
         test_fraction_split: float = 0.1,
         model_display_name: Optional[str] = None,
+        model_labels: Optional[Dict[str, str]] = None,
         sync: bool = True,
     ) -> models.Model:
         """Runs the training job and returns a model.
@@ -4879,6 +5246,16 @@ class AutoMLTextTrainingJob(_TrainingJob):
                 of any UTF-8 characters.
 
                 If not provided upon creation, the job's display_name is used.
+            model_labels (Dict[str, str]):
+                Optional. The labels with user-defined metadata to
+                organize your Models.
+                Label keys and values can be no longer than 64
+                characters (Unicode codepoints), can only
+                contain lowercase letters, numeric characters,
+                underscores and dashes. International characters
+                are allowed.
+                See https://goo.gl/xmQnxf for more information
+                and examples of labels.
             sync (bool):
                 Whether to execute this method synchronously. If False, this method
                 will be executed in concurrent Future and any downstream object will
@@ -4889,6 +5266,11 @@ class AutoMLTextTrainingJob(_TrainingJob):
         Raises:
             RuntimeError: If Training job has already been run or is waiting to run.
         """
+
+        if model_display_name:
+            utils.validate_display_name(model_display_name)
+        if model_labels:
+            utils.validate_labels(model_labels)
 
         if self._is_waiting_to_run():
             raise RuntimeError("AutoML Text Training is already scheduled to run.")
@@ -4902,6 +5284,7 @@ class AutoMLTextTrainingJob(_TrainingJob):
             validation_fraction_split=validation_fraction_split,
             test_fraction_split=test_fraction_split,
             model_display_name=model_display_name,
+            model_labels=model_labels,
             sync=sync,
         )
 
@@ -4913,6 +5296,7 @@ class AutoMLTextTrainingJob(_TrainingJob):
         validation_fraction_split: float = 0.1,
         test_fraction_split: float = 0.1,
         model_display_name: Optional[str] = None,
+        model_labels: Optional[Dict[str, str]] = None,
         sync: bool = True,
     ) -> models.Model:
         """Runs the training job and returns a model.
@@ -4948,6 +5332,16 @@ class AutoMLTextTrainingJob(_TrainingJob):
                 of any UTF-8 characters.
 
                 If not provided upon creation, the job's display_name is used.
+            model_labels (Dict[str, str]):
+                Optional. The labels with user-defined metadata to
+                organize your Models.
+                Label keys and values can be no longer than 64
+                characters (Unicode codepoints), can only
+                contain lowercase letters, numeric characters,
+                underscores and dashes. International characters
+                are allowed.
+                See https://goo.gl/xmQnxf for more information
+                and examples of labels.
             sync (bool):
                 Whether to execute this method synchronously. If False, this method
                 will be executed in concurrent Future and any downstream object will
@@ -4958,11 +5352,9 @@ class AutoMLTextTrainingJob(_TrainingJob):
                 produce a Vertex AI Model.
         """
 
-        if model_display_name is None:
-            model_display_name = self._display_name
-
         model = gca_model.Model(
-            display_name=model_display_name,
+            display_name=model_display_name or self._display_name,
+            labels=model_labels or self._labels,
             encryption_spec=self._model_encryption_spec,
         )
 
