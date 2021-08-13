@@ -15,31 +15,31 @@
 # limitations under the License.
 #
 
+import ast
 import inspect
 from typing import Any
 from typing import Dict
 from typing import Tuple
 
-import ast
-from collections import namedtuple
 
-Import = namedtuple("Import", ["module", "name", "alias"])
-
-
-def get_imports(path):
-    with open(path) as fh:
-        root = ast.parse(fh.read(), path)
+def get_import_lines(path):
+    with open(path) as f:
+        root = ast.parse(f.read(), path)
 
     for node in ast.iter_child_nodes(root):
-        if isinstance(node, ast.Import):
-            module = []
-        elif isinstance(node, ast.ImportFrom):
-            module = node.module.split(".")
-        else:
-            continue
+        line = ""
+        if isinstance(node, ast.ImportFrom):
+            line += f"from {node.module} "
 
-        for n in node.names:
-            yield Import(module, n.name.split("."), n.asname)
+        if isinstance(node, (ast.Import, ast.ImportFrom)):
+            line += "import "
+            for i, name in enumerate(node.names):
+                line += f"{name.name}"
+                if name.asname:
+                    line += f" as {name.asname}"
+                if len(node.names) > 0 and i < len(node.names) - 1:
+                    line += ", "
+        yield line
 
 
 class SourceMaker:
@@ -97,33 +97,7 @@ def _make_source(
     """
 
     module = inspect.getmodule(obj.__class__)
-    imports = get_imports(module.__file__)
-
-    src = ""
-
-    for my_import in imports:
-        if my_import.module is not None and len(my_import.module) > 0:
-            src = src + "from "
-            modules = my_import.module
-            for module in modules:
-                src = src + module + "."
-            src = src[:-1]
-
-        if my_import.name is not None and len(my_import.name) > 0:
-            src = src + " import "
-            import_list = my_import.name
-            for import_item in import_list:
-                src = src + import_item + "."
-            src = src[:-1]
-
-        if my_import.alias is not None and len(my_import.alias) > 0:
-            src = src + " as "
-            aliases = my_import.alias
-            for alias in aliases:
-                src = src + alias + "."
-            src = src[:-1]
-
-        src = src + "\n"
+    src = "\n".join(get_import_lines(module.__file__))
 
     # Hard-coded specific files as imports because (for now) all data serialization methods
     # come from one of two files and we do not retrieve the modules for the methods at this
