@@ -248,3 +248,93 @@ class VertexModel(metaclass=abc.ABCMeta):
     def eval(self):
         """Evaluate model."""
         raise NotImplementedError("eval is currently not implemented.")
+
+"""
+from fastapi import FastAPI, Request
+
+import joblib
+import json
+import numpy as np
+import pickle
+import os
+
+from google.cloud import storage
+from preprocess import MySimpleScaler
+from sklearn.datasets import load_iris
+
+
+app = FastAPI()
+gcs_client = storage.Client()
+
+with open("preprocessor.pkl", 'wb') as preprocessor_f, open("model.joblib", 'wb') as model_f:
+    gcs_client.download_blob_to_file(
+        f"{os.environ['AIP_STORAGE_URI']}/preprocessor.pkl", preprocessor_f
+    )
+    gcs_client.download_blob_to_file(
+        f"{os.environ['AIP_STORAGE_URI']}/model.joblib", model_f
+    )
+
+with open("preprocessor.pkl", "rb") as f:
+    preprocessor = pickle.load(f)
+
+_class_names = load_iris().target_names
+_model = joblib.load("model.joblib")
+_preprocessor = preprocessor
+
+
+@app.get(os.environ['AIP_HEALTH_ROUTE'], status_code=200)
+def health():
+    return {}
+
+
+@app.post(os.environ['AIP_PREDICT_ROUTE'])
+async def predict(request: Request):
+    body = await request.json()
+
+    instances = body["instances"]
+    inputs = np.asarray(instances)
+    preprocessed_inputs = _preprocessor.preprocess(inputs)
+    outputs = _model.predict(preprocessed_inputs)
+
+    return {"predictions": [_class_names[class_num] for class_num in outputs]}
+
+
+# Deploy model
+
+model = aiplatform.Model.upload(
+    display_name=MODEL_DISPLAY_NAME,
+    artifact_uri=f"{BUCKET_NAME}/{MODEL_ARTIFACT_DIR}",
+    serving_container_image_uri=f"{REGION}-docker.pkg.dev/{PROJECT_ID}/{REPOSITORY}/{IMAGE}",
+)
+
+endpoint = model.deploy(machine_type="n1-standard-4")
+
+endpoint.predict(instances=[[6.7, 3.1, 4.7, 1.5], [4.6, 3.1, 1.5, 0.2]])
+
+
+# Pass in full script to container:
+
+component_spec.implementation=ContainerImplementation(
+        container=ContainerSpec(
+            image=base_image,
+            command=packages_to_install_command + [
+                'sh',
+                '-ec',
+                textwrap.dedent('''\
+                    program_path=$(mktemp -d)
+                    printf "%s" "$0" > "$program_path/ephemeral_component.py"
+                    python3 -m kfp.components.executor_main \
+                        --component_module_path \
+                        "$program_path/ephemeral_component.py" \
+                        "$@"
+                '''),
+                source,
+            ],
+            args=[
+                "--executor_input",
+                ExecutorInputPlaceholder(),
+                "--function_to_execute", func.__name__,
+                ]
+        )
+    )
+"""
