@@ -3524,7 +3524,7 @@ class AutoMLForecastingTrainingJob(_TrainingJob):
 
         model = gca_model.Model(display_name=model_display_name)
 
-        print("BQ:", self.bq_uri)
+        _LOGGER.info("Exported exmapled available at:\n%s" % self.bq_uri)
 
         return self._run_job(
             training_task_definition=training_task_definition,
