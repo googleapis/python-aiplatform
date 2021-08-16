@@ -22,16 +22,19 @@ from google.cloud.aiplatform.compat.types import (
 )
 
 
-class _MachineSpec(NamedTuple):
-    """Specification container for Machine specs used for distributed training.
+class _WorkerPoolSpec(NamedTuple):
+    """Specification container for Worker Pool specs used for distributed training.
 
     Usage:
 
-    spec = _MachineSpec(
+    spec = _WorkerPoolSpec(
                 replica_count=10,
                 machine_type='n1-standard-4',
                 accelerator_count=2,
-                accelerator_type='NVIDIA_TESLA_K80')
+                accelerator_type='NVIDIA_TESLA_K80',
+                boot_disk_type='pd-ssd',
+                boot_disk_size_gb=100,
+            )
 
     Note that container and python package specs are not stored with this spec.
     """
@@ -40,6 +43,8 @@ class _MachineSpec(NamedTuple):
     machine_type: str = "n1-standard-4"
     accelerator_count: int = 0
     accelerator_type: str = "ACCELERATOR_TYPE_UNSPECIFIED"
+    boot_disk_type: str = "pd-ssd"
+    boot_disk_size_gb: int = 100
 
     def _get_accelerator_type(self) -> Optional[str]:
         """Validates accelerator_type and returns the name of the accelerator.
@@ -70,7 +75,12 @@ class _MachineSpec(NamedTuple):
         spec = {
             "machine_spec": {"machine_type": self.machine_type},
             "replica_count": self.replica_count,
+            "disk_spec": {
+                "boot_disk_type": self.boot_disk_type,
+                "boot_disk_size_gb": self.boot_disk_size_gb,
+            },
         }
+
         accelerator_type = self._get_accelerator_type()
         if accelerator_type and self.accelerator_count:
             spec["machine_spec"]["accelerator_type"] = accelerator_type
@@ -98,25 +108,29 @@ class _DistributedTrainingSpec(NamedTuple):
     Usage:
 
     dist_training_spec = _DistributedTrainingSpec(
-        chief_spec = _MachineSpec(
+        chief_spec = _WorkerPoolSpec(
                 replica_count=1,
                 machine_type='n1-standard-4',
                 accelerator_count=2,
-                accelerator_type='NVIDIA_TESLA_K80'
-                ),
-        worker_spec = _MachineSpec(
+                accelerator_type='NVIDIA_TESLA_K80',
+                boot_disk_type='pd-ssd',
+                boot_disk_size_gb=100,
+            ),
+        worker_spec = _WorkerPoolSpec(
                 replica_count=10,
                 machine_type='n1-standard-4',
                 accelerator_count=2,
-                accelerator_type='NVIDIA_TESLA_K80'
-                )
+                accelerator_type='NVIDIA_TESLA_K80',
+                boot_disk_type='pd-ssd',
+                boot_disk_size_gb=100,
+            ),
     )
     """
 
-    chief_spec: _MachineSpec = _MachineSpec()
-    worker_spec: _MachineSpec = _MachineSpec()
-    parameter_server_spec: _MachineSpec = _MachineSpec()
-    evaluator_spec: _MachineSpec = _MachineSpec()
+    chief_spec: _WorkerPoolSpec = _WorkerPoolSpec()
+    worker_spec: _WorkerPoolSpec = _WorkerPoolSpec()
+    parameter_server_spec: _WorkerPoolSpec = _WorkerPoolSpec()
+    evaluator_spec: _WorkerPoolSpec = _WorkerPoolSpec()
 
     @property
     def pool_specs(
@@ -156,6 +170,8 @@ class _DistributedTrainingSpec(NamedTuple):
         machine_type: str = "n1-standard-4",
         accelerator_count: int = 0,
         accelerator_type: str = "ACCELERATOR_TYPE_UNSPECIFIED",
+        boot_disk_type: str = "pd-ssd",
+        boot_disk_size_gb: int = 100,
     ) -> "_DistributedTrainingSpec":
         """Parameterizes Config to support only chief with worker replicas.
 
@@ -174,6 +190,13 @@ class _DistributedTrainingSpec(NamedTuple):
                 NVIDIA_TESLA_T4
             accelerator_count (int):
                 The number of accelerators to attach to a worker replica.
+            boot_disk_type (str):
+                Type of the boot disk (default is `pd-ssd`).
+                Valid values: `pd-ssd` (Persistent Disk Solid State Drive) or
+                `pd-standard` (Persistent Disk Hard Disk Drive).
+            boot_disk_size_gb (int):
+                Size in GB of the boot disk (default is 100GB).
+                boot disk size must be within the range of [100, 64000].
 
         Returns:
             _DistributedTrainingSpec representing one chief and n workers all of same
@@ -182,18 +205,22 @@ class _DistributedTrainingSpec(NamedTuple):
         if replica_count <= 0:
             return cls()
 
-        chief_spec = _MachineSpec(
+        chief_spec = _WorkerPoolSpec(
             replica_count=1,
             machine_type=machine_type,
             accelerator_count=accelerator_count,
             accelerator_type=accelerator_type,
+            boot_disk_type=boot_disk_type,
+            boot_disk_size_gb=boot_disk_size_gb,
         )
 
-        worker_spec = _MachineSpec(
+        worker_spec = _WorkerPoolSpec(
             replica_count=replica_count - 1,
             machine_type=machine_type,
             accelerator_count=accelerator_count,
             accelerator_type=accelerator_type,
+            boot_disk_type=boot_disk_type,
+            boot_disk_size_gb=boot_disk_size_gb,
         )
 
         return cls(chief_spec=chief_spec, worker_spec=worker_spec)
