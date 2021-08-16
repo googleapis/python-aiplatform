@@ -447,6 +447,7 @@ class _TrainingJob(base.VertexAiResourceNounWithFutureManager):
         model: Optional[gca_model.Model] = None,
         gcs_destination_uri_prefix: Optional[str] = None,
         bigquery_destination: Optional[str] = None,
+        bq_uri: Optional[str] = None
     ) -> Optional[models.Model]:
         """Runs the training job.
 
@@ -603,6 +604,9 @@ class _TrainingJob(base.VertexAiResourceNounWithFutureManager):
                 + self._model_upload_fail_string
             )
 
+        if bq_uri is not None:
+            _LOGGER.info("Exported examples available at:\n%s" % bq_uri)
+
         return model
 
     def _is_waiting_to_run(self) -> bool:
@@ -626,7 +630,7 @@ class _TrainingJob(base.VertexAiResourceNounWithFutureManager):
 
         self._sync_gca_resource()
         return self._gca_resource.state
-
+    
     def get_model(self, sync=True) -> models.Model:
         """Vertex AI Model produced by this training, if one was produced.
 
@@ -3529,6 +3533,7 @@ class AutoMLForecastingTrainingJob(_TrainingJob):
             test_fraction_split=0.1,
             predefined_split_column_name=predefined_split_column_name,
             model=model,
+            bq_uri=self.bq_uri
         )
 
     @property
@@ -3538,6 +3543,20 @@ class AutoMLForecastingTrainingJob(_TrainingJob):
             f"Training Pipeline {self.resource_name} is not configured to upload a "
             "Model."
         )
+
+    @property
+    def bq_uri(self) -> Optional[str]:
+        """BigQuery location of exported evaluated examples from the Training Job"""
+
+        if self._gca_resource is None:
+          return None
+
+        meta = getattr((self._gca_resource), "training_task_metadata")
+
+        if meta is not None and "evaluatedDataItemsBigqueryUri" in meta._pb:
+          return meta._pb["evaluatedDataItemsBigqueryUri"].string_value
+        else:
+          return None
 
     def _add_additional_experiments(self, additional_experiments: List[str]):
         """Add experiment flags to the training job.
