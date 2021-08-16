@@ -103,7 +103,7 @@ def _make_source(
     try:
         module = inspect.getmodule(obj.__class__)
         src = "\n".join(get_import_lines(module.__file__))
-    except TypeError:
+    except AttributeError:
         class_source = "".join(inspect.getsourcelines(obj.__class__)[0])
 
         with tempfile.TemporaryDirectory() as tmpdirname:
