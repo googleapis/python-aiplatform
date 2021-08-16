@@ -3524,6 +3524,9 @@ class AutoMLForecastingTrainingJob(_TrainingJob):
 
         model = gca_model.Model(display_name=model_display_name)
 
+        if self.bq_uri is not None:
+          print("BQ:", self.bq_uri)
+
         return self._run_job(
             training_task_definition=training_task_definition,
             training_task_inputs=training_task_inputs_dict,
