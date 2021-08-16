@@ -17,14 +17,16 @@
 
 import ast
 import inspect
+import pathlib
+import tempfile
 from typing import Any
 from typing import Dict
 from typing import Tuple
 
 
-def get_import_lines(module):
-    # with open(path) as f:
-    root = ast.parse(inspect.getsource(module))
+def get_import_lines(path):
+    with open(path) as f:
+        root = ast.parse(f.read(), path)
 
     for node in ast.iter_child_nodes(root):
         line = ""
@@ -96,8 +98,22 @@ def _make_source(
         the user has the option to specify a method to call from __main__.
     """
 
-    module = inspect.getmodule(obj.__class__)
-    src = "\n".join(get_import_lines(module))
+    src = ""
+
+    try:
+        module = inspect.getmodule(obj.__class__)
+        src = "\n".join(get_import_lines(module.__file__))
+    except TypeError:
+        class_source = "".join(inspect.getsourcelines(obj.__class__)[0])
+
+        with tempfile.TemporaryDirectory() as tmpdirname:
+            temp_dir = pathlib.Path(tmpdirname) / "class_source.py"
+
+            my_class_source_file = open(str(temp_dir), "w")
+            my_class_source_file.write(class_source)
+            my_class_source_file.close()
+
+            src = "\n".join(get_import_lines(temp_dir))
 
     # Hard-coded specific files as imports because (for now) all data serialization methods
     # come from one of two files and we do not retrieve the modules for the methods at this
