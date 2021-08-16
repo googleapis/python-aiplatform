@@ -22,9 +22,9 @@ from typing import Dict
 from typing import Tuple
 
 
-def get_import_lines(path):
-    with open(path) as f:
-        root = ast.parse(f.read(), path)
+def get_import_lines(module):
+    # with open(path) as f:
+    root = ast.parse(inspect.getsource(module))
 
     for node in ast.iter_child_nodes(root):
         line = ""
@@ -97,7 +97,7 @@ def _make_source(
     """
 
     module = inspect.getmodule(obj.__class__)
-    src = "\n".join(get_import_lines(module.__file__))
+    src = "\n".join(get_import_lines(module))
 
     # Hard-coded specific files as imports because (for now) all data serialization methods
     # come from one of two files and we do not retrieve the modules for the methods at this
