@@ -95,6 +95,10 @@ _TEST_MACHINE_TYPE = "n1-standard-4"
 _TEST_ACCELERATOR_TYPE = "NVIDIA_TESLA_K80"
 _TEST_INVALID_ACCELERATOR_TYPE = "NVIDIA_DOES_NOT_EXIST"
 _TEST_ACCELERATOR_COUNT = 1
+_TEST_BOOT_DISK_TYPE_DEFAULT = "pd-ssd"
+_TEST_BOOT_DISK_SIZE_GB_DEFAULT = 100
+_TEST_BOOT_DISK_TYPE = "pd-standard"
+_TEST_BOOT_DISK_SIZE_GB = 300
 _TEST_MODEL_DISPLAY_NAME = "model-display-name"
 _TEST_LABELS = {"key": "value"}
 _TEST_MODEL_LABELS = {"model_key": "model_value"}
@@ -691,6 +695,10 @@ class TestCustomTrainingJob:
                 "accelerator_type": _TEST_ACCELERATOR_TYPE,
                 "accelerator_count": _TEST_ACCELERATOR_COUNT,
             },
+            "disk_spec": {
+                "boot_disk_type": _TEST_BOOT_DISK_TYPE_DEFAULT,
+                "boot_disk_size_gb": _TEST_BOOT_DISK_SIZE_GB_DEFAULT,
+            },
             "python_package_spec": {
                 "executor_image_uri": _TEST_TRAINING_CONTAINER_IMAGE,
                 "python_module": source_utils._TrainingScriptPythonPackager.module_name,
@@ -857,6 +865,10 @@ class TestCustomTrainingJob:
                 "machine_type": _TEST_MACHINE_TYPE,
                 "accelerator_type": _TEST_ACCELERATOR_TYPE,
                 "accelerator_count": _TEST_ACCELERATOR_COUNT,
+            },
+            "disk_spec": {
+                "boot_disk_type": _TEST_BOOT_DISK_TYPE_DEFAULT,
+                "boot_disk_size_gb": _TEST_BOOT_DISK_SIZE_GB_DEFAULT,
             },
             "python_package_spec": {
                 "executor_image_uri": _TEST_TRAINING_CONTAINER_IMAGE,
@@ -1135,6 +1147,10 @@ class TestCustomTrainingJob:
                 "machine_type": _TEST_MACHINE_TYPE,
                 "accelerator_type": _TEST_ACCELERATOR_TYPE,
                 "accelerator_count": _TEST_ACCELERATOR_COUNT,
+            },
+            "disk_spec": {
+                "boot_disk_type": _TEST_BOOT_DISK_TYPE_DEFAULT,
+                "boot_disk_size_gb": _TEST_BOOT_DISK_SIZE_GB_DEFAULT,
             },
             "python_package_spec": {
                 "executor_image_uri": _TEST_TRAINING_CONTAINER_IMAGE,
@@ -1392,6 +1408,10 @@ class TestCustomTrainingJob:
                     "accelerator_type": _TEST_ACCELERATOR_TYPE,
                     "accelerator_count": _TEST_ACCELERATOR_COUNT,
                 },
+                "disk_spec": {
+                    "boot_disk_type": _TEST_BOOT_DISK_TYPE_DEFAULT,
+                    "boot_disk_size_gb": _TEST_BOOT_DISK_SIZE_GB_DEFAULT,
+                },
                 "python_package_spec": {
                     "executor_image_uri": _TEST_TRAINING_CONTAINER_IMAGE,
                     "python_module": source_utils._TrainingScriptPythonPackager.module_name,
@@ -1406,6 +1426,10 @@ class TestCustomTrainingJob:
                     "machine_type": _TEST_MACHINE_TYPE,
                     "accelerator_type": _TEST_ACCELERATOR_TYPE,
                     "accelerator_count": _TEST_ACCELERATOR_COUNT,
+                },
+                "disk_spec": {
+                    "boot_disk_type": _TEST_BOOT_DISK_TYPE_DEFAULT,
+                    "boot_disk_size_gb": _TEST_BOOT_DISK_SIZE_GB_DEFAULT,
                 },
                 "python_package_spec": {
                     "executor_image_uri": _TEST_TRAINING_CONTAINER_IMAGE,
@@ -1657,6 +1681,10 @@ class TestCustomTrainingJob:
                 "accelerator_type": _TEST_ACCELERATOR_TYPE,
                 "accelerator_count": _TEST_ACCELERATOR_COUNT,
             },
+            "disk_spec": {
+                "boot_disk_type": _TEST_BOOT_DISK_TYPE_DEFAULT,
+                "boot_disk_size_gb": _TEST_BOOT_DISK_SIZE_GB_DEFAULT,
+            },
             "python_package_spec": {
                 "executor_image_uri": _TEST_TRAINING_CONTAINER_IMAGE,
                 "python_module": source_utils._TrainingScriptPythonPackager.module_name,
@@ -1906,6 +1934,10 @@ class TestCustomContainerTrainingJob:
                 "accelerator_type": _TEST_ACCELERATOR_TYPE,
                 "accelerator_count": _TEST_ACCELERATOR_COUNT,
             },
+            "disk_spec": {
+                "boot_disk_type": _TEST_BOOT_DISK_TYPE_DEFAULT,
+                "boot_disk_size_gb": _TEST_BOOT_DISK_SIZE_GB_DEFAULT,
+            },
             "containerSpec": {
                 "imageUri": _TEST_TRAINING_CONTAINER_IMAGE,
                 "command": _TEST_TRAINING_CONTAINER_CMD,
@@ -2062,6 +2094,10 @@ class TestCustomContainerTrainingJob:
                 "machine_type": _TEST_MACHINE_TYPE,
                 "accelerator_type": _TEST_ACCELERATOR_TYPE,
                 "accelerator_count": _TEST_ACCELERATOR_COUNT,
+            },
+            "disk_spec": {
+                "boot_disk_type": _TEST_BOOT_DISK_TYPE_DEFAULT,
+                "boot_disk_size_gb": _TEST_BOOT_DISK_SIZE_GB_DEFAULT,
             },
             "containerSpec": {
                 "imageUri": _TEST_TRAINING_CONTAINER_IMAGE,
@@ -2322,6 +2358,10 @@ class TestCustomContainerTrainingJob:
                 "machine_type": _TEST_MACHINE_TYPE,
                 "accelerator_type": _TEST_ACCELERATOR_TYPE,
                 "accelerator_count": _TEST_ACCELERATOR_COUNT,
+            },
+            "disk_spec": {
+                "boot_disk_type": _TEST_BOOT_DISK_TYPE_DEFAULT,
+                "boot_disk_size_gb": _TEST_BOOT_DISK_SIZE_GB_DEFAULT,
             },
             "containerSpec": {
                 "imageUri": _TEST_TRAINING_CONTAINER_IMAGE,
@@ -2556,6 +2596,10 @@ class TestCustomContainerTrainingJob:
                     "accelerator_type": _TEST_ACCELERATOR_TYPE,
                     "accelerator_count": _TEST_ACCELERATOR_COUNT,
                 },
+                "disk_spec": {
+                    "boot_disk_type": _TEST_BOOT_DISK_TYPE_DEFAULT,
+                    "boot_disk_size_gb": _TEST_BOOT_DISK_SIZE_GB_DEFAULT,
+                },
                 "containerSpec": {
                     "imageUri": _TEST_TRAINING_CONTAINER_IMAGE,
                     "command": _TEST_TRAINING_CONTAINER_CMD,
@@ -2568,6 +2612,10 @@ class TestCustomContainerTrainingJob:
                     "machine_type": _TEST_MACHINE_TYPE,
                     "accelerator_type": _TEST_ACCELERATOR_TYPE,
                     "accelerator_count": _TEST_ACCELERATOR_COUNT,
+                },
+                "disk_spec": {
+                    "boot_disk_type": _TEST_BOOT_DISK_TYPE_DEFAULT,
+                    "boot_disk_size_gb": _TEST_BOOT_DISK_SIZE_GB_DEFAULT,
                 },
                 "containerSpec": {
                     "imageUri": _TEST_TRAINING_CONTAINER_IMAGE,
@@ -2701,6 +2749,10 @@ class TestCustomContainerTrainingJob:
                 "accelerator_type": _TEST_ACCELERATOR_TYPE,
                 "accelerator_count": _TEST_ACCELERATOR_COUNT,
             },
+            "disk_spec": {
+                "boot_disk_type": _TEST_BOOT_DISK_TYPE_DEFAULT,
+                "boot_disk_size_gb": _TEST_BOOT_DISK_SIZE_GB_DEFAULT,
+            },
             "containerSpec": {
                 "imageUri": _TEST_TRAINING_CONTAINER_IMAGE,
                 "command": _TEST_TRAINING_CONTAINER_CMD,
@@ -2830,9 +2882,9 @@ class TestCustomContainerTrainingJob:
             )
 
 
-class Test_MachineSpec:
+class Test_WorkerPoolSpec:
     def test_machine_spec_return_spec_dict(self):
-        test_spec = worker_spec_utils._MachineSpec(
+        test_spec = worker_spec_utils._WorkerPoolSpec(
             replica_count=_TEST_REPLICA_COUNT,
             machine_type=_TEST_MACHINE_TYPE,
             accelerator_count=_TEST_ACCELERATOR_COUNT,
@@ -2846,12 +2898,41 @@ class Test_MachineSpec:
                 "accelerator_count": _TEST_ACCELERATOR_COUNT,
             },
             "replica_count": _TEST_REPLICA_COUNT,
+            "disk_spec": {
+                "boot_disk_type": _TEST_BOOT_DISK_TYPE_DEFAULT,
+                "boot_disk_size_gb": _TEST_BOOT_DISK_SIZE_GB_DEFAULT,
+            },
+        }
+
+        assert test_spec.spec_dict == true_spec_dict
+
+    def test_machine_spec_return_spec_with_boot_disk_dict(self):
+        test_spec = worker_spec_utils._WorkerPoolSpec(
+            replica_count=_TEST_REPLICA_COUNT,
+            machine_type=_TEST_MACHINE_TYPE,
+            accelerator_count=_TEST_ACCELERATOR_COUNT,
+            accelerator_type=_TEST_ACCELERATOR_TYPE,
+            boot_disk_type=_TEST_BOOT_DISK_TYPE,
+            boot_disk_size_gb=_TEST_BOOT_DISK_SIZE_GB,
+        )
+
+        true_spec_dict = {
+            "machine_spec": {
+                "machine_type": _TEST_MACHINE_TYPE,
+                "accelerator_type": _TEST_ACCELERATOR_TYPE,
+                "accelerator_count": _TEST_ACCELERATOR_COUNT,
+            },
+            "replica_count": _TEST_REPLICA_COUNT,
+            "disk_spec": {
+                "boot_disk_type": _TEST_BOOT_DISK_TYPE,
+                "boot_disk_size_gb": _TEST_BOOT_DISK_SIZE_GB,
+            },
         }
 
         assert test_spec.spec_dict == true_spec_dict
 
     def test_machine_spec_return_spec_dict_with_no_accelerator(self):
-        test_spec = worker_spec_utils._MachineSpec(
+        test_spec = worker_spec_utils._WorkerPoolSpec(
             replica_count=_TEST_REPLICA_COUNT,
             machine_type=_TEST_MACHINE_TYPE,
             accelerator_count=0,
@@ -2861,12 +2942,16 @@ class Test_MachineSpec:
         true_spec_dict = {
             "machine_spec": {"machine_type": _TEST_MACHINE_TYPE},
             "replica_count": _TEST_REPLICA_COUNT,
+            "disk_spec": {
+                "boot_disk_type": _TEST_BOOT_DISK_TYPE_DEFAULT,
+                "boot_disk_size_gb": _TEST_BOOT_DISK_SIZE_GB_DEFAULT,
+            },
         }
 
         assert test_spec.spec_dict == true_spec_dict
 
     def test_machine_spec_spec_dict_raises_invalid_accelerator(self):
-        test_spec = worker_spec_utils._MachineSpec(
+        test_spec = worker_spec_utils._WorkerPoolSpec(
             replica_count=_TEST_REPLICA_COUNT,
             machine_type=_TEST_MACHINE_TYPE,
             accelerator_count=_TEST_ACCELERATOR_COUNT,
@@ -2877,7 +2962,7 @@ class Test_MachineSpec:
             test_spec.spec_dict
 
     def test_machine_spec_spec_dict_is_empty(self):
-        test_spec = worker_spec_utils._MachineSpec(
+        test_spec = worker_spec_utils._WorkerPoolSpec(
             replica_count=0,
             machine_type=_TEST_MACHINE_TYPE,
             accelerator_count=_TEST_ACCELERATOR_COUNT,
@@ -2887,7 +2972,7 @@ class Test_MachineSpec:
         assert test_spec.is_empty
 
     def test_machine_spec_spec_dict_is_not_empty(self):
-        test_spec = worker_spec_utils._MachineSpec(
+        test_spec = worker_spec_utils._WorkerPoolSpec(
             replica_count=_TEST_REPLICA_COUNT,
             machine_type=_TEST_MACHINE_TYPE,
             accelerator_count=_TEST_ACCELERATOR_COUNT,
@@ -2901,25 +2986,25 @@ class Test_DistributedTrainingSpec:
     def test_machine_spec_returns_pool_spec(self):
 
         spec = worker_spec_utils._DistributedTrainingSpec(
-            chief_spec=worker_spec_utils._MachineSpec(
+            chief_spec=worker_spec_utils._WorkerPoolSpec(
                 replica_count=1,
                 machine_type=_TEST_MACHINE_TYPE,
                 accelerator_count=_TEST_ACCELERATOR_COUNT,
                 accelerator_type=_TEST_ACCELERATOR_TYPE,
             ),
-            worker_spec=worker_spec_utils._MachineSpec(
+            worker_spec=worker_spec_utils._WorkerPoolSpec(
                 replica_count=10,
                 machine_type=_TEST_MACHINE_TYPE,
                 accelerator_count=_TEST_ACCELERATOR_COUNT,
                 accelerator_type=_TEST_ACCELERATOR_TYPE,
             ),
-            parameter_server_spec=worker_spec_utils._MachineSpec(
+            parameter_server_spec=worker_spec_utils._WorkerPoolSpec(
                 replica_count=3,
                 machine_type=_TEST_MACHINE_TYPE,
                 accelerator_count=_TEST_ACCELERATOR_COUNT,
                 accelerator_type=_TEST_ACCELERATOR_TYPE,
             ),
-            evaluator_spec=worker_spec_utils._MachineSpec(
+            evaluator_spec=worker_spec_utils._WorkerPoolSpec(
                 replica_count=1,
                 machine_type=_TEST_MACHINE_TYPE,
                 accelerator_count=_TEST_ACCELERATOR_COUNT,
@@ -2935,6 +3020,10 @@ class Test_DistributedTrainingSpec:
                     "accelerator_count": _TEST_ACCELERATOR_COUNT,
                 },
                 "replica_count": 1,
+                "disk_spec": {
+                    "boot_disk_type": _TEST_BOOT_DISK_TYPE_DEFAULT,
+                    "boot_disk_size_gb": _TEST_BOOT_DISK_SIZE_GB_DEFAULT,
+                },
             },
             {
                 "machine_spec": {
@@ -2943,6 +3032,10 @@ class Test_DistributedTrainingSpec:
                     "accelerator_count": _TEST_ACCELERATOR_COUNT,
                 },
                 "replica_count": 10,
+                "disk_spec": {
+                    "boot_disk_type": _TEST_BOOT_DISK_TYPE_DEFAULT,
+                    "boot_disk_size_gb": _TEST_BOOT_DISK_SIZE_GB_DEFAULT,
+                },
             },
             {
                 "machine_spec": {
@@ -2951,6 +3044,10 @@ class Test_DistributedTrainingSpec:
                     "accelerator_count": _TEST_ACCELERATOR_COUNT,
                 },
                 "replica_count": 3,
+                "disk_spec": {
+                    "boot_disk_type": _TEST_BOOT_DISK_TYPE_DEFAULT,
+                    "boot_disk_size_gb": _TEST_BOOT_DISK_SIZE_GB_DEFAULT,
+                },
             },
             {
                 "machine_spec": {
@@ -2959,6 +3056,10 @@ class Test_DistributedTrainingSpec:
                     "accelerator_count": _TEST_ACCELERATOR_COUNT,
                 },
                 "replica_count": 1,
+                "disk_spec": {
+                    "boot_disk_type": _TEST_BOOT_DISK_TYPE_DEFAULT,
+                    "boot_disk_size_gb": _TEST_BOOT_DISK_SIZE_GB_DEFAULT,
+                },
             },
         ]
 
@@ -2981,6 +3082,10 @@ class Test_DistributedTrainingSpec:
                     "accelerator_count": _TEST_ACCELERATOR_COUNT,
                 },
                 "replica_count": 1,
+                "disk_spec": {
+                    "boot_disk_type": _TEST_BOOT_DISK_TYPE_DEFAULT,
+                    "boot_disk_size_gb": _TEST_BOOT_DISK_SIZE_GB_DEFAULT,
+                },
             },
             {
                 "machine_spec": {
@@ -2989,6 +3094,10 @@ class Test_DistributedTrainingSpec:
                     "accelerator_count": _TEST_ACCELERATOR_COUNT,
                 },
                 "replica_count": 9,
+                "disk_spec": {
+                    "boot_disk_type": _TEST_BOOT_DISK_TYPE_DEFAULT,
+                    "boot_disk_size_gb": _TEST_BOOT_DISK_SIZE_GB_DEFAULT,
+                },
             },
         ]
 
@@ -3011,6 +3120,10 @@ class Test_DistributedTrainingSpec:
                     "accelerator_count": _TEST_ACCELERATOR_COUNT,
                 },
                 "replica_count": 1,
+                "disk_spec": {
+                    "boot_disk_type": _TEST_BOOT_DISK_TYPE_DEFAULT,
+                    "boot_disk_size_gb": _TEST_BOOT_DISK_SIZE_GB_DEFAULT,
+                },
             }
         ]
 
@@ -3019,7 +3132,7 @@ class Test_DistributedTrainingSpec:
     def test_machine_spec_raise_with_more_than_one_chief_replica(self):
 
         spec = worker_spec_utils._DistributedTrainingSpec(
-            chief_spec=worker_spec_utils._MachineSpec(
+            chief_spec=worker_spec_utils._WorkerPoolSpec(
                 replica_count=2,
                 machine_type=_TEST_MACHINE_TYPE,
                 accelerator_count=_TEST_ACCELERATOR_COUNT,
@@ -3033,20 +3146,20 @@ class Test_DistributedTrainingSpec:
     def test_machine_spec_handles_missing_pools(self):
 
         spec = worker_spec_utils._DistributedTrainingSpec(
-            chief_spec=worker_spec_utils._MachineSpec(
+            chief_spec=worker_spec_utils._WorkerPoolSpec(
                 replica_count=1,
                 machine_type=_TEST_MACHINE_TYPE,
                 accelerator_count=_TEST_ACCELERATOR_COUNT,
                 accelerator_type=_TEST_ACCELERATOR_TYPE,
             ),
-            worker_spec=worker_spec_utils._MachineSpec(replica_count=0),
-            parameter_server_spec=worker_spec_utils._MachineSpec(
+            worker_spec=worker_spec_utils._WorkerPoolSpec(replica_count=0),
+            parameter_server_spec=worker_spec_utils._WorkerPoolSpec(
                 replica_count=3,
                 machine_type=_TEST_MACHINE_TYPE,
                 accelerator_count=_TEST_ACCELERATOR_COUNT,
                 accelerator_type=_TEST_ACCELERATOR_TYPE,
             ),
-            evaluator_spec=worker_spec_utils._MachineSpec(replica_count=0),
+            evaluator_spec=worker_spec_utils._WorkerPoolSpec(replica_count=0),
         )
 
         true_pool_spec = [
@@ -3057,8 +3170,19 @@ class Test_DistributedTrainingSpec:
                     "accelerator_count": _TEST_ACCELERATOR_COUNT,
                 },
                 "replica_count": 1,
+                "disk_spec": {
+                    "boot_disk_type": _TEST_BOOT_DISK_TYPE_DEFAULT,
+                    "boot_disk_size_gb": _TEST_BOOT_DISK_SIZE_GB_DEFAULT,
+                },
             },
-            {"machine_spec": {"machine_type": "n1-standard-4"}, "replica_count": 0},
+            {
+                "machine_spec": {"machine_type": "n1-standard-4"},
+                "replica_count": 0,
+                "disk_spec": {
+                    "boot_disk_type": _TEST_BOOT_DISK_TYPE_DEFAULT,
+                    "boot_disk_size_gb": _TEST_BOOT_DISK_SIZE_GB_DEFAULT,
+                },
+            },
             {
                 "machine_spec": {
                     "machine_type": _TEST_MACHINE_TYPE,
@@ -3066,6 +3190,10 @@ class Test_DistributedTrainingSpec:
                     "accelerator_count": _TEST_ACCELERATOR_COUNT,
                 },
                 "replica_count": 3,
+                "disk_spec": {
+                    "boot_disk_type": _TEST_BOOT_DISK_TYPE_DEFAULT,
+                    "boot_disk_size_gb": _TEST_BOOT_DISK_SIZE_GB_DEFAULT,
+                },
             },
         ]
 
@@ -3148,6 +3276,10 @@ class TestCustomPythonPackageTrainingJob:
                 "machine_type": _TEST_MACHINE_TYPE,
                 "accelerator_type": _TEST_ACCELERATOR_TYPE,
                 "accelerator_count": _TEST_ACCELERATOR_COUNT,
+            },
+            "disk_spec": {
+                "boot_disk_type": _TEST_BOOT_DISK_TYPE_DEFAULT,
+                "boot_disk_size_gb": _TEST_BOOT_DISK_SIZE_GB_DEFAULT,
             },
             "python_package_spec": {
                 "executor_image_uri": _TEST_TRAINING_CONTAINER_IMAGE,
@@ -3308,6 +3440,10 @@ class TestCustomPythonPackageTrainingJob:
                 "accelerator_type": _TEST_ACCELERATOR_TYPE,
                 "accelerator_count": _TEST_ACCELERATOR_COUNT,
             },
+            "disk_spec": {
+                "boot_disk_type": _TEST_BOOT_DISK_TYPE_DEFAULT,
+                "boot_disk_size_gb": _TEST_BOOT_DISK_SIZE_GB_DEFAULT,
+            },
             "python_package_spec": {
                 "executor_image_uri": _TEST_TRAINING_CONTAINER_IMAGE,
                 "python_module": _TEST_PYTHON_MODULE_NAME,
@@ -3461,6 +3597,10 @@ class TestCustomPythonPackageTrainingJob:
                 "machine_type": _TEST_MACHINE_TYPE,
                 "accelerator_type": _TEST_ACCELERATOR_TYPE,
                 "accelerator_count": _TEST_ACCELERATOR_COUNT,
+            },
+            "disk_spec": {
+                "boot_disk_type": _TEST_BOOT_DISK_TYPE_DEFAULT,
+                "boot_disk_size_gb": _TEST_BOOT_DISK_SIZE_GB_DEFAULT,
             },
             "python_package_spec": {
                 "executor_image_uri": _TEST_TRAINING_CONTAINER_IMAGE,
@@ -3726,6 +3866,10 @@ class TestCustomPythonPackageTrainingJob:
                 "machine_type": _TEST_MACHINE_TYPE,
                 "accelerator_type": _TEST_ACCELERATOR_TYPE,
                 "accelerator_count": _TEST_ACCELERATOR_COUNT,
+            },
+            "disk_spec": {
+                "boot_disk_type": _TEST_BOOT_DISK_TYPE_DEFAULT,
+                "boot_disk_size_gb": _TEST_BOOT_DISK_SIZE_GB_DEFAULT,
             },
             "python_package_spec": {
                 "executor_image_uri": _TEST_TRAINING_CONTAINER_IMAGE,
@@ -3967,6 +4111,10 @@ class TestCustomPythonPackageTrainingJob:
                     "accelerator_type": _TEST_ACCELERATOR_TYPE,
                     "accelerator_count": _TEST_ACCELERATOR_COUNT,
                 },
+                "disk_spec": {
+                    "boot_disk_type": _TEST_BOOT_DISK_TYPE_DEFAULT,
+                    "boot_disk_size_gb": _TEST_BOOT_DISK_SIZE_GB_DEFAULT,
+                },
                 "python_package_spec": {
                     "executor_image_uri": _TEST_TRAINING_CONTAINER_IMAGE,
                     "python_module": _TEST_PYTHON_MODULE_NAME,
@@ -3980,6 +4128,10 @@ class TestCustomPythonPackageTrainingJob:
                     "machine_type": _TEST_MACHINE_TYPE,
                     "accelerator_type": _TEST_ACCELERATOR_TYPE,
                     "accelerator_count": _TEST_ACCELERATOR_COUNT,
+                },
+                "disk_spec": {
+                    "boot_disk_type": _TEST_BOOT_DISK_TYPE_DEFAULT,
+                    "boot_disk_size_gb": _TEST_BOOT_DISK_SIZE_GB_DEFAULT,
                 },
                 "python_package_spec": {
                     "executor_image_uri": _TEST_TRAINING_CONTAINER_IMAGE,
@@ -4112,6 +4264,10 @@ class TestCustomPythonPackageTrainingJob:
                 "machine_type": _TEST_MACHINE_TYPE,
                 "accelerator_type": _TEST_ACCELERATOR_TYPE,
                 "accelerator_count": _TEST_ACCELERATOR_COUNT,
+            },
+            "disk_spec": {
+                "boot_disk_type": _TEST_BOOT_DISK_TYPE_DEFAULT,
+                "boot_disk_size_gb": _TEST_BOOT_DISK_SIZE_GB_DEFAULT,
             },
             "python_package_spec": {
                 "executor_image_uri": _TEST_TRAINING_CONTAINER_IMAGE,
