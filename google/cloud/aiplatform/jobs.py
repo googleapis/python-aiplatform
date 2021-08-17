@@ -406,7 +406,7 @@ class BatchPredictionJob(_Job):
                 https://cloud.google.com/storage/docs/gsutil/addlhelp/WildcardNames.
             bigquery_source (Optional[str]):
                 BigQuery URI to a table, up to 2000 characters long. For example:
-                `projectId.bqDatasetId.bqTableId`
+                `bq://projectId.bqDatasetId.bqTableId`
             gcs_destination_prefix (Optional[str]):
                 The Google Cloud Storage location of the directory where the
                 output is to be written to. In the given directory a new
