@@ -1764,6 +1764,17 @@ class CustomTrainingJob(_CustomTrainingJob):
         they can be set as '-' (the minus sign).
         Supported only for unstructured Datasets.
 
+        Predefined splits:
+        Assigns input data to training, validation, and test sets based on the value of a provided key.
+        Supported only for tabular Datasets.
+
+        Timestamp splits:
+        Assigns input data to training, validation, and test sets
+        based on a provided timestamps. The youngest data pieces are
+        assigned to training set, next to validation set, and the oldest
+        to the test set.
+        Supported only for tabular Datasets.        
+
         Args:
             dataset (
                 Union[
@@ -2510,7 +2521,18 @@ class CustomContainerTrainingJob(_CustomTrainingJob):
         If any of the filters in this message are to match nothing, then
         they can be set as '-' (the minus sign).
         Supported only for unstructured Datasets.
-        
+
+        Predefined splits:
+        Assigns input data to training, validation, and test sets based on the value of a provided key.
+        Supported only for tabular Datasets.
+
+        Timestamp splits:
+        Assigns input data to training, validation, and test sets
+        based on a provided timestamps. The youngest data pieces are
+        assigned to training set, next to validation set, and the oldest
+        to the test set.
+        Supported only for tabular Datasets.        
+
         Args:
             dataset (Union[datasets.ImageDataset,datasets.TabularDataset,datasets.TextDataset,datasets.VideoDataset]):
                 Vertex AI to fit this training against. Custom training script should
@@ -4874,6 +4896,17 @@ class CustomPythonPackageTrainingJob(_CustomTrainingJob):
         If any of the filters in this message are to match nothing, then
         they can be set as '-' (the minus sign).
         Supported only for unstructured Datasets.
+
+        Predefined splits:
+        Assigns input data to training, validation, and test sets based on the value of a provided key.
+        Supported only for tabular Datasets.
+
+        Timestamp splits:
+        Assigns input data to training, validation, and test sets
+        based on a provided timestamps. The youngest data pieces are
+        assigned to training set, next to validation set, and the oldest
+        to the test set.
+        Supported only for tabular Datasets.        
 
         Args:
             dataset (Union[datasets.ImageDataset,datasets.TabularDataset,datasets.TextDataset,datasets.VideoDataset,]):
