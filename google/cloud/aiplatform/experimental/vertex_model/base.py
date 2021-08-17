@@ -54,6 +54,13 @@ except ImportError:
         "PyTorch is not installed. Please install torch to use VertexModel"
     )
 
+
+REGION = "us-central1"  # @param {type:"string"}
+MODEL_ARTIFACT_DIR = "custom-container-prediction-model"  # @param {type:"string"}
+REPOSITORY = "custom-container-prediction"  # @param {type:"string"}
+IMAGE = "sklearn-fastapi-server"  # @param {type:"string"}
+MODEL_DISPLAY_NAME = "sklearn-custom-container"  # @param {type:"string"}
+
 _LOGGER = base.Logger(__name__)
 
 
@@ -189,18 +196,19 @@ def vertex_predict_function_wrapper(method: Callable[..., Any]):
     @functools.wraps(method)
     def p(*args, **kwargs):
         obj = method.__self__
+        output_dir = ""
 
-        # Local training to local prediction
+        # Local training to local prediction: return original method
         if method.__self__.training_mode == "local" and obj._model is None:
             return method(*args, **kwargs)
 
         # Local training to cloud prediction CUJ: serialize to cloud location
         if method.__self__.training_mode == "cloud" and obj._model is None:
-            model._serialize_local_model(
+            output_dir = model._serialize_local_model(
                 os.getenv("AIP_MODEL_DIR"), obj, obj.training_mode
             )
 
-        # Cloud training to local prediction
+        # Cloud training to local prediction: deserialize from cloud URI
         if method.__self__.training_mode == "local":
             output_dir = obj._model._gca_resource.artifact_uri
             model_uri = pathlib.Path(output_dir) / (
@@ -210,30 +218,19 @@ def vertex_predict_function_wrapper(method: Callable[..., Any]):
             my_model = model._deserialize_remote_model(str(model_uri))
             return my_model.predict(*args, **kwargs)
 
-        # Make remote predictions, regardless of training
+        # Make remote predictions, regardless of training: create custom container
         if method.__self__.training_mode == "cloud":
             app = FastAPI()
             gcs_client = storage.Client()
 
-            # necessary?
-            with open("preprocessor.pkl", "wb") as preprocessor_f, open(
-                "model.joblib", "wb"
-            ) as model_f:
-                gcs_client.download_blob_to_file(
-                    f"{os.environ['AIP_STORAGE_URI']}/preprocessor.pkl", preprocessor_f
+            if obj._model is None:
+                my_model = model._deserialize_remote_model(output_dir)
+            else:
+                output_dir = obj._model._gca_resource.artifact_uri
+                model_uri = pathlib.Path(output_dir) / (
+                    "my_" + obj.training_mode + "_model.pth"
                 )
-                gcs_client.download_blob_to_file(
-                    f"{os.environ['AIP_STORAGE_URI']}/model.joblib", model_f
-                )
-
-            with open("preprocessor.pkl", "rb") as f:
-                preprocessor = pickle.load(f)
-
-            _model = obj._model
-
-            @app.get(os.environ["AIP_HEALTH_ROUTE"], status_code=200)
-            def health():
-                return {}
+                my_model = model._deserialize_remote_model(str(model_uri))
 
             @app.post(os.environ["AIP_PREDICT_ROUTE"])
             async def predict(request: Request):
@@ -241,8 +238,7 @@ def vertex_predict_function_wrapper(method: Callable[..., Any]):
 
                 instances = body["instances"]
                 inputs = np.asarray(instances)
-                preprocessed_inputs = _preprocessor.preprocess(inputs)
-                outputs = _model.predict(preprocessed_inputs)
+                outputs = my_model.predict(inputs)
 
                 return {
                     "predictions": [_class_names[class_num] for class_num in outputs]
@@ -252,7 +248,7 @@ def vertex_predict_function_wrapper(method: Callable[..., Any]):
 
             my_model = aiplatform.Model.upload(
                 display_name=MODEL_DISPLAY_NAME,
-                artifact_uri=f"{BUCKET_NAME}/{MODEL_ARTIFACT_DIR}",
+                artifact_uri=output_dir,
                 serving_container_image_uri=f"{REGION}-docker.pkg.dev/{PROJECT_ID}/{REPOSITORY}/{IMAGE}",
             )
 
