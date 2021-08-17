@@ -15,31 +15,38 @@
 # limitations under the License.
 #
 
+import ast
 import inspect
+import tempfile
 from typing import Any
 from typing import Dict
 from typing import Tuple
 
-import ast
-from collections import namedtuple
+try:
+    # Available in a colab environment.
+    from google.colab import _message  # pylint: disable=g-import-not-at-top
+except ImportError:
+    _message = None
 
-Import = namedtuple("Import", ["module", "name", "alias"])
 
-
-def get_imports(path):
-    with open(path) as fh:
-        root = ast.parse(fh.read(), path)
+def get_import_lines(path):
+    with open(path) as f:
+        root = ast.parse(f.read(), path)
 
     for node in ast.iter_child_nodes(root):
-        if isinstance(node, ast.Import):
-            module = []
-        elif isinstance(node, ast.ImportFrom):
-            module = node.module.split(".")
-        else:
-            continue
+        line = ""
+        if isinstance(node, ast.ImportFrom):
+            line += f"from {node.module} "
 
-        for n in node.names:
-            yield Import(module, n.name.split("."), n.asname)
+        if isinstance(node, (ast.Import, ast.ImportFrom)):
+            line += "import "
+            for i, name in enumerate(node.names):
+                line += f"{name.name}"
+                if name.asname:
+                    line += f" as {name.asname}"
+                if len(node.names) > 0 and i < len(node.names) - 1:
+                    line += ", "
+        yield line
 
 
 class SourceMaker:
@@ -96,34 +103,53 @@ def _make_source(
         the user has the option to specify a method to call from __main__.
     """
 
-    module = inspect.getmodule(obj.__class__)
-    imports = get_imports(module.__file__)
-
     src = ""
 
-    for my_import in imports:
-        if my_import.module is not None and len(my_import.module) > 0:
-            src = src + "from "
-            modules = my_import.module
-            for module in modules:
-                src = src + module + "."
-            src = src[:-1]
+    try:
+        module = inspect.getmodule(obj.__class__)
+        src = "\n".join(get_import_lines(module.__file__))
 
-        if my_import.name is not None and len(my_import.name) > 0:
-            src = src + " import "
-            import_list = my_import.name
-            for import_item in import_list:
-                src = src + import_item + "."
-            src = src[:-1]
+    except AttributeError:
+        response = _message.blocking_request("get_ipynb", request="", timeout_sec=200)
+        if response is None:
+            raise RuntimeError("Unable to get the notebook contents.")
 
-        if my_import.alias is not None and len(my_import.alias) > 0:
-            src = src + " as "
-            aliases = my_import.alias
-            for alias in aliases:
-                src = src + alias + "."
-            src = src[:-1]
+        cells = response["ipynb"]["cells"]
+        py_content = []
+        script_lines = []
 
-        src = src + "\n"
+        for cell in cells:
+            if cell["cell_type"] == "code":
+                # Add newline char to the last line of a code cell.
+                cell["source"][-1] += "\n"
+
+                # Combine all code cells.
+                py_content.extend(cell["source"])
+
+        for line in py_content:
+            if line.strip().startswith("%"):
+                raise RuntimeError("Magic commands '%' are not supported.")
+
+            elif line.strip().startswith("!"):
+                commands_list = line.strip()[1:].split(" ")
+                script_lines.extend(
+                    [
+                        "import sys\n",
+                        "import subprocess\n",
+                        f"print(subprocess.run({commands_list}",
+                        ",capture_output=True, text=True).stdout)\n",
+                    ]
+                )
+
+            elif not (line.strip().startswith("get_ipython().system(")):
+                script_lines.append(line)
+
+        # Create a tmp wrapped entry point script file.
+        file_descriptor, output_file = tempfile.mkstemp(suffix=".py")
+        with open(output_file, "w") as f:
+            f.writelines(script_lines)
+
+        src = "\n".join(get_import_lines(output_file))
 
     # Hard-coded specific files as imports because (for now) all data serialization methods
     # come from one of two files and we do not retrieve the modules for the methods at this

@@ -159,14 +159,6 @@ def vertex_fit_function_wrapper(method: Callable[..., Any]):
             with open(script_path, "w") as f:
                 f.write(source)
 
-            # Handle dependencies by first checking for user requirements
-            if not obj._dependencies:
-                obj._dependencies = [
-                    "pandas>=1.3",
-                    "torch>=1.7",
-                    "google-cloud-aiplatform @ git+https://github.com/googleapis/python-aiplatform@refs/pull/594/head#egg=google-cloud-aiplatform",
-                ]
-
             obj._training_job = aiplatform.CustomTrainingJob(
                 display_name="my_training_job",
                 script_path=str(script_path),
@@ -305,7 +297,11 @@ class VertexModel(metaclass=abc.ABCMeta):
         self._training_job = None
         self._model = None
         self._constructor_arguments = (args, kwargs)
-        self._dependencies = []
+        self._dependencies = [
+            "pandas>=1.3",
+            "torch>=1.7",
+            "google-cloud-aiplatform @ git+https://github.com/googleapis/python-aiplatform@refs/pull/594/head#egg=google-cloud-aiplatform",
+        ]
 
         self.training_mode = "local"
 
