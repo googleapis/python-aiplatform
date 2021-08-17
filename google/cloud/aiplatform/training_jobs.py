@@ -513,9 +513,9 @@ class _TrainingJob(base.VertexAiResourceNounWithFutureManager):
             elif len(splits) > 1:
                 raise ValueError(
                     """Can only specify one of:
-                        1. training_filter_split, validation_filter_split, test_filter_split OR
-                        2. predefined_split_column_name OR
-                        3. timestamp_split_column_name, training_fraction_split, validation_fraction_split, test_fraction_split OR
+                        1. training_filter_split, validation_filter_split, test_filter_split
+                        2. predefined_split_column_name
+                        3. timestamp_split_column_name, training_fraction_split, validation_fraction_split, test_fraction_split
                         4. training_fraction_split, validation_fraction_split, test_fraction_split"""
                 )
 
@@ -558,9 +558,9 @@ class _TrainingJob(base.VertexAiResourceNounWithFutureManager):
         training_filter_split: Optional[str] = None,
         validation_filter_split: Optional[str] = None,
         test_filter_split: Optional[str] = None,
-        annotation_schema_uri: Optional[str] = None,
         predefined_split_column_name: Optional[str] = None,
         timestamp_split_column_name: Optional[str] = None,
+        annotation_schema_uri: Optional[str] = None,
         model: Optional[gca_model.Model] = None,
         gcs_destination_uri_prefix: Optional[str] = None,
         bigquery_destination: Optional[str] = None,
@@ -591,6 +591,28 @@ class _TrainingJob(base.VertexAiResourceNounWithFutureManager):
                 [google.cloud.aiplatform.v1beta1.TrainingPipeline.training_task_definition].
                 For tabular Datasets, all their data is exported to
                 training, to pick and choose from.
+            annotation_schema_uri (str):
+                Google Cloud Storage URI points to a YAML file describing
+                annotation schema. The schema is defined as an OpenAPI 3.0.2
+                [Schema Object](https://github.com/OAI/OpenAPI-Specification/blob/master/versions/3.0.2.md#schema-object) The schema files
+                that can be used here are found in
+                gs://google-cloud-aiplatform/schema/dataset/annotation/,
+                note that the chosen schema must be consistent with
+                ``metadata``
+                of the Dataset specified by
+                ``dataset_id``.
+
+                Only Annotations that both match this schema and belong to
+                DataItems not ignored by the split method are used in
+                respectively training, validation or test role, depending on
+                the role of the DataItem they are on.
+
+                When used in conjunction with
+                ``annotations_filter``,
+                the Annotations used for training are filtered by both
+                ``annotations_filter``
+                and
+                ``annotation_schema_uri``.                              
             training_fraction_split (float):
                 Optional. The fraction of the input data that is to be used to train
                 the Model. This is ignored if Dataset is not provided.
@@ -621,28 +643,6 @@ class _TrainingJob(base.VertexAiResourceNounWithFutureManager):
                 single DataItem is matched by more than one of the FilterSplit filters,
                 then it is assigned to the first set that applies to it in the training,
                 validation, test order. This is ignored if Dataset is not provided.
-            annotation_schema_uri (str):
-                Google Cloud Storage URI points to a YAML file describing
-                annotation schema. The schema is defined as an OpenAPI 3.0.2
-                [Schema Object](https://github.com/OAI/OpenAPI-Specification/blob/master/versions/3.0.2.md#schema-object) The schema files
-                that can be used here are found in
-                gs://google-cloud-aiplatform/schema/dataset/annotation/,
-                note that the chosen schema must be consistent with
-                ``metadata``
-                of the Dataset specified by
-                ``dataset_id``.
-
-                Only Annotations that both match this schema and belong to
-                DataItems not ignored by the split method are used in
-                respectively training, validation or test role, depending on
-                the role of the DataItem they are on.
-
-                When used in conjunction with
-                ``annotations_filter``,
-                the Annotations used for training are filtered by both
-                ``annotations_filter``
-                and
-                ``annotation_schema_uri``.
             predefined_split_column_name (str):
                 Optional. The key is a name of one of the Dataset's data
                 columns. The value of the key (either the label's value or
@@ -662,7 +662,7 @@ class _TrainingJob(base.VertexAiResourceNounWithFutureManager):
                 that piece is ignored by the pipeline.
 
                 Supported only for tabular and time series Datasets.
-                This parameter must be used with training_fraction_split, validation_fraction_split and test_fraction_split.
+                This parameter must be used with training_fraction_split, validation_fraction_split and test_fraction_split.  
             model (~.model.Model):
                 Optional. Describes the Model that may be uploaded (via
                 [ModelService.UploadMode][]) by this TrainingPipeline. The
