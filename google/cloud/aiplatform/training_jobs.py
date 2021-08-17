@@ -500,7 +500,7 @@ class _TrainingJob(base.VertexAiResourceNounWithFutureManager):
             # Fallback to fraction split if nothing else is specified
             if len(splits) == 0:
                 logging.info(
-                    f"No dataset split provided. The service will use a default split."
+                    "No dataset split provided. The service will use a default split."
                 )
             elif len(splits) > 1:
                 raise ValueError(
@@ -1773,7 +1773,7 @@ class CustomTrainingJob(_CustomTrainingJob):
         based on a provided timestamps. The youngest data pieces are
         assigned to training set, next to validation set, and the oldest
         to the test set.
-        Supported only for tabular Datasets.        
+        Supported only for tabular Datasets.
 
         Args:
             dataset (
@@ -2531,7 +2531,7 @@ class CustomContainerTrainingJob(_CustomTrainingJob):
         based on a provided timestamps. The youngest data pieces are
         assigned to training set, next to validation set, and the oldest
         to the test set.
-        Supported only for tabular Datasets.        
+        Supported only for tabular Datasets.
 
         Args:
             dataset (Union[datasets.ImageDataset,datasets.TabularDataset,datasets.TextDataset,datasets.VideoDataset]):
@@ -4906,7 +4906,7 @@ class CustomPythonPackageTrainingJob(_CustomTrainingJob):
         based on a provided timestamps. The youngest data pieces are
         assigned to training set, next to validation set, and the oldest
         to the test set.
-        Supported only for tabular Datasets.        
+        Supported only for tabular Datasets.
 
         Args:
             dataset (Union[datasets.ImageDataset,datasets.TabularDataset,datasets.TextDataset,datasets.VideoDataset,]):
