@@ -28,8 +28,8 @@ from google.cloud.aiplatform import initializer
 _PROJECT = os.getenv("BUILD_SPECIFIC_GCLOUD_PROJECT")
 _LOCATION = "us-central1"
 
-class TestEndToEnd:
 
+class TestEndToEnd:
     @property
     @abc.abstractmethod
     def _temp_prefix(cls) -> str:
@@ -59,7 +59,9 @@ class TestEndToEnd:
         storage_client = storage.Client(project=_PROJECT)
         shared_state["storage_client"] = storage_client
 
-        shared_state["bucket"] = storage_client.create_bucket(staging_bucket_name, location=_LOCATION)
+        shared_state["bucket"] = storage_client.create_bucket(
+            staging_bucket_name, location=_LOCATION
+        )
         yield
 
     @pytest.fixture()
