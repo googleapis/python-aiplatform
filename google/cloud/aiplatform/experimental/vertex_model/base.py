@@ -32,6 +32,7 @@ from typing import Callable
 from fastapi import FastAPI, Request
 
 from google.cloud import aiplatform
+from google.cloud import storage
 from google.cloud.aiplatform import base
 from google.cloud.aiplatform.experimental.vertex_model.serializers import pandas
 from google.cloud.aiplatform.experimental.vertex_model.serializers import pytorch
@@ -169,15 +170,10 @@ def vertex_fit_function_wrapper(method: Callable[..., Any]):
             obj._training_job = aiplatform.CustomTrainingJob(
                 display_name="my_training_job",
                 script_path=str(script_path),
-                # programatically determine the dependency in the future
                 requirements=obj._dependencies,
-                # https://cloud.google.com/vertex-ai/docs/training/pre-built-containers
                 container_uri="us-docker.pkg.dev/vertex-ai/training/scikit-learn-cpu.0-23:latest",
                 model_serving_container_image_uri="us-docker.pkg.dev/vertex-ai/prediction/tf2-cpu.2-5:latest",
             )
-
-            # In the custom training job, a MODEL directory will be provided as an env var
-            # our code should serialize our MODEL to that directory
 
             obj._model = obj._training_job.run(
                 model_display_name="my_model", replica_count=1,
@@ -191,17 +187,17 @@ def vertex_predict_function_wrapper(method: Callable[..., Any]):
     def p(*args, **kwargs):
         obj = method.__self__
 
+        # Local training to cloud prediction CUJ: serialize to cloud location
         if method.__self__.training_mode == "cloud" and obj._model is None:
-            # TODO: implement local training to cloud prediction CUJ
-            _LOGGER.info(
-                "training_mode is 'cloud' but fit has not been called, running predict directly"
+            model._serialize_local_model(
+                os.getenv("AIP_MODEL_DIR"), obj, obj.training_mode
             )
 
-        # Local predictions can be made
-        if method.__self__.training_mode == "local" or obj._model is None:
+        # Local training to local prediction
+        if method.__self__.training_mode == "local" and obj._model is None:
             return method(*args, **kwargs)
 
-        # Local predictions for a cloud model
+        # Cloud training to local prediction
         if method.__self__.training_mode == "local":
             output_dir = obj._model._gca_resource.artifact_uri
             model_uri = pathlib.Path(output_dir) / (
@@ -211,7 +207,7 @@ def vertex_predict_function_wrapper(method: Callable[..., Any]):
             my_model = model._deserialize_remote_model(str(model_uri))
             return my_model.predict(*args, **kwargs)
 
-        # Remote predictions for a cloud model
+        # Make remote predictions, regardless of training
         if method.__self__.training_mode == "cloud":
             app = FastAPI()
             gcs_client = storage.Client()
@@ -251,17 +247,17 @@ def vertex_predict_function_wrapper(method: Callable[..., Any]):
 
             # Deploy model
 
-            model = aiplatform.Model.upload(
+            my_model = aiplatform.Model.upload(
                 display_name=MODEL_DISPLAY_NAME,
                 artifact_uri=f"{BUCKET_NAME}/{MODEL_ARTIFACT_DIR}",
                 serving_container_image_uri=f"{REGION}-docker.pkg.dev/{PROJECT_ID}/{REPOSITORY}/{IMAGE}",
             )
 
-            endpoint = model.deploy(machine_type="n1-standard-4")
+            endpoint = my_model.deploy(machine_type="n1-standard-4")
             return endpoint.predict(*args, **kwargs)
 
             # Pass in full script to container:
-            """ 
+            """
             component_spec.implementation=ContainerImplementation(
                     container=ContainerSpec(
                         image=base_image,
@@ -284,7 +280,7 @@ def vertex_predict_function_wrapper(method: Callable[..., Any]):
                             "--function_to_execute", func.__name__,
                             ]
                     )
-                ) 
+                )
             """
 
     return p
@@ -333,94 +329,3 @@ class VertexModel(metaclass=abc.ABCMeta):
     def eval(self):
         """Evaluate model."""
         raise NotImplementedError("eval is currently not implemented.")
-
-
-"""
-from fastapi import FastAPI, Request
-
-import joblib
-import json
-import numpy as np
-import pickle
-import os
-
-from google.cloud import storage
-from preprocess import MySimpleScaler
-from sklearn.datasets import load_iris
-
-
-app = FastAPI()
-gcs_client = storage.Client()
-
-with open("preprocessor.pkl", 'wb') as preprocessor_f, open("model.joblib", 'wb') as model_f:
-    gcs_client.download_blob_to_file(
-        f"{os.environ['AIP_STORAGE_URI']}/preprocessor.pkl", preprocessor_f
-    )
-    gcs_client.download_blob_to_file(
-        f"{os.environ['AIP_STORAGE_URI']}/model.joblib", model_f
-    )
-
-with open("preprocessor.pkl", "rb") as f:
-    preprocessor = pickle.load(f)
-
-_class_names = load_iris().target_names
-_model = joblib.load("model.joblib")
-_preprocessor = preprocessor
-
-
-@app.get(os.environ['AIP_HEALTH_ROUTE'], status_code=200)
-def health():
-    return {}
-
-
-@app.post(os.environ['AIP_PREDICT_ROUTE'])
-async def predict(request: Request):
-    body = await request.json()
-
-    instances = body["instances"]
-    inputs = np.asarray(instances)
-    preprocessed_inputs = _preprocessor.preprocess(inputs)
-    outputs = _model.predict(preprocessed_inputs)
-
-    return {"predictions": [_class_names[class_num] for class_num in outputs]}
-
-
-# Deploy model
-
-model = aiplatform.Model.upload(
-    display_name=MODEL_DISPLAY_NAME,
-    artifact_uri=f"{BUCKET_NAME}/{MODEL_ARTIFACT_DIR}",
-    serving_container_image_uri=f"{REGION}-docker.pkg.dev/{PROJECT_ID}/{REPOSITORY}/{IMAGE}",
-)
-
-endpoint = model.deploy(machine_type="n1-standard-4")
-
-endpoint.predict(instances=[[6.7, 3.1, 4.7, 1.5], [4.6, 3.1, 1.5, 0.2]])
-
-
-# Pass in full script to container:
-
-component_spec.implementation=ContainerImplementation(
-        container=ContainerSpec(
-            image=base_image,
-            command=packages_to_install_command + [
-                'sh',
-                '-ec',
-                textwrap.dedent('''\
-                    program_path=$(mktemp -d)
-                    printf "%s" "$0" > "$program_path/ephemeral_component.py"
-                    python3 -m kfp.components.executor_main \
-                        --component_module_path \
-                        "$program_path/ephemeral_component.py" \
-                        "$@"
-                '''),
-                source,
-            ],
-            args=[
-                "--executor_input",
-                ExecutorInputPlaceholder(),
-                "--function_to_execute", func.__name__,
-                ]
-        )
-    )
-"""
