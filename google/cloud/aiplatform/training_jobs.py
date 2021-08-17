@@ -3524,9 +3524,10 @@ class AutoMLForecastingTrainingJob(_TrainingJob):
 
         model = gca_model.Model(display_name=model_display_name)
 
-        _LOGGER.info("Exported exmapled available at:\n%s" % self.bq_uri)
+        _LOGGER.info("Exported examples available at:\n%s" % self.bq_uri)
+        print("self", self.bq_uri)
 
-        return self._run_job(
+        model = self._run_job(
             training_task_definition=training_task_definition,
             training_task_inputs=training_task_inputs_dict,
             dataset=dataset,
@@ -3537,6 +3538,11 @@ class AutoMLForecastingTrainingJob(_TrainingJob):
             model=model,
             bq_uri=self.bq_uri
         )
+
+        _LOGGER.info("Exported examples available at:\n%s" % self.bq_uri)
+        print("self", self.bq_uri)
+
+        return model
 
     @property
     def _model_upload_fail_string(self) -> str:
