@@ -446,8 +446,7 @@ class _TrainingJob(base.VertexAiResourceNounWithFutureManager):
         predefined_split_column_name: Optional[str] = None,
         model: Optional[gca_model.Model] = None,
         gcs_destination_uri_prefix: Optional[str] = None,
-        bigquery_destination: Optional[str] = None,
-        bq_uri: Optional[str] = None
+        bigquery_destination: Optional[str] = None
     ) -> Optional[models.Model]:
         """Runs the training job.
 
@@ -603,9 +602,6 @@ class _TrainingJob(base.VertexAiResourceNounWithFutureManager):
                 "Training did not produce a Managed Model returning None. "
                 + self._model_upload_fail_string
             )
-
-        if bq_uri is not None:
-            _LOGGER.info("Exported examples available at:\n%s" % bq_uri)
 
         return model
 
@@ -3524,9 +3520,6 @@ class AutoMLForecastingTrainingJob(_TrainingJob):
 
         model = gca_model.Model(display_name=model_display_name)
 
-        _LOGGER.info("Exported examples available at:\n%s" % self.bq_uri)
-        print("self", self.bq_uri)
-
         model = self._run_job(
             training_task_definition=training_task_definition,
             training_task_inputs=training_task_inputs_dict,
@@ -3535,12 +3528,11 @@ class AutoMLForecastingTrainingJob(_TrainingJob):
             validation_fraction_split=0.1,
             test_fraction_split=0.1,
             predefined_split_column_name=predefined_split_column_name,
-            model=model,
-            bq_uri=self.bq_uri
+            model=model
         )
 
-        _LOGGER.info("Exported examples available at:\n%s" % self.bq_uri)
-        print("self", self.bq_uri)
+        if self.bq_uri is not None:
+            _LOGGER.info("Exported examples available at:\n%s" % self.bq_uri)
 
         return model
 
