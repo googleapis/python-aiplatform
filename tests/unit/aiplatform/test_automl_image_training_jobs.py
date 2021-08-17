@@ -654,3 +654,35 @@ class TestAutoMLImageTrainingJob:
             parent=initializer.global_config.common_location_path(),
             training_pipeline=true_training_pipeline,
         )
+
+    def test_splits_filter_incomplete(
+        self,
+        mock_pipeline_service_create,
+        mock_pipeline_service_get,
+        mock_dataset_image,
+        mock_model_service_get,
+        mock_model,
+    ):
+        """
+        Initiate aiplatform with encryption key name.
+        Create and run an AutoML Video Classification training job, verify calls and return value
+        """
+
+        aiplatform.init(
+            project=_TEST_PROJECT,
+            encryption_spec_key_name=_TEST_DEFAULT_ENCRYPTION_KEY_NAME,
+        )
+
+        job = training_jobs.AutoMLImageTrainingJob(
+            display_name=_TEST_DISPLAY_NAME, base_model=mock_model
+        )
+
+        with pytest.raises(ValueError):
+            job.run(
+                dataset=mock_dataset_image,
+                model_display_name=_TEST_MODEL_DISPLAY_NAME,
+                training_filter_split=_TEST_FILTER_SPLIT_TRAINING,
+                validation_fraction_split=None,
+                test_filter_split=_TEST_FILTER_SPLIT_TEST,
+                disable_early_stopping=_TEST_TRAINING_DISABLE_EARLY_STOPPING,
+            )

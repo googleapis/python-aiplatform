@@ -443,18 +443,29 @@ class _TrainingJob(base.VertexAiResourceNounWithFutureManager):
             fraction_split = None
 
             # Create filter split
-            if all(
+            if any(
                 [
                     training_filter_split is not None,
                     validation_filter_split is not None,
                     test_filter_split is not None,
                 ]
             ):
-                filter_split = gca_training_pipeline.FilterSplit(
-                    training_filter=training_filter_split,
-                    validation_filter=validation_filter_split,
-                    test_filter=test_filter_split,
-                )
+                if all(
+                    [
+                        training_filter_split is not None,
+                        validation_filter_split is not None,
+                        test_filter_split is not None,
+                    ]
+                ):
+                    filter_split = gca_training_pipeline.FilterSplit(
+                        training_filter=training_filter_split,
+                        validation_filter=validation_filter_split,
+                        test_filter=test_filter_split,
+                    )
+                else:
+                    raise ValueError(
+                        """All filter splits must be passed together or not at all"""
+                    )
 
             # Create predefined split
             if predefined_split_column_name:
