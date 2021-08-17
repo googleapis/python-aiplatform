@@ -1672,7 +1672,6 @@ class TestCustomTrainingJob:
             machine_type=_TEST_MACHINE_TYPE,
             accelerator_type=_TEST_ACCELERATOR_TYPE,
             accelerator_count=_TEST_ACCELERATOR_COUNT,
-            model_display_name=_TEST_MODEL_DISPLAY_NAME,
             training_filter_split=_TEST_TRAINING_FILTER_SPLIT,
             validation_filter_split=_TEST_VALIDATION_FILTER_SPLIT,
             test_filter_split=_TEST_TEST_FILTER_SPLIT,
