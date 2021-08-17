@@ -58,14 +58,14 @@ _LOGGER = base.Logger(__name__)
 
 
 def vertex_fit_function_wrapper(method: Callable[..., Any]):
-    """Adapts code in the user-written child class for cloud training and prediction
+    """Adapts code in the user-written child class for cloud training
 
     If the user wishes to conduct local development, will return the original function.
     If not, converts the child class to an executable inner script and calls the Vertex
     AI SDK using the custom training job interface.
 
     Args:
-        method (classmethod): the method to be wrapped.
+        method (Callable[..., Any]): the method to be wrapped.
 
     Returns:
         A function that will complete local or cloud training based off of the user's
@@ -85,12 +85,7 @@ def vertex_fit_function_wrapper(method: Callable[..., Any]):
         cls_name = obj.__class__.__name__
 
         training_source = source_utils._make_class_source(obj)
-
         bound_args = inspect.signature(method).bind(*args, **kwargs)
-
-        # get the mapping of parameter names to types
-        # split the arguments into those that we need to serialize and those that can
-        # be hard coded into the source
 
         pass_through_params = {}
         serialized_params = {}
@@ -175,19 +170,35 @@ def vertex_fit_function_wrapper(method: Callable[..., Any]):
 
 
 def vertex_predict_function_wrapper(method: Callable[..., Any]):
+    """Adapts code in the user-written child class for prediction
+
+    If the user wishes to conduct local prediction, will deserialize a remote model if necessary
+    and return the local object's predict function. If the user wishes to conduct cloud prediction,
+    this method creates a custom container that an Endpoint resource can use to make
+    remote predictions.
+
+    Args:
+        method (Callable[..., Any]): the predict() method to be wrapped.
+
+    Returns:
+        A function that will complete local or cloud prediction based off of the user's
+        implementation of the VertexModel class. The prediction mode is determined by the
+        user-designated training_mode variable.
+    """
+
     @functools.wraps(method)
     def p(*args, **kwargs):
         obj = method.__self__
+
+        # Local training to local prediction
+        if method.__self__.training_mode == "local" and obj._model is None:
+            return method(*args, **kwargs)
 
         # Local training to cloud prediction CUJ: serialize to cloud location
         if method.__self__.training_mode == "cloud" and obj._model is None:
             model._serialize_local_model(
                 os.getenv("AIP_MODEL_DIR"), obj, obj.training_mode
             )
-
-        # Local training to local prediction
-        if method.__self__.training_mode == "local" and obj._model is None:
-            return method(*args, **kwargs)
 
         # Cloud training to local prediction
         if method.__self__.training_mode == "local":
