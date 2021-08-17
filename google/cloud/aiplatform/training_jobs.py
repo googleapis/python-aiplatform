@@ -21,7 +21,6 @@ from typing import Dict, List, Optional, Sequence, Tuple, Union
 import warnings
 
 import abc
-import logging
 
 from google.auth import credentials as auth_credentials
 from google.cloud.aiplatform import base
@@ -464,7 +463,7 @@ class _TrainingJob(base.VertexAiResourceNounWithFutureManager):
                     )
                 else:
                     raise ValueError(
-                        """All filter splits must be passed together or not at all"""
+                        "All filter splits must be passed together or not at all"
                     )
 
             # Create predefined split
@@ -507,7 +506,7 @@ class _TrainingJob(base.VertexAiResourceNounWithFutureManager):
 
             # Fallback to fraction split if nothing else is specified
             if len(splits) == 0:
-                logging.info(
+                _LOGGER.info(
                     "No dataset split provided. The service will use a default split."
                 )
             elif len(splits) > 1:
@@ -612,7 +611,7 @@ class _TrainingJob(base.VertexAiResourceNounWithFutureManager):
                 the Annotations used for training are filtered by both
                 ``annotations_filter``
                 and
-                ``annotation_schema_uri``.                              
+                ``annotation_schema_uri``.
             training_fraction_split (float):
                 Optional. The fraction of the input data that is to be used to train
                 the Model. This is ignored if Dataset is not provided.
@@ -662,7 +661,7 @@ class _TrainingJob(base.VertexAiResourceNounWithFutureManager):
                 that piece is ignored by the pipeline.
 
                 Supported only for tabular and time series Datasets.
-                This parameter must be used with training_fraction_split, validation_fraction_split and test_fraction_split.  
+                This parameter must be used with training_fraction_split, validation_fraction_split and test_fraction_split.
             model (~.model.Model):
                 Optional. Describes the Model that may be uploaded (via
                 [ModelService.UploadMode][]) by this TrainingPipeline. The
@@ -1756,32 +1755,36 @@ class CustomTrainingJob(_CustomTrainingJob):
         ie: replica_count = 10 will result in 1 chief and 9 workers
         All replicas have same machine_type, accelerator_type, and accelerator_count
 
-        Data fraction splits:
-        Any of ``training_fraction_split``, ``validation_fraction_split`` and
-        ``test_fraction_split`` may optionally be provided, they must sum to up to 1. If
-        the provided ones sum to less than 1, the remainder is assigned to sets as
-        decided by Vertex AI. If none of the fractions are set, by default roughly 80%
-        of data will be used for training, 10% for validation, and 10% for test.
+        If training on a Vertex AI dataset, you can use one of the following split configurations:
+            Data fraction splits:
+            Any of ``training_fraction_split``, ``validation_fraction_split`` and
+            ``test_fraction_split`` may optionally be provided, they must sum to up to 1. If
+            the provided ones sum to less than 1, the remainder is assigned to sets as
+            decided by Vertex AI. If none of the fractions are set, by default roughly 80%
+            of data will be used for training, 10% for validation, and 10% for test.
 
-        Data filter splits:
-        Assigns input data to training, validation, and test sets
-        based on the given filters, data pieces not matched by any
-        filter are ignored. Currently only supported for Datasets
-        containing DataItems.
-        If any of the filters in this message are to match nothing, then
-        they can be set as '-' (the minus sign).
-        Supported only for unstructured Datasets.
+            Data filter splits:
+            Assigns input data to training, validation, and test sets
+            based on the given filters, data pieces not matched by any
+            filter are ignored. Currently only supported for Datasets
+            containing DataItems.
+            If any of the filters in this message are to match nothing, then
+            they can be set as '-' (the minus sign).
+            If using filter splits, all of ``training_filter_split``, ``validation_filter_split`` and
+            ``test_filter_split`` must be provided.
+            Supported only for unstructured Datasets.
 
-        Predefined splits:
-        Assigns input data to training, validation, and test sets based on the value of a provided key.
-        Supported only for tabular Datasets.
+            Predefined splits:
+            Assigns input data to training, validation, and test sets based on the value of a provided key.
+            If using predefined splits, ``predefined_split_column_name`` must be provided.
+            Supported only for tabular Datasets.
 
-        Timestamp splits:
-        Assigns input data to training, validation, and test sets
-        based on a provided timestamps. The youngest data pieces are
-        assigned to training set, next to validation set, and the oldest
-        to the test set.
-        Supported only for tabular Datasets.
+            Timestamp splits:
+            Assigns input data to training, validation, and test sets
+            based on a provided timestamps. The youngest data pieces are
+            assigned to training set, next to validation set, and the oldest
+            to the test set.
+            Supported only for tabular Datasets.
 
         Args:
             dataset (
@@ -2514,32 +2517,36 @@ class CustomContainerTrainingJob(_CustomTrainingJob):
         ie: replica_count = 10 will result in 1 chief and 9 workers
         All replicas have same machine_type, accelerator_type, and accelerator_count
 
-        Data fraction splits:
-        Any of ``training_fraction_split``, ``validation_fraction_split`` and
-        ``test_fraction_split`` may optionally be provided, they must sum to up to 1. If
-        the provided ones sum to less than 1, the remainder is assigned to sets as
-        decided by Vertex AI. If none of the fractions are set, by default roughly 80%
-        of data will be used for training, 10% for validation, and 10% for test.
+        If training on a Vertex AI dataset, you can use one of the following split configurations:
+            Data fraction splits:
+            Any of ``training_fraction_split``, ``validation_fraction_split`` and
+            ``test_fraction_split`` may optionally be provided, they must sum to up to 1. If
+            the provided ones sum to less than 1, the remainder is assigned to sets as
+            decided by Vertex AI. If none of the fractions are set, by default roughly 80%
+            of data will be used for training, 10% for validation, and 10% for test.
 
-        Data filter splits:
-        Assigns input data to training, validation, and test sets
-        based on the given filters, data pieces not matched by any
-        filter are ignored. Currently only supported for Datasets
-        containing DataItems.
-        If any of the filters in this message are to match nothing, then
-        they can be set as '-' (the minus sign).
-        Supported only for unstructured Datasets.
+            Data filter splits:
+            Assigns input data to training, validation, and test sets
+            based on the given filters, data pieces not matched by any
+            filter are ignored. Currently only supported for Datasets
+            containing DataItems.
+            If any of the filters in this message are to match nothing, then
+            they can be set as '-' (the minus sign).
+            If using filter splits, all of ``training_filter_split``, ``validation_filter_split`` and
+            ``test_filter_split`` must be provided.
+            Supported only for unstructured Datasets.
 
-        Predefined splits:
-        Assigns input data to training, validation, and test sets based on the value of a provided key.
-        Supported only for tabular Datasets.
+            Predefined splits:
+            Assigns input data to training, validation, and test sets based on the value of a provided key.
+            If using predefined splits, ``predefined_split_column_name`` must be provided.
+            Supported only for tabular Datasets.
 
-        Timestamp splits:
-        Assigns input data to training, validation, and test sets
-        based on a provided timestamps. The youngest data pieces are
-        assigned to training set, next to validation set, and the oldest
-        to the test set.
-        Supported only for tabular Datasets.
+            Timestamp splits:
+            Assigns input data to training, validation, and test sets
+            based on a provided timestamps. The youngest data pieces are
+            assigned to training set, next to validation set, and the oldest
+            to the test set.
+            Supported only for tabular Datasets.
 
         Args:
             dataset (Union[datasets.ImageDataset,datasets.TabularDataset,datasets.TextDataset,datasets.VideoDataset]):
@@ -3191,23 +3198,25 @@ class AutoMLTabularTrainingJob(_TrainingJob):
     ) -> models.Model:
         """Runs the training job and returns a model.
 
-        Data fraction splits:
-        Any of ``training_fraction_split``, ``validation_fraction_split`` and
-        ``test_fraction_split`` may optionally be provided, they must sum to up to 1. If
-        the provided ones sum to less than 1, the remainder is assigned to sets as
-        decided by Vertex AI. If none of the fractions are set, by default roughly 80%
-        of data will be used for training, 10% for validation, and 10% for test.
+        If training on a Vertex AI dataset, you can use one of the following split configurations:
+            Data fraction splits:
+            Any of ``training_fraction_split``, ``validation_fraction_split`` and
+            ``test_fraction_split`` may optionally be provided, they must sum to up to 1. If
+            the provided ones sum to less than 1, the remainder is assigned to sets as
+            decided by Vertex AI. If none of the fractions are set, by default roughly 80%
+            of data will be used for training, 10% for validation, and 10% for test.
 
-        Predefined splits:
-        Assigns input data to training, validation, and test sets based on the value of a provided key.
-        Supported only for tabular Datasets.
+            Predefined splits:
+            Assigns input data to training, validation, and test sets based on the value of a provided key.
+            If using predefined splits, ``predefined_split_column_name`` must be provided.
+            Supported only for tabular Datasets.
 
-        Timestamp splits:
-        Assigns input data to training, validation, and test sets
-        based on a provided timestamps. The youngest data pieces are
-        assigned to training set, next to validation set, and the oldest
-        to the test set.
-        Supported only for tabular Datasets.
+            Timestamp splits:
+            Assigns input data to training, validation, and test sets
+            based on a provided timestamps. The youngest data pieces are
+            assigned to training set, next to validation set, and the oldest
+            to the test set.
+            Supported only for tabular Datasets.
 
         Args:
             dataset (datasets.TabularDataset):
@@ -3374,12 +3383,25 @@ class AutoMLTabularTrainingJob(_TrainingJob):
     ) -> models.Model:
         """Runs the training job and returns a model.
 
-        Data fraction splits:
-        Any of ``training_fraction_split``, ``validation_fraction_split`` and
-        ``test_fraction_split`` may optionally be provided, they must sum to up to 1. If
-        the provided ones sum to less than 1, the remainder is assigned to sets as
-        decided by Vertex AI. If none of the fractions are set, by default roughly 80%
-        of data will be used for training, 10% for validation, and 10% for test.
+        If training on a Vertex AI dataset, you can use one of the following split configurations:
+            Data fraction splits:
+            Any of ``training_fraction_split``, ``validation_fraction_split`` and
+            ``test_fraction_split`` may optionally be provided, they must sum to up to 1. If
+            the provided ones sum to less than 1, the remainder is assigned to sets as
+            decided by Vertex AI. If none of the fractions are set, by default roughly 80%
+            of data will be used for training, 10% for validation, and 10% for test.
+
+            Predefined splits:
+            Assigns input data to training, validation, and test sets based on the value of a provided key.
+            If using predefined splits, ``predefined_split_column_name`` must be provided.
+            Supported only for tabular Datasets.
+
+            Timestamp splits:
+            Assigns input data to training, validation, and test sets
+            based on a provided timestamps. The youngest data pieces are
+            assigned to training set, next to validation set, and the oldest
+            to the test set.
+            Supported only for tabular Datasets.
 
         Args:
             dataset (datasets.TabularDataset):
@@ -4304,21 +4326,24 @@ class AutoMLImageTrainingJob(_TrainingJob):
     ) -> models.Model:
         """Runs the AutoML Image training job and returns a model.
 
-        Data fraction splits:
-        Any of ``training_fraction_split``, ``validation_fraction_split`` and
-        ``test_fraction_split`` may optionally be provided, they must sum to up to 1. If
-        the provided ones sum to less than 1, the remainder is assigned to sets as
-        decided by Vertex AI. If none of the fractions are set, by default roughly 80%
-        of data will be used for training, 10% for validation, and 10% for test.
+        If training on a Vertex AI dataset, you can use one of the following split configurations:
+            Data fraction splits:
+            Any of ``training_fraction_split``, ``validation_fraction_split`` and
+            ``test_fraction_split`` may optionally be provided, they must sum to up to 1. If
+            the provided ones sum to less than 1, the remainder is assigned to sets as
+            decided by Vertex AI. If none of the fractions are set, by default roughly 80%
+            of data will be used for training, 10% for validation, and 10% for test.
 
-        Data filter splits:
-        Assigns input data to training, validation, and test sets
-        based on the given filters, data pieces not matched by any
-        filter are ignored. Currently only supported for Datasets
-        containing DataItems.
-        If any of the filters in this message are to match nothing, then
-        they can be set as '-' (the minus sign).
-        Supported only for unstructured Datasets.
+            Data filter splits:
+            Assigns input data to training, validation, and test sets
+            based on the given filters, data pieces not matched by any
+            filter are ignored. Currently only supported for Datasets
+            containing DataItems.
+            If any of the filters in this message are to match nothing, then
+            they can be set as '-' (the minus sign).
+            If using filter splits, all of ``training_filter_split``, ``validation_filter_split`` and
+            ``test_filter_split`` must be provided.
+            Supported only for unstructured Datasets.
 
         Args:
             dataset (datasets.ImageDataset):
@@ -4449,21 +4474,24 @@ class AutoMLImageTrainingJob(_TrainingJob):
     ) -> models.Model:
         """Runs the training job and returns a model.
 
-        Data fraction splits:
-        Any of ``training_fraction_split``, ``validation_fraction_split`` and
-        ``test_fraction_split`` may optionally be provided, they must sum to up to 1. If
-        the provided ones sum to less than 1, the remainder is assigned to sets as
-        decided by Vertex AI. If none of the fractions are set, by default roughly 80%
-        of data will be used for training, 10% for validation, and 10% for test.
+        If training on a Vertex AI dataset, you can use one of the following split configurations:
+            Data fraction splits:
+            Any of ``training_fraction_split``, ``validation_fraction_split`` and
+            ``test_fraction_split`` may optionally be provided, they must sum to up to 1. If
+            the provided ones sum to less than 1, the remainder is assigned to sets as
+            decided by Vertex AI. If none of the fractions are set, by default roughly 80%
+            of data will be used for training, 10% for validation, and 10% for test.
 
-        Data filter splits:
-        Assigns input data to training, validation, and test sets
-        based on the given filters, data pieces not matched by any
-        filter are ignored. Currently only supported for Datasets
-        containing DataItems.
-        If any of the filters in this message are to match nothing, then
-        they can be set as '-' (the minus sign).
-        Supported only for unstructured Datasets.
+            Data filter splits:
+            Assigns input data to training, validation, and test sets
+            based on the given filters, data pieces not matched by any
+            filter are ignored. Currently only supported for Datasets
+            containing DataItems.
+            If any of the filters in this message are to match nothing, then
+            they can be set as '-' (the minus sign).
+            If using filter splits, all of ``training_filter_split``, ``validation_filter_split`` and
+            ``test_filter_split`` must be provided.
+            Supported only for unstructured Datasets.
 
         Args:
             dataset (datasets.ImageDataset):
@@ -4889,32 +4917,36 @@ class CustomPythonPackageTrainingJob(_CustomTrainingJob):
         ie: replica_count = 10 will result in 1 chief and 9 workers
         All replicas have same machine_type, accelerator_type, and accelerator_count
 
-        Data fraction splits:
-        Any of ``training_fraction_split``, ``validation_fraction_split`` and
-        ``test_fraction_split`` may optionally be provided, they must sum to up to 1. If
-        the provided ones sum to less than 1, the remainder is assigned to sets as
-        decided by Vertex AI. If none of the fractions are set, by default roughly 80%
-        of data will be used for training, 10% for validation, and 10% for test.
+        If training on a Vertex AI dataset, you can use one of the following split configurations:
+            Data fraction splits:
+            Any of ``training_fraction_split``, ``validation_fraction_split`` and
+            ``test_fraction_split`` may optionally be provided, they must sum to up to 1. If
+            the provided ones sum to less than 1, the remainder is assigned to sets as
+            decided by Vertex AI. If none of the fractions are set, by default roughly 80%
+            of data will be used for training, 10% for validation, and 10% for test.
 
-        Data filter splits:
-        Assigns input data to training, validation, and test sets
-        based on the given filters, data pieces not matched by any
-        filter are ignored. Currently only supported for Datasets
-        containing DataItems.
-        If any of the filters in this message are to match nothing, then
-        they can be set as '-' (the minus sign).
-        Supported only for unstructured Datasets.
+            Data filter splits:
+            Assigns input data to training, validation, and test sets
+            based on the given filters, data pieces not matched by any
+            filter are ignored. Currently only supported for Datasets
+            containing DataItems.
+            If any of the filters in this message are to match nothing, then
+            they can be set as '-' (the minus sign).
+            If using filter splits, all of ``training_filter_split``, ``validation_filter_split`` and
+            ``test_filter_split`` must be provided.
+            Supported only for unstructured Datasets.
 
-        Predefined splits:
-        Assigns input data to training, validation, and test sets based on the value of a provided key.
-        Supported only for tabular Datasets.
+            Predefined splits:
+            Assigns input data to training, validation, and test sets based on the value of a provided key.
+            If using predefined splits, ``predefined_split_column_name`` must be provided.
+            Supported only for tabular Datasets.
 
-        Timestamp splits:
-        Assigns input data to training, validation, and test sets
-        based on a provided timestamps. The youngest data pieces are
-        assigned to training set, next to validation set, and the oldest
-        to the test set.
-        Supported only for tabular Datasets.
+            Timestamp splits:
+            Assigns input data to training, validation, and test sets
+            based on a provided timestamps. The youngest data pieces are
+            assigned to training set, next to validation set, and the oldest
+            to the test set.
+            Supported only for tabular Datasets.
 
         Args:
             dataset (Union[datasets.ImageDataset,datasets.TabularDataset,datasets.TextDataset,datasets.VideoDataset,]):
@@ -5484,19 +5516,22 @@ class AutoMLVideoTrainingJob(_TrainingJob):
     ) -> models.Model:
         """Runs the AutoML Image training job and returns a model.
 
-        Data fraction splits:
-        ``training_fraction_split``, and ``test_fraction_split`` may optionally
-        be provided, they must sum to up to 1. If none of the fractions are set,
-        by default roughly 80% of data will be used for training, and 20% for test.
+        If training on a Vertex AI dataset, you can use one of the following split configurations:
+            Data fraction splits:
+            ``training_fraction_split``, and ``test_fraction_split`` may optionally
+            be provided, they must sum to up to 1. If none of the fractions are set,
+            by default roughly 80% of data will be used for training, and 20% for test.
 
-        Data filter splits:
-        Assigns input data to training, validation, and test sets
-        based on the given filters, data pieces not matched by any
-        filter are ignored. Currently only supported for Datasets
-        containing DataItems.
-        If any of the filters in this message are to match nothing, then
-        they can be set as '-' (the minus sign).
-        Supported only for unstructured Datasets.
+            Data filter splits:
+            Assigns input data to training, validation, and test sets
+            based on the given filters, data pieces not matched by any
+            filter are ignored. Currently only supported for Datasets
+            containing DataItems.
+            If any of the filters in this message are to match nothing, then
+            they can be set as '-' (the minus sign).
+            If using filter splits, all of ``training_filter_split``, ``validation_filter_split`` and
+            ``test_filter_split`` must be provided.
+            Supported only for unstructured Datasets.
 
         Args:
             dataset (datasets.VideoDataset):
@@ -5589,19 +5624,22 @@ class AutoMLVideoTrainingJob(_TrainingJob):
     ) -> models.Model:
         """Runs the training job and returns a model.
 
-        Data fraction splits:
-        Any of ``training_fraction_split``, and ``test_fraction_split`` may optionally
-        be provided, they must sum to up to 1. If none of the fractions are set,
-        by default roughly 80% of data will be used for training, and 20% for test.
+        If training on a Vertex AI dataset, you can use one of the following split configurations:
+            Data fraction splits:
+            Any of ``training_fraction_split``, and ``test_fraction_split`` may optionally
+            be provided, they must sum to up to 1. If none of the fractions are set,
+            by default roughly 80% of data will be used for training, and 20% for test.
 
-        Data filter splits:
-        Assigns input data to training, validation, and test sets
-        based on the given filters, data pieces not matched by any
-        filter are ignored. Currently only supported for Datasets
-        containing DataItems.
-        If any of the filters in this message are to match nothing, then
-        they can be set as '-' (the minus sign).
-        Supported only for unstructured Datasets.
+            Data filter splits:
+            Assigns input data to training, validation, and test sets
+            based on the given filters, data pieces not matched by any
+            filter are ignored. Currently only supported for Datasets
+            containing DataItems.
+            If any of the filters in this message are to match nothing, then
+            they can be set as '-' (the minus sign).
+            If using filter splits, all of ``training_filter_split``, ``validation_filter_split`` and
+            ``test_filter_split`` must be provided.
+            Supported only for unstructured Datasets.
 
         Args:
             dataset (datasets.VideoDataset):
@@ -5675,7 +5713,7 @@ class AutoMLVideoTrainingJob(_TrainingJob):
         # AutoMLVideo does not support validation, so pass in '-' if any other filter split is provided.
         validation_filter_split = (
             "-"
-            if any([training_filter_split is not None, test_filter_split is not None])
+            if all([training_filter_split is not None, test_filter_split is not None])
             else None
         )
 
@@ -5854,21 +5892,24 @@ class AutoMLTextTrainingJob(_TrainingJob):
     ) -> models.Model:
         """Runs the training job and returns a model.
 
-        Data fraction splits:
-        Any of ``training_fraction_split``, ``validation_fraction_split`` and
-        ``test_fraction_split`` may optionally be provided, they must sum to up to 1. If
-        the provided ones sum to less than 1, the remainder is assigned to sets as
-        decided by Vertex AI. If none of the fractions are set, by default roughly 80%
-        of data will be used for training, 10% for validation, and 10% for test.
+        If training on a Vertex AI dataset, you can use one of the following split configurations:
+            Data fraction splits:
+            Any of ``training_fraction_split``, ``validation_fraction_split`` and
+            ``test_fraction_split`` may optionally be provided, they must sum to up to 1. If
+            the provided ones sum to less than 1, the remainder is assigned to sets as
+            decided by Vertex AI. If none of the fractions are set, by default roughly 80%
+            of data will be used for training, 10% for validation, and 10% for test.
 
-        Data filter splits:
-        Assigns input data to training, validation, and test sets
-        based on the given filters, data pieces not matched by any
-        filter are ignored. Currently only supported for Datasets
-        containing DataItems.
-        If any of the filters in this message are to match nothing, then
-        they can be set as '-' (the minus sign).
-        Supported only for unstructured Datasets.
+            Data filter splits:
+            Assigns input data to training, validation, and test sets
+            based on the given filters, data pieces not matched by any
+            filter are ignored. Currently only supported for Datasets
+            containing DataItems.
+            If any of the filters in this message are to match nothing, then
+            they can be set as '-' (the minus sign).
+            If using filter splits, all of ``training_filter_split``, ``validation_filter_split`` and
+            ``test_filter_split`` must be provided.
+            Supported only for unstructured Datasets.
 
         Args:
             dataset (datasets.TextDataset):
@@ -5974,21 +6015,24 @@ class AutoMLTextTrainingJob(_TrainingJob):
     ) -> models.Model:
         """Runs the training job and returns a model.
 
-        Data fraction splits:
-        Any of ``training_fraction_split``, ``validation_fraction_split`` and
-        ``test_fraction_split`` may optionally be provided, they must sum to up to 1. If
-        the provided ones sum to less than 1, the remainder is assigned to sets as
-        decided by Vertex AI. If none of the fractions are set, by default roughly 80%
-        of data will be used for training, 10% for validation, and 10% for test.
+        If training on a Vertex AI dataset, you can use one of the following split configurations:
+            Data fraction splits:
+            Any of ``training_fraction_split``, ``validation_fraction_split`` and
+            ``test_fraction_split`` may optionally be provided, they must sum to up to 1. If
+            the provided ones sum to less than 1, the remainder is assigned to sets as
+            decided by Vertex AI. If none of the fractions are set, by default roughly 80%
+            of data will be used for training, 10% for validation, and 10% for test.
 
-        Data filter splits:
-        Assigns input data to training, validation, and test sets
-        based on the given filters, data pieces not matched by any
-        filter are ignored. Currently only supported for Datasets
-        containing DataItems.
-        If any of the filters in this message are to match nothing, then
-        they can be set as '-' (the minus sign).
-        Supported only for unstructured Datasets.
+            Data filter splits:
+            Assigns input data to training, validation, and test sets
+            based on the given filters, data pieces not matched by any
+            filter are ignored. Currently only supported for Datasets
+            containing DataItems.
+            If any of the filters in this message are to match nothing, then
+            they can be set as '-' (the minus sign).
+            If using filter splits, all of ``training_filter_split``, ``validation_filter_split`` and
+            ``test_filter_split`` must be provided.
+            Supported only for unstructured Datasets.
 
         Args:
             dataset (datasets.TextDataset):
