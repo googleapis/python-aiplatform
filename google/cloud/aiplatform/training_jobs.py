@@ -443,7 +443,6 @@ class _TrainingJob(base.VertexAiResourceNounWithFutureManager):
             fraction_split = None
 
             # Create filter split
-            filter_split = None
             if all(
                 [
                     training_filter_split is not None,
@@ -458,33 +457,31 @@ class _TrainingJob(base.VertexAiResourceNounWithFutureManager):
                 )
 
             # Create predefined split
-            predefined_split = None
             if predefined_split_column_name:
                 predefined_split = gca_training_pipeline.PredefinedSplit(
                     key=predefined_split_column_name
                 )
 
             # Create timestamp split or fraction split
-            if all(
+            if timestamp_split_column_name:
+                timestamp_split = gca_training_pipeline.TimestampSplit(
+                    training_fraction=training_fraction_split,
+                    validation_fraction=validation_fraction_split,
+                    test_fraction=test_fraction_split,
+                    key=timestamp_split_column_name,
+                )
+            elif any(
                 [
                     training_fraction_split is not None,
                     validation_fraction_split is not None,
                     test_fraction_split is not None,
                 ]
             ):
-                if timestamp_split_column_name:
-                    timestamp_split = gca_training_pipeline.TimestampSplit(
-                        training_fraction=training_fraction_split,
-                        validation_fraction=validation_fraction_split,
-                        test_fraction=test_fraction_split,
-                        key=timestamp_split_column_name,
-                    )
-                else:
-                    fraction_split = gca_training_pipeline.FractionSplit(
-                        training_fraction=training_fraction_split,
-                        validation_fraction=validation_fraction_split,
-                        test_fraction=test_fraction_split,
-                    )
+                fraction_split = gca_training_pipeline.FractionSplit(
+                    training_fraction=training_fraction_split,
+                    validation_fraction=validation_fraction_split,
+                    test_fraction=test_fraction_split,
+                )
 
             splits = [
                 split
@@ -5669,9 +5666,9 @@ class AutoMLVideoTrainingJob(_TrainingJob):
             training_task_inputs=training_task_inputs_dict,
             dataset=dataset,
             training_fraction_split=training_fraction_split,
-            validation_fraction_split=0,
             test_fraction_split=test_fraction_split,
             training_filter_split=training_filter_split,
+            # AutoMLVideo does not support validation, so pass in '-'
             validation_filter_split="-",
             test_filter_split=test_filter_split,
             model=model_tbt,
