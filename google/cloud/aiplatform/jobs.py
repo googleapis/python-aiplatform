@@ -406,7 +406,7 @@ class BatchPredictionJob(_Job):
                 https://cloud.google.com/storage/docs/gsutil/addlhelp/WildcardNames.
             bigquery_source (Optional[str]):
                 BigQuery URI to a table, up to 2000 characters long. For example:
-                `projectId.bqDatasetId.bqTableId`
+                `bq://projectId.bqDatasetId.bqTableId`
             gcs_destination_prefix (Optional[str]):
                 The Google Cloud Storage location of the directory where the
                 output is to be written to. In the given directory a new
@@ -808,14 +808,15 @@ class BatchPredictionJob(_Job):
         # BigQuery Destination, return RowIterator
         elif output_info.bigquery_output_dataset:
 
-            # Build a BigQuery Client using the same credentials as JobServiceClient
-            bq_client = bigquery.Client(
-                project=self.project,
-                credentials=self.api_client._transport._credentials,
-            )
-
-            # Format from service is `bq://projectId.bqDatasetId`
+            # Format of `bigquery_output_dataset` from service is `bq://projectId.bqDatasetId`
             bq_dataset = output_info.bigquery_output_dataset
+            bq_table = output_info.bigquery_output_table
+
+            if not bq_table:
+                raise RuntimeError(
+                    "A BigQuery table with predictions was not found, this "
+                    f"might be due to errors. Visit {self._dashboard_uri()} for details."
+                )
 
             if bq_dataset.startswith("bq://"):
                 bq_dataset = bq_dataset[5:]
@@ -823,8 +824,14 @@ class BatchPredictionJob(_Job):
             # # Split project ID and BQ dataset ID
             _, bq_dataset_id = bq_dataset.split(".", 1)
 
+            # Build a BigQuery Client using the same credentials as JobServiceClient
+            bq_client = bigquery.Client(
+                project=self.project,
+                credentials=self.api_client._transport._credentials,
+            )
+
             row_iterator = bq_client.list_rows(
-                table=f"{bq_dataset_id}.predictions", max_results=bq_max_results
+                table=f"{bq_dataset_id}.{bq_table}", max_results=bq_max_results
             )
 
             return row_iterator
