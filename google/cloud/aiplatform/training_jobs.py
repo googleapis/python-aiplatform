@@ -5672,6 +5672,13 @@ class AutoMLVideoTrainingJob(_TrainingJob):
         model_tbt.display_name = model_display_name or self._display_name
         model_tbt.labels = model_labels or self._labels
 
+        # AutoMLVideo does not support validation, so pass in '-' if any other filter split is provided.
+        validation_filter_split = (
+            "-"
+            if any([training_filter_split is not None, test_filter_split is not None])
+            else None
+        )
+
         return self._run_job(
             training_task_definition=training_task_definition,
             training_task_inputs=training_task_inputs_dict,
@@ -5679,8 +5686,7 @@ class AutoMLVideoTrainingJob(_TrainingJob):
             training_fraction_split=training_fraction_split,
             test_fraction_split=test_fraction_split,
             training_filter_split=training_filter_split,
-            # AutoMLVideo does not support validation, so pass in '-'
-            validation_filter_split="-",
+            validation_filter_split=validation_filter_split,
             test_filter_split=test_filter_split,
             model=model_tbt,
         )
