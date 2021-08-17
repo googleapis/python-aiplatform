@@ -3392,7 +3392,7 @@ class AutoMLForecastingTrainingJob(_TrainingJob):
 
         model = gca_model.Model(display_name=model_display_name)
 
-        return self._run_job(
+        new_model = self._run_job(
             training_task_definition=training_task_definition,
             training_task_inputs=training_task_inputs_dict,
             dataset=dataset,
@@ -3400,8 +3400,13 @@ class AutoMLForecastingTrainingJob(_TrainingJob):
             validation_fraction_split=0.1,
             test_fraction_split=0.1,
             predefined_split_column_name=predefined_split_column_name,
-            model=model,
+            model=model
         )
+
+        if self.bq_uri is not None:
+            _LOGGER.info("Exported examples available at:\n%s" % self.bq_uri)
+
+        return new_model
 
     @property
     def _model_upload_fail_string(self) -> str:
@@ -3410,6 +3415,20 @@ class AutoMLForecastingTrainingJob(_TrainingJob):
             f"Training Pipeline {self.resource_name} is not configured to upload a "
             "Model."
         )
+    
+    @property
+    def bq_uri(self) -> Optional[str]:
+        """BigQuery location of exported evaluated examples from the Training Job"""
+
+        if self._gca_resource is None:
+          return None
+
+        meta = getattr((self._gca_resource), "training_task_metadata")
+
+        if meta is not None and "evaluatedDataItemsBigqueryUri" in meta._pb:
+          return meta._pb["evaluatedDataItemsBigqueryUri"].string_value
+        else:
+          return None
 
 
 class AutoMLImageTrainingJob(_TrainingJob):
