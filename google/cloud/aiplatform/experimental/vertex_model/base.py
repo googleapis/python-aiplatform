@@ -155,11 +155,7 @@ def vertex_fit_function_wrapper(method: Callable[..., Any]):
                 display_name="my_training_job",
                 script_path=str(script_path),
                 # programatically determine the dependency in the future
-                requirements=[
-                    "pandas>=1.3",
-                    "torch>=1.7",
-                    "google-cloud-aiplatform @ git+https://github.com/googleapis/python-aiplatform@refs/pull/594/head#egg=google-cloud-aiplatform",
-                ],
+                requirements=obj._dependencies,
                 # https://cloud.google.com/vertex-ai/docs/training/pre-built-containers
                 container_uri="us-docker.pkg.dev/vertex-ai/training/scikit-learn-cpu.0-23:latest",
                 model_serving_container_image_uri="us-docker.pkg.dev/vertex-ai/prediction/tf2-cpu.2-5:latest",
@@ -220,6 +216,11 @@ class VertexModel(metaclass=abc.ABCMeta):
         self._training_job = None
         self._model = None
         self._constructor_arguments = (args, kwargs)
+        self._dependencies = [
+            "pandas>=1.3",
+            "torch>=1.7",
+            "google-cloud-aiplatform @ git+https://github.com/googleapis/python-aiplatform@refs/pull/594/head#egg=google-cloud-aiplatform",
+        ]
 
         self.training_mode = "local"
 

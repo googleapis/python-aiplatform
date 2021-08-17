@@ -15,10 +15,38 @@
 # limitations under the License.
 #
 
+import ast
 import inspect
+import tempfile
 from typing import Any
 from typing import Dict
 from typing import Tuple
+
+try:
+    # Available in a colab environment.
+    from google.colab import _message  # pylint: disable=g-import-not-at-top
+except ImportError:
+    _message = None
+
+
+def get_import_lines(path):
+    with open(path) as f:
+        root = ast.parse(f.read(), path)
+
+    for node in ast.iter_child_nodes(root):
+        line = ""
+        if isinstance(node, ast.ImportFrom):
+            line += f"from {node.module} "
+
+        if isinstance(node, (ast.Import, ast.ImportFrom)):
+            line += "import "
+            for i, name in enumerate(node.names):
+                line += f"{name.name}"
+                if name.asname:
+                    line += f" as {name.asname}"
+                if len(node.names) > 0 and i < len(node.names) - 1:
+                    line += ", "
+        yield line
 
 
 class SourceMaker:
@@ -75,14 +103,62 @@ def _make_source(
         the user has the option to specify a method to call from __main__.
     """
 
+    src = ""
+
+    try:
+        module = inspect.getmodule(obj.__class__)
+        src = "\n".join(get_import_lines(module.__file__))
+
+    except AttributeError:
+        response = _message.blocking_request("get_ipynb", request="", timeout_sec=200)
+        if response is None:
+            raise RuntimeError("Unable to get the notebook contents.")
+
+        cells = response["ipynb"]["cells"]
+        py_content = []
+        script_lines = []
+
+        for cell in cells:
+            if cell["cell_type"] == "code":
+                # Add newline char to the last line of a code cell.
+                cell["source"][-1] += "\n"
+
+                # Combine all code cells.
+                py_content.extend(cell["source"])
+
+        for line in py_content:
+            if line.strip().startswith("%"):
+                raise RuntimeError("Magic commands '%' are not supported.")
+
+            elif line.strip().startswith("!"):
+                commands_list = line.strip()[1:].split(" ")
+                script_lines.extend(
+                    [
+                        "import sys\n",
+                        "import subprocess\n",
+                        f"print(subprocess.run({commands_list}",
+                        ",capture_output=True, text=True).stdout)\n",
+                    ]
+                )
+
+            elif not (line.strip().startswith("get_ipython().system(")):
+                script_lines.append(line)
+
+        # Create a tmp wrapped entry point script file.
+        file_descriptor, output_file = tempfile.mkstemp(suffix=".py")
+        with open(output_file, "w") as f:
+            f.writelines(script_lines)
+
+        src = "\n".join(get_import_lines(output_file))
+
     # Hard-coded specific files as imports because (for now) all data serialization methods
     # come from one of two files and we do not retrieve the modules for the methods at this
     # moment.
-    src = "\n".join(
+    src = src + "\n".join(
         [
             "import os",
-            "import torch",
-            "import pandas as pd",
+            #    "import torch",
+            #    "import pandas as pd",
             "from google.cloud.aiplatform.experimental.vertex_model import base",
             "from google.cloud.aiplatform.experimental.vertex_model.serializers.pandas import _deserialize_dataframe",
             "from google.cloud.aiplatform.experimental.vertex_model.serializers.pytorch import _deserialize_dataloader",
