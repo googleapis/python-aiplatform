@@ -28,7 +28,9 @@ from google.cloud.aiplatform.experimental.vertex_model.serializers import (
 )
 
 
-def _serialize_local_model(artifact_uri: str, obj: torch.nn.Module, model_type: str) -> str:
+def _serialize_local_model(
+    artifact_uri: str, obj: torch.nn.Module, model_type: str
+) -> str:
     """Serializes torch.nn.Module object to GCS.
 
     Args:
