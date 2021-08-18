@@ -19,20 +19,13 @@ import abc
 import datetime
 import functools
 import inspect
-import joblib
-import json
-import numpy as np
 import os
 import pathlib
-import pickle
 import tempfile
 from typing import Any
 from typing import Callable
 
-from fastapi import FastAPI, Request
-
 from google.cloud import aiplatform
-from google.cloud import storage
 from google.cloud.aiplatform import base
 from google.cloud.aiplatform.experimental.vertex_model.serializers import pandas
 from google.cloud.aiplatform.experimental.vertex_model.serializers import pytorch
@@ -55,11 +48,42 @@ except ImportError:
     )
 
 
-REGION = "us-central1"  # @param {type:"string"}
-MODEL_ARTIFACT_DIR = "custom-container-prediction-model"  # @param {type:"string"}
-REPOSITORY = "custom-container-prediction"  # @param {type:"string"}
-IMAGE = "sklearn-fastapi-server"  # @param {type:"string"}
-MODEL_DISPLAY_NAME = "sklearn-custom-container"  # @param {type:"string"}
+COMMAND_STRING_CLI = """sh
+-c
+(PIP_DISABLE_PIP_VERSION_CHECK=1 python3 -m pip install --quiet --no-warn-script-location
+'pytorch' 'pandas' 'google-cloud-aiplatform @ git+https://github.com/googleapis/python-aiplatform@refs/pull/603/head#egg=google-cloud-aiplatform'
+|| PIP_DISABLE_PIP_VERSION_CHECK=1 python3 -m pip install --quiet --no-warn-script-location
+'pytorch' 'pandas' 'google-cloud-aiplatform @ git+https://github.com/googleapis/python-aiplatform@refs/pull/603/head#egg=google-cloud-aiplatform'
+--user) && "$0" "$@"
+python3
+-u
+-c
+|"""
+
+COMMAND_STRING_CODE = """
+from fastapi import FastAPI, Request
+from google.cloud.aiplatform.experimental.vertex_model.serializers import model
+
+my_model = model._deserialize_remote_model(os.environ['AIP_STORAGE_URI'] + '/my_cloud_model.pth')
+
+
+@app.get(os.environ['AIP_HEALTH_ROUTE'], status_code=200)
+def health():
+    return {}
+
+
+@app.post(os.environ['AIP_PREDICT_ROUTE'])
+async def predict(request: Request):
+    body = await request.json()
+
+    instances = body["instances"]
+
+    data = pd.DataFrame(instances, columns=['feat_1', 'feat_2'])
+    torch_tensor = torch.tensor(data[feature_columns].values).type(torch.FloatTensor)
+    outputs = my_model.predict(torch_tensor)
+
+    return {"predictions": outputs.tolist()}
+"""
 
 _LOGGER = base.Logger(__name__)
 
@@ -161,12 +185,27 @@ def vertex_fit_function_wrapper(method: Callable[..., Any]):
             with open(script_path, "w") as f:
                 f.write(source)
 
+            import_lines = ""
+            try:
+                module = inspect.getmodule(obj.__class__)
+                import_lines = "\n".join(source_utils.get_import_lines(module.__file__))
+
+            except AttributeError:
+                import_lines = "\n".join(
+                    source_utils.get_import_lines(
+                        source_utils.jupyter_notebook_to_file()
+                    )
+                )
+
+            command_str = COMMAND_STRING_CLI + import_lines + COMMAND_STRING_CODE
+
             obj._training_job = aiplatform.CustomTrainingJob(
                 display_name="my_training_job",
                 script_path=str(script_path),
                 requirements=obj._dependencies,
                 container_uri="us-docker.pkg.dev/vertex-ai/training/scikit-learn-cpu.0-23:latest",
                 model_serving_container_image_uri="us-docker.pkg.dev/vertex-ai/prediction/tf2-cpu.2-5:latest",
+                serving_container_command=command_str.split("\n"),
             )
 
             obj._model = obj._training_job.run(
@@ -196,7 +235,6 @@ def vertex_predict_function_wrapper(method: Callable[..., Any]):
     @functools.wraps(method)
     def p(*args, **kwargs):
         obj = method.__self__
-        output_dir = ""
 
         # Local training to local prediction: return original method
         if method.__self__.training_mode == "local" and obj._model is None:
@@ -204,8 +242,31 @@ def vertex_predict_function_wrapper(method: Callable[..., Any]):
 
         # Local training to cloud prediction CUJ: serialize to cloud location
         if method.__self__.training_mode == "cloud" and obj._model is None:
-            output_dir = model._serialize_local_model(
-                os.getenv("AIP_MODEL_DIR"), obj, obj.training_mode
+            # Serialize model
+            model_uri = model._serialize_local_model(
+                os.environ["AIP_STORAGE_URI"], obj, "cloud"
+            )
+
+            # Upload model w/ command
+            import_lines = ""
+            try:
+                module = inspect.getmodule(obj.__class__)
+                import_lines = "\n".join(source_utils.get_import_lines(module.__file__))
+
+            except AttributeError:
+                import_lines = "\n".join(
+                    source_utils.get_import_lines(
+                        source_utils.jupyter_notebook_to_file()
+                    )
+                )
+
+            command_str = COMMAND_STRING_CLI + import_lines + COMMAND_STRING_CODE
+
+            obj._model = aiplatform.Model.upload(
+                display_name="serving-test",
+                artifact_uri=model_uri,
+                serving_container_image_uri="us-docker.pkg.dev/vertex-ai/prediction/sklearn-cpu.0-24:latest",
+                serving_container_command=command_str.split("\n"),
             )
 
         # Cloud training to local prediction: deserialize from cloud URI
@@ -220,72 +281,15 @@ def vertex_predict_function_wrapper(method: Callable[..., Any]):
 
         # Make remote predictions, regardless of training: create custom container
         if method.__self__.training_mode == "cloud":
-            app = FastAPI()
-            gcs_client = storage.Client()
-
-            if obj._model is None:
-                my_model = model._deserialize_remote_model(output_dir)
-            else:
-                output_dir = obj._model._gca_resource.artifact_uri
-                model_uri = pathlib.Path(output_dir) / (
-                    "my_" + obj.training_mode + "_model.pth"
-                )
-                my_model = model._deserialize_remote_model(str(model_uri))
-
-            @app.post(os.environ["AIP_PREDICT_ROUTE"])
-            async def predict(request: Request):
-                body = await request.json()
-
-                instances = body["instances"]
-                inputs = np.asarray(instances)
-                outputs = my_model.predict(inputs)
-
-                return {
-                    "predictions": [_class_names[class_num] for class_num in outputs]
-                }
-
-            # Deploy model
-
-            my_model = aiplatform.Model.upload(
-                display_name=MODEL_DISPLAY_NAME,
-                artifact_uri=output_dir,
-                serving_container_image_uri=f"{REGION}-docker.pkg.dev/{PROJECT_ID}/{REPOSITORY}/{IMAGE}",
-            )
-
-            endpoint = my_model.deploy(machine_type="n1-standard-4")
+            # TODO: cleanup model resource after endpoint is created
+            endpoint = obj._model.deploy(machine_type="n1-standard-4")
             return endpoint.predict(*args, **kwargs)
-
-            # Pass in full script to container:
-            """
-            component_spec.implementation=ContainerImplementation(
-                    container=ContainerSpec(
-                        image=base_image,
-                        command=packages_to_install_command + [
-                            'sh',
-                            '-ec',
-                            textwrap.dedent('''\
-                                program_path=$(mktemp -d)
-                                printf "%s" "$0" > "$program_path/ephemeral_component.py"
-                                python3 -m kfp.components.executor_main \
-                                    --component_module_path \
-                                    "$program_path/ephemeral_component.py" \
-                                    "$@"
-                            '''),
-                            source,
-                        ],
-                        args=[
-                            "--executor_input",
-                            ExecutorInputPlaceholder(),
-                            "--function_to_execute", func.__name__,
-                            ]
-                    )
-                )
-            """
 
     return p
 
 
 class VertexModel(metaclass=abc.ABCMeta):
+    """ Parent class that users can extend to use the Vertex AI SDK """
 
     _data_serialization_mapping = {
         pd.DataFrame: (pandas._deserialize_dataframe, pandas._serialize_dataframe),
@@ -294,8 +298,6 @@ class VertexModel(metaclass=abc.ABCMeta):
             pytorch._serialize_dataloader,
         ),
     }
-
-    """ Parent class that users can extend to use the Vertex AI SDK """
 
     def __init__(self, *args, **kwargs):
         """Initializes child class. All constructor arguments must be passed to the

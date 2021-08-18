@@ -29,6 +29,49 @@ except ImportError:
     _message = None
 
 
+def jupyter_notebook_to_file():
+    response = _message.blocking_request("get_ipynb", request="", timeout_sec=200)
+    if response is None:
+        raise RuntimeError("Unable to get the notebook contents.")
+
+    cells = response["ipynb"]["cells"]
+    py_content = []
+    script_lines = []
+
+    for cell in cells:
+        if cell["cell_type"] == "code":
+            # Add newline char to the last line of a code cell.
+            cell["source"][-1] += "\n"
+
+            # Combine all code cells.
+            py_content.extend(cell["source"])
+
+    for line in py_content:
+        if line.strip().startswith("%"):
+            raise RuntimeError("Magic commands '%' are not supported.")
+
+        elif line.strip().startswith("!"):
+            commands_list = line.strip()[1:].split(" ")
+            script_lines.extend(
+                [
+                    "import sys\n",
+                    "import subprocess\n",
+                    f"print(subprocess.run({commands_list}",
+                    ",capture_output=True, text=True).stdout)\n",
+                ]
+            )
+
+        elif not (line.strip().startswith("get_ipython().system(")):
+            script_lines.append(line)
+
+    # Create a tmp wrapped entry point script file.
+    file_descriptor, output_file = tempfile.mkstemp(suffix=".py")
+    with open(output_file, "w") as f:
+        f.writelines(script_lines)
+
+    return output_file
+
+
 def get_import_lines(path):
     with open(path) as f:
         root = ast.parse(f.read(), path)
@@ -110,46 +153,7 @@ def _make_source(
         src = "\n".join(get_import_lines(module.__file__))
 
     except AttributeError:
-        response = _message.blocking_request("get_ipynb", request="", timeout_sec=200)
-        if response is None:
-            raise RuntimeError("Unable to get the notebook contents.")
-
-        cells = response["ipynb"]["cells"]
-        py_content = []
-        script_lines = []
-
-        for cell in cells:
-            if cell["cell_type"] == "code":
-                # Add newline char to the last line of a code cell.
-                cell["source"][-1] += "\n"
-
-                # Combine all code cells.
-                py_content.extend(cell["source"])
-
-        for line in py_content:
-            if line.strip().startswith("%"):
-                raise RuntimeError("Magic commands '%' are not supported.")
-
-            elif line.strip().startswith("!"):
-                commands_list = line.strip()[1:].split(" ")
-                script_lines.extend(
-                    [
-                        "import sys\n",
-                        "import subprocess\n",
-                        f"print(subprocess.run({commands_list}",
-                        ",capture_output=True, text=True).stdout)\n",
-                    ]
-                )
-
-            elif not (line.strip().startswith("get_ipython().system(")):
-                script_lines.append(line)
-
-        # Create a tmp wrapped entry point script file.
-        file_descriptor, output_file = tempfile.mkstemp(suffix=".py")
-        with open(output_file, "w") as f:
-            f.writelines(script_lines)
-
-        src = "\n".join(get_import_lines(output_file))
+        src = "\n".join(get_import_lines(jupyter_notebook_to_file()))
 
     # Hard-coded specific files as imports because (for now) all data serialization methods
     # come from one of two files and we do not retrieve the modules for the methods at this
