@@ -204,7 +204,7 @@ def vertex_fit_function_wrapper(method: Callable[..., Any]):
                 script_path=str(script_path),
                 requirements=obj._dependencies,
                 container_uri="us-docker.pkg.dev/vertex-ai/training/scikit-learn-cpu.0-23:latest",
-                model_serving_container_image_uri="us-docker.pkg.dev/vertex-ai/prediction/tf2-cpu.2-5:latest",
+                model_serving_container_image_uri="gcr.io/distroless/python3",
                 serving_container_command=command_str.split("\n"),
             )
 
@@ -265,7 +265,7 @@ def vertex_predict_function_wrapper(method: Callable[..., Any]):
             obj._model = aiplatform.Model.upload(
                 display_name="serving-test",
                 artifact_uri=model_uri,
-                serving_container_image_uri="us-docker.pkg.dev/vertex-ai/prediction/sklearn-cpu.0-24:latest",
+                serving_container_image_uri="gcr.io/distroless/python3",
                 serving_container_command=command_str.split("\n"),
             )
 
