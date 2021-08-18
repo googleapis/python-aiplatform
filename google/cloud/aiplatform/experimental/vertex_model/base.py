@@ -307,7 +307,7 @@ class VertexModel(metaclass=abc.ABCMeta):
         self._dependencies = [
             "pandas>=1.3",
             "torch>=1.7",
-            "google-cloud-aiplatform @ git+https://github.com/googleapis/python-aiplatform@refs/pull/594/head#egg=google-cloud-aiplatform",
+            "google-cloud-aiplatform @ git+https://github.com/googleapis/python-aiplatform@refs/pull/603/head#egg=google-cloud-aiplatform",
         ]
 
         self.training_mode = "local"
