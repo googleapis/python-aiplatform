@@ -3531,8 +3531,8 @@ class AutoMLForecastingTrainingJob(_TrainingJob):
             model=model
         )
 
-        if self.bq_uri is not None:
-            _LOGGER.info("Exported examples available at:\n%s" % self.bq_uri)
+        if export_evaluated_data_items:
+            _LOGGER.info("Exported examples available at:\n%s" % self.evaluated_data_items_bigquery_uri)
 
         return new_model
 
@@ -3545,7 +3545,7 @@ class AutoMLForecastingTrainingJob(_TrainingJob):
         )
 
     @property
-    def bq_uri(self) -> Optional[str]:
+    def evaluated_data_items_bigquery_uri(self) -> Optional[str]:
         """BigQuery location of exported evaluated examples from the Training Job"""
 
         if self._gca_resource is None:
