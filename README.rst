@@ -316,6 +316,30 @@ To delete an endpoint:
   endpoint.delete()
 
 
+XAI: Get_metadata
+---------
+
+To get metadata from tf1 models:
+
+.. code-block:: Python
+
+  from google.cloud.aiplatform.explain.metadata.tf.v1 import saved_model_metadata_builder
+  
+  builder = saved_model_metadata_builder.SavedModelMetadataBuilder(
+            'gs://python/to/my/model/dir', tags=[tf.saved_model.tag_constants.SERVING]
+        )
+  generated_md = builder.get_metadata()
+
+To get metadata from tf2 models:
+
+.. code-block:: Python
+  from google.cloud.aiplatform.explain.metadata.tf.v2 import saved_model_metadata_builder
+  
+  builder = saved_model_metadata_builder.SavedModelMetadataBuilder('gs://python/to/my/model/dir')
+  generated_md = builder.get_metadata()
+
+
+
 Next Steps
 ~~~~~~~~~~
 
