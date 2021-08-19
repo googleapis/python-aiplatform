@@ -103,13 +103,14 @@ _TEST_MODEL_DISPLAY_NAME = "model-display-name"
 _TEST_LABELS = {"key": "value"}
 _TEST_MODEL_LABELS = {"model_key": "model_value"}
 
-_TEST_DEFAULT_TRAINING_FRACTION_SPLIT = 0.8
-_TEST_DEFAULT_VALIDATION_FRACTION_SPLIT = 0.1
-_TEST_DEFAULT_TEST_FRACTION_SPLIT = 0.1
 _TEST_TRAINING_FRACTION_SPLIT = 0.6
 _TEST_VALIDATION_FRACTION_SPLIT = 0.2
 _TEST_TEST_FRACTION_SPLIT = 0.2
+_TEST_TRAINING_FILTER_SPLIT = "train"
+_TEST_VALIDATION_FILTER_SPLIT = "validate"
+_TEST_TEST_FILTER_SPLIT = "test"
 _TEST_PREDEFINED_SPLIT_COLUMN_NAME = "split"
+_TEST_TIMESTAMP_SPLIT_COLUMN_NAME = "timestamp"
 
 _TEST_PROJECT = "test-project"
 _TEST_LOCATION = "us-central1"
@@ -579,6 +580,7 @@ def mock_python_package_to_gcs():
 def mock_tabular_dataset():
     ds = mock.MagicMock(datasets.TabularDataset)
     ds.name = _TEST_DATASET_NAME
+    ds.metadata_schema_uri = _TEST_METADATA_SCHEMA_URI_TABULAR
     ds._latest_future = None
     ds._exception = None
     ds._gca_resource = gca_dataset.Dataset(
@@ -595,6 +597,7 @@ def mock_tabular_dataset():
 def mock_nontabular_dataset():
     ds = mock.MagicMock(datasets.ImageDataset)
     ds.name = _TEST_DATASET_NAME
+    ds.metadata_schema_uri = _TEST_METADATA_SCHEMA_URI_NONTABULAR
     ds._latest_future = None
     ds._exception = None
     ds._gca_resource = gca_dataset.Dataset(
@@ -668,7 +671,7 @@ class TestCustomTrainingJob:
             training_fraction_split=_TEST_TRAINING_FRACTION_SPLIT,
             validation_fraction_split=_TEST_VALIDATION_FRACTION_SPLIT,
             test_fraction_split=_TEST_TEST_FRACTION_SPLIT,
-            predefined_split_column_name=_TEST_PREDEFINED_SPLIT_COLUMN_NAME,
+            timestamp_split_column_name=_TEST_TIMESTAMP_SPLIT_COLUMN_NAME,
             tensorboard=_TEST_TENSORBOARD_RESOURCE_NAME,
             sync=sync,
         )
@@ -708,10 +711,11 @@ class TestCustomTrainingJob:
             },
         }
 
-        true_fraction_split = gca_training_pipeline.FractionSplit(
+        true_timestamp_split = gca_training_pipeline.TimestampSplit(
             training_fraction=_TEST_TRAINING_FRACTION_SPLIT,
             validation_fraction=_TEST_VALIDATION_FRACTION_SPLIT,
             test_fraction=_TEST_TEST_FRACTION_SPLIT,
+            key=_TEST_TIMESTAMP_SPLIT_COLUMN_NAME,
         )
 
         env = [
@@ -748,10 +752,7 @@ class TestCustomTrainingJob:
         )
 
         true_input_data_config = gca_training_pipeline.InputDataConfig(
-            fraction_split=true_fraction_split,
-            predefined_split=gca_training_pipeline.PredefinedSplit(
-                key=_TEST_PREDEFINED_SPLIT_COLUMN_NAME
-            ),
+            timestamp_split=true_timestamp_split,
             dataset_id=mock_tabular_dataset.name,
             gcs_destination=gca_io.GcsDestination(
                 output_uri_prefix=_TEST_BASE_OUTPUT_DIR
@@ -843,9 +844,6 @@ class TestCustomTrainingJob:
             accelerator_type=_TEST_ACCELERATOR_TYPE,
             accelerator_count=_TEST_ACCELERATOR_COUNT,
             model_display_name=_TEST_MODEL_DISPLAY_NAME,
-            training_fraction_split=_TEST_TRAINING_FRACTION_SPLIT,
-            validation_fraction_split=_TEST_VALIDATION_FRACTION_SPLIT,
-            test_fraction_split=_TEST_TEST_FRACTION_SPLIT,
             predefined_split_column_name=_TEST_PREDEFINED_SPLIT_COLUMN_NAME,
             sync=sync,
         )
@@ -878,12 +876,6 @@ class TestCustomTrainingJob:
                 "env": true_env,
             },
         }
-
-        true_fraction_split = gca_training_pipeline.FractionSplit(
-            training_fraction=_TEST_TRAINING_FRACTION_SPLIT,
-            validation_fraction=_TEST_VALIDATION_FRACTION_SPLIT,
-            test_fraction=_TEST_TEST_FRACTION_SPLIT,
-        )
 
         env = [
             gca_env_var.EnvVar(name=str(key), value=str(value))
@@ -918,7 +910,6 @@ class TestCustomTrainingJob:
         )
 
         true_input_data_config = gca_training_pipeline.InputDataConfig(
-            fraction_split=true_fraction_split,
             predefined_split=gca_training_pipeline.PredefinedSplit(
                 key=_TEST_PREDEFINED_SPLIT_COLUMN_NAME
             ),
@@ -1049,6 +1040,34 @@ class TestCustomTrainingJob:
                 accelerator_type=_TEST_INVALID_ACCELERATOR_TYPE,
                 accelerator_count=_TEST_ACCELERATOR_COUNT,
                 model_display_name=_TEST_MODEL_DISPLAY_NAME,
+                sync=sync,
+            )
+
+    @pytest.mark.parametrize("sync", [True, False])
+    def test_run_with_two_splits_raises(
+        self,
+        mock_pipeline_service_create,
+        mock_python_package_to_gcs,
+        mock_tabular_dataset,
+        mock_model_service_get,
+        sync,
+    ):
+        aiplatform.init(project=_TEST_PROJECT, staging_bucket=_TEST_BUCKET_NAME)
+
+        job = training_jobs.CustomTrainingJob(
+            display_name=_TEST_DISPLAY_NAME,
+            script_path=_TEST_LOCAL_SCRIPT_FILE_NAME,
+            container_uri=_TEST_TRAINING_CONTAINER_IMAGE,
+        )
+
+        with pytest.raises(ValueError):
+            job.run(
+                dataset=mock_tabular_dataset,
+                replica_count=1,
+                machine_type=_TEST_MACHINE_TYPE,
+                accelerator_type=_TEST_INVALID_ACCELERATOR_TYPE,
+                accelerator_count=_TEST_ACCELERATOR_COUNT,
+                predefined_split_column_name=_TEST_PREDEFINED_SPLIT_COLUMN_NAME,
                 training_fraction_split=_TEST_TRAINING_FRACTION_SPLIT,
                 validation_fraction_split=_TEST_VALIDATION_FRACTION_SPLIT,
                 test_fraction_split=_TEST_TEST_FRACTION_SPLIT,
@@ -1123,6 +1142,9 @@ class TestCustomTrainingJob:
             training_fraction_split=_TEST_TRAINING_FRACTION_SPLIT,
             validation_fraction_split=_TEST_VALIDATION_FRACTION_SPLIT,
             test_fraction_split=_TEST_TEST_FRACTION_SPLIT,
+            training_filter_split=_TEST_TRAINING_FILTER_SPLIT,
+            validation_filter_split=_TEST_VALIDATION_FILTER_SPLIT,
+            test_filter_split=_TEST_TEST_FILTER_SPLIT,
             sync=sync,
         )
 
@@ -1379,9 +1401,6 @@ class TestCustomTrainingJob:
             accelerator_type=_TEST_ACCELERATOR_TYPE,
             accelerator_count=_TEST_ACCELERATOR_COUNT,
             model_display_name=_TEST_MODEL_DISPLAY_NAME,
-            training_fraction_split=_TEST_TRAINING_FRACTION_SPLIT,
-            validation_fraction_split=_TEST_VALIDATION_FRACTION_SPLIT,
-            test_fraction_split=_TEST_TEST_FRACTION_SPLIT,
             sync=sync,
         )
 
@@ -1441,12 +1460,6 @@ class TestCustomTrainingJob:
             },
         ]
 
-        true_fraction_split = gca_training_pipeline.FractionSplit(
-            training_fraction=_TEST_TRAINING_FRACTION_SPLIT,
-            validation_fraction=_TEST_VALIDATION_FRACTION_SPLIT,
-            test_fraction=_TEST_TEST_FRACTION_SPLIT,
-        )
-
         true_container_spec = gca_model.ModelContainerSpec(
             image_uri=_TEST_SERVING_CONTAINER_IMAGE,
             predict_route=_TEST_SERVING_CONTAINER_PREDICTION_ROUTE,
@@ -1464,7 +1477,6 @@ class TestCustomTrainingJob:
         )
 
         true_input_data_config = gca_training_pipeline.InputDataConfig(
-            fraction_split=true_fraction_split,
             dataset_id=mock_tabular_dataset.name,
             gcs_destination=gca_io.GcsDestination(
                 output_uri_prefix=_TEST_BASE_OUTPUT_DIR
@@ -1660,6 +1672,9 @@ class TestCustomTrainingJob:
             machine_type=_TEST_MACHINE_TYPE,
             accelerator_type=_TEST_ACCELERATOR_TYPE,
             accelerator_count=_TEST_ACCELERATOR_COUNT,
+            training_filter_split=_TEST_TRAINING_FILTER_SPLIT,
+            validation_filter_split=_TEST_VALIDATION_FILTER_SPLIT,
+            test_filter_split=_TEST_TEST_FILTER_SPLIT,
             sync=sync,
         )
 
@@ -1693,10 +1708,10 @@ class TestCustomTrainingJob:
             },
         }
 
-        true_fraction_split = gca_training_pipeline.FractionSplit(
-            training_fraction=_TEST_DEFAULT_TRAINING_FRACTION_SPLIT,
-            validation_fraction=_TEST_DEFAULT_VALIDATION_FRACTION_SPLIT,
-            test_fraction=_TEST_DEFAULT_TEST_FRACTION_SPLIT,
+        true_filter_split = gca_training_pipeline.FilterSplit(
+            training_filter=_TEST_TRAINING_FILTER_SPLIT,
+            validation_filter=_TEST_VALIDATION_FILTER_SPLIT,
+            test_filter=_TEST_TEST_FILTER_SPLIT,
         )
 
         env = [
@@ -1732,7 +1747,7 @@ class TestCustomTrainingJob:
         )
 
         true_input_data_config = gca_training_pipeline.InputDataConfig(
-            fraction_split=true_fraction_split,
+            filter_split=true_filter_split,
             dataset_id=mock_nontabular_dataset.name,
             annotation_schema_uri=_TEST_ANNOTATION_SCHEMA_URI,
             gcs_destination=gca_io.GcsDestination(
@@ -1909,9 +1924,6 @@ class TestCustomContainerTrainingJob:
             accelerator_count=_TEST_ACCELERATOR_COUNT,
             model_display_name=_TEST_MODEL_DISPLAY_NAME,
             model_labels=_TEST_MODEL_LABELS,
-            training_fraction_split=_TEST_TRAINING_FRACTION_SPLIT,
-            validation_fraction_split=_TEST_VALIDATION_FRACTION_SPLIT,
-            test_fraction_split=_TEST_TEST_FRACTION_SPLIT,
             predefined_split_column_name=_TEST_PREDEFINED_SPLIT_COLUMN_NAME,
             service_account=_TEST_SERVICE_ACCOUNT,
             tensorboard=_TEST_TENSORBOARD_RESOURCE_NAME,
@@ -1945,12 +1957,6 @@ class TestCustomContainerTrainingJob:
                 "env": true_env,
             },
         }
-
-        true_fraction_split = gca_training_pipeline.FractionSplit(
-            training_fraction=_TEST_TRAINING_FRACTION_SPLIT,
-            validation_fraction=_TEST_VALIDATION_FRACTION_SPLIT,
-            test_fraction=_TEST_TEST_FRACTION_SPLIT,
-        )
 
         env = [
             gca_env_var.EnvVar(name=str(key), value=str(value))
@@ -1986,7 +1992,6 @@ class TestCustomContainerTrainingJob:
         )
 
         true_input_data_config = gca_training_pipeline.InputDataConfig(
-            fraction_split=true_fraction_split,
             predefined_split=gca_training_pipeline.PredefinedSplit(
                 key=_TEST_PREDEFINED_SPLIT_COLUMN_NAME
             ),
@@ -2079,7 +2084,7 @@ class TestCustomContainerTrainingJob:
             training_fraction_split=_TEST_TRAINING_FRACTION_SPLIT,
             validation_fraction_split=_TEST_VALIDATION_FRACTION_SPLIT,
             test_fraction_split=_TEST_TEST_FRACTION_SPLIT,
-            predefined_split_column_name=_TEST_PREDEFINED_SPLIT_COLUMN_NAME,
+            timestamp_split_column_name=_TEST_TIMESTAMP_SPLIT_COLUMN_NAME,
             sync=sync,
         )
 
@@ -2106,10 +2111,11 @@ class TestCustomContainerTrainingJob:
             },
         }
 
-        true_fraction_split = gca_training_pipeline.FractionSplit(
+        true_timestamp_split = gca_training_pipeline.TimestampSplit(
             training_fraction=_TEST_TRAINING_FRACTION_SPLIT,
             validation_fraction=_TEST_VALIDATION_FRACTION_SPLIT,
             test_fraction=_TEST_TEST_FRACTION_SPLIT,
+            key=_TEST_TIMESTAMP_SPLIT_COLUMN_NAME,
         )
 
         env = [
@@ -2145,10 +2151,7 @@ class TestCustomContainerTrainingJob:
         )
 
         true_input_data_config = gca_training_pipeline.InputDataConfig(
-            fraction_split=true_fraction_split,
-            predefined_split=gca_training_pipeline.PredefinedSplit(
-                key=_TEST_PREDEFINED_SPLIT_COLUMN_NAME
-            ),
+            timestamp_split=true_timestamp_split,
             dataset_id=mock_tabular_dataset.name,
             bigquery_destination=gca_io.BigQueryDestination(
                 output_uri=_TEST_BIGQUERY_DESTINATION
@@ -2276,6 +2279,33 @@ class TestCustomContainerTrainingJob:
                 accelerator_type=_TEST_INVALID_ACCELERATOR_TYPE,
                 accelerator_count=_TEST_ACCELERATOR_COUNT,
                 model_display_name=_TEST_MODEL_DISPLAY_NAME,
+                sync=sync,
+            )
+
+    @pytest.mark.parametrize("sync", [True, False])
+    def test_run_with_two_split_raises(
+        self,
+        mock_pipeline_service_create,
+        mock_python_package_to_gcs,
+        mock_tabular_dataset,
+        mock_model_service_get,
+        sync,
+    ):
+        aiplatform.init(project=_TEST_PROJECT, staging_bucket=_TEST_BUCKET_NAME)
+
+        job = training_jobs.CustomContainerTrainingJob(
+            display_name=_TEST_DISPLAY_NAME,
+            container_uri=_TEST_TRAINING_CONTAINER_IMAGE,
+        )
+
+        with pytest.raises(ValueError):
+            job.run(
+                dataset=mock_tabular_dataset,
+                replica_count=1,
+                machine_type=_TEST_MACHINE_TYPE,
+                accelerator_type=_TEST_INVALID_ACCELERATOR_TYPE,
+                accelerator_count=_TEST_ACCELERATOR_COUNT,
+                predefined_split_column_name=_TEST_PREDEFINED_SPLIT_COLUMN_NAME,
                 training_fraction_split=_TEST_TRAINING_FRACTION_SPLIT,
                 validation_fraction_split=_TEST_VALIDATION_FRACTION_SPLIT,
                 test_fraction_split=_TEST_TEST_FRACTION_SPLIT,
@@ -2432,9 +2462,6 @@ class TestCustomContainerTrainingJob:
             machine_type=_TEST_MACHINE_TYPE,
             accelerator_type=_TEST_ACCELERATOR_TYPE,
             accelerator_count=_TEST_ACCELERATOR_COUNT,
-            training_fraction_split=_TEST_TRAINING_FRACTION_SPLIT,
-            validation_fraction_split=_TEST_VALIDATION_FRACTION_SPLIT,
-            test_fraction_split=_TEST_TEST_FRACTION_SPLIT,
             sync=sync,
         )
 
@@ -2734,6 +2761,9 @@ class TestCustomContainerTrainingJob:
             accelerator_count=_TEST_ACCELERATOR_COUNT,
             model_display_name=_TEST_MODEL_DISPLAY_NAME,
             model_labels=_TEST_MODEL_LABELS,
+            training_filter_split=_TEST_TRAINING_FILTER_SPLIT,
+            validation_filter_split=_TEST_VALIDATION_FILTER_SPLIT,
+            test_filter_split=_TEST_TEST_FILTER_SPLIT,
             sync=sync,
         )
 
@@ -2760,10 +2790,10 @@ class TestCustomContainerTrainingJob:
             },
         }
 
-        true_fraction_split = gca_training_pipeline.FractionSplit(
-            training_fraction=_TEST_DEFAULT_TRAINING_FRACTION_SPLIT,
-            validation_fraction=_TEST_DEFAULT_VALIDATION_FRACTION_SPLIT,
-            test_fraction=_TEST_DEFAULT_TEST_FRACTION_SPLIT,
+        true_filter_split = gca_training_pipeline.FilterSplit(
+            training_filter=_TEST_TRAINING_FILTER_SPLIT,
+            validation_filter=_TEST_VALIDATION_FILTER_SPLIT,
+            test_filter=_TEST_TEST_FILTER_SPLIT,
         )
 
         env = [
@@ -2799,7 +2829,7 @@ class TestCustomContainerTrainingJob:
         )
 
         true_input_data_config = gca_training_pipeline.InputDataConfig(
-            fraction_split=true_fraction_split,
+            filter_split=true_filter_split,
             dataset_id=mock_nontabular_dataset.name,
             annotation_schema_uri=_TEST_ANNOTATION_SCHEMA_URI,
             gcs_destination=gca_io.GcsDestination(
@@ -3257,7 +3287,6 @@ class TestCustomPythonPackageTrainingJob:
             training_fraction_split=_TEST_TRAINING_FRACTION_SPLIT,
             validation_fraction_split=_TEST_VALIDATION_FRACTION_SPLIT,
             test_fraction_split=_TEST_TEST_FRACTION_SPLIT,
-            predefined_split_column_name=_TEST_PREDEFINED_SPLIT_COLUMN_NAME,
             sync=sync,
         )
 
@@ -3331,9 +3360,6 @@ class TestCustomPythonPackageTrainingJob:
 
         true_input_data_config = gca_training_pipeline.InputDataConfig(
             fraction_split=true_fraction_split,
-            predefined_split=gca_training_pipeline.PredefinedSplit(
-                key=_TEST_PREDEFINED_SPLIT_COLUMN_NAME
-            ),
             dataset_id=mock_tabular_dataset.name,
             gcs_destination=gca_io.GcsDestination(
                 output_uri_prefix=_TEST_BASE_OUTPUT_DIR
@@ -3421,9 +3447,6 @@ class TestCustomPythonPackageTrainingJob:
             machine_type=_TEST_MACHINE_TYPE,
             accelerator_type=_TEST_ACCELERATOR_TYPE,
             accelerator_count=_TEST_ACCELERATOR_COUNT,
-            training_fraction_split=_TEST_TRAINING_FRACTION_SPLIT,
-            validation_fraction_split=_TEST_VALIDATION_FRACTION_SPLIT,
-            test_fraction_split=_TEST_TEST_FRACTION_SPLIT,
             predefined_split_column_name=_TEST_PREDEFINED_SPLIT_COLUMN_NAME,
             sync=sync,
         )
@@ -3451,12 +3474,6 @@ class TestCustomPythonPackageTrainingJob:
                 "args": true_args,
             },
         }
-
-        true_fraction_split = gca_training_pipeline.FractionSplit(
-            training_fraction=_TEST_TRAINING_FRACTION_SPLIT,
-            validation_fraction=_TEST_VALIDATION_FRACTION_SPLIT,
-            test_fraction=_TEST_TEST_FRACTION_SPLIT,
-        )
 
         env = [
             gca_env_var.EnvVar(name=str(key), value=str(value))
@@ -3492,7 +3509,6 @@ class TestCustomPythonPackageTrainingJob:
         )
 
         true_input_data_config = gca_training_pipeline.InputDataConfig(
-            fraction_split=true_fraction_split,
             predefined_split=gca_training_pipeline.PredefinedSplit(
                 key=_TEST_PREDEFINED_SPLIT_COLUMN_NAME
             ),
@@ -3582,7 +3598,7 @@ class TestCustomPythonPackageTrainingJob:
             training_fraction_split=_TEST_TRAINING_FRACTION_SPLIT,
             validation_fraction_split=_TEST_VALIDATION_FRACTION_SPLIT,
             test_fraction_split=_TEST_TEST_FRACTION_SPLIT,
-            predefined_split_column_name=_TEST_PREDEFINED_SPLIT_COLUMN_NAME,
+            timestamp_split_column_name=_TEST_TIMESTAMP_SPLIT_COLUMN_NAME,
             sync=sync,
         )
 
@@ -3610,10 +3626,11 @@ class TestCustomPythonPackageTrainingJob:
             },
         }
 
-        true_fraction_split = gca_training_pipeline.FractionSplit(
+        true_timestamp_split = gca_training_pipeline.TimestampSplit(
             training_fraction=_TEST_TRAINING_FRACTION_SPLIT,
             validation_fraction=_TEST_VALIDATION_FRACTION_SPLIT,
             test_fraction=_TEST_TEST_FRACTION_SPLIT,
+            key=_TEST_TIMESTAMP_SPLIT_COLUMN_NAME,
         )
 
         env = [
@@ -3649,10 +3666,7 @@ class TestCustomPythonPackageTrainingJob:
         )
 
         true_input_data_config = gca_training_pipeline.InputDataConfig(
-            fraction_split=true_fraction_split,
-            predefined_split=gca_training_pipeline.PredefinedSplit(
-                key=_TEST_PREDEFINED_SPLIT_COLUMN_NAME
-            ),
+            timestamp_split=true_timestamp_split,
             dataset_id=mock_tabular_dataset.name,
             bigquery_destination=gca_io.BigQueryDestination(
                 output_uri=_TEST_BIGQUERY_DESTINATION
@@ -3726,9 +3740,6 @@ class TestCustomPythonPackageTrainingJob:
             accelerator_type=_TEST_ACCELERATOR_TYPE,
             accelerator_count=_TEST_ACCELERATOR_COUNT,
             model_display_name=_TEST_MODEL_DISPLAY_NAME,
-            training_fraction_split=_TEST_TRAINING_FRACTION_SPLIT,
-            validation_fraction_split=_TEST_VALIDATION_FRACTION_SPLIT,
-            test_fraction_split=_TEST_TEST_FRACTION_SPLIT,
             sync=sync,
         )
 
@@ -3742,9 +3753,6 @@ class TestCustomPythonPackageTrainingJob:
                 accelerator_type=_TEST_ACCELERATOR_TYPE,
                 accelerator_count=_TEST_ACCELERATOR_COUNT,
                 model_display_name=_TEST_MODEL_DISPLAY_NAME,
-                training_fraction_split=_TEST_TRAINING_FRACTION_SPLIT,
-                validation_fraction_split=_TEST_VALIDATION_FRACTION_SPLIT,
-                test_fraction_split=_TEST_TEST_FRACTION_SPLIT,
                 sync=sync,
             )
 
@@ -3782,6 +3790,38 @@ class TestCustomPythonPackageTrainingJob:
                 accelerator_type=_TEST_INVALID_ACCELERATOR_TYPE,
                 accelerator_count=_TEST_ACCELERATOR_COUNT,
                 model_display_name=_TEST_MODEL_DISPLAY_NAME,
+                training_fraction_split=_TEST_TRAINING_FRACTION_SPLIT,
+                validation_fraction_split=_TEST_VALIDATION_FRACTION_SPLIT,
+                test_fraction_split=_TEST_TEST_FRACTION_SPLIT,
+                sync=sync,
+            )
+
+    @pytest.mark.parametrize("sync", [True, False])
+    def test_run_with_two_split_raises(
+        self,
+        mock_pipeline_service_create,
+        mock_python_package_to_gcs,
+        mock_tabular_dataset,
+        mock_model_service_get,
+        sync,
+    ):
+        aiplatform.init(project=_TEST_PROJECT, staging_bucket=_TEST_BUCKET_NAME)
+
+        job = training_jobs.CustomPythonPackageTrainingJob(
+            display_name=_TEST_DISPLAY_NAME,
+            python_package_gcs_uri=_TEST_OUTPUT_PYTHON_PACKAGE_PATH,
+            python_module_name=_TEST_PYTHON_MODULE_NAME,
+            container_uri=_TEST_TRAINING_CONTAINER_IMAGE,
+        )
+
+        with pytest.raises(ValueError):
+            job.run(
+                dataset=mock_tabular_dataset,
+                replica_count=1,
+                machine_type=_TEST_MACHINE_TYPE,
+                accelerator_type=_TEST_INVALID_ACCELERATOR_TYPE,
+                accelerator_count=_TEST_ACCELERATOR_COUNT,
+                predefined_split_column_name=_TEST_PREDEFINED_SPLIT_COLUMN_NAME,
                 training_fraction_split=_TEST_TRAINING_FRACTION_SPLIT,
                 validation_fraction_split=_TEST_VALIDATION_FRACTION_SPLIT,
                 test_fraction_split=_TEST_TEST_FRACTION_SPLIT,
@@ -4013,9 +4053,6 @@ class TestCustomPythonPackageTrainingJob:
                 machine_type=_TEST_MACHINE_TYPE,
                 accelerator_type=_TEST_ACCELERATOR_TYPE,
                 accelerator_count=_TEST_ACCELERATOR_COUNT,
-                training_fraction_split=_TEST_TRAINING_FRACTION_SPLIT,
-                validation_fraction_split=_TEST_VALIDATION_FRACTION_SPLIT,
-                test_fraction_split=_TEST_TEST_FRACTION_SPLIT,
                 sync=sync,
             )
 
@@ -4250,6 +4287,9 @@ class TestCustomPythonPackageTrainingJob:
             accelerator_count=_TEST_ACCELERATOR_COUNT,
             service_account=_TEST_SERVICE_ACCOUNT,
             tensorboard=_TEST_TENSORBOARD_RESOURCE_NAME,
+            training_filter_split=_TEST_TRAINING_FILTER_SPLIT,
+            validation_filter_split=_TEST_VALIDATION_FILTER_SPLIT,
+            test_filter_split=_TEST_TEST_FILTER_SPLIT,
             sync=sync,
         )
 
@@ -4277,10 +4317,10 @@ class TestCustomPythonPackageTrainingJob:
             },
         }
 
-        true_fraction_split = gca_training_pipeline.FractionSplit(
-            training_fraction=_TEST_DEFAULT_TRAINING_FRACTION_SPLIT,
-            validation_fraction=_TEST_DEFAULT_VALIDATION_FRACTION_SPLIT,
-            test_fraction=_TEST_DEFAULT_TEST_FRACTION_SPLIT,
+        true_filter_split = gca_training_pipeline.FilterSplit(
+            training_filter=_TEST_TRAINING_FILTER_SPLIT,
+            validation_filter=_TEST_VALIDATION_FILTER_SPLIT,
+            test_filter=_TEST_TEST_FILTER_SPLIT,
         )
 
         env = [
@@ -4316,7 +4356,7 @@ class TestCustomPythonPackageTrainingJob:
         )
 
         true_input_data_config = gca_training_pipeline.InputDataConfig(
-            fraction_split=true_fraction_split,
+            filter_split=true_filter_split,
             dataset_id=mock_nontabular_dataset.name,
             annotation_schema_uri=_TEST_ANNOTATION_SCHEMA_URI,
             gcs_destination=gca_io.GcsDestination(

@@ -140,10 +140,12 @@ _TEST_MODEL_DISPLAY_NAME = "model-display-name"
 _TEST_LABELS = {"key": "value"}
 _TEST_MODEL_LABELS = {"model_key": "model_value"}
 
-_TEST_TRAINING_FRACTION_SPLIT = 0.6
-_TEST_VALIDATION_FRACTION_SPLIT = 0.2
-_TEST_TEST_FRACTION_SPLIT = 0.2
-_TEST_PREDEFINED_SPLIT_COLUMN_NAME = "split"
+_TEST_FRACTION_SPLIT_TRAINING = 0.6
+_TEST_FRACTION_SPLIT_VALIDATION = 0.2
+_TEST_FRACTION_SPLIT_TEST = 0.2
+
+_TEST_SPLIT_PREDEFINED_COLUMN_NAME = "split"
+_TEST_SPLIT_TIMESTAMP_COLUMN_NAME = "timestamp"
 
 _TEST_OUTPUT_PYTHON_PACKAGE_PATH = "gs://test/ouput/python/trainer.tar.gz"
 
@@ -325,10 +327,6 @@ class TestAutoMLTabularTrainingJob:
             target_column=_TEST_TRAINING_TARGET_COLUMN,
             model_display_name=_TEST_MODEL_DISPLAY_NAME,
             model_labels=_TEST_MODEL_LABELS,
-            training_fraction_split=_TEST_TRAINING_FRACTION_SPLIT,
-            validation_fraction_split=_TEST_VALIDATION_FRACTION_SPLIT,
-            test_fraction_split=_TEST_TEST_FRACTION_SPLIT,
-            predefined_split_column_name=_TEST_PREDEFINED_SPLIT_COLUMN_NAME,
             weight_column=_TEST_TRAINING_WEIGHT_COLUMN,
             budget_milli_node_hours=_TEST_TRAINING_BUDGET_MILLI_NODE_HOURS,
             disable_early_stopping=_TEST_TRAINING_DISABLE_EARLY_STOPPING,
@@ -342,12 +340,6 @@ class TestAutoMLTabularTrainingJob:
         if not sync:
             model_from_job.wait()
 
-        true_fraction_split = gca_training_pipeline.FractionSplit(
-            training_fraction=_TEST_TRAINING_FRACTION_SPLIT,
-            validation_fraction=_TEST_VALIDATION_FRACTION_SPLIT,
-            test_fraction=_TEST_TEST_FRACTION_SPLIT,
-        )
-
         true_managed_model = gca_model.Model(
             display_name=_TEST_MODEL_DISPLAY_NAME,
             labels=_TEST_MODEL_LABELS,
@@ -355,10 +347,6 @@ class TestAutoMLTabularTrainingJob:
         )
 
         true_input_data_config = gca_training_pipeline.InputDataConfig(
-            fraction_split=true_fraction_split,
-            predefined_split=gca_training_pipeline.PredefinedSplit(
-                key=_TEST_PREDEFINED_SPLIT_COLUMN_NAME
-            ),
             dataset_id=mock_dataset_tabular.name,
         )
 
@@ -417,10 +405,6 @@ class TestAutoMLTabularTrainingJob:
             dataset=mock_dataset_tabular,
             target_column=_TEST_TRAINING_TARGET_COLUMN,
             model_display_name=_TEST_MODEL_DISPLAY_NAME,
-            training_fraction_split=_TEST_TRAINING_FRACTION_SPLIT,
-            validation_fraction_split=_TEST_VALIDATION_FRACTION_SPLIT,
-            test_fraction_split=_TEST_TEST_FRACTION_SPLIT,
-            predefined_split_column_name=_TEST_PREDEFINED_SPLIT_COLUMN_NAME,
             weight_column=_TEST_TRAINING_WEIGHT_COLUMN,
             budget_milli_node_hours=_TEST_TRAINING_BUDGET_MILLI_NODE_HOURS,
             disable_early_stopping=_TEST_TRAINING_DISABLE_EARLY_STOPPING,
@@ -437,22 +421,12 @@ class TestAutoMLTabularTrainingJob:
         if not sync:
             model_from_job.wait()
 
-        true_fraction_split = gca_training_pipeline.FractionSplit(
-            training_fraction=_TEST_TRAINING_FRACTION_SPLIT,
-            validation_fraction=_TEST_VALIDATION_FRACTION_SPLIT,
-            test_fraction=_TEST_TEST_FRACTION_SPLIT,
-        )
-
         true_managed_model = gca_model.Model(
             display_name=_TEST_MODEL_DISPLAY_NAME,
             encryption_spec=_TEST_DEFAULT_ENCRYPTION_SPEC,
         )
 
         true_input_data_config = gca_training_pipeline.InputDataConfig(
-            fraction_split=true_fraction_split,
-            predefined_split=gca_training_pipeline.PredefinedSplit(
-                key=_TEST_PREDEFINED_SPLIT_COLUMN_NAME
-            ),
             dataset_id=mock_dataset_tabular.name,
         )
 
@@ -508,9 +482,6 @@ class TestAutoMLTabularTrainingJob:
         model_from_job = job.run(
             dataset=mock_dataset_tabular,
             target_column=_TEST_TRAINING_TARGET_COLUMN,
-            training_fraction_split=_TEST_TRAINING_FRACTION_SPLIT,
-            validation_fraction_split=_TEST_VALIDATION_FRACTION_SPLIT,
-            test_fraction_split=_TEST_TEST_FRACTION_SPLIT,
             weight_column=_TEST_TRAINING_WEIGHT_COLUMN,
             budget_milli_node_hours=_TEST_TRAINING_BUDGET_MILLI_NODE_HOURS,
             disable_early_stopping=_TEST_TRAINING_DISABLE_EARLY_STOPPING,
@@ -523,12 +494,6 @@ class TestAutoMLTabularTrainingJob:
         if not sync:
             model_from_job.wait()
 
-        true_fraction_split = gca_training_pipeline.FractionSplit(
-            training_fraction=_TEST_TRAINING_FRACTION_SPLIT,
-            validation_fraction=_TEST_VALIDATION_FRACTION_SPLIT,
-            test_fraction=_TEST_TEST_FRACTION_SPLIT,
-        )
-
         # Test that if defaults to the job display name
         true_managed_model = gca_model.Model(
             display_name=_TEST_DISPLAY_NAME,
@@ -537,7 +502,7 @@ class TestAutoMLTabularTrainingJob:
         )
 
         true_input_data_config = gca_training_pipeline.InputDataConfig(
-            fraction_split=true_fraction_split, dataset_id=mock_dataset_tabular.name,
+            dataset_id=mock_dataset_tabular.name,
         )
 
         true_training_pipeline = gca_training_pipeline.TrainingPipeline(
@@ -584,10 +549,6 @@ class TestAutoMLTabularTrainingJob:
             dataset=mock_dataset_tabular,
             target_column=_TEST_TRAINING_TARGET_COLUMN,
             model_display_name=_TEST_MODEL_DISPLAY_NAME,
-            training_fraction_split=_TEST_TRAINING_FRACTION_SPLIT,
-            validation_fraction_split=_TEST_VALIDATION_FRACTION_SPLIT,
-            test_fraction_split=_TEST_TEST_FRACTION_SPLIT,
-            predefined_split_column_name=_TEST_PREDEFINED_SPLIT_COLUMN_NAME,
             weight_column=_TEST_TRAINING_WEIGHT_COLUMN,
             budget_milli_node_hours=_TEST_TRAINING_BUDGET_MILLI_NODE_HOURS,
             disable_early_stopping=_TEST_TRAINING_DISABLE_EARLY_STOPPING,
@@ -601,22 +562,12 @@ class TestAutoMLTabularTrainingJob:
         if not sync:
             model_from_job.wait()
 
-        true_fraction_split = gca_training_pipeline.FractionSplit(
-            training_fraction=_TEST_TRAINING_FRACTION_SPLIT,
-            validation_fraction=_TEST_VALIDATION_FRACTION_SPLIT,
-            test_fraction=_TEST_TEST_FRACTION_SPLIT,
-        )
-
         true_managed_model = gca_model.Model(
             display_name=_TEST_MODEL_DISPLAY_NAME,
             encryption_spec=_TEST_DEFAULT_ENCRYPTION_SPEC,
         )
 
         true_input_data_config = gca_training_pipeline.InputDataConfig(
-            fraction_split=true_fraction_split,
-            predefined_split=gca_training_pipeline.PredefinedSplit(
-                key=_TEST_PREDEFINED_SPLIT_COLUMN_NAME
-            ),
             dataset_id=mock_dataset_tabular.name,
         )
 
@@ -665,10 +616,6 @@ class TestAutoMLTabularTrainingJob:
             dataset=mock_dataset_tabular,
             target_column=_TEST_TRAINING_TARGET_COLUMN,
             model_display_name=_TEST_MODEL_DISPLAY_NAME,
-            training_fraction_split=_TEST_TRAINING_FRACTION_SPLIT,
-            validation_fraction_split=_TEST_VALIDATION_FRACTION_SPLIT,
-            test_fraction_split=_TEST_TEST_FRACTION_SPLIT,
-            predefined_split_column_name=_TEST_PREDEFINED_SPLIT_COLUMN_NAME,
             weight_column=_TEST_TRAINING_WEIGHT_COLUMN,
             budget_milli_node_hours=_TEST_TRAINING_BUDGET_MILLI_NODE_HOURS,
             disable_early_stopping=_TEST_TRAINING_DISABLE_EARLY_STOPPING,
@@ -682,22 +629,12 @@ class TestAutoMLTabularTrainingJob:
         if not sync:
             model_from_job.wait()
 
-        true_fraction_split = gca_training_pipeline.FractionSplit(
-            training_fraction=_TEST_TRAINING_FRACTION_SPLIT,
-            validation_fraction=_TEST_VALIDATION_FRACTION_SPLIT,
-            test_fraction=_TEST_TEST_FRACTION_SPLIT,
-        )
-
         true_managed_model = gca_model.Model(
             display_name=_TEST_MODEL_DISPLAY_NAME,
             encryption_spec=_TEST_DEFAULT_ENCRYPTION_SPEC,
         )
 
         true_input_data_config = gca_training_pipeline.InputDataConfig(
-            fraction_split=true_fraction_split,
-            predefined_split=gca_training_pipeline.PredefinedSplit(
-                key=_TEST_PREDEFINED_SPLIT_COLUMN_NAME
-            ),
             dataset_id=mock_dataset_tabular.name,
         )
 
@@ -746,10 +683,6 @@ class TestAutoMLTabularTrainingJob:
             dataset=mock_dataset_tabular_alternative,
             target_column=_TEST_TRAINING_TARGET_COLUMN,
             model_display_name=_TEST_MODEL_DISPLAY_NAME,
-            training_fraction_split=_TEST_TRAINING_FRACTION_SPLIT,
-            validation_fraction_split=_TEST_VALIDATION_FRACTION_SPLIT,
-            test_fraction_split=_TEST_TEST_FRACTION_SPLIT,
-            predefined_split_column_name=_TEST_PREDEFINED_SPLIT_COLUMN_NAME,
             weight_column=_TEST_TRAINING_WEIGHT_COLUMN,
             budget_milli_node_hours=_TEST_TRAINING_BUDGET_MILLI_NODE_HOURS,
             disable_early_stopping=_TEST_TRAINING_DISABLE_EARLY_STOPPING,
@@ -759,19 +692,9 @@ class TestAutoMLTabularTrainingJob:
         if not sync:
             model_from_job.wait()
 
-        true_fraction_split = gca_training_pipeline.FractionSplit(
-            training_fraction=_TEST_TRAINING_FRACTION_SPLIT,
-            validation_fraction=_TEST_VALIDATION_FRACTION_SPLIT,
-            test_fraction=_TEST_TEST_FRACTION_SPLIT,
-        )
-
         true_managed_model = gca_model.Model(display_name=_TEST_MODEL_DISPLAY_NAME)
 
         true_input_data_config = gca_training_pipeline.InputDataConfig(
-            fraction_split=true_fraction_split,
-            predefined_split=gca_training_pipeline.PredefinedSplit(
-                key=_TEST_PREDEFINED_SPLIT_COLUMN_NAME
-            ),
             dataset_id=mock_dataset_tabular_alternative.name,
         )
 
@@ -858,10 +781,6 @@ class TestAutoMLTabularTrainingJob:
             dataset=mock_dataset_tabular_alternative,
             target_column=_TEST_TRAINING_TARGET_COLUMN,
             model_display_name=_TEST_MODEL_DISPLAY_NAME,
-            training_fraction_split=_TEST_TRAINING_FRACTION_SPLIT,
-            validation_fraction_split=_TEST_VALIDATION_FRACTION_SPLIT,
-            test_fraction_split=_TEST_TEST_FRACTION_SPLIT,
-            predefined_split_column_name=_TEST_PREDEFINED_SPLIT_COLUMN_NAME,
             weight_column=_TEST_TRAINING_WEIGHT_COLUMN,
             budget_milli_node_hours=_TEST_TRAINING_BUDGET_MILLI_NODE_HOURS,
             disable_early_stopping=_TEST_TRAINING_DISABLE_EARLY_STOPPING,
@@ -871,19 +790,9 @@ class TestAutoMLTabularTrainingJob:
         if not sync:
             model_from_job.wait()
 
-        true_fraction_split = gca_training_pipeline.FractionSplit(
-            training_fraction=_TEST_TRAINING_FRACTION_SPLIT,
-            validation_fraction=_TEST_VALIDATION_FRACTION_SPLIT,
-            test_fraction=_TEST_TEST_FRACTION_SPLIT,
-        )
-
         true_managed_model = gca_model.Model(display_name=_TEST_MODEL_DISPLAY_NAME)
 
         true_input_data_config = gca_training_pipeline.InputDataConfig(
-            fraction_split=true_fraction_split,
-            predefined_split=gca_training_pipeline.PredefinedSplit(
-                key=_TEST_PREDEFINED_SPLIT_COLUMN_NAME
-            ),
             dataset_id=mock_dataset_tabular_alternative.name,
         )
 
@@ -923,9 +832,6 @@ class TestAutoMLTabularTrainingJob:
             dataset=mock_dataset_tabular,
             target_column=_TEST_TRAINING_TARGET_COLUMN,
             model_display_name=_TEST_MODEL_DISPLAY_NAME,
-            training_fraction_split=_TEST_TRAINING_FRACTION_SPLIT,
-            validation_fraction_split=_TEST_VALIDATION_FRACTION_SPLIT,
-            test_fraction_split=_TEST_TEST_FRACTION_SPLIT,
             sync=sync,
         )
 
@@ -938,9 +844,6 @@ class TestAutoMLTabularTrainingJob:
                 dataset=mock_dataset_tabular,
                 target_column=_TEST_TRAINING_TARGET_COLUMN,
                 model_display_name=_TEST_MODEL_DISPLAY_NAME,
-                training_fraction_split=_TEST_TRAINING_FRACTION_SPLIT,
-                validation_fraction_split=_TEST_VALIDATION_FRACTION_SPLIT,
-                test_fraction_split=_TEST_TEST_FRACTION_SPLIT,
                 sync=sync,
             )
 
@@ -965,9 +868,6 @@ class TestAutoMLTabularTrainingJob:
                 model_display_name=_TEST_MODEL_DISPLAY_NAME,
                 dataset=mock_dataset_tabular,
                 target_column=_TEST_TRAINING_TARGET_COLUMN,
-                training_fraction_split=_TEST_TRAINING_FRACTION_SPLIT,
-                validation_fraction_split=_TEST_VALIDATION_FRACTION_SPLIT,
-                test_fraction_split=_TEST_TEST_FRACTION_SPLIT,
                 sync=sync,
             )
 
@@ -996,9 +896,6 @@ class TestAutoMLTabularTrainingJob:
             model_display_name=_TEST_MODEL_DISPLAY_NAME,
             dataset=mock_dataset_tabular,
             target_column=_TEST_TRAINING_TARGET_COLUMN,
-            training_fraction_split=_TEST_TRAINING_FRACTION_SPLIT,
-            validation_fraction_split=_TEST_VALIDATION_FRACTION_SPLIT,
-            test_fraction_split=_TEST_TEST_FRACTION_SPLIT,
             sync=False,
         )
 
@@ -1033,9 +930,6 @@ class TestAutoMLTabularTrainingJob:
                     model_display_name=_TEST_MODEL_DISPLAY_NAME,
                     dataset=mock_dataset_tabular,
                     target_column=_TEST_TRAINING_TARGET_COLUMN,
-                    training_fraction_split=_TEST_TRAINING_FRACTION_SPLIT,
-                    validation_fraction_split=_TEST_VALIDATION_FRACTION_SPLIT,
-                    test_fraction_split=_TEST_TEST_FRACTION_SPLIT,
                     sync=sync,
                 )
             assert e.match("Mock fail")
@@ -1065,9 +959,6 @@ class TestAutoMLTabularTrainingJob:
                 model_display_name=_TEST_MODEL_DISPLAY_NAME,
                 dataset=mock_dataset_tabular,
                 target_column=_TEST_TRAINING_TARGET_COLUMN,
-                training_fraction_split=_TEST_TRAINING_FRACTION_SPLIT,
-                validation_fraction_split=_TEST_VALIDATION_FRACTION_SPLIT,
-                test_fraction_split=_TEST_TEST_FRACTION_SPLIT,
                 sync=sync,
             )
 
@@ -1163,3 +1054,280 @@ class TestAutoMLTabularTrainingJob:
             assert e.match(
                 regexp=r"AutoMLTabularTrainingJob resource has not been created"
             )
+
+    @pytest.mark.parametrize("sync", [True, False])
+    def test_splits_fraction(
+        self,
+        mock_pipeline_service_create,
+        mock_pipeline_service_get,
+        mock_dataset_tabular,
+        mock_model_service_get,
+        sync,
+    ):
+        """
+        Initiate aiplatform with encryption key name.
+        Create and run an AutoML Video Classification training job, verify calls and return value
+        """
+
+        aiplatform.init(
+            project=_TEST_PROJECT,
+            encryption_spec_key_name=_TEST_DEFAULT_ENCRYPTION_KEY_NAME,
+        )
+
+        job = training_jobs.AutoMLTabularTrainingJob(
+            display_name=_TEST_DISPLAY_NAME,
+            optimization_prediction_type=_TEST_TRAINING_OPTIMIZATION_PREDICTION_TYPE,
+            optimization_objective=_TEST_TRAINING_OPTIMIZATION_OBJECTIVE_NAME,
+            column_transformations=_TEST_TRAINING_COLUMN_TRANSFORMATIONS,
+            optimization_objective_recall_value=None,
+            optimization_objective_precision_value=None,
+        )
+
+        model_from_job = job.run(
+            dataset=mock_dataset_tabular,
+            target_column=_TEST_TRAINING_TARGET_COLUMN,
+            weight_column=_TEST_TRAINING_WEIGHT_COLUMN,
+            model_display_name=_TEST_MODEL_DISPLAY_NAME,
+            training_fraction_split=_TEST_FRACTION_SPLIT_TRAINING,
+            validation_fraction_split=_TEST_FRACTION_SPLIT_VALIDATION,
+            test_fraction_split=_TEST_FRACTION_SPLIT_TEST,
+            disable_early_stopping=_TEST_TRAINING_DISABLE_EARLY_STOPPING,
+            sync=sync,
+        )
+
+        if not sync:
+            model_from_job.wait()
+
+        true_fraction_split = gca_training_pipeline.FractionSplit(
+            training_fraction=_TEST_FRACTION_SPLIT_TRAINING,
+            validation_fraction=_TEST_FRACTION_SPLIT_VALIDATION,
+            test_fraction=_TEST_FRACTION_SPLIT_TEST,
+        )
+
+        true_managed_model = gca_model.Model(
+            display_name=_TEST_MODEL_DISPLAY_NAME,
+            encryption_spec=_TEST_DEFAULT_ENCRYPTION_SPEC,
+        )
+
+        true_input_data_config = gca_training_pipeline.InputDataConfig(
+            fraction_split=true_fraction_split, dataset_id=mock_dataset_tabular.name,
+        )
+
+        true_training_pipeline = gca_training_pipeline.TrainingPipeline(
+            display_name=_TEST_DISPLAY_NAME,
+            training_task_definition=schema.training_job.definition.automl_tabular,
+            training_task_inputs=_TEST_TRAINING_TASK_INPUTS,
+            model_to_upload=true_managed_model,
+            input_data_config=true_input_data_config,
+            encryption_spec=_TEST_DEFAULT_ENCRYPTION_SPEC,
+        )
+
+        mock_pipeline_service_create.assert_called_once_with(
+            parent=initializer.global_config.common_location_path(),
+            training_pipeline=true_training_pipeline,
+        )
+
+    @pytest.mark.parametrize("sync", [True, False])
+    def test_splits_timestamp(
+        self,
+        mock_pipeline_service_create,
+        mock_pipeline_service_get,
+        mock_dataset_tabular,
+        mock_model_service_get,
+        sync,
+    ):
+        """
+        Initiate aiplatform with encryption key name.
+        Create and run an AutoML Video Classification training job, verify calls and return value
+        """
+
+        aiplatform.init(
+            project=_TEST_PROJECT,
+            encryption_spec_key_name=_TEST_DEFAULT_ENCRYPTION_KEY_NAME,
+        )
+
+        job = training_jobs.AutoMLTabularTrainingJob(
+            display_name=_TEST_DISPLAY_NAME,
+            optimization_prediction_type=_TEST_TRAINING_OPTIMIZATION_PREDICTION_TYPE,
+            optimization_objective=_TEST_TRAINING_OPTIMIZATION_OBJECTIVE_NAME,
+            column_transformations=_TEST_TRAINING_COLUMN_TRANSFORMATIONS,
+            optimization_objective_recall_value=None,
+            optimization_objective_precision_value=None,
+        )
+
+        model_from_job = job.run(
+            dataset=mock_dataset_tabular,
+            target_column=_TEST_TRAINING_TARGET_COLUMN,
+            weight_column=_TEST_TRAINING_WEIGHT_COLUMN,
+            model_display_name=_TEST_MODEL_DISPLAY_NAME,
+            training_fraction_split=_TEST_FRACTION_SPLIT_TRAINING,
+            validation_fraction_split=_TEST_FRACTION_SPLIT_VALIDATION,
+            test_fraction_split=_TEST_FRACTION_SPLIT_TEST,
+            timestamp_split_column_name=_TEST_SPLIT_TIMESTAMP_COLUMN_NAME,
+            disable_early_stopping=_TEST_TRAINING_DISABLE_EARLY_STOPPING,
+            sync=sync,
+        )
+
+        if not sync:
+            model_from_job.wait()
+
+        true_split = gca_training_pipeline.TimestampSplit(
+            training_fraction=_TEST_FRACTION_SPLIT_TRAINING,
+            validation_fraction=_TEST_FRACTION_SPLIT_VALIDATION,
+            test_fraction=_TEST_FRACTION_SPLIT_TEST,
+            key=_TEST_SPLIT_TIMESTAMP_COLUMN_NAME,
+        )
+
+        true_managed_model = gca_model.Model(
+            display_name=_TEST_MODEL_DISPLAY_NAME,
+            encryption_spec=_TEST_DEFAULT_ENCRYPTION_SPEC,
+        )
+
+        true_input_data_config = gca_training_pipeline.InputDataConfig(
+            timestamp_split=true_split, dataset_id=mock_dataset_tabular.name,
+        )
+
+        true_training_pipeline = gca_training_pipeline.TrainingPipeline(
+            display_name=_TEST_DISPLAY_NAME,
+            training_task_definition=schema.training_job.definition.automl_tabular,
+            training_task_inputs=_TEST_TRAINING_TASK_INPUTS,
+            model_to_upload=true_managed_model,
+            input_data_config=true_input_data_config,
+            encryption_spec=_TEST_DEFAULT_ENCRYPTION_SPEC,
+        )
+
+        mock_pipeline_service_create.assert_called_once_with(
+            parent=initializer.global_config.common_location_path(),
+            training_pipeline=true_training_pipeline,
+        )
+
+    @pytest.mark.parametrize("sync", [True, False])
+    def test_splits_predefined(
+        self,
+        mock_pipeline_service_create,
+        mock_pipeline_service_get,
+        mock_dataset_tabular,
+        mock_model_service_get,
+        sync,
+    ):
+        """
+        Initiate aiplatform with encryption key name.
+        Create and run an AutoML Video Classification training job, verify calls and return value
+        """
+
+        aiplatform.init(
+            project=_TEST_PROJECT,
+            encryption_spec_key_name=_TEST_DEFAULT_ENCRYPTION_KEY_NAME,
+        )
+
+        job = training_jobs.AutoMLTabularTrainingJob(
+            display_name=_TEST_DISPLAY_NAME,
+            optimization_prediction_type=_TEST_TRAINING_OPTIMIZATION_PREDICTION_TYPE,
+            optimization_objective=_TEST_TRAINING_OPTIMIZATION_OBJECTIVE_NAME,
+            column_transformations=_TEST_TRAINING_COLUMN_TRANSFORMATIONS,
+            optimization_objective_recall_value=None,
+            optimization_objective_precision_value=None,
+        )
+
+        model_from_job = job.run(
+            dataset=mock_dataset_tabular,
+            target_column=_TEST_TRAINING_TARGET_COLUMN,
+            weight_column=_TEST_TRAINING_WEIGHT_COLUMN,
+            model_display_name=_TEST_MODEL_DISPLAY_NAME,
+            predefined_split_column_name=_TEST_SPLIT_PREDEFINED_COLUMN_NAME,
+            disable_early_stopping=_TEST_TRAINING_DISABLE_EARLY_STOPPING,
+            sync=sync,
+        )
+
+        if not sync:
+            model_from_job.wait()
+
+        true_split = gca_training_pipeline.PredefinedSplit(
+            key=_TEST_SPLIT_PREDEFINED_COLUMN_NAME
+        )
+
+        true_managed_model = gca_model.Model(
+            display_name=_TEST_MODEL_DISPLAY_NAME,
+            encryption_spec=_TEST_DEFAULT_ENCRYPTION_SPEC,
+        )
+
+        true_input_data_config = gca_training_pipeline.InputDataConfig(
+            predefined_split=true_split, dataset_id=mock_dataset_tabular.name,
+        )
+
+        true_training_pipeline = gca_training_pipeline.TrainingPipeline(
+            display_name=_TEST_DISPLAY_NAME,
+            training_task_definition=schema.training_job.definition.automl_tabular,
+            training_task_inputs=_TEST_TRAINING_TASK_INPUTS,
+            model_to_upload=true_managed_model,
+            input_data_config=true_input_data_config,
+            encryption_spec=_TEST_DEFAULT_ENCRYPTION_SPEC,
+        )
+
+        mock_pipeline_service_create.assert_called_once_with(
+            parent=initializer.global_config.common_location_path(),
+            training_pipeline=true_training_pipeline,
+        )
+
+    @pytest.mark.parametrize("sync", [True, False])
+    def test_splits_default(
+        self,
+        mock_pipeline_service_create,
+        mock_pipeline_service_get,
+        mock_dataset_tabular,
+        mock_model_service_get,
+        sync,
+    ):
+        """
+        Initiate aiplatform with encryption key name.
+        Create and run an AutoML Video Classification training job, verify calls and return value
+        """
+
+        aiplatform.init(
+            project=_TEST_PROJECT,
+            encryption_spec_key_name=_TEST_DEFAULT_ENCRYPTION_KEY_NAME,
+        )
+
+        job = training_jobs.AutoMLTabularTrainingJob(
+            display_name=_TEST_DISPLAY_NAME,
+            optimization_prediction_type=_TEST_TRAINING_OPTIMIZATION_PREDICTION_TYPE,
+            optimization_objective=_TEST_TRAINING_OPTIMIZATION_OBJECTIVE_NAME,
+            column_transformations=_TEST_TRAINING_COLUMN_TRANSFORMATIONS,
+            optimization_objective_recall_value=None,
+            optimization_objective_precision_value=None,
+        )
+
+        model_from_job = job.run(
+            dataset=mock_dataset_tabular,
+            target_column=_TEST_TRAINING_TARGET_COLUMN,
+            weight_column=_TEST_TRAINING_WEIGHT_COLUMN,
+            model_display_name=_TEST_MODEL_DISPLAY_NAME,
+            disable_early_stopping=_TEST_TRAINING_DISABLE_EARLY_STOPPING,
+            sync=sync,
+        )
+
+        if not sync:
+            model_from_job.wait()
+
+        true_managed_model = gca_model.Model(
+            display_name=_TEST_MODEL_DISPLAY_NAME,
+            encryption_spec=_TEST_DEFAULT_ENCRYPTION_SPEC,
+        )
+
+        true_input_data_config = gca_training_pipeline.InputDataConfig(
+            dataset_id=mock_dataset_tabular.name,
+        )
+
+        true_training_pipeline = gca_training_pipeline.TrainingPipeline(
+            display_name=_TEST_DISPLAY_NAME,
+            training_task_definition=schema.training_job.definition.automl_tabular,
+            training_task_inputs=_TEST_TRAINING_TASK_INPUTS,
+            model_to_upload=true_managed_model,
+            input_data_config=true_input_data_config,
+            encryption_spec=_TEST_DEFAULT_ENCRYPTION_SPEC,
+        )
+
+        mock_pipeline_service_create.assert_called_once_with(
+            parent=initializer.global_config.common_location_path(),
+            training_pipeline=true_training_pipeline,
+        )
