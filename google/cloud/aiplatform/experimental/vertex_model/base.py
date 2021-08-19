@@ -50,7 +50,7 @@ except ImportError:
 
 COMMAND_STRING_CLI = """sh
 -c
-(PIP_DISABLE_PIP_VERSION_CHECK=1 python3 -m pip install --quiet --no-warn-script-location 'pandas' 'fastapi' 'torch' 'git+https://github.com/googleapis/python-aiplatform.git@refs/pull/628/merge'|| PIP_DISABLE_PIP_VERSION_CHECK=1 python3 -m pip install --quiet --no-warn-script-location 'pandas' 'fastapi' 'torch' 'git+https://github.com/googleapis/python-aiplatform.git@refs/pull/628/merge' --user) && \"$0\" \"$@\"
+(PIP_DISABLE_PIP_VERSION_CHECK=1 python3 -m pip install --quiet --no-warn-script-location 'pandas' 'fastapi' 'torch' 'git+https://github.com/googleapis/python-aiplatform.git@refs/pull/628/merge' || PIP_DISABLE_PIP_VERSION_CHECK=1 python3 -m pip install --quiet --no-warn-script-location 'pandas' 'fastapi' 'torch' 'git+https://github.com/googleapis/python-aiplatform.git@refs/pull/628/merge' --user) && \"$0\" \"$@\"
 sh
 -ec
 program_path=$(mktemp)\nprintf \"%s\" \"$0\" > \"$program_path\"\npython3 -u \"$program_path\" \"$@\"\n
@@ -268,7 +268,6 @@ def vertex_predict_function_wrapper(method: Callable[..., Any]):
         # Cloud training to local prediction: deserialize from cloud URI
         if method.__self__.training_mode == "local":
             output_dir = obj._model._gca_resource.artifact_uri
-
             model_uri = output_dir + "/" + "my_" + obj.training_mode + "_model.pth"
 
             my_model = model._deserialize_remote_model(model_uri)
