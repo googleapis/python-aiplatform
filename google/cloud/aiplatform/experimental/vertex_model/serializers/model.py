@@ -93,7 +93,7 @@ def _deserialize_remote_model(artifact_uri: str) -> torch.nn.Module:
 
     try:
         with tempfile.TemporaryDirectory() as tmpdirname:
-            dest_file = pathlib.Path(tmpdirname) / "deserialized_model.pt"
+            dest_file = pathlib.Path(tmpdirname) / "deserialized_model.pth"
             blob.download_to_filename(dest_file)
             loaded_compiled_custom_model = torch.jit.load(dest_file)
 

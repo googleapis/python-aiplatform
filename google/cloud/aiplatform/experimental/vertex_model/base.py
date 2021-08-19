@@ -273,10 +273,7 @@ def vertex_predict_function_wrapper(method: Callable[..., Any]):
         if method.__self__.training_mode == "local":
             output_dir = obj._model._gca_resource.artifact_uri
 
-
-            model_uri = pathlib.Path(output_dir) / (
-                "my_" + obj.training_mode + "_model.pth"
-            )
+            model_uri = output_dir + "/" + "my_" + obj.training_mode + "_model.pth"
 
             my_model = model._deserialize_remote_model(str(model_uri))
             return my_model.predict(*args, **kwargs)
