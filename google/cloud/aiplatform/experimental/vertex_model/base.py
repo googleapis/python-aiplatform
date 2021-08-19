@@ -49,11 +49,11 @@ except ImportError:
 
 
 COMMAND_STRING_CLI = """sh
-        -c
-        (PIP_DISABLE_PIP_VERSION_CHECK=1 python3 -m pip install --quiet --no-warn-script-location 'pandas' 'fastapi' 'pytorch' || PIP_DISABLE_PIP_VERSION_CHECK=1 python3 -m pip install --quiet --no-warn-script-location 'pandas' 'fastapi' 'pytorch' --user) && \"$0\" \"$@\"
-        sh
-        -ec
-        program_path=$(mktemp)\nprintf \"%s\" \"$0\" > \"$program_path\"\npython3 -u \"$program_path\" \"$@\"\n
+-c
+(PIP_DISABLE_PIP_VERSION_CHECK=1 python3 -m pip install --quiet --no-warn-script-location 'pandas' 'fastapi' 'pytorch' || PIP_DISABLE_PIP_VERSION_CHECK=1 python3 -m pip install --quiet --no-warn-script-location 'pandas' 'fastapi' 'pytorch' --user) && \"$0\" \"$@\"
+sh
+-ec
+program_path=$(mktemp)\nprintf \"%s\" \"$0\" > \"$program_path\"\npython3 -u \"$program_path\" \"$@\"\n
 |"""
 
 COMMAND_STRING_CODE = """
