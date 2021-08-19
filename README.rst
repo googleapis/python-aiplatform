@@ -333,6 +333,7 @@ To get metadata from tf1 models:
 To get metadata from tf2 models:
 
 .. code-block:: Python
+
   from google.cloud.aiplatform.explain.metadata.tf.v2 import saved_model_metadata_builder
   
   builder = saved_model_metadata_builder.SavedModelMetadataBuilder('gs://python/to/my/model/dir')
