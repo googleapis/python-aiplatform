@@ -64,7 +64,7 @@ COMMAND_STRING_CODE = """
 from fastapi import FastAPI, Request
 from google.cloud.aiplatform.experimental.vertex_model.serializers import model
 
-my_model = model._deserialize_remote_model(os.environ['AIP_STORAGE_URI'] + '/my_cloud_model.pth')
+my_model = model._deserialize_remote_model(os.environ['AIP_STORAGE_URI'] + '/my_local_model.pth')
 
 
 @app.get(os.environ['AIP_HEALTH_ROUTE'], status_code=200)
@@ -80,7 +80,7 @@ async def predict(request: Request):
 
     data = pd.DataFrame(instances, columns=['feat_1', 'feat_2'])
     torch_tensor = torch.tensor(data[feature_columns].values).type(torch.FloatTensor)
-    outputs = my_model.predict(torch_tensor)
+    outputs = my_model.forward(torch_tensor)
 
     return {"predictions": outputs.tolist()}
 """
@@ -204,7 +204,7 @@ def vertex_fit_function_wrapper(method: Callable[..., Any]):
                 script_path=str(script_path),
                 requirements=obj._dependencies,
                 container_uri="us-docker.pkg.dev/vertex-ai/training/scikit-learn-cpu.0-23:latest",
-                model_serving_container_image_uri="gcr.io/distroless/python3",
+                model_serving_container_image_uri="gcr.io/google-appengine/python",
                 model_serving_container_command=command_str.split("\n"),
             )
 
@@ -244,7 +244,7 @@ def vertex_predict_function_wrapper(method: Callable[..., Any]):
         if method.__self__.training_mode == "cloud" and obj._model is None:
             # Serialize model
             model_uri = model._serialize_local_model(
-                os.environ["AIP_STORAGE_URI"], obj, "cloud"
+                os.environ["AIP_STORAGE_URI"], obj, "local"
             )
 
             # Upload model w/ command
@@ -265,7 +265,7 @@ def vertex_predict_function_wrapper(method: Callable[..., Any]):
             obj._model = aiplatform.Model.upload(
                 display_name="serving-test",
                 artifact_uri=model_uri,
-                serving_container_image_uri="gcr.io/distroless/python3",
+                serving_container_image_uri="gcr.io/google-appengine/python",
                 serving_container_command=command_str.split("\n"),
             )
 
@@ -280,10 +280,10 @@ def vertex_predict_function_wrapper(method: Callable[..., Any]):
             try:
                 my_model.predict(*args, **kwargs)
             except AttributeError:
-                my_model.predict = obj.__class__.predict
-            
+                my_model.predict = functools.partial(obj.__class__.predict, my_model)
+
             return my_model.predict(*args, **kwargs)
-            
+
         # Make remote predictions, regardless of training: create custom container
         if method.__self__.training_mode == "cloud":
             # TODO: cleanup model resource after endpoint is created
