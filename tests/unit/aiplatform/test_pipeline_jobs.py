@@ -163,6 +163,14 @@ def mock_pipeline_service_cancel():
 
 
 @pytest.fixture
+def mock_pipeline_service_list():
+    with mock.patch.object(
+        pipeline_service_client_v1beta1.PipelineServiceClient, "list_pipeline_jobs"
+    ) as mock_list_pipeline_jobs:
+        yield mock_list_pipeline_jobs
+
+
+@pytest.fixture
 def mock_load_json():
     with patch.object(storage.Blob, "download_as_bytes") as mock_load_json:
         mock_load_json.return_value = json.dumps(_TEST_PIPELINE_JOB_SPEC).encode()
@@ -276,6 +284,29 @@ class TestPipelineJob:
 
         mock_pipeline_service_cancel.assert_called_once_with(
             name=_TEST_PIPELINE_JOB_NAME
+        )
+
+    @pytest.mark.usefixtures(
+        "mock_pipeline_service_create", "mock_pipeline_service_get", "mock_load_json",
+    )
+    def test_list_pipeline_job(self, mock_pipeline_service_list):
+        aiplatform.init(
+            project=_TEST_PROJECT,
+            staging_bucket=_TEST_GCS_BUCKET_NAME,
+            credentials=_TEST_CREDENTIALS,
+        )
+
+        job = pipeline_jobs.PipelineJob(
+            display_name=_TEST_PIPELINE_JOB_DISPLAY_NAME,
+            template_path=_TEST_TEMPLATE_PATH,
+            job_id=_TEST_PIPELINE_JOB_ID,
+        )
+
+        job.run()
+        job.list()
+
+        mock_pipeline_service_list.assert_called_once_with(
+            request={"parent": _TEST_PARENT, "filter": None}
         )
 
     @pytest.mark.usefixtures(
