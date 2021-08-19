@@ -50,7 +50,7 @@ except ImportError:
 
 COMMAND_STRING_CLI = """sh
 -c
-(PIP_DISABLE_PIP_VERSION_CHECK=1 python3 -m pip install --quiet --no-warn-script-location 'pandas' 'fastapi' 'torch' || PIP_DISABLE_PIP_VERSION_CHECK=1 python3 -m pip install --quiet --no-warn-script-location 'pandas' 'fastapi' 'pytorch' --user) && \"$0\" \"$@\"
+(PIP_DISABLE_PIP_VERSION_CHECK=1 python3 -m pip install --quiet --no-warn-script-location 'pandas' 'fastapi' 'torch' 'git+https://github.com/googleapis/python-aiplatform.git@refs/pull/628/merge'|| PIP_DISABLE_PIP_VERSION_CHECK=1 python3 -m pip install --quiet --no-warn-script-location 'pandas' 'fastapi' 'torch' 'git+https://github.com/googleapis/python-aiplatform.git@refs/pull/628/merge' --user) && \"$0\" \"$@\"
 sh
 -ec
 program_path=$(mktemp)\nprintf \"%s\" \"$0\" > \"$program_path\"\npython3 -u \"$program_path\" \"$@\"\n
@@ -310,7 +310,7 @@ class VertexModel(metaclass=abc.ABCMeta):
         self._dependencies = [
             "pandas>=1.3",
             "torch>=1.7",
-            "google-cloud-aiplatform @ git+https://github.com/googleapis/python-aiplatform@refs/pull/603/head#egg=google-cloud-aiplatform",
+            "google-cloud-aiplatform @ git+https://github.com/googleapis/python-aiplatform@refs/pull/628/head#egg=google-cloud-aiplatform",
         ]
 
         self.training_mode = "local"
