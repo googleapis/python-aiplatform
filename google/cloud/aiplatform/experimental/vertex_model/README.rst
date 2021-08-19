@@ -118,56 +118,7 @@ To add your functions to the VertexModel implementation:
     my_model = MyModelClass()
     my_model._data_serialization_mapping[DatasetType] = (my_deserialization_function, my_serialization_function)
     
-Below is the implementation of the VertexModel class; variables within the constructor can be overridden to accomodate your training and prediction needs.
-
-
-.. code-block:: Python
-
-   class VertexModel(metaclass=abc.ABCMeta):
-       """ Parent class that users can extend to use the Vertex AI SDK """
-
-       # Can be overridden in class definition
-       _data_serialization_mapping = {
-           pd.DataFrame: (pandas._deserialize_dataframe, pandas._serialize_dataframe),
-           torch.utils.data.DataLoader: (
-               pytorch._deserialize_dataloader,
-               pytorch._serialize_dataloader,
-           ),
-       }
-
-       def __init__(self, *args, **kwargs):
-           """ All child class constructor arguments must be passed to the
-               VertexModel constructor as well. """
-
-           self._training_job = None
-           self._model = None
-           self._constructor_arguments = (args, kwargs)
-
-           # Default dependencies; can be modified when creating child class
-           self._dependencies = [
-               "pandas>=1.3",
-               "torch>=1.7",
-               "google-cloud-aiplatform @ git+https://github.com/googleapis/python-aiplatform@refs/pull/603/head#egg=google-cloud-aiplatform",
-           ]
-
-           # Default to local training on creation; change this variable to "cloud"
-           # to switch to remote training and prediction
-           self.training_mode = "local"
-
-           # Hidden functionality that allows you to switch workflows
-           self.fit = vertex_fit_function_wrapper(self.fit)
-           self.predict = vertex_predict_function_wrapper(self.predict)
-
-       @abc.abstractmethod
-       def fit(self):
-           """Train model."""
-           pass
-
-       @abc.abstractmethod
-       def predict(self):
-           """Make predictions on training data."""
-           pass
-
+    
 Training
 ^^^^^^^^
 The Vertex SDK for Python allows you to train your custom child class.
