@@ -207,9 +207,13 @@ def _make_source(
 
         src = src + ")\n"
 
+    model_dir = os.getenv('AIP_MODEL_DIR')
+    if model_dir.endswith('model'):
+        model_dir = model_dir + 's'
+
     src = (
         src
-        + "model._serialize_local_model(os.getenv('AIP_MODEL_DIR'), my_model, my_model.training_mode)"
+        + "model._serialize_local_model(model_dir, my_model, my_model.training_mode)"
     )
 
     return src

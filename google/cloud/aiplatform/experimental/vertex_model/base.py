@@ -205,7 +205,7 @@ def vertex_fit_function_wrapper(method: Callable[..., Any]):
                 requirements=obj._dependencies,
                 container_uri="us-docker.pkg.dev/vertex-ai/training/scikit-learn-cpu.0-23:latest",
                 model_serving_container_image_uri="gcr.io/distroless/python3",
-                serving_container_command=command_str.split("\n"),
+                model_serving_container_command=command_str.split("\n"),
             )
 
             obj._model = obj._training_job.run(
