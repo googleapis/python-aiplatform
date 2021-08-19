@@ -275,7 +275,7 @@ def vertex_predict_function_wrapper(method: Callable[..., Any]):
 
 
             model_uri = pathlib.Path(output_dir) / (
-                "my_cloud_model.pth"
+                "my_" + obj.training_mode + "_model.pth"
             )
 
             my_model = model._deserialize_remote_model(str(model_uri))
