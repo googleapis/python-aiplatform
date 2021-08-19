@@ -2038,7 +2038,7 @@ class Model(base.VertexAiResourceNounWithFutureManager):
                 https://cloud.google.com/storage/docs/gsutil/addlhelp/WildcardNames.
             bigquery_source: Optional[str] = None
                 BigQuery URI to a table, up to 2000 characters long. For example:
-                `projectId.bqDatasetId.bqTableId`
+                `bq://projectId.bqDatasetId.bqTableId`
             instances_format: str = "jsonl"
                 Required. The format in which instances are given, must be one
                 of "jsonl", "csv", "bigquery", "tf-record", "tf-record-gzip",

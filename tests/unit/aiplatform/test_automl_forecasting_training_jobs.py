@@ -103,14 +103,11 @@ _TEST_TRAINING_TASK_INPUTS_WITH_ADDITIONAL_EXPERIMENTS = json_format.ParseDict(
 _TEST_DATASET_NAME = "test-dataset-name"
 
 _TEST_MODEL_DISPLAY_NAME = "model-display-name"
+
 _TEST_LABELS = {"key": "value"}
 _TEST_MODEL_LABELS = {"model_key": "model_value"}
-_TEST_TRAINING_FRACTION_SPLIT = 0.8
-_TEST_VALIDATION_FRACTION_SPLIT = 0.1
-_TEST_TEST_FRACTION_SPLIT = 0.1
-_TEST_PREDEFINED_SPLIT_COLUMN_NAME = "split"
 
-_TEST_OUTPUT_PYTHON_PACKAGE_PATH = "gs://test/ouput/python/trainer.tar.gz"
+_TEST_PREDEFINED_SPLIT_COLUMN_NAME = "split"
 
 _TEST_MODEL_NAME = "projects/my-project/locations/us-central1/models/12345"
 
@@ -261,18 +258,11 @@ class TestAutoMLForecastingTrainingJob:
         if not sync:
             model_from_job.wait()
 
-        true_fraction_split = gca_training_pipeline.FractionSplit(
-            training_fraction=_TEST_TRAINING_FRACTION_SPLIT,
-            validation_fraction=_TEST_VALIDATION_FRACTION_SPLIT,
-            test_fraction=_TEST_TEST_FRACTION_SPLIT,
-        )
-
         true_managed_model = gca_model.Model(
             display_name=_TEST_MODEL_DISPLAY_NAME, labels=_TEST_MODEL_LABELS
         )
 
         true_input_data_config = gca_training_pipeline.InputDataConfig(
-            fraction_split=true_fraction_split,
             predefined_split=gca_training_pipeline.PredefinedSplit(
                 key=_TEST_PREDEFINED_SPLIT_COLUMN_NAME
             ),
@@ -348,19 +338,12 @@ class TestAutoMLForecastingTrainingJob:
         if not sync:
             model_from_job.wait()
 
-        true_fraction_split = gca_training_pipeline.FractionSplit(
-            training_fraction=_TEST_TRAINING_FRACTION_SPLIT,
-            validation_fraction=_TEST_VALIDATION_FRACTION_SPLIT,
-            test_fraction=_TEST_TEST_FRACTION_SPLIT,
-        )
-
         # Test that if defaults to the job display name
         true_managed_model = gca_model.Model(
             display_name=_TEST_DISPLAY_NAME, labels=_TEST_LABELS,
         )
 
         true_input_data_config = gca_training_pipeline.InputDataConfig(
-            fraction_split=true_fraction_split,
             dataset_id=mock_dataset_time_series.name,
         )
 
@@ -422,17 +405,10 @@ class TestAutoMLForecastingTrainingJob:
         if not sync:
             model_from_job.wait()
 
-        true_fraction_split = gca_training_pipeline.FractionSplit(
-            training_fraction=_TEST_TRAINING_FRACTION_SPLIT,
-            validation_fraction=_TEST_VALIDATION_FRACTION_SPLIT,
-            test_fraction=_TEST_TEST_FRACTION_SPLIT,
-        )
-
         # Test that if defaults to the job display name
         true_managed_model = gca_model.Model(display_name=_TEST_DISPLAY_NAME)
 
         true_input_data_config = gca_training_pipeline.InputDataConfig(
-            fraction_split=true_fraction_split,
             dataset_id=mock_dataset_time_series.name,
         )
 

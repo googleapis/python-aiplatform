@@ -74,6 +74,10 @@ _TEST_FRACTION_SPLIT_TRAINING = 0.6
 _TEST_FRACTION_SPLIT_VALIDATION = 0.2
 _TEST_FRACTION_SPLIT_TEST = 0.2
 
+_TEST_FILTER_SPLIT_TRAINING = "train"
+_TEST_FILTER_SPLIT_VALIDATION = "validate"
+_TEST_FILTER_SPLIT_TEST = "test"
+
 _TEST_MODEL_NAME = (
     f"projects/{_TEST_PROJECT}/locations/{_TEST_LOCATION}/models/{_TEST_MODEL_ID}"
 )
@@ -159,6 +163,7 @@ def mock_model_service_get():
 def mock_dataset_image():
     ds = mock.MagicMock(datasets.ImageDataset)
     ds.name = _TEST_DATASET_NAME
+    ds.metadata_schema_uri = _TEST_METADATA_SCHEMA_URI_IMAGE
     ds._latest_future = None
     ds._exception = None
     ds._gca_resource = gca_dataset.Dataset(
@@ -172,7 +177,7 @@ def mock_dataset_image():
 
 
 @pytest.fixture
-def mock_model_image():
+def mock_model():
     model = mock.MagicMock(models.Model)
     model.name = _TEST_MODEL_ID
     model._latest_future = None
@@ -193,7 +198,7 @@ class TestAutoMLImageTrainingJob:
     def teardown_method(self):
         initializer.global_pool.shutdown(wait=True)
 
-    def test_init_all_parameters(self, mock_model_image):
+    def test_init_all_parameters(self, mock_model):
         """Ensure all private members are set correctly at initialization"""
 
         aiplatform.init(project=_TEST_PROJECT)
@@ -202,7 +207,7 @@ class TestAutoMLImageTrainingJob:
             display_name=_TEST_DISPLAY_NAME,
             prediction_type=_TEST_PREDICTION_TYPE_ICN,
             model_type=_TEST_MODEL_TYPE_MOBILE,
-            base_model=mock_model_image,
+            base_model=mock_model,
             multi_label=True,
         )
 
@@ -210,9 +215,9 @@ class TestAutoMLImageTrainingJob:
         assert job._model_type == _TEST_MODEL_TYPE_MOBILE
         assert job._prediction_type == _TEST_PREDICTION_TYPE_ICN
         assert job._multi_label is True
-        assert job._base_model == mock_model_image
+        assert job._base_model == mock_model
 
-    def test_init_wrong_parameters(self, mock_model_image):
+    def test_init_wrong_parameters(self, mock_model):
         """Ensure correct exceptions are raised when initializing with invalid args"""
 
         aiplatform.init(project=_TEST_PROJECT)
@@ -233,7 +238,7 @@ class TestAutoMLImageTrainingJob:
             training_jobs.AutoMLImageTrainingJob(
                 display_name=_TEST_DISPLAY_NAME,
                 prediction_type=_TEST_PREDICTION_TYPE_IOD,
-                base_model=mock_model_image,
+                base_model=mock_model,
             )
 
     @pytest.mark.parametrize("sync", [True, False])
@@ -243,7 +248,7 @@ class TestAutoMLImageTrainingJob:
         mock_pipeline_service_get,
         mock_dataset_image,
         mock_model_service_get,
-        mock_model_image,
+        mock_model,
         sync,
     ):
         """Create and run an AutoML ICN training job, verify calls and return value"""
@@ -254,18 +259,16 @@ class TestAutoMLImageTrainingJob:
         )
 
         job = training_jobs.AutoMLImageTrainingJob(
-            display_name=_TEST_DISPLAY_NAME,
-            base_model=mock_model_image,
-            labels=_TEST_LABELS,
+            display_name=_TEST_DISPLAY_NAME, base_model=mock_model, labels=_TEST_LABELS,
         )
 
         model_from_job = job.run(
             dataset=mock_dataset_image,
             model_display_name=_TEST_MODEL_DISPLAY_NAME,
             model_labels=_TEST_MODEL_LABELS,
-            training_fraction_split=_TEST_FRACTION_SPLIT_TRAINING,
-            validation_fraction_split=_TEST_FRACTION_SPLIT_VALIDATION,
-            test_fraction_split=_TEST_FRACTION_SPLIT_TEST,
+            training_filter_split=_TEST_FILTER_SPLIT_TRAINING,
+            validation_filter_split=_TEST_FILTER_SPLIT_VALIDATION,
+            test_filter_split=_TEST_FILTER_SPLIT_TEST,
             budget_milli_node_hours=_TEST_TRAINING_BUDGET_MILLI_NODE_HOURS,
             disable_early_stopping=_TEST_TRAINING_DISABLE_EARLY_STOPPING,
             sync=sync,
@@ -274,21 +277,21 @@ class TestAutoMLImageTrainingJob:
         if not sync:
             model_from_job.wait()
 
-        true_fraction_split = gca_training_pipeline.FractionSplit(
-            training_fraction=_TEST_FRACTION_SPLIT_TRAINING,
-            validation_fraction=_TEST_FRACTION_SPLIT_VALIDATION,
-            test_fraction=_TEST_FRACTION_SPLIT_TEST,
+        true_filter_split = gca_training_pipeline.FilterSplit(
+            training_filter=_TEST_FILTER_SPLIT_TRAINING,
+            validation_filter=_TEST_FILTER_SPLIT_VALIDATION,
+            test_filter=_TEST_FILTER_SPLIT_TEST,
         )
 
         true_managed_model = gca_model.Model(
             display_name=_TEST_MODEL_DISPLAY_NAME,
-            labels=mock_model_image._gca_resource.labels,
-            description=mock_model_image._gca_resource.description,
+            labels=mock_model._gca_resource.labels,
+            description=mock_model._gca_resource.description,
             encryption_spec=_TEST_DEFAULT_ENCRYPTION_SPEC,
         )
 
         true_input_data_config = gca_training_pipeline.InputDataConfig(
-            fraction_split=true_fraction_split, dataset_id=mock_dataset_image.name,
+            filter_split=true_filter_split, dataset_id=mock_dataset_image.name,
         )
 
         true_training_pipeline = gca_training_pipeline.TrainingPipeline(
@@ -333,21 +336,12 @@ class TestAutoMLImageTrainingJob:
 
         model_from_job = job.run(
             dataset=mock_dataset_image,
-            training_fraction_split=_TEST_FRACTION_SPLIT_TRAINING,
-            validation_fraction_split=_TEST_FRACTION_SPLIT_VALIDATION,
-            test_fraction_split=_TEST_FRACTION_SPLIT_TEST,
             budget_milli_node_hours=_TEST_TRAINING_BUDGET_MILLI_NODE_HOURS,
             disable_early_stopping=_TEST_TRAINING_DISABLE_EARLY_STOPPING,
         )
 
         if not sync:
             model_from_job.wait()
-
-        true_fraction_split = gca_training_pipeline.FractionSplit(
-            training_fraction=_TEST_FRACTION_SPLIT_TRAINING,
-            validation_fraction=_TEST_FRACTION_SPLIT_VALIDATION,
-            test_fraction=_TEST_FRACTION_SPLIT_TEST,
-        )
 
         # Test that if defaults to the job display name
         true_managed_model = gca_model.Model(
@@ -357,7 +351,7 @@ class TestAutoMLImageTrainingJob:
         )
 
         true_input_data_config = gca_training_pipeline.InputDataConfig(
-            fraction_split=true_fraction_split, dataset_id=mock_dataset_image.name,
+            dataset_id=mock_dataset_image.name
         )
 
         true_training_pipeline = gca_training_pipeline.TrainingPipeline(
@@ -400,11 +394,36 @@ class TestAutoMLImageTrainingJob:
             job.run(
                 dataset=mock_dataset_image,
                 model_display_name=_TEST_MODEL_DISPLAY_NAME,
+                sync=sync,
+            )
+
+    @pytest.mark.usefixtures(
+        "mock_pipeline_service_create",
+        "mock_pipeline_service_get",
+        "mock_model_service_get",
+    )
+    @pytest.mark.parametrize("sync", [True, False])
+    def test_run_with_two_split_raises(
+        self, mock_dataset_image, sync,
+    ):
+        aiplatform.init(project=_TEST_PROJECT)
+
+        job = training_jobs.AutoMLImageTrainingJob(display_name=_TEST_DISPLAY_NAME,)
+
+        with pytest.raises(ValueError):
+            model_from_job = job.run(
+                dataset=mock_dataset_image,
+                model_display_name=_TEST_MODEL_DISPLAY_NAME,
                 training_fraction_split=_TEST_FRACTION_SPLIT_TRAINING,
                 validation_fraction_split=_TEST_FRACTION_SPLIT_VALIDATION,
                 test_fraction_split=_TEST_FRACTION_SPLIT_TEST,
+                training_filter_split=_TEST_FILTER_SPLIT_TRAINING,
+                validation_filter_split=_TEST_FILTER_SPLIT_VALIDATION,
+                test_filter_split=_TEST_FILTER_SPLIT_TEST,
                 sync=sync,
             )
+            if not sync:
+                model_from_job.wait()
 
     @pytest.mark.parametrize("sync", [True, False])
     def test_run_raises_if_pipeline_fails(
@@ -444,3 +463,226 @@ class TestAutoMLImageTrainingJob:
 
         with pytest.raises(RuntimeError):
             job.state
+
+    @pytest.mark.parametrize("sync", [True, False])
+    def test_splits_fraction(
+        self,
+        mock_pipeline_service_create,
+        mock_pipeline_service_get,
+        mock_dataset_image,
+        mock_model_service_get,
+        mock_model,
+        sync,
+    ):
+        """
+        Initiate aiplatform with encryption key name.
+        Create and run an AutoML Video Classification training job, verify calls and return value
+        """
+
+        aiplatform.init(
+            project=_TEST_PROJECT,
+            encryption_spec_key_name=_TEST_DEFAULT_ENCRYPTION_KEY_NAME,
+        )
+        job = training_jobs.AutoMLImageTrainingJob(
+            display_name=_TEST_DISPLAY_NAME, base_model=mock_model
+        )
+
+        model_from_job = job.run(
+            dataset=mock_dataset_image,
+            model_display_name=_TEST_MODEL_DISPLAY_NAME,
+            training_fraction_split=_TEST_FRACTION_SPLIT_TRAINING,
+            validation_fraction_split=_TEST_FRACTION_SPLIT_VALIDATION,
+            test_fraction_split=_TEST_FRACTION_SPLIT_TEST,
+            disable_early_stopping=_TEST_TRAINING_DISABLE_EARLY_STOPPING,
+            sync=sync,
+        )
+
+        if not sync:
+            model_from_job.wait()
+
+        true_fraction_split = gca_training_pipeline.FractionSplit(
+            training_fraction=_TEST_FRACTION_SPLIT_TRAINING,
+            validation_fraction=_TEST_FRACTION_SPLIT_VALIDATION,
+            test_fraction=_TEST_FRACTION_SPLIT_TEST,
+        )
+
+        true_managed_model = gca_model.Model(
+            display_name=_TEST_MODEL_DISPLAY_NAME,
+            description=mock_model._gca_resource.description,
+            encryption_spec=_TEST_DEFAULT_ENCRYPTION_SPEC,
+        )
+
+        true_input_data_config = gca_training_pipeline.InputDataConfig(
+            fraction_split=true_fraction_split, dataset_id=mock_dataset_image.name,
+        )
+
+        true_training_pipeline = gca_training_pipeline.TrainingPipeline(
+            display_name=_TEST_DISPLAY_NAME,
+            training_task_definition=schema.training_job.definition.automl_image_classification,
+            training_task_inputs=_TEST_TRAINING_TASK_INPUTS_WITH_BASE_MODEL,
+            model_to_upload=true_managed_model,
+            input_data_config=true_input_data_config,
+            encryption_spec=_TEST_DEFAULT_ENCRYPTION_SPEC,
+        )
+
+        mock_pipeline_service_create.assert_called_once_with(
+            parent=initializer.global_config.common_location_path(),
+            training_pipeline=true_training_pipeline,
+        )
+
+    @pytest.mark.parametrize("sync", [True, False])
+    def test_splits_filter(
+        self,
+        mock_pipeline_service_create,
+        mock_pipeline_service_get,
+        mock_dataset_image,
+        mock_model_service_get,
+        mock_model,
+        sync,
+    ):
+        """
+        Initiate aiplatform with encryption key name.
+        Create and run an AutoML Video Classification training job, verify calls and return value
+        """
+
+        aiplatform.init(
+            project=_TEST_PROJECT,
+            encryption_spec_key_name=_TEST_DEFAULT_ENCRYPTION_KEY_NAME,
+        )
+
+        job = training_jobs.AutoMLImageTrainingJob(
+            display_name=_TEST_DISPLAY_NAME, base_model=mock_model
+        )
+
+        model_from_job = job.run(
+            dataset=mock_dataset_image,
+            model_display_name=_TEST_MODEL_DISPLAY_NAME,
+            training_filter_split=_TEST_FILTER_SPLIT_TRAINING,
+            validation_filter_split=_TEST_FILTER_SPLIT_VALIDATION,
+            test_filter_split=_TEST_FILTER_SPLIT_TEST,
+            disable_early_stopping=_TEST_TRAINING_DISABLE_EARLY_STOPPING,
+            sync=sync,
+        )
+
+        if not sync:
+            model_from_job.wait()
+
+        true_filter_split = gca_training_pipeline.FilterSplit(
+            training_filter=_TEST_FILTER_SPLIT_TRAINING,
+            validation_filter=_TEST_FILTER_SPLIT_VALIDATION,
+            test_filter=_TEST_FILTER_SPLIT_TEST,
+        )
+
+        true_managed_model = gca_model.Model(
+            display_name=_TEST_MODEL_DISPLAY_NAME,
+            description=mock_model._gca_resource.description,
+            encryption_spec=_TEST_DEFAULT_ENCRYPTION_SPEC,
+        )
+
+        true_input_data_config = gca_training_pipeline.InputDataConfig(
+            filter_split=true_filter_split, dataset_id=mock_dataset_image.name,
+        )
+
+        true_training_pipeline = gca_training_pipeline.TrainingPipeline(
+            display_name=_TEST_DISPLAY_NAME,
+            training_task_definition=schema.training_job.definition.automl_image_classification,
+            training_task_inputs=_TEST_TRAINING_TASK_INPUTS_WITH_BASE_MODEL,
+            model_to_upload=true_managed_model,
+            input_data_config=true_input_data_config,
+            encryption_spec=_TEST_DEFAULT_ENCRYPTION_SPEC,
+        )
+
+        mock_pipeline_service_create.assert_called_once_with(
+            parent=initializer.global_config.common_location_path(),
+            training_pipeline=true_training_pipeline,
+        )
+
+    @pytest.mark.parametrize("sync", [True, False])
+    def test_splits_default(
+        self,
+        mock_pipeline_service_create,
+        mock_pipeline_service_get,
+        mock_dataset_image,
+        mock_model_service_get,
+        mock_model,
+        sync,
+    ):
+        """
+        Initiate aiplatform with encryption key name.
+        Create and run an AutoML Video Classification training job, verify calls and return value
+        """
+
+        aiplatform.init(
+            project=_TEST_PROJECT,
+            encryption_spec_key_name=_TEST_DEFAULT_ENCRYPTION_KEY_NAME,
+        )
+
+        job = training_jobs.AutoMLImageTrainingJob(
+            display_name=_TEST_DISPLAY_NAME, base_model=mock_model
+        )
+
+        model_from_job = job.run(
+            dataset=mock_dataset_image,
+            model_display_name=_TEST_MODEL_DISPLAY_NAME,
+            disable_early_stopping=_TEST_TRAINING_DISABLE_EARLY_STOPPING,
+            sync=sync,
+        )
+
+        if not sync:
+            model_from_job.wait()
+
+        true_managed_model = gca_model.Model(
+            display_name=_TEST_MODEL_DISPLAY_NAME,
+            description=mock_model._gca_resource.description,
+            encryption_spec=_TEST_DEFAULT_ENCRYPTION_SPEC,
+        )
+
+        true_input_data_config = gca_training_pipeline.InputDataConfig(
+            dataset_id=mock_dataset_image.name,
+        )
+
+        true_training_pipeline = gca_training_pipeline.TrainingPipeline(
+            display_name=_TEST_DISPLAY_NAME,
+            training_task_definition=schema.training_job.definition.automl_image_classification,
+            training_task_inputs=_TEST_TRAINING_TASK_INPUTS_WITH_BASE_MODEL,
+            model_to_upload=true_managed_model,
+            input_data_config=true_input_data_config,
+            encryption_spec=_TEST_DEFAULT_ENCRYPTION_SPEC,
+        )
+
+        mock_pipeline_service_create.assert_called_once_with(
+            parent=initializer.global_config.common_location_path(),
+            training_pipeline=true_training_pipeline,
+        )
+
+    def test_splits_filter_incomplete(
+        self,
+        mock_pipeline_service_create,
+        mock_pipeline_service_get,
+        mock_dataset_image,
+        mock_model_service_get,
+        mock_model,
+    ):
+        """
+        Initiate aiplatform with encryption key name.
+        Create and run an AutoML Video Classification training job, verify calls and return value
+        """
+
+        aiplatform.init(
+            project=_TEST_PROJECT,
+            encryption_spec_key_name=_TEST_DEFAULT_ENCRYPTION_KEY_NAME,
+        )
+
+        job = training_jobs.AutoMLImageTrainingJob(
+            display_name=_TEST_DISPLAY_NAME, base_model=mock_model
+        )
+
+        with pytest.raises(ValueError):
+            job.run(
+                dataset=mock_dataset_image,
+                model_display_name=_TEST_MODEL_DISPLAY_NAME,
+                training_filter_split=_TEST_FILTER_SPLIT_TRAINING,
+                validation_fraction_split=None,
+                test_filter_split=_TEST_FILTER_SPLIT_TEST,
+                disable_early_stopping=_TEST_TRAINING_DISABLE_EARLY_STOPPING,
+            )

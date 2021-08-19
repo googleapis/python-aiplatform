@@ -56,6 +56,7 @@ _TEST_ID = "1028944691210842416"
 _TEST_ALT_ID = "8834795523125638878"
 _TEST_DISPLAY_NAME = "my_job_1234"
 _TEST_BQ_DATASET_ID = "bqDatasetId"
+_TEST_BQ_TABLE_NAME = "someBqTable"
 _TEST_BQ_JOB_ID = "123459876"
 _TEST_BQ_MAX_RESULTS = 100
 _TEST_GCS_BUCKET_NAME = "my-bucket"
@@ -108,6 +109,9 @@ _TEST_GCS_OUTPUT_INFO = gca_batch_prediction_job.BatchPredictionJob.OutputInfo(
     gcs_output_directory=_TEST_GCS_BUCKET_NAME
 )
 _TEST_BQ_OUTPUT_INFO = gca_batch_prediction_job.BatchPredictionJob.OutputInfo(
+    bigquery_output_dataset=_TEST_BQ_PATH, bigquery_output_table=_TEST_BQ_TABLE_NAME
+)
+_TEST_BQ_OUTPUT_INFO_INCOMPLETE = gca_batch_prediction_job.BatchPredictionJob.OutputInfo(
     bigquery_output_dataset=_TEST_BQ_PATH
 )
 
@@ -297,6 +301,23 @@ def get_batch_prediction_job_bq_output_mock():
 
 
 @pytest.fixture
+def get_batch_prediction_job_incomplete_bq_output_mock():
+    with patch.object(
+        job_service_client.JobServiceClient, "get_batch_prediction_job"
+    ) as get_batch_prediction_job_mock:
+        get_batch_prediction_job_mock.return_value = gca_batch_prediction_job.BatchPredictionJob(
+            name=_TEST_BATCH_PREDICTION_JOB_NAME,
+            display_name=_TEST_DISPLAY_NAME,
+            model=_TEST_MODEL_NAME,
+            input_config=_TEST_GCS_INPUT_CONFIG,
+            output_config=_TEST_BQ_OUTPUT_CONFIG,
+            output_info=_TEST_BQ_OUTPUT_INFO_INCOMPLETE,
+            state=_TEST_JOB_STATE_SUCCESS,
+        )
+        yield get_batch_prediction_job_mock
+
+
+@pytest.fixture
 def get_batch_prediction_job_empty_output_mock():
     with patch.object(
         job_service_client.JobServiceClient, "get_batch_prediction_job"
@@ -397,7 +418,22 @@ class TestBatchPredictionJob:
         bp.iter_outputs()
 
         bq_list_rows_mock.assert_called_once_with(
-            table=f"{_TEST_BQ_DATASET_ID}.predictions", max_results=_TEST_BQ_MAX_RESULTS
+            table=f"{_TEST_BQ_DATASET_ID}.{_TEST_BQ_TABLE_NAME}",
+            max_results=_TEST_BQ_MAX_RESULTS,
+        )
+
+    @pytest.mark.usefixtures("get_batch_prediction_job_incomplete_bq_output_mock")
+    def test_batch_prediction_iter_dirs_bq_raises_on_empty(self, bq_list_rows_mock):
+        bp = jobs.BatchPredictionJob(
+            batch_prediction_job_name=_TEST_BATCH_PREDICTION_JOB_NAME
+        )
+        with pytest.raises(RuntimeError) as e:
+            bp.iter_outputs()
+        assert e.match(
+            regexp=(
+                "A BigQuery table with predictions was not found,"
+                " this might be due to errors. Visit http"
+            )
         )
 
     @pytest.mark.usefixtures("get_batch_prediction_job_running_bq_output_mock")
