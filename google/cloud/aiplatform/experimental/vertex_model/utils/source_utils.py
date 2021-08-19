@@ -17,7 +17,6 @@
 
 import ast
 import inspect
-import os
 import tempfile
 from typing import Any
 from typing import Dict
@@ -208,9 +207,9 @@ def _make_source(
 
         src = src + ")\n"
 
-    model_dir = os.getenv("AIP_MODEL_DIR")
-    if model_dir.endswith("model"):
-        model_dir = model_dir + "s"
+    src = src + "model_dir = os.getenv('AIP_MODEL_DIR')"
+    src = src + "if model_dir.endswith('model'):"
+    src = src + "\tmodel_dir = model_dir + 's'"
 
     src = (
         src
