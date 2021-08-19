@@ -210,6 +210,8 @@ def _make_source(
     src = src + "model_dir = os.getenv('AIP_MODEL_DIR')"
     src = src + "if model_dir.endswith('model'):"
     src = src + "\tmodel_dir = model_dir + 's'"
+    src = src + "if model_dir.endswith('model/'):"
+    src = src + "\tmodel_dir = model_dir[:-1] + 's' + model_dir[-1]"
 
     src = (
         src
