@@ -180,6 +180,8 @@ def _make_source(
     # need to index pass the first arg to avoid the call to self.
     src = src + f"my_model = {cls_name}({','.join(map(str, class_args.args[1:]))})\n"
 
+    src = src + "my_model.training_mode = 'cloud'\n"
+
     if instance_method is not None:
         # Start function call
         src = src + f"my_model.{instance_method}("
