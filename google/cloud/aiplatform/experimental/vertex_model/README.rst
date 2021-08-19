@@ -154,7 +154,7 @@ To do so your script must adhere to the following contract:
     my_model = MyModelClass()
 
     my_model.training_mode = "local" # Local training using machine resources
-    my_model.training_mode = "remote" # Remote training using GCS and Vertex AI API Custom Job
+    my_model.training_mode = "cloud" # Remote training using GCS and Vertex AI API Custom Job
 
     my_model.fit("""Input parameters here, such as your dataset, number of epochs, etc.""")
 
@@ -166,7 +166,7 @@ To get predictions from your model:
 .. code-block:: Python
 
   my_model.training_mode = "local" # Local prediction using machine resources
-  my_model.training_mode = "remote" # Remote prediction using GCS and Vertex AI API Endpoint
+  my_model.training_mode = "cloud" # Remote prediction using GCS and Vertex AI API Endpoint
   
   results = my_model.predict("""Input parameters here, such as the data you wish to perform predictions on""")
   
