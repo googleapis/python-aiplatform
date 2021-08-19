@@ -276,8 +276,14 @@ def vertex_predict_function_wrapper(method: Callable[..., Any]):
             model_uri = output_dir + "/" + "my_" + obj.training_mode + "_model.pth"
 
             my_model = model._deserialize_remote_model(model_uri)
-            return my_model.predict(*args, **kwargs)
 
+            try:
+                my_model.predict(*args, **kwargs)
+            except AttributeError:
+                my_model.predict = obj.__class__.predict
+            
+            return my_model.predict(*args, **kwargs)
+            
         # Make remote predictions, regardless of training: create custom container
         if method.__self__.training_mode == "cloud":
             # TODO: cleanup model resource after endpoint is created
