@@ -317,7 +317,7 @@ To delete an endpoint:
 
 
 XAI: Get_metadata
----------
+-----------------
 
 To get metadata from tf1 models:
 
