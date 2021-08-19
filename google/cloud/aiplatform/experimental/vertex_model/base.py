@@ -275,7 +275,7 @@ def vertex_predict_function_wrapper(method: Callable[..., Any]):
 
             model_uri = output_dir + "/" + "my_" + obj.training_mode + "_model.pth"
 
-            my_model = model._deserialize_remote_model(str(model_uri))
+            my_model = model._deserialize_remote_model(model_uri)
             return my_model.predict(*args, **kwargs)
 
         # Make remote predictions, regardless of training: create custom container
