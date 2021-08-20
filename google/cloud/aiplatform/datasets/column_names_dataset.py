@@ -19,7 +19,7 @@
 import csv
 import logging
 
-from typing import List, Optional, Set
+from typing import List, Optional, Set, Union
 
 from google.auth import credentials as auth_credentials
 
@@ -31,9 +31,10 @@ from google.cloud.aiplatform import utils
 from typing import Dict, List, Optional, Tuple
 
 from google.cloud.aiplatform import base
-from google.cloud.aiplatform import initializer
 from google.cloud.aiplatform import utils
 from google.cloud.aiplatform.datasets import _Dataset
+
+import warnings
 
 _LOGGER = base.Logger(__name__)
 
@@ -259,9 +260,20 @@ class _ColumnNamesDataset(_Dataset):
             )
         }
 
-    def get_default_column_transformations(
+    def _get_default_column_transformations(
         self, target_column: str,
     ) -> Tuple[Dict, List[str]]:
+        """Get default column transformations from the column names, while omitting the target column.
+
+        Args:
+            target_column (str):
+                Required. The name of the column values of which the Model is to predict. 
+
+        Returns:
+            Dict
+                The default column transformations.
+        """
+
         column_names = [
             column_name
             for column_name in self.column_names
@@ -272,3 +284,61 @@ class _ColumnNamesDataset(_Dataset):
         ]
 
         return (column_transformations, column_names)
+
+    @staticmethod
+    def _validate_and_get_column_transformations(
+        column_specs: Optional[Dict[str, str]],
+        column_transformations: Optional[Union[Dict, List[Dict]]],
+    ) -> Dict:
+        """Validates column specs and transformations, then returns processed transformations.
+
+        Args:
+            column_specs (Dict[str, str]):
+                Optional. Alternative to column_transformations where the keys of the dict
+                are column names and their respective values are one of
+                AutoMLTabularTrainingJob.column_data_types.
+                When creating transformation for BigQuery Struct column, the column
+                should be flattened using "." as the delimiter. Only columns with no child
+                should have a transformation.
+                If an input column has no transformations on it, such a column is
+                ignored by the training, except for the targetColumn, which should have
+                no transformations defined on.
+                Only one of column_transformations or column_specs should be passed.
+            column_transformations (Union[Dict, List[Dict]]):
+                Optional. Transformations to apply to the input columns (i.e. columns other
+                than the targetColumn). Each transformation may produce multiple
+                result values from the column's value, and all are used for training.
+                When creating transformation for BigQuery Struct column, the column
+                should be flattened using "." as the delimiter. Only columns with no child
+                should have a transformation.
+                If an input column has no transformations on it, such a column is
+                ignored by the training, except for the targetColumn, which should have
+                no transformations defined on.
+                Only one of column_transformations or column_specs should be passed.
+                Consider using column_specs as column_transformations will be deprecated eventually.
+
+        Returns:
+            Dict
+                The column transformations.
+        """
+        # user populated transformations
+        if column_transformations is not None and column_specs is not None:
+            raise ValueError(
+                "Both column_transformations and column_specs were passed. Only one is allowed."
+            )
+        if column_transformations is not None:
+            warnings.simplefilter("always", DeprecationWarning)
+            warnings.warn(
+                "consider using column_specs instead. column_transformations will be deprecated in the future.",
+                DeprecationWarning,
+                stacklevel=2,
+            )
+
+            return column_transformations
+        elif column_specs is not None:
+            return [
+                {transformation: {"column_name": column_name}}
+                for column_name, transformation in column_specs.items()
+            ]
+        else:
+            return None
