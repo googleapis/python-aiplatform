@@ -330,7 +330,7 @@ To get metadata from TensorFlow 1 models:
         )
   generated_md = builder.get_metadata()
 
-To get metadata from tf2 models:
+To get metadata from TensorFlow 2 models:
 
 .. code-block:: Python
 
