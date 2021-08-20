@@ -3682,13 +3682,15 @@ class AutoMLForecastingTrainingJob(_TrainingJob):
     def __init__(
         self,
         display_name: str,
-        labels: Optional[Dict[str, str]] = None,
         optimization_objective: Optional[str] = None,
         column_specs: Optional[Dict[str, str]] = None,
         column_transformations: Optional[Union[Dict, List[Dict]]] = None,
         project: Optional[str] = None,
         location: Optional[str] = None,
         credentials: Optional[auth_credentials.Credentials] = None,
+        labels: Optional[Dict[str, str]] = None,
+        training_encryption_spec_key_name: Optional[str] = None,
+        model_encryption_spec_key_name: Optional[str] = None,
     ):
         """Constructs a AutoML Forecasting Training Job.
 
@@ -3750,11 +3752,14 @@ class AutoMLForecastingTrainingJob(_TrainingJob):
         """
         super().__init__(
             display_name=display_name,
-            labels=labels,
             project=project,
             location=location,
             credentials=credentials,
+            labels=labels,
+            training_encryption_spec_key_name=training_encryption_spec_key_name,
+            model_encryption_spec_key_name=model_encryption_spec_key_name,
         )
+
         self._column_transformations = ColumnNamesUtil.validate_and_get_column_transformations(
             column_specs, column_transformations
         )
@@ -3934,7 +3939,7 @@ class AutoMLForecastingTrainingJob(_TrainingJob):
                 underscores and dashes. International characters
                 are allowed.
                 See https://goo.gl/xmQnxf for more information
-                and examples of labels.
+                and examples of labels.        
             sync (bool):
                 Whether to execute this method synchronously. If False, this method
                 will be executed in concurrent Future and any downstream object will
@@ -3970,7 +3975,11 @@ class AutoMLForecastingTrainingJob(_TrainingJob):
             forecast_horizon=forecast_horizon,
             data_granularity_unit=data_granularity_unit,
             data_granularity_count=data_granularity_count,
+            training_fraction_split=training_fraction_split,
+            validation_fraction_split=validation_fraction_split,
+            test_fraction_split=test_fraction_split,
             predefined_split_column_name=predefined_split_column_name,
+            timestamp_split_column_name=timestamp_split_column_name,
             weight_column=weight_column,
             time_series_attribute_columns=time_series_attribute_columns,
             context_window=context_window,
@@ -4268,16 +4277,35 @@ class AutoMLForecastingTrainingJob(_TrainingJob):
                 Required. The number of data granularity units between data points in the training
                 data. If [data_granularity_unit] is `minute`, can be 1, 5, 10, 15, or 30. For all other
                 values of [data_granularity_unit], must be 1.
+            training_fraction_split (float):
+                Optional. The fraction of the input data that is to be used to train
+                the Model. This is ignored if Dataset is not provided.
+            validation_fraction_split (float):
+                Optional. The fraction of the input data that is to be used to validate
+                the Model. This is ignored if Dataset is not provided.
+            test_fraction_split (float):
+                Optional. The fraction of the input data that is to be used to evaluate
+                the Model. This is ignored if Dataset is not provided.
             predefined_split_column_name (str):
                 Optional. The key is a name of one of the Dataset's data
                 columns. The value of the key (either the label's value or
-                value in the column) must be one of {``TRAIN``,
-                ``VALIDATE``, ``TEST``}, and it defines to which set the
+                value in the column) must be one of {``training``,
+                ``validation``, ``test``}, and it defines to which set the
                 given piece of data is assigned. If for a piece of data the
                 key is not present or has an invalid value, that piece is
                 ignored by the pipeline.
 
                 Supported only for tabular and time series Datasets.
+            timestamp_split_column_name (str):
+                Optional. The key is a name of one of the Dataset's data
+                columns. The value of the key values of the key (the values in
+                the column) must be in RFC 3339 `date-time` format, where
+                `time-offset` = `"Z"` (e.g. 1985-04-12T23:20:50.52Z). If for a
+                piece of data the key is not present or has an invalid value,
+                that piece is ignored by the pipeline.
+
+                Supported only for tabular and time series Datasets.
+                This parameter must be used with training_fraction_split, validation_fraction_split and test_fraction_split.
             weight_column (str):
                 Optional. Name of the column that should be used as the weight column.
                 Higher values in this column give more importance to the row
@@ -4424,6 +4452,7 @@ class AutoMLForecastingTrainingJob(_TrainingJob):
         model = gca_model.Model(
             display_name=model_display_name or self._display_name,
             labels=model_labels or self._labels,
+            encryption_spec=self._model_encryption_spec,
         )
 
         return self._run_job(
