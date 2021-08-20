@@ -50,19 +50,22 @@ except ImportError:
 
 COMMAND_STRING_CLI = """sh
 -c
-(PIP_DISABLE_PIP_VERSION_CHECK=1 python3 -m pip install --quiet --no-warn-script-location 'pandas' 'fastapi' 'torch' 'git+https://github.com/googleapis/python-aiplatform.git@refs/pull/628/merge' || PIP_DISABLE_PIP_VERSION_CHECK=1 python3 -m pip install --quiet --no-warn-script-location 'pandas' 'fastapi' 'torch' 'git+https://github.com/googleapis/python-aiplatform.git@refs/pull/628/merge' --user) && \"$0\" \"$@\"
+(PIP_DISABLE_PIP_VERSION_CHECK=1 python3 -m pip install --quiet --no-warn-script-location 'pandas' 'fastapi' 'torch' || PIP_DISABLE_PIP_VERSION_CHECK=1 python3 -m pip install --quiet --no-warn-script-location 'pandas' 'fastapi' 'torch' --user) && \"$0\" \"$@\"
+PIP_DISABLE_PIP_VERSION_CHECK=1 python3 -m pip install --force-reinstall --upgrade git+https://github.com/googleapis/python-aiplatform.git@refs/pull/628/merge
 sh
 -ec
 program_path=$(mktemp)\nprintf \"%s\" \"$0\" > \"$program_path\"\npython3 -u \"$program_path\" \"$@\"\n
 |"""
 
-COMMAND_STRING_CODE = """
+COMMAND_STRING_CODE_SETUP = """
 from fastapi import FastAPI, Request
 from google.cloud.aiplatform.experimental.vertex_model.serializers import model
 
 my_model = model._deserialize_remote_model(os.environ['AIP_STORAGE_URI'] + '/my_local_model.pth')
 
+"""
 
+COMMAND_STRING_CODE_APIS = """
 @app.get(os.environ['AIP_HEALTH_ROUTE'], status_code=200)
 def health():
     return {}
@@ -76,7 +79,9 @@ async def predict(request: Request):
 
     data = pd.DataFrame(instances, columns=['feat_1', 'feat_2'])
     torch_tensor = torch.tensor(data[feature_columns].values).type(torch.FloatTensor)
-    outputs = my_model.forward(torch_tensor)
+
+    my_model.predict = functools.partial(original_model.__class__.predict, my_model)
+    outputs = my_model.predict(torch_tensor)
 
     return {"predictions": outputs.tolist()}
 """
@@ -193,7 +198,19 @@ def vertex_fit_function_wrapper(method: Callable[..., Any]):
                     )
                 )
 
-            command_str = COMMAND_STRING_CLI + import_lines + COMMAND_STRING_CODE
+            class_args = inspect.signature(obj.__class__.__init__).bind(
+                obj, *obj._constructor_arguments[0], **obj._constructor_arguments[1]
+            )
+
+            class_creation = f"original_model = {cls_name}({','.join(map(str, class_args.args[1:]))})\n"
+            command_str = (
+                COMMAND_STRING_CLI
+                + import_lines
+                + COMMAND_STRING_CODE_SETUP
+                + training_source
+                + class_creation
+                + COMMAND_STRING_CODE_APIS
+            )
 
             obj._training_job = aiplatform.CustomTrainingJob(
                 display_name="my_training_job",
@@ -256,7 +273,20 @@ def vertex_predict_function_wrapper(method: Callable[..., Any]):
                     )
                 )
 
-            command_str = COMMAND_STRING_CLI + import_lines + COMMAND_STRING_CODE
+            training_source = source_utils._make_class_source(obj)
+            class_args = inspect.signature(obj.__class__.__init__).bind(
+                obj, *obj._constructor_arguments[0], **obj._constructor_arguments[1]
+            )
+
+            class_creation = f"original_model = {obj.__class__.__name__}({','.join(map(str, class_args.args[1:]))})\n"
+            command_str = (
+                COMMAND_STRING_CLI
+                + import_lines
+                + COMMAND_STRING_CODE_SETUP
+                + training_source
+                + class_creation
+                + COMMAND_STRING_CODE_APIS
+            )
 
             obj._model = aiplatform.Model.upload(
                 display_name="serving-test",

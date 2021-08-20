@@ -138,6 +138,7 @@ def _make_source(
         pass_through_params (dict[str, Any]): A dictionary mapping primitive parameter names to their values
         param_name_to_serialize_info (dict[str, A]): A dictionary mapping a parameter that needed
                                                      to be serialized to its URI and value type.
+        obj (Any): the object whose source is being generated
 
     Returns:
         A string representing a user-written class that can be written to a file in
