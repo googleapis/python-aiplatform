@@ -133,8 +133,8 @@ The Vertex SDK for Python allows you to train your custom child class.
 
     my_model = MyModelClass()
 
-    my_model.training_mode = "local" # Local training using machine resources
-    my_model.training_mode = "cloud" # Remote training using GCS and Vertex AI API Custom Job
+    my_model.remote = False # Local training using machine resources
+    my_model.remote = True # Remote training using GCS and Vertex AI API Custom Job
 
     my_model.fit(my_train_data, epochs=num_epochs, learning_rate=lr)
 
@@ -145,8 +145,8 @@ To get predictions from your model:
 
 .. code-block:: Python
 
-  my_model.training_mode = "local" # Local prediction using machine resources
-  my_model.training_mode = "cloud" # Remote prediction using GCS and Vertex AI API Endpoint
+  my_model.remote = False # Local prediction using machine resources
+  my_model.remote = True # Remote prediction using GCS and Vertex AI API Endpoint
   
   results = my_model.predict(my_test_data)
   
