@@ -252,6 +252,12 @@ def mock_dataset_tabular():
     )
     ds.column_names = _TEST_TRAINING_COLUMN_NAMES
 
+    # TODO: Do this correctly
+    def mock_get_default_column_transformations(target_column: str,):
+        return (_TEST_TRAINING_COLUMN_TRANSFORMATIONS, _TEST_TRAINING_COLUMN_NAMES)
+
+    ds.get_default_column_transformations = mock_get_default_column_transformations
+
     yield ds
 
 

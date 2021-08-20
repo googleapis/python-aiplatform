@@ -65,6 +65,60 @@ _PIPELINE_COMPLETE_STATES = set(
 )
 
 
+class ColumnNamesUtil:
+    @staticmethod
+    def validate_and_get_column_transformations(
+        column_specs: Optional[Dict[str, str]],
+        column_transformations: Optional[Union[Dict, List[Dict]]],
+    ) -> Dict:
+        """
+            column_specs (Dict[str, str]):
+                Optional. Alternative to column_transformations where the keys of the dict
+                are column names and their respective values are one of
+                AutoMLTabularTrainingJob.column_data_types.
+                When creating transformation for BigQuery Struct column, the column
+                should be flattened using "." as the delimiter. Only columns with no child
+                should have a transformation.
+                If an input column has no transformations on it, such a column is
+                ignored by the training, except for the targetColumn, which should have
+                no transformations defined on.
+                Only one of column_transformations or column_specs should be passed.
+            column_transformations (Union[Dict, List[Dict]]):
+                Optional. Transformations to apply to the input columns (i.e. columns other
+                than the targetColumn). Each transformation may produce multiple
+                result values from the column's value, and all are used for training.
+                When creating transformation for BigQuery Struct column, the column
+                should be flattened using "." as the delimiter. Only columns with no child
+                should have a transformation.
+                If an input column has no transformations on it, such a column is
+                ignored by the training, except for the targetColumn, which should have
+                no transformations defined on.
+                Only one of column_transformations or column_specs should be passed.
+                Consider using column_specs as column_transformations will be deprecated eventually.
+        """
+        # user populated transformations
+        if column_transformations is not None and column_specs is not None:
+            raise ValueError(
+                "Both column_transformations and column_specs were passed. Only one is allowed."
+            )
+        if column_transformations is not None:
+            warnings.simplefilter("always", DeprecationWarning)
+            warnings.warn(
+                "consider using column_specs instead. column_transformations will be deprecated in the future.",
+                DeprecationWarning,
+                stacklevel=2,
+            )
+
+            return column_transformations
+        elif column_specs is not None:
+            return [
+                {transformation: {"column_name": column_name}}
+                for column_name, transformation in column_specs.items()
+            ]
+        else:
+            return None
+
+
 class _TrainingJob(base.VertexAiResourceNounWithFutureManager):
 
     client_class = utils.PipelineClientWithOverride
@@ -3148,26 +3202,11 @@ class AutoMLTabularTrainingJob(_TrainingJob):
             training_encryption_spec_key_name=training_encryption_spec_key_name,
             model_encryption_spec_key_name=model_encryption_spec_key_name,
         )
-        # user populated transformations
-        if column_transformations is not None and column_specs is not None:
-            raise ValueError(
-                "Both column_transformations and column_specs were passed. Only one is allowed."
-            )
-        if column_transformations is not None:
-            self._column_transformations = column_transformations
-            warnings.simplefilter("always", DeprecationWarning)
-            warnings.warn(
-                "consider using column_specs instead. column_transformations will be deprecated in the future.",
-                DeprecationWarning,
-                stacklevel=2,
-            )
-        elif column_specs is not None:
-            self._column_transformations = [
-                {transformation: {"column_name": column_name}}
-                for column_name, transformation in column_specs.items()
-            ]
-        else:
-            self._column_transformations = None
+
+        self._column_transformations = ColumnNamesUtil.validate_and_get_column_transformations(
+            column_specs, column_transformations
+        )
+
         self._optimization_objective = optimization_objective
         self._optimization_prediction_type = optimization_prediction_type
         self._optimization_objective_recall_value = optimization_objective_recall_value
@@ -3523,14 +3562,10 @@ class AutoMLTabularTrainingJob(_TrainingJob):
                 "No column transformations provided, so now retrieving columns from dataset in order to set default column transformations."
             )
 
-            column_names = [
-                column_name
-                for column_name in dataset.column_names
-                if column_name != target_column
-            ]
-            self._column_transformations = [
-                {"auto": {"column_name": column_name}} for column_name in column_names
-            ]
+            (
+                self._column_transformations,
+                column_names,
+            ) = dataset.get_default_column_transformations(target_column)
 
             _LOGGER.info(
                 "The column transformation of type 'auto' was set for the following columns: %s."
