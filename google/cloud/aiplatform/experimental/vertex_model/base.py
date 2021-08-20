@@ -97,7 +97,7 @@ def vertex_fit_function_wrapper(method: Callable[..., Any]):
     Returns:
         A function that will complete local or cloud training based off of the user's
         implementation of the VertexModel class. The training mode is determined by the
-        user-designated training_mode variable.
+        user-designated remote variable.
 
     Raises:
         RuntimeError: An error occurred trying to access the staging bucket.
@@ -105,7 +105,7 @@ def vertex_fit_function_wrapper(method: Callable[..., Any]):
 
     @functools.wraps(method)
     def f(*args, **kwargs):
-        if method.__self__.training_mode == "local":
+        if not method.__self__.remote:
             return method(*args, **kwargs)
 
         obj = method.__self__
@@ -233,11 +233,11 @@ def vertex_predict_function_wrapper(method: Callable[..., Any]):
         obj = method.__self__
 
         # Local training to local prediction: return original method
-        if method.__self__.training_mode == "local" and obj._model is None:
+        if not method.__self__.remote and obj._model is None:
             return method(*args, **kwargs)
 
         # Local training to cloud prediction CUJ: serialize to cloud location
-        if method.__self__.training_mode == "cloud" and obj._model is None:
+        if method.__self__.remote and obj._model is None:
             # Serialize model
             model_uri = model._serialize_local_model(
                 os.environ["AIP_STORAGE_URI"], obj, "local"
@@ -266,9 +266,9 @@ def vertex_predict_function_wrapper(method: Callable[..., Any]):
             )
 
         # Cloud training to local prediction: deserialize from cloud URI
-        if method.__self__.training_mode == "local":
+        if not method.__self__.remote:
             output_dir = obj._model._gca_resource.artifact_uri
-            model_uri = output_dir + "/" + "my_" + obj.training_mode + "_model.pth"
+            model_uri = output_dir + "/" + "my_" + "local" + "_model.pth"
 
             my_model = model._deserialize_remote_model(model_uri)
 
@@ -280,7 +280,7 @@ def vertex_predict_function_wrapper(method: Callable[..., Any]):
             return my_model.predict(*args, **kwargs)
 
         # Make remote predictions, regardless of training: create custom container
-        if method.__self__.training_mode == "cloud":
+        if method.__self__.remote:
             # TODO: cleanup model resource after endpoint is created
             endpoint = obj._model.deploy(machine_type="n1-standard-4")
             return endpoint.predict(*args, **kwargs)
@@ -312,7 +312,7 @@ class VertexModel(metaclass=abc.ABCMeta):
             "google-cloud-aiplatform @ git+https://github.com/googleapis/python-aiplatform@refs/pull/628/head#egg=google-cloud-aiplatform",
         ]
 
-        self.training_mode = "local"
+        self.remote = False
 
         self.fit = vertex_fit_function_wrapper(self.fit)
         self.predict = vertex_predict_function_wrapper(self.predict)

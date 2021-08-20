@@ -143,7 +143,7 @@ class TestCloudVertexModelClass:
         )
 
         my_model = LinearRegression(2, 1)
-        my_model.training_mode = "cloud"
+        my_model.remote = True 
 
         assert my_model is not None
 
@@ -161,7 +161,7 @@ class TestCloudVertexModelClass:
         )
 
         my_model = LinearRegression(2, 1)
-        my_model.training_mode = "cloud"
+        my_model.remote = True
 
         df = pd.DataFrame(
             np.random.random(size=(100, 3)), columns=["feat_1", "feat_2", "target"]
