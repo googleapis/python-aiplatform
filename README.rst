@@ -316,7 +316,7 @@ To delete an endpoint:
   endpoint.delete()
 
 
-XAI: Get_metadata
+Explainable AI: Get Metadata
 -----------------
 
 To get metadata from tf1 models:
