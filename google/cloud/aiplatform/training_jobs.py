@@ -3427,6 +3427,7 @@ class AutoMLForecastingTrainingJob(_TrainingJob):
             meta = getattr((self._gca_resource), "training_task_metadata")
         except ValueError:
             print("BigQuery uri for evaluated data items does not exist. Must export evaluated data items during training.")
+            sys.exit(1)
 
         if meta is not None and "evaluatedDataItemsBigqueryUri" in meta._pb:
           return meta._pb["evaluatedDataItemsBigqueryUri"].string_value
