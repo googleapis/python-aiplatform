@@ -28,17 +28,17 @@ from google.cloud import storage
 
 from google.cloud.aiplatform import utils
 
-from typing import Dict, List, Optional, Sequence, Tuple, Union
+from typing import Dict, List, Optional, Tuple
 
 from google.cloud.aiplatform import base
 from google.cloud.aiplatform import initializer
 from google.cloud.aiplatform import utils
-from google.cloud.aiplatform.datasets import _datasources
+from google.cloud.aiplatform.datasets import _Dataset
 
 _LOGGER = base.Logger(__name__)
 
 
-class _ColumnNamesDataset:
+class _ColumnNamesDataset(_Dataset):
     @property
     def column_names(self) -> List[str]:
         """Retrieve the columns for the dataset by extracting it from the Google Cloud Storage or

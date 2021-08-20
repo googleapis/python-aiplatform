@@ -26,7 +26,7 @@ from google.cloud.aiplatform import schema
 from google.cloud.aiplatform import utils
 
 
-class TabularDataset(datasets._Dataset, datasets._ColumnNamesDataset):
+class TabularDataset(datasets._ColumnNamesDataset):
     """Managed tabular dataset resource for Vertex AI."""
 
     _supported_metadata_schema_uris: Optional[Tuple[str]] = (
