@@ -319,7 +319,7 @@ To delete an endpoint:
 Explainable AI: Get Metadata
 -----------------
 
-To get metadata from tf1 models:
+To get metadata from TensorFlow 1 models:
 
 .. code-block:: Python
 
