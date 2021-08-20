@@ -15,17 +15,15 @@
 # limitations under the License.
 #
 
-import pytest
 import os
 import uuid
-from tests.system.aiplatform.e2e_base import TestEndToEnd
 from urllib import request
 
+import pytest
+
 from google.cloud import aiplatform
+from tests.system.aiplatform import e2e_base
 
-
-_PROJECT = os.getenv("BUILD_SPECIFIC_GCLOUD_PROJECT")
-_LOCATION = "us-central1"
 
 _BLOB_PATH = "california-housing-data.csv"
 _DATASET_SRC = "https://dl.google.com/mlcc/mledu-datasets/california_housing_train.csv"
@@ -36,7 +34,7 @@ _LOCAL_TRAINING_SCRIPT_PATH = os.path.join(
 
 
 @pytest.mark.usefixtures("prepare_staging_bucket", "delete_staging_bucket", "teardown")
-class TestEndToEndTabular(TestEndToEnd):
+class TestEndToEndTabular(e2e_base.TestEndToEnd):
     """End to end system test of the Vertex SDK with tabular data adapted from
     reference notebook http://shortn/_eyoNx3SN0X"""
 
@@ -59,8 +57,8 @@ class TestEndToEndTabular(TestEndToEnd):
         shared_state["resources"] = []
 
         aiplatform.init(
-            project=_PROJECT,
-            location=_LOCATION,
+            project=e2e_base._PROJECT,
+            location=e2e_base._LOCATION,
             staging_bucket=shared_state["staging_bucket_name"],
         )
 
@@ -88,8 +86,6 @@ class TestEndToEndTabular(TestEndToEnd):
             display_name=f"{self._temp_prefix}-train-housing-automl-{uuid.uuid4()}",
             optimization_prediction_type="regression",
             optimization_objective="minimize-rmse",
-            optimization_objective_recall_value=None,
-            optimization_objective_precision_value=None,
         )
 
         # Kick off both training jobs, AutoML job will take approx one hour to run

@@ -20,6 +20,7 @@ import importlib
 import os
 import pytest
 import uuid
+from typing import Any, Dict, Generator
 
 from google.cloud import aiplatform
 from google.cloud import storage
@@ -29,8 +30,9 @@ _PROJECT = os.getenv("BUILD_SPECIFIC_GCLOUD_PROJECT")
 _LOCATION = "us-central1"
 
 
-class TestEndToEnd:
+class TestEndToEnd(metaclass=abc.ABCMeta):
     @property
+    @classmethod
     @abc.abstractmethod
     def _temp_prefix(cls) -> str:
         """Prefix to staging bucket and display names created by this end-to-end test.
@@ -45,12 +47,14 @@ class TestEndToEnd:
         importlib.reload(aiplatform)
 
     @pytest.fixture()
-    def shared_state(self):
+    def shared_state(self) -> Generator[Dict[str, Any], None, None]:
         shared_state = {}
         yield shared_state
 
     @pytest.fixture()
-    def prepare_staging_bucket(self, shared_state):
+    def prepare_staging_bucket(
+        self, shared_state: Dict[str, Any]
+    ) -> Generator[storage.bucket.Bucket, None, None]:
         """Create a staging bucket and store bucket resource object in shared state."""
 
         staging_bucket_name = f"{self._temp_prefix.lower()}-{uuid.uuid4()}"[:63]
@@ -65,7 +69,7 @@ class TestEndToEnd:
         yield
 
     @pytest.fixture()
-    def delete_staging_bucket(self, shared_state):
+    def delete_staging_bucket(self, shared_state: Dict[str, Any]):
         """Delete the staging bucket and all it's contents"""
 
         yield
@@ -75,7 +79,7 @@ class TestEndToEnd:
         bucket.delete(force=True)
 
     @pytest.fixture(autouse=True)
-    def teardown(self, shared_state):
+    def teardown(self, shared_state: Dict[str, Any]):
         """Delete every Vertex AI resource created during test"""
 
         yield
