@@ -3697,16 +3697,6 @@ class AutoMLForecastingTrainingJob(_TrainingJob):
         Args:
             display_name (str):
                 Required. The user-defined name of this TrainingPipeline.
-            labels (Dict[str, str]):
-                Optional. The labels with user-defined metadata to
-                organize TrainingPipelines.
-                Label keys and values can be no longer than 64
-                characters (Unicode codepoints), can only
-                contain lowercase letters, numeric characters,
-                underscores and dashes. International characters
-                are allowed.
-                See https://goo.gl/xmQnxf for more information
-                and examples of labels.
             optimization_objective (str):
                 Optional. Objective function the model is to be optimized towards.
                 The training process creates a Model that optimizes the value of the objective
@@ -3749,6 +3739,41 @@ class AutoMLForecastingTrainingJob(_TrainingJob):
             credentials (auth_credentials.Credentials):
                 Optional. Custom credentials to use to run call training service. Overrides
                 credentials set in aiplatform.init.
+            labels (Dict[str, str]):
+                Optional. The labels with user-defined metadata to
+                organize TrainingPipelines.
+                Label keys and values can be no longer than 64
+                characters (Unicode codepoints), can only
+                contain lowercase letters, numeric characters,
+                underscores and dashes. International characters
+                are allowed.
+                See https://goo.gl/xmQnxf for more information
+                and examples of labels.
+            training_encryption_spec_key_name (Optional[str]):
+                Optional. The Cloud KMS resource identifier of the customer
+                managed encryption key used to protect the training pipeline. Has the
+                form:
+                ``projects/my-project/locations/my-region/keyRings/my-kr/cryptoKeys/my-key``.
+                The key needs to be in the same region as where the compute
+                resource is created.
+
+                If set, this TrainingPipeline will be secured by this key.
+
+                Note: Model trained by this TrainingPipeline is also secured
+                by this key if ``model_to_upload`` is not set separately.
+
+                Overrides encryption_spec_key_name set in aiplatform.init.
+            model_encryption_spec_key_name (Optional[str]):
+                Optional. The Cloud KMS resource identifier of the customer
+                managed encryption key used to protect the model. Has the
+                form:
+                ``projects/my-project/locations/my-region/keyRings/my-kr/cryptoKeys/my-key``.
+                The key needs to be in the same region as where the compute
+                resource is created.
+
+                If set, the trained Model will be secured by this key.
+
+                Overrides encryption_spec_key_name set in aiplatform.init.
         """
         super().__init__(
             display_name=display_name,
