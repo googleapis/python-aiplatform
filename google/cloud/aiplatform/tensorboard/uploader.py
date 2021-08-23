@@ -325,8 +325,8 @@ class TensorBoardUploader(object):
         Returns:
             Mapping from plugin name to Sender.
         """
-        # TODO(mkovalski): Add profile sender
-        return {}
+        additional_senders = {}
+        return additional_senders
 
     def get_experiment_resource_name(self):
         return self._experiment.name
