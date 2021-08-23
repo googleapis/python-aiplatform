@@ -152,10 +152,9 @@ class TestEndToEndTabular(e2e_base.TestEndToEnd):
 
         # Ensure the models are remotely accurate
         try:
-            automl_result = automl_prediction.predictions[0]['value']
+            automl_result = automl_prediction.predictions[0]["value"]
             custom_result = custom_prediction.predictions[0][0]
             assert 200000 > automl_result > 50000
             assert 200000 > custom_result > 50000
         except KeyError as e:
             raise RuntimeError("Unexpected prediction response structure:", e)
-
