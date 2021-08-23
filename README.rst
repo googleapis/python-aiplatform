@@ -117,7 +117,7 @@ Initialize the SDK to store common configurations that you use with the SDK.
         experiment='my-experiment',
 
         # description of the experiment above
-        experiment_description='my experiment decsription' 
+        experiment_description='my experiment decsription'
     )
 
 Datasets
@@ -149,7 +149,7 @@ You can also create and import a dataset in separate steps:
 To get a previously created Dataset:
 
 .. code-block:: Python
-  
+
   dataset = aiplatform.ImageDataset('projects/my-project/location/us-central1/datasets/{DATASET_ID}')
 
 Vertex AI supports a variety of dataset schemas. References to these schemas are available under the
@@ -173,7 +173,7 @@ It must read datasets from the environment variables populated by the training s
 
 .. code-block:: Python
 
-  os.environ['AIP_DATA_FORMAT']  # provides format of data  
+  os.environ['AIP_DATA_FORMAT']  # provides format of data
   os.environ['AIP_TRAINING_DATA_URI']  # uri to training split
   os.environ['AIP_VALIDATION_DATA_URI']  # uri to validation split
   os.environ['AIP_TEST_DATA_URI']  # uri to test split
@@ -184,7 +184,7 @@ Please visit `Using a managed dataset in a custom training application`_ for a d
 
 It must write the model artifact to the environment variable populated by the traing service:
 
-.. code-block:: Python 
+.. code-block:: Python
 
   os.environ['AIP_MODEL_DIR']
 
@@ -295,7 +295,7 @@ To deploy a model to a created endpoint:
 .. code-block:: Python
 
   model = aiplatform.Model('/projects/my-project/locations/us-central1/models/{MODEL_ID}')
-  
+
   endpoint.deploy(model,
                   min_replica_count=1,
                   max_replica_count=5
@@ -312,8 +312,33 @@ To undeploy models from an endpoint:
 To delete an endpoint:
 
 .. code-block:: Python
-  
+
   endpoint.delete()
+
+
+Explainable AI: Get Metadata
+----------------------------
+
+To get metadata from TensorFlow 1 models:
+
+.. code-block:: Python
+
+  from google.cloud.aiplatform.explain.metadata.tf.v1 import saved_model_metadata_builder
+
+  builder = saved_model_metadata_builder.SavedModelMetadataBuilder(
+            'gs://python/to/my/model/dir', tags=[tf.saved_model.tag_constants.SERVING]
+        )
+  generated_md = builder.get_metadata()
+
+To get metadata from TensorFlow 2 models:
+
+.. code-block:: Python
+
+  from google.cloud.aiplatform.explain.metadata.tf.v2 import saved_model_metadata_builder
+
+  builder = saved_model_metadata_builder.SavedModelMetadataBuilder('gs://python/to/my/model/dir')
+  generated_md = builder.get_metadata()
+
 
 
 Next Steps
