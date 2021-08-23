@@ -61,11 +61,12 @@ COMMAND_STRING_CODE_SETUP = """
 from fastapi import FastAPI, Request
 from google.cloud.aiplatform.experimental.vertex_model.serializers import model
 
-my_model = model._deserialize_remote_model(os.environ['AIP_STORAGE_URI'] + '/my_local_model.pth')
-
 """
 
 COMMAND_STRING_CODE_APIS = """
+
+my_model = model._deserialize_remote_model(os.environ['AIP_STORAGE_URI'] + '/my_local_model.pth')
+
 @app.get(os.environ['AIP_HEALTH_ROUTE'], status_code=200)
 def health():
     return {}
