@@ -151,5 +151,11 @@ class TestEndToEndTabular(e2e_base.TestEndToEnd):
         assert len(automl_prediction.predictions) == 1
 
         # Ensure the models are remotely accurate
-        assert 200000 > automl_prediction.predictions[0] > 50000
-        assert 200000 > custom_prediction.predictions[0] > 50000
+        try:
+            automl_result = automl_prediction.predictions[0]['value']
+            custom_result = custom_prediction.predictions[0][0]
+            assert 200000 > automl_result > 50000
+            assert 200000 > custom_result > 50000
+        except KeyError as e:
+            raise RuntimeError("Unexpected prediction response structure:", e)
+
