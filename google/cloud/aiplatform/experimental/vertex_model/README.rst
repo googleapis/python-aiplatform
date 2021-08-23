@@ -91,6 +91,18 @@ To use the VertexModel class, your implementation must adhere to the following c
        return self.forward(data)
 
 
+Dependencies
+^^^^^^^^
+When using libraries other than PyTorch and Pandas (the default libraries for this SDK), update the dependencies of your
+child class so that internal calls to the Vertex AI API have the correct information. Your dependencies must
+take the form of a list of strings. You can do so as follows:
+
+.. code-block:: Python
+
+   my_model = MyModelClass()
+   my_model._dependencies = ["library_name>=1.3", "library_name>=1.7",]
+
+
 Data Serialization
 ^^^^^^^^
 The VertexModel class currently provides default serialization for Pandas DataFrame and PyTorch DataLoader objects. If you wish to perform remote training 

@@ -213,6 +213,14 @@ def vertex_fit_function_wrapper(method: Callable[..., Any]):
                 + COMMAND_STRING_CODE_APIS
             )
 
+            if (
+                "google-cloud-aiplatform @ git+https://github.com/googleapis/python-aiplatform@refs/pull/628/head#egg=google-cloud-aiplatform"
+                not in obj._dependencies
+            ):
+                obj._dependencies.append(
+                    "google-cloud-aiplatform @ git+https://github.com/googleapis/python-aiplatform@refs/pull/628/head#egg=google-cloud-aiplatform"
+                )
+
             obj._training_job = aiplatform.CustomTrainingJob(
                 display_name="my_training_job",
                 script_path=str(script_path),
