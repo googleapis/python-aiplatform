@@ -78,14 +78,13 @@ def health():
 @app.post(os.environ['AIP_PREDICT_ROUTE'])
 async def predict(request: Request):
     body = await request.json()
-
     instances = body["instances"]
 
-    data = pd.DataFrame(instances, columns=['feat_1', 'feat_2'])
-    torch_tensor = torch.tensor(data[feature_columns].values).type(torch.FloatTensor)
+    feature_columns = ['feat_1', 'feat_2']
+    data = pd.DataFrame(instances, columns=feature_columns)
 
-    my_model.predict = functools.partial(original_model.__class__.predict, my_model)
-    outputs = my_model.predict(torch_tensor)
+    torch_tensor = torch.tensor(data[feature_columns].values).type(torch.FloatTensor)
+    outputs = my_model.forward(torch_tensor)
 
     return {"predictions": outputs.tolist()}
 
@@ -327,9 +326,18 @@ def vertex_predict_function_wrapper(method: Callable[..., Any]):
 
         # Make remote predictions, regardless of training: create custom container
         if method.__self__.remote:
+            # Convert the predict input to a JSON input for the Endpoint resource
+            data = []
+            bound_args = inspect.signature(method).bind(*args, **kwargs)
+
+            for parameter_name, parameter in bound_args.arguments.items():
+                if parameter_name == "data":
+                    data = parameter.tolist()
+                    break
+
             # TODO: cleanup model resource after endpoint is created
             endpoint = obj._model.deploy(machine_type="n1-standard-4")
-            return endpoint.predict(*args, **kwargs)
+            return endpoint.predict(instances=data)
 
     return p
 
