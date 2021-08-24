@@ -46,10 +46,13 @@ def serialize_to_tmp_and_copy_to_gcs(
     """
     with tempfile.TemporaryDirectory() as tmpdirname:
         temp_dir = tmpdirname + "/" + file_name
+        print(temp_dir)
+
         tmp_dir_path = pathlib.Path(temp_dir)
         serialize_fn(temp_dir)
 
         blob_path = tmp_dir_path.name
+        print(blob_path)
 
         if blob_prefix:
             blob_path = "/".join([blob_prefix, blob_path])
