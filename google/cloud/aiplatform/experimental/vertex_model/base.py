@@ -82,9 +82,10 @@ async def predict(request: Request):
 
     feature_columns = ['feat_1', 'feat_2']
     data = pd.DataFrame(instances, columns=feature_columns)
-
     torch_tensor = torch.tensor(data[feature_columns].values).type(torch.FloatTensor)
-    outputs = my_model.forward(torch_tensor)
+
+    my_model.predict = functools.partial(original_model.__class__.predict, my_model)
+    outputs = my_model.predict(torch_tensor)
 
     return {"predictions": outputs.tolist()}
 
