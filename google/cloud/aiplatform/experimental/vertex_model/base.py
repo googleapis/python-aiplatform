@@ -60,6 +60,7 @@ COMMAND_STRING_CLI = [
 COMMAND_STRING_CODE_SETUP = """import os
 from fastapi import FastAPI, Request
 import uvicorn
+import functools
 
 from google.cloud.aiplatform.experimental.vertex_model.serializers import model
 
