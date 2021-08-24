@@ -19,7 +19,6 @@ import abc
 import datetime
 import functools
 import inspect
-import os
 import pathlib
 import tempfile
 from typing import Any
@@ -272,8 +271,22 @@ def vertex_predict_function_wrapper(method: Callable[..., Any]):
         # Local training to cloud prediction CUJ: serialize to cloud location
         if method.__self__.remote and obj._model is None:
             # Serialize model
+            staging_bucket = aiplatform.initializer.global_config.staging_bucket
+
+            if staging_bucket is None:
+                raise RuntimeError(
+                    "Staging bucket must be set to run training in cloud mode: `aiplatform.init(staging_bucket='gs://my/staging/bucket')`"
+                )
+
+            timestamp = datetime.datetime.now().isoformat(
+                sep="-", timespec="milliseconds"
+            )
+            vertex_model_root_folder = "/".join(
+                [staging_bucket, f"vertex_model_run_{timestamp}"]
+            )
+
             model_uri = model._serialize_local_model(
-                os.environ["AIP_STORAGE_URI"], obj, "local"
+                vertex_model_root_folder, obj, "local"
             )
 
             # Upload model w/ command
