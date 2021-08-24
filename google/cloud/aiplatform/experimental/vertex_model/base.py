@@ -50,14 +50,17 @@ except ImportError:
 
 COMMAND_STRING_CLI = """sh
 -c
-python3 -m pip install --user --disable-pip-version-check --force-reinstall --upgrade 'fastapi' 'torch' 'pandas' 'google-cloud-aiplatform @ git+https://github.com/googleapis/python-aiplatform@refs/pull/628/head#egg=google-cloud-aiplatform' && \"$0\" \"$@\"
+python3 -m pip install --user --disable-pip-version-check 'uvicorn' 'fastapi' 'torch' 'pandas' 'google-cloud-aiplatform @ git+https://github.com/googleapis/python-aiplatform@refs/pull/628/head#egg=google-cloud-aiplatform' && \"$0\" \"$@\"
 sh
 -ec
 program_path=$(mktemp)\nprintf \"%s\" \"$0\" > \"$program_path\"\npython3 -u \"$program_path\" \"$@\"\n
 |"""
 
 COMMAND_STRING_CODE_SETUP = """
+import os
 from fastapi import FastAPI, Request
+import uvicorn
+
 from google.cloud.aiplatform.experimental.vertex_model.serializers import model
 
 """
@@ -85,6 +88,10 @@ async def predict(request: Request):
     outputs = my_model.predict(torch_tensor)
 
     return {"predictions": outputs.tolist()}
+
+
+if __name__ == "__main__":
+    uvicorn.run(app, host="0.0.0.0", port=os.environ['AIP_HTTP_PORT'])
 """
 
 _LOGGER = base.Logger(__name__)
