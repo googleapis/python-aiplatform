@@ -54,7 +54,7 @@ python3 -m pip install --user --disable-pip-version-check --no-warn-script-locat
 sh
 -ec
 program_path=$(mktemp)\nprintf \"%s\" \"$0\" > \"$program_path\"\npython3 -u \"$program_path\" \"$@\"\n
-|"""
+"""
 
 COMMAND_STRING_CODE_SETUP = """
 import os
@@ -212,8 +212,7 @@ def vertex_fit_function_wrapper(method: Callable[..., Any]):
 
             class_creation = f"original_model = {cls_name}({','.join(map(str, class_args.args[1:]))})\n"
             command_str = (
-                COMMAND_STRING_CLI
-                + import_lines
+                import_lines
                 + COMMAND_STRING_CODE_SETUP
                 + training_source
                 + class_creation
@@ -234,7 +233,10 @@ def vertex_fit_function_wrapper(method: Callable[..., Any]):
                 requirements=obj._dependencies,
                 container_uri="us-docker.pkg.dev/vertex-ai/training/scikit-learn-cpu.0-23:latest",
                 model_serving_container_image_uri="gcr.io/google-appengine/python",
-                model_serving_container_command=command_str.split("\n"),
+                model_serving_container_command=[
+                    COMMAND_STRING_CLI.split("\n"),
+                    command_str,
+                ],
             )
 
             obj._model = obj._training_job.run(
@@ -296,8 +298,7 @@ def vertex_predict_function_wrapper(method: Callable[..., Any]):
 
             class_creation = f"original_model = {obj.__class__.__name__}({','.join(map(str, class_args.args[1:]))})\n"
             command_str = (
-                COMMAND_STRING_CLI
-                + import_lines
+                import_lines
                 + COMMAND_STRING_CODE_SETUP
                 + training_source
                 + class_creation
@@ -308,7 +309,7 @@ def vertex_predict_function_wrapper(method: Callable[..., Any]):
                 display_name="serving-test",
                 artifact_uri=model_uri,
                 serving_container_image_uri="gcr.io/google-appengine/python",
-                serving_container_command=command_str.split("\n"),
+                serving_container_command=[COMMAND_STRING_CLI.split("\n"), command_str],
             )
 
         # Cloud training to local prediction: deserialize from cloud URI
