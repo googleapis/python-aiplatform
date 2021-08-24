@@ -50,7 +50,7 @@ except ImportError:
 
 COMMAND_STRING_CLI = """sh
 -c
-python3 -m pip install --user --disable-pip-version-check 'uvicorn' 'fastapi' 'torch' 'pandas' 'google-cloud-aiplatform @ git+https://github.com/googleapis/python-aiplatform@refs/pull/628/head#egg=google-cloud-aiplatform' && \"$0\" \"$@\"
+python3 -m pip install --user --disable-pip-version-check --no-warn-script-location 'uvicorn' 'fastapi' 'torch' 'pandas' 'google-cloud-aiplatform @ git+https://github.com/googleapis/python-aiplatform@refs/pull/628/head#egg=google-cloud-aiplatform' && \"$0\" \"$@\"
 sh
 -ec
 program_path=$(mktemp)\nprintf \"%s\" \"$0\" > \"$program_path\"\npython3 -u \"$program_path\" \"$@\"\n
