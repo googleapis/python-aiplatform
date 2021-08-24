@@ -22,6 +22,7 @@ import pytest
 import uuid
 from typing import Any, Dict, Generator
 
+from google.api_core import exceptions
 from google.cloud import aiplatform
 from google.cloud import storage
 from google.cloud.aiplatform import initializer
@@ -83,8 +84,18 @@ class TestEndToEnd(metaclass=abc.ABCMeta):
         """Delete every Vertex AI resource created during test"""
 
         yield
+
+        # Bring all Endpoints to the front of the list
+        # Ensures Models are undeployed first before we attempt deletion
+        shared_state["resources"].sort(
+            key=lambda r: 1 if isinstance(r, aiplatform.Endpoint) else 2
+        )
+
         for resource in shared_state["resources"]:
-            if isinstance(resource, aiplatform.Endpoint):
-                resource.delete(force=True)  # Undeploy model then delete endpoint
-            else:
-                resource.delete()
+            try:
+                if isinstance(resource, aiplatform.Endpoint):
+                    resource.delete(force=True)  # Undeploy model then delete endpoint
+                else:
+                    resource.delete()
+            except exceptions.GoogleAPIError as e:
+                print(f"Could not delete resource: {resource} due to: {e}")
