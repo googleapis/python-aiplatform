@@ -52,14 +52,14 @@ def _serialize_local_model(
         return path_to_model
 
     with tempfile.TemporaryDirectory() as tmpdirname:
-        temp_dir = tmpdirname + "/" + "my_" + dataset_type + "_model.pth"
+        temp_dir = tmpdirname + "/" + "my_" + model_type + "_model.pth"
         torch.jit.save(compiled_custom_model, temp_dir)
 
         gcs_bucket, gcs_blob_prefix = utils.extract_bucket_and_prefix_from_gcs_path(
             artifact_uri
         )
 
-        local_file_name = "my_local_model.pth"
+        local_file_name = "my_" + "model_type" + "_model.pth"
         blob_path = local_file_name
 
         if gcs_blob_prefix:
