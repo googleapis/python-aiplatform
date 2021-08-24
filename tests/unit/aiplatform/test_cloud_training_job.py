@@ -178,7 +178,7 @@ class TestCloudVertexModelClass:
                 "google-cloud-aiplatform @ git+https://github.com/googleapis/python-aiplatform@refs/pull/628/head#egg=google-cloud-aiplatform",
             ],
             "container_uri": "us-docker.pkg.dev/vertex-ai/training/scikit-learn-cpu.0-23:latest",
-            "model_serving_container_image_uri": "us-docker.pkg.dev/vertex-ai/prediction/tf2-cpu.2-5:latest",
+            "model_serving_container_image_uri": "gcr.io/google-appengine/python",
         }
 
         for key, value in expected.items():
@@ -187,7 +187,7 @@ class TestCloudVertexModelClass:
 
         assert call_args[1]["script_path"].endswith("/training_script.py")
         assert sorted(list(call_args[1].keys())) == sorted(
-            list(expected.keys()) + ["script_path"]
+            list(expected.keys()) + ["script_path"] + ["model_serving_container_command"]
         )
 
         mock_get_custom_training_job.assert_called_once()
