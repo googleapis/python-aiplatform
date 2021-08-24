@@ -51,32 +51,18 @@ def _serialize_local_model(
         torch.jit.save(compiled_custom_model, path_to_model)
         return path_to_model
 
-    with tempfile.TemporaryDirectory() as tmpdirname:
-        temp_dir = tmpdirname + "/" + "my_" + model_type + "_model.pth"
-        torch.jit.save(compiled_custom_model, temp_dir)
+    gcs_bucket, gcs_blob_prefix = utils.extract_bucket_and_prefix_from_gcs_path(
+        artifact_uri
+    )
 
-        gcs_bucket, gcs_blob_prefix = utils.extract_bucket_and_prefix_from_gcs_path(
-            artifact_uri
-        )
+    path_to_model = serializer_utils.serialize_to_tmp_and_copy_to_gcs(
+        "my_" + model_type + "_model.pth",
+        gcs_bucket,
+        gcs_blob_prefix,
+        functools.partial(torch.jit.save, compiled_custom_model),
+    )
 
-        local_file_name = "my_" + "model_type" + "_model.pth"
-        blob_path = local_file_name
-
-        if gcs_blob_prefix:
-            blob_path = "/".join([gcs_blob_prefix, blob_path])
-
-        client = storage.Client(
-            project=initializer.global_config.project,
-            credentials=initializer.global_config.credentials,
-        )
-
-        bucket = client.bucket(gcs_bucket)
-        blob = bucket.blob(blob_path)
-        blob.upload_from_filename(temp_dir)
-
-        gcs_path = "".join(["gs://", "/".join([blob.bucket.name, blob.name])])
-        
-        return gcs_path
+    return path_to_model
 
 
 def _deserialize_remote_model(artifact_uri: str) -> torch.nn.Module:
