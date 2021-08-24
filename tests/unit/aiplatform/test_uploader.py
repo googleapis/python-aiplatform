@@ -249,8 +249,7 @@ def _create_dispatcher(
     )
 
     return uploader_lib._Dispatcher(
-        request_sender=request_sender,
-        additional_senders=additional_senders,
+        request_sender=request_sender, additional_senders=additional_senders,
     )
 
 
