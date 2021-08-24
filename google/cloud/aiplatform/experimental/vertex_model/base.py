@@ -57,9 +57,6 @@ COMMAND_STRING_CLI = [
     'program_path=$(mktemp)\nprintf "%s" "$0" > "$program_path"\npython3 -u "$program_path" "$@"\n',
 ]
 
-COMMAND_STRING_PROGRAM_PATH = 'program_path=$(mktemp)\nprintf "%s" "$0" > "$program_path"\npython3 -u "$program_path" "$@"\n'
-
-
 COMMAND_STRING_CODE_SETUP = """import os
 from fastapi import FastAPI, Request
 import uvicorn
