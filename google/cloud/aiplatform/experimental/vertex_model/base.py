@@ -288,6 +288,7 @@ def vertex_predict_function_wrapper(method: Callable[..., Any]):
                 [vertex_model_root_folder, "serialized_model"]
             )
 
+            print(type(obj))
             model_uri = model._serialize_local_model(
                 vertex_model_model_folder, obj, "local"
             )
@@ -321,7 +322,7 @@ def vertex_predict_function_wrapper(method: Callable[..., Any]):
 
             obj._model = aiplatform.Model.upload(
                 display_name="serving-test",
-                artifact_uri=model_uri,
+                artifact_uri=vertex_model_model_folder,
                 serving_container_image_uri="gcr.io/google-appengine/python",
                 serving_container_command=COMMAND_STRING_CLI + [command_str],
             )

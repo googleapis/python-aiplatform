@@ -65,6 +65,8 @@ def serialize_to_tmp_and_copy_to_gcs(
 
         bucket = client.bucket(destination_bucket)
         blob = bucket.blob(blob_path)
+
+        print(blob_path)
         blob.upload_from_filename(temp_dir)
 
         gcs_path = "".join(["gs://", "/".join([blob.bucket.name, blob.name])])
