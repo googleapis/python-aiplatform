@@ -48,16 +48,19 @@ except ImportError:
     )
 
 
-COMMAND_STRING_CLI = """sh
--c
-python3 -m pip install --user --disable-pip-version-check --no-warn-script-location 'uvicorn' 'fastapi' 'torch' 'pandas' 'google-cloud-aiplatform @ git+https://github.com/googleapis/python-aiplatform@refs/pull/628/head#egg=google-cloud-aiplatform' && \"$0\" \"$@\"
-sh
--ec
-program_path=$(mktemp)\nprintf \"%s\" \"$0\" > \"$program_path\"\npython3 -u \"$program_path\" \"$@\"\n
-"""
+COMMAND_STRING_CLI = [
+    "sh",
+    "-c",
+    "python3 -m pip install --user --disable-pip-version-check 'uvicorn' 'fastapi' 'torch' 'pandas' 'google-cloud-aiplatform @ git+https://github.com/googleapis/python-aiplatform@refs/pull/628/head#egg=google-cloud-aiplatform' && \"$0\" \"$@\"",
+    "sh",
+    "-ec",
+    'program_path=$(mktemp)\nprintf "%s" "$0" > "$program_path"\npython3 -u "$program_path" "$@"\n',
+]
 
-COMMAND_STRING_CODE_SETUP = """
-import os
+COMMAND_STRING_PROGRAM_PATH = 'program_path=$(mktemp)\nprintf "%s" "$0" > "$program_path"\npython3 -u "$program_path" "$@"\n'
+
+
+COMMAND_STRING_CODE_SETUP = """import os
 from fastapi import FastAPI, Request
 import uvicorn
 
@@ -233,8 +236,7 @@ def vertex_fit_function_wrapper(method: Callable[..., Any]):
                 requirements=obj._dependencies,
                 container_uri="us-docker.pkg.dev/vertex-ai/training/scikit-learn-cpu.0-23:latest",
                 model_serving_container_image_uri="gcr.io/google-appengine/python",
-                model_serving_container_command=COMMAND_STRING_CLI.split("\n")
-                + [command_str],
+                model_serving_container_command=COMMAND_STRING_CLI + [command_str],
             )
 
             obj._model = obj._training_job.run(
@@ -307,8 +309,7 @@ def vertex_predict_function_wrapper(method: Callable[..., Any]):
                 display_name="serving-test",
                 artifact_uri=model_uri,
                 serving_container_image_uri="gcr.io/google-appengine/python",
-                serving_container_command=COMMAND_STRING_CLI.split("\n")
-                + [command_str],
+                serving_container_command=COMMAND_STRING_CLI + [command_str],
             )
 
         # Cloud training to local prediction: deserialize from cloud URI
