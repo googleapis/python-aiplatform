@@ -143,7 +143,7 @@ class TestCloudVertexModelClass:
         )
 
         my_model = LinearRegression(2, 1)
-        my_model.remote = True 
+        my_model.remote = True
 
         assert my_model is not None
 
@@ -187,7 +187,9 @@ class TestCloudVertexModelClass:
 
         assert call_args[1]["script_path"].endswith("/training_script.py")
         assert sorted(list(call_args[1].keys())) == sorted(
-            list(expected.keys()) + ["script_path"] + ["model_serving_container_command"]
+            list(expected.keys())
+            + ["script_path"]
+            + ["model_serving_container_command"]
         )
 
         mock_get_custom_training_job.assert_called_once()
