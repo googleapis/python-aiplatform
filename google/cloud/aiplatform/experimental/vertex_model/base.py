@@ -233,10 +233,8 @@ def vertex_fit_function_wrapper(method: Callable[..., Any]):
                 requirements=obj._dependencies,
                 container_uri="us-docker.pkg.dev/vertex-ai/training/scikit-learn-cpu.0-23:latest",
                 model_serving_container_image_uri="gcr.io/google-appengine/python",
-                model_serving_container_command=[
-                    COMMAND_STRING_CLI.split("\n"),
-                    command_str,
-                ],
+                model_serving_container_command=COMMAND_STRING_CLI.split("\n")
+                + [command_str],
             )
 
             obj._model = obj._training_job.run(
@@ -309,7 +307,8 @@ def vertex_predict_function_wrapper(method: Callable[..., Any]):
                 display_name="serving-test",
                 artifact_uri=model_uri,
                 serving_container_image_uri="gcr.io/google-appengine/python",
-                serving_container_command=[COMMAND_STRING_CLI.split("\n"), command_str],
+                serving_container_command=COMMAND_STRING_CLI.split("\n")
+                + [command_str],
             )
 
         # Cloud training to local prediction: deserialize from cloud URI
