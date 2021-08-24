@@ -284,6 +284,9 @@ def vertex_predict_function_wrapper(method: Callable[..., Any]):
             vertex_model_root_folder = "/".join(
                 [staging_bucket, f"vertex_model_run_{timestamp}"]
             )
+            serialized_inputs_artifacts_folder = "/".join(
+                [vertex_model_root_folder, "serialized_model"]
+            )
 
             model_uri = model._serialize_local_model(
                 vertex_model_root_folder, obj, "local"
