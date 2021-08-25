@@ -42,6 +42,10 @@ _TEST_SENTIMENT_MAX = 10
 
 _TEST_DATASET_NAME = "test-dataset-name"
 _TEST_MODEL_DISPLAY_NAME = "model-display-name"
+
+_TEST_LABELS = {"key": "value"}
+_TEST_MODEL_LABELS = {"model_key": "model_value"}
+
 _TEST_MODEL_ID = "98777645321"
 
 _TEST_TRAINING_TASK_INPUTS_CLASSIFICATION = training_job_inputs.AutoMlTextClassificationInputs(
@@ -55,6 +59,10 @@ _TEST_TRAINING_TASK_INPUTS_SENTIMENT = training_job_inputs.AutoMlTextSentimentIn
 _TEST_FRACTION_SPLIT_TRAINING = 0.6
 _TEST_FRACTION_SPLIT_VALIDATION = 0.2
 _TEST_FRACTION_SPLIT_TEST = 0.2
+_TEST_FILTER_SPLIT_TRAINING = "train"
+_TEST_FILTER_SPLIT_VALIDATION = "validate"
+_TEST_FILTER_SPLIT_TEST = "test"
+_TEST_PREDEFINED_SPLIT_COLUMN_NAME = "predefined_column"
 
 _TEST_MODEL_NAME = (
     f"projects/{_TEST_PROJECT}/locations/{_TEST_LOCATION}/models/{_TEST_MODEL_ID}"
@@ -141,6 +149,7 @@ def mock_model_service_get():
 def mock_dataset_text():
     ds = mock.MagicMock(datasets.TextDataset)
     ds.name = _TEST_DATASET_NAME
+    ds.metadata_schema_uri = _TEST_METADATA_SCHEMA_URI_TEXT
     ds._latest_future = None
     ds._exception = None
     ds._gca_resource = gca_dataset.Dataset(
@@ -266,20 +275,11 @@ class TestAutoMLTextTrainingJob:
         model_from_job = job.run(
             dataset=mock_dataset_text,
             model_display_name=_TEST_MODEL_DISPLAY_NAME,
-            training_fraction_split=_TEST_FRACTION_SPLIT_TRAINING,
-            validation_fraction_split=_TEST_FRACTION_SPLIT_VALIDATION,
-            test_fraction_split=_TEST_FRACTION_SPLIT_TEST,
             sync=sync,
         )
 
         if not sync:
             model_from_job.wait()
-
-        true_fraction_split = gca_training_pipeline.FractionSplit(
-            training_fraction=_TEST_FRACTION_SPLIT_TRAINING,
-            validation_fraction=_TEST_FRACTION_SPLIT_VALIDATION,
-            test_fraction=_TEST_FRACTION_SPLIT_TEST,
-        )
 
         true_managed_model = gca_model.Model(
             display_name=_TEST_MODEL_DISPLAY_NAME,
@@ -287,7 +287,7 @@ class TestAutoMLTextTrainingJob:
         )
 
         true_input_data_config = gca_training_pipeline.InputDataConfig(
-            fraction_split=true_fraction_split, dataset_id=mock_dataset_text.name,
+            dataset_id=mock_dataset_text.name,
         )
 
         true_training_pipeline = gca_training_pipeline.TrainingPipeline(
@@ -319,6 +319,7 @@ class TestAutoMLTextTrainingJob:
 
         job = training_jobs.AutoMLTextTrainingJob(
             display_name=_TEST_DISPLAY_NAME,
+            labels=_TEST_LABELS,
             prediction_type=_TEST_PREDICTION_TYPE_CLASSIFICATION,
             multi_label=_TEST_CLASSIFICATION_MULTILABEL,
             training_encryption_spec_key_name=_TEST_PIPELINE_ENCRYPTION_KEY_NAME,
@@ -328,32 +329,35 @@ class TestAutoMLTextTrainingJob:
         model_from_job = job.run(
             dataset=mock_dataset_text,
             model_display_name=_TEST_MODEL_DISPLAY_NAME,
-            training_fraction_split=_TEST_FRACTION_SPLIT_TRAINING,
-            validation_fraction_split=_TEST_FRACTION_SPLIT_VALIDATION,
-            test_fraction_split=_TEST_FRACTION_SPLIT_TEST,
+            model_labels=_TEST_MODEL_LABELS,
+            training_filter_split=_TEST_FILTER_SPLIT_TRAINING,
+            validation_filter_split=_TEST_FILTER_SPLIT_VALIDATION,
+            test_filter_split=_TEST_FILTER_SPLIT_TEST,
             sync=sync,
         )
 
         if not sync:
             model_from_job.wait()
 
-        true_fraction_split = gca_training_pipeline.FractionSplit(
-            training_fraction=_TEST_FRACTION_SPLIT_TRAINING,
-            validation_fraction=_TEST_FRACTION_SPLIT_VALIDATION,
-            test_fraction=_TEST_FRACTION_SPLIT_TEST,
+        true_filter_split = gca_training_pipeline.FilterSplit(
+            training_filter=_TEST_FILTER_SPLIT_TRAINING,
+            validation_filter=_TEST_FILTER_SPLIT_VALIDATION,
+            test_filter=_TEST_FILTER_SPLIT_TEST,
         )
 
         true_managed_model = gca_model.Model(
             display_name=_TEST_MODEL_DISPLAY_NAME,
+            labels=_TEST_MODEL_LABELS,
             encryption_spec=_TEST_MODEL_ENCRYPTION_SPEC,
         )
 
         true_input_data_config = gca_training_pipeline.InputDataConfig(
-            fraction_split=true_fraction_split, dataset_id=mock_dataset_text.name,
+            filter_split=true_filter_split, dataset_id=mock_dataset_text.name,
         )
 
         true_training_pipeline = gca_training_pipeline.TrainingPipeline(
             display_name=_TEST_DISPLAY_NAME,
+            labels=_TEST_LABELS,
             training_task_definition=schema.training_job.definition.automl_text_classification,
             training_task_inputs=_TEST_TRAINING_TASK_INPUTS_CLASSIFICATION,
             model_to_upload=true_managed_model,
@@ -388,12 +392,14 @@ class TestAutoMLTextTrainingJob:
 
         job = training_jobs.AutoMLTextTrainingJob(
             display_name=_TEST_DISPLAY_NAME,
+            labels=_TEST_LABELS,
             prediction_type=_TEST_PREDICTION_TYPE_EXTRACTION,
         )
 
         model_from_job = job.run(
             dataset=mock_dataset_text,
             model_display_name=_TEST_MODEL_DISPLAY_NAME,
+            model_labels=_TEST_MODEL_LABELS,
             training_fraction_split=_TEST_FRACTION_SPLIT_TRAINING,
             validation_fraction_split=_TEST_FRACTION_SPLIT_VALIDATION,
             test_fraction_split=_TEST_FRACTION_SPLIT_TEST,
@@ -409,7 +415,9 @@ class TestAutoMLTextTrainingJob:
             test_fraction=_TEST_FRACTION_SPLIT_TEST,
         )
 
-        true_managed_model = gca_model.Model(display_name=_TEST_MODEL_DISPLAY_NAME)
+        true_managed_model = gca_model.Model(
+            display_name=_TEST_MODEL_DISPLAY_NAME, labels=_TEST_MODEL_LABELS,
+        )
 
         true_input_data_config = gca_training_pipeline.InputDataConfig(
             fraction_split=true_fraction_split, dataset_id=mock_dataset_text.name,
@@ -417,6 +425,7 @@ class TestAutoMLTextTrainingJob:
 
         true_training_pipeline = gca_training_pipeline.TrainingPipeline(
             display_name=_TEST_DISPLAY_NAME,
+            labels=_TEST_LABELS,
             training_task_definition=schema.training_job.definition.automl_text_extraction,
             training_task_inputs=_TEST_TRAINING_TASK_INPUTS_EXTRACTION,
             model_to_upload=true_managed_model,
@@ -450,6 +459,7 @@ class TestAutoMLTextTrainingJob:
 
         job = training_jobs.AutoMLTextTrainingJob(
             display_name=_TEST_DISPLAY_NAME,
+            labels=_TEST_LABELS,
             prediction_type=_TEST_PREDICTION_TYPE_SENTIMENT,
             sentiment_max=10,
         )
@@ -457,29 +467,33 @@ class TestAutoMLTextTrainingJob:
         model_from_job = job.run(
             dataset=mock_dataset_text,
             model_display_name=_TEST_MODEL_DISPLAY_NAME,
-            training_fraction_split=_TEST_FRACTION_SPLIT_TRAINING,
-            validation_fraction_split=_TEST_FRACTION_SPLIT_VALIDATION,
-            test_fraction_split=_TEST_FRACTION_SPLIT_TEST,
+            model_labels=_TEST_MODEL_LABELS,
+            training_filter_split=_TEST_FILTER_SPLIT_TRAINING,
+            validation_filter_split=_TEST_FILTER_SPLIT_VALIDATION,
+            test_filter_split=_TEST_FILTER_SPLIT_TEST,
             sync=sync,
         )
 
         if not sync:
             model_from_job.wait()
 
-        true_fraction_split = gca_training_pipeline.FractionSplit(
-            training_fraction=_TEST_FRACTION_SPLIT_TRAINING,
-            validation_fraction=_TEST_FRACTION_SPLIT_VALIDATION,
-            test_fraction=_TEST_FRACTION_SPLIT_TEST,
+        true_filter_split = gca_training_pipeline.FilterSplit(
+            training_filter=_TEST_FILTER_SPLIT_TRAINING,
+            validation_filter=_TEST_FILTER_SPLIT_VALIDATION,
+            test_filter=_TEST_FILTER_SPLIT_TEST,
         )
 
-        true_managed_model = gca_model.Model(display_name=_TEST_MODEL_DISPLAY_NAME)
+        true_managed_model = gca_model.Model(
+            display_name=_TEST_MODEL_DISPLAY_NAME, labels=_TEST_MODEL_LABELS
+        )
 
         true_input_data_config = gca_training_pipeline.InputDataConfig(
-            fraction_split=true_fraction_split, dataset_id=mock_dataset_text.name,
+            filter_split=true_filter_split, dataset_id=mock_dataset_text.name,
         )
 
         true_training_pipeline = gca_training_pipeline.TrainingPipeline(
             display_name=_TEST_DISPLAY_NAME,
+            labels=_TEST_LABELS,
             training_task_definition=schema.training_job.definition.automl_text_sentiment,
             training_task_inputs=_TEST_TRAINING_TASK_INPUTS_SENTIMENT,
             model_to_upload=true_managed_model,
@@ -500,7 +514,7 @@ class TestAutoMLTextTrainingJob:
 
     @pytest.mark.usefixtures("mock_pipeline_service_get")
     @pytest.mark.parametrize("sync", [True, False])
-    def test_run_call_pipeline_if_no_model_display_name(
+    def test_run_call_pipeline_if_no_model_display_name_nor_model_labels(
         self,
         mock_pipeline_service_create,
         mock_dataset_text,
@@ -514,13 +528,11 @@ class TestAutoMLTextTrainingJob:
             display_name=_TEST_DISPLAY_NAME,
             prediction_type="classification",
             multi_label=True,
+            labels=_TEST_LABELS,
         )
 
         model_from_job = job.run(
             dataset=mock_dataset_text,
-            training_fraction_split=_TEST_FRACTION_SPLIT_TRAINING,
-            validation_fraction_split=_TEST_FRACTION_SPLIT_VALIDATION,
-            test_fraction_split=_TEST_FRACTION_SPLIT_TEST,
             model_display_name=None,  # Omit model_display_name
             sync=sync,
         )
@@ -528,21 +540,18 @@ class TestAutoMLTextTrainingJob:
         if not sync:
             model_from_job.wait()
 
-        true_fraction_split = gca_training_pipeline.FractionSplit(
-            training_fraction=_TEST_FRACTION_SPLIT_TRAINING,
-            validation_fraction=_TEST_FRACTION_SPLIT_VALIDATION,
-            test_fraction=_TEST_FRACTION_SPLIT_TEST,
+        # Test that if defaults to the job display name
+        true_managed_model = gca_model.Model(
+            display_name=_TEST_DISPLAY_NAME, labels=_TEST_LABELS,
         )
 
-        # Test that if defaults to the job display name
-        true_managed_model = gca_model.Model(display_name=_TEST_DISPLAY_NAME)
-
         true_input_data_config = gca_training_pipeline.InputDataConfig(
-            fraction_split=true_fraction_split, dataset_id=mock_dataset_text.name,
+            dataset_id=mock_dataset_text.name,
         )
 
         true_training_pipeline = gca_training_pipeline.TrainingPipeline(
             display_name=_TEST_DISPLAY_NAME,
+            labels=_TEST_LABELS,
             training_task_definition=schema.training_job.definition.automl_text_classification,
             training_task_inputs=_TEST_TRAINING_TASK_INPUTS_CLASSIFICATION,
             model_to_upload=true_managed_model,
@@ -582,11 +591,40 @@ class TestAutoMLTextTrainingJob:
             job.run(
                 dataset=mock_dataset_text,
                 model_display_name=_TEST_MODEL_DISPLAY_NAME,
+                sync=sync,
+            )
+
+    @pytest.mark.usefixtures(
+        "mock_pipeline_service_create",
+        "mock_pipeline_service_get",
+        "mock_model_service_get",
+    )
+    @pytest.mark.parametrize("sync", [True, False])
+    def test_run_with_two_split_raises(
+        self, mock_dataset_text, sync,
+    ):
+        aiplatform.init(project=_TEST_PROJECT)
+
+        job = training_jobs.AutoMLTextTrainingJob(
+            display_name=_TEST_DISPLAY_NAME,
+            prediction_type="classification",
+            multi_label=True,
+        )
+
+        with pytest.raises(ValueError):
+            model_from_job = job.run(
+                dataset=mock_dataset_text,
+                model_display_name=_TEST_MODEL_DISPLAY_NAME,
                 training_fraction_split=_TEST_FRACTION_SPLIT_TRAINING,
                 validation_fraction_split=_TEST_FRACTION_SPLIT_VALIDATION,
                 test_fraction_split=_TEST_FRACTION_SPLIT_TEST,
+                training_filter_split=_TEST_FILTER_SPLIT_TRAINING,
+                validation_filter_split=_TEST_FILTER_SPLIT_VALIDATION,
+                test_filter_split=_TEST_FILTER_SPLIT_TEST,
                 sync=sync,
             )
+            if not sync:
+                model_from_job.wait()
 
     @pytest.mark.parametrize("sync", [True, False])
     def test_run_raises_if_pipeline_fails(
@@ -616,3 +654,198 @@ class TestAutoMLTextTrainingJob:
 
         with pytest.raises(RuntimeError):
             job.get_model()
+
+    @pytest.mark.parametrize("sync", [True, False])
+    def test_splits_fraction(
+        self,
+        mock_pipeline_service_create,
+        mock_pipeline_service_get,
+        mock_dataset_text,
+        mock_model_service_get,
+        mock_model,
+        sync,
+    ):
+        """
+        Initiate aiplatform with encryption key name.
+        Create and run an AutoML Video Classification training job, verify calls and return value
+        """
+
+        aiplatform.init(
+            project=_TEST_PROJECT,
+            encryption_spec_key_name=_TEST_DEFAULT_ENCRYPTION_KEY_NAME,
+        )
+
+        job = training_jobs.AutoMLTextTrainingJob(
+            display_name=_TEST_DISPLAY_NAME,
+            prediction_type=_TEST_PREDICTION_TYPE_CLASSIFICATION,
+            multi_label=_TEST_CLASSIFICATION_MULTILABEL,
+        )
+
+        model_from_job = job.run(
+            dataset=mock_dataset_text,
+            model_display_name=_TEST_MODEL_DISPLAY_NAME,
+            training_fraction_split=_TEST_FRACTION_SPLIT_TRAINING,
+            validation_fraction_split=_TEST_FRACTION_SPLIT_VALIDATION,
+            test_fraction_split=_TEST_FRACTION_SPLIT_TEST,
+            sync=sync,
+        )
+
+        if not sync:
+            model_from_job.wait()
+
+        true_fraction_split = gca_training_pipeline.FractionSplit(
+            training_fraction=_TEST_FRACTION_SPLIT_TRAINING,
+            validation_fraction=_TEST_FRACTION_SPLIT_VALIDATION,
+            test_fraction=_TEST_FRACTION_SPLIT_TEST,
+        )
+
+        true_managed_model = gca_model.Model(
+            display_name=_TEST_MODEL_DISPLAY_NAME,
+            description=mock_model._gca_resource.description,
+            encryption_spec=_TEST_DEFAULT_ENCRYPTION_SPEC,
+        )
+
+        true_input_data_config = gca_training_pipeline.InputDataConfig(
+            fraction_split=true_fraction_split, dataset_id=mock_dataset_text.name,
+        )
+
+        true_training_pipeline = gca_training_pipeline.TrainingPipeline(
+            display_name=_TEST_DISPLAY_NAME,
+            training_task_definition=schema.training_job.definition.automl_text_classification,
+            training_task_inputs=_TEST_TRAINING_TASK_INPUTS_CLASSIFICATION,
+            model_to_upload=true_managed_model,
+            input_data_config=true_input_data_config,
+            encryption_spec=_TEST_DEFAULT_ENCRYPTION_SPEC,
+        )
+
+        mock_pipeline_service_create.assert_called_once_with(
+            parent=initializer.global_config.common_location_path(),
+            training_pipeline=true_training_pipeline,
+        )
+
+    @pytest.mark.parametrize("sync", [True, False])
+    def test_splits_filter(
+        self,
+        mock_pipeline_service_create,
+        mock_pipeline_service_get,
+        mock_dataset_text,
+        mock_model_service_get,
+        mock_model,
+        sync,
+    ):
+        """
+        Initiate aiplatform with encryption key name.
+        Create and run an AutoML Video Classification training job, verify calls and return value
+        """
+
+        aiplatform.init(
+            project=_TEST_PROJECT,
+            encryption_spec_key_name=_TEST_DEFAULT_ENCRYPTION_KEY_NAME,
+        )
+
+        job = training_jobs.AutoMLTextTrainingJob(
+            display_name=_TEST_DISPLAY_NAME,
+            prediction_type=_TEST_PREDICTION_TYPE_CLASSIFICATION,
+            multi_label=_TEST_CLASSIFICATION_MULTILABEL,
+        )
+
+        model_from_job = job.run(
+            dataset=mock_dataset_text,
+            model_display_name=_TEST_MODEL_DISPLAY_NAME,
+            training_filter_split=_TEST_FILTER_SPLIT_TRAINING,
+            validation_filter_split=_TEST_FILTER_SPLIT_VALIDATION,
+            test_filter_split=_TEST_FILTER_SPLIT_TEST,
+            sync=sync,
+        )
+
+        if not sync:
+            model_from_job.wait()
+
+        true_filter_split = gca_training_pipeline.FilterSplit(
+            training_filter=_TEST_FILTER_SPLIT_TRAINING,
+            validation_filter=_TEST_FILTER_SPLIT_VALIDATION,
+            test_filter=_TEST_FILTER_SPLIT_TEST,
+        )
+
+        true_managed_model = gca_model.Model(
+            display_name=_TEST_MODEL_DISPLAY_NAME,
+            description=mock_model._gca_resource.description,
+            encryption_spec=_TEST_DEFAULT_ENCRYPTION_SPEC,
+        )
+
+        true_input_data_config = gca_training_pipeline.InputDataConfig(
+            filter_split=true_filter_split, dataset_id=mock_dataset_text.name,
+        )
+
+        true_training_pipeline = gca_training_pipeline.TrainingPipeline(
+            display_name=_TEST_DISPLAY_NAME,
+            training_task_definition=schema.training_job.definition.automl_text_classification,
+            training_task_inputs=_TEST_TRAINING_TASK_INPUTS_CLASSIFICATION,
+            model_to_upload=true_managed_model,
+            input_data_config=true_input_data_config,
+            encryption_spec=_TEST_DEFAULT_ENCRYPTION_SPEC,
+        )
+
+        mock_pipeline_service_create.assert_called_once_with(
+            parent=initializer.global_config.common_location_path(),
+            training_pipeline=true_training_pipeline,
+        )
+
+    @pytest.mark.parametrize("sync", [True, False])
+    def test_splits_default(
+        self,
+        mock_pipeline_service_create,
+        mock_pipeline_service_get,
+        mock_dataset_text,
+        mock_model_service_get,
+        mock_model,
+        sync,
+    ):
+        """
+        Initiate aiplatform with encryption key name.
+        Create and run an AutoML Video Classification training job, verify calls and return value
+        """
+
+        aiplatform.init(
+            project=_TEST_PROJECT,
+            encryption_spec_key_name=_TEST_DEFAULT_ENCRYPTION_KEY_NAME,
+        )
+
+        job = training_jobs.AutoMLTextTrainingJob(
+            display_name=_TEST_DISPLAY_NAME,
+            prediction_type=_TEST_PREDICTION_TYPE_CLASSIFICATION,
+            multi_label=_TEST_CLASSIFICATION_MULTILABEL,
+        )
+
+        model_from_job = job.run(
+            dataset=mock_dataset_text,
+            model_display_name=_TEST_MODEL_DISPLAY_NAME,
+            sync=sync,
+        )
+
+        if not sync:
+            model_from_job.wait()
+
+        true_managed_model = gca_model.Model(
+            display_name=_TEST_MODEL_DISPLAY_NAME,
+            description=mock_model._gca_resource.description,
+            encryption_spec=_TEST_DEFAULT_ENCRYPTION_SPEC,
+        )
+
+        true_input_data_config = gca_training_pipeline.InputDataConfig(
+            dataset_id=mock_dataset_text.name,
+        )
+
+        true_training_pipeline = gca_training_pipeline.TrainingPipeline(
+            display_name=_TEST_DISPLAY_NAME,
+            training_task_definition=schema.training_job.definition.automl_text_classification,
+            training_task_inputs=_TEST_TRAINING_TASK_INPUTS_CLASSIFICATION,
+            model_to_upload=true_managed_model,
+            input_data_config=true_input_data_config,
+            encryption_spec=_TEST_DEFAULT_ENCRYPTION_SPEC,
+        )
+
+        mock_pipeline_service_create.assert_called_once_with(
+            parent=initializer.global_config.common_location_path(),
+            training_pipeline=true_training_pipeline,
+        )

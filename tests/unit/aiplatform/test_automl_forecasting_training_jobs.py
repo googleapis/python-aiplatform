@@ -103,12 +103,11 @@ _TEST_TRAINING_TASK_INPUTS_WITH_ADDITIONAL_EXPERIMENTS = json_format.ParseDict(
 _TEST_DATASET_NAME = "test-dataset-name"
 
 _TEST_MODEL_DISPLAY_NAME = "model-display-name"
-_TEST_TRAINING_FRACTION_SPLIT = 0.8
-_TEST_VALIDATION_FRACTION_SPLIT = 0.1
-_TEST_TEST_FRACTION_SPLIT = 0.1
-_TEST_PREDEFINED_SPLIT_COLUMN_NAME = "split"
 
-_TEST_OUTPUT_PYTHON_PACKAGE_PATH = "gs://test/ouput/python/trainer.tar.gz"
+_TEST_LABELS = {"key": "value"}
+_TEST_MODEL_LABELS = {"model_key": "model_value"}
+
+_TEST_PREDEFINED_SPLIT_COLUMN_NAME = "split"
 
 _TEST_MODEL_NAME = "projects/my-project/locations/us-central1/models/12345"
 
@@ -228,6 +227,7 @@ class TestAutoMLForecastingTrainingJob:
             display_name=_TEST_DISPLAY_NAME,
             optimization_objective=_TEST_TRAINING_OPTIMIZATION_OBJECTIVE_NAME,
             column_transformations=_TEST_TRAINING_COLUMN_TRANSFORMATIONS,
+            labels=_TEST_LABELS,
         )
 
         model_from_job = job.run(
@@ -241,6 +241,7 @@ class TestAutoMLForecastingTrainingJob:
             data_granularity_unit=_TEST_TRAINING_DATA_GRANULARITY_UNIT,
             data_granularity_count=_TEST_TRAINING_DATA_GRANULARITY_COUNT,
             model_display_name=_TEST_MODEL_DISPLAY_NAME,
+            model_labels=_TEST_MODEL_LABELS,
             predefined_split_column_name=_TEST_PREDEFINED_SPLIT_COLUMN_NAME,
             weight_column=_TEST_TRAINING_WEIGHT_COLUMN,
             time_series_attribute_columns=_TEST_TRAINING_TIME_SERIES_ATTRIBUTE_COLUMNS,
@@ -257,16 +258,11 @@ class TestAutoMLForecastingTrainingJob:
         if not sync:
             model_from_job.wait()
 
-        true_fraction_split = gca_training_pipeline.FractionSplit(
-            training_fraction=_TEST_TRAINING_FRACTION_SPLIT,
-            validation_fraction=_TEST_VALIDATION_FRACTION_SPLIT,
-            test_fraction=_TEST_TEST_FRACTION_SPLIT,
+        true_managed_model = gca_model.Model(
+            display_name=_TEST_MODEL_DISPLAY_NAME, labels=_TEST_MODEL_LABELS
         )
 
-        true_managed_model = gca_model.Model(display_name=_TEST_MODEL_DISPLAY_NAME)
-
         true_input_data_config = gca_training_pipeline.InputDataConfig(
-            fraction_split=true_fraction_split,
             predefined_split=gca_training_pipeline.PredefinedSplit(
                 key=_TEST_PREDEFINED_SPLIT_COLUMN_NAME
             ),
@@ -275,6 +271,7 @@ class TestAutoMLForecastingTrainingJob:
 
         true_training_pipeline = gca_training_pipeline.TrainingPipeline(
             display_name=_TEST_DISPLAY_NAME,
+            labels=_TEST_LABELS,
             training_task_definition=schema.training_job.definition.automl_forecasting,
             training_task_inputs=_TEST_TRAINING_TASK_INPUTS,
             model_to_upload=true_managed_model,
@@ -300,7 +297,7 @@ class TestAutoMLForecastingTrainingJob:
 
     @pytest.mark.usefixtures("mock_pipeline_service_get")
     @pytest.mark.parametrize("sync", [True, False])
-    def test_run_call_pipeline_if_no_model_display_name(
+    def test_run_call_pipeline_if_no_model_display_name_nor_model_labels(
         self,
         mock_pipeline_service_create,
         mock_dataset_time_series,
@@ -313,6 +310,7 @@ class TestAutoMLForecastingTrainingJob:
             display_name=_TEST_DISPLAY_NAME,
             optimization_objective=_TEST_TRAINING_OPTIMIZATION_OBJECTIVE_NAME,
             column_transformations=_TEST_TRAINING_COLUMN_TRANSFORMATIONS,
+            labels=_TEST_LABELS,
         )
 
         model_from_job = job.run(
@@ -340,22 +338,18 @@ class TestAutoMLForecastingTrainingJob:
         if not sync:
             model_from_job.wait()
 
-        true_fraction_split = gca_training_pipeline.FractionSplit(
-            training_fraction=_TEST_TRAINING_FRACTION_SPLIT,
-            validation_fraction=_TEST_VALIDATION_FRACTION_SPLIT,
-            test_fraction=_TEST_TEST_FRACTION_SPLIT,
+        # Test that if defaults to the job display name
+        true_managed_model = gca_model.Model(
+            display_name=_TEST_DISPLAY_NAME, labels=_TEST_LABELS,
         )
 
-        # Test that if defaults to the job display name
-        true_managed_model = gca_model.Model(display_name=_TEST_DISPLAY_NAME)
-
         true_input_data_config = gca_training_pipeline.InputDataConfig(
-            fraction_split=true_fraction_split,
             dataset_id=mock_dataset_time_series.name,
         )
 
         true_training_pipeline = gca_training_pipeline.TrainingPipeline(
             display_name=_TEST_DISPLAY_NAME,
+            labels=_TEST_LABELS,
             training_task_definition=schema.training_job.definition.automl_forecasting,
             training_task_inputs=_TEST_TRAINING_TASK_INPUTS,
             model_to_upload=true_managed_model,
@@ -411,17 +405,10 @@ class TestAutoMLForecastingTrainingJob:
         if not sync:
             model_from_job.wait()
 
-        true_fraction_split = gca_training_pipeline.FractionSplit(
-            training_fraction=_TEST_TRAINING_FRACTION_SPLIT,
-            validation_fraction=_TEST_VALIDATION_FRACTION_SPLIT,
-            test_fraction=_TEST_TEST_FRACTION_SPLIT,
-        )
-
         # Test that if defaults to the job display name
         true_managed_model = gca_model.Model(display_name=_TEST_DISPLAY_NAME)
 
         true_input_data_config = gca_training_pipeline.InputDataConfig(
-            fraction_split=true_fraction_split,
             dataset_id=mock_dataset_time_series.name,
         )
 

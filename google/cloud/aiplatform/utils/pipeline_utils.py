@@ -129,7 +129,7 @@ class PipelineRuntimeConfigBuilder(object):
           ValueError: if the parameter name is not found in pipeline root
           inputs, or value is none.
         """
-        if not value:
+        if value is None:
             raise ValueError("None values should be filterd out.")
 
         if name not in self._parameter_types:

@@ -154,7 +154,7 @@ class Endpoint(base.VertexAiResourceNounWithFutureManager):
         cls,
         display_name: str,
         description: Optional[str] = None,
-        labels: Optional[Dict] = None,
+        labels: Optional[Dict[str, str]] = None,
         metadata: Optional[Sequence[Tuple[str, str]]] = (),
         project: Optional[str] = None,
         location: Optional[str] = None,
@@ -177,7 +177,7 @@ class Endpoint(base.VertexAiResourceNounWithFutureManager):
                 set in aiplatform.init will be used.
             description (str):
                 Optional. The description of the Endpoint.
-            labels (Dict):
+            labels (Dict[str, str]):
                 Optional. The labels with user-defined metadata to
                 organize your Endpoints.
                 Label keys and values can be no longer than 64
@@ -216,6 +216,8 @@ class Endpoint(base.VertexAiResourceNounWithFutureManager):
         api_client = cls._instantiate_client(location=location, credentials=credentials)
 
         utils.validate_display_name(display_name)
+        if labels:
+            utils.validate_labels(labels)
 
         project = project or initializer.global_config.project
         location = location or initializer.global_config.location
@@ -244,7 +246,7 @@ class Endpoint(base.VertexAiResourceNounWithFutureManager):
         project: str,
         location: str,
         description: Optional[str] = None,
-        labels: Optional[Dict] = None,
+        labels: Optional[Dict[str, str]] = None,
         metadata: Optional[Sequence[Tuple[str, str]]] = (),
         credentials: Optional[auth_credentials.Credentials] = None,
         encryption_spec: Optional[gca_encryption_spec.EncryptionSpec] = None,
@@ -268,7 +270,7 @@ class Endpoint(base.VertexAiResourceNounWithFutureManager):
                 set in aiplatform.init will be used.
             description (str):
                 Optional. The description of the Endpoint.
-            labels (Dict):
+            labels (Dict[str, str]):
                 Optional. The labels with user-defined metadata to
                 organize your Endpoints.
                 Label keys and values can be no longer than 64
@@ -1470,6 +1472,7 @@ class Model(base.VertexAiResourceNounWithFutureManager):
         project: Optional[str] = None,
         location: Optional[str] = None,
         credentials: Optional[auth_credentials.Credentials] = None,
+        labels: Optional[Dict[str, str]] = None,
         encryption_spec_key_name: Optional[str] = None,
         sync=True,
     ) -> "Model":
@@ -1593,6 +1596,16 @@ class Model(base.VertexAiResourceNounWithFutureManager):
             credentials: Optional[auth_credentials.Credentials]=None,
                 Custom credentials to use to upload this model. Overrides credentials
                 set in aiplatform.init.
+            labels (Dict[str, str]):
+                Optional. The labels with user-defined metadata to
+                organize your Models.
+                Label keys and values can be no longer than 64
+                characters (Unicode codepoints), can only
+                contain lowercase letters, numeric characters,
+                underscores and dashes. International characters
+                are allowed.
+                See https://goo.gl/xmQnxf for more information
+                and examples of labels.
             encryption_spec_key_name (Optional[str]):
                 Optional. The Cloud KMS resource identifier of the customer
                 managed encryption key used to protect the model. Has the
@@ -1611,6 +1624,8 @@ class Model(base.VertexAiResourceNounWithFutureManager):
                 is specified.
         """
         utils.validate_display_name(display_name)
+        if labels:
+            utils.validate_labels(labels)
 
         if bool(explanation_metadata) != bool(explanation_parameters):
             raise ValueError(
@@ -1667,6 +1682,7 @@ class Model(base.VertexAiResourceNounWithFutureManager):
             description=description,
             container_spec=container_spec,
             predict_schemata=model_predict_schemata,
+            labels=labels,
             encryption_spec=encryption_spec,
         )
 
@@ -1991,7 +2007,7 @@ class Model(base.VertexAiResourceNounWithFutureManager):
         generate_explanation: Optional[bool] = False,
         explanation_metadata: Optional[explain.ExplanationMetadata] = None,
         explanation_parameters: Optional[explain.ExplanationParameters] = None,
-        labels: Optional[dict] = None,
+        labels: Optional[Dict[str, str]] = None,
         credentials: Optional[auth_credentials.Credentials] = None,
         encryption_spec_key_name: Optional[str] = None,
         sync: bool = True,
@@ -2022,7 +2038,7 @@ class Model(base.VertexAiResourceNounWithFutureManager):
                 https://cloud.google.com/storage/docs/gsutil/addlhelp/WildcardNames.
             bigquery_source: Optional[str] = None
                 BigQuery URI to a table, up to 2000 characters long. For example:
-                `projectId.bqDatasetId.bqTableId`
+                `bq://projectId.bqDatasetId.bqTableId`
             instances_format: str = "jsonl"
                 Required. The format in which instances are given, must be one
                 of "jsonl", "csv", "bigquery", "tf-record", "tf-record-gzip",
@@ -2126,7 +2142,7 @@ class Model(base.VertexAiResourceNounWithFutureManager):
                 a field of the `explanation_parameters` object is not populated, the
                 corresponding field of the `Model.explanation_parameters` object is inherited.
                 For more details, see `Ref docs <http://tinyurl.com/1an4zake>`
-            labels: Optional[dict] = None
+            labels: Optional[Dict[str, str]] = None
                 Optional. The labels with user-defined metadata to organize your
                 BatchPredictionJobs. Label keys and values can be no longer than
                 64 characters (Unicode codepoints), can only contain lowercase

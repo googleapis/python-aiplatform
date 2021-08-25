@@ -28,6 +28,7 @@ from google.cloud import aiplatform
 from google.cloud.aiplatform import compat
 from google.cloud.aiplatform import utils
 from google.cloud.aiplatform.utils import pipeline_utils
+from google.cloud.aiplatform.utils import tensorboard_utils
 
 from google.cloud.aiplatform_v1beta1.services.model_service import (
     client as model_service_client_v1beta1,
@@ -257,6 +258,20 @@ def test_validate_display_name():
     aiplatform.utils.validate_display_name("my_model_abc")
 
 
+def test_validate_labels_raises_value_not_str():
+    with pytest.raises(ValueError):
+        aiplatform.utils.validate_labels({"my_key1": 1, "my_key2": 2})
+
+
+def test_validate_labels_raises_key_not_str():
+    with pytest.raises(ValueError):
+        aiplatform.utils.validate_labels({1: "my_value1", 2: "my_value2"})
+
+
+def test_validate_labels():
+    aiplatform.utils.validate_labels({"my_key1": "my_value1", "my_key2": "my_value2"})
+
+
 @pytest.mark.parametrize(
     "accelerator_type, expected",
     [
@@ -440,3 +455,54 @@ class TestPipelineUtils:
             my_builder.build()
 
         assert e.match(regexp=r"The pipeline parameter no_such_param is not found")
+
+
+class TestTensorboardUtils:
+    def test_tensorboard_get_experiment_url(self):
+        actual = tensorboard_utils.get_experiment_url(
+            "projects/123/locations/asia-east1/tensorboards/456/experiments/exp1"
+        )
+        assert actual == (
+            "https://asia-east1.tensorboard."
+            + "googleusercontent.com/experiment/projects+123+locations+asia-east1+tensorboards+456+experiments+exp1"
+        )
+
+    def test_get_experiments_url_bad_experiment_name(self):
+        with pytest.raises(ValueError, match="Invalid experiment name: foo-bar."):
+            tensorboard_utils.get_experiment_url("foo-bar")
+
+    def test_tensorboard_get_experiments_compare_url(self):
+        actual = tensorboard_utils.get_experiments_compare_url(
+            (
+                "projects/123/locations/asia-east1/tensorboards/456/experiments/exp1",
+                "projects/123/locations/asia-east1/tensorboards/456/experiments/exp2",
+            )
+        )
+        assert actual == (
+            "https://asia-east1.tensorboard."
+            + "googleusercontent.com/compare/1-exp1:123+asia-east1+456+exp1,"
+            + "2-exp2:123+asia-east1+456+exp2"
+        )
+
+    def test_tensorboard_get_experiments_compare_url_fail_just_one_exp(self):
+        with pytest.raises(
+            ValueError, match="At least two experiment_names are required."
+        ):
+            tensorboard_utils.get_experiments_compare_url(
+                ("projects/123/locations/asia-east1/tensorboards/456/experiments/exp1",)
+            )
+
+    def test_tensorboard_get_experiments_compare_url_fail_diff_region(self):
+        with pytest.raises(
+            ValueError, match="Got experiments from different locations: asia-east.",
+        ):
+            tensorboard_utils.get_experiments_compare_url(
+                (
+                    "projects/123/locations/asia-east1/tensorboards/456/experiments/exp1",
+                    "projects/123/locations/asia-east2/tensorboards/456/experiments/exp2",
+                )
+            )
+
+    def test_get_experiments_compare_url_bad_experiment_name(self):
+        with pytest.raises(ValueError, match="Invalid experiment name: foo-bar."):
+            tensorboard_utils.get_experiments_compare_url(("foo-bar", "foo-bar1"))

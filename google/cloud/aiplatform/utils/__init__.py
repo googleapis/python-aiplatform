@@ -22,7 +22,7 @@ import pathlib
 from collections import namedtuple
 import logging
 import re
-from typing import Any, Match, Optional, Type, TypeVar, Tuple
+from typing import Any, Dict, Match, Optional, Type, TypeVar, Tuple
 
 from google.api_core import client_options
 from google.api_core import gapic_v1
@@ -237,6 +237,22 @@ def validate_display_name(display_name: str):
     """
     if len(display_name) > 128:
         raise ValueError("Display name needs to be less than 128 characters.")
+
+
+def validate_labels(labels: Dict[str, str]):
+    """Validate labels.
+
+    Args:
+        labels: labels to verify
+    Raises:
+        ValueError: if labels is not a mapping of string key value pairs.
+    """
+    for k, v in labels.items():
+        if not isinstance(k, str) or not isinstance(v, str):
+            raise ValueError(
+                "Expect labels to be a mapping of string key value pairs. "
+                'Got "{}".'.format(labels)
+            )
 
 
 def validate_region(region: str) -> bool:
