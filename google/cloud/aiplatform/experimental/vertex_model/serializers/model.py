@@ -42,11 +42,9 @@ def _serialize_local_model(
         The GCS path pointing to the serialized objet.
     """
 
-    print(artifact_uri)
     compiled_custom_model = torch.jit.script(obj)
 
     if not artifact_uri.startswith("gs://"):
-        print("entered if")
         path_to_model = artifact_uri + "/my_" + model_type + "_model.pth"
         torch.jit.save(compiled_custom_model, path_to_model)
         return path_to_model

@@ -127,7 +127,7 @@ def _serialize_dataloader(
             return _serialize_remote_dataloader(artifact_uri, obj, dataset_type)
         else:
             raise RuntimeError(
-                "VertexModel does not accomodate DataLoaders with local data references"
+                "VertexModel does not accomodate DataLoaders with local data references. To use this data, try first reading your local file into an object within your workflow, then creating your DataLoader with that object as input."
             )
 
     else:

@@ -46,8 +46,9 @@ except ImportError:
         "PyTorch is not installed. Please install torch to use VertexModel"
     )
 
+GITHUB_DEPENDENCY = "google-cloud-aiplatform @ git+https://github.com/googleapis/python-aiplatform@refs/pull/628/head#egg=google-cloud-aiplatform"
 
-COMMAND_STRING_CLI = [
+SERVING_COMMAND_STRING_CLI = [
     "sh",
     "-c",
     "python3 -m pip install --user --disable-pip-version-check 'uvicorn' 'fastapi' 'torch' 'pandas' 'google-cloud-aiplatform @ git+https://github.com/googleapis/python-aiplatform@refs/pull/628/head#egg=google-cloud-aiplatform' && \"$0\" \"$@\"",
@@ -56,7 +57,7 @@ COMMAND_STRING_CLI = [
     'program_path=$(mktemp)\nprintf "%s" "$0" > "$program_path"\npython3 -u "$program_path" "$@"\n',
 ]
 
-COMMAND_STRING_CODE_SETUP = """import os
+SERVING_COMMAND_STRING_CODE_SETUP = """import os
 from fastapi import FastAPI, Request
 import uvicorn
 import functools
@@ -65,7 +66,7 @@ from google.cloud.aiplatform.experimental.vertex_model.serializers import model
 
 """
 
-COMMAND_STRING_CODE_APIS = """
+SERVING_COMMAND_STRING_CODE_APIS = """
 
 app = FastAPI()
 my_model = model._deserialize_remote_model(os.environ['AIP_STORAGE_URI'] + '/my_local_model.pth')
@@ -118,11 +119,14 @@ def vertex_fit_function_wrapper(method: Callable[..., Any]):
 
     @functools.wraps(method)
     def f(*args, **kwargs):
-        if not method.__self__.remote:
-            return method(*args, **kwargs)
-
         obj = method.__self__
         cls_name = obj.__class__.__name__
+
+        obj._model = None
+        obj._endpoint = None
+
+        if not method.__self__.remote:
+            return method(*args, **kwargs)
 
         training_source = source_utils._make_class_source(obj)
         bound_args = inspect.signature(method).bind(*args, **kwargs)
@@ -194,17 +198,7 @@ def vertex_fit_function_wrapper(method: Callable[..., Any]):
             with open(script_path, "w") as f:
                 f.write(source)
 
-            import_lines = ""
-            try:
-                module = inspect.getmodule(obj.__class__)
-                import_lines = "\n".join(source_utils.get_import_lines(module.__file__))
-
-            except AttributeError:
-                import_lines = "\n".join(
-                    source_utils.get_import_lines(
-                        source_utils.jupyter_notebook_to_file()
-                    )
-                )
+            import_lines = source_utils.import_try_except(obj)
 
             class_args = inspect.signature(obj.__class__.__init__).bind(
                 obj, *obj._constructor_arguments[0], **obj._constructor_arguments[1]
@@ -213,27 +207,23 @@ def vertex_fit_function_wrapper(method: Callable[..., Any]):
             class_creation = f"original_model = {cls_name}({','.join(map(str, class_args.args[1:]))})\n"
             command_str = (
                 import_lines
-                + COMMAND_STRING_CODE_SETUP
+                + SERVING_COMMAND_STRING_CODE_SETUP
                 + training_source
                 + class_creation
-                + COMMAND_STRING_CODE_APIS
+                + SERVING_COMMAND_STRING_CODE_APIS
             )
 
-            if (
-                "google-cloud-aiplatform @ git+https://github.com/googleapis/python-aiplatform@refs/pull/628/head#egg=google-cloud-aiplatform"
-                not in obj._dependencies
-            ):
-                obj._dependencies.append(
-                    "google-cloud-aiplatform @ git+https://github.com/googleapis/python-aiplatform@refs/pull/628/head#egg=google-cloud-aiplatform"
-                )
+            if GITHUB_DEPENDENCY not in obj.dependencies:
+                obj.dependencies.append(GITHUB_DEPENDENCY)
 
             obj._training_job = aiplatform.CustomTrainingJob(
                 display_name="my_training_job",
                 script_path=str(script_path),
-                requirements=obj._dependencies,
+                requirements=obj.dependencies,
                 container_uri="us-docker.pkg.dev/vertex-ai/training/scikit-learn-cpu.0-23:latest",
                 model_serving_container_image_uri="gcr.io/google-appengine/python",
-                model_serving_container_command=COMMAND_STRING_CLI + [command_str],
+                model_serving_container_command=SERVING_COMMAND_STRING_CLI
+                + [command_str],
             )
 
             obj._model = obj._training_job.run(
@@ -288,23 +278,12 @@ def vertex_predict_function_wrapper(method: Callable[..., Any]):
                 [vertex_model_root_folder, "serialized_model"]
             )
 
-            print(type(obj))
             model_uri = model._serialize_local_model(
                 vertex_model_model_folder, obj, "local"
             )
 
             # Upload model w/ command
-            import_lines = ""
-            try:
-                module = inspect.getmodule(obj.__class__)
-                import_lines = "\n".join(source_utils.get_import_lines(module.__file__))
-
-            except AttributeError:
-                import_lines = "\n".join(
-                    source_utils.get_import_lines(
-                        source_utils.jupyter_notebook_to_file()
-                    )
-                )
+            import_lines = source_utils.import_try_except(obj)
 
             training_source = source_utils._make_class_source(obj)
             class_args = inspect.signature(obj.__class__.__init__).bind(
@@ -314,17 +293,17 @@ def vertex_predict_function_wrapper(method: Callable[..., Any]):
             class_creation = f"original_model = {obj.__class__.__name__}({','.join(map(str, class_args.args[1:]))})\n"
             command_str = (
                 import_lines
-                + COMMAND_STRING_CODE_SETUP
+                + SERVING_COMMAND_STRING_CODE_SETUP
                 + training_source
                 + class_creation
-                + COMMAND_STRING_CODE_APIS
+                + SERVING_COMMAND_STRING_CODE_APIS
             )
 
             obj._model = aiplatform.Model.upload(
                 display_name="serving-test",
                 artifact_uri=vertex_model_model_folder,
                 serving_container_image_uri="gcr.io/google-appengine/python",
-                serving_container_command=COMMAND_STRING_CLI + [command_str],
+                serving_container_command=SERVING_COMMAND_STRING_CLI + [command_str],
             )
 
         # Cloud training to local prediction: deserialize from cloud URI
@@ -353,8 +332,13 @@ def vertex_predict_function_wrapper(method: Callable[..., Any]):
                     break
 
             # TODO: cleanup model resource after endpoint is created
-            endpoint = obj._model.deploy(machine_type="n1-standard-4")
-            return endpoint.predict(instances=data)
+            if obj._endpoint is None:
+                _LOGGER.info(
+                    "Model is not deployed for remote prediction. Deploying model to an endpoint."
+                )
+                obj._endpoint = obj._model.deploy(machine_type="n1-standard-4")
+
+            return obj._endpoint.predict(instances=data)
 
     return p
 
@@ -376,8 +360,10 @@ class VertexModel(metaclass=abc.ABCMeta):
         # Default to local training on creation, at least for this prototype.
         self._training_job = None
         self._model = None
+        self._endpoint = None
+
         self._constructor_arguments = (args, kwargs)
-        self._dependencies = [
+        self.dependencies = [
             "pandas>=1.3",
             "torch>=1.7",
             "google-cloud-aiplatform @ git+https://github.com/googleapis/python-aiplatform@refs/pull/628/head#egg=google-cloud-aiplatform",

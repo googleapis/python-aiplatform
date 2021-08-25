@@ -92,6 +92,17 @@ def get_import_lines(path):
         yield line
 
 
+def import_try_except(obj):
+    try:
+        module = inspect.getmodule(obj.__class__)
+        import_lines = "\n".join(get_import_lines(module.__file__))
+        return import_lines
+
+    except AttributeError:
+        import_lines = "\n".join(get_import_lines(jupyter_notebook_to_file()))
+        return import_lines
+
+
 class SourceMaker:
     def __init__(self, cls_name: str):
         self.source = ["class {}(torch.nn.Module):".format(cls_name)]
@@ -147,14 +158,7 @@ def _make_source(
         the user has the option to specify a method to call from __main__.
     """
 
-    src = ""
-
-    try:
-        module = inspect.getmodule(obj.__class__)
-        src = "\n".join(get_import_lines(module.__file__))
-
-    except AttributeError:
-        src = "\n".join(get_import_lines(jupyter_notebook_to_file()))
+    src = import_try_except(obj)
 
     # Hard-coded specific files as imports because (for now) all data serialization methods
     # come from one of two files and we do not retrieve the modules for the methods at this
@@ -208,6 +212,7 @@ def _make_source(
 
         src = src + ")\n"
 
+    # Workaround for bug in training that writes to models/ instead of model/
     src = src + "model_dir = os.getenv('AIP_MODEL_DIR')\n"
     src = src + "if model_dir.endswith('models'):\n"
     src = src + "\tmodel_dir = model_dir[:-1]\n"

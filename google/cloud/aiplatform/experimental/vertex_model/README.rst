@@ -100,7 +100,7 @@ take the form of a list of strings. You can do so as follows:
 .. code-block:: Python
 
    my_model = MyModelClass()
-   my_model._dependencies = ["library_name>=1.3", "library_name>=1.7",]
+   my_model.dependencies = ["library_name>=1.3", "library_name>=1.7",]
 
 
 Data Serialization
