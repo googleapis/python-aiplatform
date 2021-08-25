@@ -79,6 +79,7 @@ class Endpoint(base.VertexAiResourceNounWithFutureManager):
 
     client_class = utils.EndpointClientWithOverride
     _is_client_prediction_client = False
+    _skipped_getter_call = True  # get_endpoint() has not been called
     _resource_noun = "endpoints"
     _getter_method = "get_endpoint"
     _list_method = "list_endpoints"
@@ -115,11 +116,35 @@ class Endpoint(base.VertexAiResourceNounWithFutureManager):
             credentials=credentials,
             resource_name=endpoint_name,
         )
-        self._gca_resource = self._get_gca_resource(resource_name=endpoint_name)
+
+        # Lazy load the Endpoint gca_resource until needed
+        self._endpoint_name = endpoint_name
 
         self._prediction_client = self._instantiate_prediction_client(
             location=self.location, credentials=credentials,
         )
+
+    def _sync_gca_resource_if_skipped(self) -> None:
+        """Sync GAPIC service representation of Endpoint class resource only if
+        get_endpoint() was never called."""
+        if self._skipped_getter_call:
+            self._gca_resource = self._get_gca_resource(
+                resource_name=self._endpoint_name
+            )
+            self._skipped_getter_call = False
+
+    def _sync_gca_resource(self) -> None:
+        """Sync GAPIC service representation of Endpoint resource once."""
+        if self._skipped_getter_call:
+            self._sync_gca_resource_if_skipped()
+        else:
+            super()._sync_gca_resource()
+
+    def _assert_gca_resource_is_available(self) -> None:
+        """Ensures Endpoint getter was called at least once before
+        asserting on gca_resource's availability."""
+        self._sync_gca_resource_if_skipped()
+        super()._assert_gca_resource_is_available()
 
     @property
     def traffic_split(self) -> Dict[str, int]:
@@ -320,8 +345,8 @@ class Endpoint(base.VertexAiResourceNounWithFutureManager):
 
         _LOGGER.log_create_complete(cls, created_endpoint, "endpoint")
 
-        return cls(
-            endpoint_name=created_endpoint.name,
+        return cls._construct_sdk_resource_from_gapic(
+            gapic_resource=created_endpoint,
             project=project,
             location=location,
             credentials=credentials,
@@ -360,6 +385,10 @@ class Endpoint(base.VertexAiResourceNounWithFutureManager):
         )
 
         endpoint._gca_resource = gapic_resource
+        endpoint._endpoint_name = endpoint._gca_resource.name
+
+        # Building Endpoint from GAPIC object is equivalent to calling getter
+        endpoint._skipped_getter_call = False
 
         endpoint._prediction_client = cls._instantiate_prediction_client(
             location=endpoint.location, credentials=credentials,
@@ -627,6 +656,7 @@ class Endpoint(base.VertexAiResourceNounWithFutureManager):
                 will be executed in concurrent Future and any downstream object will
                 be immediately returned and synced when the Future has completed.
         """
+        self._sync_gca_resource_if_skipped()
 
         self._validate_deploy_args(
             min_replica_count,
@@ -977,6 +1007,8 @@ class Endpoint(base.VertexAiResourceNounWithFutureManager):
                 Optional. Strings which should be sent along with the request as
                 metadata.
         """
+        self._sync_gca_resource_if_skipped()
+
         if traffic_split is not None:
             if deployed_model_id in traffic_split and traffic_split[deployed_model_id]:
                 raise ValueError("Model being undeployed should have 0 traffic.")
@@ -1022,6 +1054,7 @@ class Endpoint(base.VertexAiResourceNounWithFutureManager):
                 Optional. Strings which should be sent along with the request as
                 metadata.
         """
+        self._sync_gca_resource_if_skipped()
         current_traffic_split = traffic_split or dict(self._gca_resource.traffic_split)
 
         if deployed_model_id in current_traffic_split:

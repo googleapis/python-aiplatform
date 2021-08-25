@@ -184,6 +184,15 @@ def get_endpoint_mock():
 
 
 @pytest.fixture
+def get_empty_endpoint_mock():
+    with mock.patch.object(
+        endpoint_service_client.EndpointServiceClient, "get_endpoint"
+    ) as get_endpoint_mock:
+        get_endpoint_mock.return_value = gca_endpoint.Endpoint()
+        yield get_endpoint_mock
+
+
+@pytest.fixture
 def get_endpoint_alt_location_mock():
     with mock.patch.object(
         endpoint_service_client.EndpointServiceClient, "get_endpoint"
@@ -227,7 +236,9 @@ def create_endpoint_mock():
     ) as create_endpoint_mock:
         create_endpoint_lro_mock = mock.Mock(ga_operation.Operation)
         create_endpoint_lro_mock.result.return_value = gca_endpoint.Endpoint(
-            name=_TEST_ENDPOINT_NAME, display_name=_TEST_DISPLAY_NAME
+            name=_TEST_ENDPOINT_NAME,
+            display_name=_TEST_DISPLAY_NAME,
+            encryption_spec=_TEST_ENCRYPTION_SPEC,
         )
         create_endpoint_mock.return_value = create_endpoint_lro_mock
         yield create_endpoint_mock
@@ -392,19 +403,35 @@ class TestEndpoint:
             ]
         )
 
-    def test_constructor_with_endpoint_id(self, get_endpoint_mock):
-        models.Endpoint(_TEST_ID)
+    def test_lazy_constructor_with_endpoint_id(self, get_endpoint_mock):
+        ep = models.Endpoint(_TEST_ID)
+        assert ep._endpoint_name == _TEST_ID
+        assert ep._skipped_getter_call
+        assert not get_endpoint_mock.called
+
+    def test_lazy_constructor_with_endpoint_name(self, get_endpoint_mock):
+        ep = models.Endpoint(_TEST_ENDPOINT_NAME)
+        assert ep._endpoint_name == _TEST_ENDPOINT_NAME
+        assert ep._skipped_getter_call
+        assert not get_endpoint_mock.called
+
+    def test_lazy_constructor_calls_get_on_property_access(self, get_endpoint_mock):
+        ep = models.Endpoint(_TEST_ENDPOINT_NAME)
+        assert ep._endpoint_name == _TEST_ENDPOINT_NAME
+        assert ep._skipped_getter_call
+        assert not get_endpoint_mock.called
+
+        ep.display_name  # Retrieve a property that requires a call to Endpoint getter
         get_endpoint_mock.assert_called_with(name=_TEST_ENDPOINT_NAME)
 
-    def test_constructor_with_endpoint_name(self, get_endpoint_mock):
-        models.Endpoint(_TEST_ENDPOINT_NAME)
-        get_endpoint_mock.assert_called_with(name=_TEST_ENDPOINT_NAME)
-
-    def test_constructor_with_custom_project(self, get_endpoint_mock):
-        models.Endpoint(endpoint_name=_TEST_ID, project=_TEST_PROJECT_2)
+    def test_lazy_constructor_with_custom_project(self, get_endpoint_mock):
+        ep = models.Endpoint(endpoint_name=_TEST_ID, project=_TEST_PROJECT_2)
         test_endpoint_resource_name = endpoint_service_client.EndpointServiceClient.endpoint_path(
             _TEST_PROJECT_2, _TEST_LOCATION, _TEST_ID
         )
+        assert not get_endpoint_mock.called
+
+        ep.name  # Retrieve a property that requires a call to Endpoint getter
         get_endpoint_mock.assert_called_with(name=test_endpoint_resource_name)
 
     @pytest.mark.usefixtures("get_endpoint_mock")
@@ -420,11 +447,19 @@ class TestEndpoint:
             regexp=r"is provided, but different from the resource location"
         )
 
-    def test_constructor_with_custom_location(self, get_endpoint_alt_location_mock):
-        models.Endpoint(endpoint_name=_TEST_ID, location=_TEST_LOCATION_2)
+    def test_lazy_constructor_with_custom_location(
+        self, get_endpoint_alt_location_mock
+    ):
+        ep = models.Endpoint(endpoint_name=_TEST_ID, location=_TEST_LOCATION_2)
         test_endpoint_resource_name = endpoint_service_client.EndpointServiceClient.endpoint_path(
             _TEST_PROJECT, _TEST_LOCATION_2, _TEST_ID
         )
+
+        # Get Endpoint not called due to lazy loading
+        assert not get_endpoint_alt_location_mock.called
+
+        ep.network  # Accessing a property that requires calling getter
+
         get_endpoint_alt_location_mock.assert_called_with(
             name=test_endpoint_resource_name
         )
@@ -495,14 +530,14 @@ class TestEndpoint:
         )
 
         expected_endpoint.name = _TEST_ENDPOINT_NAME
-        assert my_endpoint.gca_resource == expected_endpoint
-        assert my_endpoint.network is None
+        assert my_endpoint._gca_resource == expected_endpoint
 
-    @pytest.mark.usefixtures("get_endpoint_mock")
+    @pytest.mark.usefixtures("get_empty_endpoint_mock")
     def test_accessing_properties_with_no_resource_raises(self,):
+        """Ensure a descriptive RuntimeError is raised when the
+        GAPIC object has not been populated"""
 
         my_endpoint = aiplatform.Endpoint(_TEST_ENDPOINT_NAME)
-
         my_endpoint._gca_resource = None
 
         with pytest.raises(RuntimeError) as e:
@@ -923,7 +958,7 @@ class TestEndpoint:
                 traffic_split={"model1": 100},
             )
             test_endpoint = models.Endpoint(_TEST_ENDPOINT_NAME)
-            assert dict(test_endpoint._gca_resource.traffic_split) == {"model1": 100}
+            assert dict(test_endpoint.traffic_split) == {"model1": 100}
             test_endpoint.undeploy("model1", sync=sync)
             if not sync:
                 test_endpoint.wait()
