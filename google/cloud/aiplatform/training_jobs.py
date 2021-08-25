@@ -3420,21 +3420,18 @@ class AutoMLForecastingTrainingJob(_TrainingJob):
     def evaluated_data_items_bigquery_uri(self) -> Optional[str]:
         """BigQuery location of exported evaluated examples from the Training Job"""
 
-        if self._gca_resource is None:
-          _LOGGER.warning("BigQuery uri for evaluated data items does not exist. Must export evaluated data items during training.")
-          return
+        self._assert_gca_resource_is_available()
         
         try:
             meta = getattr((self._gca_resource), "training_task_metadata")
         except ValueError:
-            _LOGGER.warning("BigQuery uri for evaluated data items does not exist. Must export evaluated data items during training.")
-            return
+            raise ValueError("BigQuery uri for evaluated data items does not exist. Must export evaluated data items during training.")
 
-        if meta is not None and "evaluatedDataItemsBigqueryUri" in meta._pb:
-          return meta._pb["evaluatedDataItemsBigqueryUri"].string_value
-        else:
-          _LOGGER.warning("BigQuery uri for evaluated data items does not exist. Must export evaluated data items during training.")
-          return
+        try: 
+            metadata = self._gca_resource.training_task_metadata 
+            return metadata["evaluatedDataItemsBigqueryUri"] 
+        except (AttributeError, KeyError): 
+            raise ValueError("BigQuery URI for evaluated data items does not exist. Must export evaluated data items during training.")
 
 
 class AutoMLImageTrainingJob(_TrainingJob):
