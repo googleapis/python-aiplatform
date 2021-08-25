@@ -352,7 +352,7 @@ class BatchPredictionJob(_Job):
     def create(
         cls,
         job_display_name: str,
-        model_name: str,
+        model_name: Union[str, 'aiplatform.Model'],
         instances_format: str = "jsonl",
         predictions_format: str = "jsonl",
         gcs_source: Optional[Union[str, Sequence[str]]] = None,
@@ -388,6 +388,8 @@ class BatchPredictionJob(_Job):
                 Required. A fully-qualified model resource name or model ID.
                 Example: "projects/123/locations/us-central1/models/456" or
                 "456" when project and location are initialized or passed.
+
+                Or an instance ot aiplatform.Model.
             instances_format (str):
                 Required. The format in which instances are given, must be one
                 of "jsonl", "csv", "bigquery", "tf-record", "tf-record-gzip",
@@ -531,17 +533,19 @@ class BatchPredictionJob(_Job):
             (jobs.BatchPredictionJob):
                 Instantiated representation of the created batch prediction job.
         """
-
+        
         utils.validate_display_name(job_display_name)
+        
         if labels:
             utils.validate_labels(labels)
 
-        model_name = utils.full_resource_name(
-            resource_name=model_name,
-            resource_noun="models",
-            project=project,
-            location=location,
-        )
+        if isinstance(model_name, str):
+            model_name = utils.full_resource_name(
+                resource_name=model_name,
+                resource_noun="models",
+                project=project,
+                location=location,
+            )
 
         # Raise error if both or neither source URIs are provided
         if bool(gcs_source) == bool(bigquery_source):
@@ -570,6 +574,7 @@ class BatchPredictionJob(_Job):
                 f"{predictions_format} is not an accepted prediction format "
                 f"type. Please choose from: {constants.BATCH_PREDICTION_OUTPUT_STORAGE_FORMATS}"
             )
+ 
         gca_bp_job = gca_bp_job_compat
         gca_io = gca_io_compat
         gca_machine_resources = gca_machine_resources_compat
@@ -584,7 +589,6 @@ class BatchPredictionJob(_Job):
 
         # Required Fields
         gapic_batch_prediction_job.display_name = job_display_name
-        gapic_batch_prediction_job.model = model_name
 
         input_config = gca_bp_job.BatchPredictionJob.InputConfig()
         output_config = gca_bp_job.BatchPredictionJob.OutputConfig()
@@ -657,12 +661,15 @@ class BatchPredictionJob(_Job):
                 metadata=explanation_metadata, parameters=explanation_parameters
             )
 
-        # TODO (b/174502913): Support private feature once released
-
-        api_client = cls._instantiate_client(location=location, credentials=credentials)
+        empty_batch_prediction_job = cls._empty_constructor(
+                project=project,
+                location=location,
+                credentials=credentials,
+            )
 
         return cls._create(
-            api_client=api_client,
+            empty_batch_prediction_job=empty_batch_prediction_job,
+            model_or_model_name=model_name,
             parent=initializer.global_config.common_location_path(
                 project=project, location=location
             ),
@@ -673,12 +680,13 @@ class BatchPredictionJob(_Job):
             credentials=credentials or initializer.global_config.credentials,
             sync=sync,
         )
-
+        
     @classmethod
-    @base.optional_sync()
+    @base.optional_sync(return_input_arg='empty_batch_prediction_job')
     def _create(
         cls,
-        api_client: job_service_client.JobServiceClient,
+        empty_batch_prediction_job: 'BatchPredictionJob',
+        model_or_model_name: Union[str, 'aiplatform.Model'],        
         parent: str,
         batch_prediction_job: Union[
             gca_bp_job_v1beta1.BatchPredictionJob, gca_bp_job_v1.BatchPredictionJob
@@ -725,6 +733,13 @@ class BatchPredictionJob(_Job):
                 by Vertex AI.
         """
         # select v1beta1 if explain else use default v1
+
+
+        model = model_or_model_name if isinstance(model_or_model_name, str) else model_or_model_name.resource_name
+        batch_prediction_job.model = model
+
+        api_client = empty_batch_prediction_job.api_client
+
         if generate_explanation:
             api_client = api_client.select_version(compat.V1BETA1)
 
@@ -734,12 +749,9 @@ class BatchPredictionJob(_Job):
             parent=parent, batch_prediction_job=batch_prediction_job
         )
 
-        batch_prediction_job = cls(
-            batch_prediction_job_name=gca_batch_prediction_job.name,
-            project=project,
-            location=location,
-            credentials=credentials,
-        )
+        empty_batch_prediction_job._gca_resource = gca_batch_prediction_job
+
+        batch_prediction_job = empty_batch_prediction_job
 
         _LOGGER.log_create_complete(cls, batch_prediction_job._gca_resource, "bpj")
 
@@ -842,6 +854,10 @@ class BatchPredictionJob(_Job):
                 f"Unsupported batch prediction output location, here are details"
                 f"on your prediction output:\n{output_info}"
             )
+
+    def wait_for_resource_creation(self) -> None:
+        """Waits until resource has been created."""
+        self._wait_for_resource_creation()
 
 
 class _RunnableJob(_Job):
