@@ -36,6 +36,8 @@ from google.cloud import storage
 from google.cloud.aiplatform.experimental.vertex_model import base
 from google.cloud.aiplatform.experimental.vertex_model.utils import source_utils
 
+from google.colab import _message
+
 
 _TEST_PROJECT = "test-project"
 _TEST_LOCATION = "us-central1"
@@ -45,6 +47,15 @@ _TEST_STAGING_BUCKET = "gs://test-staging-bucket"
 
 # CMEK encryption
 _TEST_DEFAULT_ENCRYPTION_KEY_NAME = "key_default"
+
+MOCK_NOTEBOOK = _message.blocking_request("get_ipynb", request="", timeout_sec=200)
+
+
+@pytest.fixture
+def mock_get_notebook():
+    with patch.object(_message, "blocking_request") as mock:
+        mock.return_value = MOCK_NOTEBOOK
+        yield mock
 
 
 @pytest.fixture
@@ -62,7 +73,10 @@ def mock_get_custom_training_job(mock_custom_training_job):
 
 @pytest.fixture
 def mock_run_custom_training_job(mock_custom_training_job):
+    mock_model = MagicMock(aiplatform.models.Model)
+    mock_model.artifact_uri = "gs://fake-bucket/my_model.pth"
     with patch.object(mock_custom_training_job, "run") as mock:
+        mock.return_value = mock_model
         yield mock
 
 
@@ -198,6 +212,53 @@ class TestCloudVertexModelClass:
         mock_run_custom_training_job.assert_called_once_with(
             model_display_name="my_model", replica_count=1,
         )
+
+    def test_remote_train_remote_predict(
+        self,
+        mock_get_custom_training_job,
+        mock_run_custom_training_job,
+        mock_client_bucket,
+    ):
+        aiplatform.init(
+            project=_TEST_PROJECT,
+            location=_TEST_LOCATION,
+            staging_bucket=_TEST_STAGING_BUCKET,
+            encryption_spec_key_name=_TEST_DEFAULT_ENCRYPTION_KEY_NAME,
+        )
+
+        my_model = LinearRegression(2, 1)
+        my_model.remote = True
+
+        df = pd.DataFrame(
+            np.random.random(size=(100, 3)), columns=["feat_1", "feat_2", "target"]
+        )
+        my_model.fit(df, "target", 1, 0.1)
+
+        # Check that model is returned
+        # Check that endpoint is deployed
+
+    def test_remote_train_local_predict(
+        self,
+        mock_get_custom_training_job,
+        mock_run_custom_training_job,
+        mock_client_bucket
+    ):
+        # Check that model is "trained"
+        # Check that local predictions can be made
+
+    def test_local_train_remote_predict(
+        self,
+        mock_get_custom_training_job,
+        mock_run_custom_training_job,
+        mock_client_bucket
+    ):
+        # Check that model trains locally
+        # Check that model can be deployed to an endpoint
+
+    def test_jupyter_source_retrieval(self):
+        # Test that imports appear in source script
+        # Test that source script compiles
+
 
     def test_source_script_compiles(
         self, mock_client_bucket,
