@@ -109,7 +109,7 @@ class SourceMaker:
 
         for base_class in obj_cls.__bases__:
             if base_class.__name__ != obj_cls.__name__:
-                parent_classes.append(base_class.__name__)
+                parent_classes.append(base_class.__qualname__)
 
         self.source = ["class {}({}):".format(obj_cls.__name__, ", ".join(parent_classes))]
 
