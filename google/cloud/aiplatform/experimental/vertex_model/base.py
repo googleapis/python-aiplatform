@@ -46,12 +46,12 @@ except ImportError:
         "PyTorch is not installed. Please install torch to use VertexModel"
     )
 
-GITHUB_DEPENDENCY = "google-cloud-aiplatform @ git+https://github.com/googleapis/python-aiplatform@refs/pull/628/head#egg=google-cloud-aiplatform"
+GITHUB_DEPENDENCY = "google-cloud-aiplatform @ git+https://github.com/googleapis/python-aiplatform@refs/pull/659/head#egg=google-cloud-aiplatform"
 
 SERVING_COMMAND_STRING_CLI = [
     "sh",
     "-c",
-    "python3 -m pip install --user --disable-pip-version-check 'uvicorn' 'fastapi' 'torch' 'pandas' 'google-cloud-aiplatform @ git+https://github.com/googleapis/python-aiplatform@refs/pull/628/head#egg=google-cloud-aiplatform' && \"$0\" \"$@\"",
+    "python3 -m pip install --user --disable-pip-version-check 'uvicorn' 'fastapi' 'torch' 'pandas' 'google-cloud-aiplatform @ git+https://github.com/googleapis/python-aiplatform@refs/pull/659/head#egg=google-cloud-aiplatform' && \"$0\" \"$@\"",
     "sh",
     "-ec",
     'program_path=$(mktemp)\nprintf "%s" "$0" > "$program_path"\npython3 -u "$program_path" "$@"\n',
@@ -379,7 +379,7 @@ class VertexModel(metaclass=abc.ABCMeta):
         self.dependencies = [
             "pandas>=1.3",
             "torch>=1.7",
-            "google-cloud-aiplatform @ git+https://github.com/googleapis/python-aiplatform@refs/pull/628/head#egg=google-cloud-aiplatform",
+            "google-cloud-aiplatform @ git+https://github.com/googleapis/python-aiplatform@refs/pull/659/head#egg=google-cloud-aiplatform",
         ]
 
         self.remote = False
