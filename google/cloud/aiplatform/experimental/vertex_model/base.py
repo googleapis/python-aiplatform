@@ -68,8 +68,23 @@ from google.cloud.aiplatform.experimental.vertex_model.serializers import model
 
 SERVING_COMMAND_STRING_CODE_APIS = """
 
+class ModelWrapper:
+
+  def __init__(self, vertex_model_instance, deserialized_model):
+     self._vertex_model_instance = vertex_model_instance
+     self._deserialized_model = deserialized_model
+
+  def __getattribute__(self, name):
+    # deserialized model takes precedence
+    if hasttr(self._deserialized_model, name):
+        return getattr(self._deserialized_model, name)
+    else:
+        return getattr(self._vertex_model_instance, name)
+
 app = FastAPI()
 my_model = model._deserialize_remote_model(os.environ['AIP_STORAGE_URI'] + '/my_local_model.pth')
+wrapped_model = ModelWrapper(original_model, my_model)
+
 
 @app.get(os.environ['AIP_HEALTH_ROUTE'], status_code=200)
 def health():
@@ -80,13 +95,10 @@ def health():
 async def predict(request: Request):
     body = await request.json()
     instances = body["instances"]
+    input_data = original_model.JSON_to_predict_input(instances)
 
-    feature_columns = ['feat_1', 'feat_2']
-    data = pd.DataFrame(instances, columns=feature_columns)
-    torch_tensor = torch.tensor(data[feature_columns].values).type(torch.FloatTensor)
-
-    my_model.predict = functools.partial(original_model.__class__.predict, my_model)
-    outputs = my_model.predict(torch_tensor)
+    my_model.predict = functools.partial(original_model.__class__.predict, wrapped_model)
+    outputs = my_model.predict(input_data)
 
     return {"predictions": outputs.tolist()}
 
@@ -328,7 +340,7 @@ def vertex_predict_function_wrapper(method: Callable[..., Any]):
 
             for parameter_name, parameter in bound_args.arguments.items():
                 if parameter_name == "data":
-                    data = parameter.tolist()
+                    data = obj.predict_input_to_JSON(parameter)
                     break
 
             # TODO: cleanup model resource after endpoint is created
@@ -338,7 +350,8 @@ def vertex_predict_function_wrapper(method: Callable[..., Any]):
                 )
                 obj._endpoint = obj._model.deploy(machine_type="n1-standard-4")
 
-            return obj._endpoint.predict(instances=data)
+            endpoint_output = obj._endpoint.predict(instances=data)
+            return obj.JSON_to_predict_output(endpoint_output["predictions"])
 
     return p
 
@@ -382,6 +395,18 @@ class VertexModel(metaclass=abc.ABCMeta):
     @abc.abstractmethod
     def predict(self):
         """Make predictions on training data."""
+        pass
+
+    @abc.abstractmethod
+    def predict_input_to_JSON(self):
+        pass
+
+    @abc.abstractmethod
+    def JSON_to_predict_input(self):
+        pass
+
+    @abc.abstractmethod
+    def JSON_to_predict_output(self):
         pass
 
     def batch_predict(self):
