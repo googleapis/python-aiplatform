@@ -100,7 +100,7 @@ async def predict(request: Request):
     my_model.predict = functools.partial(original_model.__class__.predict, wrapped_model)
     outputs = my_model.predict(input_data)
 
-    return {"predictions": original_method.predict_output_to_JSON}
+    return {"predictions": original_method.predict_output_to_JSON(outputs)}
 
 
 if __name__ == "__main__":
