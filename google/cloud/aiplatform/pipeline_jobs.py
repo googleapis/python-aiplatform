@@ -250,10 +250,10 @@ class PipelineJob(base.VertexAiResourceNounWithFutureManager):
                 Optional. Whether to execute this method synchronously. If False, this method will unblock and it will be executed in a concurrent Future.
         """
         if service_account:
-            self._gca_resource.pipeline_spec.service_account = service_account
+            self._gca_resource.service_account = service_account
 
         if network:
-            self._gca_resource.pipeline_spec.network = network
+            self._gca_resource.network = network
 
         _LOGGER.log_create_with_lro(self.__class__)
 
