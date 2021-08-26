@@ -43,6 +43,17 @@ class TestEndToEnd(metaclass=abc.ABCMeta):
         """
         pass
 
+    @classmethod
+    def _make_display_name(cls, key: str) -> str:
+        """Helper method to make unique display_names.
+
+        Args:
+            key (str): Required. Identifier for the display name.
+        Returns:
+            Unique display name.
+        """
+        return f"{cls._temp_prefix}-{key}-{uuid.uuid4()}"
+
     def setup_method(self):
         importlib.reload(initializer)
         importlib.reload(aiplatform)

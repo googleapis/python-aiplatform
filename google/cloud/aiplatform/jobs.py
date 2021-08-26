@@ -32,15 +32,6 @@ from google.rpc import status_pb2
 from google.cloud import aiplatform
 from google.cloud.aiplatform import base
 from google.cloud.aiplatform import compat
-from google.cloud.aiplatform import constants
-from google.cloud.aiplatform import initializer
-from google.cloud.aiplatform import hyperparameter_tuning
-from google.cloud.aiplatform import utils
-from google.cloud.aiplatform.utils import console_utils
-from google.cloud.aiplatform.utils import source_utils
-from google.cloud.aiplatform.utils import worker_spec_utils
-
-from google.cloud.aiplatform.compat.services import job_service_client
 from google.cloud.aiplatform.compat.types import (
     batch_prediction_job as gca_bp_job_compat,
     batch_prediction_job_v1 as gca_bp_job_v1,
@@ -58,6 +49,13 @@ from google.cloud.aiplatform.compat.types import (
     machine_resources_v1beta1 as gca_machine_resources_v1beta1,
     study as gca_study_compat,
 )
+from google.cloud.aiplatform import constants
+from google.cloud.aiplatform import initializer
+from google.cloud.aiplatform import hyperparameter_tuning
+from google.cloud.aiplatform import utils
+from google.cloud.aiplatform.utils import console_utils
+from google.cloud.aiplatform.utils import source_utils
+from google.cloud.aiplatform.utils import worker_spec_utils
 
 
 _LOGGER = base.Logger(__name__)
@@ -352,7 +350,7 @@ class BatchPredictionJob(_Job):
     def create(
         cls,
         job_display_name: str,
-        model_name: Union[str, 'aiplatform.Model'],
+        model_name: Union[str, "aiplatform.Model"],
         instances_format: str = "jsonl",
         predictions_format: str = "jsonl",
         gcs_source: Optional[Union[str, Sequence[str]]] = None,
@@ -533,9 +531,9 @@ class BatchPredictionJob(_Job):
             (jobs.BatchPredictionJob):
                 Instantiated representation of the created batch prediction job.
         """
-        
+
         utils.validate_display_name(job_display_name)
-        
+
         if labels:
             utils.validate_labels(labels)
 
@@ -574,7 +572,7 @@ class BatchPredictionJob(_Job):
                 f"{predictions_format} is not an accepted prediction format "
                 f"type. Please choose from: {constants.BATCH_PREDICTION_OUTPUT_STORAGE_FORMATS}"
             )
- 
+
         gca_bp_job = gca_bp_job_compat
         gca_io = gca_io_compat
         gca_machine_resources = gca_machine_resources_compat
@@ -662,10 +660,8 @@ class BatchPredictionJob(_Job):
             )
 
         empty_batch_prediction_job = cls._empty_constructor(
-                project=project,
-                location=location,
-                credentials=credentials,
-            )
+            project=project, location=location, credentials=credentials,
+        )
 
         return cls._create(
             empty_batch_prediction_job=empty_batch_prediction_job,
@@ -680,13 +676,13 @@ class BatchPredictionJob(_Job):
             credentials=credentials or initializer.global_config.credentials,
             sync=sync,
         )
-        
+
     @classmethod
-    @base.optional_sync(return_input_arg='empty_batch_prediction_job')
+    @base.optional_sync(return_input_arg="empty_batch_prediction_job")
     def _create(
         cls,
-        empty_batch_prediction_job: 'BatchPredictionJob',
-        model_or_model_name: Union[str, 'aiplatform.Model'],        
+        empty_batch_prediction_job: "BatchPredictionJob",
+        model_or_model_name: Union[str, "aiplatform.Model"],
         parent: str,
         batch_prediction_job: Union[
             gca_bp_job_v1beta1.BatchPredictionJob, gca_bp_job_v1.BatchPredictionJob
@@ -734,8 +730,11 @@ class BatchPredictionJob(_Job):
         """
         # select v1beta1 if explain else use default v1
 
-
-        model = model_or_model_name if isinstance(model_or_model_name, str) else model_or_model_name.resource_name
+        model = (
+            model_or_model_name
+            if isinstance(model_or_model_name, str)
+            else model_or_model_name.resource_name
+        )
         batch_prediction_job.model = model
 
         api_client = empty_batch_prediction_job.api_client

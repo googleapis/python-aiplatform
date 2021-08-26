@@ -395,7 +395,7 @@ class TestBatchPredictionJob:
         bp_job_state = bp.state
 
         assert get_batch_prediction_job_mock.call_count == 2
-        assert bp_job_state == _TEST_JOB_STATE_SUCCESS
+        assert bp_job_state == _TEST_JOB_STATE_RUNNING
 
         get_batch_prediction_job_mock.assert_called_with(
             name=_TEST_BATCH_PREDICTION_JOB_NAME

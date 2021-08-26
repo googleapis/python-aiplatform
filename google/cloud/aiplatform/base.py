@@ -680,15 +680,18 @@ def optional_sync(
                 inspect.getfullargspec(method).annotations["return"]
             )
 
-
             # object produced by the method
-            returned_object = bound_args.arguments.get(return_input_arg) 
+            returned_object = bound_args.arguments.get(return_input_arg)
 
             # is a classmethod that creates the object and returns it
             if args and inspect.isclass(args[0]):
-                
+
                 # assumes class in classmethod is the resource noun
-                returned_object = args[0]._empty_constructor() if not returned_object else returned_object
+                returned_object = (
+                    args[0]._empty_constructor()
+                    if not returned_object
+                    else returned_object
+                )
                 self = returned_object
 
             else:  # instance method
