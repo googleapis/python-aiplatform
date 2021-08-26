@@ -64,9 +64,11 @@ class TestEndToEndTabular(e2e_base.TestEndToEnd):
 
         # Create and import to single managed dataset for both training jobs
 
+        dataset_gcs_source = f'gs://{shared_state["staging_bucket_name"]}/{_BLOB_PATH}'
+
         ds = aiplatform.TabularDataset.create(
             display_name=f"{self._temp_prefix}-dataset-{uuid.uuid4()}",
-            gcs_source=[f'gs://{shared_state["staging_bucket_name"]}/{_BLOB_PATH}'],
+            gcs_source=[dataset_gcs_source],
             sync=False,
         )
 
