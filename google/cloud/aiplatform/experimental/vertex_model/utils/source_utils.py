@@ -107,7 +107,7 @@ class SourceMaker:
     def __init__(self, obj_cls: Any):
         parent_classes = []
 
-        for base_class in inspect.getmro(obj_cls):
+        for base_class in obj_cls.__bases__:
             if base_class.__name__ != obj_cls.__name__:
                 parent_classes.append(base_class.__name__)
 
