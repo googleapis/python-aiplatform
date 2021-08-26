@@ -84,6 +84,8 @@ def mock_pipeline_service_create():
             name=_TEST_PIPELINE_JOB_NAME,
             state=gca_pipeline_state_v1beta1.PipelineState.PIPELINE_STATE_SUCCEEDED,
             create_time=_TEST_PIPELINE_CREATE_TIME,
+            service_account=_TEST_SERVICE_ACCOUNT,
+            network=_TEST_NETWORK
         )
         yield mock_create_pipeline_job
 
@@ -93,6 +95,8 @@ def make_pipeline_job(state):
         name=_TEST_PIPELINE_JOB_NAME,
         state=state,
         create_time=_TEST_PIPELINE_CREATE_TIME,
+        service_account=_TEST_SERVICE_ACCOUNT,
+        network=_TEST_NETWORK
     )
 
 
@@ -239,6 +243,8 @@ class TestPipelineJob:
                 "root": _TEST_PIPELINE_JOB_SPEC["pipelineSpec"]["root"],
             },
             runtime_config=runtime_config,
+            service_account=_TEST_SERVICE_ACCOUNT,
+            network=_TEST_NETWORK
         )
 
         mock_pipeline_service_create.assert_called_once_with(
