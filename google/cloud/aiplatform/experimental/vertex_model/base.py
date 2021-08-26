@@ -100,7 +100,7 @@ async def predict(request: Request):
     my_model.predict = functools.partial(original_model.__class__.predict, wrapped_model)
     outputs = my_model.predict(input_data)
 
-    return {"predictions": outputs.tolist()}
+    return {"predictions": original_method.predict_output_to_JSON}
 
 
 if __name__ == "__main__":
@@ -406,8 +406,13 @@ class VertexModel(metaclass=abc.ABCMeta):
         pass
 
     @abc.abstractmethod
+    def predict_output_to_JSON(self):
+        pass
+
+    @abc.abstractmethod
     def JSON_to_predict_output(self):
         pass
+
 
     def batch_predict(self):
         """Make predictions on training data."""

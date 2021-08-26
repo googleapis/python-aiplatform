@@ -40,7 +40,7 @@ To use the VertexModel class, your implementation must adhere to the following c
 1. The constructor of VertexModel must be called with the constructor arguments of your child class.
 2. You must implement your own versions of fit() and predict().
 3. The input parameter indicating test data for your predict() call must have the parameter name "data".
-4. You must implement your own versions of JSON_to_predict_input(), predict_input_to_JSON(), and JSON_to_predict_output().
+4. You must implement your own versions of JSON_to_predict_input(), predict_input_to_JSON(), predict_output_to_JSON(), and JSON_to_predict_output().
 
 .. code-block:: Python
 
@@ -101,6 +101,10 @@ To use the VertexModel class, your implementation must adhere to the following c
      # Implementation of predict_input_to_JSON(), which converts predict() inputs to a JSON object
      def predict_input_to_JSON(self, parameter):
        return parameter.tolist()
+
+     # Implementation of predict_output_to_JSON(), which converts the predict() output to a JSON object
+     def predict_output_to_JSON(self, output):
+       return output.tolist()
 
      # Implementation of JSON_to_predict_output, which takes a JSON object containing predictions and
      # converts it to the type of output expected by the user-written class.
