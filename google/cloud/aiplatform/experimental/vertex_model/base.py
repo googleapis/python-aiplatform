@@ -374,6 +374,12 @@ class VertexModel(metaclass=abc.ABCMeta):
         ),
     }
 
+    dependencies = [
+        "pandas>=1.3",
+        "torch>=1.7",
+        "google-cloud-aiplatform @ git+https://github.com/googleapis/python-aiplatform@refs/pull/659/head#egg=google-cloud-aiplatform",
+    ]
+
     def __init__(self, *args, **kwargs):
         """Initializes child class. All constructor arguments must be passed to the
            VertexModel constructor as well."""
@@ -383,11 +389,6 @@ class VertexModel(metaclass=abc.ABCMeta):
         self._endpoint = None
 
         self._constructor_arguments = (args, kwargs)
-        self.dependencies = [
-            "pandas>=1.3",
-            "torch>=1.7",
-            "google-cloud-aiplatform @ git+https://github.com/googleapis/python-aiplatform@refs/pull/659/head#egg=google-cloud-aiplatform",
-        ]
 
         self.remote = False
 
@@ -419,7 +420,6 @@ class VertexModel(metaclass=abc.ABCMeta):
     @abc.abstractmethod
     def JSON_to_predict_output(self):
         pass
-
 
     def batch_predict(self):
         """Make predictions on training data."""

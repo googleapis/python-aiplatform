@@ -108,7 +108,10 @@ class SourceMaker:
         parent_classes = []
 
         for base_class in obj_cls.__bases__:
-            if base_class.__name__ != obj_cls.__name__ and base_class.__name__ != "VertexModel":
+            if (
+                base_class.__name__ != obj_cls.__name__
+                and base_class.__name__ != "VertexModel"
+            ):
                 module = base_class.__module__
                 name = base_class.__qualname__
 
@@ -117,7 +120,9 @@ class SourceMaker:
 
                 parent_classes.append(name)
 
-        self.source = ["class {}({}):".format(obj_cls.__name__, ", ".join(parent_classes))]
+        self.source = [
+            "class {}({}):".format(obj_cls.__name__, ", ".join(parent_classes))
+        ]
 
     def add_method(self, method_str: str):
         self.source.extend(method_str.split("\n"))
