@@ -107,7 +107,7 @@ async def predict(request: Request):
     my_model.predict = wrapped_model.predict
     outputs = my_model.predict(input_data)
 
-    return {"predictions": original_method.predict_output_to_predict_payload(outputs)}
+    return {"predictions": original_model.predict_output_to_predict_payload(outputs)}
 
 
 if __name__ == "__main__":
