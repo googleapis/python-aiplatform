@@ -108,7 +108,7 @@ class SourceMaker:
         parent_classes = []
 
         for base_class in obj_cls.__bases__:
-            if base_class.__name__ != obj_cls.__name__:
+            if base_class.__name__ != obj_cls.__name__ and base_class.__name__ != "VertexModel":
                 module = base_class.__module__
                 name = base_class.__qualname__
 
@@ -180,7 +180,7 @@ def _make_source(
             "import os",
             #    "import torch",
             #    "import pandas as pd",
-            "import google.cloud.aiplatform.experimental.vertex_model.base.VertexModel",
+            #    "from google.cloud.aiplatform.experimental.vertex_model.base import VertexModel",
             "from google.cloud.aiplatform.experimental.vertex_model.serializers.pandas import _deserialize_dataframe",
             "from google.cloud.aiplatform.experimental.vertex_model.serializers.pytorch import _deserialize_dataloader",
             "from google.cloud.aiplatform.experimental.vertex_model.serializers import model",
