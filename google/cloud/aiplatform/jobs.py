@@ -382,12 +382,12 @@ class BatchPredictionJob(_Job):
                 Required. The user-defined name of the BatchPredictionJob.
                 The name can be up to 128 characters long and can be consist
                 of any UTF-8 characters.
-            model_name (str):
+            model_name (Union[str, aiplatform.Model]):
                 Required. A fully-qualified model resource name or model ID.
                 Example: "projects/123/locations/us-central1/models/456" or
                 "456" when project and location are initialized or passed.
 
-                Or an instance ot aiplatform.Model.
+                Or an instance of aiplatform.Model.
             instances_format (str):
                 Required. The format in which instances are given, must be one
                 of "jsonl", "csv", "bigquery", "tf-record", "tf-record-gzip",
@@ -666,14 +666,8 @@ class BatchPredictionJob(_Job):
         return cls._create(
             empty_batch_prediction_job=empty_batch_prediction_job,
             model_or_model_name=model_name,
-            parent=initializer.global_config.common_location_path(
-                project=project, location=location
-            ),
-            batch_prediction_job=gapic_batch_prediction_job,
+            gca_batch_prediction_job=gapic_batch_prediction_job,
             generate_explanation=generate_explanation,
-            project=project or initializer.global_config.project,
-            location=location or initializer.global_config.location,
-            credentials=credentials or initializer.global_config.credentials,
             sync=sync,
         )
 
@@ -683,41 +677,25 @@ class BatchPredictionJob(_Job):
         cls,
         empty_batch_prediction_job: "BatchPredictionJob",
         model_or_model_name: Union[str, "aiplatform.Model"],
-        parent: str,
-        batch_prediction_job: Union[
+        gca_batch_prediction_job: Union[
             gca_bp_job_v1beta1.BatchPredictionJob, gca_bp_job_v1.BatchPredictionJob
         ],
         generate_explanation: bool,
-        project: str,
-        location: str,
-        credentials: Optional[auth_credentials.Credentials],
         sync: bool = True,
     ) -> "BatchPredictionJob":
         """Create a batch prediction job.
 
         Args:
-            api_client (dataset_service_client.DatasetServiceClient):
-                Required. An instance of DatasetServiceClient with the correct api_endpoint
-                already set based on user's preferences.
-            batch_prediction_job (gca_bp_job.BatchPredictionJob):
+            empty_batch_prediction_job (BatchPredictionJob):
+                Required. BatchPredictionJob without _gca_resource populated.
+            model_or_model_name (Union[str, aiplatform.Model]):
+                Required. Required. A fully-qualified model resource name or
+                an instance of aiplatform.Model.
+            gca_batch_prediction_job (gca_bp_job.BatchPredictionJob):
                 Required. a batch prediction job proto for creating a batch prediction job on Vertex AI.
             generate_explanation (bool):
                 Required. Generate explanation along with the batch prediction
                 results.
-            parent (str):
-                Required. Also known as common location path, that usually contains the
-                project and location that the user provided to the upstream method.
-                Example: "projects/my-prj/locations/us-central1"
-            project (str):
-                Required. Project to upload this model to. Overrides project set in
-                aiplatform.init.
-            location (str):
-                Required. Location to upload this model to. Overrides location set in
-                aiplatform.init.
-            credentials (Optional[auth_credentials.Credentials]):
-                Custom credentials to use to upload this model. Overrides
-                credentials set in aiplatform.init.
-
         Returns:
             (jobs.BatchPredictionJob):
                 Instantiated representation of the created batch prediction job.
@@ -730,12 +708,18 @@ class BatchPredictionJob(_Job):
         """
         # select v1beta1 if explain else use default v1
 
-        model = (
+        parent = initializer.global_config.common_location_path(
+            project=empty_batch_prediction_job.project,
+            location=empty_batch_prediction_job.location,
+        )
+
+        model_resource_name = (
             model_or_model_name
             if isinstance(model_or_model_name, str)
             else model_or_model_name.resource_name
         )
-        batch_prediction_job.model = model
+
+        gca_batch_prediction_job.model = model_resource_name
 
         api_client = empty_batch_prediction_job.api_client
 
@@ -745,7 +729,7 @@ class BatchPredictionJob(_Job):
         _LOGGER.log_create_with_lro(cls)
 
         gca_batch_prediction_job = api_client.create_batch_prediction_job(
-            parent=parent, batch_prediction_job=batch_prediction_job
+            parent=parent, batch_prediction_job=gca_batch_prediction_job
         )
 
         empty_batch_prediction_job._gca_resource = gca_batch_prediction_job
