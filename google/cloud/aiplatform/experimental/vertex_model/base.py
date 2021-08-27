@@ -76,7 +76,7 @@ class ModelWrapper:
 
   def __getattribute__(self, name):
     # deserialized model takes precedence
-    if hasttr(self._deserialized_model, name):
+    if hasattr(self._deserialized_model, name):
         return getattr(self._deserialized_model, name)
     else:
         return getattr(self._vertex_model_instance, name)
