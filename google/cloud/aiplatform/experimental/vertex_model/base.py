@@ -61,6 +61,7 @@ SERVING_COMMAND_STRING_CODE_SETUP = """import os
 from fastapi import FastAPI, Request
 import uvicorn
 import functools
+import inspect
 
 from google.cloud.aiplatform.experimental.vertex_model.serializers import model
 
