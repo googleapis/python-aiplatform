@@ -74,12 +74,18 @@ class ModelWrapper:
      self._vertex_model_instance = vertex_model_instance
      self._deserialized_model = deserialized_model
 
-  def __getattribute__(self, name):
-    # deserialized model takes precedence
+  def __getattr__(self, name):
     if hasattr(self._deserialized_model, name):
         return getattr(self._deserialized_model, name)
+
     else:
-        return getattr(self._vertex_model_instance, name)
+        attribute = getattr(self._vertex_model_instance, name)
+
+        if inspect.ismethod(attribute):
+            # wrap vertex_model method
+            return functools.partial(getattr(self._vertex_model_instance.__class__, name), mw)
+        else:
+            return attribute
 
 app = FastAPI()
 my_model = model._deserialize_remote_model(os.environ['AIP_STORAGE_URI'] + '/my_local_model.pth')
@@ -97,7 +103,7 @@ async def predict(request: Request):
     instances = body["instances"]
     input_data = original_model.JSON_to_predict_input(instances)
 
-    my_model.predict = functools.partial(original_model.__class__.predict, wrapped_model)
+    my_model.predict = wrapped_model.predict
     outputs = my_model.predict(input_data)
 
     return {"predictions": original_method.predict_output_to_JSON(outputs)}
