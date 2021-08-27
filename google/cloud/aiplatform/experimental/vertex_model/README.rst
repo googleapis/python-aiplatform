@@ -40,7 +40,7 @@ To use the VertexModel class, your implementation must adhere to the following c
 1. The constructor of VertexModel must be called with the constructor arguments of your child class.
 2. You must implement your own versions of fit() and predict().
 3. The input parameter indicating test data for your predict() call must have the parameter name "data".
-4. You must implement your own versions of JSON_to_predict_input(), predict_input_to_JSON(), predict_output_to_JSON(), and JSON_to_predict_output().
+4. You must implement your own versions of predict_payload_to_predict_input(), predict_input_to_predict_payload(), predict_output_to_predict_payload(), and predict_payload_to_predict_output().
 
 .. code-block:: Python
 
@@ -92,23 +92,23 @@ To use the VertexModel class, your implementation must adhere to the following c
      def predict(self, data):
        return self.forward(data)
 
-     # Implementation of JSON_to_predict_input(), which converts a JSON object to predict() inputs
-     def JSON_to_predict_input(self, instances):
+     # Implementation of predict_payload_to_predict_input(), which converts a predict_payload object to predict() inputs
+     def predict_payload_to_predict_input(self, instances):
        feature_columns = ['feat_1', 'feat_2']
        data = pd.DataFrame(instances, columns=feature_columns)
        return data
 
-     # Implementation of predict_input_to_JSON(), which converts predict() inputs to a JSON object
-     def predict_input_to_JSON(self, parameter):
+     # Implementation of predict_input_to_predict_payload(), which converts predict() inputs to a predict_payload object
+     def predict_input_to_predict_payload(self, parameter):
        return parameter.tolist()
 
-     # Implementation of predict_output_to_JSON(), which converts the predict() output to a JSON object
-     def predict_output_to_JSON(self, output):
+     # Implementation of predict_output_to_predict_payload(), which converts the predict() output to a predict_payload object
+     def predict_output_to_predict_payload(self, output):
        return output.tolist()
 
-     # Implementation of JSON_to_predict_output, which takes a JSON object containing predictions and
+     # Implementation of predict_payload_to_predict_output, which takes a predict_payload object containing predictions and
      # converts it to the type of output expected by the user-written class.
-     def JSON_to_predict_output(self, predictions):
+     def predict_payload_to_predict_output(self, predictions):
        data = pd.DataFrame(predictions)
        torch_tensor = torch.tensor(data.values).type(torch.FloatTensor)
        return torch_tensor

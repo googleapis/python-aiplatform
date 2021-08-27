@@ -102,12 +102,12 @@ def health():
 async def predict(request: Request):
     body = await request.json()
     instances = body["instances"]
-    input_data = original_model.JSON_to_predict_input(instances)
+    input_data = original_model.predict_payload_to_predict_input(instances)
 
     my_model.predict = wrapped_model.predict
     outputs = my_model.predict(input_data)
 
-    return {"predictions": original_method.predict_output_to_JSON(outputs)}
+    return {"predictions": original_method.predict_output_to_predict_payload(outputs)}
 
 
 if __name__ == "__main__":
@@ -341,13 +341,13 @@ def vertex_predict_function_wrapper(method: Callable[..., Any]):
 
         # Make remote predictions, regardless of training: create custom container
         if method.__self__.remote:
-            # Convert the predict input to a JSON input for the Endpoint resource
+            # Convert the predict input to a predict_payload input for the Endpoint resource
             data = []
             bound_args = inspect.signature(method).bind(*args, **kwargs)
 
             for parameter_name, parameter in bound_args.arguments.items():
                 if parameter_name == "data":
-                    data = obj.predict_input_to_JSON(parameter)
+                    data = obj.predict_input_to_predict_payload(parameter)
                     break
 
             # TODO: cleanup model resource after endpoint is created
@@ -358,7 +358,7 @@ def vertex_predict_function_wrapper(method: Callable[..., Any]):
                 obj._endpoint = obj._model.deploy(machine_type="n1-standard-4")
 
             endpoint_output = obj._endpoint.predict(instances=data)
-            return obj.JSON_to_predict_output(endpoint_output["predictions"])
+            return obj.predict_payload_to_predict_output(endpoint_output["predictions"])
 
     return p
 
@@ -406,19 +406,19 @@ class VertexModel(metaclass=abc.ABCMeta):
         pass
 
     @abc.abstractmethod
-    def predict_input_to_JSON(self):
+    def predict_input_to_predict_payload(self):
         pass
 
     @abc.abstractmethod
-    def JSON_to_predict_input(self):
+    def predict_payload_to_predict_input(self):
         pass
 
     @abc.abstractmethod
-    def predict_output_to_JSON(self):
+    def predict_output_to_predict_payload(self):
         pass
 
     @abc.abstractmethod
-    def JSON_to_predict_output(self):
+    def predict_payload_to_predict_output(self):
         pass
 
     def batch_predict(self):
