@@ -100,6 +100,35 @@ def mock_client_bucket():
         yield mock_client_bucket, MockBlob
 
 
+@pytest.fixture
+def deploy_model_mock():
+    with mock.patch.object(
+        endpoint_service_client.EndpointServiceClient, "deploy_model"
+    ) as deploy_model_mock:
+        deployed_model = gca_endpoint.DeployedModel(
+            model=_TEST_MODEL_NAME, display_name=_TEST_DISPLAY_NAME,
+        )
+        deploy_model_lro_mock = mock.Mock(ga_operation.Operation)
+        deploy_model_lro_mock.result.return_value = gca_endpoint_service.DeployModelResponse(
+            deployed_model=deployed_model,
+        )
+        deploy_model_mock.return_value = deploy_model_lro_mock
+        yield deploy_model_mock
+
+
+@pytest.fixture
+def upload_model_mock():
+    with mock.patch.object(
+        model_service_client.ModelServiceClient, "upload_model"
+    ) as upload_model_mock:
+        mock_lro = mock.Mock(ga_operation.Operation)
+        mock_lro.result.return_value = gca_model_service.UploadModelResponse(
+            model=_TEST_MODEL_RESOURCE_NAME
+        )
+        upload_model_mock.return_value = mock_lro
+        yield upload_model_mock
+
+
 class LinearRegression(base.VertexModel, torch.nn.Module):
     def __init__(self, input_size: int, output_size: int):
         base.VertexModel.__init__(self, input_size=input_size, output_size=output_size)
@@ -250,10 +279,40 @@ class TestCloudVertexModelClass:
         self,
         mock_get_custom_training_job,
         mock_run_custom_training_job,
-        mock_client_bucket
+        mock_client_bucket,
+        deploy_model_mock,
+        upload_model_mock
     ):
-        # Check that model trains locally
-        # Check that model can be deployed to an endpoint
+        aiplatform.init(
+            project=_TEST_PROJECT,
+            location=_TEST_LOCATION,
+            staging_bucket=_TEST_STAGING_BUCKET,
+            encryption_spec_key_name=_TEST_DEFAULT_ENCRYPTION_KEY_NAME,
+        )
+
+        # Train locally
+        my_model = LinearRegression(2, 1)
+        my_model.remote = False
+
+        df = pd.DataFrame(
+            np.random.random(size=(100, 3)), columns=["feat_1", "feat_2", "target"]
+        )
+
+        my_model.fit(df, "target", 1, 0.1)
+
+        # Predict remotely
+        my_local_model.remote = True
+        data = pd.DataFrame(np.random.random(size=(100, 3)), columns=['feat_1', 'feat_2', 'target']) # Replace with your data
+
+        feature_columns = list(data.columns)
+        feature_columns.remove('target')
+        torch_tensor = torch.tensor(data[feature_columns].values).type(torch.FloatTensor)
+
+        my_local_model.predict(torch_tensor)
+
+        # Make assertions
+        upload_model_mock.assert_called_once()
+        
 
     def test_jupyter_source_retrieval(self):
         # Test that imports appear in source script
