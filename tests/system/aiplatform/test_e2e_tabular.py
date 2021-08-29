@@ -16,12 +16,15 @@
 #
 
 import os
-import uuid
 from urllib import request
 
 import pytest
 
 from google.cloud import aiplatform
+from google.cloud.aiplatform.compat.types import (
+    job_state as gca_job_state,
+    pipeline_state as gca_pipeline_state,
+)
 from tests.system.aiplatform import e2e_base
 
 
@@ -64,9 +67,11 @@ class TestEndToEndTabular(e2e_base.TestEndToEnd):
 
         # Create and import to single managed dataset for both training jobs
 
+        dataset_gcs_source = f'gs://{shared_state["staging_bucket_name"]}/{_BLOB_PATH}'
+
         ds = aiplatform.TabularDataset.create(
-            display_name=f"{self._temp_prefix}-dataset-{uuid.uuid4()}",
-            gcs_source=[f'gs://{shared_state["staging_bucket_name"]}/{_BLOB_PATH}'],
+            display_name=self._make_display_name("dataset"),
+            gcs_source=[dataset_gcs_source],
             sync=False,
         )
 
@@ -75,7 +80,7 @@ class TestEndToEndTabular(e2e_base.TestEndToEnd):
         # Define both training jobs
 
         custom_job = aiplatform.CustomTrainingJob(
-            display_name=f"{self._temp_prefix}-train-housing-custom-{uuid.uuid4()}",
+            display_name=self._make_display_name("train-housing-custom"),
             script_path=_LOCAL_TRAINING_SCRIPT_PATH,
             container_uri="gcr.io/cloud-aiplatform/training/tf-cpu.2-2:latest",
             requirements=["gcsfs==0.7.1"],
@@ -83,7 +88,7 @@ class TestEndToEndTabular(e2e_base.TestEndToEnd):
         )
 
         automl_job = aiplatform.AutoMLTabularTrainingJob(
-            display_name=f"{self._temp_prefix}-train-housing-automl-{uuid.uuid4()}",
+            display_name=self._make_display_name("train-housing-automl"),
             optimization_prediction_type="regression",
             optimization_objective="minimize-rmse",
         )
@@ -93,14 +98,14 @@ class TestEndToEndTabular(e2e_base.TestEndToEnd):
         custom_model = custom_job.run(
             ds,
             replica_count=1,
-            model_display_name=f"{self._temp_prefix}-custom-housing-model-{uuid.uuid4()}",
+            model_display_name=self._make_display_name("custom-housing-model"),
             sync=False,
         )
 
         automl_model = automl_job.run(
             dataset=ds,
             target_column="median_house_value",
-            model_display_name=f"{self._temp_prefix}-automl-housing-model-{uuid.uuid4()}",
+            model_display_name=self._make_display_name("automl-housing-model"),
             sync=False,
         )
 
@@ -112,6 +117,21 @@ class TestEndToEndTabular(e2e_base.TestEndToEnd):
         custom_endpoint = custom_model.deploy(machine_type="n1-standard-4", sync=False)
         automl_endpoint = automl_model.deploy(machine_type="n1-standard-4", sync=False)
         shared_state["resources"].extend([automl_endpoint, custom_endpoint])
+
+        custom_batch_prediction_job = custom_model.batch_predict(
+            job_display_name=self._make_display_name("automl-housing-model"),
+            instances_format="csv",
+            machine_type="n1-standard-4",
+            gcs_source=dataset_gcs_source,
+            gcs_destination_prefix=f'gs://{shared_state["staging_bucket_name"]}/bp_results/',
+            sync=False,
+        )
+
+        shared_state["resources"].append(custom_batch_prediction_job)
+
+        custom_job.wait_for_resource_creation()
+        automl_job.wait_for_resource_creation()
+        custom_batch_prediction_job.wait_for_resource_creation()
 
         # Send online prediction with same instance to both deployed models
         # This sample is taken from an observation where median_house_value = 94600
@@ -130,6 +150,9 @@ class TestEndToEndTabular(e2e_base.TestEndToEnd):
                 },
             ]
         )
+
+        custom_batch_prediction_job.wait()
+
         automl_endpoint.wait()
         automl_prediction = automl_endpoint.predict(
             [
@@ -144,6 +167,19 @@ class TestEndToEndTabular(e2e_base.TestEndToEnd):
                     "median_income": "3.014700",
                 },
             ]
+        )
+
+        assert (
+            custom_job.state
+            == gca_pipeline_state.PipelineState.PIPELINE_STATE_SUCCEEDED
+        )
+        assert (
+            automl_job.state
+            == gca_pipeline_state.PipelineState.PIPELINE_STATE_SUCCEEDED
+        )
+        assert (
+            custom_batch_prediction_job.state
+            == gca_job_state.JobState.JOB_STATE_SUCCEEDED
         )
 
         # Ensure a single prediction was returned
