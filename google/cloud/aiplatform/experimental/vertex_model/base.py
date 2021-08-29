@@ -19,6 +19,7 @@ import abc
 import datetime
 import functools
 import inspect
+import json
 import pathlib
 import tempfile
 from typing import Any
@@ -358,8 +359,9 @@ def vertex_predict_function_wrapper(method: Callable[..., Any]):
                 obj._endpoint = obj._model.deploy(machine_type="n1-standard-4")
 
             endpoint_output = obj._endpoint.predict(instances=data)
+            endpoint_output = json.loads(endpoint_output)
             # _LOGGER.info(type(endpoint_output))
-            return obj.predict_payload_to_predict_output(endpoint_output['predictions'])
+            return obj.predict_payload_to_predict_output(endpoint_output["predictions"])
 
     return p
 
