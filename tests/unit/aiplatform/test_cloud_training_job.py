@@ -38,15 +38,37 @@ from google.cloud.aiplatform.experimental.vertex_model.utils import source_utils
 
 from google.colab import _message
 
+from google.cloud.aiplatform_v1.services.model_service import (
+    client as model_service_client,
+)
+from google.cloud.aiplatform_v1.services.endpoint_service import (
+    client as endpoint_service_client,
+)
+from google.cloud.aiplatform_v1.types import (
+    endpoint as gca_endpoint,
+    endpoint_service as gca_endpoint_service,
+    model_service as gca_model_service,
+)
+from google.api_core import operation as ga_operation
+
 
 _TEST_PROJECT = "test-project"
 _TEST_LOCATION = "us-central1"
+_TEST_ID = "1028944691210842416"
+_TEST_DISPLAY_NAME = "test-display-name"
 
 _TEST_BUCKET_NAME = "test-bucket"
 _TEST_STAGING_BUCKET = "gs://test-staging-bucket"
 
 # CMEK encryption
 _TEST_DEFAULT_ENCRYPTION_KEY_NAME = "key_default"
+
+_TEST_MODEL_NAME = (
+    f"projects/{_TEST_PROJECT}/locations/{_TEST_LOCATION}/models/{_TEST_ID}"
+)
+_TEST_MODEL_RESOURCE_NAME = model_service_client.ModelServiceClient.model_path(
+    _TEST_PROJECT, _TEST_LOCATION, _TEST_ID
+)
 
 MOCK_NOTEBOOK = _message.blocking_request("get_ipynb", request="", timeout_sec=200)
 
@@ -247,6 +269,7 @@ class TestCloudVertexModelClass:
         mock_get_custom_training_job,
         mock_run_custom_training_job,
         mock_client_bucket,
+        deploy_model_mock,
     ):
         aiplatform.init(
             project=_TEST_PROJECT,
@@ -263,25 +286,70 @@ class TestCloudVertexModelClass:
         )
         my_model.fit(df, "target", 1, 0.1)
 
-        # Check that model is returned
+        # Predict remotely
+        my_model.remote = True
+        data = pd.DataFrame(
+            np.random.random(size=(100, 3)), columns=["feat_1", "feat_2", "target"]
+        )
+
+        feature_columns = list(data.columns)
+        feature_columns.remove("target")
+        torch_tensor = torch.tensor(data[feature_columns].values).type(
+            torch.FloatTensor
+        )
+
+        my_model.predict(torch_tensor)
+
         # Check that endpoint is deployed
+        deploy_model_mock.assert_called_once()
+        deploy_model_mock.assert_called_once_with(machine_type="n1-standard-4")
 
     def test_remote_train_local_predict(
         self,
         mock_get_custom_training_job,
         mock_run_custom_training_job,
-        mock_client_bucket
+        mock_client_bucket,
     ):
-        # Check that model is "trained"
-        # Check that local predictions can be made
+        aiplatform.init(
+            project=_TEST_PROJECT,
+            location=_TEST_LOCATION,
+            staging_bucket=_TEST_STAGING_BUCKET,
+            encryption_spec_key_name=_TEST_DEFAULT_ENCRYPTION_KEY_NAME,
+        )
+
+        # Remote training
+        my_model = LinearRegression(2, 1)
+        my_model.remote = True
+
+        df = pd.DataFrame(
+            np.random.random(size=(100, 3)), columns=["feat_1", "feat_2", "target"]
+        )
+        my_model.fit(df, "target", 1, 0.1)
+        mock_run_custom_training_job.assert_called_once()
+
+        # Local prediction: check that the model is available
+        my_model.remote = False
+        data = pd.DataFrame(
+            np.random.random(size=(100, 3)), columns=["feat_1", "feat_2", "target"]
+        )
+
+        feature_columns = list(data.columns)
+        feature_columns.remove("target")
+        torch_tensor = torch.tensor(data[feature_columns].values).type(
+            torch.FloatTensor
+        )
+
+        my_model.predict(torch_tensor)
+
+        assert mock_run_custom_training_job.return_value is not None
 
     def test_local_train_remote_predict(
         self,
         mock_get_custom_training_job,
         mock_run_custom_training_job,
         mock_client_bucket,
+        upload_model_mock,
         deploy_model_mock,
-        upload_model_mock
     ):
         aiplatform.init(
             project=_TEST_PROJECT,
@@ -301,23 +369,41 @@ class TestCloudVertexModelClass:
         my_model.fit(df, "target", 1, 0.1)
 
         # Predict remotely
-        my_local_model.remote = True
-        data = pd.DataFrame(np.random.random(size=(100, 3)), columns=['feat_1', 'feat_2', 'target']) # Replace with your data
+        my_model.remote = True
+        data = pd.DataFrame(
+            np.random.random(size=(100, 3)), columns=["feat_1", "feat_2", "target"]
+        )
 
         feature_columns = list(data.columns)
-        feature_columns.remove('target')
-        torch_tensor = torch.tensor(data[feature_columns].values).type(torch.FloatTensor)
+        feature_columns.remove("target")
+        torch_tensor = torch.tensor(data[feature_columns].values).type(
+            torch.FloatTensor
+        )
 
-        my_local_model.predict(torch_tensor)
+        my_model.predict(torch_tensor)
 
         # Make assertions
         upload_model_mock.assert_called_once()
-        
+        upload_model_mock.assert_called_once_with(
+            display_name="serving-test",
+            serving_container_image_uri="gcr.io/google-appengine/python",
+        )
+        deploy_model_mock.assert_called_once()
+        deploy_model_mock.assert_called_once_with(machine_type="n1-standard-4")
 
-    def test_jupyter_source_retrieval(self):
-        # Test that imports appear in source script
-        # Test that source script compiles
+    def test_jupyter_source_retrieval(self, mock_get_notebook):
+        output_file = source_utils.jupyter_notebook_to_file()
 
+        with open(output_file, "w"):
+            module_ok = True
+
+            try:
+                py_compile.compile(output_file, doraise=True)
+            except py_compile.PyCompileError as e:
+                print(e.exc_value)
+                module_ok = False
+
+            assert module_ok
 
     def test_source_script_compiles(
         self, mock_client_bucket,
