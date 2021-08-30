@@ -28,9 +28,7 @@ from google.cloud.aiplatform.experimental.vertex_model.serializers import (
 )
 
 
-def _serialize_local_model(
-    artifact_uri: str, obj: torch.nn.Module, model_type: str
-) -> str:
+def _serialize_local_model(artifact_uri: str, obj: torch.nn.Module, model_type: str):
     """Serializes torch.nn.Module object to GCS.
 
     Args:
@@ -59,8 +57,6 @@ def _serialize_local_model(
         gcs_blob_prefix,
         functools.partial(torch.jit.save, compiled_custom_model),
     )
-
-    return path_to_model
 
 
 def _deserialize_remote_model(artifact_uri: str) -> torch.nn.Module:
@@ -93,7 +89,7 @@ def _deserialize_remote_model(artifact_uri: str) -> torch.nn.Module:
 
     try:
         with tempfile.TemporaryDirectory() as tmpdirname:
-            dest_file = pathlib.Path(tmpdirname) / "deserialized_model.pth"
+            dest_file = pathlib.Path(tmpdirname) / "deserialized_model.pt"
             blob.download_to_filename(dest_file)
             loaded_compiled_custom_model = torch.jit.load(dest_file)
 

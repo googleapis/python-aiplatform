@@ -42,10 +42,10 @@ def serialize_to_tmp_and_copy_to_gcs(
                                               to a file.
 
     Returns:
-        The object stored at the given location.
+        The DataLoader object stored at the given location.
     """
     with tempfile.TemporaryDirectory() as tmpdirname:
-        temp_dir = tmpdirname + "/" + file_name
+        temp_dir = pathlib.Path(tmpdirname) / file_name
         tmp_dir_path = pathlib.Path(temp_dir)
         serialize_fn(temp_dir)
 
@@ -62,8 +62,7 @@ def serialize_to_tmp_and_copy_to_gcs(
 
         bucket = client.bucket(destination_bucket)
         blob = bucket.blob(blob_path)
-
-        blob.upload_from_filename(temp_dir)
+        blob.upload_from_filename(str(tmp_dir_path))
 
         gcs_path = "".join(["gs://", "/".join([blob.bucket.name, blob.name])])
         return gcs_path
