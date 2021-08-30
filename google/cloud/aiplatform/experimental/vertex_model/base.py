@@ -19,7 +19,7 @@ import abc
 import datetime
 import functools
 import inspect
-import json
+# import json
 import pathlib
 import tempfile
 from typing import Any
@@ -356,11 +356,9 @@ def vertex_predict_function_wrapper(method: Callable[..., Any]):
                 _LOGGER.info(
                     "Model is not deployed for remote prediction. Deploying model to an endpoint."
                 )
-                obj._endpoint = obj._model.deploy(machine_type="n1-standard-4")
+                obj._endpoint = obj._model.deploy(machine_type=obj.machine_type)
 
             endpoint_output = obj._endpoint.predict(instances=data).execute()
-            # endpoint_output = json.loads(endpoint_output)
-            # _LOGGER.info(type(endpoint_output))
             return obj.predict_payload_to_predict_output(endpoint_output["predictions"])
 
     return p
@@ -382,6 +380,8 @@ class VertexModel(metaclass=abc.ABCMeta):
         "torch>=1.7",
         "google-cloud-aiplatform @ git+https://github.com/googleapis/python-aiplatform@refs/pull/659/head#egg=google-cloud-aiplatform",
     ]
+
+    machine_type = "n1-standard-4"
 
     def __init__(self, *args, **kwargs):
         """Initializes child class. All constructor arguments must be passed to the
