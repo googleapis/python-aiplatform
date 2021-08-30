@@ -29,7 +29,13 @@ except ImportError:
     _message = None
 
 
-def jupyter_notebook_to_file():
+def jupyter_notebook_to_file() -> str:
+    """ Retrieves the source code of a Python notebook and writes it to a file.
+
+    Returns:
+        A string representing the file name where the Python notebook source code
+        has been written.
+    """
     response = _message.blocking_request("get_ipynb", request="", timeout_sec=200)
     if response is None:
         raise RuntimeError("Unable to get the notebook contents.")
@@ -73,6 +79,19 @@ def jupyter_notebook_to_file():
 
 
 def get_import_lines(path):
+    """Given the path to a python file, retrieves the imports in the file
+       and returns a list of strings representing each import, with aliases
+       included.
+
+    Args:
+        path (str): A path representing a python file whose imports will be
+                    retrieved.
+
+    Returns:
+        Several strings representing each of the import lines in the provided
+        Python file.
+    """
+
     with open(path) as f:
         root = ast.parse(f.read(), path)
 
@@ -93,6 +112,18 @@ def get_import_lines(path):
 
 
 def import_try_except(obj):
+    """Given an object defined in either a local file or a Colab notebook,
+       retrieves the imports in its class definition.
+
+    Args:
+        obj (Any): An object defined within the same workflow where this
+                   method is called.
+
+    Returns:
+        Several strings representing the import lines necessary for the
+        objects class definition to compile in the user workflow.
+    """
+
     try:
         module = inspect.getmodule(obj.__class__)
         import_lines = "\n".join(get_import_lines(module.__file__))
