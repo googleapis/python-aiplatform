@@ -358,8 +358,8 @@ def vertex_predict_function_wrapper(method: Callable[..., Any]):
                 )
                 obj._endpoint = obj._model.deploy(machine_type=obj.machine_type)
 
-            endpoint_output = obj._endpoint.predict(instances=data).execute()
-            return obj.predict_payload_to_predict_output(endpoint_output["predictions"])
+            endpoint_output = obj._endpoint.predict(instances=data)
+            return obj.predict_payload_to_predict_output(endpoint_output.predictions)
 
     return p
 
