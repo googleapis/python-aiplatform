@@ -17,6 +17,7 @@
 
 import functools
 import importlib
+import os
 import pathlib
 import py_compile
 import pytest
@@ -42,22 +43,15 @@ from google.cloud.aiplatform.experimental.vertex_model.serializers import (
 from google.cloud.aiplatform_v1.services.model_service import (
     client as model_service_client,
 )
-from google.cloud.aiplatform_v1.services.endpoint_service import (
-    client as endpoint_service_client,
-)
-from google.cloud.aiplatform_v1.types import (
-    endpoint as gca_endpoint,
-    endpoint_service as gca_endpoint_service,
-    model_service as gca_model_service,
-    Model as gca_Model,
-)
-from google.api_core import operation as ga_operation
+from google.cloud.aiplatform_v1.types import Model as gca_Model
+
 
 try:
     # Available in a colab environment.
     from google.colab import _message  # pylint: disable=g-import-not-at-top
 
     MOCK_NOTEBOOK = _message.blocking_request("get_ipynb", request="", timeout_sec=200)
+
 except ImportError:
     _message = None
     MOCK_NOTEBOOK = None
@@ -132,6 +126,13 @@ def mock_deserialize_model():
 
 
 @pytest.fixture
+def mock_serialize_model(mock_model):
+    with patch.object(model_serializers, "_serialize_local_model") as mock:
+        mock.return_value = mock_model
+        yield mock
+
+
+@pytest.fixture
 def mock_run_custom_training_job(mock_custom_training_job, mock_model):
     with patch.object(mock_custom_training_job, "run") as mock:
         mock.return_value = mock_model
@@ -163,35 +164,6 @@ def mock_client_bucket():
         mock_client_bucket.return_value = MockBucket
 
         yield mock_client_bucket, MockBlob
-
-
-@pytest.fixture
-def deploy_model_mock():
-    with mock.patch.object(
-        endpoint_service_client.EndpointServiceClient, "deploy_model"
-    ) as deploy_model_mock:
-        deployed_model = gca_endpoint.DeployedModel(
-            model=_TEST_MODEL_NAME, display_name=_TEST_DISPLAY_NAME,
-        )
-        deploy_model_lro_mock = mock.Mock(ga_operation.Operation)
-        deploy_model_lro_mock.result.return_value = gca_endpoint_service.DeployModelResponse(
-            deployed_model=deployed_model,
-        )
-        deploy_model_mock.return_value = deploy_model_lro_mock
-        yield deploy_model_mock
-
-
-@pytest.fixture
-def upload_model_mock():
-    with mock.patch.object(
-        model_service_client.ModelServiceClient, "upload_model"
-    ) as upload_model_mock:
-        mock_lro = mock.Mock(ga_operation.Operation)
-        mock_lro.result.return_value = gca_model_service.UploadModelResponse(
-            model=_TEST_MODEL_RESOURCE_NAME
-        )
-        upload_model_mock.return_value = mock_lro
-        yield upload_model_mock
 
 
 class LinearRegression(base.VertexModel, torch.nn.Module):
@@ -313,7 +285,6 @@ class TestCloudVertexModelClass:
         mock_run_custom_training_job,
         mock_model,
         mock_client_bucket,
-        # deploy_model_mock,
     ):
         aiplatform.init(
             project=_TEST_PROJECT,
@@ -345,7 +316,6 @@ class TestCloudVertexModelClass:
         my_model.predict(torch_tensor)
 
         # Check that endpoint is deployed
-        # deploy_model_mock.assert_called_once()
         mock_model.deploy.assert_called_once_with(machine_type="n1-standard-4")
 
     @pytest.mark.usefixtures("mock_deserialize_model")
@@ -388,6 +358,7 @@ class TestCloudVertexModelClass:
 
         assert mock_run_custom_training_job.return_value is not None
 
+    @pytest.mark.usefixtures("mock_serialize_model")
     def test_local_train_remote_predict(
         self,
         mock_get_custom_training_job,
@@ -424,6 +395,8 @@ class TestCloudVertexModelClass:
         torch_tensor = torch.tensor(data[feature_columns].values).type(
             torch.FloatTensor
         )
+
+        os.environ["AIP_STORAGE_URI"] = _TEST_STAGING_BUCKET
 
         my_model.predict(torch_tensor)
 
