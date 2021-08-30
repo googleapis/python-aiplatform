@@ -4148,11 +4148,8 @@ class AutoMLForecastingTrainingJob(_TrainingJob):
         """BigQuery location of exported evaluated examples from the Training Job"""
 
         self._assert_gca_resource_is_available()
-        
-        try:
-            meta = getattr((self._gca_resource), "training_task_metadata")
-        except ValueError:
-            raise ValueError("BigQuery uri for evaluated data items does not exist. Must export evaluated data items during training.")
+      
+        meta = getattr((self._gca_resource), "training_task_metadata")
 
         try: 
             metadata = self._gca_resource.training_task_metadata 
