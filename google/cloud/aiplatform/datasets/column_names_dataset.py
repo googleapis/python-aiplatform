@@ -18,19 +18,12 @@
 
 import csv
 import logging
-
 from typing import List, Optional, Set
-
 from google.auth import credentials as auth_credentials
 
 from google.cloud import bigquery
 from google.cloud import storage
 
-from google.cloud.aiplatform import utils
-
-from typing import List, Optional
-
-from google.cloud.aiplatform import base
 from google.cloud.aiplatform import utils
 from google.cloud.aiplatform.datasets import _Dataset
 
