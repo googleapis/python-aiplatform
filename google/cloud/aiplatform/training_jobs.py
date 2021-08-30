@@ -333,7 +333,7 @@ class _TrainingJob(base.VertexAiResourceNounWithFutureManager):
             annotation_schema_uri (str):
                 Google Cloud Storage URI points to a YAML file describing
                 annotation schema. The schema is defined as an OpenAPI 3.0.2
-                [Schema Object](https://github.com/OAI/OpenAPI-Specification/blob/master/versions/3.0.2.md#schema-object) The schema files
+                [Schema Object](https://github.com/OAI/OpenAPI-Specification/blob/main/versions/3.0.2.md#schema-object) The schema files
                 that can be used here are found in
                 gs://google-cloud-aiplatform/schema/dataset/annotation/,
                 note that the chosen schema must be consistent with
@@ -593,7 +593,7 @@ class _TrainingJob(base.VertexAiResourceNounWithFutureManager):
             annotation_schema_uri (str):
                 Google Cloud Storage URI points to a YAML file describing
                 annotation schema. The schema is defined as an OpenAPI 3.0.2
-                [Schema Object](https://github.com/OAI/OpenAPI-Specification/blob/master/versions/3.0.2.md#schema-object) The schema files
+                [Schema Object](https://github.com/OAI/OpenAPI-Specification/blob/main/versions/3.0.2.md#schema-object) The schema files
                 that can be used here are found in
                 gs://google-cloud-aiplatform/schema/dataset/annotation/,
                 note that the chosen schema must be consistent with
@@ -1808,7 +1808,7 @@ class CustomTrainingJob(_CustomTrainingJob):
             annotation_schema_uri (str):
                 Google Cloud Storage URI points to a YAML file describing
                 annotation schema. The schema is defined as an OpenAPI 3.0.2
-                [Schema Object](https://github.com/OAI/OpenAPI-Specification/blob/master/versions/3.0.2.md#schema-object) The schema files
+                [Schema Object](https://github.com/OAI/OpenAPI-Specification/blob/main/versions/3.0.2.md#schema-object) The schema files
                 that can be used here are found in
                 gs://google-cloud-aiplatform/schema/dataset/annotation/,
                 note that the chosen schema must be consistent with
@@ -2563,7 +2563,7 @@ class CustomContainerTrainingJob(_CustomTrainingJob):
             annotation_schema_uri (str):
                 Google Cloud Storage URI points to a YAML file describing
                 annotation schema. The schema is defined as an OpenAPI 3.0.2
-                [Schema Object](https://github.com/OAI/OpenAPI-Specification/blob/master/versions/3.0.2.md#schema-object) The schema files
+                [Schema Object](https://github.com/OAI/OpenAPI-Specification/blob/main/versions/3.0.2.md#schema-object) The schema files
                 that can be used here are found in
                 gs://google-cloud-aiplatform/schema/dataset/annotation/,
                 note that the chosen schema must be consistent with
@@ -4985,7 +4985,7 @@ class CustomPythonPackageTrainingJob(_CustomTrainingJob):
             annotation_schema_uri (str):
                 Google Cloud Storage URI points to a YAML file describing
                 annotation schema. The schema is defined as an OpenAPI 3.0.2
-                [Schema Object](https://github.com/OAI/OpenAPI-Specification/blob/master/versions/3.0.2.md#schema-object) The schema files
+                [Schema Object](https://github.com/OAI/OpenAPI-Specification/blob/main/versions/3.0.2.md#schema-object) The schema files
                 that can be used here are found in
                 gs://google-cloud-aiplatform/schema/dataset/annotation/,
                 note that the chosen schema must be consistent with

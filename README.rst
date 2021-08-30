@@ -274,6 +274,39 @@ Please visit `Importing models to Vertex AI`_ for a detailed overview:
 .. _Importing models to Vertex AI: https://cloud.google.com/vertex-ai/docs/general/import-model
 
 
+Batch Prediction
+----------------
+
+To create a batch prediction job:
+
+.. code-block:: Python
+
+  model = aiplatform.Model('/projects/my-project/locations/us-central1/models/{MODEL_ID}')
+
+  batch_prediction_job = model.batch_predict(
+    job_display_name='my-batch-prediction-job',
+    instances_format='csv'
+    machine_type='n1-standard-4',
+    gcs_source=['gs://path/to/my/file.csv']
+    gcs_destination_prefix='gs://path/to/by/batch_prediction/results/'
+  )
+
+You can also create a batch prediction job asynchronously by including the `sync=False` argument:
+
+.. code-block:: Python
+
+  batch_prediction_job = model.batch_predict(..., sync=False)
+
+  # wait for resource to be created
+  batch_prediction_job.wait_for_resource_creation()
+
+  # get the state
+  batch_prediction_job.state
+
+  # block until job is complete
+  batch_prediction_job.wait() 
+
+
 Endpoints
 ---------
 
