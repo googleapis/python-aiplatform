@@ -117,6 +117,15 @@ logger = tb_logging.get_logger()
 logger.setLevel(logging.WARNING)
 
 
+class RequestSender(object):
+    """A base class for additional request sender objects.
+
+    Currently just used for typing.
+    """
+
+    pass
+
+
 class TensorBoardUploader(object):
     """Uploads a TensorBoard logdir to TensorBoard.gcp."""
 
@@ -314,7 +323,7 @@ class TensorBoardUploader(object):
             request_sender=request_sender, additional_senders=additional_senders,
         )
 
-    def _create_additional_senders(self):
+    def _create_additional_senders(self) -> Dict[str, RequestSender]:
         """Create any additional senders for non traditional event files.
 
         Some items that are used for plugins do not process typical event files,
@@ -603,7 +612,9 @@ class _Dispatcher(object):
     """Dispatch the requests to the correct request senders."""
 
     def __init__(
-        self, request_sender: _BatchedRequestSender, additional_senders={},
+        self,
+        request_sender: _BatchedRequestSender,
+        additional_senders: Optional[Dict[str, RequestSender]] = None,
     ):
         """Construct a _Dispatcher object for the TensorboardUploader.
 
@@ -613,6 +624,9 @@ class _Dispatcher(object):
               Senders.
         """
         self._request_sender = request_sender
+
+        if not additional_senders:
+            additional_senders = {}
         self._additional_senders = additional_senders
 
     def _dispatch_additional_senders(
