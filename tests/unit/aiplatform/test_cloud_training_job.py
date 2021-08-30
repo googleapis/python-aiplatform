@@ -35,6 +35,9 @@ from google.cloud import storage
 
 from google.cloud.aiplatform.experimental.vertex_model import base
 from google.cloud.aiplatform.experimental.vertex_model.utils import source_utils
+from google.cloud.aiplatform.experimental.vertex_model.serializers import (
+    model as model_serializers,
+)
 
 from google.cloud.aiplatform_v1.services.model_service import (
     client as model_service_client,
@@ -46,6 +49,7 @@ from google.cloud.aiplatform_v1.types import (
     endpoint as gca_endpoint,
     endpoint_service as gca_endpoint_service,
     model_service as gca_model_service,
+    Model as gca_Model,
 )
 from google.api_core import operation as ga_operation
 
@@ -78,6 +82,15 @@ _TEST_MODEL_RESOURCE_NAME = model_service_client.ModelServiceClient.model_path(
 )
 
 
+class TorchModel(torch.nn.Module):
+    def __init__(self):
+        super().__init__()
+        self.linear = torch.nn.Linear(2, 1)
+
+    def forward(self, x):
+        return self.linear(x)
+
+
 @pytest.fixture
 def mock_get_notebook():
     if _message is not None:
@@ -102,10 +115,32 @@ def mock_get_custom_training_job(mock_custom_training_job):
 
 
 @pytest.fixture
-def mock_run_custom_training_job(mock_custom_training_job):
+def mock_model():
     mock_model = MagicMock(aiplatform.models.Model)
     mock_model.artifact_uri = "gs://fake-bucket/my_model.pth"
+    mock_model._gca_resource = gca_Model(
+        artifact_uri="gs://fake-bucket/my_model.pth", name=_TEST_MODEL_RESOURCE_NAME
+    )
+    yield mock_model
+
+
+@pytest.fixture
+def mock_deserialize_model():
+    with patch.object(model_serializers, "_deserialize_remote_model") as mock:
+        mock.return_value = TorchModel()
+        yield mock
+
+
+@pytest.fixture
+def mock_run_custom_training_job(mock_custom_training_job, mock_model):
     with patch.object(mock_custom_training_job, "run") as mock:
+        mock.return_value = mock_model
+        yield mock
+
+
+@pytest.fixture
+def mock_model_upload(mock_model):
+    with patch.object(aiplatform.models.Model, "upload") as mock:
         mock.return_value = mock_model
         yield mock
 
@@ -276,8 +311,9 @@ class TestCloudVertexModelClass:
         self,
         mock_get_custom_training_job,
         mock_run_custom_training_job,
+        mock_model,
         mock_client_bucket,
-        deploy_model_mock,
+        # deploy_model_mock,
     ):
         aiplatform.init(
             project=_TEST_PROJECT,
@@ -309,9 +345,10 @@ class TestCloudVertexModelClass:
         my_model.predict(torch_tensor)
 
         # Check that endpoint is deployed
-        deploy_model_mock.assert_called_once()
-        deploy_model_mock.assert_called_once_with(machine_type="n1-standard-4")
+        # deploy_model_mock.assert_called_once()
+        mock_model.deploy.assert_called_once_with(machine_type="n1-standard-4")
 
+    @pytest.mark.usefixtures("mock_deserialize_model")
     def test_remote_train_local_predict(
         self,
         mock_get_custom_training_job,
@@ -356,8 +393,8 @@ class TestCloudVertexModelClass:
         mock_get_custom_training_job,
         mock_run_custom_training_job,
         mock_client_bucket,
-        upload_model_mock,
-        deploy_model_mock,
+        mock_model_upload,
+        mock_model,
     ):
         aiplatform.init(
             project=_TEST_PROJECT,
@@ -391,13 +428,8 @@ class TestCloudVertexModelClass:
         my_model.predict(torch_tensor)
 
         # Make assertions
-        upload_model_mock.assert_called_once()
-        upload_model_mock.assert_called_once_with(
-            display_name="serving-test",
-            serving_container_image_uri="gcr.io/google-appengine/python",
-        )
-        deploy_model_mock.assert_called_once()
-        deploy_model_mock.assert_called_once_with(machine_type="n1-standard-4")
+        mock_model_upload.assert_called_once()
+        mock_model.deploy.assert_called_once_with(machine_type="n1-standard-4")
 
     def test_jupyter_source_retrieval(self, mock_get_notebook):
         if _message is not None and MOCK_NOTEBOOK is not None:
