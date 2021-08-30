@@ -29,6 +29,7 @@ from google.cloud.aiplatform.datasets import _Dataset
 
 
 class _ColumnNamesDataset(_Dataset):
+    
     @property
     def column_names(self) -> List[str]:
         """Retrieve the columns for the dataset by extracting it from the Google Cloud Storage or

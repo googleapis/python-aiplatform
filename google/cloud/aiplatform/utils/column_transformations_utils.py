@@ -15,26 +15,26 @@
 # limitations under the License.
 #
 
-from google.cloud.aiplatform import base
-
 from google.cloud.aiplatform.datasets.column_names_dataset import _ColumnNamesDataset
-from typing import Dict, List, Optional, Union, Tuple
+from typing import Dict, List, Optional, Tuple
 
 import warnings
 
 
 def get_default_column_transformations(
     dataset: _ColumnNamesDataset, target_column: str,
-) -> Tuple[Dict, List[str]]:
+) -> Tuple[List[Dict[str, Dict[str, str]]], List[str]]:
     """Get default column transformations from the column names, while omitting the target column.
 
     Args:
+        dataset (_ColumnNamesDataset):
+            Required. The dataset 
         target_column (str):
-            Required. The name of the column values of which the Model is to predict. 
+            Required. The name of the column values of which the Model is to predict.
 
     Returns:
-        Dict
-            The default column transformations.
+        Tuple[Dict[str, Dict[str, Union[bool, str]]], List[str]]:
+            The default column transformations and the default column names.
     """
 
     column_names = [
@@ -51,7 +51,7 @@ def get_default_column_transformations(
 
 def validate_and_get_column_transformations(
     column_specs: Optional[Dict[str, str]],
-    column_transformations: Optional[Union[Dict, List[Dict]]],
+    column_transformations: Optional[List[Dict[str, Dict[str, str]]]],
 ) -> Dict:
     """Validates column specs and transformations, then returns processed transformations.
 
@@ -67,7 +67,7 @@ def validate_and_get_column_transformations(
             ignored by the training, except for the targetColumn, which should have
             no transformations defined on.
             Only one of column_transformations or column_specs should be passed.
-        column_transformations (Union[Dict, List[Dict]]):
+        column_transformations (List[Dict[str, Dict[str, str]]]):
             Optional. Transformations to apply to the input columns (i.e. columns other
             than the targetColumn). Each transformation may produce multiple
             result values from the column's value, and all are used for training.
@@ -81,7 +81,7 @@ def validate_and_get_column_transformations(
             Consider using column_specs as column_transformations will be deprecated eventually.
 
     Returns:
-        Dict
+        List[Dict[str, Dict[str, str]]]:
             The column transformations.
     """
     # user populated transformations

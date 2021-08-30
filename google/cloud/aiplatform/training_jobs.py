@@ -3070,7 +3070,7 @@ class AutoMLTabularTrainingJob(_TrainingJob):
                 ignored by the training, except for the targetColumn, which should have
                 no transformations defined on.
                 Only one of column_transformations or column_specs should be passed.
-            column_transformations (Union[Dict, List[Dict]]):
+            column_transformations (List[Dict[str, Dict[str, str]]]):
                 Optional. Transformations to apply to the input columns (i.e. columns other
                 than the targetColumn). Each transformation may produce multiple
                 result values from the column's value, and all are used for training.
@@ -3668,7 +3668,7 @@ class AutoMLForecastingTrainingJob(_TrainingJob):
                 ignored by the training, except for the targetColumn, which should have
                 no transformations defined on.
                 Only one of column_transformations or column_specs should be passed.
-            column_transformations (Union[Dict, List[Dict]]):
+            column_transformations (List[Dict[str, Dict[str, str]]]):
                 Optional. Transformations to apply to the input columns (i.e. columns other
                 than the targetColumn). Each transformation may produce multiple
                 result values from the column's value, and all are used for training.
