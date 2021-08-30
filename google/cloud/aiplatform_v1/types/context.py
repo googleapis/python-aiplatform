@@ -15,6 +15,7 @@
 #
 import proto  # type: ignore
 
+from google.protobuf import struct_pb2  # type: ignore
 from google.protobuf import timestamp_pb2  # type: ignore
 
 
@@ -56,6 +57,26 @@ class Context(proto.Message):
             Output only. A list of resource names of Contexts that are
             parents of this Context. A Context may have at most 10
             parent_contexts.
+        schema_title (str):
+            The title of the schema describing the
+            metadata.
+            Schema title and version is expected to be
+            registered in earlier Create Schema calls. And
+            both are used together as unique identifiers to
+            identify schemas within the local metadata
+            store.
+        schema_version (str):
+            The version of the schema in schema_name to use.
+
+            Schema title and version is expected to be registered in
+            earlier Create Schema calls. And both are used together as
+            unique identifiers to identify schemas within the local
+            metadata store.
+        metadata (google.protobuf.struct_pb2.Struct):
+            Properties of the Context.
+            The size of this field should not exceed 200KB.
+        description (str):
+            Description of the Context
     """
 
     name = proto.Field(proto.STRING, number=1,)
@@ -69,6 +90,10 @@ class Context(proto.Message):
         proto.MESSAGE, number=11, message=timestamp_pb2.Timestamp,
     )
     parent_contexts = proto.RepeatedField(proto.STRING, number=12,)
+    schema_title = proto.Field(proto.STRING, number=13,)
+    schema_version = proto.Field(proto.STRING, number=14,)
+    metadata = proto.Field(proto.MESSAGE, number=15, message=struct_pb2.Struct,)
+    description = proto.Field(proto.STRING, number=16,)
 
 
 __all__ = tuple(sorted(__protobuf__.manifest))
