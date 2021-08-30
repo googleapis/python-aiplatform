@@ -36,8 +36,6 @@ from google.cloud import storage
 from google.cloud.aiplatform.experimental.vertex_model import base
 from google.cloud.aiplatform.experimental.vertex_model.utils import source_utils
 
-from google.colab import _message
-
 from google.cloud.aiplatform_v1.services.model_service import (
     client as model_service_client,
 )
@@ -50,6 +48,15 @@ from google.cloud.aiplatform_v1.types import (
     model_service as gca_model_service,
 )
 from google.api_core import operation as ga_operation
+
+try:
+    # Available in a colab environment.
+    from google.colab import _message  # pylint: disable=g-import-not-at-top
+
+    MOCK_NOTEBOOK = _message.blocking_request("get_ipynb", request="", timeout_sec=200)
+except ImportError:
+    _message = None
+    MOCK_NOTEBOOK = None
 
 
 _TEST_PROJECT = "test-project"
@@ -70,14 +77,15 @@ _TEST_MODEL_RESOURCE_NAME = model_service_client.ModelServiceClient.model_path(
     _TEST_PROJECT, _TEST_LOCATION, _TEST_ID
 )
 
-MOCK_NOTEBOOK = _message.blocking_request("get_ipynb", request="", timeout_sec=200)
-
 
 @pytest.fixture
 def mock_get_notebook():
-    with patch.object(_message, "blocking_request") as mock:
-        mock.return_value = MOCK_NOTEBOOK
-        yield mock
+    if _message is not None:
+        with patch.object(_message, "blocking_request") as mock:
+            mock.return_value = MOCK_NOTEBOOK
+            yield mock
+    else:
+        yield None
 
 
 @pytest.fixture
@@ -392,18 +400,19 @@ class TestCloudVertexModelClass:
         deploy_model_mock.assert_called_once_with(machine_type="n1-standard-4")
 
     def test_jupyter_source_retrieval(self, mock_get_notebook):
-        output_file = source_utils.jupyter_notebook_to_file()
+        if _message is not None and MOCK_NOTEBOOK is not None:
+            output_file = source_utils.jupyter_notebook_to_file()
 
-        with open(output_file, "w"):
-            module_ok = True
+            with open(output_file, "w"):
+                module_ok = True
 
-            try:
-                py_compile.compile(output_file, doraise=True)
-            except py_compile.PyCompileError as e:
-                print(e.exc_value)
-                module_ok = False
+                try:
+                    py_compile.compile(output_file, doraise=True)
+                except py_compile.PyCompileError as e:
+                    print(e.exc_value)
+                    module_ok = False
 
-            assert module_ok
+                assert module_ok
 
     def test_source_script_compiles(
         self, mock_client_bucket,
