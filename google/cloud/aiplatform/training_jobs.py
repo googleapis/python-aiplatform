@@ -41,6 +41,7 @@ from google.cloud.aiplatform.compat.types import (
 from google.cloud.aiplatform.utils import _timestamped_gcs_dir
 from google.cloud.aiplatform.utils import source_utils
 from google.cloud.aiplatform.utils import worker_spec_utils
+from google.cloud.aiplatform.utils import column_transformations_utils
 
 from google.cloud.aiplatform.v1.schema.trainingjob import (
     definition_v1 as training_job_inputs,
@@ -3148,7 +3149,7 @@ class AutoMLTabularTrainingJob(_TrainingJob):
             model_encryption_spec_key_name=model_encryption_spec_key_name,
         )
 
-        self._column_transformations = datasets._ColumnNamesDataset._validate_and_get_column_transformations(
+        self._column_transformations = column_transformations_utils.validate_and_get_column_transformations(
             column_specs, column_transformations
         )
 
@@ -3510,7 +3511,9 @@ class AutoMLTabularTrainingJob(_TrainingJob):
             (
                 self._column_transformations,
                 column_names,
-            ) = dataset._get_default_column_transformations(target_column)
+            ) = column_transformations_utils.get_default_column_transformations(
+                dataset=dataset, target_column=target_column
+            )
 
             _LOGGER.info(
                 "The column transformation of type 'auto' was set for the following columns: %s."
@@ -3730,7 +3733,7 @@ class AutoMLForecastingTrainingJob(_TrainingJob):
             model_encryption_spec_key_name=model_encryption_spec_key_name,
         )
 
-        self._column_transformations = datasets._ColumnNamesDataset._validate_and_get_column_transformations(
+        self._column_transformations = column_transformations_utils.validate_and_get_column_transformations(
             column_specs, column_transformations
         )
 
