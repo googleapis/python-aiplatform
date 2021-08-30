@@ -17,6 +17,7 @@
 
 import functools
 import importlib
+import os
 import pathlib
 import py_compile
 import pytest
@@ -35,16 +36,63 @@ from google.cloud import storage
 
 from google.cloud.aiplatform.experimental.vertex_model import base
 from google.cloud.aiplatform.experimental.vertex_model.utils import source_utils
+from google.cloud.aiplatform.experimental.vertex_model.serializers import (
+    model as model_serializers,
+)
+
+from google.cloud.aiplatform_v1.services.model_service import (
+    client as model_service_client,
+)
+from google.cloud.aiplatform_v1.types import Model as gca_Model
+
+
+try:
+    # Available in a colab environment.
+    from google.colab import _message  # pylint: disable=g-import-not-at-top
+
+    MOCK_NOTEBOOK = _message.blocking_request("get_ipynb", request="", timeout_sec=200)
+
+except ImportError:
+    _message = None
+    MOCK_NOTEBOOK = None
 
 
 _TEST_PROJECT = "test-project"
 _TEST_LOCATION = "us-central1"
+_TEST_ID = "1028944691210842416"
+_TEST_DISPLAY_NAME = "test-display-name"
 
 _TEST_BUCKET_NAME = "test-bucket"
 _TEST_STAGING_BUCKET = "gs://test-staging-bucket"
 
 # CMEK encryption
 _TEST_DEFAULT_ENCRYPTION_KEY_NAME = "key_default"
+
+_TEST_MODEL_NAME = (
+    f"projects/{_TEST_PROJECT}/locations/{_TEST_LOCATION}/models/{_TEST_ID}"
+)
+_TEST_MODEL_RESOURCE_NAME = model_service_client.ModelServiceClient.model_path(
+    _TEST_PROJECT, _TEST_LOCATION, _TEST_ID
+)
+
+
+class TorchModel(torch.nn.Module):
+    def __init__(self):
+        super().__init__()
+        self.linear = torch.nn.Linear(2, 1)
+
+    def forward(self, x):
+        return self.linear(x)
+
+
+@pytest.fixture
+def mock_get_notebook():
+    if _message is not None:
+        with patch.object(_message, "blocking_request") as mock:
+            mock.return_value = MOCK_NOTEBOOK
+            yield mock
+    else:
+        yield None
 
 
 @pytest.fixture
@@ -61,8 +109,40 @@ def mock_get_custom_training_job(mock_custom_training_job):
 
 
 @pytest.fixture
-def mock_run_custom_training_job(mock_custom_training_job):
+def mock_model():
+    mock_model = MagicMock(aiplatform.models.Model)
+    mock_model.artifact_uri = "gs://fake-bucket/my_model.pth"
+    mock_model._gca_resource = gca_Model(
+        artifact_uri="gs://fake-bucket/my_model.pth", name=_TEST_MODEL_RESOURCE_NAME
+    )
+    yield mock_model
+
+
+@pytest.fixture
+def mock_deserialize_model():
+    with patch.object(model_serializers, "_deserialize_remote_model") as mock:
+        mock.return_value = TorchModel()
+        yield mock
+
+
+@pytest.fixture
+def mock_serialize_model(mock_model):
+    with patch.object(model_serializers, "_serialize_local_model") as mock:
+        mock.return_value = mock_model
+        yield mock
+
+
+@pytest.fixture
+def mock_run_custom_training_job(mock_custom_training_job, mock_model):
     with patch.object(mock_custom_training_job, "run") as mock:
+        mock.return_value = mock_model
+        yield mock
+
+
+@pytest.fixture
+def mock_model_upload(mock_model):
+    with patch.object(aiplatform.models.Model, "upload") as mock:
+        mock.return_value = mock_model
         yield mock
 
 
@@ -143,7 +223,7 @@ class TestCloudVertexModelClass:
         )
 
         my_model = LinearRegression(2, 1)
-        my_model.training_mode = "cloud"
+        my_model.remote = True
 
         assert my_model is not None
 
@@ -161,7 +241,7 @@ class TestCloudVertexModelClass:
         )
 
         my_model = LinearRegression(2, 1)
-        my_model.training_mode = "cloud"
+        my_model.remote = True
 
         df = pd.DataFrame(
             np.random.random(size=(100, 3)), columns=["feat_1", "feat_2", "target"]
@@ -175,10 +255,10 @@ class TestCloudVertexModelClass:
             "requirements": [
                 "pandas>=1.3",
                 "torch>=1.7",
-                "google-cloud-aiplatform @ git+https://github.com/googleapis/python-aiplatform@refs/pull/594/head#egg=google-cloud-aiplatform",
+                "google-cloud-aiplatform @ git+https://github.com/googleapis/python-aiplatform@refs/pull/628/head#egg=google-cloud-aiplatform",
             ],
             "container_uri": "us-docker.pkg.dev/vertex-ai/training/scikit-learn-cpu.0-23:latest",
-            "model_serving_container_image_uri": "us-docker.pkg.dev/vertex-ai/prediction/tf2-cpu.2-5:latest",
+            "model_serving_container_image_uri": "gcr.io/google-appengine/python",
         }
 
         for key, value in expected.items():
@@ -187,7 +267,9 @@ class TestCloudVertexModelClass:
 
         assert call_args[1]["script_path"].endswith("/training_script.py")
         assert sorted(list(call_args[1].keys())) == sorted(
-            list(expected.keys()) + ["script_path"]
+            list(expected.keys())
+            + ["script_path"]
+            + ["model_serving_container_command"]
         )
 
         mock_get_custom_training_job.assert_called_once()
@@ -196,6 +278,146 @@ class TestCloudVertexModelClass:
         mock_run_custom_training_job.assert_called_once_with(
             model_display_name="my_model", replica_count=1,
         )
+
+    def test_remote_train_remote_predict(
+        self,
+        mock_get_custom_training_job,
+        mock_run_custom_training_job,
+        mock_model,
+        mock_client_bucket,
+    ):
+        aiplatform.init(
+            project=_TEST_PROJECT,
+            location=_TEST_LOCATION,
+            staging_bucket=_TEST_STAGING_BUCKET,
+            encryption_spec_key_name=_TEST_DEFAULT_ENCRYPTION_KEY_NAME,
+        )
+
+        my_model = LinearRegression(2, 1)
+        my_model.remote = True
+
+        df = pd.DataFrame(
+            np.random.random(size=(100, 3)), columns=["feat_1", "feat_2", "target"]
+        )
+        my_model.fit(df, "target", 1, 0.1)
+
+        # Predict remotely
+        my_model.remote = True
+        data = pd.DataFrame(
+            np.random.random(size=(100, 3)), columns=["feat_1", "feat_2", "target"]
+        )
+
+        feature_columns = list(data.columns)
+        feature_columns.remove("target")
+        torch_tensor = torch.tensor(data[feature_columns].values).type(
+            torch.FloatTensor
+        )
+
+        my_model.predict(torch_tensor)
+
+        # Check that endpoint is deployed
+        mock_model.deploy.assert_called_once_with(machine_type="n1-standard-4")
+
+    @pytest.mark.usefixtures("mock_deserialize_model")
+    def test_remote_train_local_predict(
+        self,
+        mock_get_custom_training_job,
+        mock_run_custom_training_job,
+        mock_client_bucket,
+    ):
+        aiplatform.init(
+            project=_TEST_PROJECT,
+            location=_TEST_LOCATION,
+            staging_bucket=_TEST_STAGING_BUCKET,
+            encryption_spec_key_name=_TEST_DEFAULT_ENCRYPTION_KEY_NAME,
+        )
+
+        # Remote training
+        my_model = LinearRegression(2, 1)
+        my_model.remote = True
+
+        df = pd.DataFrame(
+            np.random.random(size=(100, 3)), columns=["feat_1", "feat_2", "target"]
+        )
+        my_model.fit(df, "target", 1, 0.1)
+        mock_run_custom_training_job.assert_called_once()
+
+        # Local prediction: check that the model is available
+        my_model.remote = False
+        data = pd.DataFrame(
+            np.random.random(size=(100, 3)), columns=["feat_1", "feat_2", "target"]
+        )
+
+        feature_columns = list(data.columns)
+        feature_columns.remove("target")
+        torch_tensor = torch.tensor(data[feature_columns].values).type(
+            torch.FloatTensor
+        )
+
+        my_model.predict(torch_tensor)
+
+        assert mock_run_custom_training_job.return_value is not None
+
+    @pytest.mark.usefixtures("mock_serialize_model")
+    def test_local_train_remote_predict(
+        self,
+        mock_get_custom_training_job,
+        mock_run_custom_training_job,
+        mock_client_bucket,
+        mock_model_upload,
+        mock_model,
+    ):
+        aiplatform.init(
+            project=_TEST_PROJECT,
+            location=_TEST_LOCATION,
+            staging_bucket=_TEST_STAGING_BUCKET,
+            encryption_spec_key_name=_TEST_DEFAULT_ENCRYPTION_KEY_NAME,
+        )
+
+        # Train locally
+        my_model = LinearRegression(2, 1)
+        my_model.remote = False
+
+        df = pd.DataFrame(
+            np.random.random(size=(100, 3)), columns=["feat_1", "feat_2", "target"]
+        )
+
+        my_model.fit(df, "target", 1, 0.1)
+
+        # Predict remotely
+        my_model.remote = True
+        data = pd.DataFrame(
+            np.random.random(size=(100, 3)), columns=["feat_1", "feat_2", "target"]
+        )
+
+        feature_columns = list(data.columns)
+        feature_columns.remove("target")
+        torch_tensor = torch.tensor(data[feature_columns].values).type(
+            torch.FloatTensor
+        )
+
+        os.environ["AIP_STORAGE_URI"] = _TEST_STAGING_BUCKET
+
+        my_model.predict(torch_tensor)
+
+        # Make assertions
+        mock_model_upload.assert_called_once()
+        mock_model.deploy.assert_called_once_with(machine_type="n1-standard-4")
+
+    def test_jupyter_source_retrieval(self, mock_get_notebook):
+        if _message is not None and MOCK_NOTEBOOK is not None:
+            output_file = source_utils.jupyter_notebook_to_file()
+
+            with open(output_file, "w"):
+                module_ok = True
+
+                try:
+                    py_compile.compile(output_file, doraise=True)
+                except py_compile.PyCompileError as e:
+                    print(e.exc_value)
+                    module_ok = False
+
+                assert module_ok
 
     def test_source_script_compiles(
         self, mock_client_bucket,

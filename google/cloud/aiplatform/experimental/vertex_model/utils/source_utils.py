@@ -29,7 +29,69 @@ except ImportError:
     _message = None
 
 
+def jupyter_notebook_to_file() -> str:
+    """ Retrieves the source code of a Python notebook and writes it to a file.
+
+    Returns:
+        A string representing the file name where the Python notebook source code
+        has been written.
+    """
+    response = _message.blocking_request("get_ipynb", request="", timeout_sec=200)
+    if response is None:
+        raise RuntimeError("Unable to get the notebook contents.")
+
+    cells = response["ipynb"]["cells"]
+    py_content = []
+    script_lines = []
+
+    for cell in cells:
+        if cell["cell_type"] == "code":
+            # Add newline char to the last line of a code cell.
+            cell["source"][-1] += "\n"
+
+            # Combine all code cells.
+            py_content.extend(cell["source"])
+
+    for line in py_content:
+        if line.strip().startswith("%"):
+            raise RuntimeError("Magic commands '%' are not supported.")
+
+        elif line.strip().startswith("!"):
+            commands_list = line.strip()[1:].split(" ")
+            script_lines.extend(
+                [
+                    "import sys\n",
+                    "import subprocess\n",
+                    f"print(subprocess.run({commands_list}",
+                    ",capture_output=True, text=True).stdout)\n",
+                ]
+            )
+
+        elif not (line.strip().startswith("get_ipython().system(")):
+            script_lines.append(line)
+
+    # Create a tmp wrapped entry point script file.
+    file_descriptor, output_file = tempfile.mkstemp(suffix=".py")
+    with open(output_file, "w") as f:
+        f.writelines(script_lines)
+
+    return output_file
+
+
 def get_import_lines(path):
+    """Given the path to a python file, retrieves the imports in the file
+       and returns a list of strings representing each import, with aliases
+       included.
+
+    Args:
+        path (str): A path representing a python file whose imports will be
+                    retrieved.
+
+    Returns:
+        Several strings representing each of the import lines in the provided
+        Python file.
+    """
+
     with open(path) as f:
         root = ast.parse(f.read(), path)
 
@@ -47,6 +109,29 @@ def get_import_lines(path):
                 if len(node.names) > 0 and i < len(node.names) - 1:
                     line += ", "
         yield line
+
+
+def import_try_except(obj):
+    """Given an object defined in either a local file or a Colab notebook,
+       retrieves the imports in its class definition.
+
+    Args:
+        obj (Any): An object defined within the same workflow where this
+                   method is called.
+
+    Returns:
+        Several strings representing the import lines necessary for the
+        objects class definition to compile in the user workflow.
+    """
+
+    try:
+        module = inspect.getmodule(obj.__class__)
+        import_lines = "\n".join(get_import_lines(module.__file__))
+        return import_lines
+
+    except AttributeError:
+        import_lines = "\n".join(get_import_lines(jupyter_notebook_to_file()))
+        return import_lines
 
 
 class SourceMaker:
@@ -95,6 +180,7 @@ def _make_source(
         pass_through_params (dict[str, Any]): A dictionary mapping primitive parameter names to their values
         param_name_to_serialize_info (dict[str, A]): A dictionary mapping a parameter that needed
                                                      to be serialized to its URI and value type.
+        obj (Any): the object whose source is being generated
 
     Returns:
         A string representing a user-written class that can be written to a file in
@@ -103,53 +189,7 @@ def _make_source(
         the user has the option to specify a method to call from __main__.
     """
 
-    src = ""
-
-    try:
-        module = inspect.getmodule(obj.__class__)
-        src = "\n".join(get_import_lines(module.__file__))
-
-    except AttributeError:
-        response = _message.blocking_request("get_ipynb", request="", timeout_sec=200)
-        if response is None:
-            raise RuntimeError("Unable to get the notebook contents.")
-
-        cells = response["ipynb"]["cells"]
-        py_content = []
-        script_lines = []
-
-        for cell in cells:
-            if cell["cell_type"] == "code":
-                # Add newline char to the last line of a code cell.
-                cell["source"][-1] += "\n"
-
-                # Combine all code cells.
-                py_content.extend(cell["source"])
-
-        for line in py_content:
-            if line.strip().startswith("%"):
-                raise RuntimeError("Magic commands '%' are not supported.")
-
-            elif line.strip().startswith("!"):
-                commands_list = line.strip()[1:].split(" ")
-                script_lines.extend(
-                    [
-                        "import sys\n",
-                        "import subprocess\n",
-                        f"print(subprocess.run({commands_list}",
-                        ",capture_output=True, text=True).stdout)\n",
-                    ]
-                )
-
-            elif not (line.strip().startswith("get_ipython().system(")):
-                script_lines.append(line)
-
-        # Create a tmp wrapped entry point script file.
-        file_descriptor, output_file = tempfile.mkstemp(suffix=".py")
-        with open(output_file, "w") as f:
-            f.writelines(script_lines)
-
-        src = "\n".join(get_import_lines(output_file))
+    src = import_try_except(obj)
 
     # Hard-coded specific files as imports because (for now) all data serialization methods
     # come from one of two files and we do not retrieve the modules for the methods at this
@@ -203,9 +243,13 @@ def _make_source(
 
         src = src + ")\n"
 
-    src = (
-        src
-        + "model._serialize_local_model(os.getenv('AIP_MODEL_DIR'), my_model, my_model.training_mode)"
-    )
+    # Workaround for bug in training that writes to models/ instead of model/
+    src = src + "model_dir = os.getenv('AIP_MODEL_DIR')\n"
+    src = src + "if model_dir.endswith('models'):\n"
+    src = src + "\tmodel_dir = model_dir[:-1]\n"
+    src = src + "if model_dir.endswith('models/'):\n"
+    src = src + "\tmodel_dir = model_dir[:-2] + '/'\n"
+
+    src = src + "model._serialize_local_model(model_dir, my_model, 'local')"
 
     return src

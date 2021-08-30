@@ -133,7 +133,7 @@ class TestModelSerialization:
 
         # Create model object
         my_model = LinearRegression(2, 1)
-        my_model.training_mode = "cloud"
+        my_model.remote = True
 
         # Serialize and deserialize locally
         with tempfile.TemporaryDirectory() as tmpdirname:

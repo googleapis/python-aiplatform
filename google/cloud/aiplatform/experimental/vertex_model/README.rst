@@ -91,6 +91,18 @@ To use the VertexModel class, your implementation must adhere to the following c
        return self.forward(data)
 
 
+Dependencies
+^^^^^^^^
+When using libraries other than PyTorch and Pandas (the default libraries for this SDK), update the dependencies of your
+child class so that internal calls to the Vertex AI API have the correct information. Your dependencies must
+take the form of a list of strings. You can do so as follows:
+
+.. code-block:: Python
+
+   my_model = MyModelClass()
+   my_model.dependencies = ["library_name>=1.3", "library_name>=1.7",]
+
+
 Data Serialization
 ^^^^^^^^
 The VertexModel class currently provides default serialization for Pandas DataFrame and PyTorch DataLoader objects. If you wish to perform remote training 
@@ -133,8 +145,8 @@ The Vertex SDK for Python allows you to train your custom child class.
 
     my_model = MyModelClass()
 
-    my_model.training_mode = "local" # Local training using machine resources
-    my_model.training_mode = "cloud" # Remote training using GCS and Vertex AI API Custom Job
+    my_model.remote = False # Local training using machine resources
+    my_model.remote = True # Remote training using GCS and Vertex AI API Custom Job
 
     my_model.fit(my_train_data, epochs=num_epochs, learning_rate=lr)
 
@@ -145,8 +157,8 @@ To get predictions from your model:
 
 .. code-block:: Python
 
-  my_model.training_mode = "local" # Local prediction using machine resources
-  my_model.training_mode = "cloud" # Remote prediction using GCS and Vertex AI API Endpoint
+  my_model.remote = False # Local prediction using machine resources
+  my_model.remote = True # Remote prediction using GCS and Vertex AI API Endpoint
   
   results = my_model.predict(my_test_data)
   
