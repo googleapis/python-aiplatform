@@ -354,7 +354,8 @@ class MetadataServiceGrpcAsyncIOTransport(MetadataServiceTransport):
     ]:
         r"""Return a callable for the delete metadata store method over gRPC.
 
-        Deletes a single MetadataStore.
+        Deletes a single MetadataStore and all its child
+        resources (Artifacts, Executions, and Contexts).
 
         Returns:
             Callable[[~.DeleteMetadataStoreRequest],

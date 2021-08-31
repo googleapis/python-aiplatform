@@ -36,6 +36,9 @@ from .base import DatasetServiceTransport, DEFAULT_CLIENT_INFO
 class DatasetServiceGrpcTransport(DatasetServiceTransport):
     """gRPC backend transport for DatasetService.
 
+    The service that handles the CRUD of Vertex AI Dataset and
+    its child resources.
+
     This class defines the same methods as the primary client, so the
     primary client can load the underlying transport implementation
     and call it.

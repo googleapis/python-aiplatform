@@ -37,6 +37,8 @@ from .grpc import EndpointServiceGrpcTransport
 class EndpointServiceGrpcAsyncIOTransport(EndpointServiceTransport):
     """gRPC AsyncIO backend transport for EndpointService.
 
+    A service for managing Vertex AI's Endpoints.
+
     This class defines the same methods as the primary client, so the
     primary client can load the underlying transport implementation
     and call it.

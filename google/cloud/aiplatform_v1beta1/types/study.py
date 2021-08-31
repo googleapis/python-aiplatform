@@ -112,11 +112,22 @@ class Trial(proto.Message):
             Trial. It's set for a HyperparameterTuningJob's
             Trial.
         web_access_uris (Sequence[google.cloud.aiplatform_v1beta1.types.Trial.WebAccessUrisEntry]):
-            Output only. The web access URIs for the
-            training job. The keys are the node names in the
-            training jobs, e.g. workerpool0-0. The values
-            are the URIs for each node's web portal in the
-            job.
+            Output only. URIs for accessing `interactive
+            shells <https://cloud.google.com/vertex-ai/docs/training/monitor-debug-interactive-shell>`__
+            (one URI for each training node). Only available if this
+            trial is part of a
+            [HyperparameterTuningJob][google.cloud.aiplatform.v1beta1.HyperparameterTuningJob]
+            and the job's
+            [trial_job_spec.enable_web_access][google.cloud.aiplatform.v1beta1.CustomJobSpec.enable_web_access]
+            field is ``true``.
+
+            The keys are names of each node used for the trial; for
+            example, ``workerpool0-0`` for the primary node,
+            ``workerpool1-0`` for the first node in the second worker
+            pool, and ``workerpool1-1`` for the second node in the
+            second worker pool.
+
+            The values are the URIs for each node's interactive shell.
     """
 
     class State(proto.Enum):
@@ -170,6 +181,7 @@ class StudySpec(proto.Message):
             The automated early stopping spec using
             median rule.
         convex_stop_config (google.cloud.aiplatform_v1beta1.types.StudySpec.ConvexStopConfig):
+            Deprecated.
             The automated early stopping using convex
             stopping rule.
         metrics (Sequence[google.cloud.aiplatform_v1beta1.types.StudySpec.MetricSpec]):

@@ -24,6 +24,7 @@ from google.auth.transport.grpc import SslCredentials  # type: ignore
 
 import grpc  # type: ignore
 
+from google.api import httpbody_pb2  # type: ignore
 from google.cloud.aiplatform_v1beta1.types import prediction_service
 from .base import PredictionServiceTransport, DEFAULT_CLIENT_INFO
 
@@ -252,6 +253,33 @@ class PredictionServiceGrpcTransport(PredictionServiceTransport):
                 response_deserializer=prediction_service.PredictResponse.deserialize,
             )
         return self._stubs["predict"]
+
+    @property
+    def raw_predict(
+        self,
+    ) -> Callable[[prediction_service.RawPredictRequest], httpbody_pb2.HttpBody]:
+        r"""Return a callable for the raw predict method over gRPC.
+
+        Perform an online prediction with arbitrary http
+        payload.
+
+        Returns:
+            Callable[[~.RawPredictRequest],
+                    ~.HttpBody]:
+                A function that, when called, will call the underlying RPC
+                on the server.
+        """
+        # Generate a "stub function" on-the-fly which will actually make
+        # the request.
+        # gRPC handles serialization and deserialization, so we just need
+        # to pass in the functions for each.
+        if "raw_predict" not in self._stubs:
+            self._stubs["raw_predict"] = self.grpc_channel.unary_unary(
+                "/google.cloud.aiplatform.v1beta1.PredictionService/RawPredict",
+                request_serializer=prediction_service.RawPredictRequest.serialize,
+                response_deserializer=httpbody_pb2.HttpBody.FromString,
+            )
+        return self._stubs["raw_predict"]
 
     @property
     def explain(
