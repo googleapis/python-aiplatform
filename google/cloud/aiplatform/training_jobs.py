@@ -562,7 +562,7 @@ class _TrainingJob(base.VertexAiResourceNounWithFutureManager):
         annotation_schema_uri: Optional[str] = None,
         model: Optional[gca_model.Model] = None,
         gcs_destination_uri_prefix: Optional[str] = None,
-        bigquery_destination: Optional[str] = None
+        bigquery_destination: Optional[str] = None,
     ) -> Optional[models.Model]:
         """Runs the training job.
 
@@ -778,7 +778,7 @@ class _TrainingJob(base.VertexAiResourceNounWithFutureManager):
 
         self._sync_gca_resource()
         return self._gca_resource.state
-    
+
     def get_model(self, sync=True) -> models.Model:
         """Vertex AI Model produced by this training, if one was produced.
 
@@ -4127,11 +4127,14 @@ class AutoMLForecastingTrainingJob(_TrainingJob):
             validation_fraction_split=None,
             test_fraction_split=None,
             predefined_split_column_name=predefined_split_column_name,
-            model=model
+            model=model,
         )
 
         if export_evaluated_data_items:
-            _LOGGER.info("Exported examples available at:\n%s" % self.evaluated_data_items_bigquery_uri)
+            _LOGGER.info(
+                "Exported examples available at:\n%s"
+                % self.evaluated_data_items_bigquery_uri
+            )
 
         return new_model
 
@@ -4148,14 +4151,14 @@ class AutoMLForecastingTrainingJob(_TrainingJob):
         """BigQuery location of exported evaluated examples from the Training Job"""
 
         self._assert_gca_resource_is_available()
-      
-        meta = getattr((self._gca_resource), "training_task_metadata")
 
-        try: 
-            metadata = self._gca_resource.training_task_metadata 
-            return metadata["evaluatedDataItemsBigqueryUri"] 
-        except (AttributeError, KeyError): 
-            raise ValueError("BigQuery URI for evaluated data items does not exist. Must export evaluated data items during training.")
+        try:
+            metadata = self._gca_resource.training_task_metadata
+            return metadata["evaluatedDataItemsBigqueryUri"]
+        except (AttributeError, KeyError):
+            raise ValueError(
+                "BigQuery URI for evaluated data items does not exist. Must export evaluated data items during training."
+            )
 
     def _add_additional_experiments(self, additional_experiments: List[str]):
         """Add experiment flags to the training job.
