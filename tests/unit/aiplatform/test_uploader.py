@@ -40,6 +40,7 @@ import tensorflow as tf
 
 from google.api_core import datetime_helpers
 import google.cloud.aiplatform.tensorboard.uploader as uploader_lib
+from google.cloud.aiplatform.tensorboard import uploader_utils
 from google.cloud import storage
 from google.cloud.aiplatform.compat.services import tensorboard_service_client_v1beta1
 from google.cloud.aiplatform_v1beta1.services.tensorboard_service.transports import (
@@ -235,6 +236,11 @@ def _create_dispatcher(
     tensor_rpc_rate_limiter = util.RateLimiter(0)
     blob_rpc_rate_limiter = util.RateLimiter(0)
 
+    run_resource_manager = uploader_utils.RunResourceManager(
+        api=api,
+        experiment_resource_name=experiment_resource_name,
+    )
+
     request_sender = uploader_lib._BatchedRequestSender(
         experiment_resource_name=experiment_resource_name,
         api=api,
@@ -246,6 +252,7 @@ def _create_dispatcher(
         blob_storage_bucket=None,
         blob_storage_folder=None,
         tracker=upload_tracker.UploadTracker(verbosity=0),
+        run_resource_manager=run_resource_manager,
     )
 
     return uploader_lib._Dispatcher(

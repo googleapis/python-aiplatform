@@ -73,6 +73,7 @@ from google.cloud.aiplatform.compat.types import (
 from google.cloud.aiplatform.compat.types import (
     tensorboard_time_series_v1beta1 as tensorboard_time_series,
 )
+from google.cloud.aiplatform.tensorboard import uploader_utils
 from google.protobuf import message
 from google.protobuf import timestamp_pb2 as timestamp
 
@@ -216,6 +217,7 @@ class TensorBoardUploader(object):
         self._verbosity = verbosity
         self._one_shot = one_shot
         self._dispatcher = None
+        self._run_resource_manager = None
         if logdir_poll_rate_limiter is None:
             self._logdir_poll_rate_limiter = util.RateLimiter(
                 _MIN_LOGDIR_POLL_INTERVAL_SECS
@@ -295,6 +297,12 @@ class TensorBoardUploader(object):
 
         experiment = self._create_or_get_experiment()
         self._experiment = experiment
+
+        self._run_resource_manager = uploader_utils.RunResourceManager(
+            api=self._api,
+            experiment_resource_name=self._experiment.name,
+        )
+
         request_sender = _BatchedRequestSender(
             self._experiment.name,
             self._api,
@@ -306,6 +314,7 @@ class TensorBoardUploader(object):
             blob_storage_bucket=self._blob_storage_bucket,
             blob_storage_folder=self._blob_storage_folder,
             tracker=self._tracker,
+            run_resource_manager=self._run_resource_manager,
         )
 
         additional_senders = self._create_additional_senders()
@@ -419,6 +428,7 @@ class _BatchedRequestSender(object):
         blob_storage_bucket: storage.Bucket,
         blob_storage_folder: str,
         tracker: upload_tracker.UploadTracker,
+        run_resource_manager: uploader_utils.RunResourceManager,
     ):
         """Constructs _BatchedRequestSender for the given experiment resource.
 
@@ -436,16 +446,17 @@ class _BatchedRequestSender(object):
             the server, so it is not a concern that we do not explicitly rate-limit
             within the stream here.
           tracker: Upload tracker to track information about uploads.
+          run_resource_manager: Manages any runs to create for the experiment.
         """
         self._experiment_resource_name = experiment_resource_name
         self._api = api
         self._tag_metadata = {}
         self._allowed_plugins = frozenset(allowed_plugins)
         self._tracker = tracker
+        self._run_resource_manager = run_resource_manager
         self._run_to_request_sender: Dict[str, _ScalarBatchedRequestSender] = {}
         self._run_to_tensor_request_sender: Dict[str, _TensorBatchedRequestSender] = {}
         self._run_to_blob_request_sender: Dict[str, _BlobRequestSender] = {}
-        self._run_to_run_resource: Dict[str, tensorboard_run.TensorboardRun] = {}
         self._scalar_request_sender_factory = functools.partial(
             _ScalarBatchedRequestSender,
             api=api,
@@ -528,20 +539,26 @@ class _BatchedRequestSender(object):
         self._tracker.add_plugin_name(plugin_name)
         # If this is the first time we've seen this run create a new run resource
         # and an associated request sender.
-        if run_name not in self._run_to_run_resource:
-            self._create_or_get_run_resource(run_name)
+
+        tb_run = self._run_resource_manager.create_or_get_run_resource(run_name)
+        
+        if run_name not in self._run_to_request_sender:
             self._run_to_request_sender[run_name] = self._scalar_request_sender_factory(
-                self._run_to_run_resource[run_name].name
+                tb_run.name
             )
+
+        if run_name not in self._run_to_tensor_request_sender:
             self._run_to_tensor_request_sender[
                 run_name
             ] = self._tensor_request_sender_factory(
-                self._run_to_run_resource[run_name].name
+                tb_run.name
             )
+
+        if run_name not in self._run_to_blob_request_sender:
             self._run_to_blob_request_sender[
                 run_name
             ] = self._blob_request_sender_factory(
-                self._run_to_run_resource[run_name].name
+                tb_run.name
             )
 
         if metadata.data_class == summary_pb2.DATA_CLASS_SCALAR:
@@ -563,40 +580,6 @@ class _BatchedRequestSender(object):
 
         for blob_request_sender in self._run_to_blob_request_sender.values():
             blob_request_sender.flush()
-
-    def _create_or_get_run_resource(self, run_name: str):
-        """Creates a new Run Resource in current Tensorboard Experiment resource.
-
-        Args:
-          run_name: The display name of this run.
-        """
-        tb_run = tensorboard_run.TensorboardRun()
-        tb_run.display_name = run_name
-        try:
-            tb_run = self._api.create_tensorboard_run(
-                parent=self._experiment_resource_name,
-                tensorboard_run=tb_run,
-                tensorboard_run_id=str(uuid.uuid4()),
-            )
-        except exceptions.InvalidArgument as e:
-            # If the run name already exists then retrieve it
-            if "already exist" in e.message:
-                runs_pages = self._api.list_tensorboard_runs(
-                    parent=self._experiment_resource_name
-                )
-                for tb_run in runs_pages:
-                    if tb_run.display_name == run_name:
-                        break
-
-                if tb_run.display_name != run_name:
-                    raise ExistingResourceNotFoundError(
-                        "Run with name %s already exists but is not resource list."
-                        % run_name
-                    )
-            else:
-                raise
-
-        self._run_to_run_resource[run_name] = tb_run
 
 
 class _Dispatcher(object):
