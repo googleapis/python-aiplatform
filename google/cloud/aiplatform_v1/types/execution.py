@@ -15,6 +15,7 @@
 #
 import proto  # type: ignore
 
+from google.protobuf import struct_pb2  # type: ignore
 from google.protobuf import timestamp_pb2  # type: ignore
 
 
@@ -59,6 +60,26 @@ class Execution(proto.Message):
         update_time (google.protobuf.timestamp_pb2.Timestamp):
             Output only. Timestamp when this Execution
             was last updated.
+        schema_title (str):
+            The title of the schema describing the
+            metadata.
+            Schema title and version is expected to be
+            registered in earlier Create Schema calls. And
+            both are used together as unique identifiers to
+            identify schemas within the local metadata
+            store.
+        schema_version (str):
+            The version of the schema in ``schema_title`` to use.
+
+            Schema title and version is expected to be registered in
+            earlier Create Schema calls. And both are used together as
+            unique identifiers to identify schemas within the local
+            metadata store.
+        metadata (google.protobuf.struct_pb2.Struct):
+            Properties of the Execution.
+            The size of this field should not exceed 200KB.
+        description (str):
+            Description of the Execution
     """
 
     class State(proto.Enum):
@@ -82,6 +103,10 @@ class Execution(proto.Message):
     update_time = proto.Field(
         proto.MESSAGE, number=12, message=timestamp_pb2.Timestamp,
     )
+    schema_title = proto.Field(proto.STRING, number=13,)
+    schema_version = proto.Field(proto.STRING, number=14,)
+    metadata = proto.Field(proto.MESSAGE, number=15, message=struct_pb2.Struct,)
+    description = proto.Field(proto.STRING, number=16,)
 
 
 __all__ = tuple(sorted(__protobuf__.manifest))

@@ -139,7 +139,7 @@ class MetadataServiceGrpcAsyncIOTransport(MetadataServiceTransport):
             api_mtls_endpoint (Optional[str]): Deprecated. The mutual TLS endpoint.
                 If provided, it overrides the ``host`` argument and tries to create
                 a mutual TLS channel with client SSL credentials from
-                ``client_cert_source`` or application default SSL credentials.
+                ``client_cert_source`` or applicatin default SSL credentials.
             client_cert_source (Optional[Callable[[], Tuple[bytes, bytes]]]):
                 Deprecated. A callback to provide client SSL certificate bytes and
                 private key bytes, both in PEM format. It is ignored if
@@ -354,7 +354,8 @@ class MetadataServiceGrpcAsyncIOTransport(MetadataServiceTransport):
     ]:
         r"""Return a callable for the delete metadata store method over gRPC.
 
-        Deletes a single MetadataStore.
+        Deletes a single MetadataStore and all its child
+        resources (Artifacts, Executions, and Contexts).
 
         Returns:
             Callable[[~.DeleteMetadataStoreRequest],

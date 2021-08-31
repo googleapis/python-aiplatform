@@ -80,7 +80,7 @@ class EndpointServiceClientMeta(type):
 
 
 class EndpointServiceClient(metaclass=EndpointServiceClientMeta):
-    """"""
+    """A service for managing Vertex AI's Endpoints."""
 
     @staticmethod
     def _get_default_mtls_endpoint(api_endpoint):
@@ -192,6 +192,26 @@ class EndpointServiceClient(metaclass=EndpointServiceClientMeta):
         """Parses a model path into its component segments."""
         m = re.match(
             r"^projects/(?P<project>.+?)/locations/(?P<location>.+?)/models/(?P<model>.+?)$",
+            path,
+        )
+        return m.groupdict() if m else {}
+
+    @staticmethod
+    def model_deployment_monitoring_job_path(
+        project: str, location: str, model_deployment_monitoring_job: str,
+    ) -> str:
+        """Returns a fully-qualified model_deployment_monitoring_job string."""
+        return "projects/{project}/locations/{location}/modelDeploymentMonitoringJobs/{model_deployment_monitoring_job}".format(
+            project=project,
+            location=location,
+            model_deployment_monitoring_job=model_deployment_monitoring_job,
+        )
+
+    @staticmethod
+    def parse_model_deployment_monitoring_job_path(path: str) -> Dict[str, str]:
+        """Parses a model_deployment_monitoring_job path into its component segments."""
+        m = re.match(
+            r"^projects/(?P<project>.+?)/locations/(?P<location>.+?)/modelDeploymentMonitoringJobs/(?P<model_deployment_monitoring_job>.+?)$",
             path,
         )
         return m.groupdict() if m else {}

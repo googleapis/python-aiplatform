@@ -15,6 +15,7 @@
 #
 import proto  # type: ignore
 
+from google.cloud.aiplatform_v1.types import explanation
 from google.protobuf import struct_pb2  # type: ignore
 from google.protobuf import timestamp_pb2  # type: ignore
 
@@ -54,6 +55,13 @@ class ModelEvaluation(proto.Message):
             filter of the
             [ModelService.ListModelEvaluationSlices][google.cloud.aiplatform.v1.ModelService.ListModelEvaluationSlices]
             request, in the form of ``slice.dimension = <dimension>``.
+        model_explanation (google.cloud.aiplatform_v1.types.ModelExplanation):
+            Output only. Aggregated explanation metrics
+            for the Model's prediction output over the data
+            this ModelEvaluation uses. This field is
+            populated only if the Model is evaluated with
+            explanations, and only for AutoML tabular
+            Models.
     """
 
     name = proto.Field(proto.STRING, number=1,)
@@ -61,6 +69,9 @@ class ModelEvaluation(proto.Message):
     metrics = proto.Field(proto.MESSAGE, number=3, message=struct_pb2.Value,)
     create_time = proto.Field(proto.MESSAGE, number=4, message=timestamp_pb2.Timestamp,)
     slice_dimensions = proto.RepeatedField(proto.STRING, number=5,)
+    model_explanation = proto.Field(
+        proto.MESSAGE, number=8, message=explanation.ModelExplanation,
+    )
 
 
 __all__ = tuple(sorted(__protobuf__.manifest))

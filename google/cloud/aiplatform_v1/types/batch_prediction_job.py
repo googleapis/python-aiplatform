@@ -17,6 +17,7 @@ import proto  # type: ignore
 
 from google.cloud.aiplatform_v1.types import completion_stats as gca_completion_stats
 from google.cloud.aiplatform_v1.types import encryption_spec as gca_encryption_spec
+from google.cloud.aiplatform_v1.types import explanation
 from google.cloud.aiplatform_v1.types import io
 from google.cloud.aiplatform_v1.types import job_state
 from google.cloud.aiplatform_v1.types import machine_resources
@@ -89,6 +90,46 @@ class BatchPredictionJob(proto.Message):
             Currently only applicable when
             [dedicated_resources][google.cloud.aiplatform.v1.BatchPredictionJob.dedicated_resources]
             are used (in other cases Vertex AI does the tuning itself).
+        generate_explanation (bool):
+            Generate explanation with the batch prediction results.
+
+            When set to ``true``, the batch prediction output changes
+            based on the ``predictions_format`` field of the
+            [BatchPredictionJob.output_config][google.cloud.aiplatform.v1.BatchPredictionJob.output_config]
+            object:
+
+            -  ``bigquery``: output includes a column named
+               ``explanation``. The value is a struct that conforms to
+               the [Explanation][google.cloud.aiplatform.v1.Explanation]
+               object.
+            -  ``jsonl``: The JSON objects on each line include an
+               additional entry keyed ``explanation``. The value of the
+               entry is a JSON object that conforms to the
+               [Explanation][google.cloud.aiplatform.v1.Explanation]
+               object.
+            -  ``csv``: Generating explanations for CSV format is not
+               supported.
+
+            If this field is set to true, either the
+            [Model.explanation_spec][google.cloud.aiplatform.v1.Model.explanation_spec]
+            or
+            [explanation_spec][google.cloud.aiplatform.v1.BatchPredictionJob.explanation_spec]
+            must be populated.
+        explanation_spec (google.cloud.aiplatform_v1.types.ExplanationSpec):
+            Explanation configuration for this BatchPredictionJob. Can
+            be specified only if
+            [generate_explanation][google.cloud.aiplatform.v1.BatchPredictionJob.generate_explanation]
+            is set to ``true``.
+
+            This value overrides the value of
+            [Model.explanation_spec][google.cloud.aiplatform.v1.Model.explanation_spec].
+            All fields of
+            [explanation_spec][google.cloud.aiplatform.v1.BatchPredictionJob.explanation_spec]
+            are optional in the request. If a field of the
+            [explanation_spec][google.cloud.aiplatform.v1.BatchPredictionJob.explanation_spec]
+            object is not populated, the corresponding field of the
+            [Model.explanation_spec][google.cloud.aiplatform.v1.Model.explanation_spec]
+            object is inherited.
         output_info (google.cloud.aiplatform_v1.types.BatchPredictionJob.OutputInfo):
             Output only. Information further describing
             the output of this job.
@@ -295,6 +336,10 @@ class BatchPredictionJob(proto.Message):
         proto.MESSAGE,
         number=8,
         message=gca_manual_batch_tuning_parameters.ManualBatchTuningParameters,
+    )
+    generate_explanation = proto.Field(proto.BOOL, number=23,)
+    explanation_spec = proto.Field(
+        proto.MESSAGE, number=25, message=explanation.ExplanationSpec,
     )
     output_info = proto.Field(proto.MESSAGE, number=9, message=OutputInfo,)
     state = proto.Field(proto.ENUM, number=10, enum=job_state.JobState,)

@@ -212,7 +212,7 @@ class MigrateResourceRequest(proto.Message):
 
     class MigrateDataLabelingDatasetConfig(proto.Message):
         r"""Config for migrating Dataset in datalabeling.googleapis.com
-        to AI Platform's Dataset.
+        to Vertex AI's Dataset.
 
         Attributes:
             dataset (str):
