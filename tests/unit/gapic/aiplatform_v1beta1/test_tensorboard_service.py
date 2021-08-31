@@ -3542,6 +3542,252 @@ async def test_create_tensorboard_run_flattened_error_async():
         )
 
 
+def test_batch_create_tensorboard_runs(
+    transport: str = "grpc",
+    request_type=tensorboard_service.BatchCreateTensorboardRunsRequest,
+):
+    client = TensorboardServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(), transport=transport,
+    )
+
+    # Everything is optional in proto3 as far as the runtime is concerned,
+    # and we are mocking out the actual API, so just send an empty request.
+    request = request_type()
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(
+        type(client.transport.batch_create_tensorboard_runs), "__call__"
+    ) as call:
+        # Designate an appropriate return value for the call.
+        call.return_value = tensorboard_service.BatchCreateTensorboardRunsResponse()
+        response = client.batch_create_tensorboard_runs(request)
+
+        # Establish that the underlying gRPC stub method was called.
+        assert len(call.mock_calls) == 1
+        _, args, _ = call.mock_calls[0]
+        assert args[0] == tensorboard_service.BatchCreateTensorboardRunsRequest()
+
+    # Establish that the response is the type that we expect.
+    assert isinstance(response, tensorboard_service.BatchCreateTensorboardRunsResponse)
+
+
+def test_batch_create_tensorboard_runs_from_dict():
+    test_batch_create_tensorboard_runs(request_type=dict)
+
+
+def test_batch_create_tensorboard_runs_empty_call():
+    # This test is a coverage failsafe to make sure that totally empty calls,
+    # i.e. request == None and no flattened fields passed, work.
+    client = TensorboardServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(), transport="grpc",
+    )
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(
+        type(client.transport.batch_create_tensorboard_runs), "__call__"
+    ) as call:
+        client.batch_create_tensorboard_runs()
+        call.assert_called()
+        _, args, _ = call.mock_calls[0]
+        assert args[0] == tensorboard_service.BatchCreateTensorboardRunsRequest()
+
+
+@pytest.mark.asyncio
+async def test_batch_create_tensorboard_runs_async(
+    transport: str = "grpc_asyncio",
+    request_type=tensorboard_service.BatchCreateTensorboardRunsRequest,
+):
+    client = TensorboardServiceAsyncClient(
+        credentials=ga_credentials.AnonymousCredentials(), transport=transport,
+    )
+
+    # Everything is optional in proto3 as far as the runtime is concerned,
+    # and we are mocking out the actual API, so just send an empty request.
+    request = request_type()
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(
+        type(client.transport.batch_create_tensorboard_runs), "__call__"
+    ) as call:
+        # Designate an appropriate return value for the call.
+        call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(
+            tensorboard_service.BatchCreateTensorboardRunsResponse()
+        )
+        response = await client.batch_create_tensorboard_runs(request)
+
+        # Establish that the underlying gRPC stub method was called.
+        assert len(call.mock_calls)
+        _, args, _ = call.mock_calls[0]
+        assert args[0] == tensorboard_service.BatchCreateTensorboardRunsRequest()
+
+    # Establish that the response is the type that we expect.
+    assert isinstance(response, tensorboard_service.BatchCreateTensorboardRunsResponse)
+
+
+@pytest.mark.asyncio
+async def test_batch_create_tensorboard_runs_async_from_dict():
+    await test_batch_create_tensorboard_runs_async(request_type=dict)
+
+
+def test_batch_create_tensorboard_runs_field_headers():
+    client = TensorboardServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+    )
+
+    # Any value that is part of the HTTP/1.1 URI should be sent as
+    # a field header. Set these to a non-empty value.
+    request = tensorboard_service.BatchCreateTensorboardRunsRequest()
+
+    request.parent = "parent/value"
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(
+        type(client.transport.batch_create_tensorboard_runs), "__call__"
+    ) as call:
+        call.return_value = tensorboard_service.BatchCreateTensorboardRunsResponse()
+        client.batch_create_tensorboard_runs(request)
+
+        # Establish that the underlying gRPC stub method was called.
+        assert len(call.mock_calls) == 1
+        _, args, _ = call.mock_calls[0]
+        assert args[0] == request
+
+    # Establish that the field header was sent.
+    _, _, kw = call.mock_calls[0]
+    assert ("x-goog-request-params", "parent=parent/value",) in kw["metadata"]
+
+
+@pytest.mark.asyncio
+async def test_batch_create_tensorboard_runs_field_headers_async():
+    client = TensorboardServiceAsyncClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+    )
+
+    # Any value that is part of the HTTP/1.1 URI should be sent as
+    # a field header. Set these to a non-empty value.
+    request = tensorboard_service.BatchCreateTensorboardRunsRequest()
+
+    request.parent = "parent/value"
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(
+        type(client.transport.batch_create_tensorboard_runs), "__call__"
+    ) as call:
+        call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(
+            tensorboard_service.BatchCreateTensorboardRunsResponse()
+        )
+        await client.batch_create_tensorboard_runs(request)
+
+        # Establish that the underlying gRPC stub method was called.
+        assert len(call.mock_calls)
+        _, args, _ = call.mock_calls[0]
+        assert args[0] == request
+
+    # Establish that the field header was sent.
+    _, _, kw = call.mock_calls[0]
+    assert ("x-goog-request-params", "parent=parent/value",) in kw["metadata"]
+
+
+def test_batch_create_tensorboard_runs_flattened():
+    client = TensorboardServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+    )
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(
+        type(client.transport.batch_create_tensorboard_runs), "__call__"
+    ) as call:
+        # Designate an appropriate return value for the call.
+        call.return_value = tensorboard_service.BatchCreateTensorboardRunsResponse()
+        # Call the method with a truthy value for each flattened field,
+        # using the keyword arguments to the method.
+        client.batch_create_tensorboard_runs(
+            parent="parent_value",
+            requests=[
+                tensorboard_service.CreateTensorboardRunRequest(parent="parent_value")
+            ],
+        )
+
+        # Establish that the underlying call was made with the expected
+        # request object values.
+        assert len(call.mock_calls) == 1
+        _, args, _ = call.mock_calls[0]
+        assert args[0].parent == "parent_value"
+        assert args[0].requests == [
+            tensorboard_service.CreateTensorboardRunRequest(parent="parent_value")
+        ]
+
+
+def test_batch_create_tensorboard_runs_flattened_error():
+    client = TensorboardServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+    )
+
+    # Attempting to call a method with both a request object and flattened
+    # fields is an error.
+    with pytest.raises(ValueError):
+        client.batch_create_tensorboard_runs(
+            tensorboard_service.BatchCreateTensorboardRunsRequest(),
+            parent="parent_value",
+            requests=[
+                tensorboard_service.CreateTensorboardRunRequest(parent="parent_value")
+            ],
+        )
+
+
+@pytest.mark.asyncio
+async def test_batch_create_tensorboard_runs_flattened_async():
+    client = TensorboardServiceAsyncClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+    )
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(
+        type(client.transport.batch_create_tensorboard_runs), "__call__"
+    ) as call:
+        # Designate an appropriate return value for the call.
+        call.return_value = tensorboard_service.BatchCreateTensorboardRunsResponse()
+
+        call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(
+            tensorboard_service.BatchCreateTensorboardRunsResponse()
+        )
+        # Call the method with a truthy value for each flattened field,
+        # using the keyword arguments to the method.
+        response = await client.batch_create_tensorboard_runs(
+            parent="parent_value",
+            requests=[
+                tensorboard_service.CreateTensorboardRunRequest(parent="parent_value")
+            ],
+        )
+
+        # Establish that the underlying call was made with the expected
+        # request object values.
+        assert len(call.mock_calls)
+        _, args, _ = call.mock_calls[0]
+        assert args[0].parent == "parent_value"
+        assert args[0].requests == [
+            tensorboard_service.CreateTensorboardRunRequest(parent="parent_value")
+        ]
+
+
+@pytest.mark.asyncio
+async def test_batch_create_tensorboard_runs_flattened_error_async():
+    client = TensorboardServiceAsyncClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+    )
+
+    # Attempting to call a method with both a request object and flattened
+    # fields is an error.
+    with pytest.raises(ValueError):
+        await client.batch_create_tensorboard_runs(
+            tensorboard_service.BatchCreateTensorboardRunsRequest(),
+            parent="parent_value",
+            requests=[
+                tensorboard_service.CreateTensorboardRunRequest(parent="parent_value")
+            ],
+        )
+
+
 def test_get_tensorboard_run(
     transport: str = "grpc", request_type=tensorboard_service.GetTensorboardRunRequest
 ):
@@ -4663,6 +4909,276 @@ async def test_delete_tensorboard_run_flattened_error_async():
     with pytest.raises(ValueError):
         await client.delete_tensorboard_run(
             tensorboard_service.DeleteTensorboardRunRequest(), name="name_value",
+        )
+
+
+def test_batch_create_tensorboard_time_series(
+    transport: str = "grpc",
+    request_type=tensorboard_service.BatchCreateTensorboardTimeSeriesRequest,
+):
+    client = TensorboardServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(), transport=transport,
+    )
+
+    # Everything is optional in proto3 as far as the runtime is concerned,
+    # and we are mocking out the actual API, so just send an empty request.
+    request = request_type()
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(
+        type(client.transport.batch_create_tensorboard_time_series), "__call__"
+    ) as call:
+        # Designate an appropriate return value for the call.
+        call.return_value = (
+            tensorboard_service.BatchCreateTensorboardTimeSeriesResponse()
+        )
+        response = client.batch_create_tensorboard_time_series(request)
+
+        # Establish that the underlying gRPC stub method was called.
+        assert len(call.mock_calls) == 1
+        _, args, _ = call.mock_calls[0]
+        assert args[0] == tensorboard_service.BatchCreateTensorboardTimeSeriesRequest()
+
+    # Establish that the response is the type that we expect.
+    assert isinstance(
+        response, tensorboard_service.BatchCreateTensorboardTimeSeriesResponse
+    )
+
+
+def test_batch_create_tensorboard_time_series_from_dict():
+    test_batch_create_tensorboard_time_series(request_type=dict)
+
+
+def test_batch_create_tensorboard_time_series_empty_call():
+    # This test is a coverage failsafe to make sure that totally empty calls,
+    # i.e. request == None and no flattened fields passed, work.
+    client = TensorboardServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(), transport="grpc",
+    )
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(
+        type(client.transport.batch_create_tensorboard_time_series), "__call__"
+    ) as call:
+        client.batch_create_tensorboard_time_series()
+        call.assert_called()
+        _, args, _ = call.mock_calls[0]
+        assert args[0] == tensorboard_service.BatchCreateTensorboardTimeSeriesRequest()
+
+
+@pytest.mark.asyncio
+async def test_batch_create_tensorboard_time_series_async(
+    transport: str = "grpc_asyncio",
+    request_type=tensorboard_service.BatchCreateTensorboardTimeSeriesRequest,
+):
+    client = TensorboardServiceAsyncClient(
+        credentials=ga_credentials.AnonymousCredentials(), transport=transport,
+    )
+
+    # Everything is optional in proto3 as far as the runtime is concerned,
+    # and we are mocking out the actual API, so just send an empty request.
+    request = request_type()
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(
+        type(client.transport.batch_create_tensorboard_time_series), "__call__"
+    ) as call:
+        # Designate an appropriate return value for the call.
+        call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(
+            tensorboard_service.BatchCreateTensorboardTimeSeriesResponse()
+        )
+        response = await client.batch_create_tensorboard_time_series(request)
+
+        # Establish that the underlying gRPC stub method was called.
+        assert len(call.mock_calls)
+        _, args, _ = call.mock_calls[0]
+        assert args[0] == tensorboard_service.BatchCreateTensorboardTimeSeriesRequest()
+
+    # Establish that the response is the type that we expect.
+    assert isinstance(
+        response, tensorboard_service.BatchCreateTensorboardTimeSeriesResponse
+    )
+
+
+@pytest.mark.asyncio
+async def test_batch_create_tensorboard_time_series_async_from_dict():
+    await test_batch_create_tensorboard_time_series_async(request_type=dict)
+
+
+def test_batch_create_tensorboard_time_series_field_headers():
+    client = TensorboardServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+    )
+
+    # Any value that is part of the HTTP/1.1 URI should be sent as
+    # a field header. Set these to a non-empty value.
+    request = tensorboard_service.BatchCreateTensorboardTimeSeriesRequest()
+
+    request.parent = "parent/value"
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(
+        type(client.transport.batch_create_tensorboard_time_series), "__call__"
+    ) as call:
+        call.return_value = (
+            tensorboard_service.BatchCreateTensorboardTimeSeriesResponse()
+        )
+        client.batch_create_tensorboard_time_series(request)
+
+        # Establish that the underlying gRPC stub method was called.
+        assert len(call.mock_calls) == 1
+        _, args, _ = call.mock_calls[0]
+        assert args[0] == request
+
+    # Establish that the field header was sent.
+    _, _, kw = call.mock_calls[0]
+    assert ("x-goog-request-params", "parent=parent/value",) in kw["metadata"]
+
+
+@pytest.mark.asyncio
+async def test_batch_create_tensorboard_time_series_field_headers_async():
+    client = TensorboardServiceAsyncClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+    )
+
+    # Any value that is part of the HTTP/1.1 URI should be sent as
+    # a field header. Set these to a non-empty value.
+    request = tensorboard_service.BatchCreateTensorboardTimeSeriesRequest()
+
+    request.parent = "parent/value"
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(
+        type(client.transport.batch_create_tensorboard_time_series), "__call__"
+    ) as call:
+        call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(
+            tensorboard_service.BatchCreateTensorboardTimeSeriesResponse()
+        )
+        await client.batch_create_tensorboard_time_series(request)
+
+        # Establish that the underlying gRPC stub method was called.
+        assert len(call.mock_calls)
+        _, args, _ = call.mock_calls[0]
+        assert args[0] == request
+
+    # Establish that the field header was sent.
+    _, _, kw = call.mock_calls[0]
+    assert ("x-goog-request-params", "parent=parent/value",) in kw["metadata"]
+
+
+def test_batch_create_tensorboard_time_series_flattened():
+    client = TensorboardServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+    )
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(
+        type(client.transport.batch_create_tensorboard_time_series), "__call__"
+    ) as call:
+        # Designate an appropriate return value for the call.
+        call.return_value = (
+            tensorboard_service.BatchCreateTensorboardTimeSeriesResponse()
+        )
+        # Call the method with a truthy value for each flattened field,
+        # using the keyword arguments to the method.
+        client.batch_create_tensorboard_time_series(
+            parent="parent_value",
+            requests=[
+                tensorboard_service.CreateTensorboardTimeSeriesRequest(
+                    parent="parent_value"
+                )
+            ],
+        )
+
+        # Establish that the underlying call was made with the expected
+        # request object values.
+        assert len(call.mock_calls) == 1
+        _, args, _ = call.mock_calls[0]
+        assert args[0].parent == "parent_value"
+        assert args[0].requests == [
+            tensorboard_service.CreateTensorboardTimeSeriesRequest(
+                parent="parent_value"
+            )
+        ]
+
+
+def test_batch_create_tensorboard_time_series_flattened_error():
+    client = TensorboardServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+    )
+
+    # Attempting to call a method with both a request object and flattened
+    # fields is an error.
+    with pytest.raises(ValueError):
+        client.batch_create_tensorboard_time_series(
+            tensorboard_service.BatchCreateTensorboardTimeSeriesRequest(),
+            parent="parent_value",
+            requests=[
+                tensorboard_service.CreateTensorboardTimeSeriesRequest(
+                    parent="parent_value"
+                )
+            ],
+        )
+
+
+@pytest.mark.asyncio
+async def test_batch_create_tensorboard_time_series_flattened_async():
+    client = TensorboardServiceAsyncClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+    )
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(
+        type(client.transport.batch_create_tensorboard_time_series), "__call__"
+    ) as call:
+        # Designate an appropriate return value for the call.
+        call.return_value = (
+            tensorboard_service.BatchCreateTensorboardTimeSeriesResponse()
+        )
+
+        call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(
+            tensorboard_service.BatchCreateTensorboardTimeSeriesResponse()
+        )
+        # Call the method with a truthy value for each flattened field,
+        # using the keyword arguments to the method.
+        response = await client.batch_create_tensorboard_time_series(
+            parent="parent_value",
+            requests=[
+                tensorboard_service.CreateTensorboardTimeSeriesRequest(
+                    parent="parent_value"
+                )
+            ],
+        )
+
+        # Establish that the underlying call was made with the expected
+        # request object values.
+        assert len(call.mock_calls)
+        _, args, _ = call.mock_calls[0]
+        assert args[0].parent == "parent_value"
+        assert args[0].requests == [
+            tensorboard_service.CreateTensorboardTimeSeriesRequest(
+                parent="parent_value"
+            )
+        ]
+
+
+@pytest.mark.asyncio
+async def test_batch_create_tensorboard_time_series_flattened_error_async():
+    client = TensorboardServiceAsyncClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+    )
+
+    # Attempting to call a method with both a request object and flattened
+    # fields is an error.
+    with pytest.raises(ValueError):
+        await client.batch_create_tensorboard_time_series(
+            tensorboard_service.BatchCreateTensorboardTimeSeriesRequest(),
+            parent="parent_value",
+            requests=[
+                tensorboard_service.CreateTensorboardTimeSeriesRequest(
+                    parent="parent_value"
+                )
+            ],
         )
 
 
@@ -6618,6 +7134,274 @@ async def test_read_tensorboard_blob_data_flattened_error_async():
         )
 
 
+def test_write_tensorboard_experiment_data(
+    transport: str = "grpc",
+    request_type=tensorboard_service.WriteTensorboardExperimentDataRequest,
+):
+    client = TensorboardServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(), transport=transport,
+    )
+
+    # Everything is optional in proto3 as far as the runtime is concerned,
+    # and we are mocking out the actual API, so just send an empty request.
+    request = request_type()
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(
+        type(client.transport.write_tensorboard_experiment_data), "__call__"
+    ) as call:
+        # Designate an appropriate return value for the call.
+        call.return_value = tensorboard_service.WriteTensorboardExperimentDataResponse()
+        response = client.write_tensorboard_experiment_data(request)
+
+        # Establish that the underlying gRPC stub method was called.
+        assert len(call.mock_calls) == 1
+        _, args, _ = call.mock_calls[0]
+        assert args[0] == tensorboard_service.WriteTensorboardExperimentDataRequest()
+
+    # Establish that the response is the type that we expect.
+    assert isinstance(
+        response, tensorboard_service.WriteTensorboardExperimentDataResponse
+    )
+
+
+def test_write_tensorboard_experiment_data_from_dict():
+    test_write_tensorboard_experiment_data(request_type=dict)
+
+
+def test_write_tensorboard_experiment_data_empty_call():
+    # This test is a coverage failsafe to make sure that totally empty calls,
+    # i.e. request == None and no flattened fields passed, work.
+    client = TensorboardServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(), transport="grpc",
+    )
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(
+        type(client.transport.write_tensorboard_experiment_data), "__call__"
+    ) as call:
+        client.write_tensorboard_experiment_data()
+        call.assert_called()
+        _, args, _ = call.mock_calls[0]
+        assert args[0] == tensorboard_service.WriteTensorboardExperimentDataRequest()
+
+
+@pytest.mark.asyncio
+async def test_write_tensorboard_experiment_data_async(
+    transport: str = "grpc_asyncio",
+    request_type=tensorboard_service.WriteTensorboardExperimentDataRequest,
+):
+    client = TensorboardServiceAsyncClient(
+        credentials=ga_credentials.AnonymousCredentials(), transport=transport,
+    )
+
+    # Everything is optional in proto3 as far as the runtime is concerned,
+    # and we are mocking out the actual API, so just send an empty request.
+    request = request_type()
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(
+        type(client.transport.write_tensorboard_experiment_data), "__call__"
+    ) as call:
+        # Designate an appropriate return value for the call.
+        call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(
+            tensorboard_service.WriteTensorboardExperimentDataResponse()
+        )
+        response = await client.write_tensorboard_experiment_data(request)
+
+        # Establish that the underlying gRPC stub method was called.
+        assert len(call.mock_calls)
+        _, args, _ = call.mock_calls[0]
+        assert args[0] == tensorboard_service.WriteTensorboardExperimentDataRequest()
+
+    # Establish that the response is the type that we expect.
+    assert isinstance(
+        response, tensorboard_service.WriteTensorboardExperimentDataResponse
+    )
+
+
+@pytest.mark.asyncio
+async def test_write_tensorboard_experiment_data_async_from_dict():
+    await test_write_tensorboard_experiment_data_async(request_type=dict)
+
+
+def test_write_tensorboard_experiment_data_field_headers():
+    client = TensorboardServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+    )
+
+    # Any value that is part of the HTTP/1.1 URI should be sent as
+    # a field header. Set these to a non-empty value.
+    request = tensorboard_service.WriteTensorboardExperimentDataRequest()
+
+    request.tensorboard_experiment = "tensorboard_experiment/value"
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(
+        type(client.transport.write_tensorboard_experiment_data), "__call__"
+    ) as call:
+        call.return_value = tensorboard_service.WriteTensorboardExperimentDataResponse()
+        client.write_tensorboard_experiment_data(request)
+
+        # Establish that the underlying gRPC stub method was called.
+        assert len(call.mock_calls) == 1
+        _, args, _ = call.mock_calls[0]
+        assert args[0] == request
+
+    # Establish that the field header was sent.
+    _, _, kw = call.mock_calls[0]
+    assert (
+        "x-goog-request-params",
+        "tensorboard_experiment=tensorboard_experiment/value",
+    ) in kw["metadata"]
+
+
+@pytest.mark.asyncio
+async def test_write_tensorboard_experiment_data_field_headers_async():
+    client = TensorboardServiceAsyncClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+    )
+
+    # Any value that is part of the HTTP/1.1 URI should be sent as
+    # a field header. Set these to a non-empty value.
+    request = tensorboard_service.WriteTensorboardExperimentDataRequest()
+
+    request.tensorboard_experiment = "tensorboard_experiment/value"
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(
+        type(client.transport.write_tensorboard_experiment_data), "__call__"
+    ) as call:
+        call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(
+            tensorboard_service.WriteTensorboardExperimentDataResponse()
+        )
+        await client.write_tensorboard_experiment_data(request)
+
+        # Establish that the underlying gRPC stub method was called.
+        assert len(call.mock_calls)
+        _, args, _ = call.mock_calls[0]
+        assert args[0] == request
+
+    # Establish that the field header was sent.
+    _, _, kw = call.mock_calls[0]
+    assert (
+        "x-goog-request-params",
+        "tensorboard_experiment=tensorboard_experiment/value",
+    ) in kw["metadata"]
+
+
+def test_write_tensorboard_experiment_data_flattened():
+    client = TensorboardServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+    )
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(
+        type(client.transport.write_tensorboard_experiment_data), "__call__"
+    ) as call:
+        # Designate an appropriate return value for the call.
+        call.return_value = tensorboard_service.WriteTensorboardExperimentDataResponse()
+        # Call the method with a truthy value for each flattened field,
+        # using the keyword arguments to the method.
+        client.write_tensorboard_experiment_data(
+            tensorboard_experiment="tensorboard_experiment_value",
+            write_run_data_requests=[
+                tensorboard_service.WriteTensorboardRunDataRequest(
+                    tensorboard_run="tensorboard_run_value"
+                )
+            ],
+        )
+
+        # Establish that the underlying call was made with the expected
+        # request object values.
+        assert len(call.mock_calls) == 1
+        _, args, _ = call.mock_calls[0]
+        assert args[0].tensorboard_experiment == "tensorboard_experiment_value"
+        assert args[0].write_run_data_requests == [
+            tensorboard_service.WriteTensorboardRunDataRequest(
+                tensorboard_run="tensorboard_run_value"
+            )
+        ]
+
+
+def test_write_tensorboard_experiment_data_flattened_error():
+    client = TensorboardServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+    )
+
+    # Attempting to call a method with both a request object and flattened
+    # fields is an error.
+    with pytest.raises(ValueError):
+        client.write_tensorboard_experiment_data(
+            tensorboard_service.WriteTensorboardExperimentDataRequest(),
+            tensorboard_experiment="tensorboard_experiment_value",
+            write_run_data_requests=[
+                tensorboard_service.WriteTensorboardRunDataRequest(
+                    tensorboard_run="tensorboard_run_value"
+                )
+            ],
+        )
+
+
+@pytest.mark.asyncio
+async def test_write_tensorboard_experiment_data_flattened_async():
+    client = TensorboardServiceAsyncClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+    )
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(
+        type(client.transport.write_tensorboard_experiment_data), "__call__"
+    ) as call:
+        # Designate an appropriate return value for the call.
+        call.return_value = tensorboard_service.WriteTensorboardExperimentDataResponse()
+
+        call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(
+            tensorboard_service.WriteTensorboardExperimentDataResponse()
+        )
+        # Call the method with a truthy value for each flattened field,
+        # using the keyword arguments to the method.
+        response = await client.write_tensorboard_experiment_data(
+            tensorboard_experiment="tensorboard_experiment_value",
+            write_run_data_requests=[
+                tensorboard_service.WriteTensorboardRunDataRequest(
+                    tensorboard_run="tensorboard_run_value"
+                )
+            ],
+        )
+
+        # Establish that the underlying call was made with the expected
+        # request object values.
+        assert len(call.mock_calls)
+        _, args, _ = call.mock_calls[0]
+        assert args[0].tensorboard_experiment == "tensorboard_experiment_value"
+        assert args[0].write_run_data_requests == [
+            tensorboard_service.WriteTensorboardRunDataRequest(
+                tensorboard_run="tensorboard_run_value"
+            )
+        ]
+
+
+@pytest.mark.asyncio
+async def test_write_tensorboard_experiment_data_flattened_error_async():
+    client = TensorboardServiceAsyncClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+    )
+
+    # Attempting to call a method with both a request object and flattened
+    # fields is an error.
+    with pytest.raises(ValueError):
+        await client.write_tensorboard_experiment_data(
+            tensorboard_service.WriteTensorboardExperimentDataRequest(),
+            tensorboard_experiment="tensorboard_experiment_value",
+            write_run_data_requests=[
+                tensorboard_service.WriteTensorboardRunDataRequest(
+                    tensorboard_run="tensorboard_run_value"
+                )
+            ],
+        )
+
+
 def test_write_tensorboard_run_data(
     transport: str = "grpc",
     request_type=tensorboard_service.WriteTensorboardRunDataRequest,
@@ -7416,10 +8200,12 @@ def test_tensorboard_service_base_transport():
         "list_tensorboard_experiments",
         "delete_tensorboard_experiment",
         "create_tensorboard_run",
+        "batch_create_tensorboard_runs",
         "get_tensorboard_run",
         "update_tensorboard_run",
         "list_tensorboard_runs",
         "delete_tensorboard_run",
+        "batch_create_tensorboard_time_series",
         "create_tensorboard_time_series",
         "get_tensorboard_time_series",
         "update_tensorboard_time_series",
@@ -7427,6 +8213,7 @@ def test_tensorboard_service_base_transport():
         "delete_tensorboard_time_series",
         "read_tensorboard_time_series_data",
         "read_tensorboard_blob_data",
+        "write_tensorboard_experiment_data",
         "write_tensorboard_run_data",
         "export_tensorboard_time_series_data",
     )

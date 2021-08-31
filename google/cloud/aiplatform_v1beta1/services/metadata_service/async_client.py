@@ -468,7 +468,8 @@ class MetadataServiceAsyncClient:
         timeout: float = None,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> operation_async.AsyncOperation:
-        r"""Deletes a single MetadataStore.
+        r"""Deletes a single MetadataStore and all its child
+        resources (Artifacts, Executions, and Contexts).
 
         Args:
             request (:class:`google.cloud.aiplatform_v1beta1.types.DeleteMetadataStoreRequest`):
@@ -830,6 +831,8 @@ class MetadataServiceAsyncClient:
             update_mask (:class:`google.protobuf.field_mask_pb2.FieldMask`):
                 Required. A FieldMask indicating
                 which fields should be updated.
+                Functionality of this field is not yet
+                supported.
 
                 This corresponds to the ``update_mask`` field
                 on the ``request`` instance; if ``request`` is provided, this
@@ -1339,6 +1342,8 @@ class MetadataServiceAsyncClient:
             update_mask (:class:`google.protobuf.field_mask_pb2.FieldMask`):
                 Required. A FieldMask indicating
                 which fields should be updated.
+                Functionality of this field is not yet
+                supported.
 
                 This corresponds to the ``update_mask`` field
                 on the ``request`` instance; if ``request`` is provided, this
@@ -2117,6 +2122,8 @@ class MetadataServiceAsyncClient:
             update_mask (:class:`google.protobuf.field_mask_pb2.FieldMask`):
                 Required. A FieldMask indicating
                 which fields should be updated.
+                Functionality of this field is not yet
+                supported.
 
                 This corresponds to the ``update_mask`` field
                 on the ``request`` instance; if ``request`` is provided, this

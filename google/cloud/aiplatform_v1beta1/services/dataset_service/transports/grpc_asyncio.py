@@ -38,6 +38,9 @@ from .grpc import DatasetServiceGrpcTransport
 class DatasetServiceGrpcAsyncIOTransport(DatasetServiceTransport):
     """gRPC AsyncIO backend transport for DatasetService.
 
+    The service that handles the CRUD of Vertex AI Dataset and
+    its child resources.
+
     This class defines the same methods as the primary client, so the
     primary client can load the underlying transport implementation
     and call it.

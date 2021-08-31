@@ -35,6 +35,8 @@ from .base import EndpointServiceTransport, DEFAULT_CLIENT_INFO
 class EndpointServiceGrpcTransport(EndpointServiceTransport):
     """gRPC backend transport for EndpointService.
 
+    A service for managing Vertex AI's Endpoints.
+
     This class defines the same methods as the primary client, so the
     primary client can load the underlying transport implementation
     and call it.
