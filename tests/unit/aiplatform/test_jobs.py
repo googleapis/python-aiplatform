@@ -215,6 +215,11 @@ def get_batch_prediction_job_mock():
             gca_batch_prediction_job.BatchPredictionJob(
                 name=_TEST_BATCH_PREDICTION_JOB_NAME,
                 display_name=_TEST_DISPLAY_NAME,
+                state=_TEST_JOB_STATE_PENDING,
+            ),
+            gca_batch_prediction_job.BatchPredictionJob(
+                name=_TEST_BATCH_PREDICTION_JOB_NAME,
+                display_name=_TEST_DISPLAY_NAME,
                 state=_TEST_JOB_STATE_RUNNING,
             ),
             gca_batch_prediction_job.BatchPredictionJob(
@@ -390,7 +395,7 @@ class TestBatchPredictionJob:
         bp_job_state = bp.state
 
         assert get_batch_prediction_job_mock.call_count == 2
-        assert bp_job_state == _TEST_JOB_STATE_SUCCESS
+        assert bp_job_state == _TEST_JOB_STATE_RUNNING
 
         get_batch_prediction_job_mock.assert_called_with(
             name=_TEST_BATCH_PREDICTION_JOB_NAME
@@ -475,8 +480,9 @@ class TestBatchPredictionJob:
             sync=sync,
         )
 
-        if not sync:
-            batch_prediction_job.wait()
+        batch_prediction_job.wait_for_resource_creation()
+
+        batch_prediction_job.wait()
 
         # Construct expected request
         expected_gapic_batch_prediction_job = gca_batch_prediction_job.BatchPredictionJob(
@@ -514,8 +520,9 @@ class TestBatchPredictionJob:
             sync=sync,
         )
 
-        if not sync:
-            batch_prediction_job.wait()
+        batch_prediction_job.wait_for_resource_creation()
+
+        batch_prediction_job.wait()
 
         assert (
             batch_prediction_job.output_info
@@ -571,8 +578,9 @@ class TestBatchPredictionJob:
             sync=sync,
         )
 
-        if not sync:
-            batch_prediction_job.wait()
+        batch_prediction_job.wait_for_resource_creation()
+
+        batch_prediction_job.wait()
 
         # Construct expected request
         expected_gapic_batch_prediction_job = gca_batch_prediction_job_v1beta1.BatchPredictionJob(
