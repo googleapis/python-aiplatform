@@ -48,7 +48,7 @@ class SavedModelMetadataBuilderTF2Test(tf.test.TestCase):
         }
         assert expected_md == generated_md
 
-    def test_get_metadata_sequential(self):
+    def test_get_metadata_object_sequential(self):
         self._set_up_sequential()
 
         builder = saved_model_metadata_builder.SavedModelMetadataBuilder(
