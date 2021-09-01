@@ -18,6 +18,9 @@
 import tensorflow.compat.v1 as tf
 
 from google.cloud.aiplatform.explain.metadata.tf.v1 import saved_model_metadata_builder
+from google.cloud.aiplatform.compat.types import (
+    explanation_metadata_v1beta1 as explanation_metadata,
+)
 
 
 class SavedModelMetadataBuilderTF1Test(tf.test.TestCase):
@@ -68,6 +71,18 @@ class SavedModelMetadataBuilderTF1Test(tf.test.TestCase):
 
         assert md_builder.get_metadata() == expected_md
 
+    def test_get_metadata_object_correct_inputs(self):
+        self._set_up()
+        md_builder = saved_model_metadata_builder.SavedModelMetadataBuilder(
+            self.model_path, tags=[tf.saved_model.tag_constants.SERVING]
+        )
+        expected_object = explanation_metadata.ExplanationMetadata(
+            inputs={"x": {"input_tensor_name": "inp:0"}},
+            outputs={"y": {"output_tensor_name": "Relu:0"}},
+        )
+
+        assert md_builder.get_metadata_object() == expected_object
+
     def test_get_metadata_double_output(self):
         self._set_up()
         md_builder = saved_model_metadata_builder.SavedModelMetadataBuilder(
@@ -80,3 +95,16 @@ class SavedModelMetadataBuilderTF1Test(tf.test.TestCase):
         }
 
         assert md_builder.get_metadata() == expected_md
+
+    def test_get_metadata_object_double_output(self):
+        self._set_up()
+        md_builder = saved_model_metadata_builder.SavedModelMetadataBuilder(
+            self.model_path, signature_name="double", outputs_to_explain=["lin"]
+        )
+
+        expected_object = explanation_metadata.ExplanationMetadata(
+            inputs={"x": {"input_tensor_name": "inp:0"}},
+            outputs={"lin": {"output_tensor_name": "Add:0"}},
+        )
+
+        assert md_builder.get_metadata_object() == expected_object

@@ -304,7 +304,7 @@ You can also create a batch prediction job asynchronously by including the `sync
   batch_prediction_job.state
 
   # block until job is complete
-  batch_prediction_job.wait() 
+  batch_prediction_job.wait()
 
 
 Endpoints
@@ -352,7 +352,7 @@ To delete an endpoint:
 Explainable AI: Get Metadata
 ----------------------------
 
-To get metadata from TensorFlow 1 models:
+To get metadata in dictionary format from TensorFlow 1 models:
 
 .. code-block:: Python
 
@@ -363,7 +363,7 @@ To get metadata from TensorFlow 1 models:
         )
   generated_md = builder.get_metadata()
 
-To get metadata from TensorFlow 2 models:
+To get metadata in dictionary format from TensorFlow 2 models:
 
 .. code-block:: Python
 
@@ -372,6 +372,20 @@ To get metadata from TensorFlow 2 models:
   builder = saved_model_metadata_builder.SavedModelMetadataBuilder('gs://python/to/my/model/dir')
   generated_md = builder.get_metadata()
 
+To use Explanation Metadata in endpoint deployment and model upload:
+
+.. code-block:: Python
+
+  explanation_metadata = builder.get_metadata_object()
+
+  # To deploy a model to an endpoint with explanation
+  model.deploy(..., explanation_metadata=explanation_metadata)
+
+  # To deploy a model to a created endpoint with explanation
+  endpoint.deploy(..., explanation_metadata=explanation_metadata)
+
+  # To upload a model with explanation
+  aiplatform.Model.upload(..., explanation_metadata=explanation_metadata)
 
 
 Next Steps
