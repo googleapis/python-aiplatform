@@ -103,7 +103,7 @@ To use the VertexModel class, your implementation must adhere to the following c
        return parameter.tolist()
 
      # Implementation of predict_output_to_predict_payload(), which converts the predict() output to a predict_payload object
-     def predict_output_to_predict_payload(self, output):
+     def predict_output_to_predict_payload(self, predict_output: torch.Tensor) -> List:
        return output.tolist()
 
      # Implementation of predict_payload_to_predict_output, which takes a predict_payload object containing predictions and
