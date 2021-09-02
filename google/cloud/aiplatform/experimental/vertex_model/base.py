@@ -19,9 +19,11 @@ import abc
 import datetime
 import functools
 import inspect
+
 import pathlib
 import tempfile
 from typing import Any
+from typing import List
 from typing import Callable
 
 from google.cloud import aiplatform
@@ -46,12 +48,12 @@ except ImportError:
         "PyTorch is not installed. Please install torch to use VertexModel"
     )
 
-GITHUB_DEPENDENCY = "google-cloud-aiplatform @ git+https://github.com/googleapis/python-aiplatform@refs/pull/628/head#egg=google-cloud-aiplatform"
+GITHUB_DEPENDENCY = "google-cloud-aiplatform @ git+https://github.com/googleapis/python-aiplatform@refs/pull/659/head#egg=google-cloud-aiplatform"
 
 SERVING_COMMAND_STRING_CLI = [
     "sh",
     "-c",
-    "python3 -m pip install --user --disable-pip-version-check 'uvicorn' 'fastapi' 'torch' 'pandas' 'google-cloud-aiplatform @ git+https://github.com/googleapis/python-aiplatform@refs/pull/628/head#egg=google-cloud-aiplatform' && \"$0\" \"$@\"",
+    "python3 -m pip install --user --disable-pip-version-check 'uvicorn' 'fastapi' 'torch' 'pandas' 'google-cloud-aiplatform @ git+https://github.com/googleapis/python-aiplatform@refs/pull/659/head#egg=google-cloud-aiplatform' && \"$0\" \"$@\"",
     "sh",
     "-ec",
     'program_path=$(mktemp)\nprintf "%s" "$0" > "$program_path"\npython3 -u "$program_path" "$@"\n',
@@ -69,8 +71,30 @@ from google.cloud.aiplatform.experimental.vertex_model.serializers import model
 
 SERVING_COMMAND_STRING_CODE_APIS = """
 
+class ModelWrapper:
+
+  def __init__(self, vertex_model_instance, deserialized_model):
+     self._vertex_model_instance = vertex_model_instance
+     self._deserialized_model = deserialized_model
+
+  def __getattr__(self, name):
+    if hasattr(self._deserialized_model, name):
+        return getattr(self._deserialized_model, name)
+
+    else:
+        attribute = getattr(self._vertex_model_instance, name)
+
+        if inspect.ismethod(attribute):
+            # wrap vertex_model method
+            return functools.partial(getattr(self._vertex_model_instance.__class__, name), mw)
+        else:
+            return attribute
+
 app = FastAPI()
+
 my_model = model._deserialize_remote_model(os.environ['AIP_STORAGE_URI'] + '/my_local_model.pth')
+wrapped_model = ModelWrapper(original_model, my_model)
+my_model.predict = wrapped_model.predict
 
 @app.get(os.environ['AIP_HEALTH_ROUTE'], status_code=200)
 def health():
@@ -82,14 +106,10 @@ async def predict(request: Request):
     body = await request.json()
     instances = body["instances"]
 
-    feature_columns = ['feat_1', 'feat_2']
-    data = pd.DataFrame(instances, columns=feature_columns)
-    torch_tensor = torch.tensor(data[feature_columns].values).type(torch.FloatTensor)
+    input_data = original_model.predict_payload_to_predict_input(instances)
+    outputs = my_model.predict(input_data)
 
-    my_model.predict = functools.partial(original_model.__class__.predict, my_model)
-    outputs = my_model.predict(torch_tensor)
-
-    return {"predictions": outputs.tolist()}
+    return {"predictions": original_model.predict_output_to_predict_payload(outputs)}
 
 
 if __name__ == "__main__":
@@ -228,7 +248,9 @@ def vertex_fit_function_wrapper(method: Callable[..., Any]):
             )
 
             obj._model = obj._training_job.run(
-                model_display_name="my_model", replica_count=1,
+                model_display_name="my_model",
+                replica_count=1,
+                machine_type=obj.machine_type,
             )
 
     return f
@@ -323,23 +345,22 @@ def vertex_predict_function_wrapper(method: Callable[..., Any]):
 
         # Make remote predictions, regardless of training: create custom container
         if method.__self__.remote:
-            # Convert the predict input to a JSON input for the Endpoint resource
+            # Convert the predict input to a predict_payload input for the Endpoint resource
             data = []
             bound_args = inspect.signature(method).bind(*args, **kwargs)
 
             for parameter_name, parameter in bound_args.arguments.items():
-                if parameter_name == "data":
-                    data = parameter.tolist()
-                    break
+                data = obj.predict_input_to_predict_payload(parameter)
 
             # TODO: cleanup model resource after endpoint is created
             if obj._endpoint is None:
                 _LOGGER.info(
                     "Model is not deployed for remote prediction. Deploying model to an endpoint."
                 )
-                obj._endpoint = obj._model.deploy(machine_type="n1-standard-4")
+                obj._endpoint = obj._model.deploy(machine_type=obj.machine_type)
 
-            return obj._endpoint.predict(instances=data)
+            endpoint_output = obj._endpoint.predict(instances=data)
+            return obj.predict_payload_to_predict_output(endpoint_output.predictions)
 
     return p
 
@@ -355,6 +376,14 @@ class VertexModel(metaclass=abc.ABCMeta):
         ),
     }
 
+    dependencies = [
+        "pandas>=1.3",
+        "torch>=1.7",
+        "google-cloud-aiplatform @ git+https://github.com/googleapis/python-aiplatform@refs/pull/659/head#egg=google-cloud-aiplatform",
+    ]
+
+    machine_type = "n1-standard-4"
+
     def __init__(self, *args, **kwargs):
         """Initializes child class. All constructor arguments must be passed to the
            VertexModel constructor as well."""
@@ -364,11 +393,6 @@ class VertexModel(metaclass=abc.ABCMeta):
         self._endpoint = None
 
         self._constructor_arguments = (args, kwargs)
-        self.dependencies = [
-            "pandas>=1.3",
-            "torch>=1.7",
-            "google-cloud-aiplatform @ git+https://github.com/googleapis/python-aiplatform@refs/pull/628/head#egg=google-cloud-aiplatform",
-        ]
 
         self.remote = False
 
@@ -383,6 +407,22 @@ class VertexModel(metaclass=abc.ABCMeta):
     @abc.abstractmethod
     def predict(self):
         """Make predictions on training data."""
+        pass
+
+    @abc.abstractmethod
+    def predict_input_to_predict_payload(self, instances: Any) -> List:
+        pass
+
+    @abc.abstractmethod
+    def predict_payload_to_predict_input(self, predict_payload: List) -> Any:
+        pass
+
+    @abc.abstractmethod
+    def predict_output_to_predict_payload(self, predict_output: Any) -> List:
+        pass
+
+    @abc.abstractmethod
+    def predict_payload_to_predict_output(self, predictions: List) -> Any:
         pass
 
     def batch_predict(self):

@@ -135,8 +135,25 @@ def import_try_except(obj):
 
 
 class SourceMaker:
-    def __init__(self, cls_name: str):
-        self.source = ["class {}(torch.nn.Module):".format(cls_name)]
+    def __init__(self, obj_cls: Any):
+        parent_classes = []
+
+        for base_class in obj_cls.__bases__:
+            if (
+                base_class.__name__ != obj_cls.__name__
+                and base_class.__name__ != "VertexModel"
+            ):
+                module = base_class.__module__
+                name = base_class.__qualname__
+
+                if module is not None and module != "__builtin__":
+                    name = module + "." + name
+
+                parent_classes.append(name)
+
+        self.source = [
+            "class {}({}):".format(obj_cls.__name__, ", ".join(parent_classes))
+        ]
 
     def add_method(self, method_str: str):
         self.source.extend(method_str.split("\n"))
@@ -149,7 +166,7 @@ def _make_class_source(obj: Any) -> str:
     Args:
         obj (Any): An instantiation of a user-written class
     """
-    source_maker = SourceMaker(obj.__class__.__name__)
+    source_maker = SourceMaker(obj.__class__)
 
     for key, value in inspect.getmembers(obj):
         if (inspect.ismethod(value) or inspect.isfunction(value)) and value.__repr__()[
@@ -197,9 +214,6 @@ def _make_source(
     src = src + "\n".join(
         [
             "import os",
-            #    "import torch",
-            #    "import pandas as pd",
-            "from google.cloud.aiplatform.experimental.vertex_model import base",
             "from google.cloud.aiplatform.experimental.vertex_model.serializers.pandas import _deserialize_dataframe",
             "from google.cloud.aiplatform.experimental.vertex_model.serializers.pytorch import _deserialize_dataloader",
             "from google.cloud.aiplatform.experimental.vertex_model.serializers import model",

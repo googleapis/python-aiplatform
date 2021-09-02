@@ -208,6 +208,30 @@ class LinearRegression(base.VertexModel, torch.nn.Module):
     def predict(self, data):
         return self.forward(data)
 
+    # Implementation of predict_payload_to_predict_input(), which converts a predict_payload object to predict() inputs
+    def predict_payload_to_predict_input(self, instances):
+        feature_columns = ["feat_1", "feat_2"]
+        data = pd.DataFrame(instances, columns=feature_columns)
+        torch_tensor = torch.tensor(data[feature_columns].values).type(
+            torch.FloatTensor
+        )
+        return torch_tensor
+
+    # Implementation of predict_input_to_predict_payload(), which converts predict() inputs to a predict_payload object
+    def predict_input_to_predict_payload(self, parameter):
+        return parameter.tolist()
+
+    # Implementation of predict_output_to_predict_payload(), which converts the predict() output to a predict_payload object
+    def predict_output_to_predict_payload(self, output):
+        return output.tolist()
+
+    # Implementation of predict_payload_to_predict_output, which takes a predict_payload object containing predictions and
+    # converts it to the type of output expected by the user-written class.
+    def predict_payload_to_predict_output(self, predictions):
+        data = pd.DataFrame(predictions)
+        torch_tensor = torch.tensor(data.values).type(torch.FloatTensor)
+        return torch_tensor
+
 
 class TestCloudVertexModelClass:
     def setup_method(self):
@@ -255,7 +279,7 @@ class TestCloudVertexModelClass:
             "requirements": [
                 "pandas>=1.3",
                 "torch>=1.7",
-                "google-cloud-aiplatform @ git+https://github.com/googleapis/python-aiplatform@refs/pull/628/head#egg=google-cloud-aiplatform",
+                "google-cloud-aiplatform @ git+https://github.com/googleapis/python-aiplatform@refs/pull/659/head#egg=google-cloud-aiplatform",
             ],
             "container_uri": "us-docker.pkg.dev/vertex-ai/training/scikit-learn-cpu.0-23:latest",
             "model_serving_container_image_uri": "gcr.io/google-appengine/python",
@@ -276,7 +300,7 @@ class TestCloudVertexModelClass:
         assert len(call_args[0]) == 0
 
         mock_run_custom_training_job.assert_called_once_with(
-            model_display_name="my_model", replica_count=1,
+            model_display_name="my_model", replica_count=1, machine_type="n1-standard-4"
         )
 
     def test_remote_train_remote_predict(

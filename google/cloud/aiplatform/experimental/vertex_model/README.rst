@@ -39,6 +39,8 @@ To use the VertexModel class, your implementation must adhere to the following c
 
 1. The constructor of VertexModel must be called with the constructor arguments of your child class.
 2. You must implement your own versions of fit() and predict().
+3. Your predict() method must only take one object, containing all of your test data, as an input.
+4. You must implement your own versions of predict_payload_to_predict_input(), predict_input_to_predict_payload(), predict_output_to_predict_payload(), and predict_payload_to_predict_output().
 
 .. code-block:: Python
 
@@ -90,6 +92,30 @@ To use the VertexModel class, your implementation must adhere to the following c
      def predict(self, data):
        return self.forward(data)
 
+     # Implementation of predict_payload_to_predict_input(), which converts a predict_payload object to predict() inputs
+     def predict_payload_to_predict_input(self, instances: List) -> torch.Tensor:
+       feature_columns = ['feat_1', 'feat_2']
+       data = pd.DataFrame(instances, columns=feature_columns)
+       torch_tensor = torch.tensor(data[feature_columns].values).type(
+            torch.FloatTensor
+       )
+       return torch_tensor
+
+     # Implementation of predict_input_to_predict_payload(), which converts predict() inputs to a predict_payload object
+    def predict_input_to_predict_payload(self, predict_input: torch.Tensor) -> List:
+       return parameter.tolist()
+
+     # Implementation of predict_output_to_predict_payload(), which converts the predict() output to a predict_payload object
+     def predict_output_to_predict_payload(self, predict_output: torch.Tensor) -> List:
+       return output.tolist()
+
+     # Implementation of predict_payload_to_predict_output, which takes a predict_payload object containing predictions and
+     # converts it to the type of output expected by the user-written class.
+     def predict_payload_to_predict_output(self, predictions: List) -> torch.Tensor:
+       data = pd.DataFrame(predictions)
+       torch_tensor = torch.tensor(data.values).type(torch.FloatTensor)
+       return torch_tensor
+
 
 Dependencies
 ^^^^^^^^
@@ -101,6 +127,16 @@ take the form of a list of strings. You can do so as follows:
 
    my_model = MyModelClass()
    my_model.dependencies = ["library_name>=1.3", "library_name>=1.7",]
+
+
+Hardware Configuration
+^^^^^^^^
+When performing remote training and/or prediction with your code, you have the option to specify the machine type you want to use. You can do so as follows:
+
+.. code-block:: Python
+
+   my_model = MyModelClass()
+   my_model.machine_type = "n1-standard-4"
 
 
 Data Serialization
