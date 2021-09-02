@@ -34,6 +34,16 @@ _DIR_NAME = os.path.dirname(os.path.abspath(__file__))
 _LOCAL_TRAINING_SCRIPT_PATH = os.path.join(
     _DIR_NAME, "test_resources/california_housing_training_script.py"
 )
+_INSTANCE = {
+    "longitude": -124.35,
+    "latitude": 40.54,
+    "housing_median_age": 52.0,
+    "total_rooms": 1820.0,
+    "total_bedrooms": 300.0,
+    "population": 806,
+    "households": 270.0,
+    "median_income": 3.014700,
+}
 
 
 @pytest.mark.usefixtures("prepare_staging_bucket", "delete_staging_bucket", "teardown")
@@ -136,38 +146,19 @@ class TestEndToEndTabular(e2e_base.TestEndToEnd):
         # Send online prediction with same instance to both deployed models
         # This sample is taken from an observation where median_house_value = 94600
         custom_endpoint.wait()
-        custom_prediction = custom_endpoint.predict(
-            [
-                {
-                    "longitude": -124.35,
-                    "latitude": 40.54,
-                    "housing_median_age": 52.0,
-                    "total_rooms": 1820.0,
-                    "total_bedrooms": 300.0,
-                    "population": 806,
-                    "households": 270.0,
-                    "median_income": 3.014700,
-                },
-            ]
-        )
+        custom_prediction = custom_endpoint.predict([_INSTANCE])
 
         custom_batch_prediction_job.wait()
 
         automl_endpoint.wait()
         automl_prediction = automl_endpoint.predict(
-            [
-                {
-                    "longitude": "-124.35",
-                    "latitude": "40.54",
-                    "housing_median_age": "52.0",
-                    "total_rooms": "1820.0",
-                    "total_bedrooms": "300.0",
-                    "population": "806",
-                    "households": "270.0",
-                    "median_income": "3.014700",
-                },
-            ]
+            [{k: str(v) for k, v in _INSTANCE.items()}]  # Cast int values to strings
         )
+
+        # Test lazy loading of Endpoint, check getter was never called after predict()
+        custom_endpoint = aiplatform.Endpoint(custom_endpoint.resource_name)
+        custom_endpoint.predict([_INSTANCE])
+        assert custom_endpoint._skipped_getter_call
 
         assert (
             custom_job.state

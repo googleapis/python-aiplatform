@@ -79,7 +79,6 @@ class Endpoint(base.VertexAiResourceNounWithFutureManager):
 
     client_class = utils.EndpointClientWithOverride
     _is_client_prediction_client = False
-    _skipped_getter_call = True  # get_endpoint() has not been called
     _resource_noun = "endpoints"
     _getter_method = "get_endpoint"
     _list_method = "list_endpoints"
@@ -126,6 +125,7 @@ class Endpoint(base.VertexAiResourceNounWithFutureManager):
 
         # Lazy load the Endpoint gca_resource until needed
         self._gca_resource = gca_endpoint_compat.Endpoint(name=endpoint_name)
+        self._skipped_getter_call = True
 
         self._prediction_client = self._instantiate_prediction_client(
             location=self.location, credentials=credentials,
