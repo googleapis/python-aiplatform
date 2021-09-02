@@ -69,6 +69,7 @@ from google.cloud.aiplatform.compat.types import (
     tensorboard_time_series_v1beta1 as tensorboard_time_series,
 )
 from google.cloud.aiplatform.tensorboard import uploader_utils
+from google.cloud.aiplatform.tensorboard.plugins.tf_profiler import profile_uploader
 from google.protobuf import message
 from google.protobuf import timestamp_pb2 as timestamp
 
@@ -329,6 +330,24 @@ class TensorBoardUploader(object):
             Mapping from plugin name to Sender.
         """
         additional_senders = {}
+
+        if "profile" in self._allowed_plugins:
+            if not self._one_shot:
+                logger.warning("Profile plugin currently only supported for one shot.")
+            else:
+                source_bucket = uploader_utils.get_source_bucket(self._logdir)
+                additional_senders["profile"] = profile_uploader.ProfileRequestSender(
+                    self._experiment.name,
+                    self._api,
+                    upload_limits=self._upload_limits,
+                    blob_rpc_rate_limiter=self._blob_rpc_rate_limiter,
+                    blob_storage_bucket=self._blob_storage_bucket,
+                    blob_storage_folder=self._blob_storage_folder,
+                    source_bucket=source_bucket,
+                    tracker=self._tracker,
+                    logdir=self._logdir,
+                    run_resource_manager=self._run_resource_manager,
+                )
         return additional_senders
 
     def get_experiment_resource_name(self):

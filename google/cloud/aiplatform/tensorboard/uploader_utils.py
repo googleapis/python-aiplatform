@@ -17,10 +17,12 @@
 
 """Shared utils for tensorboard log uploader."""
 import json
+import re
 from typing import Callable, Dict
 import uuid
 
 from google.api_core import exceptions
+from google.cloud import storage
 from google.cloud.aiplatform.compat.types import (
     tensorboard_run_v1beta1 as tensorboard_run,
 )
@@ -157,3 +159,12 @@ class RunResourceManager(object):
 
         self._run_to_run_resource[run_name] = tb_run
         return tb_run
+
+
+def get_source_bucket(logdir: str) -> storage.Bucket:
+    """Returns a storage bucket object given a log directory."""
+    m = re.match(r"gs:\/\/(.*?)(?=\/|$)", logdir)
+    if not m:
+        return None
+    bucket = storage.Client().bucket(m[1])
+    return bucket
