@@ -422,7 +422,7 @@ class VertexModel(metaclass=abc.ABCMeta):
         pass
 
     @abc.abstractmethod
-    def predict_payload_to_predict_output(self):
+    def predict_payload_to_predict_output(self, predictions: List) -> Any:
         pass
 
     def batch_predict(self):
