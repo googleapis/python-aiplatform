@@ -20,7 +20,6 @@ import datetime
 import functools
 import inspect
 
-# import json
 import pathlib
 import tempfile
 from typing import Any
@@ -91,9 +90,10 @@ class ModelWrapper:
             return attribute
 
 app = FastAPI()
+
 my_model = model._deserialize_remote_model(os.environ['AIP_STORAGE_URI'] + '/my_local_model.pth')
 wrapped_model = ModelWrapper(original_model, my_model)
-
+my_model.predict = wrapped_model.predict
 
 @app.get(os.environ['AIP_HEALTH_ROUTE'], status_code=200)
 def health():
@@ -104,9 +104,8 @@ def health():
 async def predict(request: Request):
     body = await request.json()
     instances = body["instances"]
-    input_data = original_model.predict_payload_to_predict_input(instances)
 
-    my_model.predict = wrapped_model.predict
+    input_data = original_model.predict_payload_to_predict_input(instances)
     outputs = my_model.predict(input_data)
 
     return {"predictions": original_model.predict_output_to_predict_payload(outputs)}

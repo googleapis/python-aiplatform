@@ -96,7 +96,10 @@ To use the VertexModel class, your implementation must adhere to the following c
      def predict_payload_to_predict_input(self, instances):
        feature_columns = ['feat_1', 'feat_2']
        data = pd.DataFrame(instances, columns=feature_columns)
-       return data
+       torch_tensor = torch.tensor(data[feature_columns].values).type(
+            torch.FloatTensor
+       )
+       return torch_tensor
 
      # Implementation of predict_input_to_predict_payload(), which converts predict() inputs to a predict_payload object
      def predict_input_to_predict_payload(self, parameter):
