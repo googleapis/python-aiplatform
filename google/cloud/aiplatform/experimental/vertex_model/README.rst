@@ -133,7 +133,7 @@ When performing remote training and/or prediction with your code, you have the o
 .. code-block:: Python
 
    my_model = MyModelClass()
-   my_model.machine_type = "machine-name"
+   my_model.machine_type = "n1-standard-4"
 
 
 Data Serialization
