@@ -51,7 +51,7 @@ TensorboardServiceClient = tensorboard_service_client_v1beta1.TensorboardService
 logger = tb_logging.get_logger()
 
 
-class ProfileRequestSender:
+class ProfileRequestSender(uploader_utils.RequestSender):
     """Helper class for building requests for the profiler plugin.
 
     The profile plugin does not contain values within even files like other

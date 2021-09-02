@@ -16,6 +16,7 @@
 #
 
 """Shared utils for tensorboard log uploader."""
+import abc
 import json
 import re
 from typing import Callable, Dict
@@ -43,6 +44,18 @@ class ExperimentNotFoundError(RuntimeError):
 
 class ExistingResourceNotFoundError(RuntimeError):
     """Resource could not be created or retrieved."""
+
+
+class RequestSender(object):
+    """A base class for additional request sender objects.
+
+    Currently just used for typing.
+    """
+
+    @abc.abstractmethod
+    def send_requests(run_name: str):
+        """Sends any request for the run."""
+        pass
 
 
 class TimeSeriesResourceManager(object):
