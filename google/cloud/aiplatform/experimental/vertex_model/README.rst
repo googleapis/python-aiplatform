@@ -39,7 +39,7 @@ To use the VertexModel class, your implementation must adhere to the following c
 
 1. The constructor of VertexModel must be called with the constructor arguments of your child class.
 2. You must implement your own versions of fit() and predict().
-3. The input parameter indicating test data for your predict() call must have the parameter name "data".
+3. The input parameter indicating test data for your `predict` call must have the parameter name `data`.
 4. You must implement your own versions of predict_payload_to_predict_input(), predict_input_to_predict_payload(), predict_output_to_predict_payload(), and predict_payload_to_predict_output().
 
 .. code-block:: Python
