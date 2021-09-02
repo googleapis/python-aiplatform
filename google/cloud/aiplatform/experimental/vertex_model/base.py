@@ -23,6 +23,7 @@ import inspect
 import pathlib
 import tempfile
 from typing import Any
+from typing import List
 from typing import Callable
 
 from google.cloud import aiplatform
@@ -347,9 +348,7 @@ def vertex_predict_function_wrapper(method: Callable[..., Any]):
             bound_args = inspect.signature(method).bind(*args, **kwargs)
 
             for parameter_name, parameter in bound_args.arguments.items():
-                if parameter_name == "data":
-                    data = obj.predict_input_to_predict_payload(parameter)
-                    break
+                data = obj.predict_input_to_predict_payload(parameter)
 
             # TODO: cleanup model resource after endpoint is created
             if obj._endpoint is None:
