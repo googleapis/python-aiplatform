@@ -248,7 +248,9 @@ def vertex_fit_function_wrapper(method: Callable[..., Any]):
             )
 
             obj._model = obj._training_job.run(
-                model_display_name="my_model", replica_count=1,
+                model_display_name="my_model",
+                replica_count=1,
+                machine_type=obj.machine_type,
             )
 
     return f
