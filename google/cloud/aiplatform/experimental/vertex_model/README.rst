@@ -128,8 +128,7 @@ take the form of a list of strings. You can do so as follows:
 
 Hardware Configuration
 ^^^^^^^^
-When performing remote training and/or prediction with your code, you have the option to specify the form
-of virtual engine you want to use. You can do so as follows:
+When performing remote training and/or prediction with your code, you have the option to specify the machine type you want to use. You can do so as follows:
 
 .. code-block:: Python
 
