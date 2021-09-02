@@ -84,7 +84,9 @@ class DatasetServiceClientMeta(type):
 
 
 class DatasetServiceClient(metaclass=DatasetServiceClientMeta):
-    """"""
+    """The service that handles the CRUD of Vertex AI Dataset and
+    its child resources.
+    """
 
     @staticmethod
     def _get_default_mtls_endpoint(api_endpoint):

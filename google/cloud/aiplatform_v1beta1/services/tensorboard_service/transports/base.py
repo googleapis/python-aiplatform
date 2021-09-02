@@ -212,6 +212,11 @@ class TensorboardServiceTransport(abc.ABC):
                 default_timeout=None,
                 client_info=client_info,
             ),
+            self.batch_create_tensorboard_runs: gapic_v1.method.wrap_method(
+                self.batch_create_tensorboard_runs,
+                default_timeout=None,
+                client_info=client_info,
+            ),
             self.get_tensorboard_run: gapic_v1.method.wrap_method(
                 self.get_tensorboard_run, default_timeout=None, client_info=client_info,
             ),
@@ -227,6 +232,11 @@ class TensorboardServiceTransport(abc.ABC):
             ),
             self.delete_tensorboard_run: gapic_v1.method.wrap_method(
                 self.delete_tensorboard_run,
+                default_timeout=None,
+                client_info=client_info,
+            ),
+            self.batch_create_tensorboard_time_series: gapic_v1.method.wrap_method(
+                self.batch_create_tensorboard_time_series,
                 default_timeout=None,
                 client_info=client_info,
             ),
@@ -262,6 +272,11 @@ class TensorboardServiceTransport(abc.ABC):
             ),
             self.read_tensorboard_blob_data: gapic_v1.method.wrap_method(
                 self.read_tensorboard_blob_data,
+                default_timeout=None,
+                client_info=client_info,
+            ),
+            self.write_tensorboard_experiment_data: gapic_v1.method.wrap_method(
+                self.write_tensorboard_experiment_data,
                 default_timeout=None,
                 client_info=client_info,
             ),
@@ -400,6 +415,18 @@ class TensorboardServiceTransport(abc.ABC):
         raise NotImplementedError()
 
     @property
+    def batch_create_tensorboard_runs(
+        self,
+    ) -> Callable[
+        [tensorboard_service.BatchCreateTensorboardRunsRequest],
+        Union[
+            tensorboard_service.BatchCreateTensorboardRunsResponse,
+            Awaitable[tensorboard_service.BatchCreateTensorboardRunsResponse],
+        ],
+    ]:
+        raise NotImplementedError()
+
+    @property
     def get_tensorboard_run(
         self,
     ) -> Callable[
@@ -440,6 +467,18 @@ class TensorboardServiceTransport(abc.ABC):
     ) -> Callable[
         [tensorboard_service.DeleteTensorboardRunRequest],
         Union[operations_pb2.Operation, Awaitable[operations_pb2.Operation]],
+    ]:
+        raise NotImplementedError()
+
+    @property
+    def batch_create_tensorboard_time_series(
+        self,
+    ) -> Callable[
+        [tensorboard_service.BatchCreateTensorboardTimeSeriesRequest],
+        Union[
+            tensorboard_service.BatchCreateTensorboardTimeSeriesResponse,
+            Awaitable[tensorboard_service.BatchCreateTensorboardTimeSeriesResponse],
+        ],
     ]:
         raise NotImplementedError()
 
@@ -520,6 +559,18 @@ class TensorboardServiceTransport(abc.ABC):
         Union[
             tensorboard_service.ReadTensorboardBlobDataResponse,
             Awaitable[tensorboard_service.ReadTensorboardBlobDataResponse],
+        ],
+    ]:
+        raise NotImplementedError()
+
+    @property
+    def write_tensorboard_experiment_data(
+        self,
+    ) -> Callable[
+        [tensorboard_service.WriteTensorboardExperimentDataRequest],
+        Union[
+            tensorboard_service.WriteTensorboardExperimentDataResponse,
+            Awaitable[tensorboard_service.WriteTensorboardExperimentDataResponse],
         ],
     ]:
         raise NotImplementedError()

@@ -43,6 +43,8 @@ __protobuf__ = proto.module(
         "ListTensorboardExperimentsResponse",
         "UpdateTensorboardExperimentRequest",
         "DeleteTensorboardExperimentRequest",
+        "BatchCreateTensorboardRunsRequest",
+        "BatchCreateTensorboardRunsResponse",
         "CreateTensorboardRunRequest",
         "GetTensorboardRunRequest",
         "ReadTensorboardBlobDataRequest",
@@ -51,6 +53,8 @@ __protobuf__ = proto.module(
         "ListTensorboardRunsResponse",
         "UpdateTensorboardRunRequest",
         "DeleteTensorboardRunRequest",
+        "BatchCreateTensorboardTimeSeriesRequest",
+        "BatchCreateTensorboardTimeSeriesResponse",
         "CreateTensorboardTimeSeriesRequest",
         "GetTensorboardTimeSeriesRequest",
         "ListTensorboardTimeSeriesRequest",
@@ -59,6 +63,8 @@ __protobuf__ = proto.module(
         "DeleteTensorboardTimeSeriesRequest",
         "ReadTensorboardTimeSeriesDataRequest",
         "ReadTensorboardTimeSeriesDataResponse",
+        "WriteTensorboardExperimentDataRequest",
+        "WriteTensorboardExperimentDataResponse",
         "WriteTensorboardRunDataRequest",
         "WriteTensorboardRunDataResponse",
         "ExportTensorboardTimeSeriesDataRequest",
@@ -107,9 +113,9 @@ class ListTensorboardsRequest(proto.Message):
 
     Attributes:
         parent (str):
-            Required. The resource name of the Location
-            to list Tensorboards. Format:
-            'projects/{project}/locations/{location}'
+            Required. The resource name of the Location to list
+            Tensorboards. Format:
+            ``projects/{project}/locations/{location}``
         filter (str):
             Lists the Tensorboards that match the filter
             expression.
@@ -360,14 +366,51 @@ class DeleteTensorboardExperimentRequest(proto.Message):
     name = proto.Field(proto.STRING, number=1,)
 
 
+class BatchCreateTensorboardRunsRequest(proto.Message):
+    r"""Request message for
+    [TensorboardService.BatchCreateTensorboardRuns][google.cloud.aiplatform.v1beta1.TensorboardService.BatchCreateTensorboardRuns].
+
+    Attributes:
+        parent (str):
+            Required. The resource name of the TensorboardExperiment to
+            create the TensorboardRuns in. Format:
+            ``projects/{project}/locations/{location}/tensorboards/{tensorboard}/experiments/{experiment}``
+            The parent field in the CreateTensorboardRunRequest messages
+            must match this field.
+        requests (Sequence[google.cloud.aiplatform_v1beta1.types.CreateTensorboardRunRequest]):
+            Required. The request message specifying the
+            TensorboardRuns to create. A maximum of 1000
+            TensorboardRuns can be created in a batch.
+    """
+
+    parent = proto.Field(proto.STRING, number=1,)
+    requests = proto.RepeatedField(
+        proto.MESSAGE, number=2, message="CreateTensorboardRunRequest",
+    )
+
+
+class BatchCreateTensorboardRunsResponse(proto.Message):
+    r"""Response message for
+    [TensorboardService.BatchCreateTensorboardRuns][google.cloud.aiplatform.v1beta1.TensorboardService.BatchCreateTensorboardRuns].
+
+    Attributes:
+        tensorboard_runs (Sequence[google.cloud.aiplatform_v1beta1.types.TensorboardRun]):
+            The created TensorboardRuns.
+    """
+
+    tensorboard_runs = proto.RepeatedField(
+        proto.MESSAGE, number=1, message=gca_tensorboard_run.TensorboardRun,
+    )
+
+
 class CreateTensorboardRunRequest(proto.Message):
     r"""Request message for
     [TensorboardService.CreateTensorboardRun][google.cloud.aiplatform.v1beta1.TensorboardService.CreateTensorboardRun].
 
     Attributes:
         parent (str):
-            Required. The resource name of the Tensorboard to create the
-            TensorboardRun in. Format:
+            Required. The resource name of the TensorboardExperiment to
+            create the TensorboardRun in. Format:
             ``projects/{project}/locations/{location}/tensorboards/{tensorboard}/experiments/{experiment}``
         tensorboard_run (google.cloud.aiplatform_v1beta1.types.TensorboardRun):
             Required. The TensorboardRun to create.
@@ -438,7 +481,8 @@ class ListTensorboardRunsRequest(proto.Message):
     Attributes:
         parent (str):
             Required. The resource name of the
-            Tensorboard to list TensorboardRuns. Format:
+            TensorboardExperiment to list TensorboardRuns.
+            Format:
             'projects/{project}/locations/{location}/tensorboards/{tensorboard}/experiments/{experiment}'
         filter (str):
             Lists the TensorboardRuns that match the
@@ -535,6 +579,47 @@ class DeleteTensorboardRunRequest(proto.Message):
     """
 
     name = proto.Field(proto.STRING, number=1,)
+
+
+class BatchCreateTensorboardTimeSeriesRequest(proto.Message):
+    r"""Request message for
+    [TensorboardService.BatchCreateTensorboardTimeSeries][google.cloud.aiplatform.v1beta1.TensorboardService.BatchCreateTensorboardTimeSeries].
+
+    Attributes:
+        parent (str):
+            Required. The resource name of the TensorboardExperiment to
+            create the TensorboardTimeSeries in. Format:
+            ``projects/{project}/locations/{location}/tensorboards/{tensorboard}/experiments/{experiment}``
+            The TensorboardRuns referenced by the parent fields in the
+            CreateTensorboardTimeSeriesRequest messages must be sub
+            resources of this TensorboardExperiment.
+        requests (Sequence[google.cloud.aiplatform_v1beta1.types.CreateTensorboardTimeSeriesRequest]):
+            Required. The request message specifying the
+            TensorboardTimeSeries to create. A maximum of
+            1000 TensorboardTimeSeries can be created in a
+            batch.
+    """
+
+    parent = proto.Field(proto.STRING, number=1,)
+    requests = proto.RepeatedField(
+        proto.MESSAGE, number=2, message="CreateTensorboardTimeSeriesRequest",
+    )
+
+
+class BatchCreateTensorboardTimeSeriesResponse(proto.Message):
+    r"""Response message for
+    [TensorboardService.BatchCreateTensorboardTimeSeries][google.cloud.aiplatform.v1beta1.TensorboardService.BatchCreateTensorboardTimeSeries].
+
+    Attributes:
+        tensorboard_time_series (Sequence[google.cloud.aiplatform_v1beta1.types.TensorboardTimeSeries]):
+            The created TensorboardTimeSeries.
+    """
+
+    tensorboard_time_series = proto.RepeatedField(
+        proto.MESSAGE,
+        number=1,
+        message=gca_tensorboard_time_series.TensorboardTimeSeries,
+    )
 
 
 class CreateTensorboardTimeSeriesRequest(proto.Message):
@@ -729,6 +814,32 @@ class ReadTensorboardTimeSeriesDataResponse(proto.Message):
     time_series_data = proto.Field(
         proto.MESSAGE, number=1, message=tensorboard_data.TimeSeriesData,
     )
+
+
+class WriteTensorboardExperimentDataRequest(proto.Message):
+    r"""Request message for
+    [TensorboardService.WriteTensorboardExperimentData][google.cloud.aiplatform.v1beta1.TensorboardService.WriteTensorboardExperimentData].
+
+    Attributes:
+        tensorboard_experiment (str):
+            Required. The resource name of the TensorboardExperiment to
+            write data to. Format:
+            ``projects/{project}/locations/{location}/tensorboards/{tensorboard}/experiments/{experiment}``
+        write_run_data_requests (Sequence[google.cloud.aiplatform_v1beta1.types.WriteTensorboardRunDataRequest]):
+            Required. Requests containing per-run
+            TensorboardTimeSeries data to write.
+    """
+
+    tensorboard_experiment = proto.Field(proto.STRING, number=1,)
+    write_run_data_requests = proto.RepeatedField(
+        proto.MESSAGE, number=2, message="WriteTensorboardRunDataRequest",
+    )
+
+
+class WriteTensorboardExperimentDataResponse(proto.Message):
+    r"""Response message for
+    [TensorboardService.WriteTensorboardExperimentData][google.cloud.aiplatform.v1beta1.TensorboardService.WriteTensorboardExperimentData].
+        """
 
 
 class WriteTensorboardRunDataRequest(proto.Message):

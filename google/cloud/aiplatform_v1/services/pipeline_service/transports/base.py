@@ -163,27 +163,27 @@ class PipelineServiceTransport(abc.ABC):
         self._wrapped_methods = {
             self.create_training_pipeline: gapic_v1.method.wrap_method(
                 self.create_training_pipeline,
-                default_timeout=5.0,
+                default_timeout=None,
                 client_info=client_info,
             ),
             self.get_training_pipeline: gapic_v1.method.wrap_method(
                 self.get_training_pipeline,
-                default_timeout=5.0,
+                default_timeout=None,
                 client_info=client_info,
             ),
             self.list_training_pipelines: gapic_v1.method.wrap_method(
                 self.list_training_pipelines,
-                default_timeout=5.0,
+                default_timeout=None,
                 client_info=client_info,
             ),
             self.delete_training_pipeline: gapic_v1.method.wrap_method(
                 self.delete_training_pipeline,
-                default_timeout=5.0,
+                default_timeout=None,
                 client_info=client_info,
             ),
             self.cancel_training_pipeline: gapic_v1.method.wrap_method(
                 self.cancel_training_pipeline,
-                default_timeout=5.0,
+                default_timeout=None,
                 client_info=client_info,
             ),
             self.create_pipeline_job: gapic_v1.method.wrap_method(

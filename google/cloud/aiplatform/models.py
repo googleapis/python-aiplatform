@@ -981,7 +981,6 @@ class Endpoint(base.VertexAiResourceNounWithFutureManager):
             if deployed_model_id in traffic_split and traffic_split[deployed_model_id]:
                 raise ValueError("Model being undeployed should have 0 traffic.")
             if sum(traffic_split.values()) != 100:
-                # TODO(b/172678233) verify every referenced deployed model exists
                 raise ValueError(
                     "Sum of all traffic within traffic split needs to be 100."
                 )
@@ -2167,11 +2166,10 @@ class Model(base.VertexAiResourceNounWithFutureManager):
             (jobs.BatchPredictionJob):
                 Instantiated representation of the created batch prediction job.
         """
-        self.wait()
 
         return jobs.BatchPredictionJob.create(
             job_display_name=job_display_name,
-            model_name=self.resource_name,
+            model_name=self,
             instances_format=instances_format,
             predictions_format=predictions_format,
             gcs_source=gcs_source,

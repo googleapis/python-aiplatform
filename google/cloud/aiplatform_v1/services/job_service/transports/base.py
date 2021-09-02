@@ -40,6 +40,10 @@ from google.cloud.aiplatform_v1.types import (
     hyperparameter_tuning_job as gca_hyperparameter_tuning_job,
 )
 from google.cloud.aiplatform_v1.types import job_service
+from google.cloud.aiplatform_v1.types import model_deployment_monitoring_job
+from google.cloud.aiplatform_v1.types import (
+    model_deployment_monitoring_job as gca_model_deployment_monitoring_job,
+)
 from google.longrunning import operations_pb2  # type: ignore
 from google.protobuf import empty_pb2  # type: ignore
 
@@ -170,93 +174,133 @@ class JobServiceTransport(abc.ABC):
         # Precompute the wrapped methods.
         self._wrapped_methods = {
             self.create_custom_job: gapic_v1.method.wrap_method(
-                self.create_custom_job, default_timeout=5.0, client_info=client_info,
+                self.create_custom_job, default_timeout=None, client_info=client_info,
             ),
             self.get_custom_job: gapic_v1.method.wrap_method(
-                self.get_custom_job, default_timeout=5.0, client_info=client_info,
+                self.get_custom_job, default_timeout=None, client_info=client_info,
             ),
             self.list_custom_jobs: gapic_v1.method.wrap_method(
-                self.list_custom_jobs, default_timeout=5.0, client_info=client_info,
+                self.list_custom_jobs, default_timeout=None, client_info=client_info,
             ),
             self.delete_custom_job: gapic_v1.method.wrap_method(
-                self.delete_custom_job, default_timeout=5.0, client_info=client_info,
+                self.delete_custom_job, default_timeout=None, client_info=client_info,
             ),
             self.cancel_custom_job: gapic_v1.method.wrap_method(
-                self.cancel_custom_job, default_timeout=5.0, client_info=client_info,
+                self.cancel_custom_job, default_timeout=None, client_info=client_info,
             ),
             self.create_data_labeling_job: gapic_v1.method.wrap_method(
                 self.create_data_labeling_job,
-                default_timeout=5.0,
+                default_timeout=None,
                 client_info=client_info,
             ),
             self.get_data_labeling_job: gapic_v1.method.wrap_method(
                 self.get_data_labeling_job,
-                default_timeout=5.0,
+                default_timeout=None,
                 client_info=client_info,
             ),
             self.list_data_labeling_jobs: gapic_v1.method.wrap_method(
                 self.list_data_labeling_jobs,
-                default_timeout=5.0,
+                default_timeout=None,
                 client_info=client_info,
             ),
             self.delete_data_labeling_job: gapic_v1.method.wrap_method(
                 self.delete_data_labeling_job,
-                default_timeout=5.0,
+                default_timeout=None,
                 client_info=client_info,
             ),
             self.cancel_data_labeling_job: gapic_v1.method.wrap_method(
                 self.cancel_data_labeling_job,
-                default_timeout=5.0,
+                default_timeout=None,
                 client_info=client_info,
             ),
             self.create_hyperparameter_tuning_job: gapic_v1.method.wrap_method(
                 self.create_hyperparameter_tuning_job,
-                default_timeout=5.0,
+                default_timeout=None,
                 client_info=client_info,
             ),
             self.get_hyperparameter_tuning_job: gapic_v1.method.wrap_method(
                 self.get_hyperparameter_tuning_job,
-                default_timeout=5.0,
+                default_timeout=None,
                 client_info=client_info,
             ),
             self.list_hyperparameter_tuning_jobs: gapic_v1.method.wrap_method(
                 self.list_hyperparameter_tuning_jobs,
-                default_timeout=5.0,
+                default_timeout=None,
                 client_info=client_info,
             ),
             self.delete_hyperparameter_tuning_job: gapic_v1.method.wrap_method(
                 self.delete_hyperparameter_tuning_job,
-                default_timeout=5.0,
+                default_timeout=None,
                 client_info=client_info,
             ),
             self.cancel_hyperparameter_tuning_job: gapic_v1.method.wrap_method(
                 self.cancel_hyperparameter_tuning_job,
-                default_timeout=5.0,
+                default_timeout=None,
                 client_info=client_info,
             ),
             self.create_batch_prediction_job: gapic_v1.method.wrap_method(
                 self.create_batch_prediction_job,
-                default_timeout=5.0,
+                default_timeout=None,
                 client_info=client_info,
             ),
             self.get_batch_prediction_job: gapic_v1.method.wrap_method(
                 self.get_batch_prediction_job,
-                default_timeout=5.0,
+                default_timeout=None,
                 client_info=client_info,
             ),
             self.list_batch_prediction_jobs: gapic_v1.method.wrap_method(
                 self.list_batch_prediction_jobs,
-                default_timeout=5.0,
+                default_timeout=None,
                 client_info=client_info,
             ),
             self.delete_batch_prediction_job: gapic_v1.method.wrap_method(
                 self.delete_batch_prediction_job,
-                default_timeout=5.0,
+                default_timeout=None,
                 client_info=client_info,
             ),
             self.cancel_batch_prediction_job: gapic_v1.method.wrap_method(
                 self.cancel_batch_prediction_job,
-                default_timeout=5.0,
+                default_timeout=None,
+                client_info=client_info,
+            ),
+            self.create_model_deployment_monitoring_job: gapic_v1.method.wrap_method(
+                self.create_model_deployment_monitoring_job,
+                default_timeout=None,
+                client_info=client_info,
+            ),
+            self.search_model_deployment_monitoring_stats_anomalies: gapic_v1.method.wrap_method(
+                self.search_model_deployment_monitoring_stats_anomalies,
+                default_timeout=None,
+                client_info=client_info,
+            ),
+            self.get_model_deployment_monitoring_job: gapic_v1.method.wrap_method(
+                self.get_model_deployment_monitoring_job,
+                default_timeout=None,
+                client_info=client_info,
+            ),
+            self.list_model_deployment_monitoring_jobs: gapic_v1.method.wrap_method(
+                self.list_model_deployment_monitoring_jobs,
+                default_timeout=None,
+                client_info=client_info,
+            ),
+            self.update_model_deployment_monitoring_job: gapic_v1.method.wrap_method(
+                self.update_model_deployment_monitoring_job,
+                default_timeout=None,
+                client_info=client_info,
+            ),
+            self.delete_model_deployment_monitoring_job: gapic_v1.method.wrap_method(
+                self.delete_model_deployment_monitoring_job,
+                default_timeout=None,
+                client_info=client_info,
+            ),
+            self.pause_model_deployment_monitoring_job: gapic_v1.method.wrap_method(
+                self.pause_model_deployment_monitoring_job,
+                default_timeout=None,
+                client_info=client_info,
+            ),
+            self.resume_model_deployment_monitoring_job: gapic_v1.method.wrap_method(
+                self.resume_model_deployment_monitoring_job,
+                default_timeout=None,
                 client_info=client_info,
             ),
         }
@@ -472,6 +516,92 @@ class JobServiceTransport(abc.ABC):
         self,
     ) -> Callable[
         [job_service.CancelBatchPredictionJobRequest],
+        Union[empty_pb2.Empty, Awaitable[empty_pb2.Empty]],
+    ]:
+        raise NotImplementedError()
+
+    @property
+    def create_model_deployment_monitoring_job(
+        self,
+    ) -> Callable[
+        [job_service.CreateModelDeploymentMonitoringJobRequest],
+        Union[
+            gca_model_deployment_monitoring_job.ModelDeploymentMonitoringJob,
+            Awaitable[gca_model_deployment_monitoring_job.ModelDeploymentMonitoringJob],
+        ],
+    ]:
+        raise NotImplementedError()
+
+    @property
+    def search_model_deployment_monitoring_stats_anomalies(
+        self,
+    ) -> Callable[
+        [job_service.SearchModelDeploymentMonitoringStatsAnomaliesRequest],
+        Union[
+            job_service.SearchModelDeploymentMonitoringStatsAnomaliesResponse,
+            Awaitable[
+                job_service.SearchModelDeploymentMonitoringStatsAnomaliesResponse
+            ],
+        ],
+    ]:
+        raise NotImplementedError()
+
+    @property
+    def get_model_deployment_monitoring_job(
+        self,
+    ) -> Callable[
+        [job_service.GetModelDeploymentMonitoringJobRequest],
+        Union[
+            model_deployment_monitoring_job.ModelDeploymentMonitoringJob,
+            Awaitable[model_deployment_monitoring_job.ModelDeploymentMonitoringJob],
+        ],
+    ]:
+        raise NotImplementedError()
+
+    @property
+    def list_model_deployment_monitoring_jobs(
+        self,
+    ) -> Callable[
+        [job_service.ListModelDeploymentMonitoringJobsRequest],
+        Union[
+            job_service.ListModelDeploymentMonitoringJobsResponse,
+            Awaitable[job_service.ListModelDeploymentMonitoringJobsResponse],
+        ],
+    ]:
+        raise NotImplementedError()
+
+    @property
+    def update_model_deployment_monitoring_job(
+        self,
+    ) -> Callable[
+        [job_service.UpdateModelDeploymentMonitoringJobRequest],
+        Union[operations_pb2.Operation, Awaitable[operations_pb2.Operation]],
+    ]:
+        raise NotImplementedError()
+
+    @property
+    def delete_model_deployment_monitoring_job(
+        self,
+    ) -> Callable[
+        [job_service.DeleteModelDeploymentMonitoringJobRequest],
+        Union[operations_pb2.Operation, Awaitable[operations_pb2.Operation]],
+    ]:
+        raise NotImplementedError()
+
+    @property
+    def pause_model_deployment_monitoring_job(
+        self,
+    ) -> Callable[
+        [job_service.PauseModelDeploymentMonitoringJobRequest],
+        Union[empty_pb2.Empty, Awaitable[empty_pb2.Empty]],
+    ]:
+        raise NotImplementedError()
+
+    @property
+    def resume_model_deployment_monitoring_job(
+        self,
+    ) -> Callable[
+        [job_service.ResumeModelDeploymentMonitoringJobRequest],
         Union[empty_pb2.Empty, Awaitable[empty_pb2.Empty]],
     ]:
         raise NotImplementedError()

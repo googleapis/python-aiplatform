@@ -30,7 +30,10 @@ from google.auth.transport.grpc import SslCredentials  # type: ignore
 from google.auth.exceptions import MutualTLSChannelError  # type: ignore
 from google.oauth2 import service_account  # type: ignore
 
+from google.api import httpbody_pb2  # type: ignore
+from google.cloud.aiplatform_v1.types import explanation
 from google.cloud.aiplatform_v1.types import prediction_service
+from google.protobuf import any_pb2  # type: ignore
 from google.protobuf import struct_pb2  # type: ignore
 from .transports.base import PredictionServiceTransport, DEFAULT_CLIENT_INFO
 from .transports.grpc import PredictionServiceGrpcTransport
@@ -444,6 +447,278 @@ class PredictionServiceClient(metaclass=PredictionServiceClientMeta):
         # Wrap the RPC method; this adds retry and timeout information,
         # and friendly error handling.
         rpc = self._transport._wrapped_methods[self._transport.predict]
+
+        # Certain fields should be provided within the metadata header;
+        # add these here.
+        metadata = tuple(metadata) + (
+            gapic_v1.routing_header.to_grpc_metadata((("endpoint", request.endpoint),)),
+        )
+
+        # Send the request.
+        response = rpc(request, retry=retry, timeout=timeout, metadata=metadata,)
+
+        # Done; return the response.
+        return response
+
+    def raw_predict(
+        self,
+        request: prediction_service.RawPredictRequest = None,
+        *,
+        endpoint: str = None,
+        http_body: httpbody_pb2.HttpBody = None,
+        retry: retries.Retry = gapic_v1.method.DEFAULT,
+        timeout: float = None,
+        metadata: Sequence[Tuple[str, str]] = (),
+    ) -> httpbody_pb2.HttpBody:
+        r"""Perform an online prediction with arbitrary http
+        payload.
+
+        Args:
+            request (google.cloud.aiplatform_v1.types.RawPredictRequest):
+                The request object. Request message for
+                [PredictionService.RawPredict][google.cloud.aiplatform.v1.PredictionService.RawPredict].
+            endpoint (str):
+                Required. The name of the Endpoint requested to serve
+                the prediction. Format:
+                ``projects/{project}/locations/{location}/endpoints/{endpoint}``
+
+                This corresponds to the ``endpoint`` field
+                on the ``request`` instance; if ``request`` is provided, this
+                should not be set.
+            http_body (google.api.httpbody_pb2.HttpBody):
+                The prediction input. Supports HTTP headers and
+                arbitrary data payload.
+
+                A
+                [DeployedModel][google.cloud.aiplatform.v1.DeployedModel]
+                may have an upper limit on the number of instances it
+                supports per request. When this limit it is exceeded for
+                an AutoML model, the
+                [RawPredict][google.cloud.aiplatform.v1.PredictionService.RawPredict]
+                method returns an error. When this limit is exceeded for
+                a custom-trained model, the behavior varies depending on
+                the model.
+
+                You can specify the schema for each instance in the
+                [predict_schemata.instance_schema_uri][google.cloud.aiplatform.v1.PredictSchemata.instance_schema_uri]
+                field when you create a
+                [Model][google.cloud.aiplatform.v1.Model]. This schema
+                applies when you deploy the ``Model`` as a
+                ``DeployedModel`` to an
+                [Endpoint][google.cloud.aiplatform.v1.Endpoint] and use
+                the ``RawPredict`` method.
+
+                This corresponds to the ``http_body`` field
+                on the ``request`` instance; if ``request`` is provided, this
+                should not be set.
+            retry (google.api_core.retry.Retry): Designation of what errors, if any,
+                should be retried.
+            timeout (float): The timeout for this request.
+            metadata (Sequence[Tuple[str, str]]): Strings which should be
+                sent along with the request as metadata.
+
+        Returns:
+            google.api.httpbody_pb2.HttpBody:
+                Message that represents an arbitrary HTTP body. It should only be used for
+                   payload formats that can't be represented as JSON,
+                   such as raw binary or an HTML page.
+
+                   This message can be used both in streaming and
+                   non-streaming API methods in the request as well as
+                   the response.
+
+                   It can be used as a top-level request field, which is
+                   convenient if one wants to extract parameters from
+                   either the URL or HTTP template into the request
+                   fields and also want access to the raw HTTP body.
+
+                   Example:
+
+                      message GetResourceRequest {
+                         // A unique request id. string request_id = 1;
+
+                         // The raw HTTP body is bound to this field.
+                         google.api.HttpBody http_body = 2;
+
+                      }
+
+                      service ResourceService {
+                         rpc GetResource(GetResourceRequest) returns
+                         (google.api.HttpBody); rpc
+                         UpdateResource(google.api.HttpBody) returns
+                         (google.protobuf.Empty);
+
+                      }
+
+                   Example with streaming methods:
+
+                      service CaldavService {
+                         rpc GetCalendar(stream google.api.HttpBody)
+                            returns (stream google.api.HttpBody);
+
+                         rpc UpdateCalendar(stream google.api.HttpBody)
+                            returns (stream google.api.HttpBody);
+
+                      }
+
+                   Use of this type only changes how the request and
+                   response bodies are handled, all other features will
+                   continue to work unchanged.
+
+        """
+        # Create or coerce a protobuf request object.
+        # Sanity check: If we got a request object, we should *not* have
+        # gotten any keyword arguments that map to the request.
+        has_flattened_params = any([endpoint, http_body])
+        if request is not None and has_flattened_params:
+            raise ValueError(
+                "If the `request` argument is set, then none of "
+                "the individual field arguments should be set."
+            )
+
+        # Minor optimization to avoid making a copy if the user passes
+        # in a prediction_service.RawPredictRequest.
+        # There's no risk of modifying the input as we've already verified
+        # there are no flattened fields.
+        if not isinstance(request, prediction_service.RawPredictRequest):
+            request = prediction_service.RawPredictRequest(request)
+            # If we have keyword arguments corresponding to fields on the
+            # request, apply these.
+            if endpoint is not None:
+                request.endpoint = endpoint
+            if http_body is not None:
+                request.http_body = http_body
+
+        # Wrap the RPC method; this adds retry and timeout information,
+        # and friendly error handling.
+        rpc = self._transport._wrapped_methods[self._transport.raw_predict]
+
+        # Certain fields should be provided within the metadata header;
+        # add these here.
+        metadata = tuple(metadata) + (
+            gapic_v1.routing_header.to_grpc_metadata((("endpoint", request.endpoint),)),
+        )
+
+        # Send the request.
+        response = rpc(request, retry=retry, timeout=timeout, metadata=metadata,)
+
+        # Done; return the response.
+        return response
+
+    def explain(
+        self,
+        request: prediction_service.ExplainRequest = None,
+        *,
+        endpoint: str = None,
+        instances: Sequence[struct_pb2.Value] = None,
+        parameters: struct_pb2.Value = None,
+        deployed_model_id: str = None,
+        retry: retries.Retry = gapic_v1.method.DEFAULT,
+        timeout: float = None,
+        metadata: Sequence[Tuple[str, str]] = (),
+    ) -> prediction_service.ExplainResponse:
+        r"""Perform an online explanation.
+
+        If
+        [deployed_model_id][google.cloud.aiplatform.v1.ExplainRequest.deployed_model_id]
+        is specified, the corresponding DeployModel must have
+        [explanation_spec][google.cloud.aiplatform.v1.DeployedModel.explanation_spec]
+        populated. If
+        [deployed_model_id][google.cloud.aiplatform.v1.ExplainRequest.deployed_model_id]
+        is not specified, all DeployedModels must have
+        [explanation_spec][google.cloud.aiplatform.v1.DeployedModel.explanation_spec]
+        populated. Only deployed AutoML tabular Models have
+        explanation_spec.
+
+        Args:
+            request (google.cloud.aiplatform_v1.types.ExplainRequest):
+                The request object. Request message for
+                [PredictionService.Explain][google.cloud.aiplatform.v1.PredictionService.Explain].
+            endpoint (str):
+                Required. The name of the Endpoint requested to serve
+                the explanation. Format:
+                ``projects/{project}/locations/{location}/endpoints/{endpoint}``
+
+                This corresponds to the ``endpoint`` field
+                on the ``request`` instance; if ``request`` is provided, this
+                should not be set.
+            instances (Sequence[google.protobuf.struct_pb2.Value]):
+                Required. The instances that are the input to the
+                explanation call. A DeployedModel may have an upper
+                limit on the number of instances it supports per
+                request, and when it is exceeded the explanation call
+                errors in case of AutoML Models, or, in case of customer
+                created Models, the behaviour is as documented by that
+                Model. The schema of any single instance may be
+                specified via Endpoint's DeployedModels'
+                [Model's][google.cloud.aiplatform.v1.DeployedModel.model]
+                [PredictSchemata's][google.cloud.aiplatform.v1.Model.predict_schemata]
+                [instance_schema_uri][google.cloud.aiplatform.v1.PredictSchemata.instance_schema_uri].
+
+                This corresponds to the ``instances`` field
+                on the ``request`` instance; if ``request`` is provided, this
+                should not be set.
+            parameters (google.protobuf.struct_pb2.Value):
+                The parameters that govern the prediction. The schema of
+                the parameters may be specified via Endpoint's
+                DeployedModels' [Model's
+                ][google.cloud.aiplatform.v1.DeployedModel.model]
+                [PredictSchemata's][google.cloud.aiplatform.v1.Model.predict_schemata]
+                [parameters_schema_uri][google.cloud.aiplatform.v1.PredictSchemata.parameters_schema_uri].
+
+                This corresponds to the ``parameters`` field
+                on the ``request`` instance; if ``request`` is provided, this
+                should not be set.
+            deployed_model_id (str):
+                If specified, this ExplainRequest will be served by the
+                chosen DeployedModel, overriding
+                [Endpoint.traffic_split][google.cloud.aiplatform.v1.Endpoint.traffic_split].
+
+                This corresponds to the ``deployed_model_id`` field
+                on the ``request`` instance; if ``request`` is provided, this
+                should not be set.
+            retry (google.api_core.retry.Retry): Designation of what errors, if any,
+                should be retried.
+            timeout (float): The timeout for this request.
+            metadata (Sequence[Tuple[str, str]]): Strings which should be
+                sent along with the request as metadata.
+
+        Returns:
+            google.cloud.aiplatform_v1.types.ExplainResponse:
+                Response message for
+                [PredictionService.Explain][google.cloud.aiplatform.v1.PredictionService.Explain].
+
+        """
+        # Create or coerce a protobuf request object.
+        # Sanity check: If we got a request object, we should *not* have
+        # gotten any keyword arguments that map to the request.
+        has_flattened_params = any([endpoint, instances, parameters, deployed_model_id])
+        if request is not None and has_flattened_params:
+            raise ValueError(
+                "If the `request` argument is set, then none of "
+                "the individual field arguments should be set."
+            )
+
+        # Minor optimization to avoid making a copy if the user passes
+        # in a prediction_service.ExplainRequest.
+        # There's no risk of modifying the input as we've already verified
+        # there are no flattened fields.
+        if not isinstance(request, prediction_service.ExplainRequest):
+            request = prediction_service.ExplainRequest(request)
+            # If we have keyword arguments corresponding to fields on the
+            # request, apply these.
+            if endpoint is not None:
+                request.endpoint = endpoint
+            if instances is not None:
+                request.instances.extend(instances)
+            if parameters is not None:
+                request.parameters = parameters
+            if deployed_model_id is not None:
+                request.deployed_model_id = deployed_model_id
+
+        # Wrap the RPC method; this adds retry and timeout information,
+        # and friendly error handling.
+        rpc = self._transport._wrapped_methods[self._transport.explain]
 
         # Certain fields should be provided within the metadata header;
         # add these here.

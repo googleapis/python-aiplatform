@@ -35,6 +35,8 @@ from .base import EndpointServiceTransport, DEFAULT_CLIENT_INFO
 class EndpointServiceGrpcTransport(EndpointServiceTransport):
     """gRPC backend transport for EndpointService.
 
+    A service for managing Vertex AI's Endpoints.
+
     This class defines the same methods as the primary client, so the
     primary client can load the underlying transport implementation
     and call it.
@@ -82,7 +84,7 @@ class EndpointServiceGrpcTransport(EndpointServiceTransport):
             api_mtls_endpoint (Optional[str]): Deprecated. The mutual TLS endpoint.
                 If provided, it overrides the ``host`` argument and tries to create
                 a mutual TLS channel with client SSL credentials from
-                ``client_cert_source`` or application default SSL credentials.
+                ``client_cert_source`` or applicatin default SSL credentials.
             client_cert_source (Optional[Callable[[], Tuple[bytes, bytes]]]):
                 Deprecated. A callback to provide client SSL certificate bytes and
                 private key bytes, both in PEM format. It is ignored if
