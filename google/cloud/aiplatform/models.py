@@ -117,8 +117,15 @@ class Endpoint(base.VertexAiResourceNounWithFutureManager):
             resource_name=endpoint_name,
         )
 
+        endpoint_name = utils.full_resource_name(
+            resource_name=endpoint_name,
+            resource_noun="endpoints",
+            project=project,
+            location=location,
+        )
+
         # Lazy load the Endpoint gca_resource until needed
-        self._endpoint_name = endpoint_name
+        self._gca_resource = gca_endpoint_compat.Endpoint(name=endpoint_name)
 
         self._prediction_client = self._instantiate_prediction_client(
             location=self.location, credentials=credentials,
@@ -129,7 +136,7 @@ class Endpoint(base.VertexAiResourceNounWithFutureManager):
         get_endpoint() was never called."""
         if self._skipped_getter_call:
             self._gca_resource = self._get_gca_resource(
-                resource_name=self._endpoint_name
+                resource_name=self._gca_resource.name
             )
             self._skipped_getter_call = False
 
@@ -385,7 +392,6 @@ class Endpoint(base.VertexAiResourceNounWithFutureManager):
         )
 
         endpoint._gca_resource = gapic_resource
-        endpoint._endpoint_name = endpoint._gca_resource.name
 
         # Building Endpoint from GAPIC object is equivalent to calling getter
         endpoint._skipped_getter_call = False
@@ -1138,7 +1144,7 @@ class Endpoint(base.VertexAiResourceNounWithFutureManager):
         self.wait()
 
         prediction_response = self._prediction_client.predict(
-            endpoint=self.resource_name, instances=instances, parameters=parameters
+            endpoint=self._gca_resource.name, instances=instances, parameters=parameters
         )
 
         return Prediction(

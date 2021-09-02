@@ -188,7 +188,7 @@ def get_empty_endpoint_mock():
     with mock.patch.object(
         endpoint_service_client.EndpointServiceClient, "get_endpoint"
     ) as get_endpoint_mock:
-        get_endpoint_mock.return_value = gca_endpoint.Endpoint()
+        get_endpoint_mock.return_value = gca_endpoint.Endpoint(name=_TEST_ENDPOINT_NAME)
         yield get_endpoint_mock
 
 
@@ -405,19 +405,19 @@ class TestEndpoint:
 
     def test_lazy_constructor_with_endpoint_id(self, get_endpoint_mock):
         ep = models.Endpoint(_TEST_ID)
-        assert ep._endpoint_name == _TEST_ID
+        assert ep._gca_resource.name == _TEST_ENDPOINT_NAME
         assert ep._skipped_getter_call
         assert not get_endpoint_mock.called
 
     def test_lazy_constructor_with_endpoint_name(self, get_endpoint_mock):
         ep = models.Endpoint(_TEST_ENDPOINT_NAME)
-        assert ep._endpoint_name == _TEST_ENDPOINT_NAME
+        assert ep._gca_resource.name == _TEST_ENDPOINT_NAME
         assert ep._skipped_getter_call
         assert not get_endpoint_mock.called
 
     def test_lazy_constructor_calls_get_on_property_access(self, get_endpoint_mock):
         ep = models.Endpoint(_TEST_ENDPOINT_NAME)
-        assert ep._endpoint_name == _TEST_ENDPOINT_NAME
+        assert ep._gca_resource.name == _TEST_ENDPOINT_NAME
         assert ep._skipped_getter_call
         assert not get_endpoint_mock.called
 
@@ -539,6 +539,7 @@ class TestEndpoint:
 
         my_endpoint = aiplatform.Endpoint(_TEST_ENDPOINT_NAME)
         my_endpoint._gca_resource = None
+        my_endpoint._skipped_getter_call = False
 
         with pytest.raises(RuntimeError) as e:
             my_endpoint.gca_resource
