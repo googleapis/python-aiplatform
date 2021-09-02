@@ -1493,6 +1493,11 @@
               "methods": [
                 "predict"
               ]
+            },
+            "RawPredict": {
+              "methods": [
+                "raw_predict"
+              ]
             }
           }
         },
@@ -1507,6 +1512,11 @@
             "Predict": {
               "methods": [
                 "predict"
+              ]
+            },
+            "RawPredict": {
+              "methods": [
+                "raw_predict"
               ]
             }
           }
@@ -1582,6 +1592,16 @@
         "grpc": {
           "libraryClient": "TensorboardServiceClient",
           "rpcs": {
+            "BatchCreateTensorboardRuns": {
+              "methods": [
+                "batch_create_tensorboard_runs"
+              ]
+            },
+            "BatchCreateTensorboardTimeSeries": {
+              "methods": [
+                "batch_create_tensorboard_time_series"
+              ]
+            },
             "CreateTensorboard": {
               "methods": [
                 "create_tensorboard"
@@ -1695,6 +1715,11 @@
             "UpdateTensorboardTimeSeries": {
               "methods": [
                 "update_tensorboard_time_series"
+              ]
+            },
+            "WriteTensorboardExperimentData": {
+              "methods": [
+                "write_tensorboard_experiment_data"
               ]
             },
             "WriteTensorboardRunData": {
@@ -1707,6 +1732,16 @@
         "grpc-async": {
           "libraryClient": "TensorboardServiceAsyncClient",
           "rpcs": {
+            "BatchCreateTensorboardRuns": {
+              "methods": [
+                "batch_create_tensorboard_runs"
+              ]
+            },
+            "BatchCreateTensorboardTimeSeries": {
+              "methods": [
+                "batch_create_tensorboard_time_series"
+              ]
+            },
             "CreateTensorboard": {
               "methods": [
                 "create_tensorboard"
@@ -1820,6 +1855,11 @@
             "UpdateTensorboardTimeSeries": {
               "methods": [
                 "update_tensorboard_time_series"
+              ]
+            },
+            "WriteTensorboardExperimentData": {
+              "methods": [
+                "write_tensorboard_experiment_data"
               ]
             },
             "WriteTensorboardRunData": {

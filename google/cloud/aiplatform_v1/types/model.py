@@ -18,6 +18,7 @@ import proto  # type: ignore
 from google.cloud.aiplatform_v1.types import deployed_model_ref
 from google.cloud.aiplatform_v1.types import encryption_spec as gca_encryption_spec
 from google.cloud.aiplatform_v1.types import env_var
+from google.cloud.aiplatform_v1.types import explanation
 from google.protobuf import struct_pb2  # type: ignore
 from google.protobuf import timestamp_pb2  # type: ignore
 
@@ -43,7 +44,8 @@ class Model(proto.Message):
             The schemata that describe formats of the Model's
             predictions and explanations as given and returned via
             [PredictionService.Predict][google.cloud.aiplatform.v1.PredictionService.Predict]
-            and [PredictionService.Explain][].
+            and
+            [PredictionService.Explain][google.cloud.aiplatform.v1.PredictionService.Explain].
         metadata_schema_uri (str):
             Immutable. Points to a YAML file stored on Google Cloud
             Storage describing additional information about the Model,
@@ -93,8 +95,9 @@ class Model(proto.Message):
             [Endpoint][google.cloud.aiplatform.v1.Endpoint] and does not
             support online predictions
             ([PredictionService.Predict][google.cloud.aiplatform.v1.PredictionService.Predict]
-            or [PredictionService.Explain][]). Such a Model can serve
-            predictions by using a
+            or
+            [PredictionService.Explain][google.cloud.aiplatform.v1.PredictionService.Explain]).
+            Such a Model can serve predictions by using a
             [BatchPredictionJob][google.cloud.aiplatform.v1.BatchPredictionJob],
             if it has at least one entry each in
             [supported_input_storage_formats][google.cloud.aiplatform.v1.Model.supported_input_storage_formats]
@@ -142,7 +145,8 @@ class Model(proto.Message):
             [supported_deployment_resources_types][google.cloud.aiplatform.v1.Model.supported_deployment_resources_types],
             it could serve online predictions by using
             [PredictionService.Predict][google.cloud.aiplatform.v1.PredictionService.Predict]
-            or [PredictionService.Explain][].
+            or
+            [PredictionService.Explain][google.cloud.aiplatform.v1.PredictionService.Explain].
         supported_output_storage_formats (Sequence[str]):
             Output only. The formats this Model supports in
             [BatchPredictionJob.output_config][google.cloud.aiplatform.v1.BatchPredictionJob.output_config].
@@ -178,7 +182,8 @@ class Model(proto.Message):
             [supported_deployment_resources_types][google.cloud.aiplatform.v1.Model.supported_deployment_resources_types],
             it could serve online predictions by using
             [PredictionService.Predict][google.cloud.aiplatform.v1.PredictionService.Predict]
-            or [PredictionService.Explain][].
+            or
+            [PredictionService.Explain][google.cloud.aiplatform.v1.PredictionService.Explain].
         create_time (google.protobuf.timestamp_pb2.Timestamp):
             Output only. Timestamp when this Model was
             uploaded into Vertex AI.
@@ -190,6 +195,37 @@ class Model(proto.Message):
             created from this Model. Note that Model could
             have been deployed to Endpoints in different
             Locations.
+        explanation_spec (google.cloud.aiplatform_v1.types.ExplanationSpec):
+            The default explanation specification for this Model.
+
+            The Model can be used for [requesting
+            explanation][PredictionService.Explain] after being
+            [deployed][google.cloud.aiplatform.v1.EndpointService.DeployModel]
+            if it is populated. The Model can be used for [batch
+            explanation][BatchPredictionJob.generate_explanation] if it
+            is populated.
+
+            All fields of the explanation_spec can be overridden by
+            [explanation_spec][google.cloud.aiplatform.v1.DeployedModel.explanation_spec]
+            of
+            [DeployModelRequest.deployed_model][google.cloud.aiplatform.v1.DeployModelRequest.deployed_model],
+            or
+            [explanation_spec][google.cloud.aiplatform.v1.BatchPredictionJob.explanation_spec]
+            of
+            [BatchPredictionJob][google.cloud.aiplatform.v1.BatchPredictionJob].
+
+            If the default explanation specification is not set for this
+            Model, this Model can still be used for [requesting
+            explanation][PredictionService.Explain] by setting
+            [explanation_spec][google.cloud.aiplatform.v1.DeployedModel.explanation_spec]
+            of
+            [DeployModelRequest.deployed_model][google.cloud.aiplatform.v1.DeployModelRequest.deployed_model]
+            and for [batch
+            explanation][BatchPredictionJob.generate_explanation] by
+            setting
+            [explanation_spec][google.cloud.aiplatform.v1.BatchPredictionJob.explanation_spec]
+            of
+            [BatchPredictionJob][google.cloud.aiplatform.v1.BatchPredictionJob].
         etag (str):
             Used to perform consistent read-modify-write
             updates. If not set, a blind "overwrite" update
@@ -284,6 +320,9 @@ class Model(proto.Message):
     deployed_models = proto.RepeatedField(
         proto.MESSAGE, number=15, message=deployed_model_ref.DeployedModelRef,
     )
+    explanation_spec = proto.Field(
+        proto.MESSAGE, number=23, message=explanation.ExplanationSpec,
+    )
     etag = proto.Field(proto.STRING, number=16,)
     labels = proto.MapField(proto.STRING, proto.STRING, number=17,)
     encryption_spec = proto.Field(
@@ -295,7 +334,8 @@ class PredictSchemata(proto.Message):
     r"""Contains the schemata used in Model's predictions and explanations
     via
     [PredictionService.Predict][google.cloud.aiplatform.v1.PredictionService.Predict],
-    [PredictionService.Explain][] and
+    [PredictionService.Explain][google.cloud.aiplatform.v1.PredictionService.Explain]
+    and
     [BatchPredictionJob][google.cloud.aiplatform.v1.BatchPredictionJob].
 
     Attributes:
@@ -304,7 +344,8 @@ class PredictSchemata(proto.Message):
             Storage describing the format of a single instance, which
             are used in
             [PredictRequest.instances][google.cloud.aiplatform.v1.PredictRequest.instances],
-            [ExplainRequest.instances][] and
+            [ExplainRequest.instances][google.cloud.aiplatform.v1.ExplainRequest.instances]
+            and
             [BatchPredictionJob.input_config][google.cloud.aiplatform.v1.BatchPredictionJob.input_config].
             The schema is defined as an OpenAPI 3.0.2 `Schema
             Object <https://github.com/OAI/OpenAPI-Specification/blob/main/versions/3.0.2.md#schemaObject>`__.
@@ -318,7 +359,8 @@ class PredictSchemata(proto.Message):
             Storage describing the parameters of prediction and
             explanation via
             [PredictRequest.parameters][google.cloud.aiplatform.v1.PredictRequest.parameters],
-            [ExplainRequest.parameters][] and
+            [ExplainRequest.parameters][google.cloud.aiplatform.v1.ExplainRequest.parameters]
+            and
             [BatchPredictionJob.model_parameters][google.cloud.aiplatform.v1.BatchPredictionJob.model_parameters].
             The schema is defined as an OpenAPI 3.0.2 `Schema
             Object <https://github.com/OAI/OpenAPI-Specification/blob/main/versions/3.0.2.md#schemaObject>`__.
@@ -333,7 +375,8 @@ class PredictSchemata(proto.Message):
             Storage describing the format of a single prediction
             produced by this Model, which are returned via
             [PredictResponse.predictions][google.cloud.aiplatform.v1.PredictResponse.predictions],
-            [ExplainResponse.explanations][], and
+            [ExplainResponse.explanations][google.cloud.aiplatform.v1.ExplainResponse.explanations],
+            and
             [BatchPredictionJob.output_config][google.cloud.aiplatform.v1.BatchPredictionJob.output_config].
             The schema is defined as an OpenAPI 3.0.2 `Schema
             Object <https://github.com/OAI/OpenAPI-Specification/blob/main/versions/3.0.2.md#schemaObject>`__.
@@ -362,8 +405,8 @@ class ModelContainerSpec(proto.Message):
             identify an image in Artifact Registry or Container
             Registry. Learn more about the `container publishing
             requirements <https://cloud.google.com/vertex-ai/docs/predictions/custom-container-requirements#publishing>`__,
-            including permissions requirements for the AI Platform
-            Service Agent.
+            including permissions requirements for the Vertex AI Service
+            Agent.
 
             The container image is ingested upon
             [ModelService.UploadModel][google.cloud.aiplatform.v1.ModelService.UploadModel],
@@ -495,8 +538,8 @@ class ModelContainerSpec(proto.Message):
         ports (Sequence[google.cloud.aiplatform_v1.types.Port]):
             Immutable. List of ports to expose from the container.
             Vertex AI sends any prediction requests that it receives to
-            the first port on this list. AI Platform also sends
-            `liveness and health
+            the first port on this list. Vertex AI also sends `liveness
+            and health
             checks <https://cloud.google.com/vertex-ai/docs/predictions/custom-container-requirements#liveness>`__
             to this port.
 

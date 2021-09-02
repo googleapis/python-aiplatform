@@ -159,25 +159,25 @@ class SpecialistPoolServiceTransport(abc.ABC):
         self._wrapped_methods = {
             self.create_specialist_pool: gapic_v1.method.wrap_method(
                 self.create_specialist_pool,
-                default_timeout=5.0,
+                default_timeout=None,
                 client_info=client_info,
             ),
             self.get_specialist_pool: gapic_v1.method.wrap_method(
-                self.get_specialist_pool, default_timeout=5.0, client_info=client_info,
+                self.get_specialist_pool, default_timeout=None, client_info=client_info,
             ),
             self.list_specialist_pools: gapic_v1.method.wrap_method(
                 self.list_specialist_pools,
-                default_timeout=5.0,
+                default_timeout=None,
                 client_info=client_info,
             ),
             self.delete_specialist_pool: gapic_v1.method.wrap_method(
                 self.delete_specialist_pool,
-                default_timeout=5.0,
+                default_timeout=None,
                 client_info=client_info,
             ),
             self.update_specialist_pool: gapic_v1.method.wrap_method(
                 self.update_specialist_pool,
-                default_timeout=5.0,
+                default_timeout=None,
                 client_info=client_info,
             ),
         }

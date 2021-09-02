@@ -274,6 +274,39 @@ Please visit `Importing models to Vertex AI`_ for a detailed overview:
 .. _Importing models to Vertex AI: https://cloud.google.com/vertex-ai/docs/general/import-model
 
 
+Batch Prediction
+----------------
+
+To create a batch prediction job:
+
+.. code-block:: Python
+
+  model = aiplatform.Model('/projects/my-project/locations/us-central1/models/{MODEL_ID}')
+
+  batch_prediction_job = model.batch_predict(
+    job_display_name='my-batch-prediction-job',
+    instances_format='csv'
+    machine_type='n1-standard-4',
+    gcs_source=['gs://path/to/my/file.csv']
+    gcs_destination_prefix='gs://path/to/by/batch_prediction/results/'
+  )
+
+You can also create a batch prediction job asynchronously by including the `sync=False` argument:
+
+.. code-block:: Python
+
+  batch_prediction_job = model.batch_predict(..., sync=False)
+
+  # wait for resource to be created
+  batch_prediction_job.wait_for_resource_creation()
+
+  # get the state
+  batch_prediction_job.state
+
+  # block until job is complete
+  batch_prediction_job.wait() 
+
+
 Endpoints
 ---------
 
@@ -314,6 +347,47 @@ To delete an endpoint:
 .. code-block:: Python
 
   endpoint.delete()
+
+
+Pipelines
+---------
+
+To create a Vertex Pipeline run:
+
+.. code-block:: Python
+
+  # Instantiate PipelineJob object
+  pl = PipelineJob(
+      # Display name is required but seemingly not used
+      # see https://github.com/googleapis/python-aiplatform/blob/9dcf6fb0bc8144d819938a97edf4339fe6f2e1e6/google/cloud/aiplatform/pipeline_jobs.py#L260
+      display_name="My first pipeline",
+
+      # Whether or not to enable caching
+      # True = always cache pipeline step result
+      # False = never cache pipeline step result
+      # None = defer to cache option for each pipeline component in the pipeline definition
+      enable_caching=False,
+
+      # Local or GCS path to a compiled pipeline definition
+      template_path="pipeline.json",
+
+      # Dictionary containing input parameters for your pipeline
+      parameter_values=parameter_values,
+
+      # GCS path to act as the pipeline root
+      pipeline_root=pipeline_root,
+  )
+
+  # Execute pipeline in Vertex
+  pl.run(
+    # Email address of service account to use for the pipeline run
+    # You must have iam.serviceAccounts.actAs permission on the service account to use it
+    service_account=service_account,
+
+    # Whether this function call should be synchronous (wait for pipeline run to finish before terminating)
+    # or asynchronous (return immediately)
+    sync=sync
+  )
 
 
 Explainable AI: Get Metadata
