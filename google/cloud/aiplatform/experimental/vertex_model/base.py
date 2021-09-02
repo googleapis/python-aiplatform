@@ -410,7 +410,7 @@ class VertexModel(metaclass=abc.ABCMeta):
         pass
 
     @abc.abstractmethod
-    def predict_input_to_predict_payload(self):
+    def predict_input_to_predict_payload(self, instances: Any) -> List:
         pass
 
     @abc.abstractmethod
