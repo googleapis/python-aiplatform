@@ -18,13 +18,11 @@
 import abc
 import contextlib
 import functools
-import json
 import logging
 import os
 import time
 import re
 from typing import (
-    Callable,
     Dict,
     FrozenSet,
     Generator,
@@ -63,9 +61,6 @@ from google.cloud.aiplatform.compat.types import (
 )
 from google.cloud.aiplatform.compat.types import (
     tensorboard_experiment_v1beta1 as tensorboard_experiment,
-)
-from google.cloud.aiplatform.compat.types import (
-    tensorboard_run_v1beta1 as tensorboard_run,
 )
 from google.cloud.aiplatform.compat.types import (
     tensorboard_service_v1beta1 as tensorboard_service,
@@ -299,8 +294,7 @@ class TensorBoardUploader(object):
         self._experiment = experiment
 
         self._run_resource_manager = uploader_utils.RunResourceManager(
-            api=self._api,
-            experiment_resource_name=self._experiment.name,
+            api=self._api, experiment_resource_name=self._experiment.name,
         )
 
         request_sender = _BatchedRequestSender(
@@ -379,16 +373,8 @@ class TensorBoardUploader(object):
             self._dispatcher.dispatch_requests(run_to_events)
 
 
-class ExperimentNotFoundError(RuntimeError):
-    pass
-
-
 class PermissionDeniedError(RuntimeError):
     pass
-
-
-class ExistingResourceNotFoundError(RuntimeError):
-    """Resource could not be created or retrieved."""
 
 
 class _OutOfSpaceError(Exception):
@@ -541,7 +527,7 @@ class _BatchedRequestSender(object):
         # and an associated request sender.
 
         tb_run = self._run_resource_manager.create_or_get_run_resource(run_name)
-        
+
         if run_name not in self._run_to_request_sender:
             self._run_to_request_sender[run_name] = self._scalar_request_sender_factory(
                 tb_run.name
@@ -550,16 +536,12 @@ class _BatchedRequestSender(object):
         if run_name not in self._run_to_tensor_request_sender:
             self._run_to_tensor_request_sender[
                 run_name
-            ] = self._tensor_request_sender_factory(
-                tb_run.name
-            )
+            ] = self._tensor_request_sender_factory(tb_run.name)
 
         if run_name not in self._run_to_blob_request_sender:
             self._run_to_blob_request_sender[
                 run_name
-            ] = self._blob_request_sender_factory(
-                tb_run.name
-            )
+            ] = self._blob_request_sender_factory(tb_run.name)
 
         if metadata.data_class == summary_pb2.DATA_CLASS_SCALAR:
             self._run_to_request_sender[run_name].add_event(event, value, metadata)
@@ -647,75 +629,6 @@ class _Dispatcher(object):
         self._request_sender.flush()
 
 
-class _TimeSeriesResourceManager(object):
-    """Helper class managing Time Series resources."""
-
-    def __init__(self, run_resource_id: str, api: TensorboardServiceClient):
-        """Constructor for _TimeSeriesResourceManager.
-
-        Args:
-          run_resource_id: The resource id for the run with the following format
-            projects/{project}/locations/{location}/tensorboards/{tensorboard}/experiments/{experiment}/runs/{run}
-          api: TensorboardServiceStub
-        """
-        self._run_resource_id = run_resource_id
-        self._api = api
-        self._tag_to_time_series_proto: Dict[
-            str, tensorboard_time_series.TensorboardTimeSeries
-        ] = {}
-
-    def get_or_create(
-        self,
-        tag_name: str,
-        time_series_resource_creator: Callable[
-            [], tensorboard_time_series.TensorboardTimeSeries
-        ],
-    ) -> tensorboard_time_series.TensorboardTimeSeries:
-        """get a time series resource with given tag_name, and create a new one on
-
-        OnePlatform if not present.
-
-        Args:
-          tag_name: The tag name of the time series in the Tensorboard log dir.
-          time_series_resource_creator: A callable that produces a TimeSeries for
-            creation.
-        """
-        if tag_name in self._tag_to_time_series_proto:
-            return self._tag_to_time_series_proto[tag_name]
-
-        time_series = time_series_resource_creator()
-        time_series.display_name = tag_name
-        try:
-            time_series = self._api.create_tensorboard_time_series(
-                parent=self._run_resource_id, tensorboard_time_series=time_series
-            )
-        except exceptions.InvalidArgument as e:
-            # If the time series display name already exists then retrieve it
-            if "already exist" in e.message:
-                list_of_time_series = self._api.list_tensorboard_time_series(
-                    request=tensorboard_service.ListTensorboardTimeSeriesRequest(
-                        parent=self._run_resource_id,
-                        filter="display_name = {}".format(json.dumps(str(tag_name))),
-                    )
-                )
-                num = 0
-                for ts in list_of_time_series:
-                    time_series = ts
-                    num += 1
-                    break
-                if num != 1:
-                    raise ValueError(
-                        "More than one time series resource found with display_name: {}".format(
-                            tag_name
-                        )
-                    )
-            else:
-                raise
-
-        self._tag_to_time_series_proto[tag_name] = time_series
-        return time_series
-
-
 class _BaseBatchedRequestSender(object):
     """Helper class for building requests that fit under a size limit.
 
@@ -755,7 +668,7 @@ class _BaseBatchedRequestSender(object):
         # cleared whenever a new request is created
         self._tag_to_time_series_data: Dict[str, tensorboard_data.TimeSeriesData] = {}
 
-        self._time_series_resource_manager = _TimeSeriesResourceManager(
+        self._time_series_resource_manager = uploader_utils.TimeSeriesResourceManager(
             self._run_resource_id, self._api
         )
         self._new_request()
@@ -833,7 +746,7 @@ class _BaseBatchedRequestSender(object):
                         hasattr(e, "code")
                         and getattr(e, "code")() == grpc.StatusCode.NOT_FOUND
                     ):
-                        raise ExperimentNotFoundError()
+                        raise uploader_utils.ExperimentNotFoundError()
                     logger.error("Upload call failed with error %s", e)
 
         self._new_request()

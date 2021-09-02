@@ -237,8 +237,7 @@ def _create_dispatcher(
     blob_rpc_rate_limiter = util.RateLimiter(0)
 
     run_resource_manager = uploader_utils.RunResourceManager(
-        api=api,
-        experiment_resource_name=experiment_resource_name,
+        api=api, experiment_resource_name=experiment_resource_name,
     )
 
     request_sender = uploader_lib._BatchedRequestSender(
@@ -1165,7 +1164,7 @@ class ScalarBatchedRequestSenderTest(tf.test.TestCase):
 
         error = _grpc_error(grpc.StatusCode.NOT_FOUND, "nope")
         mock_client.write_tensorboard_run_data.side_effect = error
-        with self.assertRaises(uploader_lib.ExperimentNotFoundError):
+        with self.assertRaises(uploader_utils.ExperimentNotFoundError):
             sender.flush()
 
     def test_no_budget_for_base_request(self):

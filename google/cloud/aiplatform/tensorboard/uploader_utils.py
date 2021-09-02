@@ -1,4 +1,3 @@
-
 # -*- coding: utf-8 -*-
 
 # Copyright 2021 Google LLC
@@ -17,21 +16,104 @@
 #
 
 """Shared utils for tensorboard log uploader."""
+import json
+from typing import Callable, Dict
 import uuid
 
+from google.api_core import exceptions
 from google.cloud.aiplatform.compat.types import (
     tensorboard_run_v1beta1 as tensorboard_run,
+)
+from google.cloud.aiplatform.compat.types import (
+    tensorboard_service_v1beta1 as tensorboard_service,
+)
+from google.cloud.aiplatform.compat.types import (
+    tensorboard_time_series_v1beta1 as tensorboard_time_series,
 )
 from google.cloud.aiplatform.compat.services import tensorboard_service_client_v1beta1
 
 TensorboardServiceClient = tensorboard_service_client_v1beta1.TensorboardServiceClient
 
-class RunResourceManager():
-    def __init__(
+
+class ExperimentNotFoundError(RuntimeError):
+    pass
+
+
+class ExistingResourceNotFoundError(RuntimeError):
+    """Resource could not be created or retrieved."""
+
+
+class TimeSeriesResourceManager(object):
+    """Helper class managing Time Series resources."""
+
+    def __init__(self, run_resource_id: str, api: TensorboardServiceClient):
+        """Constructor for _TimeSeriesResourceManager.
+
+        Args:
+          run_resource_id: The resource id for the run with the following format
+            projects/{project}/locations/{location}/tensorboards/{tensorboard}/experiments/{experiment}/runs/{run}
+          api: TensorboardServiceStub
+        """
+        self._run_resource_id = run_resource_id
+        self._api = api
+        self._tag_to_time_series_proto: Dict[
+            str, tensorboard_time_series.TensorboardTimeSeries
+        ] = {}
+
+    def get_or_create(
         self,
-        api: TensorboardServiceClient,
-        experiment_resource_name: str
-    ):
+        tag_name: str,
+        time_series_resource_creator: Callable[
+            [], tensorboard_time_series.TensorboardTimeSeries
+        ],
+    ) -> tensorboard_time_series.TensorboardTimeSeries:
+        """get a time series resource with given tag_name, and create a new one on
+
+        OnePlatform if not present.
+
+        Args:
+          tag_name: The tag name of the time series in the Tensorboard log dir.
+          time_series_resource_creator: A callable that produces a TimeSeries for
+            creation.
+        """
+        if tag_name in self._tag_to_time_series_proto:
+            return self._tag_to_time_series_proto[tag_name]
+
+        time_series = time_series_resource_creator()
+        time_series.display_name = tag_name
+        try:
+            time_series = self._api.create_tensorboard_time_series(
+                parent=self._run_resource_id, tensorboard_time_series=time_series
+            )
+        except exceptions.InvalidArgument as e:
+            # If the time series display name already exists then retrieve it
+            if "already exist" in e.message:
+                list_of_time_series = self._api.list_tensorboard_time_series(
+                    request=tensorboard_service.ListTensorboardTimeSeriesRequest(
+                        parent=self._run_resource_id,
+                        filter="display_name = {}".format(json.dumps(str(tag_name))),
+                    )
+                )
+                num = 0
+                for ts in list_of_time_series:
+                    time_series = ts
+                    num += 1
+                    break
+                if num != 1:
+                    raise ValueError(
+                        "More than one time series resource found with display_name: {}".format(
+                            tag_name
+                        )
+                    )
+            else:
+                raise
+
+        self._tag_to_time_series_proto[tag_name] = time_series
+        return time_series
+
+
+class RunResourceManager(object):
+    def __init__(self, api: TensorboardServiceClient, experiment_resource_name: str):
         self._api = api
         self._experiment_resource_name = experiment_resource_name
 
