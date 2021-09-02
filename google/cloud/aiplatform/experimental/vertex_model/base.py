@@ -409,19 +409,19 @@ class VertexModel(metaclass=abc.ABCMeta):
         pass
 
     @abc.abstractmethod
-    def predict_input_to_predict_payload(self):
+    def predict_input_to_predict_payload(self, instances: Any) -> List:
         pass
 
     @abc.abstractmethod
-    def predict_payload_to_predict_input(self):
+    def predict_payload_to_predict_input(self, predict_payload: List) -> Any:
         pass
 
     @abc.abstractmethod
-    def predict_output_to_predict_payload(self):
+    def predict_output_to_predict_payload(self, predict_output: Any) -> List:
         pass
 
     @abc.abstractmethod
-    def predict_payload_to_predict_output(self):
+    def predict_payload_to_predict_output(self, predictions: List) -> Any:
         pass
 
     def batch_predict(self):
