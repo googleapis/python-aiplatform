@@ -108,7 +108,7 @@ To use the VertexModel class, your implementation must adhere to the following c
 
      # Implementation of predict_payload_to_predict_output, which takes a predict_payload object containing predictions and
      # converts it to the type of output expected by the user-written class.
-     def predict_payload_to_predict_output(self, predictions):
+     def predict_payload_to_predict_output(self, predictions: List) -> torch.Tensor:
        data = pd.DataFrame(predictions)
        torch_tensor = torch.tensor(data.values).type(torch.FloatTensor)
        return torch_tensor
