@@ -20,10 +20,6 @@ import datetime
 import functools
 import inspect
 
-<<<<<<< HEAD
-# import json
-=======
->>>>>>> upstream/vertex_model
 import pathlib
 import tempfile
 from typing import Any
@@ -98,11 +94,7 @@ app = FastAPI()
 
 my_model = model._deserialize_remote_model(os.environ['AIP_STORAGE_URI'] + '/my_local_model.pth')
 wrapped_model = ModelWrapper(original_model, my_model)
-<<<<<<< HEAD
-
-=======
 my_model.predict = wrapped_model.predict
->>>>>>> upstream/vertex_model
 
 @app.get(os.environ['AIP_HEALTH_ROUTE'], status_code=200)
 def health():
@@ -115,11 +107,7 @@ async def predict(request: Request):
     instances = body["instances"]
     input_data = original_model.predict_payload_to_predict_input(instances)
 
-<<<<<<< HEAD
-    my_model.predict = wrapped_model.predict
-=======
     input_data = original_model.predict_payload_to_predict_input(instances)
->>>>>>> upstream/vertex_model
     outputs = my_model.predict(input_data)
 
     return {"predictions": original_model.predict_output_to_predict_payload(outputs)}
