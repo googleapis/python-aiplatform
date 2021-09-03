@@ -34,20 +34,6 @@ from google.cloud.aiplatform.experimental.vertex_model.serializers import model
 from google.cloud.aiplatform.experimental.vertex_model.utils import source_utils
 
 
-try:
-    import pandas as pd
-except ImportError:
-    raise ImportError(
-        "Pandas is not installed. Please install pandas to use VertexModel"
-    )
-
-try:
-    import torch
-except ImportError:
-    raise ImportError(
-        "PyTorch is not installed. Please install torch to use VertexModel"
-    )
-
 GITHUB_DEPENDENCY = "google-cloud-aiplatform @ git+https://github.com/googleapis/python-aiplatform@refs/pull/659/head#egg=google-cloud-aiplatform"
 
 SERVING_COMMAND_STRING_CLI = [
@@ -161,18 +147,22 @@ def vertex_fit_function_wrapper(method: Callable[..., Any]):
             valid_types = [int, float, str] + list(
                 obj._data_serialization_mapping.keys()
             )
+
             if parameter_type not in valid_types:
-                if parameter_type.__name__ == ""
-
-                pd.DataFrame: (pandas._deserialize_dataframe, pandas._serialize_dataframe),
-        torch.utils.data.DataLoader: (
-            pytorch._deserialize_dataloader,
-            pytorch._serialize_dataloader,
-        )
-
-                raise RuntimeError(
-                    f"{parameter_type} not supported. parameter_name = {parameter_name}. The only supported types are {valid_types}"
-                )
+                if parameter_type.__name__ == "DataLoader":
+                    obj._data_serialization_mapping[parameter_type] = (
+                        pytorch._deserialize_dataloader,
+                        pytorch._serialize_dataloader,
+                    )
+                elif parameter_type.__name__ == "DataFrame":
+                    obj._data_serialization_mapping[parameter_type] = (
+                        pandas._deserialize_dataframe,
+                        pandas._serialize_dataframe,
+                    )
+                else:
+                    raise RuntimeError(
+                        f"{parameter_type} not supported. parameter_name = {parameter_name}. The only supported types are {valid_types}"
+                    )
 
             if parameter_type in obj._data_serialization_mapping.keys():
                 serialized_params[parameter_name] = parameter
