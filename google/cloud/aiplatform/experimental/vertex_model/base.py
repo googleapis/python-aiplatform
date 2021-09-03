@@ -54,11 +54,7 @@ GITHUB_DEPENDENCY = "google-cloud-aiplatform @ git+https://github.com/googleapis
 SERVING_COMMAND_STRING_CLI = [
     "sh",
     "-c",
-<<<<<<< HEAD
     "python3 -m pip install --user --disable-pip-version-check 'uvicorn' 'fastapi' 'torch' 'pandas' 'tensorflow' 'scikit-learn' 'google-cloud-aiplatform @ git+https://github.com/googleapis/python-aiplatform@refs/pull/659/head#egg=google-cloud-aiplatform' && \"$0\" \"$@\"",
-=======
-    "python3 -m pip install --user --disable-pip-version-check 'uvicorn' 'fastapi' 'torch' 'pandas' 'google-cloud-aiplatform @ git+https://github.com/googleapis/python-aiplatform@refs/pull/659/head#egg=google-cloud-aiplatform' && \"$0\" \"$@\"",
->>>>>>> upstream/vertex_model
     "sh",
     "-ec",
     'program_path=$(mktemp)\nprintf "%s" "$0" > "$program_path"\npython3 -u "$program_path" "$@"\n',
@@ -265,15 +261,10 @@ def vertex_fit_function_wrapper(method: Callable[..., Any]):
 
             obj._model = obj._training_job.run(
                 model_display_name="my_model",
-<<<<<<< HEAD
                 machine_type=obj.machine_type,
                 replica_count=obj.replica_count,
                 accelerator_type=obj.accelerator_type,
                 accelerator_count=obj.accelerator_count,
-=======
-                replica_count=1,
-                machine_type=obj.machine_type,
->>>>>>> upstream/vertex_model
             )
 
     return f

@@ -450,6 +450,7 @@ class TestCloudVertexModelClass:
     def test_source_script_compiles(
         self, mock_client_bucket,
     ):
+
         my_model = LinearRegression(input_size=10, output_size=10)
         cls_name = my_model.__class__.__name__
 
