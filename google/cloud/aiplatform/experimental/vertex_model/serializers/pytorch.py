@@ -34,6 +34,13 @@ except ImportError:
         "PyTorch is not installed. Please install torch to use VertexModel"
     )
 
+_DATA_SERIALIZER_MAP = {
+    torch.utils.data.DataLoader: (
+        pytorch._deserialize_dataloader,
+        pytorch._serialize_dataloader,
+    )
+}
+
 
 def _serialize_remote_dataloader(
     artifact_uri: str, obj: torch.utils.data.DataLoader, dataset_type: str,

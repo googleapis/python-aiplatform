@@ -91,7 +91,6 @@ def health():
 async def predict(request: Request):
     body = await request.json()
     instances = body["instances"]
-    input_data = original_model.predict_payload_to_predict_input(instances)
 
     input_data = original_model.predict_payload_to_predict_input(instances)
     outputs = my_model.predict(input_data)

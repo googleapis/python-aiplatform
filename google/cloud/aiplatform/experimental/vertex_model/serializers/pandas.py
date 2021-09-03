@@ -29,8 +29,9 @@ except ImportError:
         "Pandas is not installed. Please install pandas to use VertexModel"
     )
 
-
-# TODO (b/194815913): unit test serialization and source generation
+_DATA_SERIALIZER_MAP = {
+    pd.Dataframe: (pandas._deserialize_dataframe, pandas._serialize_dataframe)
+}
 
 
 def _serialize_dataframe(
