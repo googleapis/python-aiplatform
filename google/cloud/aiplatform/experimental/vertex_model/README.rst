@@ -202,8 +202,6 @@ To get predictions from your model:
 Background
 ~~~~~~~~~~
 
--  Read the `Client Library Documentation`_ for Vertex AI
-   API to see other available methods on the client.
 -  Read the `Vertex AI API Product documentation`_ to learn
    more about the product and see How-to Guides.
 -  View this `README`_ to see the full list of Cloud
