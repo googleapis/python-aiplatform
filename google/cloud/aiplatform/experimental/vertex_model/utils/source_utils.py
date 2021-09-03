@@ -22,6 +22,9 @@ from typing import Any
 from typing import Dict
 from typing import Tuple
 
+import google.cloud.aiplatform.experimental.vertex_model.serializers as serializers
+
+
 try:
     # Available in a colab environment.
     from google.colab import _message  # pylint: disable=g-import-not-at-top
@@ -235,15 +238,16 @@ def _make_source(
         src = src + f"my_model.{instance_method}("
 
         # Iterate through parameters.
-        # We are currently working around not including the _serialization_mapping
-        # with our generated source and assume the serializer/deserializer is in
-        # our serializer module.
         for (
             parameter_name,
             (parameter_uri, parameter_type),
         ) in param_name_to_serialized_info.items():
-            print(obj._data_serialization_mapping.keys())
-            deserializer = obj._data_serialization_mapping[parameter_type][0]
+            default_serialization = serializers.build_map_safe()
+
+            all_serialization = default_serialization.copy()
+            all_serialization.update(obj._data_serialization_mapping)
+
+            deserializer = all_serialization[parameter_type][0]
 
             # Can also make individual calls for each serialized parameter, but was unsure
             # for situations such as when a dataloader format is serialized.

@@ -29,10 +29,6 @@ except ImportError:
         "Pandas is not installed. Please install pandas to use VertexModel"
     )
 
-_DATA_SERIALIZER_MAP = {
-    pd.Dataframe: (pandas._deserialize_dataframe, pandas._serialize_dataframe)
-}
-
 
 def _serialize_dataframe(
     artifact_uri: str, obj: pd.DataFrame, dataset_type: str
@@ -126,3 +122,6 @@ def _deserialize_dataframe(artifact_uri: str) -> pd.DataFrame:
 
     # Return a pandas DataFrame read from the csv in the cloud
     return df
+
+
+_DATA_SERIALIZER_MAP = {pd.Dataframe: (_deserialize_dataframe, _serialize_dataframe)}

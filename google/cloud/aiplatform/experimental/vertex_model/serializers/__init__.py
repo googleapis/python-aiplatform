@@ -16,7 +16,6 @@
 #
 
 import sys
-from google.cloud import aiplatform
 
 module_names = ["pandas", "pytorch"]
 

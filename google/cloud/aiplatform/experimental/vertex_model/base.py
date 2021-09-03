@@ -28,8 +28,7 @@ from typing import Callable
 
 from google.cloud import aiplatform
 from google.cloud.aiplatform import base
-from google.cloud.aiplatform.experimental.vertex_model.serializers import pandas
-from google.cloud.aiplatform.experimental.vertex_model.serializers import pytorch
+import google.cloud.aiplatform.experimental.vertex_model.serializers as serializers
 from google.cloud.aiplatform.experimental.vertex_model.serializers import model
 from google.cloud.aiplatform.experimental.vertex_model.utils import source_utils
 
@@ -141,29 +140,20 @@ def vertex_fit_function_wrapper(method: Callable[..., Any]):
         pass_through_params = {}
         serialized_params = {}
 
+        default_serialization = serializers.build_map_safe()
+        all_serialization = default_serialization.copy()
+        all_serialization.update(obj._data_serialization_mapping)
+
         for parameter_name, parameter in bound_args.arguments.items():
             parameter_type = type(parameter)
-            valid_types = [int, float, str] + list(
-                obj._data_serialization_mapping.keys()
-            )
+            valid_types = [int, float, str] + list(all_serialization.keys())
 
             if parameter_type not in valid_types:
-                if parameter_type.__name__ == "DataLoader":
-                    obj._data_serialization_mapping[parameter_type] = (
-                        pytorch._deserialize_dataloader,
-                        pytorch._serialize_dataloader,
-                    )
-                elif parameter_type.__name__ == "DataFrame":
-                    obj._data_serialization_mapping[parameter_type] = (
-                        pandas._deserialize_dataframe,
-                        pandas._serialize_dataframe,
-                    )
-                else:
-                    raise RuntimeError(
-                        f"{parameter_type} not supported. parameter_name = {parameter_name}. The only supported types are {valid_types}"
-                    )
+                raise RuntimeError(
+                    f"{parameter_type} not supported. parameter_name = {parameter_name}. The only supported types are {valid_types}"
+                )
 
-            if parameter_type in obj._data_serialization_mapping.keys():
+            if parameter_type in all_serialization.keys():
                 serialized_params[parameter_name] = parameter
             else:  # assume primitive
                 pass_through_params[parameter_name] = parameter
@@ -187,7 +177,7 @@ def vertex_fit_function_wrapper(method: Callable[..., Any]):
         for parameter_name, parameter in serialized_params.items():
             parameter_type = type(parameter)
 
-            serializer = obj._data_serialization_mapping[parameter_type][1]
+            serializer = all_serialization[parameter_type][1]
             parameter_uri = serializer(
                 serialized_inputs_artifacts_folder, parameter, parameter_name
             )
