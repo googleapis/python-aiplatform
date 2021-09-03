@@ -136,7 +136,12 @@ When performing remote training and/or prediction with your code, you have the o
 .. code-block:: Python
 
    my_model = MyModelClass()
+   
    my_model.machine_type = "n1-standard-4"
+   replica_count = 1
+
+   accelerator_type = "ACCELERATOR_TYPE_UNSPECIFIED"
+   accelerator_count = 0
 
 
 Data Serialization
