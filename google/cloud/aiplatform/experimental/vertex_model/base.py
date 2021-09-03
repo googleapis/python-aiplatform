@@ -369,13 +369,7 @@ def vertex_predict_function_wrapper(method: Callable[..., Any]):
 class VertexModel(metaclass=abc.ABCMeta):
     """ Parent class that users can extend to use the Vertex AI SDK """
 
-    _data_serialization_mapping = {
-        pd.DataFrame: (pandas._deserialize_dataframe, pandas._serialize_dataframe),
-        torch.utils.data.DataLoader: (
-            pytorch._deserialize_dataloader,
-            pytorch._serialize_dataloader,
-        ),
-    }
+    _data_serialization_mapping = {}
 
     dependencies = [
         "pandas>=1.3",
