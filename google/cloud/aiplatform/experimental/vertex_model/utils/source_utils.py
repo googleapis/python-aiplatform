@@ -214,9 +214,6 @@ def _make_source(
     src = src + "\n".join(
         [
             "import os",
-            #    "import torch",
-            #    "import pandas as pd",
-            #    "from google.cloud.aiplatform.experimental.vertex_model.base import VertexModel",
             "from google.cloud.aiplatform.experimental.vertex_model.serializers.pandas import _deserialize_dataframe",
             "from google.cloud.aiplatform.experimental.vertex_model.serializers.pytorch import _deserialize_dataloader",
             "from google.cloud.aiplatform.experimental.vertex_model.serializers import model",

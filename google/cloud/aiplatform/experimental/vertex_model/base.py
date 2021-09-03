@@ -20,10 +20,14 @@ import datetime
 import functools
 import inspect
 
+<<<<<<< HEAD
 # import json
+=======
+>>>>>>> upstream/vertex_model
 import pathlib
 import tempfile
 from typing import Any
+from typing import List
 from typing import Callable
 
 from google.cloud import aiplatform
@@ -91,9 +95,14 @@ class ModelWrapper:
             return attribute
 
 app = FastAPI()
+
 my_model = model._deserialize_remote_model(os.environ['AIP_STORAGE_URI'] + '/my_local_model.pth')
 wrapped_model = ModelWrapper(original_model, my_model)
+<<<<<<< HEAD
 
+=======
+my_model.predict = wrapped_model.predict
+>>>>>>> upstream/vertex_model
 
 @app.get(os.environ['AIP_HEALTH_ROUTE'], status_code=200)
 def health():
@@ -106,7 +115,11 @@ async def predict(request: Request):
     instances = body["instances"]
     input_data = original_model.predict_payload_to_predict_input(instances)
 
+<<<<<<< HEAD
     my_model.predict = wrapped_model.predict
+=======
+    input_data = original_model.predict_payload_to_predict_input(instances)
+>>>>>>> upstream/vertex_model
     outputs = my_model.predict(input_data)
 
     return {"predictions": original_model.predict_output_to_predict_payload(outputs)}
@@ -248,7 +261,9 @@ def vertex_fit_function_wrapper(method: Callable[..., Any]):
             )
 
             obj._model = obj._training_job.run(
-                model_display_name="my_model", replica_count=1,
+                model_display_name="my_model",
+                replica_count=1,
+                machine_type=obj.machine_type,
             )
 
     return f
@@ -348,9 +363,13 @@ def vertex_predict_function_wrapper(method: Callable[..., Any]):
             bound_args = inspect.signature(method).bind(*args, **kwargs)
 
             for parameter_name, parameter in bound_args.arguments.items():
+<<<<<<< HEAD
                 if parameter_name == "data":
                     data = obj.predict_input_to_predict_payload(parameter)
                     break
+=======
+                data = obj.predict_input_to_predict_payload(parameter)
+>>>>>>> upstream/vertex_model
 
             # TODO: cleanup model resource after endpoint is created
             if obj._endpoint is None:
@@ -410,19 +429,19 @@ class VertexModel(metaclass=abc.ABCMeta):
         pass
 
     @abc.abstractmethod
-    def predict_input_to_predict_payload(self):
+    def predict_input_to_predict_payload(self, instances: Any) -> List:
         pass
 
     @abc.abstractmethod
-    def predict_payload_to_predict_input(self):
+    def predict_payload_to_predict_input(self, predict_payload: List) -> Any:
         pass
 
     @abc.abstractmethod
-    def predict_output_to_predict_payload(self):
+    def predict_output_to_predict_payload(self, predict_output: Any) -> List:
         pass
 
     @abc.abstractmethod
-    def predict_payload_to_predict_output(self):
+    def predict_payload_to_predict_output(self, predictions: List) -> Any:
         pass
 
     def batch_predict(self):
