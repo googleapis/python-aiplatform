@@ -51,7 +51,6 @@ except ImportError:
 
 GITHUB_DEPENDENCY = "google-cloud-aiplatform @ git+https://github.com/googleapis/python-aiplatform@refs/pull/659/head#egg=google-cloud-aiplatform"
 
-# Updated to install all possible ML packages.
 SERVING_COMMAND_STRING_CLI_FIRST_HALF = [
     "sh",
     "-c",
