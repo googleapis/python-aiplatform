@@ -29,8 +29,14 @@ from typing import Callable
 from google.cloud import aiplatform
 from google.cloud.aiplatform import base
 import google.cloud.aiplatform.experimental.vertex_model.serializers as serializers
-from google.cloud.aiplatform.experimental.vertex_model.serializers import model
 from google.cloud.aiplatform.experimental.vertex_model.utils import source_utils
+
+try:
+    from google.cloud.aiplatform.experimental.vertex_model.serializers import model
+except ImportError:
+    raise ImportError(
+        "PyTorch is not installed. Please install torch to use VertexModel or define your own model serialization/deserialization methods"
+    )
 
 
 GITHUB_DEPENDENCY = "google-cloud-aiplatform @ git+https://github.com/googleapis/python-aiplatform@refs/pull/659/head#egg=google-cloud-aiplatform"
@@ -49,8 +55,6 @@ from fastapi import FastAPI, Request
 import uvicorn
 import functools
 import inspect
-
-from google.cloud.aiplatform.experimental.vertex_model.serializers import model
 
 """
 
@@ -77,7 +81,7 @@ class ModelWrapper:
 
 app = FastAPI()
 
-my_model = model._deserialize_remote_model(os.environ['AIP_STORAGE_URI'] + '/my_local_model.pth')
+my_model = original_model.deserialize_model(os.environ['AIP_STORAGE_URI'] + '/my_local_model.pth')
 wrapped_model = ModelWrapper(original_model, my_model)
 my_model.predict = wrapped_model.predict
 
@@ -289,9 +293,7 @@ def vertex_predict_function_wrapper(method: Callable[..., Any]):
                 [vertex_model_root_folder, "serialized_model"]
             )
 
-            model_uri = model._serialize_local_model(
-                vertex_model_model_folder, obj, "local"
-            )
+            model_uri = obj.serialize_model(vertex_model_model_folder, obj, "local")
 
             # Upload model w/ command
             import_lines = source_utils.import_try_except(obj)
@@ -322,7 +324,7 @@ def vertex_predict_function_wrapper(method: Callable[..., Any]):
             output_dir = obj._model._gca_resource.artifact_uri
             model_uri = output_dir + "/" + "my_" + "local" + "_model.pth"
 
-            my_model = model._deserialize_remote_model(model_uri)
+            my_model = obj.deserialize_model(model_uri)
 
             try:
                 my_model.predict(*args, **kwargs)
@@ -406,6 +408,12 @@ class VertexModel(metaclass=abc.ABCMeta):
     @abc.abstractmethod
     def predict_payload_to_predict_output(self, predictions: List) -> Any:
         pass
+
+    def serialize_model(self, artifact_uri: str, obj: Any, model_type: str) -> str:
+        return model._serialize_local_model(artifact_uri, obj, model_type)
+
+    def deserialize_model(artifact_uri: str) -> Any:
+        return model._deserialize_remote_model(artifact_uri)
 
     def batch_predict(self):
         """Make predictions on training data."""
