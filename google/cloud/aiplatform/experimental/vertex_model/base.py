@@ -19,6 +19,7 @@ import abc
 import datetime
 import functools
 import inspect
+import re
 
 import pathlib
 import tempfile
@@ -51,10 +52,17 @@ except ImportError:
 GITHUB_DEPENDENCY = "google-cloud-aiplatform @ git+https://github.com/googleapis/python-aiplatform@refs/pull/659/head#egg=google-cloud-aiplatform"
 
 # Updated to install all possible ML packages.
-SERVING_COMMAND_STRING_CLI = [
+SERVING_COMMAND_STRING_CLI_FIRST_HALF = [
     "sh",
     "-c",
-    "python3 -m pip install --user --disable-pip-version-check 'uvicorn' 'fastapi' 'torch' 'pandas' 'tensorflow' 'scikit-learn' 'google-cloud-aiplatform @ git+https://github.com/googleapis/python-aiplatform@refs/pull/659/head#egg=google-cloud-aiplatform' && \"$0\" \"$@\"",
+]
+
+SERVING_COMMAND_STRING_CLI_PIP_CALL = (
+    "python3 -m pip install --user --disable-pip-version-check 'uvicorn' 'fastapi' "
+)
+SERVING_COMMAND_STRING_CLI_GITHUB_INSTALL = f' \'{GITHUB_DEPENDENCY}\' && "$0" "$@"'
+
+SERVING_COMMAND_STRING_CLI_SECOND_HALF = [
     "sh",
     "-ec",
     'program_path=$(mktemp)\nprintf "%s" "$0" > "$program_path"\npython3 -u "$program_path" "$@"\n',
@@ -220,6 +228,7 @@ def vertex_fit_function_wrapper(method: Callable[..., Any]):
             with open(script_path, "w") as f:
                 f.write(source)
 
+            # Get imports and class definition from source script
             import_lines = source_utils.import_try_except(obj)
 
             class_args = inspect.signature(obj.__class__.__init__).bind(
@@ -235,9 +244,31 @@ def vertex_fit_function_wrapper(method: Callable[..., Any]):
                 + SERVING_COMMAND_STRING_CODE_APIS
             )
 
+            # Account for user-designated dependencies when
+            # setting up remote prediction
             if GITHUB_DEPENDENCY not in obj.dependencies:
                 obj.dependencies.append(GITHUB_DEPENDENCY)
 
+            dependency_installs = []
+            for dependency in obj.dependencies:
+                if dependency != GITHUB_DEPENDENCY:
+                    dependency_name = re.split(">|=|<", dependency)[0]
+                    dependency_name = f"'{dependency_name}'"
+                    dependency_installs.append(dependency_name)
+
+            dependency_installs = " ".join(dependency_installs)
+
+            serving_command_string_cli = (
+                SERVING_COMMAND_STRING_CLI_FIRST_HALF
+                + [
+                    SERVING_COMMAND_STRING_CLI_PIP_CALL
+                    + dependency_installs
+                    + SERVING_COMMAND_STRING_CLI_GITHUB_INSTALL
+                ]
+                + SERVING_COMMAND_STRING_CLI_SECOND_HALF
+            )
+
+            # Container specification
             location_prefix = aiplatform.initializer.global_config.location.split("-")[
                 0
             ]
@@ -258,13 +289,14 @@ def vertex_fit_function_wrapper(method: Callable[..., Any]):
             else:
                 obj.container_uri = f"{container_location}-docker.pkg.dev/vertex-ai/training/scikit-learn-cpu.0-23:latest"
 
+            # Make CustomTrainingJob object
             obj._training_job = aiplatform.CustomTrainingJob(
                 display_name="my_training_job",
                 script_path=str(script_path),
                 requirements=obj.dependencies,
                 container_uri=obj.container_uri,
                 model_serving_container_image_uri="gcr.io/google-appengine/python",
-                model_serving_container_command=SERVING_COMMAND_STRING_CLI
+                model_serving_container_command=serving_command_string_cli
                 + [command_str],
             )
 
@@ -345,11 +377,30 @@ def vertex_predict_function_wrapper(method: Callable[..., Any]):
                 + SERVING_COMMAND_STRING_CODE_APIS
             )
 
+            dependency_installs = []
+            for dependency in obj.dependencies:
+                if dependency != GITHUB_DEPENDENCY:
+                    dependency_name = re.split(">|=|<", dependency)[0]
+                    dependency_name = f"'{dependency_name}'"
+                    dependency_installs.append(dependency_name)
+
+            dependency_installs = " ".join(dependency_installs)
+
+            serving_command_string_cli = (
+                SERVING_COMMAND_STRING_CLI_FIRST_HALF
+                + [
+                    SERVING_COMMAND_STRING_CLI_PIP_CALL
+                    + dependency_installs
+                    + SERVING_COMMAND_STRING_CLI_GITHUB_INSTALL
+                ]
+                + SERVING_COMMAND_STRING_CLI_SECOND_HALF
+            )
+
             obj._model = aiplatform.Model.upload(
                 display_name="serving-test",
                 artifact_uri=vertex_model_model_folder,
                 serving_container_image_uri="gcr.io/google-appengine/python",
-                serving_container_command=SERVING_COMMAND_STRING_CLI + [command_str],
+                serving_container_command=serving_command_string_cli + [command_str],
             )
 
         # Cloud training to local prediction: deserialize from cloud URI
@@ -402,7 +453,7 @@ class VertexModel(metaclass=abc.ABCMeta):
     dependencies = [
         "pandas>=1.3",
         "torch>=1.7",
-        "google-cloud-aiplatform @ git+https://github.com/googleapis/python-aiplatform@refs/pull/659/head#egg=google-cloud-aiplatform",
+        GITHUB_DEPENDENCY,
     ]
 
     container_uri = "us-docker.pkg.dev/vertex-ai/training/scikit-learn-cpu.0-23:latest"
