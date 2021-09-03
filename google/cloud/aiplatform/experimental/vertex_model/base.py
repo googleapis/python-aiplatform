@@ -351,13 +351,7 @@ def vertex_predict_function_wrapper(method: Callable[..., Any]):
             bound_args = inspect.signature(method).bind(*args, **kwargs)
 
             for parameter_name, parameter in bound_args.arguments.items():
-<<<<<<< HEAD
-                if parameter_name == "data":
-                    data = obj.predict_input_to_predict_payload(parameter)
-                    break
-=======
                 data = obj.predict_input_to_predict_payload(parameter)
->>>>>>> upstream/vertex_model
 
             # TODO: cleanup model resource after endpoint is created
             if obj._endpoint is None:
