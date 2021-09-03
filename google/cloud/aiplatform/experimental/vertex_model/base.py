@@ -162,6 +162,14 @@ def vertex_fit_function_wrapper(method: Callable[..., Any]):
                 obj._data_serialization_mapping.keys()
             )
             if parameter_type not in valid_types:
+                if parameter_type.__name__ == ""
+
+                pd.DataFrame: (pandas._deserialize_dataframe, pandas._serialize_dataframe),
+        torch.utils.data.DataLoader: (
+            pytorch._deserialize_dataloader,
+            pytorch._serialize_dataloader,
+        )
+
                 raise RuntimeError(
                     f"{parameter_type} not supported. parameter_name = {parameter_name}. The only supported types are {valid_types}"
                 )
