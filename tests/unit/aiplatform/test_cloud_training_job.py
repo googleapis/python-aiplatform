@@ -300,7 +300,11 @@ class TestCloudVertexModelClass:
         assert len(call_args[0]) == 0
 
         mock_run_custom_training_job.assert_called_once_with(
-            model_display_name="my_model", replica_count=1, machine_type="n1-standard-4"
+            accelerator_count=0,
+            accelerator_type="ACCELERATOR_TYPE_UNSPECIFIED",
+            model_display_name="my_model",
+            replica_count=1,
+            machine_type="n1-standard-4",
         )
 
     def test_remote_train_remote_predict(

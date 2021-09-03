@@ -50,10 +50,11 @@ except ImportError:
 
 GITHUB_DEPENDENCY = "google-cloud-aiplatform @ git+https://github.com/googleapis/python-aiplatform@refs/pull/659/head#egg=google-cloud-aiplatform"
 
+# Updated to install all possible ML packages.
 SERVING_COMMAND_STRING_CLI = [
     "sh",
     "-c",
-    "python3 -m pip install --user --disable-pip-version-check 'uvicorn' 'fastapi' 'torch' 'pandas' 'google-cloud-aiplatform @ git+https://github.com/googleapis/python-aiplatform@refs/pull/659/head#egg=google-cloud-aiplatform' && \"$0\" \"$@\"",
+    "python3 -m pip install --user --disable-pip-version-check 'uvicorn' 'fastapi' 'torch' 'pandas' 'tensorflow' 'scikit-learn' 'google-cloud-aiplatform @ git+https://github.com/googleapis/python-aiplatform@refs/pull/659/head#egg=google-cloud-aiplatform' && \"$0\" \"$@\"",
     "sh",
     "-ec",
     'program_path=$(mktemp)\nprintf "%s" "$0" > "$program_path"\npython3 -u "$program_path" "$@"\n',
@@ -237,11 +238,22 @@ def vertex_fit_function_wrapper(method: Callable[..., Any]):
             if GITHUB_DEPENDENCY not in obj.dependencies:
                 obj.dependencies.append(GITHUB_DEPENDENCY)
 
+            # Right now, only the TensorFlow containers accomodate GPU usage.
+            if any("tensorflow" in dependency for dependency in obj.dependencies):
+                if obj.accelerator_count > 0:
+                    obj.container_uri = (
+                        "us-docker.pkg.dev/vertex-ai/prediction/tf2-gpu.2-3:latest"
+                    )
+                else:
+                    obj.container_uri = (
+                        "us-docker.pkg.dev/vertex-ai/prediction/tf2-cpu.2-3:latest"
+                    )
+
             obj._training_job = aiplatform.CustomTrainingJob(
                 display_name="my_training_job",
                 script_path=str(script_path),
                 requirements=obj.dependencies,
-                container_uri="us-docker.pkg.dev/vertex-ai/training/scikit-learn-cpu.0-23:latest",
+                container_uri=obj.container_uri,
                 model_serving_container_image_uri="gcr.io/google-appengine/python",
                 model_serving_container_command=SERVING_COMMAND_STRING_CLI
                 + [command_str],
@@ -249,8 +261,10 @@ def vertex_fit_function_wrapper(method: Callable[..., Any]):
 
             obj._model = obj._training_job.run(
                 model_display_name="my_model",
-                replica_count=1,
                 machine_type=obj.machine_type,
+                replica_count=obj.replica_count,
+                accelerator_type=obj.accelerator_type,
+                accelerator_count=obj.accelerator_count,
             )
 
     return f
@@ -382,7 +396,12 @@ class VertexModel(metaclass=abc.ABCMeta):
         "google-cloud-aiplatform @ git+https://github.com/googleapis/python-aiplatform@refs/pull/659/head#egg=google-cloud-aiplatform",
     ]
 
+    container_uri = "us-docker.pkg.dev/vertex-ai/training/scikit-learn-cpu.0-23:latest"
+
     machine_type = "n1-standard-4"
+    replica_count = 1
+    accelerator_type = "ACCELERATOR_TYPE_UNSPECIFIED"
+    accelerator_count = 0
 
     def __init__(self, *args, **kwargs):
         """Initializes child class. All constructor arguments must be passed to the
