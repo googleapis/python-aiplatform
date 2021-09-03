@@ -138,10 +138,10 @@ When performing remote training and/or prediction with your code, you have the o
    my_model = MyModelClass()
    
    my_model.machine_type = "n1-standard-4"
-   replica_count = 1
+   my_model.replica_count = 1
 
-   accelerator_type = "ACCELERATOR_TYPE_UNSPECIFIED"
-   accelerator_count = 0
+   my_model.accelerator_type = "ACCELERATOR_TYPE_UNSPECIFIED"
+   my_model.accelerator_count = 0
 
 
 Data Serialization

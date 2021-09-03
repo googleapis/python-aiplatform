@@ -238,16 +238,25 @@ def vertex_fit_function_wrapper(method: Callable[..., Any]):
             if GITHUB_DEPENDENCY not in obj.dependencies:
                 obj.dependencies.append(GITHUB_DEPENDENCY)
 
-            # Right now, only the TensorFlow containers accomodate GPU usage.
+            location_prefix = aiplatform.initializer.global_config.location.split("-")[
+                0
+            ]
+            container_location = (
+                location_prefix if location_prefix in ("us", "europe", "asia") else "us"
+            )
+
             if any("tensorflow" in dependency for dependency in obj.dependencies):
                 if obj.accelerator_count > 0:
-                    obj.container_uri = (
-                        "us-docker.pkg.dev/vertex-ai/prediction/tf2-gpu.2-3:latest"
-                    )
+                    obj.container_uri = f"{container_location}-docker.pkg.dev/vertex-ai/prediction/tf2-gpu.2-6:latest"
                 else:
-                    obj.container_uri = (
-                        "us-docker.pkg.dev/vertex-ai/prediction/tf2-cpu.2-3:latest"
-                    )
+                    obj.container_uri = f"{container_location}-docker.pkg.dev/vertex-ai/prediction/tf2-cpu.2-6:latest"
+            elif any("torch" in dependency for dependency in obj.dependencies):
+                if obj.accelerator_count > 0:
+                    obj.container_uri = f"{container_location}-docker.pkg.dev/vertex-ai/training/pytorch-gpu.1-9:latest"
+                else:
+                    obj.container_uri = f"{container_location}-docker.pkg.dev/vertex-ai/training/pytorch-xla.1-9:latest"
+            else:
+                obj.container_uri = f"{container_location}-docker.pkg.dev/vertex-ai/training/scikit-learn-cpu.0-23:latest"
 
             obj._training_job = aiplatform.CustomTrainingJob(
                 display_name="my_training_job",

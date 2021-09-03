@@ -281,7 +281,7 @@ class TestCloudVertexModelClass:
                 "torch>=1.7",
                 "google-cloud-aiplatform @ git+https://github.com/googleapis/python-aiplatform@refs/pull/659/head#egg=google-cloud-aiplatform",
             ],
-            "container_uri": "us-docker.pkg.dev/vertex-ai/training/scikit-learn-cpu.0-23:latest",
+            "container_uri": "us-docker.pkg.dev/vertex-ai/training/pytorch-xla.1-9:latest",
             "model_serving_container_image_uri": "gcr.io/google-appengine/python",
         }
 
