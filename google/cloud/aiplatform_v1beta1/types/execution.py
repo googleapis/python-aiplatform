@@ -77,6 +77,7 @@ class Execution(proto.Message):
             metadata store.
         metadata (google.protobuf.struct_pb2.Struct):
             Properties of the Execution.
+            The size of this field should not exceed 200KB.
         description (str):
             Description of the Execution
     """

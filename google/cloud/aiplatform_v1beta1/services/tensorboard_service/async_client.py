@@ -484,9 +484,9 @@ class TensorboardServiceAsyncClient:
                 The request object. Request message for
                 [TensorboardService.ListTensorboards][google.cloud.aiplatform.v1beta1.TensorboardService.ListTensorboards].
             parent (:class:`str`):
-                Required. The resource name of the
-                Location to list Tensorboards. Format:
-                'projects/{project}/locations/{location}'
+                Required. The resource name of the Location to list
+                Tensorboards. Format:
+                ``projects/{project}/locations/{location}``
 
                 This corresponds to the ``parent`` field
                 on the ``request`` instance; if ``request`` is provided, this
@@ -1099,8 +1099,8 @@ class TensorboardServiceAsyncClient:
                 The request object. Request message for
                 [TensorboardService.CreateTensorboardRun][google.cloud.aiplatform.v1beta1.TensorboardService.CreateTensorboardRun].
             parent (:class:`str`):
-                Required. The resource name of the Tensorboard to create
-                the TensorboardRun in. Format:
+                Required. The resource name of the TensorboardExperiment
+                to create the TensorboardRun in. Format:
                 ``projects/{project}/locations/{location}/tensorboards/{tensorboard}/experiments/{experiment}``
 
                 This corresponds to the ``parent`` field
@@ -1163,6 +1163,93 @@ class TensorboardServiceAsyncClient:
         # and friendly error handling.
         rpc = gapic_v1.method_async.wrap_method(
             self._client._transport.create_tensorboard_run,
+            default_timeout=None,
+            client_info=DEFAULT_CLIENT_INFO,
+        )
+
+        # Certain fields should be provided within the metadata header;
+        # add these here.
+        metadata = tuple(metadata) + (
+            gapic_v1.routing_header.to_grpc_metadata((("parent", request.parent),)),
+        )
+
+        # Send the request.
+        response = await rpc(request, retry=retry, timeout=timeout, metadata=metadata,)
+
+        # Done; return the response.
+        return response
+
+    async def batch_create_tensorboard_runs(
+        self,
+        request: tensorboard_service.BatchCreateTensorboardRunsRequest = None,
+        *,
+        parent: str = None,
+        requests: Sequence[tensorboard_service.CreateTensorboardRunRequest] = None,
+        retry: retries.Retry = gapic_v1.method.DEFAULT,
+        timeout: float = None,
+        metadata: Sequence[Tuple[str, str]] = (),
+    ) -> tensorboard_service.BatchCreateTensorboardRunsResponse:
+        r"""Batch create TensorboardRuns.
+
+        Args:
+            request (:class:`google.cloud.aiplatform_v1beta1.types.BatchCreateTensorboardRunsRequest`):
+                The request object. Request message for
+                [TensorboardService.BatchCreateTensorboardRuns][google.cloud.aiplatform.v1beta1.TensorboardService.BatchCreateTensorboardRuns].
+            parent (:class:`str`):
+                Required. The resource name of the TensorboardExperiment
+                to create the TensorboardRuns in. Format:
+                ``projects/{project}/locations/{location}/tensorboards/{tensorboard}/experiments/{experiment}``
+                The parent field in the CreateTensorboardRunRequest
+                messages must match this field.
+
+                This corresponds to the ``parent`` field
+                on the ``request`` instance; if ``request`` is provided, this
+                should not be set.
+            requests (:class:`Sequence[google.cloud.aiplatform_v1beta1.types.CreateTensorboardRunRequest]`):
+                Required. The request message
+                specifying the TensorboardRuns to
+                create. A maximum of 1000
+                TensorboardRuns can be created in a
+                batch.
+
+                This corresponds to the ``requests`` field
+                on the ``request`` instance; if ``request`` is provided, this
+                should not be set.
+            retry (google.api_core.retry.Retry): Designation of what errors, if any,
+                should be retried.
+            timeout (float): The timeout for this request.
+            metadata (Sequence[Tuple[str, str]]): Strings which should be
+                sent along with the request as metadata.
+
+        Returns:
+            google.cloud.aiplatform_v1beta1.types.BatchCreateTensorboardRunsResponse:
+                Response message for
+                [TensorboardService.BatchCreateTensorboardRuns][google.cloud.aiplatform.v1beta1.TensorboardService.BatchCreateTensorboardRuns].
+
+        """
+        # Create or coerce a protobuf request object.
+        # Sanity check: If we got a request object, we should *not* have
+        # gotten any keyword arguments that map to the request.
+        has_flattened_params = any([parent, requests])
+        if request is not None and has_flattened_params:
+            raise ValueError(
+                "If the `request` argument is set, then none of "
+                "the individual field arguments should be set."
+            )
+
+        request = tensorboard_service.BatchCreateTensorboardRunsRequest(request)
+
+        # If we have keyword arguments corresponding to fields on the
+        # request, apply these.
+        if parent is not None:
+            request.parent = parent
+        if requests:
+            request.requests.extend(requests)
+
+        # Wrap the RPC method; this adds retry and timeout information,
+        # and friendly error handling.
+        rpc = gapic_v1.method_async.wrap_method(
+            self._client._transport.batch_create_tensorboard_runs,
             default_timeout=None,
             client_info=DEFAULT_CLIENT_INFO,
         )
@@ -1361,8 +1448,8 @@ class TensorboardServiceAsyncClient:
                 [TensorboardService.ListTensorboardRuns][google.cloud.aiplatform.v1beta1.TensorboardService.ListTensorboardRuns].
             parent (:class:`str`):
                 Required. The resource name of the
-                Tensorboard to list TensorboardRuns.
-                Format:
+                TensorboardExperiment to list
+                TensorboardRuns. Format:
                 'projects/{project}/locations/{location}/tensorboards/{tensorboard}/experiments/{experiment}'
 
                 This corresponds to the ``parent`` field
@@ -1515,6 +1602,97 @@ class TensorboardServiceAsyncClient:
             empty_pb2.Empty,
             metadata_type=gca_operation.DeleteOperationMetadata,
         )
+
+        # Done; return the response.
+        return response
+
+    async def batch_create_tensorboard_time_series(
+        self,
+        request: tensorboard_service.BatchCreateTensorboardTimeSeriesRequest = None,
+        *,
+        parent: str = None,
+        requests: Sequence[
+            tensorboard_service.CreateTensorboardTimeSeriesRequest
+        ] = None,
+        retry: retries.Retry = gapic_v1.method.DEFAULT,
+        timeout: float = None,
+        metadata: Sequence[Tuple[str, str]] = (),
+    ) -> tensorboard_service.BatchCreateTensorboardTimeSeriesResponse:
+        r"""Batch create TensorboardTimeSeries that belong to a
+        TensorboardExperiment.
+
+        Args:
+            request (:class:`google.cloud.aiplatform_v1beta1.types.BatchCreateTensorboardTimeSeriesRequest`):
+                The request object. Request message for
+                [TensorboardService.BatchCreateTensorboardTimeSeries][google.cloud.aiplatform.v1beta1.TensorboardService.BatchCreateTensorboardTimeSeries].
+            parent (:class:`str`):
+                Required. The resource name of the TensorboardExperiment
+                to create the TensorboardTimeSeries in. Format:
+                ``projects/{project}/locations/{location}/tensorboards/{tensorboard}/experiments/{experiment}``
+                The TensorboardRuns referenced by the parent fields in
+                the CreateTensorboardTimeSeriesRequest messages must be
+                sub resources of this TensorboardExperiment.
+
+                This corresponds to the ``parent`` field
+                on the ``request`` instance; if ``request`` is provided, this
+                should not be set.
+            requests (:class:`Sequence[google.cloud.aiplatform_v1beta1.types.CreateTensorboardTimeSeriesRequest]`):
+                Required. The request message
+                specifying the TensorboardTimeSeries to
+                create. A maximum of 1000
+                TensorboardTimeSeries can be created in
+                a batch.
+
+                This corresponds to the ``requests`` field
+                on the ``request`` instance; if ``request`` is provided, this
+                should not be set.
+            retry (google.api_core.retry.Retry): Designation of what errors, if any,
+                should be retried.
+            timeout (float): The timeout for this request.
+            metadata (Sequence[Tuple[str, str]]): Strings which should be
+                sent along with the request as metadata.
+
+        Returns:
+            google.cloud.aiplatform_v1beta1.types.BatchCreateTensorboardTimeSeriesResponse:
+                Response message for
+                [TensorboardService.BatchCreateTensorboardTimeSeries][google.cloud.aiplatform.v1beta1.TensorboardService.BatchCreateTensorboardTimeSeries].
+
+        """
+        # Create or coerce a protobuf request object.
+        # Sanity check: If we got a request object, we should *not* have
+        # gotten any keyword arguments that map to the request.
+        has_flattened_params = any([parent, requests])
+        if request is not None and has_flattened_params:
+            raise ValueError(
+                "If the `request` argument is set, then none of "
+                "the individual field arguments should be set."
+            )
+
+        request = tensorboard_service.BatchCreateTensorboardTimeSeriesRequest(request)
+
+        # If we have keyword arguments corresponding to fields on the
+        # request, apply these.
+        if parent is not None:
+            request.parent = parent
+        if requests:
+            request.requests.extend(requests)
+
+        # Wrap the RPC method; this adds retry and timeout information,
+        # and friendly error handling.
+        rpc = gapic_v1.method_async.wrap_method(
+            self._client._transport.batch_create_tensorboard_time_series,
+            default_timeout=None,
+            client_info=DEFAULT_CLIENT_INFO,
+        )
+
+        # Certain fields should be provided within the metadata header;
+        # add these here.
+        metadata = tuple(metadata) + (
+            gapic_v1.routing_header.to_grpc_metadata((("parent", request.parent),)),
+        )
+
+        # Send the request.
+        response = await rpc(request, retry=retry, timeout=timeout, metadata=metadata,)
 
         # Done; return the response.
         return response
@@ -2095,6 +2273,94 @@ class TensorboardServiceAsyncClient:
 
         # Send the request.
         response = rpc(request, retry=retry, timeout=timeout, metadata=metadata,)
+
+        # Done; return the response.
+        return response
+
+    async def write_tensorboard_experiment_data(
+        self,
+        request: tensorboard_service.WriteTensorboardExperimentDataRequest = None,
+        *,
+        tensorboard_experiment: str = None,
+        write_run_data_requests: Sequence[
+            tensorboard_service.WriteTensorboardRunDataRequest
+        ] = None,
+        retry: retries.Retry = gapic_v1.method.DEFAULT,
+        timeout: float = None,
+        metadata: Sequence[Tuple[str, str]] = (),
+    ) -> tensorboard_service.WriteTensorboardExperimentDataResponse:
+        r"""Write time series data points of multiple
+        TensorboardTimeSeries in multiple TensorboardRun's. If
+        any data fail to be ingested, an error will be returned.
+
+        Args:
+            request (:class:`google.cloud.aiplatform_v1beta1.types.WriteTensorboardExperimentDataRequest`):
+                The request object. Request message for
+                [TensorboardService.WriteTensorboardExperimentData][google.cloud.aiplatform.v1beta1.TensorboardService.WriteTensorboardExperimentData].
+            tensorboard_experiment (:class:`str`):
+                Required. The resource name of the TensorboardExperiment
+                to write data to. Format:
+                ``projects/{project}/locations/{location}/tensorboards/{tensorboard}/experiments/{experiment}``
+
+                This corresponds to the ``tensorboard_experiment`` field
+                on the ``request`` instance; if ``request`` is provided, this
+                should not be set.
+            write_run_data_requests (:class:`Sequence[google.cloud.aiplatform_v1beta1.types.WriteTensorboardRunDataRequest]`):
+                Required. Requests containing per-run
+                TensorboardTimeSeries data to write.
+
+                This corresponds to the ``write_run_data_requests`` field
+                on the ``request`` instance; if ``request`` is provided, this
+                should not be set.
+            retry (google.api_core.retry.Retry): Designation of what errors, if any,
+                should be retried.
+            timeout (float): The timeout for this request.
+            metadata (Sequence[Tuple[str, str]]): Strings which should be
+                sent along with the request as metadata.
+
+        Returns:
+            google.cloud.aiplatform_v1beta1.types.WriteTensorboardExperimentDataResponse:
+                Response message for
+                [TensorboardService.WriteTensorboardExperimentData][google.cloud.aiplatform.v1beta1.TensorboardService.WriteTensorboardExperimentData].
+
+        """
+        # Create or coerce a protobuf request object.
+        # Sanity check: If we got a request object, we should *not* have
+        # gotten any keyword arguments that map to the request.
+        has_flattened_params = any([tensorboard_experiment, write_run_data_requests])
+        if request is not None and has_flattened_params:
+            raise ValueError(
+                "If the `request` argument is set, then none of "
+                "the individual field arguments should be set."
+            )
+
+        request = tensorboard_service.WriteTensorboardExperimentDataRequest(request)
+
+        # If we have keyword arguments corresponding to fields on the
+        # request, apply these.
+        if tensorboard_experiment is not None:
+            request.tensorboard_experiment = tensorboard_experiment
+        if write_run_data_requests:
+            request.write_run_data_requests.extend(write_run_data_requests)
+
+        # Wrap the RPC method; this adds retry and timeout information,
+        # and friendly error handling.
+        rpc = gapic_v1.method_async.wrap_method(
+            self._client._transport.write_tensorboard_experiment_data,
+            default_timeout=None,
+            client_info=DEFAULT_CLIENT_INFO,
+        )
+
+        # Certain fields should be provided within the metadata header;
+        # add these here.
+        metadata = tuple(metadata) + (
+            gapic_v1.routing_header.to_grpc_metadata(
+                (("tensorboard_experiment", request.tensorboard_experiment),)
+            ),
+        )
+
+        # Send the request.
+        response = await rpc(request, retry=retry, timeout=timeout, metadata=metadata,)
 
         # Done; return the response.
         return response

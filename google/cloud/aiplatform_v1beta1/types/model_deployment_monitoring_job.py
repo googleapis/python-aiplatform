@@ -15,6 +15,7 @@
 #
 import proto  # type: ignore
 
+from google.cloud.aiplatform_v1beta1.types import encryption_spec as gca_encryption_spec
 from google.cloud.aiplatform_v1beta1.types import feature_monitoring_stats
 from google.cloud.aiplatform_v1beta1.types import io
 from google.cloud.aiplatform_v1beta1.types import job_state
@@ -22,6 +23,7 @@ from google.cloud.aiplatform_v1beta1.types import model_monitoring
 from google.protobuf import duration_pb2  # type: ignore
 from google.protobuf import struct_pb2  # type: ignore
 from google.protobuf import timestamp_pb2  # type: ignore
+from google.rpc import status_pb2  # type: ignore
 
 
 __protobuf__ = proto.module(
@@ -153,6 +155,15 @@ class ModelDeploymentMonitoringJob(proto.Message):
             round.
         stats_anomalies_base_directory (google.cloud.aiplatform_v1beta1.types.GcsDestination):
             Stats anomalies base folder path.
+        encryption_spec (google.cloud.aiplatform_v1beta1.types.EncryptionSpec):
+            Customer-managed encryption key spec for a
+            ModelDeploymentMonitoringJob. If set, this
+            ModelDeploymentMonitoringJob and all sub-
+            resources of this ModelDeploymentMonitoringJob
+            will be secured by this key.
+        error (google.rpc.status_pb2.Status):
+            Output only. Only populated when the job's state is
+            ``JOB_STATE_FAILED`` or ``JOB_STATE_CANCELLED``.
     """
 
     class MonitoringScheduleState(proto.Enum):
@@ -201,6 +212,10 @@ class ModelDeploymentMonitoringJob(proto.Message):
     stats_anomalies_base_directory = proto.Field(
         proto.MESSAGE, number=20, message=io.GcsDestination,
     )
+    encryption_spec = proto.Field(
+        proto.MESSAGE, number=21, message=gca_encryption_spec.EncryptionSpec,
+    )
+    error = proto.Field(proto.MESSAGE, number=23, message=status_pb2.Status,)
 
 
 class ModelDeploymentMonitoringBigQueryTable(proto.Message):

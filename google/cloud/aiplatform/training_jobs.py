@@ -308,10 +308,14 @@ class _TrainingJob(base.VertexAiResourceNounWithFutureManager):
     def _create_input_data_config(
         dataset: Optional[datasets._Dataset] = None,
         annotation_schema_uri: Optional[str] = None,
-        training_fraction_split: float = 0.8,
-        validation_fraction_split: float = 0.1,
-        test_fraction_split: float = 0.1,
+        training_fraction_split: Optional[float] = None,
+        validation_fraction_split: Optional[float] = None,
+        test_fraction_split: Optional[float] = None,
+        training_filter_split: Optional[str] = None,
+        validation_filter_split: Optional[str] = None,
+        test_filter_split: Optional[str] = None,
         predefined_split_column_name: Optional[str] = None,
+        timestamp_split_column_name: Optional[str] = None,
         gcs_destination_uri_prefix: Optional[str] = None,
         bigquery_destination: Optional[str] = None,
     ) -> Optional[gca_training_pipeline.InputDataConfig]:
@@ -329,7 +333,7 @@ class _TrainingJob(base.VertexAiResourceNounWithFutureManager):
             annotation_schema_uri (str):
                 Google Cloud Storage URI points to a YAML file describing
                 annotation schema. The schema is defined as an OpenAPI 3.0.2
-                [Schema Object](https://github.com/OAI/OpenAPI-Specification/blob/master/versions/3.0.2.md#schema-object) The schema files
+                [Schema Object](https://github.com/OAI/OpenAPI-Specification/blob/main/versions/3.0.2.md#schema-object) The schema files
                 that can be used here are found in
                 gs://google-cloud-aiplatform/schema/dataset/annotation/,
                 note that the chosen schema must be consistent with
@@ -349,17 +353,35 @@ class _TrainingJob(base.VertexAiResourceNounWithFutureManager):
                 and
                 ``annotation_schema_uri``.
             training_fraction_split (float):
-                The fraction of the input data that is to be
-                used to train the Model. This is ignored if Dataset is not provided.
-            training_fraction_split (float):
-                The fraction of the input data that is to be
-                used to train the Model. This is ignored if Dataset is not provided.
+                Optional. The fraction of the input data that is to be used to train
+                the Model. This is ignored if Dataset is not provided.
             validation_fraction_split (float):
-                The fraction of the input data that is to be
-                used to validate the Model. This is ignored if Dataset is not provided.
+                Optional. The fraction of the input data that is to be used to validate
+                the Model. This is ignored if Dataset is not provided.
             test_fraction_split (float):
-                The fraction of the input data that is to be
-                used to evaluate the Model. This is ignored if Dataset is not provided.
+                Optional. The fraction of the input data that is to be used to evaluate
+                the Model. This is ignored if Dataset is not provided.
+            training_filter_split (str):
+                Optional. A filter on DataItems of the Dataset. DataItems that match
+                this filter are used to train the Model. A filter with same syntax
+                as the one used in DatasetService.ListDataItems may be used. If a
+                single DataItem is matched by more than one of the FilterSplit filters,
+                then it is assigned to the first set that applies to it in the training,
+                validation, test order. This is ignored if Dataset is not provided.
+            validation_filter_split (str):
+                Optional. A filter on DataItems of the Dataset. DataItems that match
+                this filter are used to validate the Model. A filter with same syntax
+                as the one used in DatasetService.ListDataItems may be used. If a
+                single DataItem is matched by more than one of the FilterSplit filters,
+                then it is assigned to the first set that applies to it in the training,
+                validation, test order. This is ignored if Dataset is not provided.
+            test_filter_split (str):
+                Optional. A filter on DataItems of the Dataset. DataItems that match
+                this filter are used to test the Model. A filter with same syntax
+                as the one used in DatasetService.ListDataItems may be used. If a
+                single DataItem is matched by more than one of the FilterSplit filters,
+                then it is assigned to the first set that applies to it in the training,
+                validation, test order. This is ignored if Dataset is not provided.
             predefined_split_column_name (str):
                 Optional. The key is a name of one of the Dataset's data
                 columns. The value of the key (either the label's value or
@@ -370,6 +392,16 @@ class _TrainingJob(base.VertexAiResourceNounWithFutureManager):
                 ignored by the pipeline.
 
                 Supported only for tabular and time series Datasets.
+            timestamp_split_column_name (str):
+                Optional. The key is a name of one of the Dataset's data
+                columns. The value of the key values of the key (the values in
+                the column) must be in RFC 3339 `date-time` format, where
+                `time-offset` = `"Z"` (e.g. 1985-04-12T23:20:50.52Z). If for a
+                piece of data the key is not present or has an invalid value,
+                that piece is ignored by the pipeline.
+
+                Supported only for tabular and time series Datasets.
+                This parameter must be used with training_fraction_split, validation_fraction_split and test_fraction_split.
             gcs_destination_uri_prefix (str):
                 Optional. The Google Cloud Storage location.
 
@@ -396,33 +428,97 @@ class _TrainingJob(base.VertexAiResourceNounWithFutureManager):
                 -  AIP_TRAINING_DATA_URI ="bigquery_destination.dataset_*.training"
                 -  AIP_VALIDATION_DATA_URI = "bigquery_destination.dataset_*.validation"
                 -  AIP_TEST_DATA_URI = "bigquery_destination.dataset_*.test"
+        Raises:
+            ValueError: When more than 1 type of split configuration is passed or when
+                the split configuartion passed is incompatible with the dataset schema.
         """
 
         input_data_config = None
         if dataset:
-            # Create fraction split spec
-            fraction_split = gca_training_pipeline.FractionSplit(
-                training_fraction=training_fraction_split,
-                validation_fraction=validation_fraction_split,
-                test_fraction=test_fraction_split,
-            )
-
-            # Create predefined split spec
+            # Initialize all possible splits
+            filter_split = None
             predefined_split = None
-            if predefined_split_column_name:
-                if dataset._gca_resource.metadata_schema_uri not in (
-                    schema.dataset.metadata.tabular,
-                    schema.dataset.metadata.time_series,
+            timestamp_split = None
+            fraction_split = None
+
+            # Create filter split
+            if any(
+                [
+                    training_filter_split is not None,
+                    validation_filter_split is not None,
+                    test_filter_split is not None,
+                ]
+            ):
+                if all(
+                    [
+                        training_filter_split is not None,
+                        validation_filter_split is not None,
+                        test_filter_split is not None,
+                    ]
                 ):
+                    filter_split = gca_training_pipeline.FilterSplit(
+                        training_filter=training_filter_split,
+                        validation_filter=validation_filter_split,
+                        test_filter=test_filter_split,
+                    )
+                else:
                     raise ValueError(
-                        "A pre-defined split may only be used with a tabular or time series Dataset"
+                        "All filter splits must be passed together or not at all"
                     )
 
+            # Create predefined split
+            if predefined_split_column_name:
                 predefined_split = gca_training_pipeline.PredefinedSplit(
                     key=predefined_split_column_name
                 )
 
-            # Create GCS destination
+            # Create timestamp split or fraction split
+            if timestamp_split_column_name:
+                timestamp_split = gca_training_pipeline.TimestampSplit(
+                    training_fraction=training_fraction_split,
+                    validation_fraction=validation_fraction_split,
+                    test_fraction=test_fraction_split,
+                    key=timestamp_split_column_name,
+                )
+            elif any(
+                [
+                    training_fraction_split is not None,
+                    validation_fraction_split is not None,
+                    test_fraction_split is not None,
+                ]
+            ):
+                fraction_split = gca_training_pipeline.FractionSplit(
+                    training_fraction=training_fraction_split,
+                    validation_fraction=validation_fraction_split,
+                    test_fraction=test_fraction_split,
+                )
+
+            splits = [
+                split
+                for split in [
+                    filter_split,
+                    predefined_split,
+                    timestamp_split_column_name,
+                    fraction_split,
+                ]
+                if split is not None
+            ]
+
+            # Fallback to fraction split if nothing else is specified
+            if len(splits) == 0:
+                _LOGGER.info(
+                    "No dataset split provided. The service will use a default split."
+                )
+            elif len(splits) > 1:
+                raise ValueError(
+                    """Can only specify one of:
+                        1. training_filter_split, validation_filter_split, test_filter_split
+                        2. predefined_split_column_name
+                        3. timestamp_split_column_name, training_fraction_split, validation_fraction_split, test_fraction_split
+                        4. training_fraction_split, validation_fraction_split, test_fraction_split"""
+                )
+
+            # create GCS destination
             gcs_destination = None
             if gcs_destination_uri_prefix:
                 gcs_destination = gca_io.GcsDestination(
@@ -439,7 +535,9 @@ class _TrainingJob(base.VertexAiResourceNounWithFutureManager):
             # create input data config
             input_data_config = gca_training_pipeline.InputDataConfig(
                 fraction_split=fraction_split,
+                filter_split=filter_split,
                 predefined_split=predefined_split,
+                timestamp_split=timestamp_split,
                 dataset_id=dataset.name,
                 annotation_schema_uri=annotation_schema_uri,
                 gcs_destination=gcs_destination,
@@ -453,11 +551,15 @@ class _TrainingJob(base.VertexAiResourceNounWithFutureManager):
         training_task_definition: str,
         training_task_inputs: Union[dict, proto.Message],
         dataset: Optional[datasets._Dataset],
-        training_fraction_split: float,
-        validation_fraction_split: float,
-        test_fraction_split: float,
-        annotation_schema_uri: Optional[str] = None,
+        training_fraction_split: Optional[float] = None,
+        validation_fraction_split: Optional[float] = None,
+        test_fraction_split: Optional[float] = None,
+        training_filter_split: Optional[str] = None,
+        validation_filter_split: Optional[str] = None,
+        test_filter_split: Optional[str] = None,
         predefined_split_column_name: Optional[str] = None,
+        timestamp_split_column_name: Optional[str] = None,
+        annotation_schema_uri: Optional[str] = None,
         model: Optional[gca_model.Model] = None,
         gcs_destination_uri_prefix: Optional[str] = None,
         bigquery_destination: Optional[str] = None,
@@ -488,19 +590,10 @@ class _TrainingJob(base.VertexAiResourceNounWithFutureManager):
                 [google.cloud.aiplatform.v1beta1.TrainingPipeline.training_task_definition].
                 For tabular Datasets, all their data is exported to
                 training, to pick and choose from.
-            training_fraction_split (float):
-                The fraction of the input data that is to be
-                used to train the Model. This is ignored if Dataset is not provided.
-            validation_fraction_split (float):
-                The fraction of the input data that is to be
-                used to validate the Model. This is ignored if Dataset is not provided.
-            test_fraction_split (float):
-                The fraction of the input data that is to be
-                used to evaluate the Model. This is ignored if Dataset is not provided.
             annotation_schema_uri (str):
                 Google Cloud Storage URI points to a YAML file describing
                 annotation schema. The schema is defined as an OpenAPI 3.0.2
-                [Schema Object](https://github.com/OAI/OpenAPI-Specification/blob/master/versions/3.0.2.md#schema-object) The schema files
+                [Schema Object](https://github.com/OAI/OpenAPI-Specification/blob/main/versions/3.0.2.md#schema-object) The schema files
                 that can be used here are found in
                 gs://google-cloud-aiplatform/schema/dataset/annotation/,
                 note that the chosen schema must be consistent with
@@ -519,6 +612,36 @@ class _TrainingJob(base.VertexAiResourceNounWithFutureManager):
                 ``annotations_filter``
                 and
                 ``annotation_schema_uri``.
+            training_fraction_split (float):
+                Optional. The fraction of the input data that is to be used to train
+                the Model. This is ignored if Dataset is not provided.
+            validation_fraction_split (float):
+                Optional. The fraction of the input data that is to be used to validate
+                the Model. This is ignored if Dataset is not provided.
+            test_fraction_split (float):
+                Optional. The fraction of the input data that is to be used to evaluate
+                the Model. This is ignored if Dataset is not provided.
+            training_filter_split (str):
+                Optional. A filter on DataItems of the Dataset. DataItems that match
+                this filter are used to train the Model. A filter with same syntax
+                as the one used in DatasetService.ListDataItems may be used. If a
+                single DataItem is matched by more than one of the FilterSplit filters,
+                then it is assigned to the first set that applies to it in the training,
+                validation, test order. This is ignored if Dataset is not provided.
+            validation_filter_split (str):
+                Optional. A filter on DataItems of the Dataset. DataItems that match
+                this filter are used to validate the Model. A filter with same syntax
+                as the one used in DatasetService.ListDataItems may be used. If a
+                single DataItem is matched by more than one of the FilterSplit filters,
+                then it is assigned to the first set that applies to it in the training,
+                validation, test order. This is ignored if Dataset is not provided.
+            test_filter_split (str):
+                Optional. A filter on DataItems of the Dataset. DataItems that match
+                this filter are used to test the Model. A filter with same syntax
+                as the one used in DatasetService.ListDataItems may be used. If a
+                single DataItem is matched by more than one of the FilterSplit filters,
+                then it is assigned to the first set that applies to it in the training,
+                validation, test order. This is ignored if Dataset is not provided.
             predefined_split_column_name (str):
                 Optional. The key is a name of one of the Dataset's data
                 columns. The value of the key (either the label's value or
@@ -529,6 +652,16 @@ class _TrainingJob(base.VertexAiResourceNounWithFutureManager):
                 ignored by the pipeline.
 
                 Supported only for tabular and time series Datasets.
+            timestamp_split_column_name (str):
+                Optional. The key is a name of one of the Dataset's data
+                columns. The value of the key values of the key (the values in
+                the column) must be in RFC 3339 `date-time` format, where
+                `time-offset` = `"Z"` (e.g. 1985-04-12T23:20:50.52Z). If for a
+                piece of data the key is not present or has an invalid value,
+                that piece is ignored by the pipeline.
+
+                Supported only for tabular and time series Datasets.
+                This parameter must be used with training_fraction_split, validation_fraction_split and test_fraction_split.
             model (~.model.Model):
                 Optional. Describes the Model that may be uploaded (via
                 [ModelService.UploadMode][]) by this TrainingPipeline. The
@@ -583,7 +716,11 @@ class _TrainingJob(base.VertexAiResourceNounWithFutureManager):
             training_fraction_split=training_fraction_split,
             validation_fraction_split=validation_fraction_split,
             test_fraction_split=test_fraction_split,
+            training_filter_split=training_filter_split,
+            validation_filter_split=validation_filter_split,
+            test_filter_split=test_filter_split,
             predefined_split_column_name=predefined_split_column_name,
+            timestamp_split_column_name=timestamp_split_column_name,
             gcs_destination_uri_prefix=gcs_destination_uri_prefix,
             bigquery_destination=bigquery_destination,
         )
@@ -1139,6 +1276,8 @@ class _CustomTrainingJob(_TrainingJob):
         machine_type: str = "n1-standard-4",
         accelerator_type: str = "ACCELERATOR_TYPE_UNSPECIFIED",
         accelerator_count: int = 0,
+        boot_disk_type: str = "pd-ssd",
+        boot_disk_size_gb: int = 100,
     ) -> Tuple[worker_spec_utils._DistributedTrainingSpec, Optional[gca_model.Model]]:
         """Create worker pool specs and managed model as well validating the
         run.
@@ -1172,6 +1311,13 @@ class _CustomTrainingJob(_TrainingJob):
                 NVIDIA_TESLA_T4
             accelerator_count (int):
                 The number of accelerators to attach to a worker replica.
+            boot_disk_type (str):
+                Type of the boot disk, default is `pd-ssd`.
+                Valid values: `pd-ssd` (Persistent Disk Solid State Drive) or
+                `pd-standard` (Persistent Disk Hard Disk Drive).
+            boot_disk_size_gb (int):
+                Size in GB of the boot disk, default is 100GB.
+                boot disk size must be within the range of [100, 64000].
         Returns:
             Worker pools specs and managed model for run.
 
@@ -1204,6 +1350,8 @@ class _CustomTrainingJob(_TrainingJob):
             machine_type=machine_type,
             accelerator_count=accelerator_count,
             accelerator_type=accelerator_type,
+            boot_disk_type=boot_disk_type,
+            boot_disk_size_gb=boot_disk_size_gb,
         ).pool_specs
 
         managed_model = self._managed_model
@@ -1563,8 +1711,6 @@ class CustomTrainingJob(_CustomTrainingJob):
         self._requirements = requirements
         self._script_path = script_path
 
-    # TODO(b/172365904) add filter split, training_pipeline.FilterSplit
-    # TODO(b/172368070) add timestamp split, training_pipeline.TimestampSplit
     def run(
         self,
         dataset: Optional[
@@ -1588,10 +1734,16 @@ class CustomTrainingJob(_CustomTrainingJob):
         machine_type: str = "n1-standard-4",
         accelerator_type: str = "ACCELERATOR_TYPE_UNSPECIFIED",
         accelerator_count: int = 0,
-        training_fraction_split: float = 0.8,
-        validation_fraction_split: float = 0.1,
-        test_fraction_split: float = 0.1,
+        boot_disk_type: str = "pd-ssd",
+        boot_disk_size_gb: int = 100,
+        training_fraction_split: Optional[float] = None,
+        validation_fraction_split: Optional[float] = None,
+        test_fraction_split: Optional[float] = None,
+        training_filter_split: Optional[str] = None,
+        validation_filter_split: Optional[str] = None,
+        test_filter_split: Optional[str] = None,
         predefined_split_column_name: Optional[str] = None,
+        timestamp_split_column_name: Optional[str] = None,
         tensorboard: Optional[str] = None,
         sync=True,
     ) -> Optional[models.Model]:
@@ -1603,12 +1755,36 @@ class CustomTrainingJob(_CustomTrainingJob):
         ie: replica_count = 10 will result in 1 chief and 9 workers
         All replicas have same machine_type, accelerator_type, and accelerator_count
 
-        Data fraction splits:
-        Any of ``training_fraction_split``, ``validation_fraction_split`` and
-        ``test_fraction_split`` may optionally be provided, they must sum to up to 1. If
-        the provided ones sum to less than 1, the remainder is assigned to sets as
-        decided by Vertex AI.If none of the fractions are set, by default roughly 80%
-        of data will be used for training, 10% for validation, and 10% for test.
+        If training on a Vertex AI dataset, you can use one of the following split configurations:
+            Data fraction splits:
+            Any of ``training_fraction_split``, ``validation_fraction_split`` and
+            ``test_fraction_split`` may optionally be provided, they must sum to up to 1. If
+            the provided ones sum to less than 1, the remainder is assigned to sets as
+            decided by Vertex AI. If none of the fractions are set, by default roughly 80%
+            of data will be used for training, 10% for validation, and 10% for test.
+
+            Data filter splits:
+            Assigns input data to training, validation, and test sets
+            based on the given filters, data pieces not matched by any
+            filter are ignored. Currently only supported for Datasets
+            containing DataItems.
+            If any of the filters in this message are to match nothing, then
+            they can be set as '-' (the minus sign).
+            If using filter splits, all of ``training_filter_split``, ``validation_filter_split`` and
+            ``test_filter_split`` must be provided.
+            Supported only for unstructured Datasets.
+
+            Predefined splits:
+            Assigns input data to training, validation, and test sets based on the value of a provided key.
+            If using predefined splits, ``predefined_split_column_name`` must be provided.
+            Supported only for tabular Datasets.
+
+            Timestamp splits:
+            Assigns input data to training, validation, and test sets
+            based on a provided timestamps. The youngest data pieces are
+            assigned to training set, next to validation set, and the oldest
+            to the test set.
+            Supported only for tabular Datasets.
 
         Args:
             dataset (
@@ -1632,7 +1808,7 @@ class CustomTrainingJob(_CustomTrainingJob):
             annotation_schema_uri (str):
                 Google Cloud Storage URI points to a YAML file describing
                 annotation schema. The schema is defined as an OpenAPI 3.0.2
-                [Schema Object](https://github.com/OAI/OpenAPI-Specification/blob/master/versions/3.0.2.md#schema-object) The schema files
+                [Schema Object](https://github.com/OAI/OpenAPI-Specification/blob/main/versions/3.0.2.md#schema-object) The schema files
                 that can be used here are found in
                 gs://google-cloud-aiplatform/schema/dataset/annotation/,
                 note that the chosen schema must be consistent with
@@ -1724,15 +1900,43 @@ class CustomTrainingJob(_CustomTrainingJob):
                 NVIDIA_TESLA_T4
             accelerator_count (int):
                 The number of accelerators to attach to a worker replica.
+            boot_disk_type (str):
+                Type of the boot disk, default is `pd-ssd`.
+                Valid values: `pd-ssd` (Persistent Disk Solid State Drive) or
+                `pd-standard` (Persistent Disk Hard Disk Drive).
+            boot_disk_size_gb (int):
+                Size in GB of the boot disk, default is 100GB.
+                boot disk size must be within the range of [100, 64000].
             training_fraction_split (float):
-                The fraction of the input data that is to be
-                used to train the Model. This is ignored if Dataset is not provided.
+                Optional. The fraction of the input data that is to be used to train
+                the Model. This is ignored if Dataset is not provided.
             validation_fraction_split (float):
-                The fraction of the input data that is to be
-                used to validate the Model. This is ignored if Dataset is not provided.
+                Optional. The fraction of the input data that is to be used to validate
+                the Model. This is ignored if Dataset is not provided.
             test_fraction_split (float):
-                The fraction of the input data that is to be
-                used to evaluate the Model. This is ignored if Dataset is not provided.
+                Optional. The fraction of the input data that is to be used to evaluate
+                the Model. This is ignored if Dataset is not provided.
+            training_filter_split (str):
+                Optional. A filter on DataItems of the Dataset. DataItems that match
+                this filter are used to train the Model. A filter with same syntax
+                as the one used in DatasetService.ListDataItems may be used. If a
+                single DataItem is matched by more than one of the FilterSplit filters,
+                then it is assigned to the first set that applies to it in the training,
+                validation, test order. This is ignored if Dataset is not provided.
+            validation_filter_split (str):
+                Optional. A filter on DataItems of the Dataset. DataItems that match
+                this filter are used to validate the Model. A filter with same syntax
+                as the one used in DatasetService.ListDataItems may be used. If a
+                single DataItem is matched by more than one of the FilterSplit filters,
+                then it is assigned to the first set that applies to it in the training,
+                validation, test order. This is ignored if Dataset is not provided.
+            test_filter_split (str):
+                Optional. A filter on DataItems of the Dataset. DataItems that match
+                this filter are used to test the Model. A filter with same syntax
+                as the one used in DatasetService.ListDataItems may be used. If a
+                single DataItem is matched by more than one of the FilterSplit filters,
+                then it is assigned to the first set that applies to it in the training,
+                validation, test order. This is ignored if Dataset is not provided.
             predefined_split_column_name (str):
                 Optional. The key is a name of one of the Dataset's data
                 columns. The value of the key (either the label's value or
@@ -1741,6 +1945,15 @@ class CustomTrainingJob(_CustomTrainingJob):
                 given piece of data is assigned. If for a piece of data the
                 key is not present or has an invalid value, that piece is
                 ignored by the pipeline.
+
+                Supported only for tabular and time series Datasets.
+            timestamp_split_column_name (str):
+                Optional. The key is a name of one of the Dataset's data
+                columns. The value of the key values of the key (the values in
+                the column) must be in RFC 3339 `date-time` format, where
+                `time-offset` = `"Z"` (e.g. 1985-04-12T23:20:50.52Z). If for a
+                piece of data the key is not present or has an invalid value,
+                that piece is ignored by the pipeline.
 
                 Supported only for tabular and time series Datasets.
             tensorboard (str):
@@ -1774,6 +1987,8 @@ class CustomTrainingJob(_CustomTrainingJob):
             machine_type=machine_type,
             accelerator_count=accelerator_count,
             accelerator_type=accelerator_type,
+            boot_disk_type=boot_disk_type,
+            boot_disk_size_gb=boot_disk_size_gb,
         )
 
         # make and copy package
@@ -1796,7 +2011,11 @@ class CustomTrainingJob(_CustomTrainingJob):
             training_fraction_split=training_fraction_split,
             validation_fraction_split=validation_fraction_split,
             test_fraction_split=test_fraction_split,
+            training_filter_split=training_filter_split,
+            validation_filter_split=validation_filter_split,
+            test_filter_split=test_filter_split,
             predefined_split_column_name=predefined_split_column_name,
+            timestamp_split_column_name=timestamp_split_column_name,
             tensorboard=tensorboard,
             sync=sync,
         )
@@ -1822,10 +2041,14 @@ class CustomTrainingJob(_CustomTrainingJob):
         service_account: Optional[str] = None,
         network: Optional[str] = None,
         bigquery_destination: Optional[str] = None,
-        training_fraction_split: float = 0.8,
-        validation_fraction_split: float = 0.1,
-        test_fraction_split: float = 0.1,
+        training_fraction_split: Optional[float] = None,
+        validation_fraction_split: Optional[float] = None,
+        test_fraction_split: Optional[float] = None,
+        training_filter_split: Optional[str] = None,
+        validation_filter_split: Optional[str] = None,
+        test_filter_split: Optional[str] = None,
         predefined_split_column_name: Optional[str] = None,
+        timestamp_split_column_name: Optional[str] = None,
         tensorboard: Optional[str] = None,
         sync=True,
     ) -> Optional[models.Model]:
@@ -1896,14 +2119,35 @@ class CustomTrainingJob(_CustomTrainingJob):
                 -  AIP_VALIDATION_DATA_URI = "bigquery_destination.dataset_*.validation"
                 -  AIP_TEST_DATA_URI = "bigquery_destination.dataset_*.test"
             training_fraction_split (float):
-                The fraction of the input data that is to be
-                used to train the Model.
+                Optional. The fraction of the input data that is to be used to train
+                the Model. This is ignored if Dataset is not provided.
             validation_fraction_split (float):
-                The fraction of the input data that is to be
-                used to validate the Model.
+                Optional. The fraction of the input data that is to be used to validate
+                the Model. This is ignored if Dataset is not provided.
             test_fraction_split (float):
-                The fraction of the input data that is to be
-                used to evaluate the Model.
+                Optional. The fraction of the input data that is to be used to evaluate
+                the Model. This is ignored if Dataset is not provided.
+            training_filter_split (str):
+                Optional. A filter on DataItems of the Dataset. DataItems that match
+                this filter are used to train the Model. A filter with same syntax
+                as the one used in DatasetService.ListDataItems may be used. If a
+                single DataItem is matched by more than one of the FilterSplit filters,
+                then it is assigned to the first set that applies to it in the training,
+                validation, test order. This is ignored if Dataset is not provided.
+            validation_filter_split (str):
+                Optional. A filter on DataItems of the Dataset. DataItems that match
+                this filter are used to validate the Model. A filter with same syntax
+                as the one used in DatasetService.ListDataItems may be used. If a
+                single DataItem is matched by more than one of the FilterSplit filters,
+                then it is assigned to the first set that applies to it in the training,
+                validation, test order. This is ignored if Dataset is not provided.
+            test_filter_split (str):
+                Optional. A filter on DataItems of the Dataset. DataItems that match
+                this filter are used to test the Model. A filter with same syntax
+                as the one used in DatasetService.ListDataItems may be used. If a
+                single DataItem is matched by more than one of the FilterSplit filters,
+                then it is assigned to the first set that applies to it in the training,
+                validation, test order. This is ignored if Dataset is not provided.
             predefined_split_column_name (str):
                 Optional. The key is a name of one of the Dataset's data
                 columns. The value of the key (either the label's value or
@@ -1912,6 +2156,15 @@ class CustomTrainingJob(_CustomTrainingJob):
                 given piece of data is assigned. If for a piece of data the
                 key is not present or has an invalid value, that piece is
                 ignored by the pipeline.
+
+                Supported only for tabular and time series Datasets.
+            timestamp_split_column_name (str):
+                Optional. The key is a name of one of the Dataset's data
+                columns. The value of the key values of the key (the values in
+                the column) must be in RFC 3339 `date-time` format, where
+                `time-offset` = `"Z"` (e.g. 1985-04-12T23:20:50.52Z). If for a
+                piece of data the key is not present or has an invalid value,
+                that piece is ignored by the pipeline.
 
                 Supported only for tabular and time series Datasets.
             tensorboard (str):
@@ -1979,7 +2232,11 @@ class CustomTrainingJob(_CustomTrainingJob):
             training_fraction_split=training_fraction_split,
             validation_fraction_split=validation_fraction_split,
             test_fraction_split=test_fraction_split,
+            training_filter_split=training_filter_split,
+            validation_filter_split=validation_filter_split,
+            test_filter_split=test_filter_split,
             predefined_split_column_name=predefined_split_column_name,
+            timestamp_split_column_name=timestamp_split_column_name,
             model=managed_model,
             gcs_destination_uri_prefix=base_output_dir,
             bigquery_destination=bigquery_destination,
@@ -2216,8 +2473,6 @@ class CustomContainerTrainingJob(_CustomTrainingJob):
 
         self._command = command
 
-    # TODO(b/172365904) add filter split, training_pipeline.FilterSplit
-    # TODO(b/172368070) add timestamp split, training_pipeline.TimestampSplit
     def run(
         self,
         dataset: Optional[
@@ -2241,10 +2496,16 @@ class CustomContainerTrainingJob(_CustomTrainingJob):
         machine_type: str = "n1-standard-4",
         accelerator_type: str = "ACCELERATOR_TYPE_UNSPECIFIED",
         accelerator_count: int = 0,
-        training_fraction_split: float = 0.8,
-        validation_fraction_split: float = 0.1,
-        test_fraction_split: float = 0.1,
+        boot_disk_type: str = "pd-ssd",
+        boot_disk_size_gb: int = 100,
+        training_fraction_split: Optional[float] = None,
+        validation_fraction_split: Optional[float] = None,
+        test_fraction_split: Optional[float] = None,
+        training_filter_split: Optional[str] = None,
+        validation_filter_split: Optional[str] = None,
+        test_filter_split: Optional[str] = None,
         predefined_split_column_name: Optional[str] = None,
+        timestamp_split_column_name: Optional[str] = None,
         tensorboard: Optional[str] = None,
         sync=True,
     ) -> Optional[models.Model]:
@@ -2256,12 +2517,36 @@ class CustomContainerTrainingJob(_CustomTrainingJob):
         ie: replica_count = 10 will result in 1 chief and 9 workers
         All replicas have same machine_type, accelerator_type, and accelerator_count
 
-        Data fraction splits:
-        Any of ``training_fraction_split``, ``validation_fraction_split`` and
-        ``test_fraction_split`` may optionally be provided, they must sum to up to 1. If
-        the provided ones sum to less than 1, the remainder is assigned to sets as
-        decided by Vertex AI. If none of the fractions are set, by default roughly 80%
-        of data will be used for training, 10% for validation, and 10% for test.
+        If training on a Vertex AI dataset, you can use one of the following split configurations:
+            Data fraction splits:
+            Any of ``training_fraction_split``, ``validation_fraction_split`` and
+            ``test_fraction_split`` may optionally be provided, they must sum to up to 1. If
+            the provided ones sum to less than 1, the remainder is assigned to sets as
+            decided by Vertex AI. If none of the fractions are set, by default roughly 80%
+            of data will be used for training, 10% for validation, and 10% for test.
+
+            Data filter splits:
+            Assigns input data to training, validation, and test sets
+            based on the given filters, data pieces not matched by any
+            filter are ignored. Currently only supported for Datasets
+            containing DataItems.
+            If any of the filters in this message are to match nothing, then
+            they can be set as '-' (the minus sign).
+            If using filter splits, all of ``training_filter_split``, ``validation_filter_split`` and
+            ``test_filter_split`` must be provided.
+            Supported only for unstructured Datasets.
+
+            Predefined splits:
+            Assigns input data to training, validation, and test sets based on the value of a provided key.
+            If using predefined splits, ``predefined_split_column_name`` must be provided.
+            Supported only for tabular Datasets.
+
+            Timestamp splits:
+            Assigns input data to training, validation, and test sets
+            based on a provided timestamps. The youngest data pieces are
+            assigned to training set, next to validation set, and the oldest
+            to the test set.
+            Supported only for tabular Datasets.
 
         Args:
             dataset (Union[datasets.ImageDataset,datasets.TabularDataset,datasets.TextDataset,datasets.VideoDataset]):
@@ -2278,7 +2563,7 @@ class CustomContainerTrainingJob(_CustomTrainingJob):
             annotation_schema_uri (str):
                 Google Cloud Storage URI points to a YAML file describing
                 annotation schema. The schema is defined as an OpenAPI 3.0.2
-                [Schema Object](https://github.com/OAI/OpenAPI-Specification/blob/master/versions/3.0.2.md#schema-object) The schema files
+                [Schema Object](https://github.com/OAI/OpenAPI-Specification/blob/main/versions/3.0.2.md#schema-object) The schema files
                 that can be used here are found in
                 gs://google-cloud-aiplatform/schema/dataset/annotation/,
                 note that the chosen schema must be consistent with
@@ -2370,15 +2655,43 @@ class CustomContainerTrainingJob(_CustomTrainingJob):
                 NVIDIA_TESLA_T4
             accelerator_count (int):
                 The number of accelerators to attach to a worker replica.
+            boot_disk_type (str):
+                Type of the boot disk, default is `pd-ssd`.
+                Valid values: `pd-ssd` (Persistent Disk Solid State Drive) or
+                `pd-standard` (Persistent Disk Hard Disk Drive).
+            boot_disk_size_gb (int):
+                Size in GB of the boot disk, default is 100GB.
+                boot disk size must be within the range of [100, 64000].
             training_fraction_split (float):
-                The fraction of the input data that is to be
-                used to train the Model. This is ignored if Dataset is not provided.
+                Optional. The fraction of the input data that is to be used to train
+                the Model. This is ignored if Dataset is not provided.
             validation_fraction_split (float):
-                The fraction of the input data that is to be
-                used to validate the Model. This is ignored if Dataset is not provided.
+                Optional. The fraction of the input data that is to be used to validate
+                the Model. This is ignored if Dataset is not provided.
             test_fraction_split (float):
-                The fraction of the input data that is to be
-                used to evaluate the Model. This is ignored if Dataset is not provided.
+                Optional. The fraction of the input data that is to be used to evaluate
+                the Model. This is ignored if Dataset is not provided.
+            training_filter_split (str):
+                Optional. A filter on DataItems of the Dataset. DataItems that match
+                this filter are used to train the Model. A filter with same syntax
+                as the one used in DatasetService.ListDataItems may be used. If a
+                single DataItem is matched by more than one of the FilterSplit filters,
+                then it is assigned to the first set that applies to it in the training,
+                validation, test order. This is ignored if Dataset is not provided.
+            validation_filter_split (str):
+                Optional. A filter on DataItems of the Dataset. DataItems that match
+                this filter are used to validate the Model. A filter with same syntax
+                as the one used in DatasetService.ListDataItems may be used. If a
+                single DataItem is matched by more than one of the FilterSplit filters,
+                then it is assigned to the first set that applies to it in the training,
+                validation, test order. This is ignored if Dataset is not provided.
+            test_filter_split (str):
+                Optional. A filter on DataItems of the Dataset. DataItems that match
+                this filter are used to test the Model. A filter with same syntax
+                as the one used in DatasetService.ListDataItems may be used. If a
+                single DataItem is matched by more than one of the FilterSplit filters,
+                then it is assigned to the first set that applies to it in the training,
+                validation, test order. This is ignored if Dataset is not provided.
             predefined_split_column_name (str):
                 Optional. The key is a name of one of the Dataset's data
                 columns. The value of the key (either the label's value or
@@ -2387,6 +2700,15 @@ class CustomContainerTrainingJob(_CustomTrainingJob):
                 given piece of data is assigned. If for a piece of data the
                 key is not present or has an invalid value, that piece is
                 ignored by the pipeline.
+
+                Supported only for tabular and time series Datasets.
+            timestamp_split_column_name (str):
+                Optional. The key is a name of one of the Dataset's data
+                columns. The value of the key values of the key (the values in
+                the column) must be in RFC 3339 `date-time` format, where
+                `time-offset` = `"Z"` (e.g. 1985-04-12T23:20:50.52Z). If for a
+                piece of data the key is not present or has an invalid value,
+                that piece is ignored by the pipeline.
 
                 Supported only for tabular and time series Datasets.
             tensorboard (str):
@@ -2425,6 +2747,8 @@ class CustomContainerTrainingJob(_CustomTrainingJob):
             machine_type=machine_type,
             accelerator_count=accelerator_count,
             accelerator_type=accelerator_type,
+            boot_disk_type=boot_disk_type,
+            boot_disk_size_gb=boot_disk_size_gb,
         )
 
         return self._run(
@@ -2441,7 +2765,11 @@ class CustomContainerTrainingJob(_CustomTrainingJob):
             training_fraction_split=training_fraction_split,
             validation_fraction_split=validation_fraction_split,
             test_fraction_split=test_fraction_split,
+            training_filter_split=training_filter_split,
+            validation_filter_split=validation_filter_split,
+            test_filter_split=test_filter_split,
             predefined_split_column_name=predefined_split_column_name,
+            timestamp_split_column_name=timestamp_split_column_name,
             tensorboard=tensorboard,
             sync=sync,
         )
@@ -2466,10 +2794,14 @@ class CustomContainerTrainingJob(_CustomTrainingJob):
         service_account: Optional[str] = None,
         network: Optional[str] = None,
         bigquery_destination: Optional[str] = None,
-        training_fraction_split: float = 0.8,
-        validation_fraction_split: float = 0.1,
-        test_fraction_split: float = 0.1,
+        training_fraction_split: Optional[float] = None,
+        validation_fraction_split: Optional[float] = None,
+        test_fraction_split: Optional[float] = None,
+        training_filter_split: Optional[str] = None,
+        validation_filter_split: Optional[str] = None,
+        test_filter_split: Optional[str] = None,
         predefined_split_column_name: Optional[str] = None,
+        timestamp_split_column_name: Optional[str] = None,
         tensorboard: Optional[str] = None,
         sync=True,
     ) -> Optional[models.Model]:
@@ -2536,14 +2868,35 @@ class CustomContainerTrainingJob(_CustomTrainingJob):
                 -  AIP_VALIDATION_DATA_URI = "bigquery_destination.dataset_*.validation"
                 -  AIP_TEST_DATA_URI = "bigquery_destination.dataset_*.test"
             training_fraction_split (float):
-                The fraction of the input data that is to be
-                used to train the Model.
+                Optional. The fraction of the input data that is to be used to train
+                the Model. This is ignored if Dataset is not provided.
             validation_fraction_split (float):
-                The fraction of the input data that is to be
-                used to validate the Model.
+                Optional. The fraction of the input data that is to be used to validate
+                the Model. This is ignored if Dataset is not provided.
             test_fraction_split (float):
-                The fraction of the input data that is to be
-                used to evaluate the Model.
+                Optional. The fraction of the input data that is to be used to evaluate
+                the Model. This is ignored if Dataset is not provided.
+            training_filter_split (str):
+                Optional. A filter on DataItems of the Dataset. DataItems that match
+                this filter are used to train the Model. A filter with same syntax
+                as the one used in DatasetService.ListDataItems may be used. If a
+                single DataItem is matched by more than one of the FilterSplit filters,
+                then it is assigned to the first set that applies to it in the training,
+                validation, test order. This is ignored if Dataset is not provided.
+            validation_filter_split (str):
+                Optional. A filter on DataItems of the Dataset. DataItems that match
+                this filter are used to validate the Model. A filter with same syntax
+                as the one used in DatasetService.ListDataItems may be used. If a
+                single DataItem is matched by more than one of the FilterSplit filters,
+                then it is assigned to the first set that applies to it in the training,
+                validation, test order. This is ignored if Dataset is not provided.
+            test_filter_split (str):
+                Optional. A filter on DataItems of the Dataset. DataItems that match
+                this filter are used to test the Model. A filter with same syntax
+                as the one used in DatasetService.ListDataItems may be used. If a
+                single DataItem is matched by more than one of the FilterSplit filters,
+                then it is assigned to the first set that applies to it in the training,
+                validation, test order. This is ignored if Dataset is not provided.
             predefined_split_column_name (str):
                 Optional. The key is a name of one of the Dataset's data
                 columns. The value of the key (either the label's value or
@@ -2552,6 +2905,15 @@ class CustomContainerTrainingJob(_CustomTrainingJob):
                 given piece of data is assigned. If for a piece of data the
                 key is not present or has an invalid value, that piece is
                 ignored by the pipeline.
+
+                Supported only for tabular and time series Datasets.
+            timestamp_split_column_name (str):
+                Optional. The key is a name of one of the Dataset's data
+                columns. The value of the key values of the key (the values in
+                the column) must be in RFC 3339 `date-time` format, where
+                `time-offset` = `"Z"` (e.g. 1985-04-12T23:20:50.52Z). If for a
+                piece of data the key is not present or has an invalid value,
+                that piece is ignored by the pipeline.
 
                 Supported only for tabular and time series Datasets.
             tensorboard (str):
@@ -2613,7 +2975,11 @@ class CustomContainerTrainingJob(_CustomTrainingJob):
             training_fraction_split=training_fraction_split,
             validation_fraction_split=validation_fraction_split,
             test_fraction_split=test_fraction_split,
+            training_filter_split=training_filter_split,
+            validation_filter_split=validation_filter_split,
+            test_filter_split=test_filter_split,
             predefined_split_column_name=predefined_split_column_name,
+            timestamp_split_column_name=timestamp_split_column_name,
             model=managed_model,
             gcs_destination_uri_prefix=base_output_dir,
             bigquery_destination=bigquery_destination,
@@ -2815,10 +3181,11 @@ class AutoMLTabularTrainingJob(_TrainingJob):
         self,
         dataset: datasets.TabularDataset,
         target_column: str,
-        training_fraction_split: float = 0.8,
-        validation_fraction_split: float = 0.1,
-        test_fraction_split: float = 0.1,
+        training_fraction_split: Optional[float] = None,
+        validation_fraction_split: Optional[float] = None,
+        test_fraction_split: Optional[float] = None,
         predefined_split_column_name: Optional[str] = None,
+        timestamp_split_column_name: Optional[str] = None,
         weight_column: Optional[str] = None,
         budget_milli_node_hours: int = 1000,
         model_display_name: Optional[str] = None,
@@ -2831,12 +3198,25 @@ class AutoMLTabularTrainingJob(_TrainingJob):
     ) -> models.Model:
         """Runs the training job and returns a model.
 
-        Data fraction splits:
-        Any of ``training_fraction_split``, ``validation_fraction_split`` and
-        ``test_fraction_split`` may optionally be provided, they must sum to up to 1. If
-        the provided ones sum to less than 1, the remainder is assigned to sets as
-        decided by Vertex AI. If none of the fractions are set, by default roughly 80%
-        of data will be used for training, 10% for validation, and 10% for test.
+        If training on a Vertex AI dataset, you can use one of the following split configurations:
+            Data fraction splits:
+            Any of ``training_fraction_split``, ``validation_fraction_split`` and
+            ``test_fraction_split`` may optionally be provided, they must sum to up to 1. If
+            the provided ones sum to less than 1, the remainder is assigned to sets as
+            decided by Vertex AI. If none of the fractions are set, by default roughly 80%
+            of data will be used for training, 10% for validation, and 10% for test.
+
+            Predefined splits:
+            Assigns input data to training, validation, and test sets based on the value of a provided key.
+            If using predefined splits, ``predefined_split_column_name`` must be provided.
+            Supported only for tabular Datasets.
+
+            Timestamp splits:
+            Assigns input data to training, validation, and test sets
+            based on a provided timestamps. The youngest data pieces are
+            assigned to training set, next to validation set, and the oldest
+            to the test set.
+            Supported only for tabular Datasets.
 
         Args:
             dataset (datasets.TabularDataset):
@@ -2850,14 +3230,14 @@ class AutoMLTabularTrainingJob(_TrainingJob):
             target_column (str):
                 Required. The name of the column values of which the Model is to predict.
             training_fraction_split (float):
-                Required. The fraction of the input data that is to be
-                used to train the Model. This is ignored if Dataset is not provided.
+                Optional. The fraction of the input data that is to be used to train
+                the Model. This is ignored if Dataset is not provided.
             validation_fraction_split (float):
-                Required. The fraction of the input data that is to be
-                used to validate the Model. This is ignored if Dataset is not provided.
+                Optional. The fraction of the input data that is to be used to validate
+                the Model. This is ignored if Dataset is not provided.
             test_fraction_split (float):
-                Required. The fraction of the input data that is to be
-                used to evaluate the Model. This is ignored if Dataset is not provided.
+                Optional. The fraction of the input data that is to be used to evaluate
+                the Model. This is ignored if Dataset is not provided.
             predefined_split_column_name (str):
                 Optional. The key is a name of one of the Dataset's data
                 columns. The value of the key (either the label's value or
@@ -2868,6 +3248,16 @@ class AutoMLTabularTrainingJob(_TrainingJob):
                 ignored by the pipeline.
 
                 Supported only for tabular and time series Datasets.
+            timestamp_split_column_name (str):
+                Optional. The key is a name of one of the Dataset's data
+                columns. The value of the key values of the key (the values in
+                the column) must be in RFC 3339 `date-time` format, where
+                `time-offset` = `"Z"` (e.g. 1985-04-12T23:20:50.52Z). If for a
+                piece of data the key is not present or has an invalid value,
+                that piece is ignored by the pipeline.
+
+                Supported only for tabular and time series Datasets.
+                This parameter must be used with training_fraction_split, validation_fraction_split and test_fraction_split.
             weight_column (str):
                 Optional. Name of the column that should be used as the weight column.
                 Higher values in this column give more importance to the row
@@ -2959,6 +3349,7 @@ class AutoMLTabularTrainingJob(_TrainingJob):
             validation_fraction_split=validation_fraction_split,
             test_fraction_split=test_fraction_split,
             predefined_split_column_name=predefined_split_column_name,
+            timestamp_split_column_name=timestamp_split_column_name,
             weight_column=weight_column,
             budget_milli_node_hours=budget_milli_node_hours,
             model_display_name=model_display_name,
@@ -2975,10 +3366,11 @@ class AutoMLTabularTrainingJob(_TrainingJob):
         self,
         dataset: datasets.TabularDataset,
         target_column: str,
-        training_fraction_split: float = 0.8,
-        validation_fraction_split: float = 0.1,
-        test_fraction_split: float = 0.1,
+        training_fraction_split: Optional[float] = None,
+        validation_fraction_split: Optional[float] = None,
+        test_fraction_split: Optional[float] = None,
         predefined_split_column_name: Optional[str] = None,
+        timestamp_split_column_name: Optional[str] = None,
         weight_column: Optional[str] = None,
         budget_milli_node_hours: int = 1000,
         model_display_name: Optional[str] = None,
@@ -2991,12 +3383,25 @@ class AutoMLTabularTrainingJob(_TrainingJob):
     ) -> models.Model:
         """Runs the training job and returns a model.
 
-        Data fraction splits:
-        Any of ``training_fraction_split``, ``validation_fraction_split`` and
-        ``test_fraction_split`` may optionally be provided, they must sum to up to 1. If
-        the provided ones sum to less than 1, the remainder is assigned to sets as
-        decided by Vertex AI. If none of the fractions are set, by default roughly 80%
-        of data will be used for training, 10% for validation, and 10% for test.
+        If training on a Vertex AI dataset, you can use one of the following split configurations:
+            Data fraction splits:
+            Any of ``training_fraction_split``, ``validation_fraction_split`` and
+            ``test_fraction_split`` may optionally be provided, they must sum to up to 1. If
+            the provided ones sum to less than 1, the remainder is assigned to sets as
+            decided by Vertex AI. If none of the fractions are set, by default roughly 80%
+            of data will be used for training, 10% for validation, and 10% for test.
+
+            Predefined splits:
+            Assigns input data to training, validation, and test sets based on the value of a provided key.
+            If using predefined splits, ``predefined_split_column_name`` must be provided.
+            Supported only for tabular Datasets.
+
+            Timestamp splits:
+            Assigns input data to training, validation, and test sets
+            based on a provided timestamps. The youngest data pieces are
+            assigned to training set, next to validation set, and the oldest
+            to the test set.
+            Supported only for tabular Datasets.
 
         Args:
             dataset (datasets.TabularDataset):
@@ -3010,14 +3415,14 @@ class AutoMLTabularTrainingJob(_TrainingJob):
             target_column (str):
                 Required. The name of the column values of which the Model is to predict.
             training_fraction_split (float):
-                Required. The fraction of the input data that is to be
-                used to train the Model. This is ignored if Dataset is not provided.
+                Optional. The fraction of the input data that is to be used to train
+                the Model. This is ignored if Dataset is not provided.
             validation_fraction_split (float):
-                Required. The fraction of the input data that is to be
-                used to validate the Model. This is ignored if Dataset is not provided.
+                Optional. The fraction of the input data that is to be used to validate
+                the Model. This is ignored if Dataset is not provided.
             test_fraction_split (float):
-                Required. The fraction of the input data that is to be
-                used to evaluate the Model. This is ignored if Dataset is not provided.
+                Optional. The fraction of the input data that is to be used to evaluate
+                the Model. This is ignored if Dataset is not provided.
             predefined_split_column_name (str):
                 Optional. The key is a name of one of the Dataset's data
                 columns. The value of the key (either the label's value or
@@ -3028,6 +3433,16 @@ class AutoMLTabularTrainingJob(_TrainingJob):
                 ignored by the pipeline.
 
                 Supported only for tabular and time series Datasets.
+            timestamp_split_column_name (str):
+                Optional. The key is a name of one of the Dataset's data
+                columns. The value of the key values of the key (the values in
+                the column) must be in RFC 3339 `date-time` format, where
+                `time-offset` = `"Z"` (e.g. 1985-04-12T23:20:50.52Z). If for a
+                piece of data the key is not present or has an invalid value,
+                that piece is ignored by the pipeline.
+
+                Supported only for tabular and time series Datasets.
+                This parameter must be used with training_fraction_split, validation_fraction_split and test_fraction_split.
             weight_column (str):
                 Optional. Name of the column that should be used as the weight column.
                 Higher values in this column give more importance to the row
@@ -3167,6 +3582,7 @@ class AutoMLTabularTrainingJob(_TrainingJob):
             validation_fraction_split=validation_fraction_split,
             test_fraction_split=test_fraction_split,
             predefined_split_column_name=predefined_split_column_name,
+            timestamp_split_column_name=timestamp_split_column_name,
             model=model,
         )
 
@@ -3707,9 +4123,9 @@ class AutoMLForecastingTrainingJob(_TrainingJob):
             training_task_definition=training_task_definition,
             training_task_inputs=training_task_inputs_dict,
             dataset=dataset,
-            training_fraction_split=0.8,
-            validation_fraction_split=0.1,
-            test_fraction_split=0.1,
+            training_fraction_split=None,
+            validation_fraction_split=None,
+            test_fraction_split=None,
             predefined_split_column_name=predefined_split_column_name,
             model=model,
         )
@@ -3896,9 +4312,12 @@ class AutoMLImageTrainingJob(_TrainingJob):
     def run(
         self,
         dataset: datasets.ImageDataset,
-        training_fraction_split: float = 0.8,
-        validation_fraction_split: float = 0.1,
-        test_fraction_split: float = 0.1,
+        training_fraction_split: Optional[float] = None,
+        validation_fraction_split: Optional[float] = None,
+        test_fraction_split: Optional[float] = None,
+        training_filter_split: Optional[str] = None,
+        validation_filter_split: Optional[str] = None,
+        test_filter_split: Optional[str] = None,
         budget_milli_node_hours: int = 1000,
         model_display_name: Optional[str] = None,
         model_labels: Optional[Dict[str, str]] = None,
@@ -3907,12 +4326,24 @@ class AutoMLImageTrainingJob(_TrainingJob):
     ) -> models.Model:
         """Runs the AutoML Image training job and returns a model.
 
-        Data fraction splits:
-        Any of ``training_fraction_split``, ``validation_fraction_split`` and
-        ``test_fraction_split`` may optionally be provided, they must sum to up to 1. If
-        the provided ones sum to less than 1, the remainder is assigned to sets as
-        decided by Vertex AI. If none of the fractions are set, by default roughly 80%
-        of data will be used for training, 10% for validation, and 10% for test.
+        If training on a Vertex AI dataset, you can use one of the following split configurations:
+            Data fraction splits:
+            Any of ``training_fraction_split``, ``validation_fraction_split`` and
+            ``test_fraction_split`` may optionally be provided, they must sum to up to 1. If
+            the provided ones sum to less than 1, the remainder is assigned to sets as
+            decided by Vertex AI. If none of the fractions are set, by default roughly 80%
+            of data will be used for training, 10% for validation, and 10% for test.
+
+            Data filter splits:
+            Assigns input data to training, validation, and test sets
+            based on the given filters, data pieces not matched by any
+            filter are ignored. Currently only supported for Datasets
+            containing DataItems.
+            If any of the filters in this message are to match nothing, then
+            they can be set as '-' (the minus sign).
+            If using filter splits, all of ``training_filter_split``, ``validation_filter_split`` and
+            ``test_filter_split`` must be provided.
+            Supported only for unstructured Datasets.
 
         Args:
             dataset (datasets.ImageDataset):
@@ -3923,15 +4354,36 @@ class AutoMLImageTrainingJob(_TrainingJob):
                 [google.cloud.aiplatform.v1beta1.TrainingPipeline.training_task_definition].
                 For tabular Datasets, all their data is exported to
                 training, to pick and choose from.
-            training_fraction_split: float = 0.8
-                Required. The fraction of the input data that is to be
-                used to train the Model. This is ignored if Dataset is not provided.
-            validation_fraction_split: float = 0.1
-                Required. The fraction of the input data that is to be
-                used to validate the Model. This is ignored if Dataset is not provided.
-            test_fraction_split: float = 0.1
-                Required. The fraction of the input data that is to be
-                used to evaluate the Model. This is ignored if Dataset is not provided.
+            training_fraction_split (float):
+                Optional. The fraction of the input data that is to be used to train
+                the Model. This is ignored if Dataset is not provided.
+            validation_fraction_split (float):
+                Optional. The fraction of the input data that is to be used to validate
+                the Model. This is ignored if Dataset is not provided.
+            test_fraction_split (float):
+                Optional. The fraction of the input data that is to be used to evaluate
+                the Model. This is ignored if Dataset is not provided.
+            training_filter_split (str):
+                Optional. A filter on DataItems of the Dataset. DataItems that match
+                this filter are used to train the Model. A filter with same syntax
+                as the one used in DatasetService.ListDataItems may be used. If a
+                single DataItem is matched by more than one of the FilterSplit filters,
+                then it is assigned to the first set that applies to it in the training,
+                validation, test order. This is ignored if Dataset is not provided.
+            validation_filter_split (str):
+                Optional. A filter on DataItems of the Dataset. DataItems that match
+                this filter are used to validate the Model. A filter with same syntax
+                as the one used in DatasetService.ListDataItems may be used. If a
+                single DataItem is matched by more than one of the FilterSplit filters,
+                then it is assigned to the first set that applies to it in the training,
+                validation, test order. This is ignored if Dataset is not provided.
+            test_filter_split (str):
+                Optional. A filter on DataItems of the Dataset. DataItems that match
+                this filter are used to test the Model. A filter with same syntax
+                as the one used in DatasetService.ListDataItems may be used. If a
+                single DataItem is matched by more than one of the FilterSplit filters,
+                then it is assigned to the first set that applies to it in the training,
+                validation, test order. This is ignored if Dataset is not provided.
             budget_milli_node_hours: int = 1000
                 Optional. The train budget of creating this Model, expressed in milli node
                 hours i.e. 1,000 value in this field means 1 node hour.
@@ -3993,6 +4445,9 @@ class AutoMLImageTrainingJob(_TrainingJob):
             training_fraction_split=training_fraction_split,
             validation_fraction_split=validation_fraction_split,
             test_fraction_split=test_fraction_split,
+            training_filter_split=training_filter_split,
+            validation_filter_split=validation_filter_split,
+            test_filter_split=test_filter_split,
             budget_milli_node_hours=budget_milli_node_hours,
             model_display_name=model_display_name,
             model_labels=model_labels,
@@ -4005,9 +4460,12 @@ class AutoMLImageTrainingJob(_TrainingJob):
         self,
         dataset: datasets.ImageDataset,
         base_model: Optional[models.Model] = None,
-        training_fraction_split: float = 0.8,
-        validation_fraction_split: float = 0.1,
-        test_fraction_split: float = 0.1,
+        training_fraction_split: Optional[float] = None,
+        validation_fraction_split: Optional[float] = None,
+        test_fraction_split: Optional[float] = None,
+        training_filter_split: Optional[str] = None,
+        validation_filter_split: Optional[str] = None,
+        test_filter_split: Optional[str] = None,
         budget_milli_node_hours: int = 1000,
         model_display_name: Optional[str] = None,
         model_labels: Optional[Dict[str, str]] = None,
@@ -4016,12 +4474,24 @@ class AutoMLImageTrainingJob(_TrainingJob):
     ) -> models.Model:
         """Runs the training job and returns a model.
 
-        Data fraction splits:
-        Any of ``training_fraction_split``, ``validation_fraction_split`` and
-        ``test_fraction_split`` may optionally be provided, they must sum to up to 1. If
-        the provided ones sum to less than 1, the remainder is assigned to sets as
-        decided by Vertex AI. If none of the fractions are set, by default roughly 80%
-        of data will be used for training, 10% for validation, and 10% for test.
+        If training on a Vertex AI dataset, you can use one of the following split configurations:
+            Data fraction splits:
+            Any of ``training_fraction_split``, ``validation_fraction_split`` and
+            ``test_fraction_split`` may optionally be provided, they must sum to up to 1. If
+            the provided ones sum to less than 1, the remainder is assigned to sets as
+            decided by Vertex AI. If none of the fractions are set, by default roughly 80%
+            of data will be used for training, 10% for validation, and 10% for test.
+
+            Data filter splits:
+            Assigns input data to training, validation, and test sets
+            based on the given filters, data pieces not matched by any
+            filter are ignored. Currently only supported for Datasets
+            containing DataItems.
+            If any of the filters in this message are to match nothing, then
+            they can be set as '-' (the minus sign).
+            If using filter splits, all of ``training_filter_split``, ``validation_filter_split`` and
+            ``test_filter_split`` must be provided.
+            Supported only for unstructured Datasets.
 
         Args:
             dataset (datasets.ImageDataset):
@@ -4039,14 +4509,35 @@ class AutoMLImageTrainingJob(_TrainingJob):
                 must be in the same Project and Location as the new Model to train,
                 and have the same model_type.
             training_fraction_split (float):
-                Required. The fraction of the input data that is to be
-                used to train the Model. This is ignored if Dataset is not provided.
+                Optional. The fraction of the input data that is to be used to train
+                the Model. This is ignored if Dataset is not provided.
             validation_fraction_split (float):
-                Required. The fraction of the input data that is to be
-                used to validate the Model. This is ignored if Dataset is not provided.
+                Optional. The fraction of the input data that is to be used to validate
+                the Model. This is ignored if Dataset is not provided.
             test_fraction_split (float):
-                Required. The fraction of the input data that is to be
-                used to evaluate the Model. This is ignored if Dataset is not provided.
+                Optional. The fraction of the input data that is to be used to evaluate
+                the Model. This is ignored if Dataset is not provided.
+            training_filter_split (str):
+                Optional. A filter on DataItems of the Dataset. DataItems that match
+                this filter are used to train the Model. A filter with same syntax
+                as the one used in DatasetService.ListDataItems may be used. If a
+                single DataItem is matched by more than one of the FilterSplit filters,
+                then it is assigned to the first set that applies to it in the training,
+                validation, test order. This is ignored if Dataset is not provided.
+            validation_filter_split (str):
+                Optional. A filter on DataItems of the Dataset. DataItems that match
+                this filter are used to validate the Model. A filter with same syntax
+                as the one used in DatasetService.ListDataItems may be used. If a
+                single DataItem is matched by more than one of the FilterSplit filters,
+                then it is assigned to the first set that applies to it in the training,
+                validation, test order. This is ignored if Dataset is not provided.
+            test_filter_split (str):
+                Optional. A filter on DataItems of the Dataset. DataItems that match
+                this filter are used to test the Model. A filter with same syntax
+                as the one used in DatasetService.ListDataItems may be used. If a
+                single DataItem is matched by more than one of the FilterSplit filters,
+                then it is assigned to the first set that applies to it in the training,
+                validation, test order. This is ignored if Dataset is not provided.
             budget_milli_node_hours (int):
                 Optional. The train budget of creating this Model, expressed in milli node
                 hours i.e. 1,000 value in this field means 1 node hour.
@@ -4129,6 +4620,9 @@ class AutoMLImageTrainingJob(_TrainingJob):
             training_fraction_split=training_fraction_split,
             validation_fraction_split=validation_fraction_split,
             test_fraction_split=test_fraction_split,
+            training_filter_split=training_filter_split,
+            validation_filter_split=validation_filter_split,
+            test_filter_split=test_filter_split,
             model=model_tbt,
         )
 
@@ -4402,10 +4896,16 @@ class CustomPythonPackageTrainingJob(_CustomTrainingJob):
         machine_type: str = "n1-standard-4",
         accelerator_type: str = "ACCELERATOR_TYPE_UNSPECIFIED",
         accelerator_count: int = 0,
-        training_fraction_split: float = 0.8,
-        validation_fraction_split: float = 0.1,
-        test_fraction_split: float = 0.1,
+        boot_disk_type: str = "pd-ssd",
+        boot_disk_size_gb: int = 100,
+        training_fraction_split: Optional[float] = None,
+        validation_fraction_split: Optional[float] = None,
+        test_fraction_split: Optional[float] = None,
+        training_filter_split: Optional[str] = None,
+        validation_filter_split: Optional[str] = None,
+        test_filter_split: Optional[str] = None,
         predefined_split_column_name: Optional[str] = None,
+        timestamp_split_column_name: Optional[str] = None,
         tensorboard: Optional[str] = None,
         sync=True,
     ) -> Optional[models.Model]:
@@ -4417,12 +4917,36 @@ class CustomPythonPackageTrainingJob(_CustomTrainingJob):
         ie: replica_count = 10 will result in 1 chief and 9 workers
         All replicas have same machine_type, accelerator_type, and accelerator_count
 
-        Data fraction splits:
-        Any of ``training_fraction_split``, ``validation_fraction_split`` and
-        ``test_fraction_split`` may optionally be provided, they must sum to up to 1. If
-        the provided ones sum to less than 1, the remainder is assigned to sets as
-        decided by Vertex AI.If none of the fractions are set, by default roughly 80%
-        of data will be used for training, 10% for validation, and 10% for test.
+        If training on a Vertex AI dataset, you can use one of the following split configurations:
+            Data fraction splits:
+            Any of ``training_fraction_split``, ``validation_fraction_split`` and
+            ``test_fraction_split`` may optionally be provided, they must sum to up to 1. If
+            the provided ones sum to less than 1, the remainder is assigned to sets as
+            decided by Vertex AI. If none of the fractions are set, by default roughly 80%
+            of data will be used for training, 10% for validation, and 10% for test.
+
+            Data filter splits:
+            Assigns input data to training, validation, and test sets
+            based on the given filters, data pieces not matched by any
+            filter are ignored. Currently only supported for Datasets
+            containing DataItems.
+            If any of the filters in this message are to match nothing, then
+            they can be set as '-' (the minus sign).
+            If using filter splits, all of ``training_filter_split``, ``validation_filter_split`` and
+            ``test_filter_split`` must be provided.
+            Supported only for unstructured Datasets.
+
+            Predefined splits:
+            Assigns input data to training, validation, and test sets based on the value of a provided key.
+            If using predefined splits, ``predefined_split_column_name`` must be provided.
+            Supported only for tabular Datasets.
+
+            Timestamp splits:
+            Assigns input data to training, validation, and test sets
+            based on a provided timestamps. The youngest data pieces are
+            assigned to training set, next to validation set, and the oldest
+            to the test set.
+            Supported only for tabular Datasets.
 
         Args:
             dataset (Union[datasets.ImageDataset,datasets.TabularDataset,datasets.TextDataset,datasets.VideoDataset,]):
@@ -4439,7 +4963,7 @@ class CustomPythonPackageTrainingJob(_CustomTrainingJob):
             annotation_schema_uri (str):
                 Google Cloud Storage URI points to a YAML file describing
                 annotation schema. The schema is defined as an OpenAPI 3.0.2
-                [Schema Object](https://github.com/OAI/OpenAPI-Specification/blob/master/versions/3.0.2.md#schema-object) The schema files
+                [Schema Object](https://github.com/OAI/OpenAPI-Specification/blob/main/versions/3.0.2.md#schema-object) The schema files
                 that can be used here are found in
                 gs://google-cloud-aiplatform/schema/dataset/annotation/,
                 note that the chosen schema must be consistent with
@@ -4531,15 +5055,43 @@ class CustomPythonPackageTrainingJob(_CustomTrainingJob):
                 NVIDIA_TESLA_T4
             accelerator_count (int):
                 The number of accelerators to attach to a worker replica.
+            boot_disk_type (str):
+                Type of the boot disk, default is `pd-ssd`.
+                Valid values: `pd-ssd` (Persistent Disk Solid State Drive) or
+                `pd-standard` (Persistent Disk Hard Disk Drive).
+            boot_disk_size_gb (int):
+                Size in GB of the boot disk, default is 100GB.
+                boot disk size must be within the range of [100, 64000].
             training_fraction_split (float):
-                The fraction of the input data that is to be
-                used to train the Model. This is ignored if Dataset is not provided.
+                Optional. The fraction of the input data that is to be used to train
+                the Model. This is ignored if Dataset is not provided.
             validation_fraction_split (float):
-                The fraction of the input data that is to be
-                used to validate the Model. This is ignored if Dataset is not provided.
+                Optional. The fraction of the input data that is to be used to validate
+                the Model. This is ignored if Dataset is not provided.
             test_fraction_split (float):
-                The fraction of the input data that is to be
-                used to evaluate the Model. This is ignored if Dataset is not provided.
+                Optional. The fraction of the input data that is to be used to evaluate
+                the Model. This is ignored if Dataset is not provided.
+            training_filter_split (str):
+                Optional. A filter on DataItems of the Dataset. DataItems that match
+                this filter are used to train the Model. A filter with same syntax
+                as the one used in DatasetService.ListDataItems may be used. If a
+                single DataItem is matched by more than one of the FilterSplit filters,
+                then it is assigned to the first set that applies to it in the training,
+                validation, test order. This is ignored if Dataset is not provided.
+            validation_filter_split (str):
+                Optional. A filter on DataItems of the Dataset. DataItems that match
+                this filter are used to validate the Model. A filter with same syntax
+                as the one used in DatasetService.ListDataItems may be used. If a
+                single DataItem is matched by more than one of the FilterSplit filters,
+                then it is assigned to the first set that applies to it in the training,
+                validation, test order. This is ignored if Dataset is not provided.
+            test_filter_split (str):
+                Optional. A filter on DataItems of the Dataset. DataItems that match
+                this filter are used to test the Model. A filter with same syntax
+                as the one used in DatasetService.ListDataItems may be used. If a
+                single DataItem is matched by more than one of the FilterSplit filters,
+                then it is assigned to the first set that applies to it in the training,
+                validation, test order. This is ignored if Dataset is not provided.
             predefined_split_column_name (str):
                 Optional. The key is a name of one of the Dataset's data
                 columns. The value of the key (either the label's value or
@@ -4548,6 +5100,15 @@ class CustomPythonPackageTrainingJob(_CustomTrainingJob):
                 given piece of data is assigned. If for a piece of data the
                 key is not present or has an invalid value, that piece is
                 ignored by the pipeline.
+
+                Supported only for tabular and time series Datasets.
+            timestamp_split_column_name (str):
+                Optional. The key is a name of one of the Dataset's data
+                columns. The value of the key values of the key (the values in
+                the column) must be in RFC 3339 `date-time` format, where
+                `time-offset` = `"Z"` (e.g. 1985-04-12T23:20:50.52Z). If for a
+                piece of data the key is not present or has an invalid value,
+                that piece is ignored by the pipeline.
 
                 Supported only for tabular and time series Datasets.
             tensorboard (str):
@@ -4581,6 +5142,8 @@ class CustomPythonPackageTrainingJob(_CustomTrainingJob):
             machine_type=machine_type,
             accelerator_count=accelerator_count,
             accelerator_type=accelerator_type,
+            boot_disk_type=boot_disk_type,
+            boot_disk_size_gb=boot_disk_size_gb,
         )
 
         return self._run(
@@ -4596,7 +5159,11 @@ class CustomPythonPackageTrainingJob(_CustomTrainingJob):
             training_fraction_split=training_fraction_split,
             validation_fraction_split=validation_fraction_split,
             test_fraction_split=test_fraction_split,
+            training_filter_split=training_filter_split,
+            validation_filter_split=validation_filter_split,
+            test_filter_split=test_filter_split,
             predefined_split_column_name=predefined_split_column_name,
+            timestamp_split_column_name=timestamp_split_column_name,
             bigquery_destination=bigquery_destination,
             tensorboard=tensorboard,
             sync=sync,
@@ -4621,10 +5188,14 @@ class CustomPythonPackageTrainingJob(_CustomTrainingJob):
         base_output_dir: Optional[str] = None,
         service_account: Optional[str] = None,
         network: Optional[str] = None,
-        training_fraction_split: float = 0.8,
-        validation_fraction_split: float = 0.1,
-        test_fraction_split: float = 0.1,
+        training_fraction_split: Optional[float] = None,
+        validation_fraction_split: Optional[float] = None,
+        test_fraction_split: Optional[float] = None,
+        training_filter_split: Optional[str] = None,
+        validation_filter_split: Optional[str] = None,
+        test_filter_split: Optional[str] = None,
         predefined_split_column_name: Optional[str] = None,
+        timestamp_split_column_name: Optional[str] = None,
         bigquery_destination: Optional[str] = None,
         tensorboard: Optional[str] = None,
         sync=True,
@@ -4679,14 +5250,35 @@ class CustomPythonPackageTrainingJob(_CustomTrainingJob):
                 Private services access must already be configured for the network.
                 If left unspecified, the job is not peered with any network.
             training_fraction_split (float):
-                The fraction of the input data that is to be
-                used to train the Model.
+                Optional. The fraction of the input data that is to be used to train
+                the Model. This is ignored if Dataset is not provided.
             validation_fraction_split (float):
-                The fraction of the input data that is to be
-                used to validate the Model.
+                Optional. The fraction of the input data that is to be used to validate
+                the Model. This is ignored if Dataset is not provided.
             test_fraction_split (float):
-                The fraction of the input data that is to be
-                used to evaluate the Model.
+                Optional. The fraction of the input data that is to be used to evaluate
+                the Model. This is ignored if Dataset is not provided.
+            training_filter_split (str):
+                Optional. A filter on DataItems of the Dataset. DataItems that match
+                this filter are used to train the Model. A filter with same syntax
+                as the one used in DatasetService.ListDataItems may be used. If a
+                single DataItem is matched by more than one of the FilterSplit filters,
+                then it is assigned to the first set that applies to it in the training,
+                validation, test order. This is ignored if Dataset is not provided.
+            validation_filter_split (str):
+                Optional. A filter on DataItems of the Dataset. DataItems that match
+                this filter are used to validate the Model. A filter with same syntax
+                as the one used in DatasetService.ListDataItems may be used. If a
+                single DataItem is matched by more than one of the FilterSplit filters,
+                then it is assigned to the first set that applies to it in the training,
+                validation, test order. This is ignored if Dataset is not provided.
+            test_filter_split (str):
+                Optional. A filter on DataItems of the Dataset. DataItems that match
+                this filter are used to test the Model. A filter with same syntax
+                as the one used in DatasetService.ListDataItems may be used. If a
+                single DataItem is matched by more than one of the FilterSplit filters,
+                then it is assigned to the first set that applies to it in the training,
+                validation, test order. This is ignored if Dataset is not provided.
             predefined_split_column_name (str):
                 Optional. The key is a name of one of the Dataset's data
                 columns. The value of the key (either the label's value or
@@ -4695,6 +5287,15 @@ class CustomPythonPackageTrainingJob(_CustomTrainingJob):
                 given piece of data is assigned. If for a piece of data the
                 key is not present or has an invalid value, that piece is
                 ignored by the pipeline.
+
+                Supported only for tabular and time series Datasets.
+            timestamp_split_column_name (str):
+                Optional. The key is a name of one of the Dataset's data
+                columns. The value of the key values of the key (the values in
+                the column) must be in RFC 3339 `date-time` format, where
+                `time-offset` = `"Z"` (e.g. 1985-04-12T23:20:50.52Z). If for a
+                piece of data the key is not present or has an invalid value,
+                that piece is ignored by the pipeline.
 
                 Supported only for tabular and time series Datasets.
             tensorboard (str):
@@ -4756,7 +5357,11 @@ class CustomPythonPackageTrainingJob(_CustomTrainingJob):
             training_fraction_split=training_fraction_split,
             validation_fraction_split=validation_fraction_split,
             test_fraction_split=test_fraction_split,
+            training_filter_split=training_filter_split,
+            validation_filter_split=validation_filter_split,
+            test_filter_split=test_filter_split,
             predefined_split_column_name=predefined_split_column_name,
+            timestamp_split_column_name=timestamp_split_column_name,
             model=managed_model,
             gcs_destination_uri_prefix=base_output_dir,
             bigquery_destination=bigquery_destination,
@@ -4901,18 +5506,32 @@ class AutoMLVideoTrainingJob(_TrainingJob):
     def run(
         self,
         dataset: datasets.VideoDataset,
-        training_fraction_split: float = 0.8,
-        test_fraction_split: float = 0.2,
+        training_fraction_split: Optional[float] = None,
+        test_fraction_split: Optional[float] = None,
+        training_filter_split: Optional[str] = None,
+        test_filter_split: Optional[str] = None,
         model_display_name: Optional[str] = None,
         model_labels: Optional[Dict[str, str]] = None,
         sync: bool = True,
     ) -> models.Model:
         """Runs the AutoML Image training job and returns a model.
 
-        Data fraction splits:
-        ``training_fraction_split``, and ``test_fraction_split`` may optionally
-        be provided, they must sum to up to 1. If none of the fractions are set,
-        by default roughly 80% of data will be used for training, and 20% for test.
+        If training on a Vertex AI dataset, you can use one of the following split configurations:
+            Data fraction splits:
+            ``training_fraction_split``, and ``test_fraction_split`` may optionally
+            be provided, they must sum to up to 1. If none of the fractions are set,
+            by default roughly 80% of data will be used for training, and 20% for test.
+
+            Data filter splits:
+            Assigns input data to training, validation, and test sets
+            based on the given filters, data pieces not matched by any
+            filter are ignored. Currently only supported for Datasets
+            containing DataItems.
+            If any of the filters in this message are to match nothing, then
+            they can be set as '-' (the minus sign).
+            If using filter splits, all of ``training_filter_split``, ``validation_filter_split`` and
+            ``test_filter_split`` must be provided.
+            Supported only for unstructured Datasets.
 
         Args:
             dataset (datasets.VideoDataset):
@@ -4923,12 +5542,26 @@ class AutoMLVideoTrainingJob(_TrainingJob):
                 [google.cloud.aiplatform.v1beta1.TrainingPipeline.training_task_definition].
                 For tabular Datasets, all their data is exported to
                 training, to pick and choose from.
-            training_fraction_split: float = 0.8
-                Required. The fraction of the input data that is to be
-                used to train the Model. This is ignored if Dataset is not provided.
-            test_fraction_split: float = 0.2
-                Required. The fraction of the input data that is to be
-                used to evaluate the Model. This is ignored if Dataset is not provided.
+            training_fraction_split (float):
+                Optional. The fraction of the input data that is to be used to train
+                the Model. This is ignored if Dataset is not provided.
+            test_fraction_split (float):
+                Optional. The fraction of the input data that is to be used to evaluate
+                the Model. This is ignored if Dataset is not provided.
+            training_filter_split (str):
+                Optional. A filter on DataItems of the Dataset. DataItems that match
+                this filter are used to train the Model. A filter with same syntax
+                as the one used in DatasetService.ListDataItems may be used. If a
+                single DataItem is matched by more than one of the FilterSplit filters,
+                then it is assigned to the first set that applies to it in the training,
+                validation, test order. This is ignored if Dataset is not provided.
+            test_filter_split (str):
+                Optional. A filter on DataItems of the Dataset. DataItems that match
+                this filter are used to test the Model. A filter with same syntax
+                as the one used in DatasetService.ListDataItems may be used. If a
+                single DataItem is matched by more than one of the FilterSplit filters,
+                then it is assigned to the first set that applies to it in the training,
+                validation, test order. This is ignored if Dataset is not provided.
             model_display_name (str):
                 Optional. The display name of the managed Vertex AI Model. The name
                 can be up to 128 characters long and can be consist of any UTF-8
@@ -4970,6 +5603,8 @@ class AutoMLVideoTrainingJob(_TrainingJob):
             dataset=dataset,
             training_fraction_split=training_fraction_split,
             test_fraction_split=test_fraction_split,
+            training_filter_split=training_filter_split,
+            test_filter_split=test_filter_split,
             model_display_name=model_display_name,
             model_labels=model_labels,
             sync=sync,
@@ -4979,18 +5614,32 @@ class AutoMLVideoTrainingJob(_TrainingJob):
     def _run(
         self,
         dataset: datasets.VideoDataset,
-        training_fraction_split: float = 0.8,
-        test_fraction_split: float = 0.2,
+        training_fraction_split: Optional[float] = None,
+        test_fraction_split: Optional[float] = None,
+        training_filter_split: Optional[str] = None,
+        test_filter_split: Optional[str] = None,
         model_display_name: Optional[str] = None,
         model_labels: Optional[Dict[str, str]] = None,
         sync: bool = True,
     ) -> models.Model:
         """Runs the training job and returns a model.
 
-        Data fraction splits:
-        Any of ``training_fraction_split``, and ``test_fraction_split`` may optionally
-        be provided, they must sum to up to 1. If none of the fractions are set,
-        by default roughly 80% of data will be used for training, and 20% for test.
+        If training on a Vertex AI dataset, you can use one of the following split configurations:
+            Data fraction splits:
+            Any of ``training_fraction_split``, and ``test_fraction_split`` may optionally
+            be provided, they must sum to up to 1. If none of the fractions are set,
+            by default roughly 80% of data will be used for training, and 20% for test.
+
+            Data filter splits:
+            Assigns input data to training, validation, and test sets
+            based on the given filters, data pieces not matched by any
+            filter are ignored. Currently only supported for Datasets
+            containing DataItems.
+            If any of the filters in this message are to match nothing, then
+            they can be set as '-' (the minus sign).
+            If using filter splits, all of ``training_filter_split``, ``validation_filter_split`` and
+            ``test_filter_split`` must be provided.
+            Supported only for unstructured Datasets.
 
         Args:
             dataset (datasets.VideoDataset):
@@ -5002,11 +5651,25 @@ class AutoMLVideoTrainingJob(_TrainingJob):
                 For tabular Datasets, all their data is exported to
                 training, to pick and choose from.
             training_fraction_split (float):
-                Required. The fraction of the input data that is to be
-                used to train the Model. This is ignored if Dataset is not provided.
+                Optional. The fraction of the input data that is to be used to train
+                the Model. This is ignored if Dataset is not provided.
             test_fraction_split (float):
-                Required. The fraction of the input data that is to be
-                used to evaluate the Model. This is ignored if Dataset is not provided.
+                Optional. The fraction of the input data that is to be used to evaluate
+                the Model. This is ignored if Dataset is not provided.
+            training_filter_split (str):
+                Optional. A filter on DataItems of the Dataset. DataItems that match
+                this filter are used to train the Model. A filter with same syntax
+                as the one used in DatasetService.ListDataItems may be used. If a
+                single DataItem is matched by more than one of the FilterSplit filters,
+                then it is assigned to the first set that applies to it in the training,
+                validation, test order. This is ignored if Dataset is not provided.
+            test_filter_split (str):
+                Optional. A filter on DataItems of the Dataset. DataItems that match
+                this filter are used to test the Model. A filter with same syntax
+                as the one used in DatasetService.ListDataItems may be used. If a
+                single DataItem is matched by more than one of the FilterSplit filters,
+                then it is assigned to the first set that applies to it in the training,
+                validation, test order. This is ignored if Dataset is not provided.
             model_display_name (str):
                 Optional. The display name of the managed Vertex AI Model. The name
                 can be up to 128 characters long and can be consist of any UTF-8
@@ -5047,13 +5710,22 @@ class AutoMLVideoTrainingJob(_TrainingJob):
         model_tbt.display_name = model_display_name or self._display_name
         model_tbt.labels = model_labels or self._labels
 
+        # AutoMLVideo does not support validation, so pass in '-' if any other filter split is provided.
+        validation_filter_split = (
+            "-"
+            if all([training_filter_split is not None, test_filter_split is not None])
+            else None
+        )
+
         return self._run_job(
             training_task_definition=training_task_definition,
             training_task_inputs=training_task_inputs_dict,
             dataset=dataset,
             training_fraction_split=training_fraction_split,
-            validation_fraction_split=0.0,
             test_fraction_split=test_fraction_split,
+            training_filter_split=training_filter_split,
+            validation_filter_split=validation_filter_split,
+            test_filter_split=test_filter_split,
             model=model_tbt,
         )
 
@@ -5208,21 +5880,36 @@ class AutoMLTextTrainingJob(_TrainingJob):
     def run(
         self,
         dataset: datasets.TextDataset,
-        training_fraction_split: float = 0.8,
-        validation_fraction_split: float = 0.1,
-        test_fraction_split: float = 0.1,
+        training_fraction_split: Optional[float] = None,
+        validation_fraction_split: Optional[float] = None,
+        test_fraction_split: Optional[float] = None,
+        training_filter_split: Optional[str] = None,
+        validation_filter_split: Optional[str] = None,
+        test_filter_split: Optional[str] = None,
         model_display_name: Optional[str] = None,
         model_labels: Optional[Dict[str, str]] = None,
         sync: bool = True,
     ) -> models.Model:
         """Runs the training job and returns a model.
 
-        Data fraction splits:
-        Any of ``training_fraction_split``, ``validation_fraction_split`` and
-        ``test_fraction_split`` may optionally be provided, they must sum to up to 1. If
-        the provided ones sum to less than 1, the remainder is assigned to sets as
-        decided by Vertex AI. If none of the fractions are set, by default roughly 80%
-        of data will be used for training, 10% for validation, and 10% for test.
+        If training on a Vertex AI dataset, you can use one of the following split configurations:
+            Data fraction splits:
+            Any of ``training_fraction_split``, ``validation_fraction_split`` and
+            ``test_fraction_split`` may optionally be provided, they must sum to up to 1. If
+            the provided ones sum to less than 1, the remainder is assigned to sets as
+            decided by Vertex AI. If none of the fractions are set, by default roughly 80%
+            of data will be used for training, 10% for validation, and 10% for test.
+
+            Data filter splits:
+            Assigns input data to training, validation, and test sets
+            based on the given filters, data pieces not matched by any
+            filter are ignored. Currently only supported for Datasets
+            containing DataItems.
+            If any of the filters in this message are to match nothing, then
+            they can be set as '-' (the minus sign).
+            If using filter splits, all of ``training_filter_split``, ``validation_filter_split`` and
+            ``test_filter_split`` must be provided.
+            Supported only for unstructured Datasets.
 
         Args:
             dataset (datasets.TextDataset):
@@ -5231,15 +5918,36 @@ class AutoMLTextTrainingJob(_TrainingJob):
                 and what is compatible should be described in the used
                 TrainingPipeline's [training_task_definition]
                 [google.cloud.aiplatform.v1beta1.TrainingPipeline.training_task_definition].
-            training_fraction_split: float = 0.8
-                Required. The fraction of the input data that is to be
-                used to train the Model. This is ignored if Dataset is not provided.
-            validation_fraction_split: float = 0.1
-                Required. The fraction of the input data that is to be
-                used to validate the Model. This is ignored if Dataset is not provided.
-            test_fraction_split: float = 0.1
-                Required. The fraction of the input data that is to be
-                used to evaluate the Model. This is ignored if Dataset is not provided.
+            training_fraction_split (float):
+                Optional. The fraction of the input data that is to be used to train
+                the Model. This is ignored if Dataset is not provided.
+            validation_fraction_split (float):
+                Optional. The fraction of the input data that is to be used to validate
+                the Model. This is ignored if Dataset is not provided.
+            test_fraction_split (float):
+                Optional. The fraction of the input data that is to be used to evaluate
+                the Model. This is ignored if Dataset is not provided.
+            training_filter_split (str):
+                Optional. A filter on DataItems of the Dataset. DataItems that match
+                this filter are used to train the Model. A filter with same syntax
+                as the one used in DatasetService.ListDataItems may be used. If a
+                single DataItem is matched by more than one of the FilterSplit filters,
+                then it is assigned to the first set that applies to it in the training,
+                validation, test order. This is ignored if Dataset is not provided.
+            validation_filter_split (str):
+                Optional. A filter on DataItems of the Dataset. DataItems that match
+                this filter are used to validate the Model. A filter with same syntax
+                as the one used in DatasetService.ListDataItems may be used. If a
+                single DataItem is matched by more than one of the FilterSplit filters,
+                then it is assigned to the first set that applies to it in the training,
+                validation, test order. This is ignored if Dataset is not provided.
+            test_filter_split (str):
+                Optional. A filter on DataItems of the Dataset. DataItems that match
+                this filter are used to test the Model. A filter with same syntax
+                as the one used in DatasetService.ListDataItems may be used. If a
+                single DataItem is matched by more than one of the FilterSplit filters,
+                then it is assigned to the first set that applies to it in the training,
+                validation, test order. This is ignored if Dataset is not provided.
             model_display_name (str):
                 Optional. The display name of the managed Vertex AI Model.
                 The name can be up to 128 characters long and can consist
@@ -5283,6 +5991,9 @@ class AutoMLTextTrainingJob(_TrainingJob):
             training_fraction_split=training_fraction_split,
             validation_fraction_split=validation_fraction_split,
             test_fraction_split=test_fraction_split,
+            training_filter_split=training_filter_split,
+            validation_filter_split=validation_filter_split,
+            test_filter_split=test_filter_split,
             model_display_name=model_display_name,
             model_labels=model_labels,
             sync=sync,
@@ -5292,21 +6003,36 @@ class AutoMLTextTrainingJob(_TrainingJob):
     def _run(
         self,
         dataset: datasets.TextDataset,
-        training_fraction_split: float = 0.8,
-        validation_fraction_split: float = 0.1,
-        test_fraction_split: float = 0.1,
+        training_fraction_split: Optional[float] = None,
+        validation_fraction_split: Optional[float] = None,
+        test_fraction_split: Optional[float] = None,
+        training_filter_split: Optional[str] = None,
+        validation_filter_split: Optional[str] = None,
+        test_filter_split: Optional[str] = None,
         model_display_name: Optional[str] = None,
         model_labels: Optional[Dict[str, str]] = None,
         sync: bool = True,
     ) -> models.Model:
         """Runs the training job and returns a model.
 
-        Data fraction splits:
-        Any of ``training_fraction_split``, ``validation_fraction_split`` and
-        ``test_fraction_split`` may optionally be provided, they must sum to up to 1. If
-        the provided ones sum to less than 1, the remainder is assigned to sets as
-        decided by Vertex AI. If none of the fractions are set, by default roughly 80%
-        of data will be used for training, 10% for validation, and 10% for test.
+        If training on a Vertex AI dataset, you can use one of the following split configurations:
+            Data fraction splits:
+            Any of ``training_fraction_split``, ``validation_fraction_split`` and
+            ``test_fraction_split`` may optionally be provided, they must sum to up to 1. If
+            the provided ones sum to less than 1, the remainder is assigned to sets as
+            decided by Vertex AI. If none of the fractions are set, by default roughly 80%
+            of data will be used for training, 10% for validation, and 10% for test.
+
+            Data filter splits:
+            Assigns input data to training, validation, and test sets
+            based on the given filters, data pieces not matched by any
+            filter are ignored. Currently only supported for Datasets
+            containing DataItems.
+            If any of the filters in this message are to match nothing, then
+            they can be set as '-' (the minus sign).
+            If using filter splits, all of ``training_filter_split``, ``validation_filter_split`` and
+            ``test_filter_split`` must be provided.
+            Supported only for unstructured Datasets.
 
         Args:
             dataset (datasets.TextDataset):
@@ -5318,14 +6044,35 @@ class AutoMLTextTrainingJob(_TrainingJob):
                 For Text Datasets, all their data is exported to
                 training, to pick and choose from.
             training_fraction_split (float):
-                Required. The fraction of the input data that is to be
-                used to train the Model. This is ignored if Dataset is not provided.
+                Optional. The fraction of the input data that is to be used to train
+                the Model. This is ignored if Dataset is not provided.
             validation_fraction_split (float):
-                Required. The fraction of the input data that is to be
-                used to validate the Model. This is ignored if Dataset is not provided.
+                Optional. The fraction of the input data that is to be used to validate
+                the Model. This is ignored if Dataset is not provided.
             test_fraction_split (float):
-                Required. The fraction of the input data that is to be
-                used to evaluate the Model. This is ignored if Dataset is not provided.
+                Optional. The fraction of the input data that is to be used to evaluate
+                the Model. This is ignored if Dataset is not provided.
+            training_filter_split (str):
+                Optional. A filter on DataItems of the Dataset. DataItems that match
+                this filter are used to train the Model. A filter with same syntax
+                as the one used in DatasetService.ListDataItems may be used. If a
+                single DataItem is matched by more than one of the FilterSplit filters,
+                then it is assigned to the first set that applies to it in the training,
+                validation, test order. This is ignored if Dataset is not provided.
+            validation_filter_split (str):
+                Optional. A filter on DataItems of the Dataset. DataItems that match
+                this filter are used to validate the Model. A filter with same syntax
+                as the one used in DatasetService.ListDataItems may be used. If a
+                single DataItem is matched by more than one of the FilterSplit filters,
+                then it is assigned to the first set that applies to it in the training,
+                validation, test order. This is ignored if Dataset is not provided.
+            test_filter_split (str):
+                Optional. A filter on DataItems of the Dataset. DataItems that match
+                this filter are used to test the Model. A filter with same syntax
+                as the one used in DatasetService.ListDataItems may be used. If a
+                single DataItem is matched by more than one of the FilterSplit filters,
+                then it is assigned to the first set that applies to it in the training,
+                validation, test order. This is ignored if Dataset is not provided.
             model_display_name (str):
                 Optional. If the script produces a managed Vertex AI Model. The display name of
                 the Model. The name can be up to 128 characters long and can be consist
@@ -5365,7 +6112,9 @@ class AutoMLTextTrainingJob(_TrainingJob):
             training_fraction_split=training_fraction_split,
             validation_fraction_split=validation_fraction_split,
             test_fraction_split=test_fraction_split,
-            predefined_split_column_name=None,
+            training_filter_split=training_filter_split,
+            validation_filter_split=validation_filter_split,
+            test_filter_split=test_filter_split,
             model=model,
         )
 
