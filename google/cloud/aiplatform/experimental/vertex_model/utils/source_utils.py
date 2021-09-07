@@ -142,10 +142,7 @@ class SourceMaker:
         parent_classes = []
 
         for base_class in obj_cls.__bases__:
-            if (
-                base_class.__name__ != obj_cls.__name__
-                and base_class.__name__ != "VertexModel"
-            ):
+            if base_class.__name__ != obj_cls.__name__:
                 module = base_class.__module__
                 name = base_class.__qualname__
 
@@ -153,6 +150,8 @@ class SourceMaker:
                     name = module + "." + name
 
                 parent_classes.append(name)
+
+        parent_classes.append("base.VertexModel")
 
         self.source = [
             "class {}({}):".format(obj_cls.__name__, ", ".join(parent_classes))
@@ -214,15 +213,7 @@ def _make_source(
     # Hard-coded specific files as imports because (for now) all data serialization methods
     # come from one of two files and we do not retrieve the modules for the methods at this
     # moment.
-    src = src + "\n".join(
-        [
-            "import os",
-            "from google.cloud.aiplatform.experimental.vertex_model.serializers.pandas import _deserialize_dataframe",
-            "from google.cloud.aiplatform.experimental.vertex_model.serializers.pytorch import _deserialize_dataloader",
-            "from google.cloud.aiplatform.experimental.vertex_model.serializers import model",
-            cls_source,
-        ]
-    )
+    src = src + "\n".join(["import os", cls_source, ])
 
     # Then, instantiate model
     # First, grab args and kwargs using the _constructor_arguments variable in VertexModel
