@@ -31,11 +31,14 @@ from google.cloud.aiplatform import base
 import google.cloud.aiplatform.experimental.vertex_model.serializers as serializers
 from google.cloud.aiplatform.experimental.vertex_model.utils import source_utils
 
+_LOGGER = base.Logger(__name__)
+
 try:
+    import torch
     from google.cloud.aiplatform.experimental.vertex_model.serializers import model
 except ImportError:
-    raise ImportError(
-        "PyTorch is not installed. Please install torch to use VertexModel or define your own model serialization/deserialization methods"
+    _LOGGER.info(
+        "PyTorch is not installed. In order to use VertexModel, please define your own serialization and deserialization methods for your model by overriding the serialize_model and deserialize_model methods."
     )
 
 
@@ -104,8 +107,6 @@ async def predict(request: Request):
 if __name__ == "__main__":
     uvicorn.run(app, host="0.0.0.0", port=os.environ['AIP_HTTP_PORT'])
 """
-
-_LOGGER = base.Logger(__name__)
 
 
 def vertex_fit_function_wrapper(method: Callable[..., Any]):
@@ -412,7 +413,7 @@ class VertexModel(metaclass=abc.ABCMeta):
     def serialize_model(self, artifact_uri: str, obj: Any, model_type: str) -> str:
         return model._serialize_local_model(artifact_uri, obj, model_type)
 
-    def deserialize_model(artifact_uri: str) -> Any:
+    def deserialize_model(self, artifact_uri: str) -> Any:
         return model._deserialize_remote_model(artifact_uri)
 
     def batch_predict(self):

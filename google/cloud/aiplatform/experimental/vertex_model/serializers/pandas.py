@@ -124,4 +124,4 @@ def _deserialize_dataframe(artifact_uri: str) -> pd.DataFrame:
     return df
 
 
-_DATA_SERIALIZER_MAP = {pd.Dataframe: (_deserialize_dataframe, _serialize_dataframe)}
+_DATA_SERIALIZER_MAP = {pd.DataFrame: (_deserialize_dataframe, _serialize_dataframe)}

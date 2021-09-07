@@ -17,6 +17,9 @@
 
 import sys
 
+import google.cloud.aiplatform.experimental.vertex_model.serializers.pandas
+import google.cloud.aiplatform.experimental.vertex_model.serializers.pytorch
+
 module_names = ["pandas", "pytorch"]
 
 
