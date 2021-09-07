@@ -267,6 +267,6 @@ def _make_source(
     src = src + "if model_dir.endswith('models/'):\n"
     src = src + "\tmodel_dir = model_dir[:-2] + '/'\n"
 
-    src = src + "model._serialize_local_model(model_dir, my_model, 'local')"
+    src = src + "my_model.serialize_model(model_dir, my_model, 'local')"
 
     return src
