@@ -237,16 +237,15 @@ def _make_source(
         # Start function call
         src = src + f"my_model.{instance_method}("
 
+        default_serialization = serializers.build_map_safe()
+        all_serialization = default_serialization.copy()
+        all_serialization.update(obj._data_serialization_mapping)
+
         # Iterate through parameters.
         for (
             parameter_name,
             (parameter_uri, parameter_type),
         ) in param_name_to_serialized_info.items():
-            default_serialization = serializers.build_map_safe()
-
-            all_serialization = default_serialization.copy()
-            all_serialization.update(obj._data_serialization_mapping)
-
             deserializer = all_serialization[parameter_type][0]
 
             # Can also make individual calls for each serialized parameter, but was unsure
