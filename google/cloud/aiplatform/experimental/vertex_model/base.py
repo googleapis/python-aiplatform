@@ -355,7 +355,7 @@ class VertexModel(metaclass=abc.ABCMeta):
     dependencies = [
         "pandas>=1.3",
         "torch>=1.7",
-        "google-cloud-aiplatform @ git+https://github.com/googleapis/python-aiplatform@refs/pull/659/head#egg=google-cloud-aiplatform",
+        "google-cloud-aiplatform @ git+https://github.com/googleapis/python-aiplatform@refs/pull/686/head#egg=google-cloud-aiplatform",
     ]
 
     machine_type = "n1-standard-4"
