@@ -33,15 +33,6 @@ from google.cloud.aiplatform.experimental.vertex_model.utils import source_utils
 
 _LOGGER = base.Logger(__name__)
 
-try:
-    import torch
-    from google.cloud.aiplatform.experimental.vertex_model.serializers import model
-except ImportError:
-    _LOGGER.info(
-        "PyTorch is not installed. In order to use VertexModel, please define your own serialization and deserialization methods for your model by overriding the serialize_model and deserialize_model methods."
-    )
-
-
 GITHUB_DEPENDENCY = "google-cloud-aiplatform @ git+https://github.com/googleapis/python-aiplatform@refs/pull/659/head#egg=google-cloud-aiplatform"
 
 SERVING_COMMAND_STRING_CLI = [
@@ -411,9 +402,25 @@ class VertexModel(metaclass=abc.ABCMeta):
         pass
 
     def serialize_model(self, artifact_uri: str, obj: Any, model_type: str) -> str:
+        try:
+            from google.cloud.aiplatform.experimental.vertex_model.serializers import (
+                model,
+            )
+        except ImportError:
+            ImportError(
+                "PyTorch is not installed. In order to use VertexModel, please define your own serialization method for your model by overriding the serialize_model method."
+            )
         return model._serialize_local_model(artifact_uri, obj, model_type)
 
     def deserialize_model(self, artifact_uri: str) -> Any:
+        try:
+            from google.cloud.aiplatform.experimental.vertex_model.serializers import (
+                model,
+            )
+        except ImportError:
+            ImportError(
+                "PyTorch is not installed. In order to use VertexModel, please define your own deserialization method for your model by overriding the deserialize_model method."
+            )
         return model._deserialize_remote_model(artifact_uri)
 
     def batch_predict(self):
