@@ -54,6 +54,8 @@ _TEST_TENSORBOARD_NAME = f"{_TEST_PARENT}/tensorboards/{_TEST_ID}"
 
 _TEST_TRAINING_CONTAINER_IMAGE = "gcr.io/test-training/container:image"
 
+_TEST_RUN_ARGS = ["-v", "0.1", "--test=arg"]
+
 _TEST_WORKER_POOL_SPEC = [
     {
         "machine_spec": {
@@ -62,10 +64,11 @@ _TEST_WORKER_POOL_SPEC = [
             "accelerator_count": 1,
         },
         "replica_count": 1,
+        "disk_spec": {"boot_disk_type": "pd-ssd", "boot_disk_size_gb": 100},
         "container_spec": {
             "image_uri": _TEST_TRAINING_CONTAINER_IMAGE,
             "command": [],
-            "args": [],
+            "args": _TEST_RUN_ARGS,
         },
     }
 ]
@@ -489,4 +492,42 @@ class TestCustomJob:
 
         assert job.job_spec.base_output_directory.output_uri_prefix.startswith(
             f"{_TEST_STAGING_BUCKET}/aiplatform-custom-job"
+        )
+
+    @pytest.mark.usefixtures("mock_python_package_to_gcs")
+    @pytest.mark.parametrize("sync", [True, False])
+    def test_create_from_local_script_with_all_args(
+        self, get_custom_job_mock, create_custom_job_mock, sync
+    ):
+        aiplatform.init(
+            project=_TEST_PROJECT,
+            location=_TEST_LOCATION,
+            staging_bucket=_TEST_STAGING_BUCKET,
+            encryption_spec_key_name=_TEST_DEFAULT_ENCRYPTION_KEY_NAME,
+        )
+
+        # configuration on this is tested in test_training_jobs.py
+        job = aiplatform.CustomJob.from_local_script(
+            display_name=_TEST_DISPLAY_NAME,
+            script_path=test_training_jobs._TEST_LOCAL_SCRIPT_FILE_NAME,
+            container_uri=_TEST_TRAINING_CONTAINER_IMAGE,
+            args=_TEST_RUN_ARGS,
+            requirements=test_training_jobs._TEST_REQUIREMENTS,
+            environment_variables=test_training_jobs._TEST_ENVIRONMENT_VARIABLES,
+            replica_count=test_training_jobs._TEST_REPLICA_COUNT,
+            machine_type=test_training_jobs._TEST_MACHINE_TYPE,
+            accelerator_type=test_training_jobs._TEST_ACCELERATOR_TYPE,
+            accelerator_count=test_training_jobs._TEST_ACCELERATOR_COUNT,
+            boot_disk_type=test_training_jobs._TEST_BOOT_DISK_TYPE,
+            boot_disk_size_gb=test_training_jobs._TEST_BOOT_DISK_SIZE_GB,
+            base_output_dir=_TEST_BASE_OUTPUT_DIR,
+            labels=_TEST_LABELS,
+        )
+
+        job.run(sync=sync)
+
+        job.wait()
+
+        assert (
+            job._gca_resource.state == gca_job_state_compat.JobState.JOB_STATE_SUCCEEDED
         )
