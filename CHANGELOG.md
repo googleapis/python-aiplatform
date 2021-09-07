@@ -11,11 +11,6 @@
 * Update tensorboard uploader to use Dispatcher for handling different event types ([#651](https://www.github.com/googleapis/python-aiplatform/issues/651)) ([d20b520](https://www.github.com/googleapis/python-aiplatform/commit/d20b520ea936a6554a24099beb0e044f237ff741)), closes [#519](https://www.github.com/googleapis/python-aiplatform/issues/519)
 
 
-### Bug Fixes
-
-* library should be released as 1.4.1 ([#690](https://www.github.com/googleapis/python-aiplatform/issues/690)) ([0ed53ef](https://www.github.com/googleapis/python-aiplatform/commit/0ed53efd8dbdce6e599de3203a7aef5ff9234e09))
-
-
 ### Documentation
 
 * Add code sample for Pipelines ([#684](https://www.github.com/googleapis/python-aiplatform/issues/684)) ([4f0c18e](https://www.github.com/googleapis/python-aiplatform/commit/4f0c18e8989cf353019876a73aa57457332e88fb))
