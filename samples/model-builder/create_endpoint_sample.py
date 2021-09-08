@@ -17,7 +17,7 @@ from google.cloud import aiplatform
 
 #  [START aiplatform_sdk_create_endpoint_sample]
 def create_endpoint_sample(
-    project: str, display_name: str, location: str,
+    project: str, display_name: str, location: str ,
 ):
     aiplatform.init(project=project, location=location)
 
