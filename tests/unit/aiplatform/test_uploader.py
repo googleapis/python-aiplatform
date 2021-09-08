@@ -39,8 +39,9 @@ from tensorboard.uploader.proto import server_info_pb2
 import tensorflow as tf
 
 from google.api_core import datetime_helpers
-import google.cloud.aiplatform.tensorboard.uploader as uploader_lib
 from google.cloud.aiplatform.tensorboard import uploader_utils
+from google.cloud.aiplatform.tensorboard.plugins.tf_profiler import profile_uploader
+import google.cloud.aiplatform.tensorboard.uploader as uploader_lib
 from google.cloud import storage
 from google.cloud.aiplatform.compat.services import tensorboard_service_client_v1beta1
 from google.cloud.aiplatform_v1beta1.services.tensorboard_service.transports import (
@@ -171,6 +172,7 @@ def _create_uploader(
     description=None,
     verbosity=0,  # Use 0 to minimize littering the test output.
     one_shot=None,
+    allowed_plugins=_SCALARS_HISTOGRAMS_AND_GRAPHS,
 ):
     if writer_client is _USE_DEFAULT:
         writer_client = _create_mock_client()
@@ -202,7 +204,7 @@ def _create_uploader(
         tensorboard_resource_name=tensorboard_resource_name,
         writer_client=writer_client,
         logdir=logdir,
-        allowed_plugins=_SCALARS_HISTOGRAMS_AND_GRAPHS,
+        allowed_plugins=allowed_plugins,
         upload_limits=upload_limits,
         blob_storage_bucket=blob_storage_bucket,
         blob_storage_folder=blob_storage_folder,
@@ -214,11 +216,36 @@ def _create_uploader(
     )
 
 
+def _create_profile_dispatcher(
+    experiment_resource_name, api=None, allowed_plugins=_USE_DEFAULT
+):
+    additional_senders = {}
+    additional_senders["profile"] = profile_uploader.ProfileRequestSender(
+        experiment_resource_name=experiment_resource_name,
+        api=api,
+        upload_limits=upload_limits,
+        blob_rpc_rate_limiter=blob_rpc_rate_limiter,
+        blob_storage_bucket=_create_mock_blob_storage(),
+        source_bucket=_create_mock_blob_storage(),
+        blob_storage_folder=None,
+        tracker=upload_tracker.UploadTracker(verbosity=0),
+        logdir=logdir,
+        run_resource_manager=run_resource_manager,
+    )
+
+    return _create_dispatcher(
+        experiment_resource_name=experiment_resource_name,
+        api=api,
+        allowed_plugins=allowed_plugins,
+        additional_senders=additional_senders,
+    )
+
+
 def _create_dispatcher(
     experiment_resource_name,
     api=None,
     allowed_plugins=_USE_DEFAULT,
-    additional_senders={},
+    additional_senders=None,
 ):
     if api is _USE_DEFAULT:
         api = _create_mock_client()
@@ -235,6 +262,9 @@ def _create_dispatcher(
     rpc_rate_limiter = util.RateLimiter(0)
     tensor_rpc_rate_limiter = util.RateLimiter(0)
     blob_rpc_rate_limiter = util.RateLimiter(0)
+
+    if additional_senders is None:
+        additional_senders = {}
 
     run_resource_manager = uploader_utils.RunResourceManager(
         api=api, experiment_resource_name=experiment_resource_name,
@@ -277,6 +307,38 @@ def _create_scalar_request_sender(
 
 def _scalar_event(tag, value):
     return event_pb2.Event(summary=scalar_v2_pb(tag, value))
+
+
+def _create_file_request_sender(
+    run_resource_id,
+    api=_USE_DEFAULT,
+    max_blob_request_size=_USE_DEFAULT,
+    max_blob_size=_USE_DEFAULT,
+    blob_storage_folder=None,
+    blob_storage_bucket=_USE_DEFAULT,
+    source_bucket=_USE_DEFAULT,
+):
+    if api is _USE_DEFAULT:
+        api = _create_mock_client()
+    if max_blob_request_size is _USE_DEFAULT:
+        max_blob_request_size = 128000
+    if blob_storage_bucket is _USE_DEFAULT:
+        blob_storage_bucket = _create_mock_blob_storage()
+    if source_bucket is _USE_DEFAULT:
+        source_bucket = _create_mock_blob_storage()
+    if max_blob_size is _USE_DEFAULT:
+        max_blob_size = 128000
+    return profile_uploader._FileRequestSender(
+        run_resource_id=run_resource_id,
+        api=api,
+        rpc_rate_limiter=util.RateLimiter(0),
+        max_blob_request_size=max_blob_request_size,
+        max_blob_size=max_blob_size,
+        blob_storage_bucket=blob_storage_bucket,
+        blob_storage_folder=blob_storage_folder,
+        source_bucket=source_bucket,
+        tracker=upload_tracker.UploadTracker(verbosity=0),
+    )
 
 
 def _grpc_error(code, details):
@@ -920,6 +982,16 @@ class TensorboardUploaderTest(tf.test.TestCase):
 
         with self.subTest("corrupt graphs should be skipped"):
             self.assertLen(actual_blobs, 2)
+
+    def test_add_profile_plugin(self):
+        uploader = _create_uploader(
+            _create_mock_client(),
+            _TEST_LOG_DIR_NAME,
+            one_shot=True,
+            allowed_plugins=frozenset(("profile",)),
+        )
+        uploader.create_experiment()
+        self.assertIn("profile", uploader._dispatcher._additional_senders)
 
 
 class BatchedRequestSenderTest(tf.test.TestCase):
