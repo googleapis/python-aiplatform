@@ -47,7 +47,9 @@ from .client import DatasetServiceClient
 
 
 class DatasetServiceAsyncClient:
-    """"""
+    """The service that handles the CRUD of Vertex AI Dataset and
+    its child resources.
+    """
 
     _client: DatasetServiceClient
 

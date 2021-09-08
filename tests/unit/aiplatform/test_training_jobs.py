@@ -25,6 +25,7 @@ import shutil
 import sys
 import tarfile
 import tempfile
+import uuid
 from unittest import mock
 from unittest.mock import patch
 
@@ -95,17 +96,22 @@ _TEST_MACHINE_TYPE = "n1-standard-4"
 _TEST_ACCELERATOR_TYPE = "NVIDIA_TESLA_K80"
 _TEST_INVALID_ACCELERATOR_TYPE = "NVIDIA_DOES_NOT_EXIST"
 _TEST_ACCELERATOR_COUNT = 1
+_TEST_BOOT_DISK_TYPE_DEFAULT = "pd-ssd"
+_TEST_BOOT_DISK_SIZE_GB_DEFAULT = 100
+_TEST_BOOT_DISK_TYPE = "pd-standard"
+_TEST_BOOT_DISK_SIZE_GB = 300
 _TEST_MODEL_DISPLAY_NAME = "model-display-name"
 _TEST_LABELS = {"key": "value"}
 _TEST_MODEL_LABELS = {"model_key": "model_value"}
 
-_TEST_DEFAULT_TRAINING_FRACTION_SPLIT = 0.8
-_TEST_DEFAULT_VALIDATION_FRACTION_SPLIT = 0.1
-_TEST_DEFAULT_TEST_FRACTION_SPLIT = 0.1
 _TEST_TRAINING_FRACTION_SPLIT = 0.6
 _TEST_VALIDATION_FRACTION_SPLIT = 0.2
 _TEST_TEST_FRACTION_SPLIT = 0.2
+_TEST_TRAINING_FILTER_SPLIT = "train"
+_TEST_VALIDATION_FILTER_SPLIT = "validate"
+_TEST_TEST_FILTER_SPLIT = "test"
 _TEST_PREDEFINED_SPLIT_COLUMN_NAME = "split"
+_TEST_TIMESTAMP_SPLIT_COLUMN_NAME = "timestamp"
 
 _TEST_PROJECT = "test-project"
 _TEST_LOCATION = "us-central1"
@@ -575,6 +581,7 @@ def mock_python_package_to_gcs():
 def mock_tabular_dataset():
     ds = mock.MagicMock(datasets.TabularDataset)
     ds.name = _TEST_DATASET_NAME
+    ds.metadata_schema_uri = _TEST_METADATA_SCHEMA_URI_TABULAR
     ds._latest_future = None
     ds._exception = None
     ds._gca_resource = gca_dataset.Dataset(
@@ -591,6 +598,7 @@ def mock_tabular_dataset():
 def mock_nontabular_dataset():
     ds = mock.MagicMock(datasets.ImageDataset)
     ds.name = _TEST_DATASET_NAME
+    ds.metadata_schema_uri = _TEST_METADATA_SCHEMA_URI_NONTABULAR
     ds._latest_future = None
     ds._exception = None
     ds._gca_resource = gca_dataset.Dataset(
@@ -607,11 +615,12 @@ class TestCustomTrainingJob:
     def setup_method(self):
         importlib.reload(initializer)
         importlib.reload(aiplatform)
-        with open(_TEST_LOCAL_SCRIPT_FILE_NAME, "w") as fp:
+        self._local_script_file_name = f"{uuid.uuid4()}-{_TEST_LOCAL_SCRIPT_FILE_NAME}"
+        with open(self._local_script_file_name, "w") as fp:
             fp.write(_TEST_PYTHON_SOURCE)
 
     def teardown_method(self):
-        pathlib.Path(_TEST_LOCAL_SCRIPT_FILE_NAME).unlink()
+        pathlib.Path(self._local_script_file_name).unlink()
         initializer.global_pool.shutdown(wait=True)
 
     @pytest.mark.parametrize("sync", [True, False])
@@ -664,7 +673,7 @@ class TestCustomTrainingJob:
             training_fraction_split=_TEST_TRAINING_FRACTION_SPLIT,
             validation_fraction_split=_TEST_VALIDATION_FRACTION_SPLIT,
             test_fraction_split=_TEST_TEST_FRACTION_SPLIT,
-            predefined_split_column_name=_TEST_PREDEFINED_SPLIT_COLUMN_NAME,
+            timestamp_split_column_name=_TEST_TIMESTAMP_SPLIT_COLUMN_NAME,
             tensorboard=_TEST_TENSORBOARD_RESOURCE_NAME,
             sync=sync,
         )
@@ -691,6 +700,10 @@ class TestCustomTrainingJob:
                 "accelerator_type": _TEST_ACCELERATOR_TYPE,
                 "accelerator_count": _TEST_ACCELERATOR_COUNT,
             },
+            "disk_spec": {
+                "boot_disk_type": _TEST_BOOT_DISK_TYPE_DEFAULT,
+                "boot_disk_size_gb": _TEST_BOOT_DISK_SIZE_GB_DEFAULT,
+            },
             "python_package_spec": {
                 "executor_image_uri": _TEST_TRAINING_CONTAINER_IMAGE,
                 "python_module": source_utils._TrainingScriptPythonPackager.module_name,
@@ -700,10 +713,11 @@ class TestCustomTrainingJob:
             },
         }
 
-        true_fraction_split = gca_training_pipeline.FractionSplit(
+        true_timestamp_split = gca_training_pipeline.TimestampSplit(
             training_fraction=_TEST_TRAINING_FRACTION_SPLIT,
             validation_fraction=_TEST_VALIDATION_FRACTION_SPLIT,
             test_fraction=_TEST_TEST_FRACTION_SPLIT,
+            key=_TEST_TIMESTAMP_SPLIT_COLUMN_NAME,
         )
 
         env = [
@@ -740,10 +754,7 @@ class TestCustomTrainingJob:
         )
 
         true_input_data_config = gca_training_pipeline.InputDataConfig(
-            fraction_split=true_fraction_split,
-            predefined_split=gca_training_pipeline.PredefinedSplit(
-                key=_TEST_PREDEFINED_SPLIT_COLUMN_NAME
-            ),
+            timestamp_split=true_timestamp_split,
             dataset_id=mock_tabular_dataset.name,
             gcs_destination=gca_io.GcsDestination(
                 output_uri_prefix=_TEST_BASE_OUTPUT_DIR
@@ -835,9 +846,6 @@ class TestCustomTrainingJob:
             accelerator_type=_TEST_ACCELERATOR_TYPE,
             accelerator_count=_TEST_ACCELERATOR_COUNT,
             model_display_name=_TEST_MODEL_DISPLAY_NAME,
-            training_fraction_split=_TEST_TRAINING_FRACTION_SPLIT,
-            validation_fraction_split=_TEST_VALIDATION_FRACTION_SPLIT,
-            test_fraction_split=_TEST_TEST_FRACTION_SPLIT,
             predefined_split_column_name=_TEST_PREDEFINED_SPLIT_COLUMN_NAME,
             sync=sync,
         )
@@ -858,6 +866,10 @@ class TestCustomTrainingJob:
                 "accelerator_type": _TEST_ACCELERATOR_TYPE,
                 "accelerator_count": _TEST_ACCELERATOR_COUNT,
             },
+            "disk_spec": {
+                "boot_disk_type": _TEST_BOOT_DISK_TYPE_DEFAULT,
+                "boot_disk_size_gb": _TEST_BOOT_DISK_SIZE_GB_DEFAULT,
+            },
             "python_package_spec": {
                 "executor_image_uri": _TEST_TRAINING_CONTAINER_IMAGE,
                 "python_module": source_utils._TrainingScriptPythonPackager.module_name,
@@ -866,12 +878,6 @@ class TestCustomTrainingJob:
                 "env": true_env,
             },
         }
-
-        true_fraction_split = gca_training_pipeline.FractionSplit(
-            training_fraction=_TEST_TRAINING_FRACTION_SPLIT,
-            validation_fraction=_TEST_VALIDATION_FRACTION_SPLIT,
-            test_fraction=_TEST_TEST_FRACTION_SPLIT,
-        )
 
         env = [
             gca_env_var.EnvVar(name=str(key), value=str(value))
@@ -906,7 +912,6 @@ class TestCustomTrainingJob:
         )
 
         true_input_data_config = gca_training_pipeline.InputDataConfig(
-            fraction_split=true_fraction_split,
             predefined_split=gca_training_pipeline.PredefinedSplit(
                 key=_TEST_PREDEFINED_SPLIT_COLUMN_NAME
             ),
@@ -1037,6 +1042,34 @@ class TestCustomTrainingJob:
                 accelerator_type=_TEST_INVALID_ACCELERATOR_TYPE,
                 accelerator_count=_TEST_ACCELERATOR_COUNT,
                 model_display_name=_TEST_MODEL_DISPLAY_NAME,
+                sync=sync,
+            )
+
+    @pytest.mark.parametrize("sync", [True, False])
+    def test_run_with_two_splits_raises(
+        self,
+        mock_pipeline_service_create,
+        mock_python_package_to_gcs,
+        mock_tabular_dataset,
+        mock_model_service_get,
+        sync,
+    ):
+        aiplatform.init(project=_TEST_PROJECT, staging_bucket=_TEST_BUCKET_NAME)
+
+        job = training_jobs.CustomTrainingJob(
+            display_name=_TEST_DISPLAY_NAME,
+            script_path=_TEST_LOCAL_SCRIPT_FILE_NAME,
+            container_uri=_TEST_TRAINING_CONTAINER_IMAGE,
+        )
+
+        with pytest.raises(ValueError):
+            job.run(
+                dataset=mock_tabular_dataset,
+                replica_count=1,
+                machine_type=_TEST_MACHINE_TYPE,
+                accelerator_type=_TEST_INVALID_ACCELERATOR_TYPE,
+                accelerator_count=_TEST_ACCELERATOR_COUNT,
+                predefined_split_column_name=_TEST_PREDEFINED_SPLIT_COLUMN_NAME,
                 training_fraction_split=_TEST_TRAINING_FRACTION_SPLIT,
                 validation_fraction_split=_TEST_VALIDATION_FRACTION_SPLIT,
                 test_fraction_split=_TEST_TEST_FRACTION_SPLIT,
@@ -1111,6 +1144,9 @@ class TestCustomTrainingJob:
             training_fraction_split=_TEST_TRAINING_FRACTION_SPLIT,
             validation_fraction_split=_TEST_VALIDATION_FRACTION_SPLIT,
             test_fraction_split=_TEST_TEST_FRACTION_SPLIT,
+            training_filter_split=_TEST_TRAINING_FILTER_SPLIT,
+            validation_filter_split=_TEST_VALIDATION_FILTER_SPLIT,
+            test_filter_split=_TEST_TEST_FILTER_SPLIT,
             sync=sync,
         )
 
@@ -1135,6 +1171,10 @@ class TestCustomTrainingJob:
                 "machine_type": _TEST_MACHINE_TYPE,
                 "accelerator_type": _TEST_ACCELERATOR_TYPE,
                 "accelerator_count": _TEST_ACCELERATOR_COUNT,
+            },
+            "disk_spec": {
+                "boot_disk_type": _TEST_BOOT_DISK_TYPE_DEFAULT,
+                "boot_disk_size_gb": _TEST_BOOT_DISK_SIZE_GB_DEFAULT,
             },
             "python_package_spec": {
                 "executor_image_uri": _TEST_TRAINING_CONTAINER_IMAGE,
@@ -1363,9 +1403,6 @@ class TestCustomTrainingJob:
             accelerator_type=_TEST_ACCELERATOR_TYPE,
             accelerator_count=_TEST_ACCELERATOR_COUNT,
             model_display_name=_TEST_MODEL_DISPLAY_NAME,
-            training_fraction_split=_TEST_TRAINING_FRACTION_SPLIT,
-            validation_fraction_split=_TEST_VALIDATION_FRACTION_SPLIT,
-            test_fraction_split=_TEST_TEST_FRACTION_SPLIT,
             sync=sync,
         )
 
@@ -1392,6 +1429,10 @@ class TestCustomTrainingJob:
                     "accelerator_type": _TEST_ACCELERATOR_TYPE,
                     "accelerator_count": _TEST_ACCELERATOR_COUNT,
                 },
+                "disk_spec": {
+                    "boot_disk_type": _TEST_BOOT_DISK_TYPE_DEFAULT,
+                    "boot_disk_size_gb": _TEST_BOOT_DISK_SIZE_GB_DEFAULT,
+                },
                 "python_package_spec": {
                     "executor_image_uri": _TEST_TRAINING_CONTAINER_IMAGE,
                     "python_module": source_utils._TrainingScriptPythonPackager.module_name,
@@ -1407,6 +1448,10 @@ class TestCustomTrainingJob:
                     "accelerator_type": _TEST_ACCELERATOR_TYPE,
                     "accelerator_count": _TEST_ACCELERATOR_COUNT,
                 },
+                "disk_spec": {
+                    "boot_disk_type": _TEST_BOOT_DISK_TYPE_DEFAULT,
+                    "boot_disk_size_gb": _TEST_BOOT_DISK_SIZE_GB_DEFAULT,
+                },
                 "python_package_spec": {
                     "executor_image_uri": _TEST_TRAINING_CONTAINER_IMAGE,
                     "python_module": source_utils._TrainingScriptPythonPackager.module_name,
@@ -1416,12 +1461,6 @@ class TestCustomTrainingJob:
                 },
             },
         ]
-
-        true_fraction_split = gca_training_pipeline.FractionSplit(
-            training_fraction=_TEST_TRAINING_FRACTION_SPLIT,
-            validation_fraction=_TEST_VALIDATION_FRACTION_SPLIT,
-            test_fraction=_TEST_TEST_FRACTION_SPLIT,
-        )
 
         true_container_spec = gca_model.ModelContainerSpec(
             image_uri=_TEST_SERVING_CONTAINER_IMAGE,
@@ -1440,7 +1479,6 @@ class TestCustomTrainingJob:
         )
 
         true_input_data_config = gca_training_pipeline.InputDataConfig(
-            fraction_split=true_fraction_split,
             dataset_id=mock_tabular_dataset.name,
             gcs_destination=gca_io.GcsDestination(
                 output_uri_prefix=_TEST_BASE_OUTPUT_DIR
@@ -1636,6 +1674,9 @@ class TestCustomTrainingJob:
             machine_type=_TEST_MACHINE_TYPE,
             accelerator_type=_TEST_ACCELERATOR_TYPE,
             accelerator_count=_TEST_ACCELERATOR_COUNT,
+            training_filter_split=_TEST_TRAINING_FILTER_SPLIT,
+            validation_filter_split=_TEST_VALIDATION_FILTER_SPLIT,
+            test_filter_split=_TEST_TEST_FILTER_SPLIT,
             sync=sync,
         )
 
@@ -1657,6 +1698,10 @@ class TestCustomTrainingJob:
                 "accelerator_type": _TEST_ACCELERATOR_TYPE,
                 "accelerator_count": _TEST_ACCELERATOR_COUNT,
             },
+            "disk_spec": {
+                "boot_disk_type": _TEST_BOOT_DISK_TYPE_DEFAULT,
+                "boot_disk_size_gb": _TEST_BOOT_DISK_SIZE_GB_DEFAULT,
+            },
             "python_package_spec": {
                 "executor_image_uri": _TEST_TRAINING_CONTAINER_IMAGE,
                 "python_module": source_utils._TrainingScriptPythonPackager.module_name,
@@ -1665,10 +1710,10 @@ class TestCustomTrainingJob:
             },
         }
 
-        true_fraction_split = gca_training_pipeline.FractionSplit(
-            training_fraction=_TEST_DEFAULT_TRAINING_FRACTION_SPLIT,
-            validation_fraction=_TEST_DEFAULT_VALIDATION_FRACTION_SPLIT,
-            test_fraction=_TEST_DEFAULT_TEST_FRACTION_SPLIT,
+        true_filter_split = gca_training_pipeline.FilterSplit(
+            training_filter=_TEST_TRAINING_FILTER_SPLIT,
+            validation_filter=_TEST_VALIDATION_FILTER_SPLIT,
+            test_filter=_TEST_TEST_FILTER_SPLIT,
         )
 
         env = [
@@ -1704,7 +1749,7 @@ class TestCustomTrainingJob:
         )
 
         true_input_data_config = gca_training_pipeline.InputDataConfig(
-            fraction_split=true_fraction_split,
+            filter_split=true_filter_split,
             dataset_id=mock_nontabular_dataset.name,
             annotation_schema_uri=_TEST_ANNOTATION_SCHEMA_URI,
             gcs_destination=gca_io.GcsDestination(
@@ -1881,9 +1926,6 @@ class TestCustomContainerTrainingJob:
             accelerator_count=_TEST_ACCELERATOR_COUNT,
             model_display_name=_TEST_MODEL_DISPLAY_NAME,
             model_labels=_TEST_MODEL_LABELS,
-            training_fraction_split=_TEST_TRAINING_FRACTION_SPLIT,
-            validation_fraction_split=_TEST_VALIDATION_FRACTION_SPLIT,
-            test_fraction_split=_TEST_TEST_FRACTION_SPLIT,
             predefined_split_column_name=_TEST_PREDEFINED_SPLIT_COLUMN_NAME,
             service_account=_TEST_SERVICE_ACCOUNT,
             tensorboard=_TEST_TENSORBOARD_RESOURCE_NAME,
@@ -1906,6 +1948,10 @@ class TestCustomContainerTrainingJob:
                 "accelerator_type": _TEST_ACCELERATOR_TYPE,
                 "accelerator_count": _TEST_ACCELERATOR_COUNT,
             },
+            "disk_spec": {
+                "boot_disk_type": _TEST_BOOT_DISK_TYPE_DEFAULT,
+                "boot_disk_size_gb": _TEST_BOOT_DISK_SIZE_GB_DEFAULT,
+            },
             "containerSpec": {
                 "imageUri": _TEST_TRAINING_CONTAINER_IMAGE,
                 "command": _TEST_TRAINING_CONTAINER_CMD,
@@ -1913,12 +1959,6 @@ class TestCustomContainerTrainingJob:
                 "env": true_env,
             },
         }
-
-        true_fraction_split = gca_training_pipeline.FractionSplit(
-            training_fraction=_TEST_TRAINING_FRACTION_SPLIT,
-            validation_fraction=_TEST_VALIDATION_FRACTION_SPLIT,
-            test_fraction=_TEST_TEST_FRACTION_SPLIT,
-        )
 
         env = [
             gca_env_var.EnvVar(name=str(key), value=str(value))
@@ -1954,7 +1994,6 @@ class TestCustomContainerTrainingJob:
         )
 
         true_input_data_config = gca_training_pipeline.InputDataConfig(
-            fraction_split=true_fraction_split,
             predefined_split=gca_training_pipeline.PredefinedSplit(
                 key=_TEST_PREDEFINED_SPLIT_COLUMN_NAME
             ),
@@ -2047,7 +2086,7 @@ class TestCustomContainerTrainingJob:
             training_fraction_split=_TEST_TRAINING_FRACTION_SPLIT,
             validation_fraction_split=_TEST_VALIDATION_FRACTION_SPLIT,
             test_fraction_split=_TEST_TEST_FRACTION_SPLIT,
-            predefined_split_column_name=_TEST_PREDEFINED_SPLIT_COLUMN_NAME,
+            timestamp_split_column_name=_TEST_TIMESTAMP_SPLIT_COLUMN_NAME,
             sync=sync,
         )
 
@@ -2063,6 +2102,10 @@ class TestCustomContainerTrainingJob:
                 "accelerator_type": _TEST_ACCELERATOR_TYPE,
                 "accelerator_count": _TEST_ACCELERATOR_COUNT,
             },
+            "disk_spec": {
+                "boot_disk_type": _TEST_BOOT_DISK_TYPE_DEFAULT,
+                "boot_disk_size_gb": _TEST_BOOT_DISK_SIZE_GB_DEFAULT,
+            },
             "containerSpec": {
                 "imageUri": _TEST_TRAINING_CONTAINER_IMAGE,
                 "command": _TEST_TRAINING_CONTAINER_CMD,
@@ -2070,10 +2113,11 @@ class TestCustomContainerTrainingJob:
             },
         }
 
-        true_fraction_split = gca_training_pipeline.FractionSplit(
+        true_timestamp_split = gca_training_pipeline.TimestampSplit(
             training_fraction=_TEST_TRAINING_FRACTION_SPLIT,
             validation_fraction=_TEST_VALIDATION_FRACTION_SPLIT,
             test_fraction=_TEST_TEST_FRACTION_SPLIT,
+            key=_TEST_TIMESTAMP_SPLIT_COLUMN_NAME,
         )
 
         env = [
@@ -2109,10 +2153,7 @@ class TestCustomContainerTrainingJob:
         )
 
         true_input_data_config = gca_training_pipeline.InputDataConfig(
-            fraction_split=true_fraction_split,
-            predefined_split=gca_training_pipeline.PredefinedSplit(
-                key=_TEST_PREDEFINED_SPLIT_COLUMN_NAME
-            ),
+            timestamp_split=true_timestamp_split,
             dataset_id=mock_tabular_dataset.name,
             bigquery_destination=gca_io.BigQueryDestination(
                 output_uri=_TEST_BIGQUERY_DESTINATION
@@ -2240,6 +2281,33 @@ class TestCustomContainerTrainingJob:
                 accelerator_type=_TEST_INVALID_ACCELERATOR_TYPE,
                 accelerator_count=_TEST_ACCELERATOR_COUNT,
                 model_display_name=_TEST_MODEL_DISPLAY_NAME,
+                sync=sync,
+            )
+
+    @pytest.mark.parametrize("sync", [True, False])
+    def test_run_with_two_split_raises(
+        self,
+        mock_pipeline_service_create,
+        mock_python_package_to_gcs,
+        mock_tabular_dataset,
+        mock_model_service_get,
+        sync,
+    ):
+        aiplatform.init(project=_TEST_PROJECT, staging_bucket=_TEST_BUCKET_NAME)
+
+        job = training_jobs.CustomContainerTrainingJob(
+            display_name=_TEST_DISPLAY_NAME,
+            container_uri=_TEST_TRAINING_CONTAINER_IMAGE,
+        )
+
+        with pytest.raises(ValueError):
+            job.run(
+                dataset=mock_tabular_dataset,
+                replica_count=1,
+                machine_type=_TEST_MACHINE_TYPE,
+                accelerator_type=_TEST_INVALID_ACCELERATOR_TYPE,
+                accelerator_count=_TEST_ACCELERATOR_COUNT,
+                predefined_split_column_name=_TEST_PREDEFINED_SPLIT_COLUMN_NAME,
                 training_fraction_split=_TEST_TRAINING_FRACTION_SPLIT,
                 validation_fraction_split=_TEST_VALIDATION_FRACTION_SPLIT,
                 test_fraction_split=_TEST_TEST_FRACTION_SPLIT,
@@ -2323,6 +2391,10 @@ class TestCustomContainerTrainingJob:
                 "accelerator_type": _TEST_ACCELERATOR_TYPE,
                 "accelerator_count": _TEST_ACCELERATOR_COUNT,
             },
+            "disk_spec": {
+                "boot_disk_type": _TEST_BOOT_DISK_TYPE_DEFAULT,
+                "boot_disk_size_gb": _TEST_BOOT_DISK_SIZE_GB_DEFAULT,
+            },
             "containerSpec": {
                 "imageUri": _TEST_TRAINING_CONTAINER_IMAGE,
                 "command": _TEST_TRAINING_CONTAINER_CMD,
@@ -2392,9 +2464,6 @@ class TestCustomContainerTrainingJob:
             machine_type=_TEST_MACHINE_TYPE,
             accelerator_type=_TEST_ACCELERATOR_TYPE,
             accelerator_count=_TEST_ACCELERATOR_COUNT,
-            training_fraction_split=_TEST_TRAINING_FRACTION_SPLIT,
-            validation_fraction_split=_TEST_VALIDATION_FRACTION_SPLIT,
-            test_fraction_split=_TEST_TEST_FRACTION_SPLIT,
             sync=sync,
         )
 
@@ -2556,6 +2625,10 @@ class TestCustomContainerTrainingJob:
                     "accelerator_type": _TEST_ACCELERATOR_TYPE,
                     "accelerator_count": _TEST_ACCELERATOR_COUNT,
                 },
+                "disk_spec": {
+                    "boot_disk_type": _TEST_BOOT_DISK_TYPE_DEFAULT,
+                    "boot_disk_size_gb": _TEST_BOOT_DISK_SIZE_GB_DEFAULT,
+                },
                 "containerSpec": {
                     "imageUri": _TEST_TRAINING_CONTAINER_IMAGE,
                     "command": _TEST_TRAINING_CONTAINER_CMD,
@@ -2568,6 +2641,10 @@ class TestCustomContainerTrainingJob:
                     "machine_type": _TEST_MACHINE_TYPE,
                     "accelerator_type": _TEST_ACCELERATOR_TYPE,
                     "accelerator_count": _TEST_ACCELERATOR_COUNT,
+                },
+                "disk_spec": {
+                    "boot_disk_type": _TEST_BOOT_DISK_TYPE_DEFAULT,
+                    "boot_disk_size_gb": _TEST_BOOT_DISK_SIZE_GB_DEFAULT,
                 },
                 "containerSpec": {
                     "imageUri": _TEST_TRAINING_CONTAINER_IMAGE,
@@ -2686,6 +2763,9 @@ class TestCustomContainerTrainingJob:
             accelerator_count=_TEST_ACCELERATOR_COUNT,
             model_display_name=_TEST_MODEL_DISPLAY_NAME,
             model_labels=_TEST_MODEL_LABELS,
+            training_filter_split=_TEST_TRAINING_FILTER_SPLIT,
+            validation_filter_split=_TEST_VALIDATION_FILTER_SPLIT,
+            test_filter_split=_TEST_TEST_FILTER_SPLIT,
             sync=sync,
         )
 
@@ -2701,6 +2781,10 @@ class TestCustomContainerTrainingJob:
                 "accelerator_type": _TEST_ACCELERATOR_TYPE,
                 "accelerator_count": _TEST_ACCELERATOR_COUNT,
             },
+            "disk_spec": {
+                "boot_disk_type": _TEST_BOOT_DISK_TYPE_DEFAULT,
+                "boot_disk_size_gb": _TEST_BOOT_DISK_SIZE_GB_DEFAULT,
+            },
             "containerSpec": {
                 "imageUri": _TEST_TRAINING_CONTAINER_IMAGE,
                 "command": _TEST_TRAINING_CONTAINER_CMD,
@@ -2708,10 +2792,10 @@ class TestCustomContainerTrainingJob:
             },
         }
 
-        true_fraction_split = gca_training_pipeline.FractionSplit(
-            training_fraction=_TEST_DEFAULT_TRAINING_FRACTION_SPLIT,
-            validation_fraction=_TEST_DEFAULT_VALIDATION_FRACTION_SPLIT,
-            test_fraction=_TEST_DEFAULT_TEST_FRACTION_SPLIT,
+        true_filter_split = gca_training_pipeline.FilterSplit(
+            training_filter=_TEST_TRAINING_FILTER_SPLIT,
+            validation_filter=_TEST_VALIDATION_FILTER_SPLIT,
+            test_filter=_TEST_TEST_FILTER_SPLIT,
         )
 
         env = [
@@ -2747,7 +2831,7 @@ class TestCustomContainerTrainingJob:
         )
 
         true_input_data_config = gca_training_pipeline.InputDataConfig(
-            fraction_split=true_fraction_split,
+            filter_split=true_filter_split,
             dataset_id=mock_nontabular_dataset.name,
             annotation_schema_uri=_TEST_ANNOTATION_SCHEMA_URI,
             gcs_destination=gca_io.GcsDestination(
@@ -2830,9 +2914,9 @@ class TestCustomContainerTrainingJob:
             )
 
 
-class Test_MachineSpec:
+class Test_WorkerPoolSpec:
     def test_machine_spec_return_spec_dict(self):
-        test_spec = worker_spec_utils._MachineSpec(
+        test_spec = worker_spec_utils._WorkerPoolSpec(
             replica_count=_TEST_REPLICA_COUNT,
             machine_type=_TEST_MACHINE_TYPE,
             accelerator_count=_TEST_ACCELERATOR_COUNT,
@@ -2846,12 +2930,41 @@ class Test_MachineSpec:
                 "accelerator_count": _TEST_ACCELERATOR_COUNT,
             },
             "replica_count": _TEST_REPLICA_COUNT,
+            "disk_spec": {
+                "boot_disk_type": _TEST_BOOT_DISK_TYPE_DEFAULT,
+                "boot_disk_size_gb": _TEST_BOOT_DISK_SIZE_GB_DEFAULT,
+            },
+        }
+
+        assert test_spec.spec_dict == true_spec_dict
+
+    def test_machine_spec_return_spec_with_boot_disk_dict(self):
+        test_spec = worker_spec_utils._WorkerPoolSpec(
+            replica_count=_TEST_REPLICA_COUNT,
+            machine_type=_TEST_MACHINE_TYPE,
+            accelerator_count=_TEST_ACCELERATOR_COUNT,
+            accelerator_type=_TEST_ACCELERATOR_TYPE,
+            boot_disk_type=_TEST_BOOT_DISK_TYPE,
+            boot_disk_size_gb=_TEST_BOOT_DISK_SIZE_GB,
+        )
+
+        true_spec_dict = {
+            "machine_spec": {
+                "machine_type": _TEST_MACHINE_TYPE,
+                "accelerator_type": _TEST_ACCELERATOR_TYPE,
+                "accelerator_count": _TEST_ACCELERATOR_COUNT,
+            },
+            "replica_count": _TEST_REPLICA_COUNT,
+            "disk_spec": {
+                "boot_disk_type": _TEST_BOOT_DISK_TYPE,
+                "boot_disk_size_gb": _TEST_BOOT_DISK_SIZE_GB,
+            },
         }
 
         assert test_spec.spec_dict == true_spec_dict
 
     def test_machine_spec_return_spec_dict_with_no_accelerator(self):
-        test_spec = worker_spec_utils._MachineSpec(
+        test_spec = worker_spec_utils._WorkerPoolSpec(
             replica_count=_TEST_REPLICA_COUNT,
             machine_type=_TEST_MACHINE_TYPE,
             accelerator_count=0,
@@ -2861,12 +2974,16 @@ class Test_MachineSpec:
         true_spec_dict = {
             "machine_spec": {"machine_type": _TEST_MACHINE_TYPE},
             "replica_count": _TEST_REPLICA_COUNT,
+            "disk_spec": {
+                "boot_disk_type": _TEST_BOOT_DISK_TYPE_DEFAULT,
+                "boot_disk_size_gb": _TEST_BOOT_DISK_SIZE_GB_DEFAULT,
+            },
         }
 
         assert test_spec.spec_dict == true_spec_dict
 
     def test_machine_spec_spec_dict_raises_invalid_accelerator(self):
-        test_spec = worker_spec_utils._MachineSpec(
+        test_spec = worker_spec_utils._WorkerPoolSpec(
             replica_count=_TEST_REPLICA_COUNT,
             machine_type=_TEST_MACHINE_TYPE,
             accelerator_count=_TEST_ACCELERATOR_COUNT,
@@ -2877,7 +2994,7 @@ class Test_MachineSpec:
             test_spec.spec_dict
 
     def test_machine_spec_spec_dict_is_empty(self):
-        test_spec = worker_spec_utils._MachineSpec(
+        test_spec = worker_spec_utils._WorkerPoolSpec(
             replica_count=0,
             machine_type=_TEST_MACHINE_TYPE,
             accelerator_count=_TEST_ACCELERATOR_COUNT,
@@ -2887,7 +3004,7 @@ class Test_MachineSpec:
         assert test_spec.is_empty
 
     def test_machine_spec_spec_dict_is_not_empty(self):
-        test_spec = worker_spec_utils._MachineSpec(
+        test_spec = worker_spec_utils._WorkerPoolSpec(
             replica_count=_TEST_REPLICA_COUNT,
             machine_type=_TEST_MACHINE_TYPE,
             accelerator_count=_TEST_ACCELERATOR_COUNT,
@@ -2901,25 +3018,25 @@ class Test_DistributedTrainingSpec:
     def test_machine_spec_returns_pool_spec(self):
 
         spec = worker_spec_utils._DistributedTrainingSpec(
-            chief_spec=worker_spec_utils._MachineSpec(
+            chief_spec=worker_spec_utils._WorkerPoolSpec(
                 replica_count=1,
                 machine_type=_TEST_MACHINE_TYPE,
                 accelerator_count=_TEST_ACCELERATOR_COUNT,
                 accelerator_type=_TEST_ACCELERATOR_TYPE,
             ),
-            worker_spec=worker_spec_utils._MachineSpec(
+            worker_spec=worker_spec_utils._WorkerPoolSpec(
                 replica_count=10,
                 machine_type=_TEST_MACHINE_TYPE,
                 accelerator_count=_TEST_ACCELERATOR_COUNT,
                 accelerator_type=_TEST_ACCELERATOR_TYPE,
             ),
-            parameter_server_spec=worker_spec_utils._MachineSpec(
+            parameter_server_spec=worker_spec_utils._WorkerPoolSpec(
                 replica_count=3,
                 machine_type=_TEST_MACHINE_TYPE,
                 accelerator_count=_TEST_ACCELERATOR_COUNT,
                 accelerator_type=_TEST_ACCELERATOR_TYPE,
             ),
-            evaluator_spec=worker_spec_utils._MachineSpec(
+            evaluator_spec=worker_spec_utils._WorkerPoolSpec(
                 replica_count=1,
                 machine_type=_TEST_MACHINE_TYPE,
                 accelerator_count=_TEST_ACCELERATOR_COUNT,
@@ -2935,6 +3052,10 @@ class Test_DistributedTrainingSpec:
                     "accelerator_count": _TEST_ACCELERATOR_COUNT,
                 },
                 "replica_count": 1,
+                "disk_spec": {
+                    "boot_disk_type": _TEST_BOOT_DISK_TYPE_DEFAULT,
+                    "boot_disk_size_gb": _TEST_BOOT_DISK_SIZE_GB_DEFAULT,
+                },
             },
             {
                 "machine_spec": {
@@ -2943,6 +3064,10 @@ class Test_DistributedTrainingSpec:
                     "accelerator_count": _TEST_ACCELERATOR_COUNT,
                 },
                 "replica_count": 10,
+                "disk_spec": {
+                    "boot_disk_type": _TEST_BOOT_DISK_TYPE_DEFAULT,
+                    "boot_disk_size_gb": _TEST_BOOT_DISK_SIZE_GB_DEFAULT,
+                },
             },
             {
                 "machine_spec": {
@@ -2951,6 +3076,10 @@ class Test_DistributedTrainingSpec:
                     "accelerator_count": _TEST_ACCELERATOR_COUNT,
                 },
                 "replica_count": 3,
+                "disk_spec": {
+                    "boot_disk_type": _TEST_BOOT_DISK_TYPE_DEFAULT,
+                    "boot_disk_size_gb": _TEST_BOOT_DISK_SIZE_GB_DEFAULT,
+                },
             },
             {
                 "machine_spec": {
@@ -2959,6 +3088,10 @@ class Test_DistributedTrainingSpec:
                     "accelerator_count": _TEST_ACCELERATOR_COUNT,
                 },
                 "replica_count": 1,
+                "disk_spec": {
+                    "boot_disk_type": _TEST_BOOT_DISK_TYPE_DEFAULT,
+                    "boot_disk_size_gb": _TEST_BOOT_DISK_SIZE_GB_DEFAULT,
+                },
             },
         ]
 
@@ -2981,6 +3114,10 @@ class Test_DistributedTrainingSpec:
                     "accelerator_count": _TEST_ACCELERATOR_COUNT,
                 },
                 "replica_count": 1,
+                "disk_spec": {
+                    "boot_disk_type": _TEST_BOOT_DISK_TYPE_DEFAULT,
+                    "boot_disk_size_gb": _TEST_BOOT_DISK_SIZE_GB_DEFAULT,
+                },
             },
             {
                 "machine_spec": {
@@ -2989,6 +3126,10 @@ class Test_DistributedTrainingSpec:
                     "accelerator_count": _TEST_ACCELERATOR_COUNT,
                 },
                 "replica_count": 9,
+                "disk_spec": {
+                    "boot_disk_type": _TEST_BOOT_DISK_TYPE_DEFAULT,
+                    "boot_disk_size_gb": _TEST_BOOT_DISK_SIZE_GB_DEFAULT,
+                },
             },
         ]
 
@@ -3011,6 +3152,10 @@ class Test_DistributedTrainingSpec:
                     "accelerator_count": _TEST_ACCELERATOR_COUNT,
                 },
                 "replica_count": 1,
+                "disk_spec": {
+                    "boot_disk_type": _TEST_BOOT_DISK_TYPE_DEFAULT,
+                    "boot_disk_size_gb": _TEST_BOOT_DISK_SIZE_GB_DEFAULT,
+                },
             }
         ]
 
@@ -3019,7 +3164,7 @@ class Test_DistributedTrainingSpec:
     def test_machine_spec_raise_with_more_than_one_chief_replica(self):
 
         spec = worker_spec_utils._DistributedTrainingSpec(
-            chief_spec=worker_spec_utils._MachineSpec(
+            chief_spec=worker_spec_utils._WorkerPoolSpec(
                 replica_count=2,
                 machine_type=_TEST_MACHINE_TYPE,
                 accelerator_count=_TEST_ACCELERATOR_COUNT,
@@ -3033,20 +3178,20 @@ class Test_DistributedTrainingSpec:
     def test_machine_spec_handles_missing_pools(self):
 
         spec = worker_spec_utils._DistributedTrainingSpec(
-            chief_spec=worker_spec_utils._MachineSpec(
+            chief_spec=worker_spec_utils._WorkerPoolSpec(
                 replica_count=1,
                 machine_type=_TEST_MACHINE_TYPE,
                 accelerator_count=_TEST_ACCELERATOR_COUNT,
                 accelerator_type=_TEST_ACCELERATOR_TYPE,
             ),
-            worker_spec=worker_spec_utils._MachineSpec(replica_count=0),
-            parameter_server_spec=worker_spec_utils._MachineSpec(
+            worker_spec=worker_spec_utils._WorkerPoolSpec(replica_count=0),
+            parameter_server_spec=worker_spec_utils._WorkerPoolSpec(
                 replica_count=3,
                 machine_type=_TEST_MACHINE_TYPE,
                 accelerator_count=_TEST_ACCELERATOR_COUNT,
                 accelerator_type=_TEST_ACCELERATOR_TYPE,
             ),
-            evaluator_spec=worker_spec_utils._MachineSpec(replica_count=0),
+            evaluator_spec=worker_spec_utils._WorkerPoolSpec(replica_count=0),
         )
 
         true_pool_spec = [
@@ -3057,8 +3202,19 @@ class Test_DistributedTrainingSpec:
                     "accelerator_count": _TEST_ACCELERATOR_COUNT,
                 },
                 "replica_count": 1,
+                "disk_spec": {
+                    "boot_disk_type": _TEST_BOOT_DISK_TYPE_DEFAULT,
+                    "boot_disk_size_gb": _TEST_BOOT_DISK_SIZE_GB_DEFAULT,
+                },
             },
-            {"machine_spec": {"machine_type": "n1-standard-4"}, "replica_count": 0},
+            {
+                "machine_spec": {"machine_type": "n1-standard-4"},
+                "replica_count": 0,
+                "disk_spec": {
+                    "boot_disk_type": _TEST_BOOT_DISK_TYPE_DEFAULT,
+                    "boot_disk_size_gb": _TEST_BOOT_DISK_SIZE_GB_DEFAULT,
+                },
+            },
             {
                 "machine_spec": {
                     "machine_type": _TEST_MACHINE_TYPE,
@@ -3066,6 +3222,10 @@ class Test_DistributedTrainingSpec:
                     "accelerator_count": _TEST_ACCELERATOR_COUNT,
                 },
                 "replica_count": 3,
+                "disk_spec": {
+                    "boot_disk_type": _TEST_BOOT_DISK_TYPE_DEFAULT,
+                    "boot_disk_size_gb": _TEST_BOOT_DISK_SIZE_GB_DEFAULT,
+                },
             },
         ]
 
@@ -3129,7 +3289,6 @@ class TestCustomPythonPackageTrainingJob:
             training_fraction_split=_TEST_TRAINING_FRACTION_SPLIT,
             validation_fraction_split=_TEST_VALIDATION_FRACTION_SPLIT,
             test_fraction_split=_TEST_TEST_FRACTION_SPLIT,
-            predefined_split_column_name=_TEST_PREDEFINED_SPLIT_COLUMN_NAME,
             sync=sync,
         )
 
@@ -3148,6 +3307,10 @@ class TestCustomPythonPackageTrainingJob:
                 "machine_type": _TEST_MACHINE_TYPE,
                 "accelerator_type": _TEST_ACCELERATOR_TYPE,
                 "accelerator_count": _TEST_ACCELERATOR_COUNT,
+            },
+            "disk_spec": {
+                "boot_disk_type": _TEST_BOOT_DISK_TYPE_DEFAULT,
+                "boot_disk_size_gb": _TEST_BOOT_DISK_SIZE_GB_DEFAULT,
             },
             "python_package_spec": {
                 "executor_image_uri": _TEST_TRAINING_CONTAINER_IMAGE,
@@ -3199,9 +3362,6 @@ class TestCustomPythonPackageTrainingJob:
 
         true_input_data_config = gca_training_pipeline.InputDataConfig(
             fraction_split=true_fraction_split,
-            predefined_split=gca_training_pipeline.PredefinedSplit(
-                key=_TEST_PREDEFINED_SPLIT_COLUMN_NAME
-            ),
             dataset_id=mock_tabular_dataset.name,
             gcs_destination=gca_io.GcsDestination(
                 output_uri_prefix=_TEST_BASE_OUTPUT_DIR
@@ -3289,9 +3449,6 @@ class TestCustomPythonPackageTrainingJob:
             machine_type=_TEST_MACHINE_TYPE,
             accelerator_type=_TEST_ACCELERATOR_TYPE,
             accelerator_count=_TEST_ACCELERATOR_COUNT,
-            training_fraction_split=_TEST_TRAINING_FRACTION_SPLIT,
-            validation_fraction_split=_TEST_VALIDATION_FRACTION_SPLIT,
-            test_fraction_split=_TEST_TEST_FRACTION_SPLIT,
             predefined_split_column_name=_TEST_PREDEFINED_SPLIT_COLUMN_NAME,
             sync=sync,
         )
@@ -3308,6 +3465,10 @@ class TestCustomPythonPackageTrainingJob:
                 "accelerator_type": _TEST_ACCELERATOR_TYPE,
                 "accelerator_count": _TEST_ACCELERATOR_COUNT,
             },
+            "disk_spec": {
+                "boot_disk_type": _TEST_BOOT_DISK_TYPE_DEFAULT,
+                "boot_disk_size_gb": _TEST_BOOT_DISK_SIZE_GB_DEFAULT,
+            },
             "python_package_spec": {
                 "executor_image_uri": _TEST_TRAINING_CONTAINER_IMAGE,
                 "python_module": _TEST_PYTHON_MODULE_NAME,
@@ -3315,12 +3476,6 @@ class TestCustomPythonPackageTrainingJob:
                 "args": true_args,
             },
         }
-
-        true_fraction_split = gca_training_pipeline.FractionSplit(
-            training_fraction=_TEST_TRAINING_FRACTION_SPLIT,
-            validation_fraction=_TEST_VALIDATION_FRACTION_SPLIT,
-            test_fraction=_TEST_TEST_FRACTION_SPLIT,
-        )
 
         env = [
             gca_env_var.EnvVar(name=str(key), value=str(value))
@@ -3356,7 +3511,6 @@ class TestCustomPythonPackageTrainingJob:
         )
 
         true_input_data_config = gca_training_pipeline.InputDataConfig(
-            fraction_split=true_fraction_split,
             predefined_split=gca_training_pipeline.PredefinedSplit(
                 key=_TEST_PREDEFINED_SPLIT_COLUMN_NAME
             ),
@@ -3446,7 +3600,7 @@ class TestCustomPythonPackageTrainingJob:
             training_fraction_split=_TEST_TRAINING_FRACTION_SPLIT,
             validation_fraction_split=_TEST_VALIDATION_FRACTION_SPLIT,
             test_fraction_split=_TEST_TEST_FRACTION_SPLIT,
-            predefined_split_column_name=_TEST_PREDEFINED_SPLIT_COLUMN_NAME,
+            timestamp_split_column_name=_TEST_TIMESTAMP_SPLIT_COLUMN_NAME,
             sync=sync,
         )
 
@@ -3462,6 +3616,10 @@ class TestCustomPythonPackageTrainingJob:
                 "accelerator_type": _TEST_ACCELERATOR_TYPE,
                 "accelerator_count": _TEST_ACCELERATOR_COUNT,
             },
+            "disk_spec": {
+                "boot_disk_type": _TEST_BOOT_DISK_TYPE_DEFAULT,
+                "boot_disk_size_gb": _TEST_BOOT_DISK_SIZE_GB_DEFAULT,
+            },
             "python_package_spec": {
                 "executor_image_uri": _TEST_TRAINING_CONTAINER_IMAGE,
                 "python_module": _TEST_PYTHON_MODULE_NAME,
@@ -3470,10 +3628,11 @@ class TestCustomPythonPackageTrainingJob:
             },
         }
 
-        true_fraction_split = gca_training_pipeline.FractionSplit(
+        true_timestamp_split = gca_training_pipeline.TimestampSplit(
             training_fraction=_TEST_TRAINING_FRACTION_SPLIT,
             validation_fraction=_TEST_VALIDATION_FRACTION_SPLIT,
             test_fraction=_TEST_TEST_FRACTION_SPLIT,
+            key=_TEST_TIMESTAMP_SPLIT_COLUMN_NAME,
         )
 
         env = [
@@ -3509,10 +3668,7 @@ class TestCustomPythonPackageTrainingJob:
         )
 
         true_input_data_config = gca_training_pipeline.InputDataConfig(
-            fraction_split=true_fraction_split,
-            predefined_split=gca_training_pipeline.PredefinedSplit(
-                key=_TEST_PREDEFINED_SPLIT_COLUMN_NAME
-            ),
+            timestamp_split=true_timestamp_split,
             dataset_id=mock_tabular_dataset.name,
             bigquery_destination=gca_io.BigQueryDestination(
                 output_uri=_TEST_BIGQUERY_DESTINATION
@@ -3586,9 +3742,6 @@ class TestCustomPythonPackageTrainingJob:
             accelerator_type=_TEST_ACCELERATOR_TYPE,
             accelerator_count=_TEST_ACCELERATOR_COUNT,
             model_display_name=_TEST_MODEL_DISPLAY_NAME,
-            training_fraction_split=_TEST_TRAINING_FRACTION_SPLIT,
-            validation_fraction_split=_TEST_VALIDATION_FRACTION_SPLIT,
-            test_fraction_split=_TEST_TEST_FRACTION_SPLIT,
             sync=sync,
         )
 
@@ -3602,9 +3755,6 @@ class TestCustomPythonPackageTrainingJob:
                 accelerator_type=_TEST_ACCELERATOR_TYPE,
                 accelerator_count=_TEST_ACCELERATOR_COUNT,
                 model_display_name=_TEST_MODEL_DISPLAY_NAME,
-                training_fraction_split=_TEST_TRAINING_FRACTION_SPLIT,
-                validation_fraction_split=_TEST_VALIDATION_FRACTION_SPLIT,
-                test_fraction_split=_TEST_TEST_FRACTION_SPLIT,
                 sync=sync,
             )
 
@@ -3642,6 +3792,38 @@ class TestCustomPythonPackageTrainingJob:
                 accelerator_type=_TEST_INVALID_ACCELERATOR_TYPE,
                 accelerator_count=_TEST_ACCELERATOR_COUNT,
                 model_display_name=_TEST_MODEL_DISPLAY_NAME,
+                training_fraction_split=_TEST_TRAINING_FRACTION_SPLIT,
+                validation_fraction_split=_TEST_VALIDATION_FRACTION_SPLIT,
+                test_fraction_split=_TEST_TEST_FRACTION_SPLIT,
+                sync=sync,
+            )
+
+    @pytest.mark.parametrize("sync", [True, False])
+    def test_run_with_two_split_raises(
+        self,
+        mock_pipeline_service_create,
+        mock_python_package_to_gcs,
+        mock_tabular_dataset,
+        mock_model_service_get,
+        sync,
+    ):
+        aiplatform.init(project=_TEST_PROJECT, staging_bucket=_TEST_BUCKET_NAME)
+
+        job = training_jobs.CustomPythonPackageTrainingJob(
+            display_name=_TEST_DISPLAY_NAME,
+            python_package_gcs_uri=_TEST_OUTPUT_PYTHON_PACKAGE_PATH,
+            python_module_name=_TEST_PYTHON_MODULE_NAME,
+            container_uri=_TEST_TRAINING_CONTAINER_IMAGE,
+        )
+
+        with pytest.raises(ValueError):
+            job.run(
+                dataset=mock_tabular_dataset,
+                replica_count=1,
+                machine_type=_TEST_MACHINE_TYPE,
+                accelerator_type=_TEST_INVALID_ACCELERATOR_TYPE,
+                accelerator_count=_TEST_ACCELERATOR_COUNT,
+                predefined_split_column_name=_TEST_PREDEFINED_SPLIT_COLUMN_NAME,
                 training_fraction_split=_TEST_TRAINING_FRACTION_SPLIT,
                 validation_fraction_split=_TEST_VALIDATION_FRACTION_SPLIT,
                 test_fraction_split=_TEST_TEST_FRACTION_SPLIT,
@@ -3726,6 +3908,10 @@ class TestCustomPythonPackageTrainingJob:
                 "machine_type": _TEST_MACHINE_TYPE,
                 "accelerator_type": _TEST_ACCELERATOR_TYPE,
                 "accelerator_count": _TEST_ACCELERATOR_COUNT,
+            },
+            "disk_spec": {
+                "boot_disk_type": _TEST_BOOT_DISK_TYPE_DEFAULT,
+                "boot_disk_size_gb": _TEST_BOOT_DISK_SIZE_GB_DEFAULT,
             },
             "python_package_spec": {
                 "executor_image_uri": _TEST_TRAINING_CONTAINER_IMAGE,
@@ -3869,9 +4055,6 @@ class TestCustomPythonPackageTrainingJob:
                 machine_type=_TEST_MACHINE_TYPE,
                 accelerator_type=_TEST_ACCELERATOR_TYPE,
                 accelerator_count=_TEST_ACCELERATOR_COUNT,
-                training_fraction_split=_TEST_TRAINING_FRACTION_SPLIT,
-                validation_fraction_split=_TEST_VALIDATION_FRACTION_SPLIT,
-                test_fraction_split=_TEST_TEST_FRACTION_SPLIT,
                 sync=sync,
             )
 
@@ -3967,6 +4150,10 @@ class TestCustomPythonPackageTrainingJob:
                     "accelerator_type": _TEST_ACCELERATOR_TYPE,
                     "accelerator_count": _TEST_ACCELERATOR_COUNT,
                 },
+                "disk_spec": {
+                    "boot_disk_type": _TEST_BOOT_DISK_TYPE_DEFAULT,
+                    "boot_disk_size_gb": _TEST_BOOT_DISK_SIZE_GB_DEFAULT,
+                },
                 "python_package_spec": {
                     "executor_image_uri": _TEST_TRAINING_CONTAINER_IMAGE,
                     "python_module": _TEST_PYTHON_MODULE_NAME,
@@ -3980,6 +4167,10 @@ class TestCustomPythonPackageTrainingJob:
                     "machine_type": _TEST_MACHINE_TYPE,
                     "accelerator_type": _TEST_ACCELERATOR_TYPE,
                     "accelerator_count": _TEST_ACCELERATOR_COUNT,
+                },
+                "disk_spec": {
+                    "boot_disk_type": _TEST_BOOT_DISK_TYPE_DEFAULT,
+                    "boot_disk_size_gb": _TEST_BOOT_DISK_SIZE_GB_DEFAULT,
                 },
                 "python_package_spec": {
                     "executor_image_uri": _TEST_TRAINING_CONTAINER_IMAGE,
@@ -4098,6 +4289,9 @@ class TestCustomPythonPackageTrainingJob:
             accelerator_count=_TEST_ACCELERATOR_COUNT,
             service_account=_TEST_SERVICE_ACCOUNT,
             tensorboard=_TEST_TENSORBOARD_RESOURCE_NAME,
+            training_filter_split=_TEST_TRAINING_FILTER_SPLIT,
+            validation_filter_split=_TEST_VALIDATION_FILTER_SPLIT,
+            test_filter_split=_TEST_TEST_FILTER_SPLIT,
             sync=sync,
         )
 
@@ -4113,6 +4307,10 @@ class TestCustomPythonPackageTrainingJob:
                 "accelerator_type": _TEST_ACCELERATOR_TYPE,
                 "accelerator_count": _TEST_ACCELERATOR_COUNT,
             },
+            "disk_spec": {
+                "boot_disk_type": _TEST_BOOT_DISK_TYPE_DEFAULT,
+                "boot_disk_size_gb": _TEST_BOOT_DISK_SIZE_GB_DEFAULT,
+            },
             "python_package_spec": {
                 "executor_image_uri": _TEST_TRAINING_CONTAINER_IMAGE,
                 "python_module": _TEST_PYTHON_MODULE_NAME,
@@ -4121,10 +4319,10 @@ class TestCustomPythonPackageTrainingJob:
             },
         }
 
-        true_fraction_split = gca_training_pipeline.FractionSplit(
-            training_fraction=_TEST_DEFAULT_TRAINING_FRACTION_SPLIT,
-            validation_fraction=_TEST_DEFAULT_VALIDATION_FRACTION_SPLIT,
-            test_fraction=_TEST_DEFAULT_TEST_FRACTION_SPLIT,
+        true_filter_split = gca_training_pipeline.FilterSplit(
+            training_filter=_TEST_TRAINING_FILTER_SPLIT,
+            validation_filter=_TEST_VALIDATION_FILTER_SPLIT,
+            test_filter=_TEST_TEST_FILTER_SPLIT,
         )
 
         env = [
@@ -4160,7 +4358,7 @@ class TestCustomPythonPackageTrainingJob:
         )
 
         true_input_data_config = gca_training_pipeline.InputDataConfig(
-            fraction_split=true_fraction_split,
+            filter_split=true_filter_split,
             dataset_id=mock_nontabular_dataset.name,
             annotation_schema_uri=_TEST_ANNOTATION_SCHEMA_URI,
             gcs_destination=gca_io.GcsDestination(

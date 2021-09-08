@@ -211,6 +211,10 @@ class TestEndToEnd:
                 "accelerator_type": test_training_jobs._TEST_ACCELERATOR_TYPE,
                 "accelerator_count": test_training_jobs._TEST_ACCELERATOR_COUNT,
             },
+            "disk_spec": {
+                "boot_disk_type": test_training_jobs._TEST_BOOT_DISK_TYPE_DEFAULT,
+                "boot_disk_size_gb": test_training_jobs._TEST_BOOT_DISK_SIZE_GB_DEFAULT,
+            },
             "python_package_spec": {
                 "executor_image_uri": test_training_jobs._TEST_TRAINING_CONTAINER_IMAGE,
                 "python_module": source_utils._TrainingScriptPythonPackager.module_name,
@@ -393,6 +397,10 @@ class TestEndToEnd:
                 "machine_type": test_training_jobs._TEST_MACHINE_TYPE,
                 "accelerator_type": test_training_jobs._TEST_ACCELERATOR_TYPE,
                 "accelerator_count": test_training_jobs._TEST_ACCELERATOR_COUNT,
+            },
+            "disk_spec": {
+                "boot_disk_type": test_training_jobs._TEST_BOOT_DISK_TYPE_DEFAULT,
+                "boot_disk_size_gb": test_training_jobs._TEST_BOOT_DISK_SIZE_GB_DEFAULT,
             },
             "python_package_spec": {
                 "executor_image_uri": test_training_jobs._TEST_TRAINING_CONTAINER_IMAGE,
