@@ -50,9 +50,6 @@ def _serialize_remote_dataloader(
         The GCS path pointing to the serialized DataLoader
     """
 
-    # TODO(b/195442091): Check if uri is actually a local path and write to a local
-    #                    location if that is the case.
-
     # Retrieve the source and blob names from the artifact URI
     (
         destination_bucket_name,

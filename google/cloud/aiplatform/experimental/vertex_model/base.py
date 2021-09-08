@@ -334,7 +334,6 @@ def vertex_predict_function_wrapper(method: Callable[..., Any]):
             for parameter_name, parameter in bound_args.arguments.items():
                 data = obj.predict_input_to_predict_payload(parameter)
 
-            # TODO: cleanup model resource after endpoint is created
             if obj._endpoint is None:
                 _LOGGER.info(
                     "Model is not deployed for remote prediction. Deploying model to an endpoint."
