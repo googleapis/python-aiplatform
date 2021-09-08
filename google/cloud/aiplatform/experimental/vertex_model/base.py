@@ -275,25 +275,25 @@ def vertex_fit_function_wrapper(method: Callable[..., Any]):
                 location_prefix if location_prefix in ("us", "europe", "asia") else "us"
             )
 
+            training_container = f"{container_location}-docker.pkg.dev/vertex-ai/training/scikit-learn-cpu.0-23:latest"
+
             if any("tensorflow" in dependency for dependency in obj.dependencies):
                 if obj.accelerator_count > 0:
-                    obj.container_uri = f"{container_location}-docker.pkg.dev/vertex-ai/prediction/tf2-gpu.2-6:latest"
+                    training_container = f"{container_location}-docker.pkg.dev/vertex-ai/prediction/tf2-gpu.2-6:latest"
                 else:
-                    obj.container_uri = f"{container_location}-docker.pkg.dev/vertex-ai/prediction/tf2-cpu.2-6:latest"
+                    training_container = f"{container_location}-docker.pkg.dev/vertex-ai/prediction/tf2-cpu.2-6:latest"
             elif any("torch" in dependency for dependency in obj.dependencies):
                 if obj.accelerator_count > 0:
-                    obj.container_uri = f"{container_location}-docker.pkg.dev/vertex-ai/training/pytorch-gpu.1-9:latest"
+                    training_container = f"{container_location}-docker.pkg.dev/vertex-ai/training/pytorch-gpu.1-9:latest"
                 else:
-                    obj.container_uri = f"{container_location}-docker.pkg.dev/vertex-ai/training/pytorch-xla.1-9:latest"
-            else:
-                obj.container_uri = f"{container_location}-docker.pkg.dev/vertex-ai/training/scikit-learn-cpu.0-23:latest"
+                    training_container = f"{container_location}-docker.pkg.dev/vertex-ai/training/pytorch-xla.1-9:latest"
 
             # Make CustomTrainingJob object
             obj._training_job = aiplatform.CustomTrainingJob(
                 display_name="my_training_job",
                 script_path=str(script_path),
                 requirements=obj.dependencies,
-                container_uri=obj.container_uri,
+                container_uri=training_container,
                 model_serving_container_image_uri="gcr.io/google-appengine/python",
                 model_serving_container_command=serving_command_string_cli
                 + [command_str],
@@ -455,13 +455,6 @@ class VertexModel(metaclass=abc.ABCMeta):
         GITHUB_DEPENDENCY,
     ]
 
-    container_uri = "us-docker.pkg.dev/vertex-ai/training/scikit-learn-cpu.0-23:latest"
-
-    machine_type = "n1-standard-4"
-    replica_count = 1
-    accelerator_type = "ACCELERATOR_TYPE_UNSPECIFIED"
-    accelerator_count = 0
-
     def __init__(self, *args, **kwargs):
         """Initializes child class. All constructor arguments must be passed to the
            VertexModel constructor as well."""
@@ -469,6 +462,11 @@ class VertexModel(metaclass=abc.ABCMeta):
         self._training_job = None
         self._model = None
         self._endpoint = None
+
+        self.machine_type = "n1-standard-4"
+        self.replica_count = 1
+        self.accelerator_type = "ACCELERATOR_TYPE_UNSPECIFIED"
+        self.accelerator_count = 0
 
         self._constructor_arguments = (args, kwargs)
 
