@@ -216,7 +216,14 @@ def _make_source(
     # Hard-coded specific files as imports because (for now) all data serialization methods
     # come from one of two files and we do not retrieve the modules for the methods at this
     # moment.
-    src = src + "\n".join(["import os", cls_source, ])
+    src = src + "\n".join(
+        [
+            "import os",
+            "from google.cloud.aiplatform.experimental.vertex_model.serializers.pandas import _deserialize_dataframe",
+            "from google.cloud.aiplatform.experimental.vertex_model.serializers.pytorch import _deserialize_dataloader",
+            cls_source,
+        ]
+    )
 
     # Then, instantiate model
     # First, grab args and kwargs using the _constructor_arguments variable in VertexModel
