@@ -127,10 +127,10 @@ class SavedModelMetadataBuilder(metadata_builder.MetadataBuilder):
         Returns:
             Json format of the explanation metadata.
         """
-        return json_format.MessageToDict(self.get_metadata_object()._pb)
+        return json_format.MessageToDict(self.get_metadata_protobuf()._pb)
 
-    def get_metadata_object(self) -> explanation_metadata.ExplanationMetadata:
-        """Returns the current metadata as an object.
+    def get_metadata_protobuf(self) -> explanation_metadata.ExplanationMetadata:
+        """Returns the current metadata as a Protobuf object.
 
         Returns:
             ExplanationMetadata object format of the explanation metadata.

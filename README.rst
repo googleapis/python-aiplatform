@@ -417,7 +417,7 @@ To use Explanation Metadata in endpoint deployment and model upload:
 
 .. code-block:: Python
 
-  explanation_metadata = builder.get_metadata_object()
+  explanation_metadata = builder.get_metadata_protobuf()
 
   # To deploy a model to an endpoint with explanation
   model.deploy(..., explanation_metadata=explanation_metadata)

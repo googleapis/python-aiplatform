@@ -48,13 +48,13 @@ class SavedModelMetadataBuilderTF2Test(tf.test.TestCase):
         }
         assert expected_md == generated_md
 
-    def test_get_metadata_object_sequential(self):
+    def test_get_metadata_protobuf_sequential(self):
         self._set_up_sequential()
 
         builder = saved_model_metadata_builder.SavedModelMetadataBuilder(
             self.saved_model_path
         )
-        generated_object = builder.get_metadata_object()
+        generated_object = builder.get_metadata_protobuf()
         expected_object = explanation_metadata.ExplanationMetadata(
             inputs={"dense_input": {"input_tensor_name": "dense_input"}},
             outputs={"dense_2": {"output_tensor_name": "dense_2"}},

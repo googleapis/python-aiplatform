@@ -71,7 +71,7 @@ class SavedModelMetadataBuilderTF1Test(tf.test.TestCase):
 
         assert md_builder.get_metadata() == expected_md
 
-    def test_get_metadata_object_correct_inputs(self):
+    def test_get_metadata_protobuf_correct_inputs(self):
         self._set_up()
         md_builder = saved_model_metadata_builder.SavedModelMetadataBuilder(
             self.model_path, tags=[tf.saved_model.tag_constants.SERVING]
@@ -81,7 +81,7 @@ class SavedModelMetadataBuilderTF1Test(tf.test.TestCase):
             outputs={"y": {"output_tensor_name": "Relu:0"}},
         )
 
-        assert md_builder.get_metadata_object() == expected_object
+        assert md_builder.get_metadata_protobuf() == expected_object
 
     def test_get_metadata_double_output(self):
         self._set_up()
@@ -96,7 +96,7 @@ class SavedModelMetadataBuilderTF1Test(tf.test.TestCase):
 
         assert md_builder.get_metadata() == expected_md
 
-    def test_get_metadata_object_double_output(self):
+    def test_get_metadata_protobuf_double_output(self):
         self._set_up()
         md_builder = saved_model_metadata_builder.SavedModelMetadataBuilder(
             self.model_path, signature_name="double", outputs_to_explain=["lin"]
@@ -107,4 +107,4 @@ class SavedModelMetadataBuilderTF1Test(tf.test.TestCase):
             outputs={"lin": {"output_tensor_name": "Add:0"}},
         )
 
-        assert md_builder.get_metadata_object() == expected_object
+        assert md_builder.get_metadata_protobuf() == expected_object
