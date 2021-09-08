@@ -881,9 +881,6 @@ class Endpoint(base.VertexAiResourceNounWithFutureManager):
 
         gca_endpoint = gca_endpoint_compat
         gca_machine_resources = gca_machine_resources_compat
-        if explanation_metadata and explanation_parameters:
-            gca_endpoint = gca_endpoint_v1beta1
-            gca_machine_resources = gca_machine_resources_v1beta1
 
         deployed_model = gca_endpoint.DeployedModel(
             model=model_resource_name,
@@ -1631,10 +1628,6 @@ class Model(base.VertexAiResourceNounWithFutureManager):
         gca_endpoint = gca_endpoint_compat
         gca_model = gca_model_compat
         gca_env_var = gca_env_var_compat
-        if explanation_metadata and explanation_parameters:
-            gca_endpoint = gca_endpoint_v1beta1
-            gca_model = gca_model_v1beta1
-            gca_env_var = gca_env_var_v1beta1
 
         api_client = cls._instantiate_client(location, credentials)
         env = None
@@ -1687,7 +1680,6 @@ class Model(base.VertexAiResourceNounWithFutureManager):
 
         # Override explanation_spec if both required fields are provided
         if explanation_metadata and explanation_parameters:
-            api_client = api_client.select_version(compat.V1BETA1)
             explanation_spec = gca_endpoint.explanation.ExplanationSpec()
             explanation_spec.metadata = explanation_metadata
             explanation_spec.parameters = explanation_parameters

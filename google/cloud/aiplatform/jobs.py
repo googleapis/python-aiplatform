@@ -712,9 +712,6 @@ class BatchPredictionJob(_Job):
 
         api_client = empty_batch_prediction_job.api_client
 
-        if generate_explanation:
-            api_client = api_client.select_version(compat.V1BETA1)
-
         _LOGGER.log_create_with_lro(cls)
 
         gca_batch_prediction_job = api_client.create_batch_prediction_job(

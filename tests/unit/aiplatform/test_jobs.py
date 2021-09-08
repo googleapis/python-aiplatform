@@ -30,7 +30,6 @@ from google.cloud import aiplatform
 
 from google.cloud.aiplatform import initializer
 from google.cloud.aiplatform import jobs
-from google.cloud.aiplatform import utils
 
 from google.cloud.aiplatform.compat.types import (
     batch_prediction_job as gca_batch_prediction_job_compat,
@@ -40,6 +39,9 @@ from google.cloud.aiplatform.compat.types import (
     machine_resources as gca_machine_resources_compat,
 )
 
+from google.cloud.aiplatform_v1.services.job_service import client as job_service_client
+
+_TEST_API_CLIENT = job_service_client.JobServiceClient
 
 _TEST_PROJECT = "test-project"
 _TEST_LOCATION = "us-central1"
@@ -147,7 +149,7 @@ _TEST_JOB_RESOURCE_NAME = f"{_TEST_PARENT}/fakeJobs/{_TEST_ID}"
 @pytest.fixture
 def fake_job_getter_mock():
     with patch.object(
-        utils.JobClientWithOverride, _TEST_JOB_GET_METHOD_NAME, create=True
+        _TEST_API_CLIENT, _TEST_JOB_GET_METHOD_NAME, create=True
     ) as fake_job_getter_mock:
         fake_job_getter_mock.return_value = {}
         yield fake_job_getter_mock
@@ -156,7 +158,7 @@ def fake_job_getter_mock():
 @pytest.fixture
 def fake_job_cancel_mock():
     with patch.object(
-        utils.JobClientWithOverride, _TEST_JOB_CANCEL_METHOD_NAME, create=True
+        _TEST_API_CLIENT, _TEST_JOB_CANCEL_METHOD_NAME, create=True
     ) as fake_job_cancel_mock:
         yield fake_job_cancel_mock
 
@@ -200,7 +202,7 @@ class TestJob:
 @pytest.fixture
 def get_batch_prediction_job_mock():
     with patch.object(
-        utils.JobClientWithOverride, "get_batch_prediction_job"
+        _TEST_API_CLIENT, "get_batch_prediction_job"
     ) as get_batch_prediction_job_mock:
         get_batch_prediction_job_mock.side_effect = [
             gca_batch_prediction_job_compat.BatchPredictionJob(
@@ -230,7 +232,7 @@ def get_batch_prediction_job_mock():
 @pytest.fixture
 def create_batch_prediction_job_mock():
     with mock.patch.object(
-        utils.JobClientWithOverride, "create_batch_prediction_job"
+        _TEST_API_CLIENT, "create_batch_prediction_job"
     ) as create_batch_prediction_job_mock:
         create_batch_prediction_job_mock.return_value = gca_batch_prediction_job_compat.BatchPredictionJob(
             name=_TEST_BATCH_PREDICTION_JOB_NAME,
@@ -243,7 +245,7 @@ def create_batch_prediction_job_mock():
 @pytest.fixture
 def create_batch_prediction_job_mock_fail():
     with mock.patch.object(
-        utils.JobClientWithOverride, "create_batch_prediction_job"
+        _TEST_API_CLIENT, "create_batch_prediction_job"
     ) as create_batch_prediction_job_mock:
         create_batch_prediction_job_mock.side_effect = RuntimeError("Mock fail")
         yield create_batch_prediction_job_mock
@@ -252,7 +254,7 @@ def create_batch_prediction_job_mock_fail():
 @pytest.fixture
 def create_batch_prediction_job_with_explanations_mock():
     with mock.patch.object(
-        utils.JobClientWithOverride, "create_batch_prediction_job"
+        _TEST_API_CLIENT, "create_batch_prediction_job"
     ) as create_batch_prediction_job_mock:
         create_batch_prediction_job_mock.return_value = gca_batch_prediction_job_compat.BatchPredictionJob(
             name=_TEST_BATCH_PREDICTION_JOB_NAME,
@@ -265,7 +267,7 @@ def create_batch_prediction_job_with_explanations_mock():
 @pytest.fixture
 def get_batch_prediction_job_gcs_output_mock():
     with patch.object(
-        utils.JobClientWithOverride, "get_batch_prediction_job"
+        _TEST_API_CLIENT, "get_batch_prediction_job"
     ) as get_batch_prediction_job_mock:
         get_batch_prediction_job_mock.return_value = gca_batch_prediction_job_compat.BatchPredictionJob(
             name=_TEST_BATCH_PREDICTION_JOB_NAME,
@@ -282,7 +284,7 @@ def get_batch_prediction_job_gcs_output_mock():
 @pytest.fixture
 def get_batch_prediction_job_bq_output_mock():
     with patch.object(
-        utils.JobClientWithOverride, "get_batch_prediction_job"
+        _TEST_API_CLIENT, "get_batch_prediction_job"
     ) as get_batch_prediction_job_mock:
         get_batch_prediction_job_mock.return_value = gca_batch_prediction_job_compat.BatchPredictionJob(
             name=_TEST_BATCH_PREDICTION_JOB_NAME,
@@ -299,7 +301,7 @@ def get_batch_prediction_job_bq_output_mock():
 @pytest.fixture
 def get_batch_prediction_job_incomplete_bq_output_mock():
     with patch.object(
-        utils.JobClientWithOverride, "get_batch_prediction_job"
+        _TEST_API_CLIENT, "get_batch_prediction_job"
     ) as get_batch_prediction_job_mock:
         get_batch_prediction_job_mock.return_value = gca_batch_prediction_job_compat.BatchPredictionJob(
             name=_TEST_BATCH_PREDICTION_JOB_NAME,
@@ -316,7 +318,7 @@ def get_batch_prediction_job_incomplete_bq_output_mock():
 @pytest.fixture
 def get_batch_prediction_job_empty_output_mock():
     with patch.object(
-        utils.JobClientWithOverride, "get_batch_prediction_job"
+        _TEST_API_CLIENT, "get_batch_prediction_job"
     ) as get_batch_prediction_job_mock:
         get_batch_prediction_job_mock.return_value = gca_batch_prediction_job_compat.BatchPredictionJob(
             name=_TEST_BATCH_PREDICTION_JOB_NAME,
@@ -333,7 +335,7 @@ def get_batch_prediction_job_empty_output_mock():
 @pytest.fixture
 def get_batch_prediction_job_running_bq_output_mock():
     with patch.object(
-        utils.JobClientWithOverride, "get_batch_prediction_job"
+        _TEST_API_CLIENT, "get_batch_prediction_job"
     ) as get_batch_prediction_job_mock:
         get_batch_prediction_job_mock.return_value = gca_batch_prediction_job_compat.BatchPredictionJob(
             name=_TEST_BATCH_PREDICTION_JOB_NAME,

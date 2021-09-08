@@ -105,8 +105,8 @@ if DEFAULT_VERSION == V1:
     types.endpoint = types.endpoint_v1
     types.endpoint_service = types.endpoint_service_v1
     types.env_var = types.env_var_v1
-    types.explanation = types.explanation_v1,
-    types.explanation_metadata = types.explanation_metadata_v1,
+    types.explanation = types.explanation_v1
+    types.explanation_metadata = types.explanation_metadata_v1
     types.hyperparameter_tuning_job = types.hyperparameter_tuning_job_v1
     types.io = types.io_v1
     types.job_service = types.job_service_v1
