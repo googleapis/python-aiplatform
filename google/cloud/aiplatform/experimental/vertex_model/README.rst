@@ -42,10 +42,10 @@ All implementations of the VertexModel SDK must extend the abstract VertexModel 
 To use the VertexModel class, your implementation must adhere to the following contract:
 
 1. The constructor of VertexModel must be called with the constructor arguments of your child class.
-2. You must implement your own versions of fit() and predict().
-3. Your predict() method must only take one object, containing all of your test data, as an input.
-4. You must implement your own versions of predict_payload_to_predict_input(), predict_input_to_predict_payload(), predict_output_to_predict_payload(), and predict_payload_to_predict_output().
-5. You must have the following import line: `from google.cloud.aiplatform.experimental.vertex_model import base` and extend `VertexModel` as `base.VertexModel`.
+2. You must implement your own versions of ``fit()`` and ``predict()``.
+3. Your ``predict()`` method must only take one object, containing all of your test data, as an input.
+4. You must implement your own versions of ``predict_payload_to_predict_input()``, ``predict_input_to_predict_payload()``, ``predict_output_to_predict_payload()``, and ``predict_payload_to_predict_output()``.
+5. You must have the import line: ``from google.cloud.aiplatform.experimental.vertex_model import base`` and extend ``VertexModel`` as ``base.VertexModel``.
 
 .. code-block:: Python
 
@@ -174,7 +174,7 @@ To add your functions to the VertexModel implementation:
 
 Model Serialization
 ^^^^^^^^
-The VertexModel class contains serialize_model() and deserialize_model() methods that serialize and deserialize a PyTorch module-based class, respectively. To implement
+The VertexModel class contains ``serialize_model()`` and ``deserialize_model()`` methods that serialize and deserialize a PyTorch module-based class, respectively. To implement
 your own model serialization and deserialization, you must override these methods in your child class definition. Doing so is necessary if your model does not use the
 PyTorch library to complete training and prediction, and you must obey the following rules:
 
@@ -183,7 +183,7 @@ PyTorch library to complete training and prediction, and you must obey the follo
 3. Your deserialization function has one input parameter: the GCS URI of your serialized model.
 4. Your deserialization function returns a deserialized model object.
 
-The function signatures for serialize_model and deserialize_model are as follows:
+The function signatures for ``serialize_model()`` and ``deserialize_model()`` are as follows:
 
 .. code-block:: Python
 
