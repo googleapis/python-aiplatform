@@ -268,8 +268,8 @@ def vertex_fit_function_wrapper(method: Callable[..., Any]):
             )
 
             # Container specification
-            # TODO(b/199320549): Match container specification to dependency verisioning
-            
+            # TODO(b/199320549): Match container specification to dependency versioning
+
             location_prefix = aiplatform.initializer.global_config.location.split("-")[
                 0
             ]
