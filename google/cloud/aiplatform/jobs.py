@@ -34,19 +34,15 @@ from google.cloud.aiplatform import base
 from google.cloud.aiplatform import compat
 from google.cloud.aiplatform.compat.types import (
     batch_prediction_job as gca_bp_job_compat,
-    batch_prediction_job_v1 as gca_bp_job_v1,
-    batch_prediction_job_v1beta1 as gca_bp_job_v1beta1,
     completion_stats as gca_completion_stats,
     custom_job as gca_custom_job_compat,
     custom_job_v1beta1 as gca_custom_job_v1beta1,
-    explanation_v1beta1 as gca_explanation_v1beta1,
+    explanation as gca_explanation_compat,
     io as gca_io_compat,
-    io_v1beta1 as gca_io_v1beta1,
     job_state as gca_job_state,
     hyperparameter_tuning_job as gca_hyperparameter_tuning_job_compat,
     hyperparameter_tuning_job_v1beta1 as gca_hyperparameter_tuning_job_v1beta1,
     machine_resources as gca_machine_resources_compat,
-    machine_resources_v1beta1 as gca_machine_resources_v1beta1,
     study as gca_study_compat,
 )
 from google.cloud.aiplatform import constants
@@ -577,11 +573,6 @@ class BatchPredictionJob(_Job):
         gca_io = gca_io_compat
         gca_machine_resources = gca_machine_resources_compat
         select_version = compat.DEFAULT_VERSION
-        if generate_explanation:
-            gca_bp_job = gca_bp_job_v1beta1
-            gca_io = gca_io_v1beta1
-            gca_machine_resources = gca_machine_resources_v1beta1
-            select_version = compat.V1BETA1
 
         gapic_batch_prediction_job = gca_bp_job.BatchPredictionJob()
 
@@ -655,7 +646,7 @@ class BatchPredictionJob(_Job):
             gapic_batch_prediction_job.generate_explanation = generate_explanation
 
         if explanation_metadata or explanation_parameters:
-            gapic_batch_prediction_job.explanation_spec = gca_explanation_v1beta1.ExplanationSpec(
+            gapic_batch_prediction_job.explanation_spec = gca_explanation_compat.ExplanationSpec(
                 metadata=explanation_metadata, parameters=explanation_parameters
             )
 
@@ -677,9 +668,7 @@ class BatchPredictionJob(_Job):
         cls,
         empty_batch_prediction_job: "BatchPredictionJob",
         model_or_model_name: Union[str, "aiplatform.Model"],
-        gca_batch_prediction_job: Union[
-            gca_bp_job_v1beta1.BatchPredictionJob, gca_bp_job_v1.BatchPredictionJob
-        ],
+        gca_batch_prediction_job: gca_bp_job_compat.BatchPredictionJob,
         generate_explanation: bool,
         sync: bool = True,
     ) -> "BatchPredictionJob":

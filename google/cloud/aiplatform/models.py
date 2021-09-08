@@ -37,7 +37,7 @@ from google.cloud.aiplatform.compat.types import (
     endpoint as gca_endpoint_compat,
     endpoint_v1 as gca_endpoint_v1,
     endpoint_v1beta1 as gca_endpoint_v1beta1,
-    explanation_v1beta1 as gca_explanation_v1beta1,
+    explanation as gca_explanation_compat,
     io as gca_io_compat,
     machine_resources as gca_machine_resources_compat,
     machine_resources_v1beta1 as gca_machine_resources_v1beta1,
@@ -72,7 +72,7 @@ class Prediction(NamedTuple):
 
     predictions: Dict[str, List]
     deployed_model_id: str
-    explanations: Optional[Sequence[gca_explanation_v1beta1.Explanation]] = None
+    explanations: Optional[Sequence[gca_explanation_compat.Explanation]] = None
 
 
 class Endpoint(base.VertexAiResourceNounWithFutureManager):
@@ -913,7 +913,6 @@ class Endpoint(base.VertexAiResourceNounWithFutureManager):
 
         # Service will throw error if both metadata and parameters are not provided
         if explanation_metadata and explanation_parameters:
-            api_client = api_client.select_version(compat.V1BETA1)
             explanation_spec = gca_endpoint.explanation.ExplanationSpec()
             explanation_spec.metadata = explanation_metadata
             explanation_spec.parameters = explanation_parameters
@@ -1156,9 +1155,7 @@ class Endpoint(base.VertexAiResourceNounWithFutureManager):
         """
         self.wait()
 
-        explain_response = self._prediction_client.select_version(
-            compat.V1BETA1
-        ).explain(
+        explain_response = self._prediction_client.explain(
             endpoint=self.resource_name,
             instances=instances,
             parameters=parameters,
