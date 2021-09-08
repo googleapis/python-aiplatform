@@ -19,7 +19,7 @@ from google.cloud.aiplatform.compat.types import (
     explanation as explanation_compat,
     explanation_metadata as explanation_metadata_compat,
 )
-# import ipdb ; ipdb.set_trace()
+
 ExplanationMetadata = explanation_metadata_compat.ExplanationMetadata
 
 # ExplanationMetadata subclasses

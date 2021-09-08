@@ -874,9 +874,7 @@ class TestModel:
         "get_endpoint_mock", "get_model_mock", "create_endpoint_mock"
     )
     @pytest.mark.parametrize("sync", [True, False])
-    def test_deploy_no_endpoint_with_explanations(
-        self, deploy_model_mock, sync
-    ):
+    def test_deploy_no_endpoint_with_explanations(self, deploy_model_mock, sync):
         test_model = models.Model(_TEST_ID)
         test_endpoint = test_model.deploy(
             machine_type=_TEST_MACHINE_TYPE,
@@ -1065,9 +1063,7 @@ class TestModel:
 
     @pytest.mark.parametrize("sync", [True, False])
     @pytest.mark.usefixtures("get_model_mock", "get_batch_prediction_job_mock")
-    def test_batch_predict_with_all_args(
-        self, create_batch_prediction_job_mock, sync
-    ):
+    def test_batch_predict_with_all_args(self, create_batch_prediction_job_mock, sync):
         test_model = models.Model(_TEST_ID)
         creds = auth_credentials.AnonymousCredentials()
 
@@ -1103,9 +1099,7 @@ class TestModel:
             ),
             input_config=gca_batch_prediction_job.BatchPredictionJob.InputConfig(
                 instances_format="jsonl",
-                gcs_source=gca_io.GcsSource(
-                    uris=[_TEST_BATCH_PREDICTION_GCS_SOURCE]
-                ),
+                gcs_source=gca_io.GcsSource(uris=[_TEST_BATCH_PREDICTION_GCS_SOURCE]),
             ),
             output_config=gca_batch_prediction_job.BatchPredictionJob.OutputConfig(
                 gcs_destination=gca_io.GcsDestination(

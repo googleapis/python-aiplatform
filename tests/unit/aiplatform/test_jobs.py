@@ -86,7 +86,9 @@ _TEST_GCS_INPUT_CONFIG = gca_batch_prediction_job_compat.BatchPredictionJob.Inpu
 )
 _TEST_GCS_OUTPUT_CONFIG = gca_batch_prediction_job_compat.BatchPredictionJob.OutputConfig(
     predictions_format="jsonl",
-    gcs_destination=gca_io_compat.GcsDestination(output_uri_prefix=_TEST_GCS_BUCKET_PATH),
+    gcs_destination=gca_io_compat.GcsDestination(
+        output_uri_prefix=_TEST_GCS_BUCKET_PATH
+    ),
 )
 
 _TEST_BQ_INPUT_CONFIG = gca_batch_prediction_job_compat.BatchPredictionJob.InputConfig(
@@ -108,7 +110,9 @@ _TEST_BQ_OUTPUT_INFO_INCOMPLETE = gca_batch_prediction_job_compat.BatchPredictio
     bigquery_output_dataset=_TEST_BQ_PATH
 )
 
-_TEST_EMPTY_OUTPUT_INFO = gca_batch_prediction_job_compat.BatchPredictionJob.OutputInfo()
+_TEST_EMPTY_OUTPUT_INFO = (
+    gca_batch_prediction_job_compat.BatchPredictionJob.OutputInfo()
+)
 
 _TEST_GCS_BLOBS = [
     storage.Blob(name="some/path/prediction.jsonl", bucket=_TEST_GCS_BUCKET_NAME)
@@ -483,7 +487,9 @@ class TestBatchPredictionJob:
             model=_TEST_MODEL_NAME,
             input_config=gca_batch_prediction_job_compat.BatchPredictionJob.InputConfig(
                 instances_format="jsonl",
-                gcs_source=gca_io_compat.GcsSource(uris=[_TEST_BATCH_PREDICTION_GCS_SOURCE]),
+                gcs_source=gca_io_compat.GcsSource(
+                    uris=[_TEST_BATCH_PREDICTION_GCS_SOURCE]
+                ),
             ),
             output_config=gca_batch_prediction_job_compat.BatchPredictionJob.OutputConfig(
                 gcs_destination=gca_io_compat.GcsDestination(
@@ -528,7 +534,9 @@ class TestBatchPredictionJob:
             model=_TEST_MODEL_NAME,
             input_config=gca_batch_prediction_job_compat.BatchPredictionJob.InputConfig(
                 instances_format="jsonl",
-                gcs_source=gca_io_compat.GcsSource(uris=[_TEST_BATCH_PREDICTION_GCS_SOURCE]),
+                gcs_source=gca_io_compat.GcsSource(
+                    uris=[_TEST_BATCH_PREDICTION_GCS_SOURCE]
+                ),
             ),
             output_config=gca_batch_prediction_job_compat.BatchPredictionJob.OutputConfig(
                 bigquery_destination=gca_io_compat.BigQueryDestination(

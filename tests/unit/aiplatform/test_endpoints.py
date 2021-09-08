@@ -86,9 +86,7 @@ _TEST_MACHINE_TYPE = "n1-standard-32"
 _TEST_ACCELERATOR_TYPE = "NVIDIA_TESLA_P100"
 _TEST_ACCELERATOR_COUNT = 2
 
-_TEST_EXPLANATIONS = [
-    gca_prediction_service.explanation.Explanation(attributions=[])
-]
+_TEST_EXPLANATIONS = [gca_prediction_service.explanation.Explanation(attributions=[])]
 
 _TEST_ATTRIBUTIONS = [
     gca_prediction_service.explanation.Attribution(
