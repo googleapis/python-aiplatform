@@ -23,7 +23,6 @@ from google.auth import credentials as auth_credentials
 
 from google.cloud import aiplatform
 from google.cloud.aiplatform import base
-from google.cloud.aiplatform import compat
 from google.cloud.aiplatform import explain
 from google.cloud.aiplatform import initializer
 from google.cloud.aiplatform import jobs
@@ -40,12 +39,9 @@ from google.cloud.aiplatform.compat.types import (
     explanation as gca_explanation_compat,
     io as gca_io_compat,
     machine_resources as gca_machine_resources_compat,
-    machine_resources_v1beta1 as gca_machine_resources_v1beta1,
     model as gca_model_compat,
     model_service as gca_model_service_compat,
-    model_v1beta1 as gca_model_v1beta1,
     env_var as gca_env_var_compat,
-    env_var_v1beta1 as gca_env_var_v1beta1,
 )
 
 from google.protobuf import json_format
