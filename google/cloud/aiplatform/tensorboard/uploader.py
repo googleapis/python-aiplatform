@@ -114,6 +114,15 @@ logger = tb_logging.get_logger()
 logger.setLevel(logging.WARNING)
 
 
+class RequestSender(object):
+    """A base class for additional request sender objects.
+
+    Currently just used for typing.
+    """
+
+    pass
+
+
 class TensorBoardUploader(object):
     """Uploads a TensorBoard logdir to TensorBoard.gcp."""
 
@@ -293,7 +302,6 @@ class TensorBoardUploader(object):
 
         experiment = self._create_or_get_experiment()
         self._experiment = experiment
-
         self._run_resource_manager = uploader_utils.RunResourceManager(
             api=self._api, experiment_resource_name=self._experiment.name,
         )
@@ -330,7 +338,6 @@ class TensorBoardUploader(object):
             Mapping from plugin name to Sender.
         """
         additional_senders = {}
-
         if "profile" in self._allowed_plugins:
             if not self._one_shot:
                 logger.warning("Profile plugin currently only supported for one shot.")
@@ -544,7 +551,6 @@ class _BatchedRequestSender(object):
         self._tracker.add_plugin_name(plugin_name)
         # If this is the first time we've seen this run create a new run resource
         # and an associated request sender.
-
         tb_run = self._run_resource_manager.create_or_get_run_resource(run_name)
 
         if run_name not in self._run_to_request_sender:

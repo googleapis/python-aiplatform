@@ -288,6 +288,10 @@ def _create_dispatcher(
         request_sender=request_sender, additional_senders=additional_senders,
     )
 
+    return uploader_lib._Dispatcher(
+        request_sender=request_sender, additional_senders=additional_senders,
+    )
+
 
 def _create_scalar_request_sender(
     run_resource_id, api=_USE_DEFAULT, max_request_size=_USE_DEFAULT
