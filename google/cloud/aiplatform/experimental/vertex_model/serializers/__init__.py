@@ -15,18 +15,32 @@
 # limitations under the License.
 #
 
+import importlib
 import sys
 
-import google.cloud.aiplatform.experimental.vertex_model.serializers.pandas
-import google.cloud.aiplatform.experimental.vertex_model.serializers.pytorch
-
-module_names = ["pandas", "pytorch"]
+MODULE_NAMES = ["pandas", "pytorch"]
 
 
 def build_map_safe():
+    """ Fetches default serialization methods while catching any possible import
+        errors that could be raised due to users failing to install external
+        libraries.
+
+    Returns:
+        A dictionary mapping data types to tuples of deserialization and serialization
+        methods that can be added to the user-defined data serialization library.
+
+    Raises:
+        ImportError should the user lack any necessary Python libraries
+    """
+
     serializer_map = {}
-    for module_name in module_names:
+
+    for module_name in MODULE_NAMES:
         try:
+            full_module_name = f"google.cloud.aiplatform.experimental.vertex_model.serializers.{module_name}"
+            importlib.import_module(full_module_name)
+
             module = sys.modules.get(
                 f"google.cloud.aiplatform.experimental.vertex_model.serializers.{module_name}"
             )

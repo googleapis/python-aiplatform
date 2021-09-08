@@ -401,6 +401,22 @@ class VertexModel(metaclass=abc.ABCMeta):
         pass
 
     def serialize_model(self, artifact_uri: str, obj: Any, model_type: str) -> str:
+        """Serializes torch.nn.Module object to GCS, but can be overriden by the user
+           should they not have PyTorch installed. The method throws an exeception if
+           the user has not installed any libraries necessary for serialization.
+
+        Args:
+            artifact_uri (str): the GCS bucket where the serialized object will reside.
+            obj (torch.nn.Module): the model to serialize.
+            dataset_type (str): the model name and usage
+
+        Returns:
+            The GCS path pointing to the serialized object.
+
+        Raises:
+            ImportError should the user lack any necessary Python libraries
+        """
+
         try:
             from google.cloud.aiplatform.experimental.vertex_model.serializers import (
                 model,
@@ -412,6 +428,21 @@ class VertexModel(metaclass=abc.ABCMeta):
         return model._serialize_local_model(artifact_uri, obj, model_type)
 
     def deserialize_model(self, artifact_uri: str) -> Any:
+        """Deserializes a model on GCS to a torch.nn.Module object. The method throws
+           an exeception if the user has not installed any libraries necessary for
+           deserialization.
+
+        Args:
+            artifact_uri (str): the GCS bucket where the serialized object resides.
+
+        Returns:
+            The deserialized model.
+
+        Raises:
+            ImportError should the user lack any necessary Python libraries, in which
+            case they must override this method in their child class.
+        """
+
         try:
             from google.cloud.aiplatform.experimental.vertex_model.serializers import (
                 model,

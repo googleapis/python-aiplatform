@@ -39,7 +39,7 @@ def _serialize_local_model(
         dataset_type (str): the model name and usage
 
     Returns:
-        The GCS path pointing to the serialized objet.
+        The GCS path pointing to the serialized object.
     """
 
     compiled_custom_model = torch.jit.script(obj)

@@ -219,8 +219,7 @@ def _make_source(
     src = src + "\n".join(
         [
             "import os",
-            "from google.cloud.aiplatform.experimental.vertex_model.serializers.pandas import _deserialize_dataframe",
-            "from google.cloud.aiplatform.experimental.vertex_model.serializers.pytorch import _deserialize_dataloader",
+            "import google.cloud.aiplatform.experimental.vertex_model.serializers as serializers",
             cls_source,
         ]
     )
