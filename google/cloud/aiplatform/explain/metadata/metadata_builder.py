@@ -28,3 +28,7 @@ class MetadataBuilder(_ABC):
     @abc.abstractmethod
     def get_metadata(self):
         """Returns the current metadata as a dictionary."""
+
+    @abc.abstractmethod
+    def get_metadata_protobuf(self):
+        """Returns the current metadata as ExplanationMetadata protobuf"""
