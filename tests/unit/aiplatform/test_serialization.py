@@ -266,7 +266,12 @@ class TestDataLoaderSerialization:
             dataloader_root_folder, dataloader, "local"
         )
 
+        remote_obj_path = pytorch._serialize_remote_dataloader(
+            dataloader_root_folder, dataloader, "remote"
+        )
+
         assert len(obj_path) > 0
+        assert len(remote_obj_path) > 0
 
         deserialized_dataloader = pytorch._deserialize_dataloader(obj_path)
 
