@@ -67,7 +67,7 @@ def mock_torch_load():
 @pytest.fixture
 def mock_torch_jit_load():
     with patch.object(torch.jit, "load") as mock:
-        mock.return_value = TorchModel()
+        mock.return_value = LinearRegression(2, 1)
         yield mock
 
 
@@ -89,15 +89,6 @@ def mock_client_bucket():
         mock_client_bucket.return_value = MockBucket
 
         yield mock_client_bucket, MockBlob
-
-
-class TorchModel(torch.nn.Module):
-    def __init__(self):
-        super().__init__()
-        self.linear = torch.nn.Linear(2, 1)
-
-    def forward(self, x):
-        return self.linear(x)
 
 
 class LinearRegression(base.VertexModel, torch.nn.Module):
