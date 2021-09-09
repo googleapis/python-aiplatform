@@ -476,14 +476,14 @@ class VertexModel(metaclass=abc.ABCMeta):
         pass
 
     def serialize_model(self, artifact_uri: str, obj: Any, model_type: str) -> str:
-        """Serializes a model object to GCS. This method currently supports Pytorch models by default 
+        """Serializes a model object to GCS. This method currently supports Pytorch models by default
            and should be overridden by the user to support other ML Libraries.
            should they not have PyTorch installed. The method throws an exeception if
            the user has not installed any libraries necessary for serialization.
 
         Args:
             artifact_uri (str): the GCS bucket where the serialized object will reside.
-            obj (torch.nn.Module): the model to serialize.
+            obj (Any, torch.nn.Module by default): the model to serialize.
             dataset_type (str): the model name and usage
 
         Returns:
@@ -503,9 +503,9 @@ class VertexModel(metaclass=abc.ABCMeta):
             )
         return model._serialize_local_model(artifact_uri, obj, model_type)
 
-    def deserialize_model(self, artifact_uri: str) -> torch.nn.Module:
-        """Deserializes a model on GCS to a torch.nn.Module object. This method 
-           currently supports Pytorch models by default and should be overridden 
+    def deserialize_model(self, artifact_uri: str) -> Any:
+        """Deserializes a model on GCS to a torch.nn.Module object. This method
+           currently supports Pytorch models by default and should be overridden
            by the user to support other ML Libraries. The method throws
            an exeception if the user has not installed any libraries necessary for
            deserialization.
