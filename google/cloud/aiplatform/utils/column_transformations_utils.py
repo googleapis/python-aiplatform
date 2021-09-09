@@ -28,7 +28,7 @@ def get_default_column_transformations(
 
     Args:
         dataset (_ColumnNamesDataset):
-            Required. The dataset 
+            Required. The dataset
         target_column (str):
             Required. The name of the column values of which the Model is to predict.
 
