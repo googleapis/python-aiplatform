@@ -423,7 +423,7 @@ class VertexModel(metaclass=abc.ABCMeta):
             )
         except ImportError:
             ImportError(
-                "PyTorch is not installed. In order to use VertexModel, please define your own serialization method for your model by overriding the serialize_model method."
+                "PyTorch is not installed. VertexModel currently has default serialization support for Pytorch models. In order to use VertexModel, please define your own serialization method for your model by overriding the serialize_model method."
             )
         return model._serialize_local_model(artifact_uri, obj, model_type)
 
