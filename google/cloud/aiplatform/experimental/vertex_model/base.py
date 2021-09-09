@@ -279,9 +279,9 @@ def vertex_fit_function_wrapper(method: Callable[..., Any]):
 
             if any("tensorflow" in dependency for dependency in obj.dependencies):
                 if obj.accelerator_count > 0:
-                    training_container = f"{container_location}-docker.pkg.dev/vertex-ai/prediction/tf2-gpu.2-6:latest"
+                    training_container = f"{container_location}-docker.pkg.dev/vertex-ai/training/tf-gpu.2-6:latest"
                 else:
-                    training_container = f"{container_location}-docker.pkg.dev/vertex-ai/prediction/tf2-cpu.2-6:latest"
+                    training_container = f"{container_location}-docker.pkg.dev/vertex-ai/training/tf-cpu.2-6:latest"
             elif any("torch" in dependency for dependency in obj.dependencies):
                 if obj.accelerator_count > 0:
                     training_container = f"{container_location}-docker.pkg.dev/vertex-ai/training/pytorch-gpu.1-9:latest"
