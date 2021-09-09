@@ -274,9 +274,19 @@ def _make_source(
         ) in param_name_to_serialized_info.items():
             deserializer = all_serialization[parameter_type][0]
 
-            # Can also make individual calls for each serialized parameter, but was unsure
-            # for situations such as when a dataloader format is serialized.
-            src = src + f"{parameter_name}={deserializer.__name__}('{parameter_uri}'), "
+            if deserializer.__name__ not in [
+                "_deserialize_dataframe",
+                "_deserialize_dataloader",
+            ]:
+                src = (
+                    src
+                    + f"{parameter_name}=my_model.{deserializer.__name__}('{parameter_uri}'), "
+                )
+            else:
+                src = (
+                    src
+                    + f"{parameter_name}={deserializer.__name__}('{parameter_uri}'), "
+                )
 
         for parameter_name, parameter_value in pass_through_params.items():
             if type(parameter_value) is str:
