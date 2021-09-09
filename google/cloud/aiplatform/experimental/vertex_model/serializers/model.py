@@ -104,5 +104,4 @@ def _deserialize_remote_model(artifact_uri: str) -> torch.nn.Module:
             )
         )
 
-    # Return a pandas DataFrame read from the csv in the cloud
     return loaded_compiled_custom_model

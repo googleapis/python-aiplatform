@@ -280,7 +280,7 @@ class TestCloudVertexModelClass:
                 "torch>=1.7",
                 "google-cloud-aiplatform @ git+https://github.com/googleapis/python-aiplatform@refs/pull/686/head#egg=google-cloud-aiplatform",
             ],
-            "container_uri": "us-docker.pkg.dev/vertex-ai/training/scikit-learn-cpu.0-23:latest",
+            "container_uri": "us-docker.pkg.dev/vertex-ai/training/pytorch-xla.1-9:latest",
             "model_serving_container_image_uri": "gcr.io/google-appengine/python",
         }
 
@@ -299,7 +299,11 @@ class TestCloudVertexModelClass:
         assert len(call_args[0]) == 0
 
         mock_run_custom_training_job.assert_called_once_with(
-            model_display_name="my_model", replica_count=1, machine_type="n1-standard-4"
+            accelerator_count=0,
+            accelerator_type="ACCELERATOR_TYPE_UNSPECIFIED",
+            model_display_name="my_model",
+            replica_count=1,
+            machine_type="n1-standard-4",
         )
 
     def test_remote_train_remote_predict(
@@ -445,6 +449,7 @@ class TestCloudVertexModelClass:
     def test_source_script_compiles(
         self, mock_client_bucket,
     ):
+
         my_model = LinearRegression(input_size=10, output_size=10)
         cls_name = my_model.__class__.__name__
 
