@@ -19,7 +19,6 @@ import abc
 import datetime
 import functools
 import inspect
-import re
 
 import pathlib
 import tempfile
@@ -251,8 +250,7 @@ def vertex_fit_function_wrapper(method: Callable[..., Any]):
             dependency_installs = []
             for dependency in obj.dependencies:
                 if dependency != GITHUB_DEPENDENCY:
-                    dependency_name = re.split(">|=|<", dependency)[0]
-                    dependency_name = f"'{dependency_name}'"
+                    dependency_name = f"'{dependency}'"
                     dependency_installs.append(dependency_name)
 
             dependency_installs = " ".join(dependency_installs)
@@ -381,8 +379,7 @@ def vertex_predict_function_wrapper(method: Callable[..., Any]):
             dependency_installs = []
             for dependency in obj.dependencies:
                 if dependency != GITHUB_DEPENDENCY:
-                    dependency_name = re.split(">|=|<", dependency)[0]
-                    dependency_name = f"'{dependency_name}'"
+                    dependency_name = f"'{dependency}'"
                     dependency_installs.append(dependency_name)
 
             dependency_installs = " ".join(dependency_installs)
