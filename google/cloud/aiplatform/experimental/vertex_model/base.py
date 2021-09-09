@@ -35,10 +35,17 @@ _LOGGER = base.Logger(__name__)
 
 GITHUB_DEPENDENCY = "google-cloud-aiplatform @ git+https://github.com/googleapis/python-aiplatform@refs/pull/686/head#egg=google-cloud-aiplatform"
 
-SERVING_COMMAND_STRING_CLI = [
+SERVING_COMMAND_STRING_CLI_FIRST_HALF = [
     "sh",
     "-c",
-    "python3 -m pip install --user --disable-pip-version-check 'uvicorn' 'fastapi' 'torch' 'pandas' 'google-cloud-aiplatform @ git+https://github.com/googleapis/python-aiplatform@refs/pull/686/head#egg=google-cloud-aiplatform' && \"$0\" \"$@\"",
+]
+
+SERVING_COMMAND_STRING_CLI_PIP_CALL = (
+    "python3 -m pip install --user --disable-pip-version-check 'uvicorn' 'fastapi' "
+)
+SERVING_COMMAND_STRING_CLI_GITHUB_INSTALL = f' \'{GITHUB_DEPENDENCY}\' && "$0" "$@"'
+
+SERVING_COMMAND_STRING_CLI_SECOND_HALF = [
     "sh",
     "-ec",
     'program_path=$(mktemp)\nprintf "%s" "$0" > "$program_path"\npython3 -u "$program_path" "$@"\n',
@@ -203,6 +210,7 @@ def vertex_fit_function_wrapper(method: Callable[..., Any]):
             with open(script_path, "w") as f:
                 f.write(source)
 
+            # Get imports and class definition from source script
             import_lines = source_utils.import_try_except(obj)
 
             class_args = inspect.signature(obj.__class__.__init__).bind(
@@ -218,23 +226,69 @@ def vertex_fit_function_wrapper(method: Callable[..., Any]):
                 + SERVING_COMMAND_STRING_CODE_APIS
             )
 
+            # Account for user-designated dependencies when
+            # setting up remote prediction
             if GITHUB_DEPENDENCY not in obj.dependencies:
                 obj.dependencies.append(GITHUB_DEPENDENCY)
 
+            dependency_installs = []
+            for dependency in obj.dependencies:
+                if dependency != GITHUB_DEPENDENCY:
+                    dependency_name = f"'{dependency}'"
+                    dependency_installs.append(dependency_name)
+
+            dependency_installs = " ".join(dependency_installs)
+
+            serving_command_string_cli = (
+                SERVING_COMMAND_STRING_CLI_FIRST_HALF
+                + [
+                    SERVING_COMMAND_STRING_CLI_PIP_CALL
+                    + dependency_installs
+                    + SERVING_COMMAND_STRING_CLI_GITHUB_INSTALL
+                ]
+                + SERVING_COMMAND_STRING_CLI_SECOND_HALF
+            )
+
+            # Container specification
+            # TODO(b/199320549): Match container specification to dependency versioning
+
+            location_prefix = aiplatform.initializer.global_config.location.split("-")[
+                0
+            ]
+            container_location = (
+                location_prefix if location_prefix in ("us", "europe", "asia") else "us"
+            )
+
+            training_container = f"{container_location}-docker.pkg.dev/vertex-ai/training/scikit-learn-cpu.0-23:latest"
+
+            if any("tensorflow" in dependency for dependency in obj.dependencies):
+                if obj.accelerator_count > 0:
+                    training_container = f"{container_location}-docker.pkg.dev/vertex-ai/training/tf-gpu.2-6:latest"
+                else:
+                    training_container = f"{container_location}-docker.pkg.dev/vertex-ai/training/tf-cpu.2-6:latest"
+            elif any("torch" in dependency for dependency in obj.dependencies):
+                if obj.accelerator_count > 0:
+                    training_container = f"{container_location}-docker.pkg.dev/vertex-ai/training/pytorch-gpu.1-9:latest"
+                else:
+                    training_container = f"{container_location}-docker.pkg.dev/vertex-ai/training/pytorch-xla.1-9:latest"
+
+            # Make CustomTrainingJob object
             obj._training_job = aiplatform.CustomTrainingJob(
                 display_name="my_training_job",
                 script_path=str(script_path),
                 requirements=obj.dependencies,
-                container_uri="us-docker.pkg.dev/vertex-ai/training/scikit-learn-cpu.0-23:latest",
+                container_uri=training_container,
                 model_serving_container_image_uri="gcr.io/google-appengine/python",
-                model_serving_container_command=SERVING_COMMAND_STRING_CLI
+                model_serving_container_command=serving_command_string_cli
                 + [command_str],
             )
 
             obj._model = obj._training_job.run(
                 model_display_name="my_model",
-                replica_count=1,
                 machine_type=obj.machine_type,
+                replica_count=obj.replica_count,
+                accelerator_type=obj.accelerator_type,
+                accelerator_count=obj.accelerator_count,
             )
 
     return f
@@ -304,11 +358,29 @@ def vertex_predict_function_wrapper(method: Callable[..., Any]):
                 + SERVING_COMMAND_STRING_CODE_APIS
             )
 
+            dependency_installs = []
+            for dependency in obj.dependencies:
+                if dependency != GITHUB_DEPENDENCY:
+                    dependency_name = f"'{dependency}'"
+                    dependency_installs.append(dependency_name)
+
+            dependency_installs = " ".join(dependency_installs)
+
+            serving_command_string_cli = (
+                SERVING_COMMAND_STRING_CLI_FIRST_HALF
+                + [
+                    SERVING_COMMAND_STRING_CLI_PIP_CALL
+                    + dependency_installs
+                    + SERVING_COMMAND_STRING_CLI_GITHUB_INSTALL
+                ]
+                + SERVING_COMMAND_STRING_CLI_SECOND_HALF
+            )
+
             obj._model = aiplatform.Model.upload(
                 display_name="serving-test",
                 artifact_uri=vertex_model_model_folder,
                 serving_container_image_uri="gcr.io/google-appengine/python",
-                serving_container_command=SERVING_COMMAND_STRING_CLI + [command_str],
+                serving_container_command=serving_command_string_cli + [command_str],
             )
 
         # Cloud training to local prediction: deserialize from cloud URI
@@ -354,10 +426,8 @@ class VertexModel(metaclass=abc.ABCMeta):
     dependencies = [
         "pandas>=1.3",
         "torch>=1.7",
-        "google-cloud-aiplatform @ git+https://github.com/googleapis/python-aiplatform@refs/pull/686/head#egg=google-cloud-aiplatform",
+        GITHUB_DEPENDENCY,
     ]
-
-    machine_type = "n1-standard-4"
 
     def __init__(self, *args, **kwargs):
         """Initializes child class. All constructor arguments must be passed to the
@@ -366,6 +436,11 @@ class VertexModel(metaclass=abc.ABCMeta):
         self._training_job = None
         self._model = None
         self._endpoint = None
+
+        self.machine_type = "n1-standard-4"
+        self.replica_count = 1
+        self.accelerator_type = "ACCELERATOR_TYPE_UNSPECIFIED"
+        self.accelerator_count = 0
 
         self._constructor_arguments = (args, kwargs)
 
@@ -400,8 +475,9 @@ class VertexModel(metaclass=abc.ABCMeta):
     def predict_payload_to_predict_output(self, predictions: List) -> Any:
         pass
 
-    def serialize_model(self, artifact_uri: str, obj: torch.nn.Module, model_type: str) -> str:
-        """Serializes torch.nn.Module object to GCS, but can be overriden by the user
+    def serialize_model(self, artifact_uri: str, obj: Any, model_type: str) -> str:
+        """Serializes a model object to GCS. This method currently supports Pytorch models by default 
+           and should be overridden by the user to support other ML Libraries.
            should they not have PyTorch installed. The method throws an exeception if
            the user has not installed any libraries necessary for serialization.
 
@@ -422,8 +498,8 @@ class VertexModel(metaclass=abc.ABCMeta):
                 model,
             )
         except ImportError:
-            raise ImportError(
-                "PyTorch is not installed. In order to use VertexModel, please define your own serialization method for your model by overriding the serialize_model method."
+            ImportError(
+                "PyTorch is not installed. VertexModel currently has default serialization support for Pytorch models. In order to use VertexModel, please define your own serialization method for your model by overriding the serialize_model method."
             )
         return model._serialize_local_model(artifact_uri, obj, model_type)
 
