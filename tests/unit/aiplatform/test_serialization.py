@@ -47,8 +47,28 @@ _TEST_STAGING_BUCKET = "gs://test-staging-bucket"
 # CMEK encryption
 _TEST_DEFAULT_ENCRYPTION_KEY_NAME = "key_default"
 
-_PROJECT_ID = "sashaproject-1"
-_STAGING_BUCKET = "gs://ucaip-mb-sasha-dev"
+
+@pytest.fixture
+def mock_pd_read_csv():
+    with patch.object(pd, "read_csv") as mock:
+        mock.return_value = pd.DataFrame(
+            np.random.random(size=(100, 3)), columns=["feat_1", "feat_2", "target"]
+        )
+        yield mock
+
+
+@pytest.fixture
+def mock_torch_load():
+    with patch.object(torch, "load") as mock:
+        mock.return_value = DataLoader(NumbersDataset(), batch_size=64)
+        yield mock
+
+
+@pytest.fixture
+def mock_torch_jit_load():
+    with patch.object(torch.jit, "load") as mock:
+        mock.return_value = TorchModel()
+        yield mock
 
 
 @pytest.fixture
@@ -69,6 +89,15 @@ def mock_client_bucket():
         mock_client_bucket.return_value = MockBucket
 
         yield mock_client_bucket, MockBlob
+
+
+class TorchModel(torch.nn.Module):
+    def __init__(self):
+        super().__init__()
+        self.linear = torch.nn.Linear(2, 1)
+
+    def forward(self, x):
+        return self.linear(x)
 
 
 class LinearRegression(base.VertexModel, torch.nn.Module):
@@ -172,8 +201,13 @@ class TestModelSerialization:
             ):
                 assert torch.equal(key_item_1[1], key_item_2[1])
 
-    def test_remote_serialization_works(self):
-        aiplatform.init(project=_PROJECT_ID, staging_bucket=_STAGING_BUCKET)
+    def test_remote_serialization_works(self, mock_client_bucket, mock_torch_jit_load):
+        aiplatform.init(
+            project=_TEST_PROJECT,
+            location=_TEST_LOCATION,
+            staging_bucket=_TEST_STAGING_BUCKET,
+            encryption_spec_key_name=_TEST_DEFAULT_ENCRYPTION_KEY_NAME,
+        )
 
         # Create model object
         my_model = LinearRegression(2, 1)
@@ -195,12 +229,12 @@ class TestModelSerialization:
         model_uri = model._serialize_local_model(
             vertex_model_model_folder, my_model, "local"
         )
+
+        assert len(model_uri) > 0
+
         deserialized_model = model._deserialize_remote_model(model_uri)
 
-        for key_item_1, key_item_2 in zip(
-            my_model.state_dict().items(), deserialized_model.state_dict().items()
-        ):
-            assert torch.equal(key_item_1[1], key_item_2[1])
+        assert issubclass(type(deserialized_model), torch.nn.Module)
 
 
 class TestDataLoaderSerialization:
@@ -228,22 +262,24 @@ class TestDataLoaderSerialization:
 
             assert torch.all(original_tensor.eq(new_tensor))
 
-    def test_remote_serialization_works(self):
+    def test_remote_serialization_works(self, mock_client_bucket, mock_torch_load):
         dataset = NumbersDataset()
         dataloader = DataLoader(dataset, batch_size=64)
 
         timestamp = datetime.datetime.now().isoformat(sep="-", timespec="milliseconds")
-        dataloader_root_folder = "/".join([_STAGING_BUCKET, f"dataloader_{timestamp}"])
+        dataloader_root_folder = "/".join(
+            [_TEST_STAGING_BUCKET, f"dataloader_{timestamp}"]
+        )
 
         obj_path = pytorch._serialize_dataloader(
             dataloader_root_folder, dataloader, "local"
         )
+
+        assert len(obj_path) > 0
+
         deserialized_dataloader = pytorch._deserialize_dataloader(obj_path)
 
-        original_tensor = next(iter(dataloader))
-        new_tensor = next(iter(deserialized_dataloader))
-
-        assert torch.all(original_tensor.eq(new_tensor))
+        assert type(deserialized_dataloader) is DataLoader
 
 
 class TestDataFrameSerialization:
@@ -258,12 +294,15 @@ class TestDataFrameSerialization:
 
             pd.testing.assert_frame_equal(df, new_df, check_dtype=True)
 
-    def test_remote_serialization_works(self):
+    def test_remote_serialization_works(self, mock_client_bucket, mock_pd_read_csv):
         df = pd.DataFrame(
             np.random.random(size=(100, 3)), columns=["feat_1", "feat_2", "target"]
         )
 
-        df_path = pandas._serialize_dataframe(_STAGING_BUCKET, df, "test")
-        new_df = pandas._deserialize_dataframe(df_path)
+        df_path = pandas._serialize_dataframe(_TEST_STAGING_BUCKET, df, "test")
 
-        pd.testing.assert_frame_equal(df, new_df, check_dtype=True)
+        assert len(df_path) > 0
+
+        deserialized_dataframe = pandas._deserialize_dataframe(df_path)
+
+        assert type(deserialized_dataframe) is pd.DataFrame

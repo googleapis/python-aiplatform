@@ -101,27 +101,13 @@ def get_import_lines(path):
     for node in ast.iter_child_nodes(root):
         line = ""
 
-        # Workaround for testing, when the model class is
-        # defined in a file that uses the test library
         if isinstance(node, ast.ImportFrom):
-            if node.module.startswith("tests"):
-                line = ""
-                continue
-
             line += f"from {node.module} "
 
         if isinstance(node, (ast.Import, ast.ImportFrom)):
-
             line += "import "
 
             for i, name in enumerate(node.names):
-
-                # Workaround for testing, when model class is defined
-                # in a file containing a pytest import
-                if name.name == "pytest" or name.name.startswith("tests."):
-                    line = ""
-                    break
-
                 line += f"{name.name}"
 
                 if name.asname:
