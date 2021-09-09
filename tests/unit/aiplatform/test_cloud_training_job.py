@@ -17,6 +17,7 @@
 
 import functools
 import importlib
+import json
 import os
 import pathlib
 import py_compile
@@ -48,12 +49,8 @@ from google.cloud.aiplatform_v1.types import Model as gca_Model
 try:
     # Available in a colab environment.
     from google.colab import _message  # pylint: disable=g-import-not-at-top
-
-    MOCK_NOTEBOOK = _message.blocking_request("get_ipynb", request="", timeout_sec=200)
-
 except ImportError:
     _message = None
-    MOCK_NOTEBOOK = None
 
 
 _TEST_PROJECT = "test-project"
@@ -73,6 +70,194 @@ _TEST_MODEL_NAME = (
 _TEST_MODEL_RESOURCE_NAME = model_service_client.ModelServiceClient.model_path(
     _TEST_PROJECT, _TEST_LOCATION, _TEST_ID
 )
+
+MOCK_NOTEBOOK_DICT = {
+    "nbformat": 4,
+    "nbformat_minor": 0,
+    "metadata": {
+        "colab": {
+            "name": "TestNotebook.ipynb",
+            "provenance": [],
+            "collapsed_sections": [],
+        },
+        "kernelspec": {"display_name": "Python 3", "name": "python3"},
+        "language_info": {"name": "python"},
+    },
+    "cells": [
+        {
+            "cell_type": "code",
+            "metadata": {"id": "3efIwI4jlS3L"},
+            "source": [
+                "! pip3 install --force-reinstall --upgrade git+https://github.com/googleapis/python-aiplatform.git@refs/pull/685/merge"
+            ],
+        },
+        {
+            "cell_type": "code",
+            "metadata": {"id": "oK2x8JieldQz"},
+            "source": [
+                "import os\n",
+                "import sys\n",
+                "\n",
+                "# If you are running this notebook in Colab, run this cell and follow the\n",
+                "# instructions to authenticate your GCP account. This provides access to your\n",
+                "# Cloud Storage bucket and lets you submit training jobs and prediction\n",
+                "# requests.\n",
+                "\n",
+                "# If on Google Cloud Notebook, then don't execute this code\n",
+                'if not os.path.exists("/opt/deeplearning/metadata/env_version"):\n',
+                '    if "google.colab" in sys.modules:\n',
+                "        from google.colab import auth as google_auth\n",
+                "\n",
+                "        google_auth.authenticate_user()",
+            ],
+            "execution_count": 1,
+            "outputs": [],
+        },
+        {
+            "cell_type": "code",
+            "metadata": {"id": "1m537GzdmXDQ"},
+            "source": [
+                "PROJECT_ID='sashaproject-1' # Replace with your project ID\n",
+                "STAGING_BUCKET='gs://ucaip-mb-sasha-dev' # Replace with your staging bucket name",
+            ],
+            "execution_count": 2,
+            "outputs": [],
+        },
+        {
+            "cell_type": "markdown",
+            "metadata": {"id": "C-K9DuuFlkkX"},
+            "source": [
+                "## Create your model\n",
+                "\n",
+                "You can now write your model class, which must extend the VertexModel class. **Currently, when writing your code, you must adhere to the following rules**:\n",
+                "\n",
+                "*   The constructor of VertexModel must be called with the constructor arguments of your child class\n",
+                "* DataLoader objects cannot have a local file source\n",
+                "*   You must implement your own versions of fit and predict\n",
+                "\n",
+                "The code below uses PyTorch to define a linear regression model that trains on a torch DataLoader object. It uses the helper methods train_loop() and forward() to define fit().",
+            ],
+        },
+        {
+            "cell_type": "code",
+            "metadata": {"id": "Cud0JI8UlhVp"},
+            "source": [
+                "import torch\n",
+                "from google.cloud.aiplatform.experimental.vertex_model import base\n",
+                "import numpy as np\n",
+                "import pandas as pd\n",
+                "\n",
+                "class TorchLinearRegression(base.VertexModel, torch.nn.Module): \n",
+                "\n",
+                "  def __init__(self, input_size: int, output_size: int):\n",
+                "    base.VertexModel.__init__(self, input_size=input_size, output_size=output_size)\n",
+                "    torch.nn.Module.__init__(self)\n",
+                "    self.linear = torch.nn.Linear(input_size, output_size)\n",
+                "\n",
+                "  def forward(self, x):\n",
+                "    return self.linear(x)\n",
+                "\n",
+                "  def train_loop(self, dataloader, loss_fn, optimizer):\n",
+                "    size = len(dataloader.dataset)\n",
+                "\n",
+                "    for batch, (X, y) in enumerate(dataloader):\n",
+                "        pred = self.linear(X.float())\n",
+                "        loss = loss_fn(pred.float(), y.float())\n",
+                "\n",
+                "        optimizer.zero_grad()\n",
+                "        loss.backward()\n",
+                "        optimizer.step()\n",
+                "\n",
+                "  def fit(self, data: torch.utils.data.DataLoader, target_column: str, epochs: int, learning_rate: float):\n",
+                "    loss_fn = torch.nn.MSELoss()\n",
+                "    optimizer = torch.optim.SGD(self.parameters(), lr=learning_rate)\n",
+                "    \n",
+                "    for t in range(epochs):\n",
+                "        self.train_loop(data, loss_fn, optimizer)    \n",
+                "\n",
+                "  def predict(self, data):\n",
+                "    return self.forward(data)\n",
+                "\n",
+                "  # Implementation of predict_payload_to_predict_input(), which converts a predict_payload object to predict() inputs\n",
+                "  def predict_payload_to_predict_input(self, instances):\n",
+                "    feature_columns = ['feat_1', 'feat_2']\n",
+                "    data = pd.DataFrame(instances, columns=feature_columns)\n",
+                "    torch_tensor = torch.tensor(data[feature_columns].values).type(torch.FloatTensor)\n",
+                "    return torch_tensor\n",
+                "\n",
+                "  # Implementation of predict_input_to_predict_payload(), which converts predict() inputs to a predict_payload object\n",
+                "  def predict_input_to_predict_payload(self, parameter):\n",
+                "    return parameter.tolist()\n",
+                "\n",
+                "  # Implementation of predict_output_to_predict_payload(), which converts the predict() output to a predict_payload object\n",
+                "  def predict_output_to_predict_payload(self, output):\n",
+                "    return output.tolist()\n",
+                "\n",
+                "  # Implementation of predict_payload_to_predict_output, which takes a predict_payload object containing predictions and\n",
+                "  # converts it to the type of output expected by the user-written class.\n",
+                "  def predict_payload_to_predict_output(self, predictions):\n",
+                "    data = pd.DataFrame(predictions)\n",
+                "    torch_tensor = torch.tensor(data.values).type(torch.FloatTensor)\n",
+                "    return torch_tensor",
+            ],
+            "execution_count": 3,
+            "outputs": [],
+        },
+        {
+            "cell_type": "code",
+            "metadata": {"id": "XzJoCH-Rl0TH"},
+            "source": [
+                "import google.cloud.aiplatform as aiplatform\n",
+                "aiplatform.init(project=PROJECT_ID, staging_bucket=STAGING_BUCKET)\n",
+                "\n",
+                "my_cloud_dataloader_model = TorchLinearRegression(2, 1)",
+            ],
+            "execution_count": 4,
+            "outputs": [],
+        },
+        {
+            "cell_type": "code",
+            "metadata": {"id": "Zm7VB_5VmCDX"},
+            "source": [
+                "# Training performed on GCS with a DataLoader input (instead of a Pandas DataFrame)\n",
+                "data = pd.DataFrame(np.random.random(size=(100, 3)), columns=['feat_1', 'feat_2', 'target'])\n",
+                "\n",
+                "target_column = 'target'\n",
+                "\n",
+                "feature_columns = list(data.columns)\n",
+                "feature_columns.remove(target_column)\n",
+                "\n",
+                "features = torch.tensor(data[feature_columns].values)\n",
+                "target = torch.tensor(data[target_column].values)\n",
+                "\n",
+                "dataloader = torch.utils.data.DataLoader(\n",
+                "      torch.utils.data.TensorDataset(features, target),\n",
+                "      batch_size=10, shuffle=True)\n",
+                "\n",
+                "my_cloud_dataloader_model.remote = True\n",
+                "my_cloud_dataloader_model.fit(dataloader, target_column, 1, 0.1)",
+            ],
+        },
+        {
+            "cell_type": "code",
+            "metadata": {"id": "cvXDXelPmLCX"},
+            "source": [
+                "# Perform remote prediction with the model trained on a DataLoader\n",
+                "\n",
+                "# Set up test data\n",
+                "data = pd.DataFrame(np.random.random(size=(100, 3)), columns=['feat_1', 'feat_2', 'target']) # Replace with your data\n",
+                "feature_columns = list(data.columns)\n",
+                "feature_columns.remove('target')\n",
+                "torch_tensor = torch.tensor(data[feature_columns].values).type(torch.FloatTensor)\n",
+                "\n",
+                "# Prediction with remotely-trained model\n",
+                "my_cloud_dataloader_model.predict(torch_tensor)",
+            ],
+        },
+    ],
+}
+
+MOCK_NOTEBOOK = json.dumps(MOCK_NOTEBOOK_DICT)
 
 
 class TorchModel(torch.nn.Module):
