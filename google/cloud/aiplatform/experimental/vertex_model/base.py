@@ -401,7 +401,7 @@ class VertexModel(metaclass=abc.ABCMeta):
         pass
 
     def serialize_model(self, artifact_uri: str, obj: Any, model_type: str) -> str:
-        """Serializes torch.nn.Module object to GCS, but can be overriden by the user
+        """Serializes a model object to GCS. This method currently supports Pytorch models by default and should be overridden by the user to support other ML Libraries.
            should they not have PyTorch installed. The method throws an exeception if
            the user has not installed any libraries necessary for serialization.
 
