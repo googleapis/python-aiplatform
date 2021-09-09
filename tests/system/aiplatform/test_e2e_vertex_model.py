@@ -115,13 +115,11 @@ class TestEndToEndVertexModel(e2e_base.TestEndToEnd):
         )
 
         # Set up random training data
-
         df = pd.DataFrame(
             np.random.random(size=(100, 3)), columns=["feat_1", "feat_2", "target"]
         )
 
         # Train using VertexModel interface
-
         my_model = LinearRegression(2, 1)
         my_model.remote = training_remote
 
@@ -132,7 +130,6 @@ class TestEndToEndVertexModel(e2e_base.TestEndToEnd):
             shared_state["resources"].extend([my_model._model])
 
         # Set up test data
-
         data = pd.DataFrame(
             np.random.random(size=(100, 3)), columns=["feat_1", "feat_2", "target"]
         )
@@ -145,7 +142,6 @@ class TestEndToEndVertexModel(e2e_base.TestEndToEnd):
         )
 
         # Prediction with trained model
-
         my_model.remote = prediction_remote
         predictions = my_model.predict(torch_tensor)
 
