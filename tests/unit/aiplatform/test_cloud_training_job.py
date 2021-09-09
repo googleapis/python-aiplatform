@@ -124,21 +124,6 @@ MOCK_NOTEBOOK_DICT = {
             "outputs": [],
         },
         {
-            "cell_type": "markdown",
-            "metadata": {"id": "C-K9DuuFlkkX"},
-            "source": [
-                "## Create your model\n",
-                "\n",
-                "You can now write your model class, which must extend the VertexModel class. **Currently, when writing your code, you must adhere to the following rules**:\n",
-                "\n",
-                "*   The constructor of VertexModel must be called with the constructor arguments of your child class\n",
-                "* DataLoader objects cannot have a local file source\n",
-                "*   You must implement your own versions of fit and predict\n",
-                "\n",
-                "The code below uses PyTorch to define a linear regression model that trains on a torch DataLoader object. It uses the helper methods train_loop() and forward() to define fit().",
-            ],
-        },
-        {
             "cell_type": "code",
             "metadata": {"id": "Cud0JI8UlhVp"},
             "source": [
