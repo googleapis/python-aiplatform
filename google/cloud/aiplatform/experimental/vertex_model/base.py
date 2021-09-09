@@ -400,7 +400,7 @@ class VertexModel(metaclass=abc.ABCMeta):
     def predict_payload_to_predict_output(self, predictions: List) -> Any:
         pass
 
-    def serialize_model(self, artifact_uri: str, obj: Any, model_type: str) -> str:
+    def serialize_model(self, artifact_uri: str, obj: torch.nn.Module, model_type: str) -> str:
         """Serializes torch.nn.Module object to GCS, but can be overriden by the user
            should they not have PyTorch installed. The method throws an exeception if
            the user has not installed any libraries necessary for serialization.
@@ -422,13 +422,15 @@ class VertexModel(metaclass=abc.ABCMeta):
                 model,
             )
         except ImportError:
-            ImportError(
+            raise ImportError(
                 "PyTorch is not installed. In order to use VertexModel, please define your own serialization method for your model by overriding the serialize_model method."
             )
         return model._serialize_local_model(artifact_uri, obj, model_type)
 
-    def deserialize_model(self, artifact_uri: str) -> Any:
-        """Deserializes a model on GCS to a torch.nn.Module object. The method throws
+    def deserialize_model(self, artifact_uri: str) -> torch.nn.Module:
+        """Deserializes a model on GCS to a torch.nn.Module object. This method 
+           currently supports Pytorch models by default and should be overridden 
+           by the user to support other ML Libraries. The method throws
            an exeception if the user has not installed any libraries necessary for
            deserialization.
 
@@ -448,8 +450,8 @@ class VertexModel(metaclass=abc.ABCMeta):
                 model,
             )
         except ImportError:
-            ImportError(
-                "PyTorch is not installed. In order to use VertexModel, please define your own deserialization method for your model by overriding the deserialize_model method."
+            raise ImportError(
+                "PyTorch is not installed. VertexModel currently has default deserialization support for Pytorch models. In order to use VertexModel, please define your own deserialization method for your model by overriding the deserialize_model method."
             )
         return model._deserialize_remote_model(artifact_uri)
 
