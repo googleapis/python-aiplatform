@@ -20,6 +20,7 @@ import inspect
 import tempfile
 from typing import Any
 from typing import Dict
+from typing import Optional
 from typing import Tuple
 
 import google.cloud.aiplatform.experimental.vertex_model.serializers as serializers
@@ -32,18 +33,27 @@ except ImportError:
     _message = None
 
 
-def jupyter_notebook_to_file() -> str:
+def jupyter_notebook_to_file(json_notebook: Optional[str]) -> str:
     """ Retrieves the source code of a Python notebook and writes it to a file.
+
+    Args:
+        json_notebook (Optional[str]): JSON representation of a Python notebook.
 
     Returns:
         A string representing the file name where the Python notebook source code
         has been written.
     """
-    response = _message.blocking_request("get_ipynb", request="", timeout_sec=200)
-    if response is None:
-        raise RuntimeError("Unable to get the notebook contents.")
 
-    cells = response["ipynb"]["cells"]
+    if json_notebook is None:
+        response = _message.blocking_request("get_ipynb", request="", timeout_sec=200)
+        cells = response["ipynb"]["cells"]
+
+        if response is None:
+            raise RuntimeError("Unable to get the notebook contents.")
+    else:
+        response = json_notebook
+        cells = response["cells"]
+    
     py_content = []
     script_lines = []
 
@@ -119,7 +129,7 @@ def get_import_lines(path):
         yield line
 
 
-def import_try_except(obj):
+def import_try_except(obj: Any):
     """Given an object defined in either a local file or a Colab notebook,
        retrieves the imports in its class definition.
 
@@ -138,7 +148,7 @@ def import_try_except(obj):
         return import_lines
 
     except AttributeError:
-        import_lines = "\n".join(get_import_lines(jupyter_notebook_to_file()))
+        import_lines = "\n".join(get_import_lines(jupyter_notebook_to_file(None)))
         return import_lines
 
 

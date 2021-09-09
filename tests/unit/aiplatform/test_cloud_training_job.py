@@ -17,7 +17,6 @@
 
 import functools
 import importlib
-import json
 import os
 import pathlib
 import py_compile
@@ -45,12 +44,6 @@ from google.cloud.aiplatform_v1.services.model_service import (
     client as model_service_client,
 )
 from google.cloud.aiplatform_v1.types import Model as gca_Model
-
-try:
-    # Available in a colab environment.
-    from google.colab import _message  # pylint: disable=g-import-not-at-top
-except ImportError:
-    _message = None
 
 
 _TEST_PROJECT = "test-project"
@@ -242,8 +235,6 @@ MOCK_NOTEBOOK_DICT = {
     ],
 }
 
-MOCK_NOTEBOOK = json.dumps(MOCK_NOTEBOOK_DICT)
-
 
 class TorchModel(torch.nn.Module):
     def __init__(self):
@@ -252,16 +243,6 @@ class TorchModel(torch.nn.Module):
 
     def forward(self, x):
         return self.linear(x)
-
-
-@pytest.fixture
-def mock_get_notebook():
-    if _message is not None:
-        with patch.object(_message, "blocking_request") as mock:
-            mock.return_value = MOCK_NOTEBOOK
-            yield mock
-    else:
-        yield None
 
 
 @pytest.fixture
@@ -601,20 +582,19 @@ class TestCloudVertexModelClass:
         mock_model_upload.assert_called_once()
         mock_model.deploy.assert_called_once_with(machine_type="n1-standard-4")
 
-    def test_jupyter_source_retrieval(self, mock_get_notebook):
-        if _message is not None and MOCK_NOTEBOOK is not None:
-            output_file = source_utils.jupyter_notebook_to_file()
+    def test_jupyter_source_retrieval(self):
+        output_file = source_utils.jupyter_notebook_to_file(MOCK_NOTEBOOK_DICT)
 
-            with open(output_file, "w"):
-                module_ok = True
+        with open(output_file, "w"):
+            module_ok = True
 
-                try:
-                    py_compile.compile(output_file, doraise=True)
-                except py_compile.PyCompileError as e:
-                    print(e.exc_value)
-                    module_ok = False
+            try:
+                py_compile.compile(output_file, doraise=True)
+            except py_compile.PyCompileError as e:
+                print(e.exc_value)
+                module_ok = False
 
-                assert module_ok
+            assert module_ok
 
     def test_source_script_compiles(
         self, mock_client_bucket,
