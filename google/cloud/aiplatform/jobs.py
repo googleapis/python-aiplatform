@@ -31,7 +31,6 @@ from google.rpc import status_pb2
 
 from google.cloud import aiplatform
 from google.cloud.aiplatform import base
-from google.cloud.aiplatform import compat
 from google.cloud.aiplatform.compat.types import (
     batch_prediction_job as gca_bp_job_compat,
     completion_stats as gca_completion_stats,
