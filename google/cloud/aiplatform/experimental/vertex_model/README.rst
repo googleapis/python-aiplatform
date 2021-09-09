@@ -158,6 +158,7 @@ and/or prediction with other dataset objects, you must implement your own serial
 2. Your serialization function returns the remote location of your serialized object.
 3. Your deserialization function has one input parameter: the GCS URI of your serialized object.
 4. Your deserialization function returns a deserialized dataset object.
+5. **All** new serialization and deserialization functions are defined in your child class implementation.
 
 More specifically, the function signatures should follow this format:
 
