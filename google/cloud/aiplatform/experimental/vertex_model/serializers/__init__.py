@@ -44,7 +44,9 @@ def build_map_safe():
             module = sys.modules.get(
                 f"google.cloud.aiplatform.experimental.vertex_model.serializers.{module_name}"
             )
+
             serializer_map.update(module._DATA_SERIALIZER_MAP)
+
         except ImportError:
             pass
 

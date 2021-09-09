@@ -47,6 +47,9 @@ _TEST_STAGING_BUCKET = "gs://test-staging-bucket"
 # CMEK encryption
 _TEST_DEFAULT_ENCRYPTION_KEY_NAME = "key_default"
 
+_PROJECT_ID = "sashaproject-1"
+_STAGING_BUCKET = "gs://ucaip-mb-sasha-dev"
+
 
 @pytest.fixture
 def mock_client_bucket():
@@ -169,6 +172,36 @@ class TestModelSerialization:
             ):
                 assert torch.equal(key_item_1[1], key_item_2[1])
 
+    def test_remote_serialization_works(self):
+        aiplatform.init(project=_PROJECT_ID, staging_bucket=_STAGING_BUCKET)
+
+        # Create model object
+        my_model = LinearRegression(2, 1)
+
+        staging_bucket = aiplatform.initializer.global_config.staging_bucket
+        if staging_bucket is None:
+            raise RuntimeError(
+                "Staging bucket must be set to run training in cloud mode: `aiplatform.init(staging_bucket='gs://my/staging/bucket')`"
+            )
+
+        timestamp = datetime.datetime.now().isoformat(sep="-", timespec="milliseconds")
+        vertex_model_root_folder = "/".join(
+            [staging_bucket, f"vertex_model_run_{timestamp}"]
+        )
+        vertex_model_model_folder = "/".join(
+            [vertex_model_root_folder, "serialized_model"]
+        )
+
+        model_uri = model._serialize_local_model(
+            vertex_model_model_folder, my_model, "local"
+        )
+        deserialized_model = model._deserialize_remote_model(model_uri)
+
+        for key_item_1, key_item_2 in zip(
+            my_model.state_dict().items(), deserialized_model.state_dict().items()
+        ):
+            assert torch.equal(key_item_1[1], key_item_2[1])
+
 
 class TestDataLoaderSerialization:
     def test_local_serialization_works(self):
@@ -195,6 +228,23 @@ class TestDataLoaderSerialization:
 
             assert torch.all(original_tensor.eq(new_tensor))
 
+    def test_remote_serialization_works(self):
+        dataset = NumbersDataset()
+        dataloader = DataLoader(dataset, batch_size=64)
+
+        timestamp = datetime.datetime.now().isoformat(sep="-", timespec="milliseconds")
+        dataloader_root_folder = "/".join([_STAGING_BUCKET, f"dataloader_{timestamp}"])
+
+        obj_path = pytorch._serialize_dataloader(
+            dataloader_root_folder, dataloader, "local"
+        )
+        deserialized_dataloader = pytorch._deserialize_dataloader(obj_path)
+
+        original_tensor = next(iter(dataloader))
+        new_tensor = next(iter(deserialized_dataloader))
+
+        assert torch.all(original_tensor.eq(new_tensor))
+
 
 class TestDataFrameSerialization:
     def test_local_serialization_works(self):
@@ -207,3 +257,13 @@ class TestDataFrameSerialization:
             new_df = pandas._deserialize_dataframe(df_path)
 
             pd.testing.assert_frame_equal(df, new_df, check_dtype=True)
+
+    def test_remote_serialization_works(self):
+        df = pd.DataFrame(
+            np.random.random(size=(100, 3)), columns=["feat_1", "feat_2", "target"]
+        )
+
+        df_path = pandas._serialize_dataframe(_STAGING_BUCKET, df, "test")
+        new_df = pandas._deserialize_dataframe(df_path)
+
+        pd.testing.assert_frame_equal(df, new_df, check_dtype=True)
