@@ -53,7 +53,7 @@ def jupyter_notebook_to_file(json_notebook: Optional[str]) -> str:
     else:
         response = json_notebook
         cells = response["cells"]
-    
+
     py_content = []
     script_lines = []
 
