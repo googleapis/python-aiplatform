@@ -569,32 +569,27 @@ class BatchPredictionJob(_Job):
                 f"type. Please choose from: {constants.BATCH_PREDICTION_OUTPUT_STORAGE_FORMATS}"
             )
 
-        gca_bp_job = gca_bp_job_compat
-        gca_io = gca_io_compat
-        gca_machine_resources = gca_machine_resources_compat
-        select_version = compat.DEFAULT_VERSION
-
-        gapic_batch_prediction_job = gca_bp_job.BatchPredictionJob()
+        gapic_batch_prediction_job = gca_bp_job_compat.BatchPredictionJob()
 
         # Required Fields
         gapic_batch_prediction_job.display_name = job_display_name
 
-        input_config = gca_bp_job.BatchPredictionJob.InputConfig()
-        output_config = gca_bp_job.BatchPredictionJob.OutputConfig()
+        input_config = gca_bp_job_compat.BatchPredictionJob.InputConfig()
+        output_config = gca_bp_job_compat.BatchPredictionJob.OutputConfig()
 
         if bigquery_source:
             input_config.instances_format = "bigquery"
-            input_config.bigquery_source = gca_io.BigQuerySource()
+            input_config.bigquery_source = gca_io_compat.BigQuerySource()
             input_config.bigquery_source.input_uri = bigquery_source
         else:
             input_config.instances_format = instances_format
-            input_config.gcs_source = gca_io.GcsSource(
+            input_config.gcs_source = gca_io_compat.GcsSource(
                 uris=gcs_source if type(gcs_source) == list else [gcs_source]
             )
 
         if bigquery_destination_prefix:
             output_config.predictions_format = "bigquery"
-            output_config.bigquery_destination = gca_io.BigQueryDestination()
+            output_config.bigquery_destination = gca_io_compat.BigQueryDestination()
 
             bq_dest_prefix = bigquery_destination_prefix
 
@@ -604,7 +599,7 @@ class BatchPredictionJob(_Job):
             output_config.bigquery_destination.output_uri = bq_dest_prefix
         else:
             output_config.predictions_format = predictions_format
-            output_config.gcs_destination = gca_io.GcsDestination(
+            output_config.gcs_destination = gca_io_compat.GcsDestination(
                 output_uri_prefix=gcs_destination_prefix
             )
 
@@ -613,8 +608,7 @@ class BatchPredictionJob(_Job):
 
         # Optional Fields
         gapic_batch_prediction_job.encryption_spec = initializer.global_config.get_encryption_spec(
-            encryption_spec_key_name=encryption_spec_key_name,
-            select_version=select_version,
+            encryption_spec_key_name=encryption_spec_key_name
         )
 
         if model_parameters:
@@ -623,12 +617,12 @@ class BatchPredictionJob(_Job):
         # Custom Compute
         if machine_type:
 
-            machine_spec = gca_machine_resources.MachineSpec()
+            machine_spec = gca_machine_resources_compat.MachineSpec()
             machine_spec.machine_type = machine_type
             machine_spec.accelerator_type = accelerator_type
             machine_spec.accelerator_count = accelerator_count
 
-            dedicated_resources = gca_machine_resources.BatchDedicatedResources()
+            dedicated_resources = gca_machine_resources_compat.BatchDedicatedResources()
 
             dedicated_resources.machine_spec = machine_spec
             dedicated_resources.starting_replica_count = starting_replica_count

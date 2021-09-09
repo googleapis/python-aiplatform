@@ -35,7 +35,6 @@ from google.cloud.aiplatform.compat.types import (
     encryption_spec as gca_encryption_spec,
     endpoint as gca_endpoint_compat,
     endpoint_v1 as gca_endpoint_v1,
-    endpoint_v1beta1 as gca_endpoint_v1beta1,
     explanation as gca_explanation_compat,
     io as gca_io_compat,
     machine_resources as gca_machine_resources_compat,
@@ -875,38 +874,37 @@ class Endpoint(base.VertexAiResourceNounWithFutureManager):
                 "Both `accelerator_type` and `accelerator_count` should be specified or None."
             )
 
-        gca_endpoint = gca_endpoint_compat
-        gca_machine_resources = gca_machine_resources_compat
-
-        deployed_model = gca_endpoint.DeployedModel(
+        deployed_model = gca_endpoint_compat.DeployedModel(
             model=model_resource_name,
             display_name=deployed_model_display_name,
             service_account=service_account,
         )
 
         if machine_type:
-            machine_spec = gca_machine_resources.MachineSpec(machine_type=machine_type)
+            machine_spec = gca_machine_resources_compat.MachineSpec(
+                machine_type=machine_type
+            )
 
             if accelerator_type and accelerator_count:
                 utils.validate_accelerator_type(accelerator_type)
                 machine_spec.accelerator_type = accelerator_type
                 machine_spec.accelerator_count = accelerator_count
 
-            deployed_model.dedicated_resources = gca_machine_resources.DedicatedResources(
+            deployed_model.dedicated_resources = gca_machine_resources_compat.DedicatedResources(
                 machine_spec=machine_spec,
                 min_replica_count=min_replica_count,
                 max_replica_count=max_replica_count,
             )
 
         else:
-            deployed_model.automatic_resources = gca_machine_resources.AutomaticResources(
+            deployed_model.automatic_resources = gca_machine_resources_compat.AutomaticResources(
                 min_replica_count=min_replica_count,
                 max_replica_count=max_replica_count,
             )
 
         # Service will throw error if both metadata and parameters are not provided
         if explanation_metadata and explanation_parameters:
-            explanation_spec = gca_endpoint.explanation.ExplanationSpec()
+            explanation_spec = gca_endpoint_compat.explanation.ExplanationSpec()
             explanation_spec.metadata = explanation_metadata
             explanation_spec.parameters = explanation_parameters
             deployed_model.explanation_spec = explanation_spec
@@ -1211,11 +1209,7 @@ class Endpoint(base.VertexAiResourceNounWithFutureManager):
             credentials=credentials,
         )
 
-    def list_models(
-        self,
-    ) -> Sequence[
-        Union[gca_endpoint_v1.DeployedModel, gca_endpoint_v1beta1.DeployedModel]
-    ]:
+    def list_models(self) -> Sequence[gca_endpoint_v1.DeployedModel]:
         """Returns a list of the models deployed to this Endpoint.
 
         Returns:
@@ -1621,25 +1615,22 @@ class Model(base.VertexAiResourceNounWithFutureManager):
                 "Both `explanation_metadata` and `explanation_parameters` should be specified or None."
             )
 
-        gca_endpoint = gca_endpoint_compat
-        gca_model = gca_model_compat
-        gca_env_var = gca_env_var_compat
-
         api_client = cls._instantiate_client(location, credentials)
         env = None
         ports = None
 
         if serving_container_environment_variables:
             env = [
-                gca_env_var.EnvVar(name=str(key), value=str(value))
+                gca_env_var_compat.EnvVar(name=str(key), value=str(value))
                 for key, value in serving_container_environment_variables.items()
             ]
         if serving_container_ports:
             ports = [
-                gca_model.Port(container_port=port) for port in serving_container_ports
+                gca_model_compat.Port(container_port=port)
+                for port in serving_container_ports
             ]
 
-        container_spec = gca_model.ModelContainerSpec(
+        container_spec = gca_model_compat.ModelContainerSpec(
             image_uri=serving_container_image_uri,
             command=serving_container_command,
             args=serving_container_args,
@@ -1651,7 +1642,7 @@ class Model(base.VertexAiResourceNounWithFutureManager):
 
         model_predict_schemata = None
         if any([instance_schema_uri, parameters_schema_uri, prediction_schema_uri]):
-            model_predict_schemata = gca_model.PredictSchemata(
+            model_predict_schemata = gca_model_compat.PredictSchemata(
                 instance_schema_uri=instance_schema_uri,
                 parameters_schema_uri=parameters_schema_uri,
                 prediction_schema_uri=prediction_schema_uri,
@@ -1662,7 +1653,7 @@ class Model(base.VertexAiResourceNounWithFutureManager):
             encryption_spec_key_name=encryption_spec_key_name,
         )
 
-        managed_model = gca_model.Model(
+        managed_model = gca_model_compat.Model(
             display_name=display_name,
             description=description,
             container_spec=container_spec,
@@ -1676,7 +1667,7 @@ class Model(base.VertexAiResourceNounWithFutureManager):
 
         # Override explanation_spec if both required fields are provided
         if explanation_metadata and explanation_parameters:
-            explanation_spec = gca_endpoint.explanation.ExplanationSpec()
+            explanation_spec = gca_endpoint_compat.explanation.ExplanationSpec()
             explanation_spec.metadata = explanation_metadata
             explanation_spec.parameters = explanation_parameters
             managed_model.explanation_spec = explanation_spec
