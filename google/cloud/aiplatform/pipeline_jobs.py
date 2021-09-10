@@ -18,7 +18,7 @@
 import datetime
 import time
 import re
-from typing import Any, Optional, Dict
+from typing import Any, Dict, List, Optional
 
 from google.auth import credentials as auth_credentials
 from google.cloud.aiplatform import base
@@ -250,10 +250,10 @@ class PipelineJob(base.VertexAiResourceNounWithFutureManager):
                 Optional. Whether to execute this method synchronously. If False, this method will unblock and it will be executed in a concurrent Future.
         """
         if service_account:
-            self._gca_resource.pipeline_spec.service_account = service_account
+            self._gca_resource.service_account = service_account
 
         if network:
-            self._gca_resource.pipeline_spec.network = network
+            self._gca_resource.network = network
 
         _LOGGER.log_create_with_lro(self.__class__)
 
@@ -375,6 +375,54 @@ class PipelineJob(base.VertexAiResourceNounWithFutureManager):
         becomes a job with state set to `CANCELLED`.
         """
         self.api_client.cancel_pipeline_job(name=self.resource_name)
+
+    @classmethod
+    def list(
+        cls,
+        filter: Optional[str] = None,
+        order_by: Optional[str] = None,
+        project: Optional[str] = None,
+        location: Optional[str] = None,
+        credentials: Optional[auth_credentials.Credentials] = None,
+    ) -> List["PipelineJob"]:
+        """List all instances of this PipelineJob resource.
+
+        Example Usage:
+
+        aiplatform.PipelineJob.list(
+            filter='display_name="experiment_a27"',
+            order_by='create_time desc'
+        )
+
+        Args:
+            filter (str):
+                Optional. An expression for filtering the results of the request.
+                For field names both snake_case and camelCase are supported.
+            order_by (str):
+                Optional. A comma-separated list of fields to order by, sorted in
+                ascending order. Use "desc" after a field name for descending.
+                Supported fields: `display_name`, `create_time`, `update_time`
+            project (str):
+                Optional. Project to retrieve list from. If not set, project
+                set in aiplatform.init will be used.
+            location (str):
+                Optional. Location to retrieve list from. If not set, location
+                set in aiplatform.init will be used.
+            credentials (auth_credentials.Credentials):
+                Optional. Custom credentials to use to retrieve list. Overrides
+                credentials set in aiplatform.init.
+
+        Returns:
+            List[PipelineJob] - A list of PipelineJob resource objects
+        """
+
+        return cls._list_with_local_order(
+            filter=filter,
+            order_by=order_by,
+            project=project,
+            location=location,
+            credentials=credentials,
+        )
 
     def wait_for_resource_creation(self) -> None:
         """Waits until resource has been created."""

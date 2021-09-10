@@ -5,6 +5,8 @@ Services for Google Cloud Aiplatform v1 API
 
     dataset_service
     endpoint_service
+    index_endpoint_service
+    index_service
     job_service
     migration_service
     model_service

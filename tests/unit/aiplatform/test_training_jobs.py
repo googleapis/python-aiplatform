@@ -25,6 +25,7 @@ import shutil
 import sys
 import tarfile
 import tempfile
+import uuid
 from unittest import mock
 from unittest.mock import patch
 
@@ -614,11 +615,12 @@ class TestCustomTrainingJob:
     def setup_method(self):
         importlib.reload(initializer)
         importlib.reload(aiplatform)
-        with open(_TEST_LOCAL_SCRIPT_FILE_NAME, "w") as fp:
+        self._local_script_file_name = f"{uuid.uuid4()}-{_TEST_LOCAL_SCRIPT_FILE_NAME}"
+        with open(self._local_script_file_name, "w") as fp:
             fp.write(_TEST_PYTHON_SOURCE)
 
     def teardown_method(self):
-        pathlib.Path(_TEST_LOCAL_SCRIPT_FILE_NAME).unlink()
+        pathlib.Path(self._local_script_file_name).unlink()
         initializer.global_pool.shutdown(wait=True)
 
     @pytest.mark.parametrize("sync", [True, False])

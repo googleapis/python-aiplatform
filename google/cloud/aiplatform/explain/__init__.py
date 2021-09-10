@@ -16,11 +16,11 @@
 #
 
 from google.cloud.aiplatform.compat.types import (
-    explanation_metadata_v1beta1 as explanation_metadata,
-    explanation_v1beta1 as explanation,
+    explanation as explanation_compat,
+    explanation_metadata as explanation_metadata_compat,
 )
 
-ExplanationMetadata = explanation_metadata.ExplanationMetadata
+ExplanationMetadata = explanation_metadata_compat.ExplanationMetadata
 
 # ExplanationMetadata subclasses
 InputMetadata = ExplanationMetadata.InputMetadata
@@ -32,15 +32,14 @@ FeatureValueDomain = InputMetadata.FeatureValueDomain
 Visualization = InputMetadata.Visualization
 
 
-ExplanationParameters = explanation.ExplanationParameters
-FeatureNoiseSigma = explanation.FeatureNoiseSigma
+ExplanationParameters = explanation_compat.ExplanationParameters
+FeatureNoiseSigma = explanation_compat.FeatureNoiseSigma
 
 # Classes used by ExplanationParameters
-IntegratedGradientsAttribution = explanation.IntegratedGradientsAttribution
-
-SampledShapleyAttribution = explanation.SampledShapleyAttribution
-SmoothGradConfig = explanation.SmoothGradConfig
-XraiAttribution = explanation.XraiAttribution
+IntegratedGradientsAttribution = explanation_compat.IntegratedGradientsAttribution
+SampledShapleyAttribution = explanation_compat.SampledShapleyAttribution
+SmoothGradConfig = explanation_compat.SmoothGradConfig
+XraiAttribution = explanation_compat.XraiAttribution
 
 
 __all__ = (

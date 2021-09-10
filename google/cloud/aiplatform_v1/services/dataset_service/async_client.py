@@ -47,7 +47,9 @@ from .client import DatasetServiceClient
 
 
 class DatasetServiceAsyncClient:
-    """"""
+    """The service that handles the CRUD of Vertex AI Dataset and
+    its child resources.
+    """
 
     _client: DatasetServiceClient
 
@@ -249,7 +251,7 @@ class DatasetServiceAsyncClient:
         # and friendly error handling.
         rpc = gapic_v1.method_async.wrap_method(
             self._client._transport.create_dataset,
-            default_timeout=5.0,
+            default_timeout=None,
             client_info=DEFAULT_CLIENT_INFO,
         )
 
@@ -328,7 +330,7 @@ class DatasetServiceAsyncClient:
         # and friendly error handling.
         rpc = gapic_v1.method_async.wrap_method(
             self._client._transport.get_dataset,
-            default_timeout=5.0,
+            default_timeout=None,
             client_info=DEFAULT_CLIENT_INFO,
         )
 
@@ -415,7 +417,7 @@ class DatasetServiceAsyncClient:
         # and friendly error handling.
         rpc = gapic_v1.method_async.wrap_method(
             self._client._transport.update_dataset,
-            default_timeout=5.0,
+            default_timeout=None,
             client_info=DEFAULT_CLIENT_INFO,
         )
 
@@ -491,7 +493,7 @@ class DatasetServiceAsyncClient:
         # and friendly error handling.
         rpc = gapic_v1.method_async.wrap_method(
             self._client._transport.list_datasets,
-            default_timeout=5.0,
+            default_timeout=None,
             client_info=DEFAULT_CLIENT_INFO,
         )
 
@@ -582,7 +584,7 @@ class DatasetServiceAsyncClient:
         # and friendly error handling.
         rpc = gapic_v1.method_async.wrap_method(
             self._client._transport.delete_dataset,
-            default_timeout=5.0,
+            default_timeout=None,
             client_info=DEFAULT_CLIENT_INFO,
         )
 
@@ -676,7 +678,7 @@ class DatasetServiceAsyncClient:
         # and friendly error handling.
         rpc = gapic_v1.method_async.wrap_method(
             self._client._transport.import_data,
-            default_timeout=5.0,
+            default_timeout=None,
             client_info=DEFAULT_CLIENT_INFO,
         )
 
@@ -769,7 +771,7 @@ class DatasetServiceAsyncClient:
         # and friendly error handling.
         rpc = gapic_v1.method_async.wrap_method(
             self._client._transport.export_data,
-            default_timeout=5.0,
+            default_timeout=None,
             client_info=DEFAULT_CLIENT_INFO,
         )
 
@@ -852,7 +854,7 @@ class DatasetServiceAsyncClient:
         # and friendly error handling.
         rpc = gapic_v1.method_async.wrap_method(
             self._client._transport.list_data_items,
-            default_timeout=5.0,
+            default_timeout=None,
             client_info=DEFAULT_CLIENT_INFO,
         )
 
@@ -930,7 +932,7 @@ class DatasetServiceAsyncClient:
         # and friendly error handling.
         rpc = gapic_v1.method_async.wrap_method(
             self._client._transport.get_annotation_spec,
-            default_timeout=5.0,
+            default_timeout=None,
             client_info=DEFAULT_CLIENT_INFO,
         )
 
@@ -1005,7 +1007,7 @@ class DatasetServiceAsyncClient:
         # and friendly error handling.
         rpc = gapic_v1.method_async.wrap_method(
             self._client._transport.list_annotations,
-            default_timeout=5.0,
+            default_timeout=None,
             client_info=DEFAULT_CLIENT_INFO,
         )
 

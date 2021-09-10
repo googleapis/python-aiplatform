@@ -31,28 +31,6 @@ from google.cloud.aiplatform import initializer
 from google.cloud.aiplatform import models
 from google.cloud.aiplatform import utils
 
-from google.cloud.aiplatform_v1beta1.services.endpoint_service import (
-    client as endpoint_service_client_v1beta1,
-)
-from google.cloud.aiplatform_v1beta1.services.job_service import (
-    client as job_service_client_v1beta1,
-)
-from google.cloud.aiplatform_v1beta1.services.model_service import (
-    client as model_service_client_v1beta1,
-)
-from google.cloud.aiplatform_v1beta1.types import (
-    batch_prediction_job as gca_batch_prediction_job_v1beta1,
-    env_var as gca_env_var_v1beta1,
-    explanation as gca_explanation_v1beta1,
-    io as gca_io_v1beta1,
-    model as gca_model_v1beta1,
-    endpoint as gca_endpoint_v1beta1,
-    machine_resources as gca_machine_resources_v1beta1,
-    model_service as gca_model_service_v1beta1,
-    endpoint_service as gca_endpoint_service_v1beta1,
-    encryption_spec as gca_encryption_spec_v1beta1,
-)
-
 from google.cloud.aiplatform_v1.services.endpoint_service import (
     client as endpoint_service_client,
 )
@@ -61,12 +39,14 @@ from google.cloud.aiplatform_v1.services.model_service import (
     client as model_service_client,
 )
 from google.cloud.aiplatform.compat.services import pipeline_service_client
-from google.cloud.aiplatform_v1.types import (
+from google.cloud.aiplatform.compat.types import (
     batch_prediction_job as gca_batch_prediction_job,
     io as gca_io,
     job_state as gca_job_state,
     model as gca_model,
     endpoint as gca_endpoint,
+    env_var as gca_env_var,
+    explanation as gca_explanation,
     machine_resources as gca_machine_resources,
     model_service as gca_model_service,
     endpoint_service as gca_endpoint_service,
@@ -149,9 +129,6 @@ _TEST_ENCRYPTION_KEY_NAME = "key_1234"
 _TEST_ENCRYPTION_SPEC = gca_encryption_spec.EncryptionSpec(
     kms_key_name=_TEST_ENCRYPTION_KEY_NAME
 )
-_TEST_ENCRYPTION_SPEC_V1BETA1 = gca_encryption_spec_v1beta1.EncryptionSpec(
-    kms_key_name=_TEST_ENCRYPTION_KEY_NAME
-)
 
 _TEST_MODEL_RESOURCE_NAME = model_service_client.ModelServiceClient.model_path(
     _TEST_PROJECT, _TEST_LOCATION, _TEST_ID
@@ -219,17 +196,6 @@ def get_model_mock():
         model_service_client.ModelServiceClient, "get_model"
     ) as get_model_mock:
         get_model_mock.return_value = gca_model.Model(
-            display_name=_TEST_MODEL_NAME, name=_TEST_MODEL_RESOURCE_NAME,
-        )
-        yield get_model_mock
-
-
-@pytest.fixture
-def get_model_with_explanations_mock():
-    with mock.patch.object(
-        model_service_client_v1beta1.ModelServiceClient, "get_model"
-    ) as get_model_mock:
-        get_model_mock.return_value = gca_model_v1beta1.Model(
             display_name=_TEST_MODEL_NAME, name=_TEST_MODEL_RESOURCE_NAME,
         )
         yield get_model_mock
@@ -340,19 +306,6 @@ def upload_model_mock():
 
 
 @pytest.fixture
-def upload_model_with_explanations_mock():
-    with mock.patch.object(
-        model_service_client_v1beta1.ModelServiceClient, "upload_model"
-    ) as upload_model_mock:
-        mock_lro = mock.Mock(ga_operation.Operation)
-        mock_lro.result.return_value = gca_model_service_v1beta1.UploadModelResponse(
-            model=_TEST_MODEL_RESOURCE_NAME
-        )
-        upload_model_mock.return_value = mock_lro
-        yield upload_model_mock
-
-
-@pytest.fixture
 def upload_model_with_custom_project_mock():
     with mock.patch.object(
         model_service_client.ModelServiceClient, "upload_model"
@@ -424,22 +377,6 @@ def deploy_model_mock():
 
 
 @pytest.fixture
-def deploy_model_with_explanations_mock():
-    with mock.patch.object(
-        endpoint_service_client_v1beta1.EndpointServiceClient, "deploy_model"
-    ) as deploy_model_mock:
-        deployed_model = gca_endpoint_v1beta1.DeployedModel(
-            model=_TEST_MODEL_RESOURCE_NAME, display_name=_TEST_MODEL_NAME,
-        )
-        deploy_model_lro_mock = mock.Mock(ga_operation.Operation)
-        deploy_model_lro_mock.result.return_value = gca_endpoint_service_v1beta1.DeployModelResponse(
-            deployed_model=deployed_model,
-        )
-        deploy_model_mock.return_value = deploy_model_lro_mock
-        yield deploy_model_mock
-
-
-@pytest.fixture
 def get_batch_prediction_job_mock():
     with mock.patch.object(
         job_service_client.JobServiceClient, "get_batch_prediction_job"
@@ -460,19 +397,6 @@ def create_batch_prediction_job_mock():
     ) as create_batch_prediction_job_mock:
         batch_prediction_job_mock = mock.Mock(
             spec=gca_batch_prediction_job.BatchPredictionJob
-        )
-        batch_prediction_job_mock.name = _TEST_BATCH_PREDICTION_JOB_NAME
-        create_batch_prediction_job_mock.return_value = batch_prediction_job_mock
-        yield create_batch_prediction_job_mock
-
-
-@pytest.fixture
-def create_batch_prediction_job_with_explanations_mock():
-    with mock.patch.object(
-        job_service_client_v1beta1.JobServiceClient, "create_batch_prediction_job"
-    ) as create_batch_prediction_job_mock:
-        batch_prediction_job_mock = mock.Mock(
-            spec=gca_batch_prediction_job_v1beta1.BatchPredictionJob
         )
         batch_prediction_job_mock.name = _TEST_BATCH_PREDICTION_JOB_NAME
         create_batch_prediction_job_mock.return_value = batch_prediction_job_mock
@@ -650,7 +574,7 @@ class TestModel:
 
     @pytest.mark.parametrize("sync", [True, False])
     def test_upload_uploads_and_gets_model_with_all_args(
-        self, upload_model_with_explanations_mock, get_model_mock, sync
+        self, upload_model_mock, get_model_mock, sync
     ):
 
         my_model = models.Model.upload(
@@ -677,16 +601,16 @@ class TestModel:
             my_model.wait()
 
         env = [
-            gca_env_var_v1beta1.EnvVar(name=str(key), value=str(value))
+            gca_env_var.EnvVar(name=str(key), value=str(value))
             for key, value in _TEST_SERVING_CONTAINER_ENVIRONMENT_VARIABLES.items()
         ]
 
         ports = [
-            gca_model_v1beta1.Port(container_port=port)
+            gca_model.Port(container_port=port)
             for port in _TEST_SERVING_CONTAINER_PORTS
         ]
 
-        container_spec = gca_model_v1beta1.ModelContainerSpec(
+        container_spec = gca_model.ModelContainerSpec(
             image_uri=_TEST_SERVING_CONTAINER_IMAGE,
             predict_route=_TEST_SERVING_CONTAINER_PREDICTION_ROUTE,
             health_route=_TEST_SERVING_CONTAINER_HEALTH_ROUTE,
@@ -696,24 +620,24 @@ class TestModel:
             ports=ports,
         )
 
-        managed_model = gca_model_v1beta1.Model(
+        managed_model = gca_model.Model(
             display_name=_TEST_MODEL_NAME,
             description=_TEST_DESCRIPTION,
             artifact_uri=_TEST_ARTIFACT_URI,
             container_spec=container_spec,
-            predict_schemata=gca_model_v1beta1.PredictSchemata(
+            predict_schemata=gca_model.PredictSchemata(
                 instance_schema_uri=_TEST_INSTANCE_SCHEMA_URI,
                 parameters_schema_uri=_TEST_PARAMETERS_SCHEMA_URI,
                 prediction_schema_uri=_TEST_PREDICTION_SCHEMA_URI,
             ),
-            explanation_spec=gca_model_v1beta1.explanation.ExplanationSpec(
+            explanation_spec=gca_model.explanation.ExplanationSpec(
                 metadata=_TEST_EXPLANATION_METADATA,
                 parameters=_TEST_EXPLANATION_PARAMETERS,
             ),
             labels=_TEST_LABEL,
         )
 
-        upload_model_with_explanations_mock.assert_called_once_with(
+        upload_model_mock.assert_called_once_with(
             parent=initializer.global_config.common_location_path(),
             model=managed_model,
         )
@@ -950,9 +874,7 @@ class TestModel:
         "get_endpoint_mock", "get_model_mock", "create_endpoint_mock"
     )
     @pytest.mark.parametrize("sync", [True, False])
-    def test_deploy_no_endpoint_with_explanations(
-        self, deploy_model_with_explanations_mock, sync
-    ):
+    def test_deploy_no_endpoint_with_explanations(self, deploy_model_mock, sync):
         test_model = models.Model(_TEST_ID)
         test_endpoint = test_model.deploy(
             machine_type=_TEST_MACHINE_TYPE,
@@ -966,24 +888,24 @@ class TestModel:
         if not sync:
             test_endpoint.wait()
 
-        expected_machine_spec = gca_machine_resources_v1beta1.MachineSpec(
+        expected_machine_spec = gca_machine_resources.MachineSpec(
             machine_type=_TEST_MACHINE_TYPE,
             accelerator_type=_TEST_ACCELERATOR_TYPE,
             accelerator_count=_TEST_ACCELERATOR_COUNT,
         )
-        expected_dedicated_resources = gca_machine_resources_v1beta1.DedicatedResources(
+        expected_dedicated_resources = gca_machine_resources.DedicatedResources(
             machine_spec=expected_machine_spec, min_replica_count=1, max_replica_count=1
         )
-        expected_deployed_model = gca_endpoint_v1beta1.DeployedModel(
+        expected_deployed_model = gca_endpoint.DeployedModel(
             dedicated_resources=expected_dedicated_resources,
             model=test_model.resource_name,
             display_name=None,
-            explanation_spec=gca_endpoint_v1beta1.explanation.ExplanationSpec(
+            explanation_spec=gca_endpoint.explanation.ExplanationSpec(
                 metadata=_TEST_EXPLANATION_METADATA,
                 parameters=_TEST_EXPLANATION_PARAMETERS,
             ),
         )
-        deploy_model_with_explanations_mock.assert_called_once_with(
+        deploy_model_mock.assert_called_once_with(
             endpoint=test_endpoint.resource_name,
             deployed_model=expected_deployed_model,
             traffic_split={"0": 100},
@@ -1141,9 +1063,7 @@ class TestModel:
 
     @pytest.mark.parametrize("sync", [True, False])
     @pytest.mark.usefixtures("get_model_mock", "get_batch_prediction_job_mock")
-    def test_batch_predict_with_all_args(
-        self, create_batch_prediction_job_with_explanations_mock, sync
-    ):
+    def test_batch_predict_with_all_args(self, create_batch_prediction_job_mock, sync):
         test_model = models.Model(_TEST_ID)
         creds = auth_credentials.AnonymousCredentials()
 
@@ -1172,25 +1092,23 @@ class TestModel:
             batch_prediction_job.wait()
 
         # Construct expected request
-        expected_gapic_batch_prediction_job = gca_batch_prediction_job_v1beta1.BatchPredictionJob(
+        expected_gapic_batch_prediction_job = gca_batch_prediction_job.BatchPredictionJob(
             display_name=_TEST_BATCH_PREDICTION_DISPLAY_NAME,
-            model=model_service_client_v1beta1.ModelServiceClient.model_path(
+            model=model_service_client.ModelServiceClient.model_path(
                 _TEST_PROJECT, _TEST_LOCATION, _TEST_ID
             ),
-            input_config=gca_batch_prediction_job_v1beta1.BatchPredictionJob.InputConfig(
+            input_config=gca_batch_prediction_job.BatchPredictionJob.InputConfig(
                 instances_format="jsonl",
-                gcs_source=gca_io_v1beta1.GcsSource(
-                    uris=[_TEST_BATCH_PREDICTION_GCS_SOURCE]
-                ),
+                gcs_source=gca_io.GcsSource(uris=[_TEST_BATCH_PREDICTION_GCS_SOURCE]),
             ),
-            output_config=gca_batch_prediction_job_v1beta1.BatchPredictionJob.OutputConfig(
-                gcs_destination=gca_io_v1beta1.GcsDestination(
+            output_config=gca_batch_prediction_job.BatchPredictionJob.OutputConfig(
+                gcs_destination=gca_io.GcsDestination(
                     output_uri_prefix=_TEST_BATCH_PREDICTION_GCS_DEST_PREFIX
                 ),
                 predictions_format="csv",
             ),
-            dedicated_resources=gca_machine_resources_v1beta1.BatchDedicatedResources(
-                machine_spec=gca_machine_resources_v1beta1.MachineSpec(
+            dedicated_resources=gca_machine_resources.BatchDedicatedResources(
+                machine_spec=gca_machine_resources.MachineSpec(
                     machine_type=_TEST_MACHINE_TYPE,
                     accelerator_type=_TEST_ACCELERATOR_TYPE,
                     accelerator_count=_TEST_ACCELERATOR_COUNT,
@@ -1199,15 +1117,15 @@ class TestModel:
                 max_replica_count=_TEST_MAX_REPLICA_COUNT,
             ),
             generate_explanation=True,
-            explanation_spec=gca_explanation_v1beta1.ExplanationSpec(
+            explanation_spec=gca_explanation.ExplanationSpec(
                 metadata=_TEST_EXPLANATION_METADATA,
                 parameters=_TEST_EXPLANATION_PARAMETERS,
             ),
             labels=_TEST_LABEL,
-            encryption_spec=_TEST_ENCRYPTION_SPEC_V1BETA1,
+            encryption_spec=_TEST_ENCRYPTION_SPEC,
         )
 
-        create_batch_prediction_job_with_explanations_mock.assert_called_once_with(
+        create_batch_prediction_job_mock.assert_called_once_with(
             parent=f"projects/{_TEST_PROJECT}/locations/{_TEST_LOCATION}",
             batch_prediction_job=expected_gapic_batch_prediction_job,
         )

@@ -10,7 +10,7 @@ Vertex SDK for Python
 - `Product Documentation`_
 
 .. |GA| image:: https://img.shields.io/badge/support-ga-gold.svg
-   :target: https://github.com/googleapis/google-cloud-python/blob/master/README.rst#general-availability
+   :target: https://github.com/googleapis/google-cloud-python/blob/main/README.rst#general-availability
 .. |pypi| image:: https://img.shields.io/pypi/v/google-cloud-aiplatform.svg
    :target: https://pypi.org/project/google-cloud-aiplatform/
 .. |versions| image:: https://img.shields.io/pypi/pyversions/google-cloud-aiplatform.svg
@@ -117,7 +117,7 @@ Initialize the SDK to store common configurations that you use with the SDK.
         experiment='my-experiment',
 
         # description of the experiment above
-        experiment_description='my experiment decsription' 
+        experiment_description='my experiment decsription'
     )
 
 Datasets
@@ -149,7 +149,7 @@ You can also create and import a dataset in separate steps:
 To get a previously created Dataset:
 
 .. code-block:: Python
-  
+
   dataset = aiplatform.ImageDataset('projects/my-project/location/us-central1/datasets/{DATASET_ID}')
 
 Vertex AI supports a variety of dataset schemas. References to these schemas are available under the
@@ -173,7 +173,7 @@ It must read datasets from the environment variables populated by the training s
 
 .. code-block:: Python
 
-  os.environ['AIP_DATA_FORMAT']  # provides format of data  
+  os.environ['AIP_DATA_FORMAT']  # provides format of data
   os.environ['AIP_TRAINING_DATA_URI']  # uri to training split
   os.environ['AIP_VALIDATION_DATA_URI']  # uri to validation split
   os.environ['AIP_TEST_DATA_URI']  # uri to test split
@@ -184,7 +184,7 @@ Please visit `Using a managed dataset in a custom training application`_ for a d
 
 It must write the model artifact to the environment variable populated by the traing service:
 
-.. code-block:: Python 
+.. code-block:: Python
 
   os.environ['AIP_MODEL_DIR']
 
@@ -274,6 +274,39 @@ Please visit `Importing models to Vertex AI`_ for a detailed overview:
 .. _Importing models to Vertex AI: https://cloud.google.com/vertex-ai/docs/general/import-model
 
 
+Batch Prediction
+----------------
+
+To create a batch prediction job:
+
+.. code-block:: Python
+
+  model = aiplatform.Model('/projects/my-project/locations/us-central1/models/{MODEL_ID}')
+
+  batch_prediction_job = model.batch_predict(
+    job_display_name='my-batch-prediction-job',
+    instances_format='csv'
+    machine_type='n1-standard-4',
+    gcs_source=['gs://path/to/my/file.csv']
+    gcs_destination_prefix='gs://path/to/by/batch_prediction/results/'
+  )
+
+You can also create a batch prediction job asynchronously by including the `sync=False` argument:
+
+.. code-block:: Python
+
+  batch_prediction_job = model.batch_predict(..., sync=False)
+
+  # wait for resource to be created
+  batch_prediction_job.wait_for_resource_creation()
+
+  # get the state
+  batch_prediction_job.state
+
+  # block until job is complete
+  batch_prediction_job.wait()
+
+
 Endpoints
 ---------
 
@@ -295,7 +328,7 @@ To deploy a model to a created endpoint:
 .. code-block:: Python
 
   model = aiplatform.Model('/projects/my-project/locations/us-central1/models/{MODEL_ID}')
-  
+
   endpoint.deploy(model,
                   min_replica_count=1,
                   max_replica_count=5
@@ -312,8 +345,88 @@ To undeploy models from an endpoint:
 To delete an endpoint:
 
 .. code-block:: Python
-  
+
   endpoint.delete()
+
+
+Pipelines
+---------
+
+To create a Vertex Pipeline run:
+
+.. code-block:: Python
+
+  # Instantiate PipelineJob object
+  pl = PipelineJob(
+      # Display name is required but seemingly not used
+      # see https://github.com/googleapis/python-aiplatform/blob/9dcf6fb0bc8144d819938a97edf4339fe6f2e1e6/google/cloud/aiplatform/pipeline_jobs.py#L260
+      display_name="My first pipeline",
+
+      # Whether or not to enable caching
+      # True = always cache pipeline step result
+      # False = never cache pipeline step result
+      # None = defer to cache option for each pipeline component in the pipeline definition
+      enable_caching=False,
+
+      # Local or GCS path to a compiled pipeline definition
+      template_path="pipeline.json",
+
+      # Dictionary containing input parameters for your pipeline
+      parameter_values=parameter_values,
+
+      # GCS path to act as the pipeline root
+      pipeline_root=pipeline_root,
+  )
+
+  # Execute pipeline in Vertex
+  pl.run(
+    # Email address of service account to use for the pipeline run
+    # You must have iam.serviceAccounts.actAs permission on the service account to use it
+    service_account=service_account,
+
+    # Whether this function call should be synchronous (wait for pipeline run to finish before terminating)
+    # or asynchronous (return immediately)
+    sync=sync
+  )
+
+
+Explainable AI: Get Metadata
+----------------------------
+
+To get metadata in dictionary format from TensorFlow 1 models:
+
+.. code-block:: Python
+
+  from google.cloud.aiplatform.explain.metadata.tf.v1 import saved_model_metadata_builder
+
+  builder = saved_model_metadata_builder.SavedModelMetadataBuilder(
+            'gs://python/to/my/model/dir', tags=[tf.saved_model.tag_constants.SERVING]
+        )
+  generated_md = builder.get_metadata()
+
+To get metadata in dictionary format from TensorFlow 2 models:
+
+.. code-block:: Python
+
+  from google.cloud.aiplatform.explain.metadata.tf.v2 import saved_model_metadata_builder
+
+  builder = saved_model_metadata_builder.SavedModelMetadataBuilder('gs://python/to/my/model/dir')
+  generated_md = builder.get_metadata()
+
+To use Explanation Metadata in endpoint deployment and model upload:
+
+.. code-block:: Python
+
+  explanation_metadata = builder.get_metadata_protobuf()
+
+  # To deploy a model to an endpoint with explanation
+  model.deploy(..., explanation_metadata=explanation_metadata)
+
+  # To deploy a model to a created endpoint with explanation
+  endpoint.deploy(..., explanation_metadata=explanation_metadata)
+
+  # To upload a model with explanation
+  aiplatform.Model.upload(..., explanation_metadata=explanation_metadata)
 
 
 Next Steps
@@ -327,4 +440,4 @@ Next Steps
    APIs that we cover.
 
 .. _Vertex AI API Product documentation:  https://cloud.google.com/vertex-ai/docs
-.. _README: https://github.com/googleapis/google-cloud-python/blob/master/README.rst
+.. _README: https://github.com/googleapis/google-cloud-python/blob/main/README.rst
