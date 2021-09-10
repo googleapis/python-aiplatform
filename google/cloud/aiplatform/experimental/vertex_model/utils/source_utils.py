@@ -129,7 +129,7 @@ def get_import_lines(path):
         yield line
 
 
-def import_try_except(obj: Any):
+def import_try_except(obj: Any) -> str:
     """Given an object defined in either a local file or a Colab notebook,
        retrieves the imports in its class definition.
 
