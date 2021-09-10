@@ -28,27 +28,12 @@ from typing import Callable
 
 from google.cloud import aiplatform
 from google.cloud.aiplatform import base
-from google.cloud.aiplatform.experimental.vertex_model.serializers import pandas
-from google.cloud.aiplatform.experimental.vertex_model.serializers import pytorch
-from google.cloud.aiplatform.experimental.vertex_model.serializers import model
+import google.cloud.aiplatform.experimental.vertex_model.serializers as serializers
 from google.cloud.aiplatform.experimental.vertex_model.utils import source_utils
 
+_LOGGER = base.Logger(__name__)
 
-try:
-    import pandas as pd
-except ImportError:
-    raise ImportError(
-        "Pandas is not installed. Please install pandas to use VertexModel"
-    )
-
-try:
-    import torch
-except ImportError:
-    raise ImportError(
-        "PyTorch is not installed. Please install torch to use VertexModel"
-    )
-
-GITHUB_DEPENDENCY = "google-cloud-aiplatform @ git+https://github.com/googleapis/python-aiplatform@refs/pull/659/head#egg=google-cloud-aiplatform"
+GITHUB_DEPENDENCY = "google-cloud-aiplatform @ git+https://github.com/googleapis/python-aiplatform@refs/pull/686/head#egg=google-cloud-aiplatform"
 
 SERVING_COMMAND_STRING_CLI_FIRST_HALF = [
     "sh",
@@ -71,8 +56,6 @@ from fastapi import FastAPI, Request
 import uvicorn
 import functools
 import inspect
-
-from google.cloud.aiplatform.experimental.vertex_model.serializers import model
 
 """
 
@@ -99,7 +82,7 @@ class ModelWrapper:
 
 app = FastAPI()
 
-my_model = model._deserialize_remote_model(os.environ['AIP_STORAGE_URI'] + '/my_local_model.pth')
+my_model = original_model.deserialize_model(os.environ['AIP_STORAGE_URI'] + '/my_local_model.pth')
 wrapped_model = ModelWrapper(original_model, my_model)
 my_model.predict = wrapped_model.predict
 
@@ -122,8 +105,6 @@ async def predict(request: Request):
 if __name__ == "__main__":
     uvicorn.run(app, host="0.0.0.0", port=os.environ['AIP_HTTP_PORT'])
 """
-
-_LOGGER = base.Logger(__name__)
 
 
 def vertex_fit_function_wrapper(method: Callable[..., Any]):
@@ -162,17 +143,20 @@ def vertex_fit_function_wrapper(method: Callable[..., Any]):
         pass_through_params = {}
         serialized_params = {}
 
+        default_serialization = serializers.build_map_safe()
+        all_serialization = default_serialization.copy()
+        all_serialization.update(obj._data_serialization_mapping)
+
         for parameter_name, parameter in bound_args.arguments.items():
             parameter_type = type(parameter)
-            valid_types = [int, float, str] + list(
-                obj._data_serialization_mapping.keys()
-            )
+            valid_types = [int, float, str] + list(all_serialization.keys())
+
             if parameter_type not in valid_types:
                 raise RuntimeError(
                     f"{parameter_type} not supported. parameter_name = {parameter_name}. The only supported types are {valid_types}"
                 )
 
-            if parameter_type in obj._data_serialization_mapping.keys():
+            if parameter_type in all_serialization.keys():
                 serialized_params[parameter_name] = parameter
             else:  # assume primitive
                 pass_through_params[parameter_name] = parameter
@@ -196,7 +180,7 @@ def vertex_fit_function_wrapper(method: Callable[..., Any]):
         for parameter_name, parameter in serialized_params.items():
             parameter_type = type(parameter)
 
-            serializer = obj._data_serialization_mapping[parameter_type][1]
+            serializer = all_serialization[parameter_type][1]
             parameter_uri = serializer(
                 serialized_inputs_artifacts_folder, parameter, parameter_name
             )
@@ -355,9 +339,7 @@ def vertex_predict_function_wrapper(method: Callable[..., Any]):
                 [vertex_model_root_folder, "serialized_model"]
             )
 
-            model_uri = model._serialize_local_model(
-                vertex_model_model_folder, obj, "local"
-            )
+            model_uri = obj.serialize_model(vertex_model_model_folder, obj, "local")
 
             # Upload model w/ command
             import_lines = source_utils.import_try_except(obj)
@@ -406,7 +388,7 @@ def vertex_predict_function_wrapper(method: Callable[..., Any]):
             output_dir = obj._model._gca_resource.artifact_uri
             model_uri = output_dir + "/" + "my_" + "local" + "_model.pth"
 
-            my_model = model._deserialize_remote_model(model_uri)
+            my_model = obj.deserialize_model(model_uri)
 
             try:
                 my_model.predict(*args, **kwargs)
@@ -424,7 +406,6 @@ def vertex_predict_function_wrapper(method: Callable[..., Any]):
             for parameter_name, parameter in bound_args.arguments.items():
                 data = obj.predict_input_to_predict_payload(parameter)
 
-            # TODO: cleanup model resource after endpoint is created
             if obj._endpoint is None:
                 _LOGGER.info(
                     "Model is not deployed for remote prediction. Deploying model to an endpoint."
@@ -440,13 +421,7 @@ def vertex_predict_function_wrapper(method: Callable[..., Any]):
 class VertexModel(metaclass=abc.ABCMeta):
     """ Parent class that users can extend to use the Vertex AI SDK """
 
-    _data_serialization_mapping = {
-        pd.DataFrame: (pandas._deserialize_dataframe, pandas._serialize_dataframe),
-        torch.utils.data.DataLoader: (
-            pytorch._deserialize_dataloader,
-            pytorch._serialize_dataloader,
-        ),
-    }
+    _data_serialization_mapping = {}
 
     dependencies = [
         "pandas>=1.3",
@@ -499,6 +474,62 @@ class VertexModel(metaclass=abc.ABCMeta):
     @abc.abstractmethod
     def predict_payload_to_predict_output(self, predictions: List) -> Any:
         pass
+
+    def serialize_model(self, artifact_uri: str, obj: Any, model_type: str) -> str:
+        """Serializes a model object to GCS. This method currently supports Pytorch models by default
+           and should be overridden by the user to support other ML Libraries.
+           should they not have PyTorch installed. The method throws an exeception if
+           the user has not installed any libraries necessary for serialization.
+
+        Args:
+            artifact_uri (str): the GCS bucket where the serialized object will reside.
+            obj (Any, torch.nn.Module by default): the model to serialize.
+            dataset_type (str): the model name and usage
+
+        Returns:
+            The GCS path pointing to the serialized object.
+
+        Raises:
+            ImportError should the user lack any necessary Python libraries
+        """
+
+        try:
+            from google.cloud.aiplatform.experimental.vertex_model.serializers import (
+                model,
+            )
+        except ImportError:
+            ImportError(
+                "PyTorch is not installed. VertexModel currently has default serialization support for Pytorch models. In order to use VertexModel, please define your own serialization method for your model by overriding the serialize_model method."
+            )
+        return model._serialize_local_model(artifact_uri, obj, model_type)
+
+    def deserialize_model(self, artifact_uri: str) -> Any:
+        """Deserializes a model on GCS to a torch.nn.Module object. This method
+           currently supports Pytorch models by default and should be overridden
+           by the user to support other ML Libraries. The method throws
+           an exeception if the user has not installed any libraries necessary for
+           deserialization.
+
+        Args:
+            artifact_uri (str): the GCS bucket where the serialized object resides.
+
+        Returns:
+            The deserialized model.
+
+        Raises:
+            ImportError should the user lack any necessary Python libraries, in which
+            case they must override this method in their child class.
+        """
+
+        try:
+            from google.cloud.aiplatform.experimental.vertex_model.serializers import (
+                model,
+            )
+        except ImportError:
+            raise ImportError(
+                "PyTorch is not installed. VertexModel currently has default deserialization support for Pytorch models. In order to use VertexModel, please define your own deserialization method for your model by overriding the deserialize_model method."
+            )
+        return model._deserialize_remote_model(artifact_uri)
 
     def batch_predict(self):
         """Make predictions on training data."""

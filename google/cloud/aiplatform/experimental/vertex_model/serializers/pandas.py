@@ -30,9 +30,6 @@ except ImportError:
     )
 
 
-# TODO (b/194815913): unit test serialization and source generation
-
-
 def _serialize_dataframe(
     artifact_uri: str, obj: pd.DataFrame, dataset_type: str
 ) -> str:
@@ -125,3 +122,6 @@ def _deserialize_dataframe(artifact_uri: str) -> pd.DataFrame:
 
     # Return a pandas DataFrame read from the csv in the cloud
     return df
+
+
+_DATA_SERIALIZER_MAP = {pd.DataFrame: (_deserialize_dataframe, _serialize_dataframe)}

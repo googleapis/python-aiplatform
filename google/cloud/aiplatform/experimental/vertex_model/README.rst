@@ -8,7 +8,7 @@ Install this library by either forking this GitHub repository, or running the fo
 
 .. code-block:: console
 
-    ! pip3 install --force-reinstall --upgrade git+https://github.com/googleapis/python-aiplatform.git@refs/pull/603/merge
+    ! pip3 install --force-reinstall --upgrade git+https://github.com/googleapis/python-aiplatform.git@refs/pull/686/merge
 
 
 Overview
@@ -17,9 +17,13 @@ This section provides a brief overview of the VertexModel SDK for Python. You ca
 
 - `Local Training and Prediction`_
 - `Cloud Training and Local Prediction`_
+- `Cloud Training and Cloud Prediction`_ 
+- `Local Training and Cloud Prediction`_ 
  
 .. _Local Training and Prediction: https://colab.research.google.com/drive/12vD9fMPE3uYwdxWFUkPXT1bV-IrUcGIS?usp=sharing
 .. _Cloud Training and Local Prediction: https://colab.research.google.com/drive/1J0CxGCJXiNWj-RlRk8Boq_Rk-PehVf2N?usp=sharing
+.. _Cloud Training and Cloud Prediction: https://colab.research.google.com/drive/16eoKmZ7Lc1NLmDqhcmWaHTzhi0lpZVdl?usp=sharing 
+.. _Local Training and Cloud Prediction: https://colab.research.google.com/drive/1dBDC6NW-TrThkOZF-ra1jebYEJ1Y1Lmz?usp=sharing 
  
  
 Importing
@@ -38,9 +42,10 @@ All implementations of the VertexModel SDK must extend the abstract VertexModel 
 To use the VertexModel class, your implementation must adhere to the following contract:
 
 1. The constructor of VertexModel must be called with the constructor arguments of your child class.
-2. You must implement your own versions of fit() and predict().
-3. Your predict() method must only take one object, containing all of your test data, as an input.
-4. You must implement your own versions of predict_payload_to_predict_input(), predict_input_to_predict_payload(), predict_output_to_predict_payload(), and predict_payload_to_predict_output().
+2. You must implement your own versions of ``fit()`` and ``predict()``.
+3. Your ``predict()`` method must only take one object, containing all of your test data, as an input.
+4. You must implement your own versions of ``predict_payload_to_predict_input()``, ``predict_input_to_predict_payload()``, ``predict_output_to_predict_payload()``, and ``predict_payload_to_predict_output()``.
+5. You must have the import line: ``from google.cloud.aiplatform.experimental.vertex_model import base`` and extend ``VertexModel`` as ``base.VertexModel``.
 
 .. code-block:: Python
 
@@ -153,6 +158,7 @@ and/or prediction with other dataset objects, you must implement your own serial
 2. Your serialization function returns the remote location of your serialized object.
 3. Your deserialization function has one input parameter: the GCS URI of your serialized object.
 4. Your deserialization function returns a deserialized dataset object.
+5. **All** new serialization and deserialization functions are defined in your child class implementation.
 
 More specifically, the function signatures should follow this format:
 
@@ -171,6 +177,28 @@ To add your functions to the VertexModel implementation:
     my_model = MyModelClass()
     my_model._data_serialization_mapping[DatasetType] = (my_deserialization_function, my_serialization_function)
     
+
+Model Serialization
+^^^^^^^^
+The VertexModel class contains ``serialize_model()`` and ``deserialize_model()`` methods that serialize and deserialize a PyTorch module-based class, respectively. To implement
+your own model serialization and deserialization, you must override these methods in your child class definition. Doing so is necessary if your model does not use the
+PyTorch library to complete training and prediction, and you must obey the following rules:
+
+1. Your serialization function has the input parameters of a valid GCS URI, a model object, and a string identifying your model.
+2. Your serialization function returns the remote location of your serialized model.
+3. Your deserialization function has one input parameter: the GCS URI of your serialized model.
+4. Your deserialization function returns a deserialized model object.
+
+The function signatures for ``serialize_model()`` and ``deserialize_model()`` are as follows:
+
+.. code-block:: Python
+
+   def serialize_model(self, artifact_uri: str, obj: Any, model_type: str) -> str:
+      pass
+
+   def deserialize_model(self, artifact_uri: str) -> Any:
+      pass
+
     
 Training
 ^^^^^^^^

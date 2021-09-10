@@ -20,7 +20,11 @@ import inspect
 import tempfile
 from typing import Any
 from typing import Dict
+from typing import Optional
 from typing import Tuple
+
+import google.cloud.aiplatform.experimental.vertex_model.serializers as serializers
+
 
 try:
     # Available in a colab environment.
@@ -29,18 +33,27 @@ except ImportError:
     _message = None
 
 
-def jupyter_notebook_to_file() -> str:
+def jupyter_notebook_to_file(json_notebook: Optional[Dict] = None) -> str:
     """ Retrieves the source code of a Python notebook and writes it to a file.
+
+    Args:
+        json_notebook (Optional[Dict]): JSON representation of a Python notebook.
 
     Returns:
         A string representing the file name where the Python notebook source code
         has been written.
     """
-    response = _message.blocking_request("get_ipynb", request="", timeout_sec=200)
-    if response is None:
-        raise RuntimeError("Unable to get the notebook contents.")
 
-    cells = response["ipynb"]["cells"]
+    if json_notebook is None:
+        response = _message.blocking_request("get_ipynb", request="", timeout_sec=200)
+        cells = response["ipynb"]["cells"]
+
+        if response is None:
+            raise RuntimeError("Unable to get the notebook contents.")
+    else:
+        response = json_notebook
+        cells = response["cells"]
+
     py_content = []
     script_lines = []
 
@@ -97,21 +110,26 @@ def get_import_lines(path):
 
     for node in ast.iter_child_nodes(root):
         line = ""
+
         if isinstance(node, ast.ImportFrom):
             line += f"from {node.module} "
 
         if isinstance(node, (ast.Import, ast.ImportFrom)):
             line += "import "
+
             for i, name in enumerate(node.names):
                 line += f"{name.name}"
+
                 if name.asname:
                     line += f" as {name.asname}"
+
                 if len(node.names) > 0 and i < len(node.names) - 1:
                     line += ", "
+
         yield line
 
 
-def import_try_except(obj):
+def import_try_except(obj: Any) -> str:
     """Given an object defined in either a local file or a Colab notebook,
        retrieves the imports in its class definition.
 
@@ -150,6 +168,8 @@ class SourceMaker:
                     name = module + "." + name
 
                 parent_classes.append(name)
+
+        parent_classes.append("base.VertexModel")
 
         self.source = [
             "class {}({}):".format(obj_cls.__name__, ", ".join(parent_classes))
@@ -214,9 +234,14 @@ def _make_source(
     src = src + "\n".join(
         [
             "import os",
-            "from google.cloud.aiplatform.experimental.vertex_model.serializers.pandas import _deserialize_dataframe",
-            "from google.cloud.aiplatform.experimental.vertex_model.serializers.pytorch import _deserialize_dataloader",
-            "from google.cloud.aiplatform.experimental.vertex_model.serializers import model",
+            "try:",
+            "\tfrom google.cloud.aiplatform.experimental.vertex_model.serializers.pandas import _deserialize_dataframe",
+            "except ImportError:",
+            "\tpass",
+            "try:",
+            "\tfrom google.cloud.aiplatform.experimental.vertex_model.serializers.pytorch import _deserialize_dataloader",
+            "except ImportError:",
+            "\tpass",
             cls_source,
         ]
     )
@@ -234,20 +259,30 @@ def _make_source(
         # Start function call
         src = src + f"my_model.{instance_method}("
 
+        default_serialization = serializers.build_map_safe()
+        all_serialization = default_serialization.copy()
+        all_serialization.update(obj._data_serialization_mapping)
+
         # Iterate through parameters.
-        # We are currently working around not including the _serialization_mapping
-        # with our generated source and assume the serializer/deserializer is in
-        # our serializer module.
         for (
             parameter_name,
             (parameter_uri, parameter_type),
         ) in param_name_to_serialized_info.items():
-            print(obj._data_serialization_mapping.keys())
-            deserializer = obj._data_serialization_mapping[parameter_type][0]
+            deserializer = all_serialization[parameter_type][0]
 
-            # Can also make individual calls for each serialized parameter, but was unsure
-            # for situations such as when a dataloader format is serialized.
-            src = src + f"{parameter_name}={deserializer.__name__}('{parameter_uri}'), "
+            if deserializer.__name__ not in [
+                "_deserialize_dataframe",
+                "_deserialize_dataloader",
+            ]:
+                src = (
+                    src
+                    + f"{parameter_name}=my_model.{deserializer.__name__}('{parameter_uri}'), "
+                )
+            else:
+                src = (
+                    src
+                    + f"{parameter_name}={deserializer.__name__}('{parameter_uri}'), "
+                )
 
         for parameter_name, parameter_value in pass_through_params.items():
             if type(parameter_value) is str:
@@ -264,6 +299,6 @@ def _make_source(
     src = src + "if model_dir.endswith('models/'):\n"
     src = src + "\tmodel_dir = model_dir[:-2] + '/'\n"
 
-    src = src + "model._serialize_local_model(model_dir, my_model, 'local')"
+    src = src + "my_model.serialize_model(model_dir, my_model, 'local')"
 
     return src

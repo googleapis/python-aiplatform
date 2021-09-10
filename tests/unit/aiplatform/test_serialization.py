@@ -49,6 +49,29 @@ _TEST_DEFAULT_ENCRYPTION_KEY_NAME = "key_default"
 
 
 @pytest.fixture
+def mock_pd_read_csv():
+    with patch.object(pd, "read_csv") as mock:
+        mock.return_value = pd.DataFrame(
+            np.random.random(size=(100, 3)), columns=["feat_1", "feat_2", "target"]
+        )
+        yield mock
+
+
+@pytest.fixture
+def mock_torch_load():
+    with patch.object(torch, "load") as mock:
+        mock.return_value = DataLoader(NumbersDataset(), batch_size=64)
+        yield mock
+
+
+@pytest.fixture
+def mock_torch_jit_load():
+    with patch.object(torch.jit, "load") as mock:
+        mock.return_value = LinearRegression(2, 1)
+        yield mock
+
+
+@pytest.fixture
 def mock_client_bucket():
     with patch.object(storage.Client, "bucket") as mock_client_bucket:
 
@@ -169,14 +192,46 @@ class TestModelSerialization:
             ):
                 assert torch.equal(key_item_1[1], key_item_2[1])
 
+    def test_remote_serialization_works(self, mock_client_bucket, mock_torch_jit_load):
+        aiplatform.init(
+            project=_TEST_PROJECT,
+            location=_TEST_LOCATION,
+            staging_bucket=_TEST_STAGING_BUCKET,
+            encryption_spec_key_name=_TEST_DEFAULT_ENCRYPTION_KEY_NAME,
+        )
+
+        # Create model object
+        my_model = LinearRegression(2, 1)
+
+        staging_bucket = aiplatform.initializer.global_config.staging_bucket
+        if staging_bucket is None:
+            raise RuntimeError(
+                "Staging bucket must be set to run training in cloud mode: `aiplatform.init(staging_bucket='gs://my/staging/bucket')`"
+            )
+
+        timestamp = datetime.datetime.now().isoformat(sep="-", timespec="milliseconds")
+        vertex_model_root_folder = "/".join(
+            [staging_bucket, f"vertex_model_run_{timestamp}"]
+        )
+        vertex_model_model_folder = "/".join(
+            [vertex_model_root_folder, "serialized_model"]
+        )
+
+        model_uri = model._serialize_local_model(
+            vertex_model_model_folder, my_model, "local"
+        )
+
+        assert len(model_uri) > 0
+
+        deserialized_model = model._deserialize_remote_model(model_uri)
+
+        assert issubclass(type(deserialized_model), torch.nn.Module)
+
 
 class TestDataLoaderSerialization:
     def test_local_serialization_works(self):
         with tempfile.TemporaryDirectory() as tmpdirname:
             dataset = NumbersDataset()
-            root = getattr(dataset, "root", None)
-            print(root)
-
             dataloader = DataLoader(dataset, batch_size=64)
 
             timestamp = datetime.datetime.now().isoformat(
@@ -195,6 +250,30 @@ class TestDataLoaderSerialization:
 
             assert torch.all(original_tensor.eq(new_tensor))
 
+    def test_remote_serialization_works(self, mock_client_bucket, mock_torch_load):
+        dataset = NumbersDataset()
+        dataloader = DataLoader(dataset, batch_size=64)
+
+        timestamp = datetime.datetime.now().isoformat(sep="-", timespec="milliseconds")
+        dataloader_root_folder = "/".join(
+            [_TEST_STAGING_BUCKET, f"dataloader_{timestamp}"]
+        )
+
+        obj_path = pytorch._serialize_dataloader(
+            dataloader_root_folder, dataloader, "local"
+        )
+
+        remote_obj_path = pytorch._serialize_remote_dataloader(
+            dataloader_root_folder, dataloader, "remote"
+        )
+
+        assert len(obj_path) > 0
+        assert len(remote_obj_path) > 0
+
+        deserialized_dataloader = pytorch._deserialize_dataloader(obj_path)
+
+        assert type(deserialized_dataloader) is DataLoader
+
 
 class TestDataFrameSerialization:
     def test_local_serialization_works(self):
@@ -207,3 +286,16 @@ class TestDataFrameSerialization:
             new_df = pandas._deserialize_dataframe(df_path)
 
             pd.testing.assert_frame_equal(df, new_df, check_dtype=True)
+
+    def test_remote_serialization_works(self, mock_client_bucket, mock_pd_read_csv):
+        df = pd.DataFrame(
+            np.random.random(size=(100, 3)), columns=["feat_1", "feat_2", "target"]
+        )
+
+        df_path = pandas._serialize_dataframe(_TEST_STAGING_BUCKET, df, "test")
+
+        assert len(df_path) > 0
+
+        deserialized_dataframe = pandas._deserialize_dataframe(df_path)
+
+        assert type(deserialized_dataframe) is pd.DataFrame
