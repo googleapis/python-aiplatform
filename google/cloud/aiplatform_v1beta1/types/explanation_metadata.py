@@ -83,7 +83,7 @@ class ExplanationMetadata(proto.Message):
                 If no baseline is specified, Vertex AI chooses the baseline
                 for this feature. If multiple baselines are specified,
                 Vertex AI returns the average attributions across them in
-                [Attributions.baseline_attribution][].
+                [Attribution.feature_attributions][google.cloud.aiplatform.v1beta1.Attribution.feature_attributions].
 
                 For Vertex AI-provided Tensorflow images (both 1.x and 2.x),
                 the shape of each baseline must match the shape of the input
@@ -130,7 +130,7 @@ class ExplanationMetadata(proto.Message):
             encoded_tensor_name (str):
                 Encoded tensor is a transformation of the input tensor. Must
                 be provided if choosing [Integrated Gradients
-                attribution][ExplanationParameters.integrated_gradients_attribution]
+                attribution][google.cloud.aiplatform.v1beta1.ExplanationParameters.integrated_gradients_attribution]
                 or [XRAI
                 attribution][google.cloud.aiplatform.v1beta1.ExplanationParameters.xrai_attribution]
                 and the input tensor is not differentiable.
@@ -151,15 +151,13 @@ class ExplanationMetadata(proto.Message):
                 the same group name will be treated as one feature when
                 computing attributions. Features grouped together can have
                 different shapes in value. If provided, there will be one
-                single attribution generated in [
-                featureAttributions][Attribution.feature_attributions],
+                single attribution generated in
+                [Attribution.feature_attributions][google.cloud.aiplatform.v1beta1.Attribution.feature_attributions],
                 keyed by the group name.
         """
 
         class Encoding(proto.Enum):
-            r"""Defines how the feature is encoded to [encoded_tensor][]. Defaults
-            to IDENTITY.
-            """
+            r"""Defines how a feature is encoded. Defaults to IDENTITY."""
             ENCODING_UNSPECIFIED = 0
             IDENTITY = 1
             BAG_OF_FEATURES = 2
@@ -206,8 +204,8 @@ class ExplanationMetadata(proto.Message):
             Attributes:
                 type_ (google.cloud.aiplatform_v1beta1.types.ExplanationMetadata.InputMetadata.Visualization.Type):
                     Type of the image visualization. Only applicable to
-                    [Integrated Gradients attribution]
-                    [ExplanationParameters.integrated_gradients_attribution].
+                    [Integrated Gradients
+                    attribution][google.cloud.aiplatform.v1beta1.ExplanationParameters.integrated_gradients_attribution].
                     OUTLINES shows regions of attribution, while PIXELS shows
                     per-pixel attribution. Defaults to OUTLINES.
                 polarity (google.cloud.aiplatform_v1beta1.types.ExplanationMetadata.InputMetadata.Visualization.Polarity):
@@ -218,7 +216,7 @@ class ExplanationMetadata(proto.Message):
                     The color scheme used for the highlighted areas.
 
                     Defaults to PINK_GREEN for [Integrated Gradients
-                    attribution][ExplanationParameters.integrated_gradients_attribution],
+                    attribution][google.cloud.aiplatform.v1beta1.ExplanationParameters.integrated_gradients_attribution],
                     which shows positive attributions in green and negative in
                     pink.
 
@@ -246,8 +244,8 @@ class ExplanationMetadata(proto.Message):
 
             class Type(proto.Enum):
                 r"""Type of the image visualization. Only applicable to [Integrated
-                Gradients attribution]
-                [ExplanationParameters.integrated_gradients_attribution].
+                Gradients
+                attribution][google.cloud.aiplatform.v1beta1.ExplanationParameters.integrated_gradients_attribution].
                 """
                 TYPE_UNSPECIFIED = 0
                 PIXELS = 1
@@ -362,8 +360,8 @@ class ExplanationMetadata(proto.Message):
                 for a specific output.
             output_tensor_name (str):
                 Name of the output tensor. Required and is
-                only applicable to AI Platform provided images
-                for Tensorflow.
+                only applicable to Vertex AI provided images for
+                Tensorflow.
         """
 
         index_display_name_mapping = proto.Field(

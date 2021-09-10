@@ -494,7 +494,7 @@ class ExplanationSpecOverride(proto.Message):
     r"""The
     [ExplanationSpec][google.cloud.aiplatform.v1beta1.ExplanationSpec]
     entries that can be overridden at [online
-    explanation][PredictionService.Explain][google.cloud.aiplatform.v1beta1.PredictionService.Explain]
+    explanation][google.cloud.aiplatform.v1beta1.PredictionService.Explain]
     time.
 
     Attributes:

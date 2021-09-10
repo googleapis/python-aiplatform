@@ -87,11 +87,19 @@ class CustomJob(proto.Message):
             created by the CustomJob will be encrypted with
             the provided encryption key.
         web_access_uris (Sequence[google.cloud.aiplatform_v1beta1.types.CustomJob.WebAccessUrisEntry]):
-            Output only. The web access URIs for the
-            training job. The keys are the node names in the
-            training jobs, e.g. workerpool0-0. The values
-            are the URIs for each node's web portal in the
-            job.
+            Output only. URIs for accessing `interactive
+            shells <https://cloud.google.com/vertex-ai/docs/training/monitor-debug-interactive-shell>`__
+            (one URI for each training node). Only available if
+            [job_spec.enable_web_access][google.cloud.aiplatform.v1beta1.CustomJobSpec.enable_web_access]
+            is ``true``.
+
+            The keys are names of each node in the training job; for
+            example, ``workerpool0-0`` for the primary node,
+            ``workerpool1-0`` for the first node in the second worker
+            pool, and ``workerpool1-1`` for the second node in the
+            second worker pool.
+
+            The values are the URIs for each node's interactive shell.
     """
 
     name = proto.Field(proto.STRING, number=1,)
@@ -123,7 +131,7 @@ class CustomJobSpec(proto.Message):
         service_account (str):
             Specifies the service account for workload run-as account.
             Users submitting jobs must have act-as permission on this
-            run-as account. If unspecified, the `AI Platform Custom Code
+            run-as account. If unspecified, the `Vertex AI Custom Code
             Service
             Agent <https://cloud.google.com/vertex-ai/docs/general/access-control#service-agents>`__
             for the CustomJob's project is used.
@@ -175,9 +183,18 @@ class CustomJobSpec(proto.Message):
             logs. Format:
             ``projects/{project}/locations/{location}/tensorboards/{tensorboard}``
         enable_web_access (bool):
-            Optional. Vertex AI will enable web portal access to the
-            containers. The portals can be accessed on web via the URLs
-            given by [web_access_uris][].
+            Optional. Whether you want Vertex AI to enable `interactive
+            shell
+            access <https://cloud.google.com/vertex-ai/docs/training/monitor-debug-interactive-shell>`__
+            to training containers.
+
+            If set to ``true``, you can access interactive shells at the
+            URIs given by
+            [CustomJob.web_access_uris][google.cloud.aiplatform.v1beta1.CustomJob.web_access_uris]
+            or
+            [Trial.web_access_uris][google.cloud.aiplatform.v1beta1.Trial.web_access_uris]
+            (within
+            [HyperparameterTuningJob.trials][google.cloud.aiplatform.v1beta1.HyperparameterTuningJob.trials]).
     """
 
     worker_pool_specs = proto.RepeatedField(

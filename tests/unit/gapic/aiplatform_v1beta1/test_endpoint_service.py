@@ -753,6 +753,7 @@ def test_get_endpoint(
             description="description_value",
             etag="etag_value",
             network="network_value",
+            model_deployment_monitoring_job="model_deployment_monitoring_job_value",
         )
         response = client.get_endpoint(request)
 
@@ -768,6 +769,10 @@ def test_get_endpoint(
     assert response.description == "description_value"
     assert response.etag == "etag_value"
     assert response.network == "network_value"
+    assert (
+        response.model_deployment_monitoring_job
+        == "model_deployment_monitoring_job_value"
+    )
 
 
 def test_get_endpoint_from_dict():
@@ -811,6 +816,7 @@ async def test_get_endpoint_async(
                 description="description_value",
                 etag="etag_value",
                 network="network_value",
+                model_deployment_monitoring_job="model_deployment_monitoring_job_value",
             )
         )
         response = await client.get_endpoint(request)
@@ -827,6 +833,10 @@ async def test_get_endpoint_async(
     assert response.description == "description_value"
     assert response.etag == "etag_value"
     assert response.network == "network_value"
+    assert (
+        response.model_deployment_monitoring_job
+        == "model_deployment_monitoring_job_value"
+    )
 
 
 @pytest.mark.asyncio
@@ -1327,6 +1337,7 @@ def test_update_endpoint(
             description="description_value",
             etag="etag_value",
             network="network_value",
+            model_deployment_monitoring_job="model_deployment_monitoring_job_value",
         )
         response = client.update_endpoint(request)
 
@@ -1342,6 +1353,10 @@ def test_update_endpoint(
     assert response.description == "description_value"
     assert response.etag == "etag_value"
     assert response.network == "network_value"
+    assert (
+        response.model_deployment_monitoring_job
+        == "model_deployment_monitoring_job_value"
+    )
 
 
 def test_update_endpoint_from_dict():
@@ -1385,6 +1400,7 @@ async def test_update_endpoint_async(
                 description="description_value",
                 etag="etag_value",
                 network="network_value",
+                model_deployment_monitoring_job="model_deployment_monitoring_job_value",
             )
         )
         response = await client.update_endpoint(request)
@@ -1401,6 +1417,10 @@ async def test_update_endpoint_async(
     assert response.description == "description_value"
     assert response.etag == "etag_value"
     assert response.network == "network_value"
+    assert (
+        response.model_deployment_monitoring_job
+        == "model_deployment_monitoring_job_value"
+    )
 
 
 @pytest.mark.asyncio
@@ -2748,9 +2768,37 @@ def test_parse_model_path():
     assert expected == actual
 
 
-def test_network_path():
+def test_model_deployment_monitoring_job_path():
     project = "squid"
-    network = "clam"
+    location = "clam"
+    model_deployment_monitoring_job = "whelk"
+    expected = "projects/{project}/locations/{location}/modelDeploymentMonitoringJobs/{model_deployment_monitoring_job}".format(
+        project=project,
+        location=location,
+        model_deployment_monitoring_job=model_deployment_monitoring_job,
+    )
+    actual = EndpointServiceClient.model_deployment_monitoring_job_path(
+        project, location, model_deployment_monitoring_job
+    )
+    assert expected == actual
+
+
+def test_parse_model_deployment_monitoring_job_path():
+    expected = {
+        "project": "octopus",
+        "location": "oyster",
+        "model_deployment_monitoring_job": "nudibranch",
+    }
+    path = EndpointServiceClient.model_deployment_monitoring_job_path(**expected)
+
+    # Check that the path construction is reversible.
+    actual = EndpointServiceClient.parse_model_deployment_monitoring_job_path(path)
+    assert expected == actual
+
+
+def test_network_path():
+    project = "cuttlefish"
+    network = "mussel"
     expected = "projects/{project}/global/networks/{network}".format(
         project=project, network=network,
     )
@@ -2760,8 +2808,8 @@ def test_network_path():
 
 def test_parse_network_path():
     expected = {
-        "project": "whelk",
-        "network": "octopus",
+        "project": "winkle",
+        "network": "nautilus",
     }
     path = EndpointServiceClient.network_path(**expected)
 
@@ -2771,7 +2819,7 @@ def test_parse_network_path():
 
 
 def test_common_billing_account_path():
-    billing_account = "oyster"
+    billing_account = "scallop"
     expected = "billingAccounts/{billing_account}".format(
         billing_account=billing_account,
     )
@@ -2781,7 +2829,7 @@ def test_common_billing_account_path():
 
 def test_parse_common_billing_account_path():
     expected = {
-        "billing_account": "nudibranch",
+        "billing_account": "abalone",
     }
     path = EndpointServiceClient.common_billing_account_path(**expected)
 
@@ -2791,7 +2839,7 @@ def test_parse_common_billing_account_path():
 
 
 def test_common_folder_path():
-    folder = "cuttlefish"
+    folder = "squid"
     expected = "folders/{folder}".format(folder=folder,)
     actual = EndpointServiceClient.common_folder_path(folder)
     assert expected == actual
@@ -2799,7 +2847,7 @@ def test_common_folder_path():
 
 def test_parse_common_folder_path():
     expected = {
-        "folder": "mussel",
+        "folder": "clam",
     }
     path = EndpointServiceClient.common_folder_path(**expected)
 
@@ -2809,7 +2857,7 @@ def test_parse_common_folder_path():
 
 
 def test_common_organization_path():
-    organization = "winkle"
+    organization = "whelk"
     expected = "organizations/{organization}".format(organization=organization,)
     actual = EndpointServiceClient.common_organization_path(organization)
     assert expected == actual
@@ -2817,7 +2865,7 @@ def test_common_organization_path():
 
 def test_parse_common_organization_path():
     expected = {
-        "organization": "nautilus",
+        "organization": "octopus",
     }
     path = EndpointServiceClient.common_organization_path(**expected)
 
@@ -2827,7 +2875,7 @@ def test_parse_common_organization_path():
 
 
 def test_common_project_path():
-    project = "scallop"
+    project = "oyster"
     expected = "projects/{project}".format(project=project,)
     actual = EndpointServiceClient.common_project_path(project)
     assert expected == actual
@@ -2835,7 +2883,7 @@ def test_common_project_path():
 
 def test_parse_common_project_path():
     expected = {
-        "project": "abalone",
+        "project": "nudibranch",
     }
     path = EndpointServiceClient.common_project_path(**expected)
 
@@ -2845,8 +2893,8 @@ def test_parse_common_project_path():
 
 
 def test_common_location_path():
-    project = "squid"
-    location = "clam"
+    project = "cuttlefish"
+    location = "mussel"
     expected = "projects/{project}/locations/{location}".format(
         project=project, location=location,
     )
@@ -2856,8 +2904,8 @@ def test_common_location_path():
 
 def test_parse_common_location_path():
     expected = {
-        "project": "whelk",
-        "location": "octopus",
+        "project": "winkle",
+        "location": "nautilus",
     }
     path = EndpointServiceClient.common_location_path(**expected)
 

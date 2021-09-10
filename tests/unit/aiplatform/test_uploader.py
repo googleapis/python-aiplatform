@@ -213,8 +213,11 @@ def _create_uploader(
     )
 
 
-def _create_request_sender(
-    experiment_resource_name, api=None, allowed_plugins=_USE_DEFAULT
+def _create_dispatcher(
+    experiment_resource_name,
+    api=None,
+    allowed_plugins=_USE_DEFAULT,
+    additional_senders={},
 ):
     if api is _USE_DEFAULT:
         api = _create_mock_client()
@@ -232,7 +235,7 @@ def _create_request_sender(
     tensor_rpc_rate_limiter = util.RateLimiter(0)
     blob_rpc_rate_limiter = util.RateLimiter(0)
 
-    return uploader_lib._BatchedRequestSender(
+    request_sender = uploader_lib._BatchedRequestSender(
         experiment_resource_name=experiment_resource_name,
         api=api,
         allowed_plugins=allowed_plugins,
@@ -243,6 +246,10 @@ def _create_request_sender(
         blob_storage_bucket=None,
         blob_storage_folder=None,
         tracker=upload_tracker.UploadTracker(verbosity=0),
+    )
+
+    return uploader_lib._Dispatcher(
+        request_sender=request_sender, additional_senders=additional_senders,
     )
 
 
@@ -914,12 +921,12 @@ class BatchedRequestSenderTest(tf.test.TestCase):
         self, n_scalar_events, events, allowed_plugins=_USE_DEFAULT
     ):
         mock_client = _create_mock_client()
-        builder = _create_request_sender(
+        builder = _create_dispatcher(
             experiment_resource_name="123",
             api=mock_client,
             allowed_plugins=allowed_plugins,
         )
-        builder.send_requests({"": _apply_compat(events)})
+        builder.dispatch_requests({"": _apply_compat(events)})
         scalar_requests = mock_client.write_tensorboard_run_data.call_args_list
         if scalar_requests:
             self.assertLen(scalar_requests, 1)
