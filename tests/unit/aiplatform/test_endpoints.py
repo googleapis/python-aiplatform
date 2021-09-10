@@ -406,19 +406,19 @@ class TestEndpoint:
     def test_lazy_constructor_with_endpoint_id(self, get_endpoint_mock):
         ep = models.Endpoint(_TEST_ID)
         assert ep._gca_resource.name == _TEST_ENDPOINT_NAME
-        assert ep._skipped_getter_call
+        assert ep._skipped_getter_call()
         assert not get_endpoint_mock.called
 
     def test_lazy_constructor_with_endpoint_name(self, get_endpoint_mock):
         ep = models.Endpoint(_TEST_ENDPOINT_NAME)
         assert ep._gca_resource.name == _TEST_ENDPOINT_NAME
-        assert ep._skipped_getter_call
+        assert ep._skipped_getter_call()
         assert not get_endpoint_mock.called
 
     def test_lazy_constructor_calls_get_on_property_access(self, get_endpoint_mock):
         ep = models.Endpoint(_TEST_ENDPOINT_NAME)
         assert ep._gca_resource.name == _TEST_ENDPOINT_NAME
-        assert ep._skipped_getter_call
+        assert ep._skipped_getter_call()
         assert not get_endpoint_mock.called
 
         ep.display_name  # Retrieve a property that requires a call to Endpoint getter
@@ -538,8 +538,9 @@ class TestEndpoint:
         GAPIC object has not been populated"""
 
         my_endpoint = aiplatform.Endpoint(_TEST_ENDPOINT_NAME)
-        my_endpoint._gca_resource = None
-        my_endpoint._skipped_getter_call = False
+
+        # Create a gca_resource without `name` being populated
+        my_endpoint._gca_resource = gca_endpoint.Endpoint(create_time=datetime.now())
 
         with pytest.raises(RuntimeError) as e:
             my_endpoint.gca_resource

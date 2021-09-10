@@ -125,24 +125,26 @@ class Endpoint(base.VertexAiResourceNounWithFutureManager):
 
         # Lazy load the Endpoint gca_resource until needed
         self._gca_resource = gca_endpoint_compat.Endpoint(name=endpoint_name)
-        self._skipped_getter_call = True
 
         self._prediction_client = self._instantiate_prediction_client(
             location=self.location, credentials=credentials,
         )
 
+    def _skipped_getter_call(self) -> bool:
+        """Check if GAPIC resource was populated by call to get/list API methods"""
+        return not self._gca_resource.create_time
+
     def _sync_gca_resource_if_skipped(self) -> None:
         """Sync GAPIC service representation of Endpoint class resource only if
         get_endpoint() was never called."""
-        if self._skipped_getter_call:
+        if self._skipped_getter_call():
             self._gca_resource = self._get_gca_resource(
                 resource_name=self._gca_resource.name
             )
-            self._skipped_getter_call = False
 
     def _sync_gca_resource(self) -> None:
         """Sync GAPIC service representation of Endpoint resource once."""
-        if self._skipped_getter_call:
+        if self._skipped_getter_call():
             self._sync_gca_resource_if_skipped()
         else:
             super()._sync_gca_resource()
@@ -392,9 +394,6 @@ class Endpoint(base.VertexAiResourceNounWithFutureManager):
         )
 
         endpoint._gca_resource = gapic_resource
-
-        # Building Endpoint from GAPIC object is equivalent to calling getter
-        endpoint._skipped_getter_call = False
 
         endpoint._prediction_client = cls._instantiate_prediction_client(
             location=endpoint.location, credentials=credentials,
