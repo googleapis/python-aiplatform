@@ -10,8 +10,6 @@
 
 ### Miscellaneous Chores
 
-* release 1.4.2 ([#701](https://www.github.com/googleapis/python-aiplatform/issues/701)) ([dd977b6](https://www.github.com/googleapis/python-aiplatform/commit/dd977b6946ba0891f59301f1360d9d0fdf550a19))
-
 ### [1.4.1](https://www.github.com/googleapis/python-aiplatform/compare/v1.4.0...v1.4.1) (2021-09-07)
 
 
