@@ -79,6 +79,9 @@ class TestEndToEndVertexModel(e2e_base.TestEndToEnd):
         predictions = my_model.predict(torch_tensor)
 
         if prediction_remote:
+            if not training_remote:
+                shared_state["resources"].extend([my_model._model])
+
             shared_state["resources"].extend([my_model._endpoint])
 
         # Ensure a single prediction was returned

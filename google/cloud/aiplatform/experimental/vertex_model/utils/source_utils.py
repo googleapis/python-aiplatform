@@ -33,11 +33,11 @@ except ImportError:
     _message = None
 
 
-def jupyter_notebook_to_file(json_notebook: Optional[str]) -> str:
+def jupyter_notebook_to_file(json_notebook: Optional[Dict] = None) -> str:
     """ Retrieves the source code of a Python notebook and writes it to a file.
 
     Args:
-        json_notebook (Optional[str]): JSON representation of a Python notebook.
+        json_notebook (Optional[Dict]): JSON representation of a Python notebook.
 
     Returns:
         A string representing the file name where the Python notebook source code
@@ -148,7 +148,7 @@ def import_try_except(obj: Any):
         return import_lines
 
     except AttributeError:
-        import_lines = "\n".join(get_import_lines(jupyter_notebook_to_file(None)))
+        import_lines = "\n".join(get_import_lines(jupyter_notebook_to_file()))
         return import_lines
 
 
