@@ -16,7 +16,6 @@
 #
 """Uploads a TensorBoard logdir to TensorBoard.gcp."""
 import abc
-import contextlib
 import functools
 import logging
 import os
@@ -764,7 +763,7 @@ class _BaseBatchedRequestSender(object):
 
         self._rpc_rate_limiter.tick()
 
-        with _request_logger(request):
+        with uploader_utils.request_logger(request):
             with self._get_tracker():
                 try:
                     self._api.write_tensorboard_run_data(
@@ -1252,19 +1251,6 @@ class _BlobRequestSender(_BaseBatchedRequestSender):
         )
         self._bucket.blob(blob_path).upload_from_string(blob)
         return blob_id
-
-
-@contextlib.contextmanager
-def _request_logger(request: tensorboard_service.WriteTensorboardRunDataRequest):
-    """Context manager to log request size and duration."""
-    upload_start_time = time.time()
-    request_bytes = request._pb.ByteSize()  # pylint: disable=protected-access
-    logger.info("Trying request of %d bytes", request_bytes)
-    yield
-    upload_duration_secs = time.time() - upload_start_time
-    logger.info(
-        "Upload of (%d bytes) took %.3f seconds", request_bytes, upload_duration_secs,
-    )
 
 
 def _varint_cost(n: int):

@@ -17,10 +17,15 @@
 
 """Shared utils for tensorboard log uploader."""
 import abc
+import contextlib
 import json
+import logging
 import re
+import time
 from typing import Callable, Dict
 import uuid
+
+from tensorboard.util import tb_logging
 
 from google.api_core import exceptions
 from google.cloud import storage
@@ -36,6 +41,9 @@ from google.cloud.aiplatform.compat.types import (
 from google.cloud.aiplatform.compat.services import tensorboard_service_client_v1beta1
 
 TensorboardServiceClient = tensorboard_service_client_v1beta1.TensorboardServiceClient
+
+logger = tb_logging.get_logger()
+logger.setLevel(logging.WARNING)
 
 
 class ExperimentNotFoundError(RuntimeError):
@@ -181,3 +189,16 @@ def get_source_bucket(logdir: str) -> storage.Bucket:
         return None
     bucket = storage.Client().bucket(m[1])
     return bucket
+
+
+@contextlib.contextmanager
+def request_logger(request: tensorboard_service.WriteTensorboardRunDataRequest):
+    """Context manager to log request size and duration."""
+    upload_start_time = time.time()
+    request_bytes = request._pb.ByteSize()  # pylint: disable=protected-access
+    logger.info("Trying request of %d bytes", request_bytes)
+    yield
+    upload_duration_secs = time.time() - upload_start_time
+    logger.info(
+        "Upload of (%d bytes) took %.3f seconds", request_bytes, upload_duration_secs,
+    )

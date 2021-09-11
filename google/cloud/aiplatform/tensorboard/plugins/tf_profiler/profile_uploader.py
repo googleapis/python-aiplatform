@@ -14,12 +14,14 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
-"""Uploads a TensorBoard logdir to Vertex AI Tensorboard."""
+"""Upload profile sessions to Vertex AI Tensorboard."""
+from collections import defaultdict
 import datetime
 import functools
 import os
 import re
 from typing import (
+    DefaultDict,
     Dict,
     List,
     Set,
@@ -54,10 +56,10 @@ logger = tb_logging.get_logger()
 class ProfileRequestSender(uploader_utils.RequestSender):
     """Helper class for building requests for the profiler plugin.
 
-    The profile plugin does not contain values within even files like other
-    event files do. In addition, these event files do not update once
-    a new profile event occurs. The event is empty and only signals that a
-    profile session exists.
+    While the profile plugin does create event files when a profile run is performed
+    for a new run for the first time, these event files do not contain values of interest
+    like other events do. Instead, the plugin will create subdirectories and profiling
+    files to store the profiling data.
 
     To verify the plugin, subdirectories need to be searched to confirm valid
     profile directories and files.
@@ -66,8 +68,8 @@ class ProfileRequestSender(uploader_utils.RequestSender):
     calling its methods concurrently.
     """
 
-    # The directory in which profiles are stored.
-    PROFILE_DIR = "plugins/profile"
+    PLUGIN_NAME = "profile"
+    PROFILE_PATH = "plugins/profile"
 
     def __init__(
         self,
@@ -110,7 +112,7 @@ class ProfileRequestSender(uploader_utils.RequestSender):
         self._handlers = {}
         self._tracker = tracker
         self._run_to_file_request_sender: Dict[str, _FileRequestSender] = {}
-        self._run_to_profile_loaders: Dict[str, _ProfileRunLoader] = {}
+        self._run_to_profile_loaders: Dict[str, _ProfileSessionLoader] = {}
         self._run_resource_manager = run_resource_manager
 
         self._file_request_sender_factory = functools.partial(
@@ -140,9 +142,7 @@ class ProfileRequestSender(uploader_utils.RequestSender):
             True if is a valid profile plugin event, False otherwise.
         """
 
-        if tf.io.gfile.isdir(self._profile_dir(run_name)):
-            return True
-        return False
+        return tf.io.gfile.isdir(self._profile_dir(run_name))
 
     def _profile_dir(self, run_name: str):
         """Converts run name to full profile path.
@@ -153,59 +153,65 @@ class ProfileRequestSender(uploader_utils.RequestSender):
         Returns:
             Full path for run name.
         """
-        return os.path.join(self._logdir, run_name, self.PROFILE_DIR)
+        return os.path.join(self._logdir, run_name, self.PROFILE_PATH)
 
     def send_request(self, run_name: str):
         """Accepts run_name and sends an RPC request if an event is detected.
 
         Args:
-          run_name: Name of the training run. It should be previously validated
-            that the run_name is a valid path which contains an event file.
+          run_name: Name of the training run.
         """
 
         if not self._is_valid_event(run_name):
+            logger.warning("No such profile run for %s", run_name)
             return
 
         # Create a profiler loader if one is not created.
+        # This will store any new runs that occur within the training.
         if run_name not in self._run_to_profile_loaders:
-            self._run_to_profile_loaders[run_name] = _ProfileRunLoader(
+            self._run_to_profile_loaders[run_name] = _ProfileSessionLoader(
                 self._profile_dir(run_name)
             )
 
-        if run_name not in self._run_resource_manager.run_to_run_resource:
-            self._run_resource_manager.create_or_get_run_resource(run_name)
+        tb_run = self._run_resource_manager.create_or_get_run_resource(run_name)
 
         if run_name not in self._run_to_file_request_sender:
             self._run_to_file_request_sender[
                 run_name
-            ] = self._file_request_sender_factory(
-                self._run_resource_manager.run_to_run_resource[run_name].name
-            )
+            ] = self._file_request_sender_factory(tb_run.name,)
 
-        for prof_run, files in self._run_to_profile_loaders[
+        # Loop through any of the profiling sessions within this training run.
+        # A training run can have multiple profile sessions.
+        for prof_session, files in self._run_to_profile_loaders[
             run_name
-        ].prof_run_to_files():
+        ].prof_sessions_to_files():
             try:
-                event_time = datetime.datetime.strptime(prof_run, "%Y_%m_%d_%H_%M_%S")
+                event_time = datetime.datetime.strptime(
+                    prof_session, "%Y_%m_%d_%H_%M_%S"
+                )
             except ValueError:
                 logger.warning(
                     "Could not get the datetime from profile run name: %s, "
                     "using current datetime instead. %s",
-                    prof_run,
+                    prof_session,
                 )
                 event_time = datetime.datetime.now()
             event_timestamp = timestamp.Timestamp().FromDatetime(event_time)
 
+            # Implicit flush to any files after they are uploaded.
             self._run_to_file_request_sender[run_name].add_files(
                 files=files,
-                tag=prof_run,
-                plugin="profile",
+                tag=prof_session,
+                plugin=self.PLUGIN_NAME,
                 event_timestamp=event_timestamp,
             )
 
 
-class _ProfileRunLoader(object):
-    """Loader for a profile runs within a training run.
+class _ProfileSessionLoader(object):
+    """Loader for a profile session within a training run.
+
+    The term 'session' is used to talk about an instance of a profile. For example,
+    one may have multiple profile sessions under a training run.
     """
 
     # A regular expression for the naming of a profiling path.
@@ -214,15 +220,14 @@ class _ProfileRunLoader(object):
     def __init__(
         self, path: str,
     ):
-        """Create a loader for profiling runs with a training run.
+        """Create a loader for profiling sessions with a training run.
 
         Args:
             path: Path to the training run, which contains one or more profiling
-                runs. Path should end with '/profile/plugin'.
+                sessions. Path should end with '/profile/plugin'.
         """
         self._path = path
-
-        self._prof_runs_to_files: Dict[str, Set[str]] = {}
+        self._prof_session_to_files: DefaultDict[str, Set[str]] = defaultdict(set)
 
     def _path_filter(
         self, path: str,
@@ -236,13 +241,11 @@ class _ProfileRunLoader(object):
             path: string representing a full directory path.
 
         Returns:
-            True if matches the filter, False otherwise.
+            True if valid path and path matches the filter, False otherwise.
         """
-        if tf.io.gfile.isdir(path) and re.match(self.PROF_PATH_REGEX, path):
-            return True
-        return False
+        return tf.io.gfile.isdir(path) and re.match(self.PROF_PATH_REGEX, path)
 
-    def _path_to_files(self, prof_run: str, path: str) -> List[str]:
+    def _path_to_files(self, prof_session: str, path: str) -> List[str]:
         """Generates files that have not yet been tracked.
 
         Files are generated by the profiler and are added to an internal
@@ -250,43 +253,46 @@ class _ProfileRunLoader(object):
         files.
 
         Args:
-            prof_run: string of the profiling run name.
-            path: directory of the profiling run.
+            prof_session: string of the profiling session name.
+            path: directory of the profiling session.
 
         Returns:
             Files that have not been tracked yet.
         """
 
         files = []
-        for file in tf.io.gfile.listdir(path):
-            full_file_path = os.path.join(path, file)
-            if full_file_path not in self._prof_runs_to_files[prof_run]:
-                self._prof_runs_to_files[prof_run].add(full_file_path)
+        for prof_file in tf.io.gfile.listdir(path):
+            full_file_path = os.path.join(path, prof_file)
+            if full_file_path not in self._prof_session_to_files[prof_session]:
                 files.append(full_file_path)
+
+        self._prof_session_to_files[prof_session].update(files)
         return files
 
-    def prof_run_to_files(self):
-        """Map profile runs to new files that have been created by the profiler.
+    def prof_sessions_to_files(self):
+        """Map files to a profile session.
 
-        Returns:
-            A dictionary mapping the profiling path name to a list of files that
-                which have not yet been tracked.
+        Yields:
+            A tuple containing the profiling session name and a list of files
+                that have not yet been tracked.
         """
 
-        paths = tf.io.gfile.listdir(self._path)
+        prof_sessions = tf.io.gfile.listdir(self._path)
 
-        for path in paths:
+        for prof_session in prof_sessions:
             # Remove trailing slashes in path names
-            path = path if not path.endswith("/") else path[:-1]
+            prof_session = (
+                prof_session if not prof_session.endswith("/") else prof_session[:-1]
+            )
 
-            full_path = os.path.join(self._path, path)
+            full_path = os.path.join(self._path, prof_session)
             if not self._path_filter(full_path):
                 continue
 
-            files = self._path_to_files(path, full_path)
+            files = self._path_to_files(prof_session, full_path)
 
             if files:
-                yield (path, files)
+                yield (prof_session, files)
 
 
 class _FileRequestSender(object):
@@ -350,7 +356,7 @@ class _FileRequestSender(object):
 
         Args:
             files: List of strings representing the path to the files to upload.
-            tag: An identifier for the blob sequence.
+            tag: A unique identifier for the blob sequence.
             plugin: Name of the plugin making the request.
             event_timestamp: A `timestamp.Timestamp` object for the time the
                 event is created.
