@@ -16,6 +16,7 @@
 #
 """Tests for uploader.py."""
 
+import functools
 import logging
 import os
 import re
@@ -1108,9 +1109,10 @@ class BatchedRequestSenderTest(tf.test.TestCase):
 
 class ProfileRequestSenderTest(tf.test.TestCase):
     def _populate_run_from_events(
-        self, events, logdir,
+        self, events, logdir, mock_client=None,
     ):
-        mock_client = _create_mock_client()
+        if not mock_client:
+            mock_client = _create_mock_client()
 
         builder = _create_dispatcher(
             experiment_resource_name=_TEST_ONE_PLATFORM_EXPERIMENT_NAME,
@@ -1172,6 +1174,90 @@ class ProfileRequestSenderTest(tf.test.TestCase):
 
         profile_tag_counts = _extract_tag_counts(call_args_list)
         self.assertEqual(profile_tag_counts, {prof_run_name: 1})
+
+    def test_profile_event_multi_prof_run(self):
+        events = [
+            event_pb2.Event(file_version="brain.Event:2"),
+        ]
+        prof_run_names = [
+            "2021_01_01_01_10_10",
+            "2021_02_02_02_20_20",
+        ]
+
+        with tempfile.TemporaryDirectory() as logdir:
+            prof_path = os.path.join(
+                logdir, profile_uploader.ProfileRequestSender.PROFILE_PATH
+            )
+            os.makedirs(prof_path)
+
+            run_paths = [
+                os.path.join(prof_path, prof_run_names[0]),
+                os.path.join(prof_path, prof_run_names[1]),
+            ]
+            [os.makedirs(run_path) for run_path in run_paths]
+
+            named_temp = functools.partial(
+                tempfile.NamedTemporaryFile, suffix=".xplane.pb"
+            )
+
+            with named_temp(dir=run_paths[0]), named_temp(dir=run_paths[1]):
+                call_args_list = self._populate_run_from_events(events, logdir)
+
+        self.assertLen(call_args_list, 2)
+        profile_tag_counts = _extract_tag_counts(call_args_list)
+        self.assertEqual(profile_tag_counts, dict.fromkeys(prof_run_names, 1))
+
+    def test_profile_event_add_consecutive_prof_runs(self):
+        # Multiple profiling events happen one after another, should only update
+        # new profiling runs
+        events = [
+            event_pb2.Event(file_version="brain.Event:2"),
+        ]
+
+        prof_run_name = "2021_01_01_01_10_10"
+
+        mock_client = _create_mock_client()
+
+        with tempfile.TemporaryDirectory() as logdir:
+            prof_path = os.path.join(
+                logdir, profile_uploader.ProfileRequestSender.PROFILE_PATH
+            )
+            os.makedirs(prof_path)
+
+            run_path = os.path.join(prof_path, prof_run_name)
+            os.makedirs(run_path)
+
+            named_temp = functools.partial(
+                tempfile.NamedTemporaryFile, suffix=".xplane.pb"
+            )
+
+            with named_temp(dir=run_path):
+                call_args_list = self._populate_run_from_events(
+                    events, logdir, mock_client=mock_client
+                )
+
+            self.assertLen(call_args_list, 1)
+            self.assertEqual(
+                call_args_list[0][1]["time_series_data"][0].tensorboard_time_series_id,
+                prof_run_name,
+            )
+
+            prof_run_name_2 = "2021_02_02_02_20_20"
+
+            run_path = os.path.join(prof_path, prof_run_name_2)
+            os.makedirs(run_path)
+            mock_client.write_tensorboard_run_data.reset_mock()
+
+            with named_temp(dir=run_path):
+                call_args_list = self._populate_run_from_events(
+                    events, logdir, mock_client=mock_client
+                )
+
+            self.assertLen(call_args_list, 1)
+            self.assertEqual(
+                call_args_list[0][1]["time_series_data"][0].tensorboard_time_series_id,
+                prof_run_name_2,
+            )
 
 
 class ScalarBatchedRequestSenderTest(tf.test.TestCase):

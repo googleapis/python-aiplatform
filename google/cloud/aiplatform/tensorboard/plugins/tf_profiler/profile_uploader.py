@@ -298,9 +298,9 @@ class _ProfileSessionLoader(object):
 class _FileRequestSender(object):
     """Uploader for file based items.
 
-    This sender is closely related to the `_BlobRequestSender`, however it sends
-    files, given a path. The APIs are slightly different in the data that is
-    expected for file based requests.
+    This sender is closely related to the `_BlobRequestSender`, however it expects
+    file paths instead of blob files, so that data is not directly read in and instead
+    files are moved between buckets.
 
     This class is not threadsafe. Use external synchronization if calling its
     methods concurrently.
@@ -353,6 +353,8 @@ class _FileRequestSender(object):
         If a file does not exist, the file is ignored and the rest of the
         files are checked to ensure the remaining files exist. After checking
         the files, an rpc is immediately sent.
+
+        Files are flushed immediately, opposed to some of the other request senders.
 
         Args:
             files: List of strings representing the path to the files to upload.
