@@ -158,7 +158,7 @@ class TestEndToEndTabular(e2e_base.TestEndToEnd):
         # Test lazy loading of Endpoint, check getter was never called after predict()
         custom_endpoint = aiplatform.Endpoint(custom_endpoint.resource_name)
         custom_endpoint.predict([_INSTANCE])
-        assert custom_endpoint._skipped_getter_call
+        assert custom_endpoint._skipped_getter_call()
 
         assert (
             custom_job.state

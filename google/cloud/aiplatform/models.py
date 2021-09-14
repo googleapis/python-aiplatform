@@ -131,8 +131,12 @@ class Endpoint(base.VertexAiResourceNounWithFutureManager):
         )
 
     def _skipped_getter_call(self) -> bool:
-        """Check if GAPIC resource was populated by call to get/list API methods"""
-        return not self._gca_resource.create_time
+        """Check if GAPIC resource was populated by call to get/list API methods
+
+        Returns False if `_gca_resource` is None or fully populated. Returns True
+        if `_gca_resource` is partially populated
+        """
+        return self._gca_resource and not self._gca_resource.create_time
 
     def _sync_gca_resource_if_skipped(self) -> None:
         """Sync GAPIC service representation of Endpoint class resource only if
