@@ -15,14 +15,18 @@
 # limitations under the License.
 #
 
-
+import pytest
 import tensorflow as tf
 import numpy as np
 
+from google.cloud.aiplatform import models
 from google.cloud.aiplatform.explain.metadata.tf.v2 import saved_model_metadata_builder
 from google.cloud.aiplatform.compat.types import (
     explanation_metadata_v1beta1 as explanation_metadata,
 )
+
+import test_models
+from test_models import upload_model_mock, get_model_mock  # noqa: F401
 
 
 class SavedModelMetadataBuilderTF2Test(tf.test.TestCase):
@@ -184,3 +188,28 @@ class SavedModelMetadataBuilderTF2Test(tf.test.TestCase):
             "outputs": {"output_1": {"outputTensorName": "output_1"}},
         }
         assert expected_md == generated_md
+
+    @pytest.mark.usefixtures("upload_model_mock", "get_model_mock")
+    def test_model_upload_compatibility(self):
+        self._set_up_sequential()
+
+        builder = saved_model_metadata_builder.SavedModelMetadataBuilder(
+            self.saved_model_path
+        )
+        generated_md = builder.get_metadata()
+
+        try:
+            models.Model.upload(
+                display_name=test_models._TEST_MODEL_NAME,
+                serving_container_image_uri=test_models._TEST_SERVING_CONTAINER_IMAGE,
+                explanation_parameters=test_models._TEST_EXPLANATION_PARAMETERS,
+                explanation_metadata=generated_md,  # Test metadata from builder
+                labels=test_models._TEST_LABEL,
+            )
+        except TypeError as e:
+            if "Parameter to MergeFrom() must be instance of same class" in str(e):
+                pytest.fail(
+                    f"Model.upload() expects different proto version, more info: {e}"
+                )
+            else:
+                raise e
