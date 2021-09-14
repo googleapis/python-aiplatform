@@ -20,9 +20,7 @@ import tensorflow.compat.v1 as tf
 
 from google.cloud.aiplatform import models
 from google.cloud.aiplatform.explain.metadata.tf.v1 import saved_model_metadata_builder
-from google.cloud.aiplatform.compat.types import (
-    explanation_metadata_v1beta1 as explanation_metadata,
-)
+from google.cloud.aiplatform.compat.types import explanation_metadata
 
 import test_models
 from test_models import upload_model_mock, get_model_mock  # noqa: F401
