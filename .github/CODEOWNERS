@@ -8,14 +8,21 @@
 *                                      @googleapis/yoshi-python
 
 # The AI Platform GAPIC libraries are owned by Cloud AI DPE
-/google/cloud/aiplatform*              @googleapis/cdpe-cloudai
+/google/cloud/aiplatform_*/**          @googleapis/cdpe-cloudai
 
-# The Vertex SDK is owned by Model Builder SDK Dev team
-/google/cloud/aiplatform/*             @googleapis/cloud-aiplatform-model-builder-sdk
-/tests/unit/aiplatform/*               @googleapis/cloud-aiplatform-model-builder-sdk
+# The Vertex SDK is owned by Vertex SDK Dev team
+/google/cloud/aiplatform/**            @googleapis/cloud-aiplatform-model-builder-sdk
+/tests/system/aiplatform/**            @googleapis/cloud-aiplatform-model-builder-sdk
+/tests/unit/aiplatform/**              @googleapis/cloud-aiplatform-model-builder-sdk
 
 # The Cloud AI DPE team is the default owner for samples
 /samples/**/*.py                       @googleapis/cdpe-cloudai @googleapis/python-samples-owners
+/.sample_configs/**                    @googleapis/cdpe-cloudai
 
 # The enhanced client library tests are owned by Cloud AI DPE
 /tests/unit/enhanced_library/*.py      @googleapis/cdpe-cloudai
+
+# Core library files owned by Cloud AI DPE and Vertex SDK Dev teams
+CHANGELOG.md                           @googleapis/cloud-aiplatform-model-builder-sdk @googleapis/cdpe-cloudai
+README.rst                             @googleapis/cloud-aiplatform-model-builder-sdk @googleapis/cdpe-cloudai
+setup.py                               @googleapis/cloud-aiplatform-model-builder-sdk @googleapis/cdpe-cloudai
