@@ -196,7 +196,7 @@ class SavedModelMetadataBuilderTF2Test(tf.test.TestCase):
         builder = saved_model_metadata_builder.SavedModelMetadataBuilder(
             self.saved_model_path
         )
-        generated_md = builder.get_metadata()
+        generated_md = builder.get_metadata_protobuf()
 
         try:
             models.Model.upload(

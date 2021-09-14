@@ -121,7 +121,7 @@ class SavedModelMetadataBuilderTF1Test(tf.test.TestCase):
             self.model_path, tags=[tf.saved_model.tag_constants.SERVING]
         )
 
-        generated_md = md_builder.get_metadata()
+        generated_md = md_builder.get_metadata_protobuf()
 
         try:
             models.Model.upload(
