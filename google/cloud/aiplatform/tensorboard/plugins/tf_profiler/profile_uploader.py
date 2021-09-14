@@ -127,16 +127,14 @@ class ProfileRequestSender(uploader_utils.RequestSender):
             tracker=self._tracker,
         )
 
-    def _is_valid_event(
-        self, run_name: str,
-    ):
-        """Determines whether a profile session has occurred.
+    def _is_valid_event(self, run_name: str) -> bool:
+        """Determines whether a valid profile session has occurred.
 
         Profile events are determined by whether a corresponding directory has
         been created for the profile plugin.
 
         Args:
-            run_name: String representing the run name.
+            run_name: string representing the run name.
 
         Returns:
             True if is a valid profile plugin event, False otherwise.
@@ -144,7 +142,7 @@ class ProfileRequestSender(uploader_utils.RequestSender):
 
         return tf.io.gfile.isdir(self._profile_dir(run_name))
 
-    def _profile_dir(self, run_name: str):
+    def _profile_dir(self, run_name: str) -> str:
         """Converts run name to full profile path.
 
         Args:
@@ -434,11 +432,9 @@ class _FileRequestSender(object):
                     time_series_data=request.time_series_data,
                 )
             except grpc.RpcError as e:
-                if e.code() == grpc.StatusCode.NOT_FOUND:
-                    raise uploader_utils.ExperimentNotFoundError()
                 logger.error("Upload call failed with error %s", e)
 
-    def _file_too_large(self, file):
+    def _file_too_large(self, file: str):
         file_size = tf.io.gfile.stat(file).length
         if file_size > self._max_blob_size:
             logger.warning(

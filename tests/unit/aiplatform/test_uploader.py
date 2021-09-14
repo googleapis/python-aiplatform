@@ -1438,7 +1438,7 @@ class ScalarBatchedRequestSenderTest(tf.test.TestCase):
 
         error = _grpc_error(grpc.StatusCode.NOT_FOUND, "nope")
         mock_client.write_tensorboard_run_data.side_effect = error
-        with self.assertRaises(uploader_utils.ExperimentNotFoundError):
+        with self.assertRaises(uploader_lib.ExperimentNotFoundError):
             sender.flush()
 
     def test_no_budget_for_base_request(self):
@@ -1751,7 +1751,6 @@ class FileRequestSenderTest(tf.test.TestCase):
             api=mock_client, run_resource_id=_TEST_ONE_PLATFORM_RUN_NAME,
         )
 
-        fn = None
         with tempfile.NamedTemporaryFile() as f1:
             fn = os.path.basename(f1.name)
             sender.add_files(
@@ -1795,6 +1794,26 @@ class FileRequestSenderTest(tf.test.TestCase):
                 for x in call_args_list["time_series_data"][0].values[0].blobs.values
             ],
         )
+
+    def test_add_files_no_experiment(self):
+        mock_client = _create_mock_client()
+        mock_client.write_tensorboard_run_data.side_effect = grpc.RpcError
+
+        sender = _create_file_request_sender(
+            api=mock_client, run_resource_id=_TEST_ONE_PLATFORM_RUN_NAME,
+        )
+
+        with tempfile.NamedTemporaryFile() as f1:
+            sender.add_files(
+                files=[f1.name],
+                tag="my_tag",
+                plugin="test_plugin",
+                event_timestamp=timestamp_pb2.Timestamp().FromDatetime(
+                    datetime.datetime.strptime("2020-01-01", "%Y-%m-%d")
+                ),
+            )
+
+        mock_client.write_tensorboard_run_data.assert_called_once()
 
     def test_copy_blobs(self):
         mock_client = _create_mock_client()

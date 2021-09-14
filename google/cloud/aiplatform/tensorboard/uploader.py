@@ -402,6 +402,10 @@ class PermissionDeniedError(RuntimeError):
     pass
 
 
+class ExperimentNotFoundError(RuntimeError):
+    pass
+
+
 class _OutOfSpaceError(Exception):
     """Action could not proceed without overflowing request budget.
 
@@ -775,7 +779,7 @@ class _BaseBatchedRequestSender(object):
                         hasattr(e, "code")
                         and getattr(e, "code")() == grpc.StatusCode.NOT_FOUND
                     ):
-                        raise uploader_utils.ExperimentNotFoundError()
+                        raise ExperimentNotFoundError()
                     logger.error("Upload call failed with error %s", e)
 
         self._new_request()

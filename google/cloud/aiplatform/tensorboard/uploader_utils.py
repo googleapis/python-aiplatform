@@ -46,10 +46,6 @@ logger = tb_logging.get_logger()
 logger.setLevel(logging.WARNING)
 
 
-class ExperimentNotFoundError(RuntimeError):
-    pass
-
-
 class ExistingResourceNotFoundError(RuntimeError):
     """Resource could not be created or retrieved."""
 
