@@ -24,6 +24,7 @@ from typing import (
     DefaultDict,
     Dict,
     List,
+    Optional,
     Set,
 )
 
@@ -103,17 +104,18 @@ class ProfileRequestSender(uploader_utils.RequestSender):
           blob_storage_folder: Name of the folder to save blob files to within the blob_storage_bucket.
           tracker: Upload tracker to track information about uploads.
           logdir: The log directory for the request sender to search.
-          run_resource_manager: Manages creation or retrieving of runs.
+          run_resource_manager: Manages creation or retrieving of runs. This is a shared resource
+            between other request senders.
         """
         self._experiment_resource_name = experiment_resource_name
         self._api = api
         self._logdir = logdir
         self._tag_metadata = {}
-        self._handlers = {}
         self._tracker = tracker
+        self._run_resource_manager = run_resource_manager
+
         self._run_to_file_request_sender: Dict[str, _FileRequestSender] = {}
         self._run_to_profile_loaders: Dict[str, _ProfileSessionLoader] = {}
-        self._run_resource_manager = run_resource_manager
 
         self._file_request_sender_factory = functools.partial(
             _FileRequestSender,
@@ -198,7 +200,7 @@ class ProfileRequestSender(uploader_utils.RequestSender):
 class _ProfileSessionLoader(object):
     """Loader for a profile session within a training run.
 
-    The term 'session' is used to talk about an instance of a profile. For example,
+    The term 'session' refers to an instance of a profile, where
     one may have multiple profile sessions under a training run.
     """
 
@@ -217,9 +219,7 @@ class _ProfileSessionLoader(object):
         self._path = path
         self._prof_session_to_files: DefaultDict[str, Set[str]] = defaultdict(set)
 
-    def _path_filter(
-        self, path: str,
-    ):
+    def _path_filter(self, path: str) -> bool:
         """Determine which paths we should upload.
 
         Paths written by profiler should be of form:
@@ -288,7 +288,8 @@ class _FileRequestSender(object):
 
     This sender is closely related to the `_BlobRequestSender`, however it expects
     file paths instead of blob files, so that data is not directly read in and instead
-    files are moved between buckets.
+    files are moved between buckets. Additionally, this sender does not take event files
+    as the other request sender objects do.
 
     This class is not threadsafe. Use external synchronization if calling its
     methods concurrently.
@@ -463,7 +464,15 @@ class _FileRequestSender(object):
         return blob_id
 
 
-def _get_blob_from_file(fp):
+def _get_blob_from_file(fp: str) -> Optional[str]:
+    """Gets blob name from a storage bucket.
+
+    Args:
+        fp: string representing a file path
+
+    Returns:
+        Base blob file name if it exists, else None
+    """
     m = re.match(r"gs:\/\/.*?\/(.*)", fp)
     if not m:
         logger.warning("Could not get the blob name from file %s", fp)
@@ -474,7 +483,11 @@ def _get_blob_from_file(fp):
 def _prune_empty_time_series_from_blob(
     request: tensorboard_service.WriteTensorboardRunDataRequest,
 ):
-    """Removes empty time_series from request if there are no blob files."""
+    """Removes empty time_series from request if there are no blob files.'
+
+    Args:
+        request: A write request for blob files.
+    """
     for (time_series_idx, time_series_data) in reversed(
         list(enumerate(request.time_series_data))
     ):
