@@ -57,9 +57,9 @@ class ProfileRequestSender(uploader_utils.RequestSender):
     """Helper class for building requests for the profiler plugin.
 
     While the profile plugin does create event files when a profile run is performed
-    for a new run for the first time, these event files do not contain values of interest
+    for a new training run, these event files do not contain any values
     like other events do. Instead, the plugin will create subdirectories and profiling
-    files to store the profiling data.
+    files within these subdirectories.
 
     To verify the plugin, subdirectories need to be searched to confirm valid
     profile directories and files.
@@ -185,17 +185,7 @@ class ProfileRequestSender(uploader_utils.RequestSender):
         for prof_session, files in self._run_to_profile_loaders[
             run_name
         ].prof_sessions_to_files():
-            try:
-                event_time = datetime.datetime.strptime(
-                    prof_session, "%Y_%m_%d_%H_%M_%S"
-                )
-            except ValueError:
-                logger.warning(
-                    "Could not get the datetime from profile run name: %s, "
-                    "using current datetime instead. %s",
-                    prof_session,
-                )
-                event_time = datetime.datetime.now()
+            event_time = datetime.datetime.strptime(prof_session, "%Y_%m_%d_%H_%M_%S")
             event_timestamp = timestamp.Timestamp().FromDatetime(event_time)
 
             # Implicit flush to any files after they are uploaded.
