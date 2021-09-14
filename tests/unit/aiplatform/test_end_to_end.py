@@ -152,7 +152,9 @@ class TestEndToEnd:
 
         if not sync:
             # Accessing attribute in Endpoint that has not been created raises informatively
-            with pytest.raises(RuntimeError, match=r"Endpoint resource has not been created."):
+            with pytest.raises(
+                RuntimeError, match=r"Endpoint resource has not been created."
+            ):
                 my_endpoint.network
 
             my_endpoint.wait()
