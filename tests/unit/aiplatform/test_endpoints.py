@@ -27,21 +27,9 @@ from google.auth import credentials as auth_credentials
 from google.cloud import aiplatform
 
 from google.cloud.aiplatform import initializer
+from google.cloud.aiplatform import explain
 from google.cloud.aiplatform import models
 from google.cloud.aiplatform import utils
-
-from google.cloud.aiplatform_v1beta1.services.endpoint_service import (
-    client as endpoint_service_client_v1beta1,
-)
-from google.cloud.aiplatform_v1beta1.services.prediction_service import (
-    client as prediction_service_client_v1beta1,
-)
-from google.cloud.aiplatform_v1beta1.types import (
-    endpoint as gca_endpoint_v1beta1,
-    machine_resources as gca_machine_resources_v1beta1,
-    prediction_service as gca_prediction_service_v1beta1,
-    endpoint_service as gca_endpoint_service_v1beta1,
-)
 
 from google.cloud.aiplatform_v1.services.model_service import (
     client as model_service_client,
@@ -52,7 +40,7 @@ from google.cloud.aiplatform_v1.services.endpoint_service import (
 from google.cloud.aiplatform_v1.services.prediction_service import (
     client as prediction_service_client,
 )
-from google.cloud.aiplatform_v1.types import (
+from google.cloud.aiplatform.compat.types import (
     endpoint as gca_endpoint,
     model as gca_model,
     machine_resources as gca_machine_resources,
@@ -98,12 +86,10 @@ _TEST_MACHINE_TYPE = "n1-standard-32"
 _TEST_ACCELERATOR_TYPE = "NVIDIA_TESLA_P100"
 _TEST_ACCELERATOR_COUNT = 2
 
-_TEST_EXPLANATIONS = [
-    gca_prediction_service_v1beta1.explanation.Explanation(attributions=[])
-]
+_TEST_EXPLANATIONS = [gca_prediction_service.explanation.Explanation(attributions=[])]
 
 _TEST_ATTRIBUTIONS = [
-    gca_prediction_service_v1beta1.explanation.Attribution(
+    gca_prediction_service.explanation.Attribution(
         baseline_output_value=1.0,
         instance_output_value=2.0,
         feature_attributions=3.0,
@@ -114,9 +100,9 @@ _TEST_ATTRIBUTIONS = [
     )
 ]
 
-_TEST_EXPLANATION_METADATA = aiplatform.explain.ExplanationMetadata(
+_TEST_EXPLANATION_METADATA = explain.ExplanationMetadata(
     inputs={
-        "features": aiplatform.explain.ExplanationMetadata.InputMetadata(
+        "features": explain.ExplanationMetadata.InputMetadata(
             {
                 "input_tensor_name": "dense_input",
                 "encoding": "BAG_OF_FEATURES",
@@ -126,12 +112,12 @@ _TEST_EXPLANATION_METADATA = aiplatform.explain.ExplanationMetadata(
         )
     },
     outputs={
-        "medv": aiplatform.explain.ExplanationMetadata.OutputMetadata(
+        "medv": explain.ExplanationMetadata.OutputMetadata(
             {"output_tensor_name": "dense_2"}
         )
     },
 )
-_TEST_EXPLANATION_PARAMETERS = aiplatform.explain.ExplanationParameters(
+_TEST_EXPLANATION_PARAMETERS = explain.ExplanationParameters(
     {"sampled_shapley_attribution": {"path_count": 10}}
 )
 
@@ -263,13 +249,13 @@ def deploy_model_mock():
 @pytest.fixture
 def deploy_model_with_explanations_mock():
     with mock.patch.object(
-        endpoint_service_client_v1beta1.EndpointServiceClient, "deploy_model"
+        endpoint_service_client.EndpointServiceClient, "deploy_model"
     ) as deploy_model_mock:
-        deployed_model = gca_endpoint_v1beta1.DeployedModel(
+        deployed_model = gca_endpoint.DeployedModel(
             model=_TEST_MODEL_NAME, display_name=_TEST_DISPLAY_NAME,
         )
         deploy_model_lro_mock = mock.Mock(ga_operation.Operation)
-        deploy_model_lro_mock.result.return_value = gca_endpoint_service_v1beta1.DeployModelResponse(
+        deploy_model_lro_mock.result.return_value = gca_endpoint_service.DeployModelResponse(
             deployed_model=deployed_model,
         )
         deploy_model_mock.return_value = deploy_model_lro_mock
@@ -357,9 +343,9 @@ def predict_client_predict_mock():
 @pytest.fixture
 def predict_client_explain_mock():
     with mock.patch.object(
-        prediction_service_client_v1beta1.PredictionServiceClient, "explain"
+        prediction_service_client.PredictionServiceClient, "explain"
     ) as predict_mock:
-        predict_mock.return_value = gca_prediction_service_v1beta1.ExplainResponse(
+        predict_mock.return_value = gca_prediction_service.ExplainResponse(
             deployed_model_id=_TEST_MODEL_ID,
         )
         predict_mock.return_value.predictions.extend(_TEST_PREDICTION)
@@ -810,21 +796,21 @@ class TestEndpoint:
         if not sync:
             test_endpoint.wait()
 
-        expected_machine_spec = gca_machine_resources_v1beta1.MachineSpec(
+        expected_machine_spec = gca_machine_resources.MachineSpec(
             machine_type=_TEST_MACHINE_TYPE,
             accelerator_type=_TEST_ACCELERATOR_TYPE,
             accelerator_count=_TEST_ACCELERATOR_COUNT,
         )
-        expected_dedicated_resources = gca_machine_resources_v1beta1.DedicatedResources(
+        expected_dedicated_resources = gca_machine_resources.DedicatedResources(
             machine_spec=expected_machine_spec,
             min_replica_count=1,
             max_replica_count=1,
         )
-        expected_deployed_model = gca_endpoint_v1beta1.DeployedModel(
+        expected_deployed_model = gca_endpoint.DeployedModel(
             dedicated_resources=expected_dedicated_resources,
             model=test_model.resource_name,
             display_name=None,
-            explanation_spec=gca_endpoint_v1beta1.explanation.ExplanationSpec(
+            explanation_spec=gca_endpoint.explanation.ExplanationSpec(
                 metadata=_TEST_EXPLANATION_METADATA,
                 parameters=_TEST_EXPLANATION_PARAMETERS,
             ),
