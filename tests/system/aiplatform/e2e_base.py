@@ -76,7 +76,7 @@ class TestEndToEnd(metaclass=abc.ABCMeta):
         shared_state["storage_client"] = storage_client
 
         shared_state["bucket"] = storage_client.create_bucket(
-            staging_bucket_name, location=_LOCATION
+            staging_bucket_name, project=_PROJECT, location=_LOCATION
         )
         yield
 
