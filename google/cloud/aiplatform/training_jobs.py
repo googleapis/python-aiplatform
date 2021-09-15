@@ -4514,7 +4514,7 @@ class AutoMLImageTrainingJob(_TrainingJob):
         training_filter_split: Optional[str] = None,
         validation_filter_split: Optional[str] = None,
         test_filter_split: Optional[str] = None,
-        budget_milli_node_hours: int = 1000,
+        budget_milli_node_hours: Optional[int] = None,
         model_display_name: Optional[str] = None,
         model_labels: Optional[Dict[str, str]] = None,
         disable_early_stopping: bool = False,
@@ -4580,18 +4580,26 @@ class AutoMLImageTrainingJob(_TrainingJob):
                 single DataItem is matched by more than one of the FilterSplit filters,
                 then it is assigned to the first set that applies to it in the training,
                 validation, test order. This is ignored if Dataset is not provided.
-            budget_milli_node_hours: int = 1000
+            budget_milli_node_hours (int):
                 Optional. The train budget of creating this Model, expressed in milli node
                 hours i.e. 1,000 value in this field means 1 node hour.
+
+                Defaults by `prediction_type`:
+
+                    `classification` - For Cloud models the budget must be: 8,000 - 800,000
+                    milli node hours (inclusive). The default value is 192,000 which
+                    represents one day in wall time, assuming 8 nodes are used.
+                    `object_detection` - For Cloud models the budget must be: 20,000 - 900,000
+                    milli node hours (inclusive). The default value is 216,000 which represents
+                    one day in wall time, assuming 9 nodes are used.
+
                 The training cost of the model will not exceed this budget. The final
                 cost will be attempted to be close to the budget, though may end up
                 being (even) noticeably smaller - at the backend's discretion. This
                 especially may happen when further model training ceases to provide
-                any improvements.
-                If the budget is set to a value known to be insufficient to train a
-                Model for the given training set, the training won't be attempted and
+                any improvements. If the budget is set to a value known to be insufficient to
+                train a Model for the given training set, the training won't be attempted and
                 will error.
-                The minimum value is 1000 and the maximum is 72000.
             model_display_name (str):
                 Optional. The display name of the managed Vertex AI Model. The name
                 can be up to 128 characters long and can be consist of any UTF-8
