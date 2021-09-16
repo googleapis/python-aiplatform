@@ -34,11 +34,9 @@ def read_feature_values_sample(
         client_options=client_options
     )
     entity_type = f"projects/{project}/locations/{location}/featurestores/{featurestore_id}/entityTypes/{entity_type_id}"
-    read_feature_values_request = {
-        "entity_type": entity_type,
-        "entity_id": entity_id,
-        "feature_selector": feature_selector,
-    }
+    read_feature_values_request = aiplatform.ReadFeatureValuesRequest(
+        entity_type=entity_type, entity_id=entity_id, feature_selector=feature_selector
+    )
     read_feature_values_response = client.read_feature_values(
         request=read_feature_values_request
     )

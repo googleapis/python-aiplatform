@@ -19,9 +19,9 @@ from google.cloud import aiplatform_v1beta1 as aiplatform
 def batch_read_feature_values_sample(
     project: str,
     featurestore_id: str,
-    csv_read_instances: str,
-    destination: str,
-    entity_type_specs: str,
+    csv_read_instances: aiplatform.CsvSource,
+    destination: aiplatform.FeatureValueDestination,
+    entity_type_specs: list,
     location: str = "us-central1",
     api_endpoint: str = "us-central1-aiplatform.googleapis.com",
     timeout: int = 300,
@@ -34,12 +34,13 @@ def batch_read_feature_values_sample(
     featurestore = (
         f"projects/{project}/locations/{location}/featurestores/{featurestore_id}"
     )
-    batch_read_feature_values_request = {
-        "featurestore": featurestore,
-        "csv_read_instances": csv_read_instances,
-        "destination": destination,
-        "entity_type_specs": entity_type_specs,
-    }
+    # Batch serving request from CSV
+    batch_read_feature_values_request = aiplatform.BatchReadFeatureValuesRequest(
+        featurestore=featurestore,
+        csv_read_instances=csv_read_instances,
+        destination=destination,
+        entity_type_specs=entity_type_specs,
+    )
     lro_response = client.batch_read_feature_values(
         request=batch_read_feature_values_request
     )

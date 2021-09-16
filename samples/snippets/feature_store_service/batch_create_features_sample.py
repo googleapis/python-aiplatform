@@ -20,7 +20,7 @@ def batch_create_features_sample(
     project: str,
     featurestore_id: str,
     entity_type_id: str,
-    requests: str,
+    requests: list,
     location: str = "us-central1",
     api_endpoint: str = "us-central1-aiplatform.googleapis.com",
     timeout: int = 300,
@@ -31,7 +31,9 @@ def batch_create_features_sample(
     # This client only needs to be created once, and can be reused for multiple requests.
     client = aiplatform.FeaturestoreServiceClient(client_options=client_options)
     parent = f"projects/{project}/locations/{location}/featurestores/{featurestore_id}/entityTypes/{entity_type_id}"
-    batch_create_features_request = {"parent": parent, "requests": requests}
+    batch_create_features_request = aiplatform.BatchCreateFeaturesRequest(
+        parent=parent, requests=requests
+    )
     lro_response = client.batch_create_features(request=batch_create_features_request)
     print("Long running operation:", lro_response.operation.name)
     batch_create_features_response = lro_response.result(timeout=timeout)

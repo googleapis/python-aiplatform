@@ -15,11 +15,11 @@
 import os
 from uuid import uuid4
 
-import import_feature_values_sample
 import batch_create_features_sample
 import create_entity_type_sample
+from google.cloud import aiplatform_v1beta1 as aiplatform
+import import_feature_values_sample
 import pytest
-import sys
 
 import helpers
 
@@ -81,8 +81,14 @@ def test_ucaip_generated_import_feature_values_sample_vision(capsys, shared_stat
     entity_type_name = setup_temp_entity_type(featurestore_id, entity_type_id, capsys)
     setup_features(featurestore_id, entity_type_id, capsys)
 
-    avro_source = {"gcs_source": {"uris": [AVRO_GCS_URI]}}
-    feature_specs = [{"id": "age"}, {"id": "gender"}, {"id": "liked_genres"}]
+    avro_source = aiplatform.AvroSource(
+        gcs_source=aiplatform.GcsSource(uris=[AVRO_GCS_URI])
+    )
+    feature_specs = [
+        aiplatform.ImportFeatureValuesRequest.FeatureSpec(id="age"),
+        aiplatform.ImportFeatureValuesRequest.FeatureSpec(id="gender"),
+        aiplatform.ImportFeatureValuesRequest.FeatureSpec(id="liked_genres"),
+    ]
     import_feature_values_sample.import_feature_values_sample(
         project=PROJECT_ID,
         featurestore_id=featurestore_id,

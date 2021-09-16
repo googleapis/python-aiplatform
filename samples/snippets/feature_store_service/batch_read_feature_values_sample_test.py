@@ -12,16 +12,14 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import os
-from uuid import uuid4
 from datetime import datetime
-
-from google.cloud import bigquery
+import os
 
 import batch_read_feature_values_sample
-import pytest
+from google.cloud import aiplatform_v1beta1 as aiplatform
+from google.cloud import bigquery
 
-import helpers
+import pytest
 
 PROJECT_ID = os.getenv("BUILD_SPECIFIC_GCLOUD_PROJECT")
 LOCATION = "us-central1"
@@ -60,19 +58,37 @@ def test_ucaip_generated_batch_read_feature_values_sample_vision(capsys, shared_
     destination_data_set, destination_table_uri = setup_test()
 
     featurestore_id = "perm_sample_featurestore"
-    csv_read_instances = {"gcs_source": {"uris": [INPUT_CSV_FILE]}}
-    destination = {"bigquery_destination": {"output_uri": destination_table_uri}}
+    csv_read_instances = aiplatform.CsvSource(
+        gcs_source=aiplatform.GcsSource(uris=[INPUT_CSV_FILE])
+    )
+    destination = aiplatform.FeatureValueDestination(
+        bigquery_destination=aiplatform.BigQueryDestination(
+            # Output to BigQuery table created earlier
+            output_uri=destination_table_uri
+        )
+    )
     entity_type_specs = [
-        {
-            "entity_type_id": "perm_users",
-            "feature_selector": {
-                "id_matcher": {"ids": ["age", "gender", "liked_genres"]}
-            },
-        },
-        {
-            "entity_type_id": "perm_movies",
-            "feature_selector": {"id_matcher": {"ids": ["average_rating", "genres"]}},
-        },
+        aiplatform.BatchReadFeatureValuesRequest.EntityTypeSpec(
+            # Read the 'age', 'gender' and 'liked_genres' features from the 'perm_users' entity
+            entity_type_id="perm_users",
+            feature_selector=aiplatform.FeatureSelector(
+                id_matcher=aiplatform.IdMatcher(
+                    ids=[
+                        # features, use "*" if you want to select all features within this entity type
+                        "age",
+                        "gender",
+                        "liked_genres",
+                    ]
+                )
+            ),
+        ),
+        aiplatform.BatchReadFeatureValuesRequest.EntityTypeSpec(
+            # Read the 'average_rating' and 'genres' features from the 'perm_movies' entity
+            entity_type_id="perm_movies",
+            feature_selector=aiplatform.FeatureSelector(
+                id_matcher=aiplatform.IdMatcher(ids=["average_rating", "genres"])
+            ),
+        ),
     ]
 
     batch_read_feature_values_sample.batch_read_feature_values_sample(

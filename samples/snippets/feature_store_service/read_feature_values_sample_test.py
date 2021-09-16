@@ -13,12 +13,10 @@
 # limitations under the License.
 
 import os
-from uuid import uuid4
 
-import read_feature_values_sample
+from google.cloud import aiplatform_v1beta1 as aiplatform
 import pytest
-
-import helpers
+import read_feature_values_sample
 
 PROJECT_ID = os.getenv("BUILD_SPECIFIC_GCLOUD_PROJECT")
 
@@ -31,7 +29,9 @@ def teardown():
 def test_ucaip_generated_read_feature_values_sample_vision(capsys, shared_state):
     featurestore_id = "perm_sample_featurestore"
     entity_type_id = "perm_users"
-    feature_selector = {"id_matcher": {"ids": ["age", "gender", "liked_genres"]}}
+    feature_selector = aiplatform.FeatureSelector(
+        id_matcher=aiplatform.IdMatcher(ids=["age", "gender", "liked_genres"],)
+    )
     read_feature_values_sample.read_feature_values_sample(
         project=PROJECT_ID,
         featurestore_id=featurestore_id,

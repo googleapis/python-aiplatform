@@ -16,8 +16,8 @@ import os
 from uuid import uuid4
 
 from google.cloud import aiplatform, aiplatform_v1beta1
-from google.cloud import storage
 from google.cloud import bigquery
+from google.cloud import storage
 import pytest
 
 import helpers
@@ -94,7 +94,9 @@ def featurestore_client():
 
 @pytest.fixture
 def bigquery_client():
-    bigquery_client = bigquery.Client(project=os.getenv("BUILD_SPECIFIC_GCLOUD_PROJECT"))
+    bigquery_client = bigquery.Client(
+        project=os.getenv("BUILD_SPECIFIC_GCLOUD_PROJECT")
+    )
     yield bigquery_client
 
 
@@ -223,7 +225,7 @@ def teardown_featurestore(shared_state, featurestore_client):
     # Force delete the created featurestore
     force_delete_featurestore_request = {
         "name": shared_state["featurestore_name"],
-        "force": True
+        "force": True,
     }
     featurestore_client.delete_featurestore(request=force_delete_featurestore_request)
 
@@ -235,7 +237,7 @@ def teardown_entity_type(shared_state, featurestore_client):
     # Force delete the created entity type
     force_delete_entity_type_request = {
         "name": shared_state["entity_type_name"],
-        "force": True
+        "force": True,
     }
     featurestore_client.delete_entity_type(request=force_delete_entity_type_request)
 
