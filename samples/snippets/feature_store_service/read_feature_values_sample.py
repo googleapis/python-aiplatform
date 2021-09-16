@@ -21,10 +21,8 @@ def read_feature_values_sample(
     featurestore_id: str,
     entity_type_id: str,
     entity_id: str,
-    feature_selector: str,
     location: str = "us-central1",
     api_endpoint: str = "us-central1-aiplatform.googleapis.com",
-    timeout: int = 300,
 ):
     # The AI Platform services require regional API endpoints.
     client_options = {"api_endpoint": api_endpoint}
@@ -34,6 +32,9 @@ def read_feature_values_sample(
         client_options=client_options
     )
     entity_type = f"projects/{project}/locations/{location}/featurestores/{featurestore_id}/entityTypes/{entity_type_id}"
+    feature_selector = aiplatform.FeatureSelector(
+        id_matcher=aiplatform.IdMatcher(ids=["age", "gender", "liked_genres"])
+    )
     read_feature_values_request = aiplatform.ReadFeatureValuesRequest(
         entity_type=entity_type, entity_id=entity_id, feature_selector=feature_selector
     )

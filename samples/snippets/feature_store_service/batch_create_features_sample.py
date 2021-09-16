@@ -20,7 +20,6 @@ def batch_create_features_sample(
     project: str,
     featurestore_id: str,
     entity_type_id: str,
-    requests: list,
     location: str = "us-central1",
     api_endpoint: str = "us-central1-aiplatform.googleapis.com",
     timeout: int = 300,
@@ -31,6 +30,33 @@ def batch_create_features_sample(
     # This client only needs to be created once, and can be reused for multiple requests.
     client = aiplatform.FeaturestoreServiceClient(client_options=client_options)
     parent = f"projects/{project}/locations/{location}/featurestores/{featurestore_id}/entityTypes/{entity_type_id}"
+    requests = [
+        aiplatform.CreateFeatureRequest(
+            feature=aiplatform.Feature(
+                value_type=aiplatform.Feature.ValueType.INT64, description="User age",
+            ),
+            feature_id="age",
+        ),
+        aiplatform.CreateFeatureRequest(
+            feature=aiplatform.Feature(
+                value_type=aiplatform.Feature.ValueType.STRING,
+                description="User gender",
+                monitoring_config=aiplatform.FeaturestoreMonitoringConfig(
+                    snapshot_analysis=aiplatform.FeaturestoreMonitoringConfig.SnapshotAnalysis(
+                        disabled=True,
+                    ),
+                ),
+            ),
+            feature_id="gender",
+        ),
+        aiplatform.CreateFeatureRequest(
+            feature=aiplatform.Feature(
+                value_type=aiplatform.Feature.ValueType.STRING_ARRAY,
+                description="An array of genres that this user liked",
+            ),
+            feature_id="liked_genres",
+        ),
+    ]
     batch_create_features_request = aiplatform.BatchCreateFeaturesRequest(
         parent=parent, requests=requests
     )

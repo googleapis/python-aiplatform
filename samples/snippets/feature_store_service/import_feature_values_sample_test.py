@@ -17,7 +17,6 @@ from uuid import uuid4
 
 import batch_create_features_sample
 import create_entity_type_sample
-from google.cloud import aiplatform_v1beta1 as aiplatform
 import import_feature_values_sample
 import pytest
 
@@ -35,30 +34,10 @@ def teardown(teardown_entity_type):
 
 
 def setup_features(featurestore_id, entity_type_id, capsys):
-    requests = [
-        {
-            "feature_id": "age",
-            "feature": {"value_type": "INT64", "description": "User age"},
-        },
-        {
-            "feature_id": "gender",
-            "feature": {"value_type": "STRING", "description": "User gender"},
-        },
-        {
-            "feature_id": "liked_genres",
-            "feature": {
-                "value_type": "STRING_ARRAY",
-                "description": "An array of genres that this user liked",
-            },
-        },
-    ]
-    location = "us-central1"
     batch_create_features_sample.batch_create_features_sample(
         project=PROJECT_ID,
         featurestore_id=featurestore_id,
         entity_type_id=entity_type_id,
-        requests=requests,
-        location=location,
     )
     out, _ = capsys.readouterr()
     assert "batch_create_features_response" in out
@@ -81,20 +60,11 @@ def test_ucaip_generated_import_feature_values_sample_vision(capsys, shared_stat
     entity_type_name = setup_temp_entity_type(featurestore_id, entity_type_id, capsys)
     setup_features(featurestore_id, entity_type_id, capsys)
 
-    avro_source = aiplatform.AvroSource(
-        gcs_source=aiplatform.GcsSource(uris=[AVRO_GCS_URI])
-    )
-    feature_specs = [
-        aiplatform.ImportFeatureValuesRequest.FeatureSpec(id="age"),
-        aiplatform.ImportFeatureValuesRequest.FeatureSpec(id="gender"),
-        aiplatform.ImportFeatureValuesRequest.FeatureSpec(id="liked_genres"),
-    ]
     import_feature_values_sample.import_feature_values_sample(
         project=PROJECT_ID,
         featurestore_id=featurestore_id,
         entity_type_id=entity_type_id,
-        avro_source=avro_source,
-        feature_specs=feature_specs,
+        avro_gcs_uri=AVRO_GCS_URI,
         entity_id_field="user_id",
         feature_time_field="update_time",
         worker_count=2,

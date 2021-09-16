@@ -16,49 +16,43 @@ import os
 from uuid import uuid4
 
 import batch_create_features_sample
-from google.cloud import aiplatform_v1beta1 as aiplatform
+import create_entity_type_sample
 
 import pytest
+
+import helpers
 
 PROJECT_ID = os.getenv("BUILD_SPECIFIC_GCLOUD_PROJECT")
 
 
 @pytest.fixture(scope="function", autouse=True)
-def teardown(teardown_features):
+def teardown(teardown_entity_type):
     yield
+
+
+def setup_temp_entity_type(featurestore_id, entity_type_id, capsys):
+    create_entity_type_sample.create_entity_type_sample(
+        project=PROJECT_ID,
+        featurestore_id=featurestore_id,
+        entity_type_id=entity_type_id,
+    )
+    out, _ = capsys.readouterr()
+    assert "create_entity_type_response" in out
+    return helpers.get_featurestore_resource_name(out)
 
 
 def test_ucaip_generated_batch_create_features_sample_vision(capsys, shared_state):
     featurestore_id = "perm_sample_featurestore"
-    entity_type_id = "perm_sample_entity_type"
-    requests = [
-        aiplatform.CreateFeatureRequest(
-            feature=aiplatform.Feature(
-                value_type=aiplatform.Feature.ValueType.STRING,
-                description="lorem ipsum",
-            ),
-            feature_id=f"gender_{uuid4()}".replace("-", "_")[:60],
-        ),
-        aiplatform.CreateFeatureRequest(
-            feature=aiplatform.Feature(
-                value_type=aiplatform.Feature.ValueType.STRING_ARRAY,
-                description="lorem ipsum",
-            ),
-            feature_id=f"liked_genres_{uuid4()}".replace("-", "_")[:60],
-        ),
-    ]
+    entity_type_id = f"users_{uuid4()}".replace("-", "_")[:60]
+    entity_type_name = setup_temp_entity_type(featurestore_id, entity_type_id, capsys)
     location = "us-central1"
     batch_create_features_sample.batch_create_features_sample(
         project=PROJECT_ID,
         featurestore_id=featurestore_id,
         entity_type_id=entity_type_id,
-        requests=requests,
         location=location,
     )
     out, _ = capsys.readouterr()
     assert "batch_create_features_response" in out
 
-    parent = f"projects/{PROJECT_ID}/locations/{location}/featurestores/{featurestore_id}/entityTypes/{entity_type_id}/features/"
-    shared_state["feature_names"] = []
-    for request in requests:
-        shared_state["feature_names"].append(parent + request.feature_id)
+    shared_state["entity_type_name"] = entity_type_name

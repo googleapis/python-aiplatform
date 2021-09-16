@@ -20,8 +20,7 @@ def import_feature_values_sample(
     project: str,
     featurestore_id: str,
     entity_type_id: str,
-    avro_source: aiplatform.AvroSource,
-    feature_specs: list,
+    avro_gcs_uri: str,
     entity_id_field: str,
     feature_time_field: str,
     worker_count: int = 2,
@@ -35,6 +34,14 @@ def import_feature_values_sample(
     # This client only needs to be created once, and can be reused for multiple requests.
     client = aiplatform.FeaturestoreServiceClient(client_options=client_options)
     entity_type = f"projects/{project}/locations/{location}/featurestores/{featurestore_id}/entityTypes/{entity_type_id}"
+    avro_source = aiplatform.AvroSource(
+        gcs_source=aiplatform.GcsSource(uris=[avro_gcs_uri])
+    )
+    feature_specs = [
+        aiplatform.ImportFeatureValuesRequest.FeatureSpec(id="age"),
+        aiplatform.ImportFeatureValuesRequest.FeatureSpec(id="gender"),
+        aiplatform.ImportFeatureValuesRequest.FeatureSpec(id="liked_genres"),
+    ]
     import_feature_values_request = aiplatform.ImportFeatureValuesRequest(
         entity_type=entity_type,
         avro_source=avro_source,

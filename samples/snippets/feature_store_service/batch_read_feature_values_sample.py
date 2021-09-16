@@ -19,9 +19,8 @@ from google.cloud import aiplatform_v1beta1 as aiplatform
 def batch_read_feature_values_sample(
     project: str,
     featurestore_id: str,
-    csv_read_instances: aiplatform.CsvSource,
-    destination: aiplatform.FeatureValueDestination,
-    entity_type_specs: list,
+    input_csv_file: str,
+    destination_table_uri: str,
     location: str = "us-central1",
     api_endpoint: str = "us-central1-aiplatform.googleapis.com",
     timeout: int = 300,
@@ -34,6 +33,38 @@ def batch_read_feature_values_sample(
     featurestore = (
         f"projects/{project}/locations/{location}/featurestores/{featurestore_id}"
     )
+    csv_read_instances = aiplatform.CsvSource(
+        gcs_source=aiplatform.GcsSource(uris=[input_csv_file])
+    )
+    destination = aiplatform.FeatureValueDestination(
+        bigquery_destination=aiplatform.BigQueryDestination(
+            # Output to BigQuery table created earlier
+            output_uri=destination_table_uri
+        )
+    )
+    entity_type_specs = [
+        aiplatform.BatchReadFeatureValuesRequest.EntityTypeSpec(
+            # Read the 'age', 'gender' and 'liked_genres' features from the 'perm_users' entity
+            entity_type_id="perm_users",
+            feature_selector=aiplatform.FeatureSelector(
+                id_matcher=aiplatform.IdMatcher(
+                    ids=[
+                        # features, use "*" if you want to select all features within this entity type
+                        "age",
+                        "gender",
+                        "liked_genres",
+                    ]
+                )
+            ),
+        ),
+        aiplatform.BatchReadFeatureValuesRequest.EntityTypeSpec(
+            # Read the 'average_rating' and 'genres' features from the 'perm_movies' entity
+            entity_type_id="perm_movies",
+            feature_selector=aiplatform.FeatureSelector(
+                id_matcher=aiplatform.IdMatcher(ids=["average_rating", "genres"])
+            ),
+        ),
+    ]
     # Batch serving request from CSV
     batch_read_feature_values_request = aiplatform.BatchReadFeatureValuesRequest(
         featurestore=featurestore,
