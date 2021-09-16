@@ -31,12 +31,11 @@ def create_entity_type_sample(
     # This client only needs to be created once, and can be reused for multiple requests.
     client = aiplatform.FeaturestoreServiceClient(client_options=client_options)
     parent = f"projects/{project}/locations/{location}/featurestores/{featurestore_id}"
-    create_entity_type_request = {
-        "parent": parent,
-        "entity_type_id": entity_type_id,
-        "entity_type": {"description": description},
-    }
-
+    create_entity_type_request = aiplatform.CreateEntityTypeRequest(
+        parent=parent,
+        entity_type_id=entity_type_id,
+        entity_type=aiplatform.EntityType(description=description),
+    )
     lro_response = client.create_entity_type(request=create_entity_type_request)
     print("Long running operation:", lro_response.operation.name)
     create_entity_type_response = lro_response.result(timeout=timeout)

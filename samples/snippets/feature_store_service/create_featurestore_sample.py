@@ -30,13 +30,15 @@ def create_featurestore_sample(
     # This client only needs to be created once, and can be reused for multiple requests.
     client = aiplatform.FeaturestoreServiceClient(client_options=client_options)
     parent = f"projects/{project}/locations/{location}"
-    create_featurestore_request = {
-        "parent": parent,
-        "featurestore_id": featurestore_id,
-        "featurestore": {
-            "online_serving_config": {"fixed_node_count": fixed_node_count}
-        },
-    }
+    create_featurestore_request = aiplatform.CreateFeaturestoreRequest(
+        parent=parent,
+        featurestore_id=featurestore_id,
+        featurestore=aiplatform.Featurestore(
+            online_serving_config=aiplatform.Featurestore.OnlineServingConfig(
+                fixed_node_count=fixed_node_count,
+            ),
+        ),
+    )
     lro_response = client.create_featurestore(request=create_featurestore_request)
     print("Long running operation:", lro_response.operation.name)
     create_featurestore_response = lro_response.result(timeout=timeout)

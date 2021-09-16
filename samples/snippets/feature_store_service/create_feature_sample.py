@@ -21,7 +21,7 @@ def create_feature_sample(
     featurestore_id: str,
     entity_type_id: str,
     feature_id: str,
-    value_type: str,
+    value_type: aiplatform.Feature.ValueType,
     description: str = "sample feature",
     location: str = "us-central1",
     api_endpoint: str = "us-central1-aiplatform.googleapis.com",
@@ -33,11 +33,11 @@ def create_feature_sample(
     # This client only needs to be created once, and can be reused for multiple requests.
     client = aiplatform.FeaturestoreServiceClient(client_options=client_options)
     parent = f"projects/{project}/locations/{location}/featurestores/{featurestore_id}/entityTypes/{entity_type_id}"
-    create_feature_request = {
-        "parent": parent,
-        "feature": {"value_type": value_type, "description": description},
-        "feature_id": feature_id,
-    }
+    create_feature_request = aiplatform.CreateFeatureRequest(
+        parent=parent,
+        feature=aiplatform.Feature(value_type=value_type, description=description),
+        feature_id=feature_id,
+    )
     lro_response = client.create_feature(request=create_feature_request)
     print("Long running operation:", lro_response.operation.name)
     create_feature_response = lro_response.result(timeout=timeout)
