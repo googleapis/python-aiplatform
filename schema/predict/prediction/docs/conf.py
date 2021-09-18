@@ -74,8 +74,8 @@ source_suffix = [".rst", ".md"]
 # The encoding of source files.
 # source_encoding = 'utf-8-sig'
 
-# The root toctree document.
-root_doc = "index"
+# The master toctree document.
+master_doc = "index"
 
 # General information about the project.
 project = u"google-cloud-aiplatform-v1-schema-predict-prediction"
@@ -272,7 +272,7 @@ latex_elements = {
 #  author, documentclass [howto, manual, or own class]).
 latex_documents = [
     (
-        root_doc,
+        master_doc,
         "google-cloud-aiplatform-v1-schema-predict-prediction.tex",
         u"google-cloud-aiplatform-v1-schema-predict-prediction Documentation",
         author,
@@ -307,7 +307,7 @@ latex_documents = [
 # (source start file, name, description, authors, manual section).
 man_pages = [
     (
-        root_doc,
+        master_doc,
         "google-cloud-aiplatform-v1-schema-predict-prediction",
         u"Google Cloud Aiplatform V1 Schema Predict Prediction Documentation",
         [author],
@@ -326,7 +326,7 @@ man_pages = [
 #  dir menu entry, description, category)
 texinfo_documents = [
     (
-        root_doc,
+        master_doc,
         "google-cloud-aiplatform-v1-schema-predict-prediction",
         u"google-cloud-aiplatform-v1-schema-predict-prediction Documentation",
         author,
