@@ -22,7 +22,7 @@ import json
 import logging
 import re
 import time
-from typing import Callable, Dict
+from typing import Callable, Dict, Optional
 import uuid
 
 from tensorboard.util import tb_logging
@@ -178,8 +178,15 @@ class RunResourceManager(object):
         return tb_run
 
 
-def get_source_bucket(logdir: str) -> storage.Bucket:
-    """Returns a storage bucket object given a log directory."""
+def get_source_bucket(logdir: str) -> Optional[storage.Bucket]:
+    """Returns a storage bucket object given a log directory.
+
+    Args:
+        logdir: path of the log directory
+
+    Returns:
+        A bucket if the path is a gs bucket, None otherwise
+    """
     m = re.match(r"gs:\/\/(.*?)(?=\/|$)", logdir)
     if not m:
         return None
