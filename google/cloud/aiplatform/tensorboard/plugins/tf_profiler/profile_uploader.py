@@ -289,7 +289,8 @@ class _FileRequestSender(object):
     This sender is closely related to the `_BlobRequestSender`, however it expects
     file paths instead of blob files, so that data is not directly read in and instead
     files are moved between buckets. Additionally, this sender does not take event files
-    as the other request sender objects do.
+    as the other request sender objects do. The sender takes files from either local storage
+    or a gcs bucket and uploads to the tensorboard bucket.
 
     This class is not threadsafe. Use external synchronization if calling its
     methods concurrently.
@@ -399,7 +400,7 @@ class _FileRequestSender(object):
             file_size = tf.io.gfile.stat(prof_file).length
             with self._tracker.blob_tracker(file_size) as blob_tracker:
                 if not self._file_too_large(prof_file):
-                    blob_id = self._copy_between_buckets(prof_file, blob_path_prefix)
+                    blob_id = self._upload(prof_file, blob_path_prefix)
                     sent_blob_ids.append(str(blob_id))
                     blob_tracker.mark_uploaded(blob_id is not None)
 
@@ -446,22 +447,34 @@ class _FileRequestSender(object):
             return True
         return False
 
-    def _copy_between_buckets(self, file, blob_path_prefix):
-        """Move files between the user's bucket and the tenant bucket."""
+    def _upload(self, file, blob_path_prefix):
+        """Move files between either a local directory or a bucket and the tenant bucket."""
         blob_id = os.path.basename(file)
-        blob_name = _get_blob_from_file(file)
-
-        source_blob = self._source_bucket.blob(blob_name)
-
         blob_path = (
             "{}/{}".format(blob_path_prefix, blob_id) if blob_path_prefix else blob_id
         )
+
+        # Source bucket indicates files are storage on cloud storage
+        if self._source_bucket:
+            self._copy_between_buckets(file, blob_path)
+        else:
+            self._upload_from_local(file, blob_path)
+
+        return blob_id
+
+    def _copy_between_buckets(self, file, blob_path):
+        """Move files between the user's bucket and the tenant bucket."""
+        blob_name = _get_blob_from_file(file)
+
+        source_blob = self._source_bucket.blob(blob_name)
 
         self._source_bucket.copy_blob(
             source_blob, self._bucket, blob_path,
         )
 
-        return blob_id
+    def _upload_from_local(self, file, blob_path):
+        blob = self._bucket.blob(blob_path)
+        blob.upload_from_filename(file)
 
 
 def _get_blob_from_file(fp: str) -> Optional[str]:

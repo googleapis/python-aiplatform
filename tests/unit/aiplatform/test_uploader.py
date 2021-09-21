@@ -1815,6 +1815,29 @@ class FileRequestSenderTest(tf.test.TestCase):
 
         mock_client.write_tensorboard_run_data.assert_called_once()
 
+    def test_add_files_from_local(self):
+        mock_client = _create_mock_client()
+        bucket = _create_mock_blob_storage()
+
+        sender = _create_file_request_sender(
+            api=mock_client,
+            run_resource_id=_TEST_ONE_PLATFORM_RUN_NAME,
+            blob_storage_bucket=bucket,
+            source_bucket=None,
+        )
+
+        with tempfile.NamedTemporaryFile() as f1:
+            sender.add_files(
+                files=[f1.name],
+                tag="my_tag",
+                plugin="test_plugin",
+                event_timestamp=timestamp_pb2.Timestamp().FromDatetime(
+                    datetime.datetime.strptime("2020-01-01", "%Y-%m-%d")
+                ),
+            )
+
+        bucket.blob.assert_called_once()
+
     def test_copy_blobs(self):
         mock_client = _create_mock_client()
         sender = _create_file_request_sender(
