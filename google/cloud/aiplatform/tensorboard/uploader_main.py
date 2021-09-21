@@ -146,10 +146,7 @@ def main(argv):
             tb_uploader.get_experiment_resource_name().replace("/", "+"),
         )
     )
-    if FLAGS.one_shot:
-        tb_uploader._upload_once()  # pylint: disable=protected-access
-    else:
-        tb_uploader.start_uploading()
+    tb_uploader.start_uploading()
 
 
 def flags_parser(args):
