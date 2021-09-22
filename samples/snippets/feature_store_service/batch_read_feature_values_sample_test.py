@@ -35,7 +35,8 @@ def setup_test():
     destination_data_set = "movie_predictions_" + datetime.now().strftime(
         "%Y%m%d%H%M%S"
     )
-    # Output table. Make sure that the table does NOT already exist; the BatchReadFeatureValues API cannot overwrite an existing table
+    # Output table. Make sure that the table does NOT already exist, the
+    # BatchReadFeatureValues API cannot overwrite an existing table.
     destination_table_name = "training_data"
     DESTINATION_PATTERN = "bq://{project}.{dataset}.{table}"
     destination_table_uri = DESTINATION_PATTERN.format(

@@ -12,6 +12,10 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+# Bulk import values into a featurestore for existing features.
+# See https://cloud.google.com/vertex-ai/docs/featurestore/setup before running
+# the code snippet
+
 # [START aiplatform_import_feature_values_sample]
 from google.cloud import aiplatform_v1beta1 as aiplatform
 

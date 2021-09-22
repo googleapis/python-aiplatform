@@ -12,6 +12,11 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+# Batch read feature values from a featurestore, as determined by your read
+# instances list file, to export data.
+# See https://cloud.google.com/vertex-ai/docs/featurestore/setup before running
+# the code snippet
+
 # [START aiplatform_batch_read_feature_values_sample]
 from google.cloud import aiplatform_v1beta1 as aiplatform
 
@@ -43,22 +48,26 @@ def batch_read_feature_values_sample(
             output_uri=destination_table_uri
         )
     )
-    entity_type_specs = [
-        aiplatform.BatchReadFeatureValuesRequest.EntityTypeSpec(
-            # Read the 'age', 'gender' and 'liked_genres' features from the 'perm_users' entity
-            entity_type_id="perm_users",
-            feature_selector=aiplatform.FeatureSelector(
-                id_matcher=aiplatform.IdMatcher(ids=["age", "gender", "liked_genres"])
-            ),
-        ),
-        aiplatform.BatchReadFeatureValuesRequest.EntityTypeSpec(
-            # Read the all features from the 'perm_movies' entity
-            entity_type_id="perm_movies",
-            feature_selector=aiplatform.FeatureSelector(
-                id_matcher=aiplatform.IdMatcher(ids=["*"])
-            ),
-        ),
-    ]
+
+    users_feature_selector = aiplatform.FeatureSelector(
+        id_matcher=aiplatform.IdMatcher(ids=["age", "gender", "liked_genres"])
+    )
+    users_entity_type_spec = aiplatform.BatchReadFeatureValuesRequest.EntityTypeSpec(
+        # Read the 'age', 'gender' and 'liked_genres' features from the 'perm_users' entity
+        entity_type_id="perm_users",
+        feature_selector=users_feature_selector,
+    )
+
+    movies_feature_selector = aiplatform.FeatureSelector(
+        id_matcher=aiplatform.IdMatcher(ids=["*"])
+    )
+    movies_entity_type_spec = aiplatform.BatchReadFeatureValuesRequest.EntityTypeSpec(
+        # Read the all features from the 'perm_movies' entity
+        entity_type_id="perm_movies",
+        feature_selector=movies_feature_selector,
+    )
+
+    entity_type_specs = [users_entity_type_spec, movies_entity_type_spec]
     # Batch serving request from CSV
     batch_read_feature_values_request = aiplatform.BatchReadFeatureValuesRequest(
         featurestore=featurestore,

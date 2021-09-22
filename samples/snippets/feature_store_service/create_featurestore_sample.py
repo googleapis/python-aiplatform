@@ -12,6 +12,10 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+# Create a featurestore resource to contain entity types and features.
+# See https://cloud.google.com/vertex-ai/docs/featurestore/setup before running
+# the code snippet
+
 # [START aiplatform_create_featurestore_sample]
 from google.cloud import aiplatform_v1beta1 as aiplatform
 

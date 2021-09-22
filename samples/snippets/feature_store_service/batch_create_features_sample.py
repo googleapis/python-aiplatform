@@ -12,6 +12,10 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+# Create features in bulk for an existing type.
+# See https://cloud.google.com/vertex-ai/docs/featurestore/setup before running
+# the code snippet
+
 # [START aiplatform_batch_create_features_sample]
 from google.cloud import aiplatform_v1beta1 as aiplatform
 
@@ -31,27 +35,32 @@ def batch_create_features_sample(
     # This client only needs to be created once, and can be reused for multiple requests.
     client = aiplatform.FeaturestoreServiceClient(client_options=client_options)
     parent = f"projects/{project}/locations/{location}/featurestores/{featurestore_id}/entityTypes/{entity_type_id}"
+    age_feature = aiplatform.Feature(
+        value_type=aiplatform.Feature.ValueType.INT64, description="User age",
+    )
+    age_feature_request = aiplatform.CreateFeatureRequest(
+        feature=age_feature, feature_id="age"
+    )
+
+    gender_feature = aiplatform.Feature(
+        value_type=aiplatform.Feature.ValueType.STRING, description="User gender"
+    )
+    gender_feature_request = aiplatform.CreateFeatureRequest(
+        feature=gender_feature, feature_id="gender"
+    )
+
+    liked_genres_feature = aiplatform.Feature(
+        value_type=aiplatform.Feature.ValueType.STRING_ARRAY,
+        description="An array of genres that this user liked",
+    )
+    liked_genres_feature_request = aiplatform.CreateFeatureRequest(
+        feature=liked_genres_feature, feature_id="liked_genres"
+    )
+
     requests = [
-        aiplatform.CreateFeatureRequest(
-            feature=aiplatform.Feature(
-                value_type=aiplatform.Feature.ValueType.INT64, description="User age",
-            ),
-            feature_id="age",
-        ),
-        aiplatform.CreateFeatureRequest(
-            feature=aiplatform.Feature(
-                value_type=aiplatform.Feature.ValueType.STRING,
-                description="User gender",
-            ),
-            feature_id="gender",
-        ),
-        aiplatform.CreateFeatureRequest(
-            feature=aiplatform.Feature(
-                value_type=aiplatform.Feature.ValueType.STRING_ARRAY,
-                description="An array of genres that this user liked",
-            ),
-            feature_id="liked_genres",
-        ),
+        age_feature_request,
+        gender_feature_request,
+        liked_genres_feature_request,
     ]
     batch_create_features_request = aiplatform.BatchCreateFeaturesRequest(
         parent=parent, requests=requests
