@@ -24,7 +24,8 @@ def read_feature_values_sample(
     location: str = "us-central1",
     api_endpoint: str = "us-central1-aiplatform.googleapis.com",
 ):
-    # The AI Platform services require regional API endpoints.
+    # The AI Platform services require regional API endpoints, which need to be
+    # in the same region or multi-region overlap with the Feature Store location.
     client_options = {"api_endpoint": api_endpoint}
     # Initialize client that will be used to create and send requests.
     # This client only needs to be created once, and can be reused for multiple requests.

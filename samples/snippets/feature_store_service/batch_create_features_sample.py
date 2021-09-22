@@ -24,7 +24,8 @@ def batch_create_features_sample(
     api_endpoint: str = "us-central1-aiplatform.googleapis.com",
     timeout: int = 300,
 ):
-    # The AI Platform services require regional API endpoints.
+    # The AI Platform services require regional API endpoints, which need to be
+    # in the same region or multi-region overlap with the Feature Store location.
     client_options = {"api_endpoint": api_endpoint}
     # Initialize client that will be used to create and send requests.
     # This client only needs to be created once, and can be reused for multiple requests.
@@ -41,11 +42,6 @@ def batch_create_features_sample(
             feature=aiplatform.Feature(
                 value_type=aiplatform.Feature.ValueType.STRING,
                 description="User gender",
-                monitoring_config=aiplatform.FeaturestoreMonitoringConfig(
-                    snapshot_analysis=aiplatform.FeaturestoreMonitoringConfig.SnapshotAnalysis(
-                        disabled=True,
-                    ),
-                ),
             ),
             feature_id="gender",
         ),
