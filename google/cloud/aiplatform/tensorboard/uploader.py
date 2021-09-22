@@ -216,11 +216,11 @@ class TensorBoardUploader(object):
             )
             self._upload_limits.max_blob_request_size = _DEFAULT_MAX_BLOB_REQUEST_SIZE
             self._upload_limits.max_blob_size = _DEFAULT_MAX_BLOB_SIZE
-
         self._description = description
         self._verbosity = verbosity
         self._one_shot = one_shot
         self._dispatcher = None
+        self._additional_senders: Dict[str, uploader_utils.RequestSender] = {}
         self._run_resource_manager = None
         if logdir_poll_rate_limiter is None:
             self._logdir_poll_rate_limiter = util.RateLimiter(
@@ -266,6 +266,8 @@ class TensorBoardUploader(object):
             self._logdir, directory_loader_factory
         )
         self._tracker = upload_tracker.UploadTracker(verbosity=self._verbosity)
+
+        self._create_additional_senders()
 
     def _create_or_get_experiment(self) -> tensorboard_experiment.TensorboardExperiment:
         """Create an experiment or get an experiment.
@@ -319,10 +321,15 @@ class TensorBoardUploader(object):
             run_resource_manager=self._run_resource_manager,
         )
 
-        additional_senders = self._create_additional_senders()
+        # Update partials with experiment name and run_resource_manager
+        for sender in self._additional_senders.keys():
+            self._additional_senders[sender] = self._additional_senders[sender](
+                experiment_resource_name=self._experiment.name,
+                run_resource_manager=self._run_resource_manager,
+            )
 
         self._dispatcher = _Dispatcher(
-            request_sender=request_sender, additional_senders=additional_senders,
+            request_sender=request_sender, additional_senders=self._additional_senders,
         )
 
     def _create_additional_senders(self) -> Dict[str, uploader_utils.RequestSender]:
@@ -332,29 +339,24 @@ class TensorBoardUploader(object):
         but need to be searched for and stored so that they can be used by the
         plugin. If there are any items that cannot be searched for via the
         `_BatchedRequestSender`, add them here.
-
-        Returns:
-            Mapping from plugin name to Sender.
         """
-        additional_senders = {}
         if "profile" in self._allowed_plugins:
             if not self._one_shot:
-                logger.warning("Profile plugin currently only supported for one shot.")
-            else:
-                source_bucket = uploader_utils.get_source_bucket(self._logdir)
-                additional_senders["profile"] = profile_uploader.ProfileRequestSender(
-                    self._experiment.name,
-                    self._api,
-                    upload_limits=self._upload_limits,
-                    blob_rpc_rate_limiter=self._blob_rpc_rate_limiter,
-                    blob_storage_bucket=self._blob_storage_bucket,
-                    blob_storage_folder=self._blob_storage_folder,
-                    source_bucket=source_bucket,
-                    tracker=self._tracker,
-                    logdir=self._logdir,
-                    run_resource_manager=self._run_resource_manager,
+                raise ValueError(
+                    "Profile plugin currently only supported for one shot."
                 )
-        return additional_senders
+            source_bucket = uploader_utils.get_source_bucket(self._logdir)
+            self._additional_senders["profile"] = functools.partial(
+                profile_uploader.ProfileRequestSender,
+                api=self._api,
+                upload_limits=self._upload_limits,
+                blob_rpc_rate_limiter=self._blob_rpc_rate_limiter,
+                blob_storage_bucket=self._blob_storage_bucket,
+                blob_storage_folder=self._blob_storage_folder,
+                source_bucket=source_bucket,
+                tracker=self._tracker,
+                logdir=self._logdir,
+            )
 
     def get_experiment_resource_name(self):
         return self._experiment.name

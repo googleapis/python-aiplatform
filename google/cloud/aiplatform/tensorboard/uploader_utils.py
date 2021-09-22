@@ -66,7 +66,7 @@ class TimeSeriesResourceManager(object):
     """Helper class managing Time Series resources."""
 
     def __init__(self, run_resource_id: str, api: TensorboardServiceClient):
-        """Constructor for _TimeSeriesResourceManager.
+        """Constructor for TimeSeriesResourceManager.
 
         Args:
           run_resource_id: The resource id for the run with the following format
@@ -132,7 +132,16 @@ class TimeSeriesResourceManager(object):
 
 
 class RunResourceManager(object):
+    """Helper class for managing run resources."""
+
     def __init__(self, api: TensorboardServiceClient, experiment_resource_name: str):
+        """Constructor for the RunResourceManager.
+
+        Args:
+            api: A TensorboardServiceStub
+            experiment_resource_name: Name of experiment in form
+                projects/{project}/locations/{location}/tensorboards/{tensorboard}/experiments/{experiment}
+        """
         self._api = api
         self._experiment_resource_name = experiment_resource_name
 
@@ -142,7 +151,10 @@ class RunResourceManager(object):
         """Creates a new Run Resource in current Tensorboard Experiment resource.
 
         Args:
-          run_name: The display name of this run.
+            run_name: The display name of this run.
+
+        Returns:
+            A Tensorboard Run response
         """
 
         if run_name in self._run_to_run_resource:
