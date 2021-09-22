@@ -386,7 +386,7 @@ To create a Vertex Pipeline run:
 
     # Whether this function call should be synchronous (wait for pipeline run to finish before terminating)
     # or asynchronous (return immediately)
-    sync=sync
+    sync=True
   )
 
 
