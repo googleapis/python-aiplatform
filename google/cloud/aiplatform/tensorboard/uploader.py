@@ -16,6 +16,7 @@
 #
 """Uploads a TensorBoard logdir to TensorBoard.gcp."""
 import abc
+from collections import defaultdict
 import contextlib
 import functools
 import json
@@ -93,7 +94,7 @@ _MAX_VARINT64_LENGTH_BYTES = 10
 _DEFAULT_MIN_SCALAR_REQUEST_INTERVAL = 10
 
 # Default maximum WriteTensorbordRunData request size in bytes.
-_DEFAULT_MAX_SCALAR_REQUEST_SIZE = 24 * (2 ** 10)  # 24KiB
+_DEFAULT_MAX_SCALAR_REQUEST_SIZE = 128 * (2 ** 10)  # 128KiB
 
 # Default minimum interval between initiating WriteTensorbordRunData RPCs in
 # milliseconds.
@@ -106,7 +107,7 @@ _DEFAULT_MIN_BLOB_REQUEST_INTERVAL = 10
 # Default maximum WriteTensorbordRunData request size in bytes.
 _DEFAULT_MAX_TENSOR_REQUEST_SIZE = 512 * (2 ** 10)  # 512KiB
 
-_DEFAULT_MAX_BLOB_REQUEST_SIZE = 24 * (2 ** 10)  # 24KiB
+_DEFAULT_MAX_BLOB_REQUEST_SIZE = 128 * (2 ** 10)  # 24KiB
 
 # Default maximum tensor point size in bytes.
 _DEFAULT_MAX_TENSOR_POINT_SIZE = 16 * (2 ** 10)  # 16KiB
@@ -451,27 +452,28 @@ class _BatchedRequestSender(object):
         self._tag_metadata = {}
         self._allowed_plugins = frozenset(allowed_plugins)
         self._tracker = tracker
-        self._run_to_request_sender: Dict[str, _ScalarBatchedRequestSender] = {}
-        self._run_to_tensor_request_sender: Dict[str, _TensorBatchedRequestSender] = {}
-        self._run_to_blob_request_sender: Dict[str, _BlobRequestSender] = {}
-        self._run_to_run_resource: Dict[str, tensorboard_run.TensorboardRun] = {}
-        self._scalar_request_sender_factory = functools.partial(
-            _ScalarBatchedRequestSender,
+        self._one_platform_resource_manager = _OnePlatformResourceManager(
+            self._experiment_resource_name, self._api
+        )
+        self._scalar_request_sender = _ScalarBatchedRequestSender(
+            experiment_resource_id=experiment_resource_name,
             api=api,
             rpc_rate_limiter=rpc_rate_limiter,
             max_request_size=upload_limits.max_scalar_request_size,
             tracker=self._tracker,
+            one_platform_resource_manager=self._one_platform_resource_manager,
         )
-        self._tensor_request_sender_factory = functools.partial(
-            _TensorBatchedRequestSender,
+        self._tensor_request_sender = _TensorBatchedRequestSender(
+            experiment_resource_id=experiment_resource_name,
             api=api,
             rpc_rate_limiter=tensor_rpc_rate_limiter,
             max_request_size=upload_limits.max_tensor_request_size,
             max_tensor_point_size=upload_limits.max_tensor_point_size,
             tracker=self._tracker,
+            one_platform_resource_manager=self._one_platform_resource_manager,
         )
-        self._blob_request_sender_factory = functools.partial(
-            _BlobRequestSender,
+        self._blob_request_sender = _BlobRequestSender(
+            experiment_resource_id=experiment_resource_name,
             api=api,
             rpc_rate_limiter=blob_rpc_rate_limiter,
             max_blob_request_size=upload_limits.max_blob_request_size,
@@ -479,6 +481,7 @@ class _BatchedRequestSender(object):
             blob_storage_bucket=blob_storage_bucket,
             blob_storage_folder=blob_storage_folder,
             tracker=self._tracker,
+            one_platform_resource_manager=self._one_platform_resource_manager,
         )
 
     def send_request(
@@ -535,77 +538,19 @@ class _BatchedRequestSender(object):
                 )
             return
         self._tracker.add_plugin_name(plugin_name)
-        # If this is the first time we've seen this run create a new run resource
-        # and an associated request sender.
-        if run_name not in self._run_to_run_resource:
-            self._create_or_get_run_resource(run_name)
-            self._run_to_request_sender[run_name] = self._scalar_request_sender_factory(
-                self._run_to_run_resource[run_name].name
-            )
-            self._run_to_tensor_request_sender[
-                run_name
-            ] = self._tensor_request_sender_factory(
-                self._run_to_run_resource[run_name].name
-            )
-            self._run_to_blob_request_sender[
-                run_name
-            ] = self._blob_request_sender_factory(
-                self._run_to_run_resource[run_name].name
-            )
 
         if metadata.data_class == summary_pb2.DATA_CLASS_SCALAR:
-            self._run_to_request_sender[run_name].add_event(event, value, metadata)
+            self._scalar_request_sender.add_event(run_name, event, value, metadata)
         elif metadata.data_class == summary_pb2.DATA_CLASS_TENSOR:
-            self._run_to_tensor_request_sender[run_name].add_event(
-                event, value, metadata
-            )
+            self._tensor_request_sender.add_event(run_name, event, value, metadata)
         elif metadata.data_class == summary_pb2.DATA_CLASS_BLOB_SEQUENCE:
-            self._run_to_blob_request_sender[run_name].add_event(event, value, metadata)
+            self._blob_request_sender.add_event(run_name, event, value, metadata)
 
     def flush(self):
         """Flushes any events that have been stored."""
-        for scalar_request_sender in self._run_to_request_sender.values():
-            scalar_request_sender.flush()
-
-        for tensor_request_sender in self._run_to_tensor_request_sender.values():
-            tensor_request_sender.flush()
-
-        for blob_request_sender in self._run_to_blob_request_sender.values():
-            blob_request_sender.flush()
-
-    def _create_or_get_run_resource(self, run_name: str):
-        """Creates a new Run Resource in current Tensorboard Experiment resource.
-
-        Args:
-          run_name: The display name of this run.
-        """
-        tb_run = tensorboard_run.TensorboardRun()
-        tb_run.display_name = run_name
-        try:
-            tb_run = self._api.create_tensorboard_run(
-                parent=self._experiment_resource_name,
-                tensorboard_run=tb_run,
-                tensorboard_run_id=str(uuid.uuid4()),
-            )
-        except exceptions.InvalidArgument as e:
-            # If the run name already exists then retrieve it
-            if "already exist" in e.message:
-                runs_pages = self._api.list_tensorboard_runs(
-                    parent=self._experiment_resource_name
-                )
-                for tb_run in runs_pages:
-                    if tb_run.display_name == run_name:
-                        break
-
-                if tb_run.display_name != run_name:
-                    raise ExistingResourceNotFoundError(
-                        "Run with name %s already exists but is not resource list."
-                        % run_name
-                    )
-            else:
-                raise
-
-        self._run_to_run_resource[run_name] = tb_run
+        self._scalar_request_sender.flush()
+        self._tensor_request_sender.flush()
+        self._blob_request_sender.flush()
 
 
 class _Dispatcher(object):
@@ -678,25 +623,98 @@ class _Dispatcher(object):
         self._request_sender.flush()
 
 
-class _TimeSeriesResourceManager(object):
-    """Helper class managing Time Series resources."""
+class _OnePlatformResourceManager(object):
+    """Helper class managing One Platform resources."""
 
-    def __init__(self, run_resource_id: str, api: TensorboardServiceClient):
-        """Constructor for _TimeSeriesResourceManager.
+    def __init__(self, experiment_resource_name: str, api: TensorboardServiceClient):
+        """Constructor for _OnePlatformResourceManager.
 
         Args:
-          run_resource_id: The resource id for the run with the following format
-            projects/{project}/locations/{location}/tensorboards/{tensorboard}/experiments/{experiment}/runs/{run}
+          experiment_resource_name: The resource id for the run with the following format
+            projects/{project}/locations/{location}/tensorboards/{tensorboard}/experiments/{experiment}
           api: TensorboardServiceStub
         """
-        self._run_resource_id = run_resource_id
+        self._experiment_resource_name = experiment_resource_name
         self._api = api
-        self._tag_to_time_series_proto: Dict[
-            str, tensorboard_time_series.TensorboardTimeSeries
-        ] = {}
+        self._run_name_to_run_resource_name: Dict[str, str] = {}
+        self._run_tag_name_to_time_series_name: Dict[(str, str), str] = {}
 
-    def get_or_create(
+    def get_run_resource_name(self, run_name: str):
+        """
+        Get the resource name of the run if it exists, otherwise creates the run
+        on One Platform before returning its resource name.
+        :param run_name: name of the run
+        :return: resource name of the run
+        """
+        if run_name not in self._run_name_to_run_resource_name:
+            tb_run = self._create_or_get_run_resource(run_name)
+            self._run_name_to_run_resource_name[run_name] = tb_run.name
+        return self._run_name_to_run_resource_name[run_name]
+
+    def _create_or_get_run_resource(self, run_name: str):
+        """Creates a new Run Resource in current Tensorboard Experiment resource.
+        Args:
+          run_name: The display name of this run.
+        """
+        tb_run = tensorboard_run.TensorboardRun()
+        tb_run.display_name = run_name
+        try:
+            tb_run = self._api.create_tensorboard_run(
+                parent=self._experiment_resource_name,
+                tensorboard_run=tb_run,
+                tensorboard_run_id=str(uuid.uuid4()),
+            )
+        except exceptions.InvalidArgument as e:
+            # If the run name already exists then retrieve it
+            if "already exist" in e.message:
+                runs_pages = self._api.list_tensorboard_runs(
+                    parent=self._experiment_resource_name
+                )
+                for tb_run in runs_pages:
+                    if tb_run.display_name == run_name:
+                        break
+
+                if tb_run.display_name != run_name:
+                    raise ExistingResourceNotFoundError(
+                        "Run with name %s already exists but is not resource list."
+                        % run_name
+                    )
+            else:
+                raise
+        return tb_run
+
+    def get_time_series_resource_name(
         self,
+        run_name: str,
+        tag_name: str,
+        time_series_resource_creator: Callable[
+            [], tensorboard_time_series.TensorboardTimeSeries
+        ],
+    ):
+        """
+        Get the resource name of the time series corresponding to the tag, if it
+        exists, otherwise creates the time series on One Platform before
+        returning its resource name.
+        :param run_name: name of the run
+        :param tag_name: name of the tag
+        :param time_series_resource_creator: a constructor used for creating the
+        time series on One Platform.
+        :return: resource name of the time series
+        """
+        if (run_name, tag_name) not in self._run_tag_name_to_time_series_name:
+            time_series = self._create_or_get_time_series(
+                self.get_run_resource_name(run_name),
+                tag_name,
+                time_series_resource_creator,
+            )
+            self._run_tag_name_to_time_series_name[
+                (run_name, tag_name)
+            ] = time_series.name
+        return self._run_tag_name_to_time_series_name[(run_name, tag_name)]
+
+    def _create_or_get_time_series(
+        self,
+        run_resource_name: str,
         tag_name: str,
         time_series_resource_creator: Callable[
             [], tensorboard_time_series.TensorboardTimeSeries
@@ -711,21 +729,18 @@ class _TimeSeriesResourceManager(object):
           time_series_resource_creator: A callable that produces a TimeSeries for
             creation.
         """
-        if tag_name in self._tag_to_time_series_proto:
-            return self._tag_to_time_series_proto[tag_name]
-
         time_series = time_series_resource_creator()
         time_series.display_name = tag_name
         try:
             time_series = self._api.create_tensorboard_time_series(
-                parent=self._run_resource_id, tensorboard_time_series=time_series
+                parent=run_resource_name, tensorboard_time_series=time_series
             )
         except exceptions.InvalidArgument as e:
             # If the time series display name already exists then retrieve it
             if "already exist" in e.message:
                 list_of_time_series = self._api.list_tensorboard_time_series(
                     request=tensorboard_service.ListTensorboardTimeSeriesRequest(
-                        parent=self._run_resource_id,
+                        parent=run_resource_name,
                         filter="display_name = {}".format(json.dumps(str(tag_name))),
                     )
                 )
@@ -742,8 +757,6 @@ class _TimeSeriesResourceManager(object):
                     )
             else:
                 raise
-
-        self._tag_to_time_series_proto[tag_name] = time_series
         return time_series
 
 
@@ -760,47 +773,49 @@ class _BaseBatchedRequestSender(object):
 
     def __init__(
         self,
-        run_resource_id: str,
+        experiment_resource_id: str,
         api: TensorboardServiceClient,
         rpc_rate_limiter: util.RateLimiter,
         max_request_size: int,
         tracker: upload_tracker.UploadTracker,
+        one_platform_resource_manager: _OnePlatformResourceManager,
     ):
         """Constructor for _BaseBatchedRequestSender.
 
         Args:
-          run_resource_id: The resource id for the run with the following format
-            projects/{project}/locations/{location}/tensorboards/{tensorboard}/experiments/{experiment}/runs/{run}
+          experiment_resource_id: The resource id for the experiment with the following format
+            projects/{project}/locations/{location}/tensorboards/{tensorboard}/experiments/{experiment}
           api: TensorboardServiceStub
           rpc_rate_limiter: until.RateLimiter to limit rate of this request sender
           max_request_size: max number of bytes to send
           tracker:
         """
-        self._run_resource_id = run_resource_id
+        self._experiment_resource_id = experiment_resource_id
         self._api = api
         self._rpc_rate_limiter = rpc_rate_limiter
         self._byte_budget_manager = _ByteBudgetManager(max_request_size)
         self._tracker = tracker
+        self._one_platform_resource_manager = one_platform_resource_manager
 
         # cache: map from Tensorboard tag to TimeSeriesData
         # cleared whenever a new request is created
-        self._tag_to_time_series_data: Dict[str, tensorboard_data.TimeSeriesData] = {}
-
-        self._time_series_resource_manager = _TimeSeriesResourceManager(
-            self._run_resource_id, self._api
-        )
+        self._run_to_tag_to_time_series_data: Dict[
+            str, Dict[str, tensorboard_data.TimeSeriesData]
+        ] = defaultdict(defaultdict)
         self._new_request()
 
     def _new_request(self):
         """Allocates a new request and refreshes the budget."""
-        self._request = tensorboard_service.WriteTensorboardRunDataRequest()
-        self._tag_to_time_series_data.clear()
+        self._request = tensorboard_service.WriteTensorboardExperimentDataRequest(
+            tensorboard_experiment=self._experiment_resource_id
+        )
+        self._run_to_tag_to_time_series_data.clear()
         self._num_values = 0
-        self._request.tensorboard_run = self._run_resource_id
         self._byte_budget_manager.reset(self._request)
 
     def add_event(
         self,
+        run_name: str,
         event: tf.compat.v1.Event,
         value: tf.compat.v1.Summary.Value,
         metadata: tf.compat.v1.SummaryMetadata,
@@ -817,27 +832,32 @@ class _BaseBatchedRequestSender(object):
           metadata: SummaryMetadata of the event.
         """
         try:
-            self._add_event_internal(event, value, metadata)
+            self._add_event_internal(run_name, event, value, metadata)
         except _OutOfSpaceError:
             self.flush()
             # Try again.  This attempt should never produce OutOfSpaceError
             # because we just flushed.
             try:
-                self._add_event_internal(event, value, metadata)
+                self._add_event_internal(run_name, event, value, metadata)
             except _OutOfSpaceError:
                 raise RuntimeError("add_event failed despite flush")
 
     def _add_event_internal(
         self,
+        run_name: str,
         event: tf.compat.v1.Event,
         value: tf.compat.v1.Summary.Value,
         metadata: tf.compat.v1.SummaryMetadata,
     ):
         self._num_values += 1
-        time_series_data_proto = self._tag_to_time_series_data.get(value.tag)
+        time_series_data_proto = self._run_to_tag_to_time_series_data[run_name].get(
+            value.tag
+        )
         if time_series_data_proto is None:
-            time_series_data_proto = self._create_time_series_data(value.tag, metadata)
-        self._create_point(time_series_data_proto, event, value, metadata)
+            time_series_data_proto = self._create_time_series_data(
+                run_name, value.tag, metadata
+            )
+        self._create_point(run_name, time_series_data_proto, event, value, metadata)
 
     def flush(self):
         """Sends the active request after removing empty runs and tags.
@@ -845,9 +865,24 @@ class _BaseBatchedRequestSender(object):
         Starts a new, empty active request.
         """
         request = self._request
-        request.time_series_data = list(self._tag_to_time_series_data.values())
-        _prune_empty_time_series(request)
-        if not request.time_series_data:
+        has_data = False
+        for (
+            run_name,
+            tag_to_time_series_data,
+        ) in self._run_to_tag_to_time_series_data.items():
+            r = tensorboard_service.WriteTensorboardRunDataRequest(
+                tensorboard_run=self._one_platform_resource_manager.get_run_resource_name(
+                    run_name
+                )
+            )
+            r.time_series_data = list(tag_to_time_series_data.values())
+            _prune_empty_time_series(r)
+            if not r.time_series_data:
+                continue
+            request.write_run_data_requests.extend([r])
+            has_data = True
+
+        if not has_data:
             return
 
         self._rpc_rate_limiter.tick()
@@ -855,9 +890,9 @@ class _BaseBatchedRequestSender(object):
         with _request_logger(request):
             with self._get_tracker():
                 try:
-                    self._api.write_tensorboard_run_data(
-                        tensorboard_run=self._run_resource_id,
-                        time_series_data=request.time_series_data,
+                    self._api.write_tensorboard_experiment_data(
+                        tensorboard_experiment=request.tensorboard_experiment,
+                        write_run_data_requests=request.write_run_data_requests,
                     )
                 except grpc.RpcError as e:
                     if (
@@ -870,7 +905,7 @@ class _BaseBatchedRequestSender(object):
         self._new_request()
 
     def _create_time_series_data(
-        self, tag_name: str, metadata: tf.compat.v1.SummaryMetadata
+        self, run_name: str, tag_name: str, metadata: tf.compat.v1.SummaryMetadata
     ) -> tensorboard_data.TimeSeriesData:
         """Adds a time_series for the tag_name, if there's space.
 
@@ -884,25 +919,31 @@ class _BaseBatchedRequestSender(object):
           _OutOfSpaceError: If adding the tag would exceed the remaining
             request budget.
         """
+        time_series_resource_name = self._one_platform_resource_manager.get_time_series_resource_name(
+            run_name,
+            tag_name,
+            lambda: tensorboard_time_series.TensorboardTimeSeries(
+                display_name=tag_name,
+                value_type=self._value_type,
+                plugin_name=metadata.plugin_data.plugin_name,
+                plugin_data=metadata.plugin_data.content,
+            ),
+        )
+
         time_series_data_proto = tensorboard_data.TimeSeriesData(
-            tensorboard_time_series_id=self._time_series_resource_manager.get_or_create(
-                tag_name,
-                lambda: tensorboard_time_series.TensorboardTimeSeries(
-                    display_name=tag_name,
-                    value_type=self._value_type,
-                    plugin_name=metadata.plugin_data.plugin_name,
-                    plugin_data=metadata.plugin_data.content,
-                ),
-            ).name.split("/")[-1],
+            tensorboard_time_series_id=time_series_resource_name.split("/")[-1],
             value_type=self._value_type,
         )
 
         self._byte_budget_manager.add_time_series(time_series_data_proto)
-        self._tag_to_time_series_data[tag_name] = time_series_data_proto
+        self._run_to_tag_to_time_series_data[run_name][
+            tag_name
+        ] = time_series_data_proto
         return time_series_data_proto
 
     def _create_point(
         self,
+        run_name: str,
         time_series_proto: tensorboard_data.TimeSeriesData,
         event: tf.compat.v1.Event,
         value: tf.compat.v1.Summary.Value,
@@ -920,7 +961,7 @@ class _BaseBatchedRequestSender(object):
           _OutOfSpaceError: If adding the point would exceed the remaining
             request budget.
         """
-        point = self._create_data_point(event, value, metadata)
+        point = self._create_data_point(run_name, event, value, metadata)
 
         if not self._validate(point, event, value):
             return
@@ -951,6 +992,7 @@ class _BaseBatchedRequestSender(object):
     @abc.abstractmethod
     def _create_data_point(
         self,
+        run_name: str,
         event: tf.compat.v1.Event,
         value: tf.compat.v1.Summary.Value,
         metadata: tf.compat.v1.SummaryMetadata,
@@ -988,24 +1030,30 @@ class _ScalarBatchedRequestSender(_BaseBatchedRequestSender):
 
     def __init__(
         self,
-        run_resource_id: str,
+        experiment_resource_id: str,
         api: TensorboardServiceClient,
         rpc_rate_limiter: util.RateLimiter,
         max_request_size: int,
         tracker: upload_tracker.UploadTracker,
+        one_platform_resource_manager: _OnePlatformResourceManager,
     ):
         """Constructor for _ScalarBatchedRequestSender.
 
         Args:
-          run_resource_id: The resource id for the run with the following format
-            projects/{project}/locations/{location}/tensorboards/{tensorboard}/experiments/{experiment}/runs/{run}
+          experiment_resource_id: The resource id for the experiment with the following format
+            projects/{project}/locations/{location}/tensorboards/{tensorboard}/experiments/{experiment}
           api: TensorboardServiceStub
           rpc_rate_limiter: until.RateLimiter to limit rate of this request sender
           max_request_size: max number of bytes to send
           tracker:
         """
         super().__init__(
-            run_resource_id, api, rpc_rate_limiter, max_request_size, tracker
+            experiment_resource_id,
+            api,
+            rpc_rate_limiter,
+            max_request_size,
+            tracker,
+            one_platform_resource_manager,
         )
 
     def _get_tracker(self) -> ContextManager:
@@ -1013,6 +1061,7 @@ class _ScalarBatchedRequestSender(_BaseBatchedRequestSender):
 
     def _create_data_point(
         self,
+        run_name: str,
         event: tf.compat.v1.Event,
         value: tf.compat.v1.Summary.Value,
         metadata: tf.compat.v1.SummaryMetadata,
@@ -1044,25 +1093,31 @@ class _TensorBatchedRequestSender(_BaseBatchedRequestSender):
 
     def __init__(
         self,
-        run_resource_id: str,
+        experiment_resource_id: str,
         api: TensorboardServiceClient,
         rpc_rate_limiter: util.RateLimiter,
         max_request_size: int,
         max_tensor_point_size: int,
         tracker: upload_tracker.UploadTracker,
+        one_platform_resource_manager: _OnePlatformResourceManager,
     ):
         """Constructor for _TensorBatchedRequestSender.
 
         Args:
-          run_resource_id: The resource id for the run with the following format
-            projects/{project}/locations/{location}/tensorboards/{tensorboard}/experiments/{experiment}/runs/{run}
+          experiment_resource_id: The resource id for the experiment with the following format
+            projects/{project}/locations/{location}/tensorboards/{tensorboard}/experiments/{experiment}
           api: TensorboardServiceStub
           rpc_rate_limiter: until.RateLimiter to limit rate of this request sender
           max_request_size: max number of bytes to send
           tracker:
         """
         super().__init__(
-            run_resource_id, api, rpc_rate_limiter, max_request_size, tracker
+            experiment_resource_id,
+            api,
+            rpc_rate_limiter,
+            max_request_size,
+            tracker,
+            one_platform_resource_manager,
         )
         self._max_tensor_point_size = max_tensor_point_size
 
@@ -1084,6 +1139,7 @@ class _TensorBatchedRequestSender(_BaseBatchedRequestSender):
 
     def _create_data_point(
         self,
+        run_name: str,
         event: tf.compat.v1.Event,
         value: tf.compat.v1.Summary.Value,
         metadata: tf.compat.v1.SummaryMetadata,
@@ -1152,7 +1208,9 @@ class _ByteBudgetManager(object):
         self._byte_budget = None  # type: int
         self._max_bytes = max_bytes
 
-    def reset(self, base_request: tensorboard_service.WriteTensorboardRunDataRequest):
+    def reset(
+        self, base_request: tensorboard_service.WriteTensorboardExperimentDataRequest
+    ):
         """Resets the byte budget and calculates the cost of the base request.
 
         Args:
@@ -1235,7 +1293,7 @@ class _BlobRequestSender(_BaseBatchedRequestSender):
 
     def __init__(
         self,
-        run_resource_id: str,
+        experiment_resource_id: str,
         api: TensorboardServiceClient,
         rpc_rate_limiter: util.RateLimiter,
         max_blob_request_size: int,
@@ -1243,9 +1301,15 @@ class _BlobRequestSender(_BaseBatchedRequestSender):
         blob_storage_bucket: storage.Bucket,
         blob_storage_folder: str,
         tracker: upload_tracker.UploadTracker,
+        one_platform_resource_manager: _OnePlatformResourceManager,
     ):
         super().__init__(
-            run_resource_id, api, rpc_rate_limiter, max_blob_request_size, tracker
+            experiment_resource_id,
+            api,
+            rpc_rate_limiter,
+            max_blob_request_size,
+            tracker,
+            one_platform_resource_manager,
         )
         self._max_blob_size = max_blob_size
         self._bucket = blob_storage_bucket
@@ -1260,6 +1324,7 @@ class _BlobRequestSender(_BaseBatchedRequestSender):
 
     def _create_data_point(
         self,
+        run_name: str,
         event: tf.compat.v1.Event,
         value: tf.compat.v1.Summary.Value,
         metadata: tf.compat.v1.SummaryMetadata,
@@ -1270,25 +1335,25 @@ class _BlobRequestSender(_BaseBatchedRequestSender):
                 "A blob sequence must be represented as a rank-1 Tensor. "
                 "Provided data has rank %d, for run %s, tag %s, step %s ('%s' plugin) .",
                 blobs.ndim,
-                self._run_resource_id,
+                run_name,
                 value.tag,
                 event.step,
                 metadata.plugin_data.plugin_name,
             )
             return None
 
-        time_series_proto = self._time_series_resource_manager.get_or_create(
-            value.tag,
-            lambda: tensorboard_time_series.TensorboardTimeSeries(
-                display_name=value.tag,
-                value_type=tensorboard_time_series.TensorboardTimeSeries.ValueType.BLOB_SEQUENCE,
-                plugin_name=metadata.plugin_data.plugin_name,
-                plugin_data=metadata.plugin_data.content,
-            ),
-        )
         m = re.match(
             ".*/tensorboards/(.*)/experiments/(.*)/runs/(.*)/timeSeries/(.*)",
-            time_series_proto.name,
+            self._one_platform_resource_manager.get_time_series_resource_name(
+                run_name,
+                value.tag,
+                lambda: tensorboard_time_series.TensorboardTimeSeries(
+                    display_name=value.tag,
+                    value_type=tensorboard_time_series.TensorboardTimeSeries.ValueType.BLOB_SEQUENCE,
+                    plugin_name=metadata.plugin_data.plugin_name,
+                    plugin_data=metadata.plugin_data.content,
+                ),
+            ),
         )
         blob_path_prefix = "tensorboard-{}/{}/{}/{}".format(m[1], m[2], m[3], m[4])
         blob_path_prefix = (
@@ -1343,7 +1408,7 @@ class _BlobRequestSender(_BaseBatchedRequestSender):
 
 
 @contextlib.contextmanager
-def _request_logger(request: tensorboard_service.WriteTensorboardRunDataRequest):
+def _request_logger(request: tensorboard_service.WriteTensorboardExperimentDataRequest):
     """Context manager to log request size and duration."""
     upload_start_time = time.time()
     request_bytes = request._pb.ByteSize()  # pylint: disable=protected-access
