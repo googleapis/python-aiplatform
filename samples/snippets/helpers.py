@@ -18,6 +18,13 @@ def get_state(out):
     return state
 
 
+def get_featurestore_resource_name(out, key="name"):
+    pattern = re.compile(fr'{key}:\s*"([\_\-a-zA-Z0-9/]+)"')
+    name = re.search(pattern, out).group(1)
+
+    return name
+
+
 def wait_for_job_state(
     get_job_method: Callable[[str], "proto.Message"],  # noqa: F821
     name: str,

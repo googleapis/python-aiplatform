@@ -15,7 +15,7 @@
 import os
 from uuid import uuid4
 
-from google.cloud import aiplatform
+from google.cloud import aiplatform, aiplatform_v1beta1
 from google.cloud import storage
 import pytest
 
@@ -81,6 +81,14 @@ def dataset_client():
         client_options={"api_endpoint": "us-central1-aiplatform.googleapis.com"}
     )
     yield dataset_client
+
+
+@pytest.fixture
+def featurestore_client():
+    featurestore_client = aiplatform_v1beta1.FeaturestoreServiceClient(
+        client_options={"api_endpoint": "us-central1-aiplatform.googleapis.com"}
+    )
+    yield featurestore_client
 
 
 # Shared setup/teardown.
@@ -199,6 +207,30 @@ def teardown_dataset(shared_state, dataset_client):
 
     # Delete the created dataset
     dataset_client.delete_dataset(name=shared_state["dataset_name"])
+
+
+@pytest.fixture()
+def teardown_featurestore(shared_state, featurestore_client):
+    yield
+
+    # Delete the created featurestore
+    featurestore_client.delete_featurestore(name=shared_state["featurestore_name"])
+
+
+@pytest.fixture()
+def teardown_entity_type(shared_state, featurestore_client):
+    yield
+
+    # Delete the created entity type
+    featurestore_client.delete_entity_type(name=shared_state["entity_type_name"])
+
+
+@pytest.fixture()
+def teardown_feature(shared_state, featurestore_client):
+    yield
+
+    # Delete the created feature
+    featurestore_client.delete_feature(name=shared_state["feature_name"])
 
 
 @pytest.fixture()

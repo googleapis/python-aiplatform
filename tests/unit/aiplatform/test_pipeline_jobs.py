@@ -236,7 +236,6 @@ class TestPipelineJob:
         # Construct expected request
         expected_gapic_pipeline_job = gca_pipeline_job_v1beta1.PipelineJob(
             display_name=_TEST_PIPELINE_JOB_DISPLAY_NAME,
-            name=_TEST_PIPELINE_JOB_NAME,
             pipeline_spec={
                 "components": {},
                 "pipelineInfo": _TEST_PIPELINE_JOB_SPEC["pipelineSpec"]["pipelineInfo"],
