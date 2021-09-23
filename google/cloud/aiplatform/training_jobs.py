@@ -4148,17 +4148,20 @@ class AutoMLForecastingTrainingJob(_TrainingJob):
 
     @property
     def evaluated_data_items_bigquery_uri(self) -> Optional[str]:
-        """BigQuery location of exported evaluated examples from the Training Job"""
+        """BigQuery location of exported evaluated examples from the Training Job
+        Returns:
+            str: BigQuery uri for the exported evaluated examples if the export
+                feature is enabled for training.
+            None: If the export feature was not enabled for training.
+        """
 
         self._assert_gca_resource_is_available()
 
-        try:
-            metadata = self._gca_resource.training_task_metadata
+        metadata = self._gca_resource.training_task_metadata
+        if "evaluatedDataItemsBigqueryUri" in metadata:
             return metadata["evaluatedDataItemsBigqueryUri"]
-        except (AttributeError, KeyError):
-            raise ValueError(
-                "BigQuery URI for evaluated data items does not exist. Must export evaluated data items during training."
-            )
+
+        return None
 
     def _add_additional_experiments(self, additional_experiments: List[str]):
         """Add experiment flags to the training job.
