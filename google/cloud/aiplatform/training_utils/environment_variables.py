@@ -103,3 +103,42 @@ class EnvironmentVariables:
             return json.loads(tf_config_env)
         else:
             return None
+
+    @property
+    def tf_profiler_port(self) -> Optional[str]:
+        """
+      Returns:
+          Profiler port used for capturing profiling samples,
+          None if environment variable is not set.
+      """
+        return os.environ.get("AIP_TF_PROFILER_PORT")
+
+    @property
+    def tensorboard_api_uri(self) -> Optional[str]:
+        """
+        Returns:
+            API URI used for the tensorboard uploader,
+            None if environment variable is not set.
+        """
+        return os.environ.get("AIP_TENSORBOARD_API_URI")
+
+    @property
+    def tensorboard_resource_name(self) -> Optional[str]:
+        """
+        Returns:
+            The name of the tensorboard resource, in the form:
+            `projects/{project_id}/locations/{location}/tensorboards/{tensorboard_name}`
+            None if environment variable is not set.
+        """
+
+        return os.environ.get("AIP_TENSORBOARD_RESOURCE_NAME")
+
+    @property
+    def cloud_ml_job_id(self) -> Optional[str]:
+        """
+        Returns:
+            The name given to the training job,
+            None if environment variable is not set.
+        """
+
+        return os.environ.get("CLOUD_ML_JOB_ID")
