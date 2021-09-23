@@ -240,6 +240,12 @@ class PipelineJob(base.VertexAiResourceNounWithFutureManager):
 
         _LOGGER.log_create_with_lro(self.__class__)
 
+        if not sync:
+            _LOGGER.info(
+                "Pipeline Job is scheduled to run and will be available to view once created:\n%s"
+                % self._dashboard_uri()
+            )
+
         self._gca_resource = self.api_client.create_pipeline_job(
             parent=self._parent,
             pipeline_job=self._gca_resource,
