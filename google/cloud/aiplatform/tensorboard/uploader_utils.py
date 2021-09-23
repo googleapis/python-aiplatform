@@ -62,11 +62,148 @@ class RequestSender(object):
         pass
 
 
+class OnePlatformResourceManager(object):
+    """Helper class managing One Platform resources."""
+
+    def __init__(self, experiment_resource_name: str, api: TensorboardServiceClient):
+        """Constructor for _OnePlatformResourceManager.
+
+        Args:
+          experiment_resource_name: The resource id for the run with the following format
+            projects/{project}/locations/{location}/tensorboards/{tensorboard}/experiments/{experiment}
+          api: TensorboardServiceStub
+        """
+        self._experiment_resource_name = experiment_resource_name
+        self._api = api
+        self._run_name_to_run_resource_name: Dict[str, str] = {}
+        self._run_tag_name_to_time_series_name: Dict[(str, str), str] = {}
+
+    def get_run_resource_name(self, run_name: str):
+        """
+        Get the resource name of the run if it exists, otherwise creates the run
+        on One Platform before returning its resource name.
+        :param run_name: name of the run
+        :return: resource name of the run
+        """
+        if run_name not in self._run_name_to_run_resource_name:
+            tb_run = self._create_or_get_run_resource(run_name)
+            self._run_name_to_run_resource_name[run_name] = tb_run.name
+        return self._run_name_to_run_resource_name[run_name]
+
+    def _create_or_get_run_resource(self, run_name: str):
+        """Creates a new Run Resource in current Tensorboard Experiment resource.
+        Args:
+          run_name: The display name of this run.
+        """
+        tb_run = tensorboard_run.TensorboardRun()
+        tb_run.display_name = run_name
+        try:
+            tb_run = self._api.create_tensorboard_run(
+                parent=self._experiment_resource_name,
+                tensorboard_run=tb_run,
+                tensorboard_run_id=str(uuid.uuid4()),
+            )
+        except exceptions.InvalidArgument as e:
+            # If the run name already exists then retrieve it
+            if "already exist" in e.message:
+                runs_pages = self._api.list_tensorboard_runs(
+                    parent=self._experiment_resource_name
+                )
+                for tb_run in runs_pages:
+                    if tb_run.display_name == run_name:
+                        break
+
+                if tb_run.display_name != run_name:
+                    raise ExistingResourceNotFoundError(
+                        "Run with name %s already exists but is not resource list."
+                        % run_name
+                    )
+            else:
+                raise
+        return tb_run
+
+    def get_time_series_resource_name(
+        self,
+        run_name: str,
+        tag_name: str,
+        time_series_resource_creator: Callable[
+            [], tensorboard_time_series.TensorboardTimeSeries
+        ],
+    ):
+        """
+        Get the resource name of the time series corresponding to the tag, if it
+        exists, otherwise creates the time series on One Platform before
+        returning its resource name.
+        :param run_name: name of the run
+        :param tag_name: name of the tag
+        :param time_series_resource_creator: a constructor used for creating the
+        time series on One Platform.
+        :return: resource name of the time series
+        """
+        if (run_name, tag_name) not in self._run_tag_name_to_time_series_name:
+            time_series = self._create_or_get_time_series(
+                self.get_run_resource_name(run_name),
+                tag_name,
+                time_series_resource_creator,
+            )
+            self._run_tag_name_to_time_series_name[
+                (run_name, tag_name)
+            ] = time_series.name
+        return self._run_tag_name_to_time_series_name[(run_name, tag_name)]
+
+    def _create_or_get_time_series(
+        self,
+        run_resource_name: str,
+        tag_name: str,
+        time_series_resource_creator: Callable[
+            [], tensorboard_time_series.TensorboardTimeSeries
+        ],
+    ) -> tensorboard_time_series.TensorboardTimeSeries:
+        """get a time series resource with given tag_name, and create a new one on
+
+        OnePlatform if not present.
+
+        Args:
+          tag_name: The tag name of the time series in the Tensorboard log dir.
+          time_series_resource_creator: A callable that produces a TimeSeries for
+            creation.
+        """
+        time_series = time_series_resource_creator()
+        time_series.display_name = tag_name
+        try:
+            time_series = self._api.create_tensorboard_time_series(
+                parent=run_resource_name, tensorboard_time_series=time_series
+            )
+        except exceptions.InvalidArgument as e:
+            # If the time series display name already exists then retrieve it
+            if "already exist" in e.message:
+                list_of_time_series = self._api.list_tensorboard_time_series(
+                    request=tensorboard_service.ListTensorboardTimeSeriesRequest(
+                        parent=run_resource_name,
+                        filter="display_name = {}".format(json.dumps(str(tag_name))),
+                    )
+                )
+                num = 0
+                for ts in list_of_time_series:
+                    time_series = ts
+                    num += 1
+                    break
+                if num != 1:
+                    raise ValueError(
+                        "More than one time series resource found with display_name: {}".format(
+                            tag_name
+                        )
+                    )
+            else:
+                raise
+        return time_series
+
+
 class TimeSeriesResourceManager(object):
     """Helper class managing Time Series resources."""
 
     def __init__(self, run_resource_id: str, api: TensorboardServiceClient):
-        """Constructor for _TimeSeriesResourceManager.
+        """Constructor for TimeSeriesResourceManager.
 
         Args:
           run_resource_id: The resource id for the run with the following format
@@ -129,53 +266,6 @@ class TimeSeriesResourceManager(object):
 
         self._tag_to_time_series_proto[tag_name] = time_series
         return time_series
-
-
-class RunResourceManager(object):
-    def __init__(self, api: TensorboardServiceClient, experiment_resource_name: str):
-        self._api = api
-        self._experiment_resource_name = experiment_resource_name
-
-        self._run_to_run_resource: Dict[str, tensorboard_run.TensorboardRun] = {}
-
-    def create_or_get_run_resource(self, run_name: str):
-        """Creates a new Run Resource in current Tensorboard Experiment resource.
-
-        Args:
-          run_name: The display name of this run.
-        """
-
-        if run_name in self._run_to_run_resource:
-            return self._run_to_run_resource[run_name]
-
-        tb_run = tensorboard_run.TensorboardRun()
-        tb_run.display_name = run_name
-        try:
-            tb_run = self._api.create_tensorboard_run(
-                parent=self._experiment_resource_name,
-                tensorboard_run=tb_run,
-                tensorboard_run_id=str(uuid.uuid4()),
-            )
-        except exceptions.InvalidArgument as e:
-            # If the run name already exists then retrieve it
-            if "already exist" in e.message:
-                runs_pages = self._api.list_tensorboard_runs(
-                    parent=self._experiment_resource_name
-                )
-                for tb_run in runs_pages:
-                    if tb_run.display_name == run_name:
-                        break
-
-                if tb_run.display_name != run_name:
-                    raise ExistingResourceNotFoundError(
-                        "Run with name %s already exists but is not resource list."
-                        % run_name
-                    )
-            else:
-                raise
-
-        self._run_to_run_resource[run_name] = tb_run
-        return tb_run
 
 
 def get_source_bucket(logdir: str) -> Optional[storage.Bucket]:

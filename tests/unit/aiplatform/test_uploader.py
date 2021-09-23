@@ -260,10 +260,6 @@ def _create_dispatcher(
     tensor_rpc_rate_limiter = util.RateLimiter(0)
     blob_rpc_rate_limiter = util.RateLimiter(0)
 
-    run_resource_manager = uploader_utils.RunResourceManager(
-        api=api, experiment_resource_name=experiment_resource_name,
-    )
-
     request_sender = uploader_lib._BatchedRequestSender(
         experiment_resource_name=experiment_resource_name,
         api=api,
@@ -275,7 +271,6 @@ def _create_dispatcher(
         blob_storage_bucket=None,
         blob_storage_folder=None,
         tracker=upload_tracker.UploadTracker(verbosity=0),
-        run_resource_manager=run_resource_manager,
     )
 
     additional_senders = {}
@@ -290,7 +285,6 @@ def _create_dispatcher(
             blob_storage_folder=None,
             tracker=upload_tracker.UploadTracker(verbosity=0),
             logdir=logdir,
-            run_resource_manager=run_resource_manager,
         )
 
     return uploader_lib._Dispatcher(
@@ -299,14 +293,17 @@ def _create_dispatcher(
 
 
 def _create_scalar_request_sender(
-    run_resource_id, api=_USE_DEFAULT, max_request_size=_USE_DEFAULT
+    experiment_resource_id, api=_USE_DEFAULT, max_request_size=_USE_DEFAULT
 ):
     if api is _USE_DEFAULT:
         api = _create_mock_client()
     if max_request_size is _USE_DEFAULT:
         max_request_size = 128000
     return uploader_lib._ScalarBatchedRequestSender(
-        run_resource_id=run_resource_id,
+        experiment_resource_id=experiment_resource_id,
+        one_platform_resource_manager=uploader_utils.OnePlatformResourceManager(
+            experiment_resource_id, api
+        ),
         api=api,
         rpc_rate_limiter=util.RateLimiter(0),
         max_request_size=max_request_size,
@@ -582,14 +579,14 @@ class TensorboardUploaderTest(tf.test.TestCase):
             uploader, "_logdir_loader", mock_logdir_loader
         ), self.assertRaises(AbortUploadError):
             uploader.start_uploading()
-        self.assertEqual(10, mock_client.write_tensorboard_run_data.call_count)
-        self.assertEqual(10, mock_rate_limiter.tick.call_count)
+        self.assertEqual(5, mock_client.write_tensorboard_experiment_data.call_count)
+        self.assertEqual(5, mock_rate_limiter.tick.call_count)
         self.assertEqual(0, mock_tensor_rate_limiter.tick.call_count)
         self.assertEqual(0, mock_blob_rate_limiter.tick.call_count)
 
         # Check upload tracker calls.
         self.assertEqual(mock_tracker.send_tracker.call_count, 2)
-        self.assertEqual(mock_tracker.scalars_tracker.call_count, 10)
+        self.assertEqual(mock_tracker.scalars_tracker.call_count, 5)
         self.assertLen(mock_tracker.scalars_tracker.call_args[0], 1)
         self.assertEqual(mock_tracker.tensors_tracker.call_count, 0)
         self.assertEqual(mock_tracker.blob_tracker.call_count, 0)
@@ -629,12 +626,12 @@ class TensorboardUploaderTest(tf.test.TestCase):
         with mock.patch.object(uploader, "_logdir_loader", mock_logdir_loader):
             uploader.start_uploading()
 
-        self.assertEqual(4, mock_client.write_tensorboard_run_data.call_count)
-        self.assertEqual(4, mock_rate_limiter.tick.call_count)
+        self.assertEqual(2, mock_client.write_tensorboard_experiment_data.call_count)
+        self.assertEqual(2, mock_rate_limiter.tick.call_count)
 
         # Check upload tracker calls.
         self.assertEqual(mock_tracker.send_tracker.call_count, 1)
-        self.assertEqual(mock_tracker.scalars_tracker.call_count, 4)
+        self.assertEqual(mock_tracker.scalars_tracker.call_count, 2)
         self.assertLen(mock_tracker.scalars_tracker.call_args[0], 1)
         self.assertEqual(mock_tracker.tensors_tracker.call_count, 0)
         self.assertEqual(mock_tracker.blob_tracker.call_count, 0)
@@ -645,7 +642,7 @@ class TensorboardUploaderTest(tf.test.TestCase):
         uploader = _create_uploader(mock_client, logdir)
         uploader.create_experiment()
         uploader._upload_once()
-        mock_client.write_tensorboard_run_data.assert_not_called()
+        mock_client.write_tensorboard_experiment_data.assert_not_called()
 
     def test_upload_polls_slowly_once_done(self):
         class SuccessError(Exception):
@@ -678,9 +675,9 @@ class TensorboardUploaderTest(tf.test.TestCase):
         uploader = _create_uploader(mock_client, logdir)
         uploader.create_experiment()
         error = _grpc_error(grpc.StatusCode.INTERNAL, "Failure")
-        mock_client.write_tensorboard_run_data.side_effect = error
+        mock_client.write_tensorboard_experiment_data.side_effect = error
         uploader._upload_once()
-        mock_client.write_tensorboard_run_data.assert_called_once()
+        mock_client.write_tensorboard_experiment_data.assert_called_once()
 
     def test_upload_full_logdir(self):
         logdir = self.get_temp_dir()
@@ -721,11 +718,11 @@ class TensorboardUploaderTest(tf.test.TestCase):
         self.assertEqual("scalars", request.plugin_name)
         self.assertEqual(b"12345", request.plugin_data)
 
-        self.assertEqual(2, mock_client.write_tensorboard_run_data.call_count)
-        call_args_list = mock_client.write_tensorboard_run_data.call_args_list
+        self.assertEqual(1, mock_client.write_tensorboard_experiment_data.call_count)
+        call_args_list = mock_client.write_tensorboard_experiment_data.call_args_list
         request1, request2 = (
-            call_args_list[0][1]["time_series_data"],
-            call_args_list[1][1]["time_series_data"],
+            call_args_list[0][1]["write_run_data_requests"][0].time_series_data,
+            call_args_list[0][1]["write_run_data_requests"][1].time_series_data,
         )
         _clear_wall_times(request1)
         _clear_wall_times(request2)
@@ -757,7 +754,7 @@ class TensorboardUploaderTest(tf.test.TestCase):
         self.assertProtoEquals(expected_request1[1], request1[1])
         self.assertProtoEquals(expected_request2[0], request2[0])
 
-        mock_client.write_tensorboard_run_data.reset_mock()
+        mock_client.write_tensorboard_experiment_data.reset_mock()
 
         # Second round
         writer.add_test_summary("foo", simple_value=10.0, step=5)
@@ -767,11 +764,11 @@ class TensorboardUploaderTest(tf.test.TestCase):
         writer_b.add_test_summary("xyz", simple_value=12.0, step=1)
         writer_b.flush()
         uploader._upload_once()
-        self.assertEqual(2, mock_client.write_tensorboard_run_data.call_count)
-        call_args_list = mock_client.write_tensorboard_run_data.call_args_list
+        self.assertEqual(1, mock_client.write_tensorboard_experiment_data.call_count)
+        call_args_list = mock_client.write_tensorboard_experiment_data.call_args_list
         request3, request4 = (
-            call_args_list[0][1]["time_series_data"],
-            call_args_list[1][1]["time_series_data"],
+            call_args_list[0][1]["write_run_data_requests"][0].time_series_data,
+            call_args_list[0][1]["write_run_data_requests"][1].time_series_data,
         )
         _clear_wall_times(request3)
         _clear_wall_times(request4)
@@ -797,11 +794,11 @@ class TensorboardUploaderTest(tf.test.TestCase):
         self.assertProtoEquals(expected_request3[0], request3[0])
         self.assertProtoEquals(expected_request3[1], request3[1])
         self.assertProtoEquals(expected_request4[0], request4[0])
-        mock_client.write_tensorboard_run_data.reset_mock()
+        mock_client.write_tensorboard_experiment_data.reset_mock()
 
         # Empty third round
         uploader._upload_once()
-        mock_client.write_tensorboard_run_data.assert_not_called()
+        mock_client.write_tensorboard_experiment_data.assert_not_called()
 
     def test_verbosity_zero_creates_upload_tracker_with_verbosity_zero(self):
         mock_client = _create_mock_client()
@@ -906,9 +903,9 @@ class TensorboardUploaderTest(tf.test.TestCase):
             actual_graph_def = graph_pb2.GraphDef.FromString(request)
             self.assertProtoEquals(expected_graph_def, actual_graph_def)
 
-        for call in mock_client.write_tensorboard_run_data.call_args_list:
+        for call in mock_client.write_tensorboard_experiment_data.call_args_list:
             kargs = call[1]
-            time_series_data = kargs["time_series_data"]
+            time_series_data = kargs["write_run_data_requests"][0].time_series_data
             self.assertEqual(len(time_series_data), 1)
             self.assertEqual(
                 time_series_data[0].tensorboard_time_series_id, _TEST_TIME_SERIES_NAME
@@ -922,7 +919,7 @@ class TensorboardUploaderTest(tf.test.TestCase):
         self.assertEqual(mock_tracker.send_tracker.call_count, 2)
         self.assertEqual(mock_tracker.scalars_tracker.call_count, 0)
         self.assertEqual(mock_tracker.tensors_tracker.call_count, 0)
-        self.assertEqual(mock_tracker.blob_tracker.call_count, 15)
+        self.assertEqual(mock_tracker.blob_tracker.call_count, 12)
 
     def test_filter_graphs(self):
         # Three graphs: one short, one long, one corrupt.
@@ -1014,10 +1011,13 @@ class BatchedRequestSenderTest(tf.test.TestCase):
             allowed_plugins=allowed_plugins,
         )
         builder.dispatch_requests({"": _apply_compat(events)})
-        scalar_requests = mock_client.write_tensorboard_run_data.call_args_list
+        scalar_requests = mock_client.write_tensorboard_experiment_data.call_args_list
         if scalar_requests:
             self.assertLen(scalar_requests, 1)
-            self.assertLen(scalar_requests[0][1]["time_series_data"], n_scalar_events)
+            self.assertLen(
+                scalar_requests[0][1]["write_run_data_requests"][0].time_series_data,
+                n_scalar_events,
+            )
         return scalar_requests
 
     def test_empty_events(self):
@@ -1104,7 +1104,8 @@ class BatchedRequestSenderTest(tf.test.TestCase):
         )
 
         self.assertProtoEquals(
-            time_series_data, call_args_list[0][1]["time_series_data"][0]
+            time_series_data,
+            call_args_list[0][1]["write_run_data_requests"][0].time_series_data[0],
         )
 
 
@@ -1177,7 +1178,7 @@ class ProfileRequestSenderTest(tf.test.TestCase):
             with tempfile.NamedTemporaryFile(suffix=".xplane.pb", dir=run_path):
                 call_args_list = self._populate_run_from_events(events, logdir)
 
-        profile_tag_counts = _extract_tag_counts(call_args_list)
+        profile_tag_counts = _extract_tag_counts_time_series(call_args_list)
         self.assertEqual(profile_tag_counts, {prof_run_name: 1})
 
     def test_profile_event_single_prof_run_new_files(self):
@@ -1211,7 +1212,7 @@ class ProfileRequestSenderTest(tf.test.TestCase):
                         events, logdir, builder=builder, mock_client=mock_client
                     )
 
-        profile_tag_counts = _extract_tag_counts(call_args_list)
+        profile_tag_counts = _extract_tag_counts_time_series(call_args_list)
         self.assertEqual(profile_tag_counts, {prof_run_name: 1})
 
     def test_profile_event_multi_prof_run(self):
@@ -1243,7 +1244,7 @@ class ProfileRequestSenderTest(tf.test.TestCase):
                 call_args_list = self._populate_run_from_events(events, logdir)
 
         self.assertLen(call_args_list, 2)
-        profile_tag_counts = _extract_tag_counts(call_args_list)
+        profile_tag_counts = _extract_tag_counts_time_series(call_args_list)
         self.assertEqual(profile_tag_counts, dict.fromkeys(prof_run_names, 1))
 
     def test_profile_event_add_consecutive_prof_runs(self):
@@ -1305,20 +1306,24 @@ class ScalarBatchedRequestSenderTest(tf.test.TestCase):
     def _add_events(self, sender, events):
         for event in events:
             for value in event.summary.value:
-                sender.add_event(event, value, value.metadata)
+                sender.add_event(_TEST_RUN_NAME, event, value, value.metadata)
 
     def _add_events_and_flush(self, events, expected_n_time_series):
         mock_client = _create_mock_client()
         sender = _create_scalar_request_sender(
-            run_resource_id=_TEST_RUN_NAME, api=mock_client,
+            experiment_resource_id=_TEST_EXPERIMENT_NAME, api=mock_client,
         )
         self._add_events(sender, events)
         sender.flush()
 
-        requests = mock_client.write_tensorboard_run_data.call_args_list
+        requests = mock_client.write_tensorboard_experiment_data.call_args_list
         self.assertLen(requests, 1)
-        self.assertLen(requests[0][1]["time_series_data"], expected_n_time_series)
-        return requests[0]
+        call_args = requests[0]
+        self.assertLen(
+            call_args[1]["write_run_data_requests"][0].time_series_data,
+            expected_n_time_series,
+        )
+        return call_args
 
     def test_aggregation_by_tag(self):
         def make_event(step, wall_time, tag, value):
@@ -1335,7 +1340,7 @@ class ScalarBatchedRequestSenderTest(tf.test.TestCase):
             make_event(1, 6.0, "three", 66.0),
         ]
         call_args = self._add_events_and_flush(events, 3)
-        ts_data = call_args[1]["time_series_data"]
+        ts_data = call_args[1]["write_run_data_requests"][0].time_series_data
         tag_data = {
             ts.tensorboard_time_series_id: [
                 (
@@ -1361,9 +1366,9 @@ class ScalarBatchedRequestSenderTest(tf.test.TestCase):
         event.summary.value.add(tag="foo", simple_value=5.0)
         call_args = self._add_events_and_flush(_apply_compat([event]), 1)
 
-        expected_call_args = mock.call(
-            tensorboard_run=_TEST_RUN_NAME,
-            time_series_data=[
+        self.assertEqual(_TEST_EXPERIMENT_NAME, call_args[1]["tensorboard_experiment"])
+        self.assertEqual(
+            [
                 tensorboard_data.TimeSeriesData(
                     tensorboard_time_series_id="foo",
                     value_type=tensorboard_time_series_type.TensorboardTimeSeries.ValueType.SCALAR,
@@ -1376,8 +1381,8 @@ class ScalarBatchedRequestSenderTest(tf.test.TestCase):
                     ],
                 )
             ],
+            call_args[1]["write_run_data_requests"][0].time_series_data,
         )
-        self.assertEqual(expected_call_args, call_args)
 
     def test_v1_summary_tb_summary(self):
         tf_summary = summary_v1.scalar_pb("foo", 5.0)
@@ -1385,9 +1390,9 @@ class ScalarBatchedRequestSenderTest(tf.test.TestCase):
         event = event_pb2.Event(step=1, wall_time=123.456, summary=tb_summary)
         call_args = self._add_events_and_flush(_apply_compat([event]), 1)
 
-        expected_call_args = mock.call(
-            tensorboard_run=_TEST_RUN_NAME,
-            time_series_data=[
+        self.assertEqual(_TEST_EXPERIMENT_NAME, call_args[1]["tensorboard_experiment"])
+        self.assertEqual(
+            [
                 tensorboard_data.TimeSeriesData(
                     tensorboard_time_series_id="scalar_summary",
                     value_type=tensorboard_time_series_type.TensorboardTimeSeries.ValueType.SCALAR,
@@ -1400,8 +1405,8 @@ class ScalarBatchedRequestSenderTest(tf.test.TestCase):
                     ],
                 )
             ],
+            call_args[1]["write_run_data_requests"][0].time_series_data,
         )
-        self.assertEqual(expected_call_args, call_args)
 
     def test_v2_summary(self):
         event = event_pb2.Event(
@@ -1409,9 +1414,9 @@ class ScalarBatchedRequestSenderTest(tf.test.TestCase):
         )
         call_args = self._add_events_and_flush(_apply_compat([event]), 1)
 
-        expected_call_args = mock.call(
-            tensorboard_run=_TEST_RUN_NAME,
-            time_series_data=[
+        self.assertEqual(_TEST_EXPERIMENT_NAME, call_args[1]["tensorboard_experiment"])
+        self.assertEqual(
+            [
                 tensorboard_data.TimeSeriesData(
                     tensorboard_time_series_id="foo",
                     value_type=tensorboard_time_series_type.TensorboardTimeSeries.ValueType.SCALAR,
@@ -1424,9 +1429,8 @@ class ScalarBatchedRequestSenderTest(tf.test.TestCase):
                     ],
                 )
             ],
+            call_args[1]["write_run_data_requests"][0].time_series_data,
         )
-
-        self.assertEqual(expected_call_args, call_args)
 
     def test_propagates_experiment_deletion(self):
         event = event_pb2.Event(step=1)
@@ -1437,16 +1441,18 @@ class ScalarBatchedRequestSenderTest(tf.test.TestCase):
         self._add_events(sender, _apply_compat([event]))
 
         error = _grpc_error(grpc.StatusCode.NOT_FOUND, "nope")
-        mock_client.write_tensorboard_run_data.side_effect = error
+        mock_client.write_tensorboard_experiment_data.side_effect = error
         with self.assertRaises(uploader_lib.ExperimentNotFoundError):
             sender.flush()
 
     def test_no_budget_for_base_request(self):
         mock_client = _create_mock_client()
-        long_run_id = "A" * 12
+        long_experiment_id = "A" * 12
         with self.assertRaises(uploader_lib._OutOfSpaceError) as cm:
             _create_scalar_request_sender(
-                run_resource_id=long_run_id, api=mock_client, max_request_size=12,
+                experiment_resource_id=long_experiment_id,
+                api=mock_client,
+                max_request_size=12,
             )
         self.assertEqual(str(cm.exception), "Byte budget too small for base request")
 
@@ -1487,46 +1493,48 @@ class ScalarBatchedRequestSenderTest(tf.test.TestCase):
         self._add_events(sender_2, _apply_compat([event_2]))
         sender_1.flush()
         sender_2.flush()
-        call_args_list = mock_client.write_tensorboard_run_data.call_args_list
+        call_args_list = mock_client.write_tensorboard_experiment_data.call_args_list
 
         for call_args in call_args_list:
-            _clear_wall_times(call_args[1]["time_series_data"])
+            _clear_wall_times(
+                call_args[1]["write_run_data_requests"][0].time_series_data
+            )
 
         # Expect two calls despite a single explicit call to flush().
 
         expected = [
-            mock.call(
-                tensorboard_run=long_run_1,
-                time_series_data=[
-                    tensorboard_data.TimeSeriesData(
-                        tensorboard_time_series_id="foo",
-                        value_type=tensorboard_time_series_type.TensorboardTimeSeries.ValueType.SCALAR,
-                        values=[
-                            tensorboard_data.TimeSeriesDataPoint(
-                                step=1, scalar=tensorboard_data.Scalar(value=1.0)
-                            )
-                        ],
-                    )
-                ],
-            ),
-            mock.call(
-                tensorboard_run=long_run_2,
-                time_series_data=[
-                    tensorboard_data.TimeSeriesData(
-                        tensorboard_time_series_id="bar",
-                        value_type=tensorboard_time_series_type.TensorboardTimeSeries.ValueType.SCALAR,
-                        values=[
-                            tensorboard_data.TimeSeriesDataPoint(
-                                step=2, scalar=tensorboard_data.Scalar(value=-2.0)
-                            )
-                        ],
-                    )
-                ],
-            ),
+            [
+                tensorboard_data.TimeSeriesData(
+                    tensorboard_time_series_id="foo",
+                    value_type=tensorboard_time_series_type.TensorboardTimeSeries.ValueType.SCALAR,
+                    values=[
+                        tensorboard_data.TimeSeriesDataPoint(
+                            step=1, scalar=tensorboard_data.Scalar(value=1.0)
+                        )
+                    ],
+                )
+            ],
+            [
+                tensorboard_data.TimeSeriesData(
+                    tensorboard_time_series_id="bar",
+                    value_type=tensorboard_time_series_type.TensorboardTimeSeries.ValueType.SCALAR,
+                    values=[
+                        tensorboard_data.TimeSeriesDataPoint(
+                            step=2, scalar=tensorboard_data.Scalar(value=-2.0)
+                        )
+                    ],
+                )
+            ],
         ]
 
-        self.assertEqual(expected[0], call_args_list[0])
-        self.assertEqual(expected[1], call_args_list[1])
+        self.assertEqual(
+            expected[0],
+            call_args_list[0][1]["write_run_data_requests"][0].time_series_data,
+        )
+        self.assertEqual(
+            expected[1],
+            call_args_list[1][1]["write_run_data_requests"][0].time_series_data,
+        )
 
     def test_break_at_tag_boundary(self):
         mock_client = _create_mock_client()
@@ -1547,9 +1555,9 @@ class ScalarBatchedRequestSenderTest(tf.test.TestCase):
         )
         self._add_events(sender, _apply_compat([event]))
         sender.flush()
-        call_args_list = mock_client.write_tensorboard_run_data.call_args_list
+        call_args_list = mock_client.write_tensorboard_experiment_data.call_args_list
 
-        request1 = call_args_list[0][1]["time_series_data"]
+        request1 = call_args_list[0][1]["write_run_data_requests"][0].time_series_data
         _clear_wall_times(request1)
 
         # Convenience helpers for constructing expected requests.
@@ -1590,10 +1598,12 @@ class ScalarBatchedRequestSenderTest(tf.test.TestCase):
         )
         self._add_events(sender, _apply_compat(events))
         sender.flush()
-        call_args_list = mock_client.write_tensorboard_run_data.call_args_list
+        call_args_list = mock_client.write_tensorboard_experiment_data.call_args_list
 
         for call_args in call_args_list:
-            _clear_wall_times(call_args[1]["time_series_data"])
+            _clear_wall_times(
+                call_args[1]["write_run_data_requests"][0].time_series_data
+            )
 
         self.assertGreater(len(call_args_list), 1)
         self.assertLess(len(call_args_list), point_count)
@@ -1605,9 +1615,12 @@ class ScalarBatchedRequestSenderTest(tf.test.TestCase):
 
         total_points_in_result = 0
         for call_args in call_args_list:
-            self.assertLen(call_args[1]["time_series_data"], 1)
-            self.assertEqual(call_args[1]["tensorboard_run"], "train")
-            time_series_data = call_args[1]["time_series_data"][0]
+            self.assertLen(
+                call_args[1]["write_run_data_requests"][0].time_series_data, 1
+            )
+            time_series_data = call_args[1]["write_run_data_requests"][
+                0
+            ].time_series_data[0]
             self.assertEqual(time_series_data.tensorboard_time_series_id, "loss")
             for point in time_series_data.values:
                 self.assertEqual(point.step, total_points_in_result)
@@ -1639,10 +1652,10 @@ class ScalarBatchedRequestSenderTest(tf.test.TestCase):
             self._add_events(sender, _apply_compat([event_2]))
             sender.flush()
 
-        call_args_list = mock_client.write_tensorboard_run_data.call_args_list
+        call_args_list = mock_client.write_tensorboard_experiment_data.call_args_list
         request1, request2 = (
-            call_args_list[0][1]["time_series_data"],
-            call_args_list[1][1]["time_series_data"],
+            call_args_list[0][1]["write_run_data_requests"][0].time_series_data,
+            call_args_list[1][1]["write_run_data_requests"][0].time_series_data,
         )
         _clear_wall_times(request1)
         _clear_wall_times(request2)
@@ -1684,13 +1697,19 @@ class ScalarBatchedRequestSenderTest(tf.test.TestCase):
             datetime_helpers.DatetimeWithNanoseconds.from_timestamp_pb(
                 _timestamp_pb(1567808404765432119)
             ),
-            call_args[1]["time_series_data"][0].values[0].wall_time,
+            call_args[1]["write_run_data_requests"][0]
+            .time_series_data[0]
+            .values[0]
+            .wall_time,
         )
         self.assertEqual(
             datetime_helpers.DatetimeWithNanoseconds.from_timestamp_pb(
                 _timestamp_pb(1000000002)
             ),
-            call_args[1]["time_series_data"][0].values[1].wall_time,
+            call_args[1]["write_run_data_requests"][0]
+            .time_series_data[0]
+            .values[1]
+            .wall_time,
         )
 
 
@@ -1882,6 +1901,14 @@ def _apply_compat(events):
 
 
 def _extract_tag_counts(call_args_list):
+    return {
+        ts_data.tensorboard_time_series_id: len(ts_data.values)
+        for call_args in call_args_list
+        for ts_data in call_args[1]["write_run_data_requests"][0].time_series_data
+    }
+
+
+def _extract_tag_counts_time_series(call_args_list):
     return {
         ts_data.tensorboard_time_series_id: len(ts_data.values)
         for call_args in call_args_list

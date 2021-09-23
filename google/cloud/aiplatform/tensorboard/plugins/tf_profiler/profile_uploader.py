@@ -83,7 +83,6 @@ class ProfileRequestSender(uploader_utils.RequestSender):
         blob_storage_folder: str,
         tracker: upload_tracker.UploadTracker,
         logdir: str,
-        run_resource_manager: uploader_utils.RunResourceManager,
     ):
         """Constructs ProfileRequestSender for the given experiment resource.
 
@@ -104,15 +103,15 @@ class ProfileRequestSender(uploader_utils.RequestSender):
           blob_storage_folder: Name of the folder to save blob files to within the blob_storage_bucket.
           tracker: Upload tracker to track information about uploads.
           logdir: The log directory for the request sender to search.
-          run_resource_manager: Manages creation or retrieving of runs. This is a shared resource
-            between other request senders.
         """
         self._experiment_resource_name = experiment_resource_name
         self._api = api
         self._logdir = logdir
         self._tag_metadata = {}
         self._tracker = tracker
-        self._run_resource_manager = run_resource_manager
+        self._one_platform_resource_manager = uploader_utils.OnePlatformResourceManager(
+            experiment_resource_name=experiment_resource_name, api=api
+        )
 
         self._run_to_file_request_sender: Dict[str, _FileRequestSender] = {}
         self._run_to_profile_loaders: Dict[str, _ProfileSessionLoader] = {}
@@ -173,12 +172,12 @@ class ProfileRequestSender(uploader_utils.RequestSender):
                 self._profile_dir(run_name)
             )
 
-        tb_run = self._run_resource_manager.create_or_get_run_resource(run_name)
+        tb_run = self._one_platform_resource_manager.get_run_resource_name(run_name)
 
         if run_name not in self._run_to_file_request_sender:
             self._run_to_file_request_sender[
                 run_name
-            ] = self._file_request_sender_factory(tb_run.name,)
+            ] = self._file_request_sender_factory(tb_run)
 
         # Loop through any of the profiling sessions within this training run.
         # A training run can have multiple profile sessions.
