@@ -16,6 +16,7 @@ import os
 from uuid import uuid4
 
 from google.cloud import aiplatform, aiplatform_v1beta1
+from google.cloud import bigquery
 from google.cloud import storage
 import pytest
 
@@ -89,6 +90,14 @@ def featurestore_client():
         client_options={"api_endpoint": "us-central1-aiplatform.googleapis.com"}
     )
     yield featurestore_client
+
+
+@pytest.fixture
+def bigquery_client():
+    bigquery_client = bigquery.Client(
+        project=os.getenv("BUILD_SPECIFIC_GCLOUD_PROJECT")
+    )
+    yield bigquery_client
 
 
 # Shared setup/teardown.
@@ -213,16 +222,24 @@ def teardown_dataset(shared_state, dataset_client):
 def teardown_featurestore(shared_state, featurestore_client):
     yield
 
-    # Delete the created featurestore
-    featurestore_client.delete_featurestore(name=shared_state["featurestore_name"])
+    # Force delete the created featurestore
+    force_delete_featurestore_request = {
+        "name": shared_state["featurestore_name"],
+        "force": True,
+    }
+    featurestore_client.delete_featurestore(request=force_delete_featurestore_request)
 
 
 @pytest.fixture()
 def teardown_entity_type(shared_state, featurestore_client):
     yield
 
-    # Delete the created entity type
-    featurestore_client.delete_entity_type(name=shared_state["entity_type_name"])
+    # Force delete the created entity type
+    force_delete_entity_type_request = {
+        "name": shared_state["entity_type_name"],
+        "force": True,
+    }
+    featurestore_client.delete_entity_type(request=force_delete_entity_type_request)
 
 
 @pytest.fixture()
@@ -231,6 +248,25 @@ def teardown_feature(shared_state, featurestore_client):
 
     # Delete the created feature
     featurestore_client.delete_feature(name=shared_state["feature_name"])
+
+
+@pytest.fixture()
+def teardown_features(shared_state, featurestore_client):
+    yield
+
+    # Delete the created features
+    for feature_name in shared_state["feature_names"]:
+        featurestore_client.delete_feature(name=feature_name)
+
+
+@pytest.fixture()
+def teardown_batch_read_feature_values(shared_state, bigquery_client):
+    yield
+
+    # Delete the created dataset
+    bigquery_client.delete_dataset(
+        shared_state["destination_data_set"], delete_contents=True, not_found_ok=True
+    )
 
 
 @pytest.fixture()

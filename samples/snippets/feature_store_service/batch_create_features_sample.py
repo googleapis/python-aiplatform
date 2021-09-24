@@ -12,21 +12,18 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-# Create a single feature for an existing entity type.
+# Create features in bulk for an existing type.
 # See https://cloud.google.com/vertex-ai/docs/featurestore/setup before running
 # the code snippet
 
-# [START aiplatform_create_feature_sample]
+# [START aiplatform_batch_create_features_sample]
 from google.cloud import aiplatform_v1beta1 as aiplatform
 
 
-def create_feature_sample(
+def batch_create_features_sample(
     project: str,
     featurestore_id: str,
     entity_type_id: str,
-    feature_id: str,
-    value_type: aiplatform.Feature.ValueType,
-    description: str = "sample feature",
     location: str = "us-central1",
     api_endpoint: str = "us-central1-aiplatform.googleapis.com",
     timeout: int = 300,
@@ -38,15 +35,40 @@ def create_feature_sample(
     # This client only needs to be created once, and can be reused for multiple requests.
     client = aiplatform.FeaturestoreServiceClient(client_options=client_options)
     parent = f"projects/{project}/locations/{location}/featurestores/{featurestore_id}/entityTypes/{entity_type_id}"
-    create_feature_request = aiplatform.CreateFeatureRequest(
-        parent=parent,
-        feature=aiplatform.Feature(value_type=value_type, description=description),
-        feature_id=feature_id,
+    age_feature = aiplatform.Feature(
+        value_type=aiplatform.Feature.ValueType.INT64, description="User age",
     )
-    lro_response = client.create_feature(request=create_feature_request)
+    age_feature_request = aiplatform.CreateFeatureRequest(
+        feature=age_feature, feature_id="age"
+    )
+
+    gender_feature = aiplatform.Feature(
+        value_type=aiplatform.Feature.ValueType.STRING, description="User gender"
+    )
+    gender_feature_request = aiplatform.CreateFeatureRequest(
+        feature=gender_feature, feature_id="gender"
+    )
+
+    liked_genres_feature = aiplatform.Feature(
+        value_type=aiplatform.Feature.ValueType.STRING_ARRAY,
+        description="An array of genres that this user liked",
+    )
+    liked_genres_feature_request = aiplatform.CreateFeatureRequest(
+        feature=liked_genres_feature, feature_id="liked_genres"
+    )
+
+    requests = [
+        age_feature_request,
+        gender_feature_request,
+        liked_genres_feature_request,
+    ]
+    batch_create_features_request = aiplatform.BatchCreateFeaturesRequest(
+        parent=parent, requests=requests
+    )
+    lro_response = client.batch_create_features(request=batch_create_features_request)
     print("Long running operation:", lro_response.operation.name)
-    create_feature_response = lro_response.result(timeout=timeout)
-    print("create_feature_response:", create_feature_response)
+    batch_create_features_response = lro_response.result(timeout=timeout)
+    print("batch_create_features_response:", batch_create_features_response)
 
 
-# [END aiplatform_create_feature_sample]
+# [END aiplatform_batch_create_features_sample]
