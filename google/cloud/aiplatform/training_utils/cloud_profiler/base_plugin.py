@@ -20,7 +20,7 @@ from typing import Dict
 
 
 class BasePlugin(abc.ABC):
-    """Base plugin for cloud_training_tools endpoints.
+    """Base plugin for cloud training tools endpoints.
 
     The plugins support registering http handlers to be used for
     AI Platform training jobs.
@@ -43,7 +43,7 @@ class BasePlugin(abc.ABC):
 
     @staticmethod
     @abc.abstractmethod
-    def post_init_checks() -> bool:
+    def post_setup_check() -> bool:
         """Check if after initialization, we need to use the plugin.
 
         Example: Web server only needs to run for main node for training, others

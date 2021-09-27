@@ -29,10 +29,8 @@ import importlib.util
 from werkzeug import wrappers
 
 from google.cloud.aiplatform.training_utils import EnvironmentVariables
-from google.cloud.aiplatform.training_utils.cloud_training_tools.plugins import (
-    base_plugin,
-)
-from google.cloud.aiplatform.training_utils.cloud_training_tools.plugins.tf_profiler import (
+from google.cloud.aiplatform.training_utils.cloud_profiler import base_plugin
+from google.cloud.aiplatform.training_utils.cloud_profiler.plugins import (
     tensorboard_api,
 )
 
@@ -176,10 +174,6 @@ def _update_environ(environ) -> str:
     query_dict = {}
     query_dict["service_addr"] = hosts
 
-    import pdb
-
-    pdb.set_trace()
-
     # Update service address and worker list
     # Use parse_qsl and then convert list to dictionary so we can update
     # attributes
@@ -275,7 +269,7 @@ class TFProfiler(base_plugin.BasePlugin):
         tf.profiler.experimental.server.start(int(_ENV_VARS.tf_profiler_port))
 
     @staticmethod
-    def post_init_checks() -> bool:
+    def post_setup_check() -> bool:
         """Only chief and task 0 should run the webserver."""
         cluster_spec = _ENV_VARS.cluster_spec
         task_type = cluster_spec.get("task", {}).get("type", "")

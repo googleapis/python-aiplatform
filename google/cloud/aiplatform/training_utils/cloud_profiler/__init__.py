@@ -15,8 +15,15 @@
 # limitations under the License.
 #
 
-from google.cloud.aiplatform.training_utils.environment_variables import (
-    EnvironmentVariables,
-)
+from google.cloud.aiplatform.training_utils.cloud_profiler import initializer
 
-__all__ = ("EnvironmentVariables",)
+"""
+Initialize the cloud profiler for tensorflow.
+
+Usage:
+from google.cloud.aiplatform.training_utils import cloud_profiler
+
+cloud_profiler.init(profiler='tf')
+"""
+
+init = initializer.initializer
