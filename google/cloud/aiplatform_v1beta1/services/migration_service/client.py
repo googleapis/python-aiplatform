@@ -17,7 +17,7 @@ from collections import OrderedDict
 from distutils import util
 import os
 import re
-from typing import Callable, Dict, Optional, Sequence, Tuple, Type, Union
+from typing import Dict, Optional, Sequence, Tuple, Type, Union
 import pkg_resources
 
 from google.api_core import client_options as client_options_lib  # type: ignore
@@ -452,7 +452,7 @@ class MigrationServiceClient(metaclass=MigrationServiceClientMeta):
 
     def search_migratable_resources(
         self,
-        request: migration_service.SearchMigratableResourcesRequest = None,
+        request: Union[migration_service.SearchMigratableResourcesRequest, dict] = None,
         *,
         parent: str = None,
         retry: retries.Retry = gapic_v1.method.DEFAULT,
@@ -465,7 +465,7 @@ class MigrationServiceClient(metaclass=MigrationServiceClientMeta):
         given location.
 
         Args:
-            request (google.cloud.aiplatform_v1beta1.types.SearchMigratableResourcesRequest):
+            request (Union[google.cloud.aiplatform_v1beta1.types.SearchMigratableResourcesRequest, dict]):
                 The request object. Request message for
                 [MigrationService.SearchMigratableResources][google.cloud.aiplatform.v1beta1.MigrationService.SearchMigratableResources].
             parent (str):
@@ -540,7 +540,7 @@ class MigrationServiceClient(metaclass=MigrationServiceClientMeta):
 
     def batch_migrate_resources(
         self,
-        request: migration_service.BatchMigrateResourcesRequest = None,
+        request: Union[migration_service.BatchMigrateResourcesRequest, dict] = None,
         *,
         parent: str = None,
         migrate_resource_requests: Sequence[
@@ -555,7 +555,7 @@ class MigrationServiceClient(metaclass=MigrationServiceClientMeta):
         to Vertex AI.
 
         Args:
-            request (google.cloud.aiplatform_v1beta1.types.BatchMigrateResourcesRequest):
+            request (Union[google.cloud.aiplatform_v1beta1.types.BatchMigrateResourcesRequest, dict]):
                 The request object. Request message for
                 [MigrationService.BatchMigrateResources][google.cloud.aiplatform.v1beta1.MigrationService.BatchMigrateResources].
             parent (str):
