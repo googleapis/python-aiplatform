@@ -17,7 +17,7 @@ from collections import OrderedDict
 from distutils import util
 import os
 import re
-from typing import Callable, Dict, Optional, Iterable, Sequence, Tuple, Type, Union
+from typing import Dict, Optional, Iterable, Sequence, Tuple, Type, Union
 import pkg_resources
 
 from google.api_core import client_options as client_options_lib  # type: ignore
@@ -445,7 +445,7 @@ class TensorboardServiceClient(metaclass=TensorboardServiceClientMeta):
 
     def create_tensorboard(
         self,
-        request: tensorboard_service.CreateTensorboardRequest = None,
+        request: Union[tensorboard_service.CreateTensorboardRequest, dict] = None,
         *,
         parent: str = None,
         tensorboard: gca_tensorboard.Tensorboard = None,
@@ -456,7 +456,7 @@ class TensorboardServiceClient(metaclass=TensorboardServiceClientMeta):
         r"""Creates a Tensorboard.
 
         Args:
-            request (google.cloud.aiplatform_v1beta1.types.CreateTensorboardRequest):
+            request (Union[google.cloud.aiplatform_v1beta1.types.CreateTensorboardRequest, dict]):
                 The request object. Request message for
                 [TensorboardService.CreateTensorboard][google.cloud.aiplatform.v1beta1.TensorboardService.CreateTensorboard].
             parent (str):
@@ -537,7 +537,7 @@ class TensorboardServiceClient(metaclass=TensorboardServiceClientMeta):
 
     def get_tensorboard(
         self,
-        request: tensorboard_service.GetTensorboardRequest = None,
+        request: Union[tensorboard_service.GetTensorboardRequest, dict] = None,
         *,
         name: str = None,
         retry: retries.Retry = gapic_v1.method.DEFAULT,
@@ -547,7 +547,7 @@ class TensorboardServiceClient(metaclass=TensorboardServiceClientMeta):
         r"""Gets a Tensorboard.
 
         Args:
-            request (google.cloud.aiplatform_v1beta1.types.GetTensorboardRequest):
+            request (Union[google.cloud.aiplatform_v1beta1.types.GetTensorboardRequest, dict]):
                 The request object. Request message for
                 [TensorboardService.GetTensorboard][google.cloud.aiplatform.v1beta1.TensorboardService.GetTensorboard].
             name (str):
@@ -612,7 +612,7 @@ class TensorboardServiceClient(metaclass=TensorboardServiceClientMeta):
 
     def update_tensorboard(
         self,
-        request: tensorboard_service.UpdateTensorboardRequest = None,
+        request: Union[tensorboard_service.UpdateTensorboardRequest, dict] = None,
         *,
         tensorboard: gca_tensorboard.Tensorboard = None,
         update_mask: field_mask_pb2.FieldMask = None,
@@ -623,7 +623,7 @@ class TensorboardServiceClient(metaclass=TensorboardServiceClientMeta):
         r"""Updates a Tensorboard.
 
         Args:
-            request (google.cloud.aiplatform_v1beta1.types.UpdateTensorboardRequest):
+            request (Union[google.cloud.aiplatform_v1beta1.types.UpdateTensorboardRequest, dict]):
                 The request object. Request message for
                 [TensorboardService.UpdateTensorboard][google.cloud.aiplatform.v1beta1.TensorboardService.UpdateTensorboard].
             tensorboard (google.cloud.aiplatform_v1beta1.types.Tensorboard):
@@ -713,7 +713,7 @@ class TensorboardServiceClient(metaclass=TensorboardServiceClientMeta):
 
     def list_tensorboards(
         self,
-        request: tensorboard_service.ListTensorboardsRequest = None,
+        request: Union[tensorboard_service.ListTensorboardsRequest, dict] = None,
         *,
         parent: str = None,
         retry: retries.Retry = gapic_v1.method.DEFAULT,
@@ -723,7 +723,7 @@ class TensorboardServiceClient(metaclass=TensorboardServiceClientMeta):
         r"""Lists Tensorboards in a Location.
 
         Args:
-            request (google.cloud.aiplatform_v1beta1.types.ListTensorboardsRequest):
+            request (Union[google.cloud.aiplatform_v1beta1.types.ListTensorboardsRequest, dict]):
                 The request object. Request message for
                 [TensorboardService.ListTensorboards][google.cloud.aiplatform.v1beta1.TensorboardService.ListTensorboards].
             parent (str):
@@ -794,7 +794,7 @@ class TensorboardServiceClient(metaclass=TensorboardServiceClientMeta):
 
     def delete_tensorboard(
         self,
-        request: tensorboard_service.DeleteTensorboardRequest = None,
+        request: Union[tensorboard_service.DeleteTensorboardRequest, dict] = None,
         *,
         name: str = None,
         retry: retries.Retry = gapic_v1.method.DEFAULT,
@@ -804,7 +804,7 @@ class TensorboardServiceClient(metaclass=TensorboardServiceClientMeta):
         r"""Deletes a Tensorboard.
 
         Args:
-            request (google.cloud.aiplatform_v1beta1.types.DeleteTensorboardRequest):
+            request (Union[google.cloud.aiplatform_v1beta1.types.DeleteTensorboardRequest, dict]):
                 The request object. Request message for
                 [TensorboardService.DeleteTensorboard][google.cloud.aiplatform.v1beta1.TensorboardService.DeleteTensorboard].
             name (str):
@@ -887,7 +887,9 @@ class TensorboardServiceClient(metaclass=TensorboardServiceClientMeta):
 
     def create_tensorboard_experiment(
         self,
-        request: tensorboard_service.CreateTensorboardExperimentRequest = None,
+        request: Union[
+            tensorboard_service.CreateTensorboardExperimentRequest, dict
+        ] = None,
         *,
         parent: str = None,
         tensorboard_experiment: gca_tensorboard_experiment.TensorboardExperiment = None,
@@ -899,7 +901,7 @@ class TensorboardServiceClient(metaclass=TensorboardServiceClientMeta):
         r"""Creates a TensorboardExperiment.
 
         Args:
-            request (google.cloud.aiplatform_v1beta1.types.CreateTensorboardExperimentRequest):
+            request (Union[google.cloud.aiplatform_v1beta1.types.CreateTensorboardExperimentRequest, dict]):
                 The request object. Request message for
                 [TensorboardService.CreateTensorboardExperiment][google.cloud.aiplatform.v1beta1.TensorboardService.CreateTensorboardExperiment].
             parent (str):
@@ -989,7 +991,9 @@ class TensorboardServiceClient(metaclass=TensorboardServiceClientMeta):
 
     def get_tensorboard_experiment(
         self,
-        request: tensorboard_service.GetTensorboardExperimentRequest = None,
+        request: Union[
+            tensorboard_service.GetTensorboardExperimentRequest, dict
+        ] = None,
         *,
         name: str = None,
         retry: retries.Retry = gapic_v1.method.DEFAULT,
@@ -999,7 +1003,7 @@ class TensorboardServiceClient(metaclass=TensorboardServiceClientMeta):
         r"""Gets a TensorboardExperiment.
 
         Args:
-            request (google.cloud.aiplatform_v1beta1.types.GetTensorboardExperimentRequest):
+            request (Union[google.cloud.aiplatform_v1beta1.types.GetTensorboardExperimentRequest, dict]):
                 The request object. Request message for
                 [TensorboardService.GetTensorboardExperiment][google.cloud.aiplatform.v1beta1.TensorboardService.GetTensorboardExperiment].
             name (str):
@@ -1065,7 +1069,9 @@ class TensorboardServiceClient(metaclass=TensorboardServiceClientMeta):
 
     def update_tensorboard_experiment(
         self,
-        request: tensorboard_service.UpdateTensorboardExperimentRequest = None,
+        request: Union[
+            tensorboard_service.UpdateTensorboardExperimentRequest, dict
+        ] = None,
         *,
         tensorboard_experiment: gca_tensorboard_experiment.TensorboardExperiment = None,
         update_mask: field_mask_pb2.FieldMask = None,
@@ -1076,7 +1082,7 @@ class TensorboardServiceClient(metaclass=TensorboardServiceClientMeta):
         r"""Updates a TensorboardExperiment.
 
         Args:
-            request (google.cloud.aiplatform_v1beta1.types.UpdateTensorboardExperimentRequest):
+            request (Union[google.cloud.aiplatform_v1beta1.types.UpdateTensorboardExperimentRequest, dict]):
                 The request object. Request message for
                 [TensorboardService.UpdateTensorboardExperiment][google.cloud.aiplatform.v1beta1.TensorboardService.UpdateTensorboardExperiment].
             tensorboard_experiment (google.cloud.aiplatform_v1beta1.types.TensorboardExperiment):
@@ -1161,7 +1167,9 @@ class TensorboardServiceClient(metaclass=TensorboardServiceClientMeta):
 
     def list_tensorboard_experiments(
         self,
-        request: tensorboard_service.ListTensorboardExperimentsRequest = None,
+        request: Union[
+            tensorboard_service.ListTensorboardExperimentsRequest, dict
+        ] = None,
         *,
         parent: str = None,
         retry: retries.Retry = gapic_v1.method.DEFAULT,
@@ -1171,7 +1179,7 @@ class TensorboardServiceClient(metaclass=TensorboardServiceClientMeta):
         r"""Lists TensorboardExperiments in a Location.
 
         Args:
-            request (google.cloud.aiplatform_v1beta1.types.ListTensorboardExperimentsRequest):
+            request (Union[google.cloud.aiplatform_v1beta1.types.ListTensorboardExperimentsRequest, dict]):
                 The request object. Request message for
                 [TensorboardService.ListTensorboardExperiments][google.cloud.aiplatform.v1beta1.TensorboardService.ListTensorboardExperiments].
             parent (str):
@@ -1247,7 +1255,9 @@ class TensorboardServiceClient(metaclass=TensorboardServiceClientMeta):
 
     def delete_tensorboard_experiment(
         self,
-        request: tensorboard_service.DeleteTensorboardExperimentRequest = None,
+        request: Union[
+            tensorboard_service.DeleteTensorboardExperimentRequest, dict
+        ] = None,
         *,
         name: str = None,
         retry: retries.Retry = gapic_v1.method.DEFAULT,
@@ -1257,7 +1267,7 @@ class TensorboardServiceClient(metaclass=TensorboardServiceClientMeta):
         r"""Deletes a TensorboardExperiment.
 
         Args:
-            request (google.cloud.aiplatform_v1beta1.types.DeleteTensorboardExperimentRequest):
+            request (Union[google.cloud.aiplatform_v1beta1.types.DeleteTensorboardExperimentRequest, dict]):
                 The request object. Request message for
                 [TensorboardService.DeleteTensorboardExperiment][google.cloud.aiplatform.v1beta1.TensorboardService.DeleteTensorboardExperiment].
             name (str):
@@ -1344,7 +1354,7 @@ class TensorboardServiceClient(metaclass=TensorboardServiceClientMeta):
 
     def create_tensorboard_run(
         self,
-        request: tensorboard_service.CreateTensorboardRunRequest = None,
+        request: Union[tensorboard_service.CreateTensorboardRunRequest, dict] = None,
         *,
         parent: str = None,
         tensorboard_run: gca_tensorboard_run.TensorboardRun = None,
@@ -1356,7 +1366,7 @@ class TensorboardServiceClient(metaclass=TensorboardServiceClientMeta):
         r"""Creates a TensorboardRun.
 
         Args:
-            request (google.cloud.aiplatform_v1beta1.types.CreateTensorboardRunRequest):
+            request (Union[google.cloud.aiplatform_v1beta1.types.CreateTensorboardRunRequest, dict]):
                 The request object. Request message for
                 [TensorboardService.CreateTensorboardRun][google.cloud.aiplatform.v1beta1.TensorboardService.CreateTensorboardRun].
             parent (str):
@@ -1442,7 +1452,9 @@ class TensorboardServiceClient(metaclass=TensorboardServiceClientMeta):
 
     def batch_create_tensorboard_runs(
         self,
-        request: tensorboard_service.BatchCreateTensorboardRunsRequest = None,
+        request: Union[
+            tensorboard_service.BatchCreateTensorboardRunsRequest, dict
+        ] = None,
         *,
         parent: str = None,
         requests: Sequence[tensorboard_service.CreateTensorboardRunRequest] = None,
@@ -1453,7 +1465,7 @@ class TensorboardServiceClient(metaclass=TensorboardServiceClientMeta):
         r"""Batch create TensorboardRuns.
 
         Args:
-            request (google.cloud.aiplatform_v1beta1.types.BatchCreateTensorboardRunsRequest):
+            request (Union[google.cloud.aiplatform_v1beta1.types.BatchCreateTensorboardRunsRequest, dict]):
                 The request object. Request message for
                 [TensorboardService.BatchCreateTensorboardRuns][google.cloud.aiplatform.v1beta1.TensorboardService.BatchCreateTensorboardRuns].
             parent (str):
@@ -1533,7 +1545,7 @@ class TensorboardServiceClient(metaclass=TensorboardServiceClientMeta):
 
     def get_tensorboard_run(
         self,
-        request: tensorboard_service.GetTensorboardRunRequest = None,
+        request: Union[tensorboard_service.GetTensorboardRunRequest, dict] = None,
         *,
         name: str = None,
         retry: retries.Retry = gapic_v1.method.DEFAULT,
@@ -1543,7 +1555,7 @@ class TensorboardServiceClient(metaclass=TensorboardServiceClientMeta):
         r"""Gets a TensorboardRun.
 
         Args:
-            request (google.cloud.aiplatform_v1beta1.types.GetTensorboardRunRequest):
+            request (Union[google.cloud.aiplatform_v1beta1.types.GetTensorboardRunRequest, dict]):
                 The request object. Request message for
                 [TensorboardService.GetTensorboardRun][google.cloud.aiplatform.v1beta1.TensorboardService.GetTensorboardRun].
             name (str):
@@ -1607,7 +1619,7 @@ class TensorboardServiceClient(metaclass=TensorboardServiceClientMeta):
 
     def update_tensorboard_run(
         self,
-        request: tensorboard_service.UpdateTensorboardRunRequest = None,
+        request: Union[tensorboard_service.UpdateTensorboardRunRequest, dict] = None,
         *,
         tensorboard_run: gca_tensorboard_run.TensorboardRun = None,
         update_mask: field_mask_pb2.FieldMask = None,
@@ -1618,7 +1630,7 @@ class TensorboardServiceClient(metaclass=TensorboardServiceClientMeta):
         r"""Updates a TensorboardRun.
 
         Args:
-            request (google.cloud.aiplatform_v1beta1.types.UpdateTensorboardRunRequest):
+            request (Union[google.cloud.aiplatform_v1beta1.types.UpdateTensorboardRunRequest, dict]):
                 The request object. Request message for
                 [TensorboardService.UpdateTensorboardRun][google.cloud.aiplatform.v1beta1.TensorboardService.UpdateTensorboardRun].
             tensorboard_run (google.cloud.aiplatform_v1beta1.types.TensorboardRun):
@@ -1698,7 +1710,7 @@ class TensorboardServiceClient(metaclass=TensorboardServiceClientMeta):
 
     def list_tensorboard_runs(
         self,
-        request: tensorboard_service.ListTensorboardRunsRequest = None,
+        request: Union[tensorboard_service.ListTensorboardRunsRequest, dict] = None,
         *,
         parent: str = None,
         retry: retries.Retry = gapic_v1.method.DEFAULT,
@@ -1708,7 +1720,7 @@ class TensorboardServiceClient(metaclass=TensorboardServiceClientMeta):
         r"""Lists TensorboardRuns in a Location.
 
         Args:
-            request (google.cloud.aiplatform_v1beta1.types.ListTensorboardRunsRequest):
+            request (Union[google.cloud.aiplatform_v1beta1.types.ListTensorboardRunsRequest, dict]):
                 The request object. Request message for
                 [TensorboardService.ListTensorboardRuns][google.cloud.aiplatform.v1beta1.TensorboardService.ListTensorboardRuns].
             parent (str):
@@ -1780,7 +1792,7 @@ class TensorboardServiceClient(metaclass=TensorboardServiceClientMeta):
 
     def delete_tensorboard_run(
         self,
-        request: tensorboard_service.DeleteTensorboardRunRequest = None,
+        request: Union[tensorboard_service.DeleteTensorboardRunRequest, dict] = None,
         *,
         name: str = None,
         retry: retries.Retry = gapic_v1.method.DEFAULT,
@@ -1790,7 +1802,7 @@ class TensorboardServiceClient(metaclass=TensorboardServiceClientMeta):
         r"""Deletes a TensorboardRun.
 
         Args:
-            request (google.cloud.aiplatform_v1beta1.types.DeleteTensorboardRunRequest):
+            request (Union[google.cloud.aiplatform_v1beta1.types.DeleteTensorboardRunRequest, dict]):
                 The request object. Request message for
                 [TensorboardService.DeleteTensorboardRun][google.cloud.aiplatform.v1beta1.TensorboardService.DeleteTensorboardRun].
             name (str):
@@ -1873,7 +1885,9 @@ class TensorboardServiceClient(metaclass=TensorboardServiceClientMeta):
 
     def batch_create_tensorboard_time_series(
         self,
-        request: tensorboard_service.BatchCreateTensorboardTimeSeriesRequest = None,
+        request: Union[
+            tensorboard_service.BatchCreateTensorboardTimeSeriesRequest, dict
+        ] = None,
         *,
         parent: str = None,
         requests: Sequence[
@@ -1887,7 +1901,7 @@ class TensorboardServiceClient(metaclass=TensorboardServiceClientMeta):
         TensorboardExperiment.
 
         Args:
-            request (google.cloud.aiplatform_v1beta1.types.BatchCreateTensorboardTimeSeriesRequest):
+            request (Union[google.cloud.aiplatform_v1beta1.types.BatchCreateTensorboardTimeSeriesRequest, dict]):
                 The request object. Request message for
                 [TensorboardService.BatchCreateTensorboardTimeSeries][google.cloud.aiplatform.v1beta1.TensorboardService.BatchCreateTensorboardTimeSeries].
             parent (str):
@@ -1970,7 +1984,9 @@ class TensorboardServiceClient(metaclass=TensorboardServiceClientMeta):
 
     def create_tensorboard_time_series(
         self,
-        request: tensorboard_service.CreateTensorboardTimeSeriesRequest = None,
+        request: Union[
+            tensorboard_service.CreateTensorboardTimeSeriesRequest, dict
+        ] = None,
         *,
         parent: str = None,
         tensorboard_time_series: gca_tensorboard_time_series.TensorboardTimeSeries = None,
@@ -1981,7 +1997,7 @@ class TensorboardServiceClient(metaclass=TensorboardServiceClientMeta):
         r"""Creates a TensorboardTimeSeries.
 
         Args:
-            request (google.cloud.aiplatform_v1beta1.types.CreateTensorboardTimeSeriesRequest):
+            request (Union[google.cloud.aiplatform_v1beta1.types.CreateTensorboardTimeSeriesRequest, dict]):
                 The request object. Request message for
                 [TensorboardService.CreateTensorboardTimeSeries][google.cloud.aiplatform.v1beta1.TensorboardService.CreateTensorboardTimeSeries].
             parent (str):
@@ -2056,7 +2072,9 @@ class TensorboardServiceClient(metaclass=TensorboardServiceClientMeta):
 
     def get_tensorboard_time_series(
         self,
-        request: tensorboard_service.GetTensorboardTimeSeriesRequest = None,
+        request: Union[
+            tensorboard_service.GetTensorboardTimeSeriesRequest, dict
+        ] = None,
         *,
         name: str = None,
         retry: retries.Retry = gapic_v1.method.DEFAULT,
@@ -2066,7 +2084,7 @@ class TensorboardServiceClient(metaclass=TensorboardServiceClientMeta):
         r"""Gets a TensorboardTimeSeries.
 
         Args:
-            request (google.cloud.aiplatform_v1beta1.types.GetTensorboardTimeSeriesRequest):
+            request (Union[google.cloud.aiplatform_v1beta1.types.GetTensorboardTimeSeriesRequest, dict]):
                 The request object. Request message for
                 [TensorboardService.GetTensorboardTimeSeries][google.cloud.aiplatform.v1beta1.TensorboardService.GetTensorboardTimeSeries].
             name (str):
@@ -2130,7 +2148,9 @@ class TensorboardServiceClient(metaclass=TensorboardServiceClientMeta):
 
     def update_tensorboard_time_series(
         self,
-        request: tensorboard_service.UpdateTensorboardTimeSeriesRequest = None,
+        request: Union[
+            tensorboard_service.UpdateTensorboardTimeSeriesRequest, dict
+        ] = None,
         *,
         tensorboard_time_series: gca_tensorboard_time_series.TensorboardTimeSeries = None,
         update_mask: field_mask_pb2.FieldMask = None,
@@ -2141,7 +2161,7 @@ class TensorboardServiceClient(metaclass=TensorboardServiceClientMeta):
         r"""Updates a TensorboardTimeSeries.
 
         Args:
-            request (google.cloud.aiplatform_v1beta1.types.UpdateTensorboardTimeSeriesRequest):
+            request (Union[google.cloud.aiplatform_v1beta1.types.UpdateTensorboardTimeSeriesRequest, dict]):
                 The request object. Request message for
                 [TensorboardService.UpdateTensorboardTimeSeries][google.cloud.aiplatform.v1beta1.TensorboardService.UpdateTensorboardTimeSeries].
             tensorboard_time_series (google.cloud.aiplatform_v1beta1.types.TensorboardTimeSeries):
@@ -2229,7 +2249,9 @@ class TensorboardServiceClient(metaclass=TensorboardServiceClientMeta):
 
     def list_tensorboard_time_series(
         self,
-        request: tensorboard_service.ListTensorboardTimeSeriesRequest = None,
+        request: Union[
+            tensorboard_service.ListTensorboardTimeSeriesRequest, dict
+        ] = None,
         *,
         parent: str = None,
         retry: retries.Retry = gapic_v1.method.DEFAULT,
@@ -2239,7 +2261,7 @@ class TensorboardServiceClient(metaclass=TensorboardServiceClientMeta):
         r"""Lists TensorboardTimeSeries in a Location.
 
         Args:
-            request (google.cloud.aiplatform_v1beta1.types.ListTensorboardTimeSeriesRequest):
+            request (Union[google.cloud.aiplatform_v1beta1.types.ListTensorboardTimeSeriesRequest, dict]):
                 The request object. Request message for
                 [TensorboardService.ListTensorboardTimeSeries][google.cloud.aiplatform.v1beta1.TensorboardService.ListTensorboardTimeSeries].
             parent (str):
@@ -2315,7 +2337,9 @@ class TensorboardServiceClient(metaclass=TensorboardServiceClientMeta):
 
     def delete_tensorboard_time_series(
         self,
-        request: tensorboard_service.DeleteTensorboardTimeSeriesRequest = None,
+        request: Union[
+            tensorboard_service.DeleteTensorboardTimeSeriesRequest, dict
+        ] = None,
         *,
         name: str = None,
         retry: retries.Retry = gapic_v1.method.DEFAULT,
@@ -2325,7 +2349,7 @@ class TensorboardServiceClient(metaclass=TensorboardServiceClientMeta):
         r"""Deletes a TensorboardTimeSeries.
 
         Args:
-            request (google.cloud.aiplatform_v1beta1.types.DeleteTensorboardTimeSeriesRequest):
+            request (Union[google.cloud.aiplatform_v1beta1.types.DeleteTensorboardTimeSeriesRequest, dict]):
                 The request object. Request message for
                 [TensorboardService.DeleteTensorboardTimeSeries][google.cloud.aiplatform.v1beta1.TensorboardService.DeleteTensorboardTimeSeries].
             name (str):
@@ -2412,7 +2436,9 @@ class TensorboardServiceClient(metaclass=TensorboardServiceClientMeta):
 
     def read_tensorboard_time_series_data(
         self,
-        request: tensorboard_service.ReadTensorboardTimeSeriesDataRequest = None,
+        request: Union[
+            tensorboard_service.ReadTensorboardTimeSeriesDataRequest, dict
+        ] = None,
         *,
         tensorboard_time_series: str = None,
         retry: retries.Retry = gapic_v1.method.DEFAULT,
@@ -2427,7 +2453,7 @@ class TensorboardServiceClient(metaclass=TensorboardServiceClientMeta):
         max_data_points.
 
         Args:
-            request (google.cloud.aiplatform_v1beta1.types.ReadTensorboardTimeSeriesDataRequest):
+            request (Union[google.cloud.aiplatform_v1beta1.types.ReadTensorboardTimeSeriesDataRequest, dict]):
                 The request object. Request message for
                 [TensorboardService.ReadTensorboardTimeSeriesData][google.cloud.aiplatform.v1beta1.TensorboardService.ReadTensorboardTimeSeriesData].
             tensorboard_time_series (str):
@@ -2495,7 +2521,7 @@ class TensorboardServiceClient(metaclass=TensorboardServiceClientMeta):
 
     def read_tensorboard_blob_data(
         self,
-        request: tensorboard_service.ReadTensorboardBlobDataRequest = None,
+        request: Union[tensorboard_service.ReadTensorboardBlobDataRequest, dict] = None,
         *,
         time_series: str = None,
         retry: retries.Retry = gapic_v1.method.DEFAULT,
@@ -2508,7 +2534,7 @@ class TensorboardServiceClient(metaclass=TensorboardServiceClientMeta):
         obtain Cloud Storage access permission.
 
         Args:
-            request (google.cloud.aiplatform_v1beta1.types.ReadTensorboardBlobDataRequest):
+            request (Union[google.cloud.aiplatform_v1beta1.types.ReadTensorboardBlobDataRequest, dict]):
                 The request object. Request message for
                 [TensorboardService.ReadTensorboardBlobData][google.cloud.aiplatform.v1beta1.TensorboardService.ReadTensorboardBlobData].
             time_series (str):
@@ -2574,7 +2600,9 @@ class TensorboardServiceClient(metaclass=TensorboardServiceClientMeta):
 
     def write_tensorboard_experiment_data(
         self,
-        request: tensorboard_service.WriteTensorboardExperimentDataRequest = None,
+        request: Union[
+            tensorboard_service.WriteTensorboardExperimentDataRequest, dict
+        ] = None,
         *,
         tensorboard_experiment: str = None,
         write_run_data_requests: Sequence[
@@ -2589,7 +2617,7 @@ class TensorboardServiceClient(metaclass=TensorboardServiceClientMeta):
         any data fail to be ingested, an error will be returned.
 
         Args:
-            request (google.cloud.aiplatform_v1beta1.types.WriteTensorboardExperimentDataRequest):
+            request (Union[google.cloud.aiplatform_v1beta1.types.WriteTensorboardExperimentDataRequest, dict]):
                 The request object. Request message for
                 [TensorboardService.WriteTensorboardExperimentData][google.cloud.aiplatform.v1beta1.TensorboardService.WriteTensorboardExperimentData].
             tensorboard_experiment (str):
@@ -2666,7 +2694,7 @@ class TensorboardServiceClient(metaclass=TensorboardServiceClientMeta):
 
     def write_tensorboard_run_data(
         self,
-        request: tensorboard_service.WriteTensorboardRunDataRequest = None,
+        request: Union[tensorboard_service.WriteTensorboardRunDataRequest, dict] = None,
         *,
         tensorboard_run: str = None,
         time_series_data: Sequence[tensorboard_data.TimeSeriesData] = None,
@@ -2679,7 +2707,7 @@ class TensorboardServiceClient(metaclass=TensorboardServiceClientMeta):
         data fail to be ingested, an error will be returned.
 
         Args:
-            request (google.cloud.aiplatform_v1beta1.types.WriteTensorboardRunDataRequest):
+            request (Union[google.cloud.aiplatform_v1beta1.types.WriteTensorboardRunDataRequest, dict]):
                 The request object. Request message for
                 [TensorboardService.WriteTensorboardRunData][google.cloud.aiplatform.v1beta1.TensorboardService.WriteTensorboardRunData].
             tensorboard_run (str):
@@ -2760,7 +2788,9 @@ class TensorboardServiceClient(metaclass=TensorboardServiceClientMeta):
 
     def export_tensorboard_time_series_data(
         self,
-        request: tensorboard_service.ExportTensorboardTimeSeriesDataRequest = None,
+        request: Union[
+            tensorboard_service.ExportTensorboardTimeSeriesDataRequest, dict
+        ] = None,
         *,
         tensorboard_time_series: str = None,
         retry: retries.Retry = gapic_v1.method.DEFAULT,
@@ -2771,7 +2801,7 @@ class TensorboardServiceClient(metaclass=TensorboardServiceClientMeta):
         returned in paginated responses.
 
         Args:
-            request (google.cloud.aiplatform_v1beta1.types.ExportTensorboardTimeSeriesDataRequest):
+            request (Union[google.cloud.aiplatform_v1beta1.types.ExportTensorboardTimeSeriesDataRequest, dict]):
                 The request object. Request message for
                 [TensorboardService.ExportTensorboardTimeSeriesData][google.cloud.aiplatform.v1beta1.TensorboardService.ExportTensorboardTimeSeriesData].
             tensorboard_time_series (str):
