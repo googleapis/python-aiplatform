@@ -29,7 +29,14 @@ _HOST_PORT = 6010
 
 
 def _build_plugin(plugin: base_plugin):
-    """Builds the plugin given the object."""
+    """Builds the plugin given the object.
+
+    Args:
+        plugin: A plugin object to be initialized.
+
+    Returns:
+        An initialized plugin.
+    """
     if not plugin.can_initialize():
         logging.warning("Cannot initialize the plugin")
         return
@@ -42,25 +49,18 @@ def _build_plugin(plugin: base_plugin):
     return plugin()
 
 
-def _build_profiler_webserver(plugin: base_plugin):
-    app = webserver.create_web_server([plugin])
-    return app
-
-
-def _run_webserver(app):
-    serving.run_simple("0.0.0.0", _HOST_PORT, app)
-
-
 def _run_app_thread(server) -> None:
-    """Run the cloud_training_tools web server in a separate thread."""
+    """Run the webserver in a separate thread."""
     daemon = threading.Thread(
-        name="profile_server", target=_run_webserver, args=(server,)
+        name="profile_server",
+        target=serving.run_simple,
+        args=("0.0.0.0", _HOST_PORT, server,),
     )
     daemon.setDaemon(True)
     daemon.start()
 
 
-def initializer(plugin: str = "tensorflow"):
+def initialize(plugin: str = "tensorflow"):
     """Initializes the profiling SDK.
 
     Args:

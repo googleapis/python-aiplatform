@@ -101,9 +101,7 @@ def _check_tf() -> bool:
         logger.warning(
             "Version %s is incompatible with tf profiler."
             "To use the profiler, choose a version >= 2.2.0",
-            "%s.%s.%s" % version.major,
-            version.minor,
-            version.patch,
+            "%s.%s.%s" % (version.major, version.minor, version.patch),
         )
         return False
 
@@ -235,7 +233,7 @@ class TFProfiler(base_plugin.BasePlugin):
         from tensorboard_plugin_profile.profile_plugin import ProfilePlugin
 
         context = _create_profiling_context()
-        self._profile_request_sender = tensorboard_api.make_profile_request_sender()
+        self._profile_request_sender = tensorboard_api.create_profile_request_sender()
         self._profile_plugin = ProfilePlugin(context)
 
     def get_routes(self):

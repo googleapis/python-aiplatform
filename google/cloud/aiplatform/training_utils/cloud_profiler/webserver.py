@@ -31,7 +31,7 @@ class WebServer:
         """Creates a web server to host plugin routes.
 
         Args:
-            plugins: A list of `plugins.BasePlugin`.
+            plugins: A list of initialized `plugins.BasePlugin`.
 
         Raises:
             ValueError: When there is an invalid route passed from

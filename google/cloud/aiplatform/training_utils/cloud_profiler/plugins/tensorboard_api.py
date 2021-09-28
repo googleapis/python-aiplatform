@@ -15,7 +15,7 @@
 # limitations under the License.
 #
 
-"""Helper for creating a profile request sender for tf profiler plugin."""
+"""Helpers for creating a profile request sender for tf profiler plugin."""
 
 import os
 import re
@@ -40,17 +40,13 @@ logger = tb_logging.get_logger()
 
 _ENV_VARS = EnvironmentVariables()
 
-# Constants needed to create tensorboard profiler sender
-API_URI = _ENV_VARS.tensorboard_api_uri
-TENSORBOARD_RESOURCE_NAME = _ENV_VARS.tensorboard_resource_name
-EXPERIMENT_NAME = _ENV_VARS.cloud_ml_job_id
-
 
 def _get_api_client():
     """Creates an Tensorboard API client."""
-    aiplatform.constants.API_BASE_PATH = API_URI
+    aiplatform.constants.API_BASE_PATH = _ENV_VARS.tensorboard_api_uri
     m = re.match(
-        "projects/.*/locations/(.*)/tensorboards/.*", TENSORBOARD_RESOURCE_NAME
+        "projects/.*/locations/(.*)/tensorboards/.*",
+        _ENV_VARS.tensorboard_resource_name,
     )
     region = m[1]
 
@@ -71,12 +67,13 @@ def _get_project_id():
         ValueError: Cannot parse the tensorboard resource name.
     """
     m = re.match(
-        "projects/(.*)/locations/.*/tensorboards/.*", TENSORBOARD_RESOURCE_NAME
+        "projects/(.*)/locations/.*/tensorboards/.*",
+        _ENV_VARS.tensorboard_resource_name,
     )
     if not m:
         raise ValueError(
             "Incorrect format for tensorboard resource name: %s",
-            TENSORBOARD_RESOURCE_NAME,
+            _ENV_VARS.tensorboard_resource_name,
         )
     return m[1]
 
@@ -92,7 +89,7 @@ def _make_upload_limits():
 
 def _get_blob_items(api_client):
     project_id = _get_project_id()
-    tensorboard = api_client.get_tensorboard(name=TENSORBOARD_RESOURCE_NAME)
+    tensorboard = api_client.get_tensorboard(name=_ENV_VARS.tensorboard_resource_name)
 
     path_prefix = tensorboard.blob_storage_path_prefix + "/"
     first_slash_index = path_prefix.find("/")
@@ -103,26 +100,26 @@ def _get_blob_items(api_client):
     return blob_storage_bucket, blob_storage_folder
 
 
-def _check_create_experiment(api, experiment_name):
+def _get_or_create_experiment(api, experiment_name):
     tb_experiment = tensorboard_experiment.TensorboardExperiment()
 
     try:
         experiment = api.create_tensorboard_experiment(
-            parent=TENSORBOARD_RESOURCE_NAME,
+            parent=_ENV_VARS.tensorboard_resource_name,
             tensorboard_experiment=tb_experiment,
             tensorboard_experiment_id=experiment_name,
         )
     except exceptions.AlreadyExists:
         logger.info("Creating experiment failed. Retrieving experiment.")
         experiment_name = os.path.join(
-            TENSORBOARD_RESOURCE_NAME, "experiments", experiment_name
+            _ENV_VARS.tensorboard_resource_name, "experiments", experiment_name
         )
         experiment = api.get_tensorboard_experiment(name=experiment_name)
 
     return experiment.name
 
 
-def make_profile_request_sender():
+def create_profile_request_sender():
     """Creates the `ProfileRequestSender` for the profile plugin.
 
     A profile request sender is created for the plugin so that after profiling runs
@@ -130,7 +127,7 @@ def make_profile_request_sender():
     """
     api_client = _get_api_client()
 
-    experiment_name = _check_create_experiment(api_client, EXPERIMENT_NAME)
+    experiment_name = _get_or_create_experiment(api_client, _ENV_VARS.cloud_ml_job_id)
 
     upload_limits = _make_upload_limits()
 

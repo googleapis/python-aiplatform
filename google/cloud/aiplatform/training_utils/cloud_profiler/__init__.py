@@ -26,4 +26,4 @@ from google.cloud.aiplatform.training_utils import cloud_profiler
 cloud_profiler.init(profiler='tf')
 """
 
-init = initializer.initializer
+init = initializer.initialize
