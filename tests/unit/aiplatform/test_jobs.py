@@ -48,13 +48,14 @@ _TEST_LOCATION = "us-central1"
 _TEST_ID = "1028944691210842416"
 _TEST_ALT_ID = "8834795523125638878"
 _TEST_DISPLAY_NAME = "my_job_1234"
+_TEST_BQ_PROJECT_ID = "projectId"
 _TEST_BQ_DATASET_ID = "bqDatasetId"
 _TEST_BQ_TABLE_NAME = "someBqTable"
 _TEST_BQ_JOB_ID = "123459876"
 _TEST_BQ_MAX_RESULTS = 100
 _TEST_GCS_BUCKET_NAME = "my-bucket"
 
-_TEST_BQ_PATH = f"bq://projectId.{_TEST_BQ_DATASET_ID}"
+_TEST_BQ_PATH = f"bq://{_TEST_BQ_PROJECT_ID}.{_TEST_BQ_DATASET_ID}"
 _TEST_GCS_BUCKET_PATH = f"gs://{_TEST_GCS_BUCKET_NAME}"
 _TEST_GCS_JSONL_SOURCE_URI = f"{_TEST_GCS_BUCKET_PATH}/bp_input_config.jsonl"
 _TEST_PARENT = f"projects/{_TEST_PROJECT}/locations/{_TEST_LOCATION}"
@@ -420,7 +421,7 @@ class TestBatchPredictionJob:
         bp.iter_outputs()
 
         bq_list_rows_mock.assert_called_once_with(
-            table=f"{_TEST_BQ_DATASET_ID}.{_TEST_BQ_TABLE_NAME}",
+            table=f"{_TEST_BQ_PROJECT_ID}.{_TEST_BQ_DATASET_ID}.{_TEST_BQ_TABLE_NAME}",
             max_results=_TEST_BQ_MAX_RESULTS,
         )
 
