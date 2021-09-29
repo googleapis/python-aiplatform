@@ -1014,6 +1014,170 @@
           }
         }
       }
+    },
+    "VizierService": {
+      "clients": {
+        "grpc": {
+          "libraryClient": "VizierServiceClient",
+          "rpcs": {
+            "AddTrialMeasurement": {
+              "methods": [
+                "add_trial_measurement"
+              ]
+            },
+            "CheckTrialEarlyStoppingState": {
+              "methods": [
+                "check_trial_early_stopping_state"
+              ]
+            },
+            "CompleteTrial": {
+              "methods": [
+                "complete_trial"
+              ]
+            },
+            "CreateStudy": {
+              "methods": [
+                "create_study"
+              ]
+            },
+            "CreateTrial": {
+              "methods": [
+                "create_trial"
+              ]
+            },
+            "DeleteStudy": {
+              "methods": [
+                "delete_study"
+              ]
+            },
+            "DeleteTrial": {
+              "methods": [
+                "delete_trial"
+              ]
+            },
+            "GetStudy": {
+              "methods": [
+                "get_study"
+              ]
+            },
+            "GetTrial": {
+              "methods": [
+                "get_trial"
+              ]
+            },
+            "ListOptimalTrials": {
+              "methods": [
+                "list_optimal_trials"
+              ]
+            },
+            "ListStudies": {
+              "methods": [
+                "list_studies"
+              ]
+            },
+            "ListTrials": {
+              "methods": [
+                "list_trials"
+              ]
+            },
+            "LookupStudy": {
+              "methods": [
+                "lookup_study"
+              ]
+            },
+            "StopTrial": {
+              "methods": [
+                "stop_trial"
+              ]
+            },
+            "SuggestTrials": {
+              "methods": [
+                "suggest_trials"
+              ]
+            }
+          }
+        },
+        "grpc-async": {
+          "libraryClient": "VizierServiceAsyncClient",
+          "rpcs": {
+            "AddTrialMeasurement": {
+              "methods": [
+                "add_trial_measurement"
+              ]
+            },
+            "CheckTrialEarlyStoppingState": {
+              "methods": [
+                "check_trial_early_stopping_state"
+              ]
+            },
+            "CompleteTrial": {
+              "methods": [
+                "complete_trial"
+              ]
+            },
+            "CreateStudy": {
+              "methods": [
+                "create_study"
+              ]
+            },
+            "CreateTrial": {
+              "methods": [
+                "create_trial"
+              ]
+            },
+            "DeleteStudy": {
+              "methods": [
+                "delete_study"
+              ]
+            },
+            "DeleteTrial": {
+              "methods": [
+                "delete_trial"
+              ]
+            },
+            "GetStudy": {
+              "methods": [
+                "get_study"
+              ]
+            },
+            "GetTrial": {
+              "methods": [
+                "get_trial"
+              ]
+            },
+            "ListOptimalTrials": {
+              "methods": [
+                "list_optimal_trials"
+              ]
+            },
+            "ListStudies": {
+              "methods": [
+                "list_studies"
+              ]
+            },
+            "ListTrials": {
+              "methods": [
+                "list_trials"
+              ]
+            },
+            "LookupStudy": {
+              "methods": [
+                "lookup_study"
+              ]
+            },
+            "StopTrial": {
+              "methods": [
+                "stop_trial"
+              ]
+            },
+            "SuggestTrials": {
+              "methods": [
+                "suggest_trials"
+              ]
+            }
+          }
+        }
+      }
     }
   }
 }

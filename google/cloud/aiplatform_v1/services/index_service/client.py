@@ -17,7 +17,7 @@ from collections import OrderedDict
 from distutils import util
 import os
 import re
-from typing import Callable, Dict, Optional, Sequence, Tuple, Type, Union
+from typing import Dict, Optional, Sequence, Tuple, Type, Union
 import pkg_resources
 
 from google.api_core import client_options as client_options_lib  # type: ignore
@@ -378,7 +378,7 @@ class IndexServiceClient(metaclass=IndexServiceClientMeta):
 
     def create_index(
         self,
-        request: index_service.CreateIndexRequest = None,
+        request: Union[index_service.CreateIndexRequest, dict] = None,
         *,
         parent: str = None,
         index: gca_index.Index = None,
@@ -389,7 +389,7 @@ class IndexServiceClient(metaclass=IndexServiceClientMeta):
         r"""Creates an Index.
 
         Args:
-            request (google.cloud.aiplatform_v1.types.CreateIndexRequest):
+            request (Union[google.cloud.aiplatform_v1.types.CreateIndexRequest, dict]):
                 The request object. Request message for
                 [IndexService.CreateIndex][google.cloud.aiplatform.v1.IndexService.CreateIndex].
             parent (str):
@@ -469,7 +469,7 @@ class IndexServiceClient(metaclass=IndexServiceClientMeta):
 
     def get_index(
         self,
-        request: index_service.GetIndexRequest = None,
+        request: Union[index_service.GetIndexRequest, dict] = None,
         *,
         name: str = None,
         retry: retries.Retry = gapic_v1.method.DEFAULT,
@@ -479,7 +479,7 @@ class IndexServiceClient(metaclass=IndexServiceClientMeta):
         r"""Gets an Index.
 
         Args:
-            request (google.cloud.aiplatform_v1.types.GetIndexRequest):
+            request (Union[google.cloud.aiplatform_v1.types.GetIndexRequest, dict]):
                 The request object. Request message for
                 [IndexService.GetIndex][google.cloud.aiplatform.v1.IndexService.GetIndex]
             name (str):
@@ -542,7 +542,7 @@ class IndexServiceClient(metaclass=IndexServiceClientMeta):
 
     def list_indexes(
         self,
-        request: index_service.ListIndexesRequest = None,
+        request: Union[index_service.ListIndexesRequest, dict] = None,
         *,
         parent: str = None,
         retry: retries.Retry = gapic_v1.method.DEFAULT,
@@ -552,7 +552,7 @@ class IndexServiceClient(metaclass=IndexServiceClientMeta):
         r"""Lists Indexes in a Location.
 
         Args:
-            request (google.cloud.aiplatform_v1.types.ListIndexesRequest):
+            request (Union[google.cloud.aiplatform_v1.types.ListIndexesRequest, dict]):
                 The request object. Request message for
                 [IndexService.ListIndexes][google.cloud.aiplatform.v1.IndexService.ListIndexes].
             parent (str):
@@ -623,7 +623,7 @@ class IndexServiceClient(metaclass=IndexServiceClientMeta):
 
     def update_index(
         self,
-        request: index_service.UpdateIndexRequest = None,
+        request: Union[index_service.UpdateIndexRequest, dict] = None,
         *,
         index: gca_index.Index = None,
         update_mask: field_mask_pb2.FieldMask = None,
@@ -634,7 +634,7 @@ class IndexServiceClient(metaclass=IndexServiceClientMeta):
         r"""Updates an Index.
 
         Args:
-            request (google.cloud.aiplatform_v1.types.UpdateIndexRequest):
+            request (Union[google.cloud.aiplatform_v1.types.UpdateIndexRequest, dict]):
                 The request object. Request message for
                 [IndexService.UpdateIndex][google.cloud.aiplatform.v1.IndexService.UpdateIndex].
             index (google.cloud.aiplatform_v1.types.Index):
@@ -718,7 +718,7 @@ class IndexServiceClient(metaclass=IndexServiceClientMeta):
 
     def delete_index(
         self,
-        request: index_service.DeleteIndexRequest = None,
+        request: Union[index_service.DeleteIndexRequest, dict] = None,
         *,
         name: str = None,
         retry: retries.Retry = gapic_v1.method.DEFAULT,
@@ -730,7 +730,7 @@ class IndexServiceClient(metaclass=IndexServiceClientMeta):
         had been undeployed.
 
         Args:
-            request (google.cloud.aiplatform_v1.types.DeleteIndexRequest):
+            request (Union[google.cloud.aiplatform_v1.types.DeleteIndexRequest, dict]):
                 The request object. Request message for
                 [IndexService.DeleteIndex][google.cloud.aiplatform.v1.IndexService.DeleteIndex].
             name (str):
