@@ -1,5 +1,7 @@
+import collections
 import re
 import time
+from timeit import default_timer as timer
 
 from typing import Callable
 
@@ -63,3 +65,21 @@ def wait_for_job_state(
         "\nTry increasing the timeout in sample test"
         f"\nLast recorded state: {response.state}"
     )
+
+
+def flaky_test_diagnostic(file_name, test_name, N=20):
+
+    import pytest
+
+    timing_dict = collections.defaultdict(list)
+    for ri in range(N):
+        start = timer()
+        result = pytest.main(['-s', f'{file_name}::{test_name}'])
+        end = timer()
+        delta = end-start
+        if result == pytest.ExitCode.OK:
+            timing_dict['SUCCESS'].append(delta)
+        else:
+            timing_dict['FAILURE'].append(delta)
+
+    return timing_dict

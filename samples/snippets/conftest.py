@@ -180,9 +180,11 @@ def teardown_training_pipeline(shared_state, pipeline_client):
     )
 
     # Waiting for training pipeline to be in CANCELLED state
+    timeout = shared_state["cancel_batch_prediction_job_timeout"]
     helpers.wait_for_job_state(
         get_job_method=pipeline_client.get_training_pipeline,
         name=shared_state["training_pipeline_name"],
+        timeout=timeout,
     )
 
     # Delete the training pipeline
