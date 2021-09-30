@@ -1278,6 +1278,8 @@ class _CustomTrainingJob(_TrainingJob):
         accelerator_count: int = 0,
         boot_disk_type: str = "pd-ssd",
         boot_disk_size_gb: int = 100,
+        reduction_server_replica_count: Optional[int] = 0,
+        reduction_server_machine_type: Optional[str] = None,
     ) -> Tuple[worker_spec_utils._DistributedTrainingSpec, Optional[gca_model.Model]]:
         """Create worker pool specs and managed model as well validating the
         run.
@@ -1318,6 +1320,10 @@ class _CustomTrainingJob(_TrainingJob):
             boot_disk_size_gb (int):
                 Size in GB of the boot disk, default is 100GB.
                 boot disk size must be within the range of [100, 64000].
+            reduction_server_replica_count (int):
+                Optional. The number of reduction server replicas.
+            reduction_server_machine_type (str):
+                Optional. The type of machine to use for reduction server.
         Returns:
             Worker pools specs and managed model for run.
 
@@ -1352,6 +1358,8 @@ class _CustomTrainingJob(_TrainingJob):
             accelerator_type=accelerator_type,
             boot_disk_type=boot_disk_type,
             boot_disk_size_gb=boot_disk_size_gb,
+            reduction_server_replica_count=reduction_server_replica_count,
+            reduction_server_machine_type=reduction_server_machine_type,
         ).pool_specs
 
         managed_model = self._managed_model
@@ -1736,6 +1744,9 @@ class CustomTrainingJob(_CustomTrainingJob):
         accelerator_count: int = 0,
         boot_disk_type: str = "pd-ssd",
         boot_disk_size_gb: int = 100,
+        reduction_server_replica_count: Optional[int] = 0,
+        reduction_server_machine_type: Optional[str] = None,
+        reduction_server_container_uri: Optional[str] = None,
         training_fraction_split: Optional[float] = None,
         validation_fraction_split: Optional[float] = None,
         test_fraction_split: Optional[float] = None,
@@ -1907,6 +1918,13 @@ class CustomTrainingJob(_CustomTrainingJob):
             boot_disk_size_gb (int):
                 Size in GB of the boot disk, default is 100GB.
                 boot disk size must be within the range of [100, 64000].
+            reduction_server_replica_count (int):
+                Optional. The number of reduction server replicas.
+            reduction_server_machine_type (str):
+                Optional. The type of machine to use for reduction server.
+            reduction_server_container_uri (str):
+                Optional. The Uri of the reduction server container image.
+                See details: https://cloud.google.com/vertex-ai/docs/training/distributed-training#reduce_training_time_with_reduction_server
             training_fraction_split (float):
                 Optional. The fraction of the input data that is to be used to train
                 the Model. This is ignored if Dataset is not provided.
@@ -1989,6 +2007,8 @@ class CustomTrainingJob(_CustomTrainingJob):
             accelerator_type=accelerator_type,
             boot_disk_type=boot_disk_type,
             boot_disk_size_gb=boot_disk_size_gb,
+            reduction_server_replica_count=reduction_server_replica_count,
+            reduction_server_machine_type=reduction_server_machine_type,
         )
 
         # make and copy package
@@ -2017,6 +2037,9 @@ class CustomTrainingJob(_CustomTrainingJob):
             predefined_split_column_name=predefined_split_column_name,
             timestamp_split_column_name=timestamp_split_column_name,
             tensorboard=tensorboard,
+            reduction_server_container_uri=reduction_server_container_uri
+            if reduction_server_replica_count > 0
+            else None,
             sync=sync,
         )
 
@@ -2050,6 +2073,7 @@ class CustomTrainingJob(_CustomTrainingJob):
         predefined_split_column_name: Optional[str] = None,
         timestamp_split_column_name: Optional[str] = None,
         tensorboard: Optional[str] = None,
+        reduction_server_container_uri: Optional[str] = None,
         sync=True,
     ) -> Optional[models.Model]:
         """Packages local script and launches training_job.
@@ -2182,6 +2206,8 @@ class CustomTrainingJob(_CustomTrainingJob):
                 `service_account` is required with provided `tensorboard`.
                 For more information on configuring your service account please visit:
                 https://cloud.google.com/vertex-ai/docs/experiments/tensorboard-training
+            reduction_server_container_uri (str):
+                Optional. The Uri of the reduction server container image.
             sync (bool):
                 Whether to execute this method synchronously. If False, this method
                 will be executed in concurrent Future and any downstream object will
@@ -2197,21 +2223,33 @@ class CustomTrainingJob(_CustomTrainingJob):
             credentials=self.credentials,
         )
 
-        for spec in worker_pool_specs:
-            spec["python_package_spec"] = {
-                "executor_image_uri": self._container_uri,
-                "python_module": python_packager.module_name,
-                "package_uris": [package_gcs_uri],
-            }
+        for spec_order, spec in enumerate(worker_pool_specs):
 
-            if args:
-                spec["python_package_spec"]["args"] = args
+            if not spec:
+                continue
 
-            if environment_variables:
-                spec["python_package_spec"]["env"] = [
-                    {"name": key, "value": value}
-                    for key, value in environment_variables.items()
-                ]
+            if (
+                spec_order == worker_spec_utils.SPEC_ORDERS["server_spec"]
+                and reduction_server_container_uri
+            ):
+                spec["container_spec"] = {
+                    "image_uri": reduction_server_container_uri,
+                }
+            else:
+                spec["python_package_spec"] = {
+                    "executor_image_uri": self._container_uri,
+                    "python_module": python_packager.module_name,
+                    "package_uris": [package_gcs_uri],
+                }
+
+                if args:
+                    spec["python_package_spec"]["args"] = args
+
+                if environment_variables:
+                    spec["python_package_spec"]["env"] = [
+                        {"name": key, "value": value}
+                        for key, value in environment_variables.items()
+                    ]
 
         (
             training_task_inputs,
@@ -2498,6 +2536,9 @@ class CustomContainerTrainingJob(_CustomTrainingJob):
         accelerator_count: int = 0,
         boot_disk_type: str = "pd-ssd",
         boot_disk_size_gb: int = 100,
+        reduction_server_replica_count: Optional[int] = 0,
+        reduction_server_machine_type: Optional[str] = None,
+        reduction_server_container_uri: Optional[str] = None,
         training_fraction_split: Optional[float] = None,
         validation_fraction_split: Optional[float] = None,
         test_fraction_split: Optional[float] = None,
@@ -2662,6 +2703,13 @@ class CustomContainerTrainingJob(_CustomTrainingJob):
             boot_disk_size_gb (int):
                 Size in GB of the boot disk, default is 100GB.
                 boot disk size must be within the range of [100, 64000].
+            reduction_server_replica_count (int):
+                Optional. The number of reduction server replicas.
+            reduction_server_machine_type (str):
+                Optional. The type of machine to use for reduction server.
+            reduction_server_container_uri (str):
+                Optional. The Uri of the reduction server container image.
+                See details: https://cloud.google.com/vertex-ai/docs/training/distributed-training#reduce_training_time_with_reduction_server
             training_fraction_split (float):
                 Optional. The fraction of the input data that is to be used to train
                 the Model. This is ignored if Dataset is not provided.
@@ -2749,6 +2797,8 @@ class CustomContainerTrainingJob(_CustomTrainingJob):
             accelerator_type=accelerator_type,
             boot_disk_type=boot_disk_type,
             boot_disk_size_gb=boot_disk_size_gb,
+            reduction_server_replica_count=reduction_server_replica_count,
+            reduction_server_machine_type=reduction_server_machine_type,
         )
 
         return self._run(
@@ -2771,6 +2821,9 @@ class CustomContainerTrainingJob(_CustomTrainingJob):
             predefined_split_column_name=predefined_split_column_name,
             timestamp_split_column_name=timestamp_split_column_name,
             tensorboard=tensorboard,
+            reduction_server_container_uri=reduction_server_container_uri
+            if reduction_server_replica_count > 0
+            else None,
             sync=sync,
         )
 
@@ -2803,6 +2856,7 @@ class CustomContainerTrainingJob(_CustomTrainingJob):
         predefined_split_column_name: Optional[str] = None,
         timestamp_split_column_name: Optional[str] = None,
         tensorboard: Optional[str] = None,
+        reduction_server_container_uri: Optional[str] = None,
         sync=True,
     ) -> Optional[models.Model]:
         """Packages local script and launches training_job.
@@ -2931,6 +2985,8 @@ class CustomContainerTrainingJob(_CustomTrainingJob):
                 `service_account` is required with provided `tensorboard`.
                 For more information on configuring your service account please visit:
                 https://cloud.google.com/vertex-ai/docs/experiments/tensorboard-training
+            reduction_server_container_uri (str):
+                Optional. The Uri of the reduction server container image.
             sync (bool):
                 Whether to execute this method synchronously. If False, this method
                 will be executed in concurrent Future and any downstream object will
@@ -2941,20 +2997,32 @@ class CustomContainerTrainingJob(_CustomTrainingJob):
                 produce a Vertex AI Model.
         """
 
-        for spec in worker_pool_specs:
-            spec["containerSpec"] = {"imageUri": self._container_uri}
+        for spec_order, spec in enumerate(worker_pool_specs):
 
-            if self._command:
-                spec["containerSpec"]["command"] = self._command
+            if not spec:
+                continue
 
-            if args:
-                spec["containerSpec"]["args"] = args
+            if (
+                spec_order == worker_spec_utils.SPEC_ORDERS["server_spec"]
+                and reduction_server_container_uri
+            ):
+                spec["container_spec"] = {
+                    "image_uri": reduction_server_container_uri,
+                }
+            else:
+                spec["containerSpec"] = {"imageUri": self._container_uri}
 
-            if environment_variables:
-                spec["containerSpec"]["env"] = [
-                    {"name": key, "value": value}
-                    for key, value in environment_variables.items()
-                ]
+                if self._command:
+                    spec["containerSpec"]["command"] = self._command
+
+                if args:
+                    spec["containerSpec"]["args"] = args
+
+                if environment_variables:
+                    spec["containerSpec"]["env"] = [
+                        {"name": key, "value": value}
+                        for key, value in environment_variables.items()
+                    ]
 
         (
             training_task_inputs,
@@ -5231,6 +5299,9 @@ class CustomPythonPackageTrainingJob(_CustomTrainingJob):
         accelerator_count: int = 0,
         boot_disk_type: str = "pd-ssd",
         boot_disk_size_gb: int = 100,
+        reduction_server_replica_count: Optional[int] = 0,
+        reduction_server_machine_type: Optional[str] = None,
+        reduction_server_container_uri: Optional[str] = None,
         training_fraction_split: Optional[float] = None,
         validation_fraction_split: Optional[float] = None,
         test_fraction_split: Optional[float] = None,
@@ -5395,6 +5466,13 @@ class CustomPythonPackageTrainingJob(_CustomTrainingJob):
             boot_disk_size_gb (int):
                 Size in GB of the boot disk, default is 100GB.
                 boot disk size must be within the range of [100, 64000].
+            reduction_server_replica_count (int):
+                Optional. The number of reduction server replicas.
+            reduction_server_machine_type (str):
+                Optional. The type of machine to use for reduction server.
+            reduction_server_container_uri (str):
+                Optional. The Uri of the reduction server container image.
+                See details: https://cloud.google.com/vertex-ai/docs/training/distributed-training#reduce_training_time_with_reduction_server
             training_fraction_split (float):
                 Optional. The fraction of the input data that is to be used to train
                 the Model. This is ignored if Dataset is not provided.
@@ -5477,6 +5555,8 @@ class CustomPythonPackageTrainingJob(_CustomTrainingJob):
             accelerator_type=accelerator_type,
             boot_disk_type=boot_disk_type,
             boot_disk_size_gb=boot_disk_size_gb,
+            reduction_server_replica_count=reduction_server_replica_count,
+            reduction_server_machine_type=reduction_server_machine_type,
         )
 
         return self._run(
@@ -5499,6 +5579,9 @@ class CustomPythonPackageTrainingJob(_CustomTrainingJob):
             timestamp_split_column_name=timestamp_split_column_name,
             bigquery_destination=bigquery_destination,
             tensorboard=tensorboard,
+            reduction_server_container_uri=reduction_server_container_uri
+            if reduction_server_replica_count > 0
+            else None,
             sync=sync,
         )
 
@@ -5531,6 +5614,7 @@ class CustomPythonPackageTrainingJob(_CustomTrainingJob):
         timestamp_split_column_name: Optional[str] = None,
         bigquery_destination: Optional[str] = None,
         tensorboard: Optional[str] = None,
+        reduction_server_container_uri: Optional[str] = None,
         sync=True,
     ) -> Optional[models.Model]:
         """Packages local script and launches training_job.
@@ -5646,6 +5730,8 @@ class CustomPythonPackageTrainingJob(_CustomTrainingJob):
                 `service_account` is required with provided `tensorboard`.
                 For more information on configuring your service account please visit:
                 https://cloud.google.com/vertex-ai/docs/experiments/tensorboard-training
+            reduction_server_container_uri (str):
+                Optional. The Uri of the reduction server container image.
             sync (bool):
                 Whether to execute this method synchronously. If False, this method
                 will be executed in concurrent Future and any downstream object will
@@ -5655,21 +5741,33 @@ class CustomPythonPackageTrainingJob(_CustomTrainingJob):
             model: The trained Vertex AI Model resource or None if training did not
                 produce a Vertex AI Model.
         """
-        for spec in worker_pool_specs:
-            spec["python_package_spec"] = {
-                "executor_image_uri": self._container_uri,
-                "python_module": self._python_module,
-                "package_uris": [self._package_gcs_uri],
-            }
+        for spec_order, spec in enumerate(worker_pool_specs):
 
-            if args:
-                spec["python_package_spec"]["args"] = args
+            if not spec:
+                continue
 
-            if environment_variables:
-                spec["python_package_spec"]["env"] = [
-                    {"name": key, "value": value}
-                    for key, value in environment_variables.items()
-                ]
+            if (
+                spec_order == worker_spec_utils.SPEC_ORDERS["server_spec"]
+                and reduction_server_container_uri
+            ):
+                spec["container_spec"] = {
+                    "image_uri": reduction_server_container_uri,
+                }
+            else:
+                spec["python_package_spec"] = {
+                    "executor_image_uri": self._container_uri,
+                    "python_module": self._python_module,
+                    "package_uris": [self._package_gcs_uri],
+                }
+
+                if args:
+                    spec["python_package_spec"]["args"] = args
+
+                if environment_variables:
+                    spec["python_package_spec"]["env"] = [
+                        {"name": key, "value": value}
+                        for key, value in environment_variables.items()
+                    ]
 
         (
             training_task_inputs,

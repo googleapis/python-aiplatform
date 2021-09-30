@@ -21,6 +21,13 @@ from google.cloud.aiplatform.compat.types import (
     accelerator_type as gca_accelerator_type_compat,
 )
 
+SPEC_ORDERS = {
+    "chief_spec": 0,
+    "worker_spec": 1,
+    "server_spec": 2,
+    "evaluator_spec": 3,
+}
+
 
 class _WorkerPoolSpec(NamedTuple):
     """Specification container for Worker Pool specs used for distributed training.
@@ -129,7 +136,7 @@ class _DistributedTrainingSpec(NamedTuple):
 
     chief_spec: _WorkerPoolSpec = _WorkerPoolSpec()
     worker_spec: _WorkerPoolSpec = _WorkerPoolSpec()
-    parameter_server_spec: _WorkerPoolSpec = _WorkerPoolSpec()
+    server_spec: _WorkerPoolSpec = _WorkerPoolSpec()
     evaluator_spec: _WorkerPoolSpec = _WorkerPoolSpec()
 
     @property
@@ -152,10 +159,10 @@ class _DistributedTrainingSpec(NamedTuple):
         spec_order = [
             self.chief_spec,
             self.worker_spec,
-            self.parameter_server_spec,
+            self.server_spec,
             self.evaluator_spec,
         ]
-        specs = [s.spec_dict for s in spec_order]
+        specs = [{} if s.is_empty else s.spec_dict for s in spec_order]
         for i in reversed(range(len(spec_order))):
             if spec_order[i].is_empty:
                 specs.pop()
@@ -172,6 +179,8 @@ class _DistributedTrainingSpec(NamedTuple):
         accelerator_type: str = "ACCELERATOR_TYPE_UNSPECIFIED",
         boot_disk_type: str = "pd-ssd",
         boot_disk_size_gb: int = 100,
+        reduction_server_replica_count: int = 0,
+        reduction_server_machine_type: str = None,
     ) -> "_DistributedTrainingSpec":
         """Parameterizes Config to support only chief with worker replicas.
 
@@ -197,10 +206,15 @@ class _DistributedTrainingSpec(NamedTuple):
             boot_disk_size_gb (int):
                 Size in GB of the boot disk (default is 100GB).
                 boot disk size must be within the range of [100, 64000].
+            reduction_server_replica_count (int):
+                The number of reduction server replicas, default is 0.
+            reduction_server_machine_type (str):
+                The type of machine to use for reduction server, default is `n1-highcpu-16`.
 
         Returns:
-            _DistributedTrainingSpec representing one chief and n workers all of same
-            type. If replica_count <= 0 then an empty spec is returned.
+            _DistributedTrainingSpec representing one chief and n workers all of
+            same type, optional with reduction server(s). If replica_count <= 0
+            then an empty spec is returned.
         """
         if replica_count <= 0:
             return cls()
@@ -223,4 +237,13 @@ class _DistributedTrainingSpec(NamedTuple):
             boot_disk_size_gb=boot_disk_size_gb,
         )
 
-        return cls(chief_spec=chief_spec, worker_spec=worker_spec)
+        reduction_server_spec = _WorkerPoolSpec(
+            replica_count=reduction_server_replica_count,
+            machine_type=reduction_server_machine_type,
+        )
+
+        return cls(
+            chief_spec=chief_spec,
+            worker_spec=worker_spec,
+            server_spec=reduction_server_spec,
+        )
