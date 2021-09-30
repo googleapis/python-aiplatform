@@ -1,0 +1,2 @@
+recursive-include google/cloud/aiplatform/v1/schema/predict/instance *.py
+recursive-include google/cloud/aiplatform/v1/schema/predict/instance_v1 *.py
