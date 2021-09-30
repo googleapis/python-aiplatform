@@ -15,13 +15,13 @@
 #
 from typing import (
     Any,
-    AsyncIterable,
+    AsyncIterator,
     Awaitable,
     Callable,
-    Iterable,
     Sequence,
     Tuple,
     Optional,
+    Iterator,
 )
 
 from google.cloud.aiplatform_v1.types import specialist_pool
@@ -75,14 +75,14 @@ class ListSpecialistPoolsPager:
         return getattr(self._response, name)
 
     @property
-    def pages(self) -> Iterable[specialist_pool_service.ListSpecialistPoolsResponse]:
+    def pages(self) -> Iterator[specialist_pool_service.ListSpecialistPoolsResponse]:
         yield self._response
         while self._response.next_page_token:
             self._request.page_token = self._response.next_page_token
             self._response = self._method(self._request, metadata=self._metadata)
             yield self._response
 
-    def __iter__(self) -> Iterable[specialist_pool.SpecialistPool]:
+    def __iter__(self) -> Iterator[specialist_pool.SpecialistPool]:
         for page in self.pages:
             yield from page.specialist_pools
 
@@ -141,14 +141,14 @@ class ListSpecialistPoolsAsyncPager:
     @property
     async def pages(
         self,
-    ) -> AsyncIterable[specialist_pool_service.ListSpecialistPoolsResponse]:
+    ) -> AsyncIterator[specialist_pool_service.ListSpecialistPoolsResponse]:
         yield self._response
         while self._response.next_page_token:
             self._request.page_token = self._response.next_page_token
             self._response = await self._method(self._request, metadata=self._metadata)
             yield self._response
 
-    def __aiter__(self) -> AsyncIterable[specialist_pool.SpecialistPool]:
+    def __aiter__(self) -> AsyncIterator[specialist_pool.SpecialistPool]:
         async def async_generator():
             async for page in self.pages:
                 for response in page.specialist_pools:
