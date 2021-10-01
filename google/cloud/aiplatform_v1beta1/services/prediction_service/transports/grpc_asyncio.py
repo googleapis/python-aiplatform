@@ -25,6 +25,7 @@ import packaging.version
 import grpc  # type: ignore
 from grpc.experimental import aio  # type: ignore
 
+from google.api import httpbody_pb2  # type: ignore
 from google.cloud.aiplatform_v1beta1.types import prediction_service
 from .base import PredictionServiceTransport, DEFAULT_CLIENT_INFO
 from .grpc import PredictionServiceGrpcTransport
@@ -127,16 +128,16 @@ class PredictionServiceGrpcAsyncIOTransport(PredictionServiceTransport):
             api_mtls_endpoint (Optional[str]): Deprecated. The mutual TLS endpoint.
                 If provided, it overrides the ``host`` argument and tries to create
                 a mutual TLS channel with client SSL credentials from
-                ``client_cert_source`` or applicatin default SSL credentials.
+                ``client_cert_source`` or application default SSL credentials.
             client_cert_source (Optional[Callable[[], Tuple[bytes, bytes]]]):
                 Deprecated. A callback to provide client SSL certificate bytes and
                 private key bytes, both in PEM format. It is ignored if
                 ``api_mtls_endpoint`` is None.
             ssl_channel_credentials (grpc.ChannelCredentials): SSL credentials
-                for grpc channel. It is ignored if ``channel`` is provided.
+                for the grpc channel. It is ignored if ``channel`` is provided.
             client_cert_source_for_mtls (Optional[Callable[[], Tuple[bytes, bytes]]]):
                 A callback to provide client certificate bytes and private key bytes,
-                both in PEM format. It is used to configure mutual TLS channel. It is
+                both in PEM format. It is used to configure a mutual TLS channel. It is
                 ignored if ``channel`` or ``ssl_channel_credentials`` is provided.
             quota_project_id (Optional[str]): An optional project to use for billing
                 and quota.
@@ -256,6 +257,35 @@ class PredictionServiceGrpcAsyncIOTransport(PredictionServiceTransport):
                 response_deserializer=prediction_service.PredictResponse.deserialize,
             )
         return self._stubs["predict"]
+
+    @property
+    def raw_predict(
+        self,
+    ) -> Callable[
+        [prediction_service.RawPredictRequest], Awaitable[httpbody_pb2.HttpBody]
+    ]:
+        r"""Return a callable for the raw predict method over gRPC.
+
+        Perform an online prediction with arbitrary http
+        payload.
+
+        Returns:
+            Callable[[~.RawPredictRequest],
+                    Awaitable[~.HttpBody]]:
+                A function that, when called, will call the underlying RPC
+                on the server.
+        """
+        # Generate a "stub function" on-the-fly which will actually make
+        # the request.
+        # gRPC handles serialization and deserialization, so we just need
+        # to pass in the functions for each.
+        if "raw_predict" not in self._stubs:
+            self._stubs["raw_predict"] = self.grpc_channel.unary_unary(
+                "/google.cloud.aiplatform.v1beta1.PredictionService/RawPredict",
+                request_serializer=prediction_service.RawPredictRequest.serialize,
+                response_deserializer=httpbody_pb2.HttpBody.FromString,
+            )
+        return self._stubs["raw_predict"]
 
     @property
     def explain(

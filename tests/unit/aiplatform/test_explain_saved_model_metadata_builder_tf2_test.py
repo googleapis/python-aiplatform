@@ -15,15 +15,20 @@
 # limitations under the License.
 #
 
-
+import pytest
 import tensorflow as tf
 import numpy as np
 
+from google.cloud.aiplatform import models
 from google.cloud.aiplatform.explain.metadata.tf.v2 import saved_model_metadata_builder
+from google.cloud.aiplatform.compat.types import explanation_metadata
+
+import test_models
+from test_models import upload_model_mock, get_model_mock  # noqa: F401
 
 
 class SavedModelMetadataBuilderTF2Test(tf.test.TestCase):
-    def test_get_metadata_sequential(self):
+    def _set_up_sequential(self):
         # Set up for the sequential.
         self.seq_model = tf.keras.models.Sequential()
         self.seq_model.add(tf.keras.layers.Dense(32, activation="relu", input_dim=10))
@@ -31,6 +36,9 @@ class SavedModelMetadataBuilderTF2Test(tf.test.TestCase):
         self.seq_model.add(tf.keras.layers.Dense(1, activation="sigmoid"))
         self.saved_model_path = self.get_temp_dir()
         tf.saved_model.save(self.seq_model, self.saved_model_path)
+
+    def test_get_metadata_sequential(self):
+        self._set_up_sequential()
 
         builder = saved_model_metadata_builder.SavedModelMetadataBuilder(
             self.saved_model_path
@@ -41,6 +49,19 @@ class SavedModelMetadataBuilderTF2Test(tf.test.TestCase):
             "inputs": {"dense_input": {"inputTensorName": "dense_input"}},
         }
         assert expected_md == generated_md
+
+    def test_get_metadata_protobuf_sequential(self):
+        self._set_up_sequential()
+
+        builder = saved_model_metadata_builder.SavedModelMetadataBuilder(
+            self.saved_model_path
+        )
+        generated_object = builder.get_metadata_protobuf()
+        expected_object = explanation_metadata.ExplanationMetadata(
+            inputs={"dense_input": {"input_tensor_name": "dense_input"}},
+            outputs={"dense_2": {"output_tensor_name": "dense_2"}},
+        )
+        assert expected_object == generated_object
 
     def test_get_metadata_functional(self):
         inputs1 = tf.keras.Input(shape=(10,), name="model_input1")
@@ -165,3 +186,28 @@ class SavedModelMetadataBuilderTF2Test(tf.test.TestCase):
             "outputs": {"output_1": {"outputTensorName": "output_1"}},
         }
         assert expected_md == generated_md
+
+    @pytest.mark.usefixtures("upload_model_mock", "get_model_mock")
+    def test_model_upload_compatibility(self):
+        self._set_up_sequential()
+
+        builder = saved_model_metadata_builder.SavedModelMetadataBuilder(
+            self.saved_model_path
+        )
+        generated_md = builder.get_metadata_protobuf()
+
+        try:
+            models.Model.upload(
+                display_name=test_models._TEST_MODEL_NAME,
+                serving_container_image_uri=test_models._TEST_SERVING_CONTAINER_IMAGE,
+                explanation_parameters=test_models._TEST_EXPLANATION_PARAMETERS,
+                explanation_metadata=generated_md,  # Test metadata from builder
+                labels=test_models._TEST_LABEL,
+            )
+        except TypeError as e:
+            if "Parameter to MergeFrom() must be instance of same class" in str(e):
+                pytest.fail(
+                    f"Model.upload() expects different proto version, more info: {e}"
+                )
+            else:
+                raise e
