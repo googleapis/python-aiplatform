@@ -33,7 +33,7 @@ def get_default_column_transformations(
             Required. The name of the column values of which the Model is to predict.
 
     Returns:
-        Tuple[Dict[str, Dict[str, Union[bool, str]]], List[str]]:
+        Tuple[List[Dict[str, Dict[str, str]]], List[str]]:
             The default column transformations and the default column names.
     """
 
