@@ -127,7 +127,6 @@ _TEST_FRACTION_SPLIT_VALIDATION = 0.2
 _TEST_FRACTION_SPLIT_TEST = 0.2
 
 _TEST_SPLIT_PREDEFINED_COLUMN_NAME = "split"
-_TEST_SPLIT_TIMESTAMP_COLUMN_NAME = "timestamp"
 
 
 @pytest.fixture
@@ -744,7 +743,6 @@ class TestAutoMLForecastingTrainingJob:
             training_fraction_split=_TEST_FRACTION_SPLIT_TRAINING,
             validation_fraction_split=_TEST_FRACTION_SPLIT_VALIDATION,
             test_fraction_split=_TEST_FRACTION_SPLIT_TEST,
-            timestamp_split_column_name=_TEST_SPLIT_TIMESTAMP_COLUMN_NAME,
             target_column=_TEST_TRAINING_TARGET_COLUMN,
             time_column=_TEST_TRAINING_TIME_COLUMN,
             time_series_identifier_column=_TEST_TRAINING_TIME_SERIES_IDENTIFIER_COLUMN,

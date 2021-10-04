@@ -25,10 +25,10 @@ from google.cloud import bigquery
 from google.cloud import storage
 
 from google.cloud.aiplatform import utils
-from google.cloud.aiplatform.datasets import _Dataset
+from google.cloud.aiplatform import datasets
 
 
-class _ColumnNamesDataset(_Dataset):
+class _ColumnNamesDataset(datasets._Dataset):
     @property
     def column_names(self) -> List[str]:
         """Retrieve the columns for the dataset by extracting it from the Google Cloud Storage or

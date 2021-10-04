@@ -15,14 +15,13 @@
 # limitations under the License.
 #
 
-from google.cloud.aiplatform.datasets.column_names_dataset import _ColumnNamesDataset
 from typing import Dict, List, Optional, Tuple
-
 import warnings
 
+from google.cloud.aiplatform import datasets
 
 def get_default_column_transformations(
-    dataset: _ColumnNamesDataset, target_column: str,
+    dataset: datasets._ColumnNamesDataset, target_column: str,
 ) -> Tuple[List[Dict[str, Dict[str, str]]], List[str]]:
     """Get default column transformations from the column names, while omitting the target column.
 
@@ -52,7 +51,7 @@ def get_default_column_transformations(
 def validate_and_get_column_transformations(
     column_specs: Optional[Dict[str, str]],
     column_transformations: Optional[List[Dict[str, Dict[str, str]]]],
-) -> Dict:
+) -> List[Dict[str, Dict[str, str]]]:
     """Validates column specs and transformations, then returns processed transformations.
 
     Args:
@@ -83,6 +82,9 @@ def validate_and_get_column_transformations(
     Returns:
         List[Dict[str, Dict[str, str]]]:
             The column transformations.
+
+    Raises:
+        ValueError: If both column_transformations and column_specs were provided.
     """
     # user populated transformations
     if column_transformations is not None and column_specs is not None:
