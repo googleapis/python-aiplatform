@@ -17,7 +17,7 @@ from collections import OrderedDict
 from distutils import util
 import os
 import re
-from typing import Callable, Dict, Optional, Sequence, Tuple, Type, Union
+from typing import Dict, Optional, Sequence, Tuple, Type, Union
 import pkg_resources
 
 from google.api_core import client_options as client_options_lib  # type: ignore
@@ -367,7 +367,9 @@ class SpecialistPoolServiceClient(metaclass=SpecialistPoolServiceClientMeta):
 
     def create_specialist_pool(
         self,
-        request: specialist_pool_service.CreateSpecialistPoolRequest = None,
+        request: Union[
+            specialist_pool_service.CreateSpecialistPoolRequest, dict
+        ] = None,
         *,
         parent: str = None,
         specialist_pool: gca_specialist_pool.SpecialistPool = None,
@@ -378,7 +380,7 @@ class SpecialistPoolServiceClient(metaclass=SpecialistPoolServiceClientMeta):
         r"""Creates a SpecialistPool.
 
         Args:
-            request (google.cloud.aiplatform_v1.types.CreateSpecialistPoolRequest):
+            request (Union[google.cloud.aiplatform_v1.types.CreateSpecialistPoolRequest, dict]):
                 The request object. Request message for
                 [SpecialistPoolService.CreateSpecialistPool][google.cloud.aiplatform.v1.SpecialistPoolService.CreateSpecialistPool].
             parent (str):
@@ -465,7 +467,7 @@ class SpecialistPoolServiceClient(metaclass=SpecialistPoolServiceClientMeta):
 
     def get_specialist_pool(
         self,
-        request: specialist_pool_service.GetSpecialistPoolRequest = None,
+        request: Union[specialist_pool_service.GetSpecialistPoolRequest, dict] = None,
         *,
         name: str = None,
         retry: retries.Retry = gapic_v1.method.DEFAULT,
@@ -475,7 +477,7 @@ class SpecialistPoolServiceClient(metaclass=SpecialistPoolServiceClientMeta):
         r"""Gets a SpecialistPool.
 
         Args:
-            request (google.cloud.aiplatform_v1.types.GetSpecialistPoolRequest):
+            request (Union[google.cloud.aiplatform_v1.types.GetSpecialistPoolRequest, dict]):
                 The request object. Request message for
                 [SpecialistPoolService.GetSpecialistPool][google.cloud.aiplatform.v1.SpecialistPoolService.GetSpecialistPool].
             name (str):
@@ -547,7 +549,7 @@ class SpecialistPoolServiceClient(metaclass=SpecialistPoolServiceClientMeta):
 
     def list_specialist_pools(
         self,
-        request: specialist_pool_service.ListSpecialistPoolsRequest = None,
+        request: Union[specialist_pool_service.ListSpecialistPoolsRequest, dict] = None,
         *,
         parent: str = None,
         retry: retries.Retry = gapic_v1.method.DEFAULT,
@@ -557,7 +559,7 @@ class SpecialistPoolServiceClient(metaclass=SpecialistPoolServiceClientMeta):
         r"""Lists SpecialistPools in a Location.
 
         Args:
-            request (google.cloud.aiplatform_v1.types.ListSpecialistPoolsRequest):
+            request (Union[google.cloud.aiplatform_v1.types.ListSpecialistPoolsRequest, dict]):
                 The request object. Request message for
                 [SpecialistPoolService.ListSpecialistPools][google.cloud.aiplatform.v1.SpecialistPoolService.ListSpecialistPools].
             parent (str):
@@ -628,7 +630,9 @@ class SpecialistPoolServiceClient(metaclass=SpecialistPoolServiceClientMeta):
 
     def delete_specialist_pool(
         self,
-        request: specialist_pool_service.DeleteSpecialistPoolRequest = None,
+        request: Union[
+            specialist_pool_service.DeleteSpecialistPoolRequest, dict
+        ] = None,
         *,
         name: str = None,
         retry: retries.Retry = gapic_v1.method.DEFAULT,
@@ -639,7 +643,7 @@ class SpecialistPoolServiceClient(metaclass=SpecialistPoolServiceClientMeta):
         in the pool.
 
         Args:
-            request (google.cloud.aiplatform_v1.types.DeleteSpecialistPoolRequest):
+            request (Union[google.cloud.aiplatform_v1.types.DeleteSpecialistPoolRequest, dict]):
                 The request object. Request message for
                 [SpecialistPoolService.DeleteSpecialistPool][google.cloud.aiplatform.v1.SpecialistPoolService.DeleteSpecialistPool].
             name (str):
@@ -722,7 +726,9 @@ class SpecialistPoolServiceClient(metaclass=SpecialistPoolServiceClientMeta):
 
     def update_specialist_pool(
         self,
-        request: specialist_pool_service.UpdateSpecialistPoolRequest = None,
+        request: Union[
+            specialist_pool_service.UpdateSpecialistPoolRequest, dict
+        ] = None,
         *,
         specialist_pool: gca_specialist_pool.SpecialistPool = None,
         update_mask: field_mask_pb2.FieldMask = None,
@@ -733,7 +739,7 @@ class SpecialistPoolServiceClient(metaclass=SpecialistPoolServiceClientMeta):
         r"""Updates a SpecialistPool.
 
         Args:
-            request (google.cloud.aiplatform_v1.types.UpdateSpecialistPoolRequest):
+            request (Union[google.cloud.aiplatform_v1.types.UpdateSpecialistPoolRequest, dict]):
                 The request object. Request message for
                 [SpecialistPoolService.UpdateSpecialistPool][google.cloud.aiplatform.v1.SpecialistPoolService.UpdateSpecialistPool].
             specialist_pool (google.cloud.aiplatform_v1.types.SpecialistPool):
