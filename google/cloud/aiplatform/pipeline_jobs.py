@@ -73,7 +73,6 @@ def _set_enable_caching_value(
           Required. List of component names to be cached.
     """
     if cache_components is None or enable_caching == False:
-        
         for component in [pipeline_spec["root"]] + list(
             pipeline_spec["components"].values()
         ):
@@ -81,7 +80,6 @@ def _set_enable_caching_value(
                 for task in component["dag"]["tasks"].values():
                     task["cachingOptions"] = {"enableCache": enable_caching}
     else:
-        
         for component in [pipeline_spec["root"]] + list(
             pipeline_spec["components"].values()
         ):
