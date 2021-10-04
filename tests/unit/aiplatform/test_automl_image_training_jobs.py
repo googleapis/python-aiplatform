@@ -34,7 +34,7 @@ _TEST_DATASET_NAME = "test-dataset-name"
 _TEST_DISPLAY_NAME = "test-display-name"
 _TEST_METADATA_SCHEMA_URI_IMAGE = schema.dataset.metadata.image
 
-_TEST_TRAINING_BUDGET_MILLI_NODE_HOURS = 1000
+_TEST_TRAINING_BUDGET_MILLI_NODE_HOURS = 7500
 _TEST_TRAINING_DISABLE_EARLY_STOPPING = True
 _TEST_MODEL_TYPE_ICN = "CLOUD"  # Image Classification default
 _TEST_MODEL_TYPE_IOD = "CLOUD_HIGH_ACCURACY_1"  # Image Object Detection default
@@ -493,6 +493,7 @@ class TestAutoMLImageTrainingJob:
             training_fraction_split=_TEST_FRACTION_SPLIT_TRAINING,
             validation_fraction_split=_TEST_FRACTION_SPLIT_VALIDATION,
             test_fraction_split=_TEST_FRACTION_SPLIT_TEST,
+            budget_milli_node_hours=_TEST_TRAINING_BUDGET_MILLI_NODE_HOURS,
             disable_early_stopping=_TEST_TRAINING_DISABLE_EARLY_STOPPING,
             sync=sync,
         )
@@ -560,6 +561,7 @@ class TestAutoMLImageTrainingJob:
             training_filter_split=_TEST_FILTER_SPLIT_TRAINING,
             validation_filter_split=_TEST_FILTER_SPLIT_VALIDATION,
             test_filter_split=_TEST_FILTER_SPLIT_TEST,
+            budget_milli_node_hours=_TEST_TRAINING_BUDGET_MILLI_NODE_HOURS,
             disable_early_stopping=_TEST_TRAINING_DISABLE_EARLY_STOPPING,
             sync=sync,
         )
@@ -624,6 +626,7 @@ class TestAutoMLImageTrainingJob:
         model_from_job = job.run(
             dataset=mock_dataset_image,
             model_display_name=_TEST_MODEL_DISPLAY_NAME,
+            budget_milli_node_hours=_TEST_TRAINING_BUDGET_MILLI_NODE_HOURS,
             disable_early_stopping=_TEST_TRAINING_DISABLE_EARLY_STOPPING,
             sync=sync,
         )

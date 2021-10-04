@@ -16,6 +16,7 @@
 import proto  # type: ignore
 
 from google.cloud.aiplatform_v1.types import encryption_spec as gca_encryption_spec
+from google.cloud.aiplatform_v1.types import explanation
 from google.cloud.aiplatform_v1.types import machine_resources
 from google.protobuf import timestamp_pb2  # type: ignore
 
@@ -81,6 +82,11 @@ class Endpoint(proto.Message):
             Endpoint. If set, this Endpoint and all sub-
             resources of this Endpoint will be secured by
             this key.
+        model_deployment_monitoring_job (str):
+            Output only. Resource name of the Model Monitoring job
+            associated with this Endpoint if monitoring is enabled by
+            [CreateModelDeploymentMonitoringJob][]. Format:
+            ``projects/{project}/locations/{location}/modelDeploymentMonitoringJobs/{model_deployment_monitoring_job}``
     """
 
     name = proto.Field(proto.STRING, number=1,)
@@ -97,6 +103,7 @@ class Endpoint(proto.Message):
     encryption_spec = proto.Field(
         proto.MESSAGE, number=10, message=gca_encryption_spec.EncryptionSpec,
     )
+    model_deployment_monitoring_job = proto.Field(proto.STRING, number=14,)
 
 
 class DeployedModel(proto.Message):
@@ -110,7 +117,7 @@ class DeployedModel(proto.Message):
             degree of manual configuration.
         automatic_resources (google.cloud.aiplatform_v1.types.AutomaticResources):
             A description of resources that to large
-            degree are decided by AI Platform, and require
+            degree are decided by Vertex AI, and require
             only a modest additional configuration.
         id (str):
             Output only. The ID of the DeployedModel.
@@ -125,6 +132,24 @@ class DeployedModel(proto.Message):
         create_time (google.protobuf.timestamp_pb2.Timestamp):
             Output only. Timestamp when the DeployedModel
             was created.
+        explanation_spec (google.cloud.aiplatform_v1.types.ExplanationSpec):
+            Explanation configuration for this DeployedModel.
+
+            When deploying a Model using
+            [EndpointService.DeployModel][google.cloud.aiplatform.v1.EndpointService.DeployModel],
+            this value overrides the value of
+            [Model.explanation_spec][google.cloud.aiplatform.v1.Model.explanation_spec].
+            All fields of
+            [explanation_spec][google.cloud.aiplatform.v1.DeployedModel.explanation_spec]
+            are optional in the request. If a field of
+            [explanation_spec][google.cloud.aiplatform.v1.DeployedModel.explanation_spec]
+            is not populated, the value of the same field of
+            [Model.explanation_spec][google.cloud.aiplatform.v1.Model.explanation_spec]
+            is inherited. If the corresponding
+            [Model.explanation_spec][google.cloud.aiplatform.v1.Model.explanation_spec]
+            is not populated, all fields of the
+            [explanation_spec][google.cloud.aiplatform.v1.DeployedModel.explanation_spec]
+            will be used for the explanation configuration.
         service_account (str):
             The service account that the DeployedModel's container runs
             as. Specify the email address of the service account. If
@@ -172,6 +197,9 @@ class DeployedModel(proto.Message):
     model = proto.Field(proto.STRING, number=2,)
     display_name = proto.Field(proto.STRING, number=3,)
     create_time = proto.Field(proto.MESSAGE, number=6, message=timestamp_pb2.Timestamp,)
+    explanation_spec = proto.Field(
+        proto.MESSAGE, number=9, message=explanation.ExplanationSpec,
+    )
     service_account = proto.Field(proto.STRING, number=11,)
     disable_container_logging = proto.Field(proto.BOOL, number=15,)
     enable_access_logging = proto.Field(proto.BOOL, number=13,)

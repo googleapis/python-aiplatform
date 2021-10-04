@@ -1,5 +1,7 @@
+import collections
 import re
 import time
+from timeit import default_timer as timer
 
 from typing import Callable
 
@@ -16,6 +18,13 @@ def get_state(out):
     state = re.search(pattern, out).group(1)
 
     return state
+
+
+def get_featurestore_resource_name(out, key="name"):
+    pattern = re.compile(fr'{key}:\s*"([\_\-a-zA-Z0-9/]+)"')
+    name = re.search(pattern, out).group(1)
+
+    return name
 
 
 def wait_for_job_state(
@@ -56,3 +65,21 @@ def wait_for_job_state(
         "\nTry increasing the timeout in sample test"
         f"\nLast recorded state: {response.state}"
     )
+
+
+def flaky_test_diagnostic(file_name, test_name, N=20):
+
+    import pytest
+
+    timing_dict = collections.defaultdict(list)
+    for ri in range(N):
+        start = timer()
+        result = pytest.main(['-s', f'{file_name}::{test_name}'])
+        end = timer()
+        delta = end-start
+        if result == pytest.ExitCode.OK:
+            timing_dict['SUCCESS'].append(delta)
+        else:
+            timing_dict['FAILURE'].append(delta)
+
+    return timing_dict
