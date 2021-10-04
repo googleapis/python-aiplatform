@@ -58,7 +58,9 @@ def _get_current_time() -> datetime.datetime:
 
 
 def _set_enable_caching_value(
-    pipeline_spec: Dict[str, Any], enable_caching: bool
+    pipeline_spec: Dict[str, Any], 
+    enable_caching: bool, 
+    cache_components: List[str]
 ) -> None:
     """Sets pipeline tasks caching options.
 
@@ -67,13 +69,28 @@ def _set_enable_caching_value(
           Required. The dictionary of pipeline spec.
      enable_caching (bool):
           Required. Whether to enable caching.
+     cache_components (List[str]):
+          Required. List of component names to be cached.
     """
-    for component in [pipeline_spec["root"]] + list(
-        pipeline_spec["components"].values()
-    ):
-        if "dag" in component:
-            for task in component["dag"]["tasks"].values():
-                task["cachingOptions"] = {"enableCache": enable_caching}
+    if cache_components is None or enable_caching == False:
+        
+        for component in [pipeline_spec["root"]] + list(
+            pipeline_spec["components"].values()
+        ):
+            if "dag" in component:
+                for task in component["dag"]["tasks"].values():
+                    task["cachingOptions"] = {"enableCache": enable_caching}
+    else:
+        
+        for component in [pipeline_spec["root"]] + list(
+            pipeline_spec["components"].values()
+        ):
+            if "dag" in component:
+                for task_name, task in component["dag"]["tasks"].items():
+                    if task_name in cache_components:
+                        task["cachingOptions"] = {"enableCache": True}
+                    else:
+                        task["cachingOptions"] = {"enableCache": False}                        
 
 
 class PipelineJob(base.VertexAiResourceNounWithFutureManager):
@@ -94,6 +111,7 @@ class PipelineJob(base.VertexAiResourceNounWithFutureManager):
         pipeline_root: Optional[str] = None,
         parameter_values: Optional[Dict[str, Any]] = None,
         enable_caching: Optional[bool] = None,
+        cache_components: Optional[List[str]] = None,
         encryption_spec_key_name: Optional[str] = None,
         labels: Optional[Dict[str, str]] = None,
         credentials: Optional[auth_credentials.Credentials] = None,
@@ -127,6 +145,15 @@ class PipelineJob(base.VertexAiResourceNounWithFutureManager):
                 If this is set, the setting applies to all tasks in the pipeline.
 
                 Overrides the compile time settings.
+            cache_components (List[str]):
+                Optional. Specify which components to cache.
+                
+                If enable_caching is set to True, then only the specified component
+                names present in this list will be cached and rest of the 
+                components will not be cached. If this argument is not specified
+                then by default all components will be cached.
+                
+                If enable_caching is set to False, this argument will be ignored.
             encryption_spec_key_name (str):
                 Optional. The Cloud KMS resource identifier of the customer
                 managed encryption key used to protect the job. Has the
@@ -198,7 +225,9 @@ class PipelineJob(base.VertexAiResourceNounWithFutureManager):
         json_format.ParseDict(runtime_config_dict, runtime_config)
 
         if enable_caching is not None:
-            _set_enable_caching_value(pipeline_job["pipelineSpec"], enable_caching)
+            _set_enable_caching_value(pipeline_job["pipelineSpec"],
+                                      enable_caching,
+                                      cache_components)
 
         self._gca_resource = gca_pipeline_job_v1beta1.PipelineJob(
             display_name=display_name,
