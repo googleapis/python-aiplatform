@@ -4158,7 +4158,7 @@ class AutoMLForecastingTrainingJob(_TrainingJob):
         self._assert_gca_resource_is_available()
 
         metadata = self._gca_resource.training_task_metadata
-        if "evaluatedDataItemsBigqueryUri" in metadata:
+        if metadata and "evaluatedDataItemsBigqueryUri" in metadata:
             return metadata["evaluatedDataItemsBigqueryUri"]
 
         return None
