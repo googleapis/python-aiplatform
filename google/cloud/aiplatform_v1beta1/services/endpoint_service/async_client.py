@@ -43,7 +43,7 @@ from .client import EndpointServiceClient
 
 
 class EndpointServiceAsyncClient:
-    """"""
+    """A service for managing Vertex AI's Endpoints."""
 
     _client: EndpointServiceClient
 
@@ -54,6 +54,12 @@ class EndpointServiceAsyncClient:
     parse_endpoint_path = staticmethod(EndpointServiceClient.parse_endpoint_path)
     model_path = staticmethod(EndpointServiceClient.model_path)
     parse_model_path = staticmethod(EndpointServiceClient.parse_model_path)
+    model_deployment_monitoring_job_path = staticmethod(
+        EndpointServiceClient.model_deployment_monitoring_job_path
+    )
+    parse_model_deployment_monitoring_job_path = staticmethod(
+        EndpointServiceClient.parse_model_deployment_monitoring_job_path
+    )
     network_path = staticmethod(EndpointServiceClient.network_path)
     parse_network_path = staticmethod(EndpointServiceClient.parse_network_path)
     common_billing_account_path = staticmethod(

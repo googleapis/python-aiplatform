@@ -366,6 +366,69 @@ class TestAutoMLForecastingTrainingJob:
 
     @pytest.mark.usefixtures("mock_pipeline_service_get")
     @pytest.mark.parametrize("sync", [True, False])
+    def test_run_with_experiments(
+        self,
+        mock_pipeline_service_create,
+        mock_dataset_time_series,
+        mock_model_service_get,
+        sync,
+    ):
+        aiplatform.init(project=_TEST_PROJECT, staging_bucket=_TEST_BUCKET_NAME)
+
+        job = AutoMLForecastingTrainingJob(
+            display_name=_TEST_DISPLAY_NAME,
+            optimization_objective=_TEST_TRAINING_OPTIMIZATION_OBJECTIVE_NAME,
+            column_transformations=_TEST_TRAINING_COLUMN_TRANSFORMATIONS,
+        )
+
+        model_from_job = job._run_with_experiments(
+            dataset=mock_dataset_time_series,
+            target_column=_TEST_TRAINING_TARGET_COLUMN,
+            time_column=_TEST_TRAINING_TIME_COLUMN,
+            time_series_identifier_column=_TEST_TRAINING_TIME_SERIES_IDENTIFIER_COLUMN,
+            unavailable_at_forecast_columns=_TEST_TRAINING_UNAVAILABLE_AT_FORECAST_COLUMNS,
+            available_at_forecast_columns=_TEST_TRAINING_AVAILABLE_AT_FORECAST_COLUMNS,
+            forecast_horizon=_TEST_TRAINING_FORECAST_HORIZON,
+            data_granularity_unit=_TEST_TRAINING_DATA_GRANULARITY_UNIT,
+            data_granularity_count=_TEST_TRAINING_DATA_GRANULARITY_COUNT,
+            weight_column=_TEST_TRAINING_WEIGHT_COLUMN,
+            time_series_attribute_columns=_TEST_TRAINING_TIME_SERIES_ATTRIBUTE_COLUMNS,
+            context_window=_TEST_TRAINING_CONTEXT_WINDOW,
+            budget_milli_node_hours=_TEST_TRAINING_BUDGET_MILLI_NODE_HOURS,
+            export_evaluated_data_items=_TEST_TRAINING_EXPORT_EVALUATED_DATA_ITEMS,
+            export_evaluated_data_items_bigquery_destination_uri=_TEST_TRAINING_EXPORT_EVALUATED_DATA_ITEMS_BIGQUERY_DESTINATION_URI,
+            export_evaluated_data_items_override_destination=_TEST_TRAINING_EXPORT_EVALUATED_DATA_ITEMS_OVERRIDE_DESTINATION,
+            quantiles=_TEST_TRAINING_QUANTILES,
+            validation_options=_TEST_TRAINING_VALIDATION_OPTIONS,
+            sync=sync,
+            additional_experiments=_TEST_ADDITIONAL_EXPERIMENTS,
+        )
+
+        if not sync:
+            model_from_job.wait()
+
+        # Test that if defaults to the job display name
+        true_managed_model = gca_model.Model(display_name=_TEST_DISPLAY_NAME)
+
+        true_input_data_config = gca_training_pipeline.InputDataConfig(
+            dataset_id=mock_dataset_time_series.name,
+        )
+
+        true_training_pipeline = gca_training_pipeline.TrainingPipeline(
+            display_name=_TEST_DISPLAY_NAME,
+            training_task_definition=schema.training_job.definition.automl_forecasting,
+            training_task_inputs=_TEST_TRAINING_TASK_INPUTS_WITH_ADDITIONAL_EXPERIMENTS,
+            model_to_upload=true_managed_model,
+            input_data_config=true_input_data_config,
+        )
+
+        mock_pipeline_service_create.assert_called_once_with(
+            parent=initializer.global_config.common_location_path(),
+            training_pipeline=true_training_pipeline,
+        )
+
+    @pytest.mark.usefixtures("mock_pipeline_service_get")
+    @pytest.mark.parametrize("sync", [True, False])
     def test_run_call_pipeline_if_set_additional_experiments(
         self,
         mock_pipeline_service_create,

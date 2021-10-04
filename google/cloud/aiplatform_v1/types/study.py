@@ -22,8 +22,46 @@ from google.protobuf import timestamp_pb2  # type: ignore
 
 __protobuf__ = proto.module(
     package="google.cloud.aiplatform.v1",
-    manifest={"Trial", "StudySpec", "Measurement",},
+    manifest={"Study", "Trial", "StudySpec", "Measurement",},
 )
+
+
+class Study(proto.Message):
+    r"""A message representing a Study.
+    Attributes:
+        name (str):
+            Output only. The name of a study. The study's globally
+            unique identifier. Format:
+            ``projects/{project}/locations/{location}/studies/{study}``
+        display_name (str):
+            Required. Describes the Study, default value
+            is empty string.
+        study_spec (google.cloud.aiplatform_v1.types.StudySpec):
+            Required. Configuration of the Study.
+        state (google.cloud.aiplatform_v1.types.Study.State):
+            Output only. The detailed state of a Study.
+        create_time (google.protobuf.timestamp_pb2.Timestamp):
+            Output only. Time at which the study was
+            created.
+        inactive_reason (str):
+            Output only. A human readable reason why the
+            Study is inactive. This should be empty if a
+            study is ACTIVE or COMPLETED.
+    """
+
+    class State(proto.Enum):
+        r"""Describes the Study state."""
+        STATE_UNSPECIFIED = 0
+        ACTIVE = 1
+        INACTIVE = 2
+        COMPLETED = 3
+
+    name = proto.Field(proto.STRING, number=1,)
+    display_name = proto.Field(proto.STRING, number=2,)
+    study_spec = proto.Field(proto.MESSAGE, number=3, message="StudySpec",)
+    state = proto.Field(proto.ENUM, number=4, enum=State,)
+    create_time = proto.Field(proto.MESSAGE, number=5, message=timestamp_pb2.Timestamp,)
+    inactive_reason = proto.Field(proto.STRING, number=6,)
 
 
 class Trial(proto.Message):
@@ -73,6 +111,23 @@ class Trial(proto.Message):
             Output only. The CustomJob name linked to the
             Trial. It's set for a HyperparameterTuningJob's
             Trial.
+        web_access_uris (Sequence[google.cloud.aiplatform_v1.types.Trial.WebAccessUrisEntry]):
+            Output only. URIs for accessing `interactive
+            shells <https://cloud.google.com/vertex-ai/docs/training/monitor-debug-interactive-shell>`__
+            (one URI for each training node). Only available if this
+            trial is part of a
+            [HyperparameterTuningJob][google.cloud.aiplatform.v1.HyperparameterTuningJob]
+            and the job's
+            [trial_job_spec.enable_web_access][google.cloud.aiplatform.v1.CustomJobSpec.enable_web_access]
+            field is ``true``.
+
+            The keys are names of each node used for the trial; for
+            example, ``workerpool0-0`` for the primary node,
+            ``workerpool1-0`` for the first node in the second worker
+            pool, and ``workerpool1-1`` for the second node in the
+            second worker pool.
+
+            The values are the URIs for each node's interactive shell.
     """
 
     class State(proto.Enum):
@@ -113,11 +168,18 @@ class Trial(proto.Message):
     client_id = proto.Field(proto.STRING, number=9,)
     infeasible_reason = proto.Field(proto.STRING, number=10,)
     custom_job = proto.Field(proto.STRING, number=11,)
+    web_access_uris = proto.MapField(proto.STRING, proto.STRING, number=12,)
 
 
 class StudySpec(proto.Message):
     r"""Represents specification of a Study.
     Attributes:
+        decay_curve_stopping_spec (google.cloud.aiplatform_v1.types.StudySpec.DecayCurveAutomatedStoppingSpec):
+            The automated early stopping spec using decay
+            curve rule.
+        median_automated_stopping_spec (google.cloud.aiplatform_v1.types.StudySpec.MedianAutomatedStoppingSpec):
+            The automated early stopping spec using
+            median rule.
         metrics (Sequence[google.cloud.aiplatform_v1.types.StudySpec.MetricSpec]):
             Required. Metric specs for the Study.
         parameters (Sequence[google.cloud.aiplatform_v1.types.StudySpec.ParameterSpec]):
@@ -421,6 +483,56 @@ class StudySpec(proto.Message):
             message="StudySpec.ParameterSpec.ConditionalParameterSpec",
         )
 
+    class DecayCurveAutomatedStoppingSpec(proto.Message):
+        r"""The decay curve automated stopping rule builds a Gaussian
+        Process Regressor to predict the final objective value of a
+        Trial based on the already completed Trials and the intermediate
+        measurements of the current Trial. Early stopping is requested
+        for the current Trial if there is very low probability to exceed
+        the optimal value found so far.
+
+        Attributes:
+            use_elapsed_duration (bool):
+                True if
+                [Measurement.elapsed_duration][google.cloud.aiplatform.v1.Measurement.elapsed_duration]
+                is used as the x-axis of each Trials Decay Curve. Otherwise,
+                [Measurement.step_count][google.cloud.aiplatform.v1.Measurement.step_count]
+                will be used as the x-axis.
+        """
+
+        use_elapsed_duration = proto.Field(proto.BOOL, number=1,)
+
+    class MedianAutomatedStoppingSpec(proto.Message):
+        r"""The median automated stopping rule stops a pending Trial if the
+        Trial's best objective_value is strictly below the median
+        'performance' of all completed Trials reported up to the Trial's
+        last measurement. Currently, 'performance' refers to the running
+        average of the objective values reported by the Trial in each
+        measurement.
+
+        Attributes:
+            use_elapsed_duration (bool):
+                True if median automated stopping rule applies on
+                [Measurement.elapsed_duration][google.cloud.aiplatform.v1.Measurement.elapsed_duration].
+                It means that elapsed_duration field of latest measurement
+                of current Trial is used to compute median objective value
+                for each completed Trials.
+        """
+
+        use_elapsed_duration = proto.Field(proto.BOOL, number=1,)
+
+    decay_curve_stopping_spec = proto.Field(
+        proto.MESSAGE,
+        number=4,
+        oneof="automated_stopping_spec",
+        message=DecayCurveAutomatedStoppingSpec,
+    )
+    median_automated_stopping_spec = proto.Field(
+        proto.MESSAGE,
+        number=5,
+        oneof="automated_stopping_spec",
+        message=MedianAutomatedStoppingSpec,
+    )
     metrics = proto.RepeatedField(proto.MESSAGE, number=1, message=MetricSpec,)
     parameters = proto.RepeatedField(proto.MESSAGE, number=2, message=ParameterSpec,)
     algorithm = proto.Field(proto.ENUM, number=3, enum=Algorithm,)

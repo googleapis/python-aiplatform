@@ -28,40 +28,34 @@ from google.auth import credentials as auth_credentials
 
 from google.cloud import aiplatform
 
-from google.cloud.aiplatform import jobs
 from google.cloud.aiplatform import initializer
+from google.cloud.aiplatform import jobs
 
-from google.cloud.aiplatform_v1beta1.services.job_service import (
-    client as job_service_client_v1beta1,
-)
-
-from google.cloud.aiplatform_v1beta1.types import (
-    batch_prediction_job as gca_batch_prediction_job_v1beta1,
-    explanation as gca_explanation_v1beta1,
-    io as gca_io_v1beta1,
-    machine_resources as gca_machine_resources_v1beta1,
+from google.cloud.aiplatform.compat.types import (
+    batch_prediction_job as gca_batch_prediction_job_compat,
+    explanation as gca_explanation_compat,
+    io as gca_io_compat,
+    job_state as gca_job_state_compat,
+    machine_resources as gca_machine_resources_compat,
 )
 
 from google.cloud.aiplatform_v1.services.job_service import client as job_service_client
 
-from google.cloud.aiplatform_v1.types import (
-    batch_prediction_job as gca_batch_prediction_job,
-    io as gca_io,
-    job_state as gca_job_state,
-)
+_TEST_API_CLIENT = job_service_client.JobServiceClient
 
 _TEST_PROJECT = "test-project"
 _TEST_LOCATION = "us-central1"
 _TEST_ID = "1028944691210842416"
 _TEST_ALT_ID = "8834795523125638878"
 _TEST_DISPLAY_NAME = "my_job_1234"
+_TEST_BQ_PROJECT_ID = "projectId"
 _TEST_BQ_DATASET_ID = "bqDatasetId"
 _TEST_BQ_TABLE_NAME = "someBqTable"
 _TEST_BQ_JOB_ID = "123459876"
 _TEST_BQ_MAX_RESULTS = 100
 _TEST_GCS_BUCKET_NAME = "my-bucket"
 
-_TEST_BQ_PATH = f"bq://projectId.{_TEST_BQ_DATASET_ID}"
+_TEST_BQ_PATH = f"bq://{_TEST_BQ_PROJECT_ID}.{_TEST_BQ_DATASET_ID}"
 _TEST_GCS_BUCKET_PATH = f"gs://{_TEST_GCS_BUCKET_NAME}"
 _TEST_GCS_JSONL_SOURCE_URI = f"{_TEST_GCS_BUCKET_PATH}/bp_input_config.jsonl"
 _TEST_PARENT = f"projects/{_TEST_PROJECT}/locations/{_TEST_LOCATION}"
@@ -83,39 +77,43 @@ _TEST_BATCH_PREDICTION_BQ_DEST_PREFIX_WITH_PROTOCOL = (
     f"bq://{_TEST_BATCH_PREDICTION_BQ_PREFIX}"
 )
 
-_TEST_JOB_STATE_SUCCESS = gca_job_state.JobState(4)
-_TEST_JOB_STATE_RUNNING = gca_job_state.JobState(3)
-_TEST_JOB_STATE_PENDING = gca_job_state.JobState(2)
+_TEST_JOB_STATE_SUCCESS = gca_job_state_compat.JobState(4)
+_TEST_JOB_STATE_RUNNING = gca_job_state_compat.JobState(3)
+_TEST_JOB_STATE_PENDING = gca_job_state_compat.JobState(2)
 
-_TEST_GCS_INPUT_CONFIG = gca_batch_prediction_job.BatchPredictionJob.InputConfig(
+_TEST_GCS_INPUT_CONFIG = gca_batch_prediction_job_compat.BatchPredictionJob.InputConfig(
     instances_format="jsonl",
-    gcs_source=gca_io.GcsSource(uris=[_TEST_GCS_JSONL_SOURCE_URI]),
+    gcs_source=gca_io_compat.GcsSource(uris=[_TEST_GCS_JSONL_SOURCE_URI]),
 )
-_TEST_GCS_OUTPUT_CONFIG = gca_batch_prediction_job.BatchPredictionJob.OutputConfig(
+_TEST_GCS_OUTPUT_CONFIG = gca_batch_prediction_job_compat.BatchPredictionJob.OutputConfig(
     predictions_format="jsonl",
-    gcs_destination=gca_io.GcsDestination(output_uri_prefix=_TEST_GCS_BUCKET_PATH),
+    gcs_destination=gca_io_compat.GcsDestination(
+        output_uri_prefix=_TEST_GCS_BUCKET_PATH
+    ),
 )
 
-_TEST_BQ_INPUT_CONFIG = gca_batch_prediction_job.BatchPredictionJob.InputConfig(
+_TEST_BQ_INPUT_CONFIG = gca_batch_prediction_job_compat.BatchPredictionJob.InputConfig(
     instances_format="bigquery",
-    bigquery_source=gca_io.BigQuerySource(input_uri=_TEST_BQ_PATH),
+    bigquery_source=gca_io_compat.BigQuerySource(input_uri=_TEST_BQ_PATH),
 )
-_TEST_BQ_OUTPUT_CONFIG = gca_batch_prediction_job.BatchPredictionJob.OutputConfig(
+_TEST_BQ_OUTPUT_CONFIG = gca_batch_prediction_job_compat.BatchPredictionJob.OutputConfig(
     predictions_format="bigquery",
-    bigquery_destination=gca_io.BigQueryDestination(output_uri=_TEST_BQ_PATH),
+    bigquery_destination=gca_io_compat.BigQueryDestination(output_uri=_TEST_BQ_PATH),
 )
 
-_TEST_GCS_OUTPUT_INFO = gca_batch_prediction_job.BatchPredictionJob.OutputInfo(
+_TEST_GCS_OUTPUT_INFO = gca_batch_prediction_job_compat.BatchPredictionJob.OutputInfo(
     gcs_output_directory=_TEST_GCS_BUCKET_NAME
 )
-_TEST_BQ_OUTPUT_INFO = gca_batch_prediction_job.BatchPredictionJob.OutputInfo(
+_TEST_BQ_OUTPUT_INFO = gca_batch_prediction_job_compat.BatchPredictionJob.OutputInfo(
     bigquery_output_dataset=_TEST_BQ_PATH, bigquery_output_table=_TEST_BQ_TABLE_NAME
 )
-_TEST_BQ_OUTPUT_INFO_INCOMPLETE = gca_batch_prediction_job.BatchPredictionJob.OutputInfo(
+_TEST_BQ_OUTPUT_INFO_INCOMPLETE = gca_batch_prediction_job_compat.BatchPredictionJob.OutputInfo(
     bigquery_output_dataset=_TEST_BQ_PATH
 )
 
-_TEST_EMPTY_OUTPUT_INFO = gca_batch_prediction_job.BatchPredictionJob.OutputInfo()
+_TEST_EMPTY_OUTPUT_INFO = (
+    gca_batch_prediction_job_compat.BatchPredictionJob.OutputInfo()
+)
 
 _TEST_GCS_BLOBS = [
     storage.Blob(name="some/path/prediction.jsonl", bucket=_TEST_GCS_BUCKET_NAME)
@@ -156,7 +154,7 @@ _TEST_JOB_RESOURCE_NAME = f"{_TEST_PARENT}/fakeJobs/{_TEST_ID}"
 @pytest.fixture
 def fake_job_getter_mock():
     with patch.object(
-        job_service_client.JobServiceClient, _TEST_JOB_GET_METHOD_NAME, create=True
+        _TEST_API_CLIENT, _TEST_JOB_GET_METHOD_NAME, create=True
     ) as fake_job_getter_mock:
         fake_job_getter_mock.return_value = {}
         yield fake_job_getter_mock
@@ -165,7 +163,7 @@ def fake_job_getter_mock():
 @pytest.fixture
 def fake_job_cancel_mock():
     with patch.object(
-        job_service_client.JobServiceClient, _TEST_JOB_CANCEL_METHOD_NAME, create=True
+        _TEST_API_CLIENT, _TEST_JOB_CANCEL_METHOD_NAME, create=True
     ) as fake_job_cancel_mock:
         yield fake_job_cancel_mock
 
@@ -209,25 +207,25 @@ class TestJob:
 @pytest.fixture
 def get_batch_prediction_job_mock():
     with patch.object(
-        job_service_client.JobServiceClient, "get_batch_prediction_job"
+        _TEST_API_CLIENT, "get_batch_prediction_job"
     ) as get_batch_prediction_job_mock:
         get_batch_prediction_job_mock.side_effect = [
-            gca_batch_prediction_job.BatchPredictionJob(
+            gca_batch_prediction_job_compat.BatchPredictionJob(
                 name=_TEST_BATCH_PREDICTION_JOB_NAME,
                 display_name=_TEST_DISPLAY_NAME,
                 state=_TEST_JOB_STATE_PENDING,
             ),
-            gca_batch_prediction_job.BatchPredictionJob(
+            gca_batch_prediction_job_compat.BatchPredictionJob(
                 name=_TEST_BATCH_PREDICTION_JOB_NAME,
                 display_name=_TEST_DISPLAY_NAME,
                 state=_TEST_JOB_STATE_RUNNING,
             ),
-            gca_batch_prediction_job.BatchPredictionJob(
+            gca_batch_prediction_job_compat.BatchPredictionJob(
                 name=_TEST_BATCH_PREDICTION_JOB_NAME,
                 display_name=_TEST_DISPLAY_NAME,
                 state=_TEST_JOB_STATE_SUCCESS,
             ),
-            gca_batch_prediction_job.BatchPredictionJob(
+            gca_batch_prediction_job_compat.BatchPredictionJob(
                 name=_TEST_BATCH_PREDICTION_JOB_NAME,
                 display_name=_TEST_DISPLAY_NAME,
                 state=_TEST_JOB_STATE_SUCCESS,
@@ -239,9 +237,9 @@ def get_batch_prediction_job_mock():
 @pytest.fixture
 def create_batch_prediction_job_mock():
     with mock.patch.object(
-        job_service_client.JobServiceClient, "create_batch_prediction_job"
+        _TEST_API_CLIENT, "create_batch_prediction_job"
     ) as create_batch_prediction_job_mock:
-        create_batch_prediction_job_mock.return_value = gca_batch_prediction_job.BatchPredictionJob(
+        create_batch_prediction_job_mock.return_value = gca_batch_prediction_job_compat.BatchPredictionJob(
             name=_TEST_BATCH_PREDICTION_JOB_NAME,
             display_name=_TEST_DISPLAY_NAME,
             state=_TEST_JOB_STATE_SUCCESS,
@@ -252,7 +250,7 @@ def create_batch_prediction_job_mock():
 @pytest.fixture
 def create_batch_prediction_job_mock_fail():
     with mock.patch.object(
-        job_service_client.JobServiceClient, "create_batch_prediction_job"
+        _TEST_API_CLIENT, "create_batch_prediction_job"
     ) as create_batch_prediction_job_mock:
         create_batch_prediction_job_mock.side_effect = RuntimeError("Mock fail")
         yield create_batch_prediction_job_mock
@@ -261,9 +259,9 @@ def create_batch_prediction_job_mock_fail():
 @pytest.fixture
 def create_batch_prediction_job_with_explanations_mock():
     with mock.patch.object(
-        job_service_client_v1beta1.JobServiceClient, "create_batch_prediction_job"
+        _TEST_API_CLIENT, "create_batch_prediction_job"
     ) as create_batch_prediction_job_mock:
-        create_batch_prediction_job_mock.return_value = gca_batch_prediction_job_v1beta1.BatchPredictionJob(
+        create_batch_prediction_job_mock.return_value = gca_batch_prediction_job_compat.BatchPredictionJob(
             name=_TEST_BATCH_PREDICTION_JOB_NAME,
             display_name=_TEST_DISPLAY_NAME,
             state=_TEST_JOB_STATE_SUCCESS,
@@ -274,9 +272,9 @@ def create_batch_prediction_job_with_explanations_mock():
 @pytest.fixture
 def get_batch_prediction_job_gcs_output_mock():
     with patch.object(
-        job_service_client.JobServiceClient, "get_batch_prediction_job"
+        _TEST_API_CLIENT, "get_batch_prediction_job"
     ) as get_batch_prediction_job_mock:
-        get_batch_prediction_job_mock.return_value = gca_batch_prediction_job.BatchPredictionJob(
+        get_batch_prediction_job_mock.return_value = gca_batch_prediction_job_compat.BatchPredictionJob(
             name=_TEST_BATCH_PREDICTION_JOB_NAME,
             display_name=_TEST_DISPLAY_NAME,
             model=_TEST_MODEL_NAME,
@@ -291,9 +289,9 @@ def get_batch_prediction_job_gcs_output_mock():
 @pytest.fixture
 def get_batch_prediction_job_bq_output_mock():
     with patch.object(
-        job_service_client.JobServiceClient, "get_batch_prediction_job"
+        _TEST_API_CLIENT, "get_batch_prediction_job"
     ) as get_batch_prediction_job_mock:
-        get_batch_prediction_job_mock.return_value = gca_batch_prediction_job.BatchPredictionJob(
+        get_batch_prediction_job_mock.return_value = gca_batch_prediction_job_compat.BatchPredictionJob(
             name=_TEST_BATCH_PREDICTION_JOB_NAME,
             display_name=_TEST_DISPLAY_NAME,
             model=_TEST_MODEL_NAME,
@@ -308,9 +306,9 @@ def get_batch_prediction_job_bq_output_mock():
 @pytest.fixture
 def get_batch_prediction_job_incomplete_bq_output_mock():
     with patch.object(
-        job_service_client.JobServiceClient, "get_batch_prediction_job"
+        _TEST_API_CLIENT, "get_batch_prediction_job"
     ) as get_batch_prediction_job_mock:
-        get_batch_prediction_job_mock.return_value = gca_batch_prediction_job.BatchPredictionJob(
+        get_batch_prediction_job_mock.return_value = gca_batch_prediction_job_compat.BatchPredictionJob(
             name=_TEST_BATCH_PREDICTION_JOB_NAME,
             display_name=_TEST_DISPLAY_NAME,
             model=_TEST_MODEL_NAME,
@@ -325,9 +323,9 @@ def get_batch_prediction_job_incomplete_bq_output_mock():
 @pytest.fixture
 def get_batch_prediction_job_empty_output_mock():
     with patch.object(
-        job_service_client.JobServiceClient, "get_batch_prediction_job"
+        _TEST_API_CLIENT, "get_batch_prediction_job"
     ) as get_batch_prediction_job_mock:
-        get_batch_prediction_job_mock.return_value = gca_batch_prediction_job.BatchPredictionJob(
+        get_batch_prediction_job_mock.return_value = gca_batch_prediction_job_compat.BatchPredictionJob(
             name=_TEST_BATCH_PREDICTION_JOB_NAME,
             display_name=_TEST_DISPLAY_NAME,
             model=_TEST_MODEL_NAME,
@@ -342,9 +340,9 @@ def get_batch_prediction_job_empty_output_mock():
 @pytest.fixture
 def get_batch_prediction_job_running_bq_output_mock():
     with patch.object(
-        job_service_client.JobServiceClient, "get_batch_prediction_job"
+        _TEST_API_CLIENT, "get_batch_prediction_job"
     ) as get_batch_prediction_job_mock:
-        get_batch_prediction_job_mock.return_value = gca_batch_prediction_job.BatchPredictionJob(
+        get_batch_prediction_job_mock.return_value = gca_batch_prediction_job_compat.BatchPredictionJob(
             name=_TEST_BATCH_PREDICTION_JOB_NAME,
             display_name=_TEST_DISPLAY_NAME,
             model=_TEST_MODEL_NAME,
@@ -423,7 +421,7 @@ class TestBatchPredictionJob:
         bp.iter_outputs()
 
         bq_list_rows_mock.assert_called_once_with(
-            table=f"{_TEST_BQ_DATASET_ID}.{_TEST_BQ_TABLE_NAME}",
+            table=f"{_TEST_BQ_PROJECT_ID}.{_TEST_BQ_DATASET_ID}.{_TEST_BQ_TABLE_NAME}",
             max_results=_TEST_BQ_MAX_RESULTS,
         )
 
@@ -485,15 +483,17 @@ class TestBatchPredictionJob:
         batch_prediction_job.wait()
 
         # Construct expected request
-        expected_gapic_batch_prediction_job = gca_batch_prediction_job.BatchPredictionJob(
+        expected_gapic_batch_prediction_job = gca_batch_prediction_job_compat.BatchPredictionJob(
             display_name=_TEST_BATCH_PREDICTION_JOB_DISPLAY_NAME,
             model=_TEST_MODEL_NAME,
-            input_config=gca_batch_prediction_job.BatchPredictionJob.InputConfig(
+            input_config=gca_batch_prediction_job_compat.BatchPredictionJob.InputConfig(
                 instances_format="jsonl",
-                gcs_source=gca_io.GcsSource(uris=[_TEST_BATCH_PREDICTION_GCS_SOURCE]),
+                gcs_source=gca_io_compat.GcsSource(
+                    uris=[_TEST_BATCH_PREDICTION_GCS_SOURCE]
+                ),
             ),
-            output_config=gca_batch_prediction_job.BatchPredictionJob.OutputConfig(
-                gcs_destination=gca_io.GcsDestination(
+            output_config=gca_batch_prediction_job_compat.BatchPredictionJob.OutputConfig(
+                gcs_destination=gca_io_compat.GcsDestination(
                     output_uri_prefix=_TEST_BATCH_PREDICTION_GCS_DEST_PREFIX
                 ),
                 predictions_format="jsonl",
@@ -526,19 +526,21 @@ class TestBatchPredictionJob:
 
         assert (
             batch_prediction_job.output_info
-            == gca_batch_prediction_job.BatchPredictionJob.OutputInfo()
+            == gca_batch_prediction_job_compat.BatchPredictionJob.OutputInfo()
         )
 
         # Construct expected request
-        expected_gapic_batch_prediction_job = gca_batch_prediction_job.BatchPredictionJob(
+        expected_gapic_batch_prediction_job = gca_batch_prediction_job_compat.BatchPredictionJob(
             display_name=_TEST_BATCH_PREDICTION_JOB_DISPLAY_NAME,
             model=_TEST_MODEL_NAME,
-            input_config=gca_batch_prediction_job.BatchPredictionJob.InputConfig(
+            input_config=gca_batch_prediction_job_compat.BatchPredictionJob.InputConfig(
                 instances_format="jsonl",
-                gcs_source=gca_io.GcsSource(uris=[_TEST_BATCH_PREDICTION_GCS_SOURCE]),
+                gcs_source=gca_io_compat.GcsSource(
+                    uris=[_TEST_BATCH_PREDICTION_GCS_SOURCE]
+                ),
             ),
-            output_config=gca_batch_prediction_job.BatchPredictionJob.OutputConfig(
-                bigquery_destination=gca_io.BigQueryDestination(
+            output_config=gca_batch_prediction_job_compat.BatchPredictionJob.OutputConfig(
+                bigquery_destination=gca_io_compat.BigQueryDestination(
                     output_uri=_TEST_BATCH_PREDICTION_BQ_DEST_PREFIX_WITH_PROTOCOL
                 ),
                 predictions_format="bigquery",
@@ -583,23 +585,23 @@ class TestBatchPredictionJob:
         batch_prediction_job.wait()
 
         # Construct expected request
-        expected_gapic_batch_prediction_job = gca_batch_prediction_job_v1beta1.BatchPredictionJob(
+        expected_gapic_batch_prediction_job = gca_batch_prediction_job_compat.BatchPredictionJob(
             display_name=_TEST_BATCH_PREDICTION_JOB_DISPLAY_NAME,
             model=_TEST_MODEL_NAME,
-            input_config=gca_batch_prediction_job_v1beta1.BatchPredictionJob.InputConfig(
+            input_config=gca_batch_prediction_job_compat.BatchPredictionJob.InputConfig(
                 instances_format="jsonl",
-                gcs_source=gca_io_v1beta1.GcsSource(
+                gcs_source=gca_io_compat.GcsSource(
                     uris=[_TEST_BATCH_PREDICTION_GCS_SOURCE]
                 ),
             ),
-            output_config=gca_batch_prediction_job_v1beta1.BatchPredictionJob.OutputConfig(
-                gcs_destination=gca_io_v1beta1.GcsDestination(
+            output_config=gca_batch_prediction_job_compat.BatchPredictionJob.OutputConfig(
+                gcs_destination=gca_io_compat.GcsDestination(
                     output_uri_prefix=_TEST_BATCH_PREDICTION_GCS_DEST_PREFIX
                 ),
                 predictions_format="csv",
             ),
-            dedicated_resources=gca_machine_resources_v1beta1.BatchDedicatedResources(
-                machine_spec=gca_machine_resources_v1beta1.MachineSpec(
+            dedicated_resources=gca_machine_resources_compat.BatchDedicatedResources(
+                machine_spec=gca_machine_resources_compat.MachineSpec(
                     machine_type=_TEST_MACHINE_TYPE,
                     accelerator_type=_TEST_ACCELERATOR_TYPE,
                     accelerator_count=_TEST_ACCELERATOR_COUNT,
@@ -608,7 +610,7 @@ class TestBatchPredictionJob:
                 max_replica_count=_TEST_MAX_REPLICA_COUNT,
             ),
             generate_explanation=True,
-            explanation_spec=gca_explanation_v1beta1.ExplanationSpec(
+            explanation_spec=gca_explanation_compat.ExplanationSpec(
                 metadata=_TEST_EXPLANATION_METADATA,
                 parameters=_TEST_EXPLANATION_PARAMETERS,
             ),

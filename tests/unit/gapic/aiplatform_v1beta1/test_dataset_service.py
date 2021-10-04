@@ -740,6 +740,7 @@ def test_get_dataset(
         call.return_value = dataset.Dataset(
             name="name_value",
             display_name="display_name_value",
+            description="description_value",
             metadata_schema_uri="metadata_schema_uri_value",
             etag="etag_value",
         )
@@ -754,6 +755,7 @@ def test_get_dataset(
     assert isinstance(response, dataset.Dataset)
     assert response.name == "name_value"
     assert response.display_name == "display_name_value"
+    assert response.description == "description_value"
     assert response.metadata_schema_uri == "metadata_schema_uri_value"
     assert response.etag == "etag_value"
 
@@ -796,6 +798,7 @@ async def test_get_dataset_async(
             dataset.Dataset(
                 name="name_value",
                 display_name="display_name_value",
+                description="description_value",
                 metadata_schema_uri="metadata_schema_uri_value",
                 etag="etag_value",
             )
@@ -811,6 +814,7 @@ async def test_get_dataset_async(
     assert isinstance(response, dataset.Dataset)
     assert response.name == "name_value"
     assert response.display_name == "display_name_value"
+    assert response.description == "description_value"
     assert response.metadata_schema_uri == "metadata_schema_uri_value"
     assert response.etag == "etag_value"
 
@@ -954,6 +958,7 @@ def test_update_dataset(
         call.return_value = gca_dataset.Dataset(
             name="name_value",
             display_name="display_name_value",
+            description="description_value",
             metadata_schema_uri="metadata_schema_uri_value",
             etag="etag_value",
         )
@@ -968,6 +973,7 @@ def test_update_dataset(
     assert isinstance(response, gca_dataset.Dataset)
     assert response.name == "name_value"
     assert response.display_name == "display_name_value"
+    assert response.description == "description_value"
     assert response.metadata_schema_uri == "metadata_schema_uri_value"
     assert response.etag == "etag_value"
 
@@ -1010,6 +1016,7 @@ async def test_update_dataset_async(
             gca_dataset.Dataset(
                 name="name_value",
                 display_name="display_name_value",
+                description="description_value",
                 metadata_schema_uri="metadata_schema_uri_value",
                 etag="etag_value",
             )
@@ -1025,6 +1032,7 @@ async def test_update_dataset_async(
     assert isinstance(response, gca_dataset.Dataset)
     assert response.name == "name_value"
     assert response.display_name == "display_name_value"
+    assert response.description == "description_value"
     assert response.metadata_schema_uri == "metadata_schema_uri_value"
     assert response.etag == "etag_value"
 
