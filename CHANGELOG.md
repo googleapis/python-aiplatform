@@ -1,5 +1,23 @@
 # Changelog
 
+## [1.5.0](https://www.github.com/googleapis/python-aiplatform/compare/v1.4.3...v1.5.0) (2021-09-30)
+
+
+### Features
+
+* Add data plane code snippets for feature store service ([#713](https://www.github.com/googleapis/python-aiplatform/issues/713)) ([e3ea683](https://www.github.com/googleapis/python-aiplatform/commit/e3ea683bf754832340853a15bdb0a0662500a70f))
+* add flaky test diagnostic script ([#734](https://www.github.com/googleapis/python-aiplatform/issues/734)) ([09e48de](https://www.github.com/googleapis/python-aiplatform/commit/09e48de8b79fb5d601169663c9a8e1c33883f1cf))
+* add vizier service to aiplatform v1 BUILD.bazel ([#731](https://www.github.com/googleapis/python-aiplatform/issues/731)) ([1a580ae](https://www.github.com/googleapis/python-aiplatform/commit/1a580aec158b5e25b94f27a6a9daa3943124c485))
+* code snippets for feature store control plane ([#709](https://www.github.com/googleapis/python-aiplatform/issues/709)) ([8e06ced](https://www.github.com/googleapis/python-aiplatform/commit/8e06ced83ed2cc480d869318c4debef9c28ad214))
+* Updating the Tensorboard uploader to use the new batch write API so it runs more efficiently ([#710](https://www.github.com/googleapis/python-aiplatform/issues/710)) ([9d1b01a](https://www.github.com/googleapis/python-aiplatform/commit/9d1b01a91dc077bfe8edf023216b65b826d67d5f))
+
+
+### Bug Fixes
+
+* [#677](https://www.github.com/googleapis/python-aiplatform/issues/677) ([#728](https://www.github.com/googleapis/python-aiplatform/issues/728)) ([7f548e4](https://www.github.com/googleapis/python-aiplatform/commit/7f548e4b5322055a3c2befcdc9d4eef1bc2278ca))
+* **PipelineJob:** use name as output only field ([#719](https://www.github.com/googleapis/python-aiplatform/issues/719)) ([1c84464](https://www.github.com/googleapis/python-aiplatform/commit/1c84464e3130f9db81cd341306b334f9a490587f))
+* use the project id from BQ dataset instead of the default project id ([#717](https://www.github.com/googleapis/python-aiplatform/issues/717)) ([e87a255](https://www.github.com/googleapis/python-aiplatform/commit/e87a255705a5d04ade79f12c706dc842c0228118))
+
 ### [1.4.3](https://www.github.com/googleapis/python-aiplatform/compare/v1.4.2...v1.4.3) (2021-09-17)
 
 

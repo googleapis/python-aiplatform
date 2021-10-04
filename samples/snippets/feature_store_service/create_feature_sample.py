@@ -12,6 +12,10 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+# Create a single feature for an existing entity type.
+# See https://cloud.google.com/vertex-ai/docs/featurestore/setup before running
+# the code snippet
+
 # [START aiplatform_create_feature_sample]
 from google.cloud import aiplatform_v1beta1 as aiplatform
 
@@ -27,7 +31,8 @@ def create_feature_sample(
     api_endpoint: str = "us-central1-aiplatform.googleapis.com",
     timeout: int = 300,
 ):
-    # The AI Platform services require regional API endpoints.
+    # The AI Platform services require regional API endpoints, which need to be
+    # in the same region or multi-region overlap with the Feature Store location.
     client_options = {"api_endpoint": api_endpoint}
     # Initialize client that will be used to create and send requests.
     # This client only needs to be created once, and can be reused for multiple requests.
