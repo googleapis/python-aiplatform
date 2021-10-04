@@ -3136,8 +3136,8 @@ class AutoMLTabularTrainingJob(_TrainingJob):
 
                 Overrides encryption_spec_key_name set in aiplatform.init.
 
-            Raises:
-                ValueError: When both column_transforations and column_specs were passed
+        Raises:
+            ValueError: If both column_transformations and column_specs were provided.
         """
         super().__init__(
             display_name=display_name,
@@ -3722,6 +3722,9 @@ class AutoMLForecastingTrainingJob(_TrainingJob):
                 If set, the trained Model will be secured by this key.
 
                 Overrides encryption_spec_key_name set in aiplatform.init.
+
+        Raises:
+            ValueError: If both column_transformations and column_specs were provided.
         """
         super().__init__(
             display_name=display_name,
