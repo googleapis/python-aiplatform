@@ -20,6 +20,7 @@ import warnings
 
 from google.cloud.aiplatform import datasets
 
+
 def get_default_column_transformations(
     dataset: datasets._ColumnNamesDataset, target_column: str,
 ) -> Tuple[List[Dict[str, Dict[str, str]]], List[str]]:

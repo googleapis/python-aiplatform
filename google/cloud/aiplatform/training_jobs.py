@@ -4423,7 +4423,7 @@ class AutoMLForecastingTrainingJob(_TrainingJob):
             validation_fraction_split=validation_fraction_split,
             test_fraction_split=test_fraction_split,
             predefined_split_column_name=predefined_split_column_name,
-            timestamp_split_column_name=None, # Not supported by AutoMLForecasting
+            timestamp_split_column_name=None,  # Not supported by AutoMLForecasting
             model=model,
         )
 
