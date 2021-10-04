@@ -17,7 +17,7 @@ from collections import OrderedDict
 from distutils import util
 import os
 import re
-from typing import Callable, Dict, Optional, Sequence, Tuple, Type, Union
+from typing import Dict, Optional, Sequence, Tuple, Type, Union
 import pkg_resources
 
 from google.api_core import client_options as client_options_lib  # type: ignore
@@ -357,7 +357,7 @@ class PredictionServiceClient(metaclass=PredictionServiceClientMeta):
 
     def predict(
         self,
-        request: prediction_service.PredictRequest = None,
+        request: Union[prediction_service.PredictRequest, dict] = None,
         *,
         endpoint: str = None,
         instances: Sequence[struct_pb2.Value] = None,
@@ -369,7 +369,7 @@ class PredictionServiceClient(metaclass=PredictionServiceClientMeta):
         r"""Perform an online prediction.
 
         Args:
-            request (google.cloud.aiplatform_v1.types.PredictRequest):
+            request (Union[google.cloud.aiplatform_v1.types.PredictRequest, dict]):
                 The request object. Request message for
                 [PredictionService.Predict][google.cloud.aiplatform.v1.PredictionService.Predict].
             endpoint (str):
@@ -462,7 +462,7 @@ class PredictionServiceClient(metaclass=PredictionServiceClientMeta):
 
     def raw_predict(
         self,
-        request: prediction_service.RawPredictRequest = None,
+        request: Union[prediction_service.RawPredictRequest, dict] = None,
         *,
         endpoint: str = None,
         http_body: httpbody_pb2.HttpBody = None,
@@ -474,7 +474,7 @@ class PredictionServiceClient(metaclass=PredictionServiceClientMeta):
         payload.
 
         Args:
-            request (google.cloud.aiplatform_v1.types.RawPredictRequest):
+            request (Union[google.cloud.aiplatform_v1.types.RawPredictRequest, dict]):
                 The request object. Request message for
                 [PredictionService.RawPredict][google.cloud.aiplatform.v1.PredictionService.RawPredict].
             endpoint (str):
@@ -607,7 +607,7 @@ class PredictionServiceClient(metaclass=PredictionServiceClientMeta):
 
     def explain(
         self,
-        request: prediction_service.ExplainRequest = None,
+        request: Union[prediction_service.ExplainRequest, dict] = None,
         *,
         endpoint: str = None,
         instances: Sequence[struct_pb2.Value] = None,
@@ -631,7 +631,7 @@ class PredictionServiceClient(metaclass=PredictionServiceClientMeta):
         explanation_spec.
 
         Args:
-            request (google.cloud.aiplatform_v1.types.ExplainRequest):
+            request (Union[google.cloud.aiplatform_v1.types.ExplainRequest, dict]):
                 The request object. Request message for
                 [PredictionService.Explain][google.cloud.aiplatform.v1.PredictionService.Explain].
             endpoint (str):

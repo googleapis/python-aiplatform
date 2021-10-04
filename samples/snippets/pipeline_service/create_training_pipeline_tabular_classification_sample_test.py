@@ -35,6 +35,8 @@ def teardown(teardown_training_pipeline):
 @pytest.mark.skip(reason="https://github.com/googleapis/java-aiplatform/issues/420")
 def test_ucaip_generated_create_training_pipeline_sample(capsys, shared_state):
 
+    shared_state["cancel_batch_prediction_job_timeout"] = 300
+
     create_training_pipeline_tabular_classification_sample.create_training_pipeline_tabular_classification_sample(
         project=PROJECT_ID,
         display_name=DISPLAY_NAME,

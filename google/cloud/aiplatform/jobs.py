@@ -795,9 +795,6 @@ class BatchPredictionJob(_Job):
             if bq_dataset.startswith("bq://"):
                 bq_dataset = bq_dataset[5:]
 
-            # # Split project ID and BQ dataset ID
-            _, bq_dataset_id = bq_dataset.split(".", 1)
-
             # Build a BigQuery Client using the same credentials as JobServiceClient
             bq_client = bigquery.Client(
                 project=self.project,
@@ -805,7 +802,7 @@ class BatchPredictionJob(_Job):
             )
 
             row_iterator = bq_client.list_rows(
-                table=f"{bq_dataset_id}.{bq_table}", max_results=bq_max_results
+                table=f"{bq_dataset}.{bq_table}", max_results=bq_max_results
             )
 
             return row_iterator

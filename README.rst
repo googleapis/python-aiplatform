@@ -1,7 +1,7 @@
 Vertex SDK for Python
 =================================================
 
-|GA| |pypi| |versions|
+|GA| |pypi| |versions| |unit-tests| |system-tests| |sample-tests|
 
 
 `Vertex AI`_: Google Vertex AI is an integrated suite of machine learning tools and services for building and using ML models with AutoML or custom code. It offers both novices and experts the best workbench for the entire machine learning development lifecycle.
@@ -15,6 +15,12 @@ Vertex SDK for Python
    :target: https://pypi.org/project/google-cloud-aiplatform/
 .. |versions| image:: https://img.shields.io/pypi/pyversions/google-cloud-aiplatform.svg
    :target: https://pypi.org/project/google-cloud-aiplatform/
+.. |unit-tests| image:: https://storage.googleapis.com/cloud-devrel-public/python-aiplatform/badges/sdk-unit-tests.svg
+   :target: https://storage.googleapis.com/cloud-devrel-public/python-aiplatform/badges/sdk-unit-tests.html
+.. |system-tests| image:: https://storage.googleapis.com/cloud-devrel-public/python-aiplatform/badges/sdk-system-tests.svg
+   :target: https://storage.googleapis.com/cloud-devrel-public/python-aiplatform/badges/sdk-system-tests.html
+.. |sample-tests| image:: https://storage.googleapis.com/cloud-devrel-public/python-aiplatform/badges/sdk-sample-tests.svg
+   :target: https://storage.googleapis.com/cloud-devrel-public/python-aiplatform/badges/sdk-sample-tests.html
 .. _Vertex AI: https://cloud.google.com/vertex-ai/docs
 .. _Client Library Documentation: https://googleapis.dev/python/aiplatform/latest
 .. _Product Documentation:  https://cloud.google.com/vertex-ai/docs
@@ -386,7 +392,7 @@ To create a Vertex Pipeline run:
 
     # Whether this function call should be synchronous (wait for pipeline run to finish before terminating)
     # or asynchronous (return immediately)
-    sync=sync
+    sync=True
   )
 
 

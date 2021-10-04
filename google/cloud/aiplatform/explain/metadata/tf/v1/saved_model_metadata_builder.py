@@ -17,9 +17,7 @@
 from google.protobuf import json_format
 from typing import Any, Dict, List, Optional
 
-from google.cloud.aiplatform.compat.types import (
-    explanation_metadata_v1beta1 as explanation_metadata,
-)
+from google.cloud.aiplatform.compat.types import explanation_metadata
 from google.cloud.aiplatform.explain.metadata import metadata_builder
 
 

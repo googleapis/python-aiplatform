@@ -370,6 +370,9 @@ class TestPipelineUtils:
                         "int_param": {"type": "INT"},
                         "float_param": {"type": "DOUBLE"},
                         "new_param": {"type": "STRING"},
+                        "bool_param": {"type": "STRING"},
+                        "dict_param": {"type": "STRING"},
+                        "list_param": {"type": "STRING"},
                     }
                 }
             }
@@ -430,7 +433,13 @@ class TestPipelineUtils:
         )
         my_builder.update_pipeline_root("path/to/my/new/root")
         my_builder.update_runtime_parameters(
-            {"int_param": 888, "new_param": "new-string"}
+            {
+                "int_param": 888,
+                "new_param": "new-string",
+                "dict_param": {"a": 1},
+                "list_param": [1, 2, 3],
+                "bool_param": True,
+            }
         )
         actual_runtime_config = my_builder.build()
 
@@ -441,6 +450,9 @@ class TestPipelineUtils:
                 "int_param": {"intValue": 888},
                 "float_param": {"doubleValue": 3.14},
                 "new_param": {"stringValue": "new-string"},
+                "dict_param": {"stringValue": '{"a": 1}'},
+                "list_param": {"stringValue": "[1, 2, 3]"},
+                "bool_param": {"stringValue": "true"},
             },
         }
         assert expected_runtime_config == actual_runtime_config
