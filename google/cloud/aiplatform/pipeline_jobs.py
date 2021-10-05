@@ -60,7 +60,7 @@ def _get_current_time() -> datetime.datetime:
 def _set_enable_caching_value(
     pipeline_spec: Dict[str, Any], 
     enable_caching: bool, 
-    cache_components: List[str]
+    cache_components: Optional[List[str]]
 ) -> None:
     """Sets pipeline tasks caching options.
 
@@ -70,26 +70,23 @@ def _set_enable_caching_value(
      enable_caching (bool):
           Required. Whether to enable caching.
      cache_components (List[str]):
-          Required. List of component names to be cached.
+          Optional. List of component names to be cached.
     """
-    if cache_components is None or enable_caching == False:
-        for component in [pipeline_spec["root"]] + list(
-            pipeline_spec["components"].values()
-        ):
-            if "dag" in component:
-                for task in component["dag"]["tasks"].values():
-                    task["cachingOptions"] = {"enableCache": enable_caching}
-    else:
-        for component in [pipeline_spec["root"]] + list(
-            pipeline_spec["components"].values()
-        ):
-            if "dag" in component:
-                for task_name, task in component["dag"]["tasks"].items():
-                    if task_name in cache_components:
-                        task["cachingOptions"] = {"enableCache": True}
-                    else:
-                        task["cachingOptions"] = {"enableCache": False}                        
-
+    for component in [pipeline_spec["root"]] + list(
+                pipeline_spec["components"].values()):
+        
+        if "dag" in component and (
+            cache_components is None or enable_caching == False
+            ):
+            for task in component["dag"]["tasks"].values():
+                task["cachingOptions"] = {"enableCache": enable_caching}
+                
+        elif "dag" in component:
+            for task_name, task in component["dag"]["tasks"].items():
+                if task_name in cache_components:
+                    task["cachingOptions"] = {"enableCache": True}
+                else:
+                    task["cachingOptions"] = {"enableCache": False}
 
 class PipelineJob(base.VertexAiResourceNounWithFutureManager):
 
