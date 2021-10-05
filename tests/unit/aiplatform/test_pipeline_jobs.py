@@ -30,12 +30,12 @@ from google.cloud.aiplatform import pipeline_jobs
 from google.cloud.aiplatform import initializer
 from google.protobuf import json_format
 
-from google.cloud.aiplatform_v1beta1.services.pipeline_service import (
-    client as pipeline_service_client_v1beta1,
+from google.cloud.aiplatform_v1.services.pipeline_service import (
+    client as pipeline_service_client_v1,
 )
-from google.cloud.aiplatform_v1beta1.types import (
-    pipeline_job as gca_pipeline_job_v1beta1,
-    pipeline_state as gca_pipeline_state_v1beta1,
+from google.cloud.aiplatform_v1.types import (
+    pipeline_job as gca_pipeline_job_v1,
+    pipeline_state as gca_pipeline_state_v1,
 )
 
 _TEST_PROJECT = "test-project"
@@ -78,11 +78,11 @@ _TEST_PIPELINE_CREATE_TIME = datetime.now()
 @pytest.fixture
 def mock_pipeline_service_create():
     with mock.patch.object(
-        pipeline_service_client_v1beta1.PipelineServiceClient, "create_pipeline_job"
+        pipeline_service_client_v1.PipelineServiceClient, "create_pipeline_job"
     ) as mock_create_pipeline_job:
-        mock_create_pipeline_job.return_value = gca_pipeline_job_v1beta1.PipelineJob(
+        mock_create_pipeline_job.return_value = gca_pipeline_job_v1.PipelineJob(
             name=_TEST_PIPELINE_JOB_NAME,
-            state=gca_pipeline_state_v1beta1.PipelineState.PIPELINE_STATE_SUCCEEDED,
+            state=gca_pipeline_state_v1.PipelineState.PIPELINE_STATE_SUCCEEDED,
             create_time=_TEST_PIPELINE_CREATE_TIME,
             service_account=_TEST_SERVICE_ACCOUNT,
             network=_TEST_NETWORK,
@@ -91,7 +91,7 @@ def mock_pipeline_service_create():
 
 
 def make_pipeline_job(state):
-    return gca_pipeline_job_v1beta1.PipelineJob(
+    return gca_pipeline_job_v1.PipelineJob(
         name=_TEST_PIPELINE_JOB_NAME,
         state=state,
         create_time=_TEST_PIPELINE_CREATE_TIME,
@@ -103,35 +103,35 @@ def make_pipeline_job(state):
 @pytest.fixture
 def mock_pipeline_service_get():
     with mock.patch.object(
-        pipeline_service_client_v1beta1.PipelineServiceClient, "get_pipeline_job"
+        pipeline_service_client_v1.PipelineServiceClient, "get_pipeline_job"
     ) as mock_get_pipeline_job:
         mock_get_pipeline_job.side_effect = [
             make_pipeline_job(
-                gca_pipeline_state_v1beta1.PipelineState.PIPELINE_STATE_RUNNING
+                gca_pipeline_state_v1.PipelineState.PIPELINE_STATE_RUNNING
             ),
             make_pipeline_job(
-                gca_pipeline_state_v1beta1.PipelineState.PIPELINE_STATE_SUCCEEDED
+                gca_pipeline_state_v1.PipelineState.PIPELINE_STATE_SUCCEEDED
             ),
             make_pipeline_job(
-                gca_pipeline_state_v1beta1.PipelineState.PIPELINE_STATE_SUCCEEDED
+                gca_pipeline_state_v1.PipelineState.PIPELINE_STATE_SUCCEEDED
             ),
             make_pipeline_job(
-                gca_pipeline_state_v1beta1.PipelineState.PIPELINE_STATE_SUCCEEDED
+                gca_pipeline_state_v1.PipelineState.PIPELINE_STATE_SUCCEEDED
             ),
             make_pipeline_job(
-                gca_pipeline_state_v1beta1.PipelineState.PIPELINE_STATE_SUCCEEDED
+                gca_pipeline_state_v1.PipelineState.PIPELINE_STATE_SUCCEEDED
             ),
             make_pipeline_job(
-                gca_pipeline_state_v1beta1.PipelineState.PIPELINE_STATE_SUCCEEDED
+                gca_pipeline_state_v1.PipelineState.PIPELINE_STATE_SUCCEEDED
             ),
             make_pipeline_job(
-                gca_pipeline_state_v1beta1.PipelineState.PIPELINE_STATE_SUCCEEDED
+                gca_pipeline_state_v1.PipelineState.PIPELINE_STATE_SUCCEEDED
             ),
             make_pipeline_job(
-                gca_pipeline_state_v1beta1.PipelineState.PIPELINE_STATE_SUCCEEDED
+                gca_pipeline_state_v1.PipelineState.PIPELINE_STATE_SUCCEEDED
             ),
             make_pipeline_job(
-                gca_pipeline_state_v1beta1.PipelineState.PIPELINE_STATE_SUCCEEDED
+                gca_pipeline_state_v1.PipelineState.PIPELINE_STATE_SUCCEEDED
             ),
         ]
 
@@ -141,17 +141,17 @@ def mock_pipeline_service_get():
 @pytest.fixture
 def mock_pipeline_service_get_with_fail():
     with mock.patch.object(
-        pipeline_service_client_v1beta1.PipelineServiceClient, "get_pipeline_job"
+        pipeline_service_client_v1.PipelineServiceClient, "get_pipeline_job"
     ) as mock_get_pipeline_job:
         mock_get_pipeline_job.side_effect = [
             make_pipeline_job(
-                gca_pipeline_state_v1beta1.PipelineState.PIPELINE_STATE_RUNNING
+                gca_pipeline_state_v1.PipelineState.PIPELINE_STATE_RUNNING
             ),
             make_pipeline_job(
-                gca_pipeline_state_v1beta1.PipelineState.PIPELINE_STATE_RUNNING
+                gca_pipeline_state_v1.PipelineState.PIPELINE_STATE_RUNNING
             ),
             make_pipeline_job(
-                gca_pipeline_state_v1beta1.PipelineState.PIPELINE_STATE_FAILED
+                gca_pipeline_state_v1.PipelineState.PIPELINE_STATE_FAILED
             ),
         ]
 
@@ -161,7 +161,7 @@ def mock_pipeline_service_get_with_fail():
 @pytest.fixture
 def mock_pipeline_service_cancel():
     with mock.patch.object(
-        pipeline_service_client_v1beta1.PipelineServiceClient, "cancel_pipeline_job"
+        pipeline_service_client_v1.PipelineServiceClient, "cancel_pipeline_job"
     ) as mock_cancel_pipeline_job:
         yield mock_cancel_pipeline_job
 
@@ -169,7 +169,7 @@ def mock_pipeline_service_cancel():
 @pytest.fixture
 def mock_pipeline_service_list():
     with mock.patch.object(
-        pipeline_service_client_v1beta1.PipelineServiceClient, "list_pipeline_jobs"
+        pipeline_service_client_v1.PipelineServiceClient, "list_pipeline_jobs"
     ) as mock_list_pipeline_jobs:
         yield mock_list_pipeline_jobs
 
@@ -230,11 +230,11 @@ class TestPipelineJob:
             "gcs_output_directory": _TEST_GCS_BUCKET_NAME,
             "parameters": {"name_param": {"stringValue": "hello"}},
         }
-        runtime_config = gca_pipeline_job_v1beta1.PipelineJob.RuntimeConfig()._pb
+        runtime_config = gca_pipeline_job_v1.PipelineJob.RuntimeConfig()._pb
         json_format.ParseDict(expected_runtime_config_dict, runtime_config)
 
         # Construct expected request
-        expected_gapic_pipeline_job = gca_pipeline_job_v1beta1.PipelineJob(
+        expected_gapic_pipeline_job = gca_pipeline_job_v1.PipelineJob(
             display_name=_TEST_PIPELINE_JOB_DISPLAY_NAME,
             pipeline_spec={
                 "components": {},
@@ -255,7 +255,7 @@ class TestPipelineJob:
         mock_pipeline_service_get.assert_called_with(name=_TEST_PIPELINE_JOB_NAME)
 
         assert job._gca_resource == make_pipeline_job(
-            gca_pipeline_state_v1beta1.PipelineState.PIPELINE_STATE_SUCCEEDED
+            gca_pipeline_state_v1.PipelineState.PIPELINE_STATE_SUCCEEDED
         )
 
     @pytest.mark.usefixtures("mock_pipeline_service_get")

@@ -477,8 +477,9 @@ class PipelineClientWithOverride(ClientWithOverride):
 
 class PipelineJobClientWithOverride(ClientWithOverride):
     _is_temporary = True
-    _default_version = compat.V1BETA1
+    _default_version = compat.DEFAULT_VERSION
     _version_map = (
+        (compat.V1, pipeline_service_client_v1.PipelineServiceClient),
         (compat.V1BETA1, pipeline_service_client_v1beta1.PipelineServiceClient),
     )
 
