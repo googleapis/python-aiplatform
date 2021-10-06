@@ -270,9 +270,7 @@ class PipelineJob(base.VertexAiResourceNounWithFutureManager):
 
         False otherwise.
         """
-        return (
-            self.state == gca_pipeline_state_v1.PipelineState.PIPELINE_STATE_FAILED
-        )
+        return self.state == gca_pipeline_state_v1.PipelineState.PIPELINE_STATE_FAILED
 
     def _dashboard_uri(self) -> str:
         """Helper method to compose the dashboard uri where pipeline can be
