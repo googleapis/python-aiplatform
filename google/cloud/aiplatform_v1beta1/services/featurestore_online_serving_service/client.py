@@ -17,7 +17,7 @@ from collections import OrderedDict
 from distutils import util
 import os
 import re
-from typing import Callable, Dict, Optional, Iterable, Sequence, Tuple, Type, Union
+from typing import Dict, Optional, Iterable, Sequence, Tuple, Type, Union
 import pkg_resources
 
 from google.api_core import client_options as client_options_lib  # type: ignore
@@ -367,7 +367,9 @@ class FeaturestoreOnlineServingServiceClient(
 
     def read_feature_values(
         self,
-        request: featurestore_online_service.ReadFeatureValuesRequest = None,
+        request: Union[
+            featurestore_online_service.ReadFeatureValuesRequest, dict
+        ] = None,
         *,
         entity_type: str = None,
         retry: retries.Retry = gapic_v1.method.DEFAULT,
@@ -380,7 +382,7 @@ class FeaturestoreOnlineServingServiceClient(
         StreamingReadFeatureValues.
 
         Args:
-            request (google.cloud.aiplatform_v1beta1.types.ReadFeatureValuesRequest):
+            request (Union[google.cloud.aiplatform_v1beta1.types.ReadFeatureValuesRequest, dict]):
                 The request object. Request message for
                 [FeaturestoreOnlineServingService.ReadFeatureValues][google.cloud.aiplatform.v1beta1.FeaturestoreOnlineServingService.ReadFeatureValues].
             entity_type (str):
@@ -449,7 +451,9 @@ class FeaturestoreOnlineServingServiceClient(
 
     def streaming_read_feature_values(
         self,
-        request: featurestore_online_service.StreamingReadFeatureValuesRequest = None,
+        request: Union[
+            featurestore_online_service.StreamingReadFeatureValuesRequest, dict
+        ] = None,
         *,
         entity_type: str = None,
         retry: retries.Retry = gapic_v1.method.DEFAULT,
@@ -461,7 +465,7 @@ class FeaturestoreOnlineServingServiceClient(
         up across multiple responses.
 
         Args:
-            request (google.cloud.aiplatform_v1beta1.types.StreamingReadFeatureValuesRequest):
+            request (Union[google.cloud.aiplatform_v1beta1.types.StreamingReadFeatureValuesRequest, dict]):
                 The request object. Request message for
                 [FeaturestoreOnlineServingService.StreamingFeatureValuesRead][].
             entity_type (str):
