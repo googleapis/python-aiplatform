@@ -141,18 +141,11 @@ class Endpoint(base.VertexAiResourceNounWithFutureManager):
                 resource_name=self._gca_resource.name
             )
 
-    def _sync_gca_resource(self) -> None:
-        """Sync GAPIC service representation of Endpoint resource once."""
-        if self._skipped_getter_call():
-            self._sync_gca_resource_if_skipped()
-        else:
-            super()._sync_gca_resource()
-
     def _assert_gca_resource_is_available(self) -> None:
         """Ensures Endpoint getter was called at least once before
         asserting on gca_resource's availability."""
-        self._sync_gca_resource_if_skipped()
         super()._assert_gca_resource_is_available()
+        self._sync_gca_resource_if_skipped()
 
     @property
     def traffic_split(self) -> Dict[str, int]:
