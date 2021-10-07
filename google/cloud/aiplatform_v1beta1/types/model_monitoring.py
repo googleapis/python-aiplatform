@@ -31,6 +31,7 @@ __protobuf__ = proto.module(
 
 class ModelMonitoringObjectiveConfig(proto.Message):
     r"""Next ID: 6
+
     Attributes:
         training_dataset (google.cloud.aiplatform_v1beta1.types.ModelMonitoringObjectiveConfig.TrainingDataset):
             Training dataset for models. This field has
@@ -49,6 +50,7 @@ class ModelMonitoringObjectiveConfig(proto.Message):
 
     class TrainingDataset(proto.Message):
         r"""Training Dataset information.
+
         Attributes:
             dataset (str):
                 The resource name of the Dataset used to
@@ -121,6 +123,7 @@ class ModelMonitoringObjectiveConfig(proto.Message):
 
     class PredictionDriftDetectionConfig(proto.Message):
         r"""The config for Prediction data drift detection.
+
         Attributes:
             drift_thresholds (Sequence[google.cloud.aiplatform_v1beta1.types.ModelMonitoringObjectiveConfig.PredictionDriftDetectionConfig.DriftThresholdsEntry]):
                 Key is the feature name and value is the
@@ -220,6 +223,7 @@ class ModelMonitoringObjectiveConfig(proto.Message):
 
 class ModelMonitoringAlertConfig(proto.Message):
     r"""Next ID: 2
+
     Attributes:
         email_alert_config (google.cloud.aiplatform_v1beta1.types.ModelMonitoringAlertConfig.EmailAlertConfig):
             Email alert config.
@@ -227,6 +231,7 @@ class ModelMonitoringAlertConfig(proto.Message):
 
     class EmailAlertConfig(proto.Message):
         r"""The config for email alert.
+
         Attributes:
             user_emails (Sequence[str]):
                 The email addresses to send the alert.
@@ -274,6 +279,7 @@ class SamplingStrategy(proto.Message):
 
     class RandomSampleConfig(proto.Message):
         r"""Requests are randomly selected.
+
         Attributes:
             sample_rate (float):
                 Sample rate (0, 1]

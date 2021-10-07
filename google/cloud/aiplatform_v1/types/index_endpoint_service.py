@@ -271,7 +271,8 @@ class UndeployIndexRequest(proto.Message):
 class UndeployIndexResponse(proto.Message):
     r"""Response message for
     [IndexEndpointService.UndeployIndex][google.cloud.aiplatform.v1.IndexEndpointService.UndeployIndex].
-        """
+
+    """
 
 
 class UndeployIndexOperationMetadata(proto.Message):

@@ -52,6 +52,7 @@ class MetadataStore(proto.Message):
 
     class MetadataStoreState(proto.Message):
         r"""Represents state information for a MetadataStore.
+
         Attributes:
             disk_utilization_bytes (int):
                 The disk utilization of the MetadataStore in

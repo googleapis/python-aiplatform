@@ -26,6 +26,7 @@ __protobuf__ = proto.module(
 
 class VideoClassificationPredictionInstance(proto.Message):
     r"""Prediction input format for Video Classification.
+
     Attributes:
         content (str):
             The Google Cloud Storage location of the

@@ -82,12 +82,23 @@ class PredictResponse(proto.Message):
         deployed_model_id (str):
             ID of the Endpoint's DeployedModel that
             served this prediction.
+        model (str):
+            Output only. The name of the Model this
+            DeployedModel, that served this prediction, was
+            created from.
+        model_display_name (str):
+            Output only. The [display
+            name][google.cloud.aiplatform.v1beta1.Model.display_name] of
+            the Model this DeployedModel, that served this prediction,
+            was created from.
     """
 
     predictions = proto.RepeatedField(
         proto.MESSAGE, number=1, message=struct_pb2.Value,
     )
     deployed_model_id = proto.Field(proto.STRING, number=2,)
+    model = proto.Field(proto.STRING, number=3,)
+    model_display_name = proto.Field(proto.STRING, number=4,)
 
 
 class RawPredictRequest(proto.Message):

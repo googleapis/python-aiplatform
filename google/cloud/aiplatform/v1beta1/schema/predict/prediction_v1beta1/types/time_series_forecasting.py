@@ -24,6 +24,7 @@ __protobuf__ = proto.module(
 
 class TimeSeriesForecastingPredictionResult(proto.Message):
     r"""Prediction output format for Time Series Forecasting.
+
     Attributes:
         value (float):
             The regression value.

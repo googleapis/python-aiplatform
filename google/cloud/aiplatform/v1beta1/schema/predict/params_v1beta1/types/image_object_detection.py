@@ -24,6 +24,7 @@ __protobuf__ = proto.module(
 
 class ImageObjectDetectionPredictionParams(proto.Message):
     r"""Prediction model parameters for Image Object Detection.
+
     Attributes:
         confidence_threshold (float):
             The Model only returns predictions with at

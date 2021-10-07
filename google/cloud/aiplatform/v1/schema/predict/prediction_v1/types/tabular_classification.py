@@ -24,6 +24,7 @@ __protobuf__ = proto.module(
 
 class TabularClassificationPredictionResult(proto.Message):
     r"""Prediction output format for Tabular Classification.
+
     Attributes:
         classes (Sequence[str]):
             The name of the classes being classified,

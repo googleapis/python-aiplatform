@@ -26,6 +26,7 @@ __protobuf__ = proto.module(
 
 class Artifact(proto.Message):
     r"""Instance of a general artifact.
+
     Attributes:
         name (str):
             Output only. The resource name of the

@@ -26,6 +26,7 @@ __protobuf__ = proto.module(
 
 class ImageClassificationPredictionParams(proto.Message):
     r"""Prediction model parameters for Image Classification.
+
     Attributes:
         confidence_threshold (float):
             The Model only returns predictions with at
