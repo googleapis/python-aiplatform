@@ -224,22 +224,28 @@ class OnePlatformResourceManager(object):
                         filter="display_name = {}".format(json.dumps(str(tag_name))),
                     )
                 )
-                if not list_of_time_series:
+                num = 0
+                time_series = None
+
+                for ts in list_of_time_series:
+                    num += 1
+                    if num > 1:
+                        break
+                    time_series = ts
+
+                if not time_series:
                     raise ExistingResourceNotFoundError(
                         "Could not find time series resource with display name: {}".format(
                             tag_name
                         )
                     )
 
-                if len(list_of_time_series) > 1:
+                if num != 1:
                     raise ValueError(
                         "More than one time series resource found with display_name: {}".format(
                             tag_name
                         )
                     )
-
-                time_series = list_of_time_series[0]
-
             else:
                 raise
         return time_series
@@ -313,22 +319,28 @@ class TimeSeriesResourceManager(object):
                     )
                 )
 
-                if not list_of_time_series:
+                num = 0
+                time_series = None
+
+                for ts in list_of_time_series:
+                    num += 1
+                    if num > 1:
+                        break
+                    time_series = ts
+
+                if not time_series:
                     raise ExistingResourceNotFoundError(
                         "Could not find time series resource with display name: {}".format(
-                            tag_name,
+                            tag_name
                         )
                     )
 
-                if len(list_of_time_series) > 1:
+                if num != 1:
                     raise ValueError(
                         "More than one time series resource found with display_name: {}".format(
-                            tag_name,
+                            tag_name
                         )
                     )
-
-                time_series = list_of_time_series[0]
-
             else:
                 raise
 
