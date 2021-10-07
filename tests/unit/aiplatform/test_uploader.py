@@ -338,8 +338,8 @@ def _create_file_request_sender(
         max_blob_size=max_blob_size,
         blob_storage_bucket=blob_storage_bucket,
         blob_storage_folder=blob_storage_folder,
-        source_bucket=source_bucket,
         tracker=upload_tracker.UploadTracker(verbosity=0),
+        source_bucket=source_bucket,
     )
 
 

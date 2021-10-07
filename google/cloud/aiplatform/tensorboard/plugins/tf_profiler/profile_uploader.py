@@ -23,9 +23,11 @@ import re
 from typing import (
     DefaultDict,
     Dict,
+    Generator,
     List,
     Optional,
     Set,
+    Tuple,
 )
 
 import grpc
@@ -79,30 +81,40 @@ class ProfileRequestSender(uploader_utils.RequestSender):
         upload_limits: server_info_pb2.UploadLimits,
         blob_rpc_rate_limiter: util.RateLimiter,
         blob_storage_bucket: storage.Bucket,
-        source_bucket: storage.Bucket,
         blob_storage_folder: str,
         tracker: upload_tracker.UploadTracker,
         logdir: str,
+        source_bucket: Optional[storage.Bucket],
     ):
         """Constructs ProfileRequestSender for the given experiment resource.
 
         Args:
-          experiment_resource_name: Name of the experiment resource of the form
-            projects/{project}/locations/{location}/tensorboards/{tensorboard}/experiments/{experiment}
-          api: Tensorboard service stub used to interact with experiment resource.
-          upload_limits: Upload limits for for api calls.
-          blob_rpc_rate_limiter: a `RateLimiter` to use to limit write RPC frequency.
-            Note this limit applies at the level of single RPCs in the Scalar and
-            Tensor case, but at the level of an entire blob upload in the Blob
-            case-- which may require a few preparatory RPCs and a stream of chunks.
-            Note the chunk stream is internally rate-limited by backpressure from
-            the server, so it is not a concern that we do not explicitly rate-limit
-            within the stream here.
-          blob_storage_bucket: A `storage.Bucket` to send all blob files to.
-          source_bucket: The user's specified `storage.Bucket` to save events to.
-          blob_storage_folder: Name of the folder to save blob files to within the blob_storage_bucket.
-          tracker: Upload tracker to track information about uploads.
-          logdir: The log directory for the request sender to search.
+            experiment_resource_name (str):
+                Required. Name of the experiment resource of the form:
+                    projects/{project}/locations/{location}/tensorboards/{tensorboard}/experiments/{experiment}
+            api (TensorboardServiceClient):
+                Required. Tensorboard service stub used to interact with experiment resource.
+            upload_limits (server_info_pb2.UploadLimits):
+                Required. Upload limits for for api calls.
+            blob_rpc_rate_limiter (util.RateLimiter):
+                Required. A `RateLimiter` to use to limit write RPC frequency.
+                Note this limit applies at the level of single RPCs in the Scalar and
+                Tensor case, but at the level of an entire blob upload in the Blob
+                case-- which may require a few preparatory RPCs and a stream of chunks.
+                Note the chunk stream is internally rate-limited by backpressure from
+                the server, so it is not a concern that we do not explicitly rate-limit
+                within the stream here.
+            blob_storage_bucket (storage.Bucket):
+                Required. A `storage.Bucket` to send all blob files to.
+            blob_storage_folder (str):
+                Required. Name of the folder to save blob files to within the blob_storage_bucket.
+            tracker (upload_tracker.UploadTracker):
+                Required. Upload tracker to track information about uploads.
+            logdir (str).
+                Required. The log directory for the request sender to search.
+            source_bucket (Optional[storage.Bucket]):
+                Optional. The user's specified `storage.Bucket` to save events to. If a user is uploading from
+                a local directory, this can be None.
         """
         self._experiment_resource_name = experiment_resource_name
         self._api = api
@@ -135,7 +147,8 @@ class ProfileRequestSender(uploader_utils.RequestSender):
         been created for the profile plugin.
 
         Args:
-            run_name: string representing the run name.
+            run_name (str):
+                Required. String representing the run name.
 
         Returns:
             True if is a valid profile plugin event, False otherwise.
@@ -147,7 +160,8 @@ class ProfileRequestSender(uploader_utils.RequestSender):
         """Converts run name to full profile path.
 
         Args:
-            run_name: Name of training run.
+            run_name (str):
+                Required. Name of training run.
 
         Returns:
             Full path for run name.
@@ -158,7 +172,8 @@ class ProfileRequestSender(uploader_utils.RequestSender):
         """Accepts run_name and sends an RPC request if an event is detected.
 
         Args:
-          run_name: Name of the training run.
+            run_name (str):
+                Required. Name of the training run.
         """
 
         if not self._is_valid_event(run_name):
@@ -212,7 +227,8 @@ class _ProfileSessionLoader(object):
         """Create a loader for profiling sessions with a training run.
 
         Args:
-            path: Path to the training run, which contains one or more profiling
+            path (str):
+                Required. Path to the training run, which contains one or more profiling
                 sessions. Path should end with '/profile/plugin'.
         """
         self._path = path
@@ -225,7 +241,8 @@ class _ProfileSessionLoader(object):
         /some/path/to/dir/plugins/profile/%Y_%m_%d_%H_%M_%S
 
         Args:
-            path: string representing a full directory path.
+            path (str):
+                Required. String representing a full directory path.
 
         Returns:
             True if valid path and path matches the filter, False otherwise.
@@ -240,11 +257,14 @@ class _ProfileSessionLoader(object):
         files.
 
         Args:
-            prof_session: string of the profiling session name.
-            path: directory of the profiling session.
+            prof_session (str):
+                Required. The profiling session name.
+            path (str):
+                Required. Directory of the profiling session.
 
         Returns:
-            Files that have not been tracked yet.
+            files (List[str]):
+                Files that have not been tracked yet.
         """
 
         files = []
@@ -256,7 +276,7 @@ class _ProfileSessionLoader(object):
         self._prof_session_to_files[prof_session].update(files)
         return files
 
-    def prof_sessions_to_files(self):
+    def prof_sessions_to_files(self) -> Generator[Tuple[str, List[str]], None, None]:
         """Map files to a profile session.
 
         Yields:
@@ -303,10 +323,39 @@ class _FileRequestSender(object):
         max_blob_request_size: int,
         max_blob_size: int,
         blob_storage_bucket: storage.Bucket,
-        source_bucket: storage.Bucket,
         blob_storage_folder: str,
         tracker: upload_tracker.UploadTracker,
+        source_bucket: Optional[storage.Bucket] = None,
     ):
+        """Creates a _FileRequestSender object.
+
+        Args:
+            run_resource_id (str):
+                Required. Name of the run resource of the form:
+                    projects/{project}/locations/{location}/tensorboards/{tensorboard}/experiments/{experiment}/runs/{run}
+            api (TensorboardServiceClient):
+                Required. TensorboardServiceStub for calling various tensorboard services.
+            rpc_rate_limiter (util.RateLimiter):
+                Required. A `RateLimiter` to use to limit write RPC frequency.
+                Note this limit applies at the level of single RPCs in the Scalar and
+                Tensor case, but at the level of an entire blob upload in the Blob
+                case-- which may require a few preparatory RPCs and a stream of chunks.
+                Note the chunk stream is internally rate-limited by backpressure from
+                the server, so it is not a concern that we do not explicitly rate-limit
+                within the stream here.
+            max_blob_request_size (int):
+                Required. Maximum request size to send.
+            max_blob_size (int):
+                Required. Maximum size in bytes of the blobs to send.
+            blob_storage_bucket (storage.Bucket):
+                Required. Bucket to send event files to.
+            blob_storage_folder (str):
+                Required. The folder to save blob files to.
+            tracker (upload_tracker.UploadTracker):
+                Required. Track any uploads to backend.
+            source_bucket (storage.Bucket):
+                Optional. The source bucket to upload from. If not set, use local filesystem instead.
+        """
         self._run_resource_id = run_resource_id
         self._api = api
         self._rpc_rate_limiter = rpc_rate_limiter
@@ -346,11 +395,14 @@ class _FileRequestSender(object):
         Files are flushed immediately, opposed to some of the other request senders.
 
         Args:
-            files: List of strings representing the path to the files to upload.
-            tag: A unique identifier for the blob sequence.
-            plugin: Name of the plugin making the request.
-            event_timestamp: A `timestamp.Timestamp` object for the time the
-                event is created.
+            files (List[str]):
+                Required. The paths of the files to upload.
+            tag (str):
+                Required. A unique identifier for the blob sequence.
+            plugin (str):
+                Required. Name of the plugin making the request.
+            event_timestamp (timestamp.Timestamp):
+                Required. The time the event is created.
         """
 
         for prof_file in files:
@@ -435,8 +487,18 @@ class _FileRequestSender(object):
             except grpc.RpcError as e:
                 logger.error("Upload call failed with error %s", e)
 
-    def _file_too_large(self, file: str):
-        file_size = tf.io.gfile.stat(file).length
+    def _file_too_large(self, filename: str) -> bool:
+        """Determines if a file is too large to upload.
+
+        Args:
+            filename (str):
+                Required. The filename to check.
+
+        Returns:
+            True if too large, False otherwise.
+        """
+
+        file_size = tf.io.gfile.stat(filename).length
         if file_size > self._max_blob_size:
             logger.warning(
                 "Blob too large; skipping.  Size %d exceeds limit of %d bytes.",
@@ -446,24 +508,43 @@ class _FileRequestSender(object):
             return True
         return False
 
-    def _upload(self, file, blob_path_prefix):
-        """Move files between either a local directory or a bucket and the tenant bucket."""
-        blob_id = os.path.basename(file)
+    def _upload(self, filename: str, blob_path_prefix: Optional[str] = None) -> str:
+        """Copies files between either a local directory or a bucket and the tenant bucket.
+
+        Args:
+            filename (str):
+                Required. The full path of the file to upload.
+            blob_path_prefix (str):
+                Optional. Path prefix for the location to store the file.
+
+        Returns:
+            blob_id (str):
+                The base path of the file.
+        """
+        blob_id = os.path.basename(filename)
         blob_path = (
             "{}/{}".format(blob_path_prefix, blob_id) if blob_path_prefix else blob_id
         )
 
         # Source bucket indicates files are storage on cloud storage
         if self._source_bucket:
-            self._copy_between_buckets(file, blob_path)
+            self._copy_between_buckets(filename, blob_path)
         else:
-            self._upload_from_local(file, blob_path)
+            self._upload_from_local(filename, blob_path)
 
         return blob_id
 
-    def _copy_between_buckets(self, file, blob_path):
-        """Move files between the user's bucket and the tenant bucket."""
-        blob_name = _get_blob_from_file(file)
+    def _copy_between_buckets(self, filename: str, blob_path: str):
+        """Move files between the user's bucket and the tenant bucket.
+
+        Args:
+            filename (str):
+                Required. Full path of the file to upload.
+            blob_path (str):
+                Required. A bucket path to upload the file to.
+
+        """
+        blob_name = _get_blob_from_file(filename)
 
         source_blob = self._source_bucket.blob(blob_name)
 
@@ -471,19 +552,29 @@ class _FileRequestSender(object):
             source_blob, self._bucket, blob_path,
         )
 
-    def _upload_from_local(self, file, blob_path):
+    def _upload_from_local(self, filename: str, blob_path: str):
+        """Uploads a local file to the tenant bucket.
+
+        Args:
+            filename (str):
+                Required. Full path of the file to upload.
+            blob_path (str):
+                Required. A bucket path to upload the file to.a
+        """
         blob = self._bucket.blob(blob_path)
-        blob.upload_from_filename(file)
+        blob.upload_from_filename(filename)
 
 
 def _get_blob_from_file(fp: str) -> Optional[str]:
     """Gets blob name from a storage bucket.
 
     Args:
-        fp: string representing a file path
+        fp (str):
+            Required. A file path.
 
     Returns:
-        Base blob file name if it exists, else None
+        blob_name (str):
+            Optional. Base blob file name if it exists, else None
     """
     m = re.match(r"gs:\/\/.*?\/(.*)", fp)
     if not m:
@@ -498,9 +589,10 @@ def _prune_empty_time_series_from_blob(
     """Removes empty time_series from request if there are no blob files.'
 
     Args:
-        request: A write request for blob files.
+        request (tensorboard_service.WriteTensorboardRunDataRequest):
+            Required. A write request for blob files.
     """
-    for (time_series_idx, time_series_data) in reversed(
+    for time_series_idx, time_series_data in reversed(
         list(enumerate(request.time_series_data))
     ):
         if not any(x.blobs for x in time_series_data.values):

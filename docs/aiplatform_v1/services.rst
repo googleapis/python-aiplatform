@@ -13,3 +13,4 @@ Services for Google Cloud Aiplatform v1 API
     pipeline_service
     prediction_service
     specialist_pool_service
+    vizier_service

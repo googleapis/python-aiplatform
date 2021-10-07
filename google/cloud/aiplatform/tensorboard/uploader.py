@@ -340,6 +340,7 @@ class TensorBoardUploader(object):
                     "Profile plugin currently only supported for one shot."
                 )
             source_bucket = uploader_utils.get_source_bucket(self._logdir)
+
             self._additional_senders["profile"] = functools.partial(
                 profile_uploader.ProfileRequestSender,
                 api=self._api,

@@ -13,7 +13,7 @@ Python Client for Cloud AI Platform
 - `Product Documentation`_
 
 .. |beta| image:: https://img.shields.io/badge/support-beta-orange.svg
-   :target: https://github.com/googleapis/google-cloud-python/blob/master/README.rst#beta-support
+   :target: https://github.com/googleapis/google-cloud-python/blob/main/README.rst#beta-support
 .. |pypi| image:: https://img.shields.io/pypi/v/google-cloud-aiplatform.svg
    :target: https://pypi.org/project/google-cloud-aiplatform/
 .. |versions| image:: https://img.shields.io/pypi/pyversions/google-cloud-aiplatform.svg
@@ -83,4 +83,4 @@ Next Steps
    APIs that we cover.
 
 .. _Cloud AI Platform API Product documentation:  https://cloud.google.com/ai-platform/docs
-.. _README: https://github.com/googleapis/google-cloud-python/blob/master/README.rst
+.. _README: https://github.com/googleapis/google-cloud-python/blob/main/README.rst
