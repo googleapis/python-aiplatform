@@ -23,6 +23,7 @@ __protobuf__ = proto.module(
 
 class DeployedModelRef(proto.Message):
     r"""Points to a DeployedModel.
+
     Attributes:
         endpoint (str):
             Immutable. A resource name of an Endpoint.

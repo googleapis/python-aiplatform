@@ -446,5 +446,8 @@ class IndexEndpointServiceGrpcTransport(IndexEndpointServiceTransport):
             )
         return self._stubs["undeploy_index"]
 
+    def close(self):
+        self.grpc_channel.close()
+
 
 __all__ = ("IndexEndpointServiceGrpcTransport",)

@@ -38,6 +38,7 @@ class AutoMlVideoActionRecognition(proto.Message):
 
 class AutoMlVideoActionRecognitionInputs(proto.Message):
     r"""
+
     Attributes:
         model_type (google.cloud.aiplatform.v1beta1.schema.trainingjob.definition_v1beta1.types.AutoMlVideoActionRecognitionInputs.ModelType):
 
