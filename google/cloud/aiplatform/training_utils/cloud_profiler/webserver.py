@@ -31,11 +31,13 @@ class WebServer:
         """Creates a web server to host plugin routes.
 
         Args:
-            plugins: A list of initialized `plugins.BasePlugin`.
+            plugins (List[base_plugin.BasePlugin]):
+                Required. A list of `BasePlugin` objects.
 
         Raises:
-            ValueError: When there is an invalid route passed from
-              one of the plugins.
+            ValueError:
+                When there is an invalid route passed from
+                one of the plugins.
         """
 
         self._plugins = plugins
@@ -60,11 +62,13 @@ class WebServer:
         """Handles the routing of requests.
 
         Args:
-            environ: A `werkzeug.Environ` object.
-            start_response: A callable that indicates the start of the response.
+            environ (WSGIEnvironment):
+                The WSGI environment.
+            start_response (StartResponse):
+                The response callable provided by the WSGI server.
 
         Returns:
-            A `werkzeug.Response`
+            A response iterable.
         """
         # Check for existince of route
         request = wrappers.Request(environ)

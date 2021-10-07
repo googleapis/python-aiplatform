@@ -26,7 +26,7 @@ from tensorboard.plugins.base_plugin import TBContext
 from typing import Optional
 from urllib import parse
 import importlib.util
-from werkzeug import wrappers
+from werkzeug import Response
 
 from google.cloud.aiplatform.training_utils import EnvironmentVariables
 from google.cloud.aiplatform.training_utils.cloud_profiler import base_plugin
@@ -45,12 +45,20 @@ logger = logging.Logger("tf-profiler")
 
 
 def _tf_installed() -> bool:
-    """Helper function to determine if tensorflow is installed."""
+    """Helper function to determine if tensorflow is installed.
+
+    Returns:
+        Bool indicating whether tensorflow is installed.
+    """
     return importlib.util.find_spec("tensorflow")
 
 
 def _get_tf_versioning() -> Optional[Version]:
-    """Convert version string to a Version namedtuple for ease of parsing."""
+    """Convert version string to a Version namedtuple for ease of parsing.
+
+    Returns:
+        A version object if finding the version was successful, None otherwise.
+    """
     import tensorflow as tf
 
     version = tf.__version__
@@ -69,10 +77,11 @@ def _is_compatible_version(version: Version) -> bool:
     Source: https://www.tensorflow.org/guide/profiler
 
     Args:
-        version: `Verison` of tensorflow.
+        version (Version):
+            Required. `Verison` of tensorflow.
 
     Returns:
-        If compatible with profiler.
+        Bool indicating wheter version is compatible with profiler.
     """
     return version.major >= 2 and version.minor >= 2
 
@@ -116,7 +125,11 @@ def _check_tf() -> bool:
 
 
 def _create_profiling_context() -> TBContext:
-    """Creates the base context needed for TB Profiler."""
+    """Creates the base context needed for TB Profiler.
+
+    Returns:
+        An initialized `TBContext`.
+    """
 
     context_flags = argparse.Namespace(master_tpu_unsecure_channel=None)
 
@@ -131,10 +144,11 @@ def _host_to_grpc(hostname: str) -> str:
     """Format a hostname to a grpc address.
 
     Args:
-        hostname: address as a string, in form: {hostname}:{port}
+        hostname (str):
+            Required. Address in form: `{hostname}:{port}`
 
     Returns:
-        address in form of: 'grpc://{hostname}:{port}'
+        Address in form of: 'grpc://{hostname}:{port}'
     """
     return (
         "grpc://" + "".join(hostname.split(":")[:-1]) + ":" + _ENV_VARS.tf_profiler_port
@@ -145,7 +159,8 @@ def _get_hostnames() -> Optional[str]:
     """Get the hostnames for all servers running.
 
     Returns:
-        A host formatted by `_host_to_grpc`.
+        A host formatted by `_host_to_grpc` if obtaining the cluster spec
+        is successful, None otherwise.
     """
     cluster_spec = _ENV_VARS.cluster_spec
     if not cluster_spec:
@@ -162,12 +177,20 @@ def _get_hostnames() -> Optional[str]:
     return ",".join([_host_to_grpc(x) for x in hostnames])
 
 
-def _update_environ(environ) -> str:
-    """Add parameters to the query that are retrieved from training side."""
+def _update_environ(environ) -> bool:
+    """Add parameters to the query that are retrieved from training side.
+
+    Args:
+        environ (WSGIEnvironment):
+            Required. The WSGI Environment.
+
+    Returns:
+        Whether the environment was successfully updated.
+    """
     hosts = _get_hostnames()
 
     if not hosts:
-        return "Could not get a list of host addresses"
+        return False
 
     query_dict = {}
     query_dict["service_addr"] = hosts
@@ -180,7 +203,7 @@ def _update_environ(environ) -> str:
 
     environ["QUERY_STRING"] = parse.urlencode(prev_query_string)
 
-    return ""
+    return True
 
 
 def _check_env_vars() -> bool:
@@ -241,14 +264,12 @@ class TFProfiler(base_plugin.BasePlugin):
         return {"/capture_profile": self.capture_profile_wrapper}
 
     # Define routes below
-    def capture_profile_wrapper(self, environ, start_response):
+    def capture_profile_wrapper(self, environ, start_response) -> Response:
         """Take a request from tensorboard.gcp and run the profiling for the available servers."""
         # The service address (localhost) and worker list are populated locally
-        update_environ_error = _update_environ(environ)
-
-        if update_environ_error:
-            err = {"error": "Could not parse the environ: %s" % update_environ_error}
-            return wrappers.BaseResponse(
+        if not _update_environ(environ):
+            err = {"error": "Could not parse the environ: %s"}
+            return Response(
                 json.dumps(err), content_type="application/json", status=500
             )
 

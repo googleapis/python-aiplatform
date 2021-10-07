@@ -17,6 +17,7 @@
 
 import logging
 import threading
+from typing import Callable
 from werkzeug import serving
 
 from google.cloud.aiplatform.training_utils.cloud_profiler import base_plugin
@@ -28,11 +29,14 @@ _AVAILABLE_PLUGINS = {"tensorflow": tf_profiler.TFProfiler}
 _HOST_PORT = 6010
 
 
-def _build_plugin(plugin: base_plugin):
+def _build_plugin(
+    plugin: Callable[[], base_plugin.BasePlugin]
+) -> base_plugin.BasePlugin:
     """Builds the plugin given the object.
 
     Args:
-        plugin: A plugin object to be initialized.
+        plugin (Callable[[], base_plugin):
+            Required. An uninitialized plugin.
 
     Returns:
         An initialized plugin.
@@ -49,8 +53,13 @@ def _build_plugin(plugin: base_plugin):
     return plugin()
 
 
-def _run_app_thread(server) -> None:
-    """Run the webserver in a separate thread."""
+def _run_app_thread(server: webserver.WebServer):
+    """Run the webserver in a separate thread.
+
+    Args:
+        server (webserver.WebServer):
+            Required. A webserver to accept requests.
+    """
     daemon = threading.Thread(
         name="profile_server",
         target=serving.run_simple,
@@ -64,10 +73,13 @@ def initialize(plugin: str = "tensorflow"):
     """Initializes the profiling SDK.
 
     Args:
-        plugin: A string name of the plugin to initialize.
+        plugin (str):
+            Required. Name of the plugin to initialize.
+            Current options are ["tensorflow"]
 
     Raises:
-        ValueError: The plugin does not exist.
+        ValueError:
+            The plugin does not exist.
     """
 
     plugin_obj = _AVAILABLE_PLUGINS.get(plugin)

@@ -38,6 +38,9 @@ class BasePlugin(abc.ABC):
         """Check whether a plugin is able to be initialized.
 
         Used for checking if correct dependencies are installed, system requirements, etc.
+
+        Returns:
+            Bool indicating whether the plugin can be initialized.
         """
         raise NotImplementedError
 
@@ -48,10 +51,20 @@ class BasePlugin(abc.ABC):
 
         Example: Web server only needs to run for main node for training, others
         just need to have 'setup()' run to start the rpc server.
+
+        Returns:
+            A boolean indicating whether post setup checks pass.
         """
         raise NotImplementedError
 
     @abc.abstractmethod
     def get_routes(self) -> Dict[str, str]:
-        """Get the mapping from path to handler."""
+        """Get the mapping from path to handler.
+
+        This is the method in which plugins can assign different routes to
+        different handlers.
+
+        Returns:
+            A Dict[str, str] mapping a route to a handler.
+        """
         raise NotImplementedError

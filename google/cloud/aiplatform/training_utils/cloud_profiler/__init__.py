@@ -23,7 +23,7 @@ Initialize the cloud profiler for tensorflow.
 Usage:
 from google.cloud.aiplatform.training_utils import cloud_profiler
 
-cloud_profiler.init(profiler='tf')
+cloud_profiler.init(profiler='tensorflow')
 """
 
 init = initializer.initialize
