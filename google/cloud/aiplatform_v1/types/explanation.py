@@ -114,6 +114,7 @@ class ModelExplanation(proto.Message):
 
 class Attribution(proto.Message):
     r"""Attribution that explains a particular prediction output.
+
     Attributes:
         baseline_output_value (float):
             Output only. Model predicted output if the input instance is
@@ -240,6 +241,7 @@ class Attribution(proto.Message):
 
 class ExplanationSpec(proto.Message):
     r"""Specification of Model explanation.
+
     Attributes:
         parameters (google.cloud.aiplatform_v1.types.ExplanationParameters):
             Required. Parameters that configure
@@ -257,6 +259,7 @@ class ExplanationSpec(proto.Message):
 
 class ExplanationParameters(proto.Message):
     r"""Parameters to configure explaining for Model's predictions.
+
     Attributes:
         sampled_shapley_attribution (google.cloud.aiplatform_v1.types.SampledShapleyAttribution):
             An attribution method that approximates
@@ -468,6 +471,7 @@ class FeatureNoiseSigma(proto.Message):
 
     class NoiseSigmaForFeature(proto.Message):
         r"""Noise sigma for a single feature.
+
         Attributes:
             name (str):
                 The name of the input feature for which noise sigma is

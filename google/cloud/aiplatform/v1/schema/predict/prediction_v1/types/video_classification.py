@@ -27,6 +27,7 @@ __protobuf__ = proto.module(
 
 class VideoClassificationPredictionResult(proto.Message):
     r"""Prediction output format for Video Classification.
+
     Attributes:
         id (str):
             The resource ID of the AnnotationSpec that

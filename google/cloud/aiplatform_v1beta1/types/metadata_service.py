@@ -723,7 +723,8 @@ class AddContextArtifactsAndExecutionsRequest(proto.Message):
 class AddContextArtifactsAndExecutionsResponse(proto.Message):
     r"""Response message for
     [MetadataService.AddContextArtifactsAndExecutions][google.cloud.aiplatform.v1beta1.MetadataService.AddContextArtifactsAndExecutions].
-        """
+
+    """
 
 
 class AddContextChildrenRequest(proto.Message):
@@ -747,7 +748,8 @@ class AddContextChildrenRequest(proto.Message):
 class AddContextChildrenResponse(proto.Message):
     r"""Response message for
     [MetadataService.AddContextChildren][google.cloud.aiplatform.v1beta1.MetadataService.AddContextChildren].
-        """
+
+    """
 
 
 class QueryContextLineageSubgraphRequest(proto.Message):
@@ -1019,7 +1021,8 @@ class AddExecutionEventsRequest(proto.Message):
 class AddExecutionEventsResponse(proto.Message):
     r"""Response message for
     [MetadataService.AddExecutionEvents][google.cloud.aiplatform.v1beta1.MetadataService.AddExecutionEvents].
-        """
+
+    """
 
 
 class QueryExecutionInputsAndOutputsRequest(proto.Message):

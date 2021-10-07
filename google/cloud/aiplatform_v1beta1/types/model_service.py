@@ -224,6 +224,7 @@ class ExportModelRequest(proto.Message):
 
     class OutputConfig(proto.Message):
         r"""Output configuration for the Model export.
+
         Attributes:
             export_format_id (str):
                 The ID of the format in which the Model must be exported.
@@ -305,7 +306,8 @@ class ExportModelResponse(proto.Message):
     r"""Response message of
     [ModelService.ExportModel][google.cloud.aiplatform.v1beta1.ModelService.ExportModel]
     operation.
-        """
+
+    """
 
 
 class GetModelEvaluationRequest(proto.Message):

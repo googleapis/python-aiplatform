@@ -39,6 +39,7 @@ __protobuf__ = proto.module(
 
 class PipelineJob(proto.Message):
     r"""An instance of a machine learning PipelineJob.
+
     Attributes:
         name (str):
             Output only. The resource name of the
@@ -112,6 +113,7 @@ class PipelineJob(proto.Message):
 
     class RuntimeConfig(proto.Message):
         r"""The runtime config of a PipelineJob.
+
         Attributes:
             parameters (Sequence[google.cloud.aiplatform_v1beta1.types.PipelineJob.RuntimeConfig.ParametersEntry]):
                 The runtime parameters of the PipelineJob. The parameters
@@ -155,6 +157,7 @@ class PipelineJob(proto.Message):
 
 class PipelineJobDetail(proto.Message):
     r"""The runtime detail of PipelineJob.
+
     Attributes:
         pipeline_context (google.cloud.aiplatform_v1beta1.types.Context):
             Output only. The context of the pipeline.
@@ -177,6 +180,7 @@ class PipelineJobDetail(proto.Message):
 
 class PipelineTaskDetail(proto.Message):
     r"""The runtime detail of a task execution.
+
     Attributes:
         task_id (int):
             Output only. The system generated ID of the
@@ -228,6 +232,7 @@ class PipelineTaskDetail(proto.Message):
 
     class ArtifactList(proto.Message):
         r"""A list of artifact metadata.
+
         Attributes:
             artifacts (Sequence[google.cloud.aiplatform_v1beta1.types.Artifact]):
                 Output only. A list of artifact metadata.
@@ -259,6 +264,7 @@ class PipelineTaskDetail(proto.Message):
 
 class PipelineTaskExecutorDetail(proto.Message):
     r"""The runtime detail of a pipeline executor.
+
     Attributes:
         container_detail (google.cloud.aiplatform_v1beta1.types.PipelineTaskExecutorDetail.ContainerDetail):
             Output only. The detailed info for a
@@ -292,6 +298,7 @@ class PipelineTaskExecutorDetail(proto.Message):
 
     class CustomJobDetail(proto.Message):
         r"""The detailed info for a custom job executor.
+
         Attributes:
             job (str):
                 Output only. The name of the

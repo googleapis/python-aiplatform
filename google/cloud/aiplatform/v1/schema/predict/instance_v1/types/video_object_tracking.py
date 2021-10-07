@@ -24,6 +24,7 @@ __protobuf__ = proto.module(
 
 class VideoObjectTrackingPredictionInstance(proto.Message):
     r"""Prediction input format for Video Object Tracking.
+
     Attributes:
         content (str):
             The Google Cloud Storage location of the

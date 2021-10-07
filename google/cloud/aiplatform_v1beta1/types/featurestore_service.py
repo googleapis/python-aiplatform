@@ -301,6 +301,7 @@ class ImportFeatureValuesRequest(proto.Message):
 
     class FeatureSpec(proto.Message):
         r"""Defines the Feature value(s) to import.
+
         Attributes:
             id (str):
                 Required. ID of the Feature to import values
@@ -423,6 +424,7 @@ class BatchReadFeatureValuesRequest(proto.Message):
 
     class PassThroughField(proto.Message):
         r"""Describe pass-through fields in read_instance source.
+
         Attributes:
             field_name (str):
                 Required. The name of the field in the CSV header or the
@@ -531,6 +533,7 @@ class ExportFeatureValuesRequest(proto.Message):
 
 class DestinationFeatureSetting(proto.Message):
     r"""
+
     Attributes:
         feature_id (str):
             Required. The ID of the Feature to apply the
@@ -547,6 +550,7 @@ class DestinationFeatureSetting(proto.Message):
 
 class FeatureValueDestination(proto.Message):
     r"""A destination location for Feature values and format.
+
     Attributes:
         bigquery_destination (google.cloud.aiplatform_v1beta1.types.BigQueryDestination):
             Output in BigQuery format.
@@ -587,13 +591,15 @@ class FeatureValueDestination(proto.Message):
 class ExportFeatureValuesResponse(proto.Message):
     r"""Response message for
     [FeaturestoreService.ExportFeatureValues][google.cloud.aiplatform.v1beta1.FeaturestoreService.ExportFeatureValues].
-        """
+
+    """
 
 
 class BatchReadFeatureValuesResponse(proto.Message):
     r"""Response message for
     [FeaturestoreService.BatchReadFeatureValues][google.cloud.aiplatform.v1beta1.FeaturestoreService.BatchReadFeatureValues].
-        """
+
+    """
 
 
 class CreateEntityTypeRequest(proto.Message):
@@ -765,6 +771,7 @@ class UpdateEntityTypeRequest(proto.Message):
 
 class DeleteEntityTypeRequest(proto.Message):
     r"""Request message for [FeaturestoreService.DeleteEntityTypes][].
+
     Attributes:
         name (str):
             Required. The name of the EntityType to be deleted. Format:
@@ -1137,6 +1144,7 @@ class DeleteFeatureRequest(proto.Message):
 
 class CreateFeaturestoreOperationMetadata(proto.Message):
     r"""Details of operations that perform create Featurestore.
+
     Attributes:
         generic_metadata (google.cloud.aiplatform_v1beta1.types.GenericOperationMetadata):
             Operation metadata for Featurestore.
@@ -1149,6 +1157,7 @@ class CreateFeaturestoreOperationMetadata(proto.Message):
 
 class UpdateFeaturestoreOperationMetadata(proto.Message):
     r"""Details of operations that perform update Featurestore.
+
     Attributes:
         generic_metadata (google.cloud.aiplatform_v1beta1.types.GenericOperationMetadata):
             Operation metadata for Featurestore.
@@ -1161,6 +1170,7 @@ class UpdateFeaturestoreOperationMetadata(proto.Message):
 
 class ImportFeatureValuesOperationMetadata(proto.Message):
     r"""Details of operations that perform import feature values.
+
     Attributes:
         generic_metadata (google.cloud.aiplatform_v1beta1.types.GenericOperationMetadata):
             Operation metadata for Featurestore import
@@ -1191,6 +1201,7 @@ class ImportFeatureValuesOperationMetadata(proto.Message):
 
 class ExportFeatureValuesOperationMetadata(proto.Message):
     r"""Details of operations that exports Features values.
+
     Attributes:
         generic_metadata (google.cloud.aiplatform_v1beta1.types.GenericOperationMetadata):
             Operation metadata for Featurestore export
@@ -1204,6 +1215,7 @@ class ExportFeatureValuesOperationMetadata(proto.Message):
 
 class BatchReadFeatureValuesOperationMetadata(proto.Message):
     r"""Details of operations that batch reads Feature values.
+
     Attributes:
         generic_metadata (google.cloud.aiplatform_v1beta1.types.GenericOperationMetadata):
             Operation metadata for Featurestore batch
@@ -1217,6 +1229,7 @@ class BatchReadFeatureValuesOperationMetadata(proto.Message):
 
 class CreateEntityTypeOperationMetadata(proto.Message):
     r"""Details of operations that perform create EntityType.
+
     Attributes:
         generic_metadata (google.cloud.aiplatform_v1beta1.types.GenericOperationMetadata):
             Operation metadata for EntityType.
@@ -1229,6 +1242,7 @@ class CreateEntityTypeOperationMetadata(proto.Message):
 
 class CreateFeatureOperationMetadata(proto.Message):
     r"""Details of operations that perform create Feature.
+
     Attributes:
         generic_metadata (google.cloud.aiplatform_v1beta1.types.GenericOperationMetadata):
             Operation metadata for Feature.
@@ -1241,6 +1255,7 @@ class CreateFeatureOperationMetadata(proto.Message):
 
 class BatchCreateFeaturesOperationMetadata(proto.Message):
     r"""Details of operations that perform batch create Features.
+
     Attributes:
         generic_metadata (google.cloud.aiplatform_v1beta1.types.GenericOperationMetadata):
             Operation metadata for Feature.

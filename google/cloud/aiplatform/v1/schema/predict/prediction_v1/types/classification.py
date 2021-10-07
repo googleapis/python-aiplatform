@@ -24,6 +24,7 @@ __protobuf__ = proto.module(
 
 class ClassificationPredictionResult(proto.Message):
     r"""Prediction output format for Image and Text Classification.
+
     Attributes:
         ids (Sequence[int]):
             The resource IDs of the AnnotationSpecs that
