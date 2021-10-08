@@ -151,6 +151,12 @@ class TestEndToEnd:
         assert endpoint_deploy_return is None
 
         if not sync:
+            # Accessing attribute in Endpoint that has not been created raises informatively
+            with pytest.raises(
+                RuntimeError, match=r"Endpoint resource has not been created."
+            ):
+                my_endpoint.network
+
             my_endpoint.wait()
             created_endpoint.wait()
 
