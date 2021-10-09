@@ -304,7 +304,8 @@ class UndeployModelRequest(proto.Message):
 class UndeployModelResponse(proto.Message):
     r"""Response message for
     [EndpointService.UndeployModel][google.cloud.aiplatform.v1.EndpointService.UndeployModel].
-        """
+
+    """
 
 
 class UndeployModelOperationMetadata(proto.Message):

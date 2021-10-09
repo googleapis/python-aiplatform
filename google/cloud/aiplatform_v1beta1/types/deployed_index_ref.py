@@ -23,6 +23,7 @@ __protobuf__ = proto.module(
 
 class DeployedIndexRef(proto.Message):
     r"""Points to a DeployedIndex.
+
     Attributes:
         index_endpoint (str):
             Immutable. A resource name of the

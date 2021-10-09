@@ -838,5 +838,8 @@ class FeaturestoreServiceGrpcTransport(FeaturestoreServiceTransport):
             )
         return self._stubs["search_features"]
 
+    def close(self):
+        self.grpc_channel.close()
+
 
 __all__ = ("FeaturestoreServiceGrpcTransport",)

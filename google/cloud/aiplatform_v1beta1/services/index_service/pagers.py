@@ -15,13 +15,13 @@
 #
 from typing import (
     Any,
-    AsyncIterable,
+    AsyncIterator,
     Awaitable,
     Callable,
-    Iterable,
     Sequence,
     Tuple,
     Optional,
+    Iterator,
 )
 
 from google.cloud.aiplatform_v1beta1.types import index
@@ -75,14 +75,14 @@ class ListIndexesPager:
         return getattr(self._response, name)
 
     @property
-    def pages(self) -> Iterable[index_service.ListIndexesResponse]:
+    def pages(self) -> Iterator[index_service.ListIndexesResponse]:
         yield self._response
         while self._response.next_page_token:
             self._request.page_token = self._response.next_page_token
             self._response = self._method(self._request, metadata=self._metadata)
             yield self._response
 
-    def __iter__(self) -> Iterable[index.Index]:
+    def __iter__(self) -> Iterator[index.Index]:
         for page in self.pages:
             yield from page.indexes
 
@@ -137,14 +137,14 @@ class ListIndexesAsyncPager:
         return getattr(self._response, name)
 
     @property
-    async def pages(self) -> AsyncIterable[index_service.ListIndexesResponse]:
+    async def pages(self) -> AsyncIterator[index_service.ListIndexesResponse]:
         yield self._response
         while self._response.next_page_token:
             self._request.page_token = self._response.next_page_token
             self._response = await self._method(self._request, metadata=self._metadata)
             yield self._response
 
-    def __aiter__(self) -> AsyncIterable[index.Index]:
+    def __aiter__(self) -> AsyncIterator[index.Index]:
         async def async_generator():
             async for page in self.pages:
                 for response in page.indexes:

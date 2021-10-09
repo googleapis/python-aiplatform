@@ -1166,5 +1166,8 @@ class MetadataServiceGrpcAsyncIOTransport(MetadataServiceTransport):
             )
         return self._stubs["query_artifact_lineage_subgraph"]
 
+    def close(self):
+        return self.grpc_channel.close()
+
 
 __all__ = ("MetadataServiceGrpcAsyncIOTransport",)

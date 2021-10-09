@@ -30,6 +30,7 @@ __protobuf__ = proto.module(
 
 class GcsSource(proto.Message):
     r"""The Google Cloud Storage location for the input content.
+
     Attributes:
         uris (Sequence[str]):
             Required. Google Cloud Storage URI(-s) to the
@@ -58,6 +59,7 @@ class GcsDestination(proto.Message):
 
 class BigQuerySource(proto.Message):
     r"""The BigQuery location for the input content.
+
     Attributes:
         input_uri (str):
             Required. BigQuery URI to a table, up to 2000 characters
@@ -72,6 +74,7 @@ class BigQuerySource(proto.Message):
 
 class BigQueryDestination(proto.Message):
     r"""The BigQuery location for the output content.
+
     Attributes:
         output_uri (str):
             Required. BigQuery URI to a project or table, up to 2000
@@ -93,6 +96,7 @@ class BigQueryDestination(proto.Message):
 
 class ContainerRegistryDestination(proto.Message):
     r"""The Container Registry location for the container image.
+
     Attributes:
         output_uri (str):
             Required. Container Registry URI of a container image. Only

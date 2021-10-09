@@ -32,6 +32,7 @@ from google.api_core import grpc_helpers
 from google.api_core import grpc_helpers_async
 from google.api_core import operation_async  # type: ignore
 from google.api_core import operations_v1
+from google.api_core import path_template
 from google.auth import credentials as ga_credentials
 from google.auth.exceptions import MutualTLSChannelError
 from google.cloud.aiplatform_v1beta1.services.migration_service import (
@@ -1281,6 +1282,9 @@ def test_migration_service_base_transport():
         with pytest.raises(NotImplementedError):
             getattr(transport, method)(request=object())
 
+    with pytest.raises(NotImplementedError):
+        transport.close()
+
     # Additionally, the LRO client (a property) should
     # also raise NotImplementedError
     with pytest.raises(NotImplementedError):
@@ -1707,30 +1711,8 @@ def test_parse_dataset_path():
 
 def test_dataset_path():
     project = "squid"
-    dataset = "clam"
-    expected = "projects/{project}/datasets/{dataset}".format(
-        project=project, dataset=dataset,
-    )
-    actual = MigrationServiceClient.dataset_path(project, dataset)
-    assert expected == actual
-
-
-def test_parse_dataset_path():
-    expected = {
-        "project": "whelk",
-        "dataset": "octopus",
-    }
-    path = MigrationServiceClient.dataset_path(**expected)
-
-    # Check that the path construction is reversible.
-    actual = MigrationServiceClient.parse_dataset_path(path)
-    assert expected == actual
-
-
-def test_dataset_path():
-    project = "oyster"
-    location = "nudibranch"
-    dataset = "cuttlefish"
+    location = "clam"
+    dataset = "whelk"
     expected = "projects/{project}/locations/{location}/datasets/{dataset}".format(
         project=project, location=location, dataset=dataset,
     )
@@ -1740,8 +1722,30 @@ def test_dataset_path():
 
 def test_parse_dataset_path():
     expected = {
-        "project": "mussel",
-        "location": "winkle",
+        "project": "octopus",
+        "location": "oyster",
+        "dataset": "nudibranch",
+    }
+    path = MigrationServiceClient.dataset_path(**expected)
+
+    # Check that the path construction is reversible.
+    actual = MigrationServiceClient.parse_dataset_path(path)
+    assert expected == actual
+
+
+def test_dataset_path():
+    project = "cuttlefish"
+    dataset = "mussel"
+    expected = "projects/{project}/datasets/{dataset}".format(
+        project=project, dataset=dataset,
+    )
+    actual = MigrationServiceClient.dataset_path(project, dataset)
+    assert expected == actual
+
+
+def test_parse_dataset_path():
+    expected = {
+        "project": "winkle",
         "dataset": "nautilus",
     }
     path = MigrationServiceClient.dataset_path(**expected)
@@ -1938,3 +1942,49 @@ def test_client_withDEFAULT_CLIENT_INFO():
             credentials=ga_credentials.AnonymousCredentials(), client_info=client_info,
         )
         prep.assert_called_once_with(client_info)
+
+
+@pytest.mark.asyncio
+async def test_transport_close_async():
+    client = MigrationServiceAsyncClient(
+        credentials=ga_credentials.AnonymousCredentials(), transport="grpc_asyncio",
+    )
+    with mock.patch.object(
+        type(getattr(client.transport, "grpc_channel")), "close"
+    ) as close:
+        async with client:
+            close.assert_not_called()
+        close.assert_called_once()
+
+
+def test_transport_close():
+    transports = {
+        "grpc": "_grpc_channel",
+    }
+
+    for transport, close_name in transports.items():
+        client = MigrationServiceClient(
+            credentials=ga_credentials.AnonymousCredentials(), transport=transport
+        )
+        with mock.patch.object(
+            type(getattr(client.transport, close_name)), "close"
+        ) as close:
+            with client:
+                close.assert_not_called()
+            close.assert_called_once()
+
+
+def test_client_ctx():
+    transports = [
+        "grpc",
+    ]
+    for transport in transports:
+        client = MigrationServiceClient(
+            credentials=ga_credentials.AnonymousCredentials(), transport=transport
+        )
+        # Test client calls underlying transport.
+        with mock.patch.object(type(client.transport), "close") as close:
+            close.assert_not_called()
+            with client:
+                pass
+            close.assert_called()
