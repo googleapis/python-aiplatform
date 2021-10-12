@@ -24,6 +24,7 @@ __protobuf__ = proto.module(
 
 class IdMatcher(proto.Message):
     r"""Matcher for Features of an EntityType by Feature ID.
+
     Attributes:
         ids (Sequence[str]):
             Required. The following are accepted as ``ids``:
@@ -39,6 +40,7 @@ class IdMatcher(proto.Message):
 
 class FeatureSelector(proto.Message):
     r"""Selector for Features of an EntityType.
+
     Attributes:
         id_matcher (google.cloud.aiplatform_v1beta1.types.IdMatcher):
             Required. Matches Features based on ID.

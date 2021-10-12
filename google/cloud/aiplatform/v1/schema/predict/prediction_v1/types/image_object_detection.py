@@ -26,6 +26,7 @@ __protobuf__ = proto.module(
 
 class ImageObjectDetectionPredictionResult(proto.Message):
     r"""Prediction output format for Image Object Detection.
+
     Attributes:
         ids (Sequence[int]):
             The resource IDs of the AnnotationSpecs that

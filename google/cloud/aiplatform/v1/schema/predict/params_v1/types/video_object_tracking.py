@@ -24,6 +24,7 @@ __protobuf__ = proto.module(
 
 class VideoObjectTrackingPredictionParams(proto.Message):
     r"""Prediction model parameters for Video Object Tracking.
+
     Attributes:
         confidence_threshold (float):
             The Model only returns predictions with at

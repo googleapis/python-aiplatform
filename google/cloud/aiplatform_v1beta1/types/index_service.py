@@ -210,6 +210,7 @@ class NearestNeighborSearchOperationMetadata(proto.Message):
 
     class RecordError(proto.Message):
         r"""
+
         Attributes:
             error_type (google.cloud.aiplatform_v1beta1.types.NearestNeighborSearchOperationMetadata.RecordError.RecordErrorType):
                 The error type of this record.
@@ -250,6 +251,7 @@ class NearestNeighborSearchOperationMetadata(proto.Message):
 
     class ContentValidationStats(proto.Message):
         r"""
+
         Attributes:
             source_gcs_uri (str):
                 Cloud Storage URI pointing to the original

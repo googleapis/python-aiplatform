@@ -31,6 +31,7 @@ __protobuf__ = proto.module(
 
 class Model(proto.Message):
     r"""A trained machine learning Model.
+
     Attributes:
         name (str):
             The resource name of the Model.
@@ -639,6 +640,7 @@ class ModelContainerSpec(proto.Message):
 
 class Port(proto.Message):
     r"""Represents a network port in a container.
+
     Attributes:
         container_port (int):
             The number of the port to expose on the pod's
