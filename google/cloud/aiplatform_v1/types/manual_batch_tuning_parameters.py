@@ -23,6 +23,7 @@ __protobuf__ = proto.module(
 
 class ManualBatchTuningParameters(proto.Message):
     r"""Manual batch tuning parameters.
+
     Attributes:
         batch_size (int):
             Immutable. The number of the records (e.g.

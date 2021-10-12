@@ -26,6 +26,7 @@ __protobuf__ = proto.module(
 
 class ImageObjectDetectionPredictionInstance(proto.Message):
     r"""Prediction input format for Image Object Detection.
+
     Attributes:
         content (str):
             The image bytes or Cloud Storage URI to make

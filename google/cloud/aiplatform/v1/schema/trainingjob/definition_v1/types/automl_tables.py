@@ -28,6 +28,7 @@ __protobuf__ = proto.module(
 
 class AutoMlTables(proto.Message):
     r"""A TrainingJob that trains and uploads an AutoML Tables Model.
+
     Attributes:
         inputs (google.cloud.aiplatform.v1.schema.trainingjob.definition_v1.types.AutoMlTablesInputs):
             The input parameters of this TrainingJob.
@@ -41,6 +42,7 @@ class AutoMlTables(proto.Message):
 
 class AutoMlTablesInputs(proto.Message):
     r"""
+
     Attributes:
         optimization_objective_recall_value (float):
             Required when optimization_objective is
@@ -146,6 +148,7 @@ class AutoMlTablesInputs(proto.Message):
 
     class Transformation(proto.Message):
         r"""
+
         Attributes:
             auto (google.cloud.aiplatform.v1.schema.trainingjob.definition_v1.types.AutoMlTablesInputs.Transformation.AutoTransformation):
 
@@ -409,6 +412,7 @@ class AutoMlTablesInputs(proto.Message):
 
 class AutoMlTablesMetadata(proto.Message):
     r"""Model metadata specific to AutoML Tables.
+
     Attributes:
         train_cost_milli_node_hours (int):
             Output only. The actual training cost of the

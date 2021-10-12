@@ -201,6 +201,7 @@ class ExplanationMetadata(proto.Message):
 
         class Visualization(proto.Message):
             r"""Visualization configurations for image explanation.
+
             Attributes:
                 type_ (google.cloud.aiplatform_v1.types.ExplanationMetadata.InputMetadata.Visualization.Type):
                     Type of the image visualization. Only applicable to
@@ -330,6 +331,7 @@ class ExplanationMetadata(proto.Message):
 
     class OutputMetadata(proto.Message):
         r"""Metadata of the prediction output to be explained.
+
         Attributes:
             index_display_name_mapping (google.protobuf.struct_pb2.Value):
                 Static mapping between the index and display name.

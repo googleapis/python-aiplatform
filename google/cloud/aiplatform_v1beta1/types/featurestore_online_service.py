@@ -42,13 +42,13 @@ class ReadFeatureValuesRequest(proto.Message):
         entity_type (str):
             Required. The resource name of the EntityType for the entity
             being read. Value format:
-            ``projects/{project}/locations/{location}/featurestores/ {featurestore}/entityTypes/{entityType}``.
+            ``projects/{project}/locations/{location}/featurestores/{featurestore}/entityTypes/{entityType}``.
             For example, for a machine learning model predicting user
-            clicks on a website, an EntityType ID could be "user".
+            clicks on a website, an EntityType ID could be ``user``.
         entity_id (str):
             Required. ID for a specific entity. For example, for a
             machine learning model predicting user clicks on a website,
-            an entity ID could be "user_123".
+            an entity ID could be ``user_123``.
         feature_selector (google.cloud.aiplatform_v1beta1.types.FeatureSelector):
             Required. Selector choosing Features of the
             target EntityType.
@@ -78,6 +78,7 @@ class ReadFeatureValuesResponse(proto.Message):
 
     class FeatureDescriptor(proto.Message):
         r"""Metadata for requested Features.
+
         Attributes:
             id (str):
                 Feature ID.
@@ -95,7 +96,7 @@ class ReadFeatureValuesResponse(proto.Message):
                 The resource name of the EntityType from the
                 [ReadFeatureValuesRequest][google.cloud.aiplatform.v1beta1.ReadFeatureValuesRequest].
                 Value format:
-                ``projects/{project}/locations/{location}/featurestores/ {featurestore}/entityTypes/{entityType}``.
+                ``projects/{project}/locations/{location}/featurestores/{featurestore}/entityTypes/{entityType}``.
             feature_descriptors (Sequence[google.cloud.aiplatform_v1beta1.types.ReadFeatureValuesResponse.FeatureDescriptor]):
                 List of Feature metadata corresponding to each piece of
                 [ReadFeatureValuesResponse.data][].
@@ -110,6 +111,7 @@ class ReadFeatureValuesResponse(proto.Message):
 
     class EntityView(proto.Message):
         r"""Entity view with Feature values.
+
         Attributes:
             entity_id (str):
                 ID of the requested entity.
@@ -163,14 +165,14 @@ class StreamingReadFeatureValuesRequest(proto.Message):
         entity_type (str):
             Required. The resource name of the entities' type. Value
             format:
-            ``projects/{project}/locations/{location}/featurestores/ {featurestore}/entityTypes/{entityType}``.
+            ``projects/{project}/locations/{location}/featurestores/{featurestore}/entityTypes/{entityType}``.
             For example, for a machine learning model predicting user
-            clicks on a website, an EntityType ID could be "user".
+            clicks on a website, an EntityType ID could be ``user``.
         entity_ids (Sequence[str]):
             Required. IDs of entities to read Feature values of. The
             maximum number of IDs is 100. For example, for a machine
             learning model predicting user clicks on a website, an
-            entity ID could be "user_123".
+            entity ID could be ``user_123``.
         feature_selector (google.cloud.aiplatform_v1beta1.types.FeatureSelector):
             Required. Selector choosing Features of the
             target EntityType. Feature IDs will be
@@ -213,6 +215,7 @@ class FeatureValue(proto.Message):
 
     class Metadata(proto.Message):
         r"""Metadata of feature value.
+
         Attributes:
             generate_time (google.protobuf.timestamp_pb2.Timestamp):
                 Feature generation timestamp. Typically, it
@@ -248,6 +251,7 @@ class FeatureValue(proto.Message):
 
 class FeatureValueList(proto.Message):
     r"""Container for list of values.
+
     Attributes:
         values (Sequence[google.cloud.aiplatform_v1beta1.types.FeatureValue]):
             A list of feature values. All of them should

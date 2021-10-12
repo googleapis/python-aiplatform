@@ -27,6 +27,7 @@ __protobuf__ = proto.module(
 
 class VideoActionRecognitionPredictionResult(proto.Message):
     r"""Prediction output format for Video Action Recognition.
+
     Attributes:
         id (str):
             The resource ID of the AnnotationSpec that

@@ -15,13 +15,13 @@
 #
 from typing import (
     Any,
-    AsyncIterable,
+    AsyncIterator,
     Awaitable,
     Callable,
-    Iterable,
     Sequence,
     Tuple,
     Optional,
+    Iterator,
 )
 
 from google.cloud.aiplatform_v1.types import pipeline_job
@@ -76,14 +76,14 @@ class ListTrainingPipelinesPager:
         return getattr(self._response, name)
 
     @property
-    def pages(self) -> Iterable[pipeline_service.ListTrainingPipelinesResponse]:
+    def pages(self) -> Iterator[pipeline_service.ListTrainingPipelinesResponse]:
         yield self._response
         while self._response.next_page_token:
             self._request.page_token = self._response.next_page_token
             self._response = self._method(self._request, metadata=self._metadata)
             yield self._response
 
-    def __iter__(self) -> Iterable[training_pipeline.TrainingPipeline]:
+    def __iter__(self) -> Iterator[training_pipeline.TrainingPipeline]:
         for page in self.pages:
             yield from page.training_pipelines
 
@@ -142,14 +142,14 @@ class ListTrainingPipelinesAsyncPager:
     @property
     async def pages(
         self,
-    ) -> AsyncIterable[pipeline_service.ListTrainingPipelinesResponse]:
+    ) -> AsyncIterator[pipeline_service.ListTrainingPipelinesResponse]:
         yield self._response
         while self._response.next_page_token:
             self._request.page_token = self._response.next_page_token
             self._response = await self._method(self._request, metadata=self._metadata)
             yield self._response
 
-    def __aiter__(self) -> AsyncIterable[training_pipeline.TrainingPipeline]:
+    def __aiter__(self) -> AsyncIterator[training_pipeline.TrainingPipeline]:
         async def async_generator():
             async for page in self.pages:
                 for response in page.training_pipelines:
@@ -208,14 +208,14 @@ class ListPipelineJobsPager:
         return getattr(self._response, name)
 
     @property
-    def pages(self) -> Iterable[pipeline_service.ListPipelineJobsResponse]:
+    def pages(self) -> Iterator[pipeline_service.ListPipelineJobsResponse]:
         yield self._response
         while self._response.next_page_token:
             self._request.page_token = self._response.next_page_token
             self._response = self._method(self._request, metadata=self._metadata)
             yield self._response
 
-    def __iter__(self) -> Iterable[pipeline_job.PipelineJob]:
+    def __iter__(self) -> Iterator[pipeline_job.PipelineJob]:
         for page in self.pages:
             yield from page.pipeline_jobs
 
@@ -270,14 +270,14 @@ class ListPipelineJobsAsyncPager:
         return getattr(self._response, name)
 
     @property
-    async def pages(self) -> AsyncIterable[pipeline_service.ListPipelineJobsResponse]:
+    async def pages(self) -> AsyncIterator[pipeline_service.ListPipelineJobsResponse]:
         yield self._response
         while self._response.next_page_token:
             self._request.page_token = self._response.next_page_token
             self._response = await self._method(self._request, metadata=self._metadata)
             yield self._response
 
-    def __aiter__(self) -> AsyncIterable[pipeline_job.PipelineJob]:
+    def __aiter__(self) -> AsyncIterator[pipeline_job.PipelineJob]:
         async def async_generator():
             async for page in self.pages:
                 for response in page.pipeline_jobs:

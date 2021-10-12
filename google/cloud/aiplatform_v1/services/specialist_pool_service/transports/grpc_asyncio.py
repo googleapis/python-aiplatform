@@ -399,5 +399,8 @@ class SpecialistPoolServiceGrpcAsyncIOTransport(SpecialistPoolServiceTransport):
             )
         return self._stubs["update_specialist_pool"]
 
+    def close(self):
+        return self.grpc_channel.close()
+
 
 __all__ = ("SpecialistPoolServiceGrpcAsyncIOTransport",)

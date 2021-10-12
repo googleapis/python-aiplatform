@@ -24,6 +24,7 @@ __protobuf__ = proto.module(
 
 class TextExtractionPredictionInstance(proto.Message):
     r"""Prediction input format for Text Extraction.
+
     Attributes:
         content (str):
             The text snippet to make the predictions on.

@@ -554,5 +554,8 @@ class PipelineServiceGrpcTransport(PipelineServiceTransport):
             )
         return self._stubs["cancel_pipeline_job"]
 
+    def close(self):
+        self.grpc_channel.close()
+
 
 __all__ = ("PipelineServiceGrpcTransport",)
