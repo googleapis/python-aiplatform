@@ -199,10 +199,10 @@ class FeaturestoreOnlineServingServiceAsyncClient:
             entity_type (:class:`str`):
                 Required. The resource name of the EntityType for the
                 entity being read. Value format:
-                ``projects/{project}/locations/{location}/featurestores/ {featurestore}/entityTypes/{entityType}``.
+                ``projects/{project}/locations/{location}/featurestores/{featurestore}/entityTypes/{entityType}``.
                 For example, for a machine learning model predicting
                 user clicks on a website, an EntityType ID could be
-                "user".
+                ``user``.
 
                 This corresponds to the ``entity_type`` field
                 on the ``request`` instance; if ``request`` is provided, this
@@ -280,10 +280,10 @@ class FeaturestoreOnlineServingServiceAsyncClient:
             entity_type (:class:`str`):
                 Required. The resource name of the entities' type. Value
                 format:
-                ``projects/{project}/locations/{location}/featurestores/ {featurestore}/entityTypes/{entityType}``.
+                ``projects/{project}/locations/{location}/featurestores/{featurestore}/entityTypes/{entityType}``.
                 For example, for a machine learning model predicting
                 user clicks on a website, an EntityType ID could be
-                "user".
+                ``user``.
 
                 This corresponds to the ``entity_type`` field
                 on the ``request`` instance; if ``request`` is provided, this
@@ -338,6 +338,12 @@ class FeaturestoreOnlineServingServiceAsyncClient:
 
         # Done; return the response.
         return response
+
+    async def __aenter__(self):
+        return self
+
+    async def __aexit__(self, exc_type, exc, tb):
+        await self.transport.close()
 
 
 try:

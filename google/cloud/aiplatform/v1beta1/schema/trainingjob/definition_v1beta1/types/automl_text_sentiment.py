@@ -36,6 +36,7 @@ class AutoMlTextSentiment(proto.Message):
 
 class AutoMlTextSentimentInputs(proto.Message):
     r"""
+
     Attributes:
         sentiment_max (int):
             A sentiment is expressed as an integer

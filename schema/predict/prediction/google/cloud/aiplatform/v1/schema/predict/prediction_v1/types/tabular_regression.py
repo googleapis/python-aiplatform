@@ -26,6 +26,7 @@ __protobuf__ = proto.module(
 
 class TabularRegressionPredictionResult(proto.Message):
     r"""Prediction output format for Tabular Regression.
+
     Attributes:
         value (float):
             The regression value.
