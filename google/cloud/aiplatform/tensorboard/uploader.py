@@ -17,15 +17,12 @@
 """Uploads a TensorBoard logdir to TensorBoard.gcp."""
 import abc
 from collections import defaultdict
-import contextlib
 import functools
-import json
 import logging
 import os
 import time
 import re
 from typing import (
-    Callable,
     Dict,
     FrozenSet,
     Generator,
@@ -66,14 +63,13 @@ from google.cloud.aiplatform.compat.types import (
     tensorboard_experiment_v1beta1 as tensorboard_experiment,
 )
 from google.cloud.aiplatform.compat.types import (
-    tensorboard_run_v1beta1 as tensorboard_run,
-)
-from google.cloud.aiplatform.compat.types import (
     tensorboard_service_v1beta1 as tensorboard_service,
 )
 from google.cloud.aiplatform.compat.types import (
     tensorboard_time_series_v1beta1 as tensorboard_time_series,
 )
+from google.cloud.aiplatform.tensorboard import uploader_utils
+from google.cloud.aiplatform.tensorboard.plugins.tf_profiler import profile_uploader
 from google.protobuf import message
 from google.protobuf import timestamp_pb2 as timestamp
 
@@ -221,11 +217,11 @@ class TensorBoardUploader(object):
             )
             self._upload_limits.max_blob_request_size = _DEFAULT_MAX_BLOB_REQUEST_SIZE
             self._upload_limits.max_blob_size = _DEFAULT_MAX_BLOB_SIZE
-
         self._description = description
         self._verbosity = verbosity
         self._one_shot = one_shot
         self._dispatcher = None
+        self._additional_senders: Dict[str, uploader_utils.RequestSender] = {}
         if logdir_poll_rate_limiter is None:
             self._logdir_poll_rate_limiter = util.RateLimiter(
                 _MIN_LOGDIR_POLL_INTERVAL_SECS
@@ -270,6 +266,8 @@ class TensorBoardUploader(object):
             self._logdir, directory_loader_factory
         )
         self._tracker = upload_tracker.UploadTracker(verbosity=self._verbosity)
+
+        self._create_additional_senders()
 
     def _create_or_get_experiment(self) -> tensorboard_experiment.TensorboardExperiment:
         """Create an experiment or get an experiment.
@@ -318,25 +316,42 @@ class TensorBoardUploader(object):
             tracker=self._tracker,
         )
 
-        additional_senders = self._create_additional_senders()
+        # Update partials with experiment name
+        for sender in self._additional_senders.keys():
+            self._additional_senders[sender] = self._additional_senders[sender](
+                experiment_resource_name=self._experiment.name,
+            )
 
         self._dispatcher = _Dispatcher(
-            request_sender=request_sender, additional_senders=additional_senders,
+            request_sender=request_sender, additional_senders=self._additional_senders,
         )
 
-    def _create_additional_senders(self) -> Dict[str, RequestSender]:
+    def _create_additional_senders(self) -> Dict[str, uploader_utils.RequestSender]:
         """Create any additional senders for non traditional event files.
 
         Some items that are used for plugins do not process typical event files,
         but need to be searched for and stored so that they can be used by the
         plugin. If there are any items that cannot be searched for via the
         `_BatchedRequestSender`, add them here.
-
-        Returns:
-            Mapping from plugin name to Sender.
         """
-        additional_senders = {}
-        return additional_senders
+        if "profile" in self._allowed_plugins:
+            if not self._one_shot:
+                raise ValueError(
+                    "Profile plugin currently only supported for one shot."
+                )
+            source_bucket = uploader_utils.get_source_bucket(self._logdir)
+
+            self._additional_senders["profile"] = functools.partial(
+                profile_uploader.ProfileRequestSender,
+                api=self._api,
+                upload_limits=self._upload_limits,
+                blob_rpc_rate_limiter=self._blob_rpc_rate_limiter,
+                blob_storage_bucket=self._blob_storage_bucket,
+                blob_storage_folder=self._blob_storage_folder,
+                source_bucket=source_bucket,
+                tracker=self._tracker,
+                logdir=self._logdir,
+            )
 
     def get_experiment_resource_name(self):
         return self._experiment.name
@@ -380,16 +395,12 @@ class TensorBoardUploader(object):
             self._dispatcher.dispatch_requests(run_to_events)
 
 
-class ExperimentNotFoundError(RuntimeError):
-    pass
-
-
 class PermissionDeniedError(RuntimeError):
     pass
 
 
-class ExistingResourceNotFoundError(RuntimeError):
-    """Resource could not be created or retrieved."""
+class ExperimentNotFoundError(RuntimeError):
+    pass
 
 
 class _OutOfSpaceError(Exception):
@@ -452,7 +463,7 @@ class _BatchedRequestSender(object):
         self._tag_metadata = {}
         self._allowed_plugins = frozenset(allowed_plugins)
         self._tracker = tracker
-        self._one_platform_resource_manager = _OnePlatformResourceManager(
+        self._one_platform_resource_manager = uploader_utils.OnePlatformResourceManager(
             self._experiment_resource_name, self._api
         )
         self._scalar_request_sender = _ScalarBatchedRequestSender(
@@ -559,7 +570,7 @@ class _Dispatcher(object):
     def __init__(
         self,
         request_sender: _BatchedRequestSender,
-        additional_senders: Optional[Dict[str, RequestSender]] = None,
+        additional_senders: Optional[Dict[str, uploader_utils.RequestSender]] = None,
     ):
         """Construct a _Dispatcher object for the TensorboardUploader.
 
@@ -623,143 +634,6 @@ class _Dispatcher(object):
         self._request_sender.flush()
 
 
-class _OnePlatformResourceManager(object):
-    """Helper class managing One Platform resources."""
-
-    def __init__(self, experiment_resource_name: str, api: TensorboardServiceClient):
-        """Constructor for _OnePlatformResourceManager.
-
-        Args:
-          experiment_resource_name: The resource id for the run with the following format
-            projects/{project}/locations/{location}/tensorboards/{tensorboard}/experiments/{experiment}
-          api: TensorboardServiceStub
-        """
-        self._experiment_resource_name = experiment_resource_name
-        self._api = api
-        self._run_name_to_run_resource_name: Dict[str, str] = {}
-        self._run_tag_name_to_time_series_name: Dict[(str, str), str] = {}
-
-    def get_run_resource_name(self, run_name: str):
-        """
-        Get the resource name of the run if it exists, otherwise creates the run
-        on One Platform before returning its resource name.
-        :param run_name: name of the run
-        :return: resource name of the run
-        """
-        if run_name not in self._run_name_to_run_resource_name:
-            tb_run = self._create_or_get_run_resource(run_name)
-            self._run_name_to_run_resource_name[run_name] = tb_run.name
-        return self._run_name_to_run_resource_name[run_name]
-
-    def _create_or_get_run_resource(self, run_name: str):
-        """Creates a new Run Resource in current Tensorboard Experiment resource.
-        Args:
-          run_name: The display name of this run.
-        """
-        tb_run = tensorboard_run.TensorboardRun()
-        tb_run.display_name = run_name
-        try:
-            tb_run = self._api.create_tensorboard_run(
-                parent=self._experiment_resource_name,
-                tensorboard_run=tb_run,
-                tensorboard_run_id=str(uuid.uuid4()),
-            )
-        except exceptions.InvalidArgument as e:
-            # If the run name already exists then retrieve it
-            if "already exist" in e.message:
-                runs_pages = self._api.list_tensorboard_runs(
-                    parent=self._experiment_resource_name
-                )
-                for tb_run in runs_pages:
-                    if tb_run.display_name == run_name:
-                        break
-
-                if tb_run.display_name != run_name:
-                    raise ExistingResourceNotFoundError(
-                        "Run with name %s already exists but is not resource list."
-                        % run_name
-                    )
-            else:
-                raise
-        return tb_run
-
-    def get_time_series_resource_name(
-        self,
-        run_name: str,
-        tag_name: str,
-        time_series_resource_creator: Callable[
-            [], tensorboard_time_series.TensorboardTimeSeries
-        ],
-    ):
-        """
-        Get the resource name of the time series corresponding to the tag, if it
-        exists, otherwise creates the time series on One Platform before
-        returning its resource name.
-        :param run_name: name of the run
-        :param tag_name: name of the tag
-        :param time_series_resource_creator: a constructor used for creating the
-        time series on One Platform.
-        :return: resource name of the time series
-        """
-        if (run_name, tag_name) not in self._run_tag_name_to_time_series_name:
-            time_series = self._create_or_get_time_series(
-                self.get_run_resource_name(run_name),
-                tag_name,
-                time_series_resource_creator,
-            )
-            self._run_tag_name_to_time_series_name[
-                (run_name, tag_name)
-            ] = time_series.name
-        return self._run_tag_name_to_time_series_name[(run_name, tag_name)]
-
-    def _create_or_get_time_series(
-        self,
-        run_resource_name: str,
-        tag_name: str,
-        time_series_resource_creator: Callable[
-            [], tensorboard_time_series.TensorboardTimeSeries
-        ],
-    ) -> tensorboard_time_series.TensorboardTimeSeries:
-        """get a time series resource with given tag_name, and create a new one on
-
-        OnePlatform if not present.
-
-        Args:
-          tag_name: The tag name of the time series in the Tensorboard log dir.
-          time_series_resource_creator: A callable that produces a TimeSeries for
-            creation.
-        """
-        time_series = time_series_resource_creator()
-        time_series.display_name = tag_name
-        try:
-            time_series = self._api.create_tensorboard_time_series(
-                parent=run_resource_name, tensorboard_time_series=time_series
-            )
-        except exceptions.InvalidArgument as e:
-            # If the time series display name already exists then retrieve it
-            if "already exist" in e.message:
-                list_of_time_series = self._api.list_tensorboard_time_series(
-                    request=tensorboard_service.ListTensorboardTimeSeriesRequest(
-                        parent=run_resource_name,
-                        filter="display_name = {}".format(json.dumps(str(tag_name))),
-                    )
-                )
-                num = 0
-                for ts in list_of_time_series:
-                    time_series = ts
-                    num += 1
-                    break
-                if num != 1:
-                    raise ValueError(
-                        "More than one time series resource found with display_name: {}".format(
-                            tag_name
-                        )
-                    )
-            else:
-                raise
-        return time_series
-
-
 class _BaseBatchedRequestSender(object):
     """Helper class for building requests that fit under a size limit.
 
@@ -778,7 +652,7 @@ class _BaseBatchedRequestSender(object):
         rpc_rate_limiter: util.RateLimiter,
         max_request_size: int,
         tracker: upload_tracker.UploadTracker,
-        one_platform_resource_manager: _OnePlatformResourceManager,
+        one_platform_resource_manager: uploader_utils.OnePlatformResourceManager,
     ):
         """Constructor for _BaseBatchedRequestSender.
 
@@ -887,7 +761,7 @@ class _BaseBatchedRequestSender(object):
 
         self._rpc_rate_limiter.tick()
 
-        with _request_logger(request):
+        with uploader_utils.request_logger(request):
             with self._get_tracker():
                 try:
                     self._api.write_tensorboard_experiment_data(
@@ -1035,7 +909,7 @@ class _ScalarBatchedRequestSender(_BaseBatchedRequestSender):
         rpc_rate_limiter: util.RateLimiter,
         max_request_size: int,
         tracker: upload_tracker.UploadTracker,
-        one_platform_resource_manager: _OnePlatformResourceManager,
+        one_platform_resource_manager: uploader_utils.OnePlatformResourceManager,
     ):
         """Constructor for _ScalarBatchedRequestSender.
 
@@ -1099,7 +973,7 @@ class _TensorBatchedRequestSender(_BaseBatchedRequestSender):
         max_request_size: int,
         max_tensor_point_size: int,
         tracker: upload_tracker.UploadTracker,
-        one_platform_resource_manager: _OnePlatformResourceManager,
+        one_platform_resource_manager: uploader_utils.OnePlatformResourceManager,
     ):
         """Constructor for _TensorBatchedRequestSender.
 
@@ -1301,7 +1175,7 @@ class _BlobRequestSender(_BaseBatchedRequestSender):
         blob_storage_bucket: storage.Bucket,
         blob_storage_folder: str,
         tracker: upload_tracker.UploadTracker,
-        one_platform_resource_manager: _OnePlatformResourceManager,
+        one_platform_resource_manager: uploader_utils.OnePlatformResourceManager,
     ):
         super().__init__(
             experiment_resource_id,
@@ -1405,19 +1279,6 @@ class _BlobRequestSender(_BaseBatchedRequestSender):
         )
         self._bucket.blob(blob_path).upload_from_string(blob)
         return blob_id
-
-
-@contextlib.contextmanager
-def _request_logger(request: tensorboard_service.WriteTensorboardExperimentDataRequest):
-    """Context manager to log request size and duration."""
-    upload_start_time = time.time()
-    request_bytes = request._pb.ByteSize()  # pylint: disable=protected-access
-    logger.info("Trying request of %d bytes", request_bytes)
-    yield
-    upload_duration_secs = time.time() - upload_start_time
-    logger.info(
-        "Upload of (%d bytes) took %.3f seconds", request_bytes, upload_duration_secs,
-    )
 
 
 def _varint_cost(n: int):
