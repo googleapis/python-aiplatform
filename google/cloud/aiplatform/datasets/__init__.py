@@ -16,6 +16,7 @@
 #
 
 from google.cloud.aiplatform.datasets.dataset import _Dataset
+from google.cloud.aiplatform.datasets.column_names_dataset import _ColumnNamesDataset
 from google.cloud.aiplatform.datasets.tabular_dataset import TabularDataset
 from google.cloud.aiplatform.datasets.time_series_dataset import TimeSeriesDataset
 from google.cloud.aiplatform.datasets.image_dataset import ImageDataset
@@ -25,6 +26,7 @@ from google.cloud.aiplatform.datasets.video_dataset import VideoDataset
 
 __all__ = (
     "_Dataset",
+    "_ColumnNamesDataset",
     "TabularDataset",
     "TimeSeriesDataset",
     "ImageDataset",

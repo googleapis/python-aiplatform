@@ -18,7 +18,6 @@
 import datetime
 import time
 from typing import Dict, List, Optional, Sequence, Tuple, Union
-import warnings
 
 import abc
 
@@ -42,6 +41,7 @@ from google.cloud.aiplatform.compat.types import (
 from google.cloud.aiplatform.utils import _timestamped_gcs_dir
 from google.cloud.aiplatform.utils import source_utils
 from google.cloud.aiplatform.utils import worker_spec_utils
+from google.cloud.aiplatform.utils import column_transformations_utils
 
 from google.cloud.aiplatform.v1.schema.trainingjob import (
     definition_v1 as training_job_inputs,
@@ -2997,7 +2997,7 @@ class AutoMLTabularTrainingJob(_TrainingJob):
         optimization_prediction_type: str,
         optimization_objective: Optional[str] = None,
         column_specs: Optional[Dict[str, str]] = None,
-        column_transformations: Optional[Union[Dict, List[Dict]]] = None,
+        column_transformations: Optional[List[Dict[str, Dict[str, str]]]] = None,
         optimization_objective_recall_value: Optional[float] = None,
         optimization_objective_precision_value: Optional[float] = None,
         project: Optional[str] = None,
@@ -3070,7 +3070,7 @@ class AutoMLTabularTrainingJob(_TrainingJob):
                 ignored by the training, except for the targetColumn, which should have
                 no transformations defined on.
                 Only one of column_transformations or column_specs should be passed.
-            column_transformations (Union[Dict, List[Dict]]):
+            column_transformations (List[Dict[str, Dict[str, str]]]):
                 Optional. Transformations to apply to the input columns (i.e. columns other
                 than the targetColumn). Each transformation may produce multiple
                 result values from the column's value, and all are used for training.
@@ -3136,8 +3136,8 @@ class AutoMLTabularTrainingJob(_TrainingJob):
 
                 Overrides encryption_spec_key_name set in aiplatform.init.
 
-            Raises:
-                ValueError: When both column_transforations and column_specs were passed
+        Raises:
+            ValueError: If both column_transformations and column_specs were provided.
         """
         super().__init__(
             display_name=display_name,
@@ -3148,26 +3148,11 @@ class AutoMLTabularTrainingJob(_TrainingJob):
             training_encryption_spec_key_name=training_encryption_spec_key_name,
             model_encryption_spec_key_name=model_encryption_spec_key_name,
         )
-        # user populated transformations
-        if column_transformations is not None and column_specs is not None:
-            raise ValueError(
-                "Both column_transformations and column_specs were passed. Only one is allowed."
-            )
-        if column_transformations is not None:
-            self._column_transformations = column_transformations
-            warnings.simplefilter("always", DeprecationWarning)
-            warnings.warn(
-                "consider using column_specs instead. column_transformations will be deprecated in the future.",
-                DeprecationWarning,
-                stacklevel=2,
-            )
-        elif column_specs is not None:
-            self._column_transformations = [
-                {transformation: {"column_name": column_name}}
-                for column_name, transformation in column_specs.items()
-            ]
-        else:
-            self._column_transformations = None
+
+        self._column_transformations = column_transformations_utils.validate_and_get_column_transformations(
+            column_specs, column_transformations
+        )
+
         self._optimization_objective = optimization_objective
         self._optimization_prediction_type = optimization_prediction_type
         self._optimization_objective_recall_value = optimization_objective_recall_value
@@ -3523,14 +3508,12 @@ class AutoMLTabularTrainingJob(_TrainingJob):
                 "No column transformations provided, so now retrieving columns from dataset in order to set default column transformations."
             )
 
-            column_names = [
-                column_name
-                for column_name in dataset.column_names
-                if column_name != target_column
-            ]
-            self._column_transformations = [
-                {"auto": {"column_name": column_name}} for column_name in column_names
-            ]
+            (
+                self._column_transformations,
+                column_names,
+            ) = column_transformations_utils.get_default_column_transformations(
+                dataset=dataset, target_column=target_column
+            )
 
             _LOGGER.info(
                 "The column transformation of type 'auto' was set for the following columns: %s."
@@ -3647,28 +3630,21 @@ class AutoMLForecastingTrainingJob(_TrainingJob):
     def __init__(
         self,
         display_name: str,
-        labels: Optional[Dict[str, str]] = None,
         optimization_objective: Optional[str] = None,
-        column_transformations: Optional[Union[Dict, List[Dict]]] = None,
+        column_specs: Optional[Dict[str, str]] = None,
+        column_transformations: Optional[List[Dict[str, Dict[str, str]]]] = None,
         project: Optional[str] = None,
         location: Optional[str] = None,
         credentials: Optional[auth_credentials.Credentials] = None,
+        labels: Optional[Dict[str, str]] = None,
+        training_encryption_spec_key_name: Optional[str] = None,
+        model_encryption_spec_key_name: Optional[str] = None,
     ):
         """Constructs a AutoML Forecasting Training Job.
 
         Args:
             display_name (str):
                 Required. The user-defined name of this TrainingPipeline.
-            labels (Dict[str, str]):
-                Optional. The labels with user-defined metadata to
-                organize TrainingPipelines.
-                Label keys and values can be no longer than 64
-                characters (Unicode codepoints), can only
-                contain lowercase letters, numeric characters,
-                underscores and dashes. International characters
-                are allowed.
-                See https://goo.gl/xmQnxf for more information
-                and examples of labels.
             optimization_objective (str):
                 Optional. Objective function the model is to be optimized towards.
                 The training process creates a Model that optimizes the value of the objective
@@ -3681,15 +3657,29 @@ class AutoMLForecastingTrainingJob(_TrainingJob):
                                       and mean-absolute-error (MAE).
                 "minimize-quantile-loss" - Minimize the quantile loss at the defined quantiles.
                                            (Set this objective to build quantile forecasts.)
-            column_transformations (Optional[Union[Dict, List[Dict]]]):
+            column_specs (Dict[str, str]):
+                Optional. Alternative to column_transformations where the keys of the dict
+                are column names and their respective values are one of
+                AutoMLTabularTrainingJob.column_data_types.
+                When creating transformation for BigQuery Struct column, the column
+                should be flattened using "." as the delimiter. Only columns with no child
+                should have a transformation.
+                If an input column has no transformations on it, such a column is
+                ignored by the training, except for the targetColumn, which should have
+                no transformations defined on.
+                Only one of column_transformations or column_specs should be passed.
+            column_transformations (List[Dict[str, Dict[str, str]]]):
                 Optional. Transformations to apply to the input columns (i.e. columns other
                 than the targetColumn). Each transformation may produce multiple
                 result values from the column's value, and all are used for training.
                 When creating transformation for BigQuery Struct column, the column
-                should be flattened using "." as the delimiter.
+                should be flattened using "." as the delimiter. Only columns with no child
+                should have a transformation.
                 If an input column has no transformations on it, such a column is
                 ignored by the training, except for the targetColumn, which should have
                 no transformations defined on.
+                Only one of column_transformations or column_specs should be passed.
+                Consider using column_specs as column_transformations will be deprecated eventually.
             project (str):
                 Optional. Project to run training in. Overrides project set in aiplatform.init.
             location (str):
@@ -3697,15 +3687,59 @@ class AutoMLForecastingTrainingJob(_TrainingJob):
             credentials (auth_credentials.Credentials):
                 Optional. Custom credentials to use to run call training service. Overrides
                 credentials set in aiplatform.init.
+            labels (Dict[str, str]):
+                Optional. The labels with user-defined metadata to
+                organize TrainingPipelines.
+                Label keys and values can be no longer than 64
+                characters (Unicode codepoints), can only
+                contain lowercase letters, numeric characters,
+                underscores and dashes. International characters
+                are allowed.
+                See https://goo.gl/xmQnxf for more information
+                and examples of labels.
+            training_encryption_spec_key_name (Optional[str]):
+                Optional. The Cloud KMS resource identifier of the customer
+                managed encryption key used to protect the training pipeline. Has the
+                form:
+                ``projects/my-project/locations/my-region/keyRings/my-kr/cryptoKeys/my-key``.
+                The key needs to be in the same region as where the compute
+                resource is created.
+
+                If set, this TrainingPipeline will be secured by this key.
+
+                Note: Model trained by this TrainingPipeline is also secured
+                by this key if ``model_to_upload`` is not set separately.
+
+                Overrides encryption_spec_key_name set in aiplatform.init.
+            model_encryption_spec_key_name (Optional[str]):
+                Optional. The Cloud KMS resource identifier of the customer
+                managed encryption key used to protect the model. Has the
+                form:
+                ``projects/my-project/locations/my-region/keyRings/my-kr/cryptoKeys/my-key``.
+                The key needs to be in the same region as where the compute
+                resource is created.
+
+                If set, the trained Model will be secured by this key.
+
+                Overrides encryption_spec_key_name set in aiplatform.init.
+
+        Raises:
+            ValueError: If both column_transformations and column_specs were provided.
         """
         super().__init__(
             display_name=display_name,
-            labels=labels,
             project=project,
             location=location,
             credentials=credentials,
+            labels=labels,
+            training_encryption_spec_key_name=training_encryption_spec_key_name,
+            model_encryption_spec_key_name=model_encryption_spec_key_name,
         )
-        self._column_transformations = column_transformations
+
+        self._column_transformations = column_transformations_utils.validate_and_get_column_transformations(
+            column_specs, column_transformations
+        )
+
         self._optimization_objective = optimization_objective
         self._additional_experiments = []
 
@@ -3720,6 +3754,9 @@ class AutoMLForecastingTrainingJob(_TrainingJob):
         forecast_horizon: int,
         data_granularity_unit: str,
         data_granularity_count: int,
+        training_fraction_split: Optional[float] = None,
+        validation_fraction_split: Optional[float] = None,
+        test_fraction_split: Optional[float] = None,
         predefined_split_column_name: Optional[str] = None,
         weight_column: Optional[str] = None,
         time_series_attribute_columns: Optional[List[str]] = None,
@@ -3736,8 +3773,25 @@ class AutoMLForecastingTrainingJob(_TrainingJob):
     ) -> models.Model:
         """Runs the training job and returns a model.
 
-        The training data splits are set by default: Roughly 80% will be used for training,
-        10% for validation, and 10% for test.
+        If training on a Vertex AI dataset, you can use one of the following split configurations:
+            Data fraction splits:
+            Any of ``training_fraction_split``, ``validation_fraction_split`` and
+            ``test_fraction_split`` may optionally be provided, they must sum to up to 1. If
+            the provided ones sum to less than 1, the remainder is assigned to sets as
+            decided by Vertex AI. If none of the fractions are set, by default roughly 80%
+            of data will be used for training, 10% for validation, and 10% for test.
+
+            Predefined splits:
+            Assigns input data to training, validation, and test sets based on the value of a provided key.
+            If using predefined splits, ``predefined_split_column_name`` must be provided.
+            Supported only for tabular Datasets.
+
+            Timestamp splits:
+            Assigns input data to training, validation, and test sets
+            based on a provided timestamps. The youngest data pieces are
+            assigned to training set, next to validation set, and the oldest
+            to the test set.
+            Supported only for tabular Datasets.
 
         Args:
             dataset (datasets.Dataset):
@@ -3896,6 +3950,9 @@ class AutoMLForecastingTrainingJob(_TrainingJob):
             forecast_horizon=forecast_horizon,
             data_granularity_unit=data_granularity_unit,
             data_granularity_count=data_granularity_count,
+            training_fraction_split=training_fraction_split,
+            validation_fraction_split=validation_fraction_split,
+            test_fraction_split=test_fraction_split,
             predefined_split_column_name=predefined_split_column_name,
             weight_column=weight_column,
             time_series_attribute_columns=time_series_attribute_columns,
@@ -4119,6 +4176,9 @@ class AutoMLForecastingTrainingJob(_TrainingJob):
         forecast_horizon: int,
         data_granularity_unit: str,
         data_granularity_count: int,
+        training_fraction_split: Optional[float] = None,
+        validation_fraction_split: Optional[float] = None,
+        test_fraction_split: Optional[float] = None,
         predefined_split_column_name: Optional[str] = None,
         weight_column: Optional[str] = None,
         time_series_attribute_columns: Optional[List[str]] = None,
@@ -4135,8 +4195,25 @@ class AutoMLForecastingTrainingJob(_TrainingJob):
     ) -> models.Model:
         """Runs the training job and returns a model.
 
-        The training data splits are set by default: Roughly 80% will be used for training,
-        10% for validation, and 10% for test.
+        If training on a Vertex AI dataset, you can use one of the following split configurations:
+            Data fraction splits:
+            Any of ``training_fraction_split``, ``validation_fraction_split`` and
+            ``test_fraction_split`` may optionally be provided, they must sum to up to 1. If
+            the provided ones sum to less than 1, the remainder is assigned to sets as
+            decided by Vertex AI. If none of the fractions are set, by default roughly 80%
+            of data will be used for training, 10% for validation, and 10% for test.
+
+            Predefined splits:
+            Assigns input data to training, validation, and test sets based on the value of a provided key.
+            If using predefined splits, ``predefined_split_column_name`` must be provided.
+            Supported only for tabular Datasets.
+
+            Timestamp splits:
+            Assigns input data to training, validation, and test sets
+            based on a provided timestamps. The youngest data pieces are
+            assigned to training set, next to validation set, and the oldest
+            to the test set.
+            Supported only for tabular Datasets.
 
         Args:
             dataset (datasets.Dataset):
@@ -4173,11 +4250,20 @@ class AutoMLForecastingTrainingJob(_TrainingJob):
                 Required. The number of data granularity units between data points in the training
                 data. If [data_granularity_unit] is `minute`, can be 1, 5, 10, 15, or 30. For all other
                 values of [data_granularity_unit], must be 1.
+            training_fraction_split (float):
+                Optional. The fraction of the input data that is to be used to train
+                the Model. This is ignored if Dataset is not provided.
+            validation_fraction_split (float):
+                Optional. The fraction of the input data that is to be used to validate
+                the Model. This is ignored if Dataset is not provided.
+            test_fraction_split (float):
+                Optional. The fraction of the input data that is to be used to evaluate
+                the Model. This is ignored if Dataset is not provided.
             predefined_split_column_name (str):
                 Optional. The key is a name of one of the Dataset's data
                 columns. The value of the key (either the label's value or
-                value in the column) must be one of {``TRAIN``,
-                ``VALIDATE``, ``TEST``}, and it defines to which set the
+                value in the column) must be one of {``training``,
+                ``validation``, ``test``}, and it defines to which set the
                 given piece of data is assigned. If for a piece of data the
                 key is not present or has an invalid value, that piece is
                 ignored by the pipeline.
@@ -4270,6 +4356,22 @@ class AutoMLForecastingTrainingJob(_TrainingJob):
 
         training_task_definition = schema.training_job.definition.automl_forecasting
 
+        # auto-populate transformations
+        if self._column_transformations is None:
+            _LOGGER.info(
+                "No column transformations provided, so now retrieving columns from dataset in order to set default column transformations."
+            )
+
+            (
+                self._column_transformations,
+                column_names,
+            ) = dataset._get_default_column_transformations(target_column)
+
+            _LOGGER.info(
+                "The column transformation of type 'auto' was set for the following columns: %s."
+                % column_names
+            )
+
         training_task_inputs_dict = {
             # required inputs
             "targetColumn": target_column,
@@ -4313,16 +4415,18 @@ class AutoMLForecastingTrainingJob(_TrainingJob):
         model = gca_model.Model(
             display_name=model_display_name or self._display_name,
             labels=model_labels or self._labels,
+            encryption_spec=self._model_encryption_spec,
         )
 
         new_model = self._run_job(
             training_task_definition=training_task_definition,
             training_task_inputs=training_task_inputs_dict,
             dataset=dataset,
-            training_fraction_split=None,
-            validation_fraction_split=None,
-            test_fraction_split=None,
+            training_fraction_split=training_fraction_split,
+            validation_fraction_split=validation_fraction_split,
+            test_fraction_split=test_fraction_split,
             predefined_split_column_name=predefined_split_column_name,
+            timestamp_split_column_name=None,  # Not supported by AutoMLForecasting
             model=model,
         )
 
