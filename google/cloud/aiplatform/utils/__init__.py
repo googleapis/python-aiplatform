@@ -581,7 +581,7 @@ def _timestamped_copy_to_gcs(
     blob_path = "-".join(["aiplatform", timestamp, local_file_name])
 
     if gcs_blob_prefix:
-        blob_path = "/".join([gcs_blob_prefix, blob_path])
+        blob_path = "/".join([gcs_blob_prefix, blob_path, local_file_name])
 
     # TODO(b/171202993) add user agent
     client = storage.Client(project=project, credentials=credentials)
@@ -591,3 +591,66 @@ def _timestamped_copy_to_gcs(
 
     gcs_path = "".join(["gs://", "/".join([blob.bucket.name, blob.name])])
     return gcs_path
+
+
+def stage_local_data_in_gcs(
+    data_path: str,
+    staging_gcs_dir: Optional[str] = None,
+    project: Optional[str] = None,
+    location: Optional[str] = None,
+    credentials: Optional[auth_credentials.Credentials] = None,
+) -> str:
+    """Stages a local data in GCS.
+
+    The file copied to GCS is the name of the local file prepended with an
+    "aiplatform-{timestamp}-" string.
+
+    Args:
+        data_path: Required. Path of the local data to copy to GCS.
+        staging_gcs_dir:
+            Optional. Google Cloud Storage bucket to be used for data staging.
+        project: Optional. Google Cloud Project that contains the staging bucket.
+        location: Optional. Google Cloud location to use for the staging bucket.
+        credentials: The custom credentials to use when making API calls.
+            If not provided, default credentials will be used.
+
+    Returns:
+        Google Cloud Storage URI of the staged data.
+    """
+    data_path_obj = pathlib.Path(data_path)
+
+    if not data_path_obj.exists():
+        raise RuntimeError(f"Local data does not exist: data_path='{data_path}'")
+
+    staging_gcs_dir = staging_gcs_dir or initializer.global_config.staging_bucket
+    if not staging_gcs_dir:
+        project = project or initializer.global_config.project
+        location = location or initializer.global_config.location
+        staging_gcs_dir = "gs://" + project + "-staging"
+        # Creating the bucket if it does not exist.
+        # Currently we only do this when staging_gcs_dir is not specified.
+        staging_bucket_name, _ = extract_bucket_and_prefix_from_gcs_path(staging_gcs_dir)
+        client = storage.Client(project=project, credentials=credentials)
+        staging_bucket = storage.Bucket(client=client, name=staging_bucket_name)
+        if not staging_bucket.exists():
+            staging_bucket = client.create_bucket(
+                bucket_or_name=staging_bucket,
+                project =project ,
+                location=location,
+            )
+
+    staging_root_dir = staging_gcs_dir.rstrip("/") + "/vertex_ai_auto_staging/"
+
+    if data_path_obj.is_dir():
+        raise NotImplementedError("Uploading directories is not supported yet.")
+
+    _timestamped_gcs_dir
+
+    staged_data_uri = _timestamped_copy_to_gcs(
+        local_file_path=data_path,
+        gcs_dir=staging_root_dir,
+        project=project or initializer.global_config.project,
+        credentials=credentials or initializer.global_config.credentials,
+    )
+
+    return staged_data_uri

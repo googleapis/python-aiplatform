@@ -1492,6 +1492,7 @@ class Model(base.VertexAiResourceNounWithFutureManager):
         credentials: Optional[auth_credentials.Credentials] = None,
         labels: Optional[Dict[str, str]] = None,
         encryption_spec_key_name: Optional[str] = None,
+        staging_bucket: Optional[str] = None,
         sync=True,
     ) -> "Model":
         """Uploads a model and returns a Model representing the uploaded Model
@@ -1635,6 +1636,9 @@ class Model(base.VertexAiResourceNounWithFutureManager):
                 If set, this Model and all sub-resources of this Model will be secured by this key.
 
                 Overrides encryption_spec_key_name set in aiplatform.init.
+            staging_bucket (str):
+                Optional. Bucket to stage local model artifacts. Overrides
+                staging_bucket set in aiplatform.init.
         Returns:
             model: Instantiated representation of the uploaded model resource.
         Raises:
@@ -1696,6 +1700,16 @@ class Model(base.VertexAiResourceNounWithFutureManager):
             labels=labels,
             encryption_spec=encryption_spec,
         )
+
+        if artifact_uri and not artifact_uri.startswith("gs://"):
+            staged_data_uri = utils.stage_local_data_in_gcs(
+                data_path=artifact_uri,
+                staging_gcs_dir=staging_bucket,
+                project=project,
+                location=location,
+                credentials=credentials,
+            )
+            artifact_uri = staged_data_uri
 
         if artifact_uri:
             managed_model.artifact_uri = artifact_uri
