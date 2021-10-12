@@ -311,5 +311,8 @@ class MigrationServiceGrpcAsyncIOTransport(MigrationServiceTransport):
             )
         return self._stubs["batch_migrate_resources"]
 
+    def close(self):
+        return self.grpc_channel.close()
+
 
 __all__ = ("MigrationServiceGrpcAsyncIOTransport",)

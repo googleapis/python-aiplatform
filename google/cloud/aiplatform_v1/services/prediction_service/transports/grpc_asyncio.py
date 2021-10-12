@@ -266,8 +266,17 @@ class PredictionServiceGrpcAsyncIOTransport(PredictionServiceTransport):
     ]:
         r"""Return a callable for the raw predict method over gRPC.
 
-        Perform an online prediction with arbitrary http
-        payload.
+        Perform an online prediction with an arbitrary HTTP payload.
+
+        The response includes the following HTTP headers:
+
+        -  ``X-Vertex-AI-Endpoint-Id``: ID of the
+           [Endpoint][google.cloud.aiplatform.v1.Endpoint] that served
+           this prediction.
+
+        -  ``X-Vertex-AI-Deployed-Model-Id``: ID of the Endpoint's
+           [DeployedModel][google.cloud.aiplatform.v1.DeployedModel]
+           that served this prediction.
 
         Returns:
             Callable[[~.RawPredictRequest],
@@ -326,6 +335,9 @@ class PredictionServiceGrpcAsyncIOTransport(PredictionServiceTransport):
                 response_deserializer=prediction_service.ExplainResponse.deserialize,
             )
         return self._stubs["explain"]
+
+    def close(self):
+        return self.grpc_channel.close()
 
 
 __all__ = ("PredictionServiceGrpcAsyncIOTransport",)

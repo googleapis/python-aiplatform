@@ -26,6 +26,7 @@ __protobuf__ = proto.module(
 
 class VideoClassificationPredictionParams(proto.Message):
     r"""Prediction model parameters for Video Classification.
+
     Attributes:
         confidence_threshold (float):
             The Model only returns predictions with at
