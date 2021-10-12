@@ -70,7 +70,7 @@ class _TrainingScriptPythonPackager:
     packager = TrainingScriptPythonPackager('my_script.py', ['pandas', 'pytorch'])
     gcs_path = packager.package_and_copy_to_gcs(
         gcs_staging_dir='my-bucket',
-        project='my-prject')
+        project='my-project')
     module_name = packager.module_name
 
     The package after installed can be executed as:

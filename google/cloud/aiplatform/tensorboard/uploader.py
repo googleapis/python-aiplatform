@@ -82,7 +82,7 @@ _MIN_LOGDIR_POLL_INTERVAL_SECS = 1
 
 # Maximum length of a base-128 varint as used to encode a 64-bit value
 # (without the "msb of last byte is bit 63" optimization, to be
-# compatible with protobuf and golang varints).
+# compatible with protobuf and golang variants).
 _MAX_VARINT64_LENGTH_BYTES = 10
 
 # Default minimum interval between initiating WriteTensorbordRunData RPCs in

@@ -430,7 +430,7 @@ class _TrainingJob(base.VertexAiResourceNounWithFutureManager):
                 -  AIP_TEST_DATA_URI = "bigquery_destination.dataset_*.test"
         Raises:
             ValueError: When more than 1 type of split configuration is passed or when
-                the split configuartion passed is incompatible with the dataset schema.
+                the split configuration passed is incompatible with the dataset schema.
         """
 
         input_data_config = None
@@ -3876,7 +3876,7 @@ class AutoMLForecastingTrainingJob(_TrainingJob):
                 Applies only if [export_evaluated_data_items] is True and
                 [export_evaluated_data_items_bigquery_destination_uri] is specified.
             quantiles (List[float]):
-                Quantiles to use for the `minizmize-quantile-loss`
+                Quantiles to use for the `minimize-quantile-loss`
                 [AutoMLForecastingTrainingJob.optimization_objective]. This argument is required in
                 this case.
 
@@ -4082,7 +4082,7 @@ class AutoMLForecastingTrainingJob(_TrainingJob):
                 Applies only if [export_evaluated_data_items] is True and
                 [export_evaluated_data_items_bigquery_destination_uri] is specified.
             quantiles (List[float]):
-                Quantiles to use for the `minizmize-quantile-loss`
+                Quantiles to use for the `minimize-quantile-loss`
                 [AutoMLForecastingTrainingJob.optimization_objective]. This argument is required in
                 this case.
 
@@ -4306,7 +4306,7 @@ class AutoMLForecastingTrainingJob(_TrainingJob):
                 Applies only if [export_evaluated_data_items] is True and
                 [export_evaluated_data_items_bigquery_destination_uri] is specified.
             quantiles (List[float]):
-                Quantiles to use for the `minizmize-quantile-loss`
+                Quantiles to use for the `minimize-quantile-loss`
                 [AutoMLForecastingTrainingJob.optimization_objective]. This argument is required in
                 this case.
 
@@ -5711,7 +5711,7 @@ class AutoMLVideoTrainingJob(_TrainingJob):
                         multiple objects in shots and segments. You can use these
                         models to track objects in your videos according to your
                         own pre-defined, custom labels.
-                    "action_recognition" - A video action reconition model pinpoints
+                    "action_recognition" - A video action recognition model pinpoints
                         the location of actions with short temporal durations (~1 second).
             model_type: str = "CLOUD"
                 Required. One of the following:

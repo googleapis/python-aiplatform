@@ -163,7 +163,7 @@ class _Dataset(base.VertexAiResourceNounWithFutureManager):
                 be picked randomly. Two DataItems are considered identical
                 if their content bytes are identical (e.g. image bytes or
                 pdf bytes). These labels will be overridden by Annotation
-                labels specified inside index file refenced by
+                labels specified inside index file referenced by
                 ``import_schema_uri``,
                 e.g. jsonl file.
             project (str):
@@ -487,7 +487,7 @@ class _Dataset(base.VertexAiResourceNounWithFutureManager):
                 be picked randomly. Two DataItems are considered identical
                 if their content bytes are identical (e.g. image bytes or
                 pdf bytes). These labels will be overridden by Annotation
-                labels specified inside index file refenced by
+                labels specified inside index file referenced by
                 ``import_schema_uri``,
                 e.g. jsonl file.
             sync (bool):

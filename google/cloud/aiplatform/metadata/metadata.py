@@ -155,7 +155,7 @@ class _MetadataService:
 
         Args:
             metrics (Dict):
-                Required. Metrics key/value pairs. Only flot and int are supported format for value.
+                Required. Metrics key/value pairs. Only float and int are supported format for value.
         Raises:
             TypeError if value contains unsupported types.
             ValueError if Experiment or Run is not set.
@@ -263,7 +263,7 @@ class _MetadataService:
 
         Args:
             metrics (Dict):
-                Required. Metrics key/value pairs. Only flot and int are supported format for value.
+                Required. Metrics key/value pairs. Only float and int are supported format for value.
         Raises:
             TypeError if value contains unsupported types.
         """

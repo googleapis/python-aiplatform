@@ -173,7 +173,7 @@ class _DistributedTrainingSpec(NamedTuple):
         boot_disk_type: str = "pd-ssd",
         boot_disk_size_gb: int = 100,
     ) -> "_DistributedTrainingSpec":
-        """Parameterizes Config to support only chief with worker replicas.
+        """Parametrizes Config to support only chief with worker replicas.
 
         For replica is assigned to chief and the remainder to workers. All spec have the
         same machine type, accelerator count, and accelerator type.
