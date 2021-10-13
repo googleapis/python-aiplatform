@@ -38,6 +38,7 @@ class TabularDataset(datasets._ColumnNamesDataset):
         cls,
         display_name: str,
         gcs_source: Optional[Union[str, Sequence[str]]] = None,
+        local_source: Optional[Union[str, Sequence[str]]] = None,
         bq_source: Optional[str] = None,
         project: Optional[str] = None,
         location: Optional[str] = None,
@@ -45,6 +46,7 @@ class TabularDataset(datasets._ColumnNamesDataset):
         request_metadata: Optional[Sequence[Tuple[str, str]]] = (),
         labels: Optional[Dict[str, str]] = None,
         encryption_spec_key_name: Optional[str] = None,
+        staging_bucket: Optional[str] = None,
         sync: bool = True,
     ) -> "TabularDataset":
         """Creates a new tabular dataset.
@@ -62,6 +64,11 @@ class TabularDataset(datasets._ColumnNamesDataset):
                 examples:
                     str: "gs://bucket/file.csv"
                     Sequence[str]: ["gs://bucket/file1.csv", "gs://bucket/file2.csv"]
+            local_source (Union[str, Sequence[str]]):
+                Paths to the local input file(s). May contain wildcards.
+                examples:
+                    str: "/dir/file.csv"
+                    Sequence[str]: ["/dir/file1.csv", "/dir/file2.csv"]
             bq_source (str):
                 BigQuery URI to the input table.
                 example:
@@ -98,6 +105,9 @@ class TabularDataset(datasets._ColumnNamesDataset):
                 If set, this Dataset and all sub-resources of this Dataset will be secured by this key.
 
                 Overrides encryption_spec_key_name set in aiplatform.init.
+            staging_bucket (str):
+                Optional. Bucket to stage local dataset artifacts. Overrides
+                staging_bucket set in aiplatform.init.
             sync (bool):
                 Whether to execute this method synchronously. If False, this method
                 will be executed in concurrent Future and any downstream object will
@@ -116,10 +126,12 @@ class TabularDataset(datasets._ColumnNamesDataset):
 
         metadata_schema_uri = schema.dataset.metadata.tabular
 
-        datasource = _datasources.create_datasource(
+        datasource = _datasources.stage_data_and_create_datasource(
             metadata_schema_uri=metadata_schema_uri,
             gcs_source=gcs_source,
+            local_source=local_source,
             bq_source=bq_source,
+            staging_bucket=staging_bucket,
         )
 
         return cls._create_and_import(
