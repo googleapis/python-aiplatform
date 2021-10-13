@@ -17,7 +17,9 @@
 
 import abc
 from typing import Optional, Dict, Sequence, Union
+from google.auth import credentials as auth_credentials
 from google.cloud.aiplatform import schema
+from google.cloud.aiplatform import utils
 
 from google.cloud.aiplatform.compat.types import (
     io as gca_io,
@@ -240,3 +242,106 @@ def create_datasource(
         raise ValueError(
             "nontabular dataset requires both import_schema_uri and gcs_source for data import."
         )
+
+
+def stage_data_and_create_datasource(
+    metadata_schema_uri: str,
+    import_schema_uri: Optional[str] = None,
+    local_source: Optional[Union[str, Sequence[str]]] = None,
+    gcs_source: Optional[Union[str, Sequence[str]]] = None,
+    bq_source: Optional[str] = None,
+    data_item_labels: Optional[Dict] = None,
+    project: Optional[str] = None,
+    location: Optional[str] = None,
+    credentials: Optional[auth_credentials.Credentials] = None,
+    staging_bucket: Optional[str] = None,
+) -> Datasource:
+    """Creates a datasource
+    Args:
+        metadata_schema_uri (str):
+            Required. Points to a YAML file stored on Google Cloud Storage
+            describing additional information about the Dataset. The schema
+            is defined as an OpenAPI 3.0.2 Schema Object. The schema files
+            that can be used here are found in gs://google-cloud-
+            aiplatform/schema/dataset/metadata/.
+        import_schema_uri (str):
+            Points to a YAML file stored on Google Cloud
+            Storage describing the import format. Validation will be
+            done against the schema. The schema is defined as an
+            `OpenAPI 3.0.2 Schema
+        gcs_source (Union[str, Sequence[str]]):
+            The Google Cloud Storage location for the input content.
+            Google Cloud Storage URI(-s) to the input file(s). May contain
+            wildcards. For more information on wildcards, see
+            https://cloud.google.com/storage/docs/gsutil/addlhelp/WildcardNames.
+            examples:
+                str: "gs://bucket/file.csv"
+                Sequence[str]: ["gs://bucket/file1.csv", "gs://bucket/file2.csv"]
+        local_source (Union[str, Sequence[str]]):
+            Paths to the local input file(s). May contain wildcards.
+            examples:
+                str: "/dir/file.csv"
+                Sequence[str]: ["/dir/file1.csv", "/dir/file2.csv"]
+        bq_source (str):
+            BigQuery URI to the input table.
+            example:
+                "bq://project.dataset.table_name"
+        data_item_labels (Dict):
+            Labels that will be applied to newly imported DataItems. If
+            an identical DataItem as one being imported already exists
+            in the Dataset, then these labels will be appended to these
+            of the already existing one, and if labels with identical
+            key is imported before, the old label value will be
+            overwritten. If two DataItems are identical in the same
+            import data operation, the labels will be combined and if
+            key collision happens in this case, one of the values will
+            be picked randomly. Two DataItems are considered identical
+            if their content bytes are identical (e.g. image bytes or
+            pdf bytes). These labels will be overridden by Annotation
+            labels specified inside index file referenced by
+            ``import_schema_uri``,
+            e.g. jsonl file.
+        project (str):
+            Project to upload this model to. Overrides project set in
+            aiplatform.init.
+        location (str):
+            Location to upload this model to. Overrides location set in
+            aiplatform.init.
+        credentials (auth_credentials.Credentials):
+            Custom credentials to use to upload this model. Overrides
+            credentials set in aiplatform.init.
+        staging_bucket (str):
+            Optional. Bucket to stage local model artifacts. Overrides
+            staging_bucket set in aiplatform.init.
+    Returns:
+        datasource (Datasource)
+
+    Raises:
+        ValueError when below scenarios happen
+        - import_schema_uri is identified for creating TabularDatasource
+        - either import_schema_uri or gcs_source is missing for creating NonTabularDatasourceImportable
+    """
+
+    if local_source:
+        if isinstance(local_source, str):
+            local_source = [local_source]
+        if isinstance(gcs_source, str):
+            gcs_source = [gcs_source]
+        gcs_source = gcs_source or []
+        for data_path in local_source:
+            staged_data_uri = utils.stage_local_data_in_gcs(
+                data_path=data_path,
+                staging_gcs_dir=staging_bucket,
+                project=project,
+                location=location,
+                credentials=credentials,
+            )
+            gcs_source.append(staged_data_uri)
+
+    return create_datasource(
+        bq_source=bq_source,
+        data_item_labels=data_item_labels,
+        gcs_source=gcs_source,
+        import_schema_uri=import_schema_uri,
+        metadata_schema_uri=metadata_schema_uri,
+    )

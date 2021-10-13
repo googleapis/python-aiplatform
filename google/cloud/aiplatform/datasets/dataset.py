@@ -224,28 +224,17 @@ class _Dataset(base.VertexAiResourceNounWithFutureManager):
 
         api_client = cls._instantiate_client(location=location, credentials=credentials)
 
-        if local_source:
-            if isinstance(local_source, str):
-                local_source = [local_source]
-            if isinstance(gcs_source, str):
-                gcs_source = [gcs_source]
-            gcs_source = gcs_source or []
-            for data_path in local_source:
-                staged_data_uri = utils.stage_local_data_in_gcs(
-                    data_path=data_path,
-                    staging_gcs_dir=staging_bucket,
-                    project=project,
-                    location=location,
-                    credentials=credentials,
-                )
-                gcs_source.append(staged_data_uri)
-
-        datasource = _datasources.create_datasource(
+        datasource = _datasources.stage_data_and_create_datasource(
             metadata_schema_uri=metadata_schema_uri,
             import_schema_uri=import_schema_uri,
             gcs_source=gcs_source,
             bq_source=bq_source,
             data_item_labels=data_item_labels,
+            local_source=local_source,
+            project=project,
+            location=location,
+            credentials=credentials,
+            staging_bucket=staging_bucket,
         )
 
         return cls._create_and_import(
@@ -479,9 +468,11 @@ class _Dataset(base.VertexAiResourceNounWithFutureManager):
     @base.optional_sync(return_input_arg="self")
     def import_data(
         self,
-        gcs_source: Union[str, Sequence[str]],
         import_schema_uri: str,
+        gcs_source: Union[str, Sequence[str]] = None,
+        local_source: Optional[Union[str, Sequence[str]]] = None,
         data_item_labels: Optional[Dict] = None,
+        staging_bucket: Optional[str] = None,
         sync: bool = True,
     ) -> "_Dataset":
         """Upload data to existing managed dataset.
@@ -495,6 +486,11 @@ class _Dataset(base.VertexAiResourceNounWithFutureManager):
                 examples:
                     str: "gs://bucket/file.csv"
                     Sequence[str]: ["gs://bucket/file1.csv", "gs://bucket/file2.csv"]
+            local_source (Union[str, Sequence[str]]):
+                Paths to the local input file(s). May contain wildcards.
+                examples:
+                    str: "/dir/file.csv"
+                    Sequence[str]: ["/dir/file1.csv", "/dir/file2.csv"]
             import_schema_uri (str):
                 Required. Points to a YAML file stored on Google Cloud
                 Storage describing the import format. Validation will be
@@ -516,6 +512,9 @@ class _Dataset(base.VertexAiResourceNounWithFutureManager):
                 labels specified inside index file refenced by
                 ``import_schema_uri``,
                 e.g. jsonl file.
+            staging_bucket (str):
+                Optional. Bucket to stage local dataset artifacts. Overrides
+                staging_bucket set in aiplatform.init.
             sync (bool):
                 Whether to execute this method synchronously. If False, this method
                 will be executed in concurrent Future and any downstream object will
@@ -525,11 +524,19 @@ class _Dataset(base.VertexAiResourceNounWithFutureManager):
             dataset (Dataset):
                 Instantiated representation of the managed dataset resource.
         """
-        datasource = _datasources.create_datasource(
+        if not any([gcs_source, local_source]):
+            raise ValueError("One of gcs_source or local_source must be set.")
+
+        datasource = _datasources.stage_data_and_create_datasource(
             metadata_schema_uri=self.metadata_schema_uri,
             import_schema_uri=import_schema_uri,
             gcs_source=gcs_source,
             data_item_labels=data_item_labels,
+            local_source=local_source,
+            project=self.project,
+            location=self.location,
+            credentials=self.credentials,
+            staging_bucket=staging_bucket,
         )
 
         self._import_and_wait(datasource=datasource)
