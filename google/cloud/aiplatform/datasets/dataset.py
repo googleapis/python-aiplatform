@@ -108,6 +108,7 @@ class _Dataset(base.VertexAiResourceNounWithFutureManager):
         display_name: str,
         metadata_schema_uri: str,
         gcs_source: Optional[Union[str, Sequence[str]]] = None,
+        local_source: Optional[Union[str, Sequence[str]]] = None,
         bq_source: Optional[str] = None,
         import_schema_uri: Optional[str] = None,
         data_item_labels: Optional[Dict] = None,
@@ -117,6 +118,7 @@ class _Dataset(base.VertexAiResourceNounWithFutureManager):
         request_metadata: Optional[Sequence[Tuple[str, str]]] = (),
         labels: Optional[Dict[str, str]] = None,
         encryption_spec_key_name: Optional[str] = None,
+        staging_bucket: Optional[str] = None,
         sync: bool = True,
     ) -> "_Dataset":
         """Creates a new dataset and optionally imports data into dataset when
@@ -141,6 +143,11 @@ class _Dataset(base.VertexAiResourceNounWithFutureManager):
                 examples:
                     str: "gs://bucket/file.csv"
                     Sequence[str]: ["gs://bucket/file1.csv", "gs://bucket/file2.csv"]
+            local_source (Union[str, Sequence[str]]):
+                Paths to the local input file(s). May contain wildcards.
+                examples:
+                    str: "/dir/file.csv"
+                    Sequence[str]: ["/dir/file1.csv", "/dir/file2.csv"]
             bq_source (str):
                 BigQuery URI to the input table.
                 example:
@@ -198,6 +205,9 @@ class _Dataset(base.VertexAiResourceNounWithFutureManager):
                 If set, this Dataset and all sub-resources of this Dataset will be secured by this key.
 
                 Overrides encryption_spec_key_name set in aiplatform.init.
+            staging_bucket (str):
+                Optional. Bucket to stage local dataset artifacts. Overrides
+                staging_bucket set in aiplatform.init.
             sync (bool):
                 Whether to execute this method synchronously. If False, this method
                 will be executed in concurrent Future and any downstream object will
@@ -213,6 +223,22 @@ class _Dataset(base.VertexAiResourceNounWithFutureManager):
             utils.validate_labels(labels)
 
         api_client = cls._instantiate_client(location=location, credentials=credentials)
+
+        if local_source:
+            if isinstance(local_source, str):
+                local_source = [local_source]
+            if isinstance(gcs_source, str):
+                gcs_source = [gcs_source]
+            gcs_source = gcs_source or []
+            for data_path in local_source:
+                staged_data_uri = utils.stage_local_data_in_gcs(
+                    data_path=data_path,
+                    staging_gcs_dir=staging_bucket,
+                    project=project,
+                    location=location,
+                    credentials=credentials,
+                )
+                gcs_source.append(staged_data_uri)
 
         datasource = _datasources.create_datasource(
             metadata_schema_uri=metadata_schema_uri,
