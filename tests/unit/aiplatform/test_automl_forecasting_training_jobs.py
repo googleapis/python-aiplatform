@@ -151,6 +151,9 @@ def mock_pipeline_service_get():
             name=_TEST_PIPELINE_RESOURCE_NAME,
             state=gca_pipeline_state.PipelineState.PIPELINE_STATE_SUCCEEDED,
             model_to_upload=gca_model.Model(name=_TEST_MODEL_NAME),
+            training_task_metadata={
+                "evaluatedDataItemsBigqueryUri": _TEST_TRAINING_EXPORT_EVALUATED_DATA_ITEMS_BIGQUERY_DESTINATION_URI
+            },
         )
         yield mock_get_training_pipeline
 
