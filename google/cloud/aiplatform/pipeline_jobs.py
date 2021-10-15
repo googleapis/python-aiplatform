@@ -204,9 +204,10 @@ class PipelineJob(base.VertexAiResourceNounWithFutureManager):
                 pipeline_root=pipeline_root,
                 parameter_types={
                     key: value["type"]
-                    for key, value in pipeline_job["pipelineSpec"]["root"][
-                        "inputDefinitions"
-                    ]["parameters"].items()
+                    for key, value in pipeline_job["pipelineSpec"]["root"]
+                    .get("inputDefinitions", {})
+                    .get("parameters", {})
+                    .items()
                 },
                 parameter_values=parameter_values,
             ).build()
