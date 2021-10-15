@@ -14,6 +14,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
+import pathlib
 import proto
 from typing import Dict, List, NamedTuple, Optional, Sequence, Tuple, Union
 
@@ -47,6 +48,15 @@ from google.protobuf import json_format
 
 
 _LOGGER = base.Logger(__name__)
+
+
+_SUPPORTED_MODEL_FILE_NAMES = [
+    "model.pkl",
+    "model.joblib",
+    "model.bst",
+    "saved_model.pb",
+    "saved_model.pbtxt",
+]
 
 
 class Prediction(NamedTuple):
@@ -1702,8 +1712,26 @@ class Model(base.VertexAiResourceNounWithFutureManager):
         )
 
         if artifact_uri and not artifact_uri.startswith("gs://"):
+            # Validating the model directory
+            model_dir = pathlib.Path(artifact_uri)
+            if not model_dir.exists():
+                raise ValueError(f"artifact_uri path does not exist: '{artifact_uri}'")
+            if not model_dir.is_dir():
+                raise ValueError(
+                    f"artifact_uri path must be a directory: '{artifact_uri}'"
+                )
+            if not any(
+                (model_dir / file_name).exists()
+                for file_name in _SUPPORTED_MODEL_FILE_NAMES
+            ):
+                raise ValueError(
+                    "artifact_uri directory does not contain any supported model files. "
+                    f"The upload method only supports the following model files: '{_SUPPORTED_MODEL_FILE_NAMES}'"
+                )
+
+            # Uploading the model
             staged_data_uri = utils.stage_local_data_in_gcs(
-                data_path=artifact_uri,
+                data_path=str(model_dir),
                 staging_gcs_dir=staging_bucket,
                 project=project,
                 location=location,
