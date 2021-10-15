@@ -584,7 +584,7 @@ def _timestamped_copy_to_gcs(
     blob_path = "-".join(["aiplatform", timestamp, local_file_name])
 
     if gcs_blob_prefix:
-        blob_path = "/".join([gcs_blob_prefix, blob_path, local_file_name])
+        blob_path = "/".join([gcs_blob_prefix, blob_path])
 
     # TODO(b/171202993) add user agent
     client = storage.Client(project=project, credentials=credentials)
@@ -681,31 +681,33 @@ def stage_local_data_in_gcs(
     if not staging_gcs_dir:
         project = project or initializer.global_config.project
         location = location or initializer.global_config.location
-        staging_gcs_dir = "gs://" + project + "-staging"
         # Creating the bucket if it does not exist.
         # Currently we only do this when staging_gcs_dir is not specified.
-        staging_bucket_name, _ = extract_bucket_and_prefix_from_gcs_path(staging_gcs_dir)
+        staging_bucket_name = project + "-staging"
         client = storage.Client(project=project, credentials=credentials)
         staging_bucket = storage.Bucket(client=client, name=staging_bucket_name)
         if not staging_bucket.exists():
+            _logger.info(f'Creating staging GCS bucket "{staging_bucket_name}"')
             staging_bucket = client.create_bucket(
-                bucket_or_name=staging_bucket,
-                project =project ,
-                location=location,
+                bucket_or_name=staging_bucket, project=project, location=location,
             )
+        staging_gcs_dir = "gs://" + staging_bucket_name
 
-    staging_root_dir = staging_gcs_dir.rstrip("/") + "/vertex_ai_auto_staging/"
+    timestamp = datetime.datetime.now().isoformat(sep="-", timespec="milliseconds")
+    staging_gcs_subdir = (
+        staging_gcs_dir.rstrip("/") + "/vertex_ai_auto_staging/" + timestamp
+    )
 
-    if data_path_obj.is_dir():
-        raise NotImplementedError("Uploading directories is not supported yet.")
+    staged_data_uri = staging_gcs_subdir
+    if data_path_obj.is_file():
+        staged_data_uri = staging_gcs_subdir + "/" + data_path_obj.name
 
-    _timestamped_gcs_dir
-
-    staged_data_uri = _timestamped_copy_to_gcs(
-        local_file_path=data_path,
-        gcs_dir=staging_root_dir,
-        project=project or initializer.global_config.project,
-        credentials=credentials or initializer.global_config.credentials,
+    _logger.info(f'Uploading "{data_path}" to "{staged_data_uri}"')
+    upload_to_gcs(
+        source_path=data_path,
+        destination_uri=staged_data_uri,
+        project=project,
+        credentials=credentials,
     )
 
     return staged_data_uri
