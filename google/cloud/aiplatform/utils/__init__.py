@@ -18,6 +18,7 @@
 
 import abc
 import datetime
+import glob
 import pathlib
 from collections import namedtuple
 import logging
@@ -55,6 +56,8 @@ from google.cloud.aiplatform.compat.services import (
 from google.cloud.aiplatform.compat.types import (
     accelerator_type as gca_accelerator_type,
 )
+
+_logger = logging.getLogger(__name__)
 
 VertexAiServiceClient = TypeVar(
     "VertexAiServiceClient",
@@ -591,6 +594,58 @@ def _timestamped_copy_to_gcs(
 
     gcs_path = "".join(["gs://", "/".join([blob.bucket.name, blob.name])])
     return gcs_path
+
+
+def upload_to_gcs(
+    source_path: str,
+    destination_uri: str,
+    project: Optional[str] = None,
+    credentials: Optional[auth_credentials.Credentials] = None,
+):
+    """Uploads local files to GCS.
+
+    After upload the `destination_uri` will contain the same data as the `source_path`.
+
+    Args:
+        source_path: Required. Path of the local data to copy to GCS.
+        destination_uri: Required. GCS URI where the data should be uploaded.
+        project: Optional. Google Cloud Project that contains the staging bucket.
+        credentials: The custom credentials to use when making API calls.
+            If not provided, default credentials will be used.
+    """
+    source_path_obj = pathlib.Path(source_path)
+    if not source_path_obj.exists():
+        raise RuntimeError(f"Source path does not exist: {source_path}")
+
+    storage_client = storage.Client(project=project, credentials=credentials)
+    if source_path_obj.is_dir():
+        source_file_paths = glob.glob(
+            pathname=str(source_path_obj / "**"), recursive=True
+        )
+        for source_file_path in source_file_paths:
+            source_file_path_obj = pathlib.Path(source_file_path)
+            if source_file_path_obj.is_dir():
+                continue
+            source_file_relative_path_obj = source_file_path_obj.relative_to(
+                source_path_obj
+            )
+            source_file_relative_posix_path = source_file_relative_path_obj.as_posix()
+            destination_file_uri = (
+                destination_uri.rstrip("/") + "/" + source_file_relative_posix_path
+            )
+            _logger.debug(f'Uploading "{source_file_path}" to "{destination_file_uri}"')
+            destination_blob = storage.Blob.from_string(
+                destination_file_uri, client=storage_client
+            )
+            destination_blob.upload_from_filename(filename=source_file_path)
+    else:
+        source_file_path = source_path
+        destination_file_uri = destination_uri
+        _logger.debug(f'Uploading "{source_file_path}" to "{destination_file_uri}"')
+        destination_blob = storage.Blob.from_string(
+            destination_file_uri, client=storage_client
+        )
+        destination_blob.upload_from_filename(filename=source_file_path)
 
 
 def stage_local_data_in_gcs(
