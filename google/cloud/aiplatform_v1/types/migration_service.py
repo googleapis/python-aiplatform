@@ -287,6 +287,7 @@ class BatchMigrateResourcesResponse(proto.Message):
 
 class MigrateResourceResponse(proto.Message):
     r"""Describes a successfully migrated resource.
+
     Attributes:
         dataset (str):
             Migrated Dataset's resource name.

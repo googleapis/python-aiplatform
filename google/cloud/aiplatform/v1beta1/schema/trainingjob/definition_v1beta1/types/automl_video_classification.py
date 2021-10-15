@@ -38,6 +38,7 @@ class AutoMlVideoClassification(proto.Message):
 
 class AutoMlVideoClassificationInputs(proto.Message):
     r"""
+
     Attributes:
         model_type (google.cloud.aiplatform.v1beta1.schema.trainingjob.definition_v1beta1.types.AutoMlVideoClassificationInputs.ModelType):
 

@@ -207,6 +207,7 @@ class SuggestTrialsResponse(proto.Message):
 
 class SuggestTrialsMetadata(proto.Message):
     r"""Details of operations that perform Trials suggestion.
+
     Attributes:
         generic_metadata (google.cloud.aiplatform_v1.types.GenericOperationMetadata):
             Operation metadata for suggesting Trials.

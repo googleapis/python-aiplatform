@@ -47,6 +47,7 @@ class AutoMlImageClassification(proto.Message):
 
 class AutoMlImageClassificationInputs(proto.Message):
     r"""
+
     Attributes:
         model_type (google.cloud.aiplatform.v1beta1.schema.trainingjob.definition_v1beta1.types.AutoMlImageClassificationInputs.ModelType):
 
@@ -106,6 +107,7 @@ class AutoMlImageClassificationInputs(proto.Message):
 
 class AutoMlImageClassificationMetadata(proto.Message):
     r"""
+
     Attributes:
         cost_milli_node_hours (int):
             The actual training cost of creating this

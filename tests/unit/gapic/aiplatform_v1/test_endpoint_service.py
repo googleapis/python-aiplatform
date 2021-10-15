@@ -32,6 +32,7 @@ from google.api_core import grpc_helpers
 from google.api_core import grpc_helpers_async
 from google.api_core import operation_async  # type: ignore
 from google.api_core import operations_v1
+from google.api_core import path_template
 from google.auth import credentials as ga_credentials
 from google.auth.exceptions import MutualTLSChannelError
 from google.cloud.aiplatform_v1.services.endpoint_service import (
@@ -750,6 +751,7 @@ def test_get_endpoint(
             display_name="display_name_value",
             description="description_value",
             etag="etag_value",
+            network="network_value",
             model_deployment_monitoring_job="model_deployment_monitoring_job_value",
         )
         response = client.get_endpoint(request)
@@ -765,6 +767,7 @@ def test_get_endpoint(
     assert response.display_name == "display_name_value"
     assert response.description == "description_value"
     assert response.etag == "etag_value"
+    assert response.network == "network_value"
     assert (
         response.model_deployment_monitoring_job
         == "model_deployment_monitoring_job_value"
@@ -811,6 +814,7 @@ async def test_get_endpoint_async(
                 display_name="display_name_value",
                 description="description_value",
                 etag="etag_value",
+                network="network_value",
                 model_deployment_monitoring_job="model_deployment_monitoring_job_value",
             )
         )
@@ -827,6 +831,7 @@ async def test_get_endpoint_async(
     assert response.display_name == "display_name_value"
     assert response.description == "description_value"
     assert response.etag == "etag_value"
+    assert response.network == "network_value"
     assert (
         response.model_deployment_monitoring_job
         == "model_deployment_monitoring_job_value"
@@ -1330,6 +1335,7 @@ def test_update_endpoint(
             display_name="display_name_value",
             description="description_value",
             etag="etag_value",
+            network="network_value",
             model_deployment_monitoring_job="model_deployment_monitoring_job_value",
         )
         response = client.update_endpoint(request)
@@ -1345,6 +1351,7 @@ def test_update_endpoint(
     assert response.display_name == "display_name_value"
     assert response.description == "description_value"
     assert response.etag == "etag_value"
+    assert response.network == "network_value"
     assert (
         response.model_deployment_monitoring_job
         == "model_deployment_monitoring_job_value"
@@ -1391,6 +1398,7 @@ async def test_update_endpoint_async(
                 display_name="display_name_value",
                 description="description_value",
                 etag="etag_value",
+                network="network_value",
                 model_deployment_monitoring_job="model_deployment_monitoring_job_value",
             )
         )
@@ -1407,6 +1415,7 @@ async def test_update_endpoint_async(
     assert response.display_name == "display_name_value"
     assert response.description == "description_value"
     assert response.etag == "etag_value"
+    assert response.network == "network_value"
     assert (
         response.model_deployment_monitoring_job
         == "model_deployment_monitoring_job_value"
@@ -2336,6 +2345,9 @@ def test_endpoint_service_base_transport():
         with pytest.raises(NotImplementedError):
             getattr(transport, method)(request=object())
 
+    with pytest.raises(NotImplementedError):
+        transport.close()
+
     # Additionally, the LRO client (a property) should
     # also raise NotImplementedError
     with pytest.raises(NotImplementedError):
@@ -2786,8 +2798,30 @@ def test_parse_model_deployment_monitoring_job_path():
     assert expected == actual
 
 
+def test_network_path():
+    project = "cuttlefish"
+    network = "mussel"
+    expected = "projects/{project}/global/networks/{network}".format(
+        project=project, network=network,
+    )
+    actual = EndpointServiceClient.network_path(project, network)
+    assert expected == actual
+
+
+def test_parse_network_path():
+    expected = {
+        "project": "winkle",
+        "network": "nautilus",
+    }
+    path = EndpointServiceClient.network_path(**expected)
+
+    # Check that the path construction is reversible.
+    actual = EndpointServiceClient.parse_network_path(path)
+    assert expected == actual
+
+
 def test_common_billing_account_path():
-    billing_account = "cuttlefish"
+    billing_account = "scallop"
     expected = "billingAccounts/{billing_account}".format(
         billing_account=billing_account,
     )
@@ -2797,7 +2831,7 @@ def test_common_billing_account_path():
 
 def test_parse_common_billing_account_path():
     expected = {
-        "billing_account": "mussel",
+        "billing_account": "abalone",
     }
     path = EndpointServiceClient.common_billing_account_path(**expected)
 
@@ -2807,7 +2841,7 @@ def test_parse_common_billing_account_path():
 
 
 def test_common_folder_path():
-    folder = "winkle"
+    folder = "squid"
     expected = "folders/{folder}".format(folder=folder,)
     actual = EndpointServiceClient.common_folder_path(folder)
     assert expected == actual
@@ -2815,7 +2849,7 @@ def test_common_folder_path():
 
 def test_parse_common_folder_path():
     expected = {
-        "folder": "nautilus",
+        "folder": "clam",
     }
     path = EndpointServiceClient.common_folder_path(**expected)
 
@@ -2825,7 +2859,7 @@ def test_parse_common_folder_path():
 
 
 def test_common_organization_path():
-    organization = "scallop"
+    organization = "whelk"
     expected = "organizations/{organization}".format(organization=organization,)
     actual = EndpointServiceClient.common_organization_path(organization)
     assert expected == actual
@@ -2833,7 +2867,7 @@ def test_common_organization_path():
 
 def test_parse_common_organization_path():
     expected = {
-        "organization": "abalone",
+        "organization": "octopus",
     }
     path = EndpointServiceClient.common_organization_path(**expected)
 
@@ -2843,7 +2877,7 @@ def test_parse_common_organization_path():
 
 
 def test_common_project_path():
-    project = "squid"
+    project = "oyster"
     expected = "projects/{project}".format(project=project,)
     actual = EndpointServiceClient.common_project_path(project)
     assert expected == actual
@@ -2851,7 +2885,7 @@ def test_common_project_path():
 
 def test_parse_common_project_path():
     expected = {
-        "project": "clam",
+        "project": "nudibranch",
     }
     path = EndpointServiceClient.common_project_path(**expected)
 
@@ -2861,8 +2895,8 @@ def test_parse_common_project_path():
 
 
 def test_common_location_path():
-    project = "whelk"
-    location = "octopus"
+    project = "cuttlefish"
+    location = "mussel"
     expected = "projects/{project}/locations/{location}".format(
         project=project, location=location,
     )
@@ -2872,8 +2906,8 @@ def test_common_location_path():
 
 def test_parse_common_location_path():
     expected = {
-        "project": "oyster",
-        "location": "nudibranch",
+        "project": "winkle",
+        "location": "nautilus",
     }
     path = EndpointServiceClient.common_location_path(**expected)
 
@@ -2901,3 +2935,49 @@ def test_client_withDEFAULT_CLIENT_INFO():
             credentials=ga_credentials.AnonymousCredentials(), client_info=client_info,
         )
         prep.assert_called_once_with(client_info)
+
+
+@pytest.mark.asyncio
+async def test_transport_close_async():
+    client = EndpointServiceAsyncClient(
+        credentials=ga_credentials.AnonymousCredentials(), transport="grpc_asyncio",
+    )
+    with mock.patch.object(
+        type(getattr(client.transport, "grpc_channel")), "close"
+    ) as close:
+        async with client:
+            close.assert_not_called()
+        close.assert_called_once()
+
+
+def test_transport_close():
+    transports = {
+        "grpc": "_grpc_channel",
+    }
+
+    for transport, close_name in transports.items():
+        client = EndpointServiceClient(
+            credentials=ga_credentials.AnonymousCredentials(), transport=transport
+        )
+        with mock.patch.object(
+            type(getattr(client.transport, close_name)), "close"
+        ) as close:
+            with client:
+                close.assert_not_called()
+            close.assert_called_once()
+
+
+def test_client_ctx():
+    transports = [
+        "grpc",
+    ]
+    for transport in transports:
+        client = EndpointServiceClient(
+            credentials=ga_credentials.AnonymousCredentials(), transport=transport
+        )
+        # Test client calls underlying transport.
+        with mock.patch.object(type(client.transport), "close") as close:
+            close.assert_not_called()
+            with client:
+                pass
+            close.assert_called()

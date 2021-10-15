@@ -1151,5 +1151,8 @@ class JobServiceGrpcAsyncIOTransport(JobServiceTransport):
             )
         return self._stubs["resume_model_deployment_monitoring_job"]
 
+    def close(self):
+        return self.grpc_channel.close()
+
 
 __all__ = ("JobServiceGrpcAsyncIOTransport",)

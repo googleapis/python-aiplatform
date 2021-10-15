@@ -26,6 +26,7 @@ __protobuf__ = proto.module(
 
 class TextSentimentPredictionInstance(proto.Message):
     r"""Prediction input format for Text Sentiment.
+
     Attributes:
         content (str):
             The text snippet to make the predictions on.
