@@ -21,6 +21,7 @@ __protobuf__ = proto.module(package="google.cloud.aiplatform.v1", manifest={"Val
 
 class Value(proto.Message):
     r"""Value is the value of the field.
+
     Attributes:
         int_value (int):
             An integer value.

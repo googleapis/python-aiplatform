@@ -24,6 +24,7 @@ __protobuf__ = proto.module(
 
 class VideoActionRecognitionPredictionParams(proto.Message):
     r"""Prediction model parameters for Video Action Recognition.
+
     Attributes:
         confidence_threshold (float):
             The Model only returns predictions with at

@@ -29,6 +29,7 @@ __protobuf__ = proto.module(
 
 class Dataset(proto.Message):
     r"""A collection of DataItems and Annotations on them.
+
     Attributes:
         name (str):
             Output only. The resource name of the

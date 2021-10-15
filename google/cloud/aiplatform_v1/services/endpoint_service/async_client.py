@@ -60,6 +60,8 @@ class EndpointServiceAsyncClient:
     parse_model_deployment_monitoring_job_path = staticmethod(
         EndpointServiceClient.parse_model_deployment_monitoring_job_path
     )
+    network_path = staticmethod(EndpointServiceClient.network_path)
+    parse_network_path = staticmethod(EndpointServiceClient.parse_network_path)
     common_billing_account_path = staticmethod(
         EndpointServiceClient.common_billing_account_path
     )
@@ -838,6 +840,12 @@ class EndpointServiceAsyncClient:
 
         # Done; return the response.
         return response
+
+    async def __aenter__(self):
+        return self
+
+    async def __aexit__(self, exc_type, exc, tb):
+        await self.transport.close()
 
 
 try:

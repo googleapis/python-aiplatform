@@ -29,6 +29,7 @@ __protobuf__ = proto.module(
 
 class VideoObjectTrackingPredictionResult(proto.Message):
     r"""Prediction output format for Video Object Tracking.
+
     Attributes:
         id (str):
             The resource ID of the AnnotationSpec that

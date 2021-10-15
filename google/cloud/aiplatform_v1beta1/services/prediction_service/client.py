@@ -177,6 +177,22 @@ class PredictionServiceClient(metaclass=PredictionServiceClientMeta):
         return m.groupdict() if m else {}
 
     @staticmethod
+    def model_path(project: str, location: str, model: str,) -> str:
+        """Returns a fully-qualified model string."""
+        return "projects/{project}/locations/{location}/models/{model}".format(
+            project=project, location=location, model=model,
+        )
+
+    @staticmethod
+    def parse_model_path(path: str) -> Dict[str, str]:
+        """Parses a model path into its component segments."""
+        m = re.match(
+            r"^projects/(?P<project>.+?)/locations/(?P<location>.+?)/models/(?P<model>.+?)$",
+            path,
+        )
+        return m.groupdict() if m else {}
+
+    @staticmethod
     def common_billing_account_path(billing_account: str,) -> str:
         """Returns a fully-qualified billing_account string."""
         return "billingAccounts/{billing_account}".format(
@@ -349,10 +365,7 @@ class PredictionServiceClient(metaclass=PredictionServiceClientMeta):
                 client_cert_source_for_mtls=client_cert_source_func,
                 quota_project_id=client_options.quota_project_id,
                 client_info=client_info,
-                always_use_jwt_access=(
-                    Transport == type(self).get_transport_class("grpc")
-                    or Transport == type(self).get_transport_class("grpc_asyncio")
-                ),
+                always_use_jwt_access=True,
             )
 
     def predict(
@@ -731,6 +744,19 @@ class PredictionServiceClient(metaclass=PredictionServiceClientMeta):
 
         # Done; return the response.
         return response
+
+    def __enter__(self):
+        return self
+
+    def __exit__(self, type, value, traceback):
+        """Releases underlying transport's resources.
+
+        .. warning::
+            ONLY use as a context manager if the transport is NOT shared
+            with other clients! Exiting the with block will CLOSE the transport
+            and may cause errors in other clients!
+        """
+        self.transport.close()
 
 
 try:

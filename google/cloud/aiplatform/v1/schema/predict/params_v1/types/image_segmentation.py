@@ -24,6 +24,7 @@ __protobuf__ = proto.module(
 
 class ImageSegmentationPredictionParams(proto.Message):
     r"""Prediction model parameters for Image Segmentation.
+
     Attributes:
         confidence_threshold (float):
             When the model predicts category of pixels of

@@ -674,5 +674,8 @@ class VizierServiceGrpcAsyncIOTransport(VizierServiceTransport):
             )
         return self._stubs["list_optimal_trials"]
 
+    def close(self):
+        return self.grpc_channel.close()
+
 
 __all__ = ("VizierServiceGrpcAsyncIOTransport",)

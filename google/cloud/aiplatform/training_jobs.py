@@ -4418,7 +4418,7 @@ class AutoMLForecastingTrainingJob(_TrainingJob):
             encryption_spec=self._model_encryption_spec,
         )
 
-        return self._run_job(
+        new_model = self._run_job(
             training_task_definition=training_task_definition,
             training_task_inputs=training_task_inputs_dict,
             dataset=dataset,
@@ -4430,6 +4430,14 @@ class AutoMLForecastingTrainingJob(_TrainingJob):
             model=model,
         )
 
+        if export_evaluated_data_items:
+            _LOGGER.info(
+                "Exported examples available at:\n%s"
+                % self.evaluated_data_items_bigquery_uri
+            )
+
+        return new_model
+
     @property
     def _model_upload_fail_string(self) -> str:
         """Helper property for model upload failure."""
@@ -4437,6 +4445,23 @@ class AutoMLForecastingTrainingJob(_TrainingJob):
             f"Training Pipeline {self.resource_name} is not configured to upload a "
             "Model."
         )
+
+    @property
+    def evaluated_data_items_bigquery_uri(self) -> Optional[str]:
+        """BigQuery location of exported evaluated examples from the Training Job
+        Returns:
+            str: BigQuery uri for the exported evaluated examples if the export
+                feature is enabled for training.
+            None: If the export feature was not enabled for training.
+        """
+
+        self._assert_gca_resource_is_available()
+
+        metadata = self._gca_resource.training_task_metadata
+        if metadata and "evaluatedDataItemsBigqueryUri" in metadata:
+            return metadata["evaluatedDataItemsBigqueryUri"]
+
+        return None
 
     def _add_additional_experiments(self, additional_experiments: List[str]):
         """Add experiment flags to the training job.

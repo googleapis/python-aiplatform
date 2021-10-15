@@ -32,6 +32,7 @@ from google.api_core import grpc_helpers
 from google.api_core import grpc_helpers_async
 from google.api_core import operation_async  # type: ignore
 from google.api_core import operations_v1
+from google.api_core import path_template
 from google.auth import credentials as ga_credentials
 from google.auth.exceptions import MutualTLSChannelError
 from google.cloud.aiplatform_v1.services.job_service import JobServiceAsyncClient
@@ -5646,6 +5647,7 @@ def test_create_model_deployment_monitoring_job(
             schedule_state=gca_model_deployment_monitoring_job.ModelDeploymentMonitoringJob.MonitoringScheduleState.PENDING,
             predict_instance_schema_uri="predict_instance_schema_uri_value",
             analysis_instance_schema_uri="analysis_instance_schema_uri_value",
+            enable_monitoring_pipeline_logs=True,
         )
         response = client.create_model_deployment_monitoring_job(request)
 
@@ -5668,6 +5670,7 @@ def test_create_model_deployment_monitoring_job(
     )
     assert response.predict_instance_schema_uri == "predict_instance_schema_uri_value"
     assert response.analysis_instance_schema_uri == "analysis_instance_schema_uri_value"
+    assert response.enable_monitoring_pipeline_logs is True
 
 
 def test_create_model_deployment_monitoring_job_from_dict():
@@ -5718,6 +5721,7 @@ async def test_create_model_deployment_monitoring_job_async(
                 schedule_state=gca_model_deployment_monitoring_job.ModelDeploymentMonitoringJob.MonitoringScheduleState.PENDING,
                 predict_instance_schema_uri="predict_instance_schema_uri_value",
                 analysis_instance_schema_uri="analysis_instance_schema_uri_value",
+                enable_monitoring_pipeline_logs=True,
             )
         )
         response = await client.create_model_deployment_monitoring_job(request)
@@ -5741,6 +5745,7 @@ async def test_create_model_deployment_monitoring_job_async(
     )
     assert response.predict_instance_schema_uri == "predict_instance_schema_uri_value"
     assert response.analysis_instance_schema_uri == "analysis_instance_schema_uri_value"
+    assert response.enable_monitoring_pipeline_logs is True
 
 
 @pytest.mark.asyncio
@@ -6398,6 +6403,7 @@ def test_get_model_deployment_monitoring_job(
             schedule_state=model_deployment_monitoring_job.ModelDeploymentMonitoringJob.MonitoringScheduleState.PENDING,
             predict_instance_schema_uri="predict_instance_schema_uri_value",
             analysis_instance_schema_uri="analysis_instance_schema_uri_value",
+            enable_monitoring_pipeline_logs=True,
         )
         response = client.get_model_deployment_monitoring_job(request)
 
@@ -6420,6 +6426,7 @@ def test_get_model_deployment_monitoring_job(
     )
     assert response.predict_instance_schema_uri == "predict_instance_schema_uri_value"
     assert response.analysis_instance_schema_uri == "analysis_instance_schema_uri_value"
+    assert response.enable_monitoring_pipeline_logs is True
 
 
 def test_get_model_deployment_monitoring_job_from_dict():
@@ -6470,6 +6477,7 @@ async def test_get_model_deployment_monitoring_job_async(
                 schedule_state=model_deployment_monitoring_job.ModelDeploymentMonitoringJob.MonitoringScheduleState.PENDING,
                 predict_instance_schema_uri="predict_instance_schema_uri_value",
                 analysis_instance_schema_uri="analysis_instance_schema_uri_value",
+                enable_monitoring_pipeline_logs=True,
             )
         )
         response = await client.get_model_deployment_monitoring_job(request)
@@ -6493,6 +6501,7 @@ async def test_get_model_deployment_monitoring_job_async(
     )
     assert response.predict_instance_schema_uri == "predict_instance_schema_uri_value"
     assert response.analysis_instance_schema_uri == "analysis_instance_schema_uri_value"
+    assert response.enable_monitoring_pipeline_logs is True
 
 
 @pytest.mark.asyncio
@@ -8034,6 +8043,9 @@ def test_job_service_base_transport():
         with pytest.raises(NotImplementedError):
             getattr(transport, method)(request=object())
 
+    with pytest.raises(NotImplementedError):
+        transport.close()
+
     # Additionally, the LRO client (a property) should
     # also raise NotImplementedError
     with pytest.raises(NotImplementedError):
@@ -8758,3 +8770,49 @@ def test_client_withDEFAULT_CLIENT_INFO():
             credentials=ga_credentials.AnonymousCredentials(), client_info=client_info,
         )
         prep.assert_called_once_with(client_info)
+
+
+@pytest.mark.asyncio
+async def test_transport_close_async():
+    client = JobServiceAsyncClient(
+        credentials=ga_credentials.AnonymousCredentials(), transport="grpc_asyncio",
+    )
+    with mock.patch.object(
+        type(getattr(client.transport, "grpc_channel")), "close"
+    ) as close:
+        async with client:
+            close.assert_not_called()
+        close.assert_called_once()
+
+
+def test_transport_close():
+    transports = {
+        "grpc": "_grpc_channel",
+    }
+
+    for transport, close_name in transports.items():
+        client = JobServiceClient(
+            credentials=ga_credentials.AnonymousCredentials(), transport=transport
+        )
+        with mock.patch.object(
+            type(getattr(client.transport, close_name)), "close"
+        ) as close:
+            with client:
+                close.assert_not_called()
+            close.assert_called_once()
+
+
+def test_client_ctx():
+    transports = [
+        "grpc",
+    ]
+    for transport in transports:
+        client = JobServiceClient(
+            credentials=ga_credentials.AnonymousCredentials(), transport=transport
+        )
+        # Test client calls underlying transport.
+        with mock.patch.object(type(client.transport), "close") as close:
+            close.assert_not_called()
+            with client:
+                pass
+            close.assert_called()
