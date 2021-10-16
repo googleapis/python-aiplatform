@@ -16,6 +16,8 @@
 #
 import pathlib
 import proto
+import shutil
+import tempfile
 from typing import Dict, List, NamedTuple, Optional, Sequence, Tuple, Union
 
 from google.api_core import operation
@@ -2431,3 +2433,276 @@ class Model(base.VertexAiResourceNounWithFutureManager):
         _LOGGER.log_action_completed_against_resource("model", "exported", self)
 
         return json_format.MessageToDict(operation_future.metadata.output_info._pb)
+
+    @staticmethod
+    def upload_xgboost_model_file(
+        model_file_path: str,
+        xgboost_version: Optional[str] = None,
+        display_name: Optional[str] = None,
+        description: Optional[str] = None,
+        instance_schema_uri: Optional[str] = None,
+        parameters_schema_uri: Optional[str] = None,
+        prediction_schema_uri: Optional[str] = None,
+        explanation_metadata: Optional[explain.ExplanationMetadata] = None,
+        explanation_parameters: Optional[explain.ExplanationParameters] = None,
+        project: Optional[str] = None,
+        location: Optional[str] = None,
+        credentials: Optional[auth_credentials.Credentials] = None,
+        labels: Optional[Dict[str, str]] = None,
+        encryption_spec_key_name: Optional[str] = None,
+        staging_bucket: Optional[str] = None,
+        sync=True,
+    ):
+        # https://cloud.google.com/vertex-ai/docs/predictions/pre-built-containers#xgboost
+        XGBOOST_SUPPORTED_VERSIONS = ["0.82", "0.90", "1.1", "1.2", "1.3", "1.4"]
+        XGBOOST_CONTAINER_IMAGE_URI_TEMPLATE = (
+            "{registry}/vertex-ai/prediction/xgboost-{cpu_or_gpu}.{version}:latest"
+        )
+
+        XGBOOST_SUPPORTED_MODEL_FILE_EXTENSIONS = [
+            ".pkl",
+            ".joblib",
+            ".bst",
+        ]
+
+        if xgboost_version is None:
+            # Using the latest version
+            xgboost_version = XGBOOST_SUPPORTED_VERSIONS[-1]
+            _LOGGER.info(f"Using the {xgboost_version} version of XGBoost.")
+
+        if xgboost_version not in XGBOOST_SUPPORTED_VERSIONS:
+            _LOGGER.error(
+                f"XGBoost version {version} is not supported. "
+                f"Supported versions: {XGBOOST_SUPPORTED_VERSIONS}"
+            )
+
+        model_file_path_obj = pathlib.Path(model_file_path)
+        if not model_file_path_obj.is_file():
+            raise ValueError(
+                f"model_file_path path must point to a file: '{model_file_path}'"
+            )
+
+        model_file_extension = model_file_path_obj.suffix
+        if model_file_extension not in XGBOOST_SUPPORTED_MODEL_FILE_EXTENSIONS:
+            _LOGGER.warning(
+                f"Only the following XGBoost model file extensions are currently supported: '{XGBOOST_SUPPORTED_MODEL_FILE_EXTENSIONS}'"
+            )
+            _LOGGER.warning(
+                "Treating the model file as a binary serialized XGBoost Booster."
+            )
+            model_file_extension = ".bst"
+
+        # Preparing model directory
+        prepared_model_dir = tempfile.mkdtemp()
+        prepared_model_file_path = pathlib.Path(prepared_model_dir) / (
+            "model" + model_file_extension
+        )
+        shutil.copy(model_file_path_obj, prepared_model_file_path)
+
+        container_image_uri = XGBOOST_CONTAINER_IMAGE_URI_TEMPLATE.format(
+            registry=_get_container_registry(
+                location or aiplatform.initializer.global_config.location
+            ),
+            cpu_or_gpu="cpu",
+            version=xgboost_version.replace(".", "-"),
+        )
+
+        display_name = display_name or "XGBoost model"
+
+        return aiplatform.Model.upload(
+            serving_container_image_uri=container_image_uri,
+            artifact_uri=prepared_model_dir,
+            display_name=display_name,
+            description=description,
+            instance_schema_uri=instance_schema_uri,
+            parameters_schema_uri=parameters_schema_uri,
+            prediction_schema_uri=prediction_schema_uri,
+            explanation_metadata=explanation_metadata,
+            explanation_parameters=explanation_parameters,
+            project=project,
+            location=location,
+            credentials=credentials,
+            labels=labels,
+            encryption_spec_key_name=encryption_spec_key_name,
+            staging_bucket=staging_bucket,
+            sync=sync,
+        )
+
+    @staticmethod
+    def upload_scikit_learn_model_file(
+        model_file_path: str,
+        sklearn_version: Optional[str] = None,
+        display_name: Optional[str] = None,
+        description: Optional[str] = None,
+        instance_schema_uri: Optional[str] = None,
+        parameters_schema_uri: Optional[str] = None,
+        prediction_schema_uri: Optional[str] = None,
+        explanation_metadata: Optional[explain.ExplanationMetadata] = None,
+        explanation_parameters: Optional[explain.ExplanationParameters] = None,
+        project: Optional[str] = None,
+        location: Optional[str] = None,
+        credentials: Optional[auth_credentials.Credentials] = None,
+        labels: Optional[Dict[str, str]] = None,
+        encryption_spec_key_name: Optional[str] = None,
+        staging_bucket: Optional[str] = None,
+        sync=True,
+    ):
+        # https://cloud.google.com/vertex-ai/docs/predictions/pre-built-containers#scikit-learn
+        SKLEARN_SUPPORTED_VERSIONS = ["0.20", "0.22", "0.23", "0.24"]
+        SKLEARN_CONTAINER_IMAGE_URI_TEMPLATE = (
+            "{registry}/vertex-ai/prediction/sklearn-{cpu_or_gpu}.{version}:latest"
+        )
+        SKLEARN_SUPPORTED_MODEL_FILE_EXTENSIONS = [
+            ".pkl",
+            ".joblib",
+        ]
+
+        if sklearn_version is None:
+            # Using the latest version
+            sklearn_version = SKLEARN_SUPPORTED_VERSIONS[-1]
+            _LOGGER.info(f"Using the {sklearn_version} version of Scikit-learn.")
+
+        if sklearn_version not in SKLEARN_SUPPORTED_VERSIONS:
+            _LOGGER.error(
+                f"Scikit-learn version {version} is not supported. "
+                f"Supported versions: {SKLEARN_SUPPORTED_VERSIONS}"
+            )
+
+        model_file_path_obj = pathlib.Path(model_file_path)
+        if not model_file_path_obj.is_file():
+            raise ValueError(
+                f"model_file_path path must point to a file: '{model_file_path}'"
+            )
+
+        model_file_extension = model_file_path_obj.suffix
+        if model_file_extension not in SKLEARN_SUPPORTED_MODEL_FILE_EXTENSIONS:
+            _LOGGER.warning(
+                f"Only the following Scikit-learn model file extensions are currently supported: '{SKLEARN_SUPPORTED_MODEL_FILE_EXTENSIONS}'"
+            )
+            _LOGGER.warning(
+                "Treating the model file as a pickle serialized Scikit-learn model."
+            )
+            model_file_extension = ".pkl"
+
+        # Preparing model directory
+        prepared_model_dir = tempfile.mkdtemp()
+        prepared_model_file_path = pathlib.Path(prepared_model_dir) / (
+            "model" + model_file_extension
+        )
+        shutil.copy(model_file_path_obj, prepared_model_file_path)
+
+        container_image_uri = SKLEARN_CONTAINER_IMAGE_URI_TEMPLATE.format(
+            registry=_get_container_registry(
+                location or aiplatform.initializer.global_config.location
+            ),
+            cpu_or_gpu="cpu",
+            version=sklearn_version.replace(".", "-"),
+        )
+
+        display_name = display_name or "Scikit-learn model"
+
+        return aiplatform.Model.upload(
+            serving_container_image_uri=container_image_uri,
+            artifact_uri=prepared_model_dir,
+            display_name=display_name,
+            description=description,
+            instance_schema_uri=instance_schema_uri,
+            parameters_schema_uri=parameters_schema_uri,
+            prediction_schema_uri=prediction_schema_uri,
+            explanation_metadata=explanation_metadata,
+            explanation_parameters=explanation_parameters,
+            project=project,
+            location=location,
+            credentials=credentials,
+            labels=labels,
+            encryption_spec_key_name=encryption_spec_key_name,
+            staging_bucket=staging_bucket,
+            sync=sync,
+        )
+
+    @staticmethod
+    def upload_tensorflow_saved_model(
+        saved_model_dir: str,
+        tensorflow_version: Optional[str] = None,
+        use_gpu: bool = False,
+        display_name: Optional[str] = None,
+        description: Optional[str] = None,
+        instance_schema_uri: Optional[str] = None,
+        parameters_schema_uri: Optional[str] = None,
+        prediction_schema_uri: Optional[str] = None,
+        explanation_metadata: Optional[explain.ExplanationMetadata] = None,
+        explanation_parameters: Optional[explain.ExplanationParameters] = None,
+        project: Optional[str] = None,
+        location: Optional[str] = None,
+        credentials: Optional[auth_credentials.Credentials] = None,
+        labels: Optional[Dict[str, str]] = None,
+        encryption_spec_key_name: Optional[str] = None,
+        staging_bucket: Optional[str] = None,
+        sync=True,
+    ):
+        # https://cloud.google.com/vertex-ai/docs/predictions/pre-built-containers#tensorflow
+        TENSORFLOW_SUPPORTED_VERSIONS = [
+            "0.15",
+            "2.1",
+            "2.2",
+            "2.3",
+            "2.4",
+            "2.5",
+            "2.6",
+        ]
+        TENSORFLOW_CONTAINER_IMAGE_URI_TEMPLATE = (
+            "{registry}/vertex-ai/prediction/tf{tf2_or_1}-{cpu_or_gpu}.{version}:latest"
+        )
+
+        if tensorflow_version is None:
+            # Using the latest version
+            tensorflow_version = TENSORFLOW_SUPPORTED_VERSIONS[-1]
+            _LOGGER.info(f"Using the {tensorflow_version} version of Tensorflow.")
+
+        if tensorflow_version not in TENSORFLOW_SUPPORTED_VERSIONS:
+            _LOGGER.error(
+                f"Tensorflow version {version} is not supported. "
+                f"Supported versions: {TENSORFLOW_SUPPORTED_VERSIONS}"
+            )
+
+        container_image_uri = TENSORFLOW_CONTAINER_IMAGE_URI_TEMPLATE.format(
+            registry=_get_container_registry(
+                location or aiplatform.initializer.global_config.location
+            ),
+            tf2_or_1=("2" if tensorflow_version.startswith("2.") else ""),
+            cpu_or_gpu="gpu" if use_gpu else "cpu",
+            version=tensorflow_version.replace(".", "-"),
+        )
+
+        display_name = display_name or "Tensorflow model"
+
+        return aiplatform.Model.upload(
+            serving_container_image_uri=container_image_uri,
+            artifact_uri=saved_model_dir,
+            display_name=display_name,
+            description=description,
+            instance_schema_uri=instance_schema_uri,
+            parameters_schema_uri=parameters_schema_uri,
+            prediction_schema_uri=prediction_schema_uri,
+            explanation_metadata=explanation_metadata,
+            explanation_parameters=explanation_parameters,
+            project=project,
+            location=location,
+            credentials=credentials,
+            labels=labels,
+            encryption_spec_key_name=encryption_spec_key_name,
+            staging_bucket=staging_bucket,
+            sync=sync,
+        )
+
+
+def _get_container_registry(location: Optional[str] = None,) -> str:
+    location = location or "us-"
+    if location.startswith("us-"):
+        return "us-docker.pkg.dev"
+    elif location.startswith("europe-"):
+        return "europe-docker.pkg.dev"
+    elif location.startswith("asia-"):
+        return "asia-docker.pkg.dev"
+    else:
+        raise ValueError(f"Unrecognized location: {location}")
