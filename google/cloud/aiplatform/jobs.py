@@ -1061,7 +1061,7 @@ class CustomJob(_RunnableJob):
         accelerator_count: int = 0,
         boot_disk_type: str = "pd-ssd",
         boot_disk_size_gb: int = 100,
-        reduction_server_replica_count: Optional[int] = 0,
+        reduction_server_replica_count: int = 0,
         reduction_server_machine_type: Optional[str] = None,
         reduction_server_container_uri: Optional[str] = None,
         base_output_dir: Optional[str] = None,
@@ -1131,7 +1131,7 @@ class CustomJob(_RunnableJob):
                 Optional. Size in GB of the boot disk, default is 100GB.
                 boot disk size must be within the range of [100, 64000].
             reduction_server_replica_count (int):
-                Optional. The number of reduction server replicas.
+                The number of reduction server replicas, default is 0.
             reduction_server_machine_type (str):
                 Optional. The type of machine to use for reduction server.
             reduction_server_container_uri (str):
@@ -1209,7 +1209,7 @@ class CustomJob(_RunnableJob):
                 continue
 
             if (
-                spec_order == worker_spec_utils.SPEC_ORDERS["server_spec"]
+                spec_order == worker_spec_utils._SPEC_ORDERS["server_spec"]
                 and reduction_server_replica_count > 0
             ):
                 spec["container_spec"] = {

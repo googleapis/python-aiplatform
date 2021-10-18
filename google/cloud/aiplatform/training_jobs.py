@@ -1278,7 +1278,7 @@ class _CustomTrainingJob(_TrainingJob):
         accelerator_count: int = 0,
         boot_disk_type: str = "pd-ssd",
         boot_disk_size_gb: int = 100,
-        reduction_server_replica_count: Optional[int] = 0,
+        reduction_server_replica_count: int = 0,
         reduction_server_machine_type: Optional[str] = None,
     ) -> Tuple[worker_spec_utils._DistributedTrainingSpec, Optional[gca_model.Model]]:
         """Create worker pool specs and managed model as well validating the
@@ -1321,7 +1321,7 @@ class _CustomTrainingJob(_TrainingJob):
                 Size in GB of the boot disk, default is 100GB.
                 boot disk size must be within the range of [100, 64000].
             reduction_server_replica_count (int):
-                Optional. The number of reduction server replicas.
+                The number of reduction server replicas, default is 0.
             reduction_server_machine_type (str):
                 Optional. The type of machine to use for reduction server.
         Returns:
@@ -1744,7 +1744,7 @@ class CustomTrainingJob(_CustomTrainingJob):
         accelerator_count: int = 0,
         boot_disk_type: str = "pd-ssd",
         boot_disk_size_gb: int = 100,
-        reduction_server_replica_count: Optional[int] = 0,
+        reduction_server_replica_count: int = 0,
         reduction_server_machine_type: Optional[str] = None,
         reduction_server_container_uri: Optional[str] = None,
         training_fraction_split: Optional[float] = None,
@@ -1919,7 +1919,7 @@ class CustomTrainingJob(_CustomTrainingJob):
                 Size in GB of the boot disk, default is 100GB.
                 boot disk size must be within the range of [100, 64000].
             reduction_server_replica_count (int):
-                Optional. The number of reduction server replicas.
+                The number of reduction server replicas, default is 0.
             reduction_server_machine_type (str):
                 Optional. The type of machine to use for reduction server.
             reduction_server_container_uri (str):
@@ -2229,7 +2229,7 @@ class CustomTrainingJob(_CustomTrainingJob):
                 continue
 
             if (
-                spec_order == worker_spec_utils.SPEC_ORDERS["server_spec"]
+                spec_order == worker_spec_utils._SPEC_ORDERS["server_spec"]
                 and reduction_server_container_uri
             ):
                 spec["container_spec"] = {
@@ -2536,7 +2536,7 @@ class CustomContainerTrainingJob(_CustomTrainingJob):
         accelerator_count: int = 0,
         boot_disk_type: str = "pd-ssd",
         boot_disk_size_gb: int = 100,
-        reduction_server_replica_count: Optional[int] = 0,
+        reduction_server_replica_count: int = 0,
         reduction_server_machine_type: Optional[str] = None,
         reduction_server_container_uri: Optional[str] = None,
         training_fraction_split: Optional[float] = None,
@@ -2704,7 +2704,7 @@ class CustomContainerTrainingJob(_CustomTrainingJob):
                 Size in GB of the boot disk, default is 100GB.
                 boot disk size must be within the range of [100, 64000].
             reduction_server_replica_count (int):
-                Optional. The number of reduction server replicas.
+                The number of reduction server replicas, default is 0.
             reduction_server_machine_type (str):
                 Optional. The type of machine to use for reduction server.
             reduction_server_container_uri (str):
@@ -3003,7 +3003,7 @@ class CustomContainerTrainingJob(_CustomTrainingJob):
                 continue
 
             if (
-                spec_order == worker_spec_utils.SPEC_ORDERS["server_spec"]
+                spec_order == worker_spec_utils._SPEC_ORDERS["server_spec"]
                 and reduction_server_container_uri
             ):
                 spec["container_spec"] = {
@@ -5299,7 +5299,7 @@ class CustomPythonPackageTrainingJob(_CustomTrainingJob):
         accelerator_count: int = 0,
         boot_disk_type: str = "pd-ssd",
         boot_disk_size_gb: int = 100,
-        reduction_server_replica_count: Optional[int] = 0,
+        reduction_server_replica_count: int = 0,
         reduction_server_machine_type: Optional[str] = None,
         reduction_server_container_uri: Optional[str] = None,
         training_fraction_split: Optional[float] = None,
@@ -5467,7 +5467,7 @@ class CustomPythonPackageTrainingJob(_CustomTrainingJob):
                 Size in GB of the boot disk, default is 100GB.
                 boot disk size must be within the range of [100, 64000].
             reduction_server_replica_count (int):
-                Optional. The number of reduction server replicas.
+                The number of reduction server replicas, default is 0.
             reduction_server_machine_type (str):
                 Optional. The type of machine to use for reduction server.
             reduction_server_container_uri (str):
@@ -5747,7 +5747,7 @@ class CustomPythonPackageTrainingJob(_CustomTrainingJob):
                 continue
 
             if (
-                spec_order == worker_spec_utils.SPEC_ORDERS["server_spec"]
+                spec_order == worker_spec_utils._SPEC_ORDERS["server_spec"]
                 and reduction_server_container_uri
             ):
                 spec["container_spec"] = {

@@ -21,7 +21,11 @@ from google.cloud.aiplatform.compat.types import (
     accelerator_type as gca_accelerator_type_compat,
 )
 
-SPEC_ORDERS = {
+# `_SPEC_ORDERS` contains the worker pool spec type and its order in the `_WorkerPoolSpec`.
+# The `server_spec` supports either reduction server or parameter server, each
+# with different configuration for its `container_spec`. This mapping will be
+# used during configuration of `container_spec` for all worker pool specs.
+_SPEC_ORDERS = {
     "chief_spec": 0,
     "worker_spec": 1,
     "server_spec": 2,
