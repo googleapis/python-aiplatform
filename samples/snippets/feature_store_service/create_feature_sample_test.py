@@ -15,7 +15,7 @@
 import os
 from uuid import uuid4
 
-import create_feature_sample
+import create_feature_sample_v1
 from google.cloud import aiplatform_v1beta1 as aiplatform
 import pytest
 
@@ -33,7 +33,7 @@ def test_ucaip_generated_create_feature_sample_vision(capsys, shared_state):
     featurestore_id = "perm_sample_featurestore"
     entity_type_id = "perm_sample_entity_type"
     feature_id = f"temp_create_feature_test_{uuid4()}".replace("-", "_")[:60]
-    create_feature_sample.create_feature_sample(
+    create_feature_sample_v1.create_feature_sample(
         project=PROJECT_ID,
         featurestore_id=featurestore_id,
         entity_type_id=entity_type_id,

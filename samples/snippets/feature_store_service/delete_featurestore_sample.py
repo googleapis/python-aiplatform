@@ -17,7 +17,7 @@
 # the code snippet
 
 # [START aiplatform_delete_featurestore_sample]
-from google.cloud import aiplatform
+from google.cloud import aiplatform_v1beta1 as aiplatform
 
 
 def delete_featurestore_sample(
@@ -32,7 +32,7 @@ def delete_featurestore_sample(
     client_options = {"api_endpoint": api_endpoint}
     # Initialize client that will be used to create and send requests.
     # This client only needs to be created once, and can be reused for multiple requests.
-    client = aiplatform.gapic.FeaturestoreServiceClient(client_options=client_options)
+    client = aiplatform.FeaturestoreServiceClient(client_options=client_options)
     name = client.featurestore_path(
         project=project, location=location, featurestore=featurestore_id
     )

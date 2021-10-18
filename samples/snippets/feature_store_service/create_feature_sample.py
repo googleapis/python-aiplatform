@@ -17,7 +17,7 @@
 # the code snippet
 
 # [START aiplatform_create_feature_sample]
-from google.cloud import aiplatform
+from google.cloud import aiplatform_v1beta1 as aiplatform
 
 
 def create_feature_sample(
@@ -25,7 +25,7 @@ def create_feature_sample(
     featurestore_id: str,
     entity_type_id: str,
     feature_id: str,
-    value_type: aiplatform.gapic.Feature.ValueType,
+    value_type: aiplatform.Feature.ValueType,
     description: str = "sample feature",
     location: str = "us-central1",
     api_endpoint: str = "us-central1-aiplatform.googleapis.com",
@@ -36,13 +36,11 @@ def create_feature_sample(
     client_options = {"api_endpoint": api_endpoint}
     # Initialize client that will be used to create and send requests.
     # This client only needs to be created once, and can be reused for multiple requests.
-    client = aiplatform.gapic.FeaturestoreServiceClient(client_options=client_options)
+    client = aiplatform.FeaturestoreServiceClient(client_options=client_options)
     parent = f"projects/{project}/locations/{location}/featurestores/{featurestore_id}/entityTypes/{entity_type_id}"
-    create_feature_request = aiplatform.gapic.CreateFeatureRequest(
+    create_feature_request = aiplatform.CreateFeatureRequest(
         parent=parent,
-        feature=aiplatform.gapic.Feature(
-            value_type=value_type, description=description
-        ),
+        feature=aiplatform.Feature(value_type=value_type, description=description),
         feature_id=feature_id,
     )
     lro_response = client.create_feature(request=create_feature_request)

@@ -12,19 +12,17 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-# Create an entity type so that you can create its related features.
+# Delete a featurestore.
 # See https://cloud.google.com/vertex-ai/docs/featurestore/setup before running
 # the code snippet
 
-# [START aiplatform_create_entity_type_sample]
-from google.cloud import aiplatform_v1beta1 as aiplatform
+# [START aiplatform_delete_featurestore_sample]
+from google.cloud import aiplatform
 
 
-def create_entity_type_sample(
+def delete_featurestore_sample(
     project: str,
     featurestore_id: str,
-    entity_type_id: str,
-    description: str = "sample entity type",
     location: str = "us-central1",
     api_endpoint: str = "us-central1-aiplatform.googleapis.com",
     timeout: int = 300,
@@ -34,17 +32,14 @@ def create_entity_type_sample(
     client_options = {"api_endpoint": api_endpoint}
     # Initialize client that will be used to create and send requests.
     # This client only needs to be created once, and can be reused for multiple requests.
-    client = aiplatform.FeaturestoreServiceClient(client_options=client_options)
-    parent = f"projects/{project}/locations/{location}/featurestores/{featurestore_id}"
-    create_entity_type_request = aiplatform.CreateEntityTypeRequest(
-        parent=parent,
-        entity_type_id=entity_type_id,
-        entity_type=aiplatform.EntityType(description=description),
+    client = aiplatform.gapic.FeaturestoreServiceClient(client_options=client_options)
+    name = client.featurestore_path(
+        project=project, location=location, featurestore=featurestore_id
     )
-    lro_response = client.create_entity_type(request=create_entity_type_request)
-    print("Long running operation:", lro_response.operation.name)
-    create_entity_type_response = lro_response.result(timeout=timeout)
-    print("create_entity_type_response:", create_entity_type_response)
+    response = client.delete_featurestore(name=name)
+    print("Long running operation:", response.operation.name)
+    delete_featurestore_response = response.result(timeout=timeout)
+    print("delete_featurestore_response:", delete_featurestore_response)
 
 
-# [END aiplatform_create_entity_type_sample]
+# [END aiplatform_delete_featurestore_sample]

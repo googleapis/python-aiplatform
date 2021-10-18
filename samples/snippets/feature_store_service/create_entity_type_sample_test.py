@@ -15,7 +15,7 @@
 import os
 from uuid import uuid4
 
-import create_entity_type_sample
+import create_entity_type_sample_v1
 import pytest
 
 import helpers
@@ -31,7 +31,7 @@ def teardown(teardown_entity_type):
 def test_ucaip_generated_create_entity_type_sample_vision(capsys, shared_state):
     featurestore_id = "perm_sample_featurestore"
     entity_type_id = f"temp_create_entity_type_test_{uuid4()}".replace("-", "_")[:60]
-    create_entity_type_sample.create_entity_type_sample(
+    create_entity_type_sample_v1.create_entity_type_sample(
         project=PROJECT_ID,
         featurestore_id=featurestore_id,
         entity_type_id=entity_type_id,

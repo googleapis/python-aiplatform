@@ -15,7 +15,7 @@
 import os
 from uuid import uuid4
 
-import create_featurestore_sample
+import create_featurestore_sample_v1
 import pytest
 
 import helpers
@@ -30,7 +30,7 @@ def teardown(teardown_featurestore):
 
 def test_ucaip_generated_create_featurestore_sample_vision(capsys, shared_state):
     featurestore_id = f"temp_create_featurestore_test_{uuid4()}".replace("-", "_")[:60]
-    create_featurestore_sample.create_featurestore_sample(
+    create_featurestore_sample_v1.create_featurestore_sample(
         project=PROJECT_ID, featurestore_id=featurestore_id, fixed_node_count=1
     )
     out, _ = capsys.readouterr()
