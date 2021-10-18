@@ -17,7 +17,7 @@ from collections import OrderedDict
 from distutils import util
 import os
 import re
-from typing import Callable, Dict, Optional, Sequence, Tuple, Type, Union
+from typing import Dict, Optional, Sequence, Tuple, Type, Union
 import pkg_resources
 
 from google.api_core import client_options as client_options_lib  # type: ignore
@@ -359,15 +359,14 @@ class SpecialistPoolServiceClient(metaclass=SpecialistPoolServiceClientMeta):
                 client_cert_source_for_mtls=client_cert_source_func,
                 quota_project_id=client_options.quota_project_id,
                 client_info=client_info,
-                always_use_jwt_access=(
-                    Transport == type(self).get_transport_class("grpc")
-                    or Transport == type(self).get_transport_class("grpc_asyncio")
-                ),
+                always_use_jwt_access=True,
             )
 
     def create_specialist_pool(
         self,
-        request: specialist_pool_service.CreateSpecialistPoolRequest = None,
+        request: Union[
+            specialist_pool_service.CreateSpecialistPoolRequest, dict
+        ] = None,
         *,
         parent: str = None,
         specialist_pool: gca_specialist_pool.SpecialistPool = None,
@@ -378,7 +377,7 @@ class SpecialistPoolServiceClient(metaclass=SpecialistPoolServiceClientMeta):
         r"""Creates a SpecialistPool.
 
         Args:
-            request (google.cloud.aiplatform_v1beta1.types.CreateSpecialistPoolRequest):
+            request (Union[google.cloud.aiplatform_v1beta1.types.CreateSpecialistPoolRequest, dict]):
                 The request object. Request message for
                 [SpecialistPoolService.CreateSpecialistPool][google.cloud.aiplatform.v1beta1.SpecialistPoolService.CreateSpecialistPool].
             parent (str):
@@ -465,7 +464,7 @@ class SpecialistPoolServiceClient(metaclass=SpecialistPoolServiceClientMeta):
 
     def get_specialist_pool(
         self,
-        request: specialist_pool_service.GetSpecialistPoolRequest = None,
+        request: Union[specialist_pool_service.GetSpecialistPoolRequest, dict] = None,
         *,
         name: str = None,
         retry: retries.Retry = gapic_v1.method.DEFAULT,
@@ -475,7 +474,7 @@ class SpecialistPoolServiceClient(metaclass=SpecialistPoolServiceClientMeta):
         r"""Gets a SpecialistPool.
 
         Args:
-            request (google.cloud.aiplatform_v1beta1.types.GetSpecialistPoolRequest):
+            request (Union[google.cloud.aiplatform_v1beta1.types.GetSpecialistPoolRequest, dict]):
                 The request object. Request message for
                 [SpecialistPoolService.GetSpecialistPool][google.cloud.aiplatform.v1beta1.SpecialistPoolService.GetSpecialistPool].
             name (str):
@@ -547,7 +546,7 @@ class SpecialistPoolServiceClient(metaclass=SpecialistPoolServiceClientMeta):
 
     def list_specialist_pools(
         self,
-        request: specialist_pool_service.ListSpecialistPoolsRequest = None,
+        request: Union[specialist_pool_service.ListSpecialistPoolsRequest, dict] = None,
         *,
         parent: str = None,
         retry: retries.Retry = gapic_v1.method.DEFAULT,
@@ -557,7 +556,7 @@ class SpecialistPoolServiceClient(metaclass=SpecialistPoolServiceClientMeta):
         r"""Lists SpecialistPools in a Location.
 
         Args:
-            request (google.cloud.aiplatform_v1beta1.types.ListSpecialistPoolsRequest):
+            request (Union[google.cloud.aiplatform_v1beta1.types.ListSpecialistPoolsRequest, dict]):
                 The request object. Request message for
                 [SpecialistPoolService.ListSpecialistPools][google.cloud.aiplatform.v1beta1.SpecialistPoolService.ListSpecialistPools].
             parent (str):
@@ -628,7 +627,9 @@ class SpecialistPoolServiceClient(metaclass=SpecialistPoolServiceClientMeta):
 
     def delete_specialist_pool(
         self,
-        request: specialist_pool_service.DeleteSpecialistPoolRequest = None,
+        request: Union[
+            specialist_pool_service.DeleteSpecialistPoolRequest, dict
+        ] = None,
         *,
         name: str = None,
         retry: retries.Retry = gapic_v1.method.DEFAULT,
@@ -639,7 +640,7 @@ class SpecialistPoolServiceClient(metaclass=SpecialistPoolServiceClientMeta):
         in the pool.
 
         Args:
-            request (google.cloud.aiplatform_v1beta1.types.DeleteSpecialistPoolRequest):
+            request (Union[google.cloud.aiplatform_v1beta1.types.DeleteSpecialistPoolRequest, dict]):
                 The request object. Request message for
                 [SpecialistPoolService.DeleteSpecialistPool][google.cloud.aiplatform.v1beta1.SpecialistPoolService.DeleteSpecialistPool].
             name (str):
@@ -722,7 +723,9 @@ class SpecialistPoolServiceClient(metaclass=SpecialistPoolServiceClientMeta):
 
     def update_specialist_pool(
         self,
-        request: specialist_pool_service.UpdateSpecialistPoolRequest = None,
+        request: Union[
+            specialist_pool_service.UpdateSpecialistPoolRequest, dict
+        ] = None,
         *,
         specialist_pool: gca_specialist_pool.SpecialistPool = None,
         update_mask: field_mask_pb2.FieldMask = None,
@@ -733,7 +736,7 @@ class SpecialistPoolServiceClient(metaclass=SpecialistPoolServiceClientMeta):
         r"""Updates a SpecialistPool.
 
         Args:
-            request (google.cloud.aiplatform_v1beta1.types.UpdateSpecialistPoolRequest):
+            request (Union[google.cloud.aiplatform_v1beta1.types.UpdateSpecialistPoolRequest, dict]):
                 The request object. Request message for
                 [SpecialistPoolService.UpdateSpecialistPool][google.cloud.aiplatform.v1beta1.SpecialistPoolService.UpdateSpecialistPool].
             specialist_pool (google.cloud.aiplatform_v1beta1.types.SpecialistPool):
@@ -818,6 +821,19 @@ class SpecialistPoolServiceClient(metaclass=SpecialistPoolServiceClientMeta):
 
         # Done; return the response.
         return response
+
+    def __enter__(self):
+        return self
+
+    def __exit__(self, type, value, traceback):
+        """Releases underlying transport's resources.
+
+        .. warning::
+            ONLY use as a context manager if the transport is NOT shared
+            with other clients! Exiting the with block will CLOSE the transport
+            and may cause errors in other clients!
+        """
+        self.transport.close()
 
 
 try:

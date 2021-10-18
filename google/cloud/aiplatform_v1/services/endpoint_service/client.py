@@ -17,7 +17,7 @@ from collections import OrderedDict
 from distutils import util
 import os
 import re
-from typing import Callable, Dict, Optional, Sequence, Tuple, Type, Union
+from typing import Dict, Optional, Sequence, Tuple, Type, Union
 import pkg_resources
 
 from google.api_core import client_options as client_options_lib  # type: ignore
@@ -217,6 +217,21 @@ class EndpointServiceClient(metaclass=EndpointServiceClientMeta):
         return m.groupdict() if m else {}
 
     @staticmethod
+    def network_path(project: str, network: str,) -> str:
+        """Returns a fully-qualified network string."""
+        return "projects/{project}/global/networks/{network}".format(
+            project=project, network=network,
+        )
+
+    @staticmethod
+    def parse_network_path(path: str) -> Dict[str, str]:
+        """Parses a network path into its component segments."""
+        m = re.match(
+            r"^projects/(?P<project>.+?)/global/networks/(?P<network>.+?)$", path
+        )
+        return m.groupdict() if m else {}
+
+    @staticmethod
     def common_billing_account_path(billing_account: str,) -> str:
         """Returns a fully-qualified billing_account string."""
         return "billingAccounts/{billing_account}".format(
@@ -389,15 +404,12 @@ class EndpointServiceClient(metaclass=EndpointServiceClientMeta):
                 client_cert_source_for_mtls=client_cert_source_func,
                 quota_project_id=client_options.quota_project_id,
                 client_info=client_info,
-                always_use_jwt_access=(
-                    Transport == type(self).get_transport_class("grpc")
-                    or Transport == type(self).get_transport_class("grpc_asyncio")
-                ),
+                always_use_jwt_access=True,
             )
 
     def create_endpoint(
         self,
-        request: endpoint_service.CreateEndpointRequest = None,
+        request: Union[endpoint_service.CreateEndpointRequest, dict] = None,
         *,
         parent: str = None,
         endpoint: gca_endpoint.Endpoint = None,
@@ -408,7 +420,7 @@ class EndpointServiceClient(metaclass=EndpointServiceClientMeta):
         r"""Creates an Endpoint.
 
         Args:
-            request (google.cloud.aiplatform_v1.types.CreateEndpointRequest):
+            request (Union[google.cloud.aiplatform_v1.types.CreateEndpointRequest, dict]):
                 The request object. Request message for
                 [EndpointService.CreateEndpoint][google.cloud.aiplatform.v1.EndpointService.CreateEndpoint].
             parent (str):
@@ -487,7 +499,7 @@ class EndpointServiceClient(metaclass=EndpointServiceClientMeta):
 
     def get_endpoint(
         self,
-        request: endpoint_service.GetEndpointRequest = None,
+        request: Union[endpoint_service.GetEndpointRequest, dict] = None,
         *,
         name: str = None,
         retry: retries.Retry = gapic_v1.method.DEFAULT,
@@ -497,7 +509,7 @@ class EndpointServiceClient(metaclass=EndpointServiceClientMeta):
         r"""Gets an Endpoint.
 
         Args:
-            request (google.cloud.aiplatform_v1.types.GetEndpointRequest):
+            request (Union[google.cloud.aiplatform_v1.types.GetEndpointRequest, dict]):
                 The request object. Request message for
                 [EndpointService.GetEndpoint][google.cloud.aiplatform.v1.EndpointService.GetEndpoint]
             name (str):
@@ -559,7 +571,7 @@ class EndpointServiceClient(metaclass=EndpointServiceClientMeta):
 
     def list_endpoints(
         self,
-        request: endpoint_service.ListEndpointsRequest = None,
+        request: Union[endpoint_service.ListEndpointsRequest, dict] = None,
         *,
         parent: str = None,
         retry: retries.Retry = gapic_v1.method.DEFAULT,
@@ -569,7 +581,7 @@ class EndpointServiceClient(metaclass=EndpointServiceClientMeta):
         r"""Lists Endpoints in a Location.
 
         Args:
-            request (google.cloud.aiplatform_v1.types.ListEndpointsRequest):
+            request (Union[google.cloud.aiplatform_v1.types.ListEndpointsRequest, dict]):
                 The request object. Request message for
                 [EndpointService.ListEndpoints][google.cloud.aiplatform.v1.EndpointService.ListEndpoints].
             parent (str):
@@ -640,7 +652,7 @@ class EndpointServiceClient(metaclass=EndpointServiceClientMeta):
 
     def update_endpoint(
         self,
-        request: endpoint_service.UpdateEndpointRequest = None,
+        request: Union[endpoint_service.UpdateEndpointRequest, dict] = None,
         *,
         endpoint: gca_endpoint.Endpoint = None,
         update_mask: field_mask_pb2.FieldMask = None,
@@ -651,7 +663,7 @@ class EndpointServiceClient(metaclass=EndpointServiceClientMeta):
         r"""Updates an Endpoint.
 
         Args:
-            request (google.cloud.aiplatform_v1.types.UpdateEndpointRequest):
+            request (Union[google.cloud.aiplatform_v1.types.UpdateEndpointRequest, dict]):
                 The request object. Request message for
                 [EndpointService.UpdateEndpoint][google.cloud.aiplatform.v1.EndpointService.UpdateEndpoint].
             endpoint (google.cloud.aiplatform_v1.types.Endpoint):
@@ -724,7 +736,7 @@ class EndpointServiceClient(metaclass=EndpointServiceClientMeta):
 
     def delete_endpoint(
         self,
-        request: endpoint_service.DeleteEndpointRequest = None,
+        request: Union[endpoint_service.DeleteEndpointRequest, dict] = None,
         *,
         name: str = None,
         retry: retries.Retry = gapic_v1.method.DEFAULT,
@@ -734,7 +746,7 @@ class EndpointServiceClient(metaclass=EndpointServiceClientMeta):
         r"""Deletes an Endpoint.
 
         Args:
-            request (google.cloud.aiplatform_v1.types.DeleteEndpointRequest):
+            request (Union[google.cloud.aiplatform_v1.types.DeleteEndpointRequest, dict]):
                 The request object. Request message for
                 [EndpointService.DeleteEndpoint][google.cloud.aiplatform.v1.EndpointService.DeleteEndpoint].
             name (str):
@@ -817,7 +829,7 @@ class EndpointServiceClient(metaclass=EndpointServiceClientMeta):
 
     def deploy_model(
         self,
-        request: endpoint_service.DeployModelRequest = None,
+        request: Union[endpoint_service.DeployModelRequest, dict] = None,
         *,
         endpoint: str = None,
         deployed_model: gca_endpoint.DeployedModel = None,
@@ -832,7 +844,7 @@ class EndpointServiceClient(metaclass=EndpointServiceClientMeta):
         DeployedModel within it.
 
         Args:
-            request (google.cloud.aiplatform_v1.types.DeployModelRequest):
+            request (Union[google.cloud.aiplatform_v1.types.DeployModelRequest, dict]):
                 The request object. Request message for
                 [EndpointService.DeployModel][google.cloud.aiplatform.v1.EndpointService.DeployModel].
             endpoint (str):
@@ -941,7 +953,7 @@ class EndpointServiceClient(metaclass=EndpointServiceClientMeta):
 
     def undeploy_model(
         self,
-        request: endpoint_service.UndeployModelRequest = None,
+        request: Union[endpoint_service.UndeployModelRequest, dict] = None,
         *,
         endpoint: str = None,
         deployed_model_id: str = None,
@@ -957,7 +969,7 @@ class EndpointServiceClient(metaclass=EndpointServiceClientMeta):
         using.
 
         Args:
-            request (google.cloud.aiplatform_v1.types.UndeployModelRequest):
+            request (Union[google.cloud.aiplatform_v1.types.UndeployModelRequest, dict]):
                 The request object. Request message for
                 [EndpointService.UndeployModel][google.cloud.aiplatform.v1.EndpointService.UndeployModel].
             endpoint (str):
@@ -1053,6 +1065,19 @@ class EndpointServiceClient(metaclass=EndpointServiceClientMeta):
 
         # Done; return the response.
         return response
+
+    def __enter__(self):
+        return self
+
+    def __exit__(self, type, value, traceback):
+        """Releases underlying transport's resources.
+
+        .. warning::
+            ONLY use as a context manager if the transport is NOT shared
+            with other clients! Exiting the with block will CLOSE the transport
+            and may cause errors in other clients!
+        """
+        self.transport.close()
 
 
 try:

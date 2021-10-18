@@ -32,6 +32,7 @@ from google.api_core import grpc_helpers
 from google.api_core import grpc_helpers_async
 from google.api_core import operation_async  # type: ignore
 from google.api_core import operations_v1
+from google.api_core import path_template
 from google.auth import credentials as ga_credentials
 from google.auth.exceptions import MutualTLSChannelError
 from google.cloud.aiplatform_v1beta1.services.specialist_pool_service import (
@@ -790,6 +791,7 @@ def test_get_specialist_pool(
             specialist_managers_count=2662,
             specialist_manager_emails=["specialist_manager_emails_value"],
             pending_data_labeling_jobs=["pending_data_labeling_jobs_value"],
+            specialist_worker_emails=["specialist_worker_emails_value"],
         )
         response = client.get_specialist_pool(request)
 
@@ -805,6 +807,7 @@ def test_get_specialist_pool(
     assert response.specialist_managers_count == 2662
     assert response.specialist_manager_emails == ["specialist_manager_emails_value"]
     assert response.pending_data_labeling_jobs == ["pending_data_labeling_jobs_value"]
+    assert response.specialist_worker_emails == ["specialist_worker_emails_value"]
 
 
 def test_get_specialist_pool_from_dict():
@@ -853,6 +856,7 @@ async def test_get_specialist_pool_async(
                 specialist_managers_count=2662,
                 specialist_manager_emails=["specialist_manager_emails_value"],
                 pending_data_labeling_jobs=["pending_data_labeling_jobs_value"],
+                specialist_worker_emails=["specialist_worker_emails_value"],
             )
         )
         response = await client.get_specialist_pool(request)
@@ -869,6 +873,7 @@ async def test_get_specialist_pool_async(
     assert response.specialist_managers_count == 2662
     assert response.specialist_manager_emails == ["specialist_manager_emails_value"]
     assert response.pending_data_labeling_jobs == ["pending_data_labeling_jobs_value"]
+    assert response.specialist_worker_emails == ["specialist_worker_emails_value"]
 
 
 @pytest.mark.asyncio
@@ -1992,6 +1997,9 @@ def test_specialist_pool_service_base_transport():
         with pytest.raises(NotImplementedError):
             getattr(transport, method)(request=object())
 
+    with pytest.raises(NotImplementedError):
+        transport.close()
+
     # Additionally, the LRO client (a property) should
     # also raise NotImplementedError
     with pytest.raises(NotImplementedError):
@@ -2511,3 +2519,49 @@ def test_client_withDEFAULT_CLIENT_INFO():
             credentials=ga_credentials.AnonymousCredentials(), client_info=client_info,
         )
         prep.assert_called_once_with(client_info)
+
+
+@pytest.mark.asyncio
+async def test_transport_close_async():
+    client = SpecialistPoolServiceAsyncClient(
+        credentials=ga_credentials.AnonymousCredentials(), transport="grpc_asyncio",
+    )
+    with mock.patch.object(
+        type(getattr(client.transport, "grpc_channel")), "close"
+    ) as close:
+        async with client:
+            close.assert_not_called()
+        close.assert_called_once()
+
+
+def test_transport_close():
+    transports = {
+        "grpc": "_grpc_channel",
+    }
+
+    for transport, close_name in transports.items():
+        client = SpecialistPoolServiceClient(
+            credentials=ga_credentials.AnonymousCredentials(), transport=transport
+        )
+        with mock.patch.object(
+            type(getattr(client.transport, close_name)), "close"
+        ) as close:
+            with client:
+                close.assert_not_called()
+            close.assert_called_once()
+
+
+def test_client_ctx():
+    transports = [
+        "grpc",
+    ]
+    for transport in transports:
+        client = SpecialistPoolServiceClient(
+            credentials=ga_credentials.AnonymousCredentials(), transport=transport
+        )
+        # Test client calls underlying transport.
+        with mock.patch.object(type(client.transport), "close") as close:
+            close.assert_not_called()
+            with client:
+                pass
+            close.assert_called()

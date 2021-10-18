@@ -26,6 +26,7 @@ __protobuf__ = proto.module(
 
 class VideoActionRecognitionPredictionInstance(proto.Message):
     r"""Prediction input format for Video Action Recognition.
+
     Attributes:
         content (str):
             The Google Cloud Storage location of the

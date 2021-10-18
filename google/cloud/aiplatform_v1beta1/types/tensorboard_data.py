@@ -34,6 +34,7 @@ __protobuf__ = proto.module(
 
 class TimeSeriesData(proto.Message):
     r"""All the data stored in a TensorboardTimeSeries.
+
     Attributes:
         tensorboard_time_series_id (str):
             Required. The ID of the
@@ -61,6 +62,7 @@ class TimeSeriesData(proto.Message):
 
 class TimeSeriesDataPoint(proto.Message):
     r"""A TensorboardTimeSeries data point.
+
     Attributes:
         scalar (google.cloud.aiplatform_v1beta1.types.Scalar):
             A scalar value.
@@ -88,6 +90,7 @@ class TimeSeriesDataPoint(proto.Message):
 
 class Scalar(proto.Message):
     r"""One point viewable on a scalar metric plot.
+
     Attributes:
         value (float):
             Value of the point at this step / timestamp.
@@ -98,6 +101,7 @@ class Scalar(proto.Message):
 
 class TensorboardTensor(proto.Message):
     r"""One point viewable on a tensor metric plot.
+
     Attributes:
         value (bytes):
             Required. Serialized form of
@@ -126,6 +130,7 @@ class TensorboardBlobSequence(proto.Message):
 
 class TensorboardBlob(proto.Message):
     r"""One blob (e.g, image, graph) viewable on a blob metric plot.
+
     Attributes:
         id (str):
             Output only. A URI safe key uniquely

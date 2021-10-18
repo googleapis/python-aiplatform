@@ -26,6 +26,7 @@ __protobuf__ = proto.module(
 
 class ImageSegmentationPredictionInstance(proto.Message):
     r"""Prediction input format for Image Segmentation.
+
     Attributes:
         content (str):
             The image bytes to make the predictions on.

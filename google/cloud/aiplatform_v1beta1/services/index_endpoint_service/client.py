@@ -17,7 +17,7 @@ from collections import OrderedDict
 from distutils import util
 import os
 import re
-from typing import Callable, Dict, Optional, Sequence, Tuple, Type, Union
+from typing import Dict, Optional, Sequence, Tuple, Type, Union
 import pkg_resources
 
 from google.api_core import client_options as client_options_lib  # type: ignore
@@ -370,15 +370,12 @@ class IndexEndpointServiceClient(metaclass=IndexEndpointServiceClientMeta):
                 client_cert_source_for_mtls=client_cert_source_func,
                 quota_project_id=client_options.quota_project_id,
                 client_info=client_info,
-                always_use_jwt_access=(
-                    Transport == type(self).get_transport_class("grpc")
-                    or Transport == type(self).get_transport_class("grpc_asyncio")
-                ),
+                always_use_jwt_access=True,
             )
 
     def create_index_endpoint(
         self,
-        request: index_endpoint_service.CreateIndexEndpointRequest = None,
+        request: Union[index_endpoint_service.CreateIndexEndpointRequest, dict] = None,
         *,
         parent: str = None,
         index_endpoint: gca_index_endpoint.IndexEndpoint = None,
@@ -389,7 +386,7 @@ class IndexEndpointServiceClient(metaclass=IndexEndpointServiceClientMeta):
         r"""Creates an IndexEndpoint.
 
         Args:
-            request (google.cloud.aiplatform_v1beta1.types.CreateIndexEndpointRequest):
+            request (Union[google.cloud.aiplatform_v1beta1.types.CreateIndexEndpointRequest, dict]):
                 The request object. Request message for
                 [IndexEndpointService.CreateIndexEndpoint][google.cloud.aiplatform.v1beta1.IndexEndpointService.CreateIndexEndpoint].
             parent (str):
@@ -470,7 +467,7 @@ class IndexEndpointServiceClient(metaclass=IndexEndpointServiceClientMeta):
 
     def get_index_endpoint(
         self,
-        request: index_endpoint_service.GetIndexEndpointRequest = None,
+        request: Union[index_endpoint_service.GetIndexEndpointRequest, dict] = None,
         *,
         name: str = None,
         retry: retries.Retry = gapic_v1.method.DEFAULT,
@@ -480,7 +477,7 @@ class IndexEndpointServiceClient(metaclass=IndexEndpointServiceClientMeta):
         r"""Gets an IndexEndpoint.
 
         Args:
-            request (google.cloud.aiplatform_v1beta1.types.GetIndexEndpointRequest):
+            request (Union[google.cloud.aiplatform_v1beta1.types.GetIndexEndpointRequest, dict]):
                 The request object. Request message for
                 [IndexEndpointService.GetIndexEndpoint][google.cloud.aiplatform.v1beta1.IndexEndpointService.GetIndexEndpoint]
             name (str):
@@ -543,7 +540,7 @@ class IndexEndpointServiceClient(metaclass=IndexEndpointServiceClientMeta):
 
     def list_index_endpoints(
         self,
-        request: index_endpoint_service.ListIndexEndpointsRequest = None,
+        request: Union[index_endpoint_service.ListIndexEndpointsRequest, dict] = None,
         *,
         parent: str = None,
         retry: retries.Retry = gapic_v1.method.DEFAULT,
@@ -553,7 +550,7 @@ class IndexEndpointServiceClient(metaclass=IndexEndpointServiceClientMeta):
         r"""Lists IndexEndpoints in a Location.
 
         Args:
-            request (google.cloud.aiplatform_v1beta1.types.ListIndexEndpointsRequest):
+            request (Union[google.cloud.aiplatform_v1beta1.types.ListIndexEndpointsRequest, dict]):
                 The request object. Request message for
                 [IndexEndpointService.ListIndexEndpoints][google.cloud.aiplatform.v1beta1.IndexEndpointService.ListIndexEndpoints].
             parent (str):
@@ -624,7 +621,7 @@ class IndexEndpointServiceClient(metaclass=IndexEndpointServiceClientMeta):
 
     def update_index_endpoint(
         self,
-        request: index_endpoint_service.UpdateIndexEndpointRequest = None,
+        request: Union[index_endpoint_service.UpdateIndexEndpointRequest, dict] = None,
         *,
         index_endpoint: gca_index_endpoint.IndexEndpoint = None,
         update_mask: field_mask_pb2.FieldMask = None,
@@ -635,7 +632,7 @@ class IndexEndpointServiceClient(metaclass=IndexEndpointServiceClientMeta):
         r"""Updates an IndexEndpoint.
 
         Args:
-            request (google.cloud.aiplatform_v1beta1.types.UpdateIndexEndpointRequest):
+            request (Union[google.cloud.aiplatform_v1beta1.types.UpdateIndexEndpointRequest, dict]):
                 The request object. Request message for
                 [IndexEndpointService.UpdateIndexEndpoint][google.cloud.aiplatform.v1beta1.IndexEndpointService.UpdateIndexEndpoint].
             index_endpoint (google.cloud.aiplatform_v1beta1.types.IndexEndpoint):
@@ -708,7 +705,7 @@ class IndexEndpointServiceClient(metaclass=IndexEndpointServiceClientMeta):
 
     def delete_index_endpoint(
         self,
-        request: index_endpoint_service.DeleteIndexEndpointRequest = None,
+        request: Union[index_endpoint_service.DeleteIndexEndpointRequest, dict] = None,
         *,
         name: str = None,
         retry: retries.Retry = gapic_v1.method.DEFAULT,
@@ -718,7 +715,7 @@ class IndexEndpointServiceClient(metaclass=IndexEndpointServiceClientMeta):
         r"""Deletes an IndexEndpoint.
 
         Args:
-            request (google.cloud.aiplatform_v1beta1.types.DeleteIndexEndpointRequest):
+            request (Union[google.cloud.aiplatform_v1beta1.types.DeleteIndexEndpointRequest, dict]):
                 The request object. Request message for
                 [IndexEndpointService.DeleteIndexEndpoint][google.cloud.aiplatform.v1beta1.IndexEndpointService.DeleteIndexEndpoint].
             name (str):
@@ -801,7 +798,7 @@ class IndexEndpointServiceClient(metaclass=IndexEndpointServiceClientMeta):
 
     def deploy_index(
         self,
-        request: index_endpoint_service.DeployIndexRequest = None,
+        request: Union[index_endpoint_service.DeployIndexRequest, dict] = None,
         *,
         index_endpoint: str = None,
         deployed_index: gca_index_endpoint.DeployedIndex = None,
@@ -814,7 +811,7 @@ class IndexEndpointServiceClient(metaclass=IndexEndpointServiceClientMeta):
         Only non-empty Indexes can be deployed.
 
         Args:
-            request (google.cloud.aiplatform_v1beta1.types.DeployIndexRequest):
+            request (Union[google.cloud.aiplatform_v1beta1.types.DeployIndexRequest, dict]):
                 The request object. Request message for
                 [IndexEndpointService.DeployIndex][google.cloud.aiplatform.v1beta1.IndexEndpointService.DeployIndex].
             index_endpoint (str):
@@ -899,7 +896,7 @@ class IndexEndpointServiceClient(metaclass=IndexEndpointServiceClientMeta):
 
     def undeploy_index(
         self,
-        request: index_endpoint_service.UndeployIndexRequest = None,
+        request: Union[index_endpoint_service.UndeployIndexRequest, dict] = None,
         *,
         index_endpoint: str = None,
         deployed_index_id: str = None,
@@ -912,7 +909,7 @@ class IndexEndpointServiceClient(metaclass=IndexEndpointServiceClientMeta):
         using.
 
         Args:
-            request (google.cloud.aiplatform_v1beta1.types.UndeployIndexRequest):
+            request (Union[google.cloud.aiplatform_v1beta1.types.UndeployIndexRequest, dict]):
                 The request object. Request message for
                 [IndexEndpointService.UndeployIndex][google.cloud.aiplatform.v1beta1.IndexEndpointService.UndeployIndex].
             index_endpoint (str):
@@ -994,6 +991,19 @@ class IndexEndpointServiceClient(metaclass=IndexEndpointServiceClientMeta):
 
         # Done; return the response.
         return response
+
+    def __enter__(self):
+        return self
+
+    def __exit__(self, type, value, traceback):
+        """Releases underlying transport's resources.
+
+        .. warning::
+            ONLY use as a context manager if the transport is NOT shared
+            with other clients! Exiting the with block will CLOSE the transport
+            and may cause errors in other clients!
+        """
+        self.transport.close()
 
 
 try:

@@ -121,7 +121,7 @@ class EndpointServiceTransport(abc.ABC):
                 **scopes_kwargs, quota_project_id=quota_project_id
             )
 
-        # If the credentials is service account credentials, then always try to use self signed JWT.
+        # If the credentials are service account credentials, then always try to use self signed JWT.
         if (
             always_use_jwt_access
             and isinstance(credentials, service_account.Credentials)
@@ -180,6 +180,15 @@ class EndpointServiceTransport(abc.ABC):
                 self.undeploy_model, default_timeout=5.0, client_info=client_info,
             ),
         }
+
+    def close(self):
+        """Closes resources associated with the transport.
+
+       .. warning::
+            Only call this method if the transport is NOT shared
+            with other clients - this may cause errors in other clients!
+        """
+        raise NotImplementedError()
 
     @property
     def operations_client(self) -> operations_v1.OperationsClient:

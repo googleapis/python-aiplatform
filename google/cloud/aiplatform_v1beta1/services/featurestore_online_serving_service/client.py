@@ -17,7 +17,7 @@ from collections import OrderedDict
 from distutils import util
 import os
 import re
-from typing import Callable, Dict, Optional, Iterable, Sequence, Tuple, Type, Union
+from typing import Dict, Optional, Iterable, Sequence, Tuple, Type, Union
 import pkg_resources
 
 from google.api_core import client_options as client_options_lib  # type: ignore
@@ -359,15 +359,14 @@ class FeaturestoreOnlineServingServiceClient(
                 client_cert_source_for_mtls=client_cert_source_func,
                 quota_project_id=client_options.quota_project_id,
                 client_info=client_info,
-                always_use_jwt_access=(
-                    Transport == type(self).get_transport_class("grpc")
-                    or Transport == type(self).get_transport_class("grpc_asyncio")
-                ),
+                always_use_jwt_access=True,
             )
 
     def read_feature_values(
         self,
-        request: featurestore_online_service.ReadFeatureValuesRequest = None,
+        request: Union[
+            featurestore_online_service.ReadFeatureValuesRequest, dict
+        ] = None,
         *,
         entity_type: str = None,
         retry: retries.Retry = gapic_v1.method.DEFAULT,
@@ -380,16 +379,16 @@ class FeaturestoreOnlineServingServiceClient(
         StreamingReadFeatureValues.
 
         Args:
-            request (google.cloud.aiplatform_v1beta1.types.ReadFeatureValuesRequest):
+            request (Union[google.cloud.aiplatform_v1beta1.types.ReadFeatureValuesRequest, dict]):
                 The request object. Request message for
                 [FeaturestoreOnlineServingService.ReadFeatureValues][google.cloud.aiplatform.v1beta1.FeaturestoreOnlineServingService.ReadFeatureValues].
             entity_type (str):
                 Required. The resource name of the EntityType for the
                 entity being read. Value format:
-                ``projects/{project}/locations/{location}/featurestores/ {featurestore}/entityTypes/{entityType}``.
+                ``projects/{project}/locations/{location}/featurestores/{featurestore}/entityTypes/{entityType}``.
                 For example, for a machine learning model predicting
                 user clicks on a website, an EntityType ID could be
-                "user".
+                ``user``.
 
                 This corresponds to the ``entity_type`` field
                 on the ``request`` instance; if ``request`` is provided, this
@@ -449,7 +448,9 @@ class FeaturestoreOnlineServingServiceClient(
 
     def streaming_read_feature_values(
         self,
-        request: featurestore_online_service.StreamingReadFeatureValuesRequest = None,
+        request: Union[
+            featurestore_online_service.StreamingReadFeatureValuesRequest, dict
+        ] = None,
         *,
         entity_type: str = None,
         retry: retries.Retry = gapic_v1.method.DEFAULT,
@@ -461,16 +462,16 @@ class FeaturestoreOnlineServingServiceClient(
         up across multiple responses.
 
         Args:
-            request (google.cloud.aiplatform_v1beta1.types.StreamingReadFeatureValuesRequest):
+            request (Union[google.cloud.aiplatform_v1beta1.types.StreamingReadFeatureValuesRequest, dict]):
                 The request object. Request message for
                 [FeaturestoreOnlineServingService.StreamingFeatureValuesRead][].
             entity_type (str):
                 Required. The resource name of the entities' type. Value
                 format:
-                ``projects/{project}/locations/{location}/featurestores/ {featurestore}/entityTypes/{entityType}``.
+                ``projects/{project}/locations/{location}/featurestores/{featurestore}/entityTypes/{entityType}``.
                 For example, for a machine learning model predicting
                 user clicks on a website, an EntityType ID could be
-                "user".
+                ``user``.
 
                 This corresponds to the ``entity_type`` field
                 on the ``request`` instance; if ``request`` is provided, this
@@ -531,6 +532,19 @@ class FeaturestoreOnlineServingServiceClient(
 
         # Done; return the response.
         return response
+
+    def __enter__(self):
+        return self
+
+    def __exit__(self, type, value, traceback):
+        """Releases underlying transport's resources.
+
+        .. warning::
+            ONLY use as a context manager if the transport is NOT shared
+            with other clients! Exiting the with block will CLOSE the transport
+            and may cause errors in other clients!
+        """
+        self.transport.close()
 
 
 try:

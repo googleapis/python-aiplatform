@@ -68,7 +68,9 @@ class EntityType(proto.Message):
             "overwrite" update happens.
         monitoring_config (google.cloud.aiplatform_v1beta1.types.FeaturestoreMonitoringConfig):
             Optional. The default monitoring configuration for all
-            Features under this EntityType.
+            Features with value type
+            ([Feature.ValueType][google.cloud.aiplatform.v1beta1.Feature.ValueType])
+            BOOL, STRING, DOUBLE or INT64 under this EntityType.
 
             If this is populated with
             [FeaturestoreMonitoringConfig.monitoring_interval]

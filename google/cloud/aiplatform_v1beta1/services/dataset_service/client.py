@@ -17,7 +17,7 @@ from collections import OrderedDict
 from distutils import util
 import os
 import re
-from typing import Callable, Dict, Optional, Sequence, Tuple, Type, Union
+from typing import Dict, Optional, Sequence, Tuple, Type, Union
 import pkg_resources
 
 from google.api_core import client_options as client_options_lib  # type: ignore
@@ -420,15 +420,12 @@ class DatasetServiceClient(metaclass=DatasetServiceClientMeta):
                 client_cert_source_for_mtls=client_cert_source_func,
                 quota_project_id=client_options.quota_project_id,
                 client_info=client_info,
-                always_use_jwt_access=(
-                    Transport == type(self).get_transport_class("grpc")
-                    or Transport == type(self).get_transport_class("grpc_asyncio")
-                ),
+                always_use_jwt_access=True,
             )
 
     def create_dataset(
         self,
-        request: dataset_service.CreateDatasetRequest = None,
+        request: Union[dataset_service.CreateDatasetRequest, dict] = None,
         *,
         parent: str = None,
         dataset: gca_dataset.Dataset = None,
@@ -439,7 +436,7 @@ class DatasetServiceClient(metaclass=DatasetServiceClientMeta):
         r"""Creates a Dataset.
 
         Args:
-            request (google.cloud.aiplatform_v1beta1.types.CreateDatasetRequest):
+            request (Union[google.cloud.aiplatform_v1beta1.types.CreateDatasetRequest, dict]):
                 The request object. Request message for
                 [DatasetService.CreateDataset][google.cloud.aiplatform.v1beta1.DatasetService.CreateDataset].
             parent (str):
@@ -519,7 +516,7 @@ class DatasetServiceClient(metaclass=DatasetServiceClientMeta):
 
     def get_dataset(
         self,
-        request: dataset_service.GetDatasetRequest = None,
+        request: Union[dataset_service.GetDatasetRequest, dict] = None,
         *,
         name: str = None,
         retry: retries.Retry = gapic_v1.method.DEFAULT,
@@ -529,7 +526,7 @@ class DatasetServiceClient(metaclass=DatasetServiceClientMeta):
         r"""Gets a Dataset.
 
         Args:
-            request (google.cloud.aiplatform_v1beta1.types.GetDatasetRequest):
+            request (Union[google.cloud.aiplatform_v1beta1.types.GetDatasetRequest, dict]):
                 The request object. Request message for
                 [DatasetService.GetDataset][google.cloud.aiplatform.v1beta1.DatasetService.GetDataset].
             name (str):
@@ -590,7 +587,7 @@ class DatasetServiceClient(metaclass=DatasetServiceClientMeta):
 
     def update_dataset(
         self,
-        request: dataset_service.UpdateDatasetRequest = None,
+        request: Union[dataset_service.UpdateDatasetRequest, dict] = None,
         *,
         dataset: gca_dataset.Dataset = None,
         update_mask: field_mask_pb2.FieldMask = None,
@@ -601,7 +598,7 @@ class DatasetServiceClient(metaclass=DatasetServiceClientMeta):
         r"""Updates a Dataset.
 
         Args:
-            request (google.cloud.aiplatform_v1beta1.types.UpdateDatasetRequest):
+            request (Union[google.cloud.aiplatform_v1beta1.types.UpdateDatasetRequest, dict]):
                 The request object. Request message for
                 [DatasetService.UpdateDataset][google.cloud.aiplatform.v1beta1.DatasetService.UpdateDataset].
             dataset (google.cloud.aiplatform_v1beta1.types.Dataset):
@@ -679,7 +676,7 @@ class DatasetServiceClient(metaclass=DatasetServiceClientMeta):
 
     def list_datasets(
         self,
-        request: dataset_service.ListDatasetsRequest = None,
+        request: Union[dataset_service.ListDatasetsRequest, dict] = None,
         *,
         parent: str = None,
         retry: retries.Retry = gapic_v1.method.DEFAULT,
@@ -689,7 +686,7 @@ class DatasetServiceClient(metaclass=DatasetServiceClientMeta):
         r"""Lists Datasets in a Location.
 
         Args:
-            request (google.cloud.aiplatform_v1beta1.types.ListDatasetsRequest):
+            request (Union[google.cloud.aiplatform_v1beta1.types.ListDatasetsRequest, dict]):
                 The request object. Request message for
                 [DatasetService.ListDatasets][google.cloud.aiplatform.v1beta1.DatasetService.ListDatasets].
             parent (str):
@@ -759,7 +756,7 @@ class DatasetServiceClient(metaclass=DatasetServiceClientMeta):
 
     def delete_dataset(
         self,
-        request: dataset_service.DeleteDatasetRequest = None,
+        request: Union[dataset_service.DeleteDatasetRequest, dict] = None,
         *,
         name: str = None,
         retry: retries.Retry = gapic_v1.method.DEFAULT,
@@ -769,7 +766,7 @@ class DatasetServiceClient(metaclass=DatasetServiceClientMeta):
         r"""Deletes a Dataset.
 
         Args:
-            request (google.cloud.aiplatform_v1beta1.types.DeleteDatasetRequest):
+            request (Union[google.cloud.aiplatform_v1beta1.types.DeleteDatasetRequest, dict]):
                 The request object. Request message for
                 [DatasetService.DeleteDataset][google.cloud.aiplatform.v1beta1.DatasetService.DeleteDataset].
             name (str):
@@ -852,7 +849,7 @@ class DatasetServiceClient(metaclass=DatasetServiceClientMeta):
 
     def import_data(
         self,
-        request: dataset_service.ImportDataRequest = None,
+        request: Union[dataset_service.ImportDataRequest, dict] = None,
         *,
         name: str = None,
         import_configs: Sequence[dataset.ImportDataConfig] = None,
@@ -863,7 +860,7 @@ class DatasetServiceClient(metaclass=DatasetServiceClientMeta):
         r"""Imports data into a Dataset.
 
         Args:
-            request (google.cloud.aiplatform_v1beta1.types.ImportDataRequest):
+            request (Union[google.cloud.aiplatform_v1beta1.types.ImportDataRequest, dict]):
                 The request object. Request message for
                 [DatasetService.ImportData][google.cloud.aiplatform.v1beta1.DatasetService.ImportData].
             name (str):
@@ -946,7 +943,7 @@ class DatasetServiceClient(metaclass=DatasetServiceClientMeta):
 
     def export_data(
         self,
-        request: dataset_service.ExportDataRequest = None,
+        request: Union[dataset_service.ExportDataRequest, dict] = None,
         *,
         name: str = None,
         export_config: dataset.ExportDataConfig = None,
@@ -957,7 +954,7 @@ class DatasetServiceClient(metaclass=DatasetServiceClientMeta):
         r"""Exports data from a Dataset.
 
         Args:
-            request (google.cloud.aiplatform_v1beta1.types.ExportDataRequest):
+            request (Union[google.cloud.aiplatform_v1beta1.types.ExportDataRequest, dict]):
                 The request object. Request message for
                 [DatasetService.ExportData][google.cloud.aiplatform.v1beta1.DatasetService.ExportData].
             name (str):
@@ -1039,7 +1036,7 @@ class DatasetServiceClient(metaclass=DatasetServiceClientMeta):
 
     def list_data_items(
         self,
-        request: dataset_service.ListDataItemsRequest = None,
+        request: Union[dataset_service.ListDataItemsRequest, dict] = None,
         *,
         parent: str = None,
         retry: retries.Retry = gapic_v1.method.DEFAULT,
@@ -1049,7 +1046,7 @@ class DatasetServiceClient(metaclass=DatasetServiceClientMeta):
         r"""Lists DataItems in a Dataset.
 
         Args:
-            request (google.cloud.aiplatform_v1beta1.types.ListDataItemsRequest):
+            request (Union[google.cloud.aiplatform_v1beta1.types.ListDataItemsRequest, dict]):
                 The request object. Request message for
                 [DatasetService.ListDataItems][google.cloud.aiplatform.v1beta1.DatasetService.ListDataItems].
             parent (str):
@@ -1120,7 +1117,7 @@ class DatasetServiceClient(metaclass=DatasetServiceClientMeta):
 
     def get_annotation_spec(
         self,
-        request: dataset_service.GetAnnotationSpecRequest = None,
+        request: Union[dataset_service.GetAnnotationSpecRequest, dict] = None,
         *,
         name: str = None,
         retry: retries.Retry = gapic_v1.method.DEFAULT,
@@ -1130,7 +1127,7 @@ class DatasetServiceClient(metaclass=DatasetServiceClientMeta):
         r"""Gets an AnnotationSpec.
 
         Args:
-            request (google.cloud.aiplatform_v1beta1.types.GetAnnotationSpecRequest):
+            request (Union[google.cloud.aiplatform_v1beta1.types.GetAnnotationSpecRequest, dict]):
                 The request object. Request message for
                 [DatasetService.GetAnnotationSpec][google.cloud.aiplatform.v1beta1.DatasetService.GetAnnotationSpec].
             name (str):
@@ -1192,7 +1189,7 @@ class DatasetServiceClient(metaclass=DatasetServiceClientMeta):
 
     def list_annotations(
         self,
-        request: dataset_service.ListAnnotationsRequest = None,
+        request: Union[dataset_service.ListAnnotationsRequest, dict] = None,
         *,
         parent: str = None,
         retry: retries.Retry = gapic_v1.method.DEFAULT,
@@ -1202,7 +1199,7 @@ class DatasetServiceClient(metaclass=DatasetServiceClientMeta):
         r"""Lists Annotations belongs to a dataitem
 
         Args:
-            request (google.cloud.aiplatform_v1beta1.types.ListAnnotationsRequest):
+            request (Union[google.cloud.aiplatform_v1beta1.types.ListAnnotationsRequest, dict]):
                 The request object. Request message for
                 [DatasetService.ListAnnotations][google.cloud.aiplatform.v1beta1.DatasetService.ListAnnotations].
             parent (str):
@@ -1270,6 +1267,19 @@ class DatasetServiceClient(metaclass=DatasetServiceClientMeta):
 
         # Done; return the response.
         return response
+
+    def __enter__(self):
+        return self
+
+    def __exit__(self, type, value, traceback):
+        """Releases underlying transport's resources.
+
+        .. warning::
+            ONLY use as a context manager if the transport is NOT shared
+            with other clients! Exiting the with block will CLOSE the transport
+            and may cause errors in other clients!
+        """
+        self.transport.close()
 
 
 try:

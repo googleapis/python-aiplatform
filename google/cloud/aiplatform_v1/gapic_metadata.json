@@ -203,6 +203,254 @@
         }
       }
     },
+    "FeaturestoreOnlineServingService": {
+      "clients": {
+        "grpc": {
+          "libraryClient": "FeaturestoreOnlineServingServiceClient",
+          "rpcs": {
+            "ReadFeatureValues": {
+              "methods": [
+                "read_feature_values"
+              ]
+            },
+            "StreamingReadFeatureValues": {
+              "methods": [
+                "streaming_read_feature_values"
+              ]
+            }
+          }
+        },
+        "grpc-async": {
+          "libraryClient": "FeaturestoreOnlineServingServiceAsyncClient",
+          "rpcs": {
+            "ReadFeatureValues": {
+              "methods": [
+                "read_feature_values"
+              ]
+            },
+            "StreamingReadFeatureValues": {
+              "methods": [
+                "streaming_read_feature_values"
+              ]
+            }
+          }
+        }
+      }
+    },
+    "FeaturestoreService": {
+      "clients": {
+        "grpc": {
+          "libraryClient": "FeaturestoreServiceClient",
+          "rpcs": {
+            "BatchCreateFeatures": {
+              "methods": [
+                "batch_create_features"
+              ]
+            },
+            "BatchReadFeatureValues": {
+              "methods": [
+                "batch_read_feature_values"
+              ]
+            },
+            "CreateEntityType": {
+              "methods": [
+                "create_entity_type"
+              ]
+            },
+            "CreateFeature": {
+              "methods": [
+                "create_feature"
+              ]
+            },
+            "CreateFeaturestore": {
+              "methods": [
+                "create_featurestore"
+              ]
+            },
+            "DeleteEntityType": {
+              "methods": [
+                "delete_entity_type"
+              ]
+            },
+            "DeleteFeature": {
+              "methods": [
+                "delete_feature"
+              ]
+            },
+            "DeleteFeaturestore": {
+              "methods": [
+                "delete_featurestore"
+              ]
+            },
+            "ExportFeatureValues": {
+              "methods": [
+                "export_feature_values"
+              ]
+            },
+            "GetEntityType": {
+              "methods": [
+                "get_entity_type"
+              ]
+            },
+            "GetFeature": {
+              "methods": [
+                "get_feature"
+              ]
+            },
+            "GetFeaturestore": {
+              "methods": [
+                "get_featurestore"
+              ]
+            },
+            "ImportFeatureValues": {
+              "methods": [
+                "import_feature_values"
+              ]
+            },
+            "ListEntityTypes": {
+              "methods": [
+                "list_entity_types"
+              ]
+            },
+            "ListFeatures": {
+              "methods": [
+                "list_features"
+              ]
+            },
+            "ListFeaturestores": {
+              "methods": [
+                "list_featurestores"
+              ]
+            },
+            "SearchFeatures": {
+              "methods": [
+                "search_features"
+              ]
+            },
+            "UpdateEntityType": {
+              "methods": [
+                "update_entity_type"
+              ]
+            },
+            "UpdateFeature": {
+              "methods": [
+                "update_feature"
+              ]
+            },
+            "UpdateFeaturestore": {
+              "methods": [
+                "update_featurestore"
+              ]
+            }
+          }
+        },
+        "grpc-async": {
+          "libraryClient": "FeaturestoreServiceAsyncClient",
+          "rpcs": {
+            "BatchCreateFeatures": {
+              "methods": [
+                "batch_create_features"
+              ]
+            },
+            "BatchReadFeatureValues": {
+              "methods": [
+                "batch_read_feature_values"
+              ]
+            },
+            "CreateEntityType": {
+              "methods": [
+                "create_entity_type"
+              ]
+            },
+            "CreateFeature": {
+              "methods": [
+                "create_feature"
+              ]
+            },
+            "CreateFeaturestore": {
+              "methods": [
+                "create_featurestore"
+              ]
+            },
+            "DeleteEntityType": {
+              "methods": [
+                "delete_entity_type"
+              ]
+            },
+            "DeleteFeature": {
+              "methods": [
+                "delete_feature"
+              ]
+            },
+            "DeleteFeaturestore": {
+              "methods": [
+                "delete_featurestore"
+              ]
+            },
+            "ExportFeatureValues": {
+              "methods": [
+                "export_feature_values"
+              ]
+            },
+            "GetEntityType": {
+              "methods": [
+                "get_entity_type"
+              ]
+            },
+            "GetFeature": {
+              "methods": [
+                "get_feature"
+              ]
+            },
+            "GetFeaturestore": {
+              "methods": [
+                "get_featurestore"
+              ]
+            },
+            "ImportFeatureValues": {
+              "methods": [
+                "import_feature_values"
+              ]
+            },
+            "ListEntityTypes": {
+              "methods": [
+                "list_entity_types"
+              ]
+            },
+            "ListFeatures": {
+              "methods": [
+                "list_features"
+              ]
+            },
+            "ListFeaturestores": {
+              "methods": [
+                "list_featurestores"
+              ]
+            },
+            "SearchFeatures": {
+              "methods": [
+                "search_features"
+              ]
+            },
+            "UpdateEntityType": {
+              "methods": [
+                "update_entity_type"
+              ]
+            },
+            "UpdateFeature": {
+              "methods": [
+                "update_feature"
+              ]
+            },
+            "UpdateFeaturestore": {
+              "methods": [
+                "update_featurestore"
+              ]
+            }
+          }
+        }
+      }
+    },
     "IndexEndpointService": {
       "clients": {
         "grpc": {
@@ -645,6 +893,330 @@
         }
       }
     },
+    "MetadataService": {
+      "clients": {
+        "grpc": {
+          "libraryClient": "MetadataServiceClient",
+          "rpcs": {
+            "AddContextArtifactsAndExecutions": {
+              "methods": [
+                "add_context_artifacts_and_executions"
+              ]
+            },
+            "AddContextChildren": {
+              "methods": [
+                "add_context_children"
+              ]
+            },
+            "AddExecutionEvents": {
+              "methods": [
+                "add_execution_events"
+              ]
+            },
+            "CreateArtifact": {
+              "methods": [
+                "create_artifact"
+              ]
+            },
+            "CreateContext": {
+              "methods": [
+                "create_context"
+              ]
+            },
+            "CreateExecution": {
+              "methods": [
+                "create_execution"
+              ]
+            },
+            "CreateMetadataSchema": {
+              "methods": [
+                "create_metadata_schema"
+              ]
+            },
+            "CreateMetadataStore": {
+              "methods": [
+                "create_metadata_store"
+              ]
+            },
+            "DeleteArtifact": {
+              "methods": [
+                "delete_artifact"
+              ]
+            },
+            "DeleteContext": {
+              "methods": [
+                "delete_context"
+              ]
+            },
+            "DeleteExecution": {
+              "methods": [
+                "delete_execution"
+              ]
+            },
+            "DeleteMetadataStore": {
+              "methods": [
+                "delete_metadata_store"
+              ]
+            },
+            "GetArtifact": {
+              "methods": [
+                "get_artifact"
+              ]
+            },
+            "GetContext": {
+              "methods": [
+                "get_context"
+              ]
+            },
+            "GetExecution": {
+              "methods": [
+                "get_execution"
+              ]
+            },
+            "GetMetadataSchema": {
+              "methods": [
+                "get_metadata_schema"
+              ]
+            },
+            "GetMetadataStore": {
+              "methods": [
+                "get_metadata_store"
+              ]
+            },
+            "ListArtifacts": {
+              "methods": [
+                "list_artifacts"
+              ]
+            },
+            "ListContexts": {
+              "methods": [
+                "list_contexts"
+              ]
+            },
+            "ListExecutions": {
+              "methods": [
+                "list_executions"
+              ]
+            },
+            "ListMetadataSchemas": {
+              "methods": [
+                "list_metadata_schemas"
+              ]
+            },
+            "ListMetadataStores": {
+              "methods": [
+                "list_metadata_stores"
+              ]
+            },
+            "PurgeArtifacts": {
+              "methods": [
+                "purge_artifacts"
+              ]
+            },
+            "PurgeContexts": {
+              "methods": [
+                "purge_contexts"
+              ]
+            },
+            "PurgeExecutions": {
+              "methods": [
+                "purge_executions"
+              ]
+            },
+            "QueryArtifactLineageSubgraph": {
+              "methods": [
+                "query_artifact_lineage_subgraph"
+              ]
+            },
+            "QueryContextLineageSubgraph": {
+              "methods": [
+                "query_context_lineage_subgraph"
+              ]
+            },
+            "QueryExecutionInputsAndOutputs": {
+              "methods": [
+                "query_execution_inputs_and_outputs"
+              ]
+            },
+            "UpdateArtifact": {
+              "methods": [
+                "update_artifact"
+              ]
+            },
+            "UpdateContext": {
+              "methods": [
+                "update_context"
+              ]
+            },
+            "UpdateExecution": {
+              "methods": [
+                "update_execution"
+              ]
+            }
+          }
+        },
+        "grpc-async": {
+          "libraryClient": "MetadataServiceAsyncClient",
+          "rpcs": {
+            "AddContextArtifactsAndExecutions": {
+              "methods": [
+                "add_context_artifacts_and_executions"
+              ]
+            },
+            "AddContextChildren": {
+              "methods": [
+                "add_context_children"
+              ]
+            },
+            "AddExecutionEvents": {
+              "methods": [
+                "add_execution_events"
+              ]
+            },
+            "CreateArtifact": {
+              "methods": [
+                "create_artifact"
+              ]
+            },
+            "CreateContext": {
+              "methods": [
+                "create_context"
+              ]
+            },
+            "CreateExecution": {
+              "methods": [
+                "create_execution"
+              ]
+            },
+            "CreateMetadataSchema": {
+              "methods": [
+                "create_metadata_schema"
+              ]
+            },
+            "CreateMetadataStore": {
+              "methods": [
+                "create_metadata_store"
+              ]
+            },
+            "DeleteArtifact": {
+              "methods": [
+                "delete_artifact"
+              ]
+            },
+            "DeleteContext": {
+              "methods": [
+                "delete_context"
+              ]
+            },
+            "DeleteExecution": {
+              "methods": [
+                "delete_execution"
+              ]
+            },
+            "DeleteMetadataStore": {
+              "methods": [
+                "delete_metadata_store"
+              ]
+            },
+            "GetArtifact": {
+              "methods": [
+                "get_artifact"
+              ]
+            },
+            "GetContext": {
+              "methods": [
+                "get_context"
+              ]
+            },
+            "GetExecution": {
+              "methods": [
+                "get_execution"
+              ]
+            },
+            "GetMetadataSchema": {
+              "methods": [
+                "get_metadata_schema"
+              ]
+            },
+            "GetMetadataStore": {
+              "methods": [
+                "get_metadata_store"
+              ]
+            },
+            "ListArtifacts": {
+              "methods": [
+                "list_artifacts"
+              ]
+            },
+            "ListContexts": {
+              "methods": [
+                "list_contexts"
+              ]
+            },
+            "ListExecutions": {
+              "methods": [
+                "list_executions"
+              ]
+            },
+            "ListMetadataSchemas": {
+              "methods": [
+                "list_metadata_schemas"
+              ]
+            },
+            "ListMetadataStores": {
+              "methods": [
+                "list_metadata_stores"
+              ]
+            },
+            "PurgeArtifacts": {
+              "methods": [
+                "purge_artifacts"
+              ]
+            },
+            "PurgeContexts": {
+              "methods": [
+                "purge_contexts"
+              ]
+            },
+            "PurgeExecutions": {
+              "methods": [
+                "purge_executions"
+              ]
+            },
+            "QueryArtifactLineageSubgraph": {
+              "methods": [
+                "query_artifact_lineage_subgraph"
+              ]
+            },
+            "QueryContextLineageSubgraph": {
+              "methods": [
+                "query_context_lineage_subgraph"
+              ]
+            },
+            "QueryExecutionInputsAndOutputs": {
+              "methods": [
+                "query_execution_inputs_and_outputs"
+              ]
+            },
+            "UpdateArtifact": {
+              "methods": [
+                "update_artifact"
+              ]
+            },
+            "UpdateContext": {
+              "methods": [
+                "update_context"
+              ]
+            },
+            "UpdateExecution": {
+              "methods": [
+                "update_execution"
+              ]
+            }
+          }
+        }
+      }
+    },
     "MigrationService": {
       "clients": {
         "grpc": {
@@ -1009,6 +1581,170 @@
             "UpdateSpecialistPool": {
               "methods": [
                 "update_specialist_pool"
+              ]
+            }
+          }
+        }
+      }
+    },
+    "VizierService": {
+      "clients": {
+        "grpc": {
+          "libraryClient": "VizierServiceClient",
+          "rpcs": {
+            "AddTrialMeasurement": {
+              "methods": [
+                "add_trial_measurement"
+              ]
+            },
+            "CheckTrialEarlyStoppingState": {
+              "methods": [
+                "check_trial_early_stopping_state"
+              ]
+            },
+            "CompleteTrial": {
+              "methods": [
+                "complete_trial"
+              ]
+            },
+            "CreateStudy": {
+              "methods": [
+                "create_study"
+              ]
+            },
+            "CreateTrial": {
+              "methods": [
+                "create_trial"
+              ]
+            },
+            "DeleteStudy": {
+              "methods": [
+                "delete_study"
+              ]
+            },
+            "DeleteTrial": {
+              "methods": [
+                "delete_trial"
+              ]
+            },
+            "GetStudy": {
+              "methods": [
+                "get_study"
+              ]
+            },
+            "GetTrial": {
+              "methods": [
+                "get_trial"
+              ]
+            },
+            "ListOptimalTrials": {
+              "methods": [
+                "list_optimal_trials"
+              ]
+            },
+            "ListStudies": {
+              "methods": [
+                "list_studies"
+              ]
+            },
+            "ListTrials": {
+              "methods": [
+                "list_trials"
+              ]
+            },
+            "LookupStudy": {
+              "methods": [
+                "lookup_study"
+              ]
+            },
+            "StopTrial": {
+              "methods": [
+                "stop_trial"
+              ]
+            },
+            "SuggestTrials": {
+              "methods": [
+                "suggest_trials"
+              ]
+            }
+          }
+        },
+        "grpc-async": {
+          "libraryClient": "VizierServiceAsyncClient",
+          "rpcs": {
+            "AddTrialMeasurement": {
+              "methods": [
+                "add_trial_measurement"
+              ]
+            },
+            "CheckTrialEarlyStoppingState": {
+              "methods": [
+                "check_trial_early_stopping_state"
+              ]
+            },
+            "CompleteTrial": {
+              "methods": [
+                "complete_trial"
+              ]
+            },
+            "CreateStudy": {
+              "methods": [
+                "create_study"
+              ]
+            },
+            "CreateTrial": {
+              "methods": [
+                "create_trial"
+              ]
+            },
+            "DeleteStudy": {
+              "methods": [
+                "delete_study"
+              ]
+            },
+            "DeleteTrial": {
+              "methods": [
+                "delete_trial"
+              ]
+            },
+            "GetStudy": {
+              "methods": [
+                "get_study"
+              ]
+            },
+            "GetTrial": {
+              "methods": [
+                "get_trial"
+              ]
+            },
+            "ListOptimalTrials": {
+              "methods": [
+                "list_optimal_trials"
+              ]
+            },
+            "ListStudies": {
+              "methods": [
+                "list_studies"
+              ]
+            },
+            "ListTrials": {
+              "methods": [
+                "list_trials"
+              ]
+            },
+            "LookupStudy": {
+              "methods": [
+                "lookup_study"
+              ]
+            },
+            "StopTrial": {
+              "methods": [
+                "stop_trial"
+              ]
+            },
+            "SuggestTrials": {
+              "methods": [
+                "suggest_trials"
               ]
             }
           }

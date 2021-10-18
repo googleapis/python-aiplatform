@@ -140,16 +140,16 @@ class TensorboardServiceGrpcAsyncIOTransport(TensorboardServiceTransport):
             api_mtls_endpoint (Optional[str]): Deprecated. The mutual TLS endpoint.
                 If provided, it overrides the ``host`` argument and tries to create
                 a mutual TLS channel with client SSL credentials from
-                ``client_cert_source`` or applicatin default SSL credentials.
+                ``client_cert_source`` or application default SSL credentials.
             client_cert_source (Optional[Callable[[], Tuple[bytes, bytes]]]):
                 Deprecated. A callback to provide client SSL certificate bytes and
                 private key bytes, both in PEM format. It is ignored if
                 ``api_mtls_endpoint`` is None.
             ssl_channel_credentials (grpc.ChannelCredentials): SSL credentials
-                for grpc channel. It is ignored if ``channel`` is provided.
+                for the grpc channel. It is ignored if ``channel`` is provided.
             client_cert_source_for_mtls (Optional[Callable[[], Tuple[bytes, bytes]]]):
                 A callback to provide client certificate bytes and private key bytes,
-                both in PEM format. It is used to configure mutual TLS channel. It is
+                both in PEM format. It is used to configure a mutual TLS channel. It is
                 ignored if ``channel`` or ``ssl_channel_credentials`` is provided.
             quota_project_id (Optional[str]): An optional project to use for billing
                 and quota.
@@ -914,6 +914,43 @@ class TensorboardServiceGrpcAsyncIOTransport(TensorboardServiceTransport):
         return self._stubs["delete_tensorboard_time_series"]
 
     @property
+    def batch_read_tensorboard_time_series_data(
+        self,
+    ) -> Callable[
+        [tensorboard_service.BatchReadTensorboardTimeSeriesDataRequest],
+        Awaitable[tensorboard_service.BatchReadTensorboardTimeSeriesDataResponse],
+    ]:
+        r"""Return a callable for the batch read tensorboard time
+        series data method over gRPC.
+
+        Reads multiple TensorboardTimeSeries' data. The data
+        point number limit is 1000 for scalars, 100 for tensors
+        and blob references. If the number of data points stored
+        is less than the limit, all data will be returned.
+        Otherwise, that limit number of data points will be
+        randomly selected from this time series and returned.
+
+        Returns:
+            Callable[[~.BatchReadTensorboardTimeSeriesDataRequest],
+                    Awaitable[~.BatchReadTensorboardTimeSeriesDataResponse]]:
+                A function that, when called, will call the underlying RPC
+                on the server.
+        """
+        # Generate a "stub function" on-the-fly which will actually make
+        # the request.
+        # gRPC handles serialization and deserialization, so we just need
+        # to pass in the functions for each.
+        if "batch_read_tensorboard_time_series_data" not in self._stubs:
+            self._stubs[
+                "batch_read_tensorboard_time_series_data"
+            ] = self.grpc_channel.unary_unary(
+                "/google.cloud.aiplatform.v1beta1.TensorboardService/BatchReadTensorboardTimeSeriesData",
+                request_serializer=tensorboard_service.BatchReadTensorboardTimeSeriesDataRequest.serialize,
+                response_deserializer=tensorboard_service.BatchReadTensorboardTimeSeriesDataResponse.deserialize,
+            )
+        return self._stubs["batch_read_tensorboard_time_series_data"]
+
+    @property
     def read_tensorboard_time_series_data(
         self,
     ) -> Callable[
@@ -923,12 +960,11 @@ class TensorboardServiceGrpcAsyncIOTransport(TensorboardServiceTransport):
         r"""Return a callable for the read tensorboard time series
         data method over gRPC.
 
-        Reads a TensorboardTimeSeries' data. Data is returned in
-        paginated responses. By default, if the number of data points
-        stored is less than 1000, all data will be returned. Otherwise,
-        1000 data points will be randomly selected from this time series
-        and returned. This value can be changed by changing
-        max_data_points.
+        Reads a TensorboardTimeSeries' data. By default, if the number
+        of data points stored is less than 1000, all data will be
+        returned. Otherwise, 1000 data points will be randomly selected
+        from this time series and returned. This value can be changed by
+        changing max_data_points, which can't be greater than 10k.
 
         Returns:
             Callable[[~.ReadTensorboardTimeSeriesDataRequest],
@@ -1079,6 +1115,9 @@ class TensorboardServiceGrpcAsyncIOTransport(TensorboardServiceTransport):
                 response_deserializer=tensorboard_service.ExportTensorboardTimeSeriesDataResponse.deserialize,
             )
         return self._stubs["export_tensorboard_time_series_data"]
+
+    def close(self):
+        return self.grpc_channel.close()
 
 
 __all__ = ("TensorboardServiceGrpcAsyncIOTransport",)

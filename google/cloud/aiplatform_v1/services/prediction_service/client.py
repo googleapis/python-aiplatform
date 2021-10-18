@@ -17,7 +17,7 @@ from collections import OrderedDict
 from distutils import util
 import os
 import re
-from typing import Callable, Dict, Optional, Sequence, Tuple, Type, Union
+from typing import Dict, Optional, Sequence, Tuple, Type, Union
 import pkg_resources
 
 from google.api_core import client_options as client_options_lib  # type: ignore
@@ -172,6 +172,22 @@ class PredictionServiceClient(metaclass=PredictionServiceClientMeta):
         """Parses a endpoint path into its component segments."""
         m = re.match(
             r"^projects/(?P<project>.+?)/locations/(?P<location>.+?)/endpoints/(?P<endpoint>.+?)$",
+            path,
+        )
+        return m.groupdict() if m else {}
+
+    @staticmethod
+    def model_path(project: str, location: str, model: str,) -> str:
+        """Returns a fully-qualified model string."""
+        return "projects/{project}/locations/{location}/models/{model}".format(
+            project=project, location=location, model=model,
+        )
+
+    @staticmethod
+    def parse_model_path(path: str) -> Dict[str, str]:
+        """Parses a model path into its component segments."""
+        m = re.match(
+            r"^projects/(?P<project>.+?)/locations/(?P<location>.+?)/models/(?P<model>.+?)$",
             path,
         )
         return m.groupdict() if m else {}
@@ -349,15 +365,12 @@ class PredictionServiceClient(metaclass=PredictionServiceClientMeta):
                 client_cert_source_for_mtls=client_cert_source_func,
                 quota_project_id=client_options.quota_project_id,
                 client_info=client_info,
-                always_use_jwt_access=(
-                    Transport == type(self).get_transport_class("grpc")
-                    or Transport == type(self).get_transport_class("grpc_asyncio")
-                ),
+                always_use_jwt_access=True,
             )
 
     def predict(
         self,
-        request: prediction_service.PredictRequest = None,
+        request: Union[prediction_service.PredictRequest, dict] = None,
         *,
         endpoint: str = None,
         instances: Sequence[struct_pb2.Value] = None,
@@ -369,7 +382,7 @@ class PredictionServiceClient(metaclass=PredictionServiceClientMeta):
         r"""Perform an online prediction.
 
         Args:
-            request (google.cloud.aiplatform_v1.types.PredictRequest):
+            request (Union[google.cloud.aiplatform_v1.types.PredictRequest, dict]):
                 The request object. Request message for
                 [PredictionService.Predict][google.cloud.aiplatform.v1.PredictionService.Predict].
             endpoint (str):
@@ -462,7 +475,7 @@ class PredictionServiceClient(metaclass=PredictionServiceClientMeta):
 
     def raw_predict(
         self,
-        request: prediction_service.RawPredictRequest = None,
+        request: Union[prediction_service.RawPredictRequest, dict] = None,
         *,
         endpoint: str = None,
         http_body: httpbody_pb2.HttpBody = None,
@@ -470,11 +483,20 @@ class PredictionServiceClient(metaclass=PredictionServiceClientMeta):
         timeout: float = None,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> httpbody_pb2.HttpBody:
-        r"""Perform an online prediction with arbitrary http
-        payload.
+        r"""Perform an online prediction with an arbitrary HTTP payload.
+
+        The response includes the following HTTP headers:
+
+        -  ``X-Vertex-AI-Endpoint-Id``: ID of the
+           [Endpoint][google.cloud.aiplatform.v1.Endpoint] that served
+           this prediction.
+
+        -  ``X-Vertex-AI-Deployed-Model-Id``: ID of the Endpoint's
+           [DeployedModel][google.cloud.aiplatform.v1.DeployedModel]
+           that served this prediction.
 
         Args:
-            request (google.cloud.aiplatform_v1.types.RawPredictRequest):
+            request (Union[google.cloud.aiplatform_v1.types.RawPredictRequest, dict]):
                 The request object. Request message for
                 [PredictionService.RawPredict][google.cloud.aiplatform.v1.PredictionService.RawPredict].
             endpoint (str):
@@ -607,7 +629,7 @@ class PredictionServiceClient(metaclass=PredictionServiceClientMeta):
 
     def explain(
         self,
-        request: prediction_service.ExplainRequest = None,
+        request: Union[prediction_service.ExplainRequest, dict] = None,
         *,
         endpoint: str = None,
         instances: Sequence[struct_pb2.Value] = None,
@@ -631,7 +653,7 @@ class PredictionServiceClient(metaclass=PredictionServiceClientMeta):
         explanation_spec.
 
         Args:
-            request (google.cloud.aiplatform_v1.types.ExplainRequest):
+            request (Union[google.cloud.aiplatform_v1.types.ExplainRequest, dict]):
                 The request object. Request message for
                 [PredictionService.Explain][google.cloud.aiplatform.v1.PredictionService.Explain].
             endpoint (str):
@@ -731,6 +753,19 @@ class PredictionServiceClient(metaclass=PredictionServiceClientMeta):
 
         # Done; return the response.
         return response
+
+    def __enter__(self):
+        return self
+
+    def __exit__(self, type, value, traceback):
+        """Releases underlying transport's resources.
+
+        .. warning::
+            ONLY use as a context manager if the transport is NOT shared
+            with other clients! Exiting the with block will CLOSE the transport
+            and may cause errors in other clients!
+        """
+        self.transport.close()
 
 
 try:

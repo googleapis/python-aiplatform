@@ -17,7 +17,7 @@ from collections import OrderedDict
 from distutils import util
 import os
 import re
-from typing import Callable, Dict, Optional, Sequence, Tuple, Type, Union
+from typing import Dict, Optional, Sequence, Tuple, Type, Union
 import pkg_resources
 
 from google.api_core import client_options as client_options_lib  # type: ignore
@@ -33,6 +33,7 @@ from google.oauth2 import service_account  # type: ignore
 from google.api_core import operation as gac_operation  # type: ignore
 from google.api_core import operation_async  # type: ignore
 from google.cloud.aiplatform_v1beta1.services.featurestore_service import pagers
+from google.cloud.aiplatform_v1beta1.types import encryption_spec
 from google.cloud.aiplatform_v1beta1.types import entity_type
 from google.cloud.aiplatform_v1beta1.types import entity_type as gca_entity_type
 from google.cloud.aiplatform_v1beta1.types import feature
@@ -405,15 +406,12 @@ class FeaturestoreServiceClient(metaclass=FeaturestoreServiceClientMeta):
                 client_cert_source_for_mtls=client_cert_source_func,
                 quota_project_id=client_options.quota_project_id,
                 client_info=client_info,
-                always_use_jwt_access=(
-                    Transport == type(self).get_transport_class("grpc")
-                    or Transport == type(self).get_transport_class("grpc_asyncio")
-                ),
+                always_use_jwt_access=True,
             )
 
     def create_featurestore(
         self,
-        request: featurestore_service.CreateFeaturestoreRequest = None,
+        request: Union[featurestore_service.CreateFeaturestoreRequest, dict] = None,
         *,
         parent: str = None,
         featurestore: gca_featurestore.Featurestore = None,
@@ -425,7 +423,7 @@ class FeaturestoreServiceClient(metaclass=FeaturestoreServiceClientMeta):
         location.
 
         Args:
-            request (google.cloud.aiplatform_v1beta1.types.CreateFeaturestoreRequest):
+            request (Union[google.cloud.aiplatform_v1beta1.types.CreateFeaturestoreRequest, dict]):
                 The request object. Request message for
                 [FeaturestoreService.CreateFeaturestore][google.cloud.aiplatform.v1beta1.FeaturestoreService.CreateFeaturestore].
             parent (str):
@@ -506,7 +504,7 @@ class FeaturestoreServiceClient(metaclass=FeaturestoreServiceClientMeta):
 
     def get_featurestore(
         self,
-        request: featurestore_service.GetFeaturestoreRequest = None,
+        request: Union[featurestore_service.GetFeaturestoreRequest, dict] = None,
         *,
         name: str = None,
         retry: retries.Retry = gapic_v1.method.DEFAULT,
@@ -516,7 +514,7 @@ class FeaturestoreServiceClient(metaclass=FeaturestoreServiceClientMeta):
         r"""Gets details of a single Featurestore.
 
         Args:
-            request (google.cloud.aiplatform_v1beta1.types.GetFeaturestoreRequest):
+            request (Union[google.cloud.aiplatform_v1beta1.types.GetFeaturestoreRequest, dict]):
                 The request object. Request message for
                 [FeaturestoreService.GetFeaturestore][google.cloud.aiplatform.v1beta1.FeaturestoreService.GetFeaturestore].
             name (str):
@@ -578,7 +576,7 @@ class FeaturestoreServiceClient(metaclass=FeaturestoreServiceClientMeta):
 
     def list_featurestores(
         self,
-        request: featurestore_service.ListFeaturestoresRequest = None,
+        request: Union[featurestore_service.ListFeaturestoresRequest, dict] = None,
         *,
         parent: str = None,
         retry: retries.Retry = gapic_v1.method.DEFAULT,
@@ -588,7 +586,7 @@ class FeaturestoreServiceClient(metaclass=FeaturestoreServiceClientMeta):
         r"""Lists Featurestores in a given project and location.
 
         Args:
-            request (google.cloud.aiplatform_v1beta1.types.ListFeaturestoresRequest):
+            request (Union[google.cloud.aiplatform_v1beta1.types.ListFeaturestoresRequest, dict]):
                 The request object. Request message for
                 [FeaturestoreService.ListFeaturestores][google.cloud.aiplatform.v1beta1.FeaturestoreService.ListFeaturestores].
             parent (str):
@@ -659,7 +657,7 @@ class FeaturestoreServiceClient(metaclass=FeaturestoreServiceClientMeta):
 
     def update_featurestore(
         self,
-        request: featurestore_service.UpdateFeaturestoreRequest = None,
+        request: Union[featurestore_service.UpdateFeaturestoreRequest, dict] = None,
         *,
         featurestore: gca_featurestore.Featurestore = None,
         update_mask: field_mask_pb2.FieldMask = None,
@@ -670,7 +668,7 @@ class FeaturestoreServiceClient(metaclass=FeaturestoreServiceClientMeta):
         r"""Updates the parameters of a single Featurestore.
 
         Args:
-            request (google.cloud.aiplatform_v1beta1.types.UpdateFeaturestoreRequest):
+            request (Union[google.cloud.aiplatform_v1beta1.types.UpdateFeaturestoreRequest, dict]):
                 The request object. Request message for
                 [FeaturestoreService.UpdateFeaturestore][google.cloud.aiplatform.v1beta1.FeaturestoreService.UpdateFeaturestore].
             featurestore (google.cloud.aiplatform_v1beta1.types.Featurestore):
@@ -766,9 +764,10 @@ class FeaturestoreServiceClient(metaclass=FeaturestoreServiceClientMeta):
 
     def delete_featurestore(
         self,
-        request: featurestore_service.DeleteFeaturestoreRequest = None,
+        request: Union[featurestore_service.DeleteFeaturestoreRequest, dict] = None,
         *,
         name: str = None,
+        force: bool = None,
         retry: retries.Retry = gapic_v1.method.DEFAULT,
         timeout: float = None,
         metadata: Sequence[Tuple[str, str]] = (),
@@ -778,7 +777,7 @@ class FeaturestoreServiceClient(metaclass=FeaturestoreServiceClientMeta):
         to succeed.
 
         Args:
-            request (google.cloud.aiplatform_v1beta1.types.DeleteFeaturestoreRequest):
+            request (Union[google.cloud.aiplatform_v1beta1.types.DeleteFeaturestoreRequest, dict]):
                 The request object. Request message for
                 [FeaturestoreService.DeleteFeaturestore][google.cloud.aiplatform.v1beta1.FeaturestoreService.DeleteFeaturestore].
             name (str):
@@ -787,6 +786,16 @@ class FeaturestoreServiceClient(metaclass=FeaturestoreServiceClientMeta):
                 ``projects/{project}/locations/{location}/featurestores/{featurestore}``
 
                 This corresponds to the ``name`` field
+                on the ``request`` instance; if ``request`` is provided, this
+                should not be set.
+            force (bool):
+                If set to true, any EntityTypes and
+                Features for this Featurestore will also
+                be deleted. (Otherwise, the request will
+                only work if the Featurestore has no
+                EntityTypes.)
+
+                This corresponds to the ``force`` field
                 on the ``request`` instance; if ``request`` is provided, this
                 should not be set.
             retry (google.api_core.retry.Retry): Designation of what errors, if any,
@@ -817,7 +826,7 @@ class FeaturestoreServiceClient(metaclass=FeaturestoreServiceClientMeta):
         # Create or coerce a protobuf request object.
         # Sanity check: If we got a request object, we should *not* have
         # gotten any keyword arguments that map to the request.
-        has_flattened_params = any([name])
+        has_flattened_params = any([name, force])
         if request is not None and has_flattened_params:
             raise ValueError(
                 "If the `request` argument is set, then none of "
@@ -834,6 +843,8 @@ class FeaturestoreServiceClient(metaclass=FeaturestoreServiceClientMeta):
             # request, apply these.
             if name is not None:
                 request.name = name
+            if force is not None:
+                request.force = force
 
         # Wrap the RPC method; this adds retry and timeout information,
         # and friendly error handling.
@@ -861,7 +872,7 @@ class FeaturestoreServiceClient(metaclass=FeaturestoreServiceClientMeta):
 
     def create_entity_type(
         self,
-        request: featurestore_service.CreateEntityTypeRequest = None,
+        request: Union[featurestore_service.CreateEntityTypeRequest, dict] = None,
         *,
         parent: str = None,
         entity_type: gca_entity_type.EntityType = None,
@@ -872,7 +883,7 @@ class FeaturestoreServiceClient(metaclass=FeaturestoreServiceClientMeta):
         r"""Creates a new EntityType in a given Featurestore.
 
         Args:
-            request (google.cloud.aiplatform_v1beta1.types.CreateEntityTypeRequest):
+            request (Union[google.cloud.aiplatform_v1beta1.types.CreateEntityTypeRequest, dict]):
                 The request object. Request message for
                 [FeaturestoreService.CreateEntityType][google.cloud.aiplatform.v1beta1.FeaturestoreService.CreateEntityType].
             parent (str):
@@ -953,7 +964,7 @@ class FeaturestoreServiceClient(metaclass=FeaturestoreServiceClientMeta):
 
     def get_entity_type(
         self,
-        request: featurestore_service.GetEntityTypeRequest = None,
+        request: Union[featurestore_service.GetEntityTypeRequest, dict] = None,
         *,
         name: str = None,
         retry: retries.Retry = gapic_v1.method.DEFAULT,
@@ -963,7 +974,7 @@ class FeaturestoreServiceClient(metaclass=FeaturestoreServiceClientMeta):
         r"""Gets details of a single EntityType.
 
         Args:
-            request (google.cloud.aiplatform_v1beta1.types.GetEntityTypeRequest):
+            request (Union[google.cloud.aiplatform_v1beta1.types.GetEntityTypeRequest, dict]):
                 The request object. Request message for
                 [FeaturestoreService.GetEntityType][google.cloud.aiplatform.v1beta1.FeaturestoreService.GetEntityType].
             name (str):
@@ -1028,7 +1039,7 @@ class FeaturestoreServiceClient(metaclass=FeaturestoreServiceClientMeta):
 
     def list_entity_types(
         self,
-        request: featurestore_service.ListEntityTypesRequest = None,
+        request: Union[featurestore_service.ListEntityTypesRequest, dict] = None,
         *,
         parent: str = None,
         retry: retries.Retry = gapic_v1.method.DEFAULT,
@@ -1038,7 +1049,7 @@ class FeaturestoreServiceClient(metaclass=FeaturestoreServiceClientMeta):
         r"""Lists EntityTypes in a given Featurestore.
 
         Args:
-            request (google.cloud.aiplatform_v1beta1.types.ListEntityTypesRequest):
+            request (Union[google.cloud.aiplatform_v1beta1.types.ListEntityTypesRequest, dict]):
                 The request object. Request message for
                 [FeaturestoreService.ListEntityTypes][google.cloud.aiplatform.v1beta1.FeaturestoreService.ListEntityTypes].
             parent (str):
@@ -1109,7 +1120,7 @@ class FeaturestoreServiceClient(metaclass=FeaturestoreServiceClientMeta):
 
     def update_entity_type(
         self,
-        request: featurestore_service.UpdateEntityTypeRequest = None,
+        request: Union[featurestore_service.UpdateEntityTypeRequest, dict] = None,
         *,
         entity_type: gca_entity_type.EntityType = None,
         update_mask: field_mask_pb2.FieldMask = None,
@@ -1120,7 +1131,7 @@ class FeaturestoreServiceClient(metaclass=FeaturestoreServiceClientMeta):
         r"""Updates the parameters of a single EntityType.
 
         Args:
-            request (google.cloud.aiplatform_v1beta1.types.UpdateEntityTypeRequest):
+            request (Union[google.cloud.aiplatform_v1beta1.types.UpdateEntityTypeRequest, dict]):
                 The request object. Request message for
                 [FeaturestoreService.UpdateEntityType][google.cloud.aiplatform.v1beta1.FeaturestoreService.UpdateEntityType].
             entity_type (google.cloud.aiplatform_v1beta1.types.EntityType):
@@ -1210,9 +1221,10 @@ class FeaturestoreServiceClient(metaclass=FeaturestoreServiceClientMeta):
 
     def delete_entity_type(
         self,
-        request: featurestore_service.DeleteEntityTypeRequest = None,
+        request: Union[featurestore_service.DeleteEntityTypeRequest, dict] = None,
         *,
         name: str = None,
+        force: bool = None,
         retry: retries.Retry = gapic_v1.method.DEFAULT,
         timeout: float = None,
         metadata: Sequence[Tuple[str, str]] = (),
@@ -1222,7 +1234,7 @@ class FeaturestoreServiceClient(metaclass=FeaturestoreServiceClientMeta):
         succeed.
 
         Args:
-            request (google.cloud.aiplatform_v1beta1.types.DeleteEntityTypeRequest):
+            request (Union[google.cloud.aiplatform_v1beta1.types.DeleteEntityTypeRequest, dict]):
                 The request object. Request message for
                 [FeaturestoreService.DeleteEntityTypes][].
             name (str):
@@ -1231,6 +1243,15 @@ class FeaturestoreServiceClient(metaclass=FeaturestoreServiceClientMeta):
                 ``projects/{project}/locations/{location}/featurestores/{featurestore}/entityTypes/{entity_type}``
 
                 This corresponds to the ``name`` field
+                on the ``request`` instance; if ``request`` is provided, this
+                should not be set.
+            force (bool):
+                If set to true, any Features for this
+                EntityType will also be deleted.
+                (Otherwise, the request will only work
+                if the EntityType has no Features.)
+
+                This corresponds to the ``force`` field
                 on the ``request`` instance; if ``request`` is provided, this
                 should not be set.
             retry (google.api_core.retry.Retry): Designation of what errors, if any,
@@ -1261,7 +1282,7 @@ class FeaturestoreServiceClient(metaclass=FeaturestoreServiceClientMeta):
         # Create or coerce a protobuf request object.
         # Sanity check: If we got a request object, we should *not* have
         # gotten any keyword arguments that map to the request.
-        has_flattened_params = any([name])
+        has_flattened_params = any([name, force])
         if request is not None and has_flattened_params:
             raise ValueError(
                 "If the `request` argument is set, then none of "
@@ -1278,6 +1299,8 @@ class FeaturestoreServiceClient(metaclass=FeaturestoreServiceClientMeta):
             # request, apply these.
             if name is not None:
                 request.name = name
+            if force is not None:
+                request.force = force
 
         # Wrap the RPC method; this adds retry and timeout information,
         # and friendly error handling.
@@ -1305,7 +1328,7 @@ class FeaturestoreServiceClient(metaclass=FeaturestoreServiceClientMeta):
 
     def create_feature(
         self,
-        request: featurestore_service.CreateFeatureRequest = None,
+        request: Union[featurestore_service.CreateFeatureRequest, dict] = None,
         *,
         parent: str = None,
         feature: gca_feature.Feature = None,
@@ -1316,7 +1339,7 @@ class FeaturestoreServiceClient(metaclass=FeaturestoreServiceClientMeta):
         r"""Creates a new Feature in a given EntityType.
 
         Args:
-            request (google.cloud.aiplatform_v1beta1.types.CreateFeatureRequest):
+            request (Union[google.cloud.aiplatform_v1beta1.types.CreateFeatureRequest, dict]):
                 The request object. Request message for
                 [FeaturestoreService.CreateFeature][google.cloud.aiplatform.v1beta1.FeaturestoreService.CreateFeature].
             parent (str):
@@ -1396,7 +1419,7 @@ class FeaturestoreServiceClient(metaclass=FeaturestoreServiceClientMeta):
 
     def batch_create_features(
         self,
-        request: featurestore_service.BatchCreateFeaturesRequest = None,
+        request: Union[featurestore_service.BatchCreateFeaturesRequest, dict] = None,
         *,
         parent: str = None,
         requests: Sequence[featurestore_service.CreateFeatureRequest] = None,
@@ -1407,7 +1430,7 @@ class FeaturestoreServiceClient(metaclass=FeaturestoreServiceClientMeta):
         r"""Creates a batch of Features in a given EntityType.
 
         Args:
-            request (google.cloud.aiplatform_v1beta1.types.BatchCreateFeaturesRequest):
+            request (Union[google.cloud.aiplatform_v1beta1.types.BatchCreateFeaturesRequest, dict]):
                 The request object. Request message for
                 [FeaturestoreService.BatchCreateFeatures][google.cloud.aiplatform.v1beta1.FeaturestoreService.BatchCreateFeatures].
             parent (str):
@@ -1494,7 +1517,7 @@ class FeaturestoreServiceClient(metaclass=FeaturestoreServiceClientMeta):
 
     def get_feature(
         self,
-        request: featurestore_service.GetFeatureRequest = None,
+        request: Union[featurestore_service.GetFeatureRequest, dict] = None,
         *,
         name: str = None,
         retry: retries.Retry = gapic_v1.method.DEFAULT,
@@ -1504,7 +1527,7 @@ class FeaturestoreServiceClient(metaclass=FeaturestoreServiceClientMeta):
         r"""Gets details of a single Feature.
 
         Args:
-            request (google.cloud.aiplatform_v1beta1.types.GetFeatureRequest):
+            request (Union[google.cloud.aiplatform_v1beta1.types.GetFeatureRequest, dict]):
                 The request object. Request message for
                 [FeaturestoreService.GetFeature][google.cloud.aiplatform.v1beta1.FeaturestoreService.GetFeature].
             name (str):
@@ -1568,7 +1591,7 @@ class FeaturestoreServiceClient(metaclass=FeaturestoreServiceClientMeta):
 
     def list_features(
         self,
-        request: featurestore_service.ListFeaturesRequest = None,
+        request: Union[featurestore_service.ListFeaturesRequest, dict] = None,
         *,
         parent: str = None,
         retry: retries.Retry = gapic_v1.method.DEFAULT,
@@ -1578,7 +1601,7 @@ class FeaturestoreServiceClient(metaclass=FeaturestoreServiceClientMeta):
         r"""Lists Features in a given EntityType.
 
         Args:
-            request (google.cloud.aiplatform_v1beta1.types.ListFeaturesRequest):
+            request (Union[google.cloud.aiplatform_v1beta1.types.ListFeaturesRequest, dict]):
                 The request object. Request message for
                 [FeaturestoreService.ListFeatures][google.cloud.aiplatform.v1beta1.FeaturestoreService.ListFeatures].
             parent (str):
@@ -1649,7 +1672,7 @@ class FeaturestoreServiceClient(metaclass=FeaturestoreServiceClientMeta):
 
     def update_feature(
         self,
-        request: featurestore_service.UpdateFeatureRequest = None,
+        request: Union[featurestore_service.UpdateFeatureRequest, dict] = None,
         *,
         feature: gca_feature.Feature = None,
         update_mask: field_mask_pb2.FieldMask = None,
@@ -1660,7 +1683,7 @@ class FeaturestoreServiceClient(metaclass=FeaturestoreServiceClientMeta):
         r"""Updates the parameters of a single Feature.
 
         Args:
-            request (google.cloud.aiplatform_v1beta1.types.UpdateFeatureRequest):
+            request (Union[google.cloud.aiplatform_v1beta1.types.UpdateFeatureRequest, dict]):
                 The request object. Request message for
                 [FeaturestoreService.UpdateFeature][google.cloud.aiplatform.v1beta1.FeaturestoreService.UpdateFeature].
             feature (google.cloud.aiplatform_v1beta1.types.Feature):
@@ -1749,7 +1772,7 @@ class FeaturestoreServiceClient(metaclass=FeaturestoreServiceClientMeta):
 
     def delete_feature(
         self,
-        request: featurestore_service.DeleteFeatureRequest = None,
+        request: Union[featurestore_service.DeleteFeatureRequest, dict] = None,
         *,
         name: str = None,
         retry: retries.Retry = gapic_v1.method.DEFAULT,
@@ -1759,7 +1782,7 @@ class FeaturestoreServiceClient(metaclass=FeaturestoreServiceClientMeta):
         r"""Deletes a single Feature.
 
         Args:
-            request (google.cloud.aiplatform_v1beta1.types.DeleteFeatureRequest):
+            request (Union[google.cloud.aiplatform_v1beta1.types.DeleteFeatureRequest, dict]):
                 The request object. Request message for
                 [FeaturestoreService.DeleteFeature][google.cloud.aiplatform.v1beta1.FeaturestoreService.DeleteFeature].
             name (str):
@@ -1842,7 +1865,7 @@ class FeaturestoreServiceClient(metaclass=FeaturestoreServiceClientMeta):
 
     def import_feature_values(
         self,
-        request: featurestore_service.ImportFeatureValuesRequest = None,
+        request: Union[featurestore_service.ImportFeatureValuesRequest, dict] = None,
         *,
         entity_type: str = None,
         retry: retries.Retry = gapic_v1.method.DEFAULT,
@@ -1872,7 +1895,7 @@ class FeaturestoreServiceClient(metaclass=FeaturestoreServiceClientMeta):
          - Online serving cluster is under-provisioned.
 
         Args:
-            request (google.cloud.aiplatform_v1beta1.types.ImportFeatureValuesRequest):
+            request (Union[google.cloud.aiplatform_v1beta1.types.ImportFeatureValuesRequest, dict]):
                 The request object. Request message for
                 [FeaturestoreService.ImportFeatureValues][google.cloud.aiplatform.v1beta1.FeaturestoreService.ImportFeatureValues].
             entity_type (str):
@@ -1949,7 +1972,7 @@ class FeaturestoreServiceClient(metaclass=FeaturestoreServiceClientMeta):
 
     def batch_read_feature_values(
         self,
-        request: featurestore_service.BatchReadFeatureValuesRequest = None,
+        request: Union[featurestore_service.BatchReadFeatureValuesRequest, dict] = None,
         *,
         featurestore: str = None,
         retry: retries.Retry = gapic_v1.method.DEFAULT,
@@ -1964,10 +1987,9 @@ class FeaturestoreServiceClient(metaclass=FeaturestoreServiceClientMeta):
         read instance as of each instance's read timestamp.
 
         Args:
-            request (google.cloud.aiplatform_v1beta1.types.BatchReadFeatureValuesRequest):
+            request (Union[google.cloud.aiplatform_v1beta1.types.BatchReadFeatureValuesRequest, dict]):
                 The request object. Request message for
                 [FeaturestoreService.BatchReadFeatureValues][google.cloud.aiplatform.v1beta1.FeaturestoreService.BatchReadFeatureValues].
-                (- Next Id: 6 -)
             featurestore (str):
                 Required. The resource name of the Featurestore from
                 which to query Feature values. Format:
@@ -2043,7 +2065,7 @@ class FeaturestoreServiceClient(metaclass=FeaturestoreServiceClientMeta):
 
     def export_feature_values(
         self,
-        request: featurestore_service.ExportFeatureValuesRequest = None,
+        request: Union[featurestore_service.ExportFeatureValuesRequest, dict] = None,
         *,
         entity_type: str = None,
         retry: retries.Retry = gapic_v1.method.DEFAULT,
@@ -2054,7 +2076,7 @@ class FeaturestoreServiceClient(metaclass=FeaturestoreServiceClientMeta):
         target EntityType.
 
         Args:
-            request (google.cloud.aiplatform_v1beta1.types.ExportFeatureValuesRequest):
+            request (Union[google.cloud.aiplatform_v1beta1.types.ExportFeatureValuesRequest, dict]):
                 The request object. Request message for
                 [FeaturestoreService.ExportFeatureValues][google.cloud.aiplatform.v1beta1.FeaturestoreService.ExportFeatureValues].
             entity_type (str):
@@ -2130,9 +2152,10 @@ class FeaturestoreServiceClient(metaclass=FeaturestoreServiceClientMeta):
 
     def search_features(
         self,
-        request: featurestore_service.SearchFeaturesRequest = None,
+        request: Union[featurestore_service.SearchFeaturesRequest, dict] = None,
         *,
         location: str = None,
+        query: str = None,
         retry: retries.Retry = gapic_v1.method.DEFAULT,
         timeout: float = None,
         metadata: Sequence[Tuple[str, str]] = (),
@@ -2141,7 +2164,7 @@ class FeaturestoreServiceClient(metaclass=FeaturestoreServiceClientMeta):
         project.
 
         Args:
-            request (google.cloud.aiplatform_v1beta1.types.SearchFeaturesRequest):
+            request (Union[google.cloud.aiplatform_v1beta1.types.SearchFeaturesRequest, dict]):
                 The request object. Request message for
                 [FeaturestoreService.SearchFeatures][google.cloud.aiplatform.v1beta1.FeaturestoreService.SearchFeatures].
             location (str):
@@ -2150,6 +2173,81 @@ class FeaturestoreServiceClient(metaclass=FeaturestoreServiceClientMeta):
                 ``projects/{project}/locations/{location}``
 
                 This corresponds to the ``location`` field
+                on the ``request`` instance; if ``request`` is provided, this
+                should not be set.
+            query (str):
+                Query string that is a conjunction of field-restricted
+                queries and/or field-restricted filters.
+                Field-restricted queries and filters can be combined
+                using ``AND`` to form a conjunction.
+
+                A field query is in the form FIELD:QUERY. This
+                implicitly checks if QUERY exists as a substring within
+                Feature's FIELD. The QUERY and the FIELD are converted
+                to a sequence of words (i.e. tokens) for comparison.
+                This is done by:
+
+                -  Removing leading/trailing whitespace and tokenizing
+                   the search value. Characters that are not one of
+                   alphanumeric ``[a-zA-Z0-9]``, underscore ``_``, or
+                   asterisk ``*`` are treated as delimiters for tokens.
+                   ``*`` is treated as a wildcard that matches
+                   characters within a token.
+                -  Ignoring case.
+                -  Prepending an asterisk to the first and appending an
+                   asterisk to the last token in QUERY.
+
+                A QUERY must be either a singular token or a phrase. A
+                phrase is one or multiple words enclosed in double
+                quotation marks ("). With phrases, the order of the
+                words is important. Words in the phrase must be matching
+                in order and consecutively.
+
+                Supported FIELDs for field-restricted queries:
+
+                -  ``feature_id``
+                -  ``description``
+                -  ``entity_type_id``
+
+                Examples:
+
+                -  ``feature_id: foo`` --> Matches a Feature with ID
+                   containing the substring ``foo`` (eg. ``foo``,
+                   ``foofeature``, ``barfoo``).
+                -  ``feature_id: foo*feature`` --> Matches a Feature
+                   with ID containing the substring ``foo*feature`` (eg.
+                   ``foobarfeature``).
+                -  ``feature_id: foo AND description: bar`` --> Matches
+                   a Feature with ID containing the substring ``foo``
+                   and description containing the substring ``bar``.
+
+                Besides field queries, the following exact-match filters
+                are supported. The exact-match filters do not support
+                wildcards. Unlike field-restricted queries, exact-match
+                filters are case-sensitive.
+
+                -  ``feature_id``: Supports = comparisons.
+                -  ``description``: Supports = comparisons. Multi-token
+                   filters should be enclosed in quotes.
+                -  ``entity_type_id``: Supports = comparisons.
+                -  ``value_type``: Supports = and != comparisons.
+                -  ``labels``: Supports key-value equality as well as
+                   key presence.
+                -  ``featurestore_id``: Supports = comparisons.
+
+                Examples:
+
+                -  ``description = "foo bar"`` --> Any Feature with
+                   description exactly equal to ``foo bar``
+                -  ``value_type = DOUBLE`` --> Features whose type is
+                   DOUBLE.
+                -  ``labels.active = yes AND labels.env = prod`` -->
+                   Features having both (active: yes) and (env: prod)
+                   labels.
+                -  ``labels.env: *`` --> Any Feature which has a label
+                   with ``env`` as the key.
+
+                This corresponds to the ``query`` field
                 on the ``request`` instance; if ``request`` is provided, this
                 should not be set.
             retry (google.api_core.retry.Retry): Designation of what errors, if any,
@@ -2170,7 +2268,7 @@ class FeaturestoreServiceClient(metaclass=FeaturestoreServiceClientMeta):
         # Create or coerce a protobuf request object.
         # Sanity check: If we got a request object, we should *not* have
         # gotten any keyword arguments that map to the request.
-        has_flattened_params = any([location])
+        has_flattened_params = any([location, query])
         if request is not None and has_flattened_params:
             raise ValueError(
                 "If the `request` argument is set, then none of "
@@ -2187,6 +2285,8 @@ class FeaturestoreServiceClient(metaclass=FeaturestoreServiceClientMeta):
             # request, apply these.
             if location is not None:
                 request.location = location
+            if query is not None:
+                request.query = query
 
         # Wrap the RPC method; this adds retry and timeout information,
         # and friendly error handling.
@@ -2209,6 +2309,19 @@ class FeaturestoreServiceClient(metaclass=FeaturestoreServiceClientMeta):
 
         # Done; return the response.
         return response
+
+    def __enter__(self):
+        return self
+
+    def __exit__(self, type, value, traceback):
+        """Releases underlying transport's resources.
+
+        .. warning::
+            ONLY use as a context manager if the transport is NOT shared
+            with other clients! Exiting the with block will CLOSE the transport
+            and may cause errors in other clients!
+        """
+        self.transport.close()
 
 
 try:

@@ -18,9 +18,7 @@ from google.protobuf import json_format
 from typing import Optional, List, Dict, Any, Tuple
 
 from google.cloud.aiplatform.explain.metadata import metadata_builder
-from google.cloud.aiplatform.compat.types import (
-    explanation_metadata_v1beta1 as explanation_metadata,
-)
+from google.cloud.aiplatform.compat.types import explanation_metadata
 
 
 class SavedModelMetadataBuilder(metadata_builder.MetadataBuilder):
@@ -127,7 +125,14 @@ class SavedModelMetadataBuilder(metadata_builder.MetadataBuilder):
         Returns:
             Json format of the explanation metadata.
         """
-        current_md = explanation_metadata.ExplanationMetadata(
+        return json_format.MessageToDict(self.get_metadata_protobuf()._pb)
+
+    def get_metadata_protobuf(self) -> explanation_metadata.ExplanationMetadata:
+        """Returns the current metadata as a Protobuf object.
+
+        Returns:
+            ExplanationMetadata object format of the explanation metadata.
+        """
+        return explanation_metadata.ExplanationMetadata(
             inputs=self._inputs, outputs=self._outputs,
         )
-        return json_format.MessageToDict(current_md._pb)

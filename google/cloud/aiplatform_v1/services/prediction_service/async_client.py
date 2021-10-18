@@ -46,6 +46,8 @@ class PredictionServiceAsyncClient:
 
     endpoint_path = staticmethod(PredictionServiceClient.endpoint_path)
     parse_endpoint_path = staticmethod(PredictionServiceClient.parse_endpoint_path)
+    model_path = staticmethod(PredictionServiceClient.model_path)
+    parse_model_path = staticmethod(PredictionServiceClient.parse_model_path)
     common_billing_account_path = staticmethod(
         PredictionServiceClient.common_billing_account_path
     )
@@ -279,8 +281,17 @@ class PredictionServiceAsyncClient:
         timeout: float = None,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> httpbody_pb2.HttpBody:
-        r"""Perform an online prediction with arbitrary http
-        payload.
+        r"""Perform an online prediction with an arbitrary HTTP payload.
+
+        The response includes the following HTTP headers:
+
+        -  ``X-Vertex-AI-Endpoint-Id``: ID of the
+           [Endpoint][google.cloud.aiplatform.v1.Endpoint] that served
+           this prediction.
+
+        -  ``X-Vertex-AI-Deployed-Model-Id``: ID of the Endpoint's
+           [DeployedModel][google.cloud.aiplatform.v1.DeployedModel]
+           that served this prediction.
 
         Args:
             request (:class:`google.cloud.aiplatform_v1.types.RawPredictRequest`):
@@ -540,6 +551,12 @@ class PredictionServiceAsyncClient:
 
         # Done; return the response.
         return response
+
+    async def __aenter__(self):
+        return self
+
+    async def __aexit__(self, exc_type, exc, tb):
+        await self.transport.close()
 
 
 try:

@@ -26,6 +26,7 @@ __protobuf__ = proto.module(
 
 class TextClassificationPredictionInstance(proto.Message):
     r"""Prediction input format for Text Classification.
+
     Attributes:
         content (str):
             The text snippet to make the predictions on.

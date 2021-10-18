@@ -25,6 +25,7 @@ __protobuf__ = proto.module(
 
 class MetadataSchema(proto.Message):
     r"""Instance of a general MetadataSchema.
+
     Attributes:
         name (str):
             Output only. The resource name of the
