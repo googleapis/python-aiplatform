@@ -26,6 +26,7 @@ __protobuf__ = proto.module(
 
 class TextSentimentPredictionResult(proto.Message):
     r"""Prediction output format for Text Sentiment
+
     Attributes:
         sentiment (int):
             The integer sentiment labels between 0

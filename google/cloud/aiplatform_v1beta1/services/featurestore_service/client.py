@@ -33,6 +33,7 @@ from google.oauth2 import service_account  # type: ignore
 from google.api_core import operation as gac_operation  # type: ignore
 from google.api_core import operation_async  # type: ignore
 from google.cloud.aiplatform_v1beta1.services.featurestore_service import pagers
+from google.cloud.aiplatform_v1beta1.types import encryption_spec
 from google.cloud.aiplatform_v1beta1.types import entity_type
 from google.cloud.aiplatform_v1beta1.types import entity_type as gca_entity_type
 from google.cloud.aiplatform_v1beta1.types import feature
@@ -405,10 +406,7 @@ class FeaturestoreServiceClient(metaclass=FeaturestoreServiceClientMeta):
                 client_cert_source_for_mtls=client_cert_source_func,
                 quota_project_id=client_options.quota_project_id,
                 client_info=client_info,
-                always_use_jwt_access=(
-                    Transport == type(self).get_transport_class("grpc")
-                    or Transport == type(self).get_transport_class("grpc_asyncio")
-                ),
+                always_use_jwt_access=True,
             )
 
     def create_featurestore(
@@ -769,6 +767,7 @@ class FeaturestoreServiceClient(metaclass=FeaturestoreServiceClientMeta):
         request: Union[featurestore_service.DeleteFeaturestoreRequest, dict] = None,
         *,
         name: str = None,
+        force: bool = None,
         retry: retries.Retry = gapic_v1.method.DEFAULT,
         timeout: float = None,
         metadata: Sequence[Tuple[str, str]] = (),
@@ -787,6 +786,16 @@ class FeaturestoreServiceClient(metaclass=FeaturestoreServiceClientMeta):
                 ``projects/{project}/locations/{location}/featurestores/{featurestore}``
 
                 This corresponds to the ``name`` field
+                on the ``request`` instance; if ``request`` is provided, this
+                should not be set.
+            force (bool):
+                If set to true, any EntityTypes and
+                Features for this Featurestore will also
+                be deleted. (Otherwise, the request will
+                only work if the Featurestore has no
+                EntityTypes.)
+
+                This corresponds to the ``force`` field
                 on the ``request`` instance; if ``request`` is provided, this
                 should not be set.
             retry (google.api_core.retry.Retry): Designation of what errors, if any,
@@ -817,7 +826,7 @@ class FeaturestoreServiceClient(metaclass=FeaturestoreServiceClientMeta):
         # Create or coerce a protobuf request object.
         # Sanity check: If we got a request object, we should *not* have
         # gotten any keyword arguments that map to the request.
-        has_flattened_params = any([name])
+        has_flattened_params = any([name, force])
         if request is not None and has_flattened_params:
             raise ValueError(
                 "If the `request` argument is set, then none of "
@@ -834,6 +843,8 @@ class FeaturestoreServiceClient(metaclass=FeaturestoreServiceClientMeta):
             # request, apply these.
             if name is not None:
                 request.name = name
+            if force is not None:
+                request.force = force
 
         # Wrap the RPC method; this adds retry and timeout information,
         # and friendly error handling.
@@ -1213,6 +1224,7 @@ class FeaturestoreServiceClient(metaclass=FeaturestoreServiceClientMeta):
         request: Union[featurestore_service.DeleteEntityTypeRequest, dict] = None,
         *,
         name: str = None,
+        force: bool = None,
         retry: retries.Retry = gapic_v1.method.DEFAULT,
         timeout: float = None,
         metadata: Sequence[Tuple[str, str]] = (),
@@ -1231,6 +1243,15 @@ class FeaturestoreServiceClient(metaclass=FeaturestoreServiceClientMeta):
                 ``projects/{project}/locations/{location}/featurestores/{featurestore}/entityTypes/{entity_type}``
 
                 This corresponds to the ``name`` field
+                on the ``request`` instance; if ``request`` is provided, this
+                should not be set.
+            force (bool):
+                If set to true, any Features for this
+                EntityType will also be deleted.
+                (Otherwise, the request will only work
+                if the EntityType has no Features.)
+
+                This corresponds to the ``force`` field
                 on the ``request`` instance; if ``request`` is provided, this
                 should not be set.
             retry (google.api_core.retry.Retry): Designation of what errors, if any,
@@ -1261,7 +1282,7 @@ class FeaturestoreServiceClient(metaclass=FeaturestoreServiceClientMeta):
         # Create or coerce a protobuf request object.
         # Sanity check: If we got a request object, we should *not* have
         # gotten any keyword arguments that map to the request.
-        has_flattened_params = any([name])
+        has_flattened_params = any([name, force])
         if request is not None and has_flattened_params:
             raise ValueError(
                 "If the `request` argument is set, then none of "
@@ -1278,6 +1299,8 @@ class FeaturestoreServiceClient(metaclass=FeaturestoreServiceClientMeta):
             # request, apply these.
             if name is not None:
                 request.name = name
+            if force is not None:
+                request.force = force
 
         # Wrap the RPC method; this adds retry and timeout information,
         # and friendly error handling.
@@ -1967,7 +1990,6 @@ class FeaturestoreServiceClient(metaclass=FeaturestoreServiceClientMeta):
             request (Union[google.cloud.aiplatform_v1beta1.types.BatchReadFeatureValuesRequest, dict]):
                 The request object. Request message for
                 [FeaturestoreService.BatchReadFeatureValues][google.cloud.aiplatform.v1beta1.FeaturestoreService.BatchReadFeatureValues].
-                (- Next Id: 6 -)
             featurestore (str):
                 Required. The resource name of the Featurestore from
                 which to query Feature values. Format:
@@ -2133,6 +2155,7 @@ class FeaturestoreServiceClient(metaclass=FeaturestoreServiceClientMeta):
         request: Union[featurestore_service.SearchFeaturesRequest, dict] = None,
         *,
         location: str = None,
+        query: str = None,
         retry: retries.Retry = gapic_v1.method.DEFAULT,
         timeout: float = None,
         metadata: Sequence[Tuple[str, str]] = (),
@@ -2150,6 +2173,81 @@ class FeaturestoreServiceClient(metaclass=FeaturestoreServiceClientMeta):
                 ``projects/{project}/locations/{location}``
 
                 This corresponds to the ``location`` field
+                on the ``request`` instance; if ``request`` is provided, this
+                should not be set.
+            query (str):
+                Query string that is a conjunction of field-restricted
+                queries and/or field-restricted filters.
+                Field-restricted queries and filters can be combined
+                using ``AND`` to form a conjunction.
+
+                A field query is in the form FIELD:QUERY. This
+                implicitly checks if QUERY exists as a substring within
+                Feature's FIELD. The QUERY and the FIELD are converted
+                to a sequence of words (i.e. tokens) for comparison.
+                This is done by:
+
+                -  Removing leading/trailing whitespace and tokenizing
+                   the search value. Characters that are not one of
+                   alphanumeric ``[a-zA-Z0-9]``, underscore ``_``, or
+                   asterisk ``*`` are treated as delimiters for tokens.
+                   ``*`` is treated as a wildcard that matches
+                   characters within a token.
+                -  Ignoring case.
+                -  Prepending an asterisk to the first and appending an
+                   asterisk to the last token in QUERY.
+
+                A QUERY must be either a singular token or a phrase. A
+                phrase is one or multiple words enclosed in double
+                quotation marks ("). With phrases, the order of the
+                words is important. Words in the phrase must be matching
+                in order and consecutively.
+
+                Supported FIELDs for field-restricted queries:
+
+                -  ``feature_id``
+                -  ``description``
+                -  ``entity_type_id``
+
+                Examples:
+
+                -  ``feature_id: foo`` --> Matches a Feature with ID
+                   containing the substring ``foo`` (eg. ``foo``,
+                   ``foofeature``, ``barfoo``).
+                -  ``feature_id: foo*feature`` --> Matches a Feature
+                   with ID containing the substring ``foo*feature`` (eg.
+                   ``foobarfeature``).
+                -  ``feature_id: foo AND description: bar`` --> Matches
+                   a Feature with ID containing the substring ``foo``
+                   and description containing the substring ``bar``.
+
+                Besides field queries, the following exact-match filters
+                are supported. The exact-match filters do not support
+                wildcards. Unlike field-restricted queries, exact-match
+                filters are case-sensitive.
+
+                -  ``feature_id``: Supports = comparisons.
+                -  ``description``: Supports = comparisons. Multi-token
+                   filters should be enclosed in quotes.
+                -  ``entity_type_id``: Supports = comparisons.
+                -  ``value_type``: Supports = and != comparisons.
+                -  ``labels``: Supports key-value equality as well as
+                   key presence.
+                -  ``featurestore_id``: Supports = comparisons.
+
+                Examples:
+
+                -  ``description = "foo bar"`` --> Any Feature with
+                   description exactly equal to ``foo bar``
+                -  ``value_type = DOUBLE`` --> Features whose type is
+                   DOUBLE.
+                -  ``labels.active = yes AND labels.env = prod`` -->
+                   Features having both (active: yes) and (env: prod)
+                   labels.
+                -  ``labels.env: *`` --> Any Feature which has a label
+                   with ``env`` as the key.
+
+                This corresponds to the ``query`` field
                 on the ``request`` instance; if ``request`` is provided, this
                 should not be set.
             retry (google.api_core.retry.Retry): Designation of what errors, if any,
@@ -2170,7 +2268,7 @@ class FeaturestoreServiceClient(metaclass=FeaturestoreServiceClientMeta):
         # Create or coerce a protobuf request object.
         # Sanity check: If we got a request object, we should *not* have
         # gotten any keyword arguments that map to the request.
-        has_flattened_params = any([location])
+        has_flattened_params = any([location, query])
         if request is not None and has_flattened_params:
             raise ValueError(
                 "If the `request` argument is set, then none of "
@@ -2187,6 +2285,8 @@ class FeaturestoreServiceClient(metaclass=FeaturestoreServiceClientMeta):
             # request, apply these.
             if location is not None:
                 request.location = location
+            if query is not None:
+                request.query = query
 
         # Wrap the RPC method; this adds retry and timeout information,
         # and friendly error handling.
@@ -2209,6 +2309,19 @@ class FeaturestoreServiceClient(metaclass=FeaturestoreServiceClientMeta):
 
         # Done; return the response.
         return response
+
+    def __enter__(self):
+        return self
+
+    def __exit__(self, type, value, traceback):
+        """Releases underlying transport's resources.
+
+        .. warning::
+            ONLY use as a context manager if the transport is NOT shared
+            with other clients! Exiting the with block will CLOSE the transport
+            and may cause errors in other clients!
+        """
+        self.transport.close()
 
 
 try:

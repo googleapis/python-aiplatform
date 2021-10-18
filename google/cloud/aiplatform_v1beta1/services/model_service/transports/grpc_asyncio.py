@@ -368,8 +368,9 @@ class ModelServiceGrpcAsyncIOTransport(ModelServiceTransport):
         r"""Return a callable for the delete model method over gRPC.
 
         Deletes a Model.
-        Note: Model can only be deleted if there are no
-        DeployedModels created from it.
+
+        Model can only be deleted if there are no [DeployedModels][]
+        created from it.
 
         Returns:
             Callable[[~.DeleteModelRequest],
@@ -535,6 +536,9 @@ class ModelServiceGrpcAsyncIOTransport(ModelServiceTransport):
                 response_deserializer=model_service.ListModelEvaluationSlicesResponse.deserialize,
             )
         return self._stubs["list_model_evaluation_slices"]
+
+    def close(self):
+        return self.grpc_channel.close()
 
 
 __all__ = ("ModelServiceGrpcAsyncIOTransport",)

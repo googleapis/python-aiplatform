@@ -26,6 +26,7 @@ __protobuf__ = proto.module(
 
 class FeaturestoreMonitoringConfig(proto.Message):
     r"""Configuration of how features in Featurestore are monitored.
+
     Attributes:
         snapshot_analysis (google.cloud.aiplatform_v1beta1.types.FeaturestoreMonitoringConfig.SnapshotAnalysis):
             The config for Snapshot Analysis Based

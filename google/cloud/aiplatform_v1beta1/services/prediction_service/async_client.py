@@ -46,6 +46,8 @@ class PredictionServiceAsyncClient:
 
     endpoint_path = staticmethod(PredictionServiceClient.endpoint_path)
     parse_endpoint_path = staticmethod(PredictionServiceClient.parse_endpoint_path)
+    model_path = staticmethod(PredictionServiceClient.model_path)
+    parse_model_path = staticmethod(PredictionServiceClient.parse_model_path)
     common_billing_account_path = staticmethod(
         PredictionServiceClient.common_billing_account_path
     )
@@ -540,6 +542,12 @@ class PredictionServiceAsyncClient:
 
         # Done; return the response.
         return response
+
+    async def __aenter__(self):
+        return self
+
+    async def __aexit__(self, exc_type, exc, tb):
+        await self.transport.close()
 
 
 try:

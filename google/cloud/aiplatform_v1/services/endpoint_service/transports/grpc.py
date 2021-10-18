@@ -431,5 +431,8 @@ class EndpointServiceGrpcTransport(EndpointServiceTransport):
             )
         return self._stubs["undeploy_model"]
 
+    def close(self):
+        self.grpc_channel.close()
+
 
 __all__ = ("EndpointServiceGrpcTransport",)
