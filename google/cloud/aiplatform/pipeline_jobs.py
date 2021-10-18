@@ -172,19 +172,42 @@ class PipelineJob(base.VertexAiResourceNounWithFutureManager):
         # Pipeline_json can be either PipelineJob or PipelineSpec.
         if pipeline_json.get("pipelineSpec") is not None:
             pipeline_job = pipeline_json
-            pipeline_spec_only = False
+            pipeline_root = (
+                pipeline_root
+                or pipeline_job["pipelineSpec"].get("defaultPipelineRoot")
+                or pipeline_job["runtimeConfig"].get("gcsOutputDirectory")
+                or initializer.global_config.staging_bucket
+            )
+            builder = pipeline_utils.PipelineRuntimeConfigBuilder.from_job_spec_json(
+                pipeline_job
+            )
+            builder.update_pipeline_root(pipeline_root)
+            builder.update_runtime_parameters(parameter_values)
+            runtime_config_dict = builder.build()
         else:
             pipeline_job = {
                 "pipelineSpec": pipeline_json,
                 "runtimeConfig": {},
             }
-            pipeline_spec_only = True
-        pipeline_root = (
-            pipeline_root
-            or pipeline_job["pipelineSpec"].get("defaultPipelineRoot")
-            or pipeline_job["runtimeConfig"].get("gcsOutputDirectory")
-            or initializer.global_config.staging_bucket
-        )
+            pipeline_root = (
+                pipeline_root
+                or pipeline_job["pipelineSpec"].get("defaultPipelineRoot")
+                or initializer.global_config.staging_bucket
+            )
+            runtime_config_dict = pipeline_utils.PipelineRuntimeConfigBuilder(
+                pipeline_root=pipeline_root,
+                parameter_types={
+                    key: value["type"]
+                    for key, value in pipeline_job["pipelineSpec"]["root"]
+                    .get("inputDefinitions", {})
+                    .get("parameters", {})
+                    .items()
+                },
+                parameter_values=parameter_values,
+            ).build()
+        runtime_config = gca_pipeline_job_v1beta1.PipelineJob.RuntimeConfig()._pb
+        json_format.ParseDict(runtime_config_dict, runtime_config)
+
         pipeline_name = pipeline_job["pipelineSpec"]["pipelineInfo"]["name"]
         self.job_id = job_id or "{pipeline_name}-{timestamp}".format(
             pipeline_name=re.sub("[^-0-9a-z]+", "-", pipeline_name.lower())
@@ -198,28 +221,6 @@ class PipelineJob(base.VertexAiResourceNounWithFutureManager):
                 "Expecting an ID following the regex pattern "
                 '"[a-z][-a-z0-9]{{0,127}}"'.format(job_id)
             )
-
-        if pipeline_spec_only:
-            runtime_config_dict = pipeline_utils.PipelineRuntimeConfigBuilder(
-                pipeline_root=pipeline_root,
-                parameter_types={
-                    key: value["type"]
-                    for key, value in pipeline_job["pipelineSpec"]["root"]
-                    .get("inputDefinitions", {})
-                    .get("parameters", {})
-                    .items()
-                },
-                parameter_values=parameter_values,
-            ).build()
-        else:
-            builder = pipeline_utils.PipelineRuntimeConfigBuilder.from_job_spec_json(
-                pipeline_job
-            )
-            builder.update_pipeline_root(pipeline_root)
-            builder.update_runtime_parameters(parameter_values)
-            runtime_config_dict = builder.build()
-        runtime_config = gca_pipeline_job_v1beta1.PipelineJob.RuntimeConfig()._pb
-        json_format.ParseDict(runtime_config_dict, runtime_config)
 
         if enable_caching is not None:
             _set_enable_caching_value(pipeline_job["pipelineSpec"], enable_caching)
