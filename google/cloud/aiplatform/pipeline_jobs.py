@@ -178,12 +178,6 @@ class PipelineJob(base.VertexAiResourceNounWithFutureManager):
                 or pipeline_job["runtimeConfig"].get("gcsOutputDirectory")
                 or initializer.global_config.staging_bucket
             )
-            builder = pipeline_utils.PipelineRuntimeConfigBuilder.from_job_spec_json(
-                pipeline_job
-            )
-            builder.update_pipeline_root(pipeline_root)
-            builder.update_runtime_parameters(parameter_values)
-            runtime_config_dict = builder.build()
         else:
             pipeline_job = {
                 "pipelineSpec": pipeline_json,
@@ -194,17 +188,13 @@ class PipelineJob(base.VertexAiResourceNounWithFutureManager):
                 or pipeline_job["pipelineSpec"].get("defaultPipelineRoot")
                 or initializer.global_config.staging_bucket
             )
-            runtime_config_dict = pipeline_utils.PipelineRuntimeConfigBuilder(
-                pipeline_root=pipeline_root,
-                parameter_types={
-                    key: value["type"]
-                    for key, value in pipeline_job["pipelineSpec"]["root"]
-                    .get("inputDefinitions", {})
-                    .get("parameters", {})
-                    .items()
-                },
-                parameter_values=parameter_values,
-            ).build()
+        builder = pipeline_utils.PipelineRuntimeConfigBuilder.from_job_spec_json(
+            pipeline_job
+        )
+        builder.update_pipeline_root(pipeline_root)
+        builder.update_runtime_parameters(parameter_values)
+        runtime_config_dict = builder.build()
+
         runtime_config = gca_pipeline_job_v1beta1.PipelineJob.RuntimeConfig()._pb
         json_format.ParseDict(runtime_config_dict, runtime_config)
 
