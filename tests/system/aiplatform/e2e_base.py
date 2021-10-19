@@ -44,17 +44,6 @@ class TestEndToEnd(metaclass=abc.ABCMeta):
         pass
 
     @classmethod
-    def _make_resource_name(cls, key: str) -> str:
-        """Helper method to make unique resource names.
-
-        Args:
-            key (str): Required. Identifier for the resource name.
-        Returns:
-            Unique display name.
-        """
-        return f"{cls._temp_prefix}-{key}-{uuid.uuid4()}"
-
-    @classmethod
     def _make_display_name(cls, key: str) -> str:
         """Helper method to make unique display_names.
 

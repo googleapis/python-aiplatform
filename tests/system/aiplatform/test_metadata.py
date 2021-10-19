@@ -26,11 +26,11 @@ METRICS = {"sdk-metric-test-1": 0.8, "sdk-metric-test-2": 100}
 
 class TestMetadata(e2e_base.TestEndToEnd):
 
-    _temp_prefix = "temp-vertex-sdk-e2e-experiment"
+    _temp_prefix = "temp-vertex-sdk-e2e-test"
 
     def test_experiment_logging(self, shared_state):
 
-        experiment_name = self._make_display_name("experiment")[:48]
+        experiment_name = self._make_display_name("experiment")[:56]
 
         aiplatform.init(
             project=e2e_base._PROJECT,
@@ -40,7 +40,7 @@ class TestMetadata(e2e_base.TestEndToEnd):
 
         shared_state["resources"] = [aiplatform.metadata.metadata_service._experiment]
 
-        run_name = self._make_display_name("run")[:48]
+        run_name = self._make_display_name("run")[:56]
 
         aiplatform.start_run(run_name)
 
