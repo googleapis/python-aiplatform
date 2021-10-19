@@ -35,6 +35,8 @@ from .base import EndpointServiceTransport, DEFAULT_CLIENT_INFO
 class EndpointServiceGrpcTransport(EndpointServiceTransport):
     """gRPC backend transport for EndpointService.
 
+    A service for managing Vertex AI's Endpoints.
+
     This class defines the same methods as the primary client, so the
     primary client can load the underlying transport implementation
     and call it.
@@ -88,10 +90,10 @@ class EndpointServiceGrpcTransport(EndpointServiceTransport):
                 private key bytes, both in PEM format. It is ignored if
                 ``api_mtls_endpoint`` is None.
             ssl_channel_credentials (grpc.ChannelCredentials): SSL credentials
-                for grpc channel. It is ignored if ``channel`` is provided.
+                for the grpc channel. It is ignored if ``channel`` is provided.
             client_cert_source_for_mtls (Optional[Callable[[], Tuple[bytes, bytes]]]):
                 A callback to provide client certificate bytes and private key bytes,
-                both in PEM format. It is used to configure mutual TLS channel. It is
+                both in PEM format. It is used to configure a mutual TLS channel. It is
                 ignored if ``channel`` or ``ssl_channel_credentials`` is provided.
             quota_project_id (Optional[str]): An optional project to use for billing
                 and quota.
@@ -428,6 +430,9 @@ class EndpointServiceGrpcTransport(EndpointServiceTransport):
                 response_deserializer=operations_pb2.Operation.FromString,
             )
         return self._stubs["undeploy_model"]
+
+    def close(self):
+        self.grpc_channel.close()
 
 
 __all__ = ("EndpointServiceGrpcTransport",)

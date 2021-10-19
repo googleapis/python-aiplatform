@@ -32,6 +32,7 @@ from google.api_core import grpc_helpers
 from google.api_core import grpc_helpers_async
 from google.api_core import operation_async  # type: ignore
 from google.api_core import operations_v1
+from google.api_core import path_template
 from google.auth import credentials as ga_credentials
 from google.auth.exceptions import MutualTLSChannelError
 from google.cloud.aiplatform_v1beta1.services.endpoint_service import (
@@ -52,6 +53,7 @@ from google.cloud.aiplatform_v1beta1.types import endpoint as gca_endpoint
 from google.cloud.aiplatform_v1beta1.types import endpoint_service
 from google.cloud.aiplatform_v1beta1.types import explanation
 from google.cloud.aiplatform_v1beta1.types import explanation_metadata
+from google.cloud.aiplatform_v1beta1.types import io
 from google.cloud.aiplatform_v1beta1.types import machine_resources
 from google.cloud.aiplatform_v1beta1.types import operation as gca_operation
 from google.longrunning import operations_pb2
@@ -753,6 +755,7 @@ def test_get_endpoint(
             description="description_value",
             etag="etag_value",
             network="network_value",
+            model_deployment_monitoring_job="model_deployment_monitoring_job_value",
         )
         response = client.get_endpoint(request)
 
@@ -768,6 +771,10 @@ def test_get_endpoint(
     assert response.description == "description_value"
     assert response.etag == "etag_value"
     assert response.network == "network_value"
+    assert (
+        response.model_deployment_monitoring_job
+        == "model_deployment_monitoring_job_value"
+    )
 
 
 def test_get_endpoint_from_dict():
@@ -811,6 +818,7 @@ async def test_get_endpoint_async(
                 description="description_value",
                 etag="etag_value",
                 network="network_value",
+                model_deployment_monitoring_job="model_deployment_monitoring_job_value",
             )
         )
         response = await client.get_endpoint(request)
@@ -827,6 +835,10 @@ async def test_get_endpoint_async(
     assert response.description == "description_value"
     assert response.etag == "etag_value"
     assert response.network == "network_value"
+    assert (
+        response.model_deployment_monitoring_job
+        == "model_deployment_monitoring_job_value"
+    )
 
 
 @pytest.mark.asyncio
@@ -1327,6 +1339,7 @@ def test_update_endpoint(
             description="description_value",
             etag="etag_value",
             network="network_value",
+            model_deployment_monitoring_job="model_deployment_monitoring_job_value",
         )
         response = client.update_endpoint(request)
 
@@ -1342,6 +1355,10 @@ def test_update_endpoint(
     assert response.description == "description_value"
     assert response.etag == "etag_value"
     assert response.network == "network_value"
+    assert (
+        response.model_deployment_monitoring_job
+        == "model_deployment_monitoring_job_value"
+    )
 
 
 def test_update_endpoint_from_dict():
@@ -1385,6 +1402,7 @@ async def test_update_endpoint_async(
                 description="description_value",
                 etag="etag_value",
                 network="network_value",
+                model_deployment_monitoring_job="model_deployment_monitoring_job_value",
             )
         )
         response = await client.update_endpoint(request)
@@ -1401,6 +1419,10 @@ async def test_update_endpoint_async(
     assert response.description == "description_value"
     assert response.etag == "etag_value"
     assert response.network == "network_value"
+    assert (
+        response.model_deployment_monitoring_job
+        == "model_deployment_monitoring_job_value"
+    )
 
 
 @pytest.mark.asyncio
@@ -2326,6 +2348,9 @@ def test_endpoint_service_base_transport():
         with pytest.raises(NotImplementedError):
             getattr(transport, method)(request=object())
 
+    with pytest.raises(NotImplementedError):
+        transport.close()
+
     # Additionally, the LRO client (a property) should
     # also raise NotImplementedError
     with pytest.raises(NotImplementedError):
@@ -2748,9 +2773,37 @@ def test_parse_model_path():
     assert expected == actual
 
 
-def test_network_path():
+def test_model_deployment_monitoring_job_path():
     project = "squid"
-    network = "clam"
+    location = "clam"
+    model_deployment_monitoring_job = "whelk"
+    expected = "projects/{project}/locations/{location}/modelDeploymentMonitoringJobs/{model_deployment_monitoring_job}".format(
+        project=project,
+        location=location,
+        model_deployment_monitoring_job=model_deployment_monitoring_job,
+    )
+    actual = EndpointServiceClient.model_deployment_monitoring_job_path(
+        project, location, model_deployment_monitoring_job
+    )
+    assert expected == actual
+
+
+def test_parse_model_deployment_monitoring_job_path():
+    expected = {
+        "project": "octopus",
+        "location": "oyster",
+        "model_deployment_monitoring_job": "nudibranch",
+    }
+    path = EndpointServiceClient.model_deployment_monitoring_job_path(**expected)
+
+    # Check that the path construction is reversible.
+    actual = EndpointServiceClient.parse_model_deployment_monitoring_job_path(path)
+    assert expected == actual
+
+
+def test_network_path():
+    project = "cuttlefish"
+    network = "mussel"
     expected = "projects/{project}/global/networks/{network}".format(
         project=project, network=network,
     )
@@ -2760,8 +2813,8 @@ def test_network_path():
 
 def test_parse_network_path():
     expected = {
-        "project": "whelk",
-        "network": "octopus",
+        "project": "winkle",
+        "network": "nautilus",
     }
     path = EndpointServiceClient.network_path(**expected)
 
@@ -2771,7 +2824,7 @@ def test_parse_network_path():
 
 
 def test_common_billing_account_path():
-    billing_account = "oyster"
+    billing_account = "scallop"
     expected = "billingAccounts/{billing_account}".format(
         billing_account=billing_account,
     )
@@ -2781,7 +2834,7 @@ def test_common_billing_account_path():
 
 def test_parse_common_billing_account_path():
     expected = {
-        "billing_account": "nudibranch",
+        "billing_account": "abalone",
     }
     path = EndpointServiceClient.common_billing_account_path(**expected)
 
@@ -2791,7 +2844,7 @@ def test_parse_common_billing_account_path():
 
 
 def test_common_folder_path():
-    folder = "cuttlefish"
+    folder = "squid"
     expected = "folders/{folder}".format(folder=folder,)
     actual = EndpointServiceClient.common_folder_path(folder)
     assert expected == actual
@@ -2799,7 +2852,7 @@ def test_common_folder_path():
 
 def test_parse_common_folder_path():
     expected = {
-        "folder": "mussel",
+        "folder": "clam",
     }
     path = EndpointServiceClient.common_folder_path(**expected)
 
@@ -2809,7 +2862,7 @@ def test_parse_common_folder_path():
 
 
 def test_common_organization_path():
-    organization = "winkle"
+    organization = "whelk"
     expected = "organizations/{organization}".format(organization=organization,)
     actual = EndpointServiceClient.common_organization_path(organization)
     assert expected == actual
@@ -2817,7 +2870,7 @@ def test_common_organization_path():
 
 def test_parse_common_organization_path():
     expected = {
-        "organization": "nautilus",
+        "organization": "octopus",
     }
     path = EndpointServiceClient.common_organization_path(**expected)
 
@@ -2827,7 +2880,7 @@ def test_parse_common_organization_path():
 
 
 def test_common_project_path():
-    project = "scallop"
+    project = "oyster"
     expected = "projects/{project}".format(project=project,)
     actual = EndpointServiceClient.common_project_path(project)
     assert expected == actual
@@ -2835,7 +2888,7 @@ def test_common_project_path():
 
 def test_parse_common_project_path():
     expected = {
-        "project": "abalone",
+        "project": "nudibranch",
     }
     path = EndpointServiceClient.common_project_path(**expected)
 
@@ -2845,8 +2898,8 @@ def test_parse_common_project_path():
 
 
 def test_common_location_path():
-    project = "squid"
-    location = "clam"
+    project = "cuttlefish"
+    location = "mussel"
     expected = "projects/{project}/locations/{location}".format(
         project=project, location=location,
     )
@@ -2856,8 +2909,8 @@ def test_common_location_path():
 
 def test_parse_common_location_path():
     expected = {
-        "project": "whelk",
-        "location": "octopus",
+        "project": "winkle",
+        "location": "nautilus",
     }
     path = EndpointServiceClient.common_location_path(**expected)
 
@@ -2885,3 +2938,49 @@ def test_client_withDEFAULT_CLIENT_INFO():
             credentials=ga_credentials.AnonymousCredentials(), client_info=client_info,
         )
         prep.assert_called_once_with(client_info)
+
+
+@pytest.mark.asyncio
+async def test_transport_close_async():
+    client = EndpointServiceAsyncClient(
+        credentials=ga_credentials.AnonymousCredentials(), transport="grpc_asyncio",
+    )
+    with mock.patch.object(
+        type(getattr(client.transport, "grpc_channel")), "close"
+    ) as close:
+        async with client:
+            close.assert_not_called()
+        close.assert_called_once()
+
+
+def test_transport_close():
+    transports = {
+        "grpc": "_grpc_channel",
+    }
+
+    for transport, close_name in transports.items():
+        client = EndpointServiceClient(
+            credentials=ga_credentials.AnonymousCredentials(), transport=transport
+        )
+        with mock.patch.object(
+            type(getattr(client.transport, close_name)), "close"
+        ) as close:
+            with client:
+                close.assert_not_called()
+            close.assert_called_once()
+
+
+def test_client_ctx():
+    transports = [
+        "grpc",
+    ]
+    for transport in transports:
+        client = EndpointServiceClient(
+            credentials=ga_credentials.AnonymousCredentials(), transport=transport
+        )
+        # Test client calls underlying transport.
+        with mock.patch.object(type(client.transport), "close") as close:
+            close.assert_not_called()
+            with client:
+                pass
+            close.assert_called()

@@ -24,12 +24,11 @@ __protobuf__ = proto.module(
 class SpecialistPool(proto.Message):
     r"""SpecialistPool represents customers' own workforce to work on
     their data labeling jobs. It includes a group of specialist
-    managers who are responsible for managing the labelers in this
-    pool as well as customers' data labeling jobs associated with
-    this pool.
-    Customers create specialist pool as well as start data labeling
-    jobs on Cloud, managers and labelers work with the jobs using
-    CrowdCompute console.
+    managers and workers. Managers are responsible for managing the
+    workers in this pool as well as customers' data labeling jobs
+    associated with this pool. Customers create specialist pool as
+    well as start data labeling jobs on Cloud, managers and workers
+    handle the jobs using CrowdCompute console.
 
     Attributes:
         name (str):
@@ -42,14 +41,17 @@ class SpecialistPool(proto.Message):
             characters.
             This field should be unique on project-level.
         specialist_managers_count (int):
-            Output only. The number of Specialists in
-            this SpecialistPool.
+            Output only. The number of managers in this
+            SpecialistPool.
         specialist_manager_emails (Sequence[str]):
-            The email addresses of the specialists in the
+            The email addresses of the managers in the
             SpecialistPool.
         pending_data_labeling_jobs (Sequence[str]):
             Output only. The resource name of the pending
             data labeling jobs.
+        specialist_worker_emails (Sequence[str]):
+            The email addresses of workers in the
+            SpecialistPool.
     """
 
     name = proto.Field(proto.STRING, number=1,)
@@ -57,6 +59,7 @@ class SpecialistPool(proto.Message):
     specialist_managers_count = proto.Field(proto.INT32, number=3,)
     specialist_manager_emails = proto.RepeatedField(proto.STRING, number=4,)
     pending_data_labeling_jobs = proto.RepeatedField(proto.STRING, number=5,)
+    specialist_worker_emails = proto.RepeatedField(proto.STRING, number=7,)
 
 
 __all__ = tuple(sorted(__protobuf__.manifest))

@@ -96,6 +96,11 @@ class Endpoint(proto.Message):
             projects/{project}/global/networks/{network}. Where
             {project} is a project number, as in '12345', and {network}
             is network name.
+        model_deployment_monitoring_job (str):
+            Output only. Resource name of the Model Monitoring job
+            associated with this Endpoint if monitoring is enabled by
+            [CreateModelDeploymentMonitoringJob][]. Format:
+            ``projects/{project}/locations/{location}/modelDeploymentMonitoringJobs/{model_deployment_monitoring_job}``
     """
 
     name = proto.Field(proto.STRING, number=1,)
@@ -113,6 +118,7 @@ class Endpoint(proto.Message):
         proto.MESSAGE, number=10, message=gca_encryption_spec.EncryptionSpec,
     )
     network = proto.Field(proto.STRING, number=13,)
+    model_deployment_monitoring_job = proto.Field(proto.STRING, number=14,)
 
 
 class DeployedModel(proto.Message):
@@ -126,7 +132,7 @@ class DeployedModel(proto.Message):
             degree of manual configuration.
         automatic_resources (google.cloud.aiplatform_v1beta1.types.AutomaticResources):
             A description of resources that to large
-            degree are decided by AI Platform, and require
+            degree are decided by Vertex AI, and require
             only a modest additional configuration.
         id (str):
             Output only. The ID of the DeployedModel.

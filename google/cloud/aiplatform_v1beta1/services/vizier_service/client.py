@@ -17,7 +17,7 @@ from collections import OrderedDict
 from distutils import util
 import os
 import re
-from typing import Callable, Dict, Optional, Sequence, Tuple, Type, Union
+from typing import Dict, Optional, Sequence, Tuple, Type, Union
 import pkg_resources
 
 from google.api_core import client_options as client_options_lib  # type: ignore
@@ -383,15 +383,12 @@ class VizierServiceClient(metaclass=VizierServiceClientMeta):
                 client_cert_source_for_mtls=client_cert_source_func,
                 quota_project_id=client_options.quota_project_id,
                 client_info=client_info,
-                always_use_jwt_access=(
-                    Transport == type(self).get_transport_class("grpc")
-                    or Transport == type(self).get_transport_class("grpc_asyncio")
-                ),
+                always_use_jwt_access=True,
             )
 
     def create_study(
         self,
-        request: vizier_service.CreateStudyRequest = None,
+        request: Union[vizier_service.CreateStudyRequest, dict] = None,
         *,
         parent: str = None,
         study: gca_study.Study = None,
@@ -403,7 +400,7 @@ class VizierServiceClient(metaclass=VizierServiceClientMeta):
         after creation of the Study.
 
         Args:
-            request (google.cloud.aiplatform_v1beta1.types.CreateStudyRequest):
+            request (Union[google.cloud.aiplatform_v1beta1.types.CreateStudyRequest, dict]):
                 The request object. Request message for
                 [VizierService.CreateStudy][google.cloud.aiplatform.v1beta1.VizierService.CreateStudy].
             parent (str):
@@ -472,7 +469,7 @@ class VizierServiceClient(metaclass=VizierServiceClientMeta):
 
     def get_study(
         self,
-        request: vizier_service.GetStudyRequest = None,
+        request: Union[vizier_service.GetStudyRequest, dict] = None,
         *,
         name: str = None,
         retry: retries.Retry = gapic_v1.method.DEFAULT,
@@ -482,7 +479,7 @@ class VizierServiceClient(metaclass=VizierServiceClientMeta):
         r"""Gets a Study by name.
 
         Args:
-            request (google.cloud.aiplatform_v1beta1.types.GetStudyRequest):
+            request (Union[google.cloud.aiplatform_v1beta1.types.GetStudyRequest, dict]):
                 The request object. Request message for
                 [VizierService.GetStudy][google.cloud.aiplatform.v1beta1.VizierService.GetStudy].
             name (str):
@@ -541,7 +538,7 @@ class VizierServiceClient(metaclass=VizierServiceClientMeta):
 
     def list_studies(
         self,
-        request: vizier_service.ListStudiesRequest = None,
+        request: Union[vizier_service.ListStudiesRequest, dict] = None,
         *,
         parent: str = None,
         retry: retries.Retry = gapic_v1.method.DEFAULT,
@@ -552,7 +549,7 @@ class VizierServiceClient(metaclass=VizierServiceClientMeta):
         project.
 
         Args:
-            request (google.cloud.aiplatform_v1beta1.types.ListStudiesRequest):
+            request (Union[google.cloud.aiplatform_v1beta1.types.ListStudiesRequest, dict]):
                 The request object. Request message for
                 [VizierService.ListStudies][google.cloud.aiplatform.v1beta1.VizierService.ListStudies].
             parent (str):
@@ -623,7 +620,7 @@ class VizierServiceClient(metaclass=VizierServiceClientMeta):
 
     def delete_study(
         self,
-        request: vizier_service.DeleteStudyRequest = None,
+        request: Union[vizier_service.DeleteStudyRequest, dict] = None,
         *,
         name: str = None,
         retry: retries.Retry = gapic_v1.method.DEFAULT,
@@ -633,7 +630,7 @@ class VizierServiceClient(metaclass=VizierServiceClientMeta):
         r"""Deletes a Study.
 
         Args:
-            request (google.cloud.aiplatform_v1beta1.types.DeleteStudyRequest):
+            request (Union[google.cloud.aiplatform_v1beta1.types.DeleteStudyRequest, dict]):
                 The request object. Request message for
                 [VizierService.DeleteStudy][google.cloud.aiplatform.v1beta1.VizierService.DeleteStudy].
             name (str):
@@ -688,7 +685,7 @@ class VizierServiceClient(metaclass=VizierServiceClientMeta):
 
     def lookup_study(
         self,
-        request: vizier_service.LookupStudyRequest = None,
+        request: Union[vizier_service.LookupStudyRequest, dict] = None,
         *,
         parent: str = None,
         retry: retries.Retry = gapic_v1.method.DEFAULT,
@@ -699,7 +696,7 @@ class VizierServiceClient(metaclass=VizierServiceClientMeta):
         instead of the fully qualified resource name.
 
         Args:
-            request (google.cloud.aiplatform_v1beta1.types.LookupStudyRequest):
+            request (Union[google.cloud.aiplatform_v1beta1.types.LookupStudyRequest, dict]):
                 The request object. Request message for
                 [VizierService.LookupStudy][google.cloud.aiplatform.v1beta1.VizierService.LookupStudy].
             parent (str):
@@ -759,7 +756,7 @@ class VizierServiceClient(metaclass=VizierServiceClientMeta):
 
     def suggest_trials(
         self,
-        request: vizier_service.SuggestTrialsRequest = None,
+        request: Union[vizier_service.SuggestTrialsRequest, dict] = None,
         *,
         retry: retries.Retry = gapic_v1.method.DEFAULT,
         timeout: float = None,
@@ -772,7 +769,7 @@ class VizierServiceClient(metaclass=VizierServiceClientMeta):
         [SuggestTrialsResponse][google.cloud.ml.v1.SuggestTrialsResponse].
 
         Args:
-            request (google.cloud.aiplatform_v1beta1.types.SuggestTrialsRequest):
+            request (Union[google.cloud.aiplatform_v1beta1.types.SuggestTrialsRequest, dict]):
                 The request object. Request message for
                 [VizierService.SuggestTrials][google.cloud.aiplatform.v1beta1.VizierService.SuggestTrials].
             retry (google.api_core.retry.Retry): Designation of what errors, if any,
@@ -825,7 +822,7 @@ class VizierServiceClient(metaclass=VizierServiceClientMeta):
 
     def create_trial(
         self,
-        request: vizier_service.CreateTrialRequest = None,
+        request: Union[vizier_service.CreateTrialRequest, dict] = None,
         *,
         parent: str = None,
         trial: study.Trial = None,
@@ -836,7 +833,7 @@ class VizierServiceClient(metaclass=VizierServiceClientMeta):
         r"""Adds a user provided Trial to a Study.
 
         Args:
-            request (google.cloud.aiplatform_v1beta1.types.CreateTrialRequest):
+            request (Union[google.cloud.aiplatform_v1beta1.types.CreateTrialRequest, dict]):
                 The request object. Request message for
                 [VizierService.CreateTrial][google.cloud.aiplatform.v1beta1.VizierService.CreateTrial].
             parent (str):
@@ -908,7 +905,7 @@ class VizierServiceClient(metaclass=VizierServiceClientMeta):
 
     def get_trial(
         self,
-        request: vizier_service.GetTrialRequest = None,
+        request: Union[vizier_service.GetTrialRequest, dict] = None,
         *,
         name: str = None,
         retry: retries.Retry = gapic_v1.method.DEFAULT,
@@ -918,7 +915,7 @@ class VizierServiceClient(metaclass=VizierServiceClientMeta):
         r"""Gets a Trial.
 
         Args:
-            request (google.cloud.aiplatform_v1beta1.types.GetTrialRequest):
+            request (Union[google.cloud.aiplatform_v1beta1.types.GetTrialRequest, dict]):
                 The request object. Request message for
                 [VizierService.GetTrial][google.cloud.aiplatform.v1beta1.VizierService.GetTrial].
             name (str):
@@ -982,7 +979,7 @@ class VizierServiceClient(metaclass=VizierServiceClientMeta):
 
     def list_trials(
         self,
-        request: vizier_service.ListTrialsRequest = None,
+        request: Union[vizier_service.ListTrialsRequest, dict] = None,
         *,
         parent: str = None,
         retry: retries.Retry = gapic_v1.method.DEFAULT,
@@ -992,7 +989,7 @@ class VizierServiceClient(metaclass=VizierServiceClientMeta):
         r"""Lists the Trials associated with a Study.
 
         Args:
-            request (google.cloud.aiplatform_v1beta1.types.ListTrialsRequest):
+            request (Union[google.cloud.aiplatform_v1beta1.types.ListTrialsRequest, dict]):
                 The request object. Request message for
                 [VizierService.ListTrials][google.cloud.aiplatform.v1beta1.VizierService.ListTrials].
             parent (str):
@@ -1063,7 +1060,7 @@ class VizierServiceClient(metaclass=VizierServiceClientMeta):
 
     def add_trial_measurement(
         self,
-        request: vizier_service.AddTrialMeasurementRequest = None,
+        request: Union[vizier_service.AddTrialMeasurementRequest, dict] = None,
         *,
         retry: retries.Retry = gapic_v1.method.DEFAULT,
         timeout: float = None,
@@ -1074,7 +1071,7 @@ class VizierServiceClient(metaclass=VizierServiceClientMeta):
         before the Trial is complete.
 
         Args:
-            request (google.cloud.aiplatform_v1beta1.types.AddTrialMeasurementRequest):
+            request (Union[google.cloud.aiplatform_v1beta1.types.AddTrialMeasurementRequest, dict]):
                 The request object. Request message for
                 [VizierService.AddTrialMeasurement][google.cloud.aiplatform.v1beta1.VizierService.AddTrialMeasurement].
             retry (google.api_core.retry.Retry): Designation of what errors, if any,
@@ -1120,7 +1117,7 @@ class VizierServiceClient(metaclass=VizierServiceClientMeta):
 
     def complete_trial(
         self,
-        request: vizier_service.CompleteTrialRequest = None,
+        request: Union[vizier_service.CompleteTrialRequest, dict] = None,
         *,
         retry: retries.Retry = gapic_v1.method.DEFAULT,
         timeout: float = None,
@@ -1129,7 +1126,7 @@ class VizierServiceClient(metaclass=VizierServiceClientMeta):
         r"""Marks a Trial as complete.
 
         Args:
-            request (google.cloud.aiplatform_v1beta1.types.CompleteTrialRequest):
+            request (Union[google.cloud.aiplatform_v1beta1.types.CompleteTrialRequest, dict]):
                 The request object. Request message for
                 [VizierService.CompleteTrial][google.cloud.aiplatform.v1beta1.VizierService.CompleteTrial].
             retry (google.api_core.retry.Retry): Designation of what errors, if any,
@@ -1173,7 +1170,7 @@ class VizierServiceClient(metaclass=VizierServiceClientMeta):
 
     def delete_trial(
         self,
-        request: vizier_service.DeleteTrialRequest = None,
+        request: Union[vizier_service.DeleteTrialRequest, dict] = None,
         *,
         name: str = None,
         retry: retries.Retry = gapic_v1.method.DEFAULT,
@@ -1183,7 +1180,7 @@ class VizierServiceClient(metaclass=VizierServiceClientMeta):
         r"""Deletes a Trial.
 
         Args:
-            request (google.cloud.aiplatform_v1beta1.types.DeleteTrialRequest):
+            request (Union[google.cloud.aiplatform_v1beta1.types.DeleteTrialRequest, dict]):
                 The request object. Request message for
                 [VizierService.DeleteTrial][google.cloud.aiplatform.v1beta1.VizierService.DeleteTrial].
             name (str):
@@ -1237,7 +1234,7 @@ class VizierServiceClient(metaclass=VizierServiceClientMeta):
 
     def check_trial_early_stopping_state(
         self,
-        request: vizier_service.CheckTrialEarlyStoppingStateRequest = None,
+        request: Union[vizier_service.CheckTrialEarlyStoppingStateRequest, dict] = None,
         *,
         retry: retries.Retry = gapic_v1.method.DEFAULT,
         timeout: float = None,
@@ -1249,7 +1246,7 @@ class VizierServiceClient(metaclass=VizierServiceClientMeta):
         [CheckTrialEarlyStoppingStateResponse][google.cloud.ml.v1.CheckTrialEarlyStoppingStateResponse].
 
         Args:
-            request (google.cloud.aiplatform_v1beta1.types.CheckTrialEarlyStoppingStateRequest):
+            request (Union[google.cloud.aiplatform_v1beta1.types.CheckTrialEarlyStoppingStateRequest, dict]):
                 The request object. Request message for
                 [VizierService.CheckTrialEarlyStoppingState][google.cloud.aiplatform.v1beta1.VizierService.CheckTrialEarlyStoppingState].
             retry (google.api_core.retry.Retry): Designation of what errors, if any,
@@ -1306,7 +1303,7 @@ class VizierServiceClient(metaclass=VizierServiceClientMeta):
 
     def stop_trial(
         self,
-        request: vizier_service.StopTrialRequest = None,
+        request: Union[vizier_service.StopTrialRequest, dict] = None,
         *,
         retry: retries.Retry = gapic_v1.method.DEFAULT,
         timeout: float = None,
@@ -1315,7 +1312,7 @@ class VizierServiceClient(metaclass=VizierServiceClientMeta):
         r"""Stops a Trial.
 
         Args:
-            request (google.cloud.aiplatform_v1beta1.types.StopTrialRequest):
+            request (Union[google.cloud.aiplatform_v1beta1.types.StopTrialRequest, dict]):
                 The request object. Request message for
                 [VizierService.StopTrial][google.cloud.aiplatform.v1beta1.VizierService.StopTrial].
             retry (google.api_core.retry.Retry): Designation of what errors, if any,
@@ -1359,7 +1356,7 @@ class VizierServiceClient(metaclass=VizierServiceClientMeta):
 
     def list_optimal_trials(
         self,
-        request: vizier_service.ListOptimalTrialsRequest = None,
+        request: Union[vizier_service.ListOptimalTrialsRequest, dict] = None,
         *,
         parent: str = None,
         retry: retries.Retry = gapic_v1.method.DEFAULT,
@@ -1372,7 +1369,7 @@ class VizierServiceClient(metaclass=VizierServiceClientMeta):
         https://en.wikipedia.org/wiki/Pareto_efficiency
 
         Args:
-            request (google.cloud.aiplatform_v1beta1.types.ListOptimalTrialsRequest):
+            request (Union[google.cloud.aiplatform_v1beta1.types.ListOptimalTrialsRequest, dict]):
                 The request object. Request message for
                 [VizierService.ListOptimalTrials][google.cloud.aiplatform.v1beta1.VizierService.ListOptimalTrials].
             parent (str):
@@ -1430,6 +1427,19 @@ class VizierServiceClient(metaclass=VizierServiceClientMeta):
 
         # Done; return the response.
         return response
+
+    def __enter__(self):
+        return self
+
+    def __exit__(self, type, value, traceback):
+        """Releases underlying transport's resources.
+
+        .. warning::
+            ONLY use as a context manager if the transport is NOT shared
+            with other clients! Exiting the with block will CLOSE the transport
+            and may cause errors in other clients!
+        """
+        self.transport.close()
 
 
 try:

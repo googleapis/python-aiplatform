@@ -15,6 +15,7 @@
 #
 
 import copy
+import json
 from typing import Any, Dict, Mapping, Optional, Union
 
 
@@ -89,7 +90,11 @@ class PipelineRuntimeConfigBuilder(object):
               Optional. The mapping from runtime parameter names to its values.
         """
         if parameter_values:
-            self._parameter_values.update(parameter_values)
+            parameters = dict(parameter_values)
+            for k, v in parameter_values.items():
+                if isinstance(v, (dict, list, bool)):
+                    parameters[k] = json.dumps(v)
+            self._parameter_values.update(parameters)
 
     def build(self) -> Dict[str, Any]:
         """Build a RuntimeConfig proto.
@@ -129,7 +134,7 @@ class PipelineRuntimeConfigBuilder(object):
           ValueError: if the parameter name is not found in pipeline root
           inputs, or value is none.
         """
-        if not value:
+        if value is None:
             raise ValueError("None values should be filterd out.")
 
         if name not in self._parameter_types:

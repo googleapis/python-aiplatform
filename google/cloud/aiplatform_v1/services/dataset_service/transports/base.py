@@ -122,7 +122,7 @@ class DatasetServiceTransport(abc.ABC):
                 **scopes_kwargs, quota_project_id=quota_project_id
             )
 
-        # If the credentials is service account credentials, then always try to use self signed JWT.
+        # If the credentials are service account credentials, then always try to use self signed JWT.
         if (
             always_use_jwt_access
             and isinstance(credentials, service_account.Credentials)
@@ -160,36 +160,45 @@ class DatasetServiceTransport(abc.ABC):
         # Precompute the wrapped methods.
         self._wrapped_methods = {
             self.create_dataset: gapic_v1.method.wrap_method(
-                self.create_dataset, default_timeout=5.0, client_info=client_info,
+                self.create_dataset, default_timeout=None, client_info=client_info,
             ),
             self.get_dataset: gapic_v1.method.wrap_method(
-                self.get_dataset, default_timeout=5.0, client_info=client_info,
+                self.get_dataset, default_timeout=None, client_info=client_info,
             ),
             self.update_dataset: gapic_v1.method.wrap_method(
-                self.update_dataset, default_timeout=5.0, client_info=client_info,
+                self.update_dataset, default_timeout=None, client_info=client_info,
             ),
             self.list_datasets: gapic_v1.method.wrap_method(
-                self.list_datasets, default_timeout=5.0, client_info=client_info,
+                self.list_datasets, default_timeout=None, client_info=client_info,
             ),
             self.delete_dataset: gapic_v1.method.wrap_method(
-                self.delete_dataset, default_timeout=5.0, client_info=client_info,
+                self.delete_dataset, default_timeout=None, client_info=client_info,
             ),
             self.import_data: gapic_v1.method.wrap_method(
-                self.import_data, default_timeout=5.0, client_info=client_info,
+                self.import_data, default_timeout=None, client_info=client_info,
             ),
             self.export_data: gapic_v1.method.wrap_method(
-                self.export_data, default_timeout=5.0, client_info=client_info,
+                self.export_data, default_timeout=None, client_info=client_info,
             ),
             self.list_data_items: gapic_v1.method.wrap_method(
-                self.list_data_items, default_timeout=5.0, client_info=client_info,
+                self.list_data_items, default_timeout=None, client_info=client_info,
             ),
             self.get_annotation_spec: gapic_v1.method.wrap_method(
-                self.get_annotation_spec, default_timeout=5.0, client_info=client_info,
+                self.get_annotation_spec, default_timeout=None, client_info=client_info,
             ),
             self.list_annotations: gapic_v1.method.wrap_method(
-                self.list_annotations, default_timeout=5.0, client_info=client_info,
+                self.list_annotations, default_timeout=None, client_info=client_info,
             ),
         }
+
+    def close(self):
+        """Closes resources associated with the transport.
+
+       .. warning::
+            Only call this method if the transport is NOT shared
+            with other clients - this may cause errors in other clients!
+        """
+        raise NotImplementedError()
 
     @property
     def operations_client(self) -> operations_v1.OperationsClient:

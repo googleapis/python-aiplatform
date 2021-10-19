@@ -88,10 +88,10 @@ class FeaturestoreOnlineServingServiceGrpcTransport(
                 private key bytes, both in PEM format. It is ignored if
                 ``api_mtls_endpoint`` is None.
             ssl_channel_credentials (grpc.ChannelCredentials): SSL credentials
-                for grpc channel. It is ignored if ``channel`` is provided.
+                for the grpc channel. It is ignored if ``channel`` is provided.
             client_cert_source_for_mtls (Optional[Callable[[], Tuple[bytes, bytes]]]):
                 A callback to provide client certificate bytes and private key bytes,
-                both in PEM format. It is used to configure mutual TLS channel. It is
+                both in PEM format. It is used to configure a mutual TLS channel. It is
                 ignored if ``channel`` or ``ssl_channel_credentials`` is provided.
             quota_project_id (Optional[str]): An optional project to use for billing
                 and quota.
@@ -291,6 +291,9 @@ class FeaturestoreOnlineServingServiceGrpcTransport(
                 response_deserializer=featurestore_online_service.ReadFeatureValuesResponse.deserialize,
             )
         return self._stubs["streaming_read_feature_values"]
+
+    def close(self):
+        self.grpc_channel.close()
 
 
 __all__ = ("FeaturestoreOnlineServingServiceGrpcTransport",)

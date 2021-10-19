@@ -98,10 +98,10 @@ class MetadataServiceGrpcTransport(MetadataServiceTransport):
                 private key bytes, both in PEM format. It is ignored if
                 ``api_mtls_endpoint`` is None.
             ssl_channel_credentials (grpc.ChannelCredentials): SSL credentials
-                for grpc channel. It is ignored if ``channel`` is provided.
+                for the grpc channel. It is ignored if ``channel`` is provided.
             client_cert_source_for_mtls (Optional[Callable[[], Tuple[bytes, bytes]]]):
                 A callback to provide client certificate bytes and private key bytes,
-                both in PEM format. It is used to configure mutual TLS channel. It is
+                both in PEM format. It is used to configure a mutual TLS channel. It is
                 ignored if ``channel`` or ``ssl_channel_credentials`` is provided.
             quota_project_id (Optional[str]): An optional project to use for billing
                 and quota.
@@ -346,7 +346,8 @@ class MetadataServiceGrpcTransport(MetadataServiceTransport):
     ]:
         r"""Return a callable for the delete metadata store method over gRPC.
 
-        Deletes a single MetadataStore.
+        Deletes a single MetadataStore and all its child
+        resources (Artifacts, Executions, and Contexts).
 
         Returns:
             Callable[[~.DeleteMetadataStoreRequest],
@@ -1127,6 +1128,9 @@ class MetadataServiceGrpcTransport(MetadataServiceTransport):
                 response_deserializer=lineage_subgraph.LineageSubgraph.deserialize,
             )
         return self._stubs["query_artifact_lineage_subgraph"]
+
+    def close(self):
+        self.grpc_channel.close()
 
 
 __all__ = ("MetadataServiceGrpcTransport",)

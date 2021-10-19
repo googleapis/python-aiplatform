@@ -24,11 +24,13 @@ import pytest
 from proto.marshal.rules.dates import DurationRule, TimestampRule
 
 
+from google.api import httpbody_pb2  # type: ignore
 from google.api_core import client_options
 from google.api_core import exceptions as core_exceptions
 from google.api_core import gapic_v1
 from google.api_core import grpc_helpers
 from google.api_core import grpc_helpers_async
+from google.api_core import path_template
 from google.auth import credentials as ga_credentials
 from google.auth.exceptions import MutualTLSChannelError
 from google.cloud.aiplatform_v1beta1.services.prediction_service import (
@@ -42,8 +44,10 @@ from google.cloud.aiplatform_v1beta1.services.prediction_service.transports.base
     _GOOGLE_AUTH_VERSION,
 )
 from google.cloud.aiplatform_v1beta1.types import explanation
+from google.cloud.aiplatform_v1beta1.types import io
 from google.cloud.aiplatform_v1beta1.types import prediction_service
 from google.oauth2 import service_account
+from google.protobuf import any_pb2  # type: ignore
 from google.protobuf import struct_pb2  # type: ignore
 import google.auth
 
@@ -526,6 +530,8 @@ def test_predict(
         # Designate an appropriate return value for the call.
         call.return_value = prediction_service.PredictResponse(
             deployed_model_id="deployed_model_id_value",
+            model="model_value",
+            model_display_name="model_display_name_value",
         )
         response = client.predict(request)
 
@@ -537,6 +543,8 @@ def test_predict(
     # Establish that the response is the type that we expect.
     assert isinstance(response, prediction_service.PredictResponse)
     assert response.deployed_model_id == "deployed_model_id_value"
+    assert response.model == "model_value"
+    assert response.model_display_name == "model_display_name_value"
 
 
 def test_predict_from_dict():
@@ -576,6 +584,8 @@ async def test_predict_async(
         call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(
             prediction_service.PredictResponse(
                 deployed_model_id="deployed_model_id_value",
+                model="model_value",
+                model_display_name="model_display_name_value",
             )
         )
         response = await client.predict(request)
@@ -588,6 +598,8 @@ async def test_predict_async(
     # Establish that the response is the type that we expect.
     assert isinstance(response, prediction_service.PredictResponse)
     assert response.deployed_model_id == "deployed_model_id_value"
+    assert response.model == "model_value"
+    assert response.model_display_name == "model_display_name_value"
 
 
 @pytest.mark.asyncio
@@ -676,6 +688,228 @@ async def test_predict_flattened_error_async():
             endpoint="endpoint_value",
             instances=[struct_pb2.Value(null_value=struct_pb2.NullValue.NULL_VALUE)],
             parameters=struct_pb2.Value(null_value=struct_pb2.NullValue.NULL_VALUE),
+        )
+
+
+def test_raw_predict(
+    transport: str = "grpc", request_type=prediction_service.RawPredictRequest
+):
+    client = PredictionServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(), transport=transport,
+    )
+
+    # Everything is optional in proto3 as far as the runtime is concerned,
+    # and we are mocking out the actual API, so just send an empty request.
+    request = request_type()
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(type(client.transport.raw_predict), "__call__") as call:
+        # Designate an appropriate return value for the call.
+        call.return_value = httpbody_pb2.HttpBody(
+            content_type="content_type_value", data=b"data_blob",
+        )
+        response = client.raw_predict(request)
+
+        # Establish that the underlying gRPC stub method was called.
+        assert len(call.mock_calls) == 1
+        _, args, _ = call.mock_calls[0]
+        assert args[0] == prediction_service.RawPredictRequest()
+
+    # Establish that the response is the type that we expect.
+    assert isinstance(response, httpbody_pb2.HttpBody)
+    assert response.content_type == "content_type_value"
+    assert response.data == b"data_blob"
+
+
+def test_raw_predict_from_dict():
+    test_raw_predict(request_type=dict)
+
+
+def test_raw_predict_empty_call():
+    # This test is a coverage failsafe to make sure that totally empty calls,
+    # i.e. request == None and no flattened fields passed, work.
+    client = PredictionServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(), transport="grpc",
+    )
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(type(client.transport.raw_predict), "__call__") as call:
+        client.raw_predict()
+        call.assert_called()
+        _, args, _ = call.mock_calls[0]
+        assert args[0] == prediction_service.RawPredictRequest()
+
+
+@pytest.mark.asyncio
+async def test_raw_predict_async(
+    transport: str = "grpc_asyncio", request_type=prediction_service.RawPredictRequest
+):
+    client = PredictionServiceAsyncClient(
+        credentials=ga_credentials.AnonymousCredentials(), transport=transport,
+    )
+
+    # Everything is optional in proto3 as far as the runtime is concerned,
+    # and we are mocking out the actual API, so just send an empty request.
+    request = request_type()
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(type(client.transport.raw_predict), "__call__") as call:
+        # Designate an appropriate return value for the call.
+        call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(
+            httpbody_pb2.HttpBody(content_type="content_type_value", data=b"data_blob",)
+        )
+        response = await client.raw_predict(request)
+
+        # Establish that the underlying gRPC stub method was called.
+        assert len(call.mock_calls)
+        _, args, _ = call.mock_calls[0]
+        assert args[0] == prediction_service.RawPredictRequest()
+
+    # Establish that the response is the type that we expect.
+    assert isinstance(response, httpbody_pb2.HttpBody)
+    assert response.content_type == "content_type_value"
+    assert response.data == b"data_blob"
+
+
+@pytest.mark.asyncio
+async def test_raw_predict_async_from_dict():
+    await test_raw_predict_async(request_type=dict)
+
+
+def test_raw_predict_field_headers():
+    client = PredictionServiceClient(credentials=ga_credentials.AnonymousCredentials(),)
+
+    # Any value that is part of the HTTP/1.1 URI should be sent as
+    # a field header. Set these to a non-empty value.
+    request = prediction_service.RawPredictRequest()
+
+    request.endpoint = "endpoint/value"
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(type(client.transport.raw_predict), "__call__") as call:
+        call.return_value = httpbody_pb2.HttpBody()
+        client.raw_predict(request)
+
+        # Establish that the underlying gRPC stub method was called.
+        assert len(call.mock_calls) == 1
+        _, args, _ = call.mock_calls[0]
+        assert args[0] == request
+
+    # Establish that the field header was sent.
+    _, _, kw = call.mock_calls[0]
+    assert ("x-goog-request-params", "endpoint=endpoint/value",) in kw["metadata"]
+
+
+@pytest.mark.asyncio
+async def test_raw_predict_field_headers_async():
+    client = PredictionServiceAsyncClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+    )
+
+    # Any value that is part of the HTTP/1.1 URI should be sent as
+    # a field header. Set these to a non-empty value.
+    request = prediction_service.RawPredictRequest()
+
+    request.endpoint = "endpoint/value"
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(type(client.transport.raw_predict), "__call__") as call:
+        call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(
+            httpbody_pb2.HttpBody()
+        )
+        await client.raw_predict(request)
+
+        # Establish that the underlying gRPC stub method was called.
+        assert len(call.mock_calls)
+        _, args, _ = call.mock_calls[0]
+        assert args[0] == request
+
+    # Establish that the field header was sent.
+    _, _, kw = call.mock_calls[0]
+    assert ("x-goog-request-params", "endpoint=endpoint/value",) in kw["metadata"]
+
+
+def test_raw_predict_flattened():
+    client = PredictionServiceClient(credentials=ga_credentials.AnonymousCredentials(),)
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(type(client.transport.raw_predict), "__call__") as call:
+        # Designate an appropriate return value for the call.
+        call.return_value = httpbody_pb2.HttpBody()
+        # Call the method with a truthy value for each flattened field,
+        # using the keyword arguments to the method.
+        client.raw_predict(
+            endpoint="endpoint_value",
+            http_body=httpbody_pb2.HttpBody(content_type="content_type_value"),
+        )
+
+        # Establish that the underlying call was made with the expected
+        # request object values.
+        assert len(call.mock_calls) == 1
+        _, args, _ = call.mock_calls[0]
+        assert args[0].endpoint == "endpoint_value"
+        assert args[0].http_body == httpbody_pb2.HttpBody(
+            content_type="content_type_value"
+        )
+
+
+def test_raw_predict_flattened_error():
+    client = PredictionServiceClient(credentials=ga_credentials.AnonymousCredentials(),)
+
+    # Attempting to call a method with both a request object and flattened
+    # fields is an error.
+    with pytest.raises(ValueError):
+        client.raw_predict(
+            prediction_service.RawPredictRequest(),
+            endpoint="endpoint_value",
+            http_body=httpbody_pb2.HttpBody(content_type="content_type_value"),
+        )
+
+
+@pytest.mark.asyncio
+async def test_raw_predict_flattened_async():
+    client = PredictionServiceAsyncClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+    )
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(type(client.transport.raw_predict), "__call__") as call:
+        # Designate an appropriate return value for the call.
+        call.return_value = httpbody_pb2.HttpBody()
+
+        call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(
+            httpbody_pb2.HttpBody()
+        )
+        # Call the method with a truthy value for each flattened field,
+        # using the keyword arguments to the method.
+        response = await client.raw_predict(
+            endpoint="endpoint_value",
+            http_body=httpbody_pb2.HttpBody(content_type="content_type_value"),
+        )
+
+        # Establish that the underlying call was made with the expected
+        # request object values.
+        assert len(call.mock_calls)
+        _, args, _ = call.mock_calls[0]
+        assert args[0].endpoint == "endpoint_value"
+        assert args[0].http_body == httpbody_pb2.HttpBody(
+            content_type="content_type_value"
+        )
+
+
+@pytest.mark.asyncio
+async def test_raw_predict_flattened_error_async():
+    client = PredictionServiceAsyncClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+    )
+
+    # Attempting to call a method with both a request object and flattened
+    # fields is an error.
+    with pytest.raises(ValueError):
+        await client.raw_predict(
+            prediction_service.RawPredictRequest(),
+            endpoint="endpoint_value",
+            http_body=httpbody_pb2.HttpBody(content_type="content_type_value"),
         )
 
 
@@ -948,11 +1182,15 @@ def test_prediction_service_base_transport():
     # raise NotImplementedError.
     methods = (
         "predict",
+        "raw_predict",
         "explain",
     )
     for method in methods:
         with pytest.raises(NotImplementedError):
             getattr(transport, method)(request=object())
+
+    with pytest.raises(NotImplementedError):
+        transport.close()
 
 
 @requires_google_auth_gte_1_25_0
@@ -1321,8 +1559,32 @@ def test_parse_endpoint_path():
     assert expected == actual
 
 
+def test_model_path():
+    project = "cuttlefish"
+    location = "mussel"
+    model = "winkle"
+    expected = "projects/{project}/locations/{location}/models/{model}".format(
+        project=project, location=location, model=model,
+    )
+    actual = PredictionServiceClient.model_path(project, location, model)
+    assert expected == actual
+
+
+def test_parse_model_path():
+    expected = {
+        "project": "nautilus",
+        "location": "scallop",
+        "model": "abalone",
+    }
+    path = PredictionServiceClient.model_path(**expected)
+
+    # Check that the path construction is reversible.
+    actual = PredictionServiceClient.parse_model_path(path)
+    assert expected == actual
+
+
 def test_common_billing_account_path():
-    billing_account = "cuttlefish"
+    billing_account = "squid"
     expected = "billingAccounts/{billing_account}".format(
         billing_account=billing_account,
     )
@@ -1332,7 +1594,7 @@ def test_common_billing_account_path():
 
 def test_parse_common_billing_account_path():
     expected = {
-        "billing_account": "mussel",
+        "billing_account": "clam",
     }
     path = PredictionServiceClient.common_billing_account_path(**expected)
 
@@ -1342,7 +1604,7 @@ def test_parse_common_billing_account_path():
 
 
 def test_common_folder_path():
-    folder = "winkle"
+    folder = "whelk"
     expected = "folders/{folder}".format(folder=folder,)
     actual = PredictionServiceClient.common_folder_path(folder)
     assert expected == actual
@@ -1350,7 +1612,7 @@ def test_common_folder_path():
 
 def test_parse_common_folder_path():
     expected = {
-        "folder": "nautilus",
+        "folder": "octopus",
     }
     path = PredictionServiceClient.common_folder_path(**expected)
 
@@ -1360,7 +1622,7 @@ def test_parse_common_folder_path():
 
 
 def test_common_organization_path():
-    organization = "scallop"
+    organization = "oyster"
     expected = "organizations/{organization}".format(organization=organization,)
     actual = PredictionServiceClient.common_organization_path(organization)
     assert expected == actual
@@ -1368,7 +1630,7 @@ def test_common_organization_path():
 
 def test_parse_common_organization_path():
     expected = {
-        "organization": "abalone",
+        "organization": "nudibranch",
     }
     path = PredictionServiceClient.common_organization_path(**expected)
 
@@ -1378,7 +1640,7 @@ def test_parse_common_organization_path():
 
 
 def test_common_project_path():
-    project = "squid"
+    project = "cuttlefish"
     expected = "projects/{project}".format(project=project,)
     actual = PredictionServiceClient.common_project_path(project)
     assert expected == actual
@@ -1386,7 +1648,7 @@ def test_common_project_path():
 
 def test_parse_common_project_path():
     expected = {
-        "project": "clam",
+        "project": "mussel",
     }
     path = PredictionServiceClient.common_project_path(**expected)
 
@@ -1396,8 +1658,8 @@ def test_parse_common_project_path():
 
 
 def test_common_location_path():
-    project = "whelk"
-    location = "octopus"
+    project = "winkle"
+    location = "nautilus"
     expected = "projects/{project}/locations/{location}".format(
         project=project, location=location,
     )
@@ -1407,8 +1669,8 @@ def test_common_location_path():
 
 def test_parse_common_location_path():
     expected = {
-        "project": "oyster",
-        "location": "nudibranch",
+        "project": "scallop",
+        "location": "abalone",
     }
     path = PredictionServiceClient.common_location_path(**expected)
 
@@ -1436,3 +1698,49 @@ def test_client_withDEFAULT_CLIENT_INFO():
             credentials=ga_credentials.AnonymousCredentials(), client_info=client_info,
         )
         prep.assert_called_once_with(client_info)
+
+
+@pytest.mark.asyncio
+async def test_transport_close_async():
+    client = PredictionServiceAsyncClient(
+        credentials=ga_credentials.AnonymousCredentials(), transport="grpc_asyncio",
+    )
+    with mock.patch.object(
+        type(getattr(client.transport, "grpc_channel")), "close"
+    ) as close:
+        async with client:
+            close.assert_not_called()
+        close.assert_called_once()
+
+
+def test_transport_close():
+    transports = {
+        "grpc": "_grpc_channel",
+    }
+
+    for transport, close_name in transports.items():
+        client = PredictionServiceClient(
+            credentials=ga_credentials.AnonymousCredentials(), transport=transport
+        )
+        with mock.patch.object(
+            type(getattr(client.transport, close_name)), "close"
+        ) as close:
+            with client:
+                close.assert_not_called()
+            close.assert_called_once()
+
+
+def test_client_ctx():
+    transports = [
+        "grpc",
+    ]
+    for transport in transports:
+        client = PredictionServiceClient(
+            credentials=ga_credentials.AnonymousCredentials(), transport=transport
+        )
+        # Test client calls underlying transport.
+        with mock.patch.object(type(client.transport), "close") as close:
+            close.assert_not_called()
+            with client:
+                pass
+            close.assert_called()

@@ -97,6 +97,7 @@ from .explanation import (
     IntegratedGradientsAttribution,
     ModelExplanation,
     SampledShapleyAttribution,
+    Similarity,
     SmoothGradConfig,
     XraiAttribution,
 )
@@ -380,6 +381,7 @@ from .prediction_service import (
     ExplainResponse,
     PredictRequest,
     PredictResponse,
+    RawPredictRequest,
 )
 from .specialist_pool import SpecialistPool
 from .specialist_pool_service import (
@@ -410,6 +412,12 @@ from .tensorboard_data import (
 from .tensorboard_experiment import TensorboardExperiment
 from .tensorboard_run import TensorboardRun
 from .tensorboard_service import (
+    BatchCreateTensorboardRunsRequest,
+    BatchCreateTensorboardRunsResponse,
+    BatchCreateTensorboardTimeSeriesRequest,
+    BatchCreateTensorboardTimeSeriesResponse,
+    BatchReadTensorboardTimeSeriesDataRequest,
+    BatchReadTensorboardTimeSeriesDataResponse,
     CreateTensorboardExperimentRequest,
     CreateTensorboardOperationMetadata,
     CreateTensorboardRequest,
@@ -442,6 +450,8 @@ from .tensorboard_service import (
     UpdateTensorboardRequest,
     UpdateTensorboardRunRequest,
     UpdateTensorboardTimeSeriesRequest,
+    WriteTensorboardExperimentDataRequest,
+    WriteTensorboardExperimentDataResponse,
     WriteTensorboardRunDataRequest,
     WriteTensorboardRunDataResponse,
 )
@@ -560,6 +570,7 @@ __all__ = (
     "IntegratedGradientsAttribution",
     "ModelExplanation",
     "SampledShapleyAttribution",
+    "Similarity",
     "SmoothGradConfig",
     "XraiAttribution",
     "ExplanationMetadata",
@@ -807,6 +818,7 @@ __all__ = (
     "ExplainResponse",
     "PredictRequest",
     "PredictResponse",
+    "RawPredictRequest",
     "SpecialistPool",
     "CreateSpecialistPoolOperationMetadata",
     "CreateSpecialistPoolRequest",
@@ -829,6 +841,12 @@ __all__ = (
     "TimeSeriesDataPoint",
     "TensorboardExperiment",
     "TensorboardRun",
+    "BatchCreateTensorboardRunsRequest",
+    "BatchCreateTensorboardRunsResponse",
+    "BatchCreateTensorboardTimeSeriesRequest",
+    "BatchCreateTensorboardTimeSeriesResponse",
+    "BatchReadTensorboardTimeSeriesDataRequest",
+    "BatchReadTensorboardTimeSeriesDataResponse",
     "CreateTensorboardExperimentRequest",
     "CreateTensorboardOperationMetadata",
     "CreateTensorboardRequest",
@@ -861,6 +879,8 @@ __all__ = (
     "UpdateTensorboardRequest",
     "UpdateTensorboardRunRequest",
     "UpdateTensorboardTimeSeriesRequest",
+    "WriteTensorboardExperimentDataRequest",
+    "WriteTensorboardExperimentDataResponse",
     "WriteTensorboardRunDataRequest",
     "WriteTensorboardRunDataResponse",
     "TensorboardTimeSeries",

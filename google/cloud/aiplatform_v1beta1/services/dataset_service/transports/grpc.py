@@ -36,6 +36,9 @@ from .base import DatasetServiceTransport, DEFAULT_CLIENT_INFO
 class DatasetServiceGrpcTransport(DatasetServiceTransport):
     """gRPC backend transport for DatasetService.
 
+    The service that handles the CRUD of Vertex AI Dataset and
+    its child resources.
+
     This class defines the same methods as the primary client, so the
     primary client can load the underlying transport implementation
     and call it.
@@ -89,10 +92,10 @@ class DatasetServiceGrpcTransport(DatasetServiceTransport):
                 private key bytes, both in PEM format. It is ignored if
                 ``api_mtls_endpoint`` is None.
             ssl_channel_credentials (grpc.ChannelCredentials): SSL credentials
-                for grpc channel. It is ignored if ``channel`` is provided.
+                for the grpc channel. It is ignored if ``channel`` is provided.
             client_cert_source_for_mtls (Optional[Callable[[], Tuple[bytes, bytes]]]):
                 A callback to provide client certificate bytes and private key bytes,
-                both in PEM format. It is used to configure mutual TLS channel. It is
+                both in PEM format. It is used to configure a mutual TLS channel. It is
                 ignored if ``channel`` or ``ssl_channel_credentials`` is provided.
             quota_project_id (Optional[str]): An optional project to use for billing
                 and quota.
@@ -511,6 +514,9 @@ class DatasetServiceGrpcTransport(DatasetServiceTransport):
                 response_deserializer=dataset_service.ListAnnotationsResponse.deserialize,
             )
         return self._stubs["list_annotations"]
+
+    def close(self):
+        self.grpc_channel.close()
 
 
 __all__ = ("DatasetServiceGrpcTransport",)

@@ -31,6 +31,7 @@ __protobuf__ = proto.module(
 
 class Model(proto.Message):
     r"""A trained machine learning Model.
+
     Attributes:
         name (str):
             The resource name of the Model.
@@ -405,8 +406,8 @@ class ModelContainerSpec(proto.Message):
             identify an image in Artifact Registry or Container
             Registry. Learn more about the `container publishing
             requirements <https://cloud.google.com/vertex-ai/docs/predictions/custom-container-requirements#publishing>`__,
-            including permissions requirements for the AI Platform
-            Service Agent.
+            including permissions requirements for the Vertex AI Service
+            Agent.
 
             The container image is ingested upon
             [ModelService.UploadModel][google.cloud.aiplatform.v1beta1.ModelService.UploadModel],
@@ -538,8 +539,8 @@ class ModelContainerSpec(proto.Message):
         ports (Sequence[google.cloud.aiplatform_v1beta1.types.Port]):
             Immutable. List of ports to expose from the container.
             Vertex AI sends any prediction requests that it receives to
-            the first port on this list. AI Platform also sends
-            `liveness and health
+            the first port on this list. Vertex AI also sends `liveness
+            and health
             checks <https://cloud.google.com/vertex-ai/docs/predictions/custom-container-requirements#liveness>`__
             to this port.
 
@@ -639,6 +640,7 @@ class ModelContainerSpec(proto.Message):
 
 class Port(proto.Message):
     r"""Represents a network port in a container.
+
     Attributes:
         container_port (int):
             The number of the port to expose on the pod's

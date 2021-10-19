@@ -26,6 +26,7 @@ __protobuf__ = proto.module(
 
 class Execution(proto.Message):
     r"""Instance of a general execution.
+
     Attributes:
         name (str):
             Output only. The resource name of the
@@ -77,6 +78,7 @@ class Execution(proto.Message):
             metadata store.
         metadata (google.protobuf.struct_pb2.Struct):
             Properties of the Execution.
+            The size of this field should not exceed 200KB.
         description (str):
             Description of the Execution
     """

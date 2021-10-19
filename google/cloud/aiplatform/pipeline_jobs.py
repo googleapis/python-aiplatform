@@ -18,7 +18,7 @@
 import datetime
 import time
 import re
-from typing import Any, Optional, Dict
+from typing import Any, Dict, List, Optional
 
 from google.auth import credentials as auth_credentials
 from google.cloud.aiplatform import base
@@ -47,9 +47,6 @@ _PIPELINE_COMPLETE_STATES = set(
 _PIPELINE_ERROR_STATES = set(
     [gca_pipeline_state_v1beta1.PipelineState.PIPELINE_STATE_FAILED]
 )
-
-# Vertex AI Pipelines service API job name relative name prefix pattern.
-_JOB_NAME_PATTERN = "{parent}/pipelineJobs/{job_id}"
 
 # Pattern for valid names used as a Vertex resource name.
 _VALID_NAME_PATTERN = re.compile("^[a-z][-a-z0-9]{0,127}$")
@@ -178,19 +175,18 @@ class PipelineJob(base.VertexAiResourceNounWithFutureManager):
         )
 
         pipeline_name = pipeline_job["pipelineSpec"]["pipelineInfo"]["name"]
-        job_id = job_id or "{pipeline_name}-{timestamp}".format(
+        self.job_id = job_id or "{pipeline_name}-{timestamp}".format(
             pipeline_name=re.sub("[^-0-9a-z]+", "-", pipeline_name.lower())
             .lstrip("-")
             .rstrip("-"),
             timestamp=_get_current_time().strftime("%Y%m%d%H%M%S"),
         )
-        if not _VALID_NAME_PATTERN.match(job_id):
+        if not _VALID_NAME_PATTERN.match(self.job_id):
             raise ValueError(
                 "Generated job ID: {} is illegal as a Vertex pipelines job ID. "
                 "Expecting an ID following the regex pattern "
                 '"[a-z][-a-z0-9]{{0,127}}"'.format(job_id)
             )
-        job_name = _JOB_NAME_PATTERN.format(parent=self._parent, job_id=job_id)
 
         builder = pipeline_utils.PipelineRuntimeConfigBuilder.from_job_spec_json(
             pipeline_job
@@ -206,7 +202,6 @@ class PipelineJob(base.VertexAiResourceNounWithFutureManager):
 
         self._gca_resource = gca_pipeline_job_v1beta1.PipelineJob(
             display_name=display_name,
-            name=job_name,
             pipeline_spec=pipeline_job["pipelineSpec"],
             labels=labels,
             runtime_config=runtime_config,
@@ -214,18 +209,6 @@ class PipelineJob(base.VertexAiResourceNounWithFutureManager):
                 encryption_spec_key_name=encryption_spec_key_name
             ),
         )
-
-    def _assert_gca_resource_is_available(self) -> None:
-        # TODO(b/193800063) Change this to name after this fix
-        if not getattr(self._gca_resource, "create_time", None):
-            raise RuntimeError(
-                f"{self.__class__.__name__} resource has not been created."
-                + (
-                    f" Resource failed with: {self._exception}"
-                    if self._exception
-                    else ""
-                )
-            )
 
     @base.optional_sync()
     def run(
@@ -250,19 +233,17 @@ class PipelineJob(base.VertexAiResourceNounWithFutureManager):
                 Optional. Whether to execute this method synchronously. If False, this method will unblock and it will be executed in a concurrent Future.
         """
         if service_account:
-            self._gca_resource.pipeline_spec.service_account = service_account
+            self._gca_resource.service_account = service_account
 
         if network:
-            self._gca_resource.pipeline_spec.network = network
+            self._gca_resource.network = network
 
         _LOGGER.log_create_with_lro(self.__class__)
 
-        # PipelineJob.name is not used by pipeline service
-        pipeline_job_id = self._gca_resource.name.split("/")[-1]
         self._gca_resource = self.api_client.create_pipeline_job(
             parent=self._parent,
             pipeline_job=self._gca_resource,
-            pipeline_job_id=pipeline_job_id,
+            pipeline_job_id=self.job_id,
         )
 
         _LOGGER.log_create_complete_with_getter(
@@ -375,6 +356,54 @@ class PipelineJob(base.VertexAiResourceNounWithFutureManager):
         becomes a job with state set to `CANCELLED`.
         """
         self.api_client.cancel_pipeline_job(name=self.resource_name)
+
+    @classmethod
+    def list(
+        cls,
+        filter: Optional[str] = None,
+        order_by: Optional[str] = None,
+        project: Optional[str] = None,
+        location: Optional[str] = None,
+        credentials: Optional[auth_credentials.Credentials] = None,
+    ) -> List["PipelineJob"]:
+        """List all instances of this PipelineJob resource.
+
+        Example Usage:
+
+        aiplatform.PipelineJob.list(
+            filter='display_name="experiment_a27"',
+            order_by='create_time desc'
+        )
+
+        Args:
+            filter (str):
+                Optional. An expression for filtering the results of the request.
+                For field names both snake_case and camelCase are supported.
+            order_by (str):
+                Optional. A comma-separated list of fields to order by, sorted in
+                ascending order. Use "desc" after a field name for descending.
+                Supported fields: `display_name`, `create_time`, `update_time`
+            project (str):
+                Optional. Project to retrieve list from. If not set, project
+                set in aiplatform.init will be used.
+            location (str):
+                Optional. Location to retrieve list from. If not set, location
+                set in aiplatform.init will be used.
+            credentials (auth_credentials.Credentials):
+                Optional. Custom credentials to use to retrieve list. Overrides
+                credentials set in aiplatform.init.
+
+        Returns:
+            List[PipelineJob] - A list of PipelineJob resource objects
+        """
+
+        return cls._list_with_local_order(
+            filter=filter,
+            order_by=order_by,
+            project=project,
+            location=location,
+            credentials=credentials,
+        )
 
     def wait_for_resource_creation(self) -> None:
         """Waits until resource has been created."""

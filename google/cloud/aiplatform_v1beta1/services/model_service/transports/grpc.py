@@ -92,10 +92,10 @@ class ModelServiceGrpcTransport(ModelServiceTransport):
                 private key bytes, both in PEM format. It is ignored if
                 ``api_mtls_endpoint`` is None.
             ssl_channel_credentials (grpc.ChannelCredentials): SSL credentials
-                for grpc channel. It is ignored if ``channel`` is provided.
+                for the grpc channel. It is ignored if ``channel`` is provided.
             client_cert_source_for_mtls (Optional[Callable[[], Tuple[bytes, bytes]]]):
                 A callback to provide client certificate bytes and private key bytes,
-                both in PEM format. It is used to configure mutual TLS channel. It is
+                both in PEM format. It is used to configure a mutual TLS channel. It is
                 ignored if ``channel`` or ``ssl_channel_credentials`` is provided.
             quota_project_id (Optional[str]): An optional project to use for billing
                 and quota.
@@ -355,8 +355,9 @@ class ModelServiceGrpcTransport(ModelServiceTransport):
         r"""Return a callable for the delete model method over gRPC.
 
         Deletes a Model.
-        Note: Model can only be deleted if there are no
-        DeployedModels created from it.
+
+        Model can only be deleted if there are no [DeployedModels][]
+        created from it.
 
         Returns:
             Callable[[~.DeleteModelRequest],
@@ -519,6 +520,9 @@ class ModelServiceGrpcTransport(ModelServiceTransport):
                 response_deserializer=model_service.ListModelEvaluationSlicesResponse.deserialize,
             )
         return self._stubs["list_model_evaluation_slices"]
+
+    def close(self):
+        self.grpc_channel.close()
 
 
 __all__ = ("ModelServiceGrpcTransport",)

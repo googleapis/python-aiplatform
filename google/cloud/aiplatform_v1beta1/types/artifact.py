@@ -26,6 +26,7 @@ __protobuf__ = proto.module(
 
 class Artifact(proto.Message):
     r"""Instance of a general artifact.
+
     Attributes:
         name (str):
             Output only. The resource name of the
@@ -81,6 +82,7 @@ class Artifact(proto.Message):
             metadata store.
         metadata (google.protobuf.struct_pb2.Struct):
             Properties of the Artifact.
+            The size of this field should not exceed 200KB.
         description (str):
             Description of the Artifact
     """

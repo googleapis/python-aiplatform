@@ -99,10 +99,10 @@ class TensorboardServiceGrpcTransport(TensorboardServiceTransport):
                 private key bytes, both in PEM format. It is ignored if
                 ``api_mtls_endpoint`` is None.
             ssl_channel_credentials (grpc.ChannelCredentials): SSL credentials
-                for grpc channel. It is ignored if ``channel`` is provided.
+                for the grpc channel. It is ignored if ``channel`` is provided.
             client_cert_source_for_mtls (Optional[Callable[[], Tuple[bytes, bytes]]]):
                 A callback to provide client certificate bytes and private key bytes,
-                both in PEM format. It is used to configure mutual TLS channel. It is
+                both in PEM format. It is used to configure a mutual TLS channel. It is
                 ignored if ``channel`` or ``ssl_channel_credentials`` is provided.
             quota_project_id (Optional[str]): An optional project to use for billing
                 and quota.
@@ -573,6 +573,37 @@ class TensorboardServiceGrpcTransport(TensorboardServiceTransport):
         return self._stubs["create_tensorboard_run"]
 
     @property
+    def batch_create_tensorboard_runs(
+        self,
+    ) -> Callable[
+        [tensorboard_service.BatchCreateTensorboardRunsRequest],
+        tensorboard_service.BatchCreateTensorboardRunsResponse,
+    ]:
+        r"""Return a callable for the batch create tensorboard runs method over gRPC.
+
+        Batch create TensorboardRuns.
+
+        Returns:
+            Callable[[~.BatchCreateTensorboardRunsRequest],
+                    ~.BatchCreateTensorboardRunsResponse]:
+                A function that, when called, will call the underlying RPC
+                on the server.
+        """
+        # Generate a "stub function" on-the-fly which will actually make
+        # the request.
+        # gRPC handles serialization and deserialization, so we just need
+        # to pass in the functions for each.
+        if "batch_create_tensorboard_runs" not in self._stubs:
+            self._stubs[
+                "batch_create_tensorboard_runs"
+            ] = self.grpc_channel.unary_unary(
+                "/google.cloud.aiplatform.v1beta1.TensorboardService/BatchCreateTensorboardRuns",
+                request_serializer=tensorboard_service.BatchCreateTensorboardRunsRequest.serialize,
+                response_deserializer=tensorboard_service.BatchCreateTensorboardRunsResponse.deserialize,
+            )
+        return self._stubs["batch_create_tensorboard_runs"]
+
+    @property
     def get_tensorboard_run(
         self,
     ) -> Callable[
@@ -685,6 +716,39 @@ class TensorboardServiceGrpcTransport(TensorboardServiceTransport):
                 response_deserializer=operations_pb2.Operation.FromString,
             )
         return self._stubs["delete_tensorboard_run"]
+
+    @property
+    def batch_create_tensorboard_time_series(
+        self,
+    ) -> Callable[
+        [tensorboard_service.BatchCreateTensorboardTimeSeriesRequest],
+        tensorboard_service.BatchCreateTensorboardTimeSeriesResponse,
+    ]:
+        r"""Return a callable for the batch create tensorboard time
+        series method over gRPC.
+
+        Batch create TensorboardTimeSeries that belong to a
+        TensorboardExperiment.
+
+        Returns:
+            Callable[[~.BatchCreateTensorboardTimeSeriesRequest],
+                    ~.BatchCreateTensorboardTimeSeriesResponse]:
+                A function that, when called, will call the underlying RPC
+                on the server.
+        """
+        # Generate a "stub function" on-the-fly which will actually make
+        # the request.
+        # gRPC handles serialization and deserialization, so we just need
+        # to pass in the functions for each.
+        if "batch_create_tensorboard_time_series" not in self._stubs:
+            self._stubs[
+                "batch_create_tensorboard_time_series"
+            ] = self.grpc_channel.unary_unary(
+                "/google.cloud.aiplatform.v1beta1.TensorboardService/BatchCreateTensorboardTimeSeries",
+                request_serializer=tensorboard_service.BatchCreateTensorboardTimeSeriesRequest.serialize,
+                response_deserializer=tensorboard_service.BatchCreateTensorboardTimeSeriesResponse.deserialize,
+            )
+        return self._stubs["batch_create_tensorboard_time_series"]
 
     @property
     def create_tensorboard_time_series(
@@ -838,6 +902,43 @@ class TensorboardServiceGrpcTransport(TensorboardServiceTransport):
         return self._stubs["delete_tensorboard_time_series"]
 
     @property
+    def batch_read_tensorboard_time_series_data(
+        self,
+    ) -> Callable[
+        [tensorboard_service.BatchReadTensorboardTimeSeriesDataRequest],
+        tensorboard_service.BatchReadTensorboardTimeSeriesDataResponse,
+    ]:
+        r"""Return a callable for the batch read tensorboard time
+        series data method over gRPC.
+
+        Reads multiple TensorboardTimeSeries' data. The data
+        point number limit is 1000 for scalars, 100 for tensors
+        and blob references. If the number of data points stored
+        is less than the limit, all data will be returned.
+        Otherwise, that limit number of data points will be
+        randomly selected from this time series and returned.
+
+        Returns:
+            Callable[[~.BatchReadTensorboardTimeSeriesDataRequest],
+                    ~.BatchReadTensorboardTimeSeriesDataResponse]:
+                A function that, when called, will call the underlying RPC
+                on the server.
+        """
+        # Generate a "stub function" on-the-fly which will actually make
+        # the request.
+        # gRPC handles serialization and deserialization, so we just need
+        # to pass in the functions for each.
+        if "batch_read_tensorboard_time_series_data" not in self._stubs:
+            self._stubs[
+                "batch_read_tensorboard_time_series_data"
+            ] = self.grpc_channel.unary_unary(
+                "/google.cloud.aiplatform.v1beta1.TensorboardService/BatchReadTensorboardTimeSeriesData",
+                request_serializer=tensorboard_service.BatchReadTensorboardTimeSeriesDataRequest.serialize,
+                response_deserializer=tensorboard_service.BatchReadTensorboardTimeSeriesDataResponse.deserialize,
+            )
+        return self._stubs["batch_read_tensorboard_time_series_data"]
+
+    @property
     def read_tensorboard_time_series_data(
         self,
     ) -> Callable[
@@ -847,12 +948,11 @@ class TensorboardServiceGrpcTransport(TensorboardServiceTransport):
         r"""Return a callable for the read tensorboard time series
         data method over gRPC.
 
-        Reads a TensorboardTimeSeries' data. Data is returned in
-        paginated responses. By default, if the number of data points
-        stored is less than 1000, all data will be returned. Otherwise,
-        1000 data points will be randomly selected from this time series
-        and returned. This value can be changed by changing
-        max_data_points.
+        Reads a TensorboardTimeSeries' data. By default, if the number
+        of data points stored is less than 1000, all data will be
+        returned. Otherwise, 1000 data points will be randomly selected
+        from this time series and returned. This value can be changed by
+        changing max_data_points, which can't be greater than 10k.
 
         Returns:
             Callable[[~.ReadTensorboardTimeSeriesDataRequest],
@@ -905,6 +1005,40 @@ class TensorboardServiceGrpcTransport(TensorboardServiceTransport):
                 response_deserializer=tensorboard_service.ReadTensorboardBlobDataResponse.deserialize,
             )
         return self._stubs["read_tensorboard_blob_data"]
+
+    @property
+    def write_tensorboard_experiment_data(
+        self,
+    ) -> Callable[
+        [tensorboard_service.WriteTensorboardExperimentDataRequest],
+        tensorboard_service.WriteTensorboardExperimentDataResponse,
+    ]:
+        r"""Return a callable for the write tensorboard experiment
+        data method over gRPC.
+
+        Write time series data points of multiple
+        TensorboardTimeSeries in multiple TensorboardRun's. If
+        any data fail to be ingested, an error will be returned.
+
+        Returns:
+            Callable[[~.WriteTensorboardExperimentDataRequest],
+                    ~.WriteTensorboardExperimentDataResponse]:
+                A function that, when called, will call the underlying RPC
+                on the server.
+        """
+        # Generate a "stub function" on-the-fly which will actually make
+        # the request.
+        # gRPC handles serialization and deserialization, so we just need
+        # to pass in the functions for each.
+        if "write_tensorboard_experiment_data" not in self._stubs:
+            self._stubs[
+                "write_tensorboard_experiment_data"
+            ] = self.grpc_channel.unary_unary(
+                "/google.cloud.aiplatform.v1beta1.TensorboardService/WriteTensorboardExperimentData",
+                request_serializer=tensorboard_service.WriteTensorboardExperimentDataRequest.serialize,
+                response_deserializer=tensorboard_service.WriteTensorboardExperimentDataResponse.deserialize,
+            )
+        return self._stubs["write_tensorboard_experiment_data"]
 
     @property
     def write_tensorboard_run_data(
@@ -969,6 +1103,9 @@ class TensorboardServiceGrpcTransport(TensorboardServiceTransport):
                 response_deserializer=tensorboard_service.ExportTensorboardTimeSeriesDataResponse.deserialize,
             )
         return self._stubs["export_tensorboard_time_series_data"]
+
+    def close(self):
+        self.grpc_channel.close()
 
 
 __all__ = ("TensorboardServiceGrpcTransport",)

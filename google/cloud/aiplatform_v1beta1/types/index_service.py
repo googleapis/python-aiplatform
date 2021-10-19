@@ -204,10 +204,13 @@ class NearestNeighborSearchOperationMetadata(proto.Message):
             Please note that, currently for those files that are broken
             or has unsupported file format, we will not have the stats
             for those files.
+        data_bytes_count (int):
+            The ingested data size in bytes.
     """
 
     class RecordError(proto.Message):
         r"""
+
         Attributes:
             error_type (google.cloud.aiplatform_v1beta1.types.NearestNeighborSearchOperationMetadata.RecordError.RecordErrorType):
                 The error type of this record.
@@ -248,6 +251,7 @@ class NearestNeighborSearchOperationMetadata(proto.Message):
 
     class ContentValidationStats(proto.Message):
         r"""
+
         Attributes:
             source_gcs_uri (str):
                 Cloud Storage URI pointing to the original
@@ -277,6 +281,7 @@ class NearestNeighborSearchOperationMetadata(proto.Message):
     content_validation_stats = proto.RepeatedField(
         proto.MESSAGE, number=1, message=ContentValidationStats,
     )
+    data_bytes_count = proto.Field(proto.INT64, number=2,)
 
 
 __all__ = tuple(sorted(__protobuf__.manifest))

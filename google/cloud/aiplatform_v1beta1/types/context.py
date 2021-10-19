@@ -26,6 +26,7 @@ __protobuf__ = proto.module(
 
 class Context(proto.Message):
     r"""Instance of a general context.
+
     Attributes:
         name (str):
             Output only. The resource name of the
@@ -74,6 +75,7 @@ class Context(proto.Message):
             metadata store.
         metadata (google.protobuf.struct_pb2.Struct):
             Properties of the Context.
+            The size of this field should not exceed 200KB.
         description (str):
             Description of the Context
     """

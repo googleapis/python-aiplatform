@@ -47,7 +47,9 @@ from .client import DatasetServiceClient
 
 
 class DatasetServiceAsyncClient:
-    """"""
+    """The service that handles the CRUD of Vertex AI Dataset and
+    its child resources.
+    """
 
     _client: DatasetServiceClient
 
@@ -1026,6 +1028,12 @@ class DatasetServiceAsyncClient:
 
         # Done; return the response.
         return response
+
+    async def __aenter__(self):
+        return self
+
+    async def __aexit__(self, exc_type, exc, tb):
+        await self.transport.close()
 
 
 try:

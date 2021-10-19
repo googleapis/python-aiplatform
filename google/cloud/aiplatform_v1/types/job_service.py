@@ -23,7 +23,12 @@ from google.cloud.aiplatform_v1.types import data_labeling_job as gca_data_label
 from google.cloud.aiplatform_v1.types import (
     hyperparameter_tuning_job as gca_hyperparameter_tuning_job,
 )
+from google.cloud.aiplatform_v1.types import (
+    model_deployment_monitoring_job as gca_model_deployment_monitoring_job,
+)
+from google.cloud.aiplatform_v1.types import operation
 from google.protobuf import field_mask_pb2  # type: ignore
+from google.protobuf import timestamp_pb2  # type: ignore
 
 
 __protobuf__ = proto.module(
@@ -53,6 +58,17 @@ __protobuf__ = proto.module(
         "ListBatchPredictionJobsResponse",
         "DeleteBatchPredictionJobRequest",
         "CancelBatchPredictionJobRequest",
+        "CreateModelDeploymentMonitoringJobRequest",
+        "SearchModelDeploymentMonitoringStatsAnomaliesRequest",
+        "SearchModelDeploymentMonitoringStatsAnomaliesResponse",
+        "GetModelDeploymentMonitoringJobRequest",
+        "ListModelDeploymentMonitoringJobsRequest",
+        "ListModelDeploymentMonitoringJobsResponse",
+        "UpdateModelDeploymentMonitoringJobRequest",
+        "DeleteModelDeploymentMonitoringJobRequest",
+        "PauseModelDeploymentMonitoringJobRequest",
+        "ResumeModelDeploymentMonitoringJobRequest",
+        "UpdateModelDeploymentMonitoringJobOperationMetadata",
     },
 )
 
@@ -581,6 +597,293 @@ class CancelBatchPredictionJobRequest(proto.Message):
     """
 
     name = proto.Field(proto.STRING, number=1,)
+
+
+class CreateModelDeploymentMonitoringJobRequest(proto.Message):
+    r"""Request message for
+    [JobService.CreateModelDeploymentMonitoringJob][google.cloud.aiplatform.v1.JobService.CreateModelDeploymentMonitoringJob].
+
+    Attributes:
+        parent (str):
+            Required. The parent of the ModelDeploymentMonitoringJob.
+            Format: ``projects/{project}/locations/{location}``
+        model_deployment_monitoring_job (google.cloud.aiplatform_v1.types.ModelDeploymentMonitoringJob):
+            Required. The ModelDeploymentMonitoringJob to
+            create
+    """
+
+    parent = proto.Field(proto.STRING, number=1,)
+    model_deployment_monitoring_job = proto.Field(
+        proto.MESSAGE,
+        number=2,
+        message=gca_model_deployment_monitoring_job.ModelDeploymentMonitoringJob,
+    )
+
+
+class SearchModelDeploymentMonitoringStatsAnomaliesRequest(proto.Message):
+    r"""Request message for
+    [JobService.SearchModelDeploymentMonitoringStatsAnomalies][google.cloud.aiplatform.v1.JobService.SearchModelDeploymentMonitoringStatsAnomalies].
+
+    Attributes:
+        model_deployment_monitoring_job (str):
+            Required. ModelDeploymentMonitoring Job resource name.
+            Format:
+            \`projects/{project}/locations/{location}/modelDeploymentMonitoringJobs/{model_deployment_monitoring_job}
+        deployed_model_id (str):
+            Required. The DeployedModel ID of the
+            [google.cloud.aiplatform.master.ModelDeploymentMonitoringObjectiveConfig.deployed_model_id].
+        feature_display_name (str):
+            The feature display name. If specified, only return the
+            stats belonging to this feature. Format:
+            [ModelMonitoringStatsAnomalies.FeatureHistoricStatsAnomalies.feature_display_name][google.cloud.aiplatform.v1.ModelMonitoringStatsAnomalies.FeatureHistoricStatsAnomalies.feature_display_name],
+            example: "user_destination".
+        objectives (Sequence[google.cloud.aiplatform_v1.types.SearchModelDeploymentMonitoringStatsAnomaliesRequest.StatsAnomaliesObjective]):
+            Required. Objectives of the stats to
+            retrieve.
+        page_size (int):
+            The standard list page size.
+        page_token (str):
+            A page token received from a previous
+            [JobService.SearchModelDeploymentMonitoringStatsAnomalies][google.cloud.aiplatform.v1.JobService.SearchModelDeploymentMonitoringStatsAnomalies]
+            call.
+        start_time (google.protobuf.timestamp_pb2.Timestamp):
+            The earliest timestamp of stats being
+            generated. If not set, indicates fetching stats
+            till the earliest possible one.
+        end_time (google.protobuf.timestamp_pb2.Timestamp):
+            The latest timestamp of stats being
+            generated. If not set, indicates feching stats
+            till the latest possible one.
+    """
+
+    class StatsAnomaliesObjective(proto.Message):
+        r"""Stats requested for specific objective.
+
+        Attributes:
+            type_ (google.cloud.aiplatform_v1.types.ModelDeploymentMonitoringObjectiveType):
+
+            top_feature_count (int):
+                If set, all attribution scores between
+                [SearchModelDeploymentMonitoringStatsAnomaliesRequest.start_time][google.cloud.aiplatform.v1.SearchModelDeploymentMonitoringStatsAnomaliesRequest.start_time]
+                and
+                [SearchModelDeploymentMonitoringStatsAnomaliesRequest.end_time][google.cloud.aiplatform.v1.SearchModelDeploymentMonitoringStatsAnomaliesRequest.end_time]
+                are fetched, and page token doesn't take affect in this
+                case. Only used to retrieve attribution score for the top
+                Features which has the highest attribution score in the
+                latest monitoring run.
+        """
+
+        type_ = proto.Field(
+            proto.ENUM,
+            number=1,
+            enum=gca_model_deployment_monitoring_job.ModelDeploymentMonitoringObjectiveType,
+        )
+        top_feature_count = proto.Field(proto.INT32, number=4,)
+
+    model_deployment_monitoring_job = proto.Field(proto.STRING, number=1,)
+    deployed_model_id = proto.Field(proto.STRING, number=2,)
+    feature_display_name = proto.Field(proto.STRING, number=3,)
+    objectives = proto.RepeatedField(
+        proto.MESSAGE, number=4, message=StatsAnomaliesObjective,
+    )
+    page_size = proto.Field(proto.INT32, number=5,)
+    page_token = proto.Field(proto.STRING, number=6,)
+    start_time = proto.Field(proto.MESSAGE, number=7, message=timestamp_pb2.Timestamp,)
+    end_time = proto.Field(proto.MESSAGE, number=8, message=timestamp_pb2.Timestamp,)
+
+
+class SearchModelDeploymentMonitoringStatsAnomaliesResponse(proto.Message):
+    r"""Response message for
+    [JobService.SearchModelDeploymentMonitoringStatsAnomalies][google.cloud.aiplatform.v1.JobService.SearchModelDeploymentMonitoringStatsAnomalies].
+
+    Attributes:
+        monitoring_stats (Sequence[google.cloud.aiplatform_v1.types.ModelMonitoringStatsAnomalies]):
+            Stats retrieved for requested objectives. There are at most
+            1000
+            [ModelMonitoringStatsAnomalies.FeatureHistoricStatsAnomalies.prediction_stats][google.cloud.aiplatform.v1.ModelMonitoringStatsAnomalies.FeatureHistoricStatsAnomalies.prediction_stats]
+            in the response.
+        next_page_token (str):
+            The page token that can be used by the next
+            [JobService.SearchModelDeploymentMonitoringStatsAnomalies][google.cloud.aiplatform.v1.JobService.SearchModelDeploymentMonitoringStatsAnomalies]
+            call.
+    """
+
+    @property
+    def raw_page(self):
+        return self
+
+    monitoring_stats = proto.RepeatedField(
+        proto.MESSAGE,
+        number=1,
+        message=gca_model_deployment_monitoring_job.ModelMonitoringStatsAnomalies,
+    )
+    next_page_token = proto.Field(proto.STRING, number=2,)
+
+
+class GetModelDeploymentMonitoringJobRequest(proto.Message):
+    r"""Request message for
+    [JobService.GetModelDeploymentMonitoringJob][google.cloud.aiplatform.v1.JobService.GetModelDeploymentMonitoringJob].
+
+    Attributes:
+        name (str):
+            Required. The resource name of the
+            ModelDeploymentMonitoringJob. Format:
+            ``projects/{project}/locations/{location}/modelDeploymentMonitoringJobs/{model_deployment_monitoring_job}``
+    """
+
+    name = proto.Field(proto.STRING, number=1,)
+
+
+class ListModelDeploymentMonitoringJobsRequest(proto.Message):
+    r"""Request message for
+    [JobService.ListModelDeploymentMonitoringJobs][google.cloud.aiplatform.v1.JobService.ListModelDeploymentMonitoringJobs].
+
+    Attributes:
+        parent (str):
+            Required. The parent of the ModelDeploymentMonitoringJob.
+            Format: ``projects/{project}/locations/{location}``
+        filter (str):
+            The standard list filter.
+        page_size (int):
+            The standard list page size.
+        page_token (str):
+            The standard list page token.
+        read_mask (google.protobuf.field_mask_pb2.FieldMask):
+            Mask specifying which fields to read
+    """
+
+    parent = proto.Field(proto.STRING, number=1,)
+    filter = proto.Field(proto.STRING, number=2,)
+    page_size = proto.Field(proto.INT32, number=3,)
+    page_token = proto.Field(proto.STRING, number=4,)
+    read_mask = proto.Field(proto.MESSAGE, number=5, message=field_mask_pb2.FieldMask,)
+
+
+class ListModelDeploymentMonitoringJobsResponse(proto.Message):
+    r"""Response message for
+    [JobService.ListModelDeploymentMonitoringJobs][google.cloud.aiplatform.v1.JobService.ListModelDeploymentMonitoringJobs].
+
+    Attributes:
+        model_deployment_monitoring_jobs (Sequence[google.cloud.aiplatform_v1.types.ModelDeploymentMonitoringJob]):
+            A list of ModelDeploymentMonitoringJobs that
+            matches the specified filter in the request.
+        next_page_token (str):
+            The standard List next-page token.
+    """
+
+    @property
+    def raw_page(self):
+        return self
+
+    model_deployment_monitoring_jobs = proto.RepeatedField(
+        proto.MESSAGE,
+        number=1,
+        message=gca_model_deployment_monitoring_job.ModelDeploymentMonitoringJob,
+    )
+    next_page_token = proto.Field(proto.STRING, number=2,)
+
+
+class UpdateModelDeploymentMonitoringJobRequest(proto.Message):
+    r"""Request message for
+    [JobService.UpdateModelDeploymentMonitoringJob][google.cloud.aiplatform.v1.JobService.UpdateModelDeploymentMonitoringJob].
+
+    Attributes:
+        model_deployment_monitoring_job (google.cloud.aiplatform_v1.types.ModelDeploymentMonitoringJob):
+            Required. The model monitoring configuration
+            which replaces the resource on the server.
+        update_mask (google.protobuf.field_mask_pb2.FieldMask):
+            Required. The update mask is used to specify the fields to
+            be overwritten in the ModelDeploymentMonitoringJob resource
+            by the update. The fields specified in the update_mask are
+            relative to the resource, not the full request. A field will
+            be overwritten if it is in the mask. If the user does not
+            provide a mask then only the non-empty fields present in the
+            request will be overwritten. Set the update_mask to ``*`` to
+            override all fields. For the objective config, the user can
+            either provide the update mask for
+            model_deployment_monitoring_objective_configs or any
+            combination of its nested fields, such as:
+            model_deployment_monitoring_objective_configs.objective_config.training_dataset.
+
+            Updatable fields:
+
+            -  ``display_name``
+            -  ``model_deployment_monitoring_schedule_config``
+            -  ``model_monitoring_alert_config``
+            -  ``logging_sampling_strategy``
+            -  ``labels``
+            -  ``log_ttl``
+            -  ``enable_monitoring_pipeline_logs`` . and
+            -  ``model_deployment_monitoring_objective_configs`` . or
+            -  ``model_deployment_monitoring_objective_configs.objective_config.training_dataset``
+            -  ``model_deployment_monitoring_objective_configs.objective_config.training_prediction_skew_detection_config``
+            -  ``model_deployment_monitoring_objective_configs.objective_config.prediction_drift_detection_config``
+    """
+
+    model_deployment_monitoring_job = proto.Field(
+        proto.MESSAGE,
+        number=1,
+        message=gca_model_deployment_monitoring_job.ModelDeploymentMonitoringJob,
+    )
+    update_mask = proto.Field(
+        proto.MESSAGE, number=2, message=field_mask_pb2.FieldMask,
+    )
+
+
+class DeleteModelDeploymentMonitoringJobRequest(proto.Message):
+    r"""Request message for
+    [JobService.DeleteModelDeploymentMonitoringJob][google.cloud.aiplatform.v1.JobService.DeleteModelDeploymentMonitoringJob].
+
+    Attributes:
+        name (str):
+            Required. The resource name of the model monitoring job to
+            delete. Format:
+            ``projects/{project}/locations/{location}/modelDeploymentMonitoringJobs/{model_deployment_monitoring_job}``
+    """
+
+    name = proto.Field(proto.STRING, number=1,)
+
+
+class PauseModelDeploymentMonitoringJobRequest(proto.Message):
+    r"""Request message for
+    [JobService.PauseModelDeploymentMonitoringJob][google.cloud.aiplatform.v1.JobService.PauseModelDeploymentMonitoringJob].
+
+    Attributes:
+        name (str):
+            Required. The resource name of the
+            ModelDeploymentMonitoringJob to pause. Format:
+            ``projects/{project}/locations/{location}/modelDeploymentMonitoringJobs/{model_deployment_monitoring_job}``
+    """
+
+    name = proto.Field(proto.STRING, number=1,)
+
+
+class ResumeModelDeploymentMonitoringJobRequest(proto.Message):
+    r"""Request message for
+    [JobService.ResumeModelDeploymentMonitoringJob][google.cloud.aiplatform.v1.JobService.ResumeModelDeploymentMonitoringJob].
+
+    Attributes:
+        name (str):
+            Required. The resource name of the
+            ModelDeploymentMonitoringJob to resume. Format:
+            ``projects/{project}/locations/{location}/modelDeploymentMonitoringJobs/{model_deployment_monitoring_job}``
+    """
+
+    name = proto.Field(proto.STRING, number=1,)
+
+
+class UpdateModelDeploymentMonitoringJobOperationMetadata(proto.Message):
+    r"""Runtime operation information for
+    [JobService.UpdateModelDeploymentMonitoringJob][google.cloud.aiplatform.v1.JobService.UpdateModelDeploymentMonitoringJob].
+
+    Attributes:
+        generic_metadata (google.cloud.aiplatform_v1.types.GenericOperationMetadata):
+            The operation generic information.
+    """
+
+    generic_metadata = proto.Field(
+        proto.MESSAGE, number=1, message=operation.GenericOperationMetadata,
+    )
 
 
 __all__ = tuple(sorted(__protobuf__.manifest))

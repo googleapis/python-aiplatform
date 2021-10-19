@@ -47,6 +47,7 @@ class AutoMlImageSegmentation(proto.Message):
 
 class AutoMlImageSegmentationInputs(proto.Message):
     r"""
+
     Attributes:
         model_type (google.cloud.aiplatform.v1.schema.trainingjob.definition_v1.types.AutoMlImageSegmentationInputs.ModelType):
 
@@ -87,6 +88,7 @@ class AutoMlImageSegmentationInputs(proto.Message):
 
 class AutoMlImageSegmentationMetadata(proto.Message):
     r"""
+
     Attributes:
         cost_milli_node_hours (int):
             The actual training cost of creating this

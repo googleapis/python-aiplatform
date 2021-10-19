@@ -15,6 +15,7 @@
 #
 import proto  # type: ignore
 
+from google.api import httpbody_pb2  # type: ignore
 from google.cloud.aiplatform_v1beta1.types import explanation
 from google.protobuf import struct_pb2  # type: ignore
 
@@ -24,6 +25,7 @@ __protobuf__ = proto.module(
     manifest={
         "PredictRequest",
         "PredictResponse",
+        "RawPredictRequest",
         "ExplainRequest",
         "ExplainResponse",
     },
@@ -80,12 +82,59 @@ class PredictResponse(proto.Message):
         deployed_model_id (str):
             ID of the Endpoint's DeployedModel that
             served this prediction.
+        model (str):
+            Output only. The name of the Model this
+            DeployedModel, that served this prediction, was
+            created from.
+        model_display_name (str):
+            Output only. The [display
+            name][google.cloud.aiplatform.v1beta1.Model.display_name] of
+            the Model this DeployedModel, that served this prediction,
+            was created from.
     """
 
     predictions = proto.RepeatedField(
         proto.MESSAGE, number=1, message=struct_pb2.Value,
     )
     deployed_model_id = proto.Field(proto.STRING, number=2,)
+    model = proto.Field(proto.STRING, number=3,)
+    model_display_name = proto.Field(proto.STRING, number=4,)
+
+
+class RawPredictRequest(proto.Message):
+    r"""Request message for
+    [PredictionService.RawPredict][google.cloud.aiplatform.v1beta1.PredictionService.RawPredict].
+
+    Attributes:
+        endpoint (str):
+            Required. The name of the Endpoint requested to serve the
+            prediction. Format:
+            ``projects/{project}/locations/{location}/endpoints/{endpoint}``
+        http_body (google.api.httpbody_pb2.HttpBody):
+            The prediction input. Supports HTTP headers and arbitrary
+            data payload.
+
+            A
+            [DeployedModel][google.cloud.aiplatform.v1beta1.DeployedModel]
+            may have an upper limit on the number of instances it
+            supports per request. When this limit it is exceeded for an
+            AutoML model, the
+            [RawPredict][google.cloud.aiplatform.v1beta1.PredictionService.RawPredict]
+            method returns an error. When this limit is exceeded for a
+            custom-trained model, the behavior varies depending on the
+            model.
+
+            You can specify the schema for each instance in the
+            [predict_schemata.instance_schema_uri][google.cloud.aiplatform.v1beta1.PredictSchemata.instance_schema_uri]
+            field when you create a
+            [Model][google.cloud.aiplatform.v1beta1.Model]. This schema
+            applies when you deploy the ``Model`` as a ``DeployedModel``
+            to an [Endpoint][google.cloud.aiplatform.v1beta1.Endpoint]
+            and use the ``RawPredict`` method.
+    """
+
+    endpoint = proto.Field(proto.STRING, number=1,)
+    http_body = proto.Field(proto.MESSAGE, number=2, message=httpbody_pb2.HttpBody,)
 
 
 class ExplainRequest(proto.Message):

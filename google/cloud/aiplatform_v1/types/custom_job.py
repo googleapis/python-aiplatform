@@ -87,6 +87,20 @@ class CustomJob(proto.Message):
             CustomJob. If this is set, then all resources
             created by the CustomJob will be encrypted with
             the provided encryption key.
+        web_access_uris (Sequence[google.cloud.aiplatform_v1.types.CustomJob.WebAccessUrisEntry]):
+            Output only. URIs for accessing `interactive
+            shells <https://cloud.google.com/vertex-ai/docs/training/monitor-debug-interactive-shell>`__
+            (one URI for each training node). Only available if
+            [job_spec.enable_web_access][google.cloud.aiplatform.v1.CustomJobSpec.enable_web_access]
+            is ``true``.
+
+            The keys are names of each node in the training job; for
+            example, ``workerpool0-0`` for the primary node,
+            ``workerpool1-0`` for the first node in the second worker
+            pool, and ``workerpool1-1`` for the second node in the
+            second worker pool.
+
+            The values are the URIs for each node's interactive shell.
     """
 
     name = proto.Field(proto.STRING, number=1,)
@@ -102,10 +116,12 @@ class CustomJob(proto.Message):
     encryption_spec = proto.Field(
         proto.MESSAGE, number=12, message=gca_encryption_spec.EncryptionSpec,
     )
+    web_access_uris = proto.MapField(proto.STRING, proto.STRING, number=16,)
 
 
 class CustomJobSpec(proto.Message):
     r"""Represents the spec of a CustomJob.
+
     Attributes:
         worker_pool_specs (Sequence[google.cloud.aiplatform_v1.types.WorkerPoolSpec]):
             Required. The spec of the worker pools
@@ -117,7 +133,7 @@ class CustomJobSpec(proto.Message):
         service_account (str):
             Specifies the service account for workload run-as account.
             Users submitting jobs must have act-as permission on this
-            run-as account. If unspecified, the `AI Platform Custom Code
+            run-as account. If unspecified, the `Vertex AI Custom Code
             Service
             Agent <https://cloud.google.com/vertex-ai/docs/general/access-control#service-agents>`__
             for the CustomJob's project is used.
@@ -162,6 +178,19 @@ class CustomJobSpec(proto.Message):
                ``<base_output_directory>/<trial_id>/checkpoints/``
             -  AIP_TENSORBOARD_LOG_DIR =
                ``<base_output_directory>/<trial_id>/logs/``
+        enable_web_access (bool):
+            Optional. Whether you want Vertex AI to enable `interactive
+            shell
+            access <https://cloud.google.com/vertex-ai/docs/training/monitor-debug-interactive-shell>`__
+            to training containers.
+
+            If set to ``true``, you can access interactive shells at the
+            URIs given by
+            [CustomJob.web_access_uris][google.cloud.aiplatform.v1.CustomJob.web_access_uris]
+            or
+            [Trial.web_access_uris][google.cloud.aiplatform.v1.Trial.web_access_uris]
+            (within
+            [HyperparameterTuningJob.trials][google.cloud.aiplatform.v1.HyperparameterTuningJob.trials]).
     """
 
     worker_pool_specs = proto.RepeatedField(
@@ -173,10 +202,12 @@ class CustomJobSpec(proto.Message):
     base_output_directory = proto.Field(
         proto.MESSAGE, number=6, message=io.GcsDestination,
     )
+    enable_web_access = proto.Field(proto.BOOL, number=10,)
 
 
 class WorkerPoolSpec(proto.Message):
     r"""Represents the spec of a worker pool in a job.
+
     Attributes:
         container_spec (google.cloud.aiplatform_v1.types.ContainerSpec):
             The custom container task.
@@ -209,6 +240,7 @@ class WorkerPoolSpec(proto.Message):
 
 class ContainerSpec(proto.Message):
     r"""The spec of a Container.
+
     Attributes:
         image_uri (str):
             Required. The URI of a container image in the
@@ -223,7 +255,7 @@ class ContainerSpec(proto.Message):
             container.
         env (Sequence[google.cloud.aiplatform_v1.types.EnvVar]):
             Environment variables to be passed to the
-            container.
+            container. Maximum limit is 100.
     """
 
     image_uri = proto.Field(proto.STRING, number=1,)
@@ -234,6 +266,7 @@ class ContainerSpec(proto.Message):
 
 class PythonPackageSpec(proto.Message):
     r"""The spec of a Python packaged code.
+
     Attributes:
         executor_image_uri (str):
             Required. The URI of a container image in Artifact Registry
@@ -256,7 +289,7 @@ class PythonPackageSpec(proto.Message):
             Python task.
         env (Sequence[google.cloud.aiplatform_v1.types.EnvVar]):
             Environment variables to be passed to the
-            python module.
+            python module. Maximum limit is 100.
     """
 
     executor_image_uri = proto.Field(proto.STRING, number=1,)

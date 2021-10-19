@@ -16,12 +16,14 @@
 import proto  # type: ignore
 
 from google.cloud.aiplatform_v1.types import encryption_spec as gca_encryption_spec
+from google.cloud.aiplatform_v1.types import explanation
 from google.cloud.aiplatform_v1.types import machine_resources
 from google.protobuf import timestamp_pb2  # type: ignore
 
 
 __protobuf__ = proto.module(
-    package="google.cloud.aiplatform.v1", manifest={"Endpoint", "DeployedModel",},
+    package="google.cloud.aiplatform.v1",
+    manifest={"Endpoint", "DeployedModel", "PrivateEndpoints",},
 )
 
 
@@ -81,6 +83,24 @@ class Endpoint(proto.Message):
             Endpoint. If set, this Endpoint and all sub-
             resources of this Endpoint will be secured by
             this key.
+        network (str):
+            The full name of the Google Compute Engine
+            `network <https://cloud.google.com//compute/docs/networks-and-firewalls#networks>`__
+            to which the Endpoint should be peered.
+
+            Private services access must already be configured for the
+            network. If left unspecified, the Endpoint is not peered
+            with any network.
+
+            `Format <https://cloud.google.com/compute/docs/reference/rest/v1/networks/insert>`__:
+            ``projects/{project}/global/networks/{network}``. Where
+            ``{project}`` is a project number, as in ``12345``, and
+            ``{network}`` is network name.
+        model_deployment_monitoring_job (str):
+            Output only. Resource name of the Model Monitoring job
+            associated with this Endpoint if monitoring is enabled by
+            [CreateModelDeploymentMonitoringJob][]. Format:
+            ``projects/{project}/locations/{location}/modelDeploymentMonitoringJobs/{model_deployment_monitoring_job}``
     """
 
     name = proto.Field(proto.STRING, number=1,)
@@ -97,6 +117,8 @@ class Endpoint(proto.Message):
     encryption_spec = proto.Field(
         proto.MESSAGE, number=10, message=gca_encryption_spec.EncryptionSpec,
     )
+    network = proto.Field(proto.STRING, number=13,)
+    model_deployment_monitoring_job = proto.Field(proto.STRING, number=14,)
 
 
 class DeployedModel(proto.Message):
@@ -110,7 +132,7 @@ class DeployedModel(proto.Message):
             degree of manual configuration.
         automatic_resources (google.cloud.aiplatform_v1.types.AutomaticResources):
             A description of resources that to large
-            degree are decided by AI Platform, and require
+            degree are decided by Vertex AI, and require
             only a modest additional configuration.
         id (str):
             Output only. The ID of the DeployedModel.
@@ -125,6 +147,24 @@ class DeployedModel(proto.Message):
         create_time (google.protobuf.timestamp_pb2.Timestamp):
             Output only. Timestamp when the DeployedModel
             was created.
+        explanation_spec (google.cloud.aiplatform_v1.types.ExplanationSpec):
+            Explanation configuration for this DeployedModel.
+
+            When deploying a Model using
+            [EndpointService.DeployModel][google.cloud.aiplatform.v1.EndpointService.DeployModel],
+            this value overrides the value of
+            [Model.explanation_spec][google.cloud.aiplatform.v1.Model.explanation_spec].
+            All fields of
+            [explanation_spec][google.cloud.aiplatform.v1.DeployedModel.explanation_spec]
+            are optional in the request. If a field of
+            [explanation_spec][google.cloud.aiplatform.v1.DeployedModel.explanation_spec]
+            is not populated, the value of the same field of
+            [Model.explanation_spec][google.cloud.aiplatform.v1.Model.explanation_spec]
+            is inherited. If the corresponding
+            [Model.explanation_spec][google.cloud.aiplatform.v1.Model.explanation_spec]
+            is not populated, all fields of the
+            [explanation_spec][google.cloud.aiplatform.v1.DeployedModel.explanation_spec]
+            will be used for the explanation configuration.
         service_account (str):
             The service account that the DeployedModel's container runs
             as. Specify the email address of the service account. If
@@ -154,6 +194,13 @@ class DeployedModel(proto.Message):
             requests at a high queries per second rate
             (QPS). Estimate your costs before enabling this
             option.
+        private_endpoints (google.cloud.aiplatform_v1.types.PrivateEndpoints):
+            Output only. Provide paths for users to send
+            predict/explain/health requests directly to the deployed
+            model services running on Cloud via private services access.
+            This field is populated if
+            [network][google.cloud.aiplatform.v1.Endpoint.network] is
+            configured.
     """
 
     dedicated_resources = proto.Field(
@@ -172,9 +219,36 @@ class DeployedModel(proto.Message):
     model = proto.Field(proto.STRING, number=2,)
     display_name = proto.Field(proto.STRING, number=3,)
     create_time = proto.Field(proto.MESSAGE, number=6, message=timestamp_pb2.Timestamp,)
+    explanation_spec = proto.Field(
+        proto.MESSAGE, number=9, message=explanation.ExplanationSpec,
+    )
     service_account = proto.Field(proto.STRING, number=11,)
     disable_container_logging = proto.Field(proto.BOOL, number=15,)
     enable_access_logging = proto.Field(proto.BOOL, number=13,)
+    private_endpoints = proto.Field(
+        proto.MESSAGE, number=14, message="PrivateEndpoints",
+    )
+
+
+class PrivateEndpoints(proto.Message):
+    r"""PrivateEndpoints is used to provide paths for users to send
+    requests via private services access.
+
+    Attributes:
+        predict_http_uri (str):
+            Output only. Http(s) path to send prediction
+            requests.
+        explain_http_uri (str):
+            Output only. Http(s) path to send explain
+            requests.
+        health_http_uri (str):
+            Output only. Http(s) path to send health
+            check requests.
+    """
+
+    predict_http_uri = proto.Field(proto.STRING, number=1,)
+    explain_http_uri = proto.Field(proto.STRING, number=2,)
+    health_http_uri = proto.Field(proto.STRING, number=3,)
 
 
 __all__ = tuple(sorted(__protobuf__.manifest))

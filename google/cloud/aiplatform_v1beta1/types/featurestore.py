@@ -15,6 +15,7 @@
 #
 import proto  # type: ignore
 
+from google.cloud.aiplatform_v1beta1.types import encryption_spec as gca_encryption_spec
 from google.protobuf import timestamp_pb2  # type: ignore
 
 
@@ -60,6 +61,11 @@ class Featurestore(proto.Message):
             resources.
         state (google.cloud.aiplatform_v1beta1.types.Featurestore.State):
             Output only. State of the featurestore.
+        encryption_spec (google.cloud.aiplatform_v1beta1.types.EncryptionSpec):
+            Optional. Customer-managed encryption key
+            spec for data storage. If set, both of the
+            online and offline data storage will be secured
+            by this key.
     """
 
     class State(proto.Enum):
@@ -74,10 +80,10 @@ class Featurestore(proto.Message):
 
         Attributes:
             fixed_node_count (int):
-                Required. The number of nodes for each
-                cluster. The number of nodes will not scale
-                automatically but can be scaled manually by
-                providing different values when updating.
+                The number of nodes for each cluster. The
+                number of nodes will not scale automatically but
+                can be scaled manually by providing different
+                values when updating.
         """
 
         fixed_node_count = proto.Field(proto.INT32, number=2,)
@@ -91,6 +97,9 @@ class Featurestore(proto.Message):
         proto.MESSAGE, number=7, message=OnlineServingConfig,
     )
     state = proto.Field(proto.ENUM, number=8, enum=State,)
+    encryption_spec = proto.Field(
+        proto.MESSAGE, number=10, message=gca_encryption_spec.EncryptionSpec,
+    )
 
 
 __all__ = tuple(sorted(__protobuf__.manifest))

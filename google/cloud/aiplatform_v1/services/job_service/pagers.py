@@ -15,13 +15,13 @@
 #
 from typing import (
     Any,
-    AsyncIterable,
+    AsyncIterator,
     Awaitable,
     Callable,
-    Iterable,
     Sequence,
     Tuple,
     Optional,
+    Iterator,
 )
 
 from google.cloud.aiplatform_v1.types import batch_prediction_job
@@ -29,6 +29,10 @@ from google.cloud.aiplatform_v1.types import custom_job
 from google.cloud.aiplatform_v1.types import data_labeling_job
 from google.cloud.aiplatform_v1.types import hyperparameter_tuning_job
 from google.cloud.aiplatform_v1.types import job_service
+from google.cloud.aiplatform_v1.types import model_deployment_monitoring_job
+from google.cloud.aiplatform_v1.types import (
+    model_deployment_monitoring_job as gca_model_deployment_monitoring_job,
+)
 
 
 class ListCustomJobsPager:
@@ -78,14 +82,14 @@ class ListCustomJobsPager:
         return getattr(self._response, name)
 
     @property
-    def pages(self) -> Iterable[job_service.ListCustomJobsResponse]:
+    def pages(self) -> Iterator[job_service.ListCustomJobsResponse]:
         yield self._response
         while self._response.next_page_token:
             self._request.page_token = self._response.next_page_token
             self._response = self._method(self._request, metadata=self._metadata)
             yield self._response
 
-    def __iter__(self) -> Iterable[custom_job.CustomJob]:
+    def __iter__(self) -> Iterator[custom_job.CustomJob]:
         for page in self.pages:
             yield from page.custom_jobs
 
@@ -140,14 +144,14 @@ class ListCustomJobsAsyncPager:
         return getattr(self._response, name)
 
     @property
-    async def pages(self) -> AsyncIterable[job_service.ListCustomJobsResponse]:
+    async def pages(self) -> AsyncIterator[job_service.ListCustomJobsResponse]:
         yield self._response
         while self._response.next_page_token:
             self._request.page_token = self._response.next_page_token
             self._response = await self._method(self._request, metadata=self._metadata)
             yield self._response
 
-    def __aiter__(self) -> AsyncIterable[custom_job.CustomJob]:
+    def __aiter__(self) -> AsyncIterator[custom_job.CustomJob]:
         async def async_generator():
             async for page in self.pages:
                 for response in page.custom_jobs:
@@ -206,14 +210,14 @@ class ListDataLabelingJobsPager:
         return getattr(self._response, name)
 
     @property
-    def pages(self) -> Iterable[job_service.ListDataLabelingJobsResponse]:
+    def pages(self) -> Iterator[job_service.ListDataLabelingJobsResponse]:
         yield self._response
         while self._response.next_page_token:
             self._request.page_token = self._response.next_page_token
             self._response = self._method(self._request, metadata=self._metadata)
             yield self._response
 
-    def __iter__(self) -> Iterable[data_labeling_job.DataLabelingJob]:
+    def __iter__(self) -> Iterator[data_labeling_job.DataLabelingJob]:
         for page in self.pages:
             yield from page.data_labeling_jobs
 
@@ -268,14 +272,14 @@ class ListDataLabelingJobsAsyncPager:
         return getattr(self._response, name)
 
     @property
-    async def pages(self) -> AsyncIterable[job_service.ListDataLabelingJobsResponse]:
+    async def pages(self) -> AsyncIterator[job_service.ListDataLabelingJobsResponse]:
         yield self._response
         while self._response.next_page_token:
             self._request.page_token = self._response.next_page_token
             self._response = await self._method(self._request, metadata=self._metadata)
             yield self._response
 
-    def __aiter__(self) -> AsyncIterable[data_labeling_job.DataLabelingJob]:
+    def __aiter__(self) -> AsyncIterator[data_labeling_job.DataLabelingJob]:
         async def async_generator():
             async for page in self.pages:
                 for response in page.data_labeling_jobs:
@@ -334,14 +338,14 @@ class ListHyperparameterTuningJobsPager:
         return getattr(self._response, name)
 
     @property
-    def pages(self) -> Iterable[job_service.ListHyperparameterTuningJobsResponse]:
+    def pages(self) -> Iterator[job_service.ListHyperparameterTuningJobsResponse]:
         yield self._response
         while self._response.next_page_token:
             self._request.page_token = self._response.next_page_token
             self._response = self._method(self._request, metadata=self._metadata)
             yield self._response
 
-    def __iter__(self) -> Iterable[hyperparameter_tuning_job.HyperparameterTuningJob]:
+    def __iter__(self) -> Iterator[hyperparameter_tuning_job.HyperparameterTuningJob]:
         for page in self.pages:
             yield from page.hyperparameter_tuning_jobs
 
@@ -400,7 +404,7 @@ class ListHyperparameterTuningJobsAsyncPager:
     @property
     async def pages(
         self,
-    ) -> AsyncIterable[job_service.ListHyperparameterTuningJobsResponse]:
+    ) -> AsyncIterator[job_service.ListHyperparameterTuningJobsResponse]:
         yield self._response
         while self._response.next_page_token:
             self._request.page_token = self._response.next_page_token
@@ -409,7 +413,7 @@ class ListHyperparameterTuningJobsAsyncPager:
 
     def __aiter__(
         self,
-    ) -> AsyncIterable[hyperparameter_tuning_job.HyperparameterTuningJob]:
+    ) -> AsyncIterator[hyperparameter_tuning_job.HyperparameterTuningJob]:
         async def async_generator():
             async for page in self.pages:
                 for response in page.hyperparameter_tuning_jobs:
@@ -468,14 +472,14 @@ class ListBatchPredictionJobsPager:
         return getattr(self._response, name)
 
     @property
-    def pages(self) -> Iterable[job_service.ListBatchPredictionJobsResponse]:
+    def pages(self) -> Iterator[job_service.ListBatchPredictionJobsResponse]:
         yield self._response
         while self._response.next_page_token:
             self._request.page_token = self._response.next_page_token
             self._response = self._method(self._request, metadata=self._metadata)
             yield self._response
 
-    def __iter__(self) -> Iterable[batch_prediction_job.BatchPredictionJob]:
+    def __iter__(self) -> Iterator[batch_prediction_job.BatchPredictionJob]:
         for page in self.pages:
             yield from page.batch_prediction_jobs
 
@@ -530,17 +534,304 @@ class ListBatchPredictionJobsAsyncPager:
         return getattr(self._response, name)
 
     @property
-    async def pages(self) -> AsyncIterable[job_service.ListBatchPredictionJobsResponse]:
+    async def pages(self) -> AsyncIterator[job_service.ListBatchPredictionJobsResponse]:
         yield self._response
         while self._response.next_page_token:
             self._request.page_token = self._response.next_page_token
             self._response = await self._method(self._request, metadata=self._metadata)
             yield self._response
 
-    def __aiter__(self) -> AsyncIterable[batch_prediction_job.BatchPredictionJob]:
+    def __aiter__(self) -> AsyncIterator[batch_prediction_job.BatchPredictionJob]:
         async def async_generator():
             async for page in self.pages:
                 for response in page.batch_prediction_jobs:
+                    yield response
+
+        return async_generator()
+
+    def __repr__(self) -> str:
+        return "{0}<{1!r}>".format(self.__class__.__name__, self._response)
+
+
+class SearchModelDeploymentMonitoringStatsAnomaliesPager:
+    """A pager for iterating through ``search_model_deployment_monitoring_stats_anomalies`` requests.
+
+    This class thinly wraps an initial
+    :class:`google.cloud.aiplatform_v1.types.SearchModelDeploymentMonitoringStatsAnomaliesResponse` object, and
+    provides an ``__iter__`` method to iterate through its
+    ``monitoring_stats`` field.
+
+    If there are more pages, the ``__iter__`` method will make additional
+    ``SearchModelDeploymentMonitoringStatsAnomalies`` requests and continue to iterate
+    through the ``monitoring_stats`` field on the
+    corresponding responses.
+
+    All the usual :class:`google.cloud.aiplatform_v1.types.SearchModelDeploymentMonitoringStatsAnomaliesResponse`
+    attributes are available on the pager. If multiple requests are made, only
+    the most recent response is retained, and thus used for attribute lookup.
+    """
+
+    def __init__(
+        self,
+        method: Callable[
+            ..., job_service.SearchModelDeploymentMonitoringStatsAnomaliesResponse
+        ],
+        request: job_service.SearchModelDeploymentMonitoringStatsAnomaliesRequest,
+        response: job_service.SearchModelDeploymentMonitoringStatsAnomaliesResponse,
+        *,
+        metadata: Sequence[Tuple[str, str]] = ()
+    ):
+        """Instantiate the pager.
+
+        Args:
+            method (Callable): The method that was originally called, and
+                which instantiated this pager.
+            request (google.cloud.aiplatform_v1.types.SearchModelDeploymentMonitoringStatsAnomaliesRequest):
+                The initial request object.
+            response (google.cloud.aiplatform_v1.types.SearchModelDeploymentMonitoringStatsAnomaliesResponse):
+                The initial response object.
+            metadata (Sequence[Tuple[str, str]]): Strings which should be
+                sent along with the request as metadata.
+        """
+        self._method = method
+        self._request = job_service.SearchModelDeploymentMonitoringStatsAnomaliesRequest(
+            request
+        )
+        self._response = response
+        self._metadata = metadata
+
+    def __getattr__(self, name: str) -> Any:
+        return getattr(self._response, name)
+
+    @property
+    def pages(
+        self,
+    ) -> Iterator[job_service.SearchModelDeploymentMonitoringStatsAnomaliesResponse]:
+        yield self._response
+        while self._response.next_page_token:
+            self._request.page_token = self._response.next_page_token
+            self._response = self._method(self._request, metadata=self._metadata)
+            yield self._response
+
+    def __iter__(
+        self,
+    ) -> Iterator[gca_model_deployment_monitoring_job.ModelMonitoringStatsAnomalies]:
+        for page in self.pages:
+            yield from page.monitoring_stats
+
+    def __repr__(self) -> str:
+        return "{0}<{1!r}>".format(self.__class__.__name__, self._response)
+
+
+class SearchModelDeploymentMonitoringStatsAnomaliesAsyncPager:
+    """A pager for iterating through ``search_model_deployment_monitoring_stats_anomalies`` requests.
+
+    This class thinly wraps an initial
+    :class:`google.cloud.aiplatform_v1.types.SearchModelDeploymentMonitoringStatsAnomaliesResponse` object, and
+    provides an ``__aiter__`` method to iterate through its
+    ``monitoring_stats`` field.
+
+    If there are more pages, the ``__aiter__`` method will make additional
+    ``SearchModelDeploymentMonitoringStatsAnomalies`` requests and continue to iterate
+    through the ``monitoring_stats`` field on the
+    corresponding responses.
+
+    All the usual :class:`google.cloud.aiplatform_v1.types.SearchModelDeploymentMonitoringStatsAnomaliesResponse`
+    attributes are available on the pager. If multiple requests are made, only
+    the most recent response is retained, and thus used for attribute lookup.
+    """
+
+    def __init__(
+        self,
+        method: Callable[
+            ...,
+            Awaitable[
+                job_service.SearchModelDeploymentMonitoringStatsAnomaliesResponse
+            ],
+        ],
+        request: job_service.SearchModelDeploymentMonitoringStatsAnomaliesRequest,
+        response: job_service.SearchModelDeploymentMonitoringStatsAnomaliesResponse,
+        *,
+        metadata: Sequence[Tuple[str, str]] = ()
+    ):
+        """Instantiates the pager.
+
+        Args:
+            method (Callable): The method that was originally called, and
+                which instantiated this pager.
+            request (google.cloud.aiplatform_v1.types.SearchModelDeploymentMonitoringStatsAnomaliesRequest):
+                The initial request object.
+            response (google.cloud.aiplatform_v1.types.SearchModelDeploymentMonitoringStatsAnomaliesResponse):
+                The initial response object.
+            metadata (Sequence[Tuple[str, str]]): Strings which should be
+                sent along with the request as metadata.
+        """
+        self._method = method
+        self._request = job_service.SearchModelDeploymentMonitoringStatsAnomaliesRequest(
+            request
+        )
+        self._response = response
+        self._metadata = metadata
+
+    def __getattr__(self, name: str) -> Any:
+        return getattr(self._response, name)
+
+    @property
+    async def pages(
+        self,
+    ) -> AsyncIterator[
+        job_service.SearchModelDeploymentMonitoringStatsAnomaliesResponse
+    ]:
+        yield self._response
+        while self._response.next_page_token:
+            self._request.page_token = self._response.next_page_token
+            self._response = await self._method(self._request, metadata=self._metadata)
+            yield self._response
+
+    def __aiter__(
+        self,
+    ) -> AsyncIterator[
+        gca_model_deployment_monitoring_job.ModelMonitoringStatsAnomalies
+    ]:
+        async def async_generator():
+            async for page in self.pages:
+                for response in page.monitoring_stats:
+                    yield response
+
+        return async_generator()
+
+    def __repr__(self) -> str:
+        return "{0}<{1!r}>".format(self.__class__.__name__, self._response)
+
+
+class ListModelDeploymentMonitoringJobsPager:
+    """A pager for iterating through ``list_model_deployment_monitoring_jobs`` requests.
+
+    This class thinly wraps an initial
+    :class:`google.cloud.aiplatform_v1.types.ListModelDeploymentMonitoringJobsResponse` object, and
+    provides an ``__iter__`` method to iterate through its
+    ``model_deployment_monitoring_jobs`` field.
+
+    If there are more pages, the ``__iter__`` method will make additional
+    ``ListModelDeploymentMonitoringJobs`` requests and continue to iterate
+    through the ``model_deployment_monitoring_jobs`` field on the
+    corresponding responses.
+
+    All the usual :class:`google.cloud.aiplatform_v1.types.ListModelDeploymentMonitoringJobsResponse`
+    attributes are available on the pager. If multiple requests are made, only
+    the most recent response is retained, and thus used for attribute lookup.
+    """
+
+    def __init__(
+        self,
+        method: Callable[..., job_service.ListModelDeploymentMonitoringJobsResponse],
+        request: job_service.ListModelDeploymentMonitoringJobsRequest,
+        response: job_service.ListModelDeploymentMonitoringJobsResponse,
+        *,
+        metadata: Sequence[Tuple[str, str]] = ()
+    ):
+        """Instantiate the pager.
+
+        Args:
+            method (Callable): The method that was originally called, and
+                which instantiated this pager.
+            request (google.cloud.aiplatform_v1.types.ListModelDeploymentMonitoringJobsRequest):
+                The initial request object.
+            response (google.cloud.aiplatform_v1.types.ListModelDeploymentMonitoringJobsResponse):
+                The initial response object.
+            metadata (Sequence[Tuple[str, str]]): Strings which should be
+                sent along with the request as metadata.
+        """
+        self._method = method
+        self._request = job_service.ListModelDeploymentMonitoringJobsRequest(request)
+        self._response = response
+        self._metadata = metadata
+
+    def __getattr__(self, name: str) -> Any:
+        return getattr(self._response, name)
+
+    @property
+    def pages(self) -> Iterator[job_service.ListModelDeploymentMonitoringJobsResponse]:
+        yield self._response
+        while self._response.next_page_token:
+            self._request.page_token = self._response.next_page_token
+            self._response = self._method(self._request, metadata=self._metadata)
+            yield self._response
+
+    def __iter__(
+        self,
+    ) -> Iterator[model_deployment_monitoring_job.ModelDeploymentMonitoringJob]:
+        for page in self.pages:
+            yield from page.model_deployment_monitoring_jobs
+
+    def __repr__(self) -> str:
+        return "{0}<{1!r}>".format(self.__class__.__name__, self._response)
+
+
+class ListModelDeploymentMonitoringJobsAsyncPager:
+    """A pager for iterating through ``list_model_deployment_monitoring_jobs`` requests.
+
+    This class thinly wraps an initial
+    :class:`google.cloud.aiplatform_v1.types.ListModelDeploymentMonitoringJobsResponse` object, and
+    provides an ``__aiter__`` method to iterate through its
+    ``model_deployment_monitoring_jobs`` field.
+
+    If there are more pages, the ``__aiter__`` method will make additional
+    ``ListModelDeploymentMonitoringJobs`` requests and continue to iterate
+    through the ``model_deployment_monitoring_jobs`` field on the
+    corresponding responses.
+
+    All the usual :class:`google.cloud.aiplatform_v1.types.ListModelDeploymentMonitoringJobsResponse`
+    attributes are available on the pager. If multiple requests are made, only
+    the most recent response is retained, and thus used for attribute lookup.
+    """
+
+    def __init__(
+        self,
+        method: Callable[
+            ..., Awaitable[job_service.ListModelDeploymentMonitoringJobsResponse]
+        ],
+        request: job_service.ListModelDeploymentMonitoringJobsRequest,
+        response: job_service.ListModelDeploymentMonitoringJobsResponse,
+        *,
+        metadata: Sequence[Tuple[str, str]] = ()
+    ):
+        """Instantiates the pager.
+
+        Args:
+            method (Callable): The method that was originally called, and
+                which instantiated this pager.
+            request (google.cloud.aiplatform_v1.types.ListModelDeploymentMonitoringJobsRequest):
+                The initial request object.
+            response (google.cloud.aiplatform_v1.types.ListModelDeploymentMonitoringJobsResponse):
+                The initial response object.
+            metadata (Sequence[Tuple[str, str]]): Strings which should be
+                sent along with the request as metadata.
+        """
+        self._method = method
+        self._request = job_service.ListModelDeploymentMonitoringJobsRequest(request)
+        self._response = response
+        self._metadata = metadata
+
+    def __getattr__(self, name: str) -> Any:
+        return getattr(self._response, name)
+
+    @property
+    async def pages(
+        self,
+    ) -> AsyncIterator[job_service.ListModelDeploymentMonitoringJobsResponse]:
+        yield self._response
+        while self._response.next_page_token:
+            self._request.page_token = self._response.next_page_token
+            self._response = await self._method(self._request, metadata=self._metadata)
+            yield self._response
+
+    def __aiter__(
+        self,
+    ) -> AsyncIterator[model_deployment_monitoring_job.ModelDeploymentMonitoringJob]:
+        async def async_generator():
+            async for page in self.pages:
+                for response in page.model_deployment_monitoring_jobs:
                     yield response
 
         return async_generator()

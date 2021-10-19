@@ -31,6 +31,7 @@ from google.api_core import operation_async  # type: ignore
 from google.cloud.aiplatform_v1.services.model_service import pagers
 from google.cloud.aiplatform_v1.types import deployed_model_ref
 from google.cloud.aiplatform_v1.types import encryption_spec
+from google.cloud.aiplatform_v1.types import explanation
 from google.cloud.aiplatform_v1.types import model
 from google.cloud.aiplatform_v1.types import model as gca_model
 from google.cloud.aiplatform_v1.types import model_evaluation
@@ -255,7 +256,7 @@ class ModelServiceAsyncClient:
         # and friendly error handling.
         rpc = gapic_v1.method_async.wrap_method(
             self._client._transport.upload_model,
-            default_timeout=5.0,
+            default_timeout=None,
             client_info=DEFAULT_CLIENT_INFO,
         )
 
@@ -332,7 +333,7 @@ class ModelServiceAsyncClient:
         # and friendly error handling.
         rpc = gapic_v1.method_async.wrap_method(
             self._client._transport.get_model,
-            default_timeout=5.0,
+            default_timeout=None,
             client_info=DEFAULT_CLIENT_INFO,
         )
 
@@ -407,7 +408,7 @@ class ModelServiceAsyncClient:
         # and friendly error handling.
         rpc = gapic_v1.method_async.wrap_method(
             self._client._transport.list_models,
-            default_timeout=5.0,
+            default_timeout=None,
             client_info=DEFAULT_CLIENT_INFO,
         )
 
@@ -493,7 +494,7 @@ class ModelServiceAsyncClient:
         # and friendly error handling.
         rpc = gapic_v1.method_async.wrap_method(
             self._client._transport.update_model,
-            default_timeout=5.0,
+            default_timeout=None,
             client_info=DEFAULT_CLIENT_INFO,
         )
 
@@ -521,8 +522,9 @@ class ModelServiceAsyncClient:
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> operation_async.AsyncOperation:
         r"""Deletes a Model.
-        Note: Model can only be deleted if there are no
-        DeployedModels created from it.
+
+        Model can only be deleted if there are no [DeployedModels][]
+        created from it.
 
         Args:
             request (:class:`google.cloud.aiplatform_v1.types.DeleteModelRequest`):
@@ -582,7 +584,7 @@ class ModelServiceAsyncClient:
         # and friendly error handling.
         rpc = gapic_v1.method_async.wrap_method(
             self._client._transport.delete_model,
-            default_timeout=5.0,
+            default_timeout=None,
             client_info=DEFAULT_CLIENT_INFO,
         )
 
@@ -626,9 +628,8 @@ class ModelServiceAsyncClient:
                 The request object. Request message for
                 [ModelService.ExportModel][google.cloud.aiplatform.v1.ModelService.ExportModel].
             name (:class:`str`):
-                Required. The resource name of the Model to export.
-                Format:
-                ``projects/{project}/locations/{location}/models/{model}``
+                Required. The resource name of the
+                Model to export.
 
                 This corresponds to the ``name`` field
                 on the ``request`` instance; if ``request`` is provided, this
@@ -680,7 +681,7 @@ class ModelServiceAsyncClient:
         # and friendly error handling.
         rpc = gapic_v1.method_async.wrap_method(
             self._client._transport.export_model,
-            default_timeout=5.0,
+            default_timeout=None,
             client_info=DEFAULT_CLIENT_INFO,
         )
 
@@ -762,7 +763,7 @@ class ModelServiceAsyncClient:
         # and friendly error handling.
         rpc = gapic_v1.method_async.wrap_method(
             self._client._transport.get_model_evaluation,
-            default_timeout=5.0,
+            default_timeout=None,
             client_info=DEFAULT_CLIENT_INFO,
         )
 
@@ -837,7 +838,7 @@ class ModelServiceAsyncClient:
         # and friendly error handling.
         rpc = gapic_v1.method_async.wrap_method(
             self._client._transport.list_model_evaluations,
-            default_timeout=5.0,
+            default_timeout=None,
             client_info=DEFAULT_CLIENT_INFO,
         )
 
@@ -917,7 +918,7 @@ class ModelServiceAsyncClient:
         # and friendly error handling.
         rpc = gapic_v1.method_async.wrap_method(
             self._client._transport.get_model_evaluation_slice,
-            default_timeout=5.0,
+            default_timeout=None,
             client_info=DEFAULT_CLIENT_INFO,
         )
 
@@ -992,7 +993,7 @@ class ModelServiceAsyncClient:
         # and friendly error handling.
         rpc = gapic_v1.method_async.wrap_method(
             self._client._transport.list_model_evaluation_slices,
-            default_timeout=5.0,
+            default_timeout=None,
             client_info=DEFAULT_CLIENT_INFO,
         )
 
@@ -1013,6 +1014,12 @@ class ModelServiceAsyncClient:
 
         # Done; return the response.
         return response
+
+    async def __aenter__(self):
+        return self
+
+    async def __aexit__(self, exc_type, exc, tb):
+        await self.transport.close()
 
 
 try:

@@ -34,6 +34,9 @@ def teardown(teardown_training_pipeline):
 
 def test_ucaip_generated_create_training_pipeline_sample(capsys, shared_state):
 
+    # The return of the cancellation can be flaky; max of 20 runs was 215 sec.
+    shared_state["cancel_batch_prediction_job_timeout"] = 300
+
     create_training_pipeline_tabular_regression_sample.create_training_pipeline_tabular_regression_sample(
         project=PROJECT_ID,
         display_name=DISPLAY_NAME,

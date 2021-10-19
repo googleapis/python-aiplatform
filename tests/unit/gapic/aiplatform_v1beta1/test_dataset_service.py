@@ -32,6 +32,7 @@ from google.api_core import grpc_helpers
 from google.api_core import grpc_helpers_async
 from google.api_core import operation_async  # type: ignore
 from google.api_core import operations_v1
+from google.api_core import path_template
 from google.auth import credentials as ga_credentials
 from google.auth.exceptions import MutualTLSChannelError
 from google.cloud.aiplatform_v1beta1.services.dataset_service import (
@@ -740,6 +741,7 @@ def test_get_dataset(
         call.return_value = dataset.Dataset(
             name="name_value",
             display_name="display_name_value",
+            description="description_value",
             metadata_schema_uri="metadata_schema_uri_value",
             etag="etag_value",
         )
@@ -754,6 +756,7 @@ def test_get_dataset(
     assert isinstance(response, dataset.Dataset)
     assert response.name == "name_value"
     assert response.display_name == "display_name_value"
+    assert response.description == "description_value"
     assert response.metadata_schema_uri == "metadata_schema_uri_value"
     assert response.etag == "etag_value"
 
@@ -796,6 +799,7 @@ async def test_get_dataset_async(
             dataset.Dataset(
                 name="name_value",
                 display_name="display_name_value",
+                description="description_value",
                 metadata_schema_uri="metadata_schema_uri_value",
                 etag="etag_value",
             )
@@ -811,6 +815,7 @@ async def test_get_dataset_async(
     assert isinstance(response, dataset.Dataset)
     assert response.name == "name_value"
     assert response.display_name == "display_name_value"
+    assert response.description == "description_value"
     assert response.metadata_schema_uri == "metadata_schema_uri_value"
     assert response.etag == "etag_value"
 
@@ -954,6 +959,7 @@ def test_update_dataset(
         call.return_value = gca_dataset.Dataset(
             name="name_value",
             display_name="display_name_value",
+            description="description_value",
             metadata_schema_uri="metadata_schema_uri_value",
             etag="etag_value",
         )
@@ -968,6 +974,7 @@ def test_update_dataset(
     assert isinstance(response, gca_dataset.Dataset)
     assert response.name == "name_value"
     assert response.display_name == "display_name_value"
+    assert response.description == "description_value"
     assert response.metadata_schema_uri == "metadata_schema_uri_value"
     assert response.etag == "etag_value"
 
@@ -1010,6 +1017,7 @@ async def test_update_dataset_async(
             gca_dataset.Dataset(
                 name="name_value",
                 display_name="display_name_value",
+                description="description_value",
                 metadata_schema_uri="metadata_schema_uri_value",
                 etag="etag_value",
             )
@@ -1025,6 +1033,7 @@ async def test_update_dataset_async(
     assert isinstance(response, gca_dataset.Dataset)
     assert response.name == "name_value"
     assert response.display_name == "display_name_value"
+    assert response.description == "description_value"
     assert response.metadata_schema_uri == "metadata_schema_uri_value"
     assert response.etag == "etag_value"
 
@@ -3196,6 +3205,9 @@ def test_dataset_service_base_transport():
         with pytest.raises(NotImplementedError):
             getattr(transport, method)(request=object())
 
+    with pytest.raises(NotImplementedError):
+        transport.close()
+
     # Additionally, the LRO client (a property) should
     # also raise NotImplementedError
     with pytest.raises(NotImplementedError):
@@ -3800,3 +3812,49 @@ def test_client_withDEFAULT_CLIENT_INFO():
             credentials=ga_credentials.AnonymousCredentials(), client_info=client_info,
         )
         prep.assert_called_once_with(client_info)
+
+
+@pytest.mark.asyncio
+async def test_transport_close_async():
+    client = DatasetServiceAsyncClient(
+        credentials=ga_credentials.AnonymousCredentials(), transport="grpc_asyncio",
+    )
+    with mock.patch.object(
+        type(getattr(client.transport, "grpc_channel")), "close"
+    ) as close:
+        async with client:
+            close.assert_not_called()
+        close.assert_called_once()
+
+
+def test_transport_close():
+    transports = {
+        "grpc": "_grpc_channel",
+    }
+
+    for transport, close_name in transports.items():
+        client = DatasetServiceClient(
+            credentials=ga_credentials.AnonymousCredentials(), transport=transport
+        )
+        with mock.patch.object(
+            type(getattr(client.transport, close_name)), "close"
+        ) as close:
+            with client:
+                close.assert_not_called()
+            close.assert_called_once()
+
+
+def test_client_ctx():
+    transports = [
+        "grpc",
+    ]
+    for transport in transports:
+        client = DatasetServiceClient(
+            credentials=ga_credentials.AnonymousCredentials(), transport=transport
+        )
+        # Test client calls underlying transport.
+        with mock.patch.object(type(client.transport), "close") as close:
+            close.assert_not_called()
+            with client:
+                pass
+            close.assert_called()

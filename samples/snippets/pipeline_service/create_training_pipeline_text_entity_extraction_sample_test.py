@@ -35,6 +35,8 @@ def test_ucaip_generated_create_training_pipeline_text_entity_extraction_sample(
     capsys, shared_state
 ):
 
+    shared_state["cancel_batch_prediction_job_timeout"] = 300
+
     create_training_pipeline_text_entity_extraction_sample.create_training_pipeline_text_entity_extraction_sample(
         project=PROJECT_ID,
         display_name=DISPLAY_NAME,

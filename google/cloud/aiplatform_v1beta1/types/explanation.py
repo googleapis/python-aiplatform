@@ -16,6 +16,7 @@
 import proto  # type: ignore
 
 from google.cloud.aiplatform_v1beta1.types import explanation_metadata
+from google.cloud.aiplatform_v1beta1.types import io
 from google.protobuf import struct_pb2  # type: ignore
 
 
@@ -32,6 +33,7 @@ __protobuf__ = proto.module(
         "XraiAttribution",
         "SmoothGradConfig",
         "FeatureNoiseSigma",
+        "Similarity",
         "ExplanationSpecOverride",
         "ExplanationMetadataOverride",
     },
@@ -114,6 +116,7 @@ class ModelExplanation(proto.Message):
 
 class Attribution(proto.Message):
     r"""Attribution that explains a particular prediction output.
+
     Attributes:
         baseline_output_value (float):
             Output only. Model predicted output if the input instance is
@@ -240,6 +243,7 @@ class Attribution(proto.Message):
 
 class ExplanationSpec(proto.Message):
     r"""Specification of Model explanation.
+
     Attributes:
         parameters (google.cloud.aiplatform_v1beta1.types.ExplanationParameters):
             Required. Parameters that configure
@@ -257,6 +261,7 @@ class ExplanationSpec(proto.Message):
 
 class ExplanationParameters(proto.Message):
     r"""Parameters to configure explaining for Model's predictions.
+
     Attributes:
         sampled_shapley_attribution (google.cloud.aiplatform_v1beta1.types.SampledShapleyAttribution):
             An attribution method that approximates
@@ -286,6 +291,9 @@ class ExplanationParameters(proto.Message):
             or from diagnostic equipment, like x-rays or
             quality-control cameras, use Integrated
             Gradients instead.
+        similarity (google.cloud.aiplatform_v1beta1.types.Similarity):
+            Similarity explainability that returns the
+            nearest neighbors from the provided dataset.
         top_k (int):
             If populated, returns attributions for top K
             indices of outputs (defaults to 1). Only applies
@@ -318,6 +326,9 @@ class ExplanationParameters(proto.Message):
     )
     xrai_attribution = proto.Field(
         proto.MESSAGE, number=3, oneof="method", message="XraiAttribution",
+    )
+    similarity = proto.Field(
+        proto.MESSAGE, number=7, oneof="method", message="Similarity",
     )
     top_k = proto.Field(proto.INT32, number=4,)
     output_indices = proto.Field(proto.MESSAGE, number=5, message=struct_pb2.ListValue,)
@@ -468,6 +479,7 @@ class FeatureNoiseSigma(proto.Message):
 
     class NoiseSigmaForFeature(proto.Message):
         r"""Noise sigma for a single feature.
+
         Attributes:
             name (str):
                 The name of the input feature for which noise sigma is
@@ -490,11 +502,32 @@ class FeatureNoiseSigma(proto.Message):
     )
 
 
+class Similarity(proto.Message):
+    r"""Similarity explainability that returns the nearest neighbors
+    from the provided dataset.
+
+    Attributes:
+        gcs_source (google.cloud.aiplatform_v1beta1.types.GcsSource):
+            The Cloud Storage location for the input
+            instances.
+        nearest_neighbor_search_config (google.protobuf.struct_pb2.Value):
+            The configuration for the generated index, the semantics are
+            the same as
+            [metadata][google.cloud.aiplatform.v1beta1.Index.metadata]
+            and should match NearestNeighborSearchConfig.
+    """
+
+    gcs_source = proto.Field(proto.MESSAGE, number=1, message=io.GcsSource,)
+    nearest_neighbor_search_config = proto.Field(
+        proto.MESSAGE, number=2, message=struct_pb2.Value,
+    )
+
+
 class ExplanationSpecOverride(proto.Message):
     r"""The
     [ExplanationSpec][google.cloud.aiplatform.v1beta1.ExplanationSpec]
     entries that can be overridden at [online
-    explanation][PredictionService.Explain][google.cloud.aiplatform.v1beta1.PredictionService.Explain]
+    explanation][google.cloud.aiplatform.v1beta1.PredictionService.Explain]
     time.
 
     Attributes:

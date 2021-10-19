@@ -130,7 +130,7 @@ class TensorboardServiceTransport(abc.ABC):
                 **scopes_kwargs, quota_project_id=quota_project_id
             )
 
-        # If the credentials is service account credentials, then always try to use self signed JWT.
+        # If the credentials are service account credentials, then always try to use self signed JWT.
         if (
             always_use_jwt_access
             and isinstance(credentials, service_account.Credentials)
@@ -212,6 +212,11 @@ class TensorboardServiceTransport(abc.ABC):
                 default_timeout=None,
                 client_info=client_info,
             ),
+            self.batch_create_tensorboard_runs: gapic_v1.method.wrap_method(
+                self.batch_create_tensorboard_runs,
+                default_timeout=None,
+                client_info=client_info,
+            ),
             self.get_tensorboard_run: gapic_v1.method.wrap_method(
                 self.get_tensorboard_run, default_timeout=None, client_info=client_info,
             ),
@@ -227,6 +232,11 @@ class TensorboardServiceTransport(abc.ABC):
             ),
             self.delete_tensorboard_run: gapic_v1.method.wrap_method(
                 self.delete_tensorboard_run,
+                default_timeout=None,
+                client_info=client_info,
+            ),
+            self.batch_create_tensorboard_time_series: gapic_v1.method.wrap_method(
+                self.batch_create_tensorboard_time_series,
                 default_timeout=None,
                 client_info=client_info,
             ),
@@ -255,6 +265,11 @@ class TensorboardServiceTransport(abc.ABC):
                 default_timeout=None,
                 client_info=client_info,
             ),
+            self.batch_read_tensorboard_time_series_data: gapic_v1.method.wrap_method(
+                self.batch_read_tensorboard_time_series_data,
+                default_timeout=None,
+                client_info=client_info,
+            ),
             self.read_tensorboard_time_series_data: gapic_v1.method.wrap_method(
                 self.read_tensorboard_time_series_data,
                 default_timeout=None,
@@ -262,6 +277,11 @@ class TensorboardServiceTransport(abc.ABC):
             ),
             self.read_tensorboard_blob_data: gapic_v1.method.wrap_method(
                 self.read_tensorboard_blob_data,
+                default_timeout=None,
+                client_info=client_info,
+            ),
+            self.write_tensorboard_experiment_data: gapic_v1.method.wrap_method(
+                self.write_tensorboard_experiment_data,
                 default_timeout=None,
                 client_info=client_info,
             ),
@@ -276,6 +296,15 @@ class TensorboardServiceTransport(abc.ABC):
                 client_info=client_info,
             ),
         }
+
+    def close(self):
+        """Closes resources associated with the transport.
+
+       .. warning::
+            Only call this method if the transport is NOT shared
+            with other clients - this may cause errors in other clients!
+        """
+        raise NotImplementedError()
 
     @property
     def operations_client(self) -> operations_v1.OperationsClient:
@@ -400,6 +429,18 @@ class TensorboardServiceTransport(abc.ABC):
         raise NotImplementedError()
 
     @property
+    def batch_create_tensorboard_runs(
+        self,
+    ) -> Callable[
+        [tensorboard_service.BatchCreateTensorboardRunsRequest],
+        Union[
+            tensorboard_service.BatchCreateTensorboardRunsResponse,
+            Awaitable[tensorboard_service.BatchCreateTensorboardRunsResponse],
+        ],
+    ]:
+        raise NotImplementedError()
+
+    @property
     def get_tensorboard_run(
         self,
     ) -> Callable[
@@ -440,6 +481,18 @@ class TensorboardServiceTransport(abc.ABC):
     ) -> Callable[
         [tensorboard_service.DeleteTensorboardRunRequest],
         Union[operations_pb2.Operation, Awaitable[operations_pb2.Operation]],
+    ]:
+        raise NotImplementedError()
+
+    @property
+    def batch_create_tensorboard_time_series(
+        self,
+    ) -> Callable[
+        [tensorboard_service.BatchCreateTensorboardTimeSeriesRequest],
+        Union[
+            tensorboard_service.BatchCreateTensorboardTimeSeriesResponse,
+            Awaitable[tensorboard_service.BatchCreateTensorboardTimeSeriesResponse],
+        ],
     ]:
         raise NotImplementedError()
 
@@ -501,6 +554,18 @@ class TensorboardServiceTransport(abc.ABC):
         raise NotImplementedError()
 
     @property
+    def batch_read_tensorboard_time_series_data(
+        self,
+    ) -> Callable[
+        [tensorboard_service.BatchReadTensorboardTimeSeriesDataRequest],
+        Union[
+            tensorboard_service.BatchReadTensorboardTimeSeriesDataResponse,
+            Awaitable[tensorboard_service.BatchReadTensorboardTimeSeriesDataResponse],
+        ],
+    ]:
+        raise NotImplementedError()
+
+    @property
     def read_tensorboard_time_series_data(
         self,
     ) -> Callable[
@@ -520,6 +585,18 @@ class TensorboardServiceTransport(abc.ABC):
         Union[
             tensorboard_service.ReadTensorboardBlobDataResponse,
             Awaitable[tensorboard_service.ReadTensorboardBlobDataResponse],
+        ],
+    ]:
+        raise NotImplementedError()
+
+    @property
+    def write_tensorboard_experiment_data(
+        self,
+    ) -> Callable[
+        [tensorboard_service.WriteTensorboardExperimentDataRequest],
+        Union[
+            tensorboard_service.WriteTensorboardExperimentDataResponse,
+            Awaitable[tensorboard_service.WriteTensorboardExperimentDataResponse],
         ],
     ]:
         raise NotImplementedError()

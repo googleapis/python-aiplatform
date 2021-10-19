@@ -212,7 +212,7 @@ class MigrateResourceRequest(proto.Message):
 
     class MigrateDataLabelingDatasetConfig(proto.Message):
         r"""Config for migrating Dataset in datalabeling.googleapis.com
-        to AI Platform's Dataset.
+        to Vertex AI's Dataset.
 
         Attributes:
             dataset (str):
@@ -287,6 +287,7 @@ class BatchMigrateResourcesResponse(proto.Message):
 
 class MigrateResourceResponse(proto.Message):
     r"""Describes a successfully migrated resource.
+
     Attributes:
         dataset (str):
             Migrated Dataset's resource name.

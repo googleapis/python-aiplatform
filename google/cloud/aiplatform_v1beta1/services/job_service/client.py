@@ -17,7 +17,7 @@ from collections import OrderedDict
 from distutils import util
 import os
 import re
-from typing import Callable, Dict, Optional, Sequence, Tuple, Type, Union
+from typing import Dict, Optional, Sequence, Tuple, Type, Union
 import pkg_resources
 
 from google.api_core import client_options as client_options_lib  # type: ignore
@@ -552,15 +552,12 @@ class JobServiceClient(metaclass=JobServiceClientMeta):
                 client_cert_source_for_mtls=client_cert_source_func,
                 quota_project_id=client_options.quota_project_id,
                 client_info=client_info,
-                always_use_jwt_access=(
-                    Transport == type(self).get_transport_class("grpc")
-                    or Transport == type(self).get_transport_class("grpc_asyncio")
-                ),
+                always_use_jwt_access=True,
             )
 
     def create_custom_job(
         self,
-        request: job_service.CreateCustomJobRequest = None,
+        request: Union[job_service.CreateCustomJobRequest, dict] = None,
         *,
         parent: str = None,
         custom_job: gca_custom_job.CustomJob = None,
@@ -572,7 +569,7 @@ class JobServiceClient(metaclass=JobServiceClientMeta):
         will be attempted to be run.
 
         Args:
-            request (google.cloud.aiplatform_v1beta1.types.CreateCustomJobRequest):
+            request (Union[google.cloud.aiplatform_v1beta1.types.CreateCustomJobRequest, dict]):
                 The request object. Request message for
                 [JobService.CreateCustomJob][google.cloud.aiplatform.v1beta1.JobService.CreateCustomJob].
             parent (str):
@@ -647,7 +644,7 @@ class JobServiceClient(metaclass=JobServiceClientMeta):
 
     def get_custom_job(
         self,
-        request: job_service.GetCustomJobRequest = None,
+        request: Union[job_service.GetCustomJobRequest, dict] = None,
         *,
         name: str = None,
         retry: retries.Retry = gapic_v1.method.DEFAULT,
@@ -657,7 +654,7 @@ class JobServiceClient(metaclass=JobServiceClientMeta):
         r"""Gets a CustomJob.
 
         Args:
-            request (google.cloud.aiplatform_v1beta1.types.GetCustomJobRequest):
+            request (Union[google.cloud.aiplatform_v1beta1.types.GetCustomJobRequest, dict]):
                 The request object. Request message for
                 [JobService.GetCustomJob][google.cloud.aiplatform.v1beta1.JobService.GetCustomJob].
             name (str):
@@ -724,7 +721,7 @@ class JobServiceClient(metaclass=JobServiceClientMeta):
 
     def list_custom_jobs(
         self,
-        request: job_service.ListCustomJobsRequest = None,
+        request: Union[job_service.ListCustomJobsRequest, dict] = None,
         *,
         parent: str = None,
         retry: retries.Retry = gapic_v1.method.DEFAULT,
@@ -734,7 +731,7 @@ class JobServiceClient(metaclass=JobServiceClientMeta):
         r"""Lists CustomJobs in a Location.
 
         Args:
-            request (google.cloud.aiplatform_v1beta1.types.ListCustomJobsRequest):
+            request (Union[google.cloud.aiplatform_v1beta1.types.ListCustomJobsRequest, dict]):
                 The request object. Request message for
                 [JobService.ListCustomJobs][google.cloud.aiplatform.v1beta1.JobService.ListCustomJobs].
             parent (str):
@@ -805,7 +802,7 @@ class JobServiceClient(metaclass=JobServiceClientMeta):
 
     def delete_custom_job(
         self,
-        request: job_service.DeleteCustomJobRequest = None,
+        request: Union[job_service.DeleteCustomJobRequest, dict] = None,
         *,
         name: str = None,
         retry: retries.Retry = gapic_v1.method.DEFAULT,
@@ -815,7 +812,7 @@ class JobServiceClient(metaclass=JobServiceClientMeta):
         r"""Deletes a CustomJob.
 
         Args:
-            request (google.cloud.aiplatform_v1beta1.types.DeleteCustomJobRequest):
+            request (Union[google.cloud.aiplatform_v1beta1.types.DeleteCustomJobRequest, dict]):
                 The request object. Request message for
                 [JobService.DeleteCustomJob][google.cloud.aiplatform.v1beta1.JobService.DeleteCustomJob].
             name (str):
@@ -898,7 +895,7 @@ class JobServiceClient(metaclass=JobServiceClientMeta):
 
     def cancel_custom_job(
         self,
-        request: job_service.CancelCustomJobRequest = None,
+        request: Union[job_service.CancelCustomJobRequest, dict] = None,
         *,
         name: str = None,
         retry: retries.Retry = gapic_v1.method.DEFAULT,
@@ -920,7 +917,7 @@ class JobServiceClient(metaclass=JobServiceClientMeta):
         is set to ``CANCELLED``.
 
         Args:
-            request (google.cloud.aiplatform_v1beta1.types.CancelCustomJobRequest):
+            request (Union[google.cloud.aiplatform_v1beta1.types.CancelCustomJobRequest, dict]):
                 The request object. Request message for
                 [JobService.CancelCustomJob][google.cloud.aiplatform.v1beta1.JobService.CancelCustomJob].
             name (str):
@@ -974,7 +971,7 @@ class JobServiceClient(metaclass=JobServiceClientMeta):
 
     def create_data_labeling_job(
         self,
-        request: job_service.CreateDataLabelingJobRequest = None,
+        request: Union[job_service.CreateDataLabelingJobRequest, dict] = None,
         *,
         parent: str = None,
         data_labeling_job: gca_data_labeling_job.DataLabelingJob = None,
@@ -985,7 +982,7 @@ class JobServiceClient(metaclass=JobServiceClientMeta):
         r"""Creates a DataLabelingJob.
 
         Args:
-            request (google.cloud.aiplatform_v1beta1.types.CreateDataLabelingJobRequest):
+            request (Union[google.cloud.aiplatform_v1beta1.types.CreateDataLabelingJobRequest, dict]):
                 The request object. Request message for
                 [JobService.CreateDataLabelingJob][google.cloud.aiplatform.v1beta1.JobService.CreateDataLabelingJob].
             parent (str):
@@ -1056,7 +1053,7 @@ class JobServiceClient(metaclass=JobServiceClientMeta):
 
     def get_data_labeling_job(
         self,
-        request: job_service.GetDataLabelingJobRequest = None,
+        request: Union[job_service.GetDataLabelingJobRequest, dict] = None,
         *,
         name: str = None,
         retry: retries.Retry = gapic_v1.method.DEFAULT,
@@ -1066,7 +1063,7 @@ class JobServiceClient(metaclass=JobServiceClientMeta):
         r"""Gets a DataLabelingJob.
 
         Args:
-            request (google.cloud.aiplatform_v1beta1.types.GetDataLabelingJobRequest):
+            request (Union[google.cloud.aiplatform_v1beta1.types.GetDataLabelingJobRequest, dict]):
                 The request object. Request message for
                 [JobService.GetDataLabelingJob][google.cloud.aiplatform.v1beta1.JobService.GetDataLabelingJob].
             name (str):
@@ -1128,7 +1125,7 @@ class JobServiceClient(metaclass=JobServiceClientMeta):
 
     def list_data_labeling_jobs(
         self,
-        request: job_service.ListDataLabelingJobsRequest = None,
+        request: Union[job_service.ListDataLabelingJobsRequest, dict] = None,
         *,
         parent: str = None,
         retry: retries.Retry = gapic_v1.method.DEFAULT,
@@ -1138,7 +1135,7 @@ class JobServiceClient(metaclass=JobServiceClientMeta):
         r"""Lists DataLabelingJobs in a Location.
 
         Args:
-            request (google.cloud.aiplatform_v1beta1.types.ListDataLabelingJobsRequest):
+            request (Union[google.cloud.aiplatform_v1beta1.types.ListDataLabelingJobsRequest, dict]):
                 The request object. Request message for
                 [JobService.ListDataLabelingJobs][google.cloud.aiplatform.v1beta1.JobService.ListDataLabelingJobs].
             parent (str):
@@ -1208,7 +1205,7 @@ class JobServiceClient(metaclass=JobServiceClientMeta):
 
     def delete_data_labeling_job(
         self,
-        request: job_service.DeleteDataLabelingJobRequest = None,
+        request: Union[job_service.DeleteDataLabelingJobRequest, dict] = None,
         *,
         name: str = None,
         retry: retries.Retry = gapic_v1.method.DEFAULT,
@@ -1218,7 +1215,7 @@ class JobServiceClient(metaclass=JobServiceClientMeta):
         r"""Deletes a DataLabelingJob.
 
         Args:
-            request (google.cloud.aiplatform_v1beta1.types.DeleteDataLabelingJobRequest):
+            request (Union[google.cloud.aiplatform_v1beta1.types.DeleteDataLabelingJobRequest, dict]):
                 The request object. Request message for
                 [JobService.DeleteDataLabelingJob][google.cloud.aiplatform.v1beta1.JobService.DeleteDataLabelingJob].
             name (str):
@@ -1301,7 +1298,7 @@ class JobServiceClient(metaclass=JobServiceClientMeta):
 
     def cancel_data_labeling_job(
         self,
-        request: job_service.CancelDataLabelingJobRequest = None,
+        request: Union[job_service.CancelDataLabelingJobRequest, dict] = None,
         *,
         name: str = None,
         retry: retries.Retry = gapic_v1.method.DEFAULT,
@@ -1312,7 +1309,7 @@ class JobServiceClient(metaclass=JobServiceClientMeta):
         not guaranteed.
 
         Args:
-            request (google.cloud.aiplatform_v1beta1.types.CancelDataLabelingJobRequest):
+            request (Union[google.cloud.aiplatform_v1beta1.types.CancelDataLabelingJobRequest, dict]):
                 The request object. Request message for
                 [JobService.CancelDataLabelingJob][google.cloud.aiplatform.v1beta1.JobService.CancelDataLabelingJob].
             name (str):
@@ -1366,7 +1363,7 @@ class JobServiceClient(metaclass=JobServiceClientMeta):
 
     def create_hyperparameter_tuning_job(
         self,
-        request: job_service.CreateHyperparameterTuningJobRequest = None,
+        request: Union[job_service.CreateHyperparameterTuningJobRequest, dict] = None,
         *,
         parent: str = None,
         hyperparameter_tuning_job: gca_hyperparameter_tuning_job.HyperparameterTuningJob = None,
@@ -1377,7 +1374,7 @@ class JobServiceClient(metaclass=JobServiceClientMeta):
         r"""Creates a HyperparameterTuningJob
 
         Args:
-            request (google.cloud.aiplatform_v1beta1.types.CreateHyperparameterTuningJobRequest):
+            request (Union[google.cloud.aiplatform_v1beta1.types.CreateHyperparameterTuningJobRequest, dict]):
                 The request object. Request message for
                 [JobService.CreateHyperparameterTuningJob][google.cloud.aiplatform.v1beta1.JobService.CreateHyperparameterTuningJob].
             parent (str):
@@ -1452,7 +1449,7 @@ class JobServiceClient(metaclass=JobServiceClientMeta):
 
     def get_hyperparameter_tuning_job(
         self,
-        request: job_service.GetHyperparameterTuningJobRequest = None,
+        request: Union[job_service.GetHyperparameterTuningJobRequest, dict] = None,
         *,
         name: str = None,
         retry: retries.Retry = gapic_v1.method.DEFAULT,
@@ -1462,7 +1459,7 @@ class JobServiceClient(metaclass=JobServiceClientMeta):
         r"""Gets a HyperparameterTuningJob
 
         Args:
-            request (google.cloud.aiplatform_v1beta1.types.GetHyperparameterTuningJobRequest):
+            request (Union[google.cloud.aiplatform_v1beta1.types.GetHyperparameterTuningJobRequest, dict]):
                 The request object. Request message for
                 [JobService.GetHyperparameterTuningJob][google.cloud.aiplatform.v1beta1.JobService.GetHyperparameterTuningJob].
             name (str):
@@ -1528,7 +1525,7 @@ class JobServiceClient(metaclass=JobServiceClientMeta):
 
     def list_hyperparameter_tuning_jobs(
         self,
-        request: job_service.ListHyperparameterTuningJobsRequest = None,
+        request: Union[job_service.ListHyperparameterTuningJobsRequest, dict] = None,
         *,
         parent: str = None,
         retry: retries.Retry = gapic_v1.method.DEFAULT,
@@ -1538,7 +1535,7 @@ class JobServiceClient(metaclass=JobServiceClientMeta):
         r"""Lists HyperparameterTuningJobs in a Location.
 
         Args:
-            request (google.cloud.aiplatform_v1beta1.types.ListHyperparameterTuningJobsRequest):
+            request (Union[google.cloud.aiplatform_v1beta1.types.ListHyperparameterTuningJobsRequest, dict]):
                 The request object. Request message for
                 [JobService.ListHyperparameterTuningJobs][google.cloud.aiplatform.v1beta1.JobService.ListHyperparameterTuningJobs].
             parent (str):
@@ -1611,7 +1608,7 @@ class JobServiceClient(metaclass=JobServiceClientMeta):
 
     def delete_hyperparameter_tuning_job(
         self,
-        request: job_service.DeleteHyperparameterTuningJobRequest = None,
+        request: Union[job_service.DeleteHyperparameterTuningJobRequest, dict] = None,
         *,
         name: str = None,
         retry: retries.Retry = gapic_v1.method.DEFAULT,
@@ -1621,7 +1618,7 @@ class JobServiceClient(metaclass=JobServiceClientMeta):
         r"""Deletes a HyperparameterTuningJob.
 
         Args:
-            request (google.cloud.aiplatform_v1beta1.types.DeleteHyperparameterTuningJobRequest):
+            request (Union[google.cloud.aiplatform_v1beta1.types.DeleteHyperparameterTuningJobRequest, dict]):
                 The request object. Request message for
                 [JobService.DeleteHyperparameterTuningJob][google.cloud.aiplatform.v1beta1.JobService.DeleteHyperparameterTuningJob].
             name (str):
@@ -1706,7 +1703,7 @@ class JobServiceClient(metaclass=JobServiceClientMeta):
 
     def cancel_hyperparameter_tuning_job(
         self,
-        request: job_service.CancelHyperparameterTuningJobRequest = None,
+        request: Union[job_service.CancelHyperparameterTuningJobRequest, dict] = None,
         *,
         name: str = None,
         retry: retries.Retry = gapic_v1.method.DEFAULT,
@@ -1729,7 +1726,7 @@ class JobServiceClient(metaclass=JobServiceClientMeta):
         is set to ``CANCELLED``.
 
         Args:
-            request (google.cloud.aiplatform_v1beta1.types.CancelHyperparameterTuningJobRequest):
+            request (Union[google.cloud.aiplatform_v1beta1.types.CancelHyperparameterTuningJobRequest, dict]):
                 The request object. Request message for
                 [JobService.CancelHyperparameterTuningJob][google.cloud.aiplatform.v1beta1.JobService.CancelHyperparameterTuningJob].
             name (str):
@@ -1786,7 +1783,7 @@ class JobServiceClient(metaclass=JobServiceClientMeta):
 
     def create_batch_prediction_job(
         self,
-        request: job_service.CreateBatchPredictionJobRequest = None,
+        request: Union[job_service.CreateBatchPredictionJobRequest, dict] = None,
         *,
         parent: str = None,
         batch_prediction_job: gca_batch_prediction_job.BatchPredictionJob = None,
@@ -1798,7 +1795,7 @@ class JobServiceClient(metaclass=JobServiceClientMeta):
         once created will right away be attempted to start.
 
         Args:
-            request (google.cloud.aiplatform_v1beta1.types.CreateBatchPredictionJobRequest):
+            request (Union[google.cloud.aiplatform_v1beta1.types.CreateBatchPredictionJobRequest, dict]):
                 The request object. Request message for
                 [JobService.CreateBatchPredictionJob][google.cloud.aiplatform.v1beta1.JobService.CreateBatchPredictionJob].
             parent (str):
@@ -1875,7 +1872,7 @@ class JobServiceClient(metaclass=JobServiceClientMeta):
 
     def get_batch_prediction_job(
         self,
-        request: job_service.GetBatchPredictionJobRequest = None,
+        request: Union[job_service.GetBatchPredictionJobRequest, dict] = None,
         *,
         name: str = None,
         retry: retries.Retry = gapic_v1.method.DEFAULT,
@@ -1885,7 +1882,7 @@ class JobServiceClient(metaclass=JobServiceClientMeta):
         r"""Gets a BatchPredictionJob
 
         Args:
-            request (google.cloud.aiplatform_v1beta1.types.GetBatchPredictionJobRequest):
+            request (Union[google.cloud.aiplatform_v1beta1.types.GetBatchPredictionJobRequest, dict]):
                 The request object. Request message for
                 [JobService.GetBatchPredictionJob][google.cloud.aiplatform.v1beta1.JobService.GetBatchPredictionJob].
             name (str):
@@ -1951,7 +1948,7 @@ class JobServiceClient(metaclass=JobServiceClientMeta):
 
     def list_batch_prediction_jobs(
         self,
-        request: job_service.ListBatchPredictionJobsRequest = None,
+        request: Union[job_service.ListBatchPredictionJobsRequest, dict] = None,
         *,
         parent: str = None,
         retry: retries.Retry = gapic_v1.method.DEFAULT,
@@ -1961,7 +1958,7 @@ class JobServiceClient(metaclass=JobServiceClientMeta):
         r"""Lists BatchPredictionJobs in a Location.
 
         Args:
-            request (google.cloud.aiplatform_v1beta1.types.ListBatchPredictionJobsRequest):
+            request (Union[google.cloud.aiplatform_v1beta1.types.ListBatchPredictionJobsRequest, dict]):
                 The request object. Request message for
                 [JobService.ListBatchPredictionJobs][google.cloud.aiplatform.v1beta1.JobService.ListBatchPredictionJobs].
             parent (str):
@@ -2034,7 +2031,7 @@ class JobServiceClient(metaclass=JobServiceClientMeta):
 
     def delete_batch_prediction_job(
         self,
-        request: job_service.DeleteBatchPredictionJobRequest = None,
+        request: Union[job_service.DeleteBatchPredictionJobRequest, dict] = None,
         *,
         name: str = None,
         retry: retries.Retry = gapic_v1.method.DEFAULT,
@@ -2045,7 +2042,7 @@ class JobServiceClient(metaclass=JobServiceClientMeta):
         jobs that already finished.
 
         Args:
-            request (google.cloud.aiplatform_v1beta1.types.DeleteBatchPredictionJobRequest):
+            request (Union[google.cloud.aiplatform_v1beta1.types.DeleteBatchPredictionJobRequest, dict]):
                 The request object. Request message for
                 [JobService.DeleteBatchPredictionJob][google.cloud.aiplatform.v1beta1.JobService.DeleteBatchPredictionJob].
             name (str):
@@ -2130,7 +2127,7 @@ class JobServiceClient(metaclass=JobServiceClientMeta):
 
     def cancel_batch_prediction_job(
         self,
-        request: job_service.CancelBatchPredictionJobRequest = None,
+        request: Union[job_service.CancelBatchPredictionJobRequest, dict] = None,
         *,
         name: str = None,
         retry: retries.Retry = gapic_v1.method.DEFAULT,
@@ -2151,7 +2148,7 @@ class JobServiceClient(metaclass=JobServiceClientMeta):
         are not deleted.
 
         Args:
-            request (google.cloud.aiplatform_v1beta1.types.CancelBatchPredictionJobRequest):
+            request (Union[google.cloud.aiplatform_v1beta1.types.CancelBatchPredictionJobRequest, dict]):
                 The request object. Request message for
                 [JobService.CancelBatchPredictionJob][google.cloud.aiplatform.v1beta1.JobService.CancelBatchPredictionJob].
             name (str):
@@ -2208,7 +2205,9 @@ class JobServiceClient(metaclass=JobServiceClientMeta):
 
     def create_model_deployment_monitoring_job(
         self,
-        request: job_service.CreateModelDeploymentMonitoringJobRequest = None,
+        request: Union[
+            job_service.CreateModelDeploymentMonitoringJobRequest, dict
+        ] = None,
         *,
         parent: str = None,
         model_deployment_monitoring_job: gca_model_deployment_monitoring_job.ModelDeploymentMonitoringJob = None,
@@ -2220,7 +2219,7 @@ class JobServiceClient(metaclass=JobServiceClientMeta):
         periodically on a configured interval.
 
         Args:
-            request (google.cloud.aiplatform_v1beta1.types.CreateModelDeploymentMonitoringJobRequest):
+            request (Union[google.cloud.aiplatform_v1beta1.types.CreateModelDeploymentMonitoringJobRequest, dict]):
                 The request object. Request message for
                 [JobService.CreateModelDeploymentMonitoringJob][google.cloud.aiplatform.v1beta1.JobService.CreateModelDeploymentMonitoringJob].
             parent (str):
@@ -2300,7 +2299,9 @@ class JobServiceClient(metaclass=JobServiceClientMeta):
 
     def search_model_deployment_monitoring_stats_anomalies(
         self,
-        request: job_service.SearchModelDeploymentMonitoringStatsAnomaliesRequest = None,
+        request: Union[
+            job_service.SearchModelDeploymentMonitoringStatsAnomaliesRequest, dict
+        ] = None,
         *,
         model_deployment_monitoring_job: str = None,
         deployed_model_id: str = None,
@@ -2312,7 +2313,7 @@ class JobServiceClient(metaclass=JobServiceClientMeta):
         a given time window.
 
         Args:
-            request (google.cloud.aiplatform_v1beta1.types.SearchModelDeploymentMonitoringStatsAnomaliesRequest):
+            request (Union[google.cloud.aiplatform_v1beta1.types.SearchModelDeploymentMonitoringStatsAnomaliesRequest, dict]):
                 The request object. Request message for
                 [JobService.SearchModelDeploymentMonitoringStatsAnomalies][google.cloud.aiplatform.v1beta1.JobService.SearchModelDeploymentMonitoringStatsAnomalies].
             model_deployment_monitoring_job (str):
@@ -2407,7 +2408,7 @@ class JobServiceClient(metaclass=JobServiceClientMeta):
 
     def get_model_deployment_monitoring_job(
         self,
-        request: job_service.GetModelDeploymentMonitoringJobRequest = None,
+        request: Union[job_service.GetModelDeploymentMonitoringJobRequest, dict] = None,
         *,
         name: str = None,
         retry: retries.Retry = gapic_v1.method.DEFAULT,
@@ -2417,7 +2418,7 @@ class JobServiceClient(metaclass=JobServiceClientMeta):
         r"""Gets a ModelDeploymentMonitoringJob.
 
         Args:
-            request (google.cloud.aiplatform_v1beta1.types.GetModelDeploymentMonitoringJobRequest):
+            request (Union[google.cloud.aiplatform_v1beta1.types.GetModelDeploymentMonitoringJobRequest, dict]):
                 The request object. Request message for
                 [JobService.GetModelDeploymentMonitoringJob][google.cloud.aiplatform.v1beta1.JobService.GetModelDeploymentMonitoringJob].
             name (str):
@@ -2484,7 +2485,9 @@ class JobServiceClient(metaclass=JobServiceClientMeta):
 
     def list_model_deployment_monitoring_jobs(
         self,
-        request: job_service.ListModelDeploymentMonitoringJobsRequest = None,
+        request: Union[
+            job_service.ListModelDeploymentMonitoringJobsRequest, dict
+        ] = None,
         *,
         parent: str = None,
         retry: retries.Retry = gapic_v1.method.DEFAULT,
@@ -2494,7 +2497,7 @@ class JobServiceClient(metaclass=JobServiceClientMeta):
         r"""Lists ModelDeploymentMonitoringJobs in a Location.
 
         Args:
-            request (google.cloud.aiplatform_v1beta1.types.ListModelDeploymentMonitoringJobsRequest):
+            request (Union[google.cloud.aiplatform_v1beta1.types.ListModelDeploymentMonitoringJobsRequest, dict]):
                 The request object. Request message for
                 [JobService.ListModelDeploymentMonitoringJobs][google.cloud.aiplatform.v1beta1.JobService.ListModelDeploymentMonitoringJobs].
             parent (str):
@@ -2569,7 +2572,9 @@ class JobServiceClient(metaclass=JobServiceClientMeta):
 
     def update_model_deployment_monitoring_job(
         self,
-        request: job_service.UpdateModelDeploymentMonitoringJobRequest = None,
+        request: Union[
+            job_service.UpdateModelDeploymentMonitoringJobRequest, dict
+        ] = None,
         *,
         model_deployment_monitoring_job: gca_model_deployment_monitoring_job.ModelDeploymentMonitoringJob = None,
         update_mask: field_mask_pb2.FieldMask = None,
@@ -2580,7 +2585,7 @@ class JobServiceClient(metaclass=JobServiceClientMeta):
         r"""Updates a ModelDeploymentMonitoringJob.
 
         Args:
-            request (google.cloud.aiplatform_v1beta1.types.UpdateModelDeploymentMonitoringJobRequest):
+            request (Union[google.cloud.aiplatform_v1beta1.types.UpdateModelDeploymentMonitoringJobRequest, dict]):
                 The request object. Request message for
                 [JobService.UpdateModelDeploymentMonitoringJob][google.cloud.aiplatform.v1beta1.JobService.UpdateModelDeploymentMonitoringJob].
             model_deployment_monitoring_job (google.cloud.aiplatform_v1beta1.types.ModelDeploymentMonitoringJob):
@@ -2592,8 +2597,34 @@ class JobServiceClient(metaclass=JobServiceClientMeta):
                 on the ``request`` instance; if ``request`` is provided, this
                 should not be set.
             update_mask (google.protobuf.field_mask_pb2.FieldMask):
-                Required. The update mask applies to
-                the resource.
+                Required. The update mask is used to specify the fields
+                to be overwritten in the ModelDeploymentMonitoringJob
+                resource by the update. The fields specified in the
+                update_mask are relative to the resource, not the full
+                request. A field will be overwritten if it is in the
+                mask. If the user does not provide a mask then only the
+                non-empty fields present in the request will be
+                overwritten. Set the update_mask to ``*`` to override
+                all fields. For the objective config, the user can
+                either provide the update mask for
+                model_deployment_monitoring_objective_configs or any
+                combination of its nested fields, such as:
+                model_deployment_monitoring_objective_configs.objective_config.training_dataset.
+
+                Updatable fields:
+
+                -  ``display_name``
+                -  ``model_deployment_monitoring_schedule_config``
+                -  ``model_monitoring_alert_config``
+                -  ``logging_sampling_strategy``
+                -  ``labels``
+                -  ``log_ttl``
+                -  ``enable_monitoring_pipeline_logs`` . and
+                -  ``model_deployment_monitoring_objective_configs`` .
+                   or
+                -  ``model_deployment_monitoring_objective_configs.objective_config.training_dataset``
+                -  ``model_deployment_monitoring_objective_configs.objective_config.training_prediction_skew_detection_config``
+                -  ``model_deployment_monitoring_objective_configs.objective_config.prediction_drift_detection_config``
 
                 This corresponds to the ``update_mask`` field
                 on the ``request`` instance; if ``request`` is provided, this
@@ -2675,7 +2706,9 @@ class JobServiceClient(metaclass=JobServiceClientMeta):
 
     def delete_model_deployment_monitoring_job(
         self,
-        request: job_service.DeleteModelDeploymentMonitoringJobRequest = None,
+        request: Union[
+            job_service.DeleteModelDeploymentMonitoringJobRequest, dict
+        ] = None,
         *,
         name: str = None,
         retry: retries.Retry = gapic_v1.method.DEFAULT,
@@ -2685,7 +2718,7 @@ class JobServiceClient(metaclass=JobServiceClientMeta):
         r"""Deletes a ModelDeploymentMonitoringJob.
 
         Args:
-            request (google.cloud.aiplatform_v1beta1.types.DeleteModelDeploymentMonitoringJobRequest):
+            request (Union[google.cloud.aiplatform_v1beta1.types.DeleteModelDeploymentMonitoringJobRequest, dict]):
                 The request object. Request message for
                 [JobService.DeleteModelDeploymentMonitoringJob][google.cloud.aiplatform.v1beta1.JobService.DeleteModelDeploymentMonitoringJob].
             name (str):
@@ -2772,7 +2805,9 @@ class JobServiceClient(metaclass=JobServiceClientMeta):
 
     def pause_model_deployment_monitoring_job(
         self,
-        request: job_service.PauseModelDeploymentMonitoringJobRequest = None,
+        request: Union[
+            job_service.PauseModelDeploymentMonitoringJobRequest, dict
+        ] = None,
         *,
         name: str = None,
         retry: retries.Retry = gapic_v1.method.DEFAULT,
@@ -2785,7 +2820,7 @@ class JobServiceClient(metaclass=JobServiceClientMeta):
         to 'PAUSED'.
 
         Args:
-            request (google.cloud.aiplatform_v1beta1.types.PauseModelDeploymentMonitoringJobRequest):
+            request (Union[google.cloud.aiplatform_v1beta1.types.PauseModelDeploymentMonitoringJobRequest, dict]):
                 The request object. Request message for
                 [JobService.PauseModelDeploymentMonitoringJob][google.cloud.aiplatform.v1beta1.JobService.PauseModelDeploymentMonitoringJob].
             name (str):
@@ -2844,7 +2879,9 @@ class JobServiceClient(metaclass=JobServiceClientMeta):
 
     def resume_model_deployment_monitoring_job(
         self,
-        request: job_service.ResumeModelDeploymentMonitoringJobRequest = None,
+        request: Union[
+            job_service.ResumeModelDeploymentMonitoringJobRequest, dict
+        ] = None,
         *,
         name: str = None,
         retry: retries.Retry = gapic_v1.method.DEFAULT,
@@ -2856,7 +2893,7 @@ class JobServiceClient(metaclass=JobServiceClientMeta):
         ModelDeploymentMonitoringJob can't be resumed.
 
         Args:
-            request (google.cloud.aiplatform_v1beta1.types.ResumeModelDeploymentMonitoringJobRequest):
+            request (Union[google.cloud.aiplatform_v1beta1.types.ResumeModelDeploymentMonitoringJobRequest, dict]):
                 The request object. Request message for
                 [JobService.ResumeModelDeploymentMonitoringJob][google.cloud.aiplatform.v1beta1.JobService.ResumeModelDeploymentMonitoringJob].
             name (str):
@@ -2912,6 +2949,19 @@ class JobServiceClient(metaclass=JobServiceClientMeta):
         rpc(
             request, retry=retry, timeout=timeout, metadata=metadata,
         )
+
+    def __enter__(self):
+        return self
+
+    def __exit__(self, type, value, traceback):
+        """Releases underlying transport's resources.
+
+        .. warning::
+            ONLY use as a context manager if the transport is NOT shared
+            with other clients! Exiting the with block will CLOSE the transport
+            and may cause errors in other clients!
+        """
+        self.transport.close()
 
 
 try:
