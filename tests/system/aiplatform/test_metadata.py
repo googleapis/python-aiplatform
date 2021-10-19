@@ -30,6 +30,7 @@ class TestMetadata(e2e_base.TestEndToEnd):
 
     def test_experiment_logging(self, shared_state):
 
+        # Truncating the name because of resource id constraints from the service
         experiment_name = self._make_display_name("experiment")[:56]
 
         aiplatform.init(
@@ -40,6 +41,7 @@ class TestMetadata(e2e_base.TestEndToEnd):
 
         shared_state["resources"] = [aiplatform.metadata.metadata_service._experiment]
 
+        # Truncating the name because of resource id constraints from the service
         run_name = self._make_display_name("run")[:56]
 
         aiplatform.start_run(run_name)
