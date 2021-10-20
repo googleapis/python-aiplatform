@@ -1457,7 +1457,7 @@ class _CustomTrainingJob(_TrainingJob):
             (Dict[str, str]):
                 Web access uris of the backing custom job.
         """
-        web_access_uris = {}
+        web_access_uris = dict()
         if (
             self._gca_resource.training_task_metadata
             and self._gca_resource.training_task_metadata.get("backingCustomJob")
@@ -1467,7 +1467,7 @@ class _CustomTrainingJob(_TrainingJob):
             )
             custom_job = jobs.CustomJob.get(resource_name=custom_job_resource_name)
 
-            web_access_uris = custom_job.web_access_uris
+            web_access_uris = dict(custom_job.web_access_uris)
 
         return web_access_uris
 

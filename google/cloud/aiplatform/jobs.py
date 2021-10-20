@@ -1108,12 +1108,12 @@ class CustomJob(_RunnableJob):
             (Dict[str, str]):
                 Web access uris of the custom job.
         """
-        return self._gca_resource.web_access_uris
+        return dict(self._gca_resource.web_access_uris)
 
     def _log_web_access_uris(self):
         """Helper method to log the web access uris of the custom job"""
 
-        for worker, uri in self.web_access_uris.items():
+        for worker, uri in self._get_web_access_uris().items():
             if uri not in self._logged_web_access_uris:
                 _LOGGER.info(
                     "%s %s access the interactive shell terminals for the custom job:\n%s:\n%s"
@@ -1678,9 +1678,9 @@ class HyperparameterTuningJob(_RunnableJob):
             (Dict[str, Dict[str, str]]):
                 Web access uris of the hyperparameter job.
         """
-        web_access_uris = {}
+        web_access_uris = dict()
         for trial in self.trials:
-            web_access_uris[trial.id] = web_access_uris.get(trial.id, {})
+            web_access_uris[trial.id] = web_access_uris.get(trial.id, dict())
             for worker, uri in trial.web_access_uris.items():
                 web_access_uris[trial.id][worker] = uri
         return web_access_uris
@@ -1688,7 +1688,7 @@ class HyperparameterTuningJob(_RunnableJob):
     def _log_web_access_uris(self):
         """Helper method to log the web access uris of the hyperparameter job"""
 
-        for (trial_id, trial_web_access_uris) in self.web_access_uris.items():
+        for trial_id, trial_web_access_uris in self._get_web_access_uris().items():
             for worker, uri in trial_web_access_uris.items():
                 if uri not in self._logged_web_access_uris:
                     _LOGGER.info(

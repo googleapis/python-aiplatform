@@ -524,10 +524,12 @@ def make_training_pipeline(state, add_training_task_metadata=True):
         else None,
     )
 
+
 def make_training_pipeline_with_no_model_upload(state):
     return gca_training_pipeline.TrainingPipeline(
         name=_TEST_PIPELINE_RESOURCE_NAME, state=state,
     )
+
 
 def make_training_pipeline_with_enable_web_access(state):
     training_pipeline = gca_training_pipeline.TrainingPipeline(
@@ -540,6 +542,7 @@ def make_training_pipeline_with_enable_web_access(state):
             "backingCustomJob": _TEST_CUSTOM_JOB_RESOURCE_NAME
         }
     return training_pipeline
+
 
 @pytest.fixture
 def mock_pipeline_service_get():
