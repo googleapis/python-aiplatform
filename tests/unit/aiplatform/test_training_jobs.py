@@ -16,8 +16,10 @@
 #
 
 from distutils import core
+import copy
 import functools
 import importlib
+import logging
 import pathlib
 import pytest
 import subprocess
@@ -41,6 +43,7 @@ from google.cloud.aiplatform import initializer
 from google.cloud.aiplatform import schema
 from google.cloud.aiplatform import training_jobs
 
+from google.cloud.aiplatform_v1.services.job_service import client as job_service_client
 from google.cloud.aiplatform_v1.services.model_service import (
     client as model_service_client,
 )
@@ -49,10 +52,12 @@ from google.cloud.aiplatform_v1.services.pipeline_service import (
 )
 
 from google.cloud.aiplatform_v1.types import (
+    custom_job as gca_custom_job,
     dataset as gca_dataset,
     encryption_spec as gca_encryption_spec,
     env_var as gca_env_var,
     io as gca_io,
+    job_state as gca_job_state,
     model as gca_model,
     pipeline_state as gca_pipeline_state,
     training_pipeline as gca_training_pipeline,
@@ -174,6 +179,23 @@ _TEST_MODEL_ENCRYPTION_KEY_NAME = "key_model"
 _TEST_MODEL_ENCRYPTION_SPEC = gca_encryption_spec.EncryptionSpec(
     kms_key_name=_TEST_MODEL_ENCRYPTION_KEY_NAME
 )
+_TEST_ENABLE_WEB_ACCESS = True
+_TEST_WEB_ACCESS_URIS = {"workerpool0-0": "uri"}
+
+_TEST_BASE_CUSTOM_JOB_PROTO = gca_custom_job.CustomJob(
+    job_spec=gca_custom_job.CustomJobSpec(),
+)
+
+
+def _get_custom_job_proto_with_enable_web_access(state=None, name=None, version="v1"):
+    custom_job_proto = copy.deepcopy(_TEST_BASE_CUSTOM_JOB_PROTO)
+    custom_job_proto.name = name
+    custom_job_proto.state = state
+
+    custom_job_proto.job_spec.enable_web_access = _TEST_ENABLE_WEB_ACCESS
+    if state == gca_job_state.JobState.JOB_STATE_RUNNING:
+        custom_job_proto.web_access_uris = _TEST_WEB_ACCESS_URIS
+    return custom_job_proto
 
 
 def local_copy_method(path):
@@ -244,6 +266,40 @@ def mock_client_bucket():
         mock_client_bucket.return_value = MockBucket
 
         yield mock_client_bucket, MockBlob
+
+
+@pytest.fixture
+def mock_get_backing_custom_job_with_enable_web_access():
+    with patch.object(
+        job_service_client.JobServiceClient, "get_custom_job"
+    ) as get_custom_job_mock:
+        get_custom_job_mock.side_effect = [
+            _get_custom_job_proto_with_enable_web_access(
+                name=_TEST_CUSTOM_JOB_RESOURCE_NAME,
+                state=gca_job_state.JobState.JOB_STATE_PENDING,
+            ),
+            _get_custom_job_proto_with_enable_web_access(
+                name=_TEST_CUSTOM_JOB_RESOURCE_NAME,
+                state=gca_job_state.JobState.JOB_STATE_RUNNING,
+            ),
+            _get_custom_job_proto_with_enable_web_access(
+                name=_TEST_CUSTOM_JOB_RESOURCE_NAME,
+                state=gca_job_state.JobState.JOB_STATE_RUNNING,
+            ),
+            _get_custom_job_proto_with_enable_web_access(
+                name=_TEST_CUSTOM_JOB_RESOURCE_NAME,
+                state=gca_job_state.JobState.JOB_STATE_RUNNING,
+            ),
+            _get_custom_job_proto_with_enable_web_access(
+                name=_TEST_CUSTOM_JOB_RESOURCE_NAME,
+                state=gca_job_state.JobState.JOB_STATE_SUCCEEDED,
+            ),
+            _get_custom_job_proto_with_enable_web_access(
+                name=_TEST_CUSTOM_JOB_RESOURCE_NAME,
+                state=gca_job_state.JobState.JOB_STATE_SUCCEEDED,
+            ),
+        ]
+        yield get_custom_job_mock
 
 
 class TestTrainingScriptPythonPackagerHelpers:
@@ -468,12 +524,22 @@ def make_training_pipeline(state, add_training_task_metadata=True):
         else None,
     )
 
-
 def make_training_pipeline_with_no_model_upload(state):
     return gca_training_pipeline.TrainingPipeline(
         name=_TEST_PIPELINE_RESOURCE_NAME, state=state,
     )
 
+def make_training_pipeline_with_enable_web_access(state):
+    training_pipeline = gca_training_pipeline.TrainingPipeline(
+        name=_TEST_PIPELINE_RESOURCE_NAME,
+        state=state,
+        training_task_inputs={"enable_web_access": _TEST_ENABLE_WEB_ACCESS},
+    )
+    if state == gca_pipeline_state.PipelineState.PIPELINE_STATE_RUNNING:
+        training_pipeline.training_task_metadata = {
+            "backingCustomJob": _TEST_CUSTOM_JOB_RESOURCE_NAME
+        }
+    return training_pipeline
 
 @pytest.fixture
 def mock_pipeline_service_get():
@@ -518,6 +584,35 @@ def mock_pipeline_service_get():
 
 
 @pytest.fixture
+def mock_pipeline_service_get_with_enable_web_access():
+    with mock.patch.object(
+        pipeline_service_client.PipelineServiceClient, "get_training_pipeline"
+    ) as mock_get_training_pipeline:
+        mock_get_training_pipeline.side_effect = [
+            make_training_pipeline_with_enable_web_access(
+                state=gca_pipeline_state.PipelineState.PIPELINE_STATE_PENDING,
+            ),
+            make_training_pipeline_with_enable_web_access(
+                state=gca_pipeline_state.PipelineState.PIPELINE_STATE_RUNNING,
+            ),
+            make_training_pipeline_with_enable_web_access(
+                state=gca_pipeline_state.PipelineState.PIPELINE_STATE_RUNNING,
+            ),
+            make_training_pipeline_with_enable_web_access(
+                state=gca_pipeline_state.PipelineState.PIPELINE_STATE_RUNNING,
+            ),
+            make_training_pipeline_with_enable_web_access(
+                state=gca_pipeline_state.PipelineState.PIPELINE_STATE_SUCCEEDED,
+            ),
+            make_training_pipeline_with_enable_web_access(
+                state=gca_pipeline_state.PipelineState.PIPELINE_STATE_SUCCEEDED,
+            ),
+        ]
+
+        yield mock_get_training_pipeline
+
+
+@pytest.fixture
 def mock_pipeline_service_cancel():
     with mock.patch.object(
         pipeline_service_client.PipelineServiceClient, "cancel_training_pipeline"
@@ -533,6 +628,17 @@ def mock_pipeline_service_create_with_no_model_to_upload():
         mock_create_training_pipeline.return_value = gca_training_pipeline.TrainingPipeline(
             name=_TEST_PIPELINE_RESOURCE_NAME,
             state=gca_pipeline_state.PipelineState.PIPELINE_STATE_SUCCEEDED,
+        )
+        yield mock_create_training_pipeline
+
+
+@pytest.fixture
+def mock_pipeline_service_create_with_enable_web_access():
+    with mock.patch.object(
+        pipeline_service_client.PipelineServiceClient, "create_training_pipeline"
+    ) as mock_create_training_pipeline:
+        mock_create_training_pipeline.return_value = make_training_pipeline_with_enable_web_access(
+            state=gca_pipeline_state.PipelineState.PIPELINE_STATE_PENDING,
         )
         yield mock_create_training_pipeline
 
@@ -1233,6 +1339,50 @@ class TestCustomTrainingJob:
         mock_model_service_get.assert_called_once_with(name=_TEST_MODEL_NAME)
 
         assert model_from_job._gca_resource is mock_model_service_get.return_value
+
+    @pytest.mark.usefixtures(
+        "mock_pipeline_service_create_with_enable_web_access",
+        "mock_pipeline_service_get_with_enable_web_access",
+        "mock_get_backing_custom_job_with_enable_web_access",
+        "mock_python_package_to_gcs",
+    )
+    @pytest.mark.parametrize("sync", [True, False])
+    def test_run_call_pipeline_service_create_with_enable_web_access(
+        self, sync, caplog
+    ):
+
+        caplog.set_level(logging.INFO)
+
+        aiplatform.init(
+            project=_TEST_PROJECT,
+            staging_bucket=_TEST_BUCKET_NAME,
+            credentials=_TEST_CREDENTIALS,
+        )
+
+        job = training_jobs.CustomTrainingJob(
+            display_name=_TEST_DISPLAY_NAME,
+            script_path=_TEST_LOCAL_SCRIPT_FILE_NAME,
+            container_uri=_TEST_TRAINING_CONTAINER_IMAGE,
+        )
+
+        job.run(
+            base_output_dir=_TEST_BASE_OUTPUT_DIR,
+            args=_TEST_RUN_ARGS,
+            machine_type=_TEST_MACHINE_TYPE,
+            accelerator_type=_TEST_ACCELERATOR_TYPE,
+            accelerator_count=_TEST_ACCELERATOR_COUNT,
+            enable_web_access=_TEST_ENABLE_WEB_ACCESS,
+            sync=sync,
+        )
+
+        if not sync:
+            job.wait()
+
+        print(caplog.text)
+        assert "workerpool0-0" in caplog.text
+        assert job._gca_resource == make_training_pipeline_with_enable_web_access(
+            gca_pipeline_state.PipelineState.PIPELINE_STATE_SUCCEEDED
+        )
 
     @pytest.mark.usefixtures(
         "mock_pipeline_service_create_with_no_model_to_upload",
@@ -2576,6 +2726,49 @@ class TestCustomContainerTrainingJob:
         mock_model_service_get.assert_called_once_with(name=_TEST_MODEL_NAME)
 
         assert model_from_job._gca_resource is mock_model_service_get.return_value
+
+    @pytest.mark.usefixtures(
+        "mock_pipeline_service_create_with_enable_web_access",
+        "mock_pipeline_service_get_with_enable_web_access",
+        "mock_get_backing_custom_job_with_enable_web_access",
+    )
+    @pytest.mark.parametrize("sync", [True, False])
+    def test_run_call_pipeline_service_create_with_enable_web_access(
+        self, sync, caplog
+    ):
+
+        caplog.set_level(logging.INFO)
+
+        aiplatform.init(
+            project=_TEST_PROJECT,
+            staging_bucket=_TEST_BUCKET_NAME,
+            credentials=_TEST_CREDENTIALS,
+        )
+
+        job = training_jobs.CustomContainerTrainingJob(
+            display_name=_TEST_DISPLAY_NAME,
+            container_uri=_TEST_TRAINING_CONTAINER_IMAGE,
+            command=_TEST_TRAINING_CONTAINER_CMD,
+        )
+
+        job.run(
+            base_output_dir=_TEST_BASE_OUTPUT_DIR,
+            args=_TEST_RUN_ARGS,
+            machine_type=_TEST_MACHINE_TYPE,
+            accelerator_type=_TEST_ACCELERATOR_TYPE,
+            accelerator_count=_TEST_ACCELERATOR_COUNT,
+            enable_web_access=_TEST_ENABLE_WEB_ACCESS,
+            sync=sync,
+        )
+
+        if not sync:
+            job.wait()
+
+        print(caplog.text)
+        assert "workerpool0-0" in caplog.text
+        assert job._gca_resource == make_training_pipeline_with_enable_web_access(
+            gca_pipeline_state.PipelineState.PIPELINE_STATE_SUCCEEDED
+        )
 
     @pytest.mark.parametrize("sync", [True, False])
     def test_run_returns_none_if_no_model_to_upload(
@@ -4198,6 +4391,50 @@ class TestCustomPythonPackageTrainingJob:
         mock_model_service_get.assert_called_once_with(name=_TEST_MODEL_NAME)
 
         assert model_from_job._gca_resource is mock_model_service_get.return_value
+
+    @pytest.mark.usefixtures(
+        "mock_pipeline_service_create_with_enable_web_access",
+        "mock_pipeline_service_get_with_enable_web_access",
+        "mock_get_backing_custom_job_with_enable_web_access",
+    )
+    @pytest.mark.parametrize("sync", [True, False])
+    def test_run_call_pipeline_service_create_with_enable_web_access(
+        self, sync, caplog
+    ):
+
+        caplog.set_level(logging.INFO)
+
+        aiplatform.init(
+            project=_TEST_PROJECT,
+            staging_bucket=_TEST_BUCKET_NAME,
+            credentials=_TEST_CREDENTIALS,
+        )
+
+        job = training_jobs.CustomPythonPackageTrainingJob(
+            display_name=_TEST_DISPLAY_NAME,
+            python_package_gcs_uri=_TEST_OUTPUT_PYTHON_PACKAGE_PATH,
+            python_module_name=_TEST_PYTHON_MODULE_NAME,
+            container_uri=_TEST_TRAINING_CONTAINER_IMAGE,
+        )
+
+        job.run(
+            base_output_dir=_TEST_BASE_OUTPUT_DIR,
+            args=_TEST_RUN_ARGS,
+            machine_type=_TEST_MACHINE_TYPE,
+            accelerator_type=_TEST_ACCELERATOR_TYPE,
+            accelerator_count=_TEST_ACCELERATOR_COUNT,
+            enable_web_access=_TEST_ENABLE_WEB_ACCESS,
+            sync=sync,
+        )
+
+        if not sync:
+            job.wait()
+
+        print(caplog.text)
+        assert "workerpool0-0" in caplog.text
+        assert job._gca_resource == make_training_pipeline_with_enable_web_access(
+            gca_pipeline_state.PipelineState.PIPELINE_STATE_SUCCEEDED
+        )
 
     @pytest.mark.usefixtures(
         "mock_pipeline_service_create_with_no_model_to_upload",

@@ -27,6 +27,7 @@ from google.cloud.aiplatform import constants
 from google.cloud.aiplatform import datasets
 from google.cloud.aiplatform import initializer
 from google.cloud.aiplatform import models
+from google.cloud.aiplatform import jobs
 from google.cloud.aiplatform import schema
 from google.cloud.aiplatform import utils
 from google.cloud.aiplatform.utils import console_utils
@@ -1251,6 +1252,9 @@ class _CustomTrainingJob(_TrainingJob):
         # once Custom Job is known we log the console uri and the tensorboard uri
         # this flags keeps that state so we don't log it multiple times
         self._has_logged_custom_job = False
+        self._custom_job = None
+        self._web_access_uris = None
+        self._logged_web_access_uris = []
 
     @property
     def network(self) -> Optional[str]:
@@ -1382,6 +1386,7 @@ class _CustomTrainingJob(_TrainingJob):
         base_output_dir: Optional[str] = None,
         service_account: Optional[str] = None,
         network: Optional[str] = None,
+        enable_web_access: bool = False,
         tensorboard: Optional[str] = None,
     ) -> Tuple[Dict, str]:
         """Prepares training task inputs and output directory for custom job.
@@ -1400,6 +1405,10 @@ class _CustomTrainingJob(_TrainingJob):
                 should be peered. For example, projects/12345/global/networks/myVPC.
                 Private services access must already be configured for the network.
                 If left unspecified, the job is not peered with any network.
+            enable_web_access (bool):
+                Whether you want Vertex AI to enable interactive shell access
+                to training containers.
+                https://cloud.google.com/vertex-ai/docs/training/monitor-debug-interactive-shell
             tensorboard (str):
                 Optional. The name of a Vertex AI
                 [Tensorboard][google.cloud.aiplatform.v1beta1.Tensorboard]
@@ -1437,8 +1446,39 @@ class _CustomTrainingJob(_TrainingJob):
             training_task_inputs["network"] = network
         if tensorboard:
             training_task_inputs["tensorboard"] = tensorboard
+        if enable_web_access:
+            training_task_inputs["enable_web_access"] = enable_web_access
 
         return training_task_inputs, base_output_dir
+
+    @property
+    def web_access_uris(self) -> Optional[Dict[str, str]]:
+        """Get the web access uris of the backing custom job.
+
+        Returns:
+            (Dict[str, str]):
+                Web access uris of the backing custom job.
+        """
+        if self._custom_job:
+            self._web_access_uris = self._custom_job.web_access_uris
+        return self._web_access_uris
+
+    def _log_web_access_uris(self):
+        """Helper method to log the web access uris of the backing custom job"""
+
+        if self._web_access_uris:
+            for worker, uri in self._web_access_uris.items():
+                if uri not in self._logged_web_access_uris:
+                    _LOGGER.info(
+                        "%s %s access the interactive shell terminals for the backing custom job:\n%s:\n%s"
+                        % (
+                            self.__class__.__name__,
+                            self._gca_resource.name,
+                            worker,
+                            uri,
+                        ),
+                    )
+                    self._logged_web_access_uris.append(uri)
 
     def _wait_callback(self):
         if (
@@ -1452,6 +1492,19 @@ class _CustomTrainingJob(_TrainingJob):
                 _LOGGER.info(f"View tensorboard:\n{self._tensorboard_console_uri()}")
 
             self._has_logged_custom_job = True
+
+        if self._has_logged_custom_job and self._gca_resource.training_task_inputs.get(
+            "enable_web_access"
+        ):
+            if not self._custom_job:
+                custom_job_resource_name = self._gca_resource.training_task_metadata.get(
+                    "backingCustomJob"
+                )
+                self._custom_job = jobs.CustomJob.get(
+                    resource_name=custom_job_resource_name
+                )
+            self._web_access_uris = self._custom_job.web_access_uris
+            self._log_web_access_uris()
 
     def _custom_job_console_uri(self) -> str:
         """Helper method to compose the dashboard uri where custom job can be viewed."""
@@ -1755,6 +1808,7 @@ class CustomTrainingJob(_CustomTrainingJob):
         test_filter_split: Optional[str] = None,
         predefined_split_column_name: Optional[str] = None,
         timestamp_split_column_name: Optional[str] = None,
+        enable_web_access: bool = False,
         tensorboard: Optional[str] = None,
         sync=True,
     ) -> Optional[models.Model]:
@@ -1974,6 +2028,10 @@ class CustomTrainingJob(_CustomTrainingJob):
                 that piece is ignored by the pipeline.
 
                 Supported only for tabular and time series Datasets.
+            enable_web_access (bool):
+                Whether you want Vertex AI to enable interactive shell access
+                to training containers.
+                https://cloud.google.com/vertex-ai/docs/training/monitor-debug-interactive-shell
             tensorboard (str):
                 Optional. The name of a Vertex AI
                 [Tensorboard][google.cloud.aiplatform.v1beta1.Tensorboard]
@@ -2036,6 +2094,7 @@ class CustomTrainingJob(_CustomTrainingJob):
             test_filter_split=test_filter_split,
             predefined_split_column_name=predefined_split_column_name,
             timestamp_split_column_name=timestamp_split_column_name,
+            enable_web_access=enable_web_access,
             tensorboard=tensorboard,
             reduction_server_container_uri=reduction_server_container_uri
             if reduction_server_replica_count > 0
@@ -2072,6 +2131,7 @@ class CustomTrainingJob(_CustomTrainingJob):
         test_filter_split: Optional[str] = None,
         predefined_split_column_name: Optional[str] = None,
         timestamp_split_column_name: Optional[str] = None,
+        enable_web_access: bool = False,
         tensorboard: Optional[str] = None,
         reduction_server_container_uri: Optional[str] = None,
         sync=True,
@@ -2191,6 +2251,10 @@ class CustomTrainingJob(_CustomTrainingJob):
                 that piece is ignored by the pipeline.
 
                 Supported only for tabular and time series Datasets.
+            enable_web_access (bool):
+                Whether you want Vertex AI to enable interactive shell access
+                to training containers.
+                https://cloud.google.com/vertex-ai/docs/training/monitor-debug-interactive-shell
             tensorboard (str):
                 Optional. The name of a Vertex AI
                 [Tensorboard][google.cloud.aiplatform.v1beta1.Tensorboard]
@@ -2259,6 +2323,7 @@ class CustomTrainingJob(_CustomTrainingJob):
             base_output_dir=base_output_dir,
             service_account=service_account,
             network=network,
+            enable_web_access=enable_web_access,
             tensorboard=tensorboard,
         )
 
@@ -2547,6 +2612,7 @@ class CustomContainerTrainingJob(_CustomTrainingJob):
         test_filter_split: Optional[str] = None,
         predefined_split_column_name: Optional[str] = None,
         timestamp_split_column_name: Optional[str] = None,
+        enable_web_access: bool = False,
         tensorboard: Optional[str] = None,
         sync=True,
     ) -> Optional[models.Model]:
@@ -2759,6 +2825,10 @@ class CustomContainerTrainingJob(_CustomTrainingJob):
                 that piece is ignored by the pipeline.
 
                 Supported only for tabular and time series Datasets.
+            enable_web_access (bool):
+                Whether you want Vertex AI to enable interactive shell access
+                to training containers.
+                https://cloud.google.com/vertex-ai/docs/training/monitor-debug-interactive-shell
             tensorboard (str):
                 Optional. The name of a Vertex AI
                 [Tensorboard][google.cloud.aiplatform.v1beta1.Tensorboard]
@@ -2820,6 +2890,7 @@ class CustomContainerTrainingJob(_CustomTrainingJob):
             test_filter_split=test_filter_split,
             predefined_split_column_name=predefined_split_column_name,
             timestamp_split_column_name=timestamp_split_column_name,
+            enable_web_access=enable_web_access,
             tensorboard=tensorboard,
             reduction_server_container_uri=reduction_server_container_uri
             if reduction_server_replica_count > 0
@@ -2855,6 +2926,7 @@ class CustomContainerTrainingJob(_CustomTrainingJob):
         test_filter_split: Optional[str] = None,
         predefined_split_column_name: Optional[str] = None,
         timestamp_split_column_name: Optional[str] = None,
+        enable_web_access: bool = False,
         tensorboard: Optional[str] = None,
         reduction_server_container_uri: Optional[str] = None,
         sync=True,
@@ -2970,6 +3042,10 @@ class CustomContainerTrainingJob(_CustomTrainingJob):
                 that piece is ignored by the pipeline.
 
                 Supported only for tabular and time series Datasets.
+            enable_web_access (bool):
+                Whether you want Vertex AI to enable interactive shell access
+                to training containers.
+                https://cloud.google.com/vertex-ai/docs/training/monitor-debug-interactive-shell
             tensorboard (str):
                 Optional. The name of a Vertex AI
                 [Tensorboard][google.cloud.aiplatform.v1beta1.Tensorboard]
@@ -3032,6 +3108,7 @@ class CustomContainerTrainingJob(_CustomTrainingJob):
             base_output_dir=base_output_dir,
             service_account=service_account,
             network=network,
+            enable_web_access=enable_web_access,
             tensorboard=tensorboard,
         )
 
@@ -5310,6 +5387,7 @@ class CustomPythonPackageTrainingJob(_CustomTrainingJob):
         test_filter_split: Optional[str] = None,
         predefined_split_column_name: Optional[str] = None,
         timestamp_split_column_name: Optional[str] = None,
+        enable_web_access: bool = False,
         tensorboard: Optional[str] = None,
         sync=True,
     ) -> Optional[models.Model]:
@@ -5522,6 +5600,10 @@ class CustomPythonPackageTrainingJob(_CustomTrainingJob):
                 that piece is ignored by the pipeline.
 
                 Supported only for tabular and time series Datasets.
+            enable_web_access (bool):
+                Whether you want Vertex AI to enable interactive shell access
+                to training containers.
+                https://cloud.google.com/vertex-ai/docs/training/monitor-debug-interactive-shell
             tensorboard (str):
                 Optional. The name of a Vertex AI
                 [Tensorboard][google.cloud.aiplatform.v1beta1.Tensorboard]
@@ -5578,6 +5660,7 @@ class CustomPythonPackageTrainingJob(_CustomTrainingJob):
             predefined_split_column_name=predefined_split_column_name,
             timestamp_split_column_name=timestamp_split_column_name,
             bigquery_destination=bigquery_destination,
+            enable_web_access=enable_web_access,
             tensorboard=tensorboard,
             reduction_server_container_uri=reduction_server_container_uri
             if reduction_server_replica_count > 0
@@ -5613,6 +5696,7 @@ class CustomPythonPackageTrainingJob(_CustomTrainingJob):
         predefined_split_column_name: Optional[str] = None,
         timestamp_split_column_name: Optional[str] = None,
         bigquery_destination: Optional[str] = None,
+        enable_web_access: bool = False,
         tensorboard: Optional[str] = None,
         reduction_server_container_uri: Optional[str] = None,
         sync=True,
@@ -5715,6 +5799,10 @@ class CustomPythonPackageTrainingJob(_CustomTrainingJob):
                 that piece is ignored by the pipeline.
 
                 Supported only for tabular and time series Datasets.
+            enable_web_access (bool):
+                Whether you want Vertex AI to enable interactive shell access
+                to training containers.
+                https://cloud.google.com/vertex-ai/docs/training/monitor-debug-interactive-shell
             tensorboard (str):
                 Optional. The name of a Vertex AI
                 [Tensorboard][google.cloud.aiplatform.v1beta1.Tensorboard]
@@ -5777,6 +5865,7 @@ class CustomPythonPackageTrainingJob(_CustomTrainingJob):
             base_output_dir=base_output_dir,
             service_account=service_account,
             network=network,
+            enable_web_access=enable_web_access,
             tensorboard=tensorboard,
         )
 
