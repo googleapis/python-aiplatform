@@ -843,23 +843,20 @@ class _RunnableJob(_Job):
             project=project, location=location
         )
 
-        self._web_access_uris = None
-        self._logged_web_access_uris = []
+        self._logged_web_access_uris = set()
 
     @property
-    def web_access_uris(self) -> Dict[str, str]:
+    def web_access_uris(self) -> Dict[str, Union[str, Dict[str, str]]]:
         """Fetch the runnable job again and return the latest web access uris.
 
         Returns:
-            (Dict[str, str]):
+            (Dict[str, Union[str, Dict[str, str]]]):
                 Web access uris of the runnable job.
         """
 
         # Fetch the Job again for most up-to-date web access uris
         self._sync_gca_resource()
-        self._get_web_access_uris()
-
-        return self._web_access_uris
+        return self._get_web_access_uris()
 
     @abc.abstractmethod
     def _get_web_access_uris(self):
@@ -1104,28 +1101,25 @@ class CustomJob(_RunnableJob):
         self._assert_gca_resource_is_available()
         return self._gca_resource.job_spec.network
 
-    def _get_web_access_uris(self):
-        """Helper method to get the web access uris of the custom job"""
-        self._web_access_uris = self._gca_resource.web_access_uris
+    def _get_web_access_uris(self) -> Dict[str, str]:
+        """Helper method to get the web access uris of the custom job
+
+        Returns:
+            (Dict[str, str]):
+                Web access uris of the custom job.
+        """
+        return self._gca_resource.web_access_uris
 
     def _log_web_access_uris(self):
         """Helper method to log the web access uris of the custom job"""
 
-        self._get_web_access_uris()
-
-        if self._web_access_uris:
-            for worker, uri in self._web_access_uris.items():
-                if uri not in self._logged_web_access_uris:
-                    _LOGGER.info(
-                        "%s %s access the interactive shell terminals for the custom job:\n%s:\n%s"
-                        % (
-                            self.__class__.__name__,
-                            self._gca_resource.name,
-                            worker,
-                            uri,
-                        ),
-                    )
-                    self._logged_web_access_uris.append(uri)
+        for worker, uri in self.web_access_uris.items():
+            if uri not in self._logged_web_access_uris:
+                _LOGGER.info(
+                    "%s %s access the interactive shell terminals for the custom job:\n%s:\n%s"
+                    % (self.__class__.__name__, self._gca_resource.name, worker, uri,),
+                )
+                self._logged_web_access_uris.add(uri)
 
     @classmethod
     def from_local_script(
@@ -1677,36 +1671,37 @@ class HyperparameterTuningJob(_RunnableJob):
         self._assert_gca_resource_is_available()
         return getattr(self._gca_resource.trial_job_spec, "network")
 
-    def _get_web_access_uris(self):
-        """Helper method to get the web access uris of the hyperparameter job"""
-        if self.trials:
-            self._web_access_uris = [
-                (trial.id, trial.web_access_uris)
-                for trial in self.trials
-                if trial.web_access_uris
-            ]
+    def _get_web_access_uris(self) -> Dict[str, Dict[str, str]]:
+        """Helper method to get the web access uris of the hyperparameter job
+
+        Returns:
+            (Dict[str, Dict[str, str]]):
+                Web access uris of the hyperparameter job.
+        """
+        web_access_uris = {}
+        for trial in self.trials:
+            web_access_uris[trial.id] = web_access_uris.get(trial.id, {})
+            for worker, uri in trial.web_access_uris.items():
+                web_access_uris[trial.id][worker] = uri
+        return web_access_uris
 
     def _log_web_access_uris(self):
         """Helper method to log the web access uris of the hyperparameter job"""
 
-        self._get_web_access_uris()
-
-        if self._web_access_uris:
-            for (trial_id, tria_web_access_uris) in self._web_access_uris:
-                if tria_web_access_uris:
-                    for worker, uri in tria_web_access_uris.items():
-                        if uri not in self._logged_web_access_uris:
-                            _LOGGER.info(
-                                "%s %s access the interactive shell terminals for trial - %s:\n%s:\n%s"
-                                % (
-                                    self.__class__.__name__,
-                                    self._gca_resource.name,
-                                    trial_id,
-                                    worker,
-                                    uri,
-                                ),
-                            )
-                            self._logged_web_access_uris.append(uri)
+        for (trial_id, trial_web_access_uris) in self.web_access_uris.items():
+            for worker, uri in trial_web_access_uris.items():
+                if uri not in self._logged_web_access_uris:
+                    _LOGGER.info(
+                        "%s %s access the interactive shell terminals for trial - %s:\n%s:\n%s"
+                        % (
+                            self.__class__.__name__,
+                            self._gca_resource.name,
+                            trial_id,
+                            worker,
+                            uri,
+                        ),
+                    )
+                    self._logged_web_access_uris.add(uri)
 
     @base.optional_sync()
     def run(

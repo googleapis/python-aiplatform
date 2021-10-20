@@ -1252,9 +1252,7 @@ class _CustomTrainingJob(_TrainingJob):
         # once Custom Job is known we log the console uri and the tensorboard uri
         # this flags keeps that state so we don't log it multiple times
         self._has_logged_custom_job = False
-        self._custom_job = None
-        self._web_access_uris = None
-        self._logged_web_access_uris = []
+        self._logged_web_access_uris = set()
 
     @property
     def network(self) -> Optional[str]:
@@ -1452,33 +1450,36 @@ class _CustomTrainingJob(_TrainingJob):
         return training_task_inputs, base_output_dir
 
     @property
-    def web_access_uris(self) -> Optional[Dict[str, str]]:
+    def web_access_uris(self) -> Dict[str, str]:
         """Get the web access uris of the backing custom job.
 
         Returns:
             (Dict[str, str]):
                 Web access uris of the backing custom job.
         """
-        if self._custom_job:
-            self._web_access_uris = self._custom_job.web_access_uris
-        return self._web_access_uris
+        web_access_uris = {}
+        if (
+            self._gca_resource.training_task_metadata
+            and self._gca_resource.training_task_metadata.get("backingCustomJob")
+        ):
+            custom_job_resource_name = self._gca_resource.training_task_metadata.get(
+                "backingCustomJob"
+            )
+            custom_job = jobs.CustomJob.get(resource_name=custom_job_resource_name)
+
+            web_access_uris = custom_job.web_access_uris
+
+        return web_access_uris
 
     def _log_web_access_uris(self):
         """Helper method to log the web access uris of the backing custom job"""
-
-        if self._web_access_uris:
-            for worker, uri in self._web_access_uris.items():
-                if uri not in self._logged_web_access_uris:
-                    _LOGGER.info(
-                        "%s %s access the interactive shell terminals for the backing custom job:\n%s:\n%s"
-                        % (
-                            self.__class__.__name__,
-                            self._gca_resource.name,
-                            worker,
-                            uri,
-                        ),
-                    )
-                    self._logged_web_access_uris.append(uri)
+        for worker, uri in self.web_access_uris.items():
+            if uri not in self._logged_web_access_uris:
+                _LOGGER.info(
+                    "%s %s access the interactive shell terminals for the backing custom job:\n%s:\n%s"
+                    % (self.__class__.__name__, self._gca_resource.name, worker, uri,),
+                )
+                self._logged_web_access_uris.add(uri)
 
     def _wait_callback(self):
         if (
@@ -1493,17 +1494,7 @@ class _CustomTrainingJob(_TrainingJob):
 
             self._has_logged_custom_job = True
 
-        if self._has_logged_custom_job and self._gca_resource.training_task_inputs.get(
-            "enable_web_access"
-        ):
-            if not self._custom_job:
-                custom_job_resource_name = self._gca_resource.training_task_metadata.get(
-                    "backingCustomJob"
-                )
-                self._custom_job = jobs.CustomJob.get(
-                    resource_name=custom_job_resource_name
-                )
-            self._web_access_uris = self._custom_job.web_access_uris
+        if self._gca_resource.training_task_inputs.get("enable_web_access"):
             self._log_web_access_uris()
 
     def _custom_job_console_uri(self) -> str:
