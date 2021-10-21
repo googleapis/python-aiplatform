@@ -29,6 +29,7 @@ from typing import (
     Iterable,
     Optional,
     ContextManager,
+    Tuple,
 )
 import uuid
 
@@ -195,6 +196,7 @@ class TensorBoardUploader(object):
         self._logdir = logdir
         self._allowed_plugins = frozenset(allowed_plugins)
         self._run_name_prefix = run_name_prefix
+        self._is_brand_new_experiment = False
 
         self._upload_limits = upload_limits
         if not self._upload_limits:
@@ -265,6 +267,9 @@ class TensorBoardUploader(object):
         self._logdir_loader = logdir_loader.LogdirLoader(
             self._logdir, directory_loader_factory
         )
+        self._logdir_loader_pre_create = logdir_loader.LogdirLoader(
+            self._logdir, directory_loader_factory
+        )
         self._tracker = upload_tracker.UploadTracker(verbosity=self._verbosity)
 
         self._create_additional_senders()
@@ -290,6 +295,7 @@ class TensorBoardUploader(object):
                 tensorboard_experiment=tb_experiment,
                 tensorboard_experiment_id=self._experiment_name,
             )
+            self._is_brand_new_experiment = True
         except exceptions.AlreadyExists:
             logger.info("Creating experiment failed. Retrieving experiment.")
             experiment_name = os.path.join(
@@ -303,7 +309,11 @@ class TensorBoardUploader(object):
 
         experiment = self._create_or_get_experiment()
         self._experiment = experiment
-        request_sender = _BatchedRequestSender(
+        self._one_platform_resource_manager = uploader_utils.OnePlatformResourceManager(
+            self._experiment.name, self._api
+        )
+
+        self._request_sender = _BatchedRequestSender(
             self._experiment.name,
             self._api,
             allowed_plugins=self._allowed_plugins,
@@ -313,6 +323,7 @@ class TensorBoardUploader(object):
             blob_rpc_rate_limiter=self._blob_rpc_rate_limiter,
             blob_storage_bucket=self._blob_storage_bucket,
             blob_storage_folder=self._blob_storage_folder,
+            one_platform_resource_manager=self._one_platform_resource_manager,
             tracker=self._tracker,
         )
 
@@ -323,7 +334,8 @@ class TensorBoardUploader(object):
             )
 
         self._dispatcher = _Dispatcher(
-            request_sender=request_sender, additional_senders=self._additional_senders,
+            request_sender=self._request_sender,
+            additional_senders=self._additional_senders,
         )
 
     def _create_additional_senders(self) -> Dict[str, uploader_utils.RequestSender]:
@@ -366,6 +378,17 @@ class TensorBoardUploader(object):
         """
         if self._dispatcher is None:
             raise RuntimeError("Must call create_experiment() before start_uploading()")
+
+        if self._one_shot:
+            if self._is_brand_new_experiment:
+                self._pre_create_runs_and_time_series()
+            else:
+                logger.warning(
+                    "Please consider uploading to a new experiment instead of "
+                    "an existing one, as the former allows for better upload "
+                    "performance."
+                )
+
         while True:
             self._logdir_poll_rate_limiter.tick()
             self._upload_once()
@@ -376,6 +399,58 @@ class TensorBoardUploader(object):
                 "One-shot mode was used on a logdir (%s) "
                 "without any uploadable data" % self._logdir
             )
+
+    def _pre_create_runs_and_time_series(self):
+        """
+        Iterates though the log dir to collect TensorboardRuns and
+        TensorboardTimeSeries that need to be created, and creates them in batch
+        to speed up uploading later on.
+        """
+        self._logdir_loader_pre_create.synchronize_runs()
+        run_to_events = self._logdir_loader_pre_create.get_run_events()
+        if self._run_name_prefix:
+            run_to_events = {
+                self._run_name_prefix + k: v for k, v in run_to_events.items()
+            }
+
+        run_names = []
+        run_tag_name_to_time_series_proto = {}
+        for (run_name, events) in run_to_events.items():
+            run_names.append(run_name)
+            for event in events:
+                _filter_graph_defs(event)
+                for value in event.summary.value:
+                    metadata, is_valid = self._request_sender.get_metadata_and_validate(
+                        run_name, value
+                    )
+                    if not is_valid:
+                        continue
+                    if metadata.data_class == summary_pb2.DATA_CLASS_SCALAR:
+                        value_type = (
+                            tensorboard_time_series.TensorboardTimeSeries.ValueType.SCALAR
+                        )
+                    elif metadata.data_class == summary_pb2.DATA_CLASS_TENSOR:
+                        value_type = (
+                            tensorboard_time_series.TensorboardTimeSeries.ValueType.TENSOR
+                        )
+                    elif metadata.data_class == summary_pb2.DATA_CLASS_BLOB_SEQUENCE:
+                        value_type = (
+                            tensorboard_time_series.TensorboardTimeSeries.ValueType.BLOB_SEQUENCE
+                        )
+
+                    run_tag_name_to_time_series_proto[
+                        (run_name, value.tag)
+                    ] = tensorboard_time_series.TensorboardTimeSeries(
+                        display_name=value.tag,
+                        value_type=value_type,
+                        plugin_name=metadata.plugin_data.plugin_name,
+                        plugin_data=metadata.plugin_data.content,
+                    )
+
+        self._one_platform_resource_manager.batch_create_runs(run_names)
+        self._one_platform_resource_manager.batch_create_time_series(
+            run_tag_name_to_time_series_proto
+        )
 
     def _upload_once(self):
         """Runs one upload cycle, sending zero or more RPCs."""
@@ -439,6 +514,7 @@ class _BatchedRequestSender(object):
         blob_rpc_rate_limiter: util.RateLimiter,
         blob_storage_bucket: storage.Bucket,
         blob_storage_folder: str,
+        one_platform_resource_manager: uploader_utils.OnePlatformResourceManager,
         tracker: upload_tracker.UploadTracker,
     ):
         """Constructs _BatchedRequestSender for the given experiment resource.
@@ -456,6 +532,8 @@ class _BatchedRequestSender(object):
             Note the chunk stream is internally rate-limited by backpressure from
             the server, so it is not a concern that we do not explicitly rate-limit
             within the stream here.
+          one_platform_resource_manager: An instance of the One Platform
+            resource management class.
           tracker: Upload tracker to track information about uploads.
         """
         self._experiment_resource_name = experiment_resource_name
@@ -463,9 +541,7 @@ class _BatchedRequestSender(object):
         self._tag_metadata = {}
         self._allowed_plugins = frozenset(allowed_plugins)
         self._tracker = tracker
-        self._one_platform_resource_manager = uploader_utils.OnePlatformResourceManager(
-            self._experiment_resource_name, self._api
-        )
+        self._one_platform_resource_manager = one_platform_resource_manager
         self._scalar_request_sender = _ScalarBatchedRequestSender(
             experiment_resource_id=experiment_resource_name,
             api=api,
@@ -516,6 +592,37 @@ class _BatchedRequestSender(object):
           RuntimeError: If no progress can be made because even a single
           point is too large (say, due to a gigabyte-long tag name).
         """
+        metadata, is_valid = self.get_metadata_and_validate(run_name, value)
+        if not is_valid:
+            return
+        plugin_name = metadata.plugin_data.plugin_name
+        self._tracker.add_plugin_name(plugin_name)
+
+        if metadata.data_class == summary_pb2.DATA_CLASS_SCALAR:
+            self._scalar_request_sender.add_event(run_name, event, value, metadata)
+        elif metadata.data_class == summary_pb2.DATA_CLASS_TENSOR:
+            self._tensor_request_sender.add_event(run_name, event, value, metadata)
+        elif metadata.data_class == summary_pb2.DATA_CLASS_BLOB_SEQUENCE:
+            self._blob_request_sender.add_event(run_name, event, value, metadata)
+
+    def flush(self):
+        """Flushes any events that have been stored."""
+        self._scalar_request_sender.flush()
+        self._tensor_request_sender.flush()
+        self._blob_request_sender.flush()
+
+    def get_metadata_and_validate(
+        self, run_name: str, value: tf.compat.v1.Summary.Value
+    ) -> Tuple[tf.compat.v1.SummaryMetadata, bool]:
+        """
+
+        :param run_name: Name of the run retrieved by
+        `LogdirLoader.get_run_events`
+        :param value: A single `tf.compat.v1.Summary.Value` from the event,
+        where there can be multiple values per event.
+        :return: (metadata, is_valid): a metadata derived from the value, and
+        whether the value itself is valid.
+        """
 
         time_series_key = (run_name, value.tag)
 
@@ -539,7 +646,7 @@ class _BatchedRequestSender(object):
                 metadata.plugin_data.plugin_name,
                 value.metadata.plugin_data.plugin_name,
             )
-            return
+            return metadata, False
         if plugin_name not in self._allowed_plugins:
             if first_in_time_series:
                 logger.info(
@@ -547,21 +654,8 @@ class _BatchedRequestSender(object):
                     time_series_key,
                     plugin_name,
                 )
-            return
-        self._tracker.add_plugin_name(plugin_name)
-
-        if metadata.data_class == summary_pb2.DATA_CLASS_SCALAR:
-            self._scalar_request_sender.add_event(run_name, event, value, metadata)
-        elif metadata.data_class == summary_pb2.DATA_CLASS_TENSOR:
-            self._tensor_request_sender.add_event(run_name, event, value, metadata)
-        elif metadata.data_class == summary_pb2.DATA_CLASS_BLOB_SEQUENCE:
-            self._blob_request_sender.add_event(run_name, event, value, metadata)
-
-    def flush(self):
-        """Flushes any events that have been stored."""
-        self._scalar_request_sender.flush()
-        self._tensor_request_sender.flush()
-        self._blob_request_sender.flush()
+            return metadata, False
+        return metadata, True
 
 
 class _Dispatcher(object):
