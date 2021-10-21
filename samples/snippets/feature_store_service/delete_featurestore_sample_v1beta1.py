@@ -12,21 +12,17 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-# Create a single feature for an existing entity type.
+# Delete a featurestore.
 # See https://cloud.google.com/vertex-ai/docs/featurestore/setup before running
 # the code snippet
 
-# [START aiplatform_create_feature_sample]
-from google.cloud import aiplatform
+# [START aiplatform_delete_featurestore_sample]
+from google.cloud import aiplatform_v1beta1 as aiplatform
 
 
-def create_feature_sample(
+def delete_featurestore_sample(
     project: str,
     featurestore_id: str,
-    entity_type_id: str,
-    feature_id: str,
-    value_type: aiplatform.gapic.Feature.ValueType,
-    description: str = "sample feature",
     location: str = "us-central1",
     api_endpoint: str = "us-central1-aiplatform.googleapis.com",
     timeout: int = 300,
@@ -36,19 +32,14 @@ def create_feature_sample(
     client_options = {"api_endpoint": api_endpoint}
     # Initialize client that will be used to create and send requests.
     # This client only needs to be created once, and can be reused for multiple requests.
-    client = aiplatform.gapic.FeaturestoreServiceClient(client_options=client_options)
-    parent = f"projects/{project}/locations/{location}/featurestores/{featurestore_id}/entityTypes/{entity_type_id}"
-    create_feature_request = aiplatform.gapic.CreateFeatureRequest(
-        parent=parent,
-        feature=aiplatform.gapic.Feature(
-            value_type=value_type, description=description
-        ),
-        feature_id=feature_id,
+    client = aiplatform.FeaturestoreServiceClient(client_options=client_options)
+    name = client.featurestore_path(
+        project=project, location=location, featurestore=featurestore_id
     )
-    lro_response = client.create_feature(request=create_feature_request)
-    print("Long running operation:", lro_response.operation.name)
-    create_feature_response = lro_response.result(timeout=timeout)
-    print("create_feature_response:", create_feature_response)
+    response = client.delete_featurestore(name=name)
+    print("Long running operation:", response.operation.name)
+    delete_featurestore_response = response.result(timeout=timeout)
+    print("delete_featurestore_response:", delete_featurestore_response)
 
 
-# [END aiplatform_create_feature_sample]
+# [END aiplatform_delete_featurestore_sample]

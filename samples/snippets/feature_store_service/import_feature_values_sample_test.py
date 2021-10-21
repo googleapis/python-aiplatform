@@ -15,9 +15,9 @@
 import os
 from uuid import uuid4
 
-import batch_create_features_sample_v1
-import create_entity_type_sample_v1
-import import_feature_values_sample_v1
+import batch_create_features_sample
+import create_entity_type_sample
+import import_feature_values_sample
 import pytest
 
 import helpers
@@ -34,7 +34,7 @@ def teardown(teardown_entity_type):
 
 
 def setup_features(featurestore_id, entity_type_id, capsys):
-    batch_create_features_sample_v1.batch_create_features_sample(
+    batch_create_features_sample.batch_create_features_sample(
         project=PROJECT_ID,
         featurestore_id=featurestore_id,
         entity_type_id=entity_type_id,
@@ -44,7 +44,7 @@ def setup_features(featurestore_id, entity_type_id, capsys):
 
 
 def setup_temp_entity_type(featurestore_id, entity_type_id, capsys):
-    create_entity_type_sample_v1.create_entity_type_sample(
+    create_entity_type_sample.create_entity_type_sample(
         project=PROJECT_ID,
         featurestore_id=featurestore_id,
         entity_type_id=entity_type_id,
@@ -60,7 +60,7 @@ def test_ucaip_generated_import_feature_values_sample_vision(capsys, shared_stat
     entity_type_name = setup_temp_entity_type(featurestore_id, entity_type_id, capsys)
     setup_features(featurestore_id, entity_type_id, capsys)
 
-    import_feature_values_sample_v1.import_feature_values_sample(
+    import_feature_values_sample.import_feature_values_sample(
         project=PROJECT_ID,
         featurestore_id=featurestore_id,
         entity_type_id=entity_type_id,

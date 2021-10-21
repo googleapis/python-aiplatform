@@ -12,18 +12,21 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-# Create a featurestore resource to contain entity types and features.
+# Create a single feature for an existing entity type.
 # See https://cloud.google.com/vertex-ai/docs/featurestore/setup before running
 # the code snippet
 
-# [START aiplatform_create_featurestore_sample]
-from google.cloud import aiplatform
+# [START aiplatform_create_feature_sample]
+from google.cloud import aiplatform_v1beta1 as aiplatform
 
 
-def create_featurestore_sample(
+def create_feature_sample(
     project: str,
     featurestore_id: str,
-    fixed_node_count: int = 1,
+    entity_type_id: str,
+    feature_id: str,
+    value_type: aiplatform.Feature.ValueType,
+    description: str = "sample feature",
     location: str = "us-central1",
     api_endpoint: str = "us-central1-aiplatform.googleapis.com",
     timeout: int = 300,
@@ -33,21 +36,17 @@ def create_featurestore_sample(
     client_options = {"api_endpoint": api_endpoint}
     # Initialize client that will be used to create and send requests.
     # This client only needs to be created once, and can be reused for multiple requests.
-    client = aiplatform.gapic.FeaturestoreServiceClient(client_options=client_options)
-    parent = f"projects/{project}/locations/{location}"
-    create_featurestore_request = aiplatform.gapic.CreateFeaturestoreRequest(
+    client = aiplatform.FeaturestoreServiceClient(client_options=client_options)
+    parent = f"projects/{project}/locations/{location}/featurestores/{featurestore_id}/entityTypes/{entity_type_id}"
+    create_feature_request = aiplatform.CreateFeatureRequest(
         parent=parent,
-        featurestore_id=featurestore_id,
-        featurestore=aiplatform.gapic.Featurestore(
-            online_serving_config=aiplatform.gapic.Featurestore.OnlineServingConfig(
-                fixed_node_count=fixed_node_count,
-            ),
-        ),
+        feature=aiplatform.Feature(value_type=value_type, description=description),
+        feature_id=feature_id,
     )
-    lro_response = client.create_featurestore(request=create_featurestore_request)
+    lro_response = client.create_feature(request=create_feature_request)
     print("Long running operation:", lro_response.operation.name)
-    create_featurestore_response = lro_response.result(timeout=timeout)
-    print("create_featurestore_response:", create_featurestore_response)
+    create_feature_response = lro_response.result(timeout=timeout)
+    print("create_feature_response:", create_feature_response)
 
 
-# [END aiplatform_create_featurestore_sample]
+# [END aiplatform_create_feature_sample]

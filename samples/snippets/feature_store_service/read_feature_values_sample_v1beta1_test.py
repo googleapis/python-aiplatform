@@ -13,27 +13,26 @@
 # limitations under the License.
 
 import os
-from uuid import uuid4
 
-import create_featurestore_sample
 import pytest
-
-import helpers
+import read_feature_values_sample_v1beta1
 
 PROJECT_ID = os.getenv("BUILD_SPECIFIC_GCLOUD_PROJECT")
 
 
 @pytest.fixture(scope="function", autouse=True)
-def teardown(teardown_featurestore):
+def teardown():
     yield
 
 
-def test_ucaip_generated_create_featurestore_sample_vision(capsys, shared_state):
-    featurestore_id = f"temp_create_featurestore_test_{uuid4()}".replace("-", "_")[:60]
-    create_featurestore_sample.create_featurestore_sample(
-        project=PROJECT_ID, featurestore_id=featurestore_id, fixed_node_count=1
+def test_ucaip_generated_read_feature_values_sample_vision(capsys, shared_state):
+    featurestore_id = "perm_sample_featurestore"
+    entity_type_id = "perm_users"
+    read_feature_values_sample_v1beta1.read_feature_values_sample(
+        project=PROJECT_ID,
+        featurestore_id=featurestore_id,
+        entity_type_id=entity_type_id,
+        entity_id="alice",
     )
     out, _ = capsys.readouterr()
-    assert "create_featurestore_response" in out
-
-    shared_state["featurestore_name"] = helpers.get_featurestore_resource_name(out)
+    assert "int64_value: 55" in out

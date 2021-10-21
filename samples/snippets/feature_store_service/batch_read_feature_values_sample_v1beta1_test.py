@@ -15,7 +15,7 @@
 from datetime import datetime
 import os
 
-import batch_read_feature_values_sample
+import batch_read_feature_values_sample_v1beta1
 from google.cloud import bigquery
 
 import pytest
@@ -56,7 +56,7 @@ def test_ucaip_generated_batch_read_feature_values_sample_vision(capsys, shared_
     destination_data_set, destination_table_uri = setup_test()
     featurestore_id = "perm_sample_featurestore"
 
-    batch_read_feature_values_sample.batch_read_feature_values_sample(
+    batch_read_feature_values_sample_v1beta1.batch_read_feature_values_sample(
         project=PROJECT_ID,
         featurestore_id=featurestore_id,
         input_csv_file=INPUT_CSV_FILE,

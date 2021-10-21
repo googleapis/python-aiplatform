@@ -15,7 +15,7 @@
 import os
 
 import pytest
-import read_feature_values_sample_v1
+import read_feature_values_sample
 
 PROJECT_ID = os.getenv("BUILD_SPECIFIC_GCLOUD_PROJECT")
 
@@ -28,7 +28,7 @@ def teardown():
 def test_ucaip_generated_read_feature_values_sample_vision(capsys, shared_state):
     featurestore_id = "perm_sample_featurestore"
     entity_type_id = "perm_users"
-    read_feature_values_sample_v1.read_feature_values_sample(
+    read_feature_values_sample.read_feature_values_sample(
         project=PROJECT_ID,
         featurestore_id=featurestore_id,
         entity_type_id=entity_type_id,

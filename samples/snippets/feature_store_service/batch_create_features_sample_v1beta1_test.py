@@ -15,8 +15,8 @@
 import os
 from uuid import uuid4
 
-import batch_create_features_sample
-import create_entity_type_sample
+import batch_create_features_sample_v1beta1
+import create_entity_type_sample_v1beta1
 
 import pytest
 
@@ -31,7 +31,7 @@ def teardown(teardown_entity_type):
 
 
 def setup_temp_entity_type(featurestore_id, entity_type_id, capsys):
-    create_entity_type_sample.create_entity_type_sample(
+    create_entity_type_sample_v1beta1.create_entity_type_sample(
         project=PROJECT_ID,
         featurestore_id=featurestore_id,
         entity_type_id=entity_type_id,
@@ -46,7 +46,7 @@ def test_ucaip_generated_batch_create_features_sample_vision(capsys, shared_stat
     entity_type_id = f"users_{uuid4()}".replace("-", "_")[:60]
     entity_type_name = setup_temp_entity_type(featurestore_id, entity_type_id, capsys)
     location = "us-central1"
-    batch_create_features_sample.batch_create_features_sample(
+    batch_create_features_sample_v1beta1.batch_create_features_sample(
         project=PROJECT_ID,
         featurestore_id=featurestore_id,
         entity_type_id=entity_type_id,

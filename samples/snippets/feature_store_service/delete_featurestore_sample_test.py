@@ -15,8 +15,8 @@
 import os
 from uuid import uuid4
 
-import create_featurestore_sample_v1
-import delete_featurestore_sample_v1
+import create_featurestore_sample
+import delete_featurestore_sample
 import pytest
 
 PROJECT_ID = os.getenv("BUILD_SPECIFIC_GCLOUD_PROJECT")
@@ -28,7 +28,7 @@ def teardown():
 
 
 def setup_test(capsys, featurestore_id):
-    create_featurestore_sample_v1.create_featurestore_sample(
+    create_featurestore_sample.create_featurestore_sample(
         project=PROJECT_ID, featurestore_id=featurestore_id, fixed_node_count=1
     )
     out, _ = capsys.readouterr()
@@ -38,7 +38,7 @@ def setup_test(capsys, featurestore_id):
 def test_ucaip_generated_delete_featurestore_sample_vision(capsys, shared_state):
     featurestore_id = f"temp_create_featurestore_test_{uuid4()}".replace("-", "_")[:60]
     setup_test(capsys, featurestore_id)
-    delete_featurestore_sample_v1.delete_featurestore_sample(
+    delete_featurestore_sample.delete_featurestore_sample(
         project=PROJECT_ID, featurestore_id=featurestore_id
     )
     out, _ = capsys.readouterr()

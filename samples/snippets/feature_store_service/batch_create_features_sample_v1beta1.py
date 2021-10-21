@@ -17,7 +17,7 @@
 # the code snippet
 
 # [START aiplatform_batch_create_features_sample]
-from google.cloud import aiplatform
+from google.cloud import aiplatform_v1beta1 as aiplatform
 
 
 def batch_create_features_sample(
@@ -33,27 +33,27 @@ def batch_create_features_sample(
     client_options = {"api_endpoint": api_endpoint}
     # Initialize client that will be used to create and send requests.
     # This client only needs to be created once, and can be reused for multiple requests.
-    client = aiplatform.gapic.FeaturestoreServiceClient(client_options=client_options)
+    client = aiplatform.FeaturestoreServiceClient(client_options=client_options)
     parent = f"projects/{project}/locations/{location}/featurestores/{featurestore_id}/entityTypes/{entity_type_id}"
-    age_feature = aiplatform.gapic.Feature(
-        value_type=aiplatform.gapic.Feature.ValueType.INT64, description="User age",
+    age_feature = aiplatform.Feature(
+        value_type=aiplatform.Feature.ValueType.INT64, description="User age",
     )
-    age_feature_request = aiplatform.gapic.CreateFeatureRequest(
+    age_feature_request = aiplatform.CreateFeatureRequest(
         feature=age_feature, feature_id="age"
     )
 
-    gender_feature = aiplatform.gapic.Feature(
-        value_type=aiplatform.gapic.Feature.ValueType.STRING, description="User gender"
+    gender_feature = aiplatform.Feature(
+        value_type=aiplatform.Feature.ValueType.STRING, description="User gender"
     )
-    gender_feature_request = aiplatform.gapic.CreateFeatureRequest(
+    gender_feature_request = aiplatform.CreateFeatureRequest(
         feature=gender_feature, feature_id="gender"
     )
 
-    liked_genres_feature = aiplatform.gapic.Feature(
-        value_type=aiplatform.gapic.Feature.ValueType.STRING_ARRAY,
+    liked_genres_feature = aiplatform.Feature(
+        value_type=aiplatform.Feature.ValueType.STRING_ARRAY,
         description="An array of genres that this user liked",
     )
-    liked_genres_feature_request = aiplatform.gapic.CreateFeatureRequest(
+    liked_genres_feature_request = aiplatform.CreateFeatureRequest(
         feature=liked_genres_feature, feature_id="liked_genres"
     )
 
@@ -62,7 +62,7 @@ def batch_create_features_sample(
         gender_feature_request,
         liked_genres_feature_request,
     ]
-    batch_create_features_request = aiplatform.gapic.BatchCreateFeaturesRequest(
+    batch_create_features_request = aiplatform.BatchCreateFeaturesRequest(
         parent=parent, requests=requests
     )
     lro_response = client.batch_create_features(request=batch_create_features_request)
