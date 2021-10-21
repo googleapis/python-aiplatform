@@ -3862,7 +3862,7 @@ class AutoMLForecastingTrainingJob(_TrainingJob):
             Supported only for tabular Datasets.
 
         Args:
-            dataset (datasets.Dataset):
+            dataset (datasets.TimeSeriesDataset):
                 Required. The dataset within the same Project from which data will be used to train the Model. The
                 Dataset must use schema compatible with Model being trained,
                 and what is compatible should be described in the used
@@ -4068,7 +4068,7 @@ class AutoMLForecastingTrainingJob(_TrainingJob):
         10% for validation, and 10% for test.
 
         Args:
-            dataset (datasets.Dataset):
+            dataset (datasets.TimeSeriesDataset):
                 Required. The dataset within the same Project from which data will be used to train the Model. The
                 Dataset must use schema compatible with Model being trained,
                 and what is compatible should be described in the used
@@ -4284,7 +4284,7 @@ class AutoMLForecastingTrainingJob(_TrainingJob):
             Supported only for tabular Datasets.
 
         Args:
-            dataset (datasets.Dataset):
+            dataset (datasets.TimeSeriesDataset):
                 Required. The dataset within the same Project from which data will be used to train the Model. The
                 Dataset must use schema compatible with Model being trained,
                 and what is compatible should be described in the used
