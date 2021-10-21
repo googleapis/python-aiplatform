@@ -520,6 +520,9 @@ class TestCustomJob:
             accelerator_count=test_training_jobs._TEST_ACCELERATOR_COUNT,
             boot_disk_type=test_training_jobs._TEST_BOOT_DISK_TYPE,
             boot_disk_size_gb=test_training_jobs._TEST_BOOT_DISK_SIZE_GB,
+            reduction_server_replica_count=test_training_jobs._TEST_REDUCTION_SERVER_REPLICA_COUNT,
+            reduction_server_machine_type=test_training_jobs._TEST_REDUCTION_SERVER_MACHINE_TYPE,
+            reduction_server_container_uri=test_training_jobs._TEST_REDUCTION_SERVER_CONTAINER_URI,
             base_output_dir=_TEST_BASE_OUTPUT_DIR,
             labels=_TEST_LABELS,
         )
