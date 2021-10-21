@@ -1061,6 +1061,9 @@ class CustomJob(_RunnableJob):
         accelerator_count: int = 0,
         boot_disk_type: str = "pd-ssd",
         boot_disk_size_gb: int = 100,
+        reduction_server_replica_count: int = 0,
+        reduction_server_machine_type: Optional[str] = None,
+        reduction_server_container_uri: Optional[str] = None,
         base_output_dir: Optional[str] = None,
         project: Optional[str] = None,
         location: Optional[str] = None,
@@ -1127,6 +1130,13 @@ class CustomJob(_RunnableJob):
             boot_disk_size_gb (int):
                 Optional. Size in GB of the boot disk, default is 100GB.
                 boot disk size must be within the range of [100, 64000].
+            reduction_server_replica_count (int):
+                The number of reduction server replicas, default is 0.
+            reduction_server_machine_type (str):
+                Optional. The type of machine to use for reduction server.
+            reduction_server_container_uri (str):
+                Optional. The Uri of the reduction server container image.
+                See details: https://cloud.google.com/vertex-ai/docs/training/distributed-training#reduce_training_time_with_reduction_server
             base_output_dir (str):
                 Optional. GCS output directory of job. If not provided a
                 timestamped directory in the staging directory will be used.
@@ -1181,6 +1191,8 @@ class CustomJob(_RunnableJob):
             accelerator_type=accelerator_type,
             boot_disk_type=boot_disk_type,
             boot_disk_size_gb=boot_disk_size_gb,
+            reduction_server_replica_count=reduction_server_replica_count,
+            reduction_server_machine_type=reduction_server_machine_type,
         ).pool_specs
 
         python_packager = source_utils._TrainingScriptPythonPackager(
@@ -1191,21 +1203,33 @@ class CustomJob(_RunnableJob):
             gcs_staging_dir=staging_bucket, project=project, credentials=credentials,
         )
 
-        for spec in worker_pool_specs:
-            spec["python_package_spec"] = {
-                "executor_image_uri": container_uri,
-                "python_module": python_packager.module_name,
-                "package_uris": [package_gcs_uri],
-            }
+        for spec_order, spec in enumerate(worker_pool_specs):
 
-            if args:
-                spec["python_package_spec"]["args"] = args
+            if not spec:
+                continue
 
-            if environment_variables:
-                spec["python_package_spec"]["env"] = [
-                    {"name": key, "value": value}
-                    for key, value in environment_variables.items()
-                ]
+            if (
+                spec_order == worker_spec_utils._SPEC_ORDERS["server_spec"]
+                and reduction_server_replica_count > 0
+            ):
+                spec["container_spec"] = {
+                    "image_uri": reduction_server_container_uri,
+                }
+            else:
+                spec["python_package_spec"] = {
+                    "executor_image_uri": container_uri,
+                    "python_module": python_packager.module_name,
+                    "package_uris": [package_gcs_uri],
+                }
+
+                if args:
+                    spec["python_package_spec"]["args"] = args
+
+                if environment_variables:
+                    spec["python_package_spec"]["env"] = [
+                        {"name": key, "value": value}
+                        for key, value in environment_variables.items()
+                    ]
 
         return cls(
             display_name=display_name,
