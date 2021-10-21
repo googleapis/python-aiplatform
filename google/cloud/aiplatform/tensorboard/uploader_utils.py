@@ -20,7 +20,6 @@ import abc
 import contextlib
 import json
 import logging
-import math
 import re
 import time
 from typing import Callable, Dict, Generator, Optional, List, Tuple
@@ -96,9 +95,8 @@ class OnePlatformResourceManager(object):
        """
         batch_size = OnePlatformResourceManager.CREATE_RUN_BATCH_SIZE
         created_runs = []
-        num_batches = int(math.ceil(len(run_names) / batch_size))
-        for i in range(0, num_batches):
-            one_batch_run_names = run_names[i * batch_size : (i + 1) * batch_size]
+        for i in range(0, len(run_names), batch_size):
+            one_batch_run_names = run_names[i : i + batch_size]
             tb_run_requests = [
                 tensorboard_service.CreateTensorboardRunRequest(
                     parent=self._experiment_resource_name,
@@ -143,10 +141,7 @@ class OnePlatformResourceManager(object):
             v: k for k, v in self._run_name_to_run_resource_name.items()
         }
         created_time_series = []
-        num_batches = int(
-            math.ceil(len(run_tag_name_to_time_series_entries) / batch_size)
-        )
-        for i in range(0, num_batches):
+        for i in range(0, len(run_tag_name_to_time_series_entries), batch_size):
             requests = [
                 tensorboard_service.CreateTensorboardTimeSeriesRequest(
                     parent=self._run_name_to_run_resource_name[run_name],
@@ -155,9 +150,7 @@ class OnePlatformResourceManager(object):
                 for (
                     (run_name, tag_name),
                     time_series,
-                ) in run_tag_name_to_time_series_entries[
-                    i * batch_size : (i + 1) * batch_size
-                ]
+                ) in run_tag_name_to_time_series_entries[i : i + batch_size]
             ]
 
             time_series = self._api.batch_create_tensorboard_time_series(
