@@ -12,41 +12,42 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-# Serve feature values from a single entity for a particular entity type.
+# Create a featurestore resource to contain entity types and features.
 # See https://cloud.google.com/vertex-ai/docs/featurestore/setup before running
 # the code snippet
 
-# [START aiplatform_read_feature_values_sample]
-from google.cloud import aiplatform
+# [START aiplatform_create_featurestore_sample]
+from google.cloud import aiplatform_v1beta1 as aiplatform
 
 
-def read_feature_values_sample(
+def create_featurestore_sample(
     project: str,
     featurestore_id: str,
-    entity_type_id: str,
-    entity_id: str,
+    fixed_node_count: int = 1,
     location: str = "us-central1",
     api_endpoint: str = "us-central1-aiplatform.googleapis.com",
+    timeout: int = 300,
 ):
     # The AI Platform services require regional API endpoints, which need to be
     # in the same region or multi-region overlap with the Feature Store location.
     client_options = {"api_endpoint": api_endpoint}
     # Initialize client that will be used to create and send requests.
     # This client only needs to be created once, and can be reused for multiple requests.
-    client = aiplatform.gapic.FeaturestoreOnlineServingServiceClient(
-        client_options=client_options
+    client = aiplatform.FeaturestoreServiceClient(client_options=client_options)
+    parent = f"projects/{project}/locations/{location}"
+    create_featurestore_request = aiplatform.CreateFeaturestoreRequest(
+        parent=parent,
+        featurestore_id=featurestore_id,
+        featurestore=aiplatform.Featurestore(
+            online_serving_config=aiplatform.Featurestore.OnlineServingConfig(
+                fixed_node_count=fixed_node_count,
+            ),
+        ),
     )
-    entity_type = f"projects/{project}/locations/{location}/featurestores/{featurestore_id}/entityTypes/{entity_type_id}"
-    feature_selector = aiplatform.gapic.FeatureSelector(
-        id_matcher=aiplatform.gapic.IdMatcher(ids=["age", "gender", "liked_genres"])
-    )
-    read_feature_values_request = aiplatform.gapic.ReadFeatureValuesRequest(
-        entity_type=entity_type, entity_id=entity_id, feature_selector=feature_selector
-    )
-    read_feature_values_response = client.read_feature_values(
-        request=read_feature_values_request
-    )
-    print("read_feature_values_response:", read_feature_values_response)
+    lro_response = client.create_featurestore(request=create_featurestore_request)
+    print("Long running operation:", lro_response.operation.name)
+    create_featurestore_response = lro_response.result(timeout=timeout)
+    print("create_featurestore_response:", create_featurestore_response)
 
 
-# [END aiplatform_read_feature_values_sample]
+# [END aiplatform_create_featurestore_sample]
