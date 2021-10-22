@@ -109,6 +109,7 @@ class TestEndToEndTabular(e2e_base.TestEndToEnd):
             ds,
             replica_count=1,
             model_display_name=self._make_display_name("custom-housing-model"),
+            enable_web_access=True,
             sync=False,
         )
 
