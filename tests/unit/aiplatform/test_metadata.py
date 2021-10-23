@@ -28,20 +28,20 @@ from google.cloud import aiplatform
 from google.cloud.aiplatform import initializer
 from google.cloud.aiplatform.metadata import constants
 from google.cloud.aiplatform.metadata import metadata
-from google.cloud.aiplatform_v1beta1 import (
+from google.cloud.aiplatform_v1 import (
     AddContextArtifactsAndExecutionsResponse,
     Event,
     LineageSubgraph,
     ListExecutionsRequest,
 )
-from google.cloud.aiplatform_v1beta1 import Artifact as GapicArtifact
-from google.cloud.aiplatform_v1beta1 import Context as GapicContext
-from google.cloud.aiplatform_v1beta1 import Execution as GapicExecution
-from google.cloud.aiplatform_v1beta1 import (
+from google.cloud.aiplatform_v1 import Artifact as GapicArtifact
+from google.cloud.aiplatform_v1 import Context as GapicContext
+from google.cloud.aiplatform_v1 import Execution as GapicExecution
+from google.cloud.aiplatform_v1 import (
     MetadataServiceClient,
     AddExecutionEventsResponse,
 )
-from google.cloud.aiplatform_v1beta1 import MetadataStore as GapicMetadataStore
+from google.cloud.aiplatform_v1 import MetadataStore as GapicMetadataStore
 
 # project
 

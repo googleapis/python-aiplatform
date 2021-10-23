@@ -295,5 +295,8 @@ class FeaturestoreOnlineServingServiceGrpcAsyncIOTransport(
             )
         return self._stubs["streaming_read_feature_values"]
 
+    def close(self):
+        return self.grpc_channel.close()
+
 
 __all__ = ("FeaturestoreOnlineServingServiceGrpcAsyncIOTransport",)

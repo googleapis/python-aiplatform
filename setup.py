@@ -21,7 +21,7 @@ import os
 import setuptools  # type: ignore
 
 name = "google-cloud-aiplatform"
-version = "1.5.0"
+version = "1.6.0"
 description = "Cloud AI Platform API client library"
 
 package_root = os.path.abspath(os.path.dirname(__file__))
@@ -83,9 +83,13 @@ setuptools.setup(
         "Development Status :: 5 - Production/Stable",
         "Intended Audience :: Developers",
         "Operating System :: OS Independent",
+        "Programming Language :: Python",
+        "Programming Language :: Python :: 3",
         "Programming Language :: Python :: 3.6",
         "Programming Language :: Python :: 3.7",
         "Programming Language :: Python :: 3.8",
+        "Programming Language :: Python :: 3.9",
+        "Programming Language :: Python :: 3.10",
         "Topic :: Internet",
         "Topic :: Software Development :: Libraries :: Python Modules",
     ],

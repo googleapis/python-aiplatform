@@ -17,7 +17,7 @@
 # the code snippet
 
 # [START aiplatform_read_feature_values_sample]
-from google.cloud import aiplatform_v1beta1 as aiplatform
+from google.cloud import aiplatform
 
 
 def read_feature_values_sample(
@@ -33,14 +33,14 @@ def read_feature_values_sample(
     client_options = {"api_endpoint": api_endpoint}
     # Initialize client that will be used to create and send requests.
     # This client only needs to be created once, and can be reused for multiple requests.
-    client = aiplatform.FeaturestoreOnlineServingServiceClient(
+    client = aiplatform.gapic.FeaturestoreOnlineServingServiceClient(
         client_options=client_options
     )
     entity_type = f"projects/{project}/locations/{location}/featurestores/{featurestore_id}/entityTypes/{entity_type_id}"
-    feature_selector = aiplatform.FeatureSelector(
-        id_matcher=aiplatform.IdMatcher(ids=["age", "gender", "liked_genres"])
+    feature_selector = aiplatform.gapic.FeatureSelector(
+        id_matcher=aiplatform.gapic.IdMatcher(ids=["age", "gender", "liked_genres"])
     )
-    read_feature_values_request = aiplatform.ReadFeatureValuesRequest(
+    read_feature_values_request = aiplatform.gapic.ReadFeatureValuesRequest(
         entity_type=entity_type, entity_id=entity_id, feature_selector=feature_selector
     )
     read_feature_values_response = client.read_feature_values(

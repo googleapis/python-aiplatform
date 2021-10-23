@@ -17,7 +17,7 @@
 # the code snippet
 
 # [START aiplatform_create_entity_type_sample]
-from google.cloud import aiplatform_v1beta1 as aiplatform
+from google.cloud import aiplatform
 
 
 def create_entity_type_sample(
@@ -34,12 +34,12 @@ def create_entity_type_sample(
     client_options = {"api_endpoint": api_endpoint}
     # Initialize client that will be used to create and send requests.
     # This client only needs to be created once, and can be reused for multiple requests.
-    client = aiplatform.FeaturestoreServiceClient(client_options=client_options)
+    client = aiplatform.gapic.FeaturestoreServiceClient(client_options=client_options)
     parent = f"projects/{project}/locations/{location}/featurestores/{featurestore_id}"
-    create_entity_type_request = aiplatform.CreateEntityTypeRequest(
+    create_entity_type_request = aiplatform.gapic.CreateEntityTypeRequest(
         parent=parent,
         entity_type_id=entity_type_id,
-        entity_type=aiplatform.EntityType(description=description),
+        entity_type=aiplatform.gapic.EntityType(description=description),
     )
     lro_response = client.create_entity_type(request=create_entity_type_request)
     print("Long running operation:", lro_response.operation.name)

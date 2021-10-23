@@ -15,13 +15,13 @@
 #
 from typing import (
     Any,
-    AsyncIterable,
+    AsyncIterator,
     Awaitable,
     Callable,
-    Iterable,
     Sequence,
     Tuple,
     Optional,
+    Iterator,
 )
 
 from google.cloud.aiplatform_v1.types import migratable_resource
@@ -75,14 +75,14 @@ class SearchMigratableResourcesPager:
         return getattr(self._response, name)
 
     @property
-    def pages(self) -> Iterable[migration_service.SearchMigratableResourcesResponse]:
+    def pages(self) -> Iterator[migration_service.SearchMigratableResourcesResponse]:
         yield self._response
         while self._response.next_page_token:
             self._request.page_token = self._response.next_page_token
             self._response = self._method(self._request, metadata=self._metadata)
             yield self._response
 
-    def __iter__(self) -> Iterable[migratable_resource.MigratableResource]:
+    def __iter__(self) -> Iterator[migratable_resource.MigratableResource]:
         for page in self.pages:
             yield from page.migratable_resources
 
@@ -141,14 +141,14 @@ class SearchMigratableResourcesAsyncPager:
     @property
     async def pages(
         self,
-    ) -> AsyncIterable[migration_service.SearchMigratableResourcesResponse]:
+    ) -> AsyncIterator[migration_service.SearchMigratableResourcesResponse]:
         yield self._response
         while self._response.next_page_token:
             self._request.page_token = self._response.next_page_token
             self._response = await self._method(self._request, metadata=self._metadata)
             yield self._response
 
-    def __aiter__(self) -> AsyncIterable[migratable_resource.MigratableResource]:
+    def __aiter__(self) -> AsyncIterator[migratable_resource.MigratableResource]:
         async def async_generator():
             async for page in self.pages:
                 for response in page.migratable_resources:

@@ -26,7 +26,7 @@ from google.cloud.aiplatform import schema
 from google.cloud.aiplatform import utils
 
 
-class TimeSeriesDataset(datasets._Dataset):
+class TimeSeriesDataset(datasets._ColumnNamesDataset):
     """Managed time series dataset resource for Vertex AI"""
 
     _supported_metadata_schema_uris: Optional[Tuple[str]] = (
