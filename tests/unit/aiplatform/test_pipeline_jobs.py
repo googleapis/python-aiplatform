@@ -25,9 +25,10 @@ from datetime import datetime
 
 from google.auth import credentials as auth_credentials
 from google.cloud import aiplatform
-from google.cloud import storage
-from google.cloud.aiplatform import pipeline_jobs
+from google.cloud.aiplatform import base
 from google.cloud.aiplatform import initializer
+from google.cloud.aiplatform import pipeline_jobs
+from google.cloud import storage
 from google.protobuf import json_format
 
 from google.cloud.aiplatform_v1beta1.services.pipeline_service import (
@@ -266,7 +267,9 @@ class TestPipelineJob:
             pipeline_job_id=_TEST_PIPELINE_JOB_ID,
         )
 
-        mock_pipeline_service_get.assert_called_with(name=_TEST_PIPELINE_JOB_NAME)
+        mock_pipeline_service_get.assert_called_with(
+            name=_TEST_PIPELINE_JOB_NAME, retry=base._DEFAULT_RETRY
+        )
 
         assert job._gca_resource == make_pipeline_job(
             gca_pipeline_state_v1beta1.PipelineState.PIPELINE_STATE_SUCCEEDED
@@ -325,7 +328,9 @@ class TestPipelineJob:
             pipeline_job_id=_TEST_PIPELINE_JOB_ID,
         )
 
-        mock_pipeline_service_get.assert_called_with(name=_TEST_PIPELINE_JOB_NAME)
+        mock_pipeline_service_get.assert_called_with(
+            name=_TEST_PIPELINE_JOB_NAME, retry=base._DEFAULT_RETRY
+        )
 
         assert job._gca_resource == make_pipeline_job(
             gca_pipeline_state_v1beta1.PipelineState.PIPELINE_STATE_SUCCEEDED
@@ -336,7 +341,9 @@ class TestPipelineJob:
         aiplatform.init(project=_TEST_PROJECT)
         job = pipeline_jobs.PipelineJob.get(resource_name=_TEST_PIPELINE_JOB_ID)
 
-        mock_pipeline_service_get.assert_called_once_with(name=_TEST_PIPELINE_JOB_NAME)
+        mock_pipeline_service_get.assert_called_once_with(
+            name=_TEST_PIPELINE_JOB_NAME, retry=base._DEFAULT_RETRY
+        )
         assert isinstance(job, pipeline_jobs.PipelineJob)
 
     @pytest.mark.usefixtures(
