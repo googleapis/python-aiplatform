@@ -18,7 +18,7 @@
 # the code snippet
 
 # [START aiplatform_batch_read_feature_values_sample]
-from google.cloud import aiplatform
+from google.cloud import aiplatform_v1beta1 as aiplatform
 
 
 def batch_read_feature_values_sample(
@@ -35,33 +35,33 @@ def batch_read_feature_values_sample(
     client_options = {"api_endpoint": api_endpoint}
     # Initialize client that will be used to create and send requests.
     # This client only needs to be created once, and can be reused for multiple requests.
-    client = aiplatform.gapic.FeaturestoreServiceClient(client_options=client_options)
+    client = aiplatform.FeaturestoreServiceClient(client_options=client_options)
     featurestore = (
         f"projects/{project}/locations/{location}/featurestores/{featurestore_id}"
     )
-    csv_read_instances = aiplatform.gapic.CsvSource(
-        gcs_source=aiplatform.gapic.GcsSource(uris=[input_csv_file])
+    csv_read_instances = aiplatform.CsvSource(
+        gcs_source=aiplatform.GcsSource(uris=[input_csv_file])
     )
-    destination = aiplatform.gapic.FeatureValueDestination(
-        bigquery_destination=aiplatform.gapic.BigQueryDestination(
+    destination = aiplatform.FeatureValueDestination(
+        bigquery_destination=aiplatform.BigQueryDestination(
             # Output to BigQuery table created earlier
             output_uri=destination_table_uri
         )
     )
 
-    users_feature_selector = aiplatform.gapic.FeatureSelector(
-        id_matcher=aiplatform.gapic.IdMatcher(ids=["age", "gender", "liked_genres"])
+    users_feature_selector = aiplatform.FeatureSelector(
+        id_matcher=aiplatform.IdMatcher(ids=["age", "gender", "liked_genres"])
     )
-    users_entity_type_spec = aiplatform.gapic.BatchReadFeatureValuesRequest.EntityTypeSpec(
+    users_entity_type_spec = aiplatform.BatchReadFeatureValuesRequest.EntityTypeSpec(
         # Read the 'age', 'gender' and 'liked_genres' features from the 'perm_users' entity
         entity_type_id="perm_users",
         feature_selector=users_feature_selector,
     )
 
-    movies_feature_selector = aiplatform.gapic.FeatureSelector(
-        id_matcher=aiplatform.gapic.IdMatcher(ids=["*"])
+    movies_feature_selector = aiplatform.FeatureSelector(
+        id_matcher=aiplatform.IdMatcher(ids=["*"])
     )
-    movies_entity_type_spec = aiplatform.gapic.BatchReadFeatureValuesRequest.EntityTypeSpec(
+    movies_entity_type_spec = aiplatform.BatchReadFeatureValuesRequest.EntityTypeSpec(
         # Read the all features from the 'perm_movies' entity
         entity_type_id="perm_movies",
         feature_selector=movies_feature_selector,
@@ -69,7 +69,7 @@ def batch_read_feature_values_sample(
 
     entity_type_specs = [users_entity_type_spec, movies_entity_type_spec]
     # Batch serving request from CSV
-    batch_read_feature_values_request = aiplatform.gapic.BatchReadFeatureValuesRequest(
+    batch_read_feature_values_request = aiplatform.BatchReadFeatureValuesRequest(
         featurestore=featurestore,
         csv_read_instances=csv_read_instances,
         destination=destination,
