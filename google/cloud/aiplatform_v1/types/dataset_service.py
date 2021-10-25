@@ -226,7 +226,8 @@ class ImportDataRequest(proto.Message):
 class ImportDataResponse(proto.Message):
     r"""Response message for
     [DatasetService.ImportData][google.cloud.aiplatform.v1.DatasetService.ImportData].
-        """
+
+    """
 
 
 class ImportDataOperationMetadata(proto.Message):

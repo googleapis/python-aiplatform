@@ -15,11 +15,12 @@
 # limitations under the License.
 #
 
+from importlib import reload
 import json
 import os
 import pytest
 
-from google.cloud.aiplatform import training_utils
+from google.cloud.aiplatform.training_utils import environment_variables
 from unittest import mock
 
 _TEST_TRAINING_DATA_URI = "gs://training-data-uri"
@@ -78,113 +79,116 @@ class TestTrainingUtils:
             "CLUSTER_SPEC": _TEST_CLUSTER_SPEC,
             "TF_CONFIG": _TEST_CLUSTER_SPEC,
         }
-        with mock.patch.dict(os.environ, env_vars):
+        with mock.patch.dict(os.environ, env_vars, clear=True):
             yield
 
     @pytest.mark.usefixtures("mock_environment")
     def test_training_data_uri(self):
-        env_vars = training_utils.EnvironmentVariables()
-        assert env_vars.training_data_uri == _TEST_TRAINING_DATA_URI
+        reload(environment_variables)
+        assert environment_variables.training_data_uri == _TEST_TRAINING_DATA_URI
 
     def test_training_data_uri_none(self):
-        env_vars = training_utils.EnvironmentVariables()
-        assert env_vars.training_data_uri is None
+        reload(environment_variables)
+        assert environment_variables.training_data_uri is None
 
     @pytest.mark.usefixtures("mock_environment")
     def test_validation_data_uri(self):
-        env_vars = training_utils.EnvironmentVariables()
-        assert env_vars.validation_data_uri == _TEST_VALIDATION_DATA_URI
+        reload(environment_variables)
+        assert environment_variables.validation_data_uri == _TEST_VALIDATION_DATA_URI
 
     def test_validation_data_uri_none(self):
-        env_vars = training_utils.EnvironmentVariables()
-        assert env_vars.validation_data_uri is None
+        reload(environment_variables)
+        assert environment_variables.validation_data_uri is None
 
     @pytest.mark.usefixtures("mock_environment")
     def test_test_data_uri(self):
-        env_vars = training_utils.EnvironmentVariables()
-        assert env_vars.test_data_uri == _TEST_TEST_DATA_URI
+        reload(environment_variables)
+        assert environment_variables.test_data_uri == _TEST_TEST_DATA_URI
 
     def test_test_data_uri_none(self):
-        env_vars = training_utils.EnvironmentVariables()
-        assert env_vars.test_data_uri is None
+        reload(environment_variables)
+        assert environment_variables.test_data_uri is None
 
     @pytest.mark.usefixtures("mock_environment")
     def test_model_dir(self):
-        env_vars = training_utils.EnvironmentVariables()
-        assert env_vars.model_dir == _TEST_MODEL_DIR
+        reload(environment_variables)
+        assert environment_variables.model_dir == _TEST_MODEL_DIR
 
     def test_model_dir_none(self):
-        env_vars = training_utils.EnvironmentVariables()
-        assert env_vars.model_dir is None
+        reload(environment_variables)
+        assert environment_variables.model_dir is None
 
     @pytest.mark.usefixtures("mock_environment")
     def test_checkpoint_dir(self):
-        env_vars = training_utils.EnvironmentVariables()
-        assert env_vars.checkpoint_dir == _TEST_CHECKPOINT_DIR
+        reload(environment_variables)
+        assert environment_variables.checkpoint_dir == _TEST_CHECKPOINT_DIR
 
     def test_checkpoint_dir_none(self):
-        env_vars = training_utils.EnvironmentVariables()
-        assert env_vars.checkpoint_dir is None
+        reload(environment_variables)
+        assert environment_variables.checkpoint_dir is None
 
     @pytest.mark.usefixtures("mock_environment")
     def test_tensorboard_log_dir(self):
-        env_vars = training_utils.EnvironmentVariables()
-        assert env_vars.tensorboard_log_dir == _TEST_TENSORBOARD_LOG_DIR
+        reload(environment_variables)
+        assert environment_variables.tensorboard_log_dir == _TEST_TENSORBOARD_LOG_DIR
 
     def test_tensorboard_log_dir_none(self):
-        env_vars = training_utils.EnvironmentVariables()
-        assert env_vars.tensorboard_log_dir is None
+        reload(environment_variables)
+        assert environment_variables.tensorboard_log_dir is None
 
     @pytest.mark.usefixtures("mock_environment")
     def test_cluster_spec(self):
-        env_vars = training_utils.EnvironmentVariables()
-        assert env_vars.cluster_spec == json.loads(_TEST_CLUSTER_SPEC)
+        reload(environment_variables)
+        assert environment_variables.cluster_spec == json.loads(_TEST_CLUSTER_SPEC)
 
     def test_cluster_spec_none(self):
-        env_vars = training_utils.EnvironmentVariables()
-        assert env_vars.cluster_spec is None
+        reload(environment_variables)
+        assert environment_variables.cluster_spec is None
 
     @pytest.mark.usefixtures("mock_environment")
     def test_tf_config(self):
-        env_vars = training_utils.EnvironmentVariables()
-        assert env_vars.tf_config == json.loads(_TEST_CLUSTER_SPEC)
+        reload(environment_variables)
+        assert environment_variables.tf_config == json.loads(_TEST_CLUSTER_SPEC)
 
     def test_tf_config_none(self):
-        env_vars = training_utils.EnvironmentVariables()
-        assert env_vars.tf_config is None
+        reload(environment_variables)
+        assert environment_variables.tf_config is None
 
     @pytest.mark.usefixtures("mock_environment")
     def test_tf_profiler_port(self):
-        env_vars = training_utils.EnvironmentVariables()
-        assert env_vars.tf_profiler_port == _TEST_AIP_TF_PROFILER_PORT
+        reload(environment_variables)
+        assert environment_variables.tf_profiler_port == _TEST_AIP_TF_PROFILER_PORT
 
     def test_tf_profiler_port_none(self):
-        env_vars = training_utils.EnvironmentVariables()
-        assert env_vars.tf_profiler_port is None
+        reload(environment_variables)
+        assert environment_variables.tf_profiler_port is None
 
     @pytest.mark.usefixtures("mock_environment")
     def test_tensorboard_api_uri(self):
-        env_vars = training_utils.EnvironmentVariables()
-        assert env_vars.tensorboard_api_uri == _TEST_TENSORBOARD_API_URI
+        reload(environment_variables)
+        assert environment_variables.tensorboard_api_uri == _TEST_TENSORBOARD_API_URI
 
     def test_tensorboard_api_uri_none(self):
-        env_vars = training_utils.EnvironmentVariables()
-        assert env_vars.tensorboard_api_uri is None
+        reload(environment_variables)
+        assert environment_variables.tensorboard_api_uri is None
 
     @pytest.mark.usefixtures("mock_environment")
     def test_tensorboard_resource_name(self):
-        env_vars = training_utils.EnvironmentVariables()
-        assert env_vars.tensorboard_resource_name == _TEST_TENSORBOARD_RESOURCE_NAME
+        reload(environment_variables)
+        assert (
+            environment_variables.tensorboard_resource_name
+            == _TEST_TENSORBOARD_RESOURCE_NAME
+        )
 
     def test_tensorboard_resource_name_none(self):
-        env_vars = training_utils.EnvironmentVariables()
-        assert env_vars.tensorboard_resource_name is None
+        reload(environment_variables)
+        assert environment_variables.tensorboard_resource_name is None
 
     @pytest.mark.usefixtures("mock_environment")
     def test_cloud_ml_job_id(self):
-        env_vars = training_utils.EnvironmentVariables()
-        assert env_vars.cloud_ml_job_id == _TEST_CLOUD_ML_JOB_ID
+        reload(environment_variables)
+        assert environment_variables.cloud_ml_job_id == _TEST_CLOUD_ML_JOB_ID
 
     def test_cloud_ml_job_id_none(self):
-        env_vars = training_utils.EnvironmentVariables()
-        assert env_vars.cloud_ml_job_id is None
+        reload(environment_variables)
+        assert environment_variables.cloud_ml_job_id is None

@@ -658,6 +658,7 @@ class SearchModelDeploymentMonitoringStatsAnomaliesRequest(proto.Message):
 
     class StatsAnomaliesObjective(proto.Message):
         r"""Stats requested for specific objective.
+
         Attributes:
             type_ (google.cloud.aiplatform_v1.types.ModelDeploymentMonitoringObjectiveType):
 

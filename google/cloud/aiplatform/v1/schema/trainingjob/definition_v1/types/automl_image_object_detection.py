@@ -47,6 +47,7 @@ class AutoMlImageObjectDetection(proto.Message):
 
 class AutoMlImageObjectDetectionInputs(proto.Message):
     r"""
+
     Attributes:
         model_type (google.cloud.aiplatform.v1.schema.trainingjob.definition_v1.types.AutoMlImageObjectDetectionInputs.ModelType):
 
@@ -93,6 +94,7 @@ class AutoMlImageObjectDetectionInputs(proto.Message):
 
 class AutoMlImageObjectDetectionMetadata(proto.Message):
     r"""
+
     Attributes:
         cost_milli_node_hours (int):
             The actual training cost of creating this

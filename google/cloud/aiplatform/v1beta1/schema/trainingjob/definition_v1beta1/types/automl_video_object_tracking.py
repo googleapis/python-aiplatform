@@ -38,6 +38,7 @@ class AutoMlVideoObjectTracking(proto.Message):
 
 class AutoMlVideoObjectTrackingInputs(proto.Message):
     r"""
+
     Attributes:
         model_type (google.cloud.aiplatform.v1beta1.schema.trainingjob.definition_v1beta1.types.AutoMlVideoObjectTrackingInputs.ModelType):
 

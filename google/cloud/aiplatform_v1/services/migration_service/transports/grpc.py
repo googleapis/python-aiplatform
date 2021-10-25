@@ -305,5 +305,8 @@ class MigrationServiceGrpcTransport(MigrationServiceTransport):
             )
         return self._stubs["batch_migrate_resources"]
 
+    def close(self):
+        self.grpc_channel.close()
+
 
 __all__ = ("MigrationServiceGrpcTransport",)

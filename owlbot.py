@@ -87,7 +87,8 @@ s.move(
     templated_files,
     excludes=[
         ".coveragerc",
-        ".kokoro/**/*.cfg"
+        ".kokoro/continuous/common.cfg",
+        ".kokoro/presubmit/presubmit.cfg",
     ]
 )  # the microgenerator has a good coveragerc file
 
@@ -95,7 +96,7 @@ s.move(
 s.replace(".kokoro/samples/python3.*/common.cfg",
     """env_vars: \{
     key: "BUILD_SPECIFIC_GCLOUD_PROJECT"
-    value: "python-docs-samples-tests-py3.*?"
+    value: "python-docs-samples-tests-.*?"
 \}""",
     """env_vars: {
     key: "BUILD_SPECIFIC_GCLOUD_PROJECT"
