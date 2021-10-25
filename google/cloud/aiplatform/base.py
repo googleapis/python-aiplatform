@@ -592,7 +592,7 @@ class VertexAiResourceNoun(metaclass=abc.ABCMeta):
         Read more about labels at https://goo.gl/xmQnxf
         """
         self._assert_gca_resource_is_available()
-        return self._gca_resource.labels
+        return dict(self._gca_resource.labels)
 
     @property
     def gca_resource(self) -> proto.Message:
