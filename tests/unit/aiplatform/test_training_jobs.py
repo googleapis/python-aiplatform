@@ -33,15 +33,16 @@ from unittest.mock import patch
 
 from google.auth import credentials as auth_credentials
 
-from google.cloud.aiplatform import utils
-from google.cloud.aiplatform.utils import source_utils
-from google.cloud.aiplatform.utils import worker_spec_utils
 from google.cloud import aiplatform
-
+from google.cloud.aiplatform import base
 from google.cloud.aiplatform import datasets
 from google.cloud.aiplatform import initializer
 from google.cloud.aiplatform import schema
 from google.cloud.aiplatform import training_jobs
+from google.cloud.aiplatform import utils
+from google.cloud.aiplatform.utils import source_utils
+from google.cloud.aiplatform.utils import worker_spec_utils
+
 
 from google.cloud.aiplatform_v1.services.job_service import client as job_service_client
 from google.cloud.aiplatform_v1.services.model_service import (
@@ -911,7 +912,9 @@ class TestCustomTrainingJob:
             gca_pipeline_state.PipelineState.PIPELINE_STATE_SUCCEEDED
         )
 
-        mock_model_service_get.assert_called_once_with(name=_TEST_MODEL_NAME)
+        mock_model_service_get.assert_called_once_with(
+            name=_TEST_MODEL_NAME, retry=base._DEFAULT_RETRY
+        )
 
         assert model_from_job._gca_resource is mock_model_service_get.return_value
 
@@ -1067,7 +1070,9 @@ class TestCustomTrainingJob:
             gca_pipeline_state.PipelineState.PIPELINE_STATE_SUCCEEDED
         )
 
-        mock_model_service_get.assert_called_once_with(name=_TEST_MODEL_NAME)
+        mock_model_service_get.assert_called_once_with(
+            name=_TEST_MODEL_NAME, retry=base._DEFAULT_RETRY
+        )
 
         assert model_from_job._gca_resource is mock_model_service_get.return_value
 
@@ -1339,7 +1344,9 @@ class TestCustomTrainingJob:
             gca_pipeline_state.PipelineState.PIPELINE_STATE_SUCCEEDED
         )
 
-        mock_model_service_get.assert_called_once_with(name=_TEST_MODEL_NAME)
+        mock_model_service_get.assert_called_once_with(
+            name=_TEST_MODEL_NAME, retry=base._DEFAULT_RETRY
+        )
 
         assert model_from_job._gca_resource is mock_model_service_get.return_value
 
@@ -1674,7 +1681,9 @@ class TestCustomTrainingJob:
             gca_pipeline_state.PipelineState.PIPELINE_STATE_SUCCEEDED
         )
 
-        mock_model_service_get.assert_called_once_with(name=_TEST_MODEL_NAME)
+        mock_model_service_get.assert_called_once_with(
+            name=_TEST_MODEL_NAME, retry=base._DEFAULT_RETRY
+        )
 
         assert model_from_job._gca_resource is mock_model_service_get.return_value
 
@@ -1815,7 +1824,9 @@ class TestCustomTrainingJob:
         aiplatform.init(project=_TEST_PROJECT)
         job = training_jobs.CustomTrainingJob.get(resource_name=_TEST_NAME)
 
-        get_training_job_custom_mock.assert_called_once_with(name=_TEST_NAME)
+        get_training_job_custom_mock.assert_called_once_with(
+            name=_TEST_NAME, retry=base._DEFAULT_RETRY
+        )
         assert isinstance(job, training_jobs.CustomTrainingJob)
 
     @pytest.mark.usefixtures("get_training_job_custom_mock")
@@ -1850,7 +1861,9 @@ class TestCustomTrainingJob:
     def test_get_training_job_with_id_only(self, get_training_job_custom_mock):
         aiplatform.init(project=_TEST_PROJECT, location=_TEST_LOCATION)
         training_jobs.CustomTrainingJob.get(resource_name=_TEST_ID)
-        get_training_job_custom_mock.assert_called_once_with(name=_TEST_NAME)
+        get_training_job_custom_mock.assert_called_once_with(
+            name=_TEST_NAME, retry=base._DEFAULT_RETRY
+        )
 
     def test_get_training_job_with_id_only_with_project_and_location(
         self, get_training_job_custom_mock
@@ -1859,7 +1872,9 @@ class TestCustomTrainingJob:
         training_jobs.CustomTrainingJob.get(
             resource_name=_TEST_ID, project=_TEST_PROJECT, location=_TEST_LOCATION
         )
-        get_training_job_custom_mock.assert_called_once_with(name=_TEST_NAME)
+        get_training_job_custom_mock.assert_called_once_with(
+            name=_TEST_NAME, retry=base._DEFAULT_RETRY
+        )
 
     def test_get_training_job_with_project_and_location(
         self, get_training_job_custom_mock
@@ -1868,7 +1883,9 @@ class TestCustomTrainingJob:
         training_jobs.CustomTrainingJob.get(
             resource_name=_TEST_NAME, project=_TEST_PROJECT, location=_TEST_LOCATION
         )
-        get_training_job_custom_mock.assert_called_once_with(name=_TEST_NAME)
+        get_training_job_custom_mock.assert_called_once_with(
+            name=_TEST_NAME, retry=base._DEFAULT_RETRY
+        )
 
     def test_get_training_job_with_alt_project_and_location(
         self, get_training_job_custom_mock
@@ -1877,7 +1894,9 @@ class TestCustomTrainingJob:
         training_jobs.CustomTrainingJob.get(
             resource_name=_TEST_NAME, project=_TEST_ALT_PROJECT, location=_TEST_LOCATION
         )
-        get_training_job_custom_mock.assert_called_once_with(name=_TEST_NAME)
+        get_training_job_custom_mock.assert_called_once_with(
+            name=_TEST_NAME, retry=base._DEFAULT_RETRY
+        )
 
     def test_get_training_job_with_project_and_alt_location(self):
         aiplatform.init(project=_TEST_PROJECT, location=_TEST_LOCATION)
@@ -2073,7 +2092,9 @@ class TestCustomTrainingJob:
             gca_pipeline_state.PipelineState.PIPELINE_STATE_SUCCEEDED
         )
 
-        mock_model_service_get.assert_called_once_with(name=_TEST_MODEL_NAME)
+        mock_model_service_get.assert_called_once_with(
+            name=_TEST_MODEL_NAME, retry=base._DEFAULT_RETRY
+        )
 
         assert model_from_job._gca_resource is mock_model_service_get.return_value
 
@@ -2322,7 +2343,9 @@ class TestCustomContainerTrainingJob:
             gca_pipeline_state.PipelineState.PIPELINE_STATE_SUCCEEDED
         )
 
-        mock_model_service_get.assert_called_once_with(name=_TEST_MODEL_NAME)
+        mock_model_service_get.assert_called_once_with(
+            name=_TEST_MODEL_NAME, retry=base._DEFAULT_RETRY
+        )
 
         assert model_from_job._gca_resource is mock_model_service_get.return_value
 
@@ -2476,7 +2499,9 @@ class TestCustomContainerTrainingJob:
             gca_pipeline_state.PipelineState.PIPELINE_STATE_SUCCEEDED
         )
 
-        mock_model_service_get.assert_called_once_with(name=_TEST_MODEL_NAME)
+        mock_model_service_get.assert_called_once_with(
+            name=_TEST_MODEL_NAME, retry=base._DEFAULT_RETRY
+        )
 
         assert model_from_job._gca_resource is mock_model_service_get.return_value
 
@@ -2726,7 +2751,9 @@ class TestCustomContainerTrainingJob:
             gca_pipeline_state.PipelineState.PIPELINE_STATE_SUCCEEDED
         )
 
-        mock_model_service_get.assert_called_once_with(name=_TEST_MODEL_NAME)
+        mock_model_service_get.assert_called_once_with(
+            name=_TEST_MODEL_NAME, retry=base._DEFAULT_RETRY
+        )
 
         assert model_from_job._gca_resource is mock_model_service_get.return_value
 
@@ -3042,7 +3069,9 @@ class TestCustomContainerTrainingJob:
             gca_pipeline_state.PipelineState.PIPELINE_STATE_SUCCEEDED
         )
 
-        mock_model_service_get.assert_called_once_with(name=_TEST_MODEL_NAME)
+        mock_model_service_get.assert_called_once_with(
+            name=_TEST_MODEL_NAME, retry=base._DEFAULT_RETRY
+        )
 
         assert model_from_job._gca_resource is mock_model_service_get.return_value
 
@@ -3310,7 +3339,9 @@ class TestCustomContainerTrainingJob:
             gca_pipeline_state.PipelineState.PIPELINE_STATE_SUCCEEDED
         )
 
-        mock_model_service_get.assert_called_once_with(name=_TEST_MODEL_NAME)
+        mock_model_service_get.assert_called_once_with(
+            name=_TEST_MODEL_NAME, retry=base._DEFAULT_RETRY
+        )
 
         assert model_from_job._gca_resource is mock_model_service_get.return_value
 
@@ -3833,7 +3864,9 @@ class TestCustomPythonPackageTrainingJob:
             gca_pipeline_state.PipelineState.PIPELINE_STATE_SUCCEEDED
         )
 
-        mock_model_service_get.assert_called_once_with(name=_TEST_MODEL_NAME)
+        mock_model_service_get.assert_called_once_with(
+            name=_TEST_MODEL_NAME, retry=base._DEFAULT_RETRY
+        )
 
         assert model_from_job._gca_resource is mock_model_service_get.return_value
 
@@ -3983,7 +4016,9 @@ class TestCustomPythonPackageTrainingJob:
             gca_pipeline_state.PipelineState.PIPELINE_STATE_SUCCEEDED
         )
 
-        mock_model_service_get.assert_called_once_with(name=_TEST_MODEL_NAME)
+        mock_model_service_get.assert_called_once_with(
+            name=_TEST_MODEL_NAME, retry=base._DEFAULT_RETRY
+        )
 
         assert model_from_job._gca_resource is mock_model_service_get.return_value
 
@@ -4137,7 +4172,9 @@ class TestCustomPythonPackageTrainingJob:
             gca_pipeline_state.PipelineState.PIPELINE_STATE_SUCCEEDED
         )
 
-        mock_model_service_get.assert_called_once_with(name=_TEST_MODEL_NAME)
+        mock_model_service_get.assert_called_once_with(
+            name=_TEST_MODEL_NAME, retry=base._DEFAULT_RETRY
+        )
 
         assert model_from_job._gca_resource is mock_model_service_get.return_value
 
@@ -4391,7 +4428,9 @@ class TestCustomPythonPackageTrainingJob:
             gca_pipeline_state.PipelineState.PIPELINE_STATE_SUCCEEDED
         )
 
-        mock_model_service_get.assert_called_once_with(name=_TEST_MODEL_NAME)
+        mock_model_service_get.assert_called_once_with(
+            name=_TEST_MODEL_NAME, retry=base._DEFAULT_RETRY
+        )
 
         assert model_from_job._gca_resource is mock_model_service_get.return_value
 
@@ -4716,7 +4755,9 @@ class TestCustomPythonPackageTrainingJob:
             gca_pipeline_state.PipelineState.PIPELINE_STATE_SUCCEEDED
         )
 
-        mock_model_service_get.assert_called_once_with(name=_TEST_MODEL_NAME)
+        mock_model_service_get.assert_called_once_with(
+            name=_TEST_MODEL_NAME, retry=base._DEFAULT_RETRY
+        )
 
         assert model_from_job._gca_resource is mock_model_service_get.return_value
 
@@ -4987,7 +5028,9 @@ class TestCustomPythonPackageTrainingJob:
             gca_pipeline_state.PipelineState.PIPELINE_STATE_SUCCEEDED
         )
 
-        mock_model_service_get.assert_called_once_with(name=_TEST_MODEL_NAME)
+        mock_model_service_get.assert_called_once_with(
+            name=_TEST_MODEL_NAME, retry=base._DEFAULT_RETRY
+        )
 
         assert model_from_job._gca_resource is mock_model_service_get.return_value
 
