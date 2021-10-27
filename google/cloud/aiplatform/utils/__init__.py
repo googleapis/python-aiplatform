@@ -54,7 +54,7 @@ from google.cloud.aiplatform.compat.services import (
 )
 
 from google.cloud.aiplatform.compat.types import (
-    accelerator_type as gca_accelerator_type,
+    accelerator_type_v1 as gca_accelerator_type,
 )
 
 VertexAiServiceClient = TypeVar(
