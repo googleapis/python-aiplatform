@@ -66,7 +66,7 @@ class PipelineRuntimeConfigBuilder(object):
         )
         # 'type' is deprecated in IR and change to 'parameterType'.
         parameter_types = {
-            k: v.get("type") or v.get("parameterType")
+            k: v.get("parameterType") or v.get("type")
             for k, v in parameter_input_definitions.items()
         }
 
@@ -179,6 +179,9 @@ def _parse_runtime_parameters(
         TypeError: if the parameter type is not one of 'INT', 'DOUBLE', 'STRING'.
     """
     # 'parameters' are deprecated in IR and changed to 'parameterValues'.
+    if runtime_config_spec.get("parameterValues") is not None:
+        return runtime_config_spec.get("parameterValues")
+
     if runtime_config_spec.get("parameters") is not None:
         result = {}
         for name, value in runtime_config_spec.get("parameters").items():
@@ -191,4 +194,3 @@ def _parse_runtime_parameters(
             else:
                 raise TypeError("Got unknown type of value: {}".format(value))
         return result
-    return runtime_config_spec.get("parameterValues")
