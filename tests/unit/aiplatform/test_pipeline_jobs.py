@@ -289,7 +289,7 @@ class TestPipelineJob:
             job.wait()
 
         expected_runtime_config_dict = {
-            "gcs_output_directory": _TEST_GCS_BUCKET_NAME,
+            "gcsOutputDirectory": _TEST_GCS_BUCKET_NAME,
             "parameters": {"string_param": {"stringValue": "hello"}},
         }
         runtime_config = gca_pipeline_job_v1beta1.PipelineJob.RuntimeConfig()._pb
