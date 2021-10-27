@@ -29,6 +29,7 @@ import test_training_jobs
 from test_training_jobs import mock_python_package_to_gcs  # noqa: F401
 
 from google.cloud import aiplatform
+from google.cloud.aiplatform import base
 from google.cloud.aiplatform.compat.types import custom_job as gca_custom_job_compat
 from google.cloud.aiplatform.compat.types import (
     custom_job_v1beta1 as gca_custom_job_v1beta1,
@@ -447,7 +448,9 @@ class TestCustomJob:
 
         job = aiplatform.CustomJob.get(_TEST_CUSTOM_JOB_NAME)
 
-        get_custom_job_mock.assert_called_once_with(name=_TEST_CUSTOM_JOB_NAME)
+        get_custom_job_mock.assert_called_once_with(
+            name=_TEST_CUSTOM_JOB_NAME, retry=base._DEFAULT_RETRY
+        )
         assert (
             job._gca_resource.state == gca_job_state_compat.JobState.JOB_STATE_PENDING
         )

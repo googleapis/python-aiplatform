@@ -94,7 +94,7 @@ class _Resource(base.VertexAiResourceNounWithFutureManager, abc.ABC):
             )
 
         self._gca_resource = getattr(self.api_client, self._getter_method)(
-            name=full_resource_name
+            name=full_resource_name, retry=base._DEFAULT_RETRY
         )
 
     @property
