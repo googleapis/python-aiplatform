@@ -665,7 +665,7 @@ def optional_sync(
             # if sync then wait for any Futures to complete and execute
             if sync:
                 if self:
-                    self.wait()
+                    VertexAiResourceNounWithFutureManager.wait(self)
                 return method(*args, **kwargs)
 
             # callbacks to call within the Future (in same Thread)
