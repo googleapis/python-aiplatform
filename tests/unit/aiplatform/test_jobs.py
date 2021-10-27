@@ -27,7 +27,7 @@ from google.cloud import bigquery
 from google.auth import credentials as auth_credentials
 
 from google.cloud import aiplatform
-
+from google.cloud.aiplatform import base
 from google.cloud.aiplatform import initializer
 from google.cloud.aiplatform import jobs
 
@@ -381,7 +381,7 @@ class TestBatchPredictionJob:
             batch_prediction_job_name=_TEST_BATCH_PREDICTION_JOB_NAME
         )
         get_batch_prediction_job_mock.assert_called_once_with(
-            name=_TEST_BATCH_PREDICTION_JOB_NAME
+            name=_TEST_BATCH_PREDICTION_JOB_NAME, retry=base._DEFAULT_RETRY
         )
 
     def test_batch_prediction_job_status(self, get_batch_prediction_job_mock):
@@ -396,7 +396,7 @@ class TestBatchPredictionJob:
         assert bp_job_state == _TEST_JOB_STATE_RUNNING
 
         get_batch_prediction_job_mock.assert_called_with(
-            name=_TEST_BATCH_PREDICTION_JOB_NAME
+            name=_TEST_BATCH_PREDICTION_JOB_NAME, retry=base._DEFAULT_RETRY
         )
 
     @pytest.mark.usefixtures("get_batch_prediction_job_gcs_output_mock")

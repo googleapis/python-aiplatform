@@ -25,9 +25,10 @@ from datetime import datetime
 
 from google.auth import credentials as auth_credentials
 from google.cloud import aiplatform
-from google.cloud import storage
-from google.cloud.aiplatform import pipeline_jobs
+from google.cloud.aiplatform import base
 from google.cloud.aiplatform import initializer
+from google.cloud.aiplatform import pipeline_jobs
+from google.cloud import storage
 from google.protobuf import json_format
 
 from google.cloud.aiplatform_v1beta1.services.pipeline_service import (
@@ -316,7 +317,82 @@ class TestPipelineJob:
             pipeline_job_id=_TEST_PIPELINE_JOB_ID,
         )
 
-        mock_pipeline_service_get.assert_called_with(name=_TEST_PIPELINE_JOB_NAME)
+        mock_pipeline_service_get.assert_called_with(
+            name=_TEST_PIPELINE_JOB_NAME, retry=base._DEFAULT_RETRY
+        )
+
+        assert job._gca_resource == make_pipeline_job(
+            gca_pipeline_state_v1beta1.PipelineState.PIPELINE_STATE_SUCCEEDED
+        )
+
+    @pytest.mark.parametrize(
+        "job_spec_json",
+        [
+            _TEST_PIPELINE_SPEC,
+            _TEST_PIPELINE_JOB,
+            _TEST_PIPELINE_SPEC_LEGACY,
+            _TEST_PIPELINE_JOB_LEGACY,
+        ],
+    )
+    def test_submit_call_pipeline_service_pipeline_job_create(
+        self,
+        mock_pipeline_service_create,
+        mock_pipeline_service_get,
+        job_spec_json,
+        mock_load_json,
+    ):
+        aiplatform.init(
+            project=_TEST_PROJECT,
+            staging_bucket=_TEST_GCS_BUCKET_NAME,
+            location=_TEST_LOCATION,
+            credentials=_TEST_CREDENTIALS,
+        )
+
+        job = pipeline_jobs.PipelineJob(
+            display_name=_TEST_PIPELINE_JOB_DISPLAY_NAME,
+            template_path=_TEST_TEMPLATE_PATH,
+            job_id=_TEST_PIPELINE_JOB_ID,
+            parameter_values=_TEST_PIPELINE_PARAMETER_VALUES,
+            enable_caching=True,
+        )
+
+        job.submit(service_account=_TEST_SERVICE_ACCOUNT, network=_TEST_NETWORK)
+
+        expected_runtime_config_dict = {
+            "gcs_output_directory": _TEST_GCS_BUCKET_NAME,
+            "parameters": {"string_param": {"stringValue": "hello"}},
+        }
+        runtime_config = gca_pipeline_job_v1beta1.PipelineJob.RuntimeConfig()._pb
+        json_format.ParseDict(expected_runtime_config_dict, runtime_config)
+
+        pipeline_spec = job_spec_json.get("pipelineSpec") or job_spec_json
+
+        # Construct expected request
+        expected_gapic_pipeline_job = gca_pipeline_job_v1beta1.PipelineJob(
+            display_name=_TEST_PIPELINE_JOB_DISPLAY_NAME,
+            pipeline_spec={
+                "components": {},
+                "pipelineInfo": pipeline_spec["pipelineInfo"],
+                "root": pipeline_spec["root"],
+            },
+            runtime_config=runtime_config,
+            service_account=_TEST_SERVICE_ACCOUNT,
+            network=_TEST_NETWORK,
+        )
+
+        mock_pipeline_service_create.assert_called_once_with(
+            parent=_TEST_PARENT,
+            pipeline_job=expected_gapic_pipeline_job,
+            pipeline_job_id=_TEST_PIPELINE_JOB_ID,
+        )
+
+        assert not mock_pipeline_service_get.called
+
+        job.wait()
+
+        mock_pipeline_service_get.assert_called_with(
+            name=_TEST_PIPELINE_JOB_NAME, retry=base._DEFAULT_RETRY
+        )
 
         assert job._gca_resource == make_pipeline_job(
             gca_pipeline_state_v1beta1.PipelineState.PIPELINE_STATE_SUCCEEDED
@@ -327,7 +403,9 @@ class TestPipelineJob:
         aiplatform.init(project=_TEST_PROJECT)
         job = pipeline_jobs.PipelineJob.get(resource_name=_TEST_PIPELINE_JOB_ID)
 
-        mock_pipeline_service_get.assert_called_once_with(name=_TEST_PIPELINE_JOB_NAME)
+        mock_pipeline_service_get.assert_called_once_with(
+            name=_TEST_PIPELINE_JOB_NAME, retry=base._DEFAULT_RETRY
+        )
         assert isinstance(job, pipeline_jobs.PipelineJob)
 
     @pytest.mark.usefixtures(

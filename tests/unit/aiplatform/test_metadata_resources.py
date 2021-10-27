@@ -22,6 +22,7 @@ import pytest
 from google.api_core import exceptions
 
 from google.cloud import aiplatform
+from google.cloud.aiplatform import base
 from google.cloud.aiplatform import initializer
 from google.cloud.aiplatform.metadata import artifact
 from google.cloud.aiplatform.metadata import context
@@ -366,14 +367,18 @@ class TestContext:
     def test_init_context(self, get_context_mock):
         aiplatform.init(project=_TEST_PROJECT)
         context._Context(resource_name=_TEST_CONTEXT_NAME)
-        get_context_mock.assert_called_once_with(name=_TEST_CONTEXT_NAME)
+        get_context_mock.assert_called_once_with(
+            name=_TEST_CONTEXT_NAME, retry=base._DEFAULT_RETRY
+        )
 
     def test_init_context_with_id(self, get_context_mock):
         aiplatform.init(project=_TEST_PROJECT, location=_TEST_LOCATION)
         context._Context(
             resource_name=_TEST_CONTEXT_ID, metadata_store_id=_TEST_METADATA_STORE
         )
-        get_context_mock.assert_called_once_with(name=_TEST_CONTEXT_NAME)
+        get_context_mock.assert_called_once_with(
+            name=_TEST_CONTEXT_NAME, retry=base._DEFAULT_RETRY
+        )
 
     def test_get_or_create_context(
         self, get_context_for_get_or_create_mock, create_context_mock
@@ -398,7 +403,7 @@ class TestContext:
             metadata=_TEST_METADATA,
         )
         get_context_for_get_or_create_mock.assert_called_once_with(
-            name=_TEST_CONTEXT_NAME
+            name=_TEST_CONTEXT_NAME, retry=base._DEFAULT_RETRY
         )
         create_context_mock.assert_called_once_with(
             parent=_TEST_PARENT, context_id=_TEST_CONTEXT_ID, context=expected_context,
@@ -542,14 +547,18 @@ class TestExecution:
     def test_init_execution(self, get_execution_mock):
         aiplatform.init(project=_TEST_PROJECT)
         execution._Execution(resource_name=_TEST_EXECUTION_NAME)
-        get_execution_mock.assert_called_once_with(name=_TEST_EXECUTION_NAME)
+        get_execution_mock.assert_called_once_with(
+            name=_TEST_EXECUTION_NAME, retry=base._DEFAULT_RETRY
+        )
 
     def test_init_execution_with_id(self, get_execution_mock):
         aiplatform.init(project=_TEST_PROJECT, location=_TEST_LOCATION)
         execution._Execution(
             resource_name=_TEST_EXECUTION_ID, metadata_store_id=_TEST_METADATA_STORE
         )
-        get_execution_mock.assert_called_once_with(name=_TEST_EXECUTION_NAME)
+        get_execution_mock.assert_called_once_with(
+            name=_TEST_EXECUTION_NAME, retry=base._DEFAULT_RETRY
+        )
 
     def test_get_or_create_execution(
         self, get_execution_for_get_or_create_mock, create_execution_mock
@@ -574,7 +583,7 @@ class TestExecution:
             metadata=_TEST_METADATA,
         )
         get_execution_for_get_or_create_mock.assert_called_once_with(
-            name=_TEST_EXECUTION_NAME
+            name=_TEST_EXECUTION_NAME, retry=base._DEFAULT_RETRY
         )
         create_execution_mock.assert_called_once_with(
             parent=_TEST_PARENT,
@@ -704,14 +713,18 @@ class TestArtifact:
     def test_init_artifact(self, get_artifact_mock):
         aiplatform.init(project=_TEST_PROJECT)
         artifact._Artifact(resource_name=_TEST_ARTIFACT_NAME)
-        get_artifact_mock.assert_called_once_with(name=_TEST_ARTIFACT_NAME)
+        get_artifact_mock.assert_called_once_with(
+            name=_TEST_ARTIFACT_NAME, retry=base._DEFAULT_RETRY
+        )
 
     def test_init_artifact_with_id(self, get_artifact_mock):
         aiplatform.init(project=_TEST_PROJECT, location=_TEST_LOCATION)
         artifact._Artifact(
             resource_name=_TEST_ARTIFACT_ID, metadata_store_id=_TEST_METADATA_STORE
         )
-        get_artifact_mock.assert_called_once_with(name=_TEST_ARTIFACT_NAME)
+        get_artifact_mock.assert_called_once_with(
+            name=_TEST_ARTIFACT_NAME, retry=base._DEFAULT_RETRY
+        )
 
     def test_get_or_create_artifact(
         self, get_artifact_for_get_or_create_mock, create_artifact_mock
@@ -736,7 +749,7 @@ class TestArtifact:
             metadata=_TEST_METADATA,
         )
         get_artifact_for_get_or_create_mock.assert_called_once_with(
-            name=_TEST_ARTIFACT_NAME
+            name=_TEST_ARTIFACT_NAME, retry=base._DEFAULT_RETRY
         )
         create_artifact_mock.assert_called_once_with(
             parent=_TEST_PARENT,

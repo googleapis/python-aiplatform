@@ -25,6 +25,7 @@ import logging
 from google.rpc import status_pb2
 
 from google.cloud import aiplatform
+from google.cloud.aiplatform import base
 from google.cloud.aiplatform import hyperparameter_tuning as hpt
 from google.cloud.aiplatform.compat.types import (
     encryption_spec as gca_encryption_spec_compat,
@@ -598,7 +599,7 @@ class TestHyperparameterTuningJob:
         )
 
         get_hyperparameter_tuning_job_mock.assert_called_once_with(
-            name=_TEST_HYPERPARAMETERTUNING_JOB_NAME
+            name=_TEST_HYPERPARAMETERTUNING_JOB_NAME, retry=base._DEFAULT_RETRY
         )
         assert (
             job._gca_resource.state == gca_job_state_compat.JobState.JOB_STATE_PENDING
