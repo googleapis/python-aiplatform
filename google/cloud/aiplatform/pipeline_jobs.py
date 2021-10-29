@@ -137,7 +137,7 @@ class PipelineJob(base.VertexAiResourceNounWithFutureManager):
                 resource is created.
 
                 If this is set, then all
-                resources created by the BatchPredictionJob will
+                resources created by the PipelineJob will
                 be encrypted with the provided encryption key.
 
                 Overrides encryption_spec_key_name set in aiplatform.init.
