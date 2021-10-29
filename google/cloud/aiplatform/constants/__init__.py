@@ -4,7 +4,7 @@
 # you may not use this file except in compliance with the License.
 # You may obtain a copy of the License at
 #
-#     http://www.apache.org/licenses/LICENSE-2.0
+#     https://www.apache.org/licenses/LICENSE-2.0
 #
 # Unless required by applicable law or agreed to in writing, software
 # distributed under the License is distributed on an "AS IS" BASIS,
@@ -12,9 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from google.cloud.aiplatform.helpers import value_converter
-from google.cloud.aiplatform.helpers.container_uri_builders import (
-    get_prediction_container_uri,
-)
+from google.cloud.aiplatform.constants.base import *
+from google.cloud.aiplatform.constants.prediction import *
 
-__all__ = ("get_prediction_container_uri" "value_converter",)
+__all__ = ()
