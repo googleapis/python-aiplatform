@@ -25,7 +25,7 @@ from google.api_core import operation as ga_operation
 from google.auth import credentials as auth_credentials
 
 from google.cloud import aiplatform
-
+from google.cloud.aiplatform import base
 from google.cloud.aiplatform import initializer
 from google.cloud.aiplatform import explain
 from google.cloud.aiplatform import models
@@ -408,7 +408,9 @@ class TestEndpoint:
         assert not get_endpoint_mock.called
 
         ep.display_name  # Retrieve a property that requires a call to Endpoint getter
-        get_endpoint_mock.assert_called_with(name=_TEST_ENDPOINT_NAME)
+        get_endpoint_mock.assert_called_with(
+            name=_TEST_ENDPOINT_NAME, retry=base._DEFAULT_RETRY
+        )
 
     def test_lazy_constructor_with_custom_project(self, get_endpoint_mock):
         ep = models.Endpoint(endpoint_name=_TEST_ID, project=_TEST_PROJECT_2)
@@ -418,7 +420,9 @@ class TestEndpoint:
         assert not get_endpoint_mock.called
 
         ep.name  # Retrieve a property that requires a call to Endpoint getter
-        get_endpoint_mock.assert_called_with(name=test_endpoint_resource_name)
+        get_endpoint_mock.assert_called_with(
+            name=test_endpoint_resource_name, retry=base._DEFAULT_RETRY
+        )
 
     @pytest.mark.usefixtures("get_endpoint_mock")
     def test_constructor_with_conflicting_location(self):
@@ -447,7 +451,7 @@ class TestEndpoint:
         ep.network  # Accessing a property that requires calling getter
 
         get_endpoint_alt_location_mock.assert_called_with(
-            name=test_endpoint_resource_name
+            name=test_endpoint_resource_name, retry=base._DEFAULT_RETRY
         )
 
     def test_constructor_with_custom_credentials(self, create_endpoint_client_mock):

@@ -3,7 +3,7 @@ import importlib
 from unittest import mock
 
 from google.cloud import aiplatform
-
+from google.cloud.aiplatform import base
 from google.cloud.aiplatform import datasets
 from google.cloud.aiplatform import initializer
 from google.cloud.aiplatform import models
@@ -370,7 +370,9 @@ class TestAutoMLTextTrainingJob:
             training_pipeline=true_training_pipeline,
         )
 
-        mock_model_service_get.assert_called_once_with(name=_TEST_MODEL_NAME)
+        mock_model_service_get.assert_called_once_with(
+            name=_TEST_MODEL_NAME, retry=base._DEFAULT_RETRY
+        )
         assert job._gca_resource is mock_pipeline_service_get.return_value
         assert model_from_job._gca_resource is mock_model_service_get.return_value
         assert job.get_model()._gca_resource is mock_model_service_get.return_value
@@ -437,7 +439,9 @@ class TestAutoMLTextTrainingJob:
             training_pipeline=true_training_pipeline,
         )
 
-        mock_model_service_get.assert_called_once_with(name=_TEST_MODEL_NAME)
+        mock_model_service_get.assert_called_once_with(
+            name=_TEST_MODEL_NAME, retry=base._DEFAULT_RETRY
+        )
         assert job._gca_resource is mock_pipeline_service_get.return_value
         assert model_from_job._gca_resource is mock_model_service_get.return_value
         assert job.get_model()._gca_resource is mock_model_service_get.return_value
@@ -505,7 +509,9 @@ class TestAutoMLTextTrainingJob:
             training_pipeline=true_training_pipeline,
         )
 
-        mock_model_service_get.assert_called_once_with(name=_TEST_MODEL_NAME)
+        mock_model_service_get.assert_called_once_with(
+            name=_TEST_MODEL_NAME, retry=base._DEFAULT_RETRY
+        )
         assert job._gca_resource is mock_pipeline_service_get.return_value
         assert model_from_job._gca_resource is mock_model_service_get.return_value
         assert job.get_model()._gca_resource is mock_model_service_get.return_value
