@@ -19,11 +19,12 @@ import pytest
 
 from importlib import reload
 
-from google.cloud.aiplatform.utils import source_utils
 from google.cloud import aiplatform
+from google.cloud.aiplatform import base
 from google.cloud.aiplatform import initializer
 from google.cloud.aiplatform import models
 from google.cloud.aiplatform import schema
+from google.cloud.aiplatform.utils import source_utils
 
 from google.cloud.aiplatform_v1.types import (
     dataset as gca_dataset,
@@ -280,7 +281,7 @@ class TestEndToEnd:
         )
 
         mock_model_service_get.assert_called_once_with(
-            name=test_training_jobs._TEST_MODEL_NAME
+            name=test_training_jobs._TEST_MODEL_NAME, retry=base._DEFAULT_RETRY
         )
 
         assert model_from_job._gca_resource is mock_model_service_get.return_value
