@@ -293,13 +293,13 @@ class TestPipelineJob:
             "gcsOutputDirectory": _TEST_GCS_BUCKET_NAME,
             "parameters": {"string_param": {"stringValue": "hello"}},
         }
-        runtime_config = gca_pipeline_job_v1beta1.PipelineJob.RuntimeConfig()._pb
+        runtime_config = gca_pipeline_job_v1.PipelineJob.RuntimeConfig()._pb
         json_format.ParseDict(expected_runtime_config_dict, runtime_config)
 
         pipeline_spec = job_spec_json.get("pipelineSpec") or job_spec_json
 
         # Construct expected request
-        expected_gapic_pipeline_job = gca_pipeline_job_v1beta1.PipelineJob(
+        expected_gapic_pipeline_job = gca_pipeline_job_v1.PipelineJob(
             display_name=_TEST_PIPELINE_JOB_DISPLAY_NAME,
             pipeline_spec={
                 "components": {},
@@ -322,7 +322,7 @@ class TestPipelineJob:
         )
 
         assert job._gca_resource == make_pipeline_job(
-            gca_pipeline_state_v1beta1.PipelineState.PIPELINE_STATE_SUCCEEDED
+            gca_pipeline_state_v1.PipelineState.PIPELINE_STATE_SUCCEEDED
         )
 
     @pytest.mark.parametrize(
