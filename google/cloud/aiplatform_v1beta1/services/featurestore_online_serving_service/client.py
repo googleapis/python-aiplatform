@@ -30,6 +30,8 @@ from google.auth.transport.grpc import SslCredentials  # type: ignore
 from google.auth.exceptions import MutualTLSChannelError  # type: ignore
 from google.oauth2 import service_account  # type: ignore
 
+OptionalRetry = Union[retries.Retry, object]
+
 from google.cloud.aiplatform_v1beta1.types import featurestore_online_service
 from .transports.base import (
     FeaturestoreOnlineServingServiceTransport,
@@ -369,7 +371,7 @@ class FeaturestoreOnlineServingServiceClient(
         ] = None,
         *,
         entity_type: str = None,
-        retry: retries.Retry = gapic_v1.method.DEFAULT,
+        retry: OptionalRetry = gapic_v1.method.DEFAULT,
         timeout: float = None,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> featurestore_online_service.ReadFeatureValuesResponse:
@@ -453,7 +455,7 @@ class FeaturestoreOnlineServingServiceClient(
         ] = None,
         *,
         entity_type: str = None,
-        retry: retries.Retry = gapic_v1.method.DEFAULT,
+        retry: OptionalRetry = gapic_v1.method.DEFAULT,
         timeout: float = None,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> Iterable[featurestore_online_service.ReadFeatureValuesResponse]:

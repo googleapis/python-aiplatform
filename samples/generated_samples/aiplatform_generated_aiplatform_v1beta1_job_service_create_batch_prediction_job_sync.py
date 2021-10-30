@@ -37,7 +37,7 @@ def sample_create_batch_prediction_job():
     batch_prediction_job = aiplatform_v1beta1.BatchPredictionJob()
     batch_prediction_job.display_name = "display_name_value"
     batch_prediction_job.model = "projects/{project}/locations/{location}/models/{model}"
-    batch_prediction_job.input_config.gcs_source.uris = ['uris_value']
+    batch_prediction_job.input_config.gcs_source.uris = ['uris_value_1', 'uris_value_2']
     batch_prediction_job.input_config.instances_format = "instances_format_value"
     batch_prediction_job.output_config.gcs_destination.output_uri_prefix = "output_uri_prefix_value"
     batch_prediction_job.output_config.predictions_format = "predictions_format_value"
