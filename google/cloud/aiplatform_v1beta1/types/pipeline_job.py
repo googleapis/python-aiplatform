@@ -296,13 +296,22 @@ class PipelineTaskDetail(proto.Message):
 class PipelineTaskExecutorDetail(proto.Message):
     r"""The runtime detail of a pipeline executor.
 
+    This message has `oneof`_ fields (mutually exclusive fields).
+    For each oneof, at most one member field can be set at the same time.
+    Setting any member of the oneof automatically clears all other
+    members.
+
+    .. _oneof: https://proto-plus-python.readthedocs.io/en/stable/fields.html#oneofs-mutually-exclusive-fields
+
     Attributes:
         container_detail (google.cloud.aiplatform_v1beta1.types.PipelineTaskExecutorDetail.ContainerDetail):
             Output only. The detailed info for a
             container executor.
+            This field is a member of `oneof`_ ``details``.
         custom_job_detail (google.cloud.aiplatform_v1beta1.types.PipelineTaskExecutorDetail.CustomJobDetail):
             Output only. The detailed info for a custom
             job executor.
+            This field is a member of `oneof`_ ``details``.
     """
 
     class ContainerDetail(proto.Message):

@@ -262,6 +262,13 @@ class ExplanationSpec(proto.Message):
 class ExplanationParameters(proto.Message):
     r"""Parameters to configure explaining for Model's predictions.
 
+    This message has `oneof`_ fields (mutually exclusive fields).
+    For each oneof, at most one member field can be set at the same time.
+    Setting any member of the oneof automatically clears all other
+    members.
+
+    .. _oneof: https://proto-plus-python.readthedocs.io/en/stable/fields.html#oneofs-mutually-exclusive-fields
+
     Attributes:
         sampled_shapley_attribution (google.cloud.aiplatform_v1beta1.types.SampledShapleyAttribution):
             An attribution method that approximates
@@ -271,12 +278,14 @@ class ExplanationParameters(proto.Message):
             considering all subsets of features. Refer to
             this paper for model details:
             https://arxiv.org/abs/1306.4265.
+            This field is a member of `oneof`_ ``method``.
         integrated_gradients_attribution (google.cloud.aiplatform_v1beta1.types.IntegratedGradientsAttribution):
             An attribution method that computes Aumann-
             hapley values taking advantage of the model's
             fully differentiable structure. Refer to this
             paper for more details:
             https://arxiv.org/abs/1703.01365
+            This field is a member of `oneof`_ ``method``.
         xrai_attribution (google.cloud.aiplatform_v1beta1.types.XraiAttribution):
             An attribution method that redistributes
             Integrated Gradients attribution to segmented
@@ -291,9 +300,11 @@ class ExplanationParameters(proto.Message):
             or from diagnostic equipment, like x-rays or
             quality-control cameras, use Integrated
             Gradients instead.
+            This field is a member of `oneof`_ ``method``.
         similarity (google.cloud.aiplatform_v1beta1.types.Similarity):
             Similarity explainability that returns the
             nearest neighbors from the provided dataset.
+            This field is a member of `oneof`_ ``method``.
         top_k (int):
             If populated, returns attributions for top K
             indices of outputs (defaults to 1). Only applies
@@ -423,6 +434,13 @@ class SmoothGradConfig(proto.Message):
     this paper for more details:
     https://arxiv.org/pdf/1706.03825.pdf
 
+    This message has `oneof`_ fields (mutually exclusive fields).
+    For each oneof, at most one member field can be set at the same time.
+    Setting any member of the oneof automatically clears all other
+    members.
+
+    .. _oneof: https://proto-plus-python.readthedocs.io/en/stable/fields.html#oneofs-mutually-exclusive-fields
+
     Attributes:
         noise_sigma (float):
             This is a single float value and will be used to add noise
@@ -440,6 +458,7 @@ class SmoothGradConfig(proto.Message):
             If the distribution is different per feature, set
             [feature_noise_sigma][google.cloud.aiplatform.v1beta1.SmoothGradConfig.feature_noise_sigma]
             instead for each feature.
+            This field is a member of `oneof`_ ``GradientNoiseSigma``.
         feature_noise_sigma (google.cloud.aiplatform_v1beta1.types.FeatureNoiseSigma):
             This is similar to
             [noise_sigma][google.cloud.aiplatform.v1beta1.SmoothGradConfig.noise_sigma],
@@ -449,6 +468,7 @@ class SmoothGradConfig(proto.Message):
             that are not set. If this field is unset,
             [noise_sigma][google.cloud.aiplatform.v1beta1.SmoothGradConfig.noise_sigma]
             will be used for all features.
+            This field is a member of `oneof`_ ``GradientNoiseSigma``.
         noisy_sample_count (int):
             The number of gradient samples to use for approximation. The
             higher this number, the more accurate the gradient is, but

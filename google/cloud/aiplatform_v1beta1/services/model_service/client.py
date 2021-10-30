@@ -30,6 +30,8 @@ from google.auth.transport.grpc import SslCredentials  # type: ignore
 from google.auth.exceptions import MutualTLSChannelError  # type: ignore
 from google.oauth2 import service_account  # type: ignore
 
+OptionalRetry = Union[retries.Retry, object]
+
 from google.api_core import operation as gac_operation  # type: ignore
 from google.api_core import operation_async  # type: ignore
 from google.cloud.aiplatform_v1beta1.services.model_service import pagers
@@ -439,7 +441,7 @@ class ModelServiceClient(metaclass=ModelServiceClientMeta):
         *,
         parent: str = None,
         model: gca_model.Model = None,
-        retry: retries.Retry = gapic_v1.method.DEFAULT,
+        retry: OptionalRetry = gapic_v1.method.DEFAULT,
         timeout: float = None,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> gac_operation.Operation:
@@ -531,7 +533,7 @@ class ModelServiceClient(metaclass=ModelServiceClientMeta):
         request: Union[model_service.GetModelRequest, dict] = None,
         *,
         name: str = None,
-        retry: retries.Retry = gapic_v1.method.DEFAULT,
+        retry: OptionalRetry = gapic_v1.method.DEFAULT,
         timeout: float = None,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> model.Model:
@@ -600,7 +602,7 @@ class ModelServiceClient(metaclass=ModelServiceClientMeta):
         request: Union[model_service.ListModelsRequest, dict] = None,
         *,
         parent: str = None,
-        retry: retries.Retry = gapic_v1.method.DEFAULT,
+        retry: OptionalRetry = gapic_v1.method.DEFAULT,
         timeout: float = None,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> pagers.ListModelsPager:
@@ -682,7 +684,7 @@ class ModelServiceClient(metaclass=ModelServiceClientMeta):
         *,
         model: gca_model.Model = None,
         update_mask: field_mask_pb2.FieldMask = None,
-        retry: retries.Retry = gapic_v1.method.DEFAULT,
+        retry: OptionalRetry = gapic_v1.method.DEFAULT,
         timeout: float = None,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> gca_model.Model:
@@ -763,7 +765,7 @@ class ModelServiceClient(metaclass=ModelServiceClientMeta):
         request: Union[model_service.DeleteModelRequest, dict] = None,
         *,
         name: str = None,
-        retry: retries.Retry = gapic_v1.method.DEFAULT,
+        retry: OptionalRetry = gapic_v1.method.DEFAULT,
         timeout: float = None,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> gac_operation.Operation:
@@ -860,7 +862,7 @@ class ModelServiceClient(metaclass=ModelServiceClientMeta):
         *,
         name: str = None,
         output_config: model_service.ExportModelRequest.OutputConfig = None,
-        retry: retries.Retry = gapic_v1.method.DEFAULT,
+        retry: OptionalRetry = gapic_v1.method.DEFAULT,
         timeout: float = None,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> gac_operation.Operation:
@@ -956,7 +958,7 @@ class ModelServiceClient(metaclass=ModelServiceClientMeta):
         request: Union[model_service.GetModelEvaluationRequest, dict] = None,
         *,
         name: str = None,
-        retry: retries.Retry = gapic_v1.method.DEFAULT,
+        retry: OptionalRetry = gapic_v1.method.DEFAULT,
         timeout: float = None,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> model_evaluation.ModelEvaluation:
@@ -1030,7 +1032,7 @@ class ModelServiceClient(metaclass=ModelServiceClientMeta):
         request: Union[model_service.ListModelEvaluationsRequest, dict] = None,
         *,
         parent: str = None,
-        retry: retries.Retry = gapic_v1.method.DEFAULT,
+        retry: OptionalRetry = gapic_v1.method.DEFAULT,
         timeout: float = None,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> pagers.ListModelEvaluationsPager:
@@ -1111,7 +1113,7 @@ class ModelServiceClient(metaclass=ModelServiceClientMeta):
         request: Union[model_service.GetModelEvaluationSliceRequest, dict] = None,
         *,
         name: str = None,
-        retry: retries.Retry = gapic_v1.method.DEFAULT,
+        retry: OptionalRetry = gapic_v1.method.DEFAULT,
         timeout: float = None,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> model_evaluation_slice.ModelEvaluationSlice:
@@ -1187,7 +1189,7 @@ class ModelServiceClient(metaclass=ModelServiceClientMeta):
         request: Union[model_service.ListModelEvaluationSlicesRequest, dict] = None,
         *,
         parent: str = None,
-        retry: retries.Retry = gapic_v1.method.DEFAULT,
+        retry: OptionalRetry = gapic_v1.method.DEFAULT,
         timeout: float = None,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> pagers.ListModelEvaluationSlicesPager:
