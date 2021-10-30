@@ -30,6 +30,8 @@ from google.auth.transport.grpc import SslCredentials  # type: ignore
 from google.auth.exceptions import MutualTLSChannelError  # type: ignore
 from google.oauth2 import service_account  # type: ignore
 
+OptionalRetry = Union[retries.Retry, object]
+
 from google.api_core import operation as gac_operation  # type: ignore
 from google.api_core import operation_async  # type: ignore
 from google.cloud.aiplatform_v1beta1.services.metadata_service import pagers
@@ -458,7 +460,7 @@ class MetadataServiceClient(metaclass=MetadataServiceClientMeta):
         parent: str = None,
         metadata_store: gca_metadata_store.MetadataStore = None,
         metadata_store_id: str = None,
-        retry: retries.Retry = gapic_v1.method.DEFAULT,
+        retry: OptionalRetry = gapic_v1.method.DEFAULT,
         timeout: float = None,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> gac_operation.Operation:
@@ -567,7 +569,7 @@ class MetadataServiceClient(metaclass=MetadataServiceClientMeta):
         request: Union[metadata_service.GetMetadataStoreRequest, dict] = None,
         *,
         name: str = None,
-        retry: retries.Retry = gapic_v1.method.DEFAULT,
+        retry: OptionalRetry = gapic_v1.method.DEFAULT,
         timeout: float = None,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> metadata_store.MetadataStore:
@@ -640,7 +642,7 @@ class MetadataServiceClient(metaclass=MetadataServiceClientMeta):
         request: Union[metadata_service.ListMetadataStoresRequest, dict] = None,
         *,
         parent: str = None,
-        retry: retries.Retry = gapic_v1.method.DEFAULT,
+        retry: OptionalRetry = gapic_v1.method.DEFAULT,
         timeout: float = None,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> pagers.ListMetadataStoresPager:
@@ -721,7 +723,7 @@ class MetadataServiceClient(metaclass=MetadataServiceClientMeta):
         request: Union[metadata_service.DeleteMetadataStoreRequest, dict] = None,
         *,
         name: str = None,
-        retry: retries.Retry = gapic_v1.method.DEFAULT,
+        retry: OptionalRetry = gapic_v1.method.DEFAULT,
         timeout: float = None,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> gac_operation.Operation:
@@ -817,7 +819,7 @@ class MetadataServiceClient(metaclass=MetadataServiceClientMeta):
         parent: str = None,
         artifact: gca_artifact.Artifact = None,
         artifact_id: str = None,
-        retry: retries.Retry = gapic_v1.method.DEFAULT,
+        retry: OptionalRetry = gapic_v1.method.DEFAULT,
         timeout: float = None,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> gca_artifact.Artifact:
@@ -911,7 +913,7 @@ class MetadataServiceClient(metaclass=MetadataServiceClientMeta):
         request: Union[metadata_service.GetArtifactRequest, dict] = None,
         *,
         name: str = None,
-        retry: retries.Retry = gapic_v1.method.DEFAULT,
+        retry: OptionalRetry = gapic_v1.method.DEFAULT,
         timeout: float = None,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> artifact.Artifact:
@@ -981,7 +983,7 @@ class MetadataServiceClient(metaclass=MetadataServiceClientMeta):
         request: Union[metadata_service.ListArtifactsRequest, dict] = None,
         *,
         parent: str = None,
-        retry: retries.Retry = gapic_v1.method.DEFAULT,
+        retry: OptionalRetry = gapic_v1.method.DEFAULT,
         timeout: float = None,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> pagers.ListArtifactsPager:
@@ -1063,7 +1065,7 @@ class MetadataServiceClient(metaclass=MetadataServiceClientMeta):
         *,
         artifact: gca_artifact.Artifact = None,
         update_mask: field_mask_pb2.FieldMask = None,
-        retry: retries.Retry = gapic_v1.method.DEFAULT,
+        retry: OptionalRetry = gapic_v1.method.DEFAULT,
         timeout: float = None,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> gca_artifact.Artifact:
@@ -1149,7 +1151,7 @@ class MetadataServiceClient(metaclass=MetadataServiceClientMeta):
         request: Union[metadata_service.DeleteArtifactRequest, dict] = None,
         *,
         name: str = None,
-        retry: retries.Retry = gapic_v1.method.DEFAULT,
+        retry: OptionalRetry = gapic_v1.method.DEFAULT,
         timeout: float = None,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> gac_operation.Operation:
@@ -1242,7 +1244,7 @@ class MetadataServiceClient(metaclass=MetadataServiceClientMeta):
         request: Union[metadata_service.PurgeArtifactsRequest, dict] = None,
         *,
         parent: str = None,
-        retry: retries.Retry = gapic_v1.method.DEFAULT,
+        retry: OptionalRetry = gapic_v1.method.DEFAULT,
         timeout: float = None,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> gac_operation.Operation:
@@ -1328,7 +1330,7 @@ class MetadataServiceClient(metaclass=MetadataServiceClientMeta):
         parent: str = None,
         context: gca_context.Context = None,
         context_id: str = None,
-        retry: retries.Retry = gapic_v1.method.DEFAULT,
+        retry: OptionalRetry = gapic_v1.method.DEFAULT,
         timeout: float = None,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> gca_context.Context:
@@ -1422,7 +1424,7 @@ class MetadataServiceClient(metaclass=MetadataServiceClientMeta):
         request: Union[metadata_service.GetContextRequest, dict] = None,
         *,
         name: str = None,
-        retry: retries.Retry = gapic_v1.method.DEFAULT,
+        retry: OptionalRetry = gapic_v1.method.DEFAULT,
         timeout: float = None,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> context.Context:
@@ -1492,7 +1494,7 @@ class MetadataServiceClient(metaclass=MetadataServiceClientMeta):
         request: Union[metadata_service.ListContextsRequest, dict] = None,
         *,
         parent: str = None,
-        retry: retries.Retry = gapic_v1.method.DEFAULT,
+        retry: OptionalRetry = gapic_v1.method.DEFAULT,
         timeout: float = None,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> pagers.ListContextsPager:
@@ -1574,7 +1576,7 @@ class MetadataServiceClient(metaclass=MetadataServiceClientMeta):
         *,
         context: gca_context.Context = None,
         update_mask: field_mask_pb2.FieldMask = None,
-        retry: retries.Retry = gapic_v1.method.DEFAULT,
+        retry: OptionalRetry = gapic_v1.method.DEFAULT,
         timeout: float = None,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> gca_context.Context:
@@ -1659,7 +1661,7 @@ class MetadataServiceClient(metaclass=MetadataServiceClientMeta):
         request: Union[metadata_service.DeleteContextRequest, dict] = None,
         *,
         name: str = None,
-        retry: retries.Retry = gapic_v1.method.DEFAULT,
+        retry: OptionalRetry = gapic_v1.method.DEFAULT,
         timeout: float = None,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> gac_operation.Operation:
@@ -1752,7 +1754,7 @@ class MetadataServiceClient(metaclass=MetadataServiceClientMeta):
         request: Union[metadata_service.PurgeContextsRequest, dict] = None,
         *,
         parent: str = None,
-        retry: retries.Retry = gapic_v1.method.DEFAULT,
+        retry: OptionalRetry = gapic_v1.method.DEFAULT,
         timeout: float = None,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> gac_operation.Operation:
@@ -1840,7 +1842,7 @@ class MetadataServiceClient(metaclass=MetadataServiceClientMeta):
         context: str = None,
         artifacts: Sequence[str] = None,
         executions: Sequence[str] = None,
-        retry: retries.Retry = gapic_v1.method.DEFAULT,
+        retry: OptionalRetry = gapic_v1.method.DEFAULT,
         timeout: float = None,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> metadata_service.AddContextArtifactsAndExecutionsResponse:
@@ -1943,7 +1945,7 @@ class MetadataServiceClient(metaclass=MetadataServiceClientMeta):
         *,
         context: str = None,
         child_contexts: Sequence[str] = None,
-        retry: retries.Retry = gapic_v1.method.DEFAULT,
+        retry: OptionalRetry = gapic_v1.method.DEFAULT,
         timeout: float = None,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> metadata_service.AddContextChildrenResponse:
@@ -2031,7 +2033,7 @@ class MetadataServiceClient(metaclass=MetadataServiceClientMeta):
         ] = None,
         *,
         context: str = None,
-        retry: retries.Retry = gapic_v1.method.DEFAULT,
+        retry: OptionalRetry = gapic_v1.method.DEFAULT,
         timeout: float = None,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> lineage_subgraph.LineageSubgraph:
@@ -2116,7 +2118,7 @@ class MetadataServiceClient(metaclass=MetadataServiceClientMeta):
         parent: str = None,
         execution: gca_execution.Execution = None,
         execution_id: str = None,
-        retry: retries.Retry = gapic_v1.method.DEFAULT,
+        retry: OptionalRetry = gapic_v1.method.DEFAULT,
         timeout: float = None,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> gca_execution.Execution:
@@ -2210,7 +2212,7 @@ class MetadataServiceClient(metaclass=MetadataServiceClientMeta):
         request: Union[metadata_service.GetExecutionRequest, dict] = None,
         *,
         name: str = None,
-        retry: retries.Retry = gapic_v1.method.DEFAULT,
+        retry: OptionalRetry = gapic_v1.method.DEFAULT,
         timeout: float = None,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> execution.Execution:
@@ -2280,7 +2282,7 @@ class MetadataServiceClient(metaclass=MetadataServiceClientMeta):
         request: Union[metadata_service.ListExecutionsRequest, dict] = None,
         *,
         parent: str = None,
-        retry: retries.Retry = gapic_v1.method.DEFAULT,
+        retry: OptionalRetry = gapic_v1.method.DEFAULT,
         timeout: float = None,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> pagers.ListExecutionsPager:
@@ -2362,7 +2364,7 @@ class MetadataServiceClient(metaclass=MetadataServiceClientMeta):
         *,
         execution: gca_execution.Execution = None,
         update_mask: field_mask_pb2.FieldMask = None,
-        retry: retries.Retry = gapic_v1.method.DEFAULT,
+        retry: OptionalRetry = gapic_v1.method.DEFAULT,
         timeout: float = None,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> gca_execution.Execution:
@@ -2448,7 +2450,7 @@ class MetadataServiceClient(metaclass=MetadataServiceClientMeta):
         request: Union[metadata_service.DeleteExecutionRequest, dict] = None,
         *,
         name: str = None,
-        retry: retries.Retry = gapic_v1.method.DEFAULT,
+        retry: OptionalRetry = gapic_v1.method.DEFAULT,
         timeout: float = None,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> gac_operation.Operation:
@@ -2541,7 +2543,7 @@ class MetadataServiceClient(metaclass=MetadataServiceClientMeta):
         request: Union[metadata_service.PurgeExecutionsRequest, dict] = None,
         *,
         parent: str = None,
-        retry: retries.Retry = gapic_v1.method.DEFAULT,
+        retry: OptionalRetry = gapic_v1.method.DEFAULT,
         timeout: float = None,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> gac_operation.Operation:
@@ -2626,7 +2628,7 @@ class MetadataServiceClient(metaclass=MetadataServiceClientMeta):
         *,
         execution: str = None,
         events: Sequence[event.Event] = None,
-        retry: retries.Retry = gapic_v1.method.DEFAULT,
+        retry: OptionalRetry = gapic_v1.method.DEFAULT,
         timeout: float = None,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> metadata_service.AddExecutionEventsResponse:
@@ -2713,7 +2715,7 @@ class MetadataServiceClient(metaclass=MetadataServiceClientMeta):
         ] = None,
         *,
         execution: str = None,
-        retry: retries.Retry = gapic_v1.method.DEFAULT,
+        retry: OptionalRetry = gapic_v1.method.DEFAULT,
         timeout: float = None,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> lineage_subgraph.LineageSubgraph:
@@ -2797,7 +2799,7 @@ class MetadataServiceClient(metaclass=MetadataServiceClientMeta):
         parent: str = None,
         metadata_schema: gca_metadata_schema.MetadataSchema = None,
         metadata_schema_id: str = None,
-        retry: retries.Retry = gapic_v1.method.DEFAULT,
+        retry: OptionalRetry = gapic_v1.method.DEFAULT,
         timeout: float = None,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> gca_metadata_schema.MetadataSchema:
@@ -2893,7 +2895,7 @@ class MetadataServiceClient(metaclass=MetadataServiceClientMeta):
         request: Union[metadata_service.GetMetadataSchemaRequest, dict] = None,
         *,
         name: str = None,
-        retry: retries.Retry = gapic_v1.method.DEFAULT,
+        retry: OptionalRetry = gapic_v1.method.DEFAULT,
         timeout: float = None,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> metadata_schema.MetadataSchema:
@@ -2963,7 +2965,7 @@ class MetadataServiceClient(metaclass=MetadataServiceClientMeta):
         request: Union[metadata_service.ListMetadataSchemasRequest, dict] = None,
         *,
         parent: str = None,
-        retry: retries.Retry = gapic_v1.method.DEFAULT,
+        retry: OptionalRetry = gapic_v1.method.DEFAULT,
         timeout: float = None,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> pagers.ListMetadataSchemasPager:
@@ -3046,7 +3048,7 @@ class MetadataServiceClient(metaclass=MetadataServiceClientMeta):
         ] = None,
         *,
         artifact: str = None,
-        retry: retries.Retry = gapic_v1.method.DEFAULT,
+        retry: OptionalRetry = gapic_v1.method.DEFAULT,
         timeout: float = None,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> lineage_subgraph.LineageSubgraph:

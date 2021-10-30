@@ -35,11 +35,11 @@ async def sample_streaming_read_feature_values():
 
     # Initialize request argument(s)
     feature_selector = aiplatform_v1.FeatureSelector()
-    feature_selector.id_matcher.ids = ['ids_value']
+    feature_selector.id_matcher.ids = ['ids_value_1', 'ids_value_2']
 
     request = aiplatform_v1.StreamingReadFeatureValuesRequest(
         entity_type="projects/{project}/locations/{location}/featurestores/{featurestore}/entityTypes/{entity_type}",
-        entity_ids=['entity_ids_value'],
+        entity_ids=['entity_ids_value_1', 'entity_ids_value_2'],
         feature_selector=feature_selector,
     )
 

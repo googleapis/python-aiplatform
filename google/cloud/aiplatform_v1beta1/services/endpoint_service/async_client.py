@@ -19,12 +19,14 @@ import re
 from typing import Dict, Sequence, Tuple, Type, Union
 import pkg_resources
 
-import google.api_core.client_options as ClientOptions  # type: ignore
+from google.api_core.client_options import ClientOptions  # type: ignore
 from google.api_core import exceptions as core_exceptions  # type: ignore
 from google.api_core import gapic_v1  # type: ignore
 from google.api_core import retry as retries  # type: ignore
 from google.auth import credentials as ga_credentials  # type: ignore
 from google.oauth2 import service_account  # type: ignore
+
+OptionalRetry = Union[retries.Retry, object]
 
 from google.api_core import operation as gac_operation  # type: ignore
 from google.api_core import operation_async  # type: ignore
@@ -182,18 +184,18 @@ class EndpointServiceAsyncClient:
 
     async def create_endpoint(
         self,
-        request: endpoint_service.CreateEndpointRequest = None,
+        request: Union[endpoint_service.CreateEndpointRequest, dict] = None,
         *,
         parent: str = None,
         endpoint: gca_endpoint.Endpoint = None,
-        retry: retries.Retry = gapic_v1.method.DEFAULT,
+        retry: OptionalRetry = gapic_v1.method.DEFAULT,
         timeout: float = None,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> operation_async.AsyncOperation:
         r"""Creates an Endpoint.
 
         Args:
-            request (:class:`google.cloud.aiplatform_v1beta1.types.CreateEndpointRequest`):
+            request (Union[google.cloud.aiplatform_v1beta1.types.CreateEndpointRequest, dict]):
                 The request object. Request message for
                 [EndpointService.CreateEndpoint][google.cloud.aiplatform.v1beta1.EndpointService.CreateEndpoint].
             parent (:class:`str`):
@@ -272,17 +274,17 @@ class EndpointServiceAsyncClient:
 
     async def get_endpoint(
         self,
-        request: endpoint_service.GetEndpointRequest = None,
+        request: Union[endpoint_service.GetEndpointRequest, dict] = None,
         *,
         name: str = None,
-        retry: retries.Retry = gapic_v1.method.DEFAULT,
+        retry: OptionalRetry = gapic_v1.method.DEFAULT,
         timeout: float = None,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> endpoint.Endpoint:
         r"""Gets an Endpoint.
 
         Args:
-            request (:class:`google.cloud.aiplatform_v1beta1.types.GetEndpointRequest`):
+            request (Union[google.cloud.aiplatform_v1beta1.types.GetEndpointRequest, dict]):
                 The request object. Request message for
                 [EndpointService.GetEndpoint][google.cloud.aiplatform.v1beta1.EndpointService.GetEndpoint]
             name (:class:`str`):
@@ -344,17 +346,17 @@ class EndpointServiceAsyncClient:
 
     async def list_endpoints(
         self,
-        request: endpoint_service.ListEndpointsRequest = None,
+        request: Union[endpoint_service.ListEndpointsRequest, dict] = None,
         *,
         parent: str = None,
-        retry: retries.Retry = gapic_v1.method.DEFAULT,
+        retry: OptionalRetry = gapic_v1.method.DEFAULT,
         timeout: float = None,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> pagers.ListEndpointsAsyncPager:
         r"""Lists Endpoints in a Location.
 
         Args:
-            request (:class:`google.cloud.aiplatform_v1beta1.types.ListEndpointsRequest`):
+            request (Union[google.cloud.aiplatform_v1beta1.types.ListEndpointsRequest, dict]):
                 The request object. Request message for
                 [EndpointService.ListEndpoints][google.cloud.aiplatform.v1beta1.EndpointService.ListEndpoints].
             parent (:class:`str`):
@@ -425,18 +427,18 @@ class EndpointServiceAsyncClient:
 
     async def update_endpoint(
         self,
-        request: endpoint_service.UpdateEndpointRequest = None,
+        request: Union[endpoint_service.UpdateEndpointRequest, dict] = None,
         *,
         endpoint: gca_endpoint.Endpoint = None,
         update_mask: field_mask_pb2.FieldMask = None,
-        retry: retries.Retry = gapic_v1.method.DEFAULT,
+        retry: OptionalRetry = gapic_v1.method.DEFAULT,
         timeout: float = None,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> gca_endpoint.Endpoint:
         r"""Updates an Endpoint.
 
         Args:
-            request (:class:`google.cloud.aiplatform_v1beta1.types.UpdateEndpointRequest`):
+            request (Union[google.cloud.aiplatform_v1beta1.types.UpdateEndpointRequest, dict]):
                 The request object. Request message for
                 [EndpointService.UpdateEndpoint][google.cloud.aiplatform.v1beta1.EndpointService.UpdateEndpoint].
             endpoint (:class:`google.cloud.aiplatform_v1beta1.types.Endpoint`):
@@ -509,17 +511,17 @@ class EndpointServiceAsyncClient:
 
     async def delete_endpoint(
         self,
-        request: endpoint_service.DeleteEndpointRequest = None,
+        request: Union[endpoint_service.DeleteEndpointRequest, dict] = None,
         *,
         name: str = None,
-        retry: retries.Retry = gapic_v1.method.DEFAULT,
+        retry: OptionalRetry = gapic_v1.method.DEFAULT,
         timeout: float = None,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> operation_async.AsyncOperation:
         r"""Deletes an Endpoint.
 
         Args:
-            request (:class:`google.cloud.aiplatform_v1beta1.types.DeleteEndpointRequest`):
+            request (Union[google.cloud.aiplatform_v1beta1.types.DeleteEndpointRequest, dict]):
                 The request object. Request message for
                 [EndpointService.DeleteEndpoint][google.cloud.aiplatform.v1beta1.EndpointService.DeleteEndpoint].
             name (:class:`str`):
@@ -602,14 +604,14 @@ class EndpointServiceAsyncClient:
 
     async def deploy_model(
         self,
-        request: endpoint_service.DeployModelRequest = None,
+        request: Union[endpoint_service.DeployModelRequest, dict] = None,
         *,
         endpoint: str = None,
         deployed_model: gca_endpoint.DeployedModel = None,
         traffic_split: Sequence[
             endpoint_service.DeployModelRequest.TrafficSplitEntry
         ] = None,
-        retry: retries.Retry = gapic_v1.method.DEFAULT,
+        retry: OptionalRetry = gapic_v1.method.DEFAULT,
         timeout: float = None,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> operation_async.AsyncOperation:
@@ -617,7 +619,7 @@ class EndpointServiceAsyncClient:
         DeployedModel within it.
 
         Args:
-            request (:class:`google.cloud.aiplatform_v1beta1.types.DeployModelRequest`):
+            request (Union[google.cloud.aiplatform_v1beta1.types.DeployModelRequest, dict]):
                 The request object. Request message for
                 [EndpointService.DeployModel][google.cloud.aiplatform.v1beta1.EndpointService.DeployModel].
             endpoint (:class:`str`):
@@ -727,14 +729,14 @@ class EndpointServiceAsyncClient:
 
     async def undeploy_model(
         self,
-        request: endpoint_service.UndeployModelRequest = None,
+        request: Union[endpoint_service.UndeployModelRequest, dict] = None,
         *,
         endpoint: str = None,
         deployed_model_id: str = None,
         traffic_split: Sequence[
             endpoint_service.UndeployModelRequest.TrafficSplitEntry
         ] = None,
-        retry: retries.Retry = gapic_v1.method.DEFAULT,
+        retry: OptionalRetry = gapic_v1.method.DEFAULT,
         timeout: float = None,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> operation_async.AsyncOperation:
@@ -743,7 +745,7 @@ class EndpointServiceAsyncClient:
         using.
 
         Args:
-            request (:class:`google.cloud.aiplatform_v1beta1.types.UndeployModelRequest`):
+            request (Union[google.cloud.aiplatform_v1beta1.types.UndeployModelRequest, dict]):
                 The request object. Request message for
                 [EndpointService.UndeployModel][google.cloud.aiplatform.v1beta1.EndpointService.UndeployModel].
             endpoint (:class:`str`):
