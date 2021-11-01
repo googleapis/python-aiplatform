@@ -63,7 +63,7 @@ class _TrainingScriptPythonPackager:
             Constant command to generate the source distribution package.
 
     Attributes:
-        script_path: local path of script to package
+        script_path: local path of script or folder to package
         requirements: list of Python dependencies to add to package
 
     Usage:
