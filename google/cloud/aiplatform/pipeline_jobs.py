@@ -137,7 +137,7 @@ class PipelineJob(base.VertexAiResourceNounWithFutureManager):
                 resource is created.
 
                 If this is set, then all
-                resources created by the BatchPredictionJob will
+                resources created by the PipelineJob will
                 be encrypted with the provided encryption key.
 
                 Overrides encryption_spec_key_name set in aiplatform.init.
@@ -232,7 +232,7 @@ class PipelineJob(base.VertexAiResourceNounWithFutureManager):
         network: Optional[str] = None,
         sync: Optional[bool] = True,
     ) -> None:
-        """Run this configured PipelineJob.
+        """Run this configured PipelineJob and monitor the job until completion.
 
         Args:
             service_account (str):
@@ -246,6 +246,26 @@ class PipelineJob(base.VertexAiResourceNounWithFutureManager):
                 If left unspecified, the job is not peered with any network.
             sync (bool):
                 Optional. Whether to execute this method synchronously. If False, this method will unblock and it will be executed in a concurrent Future.
+        """
+        self.submit(service_account=service_account, network=network)
+
+        self._block_until_complete()
+
+    def submit(
+        self, service_account: Optional[str] = None, network: Optional[str] = None,
+    ) -> None:
+        """Run this configured PipelineJob.
+
+        Args:
+            service_account (str):
+                Optional. Specifies the service account for workload run-as account.
+                Users submitting jobs must have act-as permission on this run-as account.
+            network (str):
+                Optional. The full name of the Compute Engine network to which the job
+                should be peered. For example, projects/12345/global/networks/myVPC.
+
+                Private services access must already be configured for the network.
+                If left unspecified, the job is not peered with any network.
         """
         if service_account:
             self._gca_resource.service_account = service_account
@@ -267,7 +287,12 @@ class PipelineJob(base.VertexAiResourceNounWithFutureManager):
 
         _LOGGER.info("View Pipeline Job:\n%s" % self._dashboard_uri())
 
-        self._block_until_complete()
+    def wait(self):
+        """Wait for thie PipelineJob to complete."""
+        if self._latest_future is None:
+            self._block_until_complete()
+        else:
+            super().wait()
 
     @property
     def pipeline_spec(self):

@@ -15,6 +15,8 @@
 import os
 from uuid import uuid4
 
+from google.api_core import exceptions
+
 from google.cloud import aiplatform, aiplatform_v1beta1
 from google.cloud import bigquery
 from google.cloud import storage
@@ -175,22 +177,27 @@ def teardown_hyperparameter_tuning_job(shared_state, job_client):
 def teardown_training_pipeline(shared_state, pipeline_client):
     yield
 
-    pipeline_client.cancel_training_pipeline(
-        name=shared_state["training_pipeline_name"]
-    )
+    try:
+        pipeline_client.cancel_training_pipeline(
+            name=shared_state["training_pipeline_name"]
+        )
 
-    # Waiting for training pipeline to be in CANCELLED state
-    timeout = shared_state["cancel_batch_prediction_job_timeout"]
-    helpers.wait_for_job_state(
-        get_job_method=pipeline_client.get_training_pipeline,
-        name=shared_state["training_pipeline_name"],
-        timeout=timeout,
-    )
+        # Waiting for training pipeline to be in CANCELLED state
+        timeout = shared_state["cancel_batch_prediction_job_timeout"]
+        helpers.wait_for_job_state(
+            get_job_method=pipeline_client.get_training_pipeline,
+            name=shared_state["training_pipeline_name"],
+            timeout=timeout,
+        )
 
-    # Delete the training pipeline
-    pipeline_client.delete_training_pipeline(
-        name=shared_state["training_pipeline_name"]
-    )
+    except exceptions.FailedPrecondition:
+        pass  # If pipeline failed, ignore and skip directly to deletion
+
+    finally:
+        # Delete the training pipeline
+        pipeline_client.delete_training_pipeline(
+            name=shared_state["training_pipeline_name"]
+        )
 
 
 @pytest.fixture()
