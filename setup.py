@@ -21,13 +21,17 @@ import os
 import setuptools  # type: ignore
 
 name = "google-cloud-aiplatform"
-version = "1.6.1"
-description = "Cloud AI Platform API client library"
+description = "Vertex AI API client library"
 
 package_root = os.path.abspath(os.path.dirname(__file__))
 readme_filename = os.path.join(package_root, "README.rst")
 with io.open(readme_filename, encoding="utf-8") as readme_file:
     readme = readme_file.read()
+
+version = {}
+with open(os.path.join(package_root, "google/cloud/aiplatform/version.py")) as fp:
+    exec(fp.read(), version)
+version = version["__version__"]
 
 tensorboard_extra_require = ["tensorflow >=2.3.0, <=2.5.0"]
 metadata_extra_require = ["pandas >= 1.0.0"]
