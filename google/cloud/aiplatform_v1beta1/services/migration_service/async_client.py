@@ -19,12 +19,14 @@ import re
 from typing import Dict, Sequence, Tuple, Type, Union
 import pkg_resources
 
-import google.api_core.client_options as ClientOptions  # type: ignore
+from google.api_core.client_options import ClientOptions  # type: ignore
 from google.api_core import exceptions as core_exceptions  # type: ignore
 from google.api_core import gapic_v1  # type: ignore
 from google.api_core import retry as retries  # type: ignore
 from google.auth import credentials as ga_credentials  # type: ignore
 from google.oauth2 import service_account  # type: ignore
+
+OptionalRetry = Union[retries.Retry, object]
 
 from google.api_core import operation  # type: ignore
 from google.api_core import operation_async  # type: ignore
@@ -182,10 +184,10 @@ class MigrationServiceAsyncClient:
 
     async def search_migratable_resources(
         self,
-        request: migration_service.SearchMigratableResourcesRequest = None,
+        request: Union[migration_service.SearchMigratableResourcesRequest, dict] = None,
         *,
         parent: str = None,
-        retry: retries.Retry = gapic_v1.method.DEFAULT,
+        retry: OptionalRetry = gapic_v1.method.DEFAULT,
         timeout: float = None,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> pagers.SearchMigratableResourcesAsyncPager:
@@ -195,7 +197,7 @@ class MigrationServiceAsyncClient:
         given location.
 
         Args:
-            request (:class:`google.cloud.aiplatform_v1beta1.types.SearchMigratableResourcesRequest`):
+            request (Union[google.cloud.aiplatform_v1beta1.types.SearchMigratableResourcesRequest, dict]):
                 The request object. Request message for
                 [MigrationService.SearchMigratableResources][google.cloud.aiplatform.v1beta1.MigrationService.SearchMigratableResources].
             parent (:class:`str`):
@@ -268,13 +270,13 @@ class MigrationServiceAsyncClient:
 
     async def batch_migrate_resources(
         self,
-        request: migration_service.BatchMigrateResourcesRequest = None,
+        request: Union[migration_service.BatchMigrateResourcesRequest, dict] = None,
         *,
         parent: str = None,
         migrate_resource_requests: Sequence[
             migration_service.MigrateResourceRequest
         ] = None,
-        retry: retries.Retry = gapic_v1.method.DEFAULT,
+        retry: OptionalRetry = gapic_v1.method.DEFAULT,
         timeout: float = None,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> operation_async.AsyncOperation:
@@ -283,7 +285,7 @@ class MigrationServiceAsyncClient:
         to Vertex AI.
 
         Args:
-            request (:class:`google.cloud.aiplatform_v1beta1.types.BatchMigrateResourcesRequest`):
+            request (Union[google.cloud.aiplatform_v1beta1.types.BatchMigrateResourcesRequest, dict]):
                 The request object. Request message for
                 [MigrationService.BatchMigrateResources][google.cloud.aiplatform.v1beta1.MigrationService.BatchMigrateResources].
             parent (:class:`str`):
