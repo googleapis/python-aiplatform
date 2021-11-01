@@ -19,27 +19,24 @@
 
 import argparse
 from collections import namedtuple
+import importlib.util
 import json
 import logging
 import os
 from tensorboard.plugins.base_plugin import TBContext
 from typing import Optional
 from urllib import parse
-import importlib.util
 from werkzeug import Response
 
-from google.cloud.aiplatform.training_utils import EnvironmentVariables
-from google.cloud.aiplatform.training_utils.cloud_profiler import base_plugin
-from google.cloud.aiplatform.training_utils.cloud_profiler.plugins import (
+from google.cloud.aiplatform import training_utils
+from google.cloud.aiplatform.training_utils.cloud_profiler.plugins import base_plugin
+from google.cloud.aiplatform.training_utils.cloud_profiler.plugins.tensorflow import (
     tensorboard_api,
 )
 
 
 # TF verison information.
 Version = namedtuple("Version", ["major", "minor", "patch"])
-
-# Environment variables from training jobs.
-_ENV_VARS = EnvironmentVariables()
 
 logger = logging.Logger("tf-profiler")
 
@@ -134,7 +131,7 @@ def _create_profiling_context() -> TBContext:
     context_flags = argparse.Namespace(master_tpu_unsecure_channel=None)
 
     context = TBContext(
-        logdir=_ENV_VARS.tensorboard_log_dir, multiplexer=None, flags=context_flags,
+        logdir=training_utils.environment_variables.tensorboard_log_dir, multiplexer=None, flags=context_flags,
     )
 
     return context
@@ -151,7 +148,7 @@ def _host_to_grpc(hostname: str) -> str:
         Address in form of: 'grpc://{hostname}:{port}'
     """
     return (
-        "grpc://" + "".join(hostname.split(":")[:-1]) + ":" + _ENV_VARS.tf_profiler_port
+        "grpc://" + "".join(hostname.split(":")[:-1]) + ":" + training_utils.environment_variables.tf_profiler_port
     )
 
 
@@ -162,7 +159,7 @@ def _get_hostnames() -> Optional[str]:
         A host formatted by `_host_to_grpc` if obtaining the cluster spec
         is successful, None otherwise.
     """
-    cluster_spec = _ENV_VARS.cluster_spec
+    cluster_spec = training_utils.environment_variables.cluster_spec
     if not cluster_spec:
         return
 
@@ -212,34 +209,34 @@ def _check_env_vars() -> bool:
     Returns:
         bool indicating all necessary variables are set.
     """
-    if _ENV_VARS.tf_profiler_port is None:
+    if not training_utils.environment_variables.tf_profiler_port:
         logger.warning(
             '"%s" environment variable not set, cannot enable profiling.',
             "AIP_TF_PROFILER_PORT",
         )
         return False
 
-    if _ENV_VARS.tensorboard_log_dir is None:
+    if not training_utils.environment_variables.tensorboard_log_dir:
         logger.warning(
             "Must set a tensorboard log directory, "
             "run training with tensorboard enabled."
         )
         return False
 
-    if not _ENV_VARS.tensorboard_api_uri:
+    if not training_utils.environment_variables.tensorboard_api_uri:
         logger.warning("Must set the tensorboard API uri.")
         return False
 
-    if not _ENV_VARS.tensorboard_resource_name:
+    if not training_utils.environment_variables.tensorboard_resource_name:
         logger.warning("Must set the tensorboard resource name.")
         return False
 
-    cluster_spec = json.loads(os.environ.get("CLUSTER_SPEC", "{}"))
+    cluster_spec = training_utils.environment_variables.cluster_spec
     if not cluster_spec:
         logger.warning('Environment variable "CLUSTER_SPEC" is not set')
         return False
 
-    if not _ENV_VARS.cloud_ml_job_id:
+    if not training_utils.environment_variables.cloud_ml_job_id:
         logger.warning("Job ID must be set")
         return False
 
@@ -284,13 +281,12 @@ class TFProfiler(base_plugin.BasePlugin):
     @staticmethod
     def setup() -> None:
         import tensorflow as tf
-
-        tf.profiler.experimental.server.start(int(_ENV_VARS.tf_profiler_port))
+        tf.profiler.experimental.server.start(int(training_utils.environment_variables.tf_profiler_port))
 
     @staticmethod
     def post_setup_check() -> bool:
         """Only chief and task 0 should run the webserver."""
-        cluster_spec = _ENV_VARS.cluster_spec
+        cluster_spec = training_utils.environment_variables.cluster_spec
         task_type = cluster_spec.get("task", {}).get("type", "")
         task_index = cluster_spec.get("task", {}).get("index", -1)
 

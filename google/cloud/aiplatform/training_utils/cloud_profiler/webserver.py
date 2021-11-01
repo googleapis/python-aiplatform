@@ -19,7 +19,7 @@
 
 import os
 
-from google.cloud.aiplatform.training_utils.cloud_profiler import base_plugin
+from google.cloud.aiplatform.training_utils.cloud_profiler.plugins import base_plugin
 from typing import List
 from werkzeug import wrappers
 

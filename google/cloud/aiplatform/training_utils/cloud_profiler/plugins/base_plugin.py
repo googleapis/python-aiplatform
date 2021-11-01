@@ -16,8 +16,8 @@
 #
 
 import abc
-from typing import Dict
-
+from typing import Callable, Dict
+from werkzeug import Response
 
 class BasePlugin(abc.ABC):
     """Base plugin for cloud training tools endpoints.
@@ -58,13 +58,13 @@ class BasePlugin(abc.ABC):
         raise NotImplementedError
 
     @abc.abstractmethod
-    def get_routes(self) -> Dict[str, str]:
+    def get_routes(self) -> Dict[str, Callable[..., Response]]:
         """Get the mapping from path to handler.
 
         This is the method in which plugins can assign different routes to
         different handlers.
 
         Returns:
-            A Dict[str, str] mapping a route to a handler.
+            A mapping from a route to a handler.
         """
         raise NotImplementedError

@@ -20,9 +20,11 @@ import threading
 from typing import Callable
 from werkzeug import serving
 
-from google.cloud.aiplatform.training_utils.cloud_profiler import base_plugin
 from google.cloud.aiplatform.training_utils.cloud_profiler import webserver
-from google.cloud.aiplatform.training_utils.cloud_profiler.plugins import tf_profiler
+from google.cloud.aiplatform.training_utils.cloud_profiler.plugins import base_plugin
+from google.cloud.aiplatform.training_utils.cloud_profiler.plugins.tensorflow import (
+    tf_profiler,
+)
 
 
 _AVAILABLE_PLUGINS = {"tensorflow": tf_profiler.TFProfiler}

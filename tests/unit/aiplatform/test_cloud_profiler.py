@@ -31,19 +31,19 @@ from google.api_core import exceptions
 from google.cloud import aiplatform
 from google.cloud.aiplatform import training_utils
 from google.cloud.aiplatform.tensorboard.plugins.tf_profiler import profile_uploader
-from google.cloud.aiplatform.training_utils.cloud_profiler import base_plugin
-from google.cloud.aiplatform.training_utils.cloud_profiler.plugins import tf_profiler
-from google.cloud.aiplatform.training_utils.cloud_profiler.plugins.tf_profiler import (
+from google.cloud.aiplatform.training_utils.cloud_profiler.plugins import base_plugin
+from google.cloud.aiplatform.training_utils.cloud_profiler.plugins.tensorflow import (
+    tf_profiler,
+)
+from google.cloud.aiplatform.training_utils.cloud_profiler.plugins.tensorflow.tf_profiler import (
     TFProfiler,
 )
-from google.cloud.aiplatform.training_utils.cloud_profiler.plugins import (
+from google.cloud.aiplatform.training_utils.cloud_profiler.plugins.tensorflow import (
     tensorboard_api,
 )
 from google.cloud.aiplatform.training_utils.cloud_profiler import webserver
 from google.cloud.aiplatform.training_utils.cloud_profiler import initializer
 
-
-_ENV_VARS = training_utils.EnvironmentVariables()
 
 # Mock cluster specs from the training environment.
 _CLUSTER_SPEC_VM = '{"cluster":{"chief":["localhost:1234"]},"environment":"cloud","task":{"type":"chief","index":0}}'
@@ -98,7 +98,7 @@ def setupEnvVars():
 
 @pytest.fixture
 def mock_api_environment_variables():
-    with mock.patch.object(tensorboard_api, "_ENV_VARS") as mock_env:
+    with mock.patch.object(training_utils, "environment_variables") as mock_env:
         mock_env.tensorboard_api_uri = "testuri"
         mock_env.tensorboard_resource_name = (
             "projects/testproj/locations/us-central1/tensorboards/123"
@@ -282,7 +282,9 @@ class TestTensorboardAPIBuilder(unittest.TestCase):
             mock_initializer.global_config.create_client.assert_called_once()
 
     def test_get_project_id_fail(self):
-        with mock.patch.object(tensorboard_api, "_ENV_VARS") as mock_env:
+        with mock.patch.object(training_utils, "environment_variables") as mock_env:
+            import pdb
+            pdb.set_trace()
             mock_env.tensorboard_resource_name = "bad_resource"
             self.assertRaises(ValueError, tensorboard_api._get_project_id)
 
