@@ -43,15 +43,24 @@ class AutoMlTables(proto.Message):
 class AutoMlTablesInputs(proto.Message):
     r"""
 
+    This message has `oneof`_ fields (mutually exclusive fields).
+    For each oneof, at most one member field can be set at the same time.
+    Setting any member of the oneof automatically clears all other
+    members.
+
+    .. _oneof: https://proto-plus-python.readthedocs.io/en/stable/fields.html#oneofs-mutually-exclusive-fields
+
     Attributes:
         optimization_objective_recall_value (float):
             Required when optimization_objective is
             "maximize-precision-at-recall". Must be between 0 and 1,
             inclusive.
+            This field is a member of `oneof`_ ``additional_optimization_objective_config``.
         optimization_objective_precision_value (float):
             Required when optimization_objective is
             "maximize-recall-at-precision". Must be between 0 and 1,
             inclusive.
+            This field is a member of `oneof`_ ``additional_optimization_objective_config``.
         prediction_type (str):
             The type of prediction the Model is to
             produce.   "classification" - Predict one out of
@@ -149,23 +158,38 @@ class AutoMlTablesInputs(proto.Message):
     class Transformation(proto.Message):
         r"""
 
+        This message has `oneof`_ fields (mutually exclusive fields).
+        For each oneof, at most one member field can be set at the same time.
+        Setting any member of the oneof automatically clears all other
+        members.
+
+        .. _oneof: https://proto-plus-python.readthedocs.io/en/stable/fields.html#oneofs-mutually-exclusive-fields
+
         Attributes:
             auto (google.cloud.aiplatform.v1beta1.schema.trainingjob.definition_v1beta1.types.AutoMlTablesInputs.Transformation.AutoTransformation):
 
+                This field is a member of `oneof`_ ``transformation_detail``.
             numeric (google.cloud.aiplatform.v1beta1.schema.trainingjob.definition_v1beta1.types.AutoMlTablesInputs.Transformation.NumericTransformation):
 
+                This field is a member of `oneof`_ ``transformation_detail``.
             categorical (google.cloud.aiplatform.v1beta1.schema.trainingjob.definition_v1beta1.types.AutoMlTablesInputs.Transformation.CategoricalTransformation):
 
+                This field is a member of `oneof`_ ``transformation_detail``.
             timestamp (google.cloud.aiplatform.v1beta1.schema.trainingjob.definition_v1beta1.types.AutoMlTablesInputs.Transformation.TimestampTransformation):
 
+                This field is a member of `oneof`_ ``transformation_detail``.
             text (google.cloud.aiplatform.v1beta1.schema.trainingjob.definition_v1beta1.types.AutoMlTablesInputs.Transformation.TextTransformation):
 
+                This field is a member of `oneof`_ ``transformation_detail``.
             repeated_numeric (google.cloud.aiplatform.v1beta1.schema.trainingjob.definition_v1beta1.types.AutoMlTablesInputs.Transformation.NumericArrayTransformation):
 
+                This field is a member of `oneof`_ ``transformation_detail``.
             repeated_categorical (google.cloud.aiplatform.v1beta1.schema.trainingjob.definition_v1beta1.types.AutoMlTablesInputs.Transformation.CategoricalArrayTransformation):
 
+                This field is a member of `oneof`_ ``transformation_detail``.
             repeated_text (google.cloud.aiplatform.v1beta1.schema.trainingjob.definition_v1beta1.types.AutoMlTablesInputs.Transformation.TextArrayTransformation):
 
+                This field is a member of `oneof`_ ``transformation_detail``.
         """
 
         class AutoTransformation(proto.Message):

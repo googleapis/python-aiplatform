@@ -26,16 +26,25 @@ class UserActionReference(proto.Message):
     long running operation and Jobs that are triggered by the API
     call.
 
+    This message has `oneof`_ fields (mutually exclusive fields).
+    For each oneof, at most one member field can be set at the same time.
+    Setting any member of the oneof automatically clears all other
+    members.
+
+    .. _oneof: https://proto-plus-python.readthedocs.io/en/stable/fields.html#oneofs-mutually-exclusive-fields
+
     Attributes:
         operation (str):
             For API calls that return a long running
             operation. Resource name of the long running
             operation. Format:
             'projects/{project}/locations/{location}/operations/{operation}'
+            This field is a member of `oneof`_ ``reference``.
         data_labeling_job (str):
             For API calls that start a LabelingJob. Resource name of the
             LabelingJob. Format:
             'projects/{project}/locations/{location}/dataLabelingJobs/{data_labeling_job}'
+            This field is a member of `oneof`_ ``reference``.
         method (str):
             The method name of the API RPC call. For
             example,

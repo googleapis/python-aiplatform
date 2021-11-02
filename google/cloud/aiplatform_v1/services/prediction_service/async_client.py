@@ -19,12 +19,14 @@ import re
 from typing import Dict, Sequence, Tuple, Type, Union
 import pkg_resources
 
-import google.api_core.client_options as ClientOptions  # type: ignore
+from google.api_core.client_options import ClientOptions  # type: ignore
 from google.api_core import exceptions as core_exceptions  # type: ignore
 from google.api_core import gapic_v1  # type: ignore
 from google.api_core import retry as retries  # type: ignore
 from google.auth import credentials as ga_credentials  # type: ignore
 from google.oauth2 import service_account  # type: ignore
+
+OptionalRetry = Union[retries.Retry, object]
 
 from google.api import httpbody_pb2  # type: ignore
 from google.cloud.aiplatform_v1.types import explanation
@@ -168,19 +170,19 @@ class PredictionServiceAsyncClient:
 
     async def predict(
         self,
-        request: prediction_service.PredictRequest = None,
+        request: Union[prediction_service.PredictRequest, dict] = None,
         *,
         endpoint: str = None,
         instances: Sequence[struct_pb2.Value] = None,
         parameters: struct_pb2.Value = None,
-        retry: retries.Retry = gapic_v1.method.DEFAULT,
+        retry: OptionalRetry = gapic_v1.method.DEFAULT,
         timeout: float = None,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> prediction_service.PredictResponse:
         r"""Perform an online prediction.
 
         Args:
-            request (:class:`google.cloud.aiplatform_v1.types.PredictRequest`):
+            request (Union[google.cloud.aiplatform_v1.types.PredictRequest, dict]):
                 The request object. Request message for
                 [PredictionService.Predict][google.cloud.aiplatform.v1.PredictionService.Predict].
             endpoint (:class:`str`):
@@ -273,11 +275,11 @@ class PredictionServiceAsyncClient:
 
     async def raw_predict(
         self,
-        request: prediction_service.RawPredictRequest = None,
+        request: Union[prediction_service.RawPredictRequest, dict] = None,
         *,
         endpoint: str = None,
         http_body: httpbody_pb2.HttpBody = None,
-        retry: retries.Retry = gapic_v1.method.DEFAULT,
+        retry: OptionalRetry = gapic_v1.method.DEFAULT,
         timeout: float = None,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> httpbody_pb2.HttpBody:
@@ -294,7 +296,7 @@ class PredictionServiceAsyncClient:
            that served this prediction.
 
         Args:
-            request (:class:`google.cloud.aiplatform_v1.types.RawPredictRequest`):
+            request (Union[google.cloud.aiplatform_v1.types.RawPredictRequest, dict]):
                 The request object. Request message for
                 [PredictionService.RawPredict][google.cloud.aiplatform.v1.PredictionService.RawPredict].
             endpoint (:class:`str`):
@@ -363,10 +365,11 @@ class PredictionServiceAsyncClient:
                       }
 
                       service ResourceService {
-                         rpc GetResource(GetResourceRequest) returns
-                         (google.api.HttpBody); rpc
-                         UpdateResource(google.api.HttpBody) returns
-                         (google.protobuf.Empty);
+                         rpc GetResource(GetResourceRequest)
+                            returns (google.api.HttpBody);
+
+                         rpc UpdateResource(google.api.HttpBody)
+                            returns (google.protobuf.Empty);
 
                       }
 
@@ -427,13 +430,13 @@ class PredictionServiceAsyncClient:
 
     async def explain(
         self,
-        request: prediction_service.ExplainRequest = None,
+        request: Union[prediction_service.ExplainRequest, dict] = None,
         *,
         endpoint: str = None,
         instances: Sequence[struct_pb2.Value] = None,
         parameters: struct_pb2.Value = None,
         deployed_model_id: str = None,
-        retry: retries.Retry = gapic_v1.method.DEFAULT,
+        retry: OptionalRetry = gapic_v1.method.DEFAULT,
         timeout: float = None,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> prediction_service.ExplainResponse:
@@ -451,7 +454,7 @@ class PredictionServiceAsyncClient:
         explanation_spec.
 
         Args:
-            request (:class:`google.cloud.aiplatform_v1.types.ExplainRequest`):
+            request (Union[google.cloud.aiplatform_v1.types.ExplainRequest, dict]):
                 The request object. Request message for
                 [PredictionService.Explain][google.cloud.aiplatform.v1.PredictionService.Explain].
             endpoint (:class:`str`):

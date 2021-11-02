@@ -176,17 +176,29 @@ class AutoMlForecastingInputs(proto.Message):
     class Transformation(proto.Message):
         r"""
 
+        This message has `oneof`_ fields (mutually exclusive fields).
+        For each oneof, at most one member field can be set at the same time.
+        Setting any member of the oneof automatically clears all other
+        members.
+
+        .. _oneof: https://proto-plus-python.readthedocs.io/en/stable/fields.html#oneofs-mutually-exclusive-fields
+
         Attributes:
             auto (google.cloud.aiplatform.v1beta1.schema.trainingjob.definition_v1beta1.types.AutoMlForecastingInputs.Transformation.AutoTransformation):
 
+                This field is a member of `oneof`_ ``transformation_detail``.
             numeric (google.cloud.aiplatform.v1beta1.schema.trainingjob.definition_v1beta1.types.AutoMlForecastingInputs.Transformation.NumericTransformation):
 
+                This field is a member of `oneof`_ ``transformation_detail``.
             categorical (google.cloud.aiplatform.v1beta1.schema.trainingjob.definition_v1beta1.types.AutoMlForecastingInputs.Transformation.CategoricalTransformation):
 
+                This field is a member of `oneof`_ ``transformation_detail``.
             timestamp (google.cloud.aiplatform.v1beta1.schema.trainingjob.definition_v1beta1.types.AutoMlForecastingInputs.Transformation.TimestampTransformation):
 
+                This field is a member of `oneof`_ ``transformation_detail``.
             text (google.cloud.aiplatform.v1beta1.schema.trainingjob.definition_v1beta1.types.AutoMlForecastingInputs.Transformation.TextTransformation):
 
+                This field is a member of `oneof`_ ``transformation_detail``.
         """
 
         class AutoTransformation(proto.Message):
