@@ -30,6 +30,8 @@ from google.auth.transport.grpc import SslCredentials  # type: ignore
 from google.auth.exceptions import MutualTLSChannelError  # type: ignore
 from google.oauth2 import service_account  # type: ignore
 
+OptionalRetry = Union[retries.Retry, object]
+
 from google.api_core import operation as gac_operation  # type: ignore
 from google.api_core import operation_async  # type: ignore
 from google.cloud.aiplatform_v1.services.featurestore_service import pagers
@@ -413,7 +415,7 @@ class FeaturestoreServiceClient(metaclass=FeaturestoreServiceClientMeta):
         *,
         parent: str = None,
         featurestore: gca_featurestore.Featurestore = None,
-        retry: retries.Retry = gapic_v1.method.DEFAULT,
+        retry: OptionalRetry = gapic_v1.method.DEFAULT,
         timeout: float = None,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> gac_operation.Operation:
@@ -505,7 +507,7 @@ class FeaturestoreServiceClient(metaclass=FeaturestoreServiceClientMeta):
         request: Union[featurestore_service.GetFeaturestoreRequest, dict] = None,
         *,
         name: str = None,
-        retry: retries.Retry = gapic_v1.method.DEFAULT,
+        retry: OptionalRetry = gapic_v1.method.DEFAULT,
         timeout: float = None,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> featurestore.Featurestore:
@@ -579,7 +581,7 @@ class FeaturestoreServiceClient(metaclass=FeaturestoreServiceClientMeta):
         request: Union[featurestore_service.ListFeaturestoresRequest, dict] = None,
         *,
         parent: str = None,
-        retry: retries.Retry = gapic_v1.method.DEFAULT,
+        retry: OptionalRetry = gapic_v1.method.DEFAULT,
         timeout: float = None,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> pagers.ListFeaturestoresPager:
@@ -661,7 +663,7 @@ class FeaturestoreServiceClient(metaclass=FeaturestoreServiceClientMeta):
         *,
         featurestore: gca_featurestore.Featurestore = None,
         update_mask: field_mask_pb2.FieldMask = None,
-        retry: retries.Retry = gapic_v1.method.DEFAULT,
+        retry: OptionalRetry = gapic_v1.method.DEFAULT,
         timeout: float = None,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> gac_operation.Operation:
@@ -768,7 +770,7 @@ class FeaturestoreServiceClient(metaclass=FeaturestoreServiceClientMeta):
         *,
         name: str = None,
         force: bool = None,
-        retry: retries.Retry = gapic_v1.method.DEFAULT,
+        retry: OptionalRetry = gapic_v1.method.DEFAULT,
         timeout: float = None,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> gac_operation.Operation:
@@ -876,7 +878,7 @@ class FeaturestoreServiceClient(metaclass=FeaturestoreServiceClientMeta):
         *,
         parent: str = None,
         entity_type: gca_entity_type.EntityType = None,
-        retry: retries.Retry = gapic_v1.method.DEFAULT,
+        retry: OptionalRetry = gapic_v1.method.DEFAULT,
         timeout: float = None,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> gac_operation.Operation:
@@ -967,7 +969,7 @@ class FeaturestoreServiceClient(metaclass=FeaturestoreServiceClientMeta):
         request: Union[featurestore_service.GetEntityTypeRequest, dict] = None,
         *,
         name: str = None,
-        retry: retries.Retry = gapic_v1.method.DEFAULT,
+        retry: OptionalRetry = gapic_v1.method.DEFAULT,
         timeout: float = None,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> entity_type.EntityType:
@@ -1042,7 +1044,7 @@ class FeaturestoreServiceClient(metaclass=FeaturestoreServiceClientMeta):
         request: Union[featurestore_service.ListEntityTypesRequest, dict] = None,
         *,
         parent: str = None,
-        retry: retries.Retry = gapic_v1.method.DEFAULT,
+        retry: OptionalRetry = gapic_v1.method.DEFAULT,
         timeout: float = None,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> pagers.ListEntityTypesPager:
@@ -1124,7 +1126,7 @@ class FeaturestoreServiceClient(metaclass=FeaturestoreServiceClientMeta):
         *,
         entity_type: gca_entity_type.EntityType = None,
         update_mask: field_mask_pb2.FieldMask = None,
-        retry: retries.Retry = gapic_v1.method.DEFAULT,
+        retry: OptionalRetry = gapic_v1.method.DEFAULT,
         timeout: float = None,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> gca_entity_type.EntityType:
@@ -1225,7 +1227,7 @@ class FeaturestoreServiceClient(metaclass=FeaturestoreServiceClientMeta):
         *,
         name: str = None,
         force: bool = None,
-        retry: retries.Retry = gapic_v1.method.DEFAULT,
+        retry: OptionalRetry = gapic_v1.method.DEFAULT,
         timeout: float = None,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> gac_operation.Operation:
@@ -1332,7 +1334,7 @@ class FeaturestoreServiceClient(metaclass=FeaturestoreServiceClientMeta):
         *,
         parent: str = None,
         feature: gca_feature.Feature = None,
-        retry: retries.Retry = gapic_v1.method.DEFAULT,
+        retry: OptionalRetry = gapic_v1.method.DEFAULT,
         timeout: float = None,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> gac_operation.Operation:
@@ -1423,7 +1425,7 @@ class FeaturestoreServiceClient(metaclass=FeaturestoreServiceClientMeta):
         *,
         parent: str = None,
         requests: Sequence[featurestore_service.CreateFeatureRequest] = None,
-        retry: retries.Retry = gapic_v1.method.DEFAULT,
+        retry: OptionalRetry = gapic_v1.method.DEFAULT,
         timeout: float = None,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> gac_operation.Operation:
@@ -1520,7 +1522,7 @@ class FeaturestoreServiceClient(metaclass=FeaturestoreServiceClientMeta):
         request: Union[featurestore_service.GetFeatureRequest, dict] = None,
         *,
         name: str = None,
-        retry: retries.Retry = gapic_v1.method.DEFAULT,
+        retry: OptionalRetry = gapic_v1.method.DEFAULT,
         timeout: float = None,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> feature.Feature:
@@ -1594,7 +1596,7 @@ class FeaturestoreServiceClient(metaclass=FeaturestoreServiceClientMeta):
         request: Union[featurestore_service.ListFeaturesRequest, dict] = None,
         *,
         parent: str = None,
-        retry: retries.Retry = gapic_v1.method.DEFAULT,
+        retry: OptionalRetry = gapic_v1.method.DEFAULT,
         timeout: float = None,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> pagers.ListFeaturesPager:
@@ -1676,7 +1678,7 @@ class FeaturestoreServiceClient(metaclass=FeaturestoreServiceClientMeta):
         *,
         feature: gca_feature.Feature = None,
         update_mask: field_mask_pb2.FieldMask = None,
-        retry: retries.Retry = gapic_v1.method.DEFAULT,
+        retry: OptionalRetry = gapic_v1.method.DEFAULT,
         timeout: float = None,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> gca_feature.Feature:
@@ -1775,7 +1777,7 @@ class FeaturestoreServiceClient(metaclass=FeaturestoreServiceClientMeta):
         request: Union[featurestore_service.DeleteFeatureRequest, dict] = None,
         *,
         name: str = None,
-        retry: retries.Retry = gapic_v1.method.DEFAULT,
+        retry: OptionalRetry = gapic_v1.method.DEFAULT,
         timeout: float = None,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> gac_operation.Operation:
@@ -1868,7 +1870,7 @@ class FeaturestoreServiceClient(metaclass=FeaturestoreServiceClientMeta):
         request: Union[featurestore_service.ImportFeatureValuesRequest, dict] = None,
         *,
         entity_type: str = None,
-        retry: retries.Retry = gapic_v1.method.DEFAULT,
+        retry: OptionalRetry = gapic_v1.method.DEFAULT,
         timeout: float = None,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> gac_operation.Operation:
@@ -1975,7 +1977,7 @@ class FeaturestoreServiceClient(metaclass=FeaturestoreServiceClientMeta):
         request: Union[featurestore_service.BatchReadFeatureValuesRequest, dict] = None,
         *,
         featurestore: str = None,
-        retry: retries.Retry = gapic_v1.method.DEFAULT,
+        retry: OptionalRetry = gapic_v1.method.DEFAULT,
         timeout: float = None,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> gac_operation.Operation:
@@ -2068,7 +2070,7 @@ class FeaturestoreServiceClient(metaclass=FeaturestoreServiceClientMeta):
         request: Union[featurestore_service.ExportFeatureValuesRequest, dict] = None,
         *,
         entity_type: str = None,
-        retry: retries.Retry = gapic_v1.method.DEFAULT,
+        retry: OptionalRetry = gapic_v1.method.DEFAULT,
         timeout: float = None,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> gac_operation.Operation:
@@ -2156,7 +2158,7 @@ class FeaturestoreServiceClient(metaclass=FeaturestoreServiceClientMeta):
         *,
         location: str = None,
         query: str = None,
-        retry: retries.Retry = gapic_v1.method.DEFAULT,
+        retry: OptionalRetry = gapic_v1.method.DEFAULT,
         timeout: float = None,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> pagers.SearchFeaturesPager:
