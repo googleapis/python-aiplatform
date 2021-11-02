@@ -19,6 +19,7 @@ import importlib.util
 import json
 import os
 import threading
+from typing import List, Optional
 
 import pytest
 import unittest
@@ -46,14 +47,26 @@ from google.cloud.aiplatform.training_utils.cloud_profiler import initializer
 
 
 # Mock cluster specs from the training environment.
-_CLUSTER_SPEC_VM = '{"cluster":{"chief":["localhost:1234"]},"environment":"cloud","task":{"type":"chief","index":0}}'
+_CLUSTER_SPEC_VM = {"cluster":{"chief":["localhost:1234"]},"environment":"cloud","task":{"type":"chief","index":0}}
 
-_CLUSTER_SPEC_DISTRIB = '{"cluster":{"workerpool0":["host1:2222"],"workerpool1":["host2:2222"]},"environment":"cloud","task":{"type":"workerpool0","index":0},"job":"{\\"python_module\\":\\"\\",\\"package_uris\\":[],\\"job_args\\":[]}"}'
-
-
-def _create_mock_plugin(plugin_name: str = "test_plugin"):
+def _create_mock_plugin(
+    plugin_name: str = "test_plugin", routes: Optional[List] = ["/route1"]
+):
     mock_plugin = mock.Mock(spec=base_plugin.BasePlugin)
+    mock_plugin.can_initialize.return_value = True
+    mock_plugin.post_setup_check.return_value = True
     mock_plugin.PLUGIN_NAME = plugin_name
+
+    # Some mock routes to test number of times each has been called.
+    mock_routes = {}
+    for route in routes:
+        mock_routes[route] = mock.Mock()
+
+    mock_plugin.get_routes.return_value = mock_routes
+
+    # A call should just return the mock object itself.
+    mock_plugin.return_value = mock_plugin
+
     return mock_plugin
 
 
@@ -84,16 +97,13 @@ def tensorboard_api_mock():
         yield sender_mock
 
 
-@pytest.fixture
-def setupEnvVars():
-    os.environ["AIP_TF_PROFILER_PORT"] = "6009"
-    os.environ["AIP_TENSORBOARD_LOG_DIR"] = "tmp/"
-    os.environ["AIP_TENSORBOARD_API_URI"] = "test_api_uri"
-    os.environ[
-        "AIP_TENSORBOARD_RESOURCE_NAME"
-    ] = "projects/123/region/us-central1/tensorboards/mytb"
-    os.environ["CLUSTER_SPEC"] = _CLUSTER_SPEC_VM
-    os.environ["CLOUD_ML_JOB_ID"] = "myjob"
+def setupProfilerEnvVars():
+    tf_profiler.environment_variables.tf_profiler_port = "6009"
+    tf_profiler.environment_variables.tensorboard_log_dir = "tmp/"
+    tf_profiler.environment_variables.tensorboard_api_uri = "test_api_uri"
+    tf_profiler.environment_variables.tensorboard_resource_name = "projects/123/region/us-central1/tensorboards/mytb"
+    tf_profiler.environment_variables.cluster_spec = _CLUSTER_SPEC_VM
+    tf_profiler.environment_variables.cloud_ml_job_id = "myjob"
 
 
 @pytest.fixture
@@ -109,59 +119,37 @@ def mock_api_environment_variables():
         yield mock_env
 
 
-def test_get_hostnames_vm():
-    mock_cluster_spec = {
-        "CLUSTER_SPEC": _CLUSTER_SPEC_VM,
-        "AIP_TF_PROFILER_PORT": "6009",
-    }
-    with mock.patch.dict(os.environ, mock_cluster_spec):
-        hosts = tf_profiler._get_hostnames()
-    assert hosts == "grpc://localhost:6009"
 
+class TestProfilerPlugin(unittest.TestCase):
+    def setUp(self):
+        setupProfilerEnvVars()
 
-def test_get_hostnames_cluster():
-    mock_cluster_spec = {
-        "CLUSTER_SPEC": _CLUSTER_SPEC_DISTRIB,
-        "AIP_TF_PROFILER_PORT": "6009",
-    }
-    with mock.patch.dict(os.environ, mock_cluster_spec):
-        hosts = tf_profiler._get_hostnames()
-    assert hosts == "grpc://host1:6009,grpc://host2:6009"
-
-
-class TestProfilerPlugin:
-    # Initializion tests
-    @pytest.mark.usefixtures("setupEnvVars")
+    # Environment variable tests
     def testCanInitializeProfilerPortUnset(self):
-        os.environ.pop("AIP_TF_PROFILER_PORT")
+        tf_profiler.environment_variables.tf_profiler_port = None
         assert not TFProfiler.can_initialize()
 
-    @pytest.mark.usefixtures("setupEnvVars")
     def testCanInitializeTBLogDirUnset(self):
-        os.environ.pop("AIP_TENSORBOARD_LOG_DIR")
+        tf_profiler.environment_variables.tensorboard_log_dir = None
         assert not TFProfiler.can_initialize()
 
-    @pytest.mark.usefixtures("setupEnvVars")
     def testCanInitializeTBAPIuriUnset(self):
-        os.environ.pop("AIP_TENSORBOARD_API_URI")
+        tf_profiler.environment_variables.tensorboard_api_uri = None
         assert not TFProfiler.can_initialize()
 
-    @pytest.mark.usefixtures("setupEnvVars")
     def testCanInitializeTBResourceNameUnset(self):
-        os.environ.pop("AIP_TENSORBOARD_RESOURCE_NAME")
+        tf_profiler.environment_variables.tensorboard_resource_name = None
         assert not TFProfiler.can_initialize()
 
-    @pytest.mark.usefixtures("setupEnvVars")
     def testCanInitializeJobIdUnset(self):
-        os.environ.pop("CLOUD_ML_JOB_ID")
+        tf_profiler.environment_variables.cloud_ml_job_id = None
         assert not TFProfiler.can_initialize()
 
-    @pytest.mark.usefixtures("setupEnvVars")
     def testCanInitializeNoClusterSpec(self):
-        os.environ["CLUSTER_SPEC"] = "{}"
+        tf_profiler.environment_variables.cluster_spec = {}
         assert not TFProfiler.can_initialize()
 
-    @pytest.mark.usefixtures("setupEnvVars")
+    # Check tensorflow dependencies
     def testCanInitializeTFInstalled(self):
         orig_find_spec = importlib.util.find_spec
 
@@ -173,21 +161,18 @@ class TestProfilerPlugin:
         with mock.patch("importlib.util.find_spec", side_effect=tf_import_mock):
             assert not TFProfiler.can_initialize()
 
-    @pytest.mark.usefixtures("setupEnvVars")
     def testCanInitializeTFVersion(self):
         import tensorflow
 
         with mock.patch.dict(tensorflow.__dict__, {"__version__": "1.2.3.4"}):
             assert not TFProfiler.can_initialize()
 
-    @pytest.mark.usefixtures("setupEnvVars")
     def testCanInitializeOldTFVersion(self):
         import tensorflow
 
         with mock.patch.dict(tensorflow.__dict__, {"__version__": "1.13.0"}):
             assert not TFProfiler.can_initialize()
 
-    @pytest.mark.usefixtures("setupEnvVars")
     def testCanInitializeNoProfilePlugin(self):
         orig_find_spec = importlib.util.find_spec
 
@@ -199,7 +184,6 @@ class TestProfilerPlugin:
         with mock.patch("importlib.util.find_spec", side_effect=plugin_import_mock):
             assert not TFProfiler.can_initialize()
 
-    @pytest.mark.usefixtures("setupEnvVars")
     def testCanInitialize(self):
         assert TFProfiler.can_initialize()
 
@@ -213,19 +197,16 @@ class TestProfilerPlugin:
 
             assert server_mock.call_count == 1
 
-    @pytest.mark.usefixtures("setupEnvVars")
     def testPostSetupChecksFail(self):
-        with mock.patch.dict(os.environ, {"CLUSTER_SPEC": "{}"}):
-            assert not TFProfiler.post_setup_check()
+        tf_profiler.environment_variables.cluster_spec = {}
+        assert not TFProfiler.post_setup_check()
 
-    @pytest.mark.usefixtures("setupEnvVars")
     def testPostSetupChecks(self):
         assert TFProfiler.post_setup_check()
 
     # Tests for plugin
     @pytest.mark.usefixtures("tf_profile_plugin_mock")
     @pytest.mark.usefixtures("tensorboard_api_mock")
-    @pytest.mark.usefixtures("setupEnvVars")
     def testCaptureProfile(self):
         profiler = TFProfiler()
         environ = dict(QUERY_STRING="?service_addr=myhost1,myhost2&someotherdata=5")
@@ -236,36 +217,32 @@ class TestProfilerPlugin:
 
     @pytest.mark.usefixtures("tf_profile_plugin_mock")
     @pytest.mark.usefixtures("tensorboard_api_mock")
-    @pytest.mark.usefixtures("setupEnvVars")
     def testCaptureProfileNoClusterSpec(self):
         profiler = TFProfiler()
 
         environ = dict(QUERY_STRING="?service_addr=myhost1,myhost2&someotherdata=5")
         start_response = None
 
-        with mock.patch.dict(os.environ, {"CLUSTER_SPEC": "{}"}):
-            resp = profiler.capture_profile_wrapper(environ, start_response)
+        tf_profiler.environment_variables.cluster_spec = {}
+        resp = profiler.capture_profile_wrapper(environ, start_response)
 
         assert resp.status_code == 500
 
     @pytest.mark.usefixtures("tf_profile_plugin_mock")
     @pytest.mark.usefixtures("tensorboard_api_mock")
-    @pytest.mark.usefixtures("setupEnvVars")
     def testCaptureProfileNoCluster(self):
-
         profiler = TFProfiler()
 
         environ = dict(QUERY_STRING="?service_addr=myhost1,myhost2&someotherdata=5")
         start_response = None
+        tf_profiler.environment_variables.cluster_spec = {"cluster": {}}
 
-        with mock.patch.dict(os.environ, {"CLUSTER_SPEC": '{"cluster": {}}'}):
-            resp = profiler.capture_profile_wrapper(environ, start_response)
+        resp = profiler.capture_profile_wrapper(environ, start_response)
 
         assert resp.status_code == 500
 
     @pytest.mark.usefixtures("tf_profile_plugin_mock")
     @pytest.mark.usefixtures("tensorboard_api_mock")
-    @pytest.mark.usefixtures("setupEnvVars")
     def testGetRoutes(self):
         profiler = TFProfiler()
 
@@ -283,8 +260,6 @@ class TestTensorboardAPIBuilder(unittest.TestCase):
 
     def test_get_project_id_fail(self):
         with mock.patch.object(training_utils, "environment_variables") as mock_env:
-            import pdb
-            pdb.set_trace()
             mock_env.tensorboard_resource_name = "bad_resource"
             self.assertRaises(ValueError, tensorboard_api._get_project_id)
 
@@ -302,6 +277,9 @@ class TestTensorboardAPIBuilder(unittest.TestCase):
 
     @pytest.mark.usefixtures("mock_api_environment_variables")
     def test_create_profile_request_sender(self):
+        tensorboard_api.storage = mock.Mock()
+        tensorboard_api.uploader_utils = mock.Mock()
+
         with mock.patch.object(profile_uploader, "ProfileRequestSender") as mock_sender:
             with mock.patch.object(aiplatform, "initializer"):
                 tensorboard_api.create_profile_request_sender()
@@ -371,6 +349,7 @@ class TestWebServer(unittest.TestCase):
 
 # Initializer tests
 class TestInitializer(unittest.TestCase):
+    # Tests for building the plugin
     def test_build_plugin_fail_initialize(self):
         plugin = _create_mock_plugin()
         plugin.can_initialize.return_value = False
@@ -393,6 +372,7 @@ class TestInitializer(unittest.TestCase):
 
         assert plugin.called
 
+    # Testing the initialize function
     def test_initialize_bad_plugin(self):
         with mock.patch.object(initializer, "_AVAILABLE_PLUGINS", {}):
             self.assertRaises(ValueError, initializer.initialize, "bad_plugin")
@@ -409,25 +389,29 @@ class TestInitializer(unittest.TestCase):
 
                     assert not app_thread_mock.call_count
 
-    def test_initialize_build_plugin_success(self):
+    def test_initialize_no_http_handler(self):
         plugin = _create_mock_plugin()
-        plugin.get_routes.return_value = {"/test": "route"}
+        initializer.environment_variables.http_handler_port = None
 
         with mock.patch.object(initializer, "_AVAILABLE_PLUGINS", {"test": plugin}):
-            with mock.patch.object(initializer, "_build_plugin") as build_mock:
-                with mock.patch.object(
-                    initializer, "_run_app_thread"
-                ) as app_thread_mock:
-                    build_mock.return_value = plugin
-                    initializer.initialize("test")
+            with pytest.raises(initializer.MissingEnvironmentVariableException):
+                initializer.initialize("test")
 
-                    assert app_thread_mock.call_count == 1
+    def test_initialize_build_plugin_success(self):
+        plugin = _create_mock_plugin()
+        initializer.environment_variables.http_handler_port = "1234"
+
+        with mock.patch.object(initializer, "_AVAILABLE_PLUGINS", {"test": plugin}):
+            with mock.patch.object(initializer, "_run_app_thread") as app_thread_mock:
+                initializer.initialize("test")
+
+                assert app_thread_mock.call_count == 1
 
     def test_run_app_thread(self):
         with mock.patch.object(threading, "Thread") as mock_thread:
             daemon_mock = mock.Mock()
             mock_thread.return_value = daemon_mock
 
-            initializer._run_app_thread(None)
+            initializer._run_app_thread(None, 1234)
 
             assert daemon_mock.start.call_count == 1

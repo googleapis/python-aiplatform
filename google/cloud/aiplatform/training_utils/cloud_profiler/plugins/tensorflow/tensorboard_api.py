@@ -66,9 +66,6 @@ def _get_project_id():
     Raises:
         ValueError: Cannot parse the tensorboard resource name.
     """
-    import pdb
-
-    pdb.set_trace()
     m = re.match(
         "projects/(.*)/locations/.*/tensorboards/.*",
         training_utils.environment_variables.tensorboard_resource_name,

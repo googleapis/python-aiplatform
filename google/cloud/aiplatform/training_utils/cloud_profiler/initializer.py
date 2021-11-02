@@ -20,15 +20,20 @@ import threading
 from typing import Callable
 from werkzeug import serving
 
+from google.cloud.aiplatform.training_utils import environment_variables
 from google.cloud.aiplatform.training_utils.cloud_profiler import webserver
 from google.cloud.aiplatform.training_utils.cloud_profiler.plugins import base_plugin
 from google.cloud.aiplatform.training_utils.cloud_profiler.plugins.tensorflow import (
     tf_profiler,
 )
 
-
+# Mapping of available plugins to use
 _AVAILABLE_PLUGINS = {"tensorflow": tf_profiler.TFProfiler}
 _HOST_PORT = 6010
+
+
+class MissingEnvironmentVariableException(Exception):
+    pass
 
 
 def _build_plugin(
@@ -55,7 +60,7 @@ def _build_plugin(
     return plugin()
 
 
-def _run_app_thread(server: webserver.WebServer):
+def _run_app_thread(server: webserver.WebServer, port: int):
     """Run the webserver in a separate thread.
 
     Args:
@@ -65,7 +70,7 @@ def _run_app_thread(server: webserver.WebServer):
     daemon = threading.Thread(
         name="profile_server",
         target=serving.run_simple,
-        args=("0.0.0.0", _HOST_PORT, server,),
+        args=("0.0.0.0", port, server,),
     )
     daemon.setDaemon(True)
     daemon.start()
@@ -82,8 +87,9 @@ def initialize(plugin: str = "tensorflow"):
     Raises:
         ValueError:
             The plugin does not exist.
+        MissingEnvironmentVariableException:
+            An environment variable that is needed is not set.
     """
-
     plugin_obj = _AVAILABLE_PLUGINS.get(plugin)
 
     if not plugin_obj:
@@ -99,4 +105,12 @@ def initialize(plugin: str = "tensorflow"):
         return
 
     server = webserver.WebServer([prof_plugin])
-    _run_app_thread(server)
+
+    if not environment_variables.http_handler_port:
+        raise MissingEnvironmentVariableException(
+            "'AIP_HTTP_HANDLER_PORT' must be set."
+        )
+
+    port = int(environment_variables.http_handler_port)
+
+    _run_app_thread(server, port)
