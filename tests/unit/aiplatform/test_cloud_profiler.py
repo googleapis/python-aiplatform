@@ -49,6 +49,7 @@ from google.cloud.aiplatform.training_utils.cloud_profiler import initializer
 # Mock cluster specs from the training environment.
 _CLUSTER_SPEC_VM = {"cluster":{"chief":["localhost:1234"]},"environment":"cloud","task":{"type":"chief","index":0}}
 
+
 def _create_mock_plugin(
     plugin_name: str = "test_plugin", routes: Optional[List] = ["/route1"]
 ):
