@@ -17,7 +17,6 @@
 
 import importlib.util
 import json
-import os
 import threading
 from typing import List, Optional
 
@@ -47,7 +46,11 @@ from google.cloud.aiplatform.training_utils.cloud_profiler import initializer
 
 
 # Mock cluster specs from the training environment.
-_CLUSTER_SPEC_VM = {"cluster":{"chief":["localhost:1234"]},"environment":"cloud","task":{"type":"chief","index":0}}
+_CLUSTER_SPEC_VM = {
+    "cluster": {"chief": ["localhost:1234"]},
+    "environment": "cloud",
+    "task": {"type": "chief", "index": 0},
+}
 
 
 def _create_mock_plugin(
@@ -98,15 +101,6 @@ def tensorboard_api_mock():
         yield sender_mock
 
 
-def setupProfilerEnvVars():
-    tf_profiler.environment_variables.tf_profiler_port = "6009"
-    tf_profiler.environment_variables.tensorboard_log_dir = "tmp/"
-    tf_profiler.environment_variables.tensorboard_api_uri = "test_api_uri"
-    tf_profiler.environment_variables.tensorboard_resource_name = "projects/123/region/us-central1/tensorboards/mytb"
-    tf_profiler.environment_variables.cluster_spec = _CLUSTER_SPEC_VM
-    tf_profiler.environment_variables.cloud_ml_job_id = "myjob"
-
-
 @pytest.fixture
 def mock_api_environment_variables():
     with mock.patch.object(training_utils, "environment_variables") as mock_env:
@@ -119,6 +113,16 @@ def mock_api_environment_variables():
 
         yield mock_env
 
+
+def setupProfilerEnvVars():
+    tf_profiler.environment_variables.tf_profiler_port = "6009"
+    tf_profiler.environment_variables.tensorboard_log_dir = "tmp/"
+    tf_profiler.environment_variables.tensorboard_api_uri = "test_api_uri"
+    tf_profiler.environment_variables.tensorboard_resource_name = (
+        "projects/123/region/us-central1/tensorboards/mytb"
+    )
+    tf_profiler.environment_variables.cluster_spec = _CLUSTER_SPEC_VM
+    tf_profiler.environment_variables.cloud_ml_job_id = "myjob"
 
 
 class TestProfilerPlugin(unittest.TestCase):
