@@ -144,7 +144,7 @@ class PipelineJob(base.VertexAiResourceNounWithFutureManager):
             labels (Dict[str,str]):
                 Optional. The user defined metadata to organize PipelineJob.
             credentials (auth_credentials.Credentials):
-                Optional. Custom credentials to use to create this batch prediction
+                Optional. Custom credentials to use to create this PipelineJob
                 job. Overrides credentials set in aiplatform.init.
             project (str),
                 Optional. Project to retrieve PipelineJob from. If not set,
