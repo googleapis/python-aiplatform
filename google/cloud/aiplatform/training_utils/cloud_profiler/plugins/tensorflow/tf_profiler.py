@@ -22,7 +22,6 @@ from collections import namedtuple
 import importlib.util
 import json
 import logging
-import os
 from tensorboard.plugins.base_plugin import TBContext
 from typing import Optional
 from urllib import parse
@@ -131,7 +130,9 @@ def _create_profiling_context() -> TBContext:
     context_flags = argparse.Namespace(master_tpu_unsecure_channel=None)
 
     context = TBContext(
-        logdir=environment_variables.tensorboard_log_dir, multiplexer=None, flags=context_flags,
+        logdir=environment_variables.tensorboard_log_dir,
+        multiplexer=None,
+        flags=context_flags,
     )
 
     return context
@@ -148,7 +149,10 @@ def _host_to_grpc(hostname: str) -> str:
         Address in form of: 'grpc://{hostname}:{port}'
     """
     return (
-        "grpc://" + "".join(hostname.split(":")[:-1]) + ":" + environment_variables.tf_profiler_port
+        "grpc://"
+        + "".join(hostname.split(":")[:-1])
+        + ":"
+        + environment_variables.tf_profiler_port
     )
 
 
@@ -281,7 +285,10 @@ class TFProfiler(base_plugin.BasePlugin):
     @staticmethod
     def setup() -> None:
         import tensorflow as tf
-        tf.profiler.experimental.server.start(int(environment_variables.tf_profiler_port))
+
+        tf.profiler.experimental.server.start(
+            int(environment_variables.tf_profiler_port)
+        )
 
     @staticmethod
     def post_setup_check() -> bool:

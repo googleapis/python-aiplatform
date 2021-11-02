@@ -19,6 +19,7 @@ import abc
 from typing import Callable, Dict
 from werkzeug import Response
 
+
 class BasePlugin(abc.ABC):
     """Base plugin for cloud training tools endpoints.
 
