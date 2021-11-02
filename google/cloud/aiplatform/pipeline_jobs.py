@@ -147,8 +147,8 @@ class PipelineJob(base.VertexAiResourceNounWithFutureManager):
                 Optional. Custom credentials to use to create this PipelineJob.
                 Overrides credentials set in aiplatform.init.
             project (str),
-                Optional. Project to retrieve PipelineJob from. If not set,
-                project set in aiplatform.init will be used.
+                Optional. Project that you want to run PipelineJob in. If not set,
+                the project set in aiplatform.init will be used.
             location (str),
                 Optional. Location to create PipelineJob. If not set,
                 location set in aiplatform.init will be used.
