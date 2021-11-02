@@ -60,6 +60,7 @@ _TEST_PIPELINE_SPEC_LEGACY = {
         "dag": {"tasks": {}},
         "inputDefinitions": {"parameters": {"string_param": {"type": "STRING"}}},
     },
+    "schema_version": "2.0.0",
     "components": {},
 }
 _TEST_PIPELINE_SPEC = {
@@ -67,30 +68,30 @@ _TEST_PIPELINE_SPEC = {
     "root": {
         "dag": {"tasks": {}},
         "inputDefinitions": {
-            "parameters": {
+            "parameter_values": {
                 "string_param": {"parameterType": "STRING"},
-                # uncomment when GAPIC library change for protobufValue is in
-                # "bool_param": {
-                #     "parameterType": "BOOLEAN"
-                # },
-                # "double_param": {
-                #     "parameterType": "NUMBER_DOUBLE"
-                # },
-                # "int_param": {
-                #     "parameterType": "NUMBER_INTEGER"
-                # },
-                # "list_int_param": {
-                #     "parameterType": "LIST"
-                # },
-                # "list_string_param": {
-                #     "parameterType": "LIST"
-                # },
-                # "struct_param": {
-                #     "parameterType": "STRUCT"
-                # }
+                "bool_param": {
+                    "parameterType": "BOOLEAN"
+                },
+                "double_param": {
+                    "parameterType": "NUMBER_DOUBLE"
+                },
+                "int_param": {
+                    "parameterType": "NUMBER_INTEGER"
+                },
+                "list_int_param": {
+                    "parameterType": "LIST"
+                },
+                "list_string_param": {
+                    "parameterType": "LIST"
+                },
+                "struct_param": {
+                    "parameterType": "STRUCT"
+                }
             }
         },
     },
+    "schema_version":"2.1.0",
     "components": {},
 }
 
@@ -103,13 +104,12 @@ _TEST_PIPELINE_JOB = {
     "runtimeConfig": {
         "parameterValues": {
             "string_param": "lorem ipsum",
-            # uncomment when GAPIC library change for protobufValue is in
-            # "bool_param": True,
-            # "double_param": 12.34,
-            # "int_param": 5678,
-            # "list_int_param": [123, 456, 789],
-            # "list_string_param": ["lorem", "ipsum"],
-            # "struct_param": { "key1": 12345, "key2": 67890}
+            "bool_param": True,
+            "double_param": 12.34,
+            "int_param": 5678,
+            "list_int_param": [123, 456, 789],
+            "list_string_param": ["lorem", "ipsum"],
+            "struct_param": { "key1": 12345, "key2": 67890}
         },
     },
     "pipelineSpec": _TEST_PIPELINE_SPEC,
@@ -291,7 +291,7 @@ class TestPipelineJob:
 
         expected_runtime_config_dict = {
             "gcsOutputDirectory": _TEST_GCS_BUCKET_NAME,
-            "parameters": {"string_param": {"stringValue": "hello"}},
+            "parameter_values": {"string_param": {"stringValue": "hello"}},
         }
         runtime_config = gca_pipeline_job_v1beta1.PipelineJob.RuntimeConfig()._pb
         json_format.ParseDict(expected_runtime_config_dict, runtime_config)
@@ -360,7 +360,7 @@ class TestPipelineJob:
 
         expected_runtime_config_dict = {
             "gcs_output_directory": _TEST_GCS_BUCKET_NAME,
-            "parameters": {"string_param": {"stringValue": "hello"}},
+            "parameter_values": {"string_param": {"stringValue": "hello"}},
         }
         runtime_config = gca_pipeline_job_v1beta1.PipelineJob.RuntimeConfig()._pb
         json_format.ParseDict(expected_runtime_config_dict, runtime_config)

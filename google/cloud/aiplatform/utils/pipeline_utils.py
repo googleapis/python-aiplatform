@@ -17,7 +17,7 @@
 import copy
 import json
 from typing import Any, Dict, Mapping, Optional, Union
-
+import packaging.version
 
 class PipelineRuntimeConfigBuilder(object):
     """Pipeline RuntimeConfig builder.
@@ -30,6 +30,7 @@ class PipelineRuntimeConfigBuilder(object):
         pipeline_root: str,
         parameter_types: Mapping[str, str],
         parameter_values: Optional[Dict[str, Any]] = None,
+        schema_version: Optional[str] = None,
     ):
         """Creates a PipelineRuntimeConfigBuilder object.
 
@@ -40,10 +41,13 @@ class PipelineRuntimeConfigBuilder(object):
               Required. The mapping from pipeline parameter name to its type.
           parameter_values (Dict[str, Any]):
               Optional. The mapping from runtime parameter name to its value.
+          schema_version (str):
+              Optional. Schema version of the IR. This field determines the fields supported in current version of IR.
         """
         self._pipeline_root = pipeline_root
         self._parameter_types = parameter_types
         self._parameter_values = copy.deepcopy(parameter_values or {})
+        self._schema_version = schema_version or '2.0.0'
 
     @classmethod
     def from_job_spec_json(
@@ -59,11 +63,10 @@ class PipelineRuntimeConfigBuilder(object):
           A PipelineRuntimeConfigBuilder object.
         """
         runtime_config_spec = job_spec["runtimeConfig"]
-        parameter_input_definitions = (
-            job_spec["pipelineSpec"]["root"]
-            .get("inputDefinitions", {})
-            .get("parameters", {})
-        )
+        input_definitions = job_spec["pipelineSpec"]["root"].get("inputDefinitions") or {}
+        parameter_input_definitions = input_definitions.get("parameter_values") or input_definitions.get("parameters") or {}
+        schema_version = job_spec.get('schemaVersion')
+
         # 'type' is deprecated in IR and change to 'parameterType'.
         parameter_types = {
             k: v.get("parameterType") or v.get("type")
@@ -72,7 +75,7 @@ class PipelineRuntimeConfigBuilder(object):
 
         pipeline_root = runtime_config_spec.get("gcsOutputDirectory")
         parameter_values = _parse_runtime_parameters(runtime_config_spec)
-        return cls(pipeline_root, parameter_types, parameter_values)
+        return cls(pipeline_root, parameter_types, parameter_values, schema_version)
 
     def update_pipeline_root(self, pipeline_root: Optional[str]) -> None:
         """Updates pipeline_root value.
@@ -111,9 +114,13 @@ class PipelineRuntimeConfigBuilder(object):
                 "Pipeline root must be specified, either during "
                 "compile time, or when calling the service."
             )
+        if packaging.version.parse(self._schema_version) >= packaging.version.parse("2.1.0"):
+            parameter_values_key = 'parameter_values'
+        else:
+            parameter_values_key = 'parameters'
         return {
             "gcsOutputDirectory": self._pipeline_root,
-            "parameters": {
+            parameter_values_key: {
                 k: self._get_vertex_value(k, v)
                 for k, v in self._parameter_values.items()
                 if v is not None
