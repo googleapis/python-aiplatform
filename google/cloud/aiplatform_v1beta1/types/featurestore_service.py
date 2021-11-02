@@ -259,20 +259,32 @@ class ImportFeatureValuesRequest(proto.Message):
     r"""Request message for
     [FeaturestoreService.ImportFeatureValues][google.cloud.aiplatform.v1beta1.FeaturestoreService.ImportFeatureValues].
 
+    This message has `oneof`_ fields (mutually exclusive fields).
+    For each oneof, at most one member field can be set at the same time.
+    Setting any member of the oneof automatically clears all other
+    members.
+
+    .. _oneof: https://proto-plus-python.readthedocs.io/en/stable/fields.html#oneofs-mutually-exclusive-fields
+
     Attributes:
         avro_source (google.cloud.aiplatform_v1beta1.types.AvroSource):
 
+            This field is a member of `oneof`_ ``source``.
         bigquery_source (google.cloud.aiplatform_v1beta1.types.BigQuerySource):
 
+            This field is a member of `oneof`_ ``source``.
         csv_source (google.cloud.aiplatform_v1beta1.types.CsvSource):
 
+            This field is a member of `oneof`_ ``source``.
         feature_time_field (str):
             Source column that holds the Feature
             timestamp for all Feature values in each entity.
+            This field is a member of `oneof`_ ``feature_time_source``.
         feature_time (google.protobuf.timestamp_pb2.Timestamp):
             Single Feature timestamp for all entities
             being imported. The timestamp must not have
             higher than millisecond precision.
+            This field is a member of `oneof`_ ``feature_time_source``.
         entity_type (str):
             Required. The resource name of the EntityType grouping the
             Features for which values are being imported. Format:
@@ -374,6 +386,13 @@ class BatchReadFeatureValuesRequest(proto.Message):
     r"""Request message for
     [FeaturestoreService.BatchReadFeatureValues][google.cloud.aiplatform.v1beta1.FeaturestoreService.BatchReadFeatureValues].
 
+    This message has `oneof`_ fields (mutually exclusive fields).
+    For each oneof, at most one member field can be set at the same time.
+    Setting any member of the oneof automatically clears all other
+    members.
+
+    .. _oneof: https://proto-plus-python.readthedocs.io/en/stable/fields.html#oneofs-mutually-exclusive-fields
+
     Attributes:
         csv_read_instances (google.cloud.aiplatform_v1beta1.types.CsvSource):
             Each read instance consists of exactly one read timestamp
@@ -399,8 +418,10 @@ class BatchReadFeatureValuesRequest(proto.Message):
 
             Values in the timestamp column must use the RFC 3339 format,
             e.g. ``2012-07-30T10:43:17.123Z``.
+            This field is a member of `oneof`_ ``read_option``.
         bigquery_read_instances (google.cloud.aiplatform_v1beta1.types.BigQuerySource):
             Similar to csv_read_instances, but from BigQuery source.
+            This field is a member of `oneof`_ ``read_option``.
         featurestore (str):
             Required. The resource name of the Featurestore from which
             to query Feature values. Format:
@@ -484,10 +505,14 @@ class ExportFeatureValuesRequest(proto.Message):
     r"""Request message for
     [FeaturestoreService.ExportFeatureValues][google.cloud.aiplatform.v1beta1.FeaturestoreService.ExportFeatureValues].
 
+
+    .. _oneof: https://proto-plus-python.readthedocs.io/en/stable/fields.html#oneofs-mutually-exclusive-fields
+
     Attributes:
         snapshot_export (google.cloud.aiplatform_v1beta1.types.ExportFeatureValuesRequest.SnapshotExport):
             Exports Feature values of all entities of the
             EntityType as of a snapshot time.
+            This field is a member of `oneof`_ ``mode``.
         entity_type (str):
             Required. The resource name of the EntityType from which to
             export Feature values. Format:
@@ -553,6 +578,13 @@ class DestinationFeatureSetting(proto.Message):
 class FeatureValueDestination(proto.Message):
     r"""A destination location for Feature values and format.
 
+    This message has `oneof`_ fields (mutually exclusive fields).
+    For each oneof, at most one member field can be set at the same time.
+    Setting any member of the oneof automatically clears all other
+    members.
+
+    .. _oneof: https://proto-plus-python.readthedocs.io/en/stable/fields.html#oneofs-mutually-exclusive-fields
+
     Attributes:
         bigquery_destination (google.cloud.aiplatform_v1beta1.types.BigQueryDestination):
             Output in BigQuery format.
@@ -560,6 +592,7 @@ class FeatureValueDestination(proto.Message):
             in
             [FeatureValueDestination.bigquery_destination][google.cloud.aiplatform.v1beta1.FeatureValueDestination.bigquery_destination]
             must refer to a table.
+            This field is a member of `oneof`_ ``destination``.
         tfrecord_destination (google.cloud.aiplatform_v1beta1.types.TFRecordDestination):
             Output in TFRecord format.
 
@@ -574,9 +607,11 @@ class FeatureValueDestination(proto.Message):
                 STRING, STRING_ARRAY, BYTES                | BYTES_LIST
                 true -> byte_string("true"), false -> byte_string("false")
                 BOOL, BOOL_ARRAY (true, false)             | BYTES_LIST
+            This field is a member of `oneof`_ ``destination``.
         csv_destination (google.cloud.aiplatform_v1beta1.types.CsvDestination):
             Output in CSV format. Array Feature value
             types are not allowed in CSV format.
+            This field is a member of `oneof`_ ``destination``.
     """
 
     bigquery_destination = proto.Field(

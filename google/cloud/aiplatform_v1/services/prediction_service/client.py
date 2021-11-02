@@ -30,6 +30,8 @@ from google.auth.transport.grpc import SslCredentials  # type: ignore
 from google.auth.exceptions import MutualTLSChannelError  # type: ignore
 from google.oauth2 import service_account  # type: ignore
 
+OptionalRetry = Union[retries.Retry, object]
+
 from google.api import httpbody_pb2  # type: ignore
 from google.cloud.aiplatform_v1.types import explanation
 from google.cloud.aiplatform_v1.types import prediction_service
@@ -375,7 +377,7 @@ class PredictionServiceClient(metaclass=PredictionServiceClientMeta):
         endpoint: str = None,
         instances: Sequence[struct_pb2.Value] = None,
         parameters: struct_pb2.Value = None,
-        retry: retries.Retry = gapic_v1.method.DEFAULT,
+        retry: OptionalRetry = gapic_v1.method.DEFAULT,
         timeout: float = None,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> prediction_service.PredictResponse:
@@ -479,7 +481,7 @@ class PredictionServiceClient(metaclass=PredictionServiceClientMeta):
         *,
         endpoint: str = None,
         http_body: httpbody_pb2.HttpBody = None,
-        retry: retries.Retry = gapic_v1.method.DEFAULT,
+        retry: OptionalRetry = gapic_v1.method.DEFAULT,
         timeout: float = None,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> httpbody_pb2.HttpBody:
@@ -565,10 +567,11 @@ class PredictionServiceClient(metaclass=PredictionServiceClientMeta):
                       }
 
                       service ResourceService {
-                         rpc GetResource(GetResourceRequest) returns
-                         (google.api.HttpBody); rpc
-                         UpdateResource(google.api.HttpBody) returns
-                         (google.protobuf.Empty);
+                         rpc GetResource(GetResourceRequest)
+                            returns (google.api.HttpBody);
+
+                         rpc UpdateResource(google.api.HttpBody)
+                            returns (google.protobuf.Empty);
 
                       }
 
@@ -635,7 +638,7 @@ class PredictionServiceClient(metaclass=PredictionServiceClientMeta):
         instances: Sequence[struct_pb2.Value] = None,
         parameters: struct_pb2.Value = None,
         deployed_model_id: str = None,
-        retry: retries.Retry = gapic_v1.method.DEFAULT,
+        retry: OptionalRetry = gapic_v1.method.DEFAULT,
         timeout: float = None,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> prediction_service.ExplainResponse:

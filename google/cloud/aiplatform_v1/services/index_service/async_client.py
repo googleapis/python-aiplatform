@@ -19,12 +19,14 @@ import re
 from typing import Dict, Sequence, Tuple, Type, Union
 import pkg_resources
 
-import google.api_core.client_options as ClientOptions  # type: ignore
+from google.api_core.client_options import ClientOptions  # type: ignore
 from google.api_core import exceptions as core_exceptions  # type: ignore
 from google.api_core import gapic_v1  # type: ignore
 from google.api_core import retry as retries  # type: ignore
 from google.auth import credentials as ga_credentials  # type: ignore
 from google.oauth2 import service_account  # type: ignore
+
+OptionalRetry = Union[retries.Retry, object]
 
 from google.api_core import operation as gac_operation  # type: ignore
 from google.api_core import operation_async  # type: ignore
@@ -175,18 +177,18 @@ class IndexServiceAsyncClient:
 
     async def create_index(
         self,
-        request: index_service.CreateIndexRequest = None,
+        request: Union[index_service.CreateIndexRequest, dict] = None,
         *,
         parent: str = None,
         index: gca_index.Index = None,
-        retry: retries.Retry = gapic_v1.method.DEFAULT,
+        retry: OptionalRetry = gapic_v1.method.DEFAULT,
         timeout: float = None,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> operation_async.AsyncOperation:
         r"""Creates an Index.
 
         Args:
-            request (:class:`google.cloud.aiplatform_v1.types.CreateIndexRequest`):
+            request (Union[google.cloud.aiplatform_v1.types.CreateIndexRequest, dict]):
                 The request object. Request message for
                 [IndexService.CreateIndex][google.cloud.aiplatform.v1.IndexService.CreateIndex].
             parent (:class:`str`):
@@ -266,17 +268,17 @@ class IndexServiceAsyncClient:
 
     async def get_index(
         self,
-        request: index_service.GetIndexRequest = None,
+        request: Union[index_service.GetIndexRequest, dict] = None,
         *,
         name: str = None,
-        retry: retries.Retry = gapic_v1.method.DEFAULT,
+        retry: OptionalRetry = gapic_v1.method.DEFAULT,
         timeout: float = None,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> index.Index:
         r"""Gets an Index.
 
         Args:
-            request (:class:`google.cloud.aiplatform_v1.types.GetIndexRequest`):
+            request (Union[google.cloud.aiplatform_v1.types.GetIndexRequest, dict]):
                 The request object. Request message for
                 [IndexService.GetIndex][google.cloud.aiplatform.v1.IndexService.GetIndex]
             name (:class:`str`):
@@ -339,17 +341,17 @@ class IndexServiceAsyncClient:
 
     async def list_indexes(
         self,
-        request: index_service.ListIndexesRequest = None,
+        request: Union[index_service.ListIndexesRequest, dict] = None,
         *,
         parent: str = None,
-        retry: retries.Retry = gapic_v1.method.DEFAULT,
+        retry: OptionalRetry = gapic_v1.method.DEFAULT,
         timeout: float = None,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> pagers.ListIndexesAsyncPager:
         r"""Lists Indexes in a Location.
 
         Args:
-            request (:class:`google.cloud.aiplatform_v1.types.ListIndexesRequest`):
+            request (Union[google.cloud.aiplatform_v1.types.ListIndexesRequest, dict]):
                 The request object. Request message for
                 [IndexService.ListIndexes][google.cloud.aiplatform.v1.IndexService.ListIndexes].
             parent (:class:`str`):
@@ -420,18 +422,18 @@ class IndexServiceAsyncClient:
 
     async def update_index(
         self,
-        request: index_service.UpdateIndexRequest = None,
+        request: Union[index_service.UpdateIndexRequest, dict] = None,
         *,
         index: gca_index.Index = None,
         update_mask: field_mask_pb2.FieldMask = None,
-        retry: retries.Retry = gapic_v1.method.DEFAULT,
+        retry: OptionalRetry = gapic_v1.method.DEFAULT,
         timeout: float = None,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> operation_async.AsyncOperation:
         r"""Updates an Index.
 
         Args:
-            request (:class:`google.cloud.aiplatform_v1.types.UpdateIndexRequest`):
+            request (Union[google.cloud.aiplatform_v1.types.UpdateIndexRequest, dict]):
                 The request object. Request message for
                 [IndexService.UpdateIndex][google.cloud.aiplatform.v1.IndexService.UpdateIndex].
             index (:class:`google.cloud.aiplatform_v1.types.Index`):
@@ -515,10 +517,10 @@ class IndexServiceAsyncClient:
 
     async def delete_index(
         self,
-        request: index_service.DeleteIndexRequest = None,
+        request: Union[index_service.DeleteIndexRequest, dict] = None,
         *,
         name: str = None,
-        retry: retries.Retry = gapic_v1.method.DEFAULT,
+        retry: OptionalRetry = gapic_v1.method.DEFAULT,
         timeout: float = None,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> operation_async.AsyncOperation:
@@ -527,7 +529,7 @@ class IndexServiceAsyncClient:
         had been undeployed.
 
         Args:
-            request (:class:`google.cloud.aiplatform_v1.types.DeleteIndexRequest`):
+            request (Union[google.cloud.aiplatform_v1.types.DeleteIndexRequest, dict]):
                 The request object. Request message for
                 [IndexService.DeleteIndex][google.cloud.aiplatform.v1.IndexService.DeleteIndex].
             name (:class:`str`):
