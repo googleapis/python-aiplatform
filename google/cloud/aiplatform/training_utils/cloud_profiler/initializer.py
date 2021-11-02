@@ -66,6 +66,8 @@ def _run_app_thread(server: webserver.WebServer, port: int):
     Args:
         server (webserver.WebServer):
             Required. A webserver to accept requests.
+        port (int):
+            Required. The port to run the webserver on.
     """
     daemon = threading.Thread(
         name="profile_server",
