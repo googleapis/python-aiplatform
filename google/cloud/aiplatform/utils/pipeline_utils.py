@@ -19,6 +19,7 @@ import json
 from typing import Any, Dict, Mapping, Optional, Union
 import packaging.version
 
+
 class PipelineRuntimeConfigBuilder(object):
     """Pipeline RuntimeConfig builder.
 
@@ -47,7 +48,7 @@ class PipelineRuntimeConfigBuilder(object):
         self._pipeline_root = pipeline_root
         self._parameter_types = parameter_types
         self._parameter_values = copy.deepcopy(parameter_values or {})
-        self._schema_version = schema_version or '2.0.0'
+        self._schema_version = schema_version or "2.0.0"
 
     @classmethod
     def from_job_spec_json(
@@ -63,9 +64,15 @@ class PipelineRuntimeConfigBuilder(object):
           A PipelineRuntimeConfigBuilder object.
         """
         runtime_config_spec = job_spec["runtimeConfig"]
-        input_definitions = job_spec["pipelineSpec"]["root"].get("inputDefinitions") or {}
-        parameter_input_definitions = input_definitions.get("parameter_values") or input_definitions.get("parameters") or {}
-        schema_version = job_spec.get('schemaVersion')
+        input_definitions = (
+            job_spec["pipelineSpec"]["root"].get("inputDefinitions") or {}
+        )
+        parameter_input_definitions = (
+            input_definitions.get("parameterValues")
+            or input_definitions.get("parameters")
+            or {}
+        )
+        schema_version = job_spec["pipelineSpec"].get("schemaVersion")
 
         # 'type' is deprecated in IR and change to 'parameterType'.
         parameter_types = {
@@ -98,9 +105,12 @@ class PipelineRuntimeConfigBuilder(object):
         """
         if parameter_values:
             parameters = dict(parameter_values)
-            for k, v in parameter_values.items():
-                if isinstance(v, (dict, list, bool)):
-                    parameters[k] = json.dumps(v)
+            if packaging.version.parse(self._schema_version) <= packaging.version.parse(
+                "2.0.0"
+            ):
+                for k, v in parameter_values.items():
+                    if isinstance(v, (dict, list, bool)):
+                        parameters[k] = json.dumps(v)
             self._parameter_values.update(parameters)
 
     def build(self) -> Dict[str, Any]:
@@ -114,10 +124,12 @@ class PipelineRuntimeConfigBuilder(object):
                 "Pipeline root must be specified, either during "
                 "compile time, or when calling the service."
             )
-        if packaging.version.parse(self._schema_version) >= packaging.version.parse("2.1.0"):
-            parameter_values_key = 'parameter_values'
+        if packaging.version.parse(self._schema_version) > packaging.version.parse(
+            "2.0.0"
+        ):
+            parameter_values_key = "parameterValues"
         else:
-            parameter_values_key = 'parameters'
+            parameter_values_key = "parameters"
         return {
             "gcsOutputDirectory": self._pipeline_root,
             parameter_values_key: {
@@ -173,7 +185,6 @@ class PipelineRuntimeConfigBuilder(object):
             result["structValue"] = value
         else:
             raise TypeError("Got unknown type of value: {}".format(value))
-
         return result
 
 
