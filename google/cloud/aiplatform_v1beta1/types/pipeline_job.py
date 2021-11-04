@@ -116,6 +116,7 @@ class PipelineJob(proto.Message):
 
         Attributes:
             parameters (Sequence[google.cloud.aiplatform_v1beta1.types.PipelineJob.RuntimeConfig.ParametersEntry]):
+                Deprecated. Use [RuntimeConfig.parameter_values] instead.
                 The runtime parameters of the PipelineJob. The parameters
                 will be passed into
                 [PipelineJob.pipeline_spec][google.cloud.aiplatform.v1beta1.PipelineJob.pipeline_spec]
@@ -129,12 +130,20 @@ class PipelineJob(proto.Message):
                 specified output directory. The service account specified in
                 this pipeline must have the ``storage.objects.get`` and
                 ``storage.objects.create`` permissions for this bucket.
+            parameter_values (Sequence[google.cloud.aiplatform_v1beta1.types.PipelineJob.RuntimeConfig.ParameterValuesEntry]):
+                The runtime parameters of the PipelineJob. The parameters
+                will be passed into
+                [PipelineJob.pipeline_spec][google.cloud.aiplatform.v1beta1.PipelineJob.pipeline_spec]
+                to replace the placeholders at runtime.
         """
 
         parameters = proto.MapField(
             proto.STRING, proto.MESSAGE, number=1, message=gca_value.Value,
         )
         gcs_output_directory = proto.Field(proto.STRING, number=2,)
+        parameter_values = proto.MapField(
+            proto.STRING, proto.MESSAGE, number=3, message=struct_pb2.Value,
+        )
 
     name = proto.Field(proto.STRING, number=1,)
     display_name = proto.Field(proto.STRING, number=2,)
