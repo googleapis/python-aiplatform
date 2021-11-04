@@ -30,6 +30,8 @@ from google.auth.transport.grpc import SslCredentials  # type: ignore
 from google.auth.exceptions import MutualTLSChannelError  # type: ignore
 from google.oauth2 import service_account  # type: ignore
 
+OptionalRetry = Union[retries.Retry, object]
+
 from google.api_core import operation as gac_operation  # type: ignore
 from google.api_core import operation_async  # type: ignore
 from google.cloud.aiplatform_v1beta1.services.pipeline_service import pagers
@@ -517,7 +519,7 @@ class PipelineServiceClient(metaclass=PipelineServiceClientMeta):
         *,
         parent: str = None,
         training_pipeline: gca_training_pipeline.TrainingPipeline = None,
-        retry: retries.Retry = gapic_v1.method.DEFAULT,
+        retry: OptionalRetry = gapic_v1.method.DEFAULT,
         timeout: float = None,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> gca_training_pipeline.TrainingPipeline:
@@ -603,7 +605,7 @@ class PipelineServiceClient(metaclass=PipelineServiceClientMeta):
         request: Union[pipeline_service.GetTrainingPipelineRequest, dict] = None,
         *,
         name: str = None,
-        retry: retries.Retry = gapic_v1.method.DEFAULT,
+        retry: OptionalRetry = gapic_v1.method.DEFAULT,
         timeout: float = None,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> training_pipeline.TrainingPipeline:
@@ -679,7 +681,7 @@ class PipelineServiceClient(metaclass=PipelineServiceClientMeta):
         request: Union[pipeline_service.ListTrainingPipelinesRequest, dict] = None,
         *,
         parent: str = None,
-        retry: retries.Retry = gapic_v1.method.DEFAULT,
+        retry: OptionalRetry = gapic_v1.method.DEFAULT,
         timeout: float = None,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> pagers.ListTrainingPipelinesPager:
@@ -760,7 +762,7 @@ class PipelineServiceClient(metaclass=PipelineServiceClientMeta):
         request: Union[pipeline_service.DeleteTrainingPipelineRequest, dict] = None,
         *,
         name: str = None,
-        retry: retries.Retry = gapic_v1.method.DEFAULT,
+        retry: OptionalRetry = gapic_v1.method.DEFAULT,
         timeout: float = None,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> gac_operation.Operation:
@@ -853,7 +855,7 @@ class PipelineServiceClient(metaclass=PipelineServiceClientMeta):
         request: Union[pipeline_service.CancelTrainingPipelineRequest, dict] = None,
         *,
         name: str = None,
-        retry: retries.Retry = gapic_v1.method.DEFAULT,
+        retry: OptionalRetry = gapic_v1.method.DEFAULT,
         timeout: float = None,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> None:
@@ -932,7 +934,7 @@ class PipelineServiceClient(metaclass=PipelineServiceClientMeta):
         parent: str = None,
         pipeline_job: gca_pipeline_job.PipelineJob = None,
         pipeline_job_id: str = None,
-        retry: retries.Retry = gapic_v1.method.DEFAULT,
+        retry: OptionalRetry = gapic_v1.method.DEFAULT,
         timeout: float = None,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> gca_pipeline_job.PipelineJob:
@@ -1025,7 +1027,7 @@ class PipelineServiceClient(metaclass=PipelineServiceClientMeta):
         request: Union[pipeline_service.GetPipelineJobRequest, dict] = None,
         *,
         name: str = None,
-        retry: retries.Retry = gapic_v1.method.DEFAULT,
+        retry: OptionalRetry = gapic_v1.method.DEFAULT,
         timeout: float = None,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> pipeline_job.PipelineJob:
@@ -1096,7 +1098,7 @@ class PipelineServiceClient(metaclass=PipelineServiceClientMeta):
         request: Union[pipeline_service.ListPipelineJobsRequest, dict] = None,
         *,
         parent: str = None,
-        retry: retries.Retry = gapic_v1.method.DEFAULT,
+        retry: OptionalRetry = gapic_v1.method.DEFAULT,
         timeout: float = None,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> pagers.ListPipelineJobsPager:
@@ -1177,7 +1179,7 @@ class PipelineServiceClient(metaclass=PipelineServiceClientMeta):
         request: Union[pipeline_service.DeletePipelineJobRequest, dict] = None,
         *,
         name: str = None,
-        retry: retries.Retry = gapic_v1.method.DEFAULT,
+        retry: OptionalRetry = gapic_v1.method.DEFAULT,
         timeout: float = None,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> gac_operation.Operation:
@@ -1270,7 +1272,7 @@ class PipelineServiceClient(metaclass=PipelineServiceClientMeta):
         request: Union[pipeline_service.CancelPipelineJobRequest, dict] = None,
         *,
         name: str = None,
-        retry: retries.Retry = gapic_v1.method.DEFAULT,
+        retry: OptionalRetry = gapic_v1.method.DEFAULT,
         timeout: float = None,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> None:
