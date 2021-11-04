@@ -40,8 +40,10 @@ if DEFAULT_VERSION == V1BETA1:
     types.accelerator_type = types.accelerator_type_v1beta1
     types.annotation = types.annotation_v1beta1
     types.annotation_spec = types.annotation_spec_v1beta1
+    types.artifact = types.artifact_v1beta1
     types.batch_prediction_job = types.batch_prediction_job_v1beta1
     types.completion_stats = types.completion_stats_v1beta1
+    types.context = types.context_v1beta1
     types.custom_job = types.custom_job_v1beta1
     types.data_item = types.data_item_v1beta1
     types.data_labeling_job = types.data_labeling_job_v1beta1
@@ -52,6 +54,8 @@ if DEFAULT_VERSION == V1BETA1:
     types.endpoint = types.endpoint_v1beta1
     types.endpoint_service = types.endpoint_service_v1beta1
     types.env_var = types.env_var_v1beta1
+    types.event = types.event_v1beta1
+    types.execution = types.execution_v1beta1
     types.explanation = types.explanation_v1beta1
     types.explanation_metadata = types.explanation_metadata_v1beta1
     types.hyperparameter_tuning_job = types.hyperparameter_tuning_job_v1beta1
@@ -60,6 +64,8 @@ if DEFAULT_VERSION == V1BETA1:
     types.job_state = types.job_state_v1beta1
     types.machine_resources = types.machine_resources_v1beta1
     types.manual_batch_tuning_parameters = types.manual_batch_tuning_parameters_v1beta1
+    types.metadata_service = types.metadata_service_v1beta1
+    types.metadata_store = types.metadata_store_v1beta1
     types.model = types.model_v1beta1
     types.model_evaluation = types.model_evaluation_v1beta1
     types.model_evaluation_slice = types.model_evaluation_slice_v1beta1
@@ -72,7 +78,6 @@ if DEFAULT_VERSION == V1BETA1:
     types.specialist_pool_service = types.specialist_pool_service_v1beta1
     types.study = types.study_v1beta1
     types.training_pipeline = types.training_pipeline_v1beta1
-    types.metadata_service = types.metadata_service_v1beta1
     types.tensorboard_service = types.tensorboard_service_v1beta1
     types.tensorboard_data = types.tensorboard_data_v1beta1
     types.tensorboard_experiment = types.tensorboard_experiment_v1beta1
@@ -93,8 +98,10 @@ if DEFAULT_VERSION == V1:
     types.accelerator_type = types.accelerator_type_v1
     types.annotation = types.annotation_v1
     types.annotation_spec = types.annotation_spec_v1
+    types.artifact = types.artifact_v1
     types.batch_prediction_job = types.batch_prediction_job_v1
     types.completion_stats = types.completion_stats_v1
+    types.context = types.context_v1
     types.custom_job = types.custom_job_v1
     types.data_item = types.data_item_v1
     types.data_labeling_job = types.data_labeling_job_v1
@@ -105,6 +112,8 @@ if DEFAULT_VERSION == V1:
     types.endpoint = types.endpoint_v1
     types.endpoint_service = types.endpoint_service_v1
     types.env_var = types.env_var_v1
+    types.event = types.event_v1
+    types.execution = types.execution_v1
     types.explanation = types.explanation_v1
     types.explanation_metadata = types.explanation_metadata_v1
     types.hyperparameter_tuning_job = types.hyperparameter_tuning_job_v1
@@ -113,6 +122,8 @@ if DEFAULT_VERSION == V1:
     types.job_state = types.job_state_v1
     types.machine_resources = types.machine_resources_v1
     types.manual_batch_tuning_parameters = types.manual_batch_tuning_parameters_v1
+    types.metadata_service = types.metadata_service_v1
+    types.metadata_store = types.metadata_store_v1
     types.model = types.model_v1
     types.model_evaluation = types.model_evaluation_v1
     types.model_evaluation_slice = types.model_evaluation_slice_v1

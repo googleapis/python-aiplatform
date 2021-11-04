@@ -26,12 +26,13 @@ from google.auth import credentials as auth_credentials
 from google.auth.exceptions import GoogleAuthError
 
 from google.cloud import aiplatform
+from google.cloud.aiplatform import base
 from google.cloud.aiplatform import initializer
 from google.cloud.aiplatform.metadata import metadata_store
-from google.cloud.aiplatform_v1beta1 import MetadataServiceClient
-from google.cloud.aiplatform_v1beta1 import MetadataStore as GapicMetadataStore
-from google.cloud.aiplatform_v1beta1.types import encryption_spec as gca_encryption_spec
-from google.cloud.aiplatform_v1beta1.types import metadata_service
+from google.cloud.aiplatform_v1 import MetadataServiceClient
+from google.cloud.aiplatform_v1 import MetadataStore as GapicMetadataStore
+from google.cloud.aiplatform_v1.types import encryption_spec as gca_encryption_spec
+from google.cloud.aiplatform_v1.types import metadata_service
 
 # project
 _TEST_PROJECT = "test-project"
@@ -143,17 +144,23 @@ class TestMetadataStore:
     def test_init_metadata_store(self, get_metadata_store_mock):
         aiplatform.init(project=_TEST_PROJECT)
         metadata_store._MetadataStore(metadata_store_name=_TEST_NAME)
-        get_metadata_store_mock.assert_called_once_with(name=_TEST_NAME)
+        get_metadata_store_mock.assert_called_once_with(
+            name=_TEST_NAME, retry=base._DEFAULT_RETRY
+        )
 
     def test_init_metadata_store_with_id(self, get_metadata_store_mock):
         aiplatform.init(project=_TEST_PROJECT, location=_TEST_LOCATION)
         metadata_store._MetadataStore(metadata_store_name=_TEST_ID)
-        get_metadata_store_mock.assert_called_once_with(name=_TEST_NAME)
+        get_metadata_store_mock.assert_called_once_with(
+            name=_TEST_NAME, retry=base._DEFAULT_RETRY
+        )
 
     def test_init_metadata_store_with_default_id(self, get_metadata_store_mock):
         aiplatform.init(project=_TEST_PROJECT, location=_TEST_LOCATION)
         metadata_store._MetadataStore()
-        get_metadata_store_mock.assert_called_once_with(name=_TEST_DEFAULT_NAME)
+        get_metadata_store_mock.assert_called_once_with(
+            name=_TEST_DEFAULT_NAME, retry=base._DEFAULT_RETRY
+        )
 
     @pytest.mark.usefixtures("get_metadata_store_without_name_mock")
     @patch.dict(
@@ -171,7 +178,9 @@ class TestMetadataStore:
         metadata_store._MetadataStore(
             metadata_store_name=_TEST_ID, location=_TEST_ALT_LOCATION
         )
-        get_metadata_store_mock.assert_called_once_with(name=_TEST_ALT_LOC_NAME)
+        get_metadata_store_mock.assert_called_once_with(
+            name=_TEST_ALT_LOC_NAME, retry=base._DEFAULT_RETRY
+        )
 
     @pytest.mark.usefixtures("get_metadata_store_mock")
     def test_init_metadata_store_with_invalid_name(self):
