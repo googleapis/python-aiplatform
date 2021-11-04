@@ -78,7 +78,7 @@ _TEST_PIPELINE_SPEC = {
     "root": {
         "dag": {"tasks": {}},
         "inputDefinitions": {
-            "parameterValues": {
+            "parameters": {
                 "string_param": {"parameterType": "STRING"},
                 "bool_param": {"parameterType": "BOOLEAN"},
                 "double_param": {"parameterType": "NUMBER_DOUBLE"},
@@ -98,17 +98,7 @@ _TEST_PIPELINE_JOB_LEGACY = {
     "pipelineSpec": _TEST_PIPELINE_SPEC_LEGACY,
 }
 _TEST_PIPELINE_JOB = {
-    "runtimeConfig": {
-        "parameterValues": {
-            "string_param": "lorem ipsum",
-            "bool_param": True,
-            "double_param": 12.34,
-            "int_param": 5678,
-            "list_int_param": [123, 456, 789],
-            "list_string_param": ["lorem", "ipsum"],
-            "struct_param": {"key1": 12345, "key2": 67890},
-        },
-    },
+    "runtimeConfig": {"parameterValues": _TEST_PIPELINE_PARAMETER_VALUES},
     "pipelineSpec": _TEST_PIPELINE_SPEC,
 }
 
@@ -282,15 +272,7 @@ class TestPipelineJob:
 
         expected_runtime_config_dict = {
             "gcsOutputDirectory": _TEST_GCS_BUCKET_NAME,
-            "parameterValues": {
-                "bool_param": {"boolValue": True},
-                "double_param": {"numberValue": 12.34},
-                "int_param": {"numberValue": 5678},
-                "list_int_param": {"listValue": [123, 456, 789]},
-                "list_string_param": {"listValue": ["lorem", "ipsum"]},
-                "struct_param": {"structValue": {"key1": 12345, "key2": 67890}},
-                "string_param": {"stringValue": "hello world"},
-            },
+            "parameterValues": _TEST_PIPELINE_PARAMETER_VALUES,
         }
         runtime_config = gca_pipeline_job_v1.PipelineJob.RuntimeConfig()._pb
         json_format.ParseDict(expected_runtime_config_dict, runtime_config)
@@ -425,15 +407,7 @@ class TestPipelineJob:
 
         expected_runtime_config_dict = {
             "gcsOutputDirectory": _TEST_GCS_BUCKET_NAME,
-            "parameterValues": {
-                "bool_param": {"boolValue": True},
-                "double_param": {"numberValue": 12.34},
-                "int_param": {"numberValue": 5678},
-                "list_int_param": {"listValue": [123, 456, 789]},
-                "list_string_param": {"listValue": ["lorem", "ipsum"]},
-                "struct_param": {"structValue": {"key1": 12345, "key2": 67890}},
-                "string_param": {"stringValue": "hello world"},
-            },
+            "parameterValues": _TEST_PIPELINE_PARAMETER_VALUES,
         }
         runtime_config = gca_pipeline_job_v1.PipelineJob.RuntimeConfig()._pb
         json_format.ParseDict(expected_runtime_config_dict, runtime_config)

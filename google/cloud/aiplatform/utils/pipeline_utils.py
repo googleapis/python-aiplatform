@@ -29,26 +29,26 @@ class PipelineRuntimeConfigBuilder(object):
     def __init__(
         self,
         pipeline_root: str,
+        schema_version: str,
         parameter_types: Mapping[str, str],
         parameter_values: Optional[Dict[str, Any]] = None,
-        schema_version: Optional[str] = None,
     ):
         """Creates a PipelineRuntimeConfigBuilder object.
 
         Args:
           pipeline_root (str):
               Required. The root of the pipeline outputs.
+          schema_version (str):
+              Required. Schema version of the IR. This field determines the fields supported in current version of IR.
           parameter_types (Mapping[str, str]):
               Required. The mapping from pipeline parameter name to its type.
           parameter_values (Dict[str, Any]):
               Optional. The mapping from runtime parameter name to its value.
-          schema_version (str):
-              Optional. Schema version of the IR. This field determines the fields supported in current version of IR.
         """
         self._pipeline_root = pipeline_root
+        self._schema_version = schema_version
         self._parameter_types = parameter_types
         self._parameter_values = copy.deepcopy(parameter_values or {})
-        self._schema_version = schema_version or "2.0.0"
 
     @classmethod
     def from_job_spec_json(
@@ -64,15 +64,12 @@ class PipelineRuntimeConfigBuilder(object):
           A PipelineRuntimeConfigBuilder object.
         """
         runtime_config_spec = job_spec["runtimeConfig"]
-        input_definitions = (
-            job_spec["pipelineSpec"]["root"].get("inputDefinitions") or {}
-        )
         parameter_input_definitions = (
-            input_definitions.get("parameterValues")
-            or input_definitions.get("parameters")
-            or {}
+            job_spec["pipelineSpec"]["root"]
+            .get("inputDefinitions", {})
+            .get("parameters", {})
         )
-        schema_version = job_spec["pipelineSpec"].get("schemaVersion")
+        schema_version = job_spec["pipelineSpec"]["schemaVersion"]
 
         # 'type' is deprecated in IR and change to 'parameterType'.
         parameter_types = {
@@ -82,7 +79,7 @@ class PipelineRuntimeConfigBuilder(object):
 
         pipeline_root = runtime_config_spec.get("gcsOutputDirectory")
         parameter_values = _parse_runtime_parameters(runtime_config_spec)
-        return cls(pipeline_root, parameter_types, parameter_values, schema_version)
+        return cls(pipeline_root, schema_version, parameter_types, parameter_values)
 
     def update_pipeline_root(self, pipeline_root: Optional[str]) -> None:
         """Updates pipeline_root value.
@@ -141,7 +138,7 @@ class PipelineRuntimeConfigBuilder(object):
 
     def _get_vertex_value(
         self, name: str, value: Union[int, float, str, bool, list, dict]
-    ) -> Dict[str, Any]:
+    ) -> Union[Dict[str, Any], int, float, str, bool, list, dict]:
         """Converts primitive values into Vertex pipeline Value proto message.
 
         Args:
@@ -166,26 +163,21 @@ class PipelineRuntimeConfigBuilder(object):
                 "pipeline job input definitions.".format(name)
             )
 
-        result = {}
-        if self._parameter_types[name] == "INT":
-            result["intValue"] = value
-        elif self._parameter_types[name] == "DOUBLE":
-            result["doubleValue"] = value
-        elif self._parameter_types[name] == "STRING":
-            result["stringValue"] = value
-        elif self._parameter_types[name] == "BOOLEAN":
-            result["boolValue"] = value
-        elif self._parameter_types[name] == "NUMBER_DOUBLE":
-            result["numberValue"] = value
-        elif self._parameter_types[name] == "NUMBER_INTEGER":
-            result["numberValue"] = value
-        elif self._parameter_types[name] == "LIST":
-            result["listValue"] = value
-        elif self._parameter_types[name] == "STRUCT":
-            result["structValue"] = value
+        if packaging.version.parse(self._schema_version) <= packaging.version.parse(
+            "2.0.0"
+        ):
+            result = {}
+            if self._parameter_types[name] == "INT":
+                result["intValue"] = value
+            elif self._parameter_types[name] == "DOUBLE":
+                result["doubleValue"] = value
+            elif self._parameter_types[name] == "STRING":
+                result["stringValue"] = value
+            else:
+                raise TypeError("Got unknown type of value: {}".format(value))
+            return result
         else:
-            raise TypeError("Got unknown type of value: {}".format(value))
-        return result
+            return value
 
 
 def _parse_runtime_parameters(
