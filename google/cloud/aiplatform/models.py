@@ -16,6 +16,7 @@
 #
 import pathlib
 import proto
+import re
 import shutil
 import tempfile
 from typing import Dict, List, NamedTuple, Optional, Sequence, Tuple, Union
@@ -1714,22 +1715,24 @@ class Model(base.VertexAiResourceNounWithFutureManager):
         )
 
         if artifact_uri and not artifact_uri.startswith("gs://"):
-            # Validating the model directory
             model_dir = pathlib.Path(artifact_uri)
+            # Validating the model directory
             if not model_dir.exists():
                 raise ValueError(f"artifact_uri path does not exist: '{artifact_uri}'")
-            if not model_dir.is_dir():
-                raise ValueError(
-                    f"artifact_uri path must be a directory: '{artifact_uri}'"
-                )
-            if not any(
-                (model_dir / file_name).exists()
-                for file_name in _SUPPORTED_MODEL_FILE_NAMES
-            ):
-                raise ValueError(
-                    "artifact_uri directory does not contain any supported model files. "
-                    f"The upload method only supports the following model files: '{_SUPPORTED_MODEL_FILE_NAMES}'"
-                )
+            PREBUILT_IMAGE_RE = "(us|europe|asia)-docker.pkg.dev/vertex-ai/prediction/"
+            if re.match(PREBUILT_IMAGE_RE, serving_container_image_uri):
+                if not model_dir.is_dir():
+                    raise ValueError(
+                        f"artifact_uri path must be a directory: '{artifact_uri}'"
+                    )
+                if not any(
+                    (model_dir / file_name).exists()
+                    for file_name in _SUPPORTED_MODEL_FILE_NAMES
+                ):
+                    raise ValueError(
+                        "artifact_uri directory does not contain any supported model files. "
+                        f"The upload method only supports the following model files: '{_SUPPORTED_MODEL_FILE_NAMES}'"
+                    )
 
             # Uploading the model
             staged_data_uri = utils.stage_local_data_in_gcs(
