@@ -617,6 +617,9 @@ def upload_to_gcs(
     if not source_path_obj.exists():
         raise RuntimeError(f"Source path does not exist: {source_path}")
 
+    project = project or initializer.global_config.project
+    credentials = credentials or initializer.global_config.credentials
+
     storage_client = storage.Client(project=project, credentials=credentials)
     if source_path_obj.is_dir():
         source_file_paths = glob.glob(
