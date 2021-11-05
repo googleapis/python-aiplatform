@@ -2595,6 +2595,16 @@ class Model(base.VertexAiResourceNounWithFutureManager):
                 f"Supported versions: {XGBOOST_SUPPORTED_VERSIONS}"
             )
 
+        container_image_uri = XGBOOST_CONTAINER_IMAGE_URI_TEMPLATE.format(
+            registry=_get_container_registry(
+                location or aiplatform.initializer.global_config.location
+            ),
+            cpu_or_gpu="cpu",
+            version=xgboost_version.replace(".", "-"),
+        )
+
+        display_name = display_name or "XGBoost model"
+
         model_file_path_obj = pathlib.Path(model_file_path)
         if not model_file_path_obj.is_file():
             raise ValueError(
@@ -2612,40 +2622,31 @@ class Model(base.VertexAiResourceNounWithFutureManager):
             model_file_extension = ".bst"
 
         # Preparing model directory
-        prepared_model_dir = tempfile.mkdtemp()
-        prepared_model_file_path = pathlib.Path(prepared_model_dir) / (
-            "model" + model_file_extension
-        )
-        shutil.copy(model_file_path_obj, prepared_model_file_path)
+        with tempfile.TemporaryDirectory() as prepared_model_dir_obj:
+            prepared_model_dir = prepared_model_dir_obj.name
+            prepared_model_file_path = pathlib.Path(prepared_model_dir) / (
+                "model" + model_file_extension
+            )
+            shutil.copy(model_file_path_obj, prepared_model_file_path)
 
-        container_image_uri = XGBOOST_CONTAINER_IMAGE_URI_TEMPLATE.format(
-            registry=_get_container_registry(
-                location or aiplatform.initializer.global_config.location
-            ),
-            cpu_or_gpu="cpu",
-            version=xgboost_version.replace(".", "-"),
-        )
-
-        display_name = display_name or "XGBoost model"
-
-        return aiplatform.Model.upload(
-            serving_container_image_uri=container_image_uri,
-            artifact_uri=prepared_model_dir,
-            display_name=display_name,
-            description=description,
-            instance_schema_uri=instance_schema_uri,
-            parameters_schema_uri=parameters_schema_uri,
-            prediction_schema_uri=prediction_schema_uri,
-            explanation_metadata=explanation_metadata,
-            explanation_parameters=explanation_parameters,
-            project=project,
-            location=location,
-            credentials=credentials,
-            labels=labels,
-            encryption_spec_key_name=encryption_spec_key_name,
-            staging_bucket=staging_bucket,
-            sync=sync,
-        )
+            return aiplatform.Model.upload(
+                serving_container_image_uri=container_image_uri,
+                artifact_uri=prepared_model_dir,
+                display_name=display_name,
+                description=description,
+                instance_schema_uri=instance_schema_uri,
+                parameters_schema_uri=parameters_schema_uri,
+                prediction_schema_uri=prediction_schema_uri,
+                explanation_metadata=explanation_metadata,
+                explanation_parameters=explanation_parameters,
+                project=project,
+                location=location,
+                credentials=credentials,
+                labels=labels,
+                encryption_spec_key_name=encryption_spec_key_name,
+                staging_bucket=staging_bucket,
+                sync=sync,
+            )
 
     @staticmethod
     def upload_scikit_learn_model_file(
@@ -2803,6 +2804,16 @@ class Model(base.VertexAiResourceNounWithFutureManager):
                 f"Supported versions: {SKLEARN_SUPPORTED_VERSIONS}"
             )
 
+        container_image_uri = SKLEARN_CONTAINER_IMAGE_URI_TEMPLATE.format(
+            registry=_get_container_registry(
+                location or aiplatform.initializer.global_config.location
+            ),
+            cpu_or_gpu="cpu",
+            version=sklearn_version.replace(".", "-"),
+        )
+
+        display_name = display_name or "Scikit-learn model"
+
         model_file_path_obj = pathlib.Path(model_file_path)
         if not model_file_path_obj.is_file():
             raise ValueError(
@@ -2820,40 +2831,31 @@ class Model(base.VertexAiResourceNounWithFutureManager):
             model_file_extension = ".pkl"
 
         # Preparing model directory
-        prepared_model_dir = tempfile.mkdtemp()
-        prepared_model_file_path = pathlib.Path(prepared_model_dir) / (
-            "model" + model_file_extension
-        )
-        shutil.copy(model_file_path_obj, prepared_model_file_path)
+        with tempfile.TemporaryDirectory() as prepared_model_dir_obj:
+            prepared_model_dir = prepared_model_dir_obj.name
+            prepared_model_file_path = pathlib.Path(prepared_model_dir) / (
+                "model" + model_file_extension
+            )
+            shutil.copy(model_file_path_obj, prepared_model_file_path)
 
-        container_image_uri = SKLEARN_CONTAINER_IMAGE_URI_TEMPLATE.format(
-            registry=_get_container_registry(
-                location or aiplatform.initializer.global_config.location
-            ),
-            cpu_or_gpu="cpu",
-            version=sklearn_version.replace(".", "-"),
-        )
-
-        display_name = display_name or "Scikit-learn model"
-
-        return aiplatform.Model.upload(
-            serving_container_image_uri=container_image_uri,
-            artifact_uri=prepared_model_dir,
-            display_name=display_name,
-            description=description,
-            instance_schema_uri=instance_schema_uri,
-            parameters_schema_uri=parameters_schema_uri,
-            prediction_schema_uri=prediction_schema_uri,
-            explanation_metadata=explanation_metadata,
-            explanation_parameters=explanation_parameters,
-            project=project,
-            location=location,
-            credentials=credentials,
-            labels=labels,
-            encryption_spec_key_name=encryption_spec_key_name,
-            staging_bucket=staging_bucket,
-            sync=sync,
-        )
+            return aiplatform.Model.upload(
+                serving_container_image_uri=container_image_uri,
+                artifact_uri=prepared_model_dir,
+                display_name=display_name,
+                description=description,
+                instance_schema_uri=instance_schema_uri,
+                parameters_schema_uri=parameters_schema_uri,
+                prediction_schema_uri=prediction_schema_uri,
+                explanation_metadata=explanation_metadata,
+                explanation_parameters=explanation_parameters,
+                project=project,
+                location=location,
+                credentials=credentials,
+                labels=labels,
+                encryption_spec_key_name=encryption_spec_key_name,
+                staging_bucket=staging_bucket,
+                sync=sync,
+            )
 
     @staticmethod
     def upload_tensorflow_saved_model(
