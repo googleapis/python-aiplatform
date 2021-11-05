@@ -1657,6 +1657,7 @@ class Model(base.VertexAiResourceNounWithFutureManager):
         Raises:
             ValueError: If only `explanation_metadata` or `explanation_parameters`
                 is specified.
+                Also if model directory does not contain a supported model file.
         """
         utils.validate_display_name(display_name)
         if labels:
@@ -2569,6 +2570,7 @@ class Model(base.VertexAiResourceNounWithFutureManager):
         Raises:
             ValueError: If only `explanation_metadata` or `explanation_parameters`
                 is specified.
+                Also if model directory does not contain a supported model file.
         """
         # https://cloud.google.com/vertex-ai/docs/predictions/pre-built-containers#xgboost
         XGBOOST_SUPPORTED_VERSIONS = ["0.82", "0.90", "1.1", "1.2", "1.3", "1.4"]
@@ -2778,6 +2780,7 @@ class Model(base.VertexAiResourceNounWithFutureManager):
         Raises:
             ValueError: If only `explanation_metadata` or `explanation_parameters`
                 is specified.
+                Also if model directory does not contain a supported model file.
         """
         # https://cloud.google.com/vertex-ai/docs/predictions/pre-built-containers#scikit-learn
         SKLEARN_SUPPORTED_VERSIONS = ["0.20", "0.22", "0.23", "0.24"]
@@ -2988,6 +2991,7 @@ class Model(base.VertexAiResourceNounWithFutureManager):
         Raises:
             ValueError: If only `explanation_metadata` or `explanation_parameters`
                 is specified.
+                Also if model directory does not contain a supported model file.
         """
         # https://cloud.google.com/vertex-ai/docs/predictions/pre-built-containers#tensorflow
         TENSORFLOW_SUPPORTED_VERSIONS = [
