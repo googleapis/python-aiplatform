@@ -30,6 +30,8 @@ from google.auth.transport.grpc import SslCredentials  # type: ignore
 from google.auth.exceptions import MutualTLSChannelError  # type: ignore
 from google.oauth2 import service_account  # type: ignore
 
+OptionalRetry = Union[retries.Retry, object]
+
 from google.api_core import operation as gac_operation  # type: ignore
 from google.api_core import operation_async  # type: ignore
 from google.cloud.aiplatform_v1beta1.services.endpoint_service import pagers
@@ -413,7 +415,7 @@ class EndpointServiceClient(metaclass=EndpointServiceClientMeta):
         *,
         parent: str = None,
         endpoint: gca_endpoint.Endpoint = None,
-        retry: retries.Retry = gapic_v1.method.DEFAULT,
+        retry: OptionalRetry = gapic_v1.method.DEFAULT,
         timeout: float = None,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> gac_operation.Operation:
@@ -502,7 +504,7 @@ class EndpointServiceClient(metaclass=EndpointServiceClientMeta):
         request: Union[endpoint_service.GetEndpointRequest, dict] = None,
         *,
         name: str = None,
-        retry: retries.Retry = gapic_v1.method.DEFAULT,
+        retry: OptionalRetry = gapic_v1.method.DEFAULT,
         timeout: float = None,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> endpoint.Endpoint:
@@ -574,7 +576,7 @@ class EndpointServiceClient(metaclass=EndpointServiceClientMeta):
         request: Union[endpoint_service.ListEndpointsRequest, dict] = None,
         *,
         parent: str = None,
-        retry: retries.Retry = gapic_v1.method.DEFAULT,
+        retry: OptionalRetry = gapic_v1.method.DEFAULT,
         timeout: float = None,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> pagers.ListEndpointsPager:
@@ -656,7 +658,7 @@ class EndpointServiceClient(metaclass=EndpointServiceClientMeta):
         *,
         endpoint: gca_endpoint.Endpoint = None,
         update_mask: field_mask_pb2.FieldMask = None,
-        retry: retries.Retry = gapic_v1.method.DEFAULT,
+        retry: OptionalRetry = gapic_v1.method.DEFAULT,
         timeout: float = None,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> gca_endpoint.Endpoint:
@@ -739,7 +741,7 @@ class EndpointServiceClient(metaclass=EndpointServiceClientMeta):
         request: Union[endpoint_service.DeleteEndpointRequest, dict] = None,
         *,
         name: str = None,
-        retry: retries.Retry = gapic_v1.method.DEFAULT,
+        retry: OptionalRetry = gapic_v1.method.DEFAULT,
         timeout: float = None,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> gac_operation.Operation:
@@ -836,7 +838,7 @@ class EndpointServiceClient(metaclass=EndpointServiceClientMeta):
         traffic_split: Sequence[
             endpoint_service.DeployModelRequest.TrafficSplitEntry
         ] = None,
-        retry: retries.Retry = gapic_v1.method.DEFAULT,
+        retry: OptionalRetry = gapic_v1.method.DEFAULT,
         timeout: float = None,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> gac_operation.Operation:
@@ -960,7 +962,7 @@ class EndpointServiceClient(metaclass=EndpointServiceClientMeta):
         traffic_split: Sequence[
             endpoint_service.UndeployModelRequest.TrafficSplitEntry
         ] = None,
-        retry: retries.Retry = gapic_v1.method.DEFAULT,
+        retry: OptionalRetry = gapic_v1.method.DEFAULT,
         timeout: float = None,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> gac_operation.Operation:

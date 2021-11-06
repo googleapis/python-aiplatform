@@ -52,6 +52,7 @@ from google.cloud.aiplatform_v1beta1.services.tensorboard_service.transports imp
 )
 from google.cloud.aiplatform.compat.types import (
     tensorboard_data_v1beta1 as tensorboard_data,
+    tensorboard_service_v1beta1 as tensorboard_service,
 )
 from google.cloud.aiplatform.compat.types import (
     tensorboard_experiment_v1beta1 as tensorboard_experiment_type,
@@ -260,6 +261,10 @@ def _create_dispatcher(
     tensor_rpc_rate_limiter = util.RateLimiter(0)
     blob_rpc_rate_limiter = util.RateLimiter(0)
 
+    one_platform_resource_manager = uploader_utils.OnePlatformResourceManager(
+        experiment_resource_name, api
+    )
+
     request_sender = uploader_lib._BatchedRequestSender(
         experiment_resource_name=experiment_resource_name,
         api=api,
@@ -270,6 +275,7 @@ def _create_dispatcher(
         blob_rpc_rate_limiter=blob_rpc_rate_limiter,
         blob_storage_bucket=None,
         blob_storage_folder=None,
+        one_platform_resource_manager=one_platform_resource_manager,
         tracker=upload_tracker.UploadTracker(verbosity=0),
     )
 
@@ -593,7 +599,41 @@ class TensorboardUploaderTest(tf.test.TestCase):
 
     def test_start_uploading_scalars_one_shot(self):
         """Check that one-shot uploading stops without AbortUploadError."""
+
+        def batch_create_runs(parent, requests):
+            # pylint: disable=unused-argument
+            tb_runs = []
+            for request in requests:
+                tb_run = tensorboard_run_type.TensorboardRun(request.tensorboard_run)
+                tb_run.name = "{}/runs/{}".format(
+                    request.parent, request.tensorboard_run_id
+                )
+                tb_runs.append(tb_run)
+            return tensorboard_service.BatchCreateTensorboardRunsResponse(
+                tensorboard_runs=tb_runs
+            )
+
+        def batch_create_time_series(parent, requests):
+            # pylint: disable=unused-argument
+            tb_time_series = []
+            for request in requests:
+                ts = tensorboard_time_series_type.TensorboardTimeSeries(
+                    request.tensorboard_time_series
+                )
+                ts.name = "{}/timeSeries/{}".format(
+                    request.parent, request.tensorboard_time_series.display_name
+                )
+                tb_time_series.append(ts)
+            return tensorboard_service.BatchCreateTensorboardTimeSeriesResponse(
+                tensorboard_time_series=tb_time_series
+            )
+
         mock_client = _create_mock_client()
+        mock_client.batch_create_tensorboard_runs.side_effect = batch_create_runs
+        mock_client.batch_create_tensorboard_time_series.side_effect = (
+            batch_create_time_series
+        )
+
         mock_rate_limiter = mock.create_autospec(util.RateLimiter)
         mock_tracker = mock.MagicMock()
         with mock.patch.object(
@@ -614,17 +654,32 @@ class TensorboardUploaderTest(tf.test.TestCase):
         mock_logdir_loader.get_run_events.side_effect = [
             {
                 "run 1": _apply_compat(
-                    [_scalar_event("1.1", 5.0), _scalar_event("1.2", 5.0)]
+                    [_scalar_event("tag_1.1", 5.0), _scalar_event("tag_1.2", 5.0)]
                 ),
                 "run 2": _apply_compat(
-                    [_scalar_event("2.1", 5.0), _scalar_event("2.2", 5.0)]
+                    [_scalar_event("tag_2.1", 5.0), _scalar_event("tag_2.2", 5.0)]
+                ),
+            },
+            # Note the lack of AbortUploadError here.
+        ]
+        mock_logdir_loader_pre_create = mock.create_autospec(logdir_loader.LogdirLoader)
+        mock_logdir_loader_pre_create.get_run_events.side_effect = [
+            {
+                "run 1": _apply_compat(
+                    [_scalar_event("tag_1.1", 5.0), _scalar_event("tag_1.2", 5.0)]
+                ),
+                "run 2": _apply_compat(
+                    [_scalar_event("tag_2.1", 5.0), _scalar_event("tag_2.2", 5.0)]
                 ),
             },
             # Note the lack of AbortUploadError here.
         ]
 
         with mock.patch.object(uploader, "_logdir_loader", mock_logdir_loader):
-            uploader.start_uploading()
+            with mock.patch.object(
+                uploader, "_logdir_loader_pre_create", mock_logdir_loader_pre_create
+            ):
+                uploader.start_uploading()
 
         self.assertEqual(2, mock_client.write_tensorboard_experiment_data.call_count)
         self.assertEqual(2, mock_rate_limiter.tick.call_count)

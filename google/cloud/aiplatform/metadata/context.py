@@ -20,16 +20,17 @@ from typing import Optional, Dict, Sequence
 import proto
 
 from google.cloud.aiplatform import utils
-from google.cloud.aiplatform.metadata.resource import _Resource
-from google.cloud.aiplatform_v1beta1 import ListContextsRequest
-from google.cloud.aiplatform_v1beta1.types import context as gca_context
+from google.cloud.aiplatform.compat.types import metadata_service
+from google.cloud.aiplatform.compat.types import context as gca_context
+from google.cloud.aiplatform.metadata import resource
 
 
-class _Context(_Resource):
+class _Context(resource._Resource):
     """Metadata Context resource for Vertex AI"""
 
     _resource_noun = "contexts"
     _getter_method = "get_context"
+    _delete_method = "delete_context"
 
     def add_artifacts_and_executions(
         self,
@@ -106,5 +107,7 @@ class _Context(_Resource):
                 Optional. filter string to restrict the list result
         """
 
-        list_request = ListContextsRequest(parent=parent, filter=filter,)
+        list_request = metadata_service.ListContextsRequest(
+            parent=parent, filter=filter,
+        )
         return client.list_contexts(request=list_request)

@@ -179,20 +179,31 @@ class InputDataConfig(proto.Message):
     r"""Specifies Vertex AI owned input data to be used for training,
     and possibly evaluating, the Model.
 
+    This message has `oneof`_ fields (mutually exclusive fields).
+    For each oneof, at most one member field can be set at the same time.
+    Setting any member of the oneof automatically clears all other
+    members.
+
+    .. _oneof: https://proto-plus-python.readthedocs.io/en/stable/fields.html#oneofs-mutually-exclusive-fields
+
     Attributes:
         fraction_split (google.cloud.aiplatform_v1beta1.types.FractionSplit):
             Split based on fractions defining the size of
             each set.
+            This field is a member of `oneof`_ ``split``.
         filter_split (google.cloud.aiplatform_v1beta1.types.FilterSplit):
             Split based on the provided filters for each
             set.
+            This field is a member of `oneof`_ ``split``.
         predefined_split (google.cloud.aiplatform_v1beta1.types.PredefinedSplit):
             Supported only for tabular Datasets.
             Split based on a predefined key.
+            This field is a member of `oneof`_ ``split``.
         timestamp_split (google.cloud.aiplatform_v1beta1.types.TimestampSplit):
             Supported only for tabular Datasets.
             Split based on the timestamp of the input data
             pieces.
+            This field is a member of `oneof`_ ``split``.
         gcs_destination (google.cloud.aiplatform_v1beta1.types.GcsDestination):
             The Cloud Storage location where the training data is to be
             written to. In the given directory a new directory is
@@ -218,6 +229,7 @@ class InputDataConfig(proto.Message):
 
             -  AIP_TEST_DATA_URI =
                "gcs_destination/dataset---/test-*.${AIP_DATA_FORMAT}".
+            This field is a member of `oneof`_ ``destination``.
         bigquery_destination (google.cloud.aiplatform_v1beta1.types.BigQueryDestination):
             Only applicable to custom training with tabular Dataset with
             BigQuery source.
@@ -241,6 +253,7 @@ class InputDataConfig(proto.Message):
 
             -  AIP_TEST_DATA_URI =
                "bigquery_destination.dataset\_\ **\ .test".
+            This field is a member of `oneof`_ ``destination``.
         dataset_id (str):
             Required. The ID of the Dataset in the same Project and
             Location which data will be used to train the Model. The

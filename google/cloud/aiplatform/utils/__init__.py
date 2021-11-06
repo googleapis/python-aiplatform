@@ -37,16 +37,17 @@ from google.cloud.aiplatform.compat.services import (
     dataset_service_client_v1beta1,
     endpoint_service_client_v1beta1,
     job_service_client_v1beta1,
+    metadata_service_client_v1beta1,
     model_service_client_v1beta1,
     pipeline_service_client_v1beta1,
     prediction_service_client_v1beta1,
-    metadata_service_client_v1beta1,
     tensorboard_service_client_v1beta1,
 )
 from google.cloud.aiplatform.compat.services import (
     dataset_service_client_v1,
     endpoint_service_client_v1,
     job_service_client_v1,
+    metadata_service_client_v1,
     model_service_client_v1,
     pipeline_service_client_v1,
     prediction_service_client_v1,
@@ -69,6 +70,7 @@ VertexAiServiceClient = TypeVar(
     # v1
     dataset_service_client_v1.DatasetServiceClient,
     endpoint_service_client_v1.EndpointServiceClient,
+    metadata_service_client_v1.MetadataServiceClient,
     model_service_client_v1.ModelServiceClient,
     prediction_service_client_v1.PredictionServiceClient,
     pipeline_service_client_v1.PipelineServiceClient,
@@ -477,8 +479,9 @@ class PipelineClientWithOverride(ClientWithOverride):
 
 class PipelineJobClientWithOverride(ClientWithOverride):
     _is_temporary = True
-    _default_version = compat.V1BETA1
+    _default_version = compat.DEFAULT_VERSION
     _version_map = (
+        (compat.V1, pipeline_service_client_v1.PipelineServiceClient),
         (compat.V1BETA1, pipeline_service_client_v1beta1.PipelineServiceClient),
     )
 
@@ -494,8 +497,9 @@ class PredictionClientWithOverride(ClientWithOverride):
 
 class MetadataClientWithOverride(ClientWithOverride):
     _is_temporary = True
-    _default_version = compat.V1BETA1
+    _default_version = compat.DEFAULT_VERSION
     _version_map = (
+        (compat.V1, metadata_service_client_v1.MetadataServiceClient),
         (compat.V1BETA1, metadata_service_client_v1beta1.MetadataServiceClient),
     )
 
