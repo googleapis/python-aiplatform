@@ -376,7 +376,7 @@ class TestPipelineUtils:
                     }
                 }
             },
-            "schemaVersion":"2.0.0",
+            "schemaVersion": "2.0.0",
         },
         "runtimeConfig": {
             "gcsOutputDirectory": "path/to/my/root",
