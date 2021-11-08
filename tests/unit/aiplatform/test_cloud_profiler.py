@@ -151,7 +151,7 @@ class TestProfilerPlugin(unittest.TestCase):
         assert not TFProfiler.can_initialize()
 
     def testCanInitializeNoClusterSpec(self):
-        tf_profiler.environment_variables.cluster_spec = {}
+        tf_profiler.environment_variables.cluster_spec = None
         assert not TFProfiler.can_initialize()
 
     # Check tensorflow dependencies
@@ -228,7 +228,7 @@ class TestProfilerPlugin(unittest.TestCase):
         environ = dict(QUERY_STRING="?service_addr=myhost1,myhost2&someotherdata=5")
         start_response = None
 
-        tf_profiler.environment_variables.cluster_spec = {}
+        tf_profiler.environment_variables.cluster_spec = None
         resp = profiler.capture_profile_wrapper(environ, start_response)
 
         assert resp.status_code == 500

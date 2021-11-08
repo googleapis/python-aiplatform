@@ -86,7 +86,7 @@ def _check_tf() -> bool:
 
     # Check tensorflow version
     version = _get_tf_versioning()
-    if not version:
+    if version is None:
         logger.warning(
             "Could not find major, minor, and patch versions of tensorflow. Version found: %s",
             version,
@@ -156,7 +156,7 @@ def _get_hostnames() -> Optional[str]:
         is successful, None otherwise.
     """
     cluster_spec = environment_variables.cluster_spec
-    if not cluster_spec:
+    if cluster_spec is None:
         return
 
     cluster = cluster_spec.get("cluster", "")
@@ -182,7 +182,7 @@ def _update_environ(environ) -> bool:
     """
     hosts = _get_hostnames()
 
-    if not hosts:
+    if hosts is None:
         return False
 
     query_dict = {}
@@ -205,34 +205,34 @@ def _check_env_vars() -> bool:
     Returns:
         bool indicating all necessary variables are set.
     """
-    if not environment_variables.tf_profiler_port:
+    if environment_variables.tf_profiler_port is None:
         logger.warning(
             '"%s" environment variable not set, cannot enable profiling.',
             "AIP_TF_PROFILER_PORT",
         )
         return False
 
-    if not environment_variables.tensorboard_log_dir:
+    if environment_variables.tensorboard_log_dir is None:
         logger.warning(
             "Must set a tensorboard log directory, "
             "run training with tensorboard enabled."
         )
         return False
 
-    if not environment_variables.tensorboard_api_uri:
+    if environment_variables.tensorboard_api_uri is None:
         logger.warning("Must set the tensorboard API uri.")
         return False
 
-    if not environment_variables.tensorboard_resource_name:
+    if environment_variables.tensorboard_resource_name is None:
         logger.warning("Must set the tensorboard resource name.")
         return False
 
     cluster_spec = environment_variables.cluster_spec
-    if not cluster_spec:
+    if cluster_spec is None:
         logger.warning('Environment variable "CLUSTER_SPEC" is not set')
         return False
 
-    if not environment_variables.cloud_ml_job_id:
+    if environment_variables.cloud_ml_job_id is None:
         logger.warning("Job ID must be set")
         return False
 
