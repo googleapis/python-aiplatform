@@ -40,15 +40,6 @@ Version = namedtuple("Version", ["major", "minor", "patch"])
 logger = logging.Logger("tf-profiler")
 
 
-def _tf_installed() -> bool:
-    """Helper function to determine if tensorflow is installed.
-
-    Returns:
-        Bool indicating whether tensorflow is installed.
-    """
-    return importlib.util.find_spec("tensorflow")
-
-
 def _get_tf_versioning() -> Optional[Version]:
     """Convert version string to a Version namedtuple for ease of parsing.
 
@@ -89,11 +80,11 @@ def _check_tf() -> bool:
         True if all requirements met, False otherwise.
     """
     # Check tf is installed
-    if not _tf_installed():
+    if importlib.util.find_spec("tensorflow") is None:
         logger.warning("Tensorflow not installed, cannot initialize profiling plugin")
         return False
 
-    # Check tensorflow version, introduced 2.2 >=
+    # Check tensorflow version
     version = _get_tf_versioning()
     if not version:
         logger.warning(
@@ -102,6 +93,7 @@ def _check_tf() -> bool:
         )
         return False
 
+    # Check compatibility, introduced in tensorflow >= 2.2.0
     if not _is_compatible_version(version):
         logger.warning(
             "Version %s is incompatible with tf profiler."
@@ -111,7 +103,7 @@ def _check_tf() -> bool:
         return False
 
     # Check for the tf profiler plugin
-    if not importlib.util.find_spec("tensorboard_plugin_profile"):
+    if importlib.util.find_spec("tensorboard_plugin_profile") is None:
         logger.warning(
             "Could not import tensorboard_plugin_profile, will not run tf profiling service"
         )
