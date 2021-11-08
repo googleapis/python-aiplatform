@@ -35,14 +35,14 @@ def sample_batch_read_feature_values():
 
     # Initialize request argument(s)
     csv_read_instances = aiplatform_v1beta1.CsvSource()
-    csv_read_instances.gcs_source.uris = ['uris_value']
+    csv_read_instances.gcs_source.uris = ['uris_value_1', 'uris_value_2']
 
     destination = aiplatform_v1beta1.FeatureValueDestination()
     destination.bigquery_destination.output_uri = "output_uri_value"
 
     entity_type_specs = aiplatform_v1beta1.EntityTypeSpec()
     entity_type_specs.entity_type_id = "entity_type_id_value"
-    entity_type_specs.feature_selector.id_matcher.ids = ['ids_value']
+    entity_type_specs.feature_selector.id_matcher.ids = ['ids_value_1', 'ids_value_2']
 
     request = aiplatform_v1beta1.BatchReadFeatureValuesRequest(
         csv_read_instances=csv_read_instances,
