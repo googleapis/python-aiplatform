@@ -30,6 +30,8 @@ from google.auth.transport.grpc import SslCredentials  # type: ignore
 from google.auth.exceptions import MutualTLSChannelError  # type: ignore
 from google.oauth2 import service_account  # type: ignore
 
+OptionalRetry = Union[retries.Retry, object]
+
 from google.api_core import operation  # type: ignore
 from google.api_core import operation_async  # type: ignore
 from google.cloud.aiplatform_v1.services.vizier_service import pagers
@@ -392,7 +394,7 @@ class VizierServiceClient(metaclass=VizierServiceClientMeta):
         *,
         parent: str = None,
         study: gca_study.Study = None,
-        retry: retries.Retry = gapic_v1.method.DEFAULT,
+        retry: OptionalRetry = gapic_v1.method.DEFAULT,
         timeout: float = None,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> gca_study.Study:
@@ -472,7 +474,7 @@ class VizierServiceClient(metaclass=VizierServiceClientMeta):
         request: Union[vizier_service.GetStudyRequest, dict] = None,
         *,
         name: str = None,
-        retry: retries.Retry = gapic_v1.method.DEFAULT,
+        retry: OptionalRetry = gapic_v1.method.DEFAULT,
         timeout: float = None,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> study.Study:
@@ -541,7 +543,7 @@ class VizierServiceClient(metaclass=VizierServiceClientMeta):
         request: Union[vizier_service.ListStudiesRequest, dict] = None,
         *,
         parent: str = None,
-        retry: retries.Retry = gapic_v1.method.DEFAULT,
+        retry: OptionalRetry = gapic_v1.method.DEFAULT,
         timeout: float = None,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> pagers.ListStudiesPager:
@@ -623,7 +625,7 @@ class VizierServiceClient(metaclass=VizierServiceClientMeta):
         request: Union[vizier_service.DeleteStudyRequest, dict] = None,
         *,
         name: str = None,
-        retry: retries.Retry = gapic_v1.method.DEFAULT,
+        retry: OptionalRetry = gapic_v1.method.DEFAULT,
         timeout: float = None,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> None:
@@ -688,7 +690,7 @@ class VizierServiceClient(metaclass=VizierServiceClientMeta):
         request: Union[vizier_service.LookupStudyRequest, dict] = None,
         *,
         parent: str = None,
-        retry: retries.Retry = gapic_v1.method.DEFAULT,
+        retry: OptionalRetry = gapic_v1.method.DEFAULT,
         timeout: float = None,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> study.Study:
@@ -758,7 +760,7 @@ class VizierServiceClient(metaclass=VizierServiceClientMeta):
         self,
         request: Union[vizier_service.SuggestTrialsRequest, dict] = None,
         *,
-        retry: retries.Retry = gapic_v1.method.DEFAULT,
+        retry: OptionalRetry = gapic_v1.method.DEFAULT,
         timeout: float = None,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> operation.Operation:
@@ -826,7 +828,7 @@ class VizierServiceClient(metaclass=VizierServiceClientMeta):
         *,
         parent: str = None,
         trial: study.Trial = None,
-        retry: retries.Retry = gapic_v1.method.DEFAULT,
+        retry: OptionalRetry = gapic_v1.method.DEFAULT,
         timeout: float = None,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> study.Trial:
@@ -908,7 +910,7 @@ class VizierServiceClient(metaclass=VizierServiceClientMeta):
         request: Union[vizier_service.GetTrialRequest, dict] = None,
         *,
         name: str = None,
-        retry: retries.Retry = gapic_v1.method.DEFAULT,
+        retry: OptionalRetry = gapic_v1.method.DEFAULT,
         timeout: float = None,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> study.Trial:
@@ -982,7 +984,7 @@ class VizierServiceClient(metaclass=VizierServiceClientMeta):
         request: Union[vizier_service.ListTrialsRequest, dict] = None,
         *,
         parent: str = None,
-        retry: retries.Retry = gapic_v1.method.DEFAULT,
+        retry: OptionalRetry = gapic_v1.method.DEFAULT,
         timeout: float = None,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> pagers.ListTrialsPager:
@@ -1062,7 +1064,7 @@ class VizierServiceClient(metaclass=VizierServiceClientMeta):
         self,
         request: Union[vizier_service.AddTrialMeasurementRequest, dict] = None,
         *,
-        retry: retries.Retry = gapic_v1.method.DEFAULT,
+        retry: OptionalRetry = gapic_v1.method.DEFAULT,
         timeout: float = None,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> study.Trial:
@@ -1119,7 +1121,7 @@ class VizierServiceClient(metaclass=VizierServiceClientMeta):
         self,
         request: Union[vizier_service.CompleteTrialRequest, dict] = None,
         *,
-        retry: retries.Retry = gapic_v1.method.DEFAULT,
+        retry: OptionalRetry = gapic_v1.method.DEFAULT,
         timeout: float = None,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> study.Trial:
@@ -1173,7 +1175,7 @@ class VizierServiceClient(metaclass=VizierServiceClientMeta):
         request: Union[vizier_service.DeleteTrialRequest, dict] = None,
         *,
         name: str = None,
-        retry: retries.Retry = gapic_v1.method.DEFAULT,
+        retry: OptionalRetry = gapic_v1.method.DEFAULT,
         timeout: float = None,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> None:
@@ -1236,7 +1238,7 @@ class VizierServiceClient(metaclass=VizierServiceClientMeta):
         self,
         request: Union[vizier_service.CheckTrialEarlyStoppingStateRequest, dict] = None,
         *,
-        retry: retries.Retry = gapic_v1.method.DEFAULT,
+        retry: OptionalRetry = gapic_v1.method.DEFAULT,
         timeout: float = None,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> operation.Operation:
@@ -1305,7 +1307,7 @@ class VizierServiceClient(metaclass=VizierServiceClientMeta):
         self,
         request: Union[vizier_service.StopTrialRequest, dict] = None,
         *,
-        retry: retries.Retry = gapic_v1.method.DEFAULT,
+        retry: OptionalRetry = gapic_v1.method.DEFAULT,
         timeout: float = None,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> study.Trial:
@@ -1359,7 +1361,7 @@ class VizierServiceClient(metaclass=VizierServiceClientMeta):
         request: Union[vizier_service.ListOptimalTrialsRequest, dict] = None,
         *,
         parent: str = None,
-        retry: retries.Retry = gapic_v1.method.DEFAULT,
+        retry: OptionalRetry = gapic_v1.method.DEFAULT,
         timeout: float = None,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> vizier_service.ListOptimalTrialsResponse:

@@ -12,12 +12,13 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+
+#  [START aiplatform_sdk_create_and_import_dataset_image_sample]
 from typing import List, Union
 
 from google.cloud import aiplatform
 
 
-#  [START aiplatform_sdk_create_and_import_dataset_image_sample]
 def create_and_import_dataset_image_sample(
     project: str,
     location: str,
@@ -25,6 +26,11 @@ def create_and_import_dataset_image_sample(
     src_uris: Union[str, List[str]],
     sync: bool = True,
 ):
+    """
+    src_uris -- a string or list of strings, e.g.
+        ["gs://bucket1/source1.jsonl", "gs://bucket7/source4.jsonl"]
+    """
+
     aiplatform.init(project=project, location=location)
 
     ds = aiplatform.ImageDataset.create(
