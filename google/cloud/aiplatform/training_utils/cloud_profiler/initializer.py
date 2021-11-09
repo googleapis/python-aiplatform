@@ -17,7 +17,7 @@
 
 import logging
 import threading
-from typing import Callable
+from typing import Callable, Optional
 from werkzeug import serving
 
 from google.cloud.aiplatform.training_utils import environment_variables
@@ -38,7 +38,7 @@ class MissingEnvironmentVariableException(Exception):
 
 def _build_plugin(
     plugin: Callable[[], base_plugin.BasePlugin]
-) -> base_plugin.BasePlugin:
+) -> Optional[base_plugin.BasePlugin]:
     """Builds the plugin given the object.
 
     Args:
@@ -46,7 +46,8 @@ def _build_plugin(
             Required. An uninitialized plugin.
 
     Returns:
-        An initialized plugin.
+        An initialized plugin, or None if plugin cannot be
+        initialized.
     """
     if not plugin.can_initialize():
         logging.warning("Cannot initialize the plugin")
@@ -103,7 +104,7 @@ def initialize(plugin: str = "tensorflow"):
 
     prof_plugin = _build_plugin(plugin_obj)
 
-    if not prof_plugin:
+    if prof_plugin is None:
         return
 
     server = webserver.WebServer([prof_plugin])
