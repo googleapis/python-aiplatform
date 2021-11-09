@@ -218,9 +218,11 @@ class WorkerPoolSpec(proto.Message):
     Attributes:
         container_spec (google.cloud.aiplatform_v1.types.ContainerSpec):
             The custom container task.
+
             This field is a member of `oneof`_ ``task``.
         python_package_spec (google.cloud.aiplatform_v1.types.PythonPackageSpec):
             The Python packaged task.
+
             This field is a member of `oneof`_ ``task``.
         machine_spec (google.cloud.aiplatform_v1.types.MachineSpec):
             Optional. Immutable. The specification of a

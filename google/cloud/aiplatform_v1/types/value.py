@@ -32,12 +32,15 @@ class Value(proto.Message):
     Attributes:
         int_value (int):
             An integer value.
+
             This field is a member of `oneof`_ ``value``.
         double_value (float):
             A double value.
+
             This field is a member of `oneof`_ ``value``.
         string_value (str):
             A string value.
+
             This field is a member of `oneof`_ ``value``.
     """
 

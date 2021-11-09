@@ -187,15 +187,18 @@ class StudySpec(proto.Message):
         decay_curve_stopping_spec (google.cloud.aiplatform_v1beta1.types.StudySpec.DecayCurveAutomatedStoppingSpec):
             The automated early stopping spec using decay
             curve rule.
+
             This field is a member of `oneof`_ ``automated_stopping_spec``.
         median_automated_stopping_spec (google.cloud.aiplatform_v1beta1.types.StudySpec.MedianAutomatedStoppingSpec):
             The automated early stopping spec using
             median rule.
+
             This field is a member of `oneof`_ ``automated_stopping_spec``.
         convex_stop_config (google.cloud.aiplatform_v1beta1.types.StudySpec.ConvexStopConfig):
             Deprecated.
             The automated early stopping using convex
             stopping rule.
+
             This field is a member of `oneof`_ ``automated_stopping_spec``.
         metrics (Sequence[google.cloud.aiplatform_v1beta1.types.StudySpec.MetricSpec]):
             Required. Metric specs for the Study.
@@ -281,15 +284,19 @@ class StudySpec(proto.Message):
         Attributes:
             double_value_spec (google.cloud.aiplatform_v1beta1.types.StudySpec.ParameterSpec.DoubleValueSpec):
                 The value spec for a 'DOUBLE' parameter.
+
                 This field is a member of `oneof`_ ``parameter_value_spec``.
             integer_value_spec (google.cloud.aiplatform_v1beta1.types.StudySpec.ParameterSpec.IntegerValueSpec):
                 The value spec for an 'INTEGER' parameter.
+
                 This field is a member of `oneof`_ ``parameter_value_spec``.
             categorical_value_spec (google.cloud.aiplatform_v1beta1.types.StudySpec.ParameterSpec.CategoricalValueSpec):
                 The value spec for a 'CATEGORICAL' parameter.
+
                 This field is a member of `oneof`_ ``parameter_value_spec``.
             discrete_value_spec (google.cloud.aiplatform_v1beta1.types.StudySpec.ParameterSpec.DiscreteValueSpec):
                 The value spec for a 'DISCRETE' parameter.
+
                 This field is a member of `oneof`_ ``parameter_value_spec``.
             parameter_id (str):
                 Required. The ID of the parameter. Must not
@@ -330,6 +337,7 @@ class StudySpec(proto.Message):
 
                     Currently only supported by the Vizier service. Not
                     supported by HyperparamterTuningJob or TrainingPipeline.
+
                     This field is a member of `oneof`_ ``_default_value``.
             """
 
@@ -354,6 +362,7 @@ class StudySpec(proto.Message):
 
                     Currently only supported by the Vizier service. Not
                     supported by HyperparamterTuningJob or TrainingPipeline.
+
                     This field is a member of `oneof`_ ``_default_value``.
             """
 
@@ -374,6 +383,7 @@ class StudySpec(proto.Message):
 
                     Currently only supported by the Vizier service. Not
                     supported by HyperparamterTuningJob or TrainingPipeline.
+
                     This field is a member of `oneof`_ ``_default_value``.
             """
 
@@ -399,6 +409,7 @@ class StudySpec(proto.Message):
 
                     Currently only supported by the Vizier service. Not
                     supported by HyperparamterTuningJob or TrainingPipeline.
+
                     This field is a member of `oneof`_ ``_default_value``.
             """
 
@@ -420,14 +431,17 @@ class StudySpec(proto.Message):
                 parent_discrete_values (google.cloud.aiplatform_v1beta1.types.StudySpec.ParameterSpec.ConditionalParameterSpec.DiscreteValueCondition):
                     The spec for matching values from a parent parameter of
                     ``DISCRETE`` type.
+
                     This field is a member of `oneof`_ ``parent_value_condition``.
                 parent_int_values (google.cloud.aiplatform_v1beta1.types.StudySpec.ParameterSpec.ConditionalParameterSpec.IntValueCondition):
                     The spec for matching values from a parent parameter of
                     ``INTEGER`` type.
+
                     This field is a member of `oneof`_ ``parent_value_condition``.
                 parent_categorical_values (google.cloud.aiplatform_v1beta1.types.StudySpec.ParameterSpec.ConditionalParameterSpec.CategoricalValueCondition):
                     The spec for matching values from a parent parameter of
                     ``CATEGORICAL`` type.
+
                     This field is a member of `oneof`_ ``parent_value_condition``.
                 parameter_spec (google.cloud.aiplatform_v1beta1.types.StudySpec.ParameterSpec):
                     Required. The spec for a conditional
