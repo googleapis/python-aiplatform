@@ -60,8 +60,14 @@ def _get_tf_versioning() -> Optional[Version]:
 def _is_compatible_version(version: Version) -> bool:
     """Check if version is compatible with tf profiling.
 
-    Profiling plugin is available to be used for version >= 2.2.0.
-    Source: https://www.tensorflow.org/guide/profiler
+    Profiling plugin is available to be used for version >= 2.4.0.
+    While the profiler is available in 2.2.0 >=, some additional dependencies
+    that are included in 2.4.0 >= are also needed for the tensorboard-plugin-profile.
+
+    Profiler:
+        https://www.tensorflow.org/guide/profiler
+    Required commit for tensorboard-plugin-profile:
+        https://github.com/tensorflow/tensorflow/commit/8b9c207242db515daef033e74d69ea5d8e023dc6
 
     Args:
         version (Version):
@@ -70,7 +76,7 @@ def _is_compatible_version(version: Version) -> bool:
     Returns:
         Bool indicating wheter version is compatible with profiler.
     """
-    return version.major >= 2 and version.minor >= 2
+    return version.major >= 2 and version.minor >= 4
 
 
 def _check_tf() -> bool:
