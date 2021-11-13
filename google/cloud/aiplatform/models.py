@@ -3052,6 +3052,14 @@ class Model(base.VertexAiResourceNounWithFutureManager):
 
 
 def _get_container_registry(location: Optional[str] = None,) -> str:
+    """Gets container registry domain based on location.
+
+    Args:
+        location: Google Cloud location
+
+    Returns:
+        Google Container Registry domain.
+    """
     location = location or "us-"
     if location.startswith("us-"):
         return "us-docker.pkg.dev"
