@@ -32,6 +32,7 @@ from google.cloud.aiplatform import initializer
 from google.cloud.aiplatform import jobs
 from google.cloud.aiplatform import models
 from google.cloud.aiplatform import utils
+from google.cloud.aiplatform.utils import gcs_utils
 
 from google.cloud.aiplatform.compat.services import endpoint_service_client
 
@@ -1736,7 +1737,7 @@ class Model(base.VertexAiResourceNounWithFutureManager):
                     )
 
             # Uploading the model
-            staged_data_uri = utils.stage_local_data_in_gcs(
+            staged_data_uri = gcs_utils.stage_local_data_in_gcs(
                 data_path=str(model_dir),
                 staging_gcs_dir=staging_bucket,
                 project=project,
@@ -2803,7 +2804,6 @@ class Model(base.VertexAiResourceNounWithFutureManager):
                 f"Scikit-learn version {sklearn_version} is not supported. "
                 f"Supported versions: {SKLEARN_SUPPORTED_VERSIONS}"
             )
-
         container_image_uri = SKLEARN_CONTAINER_IMAGE_URI_TEMPLATE.format(
             registry=_get_container_registry(
                 location or aiplatform.initializer.global_config.location
