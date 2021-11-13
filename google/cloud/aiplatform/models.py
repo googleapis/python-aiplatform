@@ -2591,7 +2591,7 @@ class Model(base.VertexAiResourceNounWithFutureManager):
             _LOGGER.info(f"Using the {xgboost_version} version of XGBoost.")
 
         if xgboost_version not in XGBOOST_SUPPORTED_VERSIONS:
-            _LOGGER.error(
+            _LOGGER.warning(
                 f"XGBoost version {xgboost_version} is not supported. "
                 f"Supported versions: {XGBOOST_SUPPORTED_VERSIONS}"
             )
@@ -2800,7 +2800,7 @@ class Model(base.VertexAiResourceNounWithFutureManager):
             _LOGGER.info(f"Using the {sklearn_version} version of Scikit-learn.")
 
         if sklearn_version not in SKLEARN_SUPPORTED_VERSIONS:
-            _LOGGER.error(
+            _LOGGER.warning(
                 f"Scikit-learn version {sklearn_version} is not supported. "
                 f"Supported versions: {SKLEARN_SUPPORTED_VERSIONS}"
             )
@@ -3015,7 +3015,7 @@ class Model(base.VertexAiResourceNounWithFutureManager):
             _LOGGER.info(f"Using the {tensorflow_version} version of Tensorflow.")
 
         if tensorflow_version not in TENSORFLOW_SUPPORTED_VERSIONS:
-            _LOGGER.error(
+            _LOGGER.warning(
                 f"Tensorflow version {tensorflow_version} is not supported. "
                 f"Supported versions: {TENSORFLOW_SUPPORTED_VERSIONS}"
             )
