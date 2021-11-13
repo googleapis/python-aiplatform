@@ -45,6 +45,10 @@ def upload_to_gcs(
         project: Optional. Google Cloud Project that contains the staging bucket.
         credentials: The custom credentials to use when making API calls.
             If not provided, default credentials will be used.
+
+    Raises:
+        RuntimeError: When source_path does not exist.
+        GoogleCloudError: When the upload process fails.
     """
     source_path_obj = pathlib.Path(source_path)
     if not source_path_obj.exists():
@@ -107,6 +111,10 @@ def stage_local_data_in_gcs(
 
     Returns:
         Google Cloud Storage URI of the staged data.
+
+    Raises:
+        RuntimeError: When source_path does not exist.
+        GoogleCloudError: When the upload process fails.
     """
     data_path_obj = pathlib.Path(data_path)
 
