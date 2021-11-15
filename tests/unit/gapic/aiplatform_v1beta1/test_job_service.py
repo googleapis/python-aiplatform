@@ -679,8 +679,12 @@ def test_create_custom_job_flattened():
         # request object values.
         assert len(call.mock_calls) == 1
         _, args, _ = call.mock_calls[0]
-        assert args[0].parent == "parent_value"
-        assert args[0].custom_job == gca_custom_job.CustomJob(name="name_value")
+        arg = args[0].parent
+        mock_val = "parent_value"
+        assert arg == mock_val
+        arg = args[0].custom_job
+        mock_val = gca_custom_job.CustomJob(name="name_value")
+        assert arg == mock_val
 
 
 def test_create_custom_job_flattened_error():
@@ -721,8 +725,12 @@ async def test_create_custom_job_flattened_async():
         # request object values.
         assert len(call.mock_calls)
         _, args, _ = call.mock_calls[0]
-        assert args[0].parent == "parent_value"
-        assert args[0].custom_job == gca_custom_job.CustomJob(name="name_value")
+        arg = args[0].parent
+        mock_val = "parent_value"
+        assert arg == mock_val
+        arg = args[0].custom_job
+        mock_val = gca_custom_job.CustomJob(name="name_value")
+        assert arg == mock_val
 
 
 @pytest.mark.asyncio
@@ -898,7 +906,9 @@ def test_get_custom_job_flattened():
         # request object values.
         assert len(call.mock_calls) == 1
         _, args, _ = call.mock_calls[0]
-        assert args[0].name == "name_value"
+        arg = args[0].name
+        mock_val = "name_value"
+        assert arg == mock_val
 
 
 def test_get_custom_job_flattened_error():
@@ -932,7 +942,9 @@ async def test_get_custom_job_flattened_async():
         # request object values.
         assert len(call.mock_calls)
         _, args, _ = call.mock_calls[0]
-        assert args[0].name == "name_value"
+        arg = args[0].name
+        mock_val = "name_value"
+        assert arg == mock_val
 
 
 @pytest.mark.asyncio
@@ -1096,7 +1108,9 @@ def test_list_custom_jobs_flattened():
         # request object values.
         assert len(call.mock_calls) == 1
         _, args, _ = call.mock_calls[0]
-        assert args[0].parent == "parent_value"
+        arg = args[0].parent
+        mock_val = "parent_value"
+        assert arg == mock_val
 
 
 def test_list_custom_jobs_flattened_error():
@@ -1130,7 +1144,9 @@ async def test_list_custom_jobs_flattened_async():
         # request object values.
         assert len(call.mock_calls)
         _, args, _ = call.mock_calls[0]
-        assert args[0].parent == "parent_value"
+        arg = args[0].parent
+        mock_val = "parent_value"
+        assert arg == mock_val
 
 
 @pytest.mark.asyncio
@@ -1440,7 +1456,9 @@ def test_delete_custom_job_flattened():
         # request object values.
         assert len(call.mock_calls) == 1
         _, args, _ = call.mock_calls[0]
-        assert args[0].name == "name_value"
+        arg = args[0].name
+        mock_val = "name_value"
+        assert arg == mock_val
 
 
 def test_delete_custom_job_flattened_error():
@@ -1476,7 +1494,9 @@ async def test_delete_custom_job_flattened_async():
         # request object values.
         assert len(call.mock_calls)
         _, args, _ = call.mock_calls[0]
-        assert args[0].name == "name_value"
+        arg = args[0].name
+        mock_val = "name_value"
+        assert arg == mock_val
 
 
 @pytest.mark.asyncio
@@ -1644,7 +1664,9 @@ def test_cancel_custom_job_flattened():
         # request object values.
         assert len(call.mock_calls) == 1
         _, args, _ = call.mock_calls[0]
-        assert args[0].name == "name_value"
+        arg = args[0].name
+        mock_val = "name_value"
+        assert arg == mock_val
 
 
 def test_cancel_custom_job_flattened_error():
@@ -1678,7 +1700,9 @@ async def test_cancel_custom_job_flattened_async():
         # request object values.
         assert len(call.mock_calls)
         _, args, _ = call.mock_calls[0]
-        assert args[0].name == "name_value"
+        arg = args[0].name
+        mock_val = "name_value"
+        assert arg == mock_val
 
 
 @pytest.mark.asyncio
@@ -1892,10 +1916,12 @@ def test_create_data_labeling_job_flattened():
         # request object values.
         assert len(call.mock_calls) == 1
         _, args, _ = call.mock_calls[0]
-        assert args[0].parent == "parent_value"
-        assert args[0].data_labeling_job == gca_data_labeling_job.DataLabelingJob(
-            name="name_value"
-        )
+        arg = args[0].parent
+        mock_val = "parent_value"
+        assert arg == mock_val
+        arg = args[0].data_labeling_job
+        mock_val = gca_data_labeling_job.DataLabelingJob(name="name_value")
+        assert arg == mock_val
 
 
 def test_create_data_labeling_job_flattened_error():
@@ -1936,10 +1962,12 @@ async def test_create_data_labeling_job_flattened_async():
         # request object values.
         assert len(call.mock_calls)
         _, args, _ = call.mock_calls[0]
-        assert args[0].parent == "parent_value"
-        assert args[0].data_labeling_job == gca_data_labeling_job.DataLabelingJob(
-            name="name_value"
-        )
+        arg = args[0].parent
+        mock_val = "parent_value"
+        assert arg == mock_val
+        arg = args[0].data_labeling_job
+        mock_val = gca_data_labeling_job.DataLabelingJob(name="name_value")
+        assert arg == mock_val
 
 
 @pytest.mark.asyncio
@@ -2151,7 +2179,9 @@ def test_get_data_labeling_job_flattened():
         # request object values.
         assert len(call.mock_calls) == 1
         _, args, _ = call.mock_calls[0]
-        assert args[0].name == "name_value"
+        arg = args[0].name
+        mock_val = "name_value"
+        assert arg == mock_val
 
 
 def test_get_data_labeling_job_flattened_error():
@@ -2187,7 +2217,9 @@ async def test_get_data_labeling_job_flattened_async():
         # request object values.
         assert len(call.mock_calls)
         _, args, _ = call.mock_calls[0]
-        assert args[0].name == "name_value"
+        arg = args[0].name
+        mock_val = "name_value"
+        assert arg == mock_val
 
 
 @pytest.mark.asyncio
@@ -2366,7 +2398,9 @@ def test_list_data_labeling_jobs_flattened():
         # request object values.
         assert len(call.mock_calls) == 1
         _, args, _ = call.mock_calls[0]
-        assert args[0].parent == "parent_value"
+        arg = args[0].parent
+        mock_val = "parent_value"
+        assert arg == mock_val
 
 
 def test_list_data_labeling_jobs_flattened_error():
@@ -2402,7 +2436,9 @@ async def test_list_data_labeling_jobs_flattened_async():
         # request object values.
         assert len(call.mock_calls)
         _, args, _ = call.mock_calls[0]
-        assert args[0].parent == "parent_value"
+        arg = args[0].parent
+        mock_val = "parent_value"
+        assert arg == mock_val
 
 
 @pytest.mark.asyncio
@@ -2745,7 +2781,9 @@ def test_delete_data_labeling_job_flattened():
         # request object values.
         assert len(call.mock_calls) == 1
         _, args, _ = call.mock_calls[0]
-        assert args[0].name == "name_value"
+        arg = args[0].name
+        mock_val = "name_value"
+        assert arg == mock_val
 
 
 def test_delete_data_labeling_job_flattened_error():
@@ -2781,7 +2819,9 @@ async def test_delete_data_labeling_job_flattened_async():
         # request object values.
         assert len(call.mock_calls)
         _, args, _ = call.mock_calls[0]
-        assert args[0].name == "name_value"
+        arg = args[0].name
+        mock_val = "name_value"
+        assert arg == mock_val
 
 
 @pytest.mark.asyncio
@@ -2950,7 +2990,9 @@ def test_cancel_data_labeling_job_flattened():
         # request object values.
         assert len(call.mock_calls) == 1
         _, args, _ = call.mock_calls[0]
-        assert args[0].name == "name_value"
+        arg = args[0].name
+        mock_val = "name_value"
+        assert arg == mock_val
 
 
 def test_cancel_data_labeling_job_flattened_error():
@@ -2984,7 +3026,9 @@ async def test_cancel_data_labeling_job_flattened_async():
         # request object values.
         assert len(call.mock_calls)
         _, args, _ = call.mock_calls[0]
-        assert args[0].name == "name_value"
+        arg = args[0].name
+        mock_val = "name_value"
+        assert arg == mock_val
 
 
 @pytest.mark.asyncio
@@ -3189,12 +3233,14 @@ def test_create_hyperparameter_tuning_job_flattened():
         # request object values.
         assert len(call.mock_calls) == 1
         _, args, _ = call.mock_calls[0]
-        assert args[0].parent == "parent_value"
-        assert args[
-            0
-        ].hyperparameter_tuning_job == gca_hyperparameter_tuning_job.HyperparameterTuningJob(
+        arg = args[0].parent
+        mock_val = "parent_value"
+        assert arg == mock_val
+        arg = args[0].hyperparameter_tuning_job
+        mock_val = gca_hyperparameter_tuning_job.HyperparameterTuningJob(
             name="name_value"
         )
+        assert arg == mock_val
 
 
 def test_create_hyperparameter_tuning_job_flattened_error():
@@ -3239,12 +3285,14 @@ async def test_create_hyperparameter_tuning_job_flattened_async():
         # request object values.
         assert len(call.mock_calls)
         _, args, _ = call.mock_calls[0]
-        assert args[0].parent == "parent_value"
-        assert args[
-            0
-        ].hyperparameter_tuning_job == gca_hyperparameter_tuning_job.HyperparameterTuningJob(
+        arg = args[0].parent
+        mock_val = "parent_value"
+        assert arg == mock_val
+        arg = args[0].hyperparameter_tuning_job
+        mock_val = gca_hyperparameter_tuning_job.HyperparameterTuningJob(
             name="name_value"
         )
+        assert arg == mock_val
 
 
 @pytest.mark.asyncio
@@ -3447,7 +3495,9 @@ def test_get_hyperparameter_tuning_job_flattened():
         # request object values.
         assert len(call.mock_calls) == 1
         _, args, _ = call.mock_calls[0]
-        assert args[0].name == "name_value"
+        arg = args[0].name
+        mock_val = "name_value"
+        assert arg == mock_val
 
 
 def test_get_hyperparameter_tuning_job_flattened_error():
@@ -3483,7 +3533,9 @@ async def test_get_hyperparameter_tuning_job_flattened_async():
         # request object values.
         assert len(call.mock_calls)
         _, args, _ = call.mock_calls[0]
-        assert args[0].name == "name_value"
+        arg = args[0].name
+        mock_val = "name_value"
+        assert arg == mock_val
 
 
 @pytest.mark.asyncio
@@ -3663,7 +3715,9 @@ def test_list_hyperparameter_tuning_jobs_flattened():
         # request object values.
         assert len(call.mock_calls) == 1
         _, args, _ = call.mock_calls[0]
-        assert args[0].parent == "parent_value"
+        arg = args[0].parent
+        mock_val = "parent_value"
+        assert arg == mock_val
 
 
 def test_list_hyperparameter_tuning_jobs_flattened_error():
@@ -3699,7 +3753,9 @@ async def test_list_hyperparameter_tuning_jobs_flattened_async():
         # request object values.
         assert len(call.mock_calls)
         _, args, _ = call.mock_calls[0]
-        assert args[0].parent == "parent_value"
+        arg = args[0].parent
+        mock_val = "parent_value"
+        assert arg == mock_val
 
 
 @pytest.mark.asyncio
@@ -4059,7 +4115,9 @@ def test_delete_hyperparameter_tuning_job_flattened():
         # request object values.
         assert len(call.mock_calls) == 1
         _, args, _ = call.mock_calls[0]
-        assert args[0].name == "name_value"
+        arg = args[0].name
+        mock_val = "name_value"
+        assert arg == mock_val
 
 
 def test_delete_hyperparameter_tuning_job_flattened_error():
@@ -4095,7 +4153,9 @@ async def test_delete_hyperparameter_tuning_job_flattened_async():
         # request object values.
         assert len(call.mock_calls)
         _, args, _ = call.mock_calls[0]
-        assert args[0].name == "name_value"
+        arg = args[0].name
+        mock_val = "name_value"
+        assert arg == mock_val
 
 
 @pytest.mark.asyncio
@@ -4265,7 +4325,9 @@ def test_cancel_hyperparameter_tuning_job_flattened():
         # request object values.
         assert len(call.mock_calls) == 1
         _, args, _ = call.mock_calls[0]
-        assert args[0].name == "name_value"
+        arg = args[0].name
+        mock_val = "name_value"
+        assert arg == mock_val
 
 
 def test_cancel_hyperparameter_tuning_job_flattened_error():
@@ -4299,7 +4361,9 @@ async def test_cancel_hyperparameter_tuning_job_flattened_async():
         # request object values.
         assert len(call.mock_calls)
         _, args, _ = call.mock_calls[0]
-        assert args[0].name == "name_value"
+        arg = args[0].name
+        mock_val = "name_value"
+        assert arg == mock_val
 
 
 @pytest.mark.asyncio
@@ -4499,12 +4563,12 @@ def test_create_batch_prediction_job_flattened():
         # request object values.
         assert len(call.mock_calls) == 1
         _, args, _ = call.mock_calls[0]
-        assert args[0].parent == "parent_value"
-        assert args[
-            0
-        ].batch_prediction_job == gca_batch_prediction_job.BatchPredictionJob(
-            name="name_value"
-        )
+        arg = args[0].parent
+        mock_val = "parent_value"
+        assert arg == mock_val
+        arg = args[0].batch_prediction_job
+        mock_val = gca_batch_prediction_job.BatchPredictionJob(name="name_value")
+        assert arg == mock_val
 
 
 def test_create_batch_prediction_job_flattened_error():
@@ -4549,12 +4613,12 @@ async def test_create_batch_prediction_job_flattened_async():
         # request object values.
         assert len(call.mock_calls)
         _, args, _ = call.mock_calls[0]
-        assert args[0].parent == "parent_value"
-        assert args[
-            0
-        ].batch_prediction_job == gca_batch_prediction_job.BatchPredictionJob(
-            name="name_value"
-        )
+        arg = args[0].parent
+        mock_val = "parent_value"
+        assert arg == mock_val
+        arg = args[0].batch_prediction_job
+        mock_val = gca_batch_prediction_job.BatchPredictionJob(name="name_value")
+        assert arg == mock_val
 
 
 @pytest.mark.asyncio
@@ -4753,7 +4817,9 @@ def test_get_batch_prediction_job_flattened():
         # request object values.
         assert len(call.mock_calls) == 1
         _, args, _ = call.mock_calls[0]
-        assert args[0].name == "name_value"
+        arg = args[0].name
+        mock_val = "name_value"
+        assert arg == mock_val
 
 
 def test_get_batch_prediction_job_flattened_error():
@@ -4789,7 +4855,9 @@ async def test_get_batch_prediction_job_flattened_async():
         # request object values.
         assert len(call.mock_calls)
         _, args, _ = call.mock_calls[0]
-        assert args[0].name == "name_value"
+        arg = args[0].name
+        mock_val = "name_value"
+        assert arg == mock_val
 
 
 @pytest.mark.asyncio
@@ -4968,7 +5036,9 @@ def test_list_batch_prediction_jobs_flattened():
         # request object values.
         assert len(call.mock_calls) == 1
         _, args, _ = call.mock_calls[0]
-        assert args[0].parent == "parent_value"
+        arg = args[0].parent
+        mock_val = "parent_value"
+        assert arg == mock_val
 
 
 def test_list_batch_prediction_jobs_flattened_error():
@@ -5004,7 +5074,9 @@ async def test_list_batch_prediction_jobs_flattened_async():
         # request object values.
         assert len(call.mock_calls)
         _, args, _ = call.mock_calls[0]
-        assert args[0].parent == "parent_value"
+        arg = args[0].parent
+        mock_val = "parent_value"
+        assert arg == mock_val
 
 
 @pytest.mark.asyncio
@@ -5351,7 +5423,9 @@ def test_delete_batch_prediction_job_flattened():
         # request object values.
         assert len(call.mock_calls) == 1
         _, args, _ = call.mock_calls[0]
-        assert args[0].name == "name_value"
+        arg = args[0].name
+        mock_val = "name_value"
+        assert arg == mock_val
 
 
 def test_delete_batch_prediction_job_flattened_error():
@@ -5387,7 +5461,9 @@ async def test_delete_batch_prediction_job_flattened_async():
         # request object values.
         assert len(call.mock_calls)
         _, args, _ = call.mock_calls[0]
-        assert args[0].name == "name_value"
+        arg = args[0].name
+        mock_val = "name_value"
+        assert arg == mock_val
 
 
 @pytest.mark.asyncio
@@ -5556,7 +5632,9 @@ def test_cancel_batch_prediction_job_flattened():
         # request object values.
         assert len(call.mock_calls) == 1
         _, args, _ = call.mock_calls[0]
-        assert args[0].name == "name_value"
+        arg = args[0].name
+        mock_val = "name_value"
+        assert arg == mock_val
 
 
 def test_cancel_batch_prediction_job_flattened_error():
@@ -5590,7 +5668,9 @@ async def test_cancel_batch_prediction_job_flattened_async():
         # request object values.
         assert len(call.mock_calls)
         _, args, _ = call.mock_calls[0]
-        assert args[0].name == "name_value"
+        arg = args[0].name
+        mock_val = "name_value"
+        assert arg == mock_val
 
 
 @pytest.mark.asyncio
@@ -5817,12 +5897,14 @@ def test_create_model_deployment_monitoring_job_flattened():
         # request object values.
         assert len(call.mock_calls) == 1
         _, args, _ = call.mock_calls[0]
-        assert args[0].parent == "parent_value"
-        assert args[
-            0
-        ].model_deployment_monitoring_job == gca_model_deployment_monitoring_job.ModelDeploymentMonitoringJob(
+        arg = args[0].parent
+        mock_val = "parent_value"
+        assert arg == mock_val
+        arg = args[0].model_deployment_monitoring_job
+        mock_val = gca_model_deployment_monitoring_job.ModelDeploymentMonitoringJob(
             name="name_value"
         )
+        assert arg == mock_val
 
 
 def test_create_model_deployment_monitoring_job_flattened_error():
@@ -5869,12 +5951,14 @@ async def test_create_model_deployment_monitoring_job_flattened_async():
         # request object values.
         assert len(call.mock_calls)
         _, args, _ = call.mock_calls[0]
-        assert args[0].parent == "parent_value"
-        assert args[
-            0
-        ].model_deployment_monitoring_job == gca_model_deployment_monitoring_job.ModelDeploymentMonitoringJob(
+        arg = args[0].parent
+        mock_val = "parent_value"
+        assert arg == mock_val
+        arg = args[0].model_deployment_monitoring_job
+        mock_val = gca_model_deployment_monitoring_job.ModelDeploymentMonitoringJob(
             name="name_value"
         )
+        assert arg == mock_val
 
 
 @pytest.mark.asyncio
@@ -6094,11 +6178,12 @@ def test_search_model_deployment_monitoring_stats_anomalies_flattened():
         # request object values.
         assert len(call.mock_calls) == 1
         _, args, _ = call.mock_calls[0]
-        assert (
-            args[0].model_deployment_monitoring_job
-            == "model_deployment_monitoring_job_value"
-        )
-        assert args[0].deployed_model_id == "deployed_model_id_value"
+        arg = args[0].model_deployment_monitoring_job
+        mock_val = "model_deployment_monitoring_job_value"
+        assert arg == mock_val
+        arg = args[0].deployed_model_id
+        mock_val = "deployed_model_id_value"
+        assert arg == mock_val
 
 
 def test_search_model_deployment_monitoring_stats_anomalies_flattened_error():
@@ -6142,11 +6227,12 @@ async def test_search_model_deployment_monitoring_stats_anomalies_flattened_asyn
         # request object values.
         assert len(call.mock_calls)
         _, args, _ = call.mock_calls[0]
-        assert (
-            args[0].model_deployment_monitoring_job
-            == "model_deployment_monitoring_job_value"
-        )
-        assert args[0].deployed_model_id == "deployed_model_id_value"
+        arg = args[0].model_deployment_monitoring_job
+        mock_val = "model_deployment_monitoring_job_value"
+        assert arg == mock_val
+        arg = args[0].deployed_model_id
+        mock_val = "deployed_model_id_value"
+        assert arg == mock_val
 
 
 @pytest.mark.asyncio
@@ -6568,7 +6654,9 @@ def test_get_model_deployment_monitoring_job_flattened():
         # request object values.
         assert len(call.mock_calls) == 1
         _, args, _ = call.mock_calls[0]
-        assert args[0].name == "name_value"
+        arg = args[0].name
+        mock_val = "name_value"
+        assert arg == mock_val
 
 
 def test_get_model_deployment_monitoring_job_flattened_error():
@@ -6606,7 +6694,9 @@ async def test_get_model_deployment_monitoring_job_flattened_async():
         # request object values.
         assert len(call.mock_calls)
         _, args, _ = call.mock_calls[0]
-        assert args[0].name == "name_value"
+        arg = args[0].name
+        mock_val = "name_value"
+        assert arg == mock_val
 
 
 @pytest.mark.asyncio
@@ -6786,7 +6876,9 @@ def test_list_model_deployment_monitoring_jobs_flattened():
         # request object values.
         assert len(call.mock_calls) == 1
         _, args, _ = call.mock_calls[0]
-        assert args[0].parent == "parent_value"
+        arg = args[0].parent
+        mock_val = "parent_value"
+        assert arg == mock_val
 
 
 def test_list_model_deployment_monitoring_jobs_flattened_error():
@@ -6825,7 +6917,9 @@ async def test_list_model_deployment_monitoring_jobs_flattened_async():
         # request object values.
         assert len(call.mock_calls)
         _, args, _ = call.mock_calls[0]
-        assert args[0].parent == "parent_value"
+        arg = args[0].parent
+        mock_val = "parent_value"
+        assert arg == mock_val
 
 
 @pytest.mark.asyncio
@@ -7201,12 +7295,14 @@ def test_update_model_deployment_monitoring_job_flattened():
         # request object values.
         assert len(call.mock_calls) == 1
         _, args, _ = call.mock_calls[0]
-        assert args[
-            0
-        ].model_deployment_monitoring_job == gca_model_deployment_monitoring_job.ModelDeploymentMonitoringJob(
+        arg = args[0].model_deployment_monitoring_job
+        mock_val = gca_model_deployment_monitoring_job.ModelDeploymentMonitoringJob(
             name="name_value"
         )
-        assert args[0].update_mask == field_mask_pb2.FieldMask(paths=["paths_value"])
+        assert arg == mock_val
+        arg = args[0].update_mask
+        mock_val = field_mask_pb2.FieldMask(paths=["paths_value"])
+        assert arg == mock_val
 
 
 def test_update_model_deployment_monitoring_job_flattened_error():
@@ -7251,12 +7347,14 @@ async def test_update_model_deployment_monitoring_job_flattened_async():
         # request object values.
         assert len(call.mock_calls)
         _, args, _ = call.mock_calls[0]
-        assert args[
-            0
-        ].model_deployment_monitoring_job == gca_model_deployment_monitoring_job.ModelDeploymentMonitoringJob(
+        arg = args[0].model_deployment_monitoring_job
+        mock_val = gca_model_deployment_monitoring_job.ModelDeploymentMonitoringJob(
             name="name_value"
         )
-        assert args[0].update_mask == field_mask_pb2.FieldMask(paths=["paths_value"])
+        assert arg == mock_val
+        arg = args[0].update_mask
+        mock_val = field_mask_pb2.FieldMask(paths=["paths_value"])
+        assert arg == mock_val
 
 
 @pytest.mark.asyncio
@@ -7434,7 +7532,9 @@ def test_delete_model_deployment_monitoring_job_flattened():
         # request object values.
         assert len(call.mock_calls) == 1
         _, args, _ = call.mock_calls[0]
-        assert args[0].name == "name_value"
+        arg = args[0].name
+        mock_val = "name_value"
+        assert arg == mock_val
 
 
 def test_delete_model_deployment_monitoring_job_flattened_error():
@@ -7472,7 +7572,9 @@ async def test_delete_model_deployment_monitoring_job_flattened_async():
         # request object values.
         assert len(call.mock_calls)
         _, args, _ = call.mock_calls[0]
-        assert args[0].name == "name_value"
+        arg = args[0].name
+        mock_val = "name_value"
+        assert arg == mock_val
 
 
 @pytest.mark.asyncio
@@ -7642,7 +7744,9 @@ def test_pause_model_deployment_monitoring_job_flattened():
         # request object values.
         assert len(call.mock_calls) == 1
         _, args, _ = call.mock_calls[0]
-        assert args[0].name == "name_value"
+        arg = args[0].name
+        mock_val = "name_value"
+        assert arg == mock_val
 
 
 def test_pause_model_deployment_monitoring_job_flattened_error():
@@ -7678,7 +7782,9 @@ async def test_pause_model_deployment_monitoring_job_flattened_async():
         # request object values.
         assert len(call.mock_calls)
         _, args, _ = call.mock_calls[0]
-        assert args[0].name == "name_value"
+        arg = args[0].name
+        mock_val = "name_value"
+        assert arg == mock_val
 
 
 @pytest.mark.asyncio
@@ -7848,7 +7954,9 @@ def test_resume_model_deployment_monitoring_job_flattened():
         # request object values.
         assert len(call.mock_calls) == 1
         _, args, _ = call.mock_calls[0]
-        assert args[0].name == "name_value"
+        arg = args[0].name
+        mock_val = "name_value"
+        assert arg == mock_val
 
 
 def test_resume_model_deployment_monitoring_job_flattened_error():
@@ -7884,7 +7992,9 @@ async def test_resume_model_deployment_monitoring_job_flattened_async():
         # request object values.
         assert len(call.mock_calls)
         _, args, _ = call.mock_calls[0]
-        assert args[0].name == "name_value"
+        arg = args[0].name
+        mock_val = "name_value"
+        assert arg == mock_val
 
 
 @pytest.mark.asyncio
