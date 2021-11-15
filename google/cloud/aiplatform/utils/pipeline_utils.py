@@ -138,7 +138,7 @@ class PipelineRuntimeConfigBuilder(object):
 
     def _get_vertex_value(
         self, name: str, value: Union[int, float, str, bool, list, dict]
-    ) -> Union[Dict[str, Any], int, float, str, bool, list, dict]:
+    ) -> Union[int, float, str, bool, list, dict]:
         """Converts primitive values into Vertex pipeline Value proto message.
 
         Args:
