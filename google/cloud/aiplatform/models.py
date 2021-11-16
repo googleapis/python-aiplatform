@@ -2623,30 +2623,33 @@ class Model(base.VertexAiResourceNounWithFutureManager):
             model_file_extension = ".bst"
 
         # Preparing model directory
-        with tempfile.TemporaryDirectory() as prepared_model_dir:
-            prepared_model_file_path = pathlib.Path(prepared_model_dir) / (
-                "model" + model_file_extension
-            )
-            shutil.copy(model_file_path_obj, prepared_model_file_path)
+        # We cannot clean up the directory immediately after calling Model.upload since
+        # that call may be asynchronous and return before the model file has been read.
+        # The temporary data will be automatically cleaned up by the system later.
+        prepared_model_dir = tempfile.mkdtemp()
+        prepared_model_file_path = pathlib.Path(prepared_model_dir) / (
+            "model" + model_file_extension
+        )
+        shutil.copy(model_file_path_obj, prepared_model_file_path)
 
-            return aiplatform.Model.upload(
-                serving_container_image_uri=container_image_uri,
-                artifact_uri=prepared_model_dir,
-                display_name=display_name,
-                description=description,
-                instance_schema_uri=instance_schema_uri,
-                parameters_schema_uri=parameters_schema_uri,
-                prediction_schema_uri=prediction_schema_uri,
-                explanation_metadata=explanation_metadata,
-                explanation_parameters=explanation_parameters,
-                project=project,
-                location=location,
-                credentials=credentials,
-                labels=labels,
-                encryption_spec_key_name=encryption_spec_key_name,
-                staging_bucket=staging_bucket,
-                sync=sync,
-            )
+        return aiplatform.Model.upload(
+            serving_container_image_uri=container_image_uri,
+            artifact_uri=prepared_model_dir,
+            display_name=display_name,
+            description=description,
+            instance_schema_uri=instance_schema_uri,
+            parameters_schema_uri=parameters_schema_uri,
+            prediction_schema_uri=prediction_schema_uri,
+            explanation_metadata=explanation_metadata,
+            explanation_parameters=explanation_parameters,
+            project=project,
+            location=location,
+            credentials=credentials,
+            labels=labels,
+            encryption_spec_key_name=encryption_spec_key_name,
+            staging_bucket=staging_bucket,
+            sync=sync,
+        )
 
     @staticmethod
     def upload_scikit_learn_model_file(
@@ -2830,30 +2833,33 @@ class Model(base.VertexAiResourceNounWithFutureManager):
             model_file_extension = ".pkl"
 
         # Preparing model directory
-        with tempfile.TemporaryDirectory() as prepared_model_dir:
-            prepared_model_file_path = pathlib.Path(prepared_model_dir) / (
-                "model" + model_file_extension
-            )
-            shutil.copy(model_file_path_obj, prepared_model_file_path)
+        # We cannot clean up the directory immediately after calling Model.upload since
+        # that call may be asynchronous and return before the model file has been read.
+        # The temporary data will be automatically cleaned up by the system later.
+        prepared_model_dir = tempfile.mkdtemp()
+        prepared_model_file_path = pathlib.Path(prepared_model_dir) / (
+            "model" + model_file_extension
+        )
+        shutil.copy(model_file_path_obj, prepared_model_file_path)
 
-            return aiplatform.Model.upload(
-                serving_container_image_uri=container_image_uri,
-                artifact_uri=prepared_model_dir,
-                display_name=display_name,
-                description=description,
-                instance_schema_uri=instance_schema_uri,
-                parameters_schema_uri=parameters_schema_uri,
-                prediction_schema_uri=prediction_schema_uri,
-                explanation_metadata=explanation_metadata,
-                explanation_parameters=explanation_parameters,
-                project=project,
-                location=location,
-                credentials=credentials,
-                labels=labels,
-                encryption_spec_key_name=encryption_spec_key_name,
-                staging_bucket=staging_bucket,
-                sync=sync,
-            )
+        return aiplatform.Model.upload(
+            serving_container_image_uri=container_image_uri,
+            artifact_uri=prepared_model_dir,
+            display_name=display_name,
+            description=description,
+            instance_schema_uri=instance_schema_uri,
+            parameters_schema_uri=parameters_schema_uri,
+            prediction_schema_uri=prediction_schema_uri,
+            explanation_metadata=explanation_metadata,
+            explanation_parameters=explanation_parameters,
+            project=project,
+            location=location,
+            credentials=credentials,
+            labels=labels,
+            encryption_spec_key_name=encryption_spec_key_name,
+            staging_bucket=staging_bucket,
+            sync=sync,
+        )
 
     @staticmethod
     def upload_tensorflow_saved_model(
