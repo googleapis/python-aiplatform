@@ -128,7 +128,11 @@ def stage_local_data_in_gcs(
         location = location or initializer.global_config.location
         # Creating the bucket if it does not exist.
         # Currently we only do this when staging_gcs_dir is not specified.
-        staging_bucket_name = project + "-staging"
+        # The buckets that we create are regional.
+        # This prevents errors when some service required regional bucket.
+        # E.g. "FailedPrecondition: 400 The Cloud Storage bucket of `gs://...` is in location `us`. It must be in the same regional location as the service location `us-central1`."
+        # We are making the bucket name region-specific since the bucket is regional.
+        staging_bucket_name = project + "-staging-" + location
         client = storage.Client(project=project, credentials=credentials)
         staging_bucket = storage.Bucket(client=client, name=staging_bucket_name)
         if not staging_bucket.exists():
