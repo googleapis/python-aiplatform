@@ -13,15 +13,16 @@
 # limitations under the License.
 
 import re
+from typing import Optional
 
 from google.cloud.aiplatform.constants import prediction
 from google.cloud.aiplatform.initializer import global_config
 
 
-def get_prediction_container_uri(
+def get_prebuilt_prediction_container_uri(
     framework: str,
     framework_version: str,
-    region: str = None,
+    region: Optional[str] = None,
     with_accelerator: bool = False,
 ) -> str:
     """
@@ -45,17 +46,17 @@ def get_prediction_container_uri(
 
     Args:
         framework (str):
-            The ML framework of the pre-built container. For example,
+            Required. The ML framework of the pre-built container. For example,
             "tensorflow", "xgboost", or "sklearn"
         framework_version (str):
-            The version of the specified ML framework as a string.
+            Required. The version of the specified ML framework as a string.
         region (str):
-            A Vertex AI region or multi-region. Used to select the correct
+            Optional. AI region or multi-region. Used to select the correct
             Artifact Registry multi-region repository and reduce latency.
             Must start with "us", "asia" or "europe". If not set, defaults
             to location set by `aiplatform.init()`.
         with_accelerator (bool):
-            If set to `True`, return container URI that supports GPU usage.
+            Optional. If set to `True`, return container URI that supports GPU usage.
             Default is `False`.
 
     Returns:
@@ -125,12 +126,3 @@ def get_prediction_container_uri(
         f"{'with accelerator ' if with_accelerator else ''}found. "
         f"{ALTERNATE_VERSIONS_MESSAGE}{DOCS_URI_MESSAGE}"
     )
-
-
-def get_training_container_uri(
-    framework: str,
-    framework_version: str,
-    region: str = None,
-    with_accelerator: bool = False,
-):
-    raise NotImplementedError()

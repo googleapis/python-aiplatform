@@ -14,7 +14,7 @@
 
 from google.cloud.aiplatform.helpers import value_converter
 from google.cloud.aiplatform.helpers.container_uri_builders import (
-    get_prediction_container_uri,
+    get_prebuilt_prediction_container_uri,
 )
 
-__all__ = ("get_prediction_container_uri" "value_converter",)
+__all__ = ("get_prebuilt_prediction_container_uri" "value_converter",)
