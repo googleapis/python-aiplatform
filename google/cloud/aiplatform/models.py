@@ -2623,8 +2623,7 @@ class Model(base.VertexAiResourceNounWithFutureManager):
             model_file_extension = ".bst"
 
         # Preparing model directory
-        with tempfile.TemporaryDirectory() as prepared_model_dir_obj:
-            prepared_model_dir = prepared_model_dir_obj.name
+        with tempfile.TemporaryDirectory() as prepared_model_dir:
             prepared_model_file_path = pathlib.Path(prepared_model_dir) / (
                 "model" + model_file_extension
             )
@@ -2831,8 +2830,7 @@ class Model(base.VertexAiResourceNounWithFutureManager):
             model_file_extension = ".pkl"
 
         # Preparing model directory
-        with tempfile.TemporaryDirectory() as prepared_model_dir_obj:
-            prepared_model_dir = prepared_model_dir_obj.name
+        with tempfile.TemporaryDirectory() as prepared_model_dir:
             prepared_model_file_path = pathlib.Path(prepared_model_dir) / (
                 "model" + model_file_extension
             )
