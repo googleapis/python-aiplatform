@@ -1496,6 +1496,64 @@ class TestModel:
 
     @pytest.mark.parametrize("sync", [True, False])
     @pytest.mark.parametrize(
+        "model_file_name",
+        [
+            "model.bst",
+            "model.pkl",
+            "model.joblib",
+            "saved_model.pb",
+            "saved_model.pbtxt",
+        ],
+    )
+    def test_upload_stages_data_uploads_and_gets_model(
+        self,
+        tmp_path: pathlib.Path,
+        model_file_name: str,
+        mock_storage_blob_upload_from_filename,
+        upload_model_mock,
+        get_model_mock,
+        sync: bool,
+    ):
+        model_file_path = tmp_path / model_file_name
+        model_file_path.touch()
+
+        my_model = models.Model.upload(
+            artifact_uri=str(tmp_path),
+            serving_container_image_uri="us-docker.pkg.dev/vertex-ai/prediction/xgboost-cpu.1-4:latest",
+            display_name=_TEST_MODEL_NAME,
+            project=_TEST_PROJECT,
+            location=_TEST_LOCATION,
+            sync=sync,
+        )
+
+        if not sync:
+            my_model.wait()
+
+        upload_model_mock.assert_called_once()
+        upload_model_call_kwargs = upload_model_mock.call_args.kwargs
+        upload_model_model = upload_model_call_kwargs["model"]
+
+        # Verifying the staging bucket name generation
+        assert upload_model_model.artifact_uri.startswith(
+            f"gs://{_TEST_PROJECT}-staging-{_TEST_LOCATION}"
+        )
+        assert "/vertex_ai_auto_staging/" in upload_model_model.artifact_uri
+
+        # Verifying that the model was renamed to a file name that is acceptable for Model.upload
+        staged_model_file_path = mock_storage_blob_upload_from_filename.call_args.kwargs[
+            "filename"
+        ]
+        staged_model_file_name = staged_model_file_path.split("/")[-1]
+        assert staged_model_file_name in [
+            "model.bst",
+            "model.pkl",
+            "model.joblib",
+            "saved_model.pb",
+            "saved_model.pbtxt",
+        ]
+
+    @pytest.mark.parametrize("sync", [True, False])
+    @pytest.mark.parametrize(
         "model_file_name", ["my_model.pkl", "my_model.joblib"],
     )
     def test_upload_scikit_learn_model_file_uploads_and_gets_model(
