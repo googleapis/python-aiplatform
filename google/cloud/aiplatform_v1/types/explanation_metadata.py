@@ -356,6 +356,7 @@ class ExplanationMetadata(proto.Message):
                 [Attribution.output_display_name][google.cloud.aiplatform.v1.Attribution.output_display_name]
                 is populated by locating in the mapping with
                 [Attribution.output_index][google.cloud.aiplatform.v1.Attribution.output_index].
+
                 This field is a member of `oneof`_ ``display_name_mapping``.
             display_name_mapping_key (str):
                 Specify a field name in the prediction to look for the
@@ -368,6 +369,7 @@ class ExplanationMetadata(proto.Message):
                 of the outputs, so that it can be located by
                 [Attribution.output_index][google.cloud.aiplatform.v1.Attribution.output_index]
                 for a specific output.
+
                 This field is a member of `oneof`_ ``display_name_mapping``.
             output_tensor_name (str):
                 Name of the output tensor. Required and is

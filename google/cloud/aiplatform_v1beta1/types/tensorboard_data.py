@@ -73,12 +73,15 @@ class TimeSeriesDataPoint(proto.Message):
     Attributes:
         scalar (google.cloud.aiplatform_v1beta1.types.Scalar):
             A scalar value.
+
             This field is a member of `oneof`_ ``value``.
         tensor (google.cloud.aiplatform_v1beta1.types.TensorboardTensor):
             A tensor value.
+
             This field is a member of `oneof`_ ``value``.
         blobs (google.cloud.aiplatform_v1beta1.types.TensorboardBlobSequence):
             A blob sequence value.
+
             This field is a member of `oneof`_ ``value``.
         wall_time (google.protobuf.timestamp_pb2.Timestamp):
             Wall clock timestamp when this data point is

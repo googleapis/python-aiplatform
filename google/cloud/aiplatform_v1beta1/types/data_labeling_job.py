@@ -179,10 +179,12 @@ class ActiveLearningConfig(proto.Message):
     Attributes:
         max_data_item_count (int):
             Max number of human labeled DataItems.
+
             This field is a member of `oneof`_ ``human_labeling_budget``.
         max_data_item_percentage (int):
             Max percent of total DataItems for human
             labeling.
+
             This field is a member of `oneof`_ ``human_labeling_budget``.
         sample_config (google.cloud.aiplatform_v1beta1.types.SampleConfig):
             Active learning data sampling config. For
@@ -219,11 +221,13 @@ class SampleConfig(proto.Message):
         initial_batch_sample_percentage (int):
             The percentage of data needed to be labeled
             in the first batch.
+
             This field is a member of `oneof`_ ``initial_batch_sample_size``.
         following_batch_sample_percentage (int):
             The percentage of data needed to be labeled
             in each following batch (except the first
             batch).
+
             This field is a member of `oneof`_ ``following_batch_sample_size``.
         sample_strategy (google.cloud.aiplatform_v1beta1.types.SampleConfig.SampleStrategy):
             Field to choose sampling strategy. Sampling

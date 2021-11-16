@@ -178,6 +178,12 @@ class CustomJobSpec(proto.Message):
                ``<base_output_directory>/<trial_id>/checkpoints/``
             -  AIP_TENSORBOARD_LOG_DIR =
                ``<base_output_directory>/<trial_id>/logs/``
+        tensorboard (str):
+            Optional. The name of a Vertex AI
+            [Tensorboard][google.cloud.aiplatform.v1.Tensorboard]
+            resource to which this CustomJob will upload Tensorboard
+            logs. Format:
+            ``projects/{project}/locations/{location}/tensorboards/{tensorboard}``
         enable_web_access (bool):
             Optional. Whether you want Vertex AI to enable `interactive
             shell
@@ -202,6 +208,7 @@ class CustomJobSpec(proto.Message):
     base_output_directory = proto.Field(
         proto.MESSAGE, number=6, message=io.GcsDestination,
     )
+    tensorboard = proto.Field(proto.STRING, number=7,)
     enable_web_access = proto.Field(proto.BOOL, number=10,)
 
 
@@ -218,9 +225,11 @@ class WorkerPoolSpec(proto.Message):
     Attributes:
         container_spec (google.cloud.aiplatform_v1.types.ContainerSpec):
             The custom container task.
+
             This field is a member of `oneof`_ ``task``.
         python_package_spec (google.cloud.aiplatform_v1.types.PythonPackageSpec):
             The Python packaged task.
+
             This field is a member of `oneof`_ ``task``.
         machine_spec (google.cloud.aiplatform_v1.types.MachineSpec):
             Optional. Immutable. The specification of a

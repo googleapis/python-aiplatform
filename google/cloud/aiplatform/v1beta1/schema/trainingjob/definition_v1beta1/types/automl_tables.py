@@ -55,11 +55,13 @@ class AutoMlTablesInputs(proto.Message):
             Required when optimization_objective is
             "maximize-precision-at-recall". Must be between 0 and 1,
             inclusive.
+
             This field is a member of `oneof`_ ``additional_optimization_objective_config``.
         optimization_objective_precision_value (float):
             Required when optimization_objective is
             "maximize-recall-at-precision". Must be between 0 and 1,
             inclusive.
+
             This field is a member of `oneof`_ ``additional_optimization_objective_config``.
         prediction_type (str):
             The type of prediction the Model is to

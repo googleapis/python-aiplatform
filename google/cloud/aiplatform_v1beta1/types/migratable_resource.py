@@ -38,18 +38,22 @@ class MigratableResource(proto.Message):
         ml_engine_model_version (google.cloud.aiplatform_v1beta1.types.MigratableResource.MlEngineModelVersion):
             Output only. Represents one Version in
             ml.googleapis.com.
+
             This field is a member of `oneof`_ ``resource``.
         automl_model (google.cloud.aiplatform_v1beta1.types.MigratableResource.AutomlModel):
             Output only. Represents one Model in
             automl.googleapis.com.
+
             This field is a member of `oneof`_ ``resource``.
         automl_dataset (google.cloud.aiplatform_v1beta1.types.MigratableResource.AutomlDataset):
             Output only. Represents one Dataset in
             automl.googleapis.com.
+
             This field is a member of `oneof`_ ``resource``.
         data_labeling_dataset (google.cloud.aiplatform_v1beta1.types.MigratableResource.DataLabelingDataset):
             Output only. Represents one Dataset in
             datalabeling.googleapis.com.
+
             This field is a member of `oneof`_ ``resource``.
         last_migrate_time (google.protobuf.timestamp_pb2.Timestamp):
             Output only. Timestamp when the last

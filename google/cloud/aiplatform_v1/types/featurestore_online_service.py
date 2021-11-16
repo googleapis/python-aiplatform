@@ -136,6 +136,7 @@ class ReadFeatureValuesResponse(proto.Message):
             Attributes:
                 value (google.cloud.aiplatform_v1.types.FeatureValue):
                     Feature value if a single value is requested.
+
                     This field is a member of `oneof`_ ``data``.
                 values (google.cloud.aiplatform_v1.types.FeatureValueList):
                     Feature values list if values, successive in
@@ -143,6 +144,7 @@ class ReadFeatureValuesResponse(proto.Message):
                     values is greater than the number of existing
                     Feature values, nonexistent values are omitted
                     instead of being returned as empty.
+
                     This field is a member of `oneof`_ ``data``.
             """
 
@@ -207,30 +209,39 @@ class FeatureValue(proto.Message):
     Attributes:
         bool_value (bool):
             Bool type feature value.
+
             This field is a member of `oneof`_ ``value``.
         double_value (float):
             Double type feature value.
+
             This field is a member of `oneof`_ ``value``.
         int64_value (int):
             Int64 feature value.
+
             This field is a member of `oneof`_ ``value``.
         string_value (str):
             String feature value.
+
             This field is a member of `oneof`_ ``value``.
         bool_array_value (google.cloud.aiplatform_v1.types.BoolArray):
             A list of bool type feature value.
+
             This field is a member of `oneof`_ ``value``.
         double_array_value (google.cloud.aiplatform_v1.types.DoubleArray):
             A list of double type feature value.
+
             This field is a member of `oneof`_ ``value``.
         int64_array_value (google.cloud.aiplatform_v1.types.Int64Array):
             A list of int64 type feature value.
+
             This field is a member of `oneof`_ ``value``.
         string_array_value (google.cloud.aiplatform_v1.types.StringArray):
             A list of string type feature value.
+
             This field is a member of `oneof`_ ``value``.
         bytes_value (bytes):
             Bytes feature value.
+
             This field is a member of `oneof`_ ``value``.
         metadata (google.cloud.aiplatform_v1.types.FeatureValue.Metadata):
             Metadata of feature value.
