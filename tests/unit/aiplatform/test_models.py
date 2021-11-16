@@ -17,6 +17,7 @@
 
 import importlib
 from concurrent import futures
+import pathlib
 import pytest
 from unittest import mock
 from unittest.mock import patch
@@ -421,6 +422,16 @@ def create_client_mock():
         api_client_mock = mock.Mock(spec=model_service_client.ModelServiceClient)
         create_client_mock.return_value = api_client_mock
         yield create_client_mock
+
+
+@pytest.fixture
+def mock_storage_blob_upload_from_filename():
+    with patch(
+        "google.cloud.storage.Blob.upload_from_filename"
+    ) as mock_blob_upload_from_filename, patch(
+        "google.cloud.storage.Bucket.exists", return_value=True
+    ):
+        yield mock_blob_upload_from_filename
 
 
 class TestModel:
@@ -1430,3 +1441,155 @@ class TestModel:
                 fr"{_TEST_PIPELINE_RESOURCE_NAME}"
             )
         )
+
+    @pytest.mark.parametrize("sync", [True, False])
+    @pytest.mark.parametrize(
+        "model_file_name",
+        ["my_model.xgb", "my_model.pkl", "my_model.joblib", "my_model.bst"],
+    )
+    def test_upload_xgboost_model_file_uploads_and_gets_model(
+        self,
+        tmp_path: pathlib.Path,
+        model_file_name: str,
+        mock_storage_blob_upload_from_filename,
+        upload_model_mock,
+        get_model_mock,
+        sync: bool,
+    ):
+        model_file_path = tmp_path / model_file_name
+        model_file_path.touch()
+
+        my_model = models.Model.upload_xgboost_model_file(
+            model_file_path=str(model_file_path),
+            xgboost_version="1.4",
+            display_name=_TEST_MODEL_NAME,
+            project=_TEST_PROJECT,
+            location=_TEST_LOCATION,
+            sync=sync,
+        )
+
+        if not sync:
+            my_model.wait()
+
+        upload_model_mock.assert_called_once()
+        upload_model_call_kwargs = upload_model_mock.call_args.kwargs
+        upload_model_model = upload_model_call_kwargs["model"]
+
+        # Verifying the container image selection
+        assert (
+            upload_model_model.container_spec.image_uri
+            == "us-docker.pkg.dev/vertex-ai/prediction/xgboost-cpu.1-4:latest"
+        )
+
+        # Verifying the staging bucket name generation
+        assert upload_model_model.artifact_uri.startswith(
+            f"gs://{_TEST_PROJECT}-staging-{_TEST_LOCATION}"
+        )
+        assert "/vertex_ai_auto_staging/" in upload_model_model.artifact_uri
+
+        # Verifying that the model was renamed to a file name that is acceptable for Model.upload
+        staged_model_file_path = mock_storage_blob_upload_from_filename.call_args.kwargs[
+            "filename"
+        ]
+        staged_model_file_name = staged_model_file_path.split("/")[-1]
+        assert staged_model_file_name in ["model.bst", "model.pkl", "model.joblib"]
+
+    @pytest.mark.parametrize("sync", [True, False])
+    @pytest.mark.parametrize(
+        "model_file_name", ["my_model.pkl", "my_model.joblib"],
+    )
+    def test_upload_scikit_learn_model_file_uploads_and_gets_model(
+        self,
+        tmp_path: pathlib.Path,
+        model_file_name: str,
+        mock_storage_blob_upload_from_filename,
+        upload_model_mock,
+        get_model_mock,
+        sync: bool,
+    ):
+        model_file_path = tmp_path / model_file_name
+        model_file_path.touch()
+
+        my_model = models.Model.upload_scikit_learn_model_file(
+            model_file_path=str(model_file_path),
+            sklearn_version="0.24",
+            display_name=_TEST_MODEL_NAME,
+            project=_TEST_PROJECT,
+            location=_TEST_LOCATION,
+            sync=sync,
+        )
+
+        if not sync:
+            my_model.wait()
+
+        upload_model_mock.assert_called_once()
+        upload_model_call_kwargs = upload_model_mock.call_args.kwargs
+        upload_model_model = upload_model_call_kwargs["model"]
+
+        # Verifying the container image selection
+        assert (
+            upload_model_model.container_spec.image_uri
+            == "us-docker.pkg.dev/vertex-ai/prediction/sklearn-cpu.0-24:latest"
+        )
+
+        # Verifying the staging bucket name generation
+        assert upload_model_model.artifact_uri.startswith(
+            f"gs://{_TEST_PROJECT}-staging-{_TEST_LOCATION}"
+        )
+        assert "/vertex_ai_auto_staging/" in upload_model_model.artifact_uri
+
+        # Verifying that the model was renamed to a file name that is acceptable for Model.upload
+        staged_model_file_path = mock_storage_blob_upload_from_filename.call_args.kwargs[
+            "filename"
+        ]
+        staged_model_file_name = staged_model_file_path.split("/")[-1]
+        assert staged_model_file_name in ["model.pkl", "model.joblib"]
+
+    @pytest.mark.parametrize("sync", [True, False])
+    def test_upload_tensorflow_saved_model_uploads_and_gets_model(
+        self,
+        tmp_path: pathlib.Path,
+        mock_storage_blob_upload_from_filename,
+        upload_model_mock,
+        get_model_mock,
+        sync: bool,
+    ):
+        saved_model_dir = tmp_path / "saved_model"
+        saved_model_dir.mkdir()
+        (saved_model_dir / "saved_model.pb").touch()
+
+        my_model = models.Model.upload_tensorflow_saved_model(
+            saved_model_dir=str(saved_model_dir),
+            tensorflow_version="2.6",
+            use_gpu=True,
+            display_name=_TEST_MODEL_NAME,
+            project=_TEST_PROJECT,
+            location=_TEST_LOCATION,
+            sync=sync,
+        )
+
+        if not sync:
+            my_model.wait()
+
+        upload_model_mock.assert_called_once()
+        upload_model_call_kwargs = upload_model_mock.call_args.kwargs
+        upload_model_model = upload_model_call_kwargs["model"]
+
+        # Verifying the container image selection
+        assert (
+            upload_model_model.container_spec.image_uri
+            == "us-docker.pkg.dev/vertex-ai/prediction/tf2-gpu.2-6:latest"
+        )
+
+        # Verifying the staging bucket name generation
+        assert upload_model_model.artifact_uri.startswith(
+            f"gs://{_TEST_PROJECT}-staging-{_TEST_LOCATION}"
+        )
+        assert "/vertex_ai_auto_staging/" in upload_model_model.artifact_uri
+
+        # Verifying that the model files were uploaded
+        staged_model_file_path = mock_storage_blob_upload_from_filename.call_args.kwargs[
+            "filename"
+        ]
+        staged_model_file_name = staged_model_file_path.split("/")[-1]
+        assert staged_model_file_name in ["saved_model.pb", "saved_model.pbtxt"]
