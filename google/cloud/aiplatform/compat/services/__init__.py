@@ -67,6 +67,9 @@ from google.cloud.aiplatform_v1.services.prediction_service import (
 from google.cloud.aiplatform_v1.services.specialist_pool_service import (
     client as specialist_pool_service_client_v1,
 )
+from google.cloud.aiplatform_v1.services.tensorboard_service import (
+    client as tensorboard_service_client_v1,
+)
 
 __all__ = (
     # v1
@@ -78,6 +81,7 @@ __all__ = (
     pipeline_service_client_v1,
     prediction_service_client_v1,
     specialist_pool_service_client_v1,
+    tensorboard_service_client_v1,
     # v1beta1
     dataset_service_client_v1beta1,
     endpoint_service_client_v1beta1,

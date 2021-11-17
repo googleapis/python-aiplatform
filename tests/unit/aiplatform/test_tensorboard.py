@@ -32,11 +32,11 @@ from google.cloud.aiplatform import base
 from google.cloud.aiplatform import initializer
 from google.cloud.aiplatform import tensorboard
 
-from google.cloud.aiplatform_v1beta1.services.tensorboard_service import (
+from google.cloud.aiplatform_v1.services.tensorboard_service import (
     client as tensorboard_service_client,
 )
 
-from google.cloud.aiplatform_v1beta1.types import (
+from google.cloud.aiplatform_v1.types import (
     tensorboard as gca_tensorboard,
     tensorboard_service as gca_tensorboard_service,
     encryption_spec as gca_encryption_spec,

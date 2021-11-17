@@ -31,18 +31,12 @@ from test_training_jobs import mock_python_package_to_gcs  # noqa: F401
 from google.cloud import aiplatform
 from google.cloud.aiplatform import base
 from google.cloud.aiplatform.compat.types import custom_job as gca_custom_job_compat
-from google.cloud.aiplatform.compat.types import (
-    custom_job_v1beta1 as gca_custom_job_v1beta1,
-)
 from google.cloud.aiplatform.compat.types import io as gca_io_compat
 from google.cloud.aiplatform.compat.types import job_state as gca_job_state_compat
 from google.cloud.aiplatform.compat.types import (
     encryption_spec as gca_encryption_spec_compat,
 )
 from google.cloud.aiplatform_v1.services.job_service import client as job_service_client
-from google.cloud.aiplatform_v1beta1.services.job_service import (
-    client as job_service_client_v1beta1,
-)
 
 _TEST_PROJECT = "test-project"
 _TEST_LOCATION = "us-central1"
@@ -114,29 +108,16 @@ _TEST_BASE_CUSTOM_JOB_PROTO = gca_custom_job_compat.CustomJob(
 )
 
 
-def _get_custom_job_proto(state=None, name=None, error=None, version="v1"):
+def _get_custom_job_proto(state=None, name=None, error=None):
     custom_job_proto = copy.deepcopy(_TEST_BASE_CUSTOM_JOB_PROTO)
     custom_job_proto.name = name
     custom_job_proto.state = state
     custom_job_proto.error = error
-
-    if version == "v1beta1":
-        v1beta1_custom_job_proto = gca_custom_job_v1beta1.CustomJob()
-        v1beta1_custom_job_proto._pb.MergeFromString(
-            custom_job_proto._pb.SerializeToString()
-        )
-        custom_job_proto = v1beta1_custom_job_proto
-        custom_job_proto.job_spec.tensorboard = _TEST_TENSORBOARD_NAME
-
     return custom_job_proto
 
 
-def _get_custom_job_proto_with_enable_web_access(
-    state=None, name=None, error=None, version="v1"
-):
-    custom_job_proto = _get_custom_job_proto(
-        state=state, name=name, error=error, version=version
-    )
+def _get_custom_job_proto_with_enable_web_access(state=None, name=None, error=None):
+    custom_job_proto = _get_custom_job_proto(state=state, name=name, error=error)
     custom_job_proto.job_spec.enable_web_access = _TEST_ENABLE_WEB_ACCESS
     if state == gca_job_state_compat.JobState.JOB_STATE_RUNNING:
         custom_job_proto.web_access_uris = _TEST_WEB_ACCESS_URIS
@@ -260,24 +241,25 @@ def create_custom_job_mock_with_enable_web_access():
 
 
 @pytest.fixture
+def create_custom_job_mock_with_tensorboard():
+    with mock.patch.object(
+        job_service_client.JobServiceClient, "create_custom_job"
+    ) as create_custom_job_mock:
+        custom_job_proto = _get_custom_job_proto(
+            name=_TEST_CUSTOM_JOB_NAME,
+            state=gca_job_state_compat.JobState.JOB_STATE_PENDING,
+        )
+        custom_job_proto.job_spec.tensorboard = _TEST_TENSORBOARD_NAME
+        create_custom_job_mock.return_value = custom_job_proto
+        yield create_custom_job_mock
+
+
+@pytest.fixture
 def create_custom_job_mock_fail():
     with mock.patch.object(
         job_service_client.JobServiceClient, "create_custom_job"
     ) as create_custom_job_mock:
         create_custom_job_mock.side_effect = RuntimeError("Mock fail")
-        yield create_custom_job_mock
-
-
-@pytest.fixture
-def create_custom_job_v1beta1_mock():
-    with mock.patch.object(
-        job_service_client_v1beta1.JobServiceClient, "create_custom_job"
-    ) as create_custom_job_mock:
-        create_custom_job_mock.return_value = _get_custom_job_proto(
-            name=_TEST_CUSTOM_JOB_NAME,
-            state=gca_job_state_compat.JobState.JOB_STATE_PENDING,
-            version="v1beta1",
-        )
         yield create_custom_job_mock
 
 
@@ -573,7 +555,7 @@ class TestCustomJob:
 
     @pytest.mark.parametrize("sync", [True, False])
     def test_create_custom_job_with_tensorboard(
-        self, create_custom_job_v1beta1_mock, get_custom_job_mock, sync
+        self, create_custom_job_mock_with_tensorboard, get_custom_job_mock, sync
     ):
 
         aiplatform.init(
@@ -601,9 +583,10 @@ class TestCustomJob:
 
         job.wait()
 
-        expected_custom_job = _get_custom_job_proto(version="v1beta1")
+        expected_custom_job = _get_custom_job_proto()
+        expected_custom_job.job_spec.tensorboard = _TEST_TENSORBOARD_NAME
 
-        create_custom_job_v1beta1_mock.assert_called_once_with(
+        create_custom_job_mock_with_tensorboard.assert_called_once_with(
             parent=_TEST_PARENT, custom_job=expected_custom_job
         )
 

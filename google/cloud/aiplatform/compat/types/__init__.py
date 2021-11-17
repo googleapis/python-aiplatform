@@ -57,13 +57,13 @@ from google.cloud.aiplatform_v1beta1.types import (
     specialist_pool as specialist_pool_v1beta1,
     specialist_pool_service as specialist_pool_service_v1beta1,
     study as study_v1beta1,
-    training_pipeline as training_pipeline_v1beta1,
     tensorboard as tensorboard_v1beta1,
     tensorboard_data as tensorboard_data_v1beta1,
     tensorboard_experiment as tensorboard_experiment_v1beta1,
     tensorboard_run as tensorboard_run_v1beta1,
     tensorboard_service as tensorboard_service_v1beta1,
     tensorboard_time_series as tensorboard_time_series_v1beta1,
+    training_pipeline as training_pipeline_v1beta1,
 )
 from google.cloud.aiplatform_v1.types import (
     accelerator_type as accelerator_type_v1,
@@ -107,6 +107,12 @@ from google.cloud.aiplatform_v1.types import (
     specialist_pool as specialist_pool_v1,
     specialist_pool_service as specialist_pool_service_v1,
     study as study_v1,
+    tensorboard as tensorboard_v1,
+    tensorboard_data as tensorboard_data_v1,
+    tensorboard_experiment as tensorboard_experiment_v1,
+    tensorboard_run as tensorboard_run_v1,
+    tensorboard_service as tensorboard_service_v1,
+    tensorboard_time_series as tensorboard_time_series_v1,
     training_pipeline as training_pipeline_v1,
 )
 
@@ -152,6 +158,13 @@ __all__ = (
     prediction_service_v1,
     specialist_pool_v1,
     specialist_pool_service_v1,
+    tensorboard_v1,
+    tensorboard_service_v1,
+    tensorboard_data_v1,
+    tensorboard_experiment_v1,
+    tensorboard_run_v1,
+    tensorboard_service_v1,
+    tensorboard_time_series_v1,
     training_pipeline_v1,
     # v1beta1
     accelerator_type_v1beta1,
@@ -194,8 +207,6 @@ __all__ = (
     prediction_service_v1beta1,
     specialist_pool_v1beta1,
     specialist_pool_service_v1beta1,
-    training_pipeline_v1beta1,
-    metadata_service_v1beta1,
     tensorboard_v1beta1,
     tensorboard_service_v1beta1,
     tensorboard_data_v1beta1,
@@ -203,4 +214,5 @@ __all__ = (
     tensorboard_run_v1beta1,
     tensorboard_service_v1beta1,
     tensorboard_time_series_v1beta1,
+    training_pipeline_v1beta1,
 )
