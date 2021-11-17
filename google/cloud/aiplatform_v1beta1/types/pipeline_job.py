@@ -316,10 +316,12 @@ class PipelineTaskExecutorDetail(proto.Message):
         container_detail (google.cloud.aiplatform_v1beta1.types.PipelineTaskExecutorDetail.ContainerDetail):
             Output only. The detailed info for a
             container executor.
+
             This field is a member of `oneof`_ ``details``.
         custom_job_detail (google.cloud.aiplatform_v1beta1.types.PipelineTaskExecutorDetail.CustomJobDetail):
             Output only. The detailed info for a custom
             job executor.
+
             This field is a member of `oneof`_ ``details``.
     """
 

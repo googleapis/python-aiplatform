@@ -656,8 +656,12 @@ def test_create_endpoint_flattened():
         # request object values.
         assert len(call.mock_calls) == 1
         _, args, _ = call.mock_calls[0]
-        assert args[0].parent == "parent_value"
-        assert args[0].endpoint == gca_endpoint.Endpoint(name="name_value")
+        arg = args[0].parent
+        mock_val = "parent_value"
+        assert arg == mock_val
+        arg = args[0].endpoint
+        mock_val = gca_endpoint.Endpoint(name="name_value")
+        assert arg == mock_val
 
 
 def test_create_endpoint_flattened_error():
@@ -697,8 +701,12 @@ async def test_create_endpoint_flattened_async():
         # request object values.
         assert len(call.mock_calls)
         _, args, _ = call.mock_calls[0]
-        assert args[0].parent == "parent_value"
-        assert args[0].endpoint == gca_endpoint.Endpoint(name="name_value")
+        arg = args[0].parent
+        mock_val = "parent_value"
+        assert arg == mock_val
+        arg = args[0].endpoint
+        mock_val = gca_endpoint.Endpoint(name="name_value")
+        assert arg == mock_val
 
 
 @pytest.mark.asyncio
@@ -894,7 +902,9 @@ def test_get_endpoint_flattened():
         # request object values.
         assert len(call.mock_calls) == 1
         _, args, _ = call.mock_calls[0]
-        assert args[0].name == "name_value"
+        arg = args[0].name
+        mock_val = "name_value"
+        assert arg == mock_val
 
 
 def test_get_endpoint_flattened_error():
@@ -928,7 +938,9 @@ async def test_get_endpoint_flattened_async():
         # request object values.
         assert len(call.mock_calls)
         _, args, _ = call.mock_calls[0]
-        assert args[0].name == "name_value"
+        arg = args[0].name
+        mock_val = "name_value"
+        assert arg == mock_val
 
 
 @pytest.mark.asyncio
@@ -1098,7 +1110,9 @@ def test_list_endpoints_flattened():
         # request object values.
         assert len(call.mock_calls) == 1
         _, args, _ = call.mock_calls[0]
-        assert args[0].parent == "parent_value"
+        arg = args[0].parent
+        mock_val = "parent_value"
+        assert arg == mock_val
 
 
 def test_list_endpoints_flattened_error():
@@ -1134,7 +1148,9 @@ async def test_list_endpoints_flattened_async():
         # request object values.
         assert len(call.mock_calls)
         _, args, _ = call.mock_calls[0]
-        assert args[0].parent == "parent_value"
+        arg = args[0].parent
+        mock_val = "parent_value"
+        assert arg == mock_val
 
 
 @pytest.mark.asyncio
@@ -1487,8 +1503,12 @@ def test_update_endpoint_flattened():
         # request object values.
         assert len(call.mock_calls) == 1
         _, args, _ = call.mock_calls[0]
-        assert args[0].endpoint == gca_endpoint.Endpoint(name="name_value")
-        assert args[0].update_mask == field_mask_pb2.FieldMask(paths=["paths_value"])
+        arg = args[0].endpoint
+        mock_val = gca_endpoint.Endpoint(name="name_value")
+        assert arg == mock_val
+        arg = args[0].update_mask
+        mock_val = field_mask_pb2.FieldMask(paths=["paths_value"])
+        assert arg == mock_val
 
 
 def test_update_endpoint_flattened_error():
@@ -1529,8 +1549,12 @@ async def test_update_endpoint_flattened_async():
         # request object values.
         assert len(call.mock_calls)
         _, args, _ = call.mock_calls[0]
-        assert args[0].endpoint == gca_endpoint.Endpoint(name="name_value")
-        assert args[0].update_mask == field_mask_pb2.FieldMask(paths=["paths_value"])
+        arg = args[0].endpoint
+        mock_val = gca_endpoint.Endpoint(name="name_value")
+        assert arg == mock_val
+        arg = args[0].update_mask
+        mock_val = field_mask_pb2.FieldMask(paths=["paths_value"])
+        assert arg == mock_val
 
 
 @pytest.mark.asyncio
@@ -1696,7 +1720,9 @@ def test_delete_endpoint_flattened():
         # request object values.
         assert len(call.mock_calls) == 1
         _, args, _ = call.mock_calls[0]
-        assert args[0].name == "name_value"
+        arg = args[0].name
+        mock_val = "name_value"
+        assert arg == mock_val
 
 
 def test_delete_endpoint_flattened_error():
@@ -1732,7 +1758,9 @@ async def test_delete_endpoint_flattened_async():
         # request object values.
         assert len(call.mock_calls)
         _, args, _ = call.mock_calls[0]
-        assert args[0].name == "name_value"
+        arg = args[0].name
+        mock_val = "name_value"
+        assert arg == mock_val
 
 
 @pytest.mark.asyncio
@@ -1906,15 +1934,21 @@ def test_deploy_model_flattened():
         # request object values.
         assert len(call.mock_calls) == 1
         _, args, _ = call.mock_calls[0]
-        assert args[0].endpoint == "endpoint_value"
-        assert args[0].deployed_model == gca_endpoint.DeployedModel(
+        arg = args[0].endpoint
+        mock_val = "endpoint_value"
+        assert arg == mock_val
+        arg = args[0].deployed_model
+        mock_val = gca_endpoint.DeployedModel(
             dedicated_resources=machine_resources.DedicatedResources(
                 machine_spec=machine_resources.MachineSpec(
                     machine_type="machine_type_value"
                 )
             )
         )
-        assert args[0].traffic_split == {"key_value": 541}
+        assert arg == mock_val
+        arg = args[0].traffic_split
+        mock_val = {"key_value": 541}
+        assert arg == mock_val
 
 
 def test_deploy_model_flattened_error():
@@ -1969,15 +2003,21 @@ async def test_deploy_model_flattened_async():
         # request object values.
         assert len(call.mock_calls)
         _, args, _ = call.mock_calls[0]
-        assert args[0].endpoint == "endpoint_value"
-        assert args[0].deployed_model == gca_endpoint.DeployedModel(
+        arg = args[0].endpoint
+        mock_val = "endpoint_value"
+        assert arg == mock_val
+        arg = args[0].deployed_model
+        mock_val = gca_endpoint.DeployedModel(
             dedicated_resources=machine_resources.DedicatedResources(
                 machine_spec=machine_resources.MachineSpec(
                     machine_type="machine_type_value"
                 )
             )
         )
-        assert args[0].traffic_split == {"key_value": 541}
+        assert arg == mock_val
+        arg = args[0].traffic_split
+        mock_val = {"key_value": 541}
+        assert arg == mock_val
 
 
 @pytest.mark.asyncio
@@ -2154,9 +2194,15 @@ def test_undeploy_model_flattened():
         # request object values.
         assert len(call.mock_calls) == 1
         _, args, _ = call.mock_calls[0]
-        assert args[0].endpoint == "endpoint_value"
-        assert args[0].deployed_model_id == "deployed_model_id_value"
-        assert args[0].traffic_split == {"key_value": 541}
+        arg = args[0].endpoint
+        mock_val = "endpoint_value"
+        assert arg == mock_val
+        arg = args[0].deployed_model_id
+        mock_val = "deployed_model_id_value"
+        assert arg == mock_val
+        arg = args[0].traffic_split
+        mock_val = {"key_value": 541}
+        assert arg == mock_val
 
 
 def test_undeploy_model_flattened_error():
@@ -2199,9 +2245,15 @@ async def test_undeploy_model_flattened_async():
         # request object values.
         assert len(call.mock_calls)
         _, args, _ = call.mock_calls[0]
-        assert args[0].endpoint == "endpoint_value"
-        assert args[0].deployed_model_id == "deployed_model_id_value"
-        assert args[0].traffic_split == {"key_value": 541}
+        arg = args[0].endpoint
+        mock_val = "endpoint_value"
+        assert arg == mock_val
+        arg = args[0].deployed_model_id
+        mock_val = "deployed_model_id_value"
+        assert arg == mock_val
+        arg = args[0].traffic_split
+        mock_val = {"key_value": 541}
+        assert arg == mock_val
 
 
 @pytest.mark.asyncio

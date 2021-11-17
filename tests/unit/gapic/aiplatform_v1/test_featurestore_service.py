@@ -687,8 +687,12 @@ def test_create_featurestore_flattened():
         # request object values.
         assert len(call.mock_calls) == 1
         _, args, _ = call.mock_calls[0]
-        assert args[0].parent == "parent_value"
-        assert args[0].featurestore == gca_featurestore.Featurestore(name="name_value")
+        arg = args[0].parent
+        mock_val = "parent_value"
+        assert arg == mock_val
+        arg = args[0].featurestore
+        mock_val = gca_featurestore.Featurestore(name="name_value")
+        assert arg == mock_val
 
 
 def test_create_featurestore_flattened_error():
@@ -733,8 +737,12 @@ async def test_create_featurestore_flattened_async():
         # request object values.
         assert len(call.mock_calls)
         _, args, _ = call.mock_calls[0]
-        assert args[0].parent == "parent_value"
-        assert args[0].featurestore == gca_featurestore.Featurestore(name="name_value")
+        arg = args[0].parent
+        mock_val = "parent_value"
+        assert arg == mock_val
+        arg = args[0].featurestore
+        mock_val = gca_featurestore.Featurestore(name="name_value")
+        assert arg == mock_val
 
 
 @pytest.mark.asyncio
@@ -919,7 +927,9 @@ def test_get_featurestore_flattened():
         # request object values.
         assert len(call.mock_calls) == 1
         _, args, _ = call.mock_calls[0]
-        assert args[0].name == "name_value"
+        arg = args[0].name
+        mock_val = "name_value"
+        assert arg == mock_val
 
 
 def test_get_featurestore_flattened_error():
@@ -957,7 +967,9 @@ async def test_get_featurestore_flattened_async():
         # request object values.
         assert len(call.mock_calls)
         _, args, _ = call.mock_calls[0]
-        assert args[0].name == "name_value"
+        arg = args[0].name
+        mock_val = "name_value"
+        assert arg == mock_val
 
 
 @pytest.mark.asyncio
@@ -1144,7 +1156,9 @@ def test_list_featurestores_flattened():
         # request object values.
         assert len(call.mock_calls) == 1
         _, args, _ = call.mock_calls[0]
-        assert args[0].parent == "parent_value"
+        arg = args[0].parent
+        mock_val = "parent_value"
+        assert arg == mock_val
 
 
 def test_list_featurestores_flattened_error():
@@ -1184,7 +1198,9 @@ async def test_list_featurestores_flattened_async():
         # request object values.
         assert len(call.mock_calls)
         _, args, _ = call.mock_calls[0]
-        assert args[0].parent == "parent_value"
+        arg = args[0].parent
+        mock_val = "parent_value"
+        assert arg == mock_val
 
 
 @pytest.mark.asyncio
@@ -1544,8 +1560,12 @@ def test_update_featurestore_flattened():
         # request object values.
         assert len(call.mock_calls) == 1
         _, args, _ = call.mock_calls[0]
-        assert args[0].featurestore == gca_featurestore.Featurestore(name="name_value")
-        assert args[0].update_mask == field_mask_pb2.FieldMask(paths=["paths_value"])
+        arg = args[0].featurestore
+        mock_val = gca_featurestore.Featurestore(name="name_value")
+        assert arg == mock_val
+        arg = args[0].update_mask
+        mock_val = field_mask_pb2.FieldMask(paths=["paths_value"])
+        assert arg == mock_val
 
 
 def test_update_featurestore_flattened_error():
@@ -1590,8 +1610,12 @@ async def test_update_featurestore_flattened_async():
         # request object values.
         assert len(call.mock_calls)
         _, args, _ = call.mock_calls[0]
-        assert args[0].featurestore == gca_featurestore.Featurestore(name="name_value")
-        assert args[0].update_mask == field_mask_pb2.FieldMask(paths=["paths_value"])
+        arg = args[0].featurestore
+        mock_val = gca_featurestore.Featurestore(name="name_value")
+        assert arg == mock_val
+        arg = args[0].update_mask
+        mock_val = field_mask_pb2.FieldMask(paths=["paths_value"])
+        assert arg == mock_val
 
 
 @pytest.mark.asyncio
@@ -1776,8 +1800,12 @@ def test_delete_featurestore_flattened():
         # request object values.
         assert len(call.mock_calls) == 1
         _, args, _ = call.mock_calls[0]
-        assert args[0].name == "name_value"
-        assert args[0].force == True
+        arg = args[0].name
+        mock_val = "name_value"
+        assert arg == mock_val
+        arg = args[0].force
+        mock_val = True
+        assert arg == mock_val
 
 
 def test_delete_featurestore_flattened_error():
@@ -1819,8 +1847,12 @@ async def test_delete_featurestore_flattened_async():
         # request object values.
         assert len(call.mock_calls)
         _, args, _ = call.mock_calls[0]
-        assert args[0].name == "name_value"
-        assert args[0].force == True
+        arg = args[0].name
+        mock_val = "name_value"
+        assert arg == mock_val
+        arg = args[0].force
+        mock_val = True
+        assert arg == mock_val
 
 
 @pytest.mark.asyncio
@@ -2006,8 +2038,12 @@ def test_create_entity_type_flattened():
         # request object values.
         assert len(call.mock_calls) == 1
         _, args, _ = call.mock_calls[0]
-        assert args[0].parent == "parent_value"
-        assert args[0].entity_type == gca_entity_type.EntityType(name="name_value")
+        arg = args[0].parent
+        mock_val = "parent_value"
+        assert arg == mock_val
+        arg = args[0].entity_type
+        mock_val = gca_entity_type.EntityType(name="name_value")
+        assert arg == mock_val
 
 
 def test_create_entity_type_flattened_error():
@@ -2052,8 +2088,12 @@ async def test_create_entity_type_flattened_async():
         # request object values.
         assert len(call.mock_calls)
         _, args, _ = call.mock_calls[0]
-        assert args[0].parent == "parent_value"
-        assert args[0].entity_type == gca_entity_type.EntityType(name="name_value")
+        arg = args[0].parent
+        mock_val = "parent_value"
+        assert arg == mock_val
+        arg = args[0].entity_type
+        mock_val = gca_entity_type.EntityType(name="name_value")
+        assert arg == mock_val
 
 
 @pytest.mark.asyncio
@@ -2234,7 +2274,9 @@ def test_get_entity_type_flattened():
         # request object values.
         assert len(call.mock_calls) == 1
         _, args, _ = call.mock_calls[0]
-        assert args[0].name == "name_value"
+        arg = args[0].name
+        mock_val = "name_value"
+        assert arg == mock_val
 
 
 def test_get_entity_type_flattened_error():
@@ -2272,7 +2314,9 @@ async def test_get_entity_type_flattened_async():
         # request object values.
         assert len(call.mock_calls)
         _, args, _ = call.mock_calls[0]
-        assert args[0].name == "name_value"
+        arg = args[0].name
+        mock_val = "name_value"
+        assert arg == mock_val
 
 
 @pytest.mark.asyncio
@@ -2459,7 +2503,9 @@ def test_list_entity_types_flattened():
         # request object values.
         assert len(call.mock_calls) == 1
         _, args, _ = call.mock_calls[0]
-        assert args[0].parent == "parent_value"
+        arg = args[0].parent
+        mock_val = "parent_value"
+        assert arg == mock_val
 
 
 def test_list_entity_types_flattened_error():
@@ -2499,7 +2545,9 @@ async def test_list_entity_types_flattened_async():
         # request object values.
         assert len(call.mock_calls)
         _, args, _ = call.mock_calls[0]
-        assert args[0].parent == "parent_value"
+        arg = args[0].parent
+        mock_val = "parent_value"
+        assert arg == mock_val
 
 
 @pytest.mark.asyncio
@@ -2855,8 +2903,12 @@ def test_update_entity_type_flattened():
         # request object values.
         assert len(call.mock_calls) == 1
         _, args, _ = call.mock_calls[0]
-        assert args[0].entity_type == gca_entity_type.EntityType(name="name_value")
-        assert args[0].update_mask == field_mask_pb2.FieldMask(paths=["paths_value"])
+        arg = args[0].entity_type
+        mock_val = gca_entity_type.EntityType(name="name_value")
+        assert arg == mock_val
+        arg = args[0].update_mask
+        mock_val = field_mask_pb2.FieldMask(paths=["paths_value"])
+        assert arg == mock_val
 
 
 def test_update_entity_type_flattened_error():
@@ -2901,8 +2953,12 @@ async def test_update_entity_type_flattened_async():
         # request object values.
         assert len(call.mock_calls)
         _, args, _ = call.mock_calls[0]
-        assert args[0].entity_type == gca_entity_type.EntityType(name="name_value")
-        assert args[0].update_mask == field_mask_pb2.FieldMask(paths=["paths_value"])
+        arg = args[0].entity_type
+        mock_val = gca_entity_type.EntityType(name="name_value")
+        assert arg == mock_val
+        arg = args[0].update_mask
+        mock_val = field_mask_pb2.FieldMask(paths=["paths_value"])
+        assert arg == mock_val
 
 
 @pytest.mark.asyncio
@@ -3087,8 +3143,12 @@ def test_delete_entity_type_flattened():
         # request object values.
         assert len(call.mock_calls) == 1
         _, args, _ = call.mock_calls[0]
-        assert args[0].name == "name_value"
-        assert args[0].force == True
+        arg = args[0].name
+        mock_val = "name_value"
+        assert arg == mock_val
+        arg = args[0].force
+        mock_val = True
+        assert arg == mock_val
 
 
 def test_delete_entity_type_flattened_error():
@@ -3130,8 +3190,12 @@ async def test_delete_entity_type_flattened_async():
         # request object values.
         assert len(call.mock_calls)
         _, args, _ = call.mock_calls[0]
-        assert args[0].name == "name_value"
-        assert args[0].force == True
+        arg = args[0].name
+        mock_val = "name_value"
+        assert arg == mock_val
+        arg = args[0].force
+        mock_val = True
+        assert arg == mock_val
 
 
 @pytest.mark.asyncio
@@ -3304,8 +3368,12 @@ def test_create_feature_flattened():
         # request object values.
         assert len(call.mock_calls) == 1
         _, args, _ = call.mock_calls[0]
-        assert args[0].parent == "parent_value"
-        assert args[0].feature == gca_feature.Feature(name="name_value")
+        arg = args[0].parent
+        mock_val = "parent_value"
+        assert arg == mock_val
+        arg = args[0].feature
+        mock_val = gca_feature.Feature(name="name_value")
+        assert arg == mock_val
 
 
 def test_create_feature_flattened_error():
@@ -3347,8 +3415,12 @@ async def test_create_feature_flattened_async():
         # request object values.
         assert len(call.mock_calls)
         _, args, _ = call.mock_calls[0]
-        assert args[0].parent == "parent_value"
-        assert args[0].feature == gca_feature.Feature(name="name_value")
+        arg = args[0].parent
+        mock_val = "parent_value"
+        assert arg == mock_val
+        arg = args[0].feature
+        mock_val = gca_feature.Feature(name="name_value")
+        assert arg == mock_val
 
 
 @pytest.mark.asyncio
@@ -3535,10 +3607,12 @@ def test_batch_create_features_flattened():
         # request object values.
         assert len(call.mock_calls) == 1
         _, args, _ = call.mock_calls[0]
-        assert args[0].parent == "parent_value"
-        assert args[0].requests == [
-            featurestore_service.CreateFeatureRequest(parent="parent_value")
-        ]
+        arg = args[0].parent
+        mock_val = "parent_value"
+        assert arg == mock_val
+        arg = args[0].requests
+        mock_val = [featurestore_service.CreateFeatureRequest(parent="parent_value")]
+        assert arg == mock_val
 
 
 def test_batch_create_features_flattened_error():
@@ -3583,10 +3657,12 @@ async def test_batch_create_features_flattened_async():
         # request object values.
         assert len(call.mock_calls)
         _, args, _ = call.mock_calls[0]
-        assert args[0].parent == "parent_value"
-        assert args[0].requests == [
-            featurestore_service.CreateFeatureRequest(parent="parent_value")
-        ]
+        arg = args[0].parent
+        mock_val = "parent_value"
+        assert arg == mock_val
+        arg = args[0].requests
+        mock_val = [featurestore_service.CreateFeatureRequest(parent="parent_value")]
+        assert arg == mock_val
 
 
 @pytest.mark.asyncio
@@ -3772,7 +3848,9 @@ def test_get_feature_flattened():
         # request object values.
         assert len(call.mock_calls) == 1
         _, args, _ = call.mock_calls[0]
-        assert args[0].name == "name_value"
+        arg = args[0].name
+        mock_val = "name_value"
+        assert arg == mock_val
 
 
 def test_get_feature_flattened_error():
@@ -3808,7 +3886,9 @@ async def test_get_feature_flattened_async():
         # request object values.
         assert len(call.mock_calls)
         _, args, _ = call.mock_calls[0]
-        assert args[0].name == "name_value"
+        arg = args[0].name
+        mock_val = "name_value"
+        assert arg == mock_val
 
 
 @pytest.mark.asyncio
@@ -3983,7 +4063,9 @@ def test_list_features_flattened():
         # request object values.
         assert len(call.mock_calls) == 1
         _, args, _ = call.mock_calls[0]
-        assert args[0].parent == "parent_value"
+        arg = args[0].parent
+        mock_val = "parent_value"
+        assert arg == mock_val
 
 
 def test_list_features_flattened_error():
@@ -4021,7 +4103,9 @@ async def test_list_features_flattened_async():
         # request object values.
         assert len(call.mock_calls)
         _, args, _ = call.mock_calls[0]
-        assert args[0].parent == "parent_value"
+        arg = args[0].parent
+        mock_val = "parent_value"
+        assert arg == mock_val
 
 
 @pytest.mark.asyncio
@@ -4347,8 +4431,12 @@ def test_update_feature_flattened():
         # request object values.
         assert len(call.mock_calls) == 1
         _, args, _ = call.mock_calls[0]
-        assert args[0].feature == gca_feature.Feature(name="name_value")
-        assert args[0].update_mask == field_mask_pb2.FieldMask(paths=["paths_value"])
+        arg = args[0].feature
+        mock_val = gca_feature.Feature(name="name_value")
+        assert arg == mock_val
+        arg = args[0].update_mask
+        mock_val = field_mask_pb2.FieldMask(paths=["paths_value"])
+        assert arg == mock_val
 
 
 def test_update_feature_flattened_error():
@@ -4389,8 +4477,12 @@ async def test_update_feature_flattened_async():
         # request object values.
         assert len(call.mock_calls)
         _, args, _ = call.mock_calls[0]
-        assert args[0].feature == gca_feature.Feature(name="name_value")
-        assert args[0].update_mask == field_mask_pb2.FieldMask(paths=["paths_value"])
+        arg = args[0].feature
+        mock_val = gca_feature.Feature(name="name_value")
+        assert arg == mock_val
+        arg = args[0].update_mask
+        mock_val = field_mask_pb2.FieldMask(paths=["paths_value"])
+        assert arg == mock_val
 
 
 @pytest.mark.asyncio
@@ -4561,7 +4653,9 @@ def test_delete_feature_flattened():
         # request object values.
         assert len(call.mock_calls) == 1
         _, args, _ = call.mock_calls[0]
-        assert args[0].name == "name_value"
+        arg = args[0].name
+        mock_val = "name_value"
+        assert arg == mock_val
 
 
 def test_delete_feature_flattened_error():
@@ -4599,7 +4693,9 @@ async def test_delete_feature_flattened_async():
         # request object values.
         assert len(call.mock_calls)
         _, args, _ = call.mock_calls[0]
-        assert args[0].name == "name_value"
+        arg = args[0].name
+        mock_val = "name_value"
+        assert arg == mock_val
 
 
 @pytest.mark.asyncio
@@ -4781,7 +4877,9 @@ def test_import_feature_values_flattened():
         # request object values.
         assert len(call.mock_calls) == 1
         _, args, _ = call.mock_calls[0]
-        assert args[0].entity_type == "entity_type_value"
+        arg = args[0].entity_type
+        mock_val = "entity_type_value"
+        assert arg == mock_val
 
 
 def test_import_feature_values_flattened_error():
@@ -4822,7 +4920,9 @@ async def test_import_feature_values_flattened_async():
         # request object values.
         assert len(call.mock_calls)
         _, args, _ = call.mock_calls[0]
-        assert args[0].entity_type == "entity_type_value"
+        arg = args[0].entity_type
+        mock_val = "entity_type_value"
+        assert arg == mock_val
 
 
 @pytest.mark.asyncio
@@ -5009,7 +5109,9 @@ def test_batch_read_feature_values_flattened():
         # request object values.
         assert len(call.mock_calls) == 1
         _, args, _ = call.mock_calls[0]
-        assert args[0].featurestore == "featurestore_value"
+        arg = args[0].featurestore
+        mock_val = "featurestore_value"
+        assert arg == mock_val
 
 
 def test_batch_read_feature_values_flattened_error():
@@ -5052,7 +5154,9 @@ async def test_batch_read_feature_values_flattened_async():
         # request object values.
         assert len(call.mock_calls)
         _, args, _ = call.mock_calls[0]
-        assert args[0].featurestore == "featurestore_value"
+        arg = args[0].featurestore
+        mock_val = "featurestore_value"
+        assert arg == mock_val
 
 
 @pytest.mark.asyncio
@@ -5235,7 +5339,9 @@ def test_export_feature_values_flattened():
         # request object values.
         assert len(call.mock_calls) == 1
         _, args, _ = call.mock_calls[0]
-        assert args[0].entity_type == "entity_type_value"
+        arg = args[0].entity_type
+        mock_val = "entity_type_value"
+        assert arg == mock_val
 
 
 def test_export_feature_values_flattened_error():
@@ -5276,7 +5382,9 @@ async def test_export_feature_values_flattened_async():
         # request object values.
         assert len(call.mock_calls)
         _, args, _ = call.mock_calls[0]
-        assert args[0].entity_type == "entity_type_value"
+        arg = args[0].entity_type
+        mock_val = "entity_type_value"
+        assert arg == mock_val
 
 
 @pytest.mark.asyncio
@@ -5454,8 +5562,12 @@ def test_search_features_flattened():
         # request object values.
         assert len(call.mock_calls) == 1
         _, args, _ = call.mock_calls[0]
-        assert args[0].location == "location_value"
-        assert args[0].query == "query_value"
+        arg = args[0].location
+        mock_val = "location_value"
+        assert arg == mock_val
+        arg = args[0].query
+        mock_val = "query_value"
+        assert arg == mock_val
 
 
 def test_search_features_flattened_error():
@@ -5497,8 +5609,12 @@ async def test_search_features_flattened_async():
         # request object values.
         assert len(call.mock_calls)
         _, args, _ = call.mock_calls[0]
-        assert args[0].location == "location_value"
-        assert args[0].query == "query_value"
+        arg = args[0].location
+        mock_val = "location_value"
+        assert arg == mock_val
+        arg = args[0].query
+        mock_val = "query_value"
+        assert arg == mock_val
 
 
 @pytest.mark.asyncio

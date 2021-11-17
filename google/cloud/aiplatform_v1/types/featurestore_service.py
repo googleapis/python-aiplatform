@@ -277,11 +277,13 @@ class ImportFeatureValuesRequest(proto.Message):
         feature_time_field (str):
             Source column that holds the Feature
             timestamp for all Feature values in each entity.
+
             This field is a member of `oneof`_ ``feature_time_source``.
         feature_time (google.protobuf.timestamp_pb2.Timestamp):
             Single Feature timestamp for all entities
             being imported. The timestamp must not have
             higher than millisecond precision.
+
             This field is a member of `oneof`_ ``feature_time_source``.
         entity_type (str):
             Required. The resource name of the EntityType grouping the
@@ -416,9 +418,11 @@ class BatchReadFeatureValuesRequest(proto.Message):
 
             Values in the timestamp column must use the RFC 3339 format,
             e.g. ``2012-07-30T10:43:17.123Z``.
+
             This field is a member of `oneof`_ ``read_option``.
         bigquery_read_instances (google.cloud.aiplatform_v1.types.BigQuerySource):
             Similar to csv_read_instances, but from BigQuery source.
+
             This field is a member of `oneof`_ ``read_option``.
         featurestore (str):
             Required. The resource name of the Featurestore from which
@@ -510,6 +514,7 @@ class ExportFeatureValuesRequest(proto.Message):
         snapshot_export (google.cloud.aiplatform_v1.types.ExportFeatureValuesRequest.SnapshotExport):
             Exports Feature values of all entities of the
             EntityType as of a snapshot time.
+
             This field is a member of `oneof`_ ``mode``.
         entity_type (str):
             Required. The resource name of the EntityType from which to
@@ -590,6 +595,7 @@ class FeatureValueDestination(proto.Message):
             in
             [FeatureValueDestination.bigquery_destination][google.cloud.aiplatform.v1.FeatureValueDestination.bigquery_destination]
             must refer to a table.
+
             This field is a member of `oneof`_ ``destination``.
         tfrecord_destination (google.cloud.aiplatform_v1.types.TFRecordDestination):
             Output in TFRecord format.
@@ -605,10 +611,12 @@ class FeatureValueDestination(proto.Message):
                 STRING, STRING_ARRAY, BYTES                | BYTES_LIST
                 true -> byte_string("true"), false -> byte_string("false")
                 BOOL, BOOL_ARRAY (true, false)             | BYTES_LIST
+
             This field is a member of `oneof`_ ``destination``.
         csv_destination (google.cloud.aiplatform_v1.types.CsvDestination):
             Output in CSV format. Array Feature value
             types are not allowed in CSV format.
+
             This field is a member of `oneof`_ ``destination``.
     """
 
