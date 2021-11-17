@@ -23,10 +23,11 @@ import importlib.util
 import json
 import logging
 from tensorboard.plugins.base_plugin import TBContext
-from typing import Optional
+from typing import Callable, Dict, Optional
 from urllib import parse
 from werkzeug import Response
 
+from google.cloud.aiplatform.tensorboard.plugins.tf_profiler import profile_uploader
 from google.cloud.aiplatform.training_utils import environment_variables
 from google.cloud.aiplatform.training_utils.cloud_profiler.plugins import base_plugin
 from google.cloud.aiplatform.training_utils.cloud_profiler.plugins.tensorflow import (
@@ -38,6 +39,12 @@ from google.cloud.aiplatform.training_utils.cloud_profiler.plugins.tensorflow im
 Version = namedtuple("Version", ["major", "minor", "patch"])
 
 logger = logging.Logger("tf-profiler")
+
+_BASE_TB_ENV_WARNING = (
+    "To set this environment variable, run your training with the 'tensorboard' "
+    "option. For more information on how to run with training with tensorboard, visit "
+    "https://cloud.google.com/vertex-ai/docs/experiments/tensorboard-training"
+)
 
 
 def _get_tf_versioning() -> Optional[Version]:
@@ -205,41 +212,50 @@ def _update_environ(environ) -> bool:
     return True
 
 
+def warn_tensorboard_env_var(var_name: str):
+    """Warns if a tensorboard related environment variable is missing.
+
+    Args:
+        var_name (str):
+            Required. The name of the missing environment variable.
+    """
+    logging.warning(
+        f"Environment variable `{var_name}` must be set. " + _BASE_TB_ENV_WARNING
+    )
+
+
 def _check_env_vars() -> bool:
     """Determine whether the correct environment variables are set.
 
     Returns:
         bool indicating all necessary variables are set.
     """
+    # The below are tensorboard specific environment variables.
     if environment_variables.tf_profiler_port is None:
-        logger.warning(
-            '"%s" environment variable not set, cannot enable profiling.',
-            "AIP_TF_PROFILER_PORT",
-        )
+        warn_tensorboard_env_var("AIP_TF_PROFILER_PORT")
         return False
 
     if environment_variables.tensorboard_log_dir is None:
-        logger.warning(
-            "Must set a tensorboard log directory, "
-            "run training with tensorboard enabled."
-        )
+        warn_tensorboard_env_var("AIP_TENSORBOARD_LOG_DIR")
         return False
 
     if environment_variables.tensorboard_api_uri is None:
-        logger.warning("Must set the tensorboard API uri.")
+        warn_tensorboard_env_var("AIP_TENSORBOARD_API_URI")
         return False
 
     if environment_variables.tensorboard_resource_name is None:
-        logger.warning("Must set the tensorboard resource name.")
+        warn_tensorboard_env_var("AIP_TENSORBOARD_RESOURCE_NAME")
         return False
 
+    # These environment variables are not tensorboard related, they are
+    # variables set for any Vertex training run.
     cluster_spec = environment_variables.cluster_spec
     if cluster_spec is None:
-        logger.warning('Environment variable "CLUSTER_SPEC" is not set')
+        logger.warning("Environment variable `CLUSTER_SPEC` is not set.")
         return False
 
     if environment_variables.cloud_ml_job_id is None:
-        logger.warning("Job ID must be set")
+        logger.warning("Environment variable `CLOUD_ML_JOB_ID` is not set")
         return False
 
     return True
@@ -255,16 +271,37 @@ class TFProfiler(base_plugin.BasePlugin):
         from tensorboard_plugin_profile.profile_plugin import ProfilePlugin
 
         context = _create_profiling_context()
-        self._profile_request_sender = tensorboard_api.create_profile_request_sender()
-        self._profile_plugin = ProfilePlugin(context)
+        self._profile_request_sender: profile_uploader.ProfileRequestSender = tensorboard_api.create_profile_request_sender()
+        self._profile_plugin: ProfilePlugin = ProfilePlugin(context)
 
-    def get_routes(self):
-        """List of routes to serve."""
+    def get_routes(
+        self,
+    ) -> Dict[str, Callable[[Dict[str, str], Callable[[...], None]], Response]]:
+        """List of routes to serve.
+
+        Returns:
+            A callable that takes an werkzeug env and start response and returns a response.
+        """
         return {"/capture_profile": self.capture_profile_wrapper}
 
     # Define routes below
-    def capture_profile_wrapper(self, environ, start_response) -> Response:
-        """Take a request from tensorboard.gcp and run the profiling for the available servers."""
+    def capture_profile_wrapper(
+        self, environ: Dict[str, str], start_response: Callable[[...], None]
+    ) -> Response:
+        """Take a request from tensorboard.gcp and run the profiling for the available servers.
+
+        Args:
+            environ:
+                Required. A dictionary object, containing CGI-style environment variables,
+                    as defined by the Common Gateway Interface specification.
+                    See WSGI spec (PEP 3333).
+            start_response (Callable[...]):
+                Required. A callable accepting two required positional arguments, and one
+                    optional argument. See WSGI spec (PEP 3333).
+
+        Returns:
+            A `Response` object.
+        """
         # The service address (localhost) and worker list are populated locally
         if not _update_environ(environ):
             err = {"error": "Could not parse the environ: %s"}

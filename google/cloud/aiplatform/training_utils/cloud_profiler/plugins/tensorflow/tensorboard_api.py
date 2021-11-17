@@ -19,6 +19,7 @@
 
 import os
 import re
+from typing import Tuple
 
 from tensorboard.uploader import upload_tracker
 from tensorboard.uploader import util
@@ -39,7 +40,7 @@ from google.cloud.aiplatform import training_utils
 logger = tb_logging.get_logger()
 
 
-def _get_api_client():
+def _get_api_client() -> TensorboardClientWithOverride:
     """Creates an Tensorboard API client."""
     aiplatform.constants.API_BASE_PATH = (
         training_utils.environment_variables.tensorboard_api_uri
@@ -57,7 +58,7 @@ def _get_api_client():
     return api_client
 
 
-def _get_project_id():
+def _get_project_id() -> str:
     """Gets the project id from the tensorboard resource name.
 
     Returns:
@@ -78,7 +79,12 @@ def _get_project_id():
     return m[1]
 
 
-def _make_upload_limits():
+def _make_upload_limits() -> server_info_pb2.UploadLimits:
+    """Creates the upload limits for tensorboard.
+
+    Returns:
+        An UploadLimits object.
+    """
     upload_limits = server_info_pb2.UploadLimits()
     upload_limits.min_blob_request_interval = 10
     upload_limits.max_blob_request_size = 4 * (2 ** 20) - 256 * (2 ** 10)
@@ -87,7 +93,18 @@ def _make_upload_limits():
     return upload_limits
 
 
-def _get_blob_items(api_client):
+def _get_blob_items(
+    api_client: TensorboardClientWithOverride,
+) -> Tuple[storage.bucket.Bucket, str]:
+    """Gets the blob storage items for the tensorboard resource.
+
+    Args:
+        api_client ():
+            Required. Client go get information about the tensorboard instance.
+
+    Returns:
+        A tuple of storage buckets and the blob storage folder name.
+    """
     project_id = _get_project_id()
     tensorboard = api_client.get_tensorboard(
         name=training_utils.environment_variables.tensorboard_resource_name
@@ -102,7 +119,20 @@ def _get_blob_items(api_client):
     return blob_storage_bucket, blob_storage_folder
 
 
-def _get_or_create_experiment(api, experiment_name):
+def _get_or_create_experiment(
+    api: TensorboardClientWithOverride, experiment_name: str
+) -> str:
+    """Creates a tensorboard experiment.
+
+    Args:
+        api (TensorboardClientWithOverride):
+            Required. An api for interfacing with tensorboard resources.
+        experiment_name (str):
+            Required. The name of the experiment to get or create.
+
+    Returns:
+        The name of the experiment.
+    """
     tb_experiment = tensorboard_experiment.TensorboardExperiment()
 
     try:
@@ -123,11 +153,14 @@ def _get_or_create_experiment(api, experiment_name):
     return experiment.name
 
 
-def create_profile_request_sender():
+def create_profile_request_sender() -> profile_uploader.ProfileRequestSender:
     """Creates the `ProfileRequestSender` for the profile plugin.
 
     A profile request sender is created for the plugin so that after profiling runs
     have finished, data can be uploaded to the tensorboard backend.
+
+    Returns:
+        A ProfileRequestSender object.
     """
     api_client = _get_api_client()
 

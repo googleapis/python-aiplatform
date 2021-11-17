@@ -17,7 +17,7 @@
 
 import logging
 import threading
-from typing import Callable, Optional
+from typing import Optional, Type
 from werkzeug import serving
 
 from google.cloud.aiplatform.training_utils import environment_variables
@@ -29,7 +29,6 @@ from google.cloud.aiplatform.training_utils.cloud_profiler.plugins.tensorflow im
 
 # Mapping of available plugins to use
 _AVAILABLE_PLUGINS = {"tensorflow": tf_profiler.TFProfiler}
-_HOST_PORT = 6010
 
 
 class MissingEnvironmentVariableException(Exception):
@@ -37,13 +36,13 @@ class MissingEnvironmentVariableException(Exception):
 
 
 def _build_plugin(
-    plugin: Callable[[], base_plugin.BasePlugin]
+    plugin: Type[base_plugin.BasePlugin],
 ) -> Optional[base_plugin.BasePlugin]:
     """Builds the plugin given the object.
 
     Args:
-        plugin (Callable[[], base_plugin):
-            Required. An uninitialized plugin.
+        plugin (Type[base_plugin]):
+            Required. An uninitialized plugin class.
 
     Returns:
         An initialized plugin, or None if plugin cannot be
