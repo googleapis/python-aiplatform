@@ -202,6 +202,10 @@ class TestProfilerPlugin(unittest.TestCase):
 
             assert server_mock.call_count == 1
 
+    def testSetupRaiseImportError(self):
+      with mock.patch.dict('sys.modules', {'tensorflow': None}):
+        self.assertRaises(ImportError, TFProfiler.setup)
+
     def testPostSetupChecksFail(self):
         tf_profiler.environment_variables.cluster_spec = {}
         assert not TFProfiler.post_setup_check()
