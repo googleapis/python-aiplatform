@@ -680,8 +680,12 @@ def test_create_tensorboard_flattened():
         # request object values.
         assert len(call.mock_calls) == 1
         _, args, _ = call.mock_calls[0]
-        assert args[0].parent == "parent_value"
-        assert args[0].tensorboard == gca_tensorboard.Tensorboard(name="name_value")
+        arg = args[0].parent
+        mock_val = "parent_value"
+        assert arg == mock_val
+        arg = args[0].tensorboard
+        mock_val = gca_tensorboard.Tensorboard(name="name_value")
+        assert arg == mock_val
 
 
 def test_create_tensorboard_flattened_error():
@@ -726,8 +730,12 @@ async def test_create_tensorboard_flattened_async():
         # request object values.
         assert len(call.mock_calls)
         _, args, _ = call.mock_calls[0]
-        assert args[0].parent == "parent_value"
-        assert args[0].tensorboard == gca_tensorboard.Tensorboard(name="name_value")
+        arg = args[0].parent
+        mock_val = "parent_value"
+        assert arg == mock_val
+        arg = args[0].tensorboard
+        mock_val = gca_tensorboard.Tensorboard(name="name_value")
+        assert arg == mock_val
 
 
 @pytest.mark.asyncio
@@ -924,7 +932,9 @@ def test_get_tensorboard_flattened():
         # request object values.
         assert len(call.mock_calls) == 1
         _, args, _ = call.mock_calls[0]
-        assert args[0].name == "name_value"
+        arg = args[0].name
+        mock_val = "name_value"
+        assert arg == mock_val
 
 
 def test_get_tensorboard_flattened_error():
@@ -962,7 +972,9 @@ async def test_get_tensorboard_flattened_async():
         # request object values.
         assert len(call.mock_calls)
         _, args, _ = call.mock_calls[0]
-        assert args[0].name == "name_value"
+        arg = args[0].name
+        mock_val = "name_value"
+        assert arg == mock_val
 
 
 @pytest.mark.asyncio
@@ -1150,8 +1162,12 @@ def test_update_tensorboard_flattened():
         # request object values.
         assert len(call.mock_calls) == 1
         _, args, _ = call.mock_calls[0]
-        assert args[0].tensorboard == gca_tensorboard.Tensorboard(name="name_value")
-        assert args[0].update_mask == field_mask_pb2.FieldMask(paths=["paths_value"])
+        arg = args[0].tensorboard
+        mock_val = gca_tensorboard.Tensorboard(name="name_value")
+        assert arg == mock_val
+        arg = args[0].update_mask
+        mock_val = field_mask_pb2.FieldMask(paths=["paths_value"])
+        assert arg == mock_val
 
 
 def test_update_tensorboard_flattened_error():
@@ -1196,8 +1212,12 @@ async def test_update_tensorboard_flattened_async():
         # request object values.
         assert len(call.mock_calls)
         _, args, _ = call.mock_calls[0]
-        assert args[0].tensorboard == gca_tensorboard.Tensorboard(name="name_value")
-        assert args[0].update_mask == field_mask_pb2.FieldMask(paths=["paths_value"])
+        arg = args[0].tensorboard
+        mock_val = gca_tensorboard.Tensorboard(name="name_value")
+        assert arg == mock_val
+        arg = args[0].update_mask
+        mock_val = field_mask_pb2.FieldMask(paths=["paths_value"])
+        assert arg == mock_val
 
 
 @pytest.mark.asyncio
@@ -1386,7 +1406,9 @@ def test_list_tensorboards_flattened():
         # request object values.
         assert len(call.mock_calls) == 1
         _, args, _ = call.mock_calls[0]
-        assert args[0].parent == "parent_value"
+        arg = args[0].parent
+        mock_val = "parent_value"
+        assert arg == mock_val
 
 
 def test_list_tensorboards_flattened_error():
@@ -1426,7 +1448,9 @@ async def test_list_tensorboards_flattened_async():
         # request object values.
         assert len(call.mock_calls)
         _, args, _ = call.mock_calls[0]
-        assert args[0].parent == "parent_value"
+        arg = args[0].parent
+        mock_val = "parent_value"
+        assert arg == mock_val
 
 
 @pytest.mark.asyncio
@@ -1765,7 +1789,9 @@ def test_delete_tensorboard_flattened():
         # request object values.
         assert len(call.mock_calls) == 1
         _, args, _ = call.mock_calls[0]
-        assert args[0].name == "name_value"
+        arg = args[0].name
+        mock_val = "name_value"
+        assert arg == mock_val
 
 
 def test_delete_tensorboard_flattened_error():
@@ -1805,7 +1831,9 @@ async def test_delete_tensorboard_flattened_async():
         # request object values.
         assert len(call.mock_calls)
         _, args, _ = call.mock_calls[0]
-        assert args[0].name == "name_value"
+        arg = args[0].name
+        mock_val = "name_value"
+        assert arg == mock_val
 
 
 @pytest.mark.asyncio
@@ -2015,13 +2043,15 @@ def test_create_tensorboard_experiment_flattened():
         # request object values.
         assert len(call.mock_calls) == 1
         _, args, _ = call.mock_calls[0]
-        assert args[0].parent == "parent_value"
-        assert args[
-            0
-        ].tensorboard_experiment == gca_tensorboard_experiment.TensorboardExperiment(
-            name="name_value"
-        )
-        assert args[0].tensorboard_experiment_id == "tensorboard_experiment_id_value"
+        arg = args[0].parent
+        mock_val = "parent_value"
+        assert arg == mock_val
+        arg = args[0].tensorboard_experiment
+        mock_val = gca_tensorboard_experiment.TensorboardExperiment(name="name_value")
+        assert arg == mock_val
+        arg = args[0].tensorboard_experiment_id
+        mock_val = "tensorboard_experiment_id_value"
+        assert arg == mock_val
 
 
 def test_create_tensorboard_experiment_flattened_error():
@@ -2072,13 +2102,15 @@ async def test_create_tensorboard_experiment_flattened_async():
         # request object values.
         assert len(call.mock_calls)
         _, args, _ = call.mock_calls[0]
-        assert args[0].parent == "parent_value"
-        assert args[
-            0
-        ].tensorboard_experiment == gca_tensorboard_experiment.TensorboardExperiment(
-            name="name_value"
-        )
-        assert args[0].tensorboard_experiment_id == "tensorboard_experiment_id_value"
+        arg = args[0].parent
+        mock_val = "parent_value"
+        assert arg == mock_val
+        arg = args[0].tensorboard_experiment
+        mock_val = gca_tensorboard_experiment.TensorboardExperiment(name="name_value")
+        assert arg == mock_val
+        arg = args[0].tensorboard_experiment_id
+        mock_val = "tensorboard_experiment_id_value"
+        assert arg == mock_val
 
 
 @pytest.mark.asyncio
@@ -2287,7 +2319,9 @@ def test_get_tensorboard_experiment_flattened():
         # request object values.
         assert len(call.mock_calls) == 1
         _, args, _ = call.mock_calls[0]
-        assert args[0].name == "name_value"
+        arg = args[0].name
+        mock_val = "name_value"
+        assert arg == mock_val
 
 
 def test_get_tensorboard_experiment_flattened_error():
@@ -2327,7 +2361,9 @@ async def test_get_tensorboard_experiment_flattened_async():
         # request object values.
         assert len(call.mock_calls)
         _, args, _ = call.mock_calls[0]
-        assert args[0].name == "name_value"
+        arg = args[0].name
+        mock_val = "name_value"
+        assert arg == mock_val
 
 
 @pytest.mark.asyncio
@@ -2542,12 +2578,12 @@ def test_update_tensorboard_experiment_flattened():
         # request object values.
         assert len(call.mock_calls) == 1
         _, args, _ = call.mock_calls[0]
-        assert args[
-            0
-        ].tensorboard_experiment == gca_tensorboard_experiment.TensorboardExperiment(
-            name="name_value"
-        )
-        assert args[0].update_mask == field_mask_pb2.FieldMask(paths=["paths_value"])
+        arg = args[0].tensorboard_experiment
+        mock_val = gca_tensorboard_experiment.TensorboardExperiment(name="name_value")
+        assert arg == mock_val
+        arg = args[0].update_mask
+        mock_val = field_mask_pb2.FieldMask(paths=["paths_value"])
+        assert arg == mock_val
 
 
 def test_update_tensorboard_experiment_flattened_error():
@@ -2596,12 +2632,12 @@ async def test_update_tensorboard_experiment_flattened_async():
         # request object values.
         assert len(call.mock_calls)
         _, args, _ = call.mock_calls[0]
-        assert args[
-            0
-        ].tensorboard_experiment == gca_tensorboard_experiment.TensorboardExperiment(
-            name="name_value"
-        )
-        assert args[0].update_mask == field_mask_pb2.FieldMask(paths=["paths_value"])
+        arg = args[0].tensorboard_experiment
+        mock_val = gca_tensorboard_experiment.TensorboardExperiment(name="name_value")
+        assert arg == mock_val
+        arg = args[0].update_mask
+        mock_val = field_mask_pb2.FieldMask(paths=["paths_value"])
+        assert arg == mock_val
 
 
 @pytest.mark.asyncio
@@ -2793,7 +2829,9 @@ def test_list_tensorboard_experiments_flattened():
         # request object values.
         assert len(call.mock_calls) == 1
         _, args, _ = call.mock_calls[0]
-        assert args[0].parent == "parent_value"
+        arg = args[0].parent
+        mock_val = "parent_value"
+        assert arg == mock_val
 
 
 def test_list_tensorboard_experiments_flattened_error():
@@ -2834,7 +2872,9 @@ async def test_list_tensorboard_experiments_flattened_async():
         # request object values.
         assert len(call.mock_calls)
         _, args, _ = call.mock_calls[0]
-        assert args[0].parent == "parent_value"
+        arg = args[0].parent
+        mock_val = "parent_value"
+        assert arg == mock_val
 
 
 @pytest.mark.asyncio
@@ -3206,7 +3246,9 @@ def test_delete_tensorboard_experiment_flattened():
         # request object values.
         assert len(call.mock_calls) == 1
         _, args, _ = call.mock_calls[0]
-        assert args[0].name == "name_value"
+        arg = args[0].name
+        mock_val = "name_value"
+        assert arg == mock_val
 
 
 def test_delete_tensorboard_experiment_flattened_error():
@@ -3246,7 +3288,9 @@ async def test_delete_tensorboard_experiment_flattened_async():
         # request object values.
         assert len(call.mock_calls)
         _, args, _ = call.mock_calls[0]
-        assert args[0].name == "name_value"
+        arg = args[0].name
+        mock_val = "name_value"
+        assert arg == mock_val
 
 
 @pytest.mark.asyncio
@@ -3450,11 +3494,15 @@ def test_create_tensorboard_run_flattened():
         # request object values.
         assert len(call.mock_calls) == 1
         _, args, _ = call.mock_calls[0]
-        assert args[0].parent == "parent_value"
-        assert args[0].tensorboard_run == gca_tensorboard_run.TensorboardRun(
-            name="name_value"
-        )
-        assert args[0].tensorboard_run_id == "tensorboard_run_id_value"
+        arg = args[0].parent
+        mock_val = "parent_value"
+        assert arg == mock_val
+        arg = args[0].tensorboard_run
+        mock_val = gca_tensorboard_run.TensorboardRun(name="name_value")
+        assert arg == mock_val
+        arg = args[0].tensorboard_run_id
+        mock_val = "tensorboard_run_id_value"
+        assert arg == mock_val
 
 
 def test_create_tensorboard_run_flattened_error():
@@ -3501,11 +3549,15 @@ async def test_create_tensorboard_run_flattened_async():
         # request object values.
         assert len(call.mock_calls)
         _, args, _ = call.mock_calls[0]
-        assert args[0].parent == "parent_value"
-        assert args[0].tensorboard_run == gca_tensorboard_run.TensorboardRun(
-            name="name_value"
-        )
-        assert args[0].tensorboard_run_id == "tensorboard_run_id_value"
+        arg = args[0].parent
+        mock_val = "parent_value"
+        assert arg == mock_val
+        arg = args[0].tensorboard_run
+        mock_val = gca_tensorboard_run.TensorboardRun(name="name_value")
+        assert arg == mock_val
+        arg = args[0].tensorboard_run_id
+        mock_val = "tensorboard_run_id_value"
+        assert arg == mock_val
 
 
 @pytest.mark.asyncio
@@ -3695,10 +3747,14 @@ def test_batch_create_tensorboard_runs_flattened():
         # request object values.
         assert len(call.mock_calls) == 1
         _, args, _ = call.mock_calls[0]
-        assert args[0].parent == "parent_value"
-        assert args[0].requests == [
+        arg = args[0].parent
+        mock_val = "parent_value"
+        assert arg == mock_val
+        arg = args[0].requests
+        mock_val = [
             tensorboard_service.CreateTensorboardRunRequest(parent="parent_value")
         ]
+        assert arg == mock_val
 
 
 def test_batch_create_tensorboard_runs_flattened_error():
@@ -3747,10 +3803,14 @@ async def test_batch_create_tensorboard_runs_flattened_async():
         # request object values.
         assert len(call.mock_calls)
         _, args, _ = call.mock_calls[0]
-        assert args[0].parent == "parent_value"
-        assert args[0].requests == [
+        arg = args[0].parent
+        mock_val = "parent_value"
+        assert arg == mock_val
+        arg = args[0].requests
+        mock_val = [
             tensorboard_service.CreateTensorboardRunRequest(parent="parent_value")
         ]
+        assert arg == mock_val
 
 
 @pytest.mark.asyncio
@@ -3953,7 +4013,9 @@ def test_get_tensorboard_run_flattened():
         # request object values.
         assert len(call.mock_calls) == 1
         _, args, _ = call.mock_calls[0]
-        assert args[0].name == "name_value"
+        arg = args[0].name
+        mock_val = "name_value"
+        assert arg == mock_val
 
 
 def test_get_tensorboard_run_flattened_error():
@@ -3993,7 +4055,9 @@ async def test_get_tensorboard_run_flattened_async():
         # request object values.
         assert len(call.mock_calls)
         _, args, _ = call.mock_calls[0]
-        assert args[0].name == "name_value"
+        arg = args[0].name
+        mock_val = "name_value"
+        assert arg == mock_val
 
 
 @pytest.mark.asyncio
@@ -4202,10 +4266,12 @@ def test_update_tensorboard_run_flattened():
         # request object values.
         assert len(call.mock_calls) == 1
         _, args, _ = call.mock_calls[0]
-        assert args[0].tensorboard_run == gca_tensorboard_run.TensorboardRun(
-            name="name_value"
-        )
-        assert args[0].update_mask == field_mask_pb2.FieldMask(paths=["paths_value"])
+        arg = args[0].tensorboard_run
+        mock_val = gca_tensorboard_run.TensorboardRun(name="name_value")
+        assert arg == mock_val
+        arg = args[0].update_mask
+        mock_val = field_mask_pb2.FieldMask(paths=["paths_value"])
+        assert arg == mock_val
 
 
 def test_update_tensorboard_run_flattened_error():
@@ -4250,10 +4316,12 @@ async def test_update_tensorboard_run_flattened_async():
         # request object values.
         assert len(call.mock_calls)
         _, args, _ = call.mock_calls[0]
-        assert args[0].tensorboard_run == gca_tensorboard_run.TensorboardRun(
-            name="name_value"
-        )
-        assert args[0].update_mask == field_mask_pb2.FieldMask(paths=["paths_value"])
+        arg = args[0].tensorboard_run
+        mock_val = gca_tensorboard_run.TensorboardRun(name="name_value")
+        assert arg == mock_val
+        arg = args[0].update_mask
+        mock_val = field_mask_pb2.FieldMask(paths=["paths_value"])
+        assert arg == mock_val
 
 
 @pytest.mark.asyncio
@@ -4442,7 +4510,9 @@ def test_list_tensorboard_runs_flattened():
         # request object values.
         assert len(call.mock_calls) == 1
         _, args, _ = call.mock_calls[0]
-        assert args[0].parent == "parent_value"
+        arg = args[0].parent
+        mock_val = "parent_value"
+        assert arg == mock_val
 
 
 def test_list_tensorboard_runs_flattened_error():
@@ -4482,7 +4552,9 @@ async def test_list_tensorboard_runs_flattened_async():
         # request object values.
         assert len(call.mock_calls)
         _, args, _ = call.mock_calls[0]
-        assert args[0].parent == "parent_value"
+        arg = args[0].parent
+        mock_val = "parent_value"
+        assert arg == mock_val
 
 
 @pytest.mark.asyncio
@@ -4838,7 +4910,9 @@ def test_delete_tensorboard_run_flattened():
         # request object values.
         assert len(call.mock_calls) == 1
         _, args, _ = call.mock_calls[0]
-        assert args[0].name == "name_value"
+        arg = args[0].name
+        mock_val = "name_value"
+        assert arg == mock_val
 
 
 def test_delete_tensorboard_run_flattened_error():
@@ -4878,7 +4952,9 @@ async def test_delete_tensorboard_run_flattened_async():
         # request object values.
         assert len(call.mock_calls)
         _, args, _ = call.mock_calls[0]
-        assert args[0].name == "name_value"
+        arg = args[0].name
+        mock_val = "name_value"
+        assert arg == mock_val
 
 
 @pytest.mark.asyncio
@@ -5077,12 +5153,16 @@ def test_batch_create_tensorboard_time_series_flattened():
         # request object values.
         assert len(call.mock_calls) == 1
         _, args, _ = call.mock_calls[0]
-        assert args[0].parent == "parent_value"
-        assert args[0].requests == [
+        arg = args[0].parent
+        mock_val = "parent_value"
+        assert arg == mock_val
+        arg = args[0].requests
+        mock_val = [
             tensorboard_service.CreateTensorboardTimeSeriesRequest(
                 parent="parent_value"
             )
         ]
+        assert arg == mock_val
 
 
 def test_batch_create_tensorboard_time_series_flattened_error():
@@ -5137,12 +5217,16 @@ async def test_batch_create_tensorboard_time_series_flattened_async():
         # request object values.
         assert len(call.mock_calls)
         _, args, _ = call.mock_calls[0]
-        assert args[0].parent == "parent_value"
-        assert args[0].requests == [
+        arg = args[0].parent
+        mock_val = "parent_value"
+        assert arg == mock_val
+        arg = args[0].requests
+        mock_val = [
             tensorboard_service.CreateTensorboardTimeSeriesRequest(
                 parent="parent_value"
             )
         ]
+        assert arg == mock_val
 
 
 @pytest.mark.asyncio
@@ -5371,12 +5455,12 @@ def test_create_tensorboard_time_series_flattened():
         # request object values.
         assert len(call.mock_calls) == 1
         _, args, _ = call.mock_calls[0]
-        assert args[0].parent == "parent_value"
-        assert args[
-            0
-        ].tensorboard_time_series == gca_tensorboard_time_series.TensorboardTimeSeries(
-            name="name_value"
-        )
+        arg = args[0].parent
+        mock_val = "parent_value"
+        assert arg == mock_val
+        arg = args[0].tensorboard_time_series
+        mock_val = gca_tensorboard_time_series.TensorboardTimeSeries(name="name_value")
+        assert arg == mock_val
 
 
 def test_create_tensorboard_time_series_flattened_error():
@@ -5425,12 +5509,12 @@ async def test_create_tensorboard_time_series_flattened_async():
         # request object values.
         assert len(call.mock_calls)
         _, args, _ = call.mock_calls[0]
-        assert args[0].parent == "parent_value"
-        assert args[
-            0
-        ].tensorboard_time_series == gca_tensorboard_time_series.TensorboardTimeSeries(
-            name="name_value"
-        )
+        arg = args[0].parent
+        mock_val = "parent_value"
+        assert arg == mock_val
+        arg = args[0].tensorboard_time_series
+        mock_val = gca_tensorboard_time_series.TensorboardTimeSeries(name="name_value")
+        assert arg == mock_val
 
 
 @pytest.mark.asyncio
@@ -5652,7 +5736,9 @@ def test_get_tensorboard_time_series_flattened():
         # request object values.
         assert len(call.mock_calls) == 1
         _, args, _ = call.mock_calls[0]
-        assert args[0].name == "name_value"
+        arg = args[0].name
+        mock_val = "name_value"
+        assert arg == mock_val
 
 
 def test_get_tensorboard_time_series_flattened_error():
@@ -5692,7 +5778,9 @@ async def test_get_tensorboard_time_series_flattened_async():
         # request object values.
         assert len(call.mock_calls)
         _, args, _ = call.mock_calls[0]
-        assert args[0].name == "name_value"
+        arg = args[0].name
+        mock_val = "name_value"
+        assert arg == mock_val
 
 
 @pytest.mark.asyncio
@@ -5921,12 +6009,12 @@ def test_update_tensorboard_time_series_flattened():
         # request object values.
         assert len(call.mock_calls) == 1
         _, args, _ = call.mock_calls[0]
-        assert args[
-            0
-        ].tensorboard_time_series == gca_tensorboard_time_series.TensorboardTimeSeries(
-            name="name_value"
-        )
-        assert args[0].update_mask == field_mask_pb2.FieldMask(paths=["paths_value"])
+        arg = args[0].tensorboard_time_series
+        mock_val = gca_tensorboard_time_series.TensorboardTimeSeries(name="name_value")
+        assert arg == mock_val
+        arg = args[0].update_mask
+        mock_val = field_mask_pb2.FieldMask(paths=["paths_value"])
+        assert arg == mock_val
 
 
 def test_update_tensorboard_time_series_flattened_error():
@@ -5975,12 +6063,12 @@ async def test_update_tensorboard_time_series_flattened_async():
         # request object values.
         assert len(call.mock_calls)
         _, args, _ = call.mock_calls[0]
-        assert args[
-            0
-        ].tensorboard_time_series == gca_tensorboard_time_series.TensorboardTimeSeries(
-            name="name_value"
-        )
-        assert args[0].update_mask == field_mask_pb2.FieldMask(paths=["paths_value"])
+        arg = args[0].tensorboard_time_series
+        mock_val = gca_tensorboard_time_series.TensorboardTimeSeries(name="name_value")
+        assert arg == mock_val
+        arg = args[0].update_mask
+        mock_val = field_mask_pb2.FieldMask(paths=["paths_value"])
+        assert arg == mock_val
 
 
 @pytest.mark.asyncio
@@ -6172,7 +6260,9 @@ def test_list_tensorboard_time_series_flattened():
         # request object values.
         assert len(call.mock_calls) == 1
         _, args, _ = call.mock_calls[0]
-        assert args[0].parent == "parent_value"
+        arg = args[0].parent
+        mock_val = "parent_value"
+        assert arg == mock_val
 
 
 def test_list_tensorboard_time_series_flattened_error():
@@ -6213,7 +6303,9 @@ async def test_list_tensorboard_time_series_flattened_async():
         # request object values.
         assert len(call.mock_calls)
         _, args, _ = call.mock_calls[0]
-        assert args[0].parent == "parent_value"
+        arg = args[0].parent
+        mock_val = "parent_value"
+        assert arg == mock_val
 
 
 @pytest.mark.asyncio
@@ -6586,7 +6678,9 @@ def test_delete_tensorboard_time_series_flattened():
         # request object values.
         assert len(call.mock_calls) == 1
         _, args, _ = call.mock_calls[0]
-        assert args[0].name == "name_value"
+        arg = args[0].name
+        mock_val = "name_value"
+        assert arg == mock_val
 
 
 def test_delete_tensorboard_time_series_flattened_error():
@@ -6626,7 +6720,9 @@ async def test_delete_tensorboard_time_series_flattened_async():
         # request object values.
         assert len(call.mock_calls)
         _, args, _ = call.mock_calls[0]
-        assert args[0].name == "name_value"
+        arg = args[0].name
+        mock_val = "name_value"
+        assert arg == mock_val
 
 
 @pytest.mark.asyncio
@@ -6824,7 +6920,9 @@ def test_batch_read_tensorboard_time_series_data_flattened():
         # request object values.
         assert len(call.mock_calls) == 1
         _, args, _ = call.mock_calls[0]
-        assert args[0].tensorboard == "tensorboard_value"
+        arg = args[0].tensorboard
+        mock_val = "tensorboard_value"
+        assert arg == mock_val
 
 
 def test_batch_read_tensorboard_time_series_data_flattened_error():
@@ -6869,7 +6967,9 @@ async def test_batch_read_tensorboard_time_series_data_flattened_async():
         # request object values.
         assert len(call.mock_calls)
         _, args, _ = call.mock_calls[0]
-        assert args[0].tensorboard == "tensorboard_value"
+        arg = args[0].tensorboard
+        mock_val = "tensorboard_value"
+        assert arg == mock_val
 
 
 @pytest.mark.asyncio
@@ -7064,7 +7164,9 @@ def test_read_tensorboard_time_series_data_flattened():
         # request object values.
         assert len(call.mock_calls) == 1
         _, args, _ = call.mock_calls[0]
-        assert args[0].tensorboard_time_series == "tensorboard_time_series_value"
+        arg = args[0].tensorboard_time_series
+        mock_val = "tensorboard_time_series_value"
+        assert arg == mock_val
 
 
 def test_read_tensorboard_time_series_data_flattened_error():
@@ -7107,7 +7209,9 @@ async def test_read_tensorboard_time_series_data_flattened_async():
         # request object values.
         assert len(call.mock_calls)
         _, args, _ = call.mock_calls[0]
-        assert args[0].tensorboard_time_series == "tensorboard_time_series_value"
+        arg = args[0].tensorboard_time_series
+        mock_val = "tensorboard_time_series_value"
+        assert arg == mock_val
 
 
 @pytest.mark.asyncio
@@ -7300,7 +7404,9 @@ def test_read_tensorboard_blob_data_flattened():
         # request object values.
         assert len(call.mock_calls) == 1
         _, args, _ = call.mock_calls[0]
-        assert args[0].time_series == "time_series_value"
+        arg = args[0].time_series
+        mock_val = "time_series_value"
+        assert arg == mock_val
 
 
 def test_read_tensorboard_blob_data_flattened_error():
@@ -7343,7 +7449,9 @@ async def test_read_tensorboard_blob_data_flattened_async():
         # request object values.
         assert len(call.mock_calls)
         _, args, _ = call.mock_calls[0]
-        assert args[0].time_series == "time_series_value"
+        arg = args[0].time_series
+        mock_val = "time_series_value"
+        assert arg == mock_val
 
 
 @pytest.mark.asyncio
@@ -7543,12 +7651,16 @@ def test_write_tensorboard_experiment_data_flattened():
         # request object values.
         assert len(call.mock_calls) == 1
         _, args, _ = call.mock_calls[0]
-        assert args[0].tensorboard_experiment == "tensorboard_experiment_value"
-        assert args[0].write_run_data_requests == [
+        arg = args[0].tensorboard_experiment
+        mock_val = "tensorboard_experiment_value"
+        assert arg == mock_val
+        arg = args[0].write_run_data_requests
+        mock_val = [
             tensorboard_service.WriteTensorboardRunDataRequest(
                 tensorboard_run="tensorboard_run_value"
             )
         ]
+        assert arg == mock_val
 
 
 def test_write_tensorboard_experiment_data_flattened_error():
@@ -7601,12 +7713,16 @@ async def test_write_tensorboard_experiment_data_flattened_async():
         # request object values.
         assert len(call.mock_calls)
         _, args, _ = call.mock_calls[0]
-        assert args[0].tensorboard_experiment == "tensorboard_experiment_value"
-        assert args[0].write_run_data_requests == [
+        arg = args[0].tensorboard_experiment
+        mock_val = "tensorboard_experiment_value"
+        assert arg == mock_val
+        arg = args[0].write_run_data_requests
+        mock_val = [
             tensorboard_service.WriteTensorboardRunDataRequest(
                 tensorboard_run="tensorboard_run_value"
             )
         ]
+        assert arg == mock_val
 
 
 @pytest.mark.asyncio
@@ -7805,12 +7921,16 @@ def test_write_tensorboard_run_data_flattened():
         # request object values.
         assert len(call.mock_calls) == 1
         _, args, _ = call.mock_calls[0]
-        assert args[0].tensorboard_run == "tensorboard_run_value"
-        assert args[0].time_series_data == [
+        arg = args[0].tensorboard_run
+        mock_val = "tensorboard_run_value"
+        assert arg == mock_val
+        arg = args[0].time_series_data
+        mock_val = [
             tensorboard_data.TimeSeriesData(
                 tensorboard_time_series_id="tensorboard_time_series_id_value"
             )
         ]
+        assert arg == mock_val
 
 
 def test_write_tensorboard_run_data_flattened_error():
@@ -7863,12 +7983,16 @@ async def test_write_tensorboard_run_data_flattened_async():
         # request object values.
         assert len(call.mock_calls)
         _, args, _ = call.mock_calls[0]
-        assert args[0].tensorboard_run == "tensorboard_run_value"
-        assert args[0].time_series_data == [
+        arg = args[0].tensorboard_run
+        mock_val = "tensorboard_run_value"
+        assert arg == mock_val
+        arg = args[0].time_series_data
+        mock_val = [
             tensorboard_data.TimeSeriesData(
                 tensorboard_time_series_id="tensorboard_time_series_id_value"
             )
         ]
+        assert arg == mock_val
 
 
 @pytest.mark.asyncio
@@ -8074,7 +8198,9 @@ def test_export_tensorboard_time_series_data_flattened():
         # request object values.
         assert len(call.mock_calls) == 1
         _, args, _ = call.mock_calls[0]
-        assert args[0].tensorboard_time_series == "tensorboard_time_series_value"
+        arg = args[0].tensorboard_time_series
+        mock_val = "tensorboard_time_series_value"
+        assert arg == mock_val
 
 
 def test_export_tensorboard_time_series_data_flattened_error():
@@ -8119,7 +8245,9 @@ async def test_export_tensorboard_time_series_data_flattened_async():
         # request object values.
         assert len(call.mock_calls)
         _, args, _ = call.mock_calls[0]
-        assert args[0].tensorboard_time_series == "tensorboard_time_series_value"
+        arg = args[0].tensorboard_time_series
+        mock_val = "tensorboard_time_series_value"
+        assert arg == mock_val
 
 
 @pytest.mark.asyncio

@@ -28,9 +28,11 @@ from tensorboard.plugins.hparams import metadata as hparams_metadata
 from tensorboard.plugins.image import metadata as images_metadata
 from tensorboard.plugins.graph import metadata as graphs_metadata
 
+from google.api_core import exceptions
 from google.cloud import storage
 from google.cloud import aiplatform
 from google.cloud.aiplatform.constants import base as constants
+from google.cloud.aiplatform import jobs
 from google.cloud.aiplatform.tensorboard import uploader
 from google.cloud.aiplatform.utils import TensorboardClientWithOverride
 
@@ -124,9 +126,14 @@ def main(argv):
             exitcode=0,
         )
 
+    experiment_name = FLAGS.experiment_name
+    experiment_display_name = get_experiment_display_name_with_override(
+        experiment_name, FLAGS.experiment_display_name, project_id, region
+    )
+
     tb_uploader = uploader.TensorBoardUploader(
-        experiment_name=FLAGS.experiment_name,
-        experiment_display_name=FLAGS.experiment_display_name,
+        experiment_name=experiment_name,
+        experiment_display_name=experiment_display_name,
         tensorboard_resource_name=tensorboard.name,
         blob_storage_bucket=blob_storage_bucket,
         blob_storage_folder=blob_storage_folder,
@@ -148,6 +155,19 @@ def main(argv):
         )
     )
     tb_uploader.start_uploading()
+
+
+def get_experiment_display_name_with_override(
+    experiment_name, experiment_display_name, project_id, region
+):
+    if experiment_name.isdecimal() and not experiment_display_name:
+        try:
+            return jobs.CustomJob.get(
+                resource_name=experiment_name, project=project_id, location=region,
+            ).display_name
+        except exceptions.NotFound:
+            return experiment_display_name
+    return experiment_display_name
 
 
 def flags_parser(args):

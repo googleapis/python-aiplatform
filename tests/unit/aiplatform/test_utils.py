@@ -375,7 +375,8 @@ class TestPipelineUtils:
                         "list_param": {"type": "STRING"},
                     }
                 }
-            }
+            },
+            "schemaVersion": "2.0.0",
         },
         "runtimeConfig": {
             "gcsOutputDirectory": "path/to/my/root",
@@ -390,6 +391,7 @@ class TestPipelineUtils:
     def test_pipeline_utils_runtime_config_builder_from_values(self):
         my_builder = pipeline_utils.PipelineRuntimeConfigBuilder(
             pipeline_root="path/to/my/root",
+            schema_version="2.0.0",
             parameter_types={
                 "string_param": "STRING",
                 "int_param": "INT",
