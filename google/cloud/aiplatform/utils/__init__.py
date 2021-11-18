@@ -30,7 +30,7 @@ from google.auth import credentials as auth_credentials
 from google.cloud import storage
 
 from google.cloud.aiplatform import compat
-from google.cloud.aiplatform import constants
+from google.cloud.aiplatform.constants import base as constants
 from google.cloud.aiplatform import initializer
 
 from google.cloud.aiplatform.compat.services import (

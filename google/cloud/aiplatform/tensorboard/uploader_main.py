@@ -30,6 +30,7 @@ from tensorboard.plugins.graph import metadata as graphs_metadata
 
 from google.cloud import storage
 from google.cloud import aiplatform
+from google.cloud.aiplatform.constants import base as constants
 from google.cloud.aiplatform.tensorboard import uploader
 from google.cloud.aiplatform.utils import TensorboardClientWithOverride
 
@@ -89,7 +90,7 @@ def main(argv):
     if len(argv) > 1:
         raise app.UsageError("Too many command-line arguments.")
 
-    aiplatform.constants.API_BASE_PATH = FLAGS.api_uri
+    constants.API_BASE_PATH = FLAGS.api_uri
     m = re.match(
         "projects/(.*)/locations/(.*)/tensorboards/.*", FLAGS.tensorboard_resource_name
     )

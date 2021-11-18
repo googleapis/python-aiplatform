@@ -12,7 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from google.cloud.aiplatform.constants.base import *
-from google.cloud.aiplatform.constants.prediction import *
+from google.cloud.aiplatform.constants import base
+from google.cloud.aiplatform.constants import prediction
 
-__all__ = ()
+__all__ = ("base", "prediction")

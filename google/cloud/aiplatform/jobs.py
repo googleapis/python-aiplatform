@@ -44,7 +44,7 @@ from google.cloud.aiplatform.compat.types import (
     machine_resources as gca_machine_resources_compat,
     study as gca_study_compat,
 )
-from google.cloud.aiplatform import constants
+from google.cloud.aiplatform.constants import base as constants
 from google.cloud.aiplatform import initializer
 from google.cloud.aiplatform import hyperparameter_tuning
 from google.cloud.aiplatform import utils
