@@ -137,11 +137,13 @@ class DeployedModel(proto.Message):
             A description of resources that are dedicated
             to the DeployedModel, and that need a higher
             degree of manual configuration.
+
             This field is a member of `oneof`_ ``prediction_resources``.
         automatic_resources (google.cloud.aiplatform_v1.types.AutomaticResources):
             A description of resources that to large
             degree are decided by Vertex AI, and require
             only a modest additional configuration.
+
             This field is a member of `oneof`_ ``prediction_resources``.
         id (str):
             Output only. The ID of the DeployedModel.

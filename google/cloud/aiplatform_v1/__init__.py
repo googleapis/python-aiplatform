@@ -44,6 +44,8 @@ from .services.prediction_service import PredictionServiceClient
 from .services.prediction_service import PredictionServiceAsyncClient
 from .services.specialist_pool_service import SpecialistPoolServiceClient
 from .services.specialist_pool_service import SpecialistPoolServiceAsyncClient
+from .services.tensorboard_service import TensorboardServiceClient
+from .services.tensorboard_service import TensorboardServiceAsyncClient
 from .services.vizier_service import VizierServiceClient
 from .services.vizier_service import VizierServiceAsyncClient
 
@@ -387,6 +389,58 @@ from .types.study import Measurement
 from .types.study import Study
 from .types.study import StudySpec
 from .types.study import Trial
+from .types.tensorboard import Tensorboard
+from .types.tensorboard_data import Scalar
+from .types.tensorboard_data import TensorboardBlob
+from .types.tensorboard_data import TensorboardBlobSequence
+from .types.tensorboard_data import TensorboardTensor
+from .types.tensorboard_data import TimeSeriesData
+from .types.tensorboard_data import TimeSeriesDataPoint
+from .types.tensorboard_experiment import TensorboardExperiment
+from .types.tensorboard_run import TensorboardRun
+from .types.tensorboard_service import BatchCreateTensorboardRunsRequest
+from .types.tensorboard_service import BatchCreateTensorboardRunsResponse
+from .types.tensorboard_service import BatchCreateTensorboardTimeSeriesRequest
+from .types.tensorboard_service import BatchCreateTensorboardTimeSeriesResponse
+from .types.tensorboard_service import BatchReadTensorboardTimeSeriesDataRequest
+from .types.tensorboard_service import BatchReadTensorboardTimeSeriesDataResponse
+from .types.tensorboard_service import CreateTensorboardExperimentRequest
+from .types.tensorboard_service import CreateTensorboardOperationMetadata
+from .types.tensorboard_service import CreateTensorboardRequest
+from .types.tensorboard_service import CreateTensorboardRunRequest
+from .types.tensorboard_service import CreateTensorboardTimeSeriesRequest
+from .types.tensorboard_service import DeleteTensorboardExperimentRequest
+from .types.tensorboard_service import DeleteTensorboardRequest
+from .types.tensorboard_service import DeleteTensorboardRunRequest
+from .types.tensorboard_service import DeleteTensorboardTimeSeriesRequest
+from .types.tensorboard_service import ExportTensorboardTimeSeriesDataRequest
+from .types.tensorboard_service import ExportTensorboardTimeSeriesDataResponse
+from .types.tensorboard_service import GetTensorboardExperimentRequest
+from .types.tensorboard_service import GetTensorboardRequest
+from .types.tensorboard_service import GetTensorboardRunRequest
+from .types.tensorboard_service import GetTensorboardTimeSeriesRequest
+from .types.tensorboard_service import ListTensorboardExperimentsRequest
+from .types.tensorboard_service import ListTensorboardExperimentsResponse
+from .types.tensorboard_service import ListTensorboardRunsRequest
+from .types.tensorboard_service import ListTensorboardRunsResponse
+from .types.tensorboard_service import ListTensorboardsRequest
+from .types.tensorboard_service import ListTensorboardsResponse
+from .types.tensorboard_service import ListTensorboardTimeSeriesRequest
+from .types.tensorboard_service import ListTensorboardTimeSeriesResponse
+from .types.tensorboard_service import ReadTensorboardBlobDataRequest
+from .types.tensorboard_service import ReadTensorboardBlobDataResponse
+from .types.tensorboard_service import ReadTensorboardTimeSeriesDataRequest
+from .types.tensorboard_service import ReadTensorboardTimeSeriesDataResponse
+from .types.tensorboard_service import UpdateTensorboardExperimentRequest
+from .types.tensorboard_service import UpdateTensorboardOperationMetadata
+from .types.tensorboard_service import UpdateTensorboardRequest
+from .types.tensorboard_service import UpdateTensorboardRunRequest
+from .types.tensorboard_service import UpdateTensorboardTimeSeriesRequest
+from .types.tensorboard_service import WriteTensorboardExperimentDataRequest
+from .types.tensorboard_service import WriteTensorboardExperimentDataResponse
+from .types.tensorboard_service import WriteTensorboardRunDataRequest
+from .types.tensorboard_service import WriteTensorboardRunDataResponse
+from .types.tensorboard_time_series import TensorboardTimeSeries
 from .types.training_pipeline import FilterSplit
 from .types.training_pipeline import FractionSplit
 from .types.training_pipeline import InputDataConfig
@@ -436,6 +490,7 @@ __all__ = (
     "PipelineServiceAsyncClient",
     "PredictionServiceAsyncClient",
     "SpecialistPoolServiceAsyncClient",
+    "TensorboardServiceAsyncClient",
     "VizierServiceAsyncClient",
     "AcceleratorType",
     "ActiveLearningConfig",
@@ -456,6 +511,10 @@ __all__ = (
     "BatchCreateFeaturesOperationMetadata",
     "BatchCreateFeaturesRequest",
     "BatchCreateFeaturesResponse",
+    "BatchCreateTensorboardRunsRequest",
+    "BatchCreateTensorboardRunsResponse",
+    "BatchCreateTensorboardTimeSeriesRequest",
+    "BatchCreateTensorboardTimeSeriesResponse",
     "BatchDedicatedResources",
     "BatchMigrateResourcesOperationMetadata",
     "BatchMigrateResourcesRequest",
@@ -464,6 +523,8 @@ __all__ = (
     "BatchReadFeatureValuesOperationMetadata",
     "BatchReadFeatureValuesRequest",
     "BatchReadFeatureValuesResponse",
+    "BatchReadTensorboardTimeSeriesDataRequest",
+    "BatchReadTensorboardTimeSeriesDataResponse",
     "BigQueryDestination",
     "BigQuerySource",
     "BoolArray",
@@ -510,6 +571,11 @@ __all__ = (
     "CreateSpecialistPoolOperationMetadata",
     "CreateSpecialistPoolRequest",
     "CreateStudyRequest",
+    "CreateTensorboardExperimentRequest",
+    "CreateTensorboardOperationMetadata",
+    "CreateTensorboardRequest",
+    "CreateTensorboardRunRequest",
+    "CreateTensorboardTimeSeriesRequest",
     "CreateTrainingPipelineRequest",
     "CreateTrialRequest",
     "CsvDestination",
@@ -543,6 +609,10 @@ __all__ = (
     "DeletePipelineJobRequest",
     "DeleteSpecialistPoolRequest",
     "DeleteStudyRequest",
+    "DeleteTensorboardExperimentRequest",
+    "DeleteTensorboardRequest",
+    "DeleteTensorboardRunRequest",
+    "DeleteTensorboardTimeSeriesRequest",
     "DeleteTrainingPipelineRequest",
     "DeleteTrialRequest",
     "DeployIndexOperationMetadata",
@@ -584,6 +654,8 @@ __all__ = (
     "ExportModelOperationMetadata",
     "ExportModelRequest",
     "ExportModelResponse",
+    "ExportTensorboardTimeSeriesDataRequest",
+    "ExportTensorboardTimeSeriesDataResponse",
     "Feature",
     "FeatureNoiseSigma",
     "FeatureSelector",
@@ -623,6 +695,10 @@ __all__ = (
     "GetPipelineJobRequest",
     "GetSpecialistPoolRequest",
     "GetStudyRequest",
+    "GetTensorboardExperimentRequest",
+    "GetTensorboardRequest",
+    "GetTensorboardRunRequest",
+    "GetTensorboardTimeSeriesRequest",
     "GetTrainingPipelineRequest",
     "GetTrialRequest",
     "HyperparameterTuningJob",
@@ -697,6 +773,14 @@ __all__ = (
     "ListSpecialistPoolsResponse",
     "ListStudiesRequest",
     "ListStudiesResponse",
+    "ListTensorboardExperimentsRequest",
+    "ListTensorboardExperimentsResponse",
+    "ListTensorboardRunsRequest",
+    "ListTensorboardRunsResponse",
+    "ListTensorboardTimeSeriesRequest",
+    "ListTensorboardTimeSeriesResponse",
+    "ListTensorboardsRequest",
+    "ListTensorboardsResponse",
     "ListTrainingPipelinesRequest",
     "ListTrainingPipelinesResponse",
     "ListTrialsRequest",
@@ -757,11 +841,16 @@ __all__ = (
     "RawPredictRequest",
     "ReadFeatureValuesRequest",
     "ReadFeatureValuesResponse",
+    "ReadTensorboardBlobDataRequest",
+    "ReadTensorboardBlobDataResponse",
+    "ReadTensorboardTimeSeriesDataRequest",
+    "ReadTensorboardTimeSeriesDataResponse",
     "ResourcesConsumed",
     "ResumeModelDeploymentMonitoringJobRequest",
     "SampleConfig",
     "SampledShapleyAttribution",
     "SamplingStrategy",
+    "Scalar",
     "Scheduling",
     "SearchFeaturesRequest",
     "SearchFeaturesResponse",
@@ -781,7 +870,17 @@ __all__ = (
     "SuggestTrialsRequest",
     "SuggestTrialsResponse",
     "TFRecordDestination",
+    "Tensorboard",
+    "TensorboardBlob",
+    "TensorboardBlobSequence",
+    "TensorboardExperiment",
+    "TensorboardRun",
+    "TensorboardServiceClient",
+    "TensorboardTensor",
+    "TensorboardTimeSeries",
     "ThresholdConfig",
+    "TimeSeriesData",
+    "TimeSeriesDataPoint",
     "TimestampSplit",
     "TrainingConfig",
     "TrainingPipeline",
@@ -809,6 +908,11 @@ __all__ = (
     "UpdateModelRequest",
     "UpdateSpecialistPoolOperationMetadata",
     "UpdateSpecialistPoolRequest",
+    "UpdateTensorboardExperimentRequest",
+    "UpdateTensorboardOperationMetadata",
+    "UpdateTensorboardRequest",
+    "UpdateTensorboardRunRequest",
+    "UpdateTensorboardTimeSeriesRequest",
     "UploadModelOperationMetadata",
     "UploadModelRequest",
     "UploadModelResponse",
@@ -816,5 +920,9 @@ __all__ = (
     "Value",
     "VizierServiceClient",
     "WorkerPoolSpec",
+    "WriteTensorboardExperimentDataRequest",
+    "WriteTensorboardExperimentDataResponse",
+    "WriteTensorboardRunDataRequest",
+    "WriteTensorboardRunDataResponse",
     "XraiAttribution",
 )

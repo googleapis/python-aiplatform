@@ -113,6 +113,7 @@ class ImportDataConfig(proto.Message):
         gcs_source (google.cloud.aiplatform_v1.types.GcsSource):
             The Google Cloud Storage location for the
             input content.
+
             This field is a member of `oneof`_ ``source``.
         data_item_labels (Sequence[google.cloud.aiplatform_v1.types.ImportDataConfig.DataItemLabelsEntry]):
             Labels that will be applied to newly imported DataItems. If
@@ -164,6 +165,7 @@ class ExportDataConfig(proto.Message):
             with the corresponding annotations' schema title. Inside
             these sub directories, a schema.yaml will be created to
             describe the output format.
+
             This field is a member of `oneof`_ ``destination``.
         annotations_filter (str):
             A filter on Annotations of the Dataset. Only Annotations on

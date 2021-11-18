@@ -14,23 +14,25 @@
 # limitations under the License.
 #
 from collections import OrderedDict
-from distutils import util
 import os
 import re
 from typing import Dict, Optional, Sequence, Tuple, Type, Union
 import pkg_resources
 
-from google.api_core import client_options as client_options_lib  # type: ignore
-from google.api_core import exceptions as core_exceptions  # type: ignore
-from google.api_core import gapic_v1  # type: ignore
-from google.api_core import retry as retries  # type: ignore
+from google.api_core import client_options as client_options_lib
+from google.api_core import exceptions as core_exceptions
+from google.api_core import gapic_v1
+from google.api_core import retry as retries
 from google.auth import credentials as ga_credentials  # type: ignore
 from google.auth.transport import mtls  # type: ignore
 from google.auth.transport.grpc import SslCredentials  # type: ignore
 from google.auth.exceptions import MutualTLSChannelError  # type: ignore
 from google.oauth2 import service_account  # type: ignore
 
-OptionalRetry = Union[retries.Retry, object]
+try:
+    OptionalRetry = Union[retries.Retry, gapic_v1.method._MethodDefault]
+except AttributeError:  # pragma: NO COVER
+    OptionalRetry = Union[retries.Retry, object]  # type: ignore
 
 from google.api_core import operation as gac_operation  # type: ignore
 from google.api_core import operation_async  # type: ignore
@@ -348,6 +350,22 @@ class JobServiceClient(metaclass=JobServiceClientMeta):
         return m.groupdict() if m else {}
 
     @staticmethod
+    def tensorboard_path(project: str, location: str, tensorboard: str,) -> str:
+        """Returns a fully-qualified tensorboard string."""
+        return "projects/{project}/locations/{location}/tensorboards/{tensorboard}".format(
+            project=project, location=location, tensorboard=tensorboard,
+        )
+
+    @staticmethod
+    def parse_tensorboard_path(path: str) -> Dict[str, str]:
+        """Parses a tensorboard path into its component segments."""
+        m = re.match(
+            r"^projects/(?P<project>.+?)/locations/(?P<location>.+?)/tensorboards/(?P<tensorboard>.+?)$",
+            path,
+        )
+        return m.groupdict() if m else {}
+
+    @staticmethod
     def trial_path(project: str, location: str, study: str, trial: str,) -> str:
         """Returns a fully-qualified trial string."""
         return "projects/{project}/locations/{location}/studies/{study}/trials/{trial}".format(
@@ -473,8 +491,15 @@ class JobServiceClient(metaclass=JobServiceClientMeta):
             client_options = client_options_lib.ClientOptions()
 
         # Create SSL credentials for mutual TLS if needed.
-        use_client_cert = bool(
-            util.strtobool(os.getenv("GOOGLE_API_USE_CLIENT_CERTIFICATE", "false"))
+        if os.getenv("GOOGLE_API_USE_CLIENT_CERTIFICATE", "false") not in (
+            "true",
+            "false",
+        ):
+            raise ValueError(
+                "Environment variable `GOOGLE_API_USE_CLIENT_CERTIFICATE` must be either `true` or `false`"
+            )
+        use_client_cert = (
+            os.getenv("GOOGLE_API_USE_CLIENT_CERTIFICATE", "false") == "true"
         )
 
         client_cert_source_func = None

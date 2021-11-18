@@ -39,11 +39,13 @@ class UserActionReference(proto.Message):
             operation. Resource name of the long running
             operation. Format:
             'projects/{project}/locations/{location}/operations/{operation}'
+
             This field is a member of `oneof`_ ``reference``.
         data_labeling_job (str):
             For API calls that start a LabelingJob. Resource name of the
             LabelingJob. Format:
             'projects/{project}/locations/{location}/dataLabelingJobs/{data_labeling_job}'
+
             This field is a member of `oneof`_ ``reference``.
         method (str):
             The method name of the API RPC call. For

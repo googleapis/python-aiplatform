@@ -141,19 +141,23 @@ class MigrateResourceRequest(proto.Message):
         migrate_ml_engine_model_version_config (google.cloud.aiplatform_v1.types.MigrateResourceRequest.MigrateMlEngineModelVersionConfig):
             Config for migrating Version in
             ml.googleapis.com to Vertex AI's Model.
+
             This field is a member of `oneof`_ ``request``.
         migrate_automl_model_config (google.cloud.aiplatform_v1.types.MigrateResourceRequest.MigrateAutomlModelConfig):
             Config for migrating Model in
             automl.googleapis.com to Vertex AI's Model.
+
             This field is a member of `oneof`_ ``request``.
         migrate_automl_dataset_config (google.cloud.aiplatform_v1.types.MigrateResourceRequest.MigrateAutomlDatasetConfig):
             Config for migrating Dataset in
             automl.googleapis.com to Vertex AI's Dataset.
+
             This field is a member of `oneof`_ ``request``.
         migrate_data_labeling_dataset_config (google.cloud.aiplatform_v1.types.MigrateResourceRequest.MigrateDataLabelingDatasetConfig):
             Config for migrating Dataset in
             datalabeling.googleapis.com to Vertex AI's
             Dataset.
+
             This field is a member of `oneof`_ ``request``.
     """
 
@@ -309,9 +313,11 @@ class MigrateResourceResponse(proto.Message):
     Attributes:
         dataset (str):
             Migrated Dataset's resource name.
+
             This field is a member of `oneof`_ ``migrated_resource``.
         model (str):
             Migrated Model's resource name.
+
             This field is a member of `oneof`_ ``migrated_resource``.
         migratable_resource (google.cloud.aiplatform_v1.types.MigratableResource):
             Before migration, the identifier in
@@ -353,12 +359,15 @@ class BatchMigrateResourcesOperationMetadata(proto.Message):
             error (google.rpc.status_pb2.Status):
                 The error result of the migration request in
                 case of failure.
+
                 This field is a member of `oneof`_ ``result``.
             model (str):
                 Migrated model resource name.
+
                 This field is a member of `oneof`_ ``result``.
             dataset (str):
                 Migrated dataset resource name.
+
                 This field is a member of `oneof`_ ``result``.
             request (google.cloud.aiplatform_v1.types.MigrateResourceRequest):
                 It's the same as the value in
