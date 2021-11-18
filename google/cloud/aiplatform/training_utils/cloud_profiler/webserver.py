@@ -20,8 +20,9 @@
 import os
 
 from google.cloud.aiplatform.training_utils.cloud_profiler.plugins import base_plugin
+from google.cloud.aiplatform.training_utils.cloud_profiler import wsgi_types
 from typing import List
-from werkzeug import wrappers
+from werkzeug import wrappers, Response
 
 
 class WebServer:
@@ -58,14 +59,16 @@ class WebServer:
                 app_route += route
                 self._routes[app_route] = handler
 
-    def dispatch_request(self, environ, start_response):
+    def dispatch_request(
+        self, environ: wsgi_types.Environment, start_response: wsgi_types.StartResponse
+    ) -> Response:
         """Handles the routing of requests.
 
         Args:
-            environ (WSGIEnvironment):
-                The WSGI environment.
-            start_response (StartResponse):
-                The response callable provided by the WSGI server.
+            environ (wsgi_types.Environment):
+                Required. The WSGI environment.
+            start_response (wsgi_types.StartResponse):
+                Required. The response callable provided by the WSGI server.
 
         Returns:
             A response iterable.
@@ -79,9 +82,33 @@ class WebServer:
         response = wrappers.Response("Not Found", status=404)
         return response(environ, start_response)
 
-    def wsgi_app(self, environ, start_response):
+    def wsgi_app(
+        self, environ: wsgi_types.Environment, start_response: wsgi_types.StartResponse
+    ) -> Response:
+        """Entrypoint for wsgi application.
+
+        Args:
+            environ (wsgi_types.Environment):
+                Required. The WSGI environment.
+            start_response (wsgi_types.StartResponse):
+                Required. The response callable provided by the WSGI server.
+
+        Returns:
+            A response iterable.
+        """
         response = self.dispatch_request(environ, start_response)
         return response
 
     def __call__(self, environ, start_response):
+        """Entrypoint for wsgi application.
+
+        Args:
+            environ (wsgi_types.Environment):
+                Required. The WSGI environment.
+            start_response (wsgi_types.StartResponse):
+                Required. The response callable provided by the WSGI server.
+
+        Returns:
+            A response iterable.
+        """
         return self.wsgi_app(environ, start_response)

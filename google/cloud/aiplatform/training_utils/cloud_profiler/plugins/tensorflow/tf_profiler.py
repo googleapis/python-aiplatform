@@ -29,6 +29,7 @@ from werkzeug import Response
 
 from google.cloud.aiplatform.tensorboard.plugins.tf_profiler import profile_uploader
 from google.cloud.aiplatform.training_utils import environment_variables
+from google.cloud.aiplatform.training_utils.cloud_profiler import wsgi_types
 from google.cloud.aiplatform.training_utils.cloud_profiler.plugins import base_plugin
 from google.cloud.aiplatform.training_utils.cloud_profiler.plugins.tensorflow import (
     tensorboard_api,
@@ -183,11 +184,11 @@ def _get_hostnames() -> Optional[str]:
     return ",".join([_host_to_grpc(x) for x in hostnames])
 
 
-def _update_environ(environ) -> bool:
+def _update_environ(environ: wsgi_types.Environment) -> bool:
     """Add parameters to the query that are retrieved from training side.
 
     Args:
-        environ (WSGIEnvironment):
+        environ (wsgi_types.Environment):
             Required. The WSGI Environment.
 
     Returns:
@@ -286,21 +287,18 @@ class TFProfiler(base_plugin.BasePlugin):
 
     # Define routes below
     def capture_profile_wrapper(
-        self, environ: Dict[str, str], start_response: Callable[[...], None]
+        self, environ: wsgi_types.Environment, start_response: wsgi_types.StartResponse
     ) -> Response:
         """Take a request from tensorboard.gcp and run the profiling for the available servers.
 
         Args:
-            environ:
-                Required. A dictionary object, containing CGI-style environment variables,
-                    as defined by the Common Gateway Interface specification.
-                    See WSGI spec (PEP 3333).
-            start_response (Callable[...]):
-                Required. A callable accepting two required positional arguments, and one
-                    optional argument. See WSGI spec (PEP 3333).
+            environ (wsgi_types.Environment):
+                Required. The WSGI environment.
+            start_response (wsgi_types.StartResponse):
+                Required. The response callable provided by the WSGI server.
 
         Returns:
-            A `Response` object.
+            A response iterable.
         """
         # The service address (localhost) and worker list are populated locally
         if not _update_environ(environ):
@@ -319,7 +317,15 @@ class TFProfiler(base_plugin.BasePlugin):
 
     @staticmethod
     def setup() -> None:
-        import tensorflow as tf
+        """Sets up the plugin.
+
+        Raises:
+            ImportError: Tensorflow could not be imported.
+        """
+        try:
+            import tensorflow as tf
+        except ImportError as err:
+            raise ImportError("Could not import tensorflow for profile usage.") from err
 
         tf.profiler.experimental.server.start(
             int(environment_variables.tf_profiler_port)
