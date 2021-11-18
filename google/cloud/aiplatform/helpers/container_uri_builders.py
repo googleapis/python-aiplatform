@@ -12,7 +12,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import re
 from typing import Optional
 
 from google.cloud.aiplatform.constants import prediction
@@ -23,7 +22,7 @@ def get_prebuilt_prediction_container_uri(
     framework: str,
     framework_version: str,
     region: Optional[str] = None,
-    with_accelerator: bool = False,
+    accelerator: Optional[str] = "cpu",
 ) -> str:
     """
     Get a Vertex AI pre-built prediction Docker container URI for
@@ -31,10 +30,10 @@ def get_prebuilt_prediction_container_uri(
 
     Example usage:
     ```
-        uri = aiplatform.helpers.get_prediction_container_uri(
+        uri = aiplatform.helpers.get_prebuilt_prediction_container_uri(
                 framework="tensorflow",
                 framework_version="2.6",
-                with_accelerator=True
+                accelerator="gpu"
         )
 
         model = aiplatform.Model.upload(
@@ -47,82 +46,68 @@ def get_prebuilt_prediction_container_uri(
     Args:
         framework (str):
             Required. The ML framework of the pre-built container. For example,
-            "tensorflow", "xgboost", or "sklearn"
+            `"tensorflow"`, `"xgboost"`, or `"sklearn"`
         framework_version (str):
             Required. The version of the specified ML framework as a string.
         region (str):
             Optional. AI region or multi-region. Used to select the correct
             Artifact Registry multi-region repository and reduce latency.
-            Must start with "us", "asia" or "europe". If not set, defaults
-            to location set by `aiplatform.init()`.
-        with_accelerator (bool):
-            Optional. If set to `True`, return container URI that supports GPU usage.
-            Default is `False`.
+            Must start with `"us"`, `"asia"` or `"europe"`.
+            Default is location set by `aiplatform.init()`.
+        accelerator (str):
+            Optional. The type of accelerator support provided by container. For
+            example: `"cpu"` or `"gpu"`
+            Default is `"cpu"`.
 
     Returns:
         uri (str):
             A Vertex AI prediction container URI
 
     Raises:
-        ValueError: If containers for provided framework are unavailable,
-        the container does not support accelerators, or is not available
-        in the specified version or region.
+        ValueError: If containers for provided framework are unavailable or the
+        container does not support the specified version, accelerator, or region.
     """
-
+    URI_MAP = prediction._SERVING_CONTAINER_URI_MAP
     DOCS_URI_MESSAGE = (
         f"See {prediction._SERVING_CONTAINER_DOCUMENTATION_URL} "
         "for complete list of supported containers"
     )
-    alt_versions = []  # Alternative framework versions if provided does not exist
-
-    # Validate provided framework
-    try:
-        framework = framework.lower()
-        framework = prediction._FRAMEWORK_TO_URI_REF[framework]
-    except KeyError:
-        raise ValueError(
-            f"No containers found for framework `{framework}`. {DOCS_URI_MESSAGE}"
-        )
-
-    version = framework_version.replace(".", "-")
-
-    # Tensorflow 2.x is has a different framework name in URI
-    if framework == prediction.TF and version.startswith("2"):
-        framework = prediction.TF2
-
-    accelerator = prediction._ACCELERATOR_TO_URI_REF[framework][
-        0 if with_accelerator else 1
-    ]
-
-    if accelerator is None:
-        raise ValueError(
-            f"{framework} containers do not support accelerators. "
-            f"Please set `with_accelerator` to False. {DOCS_URI_MESSAGE}"
-        )
 
     # If region not provided, use initializer location
     region = region or global_config.location
     region = region.split("-", 1)[0]
+    framework = framework.lower()
 
-    for uri in re.finditer(
-        prediction.CONTAINER_URI_PATTERN, prediction._SERVING_CONTAINER_URIS_STR
-    ):
-        match = uri.groups()
-        if framework == match[1] and region == match[0] and accelerator == match[2]:
-            if version != match[3]:
-                # If URI matches all but version, add to alternative suggestion
-                alt_versions.append(match[3].replace("-", "."))
-            else:
-                return uri.group()
+    if not URI_MAP[region]:
+        del URI_MAP[region]
+        raise ValueError(
+            f"Unsupported container region `{region}`, supported regions are "
+            f"{', '.join(URI_MAP.keys())}. "
+            f"{DOCS_URI_MESSAGE}"
+        )
 
-    ALTERNATE_VERSIONS_MESSAGE = (
-        f"Supported versions for {framework} include {', '.join(alt_versions)}. "
-        if alt_versions
-        else ""
-    )
+    if not URI_MAP[region][framework]:
+        del URI_MAP[region][framework]
+        raise ValueError(
+            f"No containers found for framework `{framework}`. Supported frameworks are "
+            f"{', '.join(URI_MAP[region].keys())} {DOCS_URI_MESSAGE}"
+        )
 
-    raise ValueError(
-        f"No serving container for {framework} {framework_version} "
-        f"{'with accelerator ' if with_accelerator else ''}found. "
-        f"{ALTERNATE_VERSIONS_MESSAGE}{DOCS_URI_MESSAGE}"
-    )
+    if not URI_MAP[region][framework][accelerator]:
+        del URI_MAP[region][framework][accelerator]
+        raise ValueError(
+            f"{framework} containers do not support `{accelerator}` accelerator. Supported accelerators "
+            f"are {', '.join(URI_MAP[region][framework].keys())}. {DOCS_URI_MESSAGE}"
+        )
+
+    final_uri = URI_MAP[region][framework][accelerator][framework_version]
+
+    if not final_uri:
+        del URI_MAP[region][framework][accelerator][framework_version]
+        raise ValueError(
+            f"No serving container for `{framework}` version `{framework_version}` "
+            f"with accelerator `{accelerator}` found. Supported versions "
+            f"include {', '.join(URI_MAP[region][framework][accelerator].keys())}. {DOCS_URI_MESSAGE}"
+        )
+
+    return final_uri

@@ -14,6 +14,7 @@
 
 import re
 
+from collections import defaultdict
 
 # [region]-docker.pkg.dev/vertex-ai/prediction/[framework]-[accelerator].[version]:latest
 CONTAINER_URI_PATTERN = re.compile(
@@ -104,34 +105,24 @@ TF_CONTAINER_URIS = [
     "asia-docker.pkg.dev/vertex-ai/prediction/tf-gpu.1-15:latest",
 ]
 
-# Pattern:
-# {user_provided_framework: framework_name_in_uri}
-_FRAMEWORK_TO_URI_REF = {
-    SKLEARN: SKLEARN,
-    "scikitlearn": SKLEARN,
-    "scikit-learn": SKLEARN,
-    TF: TF,
-    "tensorflow": TF,
-    XGBOOST: XGBOOST,
-    "xgb": XGBOOST,
-}
-
-# Pattern:
-# {framework: (accelerator, no_accelerator)}
-_ACCELERATOR_TO_URI_REF = {
-    # If `None`, accelerator is not supported
-    SKLEARN: (None, "cpu"),
-    TF: ("gpu", "cpu"),
-    TF2: ("gpu", "cpu"),
-    XGBOOST: (None, "cpu"),
-}
-
 SERVING_CONTAINER_URIS = (
     SKLEARN_CONTAINER_URIS + TF_CONTAINER_URIS + XGBOOST_CONTAINER_URIS
 )
 
-# All Vertex AI Prediction first-party prediction containers as a string
-_SERVING_CONTAINER_URIS_STR = " ".join(SERVING_CONTAINER_URIS)
+# Map of all first-party prediction containers
+d = defaultdict(lambda: defaultdict(lambda: defaultdict(lambda: defaultdict(str))))
+
+for container_uri in SERVING_CONTAINER_URIS:
+    m = CONTAINER_URI_PATTERN.match(container_uri)
+    region, framework, accelerator, version = m[1], m[2], m[3], m[4]
+    version = version.replace("-", ".")
+
+    if framework == TF2:  # Store both `tf`, `tf2` as `tf`
+        framework = TF
+
+    d[region][framework][accelerator][version] = container_uri
+
+_SERVING_CONTAINER_URI_MAP = d
 
 _SERVING_CONTAINER_DOCUMENTATION_URL = (
     "https://cloud.google.com/vertex-ai/docs/predictions/pre-built-containers"
