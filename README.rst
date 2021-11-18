@@ -22,7 +22,7 @@ Vertex SDK for Python
 .. |sample-tests| image:: https://storage.googleapis.com/cloud-devrel-public/python-aiplatform/badges/sdk-sample-tests.svg
    :target: https://storage.googleapis.com/cloud-devrel-public/python-aiplatform/badges/sdk-sample-tests.html
 .. _Vertex AI: https://cloud.google.com/vertex-ai/docs
-.. _Client Library Documentation: https://googleapis.dev/python/aiplatform/latest
+.. _Client Library Documentation: https://cloud.google.com/python/docs/reference/aiplatform/latest
 .. _Product Documentation:  https://cloud.google.com/vertex-ai/docs
 
 Quick Start
