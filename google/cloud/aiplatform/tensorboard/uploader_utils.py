@@ -29,18 +29,12 @@ from tensorboard.util import tb_logging
 
 from google.api_core import exceptions
 from google.cloud import storage
-from google.cloud.aiplatform.compat.types import (
-    tensorboard_run_v1beta1 as tensorboard_run,
-)
-from google.cloud.aiplatform.compat.types import (
-    tensorboard_service_v1beta1 as tensorboard_service,
-)
-from google.cloud.aiplatform.compat.types import (
-    tensorboard_time_series_v1beta1 as tensorboard_time_series,
-)
-from google.cloud.aiplatform.compat.services import tensorboard_service_client_v1beta1
+from google.cloud.aiplatform.compat.types import tensorboard_run
+from google.cloud.aiplatform.compat.types import tensorboard_service
+from google.cloud.aiplatform.compat.types import tensorboard_time_series
+from google.cloud.aiplatform.compat.services import tensorboard_service_client
 
-TensorboardServiceClient = tensorboard_service_client_v1beta1.TensorboardServiceClient
+TensorboardServiceClient = tensorboard_service_client.TensorboardServiceClient
 
 logger = tb_logging.get_logger()
 logger.setLevel(logging.WARNING)
@@ -201,7 +195,7 @@ class OnePlatformResourceManager(object):
                 Required. The display name of this run.
 
         Returns:
-            tb_run (google.cloud.aiplatform_v1beta1.types.TensorboardRun):
+            tb_run (tensorboard_run.TensorboardRun):
                 The TensorboardRun given the run_name.
 
         Raises:

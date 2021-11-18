@@ -95,6 +95,7 @@ if DEFAULT_VERSION == V1:
     services.pipeline_service_client = services.pipeline_service_client_v1
     services.prediction_service_client = services.prediction_service_client_v1
     services.specialist_pool_service_client = services.specialist_pool_service_client_v1
+    services.tensorboard_service_client = services.tensorboard_service_client_v1
 
     types.accelerator_type = types.accelerator_type_v1
     types.annotation = types.annotation_v1
