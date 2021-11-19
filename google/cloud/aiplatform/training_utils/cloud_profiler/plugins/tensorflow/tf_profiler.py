@@ -22,7 +22,7 @@ from collections import namedtuple
 import importlib.util
 import json
 import logging
-from tensorboard.plugins.base_plugin import TBContext
+import tensorboard.plugins.base_plugin as tensorboard_base_plugin
 from typing import Callable, Dict, Optional
 from urllib import parse
 from werkzeug import Response
@@ -126,7 +126,7 @@ def _check_tf() -> bool:
     return True
 
 
-def _create_profiling_context() -> TBContext:
+def _create_profiling_context() -> tensorboard_base_plugin.TBContext:
     """Creates the base context needed for TB Profiler.
 
     Returns:
@@ -135,7 +135,7 @@ def _create_profiling_context() -> TBContext:
 
     context_flags = argparse.Namespace(master_tpu_unsecure_channel=None)
 
-    context = TBContext(
+    context = tensorboard_base_plugin.TBContext(
         logdir=environment_variables.tensorboard_log_dir,
         multiplexer=None,
         flags=context_flags,
