@@ -396,7 +396,7 @@ class EntityType(base.VertexAiResourceNounWithFutureManager):
         request_metadata: Optional[Sequence[Tuple[str, str]]] = (),
         sync: Optional[bool] = True,
     ) -> "EntityType":
-        """Creates an EntityType resources in a Featurestore.
+        """Creates an EntityType resource in a Featurestore.
 
         Example Usage:
 
@@ -457,7 +457,7 @@ class EntityType(base.VertexAiResourceNounWithFutureManager):
                 be immediately returned and synced when the Future has completed.
 
         Returns:
-            EntityType - entity_type resource object
+            EntityType - EntityType resource objects
 
         """
 
