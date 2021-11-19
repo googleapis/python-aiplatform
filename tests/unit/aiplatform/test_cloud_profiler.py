@@ -204,7 +204,7 @@ class TestProfilerPlugin(unittest.TestCase):
             assert server_mock.call_count == 1
 
     def testSetupRaiseImportError(self):
-        with mock.patch.dict('sys.modules', {'tensorflow': None}):
+        with mock.patch.dict("sys.modules", {"tensorflow": None}):
             self.assertRaises(ImportError, TFProfiler.setup)
 
     def testPostSetupChecksFail(self):
@@ -361,7 +361,10 @@ class TestWebServer(unittest.TestCase):
 class TestInitializer(unittest.TestCase):
     # Tests for building the plugin
     def test_init_failed_import(self):
-        with mock.patch.dict('sys.modules', {'google.cloud.aiplatform.training_utils.cloud_profiler.initializer': None}):
+        with mock.patch.dict(
+            "sys.modules",
+            {"google.cloud.aiplatform.training_utils.cloud_profiler.initializer": None},
+        ):
             self.assertRaises(ImportError, reload, training_utils.cloud_profiler)
 
     def test_build_plugin_fail_initialize(self):
