@@ -19,6 +19,7 @@ import re
 from typing import Optional, Tuple
 
 from google.cloud.aiplatform.compat.services import featurestore_service_client
+from google.cloud.aiplatform.compat.types import feature as gca_feature
 
 CompatFeaturestoreServiceClient = featurestore_service_client.FeaturestoreServiceClient
 
@@ -115,3 +116,25 @@ def validate_and_get_feature_resource_ids(
             f"nor a feature ID with featurestore_id and entity_type_id passed."
         )
     return (featurestore_id, entity_type_id, feature_id)
+
+
+def validate_value_type(value_type: str) -> bool:
+    """Validates user provided feature value_type string.
+
+    Args:
+        value_type (str):
+            Required. Immutable. Type of Feature value.
+            One of BOOL, BOOL_ARRAY, DOUBLE, DOUBLE_ARRAY, INT64, INT64_ARRAY, STRING, STRING_ARRAY, BYTES.
+
+    Returns:
+        bool: True if valid value_type
+
+    Raises:
+        ValueError if value_type is invalid.
+    """
+    if value_type not in gca_feature.Feature.ValueType._member_names_:
+        raise ValueError(
+            f"Given value_type `{value_type}` invalid. "
+            f"Choose one of {gca_feature.Feature.ValueType._member_names_}"
+        )
+    return True

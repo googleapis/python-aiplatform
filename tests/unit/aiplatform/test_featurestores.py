@@ -67,6 +67,7 @@ _TEST_ENTITY_TYPE_INVALID = (
 _TEST_FEATURE_ID = "feature_id"
 _TEST_FEATURE_NAME = f"{_TEST_ENTITY_TYPE_NAME}/features/{_TEST_FEATURE_ID}"
 _TEST_FEATURE_INVALID = f"{_TEST_ENTITY_TYPE_NAME}/feature/{_TEST_FEATURE_ID}"
+_TEST_FEATURE_VALUE_TYPE = "INT64"
 
 # misc
 _TEST_DESCRIPTION = "my description"
@@ -174,6 +175,23 @@ def search_features_mock():
         yield search_features_mock
 
 
+@pytest.fixture
+def create_featurestore_mock():
+    with patch.object(
+        featurestore_service_client.FeaturestoreServiceClient, "create_featurestore"
+    ) as create_featurestore_mock:
+        create_featurestore_lro_mock = mock.Mock(operation.Operation)
+        create_featurestore_lro_mock.result.return_value = gca_featurestore.Featurestore(
+            name=_TEST_FEATURESTORE_NAME,
+            online_serving_config=gca_featurestore.Featurestore.OnlineServingConfig(
+                fixed_node_count=_TEST_ONLINE_SERVING_CONFIG
+            ),
+            encryption_spec=_TEST_ENCRYPTION_SPEC,
+        )
+        create_featurestore_mock.return_value = create_featurestore_lro_mock
+        yield create_featurestore_mock
+
+
 # ALL EntityType Mocks
 @pytest.fixture
 def get_entity_type_mock():
@@ -215,6 +233,19 @@ def delete_entity_type_mock():
         yield delete_entity_type_mock
 
 
+@pytest.fixture
+def create_entity_type_mock():
+    with patch.object(
+        featurestore_service_client.FeaturestoreServiceClient, "create_entity_type"
+    ) as create_entity_type_mock:
+        create_entity_type_lro_mock = mock.Mock(operation.Operation)
+        create_entity_type_lro_mock.result.return_value = gca_entity_type.EntityType(
+            name=_TEST_ENTITY_TYPE_NAME
+        )
+        create_entity_type_mock.return_value = create_entity_type_lro_mock
+        yield create_entity_type_mock
+
+
 # ALL Feature Mocks
 @pytest.fixture
 def get_feature_mock():
@@ -252,6 +283,19 @@ def delete_feature_mock():
         delete_feature_lro_mock = mock.Mock(operation.Operation)
         delete_feature_mock.return_value = delete_feature_lro_mock
         yield delete_feature_mock
+
+
+@pytest.fixture
+def create_feature_mock():
+    with patch.object(
+        featurestore_service_client.FeaturestoreServiceClient, "create_feature"
+    ) as create_feature_mock:
+        create_feature_lro_mock = mock.Mock(operation.Operation)
+        create_feature_lro_mock.result.return_value = gca_feature.Feature(
+            name=_TEST_FEATURE_NAME, value_type=_TEST_FEATURE_VALUE_TYPE,
+        )
+        create_feature_mock.return_value = create_feature_lro_mock
+        yield create_feature_mock
 
 
 class TestFeaturestoreUtils:
@@ -344,6 +388,30 @@ class TestFeaturestoreUtils:
             featurestore_utils.validate_and_get_entity_type_resource_ids(
                 entity_type_name=entity_type_name, featurestore_id=featurestore_id
             )
+
+    @pytest.mark.parametrize(
+        "value_type",
+        [
+            "BOOL",
+            "BOOL_ARRAY",
+            "DOUBLE",
+            "DOUBLE_ARRAY",
+            "INT64",
+            "INT64_ARRAY",
+            "STRING",
+            "STRING_ARRAY",
+            "BYTES",
+        ],
+    )
+    def test_validate_value_type(self, value_type: str):
+        assert featurestore_utils.validate_value_type(value_type=value_type) is True
+
+    @pytest.mark.parametrize(
+        "value_type", ["INT", "INT_array", "STR", "double", "bool", "array", "INT32"]
+    )
+    def test_validate_value_type_with_raise(self, value_type: str):
+        with pytest.raises(ValueError):
+            featurestore_utils.validate_value_type(value_type=value_type)
 
 
 class TestFeaturestore:
@@ -497,6 +565,67 @@ class TestFeaturestore:
             any_order=True,
         )
 
+    @pytest.mark.usefixtures("get_featurestore_mock", "get_entity_type_mock")
+    @pytest.mark.parametrize("sync", [True, False])
+    def test_create_entity_type(self, create_entity_type_mock, sync):
+        aiplatform.init(project=_TEST_PROJECT)
+
+        my_featurestore = featurestores.Featurestore(
+            featurestore_name=_TEST_FEATURESTORE_NAME
+        )
+        my_entity_type = my_featurestore.create_entity_type(
+            entity_type_id=_TEST_ENTITY_TYPE_ID,
+            description=_TEST_DESCRIPTION,
+            labels=_TEST_LABELS,
+            sync=sync,
+        )
+
+        if not sync:
+            my_entity_type.wait()
+
+        expected_entity_type = gca_entity_type.EntityType(
+            labels=_TEST_LABELS, description=_TEST_DESCRIPTION,
+        )
+        create_entity_type_mock.assert_called_once_with(
+            request={
+                "parent": _TEST_FEATURESTORE_NAME,
+                "entity_type": expected_entity_type,
+                "entity_type_id": _TEST_ENTITY_TYPE_ID,
+            },
+            metadata=_TEST_REQUEST_METADATA,
+        )
+
+    @pytest.mark.usefixtures("get_featurestore_mock")
+    @pytest.mark.parametrize("sync", [True, False])
+    def test_create_featurestore(self, create_featurestore_mock, sync):
+        aiplatform.init(project=_TEST_PROJECT)
+
+        my_featurestore = featurestores.Featurestore.create(
+            featurestore_id=_TEST_FEATURESTORE_ID,
+            online_store_fixed_node_count=_TEST_ONLINE_SERVING_CONFIG,
+            labels=_TEST_LABELS,
+            encryption_spec_key_name=_TEST_ENCRYPTION_KEY_NAME,
+        )
+
+        if not sync:
+            my_featurestore.wait()
+
+        expected_featurestore = gca_featurestore.Featurestore(
+            labels=_TEST_LABELS,
+            online_serving_config=gca_featurestore.Featurestore.OnlineServingConfig(
+                fixed_node_count=_TEST_ONLINE_SERVING_CONFIG
+            ),
+            encryption_spec=_TEST_ENCRYPTION_SPEC,
+        )
+        create_featurestore_mock.assert_called_once_with(
+            request={
+                "parent": _TEST_PARENT,
+                "featurestore": expected_featurestore,
+                "featurestore_id": _TEST_FEATURESTORE_ID,
+            },
+            metadata=_TEST_REQUEST_METADATA,
+        )
+
 
 class TestEntityType:
     def setup_method(self):
@@ -628,6 +757,65 @@ class TestEntityType:
             any_order=True,
         )
 
+    @pytest.mark.usefixtures("get_entity_type_mock", "get_feature_mock")
+    @pytest.mark.parametrize("sync", [True, False])
+    def test_create_feature(self, create_feature_mock, sync):
+        aiplatform.init(project=_TEST_PROJECT)
+
+        my_entity_type = featurestores.EntityType(
+            entity_type_name=_TEST_ENTITY_TYPE_NAME
+        )
+        my_feature = my_entity_type.create_feature(
+            feature_id=_TEST_FEATURE_ID,
+            value_type=_TEST_FEATURE_VALUE_TYPE,
+            description=_TEST_DESCRIPTION,
+            labels=_TEST_LABELS,
+        )
+
+        if not sync:
+            my_feature.wait()
+
+        expected_feature = gca_feature.Feature(
+            value_type=_TEST_FEATURE_VALUE_TYPE,
+            labels=_TEST_LABELS,
+            description=_TEST_DESCRIPTION,
+        )
+        create_feature_mock.assert_called_once_with(
+            request={
+                "parent": _TEST_ENTITY_TYPE_NAME,
+                "feature": expected_feature,
+                "feature_id": _TEST_FEATURE_ID,
+            },
+            metadata=_TEST_REQUEST_METADATA,
+        )
+
+    @pytest.mark.usefixtures("get_entity_type_mock")
+    @pytest.mark.parametrize("sync", [True, False])
+    def test_create_entity_type(self, create_entity_type_mock, sync):
+        aiplatform.init(project=_TEST_PROJECT)
+
+        my_entity_type = featurestores.EntityType.create(
+            entity_type_id=_TEST_ENTITY_TYPE_ID,
+            featurestore_name=_TEST_FEATURESTORE_NAME,
+            description=_TEST_DESCRIPTION,
+            labels=_TEST_LABELS,
+        )
+
+        if not sync:
+            my_entity_type.wait()
+
+        expected_entity_type = gca_entity_type.EntityType(
+            description=_TEST_DESCRIPTION, labels=_TEST_LABELS,
+        )
+        create_entity_type_mock.assert_called_once_with(
+            request={
+                "parent": _TEST_FEATURESTORE_NAME,
+                "entity_type": expected_entity_type,
+                "entity_type_id": _TEST_ENTITY_TYPE_ID,
+            },
+            metadata=_TEST_REQUEST_METADATA,
+        )
+
 
 class TestFeature:
     def setup_method(self):
@@ -730,3 +918,33 @@ class TestFeature:
         assert len(my_feature_list) == len(_TEST_FEATURE_LIST)
         for my_feature in my_feature_list:
             assert type(my_feature) == featurestores.Feature
+
+    @pytest.mark.parametrize("sync", [True, False])
+    def test_create_feature(self, create_feature_mock, sync):
+        aiplatform.init(project=_TEST_PROJECT)
+
+        my_feature = featurestores.Feature.create(
+            feature_id=_TEST_FEATURE_ID,
+            value_type=_TEST_FEATURE_VALUE_TYPE,
+            entity_type_name=_TEST_ENTITY_TYPE_ID,
+            featurestore_id=_TEST_FEATURESTORE_ID,
+            description=_TEST_DESCRIPTION,
+            labels=_TEST_LABELS,
+        )
+
+        if not sync:
+            my_feature.wait()
+
+        expected_feature = gca_feature.Feature(
+            value_type=_TEST_FEATURE_VALUE_TYPE,
+            labels=_TEST_LABELS,
+            description=_TEST_DESCRIPTION,
+        )
+        create_feature_mock.assert_called_once_with(
+            request={
+                "parent": _TEST_ENTITY_TYPE_NAME,
+                "feature": expected_feature,
+                "feature_id": _TEST_FEATURE_ID,
+            },
+            metadata=_TEST_REQUEST_METADATA,
+        )
