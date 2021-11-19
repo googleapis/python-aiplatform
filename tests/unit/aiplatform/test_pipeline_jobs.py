@@ -53,13 +53,24 @@ _TEST_NETWORK = f"projects/{_TEST_PROJECT}/global/networks/{_TEST_PIPELINE_JOB_I
 
 _TEST_PIPELINE_JOB_NAME = f"projects/{_TEST_PROJECT}/locations/{_TEST_LOCATION}/pipelineJobs/{_TEST_PIPELINE_JOB_ID}"
 
-_TEST_PIPELINE_PARAMETER_VALUES = {"string_param": "hello"}
+_TEST_PIPELINE_PARAMETER_VALUES_LEGACY = {"string_param": "hello"}
+_TEST_PIPELINE_PARAMETER_VALUES = {
+    "string_param": "hello world",
+    "bool_param": True,
+    "double_param": 12.34,
+    "int_param": 5678,
+    "list_int_param": [123, 456, 789],
+    "list_string_param": ["lorem", "ipsum"],
+    "struct_param": {"key1": 12345, "key2": 67890},
+}
+
 _TEST_PIPELINE_SPEC_LEGACY = {
     "pipelineInfo": {"name": "my-pipeline"},
     "root": {
         "dag": {"tasks": {}},
         "inputDefinitions": {"parameters": {"string_param": {"type": "STRING"}}},
     },
+    "schemaVersion": "2.0.0",
     "components": {},
 }
 _TEST_PIPELINE_SPEC = {
@@ -69,28 +80,16 @@ _TEST_PIPELINE_SPEC = {
         "inputDefinitions": {
             "parameters": {
                 "string_param": {"parameterType": "STRING"},
-                # uncomment when GAPIC library change for protobufValue is in
-                # "bool_param": {
-                #     "parameterType": "BOOLEAN"
-                # },
-                # "double_param": {
-                #     "parameterType": "NUMBER_DOUBLE"
-                # },
-                # "int_param": {
-                #     "parameterType": "NUMBER_INTEGER"
-                # },
-                # "list_int_param": {
-                #     "parameterType": "LIST"
-                # },
-                # "list_string_param": {
-                #     "parameterType": "LIST"
-                # },
-                # "struct_param": {
-                #     "parameterType": "STRUCT"
-                # }
+                "bool_param": {"parameterType": "BOOLEAN"},
+                "double_param": {"parameterType": "NUMBER_DOUBLE"},
+                "int_param": {"parameterType": "NUMBER_INTEGER"},
+                "list_int_param": {"parameterType": "LIST"},
+                "list_string_param": {"parameterType": "LIST"},
+                "struct_param": {"parameterType": "STRUCT"},
             }
         },
     },
+    "schemaVersion": "2.1.0",
     "components": {},
 }
 
@@ -98,20 +97,8 @@ _TEST_PIPELINE_JOB_LEGACY = {
     "runtimeConfig": {},
     "pipelineSpec": _TEST_PIPELINE_SPEC_LEGACY,
 }
-
 _TEST_PIPELINE_JOB = {
-    "runtimeConfig": {
-        "parameterValues": {
-            "string_param": "lorem ipsum",
-            # uncomment when GAPIC library change for protobufValue is in
-            # "bool_param": True,
-            # "double_param": 12.34,
-            # "int_param": 5678,
-            # "list_int_param": [123, 456, 789],
-            # "list_string_param": ["lorem", "ipsum"],
-            # "struct_param": { "key1": 12345, "key2": 67890}
-        },
-    },
+    "runtimeConfig": {"parameterValues": _TEST_PIPELINE_PARAMETER_VALUES},
     "pipelineSpec": _TEST_PIPELINE_SPEC,
 }
 
@@ -250,13 +237,7 @@ class TestPipelineJob:
         initializer.global_pool.shutdown(wait=True)
 
     @pytest.mark.parametrize(
-        "job_spec_json",
-        [
-            _TEST_PIPELINE_SPEC,
-            _TEST_PIPELINE_JOB,
-            _TEST_PIPELINE_SPEC_LEGACY,
-            _TEST_PIPELINE_JOB_LEGACY,
-        ],
+        "job_spec_json", [_TEST_PIPELINE_SPEC, _TEST_PIPELINE_JOB],
     )
     @pytest.mark.parametrize("sync", [True, False])
     def test_run_call_pipeline_service_create(
@@ -291,7 +272,7 @@ class TestPipelineJob:
 
         expected_runtime_config_dict = {
             "gcsOutputDirectory": _TEST_GCS_BUCKET_NAME,
-            "parameters": {"string_param": {"stringValue": "hello"}},
+            "parameterValues": _TEST_PIPELINE_PARAMETER_VALUES,
         }
         runtime_config = gca_pipeline_job_v1.PipelineJob.RuntimeConfig()._pb
         json_format.ParseDict(expected_runtime_config_dict, runtime_config)
@@ -305,6 +286,7 @@ class TestPipelineJob:
                 "components": {},
                 "pipelineInfo": pipeline_spec["pipelineInfo"],
                 "root": pipeline_spec["root"],
+                "schemaVersion": "2.1.0",
             },
             runtime_config=runtime_config,
             service_account=_TEST_SERVICE_ACCOUNT,
@@ -326,13 +308,78 @@ class TestPipelineJob:
         )
 
     @pytest.mark.parametrize(
-        "job_spec_json",
-        [
-            _TEST_PIPELINE_SPEC,
-            _TEST_PIPELINE_JOB,
-            _TEST_PIPELINE_SPEC_LEGACY,
-            _TEST_PIPELINE_JOB_LEGACY,
-        ],
+        "job_spec_json", [_TEST_PIPELINE_SPEC_LEGACY, _TEST_PIPELINE_JOB_LEGACY],
+    )
+    @pytest.mark.parametrize("sync", [True, False])
+    def test_run_call_pipeline_service_create_legacy(
+        self,
+        mock_pipeline_service_create,
+        mock_pipeline_service_get,
+        job_spec_json,
+        mock_load_json,
+        sync,
+    ):
+        aiplatform.init(
+            project=_TEST_PROJECT,
+            staging_bucket=_TEST_GCS_BUCKET_NAME,
+            location=_TEST_LOCATION,
+            credentials=_TEST_CREDENTIALS,
+        )
+
+        job = pipeline_jobs.PipelineJob(
+            display_name=_TEST_PIPELINE_JOB_DISPLAY_NAME,
+            template_path=_TEST_TEMPLATE_PATH,
+            job_id=_TEST_PIPELINE_JOB_ID,
+            parameter_values=_TEST_PIPELINE_PARAMETER_VALUES_LEGACY,
+            enable_caching=True,
+        )
+
+        job.run(
+            service_account=_TEST_SERVICE_ACCOUNT, network=_TEST_NETWORK, sync=sync,
+        )
+
+        if not sync:
+            job.wait()
+
+        expected_runtime_config_dict = {
+            "gcsOutputDirectory": _TEST_GCS_BUCKET_NAME,
+            "parameters": {"string_param": {"stringValue": "hello"}},
+        }
+        runtime_config = gca_pipeline_job_v1.PipelineJob.RuntimeConfig()._pb
+        json_format.ParseDict(expected_runtime_config_dict, runtime_config)
+
+        pipeline_spec = job_spec_json.get("pipelineSpec") or job_spec_json
+
+        # Construct expected request
+        expected_gapic_pipeline_job = gca_pipeline_job_v1.PipelineJob(
+            display_name=_TEST_PIPELINE_JOB_DISPLAY_NAME,
+            pipeline_spec={
+                "components": {},
+                "pipelineInfo": pipeline_spec["pipelineInfo"],
+                "root": pipeline_spec["root"],
+                "schemaVersion": "2.0.0",
+            },
+            runtime_config=runtime_config,
+            service_account=_TEST_SERVICE_ACCOUNT,
+            network=_TEST_NETWORK,
+        )
+
+        mock_pipeline_service_create.assert_called_once_with(
+            parent=_TEST_PARENT,
+            pipeline_job=expected_gapic_pipeline_job,
+            pipeline_job_id=_TEST_PIPELINE_JOB_ID,
+        )
+
+        mock_pipeline_service_get.assert_called_with(
+            name=_TEST_PIPELINE_JOB_NAME, retry=base._DEFAULT_RETRY
+        )
+
+        assert job._gca_resource == make_pipeline_job(
+            gca_pipeline_state_v1.PipelineState.PIPELINE_STATE_SUCCEEDED
+        )
+
+    @pytest.mark.parametrize(
+        "job_spec_json", [_TEST_PIPELINE_SPEC, _TEST_PIPELINE_JOB],
     )
     def test_submit_call_pipeline_service_pipeline_job_create(
         self,
@@ -359,8 +406,8 @@ class TestPipelineJob:
         job.submit(service_account=_TEST_SERVICE_ACCOUNT, network=_TEST_NETWORK)
 
         expected_runtime_config_dict = {
-            "gcs_output_directory": _TEST_GCS_BUCKET_NAME,
-            "parameters": {"string_param": {"stringValue": "hello"}},
+            "gcsOutputDirectory": _TEST_GCS_BUCKET_NAME,
+            "parameterValues": _TEST_PIPELINE_PARAMETER_VALUES,
         }
         runtime_config = gca_pipeline_job_v1.PipelineJob.RuntimeConfig()._pb
         json_format.ParseDict(expected_runtime_config_dict, runtime_config)
@@ -374,6 +421,75 @@ class TestPipelineJob:
                 "components": {},
                 "pipelineInfo": pipeline_spec["pipelineInfo"],
                 "root": pipeline_spec["root"],
+                "schemaVersion": "2.1.0",
+            },
+            runtime_config=runtime_config,
+            service_account=_TEST_SERVICE_ACCOUNT,
+            network=_TEST_NETWORK,
+        )
+
+        mock_pipeline_service_create.assert_called_once_with(
+            parent=_TEST_PARENT,
+            pipeline_job=expected_gapic_pipeline_job,
+            pipeline_job_id=_TEST_PIPELINE_JOB_ID,
+        )
+
+        assert not mock_pipeline_service_get.called
+
+        job.wait()
+
+        mock_pipeline_service_get.assert_called_with(
+            name=_TEST_PIPELINE_JOB_NAME, retry=base._DEFAULT_RETRY
+        )
+
+        assert job._gca_resource == make_pipeline_job(
+            gca_pipeline_state_v1.PipelineState.PIPELINE_STATE_SUCCEEDED
+        )
+
+    @pytest.mark.parametrize(
+        "job_spec_json", [_TEST_PIPELINE_SPEC_LEGACY, _TEST_PIPELINE_JOB_LEGACY],
+    )
+    def test_submit_call_pipeline_service_pipeline_job_create_legacy(
+        self,
+        mock_pipeline_service_create,
+        mock_pipeline_service_get,
+        job_spec_json,
+        mock_load_json,
+    ):
+        aiplatform.init(
+            project=_TEST_PROJECT,
+            staging_bucket=_TEST_GCS_BUCKET_NAME,
+            location=_TEST_LOCATION,
+            credentials=_TEST_CREDENTIALS,
+        )
+
+        job = pipeline_jobs.PipelineJob(
+            display_name=_TEST_PIPELINE_JOB_DISPLAY_NAME,
+            template_path=_TEST_TEMPLATE_PATH,
+            job_id=_TEST_PIPELINE_JOB_ID,
+            parameter_values=_TEST_PIPELINE_PARAMETER_VALUES_LEGACY,
+            enable_caching=True,
+        )
+
+        job.submit(service_account=_TEST_SERVICE_ACCOUNT, network=_TEST_NETWORK)
+
+        expected_runtime_config_dict = {
+            "parameters": {"string_param": {"stringValue": "hello"}},
+            "gcsOutputDirectory": _TEST_GCS_BUCKET_NAME,
+        }
+        runtime_config = gca_pipeline_job_v1.PipelineJob.RuntimeConfig()._pb
+        json_format.ParseDict(expected_runtime_config_dict, runtime_config)
+
+        pipeline_spec = job_spec_json.get("pipelineSpec") or job_spec_json
+
+        # Construct expected request
+        expected_gapic_pipeline_job = gca_pipeline_job_v1.PipelineJob(
+            display_name=_TEST_PIPELINE_JOB_DISPLAY_NAME,
+            pipeline_spec={
+                "components": {},
+                "pipelineInfo": pipeline_spec["pipelineInfo"],
+                "root": pipeline_spec["root"],
+                "schemaVersion": "2.0.0",
             },
             runtime_config=runtime_config,
             service_account=_TEST_SERVICE_ACCOUNT,
@@ -508,13 +624,7 @@ class TestPipelineJob:
         "mock_pipeline_service_create", "mock_pipeline_service_get_with_fail",
     )
     @pytest.mark.parametrize(
-        "job_spec_json",
-        [
-            _TEST_PIPELINE_SPEC,
-            _TEST_PIPELINE_JOB,
-            _TEST_PIPELINE_SPEC_LEGACY,
-            _TEST_PIPELINE_JOB_LEGACY,
-        ],
+        "job_spec_json", [_TEST_PIPELINE_SPEC, _TEST_PIPELINE_JOB],
     )
     @pytest.mark.parametrize("sync", [True, False])
     def test_pipeline_failure_raises(self, mock_load_json, sync):

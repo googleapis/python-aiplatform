@@ -207,6 +207,7 @@ class BatchPredictionJob(proto.Message):
             gcs_source (google.cloud.aiplatform_v1beta1.types.GcsSource):
                 The Cloud Storage location for the input
                 instances.
+
                 This field is a member of `oneof`_ ``source``.
             bigquery_source (google.cloud.aiplatform_v1beta1.types.BigQuerySource):
                 The BigQuery location of the input table.
@@ -215,6 +216,7 @@ class BatchPredictionJob(proto.Message):
                 if one is provided. The table may contain
                 additional columns that are not described by the
                 schema, and they will be ignored.
+
                 This field is a member of `oneof`_ ``source``.
             instances_format (str):
                 Required. The format in which instances are given, must be
@@ -274,6 +276,7 @@ class BatchPredictionJob(proto.Message):
                 per their schema, followed by an additional ``error`` field
                 which as value has [google.rpc.Status][google.rpc.Status]
                 containing only ``code`` and ``message`` fields.
+
                 This field is a member of `oneof`_ ``destination``.
             bigquery_destination (google.cloud.aiplatform_v1beta1.types.BigQueryDestination):
                 The BigQuery project or dataset location where the output is
@@ -297,6 +300,7 @@ class BatchPredictionJob(proto.Message):
                 followed by a single "errors" column, which as values has
                 [google.rpc.Status][google.rpc.Status] represented as a
                 STRUCT, and containing only ``code`` and ``message``.
+
                 This field is a member of `oneof`_ ``destination``.
             predictions_format (str):
                 Required. The format in which Vertex AI gives the
@@ -332,11 +336,13 @@ class BatchPredictionJob(proto.Message):
                 Output only. The full path of the Cloud
                 Storage directory created, into which the
                 prediction output is written.
+
                 This field is a member of `oneof`_ ``output_location``.
             bigquery_output_dataset (str):
                 Output only. The path of the BigQuery dataset created, in
                 ``bq://projectId.bqDatasetId`` format, into which the
                 prediction output is written.
+
                 This field is a member of `oneof`_ ``output_location``.
             bigquery_output_table (str):
                 Output only. The name of the BigQuery table created, in

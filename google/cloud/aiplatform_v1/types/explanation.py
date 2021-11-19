@@ -276,6 +276,7 @@ class ExplanationParameters(proto.Message):
             considering all subsets of features. Refer to
             this paper for model details:
             https://arxiv.org/abs/1306.4265.
+
             This field is a member of `oneof`_ ``method``.
         integrated_gradients_attribution (google.cloud.aiplatform_v1.types.IntegratedGradientsAttribution):
             An attribution method that computes Aumann-
@@ -283,6 +284,7 @@ class ExplanationParameters(proto.Message):
             fully differentiable structure. Refer to this
             paper for more details:
             https://arxiv.org/abs/1703.01365
+
             This field is a member of `oneof`_ ``method``.
         xrai_attribution (google.cloud.aiplatform_v1.types.XraiAttribution):
             An attribution method that redistributes
@@ -298,6 +300,7 @@ class ExplanationParameters(proto.Message):
             or from diagnostic equipment, like x-rays or
             quality-control cameras, use Integrated
             Gradients instead.
+
             This field is a member of `oneof`_ ``method``.
         top_k (int):
             If populated, returns attributions for top K
@@ -449,6 +452,7 @@ class SmoothGradConfig(proto.Message):
             If the distribution is different per feature, set
             [feature_noise_sigma][google.cloud.aiplatform.v1.SmoothGradConfig.feature_noise_sigma]
             instead for each feature.
+
             This field is a member of `oneof`_ ``GradientNoiseSigma``.
         feature_noise_sigma (google.cloud.aiplatform_v1.types.FeatureNoiseSigma):
             This is similar to
@@ -459,6 +463,7 @@ class SmoothGradConfig(proto.Message):
             that are not set. If this field is unset,
             [noise_sigma][google.cloud.aiplatform.v1.SmoothGradConfig.noise_sigma]
             will be used for all features.
+
             This field is a member of `oneof`_ ``GradientNoiseSigma``.
         noisy_sample_count (int):
             The number of gradient samples to use for approximation. The
