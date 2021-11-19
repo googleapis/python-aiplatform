@@ -27,7 +27,6 @@ from google.cloud.aiplatform.compat.types import featurestore as gca_featurestor
 from google.cloud.aiplatform import _featurestores
 from google.cloud.aiplatform import initializer
 from google.cloud.aiplatform import utils
-
 from google.cloud.aiplatform.utils import featurestore_utils
 
 _LOGGER = base.Logger(__name__)
@@ -109,10 +108,10 @@ class Featurestore(base.VertexAiResourceNounWithFutureManager):
             featurestores.EntityType - The managed entityType resource object.
 
         Raises:
-            ValueError if the provided entity_type_id is not in form of a entity_type ID.
+            ValueError if the provided entity_type_id is not in form of an entity_type ID.
         """
         if not featurestore_utils.validate_id(entity_type_id):
-            raise ValueError(f"{entity_type_id} is not in form of a entity_type ID.")
+            raise ValueError(f"{entity_type_id} is not in form of an entity_type ID.")
         entity_type_name = self._get_entity_type_name(entity_type_id)
         return _featurestores.EntityType(entity_type_name=entity_type_name)
 
@@ -288,12 +287,38 @@ class Featurestore(base.VertexAiResourceNounWithFutureManager):
 
         Args:
             filter (str):
-                Optional. An expression for filtering the results of the request.
-                For field names both snake_case and camelCase are supported.
+                Optional. Lists the EntityTypes that match the filter expression. The
+                following filters are supported:
+
+                -  ``create_time``: Supports ``=``, ``!=``, ``<``, ``>``,
+                   ``>=``, and ``<=`` comparisons. Values must be in RFC
+                   3339 format.
+                -  ``update_time``: Supports ``=``, ``!=``, ``<``, ``>``,
+                   ``>=``, and ``<=`` comparisons. Values must be in RFC
+                   3339 format.
+                -  ``labels``: Supports key-value equality as well as key
+                   presence.
+
+                Examples:
+
+                -  ``create_time > \"2020-01-31T15:30:00.000000Z\" OR update_time > \"2020-01-31T15:30:00.000000Z\"``
+                   --> EntityTypes created or updated after
+                   2020-01-31T15:30:00.000000Z.
+                -  ``labels.active = yes AND labels.env = prod`` -->
+                   EntityTypes having both (active: yes) and (env: prod)
+                   labels.
+                -  ``labels.env: *`` --> Any EntityType which has a label
+                   with 'env' as the key.
             order_by (str):
                 Optional. A comma-separated list of fields to order by, sorted in
-                ascending order. Use "desc" after a field name for descending.
-                Supported fields: `display_name`, `create_time`, `update_time`
+                ascending order. Use "desc" after a field name for
+                descending.
+
+                Supported fields:
+
+                -  ``entity_type_id``
+                -  ``create_time``
+                -  ``update_time``
 
         Returns:
             List[EntityTypes] - A list of managed entityType resource objects.
@@ -304,14 +329,16 @@ class Featurestore(base.VertexAiResourceNounWithFutureManager):
 
     @base.optional_sync()
     def delete_entity_types(
-        self, entity_type_ids: List[str], sync: bool = True,
+        self, entity_type_ids: List[str], sync: Optional[bool] = True,
     ) -> None:
         """Deletes entity_type resources in this Featurestre given their entity_type IDs.
         WARNING: This deletion is permanent.
 
         Args:
+            entity_type_ids (List[str]):
+                Required. The list of entity_type IDs to be deleted.
             sync (bool):
-                Whether to execute this deletion synchronously. If False, this method
+                Optional. Whether to execute this deletion synchronously. If False, this method
                 will be executed in concurrent Future and any downstream object will
                 be immediately returned and synced when the Future has completed.
         """
@@ -472,7 +499,7 @@ class Featurestore(base.VertexAiResourceNounWithFutureManager):
         location: Optional[str] = None,
         credentials: Optional[auth_credentials.Credentials] = None,
         encryption_spec_key_name: Optional[str] = None,
-        sync: bool = True,
+        sync: Optional[bool] = True,
     ) -> "Featurestore":
         """"""
         raise NotImplementedError
@@ -484,7 +511,7 @@ class Featurestore(base.VertexAiResourceNounWithFutureManager):
         labels: Optional[Dict[str, str]] = None,
         snapshot_analysis_disabled: Optional[bool] = True,
         monitoring_interval_days: Optional[int] = None,
-        sync: bool = True,
+        sync: Optional[bool] = True,
     ) -> "_featurestores.EntityType":
         """"""
         raise NotImplementedError
@@ -496,7 +523,7 @@ class Featurestore(base.VertexAiResourceNounWithFutureManager):
         read_instance: Optional[Union[str, List[str], pd.DataFrame]] = None,
         pass_through_field: Optional[List[str]] = None,
         bq_destination_output_uri: Optional[str] = None,
-        sync: bool = True,
+        sync: Optional[bool] = True,
     ) -> None:
         """"""
         raise NotImplementedError
@@ -509,7 +536,7 @@ class Featurestore(base.VertexAiResourceNounWithFutureManager):
         pass_through_field: Optional[List[str]] = None,
         gcs_destination_output_uri_prefix: Optional[str] = None,
         gcs_destination_type: Optional[str] = None,
-        sync: bool = True,
+        sync: Optional[bool] = True,
     ) -> None:
         """"""
         raise NotImplementedError

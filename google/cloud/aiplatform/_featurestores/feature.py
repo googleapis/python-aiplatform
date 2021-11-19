@@ -15,7 +15,7 @@
 # limitations under the License.
 #
 
-from typing import Dict, List, Optional, Sequence, Tuple, Union
+from typing import Dict, List, Optional, Sequence, Tuple
 
 from google.auth import credentials as auth_credentials
 from google.protobuf import field_mask_pb2
@@ -24,7 +24,6 @@ from google.cloud.aiplatform import base
 from google.cloud.aiplatform.compat.types import feature as gca_feature
 from google.cloud.aiplatform import _featurestores
 from google.cloud.aiplatform import utils
-
 from google.cloud.aiplatform.utils import featurestore_utils
 
 _LOGGER = base.Logger(__name__)
@@ -83,31 +82,16 @@ class Feature(base.VertexAiResourceNounWithFutureManager):
             credentials (auth_credentials.Credentials):
                 Optional. Custom credentials to use to retrieve this Feature. Overrides
                 credentials set in aiplatform.init.
-
-        Raises:
-            ValueError if the provided feature_name is not in form of a fully-qualified
-            feature resource name nor a feature ID with featurestore_id and entity_type_id passed.
         """
-
-        match = featurestore_utils.validate_feature_name(feature_name)
-
-        if match:
-            self._featurestore_id = match["featurestore_id"]
-            self._entity_type_id = match["entity_type_id"]
-        elif (
-            featurestore_utils.validate_id(feature_name)
-            and featurestore_id
-            and entity_type_id
-            and featurestore_utils.validate_id(featurestore_id)
-            and featurestore_utils.validate_id(entity_type_id)
-        ):
-            self._featurestore_id = featurestore_id
-            self._entity_type_id = entity_type_id
-        else:
-            raise ValueError(
-                f"{feature_name} is not in form of a fully-qualified feature resource name "
-                f"nor a feature ID with featurestore_id and entity_type_id passed."
-            )
+        (
+            self._featurestore_id,
+            self._entity_type_id,
+            _,
+        ) = featurestore_utils.validate_and_get_feature_resource_ids(
+            feature_name=feature_name,
+            entity_type_id=entity_type_id,
+            featurestore_id=featurestore_id,
+        )
 
         self._resource_noun = featurestore_utils.get_feature_resource_noun(
             featurestore_id=self._featurestore_id, entity_type_id=self._entity_type_id
@@ -271,12 +255,38 @@ class Feature(base.VertexAiResourceNounWithFutureManager):
             featurestore_id (str):
                 Optional. Featurestore to list features in.
             filter (str):
-                Optional. An expression for filtering the results of the request.
-                For field names both snake_case and camelCase are supported.
+                Optional. Lists the Features that match the filter expression. The
+                following filters are supported:
+
+                -  ``value_type``: Supports = and != comparisons.
+                -  ``create_time``: Supports =, !=, <, >, >=, and <=
+                   comparisons. Values must be in RFC 3339 format.
+                -  ``update_time``: Supports =, !=, <, >, >=, and <=
+                   comparisons. Values must be in RFC 3339 format.
+                -  ``labels``: Supports key-value equality as well as key
+                   presence.
+
+                Examples:
+
+                -  ``value_type = DOUBLE`` --> Features whose type is
+                   DOUBLE.
+                -  ``create_time > \"2020-01-31T15:30:00.000000Z\" OR update_time > \"2020-01-31T15:30:00.000000Z\"``
+                   --> EntityTypes created or updated after
+                   2020-01-31T15:30:00.000000Z.
+                -  ``labels.active = yes AND labels.env = prod`` -->
+                   Features having both (active: yes) and (env: prod)
+                   labels.
+                -  ``labels.env: *`` --> Any Feature which has a label with
+                   'env' as the key.
             order_by (str):
                 Optional. A comma-separated list of fields to order by, sorted in
-                ascending order. Use "desc" after a field name for descending.
-                Supported fields: `display_name`, `create_time`, `update_time`
+                ascending order. Use "desc" after a field name for
+                descending. Supported fields:
+
+                -  ``feature_id``
+                -  ``value_type``
+                -  ``create_time``
+                -  ``update_time``
             project (str):
                 Optional. Project to list features in. If not set, project
                 set in aiplatform.init will be used.
@@ -289,29 +299,13 @@ class Feature(base.VertexAiResourceNounWithFutureManager):
 
         Returns:
             List[Features] - A list of managed feature resource objects
-
-        Raises:
-            ValueError if the provided entity_type_name is not in form of a fully-qualified
-            entityType resource name nor an entity_type ID with featurestore_id passed.
         """
-
-        match = featurestore_utils.validate_entity_type_name(entity_type_name)
-
-        if match:
-            cls._featurestore_id = match["featurestore_id"]
-            cls._entity_type_id = match["entity_type_id"]
-        elif (
-            featurestore_utils.validate_id(entity_type_name)
-            and featurestore_id
-            and featurestore_utils.validate_id(featurestore_id)
-        ):
-            cls._featurestore_id = featurestore_id
-            cls._entity_type_id = entity_type_name
-        else:
-            raise ValueError(
-                f"{entity_type_name} is not in form of a fully-qualified entityType resource name "
-                f"nor an entity_type ID with featurestore_id passed."
-            )
+        (
+            cls._featurestore_id,
+            cls._entity_type_id,
+        ) = featurestore_utils.validate_and_get_entity_type_resource_ids(
+            entity_type_name=entity_type_name, featurestore_id=featurestore_id,
+        )
 
         cls._resource_noun = featurestore_utils.get_feature_resource_noun(
             featurestore_id=cls._featurestore_id, entity_type_id=cls._entity_type_id
@@ -337,12 +331,17 @@ class Feature(base.VertexAiResourceNounWithFutureManager):
     @classmethod
     def create(
         cls,
-        entity_type: Union[_featurestores.EntityType, str],
         feature_id: str,
         value_type: str,
+        entity_type_name: str,
+        featurestore_id: Optional[str] = None,
         description: Optional[str] = None,
         labels: Optional[Dict[str, str]] = None,
-        sync: bool = True,
+        project: Optional[str] = None,
+        location: Optional[str] = None,
+        credentials: Optional[auth_credentials.Credentials] = None,
+        request_metadata: Optional[Sequence[Tuple[str, str]]] = (),
+        sync: Optional[bool] = True,
     ) -> "Feature":
         """"""
         raise NotImplementedError

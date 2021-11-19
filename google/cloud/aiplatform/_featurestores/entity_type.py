@@ -27,7 +27,6 @@ from google.cloud.aiplatform import base
 from google.cloud.aiplatform.compat.types import entity_type as gca_entity_type
 from google.cloud.aiplatform import _featurestores
 from google.cloud.aiplatform import utils
-
 from google.cloud.aiplatform.utils import featurestore_utils
 
 _LOGGER = base.Logger(__name__)
@@ -83,27 +82,14 @@ class EntityType(base.VertexAiResourceNounWithFutureManager):
             credentials (auth_credentials.Credentials):
                 Optional. Custom credentials to use to retrieve this EntityType. Overrides
                 credentials set in aiplatform.init.
-
-        Raises:
-            ValueError if the provided entity_type_name is not in form of a fully-qualified
-            entityType resource name nor an entity_type ID with featurestore_id passed.
         """
 
-        match = featurestore_utils.validate_entity_type_name(entity_type_name)
-
-        if match:
-            self._featurestore_id = match["featurestore_id"]
-        elif (
-            featurestore_utils.validate_id(entity_type_name)
-            and featurestore_id
-            and featurestore_utils.validate_id(featurestore_id)
-        ):
-            self._featurestore_id = featurestore_id
-        else:
-            raise ValueError(
-                f"{entity_type_name} is not in form of a fully-qualified entityType resource name "
-                f"nor an entity_type ID with featurestore_id passed."
-            )
+        (
+            self._featurestore_id,
+            _,
+        ) = featurestore_utils.validate_and_get_entity_type_resource_ids(
+            entity_type_name=entity_type_name, featurestore_id=featurestore_id
+        )
 
         self._resource_noun = featurestore_utils.get_entity_type_resource_noun(
             featurestore_id=self._featurestore_id
@@ -274,6 +260,39 @@ class EntityType(base.VertexAiResourceNounWithFutureManager):
                 Required. A fully-qualified featurestore resource name or a featurestore ID to list entityTypes in
                 Example: "projects/123/locations/us-central1/featurestores/my_featurestore_id"
                 or "my_featurestore_id" when project and location are initialized or passed.
+            filter (str):
+                Optional. Lists the EntityTypes that match the filter expression. The
+                following filters are supported:
+
+                -  ``create_time``: Supports ``=``, ``!=``, ``<``, ``>``,
+                   ``>=``, and ``<=`` comparisons. Values must be in RFC
+                   3339 format.
+                -  ``update_time``: Supports ``=``, ``!=``, ``<``, ``>``,
+                   ``>=``, and ``<=`` comparisons. Values must be in RFC
+                   3339 format.
+                -  ``labels``: Supports key-value equality as well as key
+                   presence.
+
+                Examples:
+
+                -  ``create_time > \"2020-01-31T15:30:00.000000Z\" OR update_time > \"2020-01-31T15:30:00.000000Z\"``
+                   --> EntityTypes created or updated after
+                   2020-01-31T15:30:00.000000Z.
+                -  ``labels.active = yes AND labels.env = prod`` -->
+                   EntityTypes having both (active: yes) and (env: prod)
+                   labels.
+                -  ``labels.env: *`` --> Any EntityType which has a label
+                   with 'env' as the key.
+            order_by (str):
+                Optional. A comma-separated list of fields to order by, sorted in
+                ascending order. Use "desc" after a field name for
+                descending.
+
+                Supported fields:
+
+                -  ``entity_type_id``
+                -  ``create_time``
+                -  ``update_time``
             project (str):
                 Optional. Project to list entityTypes in. If not set, project
                 set in aiplatform.init will be used.
@@ -286,22 +305,11 @@ class EntityType(base.VertexAiResourceNounWithFutureManager):
 
         Returns:
             List[EntityTypes] - A list of managed entityType resource objects
-
-        Raises:
-            ValueError if the provided featurestore_name is not in form of a fully-qualified
-            featurestore resource name nor an featurestore ID.
         """
 
-        match = featurestore_utils.validate_featurestore_name(featurestore_name)
-
-        if match:
-            cls._featurestore_id = match["featurestore_id"]
-        elif featurestore_utils.validate_id(featurestore_name):
-            cls._featurestore_id = featurestore_name
-        else:
-            raise ValueError(
-                f"{featurestore_name} is not in form of a fully-qualified featurestore resource name nor an featurestore ID."
-            )
+        cls._featurestore_id = featurestore_utils.validate_and_get_featurestore_resource_id(
+            featurestore_name=featurestore_name
+        )
 
         cls._resource_noun = featurestore_utils.get_entity_type_resource_noun(
             featurestore_id=cls._featurestore_id,
@@ -337,12 +345,38 @@ class EntityType(base.VertexAiResourceNounWithFutureManager):
 
         Args:
             filter (str):
-                Optional. An expression for filtering the results of the request.
-                For field names both snake_case and camelCase are supported.
+                Optional. Lists the Features that match the filter expression. The
+                following filters are supported:
+
+                -  ``value_type``: Supports = and != comparisons.
+                -  ``create_time``: Supports =, !=, <, >, >=, and <=
+                   comparisons. Values must be in RFC 3339 format.
+                -  ``update_time``: Supports =, !=, <, >, >=, and <=
+                   comparisons. Values must be in RFC 3339 format.
+                -  ``labels``: Supports key-value equality as well as key
+                   presence.
+
+                Examples:
+
+                -  ``value_type = DOUBLE`` --> Features whose type is
+                   DOUBLE.
+                -  ``create_time > \"2020-01-31T15:30:00.000000Z\" OR update_time > \"2020-01-31T15:30:00.000000Z\"``
+                   --> EntityTypes created or updated after
+                   2020-01-31T15:30:00.000000Z.
+                -  ``labels.active = yes AND labels.env = prod`` -->
+                   Features having both (active: yes) and (env: prod)
+                   labels.
+                -  ``labels.env: *`` --> Any Feature which has a label with
+                   'env' as the key.
             order_by (str):
                 Optional. A comma-separated list of fields to order by, sorted in
-                ascending order. Use "desc" after a field name for descending.
-                Supported fields: `display_name`, `create_time`, `update_time`
+                ascending order. Use "desc" after a field name for
+                descending. Supported fields:
+
+                -  ``feature_id``
+                -  ``value_type``
+                -  ``create_time``
+                -  ``update_time``
 
         Returns:
             List[Features] - A list of managed feature resource objects.
@@ -352,13 +386,17 @@ class EntityType(base.VertexAiResourceNounWithFutureManager):
         )
 
     @base.optional_sync()
-    def delete_features(self, feature_ids: List[str], sync: bool = True,) -> None:
+    def delete_features(
+        self, feature_ids: List[str], sync: Optional[bool] = True,
+    ) -> None:
         """Deletes feature resources in this EntityType given their feature IDs.
         WARNING: This deletion is permanent.
 
         Args:
+            feature_ids (List[str]):
+                Required. The list of feature IDs to be deleted.
             sync (bool):
-                Whether to execute this deletion synchronously. If False, this method
+                Optional. Whether to execute this deletion synchronously. If False, this method
                 will be executed in concurrent Future and any downstream object will
                 be immediately returned and synced when the Future has completed.
         """
@@ -378,7 +416,7 @@ class EntityType(base.VertexAiResourceNounWithFutureManager):
         labels: Optional[Dict[str, str]] = None,
         snapshot_analysis_disabled: bool = True,
         monitoring_interval_days: Optional[int] = None,
-        sync: bool = True,
+        sync: Optional[bool] = True,
     ) -> "EntityType":
         """"""
         raise NotImplementedError
@@ -391,7 +429,7 @@ class EntityType(base.VertexAiResourceNounWithFutureManager):
         labels: Optional[Dict[str, str]] = None,
         snapshot_analysis_disabled: Optional[bool] = True,
         monitoring_interval_days: Optional[int] = None,
-        sync: bool = True,
+        sync: Optional[bool] = True,
     ) -> "_featurestores.Feature":
         """"""
         raise NotImplementedError
@@ -399,7 +437,7 @@ class EntityType(base.VertexAiResourceNounWithFutureManager):
     def batch_create_features(
         self,
         feature_configs: List[Dict[str, Union[bool, int, Dict[str, str], str]]],
-        sync: bool = True,
+        sync: Optional[bool] = True,
     ) -> "EntityType":
         """"""
         raise NotImplementedError
@@ -420,7 +458,7 @@ class EntityType(base.VertexAiResourceNounWithFutureManager):
         feature_time: Optional[datetime.datetime] = None,
         disable_online_serving: Optional[bool] = False,
         worker_count: Optional[int] = 1,
-        sync: bool = True,
+        sync: Optional[bool] = True,
     ) -> "EntityType":
         """"""
         raise NotImplementedError
@@ -435,7 +473,7 @@ class EntityType(base.VertexAiResourceNounWithFutureManager):
         feature_time: Optional[datetime.datetime] = None,
         disable_online_serving: Optional[bool] = False,
         worker_count: Optional[int] = 1,
-        sync: bool = True,
+        sync: Optional[bool] = True,
     ) -> "EntityType":
         """"""
         raise NotImplementedError
@@ -450,7 +488,7 @@ class EntityType(base.VertexAiResourceNounWithFutureManager):
         feature_time: Optional[datetime.datetime] = None,
         disable_online_serving: Optional[bool] = False,
         worker_count: Optional[int] = 1,
-        sync: bool = True,
+        sync: Optional[bool] = True,
     ) -> "EntityType":
         """"""
         raise NotImplementedError

@@ -340,6 +340,75 @@ class TestFeaturestoreUtils:
             == "featurestores/featurestore_id/entityTypes/entity_type_id/features"
         )
 
+    @pytest.mark.parametrize(
+        "feature_name, featurestore_id, entity_type_id, expected",
+        [
+            (
+                "projects/123456/locations/us-central1/featurestores/featurestore_id1/entityTypes/entity_type_id1/features/feature_id1",
+                None,
+                None,
+                ("featurestore_id1", "entity_type_id1", "feature_id1"),
+            ),
+            (
+                "feature_id1",
+                "featurestore_id1",
+                "entity_type_id1",
+                ("featurestore_id1", "entity_type_id1", "feature_id1"),
+            ),
+        ],
+    )
+    def test_validate_and_get_feature_resource_ids(
+        self,
+        feature_name: str,
+        featurestore_id: str,
+        entity_type_id: str,
+        expected: tuple,
+    ):
+        assert expected == featurestore_utils.validate_and_get_feature_resource_ids(
+            feature_name=feature_name,
+            featurestore_id=featurestore_id,
+            entity_type_id=entity_type_id,
+        )
+
+    @pytest.mark.parametrize(
+        "entity_type_name, featurestore_id, expected",
+        [
+            (
+                "projects/123456/locations/us-central1/featurestores/featurestore_id1/entityTypes/entity_type_id1",
+                None,
+                ("featurestore_id1", "entity_type_id1"),
+            ),
+            (
+                "entity_type_id1",
+                "featurestore_id1",
+                ("featurestore_id1", "entity_type_id1"),
+            ),
+        ],
+    )
+    def test_validate_and_get_entity_type_resource_ids(
+        self, entity_type_name: str, featurestore_id: str, expected: tuple
+    ):
+        assert expected == featurestore_utils.validate_and_get_entity_type_resource_ids(
+            entity_type_name=entity_type_name, featurestore_id=featurestore_id
+        )
+
+    @pytest.mark.parametrize(
+        "featurestore_name, expected",
+        [
+            (
+                "projects/123456/locations/us-central1/featurestores/featurestore_id1",
+                "featurestore_id1",
+            ),
+            ("featurestore_id1", "featurestore_id1",),
+        ],
+    )
+    def test_validate_and_get_featurestore_resource_id(
+        self, featurestore_name: str, expected: str
+    ):
+        assert expected == featurestore_utils.validate_and_get_featurestore_resource_id(
+            featurestore_name=featurestore_name
+        )
+
 
 class TestFeaturestore:
     def setup_method(self):
