@@ -39,14 +39,11 @@ xai_extra_require = ["tensorflow >=2.3.0, <=2.5.0"]
 profiler_extra_require = ["tensorboard-plugin-profile", "tensorflow >=2.4.0"]
 
 full_extra_require = list(
-    set(
-        tensorboard_extra_require
-        + metadata_extra_require
-        + xai_extra_require
-        + profiler_extra_require
-    )
+    set(tensorboard_extra_require + metadata_extra_require + xai_extra_require)
 )
-testing_extra_require = full_extra_require + ["grpcio-testing", "pytest-xdist"]
+testing_extra_require = (
+    full_extra_require + profiler_extra_require + ["grpcio-testing", "pytest-xdist"]
+)
 
 
 setuptools.setup(
