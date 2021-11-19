@@ -381,3 +381,201 @@ class EntityType(base.VertexAiResourceNounWithFutureManager):
 
         if not sync:
             feature.wait()
+
+    @classmethod
+    @base.optional_sync()
+    def create(
+        cls,
+        entity_type_id: str,
+        featurestore_name: str,
+        description: Optional[str] = None,
+        labels: Optional[Dict[str, str]] = None,
+        project: Optional[str] = None,
+        location: Optional[str] = None,
+        credentials: Optional[auth_credentials.Credentials] = None,
+        request_metadata: Optional[Sequence[Tuple[str, str]]] = (),
+        sync: Optional[bool] = True,
+    ) -> "EntityType":
+        """Creates a new EntityType resources in a Featurestore.
+
+        Example Usage:
+
+            my_entity_type = aiplatform.EntityType.create(
+                entity_type_id='my_entity_type_id',
+                featurestore_name='projects/123/locations/us-central1/featurestores/my_featurestore_id'
+            )
+            or
+            my_entity_type = aiplatform.EntityType.create(
+                entity_type_id='my_entity_type_id',
+                featurestore_name='my_featurestore_id',
+            )
+
+        Args:
+            entity_type_id (str):
+                Required. The ID to use for the EntityType, which will
+                become the final component of the EntityType's resource
+                name.
+
+                This value may be up to 60 characters, and valid characters
+                are ``[a-z0-9_]``. The first character cannot be a number.
+
+                The value must be unique within a featurestore.
+            featurestore_name (str):
+                Required. A fully-qualified featurestore resource name or a featurestore ID to create EntityType in.
+                Example: "projects/123/locations/us-central1/featurestores/my_featurestore_id"
+                or "my_featurestore_id" when project and location are initialized or passed.
+            description (str):
+                Optional. Description of the EntityType.
+            labels (Dict[str, str]):
+                Optional. The labels with user-defined
+                metadata to organize your EntityTypes.
+                Label keys and values can be no longer than 64
+                characters (Unicode codepoints), can only
+                contain lowercase letters, numeric characters,
+                underscores and dashes. International characters
+                are allowed.
+                See https://goo.gl/xmQnxf for more information
+                on and examples of labels. No more than 64 user
+                labels can be associated with one EntityType
+                (System labels are excluded)."
+                System reserved label keys are prefixed with
+                "aiplatform.googleapis.com/" and are immutable.
+            project (str):
+                Optional. Project to create EntityType in. If not set, project
+                set in aiplatform.init will be used.
+            location (str):
+                Optional. Location to create EntityType in. If not set, location
+                set in aiplatform.init will be used.
+            credentials (auth_credentials.Credentials):
+                Optional. Custom credentials to use to create EntityTypes. Overrides
+                credentials set in aiplatform.init.
+            request_metadata (Sequence[Tuple[str, str]]):
+                Optional. Strings which should be sent along with the request as metadata.
+            sync (bool):
+                Optional. Whether to execute this creation synchronously. If False, this method
+                will be executed in concurrent Future and any downstream object will
+                be immediately returned and synced when the Future has completed.
+
+        Returns:
+            EntityType - EntityType resource objects
+
+        """
+        featurestore_id = featurestore_utils.validate_and_get_featurestore_resource_id(
+            featurestore_name=featurestore_name,
+        )
+
+        if labels:
+            utils.validate_labels(labels)
+
+        cls._resource_noun = featurestore_utils.get_entity_type_resource_noun(
+            featurestore_id=featurestore_id
+        )
+
+        featurestore_name = utils.full_resource_name(
+            resource_name=featurestore_id,
+            resource_noun=featurestore_utils.FEATURESTORE_RESOURCE_NOUN,
+            project=project,
+            location=location,
+        )
+
+        gapic_entity_type = gca_entity_type.EntityType(
+            description=description, labels=labels,
+        )
+
+        create_entity_type_request = {
+            "parent": featurestore_name,
+            "entity_type": gapic_entity_type,
+            "entity_type_id": entity_type_id,
+        }
+
+        api_client = cls._instantiate_client(location=location, credentials=credentials)
+
+        created_entity_type_lro = api_client.create_entity_type(
+            request=create_entity_type_request, metadata=request_metadata
+        )
+
+        _LOGGER.log_create_with_lro(cls, created_entity_type_lro)
+
+        created_entity_type = created_entity_type_lro.result()
+
+        _LOGGER.log_create_complete(cls, created_entity_type, "entity_type")
+
+        entity_type_obj = cls(
+            entity_type_name=created_entity_type.name,
+            project=project,
+            location=location,
+            credentials=credentials,
+        )
+
+        return entity_type_obj
+
+    def create_feature(
+        self,
+        feature_id: str,
+        value_type: str,
+        description: Optional[str] = None,
+        labels: Optional[Dict[str, str]] = None,
+        request_metadata: Optional[Sequence[Tuple[str, str]]] = (),
+        sync: Optional[bool] = True,
+    ) -> "_featurestores.Feature":
+        """Creates a new Feature resources in an EntityType.
+
+        Example Usage:
+
+            my_entity_type = aiplatform.EntityType(
+                entity_type_name='my_entity_type_id',
+                featurestore_id='my_featurestore_id',
+            )
+            my_feature = my_entity_type.create_feature(
+                feature_id='my_feature_id',
+                value_type='INT64',
+            )
+
+        Args:
+            feature_id (str):
+                Required. The ID to use for the Feature, which will become
+                the final component of the Feature's resource name, which is immutable.
+
+                This value may be up to 60 characters, and valid characters
+                are ``[a-z0-9_]``. The first character cannot be a number.
+
+                The value must be unique within an EntityType.
+            value_type (str):
+                Required. Immutable. Type of Feature value.
+                One of BOOL, BOOL_ARRAY, DOUBLE, DOUBLE_ARRAY, INT64, INT64_ARRAY, STRING, STRING_ARRAY, BYTES.
+            description (str):
+                Optional. Description of the Feature.
+            labels (Dict[str, str]):
+                Optional. The labels with user-defined
+                metadata to organize your Features.
+                Label keys and values can be no longer than 64
+                characters (Unicode codepoints), can only
+                contain lowercase letters, numeric characters,
+                underscores and dashes. International characters
+                are allowed.
+                See https://goo.gl/xmQnxf for more information
+                on and examples of labels. No more than 64 user
+                labels can be associated with one Feature
+                (System labels are excluded)."
+                System reserved label keys are prefixed with
+                "aiplatform.googleapis.com/" and are immutable.
+            request_metadata (Sequence[Tuple[str, str]]):
+                Optional. Strings which should be sent along with the request as metadata.
+            sync (bool):
+                Optional. Whether to execute this creation synchronously. If False, this method
+                will be executed in concurrent Future and any downstream object will
+                be immediately returned and synced when the Future has completed.
+
+        Returns:
+            featurestores.Feature - feature resource objects
+
+        """
+        return _featurestores.Feature.create(
+            feature_id=feature_id,
+            value_type=value_type,
+            entity_type_name=self.resource_name,
+            description=description,
+            labels=labels,
+            request_metadata=request_metadata,
+            sync=sync,
+        )
