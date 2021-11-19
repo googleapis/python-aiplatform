@@ -522,6 +522,30 @@ class Test_FeatureConfig:
         with pytest.raises(ValueError):
             featureConfig.request_dict
 
+    @pytest.mark.parametrize(
+        "value_type",
+        [
+            "BOOL",
+            "BOOL_ARRAY",
+            "DOUBLE",
+            "DOUBLE_ARRAY",
+            "INT64",
+            "INT64_ARRAY",
+            "STRING",
+            "STRING_ARRAY",
+            "BYTES",
+        ],
+    )
+    def test_validate_value_type(self, value_type: str):
+        assert featurestore_utils.validate_value_type(value_type=value_type) is True
+
+    @pytest.mark.parametrize(
+        "value_type", ["INT", "INT_array", "STR", "double", "bool", "array", "INT32"]
+    )
+    def test_validate_value_type_with_raise(self, value_type: str):
+        with pytest.raises(ValueError):
+            featurestore_utils.validate_value_type(value_type=value_type)
+
 
 class TestFeaturestore:
     def setup_method(self):
@@ -672,6 +696,67 @@ class TestFeaturestore:
                 mock.call(name=_TEST_ENTITY_TYPE_NAME),
             ],
             any_order=True,
+        )
+
+    @pytest.mark.usefixtures("get_featurestore_mock", "get_entity_type_mock")
+    @pytest.mark.parametrize("sync", [True, False])
+    def test_create_entity_type(self, create_entity_type_mock, sync):
+        aiplatform.init(project=_TEST_PROJECT)
+
+        my_featurestore = featurestores.Featurestore(
+            featurestore_name=_TEST_FEATURESTORE_NAME
+        )
+        my_entity_type = my_featurestore.create_entity_type(
+            entity_type_id=_TEST_ENTITY_TYPE_ID,
+            description=_TEST_DESCRIPTION,
+            labels=_TEST_LABELS,
+            sync=sync,
+        )
+
+        if not sync:
+            my_entity_type.wait()
+
+        expected_entity_type = gca_entity_type.EntityType(
+            labels=_TEST_LABELS, description=_TEST_DESCRIPTION,
+        )
+        create_entity_type_mock.assert_called_once_with(
+            request={
+                "parent": _TEST_FEATURESTORE_NAME,
+                "entity_type": expected_entity_type,
+                "entity_type_id": _TEST_ENTITY_TYPE_ID,
+            },
+            metadata=_TEST_REQUEST_METADATA,
+        )
+
+    @pytest.mark.usefixtures("get_featurestore_mock")
+    @pytest.mark.parametrize("sync", [True, False])
+    def test_create_featurestore(self, create_featurestore_mock, sync):
+        aiplatform.init(project=_TEST_PROJECT)
+
+        my_featurestore = featurestores.Featurestore.create(
+            featurestore_id=_TEST_FEATURESTORE_ID,
+            online_store_fixed_node_count=_TEST_ONLINE_SERVING_CONFIG,
+            labels=_TEST_LABELS,
+            encryption_spec_key_name=_TEST_ENCRYPTION_KEY_NAME,
+        )
+
+        if not sync:
+            my_featurestore.wait()
+
+        expected_featurestore = gca_featurestore.Featurestore(
+            labels=_TEST_LABELS,
+            online_serving_config=gca_featurestore.Featurestore.OnlineServingConfig(
+                fixed_node_count=_TEST_ONLINE_SERVING_CONFIG
+            ),
+            encryption_spec=_TEST_ENCRYPTION_SPEC,
+        )
+        create_featurestore_mock.assert_called_once_with(
+            request={
+                "parent": _TEST_PARENT,
+                "featurestore": expected_featurestore,
+                "featurestore_id": _TEST_FEATURESTORE_ID,
+            },
+            metadata=_TEST_REQUEST_METADATA,
         )
 
     @pytest.mark.usefixtures("get_featurestore_mock", "get_entity_type_mock")
