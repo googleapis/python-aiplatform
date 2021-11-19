@@ -277,7 +277,7 @@ class TFProfiler(base_plugin.BasePlugin):
 
     def get_routes(
         self,
-    ) -> Dict[str, Callable[[Dict[str, str], Callable[[...], None]], Response]]:
+    ) -> Dict[str, Callable[[Dict[str, str], Callable[..., None]], Response]]:
         """List of routes to serve.
 
         Returns:
@@ -325,7 +325,11 @@ class TFProfiler(base_plugin.BasePlugin):
         try:
             import tensorflow as tf
         except ImportError as err:
-            raise ImportError("Could not import tensorflow for profile usage.") from err
+            raise ImportError(
+                "Could not import tensorflow for profile usage. "
+                "To use profiler, install the SDK using "
+                '"pip install google-cloud-aiplatform[cloud_profiler]"'
+            ) from err
 
         tf.profiler.experimental.server.start(
             int(environment_variables.tf_profiler_port)
