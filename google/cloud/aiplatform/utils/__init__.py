@@ -467,12 +467,19 @@ class FeaturestoreClientWithOverride(ClientWithOverride):
     _version_map = (
         (compat.V1, featurestore_service_client_v1.FeaturestoreServiceClient),
         (compat.V1BETA1, featurestore_service_client_v1beta1.FeaturestoreServiceClient),
+    )
+
+
+class FeaturestoreOnlineServingClientWithOverride(ClientWithOverride):
+    _is_temporary = False
+    _default_version = compat.DEFAULT_VERSION
+    _version_map = (
         (
-            "online_" + compat.V1,
+            compat.V1,
             featurestore_online_serving_service_client_v1.FeaturestoreOnlineServingServiceClient,
         ),
         (
-            "online_" + compat.V1BETA1,
+            compat.V1BETA1,
             featurestore_online_serving_service_client_v1beta1.FeaturestoreOnlineServingServiceClient,
         ),
     )
