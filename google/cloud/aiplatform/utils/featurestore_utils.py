@@ -21,7 +21,10 @@ from typing import Optional, Tuple
 from google.cloud.aiplatform.compat.services import featurestore_service_client
 
 CompatFeaturestoreServiceClient = featurestore_service_client.FeaturestoreServiceClient
+
+
 RESOURCE_ID_PATTERN_REGEX = r"[a-z_][a-z0-9_]{0,59}"
+FEATURESTORE_RESOURCE_NOUN = "featurestores"
 
 
 def validate_id(resource_id: str) -> bool:

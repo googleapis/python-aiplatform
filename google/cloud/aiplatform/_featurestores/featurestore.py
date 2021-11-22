@@ -43,7 +43,7 @@ class Featurestore(base.VertexAiResourceNounWithFutureManager):
     client_class = utils.FeaturestoreClientWithOverride
 
     _is_client_prediction_client = False
-    _resource_noun = "featurestores"
+    _resource_noun = featurestore_utils.FEATURESTORE_RESOURCE_NOUN
     _getter_method = "get_featurestore"
     _list_method = "list_featurestores"
     _delete_method = "delete_featurestore"

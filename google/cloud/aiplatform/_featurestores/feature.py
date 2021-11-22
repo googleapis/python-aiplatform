@@ -107,7 +107,7 @@ class Feature(base.VertexAiResourceNounWithFutureManager):
 
         self._featurestore_name = utils.full_resource_name(
             resource_name=self._featurestore_id,
-            resource_noun="featurestores",
+            resource_noun=featurestore_utils.FEATURESTORE_RESOURCE_NOUN,
             project=self.project,
             location=self.location,
         )
