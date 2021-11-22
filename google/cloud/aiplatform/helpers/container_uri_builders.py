@@ -15,7 +15,7 @@
 from typing import Optional
 
 from google.cloud.aiplatform.constants import prediction
-from google.cloud.aiplatform.initializer import global_config
+from google.cloud.aiplatform import initializer
 
 
 def get_prebuilt_prediction_container_uri(
@@ -74,7 +74,7 @@ def get_prebuilt_prediction_container_uri(
     )
 
     # If region not provided, use initializer location
-    region = region or global_config.location
+    region = region or initializer.global_config.location
     region = region.split("-", 1)[0]
     framework = framework.lower()
 

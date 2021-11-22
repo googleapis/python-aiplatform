@@ -117,8 +117,8 @@ for container_uri in SERVING_CONTAINER_URIS:
     region, framework, accelerator, version = m[1], m[2], m[3], m[4]
     version = version.replace("-", ".")
 
-    if framework == TF2:  # Store both `tf`, `tf2` as `tf`
-        framework = TF
+    if framework in (TF2, TF):  # Store both `tf`, `tf2` as `tensorflow`
+        framework = "tensorflow"
 
     d[region][framework][accelerator][version] = container_uri
 
