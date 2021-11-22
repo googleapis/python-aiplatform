@@ -301,20 +301,20 @@ class Feature(base.VertexAiResourceNounWithFutureManager):
             List[Features] - A list of managed feature resource objects
         """
         (
-            cls._featurestore_id,
-            cls._entity_type_id,
+            featurestore_id,
+            entity_type_id,
         ) = featurestore_utils.validate_and_get_entity_type_resource_ids(
             entity_type_name=entity_type_name, featurestore_id=featurestore_id,
         )
 
         cls._resource_noun = featurestore_utils.get_feature_resource_noun(
-            featurestore_id=cls._featurestore_id, entity_type_id=cls._entity_type_id
+            featurestore_id=featurestore_id, entity_type_id=entity_type_id
         )
 
-        cls._entity_type_name = utils.full_resource_name(
-            resource_name=cls._entity_type_id,
+        entity_type_name = utils.full_resource_name(
+            resource_name=entity_type_id,
             resource_noun=featurestore_utils.get_entity_type_resource_noun(
-                featurestore_id=cls._featurestore_id
+                featurestore_id=featurestore_id
             ),
             project=project,
             location=location,
@@ -325,7 +325,7 @@ class Feature(base.VertexAiResourceNounWithFutureManager):
             project=project,
             location=location,
             credentials=credentials,
-            parent=cls._entity_type_name,
+            parent=entity_type_name,
         )
 
     @classmethod

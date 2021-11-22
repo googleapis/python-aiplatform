@@ -307,16 +307,16 @@ class EntityType(base.VertexAiResourceNounWithFutureManager):
             List[EntityTypes] - A list of managed entityType resource objects
         """
 
-        cls._featurestore_id = featurestore_utils.validate_and_get_featurestore_resource_id(
+        featurestore_id = featurestore_utils.validate_and_get_featurestore_resource_id(
             featurestore_name=featurestore_name
         )
 
         cls._resource_noun = featurestore_utils.get_entity_type_resource_noun(
-            featurestore_id=cls._featurestore_id,
+            featurestore_id=featurestore_id,
         )
 
-        cls._featurestore_name = utils.full_resource_name(
-            resource_name=cls._featurestore_id,
+        featurestore_name = utils.full_resource_name(
+            resource_name=featurestore_id,
             resource_noun="featurestores",
             project=project,
             location=location,
@@ -327,7 +327,7 @@ class EntityType(base.VertexAiResourceNounWithFutureManager):
             project=project,
             location=location,
             credentials=credentials,
-            parent=cls._featurestore_name,
+            parent=featurestore_name,
         )
 
     def list_features(
