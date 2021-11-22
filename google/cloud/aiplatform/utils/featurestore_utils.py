@@ -16,51 +16,17 @@
 #
 
 import re
-from typing import Dict, Optional, Tuple
+from typing import Optional, Tuple
 
+from google.cloud.aiplatform.compat.services import featurestore_service_client
+
+CompatFeaturestoreServiceClient = featurestore_service_client.FeaturestoreServiceClient
 RESOURCE_ID_PATTERN_REGEX = r"[a-z_][a-z0-9_]{0,59}"
-FEATURESTORE_NAME_PATTERN_REGEX = (
-    r"projects\/(?P<project>[\w-]+)"
-    r"\/locations\/(?P<location>[\w-]+)"
-    r"\/featurestores\/(?P<featurestore_id>" + RESOURCE_ID_PATTERN_REGEX + r")"
-)
-ENTITY_TYPE_NAME_PATTERN_REGEX = (
-    FEATURESTORE_NAME_PATTERN_REGEX
-    + r"\/entityTypes\/(?P<entity_type_id>"
-    + RESOURCE_ID_PATTERN_REGEX
-    + r")"
-)
-FEATURE_NAME_PATTERN_REGEX = (
-    ENTITY_TYPE_NAME_PATTERN_REGEX
-    + r"\/features\/(?P<feature_id>"
-    + RESOURCE_ID_PATTERN_REGEX
-    + r")"
-)
 
 
 def validate_id(resource_id: str) -> bool:
     """Validates feature store resource ID pattern."""
     return bool(re.compile(r"^" + RESOURCE_ID_PATTERN_REGEX + r"$").match(resource_id))
-
-
-def validate_featurestore_name(featurestore_name: str) -> Dict[str, str]:
-    """Validates featurestore name pattern."""
-    m = re.compile(r"^" + FEATURESTORE_NAME_PATTERN_REGEX + r"$").match(
-        featurestore_name
-    )
-    return m.groupdict() if m else {}
-
-
-def validate_entity_type_name(entity_type_name: str) -> Dict[str, str]:
-    """Validates entity type name pattern."""
-    m = re.compile(r"^" + ENTITY_TYPE_NAME_PATTERN_REGEX + r"$").match(entity_type_name)
-    return m.groupdict() if m else {}
-
-
-def validate_feature_name(feature_name: str) -> Dict[str, str]:
-    """Validates feature name pattern."""
-    m = re.compile(r"^" + FEATURE_NAME_PATTERN_REGEX + r"$").match(feature_name)
-    return m.groupdict() if m else {}
 
 
 def get_entity_type_resource_noun(featurestore_id: str) -> str:
@@ -89,10 +55,12 @@ def validate_and_get_featurestore_resource_id(featurestore_name: str) -> str:
         ValueError if the provided featurestore_name is not in form of a fully-qualified
         featurestore resource name nor an featurestore ID.
     """
-    match = validate_featurestore_name(featurestore_name)
+    match = CompatFeaturestoreServiceClient.parse_featurestore_path(
+        path=featurestore_name
+    )
 
     if match:
-        featurestore_id = match["featurestore_id"]
+        featurestore_id = match["featurestore"]
     elif validate_id(featurestore_name):
         featurestore_id = featurestore_name
     else:
@@ -123,11 +91,13 @@ def validate_and_get_entity_type_resource_ids(
         ValueError if the provided entity_type_name is not in form of a fully-qualified
         entityType resource name nor an entity_type ID with featurestore_id passed.
     """
-    match = validate_entity_type_name(entity_type_name)
+    match = CompatFeaturestoreServiceClient.parse_entity_type_path(
+        path=entity_type_name
+    )
 
     if match:
-        featurestore_id = match["featurestore_id"]
-        entity_type_id = match["entity_type_id"]
+        featurestore_id = match["featurestore"]
+        entity_type_id = match["entity_type"]
     elif (
         validate_id(entity_type_name)
         and featurestore_id
@@ -166,12 +136,12 @@ def validate_and_get_feature_resource_ids(
         feature resource name nor a feature ID with featurestore_id and entity_type_id passed.
     """
 
-    match = validate_feature_name(feature_name)
+    match = CompatFeaturestoreServiceClient.parse_feature_path(path=feature_name)
 
     if match:
-        featurestore_id = match["featurestore_id"]
-        entity_type_id = match["entity_type_id"]
-        feature_id = match["feature_id"]
+        featurestore_id = match["featurestore"]
+        entity_type_id = match["entity_type"]
+        feature_id = match["feature"]
     elif (
         validate_id(feature_name)
         and featurestore_id

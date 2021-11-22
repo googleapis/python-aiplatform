@@ -18,7 +18,6 @@
 from typing import Dict, List, Optional, Sequence, Tuple, Union
 
 import datetime
-import pandas as pd
 
 from google.auth import credentials as auth_credentials
 from google.protobuf import field_mask_pb2
@@ -28,6 +27,13 @@ from google.cloud.aiplatform.compat.types import entity_type as gca_entity_type
 from google.cloud.aiplatform import _featurestores
 from google.cloud.aiplatform import utils
 from google.cloud.aiplatform.utils import featurestore_utils
+
+try:
+    import pandas as pd
+except ImportError:
+    raise ImportError(
+        "Pandas is not installed. Please install pandas to use Vertex Feature Store"
+    )
 
 _LOGGER = base.Logger(__name__)
 _ALL_FEATURE_IDS = "*"

@@ -17,8 +17,6 @@
 
 from typing import Dict, List, Optional, Sequence, Tuple, Union
 
-import pandas as pd
-
 from google.auth import credentials as auth_credentials
 from google.protobuf import field_mask_pb2
 
@@ -28,6 +26,13 @@ from google.cloud.aiplatform import _featurestores
 from google.cloud.aiplatform import initializer
 from google.cloud.aiplatform import utils
 from google.cloud.aiplatform.utils import featurestore_utils
+
+try:
+    import pandas as pd
+except ImportError:
+    raise ImportError(
+        "Pandas is not installed. Please install pandas to use Vertex Feature Store"
+    )
 
 _LOGGER = base.Logger(__name__)
 
@@ -76,19 +81,10 @@ class Featurestore(base.VertexAiResourceNounWithFutureManager):
             credentials (auth_credentials.Credentials):
                 Optional. Custom credentials to use to retrieve this Featurestore. Overrides
                 credentials set in aiplatform.init.
-
-        Raises:
-            ValueError if the provided featurestore_name is not in form of a fully-qualified
-            featurestore resource name nor a featurestore ID.
         """
-        if not (
-            featurestore_utils.validate_featurestore_name(featurestore_name)
-            or featurestore_utils.validate_id(featurestore_name)
-        ):
-            raise ValueError(
-                f"{featurestore_name} is not in form of a fully-qualified "
-                f"featurestore resource name nor a featurestore ID."
-            )
+        _ = featurestore_utils.validate_and_get_featurestore_resource_id(
+            featurestore_name
+        )
 
         super().__init__(
             project=project,

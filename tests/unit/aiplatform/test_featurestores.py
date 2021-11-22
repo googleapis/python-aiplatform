@@ -272,58 +272,6 @@ class TestFeaturestoreUtils:
     def test_validate_resource_id(self, resource_id: str, expected: bool):
         assert expected == featurestore_utils.validate_id(resource_id)
 
-    @pytest.mark.parametrize(
-        "featurestore_name, expected",
-        [
-            (
-                "projects/123456/locations/us-central1/featurestores/featurestore_id1",
-                True,
-            ),
-            (
-                "projects/123456/locations/us-central1/feature_stores/featurestore_id1",
-                False,
-            ),
-        ],
-    )
-    def test_validate_featurestore_name(self, featurestore_name: str, expected: bool):
-        assert expected == bool(
-            featurestore_utils.validate_featurestore_name(featurestore_name)
-        )
-
-    @pytest.mark.parametrize(
-        "entity_type_name, expected",
-        [
-            (
-                "projects/123456/locations/us-central1/featurestores/featurestore_id1/entityTypes/entity_type_id1",
-                True,
-            ),
-            (
-                "projects/123456/locations/us-central1/featurestores/featurestore_id1/entitytypes/entity_type_id1",
-                False,
-            ),
-        ],
-    )
-    def test_validate_entity_type_name(self, entity_type_name: str, expected: bool):
-        assert expected == bool(
-            featurestore_utils.validate_entity_type_name(entity_type_name)
-        )
-
-    @pytest.mark.parametrize(
-        "feature_name, expected",
-        [
-            (
-                "projects/123456/locations/us-central1/featurestores/featurestore_id1/entityTypes/entity_type_id1/features/feature_id1",
-                True,
-            ),
-            (
-                "projects/123456/locations/us-central1/featurestores/featurestore_id1/entityTypes/entity_type_id1/feature/feature_id1",
-                False,
-            ),
-        ],
-    )
-    def test_validate_feature_name(self, feature_name: str, expected: bool):
-        assert expected == bool(featurestore_utils.validate_feature_name(feature_name))
-
     def test_get_entity_type_resource_noun(self):
         assert (
             featurestore_utils.get_entity_type_resource_noun(
