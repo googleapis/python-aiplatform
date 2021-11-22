@@ -509,8 +509,7 @@ class Featurestore(base.VertexAiResourceNounWithFutureManager):
         entity_type_id: str,
         description: Optional[str] = None,
         labels: Optional[Dict[str, str]] = None,
-        snapshot_analysis_disabled: Optional[bool] = True,
-        monitoring_interval_days: Optional[int] = None,
+        request_metadata: Optional[Sequence[Tuple[str, str]]] = (),
         sync: Optional[bool] = True,
     ) -> "_featurestores.EntityType":
         """"""

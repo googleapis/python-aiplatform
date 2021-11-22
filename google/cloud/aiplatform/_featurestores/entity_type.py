@@ -410,12 +410,14 @@ class EntityType(base.VertexAiResourceNounWithFutureManager):
     @classmethod
     def create(
         cls,
-        featurestore: Union[_featurestores.Featurestore, str],
         entity_type_id: str,
+        featurestore: str,
         description: Optional[str] = None,
         labels: Optional[Dict[str, str]] = None,
-        snapshot_analysis_disabled: bool = True,
-        monitoring_interval_days: Optional[int] = None,
+        project: Optional[str] = None,
+        location: Optional[str] = None,
+        credentials: Optional[auth_credentials.Credentials] = None,
+        request_metadata: Optional[Sequence[Tuple[str, str]]] = (),
         sync: Optional[bool] = True,
     ) -> "EntityType":
         """"""
@@ -427,8 +429,7 @@ class EntityType(base.VertexAiResourceNounWithFutureManager):
         value_type: str,
         description: Optional[str] = None,
         labels: Optional[Dict[str, str]] = None,
-        snapshot_analysis_disabled: Optional[bool] = True,
-        monitoring_interval_days: Optional[int] = None,
+        request_metadata: Optional[Sequence[Tuple[str, str]]] = (),
         sync: Optional[bool] = True,
     ) -> "_featurestores.Feature":
         """"""
@@ -437,6 +438,7 @@ class EntityType(base.VertexAiResourceNounWithFutureManager):
     def batch_create_features(
         self,
         feature_configs: List[Dict[str, Union[bool, int, Dict[str, str], str]]],
+        request_metadata: Optional[Sequence[Tuple[str, str]]] = (),
         sync: Optional[bool] = True,
     ) -> "EntityType":
         """"""
