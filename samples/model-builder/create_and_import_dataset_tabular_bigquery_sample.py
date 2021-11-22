@@ -24,7 +24,7 @@ def create_and_import_dataset_tabular_bigquery_sample(
     aiplatform.init(project=project, location=location)
 
     dataset = aiplatform.TabularDataset.create(
-        display_name=display_name, bigquery_source=bigquery_source,
+        display_name=display_name, bq_source=bigquery_source,
     )
 
     dataset.wait()
