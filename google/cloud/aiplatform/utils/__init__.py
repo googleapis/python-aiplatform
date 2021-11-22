@@ -51,6 +51,7 @@ from google.cloud.aiplatform.compat.services import (
     model_service_client_v1,
     pipeline_service_client_v1,
     prediction_service_client_v1,
+    tensorboard_service_client_v1,
 )
 
 from google.cloud.aiplatform.compat.types import (
@@ -67,6 +68,7 @@ VertexAiServiceClient = TypeVar(
     pipeline_service_client_v1beta1.PipelineServiceClient,
     job_service_client_v1beta1.JobServiceClient,
     metadata_service_client_v1beta1.MetadataServiceClient,
+    tensorboard_service_client_v1beta1.TensorboardServiceClient,
     # v1
     dataset_service_client_v1.DatasetServiceClient,
     endpoint_service_client_v1.EndpointServiceClient,
@@ -75,6 +77,7 @@ VertexAiServiceClient = TypeVar(
     prediction_service_client_v1.PredictionServiceClient,
     pipeline_service_client_v1.PipelineServiceClient,
     job_service_client_v1.JobServiceClient,
+    tensorboard_service_client_v1.TensorboardServiceClient,
 )
 
 RESOURCE_NAME_PATTERN = re.compile(
@@ -506,8 +509,9 @@ class MetadataClientWithOverride(ClientWithOverride):
 
 class TensorboardClientWithOverride(ClientWithOverride):
     _is_temporary = False
-    _default_version = compat.V1BETA1
+    _default_version = compat.DEFAULT_VERSION
     _version_map = (
+        (compat.V1, tensorboard_service_client_v1.TensorboardServiceClient),
         (compat.V1BETA1, tensorboard_service_client_v1beta1.TensorboardServiceClient),
     )
 

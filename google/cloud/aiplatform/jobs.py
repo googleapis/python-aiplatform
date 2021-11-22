@@ -35,12 +35,10 @@ from google.cloud.aiplatform.compat.types import (
     batch_prediction_job as gca_bp_job_compat,
     completion_stats as gca_completion_stats,
     custom_job as gca_custom_job_compat,
-    custom_job_v1beta1 as gca_custom_job_v1beta1,
     explanation as gca_explanation_compat,
     io as gca_io_compat,
     job_state as gca_job_state,
     hyperparameter_tuning_job as gca_hyperparameter_tuning_job_compat,
-    hyperparameter_tuning_job_v1beta1 as gca_hyperparameter_tuning_job_v1beta1,
     machine_resources as gca_machine_resources_compat,
     study as gca_study_compat,
 )
@@ -1388,17 +1386,11 @@ class CustomJob(_RunnableJob):
             self._gca_resource.job_spec.enable_web_access = enable_web_access
 
         if tensorboard:
-            v1beta1_gca_resource = gca_custom_job_v1beta1.CustomJob()
-            v1beta1_gca_resource._pb.MergeFromString(
-                self._gca_resource._pb.SerializeToString()
-            )
-            self._gca_resource = v1beta1_gca_resource
             self._gca_resource.job_spec.tensorboard = tensorboard
 
         _LOGGER.log_create_with_lro(self.__class__)
 
-        version = "v1beta1" if tensorboard else "v1"
-        self._gca_resource = self.api_client.select_version(version).create_custom_job(
+        self._gca_resource = self.api_client.create_custom_job(
             parent=self._parent, custom_job=self._gca_resource
         )
 
@@ -1773,21 +1765,11 @@ class HyperparameterTuningJob(_RunnableJob):
             self._gca_resource.trial_job_spec.enable_web_access = enable_web_access
 
         if tensorboard:
-            v1beta1_gca_resource = (
-                gca_hyperparameter_tuning_job_v1beta1.HyperparameterTuningJob()
-            )
-            v1beta1_gca_resource._pb.MergeFromString(
-                self._gca_resource._pb.SerializeToString()
-            )
-            self._gca_resource = v1beta1_gca_resource
             self._gca_resource.trial_job_spec.tensorboard = tensorboard
 
         _LOGGER.log_create_with_lro(self.__class__)
 
-        version = "v1beta1" if tensorboard else "v1"
-        self._gca_resource = self.api_client.select_version(
-            version
-        ).create_hyperparameter_tuning_job(
+        self._gca_resource = self.api_client.create_hyperparameter_tuning_job(
             parent=self._parent, hyperparameter_tuning_job=self._gca_resource
         )
 

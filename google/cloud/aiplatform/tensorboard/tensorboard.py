@@ -18,16 +18,12 @@
 from typing import Optional, Sequence, Dict, Tuple
 
 from google.auth import credentials as auth_credentials
+from google.protobuf import field_mask_pb2
 
 from google.cloud.aiplatform import base
-from google.cloud.aiplatform import compat
+from google.cloud.aiplatform.compat.types import tensorboard as gca_tensorboard
 from google.cloud.aiplatform import initializer
 from google.cloud.aiplatform import utils
-
-
-from google.cloud.aiplatform.compat.types import tensorboard_v1beta1 as gca_tensorboard
-
-from google.protobuf import field_mask_pb2
 
 _LOGGER = base.Logger(__name__)
 
@@ -156,8 +152,7 @@ class Tensorboard(base.VertexAiResourceNounWithFutureManager):
         )
 
         encryption_spec = initializer.global_config.get_encryption_spec(
-            encryption_spec_key_name=encryption_spec_key_name,
-            select_version=compat.V1BETA1,
+            encryption_spec_key_name=encryption_spec_key_name
         )
 
         gapic_tensorboard = gca_tensorboard.Tensorboard(
@@ -254,7 +249,6 @@ class Tensorboard(base.VertexAiResourceNounWithFutureManager):
         if encryption_spec_key_name:
             encryption_spec = initializer.global_config.get_encryption_spec(
                 encryption_spec_key_name=encryption_spec_key_name,
-                select_version=compat.V1BETA1,
             )
             update_mask.append("encryption_spec")
 
