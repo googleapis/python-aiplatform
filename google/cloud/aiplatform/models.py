@@ -2442,7 +2442,7 @@ class Model(base.VertexAiResourceNounWithFutureManager):
     @staticmethod
     def upload_xgboost_model_file(
         model_file_path: str,
-        xgboost_version: Optional[str] = None,
+        xgboost_version: Optional[str] = "1.4",
         display_name: Optional[str] = "XGBoost model",
         description: Optional[str] = None,
         instance_schema_uri: Optional[str] = None,
@@ -2585,10 +2585,7 @@ class Model(base.VertexAiResourceNounWithFutureManager):
             ".bst",
         ]
 
-        if xgboost_version is None:
-            # Using the latest version
-            xgboost_version = XGBOOST_SUPPORTED_VERSIONS[-1]
-            _LOGGER.info(f"Using the {xgboost_version} version of XGBoost.")
+        _LOGGER.info(f"Using the {xgboost_version} version of XGBoost.")
 
         if xgboost_version not in XGBOOST_SUPPORTED_VERSIONS:
             _LOGGER.warning(
@@ -2652,7 +2649,7 @@ class Model(base.VertexAiResourceNounWithFutureManager):
     @staticmethod
     def upload_scikit_learn_model_file(
         model_file_path: str,
-        sklearn_version: Optional[str] = None,
+        sklearn_version: Optional[str] = "1.0",
         display_name: Optional[str] = "Scikit-learn model",
         description: Optional[str] = None,
         instance_schema_uri: Optional[str] = None,
@@ -2794,10 +2791,7 @@ class Model(base.VertexAiResourceNounWithFutureManager):
             ".joblib",
         ]
 
-        if sklearn_version is None:
-            # Using the latest version
-            sklearn_version = SKLEARN_SUPPORTED_VERSIONS[-1]
-            _LOGGER.info(f"Using the {sklearn_version} version of Scikit-learn.")
+        _LOGGER.info(f"Using the {sklearn_version} version of Scikit-learn.")
 
         if sklearn_version not in SKLEARN_SUPPORTED_VERSIONS:
             _LOGGER.warning(
@@ -2860,7 +2854,7 @@ class Model(base.VertexAiResourceNounWithFutureManager):
     @staticmethod
     def upload_tensorflow_saved_model(
         saved_model_dir: str,
-        tensorflow_version: Optional[str] = None,
+        tensorflow_version: Optional[str] = "2.7",
         use_gpu: bool = False,
         display_name: Optional[str] = "Tensorflow model",
         description: Optional[str] = None,
@@ -3010,10 +3004,7 @@ class Model(base.VertexAiResourceNounWithFutureManager):
             "{registry}/vertex-ai/prediction/tf{tf2_or_1}-{cpu_or_gpu}.{version}:latest"
         )
 
-        if tensorflow_version is None:
-            # Using the latest version
-            tensorflow_version = TENSORFLOW_SUPPORTED_VERSIONS[-1]
-            _LOGGER.info(f"Using the {tensorflow_version} version of Tensorflow.")
+        _LOGGER.info(f"Using the {tensorflow_version} version of Tensorflow.")
 
         if tensorflow_version not in TENSORFLOW_SUPPORTED_VERSIONS:
             _LOGGER.warning(
