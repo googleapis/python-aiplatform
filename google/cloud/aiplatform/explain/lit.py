@@ -16,20 +16,19 @@
 
 import pandas as pd
 import sys
+import tensorflow as tf
 
-from lit_nlp.api import dataset as lit_dataset
-from lit_nlp.api import types as lit_types
 from typing import Any, List, OrderedDict
 
 
 def create_lit_dataset(
-    dataset: "pd.Dataframe", columns: OrderedDict[str, "lit_types.LitType"] = None
+    dataset: "pd.Dataframe", column_types: OrderedDict[str, "lit_types.LitType"] = None
 ) -> "lit_dataset.Dataset":
     """Creates a LIT Dataset object.
         Args:
           dataset:
               Required. A Pandas Dataframe that includes feature column names and data.
-          columns:
+          column_types:
               Required. An OrderedDict of string names matching the columns of the dataset
               as the key, and the associated LitType of the column.
         Returns:
@@ -44,6 +43,7 @@ def create_lit_dataset(
         )
     try:
         from lit_nlp.api import dataset as lit_dataset
+        from lit_nlp.api import types as lit_types
     except ImportError:
         raise ImportError(
             "LIT is not installed and is required to get Dataset as the return format. "
@@ -55,6 +55,76 @@ def create_lit_dataset(
             self._examples = dataset.to_dict(orient="records")
 
         def spec(self):
-            return columns
+            return column_types
 
     return VertexLitDataset()
+
+
+def create_lit_model(
+    model: str,
+    input_types: OrderedDict[str, "lit_types.LitType"],
+    output_types: OrderedDict[str, "lit_types.LitType"],
+) -> "lit_model.Model":
+    """Creates a LIT Model object.
+        Args:
+          model:
+              Required. A string reference to a TensorFlow saved model directory.
+          input_types:
+              Required. An OrderedDict of string names matching the features of the model
+              as the key, and the associated LitType of the feature.
+          output_types:
+              Required. An OrderedDict of string names matching the labels of the model
+              as the key, and the associated LitType of the label.
+        Returns:
+            A LIT Model object that has the same functionality as the model provided.
+        Raises:
+            ImportError if LIT or TensorFlow is not installed.
+    """
+    try:
+        import tensorflow as tf
+    except:
+        raise ImportError(
+            "Tensorflow is not installed and is required to load saved model. "
+            'Please install the SDK using "pip install pip install python-aiplatform[lit]"'
+        )
+
+    try:
+        from lit_nlp.api import model as lit_model
+        from lit_nlp.api import types as lit_types
+    except ImportError:
+        raise ImportError(
+            "LIT is not installed and is required to get Dataset as the return format. "
+            'Please install the SDK using "pip install python-aiplatform[lit]"'
+        )
+
+    loaded_model = tf.saved_model.load(model)
+
+    class VertexLitModel(lit_model.Model):
+        def predict_minibatch(
+            self, inputs: List["lit_types.JsonDict"]
+        ) -> List["lit_types.JsonDict"]:
+            predictions = []
+            for input in inputs:
+                instance = []
+                for feature in input_types:
+                    instance.append(input[feature])
+                prediction_dict = loaded_model.signatures["serving_default"](
+                    tf.constant(instance)
+                )
+                predictions.append(
+                    {
+                        label: prediction
+                        for label, prediction in zip(
+                            output_types.keys, prediction_dict.values()
+                        )
+                    }
+                )
+            return predictions
+
+        def input_spec(self) -> "lit_types.Spec":
+            return input_types
+
+        def output_spec(self) -> "lit_types.Spec":
+            return output_types
+
+    return VertexLitModel()
