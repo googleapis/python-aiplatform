@@ -15,7 +15,7 @@
 # limitations under the License.
 #
 
-from typing import Dict, List, Optional, Sequence, Tuple
+from typing import Dict, List, Optional, Sequence, Tuple, Union
 
 from google.auth import credentials as auth_credentials
 from google.protobuf import field_mask_pb2
@@ -396,7 +396,7 @@ class EntityType(base.VertexAiResourceNounWithFutureManager):
         request_metadata: Optional[Sequence[Tuple[str, str]]] = (),
         sync: Optional[bool] = True,
     ) -> "EntityType":
-        """Creates a new EntityType resources in a Featurestore.
+        """Creates an EntityType resources in a Featurestore.
 
         Example Usage:
 
@@ -457,7 +457,7 @@ class EntityType(base.VertexAiResourceNounWithFutureManager):
                 be immediately returned and synced when the Future has completed.
 
         Returns:
-            EntityType - EntityType resource objects
+            EntityType - entity_type resource object
 
         """
         featurestore_id = featurestore_utils.validate_and_get_featurestore_resource_id(
@@ -518,7 +518,7 @@ class EntityType(base.VertexAiResourceNounWithFutureManager):
         request_metadata: Optional[Sequence[Tuple[str, str]]] = (),
         sync: Optional[bool] = True,
     ) -> "_featurestores.Feature":
-        """Creates a new Feature resources in an EntityType.
+        """Creates a Feature resource in this EntityType.
 
         Example Usage:
 
@@ -567,7 +567,7 @@ class EntityType(base.VertexAiResourceNounWithFutureManager):
                 be immediately returned and synced when the Future has completed.
 
         Returns:
-            featurestores.Feature - feature resource objects
+            featurestores.Feature - feature resource object
 
         """
         return _featurestores.Feature.create(
@@ -579,3 +579,99 @@ class EntityType(base.VertexAiResourceNounWithFutureManager):
             request_metadata=request_metadata,
             sync=sync,
         )
+
+    @base.optional_sync(return_input_arg="self")
+    def batch_create_features(
+        self,
+        feature_configs: Dict[str, Dict[str, Union[bool, int, Dict[str, str], str]]],
+        request_metadata: Optional[Sequence[Tuple[str, str]]] = (),
+        sync: Optional[bool] = True,
+    ) -> "EntityType":
+        """Batch creates Feature resources in this EntityType.
+
+        Example Usage:
+
+            my_entity_type = aiplatform.EntityType(
+                entity_type_name='my_entity_type_id',
+                featurestore_id='my_featurestore_id',
+            )
+            my_entity_type.batch_create_features(
+                feature_configs={
+                    "my_feature_id1": {
+                            "value_type": "INT64",
+                        },
+                    "my_feature_id2": {
+                            "value_type": "BOOL",
+                        },
+                    "my_feature_id3": {
+                            "value_type": "STRING",
+                        },
+                }
+            )
+
+        Args:
+            feature_configs (Dict[str, Dict[str, Union[bool, int, Dict[str, str], str]]]):
+                Required. A user defined Dict containing configurations for feature creation.
+
+                The feature_configs Dict[str, Dict] i.e. {feature_id: feature_config} contains configuration for each creating feature:
+                Example:
+                    feature_configs = {
+                        "my_feature_id_1": feature_config_1,
+                        "my_feature_id_2": feature_config_2,
+                        "my_feature_id_3": feature_config_3,
+                    }
+
+                Each feature_config requires "value_type", and optional "description", "labels":
+                Example:
+                    feature_config_1 = {
+                        "value_type": "INT64",
+                    }
+                    feature_config_2 = {
+                        "value_type": "BOOL",
+                        "description": "my feature id 2 description"
+                    }
+                    feature_config_3 = {
+                        "value_type": "STRING",
+                        "labels": {
+                            "my key": "my value",
+                        }
+                    }
+
+            request_metadata (Sequence[Tuple[str, str]]):
+                Optional. Strings which should be sent along with the request as metadata.
+            sync (bool):
+                Optional. Whether to execute this creation synchronously. If False, this method
+                will be executed in concurrent Future and any downstream object will
+                be immediately returned and synced when the Future has completed.
+
+        Returns:
+            EntityType - entity_type resource object
+        """
+        batch_create_feature_requests = featurestore_utils.validate_and_get_batch_create_features_requests(
+            feature_configs=feature_configs
+        )
+
+        _LOGGER.log_action_start_against_resource(
+            "Batch creating features", "entityType", self,
+        )
+
+        batch_created_features_lro = self.api_client.batch_create_features(
+            parent=self.resource_name,
+            requests=batch_create_feature_requests,
+            metadata=request_metadata,
+        )
+
+        _LOGGER.log_action_started_against_resource_with_lro(
+            "Batch create Features",
+            "entityType",
+            self.__class__,
+            batch_created_features_lro,
+        )
+
+        batch_created_features_lro.result()
+
+        _LOGGER.log_action_completed_against_resource(
+            "entityType", "Batch created features", self
+        )
+
+        return self

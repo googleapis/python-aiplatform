@@ -556,11 +556,6 @@ class Feature(base.VertexAiResourceNounWithFutureManager):
             entity_type_name=entity_type_name, featurestore_id=featurestore_id,
         )
 
-        if featurestore_utils.validate_value_type(value_type):
-            value_type_enum = getattr(gca_feature.Feature.ValueType, value_type)
-        if labels:
-            utils.validate_labels(labels)
-
         cls._resource_noun = featurestore_utils.get_feature_resource_noun(
             featurestore_id=featurestore_id, entity_type_id=entity_type_id
         )
@@ -574,15 +569,14 @@ class Feature(base.VertexAiResourceNounWithFutureManager):
             location=location,
         )
 
-        gapic_feature = gca_feature.Feature(
-            description=description, value_type=value_type_enum, labels=labels,
-        )
+        create_feature_request = featurestore_utils._FeatureConfig(
+            feature_id=feature_id,
+            value_type=value_type,
+            description=description,
+            labels=labels,
+        ).request_dict
 
-        create_feature_request = {
-            "parent": entity_type_name,
-            "feature": gapic_feature,
-            "feature_id": feature_id,
-        }
+        create_feature_request["parent"] = entity_type_name
 
         api_client = cls._instantiate_client(location=location, credentials=credentials)
 

@@ -293,7 +293,7 @@ class Featurestore(base.VertexAiResourceNounWithFutureManager):
                 -  ``update_time``
 
         Returns:
-            List[featurestores.EntityTypes] - A list of managed entityType resource objects.
+            List[featurestores.EntityType] - A list of managed entityType resource objects.
         """
         return _featurestores.EntityType.list(
             featurestore_name=self.resource_name, filter=filter, order_by=order_by,
