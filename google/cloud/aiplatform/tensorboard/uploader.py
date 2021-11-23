@@ -56,25 +56,17 @@ import tensorflow as tf
 
 from google.api_core import exceptions
 from google.cloud import storage
-from google.cloud.aiplatform.compat.services import tensorboard_service_client_v1beta1
-from google.cloud.aiplatform.compat.types import (
-    tensorboard_data_v1beta1 as tensorboard_data,
-)
-from google.cloud.aiplatform.compat.types import (
-    tensorboard_experiment_v1beta1 as tensorboard_experiment,
-)
-from google.cloud.aiplatform.compat.types import (
-    tensorboard_service_v1beta1 as tensorboard_service,
-)
-from google.cloud.aiplatform.compat.types import (
-    tensorboard_time_series_v1beta1 as tensorboard_time_series,
-)
+from google.cloud.aiplatform.compat.services import tensorboard_service_client
+from google.cloud.aiplatform.compat.types import tensorboard_data
+from google.cloud.aiplatform.compat.types import tensorboard_experiment
+from google.cloud.aiplatform.compat.types import tensorboard_service
+from google.cloud.aiplatform.compat.types import tensorboard_time_series
 from google.cloud.aiplatform.tensorboard import uploader_utils
 from google.cloud.aiplatform.tensorboard.plugins.tf_profiler import profile_uploader
 from google.protobuf import message
 from google.protobuf import timestamp_pb2 as timestamp
 
-TensorboardServiceClient = tensorboard_service_client_v1beta1.TensorboardServiceClient
+TensorboardServiceClient = tensorboard_service_client.TensorboardServiceClient
 
 # Minimum length of a logdir polling cycle in seconds. Shorter cycles will
 # sleep to avoid spinning over the logdir, which isn't great for disks and can

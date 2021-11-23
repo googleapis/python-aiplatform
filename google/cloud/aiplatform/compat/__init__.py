@@ -77,13 +77,14 @@ if DEFAULT_VERSION == V1BETA1:
     types.specialist_pool = types.specialist_pool_v1beta1
     types.specialist_pool_service = types.specialist_pool_service_v1beta1
     types.study = types.study_v1beta1
-    types.training_pipeline = types.training_pipeline_v1beta1
+    types.tensorboard = types.tensorboard_v1beta1
     types.tensorboard_service = types.tensorboard_service_v1beta1
     types.tensorboard_data = types.tensorboard_data_v1beta1
     types.tensorboard_experiment = types.tensorboard_experiment_v1beta1
     types.tensorboard_run = types.tensorboard_run_v1beta1
     types.tensorboard_service = types.tensorboard_service_v1beta1
     types.tensorboard_time_series = types.tensorboard_time_series_v1beta1
+    types.training_pipeline = types.training_pipeline_v1beta1
 
 if DEFAULT_VERSION == V1:
 
@@ -94,6 +95,7 @@ if DEFAULT_VERSION == V1:
     services.pipeline_service_client = services.pipeline_service_client_v1
     services.prediction_service_client = services.prediction_service_client_v1
     services.specialist_pool_service_client = services.specialist_pool_service_client_v1
+    services.tensorboard_service_client = services.tensorboard_service_client_v1
 
     types.accelerator_type = types.accelerator_type_v1
     types.annotation = types.annotation_v1
@@ -135,6 +137,13 @@ if DEFAULT_VERSION == V1:
     types.specialist_pool = types.specialist_pool_v1
     types.specialist_pool_service = types.specialist_pool_service_v1
     types.study = types.study_v1
+    types.tensorboard = types.tensorboard_v1
+    types.tensorboard_service = types.tensorboard_service_v1
+    types.tensorboard_data = types.tensorboard_data_v1
+    types.tensorboard_experiment = types.tensorboard_experiment_v1
+    types.tensorboard_run = types.tensorboard_run_v1
+    types.tensorboard_service = types.tensorboard_service_v1
+    types.tensorboard_time_series = types.tensorboard_time_series_v1
     types.training_pipeline = types.training_pipeline_v1
 
 __all__ = (
