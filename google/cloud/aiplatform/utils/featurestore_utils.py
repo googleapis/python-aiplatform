@@ -127,7 +127,6 @@ def validate_value_type(value_type: str) -> bool:
         value_type (str):
             Required. Immutable. Type of Feature value.
             One of BOOL, BOOL_ARRAY, DOUBLE, DOUBLE_ARRAY, INT64, INT64_ARRAY, STRING, STRING_ARRAY, BYTES.
-
     Returns:
         bool: True if valid specified value_type
     Raises:

@@ -457,7 +457,7 @@ class EntityType(base.VertexAiResourceNounWithFutureManager):
                 be immediately returned and synced when the Future has completed.
 
         Returns:
-            EntityType - EntityType resource objects
+            EntityType - entity_type resource object
 
         """
 
