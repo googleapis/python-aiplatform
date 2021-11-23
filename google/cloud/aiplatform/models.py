@@ -2443,7 +2443,7 @@ class Model(base.VertexAiResourceNounWithFutureManager):
     def upload_xgboost_model_file(
         model_file_path: str,
         xgboost_version: Optional[str] = None,
-        display_name: Optional[str] = None,
+        display_name: Optional[str] = "XGBoost model",
         description: Optional[str] = None,
         instance_schema_uri: Optional[str] = None,
         parameters_schema_uri: Optional[str] = None,
@@ -2604,8 +2604,6 @@ class Model(base.VertexAiResourceNounWithFutureManager):
             version=xgboost_version.replace(".", "-"),
         )
 
-        display_name = display_name or "XGBoost model"
-
         model_file_path_obj = pathlib.Path(model_file_path)
         if not model_file_path_obj.is_file():
             raise ValueError(
@@ -2655,7 +2653,7 @@ class Model(base.VertexAiResourceNounWithFutureManager):
     def upload_scikit_learn_model_file(
         model_file_path: str,
         sklearn_version: Optional[str] = None,
-        display_name: Optional[str] = None,
+        display_name: Optional[str] = "Scikit-learn model",
         description: Optional[str] = None,
         instance_schema_uri: Optional[str] = None,
         parameters_schema_uri: Optional[str] = None,
@@ -2814,8 +2812,6 @@ class Model(base.VertexAiResourceNounWithFutureManager):
             version=sklearn_version.replace(".", "-"),
         )
 
-        display_name = display_name or "Scikit-learn model"
-
         model_file_path_obj = pathlib.Path(model_file_path)
         if not model_file_path_obj.is_file():
             raise ValueError(
@@ -2866,7 +2862,7 @@ class Model(base.VertexAiResourceNounWithFutureManager):
         saved_model_dir: str,
         tensorflow_version: Optional[str] = None,
         use_gpu: bool = False,
-        display_name: Optional[str] = None,
+        display_name: Optional[str] = "Tensorflow model",
         description: Optional[str] = None,
         instance_schema_uri: Optional[str] = None,
         parameters_schema_uri: Optional[str] = None,
@@ -3033,8 +3029,6 @@ class Model(base.VertexAiResourceNounWithFutureManager):
             cpu_or_gpu="gpu" if use_gpu else "cpu",
             version=tensorflow_version.replace(".", "-"),
         )
-
-        display_name = display_name or "Tensorflow model"
 
         return aiplatform.Model.upload(
             serving_container_image_uri=container_image_uri,
