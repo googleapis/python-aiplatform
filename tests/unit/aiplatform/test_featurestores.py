@@ -68,6 +68,8 @@ _TEST_FEATURE_ID = "feature_id"
 _TEST_FEATURE_NAME = f"{_TEST_ENTITY_TYPE_NAME}/features/{_TEST_FEATURE_ID}"
 _TEST_FEATURE_INVALID = f"{_TEST_ENTITY_TYPE_NAME}/feature/{_TEST_FEATURE_ID}"
 _TEST_FEATURE_VALUE_TYPE = "INT64"
+_TEST_FEATURE_VALUE_TYPE_ENUM = 9
+_TEST_FEATURE_ID_INVALID = "1feature_id"
 
 # misc
 _TEST_DESCRIPTION = "my description"
@@ -119,6 +121,18 @@ _TEST_FEATURE_LIST = [
     gca_feature.Feature(name=_TEST_FEATURE_NAME,),
     gca_feature.Feature(name=_TEST_FEATURE_NAME,),
 ]
+
+_TEST_FEATURE_CONFIGS = {
+    "my_feature_id_1": {"value_type": _TEST_FEATURE_VALUE_TYPE},
+    "my_feature_id_2": {
+        "value_type": _TEST_FEATURE_VALUE_TYPE,
+        "description": _TEST_DESCRIPTION,
+    },
+    "my_feature_id_3": {
+        "value_type": _TEST_FEATURE_VALUE_TYPE,
+        "labels": _TEST_LABELS,
+    },
+}
 
 
 # All Featurestore Mocks
@@ -292,10 +306,20 @@ def create_feature_mock():
     ) as create_feature_mock:
         create_feature_lro_mock = mock.Mock(operation.Operation)
         create_feature_lro_mock.result.return_value = gca_feature.Feature(
-            name=_TEST_FEATURE_NAME, value_type=_TEST_FEATURE_VALUE_TYPE,
+            name=_TEST_FEATURE_NAME, value_type=_TEST_FEATURE_VALUE_TYPE_ENUM,
         )
         create_feature_mock.return_value = create_feature_lro_mock
         yield create_feature_mock
+
+
+@pytest.fixture
+def batch_create_features_mock():
+    with patch.object(
+        featurestore_service_client.FeaturestoreServiceClient, "batch_create_features"
+    ) as batch_create_features_mock:
+        batch_create_features_lro_mock = mock.Mock(operation.Operation)
+        batch_create_features_mock.return_value = batch_create_features_lro_mock
+        yield batch_create_features_mock
 
 
 class TestFeaturestoreUtils:
@@ -407,11 +431,96 @@ class TestFeaturestoreUtils:
         assert featurestore_utils.validate_value_type(value_type=value_type) is True
 
     @pytest.mark.parametrize(
-        "value_type", ["INT", "INT_array", "STR", "double", "bool", "array", "INT32"]
+        "value_type",
+        [
+            "INT",
+            "INT_array",
+            "STR",
+            "double",
+            "bool",
+            "array",
+            "INT32",
+            "VALUE_TYPE_UNSPECIFIED",
+        ],
     )
     def test_validate_value_type_with_raise(self, value_type: str):
         with pytest.raises(ValueError):
             featurestore_utils.validate_value_type(value_type=value_type)
+
+    def validate_and_get_batch_create_features_requests(self):
+        expected_batch_create_feature_requests = [
+            {
+                "feature": gca_feature.Feature(
+                    value_type=_TEST_FEATURE_VALUE_TYPE_ENUM
+                ),
+                "feature_id": "my_feature_id_1",
+            },
+            {
+                "feature": gca_feature.Feature(
+                    value_type=_TEST_FEATURE_VALUE_TYPE_ENUM,
+                    description=_TEST_DESCRIPTION,
+                ),
+                "feature_id": "my_feature_id_2",
+            },
+            {
+                "feature": gca_feature.Feature(
+                    value_type=_TEST_FEATURE_VALUE_TYPE_ENUM, labels=_TEST_LABELS
+                ),
+                "feature_id": "my_feature_id_3",
+            },
+        ]
+
+        assert (
+            featurestore_utils.validate_and_get_batch_create_features_requests(
+                featureConfigs=_TEST_FEATURE_CONFIGS
+            )
+            == expected_batch_create_feature_requests
+        )
+
+
+class Test_FeatureConfig:
+    def test_feature_config_return_request_dict(self):
+
+        featureConfig = featurestore_utils._FeatureConfig(
+            feature_id=_TEST_FEATURE_ID,
+            value_type=_TEST_FEATURE_VALUE_TYPE,
+            description=_TEST_DESCRIPTION,
+            labels=_TEST_LABELS,
+        )
+
+        gapic_feature = gca_feature.Feature(
+            description=_TEST_DESCRIPTION,
+            value_type=_TEST_FEATURE_VALUE_TYPE_ENUM,
+            labels=_TEST_LABELS,
+        )
+
+        true_request_dict = {
+            "feature": gapic_feature,
+            "feature_id": _TEST_FEATURE_ID,
+        }
+
+        assert featureConfig.request_dict == true_request_dict
+
+    def test_feature_config_request_dict_raises_invalid_feature_id(self):
+        featureConfig = featurestore_utils._FeatureConfig(
+            feature_id=_TEST_FEATURE_ID_INVALID,
+            value_type=_TEST_FEATURE_VALUE_TYPE,
+            description=_TEST_DESCRIPTION,
+            labels=_TEST_LABELS,
+        )
+        with pytest.raises(ValueError):
+            featureConfig.request_dict
+
+    @pytest.mark.parametrize("value_type", ["INT", "VALUE_TYPE_UNSPECIFIED"])
+    def test_feature_config_request_dict_raises_invalid_value_type(self, value_type):
+        featureConfig = featurestore_utils._FeatureConfig(
+            feature_id=_TEST_FEATURE_ID,
+            value_type=value_type,
+            description=_TEST_DESCRIPTION,
+            labels=_TEST_LABELS,
+        )
+        with pytest.raises(ValueError):
+            featureConfig.request_dict
 
 
 class TestFeaturestore:
@@ -776,7 +885,7 @@ class TestEntityType:
             my_feature.wait()
 
         expected_feature = gca_feature.Feature(
-            value_type=_TEST_FEATURE_VALUE_TYPE,
+            value_type=_TEST_FEATURE_VALUE_TYPE_ENUM,
             labels=_TEST_LABELS,
             description=_TEST_DESCRIPTION,
         )
@@ -813,6 +922,46 @@ class TestEntityType:
                 "entity_type": expected_entity_type,
                 "entity_type_id": _TEST_ENTITY_TYPE_ID,
             },
+            metadata=_TEST_REQUEST_METADATA,
+        )
+
+    @pytest.mark.usefixtures("get_entity_type_mock")
+    @pytest.mark.parametrize("sync", [True, False])
+    def test_batch_create_features(self, batch_create_features_mock, sync):
+        aiplatform.init(project=_TEST_PROJECT)
+
+        my_entity_type = featurestores.EntityType(
+            entity_type_name=_TEST_ENTITY_TYPE_NAME
+        )
+        my_entity_type.batch_create_features(feature_configs=_TEST_FEATURE_CONFIGS)
+
+        if not sync:
+            my_entity_type.wait()
+
+        expected_batch_create_feature_requests = [
+            {
+                "feature": gca_feature.Feature(
+                    value_type=_TEST_FEATURE_VALUE_TYPE_ENUM
+                ),
+                "feature_id": "my_feature_id_1",
+            },
+            {
+                "feature": gca_feature.Feature(
+                    value_type=_TEST_FEATURE_VALUE_TYPE_ENUM,
+                    description=_TEST_DESCRIPTION,
+                ),
+                "feature_id": "my_feature_id_2",
+            },
+            {
+                "feature": gca_feature.Feature(
+                    value_type=_TEST_FEATURE_VALUE_TYPE_ENUM, labels=_TEST_LABELS
+                ),
+                "feature_id": "my_feature_id_3",
+            },
+        ]
+        batch_create_features_mock.assert_called_once_with(
+            parent=_TEST_ENTITY_TYPE_NAME,
+            requests=expected_batch_create_feature_requests,
             metadata=_TEST_REQUEST_METADATA,
         )
 
@@ -936,7 +1085,7 @@ class TestFeature:
             my_feature.wait()
 
         expected_feature = gca_feature.Feature(
-            value_type=_TEST_FEATURE_VALUE_TYPE,
+            value_type=_TEST_FEATURE_VALUE_TYPE_ENUM,
             labels=_TEST_LABELS,
             description=_TEST_DESCRIPTION,
         )
