@@ -22,7 +22,7 @@ def get_prebuilt_prediction_container_uri(
     framework: str,
     framework_version: str,
     region: Optional[str] = None,
-    accelerator: Optional[str] = "cpu",
+    accelerator: str = "cpu",
 ) -> str:
     """
     Get a Vertex AI pre-built prediction Docker container URI for
@@ -78,32 +78,28 @@ def get_prebuilt_prediction_container_uri(
     region = region.split("-", 1)[0]
     framework = framework.lower()
 
-    if not URI_MAP[region]:
-        del URI_MAP[region]
+    if not URI_MAP.get(region):
         raise ValueError(
             f"Unsupported container region `{region}`, supported regions are "
             f"{', '.join(URI_MAP.keys())}. "
             f"{DOCS_URI_MESSAGE}"
         )
 
-    if not URI_MAP[region][framework]:
-        del URI_MAP[region][framework]
+    if not URI_MAP[region].get(framework):
         raise ValueError(
             f"No containers found for framework `{framework}`. Supported frameworks are "
             f"{', '.join(URI_MAP[region].keys())} {DOCS_URI_MESSAGE}"
         )
 
-    if not URI_MAP[region][framework][accelerator]:
-        del URI_MAP[region][framework][accelerator]
+    if not URI_MAP[region][framework].get(accelerator):
         raise ValueError(
             f"{framework} containers do not support `{accelerator}` accelerator. Supported accelerators "
             f"are {', '.join(URI_MAP[region][framework].keys())}. {DOCS_URI_MESSAGE}"
         )
 
-    final_uri = URI_MAP[region][framework][accelerator][framework_version]
+    final_uri = URI_MAP[region][framework][accelerator].get(framework_version)
 
     if not final_uri:
-        del URI_MAP[region][framework][accelerator][framework_version]
         raise ValueError(
             f"No serving container for `{framework}` version `{framework_version}` "
             f"with accelerator `{accelerator}` found. Supported versions "
