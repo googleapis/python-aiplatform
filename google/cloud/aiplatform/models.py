@@ -2685,7 +2685,7 @@ class Model(base.VertexAiResourceNounWithFutureManager):
             model_file_path (str): Required. Local file path of the model.
             sklearn_version (str):
                 Optional. The version of the Scikit-learn serving container.
-                Supported versions: ["0.20", "0.22", "0.23", "0.24"].
+                Supported versions: ["0.20", "0.22", "0.23", "0.24", "1.0"].
                 If the version is not specified, the latest version is used.
             display_name (str):
                 Optional. The display name of the Model. The name can be up to 128
@@ -2787,7 +2787,7 @@ class Model(base.VertexAiResourceNounWithFutureManager):
                 Also if model directory does not contain a supported model file.
         """
         # https://cloud.google.com/vertex-ai/docs/predictions/pre-built-containers#scikit-learn
-        SKLEARN_SUPPORTED_VERSIONS = ["0.20", "0.22", "0.23", "0.24"]
+        SKLEARN_SUPPORTED_VERSIONS = ["0.20", "0.22", "0.23", "0.24", "1.0"]
         SKLEARN_CONTAINER_IMAGE_URI_TEMPLATE = (
             "{registry}/vertex-ai/prediction/sklearn-{cpu_or_gpu}.{version}:latest"
         )
@@ -2897,7 +2897,7 @@ class Model(base.VertexAiResourceNounWithFutureManager):
                 Local directory of the Tensorflow SavedModel.
             tensorflow_version (str):
                 Optional. The version of the Tensorflow serving container.
-                Supported versions: ["0.15", "2.1", "2.2", "2.3", "2.4", "2.5", "2.6"].
+                Supported versions: ["0.15", "2.1", "2.2", "2.3", "2.4", "2.5", "2.6", "2.7"].
                 If the version is not specified, the latest version is used.
             use_gpu (bool): Whether to use GPU for model serving.
             display_name (str):
@@ -3008,6 +3008,7 @@ class Model(base.VertexAiResourceNounWithFutureManager):
             "2.4",
             "2.5",
             "2.6",
+            "2.7",
         ]
         TENSORFLOW_CONTAINER_IMAGE_URI_TEMPLATE = (
             "{registry}/vertex-ai/prediction/tf{tf2_or_1}-{cpu_or_gpu}.{version}:latest"
