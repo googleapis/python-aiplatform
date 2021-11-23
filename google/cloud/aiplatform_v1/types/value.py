@@ -22,13 +22,26 @@ __protobuf__ = proto.module(package="google.cloud.aiplatform.v1", manifest={"Val
 class Value(proto.Message):
     r"""Value is the value of the field.
 
+    This message has `oneof`_ fields (mutually exclusive fields).
+    For each oneof, at most one member field can be set at the same time.
+    Setting any member of the oneof automatically clears all other
+    members.
+
+    .. _oneof: https://proto-plus-python.readthedocs.io/en/stable/fields.html#oneofs-mutually-exclusive-fields
+
     Attributes:
         int_value (int):
             An integer value.
+
+            This field is a member of `oneof`_ ``value``.
         double_value (float):
             A double value.
+
+            This field is a member of `oneof`_ ``value``.
         string_value (str):
             A string value.
+
+            This field is a member of `oneof`_ ``value``.
     """
 
     int_value = proto.Field(proto.INT64, number=1, oneof="value",)

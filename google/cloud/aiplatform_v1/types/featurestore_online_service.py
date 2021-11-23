@@ -126,15 +126,26 @@ class ReadFeatureValuesResponse(proto.Message):
             r"""Container to hold value(s), successive in time, for one
             Feature from the request.
 
+            This message has `oneof`_ fields (mutually exclusive fields).
+            For each oneof, at most one member field can be set at the same time.
+            Setting any member of the oneof automatically clears all other
+            members.
+
+            .. _oneof: https://proto-plus-python.readthedocs.io/en/stable/fields.html#oneofs-mutually-exclusive-fields
+
             Attributes:
                 value (google.cloud.aiplatform_v1.types.FeatureValue):
                     Feature value if a single value is requested.
+
+                    This field is a member of `oneof`_ ``data``.
                 values (google.cloud.aiplatform_v1.types.FeatureValueList):
                     Feature values list if values, successive in
                     time, are requested. If the requested number of
                     values is greater than the number of existing
                     Feature values, nonexistent values are omitted
                     instead of being returned as empty.
+
+                    This field is a member of `oneof`_ ``data``.
             """
 
             value = proto.Field(
@@ -188,25 +199,50 @@ class FeatureValue(proto.Message):
     r"""Value for a feature.
     NEXT ID: 15
 
+    This message has `oneof`_ fields (mutually exclusive fields).
+    For each oneof, at most one member field can be set at the same time.
+    Setting any member of the oneof automatically clears all other
+    members.
+
+    .. _oneof: https://proto-plus-python.readthedocs.io/en/stable/fields.html#oneofs-mutually-exclusive-fields
+
     Attributes:
         bool_value (bool):
             Bool type feature value.
+
+            This field is a member of `oneof`_ ``value``.
         double_value (float):
             Double type feature value.
+
+            This field is a member of `oneof`_ ``value``.
         int64_value (int):
             Int64 feature value.
+
+            This field is a member of `oneof`_ ``value``.
         string_value (str):
             String feature value.
+
+            This field is a member of `oneof`_ ``value``.
         bool_array_value (google.cloud.aiplatform_v1.types.BoolArray):
             A list of bool type feature value.
+
+            This field is a member of `oneof`_ ``value``.
         double_array_value (google.cloud.aiplatform_v1.types.DoubleArray):
             A list of double type feature value.
+
+            This field is a member of `oneof`_ ``value``.
         int64_array_value (google.cloud.aiplatform_v1.types.Int64Array):
             A list of int64 type feature value.
+
+            This field is a member of `oneof`_ ``value``.
         string_array_value (google.cloud.aiplatform_v1.types.StringArray):
             A list of string type feature value.
+
+            This field is a member of `oneof`_ ``value``.
         bytes_value (bytes):
             Bytes feature value.
+
+            This field is a member of `oneof`_ ``value``.
         metadata (google.cloud.aiplatform_v1.types.FeatureValue.Metadata):
             Metadata of feature value.
     """

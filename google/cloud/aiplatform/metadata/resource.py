@@ -27,9 +27,9 @@ from google.auth import credentials as auth_credentials
 
 from google.cloud.aiplatform import base, initializer
 from google.cloud.aiplatform import utils
-from google.cloud.aiplatform_v1beta1 import Artifact as GapicArtifact
-from google.cloud.aiplatform_v1beta1 import Context as GapicContext
-from google.cloud.aiplatform_v1beta1 import Execution as GapicExecution
+from google.cloud.aiplatform.compat.types import artifact as gca_artifact
+from google.cloud.aiplatform.compat.types import context as gca_context
+from google.cloud.aiplatform.compat.types import execution as gca_execution
 
 
 class _Resource(base.VertexAiResourceNounWithFutureManager, abc.ABC):
@@ -42,7 +42,9 @@ class _Resource(base.VertexAiResourceNounWithFutureManager, abc.ABC):
     def __init__(
         self,
         resource_name: Optional[str] = None,
-        resource: Optional[Union[GapicContext, GapicArtifact, GapicExecution]] = None,
+        resource: Optional[
+            Union[gca_context.Context, gca_artifact.Artifact, gca_execution.Execution]
+        ] = None,
         metadata_store_id: str = "default",
         project: Optional[str] = None,
         location: Optional[str] = None,
@@ -56,7 +58,7 @@ class _Resource(base.VertexAiResourceNounWithFutureManager, abc.ABC):
                 Example: "projects/123/locations/us-central1/metadataStores/default/<resource_noun>/my-resource".
                 or "my-resource" when project and location are initialized or passed. if ``resource`` is provided, this
                 should not be set.
-            resource (Union[GapicContext, GapicArtifact, GapicExecution]):
+            resource (Union[gca_context.Context, gca_artifact.Artifact, gca_execution.Execution]):
                 The proto.Message that contains the full information of the resource. If both set, this field overrides
                 ``resource_name`` field.
             metadata_store_id (str):
@@ -92,7 +94,7 @@ class _Resource(base.VertexAiResourceNounWithFutureManager, abc.ABC):
             )
 
         self._gca_resource = getattr(self.api_client, self._getter_method)(
-            name=full_resource_name
+            name=full_resource_name, retry=base._DEFAULT_RETRY
         )
 
     @property

@@ -375,10 +375,11 @@ class TestPipelineUtils:
                         "list_param": {"type": "STRING"},
                     }
                 }
-            }
+            },
+            "schemaVersion": "2.0.0",
         },
         "runtimeConfig": {
-            "gcs_output_directory": "path/to/my/root",
+            "gcsOutputDirectory": "path/to/my/root",
             "parameters": {
                 "string_param": {"stringValue": "test-string"},
                 "int_param": {"intValue": 42},
@@ -390,6 +391,7 @@ class TestPipelineUtils:
     def test_pipeline_utils_runtime_config_builder_from_values(self):
         my_builder = pipeline_utils.PipelineRuntimeConfigBuilder(
             pipeline_root="path/to/my/root",
+            schema_version="2.0.0",
             parameter_types={
                 "string_param": "STRING",
                 "int_param": "INT",
@@ -444,7 +446,7 @@ class TestPipelineUtils:
         actual_runtime_config = my_builder.build()
 
         expected_runtime_config = {
-            "gcs_output_directory": "path/to/my/new/root",
+            "gcsOutputDirectory": "path/to/my/new/root",
             "parameters": {
                 "string_param": {"stringValue": "test-string"},
                 "int_param": {"intValue": 888},

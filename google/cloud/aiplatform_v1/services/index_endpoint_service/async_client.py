@@ -19,12 +19,17 @@ import re
 from typing import Dict, Sequence, Tuple, Type, Union
 import pkg_resources
 
-import google.api_core.client_options as ClientOptions  # type: ignore
-from google.api_core import exceptions as core_exceptions  # type: ignore
-from google.api_core import gapic_v1  # type: ignore
-from google.api_core import retry as retries  # type: ignore
+from google.api_core.client_options import ClientOptions
+from google.api_core import exceptions as core_exceptions
+from google.api_core import gapic_v1
+from google.api_core import retry as retries
 from google.auth import credentials as ga_credentials  # type: ignore
 from google.oauth2 import service_account  # type: ignore
+
+try:
+    OptionalRetry = Union[retries.Retry, gapic_v1.method._MethodDefault]
+except AttributeError:  # pragma: NO COVER
+    OptionalRetry = Union[retries.Retry, object]  # type: ignore
 
 from google.api_core import operation as gac_operation  # type: ignore
 from google.api_core import operation_async  # type: ignore
@@ -176,18 +181,18 @@ class IndexEndpointServiceAsyncClient:
 
     async def create_index_endpoint(
         self,
-        request: index_endpoint_service.CreateIndexEndpointRequest = None,
+        request: Union[index_endpoint_service.CreateIndexEndpointRequest, dict] = None,
         *,
         parent: str = None,
         index_endpoint: gca_index_endpoint.IndexEndpoint = None,
-        retry: retries.Retry = gapic_v1.method.DEFAULT,
+        retry: OptionalRetry = gapic_v1.method.DEFAULT,
         timeout: float = None,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> operation_async.AsyncOperation:
         r"""Creates an IndexEndpoint.
 
         Args:
-            request (:class:`google.cloud.aiplatform_v1.types.CreateIndexEndpointRequest`):
+            request (Union[google.cloud.aiplatform_v1.types.CreateIndexEndpointRequest, dict]):
                 The request object. Request message for
                 [IndexEndpointService.CreateIndexEndpoint][google.cloud.aiplatform.v1.IndexEndpointService.CreateIndexEndpoint].
             parent (:class:`str`):
@@ -268,17 +273,17 @@ class IndexEndpointServiceAsyncClient:
 
     async def get_index_endpoint(
         self,
-        request: index_endpoint_service.GetIndexEndpointRequest = None,
+        request: Union[index_endpoint_service.GetIndexEndpointRequest, dict] = None,
         *,
         name: str = None,
-        retry: retries.Retry = gapic_v1.method.DEFAULT,
+        retry: OptionalRetry = gapic_v1.method.DEFAULT,
         timeout: float = None,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> index_endpoint.IndexEndpoint:
         r"""Gets an IndexEndpoint.
 
         Args:
-            request (:class:`google.cloud.aiplatform_v1.types.GetIndexEndpointRequest`):
+            request (Union[google.cloud.aiplatform_v1.types.GetIndexEndpointRequest, dict]):
                 The request object. Request message for
                 [IndexEndpointService.GetIndexEndpoint][google.cloud.aiplatform.v1.IndexEndpointService.GetIndexEndpoint]
             name (:class:`str`):
@@ -341,17 +346,17 @@ class IndexEndpointServiceAsyncClient:
 
     async def list_index_endpoints(
         self,
-        request: index_endpoint_service.ListIndexEndpointsRequest = None,
+        request: Union[index_endpoint_service.ListIndexEndpointsRequest, dict] = None,
         *,
         parent: str = None,
-        retry: retries.Retry = gapic_v1.method.DEFAULT,
+        retry: OptionalRetry = gapic_v1.method.DEFAULT,
         timeout: float = None,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> pagers.ListIndexEndpointsAsyncPager:
         r"""Lists IndexEndpoints in a Location.
 
         Args:
-            request (:class:`google.cloud.aiplatform_v1.types.ListIndexEndpointsRequest`):
+            request (Union[google.cloud.aiplatform_v1.types.ListIndexEndpointsRequest, dict]):
                 The request object. Request message for
                 [IndexEndpointService.ListIndexEndpoints][google.cloud.aiplatform.v1.IndexEndpointService.ListIndexEndpoints].
             parent (:class:`str`):
@@ -422,18 +427,18 @@ class IndexEndpointServiceAsyncClient:
 
     async def update_index_endpoint(
         self,
-        request: index_endpoint_service.UpdateIndexEndpointRequest = None,
+        request: Union[index_endpoint_service.UpdateIndexEndpointRequest, dict] = None,
         *,
         index_endpoint: gca_index_endpoint.IndexEndpoint = None,
         update_mask: field_mask_pb2.FieldMask = None,
-        retry: retries.Retry = gapic_v1.method.DEFAULT,
+        retry: OptionalRetry = gapic_v1.method.DEFAULT,
         timeout: float = None,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> gca_index_endpoint.IndexEndpoint:
         r"""Updates an IndexEndpoint.
 
         Args:
-            request (:class:`google.cloud.aiplatform_v1.types.UpdateIndexEndpointRequest`):
+            request (Union[google.cloud.aiplatform_v1.types.UpdateIndexEndpointRequest, dict]):
                 The request object. Request message for
                 [IndexEndpointService.UpdateIndexEndpoint][google.cloud.aiplatform.v1.IndexEndpointService.UpdateIndexEndpoint].
             index_endpoint (:class:`google.cloud.aiplatform_v1.types.IndexEndpoint`):
@@ -506,17 +511,17 @@ class IndexEndpointServiceAsyncClient:
 
     async def delete_index_endpoint(
         self,
-        request: index_endpoint_service.DeleteIndexEndpointRequest = None,
+        request: Union[index_endpoint_service.DeleteIndexEndpointRequest, dict] = None,
         *,
         name: str = None,
-        retry: retries.Retry = gapic_v1.method.DEFAULT,
+        retry: OptionalRetry = gapic_v1.method.DEFAULT,
         timeout: float = None,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> operation_async.AsyncOperation:
         r"""Deletes an IndexEndpoint.
 
         Args:
-            request (:class:`google.cloud.aiplatform_v1.types.DeleteIndexEndpointRequest`):
+            request (Union[google.cloud.aiplatform_v1.types.DeleteIndexEndpointRequest, dict]):
                 The request object. Request message for
                 [IndexEndpointService.DeleteIndexEndpoint][google.cloud.aiplatform.v1.IndexEndpointService.DeleteIndexEndpoint].
             name (:class:`str`):
@@ -599,11 +604,11 @@ class IndexEndpointServiceAsyncClient:
 
     async def deploy_index(
         self,
-        request: index_endpoint_service.DeployIndexRequest = None,
+        request: Union[index_endpoint_service.DeployIndexRequest, dict] = None,
         *,
         index_endpoint: str = None,
         deployed_index: gca_index_endpoint.DeployedIndex = None,
-        retry: retries.Retry = gapic_v1.method.DEFAULT,
+        retry: OptionalRetry = gapic_v1.method.DEFAULT,
         timeout: float = None,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> operation_async.AsyncOperation:
@@ -612,7 +617,7 @@ class IndexEndpointServiceAsyncClient:
         Only non-empty Indexes can be deployed.
 
         Args:
-            request (:class:`google.cloud.aiplatform_v1.types.DeployIndexRequest`):
+            request (Union[google.cloud.aiplatform_v1.types.DeployIndexRequest, dict]):
                 The request object. Request message for
                 [IndexEndpointService.DeployIndex][google.cloud.aiplatform.v1.IndexEndpointService.DeployIndex].
             index_endpoint (:class:`str`):
@@ -697,11 +702,11 @@ class IndexEndpointServiceAsyncClient:
 
     async def undeploy_index(
         self,
-        request: index_endpoint_service.UndeployIndexRequest = None,
+        request: Union[index_endpoint_service.UndeployIndexRequest, dict] = None,
         *,
         index_endpoint: str = None,
         deployed_index_id: str = None,
-        retry: retries.Retry = gapic_v1.method.DEFAULT,
+        retry: OptionalRetry = gapic_v1.method.DEFAULT,
         timeout: float = None,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> operation_async.AsyncOperation:
@@ -710,7 +715,7 @@ class IndexEndpointServiceAsyncClient:
         using.
 
         Args:
-            request (:class:`google.cloud.aiplatform_v1.types.UndeployIndexRequest`):
+            request (Union[google.cloud.aiplatform_v1.types.UndeployIndexRequest, dict]):
                 The request object. Request message for
                 [IndexEndpointService.UndeployIndex][google.cloud.aiplatform.v1.IndexEndpointService.UndeployIndex].
             index_endpoint (:class:`str`):

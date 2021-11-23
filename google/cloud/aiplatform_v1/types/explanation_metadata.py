@@ -332,6 +332,13 @@ class ExplanationMetadata(proto.Message):
     class OutputMetadata(proto.Message):
         r"""Metadata of the prediction output to be explained.
 
+        This message has `oneof`_ fields (mutually exclusive fields).
+        For each oneof, at most one member field can be set at the same time.
+        Setting any member of the oneof automatically clears all other
+        members.
+
+        .. _oneof: https://proto-plus-python.readthedocs.io/en/stable/fields.html#oneofs-mutually-exclusive-fields
+
         Attributes:
             index_display_name_mapping (google.protobuf.struct_pb2.Value):
                 Static mapping between the index and display name.
@@ -349,6 +356,8 @@ class ExplanationMetadata(proto.Message):
                 [Attribution.output_display_name][google.cloud.aiplatform.v1.Attribution.output_display_name]
                 is populated by locating in the mapping with
                 [Attribution.output_index][google.cloud.aiplatform.v1.Attribution.output_index].
+
+                This field is a member of `oneof`_ ``display_name_mapping``.
             display_name_mapping_key (str):
                 Specify a field name in the prediction to look for the
                 display name.
@@ -360,6 +369,8 @@ class ExplanationMetadata(proto.Message):
                 of the outputs, so that it can be located by
                 [Attribution.output_index][google.cloud.aiplatform.v1.Attribution.output_index]
                 for a specific output.
+
+                This field is a member of `oneof`_ ``display_name_mapping``.
             output_tensor_name (str):
                 Name of the output tensor. Required and is
                 only applicable to Vertex AI provided images for

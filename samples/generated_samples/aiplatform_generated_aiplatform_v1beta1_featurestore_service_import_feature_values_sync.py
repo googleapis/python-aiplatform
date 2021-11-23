@@ -35,7 +35,7 @@ def sample_import_feature_values():
 
     # Initialize request argument(s)
     avro_source = aiplatform_v1beta1.AvroSource()
-    avro_source.gcs_source.uris = ['uris_value']
+    avro_source.gcs_source.uris = ['uris_value_1', 'uris_value_2']
 
     feature_specs = aiplatform_v1beta1.FeatureSpec()
     feature_specs.id = "id_value"

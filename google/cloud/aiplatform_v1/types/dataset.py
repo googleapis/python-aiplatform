@@ -106,10 +106,15 @@ class ImportDataConfig(proto.Message):
     Dataset, together with the labels that will be applied to the
     DataItems and the Annotations.
 
+
+    .. _oneof: https://proto-plus-python.readthedocs.io/en/stable/fields.html#oneofs-mutually-exclusive-fields
+
     Attributes:
         gcs_source (google.cloud.aiplatform_v1.types.GcsSource):
             The Google Cloud Storage location for the
             input content.
+
+            This field is a member of `oneof`_ ``source``.
         data_item_labels (Sequence[google.cloud.aiplatform_v1.types.ImportDataConfig.DataItemLabelsEntry]):
             Labels that will be applied to newly imported DataItems. If
             an identical DataItem as one being imported already exists
@@ -144,6 +149,9 @@ class ExportDataConfig(proto.Message):
     r"""Describes what part of the Dataset is to be exported, the
     destination of the export and how to export.
 
+
+    .. _oneof: https://proto-plus-python.readthedocs.io/en/stable/fields.html#oneofs-mutually-exclusive-fields
+
     Attributes:
         gcs_destination (google.cloud.aiplatform_v1.types.GcsDestination):
             The Google Cloud Storage location where the output is to be
@@ -157,6 +165,8 @@ class ExportDataConfig(proto.Message):
             with the corresponding annotations' schema title. Inside
             these sub directories, a schema.yaml will be created to
             describe the output format.
+
+            This field is a member of `oneof`_ ``destination``.
         annotations_filter (str):
             A filter on Annotations of the Dataset. Only Annotations on
             to-be-exported DataItems(specified by [data_items_filter][])

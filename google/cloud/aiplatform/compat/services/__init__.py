@@ -24,6 +24,9 @@ from google.cloud.aiplatform_v1beta1.services.endpoint_service import (
 from google.cloud.aiplatform_v1beta1.services.job_service import (
     client as job_service_client_v1beta1,
 )
+from google.cloud.aiplatform_v1beta1.services.metadata_service import (
+    client as metadata_service_client_v1beta1,
+)
 from google.cloud.aiplatform_v1beta1.services.model_service import (
     client as model_service_client_v1beta1,
 )
@@ -35,9 +38,6 @@ from google.cloud.aiplatform_v1beta1.services.prediction_service import (
 )
 from google.cloud.aiplatform_v1beta1.services.specialist_pool_service import (
     client as specialist_pool_service_client_v1beta1,
-)
-from google.cloud.aiplatform_v1beta1.services.metadata_service import (
-    client as metadata_service_client_v1beta1,
 )
 from google.cloud.aiplatform_v1beta1.services.tensorboard_service import (
     client as tensorboard_service_client_v1beta1,
@@ -52,6 +52,9 @@ from google.cloud.aiplatform_v1.services.endpoint_service import (
 from google.cloud.aiplatform_v1.services.job_service import (
     client as job_service_client_v1,
 )
+from google.cloud.aiplatform_v1.services.metadata_service import (
+    client as metadata_service_client_v1,
+)
 from google.cloud.aiplatform_v1.services.model_service import (
     client as model_service_client_v1,
 )
@@ -64,16 +67,21 @@ from google.cloud.aiplatform_v1.services.prediction_service import (
 from google.cloud.aiplatform_v1.services.specialist_pool_service import (
     client as specialist_pool_service_client_v1,
 )
+from google.cloud.aiplatform_v1.services.tensorboard_service import (
+    client as tensorboard_service_client_v1,
+)
 
 __all__ = (
     # v1
     dataset_service_client_v1,
     endpoint_service_client_v1,
     job_service_client_v1,
+    metadata_service_client_v1,
     model_service_client_v1,
     pipeline_service_client_v1,
     prediction_service_client_v1,
     specialist_pool_service_client_v1,
+    tensorboard_service_client_v1,
     # v1beta1
     dataset_service_client_v1beta1,
     endpoint_service_client_v1beta1,

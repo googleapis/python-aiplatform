@@ -19,12 +19,17 @@ import re
 from typing import Dict, Sequence, Tuple, Type, Union
 import pkg_resources
 
-import google.api_core.client_options as ClientOptions  # type: ignore
-from google.api_core import exceptions as core_exceptions  # type: ignore
-from google.api_core import gapic_v1  # type: ignore
-from google.api_core import retry as retries  # type: ignore
+from google.api_core.client_options import ClientOptions
+from google.api_core import exceptions as core_exceptions
+from google.api_core import gapic_v1
+from google.api_core import retry as retries
 from google.auth import credentials as ga_credentials  # type: ignore
 from google.oauth2 import service_account  # type: ignore
+
+try:
+    OptionalRetry = Union[retries.Retry, gapic_v1.method._MethodDefault]
+except AttributeError:  # pragma: NO COVER
+    OptionalRetry = Union[retries.Retry, object]  # type: ignore
 
 from google.api_core import operation as gac_operation  # type: ignore
 from google.api_core import operation_async  # type: ignore
@@ -186,18 +191,18 @@ class DatasetServiceAsyncClient:
 
     async def create_dataset(
         self,
-        request: dataset_service.CreateDatasetRequest = None,
+        request: Union[dataset_service.CreateDatasetRequest, dict] = None,
         *,
         parent: str = None,
         dataset: gca_dataset.Dataset = None,
-        retry: retries.Retry = gapic_v1.method.DEFAULT,
+        retry: OptionalRetry = gapic_v1.method.DEFAULT,
         timeout: float = None,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> operation_async.AsyncOperation:
         r"""Creates a Dataset.
 
         Args:
-            request (:class:`google.cloud.aiplatform_v1.types.CreateDatasetRequest`):
+            request (Union[google.cloud.aiplatform_v1.types.CreateDatasetRequest, dict]):
                 The request object. Request message for
                 [DatasetService.CreateDataset][google.cloud.aiplatform.v1.DatasetService.CreateDataset].
             parent (:class:`str`):
@@ -277,17 +282,17 @@ class DatasetServiceAsyncClient:
 
     async def get_dataset(
         self,
-        request: dataset_service.GetDatasetRequest = None,
+        request: Union[dataset_service.GetDatasetRequest, dict] = None,
         *,
         name: str = None,
-        retry: retries.Retry = gapic_v1.method.DEFAULT,
+        retry: OptionalRetry = gapic_v1.method.DEFAULT,
         timeout: float = None,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> dataset.Dataset:
         r"""Gets a Dataset.
 
         Args:
-            request (:class:`google.cloud.aiplatform_v1.types.GetDatasetRequest`):
+            request (Union[google.cloud.aiplatform_v1.types.GetDatasetRequest, dict]):
                 The request object. Request message for
                 [DatasetService.GetDataset][google.cloud.aiplatform.v1.DatasetService.GetDataset].
             name (:class:`str`):
@@ -348,18 +353,18 @@ class DatasetServiceAsyncClient:
 
     async def update_dataset(
         self,
-        request: dataset_service.UpdateDatasetRequest = None,
+        request: Union[dataset_service.UpdateDatasetRequest, dict] = None,
         *,
         dataset: gca_dataset.Dataset = None,
         update_mask: field_mask_pb2.FieldMask = None,
-        retry: retries.Retry = gapic_v1.method.DEFAULT,
+        retry: OptionalRetry = gapic_v1.method.DEFAULT,
         timeout: float = None,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> gca_dataset.Dataset:
         r"""Updates a Dataset.
 
         Args:
-            request (:class:`google.cloud.aiplatform_v1.types.UpdateDatasetRequest`):
+            request (Union[google.cloud.aiplatform_v1.types.UpdateDatasetRequest, dict]):
                 The request object. Request message for
                 [DatasetService.UpdateDataset][google.cloud.aiplatform.v1.DatasetService.UpdateDataset].
             dataset (:class:`google.cloud.aiplatform_v1.types.Dataset`):
@@ -437,17 +442,17 @@ class DatasetServiceAsyncClient:
 
     async def list_datasets(
         self,
-        request: dataset_service.ListDatasetsRequest = None,
+        request: Union[dataset_service.ListDatasetsRequest, dict] = None,
         *,
         parent: str = None,
-        retry: retries.Retry = gapic_v1.method.DEFAULT,
+        retry: OptionalRetry = gapic_v1.method.DEFAULT,
         timeout: float = None,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> pagers.ListDatasetsAsyncPager:
         r"""Lists Datasets in a Location.
 
         Args:
-            request (:class:`google.cloud.aiplatform_v1.types.ListDatasetsRequest`):
+            request (Union[google.cloud.aiplatform_v1.types.ListDatasetsRequest, dict]):
                 The request object. Request message for
                 [DatasetService.ListDatasets][google.cloud.aiplatform.v1.DatasetService.ListDatasets].
             parent (:class:`str`):
@@ -517,17 +522,17 @@ class DatasetServiceAsyncClient:
 
     async def delete_dataset(
         self,
-        request: dataset_service.DeleteDatasetRequest = None,
+        request: Union[dataset_service.DeleteDatasetRequest, dict] = None,
         *,
         name: str = None,
-        retry: retries.Retry = gapic_v1.method.DEFAULT,
+        retry: OptionalRetry = gapic_v1.method.DEFAULT,
         timeout: float = None,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> operation_async.AsyncOperation:
         r"""Deletes a Dataset.
 
         Args:
-            request (:class:`google.cloud.aiplatform_v1.types.DeleteDatasetRequest`):
+            request (Union[google.cloud.aiplatform_v1.types.DeleteDatasetRequest, dict]):
                 The request object. Request message for
                 [DatasetService.DeleteDataset][google.cloud.aiplatform.v1.DatasetService.DeleteDataset].
             name (:class:`str`):
@@ -610,18 +615,18 @@ class DatasetServiceAsyncClient:
 
     async def import_data(
         self,
-        request: dataset_service.ImportDataRequest = None,
+        request: Union[dataset_service.ImportDataRequest, dict] = None,
         *,
         name: str = None,
         import_configs: Sequence[dataset.ImportDataConfig] = None,
-        retry: retries.Retry = gapic_v1.method.DEFAULT,
+        retry: OptionalRetry = gapic_v1.method.DEFAULT,
         timeout: float = None,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> operation_async.AsyncOperation:
         r"""Imports data into a Dataset.
 
         Args:
-            request (:class:`google.cloud.aiplatform_v1.types.ImportDataRequest`):
+            request (Union[google.cloud.aiplatform_v1.types.ImportDataRequest, dict]):
                 The request object. Request message for
                 [DatasetService.ImportData][google.cloud.aiplatform.v1.DatasetService.ImportData].
             name (:class:`str`):
@@ -704,18 +709,18 @@ class DatasetServiceAsyncClient:
 
     async def export_data(
         self,
-        request: dataset_service.ExportDataRequest = None,
+        request: Union[dataset_service.ExportDataRequest, dict] = None,
         *,
         name: str = None,
         export_config: dataset.ExportDataConfig = None,
-        retry: retries.Retry = gapic_v1.method.DEFAULT,
+        retry: OptionalRetry = gapic_v1.method.DEFAULT,
         timeout: float = None,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> operation_async.AsyncOperation:
         r"""Exports data from a Dataset.
 
         Args:
-            request (:class:`google.cloud.aiplatform_v1.types.ExportDataRequest`):
+            request (Union[google.cloud.aiplatform_v1.types.ExportDataRequest, dict]):
                 The request object. Request message for
                 [DatasetService.ExportData][google.cloud.aiplatform.v1.DatasetService.ExportData].
             name (:class:`str`):
@@ -797,17 +802,17 @@ class DatasetServiceAsyncClient:
 
     async def list_data_items(
         self,
-        request: dataset_service.ListDataItemsRequest = None,
+        request: Union[dataset_service.ListDataItemsRequest, dict] = None,
         *,
         parent: str = None,
-        retry: retries.Retry = gapic_v1.method.DEFAULT,
+        retry: OptionalRetry = gapic_v1.method.DEFAULT,
         timeout: float = None,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> pagers.ListDataItemsAsyncPager:
         r"""Lists DataItems in a Dataset.
 
         Args:
-            request (:class:`google.cloud.aiplatform_v1.types.ListDataItemsRequest`):
+            request (Union[google.cloud.aiplatform_v1.types.ListDataItemsRequest, dict]):
                 The request object. Request message for
                 [DatasetService.ListDataItems][google.cloud.aiplatform.v1.DatasetService.ListDataItems].
             parent (:class:`str`):
@@ -878,17 +883,17 @@ class DatasetServiceAsyncClient:
 
     async def get_annotation_spec(
         self,
-        request: dataset_service.GetAnnotationSpecRequest = None,
+        request: Union[dataset_service.GetAnnotationSpecRequest, dict] = None,
         *,
         name: str = None,
-        retry: retries.Retry = gapic_v1.method.DEFAULT,
+        retry: OptionalRetry = gapic_v1.method.DEFAULT,
         timeout: float = None,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> annotation_spec.AnnotationSpec:
         r"""Gets an AnnotationSpec.
 
         Args:
-            request (:class:`google.cloud.aiplatform_v1.types.GetAnnotationSpecRequest`):
+            request (Union[google.cloud.aiplatform_v1.types.GetAnnotationSpecRequest, dict]):
                 The request object. Request message for
                 [DatasetService.GetAnnotationSpec][google.cloud.aiplatform.v1.DatasetService.GetAnnotationSpec].
             name (:class:`str`):
@@ -950,17 +955,17 @@ class DatasetServiceAsyncClient:
 
     async def list_annotations(
         self,
-        request: dataset_service.ListAnnotationsRequest = None,
+        request: Union[dataset_service.ListAnnotationsRequest, dict] = None,
         *,
         parent: str = None,
-        retry: retries.Retry = gapic_v1.method.DEFAULT,
+        retry: OptionalRetry = gapic_v1.method.DEFAULT,
         timeout: float = None,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> pagers.ListAnnotationsAsyncPager:
         r"""Lists Annotations belongs to a dataitem
 
         Args:
-            request (:class:`google.cloud.aiplatform_v1.types.ListAnnotationsRequest`):
+            request (Union[google.cloud.aiplatform_v1.types.ListAnnotationsRequest, dict]):
                 The request object. Request message for
                 [DatasetService.ListAnnotations][google.cloud.aiplatform.v1.DatasetService.ListAnnotations].
             parent (:class:`str`):

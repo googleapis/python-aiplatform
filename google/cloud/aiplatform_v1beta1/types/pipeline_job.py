@@ -116,6 +116,7 @@ class PipelineJob(proto.Message):
 
         Attributes:
             parameters (Sequence[google.cloud.aiplatform_v1beta1.types.PipelineJob.RuntimeConfig.ParametersEntry]):
+                Deprecated. Use [RuntimeConfig.parameter_values] instead.
                 The runtime parameters of the PipelineJob. The parameters
                 will be passed into
                 [PipelineJob.pipeline_spec][google.cloud.aiplatform.v1beta1.PipelineJob.pipeline_spec]
@@ -129,12 +130,20 @@ class PipelineJob(proto.Message):
                 specified output directory. The service account specified in
                 this pipeline must have the ``storage.objects.get`` and
                 ``storage.objects.create`` permissions for this bucket.
+            parameter_values (Sequence[google.cloud.aiplatform_v1beta1.types.PipelineJob.RuntimeConfig.ParameterValuesEntry]):
+                The runtime parameters of the PipelineJob. The parameters
+                will be passed into
+                [PipelineJob.pipeline_spec][google.cloud.aiplatform.v1beta1.PipelineJob.pipeline_spec]
+                to replace the placeholders at runtime.
         """
 
         parameters = proto.MapField(
             proto.STRING, proto.MESSAGE, number=1, message=gca_value.Value,
         )
         gcs_output_directory = proto.Field(proto.STRING, number=2,)
+        parameter_values = proto.MapField(
+            proto.STRING, proto.MESSAGE, number=3, message=struct_pb2.Value,
+        )
 
     name = proto.Field(proto.STRING, number=1,)
     display_name = proto.Field(proto.STRING, number=2,)
@@ -296,13 +305,24 @@ class PipelineTaskDetail(proto.Message):
 class PipelineTaskExecutorDetail(proto.Message):
     r"""The runtime detail of a pipeline executor.
 
+    This message has `oneof`_ fields (mutually exclusive fields).
+    For each oneof, at most one member field can be set at the same time.
+    Setting any member of the oneof automatically clears all other
+    members.
+
+    .. _oneof: https://proto-plus-python.readthedocs.io/en/stable/fields.html#oneofs-mutually-exclusive-fields
+
     Attributes:
         container_detail (google.cloud.aiplatform_v1beta1.types.PipelineTaskExecutorDetail.ContainerDetail):
             Output only. The detailed info for a
             container executor.
+
+            This field is a member of `oneof`_ ``details``.
         custom_job_detail (google.cloud.aiplatform_v1beta1.types.PipelineTaskExecutorDetail.CustomJobDetail):
             Output only. The detailed info for a custom
             job executor.
+
+            This field is a member of `oneof`_ ``details``.
     """
 
     class ContainerDetail(proto.Message):

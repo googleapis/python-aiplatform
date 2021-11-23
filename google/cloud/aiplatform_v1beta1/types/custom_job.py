@@ -214,11 +214,22 @@ class CustomJobSpec(proto.Message):
 class WorkerPoolSpec(proto.Message):
     r"""Represents the spec of a worker pool in a job.
 
+    This message has `oneof`_ fields (mutually exclusive fields).
+    For each oneof, at most one member field can be set at the same time.
+    Setting any member of the oneof automatically clears all other
+    members.
+
+    .. _oneof: https://proto-plus-python.readthedocs.io/en/stable/fields.html#oneofs-mutually-exclusive-fields
+
     Attributes:
         container_spec (google.cloud.aiplatform_v1beta1.types.ContainerSpec):
             The custom container task.
+
+            This field is a member of `oneof`_ ``task``.
         python_package_spec (google.cloud.aiplatform_v1beta1.types.PythonPackageSpec):
             The Python packaged task.
+
+            This field is a member of `oneof`_ ``task``.
         machine_spec (google.cloud.aiplatform_v1beta1.types.MachineSpec):
             Optional. Immutable. The specification of a
             single machine.

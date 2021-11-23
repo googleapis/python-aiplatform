@@ -28,15 +28,15 @@ from google.auth.exceptions import GoogleAuthError
 from google.auth import credentials as auth_credentials
 
 from google.cloud import aiplatform
-
+from google.cloud.aiplatform import base
 from google.cloud.aiplatform import initializer
 from google.cloud.aiplatform import tensorboard
 
-from google.cloud.aiplatform_v1beta1.services.tensorboard_service import (
+from google.cloud.aiplatform_v1.services.tensorboard_service import (
     client as tensorboard_service_client,
 )
 
-from google.cloud.aiplatform_v1beta1.types import (
+from google.cloud.aiplatform_v1.types import (
     tensorboard as gca_tensorboard,
     tensorboard_service as gca_tensorboard_service,
     encryption_spec as gca_encryption_spec,
@@ -143,7 +143,9 @@ class TestTensorboard:
     def test_init_tensorboard(self, get_tensorboard_mock):
         aiplatform.init(project=_TEST_PROJECT)
         tensorboard.Tensorboard(tensorboard_name=_TEST_NAME)
-        get_tensorboard_mock.assert_called_once_with(name=_TEST_NAME)
+        get_tensorboard_mock.assert_called_once_with(
+            name=_TEST_NAME, retry=base._DEFAULT_RETRY
+        )
 
     def test_init_tensorboard_with_id_only_with_project_and_location(
         self, get_tensorboard_mock
@@ -152,14 +154,18 @@ class TestTensorboard:
         tensorboard.Tensorboard(
             tensorboard_name=_TEST_ID, project=_TEST_PROJECT, location=_TEST_LOCATION
         )
-        get_tensorboard_mock.assert_called_once_with(name=_TEST_NAME)
+        get_tensorboard_mock.assert_called_once_with(
+            name=_TEST_NAME, retry=base._DEFAULT_RETRY
+        )
 
     def test_init_tensorboard_with_project_and_location(self, get_tensorboard_mock):
         aiplatform.init(project=_TEST_PROJECT)
         tensorboard.Tensorboard(
             tensorboard_name=_TEST_NAME, project=_TEST_PROJECT, location=_TEST_LOCATION
         )
-        get_tensorboard_mock.assert_called_once_with(name=_TEST_NAME)
+        get_tensorboard_mock.assert_called_once_with(
+            name=_TEST_NAME, retry=base._DEFAULT_RETRY
+        )
 
     def test_init_tensorboard_with_alt_project_and_location(self, get_tensorboard_mock):
         aiplatform.init(project=_TEST_PROJECT)
@@ -168,12 +174,16 @@ class TestTensorboard:
             project=_TEST_ALT_PROJECT,
             location=_TEST_LOCATION,
         )
-        get_tensorboard_mock.assert_called_once_with(name=_TEST_NAME)
+        get_tensorboard_mock.assert_called_once_with(
+            name=_TEST_NAME, retry=base._DEFAULT_RETRY
+        )
 
     def test_init_tensorboard_with_alt_location(self, get_tensorboard_mock):
         aiplatform.init(project=_TEST_PROJECT, location=_TEST_ALT_LOCATION)
         tensorboard.Tensorboard(tensorboard_name=_TEST_NAME,)
-        get_tensorboard_mock.assert_called_once_with(name=_TEST_NAME)
+        get_tensorboard_mock.assert_called_once_with(
+            name=_TEST_NAME, retry=base._DEFAULT_RETRY
+        )
 
     def test_init_tensorboard_with_project_and_alt_location(self):
         aiplatform.init(project=_TEST_PROJECT)
@@ -197,7 +207,9 @@ class TestTensorboard:
     def test_init_tensorboard_with_location_override(self, get_tensorboard_mock):
         aiplatform.init(project=_TEST_PROJECT, location=_TEST_LOCATION)
         tensorboard.Tensorboard(tensorboard_name=_TEST_ID, location=_TEST_ALT_LOCATION)
-        get_tensorboard_mock.assert_called_once_with(name=_TEST_ALT_NAME)
+        get_tensorboard_mock.assert_called_once_with(
+            name=_TEST_ALT_NAME, retry=base._DEFAULT_RETRY
+        )
 
     @pytest.mark.usefixtures("get_tensorboard_mock")
     def test_init_tensorboard_with_invalid_name(self):
