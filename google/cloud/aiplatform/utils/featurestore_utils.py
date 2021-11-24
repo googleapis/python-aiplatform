@@ -15,8 +15,11 @@
 # limitations under the License.
 #
 
+import datetime
 import re
 from typing import Dict, List, NamedTuple, Optional, Tuple, Union
+
+from google.protobuf import timestamp_pb2
 
 from google.cloud.aiplatform.compat.services import featurestore_service_client
 from google.cloud.aiplatform.compat.types import feature as gca_feature
@@ -25,6 +28,9 @@ from google.cloud.aiplatform import utils
 CompatFeaturestoreServiceClient = featurestore_service_client.FeaturestoreServiceClient
 
 RESOURCE_ID_PATTERN_REGEX = r"[a-z_][a-z0-9_]{0,59}"
+FEATURESTORE_RESOURCE_NOUN = "featurestores"
+GCS_SOURCE_TYPE = ("csv", "avro")
+
 _FEATURE_VALUE_TYPE_UNSPECIFIED = "VALUE_TYPE_UNSPECIFIED"
 
 
@@ -239,3 +245,21 @@ class _FeatureConfig(NamedTuple):
         }
 
         return create_feature_request
+
+
+def get_timestamp_proto(
+    time: Optional[datetime.datetime] = datetime.datetime.now(),
+) -> timestamp_pb2.Timestamp:
+    """Gets timestamp proto of a given time.
+    Args:
+        time (datetime.datetime):
+            Required. A user provided time. Default to datetime.datetime.now() if not given.
+    Returns:
+        timestamp_pb2.Timestamp - timestamp proto of the given time, not have higher than millisecond precision.
+    """
+    t = time.timestamp()
+    seconds = int(t)
+    # must not have higher than millisecond precision.
+    nanos = int((t % 1 * 1e6) * 1e3)
+
+    return timestamp_pb2.Timestamp(seconds=seconds, nanos=nanos)

@@ -557,13 +557,8 @@ class Feature(base.VertexAiResourceNounWithFutureManager):
             entity_type_name=entity_type_name, featurestore_id=featurestore_id,
         )
 
-<<<<<<< HEAD
         cls._resource_noun = (
             f"featurestores/{featurestore_id}/entityTypes/{entity_type_id}/features"
-=======
-        cls._resource_noun = featurestore_utils.get_feature_resource_noun(
-            featurestore_id=featurestore_id, entity_type_id=entity_type_id
->>>>>>> ef77b24c (add batch create features, _FeatureConfig for create feature request)
         )
 
         entity_type_name = utils.full_resource_name(

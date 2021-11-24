@@ -15,13 +15,18 @@
 # limitations under the License.
 #
 
+import datetime
 from typing import Dict, List, Optional, Sequence, Tuple, Union
 
 from google.auth import credentials as auth_credentials
 from google.protobuf import field_mask_pb2
 
 from google.cloud.aiplatform import base
-from google.cloud.aiplatform.compat.types import entity_type as gca_entity_type
+from google.cloud.aiplatform.compat.types import (
+    entity_type as gca_entity_type,
+    featurestore_service as gca_featurestore_service,
+    io as gca_io,
+)
 from google.cloud.aiplatform import _featurestores
 from google.cloud.aiplatform import utils
 from google.cloud.aiplatform.utils import featurestore_utils
@@ -677,3 +682,429 @@ class EntityType(base.VertexAiResourceNounWithFutureManager):
         )
 
         return self
+
+    def _validate_and_get_import_feature_values_request(
+        self,
+        feature_ids: Sequence[str],
+        feature_source_fields: Optional[Dict[str, str]] = {},
+        avro_source: Optional[gca_io.AvroSource] = None,
+        bigquery_source: Optional[gca_io.BigQuerySource] = None,
+        csv_source: Optional[gca_io.CsvSource] = None,
+        feature_time_field: Optional[str] = None,
+        feature_time: Optional[datetime.datetime] = None,
+        entity_id_field: Optional[str] = None,
+        disable_online_serving: Optional[bool] = None,
+        worker_count: Optional[int] = None,
+    ):
+        """Validates and get import feature values request.
+        Args:
+            feature_ids (Sequence[str]):
+                Required. IDs of the Feature to import values
+                of. The Features must exist in the target
+                EntityType, or the request will fail.
+            feature_source_fields (Dict[str, str]):
+                Optional. User defined dictionary to map ID of the Feature for importing values
+                of to the source column for getting the Feature values from.
+
+                Specify the features whose ID and source column are not the same.
+                If not provided, the source column need to be the same as the Feature ID.
+
+                Example:
+
+                     feature_ids = ['my_feature_id_1', 'my_feature_id_2', 'my_feature_id_3']
+
+                     In case all features' source field and ID match:
+                     feature_source_fields = {}
+
+                     In case all features' source field and ID do not match:
+                     feature_source_fields = {
+                        'my_feature_id_1': 'my_feature_id_1_source_field',
+                        'my_feature_id_2': 'my_feature_id_2_source_field',
+                        'my_feature_id_3': 'my_feature_id_3_source_field',
+                     }
+
+                     In case some features' source field and ID do not match:
+                     feature_source_fields = {
+                        'my_feature_id_1': 'my_feature_id_1_source_field',
+                     }
+
+            avro_source (gca_io.AvroSource):
+                Optional. This field is a member of `oneof`_ ``source``.
+            bigquery_source (gca_io.BigQuerySource):
+                Optional. This field is a member of `oneof`_ ``source``.
+            csv_source (gca_io.CsvSource):
+                Optional. This field is a member of `oneof`_ ``source``.
+            feature_time_field (str):
+                Optional. Source column that holds the Feature
+                timestamp for all Feature values in each entity.
+
+                This field is a member of `oneof`_ ``feature_time_source``.
+            feature_time (datetime.datetime):
+                Optional. Single Feature timestamp for all entities
+                being imported. The timestamp must not have
+                higher than millisecond precision.
+
+                This field is a member of `oneof`_ ``feature_time_source``.
+            entity_id_field (str):
+                Optional. Source column that holds entity IDs. If not provided, entity
+                IDs are extracted from the column named ``entity_id``.
+            disable_online_serving (bool):
+                Optional. If set, data will not be imported for online
+                serving. This is typically used for backfilling,
+                where Feature generation timestamps are not in
+                the timestamp range needed for online serving.
+            worker_count (int):
+                Optional. Specifies the number of workers that are used
+                to write data to the Featurestore. Consider the
+                online serving capacity that you require to
+                achieve the desired import throughput without
+                interfering with online serving. The value must
+                be positive, and less than or equal to 100. If
+                not set, defaults to using 1 worker. The low
+                count ensures minimal impact on online serving
+                performance.
+        Returns:
+            dict - import feature values request
+        Raises:
+            ValueError if no source or more than one source is provided
+            ValueError if no feature_time_source or more than one feature_time_source is provided
+        """
+        feature_specs = []
+        for feature_id in feature_ids:
+            feature_source_field = feature_source_fields.get(feature_id, None)
+            if feature_source_field:
+                feature_spec = gca_featurestore_service.ImportFeatureValuesRequest.FeatureSpec(
+                    id=feature_id, source_field=feature_source_field
+                )
+            else:
+                feature_spec = gca_featurestore_service.ImportFeatureValuesRequest.FeatureSpec(
+                    id=feature_id
+                )
+            feature_specs.append(feature_spec)
+
+        import_feature_values_request = {
+            "entity_type": self.resource_name,
+            "feature_specs": feature_specs,
+        }
+
+        # oneof source
+        if avro_source and not bigquery_source and not csv_source:
+            import_feature_values_request["avro_source"] = avro_source
+        elif not avro_source and bigquery_source and not csv_source:
+            import_feature_values_request["bigquery_source"] = bigquery_source
+        elif not avro_source and not bigquery_source and csv_source:
+            import_feature_values_request["csv_source"] = csv_source
+        else:
+            raise ValueError(
+                "One and only one of `avro_source`, `bigquery_source`, and `csv_source` need to be passed. "
+            )
+
+        # oneof feature_time_source
+        if feature_time_field and not feature_time:
+            import_feature_values_request["feature_time_field"] = feature_time_field
+        elif not feature_time_field and feature_time:
+            import_feature_values_request[
+                "feature_time"
+            ] = featurestore_utils.get_timestamp_proto(time=feature_time)
+        else:
+            raise ValueError(
+                "One and only one of `feature_time_field` and `feature_time` need to be passed. "
+            )
+
+        if entity_id_field is not None:
+            import_feature_values_request["entity_id_field"] = entity_id_field
+
+        if disable_online_serving is not None:
+            import_feature_values_request[
+                "disable_online_serving"
+            ] = disable_online_serving
+
+        if worker_count is not None:
+            import_feature_values_request["worker_count"] = worker_count
+
+        return import_feature_values_request
+
+    @base.optional_sync(return_input_arg="self")
+    def _import_feature_values(
+        self,
+        import_feature_values_request: dict,
+        request_metadata: Optional[Sequence[Tuple[str, str]]] = (),
+        sync: Optional[bool] = True,
+    ):
+        """Imports Feature values into the Featurestore from a source storage.
+
+        Args:
+            import_feature_values_request (dict):
+                Required.
+            request_metadata (Sequence[Tuple[str, str]]):
+                Optional. Strings which should be sent along with the request as metadata.
+            sync (bool):
+                Optional. Whether to execute this import synchronously. If False, this method
+                will be executed in concurrent Future and any downstream object will
+                be immediately returned and synced when the Future has completed.
+
+        Returns:
+            EntityType - The entityType resource object with imported feature values.
+        """
+        _LOGGER.log_action_start_against_resource(
+            "Importing", "feature values", self,
+        )
+
+        import_lro = self.api_client.import_feature_values(
+            request=import_feature_values_request, metadata=request_metadata,
+        )
+
+        _LOGGER.log_action_started_against_resource_with_lro(
+            "Import", "feature values", self.__class__, import_lro
+        )
+
+        import_lro.result()
+
+        _LOGGER.log_action_completed_against_resource(
+            "feature values", "imported", self
+        )
+
+        return self
+
+    def import_feature_values_from_bq(
+        self,
+        bq_source_uri: str,
+        feature_ids: Sequence[str],
+        feature_source_fields: Optional[Dict[str, str]] = {},
+        feature_time_field: Optional[str] = None,
+        feature_time: Optional[datetime.datetime] = None,
+        entity_id_field: Optional[str] = None,
+        disable_online_serving: Optional[bool] = None,
+        worker_count: Optional[int] = None,
+        request_metadata: Optional[Sequence[Tuple[str, str]]] = (),
+        sync: Optional[bool] = True,
+    ) -> "EntityType":
+        """Imports Feature values from BigQuery.
+
+        Args:
+            bq_source_uri (str):
+                Required. BigQuery URI to the input table.
+                Example:
+                    'bq://project.dataset.table_name'
+            feature_ids (Sequence[str]):
+                Required. IDs of the Feature to import values
+                of. The Features must exist in the target
+                EntityType, or the request will fail.
+            feature_source_fields (Dict[str, str]):
+                Optional. User defined dictionary to map ID of the Feature for importing values
+                of to the source column for getting the Feature values from.
+
+                Specify the features whose ID and source column are not the same.
+                If not provided, the source column need to be the same as the Feature ID.
+
+                Example:
+
+                     feature_ids = ['my_feature_id_1', 'my_feature_id_2', 'my_feature_id_3']
+
+                     In case all features' source field and ID match:
+                     feature_source_fields = {}
+
+                     In case all features' source field and ID do not match:
+                     feature_source_fields = {
+                        'my_feature_id_1': 'my_feature_id_1_source_field',
+                        'my_feature_id_2': 'my_feature_id_2_source_field',
+                        'my_feature_id_3': 'my_feature_id_3_source_field',
+                     }
+
+                     In case some features' source field and ID do not match:
+                     feature_source_fields = {
+                        'my_feature_id_1': 'my_feature_id_1_source_field',
+                     }
+
+            feature_time_field (str):
+                Optional. Source column that holds the Feature
+                timestamp for all Feature values in each entity.
+
+                This field is a member of `oneof`_ ``feature_time_source``.
+            feature_time (datetime.datetime):
+                Optional. Single Feature timestamp for all entities
+                being imported. The timestamp must not have
+                higher than millisecond precision.
+
+                This field is a member of `oneof`_ ``feature_time_source``.
+            entity_id_field (str):
+                Optional. Source column that holds entity IDs. If not provided, entity
+                IDs are extracted from the column named ``entity_id``.
+            disable_online_serving (bool):
+                Optional. If set, data will not be imported for online
+                serving. This is typically used for backfilling,
+                where Feature generation timestamps are not in
+                the timestamp range needed for online serving.
+            worker_count (int):
+                Optional. Specifies the number of workers that are used
+                to write data to the Featurestore. Consider the
+                online serving capacity that you require to
+                achieve the desired import throughput without
+                interfering with online serving. The value must
+                be positive, and less than or equal to 100. If
+                not set, defaults to using 1 worker. The low
+                count ensures minimal impact on online serving
+                performance.
+            request_metadata (Sequence[Tuple[str, str]]):
+                Optional. Strings which should be sent along with the request as metadata.
+            sync (bool):
+                Optional. Whether to execute this import synchronously. If False, this method
+                will be executed in concurrent Future and any downstream object will
+                be immediately returned and synced when the Future has completed.
+
+        Returns:
+            EntityType - The entityType resource object with feature values imported.
+
+        """
+        bigquery_source = gca_io.BigQuerySource(input_uri=bq_source_uri)
+
+        import_feature_values_request = self._validate_and_get_import_feature_values_request(
+            feature_ids=feature_ids,
+            feature_source_fields=feature_source_fields,
+            bigquery_source=bigquery_source,
+            feature_time_field=feature_time_field,
+            feature_time=feature_time,
+            entity_id_field=entity_id_field,
+            disable_online_serving=disable_online_serving,
+            worker_count=worker_count,
+        )
+
+        return self._import_feature_values(
+            import_feature_values_request=import_feature_values_request,
+            request_metadata=request_metadata,
+            sync=sync,
+        )
+
+    def import_feature_values_from_gcs(
+        self,
+        gcs_source_uris: Union[str, List[str]],
+        gcs_source_type: str,
+        feature_ids: Sequence[str],
+        feature_source_fields: Optional[Dict[str, str]] = {},
+        feature_time_field: Optional[str] = None,
+        feature_time: Optional[datetime.datetime] = None,
+        entity_id_field: Optional[str] = None,
+        disable_online_serving: Optional[bool] = None,
+        worker_count: Optional[int] = None,
+        request_metadata: Optional[Sequence[Tuple[str, str]]] = (),
+        sync: Optional[bool] = True,
+    ) -> "EntityType":
+        """Imports Feature values from GCS.
+
+        Args:
+            gcs_source_uris (Sequence[str]):
+                Required. Google Cloud Storage URI(-s) to the
+                input file(s). May contain wildcards. For more
+                information on wildcards, see
+                https://cloud.google.com/storage/docs/gsutil/addlhelp/WildcardNames.
+                Example:
+                    ["gs://my_bucket/my_file_1.csv", "gs://my_bucket/my_file_2.csv"]
+                    or
+                    ["gs://my_bucket/my_file.avro"]
+            gcs_source_type (str):
+                Required. The type of the input file(s) provided by `gcs_source_uris`,
+                the value of gcs_source_type can only be either `csv`, or `avro`.
+            feature_ids (Sequence[str]):
+                Required. IDs of the Feature to import values
+                of. The Features must exist in the target
+                EntityType, or the request will fail.
+            feature_source_fields (Dict[str, str]):
+                Optional. User defined dictionary to map ID of the Feature for importing values
+                of to the source column for getting the Feature values from.
+
+                Specify the features whose ID and source column are not the same.
+                If not provided, the source column need to be the same as the Feature ID.
+
+                Example:
+
+                     feature_ids = ['my_feature_id_1', 'my_feature_id_2', 'my_feature_id_3']
+
+                     In case all features' source field and ID match:
+                     feature_source_fields = {}
+
+                     In case all features' source field and ID do not match:
+                     feature_source_fields = {
+                        'my_feature_id_1': 'my_feature_id_1_source_field',
+                        'my_feature_id_2': 'my_feature_id_2_source_field',
+                        'my_feature_id_3': 'my_feature_id_3_source_field',
+                     }
+
+                     In case some features' source field and ID do not match:
+                     feature_source_fields = {
+                        'my_feature_id_1': 'my_feature_id_1_source_field',
+                     }
+
+            feature_time_field (str):
+                Optional. Source column that holds the Feature
+                timestamp for all Feature values in each entity.
+
+                This field is a member of `oneof`_ ``feature_time_source``.
+            feature_time (datetime.datetime):
+                Optional. Single Feature timestamp for all entities
+                being imported. The timestamp must not have
+                higher than millisecond precision.
+
+                This field is a member of `oneof`_ ``feature_time_source``.
+            entity_id_field (str):
+                Optional. Source column that holds entity IDs. If not provided, entity
+                IDs are extracted from the column named ``entity_id``.
+            disable_online_serving (bool):
+                Optional. If set, data will not be imported for online
+                serving. This is typically used for backfilling,
+                where Feature generation timestamps are not in
+                the timestamp range needed for online serving.
+            worker_count (int):
+                Optional. Specifies the number of workers that are used
+                to write data to the Featurestore. Consider the
+                online serving capacity that you require to
+                achieve the desired import throughput without
+                interfering with online serving. The value must
+                be positive, and less than or equal to 100. If
+                not set, defaults to using 1 worker. The low
+                count ensures minimal impact on online serving
+                performance.
+            request_metadata (Sequence[Tuple[str, str]]):
+                Optional. Strings which should be sent along with the request as metadata.
+            sync (bool):
+                Optional. Whether to execute this import synchronously. If False, this method
+                will be executed in concurrent Future and any downstream object will
+                be immediately returned and synced when the Future has completed.
+
+        Returns:
+            EntityType - The entityType resource object with feature values imported.
+
+        Raises:
+            ValueError if gcs_source_type is not supported.
+        """
+        if gcs_source_type not in featurestore_utils.GCS_SOURCE_TYPE:
+            raise ValueError(
+                "Only %s are supported gcs_source_type, not `%s`. "
+                % (
+                    "`" + "`, `".join(featurestore_utils.GCS_SOURCE_TYPE) + "`",
+                    gcs_source_type,
+                )
+            )
+        gcs_source = gca_io.GcsSource(uris=gcs_source_uris)
+        csv_source, avro_source = None, None
+        if gcs_source_type == "csv":
+            csv_source = gca_io.CsvSource(gcs_source=gcs_source)
+        if gcs_source_type == "avro":
+            avro_source = gca_io.AvroSource(gcs_source=gcs_source)
+
+        import_feature_values_request = self._validate_and_get_import_feature_values_request(
+            feature_ids=feature_ids,
+            feature_source_fields=feature_source_fields,
+            avro_source=avro_source,
+            csv_source=csv_source,
+            feature_time_field=feature_time_field,
+            feature_time=feature_time,
+            entity_id_field=entity_id_field,
+            disable_online_serving=disable_online_serving,
+            worker_count=worker_count,
+        )
+
+        return self._import_feature_values(
+            import_feature_values_request=import_feature_values_request,
+            request_metadata=request_metadata,
+            sync=sync,
+        )

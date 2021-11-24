@@ -16,13 +16,14 @@
 #
 
 import pytest
+import datetime
 
 from unittest import mock
 from importlib import reload
 from unittest.mock import patch
 
 from google.api_core import operation
-from google.protobuf import field_mask_pb2
+from google.protobuf import field_mask_pb2, timestamp_pb2
 
 from google.cloud import aiplatform
 from google.cloud.aiplatform import _featurestores as featurestores
@@ -36,10 +37,12 @@ from google.cloud.aiplatform_v1.services.featurestore_service import (
 )
 
 from google.cloud.aiplatform_v1.types import (
-    featurestore as gca_featurestore,
+    encryption_spec as gca_encryption_spec,
     entity_type as gca_entity_type,
     feature as gca_feature,
-    encryption_spec as gca_encryption_spec,
+    featurestore as gca_featurestore,
+    featurestore_service as gca_featurestore_service,
+    io as gca_io,
 )
 
 # project
@@ -133,6 +136,27 @@ _TEST_FEATURE_CONFIGS = {
         "labels": _TEST_LABELS,
     },
 }
+
+_TEST_IMPORTING_FEATURE_IDS = ["my_feature_id_1", "my_feature_id_2", "my_feature_id_3"]
+
+_TEST_IMPORTING_FEATURE_SOURCE_FIELDS = {
+    "my_feature_id_1": "my_feature_id_1_source_field",
+    "my_feature_id_2": "my_feature_id_2_source_field",
+    "my_feature_id_3": "my_feature_id_3_source_field",
+}
+
+_TEST_FEATURE_TIME_FIELD = "feature_time_field"
+_TEST_FEATURE_TIME = datetime.datetime.now()
+
+_TEST_BQ_SOURCE_URI = "bq://project.dataset.table_name"
+_TEST_GCS_SOURCE_URIS = ["gs://my_bucket/my_file_1.csv", "gs://my_bucket/my_file_2.csv"]
+_TEST_GCS_SOURCE_TYPE = "csv"
+_TEST_GCS_SOURCE_TYPE_INVALID = "json"
+
+_TEST_BQ_SOURCE = gca_io.BigQuerySource(input_uri=_TEST_BQ_SOURCE_URI)
+_TEST_CSV_SOURCE = gca_io.CsvSource(
+    gcs_source=gca_io.GcsSource(uris=_TEST_GCS_SOURCE_URIS)
+)
 
 
 # All Featurestore Mocks
@@ -258,6 +282,16 @@ def create_entity_type_mock():
         )
         create_entity_type_mock.return_value = create_entity_type_lro_mock
         yield create_entity_type_mock
+
+
+@pytest.fixture
+def import_feature_values_mock():
+    with patch.object(
+        featurestore_service_client.FeaturestoreServiceClient, "import_feature_values"
+    ) as import_feature_values_mock:
+        import_feature_values_lro_mock = mock.Mock(operation.Operation)
+        import_feature_values_mock.return_value = import_feature_values_lro_mock
+        yield import_feature_values_mock
 
 
 # ALL Feature Mocks
@@ -476,6 +510,14 @@ class TestFeaturestoreUtils:
             )
             == expected_batch_create_feature_requests
         )
+
+    def test_get_timestamp_proto(self,):
+        time = datetime.datetime.now()
+        t = time.timestamp()
+        seconds = int(t)
+        nanos = int((t % 1 * 1e6) * 1e3)
+        true_timestamp_proto = timestamp_pb2.Timestamp(seconds=seconds, nanos=nanos)
+        assert true_timestamp_proto == featurestore_utils.get_timestamp_proto(time)
 
 
 class Test_FeatureConfig:
@@ -1049,6 +1091,195 @@ class TestEntityType:
             requests=expected_batch_create_feature_requests,
             metadata=_TEST_REQUEST_METADATA,
         )
+
+    @pytest.mark.usefixtures("get_entity_type_mock")
+    def test_validate_and_get_import_feature_values_request_with_both_feature_time_source(
+        self,
+    ):
+        aiplatform.init(project=_TEST_PROJECT)
+
+        my_entity_type = featurestores.EntityType(
+            entity_type_name=_TEST_ENTITY_TYPE_NAME
+        )
+        with pytest.raises(ValueError):
+            my_entity_type._validate_and_get_import_feature_values_request(
+                feature_ids=_TEST_IMPORTING_FEATURE_IDS,
+                bigquery_source=_TEST_BQ_SOURCE,
+                feature_time_field=_TEST_FEATURE_TIME_FIELD,
+                feature_time=_TEST_FEATURE_TIME,
+            )
+
+    @pytest.mark.usefixtures("get_entity_type_mock")
+    def test_validate_and_get_import_feature_values_request_with_multiple_source(self):
+        aiplatform.init(project=_TEST_PROJECT)
+
+        my_entity_type = featurestores.EntityType(
+            entity_type_name=_TEST_ENTITY_TYPE_NAME
+        )
+        with pytest.raises(ValueError):
+            my_entity_type._validate_and_get_import_feature_values_request(
+                feature_ids=_TEST_IMPORTING_FEATURE_IDS,
+                csv_source=_TEST_CSV_SOURCE,
+                bigquery_source=_TEST_BQ_SOURCE,
+                feature_time=_TEST_FEATURE_TIME,
+            )
+
+    @pytest.mark.usefixtures("get_entity_type_mock")
+    def test_validate_and_get_import_feature_values_request_with_source_fields(self):
+        aiplatform.init(project=_TEST_PROJECT)
+
+        my_entity_type = featurestores.EntityType(
+            entity_type_name=_TEST_ENTITY_TYPE_NAME
+        )
+        true_import_feature_values_request = {
+            "bigquery_source": _TEST_BQ_SOURCE,
+            "feature_time_field": _TEST_FEATURE_TIME_FIELD,
+            "entity_type": _TEST_ENTITY_TYPE_NAME,
+            "feature_specs": [
+                gca_featurestore_service.ImportFeatureValuesRequest.FeatureSpec(
+                    id="my_feature_id_1", source_field="my_feature_id_1_source_field"
+                ),
+                gca_featurestore_service.ImportFeatureValuesRequest.FeatureSpec(
+                    id="my_feature_id_2", source_field="my_feature_id_2_source_field"
+                ),
+                gca_featurestore_service.ImportFeatureValuesRequest.FeatureSpec(
+                    id="my_feature_id_3", source_field="my_feature_id_3_source_field"
+                ),
+            ],
+        }
+        assert (
+            true_import_feature_values_request
+            == my_entity_type._validate_and_get_import_feature_values_request(
+                feature_ids=_TEST_IMPORTING_FEATURE_IDS,
+                feature_source_fields=_TEST_IMPORTING_FEATURE_SOURCE_FIELDS,
+                bigquery_source=_TEST_BQ_SOURCE,
+                feature_time_field=_TEST_FEATURE_TIME_FIELD,
+            )
+        )
+
+    @pytest.mark.usefixtures("get_entity_type_mock")
+    def test_validate_and_get_import_feature_values_request_without_source_fields(self):
+        aiplatform.init(project=_TEST_PROJECT)
+
+        my_entity_type = featurestores.EntityType(
+            entity_type_name=_TEST_ENTITY_TYPE_NAME
+        )
+
+        true_import_feature_values_request = {
+            "entity_type": _TEST_ENTITY_TYPE_NAME,
+            "feature_specs": [
+                gca_featurestore_service.ImportFeatureValuesRequest.FeatureSpec(
+                    id="my_feature_id_1"
+                ),
+                gca_featurestore_service.ImportFeatureValuesRequest.FeatureSpec(
+                    id="my_feature_id_2"
+                ),
+                gca_featurestore_service.ImportFeatureValuesRequest.FeatureSpec(
+                    id="my_feature_id_3"
+                ),
+            ],
+            "csv_source": _TEST_CSV_SOURCE,
+            "feature_time": featurestore_utils.get_timestamp_proto(_TEST_FEATURE_TIME),
+        }
+        assert (
+            true_import_feature_values_request
+            == my_entity_type._validate_and_get_import_feature_values_request(
+                feature_ids=_TEST_IMPORTING_FEATURE_IDS,
+                csv_source=_TEST_CSV_SOURCE,
+                feature_time=_TEST_FEATURE_TIME,
+            )
+        )
+
+    @pytest.mark.usefixtures("get_entity_type_mock")
+    @pytest.mark.parametrize("sync", [True, False])
+    def test_import_feature_values_from_bq(self, import_feature_values_mock, sync):
+        aiplatform.init(project=_TEST_PROJECT)
+
+        my_entity_type = featurestores.EntityType(
+            entity_type_name=_TEST_ENTITY_TYPE_NAME
+        )
+        my_entity_type.import_feature_values_from_bq(
+            bq_source_uri=_TEST_BQ_SOURCE_URI,
+            feature_ids=_TEST_IMPORTING_FEATURE_IDS,
+            feature_source_fields=_TEST_IMPORTING_FEATURE_SOURCE_FIELDS,
+            feature_time_field=_TEST_FEATURE_TIME_FIELD,
+        )
+
+        if not sync:
+            my_entity_type.wait()
+
+        true_import_feature_values_request = {
+            "entity_type": _TEST_ENTITY_TYPE_NAME,
+            "feature_specs": [
+                gca_featurestore_service.ImportFeatureValuesRequest.FeatureSpec(
+                    id="my_feature_id_1", source_field="my_feature_id_1_source_field"
+                ),
+                gca_featurestore_service.ImportFeatureValuesRequest.FeatureSpec(
+                    id="my_feature_id_2", source_field="my_feature_id_2_source_field"
+                ),
+                gca_featurestore_service.ImportFeatureValuesRequest.FeatureSpec(
+                    id="my_feature_id_3", source_field="my_feature_id_3_source_field"
+                ),
+            ],
+            "bigquery_source": _TEST_BQ_SOURCE,
+            "feature_time_field": _TEST_FEATURE_TIME_FIELD,
+        }
+        import_feature_values_mock.assert_called_once_with(
+            request=true_import_feature_values_request, metadata=_TEST_REQUEST_METADATA,
+        )
+
+    @pytest.mark.usefixtures("get_entity_type_mock")
+    @pytest.mark.parametrize("sync", [True, False])
+    def test_import_feature_values_from_gcs(self, import_feature_values_mock, sync):
+        aiplatform.init(project=_TEST_PROJECT)
+
+        my_entity_type = featurestores.EntityType(
+            entity_type_name=_TEST_ENTITY_TYPE_NAME
+        )
+        my_entity_type.import_feature_values_from_gcs(
+            gcs_source_uris=_TEST_GCS_SOURCE_URIS,
+            gcs_source_type=_TEST_GCS_SOURCE_TYPE,
+            feature_ids=_TEST_IMPORTING_FEATURE_IDS,
+            feature_time=_TEST_FEATURE_TIME,
+        )
+
+        if not sync:
+            my_entity_type.wait()
+
+        true_import_feature_values_request = {
+            "entity_type": _TEST_ENTITY_TYPE_NAME,
+            "feature_specs": [
+                gca_featurestore_service.ImportFeatureValuesRequest.FeatureSpec(
+                    id="my_feature_id_1"
+                ),
+                gca_featurestore_service.ImportFeatureValuesRequest.FeatureSpec(
+                    id="my_feature_id_2"
+                ),
+                gca_featurestore_service.ImportFeatureValuesRequest.FeatureSpec(
+                    id="my_feature_id_3"
+                ),
+            ],
+            "csv_source": _TEST_CSV_SOURCE,
+            "feature_time": featurestore_utils.get_timestamp_proto(_TEST_FEATURE_TIME),
+        }
+        import_feature_values_mock.assert_called_once_with(
+            request=true_import_feature_values_request, metadata=_TEST_REQUEST_METADATA,
+        )
+
+    @pytest.mark.usefixtures("get_entity_type_mock")
+    def test_import_feature_values_from_gcs_with_invalid_gcs_source_type(self):
+        aiplatform.init(project=_TEST_PROJECT)
+
+        my_entity_type = featurestores.EntityType(
+            entity_type_name=_TEST_ENTITY_TYPE_NAME
+        )
+        with pytest.raises(ValueError):
+            my_entity_type.import_feature_values_from_gcs(
+                gcs_source_uris=_TEST_GCS_SOURCE_URIS,
+                gcs_source_type=_TEST_GCS_SOURCE_TYPE_INVALID,
+                feature_ids=_TEST_IMPORTING_FEATURE_IDS,
+                feature_time_field=_TEST_FEATURE_TIME_FIELD,
+            )
 
 
 class TestFeature:
