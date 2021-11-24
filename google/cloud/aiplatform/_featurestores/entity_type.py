@@ -866,10 +866,13 @@ class EntityType(base.VertexAiResourceNounWithFutureManager):
 
         return self
 
-    def import_feature_values_from_bq(
+    def ingest_from_bq(
         self,
         bq_source_uri: str,
         feature_ids: Sequence[str],
+        batch_create_feature_configs: Optional[
+            Dict[str, Dict[str, Union[bool, int, Dict[str, str], str]]]
+        ] = None,
         feature_source_fields: Optional[Dict[str, str]] = {},
         feature_time_field: Optional[str] = None,
         feature_time: Optional[datetime.datetime] = None,
@@ -879,7 +882,7 @@ class EntityType(base.VertexAiResourceNounWithFutureManager):
         request_metadata: Optional[Sequence[Tuple[str, str]]] = (),
         sync: Optional[bool] = True,
     ) -> "EntityType":
-        """Imports Feature values from BigQuery.
+        """Ingest feature values from BigQuery.
 
         Args:
             bq_source_uri (str):
@@ -890,6 +893,33 @@ class EntityType(base.VertexAiResourceNounWithFutureManager):
                 Required. IDs of the Feature to import values
                 of. The Features must exist in the target
                 EntityType, or the request will fail.
+            batch_create_feature_configs (Dict[str, Dict[str, Union[bool, int, Dict[str, str], str]]]):
+                Optional. A user defined Dict containing configurations for feature creation if to create features before ingest.
+                Default to None when features exist in the Featurestore.
+
+                The feature_configs Dict[str, Dict] i.e. {feature_id: feature_config} contains configuration for each creating feature:
+                Example:
+                    feature_configs = {
+                        "my_feature_id_1": feature_config_1,
+                        "my_feature_id_2": feature_config_2,
+                        "my_feature_id_3": feature_config_3,
+                    }
+
+                Each feature_config requires "value_type", and optional "description", "labels":
+                Example:
+                    feature_config_1 = {
+                        "value_type": "INT64",
+                    }
+                    feature_config_2 = {
+                        "value_type": "BOOL",
+                        "description": "my feature id 2 description"
+                    }
+                    feature_config_3 = {
+                        "value_type": "STRING",
+                        "labels": {
+                            "my key": "my value",
+                        }
+                    }
             feature_source_fields (Dict[str, str]):
                 Optional. User defined dictionary to map ID of the Feature for importing values
                 of to the source column for getting the Feature values from.
@@ -956,6 +986,16 @@ class EntityType(base.VertexAiResourceNounWithFutureManager):
             EntityType - The entityType resource object with feature values imported.
 
         """
+        if batch_create_feature_configs:
+            self.batch_create_features(
+                feature_configs=batch_create_feature_configs,
+                request_metadata=request_metadata,
+                sync=sync,
+            )
+
+            if not sync:
+                self.wait()
+
         bigquery_source = gca_io.BigQuerySource(input_uri=bq_source_uri)
 
         import_feature_values_request = self._validate_and_get_import_feature_values_request(
@@ -975,11 +1015,14 @@ class EntityType(base.VertexAiResourceNounWithFutureManager):
             sync=sync,
         )
 
-    def import_feature_values_from_gcs(
+    def ingest_from_gcs(
         self,
         gcs_source_uris: Union[str, List[str]],
         gcs_source_type: str,
         feature_ids: Sequence[str],
+        batch_create_feature_configs: Optional[
+            Dict[str, Dict[str, Union[bool, int, Dict[str, str], str]]]
+        ] = None,
         feature_source_fields: Optional[Dict[str, str]] = {},
         feature_time_field: Optional[str] = None,
         feature_time: Optional[datetime.datetime] = None,
@@ -989,7 +1032,7 @@ class EntityType(base.VertexAiResourceNounWithFutureManager):
         request_metadata: Optional[Sequence[Tuple[str, str]]] = (),
         sync: Optional[bool] = True,
     ) -> "EntityType":
-        """Imports Feature values from GCS.
+        """Ingest feature values from GCS.
 
         Args:
             gcs_source_uris (Sequence[str]):
@@ -1008,6 +1051,33 @@ class EntityType(base.VertexAiResourceNounWithFutureManager):
                 Required. IDs of the Feature to import values
                 of. The Features must exist in the target
                 EntityType, or the request will fail.
+            batch_create_feature_configs (Dict[str, Dict[str, Union[bool, int, Dict[str, str], str]]]):
+                Optional. A user defined Dict containing configurations for feature creation if to create features before ingest.
+                Default to None when features exist in the Featurestore.
+
+                The feature_configs Dict[str, Dict] i.e. {feature_id: feature_config} contains configuration for each creating feature:
+                Example:
+                    feature_configs = {
+                        "my_feature_id_1": feature_config_1,
+                        "my_feature_id_2": feature_config_2,
+                        "my_feature_id_3": feature_config_3,
+                    }
+
+                Each feature_config requires "value_type", and optional "description", "labels":
+                Example:
+                    feature_config_1 = {
+                        "value_type": "INT64",
+                    }
+                    feature_config_2 = {
+                        "value_type": "BOOL",
+                        "description": "my feature id 2 description"
+                    }
+                    feature_config_3 = {
+                        "value_type": "STRING",
+                        "labels": {
+                            "my key": "my value",
+                        }
+                    }
             feature_source_fields (Dict[str, str]):
                 Optional. User defined dictionary to map ID of the Feature for importing values
                 of to the source column for getting the Feature values from.
@@ -1076,6 +1146,16 @@ class EntityType(base.VertexAiResourceNounWithFutureManager):
         Raises:
             ValueError if gcs_source_type is not supported.
         """
+        if batch_create_feature_configs:
+            self.batch_create_features(
+                feature_configs=batch_create_feature_configs,
+                request_metadata=request_metadata,
+                sync=sync,
+            )
+
+            if not sync:
+                self.wait()
+
         if gcs_source_type not in featurestore_utils.GCS_SOURCE_TYPE:
             raise ValueError(
                 "Only %s are supported gcs_source_type, not `%s`. "
