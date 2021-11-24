@@ -15,9 +15,7 @@
 # limitations under the License.
 #
 
-from typing import Dict, List, Optional, Sequence, Tuple, Union
-
-import datetime
+from typing import Dict, List, Optional, Sequence, Tuple
 
 from google.auth import credentials as auth_credentials
 from google.protobuf import field_mask_pb2
@@ -27,13 +25,6 @@ from google.cloud.aiplatform.compat.types import entity_type as gca_entity_type
 from google.cloud.aiplatform import _featurestores
 from google.cloud.aiplatform import utils
 from google.cloud.aiplatform.utils import featurestore_utils
-
-try:
-    import pandas as pd
-except ImportError:
-    raise ImportError(
-        "Pandas is not installed. Please install pandas to use Vertex Feature Store"
-    )
 
 _LOGGER = base.Logger(__name__)
 _ALL_FEATURE_IDS = "*"
@@ -412,91 +403,3 @@ class EntityType(base.VertexAiResourceNounWithFutureManager):
             feature.delete(sync=sync)
             if not sync:
                 feature.wait()
-
-    @classmethod
-    def create(
-        cls,
-        entity_type_id: str,
-        featurestore: str,
-        description: Optional[str] = None,
-        labels: Optional[Dict[str, str]] = None,
-        project: Optional[str] = None,
-        location: Optional[str] = None,
-        credentials: Optional[auth_credentials.Credentials] = None,
-        request_metadata: Optional[Sequence[Tuple[str, str]]] = (),
-        sync: Optional[bool] = True,
-    ) -> "EntityType":
-        """"""
-        raise NotImplementedError
-
-    def create_feature(
-        self,
-        feature_id: str,
-        value_type: str,
-        description: Optional[str] = None,
-        labels: Optional[Dict[str, str]] = None,
-        request_metadata: Optional[Sequence[Tuple[str, str]]] = (),
-        sync: Optional[bool] = True,
-    ) -> "_featurestores.Feature":
-        """"""
-        raise NotImplementedError
-
-    def batch_create_features(
-        self,
-        feature_configs: List[Dict[str, Union[bool, int, Dict[str, str], str]]],
-        request_metadata: Optional[Sequence[Tuple[str, str]]] = (),
-        sync: Optional[bool] = True,
-    ) -> "EntityType":
-        """"""
-        raise NotImplementedError
-
-    def read(
-        self, entity_ids: List[str], feature_ids: Optional[List[str]] = None,
-    ) -> pd.DataFrame:
-        """"""
-        raise NotImplementedError
-
-    def ingest_from_bq(
-        self,
-        bq_source_uri: str,
-        feature_ids: List[str],
-        source_feature_mapping: Optional[Dict[str, str]] = None,
-        entity_id_field: Optional[str] = "entity_id",
-        feature_time_field: Optional[str] = None,
-        feature_time: Optional[datetime.datetime] = None,
-        disable_online_serving: Optional[bool] = False,
-        worker_count: Optional[int] = 1,
-        sync: Optional[bool] = True,
-    ) -> "EntityType":
-        """"""
-        raise NotImplementedError
-
-    def ingest_from_gcs(
-        self,
-        gcs_source_uris: Union[str, List[str]],
-        feature_ids: List[str],
-        source_feature_mapping: Optional[Dict[str, str]] = None,
-        entity_id_field: Optional[str] = "entity_id",
-        feature_time_field: Optional[str] = None,
-        feature_time: Optional[datetime.datetime] = None,
-        disable_online_serving: Optional[bool] = False,
-        worker_count: Optional[int] = 1,
-        sync: Optional[bool] = True,
-    ) -> "EntityType":
-        """"""
-        raise NotImplementedError
-
-    def ingest_from_df(
-        self,
-        df_source: pd.DataFrame,
-        feature_ids: List[str],
-        source_feature_mapping: Optional[Dict[str, str]] = None,
-        entity_id_field: Optional[str] = "entity_id",
-        feature_time_field: Optional[str] = None,
-        feature_time: Optional[datetime.datetime] = None,
-        disable_online_serving: Optional[bool] = False,
-        worker_count: Optional[int] = 1,
-        sync: Optional[bool] = True,
-    ) -> "EntityType":
-        """"""
-        raise NotImplementedError

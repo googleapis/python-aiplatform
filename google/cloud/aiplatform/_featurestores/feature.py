@@ -327,21 +327,3 @@ class Feature(base.VertexAiResourceNounWithFutureManager):
             credentials=credentials,
             parent=entity_type_name,
         )
-
-    @classmethod
-    def create(
-        cls,
-        feature_id: str,
-        value_type: str,
-        entity_type_name: str,
-        featurestore_id: Optional[str] = None,
-        description: Optional[str] = None,
-        labels: Optional[Dict[str, str]] = None,
-        project: Optional[str] = None,
-        location: Optional[str] = None,
-        credentials: Optional[auth_credentials.Credentials] = None,
-        request_metadata: Optional[Sequence[Tuple[str, str]]] = (),
-        sync: Optional[bool] = True,
-    ) -> "Feature":
-        """"""
-        raise NotImplementedError

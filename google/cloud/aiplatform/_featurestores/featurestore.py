@@ -15,7 +15,7 @@
 # limitations under the License.
 #
 
-from typing import Dict, List, Optional, Sequence, Tuple, Union
+from typing import Dict, List, Optional, Sequence, Tuple
 
 from google.auth import credentials as auth_credentials
 from google.protobuf import field_mask_pb2
@@ -26,13 +26,6 @@ from google.cloud.aiplatform import _featurestores
 from google.cloud.aiplatform import initializer
 from google.cloud.aiplatform import utils
 from google.cloud.aiplatform.utils import featurestore_utils
-
-try:
-    import pandas as pd
-except ImportError:
-    raise ImportError(
-        "Pandas is not installed. Please install pandas to use Vertex Feature Store"
-    )
 
 _LOGGER = base.Logger(__name__)
 
@@ -485,63 +478,3 @@ class Featurestore(base.VertexAiResourceNounWithFutureManager):
             )
             for gapic_resource in feature_list
         ]
-
-    @classmethod
-    def create(
-        cls,
-        featurestore_id: str,
-        labels: Optional[Dict[str, str]] = None,
-        project: Optional[str] = None,
-        location: Optional[str] = None,
-        credentials: Optional[auth_credentials.Credentials] = None,
-        encryption_spec_key_name: Optional[str] = None,
-        sync: Optional[bool] = True,
-    ) -> "Featurestore":
-        """"""
-        raise NotImplementedError
-
-    def create_entity_type(
-        self,
-        entity_type_id: str,
-        description: Optional[str] = None,
-        labels: Optional[Dict[str, str]] = None,
-        request_metadata: Optional[Sequence[Tuple[str, str]]] = (),
-        sync: Optional[bool] = True,
-    ) -> "_featurestores.EntityType":
-        """"""
-        raise NotImplementedError
-
-    def batch_serve_to_bq(
-        self,
-        entity_type_ids: List[str],
-        destination_feature_mappings: Dict[str, Union[List[str], Dict[str, str]]],
-        read_instance: Optional[Union[str, List[str], pd.DataFrame]] = None,
-        pass_through_field: Optional[List[str]] = None,
-        bq_destination_output_uri: Optional[str] = None,
-        sync: Optional[bool] = True,
-    ) -> None:
-        """"""
-        raise NotImplementedError
-
-    def batch_serve_to_gcs(
-        self,
-        entity_type_ids: List[str],
-        destination_feature_mappings: Dict[str, Union[List[str], Dict[str, str]]],
-        read_instance: Optional[Union[str, List[str], pd.DataFrame]] = None,
-        pass_through_field: Optional[List[str]] = None,
-        gcs_destination_output_uri_prefix: Optional[str] = None,
-        gcs_destination_type: Optional[str] = None,
-        sync: Optional[bool] = True,
-    ) -> None:
-        """"""
-        raise NotImplementedError
-
-    def batch_serve_to_df(
-        self,
-        entity_type_ids: List[str],
-        destination_feature_mappings: Dict[str, Union[List[str], Dict[str, str]]],
-        read_instance: Optional[Union[str, List[str], pd.DataFrame]] = None,
-        pass_through_field: Optional[List[str]] = None,
-    ) -> pd.DataFrame:
-        """"""
-        raise NotImplementedError
