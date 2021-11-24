@@ -82,15 +82,13 @@ class EntityType(base.VertexAiResourceNounWithFutureManager):
         """
 
         (
-            self._featurestore_id,
+            featurestore_id,
             _,
         ) = featurestore_utils.validate_and_get_entity_type_resource_ids(
             entity_type_name=entity_type_name, featurestore_id=featurestore_id
         )
 
-        self._resource_noun = featurestore_utils.get_entity_type_resource_noun(
-            featurestore_id=self._featurestore_id
-        )
+        self._resource_noun = f"featurestores/{featurestore_id}/entityTypes"
 
         super().__init__(
             project=project,
@@ -100,17 +98,10 @@ class EntityType(base.VertexAiResourceNounWithFutureManager):
         )
         self._gca_resource = self._get_gca_resource(resource_name=entity_type_name)
 
-        self._featurestore_name = utils.full_resource_name(
-            resource_name=self._featurestore_id,
-            resource_noun=featurestore_utils.FEATURESTORE_RESOURCE_NOUN,
-            project=self.project,
-            location=self.location,
-        )
-
     @property
     def featurestore_name(self) -> str:
         """Full qualified resource name of the managed featurestore in which this EntityType is."""
-        return self._featurestore_name
+        return "/".join(self.resource_name.split("/")[:-2])
 
     def get_featurestore(self) -> _featurestores.Featurestore:
         """Retrieves the managed featurestore in which this EntityType is.
@@ -118,7 +109,7 @@ class EntityType(base.VertexAiResourceNounWithFutureManager):
         Returns:
             featurestores.Featurestore - The managed featurestore in which this EntityType is.
         """
-        return _featurestores.Featurestore(self._featurestore_name)
+        return _featurestores.Featurestore(self.featurestore_name)
 
     def get_feature(self, feature_id: str) -> "_featurestores.Feature":
         """Retrieves an existing managed feature in this EntityType.
@@ -128,31 +119,9 @@ class EntityType(base.VertexAiResourceNounWithFutureManager):
                 Required. The managed feature resource ID in this EntityType.
         Returns:
             featurestores.Feature - The managed feature resource object.
-
-        Raises:
-            ValueError if the provided feature_id is not in form of a feature ID.
         """
-        if not featurestore_utils.validate_id(feature_id):
-            raise ValueError(f"{feature_id} is not in form of a feature ID.")
-        feature_name = self._get_feature_name(feature_id)
-        return _featurestores.Feature(feature_name=feature_name)
-
-    def _get_feature_name(self, feature_id: str) -> str:
-        """Gets full qualified resource name of the feature in this EntityType.
-
-        Args:
-            feature_id (str):
-                Required. The managed feature resource ID in this EntityType.
-        Returns:
-            str - The full qualified feature resource name.
-        """
-        return utils.full_resource_name(
-            resource_name=feature_id,
-            resource_noun=featurestore_utils.get_feature_resource_noun(
-                featurestore_id=self._featurestore_id, entity_type_id=self.name
-            ),
-            project=self.project,
-            location=self.location,
+        return _featurestores.Feature(
+            feature_name=f"{self.resource_name}/features/{feature_id}"
         )
 
     def update(
@@ -308,23 +277,18 @@ class EntityType(base.VertexAiResourceNounWithFutureManager):
             featurestore_name=featurestore_name
         )
 
-        cls._resource_noun = featurestore_utils.get_entity_type_resource_noun(
-            featurestore_id=featurestore_id,
-        )
-
-        featurestore_name = utils.full_resource_name(
-            resource_name=featurestore_id,
-            resource_noun=featurestore_utils.FEATURESTORE_RESOURCE_NOUN,
-            project=project,
-            location=location,
-        )
         return cls._list(
             filter=filter,
             order_by=order_by,
             project=project,
             location=location,
             credentials=credentials,
-            parent=featurestore_name,
+            parent=utils.full_resource_name(
+                resource_name=featurestore_id,
+                resource_noun="featurestores",
+                project=project,
+                location=location,
+            ),
         )
 
     def list_features(
@@ -398,8 +362,7 @@ class EntityType(base.VertexAiResourceNounWithFutureManager):
                 be immediately returned and synced when the Future has completed.
         """
         for feature_id in feature_ids:
-            feature_name = self._get_feature_name(feature_id)
-            feature = _featurestores.Feature(feature_name)
+            feature = self.get_feature(feature_id=feature_id)
             feature.delete(sync=sync)
             if not sync:
                 feature.wait()

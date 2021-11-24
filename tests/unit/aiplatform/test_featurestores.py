@@ -272,22 +272,6 @@ class TestFeaturestoreUtils:
     def test_validate_resource_id(self, resource_id: str, expected: bool):
         assert expected == featurestore_utils.validate_id(resource_id)
 
-    def test_get_entity_type_resource_noun(self):
-        assert (
-            featurestore_utils.get_entity_type_resource_noun(
-                featurestore_id="featurestore_id"
-            )
-            == "featurestores/featurestore_id/entityTypes"
-        )
-
-    def test_get_feature_resource_noun(self):
-        assert (
-            featurestore_utils.get_feature_resource_noun(
-                featurestore_id="featurestore_id", entity_type_id="entity_type_id"
-            )
-            == "featurestores/featurestore_id/entityTypes/entity_type_id/features"
-        )
-
     @pytest.mark.parametrize(
         "feature_name, featurestore_id, entity_type_id, expected",
         [

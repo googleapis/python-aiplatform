@@ -36,7 +36,7 @@ class Featurestore(base.VertexAiResourceNounWithFutureManager):
     client_class = utils.FeaturestoreClientWithOverride
 
     _is_client_prediction_client = False
-    _resource_noun = featurestore_utils.FEATURESTORE_RESOURCE_NOUN
+    _resource_noun = "featurestores"
     _getter_method = "get_featurestore"
     _list_method = "list_featurestores"
     _delete_method = "delete_featurestore"
@@ -95,31 +95,9 @@ class Featurestore(base.VertexAiResourceNounWithFutureManager):
                 Required. The managed entityType resource ID in this Featurestore.
         Returns:
             featurestores.EntityType - The managed entityType resource object.
-
-        Raises:
-            ValueError if the provided entity_type_id is not in form of an entity_type ID.
         """
-        if not featurestore_utils.validate_id(entity_type_id):
-            raise ValueError(f"{entity_type_id} is not in form of an entity_type ID.")
-        entity_type_name = self._get_entity_type_name(entity_type_id)
-        return _featurestores.EntityType(entity_type_name=entity_type_name)
-
-    def _get_entity_type_name(self, entity_type_id: str) -> str:
-        """Gets full qualified resource name of the entityType in this Featurestore.
-
-        Args:
-            entity_type_id (str):
-                Required. The managed entityType resource ID in this Featurestore.
-        Returns:
-            str - The full qualified entityType resource name.
-        """
-        return utils.full_resource_name(
-            resource_name=entity_type_id,
-            resource_noun=featurestore_utils.get_entity_type_resource_noun(
-                featurestore_id=self.name
-            ),
-            project=self.project,
-            location=self.location,
+        return _featurestores.EntityType(
+            entity_type_name=f"{self.resource_name}/entityTypes/{entity_type_id}"
         )
 
     def update(
@@ -332,8 +310,7 @@ class Featurestore(base.VertexAiResourceNounWithFutureManager):
                 be immediately returned and synced when the Future has completed.
         """
         for entity_type_id in entity_type_ids:
-            entity_type_name = self._get_entity_type_name(entity_type_id)
-            entity_type = _featurestores.EntityType(entity_type_name=entity_type_name)
+            entity_type = self.get_entity_type(entity_type_id=entity_type_id)
             entity_type.delete(sync=sync)
             if not sync:
                 entity_type.wait()

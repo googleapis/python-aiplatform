@@ -84,8 +84,8 @@ class Feature(base.VertexAiResourceNounWithFutureManager):
                 credentials set in aiplatform.init.
         """
         (
-            self._featurestore_id,
-            self._entity_type_id,
+            featurestore_id,
+            entity_type_id,
             _,
         ) = featurestore_utils.validate_and_get_feature_resource_ids(
             feature_name=feature_name,
@@ -93,8 +93,8 @@ class Feature(base.VertexAiResourceNounWithFutureManager):
             featurestore_id=featurestore_id,
         )
 
-        self._resource_noun = featurestore_utils.get_feature_resource_noun(
-            featurestore_id=self._featurestore_id, entity_type_id=self._entity_type_id
+        self._resource_noun = (
+            f"featurestores/{featurestore_id}/entityTypes/{entity_type_id}/features"
         )
 
         super().__init__(
@@ -105,26 +105,10 @@ class Feature(base.VertexAiResourceNounWithFutureManager):
         )
         self._gca_resource = self._get_gca_resource(resource_name=feature_name)
 
-        self._featurestore_name = utils.full_resource_name(
-            resource_name=self._featurestore_id,
-            resource_noun=featurestore_utils.FEATURESTORE_RESOURCE_NOUN,
-            project=self.project,
-            location=self.location,
-        )
-
-        self._entity_type_name = utils.full_resource_name(
-            resource_name=self._entity_type_id,
-            resource_noun=featurestore_utils.get_entity_type_resource_noun(
-                featurestore_id=self._featurestore_id
-            ),
-            project=self.project,
-            location=self.location,
-        )
-
     @property
     def featurestore_name(self) -> str:
         """Full qualified resource name of the managed featurestore in which this Feature is."""
-        return self._featurestore_name
+        return "/".join(self.resource_name.split("/")[:-4])
 
     def get_featurestore(self) -> _featurestores.Featurestore:
         """Retrieves the managed featurestore in which this Feature is.
@@ -132,12 +116,12 @@ class Feature(base.VertexAiResourceNounWithFutureManager):
         Returns:
             featurestores.Featurestore - The managed featurestore in which this Feature is.
         """
-        return _featurestores.Featurestore(self._featurestore_name)
+        return _featurestores.Featurestore(featurestore_name=self.featurestore_name)
 
     @property
     def entity_type_name(self) -> str:
         """Full qualified resource name of the managed entityType in which this Feature is."""
-        return self._entity_type_name
+        return "/".join(self.resource_name.split("/")[:-2])
 
     def get_entity_type(self) -> _featurestores.EntityType:
         """Retrieves the managed entityType in which this Feature is.
@@ -145,7 +129,7 @@ class Feature(base.VertexAiResourceNounWithFutureManager):
         Returns:
             featurestores.EntityType - The managed entityType in which this Feature is.
         """
-        return _featurestores.EntityType(self._entity_type_name)
+        return _featurestores.EntityType(entity_type_name=self.entity_type_name)
 
     def update(
         self,
@@ -307,23 +291,16 @@ class Feature(base.VertexAiResourceNounWithFutureManager):
             entity_type_name=entity_type_name, featurestore_id=featurestore_id,
         )
 
-        cls._resource_noun = featurestore_utils.get_feature_resource_noun(
-            featurestore_id=featurestore_id, entity_type_id=entity_type_id
-        )
-
-        entity_type_name = utils.full_resource_name(
-            resource_name=entity_type_id,
-            resource_noun=featurestore_utils.get_entity_type_resource_noun(
-                featurestore_id=featurestore_id
-            ),
-            project=project,
-            location=location,
-        )
         return cls._list(
             filter=filter,
             order_by=order_by,
             project=project,
             location=location,
             credentials=credentials,
-            parent=entity_type_name,
+            parent=utils.full_resource_name(
+                resource_name=entity_type_id,
+                resource_noun=f"featurestores/{featurestore_id}/entityTypes",
+                project=project,
+                location=location,
+            ),
         )

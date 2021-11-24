@@ -22,24 +22,12 @@ from google.cloud.aiplatform.compat.services import featurestore_service_client
 
 CompatFeaturestoreServiceClient = featurestore_service_client.FeaturestoreServiceClient
 
-
 RESOURCE_ID_PATTERN_REGEX = r"[a-z_][a-z0-9_]{0,59}"
-FEATURESTORE_RESOURCE_NOUN = "featurestores"
 
 
 def validate_id(resource_id: str) -> bool:
     """Validates feature store resource ID pattern."""
     return bool(re.compile(r"^" + RESOURCE_ID_PATTERN_REGEX + r"$").match(resource_id))
-
-
-def get_entity_type_resource_noun(featurestore_id: str) -> str:
-    """Gets composite resource noun for entity_type resource."""
-    return f"featurestores/{featurestore_id}/entityTypes"
-
-
-def get_feature_resource_noun(featurestore_id: str, entity_type_id: str) -> str:
-    """Gets composite resource noun for feature resource."""
-    return f"featurestores/{featurestore_id}/entityTypes/{entity_type_id}/features"
 
 
 def validate_and_get_featurestore_resource_id(featurestore_name: str) -> str:
