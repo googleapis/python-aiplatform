@@ -14,7 +14,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from google.cloud.aiplatform.helpers import _decorators
+from google.cloud.aiplatform.utils.enhanced_library import _decorators
 from google.cloud.aiplatform.v1.schema import predict
 from google.cloud.aiplatform.v1.schema import trainingjob
 from google.cloud.aiplatform.v1beta1.schema import predict as predict_v1beta1
