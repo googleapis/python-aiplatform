@@ -76,7 +76,7 @@ class Featurestore(base.VertexAiResourceNounWithFutureManager):
                 credentials set in aiplatform.init.
         """
         _ = featurestore_utils.validate_and_get_featurestore_resource_id(
-            featurestore_name
+            featurestore_name=featurestore_name
         )
 
         super().__init__(

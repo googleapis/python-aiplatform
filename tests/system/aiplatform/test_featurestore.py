@@ -16,6 +16,7 @@
 #
 
 from google.cloud import aiplatform
+from google.cloud.aiplatform import _featurestores as featurestores
 from tests.system.aiplatform import e2e_base
 
 
@@ -29,16 +30,8 @@ class TestFeaturestore(e2e_base.TestEndToEnd):
             project=e2e_base._PROJECT, location=e2e_base._LOCATION,
         )
 
-        display_name = self._make_display_name("tensorboard")
+        list_featurestores = featurestores.Featurestore.list()
+        assert len(list_featurestores) >= 0
 
-        tb = aiplatform.Tensorboard.create(display_name=display_name)
-
-        shared_state["resources"] = [tb]
-
-        get_tb = aiplatform.Tensorboard(tb.resource_name)
-
-        assert tb.resource_name == get_tb.resource_name
-
-        list_tb = aiplatform.Tensorboard.list()
-
-        assert len(list_tb) > 0
+        list_searched_features = featurestores.Featurestore.search_features()
+        assert len(list_searched_features) >= 0

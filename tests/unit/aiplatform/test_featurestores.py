@@ -356,7 +356,7 @@ class TestFeaturestoreUtils:
             )
         )
 
-    def test_validate_and_get_featurestore_resource_ids_with_raise(self,):
+    def test_validate_and_get_featurestore_resource_id_with_raise(self,):
         with pytest.raises(ValueError):
             featurestore_utils.validate_and_get_featurestore_resource_id(
                 featurestore_name=_TEST_FEATURESTORE_INVALID
