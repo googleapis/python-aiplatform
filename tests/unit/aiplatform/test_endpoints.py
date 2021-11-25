@@ -577,6 +577,9 @@ class TestEndpoint:
     def test_deploy(self, deploy_model_mock, sync):
         test_endpoint = models.Endpoint(_TEST_ENDPOINT_NAME)
         test_model = models.Model(_TEST_ID)
+        test_model._gca_resource.supported_deployment_resources_types.append(
+            aiplatform.gapic.Model.DeploymentResourcesType.AUTOMATIC_RESOURCES
+        )
         test_endpoint.deploy(test_model, sync=sync)
 
         if not sync:
@@ -602,6 +605,9 @@ class TestEndpoint:
     def test_deploy_with_display_name(self, deploy_model_mock, sync):
         test_endpoint = models.Endpoint(_TEST_ENDPOINT_NAME)
         test_model = models.Model(_TEST_ID)
+        test_model._gca_resource.supported_deployment_resources_types.append(
+            aiplatform.gapic.Model.DeploymentResourcesType.AUTOMATIC_RESOURCES
+        )
         test_endpoint.deploy(
             model=test_model, deployed_model_display_name=_TEST_DISPLAY_NAME, sync=sync
         )
@@ -630,6 +636,9 @@ class TestEndpoint:
         with pytest.raises(ValueError):
             test_endpoint = models.Endpoint(_TEST_ENDPOINT_NAME)
             test_model = models.Model(_TEST_ID)
+            test_model._gca_resource.supported_deployment_resources_types.append(
+                aiplatform.gapic.Model.DeploymentResourcesType.AUTOMATIC_RESOURCES
+            )
             test_endpoint.deploy(model=test_model, traffic_percentage=80, sync=sync)
 
             if not sync:
@@ -641,6 +650,9 @@ class TestEndpoint:
         with pytest.raises(ValueError):
             test_endpoint = models.Endpoint(_TEST_ENDPOINT_NAME)
             test_model = models.Model(_TEST_ID)
+            test_model._gca_resource.supported_deployment_resources_types.append(
+                aiplatform.gapic.Model.DeploymentResourcesType.AUTOMATIC_RESOURCES
+            )
             test_endpoint.deploy(model=test_model, traffic_percentage=120, sync=sync)
 
     @pytest.mark.usefixtures("get_endpoint_mock", "get_model_mock")
@@ -649,6 +661,9 @@ class TestEndpoint:
         with pytest.raises(ValueError):
             test_endpoint = models.Endpoint(_TEST_ENDPOINT_NAME)
             test_model = models.Model(_TEST_ID)
+            test_model._gca_resource.supported_deployment_resources_types.append(
+                aiplatform.gapic.Model.DeploymentResourcesType.AUTOMATIC_RESOURCES
+            )
             test_endpoint.deploy(model=test_model, traffic_percentage=-18, sync=sync)
 
     @pytest.mark.usefixtures("get_endpoint_mock", "get_model_mock")
@@ -657,6 +672,9 @@ class TestEndpoint:
         with pytest.raises(ValueError):
             test_endpoint = models.Endpoint(_TEST_ENDPOINT_NAME)
             test_model = models.Model(_TEST_ID)
+            test_model._gca_resource.supported_deployment_resources_types.append(
+                aiplatform.gapic.Model.DeploymentResourcesType.AUTOMATIC_RESOURCES
+            )
             test_endpoint.deploy(model=test_model, min_replica_count=-1, sync=sync)
 
     @pytest.mark.usefixtures("get_endpoint_mock", "get_model_mock")
@@ -665,6 +683,9 @@ class TestEndpoint:
         with pytest.raises(ValueError):
             test_endpoint = models.Endpoint(_TEST_ENDPOINT_NAME)
             test_model = models.Model(_TEST_ID)
+            test_model._gca_resource.supported_deployment_resources_types.append(
+                aiplatform.gapic.Model.DeploymentResourcesType.AUTOMATIC_RESOURCES
+            )
             test_endpoint.deploy(model=test_model, max_replica_count=-2, sync=sync)
 
     @pytest.mark.usefixtures("get_endpoint_mock", "get_model_mock")
@@ -673,6 +694,9 @@ class TestEndpoint:
         with pytest.raises(ValueError):
             test_endpoint = models.Endpoint(_TEST_ENDPOINT_NAME)
             test_model = models.Model(_TEST_ID)
+            test_model._gca_resource.supported_deployment_resources_types.append(
+                aiplatform.gapic.Model.DeploymentResourcesType.AUTOMATIC_RESOURCES
+            )
             test_endpoint.deploy(model=test_model, traffic_split={"a": 99}, sync=sync)
 
     @pytest.mark.usefixtures("get_model_mock")
@@ -689,6 +713,9 @@ class TestEndpoint:
 
             test_endpoint = models.Endpoint(_TEST_ENDPOINT_NAME)
             test_model = models.Model(_TEST_ID)
+            test_model._gca_resource.supported_deployment_resources_types.append(
+                aiplatform.gapic.Model.DeploymentResourcesType.AUTOMATIC_RESOURCES
+            )
             test_endpoint.deploy(model=test_model, traffic_percentage=70, sync=sync)
             if not sync:
                 test_endpoint.wait()
@@ -721,6 +748,9 @@ class TestEndpoint:
 
             test_endpoint = models.Endpoint(_TEST_ENDPOINT_NAME)
             test_model = models.Model(_TEST_ID)
+            test_model._gca_resource.supported_deployment_resources_types.append(
+                aiplatform.gapic.Model.DeploymentResourcesType.AUTOMATIC_RESOURCES
+            )
             test_endpoint.deploy(
                 model=test_model, traffic_split={"model1": 30, "0": 70}, sync=sync
             )
@@ -747,6 +777,9 @@ class TestEndpoint:
     def test_deploy_with_dedicated_resources(self, deploy_model_mock, sync):
         test_endpoint = models.Endpoint(_TEST_ENDPOINT_NAME)
         test_model = models.Model(_TEST_ID)
+        test_model._gca_resource.supported_deployment_resources_types.append(
+            aiplatform.gapic.Model.DeploymentResourcesType.DEDICATED_RESOURCES
+        )
         test_endpoint.deploy(
             model=test_model,
             machine_type=_TEST_MACHINE_TYPE,
@@ -787,6 +820,9 @@ class TestEndpoint:
     def test_deploy_with_explanations(self, deploy_model_with_explanations_mock, sync):
         test_endpoint = models.Endpoint(_TEST_ENDPOINT_NAME)
         test_model = models.Model(_TEST_ID)
+        test_model._gca_resource.supported_deployment_resources_types.append(
+            aiplatform.gapic.Model.DeploymentResourcesType.DEDICATED_RESOURCES
+        )
         test_endpoint.deploy(
             model=test_model,
             machine_type=_TEST_MACHINE_TYPE,
@@ -831,6 +867,9 @@ class TestEndpoint:
     def test_deploy_with_min_replica_count(self, deploy_model_mock, sync):
         test_endpoint = models.Endpoint(_TEST_ENDPOINT_NAME)
         test_model = models.Model(_TEST_ID)
+        test_model._gca_resource.supported_deployment_resources_types.append(
+            aiplatform.gapic.Model.DeploymentResourcesType.AUTOMATIC_RESOURCES
+        )
         test_endpoint.deploy(model=test_model, min_replica_count=2, sync=sync)
 
         if not sync:
@@ -855,6 +894,9 @@ class TestEndpoint:
     def test_deploy_with_max_replica_count(self, deploy_model_mock, sync):
         test_endpoint = models.Endpoint(_TEST_ENDPOINT_NAME)
         test_model = models.Model(_TEST_ID)
+        test_model._gca_resource.supported_deployment_resources_types.append(
+            aiplatform.gapic.Model.DeploymentResourcesType.AUTOMATIC_RESOURCES
+        )
         test_endpoint.deploy(model=test_model, max_replica_count=2, sync=sync)
         if not sync:
             test_endpoint.wait()

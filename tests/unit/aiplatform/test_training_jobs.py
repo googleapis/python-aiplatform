@@ -686,6 +686,9 @@ def mock_model_service_get():
         model_service_client.ModelServiceClient, "get_model"
     ) as mock_get_model:
         mock_get_model.return_value = gca_model.Model(name=_TEST_MODEL_NAME)
+        mock_get_model.return_value.supported_deployment_resources_types.append(
+            aiplatform.gapic.Model.DeploymentResourcesType.DEDICATED_RESOURCES
+        )
         yield mock_get_model
 
 
