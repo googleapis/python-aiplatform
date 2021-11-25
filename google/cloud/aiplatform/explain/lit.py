@@ -16,7 +16,7 @@
 
 import sys
 
-from typing import List, OrderedDict
+from typing import Dict, List, OrderedDict
 
 
 def create_lit_dataset(
@@ -141,3 +141,31 @@ def create_lit_model(
             return output_types
 
     return VertexLitModel()
+
+
+def open_lit(
+    models: Dict[str, "lit_model.Model"],  # noqa: F821
+    datasets: Dict[str, "lit_dataset.Dataset"],  # noqa: F821
+    open_in_new_tab: bool = True,
+):
+    """Open LIT from the provided models and datasets.
+        Args:
+          models:
+              Required. A list of LIT models to open LIT with.
+          input_types:
+              Required. A lit of LIT datasets to open LIT with.
+          open_in_new_tab:
+              Optional. A boolean to choose if LIT open in a new tab or not.
+        Raises:
+            ImportError if LIT or TensorFlow is not installed.
+    """
+    try:
+        from lit_nlp import notebook
+    except ImportError:
+        raise ImportError(
+            "LIT is not installed and is required to get Dataset as the return format. "
+            'Please install the SDK using "pip install python-aiplatform[lit]"'
+        )
+
+    widget = notebook.LitWidget(models, datasets, open_in_new_tab=open_in_new_tab)
+    widget.render()
