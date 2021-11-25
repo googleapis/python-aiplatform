@@ -1,4 +1,4 @@
-# Copyright 2020 Google LLC
+# Copyright 2021 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -12,18 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import os
+from google.cloud.aiplatform.constants import base
+from google.cloud.aiplatform.constants import prediction
 
-import get_model_evaluation_sample
-
-PROJECT_ID = os.getenv("BUILD_SPECIFIC_GCLOUD_PROJECT")
-MODEL_ID = "626638064948609024"  # bq all
-EVALUATION_ID = "3002272024979570688"  # bq all evaluation
-
-
-def test_ucaip_generated_get_model_evaluation_sample(capsys):
-    get_model_evaluation_sample.get_model_evaluation_sample(
-        project=PROJECT_ID, model_id=MODEL_ID, evaluation_id=EVALUATION_ID
-    )
-    out, _ = capsys.readouterr()
-    assert "metrics_schema_uri" in out
+__all__ = ("base", "prediction")
