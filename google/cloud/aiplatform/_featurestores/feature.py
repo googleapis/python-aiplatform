@@ -317,7 +317,7 @@ class Feature(base.VertexAiResourceNounWithFutureManager):
             location=location,
             credentials=credentials,
             parent=utils.full_resource_name(
-                resource_name=entity_type_id,
+                resource_name=entity_type_name,
                 resource_noun=f"featurestores/{featurestore_id}/entityTypes",
                 project=project,
                 location=location,
@@ -462,6 +462,7 @@ class Feature(base.VertexAiResourceNounWithFutureManager):
             for gapic_resource in resource_list
         ]
 
+    @classmethod
     @base.optional_sync()
     def create(
         cls,
@@ -556,15 +557,13 @@ class Feature(base.VertexAiResourceNounWithFutureManager):
             entity_type_name=entity_type_name, featurestore_id=featurestore_id,
         )
 
-        cls._resource_noun = featurestore_utils.get_feature_resource_noun(
-            featurestore_id=featurestore_id, entity_type_id=entity_type_id
+        cls._resource_noun = (
+            f"featurestores/{featurestore_id}/entityTypes/{entity_type_id}/features"
         )
 
         entity_type_name = utils.full_resource_name(
-            resource_name=entity_type_id,
-            resource_noun=featurestore_utils.get_entity_type_resource_noun(
-                featurestore_id=featurestore_id
-            ),
+            resource_name=entity_type_name,
+            resource_noun=f"featurestores/{featurestore_id}/entityTypes",
             project=project,
             location=location,
         )
