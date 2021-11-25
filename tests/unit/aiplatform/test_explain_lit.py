@@ -14,10 +14,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import pytest
 import collections
 import tensorflow as tf
-from unittest import TestCase
 
 import pandas as pd
 from lit_nlp.api import types as lit_types
@@ -29,7 +27,9 @@ class TestLit(tf.test.TestCase):
     def _set_up_sequential(self):
         # Set up a sequential model
         self.seq_model = tf.keras.models.Sequential()
-        self.seq_model.add(tf.keras.layers.Dense(32, activation="relu", input_shape=(2,)))
+        self.seq_model.add(
+            tf.keras.layers.Dense(32, activation="relu", input_shape=(2,))
+        )
         self.seq_model.add(tf.keras.layers.Dense(32, activation="relu"))
         self.seq_model.add(tf.keras.layers.Dense(1, activation="sigmoid"))
         self.saved_model_path = self.get_temp_dir()

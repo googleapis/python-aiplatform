@@ -20,8 +20,9 @@ from typing import List, OrderedDict
 
 
 def create_lit_dataset(
-    dataset: "pd.Dataframe", column_types: OrderedDict[str, "lit_types.LitType"] = None
-) -> "lit_dataset.Dataset":
+    dataset: "pd.Dataframe",  # noqa: F821
+    column_types: OrderedDict[str, "lit_types.LitType"] = None,  # noqa: F821
+) -> "lit_dataset.Dataset":  # noqa: F821
     """Creates a LIT Dataset object.
         Args:
           dataset:
@@ -41,7 +42,6 @@ def create_lit_dataset(
         )
     try:
         from lit_nlp.api import dataset as lit_dataset
-        from lit_nlp.api import types as lit_types
     except ImportError:
         raise ImportError(
             "LIT is not installed and is required to get Dataset as the return format. "
@@ -60,9 +60,9 @@ def create_lit_dataset(
 
 def create_lit_model(
     model: str,
-    input_types: OrderedDict[str, "lit_types.LitType"],
-    output_types: OrderedDict[str, "lit_types.LitType"],
-) -> "lit_model.Model":
+    input_types: OrderedDict[str, "lit_types.LitType"],  # noqa: F821
+    output_types: OrderedDict[str, "lit_types.LitType"],  # noqa: F821
+) -> "lit_model.Model":  # noqa: F821
     """Creates a LIT Model object.
         Args:
           model:
@@ -81,7 +81,7 @@ def create_lit_model(
     """
     try:
         import tensorflow as tf
-    except:
+    except ImportError:
         raise ImportError(
             "Tensorflow is not installed and is required to load saved model. "
             'Please install the SDK using "pip install pip install python-aiplatform[lit]"'
@@ -120,7 +120,9 @@ def create_lit_model(
             prediction_input_dict = {
                 next(iter(kwargs_signature)): tf.convert_to_tensor(instances)
             }
-            prediction_dict = loaded_model.signatures[tf.saved_model.DEFAULT_SERVING_SIGNATURE_DEF_KEY](**prediction_input_dict)
+            prediction_dict = loaded_model.signatures[
+                tf.saved_model.DEFAULT_SERVING_SIGNATURE_DEF_KEY
+            ](**prediction_input_dict)
             predictions = prediction_dict[next(iter(output_signature))].numpy()
             outputs = []
             for prediction in predictions:
