@@ -14,11 +14,9 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import pandas as pd
 import sys
-import tensorflow as tf
 
-from typing import Any, List, OrderedDict
+from typing import List, OrderedDict
 
 
 def create_lit_dataset(
@@ -55,7 +53,7 @@ def create_lit_dataset(
             self._examples = dataset.to_dict(orient="records")
 
         def spec(self):
-            return column_types
+            return dict(column_types)
 
     return VertexLitDataset()
 
@@ -68,7 +66,7 @@ def create_lit_model(
     """Creates a LIT Model object.
         Args:
           model:
-              Required. A string reference to a TensorFlow saved model directory.
+              Required. A string reference to a TensorFlow saved model directory. The model must have at most one input and one output tensor.
           input_types:
               Required. An OrderedDict of string names matching the features of the model
               as the key, and the associated LitType of the feature.
@@ -79,6 +77,7 @@ def create_lit_model(
             A LIT Model object that has the same functionality as the model provided.
         Raises:
             ImportError if LIT or TensorFlow is not installed.
+            ValueError if the model doesn't have only 1 input tensor.
     """
     try:
         import tensorflow as tf
@@ -98,28 +97,40 @@ def create_lit_model(
         )
 
     loaded_model = tf.saved_model.load(model)
+    serving_default = loaded_model.signatures[
+        tf.saved_model.DEFAULT_SERVING_SIGNATURE_DEF_KEY
+    ]
+    _, kwargs_signature = serving_default.structured_input_signature
+    output_signature = serving_default.structured_outputs
+
+    if len(kwargs_signature) != 1:
+        raise ValueError("Please use a model with only one input tensor.")
+
+    if len(output_signature) != 1:
+        raise ValueError("Please use a model with only one output tensor.")
 
     class VertexLitModel(lit_model.Model):
         def predict_minibatch(
             self, inputs: List["lit_types.JsonDict"]
         ) -> List["lit_types.JsonDict"]:
-            predictions = []
+            instances = []
             for input in inputs:
-                instance = []
-                for feature in input_types:
-                    instance.append(input[feature])
-                prediction_dict = loaded_model.signatures["serving_default"](
-                    tf.constant(instance)
-                )
-                predictions.append(
+                instance = [input[feature] for feature in input_types]
+                instances.append(instance)
+            prediction_input_dict = {
+                next(iter(kwargs_signature)): tf.convert_to_tensor(instances)
+            }
+            prediction_dict = loaded_model.signatures[tf.saved_model.DEFAULT_SERVING_SIGNATURE_DEF_KEY](**prediction_input_dict)
+            predictions = prediction_dict[next(iter(output_signature))].numpy()
+            outputs = []
+            for prediction in predictions:
+                outputs.append(
                     {
-                        label: prediction
-                        for label, prediction in zip(
-                            output_types.keys, prediction_dict.values()
-                        )
+                        label: value
+                        for label, value in zip(output_types.keys(), prediction)
                     }
                 )
-            return predictions
+            return outputs
 
         def input_spec(self) -> "lit_types.Spec":
             return input_types

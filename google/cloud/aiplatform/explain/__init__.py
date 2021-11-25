@@ -20,6 +20,8 @@ from google.cloud.aiplatform.compat.types import (
     explanation_metadata as explanation_metadata_compat,
 )
 
+from google.cloud.aiplatform.explain.lit import create_lit_dataset, create_lit_model
+
 ExplanationMetadata = explanation_metadata_compat.ExplanationMetadata
 
 # ExplanationMetadata subclasses
@@ -43,6 +45,8 @@ XraiAttribution = explanation_compat.XraiAttribution
 
 
 __all__ = (
+    "create_lit_dataset",
+    "create_lit_model",
     "Encoding",
     "ExplanationMetadata",
     "ExplanationParameters",
