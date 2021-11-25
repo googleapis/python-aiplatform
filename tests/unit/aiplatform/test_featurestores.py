@@ -66,6 +66,7 @@ _TEST_ENTITY_TYPE_INVALID = (
 # feature
 _TEST_FEATURE_ID = "feature_id"
 _TEST_FEATURE_NAME = f"{_TEST_ENTITY_TYPE_NAME}/features/{_TEST_FEATURE_ID}"
+_TEST_FEATURE_INVALID = f"{_TEST_ENTITY_TYPE_NAME}/feature/{_TEST_FEATURE_ID}"
 
 # misc
 _TEST_DESCRIPTION = "my description"
@@ -273,73 +274,93 @@ class TestFeaturestoreUtils:
         assert expected == featurestore_utils.validate_id(resource_id)
 
     @pytest.mark.parametrize(
-        "feature_name, featurestore_id, entity_type_id, expected",
+        "feature_name, featurestore_id, entity_type_id",
         [
-            (
-                "projects/123456/locations/us-central1/featurestores/featurestore_id1/entityTypes/entity_type_id1/features/feature_id1",
-                None,
-                None,
-                ("featurestore_id1", "entity_type_id1", "feature_id1"),
-            ),
-            (
-                "feature_id1",
-                "featurestore_id1",
-                "entity_type_id1",
-                ("featurestore_id1", "entity_type_id1", "feature_id1"),
-            ),
+            (_TEST_FEATURE_NAME, None, None,),
+            (_TEST_FEATURE_ID, _TEST_FEATURESTORE_ID, _TEST_ENTITY_TYPE_ID,),
         ],
     )
     def test_validate_and_get_feature_resource_ids(
-        self,
-        feature_name: str,
-        featurestore_id: str,
-        entity_type_id: str,
-        expected: tuple,
+        self, feature_name: str, featurestore_id: str, entity_type_id: str,
     ):
-        assert expected == featurestore_utils.validate_and_get_feature_resource_ids(
+        assert (
+            _TEST_FEATURESTORE_ID,
+            _TEST_ENTITY_TYPE_ID,
+            _TEST_FEATURE_ID,
+        ) == featurestore_utils.validate_and_get_feature_resource_ids(
             feature_name=feature_name,
             featurestore_id=featurestore_id,
             entity_type_id=entity_type_id,
         )
 
     @pytest.mark.parametrize(
-        "entity_type_name, featurestore_id, expected",
+        "feature_name, featurestore_id, entity_type_id",
         [
-            (
-                "projects/123456/locations/us-central1/featurestores/featurestore_id1/entityTypes/entity_type_id1",
-                None,
-                ("featurestore_id1", "entity_type_id1"),
-            ),
-            (
-                "entity_type_id1",
-                "featurestore_id1",
-                ("featurestore_id1", "entity_type_id1"),
-            ),
+            (_TEST_FEATURE_INVALID, None, None,),
+            (_TEST_FEATURE_ID, None, _TEST_ENTITY_TYPE_ID,),
+            (_TEST_FEATURE_ID, None, None,),
+            (_TEST_FEATURE_ID, _TEST_FEATURESTORE_NAME, None,),
+        ],
+    )
+    def test_validate_and_get_feature_resource_ids_with_raise(
+        self, feature_name: str, featurestore_id: str, entity_type_id: str,
+    ):
+        with pytest.raises(ValueError):
+            featurestore_utils.validate_and_get_feature_resource_ids(
+                feature_name=feature_name,
+                featurestore_id=featurestore_id,
+                entity_type_id=entity_type_id,
+            )
+
+    @pytest.mark.parametrize(
+        "entity_type_name, featurestore_id",
+        [
+            (_TEST_ENTITY_TYPE_NAME, None,),
+            (_TEST_ENTITY_TYPE_ID, _TEST_FEATURESTORE_ID,),
         ],
     )
     def test_validate_and_get_entity_type_resource_ids(
-        self, entity_type_name: str, featurestore_id: str, expected: tuple
+        self, entity_type_name: str, featurestore_id: str
     ):
-        assert expected == featurestore_utils.validate_and_get_entity_type_resource_ids(
+        assert (
+            _TEST_FEATURESTORE_ID,
+            _TEST_ENTITY_TYPE_ID,
+        ) == featurestore_utils.validate_and_get_entity_type_resource_ids(
             entity_type_name=entity_type_name, featurestore_id=featurestore_id
         )
 
     @pytest.mark.parametrize(
-        "featurestore_name, expected",
+        "entity_type_name, featurestore_id",
         [
-            (
-                "projects/123456/locations/us-central1/featurestores/featurestore_id1",
-                "featurestore_id1",
-            ),
-            ("featurestore_id1", "featurestore_id1",),
+            (_TEST_ENTITY_TYPE_INVALID, None,),
+            (_TEST_ENTITY_TYPE_ID, None,),
+            (_TEST_ENTITY_TYPE_ID, _TEST_FEATURESTORE_NAME,),
         ],
     )
-    def test_validate_and_get_featurestore_resource_id(
-        self, featurestore_name: str, expected: str
+    def test_validate_and_get_entity_type_resource_ids_with_raise(
+        self, entity_type_name: str, featurestore_id: str,
     ):
-        assert expected == featurestore_utils.validate_and_get_featurestore_resource_id(
-            featurestore_name=featurestore_name
+        with pytest.raises(ValueError):
+            featurestore_utils.validate_and_get_entity_type_resource_ids(
+                entity_type_name=entity_type_name, featurestore_id=featurestore_id
+            )
+
+    @pytest.mark.parametrize(
+        "featurestore_name", [_TEST_FEATURESTORE_NAME, _TEST_FEATURESTORE_ID]
+    )
+    def test_validate_and_get_featurestore_resource_id(self, featurestore_name: str):
+        assert (
+            _TEST_FEATURESTORE_ID
+            == featurestore_utils.validate_and_get_featurestore_resource_id(
+                featurestore_name=featurestore_name
+            )
         )
+
+    def test_validate_and_get_featurestore_resource_ids_with_raise(self,):
+        with pytest.raises(ValueError):
+            featurestore_utils.validate_and_get_featurestore_resource_id(
+                featurestore_name=_TEST_FEATURESTORE_INVALID
+            )
 
 
 class TestFeaturestore:
@@ -350,21 +371,19 @@ class TestFeaturestore:
     def teardown_method(self):
         initializer.global_pool.shutdown(wait=True)
 
-    def test_init_featurestore(self, get_featurestore_mock):
+    @pytest.mark.parametrize(
+        "featurestore_name", [_TEST_FEATURESTORE_ID, _TEST_FEATURESTORE_NAME]
+    )
+    def test_init_featurestore(self, featurestore_name, get_featurestore_mock):
         aiplatform.init(project=_TEST_PROJECT)
 
         my_featurestore = featurestores.Featurestore(
-            featurestore_name=_TEST_FEATURESTORE_ID
+            featurestore_name=featurestore_name
         )
 
         get_featurestore_mock.assert_called_once_with(
             name=my_featurestore.resource_name, retry=base._DEFAULT_RETRY
         )
-
-    def test_init_featurestore_with_invalid_featurestore_name(self):
-        aiplatform.init(project=_TEST_PROJECT)
-        with pytest.raises(ValueError):
-            featurestores.Featurestore(featurestore_name=_TEST_FEATURESTORE_INVALID)
 
     @pytest.mark.usefixtures("get_featurestore_mock")
     def test_get_entity_type(self, get_entity_type_mock):
@@ -373,20 +392,14 @@ class TestFeaturestore:
         my_featurestore = featurestores.Featurestore(
             featurestore_name=_TEST_FEATURESTORE_ID
         )
-        my_featurestore.get_entity_type(entity_type_id=_TEST_ENTITY_TYPE_ID)
+        my_entity_type = my_featurestore.get_entity_type(
+            entity_type_id=_TEST_ENTITY_TYPE_ID
+        )
 
         get_entity_type_mock.assert_called_once_with(
             name=_TEST_ENTITY_TYPE_NAME, retry=base._DEFAULT_RETRY
         )
-
-    @pytest.mark.usefixtures("get_featurestore_mock")
-    def test_get_entity_type_with_invalid_entity_type_id(self):
-        aiplatform.init(project=_TEST_PROJECT)
-        my_featurestore = featurestores.Featurestore(
-            featurestore_name=_TEST_FEATURESTORE_ID
-        )
-        with pytest.raises(ValueError):
-            my_featurestore.get_entity_type(entity_type_id=_TEST_ENTITY_TYPE_INVALID)
+        assert type(my_entity_type) == featurestores.EntityType
 
     @pytest.mark.usefixtures("get_featurestore_mock")
     def test_update_featurestore(self, update_featurestore_mock):
@@ -457,6 +470,7 @@ class TestFeaturestore:
 
         if not sync:
             my_featurestore.wait()
+
         delete_featurestore_mock.assert_called_once_with(
             name=my_featurestore.resource_name
         )
@@ -522,10 +536,21 @@ class TestEntityType:
     def teardown_method(self):
         initializer.global_pool.shutdown(wait=True)
 
-    def test_init_entity_type(self, get_entity_type_mock):
+    @pytest.mark.parametrize(
+        "entity_type_name, featurestore_id",
+        [
+            (_TEST_ENTITY_TYPE_NAME, None),
+            (_TEST_ENTITY_TYPE_ID, _TEST_FEATURESTORE_ID),
+        ],
+    )
+    def test_init_entity_type(
+        self, entity_type_name, featurestore_id, get_entity_type_mock
+    ):
         aiplatform.init(project=_TEST_PROJECT)
 
-        featurestores.EntityType(entity_type_name=_TEST_ENTITY_TYPE_NAME)
+        featurestores.EntityType(
+            entity_type_name=entity_type_name, featurestore_id=featurestore_id
+        )
 
         get_entity_type_mock.assert_called_once_with(
             name=_TEST_ENTITY_TYPE_NAME, retry=base._DEFAULT_RETRY
@@ -543,6 +568,7 @@ class TestEntityType:
         get_featurestore_mock.assert_called_once_with(
             name=my_featurestore.resource_name, retry=base._DEFAULT_RETRY
         )
+        assert type(my_featurestore) == featurestores.Featurestore
 
     @pytest.mark.usefixtures("get_entity_type_mock")
     def test_get_feature(self, get_feature_mock):
@@ -556,6 +582,7 @@ class TestEntityType:
         get_feature_mock.assert_called_once_with(
             name=my_feature.resource_name, retry=base._DEFAULT_RETRY
         )
+        assert type(my_feature) == featurestores.Feature
 
     @pytest.mark.usefixtures("get_entity_type_mock")
     def test_update_entity_type(self, update_entity_type_mock):
@@ -575,11 +602,14 @@ class TestEntityType:
             metadata=_TEST_REQUEST_METADATA,
         )
 
-    def test_list_entity_types(self, list_entity_types_mock):
+    @pytest.mark.parametrize(
+        "featurestore_name", [_TEST_FEATURESTORE_NAME, _TEST_FEATURESTORE_ID]
+    )
+    def test_list_entity_types(self, featurestore_name, list_entity_types_mock):
         aiplatform.init(project=_TEST_PROJECT)
 
         my_entity_type_list = featurestores.EntityType.list(
-            featurestore_name=_TEST_FEATURESTORE_ID
+            featurestore_name=featurestore_name
         )
 
         list_entity_types_mock.assert_called_once_with(
@@ -637,9 +667,22 @@ class TestFeature:
     def teardown_method(self):
         initializer.global_pool.shutdown(wait=True)
 
-    def test_init_feature(self, get_feature_mock):
+    @pytest.mark.parametrize(
+        "feature_name, entity_type_id, featurestore_id",
+        [
+            (_TEST_FEATURE_NAME, None, None),
+            (_TEST_FEATURE_ID, _TEST_ENTITY_TYPE_ID, _TEST_FEATURESTORE_ID),
+        ],
+    )
+    def test_init_feature(
+        self, feature_name, entity_type_id, featurestore_id, get_feature_mock
+    ):
         aiplatform.init(project=_TEST_PROJECT)
-        featurestores.Feature(feature_name=_TEST_FEATURE_NAME)
+        featurestores.Feature(
+            feature_name=feature_name,
+            entity_type_id=entity_type_id,
+            featurestore_id=featurestore_id,
+        )
         get_feature_mock.assert_called_once_with(
             name=_TEST_FEATURE_NAME, retry=base._DEFAULT_RETRY
         )
@@ -654,6 +697,7 @@ class TestFeature:
         get_featurestore_mock.assert_called_once_with(
             name=my_featurestore.resource_name, retry=base._DEFAULT_RETRY
         )
+        assert type(my_featurestore) == featurestores.Featurestore
 
     @pytest.mark.usefixtures("get_feature_mock")
     def test_get_entity_type(self, get_entity_type_mock):
@@ -665,6 +709,7 @@ class TestFeature:
         get_entity_type_mock.assert_called_once_with(
             name=my_entity_type.resource_name, retry=base._DEFAULT_RETRY
         )
+        assert type(my_entity_type) == featurestores.EntityType
 
     @pytest.mark.usefixtures("get_feature_mock")
     def test_update_feature(self, update_feature_mock):
@@ -682,11 +727,18 @@ class TestFeature:
             metadata=_TEST_REQUEST_METADATA,
         )
 
-    def test_list_features(self, list_features_mock):
+    @pytest.mark.parametrize(
+        "entity_type_name, featurestore_id",
+        [
+            (_TEST_ENTITY_TYPE_NAME, None),
+            (_TEST_ENTITY_TYPE_ID, _TEST_FEATURESTORE_ID),
+        ],
+    )
+    def test_list_features(self, entity_type_name, featurestore_id, list_features_mock):
         aiplatform.init(project=_TEST_PROJECT)
 
         my_feature_list = featurestores.Feature.list(
-            entity_type_name=_TEST_ENTITY_TYPE_ID, featurestore_id=_TEST_FEATURESTORE_ID
+            entity_type_name=entity_type_name, featurestore_id=featurestore_id
         )
 
         list_features_mock.assert_called_once_with(
