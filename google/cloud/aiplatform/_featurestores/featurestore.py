@@ -23,6 +23,7 @@ from google.protobuf import field_mask_pb2
 from google.cloud.aiplatform import base
 from google.cloud.aiplatform.compat.types import featurestore as gca_featurestore
 from google.cloud.aiplatform import _featurestores
+from google.cloud.aiplatform import initializer
 from google.cloud.aiplatform import utils
 from google.cloud.aiplatform.utils import featurestore_utils
 

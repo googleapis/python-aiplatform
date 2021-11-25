@@ -25,7 +25,6 @@ from google.cloud.aiplatform import utils
 CompatFeaturestoreServiceClient = featurestore_service_client.FeaturestoreServiceClient
 
 RESOURCE_ID_PATTERN_REGEX = r"[a-z_][a-z0-9_]{0,59}"
-FEATURESTORE_RESOURCE_NOUN = "featurestores"
 _FEATURE_VALUE_TYPE_UNSPECIFIED = "VALUE_TYPE_UNSPECIFIED"
 
 

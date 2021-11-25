@@ -1068,6 +1068,7 @@ class TestFeature:
         for my_feature in my_feature_list:
             assert type(my_feature) == featurestores.Feature
 
+    @pytest.mark.usefixtures("get_feature_mock")
     @pytest.mark.parametrize("sync", [True, False])
     def test_create_feature(self, create_feature_mock, sync):
         aiplatform.init(project=_TEST_PROJECT)

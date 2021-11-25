@@ -460,23 +460,25 @@ class EntityType(base.VertexAiResourceNounWithFutureManager):
             EntityType - entity_type resource object
 
         """
-        featurestore_id = featurestore_utils.validate_and_get_featurestore_resource_id(
-            featurestore_name=featurestore_name,
+
+        featurestore_path_components = featurestore_utils.CompatFeaturestoreServiceClient.parse_featurestore_path(
+            path=featurestore_name
+        )
+        featurestore_id = (
+            featurestore_path_components["featurestore"] or featurestore_name
+        )
+
+        cls._resource_noun = f"featurestores/{featurestore_id}/entityTypes"
+
+        featurestore_name = utils.full_resource_name(
+            resource_name=featurestore_name,
+            resource_noun="featurestores",
+            project=project,
+            location=location,
         )
 
         if labels:
             utils.validate_labels(labels)
-
-        cls._resource_noun = featurestore_utils.get_entity_type_resource_noun(
-            featurestore_id=featurestore_id
-        )
-
-        featurestore_name = utils.full_resource_name(
-            resource_name=featurestore_id,
-            resource_noun=featurestore_utils.FEATURESTORE_RESOURCE_NOUN,
-            project=project,
-            location=location,
-        )
 
         gapic_entity_type = gca_entity_type.EntityType(
             description=description, labels=labels,
