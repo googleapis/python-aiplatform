@@ -20,7 +20,12 @@ from google.cloud.aiplatform.compat.types import (
     explanation_metadata as explanation_metadata_compat,
 )
 
-from google.cloud.aiplatform.explain.lit import create_lit_dataset, create_lit_model
+from google.cloud.aiplatform.explain.lit import (
+    create_lit_dataset,
+    create_lit_model,
+    open_lit,
+    set_up_and_open_lit,
+)
 
 ExplanationMetadata = explanation_metadata_compat.ExplanationMetadata
 
@@ -54,8 +59,10 @@ __all__ = (
     "FeatureValueDomain",
     "InputMetadata",
     "IntegratedGradientsAttribution",
+    "open_lit",
     "OutputMetadata",
     "SampledShapleyAttribution",
+    "set_up_and_open_lit",
     "SmoothGradConfig",
     "Visualization",
     "XraiAttribution",

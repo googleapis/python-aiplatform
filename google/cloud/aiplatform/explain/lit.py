@@ -16,12 +16,12 @@
 
 import sys
 
-from typing import Dict, List, OrderedDict
+from typing import Dict, List, Optional, OrderedDict, Tuple, Union
 
 
 def create_lit_dataset(
     dataset: "pd.Dataframe",  # noqa: F821
-    column_types: OrderedDict[str, "lit_types.LitType"] = None,  # noqa: F821
+    column_types: OrderedDict[str, "lit_types.LitType"],  # noqa: F821
 ) -> "lit_dataset.Dataset":  # noqa: F821
     """Creates a LIT Dataset object.
         Args:
@@ -77,7 +77,7 @@ def create_lit_model(
             A LIT Model object that has the same functionality as the model provided.
         Raises:
             ImportError if LIT or TensorFlow is not installed.
-            ValueError if the model doesn't have only 1 input tensor.
+            ValueError if the model doesn't have only 1 input and output tensor.
     """
     try:
         import tensorflow as tf
@@ -146,7 +146,7 @@ def create_lit_model(
 def open_lit(
     models: Dict[str, "lit_model.Model"],  # noqa: F821
     datasets: Dict[str, "lit_dataset.Dataset"],  # noqa: F821
-    open_in_new_tab: bool = True,
+    open_in_new_tab: Optional[bool] = True,
 ):
     """Open LIT from the provided models and datasets.
         Args:
@@ -163,9 +163,57 @@ def open_lit(
         from lit_nlp import notebook
     except ImportError:
         raise ImportError(
-            "LIT is not installed and is required to get Dataset as the return format. "
+            "LIT is not installed and is required to open LIT. "
             'Please install the SDK using "pip install python-aiplatform[lit]"'
         )
 
     widget = notebook.LitWidget(models, datasets, open_in_new_tab=open_in_new_tab)
     widget.render()
+
+
+def set_up_and_open_lit(
+    dataset: Union["Pd.Dataframe", "lit_dataset.Dataset"],  # noqa: F821
+    column_types: OrderedDict[str, "lit_types.LitType"],  # noqa: F821
+    model: Union[str, "lit_model.Model"],  # noqa: F821
+    input_types: Union[List[str], Dict[str, "LitType"]],  # noqa: F821
+    output_types: Union[str, List[str], Dict[str, "LitType"]],  # noqa: F821
+    open_in_new_tab: Optional[bool] = True,
+) -> Tuple["lit_dataset.Dataset", "lit_model.Model"]:  # noqa: F821
+    """Creates a LIT dataset and model and opens LIT.
+        Args:
+        dataset:
+            Required. A Pandas Dataframe that includes feature column names and data.
+        column_types:
+            Required. An OrderedDict of string names matching the columns of the dataset
+            as the key, and the associated LitType of the column.
+        model:
+            Required. A string reference to a TensorFlow saved model directory. The model must have at most one input and one output tensor.
+        input_types:
+            Required. An OrderedDict of string names matching the features of the model
+            as the key, and the associated LitType of the feature.
+        output_types:
+            Required. An OrderedDict of string names matching the labels of the model
+            as the key, and the associated LitType of the label.
+        Returns:
+            A Tuple of the LIT dataset and model created.
+        Raises:
+            ImportError if LIT or TensorFlow is not installed.
+            ValueError if the model doesn't have only 1 input and output tensor.
+    """
+    try:
+        from lit_nlp.api import dataset as lit_dataset
+        from lit_nlp.api import model as lit_model
+    except ImportError:
+        raise ImportError(
+            "LIT is not installed and is required to get Dataset as the return format. "
+            'Please install the SDK using "pip install python-aiplatform[lit]"'
+        )
+    if not isinstance(dataset, lit_dataset.Dataset):
+        dataset = create_lit_dataset(dataset, column_types)
+
+    if not isinstance(model, lit_model.Model):
+        model = create_lit_model(model, input_types, output_types)
+
+    open_lit({"dataset": dataset}, {"model": model}, open_in_new_tab=open_in_new_tab)
+
+    return dataset, model

@@ -16,11 +16,14 @@
 
 import collections
 import tensorflow as tf
-
 import pandas as pd
-from lit_nlp.api import types as lit_types
 
-from google.cloud.aiplatform.explain.lit import create_lit_dataset, create_lit_model
+from lit_nlp.api import types as lit_types
+from google.cloud.aiplatform.explain.lit import (
+    create_lit_dataset,
+    create_lit_model,
+    set_up_and_open_lit,
+)
 
 
 class TestLit(tf.test.TestCase):
@@ -34,38 +37,52 @@ class TestLit(tf.test.TestCase):
         self.seq_model.add(tf.keras.layers.Dense(1, activation="sigmoid"))
         self.saved_model_path = self.get_temp_dir()
         tf.saved_model.save(self.seq_model, self.saved_model_path)
+        feature_types = collections.OrderedDict(
+            [("feature_1", lit_types.Scalar()), ("feature_2", lit_types.Scalar())]
+        )
+        label_types = collections.OrderedDict([("label", lit_types.RegressionScore())])
+        return feature_types, label_types
 
-    def test_create_lit_dataset_from_pandas_returns_dataset(self):
-        pd_dataset = pd.DataFrame.from_dict(
+    def _set_up_pandas_dataframe_and_columns(self):
+        dataframe = pd.DataFrame.from_dict(
             {"feature_1": [1.0, 2.0], "feature_2": [3.0, 4.0], "label": [1.0, 0.0]}
         )
-        lit_columns = collections.OrderedDict(
+        columns = collections.OrderedDict(
             [
                 ("feature_1", lit_types.Scalar()),
                 ("feature_2", lit_types.Scalar()),
                 ("label", lit_types.RegressionScore()),
             ]
         )
+        return dataframe, columns
+
+    def test_create_lit_dataset_from_pandas_returns_dataset(self):
+        # pd_dataset = pd.DataFrame.from_dict(
+        #     {"feature_1": [1.0, 2.0], "feature_2": [3.0, 4.0], "label": [1.0, 0.0]}
+        # )
+        # lit_columns = collections.OrderedDict(
+        #     [
+        #         ("feature_1", lit_types.Scalar()),
+        #         ("feature_2", lit_types.Scalar()),
+        #         ("label", lit_types.RegressionScore()),
+        #     ]
+        # )
+        pd_dataset, lit_columns = self._set_up_pandas_dataframe_and_columns()
         lit_dataset = create_lit_dataset(pd_dataset, lit_columns)
-        expected_spec = {
-            "feature_1": lit_types.Scalar(),
-            "feature_2": lit_types.Scalar(),
-            "label": lit_types.RegressionScore(),
-        }
         expected_examples = [
             {"feature_1": 1.0, "feature_2": 3.0, "label": 1.0},
             {"feature_1": 2.0, "feature_2": 4.0, "label": 0.0},
         ]
 
-        assert expected_spec == lit_dataset.spec()
+        assert lit_dataset.spec() == dict(lit_columns)
         assert expected_examples == lit_dataset._examples
 
     def test_create_lit_model_from_tensorflow_returns_model(self):
-        self._set_up_sequential()
-        feature_types = collections.OrderedDict(
-            [("feature_1", lit_types.Scalar()), ("feature_2", lit_types.Scalar())]
-        )
-        label_types = collections.OrderedDict([("label", lit_types.RegressionScore())])
+        feature_types, label_types = self._set_up_sequential()
+        # feature_types = collections.OrderedDict(
+        #     [("feature_1", lit_types.Scalar()), ("feature_2", lit_types.Scalar())]
+        # )
+        # label_types = collections.OrderedDict([("label", lit_types.RegressionScore())])
         lit_model = create_lit_model(self.saved_model_path, feature_types, label_types)
         test_inputs = [
             {"feature_1": 1.0, "feature_2": 2.0},
