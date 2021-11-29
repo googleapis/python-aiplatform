@@ -130,6 +130,19 @@ class TestProfilerPlugin(unittest.TestCase):
     def setUp(self):
         setupProfilerEnvVars()
 
+    def testImportError(self):
+        orig_find_spec = importlib.util.find_spec
+
+        def profile_import_mock(name, *args, **kwargs):
+            if name == "tensorboard_plugin_profile":
+                return None
+            return orig_find_spec(name, *args, **kwargs)
+
+        with mock.patch.dict(
+            "sys.modules", {"tensorboard_plugin_profile.profile_plugin": None}
+        ):
+            self.assertRaises(ImportError, reload, tf_profiler)
+
     # Environment variable tests
     def testCanInitializeProfilerPortUnset(self):
         tf_profiler.environment_variables.tf_profiler_port = None
@@ -359,14 +372,6 @@ class TestWebServer(unittest.TestCase):
 
 # Initializer tests
 class TestInitializer(unittest.TestCase):
-    # Tests for building the plugin
-    def test_init_failed_import(self):
-        with mock.patch.dict(
-            "sys.modules",
-            {"google.cloud.aiplatform.training_utils.cloud_profiler.initializer": None},
-        ):
-            self.assertRaises(ImportError, reload, training_utils.cloud_profiler)
-
     def test_build_plugin_fail_initialize(self):
         plugin = _create_mock_plugin()
         plugin.can_initialize.return_value = False

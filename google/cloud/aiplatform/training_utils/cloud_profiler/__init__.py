@@ -15,13 +15,7 @@
 # limitations under the License.
 #
 
-try:
-    import google.cloud.aiplatform.training_utils.cloud_profiler.initializer
-except ImportError as err:
-    raise ImportError(
-        "Could not load the cloud profiler. To use the profiler, "
-        'install the SDK using "pip install google-cloud-aiplatform[cloud-profiler]"'
-    ) from err
+from google.cloud.aiplatform.training_utils.cloud_profiler import initializer
 
 """
 Initialize the cloud profiler for tensorflow.
