@@ -16,7 +16,7 @@
 #
 
 try:
-    import google.cloud.aiplatform.training_utils.cloud_profiler.initializer as initializer
+    import google.cloud.aiplatform.training_utils.cloud_profiler.initializer
 except ImportError as err:
     raise ImportError(
         "Could not load the cloud profiler. To use the profiler, "
