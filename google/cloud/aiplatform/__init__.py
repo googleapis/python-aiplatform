@@ -53,6 +53,7 @@ from google.cloud.aiplatform.training_jobs import (
     AutoMLTextTrainingJob,
     AutoMLVideoTrainingJob,
 )
+from google.cloud.aiplatform import helpers
 
 """
 Usage:
@@ -73,6 +74,7 @@ __all__ = (
     "explain",
     "gapic",
     "init",
+    "helpers",
     "hyperparameter_tuning",
     "log_params",
     "log_metrics",
