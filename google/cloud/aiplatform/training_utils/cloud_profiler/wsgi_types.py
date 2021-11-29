@@ -15,7 +15,14 @@
 # limitations under the License.
 #
 
-from google.cloud.aiplatform.tensorboard.tensorboard_resource import Tensorboard
+# Typing description for the WSGI App callables
+# For more information on WSGI, see PEP 3333
 
+from typing import Any, Dict, Text, Callable
 
-__all__ = ("Tensorboard",)
+# Contain CGI environment variables, as defined by the Common Gateway Interface
+# specification.
+Environment = Dict[Text, Any]
+
+# Used to begin the HTTP response.
+StartResponse = Callable[..., Callable[[bytes], None]]
