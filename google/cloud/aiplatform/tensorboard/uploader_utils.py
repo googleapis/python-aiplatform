@@ -406,7 +406,6 @@ class TimeSeriesResourceManager(object):
                         filter="display_name = {}".format(json.dumps(str(tag_name))),
                     )
                 )
-
                 num = 0
                 time_series = None
 

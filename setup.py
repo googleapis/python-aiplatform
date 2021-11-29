@@ -37,6 +37,8 @@ tensorboard_extra_require = ["tensorflow >=2.3.0, <=2.5.0"]
 metadata_extra_require = ["pandas >= 1.0.0"]
 xai_extra_require = ["tensorflow >=2.3.0, <=2.5.0"]
 lit_extra_require = ["tensorflow >= 2.3.0", "pandas >= 1.0.0", "lit-nlp >= 0.4.0"]
+profiler_extra_require = ["tensorboard-plugin-profile", "tensorflow >=2.4.0"]
+
 full_extra_require = list(
     set(
         tensorboard_extra_require
@@ -45,7 +47,9 @@ full_extra_require = list(
         + lit_extra_require
     )
 )
-testing_extra_require = full_extra_require + ["grpcio-testing", "pytest-xdist"]
+testing_extra_require = (
+    full_extra_require + profiler_extra_require + ["grpcio-testing", "pytest-xdist"]
+)
 
 
 setuptools.setup(
@@ -87,6 +91,7 @@ setuptools.setup(
         "testing": testing_extra_require,
         "xai": xai_extra_require,
         "lit": lit_extra_require,
+        "cloud_profiler": profiler_extra_require,
     },
     python_requires=">=3.6",
     scripts=[],
