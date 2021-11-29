@@ -69,7 +69,7 @@ class EntityType(base.VertexAiResourceNounWithFutureManager):
                 Example: "projects/123/locations/us-central1/featurestores/my_featurestore_id/entityTypes/my_entity_type_id"
                 or "my_entity_type_id" when project and location are initialized or passed, with featurestore_id passed.
             featurestore_id (str):
-                Optional. Featurestore to retrieve entityType from.
+                Optional. Featurestore ID to retrieve entityType from, when entity_type_name is passed as entity_type ID.
             project (str):
                 Optional. Project to retrieve entityType from. If not set, project
                 set in aiplatform.init will be used.

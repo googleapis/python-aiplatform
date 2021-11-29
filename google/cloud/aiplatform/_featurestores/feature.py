@@ -70,9 +70,9 @@ class Feature(base.VertexAiResourceNounWithFutureManager):
                 Example: "projects/123/locations/us-central1/featurestores/my_featurestore_id/entityTypes/my_entity_type_id/features/my_feature_id"
                 or "my_feature_id" when project and location are initialized or passed, with featurestore_id and entity_type_id passed.
             featurestore_id (str):
-                Optional. Featurestore to retrieve feature from.
+                Optional. Featurestore ID to retrieve feature from, when feature_name is passed as Feature ID.
             entity_type_id (str):
-                Optional. EntityType to retrieve feature from.
+                Optional. EntityType ID to retrieve feature from, when feature_name is passed as Feature ID.
             project (str):
                 Optional. Project to retrieve feature from. If not set, project
                 set in aiplatform.init will be used.
@@ -237,7 +237,7 @@ class Feature(base.VertexAiResourceNounWithFutureManager):
                 Example: "projects/123/locations/us-central1/featurestores/my_featurestore_id/entityTypes/my_entity_type_id"
                 or "my_entity_type_id" when project and location are initialized or passed, with featurestore_id passed.
             featurestore_id (str):
-                Optional. Featurestore to list features in.
+                Optional. Featurestore ID to list features in, when entity_type_name is passed as entity_type ID.
             filter (str):
                 Optional. Lists the Features that match the filter expression. The
                 following filters are supported:
