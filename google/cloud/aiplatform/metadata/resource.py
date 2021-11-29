@@ -36,7 +36,6 @@ class _Resource(base.VertexAiResourceNounWithFutureManager, abc.ABC):
     """Metadata Resource for Vertex AI"""
 
     client_class = utils.MetadataClientWithOverride
-    _is_client_prediction_client = False
     _delete_method = None
 
     def __init__(

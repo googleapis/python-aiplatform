@@ -22,7 +22,7 @@ import pathlib
 from collections import namedtuple
 import logging
 import re
-from typing import Any, Dict, Match, Optional, Type, TypeVar, Tuple
+from typing import Any, Callable, Dict, Match, Optional, Type, TypeVar, Tuple
 
 from google.api_core import client_options
 from google.api_core import gapic_v1
@@ -143,6 +143,9 @@ def extract_fields_from_resource_name(
 def full_resource_name(
     resource_name: str,
     resource_noun: str,
+    parse_resource_name_method: Callable[[str], Dict[str,str]],
+    format_resource_name_method: Callable[..., str],
+    parent_resource_name_fields: Optional[Dict[str, str]] = None,
     project: Optional[str] = None,
     location: Optional[str] = None,
 ) -> str:
@@ -169,69 +172,39 @@ def full_resource_name(
     Returns:
         resource_name (str):
             A fully-qualified Vertex AI resource name.
-
-    Raises:
-        ValueError:
-            If resource name, resource ID or project ID not provided.
     """
-    validate_resource_noun(resource_noun)
     # Fully qualified resource name, e.g., "projects/.../locations/.../datasets/12345" or
     # "projects/.../locations/.../metadataStores/.../contexts/12345"
-    valid_name = extract_fields_from_resource_name(
-        resource_name=resource_name, resource_noun=resource_noun
-    )
+    fields = parse_resource_name_method(resource_name)
+    if fields:
+        return resource_name
 
     user_project = project or initializer.global_config.project
     user_location = location or initializer.global_config.location
 
-    # Partial resource name (i.e. "12345") with known project and location
-    if (
-        not valid_name
-        and validate_project(user_project)
-        and validate_region(user_location)
-        and validate_id(resource_name)
-    ):
-        resource_name = f"projects/{user_project}/locations/{user_location}/{resource_noun}/{resource_name}"
-    # Invalid resource_name parameter
-    elif not valid_name:
-        raise ValueError(f"Please provide a valid {resource_noun[:-1]} name or ID")
+    validate_region(user_location)
+    validate_id(resource_name)
 
-    return resource_name
+    format_args = {
+        'location': user_location,
+        'project': user_project,
+        convert_camel_case_resource_noun_to_snake_case(resource_noun): resource_name,
+    }
 
+    if parent_resource_name_fields:
+        format_args.update(parent_resource_name_fields)
 
-# TODO(b/172286889) validate resource noun
-def validate_resource_noun(resource_noun: str) -> bool:
-    """Validates resource noun.
-
-    Args:
-        resource_noun: resource noun to validate
-    Returns:
-        bool: True if no errors raised
-    Raises:
-        ValueError: If resource noun not supported.
-    """
-    if resource_noun:
-        return True
-    raise ValueError("Please provide a valid resource noun")
+    return format_resource_name_method(**parent_resource_name_fields)
 
 
-# TODO(b/172288287) validate project
-def validate_project(project: str) -> bool:
-    """Validates project.
+def convert_camel_case_resource_noun_to_snake_case(resource_noun: str) -> str:
+    # camel to snake
+    snake_case = re.sub('([A-Z]+)', r'_\1', resource_noun).lower()
 
-    Args:
-        project: project to validate
-    Returns:
-        bool: True if no errors raised
-    Raises:
-        ValueError: If project does not exist.
-    """
-    if project:
-        return True
-    raise ValueError("Please provide a valid project ID")
+    # plural to singular
+    return snake_case[:-1] if snake_case[-1] == 's' else snake_case
 
 
-# TODO(b/172932277) verify display name only contains utf-8 chars
 def validate_display_name(display_name: str):
     """Verify display name is at most 128 chars.
 
@@ -433,6 +406,20 @@ class ClientWithOverride:
 
     def select_version(self, version: str) -> VertexAiServiceClient:
         return self._clients[version]
+
+    @classmethod
+    def get_gapic_client_class(cls, version: Optional[str] = None) -> Type[VertexAiServiceClient]:
+        """Gets the underyilng GAPIC client.
+
+        Used to access class and static methods without instantiating. 
+
+        Args:
+            version (str):
+                Optional. Version of client to retreive otherwise the default version is returned.
+        Retuns:
+            Underlying GAPIC client for this wrapper and version.
+        """
+        return dict(cls._version_map)[version or cls._default_version]
 
 
 class DatasetClientWithOverride(ClientWithOverride):

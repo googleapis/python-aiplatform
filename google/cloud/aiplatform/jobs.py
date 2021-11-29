@@ -82,7 +82,6 @@ class _Job(base.VertexAiResourceNounWithFutureManager):
     """
 
     client_class = utils.JobClientWithOverride
-    _is_client_prediction_client = False
 
     def __init__(
         self,
@@ -167,8 +166,11 @@ class _Job(base.VertexAiResourceNounWithFutureManager):
     def _dashboard_uri(self) -> Optional[str]:
         """Helper method to compose the dashboard uri where job can be
         viewed."""
-        fields = utils.extract_fields_from_resource_name(self.resource_name)
-        url = f"https://console.cloud.google.com/ai/platform/locations/{fields.location}/{self._job_type}/{fields.id}?project={fields.project}"
+        fields = self.parse_resource_name(self.resource_name)
+        location = fields.pop('location')
+        project = fields.pop('project')
+        job = list(fields.values())[0]
+        url = f"https://console.cloud.google.com/ai/platform/locations/{location}/{self._job_type}/{job}?project={project}"
         return url
 
     def _log_job_state(self):
@@ -279,6 +281,8 @@ class BatchPredictionJob(_Job):
     _cancel_method = "cancel_batch_prediction_job"
     _delete_method = "delete_batch_prediction_job"
     _job_type = "batch-predictions"
+    _parse_resource_name_method = "parse_batch_prediction_job_path"
+    _format_resource_name_method = "batch_prediction_job_path"
 
     def __init__(
         self,
@@ -532,6 +536,8 @@ class BatchPredictionJob(_Job):
             model_name = utils.full_resource_name(
                 resource_name=model_name,
                 resource_noun="models",
+                parse_resource_name_method=aiplatform.Model.parse_resource_name,
+                format_resource_name_method=aiplatform.Model.format_resource_name,
                 project=project,
                 location=location,
             )
@@ -951,6 +957,8 @@ class DataLabelingJob(_Job):
     _cancel_method = "cancel_data_labeling_job"
     _delete_method = "delete_data_labeling_job"
     _job_type = "labeling-tasks"
+    _parse_resource_name_method = "parse_data_labeling_job_path"
+    _format_resource_name_method = "data_labeling_job_path"
     pass
 
 
@@ -962,6 +970,8 @@ class CustomJob(_RunnableJob):
     _list_method = "list_custom_jobs"
     _cancel_method = "cancel_custom_job"
     _delete_method = "delete_custom_job"
+    _parse_resource_name_method = "parse_custom_job_path"
+    _format_resource_name_method = "custom_job_path"
     _job_type = "training"
 
     def __init__(
@@ -1435,6 +1445,8 @@ class HyperparameterTuningJob(_RunnableJob):
     _list_method = "list_hyperparameter_tuning_jobs"
     _cancel_method = "cancel_hyperparameter_tuning_job"
     _delete_method = "delete_hyperparameter_tuning_job"
+    _parse_resource_name_method = "parse_hyperparameter_tuning_job_path"
+    _format_resource_name_method = "hyperparameter_tuning_job_path"
     _job_type = "training"
 
     def __init__(

@@ -73,11 +73,12 @@ class Prediction(NamedTuple):
 class Endpoint(base.VertexAiResourceNounWithFutureManager):
 
     client_class = utils.EndpointClientWithOverride
-    _is_client_prediction_client = False
     _resource_noun = "endpoints"
     _getter_method = "get_endpoint"
     _list_method = "list_endpoints"
     _delete_method = "delete_endpoint"
+    _parse_resource_name_method = "parse_endpoint_path"
+    _format_resource_name_method = "endpoint_path"
 
     def __init__(
         self,
@@ -1294,11 +1295,12 @@ class Endpoint(base.VertexAiResourceNounWithFutureManager):
 class Model(base.VertexAiResourceNounWithFutureManager):
 
     client_class = utils.ModelClientWithOverride
-    _is_client_prediction_client = False
     _resource_noun = "models"
     _getter_method = "get_model"
     _list_method = "list_models"
     _delete_method = "delete_model"
+    _parse_resource_name_method = "parse_model_path"
+    _format_resource_name_method = "model_path"
 
     @property
     def uri(self) -> Optional[str]:
