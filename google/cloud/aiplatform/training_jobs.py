@@ -23,10 +23,11 @@ import abc
 
 from google.auth import credentials as auth_credentials
 from google.cloud.aiplatform import base
-from google.cloud.aiplatform import constants
+from google.cloud.aiplatform.constants import base as constants
 from google.cloud.aiplatform import datasets
 from google.cloud.aiplatform import initializer
 from google.cloud.aiplatform import models
+from google.cloud.aiplatform import jobs
 from google.cloud.aiplatform import schema
 from google.cloud.aiplatform import utils
 from google.cloud.aiplatform.utils import console_utils
@@ -1251,6 +1252,7 @@ class _CustomTrainingJob(_TrainingJob):
         # once Custom Job is known we log the console uri and the tensorboard uri
         # this flags keeps that state so we don't log it multiple times
         self._has_logged_custom_job = False
+        self._logged_web_access_uris = set()
 
     @property
     def network(self) -> Optional[str]:
@@ -1278,6 +1280,8 @@ class _CustomTrainingJob(_TrainingJob):
         accelerator_count: int = 0,
         boot_disk_type: str = "pd-ssd",
         boot_disk_size_gb: int = 100,
+        reduction_server_replica_count: int = 0,
+        reduction_server_machine_type: Optional[str] = None,
     ) -> Tuple[worker_spec_utils._DistributedTrainingSpec, Optional[gca_model.Model]]:
         """Create worker pool specs and managed model as well validating the
         run.
@@ -1318,6 +1322,10 @@ class _CustomTrainingJob(_TrainingJob):
             boot_disk_size_gb (int):
                 Size in GB of the boot disk, default is 100GB.
                 boot disk size must be within the range of [100, 64000].
+            reduction_server_replica_count (int):
+                The number of reduction server replicas, default is 0.
+            reduction_server_machine_type (str):
+                Optional. The type of machine to use for reduction server.
         Returns:
             Worker pools specs and managed model for run.
 
@@ -1352,6 +1360,8 @@ class _CustomTrainingJob(_TrainingJob):
             accelerator_type=accelerator_type,
             boot_disk_type=boot_disk_type,
             boot_disk_size_gb=boot_disk_size_gb,
+            reduction_server_replica_count=reduction_server_replica_count,
+            reduction_server_machine_type=reduction_server_machine_type,
         ).pool_specs
 
         managed_model = self._managed_model
@@ -1374,6 +1384,7 @@ class _CustomTrainingJob(_TrainingJob):
         base_output_dir: Optional[str] = None,
         service_account: Optional[str] = None,
         network: Optional[str] = None,
+        enable_web_access: bool = False,
         tensorboard: Optional[str] = None,
     ) -> Tuple[Dict, str]:
         """Prepares training task inputs and output directory for custom job.
@@ -1392,6 +1403,10 @@ class _CustomTrainingJob(_TrainingJob):
                 should be peered. For example, projects/12345/global/networks/myVPC.
                 Private services access must already be configured for the network.
                 If left unspecified, the job is not peered with any network.
+            enable_web_access (bool):
+                Whether you want Vertex AI to enable interactive shell access
+                to training containers.
+                https://cloud.google.com/vertex-ai/docs/training/monitor-debug-interactive-shell
             tensorboard (str):
                 Optional. The name of a Vertex AI
                 [Tensorboard][google.cloud.aiplatform.v1beta1.Tensorboard]
@@ -1429,8 +1444,42 @@ class _CustomTrainingJob(_TrainingJob):
             training_task_inputs["network"] = network
         if tensorboard:
             training_task_inputs["tensorboard"] = tensorboard
+        if enable_web_access:
+            training_task_inputs["enable_web_access"] = enable_web_access
 
         return training_task_inputs, base_output_dir
+
+    @property
+    def web_access_uris(self) -> Dict[str, str]:
+        """Get the web access uris of the backing custom job.
+
+        Returns:
+            (Dict[str, str]):
+                Web access uris of the backing custom job.
+        """
+        web_access_uris = dict()
+        if (
+            self._gca_resource.training_task_metadata
+            and self._gca_resource.training_task_metadata.get("backingCustomJob")
+        ):
+            custom_job_resource_name = self._gca_resource.training_task_metadata.get(
+                "backingCustomJob"
+            )
+            custom_job = jobs.CustomJob.get(resource_name=custom_job_resource_name)
+
+            web_access_uris = dict(custom_job.web_access_uris)
+
+        return web_access_uris
+
+    def _log_web_access_uris(self):
+        """Helper method to log the web access uris of the backing custom job"""
+        for worker, uri in self.web_access_uris.items():
+            if uri not in self._logged_web_access_uris:
+                _LOGGER.info(
+                    "%s %s access the interactive shell terminals for the backing custom job:\n%s:\n%s"
+                    % (self.__class__.__name__, self._gca_resource.name, worker, uri,),
+                )
+                self._logged_web_access_uris.add(uri)
 
     def _wait_callback(self):
         if (
@@ -1444,6 +1493,9 @@ class _CustomTrainingJob(_TrainingJob):
                 _LOGGER.info(f"View tensorboard:\n{self._tensorboard_console_uri()}")
 
             self._has_logged_custom_job = True
+
+        if self._gca_resource.training_task_inputs.get("enable_web_access"):
+            self._log_web_access_uris()
 
     def _custom_job_console_uri(self) -> str:
         """Helper method to compose the dashboard uri where custom job can be viewed."""
@@ -1736,6 +1788,9 @@ class CustomTrainingJob(_CustomTrainingJob):
         accelerator_count: int = 0,
         boot_disk_type: str = "pd-ssd",
         boot_disk_size_gb: int = 100,
+        reduction_server_replica_count: int = 0,
+        reduction_server_machine_type: Optional[str] = None,
+        reduction_server_container_uri: Optional[str] = None,
         training_fraction_split: Optional[float] = None,
         validation_fraction_split: Optional[float] = None,
         test_fraction_split: Optional[float] = None,
@@ -1744,6 +1799,7 @@ class CustomTrainingJob(_CustomTrainingJob):
         test_filter_split: Optional[str] = None,
         predefined_split_column_name: Optional[str] = None,
         timestamp_split_column_name: Optional[str] = None,
+        enable_web_access: bool = False,
         tensorboard: Optional[str] = None,
         sync=True,
     ) -> Optional[models.Model]:
@@ -1907,6 +1963,13 @@ class CustomTrainingJob(_CustomTrainingJob):
             boot_disk_size_gb (int):
                 Size in GB of the boot disk, default is 100GB.
                 boot disk size must be within the range of [100, 64000].
+            reduction_server_replica_count (int):
+                The number of reduction server replicas, default is 0.
+            reduction_server_machine_type (str):
+                Optional. The type of machine to use for reduction server.
+            reduction_server_container_uri (str):
+                Optional. The Uri of the reduction server container image.
+                See details: https://cloud.google.com/vertex-ai/docs/training/distributed-training#reduce_training_time_with_reduction_server
             training_fraction_split (float):
                 Optional. The fraction of the input data that is to be used to train
                 the Model. This is ignored if Dataset is not provided.
@@ -1956,6 +2019,10 @@ class CustomTrainingJob(_CustomTrainingJob):
                 that piece is ignored by the pipeline.
 
                 Supported only for tabular and time series Datasets.
+            enable_web_access (bool):
+                Whether you want Vertex AI to enable interactive shell access
+                to training containers.
+                https://cloud.google.com/vertex-ai/docs/training/monitor-debug-interactive-shell
             tensorboard (str):
                 Optional. The name of a Vertex AI
                 [Tensorboard][google.cloud.aiplatform.v1beta1.Tensorboard]
@@ -1989,6 +2056,8 @@ class CustomTrainingJob(_CustomTrainingJob):
             accelerator_type=accelerator_type,
             boot_disk_type=boot_disk_type,
             boot_disk_size_gb=boot_disk_size_gb,
+            reduction_server_replica_count=reduction_server_replica_count,
+            reduction_server_machine_type=reduction_server_machine_type,
         )
 
         # make and copy package
@@ -2016,7 +2085,11 @@ class CustomTrainingJob(_CustomTrainingJob):
             test_filter_split=test_filter_split,
             predefined_split_column_name=predefined_split_column_name,
             timestamp_split_column_name=timestamp_split_column_name,
+            enable_web_access=enable_web_access,
             tensorboard=tensorboard,
+            reduction_server_container_uri=reduction_server_container_uri
+            if reduction_server_replica_count > 0
+            else None,
             sync=sync,
         )
 
@@ -2049,7 +2122,9 @@ class CustomTrainingJob(_CustomTrainingJob):
         test_filter_split: Optional[str] = None,
         predefined_split_column_name: Optional[str] = None,
         timestamp_split_column_name: Optional[str] = None,
+        enable_web_access: bool = False,
         tensorboard: Optional[str] = None,
+        reduction_server_container_uri: Optional[str] = None,
         sync=True,
     ) -> Optional[models.Model]:
         """Packages local script and launches training_job.
@@ -2167,6 +2242,10 @@ class CustomTrainingJob(_CustomTrainingJob):
                 that piece is ignored by the pipeline.
 
                 Supported only for tabular and time series Datasets.
+            enable_web_access (bool):
+                Whether you want Vertex AI to enable interactive shell access
+                to training containers.
+                https://cloud.google.com/vertex-ai/docs/training/monitor-debug-interactive-shell
             tensorboard (str):
                 Optional. The name of a Vertex AI
                 [Tensorboard][google.cloud.aiplatform.v1beta1.Tensorboard]
@@ -2182,6 +2261,8 @@ class CustomTrainingJob(_CustomTrainingJob):
                 `service_account` is required with provided `tensorboard`.
                 For more information on configuring your service account please visit:
                 https://cloud.google.com/vertex-ai/docs/experiments/tensorboard-training
+            reduction_server_container_uri (str):
+                Optional. The Uri of the reduction server container image.
             sync (bool):
                 Whether to execute this method synchronously. If False, this method
                 will be executed in concurrent Future and any downstream object will
@@ -2197,21 +2278,33 @@ class CustomTrainingJob(_CustomTrainingJob):
             credentials=self.credentials,
         )
 
-        for spec in worker_pool_specs:
-            spec["python_package_spec"] = {
-                "executor_image_uri": self._container_uri,
-                "python_module": python_packager.module_name,
-                "package_uris": [package_gcs_uri],
-            }
+        for spec_order, spec in enumerate(worker_pool_specs):
 
-            if args:
-                spec["python_package_spec"]["args"] = args
+            if not spec:
+                continue
 
-            if environment_variables:
-                spec["python_package_spec"]["env"] = [
-                    {"name": key, "value": value}
-                    for key, value in environment_variables.items()
-                ]
+            if (
+                spec_order == worker_spec_utils._SPEC_ORDERS["server_spec"]
+                and reduction_server_container_uri
+            ):
+                spec["container_spec"] = {
+                    "image_uri": reduction_server_container_uri,
+                }
+            else:
+                spec["python_package_spec"] = {
+                    "executor_image_uri": self._container_uri,
+                    "python_module": python_packager.module_name,
+                    "package_uris": [package_gcs_uri],
+                }
+
+                if args:
+                    spec["python_package_spec"]["args"] = args
+
+                if environment_variables:
+                    spec["python_package_spec"]["env"] = [
+                        {"name": key, "value": value}
+                        for key, value in environment_variables.items()
+                    ]
 
         (
             training_task_inputs,
@@ -2221,6 +2314,7 @@ class CustomTrainingJob(_CustomTrainingJob):
             base_output_dir=base_output_dir,
             service_account=service_account,
             network=network,
+            enable_web_access=enable_web_access,
             tensorboard=tensorboard,
         )
 
@@ -2498,6 +2592,9 @@ class CustomContainerTrainingJob(_CustomTrainingJob):
         accelerator_count: int = 0,
         boot_disk_type: str = "pd-ssd",
         boot_disk_size_gb: int = 100,
+        reduction_server_replica_count: int = 0,
+        reduction_server_machine_type: Optional[str] = None,
+        reduction_server_container_uri: Optional[str] = None,
         training_fraction_split: Optional[float] = None,
         validation_fraction_split: Optional[float] = None,
         test_fraction_split: Optional[float] = None,
@@ -2506,6 +2603,7 @@ class CustomContainerTrainingJob(_CustomTrainingJob):
         test_filter_split: Optional[str] = None,
         predefined_split_column_name: Optional[str] = None,
         timestamp_split_column_name: Optional[str] = None,
+        enable_web_access: bool = False,
         tensorboard: Optional[str] = None,
         sync=True,
     ) -> Optional[models.Model]:
@@ -2662,6 +2760,13 @@ class CustomContainerTrainingJob(_CustomTrainingJob):
             boot_disk_size_gb (int):
                 Size in GB of the boot disk, default is 100GB.
                 boot disk size must be within the range of [100, 64000].
+            reduction_server_replica_count (int):
+                The number of reduction server replicas, default is 0.
+            reduction_server_machine_type (str):
+                Optional. The type of machine to use for reduction server.
+            reduction_server_container_uri (str):
+                Optional. The Uri of the reduction server container image.
+                See details: https://cloud.google.com/vertex-ai/docs/training/distributed-training#reduce_training_time_with_reduction_server
             training_fraction_split (float):
                 Optional. The fraction of the input data that is to be used to train
                 the Model. This is ignored if Dataset is not provided.
@@ -2711,6 +2816,10 @@ class CustomContainerTrainingJob(_CustomTrainingJob):
                 that piece is ignored by the pipeline.
 
                 Supported only for tabular and time series Datasets.
+            enable_web_access (bool):
+                Whether you want Vertex AI to enable interactive shell access
+                to training containers.
+                https://cloud.google.com/vertex-ai/docs/training/monitor-debug-interactive-shell
             tensorboard (str):
                 Optional. The name of a Vertex AI
                 [Tensorboard][google.cloud.aiplatform.v1beta1.Tensorboard]
@@ -2749,6 +2858,8 @@ class CustomContainerTrainingJob(_CustomTrainingJob):
             accelerator_type=accelerator_type,
             boot_disk_type=boot_disk_type,
             boot_disk_size_gb=boot_disk_size_gb,
+            reduction_server_replica_count=reduction_server_replica_count,
+            reduction_server_machine_type=reduction_server_machine_type,
         )
 
         return self._run(
@@ -2770,7 +2881,11 @@ class CustomContainerTrainingJob(_CustomTrainingJob):
             test_filter_split=test_filter_split,
             predefined_split_column_name=predefined_split_column_name,
             timestamp_split_column_name=timestamp_split_column_name,
+            enable_web_access=enable_web_access,
             tensorboard=tensorboard,
+            reduction_server_container_uri=reduction_server_container_uri
+            if reduction_server_replica_count > 0
+            else None,
             sync=sync,
         )
 
@@ -2802,7 +2917,9 @@ class CustomContainerTrainingJob(_CustomTrainingJob):
         test_filter_split: Optional[str] = None,
         predefined_split_column_name: Optional[str] = None,
         timestamp_split_column_name: Optional[str] = None,
+        enable_web_access: bool = False,
         tensorboard: Optional[str] = None,
+        reduction_server_container_uri: Optional[str] = None,
         sync=True,
     ) -> Optional[models.Model]:
         """Packages local script and launches training_job.
@@ -2916,6 +3033,10 @@ class CustomContainerTrainingJob(_CustomTrainingJob):
                 that piece is ignored by the pipeline.
 
                 Supported only for tabular and time series Datasets.
+            enable_web_access (bool):
+                Whether you want Vertex AI to enable interactive shell access
+                to training containers.
+                https://cloud.google.com/vertex-ai/docs/training/monitor-debug-interactive-shell
             tensorboard (str):
                 Optional. The name of a Vertex AI
                 [Tensorboard][google.cloud.aiplatform.v1beta1.Tensorboard]
@@ -2931,6 +3052,8 @@ class CustomContainerTrainingJob(_CustomTrainingJob):
                 `service_account` is required with provided `tensorboard`.
                 For more information on configuring your service account please visit:
                 https://cloud.google.com/vertex-ai/docs/experiments/tensorboard-training
+            reduction_server_container_uri (str):
+                Optional. The Uri of the reduction server container image.
             sync (bool):
                 Whether to execute this method synchronously. If False, this method
                 will be executed in concurrent Future and any downstream object will
@@ -2941,20 +3064,32 @@ class CustomContainerTrainingJob(_CustomTrainingJob):
                 produce a Vertex AI Model.
         """
 
-        for spec in worker_pool_specs:
-            spec["containerSpec"] = {"imageUri": self._container_uri}
+        for spec_order, spec in enumerate(worker_pool_specs):
 
-            if self._command:
-                spec["containerSpec"]["command"] = self._command
+            if not spec:
+                continue
 
-            if args:
-                spec["containerSpec"]["args"] = args
+            if (
+                spec_order == worker_spec_utils._SPEC_ORDERS["server_spec"]
+                and reduction_server_container_uri
+            ):
+                spec["container_spec"] = {
+                    "image_uri": reduction_server_container_uri,
+                }
+            else:
+                spec["containerSpec"] = {"imageUri": self._container_uri}
 
-            if environment_variables:
-                spec["containerSpec"]["env"] = [
-                    {"name": key, "value": value}
-                    for key, value in environment_variables.items()
-                ]
+                if self._command:
+                    spec["containerSpec"]["command"] = self._command
+
+                if args:
+                    spec["containerSpec"]["args"] = args
+
+                if environment_variables:
+                    spec["containerSpec"]["env"] = [
+                        {"name": key, "value": value}
+                        for key, value in environment_variables.items()
+                    ]
 
         (
             training_task_inputs,
@@ -2964,6 +3099,7 @@ class CustomContainerTrainingJob(_CustomTrainingJob):
             base_output_dir=base_output_dir,
             service_account=service_account,
             network=network,
+            enable_web_access=enable_web_access,
             tensorboard=tensorboard,
         )
 
@@ -3794,7 +3930,7 @@ class AutoMLForecastingTrainingJob(_TrainingJob):
             Supported only for tabular Datasets.
 
         Args:
-            dataset (datasets.Dataset):
+            dataset (datasets.TimeSeriesDataset):
                 Required. The dataset within the same Project from which data will be used to train the Model. The
                 Dataset must use schema compatible with Model being trained,
                 and what is compatible should be described in the used
@@ -4000,7 +4136,7 @@ class AutoMLForecastingTrainingJob(_TrainingJob):
         10% for validation, and 10% for test.
 
         Args:
-            dataset (datasets.Dataset):
+            dataset (datasets.TimeSeriesDataset):
                 Required. The dataset within the same Project from which data will be used to train the Model. The
                 Dataset must use schema compatible with Model being trained,
                 and what is compatible should be described in the used
@@ -4216,7 +4352,7 @@ class AutoMLForecastingTrainingJob(_TrainingJob):
             Supported only for tabular Datasets.
 
         Args:
-            dataset (datasets.Dataset):
+            dataset (datasets.TimeSeriesDataset):
                 Required. The dataset within the same Project from which data will be used to train the Model. The
                 Dataset must use schema compatible with Model being trained,
                 and what is compatible should be described in the used
@@ -5231,6 +5367,9 @@ class CustomPythonPackageTrainingJob(_CustomTrainingJob):
         accelerator_count: int = 0,
         boot_disk_type: str = "pd-ssd",
         boot_disk_size_gb: int = 100,
+        reduction_server_replica_count: int = 0,
+        reduction_server_machine_type: Optional[str] = None,
+        reduction_server_container_uri: Optional[str] = None,
         training_fraction_split: Optional[float] = None,
         validation_fraction_split: Optional[float] = None,
         test_fraction_split: Optional[float] = None,
@@ -5239,6 +5378,7 @@ class CustomPythonPackageTrainingJob(_CustomTrainingJob):
         test_filter_split: Optional[str] = None,
         predefined_split_column_name: Optional[str] = None,
         timestamp_split_column_name: Optional[str] = None,
+        enable_web_access: bool = False,
         tensorboard: Optional[str] = None,
         sync=True,
     ) -> Optional[models.Model]:
@@ -5395,6 +5535,13 @@ class CustomPythonPackageTrainingJob(_CustomTrainingJob):
             boot_disk_size_gb (int):
                 Size in GB of the boot disk, default is 100GB.
                 boot disk size must be within the range of [100, 64000].
+            reduction_server_replica_count (int):
+                The number of reduction server replicas, default is 0.
+            reduction_server_machine_type (str):
+                Optional. The type of machine to use for reduction server.
+            reduction_server_container_uri (str):
+                Optional. The Uri of the reduction server container image.
+                See details: https://cloud.google.com/vertex-ai/docs/training/distributed-training#reduce_training_time_with_reduction_server
             training_fraction_split (float):
                 Optional. The fraction of the input data that is to be used to train
                 the Model. This is ignored if Dataset is not provided.
@@ -5444,6 +5591,10 @@ class CustomPythonPackageTrainingJob(_CustomTrainingJob):
                 that piece is ignored by the pipeline.
 
                 Supported only for tabular and time series Datasets.
+            enable_web_access (bool):
+                Whether you want Vertex AI to enable interactive shell access
+                to training containers.
+                https://cloud.google.com/vertex-ai/docs/training/monitor-debug-interactive-shell
             tensorboard (str):
                 Optional. The name of a Vertex AI
                 [Tensorboard][google.cloud.aiplatform.v1beta1.Tensorboard]
@@ -5477,6 +5628,8 @@ class CustomPythonPackageTrainingJob(_CustomTrainingJob):
             accelerator_type=accelerator_type,
             boot_disk_type=boot_disk_type,
             boot_disk_size_gb=boot_disk_size_gb,
+            reduction_server_replica_count=reduction_server_replica_count,
+            reduction_server_machine_type=reduction_server_machine_type,
         )
 
         return self._run(
@@ -5498,7 +5651,11 @@ class CustomPythonPackageTrainingJob(_CustomTrainingJob):
             predefined_split_column_name=predefined_split_column_name,
             timestamp_split_column_name=timestamp_split_column_name,
             bigquery_destination=bigquery_destination,
+            enable_web_access=enable_web_access,
             tensorboard=tensorboard,
+            reduction_server_container_uri=reduction_server_container_uri
+            if reduction_server_replica_count > 0
+            else None,
             sync=sync,
         )
 
@@ -5530,7 +5687,9 @@ class CustomPythonPackageTrainingJob(_CustomTrainingJob):
         predefined_split_column_name: Optional[str] = None,
         timestamp_split_column_name: Optional[str] = None,
         bigquery_destination: Optional[str] = None,
+        enable_web_access: bool = False,
         tensorboard: Optional[str] = None,
+        reduction_server_container_uri: Optional[str] = None,
         sync=True,
     ) -> Optional[models.Model]:
         """Packages local script and launches training_job.
@@ -5631,6 +5790,10 @@ class CustomPythonPackageTrainingJob(_CustomTrainingJob):
                 that piece is ignored by the pipeline.
 
                 Supported only for tabular and time series Datasets.
+            enable_web_access (bool):
+                Whether you want Vertex AI to enable interactive shell access
+                to training containers.
+                https://cloud.google.com/vertex-ai/docs/training/monitor-debug-interactive-shell
             tensorboard (str):
                 Optional. The name of a Vertex AI
                 [Tensorboard][google.cloud.aiplatform.v1beta1.Tensorboard]
@@ -5646,6 +5809,8 @@ class CustomPythonPackageTrainingJob(_CustomTrainingJob):
                 `service_account` is required with provided `tensorboard`.
                 For more information on configuring your service account please visit:
                 https://cloud.google.com/vertex-ai/docs/experiments/tensorboard-training
+            reduction_server_container_uri (str):
+                Optional. The Uri of the reduction server container image.
             sync (bool):
                 Whether to execute this method synchronously. If False, this method
                 will be executed in concurrent Future and any downstream object will
@@ -5655,21 +5820,33 @@ class CustomPythonPackageTrainingJob(_CustomTrainingJob):
             model: The trained Vertex AI Model resource or None if training did not
                 produce a Vertex AI Model.
         """
-        for spec in worker_pool_specs:
-            spec["python_package_spec"] = {
-                "executor_image_uri": self._container_uri,
-                "python_module": self._python_module,
-                "package_uris": [self._package_gcs_uri],
-            }
+        for spec_order, spec in enumerate(worker_pool_specs):
 
-            if args:
-                spec["python_package_spec"]["args"] = args
+            if not spec:
+                continue
 
-            if environment_variables:
-                spec["python_package_spec"]["env"] = [
-                    {"name": key, "value": value}
-                    for key, value in environment_variables.items()
-                ]
+            if (
+                spec_order == worker_spec_utils._SPEC_ORDERS["server_spec"]
+                and reduction_server_container_uri
+            ):
+                spec["container_spec"] = {
+                    "image_uri": reduction_server_container_uri,
+                }
+            else:
+                spec["python_package_spec"] = {
+                    "executor_image_uri": self._container_uri,
+                    "python_module": self._python_module,
+                    "package_uris": [self._package_gcs_uri],
+                }
+
+                if args:
+                    spec["python_package_spec"]["args"] = args
+
+                if environment_variables:
+                    spec["python_package_spec"]["env"] = [
+                        {"name": key, "value": value}
+                        for key, value in environment_variables.items()
+                    ]
 
         (
             training_task_inputs,
@@ -5679,6 +5856,7 @@ class CustomPythonPackageTrainingJob(_CustomTrainingJob):
             base_output_dir=base_output_dir,
             service_account=service_account,
             network=network,
+            enable_web_access=enable_web_access,
             tensorboard=tensorboard,
         )
 

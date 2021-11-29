@@ -169,12 +169,23 @@ class ActiveLearningConfig(proto.Message):
     iterations. For every iteration, it  will select a batch of data
     based on the sampling strategy.
 
+    This message has `oneof`_ fields (mutually exclusive fields).
+    For each oneof, at most one member field can be set at the same time.
+    Setting any member of the oneof automatically clears all other
+    members.
+
+    .. _oneof: https://proto-plus-python.readthedocs.io/en/stable/fields.html#oneofs-mutually-exclusive-fields
+
     Attributes:
         max_data_item_count (int):
             Max number of human labeled DataItems.
+
+            This field is a member of `oneof`_ ``human_labeling_budget``.
         max_data_item_percentage (int):
             Max percent of total DataItems for human
             labeling.
+
+            This field is a member of `oneof`_ ``human_labeling_budget``.
         sample_config (google.cloud.aiplatform_v1.types.SampleConfig):
             Active learning data sampling config. For
             every active learning labeling iteration, it
@@ -203,14 +214,21 @@ class SampleConfig(proto.Message):
     learning labeling iteration, it will select a batch of data
     based on the sampling strategy.
 
+
+    .. _oneof: https://proto-plus-python.readthedocs.io/en/stable/fields.html#oneofs-mutually-exclusive-fields
+
     Attributes:
         initial_batch_sample_percentage (int):
             The percentage of data needed to be labeled
             in the first batch.
+
+            This field is a member of `oneof`_ ``initial_batch_sample_size``.
         following_batch_sample_percentage (int):
             The percentage of data needed to be labeled
             in each following batch (except the first
             batch).
+
+            This field is a member of `oneof`_ ``following_batch_sample_size``.
         sample_strategy (google.cloud.aiplatform_v1.types.SampleConfig.SampleStrategy):
             Field to choose sampling strategy. Sampling
             strategy will decide which data should be

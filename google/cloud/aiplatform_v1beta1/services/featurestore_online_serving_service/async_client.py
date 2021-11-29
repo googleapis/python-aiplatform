@@ -19,12 +19,17 @@ import re
 from typing import Dict, AsyncIterable, Awaitable, Sequence, Tuple, Type, Union
 import pkg_resources
 
-import google.api_core.client_options as ClientOptions  # type: ignore
-from google.api_core import exceptions as core_exceptions  # type: ignore
-from google.api_core import gapic_v1  # type: ignore
-from google.api_core import retry as retries  # type: ignore
+from google.api_core.client_options import ClientOptions
+from google.api_core import exceptions as core_exceptions
+from google.api_core import gapic_v1
+from google.api_core import retry as retries
 from google.auth import credentials as ga_credentials  # type: ignore
 from google.oauth2 import service_account  # type: ignore
+
+try:
+    OptionalRetry = Union[retries.Retry, gapic_v1.method._MethodDefault]
+except AttributeError:  # pragma: NO COVER
+    OptionalRetry = Union[retries.Retry, object]  # type: ignore
 
 from google.cloud.aiplatform_v1beta1.types import featurestore_online_service
 from .transports.base import (
@@ -180,10 +185,12 @@ class FeaturestoreOnlineServingServiceAsyncClient:
 
     async def read_feature_values(
         self,
-        request: featurestore_online_service.ReadFeatureValuesRequest = None,
+        request: Union[
+            featurestore_online_service.ReadFeatureValuesRequest, dict
+        ] = None,
         *,
         entity_type: str = None,
-        retry: retries.Retry = gapic_v1.method.DEFAULT,
+        retry: OptionalRetry = gapic_v1.method.DEFAULT,
         timeout: float = None,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> featurestore_online_service.ReadFeatureValuesResponse:
@@ -193,7 +200,7 @@ class FeaturestoreOnlineServingServiceAsyncClient:
         StreamingReadFeatureValues.
 
         Args:
-            request (:class:`google.cloud.aiplatform_v1beta1.types.ReadFeatureValuesRequest`):
+            request (Union[google.cloud.aiplatform_v1beta1.types.ReadFeatureValuesRequest, dict]):
                 The request object. Request message for
                 [FeaturestoreOnlineServingService.ReadFeatureValues][google.cloud.aiplatform.v1beta1.FeaturestoreOnlineServingService.ReadFeatureValues].
             entity_type (:class:`str`):
@@ -260,10 +267,12 @@ class FeaturestoreOnlineServingServiceAsyncClient:
 
     def streaming_read_feature_values(
         self,
-        request: featurestore_online_service.StreamingReadFeatureValuesRequest = None,
+        request: Union[
+            featurestore_online_service.StreamingReadFeatureValuesRequest, dict
+        ] = None,
         *,
         entity_type: str = None,
-        retry: retries.Retry = gapic_v1.method.DEFAULT,
+        retry: OptionalRetry = gapic_v1.method.DEFAULT,
         timeout: float = None,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> Awaitable[
@@ -274,7 +283,7 @@ class FeaturestoreOnlineServingServiceAsyncClient:
         up across multiple responses.
 
         Args:
-            request (:class:`google.cloud.aiplatform_v1beta1.types.StreamingReadFeatureValuesRequest`):
+            request (Union[google.cloud.aiplatform_v1beta1.types.StreamingReadFeatureValuesRequest, dict]):
                 The request object. Request message for
                 [FeaturestoreOnlineServingService.StreamingFeatureValuesRead][].
             entity_type (:class:`str`):

@@ -17,7 +17,7 @@
 # the code snippet
 
 # [START aiplatform_import_feature_values_sample]
-from google.cloud import aiplatform_v1beta1 as aiplatform
+from google.cloud import aiplatform
 
 
 def import_feature_values_sample(
@@ -37,17 +37,17 @@ def import_feature_values_sample(
     client_options = {"api_endpoint": api_endpoint}
     # Initialize client that will be used to create and send requests.
     # This client only needs to be created once, and can be reused for multiple requests.
-    client = aiplatform.FeaturestoreServiceClient(client_options=client_options)
+    client = aiplatform.gapic.FeaturestoreServiceClient(client_options=client_options)
     entity_type = f"projects/{project}/locations/{location}/featurestores/{featurestore_id}/entityTypes/{entity_type_id}"
-    avro_source = aiplatform.AvroSource(
-        gcs_source=aiplatform.GcsSource(uris=[avro_gcs_uri])
+    avro_source = aiplatform.gapic.AvroSource(
+        gcs_source=aiplatform.gapic.GcsSource(uris=[avro_gcs_uri])
     )
     feature_specs = [
-        aiplatform.ImportFeatureValuesRequest.FeatureSpec(id="age"),
-        aiplatform.ImportFeatureValuesRequest.FeatureSpec(id="gender"),
-        aiplatform.ImportFeatureValuesRequest.FeatureSpec(id="liked_genres"),
+        aiplatform.gapic.ImportFeatureValuesRequest.FeatureSpec(id="age"),
+        aiplatform.gapic.ImportFeatureValuesRequest.FeatureSpec(id="gender"),
+        aiplatform.gapic.ImportFeatureValuesRequest.FeatureSpec(id="liked_genres"),
     ]
-    import_feature_values_request = aiplatform.ImportFeatureValuesRequest(
+    import_feature_values_request = aiplatform.gapic.ImportFeatureValuesRequest(
         entity_type=entity_type,
         avro_source=avro_source,
         feature_specs=feature_specs,

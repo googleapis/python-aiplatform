@@ -28,13 +28,14 @@ from google.auth.exceptions import GoogleAuthError
 from google.auth import credentials as auth_credentials
 
 from google.cloud import aiplatform
-from google.cloud import bigquery
-from google.cloud import storage
-
+from google.cloud.aiplatform import base
 from google.cloud.aiplatform import compat
+from google.cloud.aiplatform.constants import base as constants
 from google.cloud.aiplatform import datasets
 from google.cloud.aiplatform import initializer
 from google.cloud.aiplatform import schema
+from google.cloud import bigquery
+from google.cloud import storage
 
 from google.cloud.aiplatform_v1.services.dataset_service import (
     client as dataset_service_client,
@@ -474,7 +475,9 @@ class TestDataset:
     def test_init_dataset(self, get_dataset_mock):
         aiplatform.init(project=_TEST_PROJECT)
         datasets._Dataset(dataset_name=_TEST_NAME)
-        get_dataset_mock.assert_called_once_with(name=_TEST_NAME)
+        get_dataset_mock.assert_called_once_with(
+            name=_TEST_NAME, retry=base._DEFAULT_RETRY
+        )
 
     def test_init_dataset_with_id_only_with_project_and_location(
         self, get_dataset_mock
@@ -483,21 +486,27 @@ class TestDataset:
         datasets._Dataset(
             dataset_name=_TEST_ID, project=_TEST_PROJECT, location=_TEST_LOCATION
         )
-        get_dataset_mock.assert_called_once_with(name=_TEST_NAME)
+        get_dataset_mock.assert_called_once_with(
+            name=_TEST_NAME, retry=base._DEFAULT_RETRY
+        )
 
     def test_init_dataset_with_project_and_location(self, get_dataset_mock):
         aiplatform.init(project=_TEST_PROJECT)
         datasets._Dataset(
             dataset_name=_TEST_NAME, project=_TEST_PROJECT, location=_TEST_LOCATION
         )
-        get_dataset_mock.assert_called_once_with(name=_TEST_NAME)
+        get_dataset_mock.assert_called_once_with(
+            name=_TEST_NAME, retry=base._DEFAULT_RETRY
+        )
 
     def test_init_dataset_with_alt_project_and_location(self, get_dataset_mock):
         aiplatform.init(project=_TEST_PROJECT)
         datasets._Dataset(
             dataset_name=_TEST_NAME, project=_TEST_ALT_PROJECT, location=_TEST_LOCATION
         )
-        get_dataset_mock.assert_called_once_with(name=_TEST_NAME)
+        get_dataset_mock.assert_called_once_with(
+            name=_TEST_NAME, retry=base._DEFAULT_RETRY
+        )
 
     def test_init_dataset_with_alt_location(self, get_dataset_tabular_gcs_mock):
         aiplatform.init(project=_TEST_PROJECT, location=_TEST_ALT_LOCATION)
@@ -506,12 +515,14 @@ class TestDataset:
 
         assert (
             ds.api_client._clients[compat.DEFAULT_VERSION]._client_options.api_endpoint
-            == f"{_TEST_LOCATION}-{aiplatform.constants.API_BASE_PATH}"
+            == f"{_TEST_LOCATION}-{constants.API_BASE_PATH}"
         )
 
         assert _TEST_ALT_LOCATION != _TEST_LOCATION
 
-        get_dataset_tabular_gcs_mock.assert_called_once_with(name=_TEST_NAME)
+        get_dataset_tabular_gcs_mock.assert_called_once_with(
+            name=_TEST_NAME, retry=base._DEFAULT_RETRY
+        )
 
     def test_init_dataset_with_project_and_alt_location(self):
         aiplatform.init(project=_TEST_PROJECT)
@@ -525,7 +536,9 @@ class TestDataset:
     def test_init_dataset_with_id_only(self, get_dataset_mock):
         aiplatform.init(project=_TEST_PROJECT, location=_TEST_LOCATION)
         datasets._Dataset(dataset_name=_TEST_ID)
-        get_dataset_mock.assert_called_once_with(name=_TEST_NAME)
+        get_dataset_mock.assert_called_once_with(
+            name=_TEST_NAME, retry=base._DEFAULT_RETRY
+        )
 
     @pytest.mark.usefixtures("get_dataset_without_name_mock")
     @patch.dict(
@@ -541,7 +554,9 @@ class TestDataset:
     def test_init_dataset_with_location_override(self, get_dataset_mock):
         aiplatform.init(project=_TEST_PROJECT, location=_TEST_LOCATION)
         datasets._Dataset(dataset_name=_TEST_ID, location=_TEST_ALT_LOCATION)
-        get_dataset_mock.assert_called_once_with(name=_TEST_ALT_NAME)
+        get_dataset_mock.assert_called_once_with(
+            name=_TEST_ALT_NAME, retry=base._DEFAULT_RETRY
+        )
 
     @pytest.mark.usefixtures("get_dataset_mock")
     def test_init_dataset_with_invalid_name(self):
@@ -764,7 +779,9 @@ class TestDataset:
             metadata=_TEST_REQUEST_METADATA,
         )
 
-        get_dataset_mock.assert_called_once_with(name=_TEST_NAME)
+        get_dataset_mock.assert_called_once_with(
+            name=_TEST_NAME, retry=base._DEFAULT_RETRY
+        )
 
         import_data_mock.assert_called_once_with(
             name=_TEST_NAME, import_configs=[expected_import_config]
@@ -798,7 +815,9 @@ class TestImageDataset:
     def test_init_dataset_image(self, get_dataset_image_mock):
         aiplatform.init(project=_TEST_PROJECT)
         datasets.ImageDataset(dataset_name=_TEST_NAME)
-        get_dataset_image_mock.assert_called_once_with(name=_TEST_NAME)
+        get_dataset_image_mock.assert_called_once_with(
+            name=_TEST_NAME, retry=base._DEFAULT_RETRY
+        )
 
     @pytest.mark.usefixtures("get_dataset_tabular_bq_mock")
     def test_init_dataset_non_image(self):
@@ -934,7 +953,9 @@ class TestImageDataset:
             metadata=_TEST_REQUEST_METADATA,
         )
 
-        get_dataset_image_mock.assert_called_once_with(name=_TEST_NAME)
+        get_dataset_image_mock.assert_called_once_with(
+            name=_TEST_NAME, retry=base._DEFAULT_RETRY
+        )
 
         expected_import_config = gca_dataset.ImportDataConfig(
             gcs_source=gca_io.GcsSource(uris=[_TEST_SOURCE_URI_GCS]),
@@ -989,7 +1010,9 @@ class TestTabularDataset:
     def test_init_dataset_tabular(self, get_dataset_tabular_bq_mock):
 
         datasets.TabularDataset(dataset_name=_TEST_NAME)
-        get_dataset_tabular_bq_mock.assert_called_once_with(name=_TEST_NAME)
+        get_dataset_tabular_bq_mock.assert_called_once_with(
+            name=_TEST_NAME, retry=base._DEFAULT_RETRY
+        )
 
     @pytest.mark.usefixtures("get_dataset_image_mock")
     def test_init_dataset_non_tabular(self):
@@ -1236,7 +1259,9 @@ class TestTextDataset:
     def test_init_dataset_text(self, get_dataset_text_mock):
         aiplatform.init(project=_TEST_PROJECT)
         datasets.TextDataset(dataset_name=_TEST_NAME)
-        get_dataset_text_mock.assert_called_once_with(name=_TEST_NAME)
+        get_dataset_text_mock.assert_called_once_with(
+            name=_TEST_NAME, retry=base._DEFAULT_RETRY
+        )
 
     @pytest.mark.usefixtures("get_dataset_image_mock")
     def test_init_dataset_non_text(self):
@@ -1409,7 +1434,9 @@ class TestTextDataset:
             metadata=_TEST_REQUEST_METADATA,
         )
 
-        get_dataset_text_mock.assert_called_once_with(name=_TEST_NAME)
+        get_dataset_text_mock.assert_called_once_with(
+            name=_TEST_NAME, retry=base._DEFAULT_RETRY
+        )
 
         expected_import_config = gca_dataset.ImportDataConfig(
             gcs_source=gca_io.GcsSource(uris=[_TEST_SOURCE_URI_GCS]),
@@ -1463,7 +1490,9 @@ class TestVideoDataset:
     def test_init_dataset_video(self, get_dataset_video_mock):
         aiplatform.init(project=_TEST_PROJECT)
         datasets.VideoDataset(dataset_name=_TEST_NAME)
-        get_dataset_video_mock.assert_called_once_with(name=_TEST_NAME)
+        get_dataset_video_mock.assert_called_once_with(
+            name=_TEST_NAME, retry=base._DEFAULT_RETRY
+        )
 
     @pytest.mark.usefixtures("get_dataset_tabular_bq_mock")
     def test_init_dataset_non_video(self):
@@ -1599,7 +1628,9 @@ class TestVideoDataset:
             metadata=_TEST_REQUEST_METADATA,
         )
 
-        get_dataset_video_mock.assert_called_once_with(name=_TEST_NAME)
+        get_dataset_video_mock.assert_called_once_with(
+            name=_TEST_NAME, retry=base._DEFAULT_RETRY
+        )
 
         expected_import_config = gca_dataset.ImportDataConfig(
             gcs_source=gca_io.GcsSource(uris=[_TEST_SOURCE_URI_GCS]),

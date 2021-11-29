@@ -35,7 +35,7 @@ def sample_import_data():
 
     # Initialize request argument(s)
     import_configs = aiplatform_v1beta1.ImportDataConfig()
-    import_configs.gcs_source.uris = ['uris_value']
+    import_configs.gcs_source.uris = ['uris_value_1', 'uris_value_2']
     import_configs.import_schema_uri = "import_schema_uri_value"
 
     request = aiplatform_v1beta1.ImportDataRequest(

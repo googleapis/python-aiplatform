@@ -19,12 +19,17 @@ import re
 from typing import Dict, Sequence, Tuple, Type, Union
 import pkg_resources
 
-import google.api_core.client_options as ClientOptions  # type: ignore
-from google.api_core import exceptions as core_exceptions  # type: ignore
-from google.api_core import gapic_v1  # type: ignore
-from google.api_core import retry as retries  # type: ignore
+from google.api_core.client_options import ClientOptions
+from google.api_core import exceptions as core_exceptions
+from google.api_core import gapic_v1
+from google.api_core import retry as retries
 from google.auth import credentials as ga_credentials  # type: ignore
 from google.oauth2 import service_account  # type: ignore
+
+try:
+    OptionalRetry = Union[retries.Retry, gapic_v1.method._MethodDefault]
+except AttributeError:  # pragma: NO COVER
+    OptionalRetry = Union[retries.Retry, object]  # type: ignore
 
 from google.api_core import operation as gac_operation  # type: ignore
 from google.api_core import operation_async  # type: ignore
@@ -183,18 +188,20 @@ class SpecialistPoolServiceAsyncClient:
 
     async def create_specialist_pool(
         self,
-        request: specialist_pool_service.CreateSpecialistPoolRequest = None,
+        request: Union[
+            specialist_pool_service.CreateSpecialistPoolRequest, dict
+        ] = None,
         *,
         parent: str = None,
         specialist_pool: gca_specialist_pool.SpecialistPool = None,
-        retry: retries.Retry = gapic_v1.method.DEFAULT,
+        retry: OptionalRetry = gapic_v1.method.DEFAULT,
         timeout: float = None,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> operation_async.AsyncOperation:
         r"""Creates a SpecialistPool.
 
         Args:
-            request (:class:`google.cloud.aiplatform_v1beta1.types.CreateSpecialistPoolRequest`):
+            request (Union[google.cloud.aiplatform_v1beta1.types.CreateSpecialistPoolRequest, dict]):
                 The request object. Request message for
                 [SpecialistPoolService.CreateSpecialistPool][google.cloud.aiplatform.v1beta1.SpecialistPoolService.CreateSpecialistPool].
             parent (:class:`str`):
@@ -281,17 +288,17 @@ class SpecialistPoolServiceAsyncClient:
 
     async def get_specialist_pool(
         self,
-        request: specialist_pool_service.GetSpecialistPoolRequest = None,
+        request: Union[specialist_pool_service.GetSpecialistPoolRequest, dict] = None,
         *,
         name: str = None,
-        retry: retries.Retry = gapic_v1.method.DEFAULT,
+        retry: OptionalRetry = gapic_v1.method.DEFAULT,
         timeout: float = None,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> specialist_pool.SpecialistPool:
         r"""Gets a SpecialistPool.
 
         Args:
-            request (:class:`google.cloud.aiplatform_v1beta1.types.GetSpecialistPoolRequest`):
+            request (Union[google.cloud.aiplatform_v1beta1.types.GetSpecialistPoolRequest, dict]):
                 The request object. Request message for
                 [SpecialistPoolService.GetSpecialistPool][google.cloud.aiplatform.v1beta1.SpecialistPoolService.GetSpecialistPool].
             name (:class:`str`):
@@ -363,17 +370,17 @@ class SpecialistPoolServiceAsyncClient:
 
     async def list_specialist_pools(
         self,
-        request: specialist_pool_service.ListSpecialistPoolsRequest = None,
+        request: Union[specialist_pool_service.ListSpecialistPoolsRequest, dict] = None,
         *,
         parent: str = None,
-        retry: retries.Retry = gapic_v1.method.DEFAULT,
+        retry: OptionalRetry = gapic_v1.method.DEFAULT,
         timeout: float = None,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> pagers.ListSpecialistPoolsAsyncPager:
         r"""Lists SpecialistPools in a Location.
 
         Args:
-            request (:class:`google.cloud.aiplatform_v1beta1.types.ListSpecialistPoolsRequest`):
+            request (Union[google.cloud.aiplatform_v1beta1.types.ListSpecialistPoolsRequest, dict]):
                 The request object. Request message for
                 [SpecialistPoolService.ListSpecialistPools][google.cloud.aiplatform.v1beta1.SpecialistPoolService.ListSpecialistPools].
             parent (:class:`str`):
@@ -444,10 +451,12 @@ class SpecialistPoolServiceAsyncClient:
 
     async def delete_specialist_pool(
         self,
-        request: specialist_pool_service.DeleteSpecialistPoolRequest = None,
+        request: Union[
+            specialist_pool_service.DeleteSpecialistPoolRequest, dict
+        ] = None,
         *,
         name: str = None,
-        retry: retries.Retry = gapic_v1.method.DEFAULT,
+        retry: OptionalRetry = gapic_v1.method.DEFAULT,
         timeout: float = None,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> operation_async.AsyncOperation:
@@ -455,7 +464,7 @@ class SpecialistPoolServiceAsyncClient:
         in the pool.
 
         Args:
-            request (:class:`google.cloud.aiplatform_v1beta1.types.DeleteSpecialistPoolRequest`):
+            request (Union[google.cloud.aiplatform_v1beta1.types.DeleteSpecialistPoolRequest, dict]):
                 The request object. Request message for
                 [SpecialistPoolService.DeleteSpecialistPool][google.cloud.aiplatform.v1beta1.SpecialistPoolService.DeleteSpecialistPool].
             name (:class:`str`):
@@ -538,18 +547,20 @@ class SpecialistPoolServiceAsyncClient:
 
     async def update_specialist_pool(
         self,
-        request: specialist_pool_service.UpdateSpecialistPoolRequest = None,
+        request: Union[
+            specialist_pool_service.UpdateSpecialistPoolRequest, dict
+        ] = None,
         *,
         specialist_pool: gca_specialist_pool.SpecialistPool = None,
         update_mask: field_mask_pb2.FieldMask = None,
-        retry: retries.Retry = gapic_v1.method.DEFAULT,
+        retry: OptionalRetry = gapic_v1.method.DEFAULT,
         timeout: float = None,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> operation_async.AsyncOperation:
         r"""Updates a SpecialistPool.
 
         Args:
-            request (:class:`google.cloud.aiplatform_v1beta1.types.UpdateSpecialistPoolRequest`):
+            request (Union[google.cloud.aiplatform_v1beta1.types.UpdateSpecialistPoolRequest, dict]):
                 The request object. Request message for
                 [SpecialistPoolService.UpdateSpecialistPool][google.cloud.aiplatform.v1beta1.SpecialistPoolService.UpdateSpecialistPool].
             specialist_pool (:class:`google.cloud.aiplatform_v1beta1.types.SpecialistPool`):

@@ -38,7 +38,7 @@ async def sample_export_feature_values():
     destination.bigquery_destination.output_uri = "output_uri_value"
 
     feature_selector = aiplatform_v1.FeatureSelector()
-    feature_selector.id_matcher.ids = ['ids_value']
+    feature_selector.id_matcher.ids = ['ids_value_1', 'ids_value_2']
 
     request = aiplatform_v1.ExportFeatureValuesRequest(
         entity_type="projects/{project}/locations/{location}/featurestores/{featurestore}/entityTypes/{entity_type}",

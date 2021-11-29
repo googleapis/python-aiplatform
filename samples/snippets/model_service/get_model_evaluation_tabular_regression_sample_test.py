@@ -17,8 +17,8 @@ import os
 import get_model_evaluation_sample
 
 PROJECT_ID = os.getenv("BUILD_SPECIFIC_GCLOUD_PROJECT")
-MODEL_ID = "8842430840248991744"  # bq all
-EVALUATION_ID = "4944816689650806017"  # bq all evaluation
+MODEL_ID = "626638064948609024"  # bq all
+EVALUATION_ID = "3002272024979570688"  # bq all evaluation
 
 
 def test_ucaip_generated_get_model_evaluation_sample(capsys):

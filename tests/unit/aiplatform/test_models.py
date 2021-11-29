@@ -27,7 +27,7 @@ from google.api_core import exceptions as api_exceptions
 from google.auth import credentials as auth_credentials
 
 from google.cloud import aiplatform
-
+from google.cloud.aiplatform import base
 from google.cloud.aiplatform import initializer
 from google.cloud.aiplatform import models
 from google.cloud.aiplatform import utils
@@ -485,21 +485,27 @@ class TestModel:
 
     def test_constructor_gets_model(self, get_model_mock):
         models.Model(_TEST_ID)
-        get_model_mock.assert_called_once_with(name=_TEST_MODEL_RESOURCE_NAME)
+        get_model_mock.assert_called_once_with(
+            name=_TEST_MODEL_RESOURCE_NAME, retry=base._DEFAULT_RETRY
+        )
 
     def test_constructor_gets_model_with_custom_project(self, get_model_mock):
         models.Model(_TEST_ID, project=_TEST_PROJECT_2)
         test_model_resource_name = model_service_client.ModelServiceClient.model_path(
             _TEST_PROJECT_2, _TEST_LOCATION, _TEST_ID
         )
-        get_model_mock.assert_called_once_with(name=test_model_resource_name)
+        get_model_mock.assert_called_once_with(
+            name=test_model_resource_name, retry=base._DEFAULT_RETRY
+        )
 
     def test_constructor_gets_model_with_custom_location(self, get_model_mock):
         models.Model(_TEST_ID, location=_TEST_LOCATION_2)
         test_model_resource_name = model_service_client.ModelServiceClient.model_path(
             _TEST_PROJECT, _TEST_LOCATION_2, _TEST_ID
         )
-        get_model_mock.assert_called_once_with(name=test_model_resource_name)
+        get_model_mock.assert_called_once_with(
+            name=test_model_resource_name, retry=base._DEFAULT_RETRY
+        )
 
     @pytest.mark.parametrize("sync", [True, False])
     def test_upload_uploads_and_gets_model(
@@ -532,7 +538,9 @@ class TestModel:
             model=managed_model,
         )
 
-        get_model_mock.assert_called_once_with(name=_TEST_MODEL_RESOURCE_NAME)
+        get_model_mock.assert_called_once_with(
+            name=_TEST_MODEL_RESOURCE_NAME, retry=base._DEFAULT_RETRY
+        )
 
     @pytest.mark.parametrize("sync", [True, False])
     def test_upload_uploads_and_gets_model_with_labels(
@@ -568,7 +576,9 @@ class TestModel:
             model=managed_model,
         )
 
-        get_model_mock.assert_called_once_with(name=_TEST_MODEL_RESOURCE_NAME)
+        get_model_mock.assert_called_once_with(
+            name=_TEST_MODEL_RESOURCE_NAME, retry=base._DEFAULT_RETRY
+        )
 
     def test_upload_raises_with_impartial_explanation_spec(self):
 
@@ -652,7 +662,9 @@ class TestModel:
             parent=initializer.global_config.common_location_path(),
             model=managed_model,
         )
-        get_model_mock.assert_called_once_with(name=_TEST_MODEL_RESOURCE_NAME)
+        get_model_mock.assert_called_once_with(
+            name=_TEST_MODEL_RESOURCE_NAME, retry=base._DEFAULT_RETRY
+        )
 
     @pytest.mark.usefixtures("get_model_with_custom_project_mock")
     @pytest.mark.parametrize("sync", [True, False])
@@ -698,7 +710,7 @@ class TestModel:
         )
 
         get_model_with_custom_project_mock.assert_called_once_with(
-            name=test_model_resource_name
+            name=test_model_resource_name, retry=base._DEFAULT_RETRY
         )
 
         assert my_model.uri == _TEST_ARTIFACT_URI
@@ -785,7 +797,7 @@ class TestModel:
         )
 
         get_model_with_custom_location_mock.assert_called_once_with(
-            name=test_model_resource_name
+            name=test_model_resource_name, retry=base._DEFAULT_RETRY
         )
 
     @pytest.mark.usefixtures("get_endpoint_mock", "get_model_mock")

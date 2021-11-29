@@ -35,7 +35,7 @@ async def sample_read_feature_values():
 
     # Initialize request argument(s)
     feature_selector = aiplatform_v1beta1.FeatureSelector()
-    feature_selector.id_matcher.ids = ['ids_value']
+    feature_selector.id_matcher.ids = ['ids_value_1', 'ids_value_2']
 
     request = aiplatform_v1beta1.ReadFeatureValuesRequest(
         entity_type="projects/{project}/locations/{location}/featurestores/{featurestore}/entityTypes/{entity_type}",

@@ -15,10 +15,14 @@
 # limitations under the License.
 #
 
-from google.cloud.aiplatform import gapic
-from google.cloud.aiplatform import explain
+
+from google.cloud.aiplatform import version as aiplatform_version
+
+__version__ = aiplatform_version.__version__
+
 
 from google.cloud.aiplatform import initializer
+
 from google.cloud.aiplatform.datasets import (
     ImageDataset,
     TabularDataset,
@@ -26,16 +30,18 @@ from google.cloud.aiplatform.datasets import (
     TimeSeriesDataset,
     VideoDataset,
 )
+from google.cloud.aiplatform import explain
+from google.cloud.aiplatform import gapic
 from google.cloud.aiplatform import hyperparameter_tuning
 from google.cloud.aiplatform.metadata import metadata
 from google.cloud.aiplatform.models import Endpoint
 from google.cloud.aiplatform.models import Model
-from google.cloud.aiplatform.pipeline_jobs import PipelineJob
 from google.cloud.aiplatform.jobs import (
     BatchPredictionJob,
     CustomJob,
     HyperparameterTuningJob,
 )
+from google.cloud.aiplatform.pipeline_jobs import PipelineJob
 from google.cloud.aiplatform.tensorboard import Tensorboard
 from google.cloud.aiplatform.training_jobs import (
     CustomTrainingJob,
@@ -47,6 +53,7 @@ from google.cloud.aiplatform.training_jobs import (
     AutoMLTextTrainingJob,
     AutoMLVideoTrainingJob,
 )
+from google.cloud.aiplatform import helpers
 
 """
 Usage:
@@ -67,6 +74,7 @@ __all__ = (
     "explain",
     "gapic",
     "init",
+    "helpers",
     "hyperparameter_tuning",
     "log_params",
     "log_metrics",
