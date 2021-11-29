@@ -209,11 +209,11 @@ def set_up_and_open_lit(
             'Please install the SDK using "pip install python-aiplatform[lit]"'
         )
     if not isinstance(dataset, lit_dataset.Dataset):
-        dataset = create_lit_dataset(dataset, column_types)
+        created_dataset = create_lit_dataset(dataset, column_types)
 
     if not isinstance(model, lit_model.Model):
-        model = create_lit_model(model, input_types, output_types)
+        created_model = create_lit_model(model, input_types, output_types)
 
-    open_lit({"dataset": dataset}, {"model": model}, open_in_new_tab=open_in_new_tab)
+    open_lit({"dataset": created_dataset}, {"model": created_model}, open_in_new_tab=open_in_new_tab)
 
-    return dataset, model
+    return created_dataset, created_model
