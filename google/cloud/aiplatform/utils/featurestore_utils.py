@@ -30,38 +30,6 @@ def validate_id(resource_id: str) -> bool:
     return bool(re.compile(r"^" + RESOURCE_ID_PATTERN_REGEX + r"$").match(resource_id))
 
 
-def validate_and_get_featurestore_resource_id(featurestore_name: str) -> str:
-    """Validates and gets featurestore ID of the featurestore resource.
-
-    Args:
-            featurestore_name (str):
-                Required. A fully-qualified featurestore resource name or a featurestore ID
-                Example: "projects/123/locations/us-central1/featurestores/my_featurestore_id"
-                or "my_featurestore_id" when project and location are initialized or passed.
-
-    Returns:
-        str - featurestore ID
-
-    Raises:
-        ValueError if the provided featurestore_name is not in form of a fully-qualified
-        featurestore resource name nor an featurestore ID.
-    """
-    match = CompatFeaturestoreServiceClient.parse_featurestore_path(
-        path=featurestore_name
-    )
-
-    if match:
-        featurestore_id = match["featurestore"]
-    elif validate_id(featurestore_name):
-        featurestore_id = featurestore_name
-    else:
-        raise ValueError(
-            f"{featurestore_name} is not in form of a fully-qualified featurestore resource name nor an featurestore ID."
-        )
-
-    return featurestore_id
-
-
 def validate_and_get_entity_type_resource_ids(
     entity_type_name: str, featurestore_id: Optional[str] = None,
 ) -> Tuple[str, str]:

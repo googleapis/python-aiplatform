@@ -33,5 +33,5 @@ class TestFeaturestore(e2e_base.TestEndToEnd):
         list_featurestores = featurestores.Featurestore.list()
         assert len(list_featurestores) >= 0
 
-        list_searched_features = featurestores.Featurestore.search_features()
+        list_searched_features = featurestores.Feature.search()
         assert len(list_searched_features) >= 0

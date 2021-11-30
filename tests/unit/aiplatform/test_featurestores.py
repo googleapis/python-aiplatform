@@ -345,23 +345,6 @@ class TestFeaturestoreUtils:
                 entity_type_name=entity_type_name, featurestore_id=featurestore_id
             )
 
-    @pytest.mark.parametrize(
-        "featurestore_name", [_TEST_FEATURESTORE_NAME, _TEST_FEATURESTORE_ID]
-    )
-    def test_validate_and_get_featurestore_resource_id(self, featurestore_name: str):
-        assert (
-            _TEST_FEATURESTORE_ID
-            == featurestore_utils.validate_and_get_featurestore_resource_id(
-                featurestore_name=featurestore_name
-            )
-        )
-
-    def test_validate_and_get_featurestore_resource_id_with_raise(self,):
-        with pytest.raises(ValueError):
-            featurestore_utils.validate_and_get_featurestore_resource_id(
-                featurestore_name=_TEST_FEATURESTORE_INVALID
-            )
-
 
 class TestFeaturestore:
     def setup_method(self):
@@ -513,19 +496,6 @@ class TestFeaturestore:
             ],
             any_order=True,
         )
-
-    @pytest.mark.usefixtures("get_feature_mock")
-    def test_search_features(self, search_features_mock):
-        aiplatform.init(project=_TEST_PROJECT)
-
-        my_feature_list = featurestores.Featurestore.search_features()
-
-        search_features_mock.assert_called_once_with(
-            request={"location": _TEST_PARENT, "query": None}
-        )
-        assert len(my_feature_list) == len(_TEST_FEATURE_LIST)
-        for my_feature in my_feature_list:
-            assert type(my_feature) == featurestores.Feature
 
 
 class TestEntityType:
@@ -743,6 +713,19 @@ class TestFeature:
 
         list_features_mock.assert_called_once_with(
             request={"parent": _TEST_ENTITY_TYPE_NAME, "filter": None}
+        )
+        assert len(my_feature_list) == len(_TEST_FEATURE_LIST)
+        for my_feature in my_feature_list:
+            assert type(my_feature) == featurestores.Feature
+
+    @pytest.mark.usefixtures("get_feature_mock")
+    def test_search_features(self, search_features_mock):
+        aiplatform.init(project=_TEST_PROJECT)
+
+        my_feature_list = featurestores.Feature.search()
+
+        search_features_mock.assert_called_once_with(
+            request={"location": _TEST_PARENT, "query": None}
         )
         assert len(my_feature_list) == len(_TEST_FEATURE_LIST)
         for my_feature in my_feature_list:

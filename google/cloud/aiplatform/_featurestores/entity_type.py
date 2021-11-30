@@ -88,6 +88,7 @@ class EntityType(base.VertexAiResourceNounWithFutureManager):
             entity_type_name=entity_type_name, featurestore_id=featurestore_id
         )
 
+        # TODO(b/208269923): Temporary workaround, update when base class supports nested resource
         self._resource_noun = f"featurestores/{featurestore_id}/entityTypes"
 
         super().__init__(
@@ -101,7 +102,14 @@ class EntityType(base.VertexAiResourceNounWithFutureManager):
     @property
     def featurestore_name(self) -> str:
         """Full qualified resource name of the managed featurestore in which this EntityType is."""
-        return "/".join(self.resource_name.split("/")[:-2])
+        entity_type_name_components = featurestore_utils.CompatFeaturestoreServiceClient.parse_entity_type_path(
+            path=self.resource_name
+        )
+        return featurestore_utils.CompatFeaturestoreServiceClient.featurestore_path(
+            project=entity_type_name_components["project"],
+            location=entity_type_name_components["location"],
+            featurestore=entity_type_name_components["featurestore"],
+        )
 
     def get_featurestore(self) -> _featurestores.Featurestore:
         """Retrieves the managed featurestore in which this EntityType is.
@@ -120,8 +128,18 @@ class EntityType(base.VertexAiResourceNounWithFutureManager):
         Returns:
             featurestores.Feature - The managed feature resource object.
         """
+        entity_type_name_components = featurestore_utils.CompatFeaturestoreServiceClient.parse_entity_type_path(
+            path=self.resource_name
+        )
+
         return _featurestores.Feature(
-            feature_name=f"{self.resource_name}/features/{feature_id}"
+            feature_name=featurestore_utils.CompatFeaturestoreServiceClient.feature_path(
+                project=entity_type_name_components["project"],
+                location=entity_type_name_components["location"],
+                featurestore=entity_type_name_components["featurestore"],
+                entity_type=entity_type_name_components["entity_type"],
+                feature=feature_id,
+            )
         )
 
     def update(
@@ -273,10 +291,6 @@ class EntityType(base.VertexAiResourceNounWithFutureManager):
             List[EntityTypes] - A list of managed entityType resource objects
         """
 
-        featurestore_id = featurestore_utils.validate_and_get_featurestore_resource_id(
-            featurestore_name=featurestore_name
-        )
-
         return cls._list(
             filter=filter,
             order_by=order_by,
@@ -284,7 +298,7 @@ class EntityType(base.VertexAiResourceNounWithFutureManager):
             location=location,
             credentials=credentials,
             parent=utils.full_resource_name(
-                resource_name=featurestore_id,
+                resource_name=featurestore_name,
                 resource_noun="featurestores",
                 project=project,
                 location=location,
@@ -364,5 +378,6 @@ class EntityType(base.VertexAiResourceNounWithFutureManager):
         for feature_id in feature_ids:
             feature = self.get_feature(feature_id=feature_id)
             feature.delete(sync=sync)
-            if not sync:
-                feature.wait()
+
+        if not sync:
+            feature.wait()

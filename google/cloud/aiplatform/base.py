@@ -937,7 +937,7 @@ class VertexAiResourceNounWithFutureManager(VertexAiResourceNoun, FutureManager)
         )
 
         # Fetch credentials once and re-use for all `_empty_constructor()` calls
-        creds = initializer.global_config.credentials
+        creds = resource.credentials
 
         resource_list_method = getattr(resource.api_client, resource._list_method)
 
