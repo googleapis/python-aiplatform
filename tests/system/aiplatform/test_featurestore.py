@@ -22,7 +22,7 @@ from tests.system.aiplatform import e2e_base
 
 class TestFeaturestore(e2e_base.TestEndToEnd):
 
-    _temp_prefix = "temp-vertex-sdk-e2e-test"
+    _temp_prefix = "temp-vertex-sdk-e2e-feature-store-test"
 
     def test_create_and_get_featurestore(self, shared_state):
 

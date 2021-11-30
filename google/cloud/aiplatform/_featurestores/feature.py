@@ -317,7 +317,7 @@ class Feature(base.VertexAiResourceNounWithFutureManager):
             location=location,
             credentials=credentials,
             parent=utils.full_resource_name(
-                resource_name=entity_type_id,
+                resource_name=entity_type_name,
                 resource_noun=f"featurestores/{featurestore_id}/entityTypes",
                 project=project,
                 location=location,

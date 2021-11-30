@@ -293,7 +293,7 @@ class Featurestore(base.VertexAiResourceNounWithFutureManager):
                 -  ``update_time``
 
         Returns:
-            List[EntityTypes] - A list of managed entityType resource objects.
+            List[featurestores.EntityType] - A list of managed entityType resource objects.
         """
         return _featurestores.EntityType.list(
             featurestore_name=self.resource_name, filter=filter, order_by=order_by,
@@ -301,9 +301,9 @@ class Featurestore(base.VertexAiResourceNounWithFutureManager):
 
     @base.optional_sync()
     def delete_entity_types(
-        self, entity_type_ids: List[str], sync: Optional[bool] = True,
+        self, entity_type_ids: List[str], sync: bool = True,
     ) -> None:
-        """Deletes entity_type resources in this Featurestre given their entity_type IDs.
+        """Deletes entity_type resources in this Featurestore given their entity_type IDs.
         WARNING: This deletion is permanent.
 
         Args:
@@ -314,9 +314,11 @@ class Featurestore(base.VertexAiResourceNounWithFutureManager):
                 will be executed in concurrent Future and any downstream object will
                 be immediately returned and synced when the Future has completed.
         """
+        entity_types = []
         for entity_type_id in entity_type_ids:
             entity_type = self.get_entity_type(entity_type_id=entity_type_id)
-            entity_type.delete(sync=sync)
+            entity_type.delete(sync=False)
+            entity_types.append(entity_type)
 
-        if not sync:
+        for entity_type in entity_types:
             entity_type.wait()

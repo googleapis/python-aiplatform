@@ -361,9 +361,7 @@ class EntityType(base.VertexAiResourceNounWithFutureManager):
         )
 
     @base.optional_sync()
-    def delete_features(
-        self, feature_ids: List[str], sync: Optional[bool] = True,
-    ) -> None:
+    def delete_features(self, feature_ids: List[str], sync: bool = True,) -> None:
         """Deletes feature resources in this EntityType given their feature IDs.
         WARNING: This deletion is permanent.
 
@@ -375,9 +373,11 @@ class EntityType(base.VertexAiResourceNounWithFutureManager):
                 will be executed in concurrent Future and any downstream object will
                 be immediately returned and synced when the Future has completed.
         """
+        features = []
         for feature_id in feature_ids:
             feature = self.get_feature(feature_id=feature_id)
-            feature.delete(sync=sync)
+            feature.delete(sync=False)
+            features.append(feature)
 
-        if not sync:
+        for feature in features:
             feature.wait()
