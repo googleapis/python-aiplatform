@@ -14,21 +14,25 @@
 # limitations under the License.
 #
 from collections import OrderedDict
-from distutils import util
 import os
 import re
 from typing import Dict, Optional, Iterable, Sequence, Tuple, Type, Union
 import pkg_resources
 
-from google.api_core import client_options as client_options_lib  # type: ignore
-from google.api_core import exceptions as core_exceptions  # type: ignore
-from google.api_core import gapic_v1  # type: ignore
-from google.api_core import retry as retries  # type: ignore
+from google.api_core import client_options as client_options_lib
+from google.api_core import exceptions as core_exceptions
+from google.api_core import gapic_v1
+from google.api_core import retry as retries
 from google.auth import credentials as ga_credentials  # type: ignore
 from google.auth.transport import mtls  # type: ignore
 from google.auth.transport.grpc import SslCredentials  # type: ignore
 from google.auth.exceptions import MutualTLSChannelError  # type: ignore
 from google.oauth2 import service_account  # type: ignore
+
+try:
+    OptionalRetry = Union[retries.Retry, gapic_v1.method._MethodDefault]
+except AttributeError:  # pragma: NO COVER
+    OptionalRetry = Union[retries.Retry, object]  # type: ignore
 
 from google.api_core import operation as gac_operation  # type: ignore
 from google.api_core import operation_async  # type: ignore
@@ -374,8 +378,15 @@ class TensorboardServiceClient(metaclass=TensorboardServiceClientMeta):
             client_options = client_options_lib.ClientOptions()
 
         # Create SSL credentials for mutual TLS if needed.
-        use_client_cert = bool(
-            util.strtobool(os.getenv("GOOGLE_API_USE_CLIENT_CERTIFICATE", "false"))
+        if os.getenv("GOOGLE_API_USE_CLIENT_CERTIFICATE", "false") not in (
+            "true",
+            "false",
+        ):
+            raise ValueError(
+                "Environment variable `GOOGLE_API_USE_CLIENT_CERTIFICATE` must be either `true` or `false`"
+            )
+        use_client_cert = (
+            os.getenv("GOOGLE_API_USE_CLIENT_CERTIFICATE", "false") == "true"
         )
 
         client_cert_source_func = None
@@ -437,10 +448,7 @@ class TensorboardServiceClient(metaclass=TensorboardServiceClientMeta):
                 client_cert_source_for_mtls=client_cert_source_func,
                 quota_project_id=client_options.quota_project_id,
                 client_info=client_info,
-                always_use_jwt_access=(
-                    Transport == type(self).get_transport_class("grpc")
-                    or Transport == type(self).get_transport_class("grpc_asyncio")
-                ),
+                always_use_jwt_access=True,
             )
 
     def create_tensorboard(
@@ -449,7 +457,7 @@ class TensorboardServiceClient(metaclass=TensorboardServiceClientMeta):
         *,
         parent: str = None,
         tensorboard: gca_tensorboard.Tensorboard = None,
-        retry: retries.Retry = gapic_v1.method.DEFAULT,
+        retry: OptionalRetry = gapic_v1.method.DEFAULT,
         timeout: float = None,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> gac_operation.Operation:
@@ -540,7 +548,7 @@ class TensorboardServiceClient(metaclass=TensorboardServiceClientMeta):
         request: Union[tensorboard_service.GetTensorboardRequest, dict] = None,
         *,
         name: str = None,
-        retry: retries.Retry = gapic_v1.method.DEFAULT,
+        retry: OptionalRetry = gapic_v1.method.DEFAULT,
         timeout: float = None,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> tensorboard.Tensorboard:
@@ -616,7 +624,7 @@ class TensorboardServiceClient(metaclass=TensorboardServiceClientMeta):
         *,
         tensorboard: gca_tensorboard.Tensorboard = None,
         update_mask: field_mask_pb2.FieldMask = None,
-        retry: retries.Retry = gapic_v1.method.DEFAULT,
+        retry: OptionalRetry = gapic_v1.method.DEFAULT,
         timeout: float = None,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> gac_operation.Operation:
@@ -716,7 +724,7 @@ class TensorboardServiceClient(metaclass=TensorboardServiceClientMeta):
         request: Union[tensorboard_service.ListTensorboardsRequest, dict] = None,
         *,
         parent: str = None,
-        retry: retries.Retry = gapic_v1.method.DEFAULT,
+        retry: OptionalRetry = gapic_v1.method.DEFAULT,
         timeout: float = None,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> pagers.ListTensorboardsPager:
@@ -797,7 +805,7 @@ class TensorboardServiceClient(metaclass=TensorboardServiceClientMeta):
         request: Union[tensorboard_service.DeleteTensorboardRequest, dict] = None,
         *,
         name: str = None,
-        retry: retries.Retry = gapic_v1.method.DEFAULT,
+        retry: OptionalRetry = gapic_v1.method.DEFAULT,
         timeout: float = None,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> gac_operation.Operation:
@@ -894,7 +902,7 @@ class TensorboardServiceClient(metaclass=TensorboardServiceClientMeta):
         parent: str = None,
         tensorboard_experiment: gca_tensorboard_experiment.TensorboardExperiment = None,
         tensorboard_experiment_id: str = None,
-        retry: retries.Retry = gapic_v1.method.DEFAULT,
+        retry: OptionalRetry = gapic_v1.method.DEFAULT,
         timeout: float = None,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> gca_tensorboard_experiment.TensorboardExperiment:
@@ -996,7 +1004,7 @@ class TensorboardServiceClient(metaclass=TensorboardServiceClientMeta):
         ] = None,
         *,
         name: str = None,
-        retry: retries.Retry = gapic_v1.method.DEFAULT,
+        retry: OptionalRetry = gapic_v1.method.DEFAULT,
         timeout: float = None,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> tensorboard_experiment.TensorboardExperiment:
@@ -1075,7 +1083,7 @@ class TensorboardServiceClient(metaclass=TensorboardServiceClientMeta):
         *,
         tensorboard_experiment: gca_tensorboard_experiment.TensorboardExperiment = None,
         update_mask: field_mask_pb2.FieldMask = None,
-        retry: retries.Retry = gapic_v1.method.DEFAULT,
+        retry: OptionalRetry = gapic_v1.method.DEFAULT,
         timeout: float = None,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> gca_tensorboard_experiment.TensorboardExperiment:
@@ -1172,7 +1180,7 @@ class TensorboardServiceClient(metaclass=TensorboardServiceClientMeta):
         ] = None,
         *,
         parent: str = None,
-        retry: retries.Retry = gapic_v1.method.DEFAULT,
+        retry: OptionalRetry = gapic_v1.method.DEFAULT,
         timeout: float = None,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> pagers.ListTensorboardExperimentsPager:
@@ -1260,7 +1268,7 @@ class TensorboardServiceClient(metaclass=TensorboardServiceClientMeta):
         ] = None,
         *,
         name: str = None,
-        retry: retries.Retry = gapic_v1.method.DEFAULT,
+        retry: OptionalRetry = gapic_v1.method.DEFAULT,
         timeout: float = None,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> gac_operation.Operation:
@@ -1359,7 +1367,7 @@ class TensorboardServiceClient(metaclass=TensorboardServiceClientMeta):
         parent: str = None,
         tensorboard_run: gca_tensorboard_run.TensorboardRun = None,
         tensorboard_run_id: str = None,
-        retry: retries.Retry = gapic_v1.method.DEFAULT,
+        retry: OptionalRetry = gapic_v1.method.DEFAULT,
         timeout: float = None,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> gca_tensorboard_run.TensorboardRun:
@@ -1458,7 +1466,7 @@ class TensorboardServiceClient(metaclass=TensorboardServiceClientMeta):
         *,
         parent: str = None,
         requests: Sequence[tensorboard_service.CreateTensorboardRunRequest] = None,
-        retry: retries.Retry = gapic_v1.method.DEFAULT,
+        retry: OptionalRetry = gapic_v1.method.DEFAULT,
         timeout: float = None,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> tensorboard_service.BatchCreateTensorboardRunsResponse:
@@ -1548,7 +1556,7 @@ class TensorboardServiceClient(metaclass=TensorboardServiceClientMeta):
         request: Union[tensorboard_service.GetTensorboardRunRequest, dict] = None,
         *,
         name: str = None,
-        retry: retries.Retry = gapic_v1.method.DEFAULT,
+        retry: OptionalRetry = gapic_v1.method.DEFAULT,
         timeout: float = None,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> tensorboard_run.TensorboardRun:
@@ -1623,7 +1631,7 @@ class TensorboardServiceClient(metaclass=TensorboardServiceClientMeta):
         *,
         tensorboard_run: gca_tensorboard_run.TensorboardRun = None,
         update_mask: field_mask_pb2.FieldMask = None,
-        retry: retries.Retry = gapic_v1.method.DEFAULT,
+        retry: OptionalRetry = gapic_v1.method.DEFAULT,
         timeout: float = None,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> gca_tensorboard_run.TensorboardRun:
@@ -1713,7 +1721,7 @@ class TensorboardServiceClient(metaclass=TensorboardServiceClientMeta):
         request: Union[tensorboard_service.ListTensorboardRunsRequest, dict] = None,
         *,
         parent: str = None,
-        retry: retries.Retry = gapic_v1.method.DEFAULT,
+        retry: OptionalRetry = gapic_v1.method.DEFAULT,
         timeout: float = None,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> pagers.ListTensorboardRunsPager:
@@ -1795,7 +1803,7 @@ class TensorboardServiceClient(metaclass=TensorboardServiceClientMeta):
         request: Union[tensorboard_service.DeleteTensorboardRunRequest, dict] = None,
         *,
         name: str = None,
-        retry: retries.Retry = gapic_v1.method.DEFAULT,
+        retry: OptionalRetry = gapic_v1.method.DEFAULT,
         timeout: float = None,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> gac_operation.Operation:
@@ -1893,7 +1901,7 @@ class TensorboardServiceClient(metaclass=TensorboardServiceClientMeta):
         requests: Sequence[
             tensorboard_service.CreateTensorboardTimeSeriesRequest
         ] = None,
-        retry: retries.Retry = gapic_v1.method.DEFAULT,
+        retry: OptionalRetry = gapic_v1.method.DEFAULT,
         timeout: float = None,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> tensorboard_service.BatchCreateTensorboardTimeSeriesResponse:
@@ -1990,7 +1998,7 @@ class TensorboardServiceClient(metaclass=TensorboardServiceClientMeta):
         *,
         parent: str = None,
         tensorboard_time_series: gca_tensorboard_time_series.TensorboardTimeSeries = None,
-        retry: retries.Retry = gapic_v1.method.DEFAULT,
+        retry: OptionalRetry = gapic_v1.method.DEFAULT,
         timeout: float = None,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> gca_tensorboard_time_series.TensorboardTimeSeries:
@@ -2077,7 +2085,7 @@ class TensorboardServiceClient(metaclass=TensorboardServiceClientMeta):
         ] = None,
         *,
         name: str = None,
-        retry: retries.Retry = gapic_v1.method.DEFAULT,
+        retry: OptionalRetry = gapic_v1.method.DEFAULT,
         timeout: float = None,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> tensorboard_time_series.TensorboardTimeSeries:
@@ -2154,7 +2162,7 @@ class TensorboardServiceClient(metaclass=TensorboardServiceClientMeta):
         *,
         tensorboard_time_series: gca_tensorboard_time_series.TensorboardTimeSeries = None,
         update_mask: field_mask_pb2.FieldMask = None,
-        retry: retries.Retry = gapic_v1.method.DEFAULT,
+        retry: OptionalRetry = gapic_v1.method.DEFAULT,
         timeout: float = None,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> gca_tensorboard_time_series.TensorboardTimeSeries:
@@ -2254,7 +2262,7 @@ class TensorboardServiceClient(metaclass=TensorboardServiceClientMeta):
         ] = None,
         *,
         parent: str = None,
-        retry: retries.Retry = gapic_v1.method.DEFAULT,
+        retry: OptionalRetry = gapic_v1.method.DEFAULT,
         timeout: float = None,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> pagers.ListTensorboardTimeSeriesPager:
@@ -2342,7 +2350,7 @@ class TensorboardServiceClient(metaclass=TensorboardServiceClientMeta):
         ] = None,
         *,
         name: str = None,
-        retry: retries.Retry = gapic_v1.method.DEFAULT,
+        retry: OptionalRetry = gapic_v1.method.DEFAULT,
         timeout: float = None,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> gac_operation.Operation:
@@ -2434,6 +2442,97 @@ class TensorboardServiceClient(metaclass=TensorboardServiceClientMeta):
         # Done; return the response.
         return response
 
+    def batch_read_tensorboard_time_series_data(
+        self,
+        request: Union[
+            tensorboard_service.BatchReadTensorboardTimeSeriesDataRequest, dict
+        ] = None,
+        *,
+        tensorboard: str = None,
+        retry: OptionalRetry = gapic_v1.method.DEFAULT,
+        timeout: float = None,
+        metadata: Sequence[Tuple[str, str]] = (),
+    ) -> tensorboard_service.BatchReadTensorboardTimeSeriesDataResponse:
+        r"""Reads multiple TensorboardTimeSeries' data. The data
+        point number limit is 1000 for scalars, 100 for tensors
+        and blob references. If the number of data points stored
+        is less than the limit, all data will be returned.
+        Otherwise, that limit number of data points will be
+        randomly selected from this time series and returned.
+
+        Args:
+            request (Union[google.cloud.aiplatform_v1beta1.types.BatchReadTensorboardTimeSeriesDataRequest, dict]):
+                The request object. Request message for
+                [TensorboardService.BatchReadTensorboardTimeSeriesData][google.cloud.aiplatform.v1beta1.TensorboardService.BatchReadTensorboardTimeSeriesData].
+            tensorboard (str):
+                Required. The resource name of the Tensorboard
+                containing TensorboardTimeSeries to read data from.
+                Format:
+                ``projects/{project}/locations/{location}/tensorboards/{tensorboard}``.
+                The TensorboardTimeSeries referenced by
+                [time_series][google.cloud.aiplatform.v1beta1.BatchReadTensorboardTimeSeriesDataRequest.time_series]
+                must be sub resources of this Tensorboard.
+
+                This corresponds to the ``tensorboard`` field
+                on the ``request`` instance; if ``request`` is provided, this
+                should not be set.
+            retry (google.api_core.retry.Retry): Designation of what errors, if any,
+                should be retried.
+            timeout (float): The timeout for this request.
+            metadata (Sequence[Tuple[str, str]]): Strings which should be
+                sent along with the request as metadata.
+
+        Returns:
+            google.cloud.aiplatform_v1beta1.types.BatchReadTensorboardTimeSeriesDataResponse:
+                Response message for
+                   [TensorboardService.BatchReadTensorboardTimeSeriesData][google.cloud.aiplatform.v1beta1.TensorboardService.BatchReadTensorboardTimeSeriesData].
+
+        """
+        # Create or coerce a protobuf request object.
+        # Sanity check: If we got a request object, we should *not* have
+        # gotten any keyword arguments that map to the request.
+        has_flattened_params = any([tensorboard])
+        if request is not None and has_flattened_params:
+            raise ValueError(
+                "If the `request` argument is set, then none of "
+                "the individual field arguments should be set."
+            )
+
+        # Minor optimization to avoid making a copy if the user passes
+        # in a tensorboard_service.BatchReadTensorboardTimeSeriesDataRequest.
+        # There's no risk of modifying the input as we've already verified
+        # there are no flattened fields.
+        if not isinstance(
+            request, tensorboard_service.BatchReadTensorboardTimeSeriesDataRequest
+        ):
+            request = tensorboard_service.BatchReadTensorboardTimeSeriesDataRequest(
+                request
+            )
+            # If we have keyword arguments corresponding to fields on the
+            # request, apply these.
+            if tensorboard is not None:
+                request.tensorboard = tensorboard
+
+        # Wrap the RPC method; this adds retry and timeout information,
+        # and friendly error handling.
+        rpc = self._transport._wrapped_methods[
+            self._transport.batch_read_tensorboard_time_series_data
+        ]
+
+        # Certain fields should be provided within the metadata header;
+        # add these here.
+        metadata = tuple(metadata) + (
+            gapic_v1.routing_header.to_grpc_metadata(
+                (("tensorboard", request.tensorboard),)
+            ),
+        )
+
+        # Send the request.
+        response = rpc(request, retry=retry, timeout=timeout, metadata=metadata,)
+
+        # Done; return the response.
+        return response
+
     def read_tensorboard_time_series_data(
         self,
         request: Union[
@@ -2441,16 +2540,15 @@ class TensorboardServiceClient(metaclass=TensorboardServiceClientMeta):
         ] = None,
         *,
         tensorboard_time_series: str = None,
-        retry: retries.Retry = gapic_v1.method.DEFAULT,
+        retry: OptionalRetry = gapic_v1.method.DEFAULT,
         timeout: float = None,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> tensorboard_service.ReadTensorboardTimeSeriesDataResponse:
-        r"""Reads a TensorboardTimeSeries' data. Data is returned in
-        paginated responses. By default, if the number of data points
-        stored is less than 1000, all data will be returned. Otherwise,
-        1000 data points will be randomly selected from this time series
-        and returned. This value can be changed by changing
-        max_data_points.
+        r"""Reads a TensorboardTimeSeries' data. By default, if the number
+        of data points stored is less than 1000, all data will be
+        returned. Otherwise, 1000 data points will be randomly selected
+        from this time series and returned. This value can be changed by
+        changing max_data_points, which can't be greater than 10k.
 
         Args:
             request (Union[google.cloud.aiplatform_v1beta1.types.ReadTensorboardTimeSeriesDataRequest, dict]):
@@ -2524,7 +2622,7 @@ class TensorboardServiceClient(metaclass=TensorboardServiceClientMeta):
         request: Union[tensorboard_service.ReadTensorboardBlobDataRequest, dict] = None,
         *,
         time_series: str = None,
-        retry: retries.Retry = gapic_v1.method.DEFAULT,
+        retry: OptionalRetry = gapic_v1.method.DEFAULT,
         timeout: float = None,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> Iterable[tensorboard_service.ReadTensorboardBlobDataResponse]:
@@ -2608,7 +2706,7 @@ class TensorboardServiceClient(metaclass=TensorboardServiceClientMeta):
         write_run_data_requests: Sequence[
             tensorboard_service.WriteTensorboardRunDataRequest
         ] = None,
-        retry: retries.Retry = gapic_v1.method.DEFAULT,
+        retry: OptionalRetry = gapic_v1.method.DEFAULT,
         timeout: float = None,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> tensorboard_service.WriteTensorboardExperimentDataResponse:
@@ -2698,7 +2796,7 @@ class TensorboardServiceClient(metaclass=TensorboardServiceClientMeta):
         *,
         tensorboard_run: str = None,
         time_series_data: Sequence[tensorboard_data.TimeSeriesData] = None,
-        retry: retries.Retry = gapic_v1.method.DEFAULT,
+        retry: OptionalRetry = gapic_v1.method.DEFAULT,
         timeout: float = None,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> tensorboard_service.WriteTensorboardRunDataResponse:
@@ -2793,7 +2891,7 @@ class TensorboardServiceClient(metaclass=TensorboardServiceClientMeta):
         ] = None,
         *,
         tensorboard_time_series: str = None,
-        retry: retries.Retry = gapic_v1.method.DEFAULT,
+        retry: OptionalRetry = gapic_v1.method.DEFAULT,
         timeout: float = None,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> pagers.ExportTensorboardTimeSeriesDataPager:
@@ -2877,6 +2975,19 @@ class TensorboardServiceClient(metaclass=TensorboardServiceClientMeta):
 
         # Done; return the response.
         return response
+
+    def __enter__(self):
+        return self
+
+    def __exit__(self, type, value, traceback):
+        """Releases underlying transport's resources.
+
+        .. warning::
+            ONLY use as a context manager if the transport is NOT shared
+            with other clients! Exiting the with block will CLOSE the transport
+            and may cause errors in other clients!
+        """
+        self.transport.close()
 
 
 try:

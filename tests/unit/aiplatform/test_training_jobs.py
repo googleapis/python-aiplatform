@@ -16,8 +16,10 @@
 #
 
 from distutils import core
+import copy
 import functools
 import importlib
+import logging
 import pathlib
 import pytest
 import subprocess
@@ -31,16 +33,18 @@ from unittest.mock import patch
 
 from google.auth import credentials as auth_credentials
 
-from google.cloud.aiplatform import utils
-from google.cloud.aiplatform.utils import source_utils
-from google.cloud.aiplatform.utils import worker_spec_utils
 from google.cloud import aiplatform
-
+from google.cloud.aiplatform import base
 from google.cloud.aiplatform import datasets
 from google.cloud.aiplatform import initializer
 from google.cloud.aiplatform import schema
 from google.cloud.aiplatform import training_jobs
+from google.cloud.aiplatform import utils
+from google.cloud.aiplatform.utils import source_utils
+from google.cloud.aiplatform.utils import worker_spec_utils
 
+
+from google.cloud.aiplatform_v1.services.job_service import client as job_service_client
 from google.cloud.aiplatform_v1.services.model_service import (
     client as model_service_client,
 )
@@ -49,10 +53,12 @@ from google.cloud.aiplatform_v1.services.pipeline_service import (
 )
 
 from google.cloud.aiplatform_v1.types import (
+    custom_job as gca_custom_job,
     dataset as gca_dataset,
     encryption_spec as gca_encryption_spec,
     env_var as gca_env_var,
     io as gca_io,
+    job_state as gca_job_state,
     model as gca_model,
     pipeline_state as gca_pipeline_state,
     training_pipeline as gca_training_pipeline,
@@ -93,6 +99,11 @@ _TEST_BIGQUERY_DESTINATION = "bq://test-project"
 _TEST_RUN_ARGS = ["-v", 0.1, "--test=arg"]
 _TEST_REPLICA_COUNT = 1
 _TEST_MACHINE_TYPE = "n1-standard-4"
+_TEST_REDUCTION_SERVER_REPLICA_COUNT = 1
+_TEST_REDUCTION_SERVER_MACHINE_TYPE = "n1-highcpu-16"
+_TEST_REDUCTION_SERVER_CONTAINER_URI = (
+    "us-docker.pkg.dev/vertex-ai-restricted/training/reductionserver:latest"
+)
 _TEST_ACCELERATOR_TYPE = "NVIDIA_TESLA_K80"
 _TEST_INVALID_ACCELERATOR_TYPE = "NVIDIA_DOES_NOT_EXIST"
 _TEST_ACCELERATOR_COUNT = 1
@@ -169,6 +180,23 @@ _TEST_MODEL_ENCRYPTION_KEY_NAME = "key_model"
 _TEST_MODEL_ENCRYPTION_SPEC = gca_encryption_spec.EncryptionSpec(
     kms_key_name=_TEST_MODEL_ENCRYPTION_KEY_NAME
 )
+_TEST_ENABLE_WEB_ACCESS = True
+_TEST_WEB_ACCESS_URIS = {"workerpool0-0": "uri"}
+
+_TEST_BASE_CUSTOM_JOB_PROTO = gca_custom_job.CustomJob(
+    job_spec=gca_custom_job.CustomJobSpec(),
+)
+
+
+def _get_custom_job_proto_with_enable_web_access(state=None, name=None, version="v1"):
+    custom_job_proto = copy.deepcopy(_TEST_BASE_CUSTOM_JOB_PROTO)
+    custom_job_proto.name = name
+    custom_job_proto.state = state
+
+    custom_job_proto.job_spec.enable_web_access = _TEST_ENABLE_WEB_ACCESS
+    if state == gca_job_state.JobState.JOB_STATE_RUNNING:
+        custom_job_proto.web_access_uris = _TEST_WEB_ACCESS_URIS
+    return custom_job_proto
 
 
 def local_copy_method(path):
@@ -239,6 +267,40 @@ def mock_client_bucket():
         mock_client_bucket.return_value = MockBucket
 
         yield mock_client_bucket, MockBlob
+
+
+@pytest.fixture
+def mock_get_backing_custom_job_with_enable_web_access():
+    with patch.object(
+        job_service_client.JobServiceClient, "get_custom_job"
+    ) as get_custom_job_mock:
+        get_custom_job_mock.side_effect = [
+            _get_custom_job_proto_with_enable_web_access(
+                name=_TEST_CUSTOM_JOB_RESOURCE_NAME,
+                state=gca_job_state.JobState.JOB_STATE_PENDING,
+            ),
+            _get_custom_job_proto_with_enable_web_access(
+                name=_TEST_CUSTOM_JOB_RESOURCE_NAME,
+                state=gca_job_state.JobState.JOB_STATE_RUNNING,
+            ),
+            _get_custom_job_proto_with_enable_web_access(
+                name=_TEST_CUSTOM_JOB_RESOURCE_NAME,
+                state=gca_job_state.JobState.JOB_STATE_RUNNING,
+            ),
+            _get_custom_job_proto_with_enable_web_access(
+                name=_TEST_CUSTOM_JOB_RESOURCE_NAME,
+                state=gca_job_state.JobState.JOB_STATE_RUNNING,
+            ),
+            _get_custom_job_proto_with_enable_web_access(
+                name=_TEST_CUSTOM_JOB_RESOURCE_NAME,
+                state=gca_job_state.JobState.JOB_STATE_SUCCEEDED,
+            ),
+            _get_custom_job_proto_with_enable_web_access(
+                name=_TEST_CUSTOM_JOB_RESOURCE_NAME,
+                state=gca_job_state.JobState.JOB_STATE_SUCCEEDED,
+            ),
+        ]
+        yield get_custom_job_mock
 
 
 class TestTrainingScriptPythonPackagerHelpers:
@@ -464,6 +526,25 @@ def make_training_pipeline(state, add_training_task_metadata=True):
     )
 
 
+def make_training_pipeline_with_no_model_upload(state):
+    return gca_training_pipeline.TrainingPipeline(
+        name=_TEST_PIPELINE_RESOURCE_NAME, state=state,
+    )
+
+
+def make_training_pipeline_with_enable_web_access(state):
+    training_pipeline = gca_training_pipeline.TrainingPipeline(
+        name=_TEST_PIPELINE_RESOURCE_NAME,
+        state=state,
+        training_task_inputs={"enable_web_access": _TEST_ENABLE_WEB_ACCESS},
+    )
+    if state == gca_pipeline_state.PipelineState.PIPELINE_STATE_RUNNING:
+        training_pipeline.training_task_metadata = {
+            "backingCustomJob": _TEST_CUSTOM_JOB_RESOURCE_NAME
+        }
+    return training_pipeline
+
+
 @pytest.fixture
 def mock_pipeline_service_get():
     with mock.patch.object(
@@ -507,6 +588,35 @@ def mock_pipeline_service_get():
 
 
 @pytest.fixture
+def mock_pipeline_service_get_with_enable_web_access():
+    with mock.patch.object(
+        pipeline_service_client.PipelineServiceClient, "get_training_pipeline"
+    ) as mock_get_training_pipeline:
+        mock_get_training_pipeline.side_effect = [
+            make_training_pipeline_with_enable_web_access(
+                state=gca_pipeline_state.PipelineState.PIPELINE_STATE_PENDING,
+            ),
+            make_training_pipeline_with_enable_web_access(
+                state=gca_pipeline_state.PipelineState.PIPELINE_STATE_RUNNING,
+            ),
+            make_training_pipeline_with_enable_web_access(
+                state=gca_pipeline_state.PipelineState.PIPELINE_STATE_RUNNING,
+            ),
+            make_training_pipeline_with_enable_web_access(
+                state=gca_pipeline_state.PipelineState.PIPELINE_STATE_RUNNING,
+            ),
+            make_training_pipeline_with_enable_web_access(
+                state=gca_pipeline_state.PipelineState.PIPELINE_STATE_SUCCEEDED,
+            ),
+            make_training_pipeline_with_enable_web_access(
+                state=gca_pipeline_state.PipelineState.PIPELINE_STATE_SUCCEEDED,
+            ),
+        ]
+
+        yield mock_get_training_pipeline
+
+
+@pytest.fixture
 def mock_pipeline_service_cancel():
     with mock.patch.object(
         pipeline_service_client.PipelineServiceClient, "cancel_training_pipeline"
@@ -522,6 +632,17 @@ def mock_pipeline_service_create_with_no_model_to_upload():
         mock_create_training_pipeline.return_value = gca_training_pipeline.TrainingPipeline(
             name=_TEST_PIPELINE_RESOURCE_NAME,
             state=gca_pipeline_state.PipelineState.PIPELINE_STATE_SUCCEEDED,
+        )
+        yield mock_create_training_pipeline
+
+
+@pytest.fixture
+def mock_pipeline_service_create_with_enable_web_access():
+    with mock.patch.object(
+        pipeline_service_client.PipelineServiceClient, "create_training_pipeline"
+    ) as mock_create_training_pipeline:
+        mock_create_training_pipeline.return_value = make_training_pipeline_with_enable_web_access(
+            state=gca_pipeline_state.PipelineState.PIPELINE_STATE_PENDING,
         )
         yield mock_create_training_pipeline
 
@@ -791,7 +912,9 @@ class TestCustomTrainingJob:
             gca_pipeline_state.PipelineState.PIPELINE_STATE_SUCCEEDED
         )
 
-        mock_model_service_get.assert_called_once_with(name=_TEST_MODEL_NAME)
+        mock_model_service_get.assert_called_once_with(
+            name=_TEST_MODEL_NAME, retry=base._DEFAULT_RETRY
+        )
 
         assert model_from_job._gca_resource is mock_model_service_get.return_value
 
@@ -947,7 +1070,9 @@ class TestCustomTrainingJob:
             gca_pipeline_state.PipelineState.PIPELINE_STATE_SUCCEEDED
         )
 
-        mock_model_service_get.assert_called_once_with(name=_TEST_MODEL_NAME)
+        mock_model_service_get.assert_called_once_with(
+            name=_TEST_MODEL_NAME, retry=base._DEFAULT_RETRY
+        )
 
         assert model_from_job._gca_resource is mock_model_service_get.return_value
 
@@ -1219,9 +1344,55 @@ class TestCustomTrainingJob:
             gca_pipeline_state.PipelineState.PIPELINE_STATE_SUCCEEDED
         )
 
-        mock_model_service_get.assert_called_once_with(name=_TEST_MODEL_NAME)
+        mock_model_service_get.assert_called_once_with(
+            name=_TEST_MODEL_NAME, retry=base._DEFAULT_RETRY
+        )
 
         assert model_from_job._gca_resource is mock_model_service_get.return_value
+
+    @pytest.mark.usefixtures(
+        "mock_pipeline_service_create_with_enable_web_access",
+        "mock_pipeline_service_get_with_enable_web_access",
+        "mock_get_backing_custom_job_with_enable_web_access",
+        "mock_python_package_to_gcs",
+    )
+    @pytest.mark.parametrize("sync", [True, False])
+    def test_run_call_pipeline_service_create_with_enable_web_access(
+        self, sync, caplog
+    ):
+
+        caplog.set_level(logging.INFO)
+
+        aiplatform.init(
+            project=_TEST_PROJECT,
+            staging_bucket=_TEST_BUCKET_NAME,
+            credentials=_TEST_CREDENTIALS,
+        )
+
+        job = training_jobs.CustomTrainingJob(
+            display_name=_TEST_DISPLAY_NAME,
+            script_path=_TEST_LOCAL_SCRIPT_FILE_NAME,
+            container_uri=_TEST_TRAINING_CONTAINER_IMAGE,
+        )
+
+        job.run(
+            base_output_dir=_TEST_BASE_OUTPUT_DIR,
+            args=_TEST_RUN_ARGS,
+            machine_type=_TEST_MACHINE_TYPE,
+            accelerator_type=_TEST_ACCELERATOR_TYPE,
+            accelerator_count=_TEST_ACCELERATOR_COUNT,
+            enable_web_access=_TEST_ENABLE_WEB_ACCESS,
+            sync=sync,
+        )
+
+        if not sync:
+            job.wait()
+
+        print(caplog.text)
+        assert "workerpool0-0" in caplog.text
+        assert job._gca_resource == make_training_pipeline_with_enable_web_access(
+            gca_pipeline_state.PipelineState.PIPELINE_STATE_SUCCEEDED
+        )
 
     @pytest.mark.usefixtures(
         "mock_pipeline_service_create_with_no_model_to_upload",
@@ -1510,11 +1681,139 @@ class TestCustomTrainingJob:
             gca_pipeline_state.PipelineState.PIPELINE_STATE_SUCCEEDED
         )
 
-        mock_model_service_get.assert_called_once_with(name=_TEST_MODEL_NAME)
+        mock_model_service_get.assert_called_once_with(
+            name=_TEST_MODEL_NAME, retry=base._DEFAULT_RETRY
+        )
 
         assert model_from_job._gca_resource is mock_model_service_get.return_value
 
         assert job.get_model()._gca_resource is mock_model_service_get.return_value
+
+        assert not job.has_failed
+
+        assert job.state == gca_pipeline_state.PipelineState.PIPELINE_STATE_SUCCEEDED
+
+    @pytest.mark.parametrize("sync", [True, False])
+    def test_run_call_pipeline_service_create_distributed_training_with_reduction_server(
+        self,
+        mock_pipeline_service_create_with_no_model_to_upload,
+        mock_pipeline_service_get_with_no_model_to_upload,
+        mock_python_package_to_gcs,
+        sync,
+    ):
+        aiplatform.init(
+            project=_TEST_PROJECT,
+            staging_bucket=_TEST_BUCKET_NAME,
+            credentials=_TEST_CREDENTIALS,
+        )
+
+        job = training_jobs.CustomTrainingJob(
+            display_name=_TEST_DISPLAY_NAME,
+            script_path=_TEST_LOCAL_SCRIPT_FILE_NAME,
+            container_uri=_TEST_TRAINING_CONTAINER_IMAGE,
+        )
+
+        job.run(
+            base_output_dir=_TEST_BASE_OUTPUT_DIR,
+            args=_TEST_RUN_ARGS,
+            environment_variables=_TEST_ENVIRONMENT_VARIABLES,
+            replica_count=10,
+            machine_type=_TEST_MACHINE_TYPE,
+            accelerator_type=_TEST_ACCELERATOR_TYPE,
+            accelerator_count=_TEST_ACCELERATOR_COUNT,
+            reduction_server_replica_count=_TEST_REDUCTION_SERVER_REPLICA_COUNT,
+            reduction_server_machine_type=_TEST_REDUCTION_SERVER_MACHINE_TYPE,
+            reduction_server_container_uri=_TEST_REDUCTION_SERVER_CONTAINER_URI,
+            sync=sync,
+        )
+
+        if not sync:
+            job.wait()
+
+        mock_python_package_to_gcs.assert_called_once_with(
+            gcs_staging_dir=_TEST_BUCKET_NAME,
+            project=_TEST_PROJECT,
+            credentials=initializer.global_config.credentials,
+        )
+
+        true_args = _TEST_RUN_ARGS
+        true_env = [
+            {"name": key, "value": value}
+            for key, value in _TEST_ENVIRONMENT_VARIABLES.items()
+        ]
+
+        true_worker_pool_spec = [
+            {
+                "replica_count": 1,
+                "machine_spec": {
+                    "machine_type": _TEST_MACHINE_TYPE,
+                    "accelerator_type": _TEST_ACCELERATOR_TYPE,
+                    "accelerator_count": _TEST_ACCELERATOR_COUNT,
+                },
+                "disk_spec": {
+                    "boot_disk_type": _TEST_BOOT_DISK_TYPE_DEFAULT,
+                    "boot_disk_size_gb": _TEST_BOOT_DISK_SIZE_GB_DEFAULT,
+                },
+                "python_package_spec": {
+                    "executor_image_uri": _TEST_TRAINING_CONTAINER_IMAGE,
+                    "python_module": source_utils._TrainingScriptPythonPackager.module_name,
+                    "package_uris": [_TEST_OUTPUT_PYTHON_PACKAGE_PATH],
+                    "args": true_args,
+                    "env": true_env,
+                },
+            },
+            {
+                "replica_count": 9,
+                "machine_spec": {
+                    "machine_type": _TEST_MACHINE_TYPE,
+                    "accelerator_type": _TEST_ACCELERATOR_TYPE,
+                    "accelerator_count": _TEST_ACCELERATOR_COUNT,
+                },
+                "disk_spec": {
+                    "boot_disk_type": _TEST_BOOT_DISK_TYPE_DEFAULT,
+                    "boot_disk_size_gb": _TEST_BOOT_DISK_SIZE_GB_DEFAULT,
+                },
+                "python_package_spec": {
+                    "executor_image_uri": _TEST_TRAINING_CONTAINER_IMAGE,
+                    "python_module": source_utils._TrainingScriptPythonPackager.module_name,
+                    "package_uris": [_TEST_OUTPUT_PYTHON_PACKAGE_PATH],
+                    "args": true_args,
+                    "env": true_env,
+                },
+            },
+            {
+                "replica_count": _TEST_REDUCTION_SERVER_REPLICA_COUNT,
+                "machine_spec": {"machine_type": _TEST_REDUCTION_SERVER_MACHINE_TYPE},
+                "container_spec": {"image_uri": _TEST_REDUCTION_SERVER_CONTAINER_URI},
+                "disk_spec": {
+                    "boot_disk_type": _TEST_BOOT_DISK_TYPE_DEFAULT,
+                    "boot_disk_size_gb": _TEST_BOOT_DISK_SIZE_GB_DEFAULT,
+                },
+            },
+        ]
+
+        true_training_pipeline = gca_training_pipeline.TrainingPipeline(
+            display_name=_TEST_DISPLAY_NAME,
+            training_task_definition=schema.training_job.definition.custom_task,
+            training_task_inputs=json_format.ParseDict(
+                {
+                    "worker_pool_specs": true_worker_pool_spec,
+                    "base_output_directory": {
+                        "output_uri_prefix": _TEST_BASE_OUTPUT_DIR
+                    },
+                },
+                struct_pb2.Value(),
+            ),
+        )
+
+        mock_pipeline_service_create_with_no_model_to_upload.assert_called_once_with(
+            parent=initializer.global_config.common_location_path(),
+            training_pipeline=true_training_pipeline,
+        )
+
+        assert job._gca_resource == make_training_pipeline_with_no_model_upload(
+            gca_pipeline_state.PipelineState.PIPELINE_STATE_SUCCEEDED
+        )
 
         assert not job.has_failed
 
@@ -1525,7 +1824,9 @@ class TestCustomTrainingJob:
         aiplatform.init(project=_TEST_PROJECT)
         job = training_jobs.CustomTrainingJob.get(resource_name=_TEST_NAME)
 
-        get_training_job_custom_mock.assert_called_once_with(name=_TEST_NAME)
+        get_training_job_custom_mock.assert_called_once_with(
+            name=_TEST_NAME, retry=base._DEFAULT_RETRY
+        )
         assert isinstance(job, training_jobs.CustomTrainingJob)
 
     @pytest.mark.usefixtures("get_training_job_custom_mock")
@@ -1560,7 +1861,9 @@ class TestCustomTrainingJob:
     def test_get_training_job_with_id_only(self, get_training_job_custom_mock):
         aiplatform.init(project=_TEST_PROJECT, location=_TEST_LOCATION)
         training_jobs.CustomTrainingJob.get(resource_name=_TEST_ID)
-        get_training_job_custom_mock.assert_called_once_with(name=_TEST_NAME)
+        get_training_job_custom_mock.assert_called_once_with(
+            name=_TEST_NAME, retry=base._DEFAULT_RETRY
+        )
 
     def test_get_training_job_with_id_only_with_project_and_location(
         self, get_training_job_custom_mock
@@ -1569,7 +1872,9 @@ class TestCustomTrainingJob:
         training_jobs.CustomTrainingJob.get(
             resource_name=_TEST_ID, project=_TEST_PROJECT, location=_TEST_LOCATION
         )
-        get_training_job_custom_mock.assert_called_once_with(name=_TEST_NAME)
+        get_training_job_custom_mock.assert_called_once_with(
+            name=_TEST_NAME, retry=base._DEFAULT_RETRY
+        )
 
     def test_get_training_job_with_project_and_location(
         self, get_training_job_custom_mock
@@ -1578,7 +1883,9 @@ class TestCustomTrainingJob:
         training_jobs.CustomTrainingJob.get(
             resource_name=_TEST_NAME, project=_TEST_PROJECT, location=_TEST_LOCATION
         )
-        get_training_job_custom_mock.assert_called_once_with(name=_TEST_NAME)
+        get_training_job_custom_mock.assert_called_once_with(
+            name=_TEST_NAME, retry=base._DEFAULT_RETRY
+        )
 
     def test_get_training_job_with_alt_project_and_location(
         self, get_training_job_custom_mock
@@ -1587,7 +1894,9 @@ class TestCustomTrainingJob:
         training_jobs.CustomTrainingJob.get(
             resource_name=_TEST_NAME, project=_TEST_ALT_PROJECT, location=_TEST_LOCATION
         )
-        get_training_job_custom_mock.assert_called_once_with(name=_TEST_NAME)
+        get_training_job_custom_mock.assert_called_once_with(
+            name=_TEST_NAME, retry=base._DEFAULT_RETRY
+        )
 
     def test_get_training_job_with_project_and_alt_location(self):
         aiplatform.init(project=_TEST_PROJECT, location=_TEST_LOCATION)
@@ -1783,7 +2092,9 @@ class TestCustomTrainingJob:
             gca_pipeline_state.PipelineState.PIPELINE_STATE_SUCCEEDED
         )
 
-        mock_model_service_get.assert_called_once_with(name=_TEST_MODEL_NAME)
+        mock_model_service_get.assert_called_once_with(
+            name=_TEST_MODEL_NAME, retry=base._DEFAULT_RETRY
+        )
 
         assert model_from_job._gca_resource is mock_model_service_get.return_value
 
@@ -2032,7 +2343,9 @@ class TestCustomContainerTrainingJob:
             gca_pipeline_state.PipelineState.PIPELINE_STATE_SUCCEEDED
         )
 
-        mock_model_service_get.assert_called_once_with(name=_TEST_MODEL_NAME)
+        mock_model_service_get.assert_called_once_with(
+            name=_TEST_MODEL_NAME, retry=base._DEFAULT_RETRY
+        )
 
         assert model_from_job._gca_resource is mock_model_service_get.return_value
 
@@ -2186,7 +2499,9 @@ class TestCustomContainerTrainingJob:
             gca_pipeline_state.PipelineState.PIPELINE_STATE_SUCCEEDED
         )
 
-        mock_model_service_get.assert_called_once_with(name=_TEST_MODEL_NAME)
+        mock_model_service_get.assert_called_once_with(
+            name=_TEST_MODEL_NAME, retry=base._DEFAULT_RETRY
+        )
 
         assert model_from_job._gca_resource is mock_model_service_get.return_value
 
@@ -2436,9 +2751,54 @@ class TestCustomContainerTrainingJob:
             gca_pipeline_state.PipelineState.PIPELINE_STATE_SUCCEEDED
         )
 
-        mock_model_service_get.assert_called_once_with(name=_TEST_MODEL_NAME)
+        mock_model_service_get.assert_called_once_with(
+            name=_TEST_MODEL_NAME, retry=base._DEFAULT_RETRY
+        )
 
         assert model_from_job._gca_resource is mock_model_service_get.return_value
+
+    @pytest.mark.usefixtures(
+        "mock_pipeline_service_create_with_enable_web_access",
+        "mock_pipeline_service_get_with_enable_web_access",
+        "mock_get_backing_custom_job_with_enable_web_access",
+    )
+    @pytest.mark.parametrize("sync", [True, False])
+    def test_run_call_pipeline_service_create_with_enable_web_access(
+        self, sync, caplog
+    ):
+
+        caplog.set_level(logging.INFO)
+
+        aiplatform.init(
+            project=_TEST_PROJECT,
+            staging_bucket=_TEST_BUCKET_NAME,
+            credentials=_TEST_CREDENTIALS,
+        )
+
+        job = training_jobs.CustomContainerTrainingJob(
+            display_name=_TEST_DISPLAY_NAME,
+            container_uri=_TEST_TRAINING_CONTAINER_IMAGE,
+            command=_TEST_TRAINING_CONTAINER_CMD,
+        )
+
+        job.run(
+            base_output_dir=_TEST_BASE_OUTPUT_DIR,
+            args=_TEST_RUN_ARGS,
+            machine_type=_TEST_MACHINE_TYPE,
+            accelerator_type=_TEST_ACCELERATOR_TYPE,
+            accelerator_count=_TEST_ACCELERATOR_COUNT,
+            enable_web_access=_TEST_ENABLE_WEB_ACCESS,
+            sync=sync,
+        )
+
+        if not sync:
+            job.wait()
+
+        print(caplog.text)
+        assert "workerpool0-0" in caplog.text
+        assert job._gca_resource == make_training_pipeline_with_enable_web_access(
+            gca_pipeline_state.PipelineState.PIPELINE_STATE_SUCCEEDED
+        )
 
     @pytest.mark.parametrize("sync", [True, False])
     def test_run_returns_none_if_no_model_to_upload(
@@ -2709,11 +3069,123 @@ class TestCustomContainerTrainingJob:
             gca_pipeline_state.PipelineState.PIPELINE_STATE_SUCCEEDED
         )
 
-        mock_model_service_get.assert_called_once_with(name=_TEST_MODEL_NAME)
+        mock_model_service_get.assert_called_once_with(
+            name=_TEST_MODEL_NAME, retry=base._DEFAULT_RETRY
+        )
 
         assert model_from_job._gca_resource is mock_model_service_get.return_value
 
         assert job.get_model()._gca_resource is mock_model_service_get.return_value
+
+        assert not job.has_failed
+
+        assert job.state == gca_pipeline_state.PipelineState.PIPELINE_STATE_SUCCEEDED
+
+    @pytest.mark.parametrize("sync", [True, False])
+    def test_run_call_pipeline_service_create_distributed_training_with_reduction_server(
+        self,
+        mock_pipeline_service_create_with_no_model_to_upload,
+        mock_pipeline_service_get_with_no_model_to_upload,
+        sync,
+    ):
+        aiplatform.init(
+            project=_TEST_PROJECT,
+            staging_bucket=_TEST_BUCKET_NAME,
+            credentials=_TEST_CREDENTIALS,
+        )
+
+        job = training_jobs.CustomContainerTrainingJob(
+            display_name=_TEST_DISPLAY_NAME,
+            container_uri=_TEST_TRAINING_CONTAINER_IMAGE,
+            command=_TEST_TRAINING_CONTAINER_CMD,
+        )
+
+        job.run(
+            base_output_dir=_TEST_BASE_OUTPUT_DIR,
+            args=_TEST_RUN_ARGS,
+            replica_count=10,
+            machine_type=_TEST_MACHINE_TYPE,
+            accelerator_type=_TEST_ACCELERATOR_TYPE,
+            accelerator_count=_TEST_ACCELERATOR_COUNT,
+            reduction_server_replica_count=_TEST_REDUCTION_SERVER_REPLICA_COUNT,
+            reduction_server_machine_type=_TEST_REDUCTION_SERVER_MACHINE_TYPE,
+            reduction_server_container_uri=_TEST_REDUCTION_SERVER_CONTAINER_URI,
+            sync=sync,
+        )
+
+        if not sync:
+            job.wait()
+
+        true_args = _TEST_RUN_ARGS
+
+        true_worker_pool_spec = [
+            {
+                "replica_count": 1,
+                "machine_spec": {
+                    "machine_type": _TEST_MACHINE_TYPE,
+                    "accelerator_type": _TEST_ACCELERATOR_TYPE,
+                    "accelerator_count": _TEST_ACCELERATOR_COUNT,
+                },
+                "disk_spec": {
+                    "boot_disk_type": _TEST_BOOT_DISK_TYPE_DEFAULT,
+                    "boot_disk_size_gb": _TEST_BOOT_DISK_SIZE_GB_DEFAULT,
+                },
+                "containerSpec": {
+                    "imageUri": _TEST_TRAINING_CONTAINER_IMAGE,
+                    "command": _TEST_TRAINING_CONTAINER_CMD,
+                    "args": true_args,
+                },
+            },
+            {
+                "replica_count": 9,
+                "machine_spec": {
+                    "machine_type": _TEST_MACHINE_TYPE,
+                    "accelerator_type": _TEST_ACCELERATOR_TYPE,
+                    "accelerator_count": _TEST_ACCELERATOR_COUNT,
+                },
+                "disk_spec": {
+                    "boot_disk_type": _TEST_BOOT_DISK_TYPE_DEFAULT,
+                    "boot_disk_size_gb": _TEST_BOOT_DISK_SIZE_GB_DEFAULT,
+                },
+                "containerSpec": {
+                    "imageUri": _TEST_TRAINING_CONTAINER_IMAGE,
+                    "command": _TEST_TRAINING_CONTAINER_CMD,
+                    "args": true_args,
+                },
+            },
+            {
+                "replica_count": _TEST_REDUCTION_SERVER_REPLICA_COUNT,
+                "machine_spec": {"machine_type": _TEST_REDUCTION_SERVER_MACHINE_TYPE},
+                "disk_spec": {
+                    "boot_disk_type": _TEST_BOOT_DISK_TYPE_DEFAULT,
+                    "boot_disk_size_gb": _TEST_BOOT_DISK_SIZE_GB_DEFAULT,
+                },
+                "container_spec": {"image_uri": _TEST_REDUCTION_SERVER_CONTAINER_URI},
+            },
+        ]
+
+        true_training_pipeline = gca_training_pipeline.TrainingPipeline(
+            display_name=_TEST_DISPLAY_NAME,
+            training_task_definition=schema.training_job.definition.custom_task,
+            training_task_inputs=json_format.ParseDict(
+                {
+                    "worker_pool_specs": true_worker_pool_spec,
+                    "base_output_directory": {
+                        "output_uri_prefix": _TEST_BASE_OUTPUT_DIR
+                    },
+                },
+                struct_pb2.Value(),
+            ),
+        )
+
+        mock_pipeline_service_create_with_no_model_to_upload.assert_called_once_with(
+            parent=initializer.global_config.common_location_path(),
+            training_pipeline=true_training_pipeline,
+        )
+
+        assert job._gca_resource == make_training_pipeline_with_no_model_upload(
+            gca_pipeline_state.PipelineState.PIPELINE_STATE_SUCCEEDED
+        )
 
         assert not job.has_failed
 
@@ -2867,7 +3339,9 @@ class TestCustomContainerTrainingJob:
             gca_pipeline_state.PipelineState.PIPELINE_STATE_SUCCEEDED
         )
 
-        mock_model_service_get.assert_called_once_with(name=_TEST_MODEL_NAME)
+        mock_model_service_get.assert_called_once_with(
+            name=_TEST_MODEL_NAME, retry=base._DEFAULT_RETRY
+        )
 
         assert model_from_job._gca_resource is mock_model_service_get.return_value
 
@@ -2938,7 +3412,7 @@ class Test_WorkerPoolSpec:
 
         assert test_spec.spec_dict == true_spec_dict
 
-    def test_machine_spec_return_spec_with_boot_disk_dict(self):
+    def test_machine_spec_return_spec_dict_with_boot_disk(self):
         test_spec = worker_spec_utils._WorkerPoolSpec(
             replica_count=_TEST_REPLICA_COUNT,
             machine_type=_TEST_MACHINE_TYPE,
@@ -3030,7 +3504,7 @@ class Test_DistributedTrainingSpec:
                 accelerator_count=_TEST_ACCELERATOR_COUNT,
                 accelerator_type=_TEST_ACCELERATOR_TYPE,
             ),
-            parameter_server_spec=worker_spec_utils._WorkerPoolSpec(
+            server_spec=worker_spec_utils._WorkerPoolSpec(
                 replica_count=3,
                 machine_type=_TEST_MACHINE_TYPE,
                 accelerator_count=_TEST_ACCELERATOR_COUNT,
@@ -3185,7 +3659,7 @@ class Test_DistributedTrainingSpec:
                 accelerator_type=_TEST_ACCELERATOR_TYPE,
             ),
             worker_spec=worker_spec_utils._WorkerPoolSpec(replica_count=0),
-            parameter_server_spec=worker_spec_utils._WorkerPoolSpec(
+            server_spec=worker_spec_utils._WorkerPoolSpec(
                 replica_count=3,
                 machine_type=_TEST_MACHINE_TYPE,
                 accelerator_count=_TEST_ACCELERATOR_COUNT,
@@ -3207,14 +3681,7 @@ class Test_DistributedTrainingSpec:
                     "boot_disk_size_gb": _TEST_BOOT_DISK_SIZE_GB_DEFAULT,
                 },
             },
-            {
-                "machine_spec": {"machine_type": "n1-standard-4"},
-                "replica_count": 0,
-                "disk_spec": {
-                    "boot_disk_type": _TEST_BOOT_DISK_TYPE_DEFAULT,
-                    "boot_disk_size_gb": _TEST_BOOT_DISK_SIZE_GB_DEFAULT,
-                },
-            },
+            {},
             {
                 "machine_spec": {
                     "machine_type": _TEST_MACHINE_TYPE,
@@ -3397,7 +3864,9 @@ class TestCustomPythonPackageTrainingJob:
             gca_pipeline_state.PipelineState.PIPELINE_STATE_SUCCEEDED
         )
 
-        mock_model_service_get.assert_called_once_with(name=_TEST_MODEL_NAME)
+        mock_model_service_get.assert_called_once_with(
+            name=_TEST_MODEL_NAME, retry=base._DEFAULT_RETRY
+        )
 
         assert model_from_job._gca_resource is mock_model_service_get.return_value
 
@@ -3547,7 +4016,9 @@ class TestCustomPythonPackageTrainingJob:
             gca_pipeline_state.PipelineState.PIPELINE_STATE_SUCCEEDED
         )
 
-        mock_model_service_get.assert_called_once_with(name=_TEST_MODEL_NAME)
+        mock_model_service_get.assert_called_once_with(
+            name=_TEST_MODEL_NAME, retry=base._DEFAULT_RETRY
+        )
 
         assert model_from_job._gca_resource is mock_model_service_get.return_value
 
@@ -3701,7 +4172,9 @@ class TestCustomPythonPackageTrainingJob:
             gca_pipeline_state.PipelineState.PIPELINE_STATE_SUCCEEDED
         )
 
-        mock_model_service_get.assert_called_once_with(name=_TEST_MODEL_NAME)
+        mock_model_service_get.assert_called_once_with(
+            name=_TEST_MODEL_NAME, retry=base._DEFAULT_RETRY
+        )
 
         assert model_from_job._gca_resource is mock_model_service_get.return_value
 
@@ -3955,9 +4428,55 @@ class TestCustomPythonPackageTrainingJob:
             gca_pipeline_state.PipelineState.PIPELINE_STATE_SUCCEEDED
         )
 
-        mock_model_service_get.assert_called_once_with(name=_TEST_MODEL_NAME)
+        mock_model_service_get.assert_called_once_with(
+            name=_TEST_MODEL_NAME, retry=base._DEFAULT_RETRY
+        )
 
         assert model_from_job._gca_resource is mock_model_service_get.return_value
+
+    @pytest.mark.usefixtures(
+        "mock_pipeline_service_create_with_enable_web_access",
+        "mock_pipeline_service_get_with_enable_web_access",
+        "mock_get_backing_custom_job_with_enable_web_access",
+    )
+    @pytest.mark.parametrize("sync", [True, False])
+    def test_run_call_pipeline_service_create_with_enable_web_access(
+        self, sync, caplog
+    ):
+
+        caplog.set_level(logging.INFO)
+
+        aiplatform.init(
+            project=_TEST_PROJECT,
+            staging_bucket=_TEST_BUCKET_NAME,
+            credentials=_TEST_CREDENTIALS,
+        )
+
+        job = training_jobs.CustomPythonPackageTrainingJob(
+            display_name=_TEST_DISPLAY_NAME,
+            python_package_gcs_uri=_TEST_OUTPUT_PYTHON_PACKAGE_PATH,
+            python_module_name=_TEST_PYTHON_MODULE_NAME,
+            container_uri=_TEST_TRAINING_CONTAINER_IMAGE,
+        )
+
+        job.run(
+            base_output_dir=_TEST_BASE_OUTPUT_DIR,
+            args=_TEST_RUN_ARGS,
+            machine_type=_TEST_MACHINE_TYPE,
+            accelerator_type=_TEST_ACCELERATOR_TYPE,
+            accelerator_count=_TEST_ACCELERATOR_COUNT,
+            enable_web_access=_TEST_ENABLE_WEB_ACCESS,
+            sync=sync,
+        )
+
+        if not sync:
+            job.wait()
+
+        print(caplog.text)
+        assert "workerpool0-0" in caplog.text
+        assert job._gca_resource == make_training_pipeline_with_enable_web_access(
+            gca_pipeline_state.PipelineState.PIPELINE_STATE_SUCCEEDED
+        )
 
     @pytest.mark.usefixtures(
         "mock_pipeline_service_create_with_no_model_to_upload",
@@ -4236,11 +4755,126 @@ class TestCustomPythonPackageTrainingJob:
             gca_pipeline_state.PipelineState.PIPELINE_STATE_SUCCEEDED
         )
 
-        mock_model_service_get.assert_called_once_with(name=_TEST_MODEL_NAME)
+        mock_model_service_get.assert_called_once_with(
+            name=_TEST_MODEL_NAME, retry=base._DEFAULT_RETRY
+        )
 
         assert model_from_job._gca_resource is mock_model_service_get.return_value
 
         assert job.get_model()._gca_resource is mock_model_service_get.return_value
+
+        assert not job.has_failed
+
+        assert job.state == gca_pipeline_state.PipelineState.PIPELINE_STATE_SUCCEEDED
+
+    @pytest.mark.parametrize("sync", [True, False])
+    def test_run_call_pipeline_service_create_distributed_training_with_reduction_server(
+        self,
+        mock_pipeline_service_create_with_no_model_to_upload,
+        mock_pipeline_service_get_with_no_model_to_upload,
+        sync,
+    ):
+        aiplatform.init(
+            project=_TEST_PROJECT,
+            staging_bucket=_TEST_BUCKET_NAME,
+            credentials=_TEST_CREDENTIALS,
+        )
+
+        job = training_jobs.CustomPythonPackageTrainingJob(
+            display_name=_TEST_DISPLAY_NAME,
+            python_package_gcs_uri=_TEST_OUTPUT_PYTHON_PACKAGE_PATH,
+            python_module_name=_TEST_PYTHON_MODULE_NAME,
+            container_uri=_TEST_TRAINING_CONTAINER_IMAGE,
+        )
+
+        job.run(
+            base_output_dir=_TEST_BASE_OUTPUT_DIR,
+            args=_TEST_RUN_ARGS,
+            replica_count=10,
+            machine_type=_TEST_MACHINE_TYPE,
+            accelerator_type=_TEST_ACCELERATOR_TYPE,
+            accelerator_count=_TEST_ACCELERATOR_COUNT,
+            reduction_server_replica_count=_TEST_REDUCTION_SERVER_REPLICA_COUNT,
+            reduction_server_machine_type=_TEST_REDUCTION_SERVER_MACHINE_TYPE,
+            reduction_server_container_uri=_TEST_REDUCTION_SERVER_CONTAINER_URI,
+            sync=sync,
+        )
+
+        if not sync:
+            job.wait()
+
+        true_args = _TEST_RUN_ARGS
+
+        true_worker_pool_spec = [
+            {
+                "replica_count": 1,
+                "machine_spec": {
+                    "machine_type": _TEST_MACHINE_TYPE,
+                    "accelerator_type": _TEST_ACCELERATOR_TYPE,
+                    "accelerator_count": _TEST_ACCELERATOR_COUNT,
+                },
+                "disk_spec": {
+                    "boot_disk_type": _TEST_BOOT_DISK_TYPE_DEFAULT,
+                    "boot_disk_size_gb": _TEST_BOOT_DISK_SIZE_GB_DEFAULT,
+                },
+                "python_package_spec": {
+                    "executor_image_uri": _TEST_TRAINING_CONTAINER_IMAGE,
+                    "python_module": _TEST_PYTHON_MODULE_NAME,
+                    "package_uris": [_TEST_OUTPUT_PYTHON_PACKAGE_PATH],
+                    "args": true_args,
+                },
+            },
+            {
+                "replica_count": 9,
+                "machine_spec": {
+                    "machine_type": _TEST_MACHINE_TYPE,
+                    "accelerator_type": _TEST_ACCELERATOR_TYPE,
+                    "accelerator_count": _TEST_ACCELERATOR_COUNT,
+                },
+                "disk_spec": {
+                    "boot_disk_type": _TEST_BOOT_DISK_TYPE_DEFAULT,
+                    "boot_disk_size_gb": _TEST_BOOT_DISK_SIZE_GB_DEFAULT,
+                },
+                "python_package_spec": {
+                    "executor_image_uri": _TEST_TRAINING_CONTAINER_IMAGE,
+                    "python_module": _TEST_PYTHON_MODULE_NAME,
+                    "package_uris": [_TEST_OUTPUT_PYTHON_PACKAGE_PATH],
+                    "args": true_args,
+                },
+            },
+            {
+                "replica_count": _TEST_REDUCTION_SERVER_REPLICA_COUNT,
+                "machine_spec": {"machine_type": _TEST_REDUCTION_SERVER_MACHINE_TYPE},
+                "container_spec": {"image_uri": _TEST_REDUCTION_SERVER_CONTAINER_URI},
+                "disk_spec": {
+                    "boot_disk_type": _TEST_BOOT_DISK_TYPE_DEFAULT,
+                    "boot_disk_size_gb": _TEST_BOOT_DISK_SIZE_GB_DEFAULT,
+                },
+            },
+        ]
+
+        true_training_pipeline = gca_training_pipeline.TrainingPipeline(
+            display_name=_TEST_DISPLAY_NAME,
+            training_task_definition=schema.training_job.definition.custom_task,
+            training_task_inputs=json_format.ParseDict(
+                {
+                    "worker_pool_specs": true_worker_pool_spec,
+                    "base_output_directory": {
+                        "output_uri_prefix": _TEST_BASE_OUTPUT_DIR
+                    },
+                },
+                struct_pb2.Value(),
+            ),
+        )
+
+        mock_pipeline_service_create_with_no_model_to_upload.assert_called_once_with(
+            parent=initializer.global_config.common_location_path(),
+            training_pipeline=true_training_pipeline,
+        )
+
+        assert job._gca_resource == make_training_pipeline_with_no_model_upload(
+            gca_pipeline_state.PipelineState.PIPELINE_STATE_SUCCEEDED
+        )
 
         assert not job.has_failed
 
@@ -4394,7 +5028,9 @@ class TestCustomPythonPackageTrainingJob:
             gca_pipeline_state.PipelineState.PIPELINE_STATE_SUCCEEDED
         )
 
-        mock_model_service_get.assert_called_once_with(name=_TEST_MODEL_NAME)
+        mock_model_service_get.assert_called_once_with(
+            name=_TEST_MODEL_NAME, retry=base._DEFAULT_RETRY
+        )
 
         assert model_from_job._gca_resource is mock_model_service_get.return_value
 

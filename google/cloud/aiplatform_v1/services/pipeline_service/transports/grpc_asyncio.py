@@ -16,12 +16,11 @@
 import warnings
 from typing import Awaitable, Callable, Dict, Optional, Sequence, Tuple, Union
 
-from google.api_core import gapic_v1  # type: ignore
-from google.api_core import grpc_helpers_async  # type: ignore
-from google.api_core import operations_v1  # type: ignore
+from google.api_core import gapic_v1
+from google.api_core import grpc_helpers_async
+from google.api_core import operations_v1
 from google.auth import credentials as ga_credentials  # type: ignore
 from google.auth.transport.grpc import SslCredentials  # type: ignore
-import packaging.version
 
 import grpc  # type: ignore
 from grpc.experimental import aio  # type: ignore
@@ -167,7 +166,7 @@ class PipelineServiceGrpcAsyncIOTransport(PipelineServiceTransport):
         self._grpc_channel = None
         self._ssl_channel_credentials = ssl_channel_credentials
         self._stubs: Dict[str, Callable] = {}
-        self._operations_client = None
+        self._operations_client: Optional[operations_v1.OperationsAsyncClient] = None
 
         if api_mtls_endpoint:
             warnings.warn("api_mtls_endpoint is deprecated", DeprecationWarning)
@@ -566,6 +565,9 @@ class PipelineServiceGrpcAsyncIOTransport(PipelineServiceTransport):
                 response_deserializer=empty_pb2.Empty.FromString,
             )
         return self._stubs["cancel_pipeline_job"]
+
+    def close(self):
+        return self.grpc_channel.close()
 
 
 __all__ = ("PipelineServiceGrpcAsyncIOTransport",)

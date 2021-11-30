@@ -26,3 +26,6 @@
 CHANGELOG.md                           @googleapis/cloud-aiplatform-model-builder-sdk @googleapis/cdpe-cloudai
 README.rst                             @googleapis/cloud-aiplatform-model-builder-sdk @googleapis/cdpe-cloudai
 setup.py                               @googleapis/cloud-aiplatform-model-builder-sdk @googleapis/cdpe-cloudai
+
+# Vertex AI product team-specific ownership
+/google/cloud/aiplatform/constants/prediction.py                        @googleapis/vertex-prediction-team

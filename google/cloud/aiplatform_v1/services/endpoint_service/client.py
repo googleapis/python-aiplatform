@@ -14,21 +14,25 @@
 # limitations under the License.
 #
 from collections import OrderedDict
-from distutils import util
 import os
 import re
 from typing import Dict, Optional, Sequence, Tuple, Type, Union
 import pkg_resources
 
-from google.api_core import client_options as client_options_lib  # type: ignore
-from google.api_core import exceptions as core_exceptions  # type: ignore
-from google.api_core import gapic_v1  # type: ignore
-from google.api_core import retry as retries  # type: ignore
+from google.api_core import client_options as client_options_lib
+from google.api_core import exceptions as core_exceptions
+from google.api_core import gapic_v1
+from google.api_core import retry as retries
 from google.auth import credentials as ga_credentials  # type: ignore
 from google.auth.transport import mtls  # type: ignore
 from google.auth.transport.grpc import SslCredentials  # type: ignore
 from google.auth.exceptions import MutualTLSChannelError  # type: ignore
 from google.oauth2 import service_account  # type: ignore
+
+try:
+    OptionalRetry = Union[retries.Retry, gapic_v1.method._MethodDefault]
+except AttributeError:  # pragma: NO COVER
+    OptionalRetry = Union[retries.Retry, object]  # type: ignore
 
 from google.api_core import operation as gac_operation  # type: ignore
 from google.api_core import operation_async  # type: ignore
@@ -217,6 +221,21 @@ class EndpointServiceClient(metaclass=EndpointServiceClientMeta):
         return m.groupdict() if m else {}
 
     @staticmethod
+    def network_path(project: str, network: str,) -> str:
+        """Returns a fully-qualified network string."""
+        return "projects/{project}/global/networks/{network}".format(
+            project=project, network=network,
+        )
+
+    @staticmethod
+    def parse_network_path(path: str) -> Dict[str, str]:
+        """Parses a network path into its component segments."""
+        m = re.match(
+            r"^projects/(?P<project>.+?)/global/networks/(?P<network>.+?)$", path
+        )
+        return m.groupdict() if m else {}
+
+    @staticmethod
     def common_billing_account_path(billing_account: str,) -> str:
         """Returns a fully-qualified billing_account string."""
         return "billingAccounts/{billing_account}".format(
@@ -326,8 +345,15 @@ class EndpointServiceClient(metaclass=EndpointServiceClientMeta):
             client_options = client_options_lib.ClientOptions()
 
         # Create SSL credentials for mutual TLS if needed.
-        use_client_cert = bool(
-            util.strtobool(os.getenv("GOOGLE_API_USE_CLIENT_CERTIFICATE", "false"))
+        if os.getenv("GOOGLE_API_USE_CLIENT_CERTIFICATE", "false") not in (
+            "true",
+            "false",
+        ):
+            raise ValueError(
+                "Environment variable `GOOGLE_API_USE_CLIENT_CERTIFICATE` must be either `true` or `false`"
+            )
+        use_client_cert = (
+            os.getenv("GOOGLE_API_USE_CLIENT_CERTIFICATE", "false") == "true"
         )
 
         client_cert_source_func = None
@@ -389,10 +415,7 @@ class EndpointServiceClient(metaclass=EndpointServiceClientMeta):
                 client_cert_source_for_mtls=client_cert_source_func,
                 quota_project_id=client_options.quota_project_id,
                 client_info=client_info,
-                always_use_jwt_access=(
-                    Transport == type(self).get_transport_class("grpc")
-                    or Transport == type(self).get_transport_class("grpc_asyncio")
-                ),
+                always_use_jwt_access=True,
             )
 
     def create_endpoint(
@@ -401,7 +424,7 @@ class EndpointServiceClient(metaclass=EndpointServiceClientMeta):
         *,
         parent: str = None,
         endpoint: gca_endpoint.Endpoint = None,
-        retry: retries.Retry = gapic_v1.method.DEFAULT,
+        retry: OptionalRetry = gapic_v1.method.DEFAULT,
         timeout: float = None,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> gac_operation.Operation:
@@ -490,7 +513,7 @@ class EndpointServiceClient(metaclass=EndpointServiceClientMeta):
         request: Union[endpoint_service.GetEndpointRequest, dict] = None,
         *,
         name: str = None,
-        retry: retries.Retry = gapic_v1.method.DEFAULT,
+        retry: OptionalRetry = gapic_v1.method.DEFAULT,
         timeout: float = None,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> endpoint.Endpoint:
@@ -562,7 +585,7 @@ class EndpointServiceClient(metaclass=EndpointServiceClientMeta):
         request: Union[endpoint_service.ListEndpointsRequest, dict] = None,
         *,
         parent: str = None,
-        retry: retries.Retry = gapic_v1.method.DEFAULT,
+        retry: OptionalRetry = gapic_v1.method.DEFAULT,
         timeout: float = None,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> pagers.ListEndpointsPager:
@@ -644,7 +667,7 @@ class EndpointServiceClient(metaclass=EndpointServiceClientMeta):
         *,
         endpoint: gca_endpoint.Endpoint = None,
         update_mask: field_mask_pb2.FieldMask = None,
-        retry: retries.Retry = gapic_v1.method.DEFAULT,
+        retry: OptionalRetry = gapic_v1.method.DEFAULT,
         timeout: float = None,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> gca_endpoint.Endpoint:
@@ -727,7 +750,7 @@ class EndpointServiceClient(metaclass=EndpointServiceClientMeta):
         request: Union[endpoint_service.DeleteEndpointRequest, dict] = None,
         *,
         name: str = None,
-        retry: retries.Retry = gapic_v1.method.DEFAULT,
+        retry: OptionalRetry = gapic_v1.method.DEFAULT,
         timeout: float = None,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> gac_operation.Operation:
@@ -824,7 +847,7 @@ class EndpointServiceClient(metaclass=EndpointServiceClientMeta):
         traffic_split: Sequence[
             endpoint_service.DeployModelRequest.TrafficSplitEntry
         ] = None,
-        retry: retries.Retry = gapic_v1.method.DEFAULT,
+        retry: OptionalRetry = gapic_v1.method.DEFAULT,
         timeout: float = None,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> gac_operation.Operation:
@@ -948,7 +971,7 @@ class EndpointServiceClient(metaclass=EndpointServiceClientMeta):
         traffic_split: Sequence[
             endpoint_service.UndeployModelRequest.TrafficSplitEntry
         ] = None,
-        retry: retries.Retry = gapic_v1.method.DEFAULT,
+        retry: OptionalRetry = gapic_v1.method.DEFAULT,
         timeout: float = None,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> gac_operation.Operation:
@@ -1053,6 +1076,19 @@ class EndpointServiceClient(metaclass=EndpointServiceClientMeta):
 
         # Done; return the response.
         return response
+
+    def __enter__(self):
+        return self
+
+    def __exit__(self, type, value, traceback):
+        """Releases underlying transport's resources.
+
+        .. warning::
+            ONLY use as a context manager if the transport is NOT shared
+            with other clients! Exiting the with block will CLOSE the transport
+            and may cause errors in other clients!
+        """
+        self.transport.close()
 
 
 try:

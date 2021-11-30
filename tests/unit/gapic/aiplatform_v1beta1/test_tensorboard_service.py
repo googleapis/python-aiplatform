@@ -15,7 +15,6 @@
 #
 import os
 import mock
-import packaging.version
 
 import grpc
 from grpc.experimental import aio
@@ -32,6 +31,7 @@ from google.api_core import grpc_helpers
 from google.api_core import grpc_helpers_async
 from google.api_core import operation_async  # type: ignore
 from google.api_core import operations_v1
+from google.api_core import path_template
 from google.auth import credentials as ga_credentials
 from google.auth.exceptions import MutualTLSChannelError
 from google.cloud.aiplatform_v1beta1.services.tensorboard_service import (
@@ -42,9 +42,6 @@ from google.cloud.aiplatform_v1beta1.services.tensorboard_service import (
 )
 from google.cloud.aiplatform_v1beta1.services.tensorboard_service import pagers
 from google.cloud.aiplatform_v1beta1.services.tensorboard_service import transports
-from google.cloud.aiplatform_v1beta1.services.tensorboard_service.transports.base import (
-    _GOOGLE_AUTH_VERSION,
-)
 from google.cloud.aiplatform_v1beta1.types import encryption_spec
 from google.cloud.aiplatform_v1beta1.types import operation as gca_operation
 from google.cloud.aiplatform_v1beta1.types import tensorboard
@@ -66,20 +63,6 @@ from google.oauth2 import service_account
 from google.protobuf import field_mask_pb2  # type: ignore
 from google.protobuf import timestamp_pb2  # type: ignore
 import google.auth
-
-
-# TODO(busunkim): Once google-auth >= 1.25.0 is required transitively
-# through google-api-core:
-# - Delete the auth "less than" test cases
-# - Delete these pytest markers (Make the "greater than or equal to" tests the default).
-requires_google_auth_lt_1_25_0 = pytest.mark.skipif(
-    packaging.version.parse(_GOOGLE_AUTH_VERSION) >= packaging.version.parse("1.25.0"),
-    reason="This test requires google-auth < 1.25.0",
-)
-requires_google_auth_gte_1_25_0 = pytest.mark.skipif(
-    packaging.version.parse(_GOOGLE_AUTH_VERSION) < packaging.version.parse("1.25.0"),
-    reason="This test requires google-auth >= 1.25.0",
-)
 
 
 def client_cert_source_callback():
@@ -239,7 +222,7 @@ def test_tensorboard_service_client_client_options(
     options = client_options.ClientOptions(api_endpoint="squid.clam.whelk")
     with mock.patch.object(transport_class, "__init__") as patched:
         patched.return_value = None
-        client = client_class(client_options=options)
+        client = client_class(transport=transport_name, client_options=options)
         patched.assert_called_once_with(
             credentials=None,
             credentials_file=None,
@@ -256,7 +239,7 @@ def test_tensorboard_service_client_client_options(
     with mock.patch.dict(os.environ, {"GOOGLE_API_USE_MTLS_ENDPOINT": "never"}):
         with mock.patch.object(transport_class, "__init__") as patched:
             patched.return_value = None
-            client = client_class()
+            client = client_class(transport=transport_name)
             patched.assert_called_once_with(
                 credentials=None,
                 credentials_file=None,
@@ -273,7 +256,7 @@ def test_tensorboard_service_client_client_options(
     with mock.patch.dict(os.environ, {"GOOGLE_API_USE_MTLS_ENDPOINT": "always"}):
         with mock.patch.object(transport_class, "__init__") as patched:
             patched.return_value = None
-            client = client_class()
+            client = client_class(transport=transport_name)
             patched.assert_called_once_with(
                 credentials=None,
                 credentials_file=None,
@@ -302,7 +285,7 @@ def test_tensorboard_service_client_client_options(
     options = client_options.ClientOptions(quota_project_id="octopus")
     with mock.patch.object(transport_class, "__init__") as patched:
         patched.return_value = None
-        client = client_class(client_options=options)
+        client = client_class(transport=transport_name, client_options=options)
         patched.assert_called_once_with(
             credentials=None,
             credentials_file=None,
@@ -371,7 +354,7 @@ def test_tensorboard_service_client_mtls_env_auto(
         )
         with mock.patch.object(transport_class, "__init__") as patched:
             patched.return_value = None
-            client = client_class(client_options=options)
+            client = client_class(transport=transport_name, client_options=options)
 
             if use_client_cert_env == "false":
                 expected_client_cert_source = None
@@ -413,7 +396,7 @@ def test_tensorboard_service_client_mtls_env_auto(
                         expected_client_cert_source = client_cert_source_callback
 
                     patched.return_value = None
-                    client = client_class()
+                    client = client_class(transport=transport_name)
                     patched.assert_called_once_with(
                         credentials=None,
                         credentials_file=None,
@@ -435,7 +418,7 @@ def test_tensorboard_service_client_mtls_env_auto(
                 return_value=False,
             ):
                 patched.return_value = None
-                client = client_class()
+                client = client_class(transport=transport_name)
                 patched.assert_called_once_with(
                     credentials=None,
                     credentials_file=None,
@@ -466,7 +449,7 @@ def test_tensorboard_service_client_client_options_scopes(
     options = client_options.ClientOptions(scopes=["1", "2"],)
     with mock.patch.object(transport_class, "__init__") as patched:
         patched.return_value = None
-        client = client_class(client_options=options)
+        client = client_class(transport=transport_name, client_options=options)
         patched.assert_called_once_with(
             credentials=None,
             credentials_file=None,
@@ -497,7 +480,7 @@ def test_tensorboard_service_client_client_options_credentials_file(
     options = client_options.ClientOptions(credentials_file="credentials.json")
     with mock.patch.object(transport_class, "__init__") as patched:
         patched.return_value = None
-        client = client_class(client_options=options)
+        client = client_class(transport=transport_name, client_options=options)
         patched.assert_called_once_with(
             credentials=None,
             credentials_file="credentials.json",
@@ -697,8 +680,12 @@ def test_create_tensorboard_flattened():
         # request object values.
         assert len(call.mock_calls) == 1
         _, args, _ = call.mock_calls[0]
-        assert args[0].parent == "parent_value"
-        assert args[0].tensorboard == gca_tensorboard.Tensorboard(name="name_value")
+        arg = args[0].parent
+        mock_val = "parent_value"
+        assert arg == mock_val
+        arg = args[0].tensorboard
+        mock_val = gca_tensorboard.Tensorboard(name="name_value")
+        assert arg == mock_val
 
 
 def test_create_tensorboard_flattened_error():
@@ -743,8 +730,12 @@ async def test_create_tensorboard_flattened_async():
         # request object values.
         assert len(call.mock_calls)
         _, args, _ = call.mock_calls[0]
-        assert args[0].parent == "parent_value"
-        assert args[0].tensorboard == gca_tensorboard.Tensorboard(name="name_value")
+        arg = args[0].parent
+        mock_val = "parent_value"
+        assert arg == mock_val
+        arg = args[0].tensorboard
+        mock_val = gca_tensorboard.Tensorboard(name="name_value")
+        assert arg == mock_val
 
 
 @pytest.mark.asyncio
@@ -941,7 +932,9 @@ def test_get_tensorboard_flattened():
         # request object values.
         assert len(call.mock_calls) == 1
         _, args, _ = call.mock_calls[0]
-        assert args[0].name == "name_value"
+        arg = args[0].name
+        mock_val = "name_value"
+        assert arg == mock_val
 
 
 def test_get_tensorboard_flattened_error():
@@ -979,7 +972,9 @@ async def test_get_tensorboard_flattened_async():
         # request object values.
         assert len(call.mock_calls)
         _, args, _ = call.mock_calls[0]
-        assert args[0].name == "name_value"
+        arg = args[0].name
+        mock_val = "name_value"
+        assert arg == mock_val
 
 
 @pytest.mark.asyncio
@@ -1167,8 +1162,12 @@ def test_update_tensorboard_flattened():
         # request object values.
         assert len(call.mock_calls) == 1
         _, args, _ = call.mock_calls[0]
-        assert args[0].tensorboard == gca_tensorboard.Tensorboard(name="name_value")
-        assert args[0].update_mask == field_mask_pb2.FieldMask(paths=["paths_value"])
+        arg = args[0].tensorboard
+        mock_val = gca_tensorboard.Tensorboard(name="name_value")
+        assert arg == mock_val
+        arg = args[0].update_mask
+        mock_val = field_mask_pb2.FieldMask(paths=["paths_value"])
+        assert arg == mock_val
 
 
 def test_update_tensorboard_flattened_error():
@@ -1213,8 +1212,12 @@ async def test_update_tensorboard_flattened_async():
         # request object values.
         assert len(call.mock_calls)
         _, args, _ = call.mock_calls[0]
-        assert args[0].tensorboard == gca_tensorboard.Tensorboard(name="name_value")
-        assert args[0].update_mask == field_mask_pb2.FieldMask(paths=["paths_value"])
+        arg = args[0].tensorboard
+        mock_val = gca_tensorboard.Tensorboard(name="name_value")
+        assert arg == mock_val
+        arg = args[0].update_mask
+        mock_val = field_mask_pb2.FieldMask(paths=["paths_value"])
+        assert arg == mock_val
 
 
 @pytest.mark.asyncio
@@ -1403,7 +1406,9 @@ def test_list_tensorboards_flattened():
         # request object values.
         assert len(call.mock_calls) == 1
         _, args, _ = call.mock_calls[0]
-        assert args[0].parent == "parent_value"
+        arg = args[0].parent
+        mock_val = "parent_value"
+        assert arg == mock_val
 
 
 def test_list_tensorboards_flattened_error():
@@ -1443,7 +1448,9 @@ async def test_list_tensorboards_flattened_async():
         # request object values.
         assert len(call.mock_calls)
         _, args, _ = call.mock_calls[0]
-        assert args[0].parent == "parent_value"
+        arg = args[0].parent
+        mock_val = "parent_value"
+        assert arg == mock_val
 
 
 @pytest.mark.asyncio
@@ -1782,7 +1789,9 @@ def test_delete_tensorboard_flattened():
         # request object values.
         assert len(call.mock_calls) == 1
         _, args, _ = call.mock_calls[0]
-        assert args[0].name == "name_value"
+        arg = args[0].name
+        mock_val = "name_value"
+        assert arg == mock_val
 
 
 def test_delete_tensorboard_flattened_error():
@@ -1822,7 +1831,9 @@ async def test_delete_tensorboard_flattened_async():
         # request object values.
         assert len(call.mock_calls)
         _, args, _ = call.mock_calls[0]
-        assert args[0].name == "name_value"
+        arg = args[0].name
+        mock_val = "name_value"
+        assert arg == mock_val
 
 
 @pytest.mark.asyncio
@@ -2032,13 +2043,15 @@ def test_create_tensorboard_experiment_flattened():
         # request object values.
         assert len(call.mock_calls) == 1
         _, args, _ = call.mock_calls[0]
-        assert args[0].parent == "parent_value"
-        assert args[
-            0
-        ].tensorboard_experiment == gca_tensorboard_experiment.TensorboardExperiment(
-            name="name_value"
-        )
-        assert args[0].tensorboard_experiment_id == "tensorboard_experiment_id_value"
+        arg = args[0].parent
+        mock_val = "parent_value"
+        assert arg == mock_val
+        arg = args[0].tensorboard_experiment
+        mock_val = gca_tensorboard_experiment.TensorboardExperiment(name="name_value")
+        assert arg == mock_val
+        arg = args[0].tensorboard_experiment_id
+        mock_val = "tensorboard_experiment_id_value"
+        assert arg == mock_val
 
 
 def test_create_tensorboard_experiment_flattened_error():
@@ -2089,13 +2102,15 @@ async def test_create_tensorboard_experiment_flattened_async():
         # request object values.
         assert len(call.mock_calls)
         _, args, _ = call.mock_calls[0]
-        assert args[0].parent == "parent_value"
-        assert args[
-            0
-        ].tensorboard_experiment == gca_tensorboard_experiment.TensorboardExperiment(
-            name="name_value"
-        )
-        assert args[0].tensorboard_experiment_id == "tensorboard_experiment_id_value"
+        arg = args[0].parent
+        mock_val = "parent_value"
+        assert arg == mock_val
+        arg = args[0].tensorboard_experiment
+        mock_val = gca_tensorboard_experiment.TensorboardExperiment(name="name_value")
+        assert arg == mock_val
+        arg = args[0].tensorboard_experiment_id
+        mock_val = "tensorboard_experiment_id_value"
+        assert arg == mock_val
 
 
 @pytest.mark.asyncio
@@ -2304,7 +2319,9 @@ def test_get_tensorboard_experiment_flattened():
         # request object values.
         assert len(call.mock_calls) == 1
         _, args, _ = call.mock_calls[0]
-        assert args[0].name == "name_value"
+        arg = args[0].name
+        mock_val = "name_value"
+        assert arg == mock_val
 
 
 def test_get_tensorboard_experiment_flattened_error():
@@ -2344,7 +2361,9 @@ async def test_get_tensorboard_experiment_flattened_async():
         # request object values.
         assert len(call.mock_calls)
         _, args, _ = call.mock_calls[0]
-        assert args[0].name == "name_value"
+        arg = args[0].name
+        mock_val = "name_value"
+        assert arg == mock_val
 
 
 @pytest.mark.asyncio
@@ -2559,12 +2578,12 @@ def test_update_tensorboard_experiment_flattened():
         # request object values.
         assert len(call.mock_calls) == 1
         _, args, _ = call.mock_calls[0]
-        assert args[
-            0
-        ].tensorboard_experiment == gca_tensorboard_experiment.TensorboardExperiment(
-            name="name_value"
-        )
-        assert args[0].update_mask == field_mask_pb2.FieldMask(paths=["paths_value"])
+        arg = args[0].tensorboard_experiment
+        mock_val = gca_tensorboard_experiment.TensorboardExperiment(name="name_value")
+        assert arg == mock_val
+        arg = args[0].update_mask
+        mock_val = field_mask_pb2.FieldMask(paths=["paths_value"])
+        assert arg == mock_val
 
 
 def test_update_tensorboard_experiment_flattened_error():
@@ -2613,12 +2632,12 @@ async def test_update_tensorboard_experiment_flattened_async():
         # request object values.
         assert len(call.mock_calls)
         _, args, _ = call.mock_calls[0]
-        assert args[
-            0
-        ].tensorboard_experiment == gca_tensorboard_experiment.TensorboardExperiment(
-            name="name_value"
-        )
-        assert args[0].update_mask == field_mask_pb2.FieldMask(paths=["paths_value"])
+        arg = args[0].tensorboard_experiment
+        mock_val = gca_tensorboard_experiment.TensorboardExperiment(name="name_value")
+        assert arg == mock_val
+        arg = args[0].update_mask
+        mock_val = field_mask_pb2.FieldMask(paths=["paths_value"])
+        assert arg == mock_val
 
 
 @pytest.mark.asyncio
@@ -2810,7 +2829,9 @@ def test_list_tensorboard_experiments_flattened():
         # request object values.
         assert len(call.mock_calls) == 1
         _, args, _ = call.mock_calls[0]
-        assert args[0].parent == "parent_value"
+        arg = args[0].parent
+        mock_val = "parent_value"
+        assert arg == mock_val
 
 
 def test_list_tensorboard_experiments_flattened_error():
@@ -2851,7 +2872,9 @@ async def test_list_tensorboard_experiments_flattened_async():
         # request object values.
         assert len(call.mock_calls)
         _, args, _ = call.mock_calls[0]
-        assert args[0].parent == "parent_value"
+        arg = args[0].parent
+        mock_val = "parent_value"
+        assert arg == mock_val
 
 
 @pytest.mark.asyncio
@@ -3223,7 +3246,9 @@ def test_delete_tensorboard_experiment_flattened():
         # request object values.
         assert len(call.mock_calls) == 1
         _, args, _ = call.mock_calls[0]
-        assert args[0].name == "name_value"
+        arg = args[0].name
+        mock_val = "name_value"
+        assert arg == mock_val
 
 
 def test_delete_tensorboard_experiment_flattened_error():
@@ -3263,7 +3288,9 @@ async def test_delete_tensorboard_experiment_flattened_async():
         # request object values.
         assert len(call.mock_calls)
         _, args, _ = call.mock_calls[0]
-        assert args[0].name == "name_value"
+        arg = args[0].name
+        mock_val = "name_value"
+        assert arg == mock_val
 
 
 @pytest.mark.asyncio
@@ -3467,11 +3494,15 @@ def test_create_tensorboard_run_flattened():
         # request object values.
         assert len(call.mock_calls) == 1
         _, args, _ = call.mock_calls[0]
-        assert args[0].parent == "parent_value"
-        assert args[0].tensorboard_run == gca_tensorboard_run.TensorboardRun(
-            name="name_value"
-        )
-        assert args[0].tensorboard_run_id == "tensorboard_run_id_value"
+        arg = args[0].parent
+        mock_val = "parent_value"
+        assert arg == mock_val
+        arg = args[0].tensorboard_run
+        mock_val = gca_tensorboard_run.TensorboardRun(name="name_value")
+        assert arg == mock_val
+        arg = args[0].tensorboard_run_id
+        mock_val = "tensorboard_run_id_value"
+        assert arg == mock_val
 
 
 def test_create_tensorboard_run_flattened_error():
@@ -3518,11 +3549,15 @@ async def test_create_tensorboard_run_flattened_async():
         # request object values.
         assert len(call.mock_calls)
         _, args, _ = call.mock_calls[0]
-        assert args[0].parent == "parent_value"
-        assert args[0].tensorboard_run == gca_tensorboard_run.TensorboardRun(
-            name="name_value"
-        )
-        assert args[0].tensorboard_run_id == "tensorboard_run_id_value"
+        arg = args[0].parent
+        mock_val = "parent_value"
+        assert arg == mock_val
+        arg = args[0].tensorboard_run
+        mock_val = gca_tensorboard_run.TensorboardRun(name="name_value")
+        assert arg == mock_val
+        arg = args[0].tensorboard_run_id
+        mock_val = "tensorboard_run_id_value"
+        assert arg == mock_val
 
 
 @pytest.mark.asyncio
@@ -3712,10 +3747,14 @@ def test_batch_create_tensorboard_runs_flattened():
         # request object values.
         assert len(call.mock_calls) == 1
         _, args, _ = call.mock_calls[0]
-        assert args[0].parent == "parent_value"
-        assert args[0].requests == [
+        arg = args[0].parent
+        mock_val = "parent_value"
+        assert arg == mock_val
+        arg = args[0].requests
+        mock_val = [
             tensorboard_service.CreateTensorboardRunRequest(parent="parent_value")
         ]
+        assert arg == mock_val
 
 
 def test_batch_create_tensorboard_runs_flattened_error():
@@ -3764,10 +3803,14 @@ async def test_batch_create_tensorboard_runs_flattened_async():
         # request object values.
         assert len(call.mock_calls)
         _, args, _ = call.mock_calls[0]
-        assert args[0].parent == "parent_value"
-        assert args[0].requests == [
+        arg = args[0].parent
+        mock_val = "parent_value"
+        assert arg == mock_val
+        arg = args[0].requests
+        mock_val = [
             tensorboard_service.CreateTensorboardRunRequest(parent="parent_value")
         ]
+        assert arg == mock_val
 
 
 @pytest.mark.asyncio
@@ -3970,7 +4013,9 @@ def test_get_tensorboard_run_flattened():
         # request object values.
         assert len(call.mock_calls) == 1
         _, args, _ = call.mock_calls[0]
-        assert args[0].name == "name_value"
+        arg = args[0].name
+        mock_val = "name_value"
+        assert arg == mock_val
 
 
 def test_get_tensorboard_run_flattened_error():
@@ -4010,7 +4055,9 @@ async def test_get_tensorboard_run_flattened_async():
         # request object values.
         assert len(call.mock_calls)
         _, args, _ = call.mock_calls[0]
-        assert args[0].name == "name_value"
+        arg = args[0].name
+        mock_val = "name_value"
+        assert arg == mock_val
 
 
 @pytest.mark.asyncio
@@ -4219,10 +4266,12 @@ def test_update_tensorboard_run_flattened():
         # request object values.
         assert len(call.mock_calls) == 1
         _, args, _ = call.mock_calls[0]
-        assert args[0].tensorboard_run == gca_tensorboard_run.TensorboardRun(
-            name="name_value"
-        )
-        assert args[0].update_mask == field_mask_pb2.FieldMask(paths=["paths_value"])
+        arg = args[0].tensorboard_run
+        mock_val = gca_tensorboard_run.TensorboardRun(name="name_value")
+        assert arg == mock_val
+        arg = args[0].update_mask
+        mock_val = field_mask_pb2.FieldMask(paths=["paths_value"])
+        assert arg == mock_val
 
 
 def test_update_tensorboard_run_flattened_error():
@@ -4267,10 +4316,12 @@ async def test_update_tensorboard_run_flattened_async():
         # request object values.
         assert len(call.mock_calls)
         _, args, _ = call.mock_calls[0]
-        assert args[0].tensorboard_run == gca_tensorboard_run.TensorboardRun(
-            name="name_value"
-        )
-        assert args[0].update_mask == field_mask_pb2.FieldMask(paths=["paths_value"])
+        arg = args[0].tensorboard_run
+        mock_val = gca_tensorboard_run.TensorboardRun(name="name_value")
+        assert arg == mock_val
+        arg = args[0].update_mask
+        mock_val = field_mask_pb2.FieldMask(paths=["paths_value"])
+        assert arg == mock_val
 
 
 @pytest.mark.asyncio
@@ -4459,7 +4510,9 @@ def test_list_tensorboard_runs_flattened():
         # request object values.
         assert len(call.mock_calls) == 1
         _, args, _ = call.mock_calls[0]
-        assert args[0].parent == "parent_value"
+        arg = args[0].parent
+        mock_val = "parent_value"
+        assert arg == mock_val
 
 
 def test_list_tensorboard_runs_flattened_error():
@@ -4499,7 +4552,9 @@ async def test_list_tensorboard_runs_flattened_async():
         # request object values.
         assert len(call.mock_calls)
         _, args, _ = call.mock_calls[0]
-        assert args[0].parent == "parent_value"
+        arg = args[0].parent
+        mock_val = "parent_value"
+        assert arg == mock_val
 
 
 @pytest.mark.asyncio
@@ -4855,7 +4910,9 @@ def test_delete_tensorboard_run_flattened():
         # request object values.
         assert len(call.mock_calls) == 1
         _, args, _ = call.mock_calls[0]
-        assert args[0].name == "name_value"
+        arg = args[0].name
+        mock_val = "name_value"
+        assert arg == mock_val
 
 
 def test_delete_tensorboard_run_flattened_error():
@@ -4895,7 +4952,9 @@ async def test_delete_tensorboard_run_flattened_async():
         # request object values.
         assert len(call.mock_calls)
         _, args, _ = call.mock_calls[0]
-        assert args[0].name == "name_value"
+        arg = args[0].name
+        mock_val = "name_value"
+        assert arg == mock_val
 
 
 @pytest.mark.asyncio
@@ -5094,12 +5153,16 @@ def test_batch_create_tensorboard_time_series_flattened():
         # request object values.
         assert len(call.mock_calls) == 1
         _, args, _ = call.mock_calls[0]
-        assert args[0].parent == "parent_value"
-        assert args[0].requests == [
+        arg = args[0].parent
+        mock_val = "parent_value"
+        assert arg == mock_val
+        arg = args[0].requests
+        mock_val = [
             tensorboard_service.CreateTensorboardTimeSeriesRequest(
                 parent="parent_value"
             )
         ]
+        assert arg == mock_val
 
 
 def test_batch_create_tensorboard_time_series_flattened_error():
@@ -5154,12 +5217,16 @@ async def test_batch_create_tensorboard_time_series_flattened_async():
         # request object values.
         assert len(call.mock_calls)
         _, args, _ = call.mock_calls[0]
-        assert args[0].parent == "parent_value"
-        assert args[0].requests == [
+        arg = args[0].parent
+        mock_val = "parent_value"
+        assert arg == mock_val
+        arg = args[0].requests
+        mock_val = [
             tensorboard_service.CreateTensorboardTimeSeriesRequest(
                 parent="parent_value"
             )
         ]
+        assert arg == mock_val
 
 
 @pytest.mark.asyncio
@@ -5388,12 +5455,12 @@ def test_create_tensorboard_time_series_flattened():
         # request object values.
         assert len(call.mock_calls) == 1
         _, args, _ = call.mock_calls[0]
-        assert args[0].parent == "parent_value"
-        assert args[
-            0
-        ].tensorboard_time_series == gca_tensorboard_time_series.TensorboardTimeSeries(
-            name="name_value"
-        )
+        arg = args[0].parent
+        mock_val = "parent_value"
+        assert arg == mock_val
+        arg = args[0].tensorboard_time_series
+        mock_val = gca_tensorboard_time_series.TensorboardTimeSeries(name="name_value")
+        assert arg == mock_val
 
 
 def test_create_tensorboard_time_series_flattened_error():
@@ -5442,12 +5509,12 @@ async def test_create_tensorboard_time_series_flattened_async():
         # request object values.
         assert len(call.mock_calls)
         _, args, _ = call.mock_calls[0]
-        assert args[0].parent == "parent_value"
-        assert args[
-            0
-        ].tensorboard_time_series == gca_tensorboard_time_series.TensorboardTimeSeries(
-            name="name_value"
-        )
+        arg = args[0].parent
+        mock_val = "parent_value"
+        assert arg == mock_val
+        arg = args[0].tensorboard_time_series
+        mock_val = gca_tensorboard_time_series.TensorboardTimeSeries(name="name_value")
+        assert arg == mock_val
 
 
 @pytest.mark.asyncio
@@ -5669,7 +5736,9 @@ def test_get_tensorboard_time_series_flattened():
         # request object values.
         assert len(call.mock_calls) == 1
         _, args, _ = call.mock_calls[0]
-        assert args[0].name == "name_value"
+        arg = args[0].name
+        mock_val = "name_value"
+        assert arg == mock_val
 
 
 def test_get_tensorboard_time_series_flattened_error():
@@ -5709,7 +5778,9 @@ async def test_get_tensorboard_time_series_flattened_async():
         # request object values.
         assert len(call.mock_calls)
         _, args, _ = call.mock_calls[0]
-        assert args[0].name == "name_value"
+        arg = args[0].name
+        mock_val = "name_value"
+        assert arg == mock_val
 
 
 @pytest.mark.asyncio
@@ -5938,12 +6009,12 @@ def test_update_tensorboard_time_series_flattened():
         # request object values.
         assert len(call.mock_calls) == 1
         _, args, _ = call.mock_calls[0]
-        assert args[
-            0
-        ].tensorboard_time_series == gca_tensorboard_time_series.TensorboardTimeSeries(
-            name="name_value"
-        )
-        assert args[0].update_mask == field_mask_pb2.FieldMask(paths=["paths_value"])
+        arg = args[0].tensorboard_time_series
+        mock_val = gca_tensorboard_time_series.TensorboardTimeSeries(name="name_value")
+        assert arg == mock_val
+        arg = args[0].update_mask
+        mock_val = field_mask_pb2.FieldMask(paths=["paths_value"])
+        assert arg == mock_val
 
 
 def test_update_tensorboard_time_series_flattened_error():
@@ -5992,12 +6063,12 @@ async def test_update_tensorboard_time_series_flattened_async():
         # request object values.
         assert len(call.mock_calls)
         _, args, _ = call.mock_calls[0]
-        assert args[
-            0
-        ].tensorboard_time_series == gca_tensorboard_time_series.TensorboardTimeSeries(
-            name="name_value"
-        )
-        assert args[0].update_mask == field_mask_pb2.FieldMask(paths=["paths_value"])
+        arg = args[0].tensorboard_time_series
+        mock_val = gca_tensorboard_time_series.TensorboardTimeSeries(name="name_value")
+        assert arg == mock_val
+        arg = args[0].update_mask
+        mock_val = field_mask_pb2.FieldMask(paths=["paths_value"])
+        assert arg == mock_val
 
 
 @pytest.mark.asyncio
@@ -6189,7 +6260,9 @@ def test_list_tensorboard_time_series_flattened():
         # request object values.
         assert len(call.mock_calls) == 1
         _, args, _ = call.mock_calls[0]
-        assert args[0].parent == "parent_value"
+        arg = args[0].parent
+        mock_val = "parent_value"
+        assert arg == mock_val
 
 
 def test_list_tensorboard_time_series_flattened_error():
@@ -6230,7 +6303,9 @@ async def test_list_tensorboard_time_series_flattened_async():
         # request object values.
         assert len(call.mock_calls)
         _, args, _ = call.mock_calls[0]
-        assert args[0].parent == "parent_value"
+        arg = args[0].parent
+        mock_val = "parent_value"
+        assert arg == mock_val
 
 
 @pytest.mark.asyncio
@@ -6603,7 +6678,9 @@ def test_delete_tensorboard_time_series_flattened():
         # request object values.
         assert len(call.mock_calls) == 1
         _, args, _ = call.mock_calls[0]
-        assert args[0].name == "name_value"
+        arg = args[0].name
+        mock_val = "name_value"
+        assert arg == mock_val
 
 
 def test_delete_tensorboard_time_series_flattened_error():
@@ -6643,7 +6720,9 @@ async def test_delete_tensorboard_time_series_flattened_async():
         # request object values.
         assert len(call.mock_calls)
         _, args, _ = call.mock_calls[0]
-        assert args[0].name == "name_value"
+        arg = args[0].name
+        mock_val = "name_value"
+        assert arg == mock_val
 
 
 @pytest.mark.asyncio
@@ -6657,6 +6736,254 @@ async def test_delete_tensorboard_time_series_flattened_error_async():
     with pytest.raises(ValueError):
         await client.delete_tensorboard_time_series(
             tensorboard_service.DeleteTensorboardTimeSeriesRequest(), name="name_value",
+        )
+
+
+def test_batch_read_tensorboard_time_series_data(
+    transport: str = "grpc",
+    request_type=tensorboard_service.BatchReadTensorboardTimeSeriesDataRequest,
+):
+    client = TensorboardServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(), transport=transport,
+    )
+
+    # Everything is optional in proto3 as far as the runtime is concerned,
+    # and we are mocking out the actual API, so just send an empty request.
+    request = request_type()
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(
+        type(client.transport.batch_read_tensorboard_time_series_data), "__call__"
+    ) as call:
+        # Designate an appropriate return value for the call.
+        call.return_value = (
+            tensorboard_service.BatchReadTensorboardTimeSeriesDataResponse()
+        )
+        response = client.batch_read_tensorboard_time_series_data(request)
+
+        # Establish that the underlying gRPC stub method was called.
+        assert len(call.mock_calls) == 1
+        _, args, _ = call.mock_calls[0]
+        assert (
+            args[0] == tensorboard_service.BatchReadTensorboardTimeSeriesDataRequest()
+        )
+
+    # Establish that the response is the type that we expect.
+    assert isinstance(
+        response, tensorboard_service.BatchReadTensorboardTimeSeriesDataResponse
+    )
+
+
+def test_batch_read_tensorboard_time_series_data_from_dict():
+    test_batch_read_tensorboard_time_series_data(request_type=dict)
+
+
+def test_batch_read_tensorboard_time_series_data_empty_call():
+    # This test is a coverage failsafe to make sure that totally empty calls,
+    # i.e. request == None and no flattened fields passed, work.
+    client = TensorboardServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(), transport="grpc",
+    )
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(
+        type(client.transport.batch_read_tensorboard_time_series_data), "__call__"
+    ) as call:
+        client.batch_read_tensorboard_time_series_data()
+        call.assert_called()
+        _, args, _ = call.mock_calls[0]
+        assert (
+            args[0] == tensorboard_service.BatchReadTensorboardTimeSeriesDataRequest()
+        )
+
+
+@pytest.mark.asyncio
+async def test_batch_read_tensorboard_time_series_data_async(
+    transport: str = "grpc_asyncio",
+    request_type=tensorboard_service.BatchReadTensorboardTimeSeriesDataRequest,
+):
+    client = TensorboardServiceAsyncClient(
+        credentials=ga_credentials.AnonymousCredentials(), transport=transport,
+    )
+
+    # Everything is optional in proto3 as far as the runtime is concerned,
+    # and we are mocking out the actual API, so just send an empty request.
+    request = request_type()
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(
+        type(client.transport.batch_read_tensorboard_time_series_data), "__call__"
+    ) as call:
+        # Designate an appropriate return value for the call.
+        call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(
+            tensorboard_service.BatchReadTensorboardTimeSeriesDataResponse()
+        )
+        response = await client.batch_read_tensorboard_time_series_data(request)
+
+        # Establish that the underlying gRPC stub method was called.
+        assert len(call.mock_calls)
+        _, args, _ = call.mock_calls[0]
+        assert (
+            args[0] == tensorboard_service.BatchReadTensorboardTimeSeriesDataRequest()
+        )
+
+    # Establish that the response is the type that we expect.
+    assert isinstance(
+        response, tensorboard_service.BatchReadTensorboardTimeSeriesDataResponse
+    )
+
+
+@pytest.mark.asyncio
+async def test_batch_read_tensorboard_time_series_data_async_from_dict():
+    await test_batch_read_tensorboard_time_series_data_async(request_type=dict)
+
+
+def test_batch_read_tensorboard_time_series_data_field_headers():
+    client = TensorboardServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+    )
+
+    # Any value that is part of the HTTP/1.1 URI should be sent as
+    # a field header. Set these to a non-empty value.
+    request = tensorboard_service.BatchReadTensorboardTimeSeriesDataRequest()
+
+    request.tensorboard = "tensorboard/value"
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(
+        type(client.transport.batch_read_tensorboard_time_series_data), "__call__"
+    ) as call:
+        call.return_value = (
+            tensorboard_service.BatchReadTensorboardTimeSeriesDataResponse()
+        )
+        client.batch_read_tensorboard_time_series_data(request)
+
+        # Establish that the underlying gRPC stub method was called.
+        assert len(call.mock_calls) == 1
+        _, args, _ = call.mock_calls[0]
+        assert args[0] == request
+
+    # Establish that the field header was sent.
+    _, _, kw = call.mock_calls[0]
+    assert ("x-goog-request-params", "tensorboard=tensorboard/value",) in kw["metadata"]
+
+
+@pytest.mark.asyncio
+async def test_batch_read_tensorboard_time_series_data_field_headers_async():
+    client = TensorboardServiceAsyncClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+    )
+
+    # Any value that is part of the HTTP/1.1 URI should be sent as
+    # a field header. Set these to a non-empty value.
+    request = tensorboard_service.BatchReadTensorboardTimeSeriesDataRequest()
+
+    request.tensorboard = "tensorboard/value"
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(
+        type(client.transport.batch_read_tensorboard_time_series_data), "__call__"
+    ) as call:
+        call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(
+            tensorboard_service.BatchReadTensorboardTimeSeriesDataResponse()
+        )
+        await client.batch_read_tensorboard_time_series_data(request)
+
+        # Establish that the underlying gRPC stub method was called.
+        assert len(call.mock_calls)
+        _, args, _ = call.mock_calls[0]
+        assert args[0] == request
+
+    # Establish that the field header was sent.
+    _, _, kw = call.mock_calls[0]
+    assert ("x-goog-request-params", "tensorboard=tensorboard/value",) in kw["metadata"]
+
+
+def test_batch_read_tensorboard_time_series_data_flattened():
+    client = TensorboardServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+    )
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(
+        type(client.transport.batch_read_tensorboard_time_series_data), "__call__"
+    ) as call:
+        # Designate an appropriate return value for the call.
+        call.return_value = (
+            tensorboard_service.BatchReadTensorboardTimeSeriesDataResponse()
+        )
+        # Call the method with a truthy value for each flattened field,
+        # using the keyword arguments to the method.
+        client.batch_read_tensorboard_time_series_data(tensorboard="tensorboard_value",)
+
+        # Establish that the underlying call was made with the expected
+        # request object values.
+        assert len(call.mock_calls) == 1
+        _, args, _ = call.mock_calls[0]
+        arg = args[0].tensorboard
+        mock_val = "tensorboard_value"
+        assert arg == mock_val
+
+
+def test_batch_read_tensorboard_time_series_data_flattened_error():
+    client = TensorboardServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+    )
+
+    # Attempting to call a method with both a request object and flattened
+    # fields is an error.
+    with pytest.raises(ValueError):
+        client.batch_read_tensorboard_time_series_data(
+            tensorboard_service.BatchReadTensorboardTimeSeriesDataRequest(),
+            tensorboard="tensorboard_value",
+        )
+
+
+@pytest.mark.asyncio
+async def test_batch_read_tensorboard_time_series_data_flattened_async():
+    client = TensorboardServiceAsyncClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+    )
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(
+        type(client.transport.batch_read_tensorboard_time_series_data), "__call__"
+    ) as call:
+        # Designate an appropriate return value for the call.
+        call.return_value = (
+            tensorboard_service.BatchReadTensorboardTimeSeriesDataResponse()
+        )
+
+        call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(
+            tensorboard_service.BatchReadTensorboardTimeSeriesDataResponse()
+        )
+        # Call the method with a truthy value for each flattened field,
+        # using the keyword arguments to the method.
+        response = await client.batch_read_tensorboard_time_series_data(
+            tensorboard="tensorboard_value",
+        )
+
+        # Establish that the underlying call was made with the expected
+        # request object values.
+        assert len(call.mock_calls)
+        _, args, _ = call.mock_calls[0]
+        arg = args[0].tensorboard
+        mock_val = "tensorboard_value"
+        assert arg == mock_val
+
+
+@pytest.mark.asyncio
+async def test_batch_read_tensorboard_time_series_data_flattened_error_async():
+    client = TensorboardServiceAsyncClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+    )
+
+    # Attempting to call a method with both a request object and flattened
+    # fields is an error.
+    with pytest.raises(ValueError):
+        await client.batch_read_tensorboard_time_series_data(
+            tensorboard_service.BatchReadTensorboardTimeSeriesDataRequest(),
+            tensorboard="tensorboard_value",
         )
 
 
@@ -6837,7 +7164,9 @@ def test_read_tensorboard_time_series_data_flattened():
         # request object values.
         assert len(call.mock_calls) == 1
         _, args, _ = call.mock_calls[0]
-        assert args[0].tensorboard_time_series == "tensorboard_time_series_value"
+        arg = args[0].tensorboard_time_series
+        mock_val = "tensorboard_time_series_value"
+        assert arg == mock_val
 
 
 def test_read_tensorboard_time_series_data_flattened_error():
@@ -6880,7 +7209,9 @@ async def test_read_tensorboard_time_series_data_flattened_async():
         # request object values.
         assert len(call.mock_calls)
         _, args, _ = call.mock_calls[0]
-        assert args[0].tensorboard_time_series == "tensorboard_time_series_value"
+        arg = args[0].tensorboard_time_series
+        mock_val = "tensorboard_time_series_value"
+        assert arg == mock_val
 
 
 @pytest.mark.asyncio
@@ -7073,7 +7404,9 @@ def test_read_tensorboard_blob_data_flattened():
         # request object values.
         assert len(call.mock_calls) == 1
         _, args, _ = call.mock_calls[0]
-        assert args[0].time_series == "time_series_value"
+        arg = args[0].time_series
+        mock_val = "time_series_value"
+        assert arg == mock_val
 
 
 def test_read_tensorboard_blob_data_flattened_error():
@@ -7116,7 +7449,9 @@ async def test_read_tensorboard_blob_data_flattened_async():
         # request object values.
         assert len(call.mock_calls)
         _, args, _ = call.mock_calls[0]
-        assert args[0].time_series == "time_series_value"
+        arg = args[0].time_series
+        mock_val = "time_series_value"
+        assert arg == mock_val
 
 
 @pytest.mark.asyncio
@@ -7316,12 +7651,16 @@ def test_write_tensorboard_experiment_data_flattened():
         # request object values.
         assert len(call.mock_calls) == 1
         _, args, _ = call.mock_calls[0]
-        assert args[0].tensorboard_experiment == "tensorboard_experiment_value"
-        assert args[0].write_run_data_requests == [
+        arg = args[0].tensorboard_experiment
+        mock_val = "tensorboard_experiment_value"
+        assert arg == mock_val
+        arg = args[0].write_run_data_requests
+        mock_val = [
             tensorboard_service.WriteTensorboardRunDataRequest(
                 tensorboard_run="tensorboard_run_value"
             )
         ]
+        assert arg == mock_val
 
 
 def test_write_tensorboard_experiment_data_flattened_error():
@@ -7374,12 +7713,16 @@ async def test_write_tensorboard_experiment_data_flattened_async():
         # request object values.
         assert len(call.mock_calls)
         _, args, _ = call.mock_calls[0]
-        assert args[0].tensorboard_experiment == "tensorboard_experiment_value"
-        assert args[0].write_run_data_requests == [
+        arg = args[0].tensorboard_experiment
+        mock_val = "tensorboard_experiment_value"
+        assert arg == mock_val
+        arg = args[0].write_run_data_requests
+        mock_val = [
             tensorboard_service.WriteTensorboardRunDataRequest(
                 tensorboard_run="tensorboard_run_value"
             )
         ]
+        assert arg == mock_val
 
 
 @pytest.mark.asyncio
@@ -7578,12 +7921,16 @@ def test_write_tensorboard_run_data_flattened():
         # request object values.
         assert len(call.mock_calls) == 1
         _, args, _ = call.mock_calls[0]
-        assert args[0].tensorboard_run == "tensorboard_run_value"
-        assert args[0].time_series_data == [
+        arg = args[0].tensorboard_run
+        mock_val = "tensorboard_run_value"
+        assert arg == mock_val
+        arg = args[0].time_series_data
+        mock_val = [
             tensorboard_data.TimeSeriesData(
                 tensorboard_time_series_id="tensorboard_time_series_id_value"
             )
         ]
+        assert arg == mock_val
 
 
 def test_write_tensorboard_run_data_flattened_error():
@@ -7636,12 +7983,16 @@ async def test_write_tensorboard_run_data_flattened_async():
         # request object values.
         assert len(call.mock_calls)
         _, args, _ = call.mock_calls[0]
-        assert args[0].tensorboard_run == "tensorboard_run_value"
-        assert args[0].time_series_data == [
+        arg = args[0].tensorboard_run
+        mock_val = "tensorboard_run_value"
+        assert arg == mock_val
+        arg = args[0].time_series_data
+        mock_val = [
             tensorboard_data.TimeSeriesData(
                 tensorboard_time_series_id="tensorboard_time_series_id_value"
             )
         ]
+        assert arg == mock_val
 
 
 @pytest.mark.asyncio
@@ -7847,7 +8198,9 @@ def test_export_tensorboard_time_series_data_flattened():
         # request object values.
         assert len(call.mock_calls) == 1
         _, args, _ = call.mock_calls[0]
-        assert args[0].tensorboard_time_series == "tensorboard_time_series_value"
+        arg = args[0].tensorboard_time_series
+        mock_val = "tensorboard_time_series_value"
+        assert arg == mock_val
 
 
 def test_export_tensorboard_time_series_data_flattened_error():
@@ -7892,7 +8245,9 @@ async def test_export_tensorboard_time_series_data_flattened_async():
         # request object values.
         assert len(call.mock_calls)
         _, args, _ = call.mock_calls[0]
-        assert args[0].tensorboard_time_series == "tensorboard_time_series_value"
+        arg = args[0].tensorboard_time_series
+        mock_val = "tensorboard_time_series_value"
+        assert arg == mock_val
 
 
 @pytest.mark.asyncio
@@ -8211,6 +8566,7 @@ def test_tensorboard_service_base_transport():
         "update_tensorboard_time_series",
         "list_tensorboard_time_series",
         "delete_tensorboard_time_series",
+        "batch_read_tensorboard_time_series_data",
         "read_tensorboard_time_series_data",
         "read_tensorboard_blob_data",
         "write_tensorboard_experiment_data",
@@ -8221,13 +8577,15 @@ def test_tensorboard_service_base_transport():
         with pytest.raises(NotImplementedError):
             getattr(transport, method)(request=object())
 
+    with pytest.raises(NotImplementedError):
+        transport.close()
+
     # Additionally, the LRO client (a property) should
     # also raise NotImplementedError
     with pytest.raises(NotImplementedError):
         transport.operations_client
 
 
-@requires_google_auth_gte_1_25_0
 def test_tensorboard_service_base_transport_with_credentials_file():
     # Instantiate the base transport with a credentials file
     with mock.patch.object(
@@ -8248,26 +8606,6 @@ def test_tensorboard_service_base_transport_with_credentials_file():
         )
 
 
-@requires_google_auth_lt_1_25_0
-def test_tensorboard_service_base_transport_with_credentials_file_old_google_auth():
-    # Instantiate the base transport with a credentials file
-    with mock.patch.object(
-        google.auth, "load_credentials_from_file", autospec=True
-    ) as load_creds, mock.patch(
-        "google.cloud.aiplatform_v1beta1.services.tensorboard_service.transports.TensorboardServiceTransport._prep_wrapped_messages"
-    ) as Transport:
-        Transport.return_value = None
-        load_creds.return_value = (ga_credentials.AnonymousCredentials(), None)
-        transport = transports.TensorboardServiceTransport(
-            credentials_file="credentials.json", quota_project_id="octopus",
-        )
-        load_creds.assert_called_once_with(
-            "credentials.json",
-            scopes=("https://www.googleapis.com/auth/cloud-platform",),
-            quota_project_id="octopus",
-        )
-
-
 def test_tensorboard_service_base_transport_with_adc():
     # Test the default credentials are used if credentials and credentials_file are None.
     with mock.patch.object(google.auth, "default", autospec=True) as adc, mock.patch(
@@ -8279,7 +8617,6 @@ def test_tensorboard_service_base_transport_with_adc():
         adc.assert_called_once()
 
 
-@requires_google_auth_gte_1_25_0
 def test_tensorboard_service_auth_adc():
     # If no credentials are provided, we should use ADC credentials.
     with mock.patch.object(google.auth, "default", autospec=True) as adc:
@@ -8292,18 +8629,6 @@ def test_tensorboard_service_auth_adc():
         )
 
 
-@requires_google_auth_lt_1_25_0
-def test_tensorboard_service_auth_adc_old_google_auth():
-    # If no credentials are provided, we should use ADC credentials.
-    with mock.patch.object(google.auth, "default", autospec=True) as adc:
-        adc.return_value = (ga_credentials.AnonymousCredentials(), None)
-        TensorboardServiceClient()
-        adc.assert_called_once_with(
-            scopes=("https://www.googleapis.com/auth/cloud-platform",),
-            quota_project_id=None,
-        )
-
-
 @pytest.mark.parametrize(
     "transport_class",
     [
@@ -8311,7 +8636,6 @@ def test_tensorboard_service_auth_adc_old_google_auth():
         transports.TensorboardServiceGrpcAsyncIOTransport,
     ],
 )
-@requires_google_auth_gte_1_25_0
 def test_tensorboard_service_transport_auth_adc(transport_class):
     # If credentials and host are not provided, the transport class should use
     # ADC credentials.
@@ -8321,26 +8645,6 @@ def test_tensorboard_service_transport_auth_adc(transport_class):
         adc.assert_called_once_with(
             scopes=["1", "2"],
             default_scopes=("https://www.googleapis.com/auth/cloud-platform",),
-            quota_project_id="octopus",
-        )
-
-
-@pytest.mark.parametrize(
-    "transport_class",
-    [
-        transports.TensorboardServiceGrpcTransport,
-        transports.TensorboardServiceGrpcAsyncIOTransport,
-    ],
-)
-@requires_google_auth_lt_1_25_0
-def test_tensorboard_service_transport_auth_adc_old_google_auth(transport_class):
-    # If credentials and host are not provided, the transport class should use
-    # ADC credentials.
-    with mock.patch.object(google.auth, "default", autospec=True) as adc:
-        adc.return_value = (ga_credentials.AnonymousCredentials(), None)
-        transport_class(quota_project_id="octopus")
-        adc.assert_called_once_with(
-            scopes=("https://www.googleapis.com/auth/cloud-platform",),
             quota_project_id="octopus",
         )
 
@@ -8838,3 +9142,49 @@ def test_client_withDEFAULT_CLIENT_INFO():
             credentials=ga_credentials.AnonymousCredentials(), client_info=client_info,
         )
         prep.assert_called_once_with(client_info)
+
+
+@pytest.mark.asyncio
+async def test_transport_close_async():
+    client = TensorboardServiceAsyncClient(
+        credentials=ga_credentials.AnonymousCredentials(), transport="grpc_asyncio",
+    )
+    with mock.patch.object(
+        type(getattr(client.transport, "grpc_channel")), "close"
+    ) as close:
+        async with client:
+            close.assert_not_called()
+        close.assert_called_once()
+
+
+def test_transport_close():
+    transports = {
+        "grpc": "_grpc_channel",
+    }
+
+    for transport, close_name in transports.items():
+        client = TensorboardServiceClient(
+            credentials=ga_credentials.AnonymousCredentials(), transport=transport
+        )
+        with mock.patch.object(
+            type(getattr(client.transport, close_name)), "close"
+        ) as close:
+            with client:
+                close.assert_not_called()
+            close.assert_called_once()
+
+
+def test_client_ctx():
+    transports = [
+        "grpc",
+    ]
+    for transport in transports:
+        client = TensorboardServiceClient(
+            credentials=ga_credentials.AnonymousCredentials(), transport=transport
+        )
+        # Test client calls underlying transport.
+        with mock.patch.object(type(client.transport), "close") as close:
+            close.assert_not_called()
+            with client:
+                pass
+            close.assert_called()

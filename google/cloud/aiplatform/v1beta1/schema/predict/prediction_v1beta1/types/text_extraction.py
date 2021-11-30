@@ -24,6 +24,7 @@ __protobuf__ = proto.module(
 
 class TextExtractionPredictionResult(proto.Message):
     r"""Prediction output format for Text Extraction.
+
     Attributes:
         ids (Sequence[int]):
             The resource IDs of the AnnotationSpecs that

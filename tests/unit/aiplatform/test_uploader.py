@@ -16,9 +16,12 @@
 #
 """Tests for uploader.py."""
 
+import datetime
+import functools
 import logging
 import os
 import re
+import tempfile
 from unittest import mock
 
 import grpc
@@ -39,23 +42,24 @@ from tensorboard.uploader.proto import server_info_pb2
 import tensorflow as tf
 
 from google.api_core import datetime_helpers
+from google.cloud.aiplatform.tensorboard import uploader_utils
+from google.cloud.aiplatform.tensorboard.plugins.tf_profiler import profile_uploader
 import google.cloud.aiplatform.tensorboard.uploader as uploader_lib
 from google.cloud import storage
-from google.cloud.aiplatform.compat.services import tensorboard_service_client_v1beta1
-from google.cloud.aiplatform_v1beta1.services.tensorboard_service.transports import (
+from google.cloud.aiplatform_v1.services.tensorboard_service import (
+    client as tensorboard_service_client,
+)
+from google.cloud.aiplatform_v1.services.tensorboard_service.transports import (
     grpc as transports_grpc,
 )
-from google.cloud.aiplatform.compat.types import (
-    tensorboard_data_v1beta1 as tensorboard_data,
+from google.cloud.aiplatform_v1.types import tensorboard_data
+from google.cloud.aiplatform_v1.types import tensorboard_service
+from google.cloud.aiplatform_v1.types import (
+    tensorboard_experiment as tensorboard_experiment_type,
 )
-from google.cloud.aiplatform.compat.types import (
-    tensorboard_experiment_v1beta1 as tensorboard_experiment_type,
-)
-from google.cloud.aiplatform.compat.types import (
-    tensorboard_run_v1beta1 as tensorboard_run_type,
-)
-from google.cloud.aiplatform.compat.types import (
-    tensorboard_time_series_v1beta1 as tensorboard_time_series_type,
+from google.cloud.aiplatform_v1.types import tensorboard_run as tensorboard_run_type
+from google.cloud.aiplatform_v1.types import (
+    tensorboard_time_series as tensorboard_time_series_type,
 )
 from google.protobuf import timestamp_pb2
 from google.protobuf import message
@@ -111,11 +115,17 @@ def _create_mock_client():
     # Create a stub instance (using a test channel) in order to derive a mock
     # from it with autospec enabled. Mocking TensorBoardWriterServiceStub itself
     # doesn't work with autospec because grpc constructs stubs via metaclassing.
+
     def create_experiment_response(
         tensorboard_experiment_id=None,
         tensorboard_experiment=None,  # pylint: disable=unused-argument
         parent=None,
     ):  # pylint: disable=unused-argument
+        tensorboard_experiment_id = (
+            "{}/experiments/{}".format(parent, tensorboard_experiment_id)
+            if parent
+            else tensorboard_experiment_id
+        )
         return tensorboard_experiment_type.TensorboardExperiment(
             name=tensorboard_experiment_id
         )
@@ -125,21 +135,30 @@ def _create_mock_client():
         tensorboard_run_id=None,
         parent=None,
     ):  # pylint: disable=unused-argument
+        tensorboard_run_id = (
+            "{}/runs/{}".format(parent, tensorboard_run_id)
+            if parent
+            else tensorboard_run_id
+        )
         return tensorboard_run_type.TensorboardRun(name=tensorboard_run_id)
 
     def create_tensorboard_time_series(
         tensorboard_time_series=None, parent=None
     ):  # pylint: disable=unused-argument
+        name = (
+            "{}/timeSeries/{}".format(parent, tensorboard_time_series.display_name)
+            if parent
+            else tensorboard_time_series.display_name
+        )
         return tensorboard_time_series_type.TensorboardTimeSeries(
-            name=tensorboard_time_series.display_name,
-            display_name=tensorboard_time_series.display_name,
+            name=name, display_name=tensorboard_time_series.display_name,
         )
 
     test_channel = grpc_testing.channel(
         service_descriptors=[], time=grpc_testing.strict_real_time()
     )
     mock_client = mock.Mock(
-        spec=tensorboard_service_client_v1beta1.TensorboardServiceClient(
+        spec=tensorboard_service_client.TensorboardServiceClient(
             transport=transports_grpc.TensorboardServiceGrpcTransport(
                 channel=test_channel
             )
@@ -151,6 +170,13 @@ def _create_mock_client():
         create_tensorboard_time_series
     )
     return mock_client
+
+
+def _create_mock_blob_storage():
+    mock_blob_storage = mock.Mock()
+    mock_blob_storage.mock_add_spec(storage.Bucket)
+
+    return mock_blob_storage
 
 
 def _create_uploader(
@@ -170,6 +196,7 @@ def _create_uploader(
     description=None,
     verbosity=0,  # Use 0 to minimize littering the test output.
     one_shot=None,
+    allowed_plugins=_SCALARS_HISTOGRAMS_AND_GRAPHS,
 ):
     if writer_client is _USE_DEFAULT:
         writer_client = _create_mock_client()
@@ -201,7 +228,7 @@ def _create_uploader(
         tensorboard_resource_name=tensorboard_resource_name,
         writer_client=writer_client,
         logdir=logdir,
-        allowed_plugins=_SCALARS_HISTOGRAMS_AND_GRAPHS,
+        allowed_plugins=allowed_plugins,
         upload_limits=upload_limits,
         blob_storage_bucket=blob_storage_bucket,
         blob_storage_folder=blob_storage_folder,
@@ -214,10 +241,7 @@ def _create_uploader(
 
 
 def _create_dispatcher(
-    experiment_resource_name,
-    api=None,
-    allowed_plugins=_USE_DEFAULT,
-    additional_senders={},
+    experiment_resource_name, api=None, allowed_plugins=_USE_DEFAULT, logdir=None,
 ):
     if api is _USE_DEFAULT:
         api = _create_mock_client()
@@ -235,6 +259,10 @@ def _create_dispatcher(
     tensor_rpc_rate_limiter = util.RateLimiter(0)
     blob_rpc_rate_limiter = util.RateLimiter(0)
 
+    one_platform_resource_manager = uploader_utils.OnePlatformResourceManager(
+        experiment_resource_name, api
+    )
+
     request_sender = uploader_lib._BatchedRequestSender(
         experiment_resource_name=experiment_resource_name,
         api=api,
@@ -245,8 +273,23 @@ def _create_dispatcher(
         blob_rpc_rate_limiter=blob_rpc_rate_limiter,
         blob_storage_bucket=None,
         blob_storage_folder=None,
+        one_platform_resource_manager=one_platform_resource_manager,
         tracker=upload_tracker.UploadTracker(verbosity=0),
     )
+
+    additional_senders = {}
+    if "profile" in allowed_plugins:
+        additional_senders["profile"] = profile_uploader.ProfileRequestSender(
+            experiment_resource_name=experiment_resource_name,
+            api=api,
+            upload_limits=upload_limits,
+            blob_rpc_rate_limiter=util.RateLimiter(0),
+            blob_storage_bucket=_create_mock_blob_storage(),
+            source_bucket=_create_mock_blob_storage(),
+            blob_storage_folder=None,
+            tracker=upload_tracker.UploadTracker(verbosity=0),
+            logdir=logdir,
+        )
 
     return uploader_lib._Dispatcher(
         request_sender=request_sender, additional_senders=additional_senders,
@@ -262,13 +305,45 @@ def _create_scalar_request_sender(
         max_request_size = 128000
     return uploader_lib._ScalarBatchedRequestSender(
         experiment_resource_id=experiment_resource_id,
-        one_platform_resource_manager=uploader_lib._OnePlatformResourceManager(
+        one_platform_resource_manager=uploader_utils.OnePlatformResourceManager(
             experiment_resource_id, api
         ),
         api=api,
         rpc_rate_limiter=util.RateLimiter(0),
         max_request_size=max_request_size,
         tracker=upload_tracker.UploadTracker(verbosity=0),
+    )
+
+
+def _create_file_request_sender(
+    run_resource_id,
+    api=_USE_DEFAULT,
+    max_blob_request_size=_USE_DEFAULT,
+    max_blob_size=_USE_DEFAULT,
+    blob_storage_folder=None,
+    blob_storage_bucket=_USE_DEFAULT,
+    source_bucket=_USE_DEFAULT,
+):
+    if api is _USE_DEFAULT:
+        api = _create_mock_client()
+    if max_blob_request_size is _USE_DEFAULT:
+        max_blob_request_size = 128000
+    if blob_storage_bucket is _USE_DEFAULT:
+        blob_storage_bucket = _create_mock_blob_storage()
+    if source_bucket is _USE_DEFAULT:
+        source_bucket = _create_mock_blob_storage()
+    if max_blob_size is _USE_DEFAULT:
+        max_blob_size = 128000
+    return profile_uploader._FileRequestSender(
+        run_resource_id=run_resource_id,
+        api=api,
+        rpc_rate_limiter=util.RateLimiter(0),
+        max_blob_request_size=max_blob_request_size,
+        max_blob_size=max_blob_size,
+        blob_storage_bucket=blob_storage_bucket,
+        blob_storage_folder=blob_storage_folder,
+        tracker=upload_tracker.UploadTracker(verbosity=0),
+        source_bucket=source_bucket,
     )
 
 
@@ -387,7 +462,7 @@ class TensorboardUploaderTest(tf.test.TestCase):
         logdir = _TEST_LOG_DIR_NAME
         uploader = _create_uploader(_create_mock_client(), logdir)
         uploader.create_experiment()
-        self.assertEqual(uploader._experiment.name, _TEST_EXPERIMENT_NAME)
+        self.assertEqual(uploader._experiment.name, _TEST_ONE_PLATFORM_EXPERIMENT_NAME)
 
     def test_create_experiment_with_name(self):
         logdir = _TEST_LOG_DIR_NAME
@@ -474,7 +549,7 @@ class TensorboardUploaderTest(tf.test.TestCase):
                 writer_client=mock_client,
                 logdir=_TEST_LOG_DIR_NAME,
                 # Send each Event below in a separate WriteScalarRequest
-                max_scalar_request_size=100,
+                max_scalar_request_size=200,
                 rpc_rate_limiter=mock_rate_limiter,
                 verbosity=1,  # In order to test the upload tracker.
             )
@@ -522,7 +597,41 @@ class TensorboardUploaderTest(tf.test.TestCase):
 
     def test_start_uploading_scalars_one_shot(self):
         """Check that one-shot uploading stops without AbortUploadError."""
+
+        def batch_create_runs(parent, requests):
+            # pylint: disable=unused-argument
+            tb_runs = []
+            for request in requests:
+                tb_run = tensorboard_run_type.TensorboardRun(request.tensorboard_run)
+                tb_run.name = "{}/runs/{}".format(
+                    request.parent, request.tensorboard_run_id
+                )
+                tb_runs.append(tb_run)
+            return tensorboard_service.BatchCreateTensorboardRunsResponse(
+                tensorboard_runs=tb_runs
+            )
+
+        def batch_create_time_series(parent, requests):
+            # pylint: disable=unused-argument
+            tb_time_series = []
+            for request in requests:
+                ts = tensorboard_time_series_type.TensorboardTimeSeries(
+                    request.tensorboard_time_series
+                )
+                ts.name = "{}/timeSeries/{}".format(
+                    request.parent, request.tensorboard_time_series.display_name
+                )
+                tb_time_series.append(ts)
+            return tensorboard_service.BatchCreateTensorboardTimeSeriesResponse(
+                tensorboard_time_series=tb_time_series
+            )
+
         mock_client = _create_mock_client()
+        mock_client.batch_create_tensorboard_runs.side_effect = batch_create_runs
+        mock_client.batch_create_tensorboard_time_series.side_effect = (
+            batch_create_time_series
+        )
+
         mock_rate_limiter = mock.create_autospec(util.RateLimiter)
         mock_tracker = mock.MagicMock()
         with mock.patch.object(
@@ -532,7 +641,7 @@ class TensorboardUploaderTest(tf.test.TestCase):
                 writer_client=mock_client,
                 logdir=_TEST_LOG_DIR_NAME,
                 # Send each Event below in a separate WriteScalarRequest
-                max_scalar_request_size=100,
+                max_scalar_request_size=200,
                 rpc_rate_limiter=mock_rate_limiter,
                 verbosity=1,  # In order to test the upload tracker.
                 one_shot=True,
@@ -543,17 +652,32 @@ class TensorboardUploaderTest(tf.test.TestCase):
         mock_logdir_loader.get_run_events.side_effect = [
             {
                 "run 1": _apply_compat(
-                    [_scalar_event("1.1", 5.0), _scalar_event("1.2", 5.0)]
+                    [_scalar_event("tag_1.1", 5.0), _scalar_event("tag_1.2", 5.0)]
                 ),
                 "run 2": _apply_compat(
-                    [_scalar_event("2.1", 5.0), _scalar_event("2.2", 5.0)]
+                    [_scalar_event("tag_2.1", 5.0), _scalar_event("tag_2.2", 5.0)]
+                ),
+            },
+            # Note the lack of AbortUploadError here.
+        ]
+        mock_logdir_loader_pre_create = mock.create_autospec(logdir_loader.LogdirLoader)
+        mock_logdir_loader_pre_create.get_run_events.side_effect = [
+            {
+                "run 1": _apply_compat(
+                    [_scalar_event("tag_1.1", 5.0), _scalar_event("tag_1.2", 5.0)]
+                ),
+                "run 2": _apply_compat(
+                    [_scalar_event("tag_2.1", 5.0), _scalar_event("tag_2.2", 5.0)]
                 ),
             },
             # Note the lack of AbortUploadError here.
         ]
 
         with mock.patch.object(uploader, "_logdir_loader", mock_logdir_loader):
-            uploader.start_uploading()
+            with mock.patch.object(
+                uploader, "_logdir_loader_pre_create", mock_logdir_loader_pre_create
+            ):
+                uploader.start_uploading()
 
         self.assertEqual(2, mock_client.write_tensorboard_experiment_data.call_count)
         self.assertEqual(2, mock_rate_limiter.tick.call_count)
@@ -918,6 +1042,16 @@ class TensorboardUploaderTest(tf.test.TestCase):
         with self.subTest("corrupt graphs should be skipped"):
             self.assertLen(actual_blobs, 2)
 
+    def test_add_profile_plugin(self):
+        uploader = _create_uploader(
+            _create_mock_client(),
+            _TEST_LOG_DIR_NAME,
+            one_shot=True,
+            allowed_plugins=frozenset(("profile",)),
+        )
+        uploader.create_experiment()
+        self.assertIn("profile", uploader._dispatcher._additional_senders)
+
 
 class BatchedRequestSenderTest(tf.test.TestCase):
     def _populate_run_from_events(
@@ -1026,6 +1160,199 @@ class BatchedRequestSenderTest(tf.test.TestCase):
             time_series_data,
             call_args_list[0][1]["write_run_data_requests"][0].time_series_data[0],
         )
+
+
+class ProfileRequestSenderTest(tf.test.TestCase):
+    def _create_builder(self, mock_client, logdir):
+        return _create_dispatcher(
+            experiment_resource_name=_TEST_ONE_PLATFORM_EXPERIMENT_NAME,
+            api=mock_client,
+            logdir=logdir,
+            allowed_plugins=frozenset({"profile"}),
+        )
+
+    def _populate_run_from_events(
+        self, events, logdir, mock_client=None, builder=None,
+    ):
+        if not mock_client:
+            mock_client = _create_mock_client()
+
+        if not builder:
+            builder = self._create_builder(mock_client, logdir)
+
+        builder.dispatch_requests({"": _apply_compat(events)})
+        profile_requests = mock_client.write_tensorboard_run_data.call_args_list
+
+        return profile_requests
+
+    def test_profile_event_missing_prof_run_dirs(self):
+        events = [
+            event_pb2.Event(file_version="brain.Event:2"),
+        ]
+        with tempfile.TemporaryDirectory() as logdir:
+            call_args_list = self._populate_run_from_events(events, logdir)
+
+        self.assertProtoEquals(call_args_list, [])
+
+    def test_profile_event_bad_prof_path(self):
+        events = [
+            event_pb2.Event(file_version="brain.Event:2"),
+        ]
+        prof_run_name = "bad_run_name"
+
+        with tempfile.TemporaryDirectory() as logdir:
+            prof_path = os.path.join(
+                logdir, profile_uploader.ProfileRequestSender.PROFILE_PATH
+            )
+            os.makedirs(prof_path)
+
+            run_path = os.path.join(prof_path, prof_run_name)
+            os.makedirs(run_path)
+
+            call_args_list = self._populate_run_from_events(events, logdir)
+
+        self.assertProtoEquals(call_args_list, [])
+
+    def test_profile_event_single_prof_run(self):
+        events = [
+            event_pb2.Event(file_version="brain.Event:2"),
+        ]
+        prof_run_name = "2021_01_01_01_10_10"
+
+        with tempfile.TemporaryDirectory() as logdir:
+            prof_path = os.path.join(
+                logdir, profile_uploader.ProfileRequestSender.PROFILE_PATH
+            )
+            os.makedirs(prof_path)
+
+            run_path = os.path.join(prof_path, prof_run_name)
+            os.makedirs(run_path)
+
+            with tempfile.NamedTemporaryFile(suffix=".xplane.pb", dir=run_path):
+                call_args_list = self._populate_run_from_events(events, logdir)
+
+        profile_tag_counts = _extract_tag_counts_time_series(call_args_list)
+        self.assertEqual(profile_tag_counts, {prof_run_name: 1})
+
+    def test_profile_event_single_prof_run_new_files(self):
+        # Check that files are not uploaded twice for the same profiling run
+        events = [
+            event_pb2.Event(file_version="brain.Event:2"),
+        ]
+        prof_run_name = "2021_01_01_01_10_10"
+        mock_client = _create_mock_client()
+
+        with tempfile.TemporaryDirectory() as logdir:
+            builder = self._create_builder(mock_client=mock_client, logdir=logdir)
+            prof_path = os.path.join(
+                logdir, profile_uploader.ProfileRequestSender.PROFILE_PATH
+            )
+            os.makedirs(prof_path)
+
+            run_path = os.path.join(prof_path, prof_run_name)
+            os.makedirs(run_path)
+
+            with tempfile.NamedTemporaryFile(
+                prefix="a", suffix=".xplane.pb", dir=run_path
+            ):
+                call_args_list = self._populate_run_from_events(
+                    events, logdir, builder=builder, mock_client=mock_client
+                )
+                with tempfile.NamedTemporaryFile(
+                    prefix="b", suffix=".xplane.pb", dir=run_path
+                ):
+                    call_args_list = self._populate_run_from_events(
+                        events, logdir, builder=builder, mock_client=mock_client
+                    )
+
+        profile_tag_counts = _extract_tag_counts_time_series(call_args_list)
+        self.assertEqual(profile_tag_counts, {prof_run_name: 1})
+
+    def test_profile_event_multi_prof_run(self):
+        events = [
+            event_pb2.Event(file_version="brain.Event:2"),
+        ]
+        prof_run_names = [
+            "2021_01_01_01_10_10",
+            "2021_02_02_02_20_20",
+        ]
+
+        with tempfile.TemporaryDirectory() as logdir:
+            prof_path = os.path.join(
+                logdir, profile_uploader.ProfileRequestSender.PROFILE_PATH
+            )
+            os.makedirs(prof_path)
+
+            run_paths = [
+                os.path.join(prof_path, prof_run_names[0]),
+                os.path.join(prof_path, prof_run_names[1]),
+            ]
+            [os.makedirs(run_path) for run_path in run_paths]
+
+            named_temp = functools.partial(
+                tempfile.NamedTemporaryFile, suffix=".xplane.pb"
+            )
+
+            with named_temp(dir=run_paths[0]), named_temp(dir=run_paths[1]):
+                call_args_list = self._populate_run_from_events(events, logdir)
+
+        self.assertLen(call_args_list, 2)
+        profile_tag_counts = _extract_tag_counts_time_series(call_args_list)
+        self.assertEqual(profile_tag_counts, dict.fromkeys(prof_run_names, 1))
+
+    def test_profile_event_add_consecutive_prof_runs(self):
+        # Multiple profiling events happen one after another, should only update
+        # new profiling runs
+        events = [
+            event_pb2.Event(file_version="brain.Event:2"),
+        ]
+
+        prof_run_name = "2021_01_01_01_10_10"
+
+        mock_client = _create_mock_client()
+
+        with tempfile.TemporaryDirectory() as logdir:
+            builder = self._create_builder(mock_client=mock_client, logdir=logdir)
+
+            prof_path = os.path.join(
+                logdir, profile_uploader.ProfileRequestSender.PROFILE_PATH
+            )
+            os.makedirs(prof_path)
+
+            run_path = os.path.join(prof_path, prof_run_name)
+            os.makedirs(run_path)
+
+            named_temp = functools.partial(
+                tempfile.NamedTemporaryFile, suffix=".xplane.pb"
+            )
+
+            with named_temp(dir=run_path):
+                call_args_list = self._populate_run_from_events(
+                    events, logdir, mock_client=mock_client, builder=builder,
+                )
+
+            self.assertLen(call_args_list, 1)
+            self.assertEqual(
+                call_args_list[0][1]["time_series_data"][0].tensorboard_time_series_id,
+                prof_run_name,
+            )
+
+            prof_run_name_2 = "2021_02_02_02_20_20"
+
+            run_path = os.path.join(prof_path, prof_run_name_2)
+            os.makedirs(run_path)
+            mock_client.write_tensorboard_run_data.reset_mock()
+
+            with named_temp(dir=run_path):
+                call_args_list = self._populate_run_from_events(
+                    events, logdir, mock_client=mock_client, builder=builder,
+                )
+
+            self.assertLen(call_args_list, 1)
+            self.assertEqual(
+                call_args_list[0][1]["time_series_data"][0].tensorboard_time_series_id,
+                prof_run_name_2,
+            )
 
 
 class ScalarBatchedRequestSenderTest(tf.test.TestCase):
@@ -1439,6 +1766,160 @@ class ScalarBatchedRequestSenderTest(tf.test.TestCase):
         )
 
 
+class FileRequestSenderTest(tf.test.TestCase):
+    def test_empty_files_no_messages(self):
+        mock_client = _create_mock_client()
+        sender = _create_file_request_sender(
+            api=mock_client, run_resource_id=_TEST_ONE_PLATFORM_RUN_NAME,
+        )
+
+        sender.add_files(
+            files=[], tag="my_tag", plugin="test_plugin", event_timestamp=""
+        )
+
+        self.assertEmpty(mock_client.write_tensorboard_run_data.call_args_list)
+
+    def test_fake_files_no_sent_messages(self):
+        mock_client = _create_mock_client()
+        sender = _create_file_request_sender(
+            api=mock_client, run_resource_id=_TEST_ONE_PLATFORM_RUN_NAME,
+        )
+
+        with mock.patch("os.path.isfile", return_value=False):
+            sender.add_files(
+                files=["fakefile1", "fakefile2"],
+                tag="my_tag",
+                plugin="test_plugin",
+                event_timestamp="",
+            )
+
+        self.assertEmpty(mock_client.write_tensorboard_run_data.call_args_list)
+
+    def test_files_too_large(self):
+        mock_client = _create_mock_client()
+        sender = _create_file_request_sender(
+            api=mock_client,
+            run_resource_id=_TEST_ONE_PLATFORM_RUN_NAME,
+            max_blob_size=10,
+        )
+
+        with tempfile.NamedTemporaryFile() as f1:
+            f1.write(b"A" * 12)
+            f1.flush()
+            sender.add_files(
+                files=[f1.name],
+                tag="my_tag",
+                plugin="test_plugin",
+                event_timestamp=timestamp_pb2.Timestamp().FromDatetime(
+                    datetime.datetime.strptime("2020-01-01", "%Y-%m-%d")
+                ),
+            )
+
+        self.assertEmpty(mock_client.write_tensorboard_run_data.call_args_list)
+
+    def test_single_file_upload(self):
+        mock_client = _create_mock_client()
+        sender = _create_file_request_sender(
+            api=mock_client, run_resource_id=_TEST_ONE_PLATFORM_RUN_NAME,
+        )
+
+        with tempfile.NamedTemporaryFile() as f1:
+            fn = os.path.basename(f1.name)
+            sender.add_files(
+                files=[f1.name],
+                tag="my_tag",
+                plugin="test_plugin",
+                event_timestamp=timestamp_pb2.Timestamp().FromDatetime(
+                    datetime.datetime.strptime("2020-01-01", "%Y-%m-%d")
+                ),
+            )
+
+        call_args_list = mock_client.write_tensorboard_run_data.call_args_list[0][1]
+        self.assertEqual(
+            fn, call_args_list["time_series_data"][0].values[0].blobs.values[0].id
+        )
+
+    def test_multi_file_upload(self):
+        mock_client = _create_mock_client()
+        sender = _create_file_request_sender(
+            api=mock_client, run_resource_id=_TEST_ONE_PLATFORM_RUN_NAME,
+        )
+
+        files = None
+        with tempfile.NamedTemporaryFile() as f1, tempfile.NamedTemporaryFile() as f2:
+            files = [os.path.basename(f1.name), os.path.basename(f2.name)]
+            sender.add_files(
+                files=[f1.name, f2.name],
+                tag="my_tag",
+                plugin="test_plugin",
+                event_timestamp=timestamp_pb2.Timestamp().FromDatetime(
+                    datetime.datetime.strptime("2020-01-01", "%Y-%m-%d")
+                ),
+            )
+
+        call_args_list = mock_client.write_tensorboard_run_data.call_args_list[0][1]
+
+        self.assertEqual(
+            files,
+            [
+                x.id
+                for x in call_args_list["time_series_data"][0].values[0].blobs.values
+            ],
+        )
+
+    def test_add_files_no_experiment(self):
+        mock_client = _create_mock_client()
+        mock_client.write_tensorboard_run_data.side_effect = grpc.RpcError
+
+        sender = _create_file_request_sender(
+            api=mock_client, run_resource_id=_TEST_ONE_PLATFORM_RUN_NAME,
+        )
+
+        with tempfile.NamedTemporaryFile() as f1:
+            sender.add_files(
+                files=[f1.name],
+                tag="my_tag",
+                plugin="test_plugin",
+                event_timestamp=timestamp_pb2.Timestamp().FromDatetime(
+                    datetime.datetime.strptime("2020-01-01", "%Y-%m-%d")
+                ),
+            )
+
+        mock_client.write_tensorboard_run_data.assert_called_once()
+
+    def test_add_files_from_local(self):
+        mock_client = _create_mock_client()
+        bucket = _create_mock_blob_storage()
+
+        sender = _create_file_request_sender(
+            api=mock_client,
+            run_resource_id=_TEST_ONE_PLATFORM_RUN_NAME,
+            blob_storage_bucket=bucket,
+            source_bucket=None,
+        )
+
+        with tempfile.NamedTemporaryFile() as f1:
+            sender.add_files(
+                files=[f1.name],
+                tag="my_tag",
+                plugin="test_plugin",
+                event_timestamp=timestamp_pb2.Timestamp().FromDatetime(
+                    datetime.datetime.strptime("2020-01-01", "%Y-%m-%d")
+                ),
+            )
+
+        bucket.blob.assert_called_once()
+
+    def test_copy_blobs(self):
+        mock_client = _create_mock_client()
+        sender = _create_file_request_sender(
+            api=mock_client, run_resource_id=_TEST_ONE_PLATFORM_RUN_NAME,
+        )
+
+        sender._copy_between_buckets("gs://path/to/my/file", None)
+        self.assertLen(sender._source_bucket.copy_blob.call_args_list, 1)
+
+
 class VarintCostTest(tf.test.TestCase):
     def test_varint_cost(self):
         self.assertEqual(uploader_lib._varint_cost(0), 1)
@@ -1477,6 +1958,14 @@ def _extract_tag_counts(call_args_list):
         ts_data.tensorboard_time_series_id: len(ts_data.values)
         for call_args in call_args_list
         for ts_data in call_args[1]["write_run_data_requests"][0].time_series_data
+    }
+
+
+def _extract_tag_counts_time_series(call_args_list):
+    return {
+        ts_data.tensorboard_time_series_id: len(ts_data.values)
+        for call_args in call_args_list
+        for ts_data in call_args[1]["time_series_data"]
     }
 
 

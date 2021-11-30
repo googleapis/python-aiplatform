@@ -1,5 +1,98 @@
 # Changelog
 
+### [1.7.1](https://www.github.com/googleapis/python-aiplatform/compare/v1.7.0...v1.7.1) (2021-11-16)
+
+
+### Features
+
+* Add support for new Vertex regions ([#811](https://www.github.com/googleapis/python-aiplatform/issues/811)) ([8d04138](https://www.github.com/googleapis/python-aiplatform/commit/8d0413880486d03314ecab80347a713318c6944a))
+
+
+### Bug Fixes
+
+* add parameters_value in PipelineJob for schema > 2.0.0 ([#817](https://www.github.com/googleapis/python-aiplatform/issues/817)) ([900a449](https://www.github.com/googleapis/python-aiplatform/commit/900a44962ac85608dbcb3d23049db160d49d842a))
+* exclude support for python 3.10 ([#831](https://www.github.com/googleapis/python-aiplatform/issues/831)) ([0301a1d](https://www.github.com/googleapis/python-aiplatform/commit/0301a1de5719031c6c826fe4887ff5fb6bcfa956))
+
+
+### Miscellaneous Chores
+
+* release 1.7.1 ([#845](https://www.github.com/googleapis/python-aiplatform/issues/845)) ([ca04de6](https://www.github.com/googleapis/python-aiplatform/commit/ca04de6a95f8b22d0161e250d8d4314a35becfab))
+
+## [1.7.0](https://www.github.com/googleapis/python-aiplatform/compare/v1.6.2...v1.7.0) (2021-11-06)
+
+
+### Features
+
+* Adds support for `google.protobuf.Value` pipeline parameters in the `parameter_values` field ([#807](https://www.github.com/googleapis/python-aiplatform/issues/807)) ([c97199d](https://www.github.com/googleapis/python-aiplatform/commit/c97199dd2cb712ef436ee9cbf6b8add27b42b174))
+* Adds support for `google.protobuf.Value` pipeline parameters in the `parameter_values` field ([#808](https://www.github.com/googleapis/python-aiplatform/issues/808)) ([726b620](https://www.github.com/googleapis/python-aiplatform/commit/726b620bea1223c80225c9a3c2b54342e9c14052))
+* PipelineJob switch to v1 API from v1beta1 API ([#750](https://www.github.com/googleapis/python-aiplatform/issues/750)) ([8db7e0c](https://www.github.com/googleapis/python-aiplatform/commit/8db7e0ca4e796fea47c1bdf4c0fccd514f2dd8c2))
+
+
+### Bug Fixes
+
+* Correct PipelineJob credentials description ([#816](https://www.github.com/googleapis/python-aiplatform/issues/816)) ([49aaa87](https://www.github.com/googleapis/python-aiplatform/commit/49aaa8719a3daabf7e0d23fa1cd1d64c19159a83))
+* Fixed docstrings for Dataset in AutoMLForecastingTrainingJob ([760887b](https://www.github.com/googleapis/python-aiplatform/commit/760887b196884707473896def9e8b69c9fc77423))
+
+
+### Documentation
+
+* Fix pydocs README to be consistent with repo README ([#821](https://www.github.com/googleapis/python-aiplatform/issues/821)) ([95dbd60](https://www.github.com/googleapis/python-aiplatform/commit/95dbd6020ee8f3037b0834eb39312b5d7e5fd8e1))
+* Update sample with feedback from b/191251050 ([#818](https://www.github.com/googleapis/python-aiplatform/issues/818)) ([6b2d938](https://www.github.com/googleapis/python-aiplatform/commit/6b2d93834734b6789c13ef3782b1b3632f5c6133))
+
+### [1.6.2](https://www.github.com/googleapis/python-aiplatform/compare/v1.6.1...v1.6.2) (2021-11-01)
+
+
+### Features
+
+* Add PipelineJob.submit to create PipelineJob without monitoring it's completion. ([#798](https://www.github.com/googleapis/python-aiplatform/issues/798)) ([7ab05d5](https://www.github.com/googleapis/python-aiplatform/commit/7ab05d5e127636d96365b7ea408974ccd6c2f0fe))
+* support new protobuf value param types for Pipeline Job client ([#797](https://www.github.com/googleapis/python-aiplatform/issues/797)) ([2fc05ca](https://www.github.com/googleapis/python-aiplatform/commit/2fc05cab03a2c7f8462b234b02d43bc7581ba845))
+
+
+### Bug Fixes
+
+* Add retries when polling during monitoring runs ([#786](https://www.github.com/googleapis/python-aiplatform/issues/786)) ([45401c0](https://www.github.com/googleapis/python-aiplatform/commit/45401c09f23ed616a7ca84b3d7f53b8a1db21c7c))
+* use version.py for versioning ([#804](https://www.github.com/googleapis/python-aiplatform/issues/804)) ([514031f](https://www.github.com/googleapis/python-aiplatform/commit/514031fce90b6e4606279d4903dc93b0f18b9f2a))
+* Widen system test timeout, handle tearing down failed training pipelines ([#791](https://www.github.com/googleapis/python-aiplatform/issues/791)) ([78879e2](https://www.github.com/googleapis/python-aiplatform/commit/78879e2482cac7ef5520f1d7fe900768147b948e))
+
+
+### Miscellaneous Chores
+
+* release 1.6.2 ([#809](https://www.github.com/googleapis/python-aiplatform/issues/809)) ([e50b049](https://www.github.com/googleapis/python-aiplatform/commit/e50b0497574411a9c7462d76dca489281ee48d83))
+
+### [1.6.1](https://www.github.com/googleapis/python-aiplatform/compare/v1.6.0...v1.6.1) (2021-10-25)
+
+
+### Features
+
+* Add debugging terminal support for CustomJob, HyperparameterTun… ([#699](https://www.github.com/googleapis/python-aiplatform/issues/699)) ([2deb505](https://www.github.com/googleapis/python-aiplatform/commit/2deb50502ae2bb8ba3f97d69b06b72b7625639a4))
+* add support for python 3.10 ([#769](https://www.github.com/googleapis/python-aiplatform/issues/769)) ([8344804](https://www.github.com/googleapis/python-aiplatform/commit/83448044508f5feb052ae7fc5a5a7ca917cee0d1))
+* Add training_utils folder and environment_variables for training ([141c008](https://www.github.com/googleapis/python-aiplatform/commit/141c008759aefe56a41e1eac654739c509d9754d))
+* enable reduction server ([#741](https://www.github.com/googleapis/python-aiplatform/issues/741)) ([8ef0ded](https://www.github.com/googleapis/python-aiplatform/commit/8ef0ded034db797adb4d458eba43537992d822bd))
+* enabling AutoML Forecasting training response to include BigQuery location of exported evaluated examples  ([#657](https://www.github.com/googleapis/python-aiplatform/issues/657)) ([c1c2326](https://www.github.com/googleapis/python-aiplatform/commit/c1c2326b2342ab1b6f4c4ce3852e63376eae740d))
+* **PipelineJob:** allow PipelineSpec as param ([#774](https://www.github.com/googleapis/python-aiplatform/issues/774)) ([f90a1bd](https://www.github.com/googleapis/python-aiplatform/commit/f90a1bd775daa0892e16fd82fc1738fa9a912ec7))
+* pre batch creating TensorboardRuns and TensorboardTimeSeries in one_shot mode to speed up uploading ([#772](https://www.github.com/googleapis/python-aiplatform/issues/772)) ([c9f68c6](https://www.github.com/googleapis/python-aiplatform/commit/c9f68c6e840ba3cda04080623dfbcba6945d53e8))
+
+
+### Bug Fixes
+
+* cast resource labels to dict type ([#783](https://www.github.com/googleapis/python-aiplatform/issues/783)) ([255edc9](https://www.github.com/googleapis/python-aiplatform/commit/255edc92dc897619ddd705463aefb8a1723ae8cd))
+* Remove sync parameter from create_endpoint_sample ([#695](https://www.github.com/googleapis/python-aiplatform/issues/695)) ([0477f5a](https://www.github.com/googleapis/python-aiplatform/commit/0477f5a10ba1048e64c11fc3d7e1e375b19a10fe))
+
+
+### Miscellaneous Chores
+
+* release 1.6.1 ([#789](https://www.github.com/googleapis/python-aiplatform/issues/789)) ([4520d35](https://www.github.com/googleapis/python-aiplatform/commit/4520d350beb756549304de60d62ff637bb1807c5))
+
+## [1.6.0](https://www.github.com/googleapis/python-aiplatform/compare/v1.5.0...v1.6.0) (2021-10-12)
+
+
+### Features
+
+* add featurestore service to aiplatform v1  ([#765](https://www.github.com/googleapis/python-aiplatform/issues/765)) ([68c88e4](https://www.github.com/googleapis/python-aiplatform/commit/68c88e48f62d5c2ff561862ba810a48389f7e41a))
+* Add one shot profile uploads to tensorboard uploader. ([#704](https://www.github.com/googleapis/python-aiplatform/issues/704)) ([a83f253](https://www.github.com/googleapis/python-aiplatform/commit/a83f2535b31e2aaff0306c7290265b864b9ddb40))
+* Added column_specs, training_encryption_spec_key_name, model_encryption_spec_key_name to AutoMLForecastingTrainingJob.init and various split methods to AutoMLForecastingTrainingJob.run ([#647](https://www.github.com/googleapis/python-aiplatform/issues/647)) ([7cb6976](https://www.github.com/googleapis/python-aiplatform/commit/7cb69764e0f9be9ca0fcb1641f4dc90e3b306bed))
+* Lazy load Endpoint class ([#655](https://www.github.com/googleapis/python-aiplatform/issues/655)) ([c795c6f](https://www.github.com/googleapis/python-aiplatform/commit/c795c6fbb87c4f71845cfbd2647c1adbc029bcef))
+
 ## [1.5.0](https://www.github.com/googleapis/python-aiplatform/compare/v1.4.3...v1.5.0) (2021-09-30)
 
 

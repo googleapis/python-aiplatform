@@ -16,8 +16,8 @@
 import warnings
 from typing import Callable, Dict, Optional, Sequence, Tuple, Union
 
-from google.api_core import grpc_helpers  # type: ignore
-from google.api_core import gapic_v1  # type: ignore
+from google.api_core import grpc_helpers
+from google.api_core import gapic_v1
 import google.auth  # type: ignore
 from google.auth import credentials as ga_credentials  # type: ignore
 from google.auth.transport.grpc import SslCredentials  # type: ignore
@@ -291,6 +291,9 @@ class FeaturestoreOnlineServingServiceGrpcTransport(
                 response_deserializer=featurestore_online_service.ReadFeatureValuesResponse.deserialize,
             )
         return self._stubs["streaming_read_feature_values"]
+
+    def close(self):
+        self.grpc_channel.close()
 
 
 __all__ = ("FeaturestoreOnlineServingServiceGrpcTransport",)

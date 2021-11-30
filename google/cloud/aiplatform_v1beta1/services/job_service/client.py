@@ -14,21 +14,25 @@
 # limitations under the License.
 #
 from collections import OrderedDict
-from distutils import util
 import os
 import re
 from typing import Dict, Optional, Sequence, Tuple, Type, Union
 import pkg_resources
 
-from google.api_core import client_options as client_options_lib  # type: ignore
-from google.api_core import exceptions as core_exceptions  # type: ignore
-from google.api_core import gapic_v1  # type: ignore
-from google.api_core import retry as retries  # type: ignore
+from google.api_core import client_options as client_options_lib
+from google.api_core import exceptions as core_exceptions
+from google.api_core import gapic_v1
+from google.api_core import retry as retries
 from google.auth import credentials as ga_credentials  # type: ignore
 from google.auth.transport import mtls  # type: ignore
 from google.auth.transport.grpc import SslCredentials  # type: ignore
 from google.auth.exceptions import MutualTLSChannelError  # type: ignore
 from google.oauth2 import service_account  # type: ignore
+
+try:
+    OptionalRetry = Union[retries.Retry, gapic_v1.method._MethodDefault]
+except AttributeError:  # pragma: NO COVER
+    OptionalRetry = Union[retries.Retry, object]  # type: ignore
 
 from google.api_core import operation as gac_operation  # type: ignore
 from google.api_core import operation_async  # type: ignore
@@ -489,8 +493,15 @@ class JobServiceClient(metaclass=JobServiceClientMeta):
             client_options = client_options_lib.ClientOptions()
 
         # Create SSL credentials for mutual TLS if needed.
-        use_client_cert = bool(
-            util.strtobool(os.getenv("GOOGLE_API_USE_CLIENT_CERTIFICATE", "false"))
+        if os.getenv("GOOGLE_API_USE_CLIENT_CERTIFICATE", "false") not in (
+            "true",
+            "false",
+        ):
+            raise ValueError(
+                "Environment variable `GOOGLE_API_USE_CLIENT_CERTIFICATE` must be either `true` or `false`"
+            )
+        use_client_cert = (
+            os.getenv("GOOGLE_API_USE_CLIENT_CERTIFICATE", "false") == "true"
         )
 
         client_cert_source_func = None
@@ -552,10 +563,7 @@ class JobServiceClient(metaclass=JobServiceClientMeta):
                 client_cert_source_for_mtls=client_cert_source_func,
                 quota_project_id=client_options.quota_project_id,
                 client_info=client_info,
-                always_use_jwt_access=(
-                    Transport == type(self).get_transport_class("grpc")
-                    or Transport == type(self).get_transport_class("grpc_asyncio")
-                ),
+                always_use_jwt_access=True,
             )
 
     def create_custom_job(
@@ -564,7 +572,7 @@ class JobServiceClient(metaclass=JobServiceClientMeta):
         *,
         parent: str = None,
         custom_job: gca_custom_job.CustomJob = None,
-        retry: retries.Retry = gapic_v1.method.DEFAULT,
+        retry: OptionalRetry = gapic_v1.method.DEFAULT,
         timeout: float = None,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> gca_custom_job.CustomJob:
@@ -650,7 +658,7 @@ class JobServiceClient(metaclass=JobServiceClientMeta):
         request: Union[job_service.GetCustomJobRequest, dict] = None,
         *,
         name: str = None,
-        retry: retries.Retry = gapic_v1.method.DEFAULT,
+        retry: OptionalRetry = gapic_v1.method.DEFAULT,
         timeout: float = None,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> custom_job.CustomJob:
@@ -727,7 +735,7 @@ class JobServiceClient(metaclass=JobServiceClientMeta):
         request: Union[job_service.ListCustomJobsRequest, dict] = None,
         *,
         parent: str = None,
-        retry: retries.Retry = gapic_v1.method.DEFAULT,
+        retry: OptionalRetry = gapic_v1.method.DEFAULT,
         timeout: float = None,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> pagers.ListCustomJobsPager:
@@ -808,7 +816,7 @@ class JobServiceClient(metaclass=JobServiceClientMeta):
         request: Union[job_service.DeleteCustomJobRequest, dict] = None,
         *,
         name: str = None,
-        retry: retries.Retry = gapic_v1.method.DEFAULT,
+        retry: OptionalRetry = gapic_v1.method.DEFAULT,
         timeout: float = None,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> gac_operation.Operation:
@@ -901,7 +909,7 @@ class JobServiceClient(metaclass=JobServiceClientMeta):
         request: Union[job_service.CancelCustomJobRequest, dict] = None,
         *,
         name: str = None,
-        retry: retries.Retry = gapic_v1.method.DEFAULT,
+        retry: OptionalRetry = gapic_v1.method.DEFAULT,
         timeout: float = None,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> None:
@@ -978,7 +986,7 @@ class JobServiceClient(metaclass=JobServiceClientMeta):
         *,
         parent: str = None,
         data_labeling_job: gca_data_labeling_job.DataLabelingJob = None,
-        retry: retries.Retry = gapic_v1.method.DEFAULT,
+        retry: OptionalRetry = gapic_v1.method.DEFAULT,
         timeout: float = None,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> gca_data_labeling_job.DataLabelingJob:
@@ -1059,7 +1067,7 @@ class JobServiceClient(metaclass=JobServiceClientMeta):
         request: Union[job_service.GetDataLabelingJobRequest, dict] = None,
         *,
         name: str = None,
-        retry: retries.Retry = gapic_v1.method.DEFAULT,
+        retry: OptionalRetry = gapic_v1.method.DEFAULT,
         timeout: float = None,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> data_labeling_job.DataLabelingJob:
@@ -1131,7 +1139,7 @@ class JobServiceClient(metaclass=JobServiceClientMeta):
         request: Union[job_service.ListDataLabelingJobsRequest, dict] = None,
         *,
         parent: str = None,
-        retry: retries.Retry = gapic_v1.method.DEFAULT,
+        retry: OptionalRetry = gapic_v1.method.DEFAULT,
         timeout: float = None,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> pagers.ListDataLabelingJobsPager:
@@ -1211,7 +1219,7 @@ class JobServiceClient(metaclass=JobServiceClientMeta):
         request: Union[job_service.DeleteDataLabelingJobRequest, dict] = None,
         *,
         name: str = None,
-        retry: retries.Retry = gapic_v1.method.DEFAULT,
+        retry: OptionalRetry = gapic_v1.method.DEFAULT,
         timeout: float = None,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> gac_operation.Operation:
@@ -1304,7 +1312,7 @@ class JobServiceClient(metaclass=JobServiceClientMeta):
         request: Union[job_service.CancelDataLabelingJobRequest, dict] = None,
         *,
         name: str = None,
-        retry: retries.Retry = gapic_v1.method.DEFAULT,
+        retry: OptionalRetry = gapic_v1.method.DEFAULT,
         timeout: float = None,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> None:
@@ -1370,7 +1378,7 @@ class JobServiceClient(metaclass=JobServiceClientMeta):
         *,
         parent: str = None,
         hyperparameter_tuning_job: gca_hyperparameter_tuning_job.HyperparameterTuningJob = None,
-        retry: retries.Retry = gapic_v1.method.DEFAULT,
+        retry: OptionalRetry = gapic_v1.method.DEFAULT,
         timeout: float = None,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> gca_hyperparameter_tuning_job.HyperparameterTuningJob:
@@ -1455,7 +1463,7 @@ class JobServiceClient(metaclass=JobServiceClientMeta):
         request: Union[job_service.GetHyperparameterTuningJobRequest, dict] = None,
         *,
         name: str = None,
-        retry: retries.Retry = gapic_v1.method.DEFAULT,
+        retry: OptionalRetry = gapic_v1.method.DEFAULT,
         timeout: float = None,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> hyperparameter_tuning_job.HyperparameterTuningJob:
@@ -1531,7 +1539,7 @@ class JobServiceClient(metaclass=JobServiceClientMeta):
         request: Union[job_service.ListHyperparameterTuningJobsRequest, dict] = None,
         *,
         parent: str = None,
-        retry: retries.Retry = gapic_v1.method.DEFAULT,
+        retry: OptionalRetry = gapic_v1.method.DEFAULT,
         timeout: float = None,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> pagers.ListHyperparameterTuningJobsPager:
@@ -1614,7 +1622,7 @@ class JobServiceClient(metaclass=JobServiceClientMeta):
         request: Union[job_service.DeleteHyperparameterTuningJobRequest, dict] = None,
         *,
         name: str = None,
-        retry: retries.Retry = gapic_v1.method.DEFAULT,
+        retry: OptionalRetry = gapic_v1.method.DEFAULT,
         timeout: float = None,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> gac_operation.Operation:
@@ -1709,7 +1717,7 @@ class JobServiceClient(metaclass=JobServiceClientMeta):
         request: Union[job_service.CancelHyperparameterTuningJobRequest, dict] = None,
         *,
         name: str = None,
-        retry: retries.Retry = gapic_v1.method.DEFAULT,
+        retry: OptionalRetry = gapic_v1.method.DEFAULT,
         timeout: float = None,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> None:
@@ -1790,7 +1798,7 @@ class JobServiceClient(metaclass=JobServiceClientMeta):
         *,
         parent: str = None,
         batch_prediction_job: gca_batch_prediction_job.BatchPredictionJob = None,
-        retry: retries.Retry = gapic_v1.method.DEFAULT,
+        retry: OptionalRetry = gapic_v1.method.DEFAULT,
         timeout: float = None,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> gca_batch_prediction_job.BatchPredictionJob:
@@ -1878,7 +1886,7 @@ class JobServiceClient(metaclass=JobServiceClientMeta):
         request: Union[job_service.GetBatchPredictionJobRequest, dict] = None,
         *,
         name: str = None,
-        retry: retries.Retry = gapic_v1.method.DEFAULT,
+        retry: OptionalRetry = gapic_v1.method.DEFAULT,
         timeout: float = None,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> batch_prediction_job.BatchPredictionJob:
@@ -1954,7 +1962,7 @@ class JobServiceClient(metaclass=JobServiceClientMeta):
         request: Union[job_service.ListBatchPredictionJobsRequest, dict] = None,
         *,
         parent: str = None,
-        retry: retries.Retry = gapic_v1.method.DEFAULT,
+        retry: OptionalRetry = gapic_v1.method.DEFAULT,
         timeout: float = None,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> pagers.ListBatchPredictionJobsPager:
@@ -2037,7 +2045,7 @@ class JobServiceClient(metaclass=JobServiceClientMeta):
         request: Union[job_service.DeleteBatchPredictionJobRequest, dict] = None,
         *,
         name: str = None,
-        retry: retries.Retry = gapic_v1.method.DEFAULT,
+        retry: OptionalRetry = gapic_v1.method.DEFAULT,
         timeout: float = None,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> gac_operation.Operation:
@@ -2133,7 +2141,7 @@ class JobServiceClient(metaclass=JobServiceClientMeta):
         request: Union[job_service.CancelBatchPredictionJobRequest, dict] = None,
         *,
         name: str = None,
-        retry: retries.Retry = gapic_v1.method.DEFAULT,
+        retry: OptionalRetry = gapic_v1.method.DEFAULT,
         timeout: float = None,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> None:
@@ -2214,7 +2222,7 @@ class JobServiceClient(metaclass=JobServiceClientMeta):
         *,
         parent: str = None,
         model_deployment_monitoring_job: gca_model_deployment_monitoring_job.ModelDeploymentMonitoringJob = None,
-        retry: retries.Retry = gapic_v1.method.DEFAULT,
+        retry: OptionalRetry = gapic_v1.method.DEFAULT,
         timeout: float = None,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> gca_model_deployment_monitoring_job.ModelDeploymentMonitoringJob:
@@ -2308,7 +2316,7 @@ class JobServiceClient(metaclass=JobServiceClientMeta):
         *,
         model_deployment_monitoring_job: str = None,
         deployed_model_id: str = None,
-        retry: retries.Retry = gapic_v1.method.DEFAULT,
+        retry: OptionalRetry = gapic_v1.method.DEFAULT,
         timeout: float = None,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> pagers.SearchModelDeploymentMonitoringStatsAnomaliesPager:
@@ -2414,7 +2422,7 @@ class JobServiceClient(metaclass=JobServiceClientMeta):
         request: Union[job_service.GetModelDeploymentMonitoringJobRequest, dict] = None,
         *,
         name: str = None,
-        retry: retries.Retry = gapic_v1.method.DEFAULT,
+        retry: OptionalRetry = gapic_v1.method.DEFAULT,
         timeout: float = None,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> model_deployment_monitoring_job.ModelDeploymentMonitoringJob:
@@ -2493,7 +2501,7 @@ class JobServiceClient(metaclass=JobServiceClientMeta):
         ] = None,
         *,
         parent: str = None,
-        retry: retries.Retry = gapic_v1.method.DEFAULT,
+        retry: OptionalRetry = gapic_v1.method.DEFAULT,
         timeout: float = None,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> pagers.ListModelDeploymentMonitoringJobsPager:
@@ -2581,7 +2589,7 @@ class JobServiceClient(metaclass=JobServiceClientMeta):
         *,
         model_deployment_monitoring_job: gca_model_deployment_monitoring_job.ModelDeploymentMonitoringJob = None,
         update_mask: field_mask_pb2.FieldMask = None,
-        retry: retries.Retry = gapic_v1.method.DEFAULT,
+        retry: OptionalRetry = gapic_v1.method.DEFAULT,
         timeout: float = None,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> gac_operation.Operation:
@@ -2600,8 +2608,34 @@ class JobServiceClient(metaclass=JobServiceClientMeta):
                 on the ``request`` instance; if ``request`` is provided, this
                 should not be set.
             update_mask (google.protobuf.field_mask_pb2.FieldMask):
-                Required. The update mask applies to
-                the resource.
+                Required. The update mask is used to specify the fields
+                to be overwritten in the ModelDeploymentMonitoringJob
+                resource by the update. The fields specified in the
+                update_mask are relative to the resource, not the full
+                request. A field will be overwritten if it is in the
+                mask. If the user does not provide a mask then only the
+                non-empty fields present in the request will be
+                overwritten. Set the update_mask to ``*`` to override
+                all fields. For the objective config, the user can
+                either provide the update mask for
+                model_deployment_monitoring_objective_configs or any
+                combination of its nested fields, such as:
+                model_deployment_monitoring_objective_configs.objective_config.training_dataset.
+
+                Updatable fields:
+
+                -  ``display_name``
+                -  ``model_deployment_monitoring_schedule_config``
+                -  ``model_monitoring_alert_config``
+                -  ``logging_sampling_strategy``
+                -  ``labels``
+                -  ``log_ttl``
+                -  ``enable_monitoring_pipeline_logs`` . and
+                -  ``model_deployment_monitoring_objective_configs`` .
+                   or
+                -  ``model_deployment_monitoring_objective_configs.objective_config.training_dataset``
+                -  ``model_deployment_monitoring_objective_configs.objective_config.training_prediction_skew_detection_config``
+                -  ``model_deployment_monitoring_objective_configs.objective_config.prediction_drift_detection_config``
 
                 This corresponds to the ``update_mask`` field
                 on the ``request`` instance; if ``request`` is provided, this
@@ -2688,7 +2722,7 @@ class JobServiceClient(metaclass=JobServiceClientMeta):
         ] = None,
         *,
         name: str = None,
-        retry: retries.Retry = gapic_v1.method.DEFAULT,
+        retry: OptionalRetry = gapic_v1.method.DEFAULT,
         timeout: float = None,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> gac_operation.Operation:
@@ -2787,7 +2821,7 @@ class JobServiceClient(metaclass=JobServiceClientMeta):
         ] = None,
         *,
         name: str = None,
-        retry: retries.Retry = gapic_v1.method.DEFAULT,
+        retry: OptionalRetry = gapic_v1.method.DEFAULT,
         timeout: float = None,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> None:
@@ -2861,7 +2895,7 @@ class JobServiceClient(metaclass=JobServiceClientMeta):
         ] = None,
         *,
         name: str = None,
-        retry: retries.Retry = gapic_v1.method.DEFAULT,
+        retry: OptionalRetry = gapic_v1.method.DEFAULT,
         timeout: float = None,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> None:
@@ -2926,6 +2960,19 @@ class JobServiceClient(metaclass=JobServiceClientMeta):
         rpc(
             request, retry=retry, timeout=timeout, metadata=metadata,
         )
+
+    def __enter__(self):
+        return self
+
+    def __exit__(self, type, value, traceback):
+        """Releases underlying transport's resources.
+
+        .. warning::
+            ONLY use as a context manager if the transport is NOT shared
+            with other clients! Exiting the with block will CLOSE the transport
+            and may cause errors in other clients!
+        """
+        self.transport.close()
 
 
 try:

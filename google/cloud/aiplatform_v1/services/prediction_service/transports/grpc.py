@@ -16,8 +16,8 @@
 import warnings
 from typing import Callable, Dict, Optional, Sequence, Tuple, Union
 
-from google.api_core import grpc_helpers  # type: ignore
-from google.api_core import gapic_v1  # type: ignore
+from google.api_core import grpc_helpers
+from google.api_core import gapic_v1
 import google.auth  # type: ignore
 from google.auth import credentials as ga_credentials  # type: ignore
 from google.auth.transport.grpc import SslCredentials  # type: ignore
@@ -260,8 +260,17 @@ class PredictionServiceGrpcTransport(PredictionServiceTransport):
     ) -> Callable[[prediction_service.RawPredictRequest], httpbody_pb2.HttpBody]:
         r"""Return a callable for the raw predict method over gRPC.
 
-        Perform an online prediction with arbitrary http
-        payload.
+        Perform an online prediction with an arbitrary HTTP payload.
+
+        The response includes the following HTTP headers:
+
+        -  ``X-Vertex-AI-Endpoint-Id``: ID of the
+           [Endpoint][google.cloud.aiplatform.v1.Endpoint] that served
+           this prediction.
+
+        -  ``X-Vertex-AI-Deployed-Model-Id``: ID of the Endpoint's
+           [DeployedModel][google.cloud.aiplatform.v1.DeployedModel]
+           that served this prediction.
 
         Returns:
             Callable[[~.RawPredictRequest],
@@ -319,6 +328,9 @@ class PredictionServiceGrpcTransport(PredictionServiceTransport):
                 response_deserializer=prediction_service.ExplainResponse.deserialize,
             )
         return self._stubs["explain"]
+
+    def close(self):
+        self.grpc_channel.close()
 
 
 __all__ = ("PredictionServiceGrpcTransport",)

@@ -3,6 +3,7 @@ import pytest
 from unittest import mock
 
 from google.cloud import aiplatform
+from google.cloud.aiplatform import base
 from google.cloud.aiplatform import datasets
 from google.cloud.aiplatform import initializer
 from google.cloud.aiplatform import schema
@@ -19,6 +20,7 @@ from google.cloud.aiplatform_v1.types import (
     model as gca_model,
     pipeline_state as gca_pipeline_state,
     training_pipeline as gca_training_pipeline,
+    encryption_spec as gca_encryption_spec,
 )
 from google.protobuf import json_format
 from google.protobuf import struct_pb2
@@ -115,6 +117,18 @@ _TEST_PIPELINE_RESOURCE_NAME = (
     "projects/my-project/locations/us-central1/trainingPipelines/12345"
 )
 
+# CMEK encryption
+_TEST_DEFAULT_ENCRYPTION_KEY_NAME = "key_default"
+_TEST_DEFAULT_ENCRYPTION_SPEC = gca_encryption_spec.EncryptionSpec(
+    kms_key_name=_TEST_DEFAULT_ENCRYPTION_KEY_NAME
+)
+
+_TEST_FRACTION_SPLIT_TRAINING = 0.6
+_TEST_FRACTION_SPLIT_VALIDATION = 0.2
+_TEST_FRACTION_SPLIT_TEST = 0.2
+
+_TEST_SPLIT_PREDEFINED_COLUMN_NAME = "split"
+
 
 @pytest.fixture
 def mock_pipeline_service_create():
@@ -138,6 +152,9 @@ def mock_pipeline_service_get():
             name=_TEST_PIPELINE_RESOURCE_NAME,
             state=gca_pipeline_state.PipelineState.PIPELINE_STATE_SUCCEEDED,
             model_to_upload=gca_model.Model(name=_TEST_MODEL_NAME),
+            training_task_metadata={
+                "evaluatedDataItemsBigqueryUri": _TEST_TRAINING_EXPORT_EVALUATED_DATA_ITEMS_BIGQUERY_DESTINATION_URI
+            },
         )
         yield mock_get_training_pipeline
 
@@ -285,7 +302,9 @@ class TestAutoMLForecastingTrainingJob:
 
         assert job._gca_resource is mock_pipeline_service_get.return_value
 
-        mock_model_service_get.assert_called_once_with(name=_TEST_MODEL_NAME)
+        mock_model_service_get.assert_called_once_with(
+            name=_TEST_MODEL_NAME, retry=base._DEFAULT_RETRY
+        )
 
         assert model_from_job._gca_resource is mock_model_service_get.return_value
 
@@ -615,3 +634,240 @@ class TestAutoMLForecastingTrainingJob:
 
         with pytest.raises(RuntimeError):
             job.state
+
+    @pytest.mark.parametrize("sync", [True, False])
+    def test_splits_fraction(
+        self,
+        mock_pipeline_service_create,
+        mock_pipeline_service_get,
+        mock_dataset_time_series,
+        mock_model_service_get,
+        sync,
+    ):
+        """
+        Initiate aiplatform with encryption key name.
+        Create and run an AutoML Video Classification training job, verify calls and return value
+        """
+
+        aiplatform.init(
+            project=_TEST_PROJECT,
+            encryption_spec_key_name=_TEST_DEFAULT_ENCRYPTION_KEY_NAME,
+        )
+
+        job = AutoMLForecastingTrainingJob(
+            display_name=_TEST_DISPLAY_NAME,
+            optimization_objective=_TEST_TRAINING_OPTIMIZATION_OBJECTIVE_NAME,
+            column_transformations=_TEST_TRAINING_COLUMN_TRANSFORMATIONS,
+        )
+
+        model_from_job = job.run(
+            dataset=mock_dataset_time_series,
+            training_fraction_split=_TEST_FRACTION_SPLIT_TRAINING,
+            validation_fraction_split=_TEST_FRACTION_SPLIT_VALIDATION,
+            test_fraction_split=_TEST_FRACTION_SPLIT_TEST,
+            target_column=_TEST_TRAINING_TARGET_COLUMN,
+            time_column=_TEST_TRAINING_TIME_COLUMN,
+            time_series_identifier_column=_TEST_TRAINING_TIME_SERIES_IDENTIFIER_COLUMN,
+            unavailable_at_forecast_columns=_TEST_TRAINING_UNAVAILABLE_AT_FORECAST_COLUMNS,
+            available_at_forecast_columns=_TEST_TRAINING_AVAILABLE_AT_FORECAST_COLUMNS,
+            forecast_horizon=_TEST_TRAINING_FORECAST_HORIZON,
+            data_granularity_unit=_TEST_TRAINING_DATA_GRANULARITY_UNIT,
+            data_granularity_count=_TEST_TRAINING_DATA_GRANULARITY_COUNT,
+            model_display_name=_TEST_MODEL_DISPLAY_NAME,
+            weight_column=_TEST_TRAINING_WEIGHT_COLUMN,
+            time_series_attribute_columns=_TEST_TRAINING_TIME_SERIES_ATTRIBUTE_COLUMNS,
+            context_window=_TEST_TRAINING_CONTEXT_WINDOW,
+            budget_milli_node_hours=_TEST_TRAINING_BUDGET_MILLI_NODE_HOURS,
+            export_evaluated_data_items=_TEST_TRAINING_EXPORT_EVALUATED_DATA_ITEMS,
+            export_evaluated_data_items_bigquery_destination_uri=_TEST_TRAINING_EXPORT_EVALUATED_DATA_ITEMS_BIGQUERY_DESTINATION_URI,
+            export_evaluated_data_items_override_destination=_TEST_TRAINING_EXPORT_EVALUATED_DATA_ITEMS_OVERRIDE_DESTINATION,
+            quantiles=_TEST_TRAINING_QUANTILES,
+            validation_options=_TEST_TRAINING_VALIDATION_OPTIONS,
+            sync=sync,
+        )
+
+        if not sync:
+            model_from_job.wait()
+
+        true_fraction_split = gca_training_pipeline.FractionSplit(
+            training_fraction=_TEST_FRACTION_SPLIT_TRAINING,
+            validation_fraction=_TEST_FRACTION_SPLIT_VALIDATION,
+            test_fraction=_TEST_FRACTION_SPLIT_TEST,
+        )
+
+        true_managed_model = gca_model.Model(
+            display_name=_TEST_MODEL_DISPLAY_NAME,
+            encryption_spec=_TEST_DEFAULT_ENCRYPTION_SPEC,
+        )
+
+        true_input_data_config = gca_training_pipeline.InputDataConfig(
+            fraction_split=true_fraction_split,
+            dataset_id=mock_dataset_time_series.name,
+        )
+
+        true_training_pipeline = gca_training_pipeline.TrainingPipeline(
+            display_name=_TEST_DISPLAY_NAME,
+            training_task_definition=schema.training_job.definition.automl_forecasting,
+            training_task_inputs=_TEST_TRAINING_TASK_INPUTS,
+            model_to_upload=true_managed_model,
+            input_data_config=true_input_data_config,
+            encryption_spec=_TEST_DEFAULT_ENCRYPTION_SPEC,
+        )
+
+        mock_pipeline_service_create.assert_called_once_with(
+            parent=initializer.global_config.common_location_path(),
+            training_pipeline=true_training_pipeline,
+        )
+
+    @pytest.mark.parametrize("sync", [True, False])
+    def test_splits_predefined(
+        self,
+        mock_pipeline_service_create,
+        mock_pipeline_service_get,
+        mock_dataset_time_series,
+        mock_model_service_get,
+        sync,
+    ):
+        """
+        Initiate aiplatform with encryption key name.
+        Create and run an AutoML Video Classification training job, verify calls and return value
+        """
+
+        aiplatform.init(
+            project=_TEST_PROJECT,
+            encryption_spec_key_name=_TEST_DEFAULT_ENCRYPTION_KEY_NAME,
+        )
+
+        job = AutoMLForecastingTrainingJob(
+            display_name=_TEST_DISPLAY_NAME,
+            optimization_objective=_TEST_TRAINING_OPTIMIZATION_OBJECTIVE_NAME,
+            column_transformations=_TEST_TRAINING_COLUMN_TRANSFORMATIONS,
+        )
+
+        model_from_job = job.run(
+            dataset=mock_dataset_time_series,
+            predefined_split_column_name=_TEST_PREDEFINED_SPLIT_COLUMN_NAME,
+            target_column=_TEST_TRAINING_TARGET_COLUMN,
+            time_column=_TEST_TRAINING_TIME_COLUMN,
+            time_series_identifier_column=_TEST_TRAINING_TIME_SERIES_IDENTIFIER_COLUMN,
+            unavailable_at_forecast_columns=_TEST_TRAINING_UNAVAILABLE_AT_FORECAST_COLUMNS,
+            available_at_forecast_columns=_TEST_TRAINING_AVAILABLE_AT_FORECAST_COLUMNS,
+            forecast_horizon=_TEST_TRAINING_FORECAST_HORIZON,
+            data_granularity_unit=_TEST_TRAINING_DATA_GRANULARITY_UNIT,
+            data_granularity_count=_TEST_TRAINING_DATA_GRANULARITY_COUNT,
+            model_display_name=_TEST_MODEL_DISPLAY_NAME,
+            weight_column=_TEST_TRAINING_WEIGHT_COLUMN,
+            time_series_attribute_columns=_TEST_TRAINING_TIME_SERIES_ATTRIBUTE_COLUMNS,
+            context_window=_TEST_TRAINING_CONTEXT_WINDOW,
+            budget_milli_node_hours=_TEST_TRAINING_BUDGET_MILLI_NODE_HOURS,
+            export_evaluated_data_items=_TEST_TRAINING_EXPORT_EVALUATED_DATA_ITEMS,
+            export_evaluated_data_items_bigquery_destination_uri=_TEST_TRAINING_EXPORT_EVALUATED_DATA_ITEMS_BIGQUERY_DESTINATION_URI,
+            export_evaluated_data_items_override_destination=_TEST_TRAINING_EXPORT_EVALUATED_DATA_ITEMS_OVERRIDE_DESTINATION,
+            quantiles=_TEST_TRAINING_QUANTILES,
+            validation_options=_TEST_TRAINING_VALIDATION_OPTIONS,
+            sync=sync,
+        )
+
+        if not sync:
+            model_from_job.wait()
+
+        true_split = gca_training_pipeline.PredefinedSplit(
+            key=_TEST_SPLIT_PREDEFINED_COLUMN_NAME
+        )
+
+        true_managed_model = gca_model.Model(
+            display_name=_TEST_MODEL_DISPLAY_NAME,
+            encryption_spec=_TEST_DEFAULT_ENCRYPTION_SPEC,
+        )
+
+        true_input_data_config = gca_training_pipeline.InputDataConfig(
+            predefined_split=true_split, dataset_id=mock_dataset_time_series.name,
+        )
+
+        true_training_pipeline = gca_training_pipeline.TrainingPipeline(
+            display_name=_TEST_DISPLAY_NAME,
+            training_task_definition=schema.training_job.definition.automl_forecasting,
+            training_task_inputs=_TEST_TRAINING_TASK_INPUTS,
+            model_to_upload=true_managed_model,
+            input_data_config=true_input_data_config,
+            encryption_spec=_TEST_DEFAULT_ENCRYPTION_SPEC,
+        )
+
+        mock_pipeline_service_create.assert_called_once_with(
+            parent=initializer.global_config.common_location_path(),
+            training_pipeline=true_training_pipeline,
+        )
+
+    @pytest.mark.parametrize("sync", [True, False])
+    def test_splits_default(
+        self,
+        mock_pipeline_service_create,
+        mock_pipeline_service_get,
+        mock_dataset_time_series,
+        mock_model_service_get,
+        sync,
+    ):
+        """
+        Initiate aiplatform with encryption key name.
+        Create and run an AutoML Video Classification training job, verify calls and return value
+        """
+
+        aiplatform.init(
+            project=_TEST_PROJECT,
+            encryption_spec_key_name=_TEST_DEFAULT_ENCRYPTION_KEY_NAME,
+        )
+
+        job = AutoMLForecastingTrainingJob(
+            display_name=_TEST_DISPLAY_NAME,
+            optimization_objective=_TEST_TRAINING_OPTIMIZATION_OBJECTIVE_NAME,
+            column_transformations=_TEST_TRAINING_COLUMN_TRANSFORMATIONS,
+        )
+
+        model_from_job = job.run(
+            dataset=mock_dataset_time_series,
+            target_column=_TEST_TRAINING_TARGET_COLUMN,
+            time_column=_TEST_TRAINING_TIME_COLUMN,
+            time_series_identifier_column=_TEST_TRAINING_TIME_SERIES_IDENTIFIER_COLUMN,
+            unavailable_at_forecast_columns=_TEST_TRAINING_UNAVAILABLE_AT_FORECAST_COLUMNS,
+            available_at_forecast_columns=_TEST_TRAINING_AVAILABLE_AT_FORECAST_COLUMNS,
+            forecast_horizon=_TEST_TRAINING_FORECAST_HORIZON,
+            data_granularity_unit=_TEST_TRAINING_DATA_GRANULARITY_UNIT,
+            data_granularity_count=_TEST_TRAINING_DATA_GRANULARITY_COUNT,
+            model_display_name=_TEST_MODEL_DISPLAY_NAME,
+            weight_column=_TEST_TRAINING_WEIGHT_COLUMN,
+            time_series_attribute_columns=_TEST_TRAINING_TIME_SERIES_ATTRIBUTE_COLUMNS,
+            context_window=_TEST_TRAINING_CONTEXT_WINDOW,
+            budget_milli_node_hours=_TEST_TRAINING_BUDGET_MILLI_NODE_HOURS,
+            export_evaluated_data_items=_TEST_TRAINING_EXPORT_EVALUATED_DATA_ITEMS,
+            export_evaluated_data_items_bigquery_destination_uri=_TEST_TRAINING_EXPORT_EVALUATED_DATA_ITEMS_BIGQUERY_DESTINATION_URI,
+            export_evaluated_data_items_override_destination=_TEST_TRAINING_EXPORT_EVALUATED_DATA_ITEMS_OVERRIDE_DESTINATION,
+            quantiles=_TEST_TRAINING_QUANTILES,
+            validation_options=_TEST_TRAINING_VALIDATION_OPTIONS,
+            sync=sync,
+        )
+
+        if not sync:
+            model_from_job.wait()
+
+        true_managed_model = gca_model.Model(
+            display_name=_TEST_MODEL_DISPLAY_NAME,
+            encryption_spec=_TEST_DEFAULT_ENCRYPTION_SPEC,
+        )
+
+        true_input_data_config = gca_training_pipeline.InputDataConfig(
+            dataset_id=mock_dataset_time_series.name,
+        )
+
+        true_training_pipeline = gca_training_pipeline.TrainingPipeline(
+            display_name=_TEST_DISPLAY_NAME,
+            training_task_definition=schema.training_job.definition.automl_forecasting,
+            training_task_inputs=_TEST_TRAINING_TASK_INPUTS,
+            model_to_upload=true_managed_model,
+            input_data_config=true_input_data_config,
+            encryption_spec=_TEST_DEFAULT_ENCRYPTION_SPEC,
+        )
+
+        mock_pipeline_service_create.assert_called_once_with(
+            parent=initializer.global_config.common_location_path(),
+            training_pipeline=true_training_pipeline,
+        )

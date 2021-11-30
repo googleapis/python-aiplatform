@@ -130,20 +130,35 @@ class MigrateResourceRequest(proto.Message):
     r"""Config of migrating one resource from automl.googleapis.com,
     datalabeling.googleapis.com and ml.googleapis.com to Vertex AI.
 
+    This message has `oneof`_ fields (mutually exclusive fields).
+    For each oneof, at most one member field can be set at the same time.
+    Setting any member of the oneof automatically clears all other
+    members.
+
+    .. _oneof: https://proto-plus-python.readthedocs.io/en/stable/fields.html#oneofs-mutually-exclusive-fields
+
     Attributes:
         migrate_ml_engine_model_version_config (google.cloud.aiplatform_v1.types.MigrateResourceRequest.MigrateMlEngineModelVersionConfig):
             Config for migrating Version in
             ml.googleapis.com to Vertex AI's Model.
+
+            This field is a member of `oneof`_ ``request``.
         migrate_automl_model_config (google.cloud.aiplatform_v1.types.MigrateResourceRequest.MigrateAutomlModelConfig):
             Config for migrating Model in
             automl.googleapis.com to Vertex AI's Model.
+
+            This field is a member of `oneof`_ ``request``.
         migrate_automl_dataset_config (google.cloud.aiplatform_v1.types.MigrateResourceRequest.MigrateAutomlDatasetConfig):
             Config for migrating Dataset in
             automl.googleapis.com to Vertex AI's Dataset.
+
+            This field is a member of `oneof`_ ``request``.
         migrate_data_labeling_dataset_config (google.cloud.aiplatform_v1.types.MigrateResourceRequest.MigrateDataLabelingDatasetConfig):
             Config for migrating Dataset in
             datalabeling.googleapis.com to Vertex AI's
             Dataset.
+
+            This field is a member of `oneof`_ ``request``.
     """
 
     class MigrateMlEngineModelVersionConfig(proto.Message):
@@ -287,11 +302,23 @@ class BatchMigrateResourcesResponse(proto.Message):
 
 class MigrateResourceResponse(proto.Message):
     r"""Describes a successfully migrated resource.
+
+    This message has `oneof`_ fields (mutually exclusive fields).
+    For each oneof, at most one member field can be set at the same time.
+    Setting any member of the oneof automatically clears all other
+    members.
+
+    .. _oneof: https://proto-plus-python.readthedocs.io/en/stable/fields.html#oneofs-mutually-exclusive-fields
+
     Attributes:
         dataset (str):
             Migrated Dataset's resource name.
+
+            This field is a member of `oneof`_ ``migrated_resource``.
         model (str):
             Migrated Model's resource name.
+
+            This field is a member of `oneof`_ ``migrated_resource``.
         migratable_resource (google.cloud.aiplatform_v1.types.MigratableResource):
             Before migration, the identifier in
             ml.googleapis.com, automl.googleapis.com or
@@ -321,14 +348,27 @@ class BatchMigrateResourcesOperationMetadata(proto.Message):
         r"""Represents a partial result in batch migration operation for one
         [MigrateResourceRequest][google.cloud.aiplatform.v1.MigrateResourceRequest].
 
+        This message has `oneof`_ fields (mutually exclusive fields).
+        For each oneof, at most one member field can be set at the same time.
+        Setting any member of the oneof automatically clears all other
+        members.
+
+        .. _oneof: https://proto-plus-python.readthedocs.io/en/stable/fields.html#oneofs-mutually-exclusive-fields
+
         Attributes:
             error (google.rpc.status_pb2.Status):
                 The error result of the migration request in
                 case of failure.
+
+                This field is a member of `oneof`_ ``result``.
             model (str):
                 Migrated model resource name.
+
+                This field is a member of `oneof`_ ``result``.
             dataset (str):
                 Migrated dataset resource name.
+
+                This field is a member of `oneof`_ ``result``.
             request (google.cloud.aiplatform_v1.types.MigrateResourceRequest):
                 It's the same as the value in
                 [MigrateResourceRequest.migrate_resource_requests][].

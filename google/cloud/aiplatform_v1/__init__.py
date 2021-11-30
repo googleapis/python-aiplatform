@@ -18,12 +18,22 @@ from .services.dataset_service import DatasetServiceClient
 from .services.dataset_service import DatasetServiceAsyncClient
 from .services.endpoint_service import EndpointServiceClient
 from .services.endpoint_service import EndpointServiceAsyncClient
+from .services.featurestore_online_serving_service import (
+    FeaturestoreOnlineServingServiceClient,
+)
+from .services.featurestore_online_serving_service import (
+    FeaturestoreOnlineServingServiceAsyncClient,
+)
+from .services.featurestore_service import FeaturestoreServiceClient
+from .services.featurestore_service import FeaturestoreServiceAsyncClient
 from .services.index_endpoint_service import IndexEndpointServiceClient
 from .services.index_endpoint_service import IndexEndpointServiceAsyncClient
 from .services.index_service import IndexServiceClient
 from .services.index_service import IndexServiceAsyncClient
 from .services.job_service import JobServiceClient
 from .services.job_service import JobServiceAsyncClient
+from .services.metadata_service import MetadataServiceClient
+from .services.metadata_service import MetadataServiceAsyncClient
 from .services.migration_service import MigrationServiceClient
 from .services.migration_service import MigrationServiceAsyncClient
 from .services.model_service import ModelServiceClient
@@ -34,6 +44,8 @@ from .services.prediction_service import PredictionServiceClient
 from .services.prediction_service import PredictionServiceAsyncClient
 from .services.specialist_pool_service import SpecialistPoolServiceClient
 from .services.specialist_pool_service import SpecialistPoolServiceAsyncClient
+from .services.tensorboard_service import TensorboardServiceClient
+from .services.tensorboard_service import TensorboardServiceAsyncClient
 from .services.vizier_service import VizierServiceClient
 from .services.vizier_service import VizierServiceAsyncClient
 
@@ -81,6 +93,7 @@ from .types.deployed_model_ref import DeployedModelRef
 from .types.encryption_spec import EncryptionSpec
 from .types.endpoint import DeployedModel
 from .types.endpoint import Endpoint
+from .types.endpoint import PrivateEndpoints
 from .types.endpoint_service import CreateEndpointOperationMetadata
 from .types.endpoint_service import CreateEndpointRequest
 from .types.endpoint_service import DeleteEndpointRequest
@@ -94,7 +107,9 @@ from .types.endpoint_service import UndeployModelOperationMetadata
 from .types.endpoint_service import UndeployModelRequest
 from .types.endpoint_service import UndeployModelResponse
 from .types.endpoint_service import UpdateEndpointRequest
+from .types.entity_type import EntityType
 from .types.env_var import EnvVar
+from .types.event import Event
 from .types.execution import Execution
 from .types.explanation import Attribution
 from .types.explanation import Explanation
@@ -109,7 +124,54 @@ from .types.explanation import SampledShapleyAttribution
 from .types.explanation import SmoothGradConfig
 from .types.explanation import XraiAttribution
 from .types.explanation_metadata import ExplanationMetadata
+from .types.feature import Feature
 from .types.feature_monitoring_stats import FeatureStatsAnomaly
+from .types.feature_selector import FeatureSelector
+from .types.feature_selector import IdMatcher
+from .types.featurestore import Featurestore
+from .types.featurestore_online_service import FeatureValue
+from .types.featurestore_online_service import FeatureValueList
+from .types.featurestore_online_service import ReadFeatureValuesRequest
+from .types.featurestore_online_service import ReadFeatureValuesResponse
+from .types.featurestore_online_service import StreamingReadFeatureValuesRequest
+from .types.featurestore_service import BatchCreateFeaturesOperationMetadata
+from .types.featurestore_service import BatchCreateFeaturesRequest
+from .types.featurestore_service import BatchCreateFeaturesResponse
+from .types.featurestore_service import BatchReadFeatureValuesOperationMetadata
+from .types.featurestore_service import BatchReadFeatureValuesRequest
+from .types.featurestore_service import BatchReadFeatureValuesResponse
+from .types.featurestore_service import CreateEntityTypeOperationMetadata
+from .types.featurestore_service import CreateEntityTypeRequest
+from .types.featurestore_service import CreateFeatureOperationMetadata
+from .types.featurestore_service import CreateFeatureRequest
+from .types.featurestore_service import CreateFeaturestoreOperationMetadata
+from .types.featurestore_service import CreateFeaturestoreRequest
+from .types.featurestore_service import DeleteEntityTypeRequest
+from .types.featurestore_service import DeleteFeatureRequest
+from .types.featurestore_service import DeleteFeaturestoreRequest
+from .types.featurestore_service import DestinationFeatureSetting
+from .types.featurestore_service import ExportFeatureValuesOperationMetadata
+from .types.featurestore_service import ExportFeatureValuesRequest
+from .types.featurestore_service import ExportFeatureValuesResponse
+from .types.featurestore_service import FeatureValueDestination
+from .types.featurestore_service import GetEntityTypeRequest
+from .types.featurestore_service import GetFeatureRequest
+from .types.featurestore_service import GetFeaturestoreRequest
+from .types.featurestore_service import ImportFeatureValuesOperationMetadata
+from .types.featurestore_service import ImportFeatureValuesRequest
+from .types.featurestore_service import ImportFeatureValuesResponse
+from .types.featurestore_service import ListEntityTypesRequest
+from .types.featurestore_service import ListEntityTypesResponse
+from .types.featurestore_service import ListFeaturesRequest
+from .types.featurestore_service import ListFeaturesResponse
+from .types.featurestore_service import ListFeaturestoresRequest
+from .types.featurestore_service import ListFeaturestoresResponse
+from .types.featurestore_service import SearchFeaturesRequest
+from .types.featurestore_service import SearchFeaturesResponse
+from .types.featurestore_service import UpdateEntityTypeRequest
+from .types.featurestore_service import UpdateFeatureRequest
+from .types.featurestore_service import UpdateFeaturestoreOperationMetadata
+from .types.featurestore_service import UpdateFeaturestoreRequest
 from .types.hyperparameter_tuning_job import HyperparameterTuningJob
 from .types.index import Index
 from .types.index_endpoint import DeployedIndex
@@ -138,11 +200,15 @@ from .types.index_service import ListIndexesResponse
 from .types.index_service import NearestNeighborSearchOperationMetadata
 from .types.index_service import UpdateIndexOperationMetadata
 from .types.index_service import UpdateIndexRequest
+from .types.io import AvroSource
 from .types.io import BigQueryDestination
 from .types.io import BigQuerySource
 from .types.io import ContainerRegistryDestination
+from .types.io import CsvDestination
+from .types.io import CsvSource
 from .types.io import GcsDestination
 from .types.io import GcsSource
+from .types.io import TFRecordDestination
 from .types.job_service import CancelBatchPredictionJobRequest
 from .types.job_service import CancelCustomJobRequest
 from .types.job_service import CancelDataLabelingJobRequest
@@ -179,6 +245,7 @@ from .types.job_service import SearchModelDeploymentMonitoringStatsAnomaliesResp
 from .types.job_service import UpdateModelDeploymentMonitoringJobOperationMetadata
 from .types.job_service import UpdateModelDeploymentMonitoringJobRequest
 from .types.job_state import JobState
+from .types.lineage_subgraph import LineageSubgraph
 from .types.machine_resources import AutomaticResources
 from .types.machine_resources import AutoscalingMetricSpec
 from .types.machine_resources import BatchDedicatedResources
@@ -187,6 +254,55 @@ from .types.machine_resources import DiskSpec
 from .types.machine_resources import MachineSpec
 from .types.machine_resources import ResourcesConsumed
 from .types.manual_batch_tuning_parameters import ManualBatchTuningParameters
+from .types.metadata_schema import MetadataSchema
+from .types.metadata_service import AddContextArtifactsAndExecutionsRequest
+from .types.metadata_service import AddContextArtifactsAndExecutionsResponse
+from .types.metadata_service import AddContextChildrenRequest
+from .types.metadata_service import AddContextChildrenResponse
+from .types.metadata_service import AddExecutionEventsRequest
+from .types.metadata_service import AddExecutionEventsResponse
+from .types.metadata_service import CreateArtifactRequest
+from .types.metadata_service import CreateContextRequest
+from .types.metadata_service import CreateExecutionRequest
+from .types.metadata_service import CreateMetadataSchemaRequest
+from .types.metadata_service import CreateMetadataStoreOperationMetadata
+from .types.metadata_service import CreateMetadataStoreRequest
+from .types.metadata_service import DeleteArtifactRequest
+from .types.metadata_service import DeleteContextRequest
+from .types.metadata_service import DeleteExecutionRequest
+from .types.metadata_service import DeleteMetadataStoreOperationMetadata
+from .types.metadata_service import DeleteMetadataStoreRequest
+from .types.metadata_service import GetArtifactRequest
+from .types.metadata_service import GetContextRequest
+from .types.metadata_service import GetExecutionRequest
+from .types.metadata_service import GetMetadataSchemaRequest
+from .types.metadata_service import GetMetadataStoreRequest
+from .types.metadata_service import ListArtifactsRequest
+from .types.metadata_service import ListArtifactsResponse
+from .types.metadata_service import ListContextsRequest
+from .types.metadata_service import ListContextsResponse
+from .types.metadata_service import ListExecutionsRequest
+from .types.metadata_service import ListExecutionsResponse
+from .types.metadata_service import ListMetadataSchemasRequest
+from .types.metadata_service import ListMetadataSchemasResponse
+from .types.metadata_service import ListMetadataStoresRequest
+from .types.metadata_service import ListMetadataStoresResponse
+from .types.metadata_service import PurgeArtifactsMetadata
+from .types.metadata_service import PurgeArtifactsRequest
+from .types.metadata_service import PurgeArtifactsResponse
+from .types.metadata_service import PurgeContextsMetadata
+from .types.metadata_service import PurgeContextsRequest
+from .types.metadata_service import PurgeContextsResponse
+from .types.metadata_service import PurgeExecutionsMetadata
+from .types.metadata_service import PurgeExecutionsRequest
+from .types.metadata_service import PurgeExecutionsResponse
+from .types.metadata_service import QueryArtifactLineageSubgraphRequest
+from .types.metadata_service import QueryContextLineageSubgraphRequest
+from .types.metadata_service import QueryExecutionInputsAndOutputsRequest
+from .types.metadata_service import UpdateArtifactRequest
+from .types.metadata_service import UpdateContextRequest
+from .types.metadata_service import UpdateExecutionRequest
+from .types.metadata_store import MetadataStore
 from .types.migratable_resource import MigratableResource
 from .types.migration_service import BatchMigrateResourcesOperationMetadata
 from .types.migration_service import BatchMigrateResourcesRequest
@@ -273,12 +389,68 @@ from .types.study import Measurement
 from .types.study import Study
 from .types.study import StudySpec
 from .types.study import Trial
+from .types.tensorboard import Tensorboard
+from .types.tensorboard_data import Scalar
+from .types.tensorboard_data import TensorboardBlob
+from .types.tensorboard_data import TensorboardBlobSequence
+from .types.tensorboard_data import TensorboardTensor
+from .types.tensorboard_data import TimeSeriesData
+from .types.tensorboard_data import TimeSeriesDataPoint
+from .types.tensorboard_experiment import TensorboardExperiment
+from .types.tensorboard_run import TensorboardRun
+from .types.tensorboard_service import BatchCreateTensorboardRunsRequest
+from .types.tensorboard_service import BatchCreateTensorboardRunsResponse
+from .types.tensorboard_service import BatchCreateTensorboardTimeSeriesRequest
+from .types.tensorboard_service import BatchCreateTensorboardTimeSeriesResponse
+from .types.tensorboard_service import BatchReadTensorboardTimeSeriesDataRequest
+from .types.tensorboard_service import BatchReadTensorboardTimeSeriesDataResponse
+from .types.tensorboard_service import CreateTensorboardExperimentRequest
+from .types.tensorboard_service import CreateTensorboardOperationMetadata
+from .types.tensorboard_service import CreateTensorboardRequest
+from .types.tensorboard_service import CreateTensorboardRunRequest
+from .types.tensorboard_service import CreateTensorboardTimeSeriesRequest
+from .types.tensorboard_service import DeleteTensorboardExperimentRequest
+from .types.tensorboard_service import DeleteTensorboardRequest
+from .types.tensorboard_service import DeleteTensorboardRunRequest
+from .types.tensorboard_service import DeleteTensorboardTimeSeriesRequest
+from .types.tensorboard_service import ExportTensorboardTimeSeriesDataRequest
+from .types.tensorboard_service import ExportTensorboardTimeSeriesDataResponse
+from .types.tensorboard_service import GetTensorboardExperimentRequest
+from .types.tensorboard_service import GetTensorboardRequest
+from .types.tensorboard_service import GetTensorboardRunRequest
+from .types.tensorboard_service import GetTensorboardTimeSeriesRequest
+from .types.tensorboard_service import ListTensorboardExperimentsRequest
+from .types.tensorboard_service import ListTensorboardExperimentsResponse
+from .types.tensorboard_service import ListTensorboardRunsRequest
+from .types.tensorboard_service import ListTensorboardRunsResponse
+from .types.tensorboard_service import ListTensorboardsRequest
+from .types.tensorboard_service import ListTensorboardsResponse
+from .types.tensorboard_service import ListTensorboardTimeSeriesRequest
+from .types.tensorboard_service import ListTensorboardTimeSeriesResponse
+from .types.tensorboard_service import ReadTensorboardBlobDataRequest
+from .types.tensorboard_service import ReadTensorboardBlobDataResponse
+from .types.tensorboard_service import ReadTensorboardTimeSeriesDataRequest
+from .types.tensorboard_service import ReadTensorboardTimeSeriesDataResponse
+from .types.tensorboard_service import UpdateTensorboardExperimentRequest
+from .types.tensorboard_service import UpdateTensorboardOperationMetadata
+from .types.tensorboard_service import UpdateTensorboardRequest
+from .types.tensorboard_service import UpdateTensorboardRunRequest
+from .types.tensorboard_service import UpdateTensorboardTimeSeriesRequest
+from .types.tensorboard_service import WriteTensorboardExperimentDataRequest
+from .types.tensorboard_service import WriteTensorboardExperimentDataResponse
+from .types.tensorboard_service import WriteTensorboardRunDataRequest
+from .types.tensorboard_service import WriteTensorboardRunDataResponse
+from .types.tensorboard_time_series import TensorboardTimeSeries
 from .types.training_pipeline import FilterSplit
 from .types.training_pipeline import FractionSplit
 from .types.training_pipeline import InputDataConfig
 from .types.training_pipeline import PredefinedSplit
 from .types.training_pipeline import TimestampSplit
 from .types.training_pipeline import TrainingPipeline
+from .types.types import BoolArray
+from .types.types import DoubleArray
+from .types.types import Int64Array
+from .types.types import StringArray
 from .types.user_action_reference import UserActionReference
 from .types.value import Value
 from .types.vizier_service import AddTrialMeasurementRequest
@@ -307,17 +479,27 @@ from .types.vizier_service import SuggestTrialsResponse
 __all__ = (
     "DatasetServiceAsyncClient",
     "EndpointServiceAsyncClient",
+    "FeaturestoreOnlineServingServiceAsyncClient",
+    "FeaturestoreServiceAsyncClient",
     "IndexEndpointServiceAsyncClient",
     "IndexServiceAsyncClient",
     "JobServiceAsyncClient",
+    "MetadataServiceAsyncClient",
     "MigrationServiceAsyncClient",
     "ModelServiceAsyncClient",
     "PipelineServiceAsyncClient",
     "PredictionServiceAsyncClient",
     "SpecialistPoolServiceAsyncClient",
+    "TensorboardServiceAsyncClient",
     "VizierServiceAsyncClient",
     "AcceleratorType",
     "ActiveLearningConfig",
+    "AddContextArtifactsAndExecutionsRequest",
+    "AddContextArtifactsAndExecutionsResponse",
+    "AddContextChildrenRequest",
+    "AddContextChildrenResponse",
+    "AddExecutionEventsRequest",
+    "AddExecutionEventsResponse",
     "AddTrialMeasurementRequest",
     "Annotation",
     "AnnotationSpec",
@@ -325,13 +507,27 @@ __all__ = (
     "Attribution",
     "AutomaticResources",
     "AutoscalingMetricSpec",
+    "AvroSource",
+    "BatchCreateFeaturesOperationMetadata",
+    "BatchCreateFeaturesRequest",
+    "BatchCreateFeaturesResponse",
+    "BatchCreateTensorboardRunsRequest",
+    "BatchCreateTensorboardRunsResponse",
+    "BatchCreateTensorboardTimeSeriesRequest",
+    "BatchCreateTensorboardTimeSeriesResponse",
     "BatchDedicatedResources",
     "BatchMigrateResourcesOperationMetadata",
     "BatchMigrateResourcesRequest",
     "BatchMigrateResourcesResponse",
     "BatchPredictionJob",
+    "BatchReadFeatureValuesOperationMetadata",
+    "BatchReadFeatureValuesRequest",
+    "BatchReadFeatureValuesResponse",
+    "BatchReadTensorboardTimeSeriesDataRequest",
+    "BatchReadTensorboardTimeSeriesDataResponse",
     "BigQueryDestination",
     "BigQuerySource",
+    "BoolArray",
     "CancelBatchPredictionJobRequest",
     "CancelCustomJobRequest",
     "CancelDataLabelingJobRequest",
@@ -346,25 +542,44 @@ __all__ = (
     "ContainerRegistryDestination",
     "ContainerSpec",
     "Context",
+    "CreateArtifactRequest",
     "CreateBatchPredictionJobRequest",
+    "CreateContextRequest",
     "CreateCustomJobRequest",
     "CreateDataLabelingJobRequest",
     "CreateDatasetOperationMetadata",
     "CreateDatasetRequest",
     "CreateEndpointOperationMetadata",
     "CreateEndpointRequest",
+    "CreateEntityTypeOperationMetadata",
+    "CreateEntityTypeRequest",
+    "CreateExecutionRequest",
+    "CreateFeatureOperationMetadata",
+    "CreateFeatureRequest",
+    "CreateFeaturestoreOperationMetadata",
+    "CreateFeaturestoreRequest",
     "CreateHyperparameterTuningJobRequest",
     "CreateIndexEndpointOperationMetadata",
     "CreateIndexEndpointRequest",
     "CreateIndexOperationMetadata",
     "CreateIndexRequest",
+    "CreateMetadataSchemaRequest",
+    "CreateMetadataStoreOperationMetadata",
+    "CreateMetadataStoreRequest",
     "CreateModelDeploymentMonitoringJobRequest",
     "CreatePipelineJobRequest",
     "CreateSpecialistPoolOperationMetadata",
     "CreateSpecialistPoolRequest",
     "CreateStudyRequest",
+    "CreateTensorboardExperimentRequest",
+    "CreateTensorboardOperationMetadata",
+    "CreateTensorboardRequest",
+    "CreateTensorboardRunRequest",
+    "CreateTensorboardTimeSeriesRequest",
     "CreateTrainingPipelineRequest",
     "CreateTrialRequest",
+    "CsvDestination",
+    "CsvSource",
     "CustomJob",
     "CustomJobSpec",
     "DataItem",
@@ -372,20 +587,32 @@ __all__ = (
     "Dataset",
     "DatasetServiceClient",
     "DedicatedResources",
+    "DeleteArtifactRequest",
     "DeleteBatchPredictionJobRequest",
+    "DeleteContextRequest",
     "DeleteCustomJobRequest",
     "DeleteDataLabelingJobRequest",
     "DeleteDatasetRequest",
     "DeleteEndpointRequest",
+    "DeleteEntityTypeRequest",
+    "DeleteExecutionRequest",
+    "DeleteFeatureRequest",
+    "DeleteFeaturestoreRequest",
     "DeleteHyperparameterTuningJobRequest",
     "DeleteIndexEndpointRequest",
     "DeleteIndexRequest",
+    "DeleteMetadataStoreOperationMetadata",
+    "DeleteMetadataStoreRequest",
     "DeleteModelDeploymentMonitoringJobRequest",
     "DeleteModelRequest",
     "DeleteOperationMetadata",
     "DeletePipelineJobRequest",
     "DeleteSpecialistPoolRequest",
     "DeleteStudyRequest",
+    "DeleteTensorboardExperimentRequest",
+    "DeleteTensorboardRequest",
+    "DeleteTensorboardRunRequest",
+    "DeleteTensorboardTimeSeriesRequest",
     "DeleteTrainingPipelineRequest",
     "DeleteTrialRequest",
     "DeployIndexOperationMetadata",
@@ -399,11 +626,15 @@ __all__ = (
     "DeployedIndexRef",
     "DeployedModel",
     "DeployedModelRef",
+    "DestinationFeatureSetting",
     "DiskSpec",
+    "DoubleArray",
     "EncryptionSpec",
     "Endpoint",
     "EndpointServiceClient",
+    "EntityType",
     "EnvVar",
+    "Event",
     "Execution",
     "ExplainRequest",
     "ExplainResponse",
@@ -417,25 +648,46 @@ __all__ = (
     "ExportDataOperationMetadata",
     "ExportDataRequest",
     "ExportDataResponse",
+    "ExportFeatureValuesOperationMetadata",
+    "ExportFeatureValuesRequest",
+    "ExportFeatureValuesResponse",
     "ExportModelOperationMetadata",
     "ExportModelRequest",
     "ExportModelResponse",
+    "ExportTensorboardTimeSeriesDataRequest",
+    "ExportTensorboardTimeSeriesDataResponse",
+    "Feature",
     "FeatureNoiseSigma",
+    "FeatureSelector",
     "FeatureStatsAnomaly",
+    "FeatureValue",
+    "FeatureValueDestination",
+    "FeatureValueList",
+    "Featurestore",
+    "FeaturestoreOnlineServingServiceClient",
+    "FeaturestoreServiceClient",
     "FilterSplit",
     "FractionSplit",
     "GcsDestination",
     "GcsSource",
     "GenericOperationMetadata",
     "GetAnnotationSpecRequest",
+    "GetArtifactRequest",
     "GetBatchPredictionJobRequest",
+    "GetContextRequest",
     "GetCustomJobRequest",
     "GetDataLabelingJobRequest",
     "GetDatasetRequest",
     "GetEndpointRequest",
+    "GetEntityTypeRequest",
+    "GetExecutionRequest",
+    "GetFeatureRequest",
+    "GetFeaturestoreRequest",
     "GetHyperparameterTuningJobRequest",
     "GetIndexEndpointRequest",
     "GetIndexRequest",
+    "GetMetadataSchemaRequest",
+    "GetMetadataStoreRequest",
     "GetModelDeploymentMonitoringJobRequest",
     "GetModelEvaluationRequest",
     "GetModelEvaluationSliceRequest",
@@ -443,26 +695,40 @@ __all__ = (
     "GetPipelineJobRequest",
     "GetSpecialistPoolRequest",
     "GetStudyRequest",
+    "GetTensorboardExperimentRequest",
+    "GetTensorboardRequest",
+    "GetTensorboardRunRequest",
+    "GetTensorboardTimeSeriesRequest",
     "GetTrainingPipelineRequest",
     "GetTrialRequest",
     "HyperparameterTuningJob",
+    "IdMatcher",
     "ImportDataConfig",
     "ImportDataOperationMetadata",
     "ImportDataRequest",
     "ImportDataResponse",
+    "ImportFeatureValuesOperationMetadata",
+    "ImportFeatureValuesRequest",
+    "ImportFeatureValuesResponse",
     "Index",
     "IndexEndpoint",
     "IndexEndpointServiceClient",
     "IndexPrivateEndpoints",
     "IndexServiceClient",
     "InputDataConfig",
+    "Int64Array",
     "IntegratedGradientsAttribution",
     "JobServiceClient",
     "JobState",
+    "LineageSubgraph",
     "ListAnnotationsRequest",
     "ListAnnotationsResponse",
+    "ListArtifactsRequest",
+    "ListArtifactsResponse",
     "ListBatchPredictionJobsRequest",
     "ListBatchPredictionJobsResponse",
+    "ListContextsRequest",
+    "ListContextsResponse",
     "ListCustomJobsRequest",
     "ListCustomJobsResponse",
     "ListDataItemsRequest",
@@ -473,12 +739,24 @@ __all__ = (
     "ListDatasetsResponse",
     "ListEndpointsRequest",
     "ListEndpointsResponse",
+    "ListEntityTypesRequest",
+    "ListEntityTypesResponse",
+    "ListExecutionsRequest",
+    "ListExecutionsResponse",
+    "ListFeaturesRequest",
+    "ListFeaturesResponse",
+    "ListFeaturestoresRequest",
+    "ListFeaturestoresResponse",
     "ListHyperparameterTuningJobsRequest",
     "ListHyperparameterTuningJobsResponse",
     "ListIndexEndpointsRequest",
     "ListIndexEndpointsResponse",
     "ListIndexesRequest",
     "ListIndexesResponse",
+    "ListMetadataSchemasRequest",
+    "ListMetadataSchemasResponse",
+    "ListMetadataStoresRequest",
+    "ListMetadataStoresResponse",
     "ListModelDeploymentMonitoringJobsRequest",
     "ListModelDeploymentMonitoringJobsResponse",
     "ListModelEvaluationSlicesRequest",
@@ -495,6 +773,14 @@ __all__ = (
     "ListSpecialistPoolsResponse",
     "ListStudiesRequest",
     "ListStudiesResponse",
+    "ListTensorboardExperimentsRequest",
+    "ListTensorboardExperimentsResponse",
+    "ListTensorboardRunsRequest",
+    "ListTensorboardRunsResponse",
+    "ListTensorboardTimeSeriesRequest",
+    "ListTensorboardTimeSeriesResponse",
+    "ListTensorboardsRequest",
+    "ListTensorboardsResponse",
     "ListTrainingPipelinesRequest",
     "ListTrainingPipelinesResponse",
     "ListTrialsRequest",
@@ -503,6 +789,9 @@ __all__ = (
     "MachineSpec",
     "ManualBatchTuningParameters",
     "Measurement",
+    "MetadataSchema",
+    "MetadataServiceClient",
+    "MetadataStore",
     "MigratableResource",
     "MigrateResourceRequest",
     "MigrateResourceResponse",
@@ -535,14 +824,36 @@ __all__ = (
     "PredictResponse",
     "PredictSchemata",
     "PredictionServiceClient",
+    "PrivateEndpoints",
+    "PurgeArtifactsMetadata",
+    "PurgeArtifactsRequest",
+    "PurgeArtifactsResponse",
+    "PurgeContextsMetadata",
+    "PurgeContextsRequest",
+    "PurgeContextsResponse",
+    "PurgeExecutionsMetadata",
+    "PurgeExecutionsRequest",
+    "PurgeExecutionsResponse",
     "PythonPackageSpec",
+    "QueryArtifactLineageSubgraphRequest",
+    "QueryContextLineageSubgraphRequest",
+    "QueryExecutionInputsAndOutputsRequest",
     "RawPredictRequest",
+    "ReadFeatureValuesRequest",
+    "ReadFeatureValuesResponse",
+    "ReadTensorboardBlobDataRequest",
+    "ReadTensorboardBlobDataResponse",
+    "ReadTensorboardTimeSeriesDataRequest",
+    "ReadTensorboardTimeSeriesDataResponse",
     "ResourcesConsumed",
     "ResumeModelDeploymentMonitoringJobRequest",
     "SampleConfig",
     "SampledShapleyAttribution",
     "SamplingStrategy",
+    "Scalar",
     "Scheduling",
+    "SearchFeaturesRequest",
+    "SearchFeaturesResponse",
     "SearchMigratableResourcesRequest",
     "SearchMigratableResourcesResponse",
     "SearchModelDeploymentMonitoringStatsAnomaliesRequest",
@@ -551,12 +862,25 @@ __all__ = (
     "SpecialistPool",
     "SpecialistPoolServiceClient",
     "StopTrialRequest",
+    "StreamingReadFeatureValuesRequest",
+    "StringArray",
     "Study",
     "StudySpec",
     "SuggestTrialsMetadata",
     "SuggestTrialsRequest",
     "SuggestTrialsResponse",
+    "TFRecordDestination",
+    "Tensorboard",
+    "TensorboardBlob",
+    "TensorboardBlobSequence",
+    "TensorboardExperiment",
+    "TensorboardRun",
+    "TensorboardServiceClient",
+    "TensorboardTensor",
+    "TensorboardTimeSeries",
     "ThresholdConfig",
+    "TimeSeriesData",
+    "TimeSeriesDataPoint",
     "TimestampSplit",
     "TrainingConfig",
     "TrainingPipeline",
@@ -567,8 +891,15 @@ __all__ = (
     "UndeployModelOperationMetadata",
     "UndeployModelRequest",
     "UndeployModelResponse",
+    "UpdateArtifactRequest",
+    "UpdateContextRequest",
     "UpdateDatasetRequest",
     "UpdateEndpointRequest",
+    "UpdateEntityTypeRequest",
+    "UpdateExecutionRequest",
+    "UpdateFeatureRequest",
+    "UpdateFeaturestoreOperationMetadata",
+    "UpdateFeaturestoreRequest",
     "UpdateIndexEndpointRequest",
     "UpdateIndexOperationMetadata",
     "UpdateIndexRequest",
@@ -577,6 +908,11 @@ __all__ = (
     "UpdateModelRequest",
     "UpdateSpecialistPoolOperationMetadata",
     "UpdateSpecialistPoolRequest",
+    "UpdateTensorboardExperimentRequest",
+    "UpdateTensorboardOperationMetadata",
+    "UpdateTensorboardRequest",
+    "UpdateTensorboardRunRequest",
+    "UpdateTensorboardTimeSeriesRequest",
     "UploadModelOperationMetadata",
     "UploadModelRequest",
     "UploadModelResponse",
@@ -584,5 +920,9 @@ __all__ = (
     "Value",
     "VizierServiceClient",
     "WorkerPoolSpec",
+    "WriteTensorboardExperimentDataRequest",
+    "WriteTensorboardExperimentDataResponse",
+    "WriteTensorboardRunDataRequest",
+    "WriteTensorboardRunDataResponse",
     "XraiAttribution",
 )

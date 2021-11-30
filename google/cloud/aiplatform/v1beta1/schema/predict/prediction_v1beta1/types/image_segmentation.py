@@ -24,6 +24,7 @@ __protobuf__ = proto.module(
 
 class ImageSegmentationPredictionResult(proto.Message):
     r"""Prediction output format for Image Segmentation.
+
     Attributes:
         category_mask (str):
             A PNG image where each pixel in the mask

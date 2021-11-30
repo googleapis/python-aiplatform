@@ -13,7 +13,7 @@
 # limitations under the License.
 from __future__ import absolute_import
 
-from google.cloud.aiplatform.helpers import value_converter
+from google.cloud.aiplatform.utils.enhanced_library import value_converter
 from google.protobuf import json_format
 from google.protobuf.struct_pb2 import Value
 import proto
@@ -63,9 +63,7 @@ def test_convert_value_to_message():
     actual_from_value_output = value_converter.from_value(SomeMessage, input_value)
     expected_type = SomeMessage(input_dict)
 
-    # TODO: compare instance of SomeMessage against
-    # actual_from_value_output.
-    # See https://github.com/googleapis/python-aiplatform/issues/136
+    assert actual_from_value_output.__class__.__name__ == SomeMessage.__name__
 
     # Check property-level ("duck-typing") equivalency
     assert actual_from_value_output.test_str == expected_type.test_str
@@ -79,9 +77,7 @@ def test_convert_map_to_message():
     map_composite = message_with_map.test_map
     actual_output = value_converter.from_map(SomeOutType, map_composite)
 
-    # TODO: compare instance of SomeMessage against
-    # actual_from_value_output.
-    # See https://github.com/googleapis/python-aiplatform/issues/136
+    assert actual_output.__class__.__name__ == SomeOutType.__name__
 
     # Check property-to-key/value equivalency
     assert actual_output.test_int == map_composite["test_int"]

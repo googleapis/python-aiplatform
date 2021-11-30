@@ -54,6 +54,7 @@ class ModelEvaluationSlice(proto.Message):
 
     class Slice(proto.Message):
         r"""Definition of a slice.
+
         Attributes:
             dimension (str):
                 Output only. The dimension of the slice. Well-known

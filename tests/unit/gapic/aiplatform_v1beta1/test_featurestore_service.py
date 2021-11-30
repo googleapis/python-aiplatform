@@ -15,7 +15,6 @@
 #
 import os
 import mock
-import packaging.version
 
 import grpc
 from grpc.experimental import aio
@@ -32,6 +31,7 @@ from google.api_core import grpc_helpers
 from google.api_core import grpc_helpers_async
 from google.api_core import operation_async  # type: ignore
 from google.api_core import operations_v1
+from google.api_core import path_template
 from google.auth import credentials as ga_credentials
 from google.auth.exceptions import MutualTLSChannelError
 from google.cloud.aiplatform_v1beta1.services.featurestore_service import (
@@ -42,9 +42,7 @@ from google.cloud.aiplatform_v1beta1.services.featurestore_service import (
 )
 from google.cloud.aiplatform_v1beta1.services.featurestore_service import pagers
 from google.cloud.aiplatform_v1beta1.services.featurestore_service import transports
-from google.cloud.aiplatform_v1beta1.services.featurestore_service.transports.base import (
-    _GOOGLE_AUTH_VERSION,
-)
+from google.cloud.aiplatform_v1beta1.types import encryption_spec
 from google.cloud.aiplatform_v1beta1.types import entity_type
 from google.cloud.aiplatform_v1beta1.types import entity_type as gca_entity_type
 from google.cloud.aiplatform_v1beta1.types import feature
@@ -63,20 +61,6 @@ from google.protobuf import duration_pb2  # type: ignore
 from google.protobuf import field_mask_pb2  # type: ignore
 from google.protobuf import timestamp_pb2  # type: ignore
 import google.auth
-
-
-# TODO(busunkim): Once google-auth >= 1.25.0 is required transitively
-# through google-api-core:
-# - Delete the auth "less than" test cases
-# - Delete these pytest markers (Make the "greater than or equal to" tests the default).
-requires_google_auth_lt_1_25_0 = pytest.mark.skipif(
-    packaging.version.parse(_GOOGLE_AUTH_VERSION) >= packaging.version.parse("1.25.0"),
-    reason="This test requires google-auth < 1.25.0",
-)
-requires_google_auth_gte_1_25_0 = pytest.mark.skipif(
-    packaging.version.parse(_GOOGLE_AUTH_VERSION) < packaging.version.parse("1.25.0"),
-    reason="This test requires google-auth >= 1.25.0",
-)
 
 
 def client_cert_source_callback():
@@ -240,7 +224,7 @@ def test_featurestore_service_client_client_options(
     options = client_options.ClientOptions(api_endpoint="squid.clam.whelk")
     with mock.patch.object(transport_class, "__init__") as patched:
         patched.return_value = None
-        client = client_class(client_options=options)
+        client = client_class(transport=transport_name, client_options=options)
         patched.assert_called_once_with(
             credentials=None,
             credentials_file=None,
@@ -257,7 +241,7 @@ def test_featurestore_service_client_client_options(
     with mock.patch.dict(os.environ, {"GOOGLE_API_USE_MTLS_ENDPOINT": "never"}):
         with mock.patch.object(transport_class, "__init__") as patched:
             patched.return_value = None
-            client = client_class()
+            client = client_class(transport=transport_name)
             patched.assert_called_once_with(
                 credentials=None,
                 credentials_file=None,
@@ -274,7 +258,7 @@ def test_featurestore_service_client_client_options(
     with mock.patch.dict(os.environ, {"GOOGLE_API_USE_MTLS_ENDPOINT": "always"}):
         with mock.patch.object(transport_class, "__init__") as patched:
             patched.return_value = None
-            client = client_class()
+            client = client_class(transport=transport_name)
             patched.assert_called_once_with(
                 credentials=None,
                 credentials_file=None,
@@ -303,7 +287,7 @@ def test_featurestore_service_client_client_options(
     options = client_options.ClientOptions(quota_project_id="octopus")
     with mock.patch.object(transport_class, "__init__") as patched:
         patched.return_value = None
-        client = client_class(client_options=options)
+        client = client_class(transport=transport_name, client_options=options)
         patched.assert_called_once_with(
             credentials=None,
             credentials_file=None,
@@ -372,7 +356,7 @@ def test_featurestore_service_client_mtls_env_auto(
         )
         with mock.patch.object(transport_class, "__init__") as patched:
             patched.return_value = None
-            client = client_class(client_options=options)
+            client = client_class(transport=transport_name, client_options=options)
 
             if use_client_cert_env == "false":
                 expected_client_cert_source = None
@@ -414,7 +398,7 @@ def test_featurestore_service_client_mtls_env_auto(
                         expected_client_cert_source = client_cert_source_callback
 
                     patched.return_value = None
-                    client = client_class()
+                    client = client_class(transport=transport_name)
                     patched.assert_called_once_with(
                         credentials=None,
                         credentials_file=None,
@@ -436,7 +420,7 @@ def test_featurestore_service_client_mtls_env_auto(
                 return_value=False,
             ):
                 patched.return_value = None
-                client = client_class()
+                client = client_class(transport=transport_name)
                 patched.assert_called_once_with(
                     credentials=None,
                     credentials_file=None,
@@ -471,7 +455,7 @@ def test_featurestore_service_client_client_options_scopes(
     options = client_options.ClientOptions(scopes=["1", "2"],)
     with mock.patch.object(transport_class, "__init__") as patched:
         patched.return_value = None
-        client = client_class(client_options=options)
+        client = client_class(transport=transport_name, client_options=options)
         patched.assert_called_once_with(
             credentials=None,
             credentials_file=None,
@@ -506,7 +490,7 @@ def test_featurestore_service_client_client_options_credentials_file(
     options = client_options.ClientOptions(credentials_file="credentials.json")
     with mock.patch.object(transport_class, "__init__") as patched:
         patched.return_value = None
-        client = client_class(client_options=options)
+        client = client_class(transport=transport_name, client_options=options)
         patched.assert_called_once_with(
             credentials=None,
             credentials_file="credentials.json",
@@ -706,8 +690,12 @@ def test_create_featurestore_flattened():
         # request object values.
         assert len(call.mock_calls) == 1
         _, args, _ = call.mock_calls[0]
-        assert args[0].parent == "parent_value"
-        assert args[0].featurestore == gca_featurestore.Featurestore(name="name_value")
+        arg = args[0].parent
+        mock_val = "parent_value"
+        assert arg == mock_val
+        arg = args[0].featurestore
+        mock_val = gca_featurestore.Featurestore(name="name_value")
+        assert arg == mock_val
 
 
 def test_create_featurestore_flattened_error():
@@ -752,8 +740,12 @@ async def test_create_featurestore_flattened_async():
         # request object values.
         assert len(call.mock_calls)
         _, args, _ = call.mock_calls[0]
-        assert args[0].parent == "parent_value"
-        assert args[0].featurestore == gca_featurestore.Featurestore(name="name_value")
+        arg = args[0].parent
+        mock_val = "parent_value"
+        assert arg == mock_val
+        arg = args[0].featurestore
+        mock_val = gca_featurestore.Featurestore(name="name_value")
+        assert arg == mock_val
 
 
 @pytest.mark.asyncio
@@ -938,7 +930,9 @@ def test_get_featurestore_flattened():
         # request object values.
         assert len(call.mock_calls) == 1
         _, args, _ = call.mock_calls[0]
-        assert args[0].name == "name_value"
+        arg = args[0].name
+        mock_val = "name_value"
+        assert arg == mock_val
 
 
 def test_get_featurestore_flattened_error():
@@ -976,7 +970,9 @@ async def test_get_featurestore_flattened_async():
         # request object values.
         assert len(call.mock_calls)
         _, args, _ = call.mock_calls[0]
-        assert args[0].name == "name_value"
+        arg = args[0].name
+        mock_val = "name_value"
+        assert arg == mock_val
 
 
 @pytest.mark.asyncio
@@ -1163,7 +1159,9 @@ def test_list_featurestores_flattened():
         # request object values.
         assert len(call.mock_calls) == 1
         _, args, _ = call.mock_calls[0]
-        assert args[0].parent == "parent_value"
+        arg = args[0].parent
+        mock_val = "parent_value"
+        assert arg == mock_val
 
 
 def test_list_featurestores_flattened_error():
@@ -1203,7 +1201,9 @@ async def test_list_featurestores_flattened_async():
         # request object values.
         assert len(call.mock_calls)
         _, args, _ = call.mock_calls[0]
-        assert args[0].parent == "parent_value"
+        arg = args[0].parent
+        mock_val = "parent_value"
+        assert arg == mock_val
 
 
 @pytest.mark.asyncio
@@ -1563,8 +1563,12 @@ def test_update_featurestore_flattened():
         # request object values.
         assert len(call.mock_calls) == 1
         _, args, _ = call.mock_calls[0]
-        assert args[0].featurestore == gca_featurestore.Featurestore(name="name_value")
-        assert args[0].update_mask == field_mask_pb2.FieldMask(paths=["paths_value"])
+        arg = args[0].featurestore
+        mock_val = gca_featurestore.Featurestore(name="name_value")
+        assert arg == mock_val
+        arg = args[0].update_mask
+        mock_val = field_mask_pb2.FieldMask(paths=["paths_value"])
+        assert arg == mock_val
 
 
 def test_update_featurestore_flattened_error():
@@ -1609,8 +1613,12 @@ async def test_update_featurestore_flattened_async():
         # request object values.
         assert len(call.mock_calls)
         _, args, _ = call.mock_calls[0]
-        assert args[0].featurestore == gca_featurestore.Featurestore(name="name_value")
-        assert args[0].update_mask == field_mask_pb2.FieldMask(paths=["paths_value"])
+        arg = args[0].featurestore
+        mock_val = gca_featurestore.Featurestore(name="name_value")
+        assert arg == mock_val
+        arg = args[0].update_mask
+        mock_val = field_mask_pb2.FieldMask(paths=["paths_value"])
+        assert arg == mock_val
 
 
 @pytest.mark.asyncio
@@ -1787,13 +1795,20 @@ def test_delete_featurestore_flattened():
         call.return_value = operations_pb2.Operation(name="operations/op")
         # Call the method with a truthy value for each flattened field,
         # using the keyword arguments to the method.
-        client.delete_featurestore(name="name_value",)
+        client.delete_featurestore(
+            name="name_value", force=True,
+        )
 
         # Establish that the underlying call was made with the expected
         # request object values.
         assert len(call.mock_calls) == 1
         _, args, _ = call.mock_calls[0]
-        assert args[0].name == "name_value"
+        arg = args[0].name
+        mock_val = "name_value"
+        assert arg == mock_val
+        arg = args[0].force
+        mock_val = True
+        assert arg == mock_val
 
 
 def test_delete_featurestore_flattened_error():
@@ -1805,7 +1820,9 @@ def test_delete_featurestore_flattened_error():
     # fields is an error.
     with pytest.raises(ValueError):
         client.delete_featurestore(
-            featurestore_service.DeleteFeaturestoreRequest(), name="name_value",
+            featurestore_service.DeleteFeaturestoreRequest(),
+            name="name_value",
+            force=True,
         )
 
 
@@ -1827,13 +1844,18 @@ async def test_delete_featurestore_flattened_async():
         )
         # Call the method with a truthy value for each flattened field,
         # using the keyword arguments to the method.
-        response = await client.delete_featurestore(name="name_value",)
+        response = await client.delete_featurestore(name="name_value", force=True,)
 
         # Establish that the underlying call was made with the expected
         # request object values.
         assert len(call.mock_calls)
         _, args, _ = call.mock_calls[0]
-        assert args[0].name == "name_value"
+        arg = args[0].name
+        mock_val = "name_value"
+        assert arg == mock_val
+        arg = args[0].force
+        mock_val = True
+        assert arg == mock_val
 
 
 @pytest.mark.asyncio
@@ -1846,7 +1868,9 @@ async def test_delete_featurestore_flattened_error_async():
     # fields is an error.
     with pytest.raises(ValueError):
         await client.delete_featurestore(
-            featurestore_service.DeleteFeaturestoreRequest(), name="name_value",
+            featurestore_service.DeleteFeaturestoreRequest(),
+            name="name_value",
+            force=True,
         )
 
 
@@ -2017,8 +2041,12 @@ def test_create_entity_type_flattened():
         # request object values.
         assert len(call.mock_calls) == 1
         _, args, _ = call.mock_calls[0]
-        assert args[0].parent == "parent_value"
-        assert args[0].entity_type == gca_entity_type.EntityType(name="name_value")
+        arg = args[0].parent
+        mock_val = "parent_value"
+        assert arg == mock_val
+        arg = args[0].entity_type
+        mock_val = gca_entity_type.EntityType(name="name_value")
+        assert arg == mock_val
 
 
 def test_create_entity_type_flattened_error():
@@ -2063,8 +2091,12 @@ async def test_create_entity_type_flattened_async():
         # request object values.
         assert len(call.mock_calls)
         _, args, _ = call.mock_calls[0]
-        assert args[0].parent == "parent_value"
-        assert args[0].entity_type == gca_entity_type.EntityType(name="name_value")
+        arg = args[0].parent
+        mock_val = "parent_value"
+        assert arg == mock_val
+        arg = args[0].entity_type
+        mock_val = gca_entity_type.EntityType(name="name_value")
+        assert arg == mock_val
 
 
 @pytest.mark.asyncio
@@ -2245,7 +2277,9 @@ def test_get_entity_type_flattened():
         # request object values.
         assert len(call.mock_calls) == 1
         _, args, _ = call.mock_calls[0]
-        assert args[0].name == "name_value"
+        arg = args[0].name
+        mock_val = "name_value"
+        assert arg == mock_val
 
 
 def test_get_entity_type_flattened_error():
@@ -2283,7 +2317,9 @@ async def test_get_entity_type_flattened_async():
         # request object values.
         assert len(call.mock_calls)
         _, args, _ = call.mock_calls[0]
-        assert args[0].name == "name_value"
+        arg = args[0].name
+        mock_val = "name_value"
+        assert arg == mock_val
 
 
 @pytest.mark.asyncio
@@ -2470,7 +2506,9 @@ def test_list_entity_types_flattened():
         # request object values.
         assert len(call.mock_calls) == 1
         _, args, _ = call.mock_calls[0]
-        assert args[0].parent == "parent_value"
+        arg = args[0].parent
+        mock_val = "parent_value"
+        assert arg == mock_val
 
 
 def test_list_entity_types_flattened_error():
@@ -2510,7 +2548,9 @@ async def test_list_entity_types_flattened_async():
         # request object values.
         assert len(call.mock_calls)
         _, args, _ = call.mock_calls[0]
-        assert args[0].parent == "parent_value"
+        arg = args[0].parent
+        mock_val = "parent_value"
+        assert arg == mock_val
 
 
 @pytest.mark.asyncio
@@ -2866,8 +2906,12 @@ def test_update_entity_type_flattened():
         # request object values.
         assert len(call.mock_calls) == 1
         _, args, _ = call.mock_calls[0]
-        assert args[0].entity_type == gca_entity_type.EntityType(name="name_value")
-        assert args[0].update_mask == field_mask_pb2.FieldMask(paths=["paths_value"])
+        arg = args[0].entity_type
+        mock_val = gca_entity_type.EntityType(name="name_value")
+        assert arg == mock_val
+        arg = args[0].update_mask
+        mock_val = field_mask_pb2.FieldMask(paths=["paths_value"])
+        assert arg == mock_val
 
 
 def test_update_entity_type_flattened_error():
@@ -2912,8 +2956,12 @@ async def test_update_entity_type_flattened_async():
         # request object values.
         assert len(call.mock_calls)
         _, args, _ = call.mock_calls[0]
-        assert args[0].entity_type == gca_entity_type.EntityType(name="name_value")
-        assert args[0].update_mask == field_mask_pb2.FieldMask(paths=["paths_value"])
+        arg = args[0].entity_type
+        mock_val = gca_entity_type.EntityType(name="name_value")
+        assert arg == mock_val
+        arg = args[0].update_mask
+        mock_val = field_mask_pb2.FieldMask(paths=["paths_value"])
+        assert arg == mock_val
 
 
 @pytest.mark.asyncio
@@ -3090,13 +3138,20 @@ def test_delete_entity_type_flattened():
         call.return_value = operations_pb2.Operation(name="operations/op")
         # Call the method with a truthy value for each flattened field,
         # using the keyword arguments to the method.
-        client.delete_entity_type(name="name_value",)
+        client.delete_entity_type(
+            name="name_value", force=True,
+        )
 
         # Establish that the underlying call was made with the expected
         # request object values.
         assert len(call.mock_calls) == 1
         _, args, _ = call.mock_calls[0]
-        assert args[0].name == "name_value"
+        arg = args[0].name
+        mock_val = "name_value"
+        assert arg == mock_val
+        arg = args[0].force
+        mock_val = True
+        assert arg == mock_val
 
 
 def test_delete_entity_type_flattened_error():
@@ -3108,7 +3163,9 @@ def test_delete_entity_type_flattened_error():
     # fields is an error.
     with pytest.raises(ValueError):
         client.delete_entity_type(
-            featurestore_service.DeleteEntityTypeRequest(), name="name_value",
+            featurestore_service.DeleteEntityTypeRequest(),
+            name="name_value",
+            force=True,
         )
 
 
@@ -3130,13 +3187,18 @@ async def test_delete_entity_type_flattened_async():
         )
         # Call the method with a truthy value for each flattened field,
         # using the keyword arguments to the method.
-        response = await client.delete_entity_type(name="name_value",)
+        response = await client.delete_entity_type(name="name_value", force=True,)
 
         # Establish that the underlying call was made with the expected
         # request object values.
         assert len(call.mock_calls)
         _, args, _ = call.mock_calls[0]
-        assert args[0].name == "name_value"
+        arg = args[0].name
+        mock_val = "name_value"
+        assert arg == mock_val
+        arg = args[0].force
+        mock_val = True
+        assert arg == mock_val
 
 
 @pytest.mark.asyncio
@@ -3149,7 +3211,9 @@ async def test_delete_entity_type_flattened_error_async():
     # fields is an error.
     with pytest.raises(ValueError):
         await client.delete_entity_type(
-            featurestore_service.DeleteEntityTypeRequest(), name="name_value",
+            featurestore_service.DeleteEntityTypeRequest(),
+            name="name_value",
+            force=True,
         )
 
 
@@ -3307,8 +3371,12 @@ def test_create_feature_flattened():
         # request object values.
         assert len(call.mock_calls) == 1
         _, args, _ = call.mock_calls[0]
-        assert args[0].parent == "parent_value"
-        assert args[0].feature == gca_feature.Feature(name="name_value")
+        arg = args[0].parent
+        mock_val = "parent_value"
+        assert arg == mock_val
+        arg = args[0].feature
+        mock_val = gca_feature.Feature(name="name_value")
+        assert arg == mock_val
 
 
 def test_create_feature_flattened_error():
@@ -3350,8 +3418,12 @@ async def test_create_feature_flattened_async():
         # request object values.
         assert len(call.mock_calls)
         _, args, _ = call.mock_calls[0]
-        assert args[0].parent == "parent_value"
-        assert args[0].feature == gca_feature.Feature(name="name_value")
+        arg = args[0].parent
+        mock_val = "parent_value"
+        assert arg == mock_val
+        arg = args[0].feature
+        mock_val = gca_feature.Feature(name="name_value")
+        assert arg == mock_val
 
 
 @pytest.mark.asyncio
@@ -3538,10 +3610,12 @@ def test_batch_create_features_flattened():
         # request object values.
         assert len(call.mock_calls) == 1
         _, args, _ = call.mock_calls[0]
-        assert args[0].parent == "parent_value"
-        assert args[0].requests == [
-            featurestore_service.CreateFeatureRequest(parent="parent_value")
-        ]
+        arg = args[0].parent
+        mock_val = "parent_value"
+        assert arg == mock_val
+        arg = args[0].requests
+        mock_val = [featurestore_service.CreateFeatureRequest(parent="parent_value")]
+        assert arg == mock_val
 
 
 def test_batch_create_features_flattened_error():
@@ -3586,10 +3660,12 @@ async def test_batch_create_features_flattened_async():
         # request object values.
         assert len(call.mock_calls)
         _, args, _ = call.mock_calls[0]
-        assert args[0].parent == "parent_value"
-        assert args[0].requests == [
-            featurestore_service.CreateFeatureRequest(parent="parent_value")
-        ]
+        arg = args[0].parent
+        mock_val = "parent_value"
+        assert arg == mock_val
+        arg = args[0].requests
+        mock_val = [featurestore_service.CreateFeatureRequest(parent="parent_value")]
+        assert arg == mock_val
 
 
 @pytest.mark.asyncio
@@ -3775,7 +3851,9 @@ def test_get_feature_flattened():
         # request object values.
         assert len(call.mock_calls) == 1
         _, args, _ = call.mock_calls[0]
-        assert args[0].name == "name_value"
+        arg = args[0].name
+        mock_val = "name_value"
+        assert arg == mock_val
 
 
 def test_get_feature_flattened_error():
@@ -3811,7 +3889,9 @@ async def test_get_feature_flattened_async():
         # request object values.
         assert len(call.mock_calls)
         _, args, _ = call.mock_calls[0]
-        assert args[0].name == "name_value"
+        arg = args[0].name
+        mock_val = "name_value"
+        assert arg == mock_val
 
 
 @pytest.mark.asyncio
@@ -3986,7 +4066,9 @@ def test_list_features_flattened():
         # request object values.
         assert len(call.mock_calls) == 1
         _, args, _ = call.mock_calls[0]
-        assert args[0].parent == "parent_value"
+        arg = args[0].parent
+        mock_val = "parent_value"
+        assert arg == mock_val
 
 
 def test_list_features_flattened_error():
@@ -4024,7 +4106,9 @@ async def test_list_features_flattened_async():
         # request object values.
         assert len(call.mock_calls)
         _, args, _ = call.mock_calls[0]
-        assert args[0].parent == "parent_value"
+        arg = args[0].parent
+        mock_val = "parent_value"
+        assert arg == mock_val
 
 
 @pytest.mark.asyncio
@@ -4350,8 +4434,12 @@ def test_update_feature_flattened():
         # request object values.
         assert len(call.mock_calls) == 1
         _, args, _ = call.mock_calls[0]
-        assert args[0].feature == gca_feature.Feature(name="name_value")
-        assert args[0].update_mask == field_mask_pb2.FieldMask(paths=["paths_value"])
+        arg = args[0].feature
+        mock_val = gca_feature.Feature(name="name_value")
+        assert arg == mock_val
+        arg = args[0].update_mask
+        mock_val = field_mask_pb2.FieldMask(paths=["paths_value"])
+        assert arg == mock_val
 
 
 def test_update_feature_flattened_error():
@@ -4392,8 +4480,12 @@ async def test_update_feature_flattened_async():
         # request object values.
         assert len(call.mock_calls)
         _, args, _ = call.mock_calls[0]
-        assert args[0].feature == gca_feature.Feature(name="name_value")
-        assert args[0].update_mask == field_mask_pb2.FieldMask(paths=["paths_value"])
+        arg = args[0].feature
+        mock_val = gca_feature.Feature(name="name_value")
+        assert arg == mock_val
+        arg = args[0].update_mask
+        mock_val = field_mask_pb2.FieldMask(paths=["paths_value"])
+        assert arg == mock_val
 
 
 @pytest.mark.asyncio
@@ -4564,7 +4656,9 @@ def test_delete_feature_flattened():
         # request object values.
         assert len(call.mock_calls) == 1
         _, args, _ = call.mock_calls[0]
-        assert args[0].name == "name_value"
+        arg = args[0].name
+        mock_val = "name_value"
+        assert arg == mock_val
 
 
 def test_delete_feature_flattened_error():
@@ -4602,7 +4696,9 @@ async def test_delete_feature_flattened_async():
         # request object values.
         assert len(call.mock_calls)
         _, args, _ = call.mock_calls[0]
-        assert args[0].name == "name_value"
+        arg = args[0].name
+        mock_val = "name_value"
+        assert arg == mock_val
 
 
 @pytest.mark.asyncio
@@ -4784,7 +4880,9 @@ def test_import_feature_values_flattened():
         # request object values.
         assert len(call.mock_calls) == 1
         _, args, _ = call.mock_calls[0]
-        assert args[0].entity_type == "entity_type_value"
+        arg = args[0].entity_type
+        mock_val = "entity_type_value"
+        assert arg == mock_val
 
 
 def test_import_feature_values_flattened_error():
@@ -4825,7 +4923,9 @@ async def test_import_feature_values_flattened_async():
         # request object values.
         assert len(call.mock_calls)
         _, args, _ = call.mock_calls[0]
-        assert args[0].entity_type == "entity_type_value"
+        arg = args[0].entity_type
+        mock_val = "entity_type_value"
+        assert arg == mock_val
 
 
 @pytest.mark.asyncio
@@ -5012,7 +5112,9 @@ def test_batch_read_feature_values_flattened():
         # request object values.
         assert len(call.mock_calls) == 1
         _, args, _ = call.mock_calls[0]
-        assert args[0].featurestore == "featurestore_value"
+        arg = args[0].featurestore
+        mock_val = "featurestore_value"
+        assert arg == mock_val
 
 
 def test_batch_read_feature_values_flattened_error():
@@ -5055,7 +5157,9 @@ async def test_batch_read_feature_values_flattened_async():
         # request object values.
         assert len(call.mock_calls)
         _, args, _ = call.mock_calls[0]
-        assert args[0].featurestore == "featurestore_value"
+        arg = args[0].featurestore
+        mock_val = "featurestore_value"
+        assert arg == mock_val
 
 
 @pytest.mark.asyncio
@@ -5238,7 +5342,9 @@ def test_export_feature_values_flattened():
         # request object values.
         assert len(call.mock_calls) == 1
         _, args, _ = call.mock_calls[0]
-        assert args[0].entity_type == "entity_type_value"
+        arg = args[0].entity_type
+        mock_val = "entity_type_value"
+        assert arg == mock_val
 
 
 def test_export_feature_values_flattened_error():
@@ -5279,7 +5385,9 @@ async def test_export_feature_values_flattened_async():
         # request object values.
         assert len(call.mock_calls)
         _, args, _ = call.mock_calls[0]
-        assert args[0].entity_type == "entity_type_value"
+        arg = args[0].entity_type
+        mock_val = "entity_type_value"
+        assert arg == mock_val
 
 
 @pytest.mark.asyncio
@@ -5449,13 +5557,20 @@ def test_search_features_flattened():
         call.return_value = featurestore_service.SearchFeaturesResponse()
         # Call the method with a truthy value for each flattened field,
         # using the keyword arguments to the method.
-        client.search_features(location="location_value",)
+        client.search_features(
+            location="location_value", query="query_value",
+        )
 
         # Establish that the underlying call was made with the expected
         # request object values.
         assert len(call.mock_calls) == 1
         _, args, _ = call.mock_calls[0]
-        assert args[0].location == "location_value"
+        arg = args[0].location
+        mock_val = "location_value"
+        assert arg == mock_val
+        arg = args[0].query
+        mock_val = "query_value"
+        assert arg == mock_val
 
 
 def test_search_features_flattened_error():
@@ -5467,7 +5582,9 @@ def test_search_features_flattened_error():
     # fields is an error.
     with pytest.raises(ValueError):
         client.search_features(
-            featurestore_service.SearchFeaturesRequest(), location="location_value",
+            featurestore_service.SearchFeaturesRequest(),
+            location="location_value",
+            query="query_value",
         )
 
 
@@ -5487,13 +5604,20 @@ async def test_search_features_flattened_async():
         )
         # Call the method with a truthy value for each flattened field,
         # using the keyword arguments to the method.
-        response = await client.search_features(location="location_value",)
+        response = await client.search_features(
+            location="location_value", query="query_value",
+        )
 
         # Establish that the underlying call was made with the expected
         # request object values.
         assert len(call.mock_calls)
         _, args, _ = call.mock_calls[0]
-        assert args[0].location == "location_value"
+        arg = args[0].location
+        mock_val = "location_value"
+        assert arg == mock_val
+        arg = args[0].query
+        mock_val = "query_value"
+        assert arg == mock_val
 
 
 @pytest.mark.asyncio
@@ -5506,7 +5630,9 @@ async def test_search_features_flattened_error_async():
     # fields is an error.
     with pytest.raises(ValueError):
         await client.search_features(
-            featurestore_service.SearchFeaturesRequest(), location="location_value",
+            featurestore_service.SearchFeaturesRequest(),
+            location="location_value",
+            query="query_value",
         )
 
 
@@ -5768,13 +5894,15 @@ def test_featurestore_service_base_transport():
         with pytest.raises(NotImplementedError):
             getattr(transport, method)(request=object())
 
+    with pytest.raises(NotImplementedError):
+        transport.close()
+
     # Additionally, the LRO client (a property) should
     # also raise NotImplementedError
     with pytest.raises(NotImplementedError):
         transport.operations_client
 
 
-@requires_google_auth_gte_1_25_0
 def test_featurestore_service_base_transport_with_credentials_file():
     # Instantiate the base transport with a credentials file
     with mock.patch.object(
@@ -5795,26 +5923,6 @@ def test_featurestore_service_base_transport_with_credentials_file():
         )
 
 
-@requires_google_auth_lt_1_25_0
-def test_featurestore_service_base_transport_with_credentials_file_old_google_auth():
-    # Instantiate the base transport with a credentials file
-    with mock.patch.object(
-        google.auth, "load_credentials_from_file", autospec=True
-    ) as load_creds, mock.patch(
-        "google.cloud.aiplatform_v1beta1.services.featurestore_service.transports.FeaturestoreServiceTransport._prep_wrapped_messages"
-    ) as Transport:
-        Transport.return_value = None
-        load_creds.return_value = (ga_credentials.AnonymousCredentials(), None)
-        transport = transports.FeaturestoreServiceTransport(
-            credentials_file="credentials.json", quota_project_id="octopus",
-        )
-        load_creds.assert_called_once_with(
-            "credentials.json",
-            scopes=("https://www.googleapis.com/auth/cloud-platform",),
-            quota_project_id="octopus",
-        )
-
-
 def test_featurestore_service_base_transport_with_adc():
     # Test the default credentials are used if credentials and credentials_file are None.
     with mock.patch.object(google.auth, "default", autospec=True) as adc, mock.patch(
@@ -5826,7 +5934,6 @@ def test_featurestore_service_base_transport_with_adc():
         adc.assert_called_once()
 
 
-@requires_google_auth_gte_1_25_0
 def test_featurestore_service_auth_adc():
     # If no credentials are provided, we should use ADC credentials.
     with mock.patch.object(google.auth, "default", autospec=True) as adc:
@@ -5839,18 +5946,6 @@ def test_featurestore_service_auth_adc():
         )
 
 
-@requires_google_auth_lt_1_25_0
-def test_featurestore_service_auth_adc_old_google_auth():
-    # If no credentials are provided, we should use ADC credentials.
-    with mock.patch.object(google.auth, "default", autospec=True) as adc:
-        adc.return_value = (ga_credentials.AnonymousCredentials(), None)
-        FeaturestoreServiceClient()
-        adc.assert_called_once_with(
-            scopes=("https://www.googleapis.com/auth/cloud-platform",),
-            quota_project_id=None,
-        )
-
-
 @pytest.mark.parametrize(
     "transport_class",
     [
@@ -5858,7 +5953,6 @@ def test_featurestore_service_auth_adc_old_google_auth():
         transports.FeaturestoreServiceGrpcAsyncIOTransport,
     ],
 )
-@requires_google_auth_gte_1_25_0
 def test_featurestore_service_transport_auth_adc(transport_class):
     # If credentials and host are not provided, the transport class should use
     # ADC credentials.
@@ -5868,26 +5962,6 @@ def test_featurestore_service_transport_auth_adc(transport_class):
         adc.assert_called_once_with(
             scopes=["1", "2"],
             default_scopes=("https://www.googleapis.com/auth/cloud-platform",),
-            quota_project_id="octopus",
-        )
-
-
-@pytest.mark.parametrize(
-    "transport_class",
-    [
-        transports.FeaturestoreServiceGrpcTransport,
-        transports.FeaturestoreServiceGrpcAsyncIOTransport,
-    ],
-)
-@requires_google_auth_lt_1_25_0
-def test_featurestore_service_transport_auth_adc_old_google_auth(transport_class):
-    # If credentials and host are not provided, the transport class should use
-    # ADC credentials.
-    with mock.patch.object(google.auth, "default", autospec=True) as adc:
-        adc.return_value = (ga_credentials.AnonymousCredentials(), None)
-        transport_class(quota_project_id="octopus")
-        adc.assert_called_once_with(
-            scopes=("https://www.googleapis.com/auth/cloud-platform",),
             quota_project_id="octopus",
         )
 
@@ -6350,3 +6424,49 @@ def test_client_withDEFAULT_CLIENT_INFO():
             credentials=ga_credentials.AnonymousCredentials(), client_info=client_info,
         )
         prep.assert_called_once_with(client_info)
+
+
+@pytest.mark.asyncio
+async def test_transport_close_async():
+    client = FeaturestoreServiceAsyncClient(
+        credentials=ga_credentials.AnonymousCredentials(), transport="grpc_asyncio",
+    )
+    with mock.patch.object(
+        type(getattr(client.transport, "grpc_channel")), "close"
+    ) as close:
+        async with client:
+            close.assert_not_called()
+        close.assert_called_once()
+
+
+def test_transport_close():
+    transports = {
+        "grpc": "_grpc_channel",
+    }
+
+    for transport, close_name in transports.items():
+        client = FeaturestoreServiceClient(
+            credentials=ga_credentials.AnonymousCredentials(), transport=transport
+        )
+        with mock.patch.object(
+            type(getattr(client.transport, close_name)), "close"
+        ) as close:
+            with client:
+                close.assert_not_called()
+            close.assert_called_once()
+
+
+def test_client_ctx():
+    transports = [
+        "grpc",
+    ]
+    for transport in transports:
+        client = FeaturestoreServiceClient(
+            credentials=ga_credentials.AnonymousCredentials(), transport=transport
+        )
+        # Test client calls underlying transport.
+        with mock.patch.object(type(client.transport), "close") as close:
+            close.assert_not_called()
+            with client:
+                pass
+            close.assert_called()

@@ -16,8 +16,8 @@
 import warnings
 from typing import Callable, Dict, Optional, Sequence, Tuple, Union
 
-from google.api_core import grpc_helpers  # type: ignore
-from google.api_core import gapic_v1  # type: ignore
+from google.api_core import grpc_helpers
+from google.api_core import gapic_v1
 import google.auth  # type: ignore
 from google.auth import credentials as ga_credentials  # type: ignore
 from google.auth.transport.grpc import SslCredentials  # type: ignore
@@ -319,6 +319,9 @@ class PredictionServiceGrpcTransport(PredictionServiceTransport):
                 response_deserializer=prediction_service.ExplainResponse.deserialize,
             )
         return self._stubs["explain"]
+
+    def close(self):
+        self.grpc_channel.close()
 
 
 __all__ = ("PredictionServiceGrpcTransport",)

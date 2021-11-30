@@ -16,9 +16,9 @@
 import warnings
 from typing import Callable, Dict, Optional, Sequence, Tuple, Union
 
-from google.api_core import grpc_helpers  # type: ignore
-from google.api_core import operations_v1  # type: ignore
-from google.api_core import gapic_v1  # type: ignore
+from google.api_core import grpc_helpers
+from google.api_core import operations_v1
+from google.api_core import gapic_v1
 import google.auth  # type: ignore
 from google.auth import credentials as ga_credentials  # type: ignore
 from google.auth.transport.grpc import SslCredentials  # type: ignore
@@ -131,7 +131,7 @@ class JobServiceGrpcTransport(JobServiceTransport):
         self._grpc_channel = None
         self._ssl_channel_credentials = ssl_channel_credentials
         self._stubs: Dict[str, Callable] = {}
-        self._operations_client = None
+        self._operations_client: Optional[operations_v1.OperationsClient] = None
 
         if api_mtls_endpoint:
             warnings.warn("api_mtls_endpoint is deprecated", DeprecationWarning)
@@ -1127,6 +1127,9 @@ class JobServiceGrpcTransport(JobServiceTransport):
                 response_deserializer=empty_pb2.Empty.FromString,
             )
         return self._stubs["resume_model_deployment_monitoring_job"]
+
+    def close(self):
+        self.grpc_channel.close()
 
 
 __all__ = ("JobServiceGrpcTransport",)

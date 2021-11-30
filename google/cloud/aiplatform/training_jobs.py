@@ -18,16 +18,16 @@
 import datetime
 import time
 from typing import Dict, List, Optional, Sequence, Tuple, Union
-import warnings
 
 import abc
 
 from google.auth import credentials as auth_credentials
 from google.cloud.aiplatform import base
-from google.cloud.aiplatform import constants
+from google.cloud.aiplatform.constants import base as constants
 from google.cloud.aiplatform import datasets
 from google.cloud.aiplatform import initializer
 from google.cloud.aiplatform import models
+from google.cloud.aiplatform import jobs
 from google.cloud.aiplatform import schema
 from google.cloud.aiplatform import utils
 from google.cloud.aiplatform.utils import console_utils
@@ -42,6 +42,7 @@ from google.cloud.aiplatform.compat.types import (
 from google.cloud.aiplatform.utils import _timestamped_gcs_dir
 from google.cloud.aiplatform.utils import source_utils
 from google.cloud.aiplatform.utils import worker_spec_utils
+from google.cloud.aiplatform.utils import column_transformations_utils
 
 from google.cloud.aiplatform.v1.schema.trainingjob import (
     definition_v1 as training_job_inputs,
@@ -1251,6 +1252,7 @@ class _CustomTrainingJob(_TrainingJob):
         # once Custom Job is known we log the console uri and the tensorboard uri
         # this flags keeps that state so we don't log it multiple times
         self._has_logged_custom_job = False
+        self._logged_web_access_uris = set()
 
     @property
     def network(self) -> Optional[str]:
@@ -1278,6 +1280,8 @@ class _CustomTrainingJob(_TrainingJob):
         accelerator_count: int = 0,
         boot_disk_type: str = "pd-ssd",
         boot_disk_size_gb: int = 100,
+        reduction_server_replica_count: int = 0,
+        reduction_server_machine_type: Optional[str] = None,
     ) -> Tuple[worker_spec_utils._DistributedTrainingSpec, Optional[gca_model.Model]]:
         """Create worker pool specs and managed model as well validating the
         run.
@@ -1318,6 +1322,10 @@ class _CustomTrainingJob(_TrainingJob):
             boot_disk_size_gb (int):
                 Size in GB of the boot disk, default is 100GB.
                 boot disk size must be within the range of [100, 64000].
+            reduction_server_replica_count (int):
+                The number of reduction server replicas, default is 0.
+            reduction_server_machine_type (str):
+                Optional. The type of machine to use for reduction server.
         Returns:
             Worker pools specs and managed model for run.
 
@@ -1352,6 +1360,8 @@ class _CustomTrainingJob(_TrainingJob):
             accelerator_type=accelerator_type,
             boot_disk_type=boot_disk_type,
             boot_disk_size_gb=boot_disk_size_gb,
+            reduction_server_replica_count=reduction_server_replica_count,
+            reduction_server_machine_type=reduction_server_machine_type,
         ).pool_specs
 
         managed_model = self._managed_model
@@ -1374,6 +1384,7 @@ class _CustomTrainingJob(_TrainingJob):
         base_output_dir: Optional[str] = None,
         service_account: Optional[str] = None,
         network: Optional[str] = None,
+        enable_web_access: bool = False,
         tensorboard: Optional[str] = None,
     ) -> Tuple[Dict, str]:
         """Prepares training task inputs and output directory for custom job.
@@ -1392,6 +1403,10 @@ class _CustomTrainingJob(_TrainingJob):
                 should be peered. For example, projects/12345/global/networks/myVPC.
                 Private services access must already be configured for the network.
                 If left unspecified, the job is not peered with any network.
+            enable_web_access (bool):
+                Whether you want Vertex AI to enable interactive shell access
+                to training containers.
+                https://cloud.google.com/vertex-ai/docs/training/monitor-debug-interactive-shell
             tensorboard (str):
                 Optional. The name of a Vertex AI
                 [Tensorboard][google.cloud.aiplatform.v1beta1.Tensorboard]
@@ -1429,8 +1444,42 @@ class _CustomTrainingJob(_TrainingJob):
             training_task_inputs["network"] = network
         if tensorboard:
             training_task_inputs["tensorboard"] = tensorboard
+        if enable_web_access:
+            training_task_inputs["enable_web_access"] = enable_web_access
 
         return training_task_inputs, base_output_dir
+
+    @property
+    def web_access_uris(self) -> Dict[str, str]:
+        """Get the web access uris of the backing custom job.
+
+        Returns:
+            (Dict[str, str]):
+                Web access uris of the backing custom job.
+        """
+        web_access_uris = dict()
+        if (
+            self._gca_resource.training_task_metadata
+            and self._gca_resource.training_task_metadata.get("backingCustomJob")
+        ):
+            custom_job_resource_name = self._gca_resource.training_task_metadata.get(
+                "backingCustomJob"
+            )
+            custom_job = jobs.CustomJob.get(resource_name=custom_job_resource_name)
+
+            web_access_uris = dict(custom_job.web_access_uris)
+
+        return web_access_uris
+
+    def _log_web_access_uris(self):
+        """Helper method to log the web access uris of the backing custom job"""
+        for worker, uri in self.web_access_uris.items():
+            if uri not in self._logged_web_access_uris:
+                _LOGGER.info(
+                    "%s %s access the interactive shell terminals for the backing custom job:\n%s:\n%s"
+                    % (self.__class__.__name__, self._gca_resource.name, worker, uri,),
+                )
+                self._logged_web_access_uris.add(uri)
 
     def _wait_callback(self):
         if (
@@ -1444,6 +1493,9 @@ class _CustomTrainingJob(_TrainingJob):
                 _LOGGER.info(f"View tensorboard:\n{self._tensorboard_console_uri()}")
 
             self._has_logged_custom_job = True
+
+        if self._gca_resource.training_task_inputs.get("enable_web_access"):
+            self._log_web_access_uris()
 
     def _custom_job_console_uri(self) -> str:
         """Helper method to compose the dashboard uri where custom job can be viewed."""
@@ -1736,6 +1788,9 @@ class CustomTrainingJob(_CustomTrainingJob):
         accelerator_count: int = 0,
         boot_disk_type: str = "pd-ssd",
         boot_disk_size_gb: int = 100,
+        reduction_server_replica_count: int = 0,
+        reduction_server_machine_type: Optional[str] = None,
+        reduction_server_container_uri: Optional[str] = None,
         training_fraction_split: Optional[float] = None,
         validation_fraction_split: Optional[float] = None,
         test_fraction_split: Optional[float] = None,
@@ -1744,6 +1799,7 @@ class CustomTrainingJob(_CustomTrainingJob):
         test_filter_split: Optional[str] = None,
         predefined_split_column_name: Optional[str] = None,
         timestamp_split_column_name: Optional[str] = None,
+        enable_web_access: bool = False,
         tensorboard: Optional[str] = None,
         sync=True,
     ) -> Optional[models.Model]:
@@ -1907,6 +1963,13 @@ class CustomTrainingJob(_CustomTrainingJob):
             boot_disk_size_gb (int):
                 Size in GB of the boot disk, default is 100GB.
                 boot disk size must be within the range of [100, 64000].
+            reduction_server_replica_count (int):
+                The number of reduction server replicas, default is 0.
+            reduction_server_machine_type (str):
+                Optional. The type of machine to use for reduction server.
+            reduction_server_container_uri (str):
+                Optional. The Uri of the reduction server container image.
+                See details: https://cloud.google.com/vertex-ai/docs/training/distributed-training#reduce_training_time_with_reduction_server
             training_fraction_split (float):
                 Optional. The fraction of the input data that is to be used to train
                 the Model. This is ignored if Dataset is not provided.
@@ -1956,6 +2019,10 @@ class CustomTrainingJob(_CustomTrainingJob):
                 that piece is ignored by the pipeline.
 
                 Supported only for tabular and time series Datasets.
+            enable_web_access (bool):
+                Whether you want Vertex AI to enable interactive shell access
+                to training containers.
+                https://cloud.google.com/vertex-ai/docs/training/monitor-debug-interactive-shell
             tensorboard (str):
                 Optional. The name of a Vertex AI
                 [Tensorboard][google.cloud.aiplatform.v1beta1.Tensorboard]
@@ -1989,6 +2056,8 @@ class CustomTrainingJob(_CustomTrainingJob):
             accelerator_type=accelerator_type,
             boot_disk_type=boot_disk_type,
             boot_disk_size_gb=boot_disk_size_gb,
+            reduction_server_replica_count=reduction_server_replica_count,
+            reduction_server_machine_type=reduction_server_machine_type,
         )
 
         # make and copy package
@@ -2016,7 +2085,11 @@ class CustomTrainingJob(_CustomTrainingJob):
             test_filter_split=test_filter_split,
             predefined_split_column_name=predefined_split_column_name,
             timestamp_split_column_name=timestamp_split_column_name,
+            enable_web_access=enable_web_access,
             tensorboard=tensorboard,
+            reduction_server_container_uri=reduction_server_container_uri
+            if reduction_server_replica_count > 0
+            else None,
             sync=sync,
         )
 
@@ -2049,7 +2122,9 @@ class CustomTrainingJob(_CustomTrainingJob):
         test_filter_split: Optional[str] = None,
         predefined_split_column_name: Optional[str] = None,
         timestamp_split_column_name: Optional[str] = None,
+        enable_web_access: bool = False,
         tensorboard: Optional[str] = None,
+        reduction_server_container_uri: Optional[str] = None,
         sync=True,
     ) -> Optional[models.Model]:
         """Packages local script and launches training_job.
@@ -2167,6 +2242,10 @@ class CustomTrainingJob(_CustomTrainingJob):
                 that piece is ignored by the pipeline.
 
                 Supported only for tabular and time series Datasets.
+            enable_web_access (bool):
+                Whether you want Vertex AI to enable interactive shell access
+                to training containers.
+                https://cloud.google.com/vertex-ai/docs/training/monitor-debug-interactive-shell
             tensorboard (str):
                 Optional. The name of a Vertex AI
                 [Tensorboard][google.cloud.aiplatform.v1beta1.Tensorboard]
@@ -2182,6 +2261,8 @@ class CustomTrainingJob(_CustomTrainingJob):
                 `service_account` is required with provided `tensorboard`.
                 For more information on configuring your service account please visit:
                 https://cloud.google.com/vertex-ai/docs/experiments/tensorboard-training
+            reduction_server_container_uri (str):
+                Optional. The Uri of the reduction server container image.
             sync (bool):
                 Whether to execute this method synchronously. If False, this method
                 will be executed in concurrent Future and any downstream object will
@@ -2197,21 +2278,33 @@ class CustomTrainingJob(_CustomTrainingJob):
             credentials=self.credentials,
         )
 
-        for spec in worker_pool_specs:
-            spec["python_package_spec"] = {
-                "executor_image_uri": self._container_uri,
-                "python_module": python_packager.module_name,
-                "package_uris": [package_gcs_uri],
-            }
+        for spec_order, spec in enumerate(worker_pool_specs):
 
-            if args:
-                spec["python_package_spec"]["args"] = args
+            if not spec:
+                continue
 
-            if environment_variables:
-                spec["python_package_spec"]["env"] = [
-                    {"name": key, "value": value}
-                    for key, value in environment_variables.items()
-                ]
+            if (
+                spec_order == worker_spec_utils._SPEC_ORDERS["server_spec"]
+                and reduction_server_container_uri
+            ):
+                spec["container_spec"] = {
+                    "image_uri": reduction_server_container_uri,
+                }
+            else:
+                spec["python_package_spec"] = {
+                    "executor_image_uri": self._container_uri,
+                    "python_module": python_packager.module_name,
+                    "package_uris": [package_gcs_uri],
+                }
+
+                if args:
+                    spec["python_package_spec"]["args"] = args
+
+                if environment_variables:
+                    spec["python_package_spec"]["env"] = [
+                        {"name": key, "value": value}
+                        for key, value in environment_variables.items()
+                    ]
 
         (
             training_task_inputs,
@@ -2221,6 +2314,7 @@ class CustomTrainingJob(_CustomTrainingJob):
             base_output_dir=base_output_dir,
             service_account=service_account,
             network=network,
+            enable_web_access=enable_web_access,
             tensorboard=tensorboard,
         )
 
@@ -2498,6 +2592,9 @@ class CustomContainerTrainingJob(_CustomTrainingJob):
         accelerator_count: int = 0,
         boot_disk_type: str = "pd-ssd",
         boot_disk_size_gb: int = 100,
+        reduction_server_replica_count: int = 0,
+        reduction_server_machine_type: Optional[str] = None,
+        reduction_server_container_uri: Optional[str] = None,
         training_fraction_split: Optional[float] = None,
         validation_fraction_split: Optional[float] = None,
         test_fraction_split: Optional[float] = None,
@@ -2506,6 +2603,7 @@ class CustomContainerTrainingJob(_CustomTrainingJob):
         test_filter_split: Optional[str] = None,
         predefined_split_column_name: Optional[str] = None,
         timestamp_split_column_name: Optional[str] = None,
+        enable_web_access: bool = False,
         tensorboard: Optional[str] = None,
         sync=True,
     ) -> Optional[models.Model]:
@@ -2662,6 +2760,13 @@ class CustomContainerTrainingJob(_CustomTrainingJob):
             boot_disk_size_gb (int):
                 Size in GB of the boot disk, default is 100GB.
                 boot disk size must be within the range of [100, 64000].
+            reduction_server_replica_count (int):
+                The number of reduction server replicas, default is 0.
+            reduction_server_machine_type (str):
+                Optional. The type of machine to use for reduction server.
+            reduction_server_container_uri (str):
+                Optional. The Uri of the reduction server container image.
+                See details: https://cloud.google.com/vertex-ai/docs/training/distributed-training#reduce_training_time_with_reduction_server
             training_fraction_split (float):
                 Optional. The fraction of the input data that is to be used to train
                 the Model. This is ignored if Dataset is not provided.
@@ -2711,6 +2816,10 @@ class CustomContainerTrainingJob(_CustomTrainingJob):
                 that piece is ignored by the pipeline.
 
                 Supported only for tabular and time series Datasets.
+            enable_web_access (bool):
+                Whether you want Vertex AI to enable interactive shell access
+                to training containers.
+                https://cloud.google.com/vertex-ai/docs/training/monitor-debug-interactive-shell
             tensorboard (str):
                 Optional. The name of a Vertex AI
                 [Tensorboard][google.cloud.aiplatform.v1beta1.Tensorboard]
@@ -2749,6 +2858,8 @@ class CustomContainerTrainingJob(_CustomTrainingJob):
             accelerator_type=accelerator_type,
             boot_disk_type=boot_disk_type,
             boot_disk_size_gb=boot_disk_size_gb,
+            reduction_server_replica_count=reduction_server_replica_count,
+            reduction_server_machine_type=reduction_server_machine_type,
         )
 
         return self._run(
@@ -2770,7 +2881,11 @@ class CustomContainerTrainingJob(_CustomTrainingJob):
             test_filter_split=test_filter_split,
             predefined_split_column_name=predefined_split_column_name,
             timestamp_split_column_name=timestamp_split_column_name,
+            enable_web_access=enable_web_access,
             tensorboard=tensorboard,
+            reduction_server_container_uri=reduction_server_container_uri
+            if reduction_server_replica_count > 0
+            else None,
             sync=sync,
         )
 
@@ -2802,7 +2917,9 @@ class CustomContainerTrainingJob(_CustomTrainingJob):
         test_filter_split: Optional[str] = None,
         predefined_split_column_name: Optional[str] = None,
         timestamp_split_column_name: Optional[str] = None,
+        enable_web_access: bool = False,
         tensorboard: Optional[str] = None,
+        reduction_server_container_uri: Optional[str] = None,
         sync=True,
     ) -> Optional[models.Model]:
         """Packages local script and launches training_job.
@@ -2916,6 +3033,10 @@ class CustomContainerTrainingJob(_CustomTrainingJob):
                 that piece is ignored by the pipeline.
 
                 Supported only for tabular and time series Datasets.
+            enable_web_access (bool):
+                Whether you want Vertex AI to enable interactive shell access
+                to training containers.
+                https://cloud.google.com/vertex-ai/docs/training/monitor-debug-interactive-shell
             tensorboard (str):
                 Optional. The name of a Vertex AI
                 [Tensorboard][google.cloud.aiplatform.v1beta1.Tensorboard]
@@ -2931,6 +3052,8 @@ class CustomContainerTrainingJob(_CustomTrainingJob):
                 `service_account` is required with provided `tensorboard`.
                 For more information on configuring your service account please visit:
                 https://cloud.google.com/vertex-ai/docs/experiments/tensorboard-training
+            reduction_server_container_uri (str):
+                Optional. The Uri of the reduction server container image.
             sync (bool):
                 Whether to execute this method synchronously. If False, this method
                 will be executed in concurrent Future and any downstream object will
@@ -2941,20 +3064,32 @@ class CustomContainerTrainingJob(_CustomTrainingJob):
                 produce a Vertex AI Model.
         """
 
-        for spec in worker_pool_specs:
-            spec["containerSpec"] = {"imageUri": self._container_uri}
+        for spec_order, spec in enumerate(worker_pool_specs):
 
-            if self._command:
-                spec["containerSpec"]["command"] = self._command
+            if not spec:
+                continue
 
-            if args:
-                spec["containerSpec"]["args"] = args
+            if (
+                spec_order == worker_spec_utils._SPEC_ORDERS["server_spec"]
+                and reduction_server_container_uri
+            ):
+                spec["container_spec"] = {
+                    "image_uri": reduction_server_container_uri,
+                }
+            else:
+                spec["containerSpec"] = {"imageUri": self._container_uri}
 
-            if environment_variables:
-                spec["containerSpec"]["env"] = [
-                    {"name": key, "value": value}
-                    for key, value in environment_variables.items()
-                ]
+                if self._command:
+                    spec["containerSpec"]["command"] = self._command
+
+                if args:
+                    spec["containerSpec"]["args"] = args
+
+                if environment_variables:
+                    spec["containerSpec"]["env"] = [
+                        {"name": key, "value": value}
+                        for key, value in environment_variables.items()
+                    ]
 
         (
             training_task_inputs,
@@ -2964,6 +3099,7 @@ class CustomContainerTrainingJob(_CustomTrainingJob):
             base_output_dir=base_output_dir,
             service_account=service_account,
             network=network,
+            enable_web_access=enable_web_access,
             tensorboard=tensorboard,
         )
 
@@ -2997,7 +3133,7 @@ class AutoMLTabularTrainingJob(_TrainingJob):
         optimization_prediction_type: str,
         optimization_objective: Optional[str] = None,
         column_specs: Optional[Dict[str, str]] = None,
-        column_transformations: Optional[Union[Dict, List[Dict]]] = None,
+        column_transformations: Optional[List[Dict[str, Dict[str, str]]]] = None,
         optimization_objective_recall_value: Optional[float] = None,
         optimization_objective_precision_value: Optional[float] = None,
         project: Optional[str] = None,
@@ -3070,7 +3206,7 @@ class AutoMLTabularTrainingJob(_TrainingJob):
                 ignored by the training, except for the targetColumn, which should have
                 no transformations defined on.
                 Only one of column_transformations or column_specs should be passed.
-            column_transformations (Union[Dict, List[Dict]]):
+            column_transformations (List[Dict[str, Dict[str, str]]]):
                 Optional. Transformations to apply to the input columns (i.e. columns other
                 than the targetColumn). Each transformation may produce multiple
                 result values from the column's value, and all are used for training.
@@ -3136,8 +3272,8 @@ class AutoMLTabularTrainingJob(_TrainingJob):
 
                 Overrides encryption_spec_key_name set in aiplatform.init.
 
-            Raises:
-                ValueError: When both column_transforations and column_specs were passed
+        Raises:
+            ValueError: If both column_transformations and column_specs were provided.
         """
         super().__init__(
             display_name=display_name,
@@ -3148,26 +3284,11 @@ class AutoMLTabularTrainingJob(_TrainingJob):
             training_encryption_spec_key_name=training_encryption_spec_key_name,
             model_encryption_spec_key_name=model_encryption_spec_key_name,
         )
-        # user populated transformations
-        if column_transformations is not None and column_specs is not None:
-            raise ValueError(
-                "Both column_transformations and column_specs were passed. Only one is allowed."
-            )
-        if column_transformations is not None:
-            self._column_transformations = column_transformations
-            warnings.simplefilter("always", DeprecationWarning)
-            warnings.warn(
-                "consider using column_specs instead. column_transformations will be deprecated in the future.",
-                DeprecationWarning,
-                stacklevel=2,
-            )
-        elif column_specs is not None:
-            self._column_transformations = [
-                {transformation: {"column_name": column_name}}
-                for column_name, transformation in column_specs.items()
-            ]
-        else:
-            self._column_transformations = None
+
+        self._column_transformations = column_transformations_utils.validate_and_get_column_transformations(
+            column_specs, column_transformations
+        )
+
         self._optimization_objective = optimization_objective
         self._optimization_prediction_type = optimization_prediction_type
         self._optimization_objective_recall_value = optimization_objective_recall_value
@@ -3523,14 +3644,12 @@ class AutoMLTabularTrainingJob(_TrainingJob):
                 "No column transformations provided, so now retrieving columns from dataset in order to set default column transformations."
             )
 
-            column_names = [
-                column_name
-                for column_name in dataset.column_names
-                if column_name != target_column
-            ]
-            self._column_transformations = [
-                {"auto": {"column_name": column_name}} for column_name in column_names
-            ]
+            (
+                self._column_transformations,
+                column_names,
+            ) = column_transformations_utils.get_default_column_transformations(
+                dataset=dataset, target_column=target_column
+            )
 
             _LOGGER.info(
                 "The column transformation of type 'auto' was set for the following columns: %s."
@@ -3647,28 +3766,21 @@ class AutoMLForecastingTrainingJob(_TrainingJob):
     def __init__(
         self,
         display_name: str,
-        labels: Optional[Dict[str, str]] = None,
         optimization_objective: Optional[str] = None,
-        column_transformations: Optional[Union[Dict, List[Dict]]] = None,
+        column_specs: Optional[Dict[str, str]] = None,
+        column_transformations: Optional[List[Dict[str, Dict[str, str]]]] = None,
         project: Optional[str] = None,
         location: Optional[str] = None,
         credentials: Optional[auth_credentials.Credentials] = None,
+        labels: Optional[Dict[str, str]] = None,
+        training_encryption_spec_key_name: Optional[str] = None,
+        model_encryption_spec_key_name: Optional[str] = None,
     ):
         """Constructs a AutoML Forecasting Training Job.
 
         Args:
             display_name (str):
                 Required. The user-defined name of this TrainingPipeline.
-            labels (Dict[str, str]):
-                Optional. The labels with user-defined metadata to
-                organize TrainingPipelines.
-                Label keys and values can be no longer than 64
-                characters (Unicode codepoints), can only
-                contain lowercase letters, numeric characters,
-                underscores and dashes. International characters
-                are allowed.
-                See https://goo.gl/xmQnxf for more information
-                and examples of labels.
             optimization_objective (str):
                 Optional. Objective function the model is to be optimized towards.
                 The training process creates a Model that optimizes the value of the objective
@@ -3681,15 +3793,29 @@ class AutoMLForecastingTrainingJob(_TrainingJob):
                                       and mean-absolute-error (MAE).
                 "minimize-quantile-loss" - Minimize the quantile loss at the defined quantiles.
                                            (Set this objective to build quantile forecasts.)
-            column_transformations (Optional[Union[Dict, List[Dict]]]):
+            column_specs (Dict[str, str]):
+                Optional. Alternative to column_transformations where the keys of the dict
+                are column names and their respective values are one of
+                AutoMLTabularTrainingJob.column_data_types.
+                When creating transformation for BigQuery Struct column, the column
+                should be flattened using "." as the delimiter. Only columns with no child
+                should have a transformation.
+                If an input column has no transformations on it, such a column is
+                ignored by the training, except for the targetColumn, which should have
+                no transformations defined on.
+                Only one of column_transformations or column_specs should be passed.
+            column_transformations (List[Dict[str, Dict[str, str]]]):
                 Optional. Transformations to apply to the input columns (i.e. columns other
                 than the targetColumn). Each transformation may produce multiple
                 result values from the column's value, and all are used for training.
                 When creating transformation for BigQuery Struct column, the column
-                should be flattened using "." as the delimiter.
+                should be flattened using "." as the delimiter. Only columns with no child
+                should have a transformation.
                 If an input column has no transformations on it, such a column is
                 ignored by the training, except for the targetColumn, which should have
                 no transformations defined on.
+                Only one of column_transformations or column_specs should be passed.
+                Consider using column_specs as column_transformations will be deprecated eventually.
             project (str):
                 Optional. Project to run training in. Overrides project set in aiplatform.init.
             location (str):
@@ -3697,15 +3823,59 @@ class AutoMLForecastingTrainingJob(_TrainingJob):
             credentials (auth_credentials.Credentials):
                 Optional. Custom credentials to use to run call training service. Overrides
                 credentials set in aiplatform.init.
+            labels (Dict[str, str]):
+                Optional. The labels with user-defined metadata to
+                organize TrainingPipelines.
+                Label keys and values can be no longer than 64
+                characters (Unicode codepoints), can only
+                contain lowercase letters, numeric characters,
+                underscores and dashes. International characters
+                are allowed.
+                See https://goo.gl/xmQnxf for more information
+                and examples of labels.
+            training_encryption_spec_key_name (Optional[str]):
+                Optional. The Cloud KMS resource identifier of the customer
+                managed encryption key used to protect the training pipeline. Has the
+                form:
+                ``projects/my-project/locations/my-region/keyRings/my-kr/cryptoKeys/my-key``.
+                The key needs to be in the same region as where the compute
+                resource is created.
+
+                If set, this TrainingPipeline will be secured by this key.
+
+                Note: Model trained by this TrainingPipeline is also secured
+                by this key if ``model_to_upload`` is not set separately.
+
+                Overrides encryption_spec_key_name set in aiplatform.init.
+            model_encryption_spec_key_name (Optional[str]):
+                Optional. The Cloud KMS resource identifier of the customer
+                managed encryption key used to protect the model. Has the
+                form:
+                ``projects/my-project/locations/my-region/keyRings/my-kr/cryptoKeys/my-key``.
+                The key needs to be in the same region as where the compute
+                resource is created.
+
+                If set, the trained Model will be secured by this key.
+
+                Overrides encryption_spec_key_name set in aiplatform.init.
+
+        Raises:
+            ValueError: If both column_transformations and column_specs were provided.
         """
         super().__init__(
             display_name=display_name,
-            labels=labels,
             project=project,
             location=location,
             credentials=credentials,
+            labels=labels,
+            training_encryption_spec_key_name=training_encryption_spec_key_name,
+            model_encryption_spec_key_name=model_encryption_spec_key_name,
         )
-        self._column_transformations = column_transformations
+
+        self._column_transformations = column_transformations_utils.validate_and_get_column_transformations(
+            column_specs, column_transformations
+        )
+
         self._optimization_objective = optimization_objective
         self._additional_experiments = []
 
@@ -3720,6 +3890,9 @@ class AutoMLForecastingTrainingJob(_TrainingJob):
         forecast_horizon: int,
         data_granularity_unit: str,
         data_granularity_count: int,
+        training_fraction_split: Optional[float] = None,
+        validation_fraction_split: Optional[float] = None,
+        test_fraction_split: Optional[float] = None,
         predefined_split_column_name: Optional[str] = None,
         weight_column: Optional[str] = None,
         time_series_attribute_columns: Optional[List[str]] = None,
@@ -3736,11 +3909,28 @@ class AutoMLForecastingTrainingJob(_TrainingJob):
     ) -> models.Model:
         """Runs the training job and returns a model.
 
-        The training data splits are set by default: Roughly 80% will be used for training,
-        10% for validation, and 10% for test.
+        If training on a Vertex AI dataset, you can use one of the following split configurations:
+            Data fraction splits:
+            Any of ``training_fraction_split``, ``validation_fraction_split`` and
+            ``test_fraction_split`` may optionally be provided, they must sum to up to 1. If
+            the provided ones sum to less than 1, the remainder is assigned to sets as
+            decided by Vertex AI. If none of the fractions are set, by default roughly 80%
+            of data will be used for training, 10% for validation, and 10% for test.
+
+            Predefined splits:
+            Assigns input data to training, validation, and test sets based on the value of a provided key.
+            If using predefined splits, ``predefined_split_column_name`` must be provided.
+            Supported only for tabular Datasets.
+
+            Timestamp splits:
+            Assigns input data to training, validation, and test sets
+            based on a provided timestamps. The youngest data pieces are
+            assigned to training set, next to validation set, and the oldest
+            to the test set.
+            Supported only for tabular Datasets.
 
         Args:
-            dataset (datasets.Dataset):
+            dataset (datasets.TimeSeriesDataset):
                 Required. The dataset within the same Project from which data will be used to train the Model. The
                 Dataset must use schema compatible with Model being trained,
                 and what is compatible should be described in the used
@@ -3896,6 +4086,9 @@ class AutoMLForecastingTrainingJob(_TrainingJob):
             forecast_horizon=forecast_horizon,
             data_granularity_unit=data_granularity_unit,
             data_granularity_count=data_granularity_count,
+            training_fraction_split=training_fraction_split,
+            validation_fraction_split=validation_fraction_split,
+            test_fraction_split=test_fraction_split,
             predefined_split_column_name=predefined_split_column_name,
             weight_column=weight_column,
             time_series_attribute_columns=time_series_attribute_columns,
@@ -3943,7 +4136,7 @@ class AutoMLForecastingTrainingJob(_TrainingJob):
         10% for validation, and 10% for test.
 
         Args:
-            dataset (datasets.Dataset):
+            dataset (datasets.TimeSeriesDataset):
                 Required. The dataset within the same Project from which data will be used to train the Model. The
                 Dataset must use schema compatible with Model being trained,
                 and what is compatible should be described in the used
@@ -4119,6 +4312,9 @@ class AutoMLForecastingTrainingJob(_TrainingJob):
         forecast_horizon: int,
         data_granularity_unit: str,
         data_granularity_count: int,
+        training_fraction_split: Optional[float] = None,
+        validation_fraction_split: Optional[float] = None,
+        test_fraction_split: Optional[float] = None,
         predefined_split_column_name: Optional[str] = None,
         weight_column: Optional[str] = None,
         time_series_attribute_columns: Optional[List[str]] = None,
@@ -4135,11 +4331,28 @@ class AutoMLForecastingTrainingJob(_TrainingJob):
     ) -> models.Model:
         """Runs the training job and returns a model.
 
-        The training data splits are set by default: Roughly 80% will be used for training,
-        10% for validation, and 10% for test.
+        If training on a Vertex AI dataset, you can use one of the following split configurations:
+            Data fraction splits:
+            Any of ``training_fraction_split``, ``validation_fraction_split`` and
+            ``test_fraction_split`` may optionally be provided, they must sum to up to 1. If
+            the provided ones sum to less than 1, the remainder is assigned to sets as
+            decided by Vertex AI. If none of the fractions are set, by default roughly 80%
+            of data will be used for training, 10% for validation, and 10% for test.
+
+            Predefined splits:
+            Assigns input data to training, validation, and test sets based on the value of a provided key.
+            If using predefined splits, ``predefined_split_column_name`` must be provided.
+            Supported only for tabular Datasets.
+
+            Timestamp splits:
+            Assigns input data to training, validation, and test sets
+            based on a provided timestamps. The youngest data pieces are
+            assigned to training set, next to validation set, and the oldest
+            to the test set.
+            Supported only for tabular Datasets.
 
         Args:
-            dataset (datasets.Dataset):
+            dataset (datasets.TimeSeriesDataset):
                 Required. The dataset within the same Project from which data will be used to train the Model. The
                 Dataset must use schema compatible with Model being trained,
                 and what is compatible should be described in the used
@@ -4173,11 +4386,20 @@ class AutoMLForecastingTrainingJob(_TrainingJob):
                 Required. The number of data granularity units between data points in the training
                 data. If [data_granularity_unit] is `minute`, can be 1, 5, 10, 15, or 30. For all other
                 values of [data_granularity_unit], must be 1.
+            training_fraction_split (float):
+                Optional. The fraction of the input data that is to be used to train
+                the Model. This is ignored if Dataset is not provided.
+            validation_fraction_split (float):
+                Optional. The fraction of the input data that is to be used to validate
+                the Model. This is ignored if Dataset is not provided.
+            test_fraction_split (float):
+                Optional. The fraction of the input data that is to be used to evaluate
+                the Model. This is ignored if Dataset is not provided.
             predefined_split_column_name (str):
                 Optional. The key is a name of one of the Dataset's data
                 columns. The value of the key (either the label's value or
-                value in the column) must be one of {``TRAIN``,
-                ``VALIDATE``, ``TEST``}, and it defines to which set the
+                value in the column) must be one of {``training``,
+                ``validation``, ``test``}, and it defines to which set the
                 given piece of data is assigned. If for a piece of data the
                 key is not present or has an invalid value, that piece is
                 ignored by the pipeline.
@@ -4270,6 +4492,22 @@ class AutoMLForecastingTrainingJob(_TrainingJob):
 
         training_task_definition = schema.training_job.definition.automl_forecasting
 
+        # auto-populate transformations
+        if self._column_transformations is None:
+            _LOGGER.info(
+                "No column transformations provided, so now retrieving columns from dataset in order to set default column transformations."
+            )
+
+            (
+                self._column_transformations,
+                column_names,
+            ) = dataset._get_default_column_transformations(target_column)
+
+            _LOGGER.info(
+                "The column transformation of type 'auto' was set for the following columns: %s."
+                % column_names
+            )
+
         training_task_inputs_dict = {
             # required inputs
             "targetColumn": target_column,
@@ -4313,18 +4551,28 @@ class AutoMLForecastingTrainingJob(_TrainingJob):
         model = gca_model.Model(
             display_name=model_display_name or self._display_name,
             labels=model_labels or self._labels,
+            encryption_spec=self._model_encryption_spec,
         )
 
-        return self._run_job(
+        new_model = self._run_job(
             training_task_definition=training_task_definition,
             training_task_inputs=training_task_inputs_dict,
             dataset=dataset,
-            training_fraction_split=None,
-            validation_fraction_split=None,
-            test_fraction_split=None,
+            training_fraction_split=training_fraction_split,
+            validation_fraction_split=validation_fraction_split,
+            test_fraction_split=test_fraction_split,
             predefined_split_column_name=predefined_split_column_name,
+            timestamp_split_column_name=None,  # Not supported by AutoMLForecasting
             model=model,
         )
+
+        if export_evaluated_data_items:
+            _LOGGER.info(
+                "Exported examples available at:\n%s"
+                % self.evaluated_data_items_bigquery_uri
+            )
+
+        return new_model
 
     @property
     def _model_upload_fail_string(self) -> str:
@@ -4333,6 +4581,23 @@ class AutoMLForecastingTrainingJob(_TrainingJob):
             f"Training Pipeline {self.resource_name} is not configured to upload a "
             "Model."
         )
+
+    @property
+    def evaluated_data_items_bigquery_uri(self) -> Optional[str]:
+        """BigQuery location of exported evaluated examples from the Training Job
+        Returns:
+            str: BigQuery uri for the exported evaluated examples if the export
+                feature is enabled for training.
+            None: If the export feature was not enabled for training.
+        """
+
+        self._assert_gca_resource_is_available()
+
+        metadata = self._gca_resource.training_task_metadata
+        if metadata and "evaluatedDataItemsBigqueryUri" in metadata:
+            return metadata["evaluatedDataItemsBigqueryUri"]
+
+        return None
 
     def _add_additional_experiments(self, additional_experiments: List[str]):
         """Add experiment flags to the training job.
@@ -5102,6 +5367,9 @@ class CustomPythonPackageTrainingJob(_CustomTrainingJob):
         accelerator_count: int = 0,
         boot_disk_type: str = "pd-ssd",
         boot_disk_size_gb: int = 100,
+        reduction_server_replica_count: int = 0,
+        reduction_server_machine_type: Optional[str] = None,
+        reduction_server_container_uri: Optional[str] = None,
         training_fraction_split: Optional[float] = None,
         validation_fraction_split: Optional[float] = None,
         test_fraction_split: Optional[float] = None,
@@ -5110,6 +5378,7 @@ class CustomPythonPackageTrainingJob(_CustomTrainingJob):
         test_filter_split: Optional[str] = None,
         predefined_split_column_name: Optional[str] = None,
         timestamp_split_column_name: Optional[str] = None,
+        enable_web_access: bool = False,
         tensorboard: Optional[str] = None,
         sync=True,
     ) -> Optional[models.Model]:
@@ -5266,6 +5535,13 @@ class CustomPythonPackageTrainingJob(_CustomTrainingJob):
             boot_disk_size_gb (int):
                 Size in GB of the boot disk, default is 100GB.
                 boot disk size must be within the range of [100, 64000].
+            reduction_server_replica_count (int):
+                The number of reduction server replicas, default is 0.
+            reduction_server_machine_type (str):
+                Optional. The type of machine to use for reduction server.
+            reduction_server_container_uri (str):
+                Optional. The Uri of the reduction server container image.
+                See details: https://cloud.google.com/vertex-ai/docs/training/distributed-training#reduce_training_time_with_reduction_server
             training_fraction_split (float):
                 Optional. The fraction of the input data that is to be used to train
                 the Model. This is ignored if Dataset is not provided.
@@ -5315,6 +5591,10 @@ class CustomPythonPackageTrainingJob(_CustomTrainingJob):
                 that piece is ignored by the pipeline.
 
                 Supported only for tabular and time series Datasets.
+            enable_web_access (bool):
+                Whether you want Vertex AI to enable interactive shell access
+                to training containers.
+                https://cloud.google.com/vertex-ai/docs/training/monitor-debug-interactive-shell
             tensorboard (str):
                 Optional. The name of a Vertex AI
                 [Tensorboard][google.cloud.aiplatform.v1beta1.Tensorboard]
@@ -5348,6 +5628,8 @@ class CustomPythonPackageTrainingJob(_CustomTrainingJob):
             accelerator_type=accelerator_type,
             boot_disk_type=boot_disk_type,
             boot_disk_size_gb=boot_disk_size_gb,
+            reduction_server_replica_count=reduction_server_replica_count,
+            reduction_server_machine_type=reduction_server_machine_type,
         )
 
         return self._run(
@@ -5369,7 +5651,11 @@ class CustomPythonPackageTrainingJob(_CustomTrainingJob):
             predefined_split_column_name=predefined_split_column_name,
             timestamp_split_column_name=timestamp_split_column_name,
             bigquery_destination=bigquery_destination,
+            enable_web_access=enable_web_access,
             tensorboard=tensorboard,
+            reduction_server_container_uri=reduction_server_container_uri
+            if reduction_server_replica_count > 0
+            else None,
             sync=sync,
         )
 
@@ -5401,7 +5687,9 @@ class CustomPythonPackageTrainingJob(_CustomTrainingJob):
         predefined_split_column_name: Optional[str] = None,
         timestamp_split_column_name: Optional[str] = None,
         bigquery_destination: Optional[str] = None,
+        enable_web_access: bool = False,
         tensorboard: Optional[str] = None,
+        reduction_server_container_uri: Optional[str] = None,
         sync=True,
     ) -> Optional[models.Model]:
         """Packages local script and launches training_job.
@@ -5502,6 +5790,10 @@ class CustomPythonPackageTrainingJob(_CustomTrainingJob):
                 that piece is ignored by the pipeline.
 
                 Supported only for tabular and time series Datasets.
+            enable_web_access (bool):
+                Whether you want Vertex AI to enable interactive shell access
+                to training containers.
+                https://cloud.google.com/vertex-ai/docs/training/monitor-debug-interactive-shell
             tensorboard (str):
                 Optional. The name of a Vertex AI
                 [Tensorboard][google.cloud.aiplatform.v1beta1.Tensorboard]
@@ -5517,6 +5809,8 @@ class CustomPythonPackageTrainingJob(_CustomTrainingJob):
                 `service_account` is required with provided `tensorboard`.
                 For more information on configuring your service account please visit:
                 https://cloud.google.com/vertex-ai/docs/experiments/tensorboard-training
+            reduction_server_container_uri (str):
+                Optional. The Uri of the reduction server container image.
             sync (bool):
                 Whether to execute this method synchronously. If False, this method
                 will be executed in concurrent Future and any downstream object will
@@ -5526,21 +5820,33 @@ class CustomPythonPackageTrainingJob(_CustomTrainingJob):
             model: The trained Vertex AI Model resource or None if training did not
                 produce a Vertex AI Model.
         """
-        for spec in worker_pool_specs:
-            spec["python_package_spec"] = {
-                "executor_image_uri": self._container_uri,
-                "python_module": self._python_module,
-                "package_uris": [self._package_gcs_uri],
-            }
+        for spec_order, spec in enumerate(worker_pool_specs):
 
-            if args:
-                spec["python_package_spec"]["args"] = args
+            if not spec:
+                continue
 
-            if environment_variables:
-                spec["python_package_spec"]["env"] = [
-                    {"name": key, "value": value}
-                    for key, value in environment_variables.items()
-                ]
+            if (
+                spec_order == worker_spec_utils._SPEC_ORDERS["server_spec"]
+                and reduction_server_container_uri
+            ):
+                spec["container_spec"] = {
+                    "image_uri": reduction_server_container_uri,
+                }
+            else:
+                spec["python_package_spec"] = {
+                    "executor_image_uri": self._container_uri,
+                    "python_module": self._python_module,
+                    "package_uris": [self._package_gcs_uri],
+                }
+
+                if args:
+                    spec["python_package_spec"]["args"] = args
+
+                if environment_variables:
+                    spec["python_package_spec"]["env"] = [
+                        {"name": key, "value": value}
+                        for key, value in environment_variables.items()
+                    ]
 
         (
             training_task_inputs,
@@ -5550,6 +5856,7 @@ class CustomPythonPackageTrainingJob(_CustomTrainingJob):
             base_output_dir=base_output_dir,
             service_account=service_account,
             network=network,
+            enable_web_access=enable_web_access,
             tensorboard=tensorboard,
         )
 

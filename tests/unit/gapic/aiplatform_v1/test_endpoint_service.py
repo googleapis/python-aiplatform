@@ -15,7 +15,6 @@
 #
 import os
 import mock
-import packaging.version
 
 import grpc
 from grpc.experimental import aio
@@ -32,6 +31,7 @@ from google.api_core import grpc_helpers
 from google.api_core import grpc_helpers_async
 from google.api_core import operation_async  # type: ignore
 from google.api_core import operations_v1
+from google.api_core import path_template
 from google.auth import credentials as ga_credentials
 from google.auth.exceptions import MutualTLSChannelError
 from google.cloud.aiplatform_v1.services.endpoint_service import (
@@ -40,9 +40,6 @@ from google.cloud.aiplatform_v1.services.endpoint_service import (
 from google.cloud.aiplatform_v1.services.endpoint_service import EndpointServiceClient
 from google.cloud.aiplatform_v1.services.endpoint_service import pagers
 from google.cloud.aiplatform_v1.services.endpoint_service import transports
-from google.cloud.aiplatform_v1.services.endpoint_service.transports.base import (
-    _GOOGLE_AUTH_VERSION,
-)
 from google.cloud.aiplatform_v1.types import accelerator_type
 from google.cloud.aiplatform_v1.types import encryption_spec
 from google.cloud.aiplatform_v1.types import endpoint
@@ -58,20 +55,6 @@ from google.protobuf import field_mask_pb2  # type: ignore
 from google.protobuf import struct_pb2  # type: ignore
 from google.protobuf import timestamp_pb2  # type: ignore
 import google.auth
-
-
-# TODO(busunkim): Once google-auth >= 1.25.0 is required transitively
-# through google-api-core:
-# - Delete the auth "less than" test cases
-# - Delete these pytest markers (Make the "greater than or equal to" tests the default).
-requires_google_auth_lt_1_25_0 = pytest.mark.skipif(
-    packaging.version.parse(_GOOGLE_AUTH_VERSION) >= packaging.version.parse("1.25.0"),
-    reason="This test requires google-auth < 1.25.0",
-)
-requires_google_auth_gte_1_25_0 = pytest.mark.skipif(
-    packaging.version.parse(_GOOGLE_AUTH_VERSION) < packaging.version.parse("1.25.0"),
-    reason="This test requires google-auth >= 1.25.0",
-)
 
 
 def client_cert_source_callback():
@@ -230,7 +213,7 @@ def test_endpoint_service_client_client_options(
     options = client_options.ClientOptions(api_endpoint="squid.clam.whelk")
     with mock.patch.object(transport_class, "__init__") as patched:
         patched.return_value = None
-        client = client_class(client_options=options)
+        client = client_class(transport=transport_name, client_options=options)
         patched.assert_called_once_with(
             credentials=None,
             credentials_file=None,
@@ -247,7 +230,7 @@ def test_endpoint_service_client_client_options(
     with mock.patch.dict(os.environ, {"GOOGLE_API_USE_MTLS_ENDPOINT": "never"}):
         with mock.patch.object(transport_class, "__init__") as patched:
             patched.return_value = None
-            client = client_class()
+            client = client_class(transport=transport_name)
             patched.assert_called_once_with(
                 credentials=None,
                 credentials_file=None,
@@ -264,7 +247,7 @@ def test_endpoint_service_client_client_options(
     with mock.patch.dict(os.environ, {"GOOGLE_API_USE_MTLS_ENDPOINT": "always"}):
         with mock.patch.object(transport_class, "__init__") as patched:
             patched.return_value = None
-            client = client_class()
+            client = client_class(transport=transport_name)
             patched.assert_called_once_with(
                 credentials=None,
                 credentials_file=None,
@@ -293,7 +276,7 @@ def test_endpoint_service_client_client_options(
     options = client_options.ClientOptions(quota_project_id="octopus")
     with mock.patch.object(transport_class, "__init__") as patched:
         patched.return_value = None
-        client = client_class(client_options=options)
+        client = client_class(transport=transport_name, client_options=options)
         patched.assert_called_once_with(
             credentials=None,
             credentials_file=None,
@@ -362,7 +345,7 @@ def test_endpoint_service_client_mtls_env_auto(
         )
         with mock.patch.object(transport_class, "__init__") as patched:
             patched.return_value = None
-            client = client_class(client_options=options)
+            client = client_class(transport=transport_name, client_options=options)
 
             if use_client_cert_env == "false":
                 expected_client_cert_source = None
@@ -404,7 +387,7 @@ def test_endpoint_service_client_mtls_env_auto(
                         expected_client_cert_source = client_cert_source_callback
 
                     patched.return_value = None
-                    client = client_class()
+                    client = client_class(transport=transport_name)
                     patched.assert_called_once_with(
                         credentials=None,
                         credentials_file=None,
@@ -426,7 +409,7 @@ def test_endpoint_service_client_mtls_env_auto(
                 return_value=False,
             ):
                 patched.return_value = None
-                client = client_class()
+                client = client_class(transport=transport_name)
                 patched.assert_called_once_with(
                     credentials=None,
                     credentials_file=None,
@@ -457,7 +440,7 @@ def test_endpoint_service_client_client_options_scopes(
     options = client_options.ClientOptions(scopes=["1", "2"],)
     with mock.patch.object(transport_class, "__init__") as patched:
         patched.return_value = None
-        client = client_class(client_options=options)
+        client = client_class(transport=transport_name, client_options=options)
         patched.assert_called_once_with(
             credentials=None,
             credentials_file=None,
@@ -488,7 +471,7 @@ def test_endpoint_service_client_client_options_credentials_file(
     options = client_options.ClientOptions(credentials_file="credentials.json")
     with mock.patch.object(transport_class, "__init__") as patched:
         patched.return_value = None
-        client = client_class(client_options=options)
+        client = client_class(transport=transport_name, client_options=options)
         patched.assert_called_once_with(
             credentials=None,
             credentials_file="credentials.json",
@@ -670,8 +653,12 @@ def test_create_endpoint_flattened():
         # request object values.
         assert len(call.mock_calls) == 1
         _, args, _ = call.mock_calls[0]
-        assert args[0].parent == "parent_value"
-        assert args[0].endpoint == gca_endpoint.Endpoint(name="name_value")
+        arg = args[0].parent
+        mock_val = "parent_value"
+        assert arg == mock_val
+        arg = args[0].endpoint
+        mock_val = gca_endpoint.Endpoint(name="name_value")
+        assert arg == mock_val
 
 
 def test_create_endpoint_flattened_error():
@@ -711,8 +698,12 @@ async def test_create_endpoint_flattened_async():
         # request object values.
         assert len(call.mock_calls)
         _, args, _ = call.mock_calls[0]
-        assert args[0].parent == "parent_value"
-        assert args[0].endpoint == gca_endpoint.Endpoint(name="name_value")
+        arg = args[0].parent
+        mock_val = "parent_value"
+        assert arg == mock_val
+        arg = args[0].endpoint
+        mock_val = gca_endpoint.Endpoint(name="name_value")
+        assert arg == mock_val
 
 
 @pytest.mark.asyncio
@@ -750,6 +741,7 @@ def test_get_endpoint(
             display_name="display_name_value",
             description="description_value",
             etag="etag_value",
+            network="network_value",
             model_deployment_monitoring_job="model_deployment_monitoring_job_value",
         )
         response = client.get_endpoint(request)
@@ -765,6 +757,7 @@ def test_get_endpoint(
     assert response.display_name == "display_name_value"
     assert response.description == "description_value"
     assert response.etag == "etag_value"
+    assert response.network == "network_value"
     assert (
         response.model_deployment_monitoring_job
         == "model_deployment_monitoring_job_value"
@@ -811,6 +804,7 @@ async def test_get_endpoint_async(
                 display_name="display_name_value",
                 description="description_value",
                 etag="etag_value",
+                network="network_value",
                 model_deployment_monitoring_job="model_deployment_monitoring_job_value",
             )
         )
@@ -827,6 +821,7 @@ async def test_get_endpoint_async(
     assert response.display_name == "display_name_value"
     assert response.description == "description_value"
     assert response.etag == "etag_value"
+    assert response.network == "network_value"
     assert (
         response.model_deployment_monitoring_job
         == "model_deployment_monitoring_job_value"
@@ -904,7 +899,9 @@ def test_get_endpoint_flattened():
         # request object values.
         assert len(call.mock_calls) == 1
         _, args, _ = call.mock_calls[0]
-        assert args[0].name == "name_value"
+        arg = args[0].name
+        mock_val = "name_value"
+        assert arg == mock_val
 
 
 def test_get_endpoint_flattened_error():
@@ -938,7 +935,9 @@ async def test_get_endpoint_flattened_async():
         # request object values.
         assert len(call.mock_calls)
         _, args, _ = call.mock_calls[0]
-        assert args[0].name == "name_value"
+        arg = args[0].name
+        mock_val = "name_value"
+        assert arg == mock_val
 
 
 @pytest.mark.asyncio
@@ -1108,7 +1107,9 @@ def test_list_endpoints_flattened():
         # request object values.
         assert len(call.mock_calls) == 1
         _, args, _ = call.mock_calls[0]
-        assert args[0].parent == "parent_value"
+        arg = args[0].parent
+        mock_val = "parent_value"
+        assert arg == mock_val
 
 
 def test_list_endpoints_flattened_error():
@@ -1144,7 +1145,9 @@ async def test_list_endpoints_flattened_async():
         # request object values.
         assert len(call.mock_calls)
         _, args, _ = call.mock_calls[0]
-        assert args[0].parent == "parent_value"
+        arg = args[0].parent
+        mock_val = "parent_value"
+        assert arg == mock_val
 
 
 @pytest.mark.asyncio
@@ -1330,6 +1333,7 @@ def test_update_endpoint(
             display_name="display_name_value",
             description="description_value",
             etag="etag_value",
+            network="network_value",
             model_deployment_monitoring_job="model_deployment_monitoring_job_value",
         )
         response = client.update_endpoint(request)
@@ -1345,6 +1349,7 @@ def test_update_endpoint(
     assert response.display_name == "display_name_value"
     assert response.description == "description_value"
     assert response.etag == "etag_value"
+    assert response.network == "network_value"
     assert (
         response.model_deployment_monitoring_job
         == "model_deployment_monitoring_job_value"
@@ -1391,6 +1396,7 @@ async def test_update_endpoint_async(
                 display_name="display_name_value",
                 description="description_value",
                 etag="etag_value",
+                network="network_value",
                 model_deployment_monitoring_job="model_deployment_monitoring_job_value",
             )
         )
@@ -1407,6 +1413,7 @@ async def test_update_endpoint_async(
     assert response.display_name == "display_name_value"
     assert response.description == "description_value"
     assert response.etag == "etag_value"
+    assert response.network == "network_value"
     assert (
         response.model_deployment_monitoring_job
         == "model_deployment_monitoring_job_value"
@@ -1493,8 +1500,12 @@ def test_update_endpoint_flattened():
         # request object values.
         assert len(call.mock_calls) == 1
         _, args, _ = call.mock_calls[0]
-        assert args[0].endpoint == gca_endpoint.Endpoint(name="name_value")
-        assert args[0].update_mask == field_mask_pb2.FieldMask(paths=["paths_value"])
+        arg = args[0].endpoint
+        mock_val = gca_endpoint.Endpoint(name="name_value")
+        assert arg == mock_val
+        arg = args[0].update_mask
+        mock_val = field_mask_pb2.FieldMask(paths=["paths_value"])
+        assert arg == mock_val
 
 
 def test_update_endpoint_flattened_error():
@@ -1535,8 +1546,12 @@ async def test_update_endpoint_flattened_async():
         # request object values.
         assert len(call.mock_calls)
         _, args, _ = call.mock_calls[0]
-        assert args[0].endpoint == gca_endpoint.Endpoint(name="name_value")
-        assert args[0].update_mask == field_mask_pb2.FieldMask(paths=["paths_value"])
+        arg = args[0].endpoint
+        mock_val = gca_endpoint.Endpoint(name="name_value")
+        assert arg == mock_val
+        arg = args[0].update_mask
+        mock_val = field_mask_pb2.FieldMask(paths=["paths_value"])
+        assert arg == mock_val
 
 
 @pytest.mark.asyncio
@@ -1702,7 +1717,9 @@ def test_delete_endpoint_flattened():
         # request object values.
         assert len(call.mock_calls) == 1
         _, args, _ = call.mock_calls[0]
-        assert args[0].name == "name_value"
+        arg = args[0].name
+        mock_val = "name_value"
+        assert arg == mock_val
 
 
 def test_delete_endpoint_flattened_error():
@@ -1738,7 +1755,9 @@ async def test_delete_endpoint_flattened_async():
         # request object values.
         assert len(call.mock_calls)
         _, args, _ = call.mock_calls[0]
-        assert args[0].name == "name_value"
+        arg = args[0].name
+        mock_val = "name_value"
+        assert arg == mock_val
 
 
 @pytest.mark.asyncio
@@ -1912,15 +1931,21 @@ def test_deploy_model_flattened():
         # request object values.
         assert len(call.mock_calls) == 1
         _, args, _ = call.mock_calls[0]
-        assert args[0].endpoint == "endpoint_value"
-        assert args[0].deployed_model == gca_endpoint.DeployedModel(
+        arg = args[0].endpoint
+        mock_val = "endpoint_value"
+        assert arg == mock_val
+        arg = args[0].deployed_model
+        mock_val = gca_endpoint.DeployedModel(
             dedicated_resources=machine_resources.DedicatedResources(
                 machine_spec=machine_resources.MachineSpec(
                     machine_type="machine_type_value"
                 )
             )
         )
-        assert args[0].traffic_split == {"key_value": 541}
+        assert arg == mock_val
+        arg = args[0].traffic_split
+        mock_val = {"key_value": 541}
+        assert arg == mock_val
 
 
 def test_deploy_model_flattened_error():
@@ -1975,15 +2000,21 @@ async def test_deploy_model_flattened_async():
         # request object values.
         assert len(call.mock_calls)
         _, args, _ = call.mock_calls[0]
-        assert args[0].endpoint == "endpoint_value"
-        assert args[0].deployed_model == gca_endpoint.DeployedModel(
+        arg = args[0].endpoint
+        mock_val = "endpoint_value"
+        assert arg == mock_val
+        arg = args[0].deployed_model
+        mock_val = gca_endpoint.DeployedModel(
             dedicated_resources=machine_resources.DedicatedResources(
                 machine_spec=machine_resources.MachineSpec(
                     machine_type="machine_type_value"
                 )
             )
         )
-        assert args[0].traffic_split == {"key_value": 541}
+        assert arg == mock_val
+        arg = args[0].traffic_split
+        mock_val = {"key_value": 541}
+        assert arg == mock_val
 
 
 @pytest.mark.asyncio
@@ -2160,9 +2191,15 @@ def test_undeploy_model_flattened():
         # request object values.
         assert len(call.mock_calls) == 1
         _, args, _ = call.mock_calls[0]
-        assert args[0].endpoint == "endpoint_value"
-        assert args[0].deployed_model_id == "deployed_model_id_value"
-        assert args[0].traffic_split == {"key_value": 541}
+        arg = args[0].endpoint
+        mock_val = "endpoint_value"
+        assert arg == mock_val
+        arg = args[0].deployed_model_id
+        mock_val = "deployed_model_id_value"
+        assert arg == mock_val
+        arg = args[0].traffic_split
+        mock_val = {"key_value": 541}
+        assert arg == mock_val
 
 
 def test_undeploy_model_flattened_error():
@@ -2205,9 +2242,15 @@ async def test_undeploy_model_flattened_async():
         # request object values.
         assert len(call.mock_calls)
         _, args, _ = call.mock_calls[0]
-        assert args[0].endpoint == "endpoint_value"
-        assert args[0].deployed_model_id == "deployed_model_id_value"
-        assert args[0].traffic_split == {"key_value": 541}
+        arg = args[0].endpoint
+        mock_val = "endpoint_value"
+        assert arg == mock_val
+        arg = args[0].deployed_model_id
+        mock_val = "deployed_model_id_value"
+        assert arg == mock_val
+        arg = args[0].traffic_split
+        mock_val = {"key_value": 541}
+        assert arg == mock_val
 
 
 @pytest.mark.asyncio
@@ -2336,13 +2379,15 @@ def test_endpoint_service_base_transport():
         with pytest.raises(NotImplementedError):
             getattr(transport, method)(request=object())
 
+    with pytest.raises(NotImplementedError):
+        transport.close()
+
     # Additionally, the LRO client (a property) should
     # also raise NotImplementedError
     with pytest.raises(NotImplementedError):
         transport.operations_client
 
 
-@requires_google_auth_gte_1_25_0
 def test_endpoint_service_base_transport_with_credentials_file():
     # Instantiate the base transport with a credentials file
     with mock.patch.object(
@@ -2363,26 +2408,6 @@ def test_endpoint_service_base_transport_with_credentials_file():
         )
 
 
-@requires_google_auth_lt_1_25_0
-def test_endpoint_service_base_transport_with_credentials_file_old_google_auth():
-    # Instantiate the base transport with a credentials file
-    with mock.patch.object(
-        google.auth, "load_credentials_from_file", autospec=True
-    ) as load_creds, mock.patch(
-        "google.cloud.aiplatform_v1.services.endpoint_service.transports.EndpointServiceTransport._prep_wrapped_messages"
-    ) as Transport:
-        Transport.return_value = None
-        load_creds.return_value = (ga_credentials.AnonymousCredentials(), None)
-        transport = transports.EndpointServiceTransport(
-            credentials_file="credentials.json", quota_project_id="octopus",
-        )
-        load_creds.assert_called_once_with(
-            "credentials.json",
-            scopes=("https://www.googleapis.com/auth/cloud-platform",),
-            quota_project_id="octopus",
-        )
-
-
 def test_endpoint_service_base_transport_with_adc():
     # Test the default credentials are used if credentials and credentials_file are None.
     with mock.patch.object(google.auth, "default", autospec=True) as adc, mock.patch(
@@ -2394,7 +2419,6 @@ def test_endpoint_service_base_transport_with_adc():
         adc.assert_called_once()
 
 
-@requires_google_auth_gte_1_25_0
 def test_endpoint_service_auth_adc():
     # If no credentials are provided, we should use ADC credentials.
     with mock.patch.object(google.auth, "default", autospec=True) as adc:
@@ -2407,18 +2431,6 @@ def test_endpoint_service_auth_adc():
         )
 
 
-@requires_google_auth_lt_1_25_0
-def test_endpoint_service_auth_adc_old_google_auth():
-    # If no credentials are provided, we should use ADC credentials.
-    with mock.patch.object(google.auth, "default", autospec=True) as adc:
-        adc.return_value = (ga_credentials.AnonymousCredentials(), None)
-        EndpointServiceClient()
-        adc.assert_called_once_with(
-            scopes=("https://www.googleapis.com/auth/cloud-platform",),
-            quota_project_id=None,
-        )
-
-
 @pytest.mark.parametrize(
     "transport_class",
     [
@@ -2426,7 +2438,6 @@ def test_endpoint_service_auth_adc_old_google_auth():
         transports.EndpointServiceGrpcAsyncIOTransport,
     ],
 )
-@requires_google_auth_gte_1_25_0
 def test_endpoint_service_transport_auth_adc(transport_class):
     # If credentials and host are not provided, the transport class should use
     # ADC credentials.
@@ -2436,26 +2447,6 @@ def test_endpoint_service_transport_auth_adc(transport_class):
         adc.assert_called_once_with(
             scopes=["1", "2"],
             default_scopes=("https://www.googleapis.com/auth/cloud-platform",),
-            quota_project_id="octopus",
-        )
-
-
-@pytest.mark.parametrize(
-    "transport_class",
-    [
-        transports.EndpointServiceGrpcTransport,
-        transports.EndpointServiceGrpcAsyncIOTransport,
-    ],
-)
-@requires_google_auth_lt_1_25_0
-def test_endpoint_service_transport_auth_adc_old_google_auth(transport_class):
-    # If credentials and host are not provided, the transport class should use
-    # ADC credentials.
-    with mock.patch.object(google.auth, "default", autospec=True) as adc:
-        adc.return_value = (ga_credentials.AnonymousCredentials(), None)
-        transport_class(quota_project_id="octopus")
-        adc.assert_called_once_with(
-            scopes=("https://www.googleapis.com/auth/cloud-platform",),
             quota_project_id="octopus",
         )
 
@@ -2786,8 +2777,30 @@ def test_parse_model_deployment_monitoring_job_path():
     assert expected == actual
 
 
+def test_network_path():
+    project = "cuttlefish"
+    network = "mussel"
+    expected = "projects/{project}/global/networks/{network}".format(
+        project=project, network=network,
+    )
+    actual = EndpointServiceClient.network_path(project, network)
+    assert expected == actual
+
+
+def test_parse_network_path():
+    expected = {
+        "project": "winkle",
+        "network": "nautilus",
+    }
+    path = EndpointServiceClient.network_path(**expected)
+
+    # Check that the path construction is reversible.
+    actual = EndpointServiceClient.parse_network_path(path)
+    assert expected == actual
+
+
 def test_common_billing_account_path():
-    billing_account = "cuttlefish"
+    billing_account = "scallop"
     expected = "billingAccounts/{billing_account}".format(
         billing_account=billing_account,
     )
@@ -2797,7 +2810,7 @@ def test_common_billing_account_path():
 
 def test_parse_common_billing_account_path():
     expected = {
-        "billing_account": "mussel",
+        "billing_account": "abalone",
     }
     path = EndpointServiceClient.common_billing_account_path(**expected)
 
@@ -2807,7 +2820,7 @@ def test_parse_common_billing_account_path():
 
 
 def test_common_folder_path():
-    folder = "winkle"
+    folder = "squid"
     expected = "folders/{folder}".format(folder=folder,)
     actual = EndpointServiceClient.common_folder_path(folder)
     assert expected == actual
@@ -2815,7 +2828,7 @@ def test_common_folder_path():
 
 def test_parse_common_folder_path():
     expected = {
-        "folder": "nautilus",
+        "folder": "clam",
     }
     path = EndpointServiceClient.common_folder_path(**expected)
 
@@ -2825,7 +2838,7 @@ def test_parse_common_folder_path():
 
 
 def test_common_organization_path():
-    organization = "scallop"
+    organization = "whelk"
     expected = "organizations/{organization}".format(organization=organization,)
     actual = EndpointServiceClient.common_organization_path(organization)
     assert expected == actual
@@ -2833,7 +2846,7 @@ def test_common_organization_path():
 
 def test_parse_common_organization_path():
     expected = {
-        "organization": "abalone",
+        "organization": "octopus",
     }
     path = EndpointServiceClient.common_organization_path(**expected)
 
@@ -2843,7 +2856,7 @@ def test_parse_common_organization_path():
 
 
 def test_common_project_path():
-    project = "squid"
+    project = "oyster"
     expected = "projects/{project}".format(project=project,)
     actual = EndpointServiceClient.common_project_path(project)
     assert expected == actual
@@ -2851,7 +2864,7 @@ def test_common_project_path():
 
 def test_parse_common_project_path():
     expected = {
-        "project": "clam",
+        "project": "nudibranch",
     }
     path = EndpointServiceClient.common_project_path(**expected)
 
@@ -2861,8 +2874,8 @@ def test_parse_common_project_path():
 
 
 def test_common_location_path():
-    project = "whelk"
-    location = "octopus"
+    project = "cuttlefish"
+    location = "mussel"
     expected = "projects/{project}/locations/{location}".format(
         project=project, location=location,
     )
@@ -2872,8 +2885,8 @@ def test_common_location_path():
 
 def test_parse_common_location_path():
     expected = {
-        "project": "oyster",
-        "location": "nudibranch",
+        "project": "winkle",
+        "location": "nautilus",
     }
     path = EndpointServiceClient.common_location_path(**expected)
 
@@ -2901,3 +2914,49 @@ def test_client_withDEFAULT_CLIENT_INFO():
             credentials=ga_credentials.AnonymousCredentials(), client_info=client_info,
         )
         prep.assert_called_once_with(client_info)
+
+
+@pytest.mark.asyncio
+async def test_transport_close_async():
+    client = EndpointServiceAsyncClient(
+        credentials=ga_credentials.AnonymousCredentials(), transport="grpc_asyncio",
+    )
+    with mock.patch.object(
+        type(getattr(client.transport, "grpc_channel")), "close"
+    ) as close:
+        async with client:
+            close.assert_not_called()
+        close.assert_called_once()
+
+
+def test_transport_close():
+    transports = {
+        "grpc": "_grpc_channel",
+    }
+
+    for transport, close_name in transports.items():
+        client = EndpointServiceClient(
+            credentials=ga_credentials.AnonymousCredentials(), transport=transport
+        )
+        with mock.patch.object(
+            type(getattr(client.transport, close_name)), "close"
+        ) as close:
+            with client:
+                close.assert_not_called()
+            close.assert_called_once()
+
+
+def test_client_ctx():
+    transports = [
+        "grpc",
+    ]
+    for transport in transports:
+        client = EndpointServiceClient(
+            credentials=ga_credentials.AnonymousCredentials(), transport=transport
+        )
+        # Test client calls underlying transport.
+        with mock.patch.object(type(client.transport), "close") as close:
+            close.assert_not_called()
+            with client:
+                pass
+            close.assert_called()
