@@ -19,6 +19,13 @@ from google.cloud import aiplatform
 from google.cloud.aiplatform import _featurestores as featurestores
 from tests.system.aiplatform import e2e_base
 
+_USERS_ENTITY_TYPE_SRC = (
+    "gs://cloud-samples-data-us-central1/vertex-ai/feature-store/datasets/users.avro"
+)
+_MOVIES_ENTITY_TYPE_SRC = (
+    "gs://cloud-samples-data-us-central1/vertex-ai/feature-store/datasets/movies.avro"
+)
+
 
 class TestFeaturestore(e2e_base.TestEndToEnd):
 
@@ -34,14 +41,14 @@ class TestFeaturestore(e2e_base.TestEndToEnd):
         """
         return self._make_display_name(key=key).replace("-", "_")[:60]
 
-    def test_create_and_get_resources(self, shared_state):
+    def test_end_to_end(self, shared_state):
 
         aiplatform.init(
             project=e2e_base._PROJECT, location=e2e_base._LOCATION,
         )
 
         # Featurestore
-        featurestore_id = self._make_resource_id(key="featurestore")
+        featurestore_id = self._make_resource_id(key="movie_prediction")
         featurestore = featurestores.Featurestore.create(
             featurestore_id=featurestore_id
         )
@@ -56,34 +63,86 @@ class TestFeaturestore(e2e_base.TestEndToEnd):
         assert len(list_featurestores) > 0
 
         # EntityType
-        entity_type_id = self._make_resource_id(key="entity_type")
-        entity_type = featurestore.create_entity_type(entity_type_id=entity_type_id)
 
-        get_entity_type = featurestore.get_entity_type(
-            entity_type_name=entity_type.resource_name
+        # User EntityType
+        user_entity_type_id = self._make_resource_id(key="users")
+        user_entity_type = featurestore.create_entity_type(
+            entity_type_id=user_entity_type_id
         )
-        assert entity_type.resource_name == get_entity_type.resource_name
+        get_user_entity_type = featurestore.get_entity_type(
+            entity_type_name=user_entity_type.resource_name
+        )
+        assert user_entity_type.resource_name == get_user_entity_type.resource_name
+
+        # Movie EntityType
+        movie_entity_type_id = self._make_resource_id(key="movies")
+        movie_entity_type = featurestore.create_entity_type(
+            entity_type_id=movie_entity_type_id
+        )
+        get_movie_entity_type = featurestore.get_entity_type(
+            entity_type_name=movie_entity_type.resource_name
+        )
+        assert movie_entity_type.resource_name == get_movie_entity_type.resource_name
 
         list_entity_types = featurestore.list_entity_types()
         assert len(list_entity_types) > 0
 
         # Feature
-        feature_id = self._make_resource_id(key="feature")
-        feature = entity_type.create_feature(feature_id=feature_id, value_type="DOUBLE")
 
-        get_feature = entity_type.get_feature(feature_name=feature.resource_name)
-        assert feature.resource_name == get_feature.resource_name
+        # User Features
+        age_feature_id = self._make_resource_id(key="age")
+        age_feature = user_entity_type.create_feature(
+            feature_id=age_feature_id, value_type="INT64"
+        )
 
-        list_features = entity_type.list_features()
-        assert len(list_features) > 0
+        get_age_feature = user_entity_type.get_feature(
+            feature_name=age_feature.resource_name
+        )
+        assert age_feature.resource_name == get_age_feature.resource_name
 
-        batch_feature_id1 = self._make_resource_id(key="batch_feature_id1")
-        batch_feature_id2 = self._make_resource_id(key="batch_feature_id2")
-        feature_configs = {
-            batch_feature_id1: {"value_type": "INT64"},
-            batch_feature_id2: {"value_type": "BOOL"},
+        gender_feature_id = self._make_resource_id(key="gender")
+        liked_genres_feature_id = self._make_resource_id(key="liked_genres")
+        user_feature_configs = {
+            gender_feature_id: {"value_type": "STRING"},
+            liked_genres_feature_id: {"value_type": "STRING_ARRAY"},
         }
-        entity_type.batch_create_features(feature_configs=feature_configs)
+        user_entity_type.batch_create_features(feature_configs=user_feature_configs)
 
+        list_user_features = user_entity_type.list_features()
+        assert len(list_user_features) > 0
+
+        user_entity_type.ingest_from_gcs(
+            gcs_source_uris=_USERS_ENTITY_TYPE_SRC,
+            gcs_source_type="avro",
+            feature_ids=[age_feature_id, gender_feature_id, liked_genres_feature_id],
+        )
+
+        # Movie Features
+
+        title_feature_id = self._make_resource_id(key="title")
+        genres_feature_id = self._make_resource_id(key="genres")
+        average_rating_id = self._make_resource_id(key="average_rating")
+        movie_feature_configs = {
+            title_feature_id: {"value_type": "STRING"},
+            genres_feature_id: {"value_type": "STRING"},
+            average_rating_id: {"value_type": "DOUBLE"},
+        }
+        movie_entity_type.ingest_from_gcs(
+            gcs_source_uris=_MOVIES_ENTITY_TYPE_SRC,
+            gcs_source_type="avro",
+            feature_ids=[title_feature_id, genres_feature_id, average_rating_id],
+            feature_configs=movie_feature_configs,
+        )
+
+        list_movie_features = movie_entity_type.list_features()
+        assert len(list_movie_features) > 0
+
+        user_entity_type.ingest_from_gcs(
+            gcs_source_uris=_USERS_ENTITY_TYPE_SRC,
+            gcs_source_type="avro",
+            feature_ids=[age_feature_id, gender_feature_id, liked_genres_feature_id],
+        )
+
+        # All Features
         list_searched_features = featurestores.Feature.search()
         assert len(list_searched_features) >= 1
