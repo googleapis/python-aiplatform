@@ -19,6 +19,7 @@
 
 try:
     from tensorboard_plugin_profile.profile_plugin import ProfilePlugin
+    from werkzeug import Response
 except ImportError as err:
     raise ImportError(
         "Could not load the cloud profiler. To use the profiler, "
@@ -33,7 +34,6 @@ import logging
 import tensorboard.plugins.base_plugin as tensorboard_base_plugin
 from typing import Callable, Dict, Optional
 from urllib import parse
-from werkzeug import Response
 
 from google.cloud.aiplatform.tensorboard.plugins.tf_profiler import profile_uploader
 from google.cloud.aiplatform.training_utils import environment_variables

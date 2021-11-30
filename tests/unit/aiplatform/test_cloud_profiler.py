@@ -131,10 +131,10 @@ class TestProfilerPlugin(unittest.TestCase):
         setupProfilerEnvVars()
 
     def testImportError(self):
-        with mock.patch.dict(
-            "sys.modules", {"tensorboard_plugin_profile.profile_plugin": None}
-        ):
-            self.assertRaises(ImportError, reload, tf_profiler)
+        for mock_module in ["tensorboard_plugin_profile.profile_plugin", "werkzeug"]:
+            with self.subTest():
+                with mock.patch.dict("sys.modules", {mock_module: None}):
+                    self.assertRaises(ImportError, reload, tf_profiler)
 
     # Environment variable tests
     def testCanInitializeProfilerPortUnset(self):
