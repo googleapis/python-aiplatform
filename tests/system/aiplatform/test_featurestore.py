@@ -16,7 +16,6 @@
 #
 
 from google.cloud import aiplatform
-from google.cloud.aiplatform import _featurestores as featurestores
 from tests.system.aiplatform import e2e_base
 
 
@@ -30,8 +29,10 @@ class TestFeaturestore(e2e_base.TestEndToEnd):
             project=e2e_base._PROJECT, location=e2e_base._LOCATION,
         )
 
-        list_featurestores = featurestores.Featurestore.list()
+        shared_state["resources"] = []
+
+        list_featurestores = aiplatform.Featurestore.list()
         assert len(list_featurestores) >= 0
 
-        list_searched_features = featurestores.Feature.search()
+        list_searched_features = aiplatform.Feature.search()
         assert len(list_searched_features) >= 0

@@ -22,7 +22,7 @@ from google.protobuf import field_mask_pb2
 
 from google.cloud.aiplatform import base
 from google.cloud.aiplatform.compat.types import entity_type as gca_entity_type
-from google.cloud.aiplatform import _featurestores
+from google.cloud.aiplatform import featurestore
 from google.cloud.aiplatform import utils
 from google.cloud.aiplatform.utils import featurestore_utils
 
@@ -111,28 +111,28 @@ class EntityType(base.VertexAiResourceNounWithFutureManager):
             featurestore=entity_type_name_components["featurestore"],
         )
 
-    def get_featurestore(self) -> _featurestores.Featurestore:
+    def get_featurestore(self) -> "featurestore.Featurestore":
         """Retrieves the managed featurestore in which this EntityType is.
 
         Returns:
-            featurestores.Featurestore - The managed featurestore in which this EntityType is.
+            featurestore.Featurestore - The managed featurestore in which this EntityType is.
         """
-        return _featurestores.Featurestore(self.featurestore_name)
+        return featurestore.Featurestore(self.featurestore_name)
 
-    def get_feature(self, feature_id: str) -> "_featurestores.Feature":
+    def get_feature(self, feature_id: str) -> "featurestore.Feature":
         """Retrieves an existing managed feature in this EntityType.
 
         Args:
             feature_id (str):
                 Required. The managed feature resource ID in this EntityType.
         Returns:
-            featurestores.Feature - The managed feature resource object.
+            featurestore.Feature - The managed feature resource object.
         """
         entity_type_name_components = featurestore_utils.CompatFeaturestoreServiceClient.parse_entity_type_path(
             path=self.resource_name
         )
 
-        return _featurestores.Feature(
+        return featurestore.Feature(
             feature_name=featurestore_utils.CompatFeaturestoreServiceClient.feature_path(
                 project=entity_type_name_components["project"],
                 location=entity_type_name_components["location"],
@@ -288,7 +288,7 @@ class EntityType(base.VertexAiResourceNounWithFutureManager):
                 credentials set in aiplatform.init.
 
         Returns:
-            List[EntityTypes] - A list of managed entityType resource objects
+            List[EntityType] - A list of managed entityType resource objects
         """
 
         return cls._list(
@@ -307,7 +307,7 @@ class EntityType(base.VertexAiResourceNounWithFutureManager):
 
     def list_features(
         self, filter: Optional[str] = None, order_by: Optional[str] = None,
-    ) -> List["_featurestores.Feature"]:
+    ) -> List["featurestore.Feature"]:
         """Lists existing managed feature resources in this EntityType.
 
         Example Usage:
@@ -354,9 +354,9 @@ class EntityType(base.VertexAiResourceNounWithFutureManager):
                 -  ``update_time``
 
         Returns:
-            List[Features] - A list of managed feature resource objects.
+            List[featurestore.Feature] - A list of managed feature resource objects.
         """
-        return _featurestores.Feature.list(
+        return featurestore.Feature.list(
             entity_type_name=self.resource_name, filter=filter, order_by=order_by,
         )
 

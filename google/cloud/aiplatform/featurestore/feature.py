@@ -22,7 +22,7 @@ from google.protobuf import field_mask_pb2
 
 from google.cloud.aiplatform import base
 from google.cloud.aiplatform.compat.types import feature as gca_feature
-from google.cloud.aiplatform import _featurestores
+from google.cloud.aiplatform import featurestore
 from google.cloud.aiplatform import initializer
 from google.cloud.aiplatform import utils
 from google.cloud.aiplatform.utils import featurestore_utils
@@ -120,13 +120,13 @@ class Feature(base.VertexAiResourceNounWithFutureManager):
             featurestore=feature_path_components["featurestore"],
         )
 
-    def get_featurestore(self) -> _featurestores.Featurestore:
+    def get_featurestore(self) -> "featurestore.Featurestore":
         """Retrieves the managed featurestore in which this Feature is.
 
         Returns:
-            featurestores.Featurestore - The managed featurestore in which this Feature is.
+            featurestore.Featurestore - The managed featurestore in which this Feature is.
         """
-        return _featurestores.Featurestore(featurestore_name=self.featurestore_name)
+        return featurestore.Featurestore(featurestore_name=self.featurestore_name)
 
     @property
     def entity_type_name(self) -> str:
@@ -142,13 +142,13 @@ class Feature(base.VertexAiResourceNounWithFutureManager):
             entity_type=feature_path_components["entity_type"],
         )
 
-    def get_entity_type(self) -> _featurestores.EntityType:
+    def get_entity_type(self) -> "featurestore.EntityType":
         """Retrieves the managed entityType in which this Feature is.
 
         Returns:
-            featurestores.EntityType - The managed entityType in which this Feature is.
+            featurestore.EntityType - The managed entityType in which this Feature is.
         """
-        return _featurestores.EntityType(entity_type_name=self.entity_type_name)
+        return featurestore.EntityType(entity_type_name=self.entity_type_name)
 
     def update(
         self,
@@ -301,7 +301,7 @@ class Feature(base.VertexAiResourceNounWithFutureManager):
                 credentials set in aiplatform.init.
 
         Returns:
-            List[Features] - A list of managed feature resource objects
+            List[Feature] - A list of managed feature resource objects
         """
         (
             featurestore_id,
@@ -332,7 +332,7 @@ class Feature(base.VertexAiResourceNounWithFutureManager):
         project: Optional[str] = None,
         location: Optional[str] = None,
         credentials: Optional[auth_credentials.Credentials] = None,
-    ) -> List["_featurestores.Feature"]:
+    ) -> List["Feature"]:
         """Searches existing managed Feature resources.
 
         Example Usage:
@@ -432,7 +432,7 @@ class Feature(base.VertexAiResourceNounWithFutureManager):
                 credentials set in aiplatform.init.
 
         Returns:
-            List[Features] - A list of managed feature resource objects
+            List[Feature] - A list of managed feature resource objects
         """
         resource = cls._empty_constructor(
             project=project, location=location, credentials=credentials

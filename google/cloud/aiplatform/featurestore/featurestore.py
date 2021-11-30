@@ -22,7 +22,7 @@ from google.protobuf import field_mask_pb2
 
 from google.cloud.aiplatform import base
 from google.cloud.aiplatform.compat.types import featurestore as gca_featurestore
-from google.cloud.aiplatform import _featurestores
+from google.cloud.aiplatform import featurestore
 from google.cloud.aiplatform import utils
 from google.cloud.aiplatform.utils import featurestore_utils
 
@@ -83,20 +83,20 @@ class Featurestore(base.VertexAiResourceNounWithFutureManager):
         )
         self._gca_resource = self._get_gca_resource(resource_name=featurestore_name)
 
-    def get_entity_type(self, entity_type_id: str) -> "_featurestores.EntityType":
+    def get_entity_type(self, entity_type_id: str) -> "featurestore.EntityType":
         """Retrieves an existing managed entityType in this Featurestore.
 
         Args:
             entity_type_id (str):
                 Required. The managed entityType resource ID in this Featurestore.
         Returns:
-            featurestores.EntityType - The managed entityType resource object.
+            featurestore.EntityType - The managed entityType resource object.
         """
         featurestore_name_components = featurestore_utils.CompatFeaturestoreServiceClient.parse_featurestore_path(
             path=self.resource_name
         )
 
-        return _featurestores.EntityType(
+        return featurestore.EntityType(
             entity_type_name=featurestore_utils.CompatFeaturestoreServiceClient.entity_type_path(
                 project=featurestore_name_components["project"],
                 location=featurestore_name_components["location"],
@@ -247,7 +247,7 @@ class Featurestore(base.VertexAiResourceNounWithFutureManager):
 
     def list_entity_types(
         self, filter: Optional[str] = None, order_by: Optional[str] = None,
-    ) -> List["_featurestores.EntityType"]:
+    ) -> List["featurestore.EntityType"]:
         """Lists existing managed entityType resources in this Featurestore.
 
         Example Usage:
@@ -293,9 +293,9 @@ class Featurestore(base.VertexAiResourceNounWithFutureManager):
                 -  ``update_time``
 
         Returns:
-            List[featurestores.EntityType] - A list of managed entityType resource objects.
+            List[featurestore.EntityType] - A list of managed entityType resource objects.
         """
-        return _featurestores.EntityType.list(
+        return featurestore.EntityType.list(
             featurestore_name=self.resource_name, filter=filter, order_by=order_by,
         )
 

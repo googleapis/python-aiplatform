@@ -15,12 +15,12 @@
 # limitations under the License.
 #
 
-from google.cloud.aiplatform._featurestores.featurestore import Featurestore
-from google.cloud.aiplatform._featurestores.entity_type import EntityType
-from google.cloud.aiplatform._featurestores.feature import Feature
+from google.cloud.aiplatform.featurestore.entity_type import EntityType
+from google.cloud.aiplatform.featurestore.feature import Feature
+from google.cloud.aiplatform.featurestore.featurestore import Featurestore
 
 __all__ = (
-    "Featurestore",
     "EntityType",
     "Feature",
+    "Featurestore",
 )
