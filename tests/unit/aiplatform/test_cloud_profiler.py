@@ -131,13 +131,6 @@ class TestProfilerPlugin(unittest.TestCase):
         setupProfilerEnvVars()
 
     def testImportError(self):
-        orig_find_spec = importlib.util.find_spec
-
-        def profile_import_mock(name, *args, **kwargs):
-            if name == "tensorboard_plugin_profile":
-                return None
-            return orig_find_spec(name, *args, **kwargs)
-
         with mock.patch.dict(
             "sys.modules", {"tensorboard_plugin_profile.profile_plugin": None}
         ):
