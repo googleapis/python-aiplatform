@@ -478,7 +478,7 @@ class Feature(base.VertexAiResourceNounWithFutureManager):
         request_metadata: Optional[Sequence[Tuple[str, str]]] = (),
         sync: Optional[bool] = True,
     ) -> "Feature":
-        """Creates a new Feature resources in an EntityType.
+        """Creates a Feature resource in an EntityType.
 
         Example Usage:
 
@@ -547,7 +547,7 @@ class Feature(base.VertexAiResourceNounWithFutureManager):
                 be immediately returned and synced when the Future has completed.
 
         Returns:
-            Feature - feature resource objects
+            Feature - feature resource object
 
         """
         (

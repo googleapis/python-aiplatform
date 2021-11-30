@@ -338,7 +338,7 @@ class Featurestore(base.VertexAiResourceNounWithFutureManager):
         encryption_spec_key_name: Optional[str] = None,
         sync: Optional[bool] = True,
     ) -> "Featurestore":
-        """Creates a new EntityType resources in a Featurestore.
+        """Creates a Featurestore resource.
 
         Example Usage:
 
@@ -402,7 +402,7 @@ class Featurestore(base.VertexAiResourceNounWithFutureManager):
                 be immediately returned and synced when the Future has completed.
 
         Returns:
-            Featurestore - Featurestore resource objects
+            Featurestore - Featurestore resource object
 
         """
         if labels:
@@ -455,7 +455,7 @@ class Featurestore(base.VertexAiResourceNounWithFutureManager):
         request_metadata: Optional[Sequence[Tuple[str, str]]] = (),
         sync: Optional[bool] = True,
     ) -> "_featurestores.EntityType":
-        """Creates a new EntityType resources in this Featurestore.
+        """Creates an EntityType resource in this Featurestore.
 
         Example Usage:
 
@@ -500,7 +500,7 @@ class Featurestore(base.VertexAiResourceNounWithFutureManager):
                 be immediately returned and synced when the Future has completed.
 
         Returns:
-            featurestores.EntityType - EntityType resource objects
+            featurestores.EntityType - EntityType resource object
 
         """
         return _featurestores.EntityType.create(
