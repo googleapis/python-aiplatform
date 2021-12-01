@@ -2573,32 +2573,17 @@ class Model(base.VertexAiResourceNounWithFutureManager):
                 is specified.
                 Also if model directory does not contain a supported model file.
         """
-        # https://cloud.google.com/vertex-ai/docs/predictions/pre-built-containers#xgboost
-        XGBOOST_SUPPORTED_VERSIONS = ["0.82", "0.90", "1.1", "1.2", "1.3", "1.4"]
-        XGBOOST_CONTAINER_IMAGE_URI_TEMPLATE = (
-            "{registry}/vertex-ai/prediction/xgboost-{cpu_or_gpu}.{version}:latest"
-        )
-
         XGBOOST_SUPPORTED_MODEL_FILE_EXTENSIONS = [
             ".pkl",
             ".joblib",
             ".bst",
         ]
 
-        _LOGGER.info(f"Using the {xgboost_version} version of XGBoost.")
-
-        if xgboost_version not in XGBOOST_SUPPORTED_VERSIONS:
-            _LOGGER.warning(
-                f"XGBoost version {xgboost_version} is not supported. "
-                f"Supported versions: {XGBOOST_SUPPORTED_VERSIONS}"
-            )
-
-        container_image_uri = XGBOOST_CONTAINER_IMAGE_URI_TEMPLATE.format(
-            registry=_get_container_registry(
-                location or aiplatform.initializer.global_config.location
-            ),
-            cpu_or_gpu="cpu",
-            version=xgboost_version.replace(".", "-"),
+        container_image_uri = aiplatform.helpers.get_prebuilt_prediction_container_uri(
+            region=location,
+            framework="xgboost",
+            framework_version=xgboost_version,
+            accelerator="cpu",
         )
 
         model_file_path_obj = pathlib.Path(model_file_path)
@@ -2781,29 +2766,16 @@ class Model(base.VertexAiResourceNounWithFutureManager):
                 is specified.
                 Also if model directory does not contain a supported model file.
         """
-        # https://cloud.google.com/vertex-ai/docs/predictions/pre-built-containers#scikit-learn
-        SKLEARN_SUPPORTED_VERSIONS = ["0.20", "0.22", "0.23", "0.24", "1.0"]
-        SKLEARN_CONTAINER_IMAGE_URI_TEMPLATE = (
-            "{registry}/vertex-ai/prediction/sklearn-{cpu_or_gpu}.{version}:latest"
-        )
         SKLEARN_SUPPORTED_MODEL_FILE_EXTENSIONS = [
             ".pkl",
             ".joblib",
         ]
 
-        _LOGGER.info(f"Using the {sklearn_version} version of Scikit-learn.")
-
-        if sklearn_version not in SKLEARN_SUPPORTED_VERSIONS:
-            _LOGGER.warning(
-                f"Scikit-learn version {sklearn_version} is not supported. "
-                f"Supported versions: {SKLEARN_SUPPORTED_VERSIONS}"
-            )
-        container_image_uri = SKLEARN_CONTAINER_IMAGE_URI_TEMPLATE.format(
-            registry=_get_container_registry(
-                location or aiplatform.initializer.global_config.location
-            ),
-            cpu_or_gpu="cpu",
-            version=sklearn_version.replace(".", "-"),
+        container_image_uri = aiplatform.helpers.get_prebuilt_prediction_container_uri(
+            region=location,
+            framework="sklearn",
+            framework_version=sklearn_version,
+            accelerator="cpu",
         )
 
         model_file_path_obj = pathlib.Path(model_file_path)
@@ -2989,36 +2961,11 @@ class Model(base.VertexAiResourceNounWithFutureManager):
                 is specified.
                 Also if model directory does not contain a supported model file.
         """
-        # https://cloud.google.com/vertex-ai/docs/predictions/pre-built-containers#tensorflow
-        TENSORFLOW_SUPPORTED_VERSIONS = [
-            "0.15",
-            "2.1",
-            "2.2",
-            "2.3",
-            "2.4",
-            "2.5",
-            "2.6",
-            "2.7",
-        ]
-        TENSORFLOW_CONTAINER_IMAGE_URI_TEMPLATE = (
-            "{registry}/vertex-ai/prediction/tf{tf2_or_1}-{cpu_or_gpu}.{version}:latest"
-        )
-
-        _LOGGER.info(f"Using the {tensorflow_version} version of Tensorflow.")
-
-        if tensorflow_version not in TENSORFLOW_SUPPORTED_VERSIONS:
-            _LOGGER.warning(
-                f"Tensorflow version {tensorflow_version} is not supported. "
-                f"Supported versions: {TENSORFLOW_SUPPORTED_VERSIONS}"
-            )
-
-        container_image_uri = TENSORFLOW_CONTAINER_IMAGE_URI_TEMPLATE.format(
-            registry=_get_container_registry(
-                location or aiplatform.initializer.global_config.location
-            ),
-            tf2_or_1=("2" if tensorflow_version.startswith("2.") else ""),
-            cpu_or_gpu="gpu" if use_gpu else "cpu",
-            version=tensorflow_version.replace(".", "-"),
+        container_image_uri = aiplatform.helpers.get_prebuilt_prediction_container_uri(
+            region=location,
+            framework="tensorflow",
+            framework_version=tensorflow_version,
+            accelerator="gpu" if use_gpu else "cpu",
         )
 
         return aiplatform.Model.upload(
@@ -3039,23 +2986,3 @@ class Model(base.VertexAiResourceNounWithFutureManager):
             staging_bucket=staging_bucket,
             sync=sync,
         )
-
-
-def _get_container_registry(location: Optional[str] = None,) -> str:
-    """Gets container registry domain based on location.
-
-    Args:
-        location: Google Cloud location
-
-    Returns:
-        Google Container Registry domain.
-    """
-    location = location or "us-"
-    if location.startswith("us-"):
-        return "us-docker.pkg.dev"
-    elif location.startswith("europe-"):
-        return "europe-docker.pkg.dev"
-    elif location.startswith("asia-"):
-        return "asia-docker.pkg.dev"
-    else:
-        raise ValueError(f"Unrecognized location: {location}")
