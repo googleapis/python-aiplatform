@@ -16,14 +16,12 @@
 #
 
 import tempfile
-import importlib
 
 import pytest
 
 from google import auth as google_auth
 from google.cloud import aiplatform
 from google.cloud import storage
-from google.cloud.aiplatform import initializer
 
 from tests.system.aiplatform import e2e_base
 
