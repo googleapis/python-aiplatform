@@ -15,9 +15,9 @@
 # limitations under the License.
 #
 
-from importlib import reload
 import importlib.util
 import json
+import sys
 import threading
 from typing import List, Optional
 
@@ -75,6 +75,10 @@ def _create_mock_plugin(
     return mock_plugin
 
 
+def _find_child_modules(root_module):
+    return [module for module in sys.modules.keys() if module.startswith(root_module)]
+
+
 @pytest.fixture
 def tf_profile_plugin_mock():
     """Mock the tensorboard profile plugin"""
@@ -129,12 +133,6 @@ def setupProfilerEnvVars():
 class TestProfilerPlugin(unittest.TestCase):
     def setUp(self):
         setupProfilerEnvVars()
-
-    def testImportError(self):
-        for mock_module in ["tensorboard_plugin_profile.profile_plugin", "werkzeug"]:
-            with self.subTest():
-                with mock.patch.dict("sys.modules", {mock_module: None}):
-                    self.assertRaises(ImportError, reload, tf_profiler)
 
     # Environment variable tests
     def testCanInitializeProfilerPortUnset(self):
@@ -365,6 +363,23 @@ class TestWebServer(unittest.TestCase):
 
 # Initializer tests
 class TestInitializer(unittest.TestCase):
+    def testImportError(self):
+        # Unloads any of the cloud profiler sub-modules
+        for mod in _find_child_modules(
+            "google.cloud.aiplatform.training_utils.cloud_profiler"
+        ):
+            del sys.modules[mod]
+
+        # Modules to be mocked out
+        for mock_module in ["tensorboard_plugin_profile.profile_plugin", "werkzeug"]:
+            with self.subTest():
+                with mock.patch.dict("sys.modules", {mock_module: None}):
+                    with self.assertRaises(ImportError) as cm:
+                        importlib.import_module(
+                            "google.cloud.aiplatform.training_utils.cloud_profiler"
+                        )
+                    assert "Could not load the cloud profiler" in cm.exception.msg
+
     def test_build_plugin_fail_initialize(self):
         plugin = _create_mock_plugin()
         plugin.can_initialize.return_value = False

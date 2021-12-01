@@ -17,15 +17,6 @@
 
 """A plugin to handle remote tensoflow profiler sessions for Vertex AI."""
 
-try:
-    from tensorboard_plugin_profile.profile_plugin import ProfilePlugin
-    from werkzeug import Response
-except ImportError as err:
-    raise ImportError(
-        "Could not load the cloud profiler. To use the profiler, "
-        'install the SDK using "pip install google-cloud-aiplatform[cloud-profiler]"'
-    ) from err
-
 import argparse
 from collections import namedtuple
 import importlib.util
@@ -37,11 +28,18 @@ from urllib import parse
 
 from google.cloud.aiplatform.tensorboard.plugins.tf_profiler import profile_uploader
 from google.cloud.aiplatform.training_utils import environment_variables
+from google.cloud.aiplatform.training_utils.cloud_profiler import cloud_profiler_utils
 from google.cloud.aiplatform.training_utils.cloud_profiler import wsgi_types
 from google.cloud.aiplatform.training_utils.cloud_profiler.plugins import base_plugin
 from google.cloud.aiplatform.training_utils.cloud_profiler.plugins.tensorflow import (
     tensorboard_api,
 )
+
+try:
+    from tensorboard_plugin_profile.profile_plugin import ProfilePlugin
+    from werkzeug import Response
+except ImportError as err:
+    raise ImportError(cloud_profiler_utils.import_error_msg) from err
 
 
 # TF verison information.
