@@ -898,6 +898,7 @@ class VertexAiResourceNounWithFutureManager(VertexAiResourceNoun, FutureManager)
         project: Optional[str] = None,
         location: Optional[str] = None,
         credentials: Optional[auth_credentials.Credentials] = None,
+        parent: Optional[str] = None,
     ) -> List[VertexAiResourceNoun]:
         """Private method to list all instances of this Vertex AI Resource,
         takes a `cls_filter` arg to filter to a particular SDK resource
@@ -925,6 +926,8 @@ class VertexAiResourceNounWithFutureManager(VertexAiResourceNoun, FutureManager)
             credentials (auth_credentials.Credentials):
                 Optional. Custom credentials to use to retrieve list. Overrides
                 credentials set in aiplatform.init.
+            parent (str):
+                Optional. The parent resource name if any to retrieve resource list from.
 
         Returns:
             List[VertexAiResourceNoun] - A list of SDK resource objects
@@ -934,12 +937,13 @@ class VertexAiResourceNounWithFutureManager(VertexAiResourceNoun, FutureManager)
         )
 
         # Fetch credentials once and re-use for all `_empty_constructor()` calls
-        creds = initializer.global_config.credentials
+        creds = resource.credentials
 
         resource_list_method = getattr(resource.api_client, resource._list_method)
 
         list_request = {
-            "parent": initializer.global_config.common_location_path(
+            "parent": parent
+            or initializer.global_config.common_location_path(
                 project=project, location=location
             ),
             "filter": filter,
@@ -1029,6 +1033,7 @@ class VertexAiResourceNounWithFutureManager(VertexAiResourceNoun, FutureManager)
         project: Optional[str] = None,
         location: Optional[str] = None,
         credentials: Optional[auth_credentials.Credentials] = None,
+        parent: Optional[str] = None,
     ) -> List[VertexAiResourceNoun]:
         """List all instances of this Vertex AI Resource.
 
@@ -1057,6 +1062,8 @@ class VertexAiResourceNounWithFutureManager(VertexAiResourceNoun, FutureManager)
             credentials (auth_credentials.Credentials):
                 Optional. Custom credentials to use to retrieve list. Overrides
                 credentials set in aiplatform.init.
+            parent (str):
+                Optional. The parent resource name if any to retrieve list from.
 
         Returns:
             List[VertexAiResourceNoun] - A list of SDK resource objects
@@ -1068,6 +1075,7 @@ class VertexAiResourceNounWithFutureManager(VertexAiResourceNoun, FutureManager)
             project=project,
             location=location,
             credentials=credentials,
+            parent=parent,
         )
 
     @optional_sync()

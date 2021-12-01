@@ -33,6 +33,11 @@ from google.cloud.aiplatform.datasets import (
 from google.cloud.aiplatform import explain
 from google.cloud.aiplatform import gapic
 from google.cloud.aiplatform import hyperparameter_tuning
+from google.cloud.aiplatform.featurestore import (
+    EntityType,
+    Feature,
+    Featurestore,
+)
 from google.cloud.aiplatform.metadata import metadata
 from google.cloud.aiplatform.models import Endpoint
 from google.cloud.aiplatform.models import Model
@@ -93,6 +98,9 @@ __all__ = (
     "CustomContainerTrainingJob",
     "CustomPythonPackageTrainingJob",
     "Endpoint",
+    "EntityType",
+    "Feature",
+    "Featurestore",
     "ImageDataset",
     "HyperparameterTuningJob",
     "Model",
