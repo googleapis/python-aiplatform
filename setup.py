@@ -88,7 +88,7 @@ setuptools.setup(
         "tensorboard": tensorboard_extra_require,
         "testing": testing_extra_require,
         "xai": xai_extra_require,
-        "cloud_profiler": profiler_extra_require,
+        "cloud-profiler": profiler_extra_require,
     },
     python_requires=">=3.6",
     scripts=[],
