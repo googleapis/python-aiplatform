@@ -132,7 +132,7 @@ def stage_local_data_in_gcs(
         # This prevents errors when some service required regional bucket.
         # E.g. "FailedPrecondition: 400 The Cloud Storage bucket of `gs://...` is in location `us`. It must be in the same regional location as the service location `us-central1`."
         # We are making the bucket name region-specific since the bucket is regional.
-        staging_bucket_name = project + "-staging-" + location
+        staging_bucket_name = project + "-vertex-staging-" + location
         client = storage.Client(project=project, credentials=credentials)
         staging_bucket = storage.Bucket(client=client, name=staging_bucket_name)
         if not staging_bucket.exists():

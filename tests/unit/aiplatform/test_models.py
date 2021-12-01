@@ -1495,7 +1495,7 @@ class TestModel:
 
         # Verifying the staging bucket name generation
         assert upload_model_model.artifact_uri.startswith(
-            f"gs://{_TEST_PROJECT}-staging-{_TEST_LOCATION}"
+            f"gs://{_TEST_PROJECT}-vertex-staging-{_TEST_LOCATION}"
         )
         assert "/vertex_ai_auto_staging/" in upload_model_model.artifact_uri
 
@@ -1547,7 +1547,7 @@ class TestModel:
 
         # Verifying the staging bucket name generation
         assert upload_model_model.artifact_uri.startswith(
-            f"gs://{_TEST_PROJECT}-staging-{_TEST_LOCATION}"
+            f"gs://{_TEST_PROJECT}-vertex-staging-{_TEST_LOCATION}"
         )
         assert "/vertex_ai_auto_staging/" in upload_model_model.artifact_uri
 
@@ -1604,7 +1604,7 @@ class TestModel:
 
         # Verifying the staging bucket name generation
         assert upload_model_model.artifact_uri.startswith(
-            f"gs://{_TEST_PROJECT}-staging-{_TEST_LOCATION}"
+            f"gs://{_TEST_PROJECT}-vertex-staging-{_TEST_LOCATION}"
         )
         assert "/vertex_ai_auto_staging/" in upload_model_model.artifact_uri
 
@@ -1653,7 +1653,7 @@ class TestModel:
 
         # Verifying the staging bucket name generation
         assert upload_model_model.artifact_uri.startswith(
-            f"gs://{_TEST_PROJECT}-staging-{_TEST_LOCATION}"
+            f"gs://{_TEST_PROJECT}-vertex-staging-{_TEST_LOCATION}"
         )
         assert "/vertex_ai_auto_staging/" in upload_model_model.artifact_uri
 
