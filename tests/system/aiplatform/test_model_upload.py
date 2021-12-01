@@ -32,8 +32,10 @@ _TEST_LOCATION = "us-central1"
 _XGBOOST_MODEL_URI = "gs://ucaip-test-us-central1/models/iris_xgboost/model.bst"
 
 
+@pytest.mark.usefixtures("delete_staging_bucket", "teardown")
 class TestModel(e2e_base.TestEndToEnd):
-    @pytest.mark.usefixtures("teardown")
+    _temp_prefix = f"{_TEST_PROJECT}-vertex-staging-{_TEST_LOCATION}"
+
     def test_upload_and_deploy_xgboost_model(self, shared_state):
         """Upload XGBoost model from local file and deploy it for prediction."""
 
