@@ -38,6 +38,7 @@ from google.cloud.aiplatform.training_utils.cloud_profiler.plugins.tensorflow im
 try:
     from tensorboard_plugin_profile.profile_plugin import ProfilePlugin
     from werkzeug import Response
+    import tensorflow as tf
 except ImportError as err:
     raise ImportError(cloud_profiler_utils.import_error_msg) from err
 
@@ -60,8 +61,6 @@ def _get_tf_versioning() -> Optional[Version]:
     Returns:
         A version object if finding the version was successful, None otherwise.
     """
-    import tensorflow as tf
-
     version = tf.__version__
 
     versioning = version.split(".")
@@ -321,20 +320,7 @@ class TFProfiler(base_plugin.BasePlugin):
 
     @staticmethod
     def setup() -> None:
-        """Sets up the plugin.
-
-        Raises:
-            ImportError: Tensorflow could not be imported.
-        """
-        try:
-            import tensorflow as tf
-        except ImportError as err:
-            raise ImportError(
-                "Could not import tensorflow for profile usage. "
-                "To use profiler, install the SDK using "
-                '"pip install google-cloud-aiplatform[cloud_profiler]"'
-            ) from err
-
+        """Sets up the plugin."""
         tf.profiler.experimental.server.start(
             int(environment_variables.tf_profiler_port)
         )
