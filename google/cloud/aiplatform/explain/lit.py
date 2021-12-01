@@ -187,7 +187,8 @@ def set_up_and_open_lit(
             Required. An OrderedDict of string names matching the columns of the dataset
             as the key, and the associated LitType of the column.
         model:
-            Required. A string reference to a TensorFlow saved model directory. The model must have at most one input and one output tensor.
+            Required. A string reference to a TensorFlow saved model directory.
+            The model must have at most one input and one output tensor.
         input_types:
             Required. An OrderedDict of string names matching the features of the model
             as the key, and the associated LitType of the feature.
