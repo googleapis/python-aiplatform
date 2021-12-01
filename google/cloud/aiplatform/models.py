@@ -2439,8 +2439,9 @@ class Model(base.VertexAiResourceNounWithFutureManager):
 
         return json_format.MessageToDict(operation_future.metadata.output_info._pb)
 
-    @staticmethod
+    @classmethod
     def upload_xgboost_model_file(
+        cls,
         model_file_path: str,
         xgboost_version: str = "1.4",
         display_name: str = "XGBoost model",
@@ -2612,7 +2613,7 @@ class Model(base.VertexAiResourceNounWithFutureManager):
         )
         shutil.copy(model_file_path_obj, prepared_model_file_path)
 
-        return aiplatform.Model.upload(
+        return cls.upload(
             serving_container_image_uri=container_image_uri,
             artifact_uri=prepared_model_dir,
             display_name=display_name,
@@ -2631,8 +2632,9 @@ class Model(base.VertexAiResourceNounWithFutureManager):
             sync=sync,
         )
 
-    @staticmethod
+    @classmethod
     def upload_scikit_learn_model_file(
+        cls,
         model_file_path: str,
         sklearn_version: str = "1.0",
         display_name: str = "Scikit-learn model",
@@ -2804,7 +2806,7 @@ class Model(base.VertexAiResourceNounWithFutureManager):
         )
         shutil.copy(model_file_path_obj, prepared_model_file_path)
 
-        return aiplatform.Model.upload(
+        return cls.upload(
             serving_container_image_uri=container_image_uri,
             artifact_uri=prepared_model_dir,
             display_name=display_name,
@@ -2823,8 +2825,9 @@ class Model(base.VertexAiResourceNounWithFutureManager):
             sync=sync,
         )
 
-    @staticmethod
+    @classmethod
     def upload_tensorflow_saved_model(
+        cls,
         saved_model_dir: str,
         tensorflow_version: str = "2.7",
         use_gpu: bool = False,
@@ -2968,7 +2971,7 @@ class Model(base.VertexAiResourceNounWithFutureManager):
             accelerator="gpu" if use_gpu else "cpu",
         )
 
-        return aiplatform.Model.upload(
+        return cls.upload(
             serving_container_image_uri=container_image_uri,
             artifact_uri=saved_model_dir,
             display_name=display_name,
