@@ -2442,8 +2442,8 @@ class Model(base.VertexAiResourceNounWithFutureManager):
     @staticmethod
     def upload_xgboost_model_file(
         model_file_path: str,
-        xgboost_version: Optional[str] = "1.4",
-        display_name: Optional[str] = "XGBoost model",
+        xgboost_version: str = "1.4",
+        display_name: str = "XGBoost model",
         description: Optional[str] = None,
         instance_schema_uri: Optional[str] = None,
         parameters_schema_uri: Optional[str] = None,
@@ -2634,8 +2634,8 @@ class Model(base.VertexAiResourceNounWithFutureManager):
     @staticmethod
     def upload_scikit_learn_model_file(
         model_file_path: str,
-        sklearn_version: Optional[str] = "1.0",
-        display_name: Optional[str] = "Scikit-learn model",
+        sklearn_version: str = "1.0",
+        display_name: str = "Scikit-learn model",
         description: Optional[str] = None,
         instance_schema_uri: Optional[str] = None,
         parameters_schema_uri: Optional[str] = None,
@@ -2826,9 +2826,9 @@ class Model(base.VertexAiResourceNounWithFutureManager):
     @staticmethod
     def upload_tensorflow_saved_model(
         saved_model_dir: str,
-        tensorflow_version: Optional[str] = "2.7",
+        tensorflow_version: str = "2.7",
         use_gpu: bool = False,
-        display_name: Optional[str] = "Tensorflow model",
+        display_name: str = "Tensorflow model",
         description: Optional[str] = None,
         instance_schema_uri: Optional[str] = None,
         parameters_schema_uri: Optional[str] = None,
