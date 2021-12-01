@@ -1725,7 +1725,7 @@ class Model(base.VertexAiResourceNounWithFutureManager):
             if re.match(PREBUILT_IMAGE_RE, serving_container_image_uri):
                 if not model_dir.is_dir():
                     raise ValueError(
-                        f"artifact_uri path must be a directory: '{artifact_uri}'"
+                        f"artifact_uri path must be a directory: '{artifact_uri}' when using prebuilt image '{serving_container_image_uri}'"
                     )
                 if not any(
                     (model_dir / file_name).exists()
@@ -1733,7 +1733,7 @@ class Model(base.VertexAiResourceNounWithFutureManager):
                 ):
                     raise ValueError(
                         "artifact_uri directory does not contain any supported model files. "
-                        f"The upload method only supports the following model files: '{_SUPPORTED_MODEL_FILE_NAMES}'"
+                        f"When using a prebuilt serving image, the upload method only supports the following model files: '{_SUPPORTED_MODEL_FILE_NAMES}'"
                     )
 
             # Uploading the model
