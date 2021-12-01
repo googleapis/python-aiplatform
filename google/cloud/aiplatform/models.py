@@ -2457,7 +2457,7 @@ class Model(base.VertexAiResourceNounWithFutureManager):
         encryption_spec_key_name: Optional[str] = None,
         staging_bucket: Optional[str] = None,
         sync=True,
-    ):
+    ) -> "Model":
         """Uploads a model and returns a Model representing the uploaded Model
         resource.
 
@@ -2649,7 +2649,7 @@ class Model(base.VertexAiResourceNounWithFutureManager):
         encryption_spec_key_name: Optional[str] = None,
         staging_bucket: Optional[str] = None,
         sync=True,
-    ):
+    ) -> "Model":
         """Uploads a model and returns a Model representing the uploaded Model
         resource.
 
@@ -2842,7 +2842,7 @@ class Model(base.VertexAiResourceNounWithFutureManager):
         encryption_spec_key_name: Optional[str] = None,
         staging_bucket: Optional[str] = None,
         sync=True,
-    ):
+    ) -> "Model":
         """Uploads a model and returns a Model representing the uploaded Model
         resource.
 
