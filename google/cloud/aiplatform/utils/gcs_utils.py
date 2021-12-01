@@ -126,6 +126,7 @@ def stage_local_data_in_gcs(
     if not staging_gcs_dir:
         project = project or initializer.global_config.project
         location = location or initializer.global_config.location
+        credentials = credentials or initializer.global_config.credentials
         # Creating the bucket if it does not exist.
         # Currently we only do this when staging_gcs_dir is not specified.
         # The buckets that we create are regional.
