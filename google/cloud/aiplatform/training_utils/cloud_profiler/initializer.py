@@ -18,7 +18,14 @@
 import logging
 import threading
 from typing import Optional, Type
-from werkzeug import serving
+
+from google.cloud.aiplatform.training_utils.cloud_profiler import cloud_profiler_utils
+
+try:
+    from werkzeug import serving
+except ImportError as err:
+    raise ImportError(cloud_profiler_utils.import_error_msg) from err
+
 
 from google.cloud.aiplatform.training_utils import environment_variables
 from google.cloud.aiplatform.training_utils.cloud_profiler import webserver
@@ -26,6 +33,7 @@ from google.cloud.aiplatform.training_utils.cloud_profiler.plugins import base_p
 from google.cloud.aiplatform.training_utils.cloud_profiler.plugins.tensorflow import (
     tf_profiler,
 )
+
 
 # Mapping of available plugins to use
 _AVAILABLE_PLUGINS = {"tensorflow": tf_profiler.TFProfiler}
