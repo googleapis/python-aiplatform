@@ -32,6 +32,7 @@ CompatFeaturestoreServiceClient = featurestore_service_client.FeaturestoreServic
 
 RESOURCE_ID_PATTERN_REGEX = r"[a-z_][a-z0-9_]{0,59}"
 GCS_SOURCE_TYPE = ("csv", "avro")
+GCS_DESTINATION_TYPE = ("csv", "tfrecord")
 
 _FEATURE_VALUE_TYPE_UNSPECIFIED = "VALUE_TYPE_UNSPECIFIED"
 

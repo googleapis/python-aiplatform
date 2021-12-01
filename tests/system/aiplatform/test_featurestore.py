@@ -15,6 +15,7 @@
 # limitations under the License.
 #
 
+import pytest
 import logging
 
 from google.cloud import aiplatform
@@ -26,6 +27,8 @@ _TEST_USERS_ENTITY_TYPE_GCS_SRC = (
 _TEST_MOVIES_ENTITY_TYPE_GCS_SRC = (
     "gs://cloud-samples-data-us-central1/vertex-ai/feature-store/datasets/movies.avro"
 )
+
+_TEST_READ_INSTANCE_SRC = "gs://cloud-samples-data-us-central1/vertex-ai/feature-store/datasets/movie_prediction.csv"
 
 _TEST_FEATURESTORE_ID = "movie_prediction"
 _TEST_USER_ENTITY_TYPE_ID = "users"
@@ -40,11 +43,23 @@ _TEST_MOVIE_GENRES_FEATURE_ID = "genres"
 _TEST_MOVIE_AVERAGE_RATING_FEATURE_ID = "average_rating"
 
 
+@pytest.mark.usefixtures(
+    "prepare_staging_bucket",
+    "delete_staging_bucket",
+    "prepare_bigquery_dataset",
+    "delete_bigquery_dataset",
+)
 class TestFeaturestore(e2e_base.TestEndToEnd):
 
     _temp_prefix = "temp_vertex_sdk_e2e_featurestore_test"
 
     def test_end_to_end(self, shared_state, caplog):
+
+        assert shared_state["bucket"]
+        bucket_name = shared_state["staging_bucket_name"]
+
+        assert shared_state["bigquery_dataset"]
+        bigquery_dataset_id = shared_state["bigquery_dataset_id"]
 
         caplog.set_level(logging.INFO)
 
@@ -149,7 +164,6 @@ class TestFeaturestore(e2e_base.TestEndToEnd):
             worker_count=2,
             sync=False,
         )
-        assert "EntityType feature values imported." in caplog.text
 
         movie_title_feature_id = _TEST_MOVIE_TITLE_FEATURE_ID
         movie_genres_feature_id = _TEST_MOVIE_GENRES_FEATURE_ID
@@ -189,5 +203,19 @@ class TestFeaturestore(e2e_base.TestEndToEnd):
 
         list_searched_features = aiplatform.Feature.search()
         assert len(list_searched_features) - base_list_searched_features == 6
+
+        featurestore.batch_serve_to_gcs(
+            entity_type_ids=[_TEST_USER_ENTITY_TYPE_ID, _TEST_MOVIE_ENTITY_TYPE_ID],
+            read_instances=_TEST_READ_INSTANCE_SRC,
+            gcs_destination_output_uri_prefix=f"gs://{bucket_name}/featurestore_test/tfrecord",
+            gcs_destination_type="tfrecord",
+        )
+        assert "Featurestore feature values served." in caplog.text
+
+        featurestore.batch_serve_to_bq(
+            entity_type_ids=[_TEST_USER_ENTITY_TYPE_ID, _TEST_MOVIE_ENTITY_TYPE_ID],
+            read_instances=_TEST_READ_INSTANCE_SRC,
+            bq_destination_output_uri=f"bq://{bigquery_dataset_id}.test_table",
+        )
 
         caplog.clear()
