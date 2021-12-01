@@ -6,7 +6,7 @@
 # you may not use this file except in compliance with the License.
 # You may obtain a copy of the License at
 #
-#     https://www.apache.org/licenses/LICENSE-2.0
+#     http://www.apache.org/licenses/LICENSE-2.0
 #
 # Unless required by applicable law or agreed to in writing, software
 # distributed under the License is distributed on an "AS IS" BASIS,
@@ -15,15 +15,12 @@
 # limitations under the License.
 #
 
-from google.cloud.aiplatform.training_utils.cloud_profiler import initializer
+from google.cloud.aiplatform.featurestore.entity_type import EntityType
+from google.cloud.aiplatform.featurestore.feature import Feature
+from google.cloud.aiplatform.featurestore.featurestore import Featurestore
 
-"""
-Initialize the cloud profiler for tensorflow.
-
-Usage:
-from google.cloud.aiplatform.training_utils import cloud_profiler
-
-cloud_profiler.init(profiler='tensorflow')
-"""
-
-init = initializer.initialize
+__all__ = (
+    "EntityType",
+    "Feature",
+    "Featurestore",
+)
