@@ -17,12 +17,15 @@
 
 import datetime
 import re
-from typing import Dict, NamedTuple, Optional, Tuple, Union
+from typing import Dict, NamedTuple, Optional, Tuple
 
 from google.protobuf import timestamp_pb2
 
 from google.cloud.aiplatform.compat.services import featurestore_service_client
-from google.cloud.aiplatform.compat.types import feature as gca_feature
+from google.cloud.aiplatform.compat.types import (
+    feature as gca_feature,
+    featurestore_service as gca_featurestore_service,
+)
 from google.cloud.aiplatform import utils
 
 CompatFeaturestoreServiceClient = featurestore_service_client.FeaturestoreServiceClient
@@ -197,9 +200,10 @@ class _FeatureConfig(NamedTuple):
 
         return value_type_enum
 
-    @property
-    def request_dict(self) -> Dict[str, Union[int, str, Dict[str, str]]]:
-        """Return request as a Dict."""
+    def get_create_feature_request(
+        self, parent: Optional[str] = None
+    ) -> gca_featurestore_service.CreateFeatureRequest:
+        """Return create feature request."""
 
         if self.labels:
             utils.validate_labels(self.labels)
@@ -210,10 +214,14 @@ class _FeatureConfig(NamedTuple):
             labels=self.labels,
         )
 
-        create_feature_request = {
-            "feature": gapic_feature,
-            "feature_id": self._get_feature_id(),
-        }
+        if parent:
+            create_feature_request = gca_featurestore_service.CreateFeatureRequest(
+                parent=parent, feature=gapic_feature, feature_id=self._get_feature_id()
+            )
+        else:
+            create_feature_request = gca_featurestore_service.CreateFeatureRequest(
+                feature=gapic_feature, feature_id=self._get_feature_id()
+            )
 
         return create_feature_request
 
