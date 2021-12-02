@@ -154,6 +154,11 @@ class IndexEndpointServiceTransport(abc.ABC):
             self.undeploy_index: gapic_v1.method.wrap_method(
                 self.undeploy_index, default_timeout=None, client_info=client_info,
             ),
+            self.mutate_deployed_index: gapic_v1.method.wrap_method(
+                self.mutate_deployed_index,
+                default_timeout=None,
+                client_info=client_info,
+            ),
         }
 
     def close(self):
@@ -235,6 +240,15 @@ class IndexEndpointServiceTransport(abc.ABC):
         self,
     ) -> Callable[
         [index_endpoint_service.UndeployIndexRequest],
+        Union[operations_pb2.Operation, Awaitable[operations_pb2.Operation]],
+    ]:
+        raise NotImplementedError()
+
+    @property
+    def mutate_deployed_index(
+        self,
+    ) -> Callable[
+        [index_endpoint_service.MutateDeployedIndexRequest],
         Union[operations_pb2.Operation, Awaitable[operations_pb2.Operation]],
     ]:
         raise NotImplementedError()

@@ -38,7 +38,7 @@ class Execution(proto.Message):
             The state of this Execution. This is a
             property of the Execution, and does not imply or
             capture any ongoing process. This property is
-            managed by clients (such as Vertex Pipelines)
+            managed by clients (such as Vertex AI Pipelines)
             and the system does not prescribe or check the
             validity of state transitions.
         etag (str):

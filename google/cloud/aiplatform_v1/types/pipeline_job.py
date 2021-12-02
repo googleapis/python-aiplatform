@@ -116,11 +116,16 @@ class PipelineJob(proto.Message):
 
         Attributes:
             parameters (Sequence[google.cloud.aiplatform_v1.types.PipelineJob.RuntimeConfig.ParametersEntry]):
-                Deprecated. Use [RuntimeConfig.parameter_values] instead.
-                The runtime parameters of the PipelineJob. The parameters
-                will be passed into
+                Deprecated. Use
+                [RuntimeConfig.parameter_values][google.cloud.aiplatform.v1.PipelineJob.RuntimeConfig.parameter_values]
+                instead. The runtime parameters of the PipelineJob. The
+                parameters will be passed into
                 [PipelineJob.pipeline_spec][google.cloud.aiplatform.v1.PipelineJob.pipeline_spec]
-                to replace the placeholders at runtime.
+                to replace the placeholders at runtime. This field is used
+                by pipelines built using
+                ``PipelineJob.pipeline_spec.schema_version`` 2.0.0 or lower,
+                such as pipelines built using Kubeflow Pipelines SDK 1.8 or
+                lower.
             gcs_output_directory (str):
                 Required. A path in a Cloud Storage bucket, which will be
                 treated as the root output directory of the pipeline. It is
@@ -134,7 +139,11 @@ class PipelineJob(proto.Message):
                 The runtime parameters of the PipelineJob. The parameters
                 will be passed into
                 [PipelineJob.pipeline_spec][google.cloud.aiplatform.v1.PipelineJob.pipeline_spec]
-                to replace the placeholders at runtime.
+                to replace the placeholders at runtime. This field is used
+                by pipelines built using
+                ``PipelineJob.pipeline_spec.schema_version`` 2.1.0, such as
+                pipelines built using Kubeflow Pipelines SDK 1.9 or higher
+                and the v2 DSL.
         """
 
         parameters = proto.MapField(
