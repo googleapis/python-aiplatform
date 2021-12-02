@@ -387,7 +387,7 @@ class EntityType(base.VertexAiResourceNounWithFutureManager):
         for feature in features:
             feature.wait()
 
-    def delete(self, force: bool = False, sync: bool = True) -> None:
+    def delete(self, force: bool = None, sync: bool = True) -> None:
         """Deletes this EntityType resource. If force is set to True,
         all features in this EntityType will be deleted prior to entityType deletion.
 

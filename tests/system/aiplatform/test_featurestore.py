@@ -149,6 +149,7 @@ class TestFeaturestore(e2e_base.TestEndToEnd):
             worker_count=2,
             sync=False,
         )
+        assert "EntityType feature values imported." in caplog.text
 
         movie_title_feature_id = _TEST_MOVIE_TITLE_FEATURE_ID
         movie_genres_feature_id = _TEST_MOVIE_GENRES_FEATURE_ID
