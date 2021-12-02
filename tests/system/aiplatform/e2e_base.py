@@ -104,7 +104,9 @@ class TestEndToEnd(metaclass=abc.ABCMeta):
 
         for resource in shared_state["resources"]:
             try:
-                if isinstance(resource, aiplatform.Endpoint):
+                if isinstance(resource, aiplatform.Endpoint) or isinstance(
+                    resource, aiplatform.Featurestore
+                ):
                     resource.delete(force=True)  # Undeploy model then delete endpoint
                 else:
                     resource.delete()
