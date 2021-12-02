@@ -17,7 +17,7 @@
 
 import datetime
 import re
-from typing import Dict, List, NamedTuple, Optional, Tuple, Union
+from typing import Dict, NamedTuple, Optional, Tuple, Union
 
 from google.protobuf import timestamp_pb2
 
@@ -61,34 +61,6 @@ def validate_value_type(value_type: str) -> bool:
             f"Choose one of {gca_feature.Feature.ValueType._member_names_} except `{_FEATURE_VALUE_TYPE_UNSPECIFIED}`"
         )
     return True
-
-
-def validate_and_get_batch_create_features_requests(
-    feature_configs: Dict[str, Dict[str, Union[bool, int, Dict[str, str], str]]]
-) -> List[Dict[str, Union[int, str, Dict[str, str]]]]:
-    """ Validates feature_configs and get batch_create_features_requests
-
-    Args:
-        feature_configs (Dict[str, Dict[str, Union[bool, int, Dict[str, str], str]]]):
-            Required. A user defined Dict containing configurations for feature creation.
-
-    Returns:
-        List[Dict[str, Union[int, str, Dict[str, str]]]] - list of feature creation request
-    """
-
-    batch_create_features_requests = [
-        _FeatureConfig(
-            feature_id=feature_id,
-            value_type=feature_config.get(
-                "value_type", _FEATURE_VALUE_TYPE_UNSPECIFIED
-            ),
-            description=feature_config.get("description", None),
-            labels=feature_config.get("labels", {}),
-        ).request_dict
-        for feature_id, feature_config in feature_configs.items()
-    ]
-
-    return batch_create_features_requests
 
 
 class _FeatureConfig(NamedTuple):

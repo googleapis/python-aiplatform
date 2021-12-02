@@ -408,36 +408,6 @@ class TestFeaturestoreUtils:
         with pytest.raises(ValueError):
             featurestore_utils.validate_value_type(value_type=value_type)
 
-    def validate_and_get_batch_create_features_requests(self):
-        expected_batch_create_feature_requests = [
-            {
-                "feature": gca_feature.Feature(
-                    value_type=_TEST_FEATURE_VALUE_TYPE_ENUM
-                ),
-                "feature_id": "my_feature_id_1",
-            },
-            {
-                "feature": gca_feature.Feature(
-                    value_type=_TEST_FEATURE_VALUE_TYPE_ENUM,
-                    description=_TEST_DESCRIPTION,
-                ),
-                "feature_id": "my_feature_id_2",
-            },
-            {
-                "feature": gca_feature.Feature(
-                    value_type=_TEST_FEATURE_VALUE_TYPE_ENUM, labels=_TEST_LABELS
-                ),
-                "feature_id": "my_feature_id_3",
-            },
-        ]
-
-        assert (
-            featurestore_utils.validate_and_get_batch_create_features_requests(
-                featureConfigs=_TEST_FEATURE_CONFIGS
-            )
-            == expected_batch_create_feature_requests
-        )
-
     def test_get_timestamp_proto(self,):
         time = datetime.datetime.now()
         t = time.timestamp()
@@ -905,6 +875,39 @@ class TestEntityType:
         )
 
     @pytest.mark.usefixtures("get_entity_type_mock")
+    def test_validate_and_get_batch_create_features_requests(self):
+        aiplatform.init(project=_TEST_PROJECT)
+
+        my_entity_type = aiplatform.EntityType(entity_type_name=_TEST_ENTITY_TYPE_NAME)
+        batch_create_feature_requests = my_entity_type._validate_and_get_batch_create_features_requests(
+            feature_configs=_TEST_FEATURE_CONFIGS
+        )
+
+        expected_batch_create_feature_requests = [
+            {
+                "feature": gca_feature.Feature(
+                    value_type=_TEST_FEATURE_VALUE_TYPE_ENUM
+                ),
+                "feature_id": "my_feature_id_1",
+            },
+            {
+                "feature": gca_feature.Feature(
+                    value_type=_TEST_FEATURE_VALUE_TYPE_ENUM,
+                    description=_TEST_DESCRIPTION,
+                ),
+                "feature_id": "my_feature_id_2",
+            },
+            {
+                "feature": gca_feature.Feature(
+                    value_type=_TEST_FEATURE_VALUE_TYPE_ENUM, labels=_TEST_LABELS
+                ),
+                "feature_id": "my_feature_id_3",
+            },
+        ]
+
+        assert batch_create_feature_requests == expected_batch_create_feature_requests
+
+    @pytest.mark.usefixtures("get_entity_type_mock")
     @pytest.mark.parametrize("sync", [True, False])
     def test_batch_create_features(self, batch_create_features_mock, sync):
         aiplatform.init(project=_TEST_PROJECT)
@@ -958,7 +961,7 @@ class TestEntityType:
             )
 
     @pytest.mark.usefixtures("get_entity_type_mock")
-    def test_validate_and_get_import_feature_values_request_with_multiple_source(self):
+    def test_validate_and_get_import_feature_values_request_with_multiple_sources(self):
         aiplatform.init(project=_TEST_PROJECT)
 
         my_entity_type = aiplatform.EntityType(entity_type_name=_TEST_ENTITY_TYPE_NAME)

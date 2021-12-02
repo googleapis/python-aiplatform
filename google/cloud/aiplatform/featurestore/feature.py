@@ -487,7 +487,7 @@ class Feature(base.VertexAiResourceNounWithFutureManager):
         location: Optional[str] = None,
         credentials: Optional[auth_credentials.Credentials] = None,
         request_metadata: Optional[Sequence[Tuple[str, str]]] = (),
-        sync: Optional[bool] = True,
+        sync: bool = True,
     ) -> "Feature":
         """Creates a Feature resource in an EntityType.
 

@@ -312,27 +312,60 @@ class Featurestore(base.VertexAiResourceNounWithFutureManager):
 
     @base.optional_sync()
     def delete_entity_types(
-        self, entity_type_ids: List[str], sync: bool = True,
+        self, entity_type_ids: List[str] = None, force: bool = False, sync: bool = True,
     ) -> None:
-        """Deletes entity_type resources in this Featurestore given their entity_type IDs.
+        """Deletes entity_type resources in this Featurestore.
         WARNING: This deletion is permanent.
 
         Args:
             entity_type_ids (List[str]):
-                Required. The list of entity_type IDs to be deleted.
+                Optional. The list of entity_type IDs to be deleted. If entity_type_ids is not set,
+                all entityTypes in this Featurestore will be deleted.
+            force (bool):
+                Optional. If force is set to True, all features in each entityType
+                will be deleted prior to entityType deletion. Default is False.
             sync (bool):
                 Optional. Whether to execute this deletion synchronously. If False, this method
                 will be executed in concurrent Future and any downstream object will
                 be immediately returned and synced when the Future has completed.
         """
-        entity_types = []
-        for entity_type_id in entity_type_ids:
-            entity_type = self.get_entity_type(entity_type_id=entity_type_id)
-            entity_type.delete(sync=False)
-            entity_types.append(entity_type)
+        if not entity_type_ids:
+            entity_types = self.list_entity_types()
+        elif entity_type_ids and isinstance(entity_type_ids, list):
+            entity_types = [
+                self.get_entity_type(entity_type_id=entity_type_id)
+                for entity_type_id in entity_type_ids
+            ]
+
+        for entity_type in entity_types:
+            entity_type.delete(force=force, sync=False)
 
         for entity_type in entity_types:
             entity_type.wait()
+
+    def delete(self, force: bool = False, sync: bool = True) -> None:
+        """Deletes this Featurestore resource. If force is set to True,
+        all entityTypes in this Featurestore will be deleted prior to featurestore deletion,
+        and all features in each entityType will be deleted prior to each entityType deletion.
+
+        WARNING: This deletion is permanent.
+
+        Args:
+            force (bool):
+                Required. If force is set to True, all entityTypes in this Featurestore will be
+                deleted prior to featurestore deletion, and all features in each entityType will
+                be deleted prior to each entityType deletion.
+            sync (bool):
+                Required. Whether to execute this deletion synchronously. If False, this method
+                will be executed in concurrent Future and any downstream object will
+                be immediately returned and synced when the Future has completed.
+        Raises:
+            FailedPrecondition: If entityTypes are created in this Featurestore and force = False.
+        """
+        if force:
+            self.delete_entity_types(force=force)
+
+        super().delete(sync=sync)
 
     @classmethod
     @base.optional_sync()
@@ -346,7 +379,7 @@ class Featurestore(base.VertexAiResourceNounWithFutureManager):
         credentials: Optional[auth_credentials.Credentials] = None,
         request_metadata: Optional[Sequence[Tuple[str, str]]] = (),
         encryption_spec_key_name: Optional[str] = None,
-        sync: Optional[bool] = True,
+        sync: bool = True,
     ) -> "Featurestore":
         """Creates a Featurestore resource.
 
@@ -463,7 +496,7 @@ class Featurestore(base.VertexAiResourceNounWithFutureManager):
         description: Optional[str] = None,
         labels: Optional[Dict[str, str]] = None,
         request_metadata: Optional[Sequence[Tuple[str, str]]] = (),
-        sync: Optional[bool] = True,
+        sync: bool = True,
     ) -> "featurestore.EntityType":
         """Creates an EntityType resource in this Featurestore.
 
