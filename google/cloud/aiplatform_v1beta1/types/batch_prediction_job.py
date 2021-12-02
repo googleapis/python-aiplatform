@@ -26,6 +26,9 @@ from google.cloud.aiplatform_v1beta1.types import machine_resources
 from google.cloud.aiplatform_v1beta1.types import (
     manual_batch_tuning_parameters as gca_manual_batch_tuning_parameters,
 )
+from google.cloud.aiplatform_v1beta1.types import (
+    unmanaged_container_model as gca_unmanaged_container_model,
+)
 from google.protobuf import struct_pb2  # type: ignore
 from google.protobuf import timestamp_pb2  # type: ignore
 from google.rpc import status_pb2  # type: ignore
@@ -53,11 +56,16 @@ class BatchPredictionJob(proto.Message):
             Required. The user-defined name of this
             BatchPredictionJob.
         model (str):
-            Required. The name of the Model that produces
-            the predictions via this job, must share the
-            same ancestor Location. Starting this job has no
-            impact on any existing deployments of the Model
-            and their resources.
+            The name of the Model resoure that produces the predictions
+            via this job, must share the same ancestor Location.
+            Starting this job has no impact on any existing deployments
+            of the Model and their resources. Exactly one of model and
+            unmanaged_container_model must be set.
+        unmanaged_container_model (google.cloud.aiplatform_v1beta1.types.UnmanagedContainerModel):
+            Contains model information necessary to perform batch
+            prediction without requiring uploading to model registry.
+            Exactly one of model and unmanaged_container_model must be
+            set.
         input_config (google.cloud.aiplatform_v1beta1.types.BatchPredictionJob.InputConfig):
             Required. Input configuration of the instances on which
             predictions are performed. The schema of any single instance
@@ -362,6 +370,11 @@ class BatchPredictionJob(proto.Message):
     name = proto.Field(proto.STRING, number=1,)
     display_name = proto.Field(proto.STRING, number=2,)
     model = proto.Field(proto.STRING, number=3,)
+    unmanaged_container_model = proto.Field(
+        proto.MESSAGE,
+        number=28,
+        message=gca_unmanaged_container_model.UnmanagedContainerModel,
+    )
     input_config = proto.Field(proto.MESSAGE, number=4, message=InputConfig,)
     model_parameters = proto.Field(proto.MESSAGE, number=5, message=struct_pb2.Value,)
     output_config = proto.Field(proto.MESSAGE, number=6, message=OutputConfig,)

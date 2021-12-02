@@ -162,9 +162,10 @@ class ModelDeploymentMonitoringJob(proto.Message):
             resources of this ModelDeploymentMonitoringJob
             will be secured by this key.
         enable_monitoring_pipeline_logs (bool):
-            If true, the scheduled monitoring pipeline status logs are
-            sent to Google Cloud Logging. Please note the logs incur
-            cost, which are subject to `Cloud Logging
+            If true, the scheduled monitoring pipeline logs are sent to
+            Google Cloud Logging, including pipeline status and
+            anomalies detected. Please note the logs incur cost, which
+            are subject to `Cloud Logging
             pricing <https://cloud.google.com/logging#pricing>`__.
         error (google.rpc.status_pb2.Status):
             Output only. Only populated when the job's state is

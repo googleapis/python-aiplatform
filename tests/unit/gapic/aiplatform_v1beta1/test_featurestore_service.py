@@ -684,6 +684,7 @@ def test_create_featurestore_flattened():
         client.create_featurestore(
             parent="parent_value",
             featurestore=gca_featurestore.Featurestore(name="name_value"),
+            featurestore_id="featurestore_id_value",
         )
 
         # Establish that the underlying call was made with the expected
@@ -695,6 +696,9 @@ def test_create_featurestore_flattened():
         assert arg == mock_val
         arg = args[0].featurestore
         mock_val = gca_featurestore.Featurestore(name="name_value")
+        assert arg == mock_val
+        arg = args[0].featurestore_id
+        mock_val = "featurestore_id_value"
         assert arg == mock_val
 
 
@@ -710,6 +714,7 @@ def test_create_featurestore_flattened_error():
             featurestore_service.CreateFeaturestoreRequest(),
             parent="parent_value",
             featurestore=gca_featurestore.Featurestore(name="name_value"),
+            featurestore_id="featurestore_id_value",
         )
 
 
@@ -734,6 +739,7 @@ async def test_create_featurestore_flattened_async():
         response = await client.create_featurestore(
             parent="parent_value",
             featurestore=gca_featurestore.Featurestore(name="name_value"),
+            featurestore_id="featurestore_id_value",
         )
 
         # Establish that the underlying call was made with the expected
@@ -745,6 +751,9 @@ async def test_create_featurestore_flattened_async():
         assert arg == mock_val
         arg = args[0].featurestore
         mock_val = gca_featurestore.Featurestore(name="name_value")
+        assert arg == mock_val
+        arg = args[0].featurestore_id
+        mock_val = "featurestore_id_value"
         assert arg == mock_val
 
 
@@ -761,6 +770,7 @@ async def test_create_featurestore_flattened_error_async():
             featurestore_service.CreateFeaturestoreRequest(),
             parent="parent_value",
             featurestore=gca_featurestore.Featurestore(name="name_value"),
+            featurestore_id="featurestore_id_value",
         )
 
 
@@ -2035,6 +2045,7 @@ def test_create_entity_type_flattened():
         client.create_entity_type(
             parent="parent_value",
             entity_type=gca_entity_type.EntityType(name="name_value"),
+            entity_type_id="entity_type_id_value",
         )
 
         # Establish that the underlying call was made with the expected
@@ -2046,6 +2057,9 @@ def test_create_entity_type_flattened():
         assert arg == mock_val
         arg = args[0].entity_type
         mock_val = gca_entity_type.EntityType(name="name_value")
+        assert arg == mock_val
+        arg = args[0].entity_type_id
+        mock_val = "entity_type_id_value"
         assert arg == mock_val
 
 
@@ -2061,6 +2075,7 @@ def test_create_entity_type_flattened_error():
             featurestore_service.CreateEntityTypeRequest(),
             parent="parent_value",
             entity_type=gca_entity_type.EntityType(name="name_value"),
+            entity_type_id="entity_type_id_value",
         )
 
 
@@ -2085,6 +2100,7 @@ async def test_create_entity_type_flattened_async():
         response = await client.create_entity_type(
             parent="parent_value",
             entity_type=gca_entity_type.EntityType(name="name_value"),
+            entity_type_id="entity_type_id_value",
         )
 
         # Establish that the underlying call was made with the expected
@@ -2096,6 +2112,9 @@ async def test_create_entity_type_flattened_async():
         assert arg == mock_val
         arg = args[0].entity_type
         mock_val = gca_entity_type.EntityType(name="name_value")
+        assert arg == mock_val
+        arg = args[0].entity_type_id
+        mock_val = "entity_type_id_value"
         assert arg == mock_val
 
 
@@ -2112,6 +2131,7 @@ async def test_create_entity_type_flattened_error_async():
             featurestore_service.CreateEntityTypeRequest(),
             parent="parent_value",
             entity_type=gca_entity_type.EntityType(name="name_value"),
+            entity_type_id="entity_type_id_value",
         )
 
 
@@ -3364,7 +3384,9 @@ def test_create_feature_flattened():
         # Call the method with a truthy value for each flattened field,
         # using the keyword arguments to the method.
         client.create_feature(
-            parent="parent_value", feature=gca_feature.Feature(name="name_value"),
+            parent="parent_value",
+            feature=gca_feature.Feature(name="name_value"),
+            feature_id="feature_id_value",
         )
 
         # Establish that the underlying call was made with the expected
@@ -3376,6 +3398,9 @@ def test_create_feature_flattened():
         assert arg == mock_val
         arg = args[0].feature
         mock_val = gca_feature.Feature(name="name_value")
+        assert arg == mock_val
+        arg = args[0].feature_id
+        mock_val = "feature_id_value"
         assert arg == mock_val
 
 
@@ -3391,6 +3416,7 @@ def test_create_feature_flattened_error():
             featurestore_service.CreateFeatureRequest(),
             parent="parent_value",
             feature=gca_feature.Feature(name="name_value"),
+            feature_id="feature_id_value",
         )
 
 
@@ -3411,7 +3437,9 @@ async def test_create_feature_flattened_async():
         # Call the method with a truthy value for each flattened field,
         # using the keyword arguments to the method.
         response = await client.create_feature(
-            parent="parent_value", feature=gca_feature.Feature(name="name_value"),
+            parent="parent_value",
+            feature=gca_feature.Feature(name="name_value"),
+            feature_id="feature_id_value",
         )
 
         # Establish that the underlying call was made with the expected
@@ -3423,6 +3451,9 @@ async def test_create_feature_flattened_async():
         assert arg == mock_val
         arg = args[0].feature
         mock_val = gca_feature.Feature(name="name_value")
+        assert arg == mock_val
+        arg = args[0].feature_id
+        mock_val = "feature_id_value"
         assert arg == mock_val
 
 
@@ -3439,6 +3470,7 @@ async def test_create_feature_flattened_error_async():
             featurestore_service.CreateFeatureRequest(),
             parent="parent_value",
             feature=gca_feature.Feature(name="name_value"),
+            feature_id="feature_id_value",
         )
 
 
