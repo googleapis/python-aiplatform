@@ -43,7 +43,7 @@ class PipelineServiceGrpcAsyncIOTransport(PipelineServiceTransport):
 
     A service for creating and managing Vertex AI's pipelines. This
     includes both ``TrainingPipeline`` resources (used for AutoML and
-    custom training) and ``PipelineJob`` resources (used for Vertex
+    custom training) and ``PipelineJob`` resources (used for Vertex AI
     Pipelines).
 
     This class defines the same methods as the primary client, so the

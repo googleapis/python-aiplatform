@@ -85,7 +85,7 @@ class Feature(proto.Message):
             the EntityType's this Feature belongs to.
         monitoring_stats (Sequence[google.cloud.aiplatform_v1beta1.types.FeatureStatsAnomaly]):
             Output only. A list of historical [Snapshot
-            Analysis][google.cloud.aiplatform.master.FeaturestoreMonitoringConfig.SnapshotAnalysis]
+            Analysis][FeaturestoreMonitoringConfig.SnapshotAnalysis]
             stats requested by user, sorted by
             [FeatureStatsAnomaly.start_time][google.cloud.aiplatform.v1beta1.FeatureStatsAnomaly.start_time]
             descending.
