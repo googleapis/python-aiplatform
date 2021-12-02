@@ -16,12 +16,12 @@
 
 import sys
 
-from typing import Dict, List, Optional, OrderedDict, Tuple, Union
+from typing import Dict, List, Optional, Tuple, Union
 
 
 def create_lit_dataset(
     dataset: "pd.Dataframe",  # noqa: F821
-    column_types: OrderedDict[str, "lit_types.LitType"],  # noqa: F821
+    column_types: "OrderedDict[str, lit_types.LitType]",  # noqa: F821
 ) -> "lit_dataset.Dataset":  # noqa: F821
     """Creates a LIT Dataset object.
         Args:
@@ -60,8 +60,8 @@ def create_lit_dataset(
 
 def create_lit_model(
     model: str,
-    input_types: OrderedDict[str, "lit_types.LitType"],  # noqa: F821
-    output_types: OrderedDict[str, "lit_types.LitType"],  # noqa: F821
+    input_types: "OrderedDict[str, lit_types.LitType]",  # noqa: F821
+    output_types: "OrderedDict[str, lit_types.LitType]",  # noqa: F821
 ) -> "lit_model.Model":  # noqa: F821
     """Creates a LIT Model object.
         Args:
@@ -173,7 +173,7 @@ def open_lit(
 
 def set_up_and_open_lit(
     dataset: Union["Pd.Dataframe", "lit_dataset.Dataset"],  # noqa: F821
-    column_types: OrderedDict[str, "lit_types.LitType"],  # noqa: F821
+    column_types: "OrderedDict[str, lit_types.LitType]",  # noqa: F821
     model: Union[str, "lit_model.Model"],  # noqa: F821
     input_types: Union[List[str], Dict[str, "LitType"]],  # noqa: F821
     output_types: Union[str, List[str], Dict[str, "LitType"]],  # noqa: F821
