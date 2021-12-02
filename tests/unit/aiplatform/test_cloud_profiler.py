@@ -15,9 +15,9 @@
 # limitations under the License.
 #
 
-from importlib import reload
 import importlib.util
 import json
+import sys
 import threading
 from typing import List, Optional
 
@@ -73,6 +73,10 @@ def _create_mock_plugin(
     mock_plugin.return_value = mock_plugin
 
     return mock_plugin
+
+
+def _find_child_modules(root_module):
+    return [module for module in sys.modules.keys() if module.startswith(root_module)]
 
 
 @pytest.fixture
@@ -202,10 +206,6 @@ class TestProfilerPlugin(unittest.TestCase):
             TFProfiler.setup()
 
             assert server_mock.call_count == 1
-
-    def testSetupRaiseImportError(self):
-        with mock.patch.dict("sys.modules", {"tensorflow": None}):
-            self.assertRaises(ImportError, TFProfiler.setup)
 
     def testPostSetupChecksFail(self):
         tf_profiler.environment_variables.cluster_spec = {}
@@ -359,13 +359,26 @@ class TestWebServer(unittest.TestCase):
 
 # Initializer tests
 class TestInitializer(unittest.TestCase):
-    # Tests for building the plugin
-    def test_init_failed_import(self):
-        with mock.patch.dict(
-            "sys.modules",
-            {"google.cloud.aiplatform.training_utils.cloud_profiler.initializer": None},
+    def testImportError(self):
+        # Unloads any of the cloud profiler sub-modules
+        for mod in _find_child_modules(
+            "google.cloud.aiplatform.training_utils.cloud_profiler"
         ):
-            self.assertRaises(ImportError, reload, training_utils.cloud_profiler)
+            del sys.modules[mod]
+
+        # Modules to be mocked out
+        for mock_module in [
+            "tensorflow",
+            "tensorboard_plugin_profile.profile_plugin",
+            "werkzeug",
+        ]:
+            with self.subTest():
+                with mock.patch.dict("sys.modules", {mock_module: None}):
+                    with self.assertRaises(ImportError) as cm:
+                        importlib.import_module(
+                            "google.cloud.aiplatform.training_utils.cloud_profiler"
+                        )
+                    assert "Could not load the cloud profiler" in cm.exception.msg
 
     def test_build_plugin_fail_initialize(self):
         plugin = _create_mock_plugin()
