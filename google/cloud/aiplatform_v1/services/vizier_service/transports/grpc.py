@@ -36,8 +36,8 @@ from .base import VizierServiceTransport, DEFAULT_CLIENT_INFO
 class VizierServiceGrpcTransport(VizierServiceTransport):
     """gRPC backend transport for VizierService.
 
-    Vertex Vizier API.
-    Vizier service is a GCP service to solve blackbox optimization
+    Vertex AI Vizier API.
+    Vertex AI Vizier is a service to solve blackbox optimization
     problems, such as tuning machine learning hyperparameters and
     searching over deep learning architectures.
 
@@ -388,7 +388,7 @@ class VizierServiceGrpcTransport(VizierServiceTransport):
         r"""Return a callable for the suggest trials method over gRPC.
 
         Adds one or more Trials to a Study, with parameter values
-        suggested by Vertex Vizier. Returns a long-running operation
+        suggested by Vertex AI Vizier. Returns a long-running operation
         associated with the generation of Trial suggestions. When this
         long-running operation succeeds, it will contain a
         [SuggestTrialsResponse][google.cloud.ml.v1.SuggestTrialsResponse].

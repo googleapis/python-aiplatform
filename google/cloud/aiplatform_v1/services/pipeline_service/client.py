@@ -91,7 +91,7 @@ class PipelineServiceClientMeta(type):
 class PipelineServiceClient(metaclass=PipelineServiceClientMeta):
     """A service for creating and managing Vertex AI's pipelines. This
     includes both ``TrainingPipeline`` resources (used for AutoML and
-    custom training) and ``PipelineJob`` resources (used for Vertex
+    custom training) and ``PipelineJob`` resources (used for Vertex AI
     Pipelines).
     """
 

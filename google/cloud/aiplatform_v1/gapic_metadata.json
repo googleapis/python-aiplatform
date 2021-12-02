@@ -481,6 +481,11 @@
                 "list_index_endpoints"
               ]
             },
+            "MutateDeployedIndex": {
+              "methods": [
+                "mutate_deployed_index"
+              ]
+            },
             "UndeployIndex": {
               "methods": [
                 "undeploy_index"
@@ -519,6 +524,11 @@
             "ListIndexEndpoints": {
               "methods": [
                 "list_index_endpoints"
+              ]
+            },
+            "MutateDeployedIndex": {
+              "methods": [
+                "mutate_deployed_index"
               ]
             },
             "UndeployIndex": {
