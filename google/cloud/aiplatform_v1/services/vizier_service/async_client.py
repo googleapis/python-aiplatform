@@ -44,8 +44,8 @@ from .client import VizierServiceClient
 
 
 class VizierServiceAsyncClient:
-    """Vertex Vizier API.
-    Vizier service is a GCP service to solve blackbox optimization
+    """Vertex AI Vizier API.
+    Vertex AI Vizier is a service to solve blackbox optimization
     problems, such as tuning machine learning hyperparameters and
     searching over deep learning architectures.
     """
@@ -219,7 +219,9 @@ class VizierServiceAsyncClient:
 
         Returns:
             google.cloud.aiplatform_v1.types.Study:
+                LINT.IfChange
                 A message representing a Study.
+
         """
         # Create or coerce a protobuf request object.
         # Sanity check: If we got a request object, we should *not* have
@@ -290,7 +292,9 @@ class VizierServiceAsyncClient:
 
         Returns:
             google.cloud.aiplatform_v1.types.Study:
+                LINT.IfChange
                 A message representing a Study.
+
         """
         # Create or coerce a protobuf request object.
         # Sanity check: If we got a request object, we should *not* have
@@ -508,7 +512,9 @@ class VizierServiceAsyncClient:
 
         Returns:
             google.cloud.aiplatform_v1.types.Study:
+                LINT.IfChange
                 A message representing a Study.
+
         """
         # Create or coerce a protobuf request object.
         # Sanity check: If we got a request object, we should *not* have
@@ -556,7 +562,7 @@ class VizierServiceAsyncClient:
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> operation_async.AsyncOperation:
         r"""Adds one or more Trials to a Study, with parameter values
-        suggested by Vertex Vizier. Returns a long-running operation
+        suggested by Vertex AI Vizier. Returns a long-running operation
         associated with the generation of Trial suggestions. When this
         long-running operation succeeds, it will contain a
         [SuggestTrialsResponse][google.cloud.ml.v1.SuggestTrialsResponse].

@@ -646,7 +646,9 @@ def test_create_endpoint_flattened():
         # Call the method with a truthy value for each flattened field,
         # using the keyword arguments to the method.
         client.create_endpoint(
-            parent="parent_value", endpoint=gca_endpoint.Endpoint(name="name_value"),
+            parent="parent_value",
+            endpoint=gca_endpoint.Endpoint(name="name_value"),
+            endpoint_id="endpoint_id_value",
         )
 
         # Establish that the underlying call was made with the expected
@@ -658,6 +660,9 @@ def test_create_endpoint_flattened():
         assert arg == mock_val
         arg = args[0].endpoint
         mock_val = gca_endpoint.Endpoint(name="name_value")
+        assert arg == mock_val
+        arg = args[0].endpoint_id
+        mock_val = "endpoint_id_value"
         assert arg == mock_val
 
 
@@ -671,6 +676,7 @@ def test_create_endpoint_flattened_error():
             endpoint_service.CreateEndpointRequest(),
             parent="parent_value",
             endpoint=gca_endpoint.Endpoint(name="name_value"),
+            endpoint_id="endpoint_id_value",
         )
 
 
@@ -691,7 +697,9 @@ async def test_create_endpoint_flattened_async():
         # Call the method with a truthy value for each flattened field,
         # using the keyword arguments to the method.
         response = await client.create_endpoint(
-            parent="parent_value", endpoint=gca_endpoint.Endpoint(name="name_value"),
+            parent="parent_value",
+            endpoint=gca_endpoint.Endpoint(name="name_value"),
+            endpoint_id="endpoint_id_value",
         )
 
         # Establish that the underlying call was made with the expected
@@ -703,6 +711,9 @@ async def test_create_endpoint_flattened_async():
         assert arg == mock_val
         arg = args[0].endpoint
         mock_val = gca_endpoint.Endpoint(name="name_value")
+        assert arg == mock_val
+        arg = args[0].endpoint_id
+        mock_val = "endpoint_id_value"
         assert arg == mock_val
 
 
@@ -719,6 +730,7 @@ async def test_create_endpoint_flattened_error_async():
             endpoint_service.CreateEndpointRequest(),
             parent="parent_value",
             endpoint=gca_endpoint.Endpoint(name="name_value"),
+            endpoint_id="endpoint_id_value",
         )
 
 
@@ -742,6 +754,7 @@ def test_get_endpoint(
             description="description_value",
             etag="etag_value",
             network="network_value",
+            enable_private_service_connect=True,
             model_deployment_monitoring_job="model_deployment_monitoring_job_value",
         )
         response = client.get_endpoint(request)
@@ -758,6 +771,7 @@ def test_get_endpoint(
     assert response.description == "description_value"
     assert response.etag == "etag_value"
     assert response.network == "network_value"
+    assert response.enable_private_service_connect is True
     assert (
         response.model_deployment_monitoring_job
         == "model_deployment_monitoring_job_value"
@@ -805,6 +819,7 @@ async def test_get_endpoint_async(
                 description="description_value",
                 etag="etag_value",
                 network="network_value",
+                enable_private_service_connect=True,
                 model_deployment_monitoring_job="model_deployment_monitoring_job_value",
             )
         )
@@ -822,6 +837,7 @@ async def test_get_endpoint_async(
     assert response.description == "description_value"
     assert response.etag == "etag_value"
     assert response.network == "network_value"
+    assert response.enable_private_service_connect is True
     assert (
         response.model_deployment_monitoring_job
         == "model_deployment_monitoring_job_value"
@@ -1334,6 +1350,7 @@ def test_update_endpoint(
             description="description_value",
             etag="etag_value",
             network="network_value",
+            enable_private_service_connect=True,
             model_deployment_monitoring_job="model_deployment_monitoring_job_value",
         )
         response = client.update_endpoint(request)
@@ -1350,6 +1367,7 @@ def test_update_endpoint(
     assert response.description == "description_value"
     assert response.etag == "etag_value"
     assert response.network == "network_value"
+    assert response.enable_private_service_connect is True
     assert (
         response.model_deployment_monitoring_job
         == "model_deployment_monitoring_job_value"
@@ -1397,6 +1415,7 @@ async def test_update_endpoint_async(
                 description="description_value",
                 etag="etag_value",
                 network="network_value",
+                enable_private_service_connect=True,
                 model_deployment_monitoring_job="model_deployment_monitoring_job_value",
             )
         )
@@ -1414,6 +1433,7 @@ async def test_update_endpoint_async(
     assert response.description == "description_value"
     assert response.etag == "etag_value"
     assert response.network == "network_value"
+    assert response.enable_private_service_connect is True
     assert (
         response.model_deployment_monitoring_job
         == "model_deployment_monitoring_job_value"

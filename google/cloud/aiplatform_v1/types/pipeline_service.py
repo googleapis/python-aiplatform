@@ -227,6 +227,7 @@ class ListPipelineJobsRequest(proto.Message):
                comparisons, and ``:`` wildcard. for example, can check
                if pipeline's display_name contains *step* by doing
                display_name:"*step*"
+            -  ``state``: Supports ``=`` and ``!=`` comparisons.
             -  ``create_time``: Supports ``=``, ``!=``, ``<``, ``>``,
                ``<=``, and ``>=`` comparisons. Values must be in RFC
                3339 format.

@@ -112,6 +112,7 @@ from .types.env_var import EnvVar
 from .types.event import Event
 from .types.execution import Execution
 from .types.explanation import Attribution
+from .types.explanation import BlurBaselineConfig
 from .types.explanation import Explanation
 from .types.explanation import ExplanationMetadataOverride
 from .types.explanation import ExplanationParameters
@@ -187,6 +188,9 @@ from .types.index_endpoint_service import DeployIndexResponse
 from .types.index_endpoint_service import GetIndexEndpointRequest
 from .types.index_endpoint_service import ListIndexEndpointsRequest
 from .types.index_endpoint_service import ListIndexEndpointsResponse
+from .types.index_endpoint_service import MutateDeployedIndexOperationMetadata
+from .types.index_endpoint_service import MutateDeployedIndexRequest
+from .types.index_endpoint_service import MutateDeployedIndexResponse
 from .types.index_endpoint_service import UndeployIndexOperationMetadata
 from .types.index_endpoint_service import UndeployIndexRequest
 from .types.index_endpoint_service import UndeployIndexResponse
@@ -445,12 +449,14 @@ from .types.training_pipeline import FilterSplit
 from .types.training_pipeline import FractionSplit
 from .types.training_pipeline import InputDataConfig
 from .types.training_pipeline import PredefinedSplit
+from .types.training_pipeline import StratifiedSplit
 from .types.training_pipeline import TimestampSplit
 from .types.training_pipeline import TrainingPipeline
 from .types.types import BoolArray
 from .types.types import DoubleArray
 from .types.types import Int64Array
 from .types.types import StringArray
+from .types.unmanaged_container_model import UnmanagedContainerModel
 from .types.user_action_reference import UserActionReference
 from .types.value import Value
 from .types.vizier_service import AddTrialMeasurementRequest
@@ -527,6 +533,7 @@ __all__ = (
     "BatchReadTensorboardTimeSeriesDataResponse",
     "BigQueryDestination",
     "BigQuerySource",
+    "BlurBaselineConfig",
     "BoolArray",
     "CancelBatchPredictionJobRequest",
     "CancelCustomJobRequest",
@@ -810,6 +817,9 @@ __all__ = (
     "ModelMonitoringObjectiveConfig",
     "ModelMonitoringStatsAnomalies",
     "ModelServiceClient",
+    "MutateDeployedIndexOperationMetadata",
+    "MutateDeployedIndexRequest",
+    "MutateDeployedIndexResponse",
     "NearestNeighborSearchOperationMetadata",
     "PauseModelDeploymentMonitoringJobRequest",
     "PipelineJob",
@@ -862,6 +872,7 @@ __all__ = (
     "SpecialistPool",
     "SpecialistPoolServiceClient",
     "StopTrialRequest",
+    "StratifiedSplit",
     "StreamingReadFeatureValuesRequest",
     "StringArray",
     "Study",
@@ -891,6 +902,7 @@ __all__ = (
     "UndeployModelOperationMetadata",
     "UndeployModelRequest",
     "UndeployModelResponse",
+    "UnmanagedContainerModel",
     "UpdateArtifactRequest",
     "UpdateContextRequest",
     "UpdateDatasetRequest",

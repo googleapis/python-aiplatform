@@ -73,8 +73,7 @@ class IndexEndpoint(proto.Message):
             of the original Indexes they are the deployments
             of.
         network (str):
-            Required. Immutable. The full name of the Google Compute
-            Engine
+            Optional. The full name of the Google Compute Engine
             `network <https://cloud.google.com/compute/docs/networks-and-firewalls#networks>`__
             to which the IndexEndpoint should be peered.
 
@@ -82,10 +81,25 @@ class IndexEndpoint(proto.Message):
             network. If left unspecified, the Endpoint is not peered
             with any network.
 
+            Only one of the fields,
+            [network][google.cloud.aiplatform.v1.IndexEndpoint.network]
+            or
+            [enable_private_service_connect][google.cloud.aiplatform.v1.IndexEndpoint.enable_private_service_connect],
+            can be set.
+
             `Format <https://cloud.google.com/compute/docs/reference/rest/v1/networks/insert>`__:
             projects/{project}/global/networks/{network}. Where
             {project} is a project number, as in '12345', and {network}
             is network name.
+        enable_private_service_connect (bool):
+            Optional. If true, expose the IndexEndpoint via private
+            service connect.
+
+            Only one of the fields,
+            [network][google.cloud.aiplatform.v1.IndexEndpoint.network]
+            or
+            [enable_private_service_connect][google.cloud.aiplatform.v1.IndexEndpoint.enable_private_service_connect],
+            can be set.
     """
 
     name = proto.Field(proto.STRING, number=1,)
@@ -99,6 +113,7 @@ class IndexEndpoint(proto.Message):
     create_time = proto.Field(proto.MESSAGE, number=7, message=timestamp_pb2.Timestamp,)
     update_time = proto.Field(proto.MESSAGE, number=8, message=timestamp_pb2.Timestamp,)
     network = proto.Field(proto.STRING, number=9,)
+    enable_private_service_connect = proto.Field(proto.BOOL, number=10,)
 
 
 class DeployedIndex(proto.Message):
@@ -255,16 +270,24 @@ class DeployedIndexAuthConfig(proto.Message):
 
 
 class IndexPrivateEndpoints(proto.Message):
-    r"""IndexPrivateEndpoints proto is used to provide paths for
-    users to send requests via private services access.
+    r"""IndexPrivateEndpoints proto is used to provide paths for users to
+    send requests via private endpoints (e.g. private service access,
+    private service connect). To send request via private service
+    access, use match_grpc_address. To send request via private service
+    connect, use service_attachment.
 
     Attributes:
         match_grpc_address (str):
             Output only. The ip address used to send
             match gRPC requests.
+        service_attachment (str):
+            Output only. The name of the service
+            attachment resource. Populated if private
+            service connect is enabled.
     """
 
     match_grpc_address = proto.Field(proto.STRING, number=1,)
+    service_attachment = proto.Field(proto.STRING, number=2,)
 
 
 __all__ = tuple(sorted(__protobuf__.manifest))
