@@ -196,6 +196,7 @@ class FeaturestoreServiceAsyncClient:
         *,
         parent: str = None,
         featurestore: gca_featurestore.Featurestore = None,
+        featurestore_id: str = None,
         retry: OptionalRetry = gapic_v1.method.DEFAULT,
         timeout: float = None,
         metadata: Sequence[Tuple[str, str]] = (),
@@ -220,6 +221,21 @@ class FeaturestoreServiceAsyncClient:
                 This corresponds to the ``featurestore`` field
                 on the ``request`` instance; if ``request`` is provided, this
                 should not be set.
+            featurestore_id (:class:`str`):
+                Required. The ID to use for this Featurestore, which
+                will become the final component of the Featurestore's
+                resource name.
+
+                This value may be up to 60 characters, and valid
+                characters are ``[a-z0-9_]``. The first character cannot
+                be a number.
+
+                The value must be unique within the project and
+                location.
+
+                This corresponds to the ``featurestore_id`` field
+                on the ``request`` instance; if ``request`` is provided, this
+                should not be set.
             retry (google.api_core.retry.Retry): Designation of what errors, if any,
                 should be retried.
             timeout (float): The timeout for this request.
@@ -230,7 +246,7 @@ class FeaturestoreServiceAsyncClient:
             google.api_core.operation_async.AsyncOperation:
                 An object representing a long-running operation.
 
-                The result type for the operation will be :class:`google.cloud.aiplatform_v1.types.Featurestore` Vertex Feature Store provides a centralized repository for organizing,
+                The result type for the operation will be :class:`google.cloud.aiplatform_v1.types.Featurestore` Vertex AI Feature Store provides a centralized repository for organizing,
                    storing, and serving ML features. The Featurestore is
                    a top-level container for your features and their
                    values.
@@ -239,7 +255,7 @@ class FeaturestoreServiceAsyncClient:
         # Create or coerce a protobuf request object.
         # Sanity check: If we got a request object, we should *not* have
         # gotten any keyword arguments that map to the request.
-        has_flattened_params = any([parent, featurestore])
+        has_flattened_params = any([parent, featurestore, featurestore_id])
         if request is not None and has_flattened_params:
             raise ValueError(
                 "If the `request` argument is set, then none of "
@@ -254,6 +270,8 @@ class FeaturestoreServiceAsyncClient:
             request.parent = parent
         if featurestore is not None:
             request.featurestore = featurestore
+        if featurestore_id is not None:
+            request.featurestore_id = featurestore_id
 
         # Wrap the RPC method; this adds retry and timeout information,
         # and friendly error handling.
@@ -313,7 +331,7 @@ class FeaturestoreServiceAsyncClient:
 
         Returns:
             google.cloud.aiplatform_v1.types.Featurestore:
-                Vertex Feature Store provides a
+                Vertex AI Feature Store provides a
                 centralized repository for organizing,
                 storing, and serving ML features. The
                 Featurestore is a top-level container
@@ -490,7 +508,7 @@ class FeaturestoreServiceAsyncClient:
             google.api_core.operation_async.AsyncOperation:
                 An object representing a long-running operation.
 
-                The result type for the operation will be :class:`google.cloud.aiplatform_v1.types.Featurestore` Vertex Feature Store provides a centralized repository for organizing,
+                The result type for the operation will be :class:`google.cloud.aiplatform_v1.types.Featurestore` Vertex AI Feature Store provides a centralized repository for organizing,
                    storing, and serving ML features. The Featurestore is
                    a top-level container for your features and their
                    values.
@@ -659,6 +677,7 @@ class FeaturestoreServiceAsyncClient:
         *,
         parent: str = None,
         entity_type: gca_entity_type.EntityType = None,
+        entity_type_id: str = None,
         retry: OptionalRetry = gapic_v1.method.DEFAULT,
         timeout: float = None,
         metadata: Sequence[Tuple[str, str]] = (),
@@ -682,6 +701,20 @@ class FeaturestoreServiceAsyncClient:
                 This corresponds to the ``entity_type`` field
                 on the ``request`` instance; if ``request`` is provided, this
                 should not be set.
+            entity_type_id (:class:`str`):
+                Required. The ID to use for the EntityType, which will
+                become the final component of the EntityType's resource
+                name.
+
+                This value may be up to 60 characters, and valid
+                characters are ``[a-z0-9_]``. The first character cannot
+                be a number.
+
+                The value must be unique within a featurestore.
+
+                This corresponds to the ``entity_type_id`` field
+                on the ``request`` instance; if ``request`` is provided, this
+                should not be set.
             retry (google.api_core.retry.Retry): Designation of what errors, if any,
                 should be retried.
             timeout (float): The timeout for this request.
@@ -701,7 +734,7 @@ class FeaturestoreServiceAsyncClient:
         # Create or coerce a protobuf request object.
         # Sanity check: If we got a request object, we should *not* have
         # gotten any keyword arguments that map to the request.
-        has_flattened_params = any([parent, entity_type])
+        has_flattened_params = any([parent, entity_type, entity_type_id])
         if request is not None and has_flattened_params:
             raise ValueError(
                 "If the `request` argument is set, then none of "
@@ -716,6 +749,8 @@ class FeaturestoreServiceAsyncClient:
             request.parent = parent
         if entity_type is not None:
             request.entity_type = entity_type
+        if entity_type_id is not None:
+            request.entity_type_id = entity_type_id
 
         # Wrap the RPC method; this adds retry and timeout information,
         # and friendly error handling.
@@ -1115,6 +1150,7 @@ class FeaturestoreServiceAsyncClient:
         *,
         parent: str = None,
         feature: gca_feature.Feature = None,
+        feature_id: str = None,
         retry: OptionalRetry = gapic_v1.method.DEFAULT,
         timeout: float = None,
         metadata: Sequence[Tuple[str, str]] = (),
@@ -1138,6 +1174,20 @@ class FeaturestoreServiceAsyncClient:
                 This corresponds to the ``feature`` field
                 on the ``request`` instance; if ``request`` is provided, this
                 should not be set.
+            feature_id (:class:`str`):
+                Required. The ID to use for the Feature, which will
+                become the final component of the Feature's resource
+                name.
+
+                This value may be up to 60 characters, and valid
+                characters are ``[a-z0-9_]``. The first character cannot
+                be a number.
+
+                The value must be unique within an EntityType.
+
+                This corresponds to the ``feature_id`` field
+                on the ``request`` instance; if ``request`` is provided, this
+                should not be set.
             retry (google.api_core.retry.Retry): Designation of what errors, if any,
                 should be retried.
             timeout (float): The timeout for this request.
@@ -1156,7 +1206,7 @@ class FeaturestoreServiceAsyncClient:
         # Create or coerce a protobuf request object.
         # Sanity check: If we got a request object, we should *not* have
         # gotten any keyword arguments that map to the request.
-        has_flattened_params = any([parent, feature])
+        has_flattened_params = any([parent, feature, feature_id])
         if request is not None and has_flattened_params:
             raise ValueError(
                 "If the `request` argument is set, then none of "
@@ -1171,6 +1221,8 @@ class FeaturestoreServiceAsyncClient:
             request.parent = parent
         if feature is not None:
             request.feature = feature
+        if feature_id is not None:
+            request.feature_id = feature_id
 
         # Wrap the RPC method; this adds retry and timeout information,
         # and friendly error handling.

@@ -83,14 +83,14 @@ class PredictResponse(proto.Message):
             ID of the Endpoint's DeployedModel that
             served this prediction.
         model (str):
-            Output only. The name of the Model this
-            DeployedModel, that served this prediction, was
-            created from.
+            Output only. The resource name of the Model
+            which is deployed as the DeployedModel that this
+            prediction hits.
         model_display_name (str):
             Output only. The [display
             name][google.cloud.aiplatform.v1beta1.Model.display_name] of
-            the Model this DeployedModel, that served this prediction,
-            was created from.
+            the Model which is deployed as the DeployedModel that this
+            prediction hits.
     """
 
     predictions = proto.RepeatedField(
