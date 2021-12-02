@@ -16,7 +16,7 @@
 #
 
 import datetime
-from typing import Dict, List, Optional, Sequence, Tuple, Union
+from typing import Any, Dict, List, Optional, Sequence, Tuple, Union
 
 from google.auth import credentials as auth_credentials
 from google.protobuf import field_mask_pb2
@@ -366,26 +366,53 @@ class EntityType(base.VertexAiResourceNounWithFutureManager):
         )
 
     @base.optional_sync()
-    def delete_features(self, feature_ids: List[str], sync: bool = True,) -> None:
-        """Deletes feature resources in this EntityType given their feature IDs.
+    def delete_features(self, feature_ids: List[str] = None, sync: bool = True) -> None:
+        """Deletes feature resources in this EntityType.
         WARNING: This deletion is permanent.
 
         Args:
             feature_ids (List[str]):
-                Required. The list of feature IDs to be deleted.
+                Optional. The list of feature IDs to be deleted. If feature_ids is not set,
+                all features in this EntityType will be deleted.
             sync (bool):
                 Optional. Whether to execute this deletion synchronously. If False, this method
                 will be executed in concurrent Future and any downstream object will
                 be immediately returned and synced when the Future has completed.
         """
-        features = []
-        for feature_id in feature_ids:
-            feature = self.get_feature(feature_id=feature_id)
+        if not feature_ids:
+            features = self.list_features()
+        elif feature_ids and isinstance(feature_ids, list):
+            features = [
+                self.get_feature(feature_id=feature_id) for feature_id in feature_ids
+            ]
+
+        for feature in features:
             feature.delete(sync=False)
-            features.append(feature)
 
         for feature in features:
             feature.wait()
+
+    def delete(self, force: bool = False, sync: bool = True) -> None:
+        """Deletes this EntityType resource. If force is set to True,
+        all features in this EntityType will be deleted prior to entityType deletion.
+
+        WARNING: This deletion is permanent.
+
+        Args:
+            force (bool):
+                Required. If force is set to True, all features in this EntityType will be
+                deleted prior to entityType deletion.
+            sync (bool):
+                Whether to execute this deletion synchronously. If False, this method
+                will be executed in concurrent Future and any downstream object will
+                be immediately returned and synced when the Future has completed.
+        Raises:
+            FailedPrecondition: If features are created in this EntityType and force = False.
+        """
+        if force:
+            self.delete_features()
+
+        super().delete(sync=sync)
 
     @classmethod
     @base.optional_sync()
@@ -399,7 +426,7 @@ class EntityType(base.VertexAiResourceNounWithFutureManager):
         location: Optional[str] = None,
         credentials: Optional[auth_credentials.Credentials] = None,
         request_metadata: Optional[Sequence[Tuple[str, str]]] = (),
-        sync: Optional[bool] = True,
+        sync: bool = True,
     ) -> "EntityType":
         """Creates an EntityType resource in a Featurestore.
 
@@ -524,7 +551,7 @@ class EntityType(base.VertexAiResourceNounWithFutureManager):
         description: Optional[str] = None,
         labels: Optional[Dict[str, str]] = None,
         request_metadata: Optional[Sequence[Tuple[str, str]]] = (),
-        sync: Optional[bool] = True,
+        sync: bool = True,
     ) -> "featurestore.Feature":
         """Creates a Feature resource in this EntityType.
 
@@ -588,12 +615,40 @@ class EntityType(base.VertexAiResourceNounWithFutureManager):
             sync=sync,
         )
 
+    def _validate_and_get_batch_create_features_requests(
+        self,
+        feature_configs: Dict[str, Dict[str, Union[bool, int, Dict[str, str], str]]],
+    ) -> List[Dict[str, Any]]:
+        """ Validates feature_configs and get batch_create_features_requests
+
+        Args:
+            feature_configs (Dict[str, Dict[str, Union[bool, int, Dict[str, str], str]]]):
+                Required. A user defined Dict containing configurations for feature creation.
+
+        Returns:
+            List[Dict[str, Any]] - list of feature creation request
+        """
+
+        batch_create_features_requests = [
+            featurestore_utils._FeatureConfig(
+                feature_id=feature_id,
+                value_type=feature_config.get(
+                    "value_type", featurestore_utils._FEATURE_VALUE_TYPE_UNSPECIFIED
+                ),
+                description=feature_config.get("description", None),
+                labels=feature_config.get("labels", {}),
+            ).request_dict
+            for feature_id, feature_config in feature_configs.items()
+        ]
+
+        return batch_create_features_requests
+
     @base.optional_sync(return_input_arg="self")
     def batch_create_features(
         self,
         feature_configs: Dict[str, Dict[str, Union[bool, int, Dict[str, str], str]]],
         request_metadata: Optional[Sequence[Tuple[str, str]]] = (),
-        sync: Optional[bool] = True,
+        sync: bool = True,
     ) -> "EntityType":
         """Batch creates Feature resources in this EntityType.
 
@@ -655,7 +710,7 @@ class EntityType(base.VertexAiResourceNounWithFutureManager):
         Returns:
             EntityType - entity_type resource object
         """
-        batch_create_feature_requests = featurestore_utils.validate_and_get_batch_create_features_requests(
+        batch_create_feature_requests = self._validate_and_get_batch_create_features_requests(
             feature_configs=feature_configs
         )
 
@@ -696,7 +751,7 @@ class EntityType(base.VertexAiResourceNounWithFutureManager):
         entity_id_field: Optional[str] = None,
         disable_online_serving: Optional[bool] = None,
         worker_count: Optional[int] = None,
-    ):
+    ) -> Dict[str, Any]:
         """Validates and get import feature values request.
         Args:
             feature_ids (Sequence[str]):
@@ -765,7 +820,7 @@ class EntityType(base.VertexAiResourceNounWithFutureManager):
                 count ensures minimal impact on online serving
                 performance.
         Returns:
-            dict - import feature values request
+            Dict[str, Any] - import feature values request
         Raises:
             ValueError if no source or more than one source is provided
             ValueError if no feature_time_source or more than one feature_time_source is provided
@@ -830,8 +885,8 @@ class EntityType(base.VertexAiResourceNounWithFutureManager):
         self,
         import_feature_values_request: dict,
         request_metadata: Optional[Sequence[Tuple[str, str]]] = (),
-        sync: Optional[bool] = True,
-    ):
+        sync: bool = True,
+    ) -> "EntityType":
         """Imports Feature values into the Featurestore from a source storage.
 
         Args:
@@ -881,7 +936,7 @@ class EntityType(base.VertexAiResourceNounWithFutureManager):
         disable_online_serving: Optional[bool] = None,
         worker_count: Optional[int] = None,
         request_metadata: Optional[Sequence[Tuple[str, str]]] = (),
-        sync: Optional[bool] = True,
+        sync: bool = True,
     ) -> "EntityType":
         """Ingest feature values from BigQuery.
 
@@ -1031,7 +1086,7 @@ class EntityType(base.VertexAiResourceNounWithFutureManager):
         disable_online_serving: Optional[bool] = None,
         worker_count: Optional[int] = None,
         request_metadata: Optional[Sequence[Tuple[str, str]]] = (),
-        sync: Optional[bool] = True,
+        sync: bool = True,
     ) -> "EntityType":
         """Ingest feature values from GCS.
 
