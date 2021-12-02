@@ -25,7 +25,7 @@ __protobuf__ = proto.module(
 
 
 class Featurestore(proto.Message):
-    r"""Vertex Feature Store provides a centralized repository for
+    r"""Vertex AI Feature Store provides a centralized repository for
     organizing, storing, and serving ML features. The Featurestore
     is a top-level container for your features and their values.
 
