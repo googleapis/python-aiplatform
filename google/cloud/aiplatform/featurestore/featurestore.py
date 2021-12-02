@@ -312,15 +312,14 @@ class Featurestore(base.VertexAiResourceNounWithFutureManager):
 
     @base.optional_sync()
     def delete_entity_types(
-        self, entity_type_ids: List[str] = None, force: bool = False, sync: bool = True,
+        self, entity_type_ids: List[str], force: bool = False, sync: bool = True,
     ) -> None:
-        """Deletes entity_type resources in this Featurestore.
+        """Deletes entity_type resources in this Featurestore given their entity_type IDs.
         WARNING: This deletion is permanent.
 
         Args:
             entity_type_ids (List[str]):
-                Optional. The list of entity_type IDs to be deleted. If entity_type_ids is not set,
-                all entityTypes in this Featurestore will be deleted.
+                Required. The list of entity_type IDs to be deleted.
             force (bool):
                 Optional. If force is set to True, all features in each entityType
                 will be deleted prior to entityType deletion. Default is False.
@@ -329,20 +328,16 @@ class Featurestore(base.VertexAiResourceNounWithFutureManager):
                 will be executed in concurrent Future and any downstream object will
                 be immediately returned and synced when the Future has completed.
         """
-        if not entity_type_ids:
-            entity_types = self.list_entity_types()
-        elif entity_type_ids and isinstance(entity_type_ids, list):
-            entity_types = [
-                self.get_entity_type(entity_type_id=entity_type_id)
-                for entity_type_id in entity_type_ids
-            ]
-
-        for entity_type in entity_types:
+        entity_types = []
+        for entity_type_id in entity_type_ids:
+            entity_type = self.get_entity_type(entity_type_id=entity_type_id)
             entity_type.delete(force=force, sync=False)
+            entity_types.append(entity_type)
 
         for entity_type in entity_types:
             entity_type.wait()
 
+    @base.optional_sync()
     def delete(self, force: bool = False, sync: bool = True) -> None:
         """Deletes this Featurestore resource. If force is set to True,
         all entityTypes in this Featurestore will be deleted prior to featurestore deletion,
@@ -352,20 +347,27 @@ class Featurestore(base.VertexAiResourceNounWithFutureManager):
 
         Args:
             force (bool):
-                Required. If force is set to True, all entityTypes in this Featurestore will be
-                deleted prior to featurestore deletion, and all features in each entityType will
-                be deleted prior to each entityType deletion.
+                If set to true, any EntityTypes and
+                Features for this Featurestore will also
+                be deleted. (Otherwise, the request will
+                only work if the Featurestore has no
+                EntityTypes.)
             sync (bool):
-                Required. Whether to execute this deletion synchronously. If False, this method
+                Whether to execute this deletion synchronously. If False, this method
                 will be executed in concurrent Future and any downstream object will
                 be immediately returned and synced when the Future has completed.
         Raises:
             FailedPrecondition: If entityTypes are created in this Featurestore and force = False.
         """
-        if force:
-            self.delete_entity_types(force=force)
-
-        super().delete(sync=sync)
+        _LOGGER.log_action_start_against_resource("Deleting", "", self)
+        lro = getattr(self.api_client, self._delete_method)(
+            name=self.resource_name, force=force
+        )
+        _LOGGER.log_action_started_against_resource_with_lro(
+            "Delete", "", self.__class__, lro
+        )
+        lro.result()
+        _LOGGER.log_action_completed_against_resource("deleted.", "", self)
 
     @classmethod
     @base.optional_sync()

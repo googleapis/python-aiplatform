@@ -580,14 +580,15 @@ class Feature(base.VertexAiResourceNounWithFutureManager):
             location=location,
         )
 
-        create_feature_request = featurestore_utils._FeatureConfig(
+        feature_config = featurestore_utils._FeatureConfig(
             feature_id=feature_id,
             value_type=value_type,
             description=description,
             labels=labels,
-        ).request_dict
-
-        create_feature_request["parent"] = entity_type_name
+        )
+        create_feature_request = feature_config.get_create_feature_request(
+            parent=entity_type_name
+        )
 
         api_client = cls._instantiate_client(location=location, credentials=credentials)
 

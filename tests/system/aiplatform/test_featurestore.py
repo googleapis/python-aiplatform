@@ -15,13 +15,15 @@
 # limitations under the License.
 #
 
+import logging
+
 from google.cloud import aiplatform
 from tests.system.aiplatform import e2e_base
 
-_USERS_ENTITY_TYPE_SRC = (
+_TEST_USERS_ENTITY_TYPE_GCS_SRC = (
     "gs://cloud-samples-data-us-central1/vertex-ai/feature-store/datasets/users.avro"
 )
-_MOVIES_ENTITY_TYPE_SRC = (
+_TEST_MOVIES_ENTITY_TYPE_GCS_SRC = (
     "gs://cloud-samples-data-us-central1/vertex-ai/feature-store/datasets/movies.avro"
 )
 
@@ -42,7 +44,9 @@ class TestFeaturestore(e2e_base.TestEndToEnd):
 
     _temp_prefix = "temp_vertex_sdk_e2e_featurestore_test"
 
-    def test_end_to_end(self, shared_state):
+    def test_end_to_end(self, shared_state, caplog):
+
+        caplog.set_level(logging.INFO)
 
         aiplatform.init(
             project=e2e_base._PROJECT, location=e2e_base._LOCATION,
@@ -132,14 +136,18 @@ class TestFeaturestore(e2e_base.TestEndToEnd):
         list_user_features = user_entity_type.list_features()
         assert len(list_user_features) == 3
 
-        user_entity_type.ingest_from_gcs(
-            gcs_source_uris=_USERS_ENTITY_TYPE_SRC,
+        user_entity_type = user_entity_type.ingest_from_gcs(
+            gcs_source_uris=_TEST_USERS_ENTITY_TYPE_GCS_SRC,
             gcs_source_type="avro",
             feature_ids=[
                 user_age_feature_id,
                 user_gender_feature_id,
                 user_liked_genres_feature_id,
             ],
+            entity_id_field="user_id",
+            feature_time_field="update_time",
+            worker_count=2,
+            sync=False,
         )
 
         movie_title_feature_id = _TEST_MOVIE_TITLE_FEATURE_ID
@@ -155,19 +163,30 @@ class TestFeaturestore(e2e_base.TestEndToEnd):
         list_movie_features = movie_entity_type.list_features()
         assert len(list_movie_features) == 0
 
-        movie_entity_type.ingest_from_gcs(
-            gcs_source_uris=_MOVIES_ENTITY_TYPE_SRC,
+        movie_entity_type = movie_entity_type.ingest_from_gcs(
+            gcs_source_uris=_TEST_MOVIES_ENTITY_TYPE_GCS_SRC,
             gcs_source_type="avro",
             feature_ids=[
                 movie_title_feature_id,
                 movie_genres_feature_id,
                 movie_average_rating_id,
             ],
-            feature_configs=movie_feature_configs,
+            entity_id_field="movie_id",
+            feature_time_field="update_time",
+            worker_count=2,
+            batch_create_feature_configs=movie_feature_configs,
+            sync=False,
         )
+
+        user_entity_type.wait()
+        movie_entity_type.wait()
+
+        assert "EntityType feature values imported." in caplog.text
 
         list_movie_features = movie_entity_type.list_features()
         assert len(list_movie_features) == 3
 
         list_searched_features = aiplatform.Feature.search()
         assert len(list_searched_features) - base_list_searched_features == 6
+
+        caplog.clear()

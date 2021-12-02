@@ -374,28 +374,23 @@ class EntityType(base.VertexAiResourceNounWithFutureManager):
         )
 
     @base.optional_sync()
-    def delete_features(self, feature_ids: List[str] = None, sync: bool = True) -> None:
-        """Deletes feature resources in this EntityType.
+    def delete_features(self, feature_ids: List[str], sync: bool = True,) -> None:
+        """Deletes feature resources in this EntityType given their feature IDs.
         WARNING: This deletion is permanent.
 
         Args:
             feature_ids (List[str]):
-                Optional. The list of feature IDs to be deleted. If feature_ids is not set,
-                all features in this EntityType will be deleted.
+                Required. The list of feature IDs to be deleted.
             sync (bool):
                 Optional. Whether to execute this deletion synchronously. If False, this method
                 will be executed in concurrent Future and any downstream object will
                 be immediately returned and synced when the Future has completed.
         """
-        if not feature_ids:
-            features = self.list_features()
-        elif feature_ids and isinstance(feature_ids, list):
-            features = [
-                self.get_feature(feature_id=feature_id) for feature_id in feature_ids
-            ]
-
-        for feature in features:
+        features = []
+        for feature_id in feature_ids:
+            feature = self.get_feature(feature_id=feature_id)
             feature.delete(sync=False)
+            features.append(feature)
 
         for feature in features:
             feature.wait()
@@ -408,8 +403,10 @@ class EntityType(base.VertexAiResourceNounWithFutureManager):
 
         Args:
             force (bool):
-                Required. If force is set to True, all features in this EntityType will be
-                deleted prior to entityType deletion.
+                If set to true, any Features for this
+                EntityType will also be deleted.
+                (Otherwise, the request will only work
+                if the EntityType has no Features.)
             sync (bool):
                 Whether to execute this deletion synchronously. If False, this method
                 will be executed in concurrent Future and any downstream object will
@@ -417,10 +414,15 @@ class EntityType(base.VertexAiResourceNounWithFutureManager):
         Raises:
             FailedPrecondition: If features are created in this EntityType and force = False.
         """
-        if force:
-            self.delete_features()
-
-        super().delete(sync=sync)
+        _LOGGER.log_action_start_against_resource("Deleting", "", self)
+        lro = getattr(self.api_client, self._delete_method)(
+            name=self.resource_name, force=force
+        )
+        _LOGGER.log_action_started_against_resource_with_lro(
+            "Delete", "", self.__class__, lro
+        )
+        lro.result()
+        _LOGGER.log_action_completed_against_resource("deleted.", "", self)
 
     @classmethod
     @base.optional_sync()
@@ -623,33 +625,37 @@ class EntityType(base.VertexAiResourceNounWithFutureManager):
             sync=sync,
         )
 
-    def _validate_and_get_batch_create_features_requests(
+    def _validate_and_get_batch_create_features_request(
         self,
         feature_configs: Dict[str, Dict[str, Union[bool, int, Dict[str, str], str]]],
-    ) -> List[Dict[str, Any]]:
-        """ Validates feature_configs and get batch_create_features_requests
+    ) -> gca_featurestore_service.BatchCreateFeaturesRequest:
+        """ Validates feature_configs and get batch_create_features_request
 
         Args:
             feature_configs (Dict[str, Dict[str, Union[bool, int, Dict[str, str], str]]]):
                 Required. A user defined Dict containing configurations for feature creation.
 
         Returns:
-            List[Dict[str, Any]] - list of feature creation request
+            gca_featurestore_service.BatchCreateFeaturesRequest - batch feature creation request
         """
 
-        batch_create_features_requests = [
-            featurestore_utils._FeatureConfig(
+        requests = []
+        for feature_id, feature_config in feature_configs.items():
+            feature_config = featurestore_utils._FeatureConfig(
                 feature_id=feature_id,
                 value_type=feature_config.get(
                     "value_type", featurestore_utils._FEATURE_VALUE_TYPE_UNSPECIFIED
                 ),
                 description=feature_config.get("description", None),
                 labels=feature_config.get("labels", {}),
-            ).request_dict
-            for feature_id, feature_config in feature_configs.items()
-        ]
+            )
+            create_feature_request = feature_config.get_create_feature_request()
+            requests.append(create_feature_request)
 
-        return batch_create_features_requests
+        batch_create_features_request = gca_featurestore_service.BatchCreateFeaturesRequest(
+            parent=self.resource_name, requests=requests
+        )
+        return batch_create_features_request
 
     @base.optional_sync(return_input_arg="self")
     def batch_create_features(
@@ -718,7 +724,7 @@ class EntityType(base.VertexAiResourceNounWithFutureManager):
         Returns:
             EntityType - entity_type resource object
         """
-        batch_create_feature_requests = self._validate_and_get_batch_create_features_requests(
+        batch_create_features_request = self._validate_and_get_batch_create_features_request(
             feature_configs=feature_configs
         )
 
@@ -727,9 +733,7 @@ class EntityType(base.VertexAiResourceNounWithFutureManager):
         )
 
         batch_created_features_lro = self.api_client.batch_create_features(
-            parent=self.resource_name,
-            requests=batch_create_feature_requests,
-            metadata=request_metadata,
+            request=batch_create_features_request, metadata=request_metadata,
         )
 
         _LOGGER.log_action_started_against_resource_with_lro(
@@ -749,7 +753,7 @@ class EntityType(base.VertexAiResourceNounWithFutureManager):
 
     def _validate_and_get_import_feature_values_request(
         self,
-        feature_ids: Sequence[str],
+        feature_ids: List[str],
         feature_source_fields: Optional[Dict[str, str]] = {},
         avro_source: Optional[gca_io.AvroSource] = None,
         bigquery_source: Optional[gca_io.BigQuerySource] = None,
@@ -762,7 +766,7 @@ class EntityType(base.VertexAiResourceNounWithFutureManager):
     ) -> Dict[str, Any]:
         """Validates and get import feature values request.
         Args:
-            feature_ids (Sequence[str]):
+            feature_ids (List[str]):
                 Required. IDs of the Feature to import values
                 of. The Features must exist in the target
                 EntityType, or the request will fail.
@@ -834,7 +838,7 @@ class EntityType(base.VertexAiResourceNounWithFutureManager):
             ValueError if no feature_time_source or more than one feature_time_source is provided
         """
         feature_specs = []
-        for feature_id in feature_ids:
+        for feature_id in set(feature_ids):
             feature_source_field = feature_source_fields.get(feature_id, None)
             if feature_source_field:
                 feature_spec = gca_featurestore_service.ImportFeatureValuesRequest.FeatureSpec(
@@ -933,7 +937,7 @@ class EntityType(base.VertexAiResourceNounWithFutureManager):
     def ingest_from_bq(
         self,
         bq_source_uri: str,
-        feature_ids: Sequence[str],
+        feature_ids: List[str],
         batch_create_feature_configs: Optional[
             Dict[str, Dict[str, Union[bool, int, Dict[str, str], str]]]
         ] = None,
@@ -953,7 +957,7 @@ class EntityType(base.VertexAiResourceNounWithFutureManager):
                 Required. BigQuery URI to the input table.
                 Example:
                     'bq://project.dataset.table_name'
-            feature_ids (Sequence[str]):
+            feature_ids (List[str]):
                 Required. IDs of the Feature to import values
                 of. The Features must exist in the target
                 EntityType, or the request will fail.
@@ -1083,7 +1087,7 @@ class EntityType(base.VertexAiResourceNounWithFutureManager):
         self,
         gcs_source_uris: Union[str, List[str]],
         gcs_source_type: str,
-        feature_ids: Sequence[str],
+        feature_ids: List[str],
         batch_create_feature_configs: Optional[
             Dict[str, Dict[str, Union[bool, int, Dict[str, str], str]]]
         ] = None,
@@ -1099,7 +1103,7 @@ class EntityType(base.VertexAiResourceNounWithFutureManager):
         """Ingest feature values from GCS.
 
         Args:
-            gcs_source_uris (Sequence[str]):
+            gcs_source_uris (Union[str, List[str]]):
                 Required. Google Cloud Storage URI(-s) to the
                 input file(s). May contain wildcards. For more
                 information on wildcards, see
@@ -1107,11 +1111,11 @@ class EntityType(base.VertexAiResourceNounWithFutureManager):
                 Example:
                     ["gs://my_bucket/my_file_1.csv", "gs://my_bucket/my_file_2.csv"]
                     or
-                    ["gs://my_bucket/my_file.avro"]
+                    "gs://my_bucket/my_file.avro"
             gcs_source_type (str):
                 Required. The type of the input file(s) provided by `gcs_source_uris`,
                 the value of gcs_source_type can only be either `csv`, or `avro`.
-            feature_ids (Sequence[str]):
+            feature_ids (List[str]):
                 Required. IDs of the Feature to import values
                 of. The Features must exist in the target
                 EntityType, or the request will fail.
@@ -1228,7 +1232,11 @@ class EntityType(base.VertexAiResourceNounWithFutureManager):
                     gcs_source_type,
                 )
             )
+
+        if isinstance(gcs_source_uris, str):
+            gcs_source_uris = [gcs_source_uris]
         gcs_source = gca_io.GcsSource(uris=gcs_source_uris)
+
         csv_source, avro_source = None, None
         if gcs_source_type == "csv":
             csv_source = gca_io.CsvSource(gcs_source=gcs_source)
