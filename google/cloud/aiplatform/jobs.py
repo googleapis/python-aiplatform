@@ -977,9 +977,9 @@ class CustomJob(_RunnableJob):
 
     def __init__(
         self,
-        display_name: str,
         worker_pool_specs: Union[List[Dict], List[aiplatform.gapic.WorkerPoolSpec]],
         base_output_dir: Optional[str] = None,
+        display_name: Optional[str] = None,
         project: Optional[str] = None,
         location: Optional[str] = None,
         credentials: Optional[auth_credentials.Credentials] = None,
@@ -1023,7 +1023,7 @@ class CustomJob(_RunnableJob):
 
         Args:
             display_name (str):
-                Required. The user-defined name of the HyperparameterTuningJob.
+                Optional. The user-defined name of the HyperparameterTuningJob.
                 The name can be up to 128 characters long and can be consist
                 of any UTF-8 characters.
             worker_pool_specs (Union[List[Dict], List[aiplatform.gapic.WorkerPoolSpec]]):
@@ -1081,6 +1081,11 @@ class CustomJob(_RunnableJob):
             staging_bucket, "aiplatform-custom-job"
         )
 
+        if not display_name:
+            display_name = (
+                self.__class__.name + " " + datetime.datetime.now().isoformat(sep=" ")
+            )
+
         self._gca_resource = gca_custom_job_compat.CustomJob(
             display_name=display_name,
             job_spec=gca_custom_job_compat.CustomJobSpec(
@@ -1133,7 +1138,6 @@ class CustomJob(_RunnableJob):
     @classmethod
     def from_local_script(
         cls,
-        display_name: str,
         script_path: str,
         container_uri: str,
         args: Optional[Sequence[str]] = None,
@@ -1149,6 +1153,7 @@ class CustomJob(_RunnableJob):
         reduction_server_machine_type: Optional[str] = None,
         reduction_server_container_uri: Optional[str] = None,
         base_output_dir: Optional[str] = None,
+        display_name: Optional[str] = None,
         project: Optional[str] = None,
         location: Optional[str] = None,
         credentials: Optional[auth_credentials.Credentials] = None,
@@ -1176,7 +1181,7 @@ class CustomJob(_RunnableJob):
 
         Args:
             display_name (str):
-                Required. The user-defined name of this CustomJob.
+                Optional. The user-defined name of this CustomJob.
             script_path (str):
                 Required. Local path to training script.
             container_uri (str):
@@ -1452,7 +1457,6 @@ class HyperparameterTuningJob(_RunnableJob):
 
     def __init__(
         self,
-        display_name: str,
         custom_job: CustomJob,
         metric_spec: Dict[str, str],
         parameter_spec: Dict[str, hyperparameter_tuning._ParameterSpec],
@@ -1461,6 +1465,7 @@ class HyperparameterTuningJob(_RunnableJob):
         max_failed_trial_count: int = 0,
         search_algorithm: Optional[str] = None,
         measurement_selection: Optional[str] = "best",
+        display_name: Optional[str] = None,
         project: Optional[str] = None,
         location: Optional[str] = None,
         credentials: Optional[auth_credentials.Credentials] = None,
@@ -1526,7 +1531,7 @@ class HyperparameterTuningJob(_RunnableJob):
 
         Args:
             display_name (str):
-                Required. The user-defined name of the HyperparameterTuningJob.
+                Optional. The user-defined name of the HyperparameterTuningJob.
                 The name can be up to 128 characters long and can be consist
                 of any UTF-8 characters.
             custom_job (aiplatform.CustomJob):
@@ -1647,6 +1652,11 @@ class HyperparameterTuningJob(_RunnableJob):
                 measurement_selection
             ],
         )
+
+        if not display_name:
+            display_name = (
+                self.__class__.name + " " + datetime.datetime.now().isoformat(sep=" ")
+            )
 
         self._gca_resource = gca_hyperparameter_tuning_job_compat.HyperparameterTuningJob(
             display_name=display_name,

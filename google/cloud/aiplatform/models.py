@@ -14,6 +14,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
+import datetime
 import pathlib
 import proto
 import re
@@ -194,7 +195,7 @@ class Endpoint(base.VertexAiResourceNounWithFutureManager):
     @classmethod
     def create(
         cls,
-        display_name: str,
+        display_name: Optional[str] = None,
         description: Optional[str] = None,
         labels: Optional[Dict[str, str]] = None,
         metadata: Optional[Sequence[Tuple[str, str]]] = (),
@@ -208,7 +209,7 @@ class Endpoint(base.VertexAiResourceNounWithFutureManager):
 
         Args:
             display_name (str):
-                Required. The user-defined name of the Endpoint.
+                Optional. The user-defined name of the Endpoint.
                 The name can be up to 128 characters long and can be consist
                 of any UTF-8 characters.
             project (str):
@@ -256,6 +257,9 @@ class Endpoint(base.VertexAiResourceNounWithFutureManager):
         """
 
         api_client = cls._instantiate_client(location=location, credentials=credentials)
+
+        if not display_name:
+            display_name = "Endpoint " + datetime.datetime.now().isoformat(sep=" ")
 
         utils.validate_display_name(display_name)
         if labels:
@@ -1574,7 +1578,6 @@ class Model(base.VertexAiResourceNounWithFutureManager):
     @base.optional_sync()
     def upload(
         cls,
-        display_name: str,
         serving_container_image_uri: str,
         *,
         artifact_uri: Optional[str] = None,
@@ -1590,6 +1593,7 @@ class Model(base.VertexAiResourceNounWithFutureManager):
         prediction_schema_uri: Optional[str] = None,
         explanation_metadata: Optional[explain.ExplanationMetadata] = None,
         explanation_parameters: Optional[explain.ExplanationParameters] = None,
+        display_name: Optional[str] = None,
         project: Optional[str] = None,
         location: Optional[str] = None,
         credentials: Optional[auth_credentials.Credentials] = None,
@@ -1611,7 +1615,7 @@ class Model(base.VertexAiResourceNounWithFutureManager):
 
         Args:
             display_name (str):
-                Required. The display name of the Model. The name can be up to 128
+                Optional. The display name of the Model. The name can be up to 128
                 characters long and can be consist of any UTF-8 characters.
             serving_container_image_uri (str):
                 Required. The URI of the Model serving container.
@@ -1749,6 +1753,8 @@ class Model(base.VertexAiResourceNounWithFutureManager):
                 is specified.
                 Also if model directory does not contain a supported model file.
         """
+        if not display_name:
+            display_name = "Model " + datetime.datetime.now().isoformat(sep=" ")
         utils.validate_display_name(display_name)
         if labels:
             utils.validate_labels(labels)
@@ -2535,7 +2541,7 @@ class Model(base.VertexAiResourceNounWithFutureManager):
         cls,
         model_file_path: str,
         xgboost_version: Optional[str] = None,
-        display_name: str = "XGBoost model",
+        display_name: Optional[str] = None,
         description: Optional[str] = None,
         instance_schema_uri: Optional[str] = None,
         parameters_schema_uri: Optional[str] = None,
@@ -2665,6 +2671,9 @@ class Model(base.VertexAiResourceNounWithFutureManager):
                 is specified.
                 Also if model directory does not contain a supported model file.
         """
+        if not display_name:
+            display_name = "XGBoost model " + datetime.datetime.now().isoformat(sep=" ")
+
         XGBOOST_SUPPORTED_MODEL_FILE_EXTENSIONS = [
             ".pkl",
             ".joblib",
@@ -2730,7 +2739,7 @@ class Model(base.VertexAiResourceNounWithFutureManager):
         cls,
         model_file_path: str,
         sklearn_version: Optional[str] = None,
-        display_name: str = "Scikit-learn model",
+        display_name: Optional[str] = None,
         description: Optional[str] = None,
         instance_schema_uri: Optional[str] = None,
         parameters_schema_uri: Optional[str] = None,
@@ -2861,6 +2870,11 @@ class Model(base.VertexAiResourceNounWithFutureManager):
                 is specified.
                 Also if model directory does not contain a supported model file.
         """
+        if not display_name:
+            display_name = "Scikit-Learn model " + datetime.datetime.now().isoformat(
+                sep=" "
+            )
+
         SKLEARN_SUPPORTED_MODEL_FILE_EXTENSIONS = [
             ".pkl",
             ".joblib",
@@ -2925,7 +2939,7 @@ class Model(base.VertexAiResourceNounWithFutureManager):
         saved_model_dir: str,
         tensorflow_version: Optional[str] = None,
         use_gpu: bool = False,
-        display_name: str = "Tensorflow model",
+        display_name: Optional[str] = None,
         description: Optional[str] = None,
         instance_schema_uri: Optional[str] = None,
         parameters_schema_uri: Optional[str] = None,
@@ -3058,6 +3072,11 @@ class Model(base.VertexAiResourceNounWithFutureManager):
                 is specified.
                 Also if model directory does not contain a supported model file.
         """
+        if not display_name:
+            display_name = "Tensorflow model " + datetime.datetime.now().isoformat(
+                sep=" "
+            )
+
         container_image_uri = aiplatform.helpers.get_prebuilt_prediction_container_uri(
             region=location,
             framework="tensorflow",

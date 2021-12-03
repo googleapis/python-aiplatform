@@ -88,8 +88,8 @@ class PipelineJob(base.VertexAiResourceNounWithFutureManager):
 
     def __init__(
         self,
-        display_name: str,
         template_path: str,
+        display_name: Optional[str],
         job_id: Optional[str] = None,
         pipeline_root: Optional[str] = None,
         parameter_values: Optional[Dict[str, Any]] = None,
@@ -105,7 +105,7 @@ class PipelineJob(base.VertexAiResourceNounWithFutureManager):
 
         Args:
             display_name (str):
-                Required. The user-defined name of this Pipeline.
+                Optional. The user-defined name of this Pipeline.
             template_path (str):
                 Required. The path of PipelineJob or PipelineSpec JSON file. It
                 can be a local path or a Google Cloud Storage URI.
@@ -156,6 +156,8 @@ class PipelineJob(base.VertexAiResourceNounWithFutureManager):
         Raises:
             ValueError: If job_id or labels have incorrect format.
         """
+        if not display_name:
+            display_name = "PipelineJob " + datetime.datetime.now().isoformat(sep=" ")
         utils.validate_display_name(display_name)
 
         if labels:

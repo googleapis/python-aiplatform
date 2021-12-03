@@ -78,7 +78,7 @@ class _TrainingJob(base.VertexAiResourceNounWithFutureManager):
 
     def __init__(
         self,
-        display_name: str,
+        display_name: Optional[str] = None,
         project: Optional[str] = None,
         location: Optional[str] = None,
         credentials: Optional[auth_credentials.Credentials] = None,
@@ -90,7 +90,7 @@ class _TrainingJob(base.VertexAiResourceNounWithFutureManager):
 
         Args:
             display_name (str):
-                Required. The user-defined name of this TrainingPipeline.
+                Optional. The user-defined name of this TrainingPipeline.
             project (str):
                 Optional project to retrieve model from. If not set, project set in
                 aiplatform.init will be used.
@@ -135,6 +135,10 @@ class _TrainingJob(base.VertexAiResourceNounWithFutureManager):
 
                 Overrides encryption_spec_key_name set in aiplatform.init.
         """
+        if not display_name:
+            display_name = (
+                self.__class__.name + " " + datetime.datetime.now().isoformat(sep=" ")
+            )
         utils.validate_display_name(display_name)
         if labels:
             utils.validate_labels(labels)
@@ -1013,7 +1017,6 @@ class _CustomTrainingJob(_TrainingJob):
 
     def __init__(
         self,
-        display_name: str,
         container_uri: str,
         model_serving_container_image_uri: Optional[str] = None,
         model_serving_container_predict_route: Optional[str] = None,
@@ -1026,6 +1029,7 @@ class _CustomTrainingJob(_TrainingJob):
         model_instance_schema_uri: Optional[str] = None,
         model_parameters_schema_uri: Optional[str] = None,
         model_prediction_schema_uri: Optional[str] = None,
+        display_name: Optional[str] = None,
         project: Optional[str] = None,
         location: Optional[str] = None,
         credentials: Optional[auth_credentials.Credentials] = None,
@@ -1037,7 +1041,7 @@ class _CustomTrainingJob(_TrainingJob):
         """
         Args:
             display_name (str):
-                Required. The user-defined name of this TrainingPipeline.
+                Optional. The user-defined name of this TrainingPipeline.
             container_uri (str):
                 Required: Uri of the training container image in the GCR.
             model_serving_container_image_uri (str):
@@ -1173,6 +1177,10 @@ class _CustomTrainingJob(_TrainingJob):
                 Bucket used to stage source and training artifacts. Overrides
                 staging_bucket set in aiplatform.init.
         """
+        if not display_name:
+            display_name = (
+                self.__class__.name + " " + datetime.datetime.now().isoformat(sep=" ")
+            )
         super().__init__(
             display_name=display_name,
             project=project,
@@ -1533,7 +1541,6 @@ class CustomTrainingJob(_CustomTrainingJob):
 
     def __init__(
         self,
-        display_name: str,
         script_path: str,
         container_uri: str,
         requirements: Optional[Sequence[str]] = None,
@@ -1548,6 +1555,7 @@ class CustomTrainingJob(_CustomTrainingJob):
         model_instance_schema_uri: Optional[str] = None,
         model_parameters_schema_uri: Optional[str] = None,
         model_prediction_schema_uri: Optional[str] = None,
+        display_name: Optional[str] = None,
         project: Optional[str] = None,
         location: Optional[str] = None,
         credentials: Optional[auth_credentials.Credentials] = None,
@@ -1593,7 +1601,7 @@ class CustomTrainingJob(_CustomTrainingJob):
 
         Args:
             display_name (str):
-                Required. The user-defined name of this TrainingPipeline.
+                Optional. The user-defined name of this TrainingPipeline.
             script_path (str): Required. Local path to training script.
             container_uri (str):
                 Required: Uri of the training container image in the GCR.
@@ -1732,6 +1740,10 @@ class CustomTrainingJob(_CustomTrainingJob):
                 Bucket used to stage source and training artifacts. Overrides
                 staging_bucket set in aiplatform.init.
         """
+        if not display_name:
+            display_name = (
+                self.__class__.name + " " + datetime.datetime.now().isoformat(sep=" ")
+            )
         super().__init__(
             display_name=display_name,
             project=project,
@@ -2340,7 +2352,6 @@ class CustomContainerTrainingJob(_CustomTrainingJob):
 
     def __init__(
         self,
-        display_name: str,
         container_uri: str,
         command: Sequence[str] = None,
         model_serving_container_image_uri: Optional[str] = None,
@@ -2354,6 +2365,7 @@ class CustomContainerTrainingJob(_CustomTrainingJob):
         model_instance_schema_uri: Optional[str] = None,
         model_parameters_schema_uri: Optional[str] = None,
         model_prediction_schema_uri: Optional[str] = None,
+        display_name: Optional[str] = None,
         project: Optional[str] = None,
         location: Optional[str] = None,
         credentials: Optional[auth_credentials.Credentials] = None,
@@ -2398,7 +2410,7 @@ class CustomContainerTrainingJob(_CustomTrainingJob):
 
         Args:
             display_name (str):
-                Required. The user-defined name of this TrainingPipeline.
+                Optional. The user-defined name of this TrainingPipeline.
             container_uri (str):
                 Required: Uri of the training container image in the GCR.
             command (Sequence[str]):
@@ -2537,6 +2549,10 @@ class CustomContainerTrainingJob(_CustomTrainingJob):
                 Bucket used to stage source and training artifacts. Overrides
                 staging_bucket set in aiplatform.init.
         """
+        if not display_name:
+            display_name = (
+                self.__class__.name + " " + datetime.datetime.now().isoformat(sep=" ")
+            )
         super().__init__(
             display_name=display_name,
             project=project,
@@ -3124,13 +3140,13 @@ class AutoMLTabularTrainingJob(_TrainingJob):
 
     def __init__(
         self,
-        display_name: str,
         optimization_prediction_type: str,
         optimization_objective: Optional[str] = None,
         column_specs: Optional[Dict[str, str]] = None,
         column_transformations: Optional[List[Dict[str, Dict[str, str]]]] = None,
         optimization_objective_recall_value: Optional[float] = None,
         optimization_objective_precision_value: Optional[float] = None,
+        display_name: Optional[str] = None,
         project: Optional[str] = None,
         location: Optional[str] = None,
         credentials: Optional[auth_credentials.Credentials] = None,
@@ -3152,7 +3168,7 @@ class AutoMLTabularTrainingJob(_TrainingJob):
 
         Args:
             display_name (str):
-                Required. The user-defined name of this TrainingPipeline.
+                Optional. The user-defined name of this TrainingPipeline.
             optimization_prediction_type (str):
                 The type of prediction the Model is to produce.
                 "classification" - Predict one out of multiple target values is
@@ -3270,6 +3286,10 @@ class AutoMLTabularTrainingJob(_TrainingJob):
         Raises:
             ValueError: If both column_transformations and column_specs were provided.
         """
+        if not display_name:
+            display_name = (
+                self.__class__.name + " " + datetime.datetime.now().isoformat(sep=" ")
+            )
         super().__init__(
             display_name=display_name,
             project=project,
@@ -3760,7 +3780,7 @@ class AutoMLForecastingTrainingJob(_TrainingJob):
 
     def __init__(
         self,
-        display_name: str,
+        display_name: Optional[str] = None,
         optimization_objective: Optional[str] = None,
         column_specs: Optional[Dict[str, str]] = None,
         column_transformations: Optional[List[Dict[str, Dict[str, str]]]] = None,
@@ -3775,7 +3795,7 @@ class AutoMLForecastingTrainingJob(_TrainingJob):
 
         Args:
             display_name (str):
-                Required. The user-defined name of this TrainingPipeline.
+                Optional. The user-defined name of this TrainingPipeline.
             optimization_objective (str):
                 Optional. Objective function the model is to be optimized towards.
                 The training process creates a Model that optimizes the value of the objective
@@ -3857,6 +3877,10 @@ class AutoMLForecastingTrainingJob(_TrainingJob):
         Raises:
             ValueError: If both column_transformations and column_specs were provided.
         """
+        if not display_name:
+            display_name = (
+                self.__class__.name + " " + datetime.datetime.now().isoformat(sep=" ")
+            )
         super().__init__(
             display_name=display_name,
             project=project,
@@ -4611,7 +4635,7 @@ class AutoMLImageTrainingJob(_TrainingJob):
 
     def __init__(
         self,
-        display_name: str,
+        display_name: Optional[str] = None,
         prediction_type: str = "classification",
         multi_label: bool = False,
         model_type: str = "CLOUD",
@@ -4627,7 +4651,7 @@ class AutoMLImageTrainingJob(_TrainingJob):
 
         Args:
             display_name (str):
-                Required. The user-defined name of this TrainingPipeline.
+                Optional. The user-defined name of this TrainingPipeline.
             prediction_type (str):
                 The type of prediction the Model is to produce, one of:
                     "classification" - Predict one out of multiple target values is
@@ -4723,6 +4747,10 @@ class AutoMLImageTrainingJob(_TrainingJob):
         Raises:
             ValueError: When an invalid prediction_type or model_type is provided.
         """
+        if not display_name:
+            display_name = (
+                self.__class__.name + " " + datetime.datetime.now().isoformat(sep=" ")
+            )
 
         valid_model_types = constants.AUTOML_IMAGE_PREDICTION_MODEL_TYPES.get(
             prediction_type, None
@@ -5109,7 +5137,6 @@ class CustomPythonPackageTrainingJob(_CustomTrainingJob):
 
     def __init__(
         self,
-        display_name: str,
         python_package_gcs_uri: str,
         python_module_name: str,
         container_uri: str,
@@ -5124,6 +5151,7 @@ class CustomPythonPackageTrainingJob(_CustomTrainingJob):
         model_instance_schema_uri: Optional[str] = None,
         model_parameters_schema_uri: Optional[str] = None,
         model_prediction_schema_uri: Optional[str] = None,
+        display_name: Optional[str] = None,
         project: Optional[str] = None,
         location: Optional[str] = None,
         credentials: Optional[auth_credentials.Credentials] = None,
@@ -5311,6 +5339,10 @@ class CustomPythonPackageTrainingJob(_CustomTrainingJob):
                 Bucket used to stage source and training artifacts. Overrides
                 staging_bucket set in aiplatform.init.
         """
+        if not display_name:
+            display_name = (
+                self.__class__.name + " " + datetime.datetime.now().isoformat(sep=" ")
+            )
         super().__init__(
             display_name=display_name,
             project=project,
@@ -5886,7 +5918,7 @@ class AutoMLVideoTrainingJob(_TrainingJob):
 
     def __init__(
         self,
-        display_name: str,
+        display_name: Optional[str] = None,
         prediction_type: str = "classification",
         model_type: str = "CLOUD",
         project: Optional[str] = None,
@@ -5980,6 +6012,11 @@ class AutoMLVideoTrainingJob(_TrainingJob):
         Raises:
             ValueError: When an invalid prediction_type and/or model_type is provided.
         """
+        if not display_name:
+            display_name = (
+                self.__class__.name + " " + datetime.datetime.now().isoformat(sep=" ")
+            )
+
         valid_model_types = constants.AUTOML_VIDEO_PREDICTION_MODEL_TYPES.get(
             prediction_type, None
         )
@@ -6253,10 +6290,10 @@ class AutoMLTextTrainingJob(_TrainingJob):
 
     def __init__(
         self,
-        display_name: str,
         prediction_type: str,
         multi_label: bool = False,
         sentiment_max: int = 10,
+        display_name: Optional[str] = None,
         project: Optional[str] = None,
         location: Optional[str] = None,
         credentials: Optional[auth_credentials.Credentials] = None,
@@ -6340,6 +6377,10 @@ class AutoMLTextTrainingJob(_TrainingJob):
 
                 Overrides encryption_spec_key_name set in aiplatform.init.
         """
+        if not display_name:
+            display_name = (
+                self.__class__.name + " " + datetime.datetime.now().isoformat(sep=" ")
+            )
         super().__init__(
             display_name=display_name,
             project=project,

@@ -15,6 +15,7 @@
 # limitations under the License.
 #
 
+import datetime
 from typing import Dict, List, Optional, Sequence, Tuple, Union
 
 from google.api_core import operation
@@ -106,12 +107,12 @@ class _Dataset(base.VertexAiResourceNounWithFutureManager):
     @classmethod
     def create(
         cls,
-        display_name: str,
         metadata_schema_uri: str,
         gcs_source: Optional[Union[str, Sequence[str]]] = None,
         bq_source: Optional[str] = None,
         import_schema_uri: Optional[str] = None,
         data_item_labels: Optional[Dict] = None,
+        display_name: Optional[str] = None,
         project: Optional[str] = None,
         location: Optional[str] = None,
         credentials: Optional[auth_credentials.Credentials] = None,
@@ -125,7 +126,7 @@ class _Dataset(base.VertexAiResourceNounWithFutureManager):
 
         Args:
             display_name (str):
-                Required. The user-defined name of the Dataset.
+                Optional. The user-defined name of the Dataset.
                 The name can be up to 128 characters long and can be consist
                 of any UTF-8 characters.
             metadata_schema_uri (str):
@@ -208,7 +209,8 @@ class _Dataset(base.VertexAiResourceNounWithFutureManager):
             dataset (Dataset):
                 Instantiated representation of the managed dataset resource.
         """
-
+        if not display_name:
+            display_name = cls.name + " " + datetime.datetime.now().isoformat(sep=" ")
         utils.validate_display_name(display_name)
         if labels:
             utils.validate_labels(labels)
