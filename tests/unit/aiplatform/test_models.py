@@ -1484,7 +1484,7 @@ class TestModel:
             my_model.wait()
 
         upload_model_mock.assert_called_once()
-        upload_model_call_kwargs = upload_model_mock.call_args.kwargs
+        upload_model_call_kwargs = upload_model_mock.call_args[1]
         upload_model_model = upload_model_call_kwargs["model"]
 
         # Verifying the container image selection
@@ -1500,7 +1500,7 @@ class TestModel:
         assert "/vertex_ai_auto_staging/" in upload_model_model.artifact_uri
 
         # Verifying that the model was renamed to a file name that is acceptable for Model.upload
-        staged_model_file_path = mock_storage_blob_upload_from_filename.call_args.kwargs[
+        staged_model_file_path = mock_storage_blob_upload_from_filename.call_args[1][
             "filename"
         ]
         staged_model_file_name = staged_model_file_path.split("/")[-1]
@@ -1542,7 +1542,7 @@ class TestModel:
             my_model.wait()
 
         upload_model_mock.assert_called_once()
-        upload_model_call_kwargs = upload_model_mock.call_args.kwargs
+        upload_model_call_kwargs = upload_model_mock.call_args[1]
         upload_model_model = upload_model_call_kwargs["model"]
 
         # Verifying the staging bucket name generation
@@ -1552,7 +1552,7 @@ class TestModel:
         assert "/vertex_ai_auto_staging/" in upload_model_model.artifact_uri
 
         # Verifying that the model was renamed to a file name that is acceptable for Model.upload
-        staged_model_file_path = mock_storage_blob_upload_from_filename.call_args.kwargs[
+        staged_model_file_path = mock_storage_blob_upload_from_filename.call_args[1][
             "filename"
         ]
         staged_model_file_name = staged_model_file_path.split("/")[-1]
@@ -1593,7 +1593,7 @@ class TestModel:
             my_model.wait()
 
         upload_model_mock.assert_called_once()
-        upload_model_call_kwargs = upload_model_mock.call_args.kwargs
+        upload_model_call_kwargs = upload_model_mock.call_args[1]
         upload_model_model = upload_model_call_kwargs["model"]
 
         # Verifying the container image selection
@@ -1609,7 +1609,7 @@ class TestModel:
         assert "/vertex_ai_auto_staging/" in upload_model_model.artifact_uri
 
         # Verifying that the model was renamed to a file name that is acceptable for Model.upload
-        staged_model_file_path = mock_storage_blob_upload_from_filename.call_args.kwargs[
+        staged_model_file_path = mock_storage_blob_upload_from_filename.call_args[1][
             "filename"
         ]
         staged_model_file_name = staged_model_file_path.split("/")[-1]
@@ -1642,7 +1642,7 @@ class TestModel:
             my_model.wait()
 
         upload_model_mock.assert_called_once()
-        upload_model_call_kwargs = upload_model_mock.call_args.kwargs
+        upload_model_call_kwargs = upload_model_mock.call_args[1]
         upload_model_model = upload_model_call_kwargs["model"]
 
         # Verifying the container image selection
@@ -1658,7 +1658,7 @@ class TestModel:
         assert "/vertex_ai_auto_staging/" in upload_model_model.artifact_uri
 
         # Verifying that the model files were uploaded
-        staged_model_file_path = mock_storage_blob_upload_from_filename.call_args.kwargs[
+        staged_model_file_path = mock_storage_blob_upload_from_filename.call_args[1][
             "filename"
         ]
         staged_model_file_name = staged_model_file_path.split("/")[-1]

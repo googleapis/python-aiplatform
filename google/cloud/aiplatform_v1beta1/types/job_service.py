@@ -633,7 +633,7 @@ class SearchModelDeploymentMonitoringStatsAnomaliesRequest(proto.Message):
             \`projects/{project}/locations/{location}/modelDeploymentMonitoringJobs/{model_deployment_monitoring_job}
         deployed_model_id (str):
             Required. The DeployedModel ID of the
-            [google.cloud.aiplatform.master.ModelDeploymentMonitoringObjectiveConfig.deployed_model_id].
+            [ModelDeploymentMonitoringObjectiveConfig.deployed_model_id].
         feature_display_name (str):
             The feature display name. If specified, only return the
             stats belonging to this feature. Format:

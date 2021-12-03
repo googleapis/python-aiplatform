@@ -780,8 +780,13 @@ class ModelServiceClient(metaclass=ModelServiceClientMeta):
     ) -> gac_operation.Operation:
         r"""Deletes a Model.
 
-        Model can only be deleted if there are no [DeployedModels][]
-        created from it.
+        A model cannot be deleted if any
+        [Endpoint][google.cloud.aiplatform.v1beta1.Endpoint] resource
+        has a
+        [DeployedModel][google.cloud.aiplatform.v1beta1.DeployedModel]
+        based on the model in its
+        [deployed_models][google.cloud.aiplatform.v1beta1.Endpoint.deployed_models]
+        field.
 
         Args:
             request (Union[google.cloud.aiplatform_v1beta1.types.DeleteModelRequest, dict]):
@@ -875,7 +880,7 @@ class ModelServiceClient(metaclass=ModelServiceClientMeta):
         timeout: float = None,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> gac_operation.Operation:
-        r"""Exports a trained, exportable, Model to a location specified by
+        r"""Exports a trained, exportable Model to a location specified by
         the user. A Model is considered to be exportable if it has at
         least one [supported export
         format][google.cloud.aiplatform.v1beta1.Model.supported_export_formats].

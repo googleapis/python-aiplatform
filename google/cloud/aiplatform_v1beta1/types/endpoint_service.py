@@ -51,10 +51,21 @@ class CreateEndpointRequest(proto.Message):
             ``projects/{project}/locations/{location}``
         endpoint (google.cloud.aiplatform_v1beta1.types.Endpoint):
             Required. The Endpoint to create.
+        endpoint_id (str):
+            Immutable. The ID to use for endpoint, which will become the
+            final component of the endpoint resource name. If not
+            provided, Vertex AI will generate a value for this ID.
+
+            This value should be 1-10 characters, and valid characters
+            are /[0-9]/. When using HTTP/JSON, this field is populated
+            based on a query string argument, such as
+            ``?endpoint_id=12345``. This is the fallback for fields that
+            are not included in either the URI or the body.
     """
 
     parent = proto.Field(proto.STRING, number=1,)
     endpoint = proto.Field(proto.MESSAGE, number=2, message=gca_endpoint.Endpoint,)
+    endpoint_id = proto.Field(proto.STRING, number=4,)
 
 
 class CreateEndpointOperationMetadata(proto.Message):
