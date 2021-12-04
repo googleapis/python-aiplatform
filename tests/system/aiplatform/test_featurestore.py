@@ -20,6 +20,8 @@ import logging
 from google.cloud import aiplatform
 from tests.system.aiplatform import e2e_base
 
+import pandas as pd
+
 _TEST_USERS_ENTITY_TYPE_GCS_SRC = (
     "gs://cloud-samples-data-us-central1/vertex-ai/feature-store/datasets/users.avro"
 )
@@ -242,3 +244,19 @@ class TestFeaturestore(e2e_base.TestEndToEnd):
         assert (
             len(list_searched_features) - shared_state["base_list_searched_features"]
         ) == 3
+
+    def test_online_reads(self, shared_state):
+        assert shared_state["user_entity_type"]
+        assert shared_state["movie_entity_type"]
+
+        user_entity_type = shared_state["user_entity_type"]
+        movie_entity_type = shared_state["movie_entity_type"]
+
+        user_entity_views = user_entity_type.read(entity_ids="alice")
+        assert type(user_entity_views) == pd.DataFrame
+
+        movie_entity_views = movie_entity_type.read(
+            entity_ids=["movie_01", "movie_04"],
+            feature_ids=[_TEST_MOVIE_TITLE_FEATURE_ID, _TEST_MOVIE_GENRES_FEATURE_ID],
+        )
+        assert type(movie_entity_views) == pd.DataFrame

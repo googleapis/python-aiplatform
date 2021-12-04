@@ -17,6 +17,7 @@
 
 import pytest
 import datetime
+import pandas as pd
 
 from unittest import mock
 from importlib import reload
@@ -36,12 +37,18 @@ from google.cloud.aiplatform_v1.services.featurestore_service import (
     client as featurestore_service_client,
 )
 
+from google.cloud.aiplatform_v1.services.featurestore_online_serving_service import (
+    client as featurestore_online_serving_service_client,
+)
+
 from google.cloud.aiplatform_v1.types import (
     encryption_spec as gca_encryption_spec,
     entity_type as gca_entity_type,
     feature as gca_feature,
+    feature_selector as gca_feature_selector,
     featurestore as gca_featurestore,
     featurestore_service as gca_featurestore_service,
+    featurestore_online_service as gca_featurestore_online_service,
     io as gca_io,
 )
 
@@ -156,6 +163,9 @@ _TEST_AVRO_SOURCE = gca_io.AvroSource(
 _TEST_CSV_SOURCE = gca_io.CsvSource(
     gcs_source=gca_io.GcsSource(uris=_TEST_GCS_CSV_SOURCE_URIS)
 )
+
+_TEST_READ_ENTITY_ID = "entity_id_1"
+_TEST_READ_ENTITY_IDS = ["entity_id_1"]
 
 
 # All Featurestore Mocks
@@ -291,6 +301,66 @@ def import_feature_values_mock():
         import_feature_values_lro_mock = mock.Mock(operation.Operation)
         import_feature_values_mock.return_value = import_feature_values_lro_mock
         yield import_feature_values_mock
+
+
+@pytest.fixture
+def read_feature_values_mock():
+    with patch.object(
+        featurestore_online_serving_service_client.FeaturestoreOnlineServingServiceClient,
+        "read_feature_values",
+    ) as read_feature_values_mock:
+        read_feature_values_mock.return_value = gca_featurestore_online_service.ReadFeatureValuesResponse(
+            header=gca_featurestore_online_service.ReadFeatureValuesResponse.Header(
+                feature_descriptors=[
+                    gca_featurestore_online_service.ReadFeatureValuesResponse.FeatureDescriptor(
+                        id=_TEST_FEATURE_ID
+                    ),
+                ]
+            ),
+            entity_view=gca_featurestore_online_service.ReadFeatureValuesResponse.EntityView(
+                entity_id=_TEST_READ_ENTITY_ID,
+                data=[
+                    gca_featurestore_online_service.ReadFeatureValuesResponse.EntityView.Data(
+                        value=gca_featurestore_online_service.FeatureValue(
+                            int64_value=0
+                        )
+                    )
+                ],
+            ),
+        )
+        yield read_feature_values_mock
+
+
+@pytest.fixture
+def streaming_read_feature_values_mock():
+    with patch.object(
+        featurestore_online_serving_service_client.FeaturestoreOnlineServingServiceClient,
+        "streaming_read_feature_values",
+    ) as streaming_read_feature_values_mock:
+        streaming_read_feature_values_mock.return_value = [
+            gca_featurestore_online_service.ReadFeatureValuesResponse(
+                header=gca_featurestore_online_service.ReadFeatureValuesResponse.Header(
+                    feature_descriptors=[
+                        gca_featurestore_online_service.ReadFeatureValuesResponse.FeatureDescriptor(
+                            id=_TEST_FEATURE_ID
+                        ),
+                    ]
+                ),
+            ),
+            gca_featurestore_online_service.ReadFeatureValuesResponse(
+                entity_view=gca_featurestore_online_service.ReadFeatureValuesResponse.EntityView(
+                    entity_id=_TEST_READ_ENTITY_ID,
+                    data=[
+                        gca_featurestore_online_service.ReadFeatureValuesResponse.EntityView.Data(
+                            value=gca_featurestore_online_service.FeatureValue(
+                                int64_value=0
+                            )
+                        )
+                    ],
+                ),
+            ),
+        ]
+        yield streaming_read_feature_values_mock
 
 
 # ALL Feature Mocks
@@ -1214,6 +1284,50 @@ class TestEntityType:
         import_feature_values_mock.assert_called_once_with(
             request=true_import_feature_values_request, metadata=_TEST_REQUEST_METADATA,
         )
+
+    @pytest.mark.usefixtures("get_entity_type_mock")
+    def test_read_single_entity(self, read_feature_values_mock):
+        aiplatform.init(project=_TEST_PROJECT)
+        my_entity_type = aiplatform.EntityType(entity_type_name=_TEST_ENTITY_TYPE_NAME)
+        expected_read_feature_values_request = gca_featurestore_online_service.ReadFeatureValuesRequest(
+            entity_type=my_entity_type.resource_name,
+            entity_id=_TEST_READ_ENTITY_ID,
+            feature_selector=gca_feature_selector.FeatureSelector(
+                id_matcher=gca_feature_selector.IdMatcher(ids=["*"])
+            ),
+        )
+        result = my_entity_type.read(entity_ids=_TEST_READ_ENTITY_ID)
+        read_feature_values_mock.assert_called_once_with(
+            request=expected_read_feature_values_request,
+            metadata=_TEST_REQUEST_METADATA,
+        )
+        assert type(result) == pd.DataFrame
+        assert len(result) == 1
+        assert result.entity_id[0] == _TEST_READ_ENTITY_ID
+        assert result.get(_TEST_FEATURE_ID)[0] == 0
+
+    @pytest.mark.usefixtures("get_entity_type_mock")
+    def test_read_multiple_entities(self, streaming_read_feature_values_mock):
+        aiplatform.init(project=_TEST_PROJECT)
+        my_entity_type = aiplatform.EntityType(entity_type_name=_TEST_ENTITY_TYPE_NAME)
+        expected_streaming_read_feature_values_request = gca_featurestore_online_service.StreamingReadFeatureValuesRequest(
+            entity_type=my_entity_type.resource_name,
+            entity_ids=_TEST_READ_ENTITY_IDS,
+            feature_selector=gca_feature_selector.FeatureSelector(
+                id_matcher=gca_feature_selector.IdMatcher(ids=[_TEST_FEATURE_ID])
+            ),
+        )
+        result = my_entity_type.read(
+            entity_ids=_TEST_READ_ENTITY_IDS, feature_ids=_TEST_FEATURE_ID
+        )
+        streaming_read_feature_values_mock.assert_called_once_with(
+            request=expected_streaming_read_feature_values_request,
+            metadata=_TEST_REQUEST_METADATA,
+        )
+        assert type(result) == pd.DataFrame
+        assert len(result) == 1
+        assert result.entity_id[0] == _TEST_READ_ENTITY_ID
+        assert result.get(_TEST_FEATURE_ID)[0] == 0
 
 
 class TestFeature:
