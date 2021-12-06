@@ -34,10 +34,11 @@ def create_training_pipeline_image_classification_sample(
 ):
     aiplatform.init(project=project, location=location)
 
-    job = aiplatform.AutoMLImageTrainingJob(display_name=display_name,
-                                            prediction_type='classification',
-                                            multi_label=multi_label
-                                           )
+    job = aiplatform.AutoMLImageTrainingJob(
+        display_name=display_name,
+        prediction_type='classification',
+        multi_label=multi_label
+    )
 
     my_image_ds = aiplatform.ImageDataset(dataset_id)
 
