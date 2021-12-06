@@ -60,6 +60,7 @@ _TEST_TENSORBOARD_RESOURCE_NAME = (
     "projects/myproj/locations/us-central1/tensorboards/1234"
 )
 _TEST_CLOUD_ML_JOB_ID = "myjob"
+_TEST_AIP_HTTP_HANDLER_PORT = "5678"
 
 
 class TestTrainingUtils:
@@ -73,6 +74,7 @@ class TestTrainingUtils:
             "AIP_CHECKPOINT_DIR": _TEST_CHECKPOINT_DIR,
             "AIP_TENSORBOARD_LOG_DIR": _TEST_TENSORBOARD_LOG_DIR,
             "AIP_TF_PROFILER_PORT": _TEST_AIP_TF_PROFILER_PORT,
+            "AIP_HTTP_HANDLER_PORT": _TEST_AIP_HTTP_HANDLER_PORT,
             "AIP_TENSORBOARD_API_URI": _TEST_TENSORBOARD_API_URI,
             "AIP_TENSORBOARD_RESOURCE_NAME": _TEST_TENSORBOARD_RESOURCE_NAME,
             "CLOUD_ML_JOB_ID": _TEST_CLOUD_ML_JOB_ID,
@@ -192,3 +194,12 @@ class TestTrainingUtils:
     def test_cloud_ml_job_id_none(self):
         reload(environment_variables)
         assert environment_variables.cloud_ml_job_id is None
+
+    @pytest.mark.usefixtures("mock_environment")
+    def test_http_handler_port(self):
+        reload(environment_variables)
+        assert environment_variables.http_handler_port == _TEST_AIP_HTTP_HANDLER_PORT
+
+    def test_http_handler_port_none(self):
+        reload(environment_variables)
+        assert environment_variables.http_handler_port is None

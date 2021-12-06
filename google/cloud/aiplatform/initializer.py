@@ -29,7 +29,7 @@ from google.auth import credentials as auth_credentials
 from google.auth.exceptions import GoogleAuthError
 
 from google.cloud.aiplatform import compat
-from google.cloud.aiplatform import constants
+from google.cloud.aiplatform.constants import base as constants
 from google.cloud.aiplatform import utils
 from google.cloud.aiplatform.metadata import metadata
 
