@@ -193,7 +193,7 @@ def open_lit(
           open_in_new_tab:
               Optional. A boolean to choose if LIT open in a new tab or not.
         Raises:
-            ImportError if LIT or TensorFlow is not installed.
+            ImportError if LIT is not installed.
     """
     try:
         from lit_nlp import notebook
