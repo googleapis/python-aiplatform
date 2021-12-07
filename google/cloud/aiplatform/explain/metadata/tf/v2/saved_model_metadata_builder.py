@@ -49,8 +49,8 @@ class SavedModelMetadataBuilder(metadata_builder.MetadataBuilder):
               Any keyword arguments to be passed to tf.saved_model.save() function.
 
         Raises:
-            ValueError if outputs_to_explain contains more than 1 element.
-            ImportError if tf is not imported.
+            ValueError: If outputs_to_explain contains more than 1 element.
+            ImportError: If tf is not imported.
         """
         if outputs_to_explain and len(outputs_to_explain) > 1:
             raise ValueError(
@@ -91,7 +91,7 @@ class SavedModelMetadataBuilder(metadata_builder.MetadataBuilder):
               Inferred input metadata and output metadata from the model.
 
         Raises:
-              ValueError if specified name is not found in signature outputs.
+              ValueError: If specified name is not found in signature outputs.
         """
 
         loaded_sig = self._loaded_model.signatures[signature_name]

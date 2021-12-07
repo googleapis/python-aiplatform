@@ -91,7 +91,7 @@ class _Dataset(base.VertexAiResourceNounWithFutureManager):
         """Validate the metadata_schema_uri of retrieved dataset resource.
 
         Raises:
-            ValueError if the dataset type of the retrieved dataset resource is
+            ValueError: If the dataset type of the retrieved dataset resource is
             not supported by the class.
         """
         if self._supported_metadata_schema_uris and (
