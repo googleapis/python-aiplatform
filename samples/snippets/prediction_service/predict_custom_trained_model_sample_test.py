@@ -32,9 +32,20 @@ def test_ucaip_generated_predict_custom_trained_model_sample(capsys):
 
     instance_dict = {"image_bytes": {"b64": encoded_content}, "key": "0"}
 
+    # Single instance as a dict
     predict_custom_trained_model_sample.predict_custom_trained_model_sample(
-        instance_dict=instance_dict, project=PROJECT_ID, endpoint_id=ENDPOINT_ID
+        instances=instance_dict, project=PROJECT_ID, endpoint_id=ENDPOINT_ID
+    )
+
+    # Multiple instances in a list
+    predict_custom_trained_model_sample.predict_custom_trained_model_sample(
+        instances=[instance_dict, instance_dict],
+        project=PROJECT_ID,
+        endpoint_id=ENDPOINT_ID,
     )
 
     out, _ = capsys.readouterr()
     assert "1.0" in out
+
+    # Two sets of scores for multi-instance, one score for single instance
+    assert out.count("scores") == 3

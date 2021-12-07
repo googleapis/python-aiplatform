@@ -80,7 +80,7 @@ Overview
 ~~~~~~~~
 This section provides a brief overview of the Vertex SDK for Python. You can also reference the notebooks in `vertex-ai-samples`_ for examples.
 
-.. _vertex-ai-samples: https://github.com/GoogleCloudPlatform/ai-platform-samples/tree/master/ai-platform-unified/notebooks/unofficial/sdk
+.. _vertex-ai-samples: https://github.com/GoogleCloudPlatform/vertex-ai-samples/tree/main/notebooks/community/sdk
 
 Importing
 ^^^^^^^^^
@@ -201,9 +201,9 @@ It must write the model artifact to the environment variable populated by the tr
   job = aiplatform.CustomTrainingJob(
       display_name="my-training-job",
       script_path="training_script.py",
-      container_uri="gcr.io/cloud-aiplatform/training/tf-cpu.2-2:latest",
+      container_uri="us-docker.pkg.dev/vertex-ai/training/tf-cpu.2-2:latest",
       requirements=["gcsfs==0.7.1"],
-      model_serving_container_image_uri="gcr.io/cloud-aiplatform/prediction/tf2-cpu.2-2:latest",
+      model_serving_container_image_uri="us-docker.pkg.dev/vertex-ai/prediction/tf2-cpu.2-2:latest",
   )
 
   model = job.run(my_dataset,
@@ -266,7 +266,7 @@ To upload a model:
   model = aiplatform.Model.upload(
       display_name='my-model',
       artifact_uri="gs://python/to/my/model/dir",
-      serving_container_image_uri="gcr.io/cloud-aiplatform/prediction/tf2-cpu.2-2:latest",
+      serving_container_image_uri="us-docker.pkg.dev/vertex-ai/prediction/tf2-cpu.2-2:latest",
   )
 
 To get a model:
@@ -462,6 +462,24 @@ To use Explanation Metadata in endpoint deployment and model upload:
 
   # To upload a model with explanation
   aiplatform.Model.upload(..., explanation_metadata=explanation_metadata)
+
+
+Cloud Profiler
+----------------------------
+
+Cloud Profiler allows you to profile your remote Vertex AI Training jobs on demand and visualize the results in Vertex Tensorboard.
+
+To start using the profiler with TensorFlow, update your training script to include the following:
+
+.. code-block:: Python
+
+    from google.cloud.aiplatform.training_utils import cloud_profiler
+    ...
+    cloud_profiler.init()
+
+Next, run the job with with a Vertex TensorBoard instance. For full details on how to do this, visit https://cloud.google.com/vertex-ai/docs/experiments/tensorboard-overview
+
+Finally, visit your TensorBoard in your Google Cloud Console, navigate to the "Profile" tab, and click the `Capture Profile` button. This will allow users to capture profiling statistics for the running jobs.
 
 
 Next Steps

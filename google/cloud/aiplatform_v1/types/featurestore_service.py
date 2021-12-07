@@ -507,13 +507,22 @@ class ExportFeatureValuesRequest(proto.Message):
     r"""Request message for
     [FeaturestoreService.ExportFeatureValues][google.cloud.aiplatform.v1.FeaturestoreService.ExportFeatureValues].
 
+    This message has `oneof`_ fields (mutually exclusive fields).
+    For each oneof, at most one member field can be set at the same time.
+    Setting any member of the oneof automatically clears all other
+    members.
 
     .. _oneof: https://proto-plus-python.readthedocs.io/en/stable/fields.html#oneofs-mutually-exclusive-fields
 
     Attributes:
         snapshot_export (google.cloud.aiplatform_v1.types.ExportFeatureValuesRequest.SnapshotExport):
-            Exports Feature values of all entities of the
-            EntityType as of a snapshot time.
+            Exports the latest Feature values of all
+            entities of the EntityType within a time range.
+
+            This field is a member of `oneof`_ ``mode``.
+        full_export (google.cloud.aiplatform_v1.types.ExportFeatureValuesRequest.FullExport):
+            Exports all historical values of all entities
+            of the EntityType within a time range
 
             This field is a member of `oneof`_ ``mode``.
         entity_type (str):
@@ -531,8 +540,8 @@ class ExportFeatureValuesRequest(proto.Message):
     """
 
     class SnapshotExport(proto.Message):
-        r"""Describes exporting Feature values as of the snapshot
-        timestamp.
+        r"""Describes exporting the latest Feature values of all entities of the
+        EntityType between [start_time, snapshot_time].
 
         Attributes:
             snapshot_time (google.protobuf.timestamp_pb2.Timestamp):
@@ -540,14 +549,51 @@ class ExportFeatureValuesRequest(proto.Message):
                 If not set, retrieve values as of now.
                 Timestamp, if present, must not have higher than
                 millisecond precision.
+            start_time (google.protobuf.timestamp_pb2.Timestamp):
+                Excludes Feature values with feature
+                generation timestamp before this timestamp. If
+                not set, retrieve oldest values kept in Feature
+                Store. Timestamp, if present, must not have
+                higher than millisecond precision.
         """
 
         snapshot_time = proto.Field(
             proto.MESSAGE, number=1, message=timestamp_pb2.Timestamp,
         )
+        start_time = proto.Field(
+            proto.MESSAGE, number=2, message=timestamp_pb2.Timestamp,
+        )
+
+    class FullExport(proto.Message):
+        r"""Describes exporting all historical Feature values of all entities of
+        the EntityType between [start_time, end_time].
+
+        Attributes:
+            start_time (google.protobuf.timestamp_pb2.Timestamp):
+                Excludes Feature values with feature
+                generation timestamp before this timestamp. If
+                not set, retrieve oldest values kept in Feature
+                Store. Timestamp, if present, must not have
+                higher than millisecond precision.
+            end_time (google.protobuf.timestamp_pb2.Timestamp):
+                Exports Feature values as of this timestamp.
+                If not set, retrieve values as of now.
+                Timestamp, if present, must not have higher than
+                millisecond precision.
+        """
+
+        start_time = proto.Field(
+            proto.MESSAGE, number=2, message=timestamp_pb2.Timestamp,
+        )
+        end_time = proto.Field(
+            proto.MESSAGE, number=1, message=timestamp_pb2.Timestamp,
+        )
 
     snapshot_export = proto.Field(
         proto.MESSAGE, number=3, oneof="mode", message=SnapshotExport,
+    )
+    full_export = proto.Field(
+        proto.MESSAGE, number=7, oneof="mode", message=FullExport,
     )
     entity_type = proto.Field(proto.STRING, number=1,)
     destination = proto.Field(
@@ -1214,17 +1260,17 @@ class UpdateFeaturestoreOperationMetadata(proto.Message):
 
 
 class ImportFeatureValuesOperationMetadata(proto.Message):
-    r"""Details of operations that perform import feature values.
+    r"""Details of operations that perform import Feature values.
 
     Attributes:
         generic_metadata (google.cloud.aiplatform_v1.types.GenericOperationMetadata):
             Operation metadata for Featurestore import
-            feature values.
+            Feature values.
         imported_entity_count (int):
             Number of entities that have been imported by
             the operation.
         imported_feature_value_count (int):
-            Number of feature values that have been
+            Number of Feature values that have been
             imported by the operation.
         invalid_row_count (int):
             The number of rows in input source that weren't imported due

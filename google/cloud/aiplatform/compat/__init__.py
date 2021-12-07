@@ -27,6 +27,10 @@ if DEFAULT_VERSION == V1BETA1:
 
     services.dataset_service_client = services.dataset_service_client_v1beta1
     services.endpoint_service_client = services.endpoint_service_client_v1beta1
+    services.featurestore_online_serving_service_client = (
+        services.featurestore_online_serving_service_client_v1beta1
+    )
+    services.featurestore_service_client = services.featurestore_service_client_v1beta1
     services.job_service_client = services.job_service_client_v1beta1
     services.model_service_client = services.model_service_client_v1beta1
     services.pipeline_service_client = services.pipeline_service_client_v1beta1
@@ -53,11 +57,19 @@ if DEFAULT_VERSION == V1BETA1:
     types.encryption_spec = types.encryption_spec_v1beta1
     types.endpoint = types.endpoint_v1beta1
     types.endpoint_service = types.endpoint_service_v1beta1
+    types.entity_type = types.entity_type_v1beta1
     types.env_var = types.env_var_v1beta1
     types.event = types.event_v1beta1
     types.execution = types.execution_v1beta1
     types.explanation = types.explanation_v1beta1
     types.explanation_metadata = types.explanation_metadata_v1beta1
+    types.feature = types.feature_v1beta1
+    types.feature_monitoring_stats = types.feature_monitoring_stats_v1beta1
+    types.feature_selector = types.feature_selector_v1beta1
+    types.featurestore = types.featurestore_v1beta1
+    types.featurestore_monitoring = types.featurestore_monitoring_v1beta1
+    types.featurestore_online_service = types.featurestore_online_service_v1beta1
+    types.featurestore_service = types.featurestore_service_v1beta1
     types.hyperparameter_tuning_job = types.hyperparameter_tuning_job_v1beta1
     types.io = types.io_v1beta1
     types.job_service = types.job_service_v1beta1
@@ -90,11 +102,16 @@ if DEFAULT_VERSION == V1:
 
     services.dataset_service_client = services.dataset_service_client_v1
     services.endpoint_service_client = services.endpoint_service_client_v1
+    services.featurestore_online_serving_service_client = (
+        services.featurestore_online_serving_service_client_v1
+    )
+    services.featurestore_service_client = services.featurestore_service_client_v1
     services.job_service_client = services.job_service_client_v1
     services.model_service_client = services.model_service_client_v1
     services.pipeline_service_client = services.pipeline_service_client_v1
     services.prediction_service_client = services.prediction_service_client_v1
     services.specialist_pool_service_client = services.specialist_pool_service_client_v1
+    services.tensorboard_service_client = services.tensorboard_service_client_v1
 
     types.accelerator_type = types.accelerator_type_v1
     types.annotation = types.annotation_v1
@@ -112,11 +129,18 @@ if DEFAULT_VERSION == V1:
     types.encryption_spec = types.encryption_spec_v1
     types.endpoint = types.endpoint_v1
     types.endpoint_service = types.endpoint_service_v1
+    types.entity_type = types.entity_type_v1
     types.env_var = types.env_var_v1
     types.event = types.event_v1
     types.execution = types.execution_v1
     types.explanation = types.explanation_v1
     types.explanation_metadata = types.explanation_metadata_v1
+    types.feature = types.feature_v1
+    types.feature_monitoring_stats = types.feature_monitoring_stats_v1
+    types.feature_selector = types.feature_selector_v1
+    types.featurestore = types.featurestore_v1
+    types.featurestore_online_service = types.featurestore_online_service_v1
+    types.featurestore_service = types.featurestore_service_v1
     types.hyperparameter_tuning_job = types.hyperparameter_tuning_job_v1
     types.io = types.io_v1
     types.job_service = types.job_service_v1

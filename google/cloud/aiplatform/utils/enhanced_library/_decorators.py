@@ -12,7 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 from __future__ import absolute_import
-from google.cloud.aiplatform.helpers import value_converter
+from google.cloud.aiplatform.utils.enhanced_library import value_converter
 
 from proto.marshal import Marshal
 from proto.marshal.rules.struct import ValueRule

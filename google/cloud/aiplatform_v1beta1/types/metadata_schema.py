@@ -34,7 +34,8 @@ class MetadataSchema(proto.Message):
             The version of the MetadataSchema. The version's format must
             match the following regular expression:
             ``^[0-9]+[.][0-9]+[.][0-9]+$``, which would allow to
-            order/compare different versions.Example: 1.0.0, 1.0.1, etc.
+            order/compare different versions. Example: 1.0.0, 1.0.1,
+            etc.
         schema (str):
             Required. The raw YAML string representation of the
             MetadataSchema. The combination of [MetadataSchema.version]

@@ -147,9 +147,12 @@ class CustomJobSpec(proto.Message):
             {project} is a project number, as in ``12345``, and
             {network} is a network name.
 
-            Private services access must already be configured for the
-            network. If left unspecified, the job is not peered with any
-            network.
+            To specify this field, you must have already `configured VPC
+            Network Peering for Vertex
+            AI <https://cloud.google.com/vertex-ai/docs/general/vpc-peering>`__.
+
+            If this field is left unspecified, the job is not peered
+            with any network.
         base_output_directory (google.cloud.aiplatform_v1beta1.types.GcsDestination):
             The Cloud Storage location to store the output of this
             CustomJob or HyperparameterTuningJob. For

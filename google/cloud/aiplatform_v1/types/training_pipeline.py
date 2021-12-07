@@ -33,6 +33,7 @@ __protobuf__ = proto.module(
         "FilterSplit",
         "PredefinedSplit",
         "TimestampSplit",
+        "StratifiedSplit",
     },
 )
 
@@ -207,6 +208,12 @@ class InputDataConfig(proto.Message):
             pieces.
 
             This field is a member of `oneof`_ ``split``.
+        stratified_split (google.cloud.aiplatform_v1.types.StratifiedSplit):
+            Supported only for tabular Datasets.
+            Split based on the distribution of the specified
+            column.
+
+            This field is a member of `oneof`_ ``split``.
         gcs_destination (google.cloud.aiplatform_v1.types.GcsDestination):
             The Cloud Storage location where the training data is to be
             written to. In the given directory a new directory is
@@ -321,6 +328,9 @@ class InputDataConfig(proto.Message):
     )
     timestamp_split = proto.Field(
         proto.MESSAGE, number=5, oneof="split", message="TimestampSplit",
+    )
+    stratified_split = proto.Field(
+        proto.MESSAGE, number=12, oneof="split", message="StratifiedSplit",
     )
     gcs_destination = proto.Field(
         proto.MESSAGE, number=8, oneof="destination", message=io.GcsDestination,
@@ -448,6 +458,47 @@ class TimestampSplit(proto.Message):
             ``time-offset`` = ``"Z"`` (e.g. 1985-04-12T23:20:50.52Z). If
             for a piece of data the key is not present or has an invalid
             value, that piece is ignored by the pipeline.
+    """
+
+    training_fraction = proto.Field(proto.DOUBLE, number=1,)
+    validation_fraction = proto.Field(proto.DOUBLE, number=2,)
+    test_fraction = proto.Field(proto.DOUBLE, number=3,)
+    key = proto.Field(proto.STRING, number=4,)
+
+
+class StratifiedSplit(proto.Message):
+    r"""Assigns input data to the training, validation, and test sets so
+    that the distribution of values found in the categorical column (as
+    specified by the ``key`` field) is mirrored within each split. The
+    fraction values determine the relative sizes of the splits.
+
+    For example, if the specified column has three values, with 50% of
+    the rows having value "A", 25% value "B", and 25% value "C", and the
+    split fractions are specified as 80/10/10, then the training set
+    will constitute 80% of the training data, with about 50% of the
+    training set rows having the value "A" for the specified column,
+    about 25% having the value "B", and about 25% having the value "C".
+
+    Only the top 500 occurring values are used; any values not in the
+    top 500 values are randomly assigned to a split. If less than three
+    rows contain a specific value, those rows are randomly assigned.
+
+    Supported only for tabular Datasets.
+
+    Attributes:
+        training_fraction (float):
+            The fraction of the input data that is to be
+            used to train the Model.
+        validation_fraction (float):
+            The fraction of the input data that is to be
+            used to validate the Model.
+        test_fraction (float):
+            The fraction of the input data that is to be
+            used to evaluate the Model.
+        key (str):
+            Required. The key is a name of one of the
+            Dataset's data columns. The key provided must be
+            for a categorical column.
     """
 
     training_fraction = proto.Field(proto.DOUBLE, number=1,)

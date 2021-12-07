@@ -63,6 +63,7 @@ from google.cloud.aiplatform_v1beta1.types import (
 from google.cloud.aiplatform_v1beta1.types import model_monitoring
 from google.cloud.aiplatform_v1beta1.types import operation as gca_operation
 from google.cloud.aiplatform_v1beta1.types import study
+from google.cloud.aiplatform_v1beta1.types import unmanaged_container_model
 from google.protobuf import duration_pb2  # type: ignore
 from google.protobuf import empty_pb2  # type: ignore
 from google.protobuf import field_mask_pb2  # type: ignore
@@ -1976,7 +1977,7 @@ class JobServiceAsyncClient:
                 should not be set.
             deployed_model_id (:class:`str`):
                 Required. The DeployedModel ID of the
-                [google.cloud.aiplatform.master.ModelDeploymentMonitoringObjectiveConfig.deployed_model_id].
+                [ModelDeploymentMonitoringObjectiveConfig.deployed_model_id].
 
                 This corresponds to the ``deployed_model_id`` field
                 on the ``request`` instance; if ``request`` is provided, this
