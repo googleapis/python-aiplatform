@@ -19,11 +19,14 @@ from google.cloud import aiplatform
 
 #  [START aiplatform_sdk_predict_tabular_regression_sample]
 def predict_tabular_regression_sample(
-    project: str, location: str, endpoint: str, instances: List[Dict],
+    project: str,
+    location: str,
+    endpoint_name: str,
+    instances: List[Dict],
 ):
     aiplatform.init(project=project, location=location)
 
-    endpoint = aiplatform.Endpoint(endpoint)
+    endpoint = aiplatform.Endpoint(endpoint_name)
 
     response = endpoint.predict(instances=instances)
 
