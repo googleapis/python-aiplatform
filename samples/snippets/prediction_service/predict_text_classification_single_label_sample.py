@@ -45,7 +45,7 @@ def predict_text_classification_single_label_sample(
     )
     print("response")
     print(" deployed_model_id:", response.deployed_model_id)
-    # See gs://google-cloud-aiplatform/schema/predict/prediction/text_classification.yaml for the format of the predictions.
+
     predictions = response.predictions
     for prediction in predictions:
         print(" prediction:", dict(prediction))
