@@ -80,7 +80,7 @@ Overview
 ~~~~~~~~
 This section provides a brief overview of the Vertex SDK for Python. You can also reference the notebooks in `vertex-ai-samples`_ for examples.
 
-.. _vertex-ai-samples: https://github.com/GoogleCloudPlatform/vertex-ai-samples/tree/master/notebooks/community/sdk
+.. _vertex-ai-samples: https://github.com/GoogleCloudPlatform/vertex-ai-samples/tree/main/notebooks/community/sdk
 
 Importing
 ^^^^^^^^^
