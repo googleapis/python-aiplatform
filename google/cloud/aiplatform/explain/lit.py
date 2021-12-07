@@ -182,7 +182,7 @@ def create_lit_model(
 def open_lit(
     models: Dict[str, "lit_model.Model"],  # noqa: F821
     datasets: Dict[str, "lit_dataset.Dataset"],  # noqa: F821
-    open_in_new_tab: Optional[bool] = True,
+    open_in_new_tab: bool = True,
 ):
     """Open LIT from the provided models and datasets.
         Args:
@@ -213,7 +213,7 @@ def set_up_and_open_lit(
     model: Union[str, "lit_model.Model"],  # noqa: F821
     input_types: Union[List[str], Dict[str, "LitType"]],  # noqa: F821
     output_types: Union[str, List[str], Dict[str, "LitType"]],  # noqa: F821
-    open_in_new_tab: Optional[bool] = True,
+    open_in_new_tab: bool = True,
 ) -> Tuple["lit_dataset.Dataset", "lit_model.Model"]:  # noqa: F821
     """Creates a LIT dataset and model and opens LIT.
         Args:
