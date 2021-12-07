@@ -20,9 +20,9 @@ from google.cloud import aiplatform
 
 #  [START aiplatform_sdk_predict_tabular_classification_sample]
 def predict_tabular_classification_sample(
-    project: str, 
-    location: str, 
-    endpoint_name: str, 
+    project: str,
+    location: str,
+    endpoint_name: str,
     instances: List[Dict],
 ):
     '''
