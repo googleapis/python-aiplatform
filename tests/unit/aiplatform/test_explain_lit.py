@@ -15,14 +15,24 @@
 # limitations under the License.
 
 import collections
+import pytest
 import tensorflow as tf
 import pandas as pd
 
 from lit_nlp.api import types as lit_types
+from lit_nlp import notebook
+from unittest import mock
 from google.cloud.aiplatform.explain.lit import (
     create_lit_dataset,
     create_lit_model,
+    open_lit,
 )
+
+
+@pytest.fixture
+def widget_render_mock():
+    with mock.patch.object(notebook.LitWidget, "render") as render_mock:
+        yield render_mock
 
 
 class TestLit(tf.test.TestCase):
@@ -81,3 +91,12 @@ class TestLit(tf.test.TestCase):
         for item in outputs:
             assert item.keys() == {"label"}
             assert len(item.values()) == 1
+
+    def test_open_lit(self, widget_render_mock):
+        pd_dataset, lit_columns = self._set_up_pandas_dataframe_and_columns()
+        lit_dataset = create_lit_dataset(pd_dataset, lit_columns)
+        feature_types, label_types = self._set_up_sequential()
+        lit_model = create_lit_model(self.saved_model_path, feature_types, label_types)
+
+        open_lit({"model": lit_model}, {"dataset": lit_dataset})
+        widget_render_mock.assert_called_once()
