@@ -46,7 +46,7 @@ def predict_tabular_regression_sample(
     )
     print("response")
     print(" deployed_model_id:", response.deployed_model_id)
-    # See gs://google-cloud-aiplatform/schema/predict/prediction/tables_regression.yaml for the format of the predictions.
+    # See gs://google-cloud-aiplatform/schema/predict/prediction/tabular_regression_1.0.0.yaml for the format of the predictions.
     predictions = response.predictions
     for prediction in predictions:
         print(" prediction:", dict(prediction))

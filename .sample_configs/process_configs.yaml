@@ -266,7 +266,7 @@ predict_image_classification_sample:
     instance_dict: predict.instance.ImageClassificationPredictionInstance
     parameters_dict: predict.params.ImageClassificationPredictionParams
   comments:
-    predictions: See gs://google-cloud-aiplatform/schema/predict/prediction/classification.yaml
+    predictions: See gs://google-cloud-aiplatform/schema/predict/prediction/image_classification_1.0.0.yaml
       for the format of the predictions.
 predict_image_file_sample:
   max_depth: 1
@@ -278,7 +278,7 @@ predict_image_object_detection_sample:
     instance_dict: predict.instance.ImageObjectDetectionPredictionInstance
     parameters_dict: predict.params.ImageObjectDetectionPredictionParams
   comments:
-    predictions: See gs://google-cloud-aiplatform/schema/predict/prediction/image_object_detection.yaml
+    predictions: See gs://google-cloud-aiplatform/schema/predict/prediction/image_object_detection_1.0.0.yaml
       for the format of the predictions.
 predict_sample:
   max_depth: 1
@@ -290,30 +290,27 @@ predict_tabular_classification_sample:
   max_depth: 1
   resource_name: endpoint
   comments:
-    predictions: See gs://google-cloud-aiplatform/schema/predict/prediction/tables_classification.yaml
+    predictions: See gs://google-cloud-aiplatform/schema/predict/prediction/tabular_classification_1.0.0.yaml
       for the format of the predictions.
 predict_tabular_forecasting_sample: {}
 predict_tabular_regression_sample:
   max_depth: 1
   resource_name: endpoint
   comments:
-    predictions: See gs://google-cloud-aiplatform/schema/predict/prediction/tables_regression.yaml
+    predictions: See gs://google-cloud-aiplatform/schema/predict/prediction/tabular_regression_1.0.0.yaml
       for the format of the predictions.
 predict_text_classification_single_label_sample:
   max_depth: 1
   resource_name: endpoint
   schema_types:
     instance_dict: predict.instance.TextClassificationPredictionInstance
-  comments:
-    predictions: See gs://google-cloud-aiplatform/schema/predict/prediction/text_classification.yaml
-      for the format of the predictions.
 predict_text_entity_extraction_sample:
   max_depth: 1
   resource_name: endpoint
   schema_types:
     instance_dict: predict.instance.TextExtractionPredictionInstance
   comments:
-    predictions: See gs://google-cloud-aiplatform/schema/predict/prediction/text_extraction.yaml
+    predictions: See gs://google-cloud-aiplatform/schema/predict/prediction/text_extraction_1.0.0.yaml
       for the format of the predictions.
 predict_text_sentiment_analysis_sample:
   max_depth: 1
@@ -321,7 +318,7 @@ predict_text_sentiment_analysis_sample:
   schema_types:
     instance_dict: predict.instance.TextSentimentPredictionInstance
   comments:
-    predictions: See gs://google-cloud-aiplatform/schema/predict/prediction/text_sentiment.yaml
+    predictions: See gs://google-cloud-aiplatform/schema/predict/prediction/text_sentiment_1.0.0.yaml
       for the format of the predictions.
 search_migratable_resources_sample: {}
 undeploy_model_sample:
