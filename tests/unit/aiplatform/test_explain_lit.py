@@ -26,6 +26,7 @@ from google.cloud.aiplatform.explain.lit import (
     create_lit_dataset,
     create_lit_model,
     open_lit,
+    set_up_and_open_lit,
 )
 
 
@@ -35,68 +36,107 @@ def widget_render_mock():
         yield render_mock
 
 
-class TestLit(tf.test.TestCase):
-    def _set_up_sequential(self):
-        # Set up a sequential model
-        self.seq_model = tf.keras.models.Sequential()
-        self.seq_model.add(
-            tf.keras.layers.Dense(32, activation="relu", input_shape=(2,))
-        )
-        self.seq_model.add(tf.keras.layers.Dense(32, activation="relu"))
-        self.seq_model.add(tf.keras.layers.Dense(1, activation="sigmoid"))
-        self.saved_model_path = self.get_temp_dir()
-        tf.saved_model.save(self.seq_model, self.saved_model_path)
-        feature_types = collections.OrderedDict(
-            [("feature_1", lit_types.Scalar()), ("feature_2", lit_types.Scalar())]
-        )
-        label_types = collections.OrderedDict([("label", lit_types.RegressionScore())])
-        return feature_types, label_types
+@pytest.fixture
+def set_up_sequential(tmpdir):
+    # Set up a sequential model
+    seq_model = tf.keras.models.Sequential()
+    seq_model.add(tf.keras.layers.Dense(32, activation="relu", input_shape=(2,)))
+    seq_model.add(tf.keras.layers.Dense(32, activation="relu"))
+    seq_model.add(tf.keras.layers.Dense(1, activation="sigmoid"))
+    saved_model_path = str(tmpdir.mkdir("tmp"))
+    tf.saved_model.save(seq_model, saved_model_path)
+    feature_types = collections.OrderedDict(
+        [("feature_1", lit_types.Scalar()), ("feature_2", lit_types.Scalar())]
+    )
+    label_types = collections.OrderedDict([("label", lit_types.RegressionScore())])
+    yield feature_types, label_types, saved_model_path
 
-    def _set_up_pandas_dataframe_and_columns(self):
-        dataframe = pd.DataFrame.from_dict(
-            {"feature_1": [1.0, 2.0], "feature_2": [3.0, 4.0], "label": [1.0, 0.0]}
-        )
-        columns = collections.OrderedDict(
-            [
-                ("feature_1", lit_types.Scalar()),
-                ("feature_2", lit_types.Scalar()),
-                ("label", lit_types.RegressionScore()),
-            ]
-        )
-        return dataframe, columns
 
-    def test_create_lit_dataset_from_pandas_returns_dataset(self):
-        pd_dataset, lit_columns = self._set_up_pandas_dataframe_and_columns()
-        lit_dataset = create_lit_dataset(pd_dataset, lit_columns)
-        expected_examples = [
-            {"feature_1": 1.0, "feature_2": 3.0, "label": 1.0},
-            {"feature_1": 2.0, "feature_2": 4.0, "label": 0.0},
+@pytest.fixture
+def set_up_pandas_dataframe_and_columns():
+    dataframe = pd.DataFrame.from_dict(
+        {"feature_1": [1.0, 2.0], "feature_2": [3.0, 4.0], "label": [1.0, 0.0]}
+    )
+    columns = collections.OrderedDict(
+        [
+            ("feature_1", lit_types.Scalar()),
+            ("feature_2", lit_types.Scalar()),
+            ("label", lit_types.RegressionScore()),
         ]
+    )
+    yield dataframe, columns
 
-        assert lit_dataset.spec() == dict(lit_columns)
-        assert expected_examples == lit_dataset._examples
 
-    def test_create_lit_model_from_tensorflow_returns_model(self):
-        feature_types, label_types = self._set_up_sequential()
-        lit_model = create_lit_model(self.saved_model_path, feature_types, label_types)
-        test_inputs = [
-            {"feature_1": 1.0, "feature_2": 2.0},
-            {"feature_1": 3.0, "feature_2": 4.0},
-        ]
-        outputs = lit_model.predict_minibatch(test_inputs)
+def test_create_lit_dataset_from_pandas_returns_dataset(
+    set_up_pandas_dataframe_and_columns,
+):
+    pd_dataset, lit_columns = set_up_pandas_dataframe_and_columns
+    lit_dataset = create_lit_dataset(pd_dataset, lit_columns)
+    expected_examples = [
+        {"feature_1": 1.0, "feature_2": 3.0, "label": 1.0},
+        {"feature_1": 2.0, "feature_2": 4.0, "label": 0.0},
+    ]
 
-        assert lit_model.input_spec() == dict(feature_types)
-        assert lit_model.output_spec() == dict(label_types)
-        assert len(outputs) == 2
-        for item in outputs:
-            assert item.keys() == {"label"}
-            assert len(item.values()) == 1
+    assert lit_dataset.spec() == dict(lit_columns)
+    assert expected_examples == lit_dataset._examples
 
-    def test_open_lit(self, widget_render_mock):
-        pd_dataset, lit_columns = self._set_up_pandas_dataframe_and_columns()
-        lit_dataset = create_lit_dataset(pd_dataset, lit_columns)
-        feature_types, label_types = self._set_up_sequential()
-        lit_model = create_lit_model(self.saved_model_path, feature_types, label_types)
 
-        open_lit({"model": lit_model}, {"dataset": lit_dataset})
-        widget_render_mock.assert_called_once()
+def test_create_lit_model_from_tensorflow_returns_model(set_up_sequential):
+    feature_types, label_types, saved_model_path = set_up_sequential
+    lit_model = create_lit_model(saved_model_path, feature_types, label_types)
+    test_inputs = [
+        {"feature_1": 1.0, "feature_2": 2.0},
+        {"feature_1": 3.0, "feature_2": 4.0},
+    ]
+    outputs = lit_model.predict_minibatch(test_inputs)
+
+    assert lit_model.input_spec() == dict(feature_types)
+    assert lit_model.output_spec() == dict(label_types)
+    assert len(outputs) == 2
+    for item in outputs:
+        assert item.keys() == {"label"}
+        assert len(item.values()) == 1
+
+
+def test_open_lit(
+    set_up_sequential, set_up_pandas_dataframe_and_columns, widget_render_mock
+):
+    pd_dataset, lit_columns = set_up_pandas_dataframe_and_columns
+    lit_dataset = create_lit_dataset(pd_dataset, lit_columns)
+    feature_types, label_types, saved_model_path = set_up_sequential
+    lit_model = create_lit_model(saved_model_path, feature_types, label_types)
+
+    open_lit({"model": lit_model}, {"dataset": lit_dataset})
+    widget_render_mock.assert_called_once()
+
+
+def test_set_up_and_open_lit(
+    set_up_sequential, set_up_pandas_dataframe_and_columns, widget_render_mock
+):
+    pd_dataset, lit_columns = set_up_pandas_dataframe_and_columns
+    feature_types, label_types, saved_model_path = set_up_sequential
+    lit_dataset, lit_model = set_up_and_open_lit(
+        pd_dataset, lit_columns, saved_model_path, feature_types, label_types
+    )
+
+    expected_examples = [
+        {"feature_1": 1.0, "feature_2": 3.0, "label": 1.0},
+        {"feature_1": 2.0, "feature_2": 4.0, "label": 0.0},
+    ]
+    test_inputs = [
+        {"feature_1": 1.0, "feature_2": 2.0},
+        {"feature_1": 3.0, "feature_2": 4.0},
+    ]
+    outputs = lit_model.predict_minibatch(test_inputs)
+
+    assert lit_dataset.spec() == dict(lit_columns)
+    assert expected_examples == lit_dataset._examples
+
+    assert lit_model.input_spec() == dict(feature_types)
+    assert lit_model.output_spec() == dict(label_types)
+    assert len(outputs) == 2
+    for item in outputs:
+        assert item.keys() == {"label"}
+        assert len(item.values()) == 1
+
+    widget_render_mock.assert_called_once()
