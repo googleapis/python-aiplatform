@@ -1,5 +1,34 @@
 # Changelog
 
+## [1.8.0](https://www.github.com/googleapis/python-aiplatform/compare/v1.7.1...v1.8.0) (2021-12-03)
+
+
+### Features
+
+* Add cloud profiler to training_utils ([6d5c7c4](https://www.github.com/googleapis/python-aiplatform/commit/6d5c7c42d1c352f161e4738c6dbbf540a032017b))
+* add enable_private_service_connect field to Endpoint feat: add id field to DeployedModel feat: add service_attachment field to PrivateEndpoints feat: add endpoint_id to CreateEndpointRequest and method signature to CreateEndpoint feat: add method... ([#878](https://www.github.com/googleapis/python-aiplatform/issues/878)) ([ca813be](https://www.github.com/googleapis/python-aiplatform/commit/ca813be08ec2620380b5a12b0d6cdc079e27ba79))
+* add enable_private_service_connect field to Endpoint feat: add id field to DeployedModel feat: add service_attachment field to PrivateEndpoints feat: add endpoint_id to CreateEndpointRequest and method signature to CreateEndpoint feat: add method... ([#879](https://www.github.com/googleapis/python-aiplatform/issues/879)) ([47e93b2](https://www.github.com/googleapis/python-aiplatform/commit/47e93b20843f30805b73cd6db214c8743f8bfc97))
+* add featurestore module including Featurestore, EntityType, and Feature classes; add get, update, delete, list methods in all featurestore classes; add search method in Feature class ([#850](https://www.github.com/googleapis/python-aiplatform/issues/850)) ([66745a6](https://www.github.com/googleapis/python-aiplatform/commit/66745a6ce13fb8b32dd7fbf3eb86e71bd291869b))
+* Add prediction container URI builder method ([#805](https://www.github.com/googleapis/python-aiplatform/issues/805)) ([91dd3c0](https://www.github.com/googleapis/python-aiplatform/commit/91dd3c0d5de72fac5b1dc8a9bc23d6cb431061a4))
+* default to custom job display name if experiment name looks like a custom job ID ([#833](https://www.github.com/googleapis/python-aiplatform/issues/833)) ([8b9376e](https://www.github.com/googleapis/python-aiplatform/commit/8b9376e9c961a751799f5b80d1b19917c8c353f8))
+* Support uploading local models ([#779](https://www.github.com/googleapis/python-aiplatform/issues/779)) ([bffbd9d](https://www.github.com/googleapis/python-aiplatform/commit/bffbd9d359edb099e661736a0c77269bb3a0c746))
+* Tensorboard v1 protos release ([#847](https://www.github.com/googleapis/python-aiplatform/issues/847)) ([e0fc3d9](https://www.github.com/googleapis/python-aiplatform/commit/e0fc3d9e4e8a7911f21671ea49818c5f84798d12))
+* updating Tensorboard related code to use v1 ([#851](https://www.github.com/googleapis/python-aiplatform/issues/851)) ([b613b26](https://www.github.com/googleapis/python-aiplatform/commit/b613b264524aaab2cb65e63a5487770736faa7c8))
+* Upgrade Tensorboard from v1beta1 to v1 ([#849](https://www.github.com/googleapis/python-aiplatform/issues/849)) ([c40ec85](https://www.github.com/googleapis/python-aiplatform/commit/c40ec85e1fca2bee6813f52712d063f96264ec2c))
+
+
+### Bug Fixes
+
+* Import error for cloud_profiler ([#869](https://www.github.com/googleapis/python-aiplatform/issues/869)) ([0f124e9](https://www.github.com/googleapis/python-aiplatform/commit/0f124e93a1ddead16c0018970f34e45c73d5ed81))
+* Support multiple instances in custom predict sample ([#857](https://www.github.com/googleapis/python-aiplatform/issues/857)) ([8cb4839](https://www.github.com/googleapis/python-aiplatform/commit/8cb483918bdbaeae34935eef2b3cd997c1ae89a3))
+
+
+### Documentation
+
+* Added comment for evaluation_id to python examples ([#860](https://www.github.com/googleapis/python-aiplatform/issues/860)) ([004bf5f](https://www.github.com/googleapis/python-aiplatform/commit/004bf5fa4cb2d66e36de7ec52dee8e2c8dd438ee))
+* Reverted IDs in model_service snippets test ([#871](https://www.github.com/googleapis/python-aiplatform/issues/871)) ([da747b5](https://www.github.com/googleapis/python-aiplatform/commit/da747b5ffca3c12b8d64bc80bfe93da5afde0d43))
+* Update name of BQ source parameter in samples ([#859](https://www.github.com/googleapis/python-aiplatform/issues/859)) ([f11b598](https://www.github.com/googleapis/python-aiplatform/commit/f11b598f9069f77e86631ada53941876aea010bc))
+
 ### [1.7.1](https://www.github.com/googleapis/python-aiplatform/compare/v1.7.0...v1.7.1) (2021-11-16)
 
 

@@ -29,7 +29,7 @@ from tests.system.aiplatform import e2e_base
 _, _TEST_PROJECT = google_auth.default()
 _TEST_LOCATION = "us-central1"
 
-_XGBOOST_MODEL_URI = "gs://ucaip-test-us-central1/models/iris_xgboost/model.bst"
+_XGBOOST_MODEL_URI = "gs://cloud-samples-data-us-central1/vertex-ai/google-cloud-aiplatform-ci-artifacts/models/iris_xgboost/model.bst"
 
 
 @pytest.mark.usefixtures("delete_staging_bucket", "teardown")
