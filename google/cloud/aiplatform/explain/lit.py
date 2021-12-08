@@ -16,7 +16,7 @@
 
 import sys
 
-from typing import Dict, List, Optional, Tuple, Union
+from typing import Dict, List, OrderedDict, Tuple, Union
 
 try:
     from lit_nlp.api import dataset as lit_dataset
@@ -51,9 +51,9 @@ class _VertexLitDataset(lit_dataset.Dataset):
 
     def __init__(
         self,
-        dataset: "pd.Dataframe",# noqa: F821
-        column_types: "OrderedDict[str, lit_types.LitType]",# noqa: F821
-    ): 
+        dataset: "pd.Dataframe",  # noqa: F821
+        column_types: OrderedDict[str, "lit_types.LitType"],  # noqa: F821
+    ):
         """Construct a VertexLitDataset.
         Args:
           dataset:
@@ -78,8 +78,8 @@ class _VertexLitModel(lit_model.Model):
     def __init__(
         self,
         model: str,
-        input_types: "OrderedDict[str, lit_types.LitType]",  # noqa: F821
-        output_types: "OrderedDict[str, lit_types.LitType]",  # noqa: F821
+        input_types: OrderedDict[str, "lit_types.LitType"],  # noqa: F821
+        output_types: OrderedDict[str, "lit_types.LitType"],  # noqa: F821
     ):
         """Construct a VertexLitModel.
             Args:
@@ -142,7 +142,7 @@ class _VertexLitModel(lit_model.Model):
 
 def create_lit_dataset(
     dataset: "pd.Dataframe",  # noqa: F821
-    column_types: "OrderedDict[str, lit_types.LitType]",  # noqa: F821
+    column_types: OrderedDict[str, "lit_types.LitType"],  # noqa: F821
 ) -> "lit_dataset.Dataset":  # noqa: F821
     """Creates a LIT Dataset object.
         Args:
@@ -159,8 +159,8 @@ def create_lit_dataset(
 
 def create_lit_model(
     model: str,
-    input_types: "OrderedDict[str, lit_types.LitType]",  # noqa: F821
-    output_types: "OrderedDict[str, lit_types.LitType]",  # noqa: F821
+    input_types: OrderedDict[str, "lit_types.LitType"],  # noqa: F821
+    output_types: OrderedDict[str, "lit_types.LitType"],  # noqa: F821
 ) -> "lit_model.Model":  # noqa: F821
     """Creates a LIT Model object.
         Args:
