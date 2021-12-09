@@ -104,10 +104,12 @@ class TestEndToEnd(metaclass=abc.ABCMeta):
 
         for resource in shared_state["resources"]:
             try:
-                if isinstance(resource, aiplatform.Endpoint) or isinstance(
-                    resource, aiplatform.Featurestore
+                if isinstance(
+                    resource, (aiplatform.Endpoint or aiplatform.Featurestore)
                 ):
-                    resource.delete(force=True)  # Undeploy model then delete endpoint
+                    # For endpoint, undeploy model then delete endpoint
+                    # For featurestore, force delete its entity_types and features with the featurestore
+                    resource.delete(force=True)
                 else:
                     resource.delete()
             except exceptions.GoogleAPIError as e:

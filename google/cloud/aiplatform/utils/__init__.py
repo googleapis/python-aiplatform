@@ -24,6 +24,8 @@ import logging
 import re
 from typing import Any, Dict, Match, Optional, Type, TypeVar, Tuple
 
+from google.protobuf import timestamp_pb2
+
 from google.api_core import client_options
 from google.api_core import gapic_v1
 from google.auth import credentials as auth_credentials
@@ -632,3 +634,21 @@ def _timestamped_copy_to_gcs(
 
     gcs_path = "".join(["gs://", "/".join([blob.bucket.name, blob.name])])
     return gcs_path
+
+
+def get_timestamp_proto(
+    time: Optional[datetime.datetime] = datetime.datetime.now(),
+) -> timestamp_pb2.Timestamp:
+    """Gets timestamp proto of a given time.
+    Args:
+        time (datetime.datetime):
+            Required. A user provided time. Default to datetime.datetime.now() if not given.
+    Returns:
+        timestamp_pb2.Timestamp - timestamp proto of the given time, not have higher than millisecond precision.
+    """
+    t = time.timestamp()
+    seconds = int(t)
+    # must not have higher than millisecond precision.
+    nanos = int((t % 1 * 1e6) * 1e3)
+
+    return timestamp_pb2.Timestamp(seconds=seconds, nanos=nanos)

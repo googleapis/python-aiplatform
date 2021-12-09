@@ -346,8 +346,6 @@ class Featurestore(base.VertexAiResourceNounWithFutureManager):
                 Whether to execute this deletion synchronously. If False, this method
                 will be executed in concurrent Future and any downstream object will
                 be immediately returned and synced when the Future has completed.
-        Raises:
-            FailedPrecondition: If entityTypes are created in this Featurestore and force = False.
         """
         _LOGGER.log_action_start_against_resource("Deleting", "", self)
         lro = getattr(self.api_client, self._delete_method)(
@@ -364,7 +362,7 @@ class Featurestore(base.VertexAiResourceNounWithFutureManager):
     def create(
         cls,
         featurestore_id: str,
-        online_store_fixed_node_count: Optional[int] = 1,
+        online_store_fixed_node_count: Optional[int] = None,
         labels: Optional[Dict[str, str]] = None,
         project: Optional[str] = None,
         location: Optional[str] = None,
@@ -398,7 +396,11 @@ class Featurestore(base.VertexAiResourceNounWithFutureManager):
 
                 The value must be unique within the project and location.
             online_store_fixed_node_count (int):
-                Required. Config for online serving resources.
+                Optional. Config for online serving resources.
+                When not specified, default node count is 1. The
+                number of nodes will not scale automatically but
+                can be scaled manually by providing different
+                values when updating.
             labels (Dict[str, str]):
                 Optional. The labels with user-defined
                 metadata to organize your Featurestore.
@@ -440,31 +442,30 @@ class Featurestore(base.VertexAiResourceNounWithFutureManager):
             Featurestore - Featurestore resource object
 
         """
-        if labels:
-            utils.validate_labels(labels)
-
         gapic_featurestore = gca_featurestore.Featurestore(
-            labels=labels,
             online_serving_config=gca_featurestore.Featurestore.OnlineServingConfig(
-                fixed_node_count=online_store_fixed_node_count
-            ),
-            encryption_spec=initializer.global_config.get_encryption_spec(
-                encryption_spec_key_name=encryption_spec_key_name
-            ),
+                fixed_node_count=online_store_fixed_node_count or 1
+            )
         )
 
-        create_featurestore_request = {
-            "parent": initializer.global_config.common_location_path(
-                project=project, location=location
-            ),
-            "featurestore": gapic_featurestore,
-            "featurestore_id": featurestore_id,
-        }
+        if labels:
+            utils.validate_labels(labels)
+            gapic_featurestore.labels = labels
+
+        if encryption_spec_key_name:
+            gapic_featurestore.encryption_spec = initializer.global_config.get_encryption_spec(
+                encryption_spec_key_name=encryption_spec_key_name
+            )
 
         api_client = cls._instantiate_client(location=location, credentials=credentials)
 
         created_featurestore_lro = api_client.create_featurestore(
-            request=create_featurestore_request, metadata=request_metadata
+            parent=initializer.global_config.common_location_path(
+                project=project, location=location
+            ),
+            featurestore=gapic_featurestore,
+            featurestore_id=featurestore_id,
+            metadata=request_metadata,
         )
 
         _LOGGER.log_create_with_lro(cls, created_featurestore_lro)
