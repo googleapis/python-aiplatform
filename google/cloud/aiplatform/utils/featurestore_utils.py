@@ -39,28 +39,51 @@ def validate_id(resource_id: str):
         raise ValueError("Resource ID {resource_id} is not a valied resource id.")
 
 
-def validate_value_type(value_type: str) -> bool:
+def validate_feature_id(feature_id: str) -> None:
+    """Validates feature ID.
+
+    Args:
+        feature_id (str):
+            Required. Feature resource ID.
+
+    Raises:
+        ValueError if feature_id is invalid.
+    """
+    match = re.compile(r"^" + RESOURCE_ID_PATTERN_REGEX + r"$").match(feature_id)
+
+    if not match:
+        raise ValueError(
+            f"The value of feature_id may be up to 60 characters, and valid characters are `[a-z0-9_]`. "
+            f"The first character cannot be a number. Instead, get {feature_id}."
+        )
+
+    reserved_words = ["entity_id", "feature_timestamp", "arrival_timestamp"]
+    if feature_id.lower() in reserved_words:
+        raise ValueError(
+            "The feature_id can not be any of the reserved_words: `%s`"
+            % ("`, `".join(reserved_words))
+        )
+
+
+def validate_value_type(value_type: str) -> None:
     """Validates user provided feature value_type string.
 
     Args:
         value_type (str):
             Required. Immutable. Type of Feature value.
             One of BOOL, BOOL_ARRAY, DOUBLE, DOUBLE_ARRAY, INT64, INT64_ARRAY, STRING, STRING_ARRAY, BYTES.
-    Returns:
-        bool: True if valid specified value_type
+
     Raises:
         ValueError if value_type is invalid or unspecified.
     """
-    if (
-        value_type not in gca_feature.Feature.ValueType._member_names_
-        or getattr(gca_feature.Feature.ValueType, value_type)
-        == gca_feature.Feature.ValueType.VALUE_TYPE_UNSPECIFIED
+    if getattr(gca_feature.Feature.ValueType, value_type, None) in (
+        gca_feature.Feature.ValueType.VALUE_TYPE_UNSPECIFIED,
+        None,
     ):
         raise ValueError(
             f"Given value_type `{value_type}` invalid or unspecified. "
             f"Choose one of {gca_feature.Feature.ValueType._member_names_} except `{_FEATURE_VALUE_TYPE_UNSPECIFIED}`"
         )
-    return True
 
 
 class _FeatureConfig(NamedTuple):
@@ -90,12 +113,11 @@ class _FeatureConfig(NamedTuple):
         Raise:
             ValueError if feature_id is invalid
         """
-        if validate_id(self.feature_id):
-            return self.feature_id
-        raise ValueError(
-            f"The value of feature_id may be up to 60 characters, and valid characters are `[a-z0-9_]`. "
-            f"The first character cannot be a number. Instead, get {self.feature_id}."
-        )
+
+        # Raises ValueError if invalid feature_id
+        validate_feature_id(feature_id=self.feature_id)
+
+        return self.feature_id
 
     def _get_value_type_enum(self) -> int:
         """Validates value_type and returns the enum of the value type.

@@ -524,7 +524,7 @@ class Feature(base.VertexAiResourceNounWithFutureManager):
                 Example: "projects/123/locations/us-central1/featurestores/my_featurestore_id/entityTypes/my_entity_type_id"
                 or "my_entity_type_id" when project and location are initialized or passed, with featurestore_id passed.
             featurestore_id (str):
-                Optional. Featurestore to create Feature in.
+                Optional. Featurestore to create Feature in if `entity_type_name` is passed an entity_type ID.
             description (str):
                 Optional. Description of the Feature.
             labels (Dict[str, str]):
@@ -542,11 +542,11 @@ class Feature(base.VertexAiResourceNounWithFutureManager):
                 System reserved label keys are prefixed with
                 "aiplatform.googleapis.com/" and are immutable.
             project (str):
-                Optional. Project to create Feature in. If not set, project
-                set in aiplatform.init will be used.
+                Optional. Project to create Feature in if `entity_type_name` is passed an entity_type ID.
+                If not set, project set in aiplatform.init will be used.
             location (str):
-                Optional. Location to create Feature in. If not set, location
-                set in aiplatform.init will be used.
+                Optional. Location to create Feature in if `entity_type_name` is passed an entity_type ID.
+                If not set, location set in aiplatform.init will be used.
             credentials (auth_credentials.Credentials):
                 Optional. Custom credentials to use to create Features. Overrides
                 credentials set in aiplatform.init.
@@ -574,6 +574,11 @@ class Feature(base.VertexAiResourceNounWithFutureManager):
             project=project,
             location=location,
         )
+        location = featurestore_utils.CompatFeaturestoreServiceClient.parse_entity_type_path(
+            path=entity_type_name
+        )[
+            "location"
+        ]
 
         feature_config = featurestore_utils._FeatureConfig(
             feature_id=feature_id,
@@ -581,6 +586,7 @@ class Feature(base.VertexAiResourceNounWithFutureManager):
             description=description,
             labels=labels,
         )
+
         create_feature_request = feature_config.get_create_feature_request()
         create_feature_request.parent = entity_type_name
 

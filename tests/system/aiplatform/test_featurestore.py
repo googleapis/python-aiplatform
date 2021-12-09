@@ -137,15 +137,15 @@ class TestFeaturestore(e2e_base.TestEndToEnd):
         assert len(list_user_features) == 3
 
         user_entity_type = user_entity_type.ingest_from_gcs(
-            gcs_source_uris=_TEST_USERS_ENTITY_TYPE_GCS_SRC,
-            gcs_source_type="avro",
             feature_ids=[
                 user_age_feature_id,
                 user_gender_feature_id,
                 user_liked_genres_feature_id,
             ],
+            feature_time="update_time",
+            gcs_source_uris=_TEST_USERS_ENTITY_TYPE_GCS_SRC,
+            gcs_source_type="avro",
             entity_id_field="user_id",
-            feature_time_field="update_time",
             worker_count=2,
             sync=False,
         )
@@ -164,15 +164,15 @@ class TestFeaturestore(e2e_base.TestEndToEnd):
         assert len(list_movie_features) == 0
 
         movie_entity_type = movie_entity_type.ingest_from_gcs(
-            gcs_source_uris=_TEST_MOVIES_ENTITY_TYPE_GCS_SRC,
-            gcs_source_type="avro",
             feature_ids=[
                 movie_title_feature_id,
                 movie_genres_feature_id,
                 movie_average_rating_id,
             ],
+            feature_time="update_time",
+            gcs_source_uris=_TEST_MOVIES_ENTITY_TYPE_GCS_SRC,
+            gcs_source_type="avro",
             entity_id_field="movie_id",
-            feature_time_field="update_time",
             worker_count=2,
             batch_create_feature_configs=movie_feature_configs,
             sync=False,
