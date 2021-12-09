@@ -384,13 +384,14 @@ class BatchPredictionJob(_Job):
 
                 Or an instance of aiplatform.Model.
             instances_format (str):
-                Required. The format in which instances are given, must be one
-                of "jsonl", "csv", "bigquery", "tf-record", "tf-record-gzip",
-                or "file-list". Default is "jsonl" when using `gcs_source`. If a
-                `bigquery_source` is provided, this is overridden to "bigquery".
+                Required. The format in which instances are provided. Must be one
+                of the formats listed in `Model.supported_input_storage_formats`.
+                Default is "jsonl" when using `gcs_source`. If a `bigquery_source`
+                is provided, this is overridden to "bigquery".
             predictions_format (str):
-                Required. The format in which Vertex AI gives the
-                predictions, must be one of "jsonl", "csv", or "bigquery".
+                Required. The format in which Vertex AI outputs the
+                predictions, must be one of the formats specified in
+                `Model.supported_output_storage_formats`.
                 Default is "jsonl" when using `gcs_destination_prefix`. If a
                 `bigquery_destination_prefix` is provided, this is overridden to
                 "bigquery".
