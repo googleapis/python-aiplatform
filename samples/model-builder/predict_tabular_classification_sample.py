@@ -20,11 +20,22 @@ from google.cloud import aiplatform
 
 #  [START aiplatform_sdk_predict_tabular_classification_sample]
 def predict_tabular_classification_sample(
-    project: str, location: str, endpoint: str, instances: List[Dict],
+    project: str,
+    location: str,
+    endpoint_name: str,
+    instances: List[Dict],
 ):
+    '''
+    Args
+        project: Your project ID or project number.
+        location: Region where Endpoint is located. For example, 'us-central1'.
+        endpoint_name: A fully qualified endpoint name or endpoint ID. Example: "projects/123/locations/us-central1/endpoints/456" or
+               "456" when project and location are initialized or passed.
+        instances: A list of one or more instances (examples) to return a prediction for.
+    '''
     aiplatform.init(project=project, location=location)
 
-    endpoint = aiplatform.Endpoint(endpoint)
+    endpoint = aiplatform.Endpoint(endpoint_name)
 
     response = endpoint.predict(instances=instances)
 

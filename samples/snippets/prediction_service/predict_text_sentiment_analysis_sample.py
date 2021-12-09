@@ -45,7 +45,7 @@ def predict_text_sentiment_analysis_sample(
     )
     print("response")
     print(" deployed_model_id:", response.deployed_model_id)
-    # See gs://google-cloud-aiplatform/schema/predict/prediction/text_sentiment.yaml for the format of the predictions.
+    # See gs://google-cloud-aiplatform/schema/predict/prediction/text_sentiment_1.0.0.yaml for the format of the predictions.
     predictions = response.predictions
     for prediction in predictions:
         print(" prediction:", dict(prediction))

@@ -196,3 +196,4 @@ PYTHON_PACKAGE_GCS_URI = (
     "gs://bucket3/custom-training-python-package/my_app/trainer-0.1.tar.gz"
 )
 PYTHON_MODULE_NAME = "trainer.task"
+MODEL_TYPE = "CLOUD"

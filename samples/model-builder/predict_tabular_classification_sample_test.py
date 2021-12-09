@@ -22,7 +22,7 @@ def test_predict_tabular_classification_sample(mock_sdk_init, mock_get_endpoint)
     predict_tabular_classification_sample.predict_tabular_classification_sample(
         project=constants.PROJECT,
         location=constants.LOCATION,
-        endpoint=constants.ENDPOINT_NAME,
+        endpoint_name=constants.ENDPOINT_NAME,
         instances=constants.PREDICTION_TABULAR_CLASSIFICATION_INSTANCE,
     )
 
