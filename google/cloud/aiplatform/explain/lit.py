@@ -14,14 +14,13 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import sys
-
-from typing import Dict, List, OrderedDict, Tuple, Union
+from typing import Dict, List, Tuple, Union
 
 try:
     from lit_nlp.api import dataset as lit_dataset
     from lit_nlp.api import model as lit_model
     from lit_nlp.api import types as lit_types
+    from lit_nlp import notebook
 except ImportError:
     raise ImportError(
         "LIT is not installed and is required to get Dataset as the return format. "
@@ -36,7 +35,9 @@ except ImportError:
         'Please install the SDK using "pip install pip install python-aiplatform[lit]"'
     )
 
-if "pandas" not in sys.modules:
+try:
+    import pandas as pd
+except ImportError:
     raise ImportError(
         "Pandas is not installed and is required to read the dataset. "
         'Please install Pandas using "pip install python-aiplatform[lit]"'
@@ -51,8 +52,8 @@ class _VertexLitDataset(lit_dataset.Dataset):
 
     def __init__(
         self,
-        dataset: "pd.Dataframe",  # noqa: F821
-        column_types: OrderedDict[str, "lit_types.LitType"],  # noqa: F821
+        dataset: pd.Dataframe,
+        column_types: "OrderedDict[str, lit_types.LitType]",  # noqa: F821
     ):
         """Construct a VertexLitDataset.
         Args:
@@ -78,8 +79,8 @@ class _VertexLitModel(lit_model.Model):
     def __init__(
         self,
         model: str,
-        input_types: OrderedDict[str, "lit_types.LitType"],  # noqa: F821
-        output_types: OrderedDict[str, "lit_types.LitType"],  # noqa: F821
+        input_types: "OrderedDict[str, lit_types.LitType]",  # noqa: F821
+        output_types: "OrderedDict[str, lit_types.LitType]",  # noqa: F821
     ):
         """Construct a VertexLitModel.
             Args:
@@ -110,8 +111,8 @@ class _VertexLitModel(lit_model.Model):
         self._output_types = output_types
 
     def predict_minibatch(
-        self, inputs: List["lit_types.JsonDict"]
-    ) -> List["lit_types.JsonDict"]:
+        self, inputs: List[lit_types.JsonDict]
+    ) -> List[lit_types.JsonDict]:
         instances = []
         for input in inputs:
             instance = [input[feature] for feature in self._input_types]
@@ -133,17 +134,17 @@ class _VertexLitModel(lit_model.Model):
             )
         return outputs
 
-    def input_spec(self) -> "lit_types.Spec":
+    def input_spec(self) -> lit_types.Spec:
         return dict(self._input_types)
 
-    def output_spec(self) -> "lit_types.Spec":
+    def output_spec(self) -> lit_types.Spec:
         return self._output_types
 
 
 def create_lit_dataset(
-    dataset: "pd.Dataframe",  # noqa: F821
-    column_types: OrderedDict[str, "lit_types.LitType"],  # noqa: F821
-) -> "lit_dataset.Dataset":  # noqa: F821
+    dataset: pd.Dataframe,
+    column_types: "OrderedDict[str, lit_types.LitType]",  # noqa: F821
+) -> lit_dataset.Dataset:
     """Creates a LIT Dataset object.
         Args:
           dataset:
@@ -159,9 +160,9 @@ def create_lit_dataset(
 
 def create_lit_model(
     model: str,
-    input_types: OrderedDict[str, "lit_types.LitType"],  # noqa: F821
-    output_types: OrderedDict[str, "lit_types.LitType"],  # noqa: F821
-) -> "lit_model.Model":  # noqa: F821
+    input_types: "OrderedDict[str, lit_types.LitType]",  # noqa: F821
+    output_types: "OrderedDict[str, lit_types.LitType]",  # noqa: F821
+) -> lit_model.Model:
     """Creates a LIT Model object.
         Args:
           model:
@@ -180,8 +181,8 @@ def create_lit_model(
 
 
 def open_lit(
-    models: Dict[str, "lit_model.Model"],  # noqa: F821
-    datasets: Dict[str, "lit_dataset.Dataset"],  # noqa: F821
+    models: Dict[str, lit_model.Model],
+    datasets: Dict[str, lit_dataset.Dataset],
     open_in_new_tab: bool = True,
 ):
     """Open LIT from the provided models and datasets.
@@ -195,26 +196,18 @@ def open_lit(
         Raises:
             ImportError if LIT is not installed.
     """
-    try:
-        from lit_nlp import notebook
-    except ImportError:
-        raise ImportError(
-            "LIT is not installed and is required to open LIT. "
-            'Please install the SDK using "pip install python-aiplatform[lit]"'
-        )
-
     widget = notebook.LitWidget(models, datasets, open_in_new_tab=open_in_new_tab)
     widget.render()
 
 
 def set_up_and_open_lit(
-    dataset: Union["Pd.Dataframe", "lit_dataset.Dataset"],  # noqa: F821
+    dataset: Union[pd.Dataframe, lit_dataset.Dataset],
     column_types: "OrderedDict[str, lit_types.LitType]",  # noqa: F821
-    model: Union[str, "lit_model.Model"],  # noqa: F821
-    input_types: Union[List[str], Dict[str, "LitType"]],  # noqa: F821
-    output_types: Union[str, List[str], Dict[str, "LitType"]],  # noqa: F821
+    model: Union[str, lit_model.Model],
+    input_types: Union[List[str], Dict[str, lit_types.LitType]],
+    output_types: Union[str, List[str], Dict[str, lit_types.LitType]],
     open_in_new_tab: bool = True,
-) -> Tuple["lit_dataset.Dataset", "lit_model.Model"]:  # noqa: F821
+) -> Tuple[lit_dataset.Dataset, lit_model.Model]:
     """Creates a LIT dataset and model and opens LIT.
         Args:
         dataset:
@@ -237,14 +230,6 @@ def set_up_and_open_lit(
             ImportError if LIT or TensorFlow is not installed.
             ValueError if the model doesn't have only 1 input and output tensor.
     """
-    try:
-        from lit_nlp.api import dataset as lit_dataset
-        from lit_nlp.api import model as lit_model
-    except ImportError:
-        raise ImportError(
-            "LIT is not installed and is required to get Dataset as the return format. "
-            'Please install the SDK using "pip install python-aiplatform[lit]"'
-        )
     if not isinstance(dataset, lit_dataset.Dataset):
         dataset = create_lit_dataset(dataset, column_types)
 
