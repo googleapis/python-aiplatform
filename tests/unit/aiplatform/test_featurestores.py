@@ -371,8 +371,8 @@ class TestFeaturestoreUtils:
             ("_123456", True),
         ],
     )
-    def test_validate_resource_id(self, resource_id: str, expected: bool):
-        assert expected == featurestore_utils.validate_id(resource_id)
+    def test_is_resource_id(self, resource_id: str, expected: bool):
+        assert expected == featurestore_utils._is_resource_id(resource_id)
 
     @pytest.mark.parametrize(
         "feature_name, featurestore_id, entity_type_id",
@@ -447,6 +447,33 @@ class TestFeaturestoreUtils:
             )
 
     @pytest.mark.parametrize(
+        "feature_id", ["resource_id", "resource_id12345", "_resource_id", "_123456"],
+    )
+    def test_validate_feature_id(self, feature_id: str):
+        assert featurestore_utils.validate_feature_id(feature_id=feature_id) is None
+
+    @pytest.mark.parametrize(
+        "feature_id",
+        [
+            "12345resource_id",
+            "resource_id/1234",
+            "_resource_id/1234",
+            "resource-id-1234",
+            "123456",
+            "c" * 61,
+            "entity_id",
+            "Entity_ID",
+            "feature_timestamp",
+            "Feature_Timestamp",
+            "arrival_timestamp",
+            "Arrival_Timestamp",
+        ],
+    )
+    def test_validate_feature_id_with_raise(self, feature_id: str):
+        with pytest.raises(ValueError):
+            featurestore_utils.validate_feature_id(feature_id=feature_id)
+
+    @pytest.mark.parametrize(
         "value_type",
         [
             "BOOL",
@@ -461,7 +488,7 @@ class TestFeaturestoreUtils:
         ],
     )
     def test_validate_value_type(self, value_type: str):
-        assert featurestore_utils.validate_value_type(value_type=value_type) is True
+        assert featurestore_utils.validate_value_type(value_type=value_type) is None
 
     @pytest.mark.parametrize(
         "value_type",
@@ -483,27 +510,6 @@ class TestFeaturestoreUtils:
 
 class Test_FeatureConfig:
     def test_feature_config_return_create_feature_request(self):
-
-        featureConfig = featurestore_utils._FeatureConfig(
-            feature_id=_TEST_FEATURE_ID,
-            value_type=_TEST_FEATURE_VALUE_TYPE,
-            description=_TEST_DESCRIPTION,
-            labels=_TEST_LABELS,
-        )
-
-        gapic_feature = gca_feature.Feature(
-            description=_TEST_DESCRIPTION,
-            value_type=_TEST_FEATURE_VALUE_TYPE_ENUM,
-            labels=_TEST_LABELS,
-        )
-
-        expected_request = gca_featurestore_service.CreateFeatureRequest(
-            feature=gapic_feature, feature_id=_TEST_FEATURE_ID,
-        )
-
-        assert featureConfig.get_create_feature_request() == expected_request
-
-    def test_feature_config_return_create_feature_request_with_parent(self):
 
         featureConfig = featurestore_utils._FeatureConfig(
             feature_id=_TEST_FEATURE_ID,
@@ -546,30 +552,6 @@ class Test_FeatureConfig:
         )
         with pytest.raises(ValueError):
             featureConfig.get_create_feature_request()
-
-    @pytest.mark.parametrize(
-        "value_type",
-        [
-            "BOOL",
-            "BOOL_ARRAY",
-            "DOUBLE",
-            "DOUBLE_ARRAY",
-            "INT64",
-            "INT64_ARRAY",
-            "STRING",
-            "STRING_ARRAY",
-            "BYTES",
-        ],
-    )
-    def test_validate_value_type(self, value_type: str):
-        assert featurestore_utils.validate_value_type(value_type=value_type) is True
-
-    @pytest.mark.parametrize(
-        "value_type", ["INT", "INT_array", "STR", "double", "bool", "array", "INT32"]
-    )
-    def test_validate_value_type_with_raise(self, value_type: str):
-        with pytest.raises(ValueError):
-            featurestore_utils.validate_value_type(value_type=value_type)
 
 
 class TestFeaturestore:
@@ -1019,34 +1001,6 @@ class TestEntityType:
         )
 
     @pytest.mark.usefixtures("get_entity_type_mock")
-    def test_validate_and_get_import_feature_values_request_with_both_feature_time_source(
-        self,
-    ):
-        aiplatform.init(project=_TEST_PROJECT)
-
-        my_entity_type = aiplatform.EntityType(entity_type_name=_TEST_ENTITY_TYPE_NAME)
-        with pytest.raises(ValueError):
-            my_entity_type._validate_and_get_import_feature_values_request(
-                feature_ids=_TEST_IMPORTING_FEATURE_IDS,
-                bigquery_source=_TEST_BQ_SOURCE,
-                feature_time_field=_TEST_FEATURE_TIME_FIELD,
-                feature_time=_TEST_FEATURE_TIME,
-            )
-
-    @pytest.mark.usefixtures("get_entity_type_mock")
-    def test_validate_and_get_import_feature_values_request_with_multiple_sources(self):
-        aiplatform.init(project=_TEST_PROJECT)
-
-        my_entity_type = aiplatform.EntityType(entity_type_name=_TEST_ENTITY_TYPE_NAME)
-        with pytest.raises(ValueError):
-            my_entity_type._validate_and_get_import_feature_values_request(
-                feature_ids=_TEST_IMPORTING_FEATURE_IDS,
-                csv_source=_TEST_CSV_SOURCE,
-                bigquery_source=_TEST_BQ_SOURCE,
-                feature_time=_TEST_FEATURE_TIME,
-            )
-
-    @pytest.mark.usefixtures("get_entity_type_mock")
     def test_validate_and_get_import_feature_values_request_with_source_fields(self):
         aiplatform.init(project=_TEST_PROJECT)
 
@@ -1065,9 +1019,9 @@ class TestEntityType:
             true_import_feature_values_request
             == my_entity_type._validate_and_get_import_feature_values_request(
                 feature_ids=_TEST_IMPORTING_FEATURE_IDS,
+                feature_time=_TEST_FEATURE_TIME_FIELD,
+                data_source=_TEST_BQ_SOURCE,
                 feature_source_fields=_TEST_IMPORTING_FEATURE_SOURCE_FIELDS,
-                bigquery_source=_TEST_BQ_SOURCE,
-                feature_time_field=_TEST_FEATURE_TIME_FIELD,
             )
         )
 
@@ -1091,8 +1045,8 @@ class TestEntityType:
             true_import_feature_values_request
             == my_entity_type._validate_and_get_import_feature_values_request(
                 feature_ids=_TEST_IMPORTING_FEATURE_IDS,
-                csv_source=_TEST_CSV_SOURCE,
                 feature_time=_TEST_FEATURE_TIME,
+                data_source=_TEST_CSV_SOURCE,
             )
         )
 
@@ -1103,10 +1057,10 @@ class TestEntityType:
 
         my_entity_type = aiplatform.EntityType(entity_type_name=_TEST_ENTITY_TYPE_NAME)
         my_entity_type.ingest_from_bq(
-            bq_source_uri=_TEST_BQ_SOURCE_URI,
             feature_ids=_TEST_IMPORTING_FEATURE_IDS,
+            feature_time=_TEST_FEATURE_TIME_FIELD,
+            bq_source_uri=_TEST_BQ_SOURCE_URI,
             feature_source_fields=_TEST_IMPORTING_FEATURE_SOURCE_FIELDS,
-            feature_time_field=_TEST_FEATURE_TIME_FIELD,
         )
 
         if not sync:
@@ -1133,10 +1087,10 @@ class TestEntityType:
 
         my_entity_type = aiplatform.EntityType(entity_type_name=_TEST_ENTITY_TYPE_NAME)
         my_entity_type.ingest_from_gcs(
-            gcs_source_uris=_TEST_GCS_AVRO_SOURCE_URIS,
-            gcs_source_type=_TEST_GCS_SOURCE_TYPE_AVRO,
             feature_ids=_TEST_IMPORTING_FEATURE_IDS,
             feature_time=_TEST_FEATURE_TIME,
+            gcs_source_uris=_TEST_GCS_AVRO_SOURCE_URIS,
+            gcs_source_type=_TEST_GCS_SOURCE_TYPE_AVRO,
         )
 
         if not sync:
@@ -1163,10 +1117,10 @@ class TestEntityType:
         my_entity_type = aiplatform.EntityType(entity_type_name=_TEST_ENTITY_TYPE_NAME)
         with pytest.raises(ValueError):
             my_entity_type.ingest_from_gcs(
+                feature_ids=_TEST_IMPORTING_FEATURE_IDS,
+                feature_time=_TEST_FEATURE_TIME_FIELD,
                 gcs_source_uris=_TEST_GCS_CSV_SOURCE_URIS,
                 gcs_source_type=_TEST_GCS_SOURCE_TYPE_INVALID,
-                feature_ids=_TEST_IMPORTING_FEATURE_IDS,
-                feature_time_field=_TEST_FEATURE_TIME_FIELD,
             )
 
     @pytest.mark.usefixtures("get_entity_type_mock")
@@ -1178,11 +1132,11 @@ class TestEntityType:
 
         my_entity_type = aiplatform.EntityType(entity_type_name=_TEST_ENTITY_TYPE_NAME)
         my_entity_type.ingest_from_bq(
-            bq_source_uri=_TEST_BQ_SOURCE_URI,
             feature_ids=_TEST_IMPORTING_FEATURE_IDS,
-            feature_source_fields=_TEST_IMPORTING_FEATURE_SOURCE_FIELDS,
+            feature_time=_TEST_FEATURE_TIME_FIELD,
+            bq_source_uri=_TEST_BQ_SOURCE_URI,
             batch_create_feature_configs=_TEST_FEATURE_CONFIGS,
-            feature_time_field=_TEST_FEATURE_TIME_FIELD,
+            feature_source_fields=_TEST_IMPORTING_FEATURE_SOURCE_FIELDS,
         )
 
         if not sync:
@@ -1224,11 +1178,11 @@ class TestEntityType:
 
         my_entity_type = aiplatform.EntityType(entity_type_name=_TEST_ENTITY_TYPE_NAME)
         my_entity_type.ingest_from_gcs(
+            feature_ids=_TEST_IMPORTING_FEATURE_IDS,
+            feature_time=_TEST_FEATURE_TIME,
             gcs_source_uris=_TEST_GCS_AVRO_SOURCE_URIS,
             gcs_source_type=_TEST_GCS_SOURCE_TYPE_AVRO,
-            feature_ids=_TEST_IMPORTING_FEATURE_IDS,
             batch_create_feature_configs=_TEST_FEATURE_CONFIGS,
-            feature_time=_TEST_FEATURE_TIME,
         )
 
         if not sync:
