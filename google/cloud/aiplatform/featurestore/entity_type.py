@@ -16,7 +16,7 @@
 #
 
 import datetime
-from typing import Any, Dict, List, Optional, Sequence, Tuple, Union
+from typing import Dict, List, Optional, Sequence, Tuple, Union
 
 from google.auth import credentials as auth_credentials
 from google.protobuf import field_mask_pb2
@@ -395,6 +395,7 @@ class EntityType(base.VertexAiResourceNounWithFutureManager):
         for feature in features:
             feature.wait()
 
+    @base.optional_sync()
     def delete(self, force: bool = False, sync: bool = True) -> None:
         """Deletes this EntityType resource. If force is set to True,
         all features in this EntityType will be deleted prior to entityType deletion.
@@ -503,16 +504,6 @@ class EntityType(base.VertexAiResourceNounWithFutureManager):
 
         """
 
-        featurestore_path_components = featurestore_utils.CompatFeaturestoreServiceClient.parse_featurestore_path(
-            path=featurestore_name
-        )
-        featurestore_id = (
-            featurestore_path_components["featurestore"] or featurestore_name
-        )
-
-        # TODO(b/208269923): Temporary workaround, update when base class supports nested resource
-        cls._resource_noun = f"featurestores/{featurestore_id}/entityTypes"
-
         featurestore_name = utils.full_resource_name(
             resource_name=featurestore_name,
             resource_noun="featurestores",
@@ -527,16 +518,13 @@ class EntityType(base.VertexAiResourceNounWithFutureManager):
             description=description, labels=labels,
         )
 
-        create_entity_type_request = {
-            "parent": featurestore_name,
-            "entity_type": gapic_entity_type,
-            "entity_type_id": entity_type_id,
-        }
-
         api_client = cls._instantiate_client(location=location, credentials=credentials)
 
         created_entity_type_lro = api_client.create_entity_type(
-            request=create_entity_type_request, metadata=request_metadata
+            parent=featurestore_name,
+            entity_type=gapic_entity_type,
+            entity_type_id=entity_type_id,
+            metadata=request_metadata,
         )
 
         _LOGGER.log_create_with_lro(cls, created_entity_type_lro)
@@ -625,18 +613,18 @@ class EntityType(base.VertexAiResourceNounWithFutureManager):
             sync=sync,
         )
 
-    def _validate_and_get_batch_create_features_request(
+    def _validate_and_get_create_feature_requests(
         self,
         feature_configs: Dict[str, Dict[str, Union[bool, int, Dict[str, str], str]]],
-    ) -> gca_featurestore_service.BatchCreateFeaturesRequest:
-        """ Validates feature_configs and get batch_create_features_request
+    ) -> List[gca_featurestore_service.CreateFeatureRequest]:
+        """ Validates feature_configs and get requests for batch feature creation
 
         Args:
             feature_configs (Dict[str, Dict[str, Union[bool, int, Dict[str, str], str]]]):
                 Required. A user defined Dict containing configurations for feature creation.
 
         Returns:
-            gca_featurestore_service.BatchCreateFeaturesRequest - batch feature creation request
+            List[gca_featurestore_service.CreateFeatureRequest] - requests for batch feature creation
         """
 
         requests = []
@@ -652,10 +640,7 @@ class EntityType(base.VertexAiResourceNounWithFutureManager):
             create_feature_request = feature_config.get_create_feature_request()
             requests.append(create_feature_request)
 
-        batch_create_features_request = gca_featurestore_service.BatchCreateFeaturesRequest(
-            parent=self.resource_name, requests=requests
-        )
-        return batch_create_features_request
+        return requests
 
     @base.optional_sync(return_input_arg="self")
     def batch_create_features(
@@ -724,7 +709,7 @@ class EntityType(base.VertexAiResourceNounWithFutureManager):
         Returns:
             EntityType - entity_type resource object
         """
-        batch_create_features_request = self._validate_and_get_batch_create_features_request(
+        create_feature_requests = self._validate_and_get_create_feature_requests(
             feature_configs=feature_configs
         )
 
@@ -733,7 +718,9 @@ class EntityType(base.VertexAiResourceNounWithFutureManager):
         )
 
         batch_created_features_lro = self.api_client.batch_create_features(
-            request=batch_create_features_request, metadata=request_metadata,
+            parent=self.resource_name,
+            requests=create_feature_requests,
+            metadata=request_metadata,
         )
 
         _LOGGER.log_action_started_against_resource_with_lro(
@@ -754,7 +741,7 @@ class EntityType(base.VertexAiResourceNounWithFutureManager):
     def _validate_and_get_import_feature_values_request(
         self,
         feature_ids: List[str],
-        feature_source_fields: Optional[Dict[str, str]] = {},
+        feature_source_fields: Optional[Dict[str, str]] = None,
         avro_source: Optional[gca_io.AvroSource] = None,
         bigquery_source: Optional[gca_io.BigQuerySource] = None,
         csv_source: Optional[gca_io.CsvSource] = None,
@@ -763,7 +750,7 @@ class EntityType(base.VertexAiResourceNounWithFutureManager):
         entity_id_field: Optional[str] = None,
         disable_online_serving: Optional[bool] = None,
         worker_count: Optional[int] = None,
-    ) -> Dict[str, Any]:
+    ) -> gca_featurestore_service.ImportFeatureValuesRequest:
         """Validates and get import feature values request.
         Args:
             feature_ids (List[str]):
@@ -782,7 +769,7 @@ class EntityType(base.VertexAiResourceNounWithFutureManager):
                      feature_ids = ['my_feature_id_1', 'my_feature_id_2', 'my_feature_id_3']
 
                      In case all features' source field and ID match:
-                     feature_source_fields = {}
+                     feature_source_fields = None or {}
 
                      In case all features' source field and ID do not match:
                      feature_source_fields = {
@@ -832,14 +819,18 @@ class EntityType(base.VertexAiResourceNounWithFutureManager):
                 count ensures minimal impact on online serving
                 performance.
         Returns:
-            Dict[str, Any] - import feature values request
+            gca_featurestore_service.ImportFeatureValuesRequest - request message for importing feature values
         Raises:
             ValueError if no source or more than one source is provided
             ValueError if no feature_time_source or more than one feature_time_source is provided
         """
         feature_specs = []
         for feature_id in set(feature_ids):
-            feature_source_field = feature_source_fields.get(feature_id, None)
+            feature_source_field = (
+                None
+                if not feature_source_fields
+                else feature_source_fields.get(feature_id, None)
+            )
             if feature_source_field:
                 feature_spec = gca_featurestore_service.ImportFeatureValuesRequest.FeatureSpec(
                     id=feature_id, source_field=feature_source_field
@@ -850,18 +841,17 @@ class EntityType(base.VertexAiResourceNounWithFutureManager):
                 )
             feature_specs.append(feature_spec)
 
-        import_feature_values_request = {
-            "entity_type": self.resource_name,
-            "feature_specs": feature_specs,
-        }
+        import_feature_values_request = gca_featurestore_service.ImportFeatureValuesRequest(
+            entity_type=self.resource_name, feature_specs=feature_specs,
+        )
 
         # oneof source
         if avro_source and not bigquery_source and not csv_source:
-            import_feature_values_request["avro_source"] = avro_source
+            import_feature_values_request.avro_source = avro_source
         elif not avro_source and bigquery_source and not csv_source:
-            import_feature_values_request["bigquery_source"] = bigquery_source
+            import_feature_values_request.bigquery_source = bigquery_source
         elif not avro_source and not bigquery_source and csv_source:
-            import_feature_values_request["csv_source"] = csv_source
+            import_feature_values_request.csv_source = csv_source
         else:
             raise ValueError(
                 "One and only one of `avro_source`, `bigquery_source`, and `csv_source` need to be passed. "
@@ -869,41 +859,41 @@ class EntityType(base.VertexAiResourceNounWithFutureManager):
 
         # oneof feature_time_source
         if feature_time_field and not feature_time:
-            import_feature_values_request["feature_time_field"] = feature_time_field
+            import_feature_values_request.feature_time_field = feature_time_field
         elif not feature_time_field and feature_time:
-            import_feature_values_request[
-                "feature_time"
-            ] = featurestore_utils.get_timestamp_proto(time=feature_time)
+            import_feature_values_request.feature_time = utils.get_timestamp_proto(
+                time=feature_time
+            )
         else:
             raise ValueError(
                 "One and only one of `feature_time_field` and `feature_time` need to be passed. "
             )
 
         if entity_id_field is not None:
-            import_feature_values_request["entity_id_field"] = entity_id_field
+            import_feature_values_request.entity_id_field = entity_id_field
 
         if disable_online_serving is not None:
-            import_feature_values_request[
-                "disable_online_serving"
-            ] = disable_online_serving
+            import_feature_values_request.disable_online_serving = (
+                disable_online_serving
+            )
 
         if worker_count is not None:
-            import_feature_values_request["worker_count"] = worker_count
+            import_feature_values_request.worker_count = worker_count
 
         return import_feature_values_request
 
     @base.optional_sync(return_input_arg="self")
     def _import_feature_values(
         self,
-        import_feature_values_request: dict,
+        import_feature_values_request: gca_featurestore_service.ImportFeatureValuesRequest,
         request_metadata: Optional[Sequence[Tuple[str, str]]] = (),
         sync: bool = True,
     ) -> "EntityType":
         """Imports Feature values into the Featurestore from a source storage.
 
         Args:
-            import_feature_values_request (dict):
-                Required.
+            import_feature_values_request (gca_featurestore_service.ImportFeatureValuesRequest):
+                Required. Request message for importing feature values.
             request_metadata (Sequence[Tuple[str, str]]):
                 Optional. Strings which should be sent along with the request as metadata.
             sync (bool):
@@ -941,7 +931,7 @@ class EntityType(base.VertexAiResourceNounWithFutureManager):
         batch_create_feature_configs: Optional[
             Dict[str, Dict[str, Union[bool, int, Dict[str, str], str]]]
         ] = None,
-        feature_source_fields: Optional[Dict[str, str]] = {},
+        feature_source_fields: Optional[Dict[str, str]] = None,
         feature_time_field: Optional[str] = None,
         feature_time: Optional[datetime.datetime] = None,
         entity_id_field: Optional[str] = None,
@@ -1000,7 +990,7 @@ class EntityType(base.VertexAiResourceNounWithFutureManager):
                      feature_ids = ['my_feature_id_1', 'my_feature_id_2', 'my_feature_id_3']
 
                      In case all features' source field and ID match:
-                     feature_source_fields = {}
+                     feature_source_fields = None or {}
 
                      In case all features' source field and ID do not match:
                      feature_source_fields = {
@@ -1091,7 +1081,7 @@ class EntityType(base.VertexAiResourceNounWithFutureManager):
         batch_create_feature_configs: Optional[
             Dict[str, Dict[str, Union[bool, int, Dict[str, str], str]]]
         ] = None,
-        feature_source_fields: Optional[Dict[str, str]] = {},
+        feature_source_fields: Optional[Dict[str, str]] = None,
         feature_time_field: Optional[str] = None,
         feature_time: Optional[datetime.datetime] = None,
         entity_id_field: Optional[str] = None,
@@ -1158,7 +1148,7 @@ class EntityType(base.VertexAiResourceNounWithFutureManager):
                      feature_ids = ['my_feature_id_1', 'my_feature_id_2', 'my_feature_id_3']
 
                      In case all features' source field and ID match:
-                     feature_source_fields = {}
+                     feature_source_fields = None or {}
 
                      In case all features' source field and ID do not match:
                      feature_source_fields = {

@@ -15,11 +15,8 @@
 # limitations under the License.
 #
 
-import datetime
 import re
 from typing import Dict, NamedTuple, Optional, Tuple
-
-from google.protobuf import timestamp_pb2
 
 from google.cloud.aiplatform.compat.services import featurestore_service_client
 from google.cloud.aiplatform.compat.types import (
@@ -31,7 +28,7 @@ from google.cloud.aiplatform import utils
 CompatFeaturestoreServiceClient = featurestore_service_client.FeaturestoreServiceClient
 
 RESOURCE_ID_PATTERN_REGEX = r"[a-z_][a-z0-9_]{0,59}"
-GCS_SOURCE_TYPE = ("csv", "avro")
+GCS_SOURCE_TYPE = {"csv", "avro"}
 
 _FEATURE_VALUE_TYPE_UNSPECIFIED = "VALUE_TYPE_UNSPECIFIED"
 
@@ -82,7 +79,7 @@ class _FeatureConfig(NamedTuple):
     feature_id: str
     value_type: str = _FEATURE_VALUE_TYPE_UNSPECIFIED
     description: Optional[str] = None
-    labels: Optional[Dict[str, str]] = {}
+    labels: Optional[Dict[str, str]] = None
 
     def _get_feature_id(self) -> str:
         """Validates and returns the feature_id.
@@ -115,44 +112,21 @@ class _FeatureConfig(NamedTuple):
         return value_type_enum
 
     def get_create_feature_request(
-        self, parent: Optional[str] = None
+        self,
     ) -> gca_featurestore_service.CreateFeatureRequest:
         """Return create feature request."""
 
+        gapic_feature = gca_feature.Feature(value_type=self._get_value_type_enum(),)
+
         if self.labels:
             utils.validate_labels(self.labels)
+            gapic_feature.labels = self.labels
 
-        gapic_feature = gca_feature.Feature(
-            description=self.description,
-            value_type=self._get_value_type_enum(),
-            labels=self.labels,
+        if self.description:
+            gapic_feature.description = self.description
+
+        create_feature_request = gca_featurestore_service.CreateFeatureRequest(
+            feature=gapic_feature, feature_id=self._get_feature_id()
         )
 
-        if parent:
-            create_feature_request = gca_featurestore_service.CreateFeatureRequest(
-                parent=parent, feature=gapic_feature, feature_id=self._get_feature_id()
-            )
-        else:
-            create_feature_request = gca_featurestore_service.CreateFeatureRequest(
-                feature=gapic_feature, feature_id=self._get_feature_id()
-            )
-
         return create_feature_request
-
-
-def get_timestamp_proto(
-    time: Optional[datetime.datetime] = datetime.datetime.now(),
-) -> timestamp_pb2.Timestamp:
-    """Gets timestamp proto of a given time.
-    Args:
-        time (datetime.datetime):
-            Required. A user provided time. Default to datetime.datetime.now() if not given.
-    Returns:
-        timestamp_pb2.Timestamp - timestamp proto of the given time, not have higher than millisecond precision.
-    """
-    t = time.timestamp()
-    seconds = int(t)
-    # must not have higher than millisecond precision.
-    nanos = int((t % 1 * 1e6) * 1e3)
-
-    return timestamp_pb2.Timestamp(seconds=seconds, nanos=nanos)

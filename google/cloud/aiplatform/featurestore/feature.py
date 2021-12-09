@@ -563,14 +563,9 @@ class Feature(base.VertexAiResourceNounWithFutureManager):
         """
         (
             featurestore_id,
-            entity_type_id,
+            _,
         ) = featurestore_utils.validate_and_get_entity_type_resource_ids(
             entity_type_name=entity_type_name, featurestore_id=featurestore_id,
-        )
-
-        # TODO(b/208269923): Temporary workaround, update when base class supports nested resource
-        cls._resource_noun = (
-            f"featurestores/{featurestore_id}/entityTypes/{entity_type_id}/features"
         )
 
         entity_type_name = utils.full_resource_name(
@@ -586,14 +581,13 @@ class Feature(base.VertexAiResourceNounWithFutureManager):
             description=description,
             labels=labels,
         )
-        create_feature_request = feature_config.get_create_feature_request(
-            parent=entity_type_name
-        )
+        create_feature_request = feature_config.get_create_feature_request()
+        create_feature_request.parent = entity_type_name
 
         api_client = cls._instantiate_client(location=location, credentials=credentials)
 
         created_feature_lro = api_client.create_feature(
-            request=create_feature_request, metadata=request_metadata
+            request=create_feature_request, metadata=request_metadata,
         )
 
         _LOGGER.log_create_with_lro(cls, created_feature_lro)

@@ -18,6 +18,9 @@
 
 import pytest
 from typing import Callable, Dict, Optional
+import datetime
+
+from google.protobuf import timestamp_pb2
 
 from google.api_core import client_options
 from google.api_core import gapic_v1
@@ -317,6 +320,15 @@ def test_client_w_override_select_version():
         client_w_override.select_version(compat.V1).get_model.__self__,
         model_service_client_v1.ModelServiceClient,
     )
+
+
+def test_get_timestamp_proto():
+    time = datetime.datetime.now()
+    t = time.timestamp()
+    seconds = int(t)
+    nanos = int((t % 1 * 1e6) * 1e3)
+    true_timestamp_proto = timestamp_pb2.Timestamp(seconds=seconds, nanos=nanos)
+    assert true_timestamp_proto == utils.get_timestamp_proto(time)
 
 
 class TestPipelineUtils:
