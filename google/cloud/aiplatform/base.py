@@ -448,7 +448,7 @@ class VertexAiResourceNoun(metaclass=abc.ABCMeta):
 
     # Override this value with staticmethod
     # to use custom resource id validators per resource
-    _resource_id_validator: Optional[Callable[str, None]] = None
+    _resource_id_validator: Optional[Callable[[str], None]] = None
 
     def __init__(
         self,
