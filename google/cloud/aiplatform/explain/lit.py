@@ -52,13 +52,13 @@ class _VertexLitDataset(lit_dataset.Dataset):
 
     def __init__(
         self,
-        dataset: pd.Dataframe,
+        dataset: pd.DataFrame,
         column_types: "OrderedDict[str, lit_types.LitType]",  # noqa: F821
     ):
         """Construct a VertexLitDataset.
         Args:
           dataset:
-            Required. A Pandas Dataframe that includes feature column names and data.
+            Required. A Pandas DataFrame that includes feature column names and data.
           column_types:
             Required. An OrderedDict of string names matching the columns of the dataset
             as the key, and the associated LitType of the column.
@@ -142,13 +142,13 @@ class _VertexLitModel(lit_model.Model):
 
 
 def create_lit_dataset(
-    dataset: pd.Dataframe,
+    dataset: pd.DataFrame,
     column_types: "OrderedDict[str, lit_types.LitType]",  # noqa: F821
 ) -> lit_dataset.Dataset:
     """Creates a LIT Dataset object.
         Args:
           dataset:
-              Required. A Pandas Dataframe that includes feature column names and data.
+              Required. A Pandas DataFrame that includes feature column names and data.
           column_types:
               Required. An OrderedDict of string names matching the columns of the dataset
               as the key, and the associated LitType of the column.
@@ -201,7 +201,7 @@ def open_lit(
 
 
 def set_up_and_open_lit(
-    dataset: Union[pd.Dataframe, lit_dataset.Dataset],
+    dataset: Union[pd.DataFrame, lit_dataset.Dataset],
     column_types: "OrderedDict[str, lit_types.LitType]",  # noqa: F821
     model: Union[str, lit_model.Model],
     input_types: Union[List[str], Dict[str, lit_types.LitType]],
@@ -211,7 +211,7 @@ def set_up_and_open_lit(
     """Creates a LIT dataset and model and opens LIT.
         Args:
         dataset:
-            Required. A Pandas Dataframe that includes feature column names and data.
+            Required. A Pandas DataFrame that includes feature column names and data.
         column_types:
             Required. An OrderedDict of string names matching the columns of the dataset
             as the key, and the associated LitType of the column.
