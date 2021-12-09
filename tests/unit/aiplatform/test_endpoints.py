@@ -378,7 +378,6 @@ class TestEndpoint:
                     client_class=utils.EndpointClientWithOverride,
                     credentials=initializer.global_config.credentials,
                     location_override=_TEST_LOCATION,
-                    prediction_client=False,
                 ),
                 mock.call(
                     client_class=utils.PredictionClientWithOverride,
@@ -464,7 +463,6 @@ class TestEndpoint:
                     client_class=utils.EndpointClientWithOverride,
                     credentials=creds,
                     location_override=_TEST_LOCATION,
-                    prediction_client=False,
                 ),
                 mock.call(
                     client_class=utils.PredictionClientWithOverride,

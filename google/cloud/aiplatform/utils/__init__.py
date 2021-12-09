@@ -19,10 +19,9 @@
 import abc
 import datetime
 import pathlib
-from collections import namedtuple
 import logging
 import re
-from typing import Any, Callable, Dict, Match, Optional, Type, TypeVar, Tuple
+from typing import Any, Callable, Dict, Optional, Type, TypeVar, Tuple
 
 from google.api_core import client_options
 from google.api_core import gapic_v1
@@ -88,74 +87,32 @@ VertexAiServiceClient = TypeVar(
     tensorboard_service_client_v1.TensorboardServiceClient,
 )
 
-RESOURCE_NAME_PATTERN = re.compile(
-    r"^projects\/(?P<project>[\w-]+)\/locations\/(?P<location>[\w-]+)\/(?P<resource>[\w\-\/]+)\/(?P<id>[\w-]+)$"
-)
+
 RESOURCE_ID_PATTERN = re.compile(r"^[\w-]+$")
 
-Fields = namedtuple("Fields", ["project", "location", "resource", "id"],)
 
-
-def _match_to_fields(match: Match) -> Optional[Fields]:
-    """Normalize RegEx groups from resource name pattern Match to class
-    Fields."""
-    if not match:
-        return None
-
-    return Fields(
-        project=match["project"],
-        location=match["location"],
-        resource=match["resource"],
-        id=match["id"],
-    )
-
-
-def validate_id(resource_id: str) -> bool:
-    """Validate int64 resource ID number."""
-    return bool(RESOURCE_ID_PATTERN.match(resource_id))
-
-
-def extract_fields_from_resource_name(
-    resource_name: str, resource_noun: Optional[str] = None
-) -> Optional[Fields]:
-    """Validates and returns extracted fields from a fully-qualified resource
-    name. Returns None if name is invalid.
+def validate_id(resource_id: str):
+    """Validate resource ID.
 
     Args:
-        resource_name (str):
-            Required. A fully-qualified Vertex AI resource name
+        resource_id (str): Resource id.
+    Raises:
+        ValueError: If resource id is not a valid format.
 
-        resource_noun (str):
-            A resource noun to validate the resource name against.
-            For example, you would pass "datasets" to validate
-            "projects/123/locations/us-central1/datasets/456".
-            In the case of deeper naming structures, e.g.,
-            "projects/123/locations/us-central1/metadataStores/123/contexts/456",
-            you would pass "metadataStores/123/contexts" as the resource_noun.
-    Returns:
-        fields (Fields):
-            A named tuple containing four extracted fields from a resource name:
-            project, location, resource, and id. These fields can be used for
-            subsequent method calls in the SDK.
     """
-    fields = _match_to_fields(RESOURCE_NAME_PATTERN.match(resource_name))
-
-    if not fields:
-        return None
-    if resource_noun and fields.resource != resource_noun:
-        return None
-
-    return fields
+    if not RESOURCE_ID_PATTERN.match(resource_id):
+        raise ValueError("Resource {resource_id} is not a valid resource name or id.")
 
 
 def full_resource_name(
     resource_name: str,
     resource_noun: str,
-    parse_resource_name_method: Callable[[str], Dict[str,str]],
+    parse_resource_name_method: Callable[[str], Dict[str, str]],
     format_resource_name_method: Callable[..., str],
     parent_resource_name_fields: Optional[Dict[str, str]] = None,
     project: Optional[str] = None,
     location: Optional[str] = None,
+    resource_id_validator: Optional[Callable[str, None]] = None,
 ) -> str:
     """Returns fully qualified resource name.
 
@@ -164,18 +121,30 @@ def full_resource_name(
             Required. A fully-qualified Vertex AI resource name or
             resource ID.
         resource_noun (str):
-            A resource noun to validate the resource name against.
+            Required. A resource noun to validate the resource name against.
             For example, you would pass "datasets" to validate
             "projects/123/locations/us-central1/datasets/456".
             In the case of deeper naming structures, e.g.,
             "projects/123/locations/us-central1/metadataStores/123/contexts/456",
             you would pass "metadataStores/123/contexts" as the resource_noun.
+        parse_resource_name_method (Callable[[str], Dict[str,str]]):
+            Required. Method that parses a the resource name into is segment parts.
+            These are generally included with GAPIC clients.
+        format_resource_name_method (Callable[..., str]):
+            Required. Method that takes segment parts of resource names and returns
+            the formated resource name. These are generally included with GAPIC clients.
+        parent_resource_name_fields (Dict[str, str]):
+            Optional. Dictionary of segment parts where key is the resource noun and
+            values are the resource ids.
         project (str):
-            Optional project to retrieve resource_noun from. If not set, project
+            Optional. project to retrieve resource_noun from. If not set, project
             set in aiplatform.init will be used.
         location (str):
-            Optional location to retrieve resource_noun from. If not set, location
+            Optional. location to retrieve resource_noun from. If not set, location
             set in aiplatform.init will be used.
+        resource_id_validator (Callable[str, None]):
+            Optional. Function that validates the resource ID. Overrides the default validator, validate_id.
+            Should take a resource ID as string and raise ValueError if invalid.
 
     Returns:
         resource_name (str):
@@ -187,30 +156,51 @@ def full_resource_name(
     if fields:
         return resource_name
 
+    resource_id_validator = resource_id_validator or validate_id
+
     user_project = project or initializer.global_config.project
     user_location = location or initializer.global_config.location
 
     validate_region(user_location)
-    validate_id(resource_name)
+    resource_id_validator(resource_name)
 
     format_args = {
-        'location': user_location,
-        'project': user_project,
+        "location": user_location,
+        "project": user_project,
         convert_camel_case_resource_noun_to_snake_case(resource_noun): resource_name,
     }
 
     if parent_resource_name_fields:
-        format_args.update(parent_resource_name_fields)
+        format_args.update(
+            {
+                convert_camel_case_resource_noun_to_snake_case(key): value
+                for key, value in parent_resource_name_fields.items()
+            }
+        )
 
-    return format_resource_name_method(**parent_resource_name_fields)
+    return format_resource_name_method(**format_args)
+
+
+# Resource nouns that are not plural in their resource names.
+# Userd below to avoid conversion from plural to singular.
+_SINGULAR_RESOURCE_NOUNS = {"time_series"}
 
 
 def convert_camel_case_resource_noun_to_snake_case(resource_noun: str) -> str:
-    # camel to snake
-    snake_case = re.sub('([A-Z]+)', r'_\1', resource_noun).lower()
+    """Converts camel case to snake case to map resource name parts to GAPIC parameter names.
+
+    Args:
+        resource_noun (str): The resource noun in camel case to covert.
+    Returns:
+        Singular snake case resource noun.
+    """
+    snake_case = re.sub("([A-Z]+)", r"_\1", resource_noun).lower()
 
     # plural to singular
-    return snake_case[:-1] if snake_case[-1] == 's' else snake_case
+    if snake_case in _SINGULAR_RESOURCE_NOUNS or not snake_case.endswith("s"):
+        return snake_case
+    else:
+        return snake_case[:-1]
 
 
 def validate_display_name(display_name: str):
@@ -416,10 +406,12 @@ class ClientWithOverride:
         return self._clients[version]
 
     @classmethod
-    def get_gapic_client_class(cls, version: Optional[str] = None) -> Type[VertexAiServiceClient]:
+    def get_gapic_client_class(
+        cls, version: Optional[str] = None
+    ) -> Type[VertexAiServiceClient]:
         """Gets the underyilng GAPIC client.
 
-        Used to access class and static methods without instantiating. 
+        Used to access class and static methods without instantiating.
 
         Args:
             version (str):

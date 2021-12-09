@@ -315,7 +315,7 @@ class PipelineJob(base.VertexAiResourceNounWithFutureManager):
     def _dashboard_uri(self) -> str:
         """Helper method to compose the dashboard uri where pipeline can be
         viewed."""
-        fields = self.parse_resource_name(self.resource_name)
+        fields = self._parse_resource_name(self.resource_name)
         url = f"https://console.cloud.google.com/vertex-ai/locations/{fields['location']}/pipelines/runs/{fields['pipeline_job']}?project={fields['project']}"
         return url
 

@@ -17,13 +17,11 @@
 
 from google.cloud.aiplatform import jobs
 from google.cloud.aiplatform import tensorboard
-from google.cloud.aiplatform import utils
-
 
 
 def custom_job_console_uri(custom_job_resource_name: str) -> str:
     """Helper method to create console uri from custom job resource name."""
-    fields = jobs.CustomJob.parse_resource_name(custom_job_resource_name)
+    fields = jobs.CustomJob._parse_resource_name(custom_job_resource_name)
     return f"https://console.cloud.google.com/ai/platform/locations/{fields['location']}/training/{fields['custom_job']}?project={fields['project']}"
 
 
@@ -32,7 +30,7 @@ def custom_job_tensorboard_console_uri(
 ) -> str:
     """Helper method to create console uri to tensorboard from custom job resource."""
     # projects+40556267596+locations+us-central1+tensorboards+740208820004847616+experiments+2214368039829241856
-    fields = tensorboard.Tensorboard.parse_resource_name(tensorboard_resource_name)
+    fields = tensorboard.Tensorboard._parse_resource_name(tensorboard_resource_name)
     experiment_resource_name = f"{tensorboard_resource_name}/experiments/{custom_job_resource_name.split('/')[-1]}"
     uri_experiment_resource_name = experiment_resource_name.replace("/", "+")
     return f"https://{fields['location']}.tensorboard.googleusercontent.com/experiment/{uri_experiment_resource_name}"

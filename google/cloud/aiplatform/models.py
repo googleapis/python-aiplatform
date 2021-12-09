@@ -129,6 +129,8 @@ class Endpoint(base.VertexAiResourceNounWithFutureManager):
         endpoint_name = utils.full_resource_name(
             resource_name=endpoint_name,
             resource_noun="endpoints",
+            parse_resource_name_method=self._parse_resource_name,
+            format_resource_name_method=self._format_resource_name,
             project=project,
             location=location,
         )

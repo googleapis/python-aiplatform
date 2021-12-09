@@ -176,7 +176,8 @@ class TestJob:
         _list_method = _TEST_JOB_LIST_METHOD_NAME
         _cancel_method = _TEST_JOB_CANCEL_METHOD_NAME
         _delete_method = _TEST_JOB_DELETE_METHOD_NAME
-        _parse_resource_name_method = 'parse_custom_job_path'
+        _parse_resource_name_method = "parse_custom_job_path"
+        _format_resource_name_method = "custom_job_path"
         resource_name = _TEST_JOB_RESOURCE_NAME
 
     def setup_method(self):

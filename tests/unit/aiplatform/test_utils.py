@@ -17,10 +17,7 @@
 
 
 import pytest
-from uuid import uuid4
-from random import choice
-from random import randint
-from string import ascii_letters
+from typing import Callable, Dict, Optional
 
 from google.api_core import client_options
 from google.api_core import gapic_v1
@@ -40,97 +37,6 @@ from google.cloud.aiplatform_v1.services.model_service import (
 model_service_client_default = model_service_client_v1
 
 
-@pytest.mark.parametrize(
-    "resource_name, expected",
-    [
-        ("projects/123456/locations/us-central1/datasets/987654", True),
-        ("projects/857392/locations/us-central1/trainingPipelines/347292", True),
-        ("projects/acme-co-proj-1/locations/us-central1/datasets/123456", True),
-        ("projects/acme-co-proj-1/locations/us-central1/datasets/abcdef", True),
-        ("projects/acme-co-proj-1/locations/us-central1/datasets/abc-def", True),
-        ("project/123456/locations/us-central1/datasets/987654", False),
-        ("project//locations//datasets/987654", False),
-        ("locations/europe-west4/datasets/987654", False),
-        ("987654", False),
-    ],
-)
-def test_extract_fields_from_resource_name(resource_name: str, expected: bool):
-    # Given a resource name and expected validity, test extract_fields_from_resource_name()
-    assert expected == bool(utils.extract_fields_from_resource_name(resource_name))
-
-
-@pytest.fixture
-def generated_resource_fields():
-    generated_fields = utils.Fields(
-        project=str(uuid4()),
-        location=str(uuid4()),
-        resource="".join(choice(ascii_letters) for i in range(10)),  # 10 random letters
-        id=str(randint(0, 100000)),
-    )
-
-    yield generated_fields
-
-
-@pytest.fixture
-def generated_resource_name(generated_resource_fields: utils.Fields):
-    name = (
-        f"projects/{generated_resource_fields.project}/"
-        f"locations/{generated_resource_fields.location}"
-        f"/{generated_resource_fields.resource}/{generated_resource_fields.id}"
-    )
-
-    yield name
-
-
-def test_extract_fields_from_resource_name_with_extracted_fields(
-    generated_resource_name: str, generated_resource_fields: utils.Fields
-):
-    """Verify fields extracted from resource name match the original fields"""
-
-    assert (
-        utils.extract_fields_from_resource_name(resource_name=generated_resource_name)
-        == generated_resource_fields
-    )
-
-
-@pytest.mark.parametrize(
-    "resource_name, resource_noun, expected",
-    [
-        # Expects pattern "projects/.../locations/.../datasets/..."
-        ("projects/123456/locations/us-central1/datasets/987654", "datasets", True),
-        # Expects pattern "projects/.../locations/.../batchPredictionJobs/..."
-        (
-            "projects/857392/locations/us-central1/trainingPipelines/347292",
-            "batchPredictionJobs",
-            False,
-        ),
-        # Expects pattern "projects/.../locations/.../metadataStores/.../contexts/..."
-        (
-            "projects/857392/locations/us-central1/metadataStores/default/contexts/123",
-            "metadataStores/default/contexts",
-            True,
-        ),
-        # Expects pattern "projects/.../locations/.../tensorboards/.../experiments/.../runs/.../timeSeries/..."
-        (
-            "projects/857392/locations/us-central1/tensorboards/123/experiments/456/runs/789/timeSeries/1",
-            "tensorboards/123/experiments/456/runs/789/timeSeries",
-            True,
-        ),
-    ],
-)
-def test_extract_fields_from_resource_name_with_resource_noun(
-    resource_name: str, resource_noun: str, expected: bool
-):
-    assert (
-        bool(
-            utils.extract_fields_from_resource_name(
-                resource_name=resource_name, resource_noun=resource_noun
-            )
-        )
-        == expected
-    )
-
-
 def test_invalid_region_raises_with_invalid_region():
     with pytest.raises(ValueError):
         aiplatform.utils.validate_region(region="us-west4")
@@ -141,42 +47,67 @@ def test_invalid_region_does_not_raise_with_valid_region():
 
 
 @pytest.mark.parametrize(
-    "resource_noun, project, location, full_name",
+    "resource_noun, project, parse_resource_name_method, format_resource_name_method, parent_resource_name_fields, location, full_name",
     [
         (
             "datasets",
             "123456",
+            aiplatform.TabularDataset._parse_resource_name,
+            aiplatform.TabularDataset._format_resource_name,
+            None,
             "us-central1",
             "projects/123456/locations/us-central1/datasets/987654",
         ),
         (
             "trainingPipelines",
             "857392",
+            aiplatform.CustomTrainingJob._parse_resource_name,
+            aiplatform.CustomTrainingJob._format_resource_name,
+            None,
             "us-west20",
             "projects/857392/locations/us-central1/trainingPipelines/347292",
         ),
         (
-            "metadataStores/default/contexts",
+            "contexts",
             "123456",
+            aiplatform.metadata._Context._parse_resource_name,
+            aiplatform.metadata._Context._format_resource_name,
+            {aiplatform.metadata._MetadataStore._resource_noun: "default"},
             "europe-west4",
             "projects/857392/locations/us-central1/metadataStores/default/contexts/123",
         ),
         (
-            "tensorboards/123/experiments/456/runs/789/timeSeries",
+            "timeSeries",
             "857392",
+            aiplatform.gapic.TensorboardServiceClient.parse_tensorboard_time_series_path,
+            aiplatform.gapic.TensorboardServiceClient.tensorboard_time_series_path,
+            {
+                aiplatform.Tensorboard._resource_noun: "123",
+                "experiments": "456",
+                "runs": "789",
+            },
             "us-central1",
             "projects/857392/locations/us-central1/tensorboards/123/experiments/456/runs/789/timeSeries/1",
         ),
     ],
 )
 def test_full_resource_name_with_full_name(
-    resource_noun: str, project: str, location: str, full_name: str,
+    resource_noun: str,
+    project: str,
+    parse_resource_name_method: Callable[[str], Dict[str, str]],
+    format_resource_name_method: Callable[..., str],
+    parent_resource_name_fields: Optional[Dict[str, str]],
+    location: str,
+    full_name: str,
 ):
     # should ignore issues with other arguments as resource_name is full_name
     assert (
         aiplatform.utils.full_resource_name(
             resource_name=full_name,
             resource_noun=resource_noun,
+            parse_resource_name_method=parse_resource_name_method,
+            format_resource_name_method=format_resource_name_method,
+            parent_resource_name_fields=parent_resource_name_fields,
             project=project,
             location=location,
         )
@@ -185,11 +116,14 @@ def test_full_resource_name_with_full_name(
 
 
 @pytest.mark.parametrize(
-    "partial_name, resource_noun, project, location, full_name",
+    "partial_name, resource_noun, parse_resource_name_method, format_resource_name_method, parent_resource_name_fields, project, location, full_name",
     [
         (
             "987654",
             "datasets",
+            aiplatform.TabularDataset._parse_resource_name,
+            aiplatform.TabularDataset._format_resource_name,
+            None,
             "123456",
             "us-central1",
             "projects/123456/locations/us-central1/datasets/987654",
@@ -197,20 +131,33 @@ def test_full_resource_name_with_full_name(
         (
             "347292",
             "trainingPipelines",
+            aiplatform.CustomTrainingJob._parse_resource_name,
+            aiplatform.CustomTrainingJob._format_resource_name,
+            None,
             "857392",
             "us-central1",
             "projects/857392/locations/us-central1/trainingPipelines/347292",
         ),
         (
             "123",
-            "metadataStores/default/contexts",
+            "contexts",
+            aiplatform.metadata._Context._parse_resource_name,
+            aiplatform.metadata._Context._format_resource_name,
+            {aiplatform.metadata._MetadataStore._resource_noun: "default"},
             "857392",
             "us-central1",
             "projects/857392/locations/us-central1/metadataStores/default/contexts/123",
         ),
         (
             "1",
-            "tensorboards/123/experiments/456/runs/789/timeSeries",
+            "timeSeries",
+            aiplatform.gapic.TensorboardServiceClient.parse_tensorboard_time_series_path,
+            aiplatform.gapic.TensorboardServiceClient.tensorboard_time_series_path,
+            {
+                aiplatform.Tensorboard._resource_noun: "123",
+                "experiments": "456",
+                "runs": "789",
+            },
             "857392",
             "us-central1",
             "projects/857392/locations/us-central1/tensorboards/123/experiments/456/runs/789/timeSeries/1",
@@ -218,12 +165,22 @@ def test_full_resource_name_with_full_name(
     ],
 )
 def test_full_resource_name_with_partial_name(
-    partial_name: str, resource_noun: str, project: str, location: str, full_name: str,
+    partial_name: str,
+    resource_noun: str,
+    parse_resource_name_method: Callable[[str], Dict[str, str]],
+    format_resource_name_method: Callable[..., str],
+    parent_resource_name_fields: Optional[Dict[str, str]],
+    project: str,
+    location: str,
+    full_name: str,
 ):
     assert (
         aiplatform.utils.full_resource_name(
             resource_name=partial_name,
             resource_noun=resource_noun,
+            parse_resource_name_method=parse_resource_name_method,
+            format_resource_name_method=format_resource_name_method,
+            parent_resource_name_fields=parent_resource_name_fields,
             project=project,
             location=location,
         )
@@ -242,6 +199,8 @@ def test_full_resource_name_raises_value_error(
         aiplatform.utils.full_resource_name(
             resource_name=partial_name,
             resource_noun=resource_noun,
+            parse_resource_name_method=aiplatform.CustomTrainingJob._parse_resource_name,
+            format_resource_name_method=aiplatform.CustomTrainingJob._format_resource_name,
             project=project,
             location=location,
         )

@@ -166,9 +166,9 @@ class _Job(base.VertexAiResourceNounWithFutureManager):
     def _dashboard_uri(self) -> Optional[str]:
         """Helper method to compose the dashboard uri where job can be
         viewed."""
-        fields = self.parse_resource_name(self.resource_name)
-        location = fields.pop('location')
-        project = fields.pop('project')
+        fields = self._parse_resource_name(self.resource_name)
+        location = fields.pop("location")
+        project = fields.pop("project")
         job = list(fields.values())[0]
         url = f"https://console.cloud.google.com/ai/platform/locations/{location}/{self._job_type}/{job}?project={project}"
         return url
@@ -536,8 +536,8 @@ class BatchPredictionJob(_Job):
             model_name = utils.full_resource_name(
                 resource_name=model_name,
                 resource_noun="models",
-                parse_resource_name_method=aiplatform.Model.parse_resource_name,
-                format_resource_name_method=aiplatform.Model.format_resource_name,
+                parse_resource_name_method=aiplatform.Model._parse_resource_name,
+                format_resource_name_method=aiplatform.Model._format_resource_name,
                 project=project,
                 location=location,
             )

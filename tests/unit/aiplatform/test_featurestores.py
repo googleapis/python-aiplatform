@@ -27,13 +27,10 @@ from google.protobuf import field_mask_pb2
 from google.cloud import aiplatform
 from google.cloud.aiplatform import base
 from google.cloud.aiplatform import initializer
-
 from google.cloud.aiplatform.utils import featurestore_utils
-
 from google.cloud.aiplatform_v1.services.featurestore_service import (
     client as featurestore_service_client,
 )
-
 from google.cloud.aiplatform_v1.types import (
     featurestore as gca_featurestore,
     entity_type as gca_entity_type,
@@ -255,94 +252,25 @@ def delete_feature_mock():
 
 class TestFeaturestoreUtils:
     @pytest.mark.parametrize(
-        "resource_id, expected",
-        [
-            ("resource_id", True),
-            ("resource_id12345", True),
-            ("12345resource_id", False),
-            ("_resource_id", True),
-            ("resource_id/1234", False),
-            ("_resource_id/1234", False),
-            ("resource-id-1234", False),
-            ("123456", False),
-            ("c" * 61, False),
-            ("_123456", True),
-        ],
+        "resource_id", ["resource_id", "resource_id12345", "_resource_id", "_123456"],
     )
-    def test_validate_resource_id(self, resource_id: str, expected: bool):
-        assert expected == featurestore_utils.validate_id(resource_id)
+    def test_validate_resource_id(self, resource_id: str):
+        featurestore_utils.validate_id(resource_id)
 
     @pytest.mark.parametrize(
-        "feature_name, featurestore_id, entity_type_id",
+        "resource_id",
         [
-            (_TEST_FEATURE_NAME, None, None,),
-            (_TEST_FEATURE_ID, _TEST_FEATURESTORE_ID, _TEST_ENTITY_TYPE_ID,),
+            "12345resource_id",
+            "resource_id/1234",
+            "_resource_id/1234",
+            "resource-id-1234",
+            "123456",
+            "c" * 61,
         ],
     )
-    def test_validate_and_get_feature_resource_ids(
-        self, feature_name: str, featurestore_id: str, entity_type_id: str,
-    ):
-        assert (
-            _TEST_FEATURESTORE_ID,
-            _TEST_ENTITY_TYPE_ID,
-            _TEST_FEATURE_ID,
-        ) == featurestore_utils.validate_and_get_feature_resource_ids(
-            feature_name=feature_name,
-            featurestore_id=featurestore_id,
-            entity_type_id=entity_type_id,
-        )
-
-    @pytest.mark.parametrize(
-        "feature_name, featurestore_id, entity_type_id",
-        [
-            (_TEST_FEATURE_INVALID, None, None,),
-            (_TEST_FEATURE_ID, None, _TEST_ENTITY_TYPE_ID,),
-            (_TEST_FEATURE_ID, None, None,),
-            (_TEST_FEATURE_ID, _TEST_FEATURESTORE_NAME, None,),
-        ],
-    )
-    def test_validate_and_get_feature_resource_ids_with_raise(
-        self, feature_name: str, featurestore_id: str, entity_type_id: str,
-    ):
+    def test_validate_invalid_resource_id(self, resource_id: str):
         with pytest.raises(ValueError):
-            featurestore_utils.validate_and_get_feature_resource_ids(
-                feature_name=feature_name,
-                featurestore_id=featurestore_id,
-                entity_type_id=entity_type_id,
-            )
-
-    @pytest.mark.parametrize(
-        "entity_type_name, featurestore_id",
-        [
-            (_TEST_ENTITY_TYPE_NAME, None,),
-            (_TEST_ENTITY_TYPE_ID, _TEST_FEATURESTORE_ID,),
-        ],
-    )
-    def test_validate_and_get_entity_type_resource_ids(
-        self, entity_type_name: str, featurestore_id: str
-    ):
-        assert (
-            _TEST_FEATURESTORE_ID,
-            _TEST_ENTITY_TYPE_ID,
-        ) == featurestore_utils.validate_and_get_entity_type_resource_ids(
-            entity_type_name=entity_type_name, featurestore_id=featurestore_id
-        )
-
-    @pytest.mark.parametrize(
-        "entity_type_name, featurestore_id",
-        [
-            (_TEST_ENTITY_TYPE_INVALID, None,),
-            (_TEST_ENTITY_TYPE_ID, None,),
-            (_TEST_ENTITY_TYPE_ID, _TEST_FEATURESTORE_NAME,),
-        ],
-    )
-    def test_validate_and_get_entity_type_resource_ids_with_raise(
-        self, entity_type_name: str, featurestore_id: str,
-    ):
-        with pytest.raises(ValueError):
-            featurestore_utils.validate_and_get_entity_type_resource_ids(
-                entity_type_name=entity_type_name, featurestore_id=featurestore_id
-            )
+            featurestore_utils.validate_id(resource_id)
 
 
 class TestFeaturestore:

@@ -445,7 +445,10 @@ class VertexAiResourceNoun(metaclass=abc.ABCMeta):
     def _format_resource_name_method(self) -> str:
         """Method name on GAPIC client to format a resource name."""
         pass
-    
+
+    # Override this value with staticmethod
+    # to use custom resource id validators per resource
+    _resource_id_validator: Optional[Callable[str, None]] = None
 
     def __init__(
         self,
@@ -499,7 +502,7 @@ class VertexAiResourceNoun(metaclass=abc.ABCMeta):
         )
 
     @classmethod
-    def parse_resource_name(cls, resource_name: str) -> Dict[str, str]:
+    def _parse_resource_name(cls, resource_name: str) -> Dict[str, str]:
         """
         Parses resource name into it's component segments.
 
@@ -508,18 +511,18 @@ class VertexAiResourceNoun(metaclass=abc.ABCMeta):
         Returns:
             Dictionary of component segments.
         """
-
         # gets the underlying wrapped gapic client class
-        return getattr(cls.client_class.get_gapic_client_class(), cls._parse_resource_name_method)(resource_name)
+        return getattr(
+            cls.client_class.get_gapic_client_class(), cls._parse_resource_name_method
+        )(resource_name)
 
     @classmethod
-    def format_resource_name(cls, **kwargs: str) -> str:
+    def _format_resource_name(cls, **kwargs: str) -> str:
         """
         Formats a resource name it's component segments.
 
         Args:
             **kwargs: Resource name parts. Singular and snake case. ie:
-            
             format_resource_name(
                 project='my-project',
                 location='us-central1'
@@ -527,11 +530,10 @@ class VertexAiResourceNoun(metaclass=abc.ABCMeta):
         Returns:
             Resource name.
         """
-
         # gets the underlying wrapped gapic client class
-        return getattr(cls.client_class.get_gapic_client_class(), cls._format_resource_name_method)(**kwargs)
-
-
+        return getattr(
+            cls.client_class.get_gapic_client_class(), cls._format_resource_name_method
+        )(**kwargs)
 
     def _get_and_validate_project_location(
         self,
@@ -551,21 +553,24 @@ class VertexAiResourceNoun(metaclass=abc.ABCMeta):
             RuntimeError if location is different from resource location
         """
 
-        fields = self.parse_resource_name(resource_name)
+        fields = self._parse_resource_name(resource_name)
 
         if not fields:
             return project, location
 
-        if location and fields['location'] != location:
+        if location and fields["location"] != location:
             raise RuntimeError(
                 f"location {location} is provided, but different from "
                 f"the resource location {fields['location']}"
             )
 
-        return fields['project'], fields['location']
+        return fields["project"], fields["location"]
 
-
-    def _get_gca_resource(self, resource_name: str) -> proto.Message:
+    def _get_gca_resource(
+        self,
+        resource_name: str,
+        parent_resource_name_fields: Optional[Dict[str, str]] = None,
+    ) -> proto.Message:
         """Returns GAPIC service representation of client class resource."""
         """
         Args:
@@ -575,10 +580,12 @@ class VertexAiResourceNoun(metaclass=abc.ABCMeta):
         resource_name = utils.full_resource_name(
             resource_name=resource_name,
             resource_noun=self._resource_noun,
-            parse_resource_name_method=self.parse_resource_name,
-            format_resource_name_method=self.format_resource_name,
+            parse_resource_name_method=self._parse_resource_name,
+            format_resource_name_method=self._format_resource_name,
             project=self.project,
             location=self.location,
+            parent_resource_name_fields=parent_resource_name_fields,
+            resource_id_validator=self._resource_id_validator,
         )
 
         return getattr(self.api_client, self._getter_method)(
