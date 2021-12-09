@@ -112,7 +112,7 @@ def full_resource_name(
     parent_resource_name_fields: Optional[Dict[str, str]] = None,
     project: Optional[str] = None,
     location: Optional[str] = None,
-    resource_id_validator: Optional[Callable[str, None]] = None,
+    resource_id_validator: Optional[Callable[[str], None]] = None,
 ) -> str:
     """Returns fully qualified resource name.
 
