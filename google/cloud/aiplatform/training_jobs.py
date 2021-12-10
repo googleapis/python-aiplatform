@@ -4060,7 +4060,7 @@ class AutoMLForecastingTrainingJob(_TrainingJob):
                 produce a Vertex AI Model.
 
         Raises:
-            RuntimeError if Training job has already been run or is waiting to run.
+            RuntimeError: If Training job has already been run or is waiting to run.
         """
 
         if model_display_name:
@@ -4269,7 +4269,7 @@ class AutoMLForecastingTrainingJob(_TrainingJob):
                 produce a Vertex AI Model.
 
         Raises:
-            RuntimeError if Training job has already been run or is waiting to run.
+            RuntimeError: If Training job has already been run or is waiting to run.
         """
 
         if additional_experiments:

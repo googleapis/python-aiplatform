@@ -157,8 +157,8 @@ class _MetadataService:
             metrics (Dict):
                 Required. Metrics key/value pairs. Only flot and int are supported format for value.
         Raises:
-            TypeError if value contains unsupported types.
-            ValueError if Experiment or Run is not set.
+            TypeError: If value contains unsupported types.
+            ValueError: If Experiment or Run is not set.
         """
 
         self._validate_experiment_and_run(method_name="log_metrics")
@@ -265,7 +265,7 @@ class _MetadataService:
             metrics (Dict):
                 Required. Metrics key/value pairs. Only flot and int are supported format for value.
         Raises:
-            TypeError if value contains unsupported types.
+            TypeError: If value contains unsupported types.
         """
 
         for key, value in metrics.items():
