@@ -58,12 +58,12 @@ class TestEndToEnd(metaclass=abc.ABCMeta):
         importlib.reload(initializer)
         importlib.reload(aiplatform)
 
-    @pytest.fixture()
+    @pytest.fixture(scope="class")
     def shared_state(self) -> Generator[Dict[str, Any], None, None]:
         shared_state = {}
         yield shared_state
 
-    @pytest.fixture()
+    @pytest.fixture(scope="class")
     def prepare_staging_bucket(
         self, shared_state: Dict[str, Any]
     ) -> Generator[storage.bucket.Bucket, None, None]:
@@ -80,7 +80,7 @@ class TestEndToEnd(metaclass=abc.ABCMeta):
         )
         yield
 
-    @pytest.fixture()
+    @pytest.fixture(scope="class")
     def delete_staging_bucket(self, shared_state: Dict[str, Any]):
         """Delete the staging bucket and all it's contents"""
 
@@ -90,7 +90,7 @@ class TestEndToEnd(metaclass=abc.ABCMeta):
         bucket = shared_state["bucket"]
         bucket.delete(force=True)
 
-    @pytest.fixture(autouse=True)
+    @pytest.fixture(scope="class", autouse=True)
     def teardown(self, shared_state: Dict[str, Any]):
         """Delete every Vertex AI resource created during test"""
 
@@ -104,9 +104,7 @@ class TestEndToEnd(metaclass=abc.ABCMeta):
 
         for resource in shared_state["resources"]:
             try:
-                if isinstance(
-                    resource, (aiplatform.Endpoint or aiplatform.Featurestore)
-                ):
+                if isinstance(resource, (aiplatform.Endpoint, aiplatform.Featurestore)):
                     # For endpoint, undeploy model then delete endpoint
                     # For featurestore, force delete its entity_types and features with the featurestore
                     resource.delete(force=True)
