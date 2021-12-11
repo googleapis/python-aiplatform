@@ -44,23 +44,22 @@ class TestFeaturestore(e2e_base.TestEndToEnd):
 
     _temp_prefix = "temp_vertex_sdk_e2e_featurestore_test"
 
-    def test_end_to_end(self, shared_state, caplog):
-
-        caplog.set_level(logging.INFO)
-
+    def test_create_get_list_featurestore(self, shared_state):
         aiplatform.init(
             project=e2e_base._PROJECT, location=e2e_base._LOCATION,
         )
 
         base_list_featurestores = len(aiplatform.Featurestore.list())
-        base_list_searched_features = len(aiplatform.Feature.search())
+        shared_state["base_list_searched_features"] = len(aiplatform.Feature.search())
 
-        # Featurestore
         featurestore_id = self._make_display_name(key=_TEST_FEATURESTORE_ID).replace(
             "-", "_"
         )[:60]
         featurestore = aiplatform.Featurestore.create(featurestore_id=featurestore_id)
+
         shared_state["resources"] = [featurestore]
+        shared_state["featurestore"] = featurestore
+        shared_state["featurestore_name"] = featurestore.resource_name
 
         get_featurestore = aiplatform.Featurestore(
             featurestore_name=featurestore.resource_name
@@ -68,27 +67,39 @@ class TestFeaturestore(e2e_base.TestEndToEnd):
         assert featurestore.resource_name == get_featurestore.resource_name
 
         list_featurestores = aiplatform.Featurestore.list()
-        assert len(list_featurestores) - base_list_featurestores == 1
+        assert (len(list_featurestores) - base_list_featurestores) == 1
 
-        # EntityType
+    def test_create_get_list_entity_types(self, shared_state):
 
-        # User EntityType
-        user_entity_type_id = _TEST_USER_ENTITY_TYPE_ID
-        user_entity_type = featurestore.create_entity_type(
-            entity_type_id=user_entity_type_id
+        assert shared_state["featurestore"]
+        assert shared_state["featurestore_name"]
+
+        featurestore = shared_state["featurestore"]
+        featurestore_name = shared_state["featurestore_name"]
+
+        aiplatform.init(
+            project=e2e_base._PROJECT, location=e2e_base._LOCATION,
         )
 
+        # Users
+        user_entity_type = featurestore.create_entity_type(
+            entity_type_id=_TEST_USER_ENTITY_TYPE_ID
+        )
+        shared_state["user_entity_type"] = user_entity_type
+        shared_state["user_entity_type_name"] = user_entity_type.resource_name
+
         get_user_entity_type = featurestore.get_entity_type(
-            entity_type_id=user_entity_type_id
+            entity_type_id=_TEST_USER_ENTITY_TYPE_ID
         )
         assert user_entity_type.resource_name == get_user_entity_type.resource_name
 
-        # Movie EntityType
-        movie_entity_type_id = _TEST_MOVIE_ENTITY_TYPE_ID
+        # Movies
         movie_entity_type = aiplatform.EntityType.create(
-            entity_type_id=movie_entity_type_id,
-            featurestore_name=featurestore.resource_name,
+            entity_type_id=_TEST_MOVIE_ENTITY_TYPE_ID,
+            featurestore_name=featurestore_name,
         )
+        shared_state["movie_entity_type"] = movie_entity_type
+        shared_state["movie_entity_type_name"] = movie_entity_type.resource_name
 
         get_movie_entity_type = aiplatform.EntityType(
             entity_type_name=movie_entity_type.resource_name
@@ -96,28 +107,38 @@ class TestFeaturestore(e2e_base.TestEndToEnd):
         assert movie_entity_type.resource_name == get_movie_entity_type.resource_name
 
         list_entity_types = aiplatform.EntityType.list(
-            featurestore_name=featurestore.resource_name
+            featurestore_name=featurestore_name
         )
         assert len(list_entity_types) == 2
 
-        # Feature
+    def test_create_batch_create_get_list_features(self, shared_state):
+
+        assert shared_state["user_entity_type"]
+        assert shared_state["user_entity_type_name"]
+        user_entity_type = shared_state["user_entity_type"]
+        user_entity_type_name = shared_state["user_entity_type_name"]
+
+        aiplatform.init(
+            project=e2e_base._PROJECT, location=e2e_base._LOCATION,
+        )
+
+        list_user_features = user_entity_type.list_features()
+        assert len(list_user_features) == 0
 
         # User Features
-        user_age_feature_id = _TEST_USER_AGE_FEATURE_ID
         user_age_feature = user_entity_type.create_feature(
-            feature_id=user_age_feature_id, value_type="INT64"
+            feature_id=_TEST_USER_AGE_FEATURE_ID, value_type="INT64"
         )
 
         get_user_age_feature = user_entity_type.get_feature(
-            feature_id=user_age_feature_id
+            feature_id=_TEST_USER_AGE_FEATURE_ID
         )
         assert user_age_feature.resource_name == get_user_age_feature.resource_name
 
-        user_gender_feature_id = _TEST_USER_GENDER_FEATURE_ID
         user_gender_feature = aiplatform.Feature.create(
-            feature_id=user_gender_feature_id,
+            feature_id=_TEST_USER_GENDER_FEATURE_ID,
             value_type="STRING",
-            entity_type_name=user_entity_type.resource_name,
+            entity_type_name=user_entity_type_name,
         )
 
         get_user_gender_feature = aiplatform.Feature(
@@ -127,47 +148,72 @@ class TestFeaturestore(e2e_base.TestEndToEnd):
             user_gender_feature.resource_name == get_user_gender_feature.resource_name
         )
 
-        user_liked_genres_feature_id = _TEST_USER_LIKED_GENRES_FEATURE_ID
+        list_user_features = aiplatform.Feature.list(
+            entity_type_name=user_entity_type_name
+        )
+        assert len(list_user_features) == 2
+
         user_feature_configs = {
-            user_liked_genres_feature_id: {"value_type": "STRING_ARRAY"},
+            _TEST_USER_LIKED_GENRES_FEATURE_ID: {"value_type": "STRING_ARRAY"},
         }
         user_entity_type.batch_create_features(feature_configs=user_feature_configs)
 
         list_user_features = user_entity_type.list_features()
         assert len(list_user_features) == 3
 
-        user_entity_type = user_entity_type.ingest_from_gcs(
+    def test_ingest_feature_values(self, shared_state, caplog):
+
+        assert shared_state["user_entity_type"]
+        user_entity_type = shared_state["user_entity_type"]
+
+        caplog.set_level(logging.INFO)
+
+        aiplatform.init(
+            project=e2e_base._PROJECT, location=e2e_base._LOCATION,
+        )
+
+        user_entity_type.ingest_from_gcs(
             feature_ids=[
-                user_age_feature_id,
-                user_gender_feature_id,
-                user_liked_genres_feature_id,
+                _TEST_USER_AGE_FEATURE_ID,
+                _TEST_USER_GENDER_FEATURE_ID,
+                _TEST_USER_LIKED_GENRES_FEATURE_ID,
             ],
             feature_time="update_time",
             gcs_source_uris=_TEST_USERS_ENTITY_TYPE_GCS_SRC,
             gcs_source_type="avro",
             entity_id_field="user_id",
             worker_count=2,
-            sync=False,
         )
 
-        movie_title_feature_id = _TEST_MOVIE_TITLE_FEATURE_ID
-        movie_genres_feature_id = _TEST_MOVIE_GENRES_FEATURE_ID
-        movie_average_rating_id = _TEST_MOVIE_AVERAGE_RATING_FEATURE_ID
+        assert "EntityType feature values imported." in caplog.text
+
+        caplog.clear()
+
+    def test_ingest_feature_values_with_config(self, shared_state, caplog):
+
+        assert shared_state["movie_entity_type"]
+        movie_entity_type = shared_state["movie_entity_type"]
+
+        caplog.set_level(logging.INFO)
+
+        aiplatform.init(
+            project=e2e_base._PROJECT, location=e2e_base._LOCATION,
+        )
 
         movie_feature_configs = {
-            movie_title_feature_id: {"value_type": "STRING"},
-            movie_genres_feature_id: {"value_type": "STRING"},
-            movie_average_rating_id: {"value_type": "DOUBLE"},
+            _TEST_MOVIE_TITLE_FEATURE_ID: {"value_type": "STRING"},
+            _TEST_MOVIE_GENRES_FEATURE_ID: {"value_type": "STRING"},
+            _TEST_MOVIE_AVERAGE_RATING_FEATURE_ID: {"value_type": "DOUBLE"},
         }
 
         list_movie_features = movie_entity_type.list_features()
         assert len(list_movie_features) == 0
 
-        movie_entity_type = movie_entity_type.ingest_from_gcs(
+        movie_entity_type.ingest_from_gcs(
             feature_ids=[
-                movie_title_feature_id,
-                movie_genres_feature_id,
-                movie_average_rating_id,
+                _TEST_MOVIE_TITLE_FEATURE_ID,
+                _TEST_MOVIE_GENRES_FEATURE_ID,
+                _TEST_MOVIE_AVERAGE_RATING_FEATURE_ID,
             ],
             feature_time="update_time",
             gcs_source_uris=_TEST_MOVIES_ENTITY_TYPE_GCS_SRC,
@@ -175,18 +221,24 @@ class TestFeaturestore(e2e_base.TestEndToEnd):
             entity_id_field="movie_id",
             worker_count=2,
             batch_create_feature_configs=movie_feature_configs,
-            sync=False,
         )
-
-        user_entity_type.wait()
-        movie_entity_type.wait()
-
-        assert "EntityType feature values imported." in caplog.text
 
         list_movie_features = movie_entity_type.list_features()
         assert len(list_movie_features) == 3
 
-        list_searched_features = aiplatform.Feature.search()
-        assert len(list_searched_features) - base_list_searched_features == 6
+        assert "EntityType feature values imported." in caplog.text
 
         caplog.clear()
+
+    def test_search_features(self, shared_state):
+
+        assert shared_state["base_list_searched_features"] is not None
+
+        aiplatform.init(
+            project=e2e_base._PROJECT, location=e2e_base._LOCATION,
+        )
+
+        list_searched_features = aiplatform.Feature.search()
+        assert (
+            len(list_searched_features) - shared_state["base_list_searched_features"]
+        ) == 3
