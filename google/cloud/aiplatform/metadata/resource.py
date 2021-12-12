@@ -452,7 +452,7 @@ class _Resource(base.VertexAiResourceNounWithFutureManager, abc.ABC):
             metadata_store_id (str):
                 The metadata store id for the particular resource name.
         Raises:
-            ValueError if it does not exist.
+            ValueError: If it does not exist.
         """
         pattern = re.compile(
             r"^projects\/(?P<project>[\w-]+)\/locations\/(?P<location>[\w-]+)\/metadataStores\/(?P<store>[\w-]+)\/"

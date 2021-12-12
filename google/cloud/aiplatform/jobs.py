@@ -1059,7 +1059,7 @@ class CustomJob(_RunnableJob):
                 staging_bucket set in aiplatform.init.
 
         Raises:
-            RuntimeError is not staging bucket was set using aiplatfrom.init and a staging
+            RuntimeError: If staging bucket was not set using aiplatform.init and a staging
             bucket was not passed in.
         """
 
@@ -1251,7 +1251,7 @@ class CustomJob(_RunnableJob):
                 staging_bucket set in aiplatform.init.
 
         Raises:
-            RuntimeError is not staging bucket was set using aiplatfrom.init and a staging
+            RuntimeError: If staging bucket was not set using aiplatform.init and a staging
             bucket was not passed in.
         """
 
