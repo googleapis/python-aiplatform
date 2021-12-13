@@ -47,7 +47,7 @@ def validate_and_get_entity_type_resource_ids(
         Tuple[str, str] - featurestore ID and entity_type ID
 
     Raises:
-        ValueError if the provided entity_type_name is not in form of a fully-qualified
+        ValueError: If the provided entity_type_name is not in form of a fully-qualified
         entityType resource name nor an entity_type ID with featurestore_id passed.
     """
     match = CompatFeaturestoreServiceClient.parse_entity_type_path(
@@ -91,7 +91,7 @@ def validate_and_get_feature_resource_ids(
         Tuple[str, str, str] - featurestore ID, entity_type ID, and feature ID
 
     Raises:
-        ValueError if the provided feature_name is not in form of a fully-qualified
+        ValueError: If the provided feature_name is not in form of a fully-qualified
         feature resource name nor a feature ID with featurestore_id and entity_type_id passed.
     """
 

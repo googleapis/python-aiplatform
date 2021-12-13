@@ -24,6 +24,7 @@ def create_training_pipeline_image_classification_sample(
     display_name: str,
     dataset_id: int,
     model_display_name: Optional[str] = None,
+    model_type: str = "CLOUD",
     multi_label: bool = False,
     training_fraction_split: float = 0.8,
     validation_fraction_split: float = 0.1,
@@ -36,6 +37,7 @@ def create_training_pipeline_image_classification_sample(
 
     job = aiplatform.AutoMLImageTrainingJob(
         display_name=display_name,
+        model_type=model_type,
         prediction_type='classification',
         multi_label=multi_label
     )
