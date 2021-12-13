@@ -111,7 +111,7 @@ class TestFeaturestore(e2e_base.TestEndToEnd):
         )
         assert len(list_entity_types) == 2
 
-    def test_create_batch_create_get_list_features(self, shared_state):
+    def test_create_get_list_features(self, shared_state):
 
         assert shared_state["user_entity_type"]
         assert shared_state["user_entity_type_name"]
@@ -148,15 +148,17 @@ class TestFeaturestore(e2e_base.TestEndToEnd):
             user_gender_feature.resource_name == get_user_gender_feature.resource_name
         )
 
-        list_user_features = aiplatform.Feature.list(
-            entity_type_name=user_entity_type_name
+        user_liked_genres_feature = user_entity_type.create_feature(
+            feature_id=_TEST_USER_LIKED_GENRES_FEATURE_ID, value_type="STRING_ARRAY",
         )
-        assert len(list_user_features) == 2
 
-        user_feature_configs = {
-            _TEST_USER_LIKED_GENRES_FEATURE_ID: {"value_type": "STRING_ARRAY"},
-        }
-        user_entity_type.batch_create_features(feature_configs=user_feature_configs)
+        get_user_liked_genres_feature = aiplatform.Feature(
+            feature_name=user_liked_genres_feature.resource_name
+        )
+        assert (
+            user_liked_genres_feature.resource_name
+            == get_user_liked_genres_feature.resource_name
+        )
 
         list_user_features = user_entity_type.list_features()
         assert len(list_user_features) == 3
@@ -209,6 +211,8 @@ class TestFeaturestore(e2e_base.TestEndToEnd):
         list_movie_features = movie_entity_type.list_features()
         assert len(list_movie_features) == 0
 
+        movie_entity_type.batch_create_features(feature_configs=movie_feature_configs)
+
         movie_entity_type.ingest_from_gcs(
             feature_ids=[
                 _TEST_MOVIE_TITLE_FEATURE_ID,
@@ -220,7 +224,6 @@ class TestFeaturestore(e2e_base.TestEndToEnd):
             gcs_source_type="avro",
             entity_id_field="movie_id",
             worker_count=2,
-            batch_create_feature_configs=movie_feature_configs,
         )
 
         list_movie_features = movie_entity_type.list_features()
@@ -241,4 +244,4 @@ class TestFeaturestore(e2e_base.TestEndToEnd):
         list_searched_features = aiplatform.Feature.search()
         assert (
             len(list_searched_features) - shared_state["base_list_searched_features"]
-        ) == 3
+        ) == 6

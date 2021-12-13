@@ -77,7 +77,7 @@ _TEST_DESCRIPTION_UPDATE = "my description update"
 _TEST_LABELS_UPDATE = {"my_key_update": "my_value_update"}
 
 # request_metadata
-_TEST_REQUEST_METADATA = ()
+_TEST_REQUEST_METADATA = None
 
 # CMEK encryption
 _TEST_ENCRYPTION_KEY_NAME = "key_1234"
@@ -592,7 +592,7 @@ class TestFeaturestore:
         my_featurestore = aiplatform.Featurestore(
             featurestore_name=_TEST_FEATURESTORE_ID
         )
-        my_featurestore.delete(force=force, sync=sync)
+        my_featurestore.delete(sync=sync, force=force)
 
         if not sync:
             my_featurestore.wait()
@@ -1049,98 +1049,6 @@ class TestEntityType:
                 gcs_source_uris=_TEST_GCS_CSV_SOURCE_URIS,
                 gcs_source_type=_TEST_GCS_SOURCE_TYPE_INVALID,
             )
-
-    @pytest.mark.usefixtures("get_entity_type_mock")
-    @pytest.mark.parametrize("sync", [True, False])
-    def test_ingest_from_bq_with_batch_create_feature_configs(
-        self, batch_create_features_mock, import_feature_values_mock, sync
-    ):
-        aiplatform.init(project=_TEST_PROJECT)
-
-        my_entity_type = aiplatform.EntityType(entity_type_name=_TEST_ENTITY_TYPE_NAME)
-        my_entity_type.ingest_from_bq(
-            feature_ids=_TEST_IMPORTING_FEATURE_IDS,
-            feature_time=_TEST_FEATURE_TIME_FIELD,
-            bq_source_uri=_TEST_BQ_SOURCE_URI,
-            batch_create_feature_configs=_TEST_FEATURE_CONFIGS,
-            feature_source_fields=_TEST_IMPORTING_FEATURE_SOURCE_FIELDS,
-        )
-
-        if not sync:
-            my_entity_type.wait()
-
-        expected_requests = [
-            gca_featurestore_service.CreateFeatureRequest(
-                feature=gca_feature.Feature(value_type=_TEST_FEATURE_VALUE_TYPE_ENUM),
-                feature_id="my_feature_id_1",
-            ),
-        ]
-
-        batch_create_features_mock.assert_called_once_with(
-            parent=my_entity_type.resource_name,
-            requests=expected_requests,
-            metadata=_TEST_REQUEST_METADATA,
-        )
-
-        true_import_feature_values_request = gca_featurestore_service.ImportFeatureValuesRequest(
-            entity_type=_TEST_ENTITY_TYPE_NAME,
-            feature_specs=[
-                gca_featurestore_service.ImportFeatureValuesRequest.FeatureSpec(
-                    id="my_feature_id_1", source_field="my_feature_id_1_source_field"
-                ),
-            ],
-            bigquery_source=_TEST_BQ_SOURCE,
-            feature_time_field=_TEST_FEATURE_TIME_FIELD,
-        )
-        import_feature_values_mock.assert_called_once_with(
-            request=true_import_feature_values_request, metadata=_TEST_REQUEST_METADATA,
-        )
-
-    @pytest.mark.usefixtures("get_entity_type_mock")
-    @pytest.mark.parametrize("sync", [True, False])
-    def test_ingest_from_gcs_with_batch_create_feature_configs(
-        self, batch_create_features_mock, import_feature_values_mock, sync
-    ):
-        aiplatform.init(project=_TEST_PROJECT)
-
-        my_entity_type = aiplatform.EntityType(entity_type_name=_TEST_ENTITY_TYPE_NAME)
-        my_entity_type.ingest_from_gcs(
-            feature_ids=_TEST_IMPORTING_FEATURE_IDS,
-            feature_time=_TEST_FEATURE_TIME,
-            gcs_source_uris=_TEST_GCS_AVRO_SOURCE_URIS,
-            gcs_source_type=_TEST_GCS_SOURCE_TYPE_AVRO,
-            batch_create_feature_configs=_TEST_FEATURE_CONFIGS,
-        )
-
-        if not sync:
-            my_entity_type.wait()
-
-        expected_requests = [
-            gca_featurestore_service.CreateFeatureRequest(
-                feature=gca_feature.Feature(value_type=_TEST_FEATURE_VALUE_TYPE_ENUM),
-                feature_id="my_feature_id_1",
-            ),
-        ]
-
-        batch_create_features_mock.assert_called_once_with(
-            parent=my_entity_type.resource_name,
-            requests=expected_requests,
-            metadata=_TEST_REQUEST_METADATA,
-        )
-
-        true_import_feature_values_request = gca_featurestore_service.ImportFeatureValuesRequest(
-            entity_type=_TEST_ENTITY_TYPE_NAME,
-            feature_specs=[
-                gca_featurestore_service.ImportFeatureValuesRequest.FeatureSpec(
-                    id="my_feature_id_1"
-                ),
-            ],
-            avro_source=_TEST_AVRO_SOURCE,
-            feature_time=utils.get_timestamp_proto(_TEST_FEATURE_TIME),
-        )
-        import_feature_values_mock.assert_called_once_with(
-            request=true_import_feature_values_request, metadata=_TEST_REQUEST_METADATA,
-        )
 
 
 class TestFeature:

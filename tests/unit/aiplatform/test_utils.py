@@ -322,12 +322,36 @@ def test_client_w_override_select_version():
     )
 
 
-def test_get_timestamp_proto():
-    time = datetime.datetime.now()
-    t = time.timestamp()
-    seconds = int(t)
-    nanos = int((t % 1 * 1e6) * 1e3)
-    true_timestamp_proto = timestamp_pb2.Timestamp(seconds=seconds, nanos=nanos)
+@pytest.mark.parametrize(
+    "year,month,day,hour,minute,second,microsecond,expected_seconds,expected_nanos",
+    [
+        (2021, 12, 23, 23, 59, 59, 999999, 1640332799, 999999046),
+        (2013, 1, 1, 1, 1, 1, 000000, 1357030861, 0),
+    ],
+)
+def test_get_timestamp_proto(
+    year,
+    month,
+    day,
+    hour,
+    minute,
+    second,
+    microsecond,
+    expected_seconds,
+    expected_nanos,
+):
+    time = datetime.datetime(
+        year=year,
+        month=month,
+        day=day,
+        hour=hour,
+        minute=minute,
+        second=second,
+        microsecond=microsecond,
+    )
+    true_timestamp_proto = timestamp_pb2.Timestamp(
+        seconds=expected_seconds, nanos=expected_nanos
+    )
     assert true_timestamp_proto == utils.get_timestamp_proto(time)
 
 
