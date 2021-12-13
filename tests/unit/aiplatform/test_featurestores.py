@@ -88,7 +88,7 @@ _TEST_DESCRIPTION_UPDATE = "my description update"
 _TEST_LABELS_UPDATE = {"my_key_update": "my_value_update"}
 
 # request_metadata
-_TEST_REQUEST_METADATA = ()
+_TEST_REQUEST_METADATA = None
 
 # CMEK encryption
 _TEST_ENCRYPTION_KEY_NAME = "key_1234"
