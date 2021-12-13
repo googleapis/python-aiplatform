@@ -71,9 +71,12 @@ class Feature(base.VertexAiResourceNounWithFutureManager):
                 Example: "projects/123/locations/us-central1/featurestores/my_featurestore_id/entityTypes/my_entity_type_id/features/my_feature_id"
                 or "my_feature_id" when project and location are initialized or passed, with featurestore_id and entity_type_id passed.
             featurestore_id (str):
-                Optional. Featurestore ID to retrieve feature from, when feature_name is passed as Feature ID.
+                Optional. Featurestore ID of an existing featurestore to retrieve feature from,
+                when feature_name is passed as Feature ID.
             entity_type_id (str):
-                Optional. EntityType ID to retrieve feature from, when feature_name is passed as Feature ID.
+                Optional. EntityType ID of an existing entityType to retrieve feature from,
+                when feature_name is passed as Feature ID.
+                The EntityType must exist in the Featurestore if provided by the featurestore_id.
             project (str):
                 Optional. Project to retrieve feature from. If not set, project
                 set in aiplatform.init will be used.
@@ -154,7 +157,7 @@ class Feature(base.VertexAiResourceNounWithFutureManager):
         self,
         description: Optional[str] = None,
         labels: Optional[Dict[str, str]] = None,
-        request_metadata: Optional[Sequence[Tuple[str, str]]] = (),
+        request_metadata: Optional[Sequence[Tuple[str, str]]] = None,
     ) -> "Feature":
         """Updates an existing managed feature resource.
 
@@ -252,11 +255,13 @@ class Feature(base.VertexAiResourceNounWithFutureManager):
 
         Args:
             entity_type_name (str):
-                Required. A fully-qualified entityType resource name or an entity_type ID to list features in
+                Required. A fully-qualified entityType resource name or an entity_type ID of an existing entityType
+                to list features in. The EntityType must exist in the Featurestore if provided by the featurestore_id.
                 Example: "projects/123/locations/us-central1/featurestores/my_featurestore_id/entityTypes/my_entity_type_id"
                 or "my_entity_type_id" when project and location are initialized or passed, with featurestore_id passed.
             featurestore_id (str):
-                Optional. Featurestore ID to list features in, when entity_type_name is passed as entity_type ID.
+                Optional. Featurestore ID of an existing featurestore to list features in,
+                when entity_type_name is passed as entity_type ID.
             filter (str):
                 Optional. Lists the Features that match the filter expression. The
                 following filters are supported:
@@ -475,7 +480,7 @@ class Feature(base.VertexAiResourceNounWithFutureManager):
         project: Optional[str] = None,
         location: Optional[str] = None,
         credentials: Optional[auth_credentials.Credentials] = None,
-        request_metadata: Optional[Sequence[Tuple[str, str]]] = (),
+        request_metadata: Optional[Sequence[Tuple[str, str]]] = None,
         sync: bool = True,
     ) -> "Feature":
         """Creates a Feature resource in an EntityType.
@@ -509,11 +514,13 @@ class Feature(base.VertexAiResourceNounWithFutureManager):
                 Required. Immutable. Type of Feature value.
                 One of BOOL, BOOL_ARRAY, DOUBLE, DOUBLE_ARRAY, INT64, INT64_ARRAY, STRING, STRING_ARRAY, BYTES.
             entity_type_name (str):
-                Required. A fully-qualified entityType resource name or an entity_type ID to create Feature in
+                Required. A fully-qualified entityType resource name or an entity_type ID of an existing entityType
+                to create Feature in. The EntityType must exist in the Featurestore if provided by the featurestore_id.
                 Example: "projects/123/locations/us-central1/featurestores/my_featurestore_id/entityTypes/my_entity_type_id"
                 or "my_entity_type_id" when project and location are initialized or passed, with featurestore_id passed.
             featurestore_id (str):
-                Optional. Featurestore to create Feature in if `entity_type_name` is passed an entity_type ID.
+                Optional. Featurestore ID of an existing featurestore to create Feature in
+                if `entity_type_name` is passed an entity_type ID.
             description (str):
                 Optional. Description of the Feature.
             labels (Dict[str, str]):

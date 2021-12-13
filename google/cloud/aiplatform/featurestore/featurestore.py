@@ -109,7 +109,7 @@ class Featurestore(base.VertexAiResourceNounWithFutureManager):
     def update(
         self,
         labels: Optional[Dict[str, str]] = None,
-        request_metadata: Optional[Sequence[Tuple[str, str]]] = (),
+        request_metadata: Optional[Sequence[Tuple[str, str]]] = None,
     ) -> "Featurestore":
         """Updates an existing managed featurestore resource.
 
@@ -150,7 +150,7 @@ class Featurestore(base.VertexAiResourceNounWithFutureManager):
     def update_online_store(
         self,
         fixed_node_count: int,
-        request_metadata: Optional[Sequence[Tuple[str, str]]] = (),
+        request_metadata: Optional[Sequence[Tuple[str, str]]] = None,
     ) -> "Featurestore":
         """Updates the online store of an existing managed featurestore resource.
 
@@ -180,7 +180,7 @@ class Featurestore(base.VertexAiResourceNounWithFutureManager):
         self,
         labels: Optional[Dict[str, str]] = None,
         fixed_node_count: Optional[int] = None,
-        request_metadata: Optional[Sequence[Tuple[str, str]]] = (),
+        request_metadata: Optional[Sequence[Tuple[str, str]]] = None,
     ) -> "Featurestore":
         """Updates an existing managed featurestore resource.
 
@@ -302,7 +302,7 @@ class Featurestore(base.VertexAiResourceNounWithFutureManager):
 
     @base.optional_sync()
     def delete_entity_types(
-        self, entity_type_ids: List[str], force: bool = False, sync: bool = True,
+        self, entity_type_ids: List[str], sync: bool = True, force: bool = False,
     ) -> None:
         """Deletes entity_type resources in this Featurestore given their entity_type IDs.
         WARNING: This deletion is permanent.
@@ -310,13 +310,13 @@ class Featurestore(base.VertexAiResourceNounWithFutureManager):
         Args:
             entity_type_ids (List[str]):
                 Required. The list of entity_type IDs to be deleted.
-            force (bool):
-                Optional. If force is set to True, all features in each entityType
-                will be deleted prior to entityType deletion. Default is False.
             sync (bool):
                 Optional. Whether to execute this deletion synchronously. If False, this method
                 will be executed in concurrent Future and any downstream object will
                 be immediately returned and synced when the Future has completed.
+            force (bool):
+                Optional. If force is set to True, all features in each entityType
+                will be deleted prior to entityType deletion. Default is False.
         """
         entity_types = []
         for entity_type_id in entity_type_ids:
@@ -328,7 +328,7 @@ class Featurestore(base.VertexAiResourceNounWithFutureManager):
             entity_type.wait()
 
     @base.optional_sync()
-    def delete(self, force: bool = False, sync: bool = True) -> None:
+    def delete(self, sync: bool = True, force: bool = False) -> None:
         """Deletes this Featurestore resource. If force is set to True,
         all entityTypes in this Featurestore will be deleted prior to featurestore deletion,
         and all features in each entityType will be deleted prior to each entityType deletion.
@@ -367,7 +367,7 @@ class Featurestore(base.VertexAiResourceNounWithFutureManager):
         project: Optional[str] = None,
         location: Optional[str] = None,
         credentials: Optional[auth_credentials.Credentials] = None,
-        request_metadata: Optional[Sequence[Tuple[str, str]]] = (),
+        request_metadata: Optional[Sequence[Tuple[str, str]]] = None,
         encryption_spec_key_name: Optional[str] = None,
         sync: bool = True,
     ) -> "Featurestore":
@@ -488,7 +488,7 @@ class Featurestore(base.VertexAiResourceNounWithFutureManager):
         entity_type_id: str,
         description: Optional[str] = None,
         labels: Optional[Dict[str, str]] = None,
-        request_metadata: Optional[Sequence[Tuple[str, str]]] = (),
+        request_metadata: Optional[Sequence[Tuple[str, str]]] = None,
         sync: bool = True,
     ) -> "featurestore.EntityType":
         """Creates an EntityType resource in this Featurestore.
