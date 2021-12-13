@@ -43,7 +43,7 @@ class Featurestore(base.VertexAiResourceNounWithFutureManager):
     _format_resource_name_method = "featurestore_path"
 
     @staticmethod
-    def _resource_id_validator(resource_id):
+    def _resource_id_validator(resource_id: str):
         """Validates resource ID.
 
         Args:

@@ -44,7 +44,7 @@ class Feature(base.VertexAiResourceNounWithFutureManager):
     _format_resource_name_method = "feature_path"
 
     @staticmethod
-    def _resource_id_validator(resource_id):
+    def _resource_id_validator(resource_id: str):
         """Validates resource ID.
 
         Args:
@@ -95,7 +95,14 @@ class Feature(base.VertexAiResourceNounWithFutureManager):
             credentials (auth_credentials.Credentials):
                 Optional. Custom credentials to use to retrieve this Feature. Overrides
                 credentials set in aiplatform.init.
+        Raises:
+            ValueError: If only one of featurestore_id or entity_type_id is provided.
         """
+
+        if bool(featurestore_id) != bool(entity_type_id):
+            raise ValueError(
+                "featurestore_id and entity_type_id must both be provided or ommitted."
+            )
 
         super().__init__(
             project=project,

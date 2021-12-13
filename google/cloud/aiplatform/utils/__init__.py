@@ -124,9 +124,6 @@ def full_resource_name(
             Required. A resource noun to validate the resource name against.
             For example, you would pass "datasets" to validate
             "projects/123/locations/us-central1/datasets/456".
-            In the case of deeper naming structures, e.g.,
-            "projects/123/locations/us-central1/metadataStores/123/contexts/456",
-            you would pass "metadataStores/123/contexts" as the resource_noun.
         parse_resource_name_method (Callable[[str], Dict[str,str]]):
             Required. Method that parses a resource name into its segment parts.
             These are generally included with GAPIC clients.
@@ -136,6 +133,10 @@ def full_resource_name(
         parent_resource_name_fields (Dict[str, str]):
             Optional. Dictionary of segment parts where key is the resource noun and
             values are the resource ids.
+            For example:
+                {
+                    "metadataStores": "123"
+                }
         project (str):
             Optional. project to retrieve resource_noun from. If not set, project
             set in aiplatform.init will be used.

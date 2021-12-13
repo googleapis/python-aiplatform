@@ -572,6 +572,22 @@ class TestFeature:
             name=_TEST_FEATURE_NAME, retry=base._DEFAULT_RETRY
         )
 
+    def test_init_feature_raises_with_only_featurestore_id(self):
+        aiplatform.init(project=_TEST_PROJECT)
+
+        with pytest.raises(ValueError):
+            aiplatform.Feature(
+                feature_name=_TEST_FEATURE_NAME, featurestore_id=_TEST_FEATURESTORE_ID,
+            )
+
+    def test_init_feature_raises_with_only_entity_type_id(self):
+        aiplatform.init(project=_TEST_PROJECT)
+
+        with pytest.raises(ValueError):
+            aiplatform.Feature(
+                feature_name=_TEST_FEATURE_NAME, entity_type_id=_TEST_ENTITY_TYPE_ID,
+            )
+
     @pytest.mark.usefixtures("get_feature_mock")
     def test_get_featurestore(self, get_featurestore_mock):
         aiplatform.init(project=_TEST_PROJECT)

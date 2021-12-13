@@ -572,10 +572,13 @@ class VertexAiResourceNoun(metaclass=abc.ABCMeta):
         parent_resource_name_fields: Optional[Dict[str, str]] = None,
     ) -> proto.Message:
         """Returns GAPIC service representation of client class resource.
-        
+
         Args:
-            resource_name (str):
-            Required. A fully-qualified resource name or ID.
+            resource_name (str): Required. A fully-qualified resource name or ID.
+            parent_resource_name_fields (Dict[str,str]):
+                Optional. Mapping of parent resource name key to values. These
+                will be used to compose the resource name if only resource ID is given.
+                Should not include project and location.
         """
         resource_name = utils.full_resource_name(
             resource_name=resource_name,
