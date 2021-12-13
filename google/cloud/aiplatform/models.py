@@ -786,7 +786,7 @@ class Endpoint(base.VertexAiResourceNounWithFutureManager):
                 will be executed in concurrent Future and any downstream object will
                 be immediately returned and synced when the Future has completed.
         Raises:
-            ValueError if there is not current traffic split and traffic percentage
+            ValueError: If there is not current traffic split and traffic percentage
             is not 0 or 100.
         """
         _LOGGER.log_action_start_against_resource(
@@ -2385,9 +2385,9 @@ class Model(base.VertexAiResourceNounWithFutureManager):
                 Details of the completed export with output destination paths to
                 the artifacts or container image.
         Raises:
-            ValueError if model does not support exporting.
+            ValueError: If model does not support exporting.
 
-            ValueError if invalid arguments or export formats are provided.
+            ValueError: If invalid arguments or export formats are provided.
         """
 
         # Model does not support exporting
