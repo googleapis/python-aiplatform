@@ -993,7 +993,7 @@ class Endpoint(base.VertexAiResourceNounWithFutureManager):
         sync=True,
     ) -> None:
         """Undeploys a deployed model.
-        
+
         The model to be undeployed should have no traffic or user must provide
         a new traffic_split with the remaining deployed models. Refer
         to `Endpoint.traffic_split` for the current traffic split mapping.
@@ -1024,18 +1024,17 @@ class Endpoint(base.VertexAiResourceNounWithFutureManager):
                     "Sum of all traffic within traffic split needs to be 100."
                 )
 
+        # Two or more models deployed to Endpoint and remaining traffic will be zero
         elif (
-            len(self.traffic_split) > 1  # Two or more models deployed to Endpoint
+            len(self.traffic_split) > 1
             and deployed_model_id in self._gca_resource.traffic_split
-            and self._gca_resource.traffic_split[deployed_model_id]
+            and self._gca_resource.traffic_split[deployed_model_id] == 100
         ):
-            leftover_traffic = self._gca_resource.traffic_split[deployed_model_id]
-
             raise ValueError(
                 f"Undeploying deployed model '{deployed_model_id}' would leave the remaining "
-                f"traffic split at {100 - leftover_traffic}%. Traffic split must add up to 100% "
-                f"when models are deployed. Please provide an updated traffic_split "
-                "or undeploy other models without traffic first."
+                "traffic split at 0%. Traffic split must add up to 100% when models are "
+                "deployed. Please undeploy the other models first or provide an updated "
+                "traffic_split."
             )
 
         self._undeploy(
@@ -1294,8 +1293,13 @@ class Endpoint(base.VertexAiResourceNounWithFutureManager):
         """
         self._sync_gca_resource()
 
-        for deployed_model in self._gca_resource.deployed_models:
-            self._undeploy(deployed_model_id=deployed_model.id, sync=sync)
+        models_to_undeploy = sorted(  # Undeploy zero traffic models first
+            self._gca_resource.traffic_split.keys(),
+            key=lambda id: self._gca_resource.traffic_split[id],
+        )
+
+        for deployed_model in models_to_undeploy:
+            self._undeploy(deployed_model_id=deployed_model, sync=sync)
 
         return self
 
