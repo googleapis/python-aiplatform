@@ -504,7 +504,7 @@ class VertexAiResourceNoun(metaclass=abc.ABCMeta):
     @classmethod
     def _parse_resource_name(cls, resource_name: str) -> Dict[str, str]:
         """
-        Parses resource name into it's component segments.
+        Parses resource name into its component segments.
 
         Args:
             resource_name: Resource name of this resource.
@@ -519,7 +519,7 @@ class VertexAiResourceNoun(metaclass=abc.ABCMeta):
     @classmethod
     def _format_resource_name(cls, **kwargs: str) -> str:
         """
-        Formats a resource name it's component segments.
+        Formats a resource name using its component segments.
 
         Args:
             **kwargs: Resource name parts. Singular and snake case. ie:
@@ -571,8 +571,8 @@ class VertexAiResourceNoun(metaclass=abc.ABCMeta):
         resource_name: str,
         parent_resource_name_fields: Optional[Dict[str, str]] = None,
     ) -> proto.Message:
-        """Returns GAPIC service representation of client class resource."""
-        """
+        """Returns GAPIC service representation of client class resource.
+        
         Args:
             resource_name (str):
             Required. A fully-qualified resource name or ID.

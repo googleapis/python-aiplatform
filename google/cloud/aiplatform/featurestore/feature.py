@@ -324,7 +324,7 @@ class Feature(base.VertexAiResourceNounWithFutureManager):
                 else featurestore_id,
                 project=project,
                 location=location,
-                resource_id_validator=cls._resource_id_validator,
+                resource_id_validator=featurestore.EntityType._resource_id_validator,
             ),
         )
 

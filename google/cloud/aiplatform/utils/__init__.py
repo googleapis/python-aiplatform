@@ -101,7 +101,7 @@ def validate_id(resource_id: str):
 
     """
     if not RESOURCE_ID_PATTERN.match(resource_id):
-        raise ValueError("Resource {resource_id} is not a valid resource name or id.")
+        raise ValueError(f"Resource {resource_id} is not a valid resource id.")
 
 
 def full_resource_name(
@@ -128,7 +128,7 @@ def full_resource_name(
             "projects/123/locations/us-central1/metadataStores/123/contexts/456",
             you would pass "metadataStores/123/contexts" as the resource_noun.
         parse_resource_name_method (Callable[[str], Dict[str,str]]):
-            Required. Method that parses a the resource name into is segment parts.
+            Required. Method that parses a resource name into its segment parts.
             These are generally included with GAPIC clients.
         format_resource_name_method (Callable[..., str]):
             Required. Method that takes segment parts of resource names and returns

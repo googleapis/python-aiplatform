@@ -309,7 +309,7 @@ class EntityType(base.VertexAiResourceNounWithFutureManager):
                 format_resource_name_method=featurestore.Featurestore._format_resource_name,
                 project=project,
                 location=location,
-                resource_id_validator=cls._resource_id_validator,
+                resource_id_validator=featurestore.Featurestore._resource_id_validator,
             ),
         )
 
