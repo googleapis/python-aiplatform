@@ -116,7 +116,7 @@ class _VertexLitModel(lit_model.Model):
     ) -> List[lit_types.JsonDict]:
         """Returns predictions for a single batch of examples.
             Args:
-              inputs: 
+              inputs:
                 sequence of inputs, following model.input_spec()
             Returns:
                 list of outputs, following model.output_spec()
