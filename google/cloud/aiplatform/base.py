@@ -504,7 +504,7 @@ class VertexAiResourceNoun(metaclass=abc.ABCMeta):
             location(str): The location of the resource noun.
 
         Raises:
-            RuntimeError if location is different from resource location
+            RuntimeError: If location is different from resource location
         """
 
         fields = utils.extract_fields_from_resource_name(
@@ -604,7 +604,7 @@ class VertexAiResourceNoun(metaclass=abc.ABCMeta):
         """Helper method to raise when property is not accessible.
 
         Raises:
-            RuntimeError if _gca_resource is has not been created.
+            RuntimeError: If _gca_resource is has not been created.
         """
         if self._gca_resource is None:
             raise RuntimeError(
@@ -1115,7 +1115,7 @@ class VertexAiResourceNounWithFutureManager(VertexAiResourceNoun, FutureManager)
         job.run(sync=False, ...)
         job._wait_for_resource_creation()
         Raises:
-            RuntimeError if the resource has not been scheduled to be created.
+            RuntimeError: If the resource has not been scheduled to be created.
         """
 
         # If the user calls this but didn't actually invoke an API to create
@@ -1141,7 +1141,7 @@ class VertexAiResourceNounWithFutureManager(VertexAiResourceNoun, FutureManager)
         resource creation has failed asynchronously.
 
         Raises:
-            RuntimeError when resource has not been created.
+            RuntimeError: When resource has not been created.
         """
         if not getattr(self._gca_resource, "name", None):
             raise RuntimeError(
