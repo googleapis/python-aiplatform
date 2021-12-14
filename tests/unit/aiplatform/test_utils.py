@@ -19,6 +19,7 @@
 import pytest
 from typing import Callable, Dict, Optional
 import datetime
+from decimal import Decimal
 
 from google.protobuf import timestamp_pb2
 
@@ -325,8 +326,28 @@ def test_client_w_override_select_version():
 @pytest.mark.parametrize(
     "year,month,day,hour,minute,second,microsecond,expected_seconds,expected_nanos",
     [
-        (2021, 12, 23, 23, 59, 59, 999999, 1640332799, 999999046),
-        (2013, 1, 1, 1, 1, 1, 000000, 1357030861, 0),
+        (
+            2021,
+            12,
+            23,
+            23,
+            59,
+            59,
+            999999,
+            1640303999,
+            int(str(Decimal(1640303999.999999)).split(".")[1][:9]),
+        ),
+        (
+            2013,
+            1,
+            1,
+            1,
+            1,
+            1,
+            199999,
+            1357002061,
+            int(str(Decimal(1357002061.199999)).split(".")[1][:9]),
+        ),
     ],
 )
 def test_get_timestamp_proto(
@@ -348,6 +369,7 @@ def test_get_timestamp_proto(
         minute=minute,
         second=second,
         microsecond=microsecond,
+        tzinfo=datetime.timezone.utc,
     )
     true_timestamp_proto = timestamp_pb2.Timestamp(
         seconds=expected_seconds, nanos=expected_nanos
