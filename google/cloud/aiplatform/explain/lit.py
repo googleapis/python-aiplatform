@@ -67,6 +67,7 @@ class _VertexLitDataset(lit_dataset.Dataset):
         self._column_types = column_types
 
     def spec(self):
+        """Return a spec describing dataset elements."""
         return dict(self._column_types)
 
 
@@ -113,6 +114,13 @@ class _VertexLitModel(lit_model.Model):
     def predict_minibatch(
         self, inputs: List[lit_types.JsonDict]
     ) -> List[lit_types.JsonDict]:
+        """Returns predictions for a single batch of examples.
+            Args:
+              inputs: 
+                sequence of inputs, following model.input_spec()
+            Returns:
+                list of outputs, following model.output_spec()
+        """
         instances = []
         for input in inputs:
             instance = [input[feature] for feature in self._input_types]
@@ -135,9 +143,11 @@ class _VertexLitModel(lit_model.Model):
         return outputs
 
     def input_spec(self) -> lit_types.Spec:
+        """Return a spec describing model inputs."""
         return dict(self._input_types)
 
     def output_spec(self) -> lit_types.Spec:
+        """Return a spec describing model outputs."""
         return self._output_types
 
 
