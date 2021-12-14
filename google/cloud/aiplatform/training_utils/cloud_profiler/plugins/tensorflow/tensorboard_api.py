@@ -29,7 +29,6 @@ from tensorboard.util import tb_logging
 from google.api_core import exceptions
 from google.cloud import aiplatform
 from google.cloud import storage
-from google.cloud.aiplatform.constants import base as constants
 from google.cloud.aiplatform.utils import TensorboardClientWithOverride
 from google.cloud.aiplatform.tensorboard import uploader_utils
 from google.cloud.aiplatform.compat.types import tensorboard_experiment
@@ -41,8 +40,6 @@ logger = tb_logging.get_logger()
 
 def _get_api_client() -> TensorboardClientWithOverride:
     """Creates an Tensorboard API client."""
-    constants.API_BASE_PATH = training_utils.environment_variables.tensorboard_api_uri
-
     m = re.match(
         "projects/.*/locations/(.*)/tensorboards/.*",
         training_utils.environment_variables.tensorboard_resource_name,
@@ -50,7 +47,9 @@ def _get_api_client() -> TensorboardClientWithOverride:
     region = m[1]
 
     api_client = aiplatform.initializer.global_config.create_client(
-        client_class=TensorboardClientWithOverride, location_override=region,
+        client_class=TensorboardClientWithOverride,
+        location_override=region,
+        api_base_path_override=training_utils.environment_variables.tensorboard_api_uri,
     )
 
     return api_client
