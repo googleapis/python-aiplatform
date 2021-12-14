@@ -157,7 +157,7 @@ class Feature(base.VertexAiResourceNounWithFutureManager):
         self,
         description: Optional[str] = None,
         labels: Optional[Dict[str, str]] = None,
-        request_metadata: Optional[Sequence[Tuple[str, str]]] = None,
+        request_metadata: Optional[Sequence[Tuple[str, str]]] = (),
     ) -> "Feature":
         """Updates an existing managed feature resource.
 
@@ -480,7 +480,7 @@ class Feature(base.VertexAiResourceNounWithFutureManager):
         project: Optional[str] = None,
         location: Optional[str] = None,
         credentials: Optional[auth_credentials.Credentials] = None,
-        request_metadata: Optional[Sequence[Tuple[str, str]]] = None,
+        request_metadata: Optional[Sequence[Tuple[str, str]]] = (),
         sync: bool = True,
     ) -> "Feature":
         """Creates a Feature resource in an EntityType.

@@ -166,7 +166,7 @@ class EntityType(base.VertexAiResourceNounWithFutureManager):
         self,
         description: Optional[str] = None,
         labels: Optional[Dict[str, str]] = None,
-        request_metadata: Optional[Sequence[Tuple[str, str]]] = None,
+        request_metadata: Optional[Sequence[Tuple[str, str]]] = (),
     ) -> "EntityType":
         """Updates an existing managed entityType resource.
 
@@ -444,7 +444,7 @@ class EntityType(base.VertexAiResourceNounWithFutureManager):
         project: Optional[str] = None,
         location: Optional[str] = None,
         credentials: Optional[auth_credentials.Credentials] = None,
-        request_metadata: Optional[Sequence[Tuple[str, str]]] = None,
+        request_metadata: Optional[Sequence[Tuple[str, str]]] = (),
         sync: bool = True,
     ) -> "EntityType":
         """Creates an EntityType resource in a Featurestore.
@@ -566,7 +566,7 @@ class EntityType(base.VertexAiResourceNounWithFutureManager):
         value_type: str,
         description: Optional[str] = None,
         labels: Optional[Dict[str, str]] = None,
-        request_metadata: Optional[Sequence[Tuple[str, str]]] = None,
+        request_metadata: Optional[Sequence[Tuple[str, str]]] = (),
         sync: bool = True,
     ) -> "featurestore.Feature":
         """Creates a Feature resource in this EntityType.
@@ -664,7 +664,7 @@ class EntityType(base.VertexAiResourceNounWithFutureManager):
     def batch_create_features(
         self,
         feature_configs: Dict[str, Dict[str, Union[bool, int, Dict[str, str], str]]],
-        request_metadata: Optional[Sequence[Tuple[str, str]]] = None,
+        request_metadata: Optional[Sequence[Tuple[str, str]]] = (),
         sync: bool = True,
     ) -> "EntityType":
         """Batch creates Feature resources in this EntityType.
@@ -879,7 +879,7 @@ class EntityType(base.VertexAiResourceNounWithFutureManager):
     def _import_feature_values(
         self,
         import_feature_values_request: gca_featurestore_service.ImportFeatureValuesRequest,
-        request_metadata: Optional[Sequence[Tuple[str, str]]] = None,
+        request_metadata: Optional[Sequence[Tuple[str, str]]] = (),
     ) -> "EntityType":
         """Imports Feature values into the Featurestore from a source storage.
 
@@ -922,7 +922,7 @@ class EntityType(base.VertexAiResourceNounWithFutureManager):
         entity_id_field: Optional[str] = None,
         disable_online_serving: Optional[bool] = None,
         worker_count: Optional[int] = None,
-        request_metadata: Optional[Sequence[Tuple[str, str]]] = None,
+        request_metadata: Optional[Sequence[Tuple[str, str]]] = (),
         sync: bool = True,
     ) -> "EntityType":
         """Ingest feature values from BigQuery.
@@ -1025,7 +1025,7 @@ class EntityType(base.VertexAiResourceNounWithFutureManager):
         entity_id_field: Optional[str] = None,
         disable_online_serving: Optional[bool] = None,
         worker_count: Optional[int] = None,
-        request_metadata: Optional[Sequence[Tuple[str, str]]] = None,
+        request_metadata: Optional[Sequence[Tuple[str, str]]] = (),
         sync: bool = True,
     ) -> "EntityType":
         """Ingest feature values from GCS.
