@@ -119,7 +119,7 @@ class Featurestore(base.VertexAiResourceNounWithFutureManager):
     def update(
         self,
         labels: Optional[Dict[str, str]] = None,
-        request_metadata: Optional[Sequence[Tuple[str, str]]] = None,
+        request_metadata: Optional[Sequence[Tuple[str, str]]] = (),
     ) -> "Featurestore":
         """Updates an existing managed featurestore resource.
 
@@ -160,7 +160,7 @@ class Featurestore(base.VertexAiResourceNounWithFutureManager):
     def update_online_store(
         self,
         fixed_node_count: int,
-        request_metadata: Optional[Sequence[Tuple[str, str]]] = None,
+        request_metadata: Optional[Sequence[Tuple[str, str]]] = (),
     ) -> "Featurestore":
         """Updates the online store of an existing managed featurestore resource.
 
@@ -190,7 +190,7 @@ class Featurestore(base.VertexAiResourceNounWithFutureManager):
         self,
         labels: Optional[Dict[str, str]] = None,
         fixed_node_count: Optional[int] = None,
-        request_metadata: Optional[Sequence[Tuple[str, str]]] = None,
+        request_metadata: Optional[Sequence[Tuple[str, str]]] = (),
     ) -> "Featurestore":
         """Updates an existing managed featurestore resource.
 
@@ -377,7 +377,7 @@ class Featurestore(base.VertexAiResourceNounWithFutureManager):
         project: Optional[str] = None,
         location: Optional[str] = None,
         credentials: Optional[auth_credentials.Credentials] = None,
-        request_metadata: Optional[Sequence[Tuple[str, str]]] = None,
+        request_metadata: Optional[Sequence[Tuple[str, str]]] = (),
         encryption_spec_key_name: Optional[str] = None,
         sync: bool = True,
     ) -> "Featurestore":
@@ -498,7 +498,7 @@ class Featurestore(base.VertexAiResourceNounWithFutureManager):
         entity_type_id: str,
         description: Optional[str] = None,
         labels: Optional[Dict[str, str]] = None,
-        request_metadata: Optional[Sequence[Tuple[str, str]]] = None,
+        request_metadata: Optional[Sequence[Tuple[str, str]]] = (),
         sync: bool = True,
     ) -> "featurestore.EntityType":
         """Creates an EntityType resource in this Featurestore.
