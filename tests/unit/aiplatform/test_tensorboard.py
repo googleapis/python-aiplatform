@@ -449,9 +449,7 @@ class TestTensorboardExperiment:
     def test_list_tensorboard_experiments(self, list_tensorboard_experiment_mock):
         aiplatform.init(project=_TEST_PROJECT)
 
-        tensorboard.TensorboardExperiment.list(
-            tensorboard_name=_TEST_NAME
-        )
+        tensorboard.TensorboardExperiment.list(tensorboard_name=_TEST_NAME)
 
         list_tensorboard_experiment_mock.assert_called_once_with(
             request={"parent": _TEST_NAME, "filter": None}
