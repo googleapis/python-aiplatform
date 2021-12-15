@@ -359,7 +359,7 @@ class TensorboardExperiment(_TensorboardServiceResource):
         credentials: Optional[auth_credentials.Credentials] = None,
         request_metadata: Sequence[Tuple[str, str]] = (),
     ) -> "TensorboardExperiment":
-        """Creates a new tensorboard.
+        """Creates a new TensorboardExperiment.
 
         Example Usage:
 
@@ -468,7 +468,7 @@ class TensorboardExperiment(_TensorboardServiceResource):
         location: Optional[str] = None,
         credentials: Optional[auth_credentials.Credentials] = None,
     ) -> List["TensorboardExperiment"]:
-        """List all instances of this Vertex AI Resource.
+        """List TensorboardExperiemnts in a Tensorboard resource.
 
         Example Usage:
 
