@@ -15,7 +15,10 @@
 # limitations under the License.
 #
 
-from google.cloud.aiplatform.tensorboard.tensorboard_resource import Tensorboard
+from google.cloud.aiplatform.tensorboard.tensorboard_resource import (
+    Tensorboard,
+    TensorboardExperiment,
+)
 
 
-__all__ = ("Tensorboard",)
+__all__ = ("Tensorboard", "TensorboardExperiment")
