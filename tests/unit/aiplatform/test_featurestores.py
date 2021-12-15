@@ -1131,6 +1131,7 @@ class TestEntityType:
             feature_time=_TEST_FEATURE_TIME_FIELD,
             bq_source_uri=_TEST_BQ_SOURCE_URI,
             feature_source_fields=_TEST_IMPORTING_FEATURE_SOURCE_FIELDS,
+            sync=sync,
         )
 
         if not sync:
@@ -1161,6 +1162,7 @@ class TestEntityType:
             feature_time=_TEST_FEATURE_TIME,
             gcs_source_uris=_TEST_GCS_AVRO_SOURCE_URIS,
             gcs_source_type=_TEST_GCS_SOURCE_TYPE_AVRO,
+            sync=sync,
         )
 
         if not sync:

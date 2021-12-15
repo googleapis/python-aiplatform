@@ -912,7 +912,7 @@ class EntityType(base.VertexAiResourceNounWithFutureManager):
 
         return self
 
-    @base.optional_sync()
+    @base.optional_sync(return_input_arg="self")
     def ingest_from_bq(
         self,
         feature_ids: List[str],
@@ -1014,7 +1014,7 @@ class EntityType(base.VertexAiResourceNounWithFutureManager):
             request_metadata=request_metadata,
         )
 
-    @base.optional_sync()
+    @base.optional_sync(return_input_arg="self")
     def ingest_from_gcs(
         self,
         feature_ids: List[str],
