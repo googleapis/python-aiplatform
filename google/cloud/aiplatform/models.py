@@ -997,21 +997,22 @@ class Endpoint(base.VertexAiResourceNounWithFutureManager):
     ) -> None:
         """Undeploys a deployed model.
 
-        Proportionally adjusts the traffic_split among the remaining deployed
-        models of the endpoint.
+        The model to be undeployed should have no traffic or user must provide
+        a new traffic_split with the remaining deployed models. Refer
+        to `Endpoint.traffic_split` for the current traffic split mapping.
 
         Args:
             deployed_model_id (str):
                 Required. The ID of the DeployedModel to be undeployed from the
                 Endpoint.
             traffic_split (Dict[str, int]):
-                Optional. A map from a DeployedModel's ID to the percentage of
+                Optional. A map of DeployedModel IDs to the percentage of
                 this Endpoint's traffic that should be forwarded to that DeployedModel.
-                If a DeployedModel's ID is not listed in this map, then it receives
-                no traffic. The traffic percentage values must add up to 100, or
-                map must be empty if the Endpoint is to not accept any traffic at
-                the moment. Key for model being deployed is "0". Should not be
-                provided if traffic_percentage is provided.
+                Required if undeploying a model with non-zero traffic from an Endpoint
+                with multiple deployed models. The traffic percentage values must add
+                up to 100, or map must be empty if the Endpoint is to not accept any traffic
+                at the moment. If a DeployedModel's ID is not listed in this map, then it
+                receives no traffic.
             metadata (Sequence[Tuple[str, str]]):
                 Optional. Strings which should be sent along with the request as
                 metadata.
@@ -1025,6 +1026,19 @@ class Endpoint(base.VertexAiResourceNounWithFutureManager):
                 raise ValueError(
                     "Sum of all traffic within traffic split needs to be 100."
                 )
+
+        # Two or more models deployed to Endpoint and remaining traffic will be zero
+        elif (
+            len(self.traffic_split) > 1
+            and deployed_model_id in self._gca_resource.traffic_split
+            and self._gca_resource.traffic_split[deployed_model_id] == 100
+        ):
+            raise ValueError(
+                f"Undeploying deployed model '{deployed_model_id}' would leave the remaining "
+                "traffic split at 0%. Traffic split must add up to 100% when models are "
+                "deployed. Please undeploy the other models first or provide an updated "
+                "traffic_split."
+            )
 
         self._undeploy(
             deployed_model_id=deployed_model_id,
@@ -1282,8 +1296,13 @@ class Endpoint(base.VertexAiResourceNounWithFutureManager):
         """
         self._sync_gca_resource()
 
-        for deployed_model in self._gca_resource.deployed_models:
-            self._undeploy(deployed_model_id=deployed_model.id, sync=sync)
+        models_to_undeploy = sorted(  # Undeploy zero traffic models first
+            self._gca_resource.traffic_split.keys(),
+            key=lambda id: self._gca_resource.traffic_split[id],
+        )
+
+        for deployed_model in models_to_undeploy:
+            self._undeploy(deployed_model_id=deployed_model, sync=sync)
 
         return self
 
