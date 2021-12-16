@@ -39,11 +39,12 @@ class _Dataset(base.VertexAiResourceNounWithFutureManager):
     """Managed dataset resource for Vertex AI."""
 
     client_class = utils.DatasetClientWithOverride
-    _is_client_prediction_client = False
     _resource_noun = "datasets"
     _getter_method = "get_dataset"
     _list_method = "list_datasets"
     _delete_method = "delete_dataset"
+    _parse_resource_name_method = "parse_dataset_path"
+    _format_resource_name_method = "dataset_path"
 
     _supported_metadata_schema_uris: Tuple[str] = ()
 
