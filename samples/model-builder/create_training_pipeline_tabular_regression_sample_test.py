@@ -44,6 +44,7 @@ def test_create_training_pipeline_tabular_regression_sample(
     )
     mock_get_automl_tabular_training_job.assert_called_once_with(
         display_name=constants.DISPLAY_NAME,
+        optimization_prediction_type="regression"
     )
     mock_run_automl_tabular_training_job.assert_called_once_with(
         dataset=mock_tabular_dataset,
