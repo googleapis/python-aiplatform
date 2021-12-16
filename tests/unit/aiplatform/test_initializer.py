@@ -181,6 +181,15 @@ class TestInit:
             == expected_endpoint
         )
 
+    def test_get_client_options_with_api_override(self):
+        initializer.global_config.init(location="asia-east1")
+
+        client_options = initializer.global_config.get_client_options(
+            api_base_path_override="override.googleapis.com"
+        )
+
+        assert client_options.api_endpoint == "asia-east1-override.googleapis.com"
+
 
 class TestThreadPool:
     def teardown_method(self):
