@@ -31,6 +31,8 @@ class _Artifact(resource._Resource):
     _resource_noun = "artifacts"
     _getter_method = "get_artifact"
     _delete_method = "delete_artifact"
+    _parse_resource_name_method = "parse_artifact_path"
+    _format_resource_name_method = "artifact_path"
 
     @classmethod
     def _create_resource(

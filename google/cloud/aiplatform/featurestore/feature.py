@@ -36,10 +36,22 @@ class Feature(base.VertexAiResourceNounWithFutureManager):
     client_class = utils.FeaturestoreClientWithOverride
 
     _is_client_prediction_client = False
-    _resource_noun = None
+    _resource_noun = "features"
     _getter_method = "get_feature"
     _list_method = "list_features"
     _delete_method = "delete_feature"
+    _parse_resource_name_method = "parse_feature_path"
+    _format_resource_name_method = "feature_path"
+
+    @staticmethod
+    def _resource_id_validator(resource_id: str):
+        """Validates resource ID.
+
+        Args:
+            resource_id(str):
+                The resource id to validate.
+        """
+        featurestore_utils.validate_id(resource_id)
 
     def __init__(
         self,
@@ -83,21 +95,14 @@ class Feature(base.VertexAiResourceNounWithFutureManager):
             credentials (auth_credentials.Credentials):
                 Optional. Custom credentials to use to retrieve this Feature. Overrides
                 credentials set in aiplatform.init.
+        Raises:
+            ValueError: If only one of featurestore_id or entity_type_id is provided.
         """
-        (
-            featurestore_id,
-            entity_type_id,
-            _,
-        ) = featurestore_utils.validate_and_get_feature_resource_ids(
-            feature_name=feature_name,
-            entity_type_id=entity_type_id,
-            featurestore_id=featurestore_id,
-        )
 
-        # TODO(b/208269923): Temporary workaround, update when base class supports nested resource
-        self._resource_noun = (
-            f"featurestores/{featurestore_id}/entityTypes/{entity_type_id}/features"
-        )
+        if bool(featurestore_id) != bool(entity_type_id):
+            raise ValueError(
+                "featurestore_id and entity_type_id must both be provided or ommitted."
+            )
 
         super().__init__(
             project=project,
@@ -105,16 +110,22 @@ class Feature(base.VertexAiResourceNounWithFutureManager):
             credentials=credentials,
             resource_name=feature_name,
         )
-        self._gca_resource = self._get_gca_resource(resource_name=feature_name)
+        self._gca_resource = self._get_gca_resource(
+            resource_name=feature_name,
+            parent_resource_name_fields={
+                featurestore.Featurestore._resource_noun: featurestore_id,
+                featurestore.EntityType._resource_noun: entity_type_id,
+            }
+            if featurestore_id
+            else featurestore_id,
+        )
 
     @property
     def featurestore_name(self) -> str:
         """Full qualified resource name of the managed featurestore in which this Feature is."""
-        feature_path_components = featurestore_utils.CompatFeaturestoreServiceClient.parse_feature_path(
-            path=self.resource_name
-        )
+        feature_path_components = self._parse_resource_name(self.resource_name)
 
-        return featurestore_utils.CompatFeaturestoreServiceClient.featurestore_path(
+        return featurestore.Featurestore._format_resource_name(
             project=feature_path_components["project"],
             location=feature_path_components["location"],
             featurestore=feature_path_components["featurestore"],
@@ -131,11 +142,9 @@ class Feature(base.VertexAiResourceNounWithFutureManager):
     @property
     def entity_type_name(self) -> str:
         """Full qualified resource name of the managed entityType in which this Feature is."""
-        feature_path_components = featurestore_utils.CompatFeaturestoreServiceClient.parse_feature_path(
-            path=self.resource_name
-        )
+        feature_path_components = self._parse_resource_name(self.resource_name)
 
-        return featurestore_utils.CompatFeaturestoreServiceClient.entity_type_path(
+        return featurestore.EntityType._format_resource_name(
             project=feature_path_components["project"],
             location=feature_path_components["location"],
             featurestore=feature_path_components["featurestore"],
@@ -303,12 +312,6 @@ class Feature(base.VertexAiResourceNounWithFutureManager):
         Returns:
             List[Feature] - A list of managed feature resource objects
         """
-        (
-            featurestore_id,
-            entity_type_id,
-        ) = featurestore_utils.validate_and_get_entity_type_resource_ids(
-            entity_type_name=entity_type_name, featurestore_id=featurestore_id,
-        )
 
         return cls._list(
             filter=filter,
@@ -318,9 +321,17 @@ class Feature(base.VertexAiResourceNounWithFutureManager):
             credentials=credentials,
             parent=utils.full_resource_name(
                 resource_name=entity_type_name,
-                resource_noun=f"featurestores/{featurestore_id}/entityTypes",
+                resource_noun=featurestore.EntityType._resource_noun,
+                parse_resource_name_method=featurestore.EntityType._parse_resource_name,
+                format_resource_name_method=featurestore.EntityType._format_resource_name,
+                parent_resource_name_fields={
+                    featurestore.Featurestore._resource_noun: featurestore_id
+                }
+                if featurestore_id
+                else featurestore_id,
                 project=project,
                 location=location,
+                resource_id_validator=featurestore.EntityType._resource_id_validator,
             ),
         )
 

@@ -28,15 +28,19 @@ from google.cloud.aiplatform import utils
 _LOGGER = base.Logger(__name__)
 
 
-class Tensorboard(base.VertexAiResourceNounWithFutureManager):
+class _TensorboardServiceResource(base.VertexAiResourceNounWithFutureManager):
+    client_class = utils.TensorboardClientWithOverride
+
+
+class Tensorboard(_TensorboardServiceResource):
     """Managed tensorboard resource for Vertex AI."""
 
-    client_class = utils.TensorboardClientWithOverride
-    _is_client_prediction_client = False
     _resource_noun = "tensorboards"
     _getter_method = "get_tensorboard"
     _list_method = "list_tensorboards"
     _delete_method = "delete_tensorboard"
+    _parse_resource_name_method = "parse_tensorboard_path"
+    _format_resource_name_method = "tensorboard_path"
 
     def __init__(
         self,

@@ -36,10 +36,22 @@ class EntityType(base.VertexAiResourceNounWithFutureManager):
     client_class = utils.FeaturestoreClientWithOverride
 
     _is_client_prediction_client = False
-    _resource_noun = None
+    _resource_noun = "entityTypes"
     _getter_method = "get_entity_type"
     _list_method = "list_entity_types"
     _delete_method = "delete_entity_type"
+    _parse_resource_name_method = "parse_entity_type_path"
+    _format_resource_name_method = "entity_type_path"
+
+    @staticmethod
+    def _resource_id_validator(resource_id: str):
+        """Validates resource ID.
+
+        Args:
+            resource_id(str):
+                The resource id to validate.
+        """
+        featurestore_utils.validate_id(resource_id)
 
     def __init__(
         self,
@@ -81,31 +93,26 @@ class EntityType(base.VertexAiResourceNounWithFutureManager):
                 credentials set in aiplatform.init.
         """
 
-        (
-            featurestore_id,
-            _,
-        ) = featurestore_utils.validate_and_get_entity_type_resource_ids(
-            entity_type_name=entity_type_name, featurestore_id=featurestore_id
-        )
-
-        # TODO(b/208269923): Temporary workaround, update when base class supports nested resource
-        self._resource_noun = f"featurestores/{featurestore_id}/entityTypes"
-
         super().__init__(
             project=project,
             location=location,
             credentials=credentials,
             resource_name=entity_type_name,
         )
-        self._gca_resource = self._get_gca_resource(resource_name=entity_type_name)
+        self._gca_resource = self._get_gca_resource(
+            resource_name=entity_type_name,
+            parent_resource_name_fields={
+                featurestore.Featurestore._resource_noun: featurestore_id
+            }
+            if featurestore_id
+            else featurestore_id,
+        )
 
     @property
     def featurestore_name(self) -> str:
         """Full qualified resource name of the managed featurestore in which this EntityType is."""
-        entity_type_name_components = featurestore_utils.CompatFeaturestoreServiceClient.parse_entity_type_path(
-            path=self.resource_name
-        )
-        return featurestore_utils.CompatFeaturestoreServiceClient.featurestore_path(
+        entity_type_name_components = self._parse_resource_name(self.resource_name)
+        return featurestore.Featurestore._format_resource_name(
             project=entity_type_name_components["project"],
             location=entity_type_name_components["location"],
             featurestore=entity_type_name_components["featurestore"],
@@ -128,12 +135,10 @@ class EntityType(base.VertexAiResourceNounWithFutureManager):
         Returns:
             featurestore.Feature - The managed feature resource object.
         """
-        entity_type_name_components = featurestore_utils.CompatFeaturestoreServiceClient.parse_entity_type_path(
-            path=self.resource_name
-        )
+        entity_type_name_components = self._parse_resource_name(self.resource_name)
 
         return featurestore.Feature(
-            feature_name=featurestore_utils.CompatFeaturestoreServiceClient.feature_path(
+            feature_name=featurestore.Feature._format_resource_name(
                 project=entity_type_name_components["project"],
                 location=entity_type_name_components["location"],
                 featurestore=entity_type_name_components["featurestore"],
@@ -299,9 +304,12 @@ class EntityType(base.VertexAiResourceNounWithFutureManager):
             credentials=credentials,
             parent=utils.full_resource_name(
                 resource_name=featurestore_name,
-                resource_noun="featurestores",
+                resource_noun=featurestore.Featurestore._resource_noun,
+                parse_resource_name_method=featurestore.Featurestore._parse_resource_name,
+                format_resource_name_method=featurestore.Featurestore._format_resource_name,
                 project=project,
                 location=location,
+                resource_id_validator=featurestore.Featurestore._resource_id_validator,
             ),
         )
 

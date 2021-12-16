@@ -31,6 +31,8 @@ class _Context(resource._Resource):
     _resource_noun = "contexts"
     _getter_method = "get_context"
     _delete_method = "delete_context"
+    _parse_resource_name_method = "parse_context_path"
+    _format_resource_name_method = "context_path"
 
     def add_artifacts_and_executions(
         self,
