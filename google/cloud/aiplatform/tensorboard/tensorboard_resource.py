@@ -24,6 +24,7 @@ from google.cloud.aiplatform import base
 from google.cloud.aiplatform.compat.types import tensorboard as gca_tensorboard
 from google.cloud.aiplatform.compat.types import (
     tensorboard_experiment as gca_tensorboard_experiment,
+    tensorboard_run as gca_tensorboard_run,
 )
 from google.cloud.aiplatform import initializer
 from google.cloud.aiplatform import utils
@@ -574,10 +575,12 @@ class TensorboardRun(_TensorboardServiceResource):
                 Optional. Custom credentials to use to retrieve this Tensorboard. Overrides
                 credentials set in aiplatform.init.
         Raises:
-            ValueError: if only one of tensorboard_id or tensorboard_experiment_id is provided. 
+            ValueError: if only one of tensorboard_id or tensorboard_experiment_id is provided.
         """
         if bool(tensorboard_id) != bool(tensorboard_experiment_id):
-            raise ValueError('Both tensorboard_id and tensorboard_experiment_id must be provided or neither should be provided.')
+            raise ValueError(
+                "Both tensorboard_id and tensorboard_experiment_id must be provided or neither should be provided."
+            )
 
         super().__init__(
             project=project,
@@ -625,27 +628,30 @@ class TensorboardRun(_TensorboardServiceResource):
             )
 
         Args:
-            tensorboard_experiment_id (str):
-                Required. The ID to use for the Tensorboard experiment,
-                which will become the final component of the Tensorboard
-                experiment's resource name.
+            tensorboard_run_id (str):
+                Required. The ID to use for the Tensorboard run, which
+                will become the final component of the Tensorboard run's
+                resource name.
 
-                This value should be 1-128 characters, and valid
+                This value should be 1-128 characters, and valid:
                 characters are /[a-z][0-9]-/.
+            tensorboard_experiment_name (str):
+                Required. The resource name or ID of the TensorboardExperiment
+                to create the TensorboardRun in. Resource name format:
+                ``projects/{project}/locations/{location}/tensorboards/{tensorboard}/experiments/{experiment}``
 
-                This corresponds to the ``tensorboard_experiment_id`` field
-                on the ``request`` instance; if ``request`` is provided, this
-                should not be set.
-            tensorboard_name (str):
-                Required. The resource name or ID of the Tensorboard to create
-                the TensorboardExperiment in. Format of resource name:
-                ``projects/{project}/locations/{location}/tensorboards/{tensorboard}``
+                If resource ID is provided then tensorboard_id must be provided.
+            tensorboard_id (str):
+                Optional. The resource ID of the Tensorboard to create
+                the TensorboardRun in. Format of resource name.
             display_name (str):
-                Optional. The user-defined name of the Tensorboard Experiment.
-                The name can be up to 128 characters long and can be consist
-                of any UTF-8 characters.
+                Optional. The user-defined name of the Tensorboard Run.
+                This value must be unique among all TensorboardRuns belonging to the
+                same parent TensorboardExperiment.
+
+                If not provided tensorboard_run_id will be used.
             description (str):
-                Optional. Description of this Tensorboard Experiment.
+                Optional. Description of this Tensorboard Run.
             labels (Dict[str, str]):
                 Optional. Labels with user-defined metadata to organize your Tensorboards.
                 Label keys and values can be no longer than 64 characters
@@ -677,61 +683,67 @@ class TensorboardRun(_TensorboardServiceResource):
         if labels:
             utils.validate_labels(labels)
 
+        display_name = display_name or tensorboard_run_id
+
         api_client = cls._instantiate_client(location=location, credentials=credentials)
 
         parent = utils.full_resource_name(
-            resource_name=tensorboard_name,
-            resource_noun=Tensorboard._resource_noun,
-            parse_resource_name_method=Tensorboard._parse_resource_name,
-            format_resource_name_method=Tensorboard._format_resource_name,
+            resource_name=tensorboard_experiment_name,
+            resource_noun=TensorboardExperiment._resource_noun,
+            parse_resource_name_method=TensorboardExperiment._parse_resource_name,
+            format_resource_name_method=TensorboardExperiment._format_resource_name,
+            parent_resource_name_fields={Tensorboard._resource_noun: tensorboard_id},
             project=project,
             location=location,
         )
 
-        gapic_tensorboard_experiment = gca_tensorboard_experiment.TensorboardExperiment(
+        gapic_tensorboard_run = gca_tensorboard_run.TensorboardRun(
             display_name=display_name, description=description, labels=labels,
         )
 
         _LOGGER.log_create_with_lro(cls)
 
-        tensorboard_experiment = api_client.create_tensorboard_experiment(
+        tensorboard_run = api_client.create_tensorboard_run(
             parent=parent,
-            tensorboard_experiment=gapic_tensorboard_experiment,
-            tensorboard_experiment_id=tensorboard_experiment_id,
+            tensorboard_run=gapic_tensorboard_run,
+            tensorboard_run_id=tensorboard_run_id,
             metadata=request_metadata,
         )
 
-        _LOGGER.log_create_complete(cls, tensorboard_experiment, "tb experiment")
+        _LOGGER.log_create_complete(cls, tensorboard_run, "tb_run")
 
-        return cls(
-            tensorboard_experiment_name=tensorboard_experiment.name,
-            credentials=credentials,
-        )
+        return cls(tensorboard_run_name=tensorboard_run.name, credentials=credentials,)
 
     @classmethod
     def list(
         cls,
-        tensorboard_name: str,
+        tensorboard_experiment_name: str,
+        tensorboard_id: Optional[str] = None,
         filter: Optional[str] = None,
         order_by: Optional[str] = None,
         project: Optional[str] = None,
         location: Optional[str] = None,
         credentials: Optional[auth_credentials.Credentials] = None,
-    ) -> List["TensorboardExperiment"]:
-        """List all instances of this Vertex AI Resource.
+    ) -> List["TensorboardRun"]:
+        """List all instances of TensorboardRun in TensorboardExperiment.
 
         Example Usage:
 
-            aiplatform.TensorboardExperiment.list(
-                tensorboard_name='projects/my-project/locations/us-central1/tensorboards/123'
+            aiplatform.TensorboardRun.list(
+                tensorboard_name='projects/my-project/locations/us-central1/tensorboards/123/experiments/456'
             )
 
         Args:
-            tensorboard_name(str):
+            tensorboard_experiment_name (str):
                 Required. The resource name or resource ID of the
-                Tensorboard to list
-                TensorboardExperiments. Format, if resource name:
-                'projects/{project}/locations/{location}/tensorboards/{tensorboard}'
+                TensorboardExperiment to list
+                TensorboardRun. Format, if resource name:
+                'projects/{project}/locations/{location}/tensorboards/{tensorboard}/experiments/{experiment}'
+
+                If resource ID is provided then tensorboard_id must be provided.
+            tensorboard_id (str):
+                Optional. The resource ID of the Tensorboard that contains the TensorboardExperiment
+                to list TensorboardRun.
             filter (str):
                 Optional. An expression for filtering the results of the request.
                 For field names both snake_case and camelCase are supported.
@@ -749,14 +761,15 @@ class TensorboardRun(_TensorboardServiceResource):
                 Optional. Custom credentials to use to retrieve list. Overrides
                 credentials set in aiplatform.init.
         Returns:
-            List[TensorboardExperiment] - A list of TensorboardExperiments
+            List[TensorboardRun] - A list of TensorboardRun
         """
 
         parent = utils.full_resource_name(
-            resource_name=tensorboard_name,
-            resource_noun=Tensorboard._resource_noun,
-            parse_resource_name_method=Tensorboard._parse_resource_name,
-            format_resource_name_method=Tensorboard._format_resource_name,
+            resource_name=tensorboard_experiment_name,
+            resource_noun=TensorboardExperiment._resource_noun,
+            parse_resource_name_method=TensorboardExperiment._parse_resource_name,
+            format_resource_name_method=TensorboardExperiment._format_resource_name,
+            parent_resource_name_fields={Tensorboard._resource_noun: tensorboard_id},
             project=project,
             location=location,
         )

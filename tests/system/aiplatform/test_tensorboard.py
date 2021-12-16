@@ -64,3 +64,22 @@ class TestTensorboard(e2e_base.TestEndToEnd):
         )
 
         assert len(list_tb_experiment) > 0
+
+        tb_run = aiplatform.TensorboardRun.create(
+            tensorboard_run_id="test-run",
+            tensorboard_experiment_name=tb_experiment.resource_name,
+            description="Vertex SDK Integration test run",
+            labels={"test": "labels"},
+        )
+
+        shared_state["resources"].append(tb_run)
+
+        get_tb_run = aiplatform.TensorboardRun(tb_run.resource_name)
+
+        assert tb_run.resource_name == get_tb_run.resource_name
+
+        list_tb_run = aiplatform.TensorboardRun.list(
+            tensorboard_experiment_name=tb_experiment.resource_name
+        )
+
+        assert len(list_tb_run) > 0
