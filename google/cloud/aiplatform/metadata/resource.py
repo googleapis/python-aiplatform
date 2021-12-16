@@ -26,6 +26,7 @@ from google.api_core import exceptions
 from google.auth import credentials as auth_credentials
 
 from google.cloud.aiplatform import base, initializer
+from google.cloud.aiplatform import metadata
 from google.cloud.aiplatform import utils
 from google.cloud.aiplatform.compat.types import artifact as gca_artifact
 from google.cloud.aiplatform.compat.types import context as gca_context
@@ -36,7 +37,6 @@ class _Resource(base.VertexAiResourceNounWithFutureManager, abc.ABC):
     """Metadata Resource for Vertex AI"""
 
     client_class = utils.MetadataClientWithOverride
-    _is_client_prediction_client = False
     _delete_method = None
 
     def __init__(
@@ -81,21 +81,22 @@ class _Resource(base.VertexAiResourceNounWithFutureManager, abc.ABC):
 
         if resource:
             self._gca_resource = resource
-            return
-
-        full_resource_name = resource_name
-        # Construct the full_resource_name if input resource_name is the resource_id
-        if "/" not in resource_name:
+        else:
             full_resource_name = utils.full_resource_name(
                 resource_name=resource_name,
-                resource_noun=f"metadataStores/{metadata_store_id}/{self._resource_noun}",
+                resource_noun=self._resource_noun,
+                parse_resource_name_method=self._parse_resource_name,
+                format_resource_name_method=self._format_resource_name,
+                parent_resource_name_fields={
+                    metadata.metadata_store._MetadataStore._resource_noun: metadata_store_id
+                },
                 project=self.project,
                 location=self.location,
             )
 
-        self._gca_resource = getattr(self.api_client, self._getter_method)(
-            name=full_resource_name, retry=base._DEFAULT_RETRY
-        )
+            self._gca_resource = getattr(self.api_client, self._getter_method)(
+                name=full_resource_name, retry=base._DEFAULT_RETRY
+            )
 
     @property
     def metadata(self) -> Dict:

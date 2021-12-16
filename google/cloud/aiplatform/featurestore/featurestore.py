@@ -39,6 +39,18 @@ class Featurestore(base.VertexAiResourceNounWithFutureManager):
     _getter_method = "get_featurestore"
     _list_method = "list_featurestores"
     _delete_method = "delete_featurestore"
+    _parse_resource_name_method = "parse_featurestore_path"
+    _format_resource_name_method = "featurestore_path"
+
+    @staticmethod
+    def _resource_id_validator(resource_id: str):
+        """Validates resource ID.
+
+        Args:
+            resource_id(str):
+                The resource id to validate.
+        """
+        featurestore_utils.validate_id(resource_id)
 
     def __init__(
         self,
@@ -92,12 +104,10 @@ class Featurestore(base.VertexAiResourceNounWithFutureManager):
         Returns:
             featurestore.EntityType - The managed entityType resource object.
         """
-        featurestore_name_components = featurestore_utils.CompatFeaturestoreServiceClient.parse_featurestore_path(
-            path=self.resource_name
-        )
+        featurestore_name_components = self._parse_resource_name(self.resource_name)
 
         return featurestore.EntityType(
-            entity_type_name=featurestore_utils.CompatFeaturestoreServiceClient.entity_type_path(
+            entity_type_name=featurestore.EntityType._format_resource_name(
                 project=featurestore_name_components["project"],
                 location=featurestore_name_components["location"],
                 featurestore=featurestore_name_components["featurestore"],
