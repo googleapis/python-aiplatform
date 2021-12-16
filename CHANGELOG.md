@@ -1,5 +1,24 @@
 # Changelog
 
+### [1.8.1](https://www.github.com/googleapis/python-aiplatform/compare/v1.8.0...v1.8.1) (2021-12-14)
+
+
+### Bug Fixes
+
+* add clarity to param model_name ([#888](https://www.github.com/googleapis/python-aiplatform/issues/888)) ([1d81783](https://www.github.com/googleapis/python-aiplatform/commit/1d81783b2f914dd7606ee884ca31c1a594e5135f))
+* add clarity to parameters per user feedback ([#886](https://www.github.com/googleapis/python-aiplatform/issues/886)) ([37ee0a1](https://www.github.com/googleapis/python-aiplatform/commit/37ee0a1dc6e0105e19aca18f44995a352bfc40cb))
+* add param for multi-label per user's feedback ([#887](https://www.github.com/googleapis/python-aiplatform/issues/887)) ([fda942f](https://www.github.com/googleapis/python-aiplatform/commit/fda942ffbe009077b47f36aad1c29603a451e38b))
+* add support for API base path overriding ([#908](https://www.github.com/googleapis/python-aiplatform/issues/908)) ([45c4086](https://www.github.com/googleapis/python-aiplatform/commit/45c4086dd07dd7d3d3b7417196ff61a7107d8a1a))
+* Important the correct constants and use v1 for tensorboard experiments ([#905](https://www.github.com/googleapis/python-aiplatform/issues/905)) ([48c2bf1](https://www.github.com/googleapis/python-aiplatform/commit/48c2bf1ea2fa42afea1b5d419527bfb8e49e0ac0))
+* incorrect uri for IOD yaml ([#889](https://www.github.com/googleapis/python-aiplatform/issues/889)) ([e108ef8](https://www.github.com/googleapis/python-aiplatform/commit/e108ef8250c77c8a8edeccb6b601cbe0b0380c89))
+* Minor docstring and snippet fixes ([#873](https://www.github.com/googleapis/python-aiplatform/issues/873)) ([578e06d](https://www.github.com/googleapis/python-aiplatform/commit/578e06df481c3d60074a7b8e9365f8361b04e32b))
+
+
+### Documentation
+
+* Update references to containers and notebook samples. ([#890](https://www.github.com/googleapis/python-aiplatform/issues/890)) ([67fa1f1](https://www.github.com/googleapis/python-aiplatform/commit/67fa1f179af66686339d797e5b368e96816ed1c5))
+* Updated docstrings with exception error classes ([#894](https://www.github.com/googleapis/python-aiplatform/issues/894)) ([f9aecd2](https://www.github.com/googleapis/python-aiplatform/commit/f9aecd22fe08a97e45187b4d11c755ac3b9dfadd))
+
 ## [1.8.0](https://www.github.com/googleapis/python-aiplatform/compare/v1.7.1...v1.8.0) (2021-12-03)
 
 
