@@ -1,5 +1,19 @@
 # Changelog
 
+### [1.8.2](https://www.github.com/googleapis/python-aiplatform/compare/v1.8.1...v1.8.2) (2021-12-17)
+
+
+### Features
+
+* Add LIT methods for Pandas DataFrame and TensorFlow saved model. ([#874](https://www.github.com/googleapis/python-aiplatform/issues/874)) ([03cf301](https://www.github.com/googleapis/python-aiplatform/commit/03cf301989a5802b122803eac7a2d03f2d1769fb))
+
+
+### Bug Fixes
+
+* Improve handling of undeploying model without redistributing remaining traffic ([#898](https://www.github.com/googleapis/python-aiplatform/issues/898)) ([8a8a4fa](https://www.github.com/googleapis/python-aiplatform/commit/8a8a4faa667bde2a4df04afa23a6dd5b1856f958))
+* issues/192254729 ([#914](https://www.github.com/googleapis/python-aiplatform/issues/914)) ([3ec620c](https://www.github.com/googleapis/python-aiplatform/commit/3ec620c64bd60ceb5b89918200e11e3fbff67370))
+* issues/192254729 ([#915](https://www.github.com/googleapis/python-aiplatform/issues/915)) ([0f22ff6](https://www.github.com/googleapis/python-aiplatform/commit/0f22ff61460a3f2bd55d2c10c4ee06e582f03944))
+
 ### [1.8.1](https://www.github.com/googleapis/python-aiplatform/compare/v1.8.0...v1.8.1) (2021-12-14)
 
 
