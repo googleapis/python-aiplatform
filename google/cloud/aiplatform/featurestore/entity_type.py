@@ -24,12 +24,22 @@ from google.protobuf import field_mask_pb2
 from google.cloud.aiplatform import base
 from google.cloud.aiplatform.compat.types import (
     entity_type as gca_entity_type,
+    feature_selector as gca_feature_selector,
     featurestore_service as gca_featurestore_service,
+    featurestore_online_service as gca_featurestore_online_service,
     io as gca_io,
 )
 from google.cloud.aiplatform import featurestore
+from google.cloud.aiplatform import initializer
 from google.cloud.aiplatform import utils
 from google.cloud.aiplatform.utils import featurestore_utils
+
+try:
+    import pandas as pd
+except ImportError:
+    raise ImportError(
+        "Pandas is not installed. Please install pandas to use Vertex SDK Featurestore"
+    )
 
 _LOGGER = base.Logger(__name__)
 _ALL_FEATURE_IDS = "*"
@@ -40,7 +50,6 @@ class EntityType(base.VertexAiResourceNounWithFutureManager):
 
     client_class = utils.FeaturestoreClientWithOverride
 
-    _is_client_prediction_client = False
     _resource_noun = "entityTypes"
     _getter_method = "get_entity_type"
     _list_method = "list_entity_types"
@@ -112,6 +121,10 @@ class EntityType(base.VertexAiResourceNounWithFutureManager):
             }
             if featurestore_id
             else featurestore_id,
+        )
+
+        self._featurestore_online_client = self._instantiate_featurestore_online_client(
+            location=self.location, credentials=credentials,
         )
 
     @property
@@ -1138,3 +1151,132 @@ class EntityType(base.VertexAiResourceNounWithFutureManager):
             import_feature_values_request=import_feature_values_request,
             request_metadata=request_metadata,
         )
+
+    @staticmethod
+    def _instantiate_featurestore_online_client(
+        location: Optional[str] = None,
+        credentials: Optional[auth_credentials.Credentials] = None,
+    ) -> utils.FeaturestoreOnlineServingClientWithOverride:
+        """Helper method to instantiates featurestore online client.
+
+        Args:
+            location (str): The location of this featurestore.
+            credentials (google.auth.credentials.Credentials):
+                Optional custom credentials to use when interacting with
+                the featurestore online client.
+        Returns:
+            (utils.FeaturestoreOnlineServingClientWithOverride):
+                Initialized featurestore online client with optional overrides.
+        """
+        return initializer.global_config.create_client(
+            client_class=utils.FeaturestoreOnlineServingClientWithOverride,
+            credentials=credentials,
+            location_override=location,
+        )
+
+    def read(
+        self,
+        entity_ids: Union[str, List[str]],
+        feature_ids: List[str] = None,
+        request_metadata: Optional[Sequence[Tuple[str, str]]] = (),
+    ) -> pd.DataFrame:
+        """Reads feature values for given feature IDs of given entity IDs in this EntityType.
+
+        Args:
+            entity_ids (Union[str, List[str]]):
+                Required. ID for a specific entity, or a list of IDs of entities
+                to read Feature values of. The maximum number of IDs is 100 if a list.
+            feature_ids (Union[str, List[str]]):
+                Optional. ID for a specific feature, or a list of IDs of Features in the EntityType
+                for reading feature values. If not specified, all features' value will be read.
+            request_metadata (Sequence[Tuple[str, str]]):
+                Optional. Strings which should be sent along with the request as metadata.
+
+        Returns:
+            pd.DataFrame - entities' feature values in DataFrame
+        """
+
+        if not feature_ids:
+            feature_ids = ["*"]
+        elif feature_ids and isinstance(feature_ids, str):
+            feature_ids = [feature_ids]
+
+        feature_selector = gca_feature_selector.FeatureSelector(
+            id_matcher=gca_feature_selector.IdMatcher(ids=feature_ids)
+        )
+
+        if isinstance(entity_ids, str):
+            read_feature_values_request = gca_featurestore_online_service.ReadFeatureValuesRequest(
+                entity_type=self.resource_name,
+                entity_id=entity_ids,
+                feature_selector=feature_selector,
+            )
+            response = self._featurestore_online_client.read_feature_values(
+                request=read_feature_values_request, metadata=request_metadata
+            )
+
+        elif isinstance(entity_ids, list):
+            streaming_read_feature_values_request = gca_featurestore_online_service.StreamingReadFeatureValuesRequest(
+                entity_type=self.resource_name,
+                entity_ids=entity_ids,
+                feature_selector=feature_selector,
+            )
+            response = [
+                response
+                for response in self._featurestore_online_client.streaming_read_feature_values(
+                    request=streaming_read_feature_values_request,
+                    metadata=request_metadata,
+                )
+            ]
+
+        return self._load_read_feature_values_response_to_dataframe(response=response)
+
+    @staticmethod
+    def _load_read_feature_values_response_to_dataframe(
+        response: Union[
+            gca_featurestore_online_service.ReadFeatureValuesResponse,
+            List[gca_featurestore_online_service.ReadFeatureValuesResponse],
+        ],
+    ):
+        """Loads read_feature_values_response to dataframe
+
+        Args:
+            response (Union[featurestore_online_service.ReadFeatureValuesResponse,
+                            List[featurestore_online_service.ReadFeatureValuesResponse]):
+                Required. featurestore_online_service.ReadFeatureValuesResponse from `read_feature_values`
+                or Iterable in list from `streaming_read_feature_values`.
+        Returns:
+            pd.DataFrame - response in DataFrame
+        )
+        """
+
+        if isinstance(
+            response, gca_featurestore_online_service.ReadFeatureValuesResponse
+        ):
+            response_header = response.header
+            response_entity_view = [response.entity_view]
+        elif isinstance(response, list):
+            response_header = response[0].header
+            response_entity_view = [response.entity_view for response in response[1:]]
+
+        feature_ids = [
+            feature_descriptor.id
+            for feature_descriptor in response_header.feature_descriptors
+        ]
+        data = []
+
+        for entity_view in response_entity_view:
+            entity_id = entity_view.entity_id
+            entity_data = [entity_id]
+
+            for entity_view_data in entity_view.data:
+                if entity_view_data._pb.HasField("value"):
+                    value_type = entity_view_data.value._pb.WhichOneof("value")
+                    feature_value = getattr(entity_view_data.value, value_type)
+                    if hasattr(feature_value, "values"):
+                        entity_data.append(feature_value.values)
+                    else:
+                        entity_data.append(feature_value)
+            data.append(entity_data)
+
+        return pd.DataFrame(data=data, columns=["entity_id"] + feature_ids)
