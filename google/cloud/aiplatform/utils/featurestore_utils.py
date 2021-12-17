@@ -16,7 +16,7 @@
 #
 
 import re
-from typing import Dict, NamedTuple, Optional, Tuple
+from typing import Dict, NamedTuple, Optional
 
 from google.cloud.aiplatform.compat.services import featurestore_service_client
 from google.cloud.aiplatform.compat.types import (
@@ -33,8 +33,16 @@ GCS_SOURCE_TYPE = {"csv", "avro"}
 _FEATURE_VALUE_TYPE_UNSPECIFIED = "VALUE_TYPE_UNSPECIFIED"
 
 
-def validate_id(resource_id: str):
-    """Validates feature store resource ID pattern."""
+def validate_id(resource_id: str) -> None:
+    """Validates feature store resource ID pattern.
+
+    Args:
+        resource_id (str):
+            Required. Feature Store resource ID.
+
+    Raises:
+        ValueError if resource_id is invalid.
+    """
     if not re.compile(r"^" + RESOURCE_ID_PATTERN_REGEX + r"$").match(resource_id):
         raise ValueError("Resource ID {resource_id} is not a valied resource id.")
 

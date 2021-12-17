@@ -191,7 +191,9 @@ class TestFeaturestore(e2e_base.TestEndToEnd):
 
         caplog.clear()
 
-    def test_ingest_feature_values_with_config(self, shared_state, caplog):
+    def test_batch_create_features_and_ingest_feature_values(
+        self, shared_state, caplog
+    ):
 
         assert shared_state["movie_entity_type"]
         movie_entity_type = shared_state["movie_entity_type"]

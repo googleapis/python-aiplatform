@@ -509,9 +509,16 @@ class EntityType(base.VertexAiResourceNounWithFutureManager):
 
         featurestore_name = utils.full_resource_name(
             resource_name=featurestore_name,
-            resource_noun="featurestores",
+            resource_noun=featurestore.Featurestore._resource_noun,
+            parse_resource_name_method=featurestore.Featurestore._parse_resource_name,
+            format_resource_name_method=featurestore.Featurestore._format_resource_name,
             project=project,
             location=location,
+            resource_id_validator=featurestore.Featurestore._resource_id_validator,
+        )
+
+        featurestore_name_components = featurestore.Featurestore._parse_resource_name(
+            featurestore_name
         )
 
         gapic_entity_type = gca_entity_type.EntityType()
@@ -524,12 +531,7 @@ class EntityType(base.VertexAiResourceNounWithFutureManager):
             gapic_entity_type.description = description
 
         api_client = cls._instantiate_client(
-            location=featurestore_utils.CompatFeaturestoreServiceClient.parse_featurestore_path(
-                path=featurestore_name
-            )[
-                "location"
-            ],
-            credentials=credentials,
+            location=featurestore_name_components["location"], credentials=credentials,
         )
 
         created_entity_type_lro = api_client.create_entity_type(

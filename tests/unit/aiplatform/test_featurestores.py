@@ -28,6 +28,8 @@ from google.protobuf import field_mask_pb2
 from google.cloud import aiplatform
 from google.cloud.aiplatform import base
 from google.cloud.aiplatform import initializer
+from google.cloud.aiplatform import utils
+
 from google.cloud.aiplatform.utils import featurestore_utils
 from google.cloud.aiplatform_v1.services.featurestore_service import (
     client as featurestore_service_client,

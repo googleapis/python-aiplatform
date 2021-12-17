@@ -51,7 +51,7 @@ class Feature(base.VertexAiResourceNounWithFutureManager):
             resource_id(str):
                 The resource id to validate.
         """
-        featurestore_utils.validate_id(resource_id)
+        featurestore_utils.validate_feature_id(resource_id)
 
     def __init__(
         self,
@@ -568,24 +568,23 @@ class Feature(base.VertexAiResourceNounWithFutureManager):
             Feature - feature resource object
 
         """
-        (
-            featurestore_id,
-            _,
-        ) = featurestore_utils.validate_and_get_entity_type_resource_ids(
-            entity_type_name=entity_type_name, featurestore_id=featurestore_id,
-        )
-
         entity_type_name = utils.full_resource_name(
             resource_name=entity_type_name,
-            resource_noun=f"featurestores/{featurestore_id}/entityTypes",
+            resource_noun=featurestore.EntityType._resource_noun,
+            parse_resource_name_method=featurestore.EntityType._parse_resource_name,
+            format_resource_name_method=featurestore.EntityType._format_resource_name,
+            parent_resource_name_fields={
+                featurestore.Featurestore._resource_noun: featurestore_id
+            }
+            if featurestore_id
+            else featurestore_id,
             project=project,
             location=location,
+            resource_id_validator=featurestore.EntityType._resource_id_validator,
         )
-        location = featurestore_utils.CompatFeaturestoreServiceClient.parse_entity_type_path(
-            path=entity_type_name
-        )[
-            "location"
-        ]
+        entity_type_name_components = featurestore.EntityType._parse_resource_name(
+            entity_type_name
+        )
 
         feature_config = featurestore_utils._FeatureConfig(
             feature_id=feature_id,
@@ -597,7 +596,9 @@ class Feature(base.VertexAiResourceNounWithFutureManager):
         create_feature_request = feature_config.get_create_feature_request()
         create_feature_request.parent = entity_type_name
 
-        api_client = cls._instantiate_client(location=location, credentials=credentials)
+        api_client = cls._instantiate_client(
+            location=entity_type_name_components["location"], credentials=credentials,
+        )
 
         created_feature_lro = api_client.create_feature(
             request=create_feature_request, metadata=request_metadata,
