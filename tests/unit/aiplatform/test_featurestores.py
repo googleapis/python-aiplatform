@@ -38,6 +38,7 @@ from google.cloud.aiplatform_v1.types import (
     encryption_spec as gca_encryption_spec,
     entity_type as gca_entity_type,
     feature as gca_feature,
+    feature_selector as gca_feature_selector,
     featurestore as gca_featurestore,
     featurestore_service as gca_featurestore_service,
     io as gca_io,
@@ -133,6 +134,8 @@ _TEST_IMPORTING_FEATURE_SOURCE_FIELDS = {
     "my_feature_id_1": "my_feature_id_1_source_field",
 }
 
+_TEST_BATCH_READING_ENTITY_TYPE_IDS = ["my_entity_type_id_1"]
+
 _TEST_FEATURE_TIME_FIELD = "feature_time_field"
 _TEST_FEATURE_TIME = datetime.datetime.now()
 
@@ -140,12 +143,20 @@ _TEST_BQ_SOURCE_URI = "bq://project.dataset.table_name"
 _TEST_GCS_AVRO_SOURCE_URIS = [
     "gs://my_bucket/my_file_1.avro",
 ]
+_TEST_GCS_CSV_SOURCE_URI = "gs://my_bucket/my_file_1.csv"
 _TEST_GCS_CSV_SOURCE_URIS = [
     "gs://my_bucket/my_file_1.csv",
 ]
 _TEST_GCS_SOURCE_TYPE_CSV = "csv"
 _TEST_GCS_SOURCE_TYPE_AVRO = "avro"
 _TEST_GCS_SOURCE_TYPE_INVALID = "json"
+
+_TEST_BQ_DESTINATION_URI = "bq://project.dataset.table_name"
+_TEST_GCS_OUTPUT_URI_PREFIX = "gs://my_bucket/path/to_prefix"
+
+_TEST_GCS_DESTINATION_TYPE_CSV = "csv"
+_TEST_GCS_DESTINATION_TYPE_TFRECORD = "tfrecord"
+_TEST_GCS_DESTINATION_TYPE_INVALID = "json"
 
 _TEST_BQ_SOURCE = gca_io.BigQuerySource(input_uri=_TEST_BQ_SOURCE_URI)
 _TEST_AVRO_SOURCE = gca_io.AvroSource(
@@ -154,6 +165,33 @@ _TEST_AVRO_SOURCE = gca_io.AvroSource(
 _TEST_CSV_SOURCE = gca_io.CsvSource(
     gcs_source=gca_io.GcsSource(uris=_TEST_GCS_CSV_SOURCE_URIS)
 )
+
+_TEST_BQ_DESTINATION = gca_io.BigQueryDestination(output_uri=_TEST_BQ_DESTINATION_URI)
+_TEST_CSV_DESTINATION = gca_io.CsvDestination(
+    gcs_destination=gca_io.GcsDestination(output_uri_prefix=_TEST_GCS_OUTPUT_URI_PREFIX)
+)
+_TEST_TFRECORD_DESTINATION = gca_io.TFRecordDestination(
+    gcs_destination=gca_io.GcsDestination(output_uri_prefix=_TEST_GCS_OUTPUT_URI_PREFIX)
+)
+
+
+def _get_feature_destination_setting_proto(feature_id, destination_field=None):
+    destination_feature_setting_proto = gca_featurestore_service.DestinationFeatureSetting(
+        feature_id=feature_id
+    )
+    if destination_field:
+        destination_feature_setting_proto.destination_field = destination_field
+    return destination_feature_setting_proto
+
+
+def _get_entity_type_spec_proto_with_all_features(entity_type_id):
+    entity_type_spec_proto = gca_featurestore_service.BatchReadFeatureValuesRequest.EntityTypeSpec(
+        entity_type_id=entity_type_id,
+        feature_selector=gca_feature_selector.FeatureSelector(
+            id_matcher=gca_feature_selector.IdMatcher(ids=["*"])
+        ),
+    )
+    return entity_type_spec_proto
 
 
 # All Featurestore Mocks
@@ -225,6 +263,17 @@ def create_featurestore_mock():
         )
         create_featurestore_mock.return_value = create_featurestore_lro_mock
         yield create_featurestore_mock
+
+
+@pytest.fixture
+def batch_read_feature_values_mock():
+    with patch.object(
+        featurestore_service_client.FeaturestoreServiceClient,
+        "batch_read_feature_values",
+    ) as batch_read_feature_values_mock:
+        batch_read_feature_values_lro_mock = mock.Mock(operation.Operation)
+        batch_read_feature_values_mock.return_value = batch_read_feature_values_lro_mock
+        yield batch_read_feature_values_mock
 
 
 # ALL EntityType Mocks
@@ -710,6 +759,259 @@ class TestFeaturestore:
             featurestore_id=_TEST_FEATURESTORE_ID,
             metadata=_TEST_REQUEST_METADATA,
         )
+
+    @pytest.mark.usefixtures("get_featurestore_mock")
+    @pytest.mark.parametrize(
+        "feature_destination_fields, expected",
+        [
+            ({}, ([], [])),
+            ([], ([], [])),
+            (None, ([], [])),
+            (
+                {"feature_id_1": "feature_id_1_destination_field"},
+                (
+                    ["feature_id_1"],
+                    [
+                        _get_feature_destination_setting_proto(
+                            "feature_id_1", "feature_id_1_destination_field"
+                        )
+                    ],
+                ),
+            ),
+            (
+                ["feature_id_1"],
+                (
+                    ["feature_id_1"],
+                    [_get_feature_destination_setting_proto("feature_id_1")],
+                ),
+            ),
+            (
+                {"feature_id_1"},
+                (
+                    ["feature_id_1"],
+                    [_get_feature_destination_setting_proto("feature_id_1")],
+                ),
+            ),
+            (
+                {"feature_id_1": None},
+                (
+                    ["feature_id_1"],
+                    [_get_feature_destination_setting_proto("feature_id_1")],
+                ),
+            ),
+        ],
+    )
+    def test_validate_and_get_feature_id_and_destination_feature_setting(
+        self, feature_destination_fields, expected
+    ):
+        aiplatform.init(project=_TEST_PROJECT)
+
+        my_featurestore = aiplatform.Featurestore(
+            featurestore_name=_TEST_FEATURESTORE_NAME
+        )
+        assert (
+            expected
+            == my_featurestore._validate_and_get_feature_id_and_destination_feature_setting(
+                feature_destination_fields=feature_destination_fields
+            )
+        )
+
+    @pytest.mark.usefixtures("get_featurestore_mock")
+    @pytest.mark.parametrize(
+        "feature_destination_fields", ["feature_id_1", {"feature_id_1": 1}, 1],
+    )
+    def test_validate_and_get_feature_id_and_destination_feature_setting_with_raise(
+        self, feature_destination_fields
+    ):
+        aiplatform.init(project=_TEST_PROJECT)
+
+        my_featurestore = aiplatform.Featurestore(
+            featurestore_name=_TEST_FEATURESTORE_NAME
+        )
+        with pytest.raises(TypeError):
+            my_featurestore._validate_and_get_feature_id_and_destination_feature_setting(
+                feature_destination_fields=feature_destination_fields
+            )
+
+    @pytest.mark.usefixtures("get_featurestore_mock")
+    def test_validate_and_get_batch_read_feature_values_request(self,):
+        aiplatform.init(project=_TEST_PROJECT)
+        my_featurestore = aiplatform.Featurestore(
+            featurestore_name=_TEST_FEATURESTORE_NAME
+        )
+        expected_batch_read_feature_values_request = gca_featurestore_service.BatchReadFeatureValuesRequest(
+            featurestore=my_featurestore.resource_name,
+            destination=gca_featurestore_service.FeatureValueDestination(
+                bigquery_destination=_TEST_BQ_DESTINATION,
+            ),
+            entity_type_specs=[
+                _get_entity_type_spec_proto_with_all_features("my_entity_type_id_1")
+            ],
+        )
+        assert (
+            expected_batch_read_feature_values_request
+            == my_featurestore._validate_and_get_batch_read_feature_values_request(
+                entity_type_ids=_TEST_BATCH_READING_ENTITY_TYPE_IDS,
+                destination=_TEST_BQ_DESTINATION,
+            )
+        )
+
+    @pytest.mark.usefixtures("get_featurestore_mock")
+    def test_validate_and_get_batch_read_feature_values_request_with_read_instances(
+        self,
+    ):
+
+        aiplatform.init(project=_TEST_PROJECT)
+        my_featurestore = aiplatform.Featurestore(
+            featurestore_name=_TEST_FEATURESTORE_NAME
+        )
+        expected_batch_read_feature_values_request = gca_featurestore_service.BatchReadFeatureValuesRequest(
+            featurestore=my_featurestore.resource_name,
+            destination=gca_featurestore_service.FeatureValueDestination(
+                bigquery_destination=_TEST_BQ_DESTINATION,
+            ),
+            entity_type_specs=[
+                _get_entity_type_spec_proto_with_all_features("my_entity_type_id_1")
+            ],
+            bigquery_read_instances=_TEST_BQ_SOURCE,
+        )
+        assert (
+            expected_batch_read_feature_values_request
+            == my_featurestore._validate_and_get_batch_read_feature_values_request(
+                entity_type_ids=_TEST_BATCH_READING_ENTITY_TYPE_IDS,
+                destination=_TEST_BQ_DESTINATION,
+                read_instances=_TEST_BQ_SOURCE,
+            )
+        )
+
+    @pytest.mark.usefixtures("get_featurestore_mock")
+    @pytest.mark.parametrize(
+        "read_instances, expected",
+        [
+            (_TEST_BQ_SOURCE_URI, _TEST_BQ_SOURCE),
+            (_TEST_GCS_CSV_SOURCE_URIS, _TEST_CSV_SOURCE),
+            (_TEST_GCS_CSV_SOURCE_URI, _TEST_CSV_SOURCE),
+        ],
+    )
+    def test_get_read_instances(self, read_instances, expected):
+        aiplatform.init(project=_TEST_PROJECT)
+        my_featurestore = aiplatform.Featurestore(
+            featurestore_name=_TEST_FEATURESTORE_NAME
+        )
+        assert expected == my_featurestore._get_read_instances(
+            read_instances=read_instances
+        )
+
+    @pytest.mark.usefixtures("get_featurestore_mock")
+    @pytest.mark.parametrize(
+        "read_instances",
+        [[1, 2, 3, 4, 5], 1, (_TEST_GCS_CSV_SOURCE_URI, _TEST_GCS_CSV_SOURCE_URI)],
+    )
+    def test_get_read_instances_with_raise_typeerror(self, read_instances):
+        aiplatform.init(project=_TEST_PROJECT)
+        my_featurestore = aiplatform.Featurestore(
+            featurestore_name=_TEST_FEATURESTORE_NAME
+        )
+        with pytest.raises(TypeError):
+            my_featurestore._get_read_instances(read_instances=read_instances)
+
+    @pytest.mark.usefixtures("get_featurestore_mock")
+    @pytest.mark.parametrize(
+        "read_instances",
+        [
+            "gcs://my_bucket/my_file_1.csv",
+            "bigquery://my_bucket/my_file_1.csv",
+            "my_bucket/my_file_1.csv",
+            [_TEST_BQ_SOURCE_URI],
+        ],
+    )
+    def test_get_read_instances_with_raise_valueerror(self, read_instances):
+        aiplatform.init(project=_TEST_PROJECT)
+        my_featurestore = aiplatform.Featurestore(
+            featurestore_name=_TEST_FEATURESTORE_NAME
+        )
+        with pytest.raises(ValueError):
+            my_featurestore._get_read_instances(read_instances=read_instances)
+
+    @pytest.mark.parametrize("sync", [True, False])
+    @pytest.mark.usefixtures("get_featurestore_mock")
+    def test_batch_serve_to_bq(self, batch_read_feature_values_mock, sync):
+        aiplatform.init(project=_TEST_PROJECT)
+        my_featurestore = aiplatform.Featurestore(
+            featurestore_name=_TEST_FEATURESTORE_NAME
+        )
+
+        expected_batch_read_feature_values_request = gca_featurestore_service.BatchReadFeatureValuesRequest(
+            featurestore=my_featurestore.resource_name,
+            destination=gca_featurestore_service.FeatureValueDestination(
+                bigquery_destination=_TEST_BQ_DESTINATION,
+            ),
+            entity_type_specs=[
+                _get_entity_type_spec_proto_with_all_features("my_entity_type_id_1")
+            ],
+        )
+
+        my_featurestore.batch_serve_to_bq(
+            bq_destination_output_uri=_TEST_BQ_DESTINATION_URI,
+            entity_type_ids=_TEST_BATCH_READING_ENTITY_TYPE_IDS,
+            sync=sync,
+        )
+
+        if not sync:
+            my_featurestore.wait()
+
+        batch_read_feature_values_mock.assert_called_once_with(
+            request=expected_batch_read_feature_values_request,
+            metadata=_TEST_REQUEST_METADATA,
+        )
+
+    @pytest.mark.parametrize("sync", [True, False])
+    @pytest.mark.usefixtures("get_featurestore_mock")
+    def test_batch_serve_to_gcs(self, batch_read_feature_values_mock, sync):
+        aiplatform.init(project=_TEST_PROJECT)
+        my_featurestore = aiplatform.Featurestore(
+            featurestore_name=_TEST_FEATURESTORE_NAME
+        )
+
+        expected_batch_read_feature_values_request = gca_featurestore_service.BatchReadFeatureValuesRequest(
+            featurestore=my_featurestore.resource_name,
+            destination=gca_featurestore_service.FeatureValueDestination(
+                tfrecord_destination=_TEST_TFRECORD_DESTINATION,
+            ),
+            entity_type_specs=[
+                _get_entity_type_spec_proto_with_all_features("my_entity_type_id_1")
+            ],
+        )
+
+        my_featurestore.batch_serve_to_gcs(
+            gcs_destination_output_uri_prefix=_TEST_GCS_OUTPUT_URI_PREFIX,
+            gcs_destination_type=_TEST_GCS_DESTINATION_TYPE_TFRECORD,
+            entity_type_ids=_TEST_BATCH_READING_ENTITY_TYPE_IDS,
+            sync=sync,
+        )
+
+        if not sync:
+            my_featurestore.wait()
+
+        batch_read_feature_values_mock.assert_called_once_with(
+            request=expected_batch_read_feature_values_request,
+            metadata=_TEST_REQUEST_METADATA,
+        )
+
+    @pytest.mark.usefixtures("get_featurestore_mock")
+    def test_batch_serve_to_gcs_with_invalid_gcs_destination_type(self):
+
+        aiplatform.init(project=_TEST_PROJECT)
+
+        my_featurestore = aiplatform.Featurestore(
+            featurestore_name=_TEST_FEATURESTORE_NAME
+        )
+        with pytest.raises(ValueError):
+            my_featurestore.batch_serve_to_gcs(
+                gcs_destination_output_uri_prefix=_TEST_GCS_OUTPUT_URI_PREFIX,
+                gcs_destination_type=_TEST_GCS_DESTINATION_TYPE_INVALID,
+                entity_type_ids=_TEST_BATCH_READING_ENTITY_TYPE_IDS,
+            )
 
 
 class TestEntityType:

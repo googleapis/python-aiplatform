@@ -16,6 +16,7 @@
 #
 
 import logging
+import pytest
 
 from google.cloud import aiplatform
 from tests.system.aiplatform import e2e_base
@@ -26,6 +27,8 @@ _TEST_USERS_ENTITY_TYPE_GCS_SRC = (
 _TEST_MOVIES_ENTITY_TYPE_GCS_SRC = (
     "gs://cloud-samples-data-us-central1/vertex-ai/feature-store/datasets/movies.avro"
 )
+
+_TEST_READ_INSTANCE_SRC = "gs://cloud-samples-data-us-central1/vertex-ai/feature-store/datasets/movie_prediction.csv"
 
 _TEST_FEATURESTORE_ID = "movie_prediction"
 _TEST_USER_ENTITY_TYPE_ID = "users"
@@ -40,6 +43,12 @@ _TEST_MOVIE_GENRES_FEATURE_ID = "genres"
 _TEST_MOVIE_AVERAGE_RATING_FEATURE_ID = "average_rating"
 
 
+@pytest.mark.usefixtures(
+    "prepare_staging_bucket",
+    "delete_staging_bucket",
+    "prepare_bigquery_dataset",
+    "delete_bigquery_dataset",
+)
 class TestFeaturestore(e2e_base.TestEndToEnd):
 
     _temp_prefix = "temp_vertex_sdk_e2e_featurestore_test"
@@ -247,3 +256,48 @@ class TestFeaturestore(e2e_base.TestEndToEnd):
         assert (
             len(list_searched_features) - shared_state["base_list_searched_features"]
         ) == 6
+
+    def test_batch_serve_to_gcs(self, shared_state, caplog):
+
+        assert shared_state["featurestore"]
+        assert shared_state["bucket"]
+        featurestore = shared_state["featurestore"]
+        bucket_name = shared_state["staging_bucket_name"]
+
+        aiplatform.init(
+            project=e2e_base._PROJECT, location=e2e_base._LOCATION,
+        )
+
+        caplog.set_level(logging.INFO)
+
+        featurestore.batch_serve_to_gcs(
+            entity_type_ids=[_TEST_USER_ENTITY_TYPE_ID, _TEST_MOVIE_ENTITY_TYPE_ID],
+            read_instances=_TEST_READ_INSTANCE_SRC,
+            gcs_destination_output_uri_prefix=f"gs://{bucket_name}/featurestore_test/tfrecord",
+            gcs_destination_type="tfrecord",
+        )
+        assert "Featurestore feature values served." in caplog.text
+
+        caplog.clear()
+
+    def test_batch_serve_to_bq(self, shared_state, caplog):
+
+        assert shared_state["featurestore"]
+        assert shared_state["bigquery_dataset"]
+        featurestore = shared_state["featurestore"]
+        bigquery_dataset_id = shared_state["bigquery_dataset_id"]
+
+        aiplatform.init(
+            project=e2e_base._PROJECT, location=e2e_base._LOCATION,
+        )
+
+        caplog.set_level(logging.INFO)
+
+        featurestore.batch_serve_to_bq(
+            entity_type_ids=[_TEST_USER_ENTITY_TYPE_ID, _TEST_MOVIE_ENTITY_TYPE_ID],
+            read_instances=_TEST_READ_INSTANCE_SRC,
+            bq_destination_output_uri=f"bq://{bigquery_dataset_id}.test_table",
+        )
+
+        assert "Featurestore feature values served." in caplog.text
+        caplog.clear()
