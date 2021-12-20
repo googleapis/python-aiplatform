@@ -77,10 +77,11 @@ setuptools.setup(
         # Until this issue is closed
         # https://github.com/googleapis/google-cloud-python/issues/10566
         "google-api-core[grpc] >= 1.26.0, <3.0.0dev",
-        "proto-plus >= 1.10.1",
-        "packaging >= 14.3",
-        "google-cloud-storage >= 1.32.0, < 2.0.0dev",
         "google-cloud-bigquery >= 1.15.0, < 3.0.0dev",
+        "google-cloud-storage >= 1.32.0, < 2.0.0dev",
+        "packaging >= 14.3",
+        "proto-plus >= 1.10.1",
+        "urllib3 >=1.21.1, <1.27"
     ),
     extras_require={
         "full": full_extra_require,
