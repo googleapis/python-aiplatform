@@ -49,6 +49,7 @@ class _Config:
         self._staging_bucket = None
         self._credentials = None
         self._encryption_spec_key_name = None
+        self._network = None
 
     def init(
         self,
@@ -60,6 +61,7 @@ class _Config:
         staging_bucket: Optional[str] = None,
         credentials: Optional[auth_credentials.Credentials] = None,
         encryption_spec_key_name: Optional[str] = None,
+        network: Optional[str] = None,
     ):
         """Updates common initialization parameters with provided options.
 
@@ -83,6 +85,12 @@ class _Config:
                 resource is created.
 
                 If set, this resource and all sub-resources will be secured by this key.
+            network (Optional[str]):
+                Optional. The full name of the Compute Engine network to which Jobs
+                and Endpoints should be peered. E.g. "projects/12345/global/networks/myVPC".
+                Private services access must already be configured for the network.
+
+                If specified, all Jobs and Endpoints created will be peered with this VPC.
         """
 
         # reset metadata_service config if project or location is updated.
@@ -104,6 +112,8 @@ class _Config:
             self._credentials = credentials
         if encryption_spec_key_name:
             self._encryption_spec_key_name = encryption_spec_key_name
+        if network:
+            self._network = network
 
         if experiment:
             metadata.metadata_service.set_experiment(
@@ -192,6 +202,11 @@ class _Config:
     def encryption_spec_key_name(self) -> Optional[str]:
         """Default encryption spec key name, if provided."""
         return self._encryption_spec_key_name
+
+    @property
+    def network(self) -> Optional[str]:
+        """Default Compute Engine network to peer to, if provided."""
+        return self._network
 
     def get_client_options(
         self, location_override: Optional[str] = None, prediction_client: bool = False
