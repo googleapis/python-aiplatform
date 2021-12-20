@@ -504,7 +504,7 @@ class VertexAiResourceNoun(metaclass=abc.ABCMeta):
             location(str): The location of the resource noun.
 
         Raises:
-            RuntimeError if location is different from resource location
+            RuntimeError: If location is different from resource location
         """
 
         fields = utils.extract_fields_from_resource_name(
@@ -604,7 +604,7 @@ class VertexAiResourceNoun(metaclass=abc.ABCMeta):
         """Helper method to raise when property is not accessible.
 
         Raises:
-            RuntimeError if _gca_resource is has not been created.
+            RuntimeError: If _gca_resource is has not been created.
         """
         if self._gca_resource is None:
             raise RuntimeError(
@@ -898,6 +898,7 @@ class VertexAiResourceNounWithFutureManager(VertexAiResourceNoun, FutureManager)
         project: Optional[str] = None,
         location: Optional[str] = None,
         credentials: Optional[auth_credentials.Credentials] = None,
+        parent: Optional[str] = None,
     ) -> List[VertexAiResourceNoun]:
         """Private method to list all instances of this Vertex AI Resource,
         takes a `cls_filter` arg to filter to a particular SDK resource
@@ -925,6 +926,8 @@ class VertexAiResourceNounWithFutureManager(VertexAiResourceNoun, FutureManager)
             credentials (auth_credentials.Credentials):
                 Optional. Custom credentials to use to retrieve list. Overrides
                 credentials set in aiplatform.init.
+            parent (str):
+                Optional. The parent resource name if any to retrieve resource list from.
 
         Returns:
             List[VertexAiResourceNoun] - A list of SDK resource objects
@@ -934,12 +937,13 @@ class VertexAiResourceNounWithFutureManager(VertexAiResourceNoun, FutureManager)
         )
 
         # Fetch credentials once and re-use for all `_empty_constructor()` calls
-        creds = initializer.global_config.credentials
+        creds = resource.credentials
 
         resource_list_method = getattr(resource.api_client, resource._list_method)
 
         list_request = {
-            "parent": initializer.global_config.common_location_path(
+            "parent": parent
+            or initializer.global_config.common_location_path(
                 project=project, location=location
             ),
             "filter": filter,
@@ -1029,6 +1033,7 @@ class VertexAiResourceNounWithFutureManager(VertexAiResourceNoun, FutureManager)
         project: Optional[str] = None,
         location: Optional[str] = None,
         credentials: Optional[auth_credentials.Credentials] = None,
+        parent: Optional[str] = None,
     ) -> List[VertexAiResourceNoun]:
         """List all instances of this Vertex AI Resource.
 
@@ -1057,6 +1062,8 @@ class VertexAiResourceNounWithFutureManager(VertexAiResourceNoun, FutureManager)
             credentials (auth_credentials.Credentials):
                 Optional. Custom credentials to use to retrieve list. Overrides
                 credentials set in aiplatform.init.
+            parent (str):
+                Optional. The parent resource name if any to retrieve list from.
 
         Returns:
             List[VertexAiResourceNoun] - A list of SDK resource objects
@@ -1068,6 +1075,7 @@ class VertexAiResourceNounWithFutureManager(VertexAiResourceNoun, FutureManager)
             project=project,
             location=location,
             credentials=credentials,
+            parent=parent,
         )
 
     @optional_sync()
@@ -1107,7 +1115,7 @@ class VertexAiResourceNounWithFutureManager(VertexAiResourceNoun, FutureManager)
         job.run(sync=False, ...)
         job._wait_for_resource_creation()
         Raises:
-            RuntimeError if the resource has not been scheduled to be created.
+            RuntimeError: If the resource has not been scheduled to be created.
         """
 
         # If the user calls this but didn't actually invoke an API to create
@@ -1133,7 +1141,7 @@ class VertexAiResourceNounWithFutureManager(VertexAiResourceNoun, FutureManager)
         resource creation has failed asynchronously.
 
         Raises:
-            RuntimeError when resource has not been created.
+            RuntimeError: When resource has not been created.
         """
         if not getattr(self._gca_resource, "name", None):
             raise RuntimeError(

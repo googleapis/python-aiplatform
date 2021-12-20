@@ -61,6 +61,7 @@ from google.cloud.aiplatform_v1.types import job_service
 from google.cloud.aiplatform_v1.types import job_state
 from google.cloud.aiplatform_v1.types import machine_resources
 from google.cloud.aiplatform_v1.types import manual_batch_tuning_parameters
+from google.cloud.aiplatform_v1.types import model
 from google.cloud.aiplatform_v1.types import model_deployment_monitoring_job
 from google.cloud.aiplatform_v1.types import (
     model_deployment_monitoring_job as gca_model_deployment_monitoring_job,
@@ -68,6 +69,7 @@ from google.cloud.aiplatform_v1.types import (
 from google.cloud.aiplatform_v1.types import model_monitoring
 from google.cloud.aiplatform_v1.types import operation as gca_operation
 from google.cloud.aiplatform_v1.types import study
+from google.cloud.aiplatform_v1.types import unmanaged_container_model
 from google.longrunning import operations_pb2
 from google.oauth2 import service_account
 from google.protobuf import any_pb2  # type: ignore

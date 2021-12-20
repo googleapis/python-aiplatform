@@ -23,7 +23,7 @@ import abc
 
 from google.auth import credentials as auth_credentials
 from google.cloud.aiplatform import base
-from google.cloud.aiplatform import constants
+from google.cloud.aiplatform.constants import base as constants
 from google.cloud.aiplatform import datasets
 from google.cloud.aiplatform import initializer
 from google.cloud.aiplatform import models
@@ -4060,7 +4060,7 @@ class AutoMLForecastingTrainingJob(_TrainingJob):
                 produce a Vertex AI Model.
 
         Raises:
-            RuntimeError if Training job has already been run or is waiting to run.
+            RuntimeError: If Training job has already been run or is waiting to run.
         """
 
         if model_display_name:
@@ -4269,7 +4269,7 @@ class AutoMLForecastingTrainingJob(_TrainingJob):
                 produce a Vertex AI Model.
 
         Raises:
-            RuntimeError if Training job has already been run or is waiting to run.
+            RuntimeError: If Training job has already been run or is waiting to run.
         """
 
         if additional_experiments:

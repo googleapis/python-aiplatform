@@ -26,7 +26,7 @@ from google.auth import credentials
 
 from google.cloud.aiplatform import initializer
 from google.cloud.aiplatform.metadata.metadata import metadata_service
-from google.cloud.aiplatform import constants
+from google.cloud.aiplatform.constants import base as constants
 from google.cloud.aiplatform import utils
 
 from google.cloud.aiplatform_v1.services.model_service import (

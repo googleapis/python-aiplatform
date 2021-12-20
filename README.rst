@@ -1,4 +1,4 @@
-Vertex SDK for Python
+Vertex AI SDK for Python
 =================================================
 
 |GA| |pypi| |versions| |unit-tests| |system-tests| |sample-tests|
@@ -78,9 +78,9 @@ Windows
 
 Overview
 ~~~~~~~~
-This section provides a brief overview of the Vertex SDK for Python. You can also reference the notebooks in `vertex-ai-samples`_ for examples.
+This section provides a brief overview of the Vertex AI SDK for Python. You can also reference the notebooks in `vertex-ai-samples`_ for examples.
 
-.. _vertex-ai-samples: https://github.com/GoogleCloudPlatform/ai-platform-samples/tree/master/ai-platform-unified/notebooks/unofficial/sdk
+.. _vertex-ai-samples: https://github.com/GoogleCloudPlatform/vertex-ai-samples/tree/main/notebooks/community/sdk
 
 Importing
 ^^^^^^^^^
@@ -106,7 +106,7 @@ Initialize the SDK to store common configurations that you use with the SDK.
         # defaults to us-central1
         location='us-central1',
 
-        # Googlge Cloud Stoage bucket in same region as location
+        # Google Cloud Storage bucket in same region as location
         # used to stage artifacts
         staging_bucket='gs://my_staging_bucket',
 
@@ -166,7 +166,7 @@ Vertex AI supports a variety of dataset schemas. References to these schemas are
 
 Training
 ^^^^^^^^
-The Vertex SDK for Python allows you train Custom and AutoML Models.
+The Vertex AI SDK for Python allows you train Custom and AutoML Models.
 
 You can train custom models using a custom Python script, custom Python package, or container.
 
@@ -201,9 +201,9 @@ It must write the model artifact to the environment variable populated by the tr
   job = aiplatform.CustomTrainingJob(
       display_name="my-training-job",
       script_path="training_script.py",
-      container_uri="gcr.io/cloud-aiplatform/training/tf-cpu.2-2:latest",
+      container_uri="us-docker.pkg.dev/vertex-ai/training/tf-cpu.2-2:latest",
       requirements=["gcsfs==0.7.1"],
-      model_serving_container_image_uri="gcr.io/cloud-aiplatform/prediction/tf2-cpu.2-2:latest",
+      model_serving_container_image_uri="us-docker.pkg.dev/vertex-ai/prediction/tf2-cpu.2-2:latest",
   )
 
   model = job.run(my_dataset,
@@ -217,7 +217,7 @@ In the code block above `my_dataset` is managed dataset created in the `Dataset`
 
 AutoMLs
 -------
-The Vertex SDK for Python supports AutoML tabular, image, text, video, and forecasting.
+The Vertex AI SDK for Python supports AutoML tabular, image, text, video, and forecasting.
 
 To train an AutoML tabular model:
 
@@ -266,7 +266,7 @@ To upload a model:
   model = aiplatform.Model.upload(
       display_name='my-model',
       artifact_uri="gs://python/to/my/model/dir",
-      serving_container_image_uri="gcr.io/cloud-aiplatform/prediction/tf2-cpu.2-2:latest",
+      serving_container_image_uri="us-docker.pkg.dev/vertex-ai/prediction/tf2-cpu.2-2:latest",
   )
 
 To get a model:
@@ -358,7 +358,7 @@ To delete an endpoint:
 Pipelines
 ---------
 
-To create a Vertex Pipeline run and monitor until completion:
+To create a Vertex AI Pipeline run and monitor until completion:
 
 .. code-block:: Python
 
@@ -382,7 +382,7 @@ To create a Vertex Pipeline run and monitor until completion:
       pipeline_root=pipeline_root,
   )
 
-  # Execute pipeline in Vertex and monitor until completion
+  # Execute pipeline in Vertex AI and monitor until completion
   pl.run(
     # Email address of service account to use for the pipeline run
     # You must have iam.serviceAccounts.actAs permission on the service account to use it
@@ -393,7 +393,7 @@ To create a Vertex Pipeline run and monitor until completion:
     sync=True
   )
 
-To create a Vertex Pipeline without monitoring until completion, use `submit` instead of `run`:
+To create a Vertex AI Pipeline without monitoring until completion, use `submit` instead of `run`:
 
 .. code-block:: Python
 
@@ -417,7 +417,7 @@ To create a Vertex Pipeline without monitoring until completion, use `submit` in
       pipeline_root=pipeline_root,
   )
 
-  # Submit the Pipeline to Vertex
+  # Submit the Pipeline to Vertex AI
   pl.submit(
     # Email address of service account to use for the pipeline run
     # You must have iam.serviceAccounts.actAs permission on the service account to use it
@@ -462,6 +462,24 @@ To use Explanation Metadata in endpoint deployment and model upload:
 
   # To upload a model with explanation
   aiplatform.Model.upload(..., explanation_metadata=explanation_metadata)
+
+
+Cloud Profiler
+----------------------------
+
+Cloud Profiler allows you to profile your remote Vertex AI Training jobs on demand and visualize the results in Vertex AI Tensorboard.
+
+To start using the profiler with TensorFlow, update your training script to include the following:
+
+.. code-block:: Python
+
+    from google.cloud.aiplatform.training_utils import cloud_profiler
+    ...
+    cloud_profiler.init()
+
+Next, run the job with with a Vertex AI TensorBoard instance. For full details on how to do this, visit https://cloud.google.com/vertex-ai/docs/experiments/tensorboard-overview
+
+Finally, visit your TensorBoard in your Google Cloud Console, navigate to the "Profile" tab, and click the `Capture Profile` button. This will allow users to capture profiling statistics for the running jobs.
 
 
 Next Steps
