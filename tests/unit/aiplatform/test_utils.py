@@ -18,6 +18,10 @@
 
 import pytest
 from typing import Callable, Dict, Optional
+import datetime
+from decimal import Decimal
+
+from google.protobuf import timestamp_pb2
 
 from google.api_core import client_options
 from google.api_core import gapic_v1
@@ -317,6 +321,60 @@ def test_client_w_override_select_version():
         client_w_override.select_version(compat.V1).get_model.__self__,
         model_service_client_v1.ModelServiceClient,
     )
+
+
+@pytest.mark.parametrize(
+    "year,month,day,hour,minute,second,microsecond,expected_seconds,expected_nanos",
+    [
+        (
+            2021,
+            12,
+            23,
+            23,
+            59,
+            59,
+            999999,
+            1640303999,
+            int(str(Decimal(1640303999.999999)).split(".")[1][:9]),
+        ),
+        (
+            2013,
+            1,
+            1,
+            1,
+            1,
+            1,
+            199999,
+            1357002061,
+            int(str(Decimal(1357002061.199999)).split(".")[1][:9]),
+        ),
+    ],
+)
+def test_get_timestamp_proto(
+    year,
+    month,
+    day,
+    hour,
+    minute,
+    second,
+    microsecond,
+    expected_seconds,
+    expected_nanos,
+):
+    time = datetime.datetime(
+        year=year,
+        month=month,
+        day=day,
+        hour=hour,
+        minute=minute,
+        second=second,
+        microsecond=microsecond,
+        tzinfo=datetime.timezone.utc,
+    )
+    true_timestamp_proto = timestamp_pb2.Timestamp(
+        seconds=expected_seconds, nanos=expected_nanos
+    )
+    assert true_timestamp_proto == utils.get_timestamp_proto(time)
 
 
 class TestPipelineUtils:

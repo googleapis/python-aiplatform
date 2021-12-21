@@ -33,9 +33,10 @@ with open(os.path.join(package_root, "google/cloud/aiplatform/version.py")) as f
     exec(fp.read(), version)
 version = version["__version__"]
 
-tensorboard_extra_require = ["tensorflow >=2.3.0, <=2.5.0"]
+tensorboard_extra_require = ["tensorflow >=2.3.0, <=2.7.0"]
 metadata_extra_require = ["pandas >= 1.0.0"]
 xai_extra_require = ["tensorflow >=2.3.0, <=2.5.0"]
+lit_extra_require = ["tensorflow >= 2.3.0", "pandas >= 1.0.0", "lit-nlp >= 0.4.0"]
 profiler_extra_require = [
     "tensorboard-plugin-profile >= 2.4.0",
     "werkzeug >= 2.0.0",
@@ -43,10 +44,17 @@ profiler_extra_require = [
 ]
 
 full_extra_require = list(
-    set(tensorboard_extra_require + metadata_extra_require + xai_extra_require)
+    set(
+        tensorboard_extra_require
+        + metadata_extra_require
+        + xai_extra_require
+        + lit_extra_require
+    )
 )
 testing_extra_require = (
-    full_extra_require + profiler_extra_require + ["grpcio-testing", "pytest-xdist"]
+    full_extra_require
+    + profiler_extra_require
+    + ["grpcio-testing", "pytest-xdist", "ipython"]
 )
 
 
@@ -88,7 +96,8 @@ setuptools.setup(
         "tensorboard": tensorboard_extra_require,
         "testing": testing_extra_require,
         "xai": xai_extra_require,
-        "cloud-profiler": profiler_extra_require,
+        "lit": lit_extra_require,
+        "cloud_profiler": profiler_extra_require,
     },
     python_requires=">=3.6",
     scripts=[],
