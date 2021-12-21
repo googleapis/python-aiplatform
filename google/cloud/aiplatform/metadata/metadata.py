@@ -17,15 +17,15 @@
 
 from typing import Dict, Union, Optional
 
-from google.cloud import aiplatform
 from google.cloud.aiplatform.metadata import constants
 from google.cloud.aiplatform.metadata.artifact import _Artifact
 from google.cloud.aiplatform.metadata.context import _Context
 from google.cloud.aiplatform.metadata.execution import _Execution
 from google.cloud.aiplatform.metadata.metadata_store import _MetadataStore
+from google.cloud.aiplatform import pipeline_jobs
 
 # runtime patch to v2 to use new data model
-_EXPERIMENT_TRACKING_VERSION = "v1"
+_EXPERIMENT_TRACKING_VERSION = "v2"
 
 
 class _MetadataService:
@@ -451,6 +451,10 @@ class _MetadataService:
 
             context_summary.append(run_dict)
 
+        # get pipelines parameters and metrics
+
+        # in_context_query = 
+
         return pd.DataFrame(context_summary)
 
     def _query_runs_to_data_frame(
@@ -523,11 +527,34 @@ class _MetadataService:
         }
 
 
-    def _log_pipeline_job(self, pipeline_job: aiplatform.PipelineJob):
+    def _log_pipeline_job(self, pipeline_job: pipeline_jobs.PipelineJob):
+        
+        try:
+            pipeline_job.wait_for_resource_creation()
+        except Exception as e:
+            raise RuntimeError("Could not log PipelineJob to Experiment Run") from e
 
-    def log(self, *, pipeline_job: Optional[aiplatform.PipelineJob]=None):
+        resource_name_fields = pipeline_jobs.PipelineJob._parse_resource_name(pipeline_job.resource_name)
 
-        if 
+        print(resource_name_fields)
+
+        pipeline_job_context = _Context._get(
+            resource_name=resource_name_fields['pipeline_job'],
+            project=resource_name_fields['project'],
+            location=resource_name_fields['location']
+        )
+
+        self._experiment_run.add_context_children([pipeline_job_context])        
+
+
+    def log(self, *, pipeline_job: Optional[pipeline_jobs.PipelineJob]=None):
+        if not _EXPERIMENT_TRACKING_VERSION == 'v2':
+            raise NotImplementedError('log is not currently supported')
+
+        self._validate_experiment_and_run('log')
+
+        if pipeline_job:
+            self._log_pipeline_job(pipeline_job=pipeline_job)
 
 
 
