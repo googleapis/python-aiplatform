@@ -15,7 +15,7 @@
 
 import base64
 
-from typing import Dict, List
+from typing import List
 
 from google.cloud import aiplatform
 
