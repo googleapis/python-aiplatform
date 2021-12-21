@@ -13,9 +13,9 @@
 # limitations under the License.
 
 
-from typing import Dict, List
-
 import base64
+
+from typing import Dict, List
 
 from google.cloud import aiplatform
 
