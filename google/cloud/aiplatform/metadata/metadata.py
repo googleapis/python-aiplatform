@@ -17,6 +17,7 @@
 
 from typing import Dict, Union, Optional
 
+from google.cloud import aiplatform
 from google.cloud.aiplatform.metadata import constants
 from google.cloud.aiplatform.metadata.artifact import _Artifact
 from google.cloud.aiplatform.metadata.context import _Context
@@ -520,6 +521,16 @@ class _MetadataService:
         return {
             ".".join([metadata_type, key]): value for key, value in metadata.items()
         }
+
+
+    def _log_pipeline_job(self, pipeline_job: aiplatform.PipelineJob):
+
+    def log(self, *, pipeline_job: Optional[aiplatform.PipelineJob]=None):
+
+        if 
+
+
+
 
 
 metadata_service = _MetadataService()
