@@ -15,7 +15,7 @@
 # limitations under the License.
 #
 
-from typing import Optional, Dict, Sequence
+from typing import Optional, Dict, List, Sequence
 
 import proto
 
@@ -33,6 +33,11 @@ class _Context(resource._Resource):
     _delete_method = "delete_context"
     _parse_resource_name_method = "parse_context_path"
     _format_resource_name_method = "context_path"
+
+    @property
+    def parent_contexts(self) -> Sequence[str]:
+        """The parent context resource names of this context."""
+        return self.gca_resource.parent_contexts
 
     def add_artifacts_and_executions(
         self,
@@ -113,3 +118,14 @@ class _Context(resource._Resource):
             parent=parent, filter=filter,
         )
         return client.list_contexts(request=list_request)
+
+    def add_context_children(self, contexts: List["_Context"]):
+        """Adds the provided contexts as children of this context.
+
+        Args:
+            contexts (List[_Context]): Contexts to add as children.
+        """
+        self.api_client.add_context_children(
+            context=self.resource_name,
+            child_contexts=[c.resource_name for c in contexts],
+        )

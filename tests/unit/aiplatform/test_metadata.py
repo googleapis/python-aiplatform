@@ -34,6 +34,7 @@ from google.cloud.aiplatform_v1 import (
     Event,
     LineageSubgraph,
     ListExecutionsRequest,
+    ListContextsRequest,
 )
 from google.cloud.aiplatform_v1 import Artifact as GapicArtifact
 from google.cloud.aiplatform_v1 import Context as GapicContext
@@ -375,6 +376,18 @@ def _assert_frame_equal_with_sorted_columns(dataframe_1, dataframe_2):
     )
 
 
+@pytest.fixture
+def run_as_experiment_v2():
+    aiplatform.metadata._EXPERIMENT_TRACKING_VERSION = "v2"
+    yield
+    aiplatform.metadata._EXPERIMENT_TRACKING_VERSION = "v1"
+
+
+@pytest.fixture
+def run_as_experiment_v1():
+    yield
+
+
 class TestMetadata:
     def setup_method(self):
         reload(initializer)
@@ -385,7 +398,7 @@ class TestMetadata:
         initializer.global_pool.shutdown(wait=True)
 
     def test_init_experiment_with_existing_metadataStore_and_context(
-        self, get_metadata_store_mock, get_context_mock
+        self, get_metadata_store_mock, get_context_mock, experiment_tracking_version
     ):
         aiplatform.init(
             project=_TEST_PROJECT, location=_TEST_LOCATION, experiment=_TEST_EXPERIMENT
@@ -753,3 +766,510 @@ class TestMetadata:
         aiplatform.init(project=_TEST_PROJECT, location=_TEST_LOCATION)
         with pytest.raises(ValueError):
             aiplatform.get_pipeline_df(_TEST_PIPELINE)
+
+
+_TEST_EXPERIMENT_RUN_CONTEXT_NAME = f"{_TEST_PARENT}/contexts/{_TEST_EXECUTION_ID}"
+_TEST_OTHER_EXPERIMENT_RUN_CONTEXT_NAME = (
+    f"{_TEST_PARENT}/contexts/{_TEST_OTHER_EXECUTION_ID}"
+)
+
+
+@pytest.fixture
+def get_context_mock_v2():
+    with patch.object(MetadataServiceClient, "get_context") as get_context_mock:
+        get_context_mock.side_effect = [
+            # experiment
+            GapicContext(
+                name=_TEST_CONTEXT_NAME,
+                display_name=_TEST_EXPERIMENT,
+                description=_TEST_EXPERIMENT_DESCRIPTION,
+                schema_title=constants.SYSTEM_EXPERIMENT,
+                schema_version=constants.SCHEMA_VERSIONS[constants.SYSTEM_EXPERIMENT],
+                metadata=constants.EXPERIMENT_METADATA,
+            ),
+            # experiment run
+            GapicContext(
+                name=_TEST_EXPERIMENT_RUN_CONTEXT_NAME,
+                display_name=_TEST_RUN,
+                schema_title=constants.SYSTEM_EXPERIMENT_RUN,
+                schema_version=constants.SCHEMA_VERSIONS[
+                    constants.SYSTEM_EXPERIMENT_RUN
+                ],
+                metadata=constants.EXPERIMENT_METADATA,
+            ),
+            # experiment run
+            GapicContext(
+                name=_TEST_EXPERIMENT_RUN_CONTEXT_NAME,
+                display_name=_TEST_RUN,
+                schema_title=constants.SYSTEM_EXPERIMENT_RUN,
+                schema_version=constants.SCHEMA_VERSIONS[
+                    constants.SYSTEM_EXPERIMENT_RUN
+                ],
+                metadata=constants.EXPERIMENT_METADATA,
+                parent_contexts=[_TEST_CONTEXT_NAME],
+            ),
+        ]
+
+        yield get_context_mock
+
+
+@pytest.fixture
+def get_context_mock_v2_with_already_created_experiment_run():
+    with patch.object(MetadataServiceClient, "get_context") as get_context_mock:
+        get_context_mock.side_effect = [
+            GapicContext(
+                name=_TEST_CONTEXT_NAME,
+                display_name=_TEST_EXPERIMENT,
+                description=_TEST_EXPERIMENT_DESCRIPTION,
+                schema_title=constants.SYSTEM_EXPERIMENT,
+                schema_version=constants.SCHEMA_VERSIONS[constants.SYSTEM_EXPERIMENT],
+                metadata=constants.EXPERIMENT_METADATA,
+            ),
+            GapicContext(
+                name=_TEST_EXPERIMENT_RUN_CONTEXT_NAME,
+                display_name=_TEST_RUN,
+                schema_title=constants.SYSTEM_EXPERIMENT_RUN,
+                schema_version=constants.SCHEMA_VERSIONS[
+                    constants.SYSTEM_EXPERIMENT_RUN
+                ],
+                metadata=constants.EXPERIMENT_METADATA,
+                parent_contexts=[_TEST_CONTEXT_NAME],
+            ),
+        ]
+
+        yield get_context_mock
+
+
+@pytest.fixture
+def list_contexts_mock():
+    with patch.object(MetadataServiceClient, "list_contexts") as list_contexts_mock:
+        list_contexts_mock.return_value = [
+            GapicContext(
+                name=_TEST_EXPERIMENT_RUN_CONTEXT_NAME,
+                display_name=_TEST_RUN,
+                schema_title=constants.SYSTEM_EXPERIMENT_RUN,
+                schema_version=constants.SCHEMA_VERSIONS[
+                    constants.SYSTEM_EXPERIMENT_RUN
+                ],
+                metadata=constants.EXPERIMENT_METADATA,
+                parent_contexts=[_TEST_CONTEXT_NAME],
+            ),
+            GapicContext(
+                name=_TEST_OTHER_EXPERIMENT_RUN_CONTEXT_NAME,
+                display_name=_TEST_OTHER_RUN,
+                schema_title=constants.SYSTEM_EXPERIMENT_RUN,
+                schema_version=constants.SCHEMA_VERSIONS[
+                    constants.SYSTEM_EXPERIMENT_RUN
+                ],
+                metadata=constants.EXPERIMENT_METADATA,
+                parent_contexts=[_TEST_CONTEXT_NAME],
+            ),
+        ]
+        yield list_contexts_mock
+
+
+@pytest.fixture
+def add_context_children_mock():
+    with patch.object(
+        MetadataServiceClient, "add_context_children"
+    ) as add_context_children_mock:
+        yield add_context_children_mock
+
+
+class TestExperimentsV2:
+    def setup_method(self):
+        reload(initializer)
+        reload(metadata)
+        reload(aiplatform)
+
+    def teardown_method(self):
+        initializer.global_pool.shutdown(wait=True)
+
+    def test_init_experiment_with_existing_metadataStore_and_context(
+        self, get_metadata_store_mock, get_context_mock_v2, monkeypatch
+    ):
+        with monkeypatch.context() as m:
+            m.setattr(metadata, "_EXPERIMENT_TRACKING_VERSION", "v2")
+            aiplatform.init(
+                project=_TEST_PROJECT,
+                location=_TEST_LOCATION,
+                experiment=_TEST_EXPERIMENT,
+            )
+
+            get_metadata_store_mock.assert_called_once_with(
+                name=_TEST_METADATASTORE, retry=base._DEFAULT_RETRY
+            )
+            get_context_mock_v2.assert_called_once_with(
+                name=_TEST_CONTEXT_NAME, retry=base._DEFAULT_RETRY
+            )
+
+    def test_init_experiment_with_credentials(
+        self, get_metadata_store_mock, get_context_mock_v2, monkeypatch,
+    ):
+        with monkeypatch.context() as m:
+            m.setattr(metadata, "_EXPERIMENT_TRACKING_VERSION", "v2")
+            creds = credentials.AnonymousCredentials()
+
+            aiplatform.init(
+                project=_TEST_PROJECT,
+                location=_TEST_LOCATION,
+                experiment=_TEST_EXPERIMENT,
+                credentials=creds,
+            )
+
+            assert (
+                metadata.metadata_service._experiment.api_client._transport._credentials
+                == creds
+            )
+
+            get_metadata_store_mock.assert_called_once_with(
+                name=_TEST_METADATASTORE, retry=base._DEFAULT_RETRY
+            )
+            get_context_mock_v2.assert_called_once_with(
+                name=_TEST_CONTEXT_NAME, retry=base._DEFAULT_RETRY
+            )
+
+    def test_init_and_get_metadata_store_with_credentials(
+        self, get_metadata_store_mock, monkeypatch
+    ):
+        with monkeypatch.context() as m:
+            m.setattr(metadata, "_EXPERIMENT_TRACKING_VERSION", "v2")
+            creds = credentials.AnonymousCredentials()
+
+            aiplatform.init(
+                project=_TEST_PROJECT, location=_TEST_LOCATION, credentials=creds
+            )
+
+            store = metadata._MetadataStore.get_or_create()
+
+            assert store.api_client._transport._credentials == creds
+
+    @pytest.mark.usefixtures(
+        "get_metadata_store_mock_raise_not_found_exception",
+        "create_metadata_store_mock",
+    )
+    def test_init_and_get_then_create_metadata_store_with_credentials(
+        self, monkeypatch
+    ):
+        with monkeypatch.context() as m:
+            m.setattr(metadata, "_EXPERIMENT_TRACKING_VERSION", "v2")
+            creds = credentials.AnonymousCredentials()
+
+            aiplatform.init(
+                project=_TEST_PROJECT, location=_TEST_LOCATION, credentials=creds
+            )
+
+            store = metadata._MetadataStore.get_or_create()
+
+            assert store.api_client._transport._credentials == creds
+
+    def test_init_experiment_with_existing_description(
+        self, get_metadata_store_mock, get_context_mock_v2, monkeypatch
+    ):
+        with monkeypatch.context() as m:
+            m.setattr(metadata, "_EXPERIMENT_TRACKING_VERSION", "v2")
+            aiplatform.init(
+                project=_TEST_PROJECT,
+                location=_TEST_LOCATION,
+                experiment=_TEST_EXPERIMENT,
+                experiment_description=_TEST_EXPERIMENT_DESCRIPTION,
+            )
+
+            get_metadata_store_mock.assert_called_once_with(
+                name=_TEST_METADATASTORE, retry=base._DEFAULT_RETRY
+            )
+            get_context_mock_v2.assert_called_once_with(
+                name=_TEST_CONTEXT_NAME, retry=base._DEFAULT_RETRY
+            )
+
+    @pytest.mark.usefixtures("get_metadata_store_mock")
+    @pytest.mark.usefixtures("get_context_mock_v2")
+    def test_init_experiment_without_existing_description(
+        self, update_context_mock, monkeypatch
+    ):
+        with monkeypatch.context() as m:
+            m.setattr(metadata, "_EXPERIMENT_TRACKING_VERSION", "v2")
+
+            aiplatform.init(
+                project=_TEST_PROJECT,
+                location=_TEST_LOCATION,
+                experiment=_TEST_EXPERIMENT,
+                experiment_description=_TEST_OTHER_EXPERIMENT_DESCRIPTION,
+            )
+
+            experiment_context = GapicContext(
+                name=_TEST_CONTEXT_NAME,
+                display_name=_TEST_EXPERIMENT,
+                description=_TEST_OTHER_EXPERIMENT_DESCRIPTION,
+                schema_title=constants.SYSTEM_EXPERIMENT,
+                schema_version=constants.SCHEMA_VERSIONS[constants.SYSTEM_EXPERIMENT],
+                metadata=constants.EXPERIMENT_METADATA,
+            )
+
+            update_context_mock.assert_called_once_with(context=experiment_context)
+
+    @pytest.mark.usefixtures("get_metadata_store_mock")
+    @pytest.mark.usefixtures("get_context_wrong_schema_mock")
+    def test_init_experiment_wrong_schema(self, monkeypatch):
+        with monkeypatch.context() as m:
+            m.setattr(metadata, "_EXPERIMENT_TRACKING_VERSION", "v2")
+            with pytest.raises(ValueError):
+                aiplatform.init(
+                    project=_TEST_PROJECT,
+                    location=_TEST_LOCATION,
+                    experiment=_TEST_EXPERIMENT,
+                )
+
+    @pytest.mark.usefixtures("get_metadata_store_mock")
+    @pytest.mark.usefixtures("get_context_mock_v2")
+    @pytest.mark.usefixtures("add_context_children_mock")
+    @pytest.mark.usefixtures("get_execution_mock")
+    @pytest.mark.usefixtures("add_context_artifacts_and_executions_mock")
+    @pytest.mark.usefixtures("get_artifact_mock")
+    @pytest.mark.usefixtures("add_execution_events_mock")
+    def test_init_experiment_reset(self, monkeypatch):
+        with monkeypatch.context() as m:
+            m.setattr(metadata, "_EXPERIMENT_TRACKING_VERSION", "v2")
+
+            aiplatform.init(
+                project=_TEST_PROJECT,
+                location=_TEST_LOCATION,
+                experiment=_TEST_EXPERIMENT,
+            )
+            aiplatform.start_run(_TEST_RUN)
+
+            aiplatform.init(project=_TEST_PROJECT, location=_TEST_LOCATION)
+
+            assert metadata.metadata_service.experiment_name == _TEST_EXPERIMENT
+            assert metadata.metadata_service.run_name == _TEST_RUN
+
+            aiplatform.init(project=_TEST_OTHER_PROJECT, location=_TEST_LOCATION)
+
+            assert metadata.metadata_service.experiment_name is None
+            assert metadata.metadata_service.run_name is None
+
+    @pytest.mark.usefixtures("get_metadata_store_mock")
+    @pytest.mark.usefixtures()
+    def test_start_run_with_existing_execution_and_artifact(
+        self,
+        get_execution_mock,
+        add_context_artifacts_and_executions_mock,
+        get_context_mock_v2_with_already_created_experiment_run,
+        add_context_children_mock,
+        get_artifact_mock,
+        add_execution_events_mock,
+        monkeypatch,
+    ):
+        with monkeypatch.context() as m:
+            m.setattr(metadata, "_EXPERIMENT_TRACKING_VERSION", "v2")
+            aiplatform.init(
+                project=_TEST_PROJECT,
+                location=_TEST_LOCATION,
+                experiment=_TEST_EXPERIMENT,
+            )
+            aiplatform.start_run(_TEST_RUN)
+
+            get_context_mock_v2_with_already_created_experiment_run.assert_has_calls(
+                [
+                    call(name=_TEST_CONTEXT_NAME, retry=base._DEFAULT_RETRY),
+                    call(
+                        name=_TEST_EXPERIMENT_RUN_CONTEXT_NAME,
+                        retry=base._DEFAULT_RETRY,
+                    ),
+                ]
+            )
+
+            get_execution_mock.assert_called_once_with(
+                name=_TEST_EXECUTION_NAME, retry=base._DEFAULT_RETRY
+            )
+            add_context_artifacts_and_executions_mock.assert_called_once_with(
+                context=_TEST_EXPERIMENT_RUN_CONTEXT_NAME,
+                artifacts=None,
+                executions=[_TEST_EXECUTION_NAME],
+            )
+            get_artifact_mock.assert_called_once_with(
+                name=_TEST_ARTIFACT_NAME, retry=base._DEFAULT_RETRY
+            )
+            add_execution_events_mock.assert_called_once_with(
+                execution=_TEST_EXECUTION_NAME,
+                events=[Event(artifact=_TEST_ARTIFACT_NAME, type_=Event.Type.OUTPUT)],
+            )
+
+    @pytest.mark.usefixtures("get_metadata_store_mock")
+    @pytest.mark.usefixtures("get_context_mock_v2")
+    @pytest.mark.usefixtures("add_context_children_mock")
+    @pytest.mark.usefixtures("get_execution_wrong_schema_mock")
+    def test_start_run_with_wrong_run_execution_schema(self, monkeypatch):
+        with monkeypatch.context() as m:
+            m.setattr(metadata, "_EXPERIMENT_TRACKING_VERSION", "v2")
+            aiplatform.init(
+                project=_TEST_PROJECT,
+                location=_TEST_LOCATION,
+                experiment=_TEST_EXPERIMENT,
+            )
+            with pytest.raises(ValueError):
+                aiplatform.start_run(_TEST_RUN)
+
+    @pytest.mark.usefixtures("get_metadata_store_mock")
+    @pytest.mark.usefixtures("get_context_mock_v2")
+    @pytest.mark.usefixtures("get_execution_mock")
+    @pytest.mark.usefixtures("add_context_children_mock")
+    @pytest.mark.usefixtures("add_context_artifacts_and_executions_mock")
+    @pytest.mark.usefixtures("get_artifact_wrong_schema_mock")
+    def test_start_run_with_wrong_metrics_artifact_schema(self, monkeypatch):
+        with monkeypatch.context() as m:
+            m.setattr(metadata, "_EXPERIMENT_TRACKING_VERSION", "v2")
+            aiplatform.init(
+                project=_TEST_PROJECT,
+                location=_TEST_LOCATION,
+                experiment=_TEST_EXPERIMENT,
+            )
+            with pytest.raises(ValueError):
+                aiplatform.start_run(_TEST_RUN)
+
+    @pytest.mark.usefixtures("get_metadata_store_mock")
+    @pytest.mark.usefixtures("get_context_mock_v2_with_already_created_experiment_run")
+    @pytest.mark.usefixtures("get_execution_mock")
+    @pytest.mark.usefixtures("add_context_artifacts_and_executions_mock")
+    @pytest.mark.usefixtures("get_artifact_mock")
+    @pytest.mark.usefixtures("add_execution_events_mock")
+    def test_log_params(
+        self, update_execution_mock, monkeypatch,
+    ):
+        with monkeypatch.context() as m:
+            m.setattr(metadata, "_EXPERIMENT_TRACKING_VERSION", "v2")
+            aiplatform.init(
+                project=_TEST_PROJECT,
+                location=_TEST_LOCATION,
+                experiment=_TEST_EXPERIMENT,
+            )
+            aiplatform.start_run(_TEST_RUN)
+            aiplatform.log_params(_TEST_PARAMS)
+
+            updated_execution = GapicExecution(
+                name=_TEST_EXECUTION_NAME,
+                display_name=_TEST_RUN,
+                schema_title=constants.SYSTEM_RUN,
+                schema_version=constants.SCHEMA_VERSIONS[constants.SYSTEM_RUN],
+                metadata=_TEST_PARAMS,
+            )
+
+            update_execution_mock.assert_called_once_with(execution=updated_execution)
+
+    @pytest.mark.usefixtures("get_metadata_store_mock")
+    @pytest.mark.usefixtures("get_context_mock_v2_with_already_created_experiment_run")
+    @pytest.mark.usefixtures("get_execution_mock")
+    @pytest.mark.usefixtures("add_context_artifacts_and_executions_mock")
+    @pytest.mark.usefixtures("get_artifact_mock")
+    @pytest.mark.usefixtures("add_execution_events_mock")
+    def test_log_metrics(self, update_artifact_mock, monkeypatch):
+        with monkeypatch.context() as m:
+            m.setattr(metadata, "_EXPERIMENT_TRACKING_VERSION", "v2")
+            aiplatform.init(
+                project=_TEST_PROJECT,
+                location=_TEST_LOCATION,
+                experiment=_TEST_EXPERIMENT,
+            )
+            aiplatform.start_run(_TEST_RUN)
+            aiplatform.log_metrics(_TEST_METRICS)
+
+            updated_artifact = GapicArtifact(
+                name=_TEST_ARTIFACT_NAME,
+                display_name=_TEST_ARTIFACT_ID,
+                schema_title=constants.SYSTEM_METRICS,
+                schema_version=constants.SCHEMA_VERSIONS[constants.SYSTEM_METRICS],
+                metadata=_TEST_METRICS,
+            )
+
+            update_artifact_mock.assert_called_once_with(artifact=updated_artifact)
+
+    @pytest.mark.usefixtures("get_metadata_store_mock")
+    @pytest.mark.usefixtures("get_context_mock_v2_with_already_created_experiment_run")
+    @pytest.mark.usefixtures("get_execution_mock")
+    @pytest.mark.usefixtures("add_context_artifacts_and_executions_mock")
+    @pytest.mark.usefixtures("get_artifact_mock")
+    @pytest.mark.usefixtures("add_execution_events_mock")
+    def test_log_metrics_string_value_raise_error(self, monkeypatch):
+        aiplatform.init(
+            project=_TEST_PROJECT, location=_TEST_LOCATION, experiment=_TEST_EXPERIMENT
+        )
+        aiplatform.start_run(_TEST_RUN)
+        with pytest.raises(TypeError):
+            aiplatform.log_metrics({"test": "string"})
+
+    @pytest.mark.usefixtures("get_context_mock_v2")
+    def test_get_experiment_df(
+        self,
+        list_contexts_mock,
+        list_executions_mock,
+        query_execution_inputs_and_outputs_mock,
+        monkeypatch,
+    ):
+        try:
+            import pandas as pd
+        except ImportError:
+            raise ImportError(
+                "Pandas is not installed and is required to test the get_experiment_df method. "
+                'Please install the SDK using "pip install python-aiplatform[full]"'
+            )
+        with monkeypatch.context() as m:
+            m.setattr(metadata, "_EXPERIMENT_TRACKING_VERSION", "v2")
+            aiplatform.init(project=_TEST_PROJECT, location=_TEST_LOCATION)
+
+            experiment_df = aiplatform.get_experiment_df(_TEST_EXPERIMENT)
+
+            expected_filter = f'schema_title="{constants.SYSTEM_EXPERIMENT_RUN}" AND parent_contexts:"{_TEST_CONTEXT_NAME}"'
+
+            list_contexts_mock.assert_called_once_with(
+                request=ListContextsRequest(parent=_TEST_PARENT, filter=expected_filter)
+            )
+
+            expected_filter = f'schema_title="{constants.SYSTEM_RUN}" AND (in_context("{_TEST_EXPERIMENT_RUN_CONTEXT_NAME}") OR in_context("{_TEST_OTHER_EXPERIMENT_RUN_CONTEXT_NAME}"))'
+            list_executions_mock.assert_called_once_with(
+                request=ListExecutionsRequest(
+                    parent=_TEST_PARENT, filter=expected_filter,
+                )
+            )
+            query_execution_inputs_and_outputs_mock.assert_has_calls(
+                [
+                    call(execution=_TEST_EXECUTION_NAME),
+                    call(execution=_TEST_OTHER_EXECUTION_NAME),
+                ]
+            )
+            experiment_df_truth = pd.DataFrame(
+                [
+                    {
+                        "experiment_name": _TEST_EXPERIMENT,
+                        "run_name": _TEST_RUN,
+                        "param.%s" % _TEST_PARAM_KEY_1: 0.01,
+                        "param.%s" % _TEST_PARAM_KEY_2: 0.2,
+                        "metric.%s" % _TEST_METRIC_KEY_1: 222,
+                        "metric.%s" % _TEST_METRIC_KEY_2: 1,
+                    },
+                    {
+                        "experiment_name": _TEST_EXPERIMENT,
+                        "run_name": _TEST_OTHER_RUN,
+                        "param.%s" % _TEST_PARAM_KEY_1: 0.02,
+                        "param.%s" % _TEST_PARAM_KEY_2: 0.3,
+                        "metric.%s" % _TEST_METRIC_KEY_2: 0.9,
+                    },
+                ]
+            )
+
+            _assert_frame_equal_with_sorted_columns(experiment_df, experiment_df_truth)
+
+    @pytest.mark.usefixtures("get_context_not_found_mock")
+    def test_get_experiment_df_not_exist(self, monkeypatch):
+        with monkeypatch.context() as m:
+            m.setattr(metadata, "_EXPERIMENT_TRACKING_VERSION", "v2")
+            aiplatform.init(project=_TEST_PROJECT, location=_TEST_LOCATION)
+            with pytest.raises(exceptions.NotFound):
+                aiplatform.get_experiment_df(_TEST_EXPERIMENT)
+
+    @pytest.mark.usefixtures("get_pipeline_context_mock")
+    def test_get_experiment_df_wrong_schema(self, monkeypatch):
+        with monkeypatch.context() as m:
+            m.setattr(metadata, "_EXPERIMENT_TRACKING_VERSION", "v2")
+            aiplatform.init(project=_TEST_PROJECT, location=_TEST_LOCATION)
+            with pytest.raises(ValueError):
+                aiplatform.get_experiment_df(_TEST_EXPERIMENT)

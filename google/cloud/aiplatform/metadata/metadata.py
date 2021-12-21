@@ -23,6 +23,9 @@ from google.cloud.aiplatform.metadata.context import _Context
 from google.cloud.aiplatform.metadata.execution import _Execution
 from google.cloud.aiplatform.metadata.metadata_store import _MetadataStore
 
+# runtime patch to v2 to use new data model
+_EXPERIMENT_TRACKING_VERSION = "v1"
+
 
 class _MetadataService:
     """Contains the exposed APIs to interact with the Managed Metadata Service."""
@@ -32,11 +35,17 @@ class _MetadataService:
         self._run = None
         self._metrics = None
 
+        if _EXPERIMENT_TRACKING_VERSION == "v2":
+            self._experiment_run = None
+
     def reset(self):
         """Reset all _MetadataService fields to None"""
         self._experiment = None
         self._run = None
         self._metrics = None
+
+        if _EXPERIMENT_TRACKING_VERSION == "v2":
+            self._experiment_run = None
 
     @property
     def experiment_name(self) -> Optional[str]:
@@ -48,8 +57,12 @@ class _MetadataService:
     @property
     def run_name(self) -> Optional[str]:
         """Return the run name of the _MetadataService, if run is not set, return None"""
-        if self._run:
-            return self._run.display_name
+        if _EXPERIMENT_TRACKING_VERSION == "v2":
+            if self._experiment_run:
+                return self._experiment_run.display_name
+        else:
+            if self._run:
+                return self._run.display_name
         return None
 
     def set_experiment(self, experiment: str, description: Optional[str] = None):
@@ -60,6 +73,11 @@ class _MetadataService:
                 Required. Name of the experiment to assign current session with.
             description (str):
                 Optional. Description of an experiment.
+        Raises:
+            ValueError:
+                If Context with same name as experiment has already been created with
+                a different type.
+
         """
 
         _MetadataStore.get_or_create()
@@ -80,17 +98,56 @@ class _MetadataService:
         if description and context.description != description:
             context.update(metadata=context.metadata, description=description)
 
+        self.reset()
+
         self._experiment = context
 
+    def _create_experiment_run_context(self, run: str) -> _Context:
+        """Creates an ExperimentRun Context and assigns it as a current Experiment.
+
+        Args:
+            run (str): The name of the experiment run.
+        Returns:
+            _Context: The Context representing this ExperimentRun
+        Raises:
+            ValueError:
+                If name of experiment has already been used in Metadata Store to create another
+                Context.
+        """
+        run_context_id = f"{self._experiment.name}-{run}"
+
+        run_context = _Context.get_or_create(
+            resource_id=run_context_id,
+            display_name=run,
+            schema_title=constants.SYSTEM_EXPERIMENT_RUN,
+            schema_version=constants.SCHEMA_VERSIONS[constants.SYSTEM_EXPERIMENT_RUN],
+            metadata=constants.EXPERIMENT_METADATA,
+        )
+
+        if run_context.schema_title != constants.SYSTEM_EXPERIMENT_RUN:
+            raise ValueError(
+                f"Run name {run} has been used to create other type of resources ({run_context.schema_title}) "
+                "in this MetadataStore, please choose a different run name."
+            )
+
+        if self._experiment.resource_name not in run_context.parent_contexts:
+            self._experiment.add_context_children([run_context])
+            run_context._sync_gca_resource()
+
+        return run_context
+
+    # TODO(b/211012711) add support for resuming runs
+    # TODO(b/211013314) add support for returning context manager
     def start_run(self, run: str):
         """Setup a run to current session.
 
         Args:
             run (str):
                 Required. Name of the run to assign current session with.
-        Raise:
-            ValueError if experiment is not set. Or if run execution or metrics artifact
-            is already created but with a different schema.
+        Raises:
+            ValueError:
+                if experiment is not set. Or if run execution or metrics artifact is already created
+                but with a different schema.
         """
 
         if not self._experiment:
@@ -98,6 +155,11 @@ class _MetadataService:
                 "No experiment set for this run. Make sure to call aiplatform.init(experiment='my-experiment') "
                 "before trying to start_run. "
             )
+
+        run_context = None
+        if _EXPERIMENT_TRACKING_VERSION == "v2":
+            run_context = self._create_experiment_run_context(run=run)
+
         run_execution_id = f"{self._experiment.name}-{run}"
         run_execution = _Execution.get_or_create(
             resource_id=run_execution_id,
@@ -110,9 +172,15 @@ class _MetadataService:
                 f"Run name {run} has been used to create other type of resources ({run_execution.schema_title}) "
                 "in this MetadataStore, please choose a different run name."
             )
-        self._experiment.add_artifacts_and_executions(
-            execution_resource_names=[run_execution.resource_name]
-        )
+
+        if _EXPERIMENT_TRACKING_VERSION == "v2":
+            run_context.add_artifacts_and_executions(
+                execution_resource_names=[run_execution.resource_name]
+            )
+        else:
+            self._experiment.add_artifacts_and_executions(
+                execution_resource_names=[run_execution.resource_name]
+            )
 
         metrics_artifact_id = f"{self._experiment.name}-{run}-metrics"
         metrics_artifact = _Artifact.get_or_create(
@@ -132,6 +200,9 @@ class _MetadataService:
 
         self._run = run_execution
         self._metrics = metrics_artifact
+
+        if _EXPERIMENT_TRACKING_VERSION == "v2":
+            self._experiment_run = run_context
 
     def log_params(self, params: Dict[str, Union[float, int, str]]):
         """Log single or multiple parameters with specified key and value pairs.
@@ -207,19 +278,29 @@ class _MetadataService:
                 ValueError if given experiment is not associated with a wrong schema.
             """
 
+        source = "experiment"
         if not experiment:
             experiment = self._experiment.name
+            experiment_resource_name = self._experiment.resource_name
+        else:
+            experiment_resource_name = self._get_experiment_or_pipeline_resource_name(
+                name=experiment,
+                source=source,
+                expected_schema=constants.SYSTEM_EXPERIMENT,
+            )
 
-        source = "experiment"
-        experiment_resource_name = self._get_experiment_or_pipeline_resource_name(
-            name=experiment, source=source, expected_schema=constants.SYSTEM_EXPERIMENT,
-        )
-
-        return self._query_runs_to_data_frame(
-            context_id=experiment,
-            context_resource_name=experiment_resource_name,
-            source=source,
-        )
+        if _EXPERIMENT_TRACKING_VERSION == "v2":
+            return self._query_runs_to_data_frame_v2(
+                context_id=experiment,
+                context_resource_name=experiment_resource_name,
+                source=source,
+            )
+        else:
+            return self._query_runs_to_data_frame(
+                context_id=experiment,
+                context_resource_name=experiment_resource_name,
+                source=source,
+            )
 
     def get_pipeline_df(self, pipeline: str) -> "pd.DataFrame":  # noqa: F821
         """Returns a Pandas DataFrame of the parameters and metrics associated with one pipeline.
@@ -303,6 +384,73 @@ class _MetadataService:
                 f"Please provide a valid {source} name. {name} is not a {source}."
             )
         return context.resource_name
+
+    def _query_runs_to_data_frame_v2(
+        self, context_id: str, context_resource_name: str, source: str
+    ) -> "pd.DataFrame":  # noqa: F821
+        """Get metrics and parameters associated with a given Context into a Dataframe.
+
+        Compatible with Experiment v2 data model.
+
+        Args:
+            context_id (str):
+                Name of the Experiment or Pipeline.
+            context_resource_name (str):
+                Full resource name of the Context associated with an Experiment or Pipeline.
+            source (str):
+                Identify whether the this is an Experiment or a Pipeline.
+
+        Returns:
+            The full resource name of the Experiment or Pipeline Context.
+
+        Raises:
+            ImportError: If pandas is not installed.
+        """
+        try:
+            import pandas as pd
+        except ImportError:
+            raise ImportError(
+                "Pandas is not installed and is required to get dataframe as the return format. "
+                'Please install the SDK using "pip install python-aiplatform[metadata]"'
+            )
+
+        filter = f'schema_title="{constants.SYSTEM_EXPERIMENT_RUN}" AND parent_contexts:"{context_resource_name}"'
+        run_contexts = _Context.list(filter=filter)
+
+        in_context_query = " OR ".join(
+            [f'in_context("{c.resource_name}")' for c in run_contexts]
+        )
+
+        filter = f'schema_title="{constants.SYSTEM_RUN}" AND ({in_context_query})'
+
+        run_executions = _Execution.list(filter=filter)
+
+        context_map = {c.name: c for c in run_contexts}
+
+        context_summary = []
+        for run_execution in run_executions:
+            run_context = context_map[run_execution.name]
+            run_dict = {
+                f"{source}_name": context_id,
+                "run_name": run_context.display_name,
+            }
+            run_dict.update(
+                self._execution_to_column_named_metadata(
+                    "param", run_execution.metadata
+                )
+            )
+
+            for metric_artifact in run_execution.query_input_and_output_artifacts():
+                if metric_artifact.schema_title == constants.SYSTEM_METRICS:
+                    run_dict.update(
+                        self._execution_to_column_named_metadata(
+                            "metric", metric_artifact.metadata
+                        )
+                    )
+
+            context_summary.append(run_dict)
+
+        return pd.DataFrame(context_summary)
 
     def _query_runs_to_data_frame(
         self, context_id: str, context_resource_name: str, source: str
