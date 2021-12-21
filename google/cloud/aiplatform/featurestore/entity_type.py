@@ -1165,7 +1165,7 @@ class EntityType(base.VertexAiResourceNounWithFutureManager):
                 Optional custom credentials to use when interacting with
                 the featurestore online client.
         Returns:
-            (utils.FeaturestoreOnlineServingClientWithOverride):
+            utils.FeaturestoreOnlineServingClientWithOverride:
                 Initialized featurestore online client with optional overrides.
         """
         return initializer.global_config.create_client(
