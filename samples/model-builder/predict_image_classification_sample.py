@@ -15,9 +15,9 @@
 
 from typing import Dict, List
 
-from google.cloud import aiplatform
-
 import base64
+
+from google.cloud import aiplatform
 
 import tensorflow as tf
 
@@ -40,12 +40,12 @@ def predict_tabular_classification_sample(
     aiplatform.init(project=project, location=location)
 
     endpoint = aiplatform.Endpoint(endpoint_name)
-    
+
     instances = []
     for image in images:
-      with tf.io.gfile.GFile(image, "rb") as f:
-          content = f.read()
-      instances.append({"content": base64.b64encode(content).decode("utf-8")})
+        with tf.io.gfile.GFile(image, "rb") as f:
+            content = f.read()
+        instances.append({"content": base64.b64encode(content).decode("utf-8")})
 
     response = endpoint.predict(instances=instances)
 
