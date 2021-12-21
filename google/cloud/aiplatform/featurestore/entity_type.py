@@ -1238,7 +1238,7 @@ class EntityType(base.VertexAiResourceNounWithFutureManager):
             List[gca_featurestore_online_service.ReadFeatureValuesResponse],
         ],
     ):
-        """Loads read_feature_values_response to dataframe
+        """Loads read_feature_values_response to dataframe.
 
         Args:
             response (Union[featurestore_online_service.ReadFeatureValuesResponse,
