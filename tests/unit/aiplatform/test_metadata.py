@@ -376,18 +376,6 @@ def _assert_frame_equal_with_sorted_columns(dataframe_1, dataframe_2):
     )
 
 
-@pytest.fixture
-def run_as_experiment_v2():
-    aiplatform.metadata._EXPERIMENT_TRACKING_VERSION = "v2"
-    yield
-    aiplatform.metadata._EXPERIMENT_TRACKING_VERSION = "v1"
-
-
-@pytest.fixture
-def run_as_experiment_v1():
-    yield
-
-
 class TestMetadata:
     def setup_method(self):
         reload(initializer)
@@ -398,7 +386,7 @@ class TestMetadata:
         initializer.global_pool.shutdown(wait=True)
 
     def test_init_experiment_with_existing_metadataStore_and_context(
-        self, get_metadata_store_mock, get_context_mock, experiment_tracking_version
+        self, get_metadata_store_mock, get_context_mock,
     ):
         aiplatform.init(
             project=_TEST_PROJECT, location=_TEST_LOCATION, experiment=_TEST_EXPERIMENT
