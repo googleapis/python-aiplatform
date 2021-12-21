@@ -34,12 +34,6 @@ from google.cloud.aiplatform import initializer
 from google.cloud.aiplatform import utils
 from google.cloud.aiplatform.utils import featurestore_utils
 
-try:
-    import pandas as pd
-except ImportError:
-    raise ImportError(
-        "Pandas is not installed. Please install pandas to use Vertex SDK Featurestore"
-    )
 
 _LOGGER = base.Logger(__name__)
 _ALL_FEATURE_IDS = "*"
@@ -170,7 +164,7 @@ class EntityType(base.VertexAiResourceNounWithFutureManager):
         self,
         description: Optional[str] = None,
         labels: Optional[Dict[str, str]] = None,
-        request_metadata: Optional[Sequence[Tuple[str, str]]] = (),
+        request_metadata: Sequence[Tuple[str, str]] = (),
     ) -> "EntityType":
         """Updates an existing managed entityType resource.
 
@@ -202,7 +196,7 @@ class EntityType(base.VertexAiResourceNounWithFutureManager):
                 System reserved label keys are prefixed with
                 "aiplatform.googleapis.com/" and are immutable.
             request_metadata (Sequence[Tuple[str, str]]):
-                Optional. Strings which should be sent along with the request as metadata.
+                Required. Strings which should be sent along with the request as metadata.
         Returns:
             EntityType - The updated entityType resource object.
         """
@@ -1177,9 +1171,9 @@ class EntityType(base.VertexAiResourceNounWithFutureManager):
     def read(
         self,
         entity_ids: Union[str, List[str]],
-        feature_ids: List[str] = None,
+        feature_ids: Optional[Union[str, List[str]]] = None,
         request_metadata: Optional[Sequence[Tuple[str, str]]] = (),
-    ) -> pd.DataFrame:
+    ) -> "pd.DataFrame":  # noqa: F821 - skip check for undefined name 'pd'
         """Reads feature values for given feature IDs of given entity IDs in this EntityType.
 
         Args:
@@ -1229,54 +1223,63 @@ class EntityType(base.VertexAiResourceNounWithFutureManager):
                 )
             ]
 
-        return self._load_read_feature_values_response_to_dataframe(response=response)
+        return _load_read_feature_values_response_to_dataframe(response=response)
 
-    @staticmethod
-    def _load_read_feature_values_response_to_dataframe(
-        response: Union[
-            gca_featurestore_online_service.ReadFeatureValuesResponse,
-            List[gca_featurestore_online_service.ReadFeatureValuesResponse],
-        ],
-    ):
-        """Loads read_feature_values_response to dataframe.
 
-        Args:
-            response (Union[featurestore_online_service.ReadFeatureValuesResponse,
-                            List[featurestore_online_service.ReadFeatureValuesResponse]):
-                Required. featurestore_online_service.ReadFeatureValuesResponse from `read_feature_values`
-                or Iterable in list from `streaming_read_feature_values`.
-        Returns:
-            pd.DataFrame: response in DataFrame
+def _load_read_feature_values_response_to_dataframe(
+    response: Union[
+        gca_featurestore_online_service.ReadFeatureValuesResponse,
+        List[gca_featurestore_online_service.ReadFeatureValuesResponse],
+    ],
+) -> "pd.DataFrame":  # noqa: F821 - skip check for undefined name 'pd'
+    """Loads read_feature_values_response to dataframe
+
+    Args:
+        response (Union[featurestore_online_service.ReadFeatureValuesResponse,
+                        List[featurestore_online_service.ReadFeatureValuesResponse]):
+            Required. featurestore_online_service.ReadFeatureValuesResponse from `read_feature_values`
+            or Iterable in list from `streaming_read_feature_values`.
+
+    Raises:
+        ImportError: If pandas is not installed when using this method.
+
+    Returns:
+        pd.DataFrame: response in DataFrame
+    )
+    """
+
+    try:
+        import pandas as pd
+    except ImportError:
+        raise ImportError(
+            f"Pandas is not installed. Please install pandas to use {_load_read_feature_values_response_to_dataframe.__name__}"
         )
-        """
 
-        if isinstance(
-            response, gca_featurestore_online_service.ReadFeatureValuesResponse
-        ):
-            response_header = response.header
-            response_entity_view = [response.entity_view]
-        elif isinstance(response, list):
-            response_header = response[0].header
-            response_entity_view = [response.entity_view for response in response[1:]]
+    if isinstance(response, gca_featurestore_online_service.ReadFeatureValuesResponse):
+        response_header = response.header
+        response_entity_view = [response.entity_view]
+    elif isinstance(response, list):
+        response_header = response[0].header
+        response_entity_view = [response.entity_view for response in response[1:]]
 
-        feature_ids = [
-            feature_descriptor.id
-            for feature_descriptor in response_header.feature_descriptors
-        ]
-        data = []
+    feature_ids = [
+        feature_descriptor.id
+        for feature_descriptor in response_header.feature_descriptors
+    ]
+    data = []
 
-        for entity_view in response_entity_view:
-            entity_id = entity_view.entity_id
-            entity_data = [entity_id]
+    for entity_view in response_entity_view:
+        entity_id = entity_view.entity_id
+        entity_data = [entity_id]
 
-            for entity_view_data in entity_view.data:
-                if entity_view_data._pb.HasField("value"):
-                    value_type = entity_view_data.value._pb.WhichOneof("value")
-                    feature_value = getattr(entity_view_data.value, value_type)
-                    if hasattr(feature_value, "values"):
-                        entity_data.append(feature_value.values)
-                    else:
-                        entity_data.append(feature_value)
-            data.append(entity_data)
+        for entity_view_data in entity_view.data:
+            if entity_view_data._pb.HasField("value"):
+                value_type = entity_view_data.value._pb.WhichOneof("value")
+                feature_value = getattr(entity_view_data.value, value_type)
+                if hasattr(feature_value, "values"):
+                    entity_data.append(feature_value.values)
+                else:
+                    entity_data.append(feature_value)
+        data.append(entity_data)
 
-        return pd.DataFrame(data=data, columns=["entity_id"] + feature_ids)
+    return pd.DataFrame(data=data, columns=["entity_id"] + feature_ids)
