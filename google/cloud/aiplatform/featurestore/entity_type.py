@@ -1246,7 +1246,7 @@ class EntityType(base.VertexAiResourceNounWithFutureManager):
                 Required. featurestore_online_service.ReadFeatureValuesResponse from `read_feature_values`
                 or Iterable in list from `streaming_read_feature_values`.
         Returns:
-            pd.DataFrame - response in DataFrame
+            pd.DataFrame: response in DataFrame
         )
         """
 
