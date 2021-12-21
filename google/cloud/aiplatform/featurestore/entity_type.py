@@ -1193,7 +1193,7 @@ class EntityType(base.VertexAiResourceNounWithFutureManager):
                 Optional. Strings which should be sent along with the request as metadata.
 
         Returns:
-            pd.DataFrame - entities' feature values in DataFrame
+            pd.DataFrame: entities' feature values in DataFrame
         """
 
         if not feature_ids:
