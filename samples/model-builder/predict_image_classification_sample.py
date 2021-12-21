@@ -22,7 +22,7 @@ from google.cloud import aiplatform
 import tensorflow as tf
 
 
-#  [START aiplatform_sdk_predict_images_classification_sample]
+#  [START aiplatform_sdk_predict_image_classification_sample]
 def predict_tabular_classification_sample(
     project: str,
     location: str,
