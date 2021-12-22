@@ -19,6 +19,7 @@ SYSTEM_RUN = "system.Run"
 SYSTEM_EXPERIMENT = "system.Experiment"
 SYSTEM_EXPERIMENT_RUN = "system.ExperimentRun"
 SYSTEM_PIPELINE = "system.Pipeline"
+SYSTEM_PIPELINE_RUN = "system.PipelineRun"
 SYSTEM_METRICS = "system.Metrics"
 
 _DEFAULT_SCHEMA_VERSION = "0.0.1"
@@ -34,3 +35,5 @@ SCHEMA_VERSIONS = {
 # The EXPERIMENT_METADATA is needed until we support context deletion in backend service.
 # TODO: delete EXPERIMENT_METADATA once backend supports context deletion.
 EXPERIMENT_METADATA = {"experiment_deleted": False}
+
+PIPELINE_PARAM_PREFIX = 'input:'

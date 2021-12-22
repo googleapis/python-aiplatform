@@ -19,10 +19,12 @@ from typing import Optional, Dict, List, Sequence
 
 import proto
 
-from google.cloud.aiplatform import utils
-from google.cloud.aiplatform.compat.types import metadata_service
-from google.cloud.aiplatform.compat.types import context as gca_context
+from google.cloud.aiplatform import base
 from google.cloud.aiplatform.metadata import resource
+from google.cloud.aiplatform.compat.types import context as gca_context
+from google.cloud.aiplatform.compat.types import lineage_subgraph
+from google.cloud.aiplatform.compat.types import metadata_service
+from google.cloud.aiplatform import utils
 
 
 class _Context(resource._Resource):
@@ -129,5 +131,12 @@ class _Context(resource._Resource):
             context=self.resource_name,
             child_contexts=[c.resource_name for c in contexts],
         )
+
+    def query_lineage_subgraph(self) -> lineage_subgraph.LineageSubgraph:
+        """Queries lineae subgraph of this context."""
+
+        return self.api_client.query_context_lineage_subgraph(context=self.resource_name, retry=base._DEFAULT_RETRY)
+
+
 
 

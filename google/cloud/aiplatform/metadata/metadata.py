@@ -15,8 +15,10 @@
 # limitations under the License.
 #
 
+from collections import defaultdict
 from typing import Dict, Union, Optional
 
+from google.cloud.aiplatform.compat.types import event as gca_event
 from google.cloud.aiplatform.metadata import constants
 from google.cloud.aiplatform.metadata.artifact import _Artifact
 from google.cloud.aiplatform.metadata.context import _Context
@@ -453,7 +455,81 @@ class _MetadataService:
 
         # get pipelines parameters and metrics
 
-        # in_context_query = 
+        in_parent_context_query = " OR ".join(
+            [f'parent_contexts:"{c.resource_name}"' for c in run_contexts]
+        )
+
+        filter = f'schema_title="{constants.SYSTEM_PIPELINE_RUN}" AND ({in_parent_context_query})'
+
+        pipeline_contexts = _Context.list(filter=filter)
+
+        run_context_pipeline_context_pairs = []
+
+        # parent contexts are full resource names
+        context_map = {c.resource_name: c for c in run_contexts}
+
+        for pipeline_context in pipeline_contexts:
+            pipeline_run_dict = {
+                "experiment_name": context_id,
+                #"run_name": run_context.display_name,
+                "pipeline_run_name": pipeline_context.name,
+            }
+
+            context_lineage_subgraph = pipeline_context.query_lineage_subgraph()
+            artifact_map = {artifact.name:artifact for artifact in context_lineage_subgraph.artifacts}
+            output_execution_map = defaultdict(list)
+            for event in context_lineage_subgraph.events:
+                if event.type_ == gca_event.Event.Type.OUTPUT:
+                    output_execution_map[event.execution].append(event.artifact)
+
+            execution_dicts = []
+            for execution in context_lineage_subgraph.executions:
+                if execution.schema_title == constants.SYSTEM_RUN:
+                    pipeline_params = self._execution_to_column_named_metadata(
+                        metadata_type="param",
+                        metadata=execution.metadata,
+                        filter_prefix=constants.PIPELINE_PARAM_PREFIX) 
+                else:
+                    execution_dict = pipeline_run_dict.copy()
+                    execution_dict['execution_name'] = execution.display_name
+                    artifact_dicts = []
+                    for artifact_name in output_execution_map[execution.name]:
+                        artifact = artifact_map.get(artifact_name)
+                        if artifact and artifact.schema_title == constants.SYSTEM_METRICS and artifact.metadata:
+                            execution_with_metric_dict = execution_dict.copy()
+                            execution_with_metric_dict['output_name'] = artifact.display_name
+                            execution_with_metric_dict.update(self._execution_to_column_named_metadata("metric", artifact.metadata))
+                            artifact_dicts.append(execution_with_metric_dict)
+                    
+                    # if this is the only artifact then we only need one row for this execution
+                    # otherwise we need to create a row per metric artifact
+                    # ignore all executions that didn't create metrics to remove noise
+                    if len(artifact_dicts) == 1:
+                        execution_dict.update(artifact_dicts[0])
+                        execution_dicts.append(execution_dict)
+                    elif len(artifact_dicts) >= 1:
+                        execution_dicts.extend(artifact_dicts)
+
+
+            for parent_context_name in pipeline_context.parent_contexts:
+                if parent_context_name in context_map:
+                    experiment_run = context_map[parent_context_name]
+                    this_pipeline_run_dict = pipeline_run_dict.copy()
+                    this_pipeline_run_dict["run_name"] = run_context.display_name
+                    # if there is only one execution/artifact combo then only need one row for this pipeline
+                    # otherwise we need one row be execution/artifact combo
+                    if len(execution_dicts) == 1:
+                        this_pipeline_run_dict.update(execution_dicts[0])
+                        this_pipeline_run_dict.update(pipeline_params)
+                        context_summary.append(this_pipeline_run_dict)
+                    else:
+                        # pipeline params on their own row when there are multiple output metrics
+                        pipeline_run_row = this_pipeline_run_dict.copy()
+                        pipeline_run_row.update(pipeline_params)
+                        context_summary.append(pipeline_run_row)
+                        for execution_dict in execution_dicts:
+                            execution_dict.update(this_pipeline_run_dict)
+                            context_summary.append(execution_dict)
 
         return pd.DataFrame(context_summary)
 
@@ -510,21 +586,27 @@ class _MetadataService:
 
     @staticmethod
     def _execution_to_column_named_metadata(
-        metadata_type: str, metadata: Dict,
+        metadata_type: str, metadata: Dict, filter_prefix: Optional[str] = None
     ) -> Dict[str, Union[int, float, str]]:
         """Returns a dict of the Execution/Artifact metadata with column names.
 
         Args:
           metadata_type: The type of this execution properties (param, metric).
           metadata: Either an Execution or Artifact metadata field.
+          filter_prefix:
+            Remove this prefix from the key of metadata field. Mainly used for removing
+            "input:" from PipelineJob parameter keys
 
         Returns:
           Dict of custom properties with keys mapped to column names
         """
+        column_key_to_value = {}
+        for key, value in metadata.items():
+            if filter_prefix and key.startswith(filter_prefix):
+                key = key[len(filter_prefix):]
+            column_key_to_value[".".join([metadata_type, key])] = value
 
-        return {
-            ".".join([metadata_type, key]): value for key, value in metadata.items()
-        }
+        return column_key_to_value
 
 
     def _log_pipeline_job(self, pipeline_job: pipeline_jobs.PipelineJob):
@@ -535,8 +617,6 @@ class _MetadataService:
             raise RuntimeError("Could not log PipelineJob to Experiment Run") from e
 
         resource_name_fields = pipeline_jobs.PipelineJob._parse_resource_name(pipeline_job.resource_name)
-
-        print(resource_name_fields)
 
         pipeline_job_context = _Context._get(
             resource_name=resource_name_fields['pipeline_job'],
