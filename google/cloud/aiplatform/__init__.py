@@ -47,7 +47,11 @@ from google.cloud.aiplatform.jobs import (
     HyperparameterTuningJob,
 )
 from google.cloud.aiplatform.pipeline_jobs import PipelineJob
-from google.cloud.aiplatform.tensorboard import Tensorboard, TensorboardExperiment
+from google.cloud.aiplatform.tensorboard import (
+    Tensorboard,
+    TensorboardExperiment,
+    TensorboardRun,
+)
 from google.cloud.aiplatform.training_jobs import (
     CustomTrainingJob,
     CustomContainerTrainingJob,
@@ -107,6 +111,7 @@ __all__ = (
     "TabularDataset",
     "Tensorboard",
     "TensorboardExperiment",
+    "TensorboardRun",
     "TextDataset",
     "TimeSeriesDataset",
     "VideoDataset",
