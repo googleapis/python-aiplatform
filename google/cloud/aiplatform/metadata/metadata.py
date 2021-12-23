@@ -16,7 +16,9 @@
 #
 
 from collections import defaultdict
+import functools
 from typing import Dict, Union, Optional
+import time
 
 from google.cloud.aiplatform.compat.types import event as gca_event
 from google.cloud.aiplatform.metadata import constants
@@ -27,7 +29,15 @@ from google.cloud.aiplatform.metadata.metadata_store import _MetadataStore
 from google.cloud.aiplatform import pipeline_jobs
 
 # runtime patch to v2 to use new data model
-_EXPERIMENT_TRACKING_VERSION = "v2"
+_EXPERIMENT_TRACKING_VERSION = "v1"
+
+def _get_experiment_schema_version() -> str:
+    """Helper method to get experiment schema version
+
+    Returns:
+        str: schema version of the currently set experiment tracking version
+    """
+    return constants.SCHEMA_VERSIONS[constants.SYSTEM_EXPERIMENT]
 
 
 class _MetadataService:
@@ -84,12 +94,13 @@ class _MetadataService:
         """
 
         _MetadataStore.get_or_create()
+
         context = _Context.get_or_create(
             resource_id=experiment,
             display_name=experiment,
             description=description,
             schema_title=constants.SYSTEM_EXPERIMENT,
-            schema_version=constants.SCHEMA_VERSIONS[constants.SYSTEM_EXPERIMENT],
+            schema_version=_get_experiment_schema_version(),
             metadata=constants.EXPERIMENT_METADATA,
         )
         if context.schema_title != constants.SYSTEM_EXPERIMENT:
@@ -428,11 +439,11 @@ class _MetadataService:
 
         run_executions = _Execution.list(filter=filter)
 
-        context_map = {c.name: c for c in run_contexts}
+        experiment_run_context_map = {c.name: c for c in run_contexts}
 
         context_summary = []
         for run_execution in run_executions:
-            run_context = context_map[run_execution.name]
+            run_context = experiment_run_context_map[run_execution.name]
             run_dict = {
                 f"{source}_name": context_id,
                 "run_name": run_context.display_name,
@@ -451,10 +462,11 @@ class _MetadataService:
                         )
                     )
 
-            context_summary.append(run_dict)
+            # if there are no parameters, remove the run to reduce the noise
+            if len(run_dict) > 2:
+                context_summary.append(run_dict)
 
-        # get pipelines parameters and metrics
-
+        # get pipelines in runs
         in_parent_context_query = " OR ".join(
             [f'parent_contexts:"{c.resource_name}"' for c in run_contexts]
         )
@@ -466,7 +478,7 @@ class _MetadataService:
         run_context_pipeline_context_pairs = []
 
         # parent contexts are full resource names
-        context_map = {c.resource_name: c for c in run_contexts}
+        experiment_run_context_map = {c.resource_name: c for c in run_contexts}
 
         for pipeline_context in pipeline_contexts:
             pipeline_run_dict = {
@@ -512,17 +524,17 @@ class _MetadataService:
 
 
             for parent_context_name in pipeline_context.parent_contexts:
-                if parent_context_name in context_map:
-                    experiment_run = context_map[parent_context_name]
+                if parent_context_name in experiment_run_context_map:
+                    experiment_run = experiment_run_context_map[parent_context_name]
                     this_pipeline_run_dict = pipeline_run_dict.copy()
-                    this_pipeline_run_dict["run_name"] = run_context.display_name
+                    this_pipeline_run_dict["run_name"] = experiment_run.display_name
                     # if there is only one execution/artifact combo then only need one row for this pipeline
                     # otherwise we need one row be execution/artifact combo
                     if len(execution_dicts) == 1:
                         this_pipeline_run_dict.update(execution_dicts[0])
                         this_pipeline_run_dict.update(pipeline_params)
                         context_summary.append(this_pipeline_run_dict)
-                    else:
+                    elif len(execution_dicts) > 1:
                         # pipeline params on their own row when there are multiple output metrics
                         pipeline_run_row = this_pipeline_run_dict.copy()
                         pipeline_run_row.update(pipeline_params)
@@ -531,7 +543,30 @@ class _MetadataService:
                             execution_dict.update(this_pipeline_run_dict)
                             context_summary.append(execution_dict)
 
-        return pd.DataFrame(context_summary)
+        column_name_sort_map = {
+            'experiment_name': -1,
+            'run_name': 1,
+            'pipeline_run_name': 2,
+            'execution_name': 3,
+            'output_name': 4
+        }
+
+        def column_sort_key(key: str) -> int:
+            """Helper method to reorder columns."""
+            order = column_name_sort_map.get(key)
+            if order:
+                return order
+            elif key.startswith('param'):
+                return 5
+            else:
+                return 6
+
+        df = pd.DataFrame(context_summary)
+        columns = df.columns
+        columns = sorted(columns, key=column_sort_key) 
+        df = df.reindex(columns, axis=1)
+
+        return df
 
     def _query_runs_to_data_frame(
         self, context_id: str, context_resource_name: str, source: str
@@ -610,6 +645,12 @@ class _MetadataService:
 
 
     def _log_pipeline_job(self, pipeline_job: pipeline_jobs.PipelineJob):
+        """Associated this PipelineJob's Context to the current ExperimentRun Context as a child context.
+
+        Args:
+            pipeline_job (pipeline_jobs.PipelineJob):
+                Required. The PipelineJob to associated.
+        """
         
         try:
             pipeline_job.wait_for_resource_creation()
@@ -618,11 +659,28 @@ class _MetadataService:
 
         resource_name_fields = pipeline_jobs.PipelineJob._parse_resource_name(pipeline_job.resource_name)
 
-        pipeline_job_context = _Context._get(
+        pipeline_job_context = None
+        pipeline_job_context_getter = functools.partial(
+            _Context._get,
             resource_name=resource_name_fields['pipeline_job'],
             project=resource_name_fields['project'],
             location=resource_name_fields['location']
-        )
+            )
+
+        # PipelineJob context is created asynchronously so we need to poll until it exists.
+        while not pipeline_job_context:
+            pipeline_job_context = pipeline_job_context_getter()
+
+            if not pipeline_job_context:
+                if pipeline_job.done():
+                    pipeline_job_context = pipeline_job_context_getter()
+                    if not pipeline_job_context:
+                        if pipeline_job.has_failed():
+                            raise RuntimeError(f"Cannot associate PipelineJob to Experiment Run: {pipeline_job.gca_resource.error}")
+                        else:
+                            raise RuntimeError(f"Cannot associate PipelineJob to Experiment Run because PipelineJob context could not be found.")
+                else:
+                    time.sleep(1)
 
         self._experiment_run.add_context_children([pipeline_job_context])        
 

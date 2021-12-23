@@ -446,3 +446,16 @@ class PipelineJob(base.VertexAiResourceNounWithFutureManager):
     def wait_for_resource_creation(self) -> None:
         """Waits until resource has been created."""
         self._wait_for_resource_creation()
+
+    def done(self) -> bool:
+        """Helper method that return True is PipelineJob is done. False otherwise."""
+        if not self._gca_resource:
+            return False
+
+        return self.state in _PIPELINE_COMPLETE_STATES
+
+    def has_failed(self) -> bool:
+        if not self._gca_resource:
+            return False
+
+        return self.state in _PIPELINE_ERROR_STATES
