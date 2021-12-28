@@ -19,7 +19,13 @@ from google.cloud.aiplatform.tensorboard.tensorboard_resource import (
     Tensorboard,
     TensorboardExperiment,
     TensorboardRun,
+    TensorboardTimeSeries,
 )
 
 
-__all__ = ("Tensorboard", "TensorboardExperiment", "TensorboardRun")
+__all__ = (
+    "Tensorboard",
+    "TensorboardExperiment",
+    "TensorboardRun",
+    "TensorboardTimeSeries",
+)
