@@ -51,6 +51,7 @@ from google.cloud.aiplatform.tensorboard import (
     Tensorboard,
     TensorboardExperiment,
     TensorboardRun,
+    TensorboardTimeSeries,
 )
 from google.cloud.aiplatform.training_jobs import (
     CustomTrainingJob,
@@ -112,6 +113,7 @@ __all__ = (
     "Tensorboard",
     "TensorboardExperiment",
     "TensorboardRun",
+    "TensorboardTimeSeries",
     "TextDataset",
     "TimeSeriesDataset",
     "VideoDataset",
