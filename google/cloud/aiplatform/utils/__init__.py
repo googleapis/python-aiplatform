@@ -620,12 +620,11 @@ def get_timestamp_proto(
     time: Optional[datetime.datetime] = None,
 ) -> timestamp_pb2.Timestamp:
     """Gets timestamp proto of a given time.
-    
     Args:
         time (datetime.datetime):
             Optional. A user provided time. Default to datetime.datetime.now() if not given.
     Returns:
-        timestamp_pb2.Timestamp - timestamp proto of the given time, not have higher than millisecond precision.
+        timestamp_pb2.Timestamp: timestamp proto of the given time, not have higher than millisecond precision.
     """
     if not time:
         time = datetime.datetime.now()
