@@ -45,6 +45,9 @@ from google.cloud.aiplatform_v1 import (
 )
 from google.cloud.aiplatform_v1 import MetadataStore as GapicMetadataStore
 
+from test_pipeline_jobs import mock_pipeline_service_get # noqa: F401
+from test_pipeline_jobs import _TEST_PIPELINE_JOB_NAME # noqa: F401
+
 # project
 
 _TEST_PROJECT = "test-project"
@@ -1261,3 +1264,14 @@ class TestExperimentsV2:
             aiplatform.init(project=_TEST_PROJECT, location=_TEST_LOCATION)
             with pytest.raises(ValueError):
                 aiplatform.get_experiment_df(_TEST_EXPERIMENT)
+
+    @pytest.mark.usefixtures("mock_pipeline_service_get")
+    def test_log_pipeline(self)
+        with monkeypatch.context() as m:
+            m.setattr(metadata, "_EXPERIMENT_TRACKING_VERSION", "v2")
+            reload(aiplatform)
+            aiplatform.init(project=_TEST_PROJECT, location=_TEST_LOCATION, experiment=_TEST_EXPERIMENT)
+            aiplatform.start_run(_TEST_RUN)
+            pipeline_job = PipelineJob.get(_TEST_PIPELINE)
+            aiplatform.log(_TEST_RUN)
+

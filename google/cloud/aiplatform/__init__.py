@@ -118,3 +118,8 @@ __all__ = (
     "TimeSeriesDataset",
     "VideoDataset",
 )
+
+
+if metadata._EXPERIMENT_TRACKING_VERSION == "v2":
+    log = metadata.metadata_service.log
+    __all__ = __all__ + ("log",)
