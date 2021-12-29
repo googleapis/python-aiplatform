@@ -193,6 +193,12 @@ class _Config:
         """Default encryption spec key name, if provided."""
         return self._encryption_spec_key_name
 
+    @property
+    def experiment_name(self) -> Optional[str]:
+        """Default experiment name, if provided."""
+        return metadata.metadata_service.experiment_name
+    
+
     def get_client_options(
         self,
         location_override: Optional[str] = None,

@@ -19,7 +19,7 @@ import abc
 import logging
 import re
 from copy import deepcopy
-from typing import Optional, Dict, Union, Sequence
+from typing import Dict, Optional, Sequence, Union
 
 import proto
 from google.api_core import exceptions

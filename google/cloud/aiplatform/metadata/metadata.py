@@ -20,6 +20,8 @@ import functools
 from typing import Dict, Union, Optional
 import time
 
+from google.protobuf import timestamp_pb2
+
 from google.cloud.aiplatform.compat.types import event as gca_event
 from google.cloud.aiplatform.metadata import constants
 from google.cloud.aiplatform.metadata.artifact import _Artifact
@@ -217,6 +219,24 @@ class _MetadataService:
 
         if _EXPERIMENT_TRACKING_VERSION == "v2":
             self._experiment_run = run_context
+
+    def start_run_v2(self, run: str, tensorboard_resource: Union[aiplatform.Tensorboard, str, None] = None):
+        """Setup a run to current session.
+
+        Args:
+            run (str):
+                Required. Name of the run to assign current session with.
+            tensorboard_resource (str):
+                Optional. Backing Tensorboard Resource to enable and store time series metrics
+                logged to this Experiment Run using `log_time_series_metrics`.
+        Raises:
+            ValueError:
+                if experiment is not set. Or if run execution or metrics artifact is already created
+                but with a different schema.
+        """
+
+        
+
 
     def log_params(self, params: Dict[str, Union[float, int, str]]):
         """Log single or multiple parameters with specified key and value pairs.
@@ -693,6 +713,16 @@ class _MetadataService:
 
         if pipeline_job:
             self._log_pipeline_job(pipeline_job=pipeline_job)
+
+
+    def log_time_series_metrics(
+        self,
+        metrics: Dict[str, float],
+        step: Optional[int] = None,
+        wall_time: Optiona[timestamp_pb2.Timestamp] = None):
+        if not _EXPERIMENT_TRACKING_VERSION == 'v2':
+            raise NotImplementedError('log_time_series_metrics is not currently supported')
+        pass
 
 
 
