@@ -926,6 +926,8 @@ class TensorboardTimeSeries(_TensorboardServiceResource):
         value_type: Union[
             gca_tensorboard_time_series.TensorboardTimeSeries.ValueType, str
         ] = "SCALAR",
+        plugin_name: str = "scalars",
+        plugin_data: Optional[bytes] = None,
         display_name: Optional[str] = None,
         description: Optional[str] = None,
         project: Optional[str] = None,
@@ -968,6 +970,10 @@ class TensorboardTimeSeries(_TensorboardServiceResource):
                 Optional. The ID of the TensorboardExperiment to create the TensorboardTimeSeries in.
             value_type (Union[gca_tensorboard_time_series.TensorboardTimeSeries.ValueType, str]):
                 Optional. Type of TensorboardTimeSeries value. One of 'SCALAR', 'TENSOR', 'BLOB_SEQUENCE'.
+            plugin_name (str):
+                Optional. Name of the plugin this time series pertain to.
+            plugin_data (bytes):
+                Optional. Data of the current plugin, with the size limited to 65KB.
             display_name (str):
                 Optional. User provided name of this
                 TensorboardTimeSeries. This value should be
@@ -1019,7 +1025,11 @@ class TensorboardTimeSeries(_TensorboardServiceResource):
         )
 
         gapic_tensorboard_time_series = gca_tensorboard_time_series.TensorboardTimeSeries(
-            display_name=display_name, description=description, value_type=value_type,
+            display_name=display_name,
+            description=description,
+            value_type=value_type,
+            plugin_name=plugin_name,
+            plugin_data=plugin_data,
         )
 
         request = gca_tensorboard_service.CreateTensorboardTimeSeriesRequest(

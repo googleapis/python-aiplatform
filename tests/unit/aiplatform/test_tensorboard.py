@@ -786,6 +786,7 @@ class TestTensorboardTimeSeries:
         expected_tensorboard_time_series = gca_tensorboard_time_series.TensorboardTimeSeries(
             display_name=_TEST_TENSORBOARD_TIME_SERIES_ID,
             value_type=gca_tensorboard_time_series.TensorboardTimeSeries.ValueType.SCALAR,
+            plugin_name="scalars",
         )
 
         expected_create_tensorboard_time_series_request = gca_tensorboard_service.CreateTensorboardTimeSeriesRequest(
