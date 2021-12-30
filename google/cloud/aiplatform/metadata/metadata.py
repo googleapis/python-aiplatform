@@ -220,7 +220,7 @@ class _MetadataService:
         if _EXPERIMENT_TRACKING_VERSION == "v2":
             self._experiment_run = run_context
 
-    def start_run_v2(self, run: str, tensorboard_resource: Union[aiplatform.Tensorboard, str, None] = None):
+    #def start_run_v2(self, run: str, tensorboard_resource: Union[aiplatform.Tensorboard, str, None] = None):
         """Setup a run to current session.
 
         Args:
@@ -715,14 +715,14 @@ class _MetadataService:
             self._log_pipeline_job(pipeline_job=pipeline_job)
 
 
-    def log_time_series_metrics(
-        self,
-        metrics: Dict[str, float],
-        step: Optional[int] = None,
-        wall_time: Optiona[timestamp_pb2.Timestamp] = None):
-        if not _EXPERIMENT_TRACKING_VERSION == 'v2':
-            raise NotImplementedError('log_time_series_metrics is not currently supported')
-        pass
+    # def log_time_series_metrics(
+    #     self,
+    #     metrics: Dict[str, float],
+    #     step: Optional[int] = None,
+    #     wall_time: Optional[timestamp_pb2.Timestamp] = None):
+    #     if not _EXPERIMENT_TRACKING_VERSION == 'v2':
+    #         raise NotImplementedError('log_time_series_metrics is not currently supported')
+    #     pass
 
 
 
