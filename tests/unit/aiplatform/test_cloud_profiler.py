@@ -53,6 +53,20 @@ _CLUSTER_SPEC_VM = {
     "task": {"type": "chief", "index": 0},
 }
 
+_CLUSTER_SPEC_DISTRIB = {
+    "cluster": {
+        "workerpool0": ["cmle-training-workerpool0-abc123-0:2222"],
+        "workerpool1": [
+            "cmle-training-workerpool1-abc123-0:2222",
+            "cmle-training-workerpool1-abc123-1:2222",
+            "cmle-training-workerpool1-abc123-2:2222",
+        ],
+    },
+    "environment": "cloud",
+    "task": {"type": "workerpool1", "index": 2},
+    "job": '{"python_module":"","package_uris":[],"job_args":[]}',
+}
+
 
 def _create_mock_plugin(
     plugin_name: str = "test_plugin", routes: Optional[List] = ["/route1"]
@@ -87,14 +101,26 @@ def tf_profile_plugin_mock():
     with mock.patch.object(
         tensorboard_plugin_profile.profile_plugin.ProfilePlugin, "capture_route"
     ) as profile_mock:
-        profile_mock.return_value = (
-            wrappers.BaseResponse(
-                json.dumps({"error": "some error"}),
-                content_type="application/json",
-                status=200,
-            ),
+        profile_mock.return_value = wrappers.BaseResponse(
+            json.dumps({"error": "some error"}),
+            content_type="application/json",
+            status=200,
         )
         yield profile_mock
+
+
+@pytest.fixture
+def vm_training_mock():
+    with mock.patch.object(tf_profiler, "environment_variables") as mock_env:
+        mock_env.cluster_spec = _CLUSTER_SPEC_VM
+        yield mock_env
+
+
+@pytest.fixture
+def distrib_training_mock():
+    with mock.patch.object(tf_profiler, "environment_variables") as mock_env:
+        mock_env.cluster_spec = _CLUSTER_SPEC_DISTRIB
+        yield mock_env
 
 
 @pytest.fixture
@@ -217,39 +243,91 @@ class TestProfilerPlugin(unittest.TestCase):
     # Tests for plugin
     @pytest.mark.usefixtures("tf_profile_plugin_mock")
     @pytest.mark.usefixtures("tensorboard_api_mock")
-    def testCaptureProfile(self):
+    def testCaptureProfileVM(self):
         profiler = TFProfiler()
-        environ = dict(QUERY_STRING="?service_addr=myhost1,myhost2&someotherdata=5")
+        environ = dict(QUERY_STRING="service_addr=workerpool0-0&someotherdata=5")
         start_response = None
+        tf_profiler.environment_variables.cluster_spec = _CLUSTER_SPEC_VM
 
         resp = profiler.capture_profile_wrapper(environ, start_response)
-        assert resp[0].status_code == 200
+        assert resp.status_code == 200
 
     @pytest.mark.usefixtures("tf_profile_plugin_mock")
     @pytest.mark.usefixtures("tensorboard_api_mock")
-    def testCaptureProfileNoClusterSpec(self):
+    def testCaptureProfileDistrib(self):
         profiler = TFProfiler()
+        environ = dict(
+            QUERY_STRING="service_addr=workerpool0-0,workerpool1-1&someotherdata=5"
+        )
+        start_response = None
+        tf_profiler.environment_variables.cluster_spec = _CLUSTER_SPEC_DISTRIB
 
-        environ = dict(QUERY_STRING="?service_addr=myhost1,myhost2&someotherdata=5")
+        resp = profiler.capture_profile_wrapper(environ, start_response)
+        assert resp.status_code == 200
+
+    @pytest.mark.usefixtures("tf_profile_plugin_mock")
+    @pytest.mark.usefixtures("tensorboard_api_mock")
+    def testCaptureProfileMissingQueryString(self):
+        profiler = TFProfiler()
+        environ = dict()
         start_response = None
 
-        tf_profiler.environment_variables.cluster_spec = None
         resp = profiler.capture_profile_wrapper(environ, start_response)
-
         assert resp.status_code == 500
 
     @pytest.mark.usefixtures("tf_profile_plugin_mock")
     @pytest.mark.usefixtures("tensorboard_api_mock")
-    def testCaptureProfileNoCluster(self):
+    def testCaptureProfileMissingServiceAddr(self):
         profiler = TFProfiler()
-
-        environ = dict(QUERY_STRING="?service_addr=myhost1,myhost2&someotherdata=5")
+        environ = dict(QUERY_STRING="testparam=1")
         start_response = None
-        tf_profiler.environment_variables.cluster_spec = {"cluster": {}}
 
         resp = profiler.capture_profile_wrapper(environ, start_response)
-
         assert resp.status_code == 500
+
+    @pytest.mark.usefixtures("tf_profile_plugin_mock")
+    @pytest.mark.usefixtures("tensorboard_api_mock")
+    def testCaptureProfileTooManyHostsVM(self):
+        profiler = TFProfiler()
+        tf_profiler.environment_variables.cluster_spec = _CLUSTER_SPEC_VM
+        environ = dict(QUERY_STRING="service_addr=workerpool0-0,workerpool0-1")
+
+        resp = profiler.capture_profile_wrapper(environ, None)
+        assert resp.status_code == 500
+        assert "Too many workers" in str(resp.response[0])
+
+    @pytest.mark.usefixtures("tf_profile_plugin_mock")
+    @pytest.mark.usefixtures("tensorboard_api_mock")
+    def testCaptureProfileBadWorkerVM(self):
+        profiler = TFProfiler()
+        tf_profiler.environment_variables.cluster_spec = _CLUSTER_SPEC_VM
+        environ = dict(QUERY_STRING="service_addr=bad_worker")
+
+        resp = profiler.capture_profile_wrapper(environ, None)
+        assert resp.status_code == 500
+        assert "Only workerpool0-0 is a valid worker name" in str(resp.response[0])
+
+    @pytest.mark.usefixtures("tf_profile_plugin_mock")
+    @pytest.mark.usefixtures("tensorboard_api_mock")
+    def testCaptureProfileBadWorkerPoolDistrib(self):
+        profiler = TFProfiler()
+        tf_profiler.environment_variables.cluster_spec = _CLUSTER_SPEC_DISTRIB
+        environ = dict(QUERY_STRING="service_addr=workerpool5-0")
+
+        resp = profiler.capture_profile_wrapper(environ, None)
+        assert resp.status_code == 500
+        assert "No such workerpool" in str(resp.response[0])
+
+    @pytest.mark.usefixtures("tf_profile_plugin_mock")
+    @pytest.mark.usefixtures("tensorboard_api_mock")
+    def testCaptureProfileBadWorkerNumDistrib(self):
+        profiler = TFProfiler()
+        tf_profiler.environment_variables.cluster_spec = _CLUSTER_SPEC_DISTRIB
+        environ = dict(QUERY_STRING="service_addr=workerpool0-1")
+
+        resp = profiler.capture_profile_wrapper(environ, None)
+        assert resp.status_code == 500
+        assert "Worker num 1 not found" in str(resp.response[0])
 
     @pytest.mark.usefixtures("tf_profile_plugin_mock")
     @pytest.mark.usefixtures("tensorboard_api_mock")

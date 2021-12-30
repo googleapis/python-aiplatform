@@ -57,6 +57,12 @@ _BASE_TB_ENV_WARNING = (
 )
 
 
+class WorkerNotFoundError(Exception):
+    """Raise if a requested worker to profile is not found."""
+
+    pass
+
+
 def _get_tf_versioning() -> Optional[Version]:
     """Convert version string to a Version namedtuple for ease of parsing.
 
@@ -169,55 +175,99 @@ def _host_to_grpc(hostname: str) -> str:
     )
 
 
-def _get_hostnames() -> Optional[str]:
-    """Get the hostnames for all servers running.
+def _convert_workers_to_hostnames(workers: str) -> str:
+    """Converts a list of workers to the hostnames to profile.
+
+    The profile plugin expects workernames in the form:
+        'workerpool0-0,workerpool1-1,workerpool1-2'
+
+    Convert these workerpool names into the hostnames to profile.
+
+    Args:
+        workers (str):
+            Required. A comma-delimited string of workers to profile.
 
     Returns:
-        A host formatted by `_host_to_grpc` if obtaining the cluster spec
-        is successful, None otherwise.
-    """
-    cluster_spec = environment_variables.cluster_spec
-    if cluster_spec is None:
-        return
+        A comma-delimited string of hostnames to profile.
 
-    cluster = cluster_spec.get("cluster", "")
-    if not cluster:
-        return
+    Raises:
+        WorkerNotFoundError: An invalid worker name was given.
+    """
+    worker_list = workers.split(",")
 
     hostnames = []
-    for value in cluster.values():
-        hostnames.extend(value)
+    cluster = environment_variables.cluster_spec.get("cluster")
 
-    return ",".join([_host_to_grpc(x) for x in hostnames])
+    # VM Training has a "chief" node, whereas cluster training has
+    # workerpool specification.
+    if cluster.get("chief"):
+        if len(worker_list) != 1:
+            raise WorkerNotFoundError("Too many workers provided to profile.")
+
+        if worker_list[0] != "workerpool0-0":
+            raise WorkerNotFoundError(
+                "Only workerpool0-0 is a valid worker name. Provided: {}".format(
+                    worker_list[0]
+                )
+            )
+
+        hostnames.append(cluster.get("chief")[0])
+    else:
+        for worker in worker_list:
+            worker_pool, worker_num = worker.split("-")
+            worker_num = int(worker_num)
+            if worker_pool not in cluster:
+                raise WorkerNotFoundError(
+                    "No such workerpool '{}' found, available worker pools are {}".format(
+                        worker_pool, cluster.keys()
+                    )
+                )
+
+            if worker_num >= len(cluster[worker_pool]):
+                raise WorkerNotFoundError(
+                    "Worker num {} not found, only {} hosts available in workerpool {}".format(
+                        worker_num, len(cluster[worker_pool]), worker_pool
+                    )
+                )
+
+            hostnames.append(cluster[worker_pool][worker_num])
+
+    return ",".join(_host_to_grpc(host) for host in hostnames)
 
 
-def _update_environ(environ: wsgi_types.Environment) -> bool:
+def _update_environ(environ: wsgi_types.Environment):
     """Add parameters to the query that are retrieved from training side.
 
     Args:
         environ (wsgi_types.Environment):
             Required. The WSGI Environment.
 
-    Returns:
-        Whether the environment was successfully updated.
+    Raises:
+        KeyError: A required parameter is missing from environ.
+        WorkerNotFoundError: A bad worker list was provided.
     """
-    hosts = _get_hostnames()
 
-    if hosts is None:
-        return False
+    # Get arguments via QUERY_STRING.
+    query_string = environ.get("QUERY_STRING")
+    if not query_string:
+        raise KeyError("No 'QUERY_STRING' provided by wsgi Environment")
 
-    query_dict = {}
-    query_dict["service_addr"] = hosts
+    # Parses the query string into a dictionary.
+    query_string_attributes = dict(parse.parse_qsl(query_string))
 
-    # Update service address and worker list
-    # Use parse_qsl and then convert list to dictionary so we can update
-    # attributes
-    prev_query_string = dict(parse.parse_qsl(environ["QUERY_STRING"]))
-    prev_query_string.update(query_dict)
+    # Workers to profile. Should be a comma-delimited list.
+    service_addr = query_string_attributes.get("service_addr")
+    if not service_addr:
+        raise KeyError(
+            "'service_addr' not present in request. Must specify which hosts to profile"
+        )
 
-    environ["QUERY_STRING"] = parse.urlencode(prev_query_string)
+    # Converts the worker names into hostnames.
+    new_service_addr = _convert_workers_to_hostnames(service_addr)
 
-    return True
+    query_string_attributes["service_addr"] = new_service_addr
+
+    environ["QUERY_STRING"] = parse.urlencode(query_string_attributes)
 
 
 def warn_tensorboard_env_var(var_name: str):
@@ -306,10 +356,20 @@ class TFProfiler(base_plugin.BasePlugin):
             A response iterable.
         """
         # The service address (localhost) and worker list are populated locally
-        if not _update_environ(environ):
-            err = {"error": "Could not parse the environ: %s"}
+
+        try:
+            _update_environ(environ)
+        except KeyError as k_err:
             return Response(
-                json.dumps(err), content_type="application/json", status=500
+                json.dumps({"error": str(k_err)}),
+                content_type="application/json",
+                status=500,
+            )
+        except WorkerNotFoundError as w_err:
+            return Response(
+                json.dumps({"error": str(w_err)}),
+                content_type="application/json",
+                status=500,
             )
 
         response = self._profile_plugin.capture_route(environ, start_response)
