@@ -319,7 +319,7 @@ def read_feature_values_mock():
                 data=[
                     gca_featurestore_online_service.ReadFeatureValuesResponse.EntityView.Data(
                         value=gca_featurestore_online_service.FeatureValue(
-                            int64_value=0
+                            int64_value=99
                         )
                     )
                 ],
@@ -350,7 +350,7 @@ def streaming_read_feature_values_mock():
                     data=[
                         gca_featurestore_online_service.ReadFeatureValuesResponse.EntityView.Data(
                             value=gca_featurestore_online_service.FeatureValue(
-                                int64_value=0
+                                int64_value=19
                             )
                         )
                     ],
@@ -1142,7 +1142,7 @@ class TestEntityType:
         assert type(result) == pd.DataFrame
         assert len(result) == 1
         assert result.entity_id[0] == _TEST_READ_ENTITY_ID
-        assert result.get(_TEST_FEATURE_ID)[0] == 0
+        assert result.get(_TEST_FEATURE_ID)[0] == 99
 
     @pytest.mark.usefixtures("get_entity_type_mock")
     def test_read_multiple_entities(self, streaming_read_feature_values_mock):
@@ -1165,7 +1165,7 @@ class TestEntityType:
         assert type(result) == pd.DataFrame
         assert len(result) == 1
         assert result.entity_id[0] == _TEST_READ_ENTITY_ID
-        assert result.get(_TEST_FEATURE_ID)[0] == 0
+        assert result.get(_TEST_FEATURE_ID)[0] == 19
 
 
 class TestFeature:
