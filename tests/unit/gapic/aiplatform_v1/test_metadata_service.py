@@ -269,20 +269,20 @@ def test_metadata_service_client_client_options(
     # unsupported value.
     with mock.patch.dict(os.environ, {"GOOGLE_API_USE_MTLS_ENDPOINT": "Unsupported"}):
         with pytest.raises(MutualTLSChannelError):
-            client = client_class()
+            client = client_class(transport=transport_name)
 
     # Check the case GOOGLE_API_USE_CLIENT_CERTIFICATE has unsupported value.
     with mock.patch.dict(
         os.environ, {"GOOGLE_API_USE_CLIENT_CERTIFICATE": "Unsupported"}
     ):
         with pytest.raises(ValueError):
-            client = client_class()
+            client = client_class(transport=transport_name)
 
     # Check the case quota_project_id is provided
     options = client_options.ClientOptions(quota_project_id="octopus")
     with mock.patch.object(transport_class, "__init__") as patched:
         patched.return_value = None
-        client = client_class(transport=transport_name, client_options=options)
+        client = client_class(client_options=options, transport=transport_name)
         patched.assert_called_once_with(
             credentials=None,
             credentials_file=None,
@@ -351,7 +351,7 @@ def test_metadata_service_client_mtls_env_auto(
         )
         with mock.patch.object(transport_class, "__init__") as patched:
             patched.return_value = None
-            client = client_class(transport=transport_name, client_options=options)
+            client = client_class(client_options=options, transport=transport_name)
 
             if use_client_cert_env == "false":
                 expected_client_cert_source = None
@@ -446,7 +446,7 @@ def test_metadata_service_client_client_options_scopes(
     options = client_options.ClientOptions(scopes=["1", "2"],)
     with mock.patch.object(transport_class, "__init__") as patched:
         patched.return_value = None
-        client = client_class(transport=transport_name, client_options=options)
+        client = client_class(client_options=options, transport=transport_name)
         patched.assert_called_once_with(
             credentials=None,
             credentials_file=None,
@@ -477,7 +477,7 @@ def test_metadata_service_client_client_options_credentials_file(
     options = client_options.ClientOptions(credentials_file="credentials.json")
     with mock.patch.object(transport_class, "__init__") as patched:
         patched.return_value = None
-        client = client_class(transport=transport_name, client_options=options)
+        client = client_class(client_options=options, transport=transport_name)
         patched.assert_called_once_with(
             credentials=None,
             credentials_file="credentials.json",
@@ -510,9 +510,10 @@ def test_metadata_service_client_client_options_from_dict():
         )
 
 
-def test_create_metadata_store(
-    transport: str = "grpc", request_type=metadata_service.CreateMetadataStoreRequest
-):
+@pytest.mark.parametrize(
+    "request_type", [metadata_service.CreateMetadataStoreRequest, dict,]
+)
+def test_create_metadata_store(request_type, transport: str = "grpc"):
     client = MetadataServiceClient(
         credentials=ga_credentials.AnonymousCredentials(), transport=transport,
     )
@@ -536,10 +537,6 @@ def test_create_metadata_store(
 
     # Establish that the response is the type that we expect.
     assert isinstance(response, future.Future)
-
-
-def test_create_metadata_store_from_dict():
-    test_create_metadata_store(request_type=dict)
 
 
 def test_create_metadata_store_empty_call():
@@ -755,9 +752,10 @@ async def test_create_metadata_store_flattened_error_async():
         )
 
 
-def test_get_metadata_store(
-    transport: str = "grpc", request_type=metadata_service.GetMetadataStoreRequest
-):
+@pytest.mark.parametrize(
+    "request_type", [metadata_service.GetMetadataStoreRequest, dict,]
+)
+def test_get_metadata_store(request_type, transport: str = "grpc"):
     client = MetadataServiceClient(
         credentials=ga_credentials.AnonymousCredentials(), transport=transport,
     )
@@ -785,10 +783,6 @@ def test_get_metadata_store(
     assert isinstance(response, metadata_store.MetadataStore)
     assert response.name == "name_value"
     assert response.description == "description_value"
-
-
-def test_get_metadata_store_from_dict():
-    test_get_metadata_store(request_type=dict)
 
 
 def test_get_metadata_store_empty_call():
@@ -982,9 +976,10 @@ async def test_get_metadata_store_flattened_error_async():
         )
 
 
-def test_list_metadata_stores(
-    transport: str = "grpc", request_type=metadata_service.ListMetadataStoresRequest
-):
+@pytest.mark.parametrize(
+    "request_type", [metadata_service.ListMetadataStoresRequest, dict,]
+)
+def test_list_metadata_stores(request_type, transport: str = "grpc"):
     client = MetadataServiceClient(
         credentials=ga_credentials.AnonymousCredentials(), transport=transport,
     )
@@ -1011,10 +1006,6 @@ def test_list_metadata_stores(
     # Establish that the response is the type that we expect.
     assert isinstance(response, pagers.ListMetadataStoresPager)
     assert response.next_page_token == "next_page_token_value"
-
-
-def test_list_metadata_stores_from_dict():
-    test_list_metadata_stores(request_type=dict)
 
 
 def test_list_metadata_stores_empty_call():
@@ -1207,8 +1198,10 @@ async def test_list_metadata_stores_flattened_error_async():
         )
 
 
-def test_list_metadata_stores_pager():
-    client = MetadataServiceClient(credentials=ga_credentials.AnonymousCredentials,)
+def test_list_metadata_stores_pager(transport_name: str = "grpc"):
+    client = MetadataServiceClient(
+        credentials=ga_credentials.AnonymousCredentials, transport=transport_name,
+    )
 
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(
@@ -1253,8 +1246,10 @@ def test_list_metadata_stores_pager():
         assert all(isinstance(i, metadata_store.MetadataStore) for i in results)
 
 
-def test_list_metadata_stores_pages():
-    client = MetadataServiceClient(credentials=ga_credentials.AnonymousCredentials,)
+def test_list_metadata_stores_pages(transport_name: str = "grpc"):
+    client = MetadataServiceClient(
+        credentials=ga_credentials.AnonymousCredentials, transport=transport_name,
+    )
 
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(
@@ -1381,9 +1376,10 @@ async def test_list_metadata_stores_async_pages():
             assert page_.raw_page.next_page_token == token
 
 
-def test_delete_metadata_store(
-    transport: str = "grpc", request_type=metadata_service.DeleteMetadataStoreRequest
-):
+@pytest.mark.parametrize(
+    "request_type", [metadata_service.DeleteMetadataStoreRequest, dict,]
+)
+def test_delete_metadata_store(request_type, transport: str = "grpc"):
     client = MetadataServiceClient(
         credentials=ga_credentials.AnonymousCredentials(), transport=transport,
     )
@@ -1407,10 +1403,6 @@ def test_delete_metadata_store(
 
     # Establish that the response is the type that we expect.
     assert isinstance(response, future.Future)
-
-
-def test_delete_metadata_store_from_dict():
-    test_delete_metadata_store(request_type=dict)
 
 
 def test_delete_metadata_store_empty_call():
@@ -1600,9 +1592,10 @@ async def test_delete_metadata_store_flattened_error_async():
         )
 
 
-def test_create_artifact(
-    transport: str = "grpc", request_type=metadata_service.CreateArtifactRequest
-):
+@pytest.mark.parametrize(
+    "request_type", [metadata_service.CreateArtifactRequest, dict,]
+)
+def test_create_artifact(request_type, transport: str = "grpc"):
     client = MetadataServiceClient(
         credentials=ga_credentials.AnonymousCredentials(), transport=transport,
     )
@@ -1641,10 +1634,6 @@ def test_create_artifact(
     assert response.schema_title == "schema_title_value"
     assert response.schema_version == "schema_version_value"
     assert response.description == "description_value"
-
-
-def test_create_artifact_from_dict():
-    test_create_artifact(request_type=dict)
 
 
 def test_create_artifact_empty_call():
@@ -1864,9 +1853,8 @@ async def test_create_artifact_flattened_error_async():
         )
 
 
-def test_get_artifact(
-    transport: str = "grpc", request_type=metadata_service.GetArtifactRequest
-):
+@pytest.mark.parametrize("request_type", [metadata_service.GetArtifactRequest, dict,])
+def test_get_artifact(request_type, transport: str = "grpc"):
     client = MetadataServiceClient(
         credentials=ga_credentials.AnonymousCredentials(), transport=transport,
     )
@@ -1905,10 +1893,6 @@ def test_get_artifact(
     assert response.schema_title == "schema_title_value"
     assert response.schema_version == "schema_version_value"
     assert response.description == "description_value"
-
-
-def test_get_artifact_from_dict():
-    test_get_artifact(request_type=dict)
 
 
 def test_get_artifact_empty_call():
@@ -2098,9 +2082,8 @@ async def test_get_artifact_flattened_error_async():
         )
 
 
-def test_list_artifacts(
-    transport: str = "grpc", request_type=metadata_service.ListArtifactsRequest
-):
+@pytest.mark.parametrize("request_type", [metadata_service.ListArtifactsRequest, dict,])
+def test_list_artifacts(request_type, transport: str = "grpc"):
     client = MetadataServiceClient(
         credentials=ga_credentials.AnonymousCredentials(), transport=transport,
     )
@@ -2125,10 +2108,6 @@ def test_list_artifacts(
     # Establish that the response is the type that we expect.
     assert isinstance(response, pagers.ListArtifactsPager)
     assert response.next_page_token == "next_page_token_value"
-
-
-def test_list_artifacts_from_dict():
-    test_list_artifacts(request_type=dict)
 
 
 def test_list_artifacts_empty_call():
@@ -2308,8 +2287,10 @@ async def test_list_artifacts_flattened_error_async():
         )
 
 
-def test_list_artifacts_pager():
-    client = MetadataServiceClient(credentials=ga_credentials.AnonymousCredentials,)
+def test_list_artifacts_pager(transport_name: str = "grpc"):
+    client = MetadataServiceClient(
+        credentials=ga_credentials.AnonymousCredentials, transport=transport_name,
+    )
 
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(type(client.transport.list_artifacts), "__call__") as call:
@@ -2348,8 +2329,10 @@ def test_list_artifacts_pager():
         assert all(isinstance(i, artifact.Artifact) for i in results)
 
 
-def test_list_artifacts_pages():
-    client = MetadataServiceClient(credentials=ga_credentials.AnonymousCredentials,)
+def test_list_artifacts_pages(transport_name: str = "grpc"):
+    client = MetadataServiceClient(
+        credentials=ga_credentials.AnonymousCredentials, transport=transport_name,
+    )
 
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(type(client.transport.list_artifacts), "__call__") as call:
@@ -2458,9 +2441,10 @@ async def test_list_artifacts_async_pages():
             assert page_.raw_page.next_page_token == token
 
 
-def test_update_artifact(
-    transport: str = "grpc", request_type=metadata_service.UpdateArtifactRequest
-):
+@pytest.mark.parametrize(
+    "request_type", [metadata_service.UpdateArtifactRequest, dict,]
+)
+def test_update_artifact(request_type, transport: str = "grpc"):
     client = MetadataServiceClient(
         credentials=ga_credentials.AnonymousCredentials(), transport=transport,
     )
@@ -2499,10 +2483,6 @@ def test_update_artifact(
     assert response.schema_title == "schema_title_value"
     assert response.schema_version == "schema_version_value"
     assert response.description == "description_value"
-
-
-def test_update_artifact_from_dict():
-    test_update_artifact(request_type=dict)
 
 
 def test_update_artifact_empty_call():
@@ -2716,9 +2696,10 @@ async def test_update_artifact_flattened_error_async():
         )
 
 
-def test_delete_artifact(
-    transport: str = "grpc", request_type=metadata_service.DeleteArtifactRequest
-):
+@pytest.mark.parametrize(
+    "request_type", [metadata_service.DeleteArtifactRequest, dict,]
+)
+def test_delete_artifact(request_type, transport: str = "grpc"):
     client = MetadataServiceClient(
         credentials=ga_credentials.AnonymousCredentials(), transport=transport,
     )
@@ -2740,10 +2721,6 @@ def test_delete_artifact(
 
     # Establish that the response is the type that we expect.
     assert isinstance(response, future.Future)
-
-
-def test_delete_artifact_from_dict():
-    test_delete_artifact(request_type=dict)
 
 
 def test_delete_artifact_empty_call():
@@ -2920,9 +2897,10 @@ async def test_delete_artifact_flattened_error_async():
         )
 
 
-def test_purge_artifacts(
-    transport: str = "grpc", request_type=metadata_service.PurgeArtifactsRequest
-):
+@pytest.mark.parametrize(
+    "request_type", [metadata_service.PurgeArtifactsRequest, dict,]
+)
+def test_purge_artifacts(request_type, transport: str = "grpc"):
     client = MetadataServiceClient(
         credentials=ga_credentials.AnonymousCredentials(), transport=transport,
     )
@@ -2944,10 +2922,6 @@ def test_purge_artifacts(
 
     # Establish that the response is the type that we expect.
     assert isinstance(response, future.Future)
-
-
-def test_purge_artifacts_from_dict():
-    test_purge_artifacts(request_type=dict)
 
 
 def test_purge_artifacts_empty_call():
@@ -3124,9 +3098,8 @@ async def test_purge_artifacts_flattened_error_async():
         )
 
 
-def test_create_context(
-    transport: str = "grpc", request_type=metadata_service.CreateContextRequest
-):
+@pytest.mark.parametrize("request_type", [metadata_service.CreateContextRequest, dict,])
+def test_create_context(request_type, transport: str = "grpc"):
     client = MetadataServiceClient(
         credentials=ga_credentials.AnonymousCredentials(), transport=transport,
     )
@@ -3163,10 +3136,6 @@ def test_create_context(
     assert response.schema_title == "schema_title_value"
     assert response.schema_version == "schema_version_value"
     assert response.description == "description_value"
-
-
-def test_create_context_from_dict():
-    test_create_context(request_type=dict)
 
 
 def test_create_context_empty_call():
@@ -3380,9 +3349,8 @@ async def test_create_context_flattened_error_async():
         )
 
 
-def test_get_context(
-    transport: str = "grpc", request_type=metadata_service.GetContextRequest
-):
+@pytest.mark.parametrize("request_type", [metadata_service.GetContextRequest, dict,])
+def test_get_context(request_type, transport: str = "grpc"):
     client = MetadataServiceClient(
         credentials=ga_credentials.AnonymousCredentials(), transport=transport,
     )
@@ -3419,10 +3387,6 @@ def test_get_context(
     assert response.schema_title == "schema_title_value"
     assert response.schema_version == "schema_version_value"
     assert response.description == "description_value"
-
-
-def test_get_context_from_dict():
-    test_get_context(request_type=dict)
 
 
 def test_get_context_empty_call():
@@ -3610,9 +3574,8 @@ async def test_get_context_flattened_error_async():
         )
 
 
-def test_list_contexts(
-    transport: str = "grpc", request_type=metadata_service.ListContextsRequest
-):
+@pytest.mark.parametrize("request_type", [metadata_service.ListContextsRequest, dict,])
+def test_list_contexts(request_type, transport: str = "grpc"):
     client = MetadataServiceClient(
         credentials=ga_credentials.AnonymousCredentials(), transport=transport,
     )
@@ -3637,10 +3600,6 @@ def test_list_contexts(
     # Establish that the response is the type that we expect.
     assert isinstance(response, pagers.ListContextsPager)
     assert response.next_page_token == "next_page_token_value"
-
-
-def test_list_contexts_from_dict():
-    test_list_contexts(request_type=dict)
 
 
 def test_list_contexts_empty_call():
@@ -3820,8 +3779,10 @@ async def test_list_contexts_flattened_error_async():
         )
 
 
-def test_list_contexts_pager():
-    client = MetadataServiceClient(credentials=ga_credentials.AnonymousCredentials,)
+def test_list_contexts_pager(transport_name: str = "grpc"):
+    client = MetadataServiceClient(
+        credentials=ga_credentials.AnonymousCredentials, transport=transport_name,
+    )
 
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(type(client.transport.list_contexts), "__call__") as call:
@@ -3854,8 +3815,10 @@ def test_list_contexts_pager():
         assert all(isinstance(i, context.Context) for i in results)
 
 
-def test_list_contexts_pages():
-    client = MetadataServiceClient(credentials=ga_credentials.AnonymousCredentials,)
+def test_list_contexts_pages(transport_name: str = "grpc"):
+    client = MetadataServiceClient(
+        credentials=ga_credentials.AnonymousCredentials, transport=transport_name,
+    )
 
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(type(client.transport.list_contexts), "__call__") as call:
@@ -3946,9 +3909,8 @@ async def test_list_contexts_async_pages():
             assert page_.raw_page.next_page_token == token
 
 
-def test_update_context(
-    transport: str = "grpc", request_type=metadata_service.UpdateContextRequest
-):
+@pytest.mark.parametrize("request_type", [metadata_service.UpdateContextRequest, dict,])
+def test_update_context(request_type, transport: str = "grpc"):
     client = MetadataServiceClient(
         credentials=ga_credentials.AnonymousCredentials(), transport=transport,
     )
@@ -3985,10 +3947,6 @@ def test_update_context(
     assert response.schema_title == "schema_title_value"
     assert response.schema_version == "schema_version_value"
     assert response.description == "description_value"
-
-
-def test_update_context_from_dict():
-    test_update_context(request_type=dict)
 
 
 def test_update_context_empty_call():
@@ -4196,9 +4154,8 @@ async def test_update_context_flattened_error_async():
         )
 
 
-def test_delete_context(
-    transport: str = "grpc", request_type=metadata_service.DeleteContextRequest
-):
+@pytest.mark.parametrize("request_type", [metadata_service.DeleteContextRequest, dict,])
+def test_delete_context(request_type, transport: str = "grpc"):
     client = MetadataServiceClient(
         credentials=ga_credentials.AnonymousCredentials(), transport=transport,
     )
@@ -4220,10 +4177,6 @@ def test_delete_context(
 
     # Establish that the response is the type that we expect.
     assert isinstance(response, future.Future)
-
-
-def test_delete_context_from_dict():
-    test_delete_context(request_type=dict)
 
 
 def test_delete_context_empty_call():
@@ -4400,9 +4353,8 @@ async def test_delete_context_flattened_error_async():
         )
 
 
-def test_purge_contexts(
-    transport: str = "grpc", request_type=metadata_service.PurgeContextsRequest
-):
+@pytest.mark.parametrize("request_type", [metadata_service.PurgeContextsRequest, dict,])
+def test_purge_contexts(request_type, transport: str = "grpc"):
     client = MetadataServiceClient(
         credentials=ga_credentials.AnonymousCredentials(), transport=transport,
     )
@@ -4424,10 +4376,6 @@ def test_purge_contexts(
 
     # Establish that the response is the type that we expect.
     assert isinstance(response, future.Future)
-
-
-def test_purge_contexts_from_dict():
-    test_purge_contexts(request_type=dict)
 
 
 def test_purge_contexts_empty_call():
@@ -4604,10 +4552,10 @@ async def test_purge_contexts_flattened_error_async():
         )
 
 
-def test_add_context_artifacts_and_executions(
-    transport: str = "grpc",
-    request_type=metadata_service.AddContextArtifactsAndExecutionsRequest,
-):
+@pytest.mark.parametrize(
+    "request_type", [metadata_service.AddContextArtifactsAndExecutionsRequest, dict,]
+)
+def test_add_context_artifacts_and_executions(request_type, transport: str = "grpc"):
     client = MetadataServiceClient(
         credentials=ga_credentials.AnonymousCredentials(), transport=transport,
     )
@@ -4633,10 +4581,6 @@ def test_add_context_artifacts_and_executions(
     assert isinstance(
         response, metadata_service.AddContextArtifactsAndExecutionsResponse
     )
-
-
-def test_add_context_artifacts_and_executions_from_dict():
-    test_add_context_artifacts_and_executions(request_type=dict)
 
 
 def test_add_context_artifacts_and_executions_empty_call():
@@ -4854,9 +4798,10 @@ async def test_add_context_artifacts_and_executions_flattened_error_async():
         )
 
 
-def test_add_context_children(
-    transport: str = "grpc", request_type=metadata_service.AddContextChildrenRequest
-):
+@pytest.mark.parametrize(
+    "request_type", [metadata_service.AddContextChildrenRequest, dict,]
+)
+def test_add_context_children(request_type, transport: str = "grpc"):
     client = MetadataServiceClient(
         credentials=ga_credentials.AnonymousCredentials(), transport=transport,
     )
@@ -4880,10 +4825,6 @@ def test_add_context_children(
 
     # Establish that the response is the type that we expect.
     assert isinstance(response, metadata_service.AddContextChildrenResponse)
-
-
-def test_add_context_children_from_dict():
-    test_add_context_children(request_type=dict)
 
 
 def test_add_context_children_empty_call():
@@ -5087,10 +5028,10 @@ async def test_add_context_children_flattened_error_async():
         )
 
 
-def test_query_context_lineage_subgraph(
-    transport: str = "grpc",
-    request_type=metadata_service.QueryContextLineageSubgraphRequest,
-):
+@pytest.mark.parametrize(
+    "request_type", [metadata_service.QueryContextLineageSubgraphRequest, dict,]
+)
+def test_query_context_lineage_subgraph(request_type, transport: str = "grpc"):
     client = MetadataServiceClient(
         credentials=ga_credentials.AnonymousCredentials(), transport=transport,
     )
@@ -5114,10 +5055,6 @@ def test_query_context_lineage_subgraph(
 
     # Establish that the response is the type that we expect.
     assert isinstance(response, lineage_subgraph.LineageSubgraph)
-
-
-def test_query_context_lineage_subgraph_from_dict():
-    test_query_context_lineage_subgraph(request_type=dict)
 
 
 def test_query_context_lineage_subgraph_empty_call():
@@ -5309,9 +5246,10 @@ async def test_query_context_lineage_subgraph_flattened_error_async():
         )
 
 
-def test_create_execution(
-    transport: str = "grpc", request_type=metadata_service.CreateExecutionRequest
-):
+@pytest.mark.parametrize(
+    "request_type", [metadata_service.CreateExecutionRequest, dict,]
+)
+def test_create_execution(request_type, transport: str = "grpc"):
     client = MetadataServiceClient(
         credentials=ga_credentials.AnonymousCredentials(), transport=transport,
     )
@@ -5348,10 +5286,6 @@ def test_create_execution(
     assert response.schema_title == "schema_title_value"
     assert response.schema_version == "schema_version_value"
     assert response.description == "description_value"
-
-
-def test_create_execution_from_dict():
-    test_create_execution(request_type=dict)
 
 
 def test_create_execution_empty_call():
@@ -5570,9 +5504,8 @@ async def test_create_execution_flattened_error_async():
         )
 
 
-def test_get_execution(
-    transport: str = "grpc", request_type=metadata_service.GetExecutionRequest
-):
+@pytest.mark.parametrize("request_type", [metadata_service.GetExecutionRequest, dict,])
+def test_get_execution(request_type, transport: str = "grpc"):
     client = MetadataServiceClient(
         credentials=ga_credentials.AnonymousCredentials(), transport=transport,
     )
@@ -5609,10 +5542,6 @@ def test_get_execution(
     assert response.schema_title == "schema_title_value"
     assert response.schema_version == "schema_version_value"
     assert response.description == "description_value"
-
-
-def test_get_execution_from_dict():
-    test_get_execution(request_type=dict)
 
 
 def test_get_execution_empty_call():
@@ -5800,9 +5729,10 @@ async def test_get_execution_flattened_error_async():
         )
 
 
-def test_list_executions(
-    transport: str = "grpc", request_type=metadata_service.ListExecutionsRequest
-):
+@pytest.mark.parametrize(
+    "request_type", [metadata_service.ListExecutionsRequest, dict,]
+)
+def test_list_executions(request_type, transport: str = "grpc"):
     client = MetadataServiceClient(
         credentials=ga_credentials.AnonymousCredentials(), transport=transport,
     )
@@ -5827,10 +5757,6 @@ def test_list_executions(
     # Establish that the response is the type that we expect.
     assert isinstance(response, pagers.ListExecutionsPager)
     assert response.next_page_token == "next_page_token_value"
-
-
-def test_list_executions_from_dict():
-    test_list_executions(request_type=dict)
 
 
 def test_list_executions_empty_call():
@@ -6010,8 +5936,10 @@ async def test_list_executions_flattened_error_async():
         )
 
 
-def test_list_executions_pager():
-    client = MetadataServiceClient(credentials=ga_credentials.AnonymousCredentials,)
+def test_list_executions_pager(transport_name: str = "grpc"):
+    client = MetadataServiceClient(
+        credentials=ga_credentials.AnonymousCredentials, transport=transport_name,
+    )
 
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(type(client.transport.list_executions), "__call__") as call:
@@ -6050,8 +5978,10 @@ def test_list_executions_pager():
         assert all(isinstance(i, execution.Execution) for i in results)
 
 
-def test_list_executions_pages():
-    client = MetadataServiceClient(credentials=ga_credentials.AnonymousCredentials,)
+def test_list_executions_pages(transport_name: str = "grpc"):
+    client = MetadataServiceClient(
+        credentials=ga_credentials.AnonymousCredentials, transport=transport_name,
+    )
 
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(type(client.transport.list_executions), "__call__") as call:
@@ -6160,9 +6090,10 @@ async def test_list_executions_async_pages():
             assert page_.raw_page.next_page_token == token
 
 
-def test_update_execution(
-    transport: str = "grpc", request_type=metadata_service.UpdateExecutionRequest
-):
+@pytest.mark.parametrize(
+    "request_type", [metadata_service.UpdateExecutionRequest, dict,]
+)
+def test_update_execution(request_type, transport: str = "grpc"):
     client = MetadataServiceClient(
         credentials=ga_credentials.AnonymousCredentials(), transport=transport,
     )
@@ -6199,10 +6130,6 @@ def test_update_execution(
     assert response.schema_title == "schema_title_value"
     assert response.schema_version == "schema_version_value"
     assert response.description == "description_value"
-
-
-def test_update_execution_from_dict():
-    test_update_execution(request_type=dict)
 
 
 def test_update_execution_empty_call():
@@ -6415,9 +6342,10 @@ async def test_update_execution_flattened_error_async():
         )
 
 
-def test_delete_execution(
-    transport: str = "grpc", request_type=metadata_service.DeleteExecutionRequest
-):
+@pytest.mark.parametrize(
+    "request_type", [metadata_service.DeleteExecutionRequest, dict,]
+)
+def test_delete_execution(request_type, transport: str = "grpc"):
     client = MetadataServiceClient(
         credentials=ga_credentials.AnonymousCredentials(), transport=transport,
     )
@@ -6439,10 +6367,6 @@ def test_delete_execution(
 
     # Establish that the response is the type that we expect.
     assert isinstance(response, future.Future)
-
-
-def test_delete_execution_from_dict():
-    test_delete_execution(request_type=dict)
 
 
 def test_delete_execution_empty_call():
@@ -6620,9 +6544,10 @@ async def test_delete_execution_flattened_error_async():
         )
 
 
-def test_purge_executions(
-    transport: str = "grpc", request_type=metadata_service.PurgeExecutionsRequest
-):
+@pytest.mark.parametrize(
+    "request_type", [metadata_service.PurgeExecutionsRequest, dict,]
+)
+def test_purge_executions(request_type, transport: str = "grpc"):
     client = MetadataServiceClient(
         credentials=ga_credentials.AnonymousCredentials(), transport=transport,
     )
@@ -6644,10 +6569,6 @@ def test_purge_executions(
 
     # Establish that the response is the type that we expect.
     assert isinstance(response, future.Future)
-
-
-def test_purge_executions_from_dict():
-    test_purge_executions(request_type=dict)
 
 
 def test_purge_executions_empty_call():
@@ -6825,9 +6746,10 @@ async def test_purge_executions_flattened_error_async():
         )
 
 
-def test_add_execution_events(
-    transport: str = "grpc", request_type=metadata_service.AddExecutionEventsRequest
-):
+@pytest.mark.parametrize(
+    "request_type", [metadata_service.AddExecutionEventsRequest, dict,]
+)
+def test_add_execution_events(request_type, transport: str = "grpc"):
     client = MetadataServiceClient(
         credentials=ga_credentials.AnonymousCredentials(), transport=transport,
     )
@@ -6851,10 +6773,6 @@ def test_add_execution_events(
 
     # Establish that the response is the type that we expect.
     assert isinstance(response, metadata_service.AddExecutionEventsResponse)
-
-
-def test_add_execution_events_from_dict():
-    test_add_execution_events(request_type=dict)
 
 
 def test_add_execution_events_empty_call():
@@ -7060,10 +6978,10 @@ async def test_add_execution_events_flattened_error_async():
         )
 
 
-def test_query_execution_inputs_and_outputs(
-    transport: str = "grpc",
-    request_type=metadata_service.QueryExecutionInputsAndOutputsRequest,
-):
+@pytest.mark.parametrize(
+    "request_type", [metadata_service.QueryExecutionInputsAndOutputsRequest, dict,]
+)
+def test_query_execution_inputs_and_outputs(request_type, transport: str = "grpc"):
     client = MetadataServiceClient(
         credentials=ga_credentials.AnonymousCredentials(), transport=transport,
     )
@@ -7087,10 +7005,6 @@ def test_query_execution_inputs_and_outputs(
 
     # Establish that the response is the type that we expect.
     assert isinstance(response, lineage_subgraph.LineageSubgraph)
-
-
-def test_query_execution_inputs_and_outputs_from_dict():
-    test_query_execution_inputs_and_outputs(request_type=dict)
 
 
 def test_query_execution_inputs_and_outputs_empty_call():
@@ -7284,9 +7198,10 @@ async def test_query_execution_inputs_and_outputs_flattened_error_async():
         )
 
 
-def test_create_metadata_schema(
-    transport: str = "grpc", request_type=metadata_service.CreateMetadataSchemaRequest
-):
+@pytest.mark.parametrize(
+    "request_type", [metadata_service.CreateMetadataSchemaRequest, dict,]
+)
+def test_create_metadata_schema(request_type, transport: str = "grpc"):
     client = MetadataServiceClient(
         credentials=ga_credentials.AnonymousCredentials(), transport=transport,
     )
@@ -7324,10 +7239,6 @@ def test_create_metadata_schema(
         == gca_metadata_schema.MetadataSchema.MetadataSchemaType.ARTIFACT_TYPE
     )
     assert response.description == "description_value"
-
-
-def test_create_metadata_schema_from_dict():
-    test_create_metadata_schema(request_type=dict)
 
 
 def test_create_metadata_schema_empty_call():
@@ -7557,9 +7468,10 @@ async def test_create_metadata_schema_flattened_error_async():
         )
 
 
-def test_get_metadata_schema(
-    transport: str = "grpc", request_type=metadata_service.GetMetadataSchemaRequest
-):
+@pytest.mark.parametrize(
+    "request_type", [metadata_service.GetMetadataSchemaRequest, dict,]
+)
+def test_get_metadata_schema(request_type, transport: str = "grpc"):
     client = MetadataServiceClient(
         credentials=ga_credentials.AnonymousCredentials(), transport=transport,
     )
@@ -7597,10 +7509,6 @@ def test_get_metadata_schema(
         == metadata_schema.MetadataSchema.MetadataSchemaType.ARTIFACT_TYPE
     )
     assert response.description == "description_value"
-
-
-def test_get_metadata_schema_from_dict():
-    test_get_metadata_schema(request_type=dict)
 
 
 def test_get_metadata_schema_empty_call():
@@ -7804,9 +7712,10 @@ async def test_get_metadata_schema_flattened_error_async():
         )
 
 
-def test_list_metadata_schemas(
-    transport: str = "grpc", request_type=metadata_service.ListMetadataSchemasRequest
-):
+@pytest.mark.parametrize(
+    "request_type", [metadata_service.ListMetadataSchemasRequest, dict,]
+)
+def test_list_metadata_schemas(request_type, transport: str = "grpc"):
     client = MetadataServiceClient(
         credentials=ga_credentials.AnonymousCredentials(), transport=transport,
     )
@@ -7833,10 +7742,6 @@ def test_list_metadata_schemas(
     # Establish that the response is the type that we expect.
     assert isinstance(response, pagers.ListMetadataSchemasPager)
     assert response.next_page_token == "next_page_token_value"
-
-
-def test_list_metadata_schemas_from_dict():
-    test_list_metadata_schemas(request_type=dict)
 
 
 def test_list_metadata_schemas_empty_call():
@@ -8029,8 +7934,10 @@ async def test_list_metadata_schemas_flattened_error_async():
         )
 
 
-def test_list_metadata_schemas_pager():
-    client = MetadataServiceClient(credentials=ga_credentials.AnonymousCredentials,)
+def test_list_metadata_schemas_pager(transport_name: str = "grpc"):
+    client = MetadataServiceClient(
+        credentials=ga_credentials.AnonymousCredentials, transport=transport_name,
+    )
 
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(
@@ -8075,8 +7982,10 @@ def test_list_metadata_schemas_pager():
         assert all(isinstance(i, metadata_schema.MetadataSchema) for i in results)
 
 
-def test_list_metadata_schemas_pages():
-    client = MetadataServiceClient(credentials=ga_credentials.AnonymousCredentials,)
+def test_list_metadata_schemas_pages(transport_name: str = "grpc"):
+    client = MetadataServiceClient(
+        credentials=ga_credentials.AnonymousCredentials, transport=transport_name,
+    )
 
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(
@@ -8203,10 +8112,10 @@ async def test_list_metadata_schemas_async_pages():
             assert page_.raw_page.next_page_token == token
 
 
-def test_query_artifact_lineage_subgraph(
-    transport: str = "grpc",
-    request_type=metadata_service.QueryArtifactLineageSubgraphRequest,
-):
+@pytest.mark.parametrize(
+    "request_type", [metadata_service.QueryArtifactLineageSubgraphRequest, dict,]
+)
+def test_query_artifact_lineage_subgraph(request_type, transport: str = "grpc"):
     client = MetadataServiceClient(
         credentials=ga_credentials.AnonymousCredentials(), transport=transport,
     )
@@ -8230,10 +8139,6 @@ def test_query_artifact_lineage_subgraph(
 
     # Establish that the response is the type that we expect.
     assert isinstance(response, lineage_subgraph.LineageSubgraph)
-
-
-def test_query_artifact_lineage_subgraph_from_dict():
-    test_query_artifact_lineage_subgraph(request_type=dict)
 
 
 def test_query_artifact_lineage_subgraph_empty_call():
@@ -9128,7 +9033,7 @@ def test_parse_common_location_path():
     assert expected == actual
 
 
-def test_client_withDEFAULT_CLIENT_INFO():
+def test_client_with_default_client_info():
     client_info = gapic_v1.client_info.ClientInfo()
 
     with mock.patch.object(
