@@ -15,8 +15,9 @@
 # limitations under the License.
 #
 
-from typing import Dict, NamedTuple, Optional, Union
+from typing import Dict, NamedTuple, Optional, Set, Union
 
+from google.api_core import exceptions
 from google.auth import credentials as auth_credentials
 from google.protobuf import timestamp_pb2
 
@@ -30,17 +31,11 @@ from google.cloud.aiplatform.metadata.artifact import _Artifact
 from google.cloud.aiplatform.metadata.context import _Context
 from google.cloud.aiplatform.metadata.execution import _Execution
 from google.cloud.aiplatform.metadata.metadata_store import _MetadataStore
+from google.cloud.aiplatform.metadata.schema import _MetadataSchema
 from google.cloud.aiplatform.metadata import utils as metadata_utils
 from google.cloud.aiplatform.tensorboard import tensorboard_resource
 from google.cloud.aiplatform import utils
 
-_VERTEX_EXPERIMENT_TRACKING_LABEL = 'vertex_experiment_tracking'
-
-_TENSORBOARD_RUN_ARTIFACT = gca_artifact.Artifact(
-    schema_title='google.VertexTensorboardRun',
-    schema_version='0.0.1',
-    metadata={_VERTEX_EXPERIMENT_TRACKING_LABEL: True},
-)
 
 class VertexResourceWithMetadata(NamedTuple):
     resource: base.VertexAiResourceNoun
@@ -155,12 +150,12 @@ class ExperimentRun:
         return experiment
 
     def _is_backing_tensorboard_run_artifact(self, artifact: _Artifact) -> bool:
-        if artifact.schema_title != _TENSORBOARD_RUN_ARTIFACT:
+        if artifact.schema_title != metadata_utils._TENSORBOARD_RUN_REFERENCE_ARTIFACT.schema_title:
             return False
-        if not artifact.metadata.get(_VERTEX_EXPERIMENT_TRACKING_LABEL):
+        if not artifact.metadata.get(metadata_utils._VERTEX_EXPERIMENT_TRACKING_LABEL):
             return False
         
-        run_parts = tensorboard_resource.TensorboardRun.parse_resource_name(artifact.uri)
+        run_parts = tensorboard_resource.TensorboardRun._parse_resource_name(artifact.metadata['resourceName'])
 
         if (run_parts['experiment'], run_parts['run']) == (self._experiment.name, self._run_name):
             return True
@@ -173,7 +168,7 @@ class ExperimentRun:
         for artifact in metadata_artifacts:
             if self._is_backing_tensorboard_run_artifact(artifact):
                 return VertexResourceWithMetadata(
-                    resource=tensorboard_resource.TensorboardRun(artifact.uri),
+                    resource=tensorboard_resource.TensorboardRun(artifact.metadata['resourceName']),
                     metadata=_Artifact)
 
     @classmethod
@@ -272,17 +267,19 @@ class ExperimentRun:
 
         gcp_resource_url = metadata_utils.make_gcp_resource_url(tensorboard_run)
 
+        self._soft_register_tensorboard_run_schema()
+
         metadata_resource_id = f'{self._metadata_context.name}-tbrun'
 
-        tensorboard_run_metadata_artifact = _Artifact.get_or_create(
+        tensorboard_run_metadata_artifact = _Artifact._create(
             resource_id=metadata_resource_id,
             uri=gcp_resource_url,
             metadata={
                 'resourceName':tensorboard_run.resource_name,
-                _VERTEX_EXPERIMENT_TRACKING_LABEL: True,
+                metadata_utils._VERTEX_EXPERIMENT_TRACKING_LABEL: True,
             },
-            schema_title=_TENSORBOARD_RUN_ARTIFACT.schema_title,
-            schema_version=_TENSORBOARD_RUN_ARTIFACT.schema_title,
+            schema_title=metadata_utils._TENSORBOARD_RUN_REFERENCE_ARTIFACT.schema_title,
+            schema_version=metadata_utils._TENSORBOARD_RUN_REFERENCE_ARTIFACT.schema_version,
         )
 
         self._metadata_execution.add_artifact(
@@ -292,6 +289,23 @@ class ExperimentRun:
         self._backing_tensorboard_run = VertexResourceWithMetadata(
                 resource=tensorboard_run,
                 metadata = tensorboard_run_metadata_artifact
+            )
+
+    def _soft_register_tensorboard_run_schema(self):
+        resource_name_parts = self._metadata_context._parse_resource_name(self._metadata_context.resource_name)
+        resource_name_parts.pop('context')
+        parent = _MetadataStore._format_resource_name(**resource_name_parts)
+        schema_id, schema = metadata_utils.get_tensorboard_board_run_metadata_schema()
+        resource_name_parts['metadata_schema'] = schema_id 
+        metadata_schema_name = _MetadataSchema._format_resource_name(**resource_name_parts)
+
+        try:
+            _MetadataSchema(metadata_schema_name)
+        except exceptions.NotFound as e:
+            _MetadataSchema.create(
+                metadata_schema = schema,
+                metadata_schema_id = schema_id,
+                metadata_store_name= parent
             )
 
     def _get_latest_time_series_step(self, time_series_keys):
@@ -309,11 +323,31 @@ class ExperimentRun:
         if not step:
             step = self._get_latest_time_series_step(time_series_keys=metrics.keys())
 
+        self._soft_create_time_series(metric_keys=set(metrics.keys()))
+
         self._backing_tensorboard_run.resource.write_tensorboard_scalar_data(
-                metrics=time_series_data,
+                time_series_data=metrics,
                 step=step,
                 wall_time=wall_time
             )
+
+    def _soft_create_time_series(self, metric_keys: Set[str]):
+
+        current_time_series_keys = self._get_available_time_series_keys()
+
+        for key in metric_keys:
+            if key not in current_time_series_keys:
+                tensorboard_resource.TensorboardTimeSeries.create(
+                    tensorboard_time_series_id=key,
+                    tensorboard_run_name=self._backing_tensorboard_run.resource.resource_name,
+                    credentials=self._backing_tensorboard_run.resource.credentials)
+
+    def _get_available_time_series_keys(self) -> Set[str]:
+        tb_time_series_resources = tensorboard_resource.TensorboardTimeSeries.list(
+            tensorboard_run_name=self._backing_tensorboard_run.resource.resource_name,
+            credentials=self._backing_tensorboard_run.resource.credentials)
+
+        return set(ts.display_name for ts in tb_time_series_resources)
 
 
 

@@ -1038,6 +1038,8 @@ class TensorboardTimeSeries(_TensorboardServiceResource):
             tensorboard_time_series=gapic_tensorboard_time_series,
         )
 
+        print(request)
+
         _LOGGER.log_create_with_lro(cls)
 
         tensorboard_time_series = api_client.create_tensorboard_time_series(
