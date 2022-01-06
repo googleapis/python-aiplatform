@@ -100,7 +100,7 @@ class TestTensorboard(e2e_base.TestEndToEnd):
         tb_run = shared_state["tensorboard_run"]
 
         tb_time_series = aiplatform.TensorboardTimeSeries.create(
-            tensorboard_time_series_id="test-time-series",
+            display_name="test-time-series",
             tensorboard_run_name=tb_run.resource_name,
             description="Vertex SDK Integration test run",
         )
@@ -127,5 +127,5 @@ class TestTensorboard(e2e_base.TestEndToEnd):
         tb_time_series = shared_state["tensorboard_time_series"]
 
         tb_run.write_tensorboard_scalar_data(
-            time_series_data={tb_time_series.name: 1.0}, step=1,
+            time_series_data={tb_time_series.display_name: 1.0}, step=1,
         )
