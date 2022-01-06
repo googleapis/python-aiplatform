@@ -996,7 +996,7 @@ class TestCustomTrainingJob:
             },
             "python_package_spec": {
                 "executor_image_uri": _TEST_TRAINING_CONTAINER_IMAGE,
-                "python_module": source_utils._TrainingScriptPythonPackager.module_name,
+                "python_module": test_training_jobs._TEST_MODULE_NAME,
                 "package_uris": [_TEST_OUTPUT_PYTHON_PACKAGE_PATH],
                 "args": true_args,
                 "env": true_env,
@@ -1304,7 +1304,7 @@ class TestCustomTrainingJob:
             },
             "python_package_spec": {
                 "executor_image_uri": _TEST_TRAINING_CONTAINER_IMAGE,
-                "python_module": source_utils._TrainingScriptPythonPackager.module_name,
+                "python_module": test_training_jobs._TEST_MODULE_NAME,
                 "package_uris": [_TEST_OUTPUT_PYTHON_PACKAGE_PATH],
                 "args": true_args,
                 "env": true_env,
@@ -1607,7 +1607,7 @@ class TestCustomTrainingJob:
                 },
                 "python_package_spec": {
                     "executor_image_uri": _TEST_TRAINING_CONTAINER_IMAGE,
-                    "python_module": source_utils._TrainingScriptPythonPackager.module_name,
+                    "python_module": test_training_jobs._TEST_MODULE_NAME,
                     "package_uris": [_TEST_OUTPUT_PYTHON_PACKAGE_PATH],
                     "args": true_args,
                     "env": true_env,
@@ -1776,7 +1776,7 @@ class TestCustomTrainingJob:
                 },
                 "python_package_spec": {
                     "executor_image_uri": _TEST_TRAINING_CONTAINER_IMAGE,
-                    "python_module": source_utils._TrainingScriptPythonPackager.module_name,
+                    "python_module": test_training_jobs._TEST_MODULE_NAME,
                     "package_uris": [_TEST_OUTPUT_PYTHON_PACKAGE_PATH],
                     "args": true_args,
                     "env": true_env,
@@ -2014,7 +2014,7 @@ class TestCustomTrainingJob:
             },
             "python_package_spec": {
                 "executor_image_uri": _TEST_TRAINING_CONTAINER_IMAGE,
-                "python_module": source_utils._TrainingScriptPythonPackager.module_name,
+                "python_module": test_training_jobs._TEST_MODULE_NAME,
                 "package_uris": [_TEST_OUTPUT_PYTHON_PACKAGE_PATH],
                 "args": true_args,
             },
