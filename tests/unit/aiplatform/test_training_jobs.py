@@ -89,6 +89,7 @@ _TEST_TRAINING_CONTAINER_CMD = ["python3", "task.py"]
 _TEST_SERVING_CONTAINER_IMAGE = "gcr.io/test-serving/container:image"
 _TEST_SERVING_CONTAINER_PREDICTION_ROUTE = "predict"
 _TEST_SERVING_CONTAINER_HEALTH_ROUTE = "metadata"
+_TEST_MODULE_NAME = f"{source_utils._TrainingScriptPythonPackager._ROOT_MODULE}.task"
 
 _TEST_METADATA_SCHEMA_URI_NONTABULAR = schema.dataset.metadata.image
 _TEST_ANNOTATION_SCHEMA_URI = schema.dataset.annotation.image.classification
@@ -827,7 +828,7 @@ class TestCustomTrainingJob:
             },
             "python_package_spec": {
                 "executor_image_uri": _TEST_TRAINING_CONTAINER_IMAGE,
-                "python_module": source_utils._TrainingScriptPythonPackager.module_name,
+                "python_module": _TEST_MODULE_NAME,
                 "package_uris": [_TEST_OUTPUT_PYTHON_PACKAGE_PATH],
                 "args": true_args,
                 "env": true_env,
@@ -1625,7 +1626,7 @@ class TestCustomTrainingJob:
                 },
                 "python_package_spec": {
                     "executor_image_uri": _TEST_TRAINING_CONTAINER_IMAGE,
-                    "python_module": source_utils._TrainingScriptPythonPackager.module_name,
+                    "python_module": _TEST_MODULE_NAME,
                     "package_uris": [_TEST_OUTPUT_PYTHON_PACKAGE_PATH],
                     "args": true_args,
                     "env": true_env,
@@ -1756,7 +1757,7 @@ class TestCustomTrainingJob:
                 },
                 "python_package_spec": {
                     "executor_image_uri": _TEST_TRAINING_CONTAINER_IMAGE,
-                    "python_module": source_utils._TrainingScriptPythonPackager.module_name,
+                    "python_module": _TEST_MODULE_NAME,
                     "package_uris": [_TEST_OUTPUT_PYTHON_PACKAGE_PATH],
                     "args": true_args,
                     "env": true_env,
