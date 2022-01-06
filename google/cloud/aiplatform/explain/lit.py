@@ -111,9 +111,7 @@ class _VertexLitModel(lit_model.Model):
             self._set_up_attribution_explainer(model, attribution_method)
 
     @property
-    def attribution_explainer(
-        self,
-    ) -> Optional["AttributionExplainer"]:  # noqa: F821
+    def attribution_explainer(self,) -> Optional["AttributionExplainer"]:  # noqa: F821
         """Gets the attribution explainer property if set."""
         return self._attribution_explainer
 
