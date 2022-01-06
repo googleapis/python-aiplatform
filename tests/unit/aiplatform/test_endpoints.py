@@ -15,6 +15,7 @@
 # limitations under the License.
 #
 
+import copy
 import pytest
 
 from unittest import mock
@@ -56,8 +57,10 @@ _TEST_LOCATION_2 = "europe-west4"
 
 _TEST_DISPLAY_NAME = "test-display-name"
 _TEST_DISPLAY_NAME_2 = "test-display-name-2"
+_TEST_DISPLAY_NAME_3 = "test-display-name-3"
 _TEST_ID = "1028944691210842416"
 _TEST_ID_2 = "4366591682456584192"
+_TEST_ID_3 = "5820582938582924817"
 _TEST_DESCRIPTION = "test-description"
 
 _TEST_ENDPOINT_NAME = (
@@ -80,6 +83,24 @@ _TEST_SERVICE_ACCOUNT = "vinnys@my-project.iam.gserviceaccount.com"
 _TEST_DEPLOYED_MODELS = [
     gca_endpoint.DeployedModel(id=_TEST_ID, display_name=_TEST_DISPLAY_NAME),
     gca_endpoint.DeployedModel(id=_TEST_ID_2, display_name=_TEST_DISPLAY_NAME_2),
+    gca_endpoint.DeployedModel(id=_TEST_ID_3, display_name=_TEST_DISPLAY_NAME_3),
+]
+
+_TEST_TRAFFIC_SPLIT = {_TEST_ID: 0, _TEST_ID_2: 100, _TEST_ID_3: 0}
+
+_TEST_LONG_TRAFFIC_SPLIT = {
+    "m1": 40,
+    "m2": 10,
+    "m3": 30,
+    "m4": 0,
+    "m5": 5,
+    "m6": 8,
+    "m7": 7,
+}
+_TEST_LONG_TRAFFIC_SPLIT_SORTED_IDS = ["m4", "m5", "m7", "m6", "m2", "m3", "m1"]
+_TEST_LONG_DEPLOYED_MODELS = [
+    gca_endpoint.DeployedModel(id=id, display_name=f"{id}_display_name")
+    for id in _TEST_LONG_TRAFFIC_SPLIT.keys()
 ]
 
 _TEST_MACHINE_TYPE = "n1-standard-32"
@@ -200,6 +221,21 @@ def get_endpoint_with_models_mock():
             display_name=_TEST_DISPLAY_NAME,
             name=_TEST_ENDPOINT_NAME,
             deployed_models=_TEST_DEPLOYED_MODELS,
+            traffic_split=_TEST_TRAFFIC_SPLIT,
+        )
+        yield get_endpoint_mock
+
+
+@pytest.fixture
+def get_endpoint_with_many_models_mock():
+    with mock.patch.object(
+        endpoint_service_client.EndpointServiceClient, "get_endpoint"
+    ) as get_endpoint_mock:
+        get_endpoint_mock.return_value = gca_endpoint.Endpoint(
+            display_name=_TEST_DISPLAY_NAME,
+            name=_TEST_ENDPOINT_NAME,
+            deployed_models=_TEST_LONG_DEPLOYED_MODELS,
+            traffic_split=_TEST_LONG_TRAFFIC_SPLIT,
         )
         yield get_endpoint_mock
 
@@ -378,7 +414,6 @@ class TestEndpoint:
                     client_class=utils.EndpointClientWithOverride,
                     credentials=initializer.global_config.credentials,
                     location_override=_TEST_LOCATION,
-                    prediction_client=False,
                 ),
                 mock.call(
                     client_class=utils.PredictionClientWithOverride,
@@ -464,7 +499,6 @@ class TestEndpoint:
                     client_class=utils.EndpointClientWithOverride,
                     credentials=creds,
                     location_override=_TEST_LOCATION,
-                    prediction_client=False,
                 ),
                 mock.call(
                     client_class=utils.PredictionClientWithOverride,
@@ -992,22 +1026,83 @@ class TestEndpoint:
     @pytest.mark.usefixtures("get_endpoint_mock")
     @pytest.mark.parametrize("sync", [True, False])
     def test_undeploy_raise_error_traffic_split_total(self, sync):
-        with pytest.raises(ValueError):
+        with pytest.raises(ValueError) as e:
             test_endpoint = models.Endpoint(_TEST_ENDPOINT_NAME)
             test_endpoint.undeploy(
                 deployed_model_id="model1", traffic_split={"model2": 99}, sync=sync
             )
 
+        assert e.match("Sum of all traffic within traffic split needs to be 100.")
+
     @pytest.mark.usefixtures("get_endpoint_mock")
     @pytest.mark.parametrize("sync", [True, False])
     def test_undeploy_raise_error_undeployed_model_traffic(self, sync):
-        with pytest.raises(ValueError):
+        with pytest.raises(ValueError) as e:
             test_endpoint = models.Endpoint(_TEST_ENDPOINT_NAME)
             test_endpoint.undeploy(
                 deployed_model_id="model1",
                 traffic_split={"model1": 50, "model2": 50},
                 sync=sync,
             )
+
+        assert e.match("Model being undeployed should have 0 traffic.")
+
+    @pytest.mark.usefixtures("get_endpoint_with_models_mock")
+    @pytest.mark.parametrize("sync", [True, False])
+    def test_undeploy_raises_error_on_zero_leftover_traffic(self, sync):
+        """
+        Attempting to undeploy model with 100% traffic on an Endpoint with
+        multiple models deployed without an updated traffic_split should
+        raise an informative error.
+        """
+
+        traffic_remaining = _TEST_TRAFFIC_SPLIT[_TEST_ID_2]
+
+        assert traffic_remaining == 100  # Confirm this model has all traffic
+        assert sum(_TEST_TRAFFIC_SPLIT.values()) == 100  # Mock traffic sums to 100%
+
+        with pytest.raises(ValueError) as e:
+            test_endpoint = models.Endpoint(_TEST_ENDPOINT_NAME)
+            test_endpoint.undeploy(
+                deployed_model_id=_TEST_ID_2, sync=sync,
+            )
+
+        assert e.match(
+            f"Undeploying deployed model '{_TEST_ID_2}' would leave the remaining "
+            f"traffic split at 0%."
+        )
+
+    @pytest.mark.usefixtures("get_endpoint_with_models_mock")
+    @pytest.mark.parametrize("sync", [True, False])
+    def test_undeploy_zero_traffic_model_without_new_traffic_split(
+        self, undeploy_model_mock, sync
+    ):
+        """
+        Attempting to undeploy model with zero traffic without providing
+        a new traffic split should not raise any errors.
+        """
+
+        traffic_remaining = _TEST_TRAFFIC_SPLIT[_TEST_ID_3]
+
+        assert not traffic_remaining  # Confirm there is zero traffic
+
+        test_endpoint = models.Endpoint(_TEST_ENDPOINT_NAME)
+        test_endpoint.undeploy(
+            deployed_model_id=_TEST_ID_3, sync=sync,
+        )
+
+        if not sync:
+            test_endpoint.wait()
+
+        expected_new_traffic_split = copy.deepcopy(_TEST_TRAFFIC_SPLIT)
+        expected_new_traffic_split.pop(_TEST_ID_3)
+
+        undeploy_model_mock.assert_called_once_with(
+            endpoint=test_endpoint.resource_name,
+            deployed_model_id=_TEST_ID_3,
+            traffic_split=expected_new_traffic_split,
+            metadata=(),
+        )
 
     def test_predict(self, get_endpoint_mock, predict_client_predict_mock):
 
@@ -1059,9 +1154,14 @@ class TestEndpoint:
 
         assert my_models == _TEST_DEPLOYED_MODELS
 
-    @pytest.mark.usefixtures("get_endpoint_with_models_mock")
+    @pytest.mark.usefixtures("get_endpoint_with_many_models_mock")
     @pytest.mark.parametrize("sync", [True, False])
     def test_undeploy_all(self, sdk_private_undeploy_mock, sync):
+
+        # Ensure mock traffic split deployed model IDs are same as expected IDs
+        assert set(_TEST_LONG_TRAFFIC_SPLIT_SORTED_IDS) == set(
+            _TEST_LONG_TRAFFIC_SPLIT.keys()
+        )
 
         ept = aiplatform.Endpoint(_TEST_ID)
         ept.undeploy_all(sync=sync)
@@ -1070,12 +1170,12 @@ class TestEndpoint:
             ept.wait()
 
         # undeploy_all() results in an undeploy() call for each deployed_model
+        # Models are undeployed in ascending order of traffic percentage
         sdk_private_undeploy_mock.assert_has_calls(
             [
-                mock.call(deployed_model_id=deployed_model.id, sync=sync)
-                for deployed_model in _TEST_DEPLOYED_MODELS
+                mock.call(deployed_model_id=deployed_model_id, sync=sync)
+                for deployed_model_id in _TEST_LONG_TRAFFIC_SPLIT_SORTED_IDS
             ],
-            any_order=True,
         )
 
     @pytest.mark.usefixtures("list_endpoints_mock")

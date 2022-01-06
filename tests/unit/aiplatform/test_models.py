@@ -454,7 +454,6 @@ class TestModel:
             client_class=utils.ModelClientWithOverride,
             credentials=initializer.global_config.credentials,
             location_override=_TEST_LOCATION,
-            prediction_client=False,
         )
 
     def test_constructor_create_client_with_custom_location(self, create_client_mock):
@@ -468,7 +467,6 @@ class TestModel:
             client_class=utils.ModelClientWithOverride,
             credentials=initializer.global_config.credentials,
             location_override=_TEST_LOCATION_2,
-            prediction_client=False,
         )
 
     def test_constructor_creates_client_with_custom_credentials(
@@ -480,7 +478,6 @@ class TestModel:
             client_class=utils.ModelClientWithOverride,
             credentials=creds,
             location_override=_TEST_LOCATION,
-            prediction_client=False,
         )
 
     def test_constructor_gets_model(self, get_model_mock):

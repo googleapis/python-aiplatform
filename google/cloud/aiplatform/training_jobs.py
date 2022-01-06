@@ -69,11 +69,12 @@ _PIPELINE_COMPLETE_STATES = set(
 class _TrainingJob(base.VertexAiResourceNounWithFutureManager):
 
     client_class = utils.PipelineClientWithOverride
-    _is_client_prediction_client = False
     _resource_noun = "trainingPipelines"
     _getter_method = "get_training_pipeline"
     _list_method = "list_training_pipelines"
     _delete_method = "delete_training_pipeline"
+    _parse_resource_name_method = "parse_training_pipeline_path"
+    _format_resource_name_method = "training_pipeline_path"
 
     def __init__(
         self,
@@ -846,13 +847,7 @@ class _TrainingJob(base.VertexAiResourceNounWithFutureManager):
             return None
 
         if self._gca_resource.model_to_upload.name:
-            fields = utils.extract_fields_from_resource_name(
-                self._gca_resource.model_to_upload.name
-            )
-
-            return models.Model(
-                fields.id, project=fields.project, location=fields.location,
-            )
+            return models.Model(model_name=self._gca_resource.model_to_upload.name)
 
     def _wait_callback(self):
         """Callback performs custom logging during _block_until_complete. Override in subclass."""
@@ -916,8 +911,8 @@ class _TrainingJob(base.VertexAiResourceNounWithFutureManager):
     def _dashboard_uri(self) -> str:
         """Helper method to compose the dashboard uri where training can be
         viewed."""
-        fields = utils.extract_fields_from_resource_name(self.resource_name)
-        url = f"https://console.cloud.google.com/ai/platform/locations/{fields.location}/training/{fields.id}?project={fields.project}"
+        fields = self._parse_resource_name(self.resource_name)
+        url = f"https://console.cloud.google.com/ai/platform/locations/{fields['location']}/training/{fields['training_pipeline']}?project={fields['project']}"
         return url
 
     @property
@@ -4060,7 +4055,7 @@ class AutoMLForecastingTrainingJob(_TrainingJob):
                 produce a Vertex AI Model.
 
         Raises:
-            RuntimeError if Training job has already been run or is waiting to run.
+            RuntimeError: If Training job has already been run or is waiting to run.
         """
 
         if model_display_name:
@@ -4269,7 +4264,7 @@ class AutoMLForecastingTrainingJob(_TrainingJob):
                 produce a Vertex AI Model.
 
         Raises:
-            RuntimeError if Training job has already been run or is waiting to run.
+            RuntimeError: If Training job has already been run or is waiting to run.
         """
 
         if additional_experiments:

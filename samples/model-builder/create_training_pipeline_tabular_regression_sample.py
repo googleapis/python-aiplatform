@@ -33,6 +33,7 @@ def create_training_pipeline_tabular_regression_sample(
 
     tabular_regression_job = aiplatform.AutoMLTabularTrainingJob(
         display_name=display_name,
+        optimization_prediction_type="regression"
     )
 
     my_tabular_dataset = aiplatform.TabularDataset(dataset_id)

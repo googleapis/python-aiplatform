@@ -34,6 +34,8 @@ class _Execution(resource._Resource):
     _resource_noun = "executions"
     _getter_method = "get_execution"
     _delete_method = "delete_execution"
+    _parse_resource_name_method = "parse_execution_path"
+    _format_resource_name_method = "execution_path"
 
     def add_artifact(
         self, artifact_resource_name: str, input: bool,
