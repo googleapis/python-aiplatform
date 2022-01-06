@@ -149,6 +149,31 @@ class _Config:
         if self._project:
             return self._project
 
+        # Project is not set. Trying to get it from the environment.
+        # See https://github.com/googleapis/python-aiplatform/issues/852
+        # See https://github.com/googleapis/google-auth-library-python/issues/924
+        # TODO: Remove when google.auth.default() learns the
+        # CLOUD_ML_PROJECT_ID env variable or Vertex AI starts setting GOOGLE_CLOUD_PROJECT env variable.
+        project_number = os.environ.get("CLOUD_ML_PROJECT_ID")
+        if project_number:
+            self._project = project_number
+            # Try to convert project number to project ID which is more readable.
+            try:
+                from googleapiclient import discovery
+
+                cloud_resource_manager_service = discovery.build(
+                    "cloudresourcemanager", "v3"
+                )
+                project_id = (
+                    cloud_resource_manager_service.projects()
+                    .get(name=f"projects/{project_number}")
+                    .execute()["projectId"]
+                )
+                self._project = project_id
+            except Exception as e:
+                logging.warning(f"Error converting project number to project ID: {e}")
+            return self._project
+
         project_not_found_exception_str = (
             "Unable to find your project. Please provide a project ID by:"
             "\n- Passing a constructor argument"
