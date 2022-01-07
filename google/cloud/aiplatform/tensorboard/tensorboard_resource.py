@@ -602,6 +602,10 @@ class TensorboardRun(_TensorboardServiceResource):
             else tensorboard_id,
         )
 
+        self._time_series_display_name_to_id_mapping = (
+            self._get_time_series_display_name_to_id_mapping()
+        )
+
     @classmethod
     def create(
         cls,
@@ -777,7 +781,7 @@ class TensorboardRun(_TensorboardServiceResource):
             location=location,
         )
 
-        return super()._list(
+        tensorboard_runs = super()._list(
             filter=filter,
             order_by=order_by,
             project=project,
@@ -785,6 +789,11 @@ class TensorboardRun(_TensorboardServiceResource):
             credentials=credentials,
             parent=parent,
         )
+
+        for tensorboard_run in tensorboard_runs:
+            tensorboard_run._sync_time_series_display_name_to_id_mapping()
+
+        return tensorboard_runs
 
     def write_tensorboard_scalar_data(
         self,
@@ -796,7 +805,7 @@ class TensorboardRun(_TensorboardServiceResource):
 
         Args:
             time_series_data (Dict[str, float]):
-                Required. Dictionary of where keys are time_series_id and values are the scalar value.
+                Required. Dictionary of where keys are TensorboardTimeSeries display name and values are the scalar value..
             step (int):
                 Required. Step index of this data point within the run.
             wall_time (timestamp_pb2.Timestamp):
@@ -811,7 +820,22 @@ class TensorboardRun(_TensorboardServiceResource):
 
         ts_data = []
 
-        for time_series_id, value in time_series_data.items():
+        if any(
+            key not in self._time_series_display_name_to_id_mapping
+            for key in time_series_data.keys()
+        ):
+            self._sync_time_series_display_name_to_id_mapping()
+
+        for display_name, value in time_series_data.items():
+            time_series_id = self._time_series_display_name_to_id_mapping.get(
+                display_name
+            )
+
+            if not time_series_id:
+                raise RuntimeError(
+                    f"TensorboardTimeSeries with display name {display_name} has not been created in TensorboardRun {self.resource_name}."
+                )
+
             ts_data.append(
                 gca_tensorboard_data.TimeSeriesData(
                     tensorboard_time_series_id=time_series_id,
@@ -830,6 +854,76 @@ class TensorboardRun(_TensorboardServiceResource):
             tensorboard_run=self.resource_name, time_series_data=ts_data
         )
 
+    def _get_time_series_display_name_to_id_mapping(self) -> Dict[str, str]:
+        """Returns a mapping of the TimeSeries display names to resource IDs for this Run.
+
+        Returns:
+            Dict[str, str] - Dictionary mapping TensorboardTimeSeries display names to
+                resource IDs of TensorboardTimeSeries in this TensorboardRun."""
+        time_series = TensorboardTimeSeries.list(
+            tensorboard_run_name=self.resource_name, credentials=self.credentials
+        )
+
+        return {ts.display_name: ts.name for ts in time_series}
+
+    def _sync_time_series_display_name_to_id_mapping(self):
+        """Updates the local map of TimeSeries diplay name to resource ID."""
+        self._time_series_display_name_to_id_mapping = (
+            self._get_time_series_display_name_to_id_mapping()
+        )
+
+    def create_tensorboard_time_series(
+        self,
+        display_name: str,
+        value_type: Union[
+            gca_tensorboard_time_series.TensorboardTimeSeries.ValueType, str
+        ] = "SCALAR",
+        plugin_name: str = "scalars",
+        plugin_data: Optional[bytes] = None,
+        description: Optional[str] = None) -> 'TensorboardTimeseries':
+
+        tb_time_series = TensorboardTimeSeries.create(
+            display_name=display_name,
+            tensorboard_run_name=self.resource_name,
+            value_type=value_type,
+            plugin_name=plugin_name,
+            plugin_data=plugin_data,
+            description=description,
+            credentials=self.credentials
+        )
+
+        self._time_series_display_name_to_id_mapping[tb_time_series.display_name] = tb_time_series.name
+
+        return tb_time_series
+
+    def read_time_series_data(self) -> Dict[str, gca_tensorboard_data.TimeSeriesData]:
+        self._sync_time_series_display_name_to_id_mapping()
+
+        resource_name_parts = self._parse_resource_name(self.resource_name)
+        inverted_mapping = {
+            resource_id: display_name
+            for display_name, resource_id in self._time_series_display_name_to_id_mapping.items()
+        }
+
+        time_series_resource_names = [
+            TensorboardTimeSeries._format_resource_name(time_series=resource_id, **resource_name_parts)
+            for resource_id in inverted_mapping.keys()
+        ]
+
+        resource_name_parts.pop('experiment')
+        resource_name_parts.pop('run')
+
+        tensorboard_resource_name = Tensorboard._format_resource_name(**resource_name_parts)
+
+
+        read_response = self.api_client.batch_read_tensorboard_time_series_data(
+            request=gca_tensorboard_service.BatchReadTensorboardTimeSeriesDataRequest(
+                    tensorboard=tensorboard_resource_name,
+                    time_series=time_series_resource_names
+                )
+        )
+
+        return {inverted_mapping[data.tensorboard_time_series_id]: data for data in read_response.time_series_data}
 
 class TensorboardTimeSeries(_TensorboardServiceResource):
     """Managed tensorboard resource for Vertex AI."""
@@ -919,7 +1013,7 @@ class TensorboardTimeSeries(_TensorboardServiceResource):
     @classmethod
     def create(
         cls,
-        tensorboard_time_series_id: str,
+        display_name: str,
         tensorboard_run_name: str,
         tensorboard_id: Optional[str] = None,
         tensorboard_experiment_id: Optional[str] = None,
@@ -928,7 +1022,6 @@ class TensorboardTimeSeries(_TensorboardServiceResource):
         ] = "SCALAR",
         plugin_name: str = "scalars",
         plugin_data: Optional[bytes] = None,
-        display_name: Optional[str] = None,
         description: Optional[str] = None,
         project: Optional[str] = None,
         location: Optional[str] = None,
@@ -940,11 +1033,10 @@ class TensorboardTimeSeries(_TensorboardServiceResource):
         Example Usage:
 
             tb_ts = aiplatform.TensorboardTimeSeries.create(
-                tensorboard_time_series_id='mse'
+                display_name='my display name',
                 tensorboard_run_name='my-run'
                 tensorboard_id='456'
                 tensorboard_experiment_id='my-experiment'
-                display_name='my display name',
                 description='my description',
                 labels={
                     'key1': 'value1',
@@ -953,11 +1045,12 @@ class TensorboardTimeSeries(_TensorboardServiceResource):
             )
 
         Args:
-            tensorboard_time_series_id (str):
-                Required. The user specified unique ID to use for the
-                TensorboardTimeSeries, which will become the final component
-                of the TensorboardTimeSeries's resource name. This value
-                should match "[a-z0-9][a-z0-9-]{0, 127}".
+            display_name (str):
+                Optional. User provided name of this
+                TensorboardTimeSeries. This value should be
+                unique among all TensorboardTimeSeries resources
+                belonging to the same TensorboardRun resource
+                (parent resource).
             tensorboard_run_name (str):
                 Required. The resource name or ID of the TensorboardRun
                 to create the TensorboardTimeseries in. Resource name format:
@@ -974,14 +1067,6 @@ class TensorboardTimeSeries(_TensorboardServiceResource):
                 Optional. Name of the plugin this time series pertain to.
             plugin_data (bytes):
                 Optional. Data of the current plugin, with the size limited to 65KB.
-            display_name (str):
-                Optional. User provided name of this
-                TensorboardTimeSeries. This value should be
-                unique among all TensorboardTimeSeries resources
-                belonging to the same TensorboardRun resource
-                (parent resource).
-
-                If not provided tensorboard_time_series_id will be used.
             description (str):
                 Optional. Description of this TensorboardTimeseries.
             project (str):
@@ -998,11 +1083,6 @@ class TensorboardTimeSeries(_TensorboardServiceResource):
         Returns:
             TensorboardTimeSeries: The TensorboardTimeSeries resource.
         """
-
-        if display_name:
-            utils.validate_display_name(display_name)
-
-        display_name = display_name or tensorboard_time_series_id
 
         if isinstance(value_type, str):
             value_type = getattr(
@@ -1032,18 +1112,10 @@ class TensorboardTimeSeries(_TensorboardServiceResource):
             plugin_data=plugin_data,
         )
 
-        request = gca_tensorboard_service.CreateTensorboardTimeSeriesRequest(
-            parent=parent,
-            tensorboard_time_series_id=tensorboard_time_series_id,
-            tensorboard_time_series=gapic_tensorboard_time_series,
-        )
-
-        print(request)
-
         _LOGGER.log_create_with_lro(cls)
 
         tensorboard_time_series = api_client.create_tensorboard_time_series(
-            request=request
+            parent=parent, tensorboard_time_series=gapic_tensorboard_time_series
         )
 
         _LOGGER.log_create_complete(cls, tensorboard_time_series, "tb_time_series")
