@@ -1,5 +1,24 @@
 # Changelog
 
+## [1.9.0](https://www.github.com/googleapis/python-aiplatform/compare/v1.8.1...v1.9.0) (2021-12-29)
+
+
+### Features
+
+* add create in Featurestore, EntityType, Feature; add create_entity_type in Featurestore; add create_feature, batch_create_features in EntityType; add ingest_from_* for bq and gcs in EntityType; add and update delete with force delete nested resources ([#872](https://www.github.com/googleapis/python-aiplatform/issues/872)) ([ba11c3d](https://www.github.com/googleapis/python-aiplatform/commit/ba11c3d3cd8d3869e2deb3207a8698fa7ce284ec))
+* Add LIT methods for Pandas DataFrame and TensorFlow saved model. ([#874](https://www.github.com/googleapis/python-aiplatform/issues/874)) ([03cf301](https://www.github.com/googleapis/python-aiplatform/commit/03cf301989a5802b122803eac7a2d03f2d1769fb))
+* Add support to create TensorboardExperiment ([#909](https://www.github.com/googleapis/python-aiplatform/issues/909)) ([96ce738](https://www.github.com/googleapis/python-aiplatform/commit/96ce7387ac58e0ec7cb6a7f6d6a6e422eae5da96))
+* Add support to create TensorboardRun ([#912](https://www.github.com/googleapis/python-aiplatform/issues/912)) ([8df74a2](https://www.github.com/googleapis/python-aiplatform/commit/8df74a29df0adb95fff5500fcc9d7a025012ab5e))
+
+
+### Bug Fixes
+
+* Fix timestamp proto util to default to timestamp at call time. ([#933](https://www.github.com/googleapis/python-aiplatform/issues/933)) ([d72a254](https://www.github.com/googleapis/python-aiplatform/commit/d72a254e97cf74f3fdd55a32a4af86737243593a))
+* Improve handling of undeploying model without redistributing remaining traffic ([#898](https://www.github.com/googleapis/python-aiplatform/issues/898)) ([8a8a4fa](https://www.github.com/googleapis/python-aiplatform/commit/8a8a4faa667bde2a4df04afa23a6dd5b1856f958))
+* issues/192254729 ([#914](https://www.github.com/googleapis/python-aiplatform/issues/914)) ([3ec620c](https://www.github.com/googleapis/python-aiplatform/commit/3ec620c64bd60ceb5b89918200e11e3fbff67370))
+* issues/192254729 ([#915](https://www.github.com/googleapis/python-aiplatform/issues/915)) ([0f22ff6](https://www.github.com/googleapis/python-aiplatform/commit/0f22ff61460a3f2bd55d2c10c4ee06e582f03944))
+* use open_in_new_tab in the render method. ([#926](https://www.github.com/googleapis/python-aiplatform/issues/926)) ([04618e0](https://www.github.com/googleapis/python-aiplatform/commit/04618e0563b8588eec2ccd8342c6085ca08b5adb))
+
 ### [1.8.1](https://www.github.com/googleapis/python-aiplatform/compare/v1.8.0...v1.8.1) (2021-12-14)
 
 
