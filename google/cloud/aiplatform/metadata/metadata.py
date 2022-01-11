@@ -27,8 +27,10 @@ from google.cloud.aiplatform.metadata import constants
 from google.cloud.aiplatform.metadata.artifact import _Artifact
 from google.cloud.aiplatform.metadata.context import _Context
 from google.cloud.aiplatform.metadata.execution import _Execution
+from google.cloud.aiplatform.metadata import experiment_resources
 from google.cloud.aiplatform.metadata.metadata_store import _MetadataStore
 from google.cloud.aiplatform import pipeline_jobs
+from google.cloud.aiplatform.tensorboard import tensorboard_resource
 
 # runtime patch to v2 to use new data model
 _EXPERIMENT_TRACKING_VERSION = "v1"
@@ -50,17 +52,11 @@ class _MetadataService:
         self._run = None
         self._metrics = None
 
-        if _EXPERIMENT_TRACKING_VERSION == "v2":
-            self._experiment_run = None
-
     def reset(self):
         """Reset all _MetadataService fields to None"""
         self._experiment = None
         self._run = None
         self._metrics = None
-
-        if _EXPERIMENT_TRACKING_VERSION == "v2":
-            self._experiment_run = None
 
     @property
     def experiment_name(self) -> Optional[str]:
@@ -97,6 +93,9 @@ class _MetadataService:
 
         _MetadataStore.get_or_create()
 
+        self.reset()
+
+        
         context = _Context.get_or_create(
             resource_id=experiment,
             display_name=experiment,
@@ -105,6 +104,7 @@ class _MetadataService:
             schema_version=_get_experiment_schema_version(),
             metadata=constants.EXPERIMENT_METADATA,
         )
+        
         if context.schema_title != constants.SYSTEM_EXPERIMENT:
             raise ValueError(
                 f"Experiment name {experiment} has been used to create other type of resources "
@@ -113,8 +113,6 @@ class _MetadataService:
 
         if description and context.description != description:
             context.update(metadata=context.metadata, description=description)
-
-        self.reset()
 
         self._experiment = context
 
@@ -172,10 +170,6 @@ class _MetadataService:
                 "before trying to start_run. "
             )
 
-        run_context = None
-        if _EXPERIMENT_TRACKING_VERSION == "v2":
-            run_context = self._create_experiment_run_context(run=run)
-
         run_execution_id = f"{self._experiment.name}-{run}"
         run_execution = _Execution.get_or_create(
             resource_id=run_execution_id,
@@ -188,15 +182,10 @@ class _MetadataService:
                 f"Run name {run} has been used to create other type of resources ({run_execution.schema_title}) "
                 "in this MetadataStore, please choose a different run name."
             )
-
-        if _EXPERIMENT_TRACKING_VERSION == "v2":
-            run_context.add_artifacts_and_executions(
-                execution_resource_names=[run_execution.resource_name]
-            )
-        else:
-            self._experiment.add_artifacts_and_executions(
-                execution_resource_names=[run_execution.resource_name]
-            )
+        
+        self._experiment.add_artifacts_and_executions(
+            execution_resource_names=[run_execution.resource_name]
+        )
 
         metrics_artifact_id = f"{self._experiment.name}-{run}-metrics"
         metrics_artifact = _Artifact.get_or_create(
@@ -216,27 +205,6 @@ class _MetadataService:
 
         self._run = run_execution
         self._metrics = metrics_artifact
-
-        if _EXPERIMENT_TRACKING_VERSION == "v2":
-            self._experiment_run = run_context
-
-    #def start_run_v2(self, run: str, tensorboard_resource: Union[aiplatform.Tensorboard, str, None] = None):
-        """Setup a run to current session.
-
-        Args:
-            run (str):
-                Required. Name of the run to assign current session with.
-            tensorboard_resource (str):
-                Optional. Backing Tensorboard Resource to enable and store time series metrics
-                logged to this Experiment Run using `log_time_series_metrics`.
-        Raises:
-            ValueError:
-                if experiment is not set. Or if run execution or metrics artifact is already created
-                but with a different schema.
-        """
-
-        
-
 
     def log_params(self, params: Dict[str, Union[float, int, str]]):
         """Log single or multiple parameters with specified key and value pairs.
@@ -664,68 +632,215 @@ class _MetadataService:
         return column_key_to_value
 
 
-    def _log_pipeline_job(self, pipeline_job: pipeline_jobs.PipelineJob):
-        """Associated this PipelineJob's Context to the current ExperimentRun Context as a child context.
+class ExperimentTracker:
+
+    def __init__(self):
+
+        self._experiment: Optional[experiment_resources.Experiment] = None
+        self._experiment_run: Optional[experiment_resources.ExperimentRun] = None
+
+    def reset(self):
+        self._experiment = None
+        self._experiment_run = None
+
+    def set_experiment(self, experiment, description):
+        """Setup a experiment to current session.
 
         Args:
-            pipeline_job (pipeline_jobs.PipelineJob):
-                Required. The PipelineJob to associated.
+            experiment (str):
+                Required. Name of the experiment to assign current session with.
+            description (str):
+                Optional. Description of an experiment.
+        Raises:
+            ValueError:
+                If Context with same name as experiment has already been created with
+                a different type.
+
         """
-        
-        try:
-            pipeline_job.wait_for_resource_creation()
-        except Exception as e:
-            raise RuntimeError("Could not log PipelineJob to Experiment Run") from e
+        self.reset()
 
-        resource_name_fields = pipeline_jobs.PipelineJob._parse_resource_name(pipeline_job.resource_name)
+        self._experiment = experiment_resources.Experiment.get_or_create(
+                experiment_name=experiment,
+                description=description
+            ) 
 
-        pipeline_job_context = None
-        pipeline_job_context_getter = functools.partial(
-            _Context._get,
-            resource_name=resource_name_fields['pipeline_job'],
-            project=resource_name_fields['project'],
-            location=resource_name_fields['location']
+    def start_run(
+        self,
+        run_name: str,
+        tensorboard_resource: Union[tensorboard_resource.Tensorboard, str, None] = None,
+        resume=False):
+        """Setup a run to current session.
+
+        Args:
+            run (str):
+                Required. Name of the run to assign current session with.
+            tensorboard_resource (str):
+                Optional. Backing Tensorboard Resource to enable and store time series metrics
+                logged to this Experiment Run using `log_time_series_metrics`.
+            resume (bool):
+                Whether to resume this run. If False a new run will be created.
+        Raises:
+            ValueError:
+                if experiment is not set. Or if run execution or metrics artifact is already created
+                but with a different schema.
+        """
+
+        if not self._experiment:
+            raise ValueError(
+                "No experiment set for this run. Make sure to call aiplatform.init(experiment='my-experiment') "
+                "before trying to start_run. "
             )
 
-        # PipelineJob context is created asynchronously so we need to poll until it exists.
-        while not pipeline_job_context:
-            pipeline_job_context = pipeline_job_context_getter()
+        if resume:
+            self._experiment_run = experiment_resources.ExperimentRun(
+                    run_name=run_name,
+                    experiment=self._experiment
+                )
+        else:
+            self._experiment_run = experiment_resources.ExperimentRun.create(
+                    run_name=run_name,
+                    experiment=self._experiment
+                )
 
-            if not pipeline_job_context:
-                if pipeline_job.done():
-                    pipeline_job_context = pipeline_job_context_getter()
-                    if not pipeline_job_context:
-                        if pipeline_job.has_failed():
-                            raise RuntimeError(f"Cannot associate PipelineJob to Experiment Run: {pipeline_job.gca_resource.error}")
-                        else:
-                            raise RuntimeError(f"Cannot associate PipelineJob to Experiment Run because PipelineJob context could not be found.")
-                else:
-                    time.sleep(1)
+        if tensorboard_resource:
+            self._experiment_run.assign_backing_tensorboard(tensorboard=tensorboard_resource)
 
-        self._experiment_run.add_context_children([pipeline_job_context])        
+    def log_params(self, params: Dict[str, Union[float, int, str]]):
+        """Log single or multiple parameters with specified key and value pairs.
 
+        Args:
+            params (Dict):
+                Required. Parameter key/value pairs.
+        """
+
+        self._validate_experiment_and_run(method_name="log_params")
+        # query the latest run execution resource before logging.
+        self._experiment_run.log_params(params=params)
+
+    def log_metrics(self, metrics: Dict[str, Union[float, int]]):
+        """Log single or multiple Metrics with specified key and value pairs.
+
+        Args:
+            metrics (Dict):
+                Required. Metrics key/value pairs. Only flot and int are supported format for value.
+        Raises:
+            ValueError: If Experiment or Run is not set.
+        """
+
+        self._validate_experiment_and_run(method_name="log_metrics")
+        # query the latest metrics artifact resource before logging.
+        self._experiment_run.log_metrics(metrics=metrics)
+
+    def _validate_experiment_and_run(self, method_name: str):
+        """Validates Expeirment and Run are set and raises informative error message.
+
+        Raises:
+            ValueError: If Experiment or Run are not set.
+        """
+
+        if not self._experiment:
+            raise ValueError(
+                f"No experiment set. Make sure to call aiplatform.init(experiment='my-experiment') "
+                f"before trying to {method_name}. "
+            )
+        if not self._experiment_run:
+            raise ValueError(
+                f"No run set. Make sure to call aiplatform.start_run('my-run') before trying to {method_name}. "
+            )
+
+    def get_experiment_df(
+        self, experiment: Optional[str] = None
+    ) -> "pd.DataFrame":  # noqa: F821
+        """Returns a Pandas DataFrame of the parameters and metrics associated with one experiment.
+
+            Example:
+
+            aiplatform.init(experiment='exp-1')
+            aiplatform.start_run(run='run-1')
+            aiplatform.log_params({'learning_rate': 0.1})
+            aiplatform.log_metrics({'accuracy': 0.9})
+
+            aiplatform.start_run(run='run-2')
+            aiplatform.log_params({'learning_rate': 0.2})
+            aiplatform.log_metrics({'accuracy': 0.95})
+
+            Will result in the following DataFrame
+            ___________________________________________________________________________
+            | experiment_name | run_name      | param.learning_rate | metric.accuracy |
+            ---------------------------------------------------------------------------
+            | exp-1           | run-1         | 0.1                 | 0.9             |
+            | exp-1           | run-2         | 0.2                 | 0.95            |
+            ---------------------------------------------------------------------------
+
+            Args:
+                experiment (str):
+                Name of the Experiment to filter results. If not set, return results of current active experiment.
+
+            Returns:
+                Pandas Dataframe of Experiment with metrics and parameters.
+
+            Raise:
+                NotFound exception if experiment does not exist.
+                ValueError if given experiment is not associated with a wrong schema.
+            """
+
+        if not experiment:
+            experiment = self._experiment
+        else:
+            experiment = experiment_resources.Experiment(experiment)
+
+        return experiment.get_dataframe()
 
     def log(self, *, pipeline_job: Optional[pipeline_jobs.PipelineJob]=None):
-        if not _EXPERIMENT_TRACKING_VERSION == 'v2':
-            raise NotImplementedError('log is not currently supported')
+        """Log Vertex AI Resources and Artifacts to the current Experiment Run.
+        
+        Args:
+            pipeline_job (pipeline_jobs.PipelineJob):
+                Optional. Vertex PipelineJob to associate to this Experiment Run.
 
-        self._validate_experiment_and_run('log')
+                Metrics produced by the PipelineJob as system.Metric Artifacts 
+                will be associated as metrics to the current Experiment Run.
 
-        if pipeline_job:
-            self._log_pipeline_job(pipeline_job=pipeline_job)
+                Pipeline parameters will be associated as parameters to the
+                current Experiment Run.
+        """ 
+        self._validate_experiment_and_run(method_name="log")
+        self._experiment_run.log(pipeline_job=pipeline_job)
+
+    def log_time_series_metrics(
+        self,
+        metrics: Dict[str, Union[float]],
+        step: Optional[int]=None,
+        wall_time: Optional[timestamp_pb2.Timestamp]=None):
+        """Logs time series metrics to to this Experiment Run.
+
+        Requires the Experiment Run has a backing Vertex Tensorboard resource.
 
 
-    # def log_time_series_metrics(
-    #     self,
-    #     metrics: Dict[str, float],
-    #     step: Optional[int] = None,
-    #     wall_time: Optional[timestamp_pb2.Timestamp] = None):
-    #     if not _EXPERIMENT_TRACKING_VERSION == 'v2':
-    #         raise NotImplementedError('log_time_series_metrics is not currently supported')
-    #     pass
+        Usage:
+            run.log_time_series_metrics({'accuracy': 0.9}, step=10)
 
+        Args:
+            metrics (Dict[str, Union[str, float]]):
+                Required. Dictionary of where keys are metric names and values are metric values.
+            step (int):
+                Optional. Step index of this data point within the run.
 
+                If not provided, the latest
+                step amongst all time series metrics already logged will be used.
+            wall_time (timestamp_pb2.Timestamp):
+                Optional. Wall clock timestamp when this data point is
+                generated by the end user.
 
+                If not provided, this will be generated based on the value from time.time()
+
+        Raises:
+            RuntimeError: If current experiment run doesn't have a backing Tensorboard resource.
+        """
+
+        self._experiment_run.log_time_series_metrics(
+            metrics=metrics, step=step, wall_time=wall_time)
 
 
 metadata_service = _MetadataService()
+experiment_tracker = ExperimentTracker()

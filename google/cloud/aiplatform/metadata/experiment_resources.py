@@ -15,6 +15,7 @@
 # limitations under the License.
 #
 
+from collections import defaultdict
 from typing import Dict, List, NamedTuple, Optional, Set, Union
 
 from google.api_core import exceptions
@@ -69,6 +70,10 @@ def _execution_to_column_named_metadata(
 
     return column_key_to_value
 
+def is_tensorboard_experiment(context: _Context) -> bool:
+    """Returns True is Experiment is a Tensorboard Experiment created by CustomJob."""
+    return constants.TENSORBOARD_CUSTOM_JOB_EXPERIMENT_FIELD in context.metadata
+
 class Experiment():
 
     def __init__(
@@ -86,7 +91,15 @@ class Experiment():
             credentials=credentials
         )
 
-        self._metadata_context = _Context(**metadata_args)
+        context = _Context(**metadata_args)
+
+        if context.schema_title != constants.SYSTEM_EXPERIMENT:
+            raise ValueError(
+                f"Experiment name {experiment} has been used to create other type of resources "
+                f"({context.schema_title}) in this MetadataStore, please choose a different experiment name."
+            )
+
+        self._metadata_context = context
 
     @classmethod
     def create(
@@ -95,7 +108,8 @@ class Experiment():
         description: Optional[str] = None,
         project: Optional[str] = None,
         location: Optional[str] = None,
-        credentials: Optional[auth_credentials.Credentials] = None) -> 'Experiment':
+        credentials: Optional[auth_credentials.Credentials] = None
+        ) -> 'Experiment':
 
         context = _Context._create(
             resource_id=experiment_name,
@@ -110,6 +124,59 @@ class Experiment():
         )
 
         return cls(experiment_name=context.resource_name, credentials=credentials)
+
+    @classmethod
+    def get_or_create(
+        cls,
+        experiment_name:str,
+        description: Optional[str] = None,
+        project: Optional[str] = None,
+        location: Optional[str] = None,
+        credentials: Optional[auth_credentials.Credentials] = None) -> 'Experiment':
+
+        context = _Context.get_or_create(
+            resource_id=experiment_name,
+            display_name=experiment_name,
+            description=description,
+            schema_title=constants.SYSTEM_EXPERIMENT,
+            schema_version=metadata._get_experiment_schema_version(),
+            metadata=constants.EXPERIMENT_METADATA,
+            project=project,
+            location=location,
+            credentials=credentials
+        )
+
+        if context.schema_title != constants.SYSTEM_EXPERIMENT:
+            raise ValueError(
+                f"Experiment name {experiment} has been used to create other type of resources "
+                f"({context.schema_title}) in this MetadataStore, please choose a different experiment name."
+            )
+
+        return cls(experiment_name=context.resource_name, credentials=credentials)
+
+    @classmethod
+    def list(
+        cls,
+        project: Optional[str]=None,
+        location: Optional[str]=None,
+        credentials: Optional[auth_credentials.Credentials]=None
+        ) -> List['Experiment']:
+
+        filter_str = f'schema_title="{constants.SYSTEM_EXPERIMENT}"'
+        experiment_contexts = _Context.list(
+            filter=filter_str,
+            project=project,
+            location=location,
+            credentials=credentials)
+
+        experiments = []
+        for experiment_context in experiment_contexts:
+            # Removes Tensorboard Experiments
+            if not is_tensorboard_experiment(experiment_context):
+                experiment = cls.__new__(cls)
+                experiment._metadata_context = experiment_context
+                experiments.append(experiment)
+        return experiments
 
     @property
     def name(self):
@@ -190,6 +257,7 @@ class ExperimentRun:
             credentials=credentials
         )
 
+        # TODO: Add schema validation on these metadata nodes
         self._metadata_context = _Context(**metadata_args)
         self._metadata_execution = _Execution(**metadata_args)
         metadata_args['resource_name']+='-metrics'
@@ -197,6 +265,8 @@ class ExperimentRun:
 
         self._backing_tensorboard_run: Optional[VertexResourceWithMetadata] = self._lookup_tensorboard_run_artifact()
 
+        # initially set to None. Will initially update from resource then track locally.
+        self._largest_step: Optional[int] = None
 
     @staticmethod
     def _get_experiment(
@@ -276,12 +346,14 @@ class ExperimentRun:
             this_experiment_run._metadata_execution = experiment_run_execution_map[context.name]
             this_experiment_run._metadata_metric = _Artifact(resource_name=context.name+'-metrics', **metadata_args)
 
-            tb_run_artifact = _Artifact(resource_name=context.name+'-tbrun', **metadata_args)
+            tb_run_artifact = _Artifact._get(resource_name=context.name+'-tbrun', **metadata_args)
             if tb_run_artifact:
                 tb_run = tensorboard_resource.TensorboardRun(tb_run_artifact.metadata['resourceName'], **metadata_args)
                 this_experiment_run._backing_tensorboard_run = VertexResourceWithMetadata(metadata=tb_run_artifact, resource=tb_run)
             else:
                 this_experiment_run._backing_tensorboard_run = None
+
+            this_experiment_run._largest_step = None
             experiment_runs.append(this_experiment_run)
 
         return experiment_runs
@@ -465,6 +537,9 @@ class ExperimentRun:
             credentials=credentials
         )
 
+        if metadata_context is None:
+            raise RuntimeError(f'Experiment Run with name {run_name} in {experiment.name} already exists.')
+
         experiment._metadata_context.add_context_children([metadata_context])
 
         metadata_execution = _Execution._create(
@@ -513,24 +588,36 @@ class ExperimentRun:
         if backing_tensorboard:
             # TODO: consider warning if tensorboard_resource matches backing tensorboard uri 
             raise ValueError(
-                f'Experiment run {self._run_name} already associated to tensorboard resource {backing_tensorboard.resource_name}')
+                f'Experiment run {self._run_name} already associated to tensorboard resource {backing_tensorboard.resource.resource_name}')
 
         if isinstance(tensorboard, str):
             tensorboard = tensorboard_resource.Tensorboard(tensorboard)
 
-        # TODO: get or create TB experiment
-        tensorboard_experiment = tensorboard_resource.TensorboardExperiment.create(
-                tensorboard_experiment_id=self._experiment.name,
-                tensorboard_name=tensorboard.resource_name,
-                credentials=tensorboard.credentials            
-            )
+        tensorboard_resource_name_parts = tensorboard._parse_resource_name(tensorboard.resource_name)
+        tensorboard_experiment_resource_name = tensorboard_resource.TensorboardExperiment._format_resource_name(
+            experiment=self._experiment.name,
+            **tensorboard_resource_name_parts)
+        try:
+            tensorboard_experiment = tensorboard_resource.TensorboardExperiment(tensorboard_experiment_resource_name)
+        except exceptions.NotFound:
+            tensorboard_experiment = tensorboard_resource.TensorboardExperiment.create(
+                    tensorboard_experiment_id=self._experiment.name,
+                    tensorboard_name=tensorboard.resource_name,
+                    credentials=tensorboard.credentials            
+                )
 
-        # TODO: get or create TB run
-        tensorboard_run = tensorboard_resource.TensorboardRun.create(
-                tensorboard_run_id=self._run_name,
-                tensorboard_experiment_name=tensorboard_experiment.resource_name,
-                credentials=tensorboard.credentials
-            )
+        tensorboard_experiment_name_parts = tensorboard_experiment._parse_resource_name(tensorboard_experiment.resource_name)
+        tensorboard_run_resource_name = tensorboard_resource.TensorboardRun._format_resource_name(
+            run=self._run_name,
+            **tensorboard_experiment_name_parts)
+        try:
+            tensorboard_run = tensorboard_resource.TensorboardRun(tensorboard_run_resource_name)
+        except exceptions.NotFound:
+            tensorboard_run = tensorboard_resource.TensorboardRun.create(
+                    tensorboard_run_id=self._run_name,
+                    tensorboard_experiment_name=tensorboard_experiment.resource_name,
+                    credentials=tensorboard.credentials
+                )
 
         gcp_resource_url = metadata_utils.make_gcp_resource_url(tensorboard_run)
 
@@ -568,7 +655,7 @@ class ExperimentRun:
         metadata_schema_name = _MetadataSchema._format_resource_name(**resource_name_parts)
 
         try:
-            _MetadataSchema(metadata_schema_name)
+            _MetadataSchema(metadata_schema_name, credentials=self._metadata_context.credentials)
         except exceptions.NotFound as e:
             _MetadataSchema.create(
                 metadata_schema = schema,
@@ -576,21 +663,48 @@ class ExperimentRun:
                 metadata_store_name= parent
             )
 
-    #TODO(get latest time series step)
-    def _get_latest_time_series_step(self, time_series_keys):
-        pass
+    def _get_latest_time_series_step(self) -> int:
+        """Gets latest time series step of all time series from Tensorboard resource."""
+        data = self._backing_tensorboard_run.resource.read_time_series_data()
+        return max(ts.values[-1].step if ts.values else 0 for ts in data.values())
+        
 
     def log_time_series_metrics(
         self,
-        metrics: Dict[str, Union[float, int]],
+        metrics: Dict[str, Union[float]],
         step: Optional[int]=None,
         wall_time: Optional[timestamp_pb2.Timestamp]=None):
-        """Logs time series metrics to backing TensorboardRun."""
+        """Logs time series metrics to backing TensorboardRun of this Experiment Run.
+
+        Usage:
+            run.log_time_series_metrics({'accuracy': 0.9}, step=10)
+
+        Args:
+            metrics (Dict[str, Union[str, float]]):
+                Required. Dictionary of where keys are metric names and values are metric values.
+            step (int):
+                Optional. Step index of this data point within the run.
+
+                If not provided, the latest
+                step amongst all time series metrics already logged will be used.
+            wall_time (timestamp_pb2.Timestamp):
+                Optional. Wall clock timestamp when this data point is
+                generated by the end user.
+
+                If not provided, this will be generated based on the value from time.time()
+        Raises:
+            RuntimeError: If current experiment run doesn't have a backing Tensorboard resource.
+        """
 
         if not self._backing_tensorboard_run:
             raise RuntimeError("Please set this experiment run with backing tensorboard resource.")
 
         self._soft_create_time_series(metric_keys=set(metrics.keys()))
+
+        if not step:
+            step = self._largest_step or self._get_latest_time_series_step()
+            step+=1
+            self._largest_step = step
 
         self._backing_tensorboard_run.resource.write_tensorboard_scalar_data(
                 time_series_data=metrics,
@@ -607,6 +721,60 @@ class ExperimentRun:
         for key in metric_keys:
             if key not in self._backing_tensorboard_run.resource._time_series_display_name_to_id_mapping:
                 self._backing_tensorboard_run.resource.create_tensorboard_time_series(display_name=key)
+
+    def log_params(self, params: Dict[str, Union[float, int, str]]):
+        """Log single or multiple parameters with specified key and value pairs.
+
+        Args:
+            params (Dict):
+                Required. Parameter key/value pairs.
+        """
+        # query the latest run execution resource before logging.
+        self._metadata_execution.sync_resource()
+        self._metadata_execution.update(metadata=params)
+
+    def log_metrics(self, metrics: Dict[str, Union[float, int]]):
+        """Log single or multiple Metrics with specified key and value pairs.
+
+        Args:
+            metrics (Dict):
+                Required. Metrics key/value pairs. Only flot and int are supported format for value.
+        Raises:
+            TypeError: If value contains unsupported types.
+            ValueError: If Experiment or Run is not set.
+        """
+
+        # query the latest metrics artifact resource before logging.
+        self._metadata_metric.sync_resource()
+        self._metadata_metric.update(metadata=metrics)
+
+    def get_time_series_dataframe(self) -> 'pd.Dataframe':
+        """Returns all time series in this Run as a Dataframe.
+
+        
+        Returns:
+            pd.Dataframe: Time series in this Run as a Dataframe.
+        """
+        try:
+            import pandas as pd
+        except ImportError:
+            raise ImportError(
+                "Pandas is not installed and is required to get dataframe as the return format. "
+                'Please install the SDK using "pip install python-aiplatform[metadata]"'
+            )
+
+        if not self._backing_tensorboard_run:
+            return pd.DataFrame({})
+        data = self._backing_tensorboard_run.resource.read_time_series_data()
+
+        return pd.DataFrame(
+            {name: entry.scalar.value, 'step': entry.step, 'wall_time': entry.wall_time}
+            for name, ts in data.items() for entry in ts.values
+        ).groupby(['step', 'wall_time']).first().reset_index()
+
+    #@TODO(add delete API)
+    def delete(self, delete_backing_tensorboard_run=False):
+        pass
 
 
 

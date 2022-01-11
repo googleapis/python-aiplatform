@@ -38,3 +38,5 @@ SCHEMA_VERSIONS = {
 EXPERIMENT_METADATA = {"experiment_deleted": False}
 
 PIPELINE_PARAM_PREFIX = 'input:'
+
+TENSORBOARD_CUSTOM_JOB_EXPERIMENT_FIELD = 'tensorboard_link'

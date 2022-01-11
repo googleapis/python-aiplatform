@@ -106,9 +106,15 @@ class _Config:
             self._encryption_spec_key_name = encryption_spec_key_name
 
         if experiment:
-            metadata.metadata_service.set_experiment(
-                experiment=experiment, description=experiment_description
-            )
+            if metadata._EXPERIMENT_TRACKING_VERSION == 'v2':
+                metadata.experiment_tracker.set_experiment(
+                    experiment=experiment, description=experiment_description
+                )
+            else:
+                metadata.metadata_service.set_experiment(
+                    experiment=experiment, description=experiment_description
+                )
+
         if experiment_description and experiment is None:
             raise ValueError(
                 "Experiment name needs to be set in `init` in order to add experiment descriptions."

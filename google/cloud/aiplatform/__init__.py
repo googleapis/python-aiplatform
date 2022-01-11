@@ -121,7 +121,10 @@ __all__ = (
 
 
 if metadata._EXPERIMENT_TRACKING_VERSION == "v2":
-    log = metadata.metadata_service.log
-    log_time_series_metrics = metadata.metadata_service.log_time_series_metrics
-    start_run = metadata.metadata_service.start_run_v2
+    log_params = metadata.experiment_tracker.log_params
+    log_metrics = metadata.experiment_tracker.log_metrics
+    get_experiment_df = metadata.experiment_tracker.get_experiment_df
+    start_run = metadata.experiment_tracker.start_run
+    log = metadata.experiment_tracker.log
+    log_time_series_metrics = metadata.experiment_tracker.log_time_series_metrics
     __all__ = __all__ + ("log", "log_time_series_metrics")

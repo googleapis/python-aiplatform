@@ -185,6 +185,12 @@ class _Resource(base.VertexAiResourceNounWithFutureManager, abc.ABC):
             )
         return resource
 
+    def sync_resource(self):
+        """Syncs local resource with the resource in metadata store."""
+        self._gca_resource = getattr(self.api_client, self._getter_method)(
+                name=self.resource_name, retry=base._DEFAULT_RETRY
+            )
+
     def update(
         self,
         metadata: Dict,
