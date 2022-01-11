@@ -1503,18 +1503,18 @@ class Model(base.VertexAiResourceNounWithFutureManager):
 
     @base.optional_sync()
     def update(
-        cls,
-        display_name: str,
+        self,
+        display_name: Optional[str] = None,
         description: Optional[str] = None,
         labels: Optional[Dict[str, str]] = None,
-        location: Optional[str] = None,
-        credentials: Optional[auth_credentials.Credentials] = None,
     ):
         """Updates a model.
 
         Example usage:
 
         my_model = my_model.update(
+            display_name='my-model',
+            description='my description',
             labels={'key': 'value'},
         )
 
@@ -1533,13 +1533,7 @@ class Model(base.VertexAiResourceNounWithFutureManager):
                 underscores and dashes. International characters
                 are allowed.
                 See https://goo.gl/xmQnxf for more information
-                and examples of labels.        
-            location: Optional[str]=None,
-                Location of model. Overrides location set in
-                aiplatform.init.
-            credentials: Optional[auth_credentials.Credentials]=None,
-                Custom credentials to use to update this model. Overrides credentials
-                set in aiplatform.init.
+                and examples of labels.
         Returns:
             model: Updated model resource.                
         Raises:
@@ -1549,41 +1543,32 @@ class Model(base.VertexAiResourceNounWithFutureManager):
         if labels:
             utils.validate_labels(labels)
 
-        api_client = cls._instantiate_client(location, credentials)
-        model = gca_model_compat.Model(
-            display_name=display_name,
-            description=description,
-            container_spec=None,
-            predict_schemata=None,
-            labels=labels,
-            encryption_spec=None,
-        )
-
-        update_mask: List[str] = list()
+        current_model_proto = self.gca_resource
+        update_mask: List[str] = []
 
         if display_name:
+            current_model_proto.display_name = display_name
             update_mask.append("display_name")
 
         if description:
+            current_model_proto.description = description
             update_mask.append("description")
 
         if labels:
             utils.validate_labels(labels)
+
+            current_model_proto.labels = labels
             update_mask.append("labels")
 
         update_mask = field_mask_pb2.FieldMask(paths=update_mask)
 
-        lro = api_client.update_model(model=model, update_mask=update_mask)
+        model = self.api_client.update_model(
+            model=current_model_proto, update_mask=update_mask
+        )
 
-        _LOGGER.log_create_with_lro(cls, lro)
+        self._gca_resource = model
 
-        model_upload_response = lro.result()
-
-        updated_model = cls(model_upload_response.model)
-
-        _LOGGER.log_create_complete(cls, updated_model._gca_resource, "model")
-
-        return updated_model
+        return self
 
     # TODO(b/170979552) Add support for predict schemata
     # TODO(b/170979926) Add support for metadata and metadata schema
