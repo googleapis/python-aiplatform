@@ -48,8 +48,7 @@ from google.cloud.aiplatform.compat.types import (
     env_var as gca_env_var_compat,
 )
 
-from google.protobuf import json_format
-
+from google.protobuf import field_mask_pb2, json_format
 
 _LOGGER = base.Logger(__name__)
 
@@ -1501,6 +1500,90 @@ class Model(base.VertexAiResourceNounWithFutureManager):
             resource_name=model_name,
         )
         self._gca_resource = self._get_gca_resource(resource_name=model_name)
+
+    @base.optional_sync()
+    def update(
+        cls,
+        display_name: str,
+        description: Optional[str] = None,
+        labels: Optional[Dict[str, str]] = None,
+        location: Optional[str] = None,
+        credentials: Optional[auth_credentials.Credentials] = None,
+    ):
+        """Updates a model.
+
+        Example usage:
+
+        my_model = my_model.update(
+            labels={'key': 'value'},
+        )
+
+        Args:
+            display_name (str):
+                Required. The display name of the Model. The name can be up to 128
+                characters long and can be consist of any UTF-8 characters.
+            description (str):
+                The description of the model.
+            labels (Dict[str, str]):
+                Optional. The labels with user-defined metadata to
+                organize your Models.
+                Label keys and values can be no longer than 64
+                characters (Unicode codepoints), can only
+                contain lowercase letters, numeric characters,
+                underscores and dashes. International characters
+                are allowed.
+                See https://goo.gl/xmQnxf for more information
+                and examples of labels.        
+            location: Optional[str]=None,
+                Location of model. Overrides location set in
+                aiplatform.init.
+            credentials: Optional[auth_credentials.Credentials]=None,
+                Custom credentials to use to update this model. Overrides credentials
+                set in aiplatform.init.
+        Returns:
+            model: Updated model resource.                
+        Raises:
+            ValueError: If `labels` is not the correct format.
+        """
+
+        if labels:
+            utils.validate_labels(labels)
+
+        api_client = cls._instantiate_client(location, credentials)
+        model = gca_model_compat.Model(
+            display_name=display_name,
+            description=description,
+            container_spec=None,
+            predict_schemata=None,
+            labels=labels,
+            encryption_spec=None,
+        )
+
+        update_mask: List[str] = list()
+
+        if display_name:
+            update_mask.append("display_name")
+
+        if description:
+            update_mask.append("description")
+
+        if labels:
+            utils.validate_labels(labels)
+            update_mask.append("labels")
+
+        update_mask = field_mask_pb2.FieldMask(paths=update_mask)
+
+        lro = api_client.update_model(model=model, update_mask=update_mask)
+
+        _LOGGER.log_create_with_lro(cls, lro)
+
+        model_upload_response = lro.result()
+
+        updated_model = cls(model_upload_response.model)
+
+        _LOGGER.log_create_complete(cls, updated_model._gca_resource, "model")
+
+        return updated_model
 
     # TODO(b/170979552) Add support for predict schemata
     # TODO(b/170979926) Add support for metadata and metadata schema
