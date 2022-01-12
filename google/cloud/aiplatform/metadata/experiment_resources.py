@@ -801,6 +801,16 @@ class ExperimentRun:
             for name, ts in data.items() for entry in ts.values
         ).groupby(['step', 'wall_time']).first().reset_index()
 
+    def get_logged_pipeline_jobs(self) -> List[pipeline_jobs.PipelineJob]:
+
+        pipeline_job_contexts = self._get_logged_pipeline_runs()
+
+        return [
+            pipeline_jobs.PipelineJob.get(c.name, project=c.project, location=c.location, credentials=c.credentials)
+            for c in pipeline_job_contexts]
+
+
+
     #@TODO(add delete API)
     def delete(self, delete_backing_tensorboard_run=False):
         pass
