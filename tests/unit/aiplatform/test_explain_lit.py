@@ -15,21 +15,21 @@
 # limitations under the License.
 
 import collections
+import explainable_ai_sdk
 import os
+import pandas as pd
 import pytest
 import tensorflow as tf
-import pandas as pd
 
-from lit_nlp.api import types as lit_types
-from lit_nlp import notebook
-from unittest import mock
-import explainable_ai_sdk
 from google.cloud.aiplatform.explain.lit import (
     create_lit_dataset,
     create_lit_model,
     open_lit,
     set_up_and_open_lit,
 )
+from lit_nlp.api import types as lit_types
+from lit_nlp import notebook
+from unittest import mock
 
 
 @pytest.fixture

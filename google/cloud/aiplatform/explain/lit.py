@@ -14,7 +14,9 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import logging
 import os
+
 from typing import Dict, List, Optional, Tuple, Union
 
 try:
@@ -184,12 +186,19 @@ class _VertexLitModel(lit_model.Model):
     def _set_up_attribution_explainer(
         self, model: str, attribution_method: str = "integrated_gradients"
     ):
-        """Populates the attribution explainer attribute of the class."""
+        """Populates the attribution explainer attribute of the class.
+            Args:
+              model: Required. A string reference to a TensorFlow saved model directory.
+            attribution_method:
+              Optional. A string to choose what attribution configuration to
+              set up the explainer with. Valid options are 'sampled_shapley'
+              or 'integrated_gradients'.
+        """
         try:
             import explainable_ai_sdk
             from explainable_ai_sdk.metadata.tf.v2 import SavedModelMetadataBuilder
         except ImportError:
-            print(
+            logging.info(
                 "Skipping explanations because the Explainable AI SDK is not installed."
                 'Please install the SDK using "pip install explainable-ai-sdk"'
             )
