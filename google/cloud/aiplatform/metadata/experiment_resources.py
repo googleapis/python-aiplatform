@@ -232,6 +232,37 @@ class Experiment():
 
         return df
 
+    def _lookup_backup_tensorboard(self) -> Optional[tensorboard_resource.Tensorboard]:
+        """Returns backing tensorboard if one is set."""
+        self._metadata_context.sync_resource()
+        tensorboard_resource_name = self._metadata_context.metadata.get('backing_tensorboard_resource')
+        if backing_tensorboard_resource:
+            return aiplatform.Tensorboard(
+                tensorboard_resource_name,
+                credentials=self._metadata_context.credentials)
+
+    def backing_tensorboard_resource(self) -> Optional[tensorboard_resource.Tensorboard]:
+        return self._lookup_backup_tensorboard()
+
+    def assign_backing_tensorboard(self, tensorboard: Union[tensorboard_resource.Tensorboard, str]):
+        """Assigns tensorboard as backing tensorboard to support timeseries metrics logging."""
+
+        backing_tensorboard = self._lookup_backing_tensorboard_artifact()
+        if backing_tensorboard:
+            # TODO: consider warning if tensorboard_resource matches backing tensorboard uri 
+            raise ValueError(
+                f'Experiment {self._metadata_context.name} already associated to tensorboard resource {backing_tensorboard.resource_name}')
+
+        if isinstance(tensorboard, str):
+            tensorboard = tensorboard_resource.Tensorboard(
+                tensorboard,
+                project=self._metadata_context.project,
+                location=self._metadata_context.location,
+                credentials=self._metadata_context.credentials)
+
+        self._metadata_context.update(
+            metadata={'backing_tensorboard_resource': tensorboard.resource_name})
+
 
 class ExperimentRun:
 
@@ -330,12 +361,6 @@ class ExperimentRun:
         filter_str = f'schema_title="{constants.SYSTEM_EXPERIMENT_RUN}" AND parent_contexts:"{experiment.resource_name}"'
         run_contexts = _Context.list(filter=filter_str, **metadata_args)
 
-        in_context_query = " OR ".join([f'in_context("{c.resource_name}")' for c in run_contexts])
-        filter_str = f'schema_title="{constants.SYSTEM_RUN}" AND ({in_context_query})'
-
-        run_executions = _Execution.list(filter=filter_str, **metadata_args)
-        experiment_run_execution_map = {e.name: e for e in run_executions}
-
         experiment_runs = []
 
         for context in  run_contexts:
@@ -343,7 +368,7 @@ class ExperimentRun:
             this_experiment_run._experiment = experiment
             this_experiment_run._run_name = context.display_name
             this_experiment_run._metadata_context = context
-            this_experiment_run._metadata_execution = experiment_run_execution_map[context.name]
+            this_experiment_run._metadata_execution = _Execution(resource_name=context.name, **metadata_args)
             this_experiment_run._metadata_metric = _Artifact(resource_name=context.name+'-metrics', **metadata_args)
 
             tb_run_artifact = _Artifact._get(resource_name=context.name+'-tbrun', **metadata_args)
@@ -667,6 +692,10 @@ class ExperimentRun:
         """Gets latest time series step of all time series from Tensorboard resource."""
         data = self._backing_tensorboard_run.resource.read_time_series_data()
         return max(ts.values[-1].step if ts.values else 0 for ts in data.values())
+
+    def _assign_experiment_default_backing_tensorboard(self):
+        """Assigns backing tensorboard resource to default of Experiment parent."""
+        pass 
         
 
     def log_time_series_metrics(
