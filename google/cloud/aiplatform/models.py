@@ -1539,13 +1539,12 @@ class Model(base.VertexAiResourceNounWithFutureManager):
             ValueError: If `labels` is not the correct format.
         """
 
-        if labels:
-            utils.validate_labels(labels)
-
         current_model_proto = self.gca_resource
         update_mask: List[str] = []
 
         if display_name:
+            utils.validate_display_name(display_name)
+
             current_model_proto.display_name = display_name
             update_mask.append("display_name")
 
