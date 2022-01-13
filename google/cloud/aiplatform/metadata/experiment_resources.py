@@ -101,6 +101,11 @@ class Experiment():
 
         self._metadata_context = context
 
+    @property
+    def name(self):
+        return self._metadata_context.name
+    
+
     @classmethod
     def create(
         cls,
@@ -299,6 +304,10 @@ class ExperimentRun:
         # initially set to None. Will initially update from resource then track locally.
         self._largest_step: Optional[int] = None
 
+    @property
+    def name(self) -> str:
+        return self._metadata_context.name
+
     @staticmethod
     def _get_experiment(
         experiment: Union[Experiment, str, None] = None,
@@ -468,7 +477,6 @@ class ExperimentRun:
 
             # if there is only one execution/artifact combo then only need one row for this pipeline
             # otherwise we need one row be execution/artifact combo
-            print(len(execution_dicts))
             if len(execution_dicts) == 1:
                 pipeline_run_dict.update(execution_dicts[0])
                 pipeline_run_dict.update(pipeline_params)
@@ -794,12 +802,12 @@ class ExperimentRun:
         self._metadata_metric.sync_resource()
         self._metadata_metric.update(metadata=metrics)
 
-    def get_time_series_dataframe(self) -> 'pd.Dataframe':
+    def get_time_series_dataframe(self) -> 'pd.DataFrame':
         """Returns all time series in this Run as a Dataframe.
 
         
         Returns:
-            pd.Dataframe: Time series in this Run as a Dataframe.
+            pd.DataFrame: Time series in this Run as a Dataframe.
         """
         try:
             import pandas as pd
@@ -812,6 +820,9 @@ class ExperimentRun:
         if not self._backing_tensorboard_run:
             return pd.DataFrame({})
         data = self._backing_tensorboard_run.resource.read_time_series_data()
+
+        if not data:
+            return pd.DataFrame({})
 
         return pd.DataFrame(
             {name: entry.scalar.value, 'step': entry.step, 'wall_time': entry.wall_time}
@@ -826,11 +837,17 @@ class ExperimentRun:
             pipeline_jobs.PipelineJob.get(c.name, project=c.project, location=c.location, credentials=c.credentials)
             for c in pipeline_job_contexts]
 
+    def __enter__(self):
+        return self
+
+    def __exit__(self,  exc_type, exc_value, traceback):
+        if metadata.experiment_tracker._experiment_run is self:
+            metadata.experiment_tracker.end_run()
 
 
     #@TODO(add delete API)
     def delete(self, delete_backing_tensorboard_run=False):
-        pass
+        raise NotImplemented('delete not implemented')
 
 
 

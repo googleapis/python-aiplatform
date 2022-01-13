@@ -643,6 +643,13 @@ class ExperimentTracker:
         self._experiment = None
         self._experiment_run = None
 
+    @property
+    def experiment_name(self) -> Optional[str]:
+        """Return the experiment name of the _MetadataService, if experiment is not set, return None"""
+        if self._experiment:
+            return self._experiment.name
+        return None
+
     def set_experiment(
         self,
         experiment: str,
@@ -675,7 +682,7 @@ class ExperimentTracker:
         self,
         run_name: str,
         tensorboard: Union[tensorboard_resource.Tensorboard, str, None] = None,
-        resume=False):
+        resume=False) -> experiment_resources.ExperimentRun:
         """Setup a run to current session.
 
         Args:
@@ -712,6 +719,12 @@ class ExperimentTracker:
                     experiment=self._experiment,
                     tensorboard=tensorboard
                 )
+
+        return self._experiment_run
+
+    def end_run(self):
+        "Ends the the current Experiment Run."
+        self._experiment_run = None
 
     def log_params(self, params: Dict[str, Union[float, int, str]]):
         """Log single or multiple parameters with specified key and value pairs.
