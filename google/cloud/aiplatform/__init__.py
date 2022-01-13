@@ -119,7 +119,6 @@ __all__ = (
     "VideoDataset",
 )
 
-
 if metadata._EXPERIMENT_TRACKING_VERSION == "v2":
     log_params = metadata.experiment_tracker.log_params
     log_metrics = metadata.experiment_tracker.log_metrics
@@ -127,4 +126,5 @@ if metadata._EXPERIMENT_TRACKING_VERSION == "v2":
     start_run = metadata.experiment_tracker.start_run
     log = metadata.experiment_tracker.log
     log_time_series_metrics = metadata.experiment_tracker.log_time_series_metrics
+    init=initializer.global_config.init_experiment_v2
     __all__ = __all__ + ("log", "log_time_series_metrics")

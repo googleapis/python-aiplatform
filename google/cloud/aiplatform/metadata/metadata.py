@@ -643,7 +643,11 @@ class ExperimentTracker:
         self._experiment = None
         self._experiment_run = None
 
-    def set_experiment(self, experiment, description):
+    def set_experiment(
+        self,
+        experiment: str,
+        description: Optional[str]=None,
+        backing_tensorboard: Optional[Union[str, tensorboard_resource.Tensorboard]] = None):
         """Setup a experiment to current session.
 
         Args:
@@ -662,19 +666,22 @@ class ExperimentTracker:
         self._experiment = experiment_resources.Experiment.get_or_create(
                 experiment_name=experiment,
                 description=description
-            ) 
+            )
+
+        if backing_tensorboard:
+            self._experiment.assign_backing_tensorboard(tensorboard=backing_tensorboard)
 
     def start_run(
         self,
         run_name: str,
-        tensorboard_resource: Union[tensorboard_resource.Tensorboard, str, None] = None,
+        tensorboard: Union[tensorboard_resource.Tensorboard, str, None] = None,
         resume=False):
         """Setup a run to current session.
 
         Args:
             run (str):
                 Required. Name of the run to assign current session with.
-            tensorboard_resource (str):
+            tensorboard Unoin[str, tensorboard_reosurce.Tensorboard]:
                 Optional. Backing Tensorboard Resource to enable and store time series metrics
                 logged to this Experiment Run using `log_time_series_metrics`.
             resume (bool):
@@ -696,14 +703,15 @@ class ExperimentTracker:
                     run_name=run_name,
                     experiment=self._experiment
                 )
+
+            if tensorboard:
+                self._experiment_run.assign_backing_tensorboard(tensorboard=tensorboard)
         else:
             self._experiment_run = experiment_resources.ExperimentRun.create(
                     run_name=run_name,
-                    experiment=self._experiment
+                    experiment=self._experiment,
+                    tensorboard=tensorboard
                 )
-
-        if tensorboard_resource:
-            self._experiment_run.assign_backing_tensorboard(tensorboard=tensorboard_resource)
 
     def log_params(self, params: Dict[str, Union[float, int, str]]):
         """Log single or multiple parameters with specified key and value pairs.

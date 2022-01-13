@@ -232,22 +232,22 @@ class Experiment():
 
         return df
 
-    def _lookup_backup_tensorboard(self) -> Optional[tensorboard_resource.Tensorboard]:
+    def _lookup_backing_tensorboard(self) -> Optional[tensorboard_resource.Tensorboard]:
         """Returns backing tensorboard if one is set."""
         self._metadata_context.sync_resource()
         tensorboard_resource_name = self._metadata_context.metadata.get('backing_tensorboard_resource')
-        if backing_tensorboard_resource:
-            return aiplatform.Tensorboard(
+        if tensorboard_resource_name:
+            return tensorboard_resource.Tensorboard(
                 tensorboard_resource_name,
                 credentials=self._metadata_context.credentials)
 
-    def backing_tensorboard_resource(self) -> Optional[tensorboard_resource.Tensorboard]:
-        return self._lookup_backup_tensorboard()
+    def get_backing_tensorboard_resource(self) -> Optional[tensorboard_resource.Tensorboard]:
+        return self._lookup_backing_tensorboard()
 
     def assign_backing_tensorboard(self, tensorboard: Union[tensorboard_resource.Tensorboard, str]):
         """Assigns tensorboard as backing tensorboard to support timeseries metrics logging."""
 
-        backing_tensorboard = self._lookup_backing_tensorboard_artifact()
+        backing_tensorboard = self._lookup_backing_tensorboard()
         if backing_tensorboard:
             # TODO: consider warning if tensorboard_resource matches backing tensorboard uri 
             raise ValueError(
@@ -384,6 +384,7 @@ class ExperimentRun:
         return experiment_runs
 
     def _get_pandas_row_dicts(self) -> List[Dict[str, Union[float, int, str]]]:
+        """Returns the run as a Pandas row Dict."""
 
         run_dict = {
             "experiment_name": self._experiment.name,
@@ -395,7 +396,12 @@ class ExperimentRun:
 
         rows = [run_dict]
 
-        rows += self._get_logged_pipeline_runs_as_pandas_row_dicts()
+        pipeline_jobs = self._get_logged_pipeline_runs_as_pandas_row_dicts()
+
+        if len(run_dict) == 2:
+            rows = pipeline_jobs 
+        else:
+            rows += pipeline_jobs
 
         return rows
 
@@ -462,6 +468,7 @@ class ExperimentRun:
 
             # if there is only one execution/artifact combo then only need one row for this pipeline
             # otherwise we need one row be execution/artifact combo
+            print(len(execution_dicts))
             if len(execution_dicts) == 1:
                 pipeline_run_dict.update(execution_dicts[0])
                 pipeline_run_dict.update(pipeline_params)
@@ -540,10 +547,11 @@ class ExperimentRun:
         cls,
         run_name: str,
         experiment: Union[Experiment, str, None] = None,
-        tensorboard_resource: Union[tensorboard_resource.TensorboardRun, str, None] = None,
+        tensorboard: Union[tensorboard_resource.TensorboardRun, str, None] = None,
         project: Optional[str] =  None,
         location: Optional[str] = None,
-        credentials: Optional[auth_credentials.Credentials] = None) -> "ExperimentRun":
+        credentials: Optional[auth_credentials.Credentials] = None
+        ) -> "ExperimentRun":
 
         experiment = cls._get_experiment(experiment)
 
@@ -598,13 +606,20 @@ class ExperimentRun:
             project=project,
             location=location,
             credentials=credentials
-        ) 
+        )
 
-        # TODO: default to experiment tensorboard resource if tensorboard resource not given
-        if tensorboard_resource:
-            experiment_run.assign_backing_tensorboard(tensorboard_resource=tensorboard_resource)
+        if tensorboard:
+            experiment_run.assign_backing_tensorboard(tensorboard=tensorboard)
+        else:
+            experiment_run._assign_to_experiment_backing_tensorboard()
 
         return experiment_run
+
+    def _assign_to_experiment_backing_tensorboard(self):
+        """Assings parent Experiment backing tensorboard resource to this Experiment Run."""
+        backing_tensorboard_resource = self._experiment.get_backing_tensorboard_resource()
+        if backing_tensorboard_resource:
+            self.assign_backing_tensorboard(tensorboard=backing_tensorboard_resource)
 
     def assign_backing_tensorboard(self, tensorboard: Union[tensorboard_resource.Tensorboard, str]):
         """Assigns tensorboard as backing tensorboard to support timeseries metrics logging."""
@@ -726,7 +741,9 @@ class ExperimentRun:
         """
 
         if not self._backing_tensorboard_run:
-            raise RuntimeError("Please set this experiment run with backing tensorboard resource.")
+            self._assign_experiment_default_backing_tensorboard()
+            if not self._backing_tensorboard_run:
+                raise RuntimeError("Please set this experiment run with backing tensorboard resource to use log_time_series_metrics.")
 
         self._soft_create_time_series(metric_keys=set(metrics.keys()))
 
