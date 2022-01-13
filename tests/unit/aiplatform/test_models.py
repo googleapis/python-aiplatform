@@ -1709,4 +1709,3 @@ class TestModel:
         update_model_mock.assert_called_once_with(
             model=current_model_proto, update_mask=update_mask
         )
-

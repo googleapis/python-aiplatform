@@ -1519,7 +1519,7 @@ class Model(base.VertexAiResourceNounWithFutureManager):
 
         Args:
             display_name (str):
-                Required. The display name of the Model. The name can be up to 128
+                The display name of the Model. The name can be up to 128
                 characters long and can be consist of any UTF-8 characters.
             description (str):
                 The description of the model.
