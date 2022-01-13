@@ -24,6 +24,7 @@ from google.protobuf import field_mask_pb2
 from google.cloud.aiplatform import base
 from google.cloud.aiplatform.compat.types import (
     entity_type as gca_entity_type,
+    feature as gca_feature,
     feature_selector as gca_feature_selector,
     featurestore_service as gca_featurestore_service,
     featurestore_online_service as gca_featurestore_online_service,
@@ -1203,86 +1204,104 @@ class EntityType(base.VertexAiResourceNounWithFutureManager):
                 entity_id=entity_ids,
                 feature_selector=feature_selector,
             )
-            response = self._featurestore_online_client.read_feature_values(
+            read_feature_values_response = self._featurestore_online_client.read_feature_values(
                 request=read_feature_values_request, metadata=request_metadata
             )
-
+            header = read_feature_values_response.header
+            entity_views = [read_feature_values_response.entity_view]
         elif isinstance(entity_ids, list):
             streaming_read_feature_values_request = gca_featurestore_online_service.StreamingReadFeatureValuesRequest(
                 entity_type=self.resource_name,
                 entity_ids=entity_ids,
                 feature_selector=feature_selector,
             )
-            response = [
+            streaming_read_feature_values_responses = [
                 response
                 for response in self._featurestore_online_client.streaming_read_feature_values(
                     request=streaming_read_feature_values_request,
                     metadata=request_metadata,
                 )
             ]
+            header = streaming_read_feature_values_responses[0].header
+            entity_views = [
+                response.entity_view
+                for response in streaming_read_feature_values_responses[1:]
+            ]
 
-        return EntityType._load_read_feature_values_response_to_dataframe(
-            response=response
+        feature_metadata = {
+            feature_descriptor.id: self.get_feature(
+                feature_descriptor.id
+            ).gca_resource.value_type
+            for feature_descriptor in header.feature_descriptors
+        }
+
+        return EntityType._construct_dataframe(
+            feature_metadata=feature_metadata, entity_views=entity_views,
         )
 
     @staticmethod
-    def _load_read_feature_values_response_to_dataframe(
-        response: Union[
-            gca_featurestore_online_service.ReadFeatureValuesResponse,
-            List[gca_featurestore_online_service.ReadFeatureValuesResponse],
+    def _construct_dataframe(
+        feature_metadata: Dict[str, gca_feature.Feature.ValueType],
+        entity_views: List[
+            gca_featurestore_online_service.ReadFeatureValuesResponse.EntityView
         ],
     ) -> "pd.DataFrame":  # noqa: F821 - skip check for undefined name 'pd'
-        """Loads read_feature_values_response to dataframe
+        """Constructs a dataframe using the header and entity_views
 
         Args:
-            response (Union[featurestore_online_service.ReadFeatureValuesResponse,
-                            List[featurestore_online_service.ReadFeatureValuesResponse]):
-                Required. featurestore_online_service.ReadFeatureValuesResponse from `read_feature_values`
-                or Iterable in list from `streaming_read_feature_values`.
+            feature_metadata (Dict[str, gca_feature.Feature.ValueType]):
+                Required. A dictionary of where the key is the feature id and the value is the feature value type.
+            entity_views (List[gca_featurestore_online_service.ReadFeatureValuesResponse.EntityView]):
+                Required. A list of Entity views with Feature values.
+                For each Entity view, it may be
+                the entity in the Featurestore if values for all
+                Features were requested, or a projection of the
+                entity in the Featurestore if values for only
+                some Features were requested.
 
         Raises:
             ImportError: If pandas is not installed when using this method.
 
         Returns:
-            pd.DataFrame: response in DataFrame
+            pd.DataFrame - entities feature values in DataFrame
         )
         """
 
         try:
+            import numpy as np
             import pandas as pd
         except ImportError:
             raise ImportError(
-                f"Pandas is not installed. Please install pandas to use "
-                f"{EntityType._load_read_feature_values_response_to_dataframe.__name__}"
+                f"Numpy and/or Pandas are not installed. Please install numpy and/or pandas to use "
+                f"{EntityType._construct_dataframe.__name__}"
             )
 
-        if isinstance(
-            response, gca_featurestore_online_service.ReadFeatureValuesResponse
-        ):
-            response_header = response.header
-            response_entity_view = [response.entity_view]
-        elif isinstance(response, list):
-            response_header = response[0].header
-            response_entity_view = [response.entity_view for response in response[1:]]
-
-        feature_ids = [
-            feature_descriptor.id
-            for feature_descriptor in response_header.feature_descriptors
-        ]
         data = []
-
-        for entity_view in response_entity_view:
-            entity_id = entity_view.entity_id
-            entity_data = [entity_id]
-
-            for entity_view_data in entity_view.data:
+        feature_ids = list(feature_metadata.keys())
+        for entity_view in entity_views:
+            entity_data = {"entity_id": entity_view.entity_id}
+            for feature_id, entity_view_data in zip(feature_ids, entity_view.data):
                 if entity_view_data._pb.HasField("value"):
                     value_type = entity_view_data.value._pb.WhichOneof("value")
                     feature_value = getattr(entity_view_data.value, value_type)
                     if hasattr(feature_value, "values"):
-                        entity_data.append(feature_value.values)
-                    else:
-                        entity_data.append(feature_value)
+                        feature_value = feature_value.values
+                    entity_data[feature_id] = feature_value
             data.append(entity_data)
 
-        return pd.DataFrame(data=data, columns=["entity_id"] + feature_ids)
+        df = pd.DataFrame(data=data, columns=["entity_id"] + feature_ids)
+
+        for feature_id, feature_value_type in feature_metadata.items():
+            dtype = featurestore_utils._FEATURE_VALUE_TYPE_TO_DTYPE_MAP[
+                feature_value_type
+            ]
+            if (
+                df[feature_id].isnull().values.any()
+                and dtype in featurestore_utils._NAN_INTOLERABLE_DTYPES
+            ):
+                dtype = featurestore_utils._DEFAULT_DTYPE
+
+            if df[feature_id].dtype != np.dtype(dtype):
+                df = df.astype({feature_id: np.dtype(dtype)})
+
+        return df
