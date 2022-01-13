@@ -1501,7 +1501,6 @@ class Model(base.VertexAiResourceNounWithFutureManager):
         )
         self._gca_resource = self._get_gca_resource(resource_name=model_name)
 
-    @base.optional_sync()
     def update(
         self,
         display_name: Optional[str] = None,
