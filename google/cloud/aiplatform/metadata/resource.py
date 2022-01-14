@@ -16,7 +16,6 @@
 #
 
 import abc
-import logging
 import re
 from copy import deepcopy
 from typing import Dict, Optional, Sequence, Union
@@ -32,6 +31,7 @@ from google.cloud.aiplatform.compat.types import artifact as gca_artifact
 from google.cloud.aiplatform.compat.types import context as gca_context
 from google.cloud.aiplatform.compat.types import execution as gca_execution
 
+_LOGGER = base.Logger(__name__)
 
 class _Resource(base.VertexAiResourceNounWithFutureManager, abc.ABC):
     """Metadata Resource for Vertex AI"""
@@ -170,7 +170,7 @@ class _Resource(base.VertexAiResourceNounWithFutureManager, abc.ABC):
             credentials=credentials,
         )
         if not resource:
-            logging.info(f"Creating Resource {resource_id}")
+            _LOGGER.info(f"Creating Resource {resource_id}")
             resource = cls._create(
                 resource_id=resource_id,
                 schema_title=schema_title,
@@ -274,7 +274,7 @@ class _Resource(base.VertexAiResourceNounWithFutureManager, abc.ABC):
                 client=api_client, parent=parent, filter=filter,
             )
         except exceptions.NotFound:
-            logging.info(
+            _LOGGER.info(
                 f"No matching resources in metadataStore: {metadata_store_id} with filter: {filter}"
             )
             return []
@@ -362,7 +362,7 @@ class _Resource(base.VertexAiResourceNounWithFutureManager, abc.ABC):
                 metadata=metadata,
             )
         except exceptions.AlreadyExists:
-            logging.info(f"Resource '{resource_id}' already exist")
+            _LOGGER.info(f"Resource '{resource_id}' already exist")
             return
 
         return cls(
@@ -418,7 +418,7 @@ class _Resource(base.VertexAiResourceNounWithFutureManager, abc.ABC):
                 credentials=credentials,
             )
         except exceptions.NotFound:
-            logging.info(f"Resource {resource_name} not found.")
+            _LOGGER.info(f"Resource {resource_name} not found.")
 
     @classmethod
     @abc.abstractmethod

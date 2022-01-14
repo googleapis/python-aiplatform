@@ -16,13 +16,15 @@
 #
 
 from collections import defaultdict
+import functools
+import logging
+import time
 from typing import Dict, List, NamedTuple, Optional, Set, Union
 
 from google.api_core import exceptions
 from google.auth import credentials as auth_credentials
 from google.protobuf import timestamp_pb2
 
-from google.cloud.aiplatform.compat.types import artifact as gca_artifact
 from google.cloud.aiplatform.compat.types import event as gca_event
 from google.cloud.aiplatform.compat.types import tensorboard_time_series as gca_tensorboard_time_series
 from google.cloud.aiplatform import base
@@ -33,11 +35,20 @@ from google.cloud.aiplatform.metadata.artifact import _Artifact
 from google.cloud.aiplatform.metadata.context import _Context
 from google.cloud.aiplatform.metadata.execution import _Execution
 from google.cloud.aiplatform.metadata.metadata_store import _MetadataStore
+from google.cloud.aiplatform.metadata import resource
 from google.cloud.aiplatform.metadata.schema import _MetadataSchema
 from google.cloud.aiplatform.metadata import utils as metadata_utils
 from google.cloud.aiplatform import pipeline_jobs
 from google.cloud.aiplatform.tensorboard import tensorboard_resource
-from google.cloud.aiplatform import utils
+
+class _SetLoggerLevel:
+    def __init__(self, module):
+        self._module = module
+
+    def __enter__(self):
+        logging.getLogger(self._module.__name__).setLevel(logging.WARNING)
+    def __exit__(self, exc_type, exc_value, traceback):
+        logging.getLogger(self._module.__name__).setLevel(logging.INFO)
 
 
 class VertexResourceWithMetadata(NamedTuple):
@@ -91,11 +102,12 @@ class Experiment():
             credentials=credentials
         )
 
-        context = _Context(**metadata_args)
+        with _SetLoggerLevel(resource):
+            context = _Context(**metadata_args)
 
         if context.schema_title != constants.SYSTEM_EXPERIMENT:
             raise ValueError(
-                f"Experiment name {experiment} has been used to create other type of resources "
+                f"Experiment name {experiment_name} has been used to create other type of resources "
                 f"({context.schema_title}) in this MetadataStore, please choose a different experiment name."
             )
 
@@ -116,17 +128,18 @@ class Experiment():
         credentials: Optional[auth_credentials.Credentials] = None
         ) -> 'Experiment':
 
-        context = _Context._create(
-            resource_id=experiment_name,
-            display_name=experiment_name,
-            description=description,
-            schema_title=constants.SYSTEM_EXPERIMENT,
-            schema_version=metadata._get_experiment_schema_version(),
-            metadata=constants.EXPERIMENT_METADATA,
-            project=project,
-            location=location,
-            credentials=credentials
-        )
+        with _SetLoggerLevel(resource):
+            context = _Context._create(
+                resource_id=experiment_name,
+                display_name=experiment_name,
+                description=description,
+                schema_title=constants.SYSTEM_EXPERIMENT,
+                schema_version=metadata._get_experiment_schema_version(),
+                metadata=constants.EXPERIMENT_METADATA,
+                project=project,
+                location=location,
+                credentials=credentials
+            )
 
         return cls(experiment_name=context.resource_name, credentials=credentials)
 
@@ -139,21 +152,22 @@ class Experiment():
         location: Optional[str] = None,
         credentials: Optional[auth_credentials.Credentials] = None) -> 'Experiment':
 
-        context = _Context.get_or_create(
-            resource_id=experiment_name,
-            display_name=experiment_name,
-            description=description,
-            schema_title=constants.SYSTEM_EXPERIMENT,
-            schema_version=metadata._get_experiment_schema_version(),
-            metadata=constants.EXPERIMENT_METADATA,
-            project=project,
-            location=location,
-            credentials=credentials
-        )
+        with _SetLoggerLevel(resource):
+            context = _Context.get_or_create(
+                resource_id=experiment_name,
+                display_name=experiment_name,
+                description=description,
+                schema_title=constants.SYSTEM_EXPERIMENT,
+                schema_version=metadata._get_experiment_schema_version(),
+                metadata=constants.EXPERIMENT_METADATA,
+                project=project,
+                location=location,
+                credentials=credentials
+            )
 
         if context.schema_title != constants.SYSTEM_EXPERIMENT:
             raise ValueError(
-                f"Experiment name {experiment} has been used to create other type of resources "
+                f"Experiment name {experiment_name} has been used to create other type of resources "
                 f"({context.schema_title}) in this MetadataStore, please choose a different experiment name."
             )
 
@@ -168,11 +182,13 @@ class Experiment():
         ) -> List['Experiment']:
 
         filter_str = f'schema_title="{constants.SYSTEM_EXPERIMENT}"'
-        experiment_contexts = _Context.list(
-            filter=filter_str,
-            project=project,
-            location=location,
-            credentials=credentials)
+
+        with _SetLoggerLevel(resource):
+            experiment_contexts = _Context.list(
+                filter=filter_str,
+                project=project,
+                location=location,
+                credentials=credentials)
 
         experiments = []
         for experiment_context in experiment_contexts:
@@ -182,10 +198,6 @@ class Experiment():
                 experiment._metadata_context = experiment_context
                 experiments.append(experiment)
         return experiments
-
-    @property
-    def name(self):
-        return self._metadata_context.name
 
     @property
     def resource_name(self):
@@ -239,7 +251,8 @@ class Experiment():
 
     def _lookup_backing_tensorboard(self) -> Optional[tensorboard_resource.Tensorboard]:
         """Returns backing tensorboard if one is set."""
-        self._metadata_context.sync_resource()
+        with _SetLoggerLevel(resource):
+            self._metadata_context.sync_resource()
         tensorboard_resource_name = self._metadata_context.metadata.get('backing_tensorboard_resource')
         if tensorboard_resource_name:
             return tensorboard_resource.Tensorboard(
@@ -293,11 +306,12 @@ class ExperimentRun:
             credentials=credentials
         )
 
-        # TODO: Add schema validation on these metadata nodes
-        self._metadata_context = _Context(**metadata_args)
-        self._metadata_execution = _Execution(**metadata_args)
-        metadata_args['resource_name']+='-metrics'
-        self._metadata_metric = _Artifact(**metadata_args)
+        with _SetLoggerLevel(resource):
+            # TODO: Add schema validation on these metadata nodes
+            self._metadata_context = _Context(**metadata_args)
+            self._metadata_execution = _Execution(**metadata_args)
+            metadata_args['resource_name']+='-metrics'
+            self._metadata_metric = _Artifact(**metadata_args)
 
         self._backing_tensorboard_run: Optional[VertexResourceWithMetadata] = self._lookup_tensorboard_run_artifact()
 
@@ -349,7 +363,7 @@ class ExperimentRun:
             if self._is_backing_tensorboard_run_artifact(artifact):
                 return VertexResourceWithMetadata(
                     resource=tensorboard_resource.TensorboardRun(artifact.metadata['resourceName']),
-                    metadata=_Artifact)
+                    metadata=artifact)
 
     @classmethod
     def list(
@@ -377,10 +391,10 @@ class ExperimentRun:
             this_experiment_run._experiment = experiment
             this_experiment_run._run_name = context.display_name
             this_experiment_run._metadata_context = context
-            this_experiment_run._metadata_execution = _Execution(resource_name=context.name, **metadata_args)
-            this_experiment_run._metadata_metric = _Artifact(resource_name=context.name+'-metrics', **metadata_args)
-
-            tb_run_artifact = _Artifact._get(resource_name=context.name+'-tbrun', **metadata_args)
+            with _SetLoggerLevel(resource):
+                this_experiment_run._metadata_execution = _Execution(resource_name=context.name, **metadata_args)
+                this_experiment_run._metadata_metric = _Artifact(resource_name=context.name+'-metrics', **metadata_args)
+                tb_run_artifact = _Artifact._get(resource_name=context.name+'-tbrun', **metadata_args)
             if tb_run_artifact:
                 tb_run = tensorboard_resource.TensorboardRun(tb_run_artifact.metadata['resourceName'], **metadata_args)
                 this_experiment_run._backing_tensorboard_run = VertexResourceWithMetadata(metadata=tb_run_artifact, resource=tb_run)
@@ -529,13 +543,15 @@ class ExperimentRun:
 
         # PipelineJob context is created asynchronously so we need to poll until it exists.
         while not pipeline_job_context:
-            pipeline_job_context = pipeline_job_context_getter()
+            with _SetLoggerLevel(resource):
+                pipeline_job_context = pipeline_job_context_getter()
 
             if not pipeline_job_context:
                 if pipeline_job.done():
-                    pipeline_job_context = pipeline_job_context_getter()
+                    with _SetLoggerLevel(resource):
+                        pipeline_job_context = pipeline_job_context_getter()
                     if not pipeline_job_context:
-                        if pipeline_job.has_failed():
+                        if pipeline_job.has_failed:
                             raise RuntimeError(f"Cannot associate PipelineJob to Experiment Run: {pipeline_job.gca_resource.error}")
                         else:
                             raise RuntimeError(f"Cannot associate PipelineJob to Experiment Run because PipelineJob context could not be found.")
@@ -555,7 +571,7 @@ class ExperimentRun:
         cls,
         run_name: str,
         experiment: Union[Experiment, str, None] = None,
-        tensorboard: Union[tensorboard_resource.TensorboardRun, str, None] = None,
+        tensorboard: Union[tensorboard_resource.Tensorboard, str, None] = None,
         project: Optional[str] =  None,
         location: Optional[str] = None,
         credentials: Optional[auth_credentials.Credentials] = None
@@ -567,44 +583,48 @@ class ExperimentRun:
             experiment_name=experiment.name,
             run_name=run_name)
 
-        metadata_context = _Context._create(
-            resource_id=run_id,
-            display_name=run_name,
-            schema_title=constants.SYSTEM_EXPERIMENT_RUN,
-            schema_version=constants.SCHEMA_VERSIONS[constants.SYSTEM_EXPERIMENT_RUN],
-            metadata=constants.EXPERIMENT_METADATA,
-            project=project,
-            location=location,
-            credentials=credentials
-        )
+        with _SetLoggerLevel(resource):
+            metadata_context = _Context._create(
+                resource_id=run_id,
+                display_name=run_name,
+                schema_title=constants.SYSTEM_EXPERIMENT_RUN,
+                schema_version=constants.SCHEMA_VERSIONS[constants.SYSTEM_EXPERIMENT_RUN],
+                metadata=constants.EXPERIMENT_METADATA,
+                project=project,
+                location=location,
+                credentials=credentials
+            )
 
         if metadata_context is None:
             raise RuntimeError(f'Experiment Run with name {run_name} in {experiment.name} already exists.')
 
         experiment._metadata_context.add_context_children([metadata_context])
 
-        metadata_execution = _Execution._create(
-            resource_id=run_id,
-            display_name=run_name,
-            schema_title=constants.SYSTEM_RUN,
-            schema_version=constants.SCHEMA_VERSIONS[constants.SYSTEM_RUN],
-            project=project,
-            location=location,
-            credentials=credentials
-        )
+        with _SetLoggerLevel(resource):
+            metadata_execution = _Execution._create(
+                resource_id=run_id,
+                display_name=run_name,
+                schema_title=constants.SYSTEM_RUN,
+                schema_version=constants.SCHEMA_VERSIONS[constants.SYSTEM_RUN],
+                project=project,
+                location=location,
+                credentials=credentials
+            )
 
         metadata_context.add_artifacts_and_executions(execution_resource_names=[metadata_execution.resource_name])
 
         metrics_artifact_id = f'{run_id}-metrics'
-        metrics_artifact = _Artifact._create(
-            resource_id=metrics_artifact_id,
-            display_name=metrics_artifact_id,
-            schema_title=constants.SYSTEM_METRICS,
-            schema_version=constants.SCHEMA_VERSIONS[constants.SYSTEM_METRICS],
-            project=project,
-            location=location,
-            credentials=credentials
-        )
+
+        with _SetLoggerLevel(resource):
+            metrics_artifact = _Artifact._create(
+                resource_id=metrics_artifact_id,
+                display_name=metrics_artifact_id,
+                schema_title=constants.SYSTEM_METRICS,
+                schema_version=constants.SCHEMA_VERSIONS[constants.SYSTEM_METRICS],
+                project=project,
+                location=location,
+                credentials=credentials
+            )
 
         metadata_execution.add_artifact(artifact_resource_name=metrics_artifact.resource_name, input=False)
 
@@ -648,11 +668,12 @@ class ExperimentRun:
         try:
             tensorboard_experiment = tensorboard_resource.TensorboardExperiment(tensorboard_experiment_resource_name)
         except exceptions.NotFound:
-            tensorboard_experiment = tensorboard_resource.TensorboardExperiment.create(
-                    tensorboard_experiment_id=self._experiment.name,
-                    tensorboard_name=tensorboard.resource_name,
-                    credentials=tensorboard.credentials            
-                )
+            with _SetLoggerLevel(tensorboard_resource):
+                tensorboard_experiment = tensorboard_resource.TensorboardExperiment.create(
+                        tensorboard_experiment_id=self._experiment.name,
+                        tensorboard_name=tensorboard.resource_name,
+                        credentials=tensorboard.credentials            
+                    )
 
         tensorboard_experiment_name_parts = tensorboard_experiment._parse_resource_name(tensorboard_experiment.resource_name)
         tensorboard_run_resource_name = tensorboard_resource.TensorboardRun._format_resource_name(
@@ -661,11 +682,12 @@ class ExperimentRun:
         try:
             tensorboard_run = tensorboard_resource.TensorboardRun(tensorboard_run_resource_name)
         except exceptions.NotFound:
-            tensorboard_run = tensorboard_resource.TensorboardRun.create(
-                    tensorboard_run_id=self._run_name,
-                    tensorboard_experiment_name=tensorboard_experiment.resource_name,
-                    credentials=tensorboard.credentials
-                )
+            with _SetLoggerLevel(tensorboard_resource):
+                tensorboard_run = tensorboard_resource.TensorboardRun.create(
+                        tensorboard_run_id=self._run_name,
+                        tensorboard_experiment_name=tensorboard_experiment.resource_name,
+                        credentials=tensorboard.credentials
+                    )
 
         gcp_resource_url = metadata_utils.make_gcp_resource_url(tensorboard_run)
 
@@ -673,16 +695,17 @@ class ExperimentRun:
 
         metadata_resource_id = f'{self._metadata_context.name}-tbrun'
 
-        tensorboard_run_metadata_artifact = _Artifact._create(
-            resource_id=metadata_resource_id,
-            uri=gcp_resource_url,
-            metadata={
-                'resourceName':tensorboard_run.resource_name,
-                metadata_utils._VERTEX_EXPERIMENT_TRACKING_LABEL: True,
-            },
-            schema_title=metadata_utils._TENSORBOARD_RUN_REFERENCE_ARTIFACT.schema_title,
-            schema_version=metadata_utils._TENSORBOARD_RUN_REFERENCE_ARTIFACT.schema_version,
-        )
+        with _SetLoggerLevel(resource):
+            tensorboard_run_metadata_artifact = _Artifact._create(
+                resource_id=metadata_resource_id,
+                uri=gcp_resource_url,
+                metadata={
+                    'resourceName':tensorboard_run.resource_name,
+                    metadata_utils._VERTEX_EXPERIMENT_TRACKING_LABEL: True,
+                },
+                schema_title=metadata_utils._TENSORBOARD_RUN_REFERENCE_ARTIFACT.schema_title,
+                schema_version=metadata_utils._TENSORBOARD_RUN_REFERENCE_ARTIFACT.schema_version,
+            )
 
         self._metadata_execution.add_artifact(
             artifact_resource_name=tensorboard_run_metadata_artifact.resource_name,
@@ -774,7 +797,8 @@ class ExperimentRun:
 
         for key in metric_keys:
             if key not in self._backing_tensorboard_run.resource._time_series_display_name_to_id_mapping:
-                self._backing_tensorboard_run.resource.create_tensorboard_time_series(display_name=key)
+                with _SetLoggerLevel(tensorboard_resource):
+                    self._backing_tensorboard_run.resource.create_tensorboard_time_series(display_name=key)
 
     def log_params(self, params: Dict[str, Union[float, int, str]]):
         """Log single or multiple parameters with specified key and value pairs.
@@ -843,7 +867,6 @@ class ExperimentRun:
     def __exit__(self,  exc_type, exc_value, traceback):
         if metadata.experiment_tracker._experiment_run is self:
             metadata.experiment_tracker.end_run()
-
 
     #@TODO(add delete API)
     def delete(self, delete_backing_tensorboard_run=False):
