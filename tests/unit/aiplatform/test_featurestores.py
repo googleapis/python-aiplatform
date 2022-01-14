@@ -122,11 +122,29 @@ _TEST_STR_COL = "string_col"
 _TEST_STR_ARR_COL = "string_array_col"
 _TEST_BYTES_COL = "bytes_col"
 
-_TEST_DEFAULT_DTYPE = "object"
-_TEST_BOOL_DTYPE = "bool"
-_TEST_INT_DTYPE = "int64"
-_TEST_FLOAT_DTYPE = "float64"
-_TEST_BYTES_DTYPE = "bytes"
+_TEST_FEATURE_IDS_FOR_DF_CONSTRUCTION = [
+    _TEST_BOOL_COL,
+    _TEST_BOOL_ARR_COL,
+    _TEST_DOUBLE_COL,
+    _TEST_DOUBLE_ARR_COL,
+    _TEST_INT_COL,
+    _TEST_INT_ARR_COL,
+    _TEST_STR_COL,
+    _TEST_STR_ARR_COL,
+    _TEST_BYTES_COL,
+]
+
+_TEST_FEATURE_VALUE_TYPES_FOR_DF_CONSTRUCTION = [
+    _TEST_BOOL_TYPE,
+    _TEST_BOOL_ARR_TYPE,
+    _TEST_DOUBLE_TYPE,
+    _TEST_DOUBLE_ARR_TYPE,
+    _TEST_INT_TYPE,
+    _TEST_INT_ARR_TYPE,
+    _TEST_STR_TYPE,
+    _TEST_STR_ARR_TYPE,
+    _TEST_BYTES_TYPE,
+]
 
 # misc
 _TEST_DESCRIPTION = "my description"
@@ -1245,9 +1263,11 @@ class TestEntityType:
         assert result.get(_TEST_FEATURE_ID)[0] == _TEST_FEATURE_VALUE
 
     @pytest.mark.parametrize(
-        "entity_ids, feature_values, expected_dtypes",
+        "feature_ids, feature_value_types, entity_ids, feature_values, expected_df",
         [
             (
+                _TEST_FEATURE_IDS_FOR_DF_CONSTRUCTION,
+                _TEST_FEATURE_VALUE_TYPES_FOR_DF_CONSTRUCTION,
                 ["entity_01", "entity_02"],
                 [
                     [
@@ -1273,19 +1293,39 @@ class TestEntityType:
                         b"0",
                     ],
                 ],
-                {
-                    _TEST_BOOL_COL: _TEST_BOOL_DTYPE,
-                    _TEST_BOOL_ARR_COL: _TEST_DEFAULT_DTYPE,
-                    _TEST_DOUBLE_COL: _TEST_FLOAT_DTYPE,
-                    _TEST_DOUBLE_ARR_COL: _TEST_DEFAULT_DTYPE,
-                    _TEST_INT_COL: _TEST_INT_DTYPE,
-                    _TEST_INT_ARR_COL: _TEST_DEFAULT_DTYPE,
-                    _TEST_STR_COL: _TEST_DEFAULT_DTYPE,
-                    _TEST_STR_ARR_COL: _TEST_DEFAULT_DTYPE,
-                    _TEST_BYTES_COL: _TEST_BYTES_DTYPE,
-                },
+                pd.DataFrame(
+                    data=[
+                        [
+                            "entity_01",
+                            False,
+                            [True, False],
+                            1.2,
+                            [1.2, 3.4],
+                            1,
+                            [1, 2],
+                            "test",
+                            ["test1", "test2"],
+                            b"1",
+                        ],
+                        [
+                            "entity_02",
+                            True,
+                            [True, True],
+                            2.2,
+                            [2.2, 4.4],
+                            2,
+                            [2, 3],
+                            "test1",
+                            ["test2", "test3"],
+                            b"0",
+                        ],
+                    ],
+                    columns=["entity_id"] + _TEST_FEATURE_IDS_FOR_DF_CONSTRUCTION,
+                ),
             ),
             (
+                _TEST_FEATURE_IDS_FOR_DF_CONSTRUCTION,
+                _TEST_FEATURE_VALUE_TYPES_FOR_DF_CONSTRUCTION,
                 ["entity_01", "entity_02"],
                 [
                     [
@@ -1301,66 +1341,64 @@ class TestEntityType:
                     ],
                     [None, None, None, None, None, None, None, None, None],
                 ],
-                {
-                    _TEST_BOOL_COL: _TEST_DEFAULT_DTYPE,
-                    _TEST_BOOL_ARR_COL: _TEST_DEFAULT_DTYPE,
-                    _TEST_DOUBLE_COL: _TEST_FLOAT_DTYPE,
-                    _TEST_DOUBLE_ARR_COL: _TEST_DEFAULT_DTYPE,
-                    _TEST_INT_COL: _TEST_DEFAULT_DTYPE,
-                    _TEST_INT_ARR_COL: _TEST_DEFAULT_DTYPE,
-                    _TEST_STR_COL: _TEST_DEFAULT_DTYPE,
-                    _TEST_STR_ARR_COL: _TEST_DEFAULT_DTYPE,
-                    _TEST_BYTES_COL: _TEST_DEFAULT_DTYPE,
-                },
+                pd.DataFrame(
+                    data=[
+                        [
+                            "entity_01",
+                            False,
+                            [True, False],
+                            1.2,
+                            [1.2, 3.4],
+                            1,
+                            [1, 2],
+                            "test",
+                            ["test1", "test2"],
+                            b"1",
+                        ],
+                        [
+                            "entity_02",
+                            None,
+                            None,
+                            None,
+                            None,
+                            None,
+                            None,
+                            None,
+                            None,
+                            None,
+                        ],
+                    ],
+                    columns=["entity_id"] + _TEST_FEATURE_IDS_FOR_DF_CONSTRUCTION,
+                ),
             ),
             (
+                _TEST_FEATURE_IDS_FOR_DF_CONSTRUCTION,
+                _TEST_FEATURE_VALUE_TYPES_FOR_DF_CONSTRUCTION,
                 ["entity_01"],
                 [[None, None, None, None, None, None, None, None, None]],
-                {
-                    _TEST_BOOL_COL: _TEST_DEFAULT_DTYPE,
-                    _TEST_BOOL_ARR_COL: _TEST_DEFAULT_DTYPE,
-                    _TEST_DOUBLE_COL: _TEST_FLOAT_DTYPE,
-                    _TEST_DOUBLE_ARR_COL: _TEST_DEFAULT_DTYPE,
-                    _TEST_INT_COL: _TEST_DEFAULT_DTYPE,
-                    _TEST_INT_ARR_COL: _TEST_DEFAULT_DTYPE,
-                    _TEST_STR_COL: _TEST_DEFAULT_DTYPE,
-                    _TEST_STR_ARR_COL: _TEST_DEFAULT_DTYPE,
-                    _TEST_BYTES_COL: _TEST_DEFAULT_DTYPE,
-                },
+                pd.DataFrame(
+                    data=[
+                        [
+                            "entity_01",
+                            None,
+                            None,
+                            None,
+                            None,
+                            None,
+                            None,
+                            None,
+                            None,
+                            None,
+                        ]
+                    ],
+                    columns=["entity_id"] + _TEST_FEATURE_IDS_FOR_DF_CONSTRUCTION,
+                ),
             ),
         ],
     )
     def test_construct_dataframe(
-        self, entity_ids, feature_values, expected_dtypes,
+        self, feature_ids, feature_value_types, entity_ids, feature_values, expected_df,
     ):
-        feature_ids = [
-            _TEST_BOOL_COL,
-            _TEST_BOOL_ARR_COL,
-            _TEST_DOUBLE_COL,
-            _TEST_DOUBLE_ARR_COL,
-            _TEST_INT_COL,
-            _TEST_INT_ARR_COL,
-            _TEST_STR_COL,
-            _TEST_STR_ARR_COL,
-            _TEST_BYTES_COL,
-        ]
-        feature_value_types = [
-            _TEST_BOOL_TYPE,
-            _TEST_BOOL_ARR_TYPE,
-            _TEST_DOUBLE_TYPE,
-            _TEST_DOUBLE_ARR_TYPE,
-            _TEST_INT_TYPE,
-            _TEST_INT_ARR_TYPE,
-            _TEST_STR_TYPE,
-            _TEST_STR_ARR_TYPE,
-            _TEST_BYTES_TYPE,
-        ]
-        feature_metadata = {
-            feature_id: feature_value_type
-            for (feature_id, feature_value_type) in zip(
-                feature_ids, feature_value_types
-            )
-        }
         entity_views = [
             _get_entity_view_proto(
                 entity_id=entity_id,
@@ -1370,21 +1408,8 @@ class TestEntityType:
             for (entity_id, entity_feature_values) in zip(entity_ids, feature_values)
         ]
         df = aiplatform.EntityType._construct_dataframe(
-            feature_metadata=feature_metadata, entity_views=entity_views
+            feature_ids=feature_ids, entity_views=entity_views
         )
-
-        expected_data = []
-        for entity_id, entity_feature_values in zip(entity_ids, feature_values):
-            entity_data = {}
-            entity_data["entity_id"] = entity_id
-            for feature_id, feature_value in zip(feature_ids, entity_feature_values):
-                if feature_value is not None:
-                    entity_data[feature_id] = feature_value
-            expected_data.append(entity_data)
-        expected_df = pd.DataFrame(
-            data=expected_data, columns=["entity_id"] + feature_ids
-        ).astype(expected_dtypes)
-
         assert df.equals(expected_df)
 
 

@@ -31,19 +31,6 @@ RESOURCE_ID_PATTERN_REGEX = r"[a-z_][a-z0-9_]{0,59}"
 GCS_SOURCE_TYPE = {"csv", "avro"}
 
 _FEATURE_VALUE_TYPE_UNSPECIFIED = "VALUE_TYPE_UNSPECIFIED"
-_DEFAULT_DTYPE = "object"
-_NAN_INTOLERABLE_DTYPES = {"bool", "int64", "bytes"}
-_FEATURE_VALUE_TYPE_TO_DTYPE_MAP = {
-    gca_feature.Feature.ValueType.BOOL: "bool",
-    gca_feature.Feature.ValueType.BOOL_ARRAY: _DEFAULT_DTYPE,
-    gca_feature.Feature.ValueType.DOUBLE: "float64",
-    gca_feature.Feature.ValueType.DOUBLE_ARRAY: _DEFAULT_DTYPE,
-    gca_feature.Feature.ValueType.INT64: "int64",
-    gca_feature.Feature.ValueType.INT64_ARRAY: _DEFAULT_DTYPE,
-    gca_feature.Feature.ValueType.STRING: _DEFAULT_DTYPE,
-    gca_feature.Feature.ValueType.STRING_ARRAY: _DEFAULT_DTYPE,
-    gca_feature.Feature.ValueType.BYTES: "bytes",
-}
 
 
 def validate_id(resource_id: str) -> None:

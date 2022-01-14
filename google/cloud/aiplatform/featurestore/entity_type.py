@@ -24,7 +24,6 @@ from google.protobuf import field_mask_pb2
 from google.cloud.aiplatform import base
 from google.cloud.aiplatform.compat.types import (
     entity_type as gca_entity_type,
-    feature as gca_feature,
     feature_selector as gca_feature_selector,
     featurestore_service as gca_featurestore_service,
     featurestore_online_service as gca_featurestore_online_service,
@@ -1228,20 +1227,17 @@ class EntityType(base.VertexAiResourceNounWithFutureManager):
                 for response in streaming_read_feature_values_responses[1:]
             ]
 
-        feature_metadata = {
-            feature_descriptor.id: self.get_feature(
-                feature_descriptor.id
-            ).gca_resource.value_type
-            for feature_descriptor in header.feature_descriptors
-        }
+        feature_ids = [
+            feature_descriptor.id for feature_descriptor in header.feature_descriptors
+        ]
 
         return EntityType._construct_dataframe(
-            feature_metadata=feature_metadata, entity_views=entity_views,
+            feature_ids=feature_ids, entity_views=entity_views,
         )
 
     @staticmethod
     def _construct_dataframe(
-        feature_metadata: Dict[str, gca_feature.Feature.ValueType],
+        feature_ids: List[str],
         entity_views: List[
             gca_featurestore_online_service.ReadFeatureValuesResponse.EntityView
         ],
@@ -1249,8 +1245,8 @@ class EntityType(base.VertexAiResourceNounWithFutureManager):
         """Constructs a dataframe using the header and entity_views
 
         Args:
-            feature_metadata (Dict[str, gca_feature.Feature.ValueType]):
-                Required. A dictionary of where the key is the feature id and the value is the feature value type.
+            feature_ids (List[str]):
+                Required. A list of feature ids corresponding to the feature values for each entity in entity_views.
             entity_views (List[gca_featurestore_online_service.ReadFeatureValuesResponse.EntityView]):
                 Required. A list of Entity views with Feature values.
                 For each Entity view, it may be
@@ -1268,40 +1264,25 @@ class EntityType(base.VertexAiResourceNounWithFutureManager):
         """
 
         try:
-            import numpy as np
             import pandas as pd
         except ImportError:
             raise ImportError(
-                f"Numpy and/or Pandas are not installed. Please install numpy and/or pandas to use "
+                f"Pandas are not installed. Please install pandas to use "
                 f"{EntityType._construct_dataframe.__name__}"
             )
 
         data = []
-        feature_ids = list(feature_metadata.keys())
         for entity_view in entity_views:
             entity_data = {"entity_id": entity_view.entity_id}
-            for feature_id, entity_view_data in zip(feature_ids, entity_view.data):
-                if entity_view_data._pb.HasField("value"):
-                    value_type = entity_view_data.value._pb.WhichOneof("value")
-                    feature_value = getattr(entity_view_data.value, value_type)
+            for feature_id, feature_data in zip(feature_ids, entity_view.data):
+                if feature_data._pb.HasField("value"):
+                    value_type = feature_data.value._pb.WhichOneof("value")
+                    feature_value = getattr(feature_data.value, value_type)
                     if hasattr(feature_value, "values"):
                         feature_value = feature_value.values
                     entity_data[feature_id] = feature_value
+                else:
+                    entity_data[feature_id] = None
             data.append(entity_data)
 
-        df = pd.DataFrame(data=data, columns=["entity_id"] + feature_ids)
-
-        for feature_id, feature_value_type in feature_metadata.items():
-            dtype = featurestore_utils._FEATURE_VALUE_TYPE_TO_DTYPE_MAP[
-                feature_value_type
-            ]
-            if (
-                df[feature_id].isnull().values.any()
-                and dtype in featurestore_utils._NAN_INTOLERABLE_DTYPES
-            ):
-                dtype = featurestore_utils._DEFAULT_DTYPE
-
-            if df[feature_id].dtype != np.dtype(dtype):
-                df = df.astype({feature_id: np.dtype(dtype)})
-
-        return df
+        return pd.DataFrame(data=data, columns=["entity_id"] + feature_ids)
