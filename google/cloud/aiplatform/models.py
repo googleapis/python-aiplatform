@@ -1534,7 +1534,7 @@ class Model(base.VertexAiResourceNounWithFutureManager):
                 See https://goo.gl/xmQnxf for more information
                 and examples of labels.
         Returns:
-            model: Updated model resource.                
+            model: Updated model resource.
         Raises:
             ValueError: If `labels` is not the correct format.
         """
