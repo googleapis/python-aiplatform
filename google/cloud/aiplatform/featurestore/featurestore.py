@@ -15,7 +15,7 @@
 # limitations under the License.
 #
 
-from typing import Dict, List, Optional, Set, Sequence, Tuple, Union
+from typing import Dict, List, Optional, Sequence, Tuple, Union
 
 from google.auth import credentials as auth_credentials
 from google.protobuf import field_mask_pb2
@@ -597,132 +597,45 @@ class Featurestore(base.VertexAiResourceNounWithFutureManager):
 
         return self
 
-    def _validate_and_get_feature_id_and_destination_feature_setting(
-        self,
-        feature_destination_fields: Optional[
-            Union[Dict[str, str], List[str], Set[str]]
-        ] = None,
-    ) -> Tuple[List[str], List[gca_featurestore_service.DestinationFeatureSetting]]:
-        """Validates and gets feature_ids and destination_feature_settings from feature_destination_fields config.
-
-        Args:
-            feature_destination_fields (Union[Dict[str, str], List[str], Set[str]]):
-                Optional. User defined feature_destination_fields config.
-
-        Returns:
-            Tuple[List[str], List[gca_featurestore_service.DestinationFeatureSetting]] - A list of feature_id and a list of DestinationFeatureSetting list
-
-        Raises:
-            TypeError - if the type of feature_destination_fields is not supported.
-        """
-        feature_ids = []
-        destination_feature_settings = []
-
-        if not feature_destination_fields:
-            return feature_ids, destination_feature_settings
-
-        if isinstance(feature_destination_fields, dict):
-            for (
-                feature_id,
-                feature_detination_field,
-            ) in feature_destination_fields.items():
-
-                destination_feature_setting = gca_featurestore_service.DestinationFeatureSetting(
-                    feature_id=feature_id, destination_field=feature_detination_field,
-                )
-
-                feature_ids.append(feature_id)
-                destination_feature_settings.append(destination_feature_setting)
-
-        elif isinstance(feature_destination_fields, (set, list)):
-            for feature_id in set(feature_destination_fields):
-
-                destination_feature_setting = gca_featurestore_service.DestinationFeatureSetting(
-                    feature_id=feature_id
-                )
-
-                feature_ids.append(feature_id)
-                destination_feature_settings.append(destination_feature_setting)
-
-        else:
-            raise TypeError(
-                f"The 'feature_destination_fields' for each entity_type should be a dict, list or set, "
-                f"instead, got {type(feature_destination_fields)}."
-            )
-
-        return feature_ids, destination_feature_settings
-
     def _validate_and_get_batch_read_feature_values_request(
         self,
-        entity_type_ids: List[str],
+        serving_feature_ids: Dict[str, List[str]],
         destination: Union[
             gca_io.BigQueryDestination,
             gca_io.CsvDestination,
             gca_io.TFRecordDestination,
         ],
-        entity_type_destination_fields: Optional[
-            Dict[str, Union[Dict[str, str], List[str], Set[str]]]
-        ] = None,
+        feature_destination_fields: Optional[Dict[str, str]] = None,
         read_instances: Optional[Union[gca_io.BigQuerySource, gca_io.CsvSource]] = None,
         pass_through_fields: Optional[List[str]] = None,
     ) -> gca_featurestore_service.BatchReadFeatureValuesRequest:
         """Validates and gets batch_read_feature_values_request
 
         Args:
-            entity_type_ids (List[str]):
-                Required. ID of the EntityType to select batch serving Features. The
-                EntityType id is the specified during EntityType creation.
-            destination (Union[gca_io.BigQueryDestination, gca_io.CsvDestination, gca_io.TFRecordDestination]):
-                Required. BigQuery destination, Csv destination or TFRecord destination.
-            entity_type_destination_fields (Dict[str, Union[Dict[str, str], List[str], Set[str]]]):
-                Optional. User defined dictionary to map ID of the EntityType's Features
-                to the batch serving destination field name.
-
-                Specify the features to be batch served in each entityType, and their destination field name.
-                If the features are not specified, all features will be batch served.
-                If the destination field name is not specified, Feature ID will be used as destination field name.
+            serving_feature_ids (Dict[str, List[str]]):
+                Required. A user defined dictionary to define the entity_types and their features for batch serve/read.
+                The keys of the dictionary are the serving entity_type ids and
+                the values are lists of serving feature ids in each entity_type.
 
                 Example:
+                    serving_feature_ids = {
+                        'my_entity_type_id_1': ['feature_id_1_1', 'feature_id_1_2'],
+                        'my_entity_type_id_2': ['feature_id_2_1', 'feature_id_2_2'],
+                    }
 
-                     - In case all features will be batch served and using Feature ID as destination field name:
+            destination (Union[gca_io.BigQueryDestination, gca_io.CsvDestination, gca_io.TFRecordDestination]):
+                Required. BigQuery destination, Csv destination or TFRecord destination.
 
-                         entity_type_ids = ['my_entity_type_id_1', 'my_entity_type_id_2', 'my_entity_type_id_3']
+            feature_destination_fields (Dict[str, str]):
+                Optional. A user defined dictionary to map a feature's fully qualified resource name to
+                its destination field name. If the destination field name is not defined,
+                the feature ID will be used as its destination field name.
 
-                         entity_type_destination_fields = {}
-                         or
-                         entity_type_destination_fields = {
-                            'my_entity_type_id_1': {},
-                            'my_entity_type_id_2': [],
-                            'my_entity_type_id_3': None,
-                         }
-
-                     - In case selected features will be batch served and using Feature ID as destination field name:
-
-                         entity_type_ids = ['my_entity_type_id_1', 'my_entity_type_id_2', 'my_entity_type_id_3']
-
-                         feature_source_fields = {
-                            'my_entity_type_id_1': ['feature_id_1_1', 'feature_id_1_2'],
-                            'my_entity_type_id_2': ['feature_id_2_1', 'feature_id_2_2'],
-                            'my_entity_type_id_3': ['feature_id_3_1', 'feature_id_3_2'],
-                         }
-
-                     - In case selected features will be batch served with specified destination field name
-
-                     feature_source_fields = {
-                        'my_entity_type_id_1': {
-                            'feature_id_1_1': 'feature_id_1_1_destination_field',
-                            'feature_id_1_2': 'feature_id_1_2_destination_field',
-                        },
-                        'my_entity_type_id_2': {
-                            'feature_id_2_1': 'feature_id_2_1_destination_field',
-                            'feature_id_2_2': 'feature_id_2_2_destination_field',
-                        },
-                        'my_entity_type_id_3': {
-                            'feature_id_3_1': 'feature_id_3_1_destination_field',
-                            'feature_id_3_2': 'feature_id_3_2_destination_field',
-                        },
+                Example:
+                    feature_destination_fields = {
+                        'projects/123/locations/us-central1/featurestores/fs_id/entityTypes/et_id1/features/f_id11': 'foo',
+                        'projects/123/locations/us-central1/featurestores/fs_id/entityTypes/et_id2/features/f_id22': 'bar',
                      }
-                Note: the above three cases can be mixed in use.
 
             read_instances (Union[gca_io.BigQuerySource, gca_io.CsvSource]):
                 Optional. BigQuery source or Csv source for read instances.
@@ -738,22 +651,39 @@ class Featurestore(base.VertexAiResourceNounWithFutureManager):
         Returns:
             gca_featurestore_service.BatchReadFeatureValuesRequest - batch read feature values request
         """
-        entity_type_destination_fields = entity_type_destination_fields or {}
+
+        featurestore_name_components = self._parse_resource_name(self.resource_name)
+
+        feature_destination_fields = feature_destination_fields or {}
+
         entity_type_specs = []
-        for entity_type_id in set(entity_type_ids):
-            (
-                feature_ids,
-                destination_feature_settings,
-            ) = self._validate_and_get_feature_id_and_destination_feature_setting(
-                feature_destination_fields=entity_type_destination_fields.get(
-                    entity_type_id
+        for entity_type_id, feature_ids in serving_feature_ids.items():
+            destination_feature_settings = []
+            for feature_id in feature_ids:
+                feature_resource_name = featurestore.Feature._format_resource_name(
+                    project=featurestore_name_components["project"],
+                    location=featurestore_name_components["location"],
+                    featurestore=featurestore_name_components["featurestore"],
+                    entity_type=entity_type_id,
+                    feature=feature_id,
                 )
-            )
+
+                feature_destination_field = feature_destination_fields.get(
+                    feature_resource_name
+                )
+                if feature_destination_field:
+                    destination_feature_setting_proto = gca_featurestore_service.DestinationFeatureSetting(
+                        feature_id=feature_id,
+                        destination_field=feature_destination_field,
+                    )
+                    destination_feature_settings.append(
+                        destination_feature_setting_proto
+                    )
 
             entity_type_spec = gca_featurestore_service.BatchReadFeatureValuesRequest.EntityTypeSpec(
                 entity_type_id=entity_type_id,
                 feature_selector=gca_feature_selector.FeatureSelector(
-                    id_matcher=gca_feature_selector.IdMatcher(ids=feature_ids or ["*"])
+                    id_matcher=gca_feature_selector.IdMatcher(ids=feature_ids)
                 ),
                 settings=destination_feature_settings or None,
             )
@@ -840,10 +770,8 @@ class Featurestore(base.VertexAiResourceNounWithFutureManager):
     def batch_serve_to_bq(
         self,
         bq_destination_output_uri: str,
-        entity_type_ids: List[str],
-        entity_type_destination_fields: Optional[
-            Dict[str, Union[Dict[str, str], List[str], Set[str]]]
-        ] = None,
+        serving_feature_ids: Dict[str, List[str]],
+        feature_destination_fields: Optional[Dict[str, str]] = None,
         read_instances: Optional[Union[str, List[str]]] = None,
         pass_through_fields: Optional[List[str]] = None,
         request_metadata: Optional[Sequence[Tuple[str, str]]] = (),
@@ -860,58 +788,27 @@ class Featurestore(base.VertexAiResourceNounWithFutureManager):
 
                 It requires an existing BigQuery destination Dataset, under the same project as the Featurestore.
 
-            entity_type_ids (List[str]):
-                Required. ID of the EntityType to select batch serving Features. The
-                EntityType id is the specified during EntityType creation.
-            entity_type_destination_fields (Dict[str, Union[Dict[str, str], List[str], Set[str]]]):
-                Optional. User defined dictionary to map ID of the EntityType's Features
-                to the batch serving destination field name.
-
-                Specify the features to be batch served in each entityType, and their destination field name.
-                If the features are not specified, all features will be batch served.
-                If the destination field name is not specified, Feature ID will be used as destination field name.
+            serving_feature_ids (Dict[str, List[str]]):
+                Required. A user defined dictionary to define the entity_types and their features for batch serve/read.
+                The keys of the dictionary are the serving entity_type ids and
+                the values are lists of serving feature ids in each entity_type.
 
                 Example:
+                    serving_feature_ids = {
+                        'my_entity_type_id_1': ['feature_id_1_1', 'feature_id_1_2'],
+                        'my_entity_type_id_2': ['feature_id_2_1', 'feature_id_2_2'],
+                    }
 
-                     - In case all features will be batch served and using Feature ID as destination field name:
+            feature_destination_fields (Dict[str, str]):
+                Optional. A user defined dictionary to map a feature's fully qualified resource name to
+                its destination field name. If the destination field name is not defined,
+                the feature ID will be used as its destination field name.
 
-                         entity_type_ids = ['my_entity_type_id_1', 'my_entity_type_id_2', 'my_entity_type_id_3']
-
-                         entity_type_destination_fields = {}
-                         or
-                         entity_type_destination_fields = {
-                            'my_entity_type_id_1': {},
-                            'my_entity_type_id_2': [],
-                            'my_entity_type_id_3': None,
-                         }
-
-                     - In case selected features will be batch served and using Feature ID as destination field name:
-
-                         entity_type_ids = ['my_entity_type_id_1', 'my_entity_type_id_2', 'my_entity_type_id_3']
-
-                         feature_source_fields = {
-                            'my_entity_type_id_1': ['feature_id_1_1', 'feature_id_1_2'],
-                            'my_entity_type_id_2': ['feature_id_2_1', 'feature_id_2_2'],
-                            'my_entity_type_id_3': ['feature_id_3_1', 'feature_id_3_2'],
-                         }
-
-                     - In case selected features will be batch served with specified destination field name
-
-                     feature_source_fields = {
-                        'my_entity_type_id_1': {
-                            'feature_id_1_1': 'feature_id_1_1_destination_field',
-                            'feature_id_1_2': 'feature_id_1_2_destination_field',
-                        },
-                        'my_entity_type_id_2': {
-                            'feature_id_2_1': 'feature_id_2_1_destination_field',
-                            'feature_id_2_2': 'feature_id_2_2_destination_field',
-                        },
-                        'my_entity_type_id_3': {
-                            'feature_id_3_1': 'feature_id_3_1_destination_field',
-                            'feature_id_3_2': 'feature_id_3_2_destination_field',
-                        },
+                Example:
+                    feature_destination_fields = {
+                        'projects/123/locations/us-central1/featurestores/fs_id/entityTypes/et_id1/features/f_id11': 'foo',
+                        'projects/123/locations/us-central1/featurestores/fs_id/entityTypes/et_id2/features/f_id22': 'bar',
                      }
-                Note: the above three cases can be mixed in use.
 
             read_instances (Union[str, List[str]]):
                 Optional. Read_instances can be either BigQuery URI to the input table,
@@ -961,11 +858,11 @@ class Featurestore(base.VertexAiResourceNounWithFutureManager):
             FailedPrecondition: if the BigQuery destination Dataset/Table is in a different project.
         """
         batch_read_feature_values_request = self._validate_and_get_batch_read_feature_values_request(
-            entity_type_ids=entity_type_ids,
+            serving_feature_ids=serving_feature_ids,
             destination=gca_io.BigQueryDestination(
                 output_uri=bq_destination_output_uri
             ),
-            entity_type_destination_fields=entity_type_destination_fields,
+            feature_destination_fields=feature_destination_fields,
             read_instances=read_instances
             if read_instances is None
             else self._get_read_instances(read_instances),
@@ -982,10 +879,8 @@ class Featurestore(base.VertexAiResourceNounWithFutureManager):
         self,
         gcs_destination_output_uri_prefix: str,
         gcs_destination_type: str,
-        entity_type_ids: List[str],
-        entity_type_destination_fields: Optional[
-            Dict[str, Union[Dict[str, str], List[str], Set[str]]]
-        ] = None,
+        serving_feature_ids: Dict[str, List[str]],
+        feature_destination_fields: Optional[Dict[str, str]] = None,
         read_instances: Optional[Union[str, List[str]]] = None,
         pass_through_fields: Optional[List[str]] = None,
         request_metadata: Optional[Sequence[Tuple[str, str]]] = (),
@@ -1023,58 +918,27 @@ class Featurestore(base.VertexAiResourceNounWithFutureManager):
                     true -> byte_string("true"), false -> byte_string("false")
                     BOOL, BOOL_ARRAY (true, false)             | BYTES_LIST
 
-            entity_type_ids (List[str]):
-                Required. ID of the EntityType to select batch serving Features. The
-                EntityType id is the specified during EntityType creation.
-            entity_type_destination_fields (Dict[str, Union[Dict[str, str], List[str], Set[str]]]):
-                Optional. User defined dictionary to map ID of the EntityType's Features
-                to the batch serving destination field name.
-
-                Specify the features to be batch served in each entityType, and their destination field name.
-                If the features are not specified, all features will be batch served.
-                If the destination field name is not specified, Feature ID will be used as destination field name.
+            serving_feature_ids (Dict[str, List[str]]):
+                Required. A user defined dictionary to define the entity_types and their features for batch serve/read.
+                The keys of the dictionary are the serving entity_type ids and
+                the values are lists of serving feature ids in each entity_type.
 
                 Example:
+                    serving_feature_ids = {
+                        'my_entity_type_id_1': ['feature_id_1_1', 'feature_id_1_2'],
+                        'my_entity_type_id_2': ['feature_id_2_1', 'feature_id_2_2'],
+                    }
 
-                     - In case all features will be batch served and using Feature ID as destination field name:
+            feature_destination_fields (Dict[str, str]):
+                Optional. A user defined dictionary to map a feature's fully qualified resource name to
+                its destination field name. If the destination field name is not defined,
+                the feature ID will be used as its destination field name.
 
-                         entity_type_ids = ['my_entity_type_id_1', 'my_entity_type_id_2', 'my_entity_type_id_3']
-
-                         entity_type_destination_fields = {}
-                         or
-                         entity_type_destination_fields = {
-                            'my_entity_type_id_1': {},
-                            'my_entity_type_id_2': [],
-                            'my_entity_type_id_3': None,
-                         }
-
-                     - In case selected features will be batch served and using Feature ID as destination field name:
-
-                         entity_type_ids = ['my_entity_type_id_1', 'my_entity_type_id_2', 'my_entity_type_id_3']
-
-                         feature_source_fields = {
-                            'my_entity_type_id_1': ['feature_id_1_1', 'feature_id_1_2'],
-                            'my_entity_type_id_2': ['feature_id_2_1', 'feature_id_2_2'],
-                            'my_entity_type_id_3': ['feature_id_3_1', 'feature_id_3_2'],
-                         }
-
-                     - In case selected features will be batch served with specified destination field name
-
-                     feature_source_fields = {
-                        'my_entity_type_id_1': {
-                            'feature_id_1_1': 'feature_id_1_1_destination_field',
-                            'feature_id_1_2': 'feature_id_1_2_destination_field',
-                        },
-                        'my_entity_type_id_2': {
-                            'feature_id_2_1': 'feature_id_2_1_destination_field',
-                            'feature_id_2_2': 'feature_id_2_2_destination_field',
-                        },
-                        'my_entity_type_id_3': {
-                            'feature_id_3_1': 'feature_id_3_1_destination_field',
-                            'feature_id_3_2': 'feature_id_3_2_destination_field',
-                        },
+                Example:
+                    feature_destination_fields = {
+                        'projects/123/locations/us-central1/featurestores/fs_id/entityTypes/et_id1/features/f_id11': 'foo',
+                        'projects/123/locations/us-central1/featurestores/fs_id/entityTypes/et_id2/features/f_id22': 'bar',
                      }
-                Note: the above three cases can be mixed in use.
 
             read_instances (Union[str, List[str]]):
                 Optional. Read_instances can be either BigQuery URI to the input table,
@@ -1142,9 +1006,9 @@ class Featurestore(base.VertexAiResourceNounWithFutureManager):
             destination = gca_io.TFRecordDestination(gcs_destination=gcs_destination)
 
         batch_read_feature_values_request = self._validate_and_get_batch_read_feature_values_request(
-            entity_type_ids=entity_type_ids,
+            serving_feature_ids=serving_feature_ids,
             destination=destination,
-            entity_type_destination_fields=entity_type_destination_fields,
+            feature_destination_fields=feature_destination_fields,
             read_instances=read_instances
             if read_instances is None
             else self._get_read_instances(read_instances),

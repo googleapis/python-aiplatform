@@ -140,7 +140,7 @@ class TestFeaturestore(e2e_base.TestEndToEnd):
         user_age_feature = user_entity_type.create_feature(
             feature_id=_TEST_USER_AGE_FEATURE_ID, value_type="INT64"
         )
-
+        shared_state["user_age_feature_resource_name"] = user_age_feature.resource_name
         get_user_age_feature = user_entity_type.get_feature(
             feature_id=_TEST_USER_AGE_FEATURE_ID
         )
@@ -151,6 +151,9 @@ class TestFeaturestore(e2e_base.TestEndToEnd):
             value_type="STRING",
             entity_type_name=user_entity_type_name,
         )
+        shared_state[
+            "user_gender_feature_resource_name"
+        ] = user_gender_feature.resource_name
 
         get_user_gender_feature = aiplatform.Feature(
             feature_name=user_gender_feature.resource_name
@@ -162,6 +165,9 @@ class TestFeaturestore(e2e_base.TestEndToEnd):
         user_liked_genres_feature = user_entity_type.create_feature(
             feature_id=_TEST_USER_LIKED_GENRES_FEATURE_ID, value_type="STRING_ARRAY",
         )
+        shared_state[
+            "user_liked_genres_feature_resource_name"
+        ] = user_liked_genres_feature.resource_name
 
         get_user_liked_genres_feature = aiplatform.Feature(
             feature_name=user_liked_genres_feature.resource_name
@@ -263,8 +269,19 @@ class TestFeaturestore(e2e_base.TestEndToEnd):
 
         assert shared_state["featurestore"]
         assert shared_state["bucket"]
+        assert shared_state["user_age_feature_resource_name"]
+        assert shared_state["user_gender_feature_resource_name"]
+        assert shared_state["user_liked_genres_feature_resource_name"]
+
         featurestore = shared_state["featurestore"]
         bucket_name = shared_state["staging_bucket_name"]
+        user_age_feature_resource_name = shared_state["user_age_feature_resource_name"]
+        user_gender_feature_resource_name = shared_state[
+            "user_gender_feature_resource_name"
+        ]
+        user_liked_genres_feature_resource_name = shared_state[
+            "user_liked_genres_feature_resource_name"
+        ]
 
         aiplatform.init(
             project=e2e_base._PROJECT, location=e2e_base._LOCATION,
@@ -273,7 +290,23 @@ class TestFeaturestore(e2e_base.TestEndToEnd):
         caplog.set_level(logging.INFO)
 
         featurestore.batch_serve_to_gcs(
-            entity_type_ids=[_TEST_USER_ENTITY_TYPE_ID, _TEST_MOVIE_ENTITY_TYPE_ID],
+            serving_feature_ids={
+                _TEST_USER_ENTITY_TYPE_ID: [
+                    _TEST_USER_AGE_FEATURE_ID,
+                    _TEST_USER_GENDER_FEATURE_ID,
+                    _TEST_USER_LIKED_GENRES_FEATURE_ID,
+                ],
+                _TEST_MOVIE_ENTITY_TYPE_ID: [
+                    _TEST_MOVIE_TITLE_FEATURE_ID,
+                    _TEST_MOVIE_GENRES_FEATURE_ID,
+                    _TEST_MOVIE_AVERAGE_RATING_FEATURE_ID,
+                ],
+            },
+            feature_destination_fields={
+                user_age_feature_resource_name: "user_age_dest",
+                user_gender_feature_resource_name: "user_gender_dest",
+                user_liked_genres_feature_resource_name: "user_liked_genres_dest",
+            },
             read_instances=_TEST_READ_INSTANCE_SRC,
             gcs_destination_output_uri_prefix=f"gs://{bucket_name}/featurestore_test/tfrecord",
             gcs_destination_type="tfrecord",
@@ -286,8 +319,19 @@ class TestFeaturestore(e2e_base.TestEndToEnd):
 
         assert shared_state["featurestore"]
         assert shared_state["bigquery_dataset"]
+        assert shared_state["user_age_feature_resource_name"]
+        assert shared_state["user_gender_feature_resource_name"]
+        assert shared_state["user_liked_genres_feature_resource_name"]
+
         featurestore = shared_state["featurestore"]
         bigquery_dataset_id = shared_state["bigquery_dataset_id"]
+        user_age_feature_resource_name = shared_state["user_age_feature_resource_name"]
+        user_gender_feature_resource_name = shared_state[
+            "user_gender_feature_resource_name"
+        ]
+        user_liked_genres_feature_resource_name = shared_state[
+            "user_liked_genres_feature_resource_name"
+        ]
 
         aiplatform.init(
             project=e2e_base._PROJECT, location=e2e_base._LOCATION,
@@ -296,7 +340,23 @@ class TestFeaturestore(e2e_base.TestEndToEnd):
         caplog.set_level(logging.INFO)
 
         featurestore.batch_serve_to_bq(
-            entity_type_ids=[_TEST_USER_ENTITY_TYPE_ID, _TEST_MOVIE_ENTITY_TYPE_ID],
+            serving_feature_ids={
+                _TEST_USER_ENTITY_TYPE_ID: [
+                    _TEST_USER_AGE_FEATURE_ID,
+                    _TEST_USER_GENDER_FEATURE_ID,
+                    _TEST_USER_LIKED_GENRES_FEATURE_ID,
+                ],
+                _TEST_MOVIE_ENTITY_TYPE_ID: [
+                    _TEST_MOVIE_TITLE_FEATURE_ID,
+                    _TEST_MOVIE_GENRES_FEATURE_ID,
+                    _TEST_MOVIE_AVERAGE_RATING_FEATURE_ID,
+                ],
+            },
+            feature_destination_fields={
+                user_age_feature_resource_name: "user_age_dest",
+                user_gender_feature_resource_name: "user_gender_dest",
+                user_liked_genres_feature_resource_name: "user_liked_genres_dest",
+            },
             read_instances=_TEST_READ_INSTANCE_SRC,
             bq_destination_output_uri=f"bq://{bigquery_dataset_id}.test_table",
         )
