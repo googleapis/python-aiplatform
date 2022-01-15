@@ -282,8 +282,8 @@ def _get_entity_type_spec_proto_with_feature_ids(
         or None,
     )
     return entity_type_spec_proto
-  
-  
+
+
 def _get_header_proto(feature_ids):
     header_proto = copy.deepcopy(_TEST_BASE_HEADER_PROTO)
     header_proto.feature_descriptors = [
