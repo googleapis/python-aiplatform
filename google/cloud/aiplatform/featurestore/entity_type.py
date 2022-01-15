@@ -1267,7 +1267,7 @@ class EntityType(base.VertexAiResourceNounWithFutureManager):
             import pandas as pd
         except ImportError:
             raise ImportError(
-                f"Pandas are not installed. Please install pandas to use "
+                f"Pandas is not installed. Please install pandas to use "
                 f"{EntityType._construct_dataframe.__name__}"
             )
 
