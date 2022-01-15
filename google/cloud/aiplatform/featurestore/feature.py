@@ -35,7 +35,6 @@ class Feature(base.VertexAiResourceNounWithFutureManager):
 
     client_class = utils.FeaturestoreClientWithOverride
 
-    _is_client_prediction_client = False
     _resource_noun = "features"
     _getter_method = "get_feature"
     _list_method = "list_features"
