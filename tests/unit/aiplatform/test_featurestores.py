@@ -15,8 +15,10 @@
 # limitations under the License.
 #
 
+import copy
 import pytest
 import datetime
+import pandas as pd
 
 from unittest import mock
 from importlib import reload
@@ -34,13 +36,19 @@ from google.cloud.aiplatform.utils import featurestore_utils
 from google.cloud.aiplatform_v1.services.featurestore_service import (
     client as featurestore_service_client,
 )
+from google.cloud.aiplatform_v1.services.featurestore_online_serving_service import (
+    client as featurestore_online_serving_service_client,
+)
 from google.cloud.aiplatform_v1.types import (
     encryption_spec as gca_encryption_spec,
     entity_type as gca_entity_type,
     feature as gca_feature,
+    feature_selector as gca_feature_selector,
     featurestore as gca_featurestore,
     featurestore_service as gca_featurestore_service,
+    featurestore_online_service as gca_featurestore_online_service,
     io as gca_io,
+    types as gca_types,
 )
 
 # project
@@ -68,9 +76,75 @@ _TEST_ENTITY_TYPE_INVALID = (
 _TEST_FEATURE_ID = "feature_id"
 _TEST_FEATURE_NAME = f"{_TEST_ENTITY_TYPE_NAME}/features/{_TEST_FEATURE_ID}"
 _TEST_FEATURE_INVALID = f"{_TEST_ENTITY_TYPE_NAME}/feature/{_TEST_FEATURE_ID}"
-_TEST_FEATURE_VALUE_TYPE = "INT64"
+_TEST_FEATURE_VALUE_TYPE_STR = "INT64"
+_TEST_FEATURE_VALUE = 99
 _TEST_FEATURE_VALUE_TYPE_ENUM = 9
 _TEST_FEATURE_ID_INVALID = "1feature_id"
+
+_TEST_BOOL_TYPE = gca_feature.Feature.ValueType.BOOL
+_TEST_BOOL_ARR_TYPE = gca_feature.Feature.ValueType.BOOL_ARRAY
+_TEST_DOUBLE_TYPE = gca_feature.Feature.ValueType.DOUBLE
+_TEST_DOUBLE_ARR_TYPE = gca_feature.Feature.ValueType.DOUBLE_ARRAY
+_TEST_INT_TYPE = gca_feature.Feature.ValueType.INT64
+_TEST_INT_ARR_TYPE = gca_feature.Feature.ValueType.INT64_ARRAY
+_TEST_STR_TYPE = gca_feature.Feature.ValueType.STRING
+_TEST_STR_ARR_TYPE = gca_feature.Feature.ValueType.STRING_ARRAY
+_TEST_BYTES_TYPE = gca_feature.Feature.ValueType.BYTES
+
+_FEATURE_VALUE_TYPE_KEYS = {
+    _TEST_BOOL_TYPE: "bool_value",
+    _TEST_BOOL_ARR_TYPE: "bool_array_value",
+    _TEST_DOUBLE_TYPE: "double_value",
+    _TEST_DOUBLE_ARR_TYPE: "double_array_value",
+    _TEST_INT_TYPE: "int64_value",
+    _TEST_INT_ARR_TYPE: "int64_array_value",
+    _TEST_STR_TYPE: "string_value",
+    _TEST_STR_ARR_TYPE: "string_array_value",
+    _TEST_BYTES_TYPE: "bytes_value",
+}
+
+_TEST_FEATURE_VALUE_TYPE = _TEST_INT_TYPE
+
+_ARRAY_FEATURE_VALUE_TYPE_TO_GCA_TYPE_MAP = {
+    _TEST_BOOL_ARR_TYPE: gca_types.BoolArray,
+    _TEST_DOUBLE_ARR_TYPE: gca_types.DoubleArray,
+    _TEST_INT_ARR_TYPE: gca_types.Int64Array,
+    _TEST_STR_ARR_TYPE: gca_types.StringArray,
+}
+
+_TEST_BOOL_COL = "bool_col"
+_TEST_BOOL_ARR_COL = "bool_array_col"
+_TEST_DOUBLE_COL = "double_col"
+_TEST_DOUBLE_ARR_COL = "double_array_col"
+_TEST_INT_COL = "int64_col"
+_TEST_INT_ARR_COL = "int64_array_col"
+_TEST_STR_COL = "string_col"
+_TEST_STR_ARR_COL = "string_array_col"
+_TEST_BYTES_COL = "bytes_col"
+
+_TEST_FEATURE_IDS_FOR_DF_CONSTRUCTION = [
+    _TEST_BOOL_COL,
+    _TEST_BOOL_ARR_COL,
+    _TEST_DOUBLE_COL,
+    _TEST_DOUBLE_ARR_COL,
+    _TEST_INT_COL,
+    _TEST_INT_ARR_COL,
+    _TEST_STR_COL,
+    _TEST_STR_ARR_COL,
+    _TEST_BYTES_COL,
+]
+
+_TEST_FEATURE_VALUE_TYPES_FOR_DF_CONSTRUCTION = [
+    _TEST_BOOL_TYPE,
+    _TEST_BOOL_ARR_TYPE,
+    _TEST_DOUBLE_TYPE,
+    _TEST_DOUBLE_ARR_TYPE,
+    _TEST_INT_TYPE,
+    _TEST_INT_ARR_TYPE,
+    _TEST_STR_TYPE,
+    _TEST_STR_ARR_TYPE,
+    _TEST_BYTES_TYPE,
+]
 
 # misc
 _TEST_DESCRIPTION = "my description"
@@ -124,7 +198,7 @@ _TEST_FEATURE_LIST = [
 ]
 
 _TEST_FEATURE_CONFIGS = {
-    "my_feature_id_1": {"value_type": _TEST_FEATURE_VALUE_TYPE},
+    "my_feature_id_1": {"value_type": _TEST_FEATURE_VALUE_TYPE_STR},
 }
 
 _TEST_IMPORTING_FEATURE_IDS = ["my_feature_id_1"]
@@ -154,6 +228,56 @@ _TEST_AVRO_SOURCE = gca_io.AvroSource(
 _TEST_CSV_SOURCE = gca_io.CsvSource(
     gcs_source=gca_io.GcsSource(uris=_TEST_GCS_CSV_SOURCE_URIS)
 )
+
+_TEST_READ_ENTITY_ID = "entity_id_1"
+_TEST_READ_ENTITY_IDS = ["entity_id_1"]
+
+_TEST_BASE_HEADER_PROTO = (
+    gca_featurestore_online_service.ReadFeatureValuesResponse.Header()
+)
+_TEST_BASE_ENTITY_VIEW_PROTO = (
+    gca_featurestore_online_service.ReadFeatureValuesResponse.EntityView()
+)
+_TEST_BASE_DATA_PROTO = (
+    gca_featurestore_online_service.ReadFeatureValuesResponse.EntityView.Data()
+)
+
+
+def _get_header_proto(feature_ids):
+    header_proto = copy.deepcopy(_TEST_BASE_HEADER_PROTO)
+    header_proto.feature_descriptors = [
+        gca_featurestore_online_service.ReadFeatureValuesResponse.FeatureDescriptor(
+            id=feature_id
+        )
+        for feature_id in feature_ids
+    ]
+    return header_proto
+
+
+def _get_data_proto(feature_value_type, feature_value):
+    data_proto = copy.deepcopy(_TEST_BASE_DATA_PROTO)
+    if feature_value is not None:
+        if feature_value_type in _ARRAY_FEATURE_VALUE_TYPE_TO_GCA_TYPE_MAP:
+            array_proto = _ARRAY_FEATURE_VALUE_TYPE_TO_GCA_TYPE_MAP[
+                feature_value_type
+            ]()
+            array_proto.values = feature_value
+            feature_value = array_proto
+        data_proto.value = gca_featurestore_online_service.FeatureValue(
+            {_FEATURE_VALUE_TYPE_KEYS[feature_value_type]: feature_value}
+        )
+    return data_proto
+
+
+def _get_entity_view_proto(entity_id, feature_value_types, feature_values):
+    entity_view_proto = copy.deepcopy(_TEST_BASE_ENTITY_VIEW_PROTO)
+    entity_view_proto.entity_id = entity_id
+    entity_view_data = []
+    for feature_value_type, feature_value in zip(feature_value_types, feature_values):
+        data = _get_data_proto(feature_value_type, feature_value)
+        entity_view_data.append(data)
+    entity_view_proto.data = entity_view_data
+    return entity_view_proto
 
 
 # All Featurestore Mocks
@@ -291,13 +415,53 @@ def import_feature_values_mock():
         yield import_feature_values_mock
 
 
+@pytest.fixture
+def read_feature_values_mock():
+    with patch.object(
+        featurestore_online_serving_service_client.FeaturestoreOnlineServingServiceClient,
+        "read_feature_values",
+    ) as read_feature_values_mock:
+        read_feature_values_mock.return_value = gca_featurestore_online_service.ReadFeatureValuesResponse(
+            header=_get_header_proto(feature_ids=[_TEST_FEATURE_ID]),
+            entity_view=_get_entity_view_proto(
+                entity_id=_TEST_READ_ENTITY_ID,
+                feature_value_types=[_TEST_FEATURE_VALUE_TYPE],
+                feature_values=[_TEST_FEATURE_VALUE],
+            ),
+        )
+        yield read_feature_values_mock
+
+
+@pytest.fixture
+def streaming_read_feature_values_mock():
+    with patch.object(
+        featurestore_online_serving_service_client.FeaturestoreOnlineServingServiceClient,
+        "streaming_read_feature_values",
+    ) as streaming_read_feature_values_mock:
+        streaming_read_feature_values_mock.return_value = [
+            gca_featurestore_online_service.ReadFeatureValuesResponse(
+                header=_get_header_proto(feature_ids=[_TEST_FEATURE_ID])
+            ),
+            gca_featurestore_online_service.ReadFeatureValuesResponse(
+                entity_view=_get_entity_view_proto(
+                    entity_id=_TEST_READ_ENTITY_ID,
+                    feature_value_types=[_TEST_FEATURE_VALUE_TYPE],
+                    feature_values=[_TEST_FEATURE_VALUE],
+                ),
+            ),
+        ]
+        yield streaming_read_feature_values_mock
+
+
 # ALL Feature Mocks
 @pytest.fixture
 def get_feature_mock():
     with patch.object(
         featurestore_service_client.FeaturestoreServiceClient, "get_feature"
     ) as get_feature_mock:
-        get_feature_mock.return_value = gca_feature.Feature(name=_TEST_FEATURE_NAME,)
+        get_feature_mock.return_value = gca_feature.Feature(
+            name=_TEST_FEATURE_NAME, value_type=_TEST_FEATURE_VALUE_TYPE
+        )
         yield get_feature_mock
 
 
@@ -442,7 +606,7 @@ class Test_FeatureConfig:
 
         featureConfig = featurestore_utils._FeatureConfig(
             feature_id=_TEST_FEATURE_ID,
-            value_type=_TEST_FEATURE_VALUE_TYPE,
+            value_type=_TEST_FEATURE_VALUE_TYPE_STR,
             description=_TEST_DESCRIPTION,
             labels=_TEST_LABELS,
         )
@@ -462,7 +626,7 @@ class Test_FeatureConfig:
     def test_feature_config_create_feature_request_raises_invalid_feature_id(self):
         featureConfig = featurestore_utils._FeatureConfig(
             feature_id=_TEST_FEATURE_ID_INVALID,
-            value_type=_TEST_FEATURE_VALUE_TYPE,
+            value_type=_TEST_FEATURE_VALUE_TYPE_STR,
             description=_TEST_DESCRIPTION,
             labels=_TEST_LABELS,
         )
@@ -840,7 +1004,7 @@ class TestEntityType:
         my_entity_type = aiplatform.EntityType(entity_type_name=_TEST_ENTITY_TYPE_NAME)
         my_feature = my_entity_type.create_feature(
             feature_id=_TEST_FEATURE_ID,
-            value_type=_TEST_FEATURE_VALUE_TYPE,
+            value_type=_TEST_FEATURE_VALUE_TYPE_STR,
             description=_TEST_DESCRIPTION,
             labels=_TEST_LABELS,
         )
@@ -1054,6 +1218,453 @@ class TestEntityType:
                 gcs_source_type=_TEST_GCS_SOURCE_TYPE_INVALID,
             )
 
+    @pytest.mark.usefixtures("get_entity_type_mock", "get_feature_mock")
+    def test_read_single_entity(self, read_feature_values_mock):
+        aiplatform.init(project=_TEST_PROJECT)
+        my_entity_type = aiplatform.EntityType(entity_type_name=_TEST_ENTITY_TYPE_NAME)
+        expected_read_feature_values_request = gca_featurestore_online_service.ReadFeatureValuesRequest(
+            entity_type=my_entity_type.resource_name,
+            entity_id=_TEST_READ_ENTITY_ID,
+            feature_selector=gca_feature_selector.FeatureSelector(
+                id_matcher=gca_feature_selector.IdMatcher(ids=["*"])
+            ),
+        )
+        result = my_entity_type.read(entity_ids=_TEST_READ_ENTITY_ID)
+        read_feature_values_mock.assert_called_once_with(
+            request=expected_read_feature_values_request,
+            metadata=_TEST_REQUEST_METADATA,
+        )
+        assert type(result) == pd.DataFrame
+        assert len(result) == 1
+        assert result.entity_id[0] == _TEST_READ_ENTITY_ID
+        assert result.get(_TEST_FEATURE_ID)[0] == _TEST_FEATURE_VALUE
+
+    @pytest.mark.usefixtures("get_entity_type_mock", "get_feature_mock")
+    def test_read_multiple_entities(self, streaming_read_feature_values_mock):
+        aiplatform.init(project=_TEST_PROJECT)
+        my_entity_type = aiplatform.EntityType(entity_type_name=_TEST_ENTITY_TYPE_NAME)
+        expected_streaming_read_feature_values_request = gca_featurestore_online_service.StreamingReadFeatureValuesRequest(
+            entity_type=my_entity_type.resource_name,
+            entity_ids=_TEST_READ_ENTITY_IDS,
+            feature_selector=gca_feature_selector.FeatureSelector(
+                id_matcher=gca_feature_selector.IdMatcher(ids=[_TEST_FEATURE_ID])
+            ),
+        )
+        result = my_entity_type.read(
+            entity_ids=_TEST_READ_ENTITY_IDS, feature_ids=_TEST_FEATURE_ID
+        )
+        streaming_read_feature_values_mock.assert_called_once_with(
+            request=expected_streaming_read_feature_values_request,
+            metadata=_TEST_REQUEST_METADATA,
+        )
+        assert type(result) == pd.DataFrame
+        assert len(result) == 1
+        assert result.entity_id[0] == _TEST_READ_ENTITY_ID
+        assert result.get(_TEST_FEATURE_ID)[0] == _TEST_FEATURE_VALUE
+
+    @pytest.mark.parametrize(
+        "feature_ids, feature_value_types, entity_ids, feature_values, expected_df",
+        [
+            (
+                _TEST_FEATURE_IDS_FOR_DF_CONSTRUCTION,
+                _TEST_FEATURE_VALUE_TYPES_FOR_DF_CONSTRUCTION,
+                ["entity_01", "entity_02"],
+                [
+                    [
+                        False,
+                        [True, False],
+                        1.2,
+                        [1.2, 3.4],
+                        1,
+                        [1, 2],
+                        "test",
+                        ["test1", "test2"],
+                        b"1",
+                    ],
+                    [
+                        True,
+                        [True, True],
+                        2.2,
+                        [2.2, 4.4],
+                        2,
+                        [2, 3],
+                        "test1",
+                        ["test2", "test3"],
+                        b"0",
+                    ],
+                ],
+                pd.DataFrame(
+                    data=[
+                        [
+                            "entity_01",
+                            False,
+                            [True, False],
+                            1.2,
+                            [1.2, 3.4],
+                            1,
+                            [1, 2],
+                            "test",
+                            ["test1", "test2"],
+                            b"1",
+                        ],
+                        [
+                            "entity_02",
+                            True,
+                            [True, True],
+                            2.2,
+                            [2.2, 4.4],
+                            2,
+                            [2, 3],
+                            "test1",
+                            ["test2", "test3"],
+                            b"0",
+                        ],
+                    ],
+                    columns=["entity_id"] + _TEST_FEATURE_IDS_FOR_DF_CONSTRUCTION,
+                ),
+            ),
+            (
+                _TEST_FEATURE_IDS_FOR_DF_CONSTRUCTION,
+                _TEST_FEATURE_VALUE_TYPES_FOR_DF_CONSTRUCTION,
+                ["entity_01", "entity_02"],
+                [
+                    [
+                        False,
+                        [True, False],
+                        1.2,
+                        [1.2, 3.4],
+                        1,
+                        [1, 2],
+                        "test",
+                        ["test1", "test2"],
+                        b"1",
+                    ],
+                    [None, None, None, None, None, None, None, None, None],
+                ],
+                pd.DataFrame(
+                    data=[
+                        [
+                            "entity_01",
+                            False,
+                            [True, False],
+                            1.2,
+                            [1.2, 3.4],
+                            1,
+                            [1, 2],
+                            "test",
+                            ["test1", "test2"],
+                            b"1",
+                        ],
+                        [
+                            "entity_02",
+                            None,
+                            None,
+                            None,
+                            None,
+                            None,
+                            None,
+                            None,
+                            None,
+                            None,
+                        ],
+                    ],
+                    columns=["entity_id"] + _TEST_FEATURE_IDS_FOR_DF_CONSTRUCTION,
+                ),
+            ),
+            (
+                _TEST_FEATURE_IDS_FOR_DF_CONSTRUCTION,
+                _TEST_FEATURE_VALUE_TYPES_FOR_DF_CONSTRUCTION,
+                ["entity_01"],
+                [[None, None, None, None, None, None, None, None, None]],
+                pd.DataFrame(
+                    data=[
+                        [
+                            "entity_01",
+                            None,
+                            None,
+                            None,
+                            None,
+                            None,
+                            None,
+                            None,
+                            None,
+                            None,
+                        ]
+                    ],
+                    columns=["entity_id"] + _TEST_FEATURE_IDS_FOR_DF_CONSTRUCTION,
+                ),
+            ),
+            (
+                _TEST_FEATURE_IDS_FOR_DF_CONSTRUCTION,
+                _TEST_FEATURE_VALUE_TYPES_FOR_DF_CONSTRUCTION,
+                [
+                    "entity_01",
+                    "entity_02",
+                    "entity_03",
+                    "entity_04",
+                    "entity_05",
+                    "entity_06",
+                    "entity_07",
+                    "entity_08",
+                    "entity_09",
+                    "entity_10",
+                ],
+                [
+                    [
+                        False,
+                        [True, False],
+                        1.2,
+                        [1.2, 3.4],
+                        1,
+                        [1, 2],
+                        "test",
+                        ["test1", "test2"],
+                        b"1",
+                    ],
+                    [
+                        None,
+                        [True, False],
+                        1.2,
+                        [1.2, 3.4],
+                        1,
+                        [1, 2],
+                        "test",
+                        ["test1", "test2"],
+                        b"1",
+                    ],
+                    [
+                        False,
+                        None,
+                        1.2,
+                        [1.2, 3.4],
+                        1,
+                        [1, 2],
+                        "test",
+                        ["test1", "test2"],
+                        b"1",
+                    ],
+                    [
+                        False,
+                        [True, False],
+                        None,
+                        [1.2, 3.4],
+                        1,
+                        [1, 2],
+                        "test",
+                        ["test1", "test2"],
+                        b"1",
+                    ],
+                    [
+                        False,
+                        [True, False],
+                        1.2,
+                        None,
+                        1,
+                        [1, 2],
+                        "test",
+                        ["test1", "test2"],
+                        b"1",
+                    ],
+                    [
+                        False,
+                        [True, False],
+                        1.2,
+                        [1.2, 3.4],
+                        None,
+                        [1, 2],
+                        "test",
+                        ["test1", "test2"],
+                        b"1",
+                    ],
+                    [
+                        False,
+                        [True, False],
+                        1.2,
+                        [1.2, 3.4],
+                        1,
+                        None,
+                        "test",
+                        ["test1", "test2"],
+                        b"1",
+                    ],
+                    [
+                        False,
+                        [True, False],
+                        1.2,
+                        [1.2, 3.4],
+                        1,
+                        [1, 2],
+                        None,
+                        ["test1", "test2"],
+                        b"1",
+                    ],
+                    [
+                        False,
+                        [True, False],
+                        1.2,
+                        [1.2, 3.4],
+                        1,
+                        [1, 2],
+                        "test",
+                        None,
+                        b"1",
+                    ],
+                    [
+                        False,
+                        [True, False],
+                        1.2,
+                        [1.2, 3.4],
+                        1,
+                        [1, 2],
+                        "test",
+                        ["test1", "test2"],
+                        None,
+                    ],
+                ],
+                pd.DataFrame(
+                    data=[
+                        [
+                            "entity_01",
+                            False,
+                            [True, False],
+                            1.2,
+                            [1.2, 3.4],
+                            1,
+                            [1, 2],
+                            "test",
+                            ["test1", "test2"],
+                            b"1",
+                        ],
+                        [
+                            "entity_02",
+                            None,
+                            [True, False],
+                            1.2,
+                            [1.2, 3.4],
+                            1,
+                            [1, 2],
+                            "test",
+                            ["test1", "test2"],
+                            b"1",
+                        ],
+                        [
+                            "entity_03",
+                            False,
+                            None,
+                            1.2,
+                            [1.2, 3.4],
+                            1,
+                            [1, 2],
+                            "test",
+                            ["test1", "test2"],
+                            b"1",
+                        ],
+                        [
+                            "entity_04",
+                            False,
+                            [True, False],
+                            None,
+                            [1.2, 3.4],
+                            1,
+                            [1, 2],
+                            "test",
+                            ["test1", "test2"],
+                            b"1",
+                        ],
+                        [
+                            "entity_05",
+                            False,
+                            [True, False],
+                            1.2,
+                            None,
+                            1,
+                            [1, 2],
+                            "test",
+                            ["test1", "test2"],
+                            b"1",
+                        ],
+                        [
+                            "entity_06",
+                            False,
+                            [True, False],
+                            1.2,
+                            [1.2, 3.4],
+                            None,
+                            [1, 2],
+                            "test",
+                            ["test1", "test2"],
+                            b"1",
+                        ],
+                        [
+                            "entity_07",
+                            False,
+                            [True, False],
+                            1.2,
+                            [1.2, 3.4],
+                            1,
+                            None,
+                            "test",
+                            ["test1", "test2"],
+                            b"1",
+                        ],
+                        [
+                            "entity_08",
+                            False,
+                            [True, False],
+                            1.2,
+                            [1.2, 3.4],
+                            1,
+                            [1, 2],
+                            None,
+                            ["test1", "test2"],
+                            b"1",
+                        ],
+                        [
+                            "entity_09",
+                            False,
+                            [True, False],
+                            1.2,
+                            [1.2, 3.4],
+                            1,
+                            [1, 2],
+                            "test",
+                            None,
+                            b"1",
+                        ],
+                        [
+                            "entity_10",
+                            False,
+                            [True, False],
+                            1.2,
+                            [1.2, 3.4],
+                            1,
+                            [1, 2],
+                            "test",
+                            ["test1", "test2"],
+                            None,
+                        ],
+                    ],
+                    columns=["entity_id"] + _TEST_FEATURE_IDS_FOR_DF_CONSTRUCTION,
+                ),
+            ),
+        ],
+    )
+    def test_construct_dataframe(
+        self, feature_ids, feature_value_types, entity_ids, feature_values, expected_df,
+    ):
+        entity_views = [
+            _get_entity_view_proto(
+                entity_id=entity_id,
+                feature_value_types=feature_value_types,
+                feature_values=entity_feature_values,
+            )
+            for (entity_id, entity_feature_values) in zip(entity_ids, feature_values)
+        ]
+        df = aiplatform.EntityType._construct_dataframe(
+            feature_ids=feature_ids, entity_views=entity_views
+        )
+        assert df.equals(expected_df)
+
 
 class TestFeature:
     def setup_method(self):
@@ -1180,7 +1791,7 @@ class TestFeature:
 
         my_feature = aiplatform.Feature.create(
             feature_id=_TEST_FEATURE_ID,
-            value_type=_TEST_FEATURE_VALUE_TYPE,
+            value_type=_TEST_FEATURE_VALUE_TYPE_STR,
             entity_type_name=_TEST_ENTITY_TYPE_ID,
             featurestore_id=_TEST_FEATURESTORE_ID,
             description=_TEST_DESCRIPTION,

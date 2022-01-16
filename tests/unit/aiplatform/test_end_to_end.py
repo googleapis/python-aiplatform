@@ -24,7 +24,6 @@ from google.cloud.aiplatform import base
 from google.cloud.aiplatform import initializer
 from google.cloud.aiplatform import models
 from google.cloud.aiplatform import schema
-from google.cloud.aiplatform.utils import source_utils
 
 from google.cloud.aiplatform_v1.types import (
     dataset as gca_dataset,
@@ -224,7 +223,7 @@ class TestEndToEnd:
             },
             "python_package_spec": {
                 "executor_image_uri": test_training_jobs._TEST_TRAINING_CONTAINER_IMAGE,
-                "python_module": source_utils._TrainingScriptPythonPackager.module_name,
+                "python_module": test_training_jobs._TEST_MODULE_NAME,
                 "package_uris": [test_training_jobs._TEST_OUTPUT_PYTHON_PACKAGE_PATH],
                 "args": true_args,
             },
@@ -411,7 +410,7 @@ class TestEndToEnd:
             },
             "python_package_spec": {
                 "executor_image_uri": test_training_jobs._TEST_TRAINING_CONTAINER_IMAGE,
-                "python_module": source_utils._TrainingScriptPythonPackager.module_name,
+                "python_module": test_training_jobs._TEST_MODULE_NAME,
                 "package_uris": [test_training_jobs._TEST_OUTPUT_PYTHON_PACKAGE_PATH],
                 "args": true_args,
             },
