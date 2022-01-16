@@ -84,7 +84,7 @@ s.remove_staging_dirs()
 templated_files = common.py_library(
     cov_level=99,
     system_test_python_versions=["3.8"],
-    unit_test_python_versions=["3.6", "3.7", "3.8", "3.9"],
+    unit_test_python_versions=["3.6", "3.7", "3.8", "3.9", "3.10"],
     microgenerator=True)
 python.py_samples(skip_readmes=True)
 s.move(
