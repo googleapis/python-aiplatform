@@ -16,10 +16,12 @@
 #
 
 
-import pytest
-from typing import Callable, Dict, Optional
 import datetime
 from decimal import Decimal
+import importlib
+import pytest
+import textwrap
+from typing import Callable, Dict, Optional
 
 from google.protobuf import timestamp_pb2
 
@@ -29,6 +31,7 @@ from google.cloud import aiplatform
 from google.cloud.aiplatform import compat
 from google.cloud.aiplatform import utils
 from google.cloud.aiplatform.utils import pipeline_utils
+from google.cloud.aiplatform.utils import prediction_utils
 from google.cloud.aiplatform.utils import tensorboard_utils
 
 from google.cloud.aiplatform_v1beta1.services.model_service import (
@@ -537,3 +540,84 @@ class TestTensorboardUtils:
     def test_get_experiments_compare_url_bad_experiment_name(self):
         with pytest.raises(ValueError, match="Invalid experiment name: foo-bar."):
             tensorboard_utils.get_experiments_compare_url(("foo-bar", "foo-bar1"))
+
+
+class TestPredictionUtils:
+    SRC_DIR = "user_code"
+    ENTRYPOINT_FILE = "entrypoint.py"
+    PREDICTOR_FILE = "predictor.py"
+
+    def _load_module(self, name, location):
+        spec = importlib.util.spec_from_file_location(name, location)
+        return importlib.util.module_from_spec(spec)
+
+    def test_populate_entrypoint_if_not_exists(self, tmp_path):
+        src_dir = tmp_path / self.SRC_DIR
+        src_dir.mkdir()
+        predictor = src_dir / self.PREDICTOR_FILE
+        predictor.write_text(
+            textwrap.dedent(
+                """
+            class MyPredictor:
+                pass
+            """
+            )
+        )
+        my_predictor = self._load_module("MyPredictor", str(predictor))
+
+        prediction_utils.populate_entrypoint_if_not_exists(
+            my_predictor, str(src_dir), self.ENTRYPOINT_FILE
+        )
+
+        entrypoint = src_dir / self.ENTRYPOINT_FILE
+
+        assert "from predictor import MyPredictor" in entrypoint.read_text()
+        assert "main(MyPredictor)" in entrypoint.read_text()
+        assert (
+            "return model_server(predictor(), handler_class=handler).start()"
+            in entrypoint.read_text()
+        )
+
+    def test_populate_entrypoint_if_not_exists_invalid_src_dir(self):
+        with pytest.raises(ValueError) as exception:
+            prediction_utils.populate_entrypoint_if_not_exists(
+                None, self.SRC_DIR, self.ENTRYPOINT_FILE
+            )
+
+        assert "is not a valid path to a directory." in str(exception.value)
+
+    def test_populate_entrypoint_if_not_exists_entrypoint_exists(self, tmp_path):
+        src_dir = tmp_path / self.SRC_DIR
+        src_dir.mkdir()
+        entrypoint = src_dir / self.ENTRYPOINT_FILE
+        entrypoint.write_text("")
+
+        prediction_utils.populate_entrypoint_if_not_exists(
+            None, str(src_dir), self.ENTRYPOINT_FILE
+        )
+
+        assert (
+            "return model_server(predictor(), handler_class=handler).start()"
+            not in entrypoint.read_text()
+        )
+
+    def test_populate_entrypoint_if_not_exists_predictor_not_in_src_dir(self, tmp_path):
+        src_dir = tmp_path / self.SRC_DIR
+        src_dir.mkdir()
+        predictor = tmp_path / self.PREDICTOR_FILE
+        predictor.write_text(
+            textwrap.dedent(
+                """
+            class MyPredictor:
+                pass
+            """
+            )
+        )
+        my_predictor = self._load_module("MyPredictor", str(predictor))
+
+        with pytest.raises(ValueError) as exception:
+            prediction_utils.populate_entrypoint_if_not_exists(
+                my_predictor, str(src_dir), self.ENTRYPOINT_FILE
+            )
+
+        assert 'The file implementing "MyPredictor" must be' in str(exception.value)
