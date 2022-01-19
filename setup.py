@@ -36,7 +36,12 @@ version = version["__version__"]
 tensorboard_extra_require = ["tensorflow >=2.3.0, <=2.7.0"]
 metadata_extra_require = ["pandas >= 1.0.0"]
 xai_extra_require = ["tensorflow >=2.3.0, <=2.5.0"]
-lit_extra_require = ["tensorflow >= 2.3.0", "pandas >= 1.0.0", "lit-nlp >= 0.4.0"]
+lit_extra_require = [
+    "tensorflow >= 2.3.0",
+    "pandas >= 1.0.0",
+    "lit-nlp >= 0.4.0",
+    "explainable-ai-sdk >= 1.0.0",
+]
 profiler_extra_require = [
     "tensorboard-plugin-profile >= 2.4.0",
     "werkzeug >= 2.0.0",
