@@ -282,8 +282,8 @@ def open_lit(
         Raises:
             ImportError if LIT is not installed.
     """
-    widget = notebook.LitWidget(models, datasets, open_in_new_tab=open_in_new_tab)
-    widget.render()
+    widget = notebook.LitWidget(models, datasets)
+    widget.render(open_in_new_tab=open_in_new_tab)
 
 
 def set_up_and_open_lit(
