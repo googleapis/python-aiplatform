@@ -33,7 +33,7 @@ with open(os.path.join(package_root, "google/cloud/aiplatform/version.py")) as f
     exec(fp.read(), version)
 version = version["__version__"]
 
-tensorboard_extra_require = ["tensorflow >=2.3.0, <=2.5.0"]
+tensorboard_extra_require = ["tensorflow >=2.3.0, <=2.7.0"]
 metadata_extra_require = ["pandas >= 1.0.0"]
 xai_extra_require = ["tensorflow >=2.3.0, <=2.5.0"]
 lit_extra_require = [
