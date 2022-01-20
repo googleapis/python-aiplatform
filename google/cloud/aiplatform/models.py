@@ -1540,31 +1540,33 @@ class Model(base.VertexAiResourceNounWithFutureManager):
         """
 
         current_model_proto = self.gca_resource
+        copied_model_proto = current_model_proto.__class__(current_model_proto)
+
         update_mask: List[str] = []
 
         if display_name:
             utils.validate_display_name(display_name)
 
-            current_model_proto.display_name = display_name
+            copied_model_proto.display_name = display_name
             update_mask.append("display_name")
 
         if description:
-            current_model_proto.description = description
+            copied_model_proto.description = description
             update_mask.append("description")
 
         if labels:
             utils.validate_labels(labels)
 
-            current_model_proto.labels = labels
+            copied_model_proto.labels = labels
             update_mask.append("labels")
 
         update_mask = field_mask_pb2.FieldMask(paths=update_mask)
 
-        model = self.api_client.update_model(
-            model=current_model_proto, update_mask=update_mask
+        _ = self.api_client.update_model(
+            model=copied_model_proto, update_mask=update_mask
         )
 
-        self._gca_resource = model
+        self._sync_gca_resource()
 
         return self
 
