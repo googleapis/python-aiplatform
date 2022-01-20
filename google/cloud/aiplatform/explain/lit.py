@@ -17,6 +17,7 @@
 import logging
 import os
 
+from google.cloud import aiplatform
 from typing import Dict, List, Optional, Tuple, Union
 
 try:
@@ -75,8 +76,103 @@ class _VertexLitDataset(lit_dataset.Dataset):
         return dict(self._column_types)
 
 
-class _VertexLitModel(lit_model.Model):
-    """LIT model class for the Vertex LIT integration.
+class _EndpointLitModel(lit_model.Model):
+    """LIT model class for the Vertex LIT integration with a model deployed to an endpoint.
+
+    This is used in the create_lit_model function.
+    """
+
+    def __init__(
+        self,
+        model: str,
+        input_types: "OrderedDict[str, lit_types.LitType]",  # noqa: F821
+        output_types: "OrderedDict[str, lit_types.LitType]",  # noqa: F821
+        model_id: Optional[str] = None,
+    ):
+        """Construct a VertexLitModel.
+            Args:
+              model:
+                Required. The name of the Endpoint resource. Format:
+                ``projects/{project}/locations/{location}/endpoints/{endpoint}``
+              input_types:
+                Required. An OrderedDict of string names matching the features of the model
+                as the key, and the associated LitType of the feature.
+              output_types:
+                Required. An OrderedDict of string names matching the labels of the model
+                as the key, and the associated LitType of the label.
+              model_id:
+                Optional. A string of the specific model in the endpoint to create the
+                LIT model from. If this is not set, any usable model in the endpoint is
+                used to create the LIT model.
+            Raises:
+                ValueError if the model_id was not found in the endpoint.
+        """
+        self._endpoint = aiplatform.Endpoint(model)
+        self._model_id = model_id
+        self._input_types = input_types
+        self._output_types = output_types
+        # Check if the model with the model ID has explanation enabled
+        if model_id:
+            deployed_model = next(
+                filter(
+                    lambda model: model.id == model_id, self._endpoint.list_models()
+                ),
+                None,
+            )
+            if not deployed_model:
+                raise ValueError(
+                    "A model with id {model_id} was not found in the endpoint {endpoint}.".format(
+                        model_id=model_id, endpoint=model
+                    )
+                )
+            self._explanation_enabled = bool(deployed_model.explanation_spec)
+        # Check if all models in the endpoint have explanation enabled
+        else:
+            self._explanation_enabled = all(
+                map(
+                    lambda model: bool(model.explanation_spec),
+                    self._endpoint.list_models(),
+                )
+            )
+
+    def predict_minibatch(
+        self, inputs: List[lit_types.JsonDict]
+    ) -> List[lit_types.JsonDict]:
+        instances = []
+        for input in inputs:
+            instance = [input[feature] for feature in self._input_types]
+            instances.append(instance)
+        if self._explanation_enabled:
+            prediction_object = self._endpoint.explain(instances)
+        else:
+            prediction_object = self._endpoint.predict(instances)
+        outputs = []
+        for prediction in prediction_object.predictions:
+            outputs.append({key: prediction[key] for key in self._output_types})
+        if self._explanation_enabled:
+            for i, explanation in enumerate(prediction_object.explanations):
+                attributions = explanation.attributions
+                outputs[i]["feature_attribution"] = lit_dtypes.FeatureSalience(
+                    attributions
+                )
+        return outputs
+
+    def input_spec(self) -> lit_types.Spec:
+        """Return a spec describing model inputs."""
+        return dict(self._input_types)
+
+    def output_spec(self) -> lit_types.Spec:
+        """Return a spec describing model outputs."""
+        output_spec_dict = dict(self._output_types)
+        if self._explanation_enabled:
+            output_spec_dict["feature_attribution"] = lit_types.FeatureSalience(
+                signed=True
+            )
+        return output_spec_dict
+
+
+class _TensorFlowLitModel(lit_model.Model):
+    """LIT model class for the Vertex LIT integration with a TensorFlow saved model.
 
     This is used in the create_lit_model function.
     """
@@ -244,12 +340,17 @@ def create_lit_model(
     input_types: "OrderedDict[str, lit_types.LitType]",  # noqa: F821
     output_types: "OrderedDict[str, lit_types.LitType]",  # noqa: F821
     attribution_method: str = "sampled_shapley",
+    model_id: Optional[str] = None,
 ) -> lit_model.Model:
     """Creates a LIT Model object.
         Args:
           model:
-            Required. A string reference to a local TensorFlow saved model directory.
-            The model must have at most one input and one output tensor.
+            Required. A string reference to a local TensorFlow saved model directory,
+            or the name of the Endpoint resource. Endpoint format:
+            ``projects/{project}/locations/{location}/endpoints/{endpoint}``
+
+            If using a local TensorFlow model, the model must have at most one
+            input and one output tensor.
           input_types:
             Required. An OrderedDict of string names matching the features of the model
             as the key, and the associated LitType of the feature.
@@ -260,10 +361,17 @@ def create_lit_model(
             Optional. A string to choose what attribution configuration to
             set up the explainer with. Valid options are 'sampled_shapley'
             or 'integrated_gradients'.
+          model_id:
+            Optional. A string of the specific model in the endpoint to create the
+            LIT model from. If this is not set, any usable model in the endpoint is
+            used to create the LIT model.
         Returns:
             A LIT Model object that has the same functionality as the model provided.
     """
-    return _VertexLitModel(model, input_types, output_types, attribution_method)
+    if os.path.exists(model):
+        return _TensorFlowLitModel(model, input_types, output_types, attribution_method)
+    else:
+        return _EndpointLitModel(model, input_types, output_types, model_id)
 
 
 def open_lit(
