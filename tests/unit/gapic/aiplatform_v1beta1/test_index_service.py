@@ -250,20 +250,20 @@ def test_index_service_client_client_options(
     # unsupported value.
     with mock.patch.dict(os.environ, {"GOOGLE_API_USE_MTLS_ENDPOINT": "Unsupported"}):
         with pytest.raises(MutualTLSChannelError):
-            client = client_class()
+            client = client_class(transport=transport_name)
 
     # Check the case GOOGLE_API_USE_CLIENT_CERTIFICATE has unsupported value.
     with mock.patch.dict(
         os.environ, {"GOOGLE_API_USE_CLIENT_CERTIFICATE": "Unsupported"}
     ):
         with pytest.raises(ValueError):
-            client = client_class()
+            client = client_class(transport=transport_name)
 
     # Check the case quota_project_id is provided
     options = client_options.ClientOptions(quota_project_id="octopus")
     with mock.patch.object(transport_class, "__init__") as patched:
         patched.return_value = None
-        client = client_class(transport=transport_name, client_options=options)
+        client = client_class(client_options=options, transport=transport_name)
         patched.assert_called_once_with(
             credentials=None,
             credentials_file=None,
@@ -320,7 +320,7 @@ def test_index_service_client_mtls_env_auto(
         )
         with mock.patch.object(transport_class, "__init__") as patched:
             patched.return_value = None
-            client = client_class(transport=transport_name, client_options=options)
+            client = client_class(client_options=options, transport=transport_name)
 
             if use_client_cert_env == "false":
                 expected_client_cert_source = None
@@ -415,7 +415,7 @@ def test_index_service_client_client_options_scopes(
     options = client_options.ClientOptions(scopes=["1", "2"],)
     with mock.patch.object(transport_class, "__init__") as patched:
         patched.return_value = None
-        client = client_class(transport=transport_name, client_options=options)
+        client = client_class(client_options=options, transport=transport_name)
         patched.assert_called_once_with(
             credentials=None,
             credentials_file=None,
@@ -446,7 +446,7 @@ def test_index_service_client_client_options_credentials_file(
     options = client_options.ClientOptions(credentials_file="credentials.json")
     with mock.patch.object(transport_class, "__init__") as patched:
         patched.return_value = None
-        client = client_class(transport=transport_name, client_options=options)
+        client = client_class(client_options=options, transport=transport_name)
         patched.assert_called_once_with(
             credentials=None,
             credentials_file="credentials.json",
@@ -477,9 +477,8 @@ def test_index_service_client_client_options_from_dict():
         )
 
 
-def test_create_index(
-    transport: str = "grpc", request_type=index_service.CreateIndexRequest
-):
+@pytest.mark.parametrize("request_type", [index_service.CreateIndexRequest, dict,])
+def test_create_index(request_type, transport: str = "grpc"):
     client = IndexServiceClient(
         credentials=ga_credentials.AnonymousCredentials(), transport=transport,
     )
@@ -501,10 +500,6 @@ def test_create_index(
 
     # Establish that the response is the type that we expect.
     assert isinstance(response, future.Future)
-
-
-def test_create_index_from_dict():
-    test_create_index(request_type=dict)
 
 
 def test_create_index_empty_call():
@@ -689,7 +684,8 @@ async def test_create_index_flattened_error_async():
         )
 
 
-def test_get_index(transport: str = "grpc", request_type=index_service.GetIndexRequest):
+@pytest.mark.parametrize("request_type", [index_service.GetIndexRequest, dict,])
+def test_get_index(request_type, transport: str = "grpc"):
     client = IndexServiceClient(
         credentials=ga_credentials.AnonymousCredentials(), transport=transport,
     )
@@ -722,10 +718,6 @@ def test_get_index(transport: str = "grpc", request_type=index_service.GetIndexR
     assert response.description == "description_value"
     assert response.metadata_schema_uri == "metadata_schema_uri_value"
     assert response.etag == "etag_value"
-
-
-def test_get_index_from_dict():
-    test_get_index(request_type=dict)
 
 
 def test_get_index_empty_call():
@@ -903,9 +895,8 @@ async def test_get_index_flattened_error_async():
         )
 
 
-def test_list_indexes(
-    transport: str = "grpc", request_type=index_service.ListIndexesRequest
-):
+@pytest.mark.parametrize("request_type", [index_service.ListIndexesRequest, dict,])
+def test_list_indexes(request_type, transport: str = "grpc"):
     client = IndexServiceClient(
         credentials=ga_credentials.AnonymousCredentials(), transport=transport,
     )
@@ -930,10 +921,6 @@ def test_list_indexes(
     # Establish that the response is the type that we expect.
     assert isinstance(response, pagers.ListIndexesPager)
     assert response.next_page_token == "next_page_token_value"
-
-
-def test_list_indexes_from_dict():
-    test_list_indexes(request_type=dict)
 
 
 def test_list_indexes_empty_call():
@@ -1105,8 +1092,10 @@ async def test_list_indexes_flattened_error_async():
         )
 
 
-def test_list_indexes_pager():
-    client = IndexServiceClient(credentials=ga_credentials.AnonymousCredentials,)
+def test_list_indexes_pager(transport_name: str = "grpc"):
+    client = IndexServiceClient(
+        credentials=ga_credentials.AnonymousCredentials, transport=transport_name,
+    )
 
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(type(client.transport.list_indexes), "__call__") as call:
@@ -1137,8 +1126,10 @@ def test_list_indexes_pager():
         assert all(isinstance(i, index.Index) for i in results)
 
 
-def test_list_indexes_pages():
-    client = IndexServiceClient(credentials=ga_credentials.AnonymousCredentials,)
+def test_list_indexes_pages(transport_name: str = "grpc"):
+    client = IndexServiceClient(
+        credentials=ga_credentials.AnonymousCredentials, transport=transport_name,
+    )
 
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(type(client.transport.list_indexes), "__call__") as call:
@@ -1219,9 +1210,8 @@ async def test_list_indexes_async_pages():
             assert page_.raw_page.next_page_token == token
 
 
-def test_update_index(
-    transport: str = "grpc", request_type=index_service.UpdateIndexRequest
-):
+@pytest.mark.parametrize("request_type", [index_service.UpdateIndexRequest, dict,])
+def test_update_index(request_type, transport: str = "grpc"):
     client = IndexServiceClient(
         credentials=ga_credentials.AnonymousCredentials(), transport=transport,
     )
@@ -1243,10 +1233,6 @@ def test_update_index(
 
     # Establish that the response is the type that we expect.
     assert isinstance(response, future.Future)
-
-
-def test_update_index_from_dict():
-    test_update_index(request_type=dict)
 
 
 def test_update_index_empty_call():
@@ -1433,9 +1419,8 @@ async def test_update_index_flattened_error_async():
         )
 
 
-def test_delete_index(
-    transport: str = "grpc", request_type=index_service.DeleteIndexRequest
-):
+@pytest.mark.parametrize("request_type", [index_service.DeleteIndexRequest, dict,])
+def test_delete_index(request_type, transport: str = "grpc"):
     client = IndexServiceClient(
         credentials=ga_credentials.AnonymousCredentials(), transport=transport,
     )
@@ -1457,10 +1442,6 @@ def test_delete_index(
 
     # Establish that the response is the type that we expect.
     assert isinstance(response, future.Future)
-
-
-def test_delete_index_from_dict():
-    test_delete_index(request_type=dict)
 
 
 def test_delete_index_empty_call():
@@ -2193,7 +2174,7 @@ def test_parse_common_location_path():
     assert expected == actual
 
 
-def test_client_withDEFAULT_CLIENT_INFO():
+def test_client_with_default_client_info():
     client_info = gapic_v1.client_info.ClientInfo()
 
     with mock.patch.object(

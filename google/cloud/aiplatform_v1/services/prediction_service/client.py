@@ -390,7 +390,7 @@ class PredictionServiceClient(metaclass=PredictionServiceClientMeta):
         timeout: float = None,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> prediction_service.PredictResponse:
-        """Perform an online prediction.
+        r"""Perform an online prediction.
 
         Args:
             request (Union[google.cloud.aiplatform_v1.types.PredictRequest, dict]):
@@ -494,7 +494,7 @@ class PredictionServiceClient(metaclass=PredictionServiceClientMeta):
         timeout: float = None,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> httpbody_pb2.HttpBody:
-        """Perform an online prediction with an arbitrary HTTP payload.
+        r"""Perform an online prediction with an arbitrary HTTP payload.
 
         The response includes the following HTTP headers:
 
@@ -651,7 +651,7 @@ class PredictionServiceClient(metaclass=PredictionServiceClientMeta):
         timeout: float = None,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> prediction_service.ExplainResponse:
-        """Perform an online explanation.
+        r"""Perform an online explanation.
 
         If
         [deployed_model_id][google.cloud.aiplatform.v1.ExplainRequest.deployed_model_id]
