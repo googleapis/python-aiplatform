@@ -1506,7 +1506,7 @@ class Model(base.VertexAiResourceNounWithFutureManager):
         display_name: Optional[str] = None,
         description: Optional[str] = None,
         labels: Optional[Dict[str, str]] = None,
-    ):
+    ) -> "Model":
         """Updates a model.
 
         Example usage:
