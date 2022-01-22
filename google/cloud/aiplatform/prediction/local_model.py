@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-# Copyright 2021 Google LLC
+# Copyright 2022 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -15,6 +15,8 @@
 # limitations under the License.
 #
 
+from typing import Dict, Optional, Sequence
+
 from google.auth import credentials as auth_credentials
 
 from google.cloud import aiplatform
@@ -25,8 +27,6 @@ from google.cloud.aiplatform.compat.types import (
     model as gca_model_compat,
     env_var as gca_env_var_compat,
 )
-
-from typing import Dict, Optional, Sequence
 
 
 class LocalModel:
@@ -257,13 +257,8 @@ class LocalModel:
                 is specified.
                 Also if model directory does not contain a supported model file.
         """
-        envs = {}
-        for env in self.serving_container_spec.env:
-            envs[env.name] = env.value
-
-        ports = []
-        for port in self.serving_container_spec.ports:
-            ports.append(port.container_port)
+        envs = {env.name: env.value for env in self.serving_container_spec.env}
+        ports = [port.container_port for port in self.serving_container_spec.ports]
 
         return models.Model.upload(
             display_name=display_name,
