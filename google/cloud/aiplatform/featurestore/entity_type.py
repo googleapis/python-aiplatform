@@ -17,6 +17,7 @@
 
 import datetime
 from typing import Dict, List, Optional, Sequence, Tuple, Union
+import uuid
 
 from google.auth import credentials as auth_credentials
 from google.protobuf import field_mask_pb2
@@ -34,6 +35,7 @@ from google.cloud.aiplatform import initializer
 from google.cloud.aiplatform import utils
 from google.cloud.aiplatform.utils import featurestore_utils
 
+from google.cloud import bigquery
 
 _LOGGER = base.Logger(__name__)
 _ALL_FEATURE_IDS = "*"
@@ -1000,6 +1002,7 @@ class EntityType(base.VertexAiResourceNounWithFutureManager):
             EntityType - The entityType resource object with feature values imported.
 
         """
+
         bigquery_source = gca_io.BigQuerySource(input_uri=bq_source_uri)
 
         import_feature_values_request = self._validate_and_get_import_feature_values_request(
@@ -1145,6 +1148,148 @@ class EntityType(base.VertexAiResourceNounWithFutureManager):
             import_feature_values_request=import_feature_values_request,
             request_metadata=request_metadata,
         )
+
+    def ingest_from_df(
+        self,
+        feature_ids: List[str],
+        feature_time: Union[str, datetime.datetime],
+        df_source: "pd.DataFrame",  # noqa: F821 - skip check for undefined name 'pd'
+        feature_source_fields: Optional[Dict[str, str]] = None,
+        entity_id_field: Optional[str] = None,
+        disable_online_serving: Optional[bool] = None,
+        worker_count: Optional[int] = None,
+        request_metadata: Optional[Sequence[Tuple[str, str]]] = (),
+    ) -> "EntityType":
+        """Ingest feature values from DataFrame.
+
+        Args:
+            feature_ids (List[str]):
+                Required. IDs of the Feature to import values
+                of. The Features must exist in the target
+                EntityType, or the request will fail.
+            feature_time (Union[str, datetime.datetime]):
+                Required. The feature_time can be one of:
+                    - The source column that holds the Feature
+                    timestamp for all Feature values in each entity.
+
+                    Note:
+                        The dtype of the source column should be `datetime64`.
+
+                    - A single Feature timestamp for all entities
+                    being imported. The timestamp must not have
+                    higher than millisecond precision.
+
+                    Example:
+                        feature_time = datetime.datetime(year=2022, month=1, day=1, hour=11, minute=59, second=59)
+                        or
+                        feature_time_str = datetime.datetime.now().isoformat(sep=" ", timespec="milliseconds")
+                        feature_time = datetime.datetime.strptime(feature_time_str, "%Y-%m-%d %H:%M:%S.%f")
+
+            df_source (pd.DataFrame):
+                Required. Pandas DataFrame containing the source data for ingestion.
+            feature_source_fields (Dict[str, str]):
+                Optional. User defined dictionary to map ID of the Feature for importing values
+                of to the source column for getting the Feature values from.
+
+                Specify the features whose ID and source column are not the same.
+                If not provided, the source column need to be the same as the Feature ID.
+
+                Example:
+
+                     feature_ids = ['my_feature_id_1', 'my_feature_id_2', 'my_feature_id_3']
+
+                     In case all features' source field and ID match:
+                     feature_source_fields = None or {}
+
+                     In case all features' source field and ID do not match:
+                     feature_source_fields = {
+                        'my_feature_id_1': 'my_feature_id_1_source_field',
+                        'my_feature_id_2': 'my_feature_id_2_source_field',
+                        'my_feature_id_3': 'my_feature_id_3_source_field',
+                     }
+
+                     In case some features' source field and ID do not match:
+                     feature_source_fields = {
+                        'my_feature_id_1': 'my_feature_id_1_source_field',
+                     }
+            entity_id_field (str):
+                Optional. Source column that holds entity IDs. If not provided, entity
+                IDs are extracted from the column named ``entity_id``.
+            disable_online_serving (bool):
+                Optional. If set, data will not be imported for online
+                serving. This is typically used for backfilling,
+                where Feature generation timestamps are not in
+                the timestamp range needed for online serving.
+            worker_count (int):
+                Optional. Specifies the number of workers that are used
+                to write data to the Featurestore. Consider the
+                online serving capacity that you require to
+                achieve the desired import throughput without
+                interfering with online serving. The value must
+                be positive, and less than or equal to 100. If
+                not set, defaults to using 1 worker. The low
+                count ensures minimal impact on online serving
+                performance.
+            request_metadata (Sequence[Tuple[str, str]]):
+                Optional. Strings which should be sent along with the request as metadata.
+
+        Returns:
+            EntityType - The entityType resource object with feature values imported.
+
+        """
+        try:
+            import pyarrow  # noqa: F401 - skip check for 'pyarrow' which is required when using 'google.cloud.bigquery'
+        except ImportError:
+            raise ImportError(
+                f"Pyarrow is not installed. Please install pyarrow to use "
+                f"{self.ingest_from_df.__name__}"
+            )
+
+        bigquery_client = bigquery.Client(
+            project=self.project, credentials=self.credentials
+        )
+
+        entity_type_name_components = self._parse_resource_name(self.resource_name)
+        featurestore_id, entity_type_id = (
+            entity_type_name_components["featurestore"],
+            entity_type_name_components["entity_type"],
+        )
+
+        temp_bq_dataset_name = f"temp_{featurestore_id}_{uuid.uuid4()}".replace(
+            "-", "_"
+        )
+        temp_bq_dataset_id = f"{initializer.global_config.project}.{temp_bq_dataset_name}"[
+            :1024
+        ]
+        temp_bq_table_id = f"{temp_bq_dataset_id}.{entity_type_id}"
+
+        temp_bq_dataset = bigquery.Dataset(dataset_ref=temp_bq_dataset_id)
+        temp_bq_dataset.location = self.location
+        temp_bq_dataset = bigquery_client.create_dataset(temp_bq_dataset)
+
+        try:
+            job = bigquery_client.load_table_from_dataframe(
+                dataframe=df_source, destination=temp_bq_table_id
+            )
+            job.result()
+
+            entity_type_obj = self.ingest_from_bq(
+                feature_ids=feature_ids,
+                feature_time=feature_time,
+                bq_source_uri=f"bq://{temp_bq_table_id}",
+                feature_source_fields=feature_source_fields,
+                entity_id_field=entity_id_field,
+                disable_online_serving=disable_online_serving,
+                worker_count=worker_count,
+                request_metadata=request_metadata,
+            )
+
+        finally:
+            bigquery_client.delete_dataset(
+                dataset=temp_bq_dataset.dataset_id, delete_contents=True,
+            )
+
+        return entity_type_obj
 
     @staticmethod
     def _instantiate_featurestore_online_client(
