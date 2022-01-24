@@ -2106,6 +2106,8 @@ class CustomTrainingJob(_CustomTrainingJob):
             test_filter_split=test_filter_split,
             predefined_split_column_name=predefined_split_column_name,
             timestamp_split_column_name=timestamp_split_column_name,
+            timeout=timeout,
+            restart_job_on_worker_restart=restart_job_on_worker_restart,
             enable_web_access=enable_web_access,
             tensorboard=tensorboard,
             reduction_server_container_uri=reduction_server_container_uri
@@ -5432,6 +5434,8 @@ class CustomPythonPackageTrainingJob(_CustomTrainingJob):
         test_filter_split: Optional[str] = None,
         predefined_split_column_name: Optional[str] = None,
         timestamp_split_column_name: Optional[str] = None,
+        timeout: Optional[int] = None,
+        restart_job_on_worker_restart: bool = False,
         enable_web_access: bool = False,
         tensorboard: Optional[str] = None,
         sync=True,
@@ -5645,6 +5649,13 @@ class CustomPythonPackageTrainingJob(_CustomTrainingJob):
                 that piece is ignored by the pipeline.
 
                 Supported only for tabular and time series Datasets.
+            timeout (int):
+                The maximum job running time in seconds. The default is 7 days.
+            restart_job_on_worker_restart (bool):
+                Restarts the entire CustomJob if a worker
+                gets restarted. This feature can be used by
+                distributed training jobs that are not resilient
+                to workers leaving and joining a job.                
             enable_web_access (bool):
                 Whether you want Vertex AI to enable interactive shell access
                 to training containers.
@@ -5705,6 +5716,8 @@ class CustomPythonPackageTrainingJob(_CustomTrainingJob):
             predefined_split_column_name=predefined_split_column_name,
             timestamp_split_column_name=timestamp_split_column_name,
             bigquery_destination=bigquery_destination,
+            timeout=timeout,
+            restart_job_on_worker_restart=restart_job_on_worker_restart,
             enable_web_access=enable_web_access,
             tensorboard=tensorboard,
             reduction_server_container_uri=reduction_server_container_uri
