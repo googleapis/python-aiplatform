@@ -624,9 +624,9 @@ class TensorboardRun(_TensorboardServiceResource):
         Example Usage:
 
             tb_run = aiplatform.TensorboardRun.create(
-                tensorboard_run_id='my-run'
-                tensorboard_experiment_name='my-experiment'
-                tensorboard_id='456'
+                tensorboard_run_id='my-run',
+                tensorboard_experiment_name='my-experiment',
+                tensorboard_id='456',
                 display_name='my display name',
                 description='my description',
                 labels={
