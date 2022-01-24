@@ -15,25 +15,54 @@
 # limitations under the License.
 
 import collections
+import explainable_ai_sdk
+import os
+import pandas as pd
 import pytest
 import tensorflow as tf
-import pandas as pd
 
-from lit_nlp.api import types as lit_types
-from lit_nlp import notebook
-from unittest import mock
 from google.cloud.aiplatform.explain.lit import (
     create_lit_dataset,
     create_lit_model,
     open_lit,
     set_up_and_open_lit,
 )
+from lit_nlp.api import types as lit_types
+from lit_nlp import notebook
+from unittest import mock
 
 
 @pytest.fixture
 def widget_render_mock():
     with mock.patch.object(notebook.LitWidget, "render") as render_mock:
         yield render_mock
+
+
+@pytest.fixture
+def sampled_shapley_explainer_mock():
+    with mock.patch.object(
+        explainable_ai_sdk, "SampledShapleyConfig", create=True
+    ) as config_mock:
+        yield config_mock
+
+
+@pytest.fixture
+def load_model_from_local_path_mock():
+    with mock.patch.object(
+        explainable_ai_sdk, "load_model_from_local_path", autospec=True
+    ) as explainer_mock:
+        model_mock = mock.Mock()
+        explanation_mock = mock.Mock()
+        explanation_mock.feature_importance.return_value = {
+            "feature_1": 0.01,
+            "feature_2": 0.1,
+        }
+        model_mock.explain.return_value = [
+            explanation_mock
+            # , explanation_mock
+        ]
+        explainer_mock.return_value = model_mock
+        yield explainer_mock
 
 
 @pytest.fixture
@@ -55,7 +84,7 @@ def set_up_sequential(tmpdir):
 @pytest.fixture
 def set_up_pandas_dataframe_and_columns():
     dataframe = pd.DataFrame.from_dict(
-        {"feature_1": [1.0, 2.0], "feature_2": [3.0, 4.0], "label": [1.0, 0.0]}
+        {"feature_1": [1.0], "feature_2": [3.0], "label": [1.0]}
     )
     columns = collections.OrderedDict(
         [
@@ -74,7 +103,6 @@ def test_create_lit_dataset_from_pandas_returns_dataset(
     lit_dataset = create_lit_dataset(pd_dataset, lit_columns)
     expected_examples = [
         {"feature_1": 1.0, "feature_2": 3.0, "label": 1.0},
-        {"feature_1": 2.0, "feature_2": 4.0, "label": 0.0},
     ]
 
     assert lit_dataset.spec() == dict(lit_columns)
@@ -86,16 +114,37 @@ def test_create_lit_model_from_tensorflow_returns_model(set_up_sequential):
     lit_model = create_lit_model(saved_model_path, feature_types, label_types)
     test_inputs = [
         {"feature_1": 1.0, "feature_2": 2.0},
-        {"feature_1": 3.0, "feature_2": 4.0},
     ]
     outputs = lit_model.predict_minibatch(test_inputs)
 
     assert lit_model.input_spec() == dict(feature_types)
     assert lit_model.output_spec() == dict(label_types)
-    assert len(outputs) == 2
+    assert len(outputs) == 1
     for item in outputs:
         assert item.keys() == {"label"}
         assert len(item.values()) == 1
+
+
+@mock.patch.dict(os.environ, {"LIT_PROXY_URL": "auto"})
+@pytest.mark.usefixtures(
+    "sampled_shapley_explainer_mock", "load_model_from_local_path_mock"
+)
+def test_create_lit_model_from_tensorflow_with_xai_returns_model(set_up_sequential):
+    feature_types, label_types, saved_model_path = set_up_sequential
+    lit_model = create_lit_model(saved_model_path, feature_types, label_types)
+    test_inputs = [
+        {"feature_1": 1.0, "feature_2": 2.0},
+    ]
+    outputs = lit_model.predict_minibatch(test_inputs)
+
+    assert lit_model.input_spec() == dict(feature_types)
+    assert lit_model.output_spec() == dict(
+        {**label_types, "feature_attribution": lit_types.FeatureSalience(signed=True)}
+    )
+    assert len(outputs) == 1
+    for item in outputs:
+        assert item.keys() == {"label", "feature_attribution"}
+        assert len(item.values()) == 2
 
 
 def test_open_lit(
@@ -121,11 +170,9 @@ def test_set_up_and_open_lit(
 
     expected_examples = [
         {"feature_1": 1.0, "feature_2": 3.0, "label": 1.0},
-        {"feature_1": 2.0, "feature_2": 4.0, "label": 0.0},
     ]
     test_inputs = [
         {"feature_1": 1.0, "feature_2": 2.0},
-        {"feature_1": 3.0, "feature_2": 4.0},
     ]
     outputs = lit_model.predict_minibatch(test_inputs)
 
@@ -134,9 +181,45 @@ def test_set_up_and_open_lit(
 
     assert lit_model.input_spec() == dict(feature_types)
     assert lit_model.output_spec() == dict(label_types)
-    assert len(outputs) == 2
+    assert len(outputs) == 1
     for item in outputs:
         assert item.keys() == {"label"}
         assert len(item.values()) == 1
+
+    widget_render_mock.assert_called_once()
+
+
+@mock.patch.dict(os.environ, {"LIT_PROXY_URL": "auto"})
+@pytest.mark.usefixtures(
+    "sampled_shapley_explainer_mock", "load_model_from_local_path_mock"
+)
+def test_set_up_and_open_lit_with_xai(
+    set_up_sequential, set_up_pandas_dataframe_and_columns, widget_render_mock
+):
+    pd_dataset, lit_columns = set_up_pandas_dataframe_and_columns
+    feature_types, label_types, saved_model_path = set_up_sequential
+    lit_dataset, lit_model = set_up_and_open_lit(
+        pd_dataset, lit_columns, saved_model_path, feature_types, label_types
+    )
+
+    expected_examples = [
+        {"feature_1": 1.0, "feature_2": 3.0, "label": 1.0},
+    ]
+    test_inputs = [
+        {"feature_1": 1.0, "feature_2": 2.0},
+    ]
+    outputs = lit_model.predict_minibatch(test_inputs)
+
+    assert lit_dataset.spec() == dict(lit_columns)
+    assert expected_examples == lit_dataset._examples
+
+    assert lit_model.input_spec() == dict(feature_types)
+    assert lit_model.output_spec() == dict(
+        {**label_types, "feature_attribution": lit_types.FeatureSalience(signed=True)}
+    )
+    assert len(outputs) == 1
+    for item in outputs:
+        assert item.keys() == {"label", "feature_attribution"}
+        assert len(item.values()) == 2
 
     widget_render_mock.assert_called_once()

@@ -237,6 +237,12 @@ class _ColumnNamesDataset(datasets._Dataset):
         if bq_table_uri.startswith(prefix):
             bq_table_uri = bq_table_uri[len(prefix) :]
 
+        # The colon-based "project:dataset.table" format is no longer supported:
+        # Invalid dataset ID "bigquery-public-data:chicago_taxi_trips".
+        # Dataset IDs must be alphanumeric (plus underscores and dashes) and must be at most 1024 characters long.
+        # Using dot-based "project.dataset.table" format instead.
+        bq_table_uri = bq_table_uri.replace(":", ".")
+
         client = bigquery.Client(project=project, credentials=credentials)
         table = client.get_table(bq_table_uri)
         schema = table.schema

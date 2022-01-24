@@ -93,7 +93,8 @@ s.move(
         ".coveragerc",
         ".kokoro/continuous/common.cfg",
         ".kokoro/presubmit/presubmit.cfg",
-        ".github/CODEOWNERS"
+        ".github/CODEOWNERS",
+        ".github/workflows", # exclude gh actions as credentials are needed for tests
     ]
 )  # the microgenerator has a good coveragerc file
 
