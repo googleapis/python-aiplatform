@@ -330,6 +330,7 @@ class TestAutoMLTabularTrainingJob:
             weight_column=_TEST_TRAINING_WEIGHT_COLUMN,
             budget_milli_node_hours=_TEST_TRAINING_BUDGET_MILLI_NODE_HOURS,
             disable_early_stopping=_TEST_TRAINING_DISABLE_EARLY_STOPPING,
+            additional_experiments=_TEST_ADDITIONAL_EXPERIMENTS,
             sync=sync,
         )
 
