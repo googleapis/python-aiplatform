@@ -1562,7 +1562,7 @@ class Model(base.VertexAiResourceNounWithFutureManager):
 
         update_mask = field_mask_pb2.FieldMask(paths=update_mask)
 
-        _ = self.api_client.update_model(
+        self.api_client.update_model(
             model=copied_model_proto, update_mask=update_mask
         )
 
