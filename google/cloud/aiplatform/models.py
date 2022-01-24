@@ -48,8 +48,7 @@ from google.cloud.aiplatform.compat.types import (
     env_var as gca_env_var_compat,
 )
 
-from google.protobuf import json_format
-
+from google.protobuf import field_mask_pb2, json_format
 
 _LOGGER = base.Logger(__name__)
 
@@ -1501,6 +1500,73 @@ class Model(base.VertexAiResourceNounWithFutureManager):
             resource_name=model_name,
         )
         self._gca_resource = self._get_gca_resource(resource_name=model_name)
+
+    def update(
+        self,
+        display_name: Optional[str] = None,
+        description: Optional[str] = None,
+        labels: Optional[Dict[str, str]] = None,
+    ) -> "Model":
+        """Updates a model.
+
+        Example usage:
+
+        my_model = my_model.update(
+            display_name='my-model',
+            description='my description',
+            labels={'key': 'value'},
+        )
+
+        Args:
+            display_name (str):
+                The display name of the Model. The name can be up to 128
+                characters long and can be consist of any UTF-8 characters.
+            description (str):
+                The description of the model.
+            labels (Dict[str, str]):
+                Optional. The labels with user-defined metadata to
+                organize your Models.
+                Label keys and values can be no longer than 64
+                characters (Unicode codepoints), can only
+                contain lowercase letters, numeric characters,
+                underscores and dashes. International characters
+                are allowed.
+                See https://goo.gl/xmQnxf for more information
+                and examples of labels.
+        Returns:
+            model: Updated model resource.
+        Raises:
+            ValueError: If `labels` is not the correct format.
+        """
+
+        current_model_proto = self.gca_resource
+        copied_model_proto = current_model_proto.__class__(current_model_proto)
+
+        update_mask: List[str] = []
+
+        if display_name:
+            utils.validate_display_name(display_name)
+
+            copied_model_proto.display_name = display_name
+            update_mask.append("display_name")
+
+        if description:
+            copied_model_proto.description = description
+            update_mask.append("description")
+
+        if labels:
+            utils.validate_labels(labels)
+
+            copied_model_proto.labels = labels
+            update_mask.append("labels")
+
+        update_mask = field_mask_pb2.FieldMask(paths=update_mask)
+
+        self.api_client.update_model(model=copied_model_proto, update_mask=update_mask)
+
+        self._sync_gca_resource()
+
+        return self
 
     # TODO(b/170979552) Add support for predict schemata
     # TODO(b/170979926) Add support for metadata and metadata schema

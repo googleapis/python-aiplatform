@@ -37,7 +37,7 @@ class TestModel(e2e_base.TestEndToEnd):
     _temp_prefix = f"{_TEST_PROJECT}-vertex-staging-{_TEST_LOCATION}"
 
     def test_upload_and_deploy_xgboost_model(self, shared_state):
-        """Upload XGBoost model from local file and deploy it for prediction."""
+        """Upload XGBoost model from local file and deploy it for prediction. Additionally, update model name, description and labels"""
 
         aiplatform.init(project=_TEST_PROJECT, location=_TEST_LOCATION)
 
@@ -65,3 +65,12 @@ class TestModel(e2e_base.TestEndToEnd):
         shared_state["resources"].append(endpoint)
         predict_response = endpoint.predict(instances=[[0, 0, 0]])
         assert len(predict_response.predictions) == 1
+
+        model = model.update(
+            display_name="new_name",
+            description="new_description",
+            labels={"my_label": "updated"},
+        )
+        assert model.display_name == "new_name"
+        assert model.display_name == "new_description"
+        assert model.labels == {"my_label": "updated"}
