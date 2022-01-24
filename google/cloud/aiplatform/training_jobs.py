@@ -3900,6 +3900,7 @@ class AutoMLForecastingTrainingJob(_TrainingJob):
         budget_milli_node_hours: int = 1000,
         model_display_name: Optional[str] = None,
         model_labels: Optional[Dict[str, str]] = None,
+        additional_experiments: Optional[List[str]] = None,
         sync: bool = True,
     ) -> models.Model:
         """Runs the training job and returns a model.
@@ -4046,6 +4047,8 @@ class AutoMLForecastingTrainingJob(_TrainingJob):
                 are allowed.
                 See https://goo.gl/xmQnxf for more information
                 and examples of labels.
+            additional_experiments (List[str]):
+                Additional experiment flags for the time series forcasting training.
             sync (bool):
                 Whether to execute this method synchronously. If False, this method
                 will be executed in concurrent Future and any downstream object will
@@ -4070,6 +4073,9 @@ class AutoMLForecastingTrainingJob(_TrainingJob):
 
         if self._has_run:
             raise RuntimeError("AutoML Forecasting Training has already run.")
+            
+        if additional_experiments:
+           self._add_additional_experiments(additional_experiments)
 
         return self._run(
             dataset=dataset,
@@ -4084,202 +4090,6 @@ class AutoMLForecastingTrainingJob(_TrainingJob):
             training_fraction_split=training_fraction_split,
             validation_fraction_split=validation_fraction_split,
             test_fraction_split=test_fraction_split,
-            predefined_split_column_name=predefined_split_column_name,
-            weight_column=weight_column,
-            time_series_attribute_columns=time_series_attribute_columns,
-            context_window=context_window,
-            budget_milli_node_hours=budget_milli_node_hours,
-            export_evaluated_data_items=export_evaluated_data_items,
-            export_evaluated_data_items_bigquery_destination_uri=export_evaluated_data_items_bigquery_destination_uri,
-            export_evaluated_data_items_override_destination=export_evaluated_data_items_override_destination,
-            quantiles=quantiles,
-            validation_options=validation_options,
-            model_display_name=model_display_name,
-            model_labels=model_labels,
-            sync=sync,
-        )
-
-    def _run_with_experiments(
-        self,
-        dataset: datasets.TimeSeriesDataset,
-        target_column: str,
-        time_column: str,
-        time_series_identifier_column: str,
-        unavailable_at_forecast_columns: List[str],
-        available_at_forecast_columns: List[str],
-        forecast_horizon: int,
-        data_granularity_unit: str,
-        data_granularity_count: int,
-        predefined_split_column_name: Optional[str] = None,
-        weight_column: Optional[str] = None,
-        time_series_attribute_columns: Optional[List[str]] = None,
-        context_window: Optional[int] = None,
-        export_evaluated_data_items: bool = False,
-        export_evaluated_data_items_bigquery_destination_uri: Optional[str] = None,
-        export_evaluated_data_items_override_destination: bool = False,
-        quantiles: Optional[List[float]] = None,
-        validation_options: Optional[str] = None,
-        budget_milli_node_hours: int = 1000,
-        model_display_name: Optional[str] = None,
-        model_labels: Optional[Dict[str, str]] = None,
-        sync: bool = True,
-        additional_experiments: Optional[List[str]] = None,
-    ) -> models.Model:
-        """Runs the training job with experiment flags and returns a model.
-
-        The training data splits are set by default: Roughly 80% will be used for training,
-        10% for validation, and 10% for test.
-
-        Args:
-            dataset (datasets.TimeSeriesDataset):
-                Required. The dataset within the same Project from which data will be used to train the Model. The
-                Dataset must use schema compatible with Model being trained,
-                and what is compatible should be described in the used
-                TrainingPipeline's [training_task_definition]
-                [google.cloud.aiplatform.v1beta1.TrainingPipeline.training_task_definition].
-                For time series Datasets, all their data is exported to
-                training, to pick and choose from.
-            target_column (str):
-                Required. Name of the column that the Model is to predict values for.
-            time_column (str):
-                Required. Name of the column that identifies time order in the time series.
-            time_series_identifier_column (str):
-                Required. Name of the column that identifies the time series.
-            unavailable_at_forecast_columns (List[str]):
-                Required. Column names of columns that are unavailable at forecast.
-                Each column contains information for the given entity (identified by the
-                [time_series_identifier_column]) that is unknown before the forecast
-                (e.g. population of a city in a given year, or weather on a given day).
-            available_at_forecast_columns (List[str]):
-                Required. Column names of columns that are available at forecast.
-                Each column contains information for the given entity (identified by the
-                [time_series_identifier_column]) that is known at forecast.
-            forecast_horizon: (int):
-                Required. The amount of time into the future for which forecasted values for the target are
-                returned. Expressed in number of units defined by the [data_granularity_unit] and
-                [data_granularity_count] field. Inclusive.
-            data_granularity_unit (str):
-                Required. The data granularity unit. Accepted values are ``minute``,
-                ``hour``, ``day``, ``week``, ``month``, ``year``.
-            data_granularity_count (int):
-                Required. The number of data granularity units between data points in the training
-                data. If [data_granularity_unit] is `minute`, can be 1, 5, 10, 15, or 30. For all other
-                values of [data_granularity_unit], must be 1.
-            predefined_split_column_name (str):
-                Optional. The key is a name of one of the Dataset's data
-                columns. The value of the key (either the label's value or
-                value in the column) must be one of {``TRAIN``,
-                ``VALIDATE``, ``TEST``}, and it defines to which set the
-                given piece of data is assigned. If for a piece of data the
-                key is not present or has an invalid value, that piece is
-                ignored by the pipeline.
-
-                Supported only for tabular and time series Datasets.
-            weight_column (str):
-                Optional. Name of the column that should be used as the weight column.
-                Higher values in this column give more importance to the row
-                during Model training. The column must have numeric values between 0 and
-                10000 inclusively, and 0 value means that the row is ignored.
-                If the weight column field is not set, then all rows are assumed to have
-                equal weight of 1.
-            time_series_attribute_columns (List[str]):
-                Optional. Column names that should be used as attribute columns.
-                Each column is constant within a time series.
-            context_window (int):
-                Optional. The amount of time into the past training and prediction data is used for
-                model training and prediction respectively. Expressed in number of units defined by the
-                [data_granularity_unit] and [data_granularity_count] fields. When not provided uses the
-                default value of 0 which means the model sets each series context window to be 0 (also
-                known as "cold start"). Inclusive.
-            export_evaluated_data_items (bool):
-                Whether to export the test set predictions to a BigQuery table.
-                If False, then the export is not performed.
-            export_evaluated_data_items_bigquery_destination_uri (string):
-                Optional. URI of desired destination BigQuery table for exported test set predictions.
-
-                Expected format:
-                ``bq://<project_id>:<dataset_id>:<table>``
-
-                If not specified, then results are exported to the following auto-created BigQuery
-                table:
-                ``<project_id>:export_evaluated_examples_<model_name>_<yyyy_MM_dd'T'HH_mm_ss_SSS'Z'>.evaluated_examples``
-
-                Applies only if [export_evaluated_data_items] is True.
-            export_evaluated_data_items_override_destination (bool):
-                Whether to override the contents of [export_evaluated_data_items_bigquery_destination_uri],
-                if the table exists, for exported test set predictions. If False, and the
-                table exists, then the training job will fail.
-
-                Applies only if [export_evaluated_data_items] is True and
-                [export_evaluated_data_items_bigquery_destination_uri] is specified.
-            quantiles (List[float]):
-                Quantiles to use for the `minizmize-quantile-loss`
-                [AutoMLForecastingTrainingJob.optimization_objective]. This argument is required in
-                this case.
-
-                Accepts up to 5 quantiles in the form of a double from 0 to 1, exclusive.
-                Each quantile must be unique.
-            validation_options (str):
-                Validation options for the data validation component. The available options are:
-                "fail-pipeline" - (default), will validate against the validation and fail the pipeline
-                                  if it fails.
-                "ignore-validation" - ignore the results of the validation and continue the pipeline
-            budget_milli_node_hours (int):
-                Optional. The train budget of creating this Model, expressed in milli node
-                hours i.e. 1,000 value in this field means 1 node hour.
-                The training cost of the model will not exceed this budget. The final
-                cost will be attempted to be close to the budget, though may end up
-                being (even) noticeably smaller - at the backend's discretion. This
-                especially may happen when further model training ceases to provide
-                any improvements.
-                If the budget is set to a value known to be insufficient to train a
-                Model for the given training set, the training won't be attempted and
-                will error.
-                The minimum value is 1000 and the maximum is 72000.
-            model_display_name (str):
-                Optional. If the script produces a managed Vertex AI Model. The display name of
-                the Model. The name can be up to 128 characters long and can be consist
-                of any UTF-8 characters.
-
-                If not provided upon creation, the job's display_name is used.
-            model_labels (Dict[str, str]):
-                Optional. The labels with user-defined metadata to
-                organize your Models.
-                Label keys and values can be no longer than 64
-                characters (Unicode codepoints), can only
-                contain lowercase letters, numeric characters,
-                underscores and dashes. International characters
-                are allowed.
-                See https://goo.gl/xmQnxf for more information
-                and examples of labels.
-            sync (bool):
-                Whether to execute this method synchronously. If False, this method
-                will be executed in concurrent Future and any downstream object will
-                be immediately returned and synced when the Future has completed.
-            additional_experiments (List[str]):
-                Additional experiment flags for the time series forcasting training.
-
-        Returns:
-            model: The trained Vertex AI Model resource or None if training did not
-                produce a Vertex AI Model.
-
-        Raises:
-            RuntimeError: If Training job has already been run or is waiting to run.
-        """
-
-        if additional_experiments:
-            self._add_additional_experiments(additional_experiments)
-
-        return self.run(
-            dataset=dataset,
-            target_column=target_column,
-            time_column=time_column,
-            time_series_identifier_column=time_series_identifier_column,
-            unavailable_at_forecast_columns=unavailable_at_forecast_columns,
-            available_at_forecast_columns=available_at_forecast_columns,
-            forecast_horizon=forecast_horizon,
-            data_granularity_unit=data_granularity_unit,
-            data_granularity_count=data_granularity_count,
             predefined_split_column_name=predefined_split_column_name,
             weight_column=weight_column,
             time_series_attribute_columns=time_series_attribute_columns,
