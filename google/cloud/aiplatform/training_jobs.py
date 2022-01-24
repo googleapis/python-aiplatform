@@ -3310,6 +3310,7 @@ class AutoMLTabularTrainingJob(_TrainingJob):
         export_evaluated_data_items: bool = False,
         export_evaluated_data_items_bigquery_destination_uri: Optional[str] = None,
         export_evaluated_data_items_override_destination: bool = False,
+        additional_experiments: Optional[List[str]] = None,
         sync: bool = True,
     ) -> models.Model:
         """Runs the training job and returns a model.
@@ -3436,6 +3437,8 @@ class AutoMLTabularTrainingJob(_TrainingJob):
 
                 Applies only if [export_evaluated_data_items] is True and
                 [export_evaluated_data_items_bigquery_destination_uri] is specified.
+            additional_experiments (List[str]):
+                Additional experiment flags for the automl tables training.
             sync (bool):
                 Whether to execute this method synchronously. If False, this method
                 will be executed in concurrent Future and any downstream object will
@@ -3457,6 +3460,9 @@ class AutoMLTabularTrainingJob(_TrainingJob):
 
         if self._has_run:
             raise RuntimeError("AutoML Tabular Training has already run.")
+        
+        if additional_experiments:
+            self._add_additional_experiments(additional_experiments)
 
         return self._run(
             dataset=dataset,
