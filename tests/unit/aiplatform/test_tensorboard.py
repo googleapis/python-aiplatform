@@ -737,6 +737,25 @@ class TestTensorboardRun:
             time_series_data=expected_time_series_data,
         )
 
+    @pytest.mark.usefixtures(
+        "get_tensorboard_run_mock", "list_tensorboard_time_series_mock"
+    )
+    def test_write_tensorboard_run_data_raises_if_display_name_does_not_exist(
+        self, write_tensorboard_run_data_mock
+    ):
+        aiplatform.init(project=_TEST_PROJECT)
+
+        tb_run = tensorboard.TensorboardRun(
+            tensorboard_run_name=_TEST_TENSORBOARD_RUN_NAME
+        )
+
+        timestamp = utils.get_timestamp_proto()
+
+        with pytest.raises(ValueError):
+            tb_run.write_tensorboard_scalar_data(
+                time_series_data={"not_a_metric": 0.9}, step=1, wall_time=timestamp
+            )
+
 
 class TestTensorboardTimeSeries:
     def setup_method(self):
