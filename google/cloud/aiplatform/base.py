@@ -47,8 +47,6 @@ from google.cloud.aiplatform import utils
 from google.cloud.aiplatform.compat.types import encryption_spec as gca_encryption_spec
 from google.protobuf import json_format
 
-logging.basicConfig(level=logging.INFO, stream=sys.stdout)
-
 # This is the default retry callback to be used with get methods.
 _DEFAULT_RETRY = retry.Retry()
 
