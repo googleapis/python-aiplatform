@@ -649,7 +649,7 @@ class Featurestore(base.VertexAiResourceNounWithFutureManager):
                 pass-through values will be passed as opaque bytes.
 
         Returns:
-            gca_featurestore_service.BatchReadFeatureValuesRequest - batch read feature values request
+            gca_featurestore_service.BatchReadFeatureValuesRequest: batch read feature values request
         """
 
         featurestore_name_components = self._parse_resource_name(self.resource_name)
