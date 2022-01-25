@@ -851,7 +851,7 @@ class Featurestore(base.VertexAiResourceNounWithFutureManager):
                 pass-through values will be passed as opaque bytes.
 
         Returns:
-            Featurestore - The featurestore resource object batch read feature values from.
+            Featurestore: The featurestore resource object batch read feature values from.
 
         Raises:
             NotFound: if the BigQuery destination Dataset does not exist.
