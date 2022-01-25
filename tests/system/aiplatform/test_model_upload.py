@@ -72,5 +72,5 @@ class TestModel(e2e_base.TestEndToEnd):
             labels={"my_label": "updated"},
         )
         assert model.display_name == "new_name"
-        assert model.display_name == "new_description"
+        assert model.description == "new_description"
         assert model.labels == {"my_label": "updated"}
