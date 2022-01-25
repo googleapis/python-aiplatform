@@ -16,6 +16,7 @@
 #
 
 import datetime
+import logging
 import time
 import re
 from typing import Any, Dict, List, Optional
@@ -272,6 +273,10 @@ class PipelineJob(base.VertexAiResourceNounWithFutureManager):
 
         if network:
             self._gca_resource.network = network
+
+        # Prevents logs from being supressed on TFX pipelines
+        if self._gca_resource.pipeline_spec["sdkVersion"].startswith("tfx"):
+            _LOGGER.setLevel(logging.INFO)
 
         _LOGGER.log_create_with_lro(self.__class__)
 
