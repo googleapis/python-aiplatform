@@ -467,10 +467,18 @@ class ExperimentRun:
             for execution in context_lineage_subgraph.executions:
                 if execution.schema_title == constants.SYSTEM_RUN:
                     pipeline_params = _execution_to_column_named_metadata(
-                        metadata_type="param", metadata=execution.metadata, filter_prefix=constants.PIPELINE_PARAM_PREFIX) 
+                        metadata_type="param", metadata=execution.metadata, filter_prefix=constants.PIPELINE_PARAM_PREFIX)
+                elif execution.schema_title == 'system.DagExecution':
+                    # ignore for loop and condition control flow executions
+                    continue 
                 else:
                     execution_dict = pipeline_run_dict.copy()
                     execution_dict['execution_name'] = execution.display_name
+                    execution_dict.update(
+                        _execution_to_column_named_metadata(
+                            metadata_type="param",
+                            metadata=execution.metadata,
+                            filter_prefix=constants.PIPELINE_PARAM_PREFIX))
                     artifact_dicts = []
                     for artifact_name in output_execution_map[execution.name]:
                         artifact = artifact_map.get(artifact_name)
@@ -498,8 +506,8 @@ class ExperimentRun:
             elif len(execution_dicts) > 1:
                 # pipeline params on their own row when there are multiple output metrics
                 pipeline_run_row = pipeline_run_dict.copy()
-                pipeline_run_row.update(pipeline_params)
-                row_dicts.append(pipeline_run_row)
+                pipeline_run_dict.update(pipeline_params)
+                row_dicts.append(pipeline_run_dict)
                 for execution_dict in execution_dicts:
                     execution_dict.update(pipeline_run_row)
                     row_dicts.append(execution_dict)
