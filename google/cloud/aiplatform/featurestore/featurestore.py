@@ -576,7 +576,7 @@ class Featurestore(base.VertexAiResourceNounWithFutureManager):
                 Optional. Strings which should be sent along with the request as metadata.
 
         Returns:
-            Featurestore - The featurestore resource object batch read feature values from.
+            Featurestore: The featurestore resource object batch read feature values from.
         """
 
         _LOGGER.log_action_start_against_resource(
