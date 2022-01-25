@@ -389,14 +389,8 @@ class Featurestore(base.VertexAiResourceNounWithFutureManager):
 
         Example Usage:
 
-            my_entity_type = aiplatform.EntityType.create(
-                entity_type_id='my_entity_type_id',
-                featurestore_name='projects/123/locations/us-central1/featurestores/my_featurestore_id'
-            )
-            or
-            my_entity_type = aiplatform.EntityType.create(
-                entity_type_id='my_entity_type_id',
-                featurestore_name='my_featurestore_id',
+            my_featurestore = aiplatform.Featurestore.create(
+                featurestore_id='my_featurestore_id',
             )
 
         Args:
