@@ -981,7 +981,7 @@ class Featurestore(base.VertexAiResourceNounWithFutureManager):
                 pass-through values will be passed as opaque bytes.
 
         Returns:
-            Featurestore - The featurestore resource object batch read feature values from.
+            Featurestore: The featurestore resource object batch read feature values from.
 
         Raises:
             ValueError if gcs_destination_type is not supported.
