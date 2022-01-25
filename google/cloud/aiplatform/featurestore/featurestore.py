@@ -732,7 +732,7 @@ class Featurestore(base.VertexAiResourceNounWithFutureManager):
                 or Google Cloud Storage URI(-s) to the csv file(s).
 
         Returns:
-            Union[gca_io.BigQuerySource, gca_io.CsvSource] - BigQuery source or Csv source for read instances.
+            Union[gca_io.BigQuerySource, gca_io.CsvSource]: BigQuery source or Csv source for read instances.
 
         Raises:
             TypeError if read_instances is not a string or a list of strings.
