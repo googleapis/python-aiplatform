@@ -1135,11 +1135,15 @@ class EntityType(base.VertexAiResourceNounWithFutureManager):
         df_source: "pd.DataFrame",  # noqa: F821 - skip check for undefined name 'pd'
         feature_source_fields: Optional[Dict[str, str]] = None,
         entity_id_field: Optional[str] = None,
-        disable_online_serving: Optional[bool] = None,
-        worker_count: Optional[int] = None,
         request_metadata: Optional[Sequence[Tuple[str, str]]] = (),
     ) -> "EntityType":
         """Ingest feature values from DataFrame.
+
+        Note:
+            Calling this method will automatically create a temporary
+            bigquery dataset in the same GCP project, which will be used
+            as the intermediary storage for ingesting feature values
+            from dataframe to featurestore.
 
         Args:
             feature_ids (List[str]):
@@ -1187,21 +1191,6 @@ class EntityType(base.VertexAiResourceNounWithFutureManager):
             entity_id_field (str):
                 Optional. Source column that holds entity IDs. If not provided, entity
                 IDs are extracted from the column named ``entity_id``.
-            disable_online_serving (bool):
-                Optional. If set, data will not be imported for online
-                serving. This is typically used for backfilling,
-                where Feature generation timestamps are not in
-                the timestamp range needed for online serving.
-            worker_count (int):
-                Optional. Specifies the number of workers that are used
-                to write data to the Featurestore. Consider the
-                online serving capacity that you require to
-                achieve the desired import throughput without
-                interfering with online serving. The value must
-                be positive, and less than or equal to 100. If
-                not set, defaults to using 1 worker. The low
-                count ensures minimal impact on online serving
-                performance.
             request_metadata (Sequence[Tuple[str, str]]):
                 Optional. Strings which should be sent along with the request as metadata.
 
@@ -1238,6 +1227,8 @@ class EntityType(base.VertexAiResourceNounWithFutureManager):
         temp_bq_dataset = bigquery.Dataset(dataset_ref=temp_bq_dataset_id)
         temp_bq_dataset.location = self.location
 
+        temp_bq_dataset = bigquery_client.create_dataset(temp_bq_dataset)
+
         try:
             job = bigquery_client.load_table_from_dataframe(
                 dataframe=df_source, destination=temp_bq_table_id
@@ -1250,8 +1241,6 @@ class EntityType(base.VertexAiResourceNounWithFutureManager):
                 bq_source_uri=f"bq://{temp_bq_table_id}",
                 feature_source_fields=feature_source_fields,
                 entity_id_field=entity_id_field,
-                disable_online_serving=disable_online_serving,
-                worker_count=worker_count,
                 request_metadata=request_metadata,
             )
 

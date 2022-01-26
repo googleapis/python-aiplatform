@@ -216,7 +216,7 @@ class TestFeaturestore(e2e_base.TestEndToEnd):
         list_movie_features = movie_entity_type.list_features()
         assert len(list_movie_features) == 3
 
-    def test_ingest_feature_values_from_df_using_feature_time_column(
+    def test_ingest_feature_values_from_df_using_feature_time_column_and_online_read_multiple_entities(
         self, shared_state, caplog
     ):
 
@@ -227,6 +227,33 @@ class TestFeaturestore(e2e_base.TestEndToEnd):
 
         aiplatform.init(
             project=e2e_base._PROJECT, location=e2e_base._LOCATION,
+        )
+
+        read_feature_ids = ["average_rating", "title", "genres"]
+
+        movie_entity_views_df_before_ingest = movie_entity_type.read(
+            entity_ids=["movie_01", "movie_02"], feature_ids=read_feature_ids,
+        )
+        expected_data_before_ingest = [
+            {
+                "entity_id": "movie_01",
+                "average_rating": None,
+                "title": None,
+                "genres": None,
+            },
+            {
+                "entity_id": "movie_02",
+                "average_rating": None,
+                "title": None,
+                "genres": None,
+            },
+        ]
+        expected_movie_entity_views_df_before_ingest = pd.DataFrame(
+            data=expected_data_before_ingest, columns=read_feature_ids
+        )
+
+        movie_entity_views_df_before_ingest.equals(
+            expected_movie_entity_views_df_before_ingest
         )
 
         movies_df = pd.DataFrame(
@@ -260,13 +287,37 @@ class TestFeaturestore(e2e_base.TestEndToEnd):
             feature_time=feature_time_column,
             df_source=movies_df,
             entity_id_field="movie_id",
-            worker_count=1,
+        )
+
+        movie_entity_views_df_after_ingest = movie_entity_type.read(
+            entity_ids=["movie_01", "movie_02"], feature_ids=read_feature_ids,
+        )
+        expected_data_after_ingest = [
+            {
+                "movie_id": "movie_01",
+                "average_rating": 4.9,
+                "title": "The Shawshank Redemption",
+                "genres": "Drama",
+            },
+            {
+                "movie_id": "movie_02",
+                "average_rating": 4.2,
+                "title": "The Shining",
+                "genres": "Horror",
+            },
+        ]
+        expected_movie_entity_views_df_after_ingest = pd.DataFrame(
+            data=expected_data_after_ingest, columns=read_feature_ids
+        )
+
+        movie_entity_views_df_after_ingest.equals(
+            expected_movie_entity_views_df_after_ingest
         )
 
         assert "EntityType feature values imported." in caplog.text
         caplog.clear()
 
-    def test_ingest_feature_values_from_df_using_feature_time_datetime(
+    def test_ingest_feature_values_from_df_using_feature_time_datetime_and_online_read_single_entity(
         self, shared_state, caplog
     ):
         assert shared_state["movie_entity_type"]
@@ -312,7 +363,20 @@ class TestFeaturestore(e2e_base.TestEndToEnd):
             feature_time=feature_time_datetime,
             df_source=movies_df,
             entity_id_field="movie_id",
-            worker_count=1,
+        )
+
+        movie_entity_views_df_avg_rating = movie_entity_type.read(
+            entity_ids="movie_04", feature_ids="average_rating",
+        )
+        expected_data_avg_rating = [
+            {"movie_id": "movie_04", "average_rating": 4.6},
+        ]
+        expected_movie_entity_views_df_avg_rating = pd.DataFrame(
+            data=expected_data_avg_rating, columns=["average_rating"]
+        )
+
+        movie_entity_views_df_avg_rating.equals(
+            expected_movie_entity_views_df_avg_rating
         )
 
         assert "EntityType feature values imported." in caplog.text
@@ -331,19 +395,3 @@ class TestFeaturestore(e2e_base.TestEndToEnd):
         assert (
             len(list_searched_features) - shared_state["base_list_searched_features"]
         ) == 6
-
-    def test_online_reads(self, shared_state):
-        assert shared_state["user_entity_type"]
-        assert shared_state["movie_entity_type"]
-
-        user_entity_type = shared_state["user_entity_type"]
-        movie_entity_type = shared_state["movie_entity_type"]
-
-        user_entity_views = user_entity_type.read(entity_ids="alice")
-        assert type(user_entity_views) == pd.DataFrame
-
-        movie_entity_views = movie_entity_type.read(
-            entity_ids=["movie_01", "movie_04"],
-            feature_ids=[_TEST_MOVIE_TITLE_FEATURE_ID, _TEST_MOVIE_GENRES_FEATURE_ID],
-        )
-        assert type(movie_entity_views) == pd.DataFrame
