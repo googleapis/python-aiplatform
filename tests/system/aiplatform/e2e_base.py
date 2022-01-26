@@ -29,7 +29,6 @@ from google.cloud.aiplatform import initializer
 
 _PROJECT = os.getenv("BUILD_SPECIFIC_GCLOUD_PROJECT")
 _LOCATION = "us-central1"
-_PROJECT = "aiplatform-dev"
 
 
 class TestEndToEnd(metaclass=abc.ABCMeta):
