@@ -797,23 +797,16 @@ class EntityType(base.VertexAiResourceNounWithFutureManager):
                 If not provided, the source column need to be the same as the Feature ID.
 
                 Example:
+                    feature_ids = ['my_feature_id_1', 'my_feature_id_2', 'my_feature_id_3']
 
-                     feature_ids = ['my_feature_id_1', 'my_feature_id_2', 'my_feature_id_3']
-
-                     In case all features' source field and ID match:
-                     feature_source_fields = None or {}
-
-                     In case all features' source field and ID do not match:
-                     feature_source_fields = {
+                    feature_source_fields = {
                         'my_feature_id_1': 'my_feature_id_1_source_field',
-                        'my_feature_id_2': 'my_feature_id_2_source_field',
-                        'my_feature_id_3': 'my_feature_id_3_source_field',
-                     }
+                    }
 
-                     In case some features' source field and ID do not match:
-                     feature_source_fields = {
-                        'my_feature_id_1': 'my_feature_id_1_source_field',
-                     }
+                    Note:
+                        The source column of 'my_feature_id_1' is 'my_feature_id_1_source_field',
+                        The source column of 'my_feature_id_2' is the ID of the feature, same for 'my_feature_id_3'.
+
             entity_id_field (str):
                 Optional. Source column that holds entity IDs. If not provided, entity
                 IDs are extracted from the column named ``entity_id``.
@@ -956,23 +949,16 @@ class EntityType(base.VertexAiResourceNounWithFutureManager):
                 If not provided, the source column need to be the same as the Feature ID.
 
                 Example:
+                    feature_ids = ['my_feature_id_1', 'my_feature_id_2', 'my_feature_id_3']
 
-                     feature_ids = ['my_feature_id_1', 'my_feature_id_2', 'my_feature_id_3']
-
-                     In case all features' source field and ID match:
-                     feature_source_fields = None or {}
-
-                     In case all features' source field and ID do not match:
-                     feature_source_fields = {
+                    feature_source_fields = {
                         'my_feature_id_1': 'my_feature_id_1_source_field',
-                        'my_feature_id_2': 'my_feature_id_2_source_field',
-                        'my_feature_id_3': 'my_feature_id_3_source_field',
-                     }
+                    }
 
-                     In case some features' source field and ID do not match:
-                     feature_source_fields = {
-                        'my_feature_id_1': 'my_feature_id_1_source_field',
-                     }
+                    Note:
+                        The source column of 'my_feature_id_1' is 'my_feature_id_1_source_field',
+                        The source column of 'my_feature_id_2' is the ID of the feature, same for 'my_feature_id_3'.
+
             entity_id_field (str):
                 Optional. Source column that holds entity IDs. If not provided, entity
                 IDs are extracted from the column named ``entity_id``.
@@ -1068,23 +1054,16 @@ class EntityType(base.VertexAiResourceNounWithFutureManager):
                 If not provided, the source column need to be the same as the Feature ID.
 
                 Example:
+                    feature_ids = ['my_feature_id_1', 'my_feature_id_2', 'my_feature_id_3']
 
-                     feature_ids = ['my_feature_id_1', 'my_feature_id_2', 'my_feature_id_3']
-
-                     In case all features' source field and ID match:
-                     feature_source_fields = None or {}
-
-                     In case all features' source field and ID do not match:
-                     feature_source_fields = {
+                    feature_source_fields = {
                         'my_feature_id_1': 'my_feature_id_1_source_field',
-                        'my_feature_id_2': 'my_feature_id_2_source_field',
-                        'my_feature_id_3': 'my_feature_id_3_source_field',
-                     }
+                    }
 
-                     In case some features' source field and ID do not match:
-                     feature_source_fields = {
-                        'my_feature_id_1': 'my_feature_id_1_source_field',
-                     }
+                    Note:
+                        The source column of 'my_feature_id_1' is 'my_feature_id_1_source_field',
+                        The source column of 'my_feature_id_2' is the ID of the feature, same for 'my_feature_id_3'.
+
             entity_id_field (str):
                 Optional. Source column that holds entity IDs. If not provided, entity
                 IDs are extracted from the column named ``entity_id``.
@@ -1195,23 +1174,16 @@ class EntityType(base.VertexAiResourceNounWithFutureManager):
                 If not provided, the source column need to be the same as the Feature ID.
 
                 Example:
+                    feature_ids = ['my_feature_id_1', 'my_feature_id_2', 'my_feature_id_3']
 
-                     feature_ids = ['my_feature_id_1', 'my_feature_id_2', 'my_feature_id_3']
-
-                     In case all features' source field and ID match:
-                     feature_source_fields = None or {}
-
-                     In case all features' source field and ID do not match:
-                     feature_source_fields = {
+                    feature_source_fields = {
                         'my_feature_id_1': 'my_feature_id_1_source_field',
-                        'my_feature_id_2': 'my_feature_id_2_source_field',
-                        'my_feature_id_3': 'my_feature_id_3_source_field',
-                     }
+                    }
 
-                     In case some features' source field and ID do not match:
-                     feature_source_fields = {
-                        'my_feature_id_1': 'my_feature_id_1_source_field',
-                     }
+                    Note:
+                        The source column of 'my_feature_id_1' is 'my_feature_id_1_source_field',
+                        The source column of 'my_feature_id_2' is the ID of the feature, same for 'my_feature_id_3'.
+
             entity_id_field (str):
                 Optional. Source column that holds entity IDs. If not provided, entity
                 IDs are extracted from the column named ``entity_id``.
@@ -1265,7 +1237,6 @@ class EntityType(base.VertexAiResourceNounWithFutureManager):
 
         temp_bq_dataset = bigquery.Dataset(dataset_ref=temp_bq_dataset_id)
         temp_bq_dataset.location = self.location
-        temp_bq_dataset = bigquery_client.create_dataset(temp_bq_dataset)
 
         try:
             job = bigquery_client.load_table_from_dataframe(

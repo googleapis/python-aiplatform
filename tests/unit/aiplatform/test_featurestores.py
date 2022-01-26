@@ -304,14 +304,7 @@ def mock_bq_dataset():
 
 
 @pytest.fixture
-def mock_bq_create_dataset(mock_bq_dataset):
-    with patch.object(bigquery.Client, "create_dataset") as mock_bq_create_dataset:
-        mock_bq_create_dataset.return_value = mock_bq_dataset
-        yield mock_bq_create_dataset
-
-
-@pytest.fixture
-def mock_bq_load_table_from_dataframe(mock_init_bq_client):
+def mock_bq_load_table_from_dataframe():
     with patch.object(
         bigquery.Client, "load_table_from_dataframe"
     ) as mock_bq_load_table_from_dataframe:
@@ -319,7 +312,7 @@ def mock_bq_load_table_from_dataframe(mock_init_bq_client):
 
 
 @pytest.fixture
-def mock_bq_delete_dataset(mock_init_bq_client):
+def mock_bq_delete_dataset():
     with patch.object(bigquery.Client, "delete_dataset") as mock_bq_delete_dataset:
         yield mock_bq_delete_dataset
 
@@ -1266,7 +1259,6 @@ class TestEntityType:
         "get_entity_type_mock",
         "mock_init_bq_client",
         "mock_bq_dataset",
-        "mock_bq_create_dataset",
         "mock_bq_load_table_from_dataframe",
         "mock_bq_delete_dataset",
     )
@@ -1282,7 +1274,7 @@ class TestEntityType:
             df_source=df_source,
             feature_source_fields=_TEST_IMPORTING_FEATURE_SOURCE_FIELDS,
         )
-        mock_bq_create_dataset.location = my_entity_type.location
+        mock_bq_dataset.location = my_entity_type.location
 
         temp_bq_dataset_name = f"temp_{_TEST_FEATURESTORE_ID}_{uuid.uuid4()}".replace(
             "-", "_"
@@ -1311,7 +1303,6 @@ class TestEntityType:
         "get_entity_type_mock",
         "mock_init_bq_client",
         "mock_bq_dataset",
-        "mock_bq_create_dataset",
         "mock_bq_load_table_from_dataframe",
         "mock_bq_delete_dataset",
     )
@@ -1327,7 +1318,7 @@ class TestEntityType:
             df_source=df_source,
             feature_source_fields=_TEST_IMPORTING_FEATURE_SOURCE_FIELDS,
         )
-        mock_bq_create_dataset.location = my_entity_type.location
+        mock_bq_dataset.location = my_entity_type.location
 
         temp_bq_dataset_name = f"temp_{_TEST_FEATURESTORE_ID}_{uuid.uuid4()}".replace(
             "-", "_"
