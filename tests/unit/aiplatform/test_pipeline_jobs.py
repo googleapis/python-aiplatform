@@ -98,13 +98,7 @@ _TEST_TFX_PIPELINE_SPEC = {
         "dag": {"tasks": {}},
         "inputDefinitions": {
             "parameters": {
-                "string_param": {"parameterType": "STRING"},
-                "bool_param": {"parameterType": "BOOLEAN"},
-                "double_param": {"parameterType": "NUMBER_DOUBLE"},
-                "int_param": {"parameterType": "NUMBER_INTEGER"},
-                "list_int_param": {"parameterType": "LIST"},
-                "list_string_param": {"parameterType": "LIST"},
-                "struct_param": {"parameterType": "STRUCT"},
+                "string_param": {"parameterType": "STRING"}
             }
         },
     },
