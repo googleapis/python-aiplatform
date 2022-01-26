@@ -92,6 +92,26 @@ _TEST_PIPELINE_SPEC = {
     "schemaVersion": "2.1.0",
     "components": {},
 }
+_TEST_TFX_PIPELINE_SPEC = {
+    "pipelineInfo": {"name": "my-pipeline"},
+    "root": {
+        "dag": {"tasks": {}},
+        "inputDefinitions": {
+            "parameters": {
+                "string_param": {"parameterType": "STRING"},
+                "bool_param": {"parameterType": "BOOLEAN"},
+                "double_param": {"parameterType": "NUMBER_DOUBLE"},
+                "int_param": {"parameterType": "NUMBER_INTEGER"},
+                "list_int_param": {"parameterType": "LIST"},
+                "list_string_param": {"parameterType": "LIST"},
+                "struct_param": {"parameterType": "STRUCT"},
+            }
+        },
+    },
+    "schemaVersion": "2.0.0",
+    "sdkVersion": "tfx-1.4.0",
+    "components": {},
+}
 
 _TEST_PIPELINE_JOB_LEGACY = {
     "runtimeConfig": {},
@@ -237,7 +257,7 @@ class TestPipelineJob:
         initializer.global_pool.shutdown(wait=True)
 
     @pytest.mark.parametrize(
-        "job_spec_json", [_TEST_PIPELINE_SPEC, _TEST_PIPELINE_JOB],
+        "job_spec_json", [_TEST_PIPELINE_SPEC, _TEST_PIPELINE_JOB, _TEST_TFX_PIPELINE_SPEC],
     )
     @pytest.mark.parametrize("sync", [True, False])
     def test_run_call_pipeline_service_create(

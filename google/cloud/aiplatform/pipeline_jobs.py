@@ -275,7 +275,7 @@ class PipelineJob(base.VertexAiResourceNounWithFutureManager):
             self._gca_resource.network = network
 
         # Prevents logs from being supressed on TFX pipelines
-        if self._gca_resource.pipeline_spec["sdkVersion"].startswith("tfx"):
+        if self._gca_resource.pipeline_spec.get("sdkVersion", "").startswith("tfx"):
             _LOGGER.setLevel(logging.INFO)
 
         _LOGGER.log_create_with_lro(self.__class__)
