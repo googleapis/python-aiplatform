@@ -628,9 +628,11 @@ def get_timestamp_proto(
     """
     if not time:
         time = datetime.datetime.now()
-    t = time.timestamp()
-    seconds = int(t)
-    # must not have higher than millisecond precision.
-    nanos = int((t % 1 * 1e6) * 1e3)
 
-    return timestamp_pb2.Timestamp(seconds=seconds, nanos=nanos)
+    time_str = time.isoformat(sep=" ", timespec="milliseconds")
+    time = datetime.datetime.strptime(time_str, "%Y-%m-%d %H:%M:%S.%f")
+
+    timestamp_proto = timestamp_pb2.Timestamp()
+    timestamp_proto.FromDatetime(time)
+
+    return timestamp_proto
