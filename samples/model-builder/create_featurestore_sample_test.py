@@ -29,8 +29,6 @@ def test_create_featurestore_sample(mock_sdk_init, mock_create_featurestore):
         project=constants.PROJECT, location=constants.LOCATION
     )
     mock_create_featurestore.assert_called_once_with(
-        project=constants.PROJECT,
-        location=constants.LOCATION,
         featurestore_id=constants.FEAUTURE_STORE_ID,
         online_store_fixed_node_count=constants.ONLINE_STORE_FIXED_NODE_COUNT,
     )

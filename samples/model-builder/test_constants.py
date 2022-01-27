@@ -31,7 +31,7 @@ STAGING_BUCKET = "gs://my-staging-bucket"
 EXPERIMENT_NAME = "fraud-detection-trial-72"
 CREDENTIALS = credentials.AnonymousCredentials()
 
-FEAUTURE_STORE_ID = "featurestore-sample"
+FEAUTURESTORE_NAME = "featurestore-sample"
 RESOURCE_ID = str(randint(10000000, 99999999))  # Create random resource ID
 RESOURCE_ID_2 = str(randint(10000000, 99999999))
 

@@ -18,12 +18,12 @@ from google.cloud import aiplatform
 
 
 def delete_featurestore_sample(
-    project: str, location: str, featurestore_id: str,
+    project: str, location: str, featurestore_name: str,
 ):
 
     aiplatform.init(project=project, location=location)
 
-    fs = aiplatform.Featurestore(featurestore_name=featurestore_id,)
+    fs = aiplatform.Featurestore(featurestore_name=featurestore_name)
     fs.delete()
 
     return fs
