@@ -97,6 +97,7 @@ _TEST_TRAINING_TASK_INPUTS_DICT = {
     "optimizationObjective": _TEST_TRAINING_OPTIMIZATION_OBJECTIVE_NAME,
     "optimizationObjectiveRecallValue": None,
     "optimizationObjectivePrecisionValue": None,
+    "additionalExperiments": _TEST_ADDITIONAL_EXPERIMENTS,
 }
 _TEST_TRAINING_TASK_INPUTS = json_format.ParseDict(
     _TEST_TRAINING_TASK_INPUTS_DICT, struct_pb2.Value(),
