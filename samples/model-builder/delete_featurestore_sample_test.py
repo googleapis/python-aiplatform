@@ -16,7 +16,9 @@ import delete_featurestore_sample
 import test_constants as constants
 
 
-def test_delete_featurestore_sample(mock_sdk_init, mock_init_featurestore, mock_delete_featurestore):
+def test_delete_featurestore_sample(
+    mock_sdk_init, mock_init_featurestore, mock_delete_featurestore
+):
 
     delete_featurestore_sample.delete_featurestore_sample(
         project=constants.PROJECT,
