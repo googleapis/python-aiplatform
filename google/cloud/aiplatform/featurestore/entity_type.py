@@ -1140,10 +1140,13 @@ class EntityType(base.VertexAiResourceNounWithFutureManager):
         """Ingest feature values from DataFrame.
 
         Note:
-            Calling this method will automatically create a temporary
+            Calling this method will automatically create and delete a temporary
             bigquery dataset in the same GCP project, which will be used
             as the intermediary storage for ingesting feature values
             from dataframe to featurestore.
+
+            The call will return upon ingestion completes, where the
+            feature values will be ingested into the entity_type.
 
         Args:
             feature_ids (List[str]):
