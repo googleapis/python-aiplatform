@@ -364,3 +364,24 @@ def mock_endpoint_explain(mock_endpoint):
     with patch.object(mock_endpoint, "explain") as mock_endpoint_explain:
         mock_get_endpoint.return_value = mock_endpoint
         yield mock_endpoint_explain
+
+
+"""
+----------------------------------------------------------------------------
+FeatureStore Fixtures
+----------------------------------------------------------------------------
+"""
+
+
+@pytest.fixture
+def mock_create_featurestore(mock_featurestore):
+    with patch.object(aiplatform.Featurestore, "create") as mock_create_featurestore:
+        mock_create_featurestore.return_value = mock_featurestore
+        yield mock_create_featurestore
+
+
+@pytest.fixture
+def mock_delete_featurestore(mock_featurestore):
+    with patch.object(aiplatform.Featurestore, "delete") as mock_delete_featurestore:
+        mock_delete_featurestore.return_value = mock_featurestore
+        yield mock_delete_featurestore
