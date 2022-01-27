@@ -374,6 +374,12 @@ FeatureStore Fixtures
 
 
 @pytest.fixture
+def mock_featurestore():
+    mock = MagicMock(aiplatform.Featurestore)
+    yield mock
+
+
+@pytest.fixture
 def mock_create_featurestore(mock_featurestore):
     with patch.object(aiplatform.Featurestore, "create") as mock_create_featurestore:
         mock_create_featurestore.return_value = mock_featurestore
@@ -381,7 +387,6 @@ def mock_create_featurestore(mock_featurestore):
 
 
 @pytest.fixture
-def mock_delete_featurestore(mock_featurestore):
-    with patch.object(aiplatform.Featurestore, "delete") as mock_delete_featurestore:
-        mock_delete_featurestore.return_value = mock_featurestore
-        yield mock_delete_featurestore
+def mock_delete_featurestore():
+    with patch.object(aiplatform.Featurestore, "delete") as mock:
+        yield mock
