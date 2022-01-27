@@ -90,16 +90,10 @@ _TEST_TRAINING_TASK_INPUTS_DICT = {
     "quantiles": _TEST_TRAINING_QUANTILES,
     "validationOptions": _TEST_TRAINING_VALIDATION_OPTIONS,
     "optimizationObjective": _TEST_TRAINING_OPTIMIZATION_OBJECTIVE_NAME,
+    "additionalExperiments": _TEST_ADDITIONAL_EXPERIMENTS,
 }
 _TEST_TRAINING_TASK_INPUTS = json_format.ParseDict(
     _TEST_TRAINING_TASK_INPUTS_DICT, struct_pb2.Value(),
-)
-_TEST_TRAINING_TASK_INPUTS_WITH_ADDITIONAL_EXPERIMENTS = json_format.ParseDict(
-    {
-        **_TEST_TRAINING_TASK_INPUTS_DICT,
-        "additionalExperiments": _TEST_ADDITIONAL_EXPERIMENTS,
-    },
-    struct_pb2.Value(),
 )
 
 _TEST_DATASET_NAME = "test-dataset-name"
