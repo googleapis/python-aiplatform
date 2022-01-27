@@ -47,6 +47,7 @@ profiler_extra_require = [
     "werkzeug >= 2.0.0",
     "tensorflow >=2.4.0",
 ]
+featurestore_extra_require = ["pandas >= 1.0.0", "pyarrow >= 6.0.1"]
 
 full_extra_require = list(
     set(
@@ -54,6 +55,7 @@ full_extra_require = list(
         + metadata_extra_require
         + xai_extra_require
         + lit_extra_require
+        + featurestore_extra_require
     )
 )
 testing_extra_require = (
