@@ -15,6 +15,7 @@
 # limitations under the License.
 #
 
+import datetime
 import logging
 import pytest
 
@@ -201,21 +202,16 @@ class TestFeaturestore(e2e_base.TestEndToEnd):
             gcs_source_uris=_TEST_USERS_ENTITY_TYPE_GCS_SRC,
             gcs_source_type="avro",
             entity_id_field="user_id",
-            worker_count=2,
+            worker_count=1,
         )
 
         assert "EntityType feature values imported." in caplog.text
 
         caplog.clear()
 
-    def test_batch_create_features_and_ingest_feature_values(
-        self, shared_state, caplog
-    ):
-
+    def test_batch_create_features(self, shared_state):
         assert shared_state["movie_entity_type"]
         movie_entity_type = shared_state["movie_entity_type"]
-
-        caplog.set_level(logging.INFO)
 
         aiplatform.init(
             project=e2e_base._PROJECT, location=e2e_base._LOCATION,
@@ -232,21 +228,171 @@ class TestFeaturestore(e2e_base.TestEndToEnd):
 
         movie_entity_type.batch_create_features(feature_configs=movie_feature_configs)
 
-        movie_entity_type.ingest_from_gcs(
+        list_movie_features = movie_entity_type.list_features()
+        assert len(list_movie_features) == 3
+
+    def test_ingest_feature_values_from_df_using_feature_time_column_and_online_read_multiple_entities(
+        self, shared_state, caplog
+    ):
+
+        assert shared_state["movie_entity_type"]
+        movie_entity_type = shared_state["movie_entity_type"]
+
+        caplog.set_level(logging.INFO)
+
+        aiplatform.init(
+            project=e2e_base._PROJECT, location=e2e_base._LOCATION,
+        )
+
+        read_feature_ids = ["average_rating", "title", "genres"]
+
+        movie_entity_views_df_before_ingest = movie_entity_type.read(
+            entity_ids=["movie_01", "movie_02"], feature_ids=read_feature_ids,
+        )
+        expected_data_before_ingest = [
+            {
+                "entity_id": "movie_01",
+                "average_rating": None,
+                "title": None,
+                "genres": None,
+            },
+            {
+                "entity_id": "movie_02",
+                "average_rating": None,
+                "title": None,
+                "genres": None,
+            },
+        ]
+        expected_movie_entity_views_df_before_ingest = pd.DataFrame(
+            data=expected_data_before_ingest, columns=read_feature_ids
+        )
+
+        movie_entity_views_df_before_ingest.equals(
+            expected_movie_entity_views_df_before_ingest
+        )
+
+        movies_df = pd.DataFrame(
+            data=[
+                {
+                    "movie_id": "movie_01",
+                    "average_rating": 4.9,
+                    "title": "The Shawshank Redemption",
+                    "genres": "Drama",
+                    "update_time": "2021-08-20 20:44:11.094375+00:00",
+                },
+                {
+                    "movie_id": "movie_02",
+                    "average_rating": 4.2,
+                    "title": "The Shining",
+                    "genres": "Horror",
+                    "update_time": "2021-08-20 20:44:11.094375+00:00",
+                },
+            ],
+            columns=["movie_id", "average_rating", "title", "genres", "update_time"],
+        )
+        movies_df = movies_df.astype({"update_time": "datetime64"})
+        feature_time_column = "update_time"
+
+        movie_entity_type.ingest_from_df(
             feature_ids=[
                 _TEST_MOVIE_TITLE_FEATURE_ID,
                 _TEST_MOVIE_GENRES_FEATURE_ID,
                 _TEST_MOVIE_AVERAGE_RATING_FEATURE_ID,
             ],
-            feature_time="update_time",
-            gcs_source_uris=_TEST_MOVIES_ENTITY_TYPE_GCS_SRC,
-            gcs_source_type="avro",
+            feature_time=feature_time_column,
+            df_source=movies_df,
             entity_id_field="movie_id",
-            worker_count=2,
         )
 
-        list_movie_features = movie_entity_type.list_features()
-        assert len(list_movie_features) == 3
+        movie_entity_views_df_after_ingest = movie_entity_type.read(
+            entity_ids=["movie_01", "movie_02"], feature_ids=read_feature_ids,
+        )
+        expected_data_after_ingest = [
+            {
+                "movie_id": "movie_01",
+                "average_rating": 4.9,
+                "title": "The Shawshank Redemption",
+                "genres": "Drama",
+            },
+            {
+                "movie_id": "movie_02",
+                "average_rating": 4.2,
+                "title": "The Shining",
+                "genres": "Horror",
+            },
+        ]
+        expected_movie_entity_views_df_after_ingest = pd.DataFrame(
+            data=expected_data_after_ingest, columns=read_feature_ids
+        )
+
+        movie_entity_views_df_after_ingest.equals(
+            expected_movie_entity_views_df_after_ingest
+        )
+
+        assert "EntityType feature values imported." in caplog.text
+        caplog.clear()
+
+    def test_ingest_feature_values_from_df_using_feature_time_datetime_and_online_read_single_entity(
+        self, shared_state, caplog
+    ):
+        assert shared_state["movie_entity_type"]
+        movie_entity_type = shared_state["movie_entity_type"]
+
+        caplog.set_level(logging.INFO)
+
+        aiplatform.init(
+            project=e2e_base._PROJECT, location=e2e_base._LOCATION,
+        )
+
+        movies_df = pd.DataFrame(
+            data=[
+                {
+                    "movie_id": "movie_03",
+                    "average_rating": 4.5,
+                    "title": "Cinema Paradiso",
+                    "genres": "Romance",
+                },
+                {
+                    "movie_id": "movie_04",
+                    "average_rating": 4.6,
+                    "title": "The Dark Knight",
+                    "genres": "Action",
+                },
+            ],
+            columns=["movie_id", "average_rating", "title", "genres"],
+        )
+
+        feature_time_datetime_str = datetime.datetime.now().isoformat(
+            sep=" ", timespec="milliseconds"
+        )
+        feature_time_datetime = datetime.datetime.strptime(
+            feature_time_datetime_str, "%Y-%m-%d %H:%M:%S.%f"
+        )
+
+        movie_entity_type.ingest_from_df(
+            feature_ids=[
+                _TEST_MOVIE_TITLE_FEATURE_ID,
+                _TEST_MOVIE_GENRES_FEATURE_ID,
+                _TEST_MOVIE_AVERAGE_RATING_FEATURE_ID,
+            ],
+            feature_time=feature_time_datetime,
+            df_source=movies_df,
+            entity_id_field="movie_id",
+        )
+
+        movie_entity_views_df_avg_rating = movie_entity_type.read(
+            entity_ids="movie_04", feature_ids="average_rating",
+        )
+        expected_data_avg_rating = [
+            {"movie_id": "movie_04", "average_rating": 4.6},
+        ]
+        expected_movie_entity_views_df_avg_rating = pd.DataFrame(
+            data=expected_data_avg_rating, columns=["average_rating"]
+        )
+
+        movie_entity_views_df_avg_rating.equals(
+            expected_movie_entity_views_df_avg_rating
+        )
 
         assert "EntityType feature values imported." in caplog.text
 
