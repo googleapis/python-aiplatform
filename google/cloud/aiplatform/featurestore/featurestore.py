@@ -16,6 +16,7 @@
 #
 
 from typing import Dict, List, Optional, Sequence, Tuple, Union
+import uuid
 
 from google.auth import credentials as auth_credentials
 from google.protobuf import field_mask_pb2
@@ -31,6 +32,8 @@ from google.cloud.aiplatform import featurestore
 from google.cloud.aiplatform import initializer
 from google.cloud.aiplatform import utils
 from google.cloud.aiplatform.utils import featurestore_utils
+
+from google.cloud import bigquery
 
 _LOGGER = base.Logger(__name__)
 
@@ -591,6 +594,38 @@ class Featurestore(base.VertexAiResourceNounWithFutureManager):
 
         return self
 
+    def _validate_and_get_read_instances(
+        self, read_instances_uri: str,
+    ) -> Union[gca_io.BigQuerySource, gca_io.CsvSource]:
+        """Gets read_instances
+
+        Args:
+            read_instances_uri (str):
+                Required. Read_instances_uri can be either BigQuery URI to an input table,
+                or Google Cloud Storage URI to a csv file.
+
+        Returns:
+            Union[gca_io.BigQuerySource, gca_io.CsvSource]:
+                BigQuery source or Csv source for read instances. The Csv source contains exactly 1 URI.
+
+        Raises:
+            ValueError if read_instances_uri does not start with 'bq://' or 'gs://'.
+        """
+        if not (
+            read_instances_uri.startswith("bq://")
+            or read_instances_uri.startswith("gs://")
+        ):
+            raise ValueError(
+                "The read_instances_uri should be a single uri starts with either 'bq://' or 'gs://'."
+            )
+
+        if read_instances_uri.startswith("bq://"):
+            return gca_io.BigQuerySource(input_uri=read_instances_uri)
+        if read_instances_uri.startswith("gs://"):
+            return gca_io.CsvSource(
+                gcs_source=gca_io.GcsSource(uris=[read_instances_uri])
+            )
+
     def _validate_and_get_batch_read_feature_values_request(
         self,
         serving_feature_ids: Dict[str, List[str]],
@@ -599,9 +634,9 @@ class Featurestore(base.VertexAiResourceNounWithFutureManager):
             gca_io.CsvDestination,
             gca_io.TFRecordDestination,
         ],
-        feature_destination_fields: Optional[Dict[str, str]] = None,
-        read_instances: Optional[Union[gca_io.BigQuerySource, gca_io.CsvSource]] = None,
+        read_instances: Union[gca_io.BigQuerySource, gca_io.CsvSource],
         pass_through_fields: Optional[List[str]] = None,
+        feature_destination_fields: Optional[Dict[str, str]] = None,
     ) -> gca_featurestore_service.BatchReadFeatureValuesRequest:
         """Validates and gets batch_read_feature_values_request
 
@@ -619,7 +654,17 @@ class Featurestore(base.VertexAiResourceNounWithFutureManager):
 
             destination (Union[gca_io.BigQueryDestination, gca_io.CsvDestination, gca_io.TFRecordDestination]):
                 Required. BigQuery destination, Csv destination or TFRecord destination.
+            read_instances (Union[gca_io.BigQuerySource, gca_io.CsvSource]):
+                Required. BigQuery source or Csv source for read instances.
+                The Csv source must contain exactly 1 URI.
+            pass_through_fields (List[str]):
+                Optional. When not empty, the specified fields in the
+                read_instances source will be joined as-is in the output,
+                in addition to those fields from the Featurestore Entity.
 
+                For BigQuery source, the type of the pass-through values
+                will be automatically inferred. For CSV source, the
+                pass-through values will be passed as opaque bytes.
             feature_destination_fields (Dict[str, str]):
                 Optional. A user defined dictionary to map a feature's fully qualified resource name to
                 its destination field name. If the destination field name is not defined,
@@ -630,17 +675,6 @@ class Featurestore(base.VertexAiResourceNounWithFutureManager):
                         'projects/123/locations/us-central1/featurestores/fs_id/entityTypes/et_id1/features/f_id11': 'foo',
                         'projects/123/locations/us-central1/featurestores/fs_id/entityTypes/et_id2/features/f_id22': 'bar',
                      }
-
-            read_instances (Union[gca_io.BigQuerySource, gca_io.CsvSource]):
-                Optional. BigQuery source or Csv source for read instances.
-            pass_through_fields (List[str]):
-                Optional. When not empty, the specified fields in the
-                read_instances source will be joined as-is in the output,
-                in addition to those fields from the Featurestore Entity.
-
-                For BigQuery source, the type of the pass-through values
-                will be automatically inferred. For CSV source, the
-                pass-through values will be passed as opaque bytes.
 
         Returns:
             gca_featurestore_service.BatchReadFeatureValuesRequest: batch read feature values request
@@ -715,59 +749,14 @@ class Featurestore(base.VertexAiResourceNounWithFutureManager):
 
         return batch_read_feature_values_request
 
-    def _get_read_instances(
-        self, read_instances: Union[str, List[str]],
-    ) -> Union[gca_io.BigQuerySource, gca_io.CsvSource]:
-        """Gets read_instances
-
-        Args:
-            read_instances (Union[str, List[str]]):
-                Required. Read_instances can be either BigQuery URI to the input table,
-                or Google Cloud Storage URI(-s) to the csv file(s).
-
-        Returns:
-            Union[gca_io.BigQuerySource, gca_io.CsvSource]: BigQuery source or Csv source for read instances.
-
-        Raises:
-            TypeError if read_instances is not a string or a list of strings.
-            ValueError if read_instances uri does not start with 'bq://' or 'gs://'.
-            ValueError if uris in read_instances do not start with 'gs://'.
-        """
-        if isinstance(read_instances, str):
-            if not (
-                read_instances.startswith("bq://") or read_instances.startswith("gs://")
-            ):
-                raise ValueError(
-                    "The read_instances accepts a single uri starts with 'bq://' or 'gs://'."
-                )
-        elif isinstance(read_instances, list) and all(
-            [isinstance(e, str) for e in read_instances]
-        ):
-            if not all([e.startswith("gs://") for e in read_instances]):
-                raise ValueError(
-                    "The read_instances accepts a list of uris start with 'gs://' only."
-                )
-        else:
-            raise TypeError(
-                "The read_instances type should to be either a str or a List[str]."
-            )
-
-        if isinstance(read_instances, str):
-            if read_instances.startswith("bq://"):
-                return gca_io.BigQuerySource(input_uri=read_instances)
-            else:
-                read_instances = [read_instances]
-
-        return gca_io.CsvSource(gcs_source=gca_io.GcsSource(uris=read_instances))
-
     @base.optional_sync(return_input_arg="self")
     def batch_serve_to_bq(
         self,
         bq_destination_output_uri: str,
         serving_feature_ids: Dict[str, List[str]],
-        feature_destination_fields: Optional[Dict[str, str]] = None,
-        read_instances: Optional[Union[str, List[str]]] = None,
+        read_instances_uri: str,
         pass_through_fields: Optional[List[str]] = None,
+        feature_destination_fields: Optional[Dict[str, str]] = None,
         request_metadata: Optional[Sequence[Tuple[str, str]]] = (),
         sync: bool = True,
     ) -> "Featurestore":
@@ -793,29 +782,16 @@ class Featurestore(base.VertexAiResourceNounWithFutureManager):
                         'my_entity_type_id_2': ['feature_id_2_1', 'feature_id_2_2'],
                     }
 
-            feature_destination_fields (Dict[str, str]):
-                Optional. A user defined dictionary to map a feature's fully qualified resource name to
-                its destination field name. If the destination field name is not defined,
-                the feature ID will be used as its destination field name.
+            read_instances_uri (str):
+                Required. Read_instances_uri can be either BigQuery URI to an input table,
+                or Google Cloud Storage URI to a csv file.
 
-                Example:
-                    feature_destination_fields = {
-                        'projects/123/locations/us-central1/featurestores/fs_id/entityTypes/et_id1/features/f_id11': 'foo',
-                        'projects/123/locations/us-central1/featurestores/fs_id/entityTypes/et_id2/features/f_id22': 'bar',
-                     }
-
-            read_instances (Union[str, List[str]]):
-                Optional. Read_instances can be either BigQuery URI to the input table,
-                or Google Cloud Storage URI(-s) to the
-                csv file(s). May contain wildcards. For more
-                information on wildcards, see
-                https://cloud.google.com/storage/docs/gsutil/addlhelp/WildcardNames.
                 Example:
                     'bq://project.dataset.table_name'
                     or
-                    ["gs://my_bucket/my_file_1.csv", "gs://my_bucket/my_file_2.csv"]
+                    "gs://my_bucket/my_file.csv"
 
-                Each read instance consists of exactly one read timestamp
+                Each read instance should consist of exactly one read timestamp
                 and one or more entity IDs identifying entities of the
                 corresponding EntityTypes whose Features are requested.
 
@@ -844,6 +820,17 @@ class Featurestore(base.VertexAiResourceNounWithFutureManager):
                 will be automatically inferred. For CSV source, the
                 pass-through values will be passed as opaque bytes.
 
+            feature_destination_fields (Dict[str, str]):
+                Optional. A user defined dictionary to map a feature's fully qualified resource name to
+                its destination field name. If the destination field name is not defined,
+                the feature ID will be used as its destination field name.
+
+                Example:
+                    feature_destination_fields = {
+                        'projects/123/locations/us-central1/featurestores/fs_id/entityTypes/et_id1/features/f_id11': 'foo',
+                        'projects/123/locations/us-central1/featurestores/fs_id/entityTypes/et_id2/features/f_id22': 'bar',
+                     }
+
         Returns:
             Featurestore: The featurestore resource object batch read feature values from.
 
@@ -851,15 +838,15 @@ class Featurestore(base.VertexAiResourceNounWithFutureManager):
             NotFound: if the BigQuery destination Dataset does not exist.
             FailedPrecondition: if the BigQuery destination Dataset/Table is in a different project.
         """
+        read_instances = self._validate_and_get_read_instances(read_instances_uri)
+
         batch_read_feature_values_request = self._validate_and_get_batch_read_feature_values_request(
             serving_feature_ids=serving_feature_ids,
             destination=gca_io.BigQueryDestination(
                 output_uri=bq_destination_output_uri
             ),
             feature_destination_fields=feature_destination_fields,
-            read_instances=read_instances
-            if read_instances is None
-            else self._get_read_instances(read_instances),
+            read_instances=read_instances,
             pass_through_fields=pass_through_fields,
         )
 
@@ -874,9 +861,9 @@ class Featurestore(base.VertexAiResourceNounWithFutureManager):
         gcs_destination_output_uri_prefix: str,
         gcs_destination_type: str,
         serving_feature_ids: Dict[str, List[str]],
-        feature_destination_fields: Optional[Dict[str, str]] = None,
-        read_instances: Optional[Union[str, List[str]]] = None,
+        read_instances_uri: str,
         pass_through_fields: Optional[List[str]] = None,
+        feature_destination_fields: Optional[Dict[str, str]] = None,
         request_metadata: Optional[Sequence[Tuple[str, str]]] = (),
         sync: bool = True,
     ) -> "Featurestore":
@@ -923,29 +910,16 @@ class Featurestore(base.VertexAiResourceNounWithFutureManager):
                         'my_entity_type_id_2': ['feature_id_2_1', 'feature_id_2_2'],
                     }
 
-            feature_destination_fields (Dict[str, str]):
-                Optional. A user defined dictionary to map a feature's fully qualified resource name to
-                its destination field name. If the destination field name is not defined,
-                the feature ID will be used as its destination field name.
+            read_instances_uri (str):
+                Required. Read_instances_uri can be either BigQuery URI to an input table,
+                or Google Cloud Storage URI to a csv file.
 
-                Example:
-                    feature_destination_fields = {
-                        'projects/123/locations/us-central1/featurestores/fs_id/entityTypes/et_id1/features/f_id11': 'foo',
-                        'projects/123/locations/us-central1/featurestores/fs_id/entityTypes/et_id2/features/f_id22': 'bar',
-                     }
-
-            read_instances (Union[str, List[str]]):
-                Optional. Read_instances can be either BigQuery URI to the input table,
-                or Google Cloud Storage URI(-s) to the
-                csv file(s). May contain wildcards. For more
-                information on wildcards, see
-                https://cloud.google.com/storage/docs/gsutil/addlhelp/WildcardNames.
                 Example:
                     'bq://project.dataset.table_name'
                     or
-                    ["gs://my_bucket/my_file_1.csv", "gs://my_bucket/my_file_2.csv"]
+                    "gs://my_bucket/my_file.csv"
 
-                Each read instance consists of exactly one read timestamp
+                Each read instance should consist of exactly one read timestamp
                 and one or more entity IDs identifying entities of the
                 corresponding EntityTypes whose Features are requested.
 
@@ -974,6 +948,17 @@ class Featurestore(base.VertexAiResourceNounWithFutureManager):
                 will be automatically inferred. For CSV source, the
                 pass-through values will be passed as opaque bytes.
 
+            feature_destination_fields (Dict[str, str]):
+                Optional. A user defined dictionary to map a feature's fully qualified resource name to
+                its destination field name. If the destination field name is not defined,
+                the feature ID will be used as its destination field name.
+
+                Example:
+                    feature_destination_fields = {
+                        'projects/123/locations/us-central1/featurestores/fs_id/entityTypes/et_id1/features/f_id11': 'foo',
+                        'projects/123/locations/us-central1/featurestores/fs_id/entityTypes/et_id2/features/f_id22': 'bar',
+                     }
+
         Returns:
             Featurestore: The featurestore resource object batch read feature values from.
 
@@ -999,13 +984,13 @@ class Featurestore(base.VertexAiResourceNounWithFutureManager):
         if gcs_destination_type == "tfrecord":
             destination = gca_io.TFRecordDestination(gcs_destination=gcs_destination)
 
+        read_instances = self._validate_and_get_read_instances(read_instances_uri)
+
         batch_read_feature_values_request = self._validate_and_get_batch_read_feature_values_request(
             serving_feature_ids=serving_feature_ids,
             destination=destination,
             feature_destination_fields=feature_destination_fields,
-            read_instances=read_instances
-            if read_instances is None
-            else self._get_read_instances(read_instances),
+            read_instances=read_instances,
             pass_through_fields=pass_through_fields,
         )
 
@@ -1013,3 +998,190 @@ class Featurestore(base.VertexAiResourceNounWithFutureManager):
             batch_read_feature_values_request=batch_read_feature_values_request,
             request_metadata=request_metadata,
         )
+
+    def batch_serve_to_df(
+        self,
+        serving_feature_ids: Dict[str, List[str]],
+        read_instances_df: "pd.DataFrame",  # noqa: F821 - skip check for undefined name 'pd'
+        pass_through_fields: Optional[List[str]] = None,
+        feature_destination_fields: Optional[Dict[str, str]] = None,
+        request_metadata: Optional[Sequence[Tuple[str, str]]] = (),
+    ) -> "pd.DataFrame":  # noqa: F821 - skip check for undefined name 'pd'
+        """ Batch serves feature values to pandas DataFrame
+
+        Note:
+            Calling this method will automatically create and delete a temporary
+            bigquery dataset in the same GCP project, which will be used
+            as the intermediary storage for batch serve feature values
+            from featurestore to dataframe.
+
+        Args:
+            serving_feature_ids (Dict[str, List[str]]):
+                Required. A user defined dictionary to define the entity_types and their features for batch serve/read.
+                The keys of the dictionary are the serving entity_type ids and
+                the values are lists of serving feature ids in each entity_type.
+
+                Example:
+                    serving_feature_ids = {
+                        'my_entity_type_id_1': ['feature_id_1_1', 'feature_id_1_2'],
+                        'my_entity_type_id_2': ['feature_id_2_1', 'feature_id_2_2'],
+                    }
+
+            read_instances_df (pd.DataFrame):
+                Required. Read_instances_df is a pandas DataFrame containing the read instances.
+
+                Each read instance should consist of exactly one read timestamp
+                and one or more entity IDs identifying entities of the
+                corresponding EntityTypes whose Features are requested.
+
+                Each output instance contains Feature values of requested
+                entities concatenated together as of the read time.
+
+                An example read_instances_df may be
+                    pd.DataFrame(
+                        data=[
+                            {
+                                "my_entity_type_id_1": "my_entity_type_id_1_entity_1",
+                                "my_entity_type_id_2": "my_entity_type_id_2_entity_1",
+                                "timestamp": "2020-01-01T10:00:00.123Z"
+                        ],
+                    )
+
+                An example batch_serve_output_df may be
+                    pd.DataFrame(
+                        data=[
+                            {
+                                "my_entity_type_id_1": "my_entity_type_id_1_entity_1",
+                                "my_entity_type_id_2": "my_entity_type_id_2_entity_1",
+                                "foo": "feature_id_1_1_feature_value",
+                                "feature_id_1_2": "feature_id_1_2_feature_value",
+                                "feature_id_2_1": "feature_id_2_1_feature_value",
+                                "bar": "feature_id_2_2_feature_value",
+                                "timestamp": "2020-01-01T10:00:00.123Z"
+                        ],
+                    )
+
+                Timestamp in each read instance must be millisecond-aligned.
+
+                The columns can be in any order.
+
+                Values in the timestamp column must use the RFC 3339 format,
+                e.g. ``2012-07-30T10:43:17.123Z``.
+
+            pass_through_fields (List[str]):
+                Optional. When not empty, the specified fields in the
+                read_instances source will be joined as-is in the output,
+                in addition to those fields from the Featurestore Entity.
+
+                For BigQuery source, the type of the pass-through values
+                will be automatically inferred. For CSV source, the
+                pass-through values will be passed as opaque bytes.
+
+            feature_destination_fields (Dict[str, str]):
+                Optional. A user defined dictionary to map a feature's fully qualified resource name to
+                its destination field name. If the destination field name is not defined,
+                the feature ID will be used as its destination field name.
+
+                Example:
+                    feature_destination_fields = {
+                        'projects/123/locations/us-central1/featurestores/fs_id/entityTypes/et_id1/features/f_id11': 'foo',
+                        'projects/123/locations/us-central1/featurestores/fs_id/entityTypes/et_id2/features/f_id22': 'bar',
+                     }
+
+        Returns:
+            pd.DataFrame: The pandas DataFrame containing feature values from batch serving.
+
+        """
+        try:
+            from google.cloud import bigquery_storage
+        except ImportError:
+            raise ImportError(
+                f"Google-Cloud-Bigquery-Storage is not installed. Please install google-cloud-bigquery-storage to use "
+                f"{self.batch_serve_to_df.__name__}"
+            )
+
+        try:
+            import pyarrow  # noqa: F401 - skip check for 'pyarrow' which is required when using 'google.cloud.bigquery'
+        except ImportError:
+            raise ImportError(
+                f"Pyarrow is not installed. Please install pyarrow to use "
+                f"{self.batch_serve_to_df.__name__}"
+            )
+
+        try:
+            import pandas as pd
+        except ImportError:
+            raise ImportError(
+                f"Pandas is not installed. Please install pandas to use "
+                f"{self.batch_serve_to_df.__name__}"
+            )
+
+        bigquery_client = bigquery.Client(
+            project=self.project, credentials=self.credentials
+        )
+
+        featurestore_name_components = self._parse_resource_name(self.resource_name)
+        featurestore_id = featurestore_name_components["featurestore"]
+
+        temp_bq_dataset_name = f"temp_{featurestore_id}_{uuid.uuid4()}".replace(
+            "-", "_"
+        )
+        temp_bq_dataset_id = f"{initializer.global_config.project}.{temp_bq_dataset_name}"[
+            :1024
+        ]
+        temp_bq_dataset = bigquery.Dataset(dataset_ref=temp_bq_dataset_id)
+        temp_bq_dataset.location = self.location
+        temp_bq_dataset = bigquery_client.create_dataset(temp_bq_dataset)
+
+        temp_bq_batch_serve_table_name = "batch_serve"
+        temp_bq_read_instances_table_name = "read_instances"
+        temp_bq_batch_serve_table_id = (
+            f"{temp_bq_dataset_id}.{temp_bq_batch_serve_table_name}"
+        )
+        temp_bq_read_instances_table_id = (
+            f"{temp_bq_dataset_id}.{temp_bq_read_instances_table_name}"
+        )
+
+        try:
+
+            job = bigquery_client.load_table_from_dataframe(
+                dataframe=read_instances_df, destination=temp_bq_read_instances_table_id
+            )
+            job.result()
+
+            self.batch_serve_to_bq(
+                bq_destination_output_uri=f"bq://{temp_bq_batch_serve_table_id}",
+                serving_feature_ids=serving_feature_ids,
+                read_instances_uri=f"bq://{temp_bq_read_instances_table_id}",
+                pass_through_fields=pass_through_fields,
+                feature_destination_fields=feature_destination_fields,
+                request_metadata=request_metadata,
+            )
+
+            bigquery_storage_read_client = bigquery_storage.BigQueryReadClient(
+                credentials=self.credentials
+            )
+            read_session_proto = bigquery_storage_read_client.create_read_session(
+                parent=f"projects/{self.project}",
+                read_session=bigquery_storage.types.ReadSession(
+                    table="projects/{project}/datasets/{dataset}/tables/{table}".format(
+                        project=self.project,
+                        dataset=temp_bq_dataset_name,
+                        table=temp_bq_batch_serve_table_name,
+                    ),
+                    data_format=bigquery_storage.types.DataFormat.ARROW,
+                ),
+            )
+
+        finally:
+            bigquery_client.delete_dataset(
+                dataset=temp_bq_dataset.dataset_id, delete_contents=True,
+            )
+
+        frames = []
+        for stream in read_session_proto.streams:
+            reader = bigquery_storage_read_client.read_rows(stream.name)
+            for message in reader.rows().pages:
+                frames.append(message.to_dataframe())
+
+        return None if not frames else pd.concat(frames)
