@@ -13,21 +13,26 @@
 # limitations under the License.
 
 
-#  [START aiplatform_sdk_create_entity_type_sample]
+#  [START aiplatform_sdk_create_feature_sample]
 from google.cloud import aiplatform
 
 
-def create_entity_type_sample(
+def create_feature_sample(
     project: str,
     location: str,
-    entity_type_id: str,
-    featurestore_name: str,
+    feature_id: str,
+    value_type: str,
+    entity_type_name: str,
+    featurestore_id: str,
 ):
 
     aiplatform.init(project=project, location=location)
 
-    fs = aiplatform.EntityType.create(
-        entity_type_id=entity_type_id, featurestore_name=featurestore_name
+    fs = aiplatform.Feature.create(
+        feature_id=feature_id,
+        value_type=value_type,
+        entity_type_name=entity_type_name,
+        featurestore_id=featurestore_id,
     )
 
     fs.wait()
@@ -35,5 +40,4 @@ def create_entity_type_sample(
     return fs
 
 
-create_entity_type_sample()
-#  [END aiplatform_sdk_create_entity_type_sample]
+#  [END aiplatform_sdk_create_feature_sample]

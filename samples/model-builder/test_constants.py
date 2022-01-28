@@ -1,4 +1,4 @@
-# Copyright 2021 Google LLC
+# Copyright 2022 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -33,6 +33,8 @@ CREDENTIALS = credentials.AnonymousCredentials()
 
 FEAUTURESTORE_NAME = "featurestore_sample"
 ENTITY_TYPE_ID = "entity_type_sample"
+FEATURE_ID = "feature_sample"
+FEATURE_VALUE_TYPE = "INT64"
 RESOURCE_ID = str(randint(10000000, 99999999))  # Create random resource ID
 RESOURCE_ID_2 = str(randint(10000000, 99999999))
 
