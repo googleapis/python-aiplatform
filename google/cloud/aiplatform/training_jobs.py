@@ -4054,7 +4054,7 @@ class AutoMLForecastingTrainingJob(_TrainingJob):
                 See https://goo.gl/xmQnxf for more information
                 and examples of labels.
             additional_experiments (List[str]):
-                Additional experiment flags for the time series forcasting training.
+                Optional. Additional experiment flags for the time series forcasting training.
             sync (bool):
                 Whether to execute this method synchronously. If False, this method
                 will be executed in concurrent Future and any downstream object will
