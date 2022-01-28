@@ -3438,7 +3438,7 @@ class AutoMLTabularTrainingJob(_TrainingJob):
                 Applies only if [export_evaluated_data_items] is True and
                 [export_evaluated_data_items_bigquery_destination_uri] is specified.
             additional_experiments (List[str]):
-                Additional experiment flags for the automl tables training.
+                Optional. Additional experiment flags for the automl tables training.
             sync (bool):
                 Whether to execute this method synchronously. If False, this method
                 will be executed in concurrent Future and any downstream object will
