@@ -31,6 +31,7 @@ from google.cloud.aiplatform import base
 from google.cloud.aiplatform import initializer
 from google.cloud.aiplatform.metadata import metadata
 from google.cloud.aiplatform.metadata import constants
+from google.cloud.aiplatform.metadata.artifact import Artifact
 from google.cloud.aiplatform.metadata.artifact import _Artifact
 from google.cloud.aiplatform.metadata.context import _Context
 from google.cloud.aiplatform.metadata.execution import _Execution
@@ -413,7 +414,8 @@ class ExperimentRun:
             "experiment_name": self._experiment.name,
             "run_name": self._run_name,
         }
-        run_dict.update(_execution_to_column_named_metadata("param", self._metadata_execution.metadata))
+
+        run_dict.update(_execution_to_column_named_metadata("param", self.get_params()))
         run_dict.update(_execution_to_column_named_metadata("metric", self._metadata_metric.metadata))
         run_dict.update(self._get_latest_time_series_metric_columns())
 
@@ -566,13 +568,23 @@ class ExperimentRun:
                 else:
                     time.sleep(1)
 
-        self._metadata_context.add_context_children([pipeline_job_context])        
+        self._metadata_context.add_context_children([pipeline_job_context])
 
+    def _log_artifact(self, artifact: Artifact):
+        self._metadata_execution.add_artifact(
+            artifact_resource_name=artifact.resource_name,
+            input=False)
 
-    def log(self, *, pipeline_job: Optional[pipeline_jobs.PipelineJob]=None):
+    def _consume_artifact(self, artifact: Artifact):
+        self._metadata_execution.add_artifact(
+            artifact_resource_name=artifact.resource_name,
+            input=True)
+
+    def log(self, *, pipeline_job: Optional[pipeline_jobs.PipelineJob]=None, artifact: Optional[Artifact]=None):
         if pipeline_job:
             self._log_pipeline_job(pipeline_job=pipeline_job)
-
+        if artifact:
+            self._log_artifact(artifact=artifact)
 
     @classmethod
     def create(
@@ -606,13 +618,15 @@ class ExperimentRun:
         if metadata_context is None:
             raise RuntimeError(f'Experiment Run with name {run_name} in {experiment.name} already exists.')
 
+        cls._soft_register_system_run_schema(metadata_context)
+
         experiment._metadata_context.add_context_children([metadata_context])
 
         with _SetLoggerLevel(resource):
             metadata_execution = _Execution._create(
                 resource_id=run_id,
                 display_name=run_name,
-                schema_title=constants.SYSTEM_RUN,
+                schema_title=constants._EXPERIMENTS_V2_SYSTEM_RUN,
                 schema_version=constants.SCHEMA_VERSIONS[constants.SYSTEM_RUN],
                 project=project,
                 location=location,
@@ -742,6 +756,26 @@ class ExperimentRun:
                 metadata_store_name= parent
             )
 
+    @classmethod
+    def _soft_register_system_run_schema(cls, metadata_context: _Context):
+        """Registers SystemRun Metadata schema is not populated."""
+        resource_name_parts = metadata_context._parse_resource_name(metadata_context.resource_name)
+        resource_name_parts.pop('context')
+        parent = _MetadataStore._format_resource_name(**resource_name_parts)
+        schema = metadata_utils.make_experiment_v2_metadata_schema()
+        schema_id = constants._EXPERIMENTS_V2_SYSTEM_RUN_SCHEMA_TITLE
+        resource_name_parts['metadata_schema'] = schema_id 
+        metadata_schema_name = _MetadataSchema._format_resource_name(**resource_name_parts)
+
+        try:
+            _MetadataSchema(metadata_schema_name, credentials=metadata_context.credentials)
+        except exceptions.NotFound as e:
+            _MetadataSchema.create(
+                metadata_schema = schema,
+                metadata_schema_id = schema_id,
+                metadata_store_name= parent
+            ) 
+
     def _get_latest_time_series_step(self) -> int:
         """Gets latest time series step of all time series from Tensorboard resource."""
         data = self._backing_tensorboard_run.resource.read_time_series_data()
@@ -869,6 +903,9 @@ class ExperimentRun:
             pipeline_jobs.PipelineJob.get(c.name, project=c.project, location=c.location, credentials=c.credentials)
             for c in pipeline_job_contexts]
 
+    def assign_artifact_as_input(self, artifact: Artifact):
+        self._consume_artifact(artifact)
+
     def __enter__(self):
         return self
 
@@ -880,9 +917,15 @@ class ExperimentRun:
     def delete(self, delete_backing_tensorboard_run=False):
         raise NotImplemented('delete not implemented')
 
+    def get_input_artifacts(self) -> List[Artifact]:
+        return self._metadata_execution.get_input_artifacts()
 
+    def get_output_artifacts(self) -> List[Artifact]:
+        return self._metadata_execution.get_output_artifacts()
 
-
-
-
-
+    def get_params(self) -> Dict[str, Union[int, float, str]]:
+        execution_metadata = self._metadata_execution.metadata
+        return {
+            key: int(value) if isinstance(value, float) and int(value) == value else value 
+            for key, value in execution_metadata.items()
+        }

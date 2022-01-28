@@ -126,8 +126,18 @@ if metadata._EXPERIMENT_TRACKING_VERSION == "v2":
     start_run = metadata.experiment_tracker.start_run
     log = metadata.experiment_tracker.log
     log_time_series_metrics = metadata.experiment_tracker.log_time_series_metrics
+    get_artifact = metadata.experiment_tracker.get_artifact
     init=initializer.global_config.init_experiment_v2
     end_run=metadata.experiment_tracker.end_run
     Experiment = metadata.experiment_resources.Experiment
     ExperimentRun = metadata.experiment_resources.ExperimentRun
-    __all__ = __all__ + ("log", "log_time_series_metrics", "end_run", "Experiment", "ExperimentRun")
+    Artifact = metadata.Artifact
+
+    __all__ = __all__ + (
+        "get_artifact",
+        "log",
+        "log_time_series_metrics",
+        "end_run",
+        "Artifact",
+        "Experiment",
+        "ExperimentRun")

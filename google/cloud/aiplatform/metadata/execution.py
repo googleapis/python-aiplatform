@@ -15,7 +15,7 @@
 # limitations under the License.
 #
 
-from typing import Optional, Dict, Sequence
+from typing import Optional, Dict, List, Sequence
 
 import proto
 from google.api_core import exceptions
@@ -81,6 +81,32 @@ class _Execution(resource._Resource):
             )
             for metadata_artifact in artifacts
         ]
+
+    def _get_artifacts(self, event_type: gca_event.Event.Type) -> List[artifact.Artifact]:
+        subgraph = self.api_client.query_execution_inputs_and_outputs(
+            execution=self.resource_name)
+
+        artifact_map = {artifact.name:artifact for artifact in subgraph.artifacts}
+
+        gca_artifacts = [artifact_map[event.artifact] for event in subgraph.events if event.type_ == event_type]
+
+        artifacts = []
+        for gca_artifact in gca_artifacts:
+            this_artifact = artifact.Artifact._empty_constructor(
+                    project=self.project,
+                    location=self.location,
+                    credentials=self.credentials,
+                )
+            this_artifact._gca_resource = gca_artifact
+            artifacts.append(this_artifact)
+
+        return artifacts
+
+    def get_input_artifacts(self) -> List[artifact.Artifact]:
+        return self._get_artifacts(event_type= gca_event.Event.Type.INPUT)
+
+    def get_output_artifacts(self) -> List[artifact.Artifact]:
+        return self._get_artifacts(event_type= gca_event.Event.Type.OUTPUT)
 
     @classmethod
     def _create_resource(

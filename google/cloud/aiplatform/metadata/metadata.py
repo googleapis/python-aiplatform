@@ -22,8 +22,10 @@ import time
 
 from google.protobuf import timestamp_pb2
 
+from google.cloud.aiplatform import base
 from google.cloud.aiplatform.compat.types import event as gca_event
 from google.cloud.aiplatform.metadata import constants
+from google.cloud.aiplatform.metadata.artifact import Artifact
 from google.cloud.aiplatform.metadata.artifact import _Artifact
 from google.cloud.aiplatform.metadata.context import _Context
 from google.cloud.aiplatform.metadata.execution import _Execution
@@ -31,6 +33,8 @@ from google.cloud.aiplatform.metadata import experiment_resources
 from google.cloud.aiplatform.metadata.metadata_store import _MetadataStore
 from google.cloud.aiplatform import pipeline_jobs
 from google.cloud.aiplatform.tensorboard import tensorboard_resource
+
+_LOGGER = base.Logger(__name__)
 
 # runtime patch to v2 to use new data model
 _EXPERIMENT_TRACKING_VERSION = "v1"
@@ -812,7 +816,9 @@ class ExperimentTracker:
 
         return experiment.get_dataframe()
 
-    def log(self, *, pipeline_job: Optional[pipeline_jobs.PipelineJob]=None):
+    def log(self, *,
+        pipeline_job: Optional[pipeline_jobs.PipelineJob]=None,
+        artifact: Optional[Artifact]=None):
         """Log Vertex AI Resources and Artifacts to the current Experiment Run.
         
         Args:
@@ -826,7 +832,7 @@ class ExperimentTracker:
                 current Experiment Run.
         """ 
         self._validate_experiment_and_run(method_name="log")
-        self._experiment_run.log(pipeline_job=pipeline_job)
+        self._experiment_run.log(pipeline_job=pipeline_job, artifact=artifact)
 
     def log_time_series_metrics(
         self,
@@ -862,6 +868,23 @@ class ExperimentTracker:
         self._experiment_run.log_time_series_metrics(
             metrics=metrics, step=step, wall_time=wall_time)
 
+
+    def get_artifact(self, *, uri: Optional[str]=None, artifact_name: Optional[str]=None, assign_as_input=False):
+        self._validate_experiment_and_run(method_name='get_artifact')
+
+        if bool(uri) == bool(artifact_name):
+            raise ValueError('To get an artifact, provide only one of `uri` or `artifact_name`')
+
+        if artifact_name:
+            # TODO(compose artifact name if only provided resource_id)
+            artifact = Artifact(resource_name=artifact_name)
+        else:
+            artifact = Artifact.get_with_uri(uri=uri)
+        
+        if assign_as_input:
+            self._experiment_run.assign_artifact_as_input(artifact=artifact)
+
+        return artifact
 
 metadata_service = _MetadataService()
 experiment_tracker = ExperimentTracker()

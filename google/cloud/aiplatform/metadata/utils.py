@@ -19,13 +19,14 @@ from typing import Tuple
 from google.cloud.aiplatform import base
 from google.cloud.aiplatform.compat import types
 from google.cloud.aiplatform.constants import base as constants
+from google.cloud.aiplatform.metadata import constants as metadata_constants
 
 
 _VERTEX_EXPERIMENT_TRACKING_LABEL = 'vertex_experiment_tracking'
 
 _TENSORBOARD_RUN_REFERENCE_ARTIFACT = types.artifact.Artifact(
 	name='google-dev-vertex-tensorboard-run-v0-0-1',
-    schema_title='google_dev.VertexTensorboardRun',
+    schema_title=metadata_constants._EXPERIMENTS_V2_TENSORBOARD_RUN,
     schema_version='0.0.1',
     metadata={_VERTEX_EXPERIMENT_TRACKING_LABEL: True},
 )
@@ -44,6 +45,13 @@ def make_gcp_resource_metadata_schema(title: str) -> types.metadata_schema.Metad
 		schema_version='0.0.1',
 		schema= f"title: {title}\ntype: object\nproperties:\n  resourceName:\n    type: string\n",
 		schema_type=types.metadata_schema.MetadataSchema.MetadataSchemaType.ARTIFACT_TYPE
+	)
+
+def make_experiment_v2_metadata_schema() -> types.metadata_schema.MetadataSchema:
+	return types.metadata_schema.MetadataSchema(
+		schema_version='0.0.1',
+		schema= f"title: {metadata_constants._EXPERIMENTS_V2_SYSTEM_RUN}\ntype: object\n",
+		schema_type=types.metadata_schema.MetadataSchema.MetadataSchemaType.EXECUTION_TYPE
 	)
 
 def get_tensorboard_board_run_metadata_schema() -> Tuple[str, types.metadata_schema.MetadataSchema]:
