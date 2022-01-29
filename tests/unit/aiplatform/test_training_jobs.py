@@ -602,7 +602,6 @@ def make_training_pipeline_with_scheduling(state):
         name=_TEST_PIPELINE_RESOURCE_NAME,
         state=state,
         training_task_inputs={
-            # "enable_web_access": _TEST_ENABLE_WEB_ACCESS,
             "timeout": f"{_TEST_TIMEOUT}s",
             "restart_job_on_worker_restart": _TEST_RESTART_JOB_ON_WORKER_RESTART,
         },
