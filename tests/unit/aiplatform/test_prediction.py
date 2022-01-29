@@ -15,7 +15,7 @@
 # limitations under the License.
 #
 
-import json
+import asyncio
 import os
 import pytest
 from unittest import mock
@@ -32,9 +32,11 @@ from google.cloud.aiplatform.prediction.predictor import Predictor
 from google.cloud.aiplatform.prediction.serializer import DefaultSerializer
 
 
+_TEST_INPUT = b'{"instances": [[1, 2, 3, 4]]}'
 _TEST_DESERIALIZED_INPUT = {"instances": [[1, 2, 3, 4]]}
 _TEST_PREDICTION_OUTPUT = {"predictions": [[1]]}
 _TEST_SERIALIZED_OUTPUT = b'{"predictions": [[1]]}'
+_APPLICATION_JSON = "application/json"
 
 _TEST_AIP_HTTP_PORT = "8080"
 _TEST_AIP_HEALTH_ROUTE = "/health"
@@ -66,9 +68,7 @@ def serialize_mock():
 
 @pytest.fixture
 def serialize_exception_mock():
-    with mock.patch.object(
-        DefaultSerializer, "deserialize"
-    ) as serialize_exception_mock:
+    with mock.patch.object(DefaultSerializer, "serialize") as serialize_exception_mock:
         serialize_exception_mock.side_effect = HTTPException(status_code=400,)
         yield serialize_exception_mock
 
@@ -79,9 +79,9 @@ def predictor_mock():
         "google.cloud.aiplatform.prediction.predictor.Predictor"
     ) as MockPredictor:
         instance = MockPredictor.return_value
-        instance.preprocess.return_value = _TEST_DESERIALIZED_INPUT
-        instance.predict.return_value = _TEST_PREDICTION_OUTPUT
-        instance.postprocess.return_value = _TEST_SERIALIZED_OUTPUT
+        instance().preprocess.return_value = _TEST_DESERIALIZED_INPUT
+        instance().predict.return_value = _TEST_PREDICTION_OUTPUT
+        instance().postprocess.return_value = _TEST_SERIALIZED_OUTPUT
         yield instance
 
 
@@ -100,7 +100,7 @@ def get_test_request():
     async def _create_request_receive():
         return {
             "type": "http.request",
-            "body": json.dumps({"instances": [[]]}).encode("utf-8"),
+            "body": _TEST_INPUT,
             "more_body": False,
         }
 
@@ -108,7 +108,7 @@ def get_test_request():
         scope={
             "type": "http",
             "headers": Headers(
-                {"content-type": "application/json", "accept": "application/json"}
+                {"content-type": _APPLICATION_JSON, "accept": _APPLICATION_JSON}
             ).raw,
         },
         receive=_create_request_receive,
@@ -157,6 +157,14 @@ class TestDefaultHandler:
         assert response.status_code == 200
         assert response.body == _TEST_SERIALIZED_OUTPUT
 
+        deserialize_mock.assert_called_once_with(_TEST_INPUT, _APPLICATION_JSON)
+        predictor_mock().preprocess.assert_called_once_with(_TEST_DESERIALIZED_INPUT)
+        predictor_mock().predict.assert_called_once_with(_TEST_DESERIALIZED_INPUT)
+        predictor_mock().postprocess.assert_called_once_with(_TEST_PREDICTION_OUTPUT)
+        serialize_mock.assert_called_once_with(
+            _TEST_SERIALIZED_OUTPUT, _APPLICATION_JSON
+        )
+
     @pytest.mark.asyncio
     async def test_handle_deserialize_raises_exception(
         self, deserialize_exception_mock, predictor_mock, serialize_mock
@@ -166,15 +174,37 @@ class TestDefaultHandler:
         with pytest.raises(HTTPException):
             await handler.handle(get_test_request())
 
-    @mock.patch.object(Predictor, "predict", Exception())
+        deserialize_exception_mock.assert_called_once_with(
+            _TEST_INPUT, _APPLICATION_JSON
+        )
+        assert not predictor_mock().preprocess.called
+        assert not predictor_mock().predict.called
+        assert not predictor_mock().postprocess.called
+        assert not serialize_mock.called
+
     @pytest.mark.asyncio
     async def test_handle_predictor_raises_exception(
         self, deserialize_mock, serialize_mock
     ):
+        preprocess_mock = mock.MagicMock(return_value=_TEST_DESERIALIZED_INPUT)
+        predict_mock = mock.MagicMock(side_effect=Exception())
+        postprocess_mock = mock.MagicMock(return_value=_TEST_SERIALIZED_OUTPUT)
         handler = DefaultHandler(Predictor())
 
-        with pytest.raises(Exception):
-            await handler.handle(get_test_request())
+        with mock.patch.multiple(
+            handler._predictor,
+            preprocess=preprocess_mock,
+            predict=predict_mock,
+            postprocess=postprocess_mock,
+        ):
+            with pytest.raises(Exception):
+                await handler.handle(get_test_request())
+
+            deserialize_mock.assert_called_once_with(_TEST_INPUT, _APPLICATION_JSON)
+            preprocess_mock.assert_called_once_with(_TEST_DESERIALIZED_INPUT)
+            predict_mock.assert_called_once_with(_TEST_DESERIALIZED_INPUT)
+            assert not postprocess_mock.called
+            assert not serialize_mock.called
 
     @pytest.mark.asyncio
     async def test_handle_serialize_raises_exception(
@@ -184,6 +214,14 @@ class TestDefaultHandler:
 
         with pytest.raises(HTTPException):
             await handler.handle(get_test_request())
+
+        deserialize_mock.assert_called_once_with(_TEST_INPUT, _APPLICATION_JSON)
+        predictor_mock().preprocess.assert_called_once_with(_TEST_DESERIALIZED_INPUT)
+        predictor_mock().predict.assert_called_once_with(_TEST_DESERIALIZED_INPUT)
+        predictor_mock().postprocess.assert_called_once_with(_TEST_PREDICTION_OUTPUT)
+        serialize_exception_mock.assert_called_once_with(
+            _TEST_SERIALIZED_OUTPUT, _APPLICATION_JSON
+        )
 
 
 class TestModelServer:
@@ -261,7 +299,10 @@ class TestModelServer:
         client = TestClient(model_server.app)
 
         with mock.patch.object(model_server.handler, "handle") as handle_mock:
-            handle_mock.return_value = Response()
+            future = asyncio.Future()
+            future.set_result(Response())
+
+            handle_mock.return_value = future
 
             response = client.post(_TEST_AIP_PREDICT_ROUTE, json={"x": [1]})
 
