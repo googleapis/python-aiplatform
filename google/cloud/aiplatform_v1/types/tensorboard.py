@@ -74,9 +74,9 @@ class Tensorboard(proto.Message):
             keys are prefixed with
             "aiplatform.googleapis.com/" and are immutable.
         etag (str):
-            Used to perform a consistent read-modify-
-            rite updates. If not set, a blind "overwrite"
-            update happens.
+            Used to perform a consistent
+            read-modify-write updates. If not set, a blind
+            "overwrite" update happens.
     """
 
     name = proto.Field(proto.STRING, number=1,)
