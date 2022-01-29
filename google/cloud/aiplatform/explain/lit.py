@@ -84,7 +84,7 @@ class _EndpointLitModel(lit_model.Model):
 
     def __init__(
         self,
-        model: str,
+        endpoint: Union[str, aiplatform.Endpoint],
         input_types: "OrderedDict[str, lit_types.LitType]",  # noqa: F821
         output_types: "OrderedDict[str, lit_types.LitType]",  # noqa: F821
         model_id: Optional[str] = None,
@@ -107,7 +107,10 @@ class _EndpointLitModel(lit_model.Model):
             Raises:
                 ValueError if the model_id was not found in the endpoint.
         """
-        self._endpoint = aiplatform.Endpoint(model)
+        if isinstance(endpoint, str):
+            self._endpoint = aiplatform.Endpoint(endpoint)
+        else:
+            self._endpoint = endpoint
         self._model_id = model_id
         self._input_types = input_types
         self._output_types = output_types
@@ -122,22 +125,25 @@ class _EndpointLitModel(lit_model.Model):
             if not deployed_model:
                 raise ValueError(
                     "A model with id {model_id} was not found in the endpoint {endpoint}.".format(
-                        model_id=model_id, endpoint=model
+                        model_id=model_id, endpoint=endpoint
                     )
                 )
             self._explanation_enabled = bool(deployed_model.explanation_spec)
         # Check if all models in the endpoint have explanation enabled
         else:
             self._explanation_enabled = all(
-                map(
-                    lambda model: bool(model.explanation_spec),
-                    self._endpoint.list_models(),
-                )
+                model.explanation_spec for model in self._endpoint.list_models()
             )
 
     def predict_minibatch(
         self, inputs: List[lit_types.JsonDict]
     ) -> List[lit_types.JsonDict]:
+        """Retun predictions based on a batch of inputs.
+            Args:
+              inputs: Requred. a List of instances to predict on based on the input spec.
+            Returns:
+                A list of predictions based on the output spec.
+        """
         instances = []
         for input in inputs:
             instance = [input[feature] for feature in self._input_types]
@@ -216,6 +222,12 @@ class _TensorFlowLitModel(lit_model.Model):
     def predict_minibatch(
         self, inputs: List[lit_types.JsonDict]
     ) -> List[lit_types.JsonDict]:
+        """Retun predictions based on a batch of inputs.
+            Args:
+              inputs: Requred. a List of instances to predict on based on the input spec.
+            Returns:
+                A list of predictions based on the output spec.
+        """
         instances = []
         for input in inputs:
             instance = [input[feature] for feature in self._input_types]
@@ -335,22 +347,44 @@ def create_lit_dataset(
     return _VertexLitDataset(dataset, column_types)
 
 
-def create_lit_model(
-    model: str,
+def create_lit_model_from_endpoint(
+    endpoint: Union[str, aiplatform.Endpoint],
     input_types: "OrderedDict[str, lit_types.LitType]",  # noqa: F821
     output_types: "OrderedDict[str, lit_types.LitType]",  # noqa: F821
-    attribution_method: str = "sampled_shapley",
     model_id: Optional[str] = None,
 ) -> lit_model.Model:
     """Creates a LIT Model object.
         Args:
           model:
-            Required. A string reference to a local TensorFlow saved model directory,
-            or the name of the Endpoint resource. Endpoint format:
-            ``projects/{project}/locations/{location}/endpoints/{endpoint}``
+            Required. The name of the Endpoint resource or an Endpoint class.
+            Endpoint name format: ``projects/{project}/locations/{location}/endpoints/{endpoint}``
+          input_types:
+            Required. An OrderedDict of string names matching the features of the model
+            as the key, and the associated LitType of the feature.
+          output_types:
+            Required. An OrderedDict of string names matching the labels of the model
+            as the key, and the associated LitType of the label.
+          model_id:
+            Optional. A string of the specific model in the endpoint to create the
+            LIT model from. If this is not set, any usable model in the endpoint is
+            used to create the LIT model.
+        Returns:
+            A LIT Model object that has the same functionality as the model provided.
+    """
+    return _EndpointLitModel(endpoint, input_types, output_types, model_id)
 
-            If using a local TensorFlow model, the model must have at most one
-            input and one output tensor.
+
+def create_lit_model(
+    model: str,
+    input_types: "OrderedDict[str, lit_types.LitType]",  # noqa: F821
+    output_types: "OrderedDict[str, lit_types.LitType]",  # noqa: F821
+    attribution_method: str = "sampled_shapley",
+) -> lit_model.Model:
+    """Creates a LIT Model object.
+        Args:
+          model:
+            Required. A string reference to a local TensorFlow saved model directory.
+            The model must have at most one input and one output tensor.
           input_types:
             Required. An OrderedDict of string names matching the features of the model
             as the key, and the associated LitType of the feature.
@@ -361,17 +395,10 @@ def create_lit_model(
             Optional. A string to choose what attribution configuration to
             set up the explainer with. Valid options are 'sampled_shapley'
             or 'integrated_gradients'.
-          model_id:
-            Optional. A string of the specific model in the endpoint to create the
-            LIT model from. If this is not set, any usable model in the endpoint is
-            used to create the LIT model.
         Returns:
             A LIT Model object that has the same functionality as the model provided.
     """
-    if os.path.exists(model):
-        return _TensorFlowLitModel(model, input_types, output_types, attribution_method)
-    else:
-        return _EndpointLitModel(model, input_types, output_types, model_id)
+    return _TensorFlowLitModel(model, input_types, output_types, attribution_method)
 
 
 def open_lit(
