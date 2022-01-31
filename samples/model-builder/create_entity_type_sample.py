@@ -18,10 +18,7 @@ from google.cloud import aiplatform
 
 
 def create_entity_type_sample(
-    project: str,
-    location: str,
-    entity_type_id: str,
-    featurestore_name: str,
+    project: str, location: str, entity_type_id: str, featurestore_name: str,
 ):
 
     aiplatform.init(project=project, location=location)
@@ -33,4 +30,6 @@ def create_entity_type_sample(
     fs.wait()
 
     return fs
+
+
 #  [END aiplatform_sdk_create_entity_type_sample]
