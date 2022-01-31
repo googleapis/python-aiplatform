@@ -39,8 +39,8 @@ class Artifact(proto.Message):
             artifact file. May be empty if there is no
             actual artifact file.
         etag (str):
-            An eTag used to perform consistent read-
-            odify-write updates. If not set, a blind
+            An eTag used to perform consistent
+            read-modify-write updates. If not set, a blind
             "overwrite" update happens.
         labels (Sequence[google.cloud.aiplatform_v1.types.Artifact.LabelsEntry]):
             The labels with user-defined metadata to

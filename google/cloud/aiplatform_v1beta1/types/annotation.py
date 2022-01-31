@@ -53,8 +53,8 @@ class Annotation(proto.Message):
             Output only. Timestamp when this Annotation
             was last updated.
         etag (str):
-            Optional. Used to perform consistent read-
-            odify-write updates. If not set, a blind
+            Optional. Used to perform consistent
+            read-modify-write updates. If not set, a blind
             "overwrite" update happens.
         annotation_source (google.cloud.aiplatform_v1beta1.types.UserActionReference):
             Output only. The source of the Annotation.
