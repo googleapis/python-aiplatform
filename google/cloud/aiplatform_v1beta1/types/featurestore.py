@@ -40,8 +40,8 @@ class Featurestore(proto.Message):
             Output only. Timestamp when this Featurestore
             was last updated.
         etag (str):
-            Optional. Used to perform consistent read-
-            odify-write updates. If not set, a blind
+            Optional. Used to perform consistent
+            read-modify-write updates. If not set, a blind
             "overwrite" update happens.
         labels (Sequence[google.cloud.aiplatform_v1beta1.types.Featurestore.LabelsEntry]):
             Optional. The labels with user-defined
