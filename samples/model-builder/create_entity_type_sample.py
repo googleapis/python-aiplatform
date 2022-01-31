@@ -33,7 +33,4 @@ def create_entity_type_sample(
     fs.wait()
 
     return fs
-
-
-create_entity_type_sample()
 #  [END aiplatform_sdk_create_entity_type_sample]
