@@ -159,7 +159,7 @@ class TestEndToEndTabular(e2e_base.TestEndToEnd):
             custom_job._gca_resource.training_task_inputs["scheduling"][
                 "restartJobOnWorkerRestart"
             ]
-            == True
+            is True
         )
 
         custom_prediction = custom_endpoint.predict([_INSTANCE])
