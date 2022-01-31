@@ -81,10 +81,11 @@ class Featurestore(proto.Message):
 
         Attributes:
             fixed_node_count (int):
-                The number of nodes for each cluster. The
-                number of nodes will not scale automatically but
-                can be scaled manually by providing different
-                values when updating.
+                The number of nodes for each cluster. The number of nodes
+                will not scale automatically but can be scaled manually by
+                providing different values when updating. Only one of
+                ``fixed_node_count`` and ``scaling`` can be set. Setting one
+                will reset the other.
         """
 
         fixed_node_count = proto.Field(proto.INT32, number=2,)

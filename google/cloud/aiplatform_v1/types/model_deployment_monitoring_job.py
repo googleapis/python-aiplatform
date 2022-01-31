@@ -284,9 +284,10 @@ class ModelDeploymentMonitoringScheduleConfig(proto.Message):
 
     Attributes:
         monitor_interval (google.protobuf.duration_pb2.Duration):
-            Required. The model monitoring job running
+            Required. The model monitoring job scheduling
             interval. It will be rounded up to next full
-            hour.
+            hour. This defines how often the monitoring jobs
+            are triggered.
     """
 
     monitor_interval = proto.Field(
