@@ -5655,7 +5655,7 @@ class CustomPythonPackageTrainingJob(_CustomTrainingJob):
                 Restarts the entire CustomJob if a worker
                 gets restarted. This feature can be used by
                 distributed training jobs that are not resilient
-                to workers leaving and joining a job.                
+                to workers leaving and joining a job.
             enable_web_access (bool):
                 Whether you want Vertex AI to enable interactive shell access
                 to training containers.
