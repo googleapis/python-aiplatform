@@ -255,9 +255,7 @@ class VizierServiceAsyncClient:
 
         Returns:
             google.cloud.aiplatform_v1beta1.types.Study:
-                LINT.IfChange
                 A message representing a Study.
-
         """
         # Create or coerce a protobuf request object.
         # Quick check: If we got a request object, we should *not* have
@@ -328,9 +326,7 @@ class VizierServiceAsyncClient:
 
         Returns:
             google.cloud.aiplatform_v1beta1.types.Study:
-                LINT.IfChange
                 A message representing a Study.
-
         """
         # Create or coerce a protobuf request object.
         # Quick check: If we got a request object, we should *not* have
@@ -548,9 +544,7 @@ class VizierServiceAsyncClient:
 
         Returns:
             google.cloud.aiplatform_v1beta1.types.Study:
-                LINT.IfChange
                 A message representing a Study.
-
         """
         # Create or coerce a protobuf request object.
         # Quick check: If we got a request object, we should *not* have
