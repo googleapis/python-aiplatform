@@ -62,8 +62,8 @@ class EntityType(proto.Message):
             System reserved label keys are prefixed with
             "aiplatform.googleapis.com/" and are immutable.
         etag (str):
-            Optional. Used to perform a consistent read-
-            odify-write updates. If not set, a blind
+            Optional. Used to perform a consistent
+            read-modify-write updates. If not set, a blind
             "overwrite" update happens.
     """
 
