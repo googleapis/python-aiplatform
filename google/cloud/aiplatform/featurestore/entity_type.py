@@ -126,6 +126,7 @@ class EntityType(base.VertexAiResourceNounWithFutureManager):
     @property
     def featurestore_name(self) -> str:
         """Full qualified resource name of the managed featurestore in which this EntityType is."""
+        self.wait()
         entity_type_name_components = self._parse_resource_name(self.resource_name)
         return featurestore.Featurestore._format_resource_name(
             project=entity_type_name_components["project"],
@@ -150,6 +151,7 @@ class EntityType(base.VertexAiResourceNounWithFutureManager):
         Returns:
             featurestore.Feature - The managed feature resource object.
         """
+        self.wait()
         entity_type_name_components = self._parse_resource_name(self.resource_name)
 
         return featurestore.Feature(
@@ -1213,6 +1215,7 @@ class EntityType(base.VertexAiResourceNounWithFutureManager):
             project=self.project, credentials=self.credentials
         )
 
+        self.wait()
         entity_type_name_components = self._parse_resource_name(self.resource_name)
         featurestore_id, entity_type_id = (
             entity_type_name_components["featurestore"],
@@ -1222,6 +1225,8 @@ class EntityType(base.VertexAiResourceNounWithFutureManager):
         temp_bq_dataset_name = f"temp_{featurestore_id}_{uuid.uuid4()}".replace(
             "-", "_"
         )
+
+        # TODO(b/216497263): Add support for resource project does not match initializer.global_config.project
         temp_bq_dataset_id = f"{initializer.global_config.project}.{temp_bq_dataset_name}"[
             :1024
         ]

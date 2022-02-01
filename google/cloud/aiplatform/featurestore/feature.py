@@ -125,6 +125,7 @@ class Feature(base.VertexAiResourceNounWithFutureManager):
     @property
     def featurestore_name(self) -> str:
         """Full qualified resource name of the managed featurestore in which this Feature is."""
+        self.wait()
         feature_path_components = self._parse_resource_name(self.resource_name)
 
         return featurestore.Featurestore._format_resource_name(
@@ -144,6 +145,7 @@ class Feature(base.VertexAiResourceNounWithFutureManager):
     @property
     def entity_type_name(self) -> str:
         """Full qualified resource name of the managed entityType in which this Feature is."""
+        self.wait()
         feature_path_components = self._parse_resource_name(self.resource_name)
 
         return featurestore.EntityType._format_resource_name(

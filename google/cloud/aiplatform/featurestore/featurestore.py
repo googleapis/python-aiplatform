@@ -112,6 +112,7 @@ class Featurestore(base.VertexAiResourceNounWithFutureManager):
         Returns:
             featurestore.EntityType - The managed entityType resource object.
         """
+        self.wait()
         featurestore_name_components = self._parse_resource_name(self.resource_name)
 
         return featurestore.EntityType(
@@ -680,6 +681,7 @@ class Featurestore(base.VertexAiResourceNounWithFutureManager):
             gca_featurestore_service.BatchReadFeatureValuesRequest: batch read feature values request
         """
 
+        self.wait()
         featurestore_name_components = self._parse_resource_name(self.resource_name)
 
         feature_destination_fields = feature_destination_fields or {}
@@ -1120,12 +1122,15 @@ class Featurestore(base.VertexAiResourceNounWithFutureManager):
             project=self.project, credentials=self.credentials
         )
 
+        self.wait()
         featurestore_name_components = self._parse_resource_name(self.resource_name)
         featurestore_id = featurestore_name_components["featurestore"]
 
         temp_bq_dataset_name = f"temp_{featurestore_id}_{uuid.uuid4()}".replace(
             "-", "_"
         )
+
+        # TODO(b/216497263): Add support for resource project does not match initializer.global_config.project
         temp_bq_dataset_id = f"{initializer.global_config.project}.{temp_bq_dataset_name}"[
             :1024
         ]
@@ -1173,15 +1178,15 @@ class Featurestore(base.VertexAiResourceNounWithFutureManager):
                 ),
             )
 
+            frames = []
+            for stream in read_session_proto.streams:
+                reader = bigquery_storage_read_client.read_rows(stream.name)
+                for message in reader.rows().pages:
+                    frames.append(message.to_dataframe())
+
         finally:
             bigquery_client.delete_dataset(
                 dataset=temp_bq_dataset.dataset_id, delete_contents=True,
             )
 
-        frames = []
-        for stream in read_session_proto.streams:
-            reader = bigquery_storage_read_client.read_rows(stream.name)
-            for message in reader.rows().pages:
-                frames.append(message.to_dataframe())
-
-        return None if not frames else pd.concat(frames)
+        return pd.concat(frames, ignore_index=True) if frames else pd.DataFrame(frames)
