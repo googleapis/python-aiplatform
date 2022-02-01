@@ -62,11 +62,11 @@ class _VertexLitDataset(lit_dataset.Dataset):
     ):
         """Construct a VertexLitDataset.
         Args:
-          dataset:
-            Required. A Pandas DataFrame that includes feature column names and data.
-          column_types:
-            Required. An OrderedDict of string names matching the columns of the dataset
-            as the key, and the associated LitType of the column.
+            dataset:
+                Required. A Pandas DataFrame that includes feature column names and data.
+            column_types:
+                Required. An OrderedDict of string names matching the columns of the dataset
+                as the key, and the associated LitType of the column.
         """
         self._examples = dataset.to_dict(orient="records")
         self._column_types = column_types
@@ -91,19 +91,19 @@ class _EndpointLitModel(lit_model.Model):
     ):
         """Construct a VertexLitModel.
             Args:
-              model:
-                Required. The name of the Endpoint resource. Format:
-                ``projects/{project}/locations/{location}/endpoints/{endpoint}``
-              input_types:
-                Required. An OrderedDict of string names matching the features of the model
-                as the key, and the associated LitType of the feature.
-              output_types:
-                Required. An OrderedDict of string names matching the labels of the model
-                as the key, and the associated LitType of the label.
-              model_id:
-                Optional. A string of the specific model in the endpoint to create the
-                LIT model from. If this is not set, any usable model in the endpoint is
-                used to create the LIT model.
+                model:
+                    Required. The name of the Endpoint resource. Format:
+                    ``projects/{project}/locations/{location}/endpoints/{endpoint}``
+                input_types:
+                    Required. An OrderedDict of string names matching the features of the model
+                    as the key, and the associated LitType of the feature.
+                output_types:
+                    Required. An OrderedDict of string names matching the labels of the model
+                    as the key, and the associated LitType of the label.
+                model_id:
+                    Optional. A string of the specific model in the endpoint to create the
+                    LIT model from. If this is not set, any usable model in the endpoint is
+                    used to create the LIT model.
             Raises:
                 ValueError if the model_id was not found in the endpoint.
         """
@@ -140,7 +140,7 @@ class _EndpointLitModel(lit_model.Model):
     ) -> List[lit_types.JsonDict]:
         """Retun predictions based on a batch of inputs.
             Args:
-              inputs: Requred. a List of instances to predict on based on the input spec.
+                inputs: Requred. a List of instances to predict on based on the input spec.
             Returns:
                 A list of predictions based on the output spec.
         """
@@ -192,19 +192,19 @@ class _TensorFlowLitModel(lit_model.Model):
     ):
         """Construct a VertexLitModel.
             Args:
-              model:
-                Required. A string reference to a local TensorFlow saved model directory.
-                The model must have at most one input and one output tensor.
-              input_types:
-                Required. An OrderedDict of string names matching the features of the model
-                as the key, and the associated LitType of the feature.
-              output_types:
-                Required. An OrderedDict of string names matching the labels of the model
-                as the key, and the associated LitType of the label.
-              attribution_method:
-                Optional. A string to choose what attribution configuration to
-                set up the explainer with. Valid options are 'sampled_shapley'
-                or 'integrated_gradients'.
+                model:
+                    Required. A string reference to a local TensorFlow saved model directory.
+                    The model must have at most one input and one output tensor.
+                input_types:
+                    Required. An OrderedDict of string names matching the features of the model
+                    as the key, and the associated LitType of the feature.
+                output_types:
+                    Required. An OrderedDict of string names matching the labels of the model
+                    as the key, and the associated LitType of the label.
+                attribution_method:
+                    Optional. A string to choose what attribution configuration to
+                    set up the explainer with. Valid options are 'sampled_shapley'
+                    or 'integrated_gradients'.
         """
         self._load_model(model)
         self._input_types = input_types
@@ -224,7 +224,7 @@ class _TensorFlowLitModel(lit_model.Model):
     ) -> List[lit_types.JsonDict]:
         """Retun predictions based on a batch of inputs.
             Args:
-              inputs: Requred. a List of instances to predict on based on the input spec.
+                inputs: Requred. a List of instances to predict on based on the input spec.
             Returns:
                 A list of predictions based on the output spec.
         """
@@ -274,7 +274,7 @@ class _TensorFlowLitModel(lit_model.Model):
     def _load_model(self, model: str):
         """Loads a TensorFlow saved model and populates the input and output signature attributes of the class.
             Args:
-              model: Required. A string reference to a TensorFlow saved model directory.
+                model: Required. A string reference to a TensorFlow saved model directory.
             Raises:
                 ValueError if the model has more than one input tensor or more than one output tensor.
             """
@@ -296,11 +296,11 @@ class _TensorFlowLitModel(lit_model.Model):
     ):
         """Populates the attribution explainer attribute of the class.
             Args:
-              model: Required. A string reference to a TensorFlow saved model directory.
+                model: Required. A string reference to a TensorFlow saved model directory.
             attribution_method:
-              Optional. A string to choose what attribution configuration to
-              set up the explainer with. Valid options are 'sampled_shapley'
-              or 'integrated_gradients'.
+                Optional. A string to choose what attribution configuration to
+                set up the explainer with. Valid options are 'sampled_shapley'
+                or 'integrated_gradients'.
         """
         try:
             import explainable_ai_sdk
@@ -336,11 +336,11 @@ def create_lit_dataset(
 ) -> lit_dataset.Dataset:
     """Creates a LIT Dataset object.
         Args:
-          dataset:
-              Required. A Pandas DataFrame that includes feature column names and data.
-          column_types:
-              Required. An OrderedDict of string names matching the columns of the dataset
-              as the key, and the associated LitType of the column.
+            dataset:
+                Required. A Pandas DataFrame that includes feature column names and data.
+            column_types:
+                Required. An OrderedDict of string names matching the columns of the dataset
+                as the key, and the associated LitType of the column.
         Returns:
             A LIT Dataset object that has the data from the dataset provided.
     """
@@ -355,19 +355,19 @@ def create_lit_model_from_endpoint(
 ) -> lit_model.Model:
     """Creates a LIT Model object.
         Args:
-          model:
-            Required. The name of the Endpoint resource or an Endpoint class.
-            Endpoint name format: ``projects/{project}/locations/{location}/endpoints/{endpoint}``
-          input_types:
-            Required. An OrderedDict of string names matching the features of the model
-            as the key, and the associated LitType of the feature.
-          output_types:
-            Required. An OrderedDict of string names matching the labels of the model
-            as the key, and the associated LitType of the label.
-          model_id:
-            Optional. A string of the specific model in the endpoint to create the
-            LIT model from. If this is not set, any usable model in the endpoint is
-            used to create the LIT model.
+            model:
+                Required. The name of the Endpoint resource or an Endpoint instance.
+                Endpoint name format: ``projects/{project}/locations/{location}/endpoints/{endpoint}``
+            input_types:
+                Required. An OrderedDict of string names matching the features of the model
+                as the key, and the associated LitType of the feature.
+            output_types:
+                Required. An OrderedDict of string names matching the labels of the model
+                as the key, and the associated LitType of the label.
+            model_id:
+                Optional. A string of the specific model in the endpoint to create the
+                LIT model from. If this is not set, any usable model in the endpoint is
+                used to create the LIT model.
         Returns:
             A LIT Model object that has the same functionality as the model provided.
     """
@@ -382,19 +382,19 @@ def create_lit_model(
 ) -> lit_model.Model:
     """Creates a LIT Model object.
         Args:
-          model:
-            Required. A string reference to a local TensorFlow saved model directory.
-            The model must have at most one input and one output tensor.
-          input_types:
-            Required. An OrderedDict of string names matching the features of the model
-            as the key, and the associated LitType of the feature.
-          output_types:
-            Required. An OrderedDict of string names matching the labels of the model
-            as the key, and the associated LitType of the label.
-          attribution_method:
-            Optional. A string to choose what attribution configuration to
-            set up the explainer with. Valid options are 'sampled_shapley'
-            or 'integrated_gradients'.
+            model:
+                Required. A string reference to a local TensorFlow saved model directory.
+                The model must have at most one input and one output tensor.
+            input_types:
+                Required. An OrderedDict of string names matching the features of the model
+                as the key, and the associated LitType of the feature.
+            output_types:
+                Required. An OrderedDict of string names matching the labels of the model
+                as the key, and the associated LitType of the label.
+            attribution_method:
+                Optional. A string to choose what attribution configuration to
+                set up the explainer with. Valid options are 'sampled_shapley'
+                or 'integrated_gradients'.
         Returns:
             A LIT Model object that has the same functionality as the model provided.
     """
@@ -408,12 +408,12 @@ def open_lit(
 ):
     """Open LIT from the provided models and datasets.
         Args:
-          models:
-            Required. A list of LIT models to open LIT with.
-          input_types:
-            Required. A lit of LIT datasets to open LIT with.
-          open_in_new_tab:
-            Optional. A boolean to choose if LIT open in a new tab or not.
+            models:
+                Required. A list of LIT models to open LIT with.
+            input_types:
+                Required. A lit of LIT datasets to open LIT with.
+            open_in_new_tab:
+                Optional. A boolean to choose if LIT open in a new tab or not.
         Raises:
             ImportError if LIT is not installed.
     """
@@ -432,26 +432,26 @@ def set_up_and_open_lit(
 ) -> Tuple[lit_dataset.Dataset, lit_model.Model]:
     """Creates a LIT dataset and model and opens LIT.
         Args:
-          dataset:
-            Required. A Pandas DataFrame that includes feature column names and data.
-          column_types:
-            Required. An OrderedDict of string names matching the columns of the dataset
-            as the key, and the associated LitType of the column.
-          model:
-            Required. A string reference to a TensorFlow saved model directory.
-            The model must have at most one input and one output tensor.
-          input_types:
-            Required. An OrderedDict of string names matching the features of the model
-            as the key, and the associated LitType of the feature.
-          output_types:
-            Required. An OrderedDict of string names matching the labels of the model
-            as the key, and the associated LitType of the label.
-          attribution_method:
-            Optional. A string to choose what attribution configuration to
-            set up the explainer with. Valid options are 'sampled_shapley'
-            or 'integrated_gradients'.
-          open_in_new_tab:
-            Optional. A boolean to choose if LIT open in a new tab or not.
+            dataset:
+                Required. A Pandas DataFrame that includes feature column names and data.
+            column_types:
+                Required. An OrderedDict of string names matching the columns of the dataset
+                as the key, and the associated LitType of the column.
+            model:
+                Required. A string reference to a TensorFlow saved model directory.
+                The model must have at most one input and one output tensor.
+            input_types:
+                Required. An OrderedDict of string names matching the features of the model
+                as the key, and the associated LitType of the feature.
+            output_types:
+                Required. An OrderedDict of string names matching the labels of the model
+                as the key, and the associated LitType of the label.
+            attribution_method:
+                Optional. A string to choose what attribution configuration to
+                set up the explainer with. Valid options are 'sampled_shapley'
+                or 'integrated_gradients'.
+            open_in_new_tab:
+                Optional. A boolean to choose if LIT open in a new tab or not.
         Returns:
             A Tuple of the LIT dataset and model created.
         Raises:
