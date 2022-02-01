@@ -100,8 +100,8 @@ class ExplanationMetadata(proto.Message):
                 [instance_schema_uri][google.cloud.aiplatform.v1beta1.PredictSchemata.instance_schema_uri].
             input_tensor_name (str):
                 Name of the input tensor for this feature.
-                Required and is only applicable to Vertex AI-
-                provided images for Tensorflow.
+                Required and is only applicable to Vertex
+                AI-provided images for Tensorflow.
             encoding (google.cloud.aiplatform_v1beta1.types.ExplanationMetadata.InputMetadata.Encoding):
                 Defines how the feature is encoded into the
                 input tensor. Defaults to IDENTITY.
