@@ -48,7 +48,7 @@ profiler_extra_require = [
     "tensorflow >=2.4.0",
 ]
 featurestore_extra_require = [
-    "google-cloud-bigquery-storage >= 2.11.0",
+    "google-cloud-bigquery-storage",
     "pandas >= 1.0.0",
     "pyarrow >= 6.0.1",
 ]
