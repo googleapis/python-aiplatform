@@ -60,6 +60,7 @@ class _Artifact(resource._Resource):
             display_name=display_name,
             description=description,
             metadata=metadata if metadata else {},
+            state=gca_artifact.Artifact.State.LIVE
         )
         return client.create_artifact(
             parent=parent, artifact=gapic_artifact, artifact_id=resource_id,
@@ -300,6 +301,6 @@ class Artifact(_Artifact):
 
     def __repr__(self) -> str:
         if self._gca_resource:
-            return f"{object.__repr__(self)} \nresource name: {self.resource_name}\nuri: {self.uri}\n:schema_title:{self.gca_resourc.schema_title}"
+            return f"{object.__repr__(self)} \nresource name: {self.resource_name}\nuri: {self.uri}\nschema_title:{self.gca_resource.schema_title}"
 
         return FutureManager.__repr__(self)

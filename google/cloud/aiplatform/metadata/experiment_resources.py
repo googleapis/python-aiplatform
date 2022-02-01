@@ -906,6 +906,11 @@ class ExperimentRun:
     def assign_artifact_as_input(self, artifact: Artifact):
         self._consume_artifact(artifact)
 
+    def with_input_artifacts(self, *artifacts: Artifact) -> 'ExperimentRun':
+        for artifact in artifacts:
+            self._consume_artifact(artifact)
+        return self
+
     def __enter__(self):
         return self
 
