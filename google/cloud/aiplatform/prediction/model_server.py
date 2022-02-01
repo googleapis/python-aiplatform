@@ -36,8 +36,8 @@ except ImportError:
         'Please install the SDK using "pip install python-aiplatform[prediction]"'
     )
 
-from google.cloud.aiplatform.prediction.handler import DefaultHandler
 from google.cloud.aiplatform.prediction.handler import Handler
+from google.cloud.aiplatform.prediction.handler import PredictionHandler
 from google.cloud.aiplatform.prediction.predictor import Predictor
 
 
@@ -45,7 +45,7 @@ class ModelServer:
     """Base model server to do custom prediction routines."""
 
     def __init__(
-        self, predictor: Predictor, handler_class: Type[Handler] = DefaultHandler
+        self, predictor: Predictor, handler_class: Type[Handler] = PredictionHandler
     ):
         """Initializes a fastapi application and sets the configs.
 

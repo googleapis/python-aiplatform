@@ -53,11 +53,11 @@ class Handler:
         pass
 
 
-class DefaultHandler(Handler):
+class PredictionHandler(Handler):
     """Default handler for handling the requests sent to the application."""
 
     def __init__(self, predictor: Predictor):
-        """Initializes a DefaultHandler instance.
+        """Initializes a PredictionHandler instance.
 
         Args:
             predictor (Predictor):
@@ -70,7 +70,7 @@ class DefaultHandler(Handler):
 
         Args:
             request (Request):
-                Required. The request sent to the application.
+                Required. The prediction request sent to the application.
 
         Returns:
             The response of the prediction request.

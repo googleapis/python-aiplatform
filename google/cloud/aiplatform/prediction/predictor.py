@@ -24,11 +24,11 @@ class Predictor:
     def __init__(self):
         pass
 
-    def load(self, gcs_model_uri: str):
+    def load(self, gcs_artifacts_uri: str):
         """Loads the model artifact.
 
         Args:
-            gcs_model_uri (str):
+            gcs_artifacts_uri (str):
                 Required. The value of the environment variable AIP_STORAGE_URI.
         """
         pass

@@ -16,8 +16,8 @@
 #
 
 from google.cloud.aiplatform.prediction.handler import (
-    DefaultHandler,
     Handler,
+    PredictionHandler,
 )
 from google.cloud.aiplatform.prediction.model_server import ModelServer
 from google.cloud.aiplatform.prediction.predictor import Predictor
@@ -27,10 +27,10 @@ from google.cloud.aiplatform.prediction.serializer import (
 )
 
 __all__ = (
-    "DefaultHandler",
     "DefaultSerializer",
     "Handler",
     "ModelServer",
+    "PredictionHandler",
     "Predictor",
     "Serializer",
 )

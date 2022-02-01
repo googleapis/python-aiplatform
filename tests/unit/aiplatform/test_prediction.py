@@ -26,7 +26,7 @@ from fastapi import Response
 from starlette.datastructures import Headers
 from starlette.testclient import TestClient
 
-from google.cloud.aiplatform.prediction.handler import DefaultHandler
+from google.cloud.aiplatform.prediction.handler import PredictionHandler
 from google.cloud.aiplatform.prediction.model_server import ModelServer
 from google.cloud.aiplatform.prediction.predictor import Predictor
 from google.cloud.aiplatform.prediction.serializer import DefaultSerializer
@@ -147,10 +147,10 @@ class TestDefaultSerializer:
             DefaultSerializer.serialize(prediction, accept="unsupported_type")
 
 
-class TestDefaultHandler:
+class TestPredictionHandler:
     @pytest.mark.asyncio
     async def test_handle(self, deserialize_mock, predictor_mock, serialize_mock):
-        handler = DefaultHandler(predictor_mock())
+        handler = PredictionHandler(predictor_mock())
 
         response = await handler.handle(get_test_request())
 
@@ -169,7 +169,7 @@ class TestDefaultHandler:
     async def test_handle_deserialize_raises_exception(
         self, deserialize_exception_mock, predictor_mock, serialize_mock
     ):
-        handler = DefaultHandler(predictor_mock())
+        handler = PredictionHandler(predictor_mock())
 
         with pytest.raises(HTTPException):
             await handler.handle(get_test_request())
@@ -189,7 +189,7 @@ class TestDefaultHandler:
         preprocess_mock = mock.MagicMock(return_value=_TEST_DESERIALIZED_INPUT)
         predict_mock = mock.MagicMock(side_effect=Exception())
         postprocess_mock = mock.MagicMock(return_value=_TEST_SERIALIZED_OUTPUT)
-        handler = DefaultHandler(Predictor())
+        handler = PredictionHandler(Predictor())
 
         with mock.patch.multiple(
             handler._predictor,
@@ -210,7 +210,7 @@ class TestDefaultHandler:
     async def test_handle_serialize_raises_exception(
         self, deserialize_mock, predictor_mock, serialize_exception_mock
     ):
-        handler = DefaultHandler(predictor_mock())
+        handler = PredictionHandler(predictor_mock())
 
         with pytest.raises(HTTPException):
             await handler.handle(get_test_request())
@@ -294,7 +294,7 @@ class TestModelServer:
         assert response.status_code == 200
 
     def test_predict(self, model_server_env_mock):
-        model_server = ModelServer(Predictor(), handler_class=DefaultHandler)
+        model_server = ModelServer(Predictor(), handler_class=PredictionHandler)
 
         client = TestClient(model_server.app)
 
@@ -309,7 +309,7 @@ class TestModelServer:
         assert response.status_code == 200
 
     def test_predict_handler_throw_exception(self, model_server_env_mock):
-        model_server = ModelServer(Predictor(), handler_class=DefaultHandler)
+        model_server = ModelServer(Predictor(), handler_class=PredictionHandler)
 
         client = TestClient(model_server.app)
 
