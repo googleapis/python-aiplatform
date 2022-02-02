@@ -195,6 +195,7 @@ def full_resource_name(
 # Resource nouns that are not plural in their resource names.
 # Userd below to avoid conversion from plural to singular.
 _SINGULAR_RESOURCE_NOUNS = {"time_series"}
+_SINGULAR_RESOURCE_NOUNS_MAP = {"indexes": "index"}
 
 
 def convert_camel_case_resource_noun_to_snake_case(resource_noun: str) -> str:
@@ -210,6 +211,8 @@ def convert_camel_case_resource_noun_to_snake_case(resource_noun: str) -> str:
     # plural to singular
     if snake_case in _SINGULAR_RESOURCE_NOUNS or not snake_case.endswith("s"):
         return snake_case
+    elif snake_case in _SINGULAR_RESOURCE_NOUNS_MAP:
+        return _SINGULAR_RESOURCE_NOUNS_MAP[snake_case]
     else:
         return snake_case[:-1]
 

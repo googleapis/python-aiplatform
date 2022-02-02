@@ -182,18 +182,17 @@ class TestMatchingEngineIndex:
             labels=_TEST_LABELS_UPDATE,
         )
 
-        expected = (
-            gca_index.Index(
-                name=_TEST_INDEX_NAME,
-                display_name=_TEST_DISPLAY_NAME_UPDATE,
-                description=_TEST_DESCRIPTION_UPDATE,
-                metadata_schema_uri=_TEST_INDEX_METADATA_SCHEMA_URI_UPDATE,
-            ),
+        expected = gca_index.Index(
+            name=_TEST_INDEX_NAME,
+            display_name=_TEST_DISPLAY_NAME_UPDATE,
+            description=_TEST_DESCRIPTION_UPDATE,
+            metadata_schema_uri=_TEST_INDEX_METADATA_SCHEMA_URI_UPDATE,
         )
+
         update_index_mock.assert_called_once_with(
             index=expected,
             update_mask=field_mask_pb2.FieldMask(
-                paths=["labels", "display_name", "description"]
+                paths=["labels", "display_name", "description", "metadata_schema_uri"]
             ),
             metadata=_TEST_REQUEST_METADATA,
         )
@@ -210,30 +209,18 @@ class TestMatchingEngineIndex:
         for my_index in my_indexes_list:
             assert type(my_index) == aiplatform.MatchingEngineIndex
 
-    @pytest.mark.parametrize(
-        "force, sync",
-        [
-            (None, True),
-            (True, True),
-            (False, True),
-            (None, False),
-            (True, False),
-            (False, False),
-        ],
-    )
+    @pytest.mark.parametrize("sync", [True, False])
     @pytest.mark.usefixtures("get_index_mock")
-    def test_delete_index(self, delete_index_mock, force, sync):
+    def test_delete_index(self, delete_index_mock, sync):
         aiplatform.init(project=_TEST_PROJECT)
 
         my_index = aiplatform.MatchingEngineIndex(index_name=_TEST_INDEX_ID)
-        my_index.delete(sync=sync, force=force)
+        my_index.delete(sync=sync)
 
         if not sync:
             my_index.wait()
 
-        delete_index_mock.assert_called_once_with(
-            name=my_index.resource_name, force=force,
-        )
+        delete_index_mock.assert_called_once_with(name=my_index.resource_name)
 
     @pytest.mark.usefixtures("get_index_mock")
     @pytest.mark.parametrize("sync", [True, False])
@@ -246,23 +233,18 @@ class TestMatchingEngineIndex:
             description=_TEST_INDEX_DESCRIPTION,
             metadata_schema_uri=_TEST_INDEX_METADATA_SCHEMA_URI,
             labels=_TEST_LABELS,
-            encryption_spec_key_name=_TEST_ENCRYPTION_KEY_NAME,
         )
 
         if not sync:
             my_index.wait()
 
         expected = gca_index.Index(
-            index_id=_TEST_INDEX_ID,
+            name=_TEST_INDEX_ID,
             display_name=_TEST_INDEX_DISPLAY_NAME,
             description=_TEST_INDEX_DESCRIPTION,
             metadata_schema_uri=_TEST_INDEX_METADATA_SCHEMA_URI,
             labels=_TEST_LABELS,
-            encryption_spec_key_name=_TEST_ENCRYPTION_KEY_NAME,
         )
         create_index_mock.assert_called_once_with(
-            parent=_TEST_PARENT,
-            index=expected,
-            index_id=_TEST_INDEX_ID,
-            metadata=_TEST_REQUEST_METADATA,
+            parent=_TEST_PARENT, index=expected, metadata=_TEST_REQUEST_METADATA,
         )

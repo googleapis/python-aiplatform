@@ -472,4 +472,3 @@ class MatchingEngineIndexEndpoint(base.VertexAiResourceNounWithFutureManager):
         _LOGGER.log_action_completed_against_resource("index_endpoint", "Mutated", self)
 
         return self
-
