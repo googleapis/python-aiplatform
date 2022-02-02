@@ -27,6 +27,8 @@ from google.cloud.aiplatform.compat.types import (
 from google.cloud.aiplatform import initializer
 from google.cloud.aiplatform import utils
 
+from google.cloud.aiplatform import matching_engine
+
 _LOGGER = base.Logger(__name__)
 
 
@@ -325,3 +327,101 @@ class MatchingEngineIndexEndpoint(base.VertexAiResourceNounWithFutureManager):
         _LOGGER.log_action_completed_against_resource("index_endpoint", "updated", self)
 
         return self
+
+    def deploy_index(
+        self,
+        id: str,
+        index: matching_engine.MatchingEngineIndex,
+        display_name: Optional[str] = None,
+        request_metadata: Optional[Sequence[Tuple[str, str]]] = (),
+    ):
+        """Updates an existing index endpoint resource.
+
+        Args:
+            id (str):
+                Required. The user specified ID of the
+                DeployedIndex. The ID can be up to 128
+                characters long and must start with a letter and
+                only contain letters, numbers, and underscores.
+                The ID must be unique within the project it is
+                created in.
+            index (MatchingEngineIndex):
+                Required. The Index this is the
+                deployment of. We may refer to this Index as the
+                DeployedIndex's "original" Index.
+            display_name (str):
+                The display name of the DeployedIndex. If not provided upon
+                creation, the Index's display_name is used.
+            request_metadata (Sequence[Tuple[str, str]]):
+                Optional. Strings which should be sent along with the request as metadata.
+        """
+
+        _LOGGER.log_action_start_against_resource(
+            "Deploying index", "index_endpoint", self,
+        )
+
+        deployed_index = {
+            "id": id,
+            "index": index.resource_name,
+            "display_name": display_name,
+        }
+
+        deploy_lro = self.api_client.deploy_index(
+            index_endpoint=self.resource_name,
+            deployed_index=deployed_index,
+            metadata=request_metadata,
+        )
+
+        _LOGGER.log_action_started_against_resource_with_lro(
+            "Deploy index", "index_endpoint", self.__class__, deploy_lro
+        )
+
+        deploy_lro.result()
+
+        _LOGGER.log_action_completed_against_resource(
+            "index_endpoint", "deploy_index", self
+        )
+
+        return self
+
+    def undeploy_index(
+        self,
+        deployed_index_id: str,
+        request_metadata: Optional[Sequence[Tuple[str, str]]] = (),
+    ):
+        """Updates an existing index endpoint resource.
+
+        Args:
+            deployed_index_id (str):
+                Required. The ID of the DeployedIndex
+                to be undeployed from the IndexEndpoint.
+
+                This corresponds to the ``deployed_index_id`` field
+                on the ``request`` instance; if ``request`` is provided, this
+                should not be set.
+            request_metadata (Sequence[Tuple[str, str]]):
+                Optional. Strings which should be sent along with the request as metadata.
+        """
+
+        _LOGGER.log_action_start_against_resource(
+            "Undeploying index", "index_endpoint", self,
+        )
+
+        undeploy_lro = self.api_client.undeploy_index(
+            index_endpoint=self.resource_name,
+            deployed_index_id=deployed_index_id,
+            metadata=request_metadata,
+        )
+
+        _LOGGER.log_action_started_against_resource_with_lro(
+            "Undeploy index", "index_endpoint", self.__class__, undeploy_lro
+        )
+
+        undeploy_lro.result()
+
+        _LOGGER.log_action_completed_against_resource(
+            "index_endpoint", "undeploy_index", self
+        )
+
+        return self
+
