@@ -335,7 +335,7 @@ class MatchingEngineIndexEndpoint(base.VertexAiResourceNounWithFutureManager):
         display_name: Optional[str] = None,
         request_metadata: Optional[Sequence[Tuple[str, str]]] = (),
     ):
-        """Updates an existing index endpoint resource.
+        """Deploys an existing index resource to this endpoint resource.
 
         Args:
             id (str):
@@ -389,7 +389,7 @@ class MatchingEngineIndexEndpoint(base.VertexAiResourceNounWithFutureManager):
         deployed_index_id: str,
         request_metadata: Optional[Sequence[Tuple[str, str]]] = (),
     ):
-        """Updates an existing index endpoint resource.
+        """Undeploy a deployed index endpoint resource.
 
         Args:
             deployed_index_id (str):
@@ -421,6 +421,62 @@ class MatchingEngineIndexEndpoint(base.VertexAiResourceNounWithFutureManager):
 
         _LOGGER.log_action_completed_against_resource(
             "index_endpoint", "undeploy_index", self
+        )
+
+        return self
+
+    def mutate_deployed_index(
+        self,
+        id: str,
+        index: matching_engine.MatchingEngineIndex,
+        display_name: Optional[str] = None,
+        request_metadata: Optional[Sequence[Tuple[str, str]]] = (),
+    ):
+        """Updates an existing deployed index under this endpoint resource.
+
+        Args:
+            id (str):
+                Required. The user specified ID of the
+                DeployedIndex. The ID can be up to 128
+                characters long and must start with a letter and
+                only contain letters, numbers, and underscores.
+                The ID must be unique within the project it is
+                created in.
+            index (MatchingEngineIndex):
+                Required. The Index this is the
+                deployment of. We may refer to this Index as the
+                DeployedIndex's "original" Index.
+            display_name (str):
+                The display name of the DeployedIndex. If not provided upon
+                creation, the Index's display_name is used.
+            request_metadata (Sequence[Tuple[str, str]]):
+                Optional. Strings which should be sent along with the request as metadata.
+        """
+
+        _LOGGER.log_action_start_against_resource(
+            "Mutating index", "index_endpoint", self,
+        )
+
+        deployed_index = {
+            "id": id,
+            "index": index.resource_name,
+            "display_name": display_name,
+        }
+
+        deploy_lro = self.api_client.mutate_deployed_index(
+            index_endpoint=self.resource_name,
+            deployed_index=deployed_index,
+            metadata=request_metadata,
+        )
+
+        _LOGGER.log_action_started_against_resource_with_lro(
+            "Mutate index", "index_endpoint", self.__class__, deploy_lro
+        )
+
+        deploy_lro.result()
+
+        _LOGGER.log_action_completed_against_resource(
+            "index_endpoint", "mutate_index", self
         )
 
         return self
