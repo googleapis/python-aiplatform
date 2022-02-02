@@ -16,6 +16,7 @@
 #
 
 from collections import defaultdict
+import concurrent.futures
 import functools
 import logging
 import time
@@ -222,7 +223,12 @@ class Experiment():
             )
 
         experiment_runs = ExperimentRun.list(experiment=self)
-        df = pd.DataFrame(row for run in experiment_runs for row in run._get_pandas_row_dicts())
+
+        with concurrent.futures.ThreadPoolExecutor(max_workers = len(experiment_runs)) as executor:
+            submissions = [executor.submit(run._get_pandas_row_dicts) for run in experiment_runs]
+            experiment_runs = [submission.result() for submission in submissions]
+        
+        df = pd.DataFrame(row for run in experiment_runs for row in run)
 
         column_name_sort_map = {
             'experiment_name': -1,
@@ -307,12 +313,30 @@ class ExperimentRun:
             credentials=credentials
         )
 
-        with _SetLoggerLevel(resource):
-            # TODO: Add schema validation on these metadata nodes
-            self._metadata_context = _Context(**metadata_args)
-            self._metadata_execution = _Execution(**metadata_args)
-            metadata_args['resource_name']+='-metrics'
-            self._metadata_metric = _Artifact(**metadata_args)
+        def _get_context():
+            with _SetLoggerLevel(resource):
+                # TODO: Add schema validation on these metadata nodes
+                return _Context(**metadata_args)
+
+        def _get_execution():
+            with _SetLoggerLevel(resource):
+                # TODO: Add schema validation on these metadata nodes
+                return _Execution(**metadata_args)
+
+        def _get_metric():
+            with _SetLoggerLevel(resource):
+                metadata_args_copy = dict(**metadata_args)
+                metadata_args_copy['resource_name']+='-metrics'
+                return _Artifact(**metadata_args_copy)
+
+        with concurrent.futures.ThreadPoolExecutor(max_workers=4) as executor:
+            _metadata_context = executor.submit(_get_context)
+            _metadata_execution = executor.submit(_get_execution)
+            _metadata_metric = executor.submit(_get_metric)
+
+            self._metadata_context = _metadata_context.result()
+            self._metadata_execution = _metadata_execution.result()
+            self._metadata_metric = _metadata_metric.result()
 
         self._backing_tensorboard_run: Optional[VertexResourceWithMetadata] = self._lookup_tensorboard_run_artifact()
 
@@ -385,13 +409,12 @@ class ExperimentRun:
         filter_str = f'schema_title="{constants.SYSTEM_EXPERIMENT_RUN}" AND parent_contexts:"{experiment.resource_name}"'
         run_contexts = _Context.list(filter=filter_str, **metadata_args)
 
-        experiment_runs = []
-
-        for context in  run_contexts:
+        def _initialize_experiment_run(context):
             this_experiment_run = cls.__new__(cls)
             this_experiment_run._experiment = experiment
             this_experiment_run._run_name = context.display_name
             this_experiment_run._metadata_context = context
+
             with _SetLoggerLevel(resource):
                 this_experiment_run._metadata_execution = _Execution(resource_name=context.name, **metadata_args)
                 this_experiment_run._metadata_metric = _Artifact(resource_name=context.name+'-metrics', **metadata_args)
@@ -403,7 +426,12 @@ class ExperimentRun:
                 this_experiment_run._backing_tensorboard_run = None
 
             this_experiment_run._largest_step = None
-            experiment_runs.append(this_experiment_run)
+
+            return this_experiment_run
+
+        with concurrent.futures.ThreadPoolExecutor(max_workers=len(run_contexts)) as executor:
+            submissions = [executor.submit(_initialize_experiment_run, context) for context in run_contexts]
+            experiment_runs = [submission.result() for submission in submissions]
 
         return experiment_runs
 
@@ -603,65 +631,89 @@ class ExperimentRun:
             experiment_name=experiment.name,
             run_name=run_name)
 
-        with _SetLoggerLevel(resource):
-            metadata_context = _Context._create(
-                resource_id=run_id,
-                display_name=run_name,
-                schema_title=constants.SYSTEM_EXPERIMENT_RUN,
-                schema_version=constants.SCHEMA_VERSIONS[constants.SYSTEM_EXPERIMENT_RUN],
-                metadata=constants.EXPERIMENT_METADATA,
-                project=project,
-                location=location,
-                credentials=credentials
-            )
+        def _create_context():
+            with _SetLoggerLevel(resource):
+                return _Context._create(
+                    resource_id=run_id,
+                    display_name=run_name,
+                    schema_title=constants.SYSTEM_EXPERIMENT_RUN,
+                    schema_version=constants.SCHEMA_VERSIONS[constants.SYSTEM_EXPERIMENT_RUN],
+                    metadata=constants.EXPERIMENT_METADATA,
+                    project=project,
+                    location=location,
+                    credentials=credentials
+                )
+
+        def _create_execution():
+            with _SetLoggerLevel(resource):
+                cls._soft_register_system_run_schema(experiment._metadata_context)
+
+                return _Execution._create(
+                    resource_id=run_id,
+                    display_name=run_name,
+                    schema_title=constants._EXPERIMENTS_V2_SYSTEM_RUN,
+                    schema_version=constants.SCHEMA_VERSIONS[constants.SYSTEM_RUN],
+                    project=project,
+                    location=location,
+                    credentials=credentials
+                )
+
+        def _create_artifact():
+            metrics_artifact_id = f'{run_id}-metrics'
+
+            with _SetLoggerLevel(resource):
+                return _Artifact._create(
+                    resource_id=metrics_artifact_id,
+                    display_name=metrics_artifact_id,
+                    schema_title=constants.SYSTEM_METRICS,
+                    schema_version=constants.SCHEMA_VERSIONS[constants.SYSTEM_METRICS],
+                    project=project,
+                    location=location,
+                    credentials=credentials
+                )
+
+        with concurrent.futures.ThreadPoolExecutor(max_workers=3) as executor:
+            metadata_context = executor.submit(_create_context)
+            metadata_execution = executor.submit(_create_execution)
+            metrics_artifact = executor.submit(_create_artifact)
+
+            metadata_context = metadata_context.result()
+            metadata_execution = metadata_execution.result()
+            metrics_artifact = metrics_artifact.result()
 
         if metadata_context is None:
             raise RuntimeError(f'Experiment Run with name {run_name} in {experiment.name} already exists.')
 
-        cls._soft_register_system_run_schema(metadata_context)
+        experiment_run = cls.__new__(cls)
+        experiment_run._experiment = experiment
+        experiment_run._run_name = metadata_context.display_name
+        experiment_run._metadata_context = metadata_context
+        experiment_run._metadata_execution = metadata_execution
+        experiment_run._metadata_metric = metrics_artifact
+        experiment_run._largest_step = None
 
-        experiment._metadata_context.add_context_children([metadata_context])
+        def _add_experiment_run_to_experiment():
+            experiment._metadata_context.add_context_children([metadata_context])
 
-        with _SetLoggerLevel(resource):
-            metadata_execution = _Execution._create(
-                resource_id=run_id,
-                display_name=run_name,
-                schema_title=constants._EXPERIMENTS_V2_SYSTEM_RUN,
-                schema_version=constants.SCHEMA_VERSIONS[constants.SYSTEM_RUN],
-                project=project,
-                location=location,
-                credentials=credentials
-            )
+        def _add_execution_to_context():
+            metadata_context.add_artifacts_and_executions(execution_resource_names=[metadata_execution.resource_name])
 
-        metadata_context.add_artifacts_and_executions(execution_resource_names=[metadata_execution.resource_name])
+        def _add_metrics_to_execution():
+            metadata_execution.add_artifact(artifact_resource_name=metrics_artifact.resource_name, input=False)
 
-        metrics_artifact_id = f'{run_id}-metrics'
+        def _add_tensorboard_to_run():
+            if tensorboard:
+                cls._assign_backing_tensorboard(self=experiment_run, tensorboard=tensorboard)
+            else:
+                cls._assign_to_experiment_backing_tensorboard(self=experiment_run)
 
-        with _SetLoggerLevel(resource):
-            metrics_artifact = _Artifact._create(
-                resource_id=metrics_artifact_id,
-                display_name=metrics_artifact_id,
-                schema_title=constants.SYSTEM_METRICS,
-                schema_version=constants.SCHEMA_VERSIONS[constants.SYSTEM_METRICS],
-                project=project,
-                location=location,
-                credentials=credentials
-            )
+        with concurrent.futures.ThreadPoolExecutor(max_workers=4) as executor:
+            submissions = [
+                executor.submit(fn) for fn in
+                [_add_tensorboard_to_run, _add_experiment_run_to_experiment, _add_execution_to_context, _add_metrics_to_execution]]
 
-        metadata_execution.add_artifact(artifact_resource_name=metrics_artifact.resource_name, input=False)
-
-        experiment_run = cls(
-            run_name=run_name,
-            experiment=experiment,
-            project=project,
-            location=location,
-            credentials=credentials
-        )
-
-        if tensorboard:
-            experiment_run.assign_backing_tensorboard(tensorboard=tensorboard)
-        else:
-            experiment_run._assign_to_experiment_backing_tensorboard()
+            for submission in submissions:
+                submission.result()
 
         return experiment_run
 
@@ -671,15 +723,7 @@ class ExperimentRun:
         if backing_tensorboard_resource:
             self.assign_backing_tensorboard(tensorboard=backing_tensorboard_resource)
 
-    def assign_backing_tensorboard(self, tensorboard: Union[tensorboard_resource.Tensorboard, str]):
-        """Assigns tensorboard as backing tensorboard to support timeseries metrics logging."""
-
-        backing_tensorboard = self._lookup_tensorboard_run_artifact()
-        if backing_tensorboard:
-            # TODO: consider warning if tensorboard_resource matches backing tensorboard uri 
-            raise ValueError(
-                f'Experiment run {self._run_name} already associated to tensorboard resource {backing_tensorboard.resource.resource_name}')
-
+    def _assign_backing_tensorboard(self, tensorboard: Union[tensorboard_resource.Tensorboard, str]):
         if isinstance(tensorboard, str):
             tensorboard = tensorboard_resource.Tensorboard(tensorboard)
 
@@ -737,6 +781,18 @@ class ExperimentRun:
                 resource=tensorboard_run,
                 metadata = tensorboard_run_metadata_artifact
             )
+
+
+    def assign_backing_tensorboard(self, tensorboard: Union[tensorboard_resource.Tensorboard, str]):
+        """Assigns tensorboard as backing tensorboard to support timeseries metrics logging."""
+
+        backing_tensorboard = self._lookup_tensorboard_run_artifact()
+        if backing_tensorboard:
+            # TODO: consider warning if tensorboard_resource matches backing tensorboard uri 
+            raise ValueError(
+                f'Experiment run {self._run_name} already associated to tensorboard resource {backing_tensorboard.resource.resource_name}')
+
+        self._assign_backing_tensorboard(tensorboard=tensorboard)
 
     def _soft_register_tensorboard_run_schema(self):
         """Registers TensorboardRun Metadata schema is not populated."""
