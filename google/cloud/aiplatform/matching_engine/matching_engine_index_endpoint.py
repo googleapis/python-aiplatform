@@ -37,7 +37,7 @@ class MatchingEngineIndexEndpoint(base.VertexAiResourceNounWithFutureManager):
 
     client_class = utils.IndexEndpointClientWithOverride
 
-    _resource_noun = "index_endpoints"
+    _resource_noun = "indexEndpoints"
     _getter_method = "get_index_endpoint"
     _list_method = "list_index_endpoints"
     _delete_method = "delete_index_endpoint"

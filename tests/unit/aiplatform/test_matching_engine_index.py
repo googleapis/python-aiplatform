@@ -16,15 +16,14 @@
 #
 
 import pytest
-import datetime
 import uuid
 
 from unittest import mock
 from importlib import reload
-from unittest.mock import MagicMock, patch
+from unittest.mock import patch
 
 from google.api_core import operation
-from google.protobuf import field_mask_pb2, timestamp_pb2
+from google.protobuf import field_mask_pb2
 
 from google.cloud import aiplatform
 from google.cloud.aiplatform import base
@@ -32,10 +31,6 @@ from google.cloud.aiplatform import initializer
 from google.cloud.aiplatform_v1.services.index_service import (
     client as index_service_client,
 )
-from google.cloud.aiplatform_v1.services.index_endpoint_service import (
-    client as index_endpoint_service_client,
-)
-from google.cloud.aiplatform_v1.types import encryption_spec as gca_encryption_spec
 
 from google.cloud.aiplatform_v1.types import index as gca_index
 
