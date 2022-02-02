@@ -99,7 +99,6 @@ class MatchingEngineIndexEndpoint(base.VertexAiResourceNounWithFutureManager):
         location: Optional[str] = None,
         credentials: Optional[auth_credentials.Credentials] = None,
         request_metadata: Optional[Sequence[Tuple[str, str]]] = (),
-        encryption_spec_key_name: Optional[str] = None,
         sync: bool = True,
     ) -> "MatchingEngineIndexEndpoint":
         """Creates a MatchingEngineIndexEndpoint resource.
@@ -172,11 +171,6 @@ class MatchingEngineIndexEndpoint(base.VertexAiResourceNounWithFutureManager):
         if labels:
             utils.validate_labels(labels)
             gapic_index_endpoint.labels = labels
-
-        if encryption_spec_key_name:
-            gapic_index_endpoint.encryption_spec = initializer.global_config.get_encryption_spec(
-                encryption_spec_key_name=encryption_spec_key_name
-            )
 
         api_client = cls._instantiate_client(location=location, credentials=credentials)
 
