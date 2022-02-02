@@ -324,7 +324,7 @@ class MatchingEngineIndexEndpoint(base.VertexAiResourceNounWithFutureManager):
 
         update_lro.result()
 
-        _LOGGER.log_action_completed_against_resource("index_endpoint", "updated", self)
+        _LOGGER.log_action_completed_against_resource("index_endpoint", "Updated", self)
 
         return self
 
@@ -379,7 +379,7 @@ class MatchingEngineIndexEndpoint(base.VertexAiResourceNounWithFutureManager):
         deploy_lro.result()
 
         _LOGGER.log_action_completed_against_resource(
-            "index_endpoint", "deploy_index", self
+            "index_endpoint", "Deployed index", self
         )
 
         return self
@@ -420,7 +420,7 @@ class MatchingEngineIndexEndpoint(base.VertexAiResourceNounWithFutureManager):
         undeploy_lro.result()
 
         _LOGGER.log_action_completed_against_resource(
-            "index_endpoint", "undeploy_index", self
+            "index_endpoint", "Undeployed index", self
         )
 
         return self
@@ -475,9 +475,7 @@ class MatchingEngineIndexEndpoint(base.VertexAiResourceNounWithFutureManager):
 
         deploy_lro.result()
 
-        _LOGGER.log_action_completed_against_resource(
-            "index_endpoint", "mutate_index", self
-        )
+        _LOGGER.log_action_completed_against_resource("index_endpoint", "Mutated", self)
 
         return self
 

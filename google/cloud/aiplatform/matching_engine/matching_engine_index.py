@@ -302,6 +302,6 @@ class MatchingEngineIndex(base.VertexAiResourceNounWithFutureManager):
 
         update_lro.result()
 
-        _LOGGER.log_action_completed_against_resource("index", "updated", self)
+        _LOGGER.log_action_completed_against_resource("index", "Updated", self)
 
         return self
