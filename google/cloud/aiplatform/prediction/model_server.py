@@ -16,7 +16,6 @@
 #
 
 import os
-from typing import Type
 
 try:
     from fastapi import FastAPI
@@ -37,28 +36,19 @@ except ImportError:
     )
 
 from google.cloud.aiplatform.prediction.handler import Handler
-from google.cloud.aiplatform.prediction.handler import PredictionHandler
-from google.cloud.aiplatform.prediction.predictor import Predictor
 
 
 class ModelServer:
     """Base model server to do custom prediction routines."""
 
-    def __init__(
-        self, predictor: Predictor, handler_class: Type[Handler] = PredictionHandler
-    ):
+    def __init__(self, handler: Handler):
         """Initializes a fastapi application and sets the configs.
 
         Args:
-            predictor (Predictor):
-                Required. The predictor to be used to generate predictions.
-            handler_class (Type[Handler]):
-                Required. The handler class to handle requests with the given predictor.
+            handler (Handler):
+                Required. The handler to handle requests.
         """
-        self.predictor = predictor
-        self.predictor.load(os.environ.get("AIP_STORAGE_URI"))
-
-        self.handler = handler_class(self.predictor)
+        self.handler = handler
 
         if "AIP_HTTP_PORT" not in os.environ:
             raise ValueError(

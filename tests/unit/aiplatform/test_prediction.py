@@ -26,6 +26,7 @@ from fastapi import Response
 from starlette.datastructures import Headers
 from starlette.testclient import TestClient
 
+from google.cloud.aiplatform.prediction.handler import Handler
 from google.cloud.aiplatform.prediction.handler import PredictionHandler
 from google.cloud.aiplatform.prediction.model_server import ModelServer
 from google.cloud.aiplatform.prediction.predictor import Predictor
@@ -37,6 +38,7 @@ _TEST_DESERIALIZED_INPUT = {"instances": [[1, 2, 3, 4]]}
 _TEST_PREDICTION_OUTPUT = {"predictions": [[1]]}
 _TEST_SERIALIZED_OUTPUT = b'{"predictions": [[1]]}'
 _APPLICATION_JSON = "application/json"
+_TEST_GCS_ARTIFACTS_URI = ""
 
 _TEST_AIP_HTTP_PORT = "8080"
 _TEST_AIP_HEALTH_ROUTE = "/health"
@@ -166,9 +168,25 @@ class TestDefaultSerializer:
 
 
 class TestPredictionHandler:
+    def test_init(self, predictor_mock):
+        handler = PredictionHandler(_TEST_GCS_ARTIFACTS_URI, predictor=predictor_mock)
+
+        assert handler._predictor == predictor_mock()
+        predictor_mock().load.assert_called_once_with(_TEST_GCS_ARTIFACTS_URI)
+
+    def test_init_no_predictor_raises_exception(self):
+        expected_message = (
+            "PredictionHandler must have a predictor class passed to the init function."
+        )
+
+        with pytest.raises(ValueError) as exception:
+            _ = PredictionHandler(_TEST_GCS_ARTIFACTS_URI)
+
+        assert str(exception.value) == expected_message
+
     @pytest.mark.asyncio
     async def test_handle(self, deserialize_mock, predictor_mock, serialize_mock):
-        handler = PredictionHandler(predictor_mock())
+        handler = PredictionHandler(_TEST_GCS_ARTIFACTS_URI, predictor=predictor_mock)
 
         response = await handler.handle(get_test_request())
 
@@ -187,7 +205,7 @@ class TestPredictionHandler:
     async def test_handle_deserialize_raises_exception(
         self, deserialize_exception_mock, predictor_mock, serialize_mock
     ):
-        handler = PredictionHandler(predictor_mock())
+        handler = PredictionHandler(_TEST_GCS_ARTIFACTS_URI, predictor=predictor_mock)
 
         with pytest.raises(HTTPException):
             await handler.handle(get_test_request())
@@ -207,7 +225,7 @@ class TestPredictionHandler:
         preprocess_mock = mock.MagicMock(return_value=_TEST_DESERIALIZED_INPUT)
         predict_mock = mock.MagicMock(side_effect=Exception())
         postprocess_mock = mock.MagicMock(return_value=_TEST_SERIALIZED_OUTPUT)
-        handler = PredictionHandler(Predictor())
+        handler = PredictionHandler(_TEST_GCS_ARTIFACTS_URI, predictor=Predictor)
 
         with mock.patch.multiple(
             handler._predictor,
@@ -228,7 +246,7 @@ class TestPredictionHandler:
     async def test_handle_serialize_raises_exception(
         self, deserialize_mock, predictor_mock, serialize_exception_mock
     ):
-        handler = PredictionHandler(predictor_mock())
+        handler = PredictionHandler(_TEST_GCS_ARTIFACTS_URI, predictor=predictor_mock)
 
         with pytest.raises(HTTPException):
             await handler.handle(get_test_request())
@@ -244,7 +262,7 @@ class TestPredictionHandler:
 
 class TestModelServer:
     def test_init(self, model_server_env_mock):
-        model_server = ModelServer(Predictor())
+        model_server = ModelServer(Handler(_TEST_GCS_ARTIFACTS_URI))
 
         assert model_server.http_port == int(_TEST_AIP_HTTP_PORT)
         assert model_server.health_route == _TEST_AIP_HEALTH_ROUTE
@@ -263,7 +281,7 @@ class TestModelServer:
         )
 
         with pytest.raises(ValueError) as exception:
-            ModelServer(Predictor())
+            ModelServer(Handler(_TEST_GCS_ARTIFACTS_URI))
 
         assert str(exception.value) == expected_message
 
@@ -281,7 +299,7 @@ class TestModelServer:
         )
 
         with pytest.raises(ValueError) as exception:
-            ModelServer(Predictor())
+            ModelServer(Handler(_TEST_GCS_ARTIFACTS_URI))
 
         assert str(exception.value) == expected_message
 
@@ -299,12 +317,12 @@ class TestModelServer:
         )
 
         with pytest.raises(ValueError) as exception:
-            ModelServer(Predictor())
+            ModelServer(Handler(_TEST_GCS_ARTIFACTS_URI))
 
         assert str(exception.value) == expected_message
 
     def test_health(self, model_server_env_mock):
-        model_server = ModelServer(Predictor())
+        model_server = ModelServer(Handler(_TEST_GCS_ARTIFACTS_URI))
         client = TestClient(model_server.app)
 
         response = client.get(_TEST_AIP_HEALTH_ROUTE)
@@ -312,7 +330,8 @@ class TestModelServer:
         assert response.status_code == 200
 
     def test_predict(self, model_server_env_mock):
-        model_server = ModelServer(Predictor(), handler_class=PredictionHandler)
+        handler = PredictionHandler(_TEST_GCS_ARTIFACTS_URI, predictor=Predictor)
+        model_server = ModelServer(handler)
 
         client = TestClient(model_server.app)
 
@@ -327,7 +346,8 @@ class TestModelServer:
         assert response.status_code == 200
 
     def test_predict_handler_throw_exception(self, model_server_env_mock):
-        model_server = ModelServer(Predictor(), handler_class=PredictionHandler)
+        handler = PredictionHandler(_TEST_GCS_ARTIFACTS_URI, predictor=Predictor)
+        model_server = ModelServer(handler)
 
         client = TestClient(model_server.app)
 

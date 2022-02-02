@@ -15,6 +15,8 @@
 # limitations under the License.
 #
 
+from typing import Optional, Type
+
 try:
     from fastapi import Request
     from fastapi import Response
@@ -31,12 +33,17 @@ from google.cloud.aiplatform.prediction.serializer import DefaultSerializer
 class Handler:
     """Interface for Handler class to handle prediction requests."""
 
-    def __init__(self, predictor: Predictor):
+    def __init__(
+        self, gcs_artifacts_uri: str, predictor: Optional[Type[Predictor]] = None,
+    ):
         """Initializes a Handler instance.
 
         Args:
-            predictor (Predictor):
-                Required. The Predictor instance this handler consumes.
+            gcs_artifacts_uri (str):
+                Required. The value of the environment variable AIP_STORAGE_URI.
+            predictor (Type[Predictor]):
+                Optional. The Predictor class this handler uses to initiate predictor
+                instance if given.
         """
         pass
 
@@ -54,16 +61,27 @@ class Handler:
 
 
 class PredictionHandler(Handler):
-    """Default handler for handling the requests sent to the application."""
+    """Default prediction handler for the prediction requests sent to the application."""
 
-    def __init__(self, predictor: Predictor):
-        """Initializes a PredictionHandler instance.
+    def __init__(
+        self, gcs_artifacts_uri: str, predictor: Optional[Type[Predictor]] = None,
+    ):
+        """Initializes a Handler instance.
 
         Args:
-            predictor (Predictor):
-                Required. The Predictor instance this handler consumes.
+            gcs_artifacts_uri (str):
+                Required. The value of the environment variable AIP_STORAGE_URI.
+            predictor (Type[Predictor]):
+                Optional. The Predictor class this handler uses to initiate predictor
+                instance if given.
         """
-        self._predictor = predictor
+        if predictor is None:
+            raise ValueError(
+                "PredictionHandler must have a predictor class passed to the init function."
+            )
+
+        self._predictor = predictor()
+        self._predictor.load(gcs_artifacts_uri)
 
     async def handle(self, request: Request) -> Response:
         """Handles a prediction request.
