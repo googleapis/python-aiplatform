@@ -27,6 +27,12 @@ from google.cloud.aiplatform_v1beta1.services.featurestore_online_serving_servic
 from google.cloud.aiplatform_v1beta1.services.featurestore_service import (
     client as featurestore_service_client_v1beta1,
 )
+from google.cloud.aiplatform_v1beta1.services.index_service import (
+    client as index_service_client_v1beta1,
+)
+from google.cloud.aiplatform_v1beta1.services.index_endpoint_service import (
+    client as index_endpoint_service_client_v1beta1,
+)
 from google.cloud.aiplatform_v1beta1.services.job_service import (
     client as job_service_client_v1beta1,
 )
@@ -61,6 +67,12 @@ from google.cloud.aiplatform_v1.services.featurestore_online_serving_service imp
 from google.cloud.aiplatform_v1.services.featurestore_service import (
     client as featurestore_service_client_v1,
 )
+from google.cloud.aiplatform_v1.services.index_service import (
+    client as index_service_client_v1,
+)
+from google.cloud.aiplatform_v1.services.index_endpoint_service import (
+    client as index_endpoint_service_client_v1,
+)
 from google.cloud.aiplatform_v1.services.job_service import (
     client as job_service_client_v1,
 )
@@ -89,6 +101,8 @@ __all__ = (
     endpoint_service_client_v1,
     featurestore_online_serving_service_client_v1,
     featurestore_service_client_v1,
+    index_service_client_v1,
+    index_endpoint_service_client_v1,
     job_service_client_v1,
     metadata_service_client_v1,
     model_service_client_v1,

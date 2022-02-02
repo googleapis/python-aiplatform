@@ -45,6 +45,8 @@ from google.cloud.aiplatform_v1beta1.types import (
     featurestore_monitoring as featurestore_monitoring_v1beta1,
     featurestore_online_service as featurestore_online_service_v1beta1,
     featurestore_service as featurestore_service_v1beta1,
+    index as matching_engine_index,
+    index_endpoint as matching_engine_index_endpoint,
     hyperparameter_tuning_job as hyperparameter_tuning_job_v1beta1,
     io as io_v1beta1,
     job_service as job_service_v1beta1,

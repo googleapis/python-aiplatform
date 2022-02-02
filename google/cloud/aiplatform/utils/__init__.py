@@ -39,18 +39,24 @@ from google.cloud.aiplatform.compat.services import (
     endpoint_service_client_v1beta1,
     featurestore_online_serving_service_client_v1beta1,
     featurestore_service_client_v1beta1,
+    index_service_client_v1beta1,
+    index_endpoint_service_client_v1beta1,
     job_service_client_v1beta1,
     metadata_service_client_v1beta1,
     model_service_client_v1beta1,
     pipeline_service_client_v1beta1,
     prediction_service_client_v1beta1,
     tensorboard_service_client_v1beta1,
+    index_service_client_v1beta1,
+    index_endpoint_service_client_v1beta1,
 )
 from google.cloud.aiplatform.compat.services import (
     dataset_service_client_v1,
     endpoint_service_client_v1,
     featurestore_online_serving_service_client_v1,
     featurestore_service_client_v1,
+    index_service_client_v1,
+    index_endpoint_service_client_v1,
     job_service_client_v1,
     metadata_service_client_v1,
     model_service_client_v1,
@@ -70,6 +76,8 @@ VertexAiServiceClient = TypeVar(
     endpoint_service_client_v1beta1.EndpointServiceClient,
     featurestore_online_serving_service_client_v1beta1.FeaturestoreOnlineServingServiceClient,
     featurestore_service_client_v1beta1.FeaturestoreServiceClient,
+    index_service_client_v1beta1.IndexServiceClient,
+    index_endpoint_service_client_v1beta1.IndexEndpointServiceClient,
     model_service_client_v1beta1.ModelServiceClient,
     prediction_service_client_v1beta1.PredictionServiceClient,
     pipeline_service_client_v1beta1.PipelineServiceClient,
@@ -443,12 +451,33 @@ class EndpointClientWithOverride(ClientWithOverride):
     )
 
 
+class IndexClientWithOverride(ClientWithOverride):
+    _is_temporary = True
+    _default_version = compat.DEFAULT_VERSION
+    _version_map = (
+        (compat.V1, index_service_client_v1.IndexServiceClient),
+        (compat.V1BETA1, index_service_client_v1beta1.IndexServiceClient),
+    )
+
+
+class IndexEndpointClientWithOverride(ClientWithOverride):
+    _is_temporary = True
+    _default_version = compat.DEFAULT_VERSION
+    _version_map = (
+        (compat.V1, index_endpoint_service_client_v1.IndexEndpointServiceClient),
+        (
+            compat.V1BETA1,
+            index_endpoint_service_client_v1beta1.IndexEndpointServiceClient,
+        ),
+    )
+
+
 class FeaturestoreClientWithOverride(ClientWithOverride):
     _is_temporary = True
     _default_version = compat.DEFAULT_VERSION
     _version_map = (
         (compat.V1, featurestore_service_client_v1.FeaturestoreServiceClient),
-        (compat.V1BETA1, featurestore_service_client_v1beta1.FeaturestoreServiceClient),
+        (compat.V1BETA1, index_service_client_v1beta1.IndexServiceClient),
     )
 
 
