@@ -15,7 +15,7 @@
 # limitations under the License.
 #
 
-from typing import Dict, Optional, Sequence, Tuple
+from typing import Dict, Optional, Sequence, Tuple, Union
 
 from google.auth import credentials as auth_credentials
 from google.protobuf import field_mask_pb2
@@ -26,6 +26,8 @@ from google.cloud.aiplatform.compat.types import (
 )
 from google.cloud.aiplatform import initializer
 from google.cloud.aiplatform import utils
+
+import google.cloud.aiplatform.matching_engine.models as models
 
 _LOGGER = base.Logger(__name__)
 
@@ -91,6 +93,8 @@ class MatchingEngineIndex(base.VertexAiResourceNounWithFutureManager):
         cls,
         index_id: str,
         display_name: str,
+        contents_delta_uri: str,
+        config: Union[models.TreeAhConfig, models.BruteForceConfig],
         description: Optional[str] = None,
         metadata_schema_uri: Optional[str] = None,
         labels: Optional[Dict[str, str]] = None,
@@ -122,6 +126,16 @@ class MatchingEngineIndex(base.VertexAiResourceNounWithFutureManager):
                 Required. The display name of the Index.
                 The name can be up to 128 characters long and
                 can be consist of any UTF-8 characters.
+            contents_delta_uri (str):
+                Required. Allows inserting, updating  or deleting the contents of the Matching Engine Index.
+                The string must be a valid Google Cloud Storage directory path. If this
+                field is set when calling IndexService.UpdateIndex, then no other
+                Index field can be  also updated as part of the same call.
+                The expected structure and format of the files this URI points to is
+                described at
+                https://docs.google.com/document/d/12DLVB6Nq6rdv8grxfBsPhUA283KWrQ9ZenPBp0zUC30
+            config (Union[models.TreeAhConfig, models.BruteForceConfig]):
+                Required. The configuration with regard to the algorithms used for efficient search.                
             description (str):
                 The description of the Index.
             metadata_schema_uri (str):
@@ -179,6 +193,11 @@ class MatchingEngineIndex(base.VertexAiResourceNounWithFutureManager):
             display_name=display_name,
             description=description,
             metadata_schema_uri=metadata_schema_uri,
+            metadata={
+                "config": config.as_dict(),
+                "contentsDeltaUri": contents_delta_uri,
+                "isCompleteOverwrite": is_complete_overwrite,
+            },
         )
 
         if labels:
@@ -213,6 +232,9 @@ class MatchingEngineIndex(base.VertexAiResourceNounWithFutureManager):
     def update(
         self,
         display_name: str,
+        contents_delta_uri: str,
+        config: Union[models.TreeAhConfig, models.BruteForceConfig],
+        is_complete_overwrite: Optional[bool] = None,
         description: Optional[str] = None,
         metadata_schema_uri: Optional[str] = None,
         labels: Optional[Dict[str, str]] = None,
@@ -225,6 +247,19 @@ class MatchingEngineIndex(base.VertexAiResourceNounWithFutureManager):
                 Required. The display name of the Index.
                 The name can be up to 128 characters long and
                 can be consist of any UTF-8 characters.
+            contents_delta_uri (str):
+                Required. Allows inserting, updating  or deleting the contents of the Matching Engine Index.
+                The string must be a valid Google Cloud Storage directory path. If this
+                field is set when calling IndexService.UpdateIndex, then no other
+                Index field can be  also updated as part of the same call.
+                The expected structure and format of the files this URI points to is
+                described at
+                https://docs.google.com/document/d/12DLVB6Nq6rdv8grxfBsPhUA283KWrQ9ZenPBp0zUC30
+            config (Union[models.TreeAhConfig, models.BruteForceConfig]):
+                Required. The configuration with regard to the algorithms used for efficient search.                
+            is_complete_overwrite (str):
+                If this field is set together with contentsDeltaUri when calling IndexService.UpdateIndex,
+                then existing content of the Index will be replaced by the data from the contentsDeltaUri.                
             description (str):
                 The description of the Index.
             metadata_schema_uri (str):
@@ -280,6 +315,11 @@ class MatchingEngineIndex(base.VertexAiResourceNounWithFutureManager):
             display_name=display_name,
             description=description,
             metadata_schema_uri=metadata_schema_uri,
+            metadata={
+                "config": config.as_dict(),
+                "contentsDeltaUri": contents_delta_uri,
+                "isCompleteOverwrite": is_complete_overwrite,
+            },
         )
 
         _LOGGER.log_action_start_against_resource(
