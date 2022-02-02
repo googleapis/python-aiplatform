@@ -115,6 +115,24 @@ def get_test_request():
     )
 
 
+class TestPredictor:
+    def test_preprocess(self):
+        prediction_input = {"x": [1]}
+        predictor = Predictor()
+
+        result = predictor.preprocess(prediction_input)
+
+        assert result == prediction_input
+
+    def test_postprocess(self):
+        prediction_results = {"x": [1]}
+        predictor = Predictor()
+
+        result = predictor.postprocess(prediction_results)
+
+        assert result == prediction_results
+
+
 class TestDefaultSerializer:
     def test_deserialize_application_json(self):
         data = b'{"instances": [1, 2, 3]}'

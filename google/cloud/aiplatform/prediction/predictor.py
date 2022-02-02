@@ -43,7 +43,7 @@ class Predictor:
         Returns:
             The preprocessed prediction input.
         """
-        pass
+        return prediction_input
 
     def predict(self, instances: Any) -> Any:
         """Performs prediction.
@@ -67,4 +67,4 @@ class Predictor:
         Returns:
             The postprocessed prediction results.
         """
-        pass
+        return prediction_results
