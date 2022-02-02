@@ -87,6 +87,12 @@ class MatchingEngineIndex(base.VertexAiResourceNounWithFutureManager):
         )
         self._gca_resource = self._get_gca_resource(resource_name=index_name)
 
+    @property
+    def description(self) -> str:
+        """Description of the index."""
+        self._assert_gca_resource_is_available()
+        return self._gca_resource.description
+
     @classmethod
     @base.optional_sync()
     def create(

@@ -50,7 +50,7 @@ _TEST_INDEX_DISTANCE_MEASURE_TYPE = "SQUARED_L2_DISTANCE"
 _TEST_INDEX_CONFIG = aiplatform.MatchingEngineIndexConfig(
     dimensions=100,
     algorithm_config=aiplatform.MatchingEngineBruteForceAlgorithmConfig(),
-    approximate_neighbours_count=150,
+    approximate_neighbors_count=150,
     distance_measure_type=_TEST_INDEX_DISTANCE_MEASURE_TYPE,
 )
 

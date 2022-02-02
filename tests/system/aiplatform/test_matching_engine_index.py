@@ -20,7 +20,9 @@ from tests.system.aiplatform import e2e_base
 
 _TEST_MATCHING_ENGINE_INDEX_ID = "index_id"
 _TEST_MATCHING_ENGINE_INDEX_DISPLAY_NAME = "display_name"
+_TEST_MATCHING_ENGINE_INDEX_DESCRIPTION = "description"
 _TEST_INDEX_METADATA_SCHEMA_URI_UPDATE = f"gs://metadata_schema_uri/new_file"
+
 
 _TEST_CONTENTS_DELTA_URI = f"gs://contents"
 _TEST_IS_COMPLETE_OVERWRITE = False
@@ -28,9 +30,16 @@ _TEST_INDEX_DISTANCE_MEASURE_TYPE = "SQUARED_L2_DISTANCE"
 _TEST_INDEX_CONFIG = aiplatform.MatchingEngineIndexConfig(
     dimensions=100,
     algorithm_config=aiplatform.MatchingEngineBruteForceAlgorithmConfig(),
-    approximate_neighbours_count=150,
+    approximate_neighbors_count=150,
     distance_measure_type=_TEST_INDEX_DISTANCE_MEASURE_TYPE,
 )
+
+
+_TEST_LABELS = {"my_key": "my_value"}
+_TEST_DISPLAY_NAME_UPDATE = "my new display name"
+_TEST_DESCRIPTION_UPDATE = "my description update"
+_TEST_INDEX_METADATA_SCHEMA_URI_UPDATE = f"gs://metadata_schema_uri/new_file"
+_TEST_LABELS_UPDATE = {"my_key_update": "my_value_update"}
 
 
 class TestFeaturestore(e2e_base.TestEndToEnd):
@@ -45,13 +54,14 @@ class TestFeaturestore(e2e_base.TestEndToEnd):
         existing_index_count = len(aiplatform.MatchingEngineIndex.list())
 
         # Create an index
-        index_id = self._make_display_name(key=_TEST_MATCHING_ENGINE_INDEX_ID).replace(
-            "-", "_"
-        )[:60]
         index = aiplatform.MatchingEngineIndex.create(
-            index_id=index_id,
+            index_id=_TEST_MATCHING_ENGINE_INDEX_ID,
             display_name=_TEST_MATCHING_ENGINE_INDEX_DISPLAY_NAME,
+            contents_delta_uri=_TEST_CONTENTS_DELTA_URI,
+            config=_TEST_INDEX_CONFIG,
+            description=_TEST_MATCHING_ENGINE_INDEX_DESCRIPTION,
             metadata_schema_uri=_TEST_INDEX_METADATA_SCHEMA_URI_UPDATE,
+            labels=_TEST_LABELS,
         )
 
         shared_state["resources"] = [index]
@@ -65,6 +75,21 @@ class TestFeaturestore(e2e_base.TestEndToEnd):
         # Verify that the index count has increased
         list_indexes = aiplatform.MatchingEngineIndex.list()
         assert (len(list_indexes) - existing_index_count) == 1
+
+        # Update the index
+        updated_index = get_index.update(
+            display_name=_TEST_DISPLAY_NAME_UPDATE,
+            contents_delta_uri=_TEST_CONTENTS_DELTA_URI,
+            config=_TEST_INDEX_CONFIG,
+            is_complete_overwrite=_TEST_IS_COMPLETE_OVERWRITE,
+            description=_TEST_DESCRIPTION_UPDATE,
+            metadata_schema_uri=_TEST_INDEX_METADATA_SCHEMA_URI_UPDATE,
+            labels=_TEST_LABELS_UPDATE,
+        )
+
+        assert updated_index.display_name == _TEST_DISPLAY_NAME_UPDATE
+        assert updated_index.description == _TEST_DESCRIPTION_UPDATE
+        assert updated_index.labels == _TEST_LABELS
 
         # Delete index and check that count has returned to the starting value
         index.delete()
