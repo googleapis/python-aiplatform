@@ -44,8 +44,18 @@ _TEST_PARENT = f"projects/{_TEST_PROJECT}/locations/{_TEST_LOCATION}"
 _TEST_INDEX_ID = "index_id"
 _TEST_INDEX_NAME = f"{_TEST_PARENT}/indexes/{_TEST_INDEX_ID}"
 _TEST_INDEX_DISPLAY_NAME = f"index_display_name"
+_TEST_CONTENTS_DELTA_URI = f"gs://contents"
+_TEST_IS_COMPLETE_OVERWRITE = False
+_TEST_INDEX_DISTANCE_MEASURE_TYPE = "SQUARED_L2_DISTANCE"
+_TEST_INDEX_CONFIG = aiplatform.MatchingEngineIndexConfig(
+    dimensions=100,
+    algorithm_config=aiplatform.MatchingEngineBruteForceAlgorithmConfig(),
+    approximate_neighbours_count=150,
+    distance_measure_type=_TEST_INDEX_DISTANCE_MEASURE_TYPE,
+)
+
 _TEST_INDEX_DESCRIPTION = f"index_description"
-_TEST_INDEX_METADATA_SCHEMA_URI = f"gs://metadata_schema_uri/file"
+_TEST_INDEX_METADATA_SCHEMA_URI = f"gs://metadata_schema_uri/file.yaml"
 
 
 _TEST_LABELS = {"my_key": "my_value"}
@@ -56,9 +66,6 @@ _TEST_LABELS_UPDATE = {"my_key_update": "my_value_update"}
 
 # request_metadata
 _TEST_REQUEST_METADATA = ()
-
-# CMEK encryption
-_TEST_ENCRYPTION_KEY_NAME = "key_1234"
 
 # Lists
 _TEST_INDEX_LIST = [
@@ -172,6 +179,9 @@ class TestMatchingEngineIndex:
         my_index = aiplatform.MatchingEngineIndex(index_name=_TEST_INDEX_ID)
         my_index.update(
             display_name=_TEST_DISPLAY_NAME_UPDATE,
+            contents_delta_uri=_TEST_CONTENTS_DELTA_URI,
+            config=_TEST_INDEX_CONFIG,
+            is_complete_overwrite=_TEST_IS_COMPLETE_OVERWRITE,
             description=_TEST_DESCRIPTION_UPDATE,
             metadata_schema_uri=_TEST_INDEX_METADATA_SCHEMA_URI_UPDATE,
             labels=_TEST_LABELS_UPDATE,
@@ -180,6 +190,11 @@ class TestMatchingEngineIndex:
         expected = gca_index.Index(
             name=_TEST_INDEX_NAME,
             display_name=_TEST_DISPLAY_NAME_UPDATE,
+            metadata={
+                "config": _TEST_INDEX_CONFIG.as_dict(),
+                "contentsDeltaUri": _TEST_CONTENTS_DELTA_URI,
+                "isCompleteOverwrite": _TEST_IS_COMPLETE_OVERWRITE,
+            },
             description=_TEST_DESCRIPTION_UPDATE,
             metadata_schema_uri=_TEST_INDEX_METADATA_SCHEMA_URI_UPDATE,
         )
@@ -225,6 +240,8 @@ class TestMatchingEngineIndex:
         my_index = aiplatform.MatchingEngineIndex.create(
             index_id=_TEST_INDEX_ID,
             display_name=_TEST_INDEX_DISPLAY_NAME,
+            contents_delta_uri=_TEST_CONTENTS_DELTA_URI,
+            config=_TEST_INDEX_CONFIG,
             description=_TEST_INDEX_DESCRIPTION,
             metadata_schema_uri=_TEST_INDEX_METADATA_SCHEMA_URI,
             labels=_TEST_LABELS,
@@ -236,6 +253,10 @@ class TestMatchingEngineIndex:
         expected = gca_index.Index(
             name=_TEST_INDEX_ID,
             display_name=_TEST_INDEX_DISPLAY_NAME,
+            metadata={
+                "config": _TEST_INDEX_CONFIG.as_dict(),
+                "contentsDeltaUri": _TEST_CONTENTS_DELTA_URI,
+            },
             description=_TEST_INDEX_DESCRIPTION,
             metadata_schema_uri=_TEST_INDEX_METADATA_SCHEMA_URI,
             labels=_TEST_LABELS,

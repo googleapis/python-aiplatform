@@ -41,6 +41,9 @@ from google.cloud.aiplatform.featurestore import (
 from google.cloud.aiplatform.matching_engine import (
     MatchingEngineIndex,
     MatchingEngineIndexEndpoint,
+    MatchingEngineIndexConfig,
+    MatchingEngineBruteForceAlgorithmConfig,
+    MatchingEngineTreeAhAlgorithmConfig,
 )
 from google.cloud.aiplatform.metadata import metadata
 from google.cloud.aiplatform.models import Endpoint
@@ -110,6 +113,9 @@ __all__ = (
     "Featurestore",
     "MatchingEngineIndex",
     "MatchingEngineIndexEndpoint",
+    "MatchingEngineIndexConfig",
+    "MatchingEngineBruteForceAlgorithmConfig",
+    "MatchingEngineTreeAhAlgorithmConfig",
     "ImageDataset",
     "HyperparameterTuningJob",
     "Model",

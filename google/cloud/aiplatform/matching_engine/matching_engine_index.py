@@ -27,7 +27,7 @@ from google.cloud.aiplatform.compat.types import (
 from google.cloud.aiplatform import initializer
 from google.cloud.aiplatform import utils
 
-import google.cloud.aiplatform.matching_engine.models as models
+import google.cloud.aiplatform.matching_engine.matching_engine_index_config as matching_engine_index_config
 
 _LOGGER = base.Logger(__name__)
 
@@ -94,7 +94,7 @@ class MatchingEngineIndex(base.VertexAiResourceNounWithFutureManager):
         index_id: str,
         display_name: str,
         contents_delta_uri: str,
-        config: Union[models.TreeAhConfig, models.BruteForceConfig],
+        config: matching_engine_index_config.MatchingEngineIndexConfig,
         description: Optional[str] = None,
         metadata_schema_uri: Optional[str] = None,
         labels: Optional[Dict[str, str]] = None,
@@ -134,7 +134,7 @@ class MatchingEngineIndex(base.VertexAiResourceNounWithFutureManager):
                 The expected structure and format of the files this URI points to is
                 described at
                 https://docs.google.com/document/d/12DLVB6Nq6rdv8grxfBsPhUA283KWrQ9ZenPBp0zUC30
-            config (Union[models.TreeAhConfig, models.BruteForceConfig]):
+            config (Union[matching_engine_index_config.MatchingEngineIndexConfig]):
                 Required. The configuration with regard to the algorithms used for efficient search.                
             description (str):
                 The description of the Index.
@@ -196,7 +196,6 @@ class MatchingEngineIndex(base.VertexAiResourceNounWithFutureManager):
             metadata={
                 "config": config.as_dict(),
                 "contentsDeltaUri": contents_delta_uri,
-                "isCompleteOverwrite": is_complete_overwrite,
             },
         )
 
@@ -233,7 +232,7 @@ class MatchingEngineIndex(base.VertexAiResourceNounWithFutureManager):
         self,
         display_name: str,
         contents_delta_uri: str,
-        config: Union[models.TreeAhConfig, models.BruteForceConfig],
+        config: matching_engine_index_config.MatchingEngineIndexConfig,
         is_complete_overwrite: Optional[bool] = None,
         description: Optional[str] = None,
         metadata_schema_uri: Optional[str] = None,
@@ -255,7 +254,7 @@ class MatchingEngineIndex(base.VertexAiResourceNounWithFutureManager):
                 The expected structure and format of the files this URI points to is
                 described at
                 https://docs.google.com/document/d/12DLVB6Nq6rdv8grxfBsPhUA283KWrQ9ZenPBp0zUC30
-            config (Union[models.TreeAhConfig, models.BruteForceConfig]):
+            config (matching_engine_index_config.MatchingEngineIndexConfig):
                 Required. The configuration with regard to the algorithms used for efficient search.                
             is_complete_overwrite (str):
                 If this field is set together with contentsDeltaUri when calling IndexService.UpdateIndex,

@@ -22,6 +22,16 @@ _TEST_MATCHING_ENGINE_INDEX_ID = "index_id"
 _TEST_MATCHING_ENGINE_INDEX_DISPLAY_NAME = "display_name"
 _TEST_INDEX_METADATA_SCHEMA_URI_UPDATE = f"gs://metadata_schema_uri/new_file"
 
+_TEST_CONTENTS_DELTA_URI = f"gs://contents"
+_TEST_IS_COMPLETE_OVERWRITE = False
+_TEST_INDEX_DISTANCE_MEASURE_TYPE = "SQUARED_L2_DISTANCE"
+_TEST_INDEX_CONFIG = aiplatform.MatchingEngineIndexConfig(
+    dimensions=100,
+    algorithm_config=aiplatform.MatchingEngineBruteForceAlgorithmConfig(),
+    approximate_neighbours_count=150,
+    distance_measure_type=_TEST_INDEX_DISTANCE_MEASURE_TYPE,
+)
+
 
 class TestFeaturestore(e2e_base.TestEndToEnd):
 
