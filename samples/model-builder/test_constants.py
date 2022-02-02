@@ -203,4 +203,3 @@ FEAUTURESTORE_NAME = "featurestore_sample"
 ONLINE_STORE_FIXED_NODE_COUNT = 1
 SYNC = True
 FORCE = True
-

@@ -18,11 +18,11 @@ from google.cloud import aiplatform
 
 
 def delete_featurestore_sample(
-    project: str, 
-    location: str, 
-    featurestore_name: str, 
-    sync: bool = True, 
-    force: bool = True
+    project: str,
+    location: str,
+    featurestore_name: str,
+    sync: bool = True,
+    force: bool = True,
 ):
 
     aiplatform.init(project=project, location=location)

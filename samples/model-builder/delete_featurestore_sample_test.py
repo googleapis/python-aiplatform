@@ -12,7 +12,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from os import sync
 import delete_featurestore_sample
 import test_constants as constants
 
@@ -26,7 +25,7 @@ def test_delete_featurestore_sample(
         location=constants.LOCATION,
         featurestore_name=constants.FEAUTURESTORE_NAME,
         sync=constants.SYNC,
-        force=constants.FORCE
+        force=constants.FORCE,
     )
 
     mock_sdk_init.assert_called_once_with(
@@ -38,6 +37,5 @@ def test_delete_featurestore_sample(
     )
 
     mock_delete_featurestore.assert_called_once_with(
-        sync=constants.SYNC,
-        force=constants.FORCE
+        sync=constants.SYNC, force=constants.FORCE
     )

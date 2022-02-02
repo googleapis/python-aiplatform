@@ -22,7 +22,7 @@ def create_featurestore_sample(
     location: str,
     featurestore_id: str,
     online_store_fixed_node_count: int = 1,
-    sync: bool = True
+    sync: bool = True,
 ):
 
     aiplatform.init(project=project, location=location)
@@ -30,7 +30,7 @@ def create_featurestore_sample(
     fs = aiplatform.Featurestore.create(
         featurestore_id=featurestore_id,
         online_store_fixed_node_count=online_store_fixed_node_count,
-        sync=sync
+        sync=sync,
     )
 
     fs.wait()
