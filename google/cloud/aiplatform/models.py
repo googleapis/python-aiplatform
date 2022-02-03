@@ -2145,7 +2145,7 @@ class Model(base.VertexAiResourceNounWithFutureManager):
 
     def batch_predict(
         self,
-        job_display_name: str,
+        job_display_name: Optional[str] = None,
         gcs_source: Optional[Union[str, Sequence[str]]] = None,
         bigquery_source: Optional[str] = None,
         instances_format: str = "jsonl",
@@ -2182,7 +2182,7 @@ class Model(base.VertexAiResourceNounWithFutureManager):
 
         Args:
             job_display_name (str):
-                Required. The user-defined name of the BatchPredictionJob.
+                Optional. The user-defined name of the BatchPredictionJob.
                 The name can be up to 128 characters long and can be consist
                 of any UTF-8 characters.
             gcs_source: Optional[Sequence[str]] = None

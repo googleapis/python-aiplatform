@@ -527,6 +527,8 @@ class BatchPredictionJob(_Job):
             (jobs.BatchPredictionJob):
                 Instantiated representation of the created batch prediction job.
         """
+        if not job_display_name:
+            job_display_name = cls._generate_display_name()
 
         utils.validate_display_name(job_display_name)
 
