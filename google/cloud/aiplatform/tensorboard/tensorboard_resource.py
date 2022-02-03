@@ -15,7 +15,6 @@
 # limitations under the License.
 #
 
-import datetime
 from typing import Dict, List, Optional, Sequence, Tuple
 
 from google.auth import credentials as auth_credentials

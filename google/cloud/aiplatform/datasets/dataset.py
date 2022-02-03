@@ -15,7 +15,6 @@
 # limitations under the License.
 #
 
-import datetime
 from typing import Dict, List, Optional, Sequence, Tuple, Union
 
 from google.api_core import operation
