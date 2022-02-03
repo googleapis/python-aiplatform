@@ -157,7 +157,7 @@ class PipelineJob(base.VertexAiResourceNounWithFutureManager):
             ValueError: If job_id or labels have incorrect format.
         """
         if not display_name:
-            display_name = "PipelineJob " + datetime.datetime.now().isoformat(sep=" ")
+            display_name = self.__class__._generate_display_name()
         utils.validate_display_name(display_name)
 
         if labels:

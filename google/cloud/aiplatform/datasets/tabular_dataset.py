@@ -109,7 +109,7 @@ class TabularDataset(datasets._ColumnNamesDataset):
                 Instantiated representation of the managed tabular dataset resource.
         """
         if not display_name:
-            display_name = cls.name + " " + datetime.datetime.now().isoformat(sep=" ")
+            display_name = cls._generate_display_name()
         utils.validate_display_name(display_name)
         if labels:
             utils.validate_labels(labels)

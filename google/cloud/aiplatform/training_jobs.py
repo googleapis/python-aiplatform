@@ -136,9 +136,7 @@ class _TrainingJob(base.VertexAiResourceNounWithFutureManager):
                 Overrides encryption_spec_key_name set in aiplatform.init.
         """
         if not display_name:
-            display_name = (
-                self.__class__.name + " " + datetime.datetime.now().isoformat(sep=" ")
-            )
+            display_name = self.__class__._generate_display_name()
         utils.validate_display_name(display_name)
         if labels:
             utils.validate_labels(labels)
@@ -1178,9 +1176,7 @@ class _CustomTrainingJob(_TrainingJob):
                 staging_bucket set in aiplatform.init.
         """
         if not display_name:
-            display_name = (
-                self.__class__.name + " " + datetime.datetime.now().isoformat(sep=" ")
-            )
+            display_name = self.__class__._generate_display_name()
         super().__init__(
             display_name=display_name,
             project=project,
@@ -1741,9 +1737,7 @@ class CustomTrainingJob(_CustomTrainingJob):
                 staging_bucket set in aiplatform.init.
         """
         if not display_name:
-            display_name = (
-                self.__class__.name + " " + datetime.datetime.now().isoformat(sep=" ")
-            )
+            display_name = self.__class__._generate_display_name()
         super().__init__(
             display_name=display_name,
             project=project,
@@ -2550,9 +2544,7 @@ class CustomContainerTrainingJob(_CustomTrainingJob):
                 staging_bucket set in aiplatform.init.
         """
         if not display_name:
-            display_name = (
-                self.__class__.name + " " + datetime.datetime.now().isoformat(sep=" ")
-            )
+            display_name = self.__class__._generate_display_name()
         super().__init__(
             display_name=display_name,
             project=project,
@@ -3287,9 +3279,7 @@ class AutoMLTabularTrainingJob(_TrainingJob):
             ValueError: If both column_transformations and column_specs were provided.
         """
         if not display_name:
-            display_name = (
-                self.__class__.name + " " + datetime.datetime.now().isoformat(sep=" ")
-            )
+            display_name = self.__class__._generate_display_name()
         super().__init__(
             display_name=display_name,
             project=project,
@@ -3878,9 +3868,7 @@ class AutoMLForecastingTrainingJob(_TrainingJob):
             ValueError: If both column_transformations and column_specs were provided.
         """
         if not display_name:
-            display_name = (
-                self.__class__.name + " " + datetime.datetime.now().isoformat(sep=" ")
-            )
+            display_name = self.__class__._generate_display_name()
         super().__init__(
             display_name=display_name,
             project=project,
@@ -4748,9 +4736,7 @@ class AutoMLImageTrainingJob(_TrainingJob):
             ValueError: When an invalid prediction_type or model_type is provided.
         """
         if not display_name:
-            display_name = (
-                self.__class__.name + " " + datetime.datetime.now().isoformat(sep=" ")
-            )
+            display_name = self.__class__._generate_display_name()
 
         valid_model_types = constants.AUTOML_IMAGE_PREDICTION_MODEL_TYPES.get(
             prediction_type, None
@@ -5340,9 +5326,7 @@ class CustomPythonPackageTrainingJob(_CustomTrainingJob):
                 staging_bucket set in aiplatform.init.
         """
         if not display_name:
-            display_name = (
-                self.__class__.name + " " + datetime.datetime.now().isoformat(sep=" ")
-            )
+            display_name = self.__class__._generate_display_name()
         super().__init__(
             display_name=display_name,
             project=project,
@@ -6013,9 +5997,7 @@ class AutoMLVideoTrainingJob(_TrainingJob):
             ValueError: When an invalid prediction_type and/or model_type is provided.
         """
         if not display_name:
-            display_name = (
-                self.__class__.name + " " + datetime.datetime.now().isoformat(sep=" ")
-            )
+            display_name = self.__class__._generate_display_name()
 
         valid_model_types = constants.AUTOML_VIDEO_PREDICTION_MODEL_TYPES.get(
             prediction_type, None
@@ -6378,9 +6360,7 @@ class AutoMLTextTrainingJob(_TrainingJob):
                 Overrides encryption_spec_key_name set in aiplatform.init.
         """
         if not display_name:
-            display_name = (
-                self.__class__.name + " " + datetime.datetime.now().isoformat(sep=" ")
-            )
+            display_name = self.__class__._generate_display_name()
         super().__init__(
             display_name=display_name,
             project=project,

@@ -1082,9 +1082,7 @@ class CustomJob(_RunnableJob):
         )
 
         if not display_name:
-            display_name = (
-                self.__class__.name + " " + datetime.datetime.now().isoformat(sep=" ")
-            )
+            display_name = self.__class__._generate_display_name()
 
         self._gca_resource = gca_custom_job_compat.CustomJob(
             display_name=display_name,
@@ -1654,9 +1652,7 @@ class HyperparameterTuningJob(_RunnableJob):
         )
 
         if not display_name:
-            display_name = (
-                self.__class__.name + " " + datetime.datetime.now().isoformat(sep=" ")
-            )
+            display_name = self.__class__._generate_display_name()
 
         self._gca_resource = gca_hyperparameter_tuning_job_compat.HyperparameterTuningJob(
             display_name=display_name,

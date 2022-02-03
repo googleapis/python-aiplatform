@@ -259,7 +259,7 @@ class Endpoint(base.VertexAiResourceNounWithFutureManager):
         api_client = cls._instantiate_client(location=location, credentials=credentials)
 
         if not display_name:
-            display_name = "Endpoint " + datetime.datetime.now().isoformat(sep=" ")
+            display_name = cls._generate_display_name()
 
         utils.validate_display_name(display_name)
         if labels:
@@ -1754,7 +1754,7 @@ class Model(base.VertexAiResourceNounWithFutureManager):
                 Also if model directory does not contain a supported model file.
         """
         if not display_name:
-            display_name = "Model " + datetime.datetime.now().isoformat(sep=" ")
+            display_name = cls._generate_display_name()
         utils.validate_display_name(display_name)
         if labels:
             utils.validate_labels(labels)
@@ -2672,7 +2672,7 @@ class Model(base.VertexAiResourceNounWithFutureManager):
                 Also if model directory does not contain a supported model file.
         """
         if not display_name:
-            display_name = "XGBoost model " + datetime.datetime.now().isoformat(sep=" ")
+            display_name = cls.__class__.__generate_display_name("XGBoost model")
 
         XGBOOST_SUPPORTED_MODEL_FILE_EXTENSIONS = [
             ".pkl",
@@ -2871,9 +2871,7 @@ class Model(base.VertexAiResourceNounWithFutureManager):
                 Also if model directory does not contain a supported model file.
         """
         if not display_name:
-            display_name = "Scikit-Learn model " + datetime.datetime.now().isoformat(
-                sep=" "
-            )
+            display_name = cls._generate_display_name("Scikit-Learn model")
 
         SKLEARN_SUPPORTED_MODEL_FILE_EXTENSIONS = [
             ".pkl",
@@ -3073,9 +3071,7 @@ class Model(base.VertexAiResourceNounWithFutureManager):
                 Also if model directory does not contain a supported model file.
         """
         if not display_name:
-            display_name = "Tensorflow model " + datetime.datetime.now().isoformat(
-                sep=" "
-            )
+            display_name = cls._generate_display_name("Tensorflow model")
 
         container_image_uri = aiplatform.helpers.get_prebuilt_prediction_container_uri(
             region=location,

@@ -673,6 +673,13 @@ class VertexAiResourceNoun(metaclass=abc.ABCMeta):
         """Returns the resource proto as a dictionary."""
         return json_format.MessageToDict(self.gca_resource._pb)
 
+    @classmethod
+    def _generate_display_name(cls, prefix: Optional[str] = None) -> str:
+        """Returns a display name containing class name and time string."""
+        if not prefix:
+            prefix = cls.name
+        return prefix + " " + datetime.datetime.now().isoformat(sep=" ")
+
 
 def optional_sync(
     construct_object_on_arg: Optional[str] = None,
