@@ -213,17 +213,6 @@ class MatchingEngineIndexEndpoint(base.VertexAiResourceNounWithFutureManager):
                 can be consist of any UTF-8 characters.
             description (str):
                 The description of the IndexEndpoint.
-            metadata_schema_uri (str):
-                Immutable. Points to a YAML file stored on Google Cloud
-                Storage describing additional information about the IndexEndpoint,
-                that is specific to it. Unset if the IndexEndpoint does not have any
-                additional information. The schema is defined as an OpenAPI
-                3.0.2 `Schema
-                Object <https://github.com/OAI/OpenAPI-Specification/blob/main/versions/3.0.2.md#schemaObject>`__.
-                Note: The URI given on output will be immutable and probably
-                different, including the URI scheme, than the one given on
-                input. The output URI will point to a location where the
-                user only has a read access.
             labels (Dict[str, str]):
                 Optional. The labels with user-defined
                 metadata to organize your Indexs.

@@ -102,7 +102,6 @@ class MatchingEngineIndex(base.VertexAiResourceNounWithFutureManager):
         contents_delta_uri: str,
         config: matching_engine_index_config.MatchingEngineIndexConfig,
         description: Optional[str] = None,
-        metadata_schema_uri: Optional[str] = None,
         labels: Optional[Dict[str, str]] = None,
         project: Optional[str] = None,
         location: Optional[str] = None,
@@ -144,17 +143,6 @@ class MatchingEngineIndex(base.VertexAiResourceNounWithFutureManager):
                 Required. The configuration with regard to the algorithms used for efficient search.                
             description (str):
                 The description of the Index.
-            metadata_schema_uri (str):
-                Immutable. Points to a YAML file stored on Google Cloud
-                Storage describing additional information about the Index,
-                that is specific to it. Unset if the Index does not have any
-                additional information. The schema is defined as an OpenAPI
-                3.0.2 `Schema
-                Object <https://github.com/OAI/OpenAPI-Specification/blob/main/versions/3.0.2.md#schemaObject>`__.
-                Note: The URI given on output will be immutable and probably
-                different, including the URI scheme, than the one given on
-                input. The output URI will point to a location where the
-                user only has a read access.
             labels (Dict[str, str]):
                 Optional. The labels with user-defined
                 metadata to organize your Index.
@@ -198,7 +186,6 @@ class MatchingEngineIndex(base.VertexAiResourceNounWithFutureManager):
             name=index_id,
             display_name=display_name,
             description=description,
-            metadata_schema_uri=metadata_schema_uri,
             metadata={
                 "config": config.as_dict(),
                 "contentsDeltaUri": contents_delta_uri,
@@ -241,7 +228,6 @@ class MatchingEngineIndex(base.VertexAiResourceNounWithFutureManager):
         config: matching_engine_index_config.MatchingEngineIndexConfig,
         is_complete_overwrite: Optional[bool] = None,
         description: Optional[str] = None,
-        metadata_schema_uri: Optional[str] = None,
         labels: Optional[Dict[str, str]] = None,
         request_metadata: Optional[Sequence[Tuple[str, str]]] = (),
     ) -> "MatchingEngineIndex":
@@ -267,17 +253,6 @@ class MatchingEngineIndex(base.VertexAiResourceNounWithFutureManager):
                 then existing content of the Index will be replaced by the data from the contentsDeltaUri.                
             description (str):
                 The description of the Index.
-            metadata_schema_uri (str):
-                Immutable. Points to a YAML file stored on Google Cloud
-                Storage describing additional information about the Index,
-                that is specific to it. Unset if the Index does not have any
-                additional information. The schema is defined as an OpenAPI
-                3.0.2 `Schema
-                Object <https://github.com/OAI/OpenAPI-Specification/blob/main/versions/3.0.2.md#schemaObject>`__.
-                Note: The URI given on output will be immutable and probably
-                different, including the URI scheme, than the one given on
-                input. The output URI will point to a location where the
-                user only has a read access.
             labels (Dict[str, str]):
                 Optional. The labels with user-defined
                 metadata to organize your Indexs.
@@ -310,16 +285,12 @@ class MatchingEngineIndex(base.VertexAiResourceNounWithFutureManager):
         if description is not None:
             update_mask.append("description")
 
-        if metadata_schema_uri is not None:
-            update_mask.append("metadata_schema_uri")
-
         update_mask = field_mask_pb2.FieldMask(paths=update_mask)
 
         gapic_index = gca_matching_engine_index.Index(
             name=self.resource_name,
             display_name=display_name,
             description=description,
-            metadata_schema_uri=metadata_schema_uri,
             metadata={
                 "config": config.as_dict(),
                 "contentsDeltaUri": contents_delta_uri,

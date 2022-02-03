@@ -55,13 +55,11 @@ _TEST_INDEX_CONFIG = aiplatform.MatchingEngineIndexConfig(
 )
 
 _TEST_INDEX_DESCRIPTION = f"index_description"
-_TEST_INDEX_METADATA_SCHEMA_URI = f"gs://metadata_schema_uri/file.yaml"
 
 
 _TEST_LABELS = {"my_key": "my_value"}
 _TEST_DISPLAY_NAME_UPDATE = "my new display name"
 _TEST_DESCRIPTION_UPDATE = "my description update"
-_TEST_INDEX_METADATA_SCHEMA_URI_UPDATE = f"gs://metadata_schema_uri/new_file"
 _TEST_LABELS_UPDATE = {"my_key_update": "my_value_update"}
 
 # request_metadata
@@ -73,19 +71,16 @@ _TEST_INDEX_LIST = [
         name=_TEST_INDEX_NAME,
         display_name=_TEST_INDEX_DISPLAY_NAME,
         description=_TEST_INDEX_DESCRIPTION,
-        metadata_schema_uri=_TEST_INDEX_METADATA_SCHEMA_URI,
     ),
     gca_index.Index(
         name=_TEST_INDEX_NAME,
         display_name=_TEST_INDEX_DISPLAY_NAME,
         description=_TEST_INDEX_DESCRIPTION,
-        metadata_schema_uri=_TEST_INDEX_METADATA_SCHEMA_URI,
     ),
     gca_index.Index(
         name=_TEST_INDEX_NAME,
         display_name=_TEST_INDEX_DISPLAY_NAME,
         description=_TEST_INDEX_DESCRIPTION,
-        metadata_schema_uri=_TEST_INDEX_METADATA_SCHEMA_URI,
     ),
 ]
 
@@ -104,7 +99,6 @@ def get_index_mock():
             name=_TEST_INDEX_NAME,
             display_name=_TEST_INDEX_DISPLAY_NAME,
             description=_TEST_INDEX_DESCRIPTION,
-            metadata_schema_uri=_TEST_INDEX_METADATA_SCHEMA_URI,
         )
         yield get_index_mock
 
@@ -148,7 +142,6 @@ def create_index_mock():
             name=_TEST_INDEX_NAME,
             display_name=_TEST_INDEX_DISPLAY_NAME,
             description=_TEST_INDEX_DESCRIPTION,
-            metadata_schema_uri=_TEST_INDEX_METADATA_SCHEMA_URI,
         )
         create_index_mock.return_value = create_index_lro_mock
         yield create_index_mock
@@ -183,7 +176,6 @@ class TestMatchingEngineIndex:
             config=_TEST_INDEX_CONFIG,
             is_complete_overwrite=_TEST_IS_COMPLETE_OVERWRITE,
             description=_TEST_DESCRIPTION_UPDATE,
-            metadata_schema_uri=_TEST_INDEX_METADATA_SCHEMA_URI_UPDATE,
             labels=_TEST_LABELS_UPDATE,
         )
 
@@ -196,13 +188,12 @@ class TestMatchingEngineIndex:
                 "isCompleteOverwrite": _TEST_IS_COMPLETE_OVERWRITE,
             },
             description=_TEST_DESCRIPTION_UPDATE,
-            metadata_schema_uri=_TEST_INDEX_METADATA_SCHEMA_URI_UPDATE,
         )
 
         update_index_mock.assert_called_once_with(
             index=expected,
             update_mask=field_mask_pb2.FieldMask(
-                paths=["labels", "display_name", "description", "metadata_schema_uri"]
+                paths=["labels", "display_name", "description"]
             ),
             metadata=_TEST_REQUEST_METADATA,
         )
@@ -243,7 +234,6 @@ class TestMatchingEngineIndex:
             contents_delta_uri=_TEST_CONTENTS_DELTA_URI,
             config=_TEST_INDEX_CONFIG,
             description=_TEST_INDEX_DESCRIPTION,
-            metadata_schema_uri=_TEST_INDEX_METADATA_SCHEMA_URI,
             labels=_TEST_LABELS,
         )
 
@@ -258,7 +248,6 @@ class TestMatchingEngineIndex:
                 "contentsDeltaUri": _TEST_CONTENTS_DELTA_URI,
             },
             description=_TEST_INDEX_DESCRIPTION,
-            metadata_schema_uri=_TEST_INDEX_METADATA_SCHEMA_URI,
             labels=_TEST_LABELS,
         )
         create_index_mock.assert_called_once_with(
