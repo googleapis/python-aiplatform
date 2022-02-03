@@ -20,25 +20,75 @@ import logging
 import os
 from pathlib import Path
 import textwrap
+from typing import Any, Type
 
 from google.cloud.aiplatform.utils import path_utils
 
 _logger = logging.getLogger(__name__)
 
 
+def _inspect_source_from_class(
+    custom_class: Type[Any], src_dir: str,
+):
+    """Inspects the source file from a custom class and retruns its import path.
+
+    Args:
+        custom_class (Type[Any]):
+            Required. The custom class needs to be inspected for the source file.
+        src_dir (str):
+            Required. The path to the local directory including all needed files.
+            The source file of the custom class must be in this directory.
+
+    Returns:
+        (import_from, class_name): the source file path in python import format
+            and the custom class name.
+
+    Raises:
+        ValueError: If the source file of the custom class is not in the source
+            directory.
+    """
+    src_dir_abs_path = Path(src_dir).expanduser().resolve()
+
+    custom_class_name = custom_class.__name__
+
+    custom_class_path = Path(inspect.getsourcefile(custom_class)).resolve()
+    if not path_utils._is_relative_to(custom_class_path, src_dir_abs_path):
+        raise ValueError(
+            f'The file implementing "{custom_class_name}" must be in "{src_dir}".'
+        )
+
+    custom_class_import_path = custom_class_path.relative_to(src_dir_abs_path)
+    custom_class_import_path = custom_class_import_path.with_name(
+        custom_class_import_path.stem
+    )
+    custom_class_import = custom_class_import_path.as_posix().replace(os.sep, ".")
+
+    return custom_class_import, custom_class_name
+
+
 def populate_entrypoint_if_not_exists(
-    predictor, src_dir: str, filename: str,  # TODO: add Type[Predictor]
+    src_dir: str,
+    filename: str,
+    predictor=None,  # TODO: add Optional[Type[Predictor]] = None
+    handler=None,  # TODO: add Type[Handler] = PredictionHandler
 ):
     """Populates an entrypoint file in the provided directory if it doesn't exist.
 
     Args:
-        predictor (Type[Predictor]):
-            Required. The custom predictor used to do prediction in the model server.
         src_dir (str):
             Required. The path to the local directory including all needed files such as
             predictor. The whole directory will be copied to the image.
         filename (str):
             Required. The stored entrypoint file name.
+        predictor (Type[Predictor]):
+            Optional. The custom predictor consumed by handler to do prediction.
+        handler (Type[Handler]):
+            Required. The handler to handle requests in the model server.
+
+    Raises:
+        ValueError: If the source directory is not a valid path, if the source file
+            of the predictor is not in the source directory, if handler is None, or
+            if the source file of the custom handler is not in the source directory.
     """
     src_dir_path = Path(src_dir).expanduser()
     if not src_dir_path.exists():
@@ -48,8 +98,6 @@ def populate_entrypoint_if_not_exists(
             f"code that needs to be copied to the docker image."
         )
 
-    src_dir_abs_path = src_dir_path.resolve()
-
     entrypoint_path = src_dir_path.joinpath(filename)
     if entrypoint_path.exists():
         _logger.info(
@@ -58,33 +106,65 @@ def populate_entrypoint_if_not_exists(
         )
         return
 
-    predictor_path = Path(inspect.getsourcefile(predictor)).resolve()
-    if not path_utils._is_relative_to(predictor_path, src_dir_abs_path):
-        raise ValueError(
-            f'The file implementing "{predictor.__name__}" must be in "{src_dir}".'
+    predictor_import_line = ""
+    predictor_name = None
+    if predictor is not None:
+        predictor_import, predictor_name = _inspect_source_from_class(
+            predictor, src_dir
+        )
+        predictor_import_line = "from {predictor_import_file} import {predictor_class}".format(
+            predictor_import_file=predictor_import, predictor_class=predictor_name,
         )
 
-    predictor_import_path = predictor_path.relative_to(src_dir_abs_path)
-    predictor_import_path = predictor_import_path.with_name(predictor_import_path.stem)
-    predictor_import = predictor_import_path.as_posix().replace(os.sep, ".")
+    handler_import_line = ""
+    handler_name = "prediction.handler.PredictionHandler"
+
+    # TODO: update the following after handler is checked in.
+    # if handler is None:
+    #     raise ValueError("A handler must be provided but handler is None.")
+    # elif handler == PredictionHandler:
+    #     if predictor is None:
+    #         raise ValueError(
+    #             "PredictionHandler must have a predictor class but predictor is None."
+    #         )
+    # else:
+    if handler is not None:
+        handler_import, handler_name = _inspect_source_from_class(handler, src_dir)
+        handler_import_line = "from {handler_import_file} import {handler_class}".format(
+            handler_import_file=handler_import, handler_class=handler_name,
+        )
 
     entrypoint_content = textwrap.dedent(
         """
+        import os
+        from typing import Optional, Type
+
         from google.cloud.aiplatform import prediction
-        from typing import Type
-        from {predictor_import_file} import {predictor_class}
+
+        {predictor_import_line}
+        {handler_import_line}
 
         def main(
-            predictor: Type[prediction.predictor.Predictor],
-            model_server: Type[prediction.model_server.ModelServer] = prediction.model_server.ModelServer,
-            handler: Type[prediction.handler.Handler] = prediction.handler.DefaultHandler
+            predictor_class: Optional[Type[prediction.predictor.Predictor]] = None,
+            handler_class: Type[prediction.handler.Handler] = prediction.handler.PredictionHandler
+            model_server_class: Type[prediction.model_server.ModelServer] = prediction.model_server.ModelServer,
         ):
-            return model_server(predictor(), handler_class=handler).start()
+            handler = handler_class(
+                os.environ.get("AIP_STORAGE_URI"), predictor=predictor_class
+            )
+
+            return model_server_class(handler).start()
 
         if __name__ == "__main__":
-            main({predictor_class})
+            main(
+                predictor_class={predictor_class},
+                handler_class={handler_class},
+            )
         """.format(
-            predictor_import_file=predictor_import, predictor_class=predictor.__name__,
+            predictor_import_line=predictor_import_line,
+            predictor_class=predictor_name,
+            handler_import_line=handler_import_line,
+            handler_class=handler_name,
         )
     )
 

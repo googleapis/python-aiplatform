@@ -95,7 +95,7 @@ class TestLocalModel:
         entrypoint = f"{_TEST_SRC_DIR}/{_ENTRYPOINT_FILE}"
 
         local_model = LocalModel.create_cpr_model(
-            my_predictor, _TEST_SRC_DIR, _TEST_OUTPUT_IMAGE
+            _TEST_SRC_DIR, _TEST_OUTPUT_IMAGE, predictor=my_predictor,
         )
 
         assert local_model.serving_container_spec.image_uri == _TEST_OUTPUT_IMAGE
@@ -103,7 +103,7 @@ class TestLocalModel:
         assert local_model.serving_container_spec.health_route == DEFAULT_HEALTH_ROUTE
 
         populate_entrypoint_if_not_exists_mock.assert_called_once_with(
-            my_predictor, _TEST_SRC_DIR, _ENTRYPOINT_FILE
+            _TEST_SRC_DIR, _ENTRYPOINT_FILE, predictor=my_predictor, handler=None
         )
         is_prebuilt_prediction_container_uri_is_false_mock.assert_called_once_with(
             _DEFAULT_BASE_IMAGE
@@ -141,7 +141,7 @@ class TestLocalModel:
         entrypoint = f"{_TEST_SRC_DIR}/{_ENTRYPOINT_FILE}"
 
         local_model = LocalModel.create_cpr_model(
-            my_predictor, _TEST_SRC_DIR, _TEST_OUTPUT_IMAGE
+            _TEST_SRC_DIR, _TEST_OUTPUT_IMAGE, predictor=my_predictor,
         )
 
         assert local_model.serving_container_spec.image_uri == _TEST_OUTPUT_IMAGE
@@ -149,7 +149,7 @@ class TestLocalModel:
         assert local_model.serving_container_spec.health_route == DEFAULT_HEALTH_ROUTE
 
         populate_entrypoint_if_not_exists_mock.assert_called_once_with(
-            my_predictor, _TEST_SRC_DIR, _ENTRYPOINT_FILE
+            _TEST_SRC_DIR, _ENTRYPOINT_FILE, predictor=my_predictor, handler=None
         )
         is_prebuilt_prediction_container_uri_is_true_mock.assert_called_once_with(
             _DEFAULT_BASE_IMAGE
@@ -188,9 +188,9 @@ class TestLocalModel:
         requirements_path = f"{_TEST_SRC_DIR}/requirements.txt"
 
         local_model = LocalModel.create_cpr_model(
-            my_predictor,
             _TEST_SRC_DIR,
             _TEST_OUTPUT_IMAGE,
+            predictor=my_predictor,
             requirements_path=requirements_path,
         )
 
@@ -199,7 +199,7 @@ class TestLocalModel:
         assert local_model.serving_container_spec.health_route == DEFAULT_HEALTH_ROUTE
 
         populate_entrypoint_if_not_exists_mock.assert_called_once_with(
-            my_predictor, _TEST_SRC_DIR, _ENTRYPOINT_FILE
+            _TEST_SRC_DIR, _ENTRYPOINT_FILE, predictor=my_predictor, handler=None
         )
         is_prebuilt_prediction_container_uri_is_false_mock.assert_called_once_with(
             _DEFAULT_BASE_IMAGE

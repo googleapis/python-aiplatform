@@ -47,9 +47,10 @@ class LocalModel:
     @classmethod
     def create_cpr_model(
         cls,
-        predictor,  # TODO: add Type[Predictor]
         src_dir: str,
         output_image: str,
+        predictor,  # TODO: add Optional[Type[Predictor]] = None
+        handler=None,  # TODO: add Type[Handler] = PredictionHandler
         base_image: str = "python:3.7",
         requirements_path: Optional[str] = None,
     ) -> "LocalModel":
@@ -60,16 +61,18 @@ class LocalModel:
         directory, src_dir, if it doesn't exist and generates a Dockerfile to build the image.
 
         Args:
-            predictor (Type[Predictor]):
-                Required. The custom predictor used to do prediction in the model server.
             src_dir (str):
                 Required. The path to the local directory including all needed files such as
                 predictor. The whole directory will be copied to the image.
             output_image (str):
                 Required. The image name of the built image.
+            predictor (Type[Predictor]):
+                Optional. The custom predictor consumed by handler to do prediction.
+            handler (Type[Handler]):
+                Required. The handler to handle requests in the model server.
             base_image (str):
                 The base image used to build the custom images.
-            requirements_path (Optional[str]):
+            requirements_path (str):
                 The path to the local requirements.txt file. This file will be copied to the
                 image and the needed packages listed in it will be installed.
 
@@ -79,7 +82,7 @@ class LocalModel:
         entrypoint_file = "entrypoint.py"
 
         prediction_utils.populate_entrypoint_if_not_exists(
-            predictor, src_dir, entrypoint_file
+            src_dir, entrypoint_file, predictor=predictor, handler=handler,
         )
 
         is_prebuilt_prediction_image = helpers.is_prebuilt_prediction_container_uri(
