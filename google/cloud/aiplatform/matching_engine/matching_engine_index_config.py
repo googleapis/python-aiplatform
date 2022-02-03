@@ -31,10 +31,10 @@ class AlgorithmConfig(abc.ABC):
 @dataclass
 class TreeAhConfig(AlgorithmConfig):
     # Number of embeddings on each leaf node. The default value is 1000 if not set.
-    leaf_node_embedding_count: Optional[int]
+    leaf_node_embedding_count: Optional[int] = None
     # The default percentage of leaf nodes that any query may be searched. Must be in
     # range 1-100, inclusive. The default value is 10 (means 10%) if not set.
-    leaf_nodes_to_search_percent: Optional[float]
+    leaf_nodes_to_search_percent: Optional[float] = None
 
     def as_dict(self) -> Dict:
         return {

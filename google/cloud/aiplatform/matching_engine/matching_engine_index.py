@@ -191,7 +191,7 @@ class MatchingEngineIndex(base.VertexAiResourceNounWithFutureManager):
                 be immediately returned and synced when the Future has completed.
 
         Returns:
-            Index - Index resource object
+            MatchingEngineIndex - Index resource object
 
         """
         gapic_index = gca_matching_engine_index.Index(
@@ -296,7 +296,7 @@ class MatchingEngineIndex(base.VertexAiResourceNounWithFutureManager):
                 Optional. Strings which should be sent along with the request as metadata.
 
         Returns:
-            Index - The updated index resource object.
+            MatchingEngineIndex - The updated index resource object.
         """
         update_mask = list()
 

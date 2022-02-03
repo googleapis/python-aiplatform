@@ -157,22 +157,22 @@ class TestMatchingEngineIndex:
     def test_init_index_endpoint(self, index_endpoint_name, get_index_endpoint_mock):
         aiplatform.init(project=_TEST_PROJECT)
 
-        my_index = aiplatform.MatchingEngineIndexEndpoint(
+        my_index_endpoint = aiplatform.MatchingEngineIndexEndpoint(
             index_endpoint_name=index_endpoint_name
         )
 
         get_index_endpoint_mock.assert_called_once_with(
-            name=my_index.resource_name, retry=base._DEFAULT_RETRY
+            name=my_index_endpoint.resource_name, retry=base._DEFAULT_RETRY
         )
 
     @pytest.mark.usefixtures("get_index_endpoint_mock")
     def test_update_index_endpoint(self, update_index_endpoint_mock):
         aiplatform.init(project=_TEST_PROJECT)
 
-        my_index = aiplatform.MatchingEngineIndexEndpoint(
+        my_index_endpoint = aiplatform.MatchingEngineIndexEndpoint(
             index_endpoint_name=_TEST_INDEX_ENDPOINT_ID
         )
-        my_index.update(
+        my_index_endpoint.update(
             display_name=_TEST_DISPLAY_NAME_UPDATE,
             description=_TEST_DESCRIPTION_UPDATE,
             labels=_TEST_LABELS_UPDATE,
@@ -201,30 +201,32 @@ class TestMatchingEngineIndex:
             request={"parent": _TEST_PARENT, "filter": None}
         )
         assert len(my_index_endpoints_list) == len(_TEST_INDEX_ENDPOINT_LIST)
-        for my_index in my_index_endpoints_list:
-            assert type(my_index) == aiplatform.MatchingEngineIndexEndpoint
+        for my_index_endpoint in my_index_endpoints_list:
+            assert type(my_index_endpoint) == aiplatform.MatchingEngineIndexEndpoint
 
     @pytest.mark.parametrize("sync", [True, False])
     @pytest.mark.usefixtures("get_index_endpoint_mock")
     def test_delete_index_endpoint(self, delete_index_endpoint_mock, sync):
         aiplatform.init(project=_TEST_PROJECT)
 
-        my_index = aiplatform.MatchingEngineIndexEndpoint(
+        my_index_endpoint = aiplatform.MatchingEngineIndexEndpoint(
             index_endpoint_name=_TEST_INDEX_ENDPOINT_ID
         )
-        my_index.delete(sync=sync)
+        my_index_endpoint.delete(sync=sync)
 
         if not sync:
-            my_index.wait()
+            my_index_endpoint.wait()
 
-        delete_index_endpoint_mock.assert_called_once_with(name=my_index.resource_name)
+        delete_index_endpoint_mock.assert_called_once_with(
+            name=my_index_endpoint.resource_name
+        )
 
     @pytest.mark.usefixtures("get_index_endpoint_mock")
     @pytest.mark.parametrize("sync", [True, False])
     def test_create_index_endpoint(self, create_index_endpoint_mock, sync):
         aiplatform.init(project=_TEST_PROJECT)
 
-        my_index = aiplatform.MatchingEngineIndexEndpoint.create(
+        my_index_endpoint = aiplatform.MatchingEngineIndexEndpoint.create(
             index_id=_TEST_INDEX_ENDPOINT_ID,
             display_name=_TEST_INDEX_ENDPOINT_DISPLAY_NAME,
             description=_TEST_INDEX_ENDPOINT_DESCRIPTION,
@@ -232,7 +234,39 @@ class TestMatchingEngineIndex:
         )
 
         if not sync:
-            my_index.wait()
+            my_index_endpoint.wait()
+
+        expected = gca_index_endpoint.IndexEndpoint(
+            name=_TEST_INDEX_ENDPOINT_ID,
+            display_name=_TEST_INDEX_ENDPOINT_DISPLAY_NAME,
+            description=_TEST_INDEX_ENDPOINT_DESCRIPTION,
+            labels=_TEST_LABELS,
+        )
+        create_index_endpoint_mock.assert_called_once_with(
+            parent=_TEST_PARENT,
+            index_endpoint=expected,
+            metadata=_TEST_REQUEST_METADATA,
+        )
+
+    @pytest.mark.usefixtures("get_index_endpoint_mock")
+    @pytest.mark.parametrize("sync", [True, False])
+    def test_deploy_index(self, create_index_endpoint_mock, sync):
+        aiplatform.init(project=_TEST_PROJECT)
+
+        my_index_endpoint = aiplatform.MatchingEngineIndexEndpoint(
+            index_endpoint_name=_TEST_INDEX_ENDPOINT_ID
+        )
+
+        if not sync:
+            my_index_endpoint.wait()
+
+        my_index_endpoint = my_index_endpoint.deploy_index(
+            id="deployed_index",
+            index=index,
+            display_name=_TEST_DEPLOYED_INDEX_DISPLAY_NAME,
+        )
+
+        my_index_endpoint = my_index_endpoint.undeploy_index(index=index)
 
         expected = gca_index_endpoint.IndexEndpoint(
             name=_TEST_INDEX_ENDPOINT_ID,

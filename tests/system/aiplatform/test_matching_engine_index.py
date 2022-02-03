@@ -51,6 +51,7 @@ class TestFeaturestore(e2e_base.TestEndToEnd):
             project=e2e_base._PROJECT, location=e2e_base._LOCATION,
         )
 
+        # Get list of existing indices
         existing_index_count = len(aiplatform.MatchingEngineIndex.list())
 
         # Create an index
@@ -90,6 +91,24 @@ class TestFeaturestore(e2e_base.TestEndToEnd):
         assert updated_index.display_name == _TEST_DISPLAY_NAME_UPDATE
         assert updated_index.description == _TEST_DESCRIPTION_UPDATE
         assert updated_index.labels == _TEST_LABELS
+
+        # Create endpoint
+        my_index_endpoint = aiplatform.MatchingEngineIndexEndpoint(
+            index_endpoint_name=_TEST_INDEX_ENDPOINT_ID
+        )
+
+        if not sync:
+            my_index_endpoint.wait()
+
+        # Deploy endpoint
+        my_index_endpoint = my_index_endpoint.deploy_index(
+            id="deployed_index",
+            index=index,
+            display_name=_TEST_DEPLOYED_INDEX_DISPLAY_NAME,
+        )
+
+        # Undeploy endpoint
+        my_index_endpoint = my_index_endpoint.undeploy_index(index=index)
 
         # Delete index and check that count has returned to the starting value
         index.delete()

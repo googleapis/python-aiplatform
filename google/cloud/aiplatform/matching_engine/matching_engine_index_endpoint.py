@@ -161,7 +161,7 @@ class MatchingEngineIndexEndpoint(base.VertexAiResourceNounWithFutureManager):
                 be immediately returned and synced when the Future has completed.
 
         Returns:
-            IndexEndpoint - IndexEndpoint resource object
+            MatchingEngineIndexEndpoint - IndexEndpoint resource object
 
         """
         gapic_index_endpoint = gca_matching_engine_index_endpoint.IndexEndpoint(
@@ -202,8 +202,6 @@ class MatchingEngineIndexEndpoint(base.VertexAiResourceNounWithFutureManager):
         display_name: str,
         description: Optional[str] = None,
         labels: Optional[Dict[str, str]] = None,
-        network: Optional[str] = None,
-        enable_private_service_connect: Optional[bool] = None,
         request_metadata: Optional[Sequence[Tuple[str, str]]] = (),
     ) -> "MatchingEngineIndexEndpoint":
         """Updates an existing index endpoint resource.
@@ -240,39 +238,11 @@ class MatchingEngineIndexEndpoint(base.VertexAiResourceNounWithFutureManager):
                 (System labels are excluded)."
                 System reserved label keys are prefixed with
                 "aiplatform.googleapis.com/" and are immutable.
-            network (str):
-                Optional. The full name of the Google Compute Engine
-                `network <https://cloud.google.com/compute/docs/networks-and-firewalls#networks>`__
-                to which the IndexEndpoint should be peered.
-
-                Private services access must already be configured for the
-                network. If left unspecified, the Endpoint is not peered
-                with any network.
-
-                Only one of the fields,
-                [network][google.cloud.aiplatform.v1beta1.IndexEndpoint.network]
-                or
-                [enable_private_service_connect][google.cloud.aiplatform.v1beta1.IndexEndpoint.enable_private_service_connect],
-                can be set.
-
-                `Format <https://cloud.google.com/compute/docs/reference/rest/v1/networks/insert>`__:
-                projects/{project}/global/networks/{network}. Where
-                {project} is a project number, as in '12345', and {network}
-                is network name.
-            enable_private_service_connect (bool):
-                Optional. If true, expose the IndexEndpoint via private
-                service connect.
-
-                Only one of the fields,
-                [network][google.cloud.aiplatform.v1beta1.IndexEndpoint.network]
-                or
-                [enable_private_service_connect][google.cloud.aiplatform.v1beta1.IndexEndpoint.enable_private_service_connect],
-                can be set.                
             request_metadata (Sequence[Tuple[str, str]]):
                 Optional. Strings which should be sent along with the request as metadata.
 
         Returns:
-            IndexEndpoint - The updated index endpoint resource object.
+            MatchingEngineIndexEndpoint - The updated index endpoint resource object.
         """
         update_mask = list()
 
@@ -286,20 +256,10 @@ class MatchingEngineIndexEndpoint(base.VertexAiResourceNounWithFutureManager):
         if description is not None:
             update_mask.append("description")
 
-        if network is not None:
-            update_mask.append("network")
-
-        if enable_private_service_connect is not None:
-            update_mask.append("enable_private_service_connect")
-
         update_mask = field_mask_pb2.FieldMask(paths=update_mask)
 
         gapic_index_endpoint = gca_matching_engine_index_endpoint.IndexEndpoint(
-            name=self.resource_name,
-            display_name=display_name,
-            description=description,
-            network=network,
-            enable_private_service_connect=enable_private_service_connect,
+            name=self.resource_name, display_name=display_name, description=description,
         )
 
         _LOGGER.log_action_start_against_resource(
@@ -328,7 +288,7 @@ class MatchingEngineIndexEndpoint(base.VertexAiResourceNounWithFutureManager):
         index: matching_engine.MatchingEngineIndex,
         display_name: Optional[str] = None,
         request_metadata: Optional[Sequence[Tuple[str, str]]] = (),
-    ):
+    ) -> "MatchingEngineIndexEndpoint":
         """Deploys an existing index resource to this endpoint resource.
 
         Args:
@@ -348,6 +308,8 @@ class MatchingEngineIndexEndpoint(base.VertexAiResourceNounWithFutureManager):
                 creation, the Index's display_name is used.
             request_metadata (Sequence[Tuple[str, str]]):
                 Optional. Strings which should be sent along with the request as metadata.
+        Returns:
+            MatchingEngineIndexEndpoint - IndexEndpoint resource object                
         """
 
         _LOGGER.log_action_start_against_resource(
@@ -382,7 +344,7 @@ class MatchingEngineIndexEndpoint(base.VertexAiResourceNounWithFutureManager):
         self,
         deployed_index_id: str,
         request_metadata: Optional[Sequence[Tuple[str, str]]] = (),
-    ):
+    ) -> "MatchingEngineIndexEndpoint":
         """Undeploy a deployed index endpoint resource.
 
         Args:
@@ -395,6 +357,8 @@ class MatchingEngineIndexEndpoint(base.VertexAiResourceNounWithFutureManager):
                 should not be set.
             request_metadata (Sequence[Tuple[str, str]]):
                 Optional. Strings which should be sent along with the request as metadata.
+        Returns:
+            MatchingEngineIndexEndpoint - IndexEndpoint resource object                
         """
 
         _LOGGER.log_action_start_against_resource(
