@@ -170,6 +170,10 @@ class _Config:
                     .execute()["projectId"]
                 )
                 self._project = project_id
+            except ImportError:
+                logging.debug(
+                    f"Need google-api-python-client to convert project number to project ID."
+                )
             except Exception as e:
                 logging.warning(f"Error converting project number to project ID: {e}")
             return self._project

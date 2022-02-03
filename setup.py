@@ -89,7 +89,6 @@ setuptools.setup(
         "packaging >= 14.3",
         "google-cloud-storage >= 1.32.0, < 2.0.0dev",
         "google-cloud-bigquery >= 1.15.0, < 3.0.0dev",
-        "google-api-python-client >= 2.29",  # for API discovery
     ),
     extras_require={
         "full": full_extra_require,
