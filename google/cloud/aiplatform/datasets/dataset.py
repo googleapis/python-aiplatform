@@ -107,12 +107,12 @@ class _Dataset(base.VertexAiResourceNounWithFutureManager):
     @classmethod
     def create(
         cls,
+        display_name: str,
         metadata_schema_uri: str,
         gcs_source: Optional[Union[str, Sequence[str]]] = None,
         bq_source: Optional[str] = None,
         import_schema_uri: Optional[str] = None,
         data_item_labels: Optional[Dict] = None,
-        display_name: Optional[str] = None,
         project: Optional[str] = None,
         location: Optional[str] = None,
         credentials: Optional[auth_credentials.Credentials] = None,
