@@ -222,11 +222,9 @@ class MatchingEngineIndex(base.VertexAiResourceNounWithFutureManager):
 
         return index_obj
 
-    def _update(
+    def update(
         self,
-        display_name: str,
-        contents_delta_uri: str,
-        is_complete_overwrite: Optional[bool] = None,
+        display_name: str = None,
         description: Optional[str] = None,
         labels: Optional[Dict[str, str]] = None,
         request_metadata: Optional[Sequence[Tuple[str, str]]] = (),
@@ -235,22 +233,9 @@ class MatchingEngineIndex(base.VertexAiResourceNounWithFutureManager):
 
         Args:
             display_name (str):
-                Required. The display name of the Index.
+                The display name of the Index.
                 The name can be up to 128 characters long and
-                can be consist of any UTF-8 characters.
-            contents_delta_uri (str):
-                Required. Allows inserting, updating  or deleting the contents of the Matching Engine Index.
-                The string must be a valid Google Cloud Storage directory path. If this
-                field is set when calling IndexService.UpdateIndex, then no other
-                Index field can be  also updated as part of the same call.
-                The expected structure and format of the files this URI points to is
-                described at
-                https://docs.google.com/document/d/12DLVB6Nq6rdv8grxfBsPhUA283KWrQ9ZenPBp0zUC30
-            config (matching_engine_index_config.MatchingEngineIndexConfig):
-                Required. The configuration with regard to the algorithms used for efficient search.                
-            is_complete_overwrite (str):
-                If this field is set together with contentsDeltaUri when calling IndexService.UpdateIndex,
-                then existing content of the Index will be replaced by the data from the contentsDeltaUri.                
+                can be consist of any UTF-8 characters.       
             description (str):
                 The description of the Index.
             labels (Dict[str, str]):
@@ -291,11 +276,66 @@ class MatchingEngineIndex(base.VertexAiResourceNounWithFutureManager):
             name=self.resource_name,
             display_name=display_name,
             description=description,
+            labels=labels,
+        )
+
+        _LOGGER.log_action_start_against_resource(
+            "Updating", "index", self,
+        )
+
+        update_lro = self.api_client.update_index(
+            index=gapic_index, update_mask=update_mask, metadata=request_metadata,
+        )
+
+        _LOGGER.log_action_started_against_resource_with_lro(
+            "Update", "index", self.__class__, update_lro
+        )
+
+        update_lro.result()
+
+        _LOGGER.log_action_completed_against_resource("index", "Updated", self)
+
+        return self
+
+    def update_embeddings(
+        self,
+        contents_delta_uri: str,
+        is_complete_overwrite: Optional[bool] = None,
+        request_metadata: Optional[Sequence[Tuple[str, str]]] = (),
+    ) -> "MatchingEngineIndex":
+        """Updates an existing managed index resource.
+
+        Args:
+            contents_delta_uri (str):
+                Required. Allows inserting, updating  or deleting the contents of the Matching Engine Index.
+                The string must be a valid Google Cloud Storage directory path. If this
+                field is set when calling IndexService.UpdateIndex, then no other
+                Index field can be  also updated as part of the same call.
+                The expected structure and format of the files this URI points to is
+                described at
+                https://docs.google.com/document/d/12DLVB6Nq6rdv8grxfBsPhUA283KWrQ9ZenPBp0zUC30
+            is_complete_overwrite (str):
+                If this field is set together with contentsDeltaUri when calling IndexService.UpdateIndex,
+                then existing content of the Index will be replaced by the data from the contentsDeltaUri.                            
+            request_metadata (Sequence[Tuple[str, str]]):
+                Optional. Strings which should be sent along with the request as metadata.
+
+        Returns:
+            MatchingEngineIndex - The updated index resource object.
+        """
+        update_mask = list()
+
+        if contents_delta_uri or is_complete_overwrite:
+            update_mask.append("metadata")
+
+        update_mask = field_mask_pb2.FieldMask(paths=update_mask)
+
+        gapic_index = gca_matching_engine_index.Index(
+            name=self.resource_name,
             metadata={
                 "contentsDeltaUri": contents_delta_uri,
                 "isCompleteOverwrite": is_complete_overwrite,
             },
-            labels=labels,
         )
 
         _LOGGER.log_action_start_against_resource(
@@ -322,6 +362,7 @@ class MatchingEngineIndex(base.VertexAiResourceNounWithFutureManager):
     ) -> List[gca_matching_engine_index_endpoint.DeployedIndex]:
         return self._gca_resource.deployed_indexes
 
+    @classmethod
     def create_tree_ah_index(
         cls,
         index_id: str,
@@ -354,7 +395,7 @@ class MatchingEngineIndex(base.VertexAiResourceNounWithFutureManager):
             distance_measure_type=distance_measure_type,
         )
 
-        return super()._create(
+        return cls._create(
             index_id=index_id,
             display_name=display_name,
             contents_delta_uri=contents_delta_uri,
@@ -368,6 +409,7 @@ class MatchingEngineIndex(base.VertexAiResourceNounWithFutureManager):
             sync=sync,
         )
 
+    @classmethod
     def create_brute_force_index(
         cls,
         index_id: str,
@@ -395,7 +437,7 @@ class MatchingEngineIndex(base.VertexAiResourceNounWithFutureManager):
             distance_measure_type=distance_measure_type,
         )
 
-        return super()._create(
+        return cls._create(
             index_id=index_id,
             display_name=display_name,
             contents_delta_uri=contents_delta_uri,

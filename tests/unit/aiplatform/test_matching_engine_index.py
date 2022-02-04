@@ -47,12 +47,11 @@ _TEST_INDEX_DISPLAY_NAME = f"index_display_name"
 _TEST_CONTENTS_DELTA_URI = f"gs://contents"
 _TEST_IS_COMPLETE_OVERWRITE = False
 _TEST_INDEX_DISTANCE_MEASURE_TYPE = "SQUARED_L2_DISTANCE"
-_TEST_INDEX_CONFIG = aiplatform.MatchingEngineIndexConfig(
-    dimensions=100,
-    algorithm_config=aiplatform.MatchingEngineBruteForceAlgorithmConfig(),
-    approximate_neighbors_count=150,
-    distance_measure_type=_TEST_INDEX_DISTANCE_MEASURE_TYPE,
-)
+
+_TEST_INDEX_CONFIG_DIMENSIONS = 100
+_TEST_INDEX_APPROXIMATE_NEIGHBORS_COUNT = 150
+_TEST_LEAF_NODE_EMBEDDING_COUNT = 123
+_TEST_LEAF_NODES_TO_SEARCH_PERCENT = 50
 
 _TEST_INDEX_DESCRIPTION = f"index_description"
 
@@ -172,9 +171,6 @@ class TestMatchingEngineIndex:
         my_index = aiplatform.MatchingEngineIndex(index_name=_TEST_INDEX_ID)
         my_index.update(
             display_name=_TEST_DISPLAY_NAME_UPDATE,
-            contents_delta_uri=_TEST_CONTENTS_DELTA_URI,
-            config=_TEST_INDEX_CONFIG,
-            is_complete_overwrite=_TEST_IS_COMPLETE_OVERWRITE,
             description=_TEST_DESCRIPTION_UPDATE,
             labels=_TEST_LABELS_UPDATE,
         )
@@ -182,12 +178,8 @@ class TestMatchingEngineIndex:
         expected = gca_index.Index(
             name=_TEST_INDEX_NAME,
             display_name=_TEST_DISPLAY_NAME_UPDATE,
-            metadata={
-                "config": _TEST_INDEX_CONFIG.as_dict(),
-                "contentsDeltaUri": _TEST_CONTENTS_DELTA_URI,
-                "isCompleteOverwrite": _TEST_IS_COMPLETE_OVERWRITE,
-            },
             description=_TEST_DESCRIPTION_UPDATE,
+            labels=_TEST_LABELS_UPDATE,
         )
 
         update_index_mock.assert_called_once_with(
@@ -195,6 +187,30 @@ class TestMatchingEngineIndex:
             update_mask=field_mask_pb2.FieldMask(
                 paths=["labels", "display_name", "description"]
             ),
+            metadata=_TEST_REQUEST_METADATA,
+        )
+
+    @pytest.mark.usefixtures("get_index_mock")
+    def test_update_index_embeddings(self, update_index_mock):
+        aiplatform.init(project=_TEST_PROJECT)
+
+        my_index = aiplatform.MatchingEngineIndex(index_name=_TEST_INDEX_ID)
+        my_index.update_embeddings(
+            contents_delta_uri=_TEST_CONTENTS_DELTA_URI,
+            is_complete_overwrite=_TEST_IS_COMPLETE_OVERWRITE,
+        )
+
+        expected = gca_index.Index(
+            name=_TEST_INDEX_NAME,
+            metadata={
+                "contentsDeltaUri": _TEST_CONTENTS_DELTA_URI,
+                "isCompleteOverwrite": _TEST_IS_COMPLETE_OVERWRITE,
+            },
+        )
+
+        update_index_mock.assert_called_once_with(
+            index=expected,
+            update_mask=field_mask_pb2.FieldMask(paths=["metadata"]),
             metadata=_TEST_REQUEST_METADATA,
         )
 
@@ -225,31 +241,91 @@ class TestMatchingEngineIndex:
 
     @pytest.mark.usefixtures("get_index_mock")
     @pytest.mark.parametrize("sync", [True, False])
-    def test_create_index(self, create_index_mock, sync):
+    def test_create_tree_ah_index(self, create_index_mock, sync):
         aiplatform.init(project=_TEST_PROJECT)
 
-        my_index = aiplatform.MatchingEngineIndex.create(
+        my_index = aiplatform.MatchingEngineIndex.create_tree_ah_index(
             index_id=_TEST_INDEX_ID,
             display_name=_TEST_INDEX_DISPLAY_NAME,
             contents_delta_uri=_TEST_CONTENTS_DELTA_URI,
-            config=_TEST_INDEX_CONFIG,
+            dimensions=_TEST_INDEX_CONFIG_DIMENSIONS,
+            approximate_neighbors_count=_TEST_INDEX_APPROXIMATE_NEIGHBORS_COUNT,
+            distance_measure_type=_TEST_INDEX_DISTANCE_MEASURE_TYPE,
+            leaf_node_embedding_count=_TEST_LEAF_NODE_EMBEDDING_COUNT,
+            leaf_nodes_to_search_percent=_TEST_LEAF_NODES_TO_SEARCH_PERCENT,
             description=_TEST_INDEX_DESCRIPTION,
             labels=_TEST_LABELS,
+            sync=sync,
         )
 
         if not sync:
             my_index.wait()
 
+        config = {
+            "treeAhConfig": {
+                "leafNodeEmbeddingCount": _TEST_LEAF_NODE_EMBEDDING_COUNT,
+                "leafNodesToSearchPercent": _TEST_LEAF_NODES_TO_SEARCH_PERCENT,
+            }
+        }
+
         expected = gca_index.Index(
             name=_TEST_INDEX_ID,
             display_name=_TEST_INDEX_DISPLAY_NAME,
             metadata={
-                "config": _TEST_INDEX_CONFIG.as_dict(),
+                "config": {
+                    "algorithmConfig": config,
+                    "dimensions": _TEST_INDEX_CONFIG_DIMENSIONS,
+                    "approximateNeighborsCount": _TEST_INDEX_APPROXIMATE_NEIGHBORS_COUNT,
+                    "distanceMeasureType": _TEST_INDEX_DISTANCE_MEASURE_TYPE,
+                },
                 "contentsDeltaUri": _TEST_CONTENTS_DELTA_URI,
             },
             description=_TEST_INDEX_DESCRIPTION,
             labels=_TEST_LABELS,
         )
+
+        create_index_mock.assert_called_once_with(
+            parent=_TEST_PARENT, index=expected, metadata=_TEST_REQUEST_METADATA,
+        )
+
+    @pytest.mark.usefixtures("get_index_mock")
+    @pytest.mark.parametrize("sync", [True, False])
+    def test_create_brute_force_index(self, create_index_mock, sync):
+        aiplatform.init(project=_TEST_PROJECT)
+
+        my_index = aiplatform.MatchingEngineIndex.create_brute_force_index(
+            index_id=_TEST_INDEX_ID,
+            display_name=_TEST_INDEX_DISPLAY_NAME,
+            contents_delta_uri=_TEST_CONTENTS_DELTA_URI,
+            dimensions=_TEST_INDEX_CONFIG_DIMENSIONS,
+            approximate_neighbors_count=_TEST_INDEX_APPROXIMATE_NEIGHBORS_COUNT,
+            distance_measure_type=_TEST_INDEX_DISTANCE_MEASURE_TYPE,
+            description=_TEST_INDEX_DESCRIPTION,
+            labels=_TEST_LABELS,
+            sync=sync,
+        )
+
+        if not sync:
+            my_index.wait()
+
+        config = {"bruteForceConfig": {}}
+
+        expected = gca_index.Index(
+            name=_TEST_INDEX_ID,
+            display_name=_TEST_INDEX_DISPLAY_NAME,
+            metadata={
+                "config": {
+                    "algorithmConfig": config,
+                    "dimensions": _TEST_INDEX_CONFIG_DIMENSIONS,
+                    "approximateNeighborsCount": _TEST_INDEX_APPROXIMATE_NEIGHBORS_COUNT,
+                    "distanceMeasureType": _TEST_INDEX_DISTANCE_MEASURE_TYPE,
+                },
+                "contentsDeltaUri": _TEST_CONTENTS_DELTA_URI,
+            },
+            description=_TEST_INDEX_DESCRIPTION,
+            labels=_TEST_LABELS,
+        )
+
         create_index_mock.assert_called_once_with(
             parent=_TEST_PARENT, index=expected, metadata=_TEST_REQUEST_METADATA,
         )
