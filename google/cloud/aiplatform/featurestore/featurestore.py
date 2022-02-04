@@ -113,8 +113,18 @@ class Featurestore(base.VertexAiResourceNounWithFutureManager):
             featurestore.EntityType - The managed entityType resource object.
         """
         self.wait()
-        featurestore_name_components = self._parse_resource_name(self.resource_name)
+        return self._get_entity_type(entity_type_id=entity_type_id)
 
+    def _get_entity_type(self, entity_type_id: str) -> "featurestore.EntityType":
+        """Retrieves an existing managed entityType in this Featurestore.
+
+        Args:
+            entity_type_id (str):
+                Required. The managed entityType resource ID in this Featurestore.
+        Returns:
+            featurestore.EntityType - The managed entityType resource object.
+        """
+        featurestore_name_components = self._parse_resource_name(self.resource_name)
         return featurestore.EntityType(
             entity_type_name=featurestore.EntityType._format_resource_name(
                 project=featurestore_name_components["project"],
@@ -225,6 +235,7 @@ class Featurestore(base.VertexAiResourceNounWithFutureManager):
         Returns:
             Featurestore - The updated featurestore resource object.
         """
+        self.wait()
         update_mask = list()
 
         if labels:
@@ -314,6 +325,7 @@ class Featurestore(base.VertexAiResourceNounWithFutureManager):
         Returns:
             List[featurestore.EntityType] - A list of managed entityType resource objects.
         """
+        self.wait()
         return featurestore.EntityType.list(
             featurestore_name=self.resource_name, filter=filter, order_by=order_by,
         )
@@ -338,7 +350,7 @@ class Featurestore(base.VertexAiResourceNounWithFutureManager):
         """
         entity_types = []
         for entity_type_id in entity_type_ids:
-            entity_type = self.get_entity_type(entity_type_id=entity_type_id)
+            entity_type = self._get_entity_type(entity_type_id=entity_type_id)
             entity_type.delete(force=force, sync=False)
             entity_types.append(entity_type)
 
@@ -551,6 +563,7 @@ class Featurestore(base.VertexAiResourceNounWithFutureManager):
             featurestore.EntityType - EntityType resource object
 
         """
+        self.wait()
         return featurestore.EntityType.create(
             entity_type_id=entity_type_id,
             featurestore_name=self.resource_name,
@@ -595,8 +608,9 @@ class Featurestore(base.VertexAiResourceNounWithFutureManager):
 
         return self
 
+    @staticmethod
     def _validate_and_get_read_instances(
-        self, read_instances_uri: str,
+        read_instances_uri: str,
     ) -> Union[gca_io.BigQuerySource, gca_io.CsvSource]:
         """Gets read_instances
 
@@ -629,6 +643,7 @@ class Featurestore(base.VertexAiResourceNounWithFutureManager):
 
     def _validate_and_get_batch_read_feature_values_request(
         self,
+        featurestore_name: str,
         serving_feature_ids: Dict[str, List[str]],
         destination: Union[
             gca_io.BigQueryDestination,
@@ -642,6 +657,8 @@ class Featurestore(base.VertexAiResourceNounWithFutureManager):
         """Validates and gets batch_read_feature_values_request
 
         Args:
+            featurestore_name (str):
+                Required. A fully-qualified featurestore resource name.
             serving_feature_ids (Dict[str, List[str]]):
                 Required. A user defined dictionary to define the entity_types and their features for batch serve/read.
                 The keys of the dictionary are the serving entity_type ids and
@@ -680,9 +697,7 @@ class Featurestore(base.VertexAiResourceNounWithFutureManager):
         Returns:
             gca_featurestore_service.BatchReadFeatureValuesRequest: batch read feature values request
         """
-
-        self.wait()
-        featurestore_name_components = self._parse_resource_name(self.resource_name)
+        featurestore_name_components = self._parse_resource_name(featurestore_name)
 
         feature_destination_fields = feature_destination_fields or {}
 
@@ -720,7 +735,7 @@ class Featurestore(base.VertexAiResourceNounWithFutureManager):
             entity_type_specs.append(entity_type_spec)
 
         batch_read_feature_values_request = gca_featurestore_service.BatchReadFeatureValuesRequest(
-            featurestore=self.resource_name, entity_type_specs=entity_type_specs,
+            featurestore=featurestore_name, entity_type_specs=entity_type_specs,
         )
 
         if isinstance(destination, gca_io.BigQueryDestination):
@@ -843,6 +858,7 @@ class Featurestore(base.VertexAiResourceNounWithFutureManager):
         read_instances = self._validate_and_get_read_instances(read_instances_uri)
 
         batch_read_feature_values_request = self._validate_and_get_batch_read_feature_values_request(
+            featurestore_name=self.resource_name,
             serving_feature_ids=serving_feature_ids,
             destination=gca_io.BigQueryDestination(
                 output_uri=bq_destination_output_uri
@@ -989,6 +1005,7 @@ class Featurestore(base.VertexAiResourceNounWithFutureManager):
         read_instances = self._validate_and_get_read_instances(read_instances_uri)
 
         batch_read_feature_values_request = self._validate_and_get_batch_read_feature_values_request(
+            featurestore_name=self.resource_name,
             serving_feature_ids=serving_feature_ids,
             destination=destination,
             feature_destination_fields=feature_destination_fields,

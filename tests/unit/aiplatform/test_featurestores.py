@@ -1097,7 +1097,7 @@ class TestFeaturestore:
             featurestore_name=_TEST_FEATURESTORE_NAME
         )
         expected_batch_read_feature_values_request = gca_featurestore_service.BatchReadFeatureValuesRequest(
-            featurestore=my_featurestore.resource_name,
+            featurestore=_TEST_FEATURESTORE_NAME,
             destination=gca_featurestore_service.FeatureValueDestination(
                 bigquery_destination=_TEST_BQ_DESTINATION,
             ),
@@ -1107,6 +1107,7 @@ class TestFeaturestore:
         assert (
             expected_batch_read_feature_values_request
             == my_featurestore._validate_and_get_batch_read_feature_values_request(
+                featurestore_name=my_featurestore.resource_name,
                 serving_feature_ids=serving_feature_ids,
                 destination=_TEST_BQ_DESTINATION,
                 read_instances=_TEST_BQ_SOURCE,
@@ -1560,6 +1561,7 @@ class TestEntityType:
         assert (
             true_import_feature_values_request
             == my_entity_type._validate_and_get_import_feature_values_request(
+                entity_type_name=my_entity_type.resource_name,
                 feature_ids=_TEST_IMPORTING_FEATURE_IDS,
                 feature_time=_TEST_FEATURE_TIME_FIELD,
                 data_source=_TEST_BQ_SOURCE,
@@ -1586,6 +1588,7 @@ class TestEntityType:
         assert (
             true_import_feature_values_request
             == my_entity_type._validate_and_get_import_feature_values_request(
+                entity_type_name=my_entity_type.resource_name,
                 feature_ids=_TEST_IMPORTING_FEATURE_IDS,
                 feature_time=_TEST_FEATURE_TIME,
                 data_source=_TEST_CSV_SOURCE,

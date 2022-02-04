@@ -122,17 +122,20 @@ class Feature(base.VertexAiResourceNounWithFutureManager):
             else featurestore_id,
         )
 
-    @property
-    def featurestore_name(self) -> str:
-        """Full qualified resource name of the managed featurestore in which this Feature is."""
-        self.wait()
+    def _get_featurestore_name(self) -> str:
+        """Gets full qualified resource name of the managed featurestore in which this Feature is."""
         feature_path_components = self._parse_resource_name(self.resource_name)
-
         return featurestore.Featurestore._format_resource_name(
             project=feature_path_components["project"],
             location=feature_path_components["location"],
             featurestore=feature_path_components["featurestore"],
         )
+
+    @property
+    def featurestore_name(self) -> str:
+        """Full qualified resource name of the managed featurestore in which this Feature is."""
+        self.wait()
+        return self._get_featurestore_name()
 
     def get_featurestore(self) -> "featurestore.Featurestore":
         """Retrieves the managed featurestore in which this Feature is.
@@ -142,18 +145,21 @@ class Feature(base.VertexAiResourceNounWithFutureManager):
         """
         return featurestore.Featurestore(featurestore_name=self.featurestore_name)
 
-    @property
-    def entity_type_name(self) -> str:
-        """Full qualified resource name of the managed entityType in which this Feature is."""
-        self.wait()
+    def _get_entity_type_name(self) -> str:
+        """Gets full qualified resource name of the managed entityType in which this Feature is."""
         feature_path_components = self._parse_resource_name(self.resource_name)
-
         return featurestore.EntityType._format_resource_name(
             project=feature_path_components["project"],
             location=feature_path_components["location"],
             featurestore=feature_path_components["featurestore"],
             entity_type=feature_path_components["entity_type"],
         )
+
+    @property
+    def entity_type_name(self) -> str:
+        """Full qualified resource name of the managed entityType in which this Feature is."""
+        self.wait()
+        return self._get_entity_type_name()
 
     def get_entity_type(self) -> "featurestore.EntityType":
         """Retrieves the managed entityType in which this Feature is.
@@ -205,6 +211,7 @@ class Feature(base.VertexAiResourceNounWithFutureManager):
         Returns:
             Feature - The updated feature resource object.
         """
+        self.wait()
         update_mask = list()
 
         if description:
