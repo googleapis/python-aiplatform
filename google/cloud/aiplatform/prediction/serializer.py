@@ -16,7 +16,7 @@
 #
 
 import json
-from typing import Any, Dict, Optional
+from typing import Any, Optional
 
 try:
     from fastapi import HTTPException
@@ -31,7 +31,7 @@ class Serializer:
     """Interface to implement serialization and deserialization for prediction."""
 
     @staticmethod
-    def deserialize(data: Any, content_type: Optional[str],) -> Any:
+    def deserialize(data: Any, content_type: Optional[str]) -> Any:
         """Deserializes the request data. Invoked before predict.
 
         Args:
@@ -40,26 +40,29 @@ class Serializer:
             content_type (Optional[str]):
                 Optional. The specified content type of the request.
         """
-        pass
+        raise NotImplementedError(
+            "Serializer.deserialize has not been implemented yet."
+        )
 
     @staticmethod
-    def serialize(prediction: Dict, accept: Optional[str],) -> Any:
+    def serialize(prediction: Any, accept: Optional[str]) -> Any:
         """Serializes the prediction results. Invoked after predict.
 
         Args:
-            prediction (Dict):
+            prediction (Any):
                 Required. The generated prediction to be sent back to clients.
             accept (Optional[str]):
                 Optional. The specified content type of the response.
         """
         pass
+        raise NotImplementedError("Serializer.serialize has not been implemented yet.")
 
 
 class DefaultSerializer(Serializer):
     """Default serializer for serialization and deserialization for prediction."""
 
     @staticmethod
-    def deserialize(data: Any, content_type: Optional[str],) -> Any:
+    def deserialize(data: Any, content_type: Optional[str]) -> Any:
         """Deserializes the request data. Invoked before predict.
 
         Args:
@@ -77,11 +80,11 @@ class DefaultSerializer(Serializer):
             )
 
     @staticmethod
-    def serialize(prediction: Dict, accept: Optional[str],) -> Any:
+    def serialize(prediction: Any, accept: Optional[str]) -> Any:
         """Serializes the prediction results. Invoked after predict.
 
         Args:
-            prediction (Dict):
+            prediction (Any):
                 Required. The generated prediction to be sent back to clients.
             accept (Optional[str]):
                 Optional. The specified content type of the response.

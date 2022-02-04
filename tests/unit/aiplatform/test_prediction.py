@@ -16,6 +16,7 @@
 #
 
 import asyncio
+import json
 import os
 import pytest
 from unittest import mock
@@ -117,20 +118,34 @@ def get_test_request():
     )
 
 
+def get_test_predictor():
+    class _TestPredictor(Predictor):
+        def __init__(self):
+            pass
+
+        def load(self, gcs_artifacts_uri):
+            pass
+
+        def predict(self, instances):
+            pass
+
+    return _TestPredictor
+
+
 class TestPredictor:
     def test_preprocess(self):
         prediction_input = {"x": [1]}
-        predictor = Predictor()
+        predictor = get_test_predictor()
 
-        result = predictor.preprocess(prediction_input)
+        result = predictor().preprocess(prediction_input)
 
         assert result == prediction_input
 
     def test_postprocess(self):
         prediction_results = {"x": [1]}
-        predictor = Predictor()
+        predictor = get_test_predictor()
 
-        result = predictor.postprocess(prediction_results)
+        result = predictor().postprocess(prediction_results)
 
         assert result == prediction_results
 
@@ -146,10 +161,24 @@ class TestDefaultSerializer:
         assert deserialized_data == {"instances": [1, 2, 3]}
 
     def test_deserialize_unsupported_content_type_throws_exception(self):
+        content_type = "unsupported_type"
+        expected_message = f"Unsupported content type of the request: {content_type}."
         data = b'{"instances": [1, 2, 3]}'
 
-        with pytest.raises(HTTPException):
-            DefaultSerializer.deserialize(data, content_type="unsupported_type")
+        with pytest.raises(HTTPException) as exception:
+            DefaultSerializer.deserialize(data, content_type=content_type)
+
+        assert exception.value.status_code == 400
+        assert exception.value.detail == expected_message
+
+    def test_deserialize_invalid_json(self):
+        expected_message = "Expecting value: line 1 column 1 (char 0)"
+        data = b"instances"
+
+        with pytest.raises(json.decoder.JSONDecodeError) as exception:
+            DefaultSerializer.deserialize(data, content_type="application/json")
+
+        assert str(exception.value) == expected_message
 
     def test_serialize_application_json(self):
         prediction = {}
@@ -161,10 +190,24 @@ class TestDefaultSerializer:
         assert serialized_prediction == "{}"
 
     def test_serialize_unsupported_accept_throws_exception(self):
+        accept = "unsupported_type"
+        expected_message = f"Unsupported content type of the response: {accept}."
         prediction = {}
 
-        with pytest.raises(HTTPException):
-            DefaultSerializer.serialize(prediction, accept="unsupported_type")
+        with pytest.raises(HTTPException) as exception:
+            DefaultSerializer.serialize(prediction, accept=accept)
+
+        assert exception.value.status_code == 400
+        assert exception.value.detail == expected_message
+
+    def test_serialize_invalid_json(self):
+        expected_message = "Object of type bytes is not JSON serializable"
+        data = b"instances"
+
+        with pytest.raises(TypeError) as exception:
+            DefaultSerializer.serialize(data, accept="application/json")
+
+        assert str(exception.value) == expected_message
 
 
 class TestPredictionHandler:
@@ -225,7 +268,9 @@ class TestPredictionHandler:
         preprocess_mock = mock.MagicMock(return_value=_TEST_DESERIALIZED_INPUT)
         predict_mock = mock.MagicMock(side_effect=Exception())
         postprocess_mock = mock.MagicMock(return_value=_TEST_SERIALIZED_OUTPUT)
-        handler = PredictionHandler(_TEST_GCS_ARTIFACTS_URI, predictor=Predictor)
+        handler = PredictionHandler(
+            _TEST_GCS_ARTIFACTS_URI, predictor=get_test_predictor()
+        )
 
         with mock.patch.multiple(
             handler._predictor,
@@ -330,7 +375,9 @@ class TestModelServer:
         assert response.status_code == 200
 
     def test_predict(self, model_server_env_mock):
-        handler = PredictionHandler(_TEST_GCS_ARTIFACTS_URI, predictor=Predictor)
+        handler = PredictionHandler(
+            _TEST_GCS_ARTIFACTS_URI, predictor=get_test_predictor()
+        )
         model_server = ModelServer(handler)
 
         client = TestClient(model_server.app)
@@ -345,15 +392,42 @@ class TestModelServer:
 
         assert response.status_code == 200
 
-    def test_predict_handler_throw_exception(self, model_server_env_mock):
-        handler = PredictionHandler(_TEST_GCS_ARTIFACTS_URI, predictor=Predictor)
+    def test_predict_handler_throws_http_exception(self, model_server_env_mock):
+        expected_message = "A test HTTP exception."
+        handler = PredictionHandler(
+            _TEST_GCS_ARTIFACTS_URI, predictor=get_test_predictor()
+        )
         model_server = ModelServer(handler)
 
         client = TestClient(model_server.app)
 
         with mock.patch.object(model_server.handler, "handle") as handle_mock:
-            handle_mock.side_effect = HTTPException(status_code=400)
+            handle_mock.side_effect = HTTPException(
+                status_code=400, detail=expected_message
+            )
 
             response = client.post(_TEST_AIP_PREDICT_ROUTE, json={"x": [1]})
 
         assert response.status_code == 400
+        assert json.loads(response.content)["detail"] == expected_message
+
+    def test_predict_handler_throws_exception_other_than_http_exception(
+        self, model_server_env_mock
+    ):
+        expected_message = (
+            "An exception ValueError occurred. Arguments: ('Not a correct value.',)."
+        )
+        handler = PredictionHandler(
+            _TEST_GCS_ARTIFACTS_URI, predictor=get_test_predictor()
+        )
+        model_server = ModelServer(handler)
+
+        client = TestClient(model_server.app)
+
+        with mock.patch.object(model_server.handler, "handle") as handle_mock:
+            handle_mock.side_effect = ValueError("Not a correct value.")
+
+            response = client.post(_TEST_AIP_PREDICT_ROUTE, json={"x": [1]})
+
+        assert response.status_code == 500
+        assert json.loads(response.content)["detail"] == expected_message

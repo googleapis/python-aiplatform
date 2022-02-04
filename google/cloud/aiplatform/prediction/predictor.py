@@ -15,14 +15,14 @@
 # limitations under the License.
 #
 
-from typing import Any
+from typing import Any, Protocol
 
 
-class Predictor:
+class Predictor(Protocol):
     """Interface for Predictor class that users would be implementing."""
 
     def __init__(self):
-        pass
+        raise NotImplementedError("Predictor.__init__ has not been implemented yet.")
 
     def load(self, gcs_artifacts_uri: str):
         """Loads the model artifact.
@@ -31,7 +31,7 @@ class Predictor:
             gcs_artifacts_uri (str):
                 Required. The value of the environment variable AIP_STORAGE_URI.
         """
-        pass
+        raise NotImplementedError("Predictor.load has not been implemented yet.")
 
     def preprocess(self, prediction_input: Any) -> Any:
         """Preprocesses the prediction input before doing the prediction.
@@ -55,7 +55,7 @@ class Predictor:
         Returns:
             Prediction results.
         """
-        pass
+        raise NotImplementedError("Predictor.predict has not been implemented yet.")
 
     def postprocess(self, prediction_results: Any) -> Any:
         """Postprocesses the prediction results.

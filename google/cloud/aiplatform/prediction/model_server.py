@@ -15,10 +15,13 @@
 # limitations under the License.
 #
 
+import logging
 import os
+import traceback
 
 try:
     from fastapi import FastAPI
+    from fastapi import HTTPException
     from fastapi import Request
     from fastapi import Response
 except ImportError:
@@ -31,7 +34,7 @@ try:
     import uvicorn
 except ImportError:
     raise ImportError(
-        "Uvicorn is not installed and is required to run fastapi application. "
+        "Uvicorn is not installed and is required to run fastapi applications. "
         'Please install the SDK using "pip install python-aiplatform[prediction]"'
     )
 
@@ -48,6 +51,8 @@ class ModelServer:
             handler (Handler):
                 Required. The handler to handle requests.
         """
+        self._init_logging()
+
         self.handler = handler
 
         if "AIP_HTTP_PORT" not in os.environ:
@@ -74,6 +79,14 @@ class ModelServer:
             path=self.predict_route, endpoint=self.predict, methods=["POST"],
         )
 
+    def _init_logging(self):
+        """Initializes the logging config."""
+        logging.basicConfig(
+            format="%(asctime)s: %(message)s",
+            datefmt="%m/%d/%Y %I:%M:%S %p",
+            level=logging.INFO,
+        )
+
     def health(self):
         """Executes a health check."""
         return {}
@@ -88,7 +101,21 @@ class ModelServer:
         Returns:
             The response containing prediction results.
         """
-        return await self.handler.handle(request)
+        try:
+            return await self.handler.handle(request)
+        except HTTPException:
+            # Raises exception if it's a HTTPException.
+            raise
+        except Exception as exception:
+            error_message = "An exception {} occurred. Arguments: {}.".format(
+                type(exception).__name__, exception.args
+            )
+            logging.info(
+                "{}\nTraceback: {}".format(error_message, traceback.format_exc())
+            )
+
+            # Converts all other exceptions to HTTPException.
+            raise HTTPException(status_code=500, detail=error_message)
 
     def start(self):
         """Starts the fastapi application."""
