@@ -28,14 +28,12 @@ from google.cloud import aiplatform_v1beta1
 
 
 async def sample_get_custom_job():
-    """Snippet for get_custom_job"""
-
     # Create a client
     client = aiplatform_v1beta1.JobServiceAsyncClient()
 
     # Initialize request argument(s)
     request = aiplatform_v1beta1.GetCustomJobRequest(
-        name="projects/{project}/locations/{location}/customJobs/{custom_job}",
+        name="name_value",
     )
 
     # Make the request

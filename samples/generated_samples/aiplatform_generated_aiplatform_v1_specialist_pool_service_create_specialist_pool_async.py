@@ -28,8 +28,6 @@ from google.cloud import aiplatform_v1
 
 
 async def sample_create_specialist_pool():
-    """Snippet for create_specialist_pool"""
-
     # Create a client
     client = aiplatform_v1.SpecialistPoolServiceAsyncClient()
 
@@ -39,7 +37,7 @@ async def sample_create_specialist_pool():
     specialist_pool.display_name = "display_name_value"
 
     request = aiplatform_v1.CreateSpecialistPoolRequest(
-        parent="projects/{project}/locations/{location}",
+        parent="parent_value",
         specialist_pool=specialist_pool,
     )
 

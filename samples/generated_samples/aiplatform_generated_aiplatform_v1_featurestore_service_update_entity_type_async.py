@@ -28,8 +28,6 @@ from google.cloud import aiplatform_v1
 
 
 async def sample_update_entity_type():
-    """Snippet for update_entity_type"""
-
     # Create a client
     client = aiplatform_v1.FeaturestoreServiceAsyncClient()
 

@@ -28,8 +28,6 @@ from google.cloud import aiplatform_v1beta1
 
 
 def sample_update_execution():
-    """Snippet for update_execution"""
-
     # Create a client
     client = aiplatform_v1beta1.MetadataServiceClient()
 

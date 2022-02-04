@@ -28,14 +28,12 @@ from google.cloud import aiplatform_v1beta1
 
 
 async def sample_delete_tensorboard_time_series():
-    """Snippet for delete_tensorboard_time_series"""
-
     # Create a client
     client = aiplatform_v1beta1.TensorboardServiceAsyncClient()
 
     # Initialize request argument(s)
     request = aiplatform_v1beta1.DeleteTensorboardTimeSeriesRequest(
-        name="projects/{project}/locations/{location}/tensorboards/{tensorboard}/experiments/{experiment}/runs/{run}/timeSeries/{time_series}",
+        name="name_value",
     )
 
     # Make the request

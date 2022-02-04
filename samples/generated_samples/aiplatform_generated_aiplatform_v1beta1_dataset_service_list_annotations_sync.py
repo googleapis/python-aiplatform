@@ -28,14 +28,12 @@ from google.cloud import aiplatform_v1beta1
 
 
 def sample_list_annotations():
-    """Snippet for list_annotations"""
-
     # Create a client
     client = aiplatform_v1beta1.DatasetServiceClient()
 
     # Initialize request argument(s)
     request = aiplatform_v1beta1.ListAnnotationsRequest(
-        parent="projects/{project}/locations/{location}/datasets/{dataset}/dataItems/{data_item}",
+        parent="parent_value",
     )
 
     # Make the request

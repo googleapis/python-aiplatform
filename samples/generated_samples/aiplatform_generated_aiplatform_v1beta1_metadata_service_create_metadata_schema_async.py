@@ -28,8 +28,6 @@ from google.cloud import aiplatform_v1beta1
 
 
 async def sample_create_metadata_schema():
-    """Snippet for create_metadata_schema"""
-
     # Create a client
     client = aiplatform_v1beta1.MetadataServiceAsyncClient()
 
@@ -38,7 +36,7 @@ async def sample_create_metadata_schema():
     metadata_schema.schema = "schema_value"
 
     request = aiplatform_v1beta1.CreateMetadataSchemaRequest(
-        parent="projects/{project}/locations/{location}/metadataStores/{metadata_store}",
+        parent="parent_value",
         metadata_schema=metadata_schema,
     )
 

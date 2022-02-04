@@ -28,14 +28,12 @@ from google.cloud import aiplatform_v1beta1
 
 
 async def sample_delete_index():
-    """Snippet for delete_index"""
-
     # Create a client
     client = aiplatform_v1beta1.IndexServiceAsyncClient()
 
     # Initialize request argument(s)
     request = aiplatform_v1beta1.DeleteIndexRequest(
-        name="projects/{project}/locations/{location}/indexes/{index}",
+        name="name_value",
     )
 
     # Make the request

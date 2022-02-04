@@ -28,14 +28,12 @@ from google.cloud import aiplatform_v1
 
 
 async def sample_export_model():
-    """Snippet for export_model"""
-
     # Create a client
     client = aiplatform_v1.ModelServiceAsyncClient()
 
     # Initialize request argument(s)
     request = aiplatform_v1.ExportModelRequest(
-        name="projects/{project}/locations/{location}/models/{model}",
+        name="name_value",
     )
 
     # Make the request

@@ -28,8 +28,6 @@ from google.cloud import aiplatform_v1beta1
 
 
 async def sample_create_custom_job():
-    """Snippet for create_custom_job"""
-
     # Create a client
     client = aiplatform_v1beta1.JobServiceAsyncClient()
 
@@ -39,7 +37,7 @@ async def sample_create_custom_job():
     custom_job.job_spec.worker_pool_specs.container_spec.image_uri = "image_uri_value"
 
     request = aiplatform_v1beta1.CreateCustomJobRequest(
-        parent="projects/{project}/locations/{location}",
+        parent="parent_value",
         custom_job=custom_job,
     )
 

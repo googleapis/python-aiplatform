@@ -28,8 +28,6 @@ from google.cloud import aiplatform_v1
 
 
 def sample_create_training_pipeline():
-    """Snippet for create_training_pipeline"""
-
     # Create a client
     client = aiplatform_v1.PipelineServiceClient()
 
@@ -40,7 +38,7 @@ def sample_create_training_pipeline():
     training_pipeline.training_task_inputs.null_value = "NULL_VALUE"
 
     request = aiplatform_v1.CreateTrainingPipelineRequest(
-        parent="projects/{project}/locations/{location}",
+        parent="parent_value",
         training_pipeline=training_pipeline,
     )
 

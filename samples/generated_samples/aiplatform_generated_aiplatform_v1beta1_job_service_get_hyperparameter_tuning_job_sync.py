@@ -28,14 +28,12 @@ from google.cloud import aiplatform_v1beta1
 
 
 def sample_get_hyperparameter_tuning_job():
-    """Snippet for get_hyperparameter_tuning_job"""
-
     # Create a client
     client = aiplatform_v1beta1.JobServiceClient()
 
     # Initialize request argument(s)
     request = aiplatform_v1beta1.GetHyperparameterTuningJobRequest(
-        name="projects/{project}/locations/{location}/hyperparameterTuningJobs/{hyperparameter_tuning_job}",
+        name="name_value",
     )
 
     # Make the request

@@ -28,14 +28,12 @@ from google.cloud import aiplatform_v1
 
 
 async def sample_undeploy_model():
-    """Snippet for undeploy_model"""
-
     # Create a client
     client = aiplatform_v1.EndpointServiceAsyncClient()
 
     # Initialize request argument(s)
     request = aiplatform_v1.UndeployModelRequest(
-        endpoint="projects/{project}/locations/{location}/endpoints/{endpoint}",
+        endpoint="endpoint_value",
         deployed_model_id="deployed_model_id_value",
     )
 

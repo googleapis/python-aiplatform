@@ -28,14 +28,12 @@ from google.cloud import aiplatform_v1beta1
 
 
 async def sample_list_datasets():
-    """Snippet for list_datasets"""
-
     # Create a client
     client = aiplatform_v1beta1.DatasetServiceAsyncClient()
 
     # Initialize request argument(s)
     request = aiplatform_v1beta1.ListDatasetsRequest(
-        parent="projects/{project}/locations/{location}",
+        parent="parent_value",
     )
 
     # Make the request

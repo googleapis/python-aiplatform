@@ -28,14 +28,12 @@ from google.cloud import aiplatform_v1
 
 
 def sample_list_indexes():
-    """Snippet for list_indexes"""
-
     # Create a client
     client = aiplatform_v1.IndexServiceClient()
 
     # Initialize request argument(s)
     request = aiplatform_v1.ListIndexesRequest(
-        parent="projects/{project}/locations/{location}",
+        parent="parent_value",
     )
 
     # Make the request

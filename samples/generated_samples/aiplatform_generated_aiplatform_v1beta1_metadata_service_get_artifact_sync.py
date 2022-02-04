@@ -28,14 +28,12 @@ from google.cloud import aiplatform_v1beta1
 
 
 def sample_get_artifact():
-    """Snippet for get_artifact"""
-
     # Create a client
     client = aiplatform_v1beta1.MetadataServiceClient()
 
     # Initialize request argument(s)
     request = aiplatform_v1beta1.GetArtifactRequest(
-        name="projects/{project}/locations/{location}/metadataStores/{metadata_store}/artifacts/{artifact}",
+        name="name_value",
     )
 
     # Make the request

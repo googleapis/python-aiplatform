@@ -28,8 +28,6 @@ from google.cloud import aiplatform_v1beta1
 
 
 def sample_create_endpoint():
-    """Snippet for create_endpoint"""
-
     # Create a client
     client = aiplatform_v1beta1.EndpointServiceClient()
 
@@ -38,7 +36,7 @@ def sample_create_endpoint():
     endpoint.display_name = "display_name_value"
 
     request = aiplatform_v1beta1.CreateEndpointRequest(
-        parent="projects/{project}/locations/{location}",
+        parent="parent_value",
         endpoint=endpoint,
     )
 

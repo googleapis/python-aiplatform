@@ -28,14 +28,12 @@ from google.cloud import aiplatform_v1beta1
 
 
 def sample_delete_featurestore():
-    """Snippet for delete_featurestore"""
-
     # Create a client
     client = aiplatform_v1beta1.FeaturestoreServiceClient()
 
     # Initialize request argument(s)
     request = aiplatform_v1beta1.DeleteFeaturestoreRequest(
-        name="projects/{project}/locations/{location}/featurestores/{featurestore}",
+        name="name_value",
     )
 
     # Make the request

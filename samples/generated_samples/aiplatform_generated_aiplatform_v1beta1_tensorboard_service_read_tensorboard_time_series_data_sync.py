@@ -28,14 +28,12 @@ from google.cloud import aiplatform_v1beta1
 
 
 def sample_read_tensorboard_time_series_data():
-    """Snippet for read_tensorboard_time_series_data"""
-
     # Create a client
     client = aiplatform_v1beta1.TensorboardServiceClient()
 
     # Initialize request argument(s)
     request = aiplatform_v1beta1.ReadTensorboardTimeSeriesDataRequest(
-        tensorboard_time_series="projects/{project}/locations/{location}/tensorboards/{tensorboard}/experiments/{experiment}/runs/{run}/timeSeries/{time_series}",
+        tensorboard_time_series="tensorboard_time_series_value",
     )
 
     # Make the request

@@ -28,14 +28,12 @@ from google.cloud import aiplatform_v1
 
 
 async def sample_undeploy_index():
-    """Snippet for undeploy_index"""
-
     # Create a client
     client = aiplatform_v1.IndexEndpointServiceAsyncClient()
 
     # Initialize request argument(s)
     request = aiplatform_v1.UndeployIndexRequest(
-        index_endpoint="projects/{project}/locations/{location}/indexEndpoints/{index_endpoint}",
+        index_endpoint="index_endpoint_value",
         deployed_index_id="deployed_index_id_value",
     )
 

@@ -28,14 +28,12 @@ from google.cloud import aiplatform_v1beta1
 
 
 def sample_get_entity_type():
-    """Snippet for get_entity_type"""
-
     # Create a client
     client = aiplatform_v1beta1.FeaturestoreServiceClient()
 
     # Initialize request argument(s)
     request = aiplatform_v1beta1.GetEntityTypeRequest(
-        name="projects/{project}/locations/{location}/featurestores/{featurestore}/entityTypes/{entity_type}",
+        name="name_value",
     )
 
     # Make the request

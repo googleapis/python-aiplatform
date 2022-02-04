@@ -28,8 +28,6 @@ from google.cloud import aiplatform_v1
 
 
 async def sample_update_model():
-    """Snippet for update_model"""
-
     # Create a client
     client = aiplatform_v1.ModelServiceAsyncClient()
 

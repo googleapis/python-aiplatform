@@ -28,14 +28,12 @@ from google.cloud import aiplatform_v1beta1
 
 
 def sample_list_endpoints():
-    """Snippet for list_endpoints"""
-
     # Create a client
     client = aiplatform_v1beta1.EndpointServiceClient()
 
     # Initialize request argument(s)
     request = aiplatform_v1beta1.ListEndpointsRequest(
-        parent="projects/{project}/locations/{location}",
+        parent="parent_value",
     )
 
     # Make the request

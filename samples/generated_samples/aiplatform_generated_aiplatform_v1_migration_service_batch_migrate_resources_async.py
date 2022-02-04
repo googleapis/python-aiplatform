@@ -28,19 +28,17 @@ from google.cloud import aiplatform_v1
 
 
 async def sample_batch_migrate_resources():
-    """Snippet for batch_migrate_resources"""
-
     # Create a client
     client = aiplatform_v1.MigrationServiceAsyncClient()
 
     # Initialize request argument(s)
     migrate_resource_requests = aiplatform_v1.MigrateResourceRequest()
     migrate_resource_requests.migrate_ml_engine_model_version_config.endpoint = "endpoint_value"
-    migrate_resource_requests.migrate_ml_engine_model_version_config.model_version = "projects/{project}/models/{model}/versions/{version}"
+    migrate_resource_requests.migrate_ml_engine_model_version_config.model_version = "model_version_value"
     migrate_resource_requests.migrate_ml_engine_model_version_config.model_display_name = "model_display_name_value"
 
     request = aiplatform_v1.BatchMigrateResourcesRequest(
-        parent="projects/{project}/locations/{location}",
+        parent="parent_value",
         migrate_resource_requests=migrate_resource_requests,
     )
 

@@ -28,14 +28,12 @@ from google.cloud import aiplatform_v1beta1
 
 
 async def sample_add_context_artifacts_and_executions():
-    """Snippet for add_context_artifacts_and_executions"""
-
     # Create a client
     client = aiplatform_v1beta1.MetadataServiceAsyncClient()
 
     # Initialize request argument(s)
     request = aiplatform_v1beta1.AddContextArtifactsAndExecutionsRequest(
-        context="projects/{project}/locations/{location}/metadataStores/{metadata_store}/contexts/{context}",
+        context="context_value",
     )
 
     # Make the request

@@ -28,14 +28,12 @@ from google.cloud import aiplatform_v1beta1
 
 
 def sample_list_training_pipelines():
-    """Snippet for list_training_pipelines"""
-
     # Create a client
     client = aiplatform_v1beta1.PipelineServiceClient()
 
     # Initialize request argument(s)
     request = aiplatform_v1beta1.ListTrainingPipelinesRequest(
-        parent="projects/{project}/locations/{location}",
+        parent="parent_value",
     )
 
     # Make the request

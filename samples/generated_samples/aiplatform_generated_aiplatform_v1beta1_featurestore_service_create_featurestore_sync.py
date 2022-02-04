@@ -28,14 +28,12 @@ from google.cloud import aiplatform_v1beta1
 
 
 def sample_create_featurestore():
-    """Snippet for create_featurestore"""
-
     # Create a client
     client = aiplatform_v1beta1.FeaturestoreServiceClient()
 
     # Initialize request argument(s)
     request = aiplatform_v1beta1.CreateFeaturestoreRequest(
-        parent="projects/{project}/locations/{location}/featurestores/{featurestore}",
+        parent="parent_value",
         featurestore_id="featurestore_id_value",
     )
 

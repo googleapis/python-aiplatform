@@ -28,14 +28,12 @@ from google.cloud import aiplatform_v1beta1
 
 
 async def sample_delete_specialist_pool():
-    """Snippet for delete_specialist_pool"""
-
     # Create a client
     client = aiplatform_v1beta1.SpecialistPoolServiceAsyncClient()
 
     # Initialize request argument(s)
     request = aiplatform_v1beta1.DeleteSpecialistPoolRequest(
-        name="projects/{project}/locations/{location}/specialistPools/{specialist_pool}",
+        name="name_value",
     )
 
     # Make the request

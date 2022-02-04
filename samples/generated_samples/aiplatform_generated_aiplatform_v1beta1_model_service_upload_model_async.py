@@ -28,8 +28,6 @@ from google.cloud import aiplatform_v1beta1
 
 
 async def sample_upload_model():
-    """Snippet for upload_model"""
-
     # Create a client
     client = aiplatform_v1beta1.ModelServiceAsyncClient()
 
@@ -38,7 +36,7 @@ async def sample_upload_model():
     model.display_name = "display_name_value"
 
     request = aiplatform_v1beta1.UploadModelRequest(
-        parent="projects/{project}/locations/{location}",
+        parent="parent_value",
         model=model,
     )
 

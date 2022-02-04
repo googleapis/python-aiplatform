@@ -28,14 +28,12 @@ from google.cloud import aiplatform_v1beta1
 
 
 def sample_list_metadata_stores():
-    """Snippet for list_metadata_stores"""
-
     # Create a client
     client = aiplatform_v1beta1.MetadataServiceClient()
 
     # Initialize request argument(s)
     request = aiplatform_v1beta1.ListMetadataStoresRequest(
-        parent="projects/{project}/locations/{location}",
+        parent="parent_value",
     )
 
     # Make the request

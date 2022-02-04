@@ -28,8 +28,6 @@ from google.cloud import aiplatform_v1
 
 
 def sample_streaming_read_feature_values():
-    """Snippet for streaming_read_feature_values"""
-
     # Create a client
     client = aiplatform_v1.FeaturestoreOnlineServingServiceClient()
 
@@ -38,7 +36,7 @@ def sample_streaming_read_feature_values():
     feature_selector.id_matcher.ids = ['ids_value_1', 'ids_value_2']
 
     request = aiplatform_v1.StreamingReadFeatureValuesRequest(
-        entity_type="projects/{project}/locations/{location}/featurestores/{featurestore}/entityTypes/{entity_type}",
+        entity_type="entity_type_value",
         entity_ids=['entity_ids_value_1', 'entity_ids_value_2'],
         feature_selector=feature_selector,
     )

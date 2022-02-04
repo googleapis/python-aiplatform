@@ -28,8 +28,6 @@ from google.cloud import aiplatform_v1beta1
 
 
 def sample_update_tensorboard_time_series():
-    """Snippet for update_tensorboard_time_series"""
-
     # Create a client
     client = aiplatform_v1beta1.TensorboardServiceClient()
 

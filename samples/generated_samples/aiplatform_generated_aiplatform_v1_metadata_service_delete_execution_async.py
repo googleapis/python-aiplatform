@@ -28,14 +28,12 @@ from google.cloud import aiplatform_v1
 
 
 async def sample_delete_execution():
-    """Snippet for delete_execution"""
-
     # Create a client
     client = aiplatform_v1.MetadataServiceAsyncClient()
 
     # Initialize request argument(s)
     request = aiplatform_v1.DeleteExecutionRequest(
-        name="projects/{project}/locations/{location}/metadataStores/{metadata_store}/executions/{execution}",
+        name="name_value",
     )
 
     # Make the request

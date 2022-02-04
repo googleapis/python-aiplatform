@@ -28,8 +28,6 @@ from google.cloud import aiplatform_v1beta1
 
 
 async def sample_export_data():
-    """Snippet for export_data"""
-
     # Create a client
     client = aiplatform_v1beta1.DatasetServiceAsyncClient()
 
@@ -38,7 +36,7 @@ async def sample_export_data():
     export_config.gcs_destination.output_uri_prefix = "output_uri_prefix_value"
 
     request = aiplatform_v1beta1.ExportDataRequest(
-        name="projects/{project}/locations/{location}/datasets/{dataset}",
+        name="name_value",
         export_config=export_config,
     )
 

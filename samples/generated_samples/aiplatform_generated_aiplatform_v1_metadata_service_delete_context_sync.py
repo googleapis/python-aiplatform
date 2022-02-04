@@ -28,14 +28,12 @@ from google.cloud import aiplatform_v1
 
 
 def sample_delete_context():
-    """Snippet for delete_context"""
-
     # Create a client
     client = aiplatform_v1.MetadataServiceClient()
 
     # Initialize request argument(s)
     request = aiplatform_v1.DeleteContextRequest(
-        name="projects/{project}/locations/{location}/metadataStores/{metadata_store}/contexts/{context}",
+        name="name_value",
     )
 
     # Make the request

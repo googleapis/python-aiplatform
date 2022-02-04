@@ -28,14 +28,12 @@ from google.cloud import aiplatform_v1beta1
 
 
 async def sample_add_execution_events():
-    """Snippet for add_execution_events"""
-
     # Create a client
     client = aiplatform_v1beta1.MetadataServiceAsyncClient()
 
     # Initialize request argument(s)
     request = aiplatform_v1beta1.AddExecutionEventsRequest(
-        execution="projects/{project}/locations/{location}/metadataStores/{metadata_store}/executions/{execution}",
+        execution="execution_value",
     )
 
     # Make the request

@@ -28,14 +28,12 @@ from google.cloud import aiplatform_v1beta1
 
 
 async def sample_stop_trial():
-    """Snippet for stop_trial"""
-
     # Create a client
     client = aiplatform_v1beta1.VizierServiceAsyncClient()
 
     # Initialize request argument(s)
     request = aiplatform_v1beta1.StopTrialRequest(
-        name="projects/{project}/locations/{location}/studies/{study}/trials/{trial}",
+        name="name_value",
     )
 
     # Make the request

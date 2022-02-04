@@ -28,14 +28,12 @@ from google.cloud import aiplatform_v1beta1
 
 
 async def sample_list_optimal_trials():
-    """Snippet for list_optimal_trials"""
-
     # Create a client
     client = aiplatform_v1beta1.VizierServiceAsyncClient()
 
     # Initialize request argument(s)
     request = aiplatform_v1beta1.ListOptimalTrialsRequest(
-        parent="projects/{project}/locations/{location}/studies/{study}",
+        parent="parent_value",
     )
 
     # Make the request

@@ -28,14 +28,12 @@ from google.cloud import aiplatform_v1
 
 
 def sample_purge_executions():
-    """Snippet for purge_executions"""
-
     # Create a client
     client = aiplatform_v1.MetadataServiceClient()
 
     # Initialize request argument(s)
     request = aiplatform_v1.PurgeExecutionsRequest(
-        parent="projects/{project}/locations/{location}/metadataStores/{metadata_store}/executions/{execution}",
+        parent="parent_value",
         filter="filter_value",
     )
 

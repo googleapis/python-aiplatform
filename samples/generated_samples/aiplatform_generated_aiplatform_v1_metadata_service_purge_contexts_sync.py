@@ -28,14 +28,12 @@ from google.cloud import aiplatform_v1
 
 
 def sample_purge_contexts():
-    """Snippet for purge_contexts"""
-
     # Create a client
     client = aiplatform_v1.MetadataServiceClient()
 
     # Initialize request argument(s)
     request = aiplatform_v1.PurgeContextsRequest(
-        parent="projects/{project}/locations/{location}/metadataStores/{metadata_store}/contexts/{context}",
+        parent="parent_value",
         filter="filter_value",
     )
 

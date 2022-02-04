@@ -28,8 +28,6 @@ from google.cloud import aiplatform_v1beta1
 
 
 def sample_update_specialist_pool():
-    """Snippet for update_specialist_pool"""
-
     # Create a client
     client = aiplatform_v1beta1.SpecialistPoolServiceClient()
 

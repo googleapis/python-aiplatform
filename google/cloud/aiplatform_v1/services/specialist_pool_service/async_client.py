@@ -236,6 +236,32 @@ class SpecialistPoolServiceAsyncClient:
     ) -> operation_async.AsyncOperation:
         r"""Creates a SpecialistPool.
 
+        .. code-block::
+
+            from google.cloud import aiplatform_v1
+
+            def sample_create_specialist_pool():
+                # Create a client
+                client = aiplatform_v1.SpecialistPoolServiceClient()
+
+                # Initialize request argument(s)
+                specialist_pool = aiplatform_v1.SpecialistPool()
+                specialist_pool.name = "name_value"
+                specialist_pool.display_name = "display_name_value"
+
+                request = aiplatform_v1.CreateSpecialistPoolRequest(
+                    parent="parent_value",
+                    specialist_pool=specialist_pool,
+                )
+
+                # Make the request
+                operation = client.create_specialist_pool(request=request)
+
+                print("Waiting for operation to complete...")
+
+                response = operation.result()
+                print(response)
+
         Args:
             request (Union[google.cloud.aiplatform_v1.types.CreateSpecialistPoolRequest, dict]):
                 The request object. Request message for
@@ -333,6 +359,25 @@ class SpecialistPoolServiceAsyncClient:
     ) -> specialist_pool.SpecialistPool:
         r"""Gets a SpecialistPool.
 
+        .. code-block::
+
+            from google.cloud import aiplatform_v1
+
+            def sample_get_specialist_pool():
+                # Create a client
+                client = aiplatform_v1.SpecialistPoolServiceClient()
+
+                # Initialize request argument(s)
+                request = aiplatform_v1.GetSpecialistPoolRequest(
+                    name="name_value",
+                )
+
+                # Make the request
+                response = client.get_specialist_pool(request=request)
+
+                # Handle response
+                print(response)
+
         Args:
             request (Union[google.cloud.aiplatform_v1.types.GetSpecialistPoolRequest, dict]):
                 The request object. Request message for
@@ -414,6 +459,24 @@ class SpecialistPoolServiceAsyncClient:
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> pagers.ListSpecialistPoolsAsyncPager:
         r"""Lists SpecialistPools in a Location.
+
+        .. code-block::
+
+            from google.cloud import aiplatform_v1
+
+            def sample_list_specialist_pools():
+                # Create a client
+                client = aiplatform_v1.SpecialistPoolServiceClient()
+
+                # Initialize request argument(s)
+                request = aiplatform_v1.ListSpecialistPoolsRequest(
+                    parent="parent_value",
+                )
+
+                # Make the request
+                page_result = client.list_specialist_pools(request=request)
+                for response in page_result:
+                    print(response)
 
         Args:
             request (Union[google.cloud.aiplatform_v1.types.ListSpecialistPoolsRequest, dict]):
@@ -498,6 +561,28 @@ class SpecialistPoolServiceAsyncClient:
     ) -> operation_async.AsyncOperation:
         r"""Deletes a SpecialistPool as well as all Specialists
         in the pool.
+
+
+        .. code-block::
+
+            from google.cloud import aiplatform_v1
+
+            def sample_delete_specialist_pool():
+                # Create a client
+                client = aiplatform_v1.SpecialistPoolServiceClient()
+
+                # Initialize request argument(s)
+                request = aiplatform_v1.DeleteSpecialistPoolRequest(
+                    name="name_value",
+                )
+
+                # Make the request
+                operation = client.delete_specialist_pool(request=request)
+
+                print("Waiting for operation to complete...")
+
+                response = operation.result()
+                print(response)
 
         Args:
             request (Union[google.cloud.aiplatform_v1.types.DeleteSpecialistPoolRequest, dict]):
@@ -594,6 +679,31 @@ class SpecialistPoolServiceAsyncClient:
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> operation_async.AsyncOperation:
         r"""Updates a SpecialistPool.
+
+        .. code-block::
+
+            from google.cloud import aiplatform_v1
+
+            def sample_update_specialist_pool():
+                # Create a client
+                client = aiplatform_v1.SpecialistPoolServiceClient()
+
+                # Initialize request argument(s)
+                specialist_pool = aiplatform_v1.SpecialistPool()
+                specialist_pool.name = "name_value"
+                specialist_pool.display_name = "display_name_value"
+
+                request = aiplatform_v1.UpdateSpecialistPoolRequest(
+                    specialist_pool=specialist_pool,
+                )
+
+                # Make the request
+                operation = client.update_specialist_pool(request=request)
+
+                print("Waiting for operation to complete...")
+
+                response = operation.result()
+                print(response)
 
         Args:
             request (Union[google.cloud.aiplatform_v1.types.UpdateSpecialistPoolRequest, dict]):

@@ -28,8 +28,6 @@ from google.cloud import aiplatform_v1
 
 
 async def sample_explain():
-    """Snippet for explain"""
-
     # Create a client
     client = aiplatform_v1.PredictionServiceAsyncClient()
 
@@ -38,7 +36,7 @@ async def sample_explain():
     instances.null_value = "NULL_VALUE"
 
     request = aiplatform_v1.ExplainRequest(
-        endpoint="projects/{project}/locations/{location}/endpoints/{endpoint}",
+        endpoint="endpoint_value",
         instances=instances,
     )
 

@@ -28,14 +28,12 @@ from google.cloud import aiplatform_v1
 
 
 async def sample_create_entity_type():
-    """Snippet for create_entity_type"""
-
     # Create a client
     client = aiplatform_v1.FeaturestoreServiceAsyncClient()
 
     # Initialize request argument(s)
     request = aiplatform_v1.CreateEntityTypeRequest(
-        parent="projects/{project}/locations/{location}/featurestores/{featurestore}",
+        parent="parent_value",
         entity_type_id="entity_type_id_value",
     )
 

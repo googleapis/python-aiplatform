@@ -28,14 +28,12 @@ from google.cloud import aiplatform_v1beta1
 
 
 def sample_list_custom_jobs():
-    """Snippet for list_custom_jobs"""
-
     # Create a client
     client = aiplatform_v1beta1.JobServiceClient()
 
     # Initialize request argument(s)
     request = aiplatform_v1beta1.ListCustomJobsRequest(
-        parent="projects/{project}/locations/{location}",
+        parent="parent_value",
     )
 
     # Make the request

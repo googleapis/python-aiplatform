@@ -28,8 +28,6 @@ from google.cloud import aiplatform_v1
 
 
 def sample_create_feature():
-    """Snippet for create_feature"""
-
     # Create a client
     client = aiplatform_v1.FeaturestoreServiceClient()
 
@@ -38,7 +36,7 @@ def sample_create_feature():
     feature.value_type = "BYTES"
 
     request = aiplatform_v1.CreateFeatureRequest(
-        parent="projects/{project}/locations/{location}/featurestores/{featurestore}/entityTypes/{entity_type}",
+        parent="parent_value",
         feature=feature,
         feature_id="feature_id_value",
     )

@@ -28,14 +28,12 @@ from google.cloud import aiplatform_v1
 
 
 async def sample_list_model_evaluations():
-    """Snippet for list_model_evaluations"""
-
     # Create a client
     client = aiplatform_v1.ModelServiceAsyncClient()
 
     # Initialize request argument(s)
     request = aiplatform_v1.ListModelEvaluationsRequest(
-        parent="projects/{project}/locations/{location}/models/{model}",
+        parent="parent_value",
     )
 
     # Make the request

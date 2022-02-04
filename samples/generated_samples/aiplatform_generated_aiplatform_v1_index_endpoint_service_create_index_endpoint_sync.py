@@ -28,18 +28,15 @@ from google.cloud import aiplatform_v1
 
 
 def sample_create_index_endpoint():
-    """Snippet for create_index_endpoint"""
-
     # Create a client
     client = aiplatform_v1.IndexEndpointServiceClient()
 
     # Initialize request argument(s)
     index_endpoint = aiplatform_v1.IndexEndpoint()
     index_endpoint.display_name = "display_name_value"
-    index_endpoint.network = "network_value"
 
     request = aiplatform_v1.CreateIndexEndpointRequest(
-        parent="projects/{project}/locations/{location}",
+        parent="parent_value",
         index_endpoint=index_endpoint,
     )
 

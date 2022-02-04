@@ -28,14 +28,12 @@ from google.cloud import aiplatform_v1
 
 
 async def sample_query_context_lineage_subgraph():
-    """Snippet for query_context_lineage_subgraph"""
-
     # Create a client
     client = aiplatform_v1.MetadataServiceAsyncClient()
 
     # Initialize request argument(s)
     request = aiplatform_v1.QueryContextLineageSubgraphRequest(
-        context="projects/{project}/locations/{location}/metadataStores/{metadata_store}/contexts/{context}",
+        context="context_value",
     )
 
     # Make the request

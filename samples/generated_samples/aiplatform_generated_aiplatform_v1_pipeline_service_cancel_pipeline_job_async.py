@@ -28,14 +28,12 @@ from google.cloud import aiplatform_v1
 
 
 async def sample_cancel_pipeline_job():
-    """Snippet for cancel_pipeline_job"""
-
     # Create a client
     client = aiplatform_v1.PipelineServiceAsyncClient()
 
     # Initialize request argument(s)
     request = aiplatform_v1.CancelPipelineJobRequest(
-        name="projects/{project}/locations/{location}/pipelineJobs/{pipeline_job}",
+        name="name_value",
     )
 
     # Make the request

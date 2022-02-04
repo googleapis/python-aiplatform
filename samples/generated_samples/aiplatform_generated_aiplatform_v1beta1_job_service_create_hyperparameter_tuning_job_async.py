@@ -28,8 +28,6 @@ from google.cloud import aiplatform_v1beta1
 
 
 async def sample_create_hyperparameter_tuning_job():
-    """Snippet for create_hyperparameter_tuning_job"""
-
     # Create a client
     client = aiplatform_v1beta1.JobServiceAsyncClient()
 
@@ -46,7 +44,7 @@ async def sample_create_hyperparameter_tuning_job():
     hyperparameter_tuning_job.trial_job_spec.worker_pool_specs.container_spec.image_uri = "image_uri_value"
 
     request = aiplatform_v1beta1.CreateHyperparameterTuningJobRequest(
-        parent="projects/{project}/locations/{location}",
+        parent="parent_value",
         hyperparameter_tuning_job=hyperparameter_tuning_job,
     )
 

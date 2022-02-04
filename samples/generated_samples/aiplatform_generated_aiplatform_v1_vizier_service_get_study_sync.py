@@ -28,14 +28,12 @@ from google.cloud import aiplatform_v1
 
 
 def sample_get_study():
-    """Snippet for get_study"""
-
     # Create a client
     client = aiplatform_v1.VizierServiceClient()
 
     # Initialize request argument(s)
     request = aiplatform_v1.GetStudyRequest(
-        name="projects/{project}/locations/{location}/studies/{study}",
+        name="name_value",
     )
 
     # Make the request

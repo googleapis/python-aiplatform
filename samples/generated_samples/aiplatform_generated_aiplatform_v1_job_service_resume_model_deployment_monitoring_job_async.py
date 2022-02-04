@@ -28,14 +28,12 @@ from google.cloud import aiplatform_v1
 
 
 async def sample_resume_model_deployment_monitoring_job():
-    """Snippet for resume_model_deployment_monitoring_job"""
-
     # Create a client
     client = aiplatform_v1.JobServiceAsyncClient()
 
     # Initialize request argument(s)
     request = aiplatform_v1.ResumeModelDeploymentMonitoringJobRequest(
-        name="projects/{project}/locations/{location}/modelDeploymentMonitoringJobs/{model_deployment_monitoring_job}",
+        name="name_value",
     )
 
     # Make the request

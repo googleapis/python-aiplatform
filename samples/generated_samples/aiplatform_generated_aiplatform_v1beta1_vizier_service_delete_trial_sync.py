@@ -28,14 +28,12 @@ from google.cloud import aiplatform_v1beta1
 
 
 def sample_delete_trial():
-    """Snippet for delete_trial"""
-
     # Create a client
     client = aiplatform_v1beta1.VizierServiceClient()
 
     # Initialize request argument(s)
     request = aiplatform_v1beta1.DeleteTrialRequest(
-        name="projects/{project}/locations/{location}/studies/{study}/trials/{trial}",
+        name="name_value",
     )
 
     # Make the request

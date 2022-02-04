@@ -28,14 +28,12 @@ from google.cloud import aiplatform_v1
 
 
 async def sample_suggest_trials():
-    """Snippet for suggest_trials"""
-
     # Create a client
     client = aiplatform_v1.VizierServiceAsyncClient()
 
     # Initialize request argument(s)
     request = aiplatform_v1.SuggestTrialsRequest(
-        parent="projects/{project}/locations/{location}/studies/{study}",
+        parent="parent_value",
         suggestion_count=1744,
         client_id="client_id_value",
     )

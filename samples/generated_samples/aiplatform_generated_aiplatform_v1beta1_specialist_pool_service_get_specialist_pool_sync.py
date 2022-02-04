@@ -28,14 +28,12 @@ from google.cloud import aiplatform_v1beta1
 
 
 def sample_get_specialist_pool():
-    """Snippet for get_specialist_pool"""
-
     # Create a client
     client = aiplatform_v1beta1.SpecialistPoolServiceClient()
 
     # Initialize request argument(s)
     request = aiplatform_v1beta1.GetSpecialistPoolRequest(
-        name="projects/{project}/locations/{location}/specialistPools/{specialist_pool}",
+        name="name_value",
     )
 
     # Make the request

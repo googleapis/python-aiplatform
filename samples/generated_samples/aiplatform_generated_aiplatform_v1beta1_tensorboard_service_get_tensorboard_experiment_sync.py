@@ -28,14 +28,12 @@ from google.cloud import aiplatform_v1beta1
 
 
 def sample_get_tensorboard_experiment():
-    """Snippet for get_tensorboard_experiment"""
-
     # Create a client
     client = aiplatform_v1beta1.TensorboardServiceClient()
 
     # Initialize request argument(s)
     request = aiplatform_v1beta1.GetTensorboardExperimentRequest(
-        name="projects/{project}/locations/{location}/tensorboards/{tensorboard}/experiments/{experiment}",
+        name="name_value",
     )
 
     # Make the request

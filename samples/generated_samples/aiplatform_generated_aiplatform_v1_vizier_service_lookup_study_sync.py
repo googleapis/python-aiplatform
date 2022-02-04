@@ -28,14 +28,12 @@ from google.cloud import aiplatform_v1
 
 
 def sample_lookup_study():
-    """Snippet for lookup_study"""
-
     # Create a client
     client = aiplatform_v1.VizierServiceClient()
 
     # Initialize request argument(s)
     request = aiplatform_v1.LookupStudyRequest(
-        parent="projects/{project}/locations/{location}",
+        parent="parent_value",
         display_name="display_name_value",
     )
 

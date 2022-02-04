@@ -28,8 +28,6 @@ from google.cloud import aiplatform_v1beta1
 
 
 async def sample_create_index():
-    """Snippet for create_index"""
-
     # Create a client
     client = aiplatform_v1beta1.IndexServiceAsyncClient()
 
@@ -38,7 +36,7 @@ async def sample_create_index():
     index.display_name = "display_name_value"
 
     request = aiplatform_v1beta1.CreateIndexRequest(
-        parent="projects/{project}/locations/{location}",
+        parent="parent_value",
         index=index,
     )
 

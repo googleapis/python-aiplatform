@@ -28,14 +28,12 @@ from google.cloud import aiplatform_v1
 
 
 def sample_get_trial():
-    """Snippet for get_trial"""
-
     # Create a client
     client = aiplatform_v1.VizierServiceClient()
 
     # Initialize request argument(s)
     request = aiplatform_v1.GetTrialRequest(
-        name="projects/{project}/locations/{location}/studies/{study}/trials/{trial}",
+        name="name_value",
     )
 
     # Make the request

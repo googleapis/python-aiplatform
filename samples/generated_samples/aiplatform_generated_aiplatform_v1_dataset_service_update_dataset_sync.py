@@ -28,8 +28,6 @@ from google.cloud import aiplatform_v1
 
 
 def sample_update_dataset():
-    """Snippet for update_dataset"""
-
     # Create a client
     client = aiplatform_v1.DatasetServiceClient()
 

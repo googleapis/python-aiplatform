@@ -28,8 +28,6 @@ from google.cloud import aiplatform_v1
 
 
 def sample_import_data():
-    """Snippet for import_data"""
-
     # Create a client
     client = aiplatform_v1.DatasetServiceClient()
 
@@ -39,7 +37,7 @@ def sample_import_data():
     import_configs.import_schema_uri = "import_schema_uri_value"
 
     request = aiplatform_v1.ImportDataRequest(
-        name="projects/{project}/locations/{location}/datasets/{dataset}",
+        name="name_value",
         import_configs=import_configs,
     )
 

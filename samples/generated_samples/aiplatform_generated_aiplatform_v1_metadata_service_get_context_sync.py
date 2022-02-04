@@ -28,14 +28,12 @@ from google.cloud import aiplatform_v1
 
 
 def sample_get_context():
-    """Snippet for get_context"""
-
     # Create a client
     client = aiplatform_v1.MetadataServiceClient()
 
     # Initialize request argument(s)
     request = aiplatform_v1.GetContextRequest(
-        name="projects/{project}/locations/{location}/metadataStores/{metadata_store}/contexts/{context}",
+        name="name_value",
     )
 
     # Make the request

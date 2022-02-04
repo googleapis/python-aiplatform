@@ -28,14 +28,12 @@ from google.cloud import aiplatform_v1
 
 
 async def sample_delete_endpoint():
-    """Snippet for delete_endpoint"""
-
     # Create a client
     client = aiplatform_v1.EndpointServiceAsyncClient()
 
     # Initialize request argument(s)
     request = aiplatform_v1.DeleteEndpointRequest(
-        name="projects/{project}/locations/{location}/endpoints/{endpoint}",
+        name="name_value",
     )
 
     # Make the request

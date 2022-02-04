@@ -28,14 +28,12 @@ from google.cloud import aiplatform_v1
 
 
 async def sample_list_batch_prediction_jobs():
-    """Snippet for list_batch_prediction_jobs"""
-
     # Create a client
     client = aiplatform_v1.JobServiceAsyncClient()
 
     # Initialize request argument(s)
     request = aiplatform_v1.ListBatchPredictionJobsRequest(
-        parent="projects/{project}/locations/{location}",
+        parent="parent_value",
     )
 
     # Make the request

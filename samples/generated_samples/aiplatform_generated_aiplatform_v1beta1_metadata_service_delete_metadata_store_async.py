@@ -28,14 +28,12 @@ from google.cloud import aiplatform_v1beta1
 
 
 async def sample_delete_metadata_store():
-    """Snippet for delete_metadata_store"""
-
     # Create a client
     client = aiplatform_v1beta1.MetadataServiceAsyncClient()
 
     # Initialize request argument(s)
     request = aiplatform_v1beta1.DeleteMetadataStoreRequest(
-        name="projects/{project}/locations/{location}/metadataStores/{metadata_store}",
+        name="name_value",
     )
 
     # Make the request

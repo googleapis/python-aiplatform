@@ -487,6 +487,34 @@ class DatasetServiceClient(metaclass=DatasetServiceClientMeta):
     ) -> gac_operation.Operation:
         r"""Creates a Dataset.
 
+
+        .. code-block::
+
+            from google.cloud import aiplatform_v1
+
+            def sample_create_dataset():
+                # Create a client
+                client = aiplatform_v1.DatasetServiceClient()
+
+                # Initialize request argument(s)
+                dataset = aiplatform_v1.Dataset()
+                dataset.display_name = "display_name_value"
+                dataset.metadata_schema_uri = "metadata_schema_uri_value"
+                dataset.metadata.null_value = "NULL_VALUE"
+
+                request = aiplatform_v1.CreateDatasetRequest(
+                    parent="parent_value",
+                    dataset=dataset,
+                )
+
+                # Make the request
+                operation = client.create_dataset(request=request)
+
+                print("Waiting for operation to complete...")
+
+                response = operation.result()
+                print(response)
+
         Args:
             request (Union[google.cloud.aiplatform_v1.types.CreateDatasetRequest, dict]):
                 The request object. Request message for
@@ -577,6 +605,26 @@ class DatasetServiceClient(metaclass=DatasetServiceClientMeta):
     ) -> dataset.Dataset:
         r"""Gets a Dataset.
 
+
+        .. code-block::
+
+            from google.cloud import aiplatform_v1
+
+            def sample_get_dataset():
+                # Create a client
+                client = aiplatform_v1.DatasetServiceClient()
+
+                # Initialize request argument(s)
+                request = aiplatform_v1.GetDatasetRequest(
+                    name="name_value",
+                )
+
+                # Make the request
+                response = client.get_dataset(request=request)
+
+                # Handle response
+                print(response)
+
         Args:
             request (Union[google.cloud.aiplatform_v1.types.GetDatasetRequest, dict]):
                 The request object. Request message for
@@ -648,6 +696,31 @@ class DatasetServiceClient(metaclass=DatasetServiceClientMeta):
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> gca_dataset.Dataset:
         r"""Updates a Dataset.
+
+
+        .. code-block::
+
+            from google.cloud import aiplatform_v1
+
+            def sample_update_dataset():
+                # Create a client
+                client = aiplatform_v1.DatasetServiceClient()
+
+                # Initialize request argument(s)
+                dataset = aiplatform_v1.Dataset()
+                dataset.display_name = "display_name_value"
+                dataset.metadata_schema_uri = "metadata_schema_uri_value"
+                dataset.metadata.null_value = "NULL_VALUE"
+
+                request = aiplatform_v1.UpdateDatasetRequest(
+                    dataset=dataset,
+                )
+
+                # Make the request
+                response = client.update_dataset(request=request)
+
+                # Handle response
+                print(response)
 
         Args:
             request (Union[google.cloud.aiplatform_v1.types.UpdateDatasetRequest, dict]):
@@ -737,6 +810,25 @@ class DatasetServiceClient(metaclass=DatasetServiceClientMeta):
     ) -> pagers.ListDatasetsPager:
         r"""Lists Datasets in a Location.
 
+
+        .. code-block::
+
+            from google.cloud import aiplatform_v1
+
+            def sample_list_datasets():
+                # Create a client
+                client = aiplatform_v1.DatasetServiceClient()
+
+                # Initialize request argument(s)
+                request = aiplatform_v1.ListDatasetsRequest(
+                    parent="parent_value",
+                )
+
+                # Make the request
+                page_result = client.list_datasets(request=request)
+                for response in page_result:
+                    print(response)
+
         Args:
             request (Union[google.cloud.aiplatform_v1.types.ListDatasetsRequest, dict]):
                 The request object. Request message for
@@ -816,6 +908,28 @@ class DatasetServiceClient(metaclass=DatasetServiceClientMeta):
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> gac_operation.Operation:
         r"""Deletes a Dataset.
+
+
+        .. code-block::
+
+            from google.cloud import aiplatform_v1
+
+            def sample_delete_dataset():
+                # Create a client
+                client = aiplatform_v1.DatasetServiceClient()
+
+                # Initialize request argument(s)
+                request = aiplatform_v1.DeleteDatasetRequest(
+                    name="name_value",
+                )
+
+                # Make the request
+                operation = client.delete_dataset(request=request)
+
+                print("Waiting for operation to complete...")
+
+                response = operation.result()
+                print(response)
 
         Args:
             request (Union[google.cloud.aiplatform_v1.types.DeleteDatasetRequest, dict]):
@@ -911,6 +1025,33 @@ class DatasetServiceClient(metaclass=DatasetServiceClientMeta):
     ) -> gac_operation.Operation:
         r"""Imports data into a Dataset.
 
+
+        .. code-block::
+
+            from google.cloud import aiplatform_v1
+
+            def sample_import_data():
+                # Create a client
+                client = aiplatform_v1.DatasetServiceClient()
+
+                # Initialize request argument(s)
+                import_configs = aiplatform_v1.ImportDataConfig()
+                import_configs.gcs_source.uris = ['uris_value_1', 'uris_value_2']
+                import_configs.import_schema_uri = "import_schema_uri_value"
+
+                request = aiplatform_v1.ImportDataRequest(
+                    name="name_value",
+                    import_configs=import_configs,
+                )
+
+                # Make the request
+                operation = client.import_data(request=request)
+
+                print("Waiting for operation to complete...")
+
+                response = operation.result()
+                print(response)
+
         Args:
             request (Union[google.cloud.aiplatform_v1.types.ImportDataRequest, dict]):
                 The request object. Request message for
@@ -1005,6 +1146,32 @@ class DatasetServiceClient(metaclass=DatasetServiceClientMeta):
     ) -> gac_operation.Operation:
         r"""Exports data from a Dataset.
 
+
+        .. code-block::
+
+            from google.cloud import aiplatform_v1
+
+            def sample_export_data():
+                # Create a client
+                client = aiplatform_v1.DatasetServiceClient()
+
+                # Initialize request argument(s)
+                export_config = aiplatform_v1.ExportDataConfig()
+                export_config.gcs_destination.output_uri_prefix = "output_uri_prefix_value"
+
+                request = aiplatform_v1.ExportDataRequest(
+                    name="name_value",
+                    export_config=export_config,
+                )
+
+                # Make the request
+                operation = client.export_data(request=request)
+
+                print("Waiting for operation to complete...")
+
+                response = operation.result()
+                print(response)
+
         Args:
             request (Union[google.cloud.aiplatform_v1.types.ExportDataRequest, dict]):
                 The request object. Request message for
@@ -1097,6 +1264,25 @@ class DatasetServiceClient(metaclass=DatasetServiceClientMeta):
     ) -> pagers.ListDataItemsPager:
         r"""Lists DataItems in a Dataset.
 
+
+        .. code-block::
+
+            from google.cloud import aiplatform_v1
+
+            def sample_list_data_items():
+                # Create a client
+                client = aiplatform_v1.DatasetServiceClient()
+
+                # Initialize request argument(s)
+                request = aiplatform_v1.ListDataItemsRequest(
+                    parent="parent_value",
+                )
+
+                # Make the request
+                page_result = client.list_data_items(request=request)
+                for response in page_result:
+                    print(response)
+
         Args:
             request (Union[google.cloud.aiplatform_v1.types.ListDataItemsRequest, dict]):
                 The request object. Request message for
@@ -1178,6 +1364,26 @@ class DatasetServiceClient(metaclass=DatasetServiceClientMeta):
     ) -> annotation_spec.AnnotationSpec:
         r"""Gets an AnnotationSpec.
 
+
+        .. code-block::
+
+            from google.cloud import aiplatform_v1
+
+            def sample_get_annotation_spec():
+                # Create a client
+                client = aiplatform_v1.DatasetServiceClient()
+
+                # Initialize request argument(s)
+                request = aiplatform_v1.GetAnnotationSpecRequest(
+                    name="name_value",
+                )
+
+                # Make the request
+                response = client.get_annotation_spec(request=request)
+
+                # Handle response
+                print(response)
+
         Args:
             request (Union[google.cloud.aiplatform_v1.types.GetAnnotationSpecRequest, dict]):
                 The request object. Request message for
@@ -1249,6 +1455,25 @@ class DatasetServiceClient(metaclass=DatasetServiceClientMeta):
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> pagers.ListAnnotationsPager:
         r"""Lists Annotations belongs to a dataitem
+
+
+        .. code-block::
+
+            from google.cloud import aiplatform_v1
+
+            def sample_list_annotations():
+                # Create a client
+                client = aiplatform_v1.DatasetServiceClient()
+
+                # Initialize request argument(s)
+                request = aiplatform_v1.ListAnnotationsRequest(
+                    parent="parent_value",
+                )
+
+                # Make the request
+                page_result = client.list_annotations(request=request)
+                for response in page_result:
+                    print(response)
 
         Args:
             request (Union[google.cloud.aiplatform_v1.types.ListAnnotationsRequest, dict]):

@@ -28,14 +28,12 @@ from google.cloud import aiplatform_v1beta1
 
 
 async def sample_list_entity_types():
-    """Snippet for list_entity_types"""
-
     # Create a client
     client = aiplatform_v1beta1.FeaturestoreServiceAsyncClient()
 
     # Initialize request argument(s)
     request = aiplatform_v1beta1.ListEntityTypesRequest(
-        parent="projects/{project}/locations/{location}/featurestores/{featurestore}/entityTypes/{entity_type}",
+        parent="parent_value",
     )
 
     # Make the request

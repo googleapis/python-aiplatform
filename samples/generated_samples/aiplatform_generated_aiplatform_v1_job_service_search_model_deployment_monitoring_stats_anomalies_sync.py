@@ -28,14 +28,12 @@ from google.cloud import aiplatform_v1
 
 
 def sample_search_model_deployment_monitoring_stats_anomalies():
-    """Snippet for search_model_deployment_monitoring_stats_anomalies"""
-
     # Create a client
     client = aiplatform_v1.JobServiceClient()
 
     # Initialize request argument(s)
     request = aiplatform_v1.SearchModelDeploymentMonitoringStatsAnomaliesRequest(
-        model_deployment_monitoring_job="projects/{project}/locations/{location}/modelDeploymentMonitoringJobs/{model_deployment_monitoring_job}",
+        model_deployment_monitoring_job="model_deployment_monitoring_job_value",
         deployed_model_id="deployed_model_id_value",
     )
 

@@ -28,8 +28,6 @@ from google.cloud import aiplatform_v1
 
 
 def sample_predict():
-    """Snippet for predict"""
-
     # Create a client
     client = aiplatform_v1.PredictionServiceClient()
 
@@ -38,7 +36,7 @@ def sample_predict():
     instances.null_value = "NULL_VALUE"
 
     request = aiplatform_v1.PredictRequest(
-        endpoint="projects/{project}/locations/{location}/endpoints/{endpoint}",
+        endpoint="endpoint_value",
         instances=instances,
     )
 

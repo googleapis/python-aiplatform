@@ -28,8 +28,6 @@ from google.cloud import aiplatform_v1
 
 
 def sample_update_index():
-    """Snippet for update_index"""
-
     # Create a client
     client = aiplatform_v1.IndexServiceClient()
 

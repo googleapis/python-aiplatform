@@ -28,14 +28,12 @@ from google.cloud import aiplatform_v1
 
 
 def sample_delete_model_deployment_monitoring_job():
-    """Snippet for delete_model_deployment_monitoring_job"""
-
     # Create a client
     client = aiplatform_v1.JobServiceClient()
 
     # Initialize request argument(s)
     request = aiplatform_v1.DeleteModelDeploymentMonitoringJobRequest(
-        name="projects/{project}/locations/{location}/modelDeploymentMonitoringJobs/{model_deployment_monitoring_job}",
+        name="name_value",
     )
 
     # Make the request

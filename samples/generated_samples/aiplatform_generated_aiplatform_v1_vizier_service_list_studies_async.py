@@ -28,14 +28,12 @@ from google.cloud import aiplatform_v1
 
 
 async def sample_list_studies():
-    """Snippet for list_studies"""
-
     # Create a client
     client = aiplatform_v1.VizierServiceAsyncClient()
 
     # Initialize request argument(s)
     request = aiplatform_v1.ListStudiesRequest(
-        parent="projects/{project}/locations/{location}",
+        parent="parent_value",
     )
 
     # Make the request

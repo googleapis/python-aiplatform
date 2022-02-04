@@ -235,6 +235,25 @@ class MigrationServiceAsyncClient:
         ml.googleapis.com that can be migrated to Vertex AI's
         given location.
 
+
+        .. code-block::
+
+            from google.cloud import aiplatform_v1
+
+            def sample_search_migratable_resources():
+                # Create a client
+                client = aiplatform_v1.MigrationServiceClient()
+
+                # Initialize request argument(s)
+                request = aiplatform_v1.SearchMigratableResourcesRequest(
+                    parent="parent_value",
+                )
+
+                # Make the request
+                page_result = client.search_migratable_resources(request=request)
+                for response in page_result:
+                    print(response)
+
         Args:
             request (Union[google.cloud.aiplatform_v1.types.SearchMigratableResourcesRequest, dict]):
                 The request object. Request message for
@@ -322,6 +341,34 @@ class MigrationServiceAsyncClient:
         r"""Batch migrates resources from ml.googleapis.com,
         automl.googleapis.com, and datalabeling.googleapis.com
         to Vertex AI.
+
+
+        .. code-block::
+
+            from google.cloud import aiplatform_v1
+
+            def sample_batch_migrate_resources():
+                # Create a client
+                client = aiplatform_v1.MigrationServiceClient()
+
+                # Initialize request argument(s)
+                migrate_resource_requests = aiplatform_v1.MigrateResourceRequest()
+                migrate_resource_requests.migrate_ml_engine_model_version_config.endpoint = "endpoint_value"
+                migrate_resource_requests.migrate_ml_engine_model_version_config.model_version = "model_version_value"
+                migrate_resource_requests.migrate_ml_engine_model_version_config.model_display_name = "model_display_name_value"
+
+                request = aiplatform_v1.BatchMigrateResourcesRequest(
+                    parent="parent_value",
+                    migrate_resource_requests=migrate_resource_requests,
+                )
+
+                # Make the request
+                operation = client.batch_migrate_resources(request=request)
+
+                print("Waiting for operation to complete...")
+
+                response = operation.result()
+                print(response)
 
         Args:
             request (Union[google.cloud.aiplatform_v1.types.BatchMigrateResourcesRequest, dict]):

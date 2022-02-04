@@ -28,14 +28,12 @@ from google.cloud import aiplatform_v1
 
 
 def sample_list_models():
-    """Snippet for list_models"""
-
     # Create a client
     client = aiplatform_v1.ModelServiceClient()
 
     # Initialize request argument(s)
     request = aiplatform_v1.ListModelsRequest(
-        parent="projects/{project}/locations/{location}",
+        parent="parent_value",
     )
 
     # Make the request

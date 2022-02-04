@@ -28,14 +28,12 @@ from google.cloud import aiplatform_v1beta1
 
 
 async def sample_get_tensorboard_run():
-    """Snippet for get_tensorboard_run"""
-
     # Create a client
     client = aiplatform_v1beta1.TensorboardServiceAsyncClient()
 
     # Initialize request argument(s)
     request = aiplatform_v1beta1.GetTensorboardRunRequest(
-        name="projects/{project}/locations/{location}/tensorboards/{tensorboard}/experiments/{experiment}/runs/{run}",
+        name="name_value",
     )
 
     # Make the request

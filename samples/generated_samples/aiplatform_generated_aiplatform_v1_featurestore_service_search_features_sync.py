@@ -28,14 +28,12 @@ from google.cloud import aiplatform_v1
 
 
 def sample_search_features():
-    """Snippet for search_features"""
-
     # Create a client
     client = aiplatform_v1.FeaturestoreServiceClient()
 
     # Initialize request argument(s)
     request = aiplatform_v1.SearchFeaturesRequest(
-        location="projects/{project}/locations/{location}",
+        location="location_value",
     )
 
     # Make the request

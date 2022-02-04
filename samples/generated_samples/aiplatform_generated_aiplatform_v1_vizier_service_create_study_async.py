@@ -28,8 +28,6 @@ from google.cloud import aiplatform_v1
 
 
 async def sample_create_study():
-    """Snippet for create_study"""
-
     # Create a client
     client = aiplatform_v1.VizierServiceAsyncClient()
 
@@ -43,7 +41,7 @@ async def sample_create_study():
     study.study_spec.parameters.parameter_id = "parameter_id_value"
 
     request = aiplatform_v1.CreateStudyRequest(
-        parent="projects/{project}/locations/{location}",
+        parent="parent_value",
         study=study,
     )
 
