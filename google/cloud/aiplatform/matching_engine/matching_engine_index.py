@@ -15,7 +15,7 @@
 # limitations under the License.
 #
 
-from typing import Dict, Optional, Sequence, Tuple, Union
+from typing import Dict, List, Optional, Sequence, Tuple, Union
 
 from google.auth import credentials as auth_credentials
 from google.protobuf import field_mask_pb2
@@ -23,6 +23,7 @@ from google.protobuf import field_mask_pb2
 from google.cloud.aiplatform import base
 from google.cloud.aiplatform.compat.types import (
     matching_engine_index as gca_matching_engine_index,
+    matching_engine_index_endpoint as gca_matching_engine_index_endpoint,
 )
 from google.cloud.aiplatform import initializer
 from google.cloud.aiplatform import utils
@@ -95,7 +96,7 @@ class MatchingEngineIndex(base.VertexAiResourceNounWithFutureManager):
 
     @classmethod
     @base.optional_sync()
-    def create(
+    def _create(
         cls,
         index_id: str,
         display_name: str,
@@ -221,11 +222,10 @@ class MatchingEngineIndex(base.VertexAiResourceNounWithFutureManager):
 
         return index_obj
 
-    def update(
+    def _update(
         self,
         display_name: str,
         contents_delta_uri: str,
-        config: matching_engine_index_config.MatchingEngineIndexConfig,
         is_complete_overwrite: Optional[bool] = None,
         description: Optional[str] = None,
         labels: Optional[Dict[str, str]] = None,
@@ -292,10 +292,10 @@ class MatchingEngineIndex(base.VertexAiResourceNounWithFutureManager):
             display_name=display_name,
             description=description,
             metadata={
-                "config": config.as_dict(),
                 "contentsDeltaUri": contents_delta_uri,
                 "isCompleteOverwrite": is_complete_overwrite,
             },
+            labels=labels,
         )
 
         _LOGGER.log_action_start_against_resource(
@@ -315,3 +315,96 @@ class MatchingEngineIndex(base.VertexAiResourceNounWithFutureManager):
         _LOGGER.log_action_completed_against_resource("index", "Updated", self)
 
         return self
+
+    @property
+    def deployed_indexes(
+        self,
+    ) -> List[gca_matching_engine_index_endpoint.DeployedIndex]:
+        return self._gca_resource.deployed_indexes
+
+    def create_tree_ah_index(
+        cls,
+        index_id: str,
+        display_name: str,
+        contents_delta_uri: str,
+        dimensions: int,
+        approximate_neighbors_count: int,
+        leaf_node_embedding_count: int,
+        leaf_nodes_to_search_percent: float,
+        distance_measure_type: Optional[
+            matching_engine_index_config.DistanceMeasureType
+        ] = None,
+        description: Optional[str] = None,
+        labels: Optional[Dict[str, str]] = None,
+        project: Optional[str] = None,
+        location: Optional[str] = None,
+        credentials: Optional[auth_credentials.Credentials] = None,
+        request_metadata: Optional[Sequence[Tuple[str, str]]] = (),
+        sync: bool = True,
+    ) -> "MatchingEngineIndex":
+        algorithm_config = matching_engine_index_config.TreeAhConfig(
+            leaf_node_embedding_count=leaf_node_embedding_count,
+            leaf_nodes_to_search_percent=leaf_nodes_to_search_percent,
+        )
+
+        config = matching_engine_index_config.MatchingEngineIndexConfig(
+            dimensions=dimensions,
+            algorithm_config=algorithm_config,
+            approximate_neighbors_count=approximate_neighbors_count,
+            distance_measure_type=distance_measure_type,
+        )
+
+        return super()._create(
+            index_id=index_id,
+            display_name=display_name,
+            contents_delta_uri=contents_delta_uri,
+            config=config,
+            description=description,
+            labels=labels,
+            project=project,
+            location=location,
+            credentials=credentials,
+            request_metadata=request_metadata,
+            sync=sync,
+        )
+
+    def create_brute_force_index(
+        cls,
+        index_id: str,
+        display_name: str,
+        contents_delta_uri: str,
+        dimensions: int,
+        approximate_neighbors_count: int,
+        distance_measure_type: Optional[
+            matching_engine_index_config.DistanceMeasureType
+        ] = None,
+        description: Optional[str] = None,
+        labels: Optional[Dict[str, str]] = None,
+        project: Optional[str] = None,
+        location: Optional[str] = None,
+        credentials: Optional[auth_credentials.Credentials] = None,
+        request_metadata: Optional[Sequence[Tuple[str, str]]] = (),
+        sync: bool = True,
+    ) -> "MatchingEngineIndex":
+        algorithm_config = matching_engine_index_config.BruteForceConfig()
+
+        config = matching_engine_index_config.MatchingEngineIndexConfig(
+            dimensions=dimensions,
+            algorithm_config=algorithm_config,
+            approximate_neighbors_count=approximate_neighbors_count,
+            distance_measure_type=distance_measure_type,
+        )
+
+        return super()._create(
+            index_id=index_id,
+            display_name=display_name,
+            contents_delta_uri=contents_delta_uri,
+            config=config,
+            description=description,
+            labels=labels,
+            project=project,
+            location=location,
+            credentials=credentials,
+            request_metadata=request_metadata,
+            sync=sync,
+        )

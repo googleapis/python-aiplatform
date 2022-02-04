@@ -15,7 +15,7 @@
 # limitations under the License.
 #
 
-from typing import Dict, Optional, Sequence, Tuple
+from typing import Dict, List, Optional, Sequence, Tuple
 
 from google.auth import credentials as auth_credentials
 from google.protobuf import field_mask_pb2
@@ -23,6 +23,7 @@ from google.protobuf import field_mask_pb2
 from google.cloud.aiplatform import base
 from google.cloud.aiplatform.compat.types import (
     matching_engine_index_endpoint as gca_matching_engine_index_endpoint,
+    machine_resources as gca_machine_resources_compat,
 )
 from google.cloud.aiplatform import initializer
 from google.cloud.aiplatform import utils
@@ -91,10 +92,12 @@ class MatchingEngineIndexEndpoint(base.VertexAiResourceNounWithFutureManager):
     @base.optional_sync()
     def create(
         cls,
-        index_id: str,
+        index_endpoint_id: str,
         display_name: str,
         description: Optional[str] = None,
         labels: Optional[Dict[str, str]] = None,
+        network: Optional[str] = None,
+        enable_private_service_connect: Optional[bool] = None,
         project: Optional[str] = None,
         location: Optional[str] = None,
         credentials: Optional[auth_credentials.Credentials] = None,
@@ -106,11 +109,11 @@ class MatchingEngineIndexEndpoint(base.VertexAiResourceNounWithFutureManager):
         Example Usage:
 
             my_index_endpoint = aiplatform.IndexEndpoint.create(
-                index_id='my_index_id',
+                index_endpoint_id='my_index_endpoint_id',
             )
 
         Args:
-            index_id (str):
+            index_endpoint_id (str):
                 Required. The ID to use for this index endpoint, which will
                 become the final component of the index endpoint's resource
                 name.
@@ -165,7 +168,11 @@ class MatchingEngineIndexEndpoint(base.VertexAiResourceNounWithFutureManager):
 
         """
         gapic_index_endpoint = gca_matching_engine_index_endpoint.IndexEndpoint(
-            name=index_id, display_name=display_name, description=description,
+            name=index_endpoint_id,
+            display_name=display_name,
+            description=description,
+            network=network,
+            enable_private_service_connect=enable_private_service_connect,
         )
 
         if labels:
@@ -259,6 +266,7 @@ class MatchingEngineIndexEndpoint(base.VertexAiResourceNounWithFutureManager):
             index_endpoint=gapic_index_endpoint,
             update_mask=update_mask,
             metadata=request_metadata,
+            labels=labels,
         )
 
         _LOGGER.log_action_started_against_resource_with_lro(
@@ -271,12 +279,69 @@ class MatchingEngineIndexEndpoint(base.VertexAiResourceNounWithFutureManager):
 
         return self
 
+    @staticmethod
+    def _build_deployed_index(
+        index: matching_engine.MatchingEngineIndex,
+        deployed_index_id: str,
+        display_name: Optional[str] = None,
+        machine_type: Optional[str] = None,
+        min_replica_count: int = 1,
+        max_replica_count: int = 1,
+        enable_access_logging: Optional[bool] = None,
+        reserved_ip_ranges: Optional[Sequence[str]] = None,
+        deployment_group: Optional[str] = None,
+        auth_config_audiences: Optional[Sequence[str]] = None,
+        auth_config_allowed_issuers: Optional[Sequence[str]] = None,
+    ) -> gca_matching_engine_index_endpoint.DeployedIndex:
+        deployed_index = gca_matching_engine_index_endpoint.DeployedIndex(
+            id=id,
+            index=index.resource_name,
+            display_name=display_name,
+            enable_access_logging=enable_access_logging,
+            reserved_ip_ranges=reserved_ip_ranges,
+            deployment_group=deployment_group,
+        )
+
+        if auth_config_audiences and auth_config_allowed_issuers:
+            deployed_index.deployed_index_auth_config = gca_matching_engine_index_endpoint.DeployedIndexAuthConfig(
+                gca_matching_engine_index_endpoint.DeployedIndexAuthConfig.AuthProvider(
+                    audiences=auth_config_audiences,
+                    allowed_issuers=auth_config_allowed_issuers,
+                )
+            )
+
+        if machine_type:
+            machine_spec = gca_machine_resources_compat.MachineSpec(
+                machine_type=machine_type
+            )
+
+            deployed_index.dedicated_resources = gca_machine_resources_compat.DedicatedResources(
+                machine_spec=machine_spec,
+                min_replica_count=min_replica_count,
+                max_replica_count=max_replica_count,
+            )
+
+        else:
+            deployed_index.automatic_resources = gca_machine_resources_compat.AutomaticResources(
+                min_replica_count=min_replica_count,
+                max_replica_count=max_replica_count,
+            )
+        return deployed_index
+
     def deploy_index(
         self,
-        id: str,
         index: matching_engine.MatchingEngineIndex,
+        deployed_index_id: str,
         display_name: Optional[str] = None,
-        request_metadata: Optional[Sequence[Tuple[str, str]]] = (),
+        machine_type: Optional[str] = None,
+        min_replica_count: int = 1,
+        max_replica_count: int = 1,
+        enable_access_logging: Optional[bool] = None,
+        reserved_ip_ranges: Optional[Sequence[str]] = None,
+        deployment_group: Optional[str] = None,
+        auth_config_audiences: Optional[Sequence[str]] = None,
+        auth_config_allowed_issuers: Optional[Sequence[str]] = None,
+        request_metadata: Optional[Sequence[Tuple[str, str]]] = None,
     ) -> "MatchingEngineIndexEndpoint":
         """Deploys an existing index resource to this endpoint resource.
 
@@ -295,6 +360,36 @@ class MatchingEngineIndexEndpoint(base.VertexAiResourceNounWithFutureManager):
             display_name (str):
                 The display name of the DeployedIndex. If not provided upon
                 creation, the Index's display_name is used.
+            deployment_group (str):
+                Optional. The deployment group can be no longer than 64
+                characters (eg: 'test', 'prod'). If not set, we will use the
+                'default' deployment group.
+
+                Creating ``deployment_groups`` with ``reserved_ip_ranges``
+                is a recommended practice when the peered network has
+                multiple peering ranges. This creates your deployments from
+                predictable IP spaces for easier traffic administration.
+                Also, one deployment_group (except 'default') can only be
+                used with the same reserved_ip_ranges which means if the
+                deployment_group has been used with reserved_ip_ranges: [a,
+                b, c], using it with [a, b] or [d, e] is disallowed.
+
+                Note: we only support up to 5 deployment groups(not
+                including 'default').
+            auth_config_audiences (Sequence[str]):
+                The list of JWT
+                `audiences <https://tools.ietf.org/html/draft-ietf-oauth-json-web-token-32#section-4.1.3>`__.
+                that are allowed to access. A JWT containing any of these
+                audiences will be accepted.
+
+                auth_config_audiences and auth_config_allowed_issuers must be passed together.
+            auth_config_allowed_issuers (Sequence[str]):
+                A list of allowed JWT issuers. Each entry must be a valid
+                Google service account, in the following format:
+
+                ``service-account-name@project-id.iam.gserviceaccount.com``
+
+                auth_config_audiences and auth_config_allowed_issuers must be passed together.
             request_metadata (Sequence[Tuple[str, str]]):
                 Optional. Strings which should be sent along with the request as metadata.
         Returns:
@@ -305,11 +400,19 @@ class MatchingEngineIndexEndpoint(base.VertexAiResourceNounWithFutureManager):
             "Deploying index", "index_endpoint", self,
         )
 
-        deployed_index = {
-            "id": id,
-            "index": index.resource_name,
-            "display_name": display_name,
-        }
+        deployed_index = self._build_deployed_index(
+            index=index,
+            deployed_index_id=deployed_index_id,
+            display_name=display_name,
+            machine_type=machine_type,
+            min_replica_count=min_replica_count,
+            max_replica_count=max_replica_count,
+            enable_access_logging=enable_access_logging,
+            reserved_ip_ranges=reserved_ip_ranges,
+            deployment_group=deployment_group,
+            auth_config_audiences=auth_config_audiences,
+            auth_config_allowed_issuers=auth_config_allowed_issuers,
+        )
 
         deploy_lro = self.api_client.deploy_index(
             index_endpoint=self.resource_name,
@@ -374,25 +477,33 @@ class MatchingEngineIndexEndpoint(base.VertexAiResourceNounWithFutureManager):
 
     def mutate_deployed_index(
         self,
-        id: str,
         index: matching_engine.MatchingEngineIndex,
+        deployed_index_id: str,
         display_name: Optional[str] = None,
+        machine_type: Optional[str] = None,
+        min_replica_count: int = 1,
+        max_replica_count: int = 1,
+        enable_access_logging: Optional[bool] = None,
+        reserved_ip_ranges: Optional[Sequence[str]] = None,
+        deployment_group: Optional[str] = None,
+        auth_config_audiences: Optional[Sequence[str]] = None,
+        auth_config_allowed_issuers: Optional[Sequence[str]] = None,
         request_metadata: Optional[Sequence[Tuple[str, str]]] = (),
     ):
         """Updates an existing deployed index under this endpoint resource.
 
         Args:
-            id (str):
+            index (MatchingEngineIndex):
+                Required. The Index this is the
+                deployment of. We may refer to this Index as the
+                DeployedIndex's "original" Index.
+            deployed_index_id (str):
                 Required. The user specified ID of the
                 DeployedIndex. The ID can be up to 128
                 characters long and must start with a letter and
                 only contain letters, numbers, and underscores.
                 The ID must be unique within the project it is
                 created in.
-            index (MatchingEngineIndex):
-                Required. The Index this is the
-                deployment of. We may refer to this Index as the
-                DeployedIndex's "original" Index.
             display_name (str):
                 The display name of the DeployedIndex. If not provided upon
                 creation, the Index's display_name is used.
@@ -404,11 +515,19 @@ class MatchingEngineIndexEndpoint(base.VertexAiResourceNounWithFutureManager):
             "Mutating index", "index_endpoint", self,
         )
 
-        deployed_index = {
-            "id": id,
-            "index": index.resource_name,
-            "display_name": display_name,
-        }
+        deployed_index = self._build_deployed_index(
+            index=index,
+            deployed_index_id=deployed_index_id,
+            display_name=display_name,
+            machine_type=machine_type,
+            min_replica_count=min_replica_count,
+            max_replica_count=max_replica_count,
+            enable_access_logging=enable_access_logging,
+            reserved_ip_ranges=reserved_ip_ranges,
+            deployment_group=deployment_group,
+            auth_config_audiences=auth_config_audiences,
+            auth_config_allowed_issuers=auth_config_allowed_issuers,
+        )
 
         deploy_lro = self.api_client.mutate_deployed_index(
             index_endpoint=self.resource_name,
@@ -425,3 +544,14 @@ class MatchingEngineIndexEndpoint(base.VertexAiResourceNounWithFutureManager):
         _LOGGER.log_action_completed_against_resource("index_endpoint", "Mutated", self)
 
         return self
+
+    def match(
+        self, embeddings: List[List[float]], deployed_index_id: str
+    ) -> "MatchResponse":
+        pass
+
+    @property
+    def deployed_indexes(
+        self,
+    ) -> List[gca_matching_engine_index_endpoint.DeployedIndex]:
+        return self._gca_resource.deployed_indexes

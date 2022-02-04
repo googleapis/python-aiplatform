@@ -227,7 +227,7 @@ class TestMatchingEngineIndex:
         aiplatform.init(project=_TEST_PROJECT)
 
         my_index_endpoint = aiplatform.MatchingEngineIndexEndpoint.create(
-            index_id=_TEST_INDEX_ENDPOINT_ID,
+            index_endpoint_id=_TEST_INDEX_ENDPOINT_ID,
             display_name=_TEST_INDEX_ENDPOINT_DISPLAY_NAME,
             description=_TEST_INDEX_ENDPOINT_DESCRIPTION,
             labels=_TEST_LABELS,
