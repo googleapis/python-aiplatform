@@ -677,7 +677,7 @@ class VertexAiResourceNoun(metaclass=abc.ABCMeta):
     def _generate_display_name(cls, prefix: Optional[str] = None) -> str:
         """Returns a display name containing class name and time string."""
         if not prefix:
-            prefix = cls.name
+            prefix = cls.__name__
         return prefix + " " + datetime.datetime.now().isoformat(sep=" ")
 
 
