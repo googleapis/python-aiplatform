@@ -32,7 +32,7 @@ def execute_command(cmd: List[str], input_str: Optional[str] = None) -> int:
     Args:
         cmd (List[str]):
             Required. The strings to send in as the command.
-        input_str (Optional[str]):
+        input_str (str):
             Optional. If supplied, it will be passed as stdin to the supplied command.
             If None, stdin will get closed immediately.
 

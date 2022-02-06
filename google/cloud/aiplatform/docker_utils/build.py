@@ -43,7 +43,7 @@ def _generate_copy_command(from_path: str, to_path: str, comment: Optional[str] 
             Required. The path of the source in host.
         to_path (str):
             Required. The path to the destination in the container.
-        comment (Optional[str]):
+        comment (str):
             Optional. A comment explaining the copy operation.
     """
     cmd = "COPY {}\n".format(json.dumps([from_path, to_path]))
@@ -73,15 +73,15 @@ def _prepare_dependency_entries(
     """Returns the Dockerfile entries required to install dependencies.
 
     Args:
-        setup_path (Optional[str]):
+        setup_path (str):
             Optional. The path that points to a setup.py.
-        requirements_path (Optional[str]):
+        requirements_path (str):
             Optional. The path that points to a requirements.txt file.
-        extra_packages (Optional[List[str]]):
+        extra_packages (List[str]):
             Optional. The list of user custom dependency packages to install.
-        extra_requirements (Optional[List[str]]):
+        extra_requirements (List[str]):
             Optional. The list of required dependencies to be installed from remote resource archives.
-        extra_dirs (Optional[List[str]]):
+        extra_dirs (List[str]):
             Optional. The directories other than the work_dir required.
         pip_command (str):
             Required. The pip command used for install packages.
@@ -194,7 +194,7 @@ def _prepare_exposed_ports(exposed_ports: Optional[List[int]] = None):
     """Returns the Dockerfile entries required to expose ports in containers.
 
     Args:
-        exposed_ports (Optional[List[int]]):
+        exposed_ports (List[int]):
             Optional. The exposed ports that the container listens on at runtime.
     """
     ret = ""
@@ -238,17 +238,17 @@ def make_dockerfile(
             Required. The working directory in the container.
         container_home (str):
             Required. The $HOME directory in the container.
-        requirements_path (Optional[str]):
+        requirements_path (str):
             Optional. The path to a local requirements.txt file.
-        setup_path (Optional[str]):
+        setup_path (str):
             Optional. The path to a local setup.py file.
-        extra_requirements (Optional[List[str]]):
+        extra_requirements (List[str]):
             Optional. The list of required dependencies to install from PyPI.
-        extra_packages (Optional[List[str]]):
+        extra_packages (List[str]):
             Optional. The list of user custom dependency packages to install.
-        extra_dirs: (Optional[List[str]]):
+        extra_dirs: (List[str]):
             Optional. The directories other than the work_dir required to be in the container.
-        exposed_ports (Optional[List[int]]):
+        exposed_ports (List[int]):
             Optional. The exposed ports that the container listens on at runtime.
         pip_command (str):
             Required. The pip command used for install packages.
@@ -327,23 +327,23 @@ def build_image(
             directory.
         output_image_name (str):
             Required. The name of the built image.
-        python_module (Optional[str]):
+        python_module (str):
             Optional. The executable main script in form of a python module, if applicable.
-        requirements (Optional[List[str]]):
+        requirements (List[str]):
             Optional. The list of required dependencies to install from PyPI.
-        requirements_path (Optional[str]):
+        requirements_path (str):
             Optional. The path to a local file including required dependencies to install from PyPI.
-        setup_path (Optional[str]):
+        setup_path (str):
             Optional. The path to a local setup.py used for installing packages.
-        extra_packages (Optional[List[str]]):
+        extra_packages (List[str]):
             Optional. The list of user custom dependency packages to install.
-        container_workdir (Optional[str]):
+        container_workdir (str):
             Optional. The working directory in the container.
-        container_home (Optional[str]):
+        container_home (str):
             Optional. The $HOME directory in the container.
-        extra_dirs (Optional[List[str]]):
+        extra_dirs (List[str]):
             Optional. The directories other than the work_dir required.
-        exposed_ports (Optional[List[int]]):
+        exposed_ports (List[int]):
             Optional. The exposed ports that the container listens on at runtime.
         pip_command (str):
             Required. The pip command used for installing packages.

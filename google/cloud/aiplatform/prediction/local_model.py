@@ -71,10 +71,10 @@ class LocalModel:
             handler (Type[Handler]):
                 Required. The handler to handle requests in the model server.
             base_image (str):
-                The base image used to build the custom images.
+                Required. The base image used to build the custom images.
             requirements_path (str):
-                The path to the local requirements.txt file. This file will be copied to the
-                image and the needed packages listed in it will be installed.
+                Optional. The path to the local requirements.txt file. This file will be copied
+                to the image and the needed packages listed in it will be installed.
 
         Returns:
             local model: Instantiated representation of the local model.
