@@ -37,7 +37,7 @@ class Serializer:
         Args:
             data (Any):
                 Required. The request data sent to the application.
-            content_type (Optional[str]):
+            content_type (str):
                 Optional. The specified content type of the request.
         """
         raise NotImplementedError(
@@ -51,7 +51,7 @@ class Serializer:
         Args:
             prediction (Any):
                 Required. The generated prediction to be sent back to clients.
-            accept (Optional[str]):
+            accept (str):
                 Optional. The specified content type of the response.
         """
         pass
@@ -68,7 +68,7 @@ class DefaultSerializer(Serializer):
         Args:
             data (Any):
                 Required. The request data sent to the application.
-            content_type (Optional[str]):
+            content_type (str):
                 Optional. The specified content type of the request.
         """
         if content_type == "application/json":
@@ -86,7 +86,7 @@ class DefaultSerializer(Serializer):
         Args:
             prediction (Any):
                 Required. The generated prediction to be sent back to clients.
-            accept (Optional[str]):
+            accept (str):
                 Optional. The specified content type of the response.
         """
         if accept == "application/json":
