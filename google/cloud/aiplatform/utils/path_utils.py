@@ -33,7 +33,9 @@ def _is_relative_to(path: str, to_path: str) -> bool:
         Whether the path is relative to another path.
     """
     try:
-        Path(path).resolve().relative_to(Path(to_path).resolve())
+        Path(path).expanduser().resolve().relative_to(
+            Path(to_path).expanduser().resolve()
+        )
         return True
     except ValueError:
         return False
