@@ -67,27 +67,27 @@ class LocalModel:
                 Optional. An HTTP path to send health check requests to the container, and which
                 must be supported by it. If not specified a standard HTTP path will be
                 used by Vertex AI.
-            serving_container_command: Optional[Sequence[str]]=None,
-                The command with which the container is run. Not executed within a
+            serving_container_command (Sequence[str]):
+                Optional. The command with which the container is run. Not executed within a
                 shell. The Docker image's ENTRYPOINT is used if this is not provided.
                 Variable references $(VAR_NAME) are expanded using the container's
                 environment. If a variable cannot be resolved, the reference in the
                 input string will be unchanged. The $(VAR_NAME) syntax can be escaped
                 with a double $$, ie: $$(VAR_NAME). Escaped references will never be
                 expanded, regardless of whether the variable exists or not.
-            serving_container_args: Optional[Sequence[str]]=None,
-                The arguments to the command. The Docker image's CMD is used if this is
+            serving_container_args: (Sequence[str]):
+                Optional. The arguments to the command. The Docker image's CMD is used if this is
                 not provided. Variable references $(VAR_NAME) are expanded using the
                 container's environment. If a variable cannot be resolved, the reference
                 in the input string will be unchanged. The $(VAR_NAME) syntax can be
                 escaped with a double $$, ie: $$(VAR_NAME). Escaped references will
                 never be expanded, regardless of whether the variable exists or not.
-            serving_container_environment_variables: Optional[Dict[str, str]]=None,
-                The environment variables that are to be present in the container.
+            serving_container_environment_variables (Dict[str, str]):
+                Optional. The environment variables that are to be present in the container.
                 Should be a dictionary where keys are environment variable names
                 and values are environment variable values for those names.
-            serving_container_ports: Optional[Sequence[int]]=None,
-                Declaration of ports that are exposed by the container. This field is
+            serving_container_ports (Sequence[int]):
+                Optional. Declaration of ports that are exposed by the container. This field is
                 primarily informational, it gives Vertex AI information about the
                 network connections the container uses. Listing or not a port here has
                 no impact on whether the port is actually exposed, any port listening on
@@ -157,8 +157,7 @@ class LocalModel:
                 characters long and can be consist of any UTF-8 characters.
             artifact_uri (str):
                 Optional. The path to the directory containing the Model artifact and
-                any of its supporting files. Leave blank for custom container prediction.
-                Not present for AutoML Models.
+                any of its supporting files. Not present for AutoML Models.
             description (str):
                 The description of the model.
             instance_schema_uri (str):
@@ -215,14 +214,14 @@ class LocalModel:
             explanation_parameters (explain.ExplanationParameters):
                 Optional. Parameters to configure explaining for Model's predictions.
                 For more details, see `Ref docs <http://tinyurl.com/1an4zake>`
-            project: Optional[str]=None,
-                Project to upload this model to. Overrides project set in
+            project (str):
+                Optional. Project to upload this model to. Overrides project set in
                 aiplatform.init.
-            location: Optional[str]=None,
-                Location to upload this model to. Overrides location set in
+            location (str):
+                Optional. Location to upload this model to. Overrides location set in
                 aiplatform.init.
-            credentials: Optional[auth_credentials.Credentials]=None,
-                Custom credentials to use to upload this model. Overrides credentials
+            credentials (auth_credentials.Credentials):
+                Optional. Custom credentials to use to upload this model. Overrides credentials
                 set in aiplatform.init.
             labels (Dict[str, str]):
                 Optional. The labels with user-defined metadata to
@@ -234,7 +233,7 @@ class LocalModel:
                 are allowed.
                 See https://goo.gl/xmQnxf for more information
                 and examples of labels.
-            encryption_spec_key_name (Optional[str]):
+            encryption_spec_key_name (str):
                 Optional. The Cloud KMS resource identifier of the customer
                 managed encryption key used to protect the model. Has the
                 form:
