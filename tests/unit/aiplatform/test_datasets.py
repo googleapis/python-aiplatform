@@ -1109,8 +1109,7 @@ class TestTabularDataset:
     def test_create_dataset_with_default_display_name(self, create_dataset_mock, sync):
 
         my_dataset = datasets.TabularDataset.create(
-            bq_source=_TEST_SOURCE_URI_BQ,
-            sync=sync,
+            bq_source=_TEST_SOURCE_URI_BQ, sync=sync,
         )
 
         if not sync:
