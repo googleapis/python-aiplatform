@@ -136,3 +136,15 @@ _SERVING_CONTAINER_URI_MAP = d
 _SERVING_CONTAINER_DOCUMENTATION_URL = (
     "https://cloud.google.com/vertex-ai/docs/predictions/pre-built-containers"
 )
+
+# Variables set by Vertex AI. For more details, please refer to
+# https://cloud.google.com/vertex-ai/docs/predictions/custom-container-requirements#aip-variables
+DEFAULT_AIP_HTTP_PORT = 8080
+AIP_HTTP_PORT = "AIP_HTTP_PORT"
+AIP_HEALTH_ROUTE = "AIP_HEALTH_ROUTE"
+AIP_PREDICT_ROUTE = "AIP_PREDICT_ROUTE"
+AIP_STORAGE_URI = "AIP_STORAGE_URI"
+
+# Default values for Prediction local experience.
+DEFAULT_LOCAL_PREDICT_ROUTE = "/predict"
+DEFAULT_LOCAL_HEALTH_ROUTE = "/health"

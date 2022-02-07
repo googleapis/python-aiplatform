@@ -29,6 +29,7 @@ from google.cloud import aiplatform
 from google.cloud.aiplatform import compat
 from google.cloud.aiplatform import utils
 from google.cloud.aiplatform.utils import pipeline_utils
+from google.cloud.aiplatform.utils import prediction_utils
 from google.cloud.aiplatform.utils import tensorboard_utils
 
 from google.cloud.aiplatform_v1beta1.services.model_service import (
@@ -537,3 +538,17 @@ class TestTensorboardUtils:
     def test_get_experiments_compare_url_bad_experiment_name(self):
         with pytest.raises(ValueError, match="Invalid experiment name: foo-bar."):
             tensorboard_utils.get_experiments_compare_url(("foo-bar", "foo-bar1"))
+
+
+class TestPredictionUtils:
+    def test_get_prediction_aip_http_port(self):
+        ports = [1000, 2000, 3000]
+
+        http_port = prediction_utils.get_prediction_aip_http_port(ports)
+
+        assert http_port == ports[0]
+
+    def test_get_prediction_aip_http_port_default(self):
+        http_port = prediction_utils.get_prediction_aip_http_port(None)
+
+        assert http_port == 8080
