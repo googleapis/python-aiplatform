@@ -4081,7 +4081,7 @@ class AutoMLForecastingTrainingJob(_TrainingJob):
             raise RuntimeError("AutoML Forecasting Training has already run.")
             
         if additional_experiments:
-           self._add_additional_experiments(additional_experiments)
+            self._add_additional_experiments(additional_experiments)
 
         return self._run(
             dataset=dataset,
