@@ -96,11 +96,7 @@ _TEST_TFX_PIPELINE_SPEC = {
     "pipelineInfo": {"name": "my-pipeline"},
     "root": {
         "dag": {"tasks": {}},
-        "inputDefinitions": {
-            "parameters": {
-                "string_param": {"parameterType": "STRING"}
-            }
-        },
+        "inputDefinitions": {"parameters": {"string_param": {"type": "STRING"}}},
     },
     "schemaVersion": "2.0.0",
     "sdkVersion": "tfx-1.4.0",
@@ -114,6 +110,10 @@ _TEST_PIPELINE_JOB_LEGACY = {
 _TEST_PIPELINE_JOB = {
     "runtimeConfig": {"parameterValues": _TEST_PIPELINE_PARAMETER_VALUES},
     "pipelineSpec": _TEST_PIPELINE_SPEC,
+}
+_TEST_PIPELINE_JOB_TFX = {
+    "runtimeConfig": {},
+    "pipelineSpec": _TEST_TFX_PIPELINE_SPEC,
 }
 
 _TEST_PIPELINE_GET_METHOD_NAME = "get_fake_pipeline_job"
@@ -251,7 +251,7 @@ class TestPipelineJob:
         initializer.global_pool.shutdown(wait=True)
 
     @pytest.mark.parametrize(
-        "job_spec_json", [_TEST_PIPELINE_SPEC, _TEST_PIPELINE_JOB, _TEST_TFX_PIPELINE_SPEC],
+        "job_spec_json", [_TEST_PIPELINE_SPEC, _TEST_PIPELINE_JOB],
     )
     @pytest.mark.parametrize("sync", [True, False])
     def test_run_call_pipeline_service_create(
@@ -372,6 +372,78 @@ class TestPipelineJob:
                 "pipelineInfo": pipeline_spec["pipelineInfo"],
                 "root": pipeline_spec["root"],
                 "schemaVersion": "2.0.0",
+            },
+            runtime_config=runtime_config,
+            service_account=_TEST_SERVICE_ACCOUNT,
+            network=_TEST_NETWORK,
+        )
+
+        mock_pipeline_service_create.assert_called_once_with(
+            parent=_TEST_PARENT,
+            pipeline_job=expected_gapic_pipeline_job,
+            pipeline_job_id=_TEST_PIPELINE_JOB_ID,
+        )
+
+        mock_pipeline_service_get.assert_called_with(
+            name=_TEST_PIPELINE_JOB_NAME, retry=base._DEFAULT_RETRY
+        )
+
+        assert job._gca_resource == make_pipeline_job(
+            gca_pipeline_state_v1.PipelineState.PIPELINE_STATE_SUCCEEDED
+        )
+
+    @pytest.mark.parametrize(
+        "job_spec_json", [_TEST_TFX_PIPELINE_SPEC, _TEST_PIPELINE_JOB_TFX],
+    )
+    @pytest.mark.parametrize("sync", [True, False])
+    def test_run_call_pipeline_service_create_tfx(
+        self,
+        mock_pipeline_service_create,
+        mock_pipeline_service_get,
+        job_spec_json,
+        mock_load_json,
+        sync,
+    ):
+        aiplatform.init(
+            project=_TEST_PROJECT,
+            staging_bucket=_TEST_GCS_BUCKET_NAME,
+            location=_TEST_LOCATION,
+            credentials=_TEST_CREDENTIALS,
+        )
+
+        job = pipeline_jobs.PipelineJob(
+            display_name=_TEST_PIPELINE_JOB_DISPLAY_NAME,
+            template_path=_TEST_TEMPLATE_PATH,
+            job_id=_TEST_PIPELINE_JOB_ID,
+            parameter_values=_TEST_PIPELINE_PARAMETER_VALUES_LEGACY,
+            enable_caching=True,
+        )
+
+        job.run(
+            service_account=_TEST_SERVICE_ACCOUNT, network=_TEST_NETWORK, sync=sync,
+        )
+
+        if not sync:
+            job.wait()
+
+        expected_runtime_config_dict = {
+            "gcsOutputDirectory": _TEST_GCS_BUCKET_NAME,
+            "parameters": {"string_param": {"stringValue": "hello"}},
+        }
+        runtime_config = gca_pipeline_job_v1.PipelineJob.RuntimeConfig()._pb
+        json_format.ParseDict(expected_runtime_config_dict, runtime_config)
+
+        pipeline_spec = job_spec_json.get("pipelineSpec") or job_spec_json
+
+        # Construct expected request
+        expected_gapic_pipeline_job = gca_pipeline_job_v1.PipelineJob(
+            display_name=_TEST_PIPELINE_JOB_DISPLAY_NAME,
+            pipeline_spec={
+                "components": {},
+                "pipelineInfo": pipeline_spec["pipelineInfo"],
+                "root": pipeline_spec["root"],
+                "schemaVersion": "2.0.0",
+                "sdkVersion": "tfx-1.4.0"
             },
             runtime_config=runtime_config,
             service_account=_TEST_SERVICE_ACCOUNT,
