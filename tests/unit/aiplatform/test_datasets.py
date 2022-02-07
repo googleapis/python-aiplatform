@@ -1116,7 +1116,9 @@ class TestTabularDataset:
             my_dataset.wait()
 
         create_dataset_mock.assert_called_once()
-        create_dataset_mock.call_args[1]["display_name"].startswith("TabularDataset ")
+        create_dataset_mock.call_args[1]["dataset"].display_name.startswith(
+            "TabularDataset "
+        )
 
     @pytest.mark.usefixtures("get_dataset_tabular_bq_mock")
     def test_no_import_data_method(self):
