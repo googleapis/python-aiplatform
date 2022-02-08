@@ -201,13 +201,13 @@ class TestDefaultSerializer:
         assert exception.value.detail == expected_message
 
     def test_serialize_invalid_json(self):
-        expected_message = "Object of type bytes is not JSON serializable"
+        expected_message = "is not JSON serializable"
         data = b"instances"
 
         with pytest.raises(TypeError) as exception:
             DefaultSerializer.serialize(data, accept="application/json")
 
-        assert str(exception.value) == expected_message
+        assert expected_message in str(exception.value)
 
 
 class TestPredictionHandler:
