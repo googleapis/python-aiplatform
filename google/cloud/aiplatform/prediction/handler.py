@@ -27,6 +27,7 @@ except ImportError:
     )
 
 from google.cloud.aiplatform.prediction.predictor import Predictor
+from google.cloud.aiplatform.prediction.serializer import APPLICATOIN_JSON
 from google.cloud.aiplatform.prediction.serializer import DefaultSerializer
 
 
@@ -95,12 +96,12 @@ class PredictionHandler(Handler):
         """
         request_body = await request.body()
         prediction_input = DefaultSerializer.deserialize(
-            request_body, request.headers.get("content-type")
+            request_body, request.headers.get("content-type", APPLICATOIN_JSON)
         )
         prediction_results = self._predictor.postprocess(
             self._predictor.predict(self._predictor.preprocess(prediction_input))
         )
         data = DefaultSerializer.serialize(
-            prediction_results, request.headers.get("accept")
+            prediction_results, request.headers.get("accept", APPLICATOIN_JSON)
         )
         return Response(content=data, media_type=request.headers.get("accept"))

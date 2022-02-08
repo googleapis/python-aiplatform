@@ -172,13 +172,14 @@ class TestDefaultSerializer:
         assert exception.value.detail == expected_message
 
     def test_deserialize_invalid_json(self):
-        expected_message = "Expecting value: line 1 column 1 (char 0)"
         data = b"instances"
+        expected_message = "JSON deserialization failed for the request data"
 
-        with pytest.raises(json.decoder.JSONDecodeError) as exception:
+        with pytest.raises(HTTPException) as exception:
             DefaultSerializer.deserialize(data, content_type="application/json")
 
-        assert str(exception.value) == expected_message
+        assert exception.value.status_code == 400
+        assert expected_message in exception.value.detail
 
     def test_serialize_application_json(self):
         prediction = {}
@@ -201,13 +202,14 @@ class TestDefaultSerializer:
         assert exception.value.detail == expected_message
 
     def test_serialize_invalid_json(self):
-        expected_message = "is not JSON serializable"
         data = b"instances"
+        expected_message = "JSON serialization failed for the prediction result"
 
-        with pytest.raises(TypeError) as exception:
+        with pytest.raises(HTTPException) as exception:
             DefaultSerializer.serialize(data, accept="application/json")
 
-        assert expected_message in str(exception.value)
+        assert exception.value.status_code == 400
+        assert expected_message in exception.value.detail
 
 
 class TestPredictionHandler:

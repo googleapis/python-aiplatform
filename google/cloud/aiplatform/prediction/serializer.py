@@ -27,6 +27,9 @@ except ImportError:
     )
 
 
+APPLICATOIN_JSON = "application/json"
+
+
 class Serializer:
     """Interface to implement serialization and deserialization for prediction."""
 
@@ -71,8 +74,19 @@ class DefaultSerializer(Serializer):
             content_type (str):
                 Optional. The specified content type of the request.
         """
-        if content_type == "application/json":
-            return json.loads(data)
+        if content_type == APPLICATOIN_JSON:
+            try:
+                return json.loads(data)
+            except json.JSONDecodeError:
+                raise HTTPException(
+                    status_code=400,
+                    detail=(
+                        f"JSON deserialization failed for the request data: {data}.\n"
+                        'To specify a different type, please set the "content-type" header '
+                        "in the request.\nCurrently supported content-type in DefaultSerializer: "
+                        f'"{APPLICATOIN_JSON}".'
+                    ),
+                )
         else:
             raise HTTPException(
                 status_code=400,
@@ -89,8 +103,19 @@ class DefaultSerializer(Serializer):
             accept (str):
                 Optional. The specified content type of the response.
         """
-        if accept == "application/json":
-            return json.dumps(prediction)
+        if accept == APPLICATOIN_JSON:
+            try:
+                return json.dumps(prediction)
+            except TypeError:
+                raise HTTPException(
+                    status_code=400,
+                    detail=(
+                        f"JSON serialization failed for the prediction result: {prediction}.\n"
+                        'To specify a different type, please set the "accept" header '
+                        "in the request.\nCurrently supported accept in DefaultSerializer: "
+                        f'"{APPLICATOIN_JSON}".'
+                    ),
+                )
         else:
             raise HTTPException(
                 status_code=400,
