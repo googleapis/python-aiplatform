@@ -443,7 +443,7 @@ class TestPipelineJob:
                 "pipelineInfo": pipeline_spec["pipelineInfo"],
                 "root": pipeline_spec["root"],
                 "schemaVersion": "2.0.0",
-                "sdkVersion": "tfx-1.4.0"
+                "sdkVersion": "tfx-1.4.0",
             },
             runtime_config=runtime_config,
             service_account=_TEST_SERVICE_ACCOUNT,
