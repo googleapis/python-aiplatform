@@ -45,6 +45,7 @@ def docker_container_mock():
 class TestRun:
     IMAGE_URI = "test_image:latest"
 
+    @mock.patch.dict(os.environ, {}, clear=True)
     def test_run_prediction_container(self, docker_client_mock):
         run.run_prediction_container(self.IMAGE_URI)
 
@@ -104,6 +105,33 @@ class TestRun:
             command=serving_container_command + serving_container_args,
             ports={serving_container_ports[0]: host_port},
             environment=environment,
+            volumes=volumes,
+            detach=True,
+        )
+
+    def test_run_prediction_container_credential_from_adc(
+        self, tmp_path, docker_client_mock
+    ):
+        credential_path = tmp_path / "key.json"
+        credential_path.write_text("")
+        volumes = [f"{credential_path}:{run._DEFAULT_CONTAINER_CRED_KEY_PATH}"]
+
+        with mock.patch.dict(
+            os.environ, {run._ADC_ENVIRONMENT_VARIABLE: credential_path.as_posix()}
+        ):
+            run.run_prediction_container(self.IMAGE_URI)
+
+        docker_client_mock.containers.run.assert_called_once_with(
+            self.IMAGE_URI,
+            command=None,
+            ports={prediction.DEFAULT_AIP_HTTP_PORT: None},
+            environment={
+                prediction.AIP_HTTP_PORT: prediction.DEFAULT_AIP_HTTP_PORT,
+                prediction.AIP_HEALTH_ROUTE: None,
+                prediction.AIP_PREDICT_ROUTE: None,
+                prediction.AIP_STORAGE_URI: None,
+                run._ADC_ENVIRONMENT_VARIABLE: run._DEFAULT_CONTAINER_CRED_KEY_PATH,
+            },
             volumes=volumes,
             detach=True,
         )
