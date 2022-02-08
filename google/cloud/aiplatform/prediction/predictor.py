@@ -15,10 +15,10 @@
 # limitations under the License.
 #
 
-from typing import Any, Protocol
+from typing import Any
 
 
-class Predictor(Protocol):
+class Predictor:
     """Interface for Predictor class that users would be implementing."""
 
     def __init__(self):
