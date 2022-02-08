@@ -162,7 +162,10 @@ class TestDefaultSerializer:
 
     def test_deserialize_unsupported_content_type_throws_exception(self):
         content_type = "unsupported_type"
-        expected_message = f"Unsupported content type of the request: {content_type}."
+        expected_message = (
+            f"Unsupported content type of the request: {content_type}.\n"
+            f'Currently supported content-type in DefaultSerializer: "application/json".'
+        )
         data = b'{"instances": [1, 2, 3]}'
 
         with pytest.raises(HTTPException) as exception:
@@ -192,7 +195,10 @@ class TestDefaultSerializer:
 
     def test_serialize_unsupported_accept_throws_exception(self):
         accept = "unsupported_type"
-        expected_message = f"Unsupported content type of the response: {accept}."
+        expected_message = (
+            f"Unsupported accept of the response: {accept}.\n"
+            f'Currently supported accept in DefaultSerializer: "application/json".'
+        )
         prediction = {}
 
         with pytest.raises(HTTPException) as exception:

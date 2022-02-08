@@ -90,7 +90,10 @@ class DefaultSerializer(Serializer):
         else:
             raise HTTPException(
                 status_code=400,
-                detail=("Unsupported content type of the request: %s." % content_type),
+                detail=(
+                    f"Unsupported content type of the request: {content_type}.\n"
+                    f'Currently supported content-type in DefaultSerializer: "{APPLICATOIN_JSON}".'
+                ),
             )
 
     @staticmethod
@@ -119,5 +122,8 @@ class DefaultSerializer(Serializer):
         else:
             raise HTTPException(
                 status_code=400,
-                detail=("Unsupported content type of the response: %s." % accept),
+                detail=(
+                    f"Unsupported accept of the response: {accept}.\n"
+                    f'Currently supported accept in DefaultSerializer: "{APPLICATOIN_JSON}".'
+                ),
             )
