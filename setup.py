@@ -44,6 +44,8 @@ profiler_extra_require = [
 ]
 prediction_extra_require = [
     "docker >= 5.0.3",
+    "fastapi >= 0.71.0",
+    "uvicorn >= 0.16.0",
 ]
 
 full_extra_require = list(
@@ -58,7 +60,7 @@ full_extra_require = list(
 testing_extra_require = (
     full_extra_require
     + profiler_extra_require
-    + ["grpcio-testing", "pytest-xdist", "ipython"]
+    + ["grpcio-testing", "pytest-asyncio", "pytest-xdist", "ipython"]
 )
 
 

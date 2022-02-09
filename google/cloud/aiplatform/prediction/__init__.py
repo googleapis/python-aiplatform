@@ -15,10 +15,26 @@
 # limitations under the License.
 #
 
+from google.cloud.aiplatform.prediction.handler import (
+    Handler,
+    PredictionHandler,
+)
 from google.cloud.aiplatform.prediction.local_endpoint import LocalEndpoint
 from google.cloud.aiplatform.prediction.local_model import LocalModel
+from google.cloud.aiplatform.prediction.model_server import ModelServer
+from google.cloud.aiplatform.prediction.predictor import Predictor
+from google.cloud.aiplatform.prediction.serializer import (
+    DefaultSerializer,
+    Serializer,
+)
 
 __all__ = (
+    "DefaultSerializer",
+    "Handler",
     "LocalEndpoint",
     "LocalModel",
+    "ModelServer",
+    "PredictionHandler",
+    "Predictor",
+    "Serializer",
 )
