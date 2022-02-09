@@ -27,7 +27,7 @@ except ImportError:
     )
 
 
-APPLICATOIN_JSON = "application/json"
+APPLICATION_JSON = "application/json"
 
 
 class Serializer:
@@ -74,7 +74,7 @@ class DefaultSerializer(Serializer):
             content_type (str):
                 Optional. The specified content type of the request.
         """
-        if content_type == APPLICATOIN_JSON:
+        if content_type == APPLICATION_JSON:
             try:
                 return json.loads(data)
             except json.JSONDecodeError:
@@ -84,7 +84,7 @@ class DefaultSerializer(Serializer):
                         f"JSON deserialization failed for the request data: {data}.\n"
                         'To specify a different type, please set the "content-type" header '
                         "in the request.\nCurrently supported content-type in DefaultSerializer: "
-                        f'"{APPLICATOIN_JSON}".'
+                        f'"{APPLICATION_JSON}".'
                     ),
                 )
         else:
@@ -92,7 +92,7 @@ class DefaultSerializer(Serializer):
                 status_code=400,
                 detail=(
                     f"Unsupported content type of the request: {content_type}.\n"
-                    f'Currently supported content-type in DefaultSerializer: "{APPLICATOIN_JSON}".'
+                    f'Currently supported content-type in DefaultSerializer: "{APPLICATION_JSON}".'
                 ),
             )
 
@@ -106,7 +106,7 @@ class DefaultSerializer(Serializer):
             accept (str):
                 Optional. The specified content type of the response.
         """
-        if accept == APPLICATOIN_JSON:
+        if accept == APPLICATION_JSON:
             try:
                 return json.dumps(prediction)
             except TypeError:
@@ -116,7 +116,7 @@ class DefaultSerializer(Serializer):
                         f"JSON serialization failed for the prediction result: {prediction}.\n"
                         'To specify a different type, please set the "accept" header '
                         "in the request.\nCurrently supported accept in DefaultSerializer: "
-                        f'"{APPLICATOIN_JSON}".'
+                        f'"{APPLICATION_JSON}".'
                     ),
                 )
         else:
@@ -124,6 +124,6 @@ class DefaultSerializer(Serializer):
                 status_code=400,
                 detail=(
                     f"Unsupported accept of the response: {accept}.\n"
-                    f'Currently supported accept in DefaultSerializer: "{APPLICATOIN_JSON}".'
+                    f'Currently supported accept in DefaultSerializer: "{APPLICATION_JSON}".'
                 ),
             )

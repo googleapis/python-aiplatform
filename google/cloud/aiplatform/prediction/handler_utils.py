@@ -62,8 +62,6 @@ def get_accept_from_headers(
     if headers is not None:
         for key, value in headers.items():
             if ACCEPT_HEADER_REGEX.match(key):
-                if value == ANY:
-                    return DEFAULT_ACCEPT
-                return value
+                return value if value != ANY else DEFAULT_ACCEPT
 
     return DEFAULT_ACCEPT
