@@ -622,46 +622,52 @@ class TestPredictionUtils:
     def test_populate_entrypoint_if_not_exists_predictor_is_none(self, tmp_path):
         src_dir = tmp_path / self.SRC_DIR
         src_dir.mkdir()
+        handler = src_dir / self.HANDLER_FILE
+        handler.write_text(
+            textwrap.dedent(
+                """
+            class CustomHandler(Handler):
+                pass
+            """
+            )
+        )
+        custom_handler = self._load_module("CustomHandler", str(handler))
 
         prediction_utils.populate_entrypoint_if_not_exists(
-            str(src_dir), self.ENTRYPOINT_FILE, predictor=None,
+            str(src_dir), self.ENTRYPOINT_FILE, predictor=None, handler=custom_handler,
         )
 
         entrypoint = src_dir / self.ENTRYPOINT_FILE
 
         assert "predictor_class=None" in entrypoint.read_text()
 
-    # TODO: update the following after handler is checked in.
-    # def test_populate_entrypoint_if_not_exists_handler_is_none(self, tmp_path):
-    #     src_dir = tmp_path / self.SRC_DIR
-    #     src_dir.mkdir()
+    def test_populate_entrypoint_if_not_exists_handler_is_none(self, tmp_path):
+        src_dir = tmp_path / self.SRC_DIR
+        src_dir.mkdir()
+        expected_message = "A handler must be provided but handler is None."
 
-    #     with pytest.raises(ValueError) as exception:
-    #         prediction_utils.populate_entrypoint_if_not_exists(
-    #             str(src_dir), self.ENTRYPOINT_FILE, predictor=None,
-    #             handler=None,
-    #         )
+        with pytest.raises(ValueError) as exception:
+            prediction_utils.populate_entrypoint_if_not_exists(
+                str(src_dir), self.ENTRYPOINT_FILE, predictor=None, handler=None,
+            )
 
-    #     assert (
-    #         "A handler must be provided but handler is None."
-    #         in str(exception.value)
-    #     )
+        assert str(exception.value) == expected_message
 
-    # def test_populate_entrypoint_if_not_exists_predictionhandler_predictor_is_none(
-    #     self, tmp_path
-    # ):
-    #     src_dir = tmp_path / self.SRC_DIR
-    #     src_dir.mkdir()
+    def test_populate_entrypoint_if_not_exists_predictionhandler_predictor_is_none(
+        self, tmp_path
+    ):
+        src_dir = tmp_path / self.SRC_DIR
+        src_dir.mkdir()
+        expected_message = (
+            "PredictionHandler must have a predictor class but predictor is None."
+        )
 
-    #     with pytest.raises(ValueError) as exception:
-    #         prediction_utils.populate_entrypoint_if_not_exists(
-    #             str(src_dir), self.ENTRYPOINT_FILE, predictor=None,
-    #         )
+        with pytest.raises(ValueError) as exception:
+            prediction_utils.populate_entrypoint_if_not_exists(
+                str(src_dir), self.ENTRYPOINT_FILE, predictor=None,
+            )
 
-    #     assert (
-    #         "PredictionHandler must have a predictor class but predictor is None."
-    #         in str(exception.value)
-    #     )
+        assert str(exception.value) == expected_message
 
     def test_populate_entrypoint_if_not_exists_with_custom_handler(self, tmp_path):
         src_dir = tmp_path / self.SRC_DIR

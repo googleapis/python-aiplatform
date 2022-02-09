@@ -16,13 +16,16 @@
 #
 
 from pathlib import Path
-from typing import Optional
+from typing import Optional, Type
 
 from google.cloud import aiplatform
 
 from google.cloud.aiplatform import helpers
 from google.cloud.aiplatform.compat.types import model as gca_model_compat
 from google.cloud.aiplatform.docker_utils import build
+from google.cloud.aiplatform.prediction.handler import Handler
+from google.cloud.aiplatform.prediction.handler import PredictionHandler
+from google.cloud.aiplatform.prediction.predictor import Predictor
 from google.cloud.aiplatform.utils import prediction_utils
 
 DEFAULT_PREDICT_ROUTE = "/predict"
@@ -49,8 +52,8 @@ class LocalModel:
         cls,
         src_dir: str,
         output_image: str,
-        predictor,  # TODO: add Optional[Type[Predictor]] = None
-        handler=None,  # TODO: add Type[Handler] = PredictionHandler
+        predictor: Optional[Type[Predictor]] = None,
+        handler: Type[Handler] = PredictionHandler,
         base_image: str = "python:3.7",
         requirements_path: Optional[str] = None,
     ) -> "LocalModel":

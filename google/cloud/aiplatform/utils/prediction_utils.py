@@ -20,8 +20,11 @@ import logging
 import os
 from pathlib import Path
 import textwrap
-from typing import Any, Type
+from typing import Any, Optional, Type
 
+from google.cloud.aiplatform.prediction.handler import Handler
+from google.cloud.aiplatform.prediction.handler import PredictionHandler
+from google.cloud.aiplatform.prediction.predictor import Predictor
 from google.cloud.aiplatform.utils import path_utils
 
 _logger = logging.getLogger(__name__)
@@ -69,8 +72,8 @@ def _inspect_source_from_class(
 def populate_entrypoint_if_not_exists(
     src_dir: str,
     filename: str,
-    predictor=None,  # TODO: add Optional[Type[Predictor]] = None
-    handler=None,  # TODO: add Type[Handler] = PredictionHandler
+    predictor: Optional[Type[Predictor]] = None,
+    handler: Type[Handler] = PredictionHandler,
 ):
     """Populates an entrypoint file in the provided directory if it doesn't exist.
 
@@ -119,16 +122,14 @@ def populate_entrypoint_if_not_exists(
     handler_import_line = ""
     handler_name = "prediction.handler.PredictionHandler"
 
-    # TODO: update the following after handler is checked in.
-    # if handler is None:
-    #     raise ValueError("A handler must be provided but handler is None.")
-    # elif handler == PredictionHandler:
-    #     if predictor is None:
-    #         raise ValueError(
-    #             "PredictionHandler must have a predictor class but predictor is None."
-    #         )
-    # else:
-    if handler is not None:
+    if handler is None:
+        raise ValueError("A handler must be provided but handler is None.")
+    elif handler == PredictionHandler:
+        if predictor is None:
+            raise ValueError(
+                "PredictionHandler must have a predictor class but predictor is None."
+            )
+    else:
         handler_import, handler_name = _inspect_source_from_class(handler, src_dir)
         handler_import_line = "from {handler_import_file} import {handler_class}".format(
             handler_import_file=handler_import, handler_class=handler_name,

@@ -588,7 +588,10 @@ class TestLocalModel:
         assert local_model.serving_container_spec.health_route == DEFAULT_HEALTH_ROUTE
 
         populate_entrypoint_if_not_exists_mock.assert_called_once_with(
-            _TEST_SRC_DIR, _ENTRYPOINT_FILE, predictor=my_predictor, handler=None
+            _TEST_SRC_DIR,
+            _ENTRYPOINT_FILE,
+            predictor=my_predictor,
+            handler=PredictionHandler,
         )
         is_prebuilt_prediction_container_uri_is_false_mock.assert_called_once_with(
             _DEFAULT_BASE_IMAGE
@@ -634,7 +637,10 @@ class TestLocalModel:
         assert local_model.serving_container_spec.health_route == DEFAULT_HEALTH_ROUTE
 
         populate_entrypoint_if_not_exists_mock.assert_called_once_with(
-            _TEST_SRC_DIR, _ENTRYPOINT_FILE, predictor=my_predictor, handler=None
+            _TEST_SRC_DIR,
+            _ENTRYPOINT_FILE,
+            predictor=my_predictor,
+            handler=PredictionHandler,
         )
         is_prebuilt_prediction_container_uri_is_true_mock.assert_called_once_with(
             _DEFAULT_BASE_IMAGE
@@ -684,7 +690,10 @@ class TestLocalModel:
         assert local_model.serving_container_spec.health_route == DEFAULT_HEALTH_ROUTE
 
         populate_entrypoint_if_not_exists_mock.assert_called_once_with(
-            _TEST_SRC_DIR, _ENTRYPOINT_FILE, predictor=my_predictor, handler=None
+            _TEST_SRC_DIR,
+            _ENTRYPOINT_FILE,
+            predictor=my_predictor,
+            handler=PredictionHandler,
         )
         is_prebuilt_prediction_container_uri_is_false_mock.assert_called_once_with(
             _DEFAULT_BASE_IMAGE
