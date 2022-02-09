@@ -27,6 +27,7 @@ from fastapi import Response
 from starlette.datastructures import Headers
 from starlette.testclient import TestClient
 
+from google.cloud.aiplatform.prediction import handler_utils
 from google.cloud.aiplatform.prediction.handler import Handler
 from google.cloud.aiplatform.prediction.handler import PredictionHandler
 from google.cloud.aiplatform.prediction.model_server import ModelServer
@@ -311,6 +312,69 @@ class TestPredictionHandler:
         serialize_exception_mock.assert_called_once_with(
             _TEST_SERIALIZED_OUTPUT, _APPLICATION_JSON
         )
+
+
+class TestHandlerUtils:
+    @pytest.mark.parametrize(
+        "header_keys",
+        [
+            "Content-Type",
+            "content-Type",
+            "content-type",
+            "Content-type",
+            "ContentType",
+            "contentType",
+            "contenttype",
+            "Contenttype",
+        ],
+    )
+    def test_get_content_type_from_headers(self, header_keys):
+        expected_content_type = "content_type"
+        headers = Headers({header_keys: expected_content_type})
+
+        content_type = handler_utils.get_content_type_from_headers(headers)
+
+        assert content_type == expected_content_type
+
+    def test_get_content_type_from_headers_no_headers(self):
+        headers = Headers({})
+
+        content_type = handler_utils.get_content_type_from_headers(headers)
+
+        assert content_type is None
+
+    def test_get_content_type_from_headers_none(self):
+        content_type = handler_utils.get_content_type_from_headers(None)
+
+        assert content_type is None
+
+    @pytest.mark.parametrize("header_keys", ["Accept", "accept"])
+    def test_get_accept_from_headers(self, header_keys):
+        expected_accept = "accept"
+        headers = Headers({header_keys: expected_accept})
+
+        accept = handler_utils.get_accept_from_headers(headers)
+
+        assert accept == expected_accept
+
+    def test_get_accept_from_headers_no_headers(self):
+        headers = Headers({})
+
+        accept = handler_utils.get_accept_from_headers(headers)
+
+        assert accept == handler_utils.DEFAULT_ACCEPT
+
+    def test_get_accept_from_headers_accept_is_any(self):
+        headers = Headers({"Accept": handler_utils.ANY})
+
+        accept = handler_utils.get_accept_from_headers(headers)
+
+        assert accept == handler_utils.DEFAULT_ACCEPT
+
+    def test_get_accept_from_headers_none(self):
+        accept = handler_utils.get_accept_from_headers(None)
+
+        assert accept == handler_utils.DEFAULT_ACCEPT
 
 
 class TestModelServer:

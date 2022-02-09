@@ -26,8 +26,8 @@ except ImportError:
         'Please install the SDK using "pip install python-aiplatform[prediction]"'
     )
 
+from google.cloud.aiplatform.prediction import handler_utils
 from google.cloud.aiplatform.prediction.predictor import Predictor
-from google.cloud.aiplatform.prediction.serializer import APPLICATOIN_JSON
 from google.cloud.aiplatform.prediction.serializer import DefaultSerializer
 
 
@@ -95,13 +95,13 @@ class PredictionHandler(Handler):
             The response of the prediction request.
         """
         request_body = await request.body()
-        prediction_input = DefaultSerializer.deserialize(
-            request_body, request.headers.get("content-type", APPLICATOIN_JSON)
-        )
+        content_type = handler_utils.get_content_type_from_headers(request.headers)
+        prediction_input = DefaultSerializer.deserialize(request_body, content_type)
+
         prediction_results = self._predictor.postprocess(
             self._predictor.predict(self._predictor.preprocess(prediction_input))
         )
-        data = DefaultSerializer.serialize(
-            prediction_results, request.headers.get("accept", APPLICATOIN_JSON)
-        )
-        return Response(content=data, media_type=request.headers.get("accept"))
+
+        accept = handler_utils.get_content_type_from_headers(request.headers)
+        data = DefaultSerializer.serialize(prediction_results, accept)
+        return Response(content=data, media_type=accept)
