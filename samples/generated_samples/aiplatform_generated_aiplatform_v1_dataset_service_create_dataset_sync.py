@@ -28,8 +28,6 @@ from google.cloud import aiplatform_v1
 
 
 def sample_create_dataset():
-    """Snippet for create_dataset"""
-
     # Create a client
     client = aiplatform_v1.DatasetServiceClient()
 
@@ -40,7 +38,7 @@ def sample_create_dataset():
     dataset.metadata.null_value = "NULL_VALUE"
 
     request = aiplatform_v1.CreateDatasetRequest(
-        parent="projects/{project}/locations/{location}",
+        parent="parent_value",
         dataset=dataset,
     )
 
@@ -50,6 +48,8 @@ def sample_create_dataset():
     print("Waiting for operation to complete...")
 
     response = operation.result()
+
+    # Handle the response
     print(response)
 
 # [END aiplatform_generated_aiplatform_v1_DatasetService_CreateDataset_sync]

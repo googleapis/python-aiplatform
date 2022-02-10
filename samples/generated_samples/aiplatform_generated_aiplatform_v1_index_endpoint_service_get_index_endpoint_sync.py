@@ -28,20 +28,18 @@ from google.cloud import aiplatform_v1
 
 
 def sample_get_index_endpoint():
-    """Snippet for get_index_endpoint"""
-
     # Create a client
     client = aiplatform_v1.IndexEndpointServiceClient()
 
     # Initialize request argument(s)
     request = aiplatform_v1.GetIndexEndpointRequest(
-        name="projects/{project}/locations/{location}/indexEndpoints/{index_endpoint}",
+        name="name_value",
     )
 
     # Make the request
     response = client.get_index_endpoint(request=request)
 
-    # Handle response
+    # Handle the response
     print(response)
 
 # [END aiplatform_generated_aiplatform_v1_IndexEndpointService_GetIndexEndpoint_sync]

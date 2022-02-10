@@ -28,20 +28,18 @@ from google.cloud import aiplatform_v1beta1
 
 
 def sample_get_pipeline_job():
-    """Snippet for get_pipeline_job"""
-
     # Create a client
     client = aiplatform_v1beta1.PipelineServiceClient()
 
     # Initialize request argument(s)
     request = aiplatform_v1beta1.GetPipelineJobRequest(
-        name="projects/{project}/locations/{location}/pipelineJobs/{pipeline_job}",
+        name="name_value",
     )
 
     # Make the request
     response = client.get_pipeline_job(request=request)
 
-    # Handle response
+    # Handle the response
     print(response)
 
 # [END aiplatform_generated_aiplatform_v1beta1_PipelineService_GetPipelineJob_sync]

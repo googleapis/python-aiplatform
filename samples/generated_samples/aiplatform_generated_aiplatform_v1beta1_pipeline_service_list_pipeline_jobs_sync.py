@@ -28,18 +28,18 @@ from google.cloud import aiplatform_v1beta1
 
 
 def sample_list_pipeline_jobs():
-    """Snippet for list_pipeline_jobs"""
-
     # Create a client
     client = aiplatform_v1beta1.PipelineServiceClient()
 
     # Initialize request argument(s)
     request = aiplatform_v1beta1.ListPipelineJobsRequest(
-        parent="projects/{project}/locations/{location}",
+        parent="parent_value",
     )
 
     # Make the request
     page_result = client.list_pipeline_jobs(request=request)
+
+    # Handle the response
     for response in page_result:
         print(response)
 

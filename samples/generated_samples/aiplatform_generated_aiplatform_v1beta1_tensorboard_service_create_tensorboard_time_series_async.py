@@ -28,8 +28,6 @@ from google.cloud import aiplatform_v1beta1
 
 
 async def sample_create_tensorboard_time_series():
-    """Snippet for create_tensorboard_time_series"""
-
     # Create a client
     client = aiplatform_v1beta1.TensorboardServiceAsyncClient()
 
@@ -39,14 +37,14 @@ async def sample_create_tensorboard_time_series():
     tensorboard_time_series.value_type = "BLOB_SEQUENCE"
 
     request = aiplatform_v1beta1.CreateTensorboardTimeSeriesRequest(
-        parent="projects/{project}/locations/{location}/tensorboards/{tensorboard}/experiments/{experiment}/runs/{run}/timeSeries/{time_series}",
+        parent="parent_value",
         tensorboard_time_series=tensorboard_time_series,
     )
 
     # Make the request
     response = await client.create_tensorboard_time_series(request=request)
 
-    # Handle response
+    # Handle the response
     print(response)
 
 # [END aiplatform_generated_aiplatform_v1beta1_TensorboardService_CreateTensorboardTimeSeries_async]

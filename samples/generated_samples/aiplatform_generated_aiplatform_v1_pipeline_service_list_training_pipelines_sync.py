@@ -28,18 +28,18 @@ from google.cloud import aiplatform_v1
 
 
 def sample_list_training_pipelines():
-    """Snippet for list_training_pipelines"""
-
     # Create a client
     client = aiplatform_v1.PipelineServiceClient()
 
     # Initialize request argument(s)
     request = aiplatform_v1.ListTrainingPipelinesRequest(
-        parent="projects/{project}/locations/{location}",
+        parent="parent_value",
     )
 
     # Make the request
     page_result = client.list_training_pipelines(request=request)
+
+    # Handle the response
     for response in page_result:
         print(response)
 

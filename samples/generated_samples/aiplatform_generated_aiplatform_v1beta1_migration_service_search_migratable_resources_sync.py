@@ -28,18 +28,18 @@ from google.cloud import aiplatform_v1beta1
 
 
 def sample_search_migratable_resources():
-    """Snippet for search_migratable_resources"""
-
     # Create a client
     client = aiplatform_v1beta1.MigrationServiceClient()
 
     # Initialize request argument(s)
     request = aiplatform_v1beta1.SearchMigratableResourcesRequest(
-        parent="projects/{project}/locations/{location}",
+        parent="parent_value",
     )
 
     # Make the request
     page_result = client.search_migratable_resources(request=request)
+
+    # Handle the response
     for response in page_result:
         print(response)
 

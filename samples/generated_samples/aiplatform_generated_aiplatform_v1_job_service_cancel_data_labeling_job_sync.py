@@ -28,18 +28,16 @@ from google.cloud import aiplatform_v1
 
 
 def sample_cancel_data_labeling_job():
-    """Snippet for cancel_data_labeling_job"""
-
     # Create a client
     client = aiplatform_v1.JobServiceClient()
 
     # Initialize request argument(s)
     request = aiplatform_v1.CancelDataLabelingJobRequest(
-        name="projects/{project}/locations/{location}/dataLabelingJobs/{data_labeling_job}",
+        name="name_value",
     )
 
     # Make the request
-    response = client.cancel_data_labeling_job(request=request)
+    client.cancel_data_labeling_job(request=request)
 
 
 # [END aiplatform_generated_aiplatform_v1_JobService_CancelDataLabelingJob_sync]

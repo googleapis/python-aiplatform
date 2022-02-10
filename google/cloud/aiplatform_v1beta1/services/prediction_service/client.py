@@ -433,6 +433,30 @@ class PredictionServiceClient(metaclass=PredictionServiceClientMeta):
     ) -> prediction_service.PredictResponse:
         r"""Perform an online prediction.
 
+
+        .. code-block::
+
+            from google.cloud import aiplatform_v1beta1
+
+            def sample_predict():
+                # Create a client
+                client = aiplatform_v1beta1.PredictionServiceClient()
+
+                # Initialize request argument(s)
+                instances = aiplatform_v1beta1.Value()
+                instances.null_value = "NULL_VALUE"
+
+                request = aiplatform_v1beta1.PredictRequest(
+                    endpoint="endpoint_value",
+                    instances=instances,
+                )
+
+                # Make the request
+                response = client.predict(request=request)
+
+                # Handle the response
+                print(response)
+
         Args:
             request (Union[google.cloud.aiplatform_v1beta1.types.PredictRequest, dict]):
                 The request object. Request message for
@@ -546,6 +570,27 @@ class PredictionServiceClient(metaclass=PredictionServiceClientMeta):
         -  ``X-Vertex-AI-Deployed-Model-Id``: ID of the Endpoint's
            [DeployedModel][google.cloud.aiplatform.v1beta1.DeployedModel]
            that served this prediction.
+
+
+
+        .. code-block::
+
+            from google.cloud import aiplatform_v1beta1
+
+            def sample_raw_predict():
+                # Create a client
+                client = aiplatform_v1beta1.PredictionServiceClient()
+
+                # Initialize request argument(s)
+                request = aiplatform_v1beta1.RawPredictRequest(
+                    endpoint="endpoint_value",
+                )
+
+                # Make the request
+                response = client.raw_predict(request=request)
+
+                # Handle the response
+                print(response)
 
         Args:
             request (Union[google.cloud.aiplatform_v1beta1.types.RawPredictRequest, dict]):
@@ -704,6 +749,31 @@ class PredictionServiceClient(metaclass=PredictionServiceClientMeta):
         [explanation_spec][google.cloud.aiplatform.v1beta1.DeployedModel.explanation_spec]
         populated. Only deployed AutoML tabular Models have
         explanation_spec.
+
+
+
+        .. code-block::
+
+            from google.cloud import aiplatform_v1beta1
+
+            def sample_explain():
+                # Create a client
+                client = aiplatform_v1beta1.PredictionServiceClient()
+
+                # Initialize request argument(s)
+                instances = aiplatform_v1beta1.Value()
+                instances.null_value = "NULL_VALUE"
+
+                request = aiplatform_v1beta1.ExplainRequest(
+                    endpoint="endpoint_value",
+                    instances=instances,
+                )
+
+                # Make the request
+                response = client.explain(request=request)
+
+                # Handle the response
+                print(response)
 
         Args:
             request (Union[google.cloud.aiplatform_v1beta1.types.ExplainRequest, dict]):
