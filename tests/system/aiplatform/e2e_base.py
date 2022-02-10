@@ -24,6 +24,7 @@ from typing import Any, Dict, Generator
 
 from google.api_core import exceptions
 from google.cloud import aiplatform
+from google.cloud import bigquery
 from google.cloud import storage
 from google.cloud.aiplatform import initializer
 
@@ -90,11 +91,45 @@ class TestEndToEnd(metaclass=abc.ABCMeta):
         bucket = shared_state["bucket"]
         bucket.delete(force=True)
 
+    @pytest.fixture(scope="class")
+    def prepare_bigquery_dataset(
+        self, shared_state: Dict[str, Any]
+    ) -> Generator[bigquery.dataset.Dataset, None, None]:
+        """Create a bigquery dataset and store bigquery resource object in shared state."""
+
+        bigquery_client = bigquery.Client(project=_PROJECT)
+        shared_state["bigquery_client"] = bigquery_client
+
+        dataset_name = f"{self._temp_prefix.lower()}_{uuid.uuid4()}".replace("-", "_")
+        dataset_id = f"{_PROJECT}.{dataset_name}"
+        shared_state["bigquery_dataset_id"] = dataset_id
+
+        dataset = bigquery.Dataset(dataset_id)
+        dataset.location = _LOCATION
+        shared_state["bigquery_dataset"] = bigquery_client.create_dataset(dataset)
+
+        yield
+
+    @pytest.fixture(scope="class")
+    def delete_bigquery_dataset(self, shared_state: Dict[str, Any]):
+        """Delete the bigquery dataset"""
+
+        yield
+
+        # Get the bigquery dataset id used for testing and wipe it
+        bigquery_dataset = shared_state["bigquery_dataset"]
+        bigquery_client = shared_state["bigquery_client"]
+        bigquery_client.delete_dataset(
+            bigquery_dataset.dataset_id, delete_contents=True, not_found_ok=True
+        )  # Make an API request.
+
     @pytest.fixture(scope="class", autouse=True)
-    def teardown(self, shared_state: Dict[str, Any]):
+    def tear_down_resources(self, shared_state: Dict[str, Any]):
         """Delete every Vertex AI resource created during test"""
 
         yield
+
+        # TODO(b/218310362): Add resource deletion system tests
 
         # Bring all Endpoints to the front of the list
         # Ensures Models are undeployed first before we attempt deletion
