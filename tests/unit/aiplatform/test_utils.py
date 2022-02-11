@@ -29,6 +29,7 @@ from google.cloud import aiplatform
 from google.cloud.aiplatform import compat
 from google.cloud.aiplatform import utils
 from google.cloud.aiplatform.utils import pipeline_utils
+from google.cloud.aiplatform.utils import prediction_utils
 from google.cloud.aiplatform.utils import tensorboard_utils
 
 from google.cloud.aiplatform_v1beta1.services.model_service import (
@@ -537,3 +538,21 @@ class TestTensorboardUtils:
     def test_get_experiments_compare_url_bad_experiment_name(self):
         with pytest.raises(ValueError, match="Invalid experiment name: foo-bar."):
             tensorboard_utils.get_experiments_compare_url(("foo-bar", "foo-bar1"))
+
+
+class TestPredictionUtils:
+    @pytest.mark.parametrize(
+        "image_uri, expected",
+        [
+            ("gcr.io/myproject/myimage", True),
+            ("us.gcr.io/myproject/myimage", True),
+            ("us-docker.pkg.dev/myproject/myimage", True),
+            ("us-central1-docker.pkg.dev/myproject/myimage", True),
+            ("myproject/myimage", False),
+            ("random.host/myproject/myimage", False),
+        ],
+    )
+    def test_is_registry_uri(self, image_uri, expected):
+        result = prediction_utils.is_registry_uri(image_uri)
+
+        assert result == expected
