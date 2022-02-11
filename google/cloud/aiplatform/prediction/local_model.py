@@ -51,7 +51,7 @@ class LocalModel:
     def create_cpr_model(
         cls,
         src_dir: str,
-        output_image: str,
+        output_image_uri: str,
         predictor: Optional[Type[Predictor]] = None,
         handler: Type[Handler] = PredictionHandler,
         base_image: str = "python:3.7",
@@ -67,8 +67,8 @@ class LocalModel:
             src_dir (str):
                 Required. The path to the local directory including all needed files such as
                 predictor. The whole directory will be copied to the image.
-            output_image (str):
-                Required. The image name of the built image.
+            output_image_uri (str):
+                Required. The image uri of the built image.
             predictor (Type[Predictor]):
                 Optional. The custom predictor consumed by handler to do prediction.
             handler (Type[Handler]):
@@ -95,7 +95,7 @@ class LocalModel:
             base_image,
             src_dir,
             Path(src_dir).joinpath(entrypoint_file).as_posix(),
-            output_image,
+            output_image_uri,
             requirements_path=requirements_path,
             exposed_ports=[DEFAULT_HTTP_PORT],
             pip_command="pip3" if is_prebuilt_prediction_image else "pip",
@@ -103,7 +103,7 @@ class LocalModel:
         )
 
         container_spec = gca_model_compat.ModelContainerSpec(
-            image_uri=output_image,
+            image_uri=output_image_uri,
             predict_route=DEFAULT_PREDICT_ROUTE,
             health_route=DEFAULT_HEALTH_ROUTE,
         )
