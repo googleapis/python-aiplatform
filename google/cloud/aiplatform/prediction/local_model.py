@@ -15,18 +15,30 @@
 # limitations under the License.
 #
 
-from typing import Dict, Optional, Sequence
+from pathlib import Path
+from typing import Dict, Optional, Sequence, Type
 
 from google.auth import credentials as auth_credentials
 
 from google.cloud import aiplatform
 from google.cloud.aiplatform import explain
+from google.cloud.aiplatform import helpers
 from google.cloud.aiplatform import models
 
 from google.cloud.aiplatform.compat.types import (
     model as gca_model_compat,
     env_var as gca_env_var_compat,
 )
+
+from google.cloud.aiplatform.docker_utils import build
+from google.cloud.aiplatform.prediction.handler import Handler
+from google.cloud.aiplatform.prediction.handler import PredictionHandler
+from google.cloud.aiplatform.prediction.predictor import Predictor
+from google.cloud.aiplatform.utils import prediction_utils
+
+DEFAULT_PREDICT_ROUTE = "/predict"
+DEFAULT_HEALTH_ROUTE = "/health"
+DEFAULT_HTTP_PORT = 8080
 
 
 class LocalModel:
@@ -119,6 +131,69 @@ class LocalModel:
             ports=ports,
             predict_route=serving_container_predict_route,
             health_route=serving_container_health_route,
+        )
+
+        return cls(container_spec)
+
+    @classmethod
+    def create_cpr_model(
+        cls,
+        src_dir: str,
+        output_image_uri: str,
+        predictor: Optional[Type[Predictor]] = None,
+        handler: Type[Handler] = PredictionHandler,
+        base_image: str = "python:3.7",
+        requirements_path: Optional[str] = None,
+    ) -> "LocalModel":
+        """Creates a local model from a custom predictor.
+
+        This method creates a docker image to include user-provided predictor, serializer, and
+        model server. It populates the entrypoint, entrypoint.py, right under the specified
+        directory, src_dir, if it doesn't exist and generates a Dockerfile to build the image.
+
+        Args:
+            src_dir (str):
+                Required. The path to the local directory including all needed files such as
+                predictor. The whole directory will be copied to the image.
+            output_image_uri (str):
+                Required. The image uri of the built image.
+            predictor (Type[Predictor]):
+                Optional. The custom predictor consumed by handler to do prediction.
+            handler (Type[Handler]):
+                Required. The handler to handle requests in the model server.
+            base_image (str):
+                Required. The base image used to build the custom images.
+            requirements_path (str):
+                Optional. The path to the local requirements.txt file. This file will be copied
+                to the image and the needed packages listed in it will be installed.
+
+        Returns:
+            local model: Instantiated representation of the local model.
+        """
+        entrypoint_file = "entrypoint.py"
+
+        prediction_utils.populate_entrypoint_if_not_exists(
+            src_dir, entrypoint_file, predictor=predictor, handler=handler,
+        )
+
+        is_prebuilt_prediction_image = helpers.is_prebuilt_prediction_container_uri(
+            base_image
+        )
+        _ = build.build_image(
+            base_image,
+            src_dir,
+            Path(src_dir).joinpath(entrypoint_file).as_posix(),
+            output_image_uri,
+            requirements_path=requirements_path,
+            exposed_ports=[DEFAULT_HTTP_PORT],
+            pip_command="pip3" if is_prebuilt_prediction_image else "pip",
+            python_command="python3" if is_prebuilt_prediction_image else "python",
+        )
+
+        container_spec = gca_model_compat.ModelContainerSpec(
+            image_uri=output_image_uri,
+            predict_route=DEFAULT_PREDICT_ROUTE,
+            health_route=DEFAULT_HEALTH_ROUTE,
         )
 
         return cls(container_spec)
