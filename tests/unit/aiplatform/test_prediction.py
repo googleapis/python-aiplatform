@@ -37,9 +37,15 @@ from google.cloud.aiplatform import base
 from google.cloud.aiplatform import helpers
 from google.cloud.aiplatform import initializer
 
-from google.cloud.aiplatform.compat.types import model as gca_model_compat
+from google.cloud.aiplatform.compat.types import (
+    env_var as gca_env_var,
+    model as gca_model_compat,
+    model_service as gca_model_service,
+)
 from google.cloud.aiplatform.constants import prediction
 from google.cloud.aiplatform.docker_utils import build
+from google.cloud.aiplatform.docker_utils import errors
+from google.cloud.aiplatform.docker_utils import local_util
 from google.cloud.aiplatform.docker_utils import run
 from google.cloud.aiplatform.prediction import DEFAULT_HEALTH_ROUTE
 from google.cloud.aiplatform.prediction import DEFAULT_HTTP_PORT
@@ -56,11 +62,6 @@ from google.cloud.aiplatform.utils import prediction_utils
 
 from google.cloud.aiplatform_v1.services.model_service import (
     client as model_service_client,
-)
-from google.cloud.aiplatform.compat.types import (
-    model as gca_model,
-    env_var as gca_env_var,
-    model_service as gca_model_service,
 )
 
 
@@ -222,7 +223,7 @@ def get_model_mock():
     with mock.patch.object(
         model_service_client.ModelServiceClient, "get_model"
     ) as get_model_mock:
-        get_model_mock.return_value = gca_model.Model(
+        get_model_mock.return_value = gca_model_compat.Model(
             display_name=_TEST_MODEL_NAME, name=_TEST_MODEL_RESOURCE_NAME,
         )
         yield get_model_mock
@@ -429,6 +430,48 @@ def requests_get_raises_exception_mock():
             _TEST_HTTP_ERROR_MESSAGE
         )
         yield requests_get_raises_exception_mock
+
+
+@pytest.fixture
+def execute_command_mock():
+    with mock.patch.object(local_util, "execute_command") as execute_command_mock:
+        execute_command_mock.return_value = 0
+        yield execute_command_mock
+
+
+@pytest.fixture
+def execute_command_return_code_1_mock():
+    with mock.patch.object(
+        local_util, "execute_command"
+    ) as execute_command_return_code_1_mock:
+        execute_command_mock.return_value = 1
+        yield execute_command_return_code_1_mock
+
+
+@pytest.fixture
+def raise_docker_error_with_command_mock():
+    with mock.patch.object(
+        errors, "raise_docker_error_with_command"
+    ) as raise_docker_error_with_command:
+        raise_docker_error_with_command.side_effect = errors.DockerError()
+
+
+@pytest.fixture
+def is_registry_uri_true_mock():
+    with mock.patch.object(
+        prediction_utils, "is_registry_uri"
+    ) as is_registry_uri_true_mock:
+        is_registry_uri_true_mock.return_value = True
+        yield is_registry_uri_true_mock
+
+
+@pytest.fixture
+def is_registry_uri_false_mock():
+    with mock.patch.object(
+        prediction_utils, "is_registry_uri"
+    ) as is_registry_uri_false_mock:
+        is_registry_uri_false_mock.return_value = False
+        yield is_registry_uri_false_mock
 
 
 class TestPredictor:
@@ -823,7 +866,7 @@ class TestLocalModel:
             serving_container_health_route=_TEST_SERVING_CONTAINER_HEALTH_ROUTE,
         )
 
-        container_spec = gca_model.ModelContainerSpec(
+        container_spec = gca_model_compat.ModelContainerSpec(
             image_uri=_TEST_SERVING_CONTAINER_IMAGE,
             predict_route=_TEST_SERVING_CONTAINER_PREDICTION_ROUTE,
             health_route=_TEST_SERVING_CONTAINER_HEALTH_ROUTE,
@@ -856,11 +899,11 @@ class TestLocalModel:
         ]
 
         ports = [
-            gca_model.Port(container_port=port)
+            gca_model_compat.Port(container_port=port)
             for port in _TEST_SERVING_CONTAINER_PORTS
         ]
 
-        container_spec = gca_model.ModelContainerSpec(
+        container_spec = gca_model_compat.ModelContainerSpec(
             image_uri=_TEST_SERVING_CONTAINER_IMAGE,
             predict_route=_TEST_SERVING_CONTAINER_PREDICTION_ROUTE,
             health_route=_TEST_SERVING_CONTAINER_HEALTH_ROUTE,
@@ -889,7 +932,7 @@ class TestLocalModel:
         self, upload_model_mock, get_model_mock, sync
     ):
 
-        container_spec = gca_model.ModelContainerSpec(
+        container_spec = gca_model_compat.ModelContainerSpec(
             image_uri=_TEST_SERVING_CONTAINER_IMAGE,
             predict_route=_TEST_SERVING_CONTAINER_PREDICTION_ROUTE,
             health_route=_TEST_SERVING_CONTAINER_HEALTH_ROUTE,
@@ -902,7 +945,7 @@ class TestLocalModel:
         if not sync:
             my_model.wait()
 
-        managed_model = gca_model.Model(
+        managed_model = gca_model_compat.Model(
             display_name=_TEST_MODEL_NAME, container_spec=container_spec,
         )
 
@@ -926,11 +969,11 @@ class TestLocalModel:
         ]
 
         ports = [
-            gca_model.Port(container_port=port)
+            gca_model_compat.Port(container_port=port)
             for port in _TEST_SERVING_CONTAINER_PORTS
         ]
 
-        container_spec = gca_model.ModelContainerSpec(
+        container_spec = gca_model_compat.ModelContainerSpec(
             image_uri=_TEST_SERVING_CONTAINER_IMAGE,
             predict_route=_TEST_SERVING_CONTAINER_PREDICTION_ROUTE,
             health_route=_TEST_SERVING_CONTAINER_HEALTH_ROUTE,
@@ -958,17 +1001,17 @@ class TestLocalModel:
         if not sync:
             my_model.wait()
 
-        managed_model = gca_model.Model(
+        managed_model = gca_model_compat.Model(
             display_name=_TEST_MODEL_NAME,
             description=_TEST_DESCRIPTION,
             artifact_uri=_TEST_ARTIFACT_URI,
             container_spec=container_spec,
-            predict_schemata=gca_model.PredictSchemata(
+            predict_schemata=gca_model_compat.PredictSchemata(
                 instance_schema_uri=_TEST_INSTANCE_SCHEMA_URI,
                 parameters_schema_uri=_TEST_PARAMETERS_SCHEMA_URI,
                 prediction_schema_uri=_TEST_PREDICTION_SCHEMA_URI,
             ),
-            explanation_spec=gca_model.explanation.ExplanationSpec(
+            explanation_spec=gca_model_compat.explanation.ExplanationSpec(
                 metadata=_TEST_EXPLANATION_METADATA,
                 parameters=_TEST_EXPLANATION_PARAMETERS,
             ),
@@ -1202,6 +1245,94 @@ class TestLocalModel:
         )
         assert local_endpoint_enter_mock.called
         assert local_endpoint_exit_mock.called
+
+    def test_copy_image(
+        self, execute_command_mock,
+    ):
+        container_spec = gca_model_compat.ModelContainerSpec(image_uri=_TEST_IMAGE_URI)
+        local_model = LocalModel(container_spec)
+        dst_image_uri = "new_image:latest"
+        expected_command = ["docker", "tag", f"{_TEST_IMAGE_URI}", f"{dst_image_uri}"]
+
+        new_local_model = local_model.copy_image(dst_image_uri)
+
+        execute_command_mock.assert_called_once_with(expected_command)
+        assert new_local_model.serving_container_spec.image_uri == dst_image_uri
+
+    def test_copy_image_raises_exception(
+        self, execute_command_return_code_1_mock,
+    ):
+        container_spec = gca_model_compat.ModelContainerSpec(image_uri=_TEST_IMAGE_URI)
+        local_model = LocalModel(container_spec)
+        dst_image_uri = "new_image:latest"
+        expected_command = ["docker", "tag", f"{_TEST_IMAGE_URI}", f"{dst_image_uri}"]
+        expected_message = "Docker failed with error code"
+        expected_return_code = 1
+
+        with mock.patch.object(
+            errors, "raise_docker_error_with_command"
+        ) as raise_docker_error_with_command:
+            raise_docker_error_with_command.side_effect = errors.DockerError(
+                expected_message, expected_command, expected_return_code
+            )
+
+            with pytest.raises(errors.DockerError) as exception:
+                local_model.copy_image(dst_image_uri)
+
+        execute_command_return_code_1_mock.assert_called_once_with(expected_command)
+        assert exception.value.message == expected_message
+        assert exception.value.cmd == expected_command
+        assert exception.value.exit_code == expected_return_code
+
+    def test_push_image(
+        self, execute_command_mock, is_registry_uri_true_mock,
+    ):
+        container_spec = gca_model_compat.ModelContainerSpec(image_uri=_TEST_IMAGE_URI)
+        local_model = LocalModel(container_spec)
+        expected_command = ["docker", "push", f"{_TEST_IMAGE_URI}"]
+
+        local_model.push_image()
+
+        execute_command_mock.assert_called_once_with(expected_command)
+
+    def test_push_image_image_uri_is_not_registry_uri(
+        self, execute_command_mock, is_registry_uri_false_mock,
+    ):
+        container_spec = gca_model_compat.ModelContainerSpec(image_uri=_TEST_IMAGE_URI)
+        local_model = LocalModel(container_spec)
+        expected_message = (
+            "The image uri must be a container registry or artifact registry uri "
+            f"but it is: {_TEST_IMAGE_URI}."
+        )
+
+        with pytest.raises(ValueError) as exception:
+            local_model.push_image()
+
+        assert str(exception.value) == expected_message
+
+    def test_push_image_raises_exception(
+        self, execute_command_return_code_1_mock, is_registry_uri_true_mock,
+    ):
+        container_spec = gca_model_compat.ModelContainerSpec(image_uri=_TEST_IMAGE_URI)
+        local_model = LocalModel(container_spec)
+        expected_command = ["docker", "push", f"{_TEST_IMAGE_URI}"]
+        expected_message = "Docker failed with error code"
+        expected_return_code = 1
+
+        with mock.patch.object(
+            errors, "raise_docker_error_with_command"
+        ) as raise_docker_error_with_command:
+            raise_docker_error_with_command.side_effect = errors.DockerError(
+                expected_message, expected_command, expected_return_code
+            )
+
+            with pytest.raises(errors.DockerError) as exception:
+                local_model.push_image()
+
+        execute_command_return_code_1_mock.assert_called_once_with(expected_command)
+        assert exception.value.message == expected_message
+        assert exception.value.cmd == expected_command
+        assert exception.value.exit_code == expected_return_code
 
 
 class TestLocalEndpoint:

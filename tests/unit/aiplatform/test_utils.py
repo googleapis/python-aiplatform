@@ -780,3 +780,19 @@ class TestPredictionUtils:
         http_port = prediction_utils.get_prediction_aip_http_port(None)
 
         assert http_port == 8080
+
+    @pytest.mark.parametrize(
+        "image_uri, expected",
+        [
+            ("gcr.io/myproject/myimage", True),
+            ("us.gcr.io/myproject/myimage", True),
+            ("us-docker.pkg.dev/myproject/myimage", True),
+            ("us-central1-docker.pkg.dev/myproject/myimage", True),
+            ("myproject/myimage", False),
+            ("random.host/myproject/myimage", False),
+        ],
+    )
+    def test_is_registry_uri(self, image_uri, expected):
+        result = prediction_utils.is_registry_uri(image_uri)
+
+        assert result == expected

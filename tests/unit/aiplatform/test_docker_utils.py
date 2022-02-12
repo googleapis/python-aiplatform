@@ -18,10 +18,12 @@
 import io
 import os
 import pytest
+import textwrap
 from unittest import mock
 
 from google.cloud.aiplatform.constants import prediction
 from google.cloud.aiplatform.docker_utils import build
+from google.cloud.aiplatform.docker_utils import errors
 from google.cloud.aiplatform.docker_utils import local_util
 from google.cloud.aiplatform.docker_utils import run
 from google.cloud.aiplatform.docker_utils import utils
@@ -544,3 +546,24 @@ class TestRun:
         assert logs_len == _TEST_CONTAINER_LOGS_LEN
         assert docker_container_mock.logs.called
         assert logger_mock.info.call_count == (_TEST_CONTAINER_LOGS_LEN - start_index)
+
+
+class TestErrors:
+    def test_raise_docker_error_with_command(self):
+        command = ["ls", "-l"]
+        return_code = 1
+        expected_message = textwrap.dedent(
+            """
+            Docker failed with error code {return_code}.
+            Command: {command}
+            """.format(
+                return_code=return_code, command=" ".join(command)
+            )
+        )
+
+        with pytest.raises(errors.DockerError) as exception:
+            errors.raise_docker_error_with_command(command, return_code)
+
+        assert exception.value.message == expected_message
+        assert exception.value.cmd == command
+        assert exception.value.exit_code == return_code

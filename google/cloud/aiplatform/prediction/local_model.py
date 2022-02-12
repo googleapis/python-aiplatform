@@ -16,6 +16,7 @@
 #
 
 from contextlib import contextmanager
+from copy import copy
 from pathlib import Path
 from typing import Dict, Optional, Sequence, Type
 
@@ -32,6 +33,8 @@ from google.cloud.aiplatform.compat.types import (
 )
 
 from google.cloud.aiplatform.docker_utils import build
+from google.cloud.aiplatform.docker_utils import errors
+from google.cloud.aiplatform.docker_utils import local_util
 from google.cloud.aiplatform.prediction import LocalEndpoint
 from google.cloud.aiplatform.prediction.handler import Handler
 from google.cloud.aiplatform.prediction.handler import PredictionHandler
@@ -414,3 +417,66 @@ class LocalModel:
                 yield local_endpoint
         finally:
             pass
+
+    def get_serving_container_spec(self) -> aiplatform.gapic.ModelContainerSpec:
+        """Returns the container spec for the image.
+
+        Returns:
+            The serving container spec of this local model instance.
+        """
+        return self.serving_container_spec
+
+    def copy_image(self, dst_image_uri: str) -> "LocalModel":
+        """Copies the image to another image uri.
+
+        Args:
+            dst_image_uri (str):
+                The destination image uri to copy the image to.
+
+        Returns:
+            local model: Instantiated representation of the local model with the copied
+            image.
+
+        Raises:
+            DockerError: If the command fails.
+        """
+        command = [
+            "docker",
+            "tag",
+            f"{self.serving_container_spec.image_uri}",
+            f"{dst_image_uri}",
+        ]
+        return_code = local_util.execute_command(command)
+        if return_code != 0:
+            errors.raise_docker_error_with_command(command, return_code)
+
+        new_container_spec = copy(self.serving_container_spec)
+        new_container_spec.image_uri = dst_image_uri
+
+        return LocalModel(new_container_spec)
+
+    def push_image(self):
+        """Pushes the image to a registry.
+
+        If you hit permission errors while calling this function, please refer to
+        https://cloud.google.com/artifact-registry/docs/docker/authentication to set
+        up the authentication.
+
+        Raises:
+            ValueError: If the image uri is not a container registry or artifact registry
+                uri.
+            DockerError: If the command fails.
+        """
+        if (
+            prediction_utils.is_registry_uri(self.serving_container_spec.image_uri)
+            is False
+        ):
+            raise ValueError(
+                "The image uri must be a container registry or artifact registry "
+                f"uri but it is: {self.serving_container_spec.image_uri}."
+            )
+
+        command = ["docker", "push", f"{self.serving_container_spec.image_uri}"]
+        return_code = local_util.execute_command(command)
+        if return_code != 0:
+            errors.raise_docker_error_with_command(command, return_code)
