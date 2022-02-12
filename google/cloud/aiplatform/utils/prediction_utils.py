@@ -147,7 +147,7 @@ def populate_entrypoint_if_not_exists(
 
         def main(
             predictor_class: Optional[Type[prediction.predictor.Predictor]] = None,
-            handler_class: Type[prediction.handler.Handler] = prediction.handler.PredictionHandler
+            handler_class: Type[prediction.handler.Handler] = prediction.handler.PredictionHandler,
             model_server_class: Type[prediction.model_server.ModelServer] = prediction.model_server.ModelServer,
         ):
             handler = handler_class(
