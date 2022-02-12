@@ -15,6 +15,7 @@
 # limitations under the License.
 #
 
+from contextlib import contextmanager
 from pathlib import Path
 from typing import Dict, Optional, Sequence, Type
 
@@ -31,6 +32,7 @@ from google.cloud.aiplatform.compat.types import (
 )
 
 from google.cloud.aiplatform.docker_utils import build
+from google.cloud.aiplatform.prediction import LocalEndpoint
 from google.cloud.aiplatform.prediction.handler import Handler
 from google.cloud.aiplatform.prediction.handler import PredictionHandler
 from google.cloud.aiplatform.prediction.predictor import Predictor
@@ -358,3 +360,57 @@ class LocalModel:
             staging_bucket=staging_bucket,
             sync=sync,
         )
+
+    @contextmanager
+    def deploy_to_local_endpoint(
+        self,
+        artifact_uri: Optional[str] = None,
+        credential_path: Optional[str] = None,
+        host_port: Optional[str] = None,
+        container_ready_timeout: Optional[int] = None,
+        container_ready_check_interval: Optional[int] = None,
+    ):
+        """Deploys the local model instance to a local endpoint.
+
+        Args:
+            artifact_uri (str):
+                Optional. The path to the directory containing the Model artifact and
+                any of its supporting files. Not present for AutoML Models.
+            credential_path (str):
+                Optional. The path to the credential key that will be mounted to the container.
+                If it's unset, the environment variable, GOOGLE_APPLICATION_CREDENTIALS, will
+                be used if set.
+            host_port (str):
+                Optional. The port on the host that the port, AIP_HTTP_PORT, inside the container
+                will be exposed as. If it's unset, a random host port will be assigned.
+            container_ready_timeout (int):
+                Optional. The timeout in second used for starting the container or succeeding the
+                first health check.
+            container_ready_check_interval (int):
+                Optional. The time interval in second to check if the container is ready or the
+                first health check succeeds.
+
+        Returns:
+            A context manager of the local endpoint.
+        """
+        envs = {env.name: env.value for env in self.serving_container_spec.env}
+        ports = [port.container_port for port in self.serving_container_spec.ports]
+
+        try:
+            with LocalEndpoint(
+                serving_container_image_uri=self.serving_container_spec.image_uri,
+                artifact_uri=artifact_uri,
+                serving_container_predict_route=self.serving_container_spec.predict_route,
+                serving_container_health_route=self.serving_container_spec.health_route,
+                serving_container_command=self.serving_container_spec.command,
+                serving_container_args=self.serving_container_spec.args,
+                serving_container_environment_variables=envs,
+                serving_container_ports=ports,
+                credential_path=credential_path,
+                host_port=host_port,
+                container_ready_timeout=container_ready_timeout,
+                container_ready_check_interval=container_ready_check_interval,
+            ) as local_endpoint:
+                yield local_endpoint
+        finally:
+            pass

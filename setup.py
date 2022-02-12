@@ -43,6 +43,7 @@ profiler_extra_require = [
     "tensorflow >=2.4.0",
 ]
 prediction_extra_require = [
+    "docker >= 5.0.3",
     "fastapi >= 0.71.0",
     "uvicorn >= 0.16.0",
 ]
