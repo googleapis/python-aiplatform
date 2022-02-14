@@ -169,7 +169,7 @@ class TestMatchingEngineIndex:
         aiplatform.init(project=_TEST_PROJECT)
 
         my_index = aiplatform.MatchingEngineIndex(index_name=_TEST_INDEX_ID)
-        my_index.update(
+        my_index.update_metadata(
             display_name=_TEST_DISPLAY_NAME_UPDATE,
             description=_TEST_DESCRIPTION_UPDATE,
             labels=_TEST_LABELS_UPDATE,

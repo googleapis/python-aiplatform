@@ -294,7 +294,7 @@ class MatchingEngineIndexEndpoint(base.VertexAiResourceNounWithFutureManager):
         auth_config_allowed_issuers: Optional[Sequence[str]] = None,
     ) -> gca_matching_engine_index_endpoint.DeployedIndex:
         deployed_index = gca_matching_engine_index_endpoint.DeployedIndex(
-            id=id,
+            id=deployed_index_id,
             index=index.resource_name,
             display_name=display_name,
             enable_access_logging=enable_access_logging,
@@ -341,7 +341,7 @@ class MatchingEngineIndexEndpoint(base.VertexAiResourceNounWithFutureManager):
         deployment_group: Optional[str] = None,
         auth_config_audiences: Optional[Sequence[str]] = None,
         auth_config_allowed_issuers: Optional[Sequence[str]] = None,
-        request_metadata: Optional[Sequence[Tuple[str, str]]] = None,
+        request_metadata: Optional[Sequence[Tuple[str, str]]] = (),
     ) -> "MatchingEngineIndexEndpoint":
         """Deploys an existing index resource to this endpoint resource.
 
@@ -555,3 +555,80 @@ class MatchingEngineIndexEndpoint(base.VertexAiResourceNounWithFutureManager):
         self,
     ) -> List[gca_matching_engine_index_endpoint.DeployedIndex]:
         return self._gca_resource.deployed_indexes
+
+    @base.optional_sync()
+    def _undeploy(
+        self,
+        deployed_index_id: str,
+        metadata: Optional[Sequence[Tuple[str, str]]] = (),
+        sync=True,
+    ) -> None:
+        """Undeploys a deployed index.
+
+        Args:
+            deployed_index_id (str):
+                Required. The ID of the DeployedIndex to be undeployed from the
+                Endpoint.
+            metadata (Sequence[Tuple[str, str]]):
+                Optional. Strings which should be sent along with the request as
+                metadata.
+        """
+        self._sync_gca_resource_if_skipped()
+
+        _LOGGER.log_action_start_against_resource("Undeploying", "index_endpoint", self)
+
+        operation_future = self.api_client.undeploy_index(
+            index_endpoint=self.resource_name,
+            deployed_model_id=deployed_index_id,
+            metadata=metadata,
+        )
+
+        _LOGGER.log_action_started_against_resource_with_lro(
+            "Undeploy", "index_endpoint", self.__class__, operation_future
+        )
+
+        # block before returning
+        operation_future.result()
+
+        _LOGGER.log_action_completed_against_resource(
+            "index_endpoint", "undeployed", self
+        )
+
+        # update local resource
+        self._sync_gca_resource()
+
+    def undeploy_all(self, sync: bool = True) -> "MatchingEngineIndexEndpoint":
+        """Undeploys every index deployed to this MatchingEngineIndexEndpoint.
+
+        Args:
+            sync (bool):
+                Whether to execute this method synchronously. If False, this method
+                will be executed in concurrent Future and any downstream object will
+                be immediately returned and synced when the Future has completed.
+        """
+        self._sync_gca_resource()
+
+        for deployed_index in self.deployed_indexes:
+            self._undeploy(deployed_model_id=deployed_index.id, sync=sync)
+
+        return self
+
+    def delete(self, force: bool = False, sync: bool = True) -> None:
+        """Deletes this MatchingEngineIndexEndpoint resource. If force is set to True,
+        all indexes on this endpoint will be undeployed prior to deletion.
+
+        Args:
+            force (bool):
+                Required. If force is set to True, all deployed indexes on this
+                endpoint will be undeployed first. Default is False.
+            sync (bool):
+                Whether to execute this method synchronously. If False, this method
+                will be executed in concurrent Future and any downstream object will
+                be immediately returned and synced when the Future has completed.
+        Raises:
+            FailedPrecondition: If indexes are deployed on this MatchingEngineIndexEndpoint and force = False.
+        """
+        if force:
+            self.undeploy_all(sync=sync)
+
+        super().delete(sync=sync)

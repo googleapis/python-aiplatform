@@ -222,7 +222,7 @@ class MatchingEngineIndex(base.VertexAiResourceNounWithFutureManager):
 
         return index_obj
 
-    def update(
+    def update_metadata(
         self,
         display_name: str = None,
         description: Optional[str] = None,

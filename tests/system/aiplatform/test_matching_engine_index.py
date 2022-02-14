@@ -78,7 +78,7 @@ class TestFeaturestore(e2e_base.TestEndToEnd):
         assert (len(list_indexes) - existing_index_count) == 1
 
         # Update the index
-        updated_index = get_index.update(
+        updated_index = get_index.update_metadata(
             display_name=_TEST_DISPLAY_NAME_UPDATE,
             contents_delta_uri=_TEST_CONTENTS_DELTA_URI,
             config=_TEST_INDEX_CONFIG,

@@ -34,29 +34,53 @@ from google.cloud.aiplatform_v1.services.index_endpoint_service import (
 )
 from google.cloud.aiplatform_v1.types import index_endpoint as gca_index_endpoint
 
+from google.cloud.aiplatform.compat.types import (
+    matching_engine_index_endpoint as gca_matching_engine_index_endpoint,
+)
+from google.cloud.aiplatform_v1.services.index_service import (
+    client as index_service_client,
+)
+from google.cloud.aiplatform_v1.types import index as gca_index
+
 # project
 _TEST_PROJECT = "test-project"
 _TEST_LOCATION = "us-central1"
 _TEST_PARENT = f"projects/{_TEST_PROJECT}/locations/{_TEST_LOCATION}"
 
+# index
+_TEST_INDEX_ID = "index_id"
+_TEST_INDEX_NAME = f"{_TEST_PARENT}/indexes/{_TEST_INDEX_ID}"
+_TEST_INDEX_DISPLAY_NAME = f"index_display_name"
+_TEST_CONTENTS_DELTA_URI = f"gs://contents"
+_TEST_INDEX_DISTANCE_MEASURE_TYPE = "SQUARED_L2_DISTANCE"
+_TEST_INDEX_CONFIG_DIMENSIONS = 100
+_TEST_INDEX_APPROXIMATE_NEIGHBORS_COUNT = 150
+_TEST_LEAF_NODE_EMBEDDING_COUNT = 123
+_TEST_LEAF_NODES_TO_SEARCH_PERCENT = 50
+_TEST_DEPLOYED_INDEX_ID = f"deployed_index_id"
+_TEST_DEPLOYED_INDEX_DISPLAY_NAME = f"deployed_index_display_name"
 
 # index_endpoint
 _TEST_INDEX_ENDPOINT_ID = "index_endpoint_id"
 _TEST_INDEX_ENDPOINT_NAME = f"{_TEST_PARENT}/indexEndpoints/{_TEST_INDEX_ENDPOINT_ID}"
 _TEST_INDEX_ENDPOINT_DISPLAY_NAME = f"index_endpoint_display_name"
 _TEST_INDEX_ENDPOINT_DESCRIPTION = f"index_endpoint_description"
-
+_TEST_INDEX_DESCRIPTION = f"index_description"
 
 _TEST_LABELS = {"my_key": "my_value"}
 _TEST_DISPLAY_NAME_UPDATE = "my new display name"
 _TEST_DESCRIPTION_UPDATE = "my description update"
 _TEST_LABELS_UPDATE = {"my_key_update": "my_value_update"}
 
+# deployment
+_TEST_MIN_REPLICA_COUNT = 2
+_TEST_MAX_REPLICA_COUNT = 2
+_TEST_ENABLE_ACCESS_LOGGING = False
+_TEST_RESERVED_IP_RANGES = ["vertex-ai-ip-range-1", "vertex-ai-ip-range-2"]
+_TEST_DEPLOYMENT_GROUP = "prod"
+
 # request_metadata
 _TEST_REQUEST_METADATA = ()
-
-# CMEK encryption
-_TEST_ENCRYPTION_KEY_NAME = "key_1234"
 
 # Lists
 _TEST_INDEX_ENDPOINT_LIST = [
@@ -82,7 +106,37 @@ def uuid_mock():
     return uuid.UUID(int=1)
 
 
-# All index_endpoint Mocks
+# All index mocks
+@pytest.fixture
+def get_index_mock():
+    with patch.object(
+        index_service_client.IndexServiceClient, "get_index"
+    ) as get_index_mock:
+        get_index_mock.return_value = gca_index.Index(
+            name=_TEST_INDEX_NAME,
+            display_name=_TEST_INDEX_DISPLAY_NAME,
+            description=_TEST_INDEX_DESCRIPTION,
+        )
+        yield get_index_mock
+
+
+@pytest.fixture
+def create_index_mock():
+    with patch.object(
+        index_service_client.IndexServiceClient, "create_index"
+    ) as create_index_mock:
+        create_index_lro_mock = mock.Mock(operation.Operation)
+        index = gca_index.Index(
+            name=_TEST_INDEX_NAME,
+            display_name=_TEST_INDEX_DISPLAY_NAME,
+            description=_TEST_INDEX_DESCRIPTION,
+        )
+        create_index_lro_mock.result.return_value = index
+        create_index_mock.return_value = create_index_lro_mock
+        yield create_index_mock
+
+
+# All index_endpoint mocks
 @pytest.fixture
 def get_index_endpoint_mock():
     with patch.object(
@@ -94,6 +148,26 @@ def get_index_endpoint_mock():
             description=_TEST_INDEX_ENDPOINT_DESCRIPTION,
         )
         yield get_index_endpoint_mock
+
+
+@pytest.fixture
+def deploy_index_mock():
+    with mock.patch.object(
+        index_endpoint_service_client.IndexEndpointServiceClient, "deploy_index",
+    ) as deploy_index_mock:
+        deploy_index_lro_mock = mock.Mock(operation.Operation)
+        deploy_index_mock.return_value = deploy_index_lro_mock
+        yield deploy_index_mock
+
+
+@pytest.fixture
+def undeploy_index_mock():
+    with mock.patch.object(
+        index_endpoint_service_client.IndexEndpointServiceClient, "undeploy_index",
+    ) as undeploy_index_mock:
+        undeploy_index_lro_mock = mock.Mock(operation.Operation)
+        undeploy_index_mock.return_value = undeploy_index_lro_mock
+        yield undeploy_index_mock
 
 
 @pytest.fixture
@@ -176,6 +250,7 @@ class TestMatchingEngineIndex:
             display_name=_TEST_DISPLAY_NAME_UPDATE,
             description=_TEST_DESCRIPTION_UPDATE,
             labels=_TEST_LABELS_UPDATE,
+            request_metadata=_TEST_REQUEST_METADATA,
         )
 
         expected = gca_index_endpoint.IndexEndpoint(
@@ -189,6 +264,7 @@ class TestMatchingEngineIndex:
             update_mask=field_mask_pb2.FieldMask(
                 paths=["labels", "display_name", "description"]
             ),
+            labels=_TEST_LABELS_UPDATE,
             metadata=_TEST_REQUEST_METADATA,
         )
 
@@ -248,35 +324,69 @@ class TestMatchingEngineIndex:
             metadata=_TEST_REQUEST_METADATA,
         )
 
-    @pytest.mark.usefixtures("get_index_endpoint_mock")
+    @pytest.mark.usefixtures(
+        "get_index_endpoint_mock", "get_index_mock", "create_index_mock"
+    )
     @pytest.mark.parametrize("sync", [True, False])
-    def test_deploy_index(self, create_index_endpoint_mock, sync):
+    def test_deploy_index(self, deploy_index_mock, undeploy_index_mock, sync):
         aiplatform.init(project=_TEST_PROJECT)
 
         my_index_endpoint = aiplatform.MatchingEngineIndexEndpoint(
             index_endpoint_name=_TEST_INDEX_ENDPOINT_ID
         )
 
+        # Create index
+        my_index = aiplatform.MatchingEngineIndex.create_tree_ah_index(
+            index_id=_TEST_INDEX_ID,
+            display_name=_TEST_INDEX_DISPLAY_NAME,
+            contents_delta_uri=_TEST_CONTENTS_DELTA_URI,
+            dimensions=_TEST_INDEX_CONFIG_DIMENSIONS,
+            approximate_neighbors_count=_TEST_INDEX_APPROXIMATE_NEIGHBORS_COUNT,
+            distance_measure_type=_TEST_INDEX_DISTANCE_MEASURE_TYPE,
+            leaf_node_embedding_count=_TEST_LEAF_NODE_EMBEDDING_COUNT,
+            leaf_nodes_to_search_percent=_TEST_LEAF_NODES_TO_SEARCH_PERCENT,
+            description=_TEST_INDEX_DESCRIPTION,
+            labels=_TEST_LABELS,
+            sync=sync,
+        )
+
         if not sync:
-            my_index_endpoint.wait()
+            my_index.wait()
 
         my_index_endpoint = my_index_endpoint.deploy_index(
-            id="deployed_index",
-            index=index,
+            index=my_index,
+            deployed_index_id=_TEST_DEPLOYED_INDEX_ID,
             display_name=_TEST_DEPLOYED_INDEX_DISPLAY_NAME,
+            min_replica_count=_TEST_MIN_REPLICA_COUNT,
+            max_replica_count=_TEST_MAX_REPLICA_COUNT,
+            enable_access_logging=_TEST_ENABLE_ACCESS_LOGGING,
+            reserved_ip_ranges=_TEST_RESERVED_IP_RANGES,
+            deployment_group=_TEST_DEPLOYMENT_GROUP,
         )
 
-        my_index_endpoint = my_index_endpoint.undeploy_index(index=index)
-
-        expected = gca_index_endpoint.IndexEndpoint(
-            name=_TEST_INDEX_ENDPOINT_ID,
-            display_name=_TEST_INDEX_ENDPOINT_DISPLAY_NAME,
-            description=_TEST_INDEX_ENDPOINT_DESCRIPTION,
-            labels=_TEST_LABELS,
-        )
-        create_index_endpoint_mock.assert_called_once_with(
-            parent=_TEST_PARENT,
-            index_endpoint=expected,
+        deploy_index_mock.assert_called_once_with(
+            index_endpoint=my_index_endpoint.resource_name,
+            deployed_index=gca_matching_engine_index_endpoint.DeployedIndex(
+                id=_TEST_DEPLOYED_INDEX_ID,
+                index=my_index.resource_name,
+                display_name=_TEST_DEPLOYED_INDEX_DISPLAY_NAME,
+                enable_access_logging=_TEST_ENABLE_ACCESS_LOGGING,
+                reserved_ip_ranges=_TEST_RESERVED_IP_RANGES,
+                deployment_group=_TEST_DEPLOYMENT_GROUP,
+                automatic_resources={
+                    "min_replica_count": _TEST_MIN_REPLICA_COUNT,
+                    "max_replica_count": _TEST_MAX_REPLICA_COUNT,
+                },
+            ),
             metadata=_TEST_REQUEST_METADATA,
         )
 
+        my_index_endpoint = my_index_endpoint.undeploy_index(
+            deployed_index_id=_TEST_DEPLOYED_INDEX_ID
+        )
+
+        undeploy_index_mock.assert_called_once_with(
+            index_endpoint=my_index_endpoint.resource_name,
+            deployed_index_id=_TEST_DEPLOYED_INDEX_ID,
+            metadata=_TEST_REQUEST_METADATA,
+        )
