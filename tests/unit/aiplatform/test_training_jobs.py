@@ -1510,6 +1510,16 @@ class TestCustomTrainingJob:
             gca_pipeline_state.PipelineState.PIPELINE_STATE_SUCCEEDED
         )
 
+        assert (
+            job._gca_resource.state
+            == gca_pipeline_state.PipelineState.PIPELINE_STATE_SUCCEEDED
+        )
+        assert job._gca_resource.training_task_inputs["timeout"] == f"{_TEST_TIMEOUT}s"
+        assert (
+            job._gca_resource.training_task_inputs["restart_job_on_worker_restart"]
+            == _TEST_RESTART_JOB_ON_WORKER_RESTART
+        )
+
     @pytest.mark.usefixtures(
         "mock_pipeline_service_create_with_no_model_to_upload",
         "mock_pipeline_service_get_with_no_model_to_upload",
@@ -2951,6 +2961,16 @@ class TestCustomContainerTrainingJob:
 
         assert job._gca_resource == make_training_pipeline_with_scheduling(
             gca_pipeline_state.PipelineState.PIPELINE_STATE_SUCCEEDED
+        )
+
+        assert (
+            job._gca_resource.state
+            == gca_pipeline_state.PipelineState.PIPELINE_STATE_SUCCEEDED
+        )
+        assert job._gca_resource.training_task_inputs["timeout"] == f"{_TEST_TIMEOUT}s"
+        assert (
+            job._gca_resource.training_task_inputs["restart_job_on_worker_restart"]
+            == _TEST_RESTART_JOB_ON_WORKER_RESTART
         )
 
     @pytest.mark.parametrize("sync", [True, False])
@@ -4667,6 +4687,16 @@ class TestCustomPythonPackageTrainingJob:
 
         assert job._gca_resource == make_training_pipeline_with_scheduling(
             gca_pipeline_state.PipelineState.PIPELINE_STATE_SUCCEEDED
+        )
+
+        assert (
+            job._gca_resource.state
+            == gca_pipeline_state.PipelineState.PIPELINE_STATE_SUCCEEDED
+        )
+        assert job._gca_resource.training_task_inputs["timeout"] == f"{_TEST_TIMEOUT}s"
+        assert (
+            job._gca_resource.training_task_inputs["restart_job_on_worker_restart"]
+            == _TEST_RESTART_JOB_ON_WORKER_RESTART
         )
 
     @pytest.mark.usefixtures(
