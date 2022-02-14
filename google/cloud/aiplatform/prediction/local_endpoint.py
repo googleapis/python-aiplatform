@@ -210,14 +210,21 @@ class LocalEndpoint:
             DockerError: If timeout.
         """
         elapsed_time = 0
-        response = self.run_health_check()
+        try:
+            response = self.run_health_check()
+        except:
+            response = None
+
         while response is None or (
             response.status_code != 200 and elapsed_time < self.container_ready_timeout
         ):
             _logger.info("Waiting for the first health check succeeding.")
             time.sleep(self.container_ready_check_interval)
             elapsed_time += self.container_ready_check_interval
-            response = self.run_health_check()
+            try:
+                response = self.run_health_check()
+            except:
+                response = None
 
         if elapsed_time >= self.container_ready_timeout:
             raise DockerError("The health check never succeeds.", "", 1)
