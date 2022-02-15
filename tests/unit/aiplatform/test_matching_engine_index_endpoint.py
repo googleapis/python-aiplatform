@@ -445,14 +445,8 @@ class TestMatchingEngineIndex:
         my_index_endpoint.mutate_deployed_index(
             index_id=_TEST_INDEX_ID,
             deployed_index_id=_TEST_DEPLOYED_INDEX_ID,
-            display_name=_TEST_DEPLOYED_INDEX_DISPLAY_NAME_UPDATED,
             min_replica_count=_TEST_MIN_REPLICA_COUNT_UPDATED,
             max_replica_count=_TEST_MAX_REPLICA_COUNT_UPDATED,
-            enable_access_logging=_TEST_ENABLE_ACCESS_LOGGING_UPDATED,
-            reserved_ip_ranges=_TEST_RESERVED_IP_RANGES_UPDATED,
-            deployment_group=_TEST_DEPLOYMENT_GROUP_UPDATED,
-            auth_config_audiences=_TEST_AUTH_CONFIG_AUDIENCES_UPDATED,
-            auth_config_allowed_issuers=_TEST_AUTH_CONFIG_ALLOWED_ISSUERS_UPDATED,
             request_metadata=_TEST_REQUEST_METADATA,
         )
 
@@ -461,20 +455,10 @@ class TestMatchingEngineIndex:
             deployed_index=gca_matching_engine_index_endpoint.DeployedIndex(
                 id=_TEST_DEPLOYED_INDEX_ID,
                 index=_TEST_INDEX_NAME,
-                display_name=_TEST_DEPLOYED_INDEX_DISPLAY_NAME_UPDATED,
-                enable_access_logging=_TEST_ENABLE_ACCESS_LOGGING_UPDATED,
-                reserved_ip_ranges=_TEST_RESERVED_IP_RANGES_UPDATED,
-                deployment_group=_TEST_DEPLOYMENT_GROUP_UPDATED,
                 automatic_resources={
                     "min_replica_count": _TEST_MIN_REPLICA_COUNT_UPDATED,
                     "max_replica_count": _TEST_MAX_REPLICA_COUNT_UPDATED,
                 },
-                deployed_index_auth_config=gca_matching_engine_index_endpoint.DeployedIndexAuthConfig(
-                    auth_provider=gca_matching_engine_index_endpoint.DeployedIndexAuthConfig.AuthProvider(
-                        audiences=_TEST_AUTH_CONFIG_AUDIENCES_UPDATED,
-                        allowed_issuers=_TEST_AUTH_CONFIG_ALLOWED_ISSUERS_UPDATED,
-                    )
-                ),
             ),
             metadata=_TEST_REQUEST_METADATA,
         )

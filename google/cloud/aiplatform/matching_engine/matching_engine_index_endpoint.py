@@ -502,15 +502,8 @@ class MatchingEngineIndexEndpoint(base.VertexAiResourceNounWithFutureManager):
         self,
         index_id: str,
         deployed_index_id: str,
-        display_name: Optional[str] = None,
-        machine_type: Optional[str] = None,
         min_replica_count: int = 1,
         max_replica_count: int = 1,
-        enable_access_logging: Optional[bool] = None,
-        reserved_ip_ranges: Optional[Sequence[str]] = None,
-        deployment_group: Optional[str] = None,
-        auth_config_audiences: Optional[Sequence[str]] = None,
-        auth_config_allowed_issuers: Optional[Sequence[str]] = None,
         request_metadata: Optional[Sequence[Tuple[str, str]]] = (),
     ):
         """Updates an existing deployed index under this endpoint resource.
@@ -523,9 +516,6 @@ class MatchingEngineIndexEndpoint(base.VertexAiResourceNounWithFutureManager):
                 only contain letters, numbers, and underscores.
                 The ID must be unique within the project it is
                 created in.
-            display_name (str):
-                The display name of the DeployedIndex. If not provided upon
-                creation, the Index's display_name is used.
             min_replica_count (int):
                 Optional. The minimum number of machine replicas this deployed
                 model will be always deployed on. If traffic against it increases,
@@ -541,58 +531,7 @@ class MatchingEngineIndexEndpoint(base.VertexAiResourceNounWithFutureManager):
                 handle, a portion of the traffic will be dropped. If this value
                 is not provided, the larger value of min_replica_count or 1 will
                 be used. If value provided is smaller than min_replica_count, it
-                will automatically be increased to be min_replica_count.
-            enable_access_logging (bool):
-                Optional. If true, private endpoint's access
-                logs are sent to StackDriver Logging.
-                These logs are like standard server access logs,
-                containing information like timestamp and
-                latency for each MatchRequest.
-                Note that Stackdriver logs may incur a cost,
-                especially if the deployed index receives a high
-                queries per second rate (QPS). Estimate your
-                costs before enabling this option.
-            deployed_index_auth_config (google.cloud.aiplatform_v1.types.DeployedIndexAuthConfig):
-                Optional. If set, the authentication is
-                enabled for the private endpoint.
-            reserved_ip_ranges (Sequence[str]):
-                Optional. A list of reserved ip ranges under
-                the VPC network that can be used for this
-                DeployedIndex.
-                If set, we will deploy the index within the
-                provided ip ranges. Otherwise, the index might
-                be deployed to any ip ranges under the provided
-                VPC network.
-
-                The value sohuld be the name of the address
-                (https://cloud.google.com/compute/docs/reference/rest/v1/addresses)
-                Example: 'vertex-ai-ip-range'.
-            deployment_group (str):
-                Optional. The deployment group can be no longer than 64
-                characters (eg: 'test', 'prod'). If not set, we will use the
-                'default' deployment group.
-
-                Creating ``deployment_groups`` with ``reserved_ip_ranges``
-                is a recommended practice when the peered network has
-                multiple peering ranges. This creates your deployments from
-                predictable IP spaces for easier traffic administration.
-                Also, one deployment_group (except 'default') can only be
-                used with the same reserved_ip_ranges which means if the
-                deployment_group has been used with reserved_ip_ranges: [a,
-                b, c], using it with [a, b] or [d, e] is disallowed.
-
-                Note: we only support up to 5 deployment groups(not
-                including 'default').
-            auth_config_audiences (Sequence[str]):
-                Optional. The list of JWT
-                `audiences <https://tools.ietf.org/html/draft-ietf-oauth-json-web-token-32#section-4.1.3>`__.
-                that are allowed to access. A JWT containing any of these
-                audiences will be accepted.
-            auth_config_allowed_issuers (Sequence[str]):
-                Optional. A list of allowed JWT issuers. Each entry must be a valid
-                Google service account, in the following format:
-
-                ``service-account-name@project-id.iam.gserviceaccount.com``                
+                will automatically be increased to be min_replica_count.               
             request_metadata (Sequence[Tuple[str, str]]):
                 Optional. Strings which should be sent along with the request as metadata.
         """
@@ -614,15 +553,8 @@ class MatchingEngineIndexEndpoint(base.VertexAiResourceNounWithFutureManager):
         deployed_index = self._build_deployed_index(
             index_resource_name=index_resource_name,
             deployed_index_id=deployed_index_id,
-            display_name=display_name,
-            machine_type=machine_type,
             min_replica_count=min_replica_count,
             max_replica_count=max_replica_count,
-            enable_access_logging=enable_access_logging,
-            reserved_ip_ranges=reserved_ip_ranges,
-            deployment_group=deployment_group,
-            auth_config_audiences=auth_config_audiences,
-            auth_config_allowed_issuers=auth_config_allowed_issuers,
         )
 
         deploy_lro = self.api_client.mutate_deployed_index(
@@ -723,3 +655,9 @@ class MatchingEngineIndexEndpoint(base.VertexAiResourceNounWithFutureManager):
             self.undeploy_all(sync=sync)
 
         super().delete(sync=sync)
+
+    @property
+    def description(self) -> str:
+        """Description of the index endpoint."""
+        self._assert_gca_resource_is_available()
+        return self._gca_resource.description
