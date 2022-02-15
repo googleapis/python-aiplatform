@@ -23,7 +23,7 @@ from google.protobuf import field_mask_pb2
 from google.cloud.aiplatform import base
 from google.cloud.aiplatform.compat.types import (
     matching_engine_index as gca_matching_engine_index,
-    matching_engine_index_endpoint as gca_matching_engine_index_endpoint,
+    matching_engine_deployed_index_ref as gca_matching_engine_deployed_index_ref,
 )
 from google.cloud.aiplatform import initializer
 from google.cloud.aiplatform import utils
@@ -359,7 +359,7 @@ class MatchingEngineIndex(base.VertexAiResourceNounWithFutureManager):
     @property
     def deployed_indexes(
         self,
-    ) -> List[gca_matching_engine_index_endpoint.DeployedIndex]:
+    ) -> List[gca_matching_engine_deployed_index_ref.DeployedIndexRef]:
         return self._gca_resource.deployed_indexes
 
     @classmethod

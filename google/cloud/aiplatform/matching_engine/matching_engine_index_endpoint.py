@@ -281,7 +281,7 @@ class MatchingEngineIndexEndpoint(base.VertexAiResourceNounWithFutureManager):
 
     @staticmethod
     def _build_deployed_index(
-        index: matching_engine.MatchingEngineIndex,
+        index_resource_name: str,
         deployed_index_id: str,
         display_name: Optional[str] = None,
         machine_type: Optional[str] = None,
@@ -295,7 +295,7 @@ class MatchingEngineIndexEndpoint(base.VertexAiResourceNounWithFutureManager):
     ) -> gca_matching_engine_index_endpoint.DeployedIndex:
         deployed_index = gca_matching_engine_index_endpoint.DeployedIndex(
             id=deployed_index_id,
-            index=index.resource_name,
+            index=index_resource_name,
             display_name=display_name,
             enable_access_logging=enable_access_logging,
             reserved_ip_ranges=reserved_ip_ranges,
@@ -304,7 +304,7 @@ class MatchingEngineIndexEndpoint(base.VertexAiResourceNounWithFutureManager):
 
         if auth_config_audiences and auth_config_allowed_issuers:
             deployed_index.deployed_index_auth_config = gca_matching_engine_index_endpoint.DeployedIndexAuthConfig(
-                gca_matching_engine_index_endpoint.DeployedIndexAuthConfig.AuthProvider(
+                auth_provider=gca_matching_engine_index_endpoint.DeployedIndexAuthConfig.AuthProvider(
                     audiences=auth_config_audiences,
                     allowed_issuers=auth_config_allowed_issuers,
                 )
@@ -401,7 +401,7 @@ class MatchingEngineIndexEndpoint(base.VertexAiResourceNounWithFutureManager):
         )
 
         deployed_index = self._build_deployed_index(
-            index=index,
+            index_resource_name=index.resource_name,
             deployed_index_id=deployed_index_id,
             display_name=display_name,
             machine_type=machine_type,
@@ -477,7 +477,7 @@ class MatchingEngineIndexEndpoint(base.VertexAiResourceNounWithFutureManager):
 
     def mutate_deployed_index(
         self,
-        index: matching_engine.MatchingEngineIndex,
+        index_id: str,
         deployed_index_id: str,
         display_name: Optional[str] = None,
         machine_type: Optional[str] = None,
@@ -493,10 +493,6 @@ class MatchingEngineIndexEndpoint(base.VertexAiResourceNounWithFutureManager):
         """Updates an existing deployed index under this endpoint resource.
 
         Args:
-            index (MatchingEngineIndex):
-                Required. The Index this is the
-                deployment of. We may refer to this Index as the
-                DeployedIndex's "original" Index.
             deployed_index_id (str):
                 Required. The user specified ID of the
                 DeployedIndex. The ID can be up to 128
@@ -515,8 +511,18 @@ class MatchingEngineIndexEndpoint(base.VertexAiResourceNounWithFutureManager):
             "Mutating index", "index_endpoint", self,
         )
 
+        index_resource_name = utils.full_resource_name(
+            resource_name=index_id,
+            resource_noun=matching_engine.MatchingEngineIndex._resource_noun,
+            parse_resource_name_method=matching_engine.MatchingEngineIndex._parse_resource_name,
+            format_resource_name_method=matching_engine.MatchingEngineIndex._format_resource_name,
+            project=self.project,
+            location=self.location,
+            resource_id_validator=matching_engine.MatchingEngineIndex._resource_id_validator,
+        )
+
         deployed_index = self._build_deployed_index(
-            index=index,
+            index_resource_name=index_resource_name,
             deployed_index_id=deployed_index_id,
             display_name=display_name,
             machine_type=machine_type,
@@ -544,11 +550,6 @@ class MatchingEngineIndexEndpoint(base.VertexAiResourceNounWithFutureManager):
         _LOGGER.log_action_completed_against_resource("index_endpoint", "Mutated", self)
 
         return self
-
-    def match(
-        self, embeddings: List[List[float]], deployed_index_id: str
-    ) -> "MatchResponse":
-        pass
 
     @property
     def deployed_indexes(
