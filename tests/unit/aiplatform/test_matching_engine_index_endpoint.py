@@ -505,4 +505,3 @@ class TestMatchingEngineIndex:
         delete_index_endpoint_mock.assert_called_once_with(
             name=_TEST_INDEX_ENDPOINT_NAME
         )
-
