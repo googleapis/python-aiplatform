@@ -92,7 +92,7 @@ class TestMatchingEngine(e2e_base.TestEndToEnd):
         get_index = aiplatform.MatchingEngineIndex(index_name=index.resource_name)
         assert index.resource_name == get_index.resource_name
 
-        # Verify that the index count has increased
+        # Create index and check that it is listed
         list_indexes = aiplatform.MatchingEngineIndex.list()
         assert get_index.resource_name in [
             index.resource_name for index in list_indexes
@@ -105,9 +105,9 @@ class TestMatchingEngine(e2e_base.TestEndToEnd):
             labels=_TEST_LABELS_UPDATE,
         )
 
+        assert updated_index.labels == _TEST_LABELS
         assert updated_index.display_name == _TEST_DISPLAY_NAME_UPDATE
         assert updated_index.description == _TEST_DESCRIPTION_UPDATE
-        assert updated_index.labels == _TEST_LABELS
 
         # Update the index embeddings
         updated_index = get_index.update_embeddings(
@@ -162,7 +162,7 @@ class TestMatchingEngine(e2e_base.TestEndToEnd):
         # Undeploy endpoint
         my_index_endpoint = my_index_endpoint.undeploy_index(index=index)
 
-        # Delete index and check that count has returned to the starting value
+        # Delete index and check that it is no longer listed
         index.delete()
         list_indexes = aiplatform.MatchingEngineIndex.list()
         assert get_index.resource_name not in [

@@ -480,7 +480,7 @@ class FeaturestoreClientWithOverride(ClientWithOverride):
     _default_version = compat.DEFAULT_VERSION
     _version_map = (
         (compat.V1, featurestore_service_client_v1.FeaturestoreServiceClient),
-        (compat.V1BETA1, index_service_client_v1beta1.IndexServiceClient),
+        (compat.V1BETA1, featurestore_service_client_v1beta1.FeaturestoreServiceClient),
     )
 
 
