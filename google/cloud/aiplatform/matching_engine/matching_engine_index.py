@@ -98,7 +98,6 @@ class MatchingEngineIndex(base.VertexAiResourceNounWithFutureManager):
     @base.optional_sync()
     def _create(
         cls,
-        index_id: str,
         display_name: str,
         contents_delta_uri: str,
         config: matching_engine_index_config.MatchingEngineIndexConfig,
@@ -112,22 +111,7 @@ class MatchingEngineIndex(base.VertexAiResourceNounWithFutureManager):
     ) -> "MatchingEngineIndex":
         """Creates a MatchingEngineIndex resource.
 
-        Example Usage:
-
-            my_index = aiplatform.Index._create(
-                index_id='my_index_id',
-            )
-
         Args:
-            index_id (str):
-                Required. The ID to use for this index, which will
-                become the final component of the index's resource
-                name.
-
-                This value may be up to 60 characters, and valid characters
-                are ``[a-z0-9_]``. The first character cannot be a number.
-
-                The value must be unique within the project and location.
             display_name (str):
                 Required. The display name of the Index.
                 The name can be up to 128 characters long and
@@ -184,7 +168,6 @@ class MatchingEngineIndex(base.VertexAiResourceNounWithFutureManager):
 
         """
         gapic_index = gca_matching_engine_index.Index(
-            name=index_id,
             display_name=display_name,
             description=description,
             metadata={
@@ -371,7 +354,6 @@ class MatchingEngineIndex(base.VertexAiResourceNounWithFutureManager):
     @classmethod
     def create_tree_ah_index(
         cls,
-        index_id: str,
         display_name: str,
         contents_delta_uri: str,
         dimensions: int,
@@ -394,7 +376,6 @@ class MatchingEngineIndex(base.VertexAiResourceNounWithFutureManager):
         Example Usage:
 
             my_index = aiplatform.Index.create_tree_ah_index(
-                index_id="my_index",
                 display_name="my_display_name",
                 contents_delta_uri="gs://my_bucket/embeddings",
                 dimensions=1,
@@ -407,15 +388,6 @@ class MatchingEngineIndex(base.VertexAiResourceNounWithFutureManager):
             )
 
         Args:
-            index_id (str):
-                Required. The ID to use for this index, which will
-                become the final component of the index's resource
-                name.
-
-                This value may be up to 60 characters, and valid characters
-                are ``[a-z0-9_]``. The first character cannot be a number.
-
-                The value must be unique within the project and location.
             display_name (str):
                 Required. The display name of the Index.
                 The name can be up to 128 characters long and
@@ -496,7 +468,6 @@ class MatchingEngineIndex(base.VertexAiResourceNounWithFutureManager):
         )
 
         return cls._create(
-            index_id=index_id,
             display_name=display_name,
             contents_delta_uri=contents_delta_uri,
             config=config,
@@ -512,7 +483,6 @@ class MatchingEngineIndex(base.VertexAiResourceNounWithFutureManager):
     @classmethod
     def create_brute_force_index(
         cls,
-        index_id: str,
         display_name: str,
         contents_delta_uri: str,
         dimensions: int,
@@ -533,7 +503,6 @@ class MatchingEngineIndex(base.VertexAiResourceNounWithFutureManager):
         Example Usage:
 
             my_index = aiplatform.Index.create_brute_force_index(
-                index_id="my_index",
                 display_name="my_display_name",
                 contents_delta_uri="gs://my_bucket/embeddings",
                 dimensions=1,
@@ -544,15 +513,6 @@ class MatchingEngineIndex(base.VertexAiResourceNounWithFutureManager):
             )
 
         Args:
-            index_id (str):
-                Required. The ID to use for this index, which will
-                become the final component of the index's resource
-                name.
-
-                This value may be up to 60 characters, and valid characters
-                are ``[a-z0-9_]``. The first character cannot be a number.
-
-                The value must be unique within the project and location.
             display_name (str):
                 Required. The display name of the Index.
                 The name can be up to 128 characters long and
@@ -625,7 +585,6 @@ class MatchingEngineIndex(base.VertexAiResourceNounWithFutureManager):
         )
 
         return cls._create(
-            index_id=index_id,
             display_name=display_name,
             contents_delta_uri=contents_delta_uri,
             config=config,

@@ -245,7 +245,6 @@ class TestMatchingEngineIndex:
         aiplatform.init(project=_TEST_PROJECT)
 
         my_index = aiplatform.MatchingEngineIndex.create_tree_ah_index(
-            index_id=_TEST_INDEX_ID,
             display_name=_TEST_INDEX_DISPLAY_NAME,
             contents_delta_uri=_TEST_CONTENTS_DELTA_URI,
             dimensions=_TEST_INDEX_CONFIG_DIMENSIONS,
@@ -269,7 +268,6 @@ class TestMatchingEngineIndex:
         }
 
         expected = gca_index.Index(
-            name=_TEST_INDEX_ID,
             display_name=_TEST_INDEX_DISPLAY_NAME,
             metadata={
                 "config": {
@@ -294,7 +292,6 @@ class TestMatchingEngineIndex:
         aiplatform.init(project=_TEST_PROJECT)
 
         my_index = aiplatform.MatchingEngineIndex.create_brute_force_index(
-            index_id=_TEST_INDEX_ID,
             display_name=_TEST_INDEX_DISPLAY_NAME,
             contents_delta_uri=_TEST_CONTENTS_DELTA_URI,
             dimensions=_TEST_INDEX_CONFIG_DIMENSIONS,
@@ -311,7 +308,6 @@ class TestMatchingEngineIndex:
         config = {"bruteForceConfig": {}}
 
         expected = gca_index.Index(
-            name=_TEST_INDEX_ID,
             display_name=_TEST_INDEX_DISPLAY_NAME,
             metadata={
                 "config": {
