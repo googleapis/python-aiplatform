@@ -260,6 +260,16 @@ def create_index_endpoint_mock():
         yield create_index_endpoint_mock
 
 
+@pytest.fixture
+def undeploy_all_mock():
+    """Mocks the undeploy_all method"""
+    with mock.patch.object(
+        aiplatform.MatchingEngineIndexEndpoint, "undeploy_all"
+    ) as undeploy_all_mock:
+        undeploy_all_mock.return_value = None
+        yield undeploy_all_mock
+
+
 class TestMatchingEngineIndex:
     def setup_method(self):
         reload(initializer)
@@ -469,3 +479,47 @@ class TestMatchingEngineIndex:
             ),
             metadata=_TEST_REQUEST_METADATA,
         )
+
+    @pytest.mark.usefixtures("get_index_endpoint_mock")
+    @pytest.mark.parametrize("sync", [True, False])
+    def test_delete_index_endpoint_without_force(
+        self, undeploy_all_mock, delete_index_endpoint_mock, sync
+    ):
+
+        my_index_endpoint = aiplatform.MatchingEngineIndexEndpoint(
+            index_endpoint_name=_TEST_INDEX_ENDPOINT_NAME
+        )
+
+        my_index_endpoint.delete(sync=sync)
+
+        if not sync:
+            my_index_endpoint.wait()
+
+        # undeploy_all() should not be called unless force is set to True
+        undeploy_all_mock.assert_not_called()
+
+        delete_index_endpoint_mock.assert_called_once_with(
+            name=_TEST_INDEX_ENDPOINT_NAME
+        )
+
+    @pytest.mark.usefixtures("get_index_endpoint_mock")
+    @pytest.mark.parametrize("sync", [True, False])
+    def test_delete_index_endpoint_with_force(
+        self, undeploy_all_mock, delete_index_endpoint_mock, sync
+    ):
+
+        my_index_endpoint = aiplatform.MatchingEngineIndexEndpoint(
+            index_endpoint_name=_TEST_INDEX_ENDPOINT_NAME
+        )
+        my_index_endpoint.delete(force=True, sync=sync)
+
+        if not sync:
+            my_index_endpoint.wait()
+
+        # undeploy_all() should be called if force is set to True
+        undeploy_all_mock.assert_called_once()
+
+        delete_index_endpoint_mock.assert_called_once_with(
+            name=_TEST_INDEX_ENDPOINT_NAME
+        )
+
