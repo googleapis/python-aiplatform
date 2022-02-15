@@ -360,7 +360,7 @@ class MatchingEngineIndex(base.VertexAiResourceNounWithFutureManager):
     def deployed_indexes(
         self,
     ) -> List[gca_matching_engine_deployed_index_ref.DeployedIndexRef]:
-        """Returns a list of deployed index references that originate from this index
+        """Returns a list of deployed index references that originate from this index.
         
         Returns:
             List[gca_matching_engine_deployed_index_ref.DeployedIndexRef] - Deployed index references
