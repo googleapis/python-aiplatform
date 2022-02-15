@@ -35,6 +35,8 @@ class _MetadataStore(base.VertexAiResourceNounWithFutureManager):
     _resource_noun = "metadataStores"
     _getter_method = "get_metadata_store"
     _delete_method = "delete_metadata_store"
+    _parse_resource_name_method = "parse_metadata_store_path"
+    _format_resource_name_method = "metadata_store_path"
 
     def __init__(
         self,

@@ -142,11 +142,11 @@ _TEST_EXPLANATION_PARAMETERS = aiplatform.explain.ExplanationParameters(
     {"sampled_shapley_attribution": {"path_count": 10}}
 )
 
-_TEST_JOB_GET_METHOD_NAME = "get_fake_job"
-_TEST_JOB_LIST_METHOD_NAME = "list_fake_job"
-_TEST_JOB_CANCEL_METHOD_NAME = "cancel_fake_job"
-_TEST_JOB_DELETE_METHOD_NAME = "delete_fake_job"
-_TEST_JOB_RESOURCE_NAME = f"{_TEST_PARENT}/fakeJobs/{_TEST_ID}"
+_TEST_JOB_GET_METHOD_NAME = "get_custom_job"
+_TEST_JOB_LIST_METHOD_NAME = "list_custom_job"
+_TEST_JOB_CANCEL_METHOD_NAME = "cancel_custom_job"
+_TEST_JOB_DELETE_METHOD_NAME = "delete_custom_job"
+_TEST_JOB_RESOURCE_NAME = f"{_TEST_PARENT}/customJobs/{_TEST_ID}"
 
 # TODO(b/171333554): Move reusable test fixtures to conftest.py file
 
@@ -170,12 +170,14 @@ def fake_job_cancel_mock():
 
 class TestJob:
     class FakeJob(jobs._Job):
-        _job_type = "fake-job"
-        _resource_noun = "fakeJobs"
+        _job_type = "custom-job"
+        _resource_noun = "customJobs"
         _getter_method = _TEST_JOB_GET_METHOD_NAME
         _list_method = _TEST_JOB_LIST_METHOD_NAME
         _cancel_method = _TEST_JOB_CANCEL_METHOD_NAME
         _delete_method = _TEST_JOB_DELETE_METHOD_NAME
+        _parse_resource_name_method = "parse_custom_job_path"
+        _format_resource_name_method = "custom_job_path"
         resource_name = _TEST_JOB_RESOURCE_NAME
 
     def setup_method(self):

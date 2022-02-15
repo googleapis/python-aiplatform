@@ -210,18 +210,20 @@ class _Config:
         return self._network
 
     def get_client_options(
-        self, location_override: Optional[str] = None, prediction_client: bool = False
+        self,
+        location_override: Optional[str] = None,
+        prediction_client: bool = False,
+        api_base_path_override: Optional[str] = None,
     ) -> client_options.ClientOptions:
         """Creates GAPIC client_options using location and type.
 
         Args:
             location_override (str):
-                Set this parameter to get client options for a location different from
-                location set by initializer. Must be a GCP region supported by AI
-                Platform (Unified).
-            prediction_client (str): Optional flag to use a prediction endpoint.
-
-
+                Optional. Set this parameter to get client options for a location different
+                from location set by initializer. Must be a GCP region supported by
+                Vertex AI.
+            prediction_client (str): Optional. flag to use a prediction endpoint.
+            api_base_path_override (str): Optional. Override default API base path.
         Returns:
             clients_options (google.api_core.client_options.ClientOptions):
                 A ClientOptions object set with regionalized API endpoint, i.e.
@@ -238,7 +240,7 @@ class _Config:
 
         utils.validate_region(region)
 
-        service_base_path = (
+        service_base_path = api_base_path_override or (
             constants.PREDICTION_API_BASE_PATH
             if prediction_client
             else constants.API_BASE_PATH
@@ -277,17 +279,19 @@ class _Config:
         credentials: Optional[auth_credentials.Credentials] = None,
         location_override: Optional[str] = None,
         prediction_client: bool = False,
+        api_base_path_override: Optional[str] = None,
     ) -> utils.VertexAiServiceClientWithOverride:
         """Instantiates a given VertexAiServiceClient with optional
         overrides.
 
         Args:
             client_class (utils.VertexAiServiceClientWithOverride):
-                (Required) A Vertex AI Service Client with optional overrides.
+                Required. A Vertex AI Service Client with optional overrides.
             credentials (auth_credentials.Credentials):
-                Custom auth credentials. If not provided will use the current config.
-            location_override (str): Optional location override.
-            prediction_client (str): Optional flag to use a prediction endpoint.
+                Optional. Custom auth credentials. If not provided will use the current config.
+            location_override (str): Optional. location override.
+            prediction_client (str): Optional. flag to use a prediction endpoint.
+            api_base_path_override (str): Optional. Override default api base path.
         Returns:
             client: Instantiated Vertex AI Service client with optional overrides
         """
@@ -304,6 +308,7 @@ class _Config:
             "client_options": self.get_client_options(
                 location_override=location_override,
                 prediction_client=prediction_client,
+                api_base_path_override=api_base_path_override,
             ),
             "client_info": client_info,
         }

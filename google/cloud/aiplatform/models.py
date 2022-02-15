@@ -48,8 +48,7 @@ from google.cloud.aiplatform.compat.types import (
     env_var as gca_env_var_compat,
 )
 
-from google.protobuf import json_format
-
+from google.protobuf import field_mask_pb2, json_format
 
 _LOGGER = base.Logger(__name__)
 
@@ -87,11 +86,12 @@ class Prediction(NamedTuple):
 class Endpoint(base.VertexAiResourceNounWithFutureManager):
 
     client_class = utils.EndpointClientWithOverride
-    _is_client_prediction_client = False
     _resource_noun = "endpoints"
     _getter_method = "get_endpoint"
     _list_method = "list_endpoints"
     _delete_method = "delete_endpoint"
+    _parse_resource_name_method = "parse_endpoint_path"
+    _format_resource_name_method = "endpoint_path"
 
     def __init__(
         self,
@@ -128,6 +128,8 @@ class Endpoint(base.VertexAiResourceNounWithFutureManager):
         endpoint_name = utils.full_resource_name(
             resource_name=endpoint_name,
             resource_noun="endpoints",
+            parse_resource_name_method=self._parse_resource_name,
+            format_resource_name_method=self._format_resource_name,
             project=project,
             location=location,
         )
@@ -994,21 +996,22 @@ class Endpoint(base.VertexAiResourceNounWithFutureManager):
     ) -> None:
         """Undeploys a deployed model.
 
-        Proportionally adjusts the traffic_split among the remaining deployed
-        models of the endpoint.
+        The model to be undeployed should have no traffic or user must provide
+        a new traffic_split with the remaining deployed models. Refer
+        to `Endpoint.traffic_split` for the current traffic split mapping.
 
         Args:
             deployed_model_id (str):
                 Required. The ID of the DeployedModel to be undeployed from the
                 Endpoint.
             traffic_split (Dict[str, int]):
-                Optional. A map from a DeployedModel's ID to the percentage of
+                Optional. A map of DeployedModel IDs to the percentage of
                 this Endpoint's traffic that should be forwarded to that DeployedModel.
-                If a DeployedModel's ID is not listed in this map, then it receives
-                no traffic. The traffic percentage values must add up to 100, or
-                map must be empty if the Endpoint is to not accept any traffic at
-                the moment. Key for model being deployed is "0". Should not be
-                provided if traffic_percentage is provided.
+                Required if undeploying a model with non-zero traffic from an Endpoint
+                with multiple deployed models. The traffic percentage values must add
+                up to 100, or map must be empty if the Endpoint is to not accept any traffic
+                at the moment. If a DeployedModel's ID is not listed in this map, then it
+                receives no traffic.
             metadata (Sequence[Tuple[str, str]]):
                 Optional. Strings which should be sent along with the request as
                 metadata.
@@ -1022,6 +1025,19 @@ class Endpoint(base.VertexAiResourceNounWithFutureManager):
                 raise ValueError(
                     "Sum of all traffic within traffic split needs to be 100."
                 )
+
+        # Two or more models deployed to Endpoint and remaining traffic will be zero
+        elif (
+            len(self.traffic_split) > 1
+            and deployed_model_id in self._gca_resource.traffic_split
+            and self._gca_resource.traffic_split[deployed_model_id] == 100
+        ):
+            raise ValueError(
+                f"Undeploying deployed model '{deployed_model_id}' would leave the remaining "
+                "traffic split at 0%. Traffic split must add up to 100% when models are "
+                "deployed. Please undeploy the other models first or provide an updated "
+                "traffic_split."
+            )
 
         self._undeploy(
             deployed_model_id=deployed_model_id,
@@ -1279,8 +1295,13 @@ class Endpoint(base.VertexAiResourceNounWithFutureManager):
         """
         self._sync_gca_resource()
 
-        for deployed_model in self._gca_resource.deployed_models:
-            self._undeploy(deployed_model_id=deployed_model.id, sync=sync)
+        models_to_undeploy = sorted(  # Undeploy zero traffic models first
+            self._gca_resource.traffic_split.keys(),
+            key=lambda id: self._gca_resource.traffic_split[id],
+        )
+
+        for deployed_model in models_to_undeploy:
+            self._undeploy(deployed_model_id=deployed_model, sync=sync)
 
         return self
 
@@ -1308,11 +1329,12 @@ class Endpoint(base.VertexAiResourceNounWithFutureManager):
 class Model(base.VertexAiResourceNounWithFutureManager):
 
     client_class = utils.ModelClientWithOverride
-    _is_client_prediction_client = False
     _resource_noun = "models"
     _getter_method = "get_model"
     _list_method = "list_models"
     _delete_method = "delete_model"
+    _parse_resource_name_method = "parse_model_path"
+    _format_resource_name_method = "model_path"
 
     @property
     def uri(self) -> Optional[str]:
@@ -1478,6 +1500,73 @@ class Model(base.VertexAiResourceNounWithFutureManager):
             resource_name=model_name,
         )
         self._gca_resource = self._get_gca_resource(resource_name=model_name)
+
+    def update(
+        self,
+        display_name: Optional[str] = None,
+        description: Optional[str] = None,
+        labels: Optional[Dict[str, str]] = None,
+    ) -> "Model":
+        """Updates a model.
+
+        Example usage:
+
+        my_model = my_model.update(
+            display_name='my-model',
+            description='my description',
+            labels={'key': 'value'},
+        )
+
+        Args:
+            display_name (str):
+                The display name of the Model. The name can be up to 128
+                characters long and can be consist of any UTF-8 characters.
+            description (str):
+                The description of the model.
+            labels (Dict[str, str]):
+                Optional. The labels with user-defined metadata to
+                organize your Models.
+                Label keys and values can be no longer than 64
+                characters (Unicode codepoints), can only
+                contain lowercase letters, numeric characters,
+                underscores and dashes. International characters
+                are allowed.
+                See https://goo.gl/xmQnxf for more information
+                and examples of labels.
+        Returns:
+            model: Updated model resource.
+        Raises:
+            ValueError: If `labels` is not the correct format.
+        """
+
+        current_model_proto = self.gca_resource
+        copied_model_proto = current_model_proto.__class__(current_model_proto)
+
+        update_mask: List[str] = []
+
+        if display_name:
+            utils.validate_display_name(display_name)
+
+            copied_model_proto.display_name = display_name
+            update_mask.append("display_name")
+
+        if description:
+            copied_model_proto.description = description
+            update_mask.append("description")
+
+        if labels:
+            utils.validate_labels(labels)
+
+            copied_model_proto.labels = labels
+            update_mask.append("labels")
+
+        update_mask = field_mask_pb2.FieldMask(paths=update_mask)
+
+        self.api_client.update_model(model=copied_model_proto, update_mask=update_mask)
+
+        self._sync_gca_resource()
+
+        return self
 
     # TODO(b/170979552) Add support for predict schemata
     # TODO(b/170979926) Add support for metadata and metadata schema
@@ -2445,7 +2534,7 @@ class Model(base.VertexAiResourceNounWithFutureManager):
     def upload_xgboost_model_file(
         cls,
         model_file_path: str,
-        xgboost_version: str = "1.4",
+        xgboost_version: Optional[str] = None,
         display_name: str = "XGBoost model",
         description: Optional[str] = None,
         instance_schema_uri: Optional[str] = None,
@@ -2585,7 +2674,7 @@ class Model(base.VertexAiResourceNounWithFutureManager):
         container_image_uri = aiplatform.helpers.get_prebuilt_prediction_container_uri(
             region=location,
             framework="xgboost",
-            framework_version=xgboost_version,
+            framework_version=xgboost_version or "1.4",
             accelerator="cpu",
         )
 
@@ -2640,7 +2729,7 @@ class Model(base.VertexAiResourceNounWithFutureManager):
     def upload_scikit_learn_model_file(
         cls,
         model_file_path: str,
-        sklearn_version: str = "1.0",
+        sklearn_version: Optional[str] = None,
         display_name: str = "Scikit-learn model",
         description: Optional[str] = None,
         instance_schema_uri: Optional[str] = None,
@@ -2780,7 +2869,7 @@ class Model(base.VertexAiResourceNounWithFutureManager):
         container_image_uri = aiplatform.helpers.get_prebuilt_prediction_container_uri(
             region=location,
             framework="sklearn",
-            framework_version=sklearn_version,
+            framework_version=sklearn_version or "1.0",
             accelerator="cpu",
         )
 
@@ -2834,7 +2923,7 @@ class Model(base.VertexAiResourceNounWithFutureManager):
     def upload_tensorflow_saved_model(
         cls,
         saved_model_dir: str,
-        tensorflow_version: str = "2.7",
+        tensorflow_version: Optional[str] = None,
         use_gpu: bool = False,
         display_name: str = "Tensorflow model",
         description: Optional[str] = None,
@@ -2972,7 +3061,7 @@ class Model(base.VertexAiResourceNounWithFutureManager):
         container_image_uri = aiplatform.helpers.get_prebuilt_prediction_container_uri(
             region=location,
             framework="tensorflow",
-            framework_version=tensorflow_version,
+            framework_version=tensorflow_version or "2.7",
             accelerator="gpu" if use_gpu else "cpu",
         )
 

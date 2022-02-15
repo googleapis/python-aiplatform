@@ -35,11 +35,22 @@ class Feature(base.VertexAiResourceNounWithFutureManager):
 
     client_class = utils.FeaturestoreClientWithOverride
 
-    _is_client_prediction_client = False
-    _resource_noun = None
+    _resource_noun = "features"
     _getter_method = "get_feature"
     _list_method = "list_features"
     _delete_method = "delete_feature"
+    _parse_resource_name_method = "parse_feature_path"
+    _format_resource_name_method = "feature_path"
+
+    @staticmethod
+    def _resource_id_validator(resource_id: str):
+        """Validates resource ID.
+
+        Args:
+            resource_id(str):
+                The resource id to validate.
+        """
+        featurestore_utils.validate_feature_id(resource_id)
 
     def __init__(
         self,
@@ -71,9 +82,12 @@ class Feature(base.VertexAiResourceNounWithFutureManager):
                 Example: "projects/123/locations/us-central1/featurestores/my_featurestore_id/entityTypes/my_entity_type_id/features/my_feature_id"
                 or "my_feature_id" when project and location are initialized or passed, with featurestore_id and entity_type_id passed.
             featurestore_id (str):
-                Optional. Featurestore ID to retrieve feature from, when feature_name is passed as Feature ID.
+                Optional. Featurestore ID of an existing featurestore to retrieve feature from,
+                when feature_name is passed as Feature ID.
             entity_type_id (str):
-                Optional. EntityType ID to retrieve feature from, when feature_name is passed as Feature ID.
+                Optional. EntityType ID of an existing entityType to retrieve feature from,
+                when feature_name is passed as Feature ID.
+                The EntityType must exist in the Featurestore if provided by the featurestore_id.
             project (str):
                 Optional. Project to retrieve feature from. If not set, project
                 set in aiplatform.init will be used.
@@ -83,21 +97,14 @@ class Feature(base.VertexAiResourceNounWithFutureManager):
             credentials (auth_credentials.Credentials):
                 Optional. Custom credentials to use to retrieve this Feature. Overrides
                 credentials set in aiplatform.init.
+        Raises:
+            ValueError: If only one of featurestore_id or entity_type_id is provided.
         """
-        (
-            featurestore_id,
-            entity_type_id,
-            _,
-        ) = featurestore_utils.validate_and_get_feature_resource_ids(
-            feature_name=feature_name,
-            entity_type_id=entity_type_id,
-            featurestore_id=featurestore_id,
-        )
 
-        # TODO(b/208269923): Temporary workaround, update when base class supports nested resource
-        self._resource_noun = (
-            f"featurestores/{featurestore_id}/entityTypes/{entity_type_id}/features"
-        )
+        if bool(featurestore_id) != bool(entity_type_id):
+            raise ValueError(
+                "featurestore_id and entity_type_id must both be provided or ommitted."
+            )
 
         super().__init__(
             project=project,
@@ -105,20 +112,30 @@ class Feature(base.VertexAiResourceNounWithFutureManager):
             credentials=credentials,
             resource_name=feature_name,
         )
-        self._gca_resource = self._get_gca_resource(resource_name=feature_name)
-
-    @property
-    def featurestore_name(self) -> str:
-        """Full qualified resource name of the managed featurestore in which this Feature is."""
-        feature_path_components = featurestore_utils.CompatFeaturestoreServiceClient.parse_feature_path(
-            path=self.resource_name
+        self._gca_resource = self._get_gca_resource(
+            resource_name=feature_name,
+            parent_resource_name_fields={
+                featurestore.Featurestore._resource_noun: featurestore_id,
+                featurestore.EntityType._resource_noun: entity_type_id,
+            }
+            if featurestore_id
+            else featurestore_id,
         )
 
-        return featurestore_utils.CompatFeaturestoreServiceClient.featurestore_path(
+    def _get_featurestore_name(self) -> str:
+        """Gets full qualified resource name of the managed featurestore in which this Feature is."""
+        feature_path_components = self._parse_resource_name(self.resource_name)
+        return featurestore.Featurestore._format_resource_name(
             project=feature_path_components["project"],
             location=feature_path_components["location"],
             featurestore=feature_path_components["featurestore"],
         )
+
+    @property
+    def featurestore_name(self) -> str:
+        """Full qualified resource name of the managed featurestore in which this Feature is."""
+        self.wait()
+        return self._get_featurestore_name()
 
     def get_featurestore(self) -> "featurestore.Featurestore":
         """Retrieves the managed featurestore in which this Feature is.
@@ -128,19 +145,21 @@ class Feature(base.VertexAiResourceNounWithFutureManager):
         """
         return featurestore.Featurestore(featurestore_name=self.featurestore_name)
 
-    @property
-    def entity_type_name(self) -> str:
-        """Full qualified resource name of the managed entityType in which this Feature is."""
-        feature_path_components = featurestore_utils.CompatFeaturestoreServiceClient.parse_feature_path(
-            path=self.resource_name
-        )
-
-        return featurestore_utils.CompatFeaturestoreServiceClient.entity_type_path(
+    def _get_entity_type_name(self) -> str:
+        """Gets full qualified resource name of the managed entityType in which this Feature is."""
+        feature_path_components = self._parse_resource_name(self.resource_name)
+        return featurestore.EntityType._format_resource_name(
             project=feature_path_components["project"],
             location=feature_path_components["location"],
             featurestore=feature_path_components["featurestore"],
             entity_type=feature_path_components["entity_type"],
         )
+
+    @property
+    def entity_type_name(self) -> str:
+        """Full qualified resource name of the managed entityType in which this Feature is."""
+        self.wait()
+        return self._get_entity_type_name()
 
     def get_entity_type(self) -> "featurestore.EntityType":
         """Retrieves the managed entityType in which this Feature is.
@@ -192,6 +211,7 @@ class Feature(base.VertexAiResourceNounWithFutureManager):
         Returns:
             Feature - The updated feature resource object.
         """
+        self.wait()
         update_mask = list()
 
         if description:
@@ -252,11 +272,13 @@ class Feature(base.VertexAiResourceNounWithFutureManager):
 
         Args:
             entity_type_name (str):
-                Required. A fully-qualified entityType resource name or an entity_type ID to list features in
+                Required. A fully-qualified entityType resource name or an entity_type ID of an existing entityType
+                to list features in. The EntityType must exist in the Featurestore if provided by the featurestore_id.
                 Example: "projects/123/locations/us-central1/featurestores/my_featurestore_id/entityTypes/my_entity_type_id"
                 or "my_entity_type_id" when project and location are initialized or passed, with featurestore_id passed.
             featurestore_id (str):
-                Optional. Featurestore ID to list features in, when entity_type_name is passed as entity_type ID.
+                Optional. Featurestore ID of an existing featurestore to list features in,
+                when entity_type_name is passed as entity_type ID.
             filter (str):
                 Optional. Lists the Features that match the filter expression. The
                 following filters are supported:
@@ -303,12 +325,6 @@ class Feature(base.VertexAiResourceNounWithFutureManager):
         Returns:
             List[Feature] - A list of managed feature resource objects
         """
-        (
-            featurestore_id,
-            entity_type_id,
-        ) = featurestore_utils.validate_and_get_entity_type_resource_ids(
-            entity_type_name=entity_type_name, featurestore_id=featurestore_id,
-        )
 
         return cls._list(
             filter=filter,
@@ -318,9 +334,17 @@ class Feature(base.VertexAiResourceNounWithFutureManager):
             credentials=credentials,
             parent=utils.full_resource_name(
                 resource_name=entity_type_name,
-                resource_noun=f"featurestores/{featurestore_id}/entityTypes",
+                resource_noun=featurestore.EntityType._resource_noun,
+                parse_resource_name_method=featurestore.EntityType._parse_resource_name,
+                format_resource_name_method=featurestore.EntityType._format_resource_name,
+                parent_resource_name_fields={
+                    featurestore.Featurestore._resource_noun: featurestore_id
+                }
+                if featurestore_id
+                else featurestore_id,
                 project=project,
                 location=location,
+                resource_id_validator=featurestore.EntityType._resource_id_validator,
             ),
         )
 
@@ -461,3 +485,144 @@ class Feature(base.VertexAiResourceNounWithFutureManager):
             )
             for gapic_resource in resource_list
         ]
+
+    @classmethod
+    @base.optional_sync()
+    def create(
+        cls,
+        feature_id: str,
+        value_type: str,
+        entity_type_name: str,
+        featurestore_id: Optional[str] = None,
+        description: Optional[str] = None,
+        labels: Optional[Dict[str, str]] = None,
+        project: Optional[str] = None,
+        location: Optional[str] = None,
+        credentials: Optional[auth_credentials.Credentials] = None,
+        request_metadata: Optional[Sequence[Tuple[str, str]]] = (),
+        sync: bool = True,
+    ) -> "Feature":
+        """Creates a Feature resource in an EntityType.
+
+        Example Usage:
+
+            my_feature = aiplatform.Feature.create(
+                feature_id='my_feature_id',
+                value_type='INT64',
+                entity_type_name='projects/123/locations/us-central1/featurestores/my_featurestore_id/\
+                entityTypes/my_entity_type_id'
+            )
+            or
+            my_feature = aiplatform.Feature.create(
+                feature_id='my_feature_id',
+                value_type='INT64',
+                entity_type_name='my_entity_type_id',
+                featurestore_id='my_featurestore_id',
+            )
+
+        Args:
+            feature_id (str):
+                Required. The ID to use for the Feature, which will become
+                the final component of the Feature's resource name, which is immutable.
+
+                This value may be up to 60 characters, and valid characters
+                are ``[a-z0-9_]``. The first character cannot be a number.
+
+                The value must be unique within an EntityType.
+            value_type (str):
+                Required. Immutable. Type of Feature value.
+                One of BOOL, BOOL_ARRAY, DOUBLE, DOUBLE_ARRAY, INT64, INT64_ARRAY, STRING, STRING_ARRAY, BYTES.
+            entity_type_name (str):
+                Required. A fully-qualified entityType resource name or an entity_type ID of an existing entityType
+                to create Feature in. The EntityType must exist in the Featurestore if provided by the featurestore_id.
+                Example: "projects/123/locations/us-central1/featurestores/my_featurestore_id/entityTypes/my_entity_type_id"
+                or "my_entity_type_id" when project and location are initialized or passed, with featurestore_id passed.
+            featurestore_id (str):
+                Optional. Featurestore ID of an existing featurestore to create Feature in
+                if `entity_type_name` is passed an entity_type ID.
+            description (str):
+                Optional. Description of the Feature.
+            labels (Dict[str, str]):
+                Optional. The labels with user-defined
+                metadata to organize your Features.
+                Label keys and values can be no longer than 64
+                characters (Unicode codepoints), can only
+                contain lowercase letters, numeric characters,
+                underscores and dashes. International characters
+                are allowed.
+                See https://goo.gl/xmQnxf for more information
+                on and examples of labels. No more than 64 user
+                labels can be associated with one Feature
+                (System labels are excluded)."
+                System reserved label keys are prefixed with
+                "aiplatform.googleapis.com/" and are immutable.
+            project (str):
+                Optional. Project to create Feature in if `entity_type_name` is passed an entity_type ID.
+                If not set, project set in aiplatform.init will be used.
+            location (str):
+                Optional. Location to create Feature in if `entity_type_name` is passed an entity_type ID.
+                If not set, location set in aiplatform.init will be used.
+            credentials (auth_credentials.Credentials):
+                Optional. Custom credentials to use to create Features. Overrides
+                credentials set in aiplatform.init.
+            request_metadata (Sequence[Tuple[str, str]]):
+                Optional. Strings which should be sent along with the request as metadata.
+            sync (bool):
+                Optional. Whether to execute this creation synchronously. If False, this method
+                will be executed in concurrent Future and any downstream object will
+                be immediately returned and synced when the Future has completed.
+
+        Returns:
+            Feature - feature resource object
+
+        """
+        entity_type_name = utils.full_resource_name(
+            resource_name=entity_type_name,
+            resource_noun=featurestore.EntityType._resource_noun,
+            parse_resource_name_method=featurestore.EntityType._parse_resource_name,
+            format_resource_name_method=featurestore.EntityType._format_resource_name,
+            parent_resource_name_fields={
+                featurestore.Featurestore._resource_noun: featurestore_id
+            }
+            if featurestore_id
+            else featurestore_id,
+            project=project,
+            location=location,
+            resource_id_validator=featurestore.EntityType._resource_id_validator,
+        )
+        entity_type_name_components = featurestore.EntityType._parse_resource_name(
+            entity_type_name
+        )
+
+        feature_config = featurestore_utils._FeatureConfig(
+            feature_id=feature_id,
+            value_type=value_type,
+            description=description,
+            labels=labels,
+        )
+
+        create_feature_request = feature_config.get_create_feature_request()
+        create_feature_request.parent = entity_type_name
+
+        api_client = cls._instantiate_client(
+            location=entity_type_name_components["location"], credentials=credentials,
+        )
+
+        created_feature_lro = api_client.create_feature(
+            request=create_feature_request, metadata=request_metadata,
+        )
+
+        _LOGGER.log_create_with_lro(cls, created_feature_lro)
+
+        created_feature = created_feature_lro.result()
+
+        _LOGGER.log_create_complete(cls, created_feature, "feature")
+
+        feature_obj = cls(
+            feature_name=created_feature.name,
+            project=project,
+            location=location,
+            credentials=credentials,
+        )
+
+        return feature_obj
