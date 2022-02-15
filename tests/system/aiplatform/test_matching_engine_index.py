@@ -17,34 +17,59 @@
 
 from google.cloud import aiplatform
 from tests.system.aiplatform import e2e_base
-
-_TEST_MATCHING_ENGINE_INDEX_ID = "index_id"
-_TEST_MATCHING_ENGINE_INDEX_DISPLAY_NAME = "display_name"
-_TEST_MATCHING_ENGINE_INDEX_DESCRIPTION = "description"
-_TEST_INDEX_METADATA_SCHEMA_URI_UPDATE = f"gs://metadata_schema_uri/new_file"
-
-
-_TEST_CONTENTS_DELTA_URI = f"gs://contents"
-_TEST_IS_COMPLETE_OVERWRITE = False
-_TEST_INDEX_DISTANCE_MEASURE_TYPE = "SQUARED_L2_DISTANCE"
-_TEST_INDEX_CONFIG = aiplatform.MatchingEngineIndexConfig(
-    dimensions=100,
-    algorithm_config=aiplatform.MatchingEngineBruteForceAlgorithmConfig(),
-    approximate_neighbors_count=150,
-    distance_measure_type=_TEST_INDEX_DISTANCE_MEASURE_TYPE,
+from google.cloud.aiplatform.compat.types import (
+    matching_engine_index_endpoint as gca_matching_engine_index_endpoint,
 )
+
+# project
+_TEST_PROJECT = "test-project"
+_TEST_LOCATION = "us-central1"
+_TEST_PARENT = f"projects/{_TEST_PROJECT}/locations/{_TEST_LOCATION}"
+
+_TEST_INDEX_ID = "index_id"
+_TEST_INDEX_DISPLAY_NAME = f"index_display_name"
+_TEST_INDEX_DESCRIPTION = f"index_description"
+_TEST_INDEX_DISTANCE_MEASURE_TYPE = "SQUARED_L2_DISTANCE"
+
+_TEST_INDEX_CONFIG_DIMENSIONS = 100
+_TEST_INDEX_APPROXIMATE_NEIGHBORS_COUNT = 150
+_TEST_LEAF_NODE_EMBEDDING_COUNT = 123
+_TEST_LEAF_NODES_TO_SEARCH_PERCENT = 50
+
+
+_TEST_CONTENTS_DELTA_URI = f"gs://ivanmkc-test2/matching-engine/initial"
+_TEST_CONTENTS_DELTA_URI_UPDATE = "gs://ivanmkc-test2/matching-engine/incremental"
+_TEST_IS_COMPLETE_OVERWRITE = True
+_TEST_INDEX_DISTANCE_MEASURE_TYPE = "SQUARED_L2_DISTANCE"
 
 
 _TEST_LABELS = {"my_key": "my_value"}
 _TEST_DISPLAY_NAME_UPDATE = "my new display name"
 _TEST_DESCRIPTION_UPDATE = "my description update"
-_TEST_INDEX_METADATA_SCHEMA_URI_UPDATE = f"gs://metadata_schema_uri/new_file"
 _TEST_LABELS_UPDATE = {"my_key_update": "my_value_update"}
 
+_TEST_INDEX_ENDPOINT_ID = "index_endpoint_id"
+_TEST_DEPLOYED_INDEX_ID = f"deployed_index_id"
+_TEST_DEPLOYED_INDEX_DISPLAY_NAME = f"deployed_index_display_name"
+_TEST_DEPLOYED_INDEX_DISPLAY_NAME_UPDATED = f"deployed_index_display_name_updated"
+_TEST_MIN_REPLICA_COUNT_UPDATED = 4
+_TEST_MAX_REPLICA_COUNT_UPDATED = 4
+_TEST_ENABLE_ACCESS_LOGGING_UPDATED = True
+_TEST_RESERVED_IP_RANGES_UPDATED = [
+    "vertex-ai-ip-range-1-updated",
+    "vertex-ai-ip-range-2-updated",
+]
+_TEST_DEPLOYMENT_GROUP_UPDATED = "prod-updated"
+_TEST_AUTH_CONFIG_AUDIENCES_UPDATED = ["a-updated", "b-updated"]
+_TEST_AUTH_CONFIG_ALLOWED_ISSUERS_UPDATED = [
+    "service-account-name-1-updated@project-id.iam.gserviceaccount.com",
+    "service-account-name-2-updated@project-id.iam.gserviceaccount.com",
+]
 
-class TestFeaturestore(e2e_base.TestEndToEnd):
 
-    _temp_prefix = "temp_vertex_sdk_e2e_featurestore_test"
+class TestMatchingEngine(e2e_base.TestEndToEnd):
+
+    _temp_prefix = "temp_vertex_sdk_e2e_matching_engine_test"
 
     def test_create_get_list_matching_engine_index(self, shared_state):
         aiplatform.init(
@@ -55,13 +80,16 @@ class TestFeaturestore(e2e_base.TestEndToEnd):
         existing_index_count = len(aiplatform.MatchingEngineIndex.list())
 
         # Create an index
-        index = aiplatform.MatchingEngineIndex.create(
-            index_id=_TEST_MATCHING_ENGINE_INDEX_ID,
-            display_name=_TEST_MATCHING_ENGINE_INDEX_DISPLAY_NAME,
+        index = aiplatform.MatchingEngineIndex.create_tree_ah_index(
+            index_id=_TEST_INDEX_ID,
+            display_name=_TEST_INDEX_DISPLAY_NAME,
             contents_delta_uri=_TEST_CONTENTS_DELTA_URI,
-            config=_TEST_INDEX_CONFIG,
-            description=_TEST_MATCHING_ENGINE_INDEX_DESCRIPTION,
-            metadata_schema_uri=_TEST_INDEX_METADATA_SCHEMA_URI_UPDATE,
+            dimensions=_TEST_INDEX_CONFIG_DIMENSIONS,
+            approximate_neighbors_count=_TEST_INDEX_APPROXIMATE_NEIGHBORS_COUNT,
+            distance_measure_type=_TEST_INDEX_DISTANCE_MEASURE_TYPE,
+            leaf_node_embedding_count=_TEST_LEAF_NODE_EMBEDDING_COUNT,
+            leaf_nodes_to_search_percent=_TEST_LEAF_NODES_TO_SEARCH_PERCENT,
+            description=_TEST_INDEX_DESCRIPTION,
             labels=_TEST_LABELS,
         )
 
@@ -77,14 +105,10 @@ class TestFeaturestore(e2e_base.TestEndToEnd):
         list_indexes = aiplatform.MatchingEngineIndex.list()
         assert (len(list_indexes) - existing_index_count) == 1
 
-        # Update the index
+        # Update the index metadata
         updated_index = get_index.update_metadata(
             display_name=_TEST_DISPLAY_NAME_UPDATE,
-            contents_delta_uri=_TEST_CONTENTS_DELTA_URI,
-            config=_TEST_INDEX_CONFIG,
-            is_complete_overwrite=_TEST_IS_COMPLETE_OVERWRITE,
             description=_TEST_DESCRIPTION_UPDATE,
-            metadata_schema_uri=_TEST_INDEX_METADATA_SCHEMA_URI_UPDATE,
             labels=_TEST_LABELS_UPDATE,
         )
 
@@ -92,19 +116,70 @@ class TestFeaturestore(e2e_base.TestEndToEnd):
         assert updated_index.description == _TEST_DESCRIPTION_UPDATE
         assert updated_index.labels == _TEST_LABELS
 
+        # Update the index embeddings
+        updated_index = get_index.update_embeddings(
+            contents_delta_uri=_TEST_CONTENTS_DELTA_URI_UPDATE,
+            is_complete_overwrite=_TEST_IS_COMPLETE_OVERWRITE,
+        )
+
+        assert updated_index.contents_delta_uri == _TEST_CONTENTS_DELTA_URI
+
         # Create endpoint
         my_index_endpoint = aiplatform.MatchingEngineIndexEndpoint(
             index_endpoint_name=_TEST_INDEX_ENDPOINT_ID
         )
 
-        if not sync:
-            my_index_endpoint.wait()
-
         # Deploy endpoint
         my_index_endpoint = my_index_endpoint.deploy_index(
-            id="deployed_index",
             index=index,
+            deployed_index_id=_TEST_DEPLOYED_INDEX_ID,
             display_name=_TEST_DEPLOYED_INDEX_DISPLAY_NAME,
+        )
+
+        # Update endpoint
+        updated_index_endpoint = my_index_endpoint.update(
+            display_name=_TEST_DISPLAY_NAME_UPDATE,
+            description=_TEST_DESCRIPTION_UPDATE,
+            labels=_TEST_LABELS_UPDATE,
+        )
+
+        assert updated_index_endpoint.display_name == _TEST_DISPLAY_NAME_UPDATE
+        assert updated_index_endpoint.description == _TEST_DESCRIPTION_UPDATE
+        assert updated_index_endpoint.labels == _TEST_LABELS
+
+        # Mutate deployed index
+        my_index_endpoint.mutate_deployed_index(
+            index_id=index.id,
+            deployed_index_id=_TEST_DEPLOYED_INDEX_ID,
+            display_name=_TEST_DEPLOYED_INDEX_DISPLAY_NAME_UPDATED,
+            min_replica_count=_TEST_MIN_REPLICA_COUNT_UPDATED,
+            max_replica_count=_TEST_MAX_REPLICA_COUNT_UPDATED,
+            enable_access_logging=_TEST_ENABLE_ACCESS_LOGGING_UPDATED,
+            reserved_ip_ranges=_TEST_RESERVED_IP_RANGES_UPDATED,
+            deployment_group=_TEST_DEPLOYMENT_GROUP_UPDATED,
+            auth_config_audiences=_TEST_AUTH_CONFIG_AUDIENCES_UPDATED,
+            auth_config_allowed_issuers=_TEST_AUTH_CONFIG_ALLOWED_ISSUERS_UPDATED,
+        )
+
+        deployed_index = my_index_endpoint.deployed_indexes[0]
+
+        assert deployed_index == gca_matching_engine_index_endpoint.DeployedIndex(
+            id=_TEST_DEPLOYED_INDEX_ID,
+            index=index.name,
+            display_name=_TEST_DEPLOYED_INDEX_DISPLAY_NAME_UPDATED,
+            enable_access_logging=_TEST_ENABLE_ACCESS_LOGGING_UPDATED,
+            reserved_ip_ranges=_TEST_RESERVED_IP_RANGES_UPDATED,
+            deployment_group=_TEST_DEPLOYMENT_GROUP_UPDATED,
+            automatic_resources={
+                "min_replica_count": _TEST_MIN_REPLICA_COUNT_UPDATED,
+                "max_replica_count": _TEST_MAX_REPLICA_COUNT_UPDATED,
+            },
+            deployed_index_auth_config=gca_matching_engine_index_endpoint.DeployedIndexAuthConfig(
+                auth_provider=gca_matching_engine_index_endpoint.DeployedIndexAuthConfig.AuthProvider(
+                    audiences=_TEST_AUTH_CONFIG_AUDIENCES_UPDATED,
+                    allowed_issuers=_TEST_AUTH_CONFIG_ALLOWED_ISSUERS_UPDATED,
+                )
+            ),
         )
 
         # Undeploy endpoint

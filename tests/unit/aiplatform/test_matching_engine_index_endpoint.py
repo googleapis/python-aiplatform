@@ -80,7 +80,6 @@ _TEST_AUTH_CONFIG_ALLOWED_ISSUERS = [
 ]
 
 # deployment_updated
-_TEST_DEPLOYED_INDEX_ID_UPDATED = f"deployed_index_id_updated"
 _TEST_DEPLOYED_INDEX_DISPLAY_NAME_UPDATED = f"deployed_index_display_name_updated"
 _TEST_MIN_REPLICA_COUNT_UPDATED = 4
 _TEST_MAX_REPLICA_COUNT_UPDATED = 4
@@ -445,7 +444,7 @@ class TestMatchingEngineIndex:
 
         my_index_endpoint.mutate_deployed_index(
             index_id=_TEST_INDEX_ID,
-            deployed_index_id=_TEST_DEPLOYED_INDEX_ID_UPDATED,
+            deployed_index_id=_TEST_DEPLOYED_INDEX_ID,
             display_name=_TEST_DEPLOYED_INDEX_DISPLAY_NAME_UPDATED,
             min_replica_count=_TEST_MIN_REPLICA_COUNT_UPDATED,
             max_replica_count=_TEST_MAX_REPLICA_COUNT_UPDATED,
@@ -460,7 +459,7 @@ class TestMatchingEngineIndex:
         mutate_deployed_index_mock.assert_called_once_with(
             index_endpoint=_TEST_INDEX_ENDPOINT_NAME,
             deployed_index=gca_matching_engine_index_endpoint.DeployedIndex(
-                id=_TEST_DEPLOYED_INDEX_ID_UPDATED,
+                id=_TEST_DEPLOYED_INDEX_ID,
                 index=_TEST_INDEX_NAME,
                 display_name=_TEST_DEPLOYED_INDEX_DISPLAY_NAME_UPDATED,
                 enable_access_logging=_TEST_ENABLE_ACCESS_LOGGING_UPDATED,
