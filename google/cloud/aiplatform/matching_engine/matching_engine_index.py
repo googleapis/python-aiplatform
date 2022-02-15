@@ -114,7 +114,7 @@ class MatchingEngineIndex(base.VertexAiResourceNounWithFutureManager):
 
         Example Usage:
 
-            my_index = aiplatform.Index.create(
+            my_index = aiplatform.Index._create(
                 index_id='my_index_id',
             )
 
@@ -143,7 +143,7 @@ class MatchingEngineIndex(base.VertexAiResourceNounWithFutureManager):
             config (Union[matching_engine_index_config.MatchingEngineIndexConfig]):
                 Required. The configuration with regard to the algorithms used for efficient search.                
             description (str):
-                The description of the Index.
+                Optional. The description of the Index.
             labels (Dict[str, str]):
                 Optional. The labels with user-defined
                 metadata to organize your Index.
@@ -229,7 +229,7 @@ class MatchingEngineIndex(base.VertexAiResourceNounWithFutureManager):
         labels: Optional[Dict[str, str]] = None,
         request_metadata: Optional[Sequence[Tuple[str, str]]] = (),
     ) -> "MatchingEngineIndex":
-        """Updates an existing managed index resource.
+        """Updates the metadata for this index.
 
         Args:
             display_name (str):
@@ -303,7 +303,7 @@ class MatchingEngineIndex(base.VertexAiResourceNounWithFutureManager):
         is_complete_overwrite: Optional[bool] = None,
         request_metadata: Optional[Sequence[Tuple[str, str]]] = (),
     ) -> "MatchingEngineIndex":
-        """Updates an existing managed index resource.
+        """Updates the embeddings for this index.
 
         Args:
             contents_delta_uri (str):
@@ -360,6 +360,12 @@ class MatchingEngineIndex(base.VertexAiResourceNounWithFutureManager):
     def deployed_indexes(
         self,
     ) -> List[gca_matching_engine_deployed_index_ref.DeployedIndexRef]:
+        """Returns a list of deployed index references that originate from this index
+        
+        Returns:
+            List[gca_matching_engine_deployed_index_ref.DeployedIndexRef] - Deployed index references
+        """
+
         return self._gca_resource.deployed_indexes
 
     @classmethod
@@ -370,8 +376,8 @@ class MatchingEngineIndex(base.VertexAiResourceNounWithFutureManager):
         contents_delta_uri: str,
         dimensions: int,
         approximate_neighbors_count: int,
-        leaf_node_embedding_count: int,
-        leaf_nodes_to_search_percent: float,
+        leaf_node_embedding_count: Optional[int] = None,
+        leaf_nodes_to_search_percent: Optional[float] = None,
         distance_measure_type: Optional[
             matching_engine_index_config.DistanceMeasureType
         ] = None,
@@ -383,6 +389,100 @@ class MatchingEngineIndex(base.VertexAiResourceNounWithFutureManager):
         request_metadata: Optional[Sequence[Tuple[str, str]]] = (),
         sync: bool = True,
     ) -> "MatchingEngineIndex":
+        """Creates a MatchingEngineIndex resource that uses the tree-AH algorithm.
+
+        Example Usage:
+
+            my_index = aiplatform.Index.create_tree_ah_index(
+                index_id="my_index",
+                display_name="my_display_name",
+                contents_delta_uri="gs://my_bucket/embeddings",
+                dimensions=1,
+                approximate_neighbors_count=150,
+                distance_measure_type="SQUARED_L2_DISTANCE",
+                leaf_node_embedding_count=100,
+                leaf_nodes_to_search_percent=50,
+                description="my description",
+                labels={ "label_name": "label_value" },
+            )
+
+        Args:
+            index_id (str):
+                Required. The ID to use for this index, which will
+                become the final component of the index's resource
+                name.
+
+                This value may be up to 60 characters, and valid characters
+                are ``[a-z0-9_]``. The first character cannot be a number.
+
+                The value must be unique within the project and location.
+            display_name (str):
+                Required. The display name of the Index.
+                The name can be up to 128 characters long and
+                can be consist of any UTF-8 characters.
+            contents_delta_uri (str):
+                Required. Allows inserting, updating  or deleting the contents of the Matching Engine Index.
+                The string must be a valid Google Cloud Storage directory path. If this
+                field is set when calling IndexService.UpdateIndex, then no other
+                Index field can be  also updated as part of the same call.
+                The expected structure and format of the files this URI points to is
+                described at
+                https://docs.google.com/document/d/12DLVB6Nq6rdv8grxfBsPhUA283KWrQ9ZenPBp0zUC30
+            dimensions (int):
+                Required. The number of dimensions of the input vectors.
+            approximate_neighbors_count (int):
+                Required. The default number of neighbors to find via approximate search before exact reordering is
+                performed. Exact reordering is a procedure where results returned by an
+                approximate search algorithm are reordered via a more expensive distance computation.
+            leaf_node_embedding_count (int):
+                Optional. Number of embeddings on each leaf node. The default value is 1000 if not set.
+            leaf_nodes_to_search_percent (float):
+                Optional. The default percentage of leaf nodes that any query may be searched. Must be in
+                range 1-100, inclusive. The default value is 10 (means 10%) if not set.
+            distance_measure_type (matching_engine_index_config.DistanceMeasureType):
+                Optional. The distance measure used in nearest neighbor search.
+            description (str):
+                Optional. The description of the Index.
+            labels (Dict[str, str]):
+                Optional. The labels with user-defined
+                metadata to organize your Index.
+                Label keys and values can be no longer than 64
+                characters (Unicode codepoints), can only
+                contain lowercase letters, numeric characters,
+                underscores and dashes. International characters
+                are allowed.
+                See https://goo.gl/xmQnxf for more information
+                on and examples of labels. No more than 64 user
+                labels can be associated with one
+                Index(System labels are excluded)."
+                System reserved label keys are prefixed with
+                "aiplatform.googleapis.com/" and are immutable.
+            project (str):
+                Optional. Project to create EntityType in. If not set, project
+                set in aiplatform.init will be used.
+            location (str):
+                Optional. Location to create EntityType in. If not set, location
+                set in aiplatform.init will be used.
+            credentials (auth_credentials.Credentials):
+                Optional. Custom credentials to use to create EntityTypes. Overrides
+                credentials set in aiplatform.init.
+            request_metadata (Sequence[Tuple[str, str]]):
+                Optional. Strings which should be sent along with the request as metadata.
+            encryption_spec (str):
+                Optional. Customer-managed encryption key
+                spec for data storage. If set, both of the
+                online and offline data storage will be secured
+                by this key.
+            sync (bool):
+                Optional. Whether to execute this creation synchronously. If False, this method
+                will be executed in concurrent Future and any downstream object will
+                be immediately returned and synced when the Future has completed.
+
+        Returns:
+            MatchingEngineIndex - Index resource object
+
+        """
+
         algorithm_config = matching_engine_index_config.TreeAhConfig(
             leaf_node_embedding_count=leaf_node_embedding_count,
             leaf_nodes_to_search_percent=leaf_nodes_to_search_percent,
@@ -428,6 +528,93 @@ class MatchingEngineIndex(base.VertexAiResourceNounWithFutureManager):
         request_metadata: Optional[Sequence[Tuple[str, str]]] = (),
         sync: bool = True,
     ) -> "MatchingEngineIndex":
+        """Creates a MatchingEngineIndex resource that uses the brute force algorithm.
+
+        Example Usage:
+
+            my_index = aiplatform.Index.create_brute_force_index(
+                index_id="my_index",
+                display_name="my_display_name",
+                contents_delta_uri="gs://my_bucket/embeddings",
+                dimensions=1,
+                approximate_neighbors_count=150,
+                distance_measure_type="SQUARED_L2_DISTANCE",
+                description="my description",
+                labels={ "label_name": "label_value" },
+            )
+
+        Args:
+            index_id (str):
+                Required. The ID to use for this index, which will
+                become the final component of the index's resource
+                name.
+
+                This value may be up to 60 characters, and valid characters
+                are ``[a-z0-9_]``. The first character cannot be a number.
+
+                The value must be unique within the project and location.
+            display_name (str):
+                Required. The display name of the Index.
+                The name can be up to 128 characters long and
+                can be consist of any UTF-8 characters.
+            contents_delta_uri (str):
+                Required. Allows inserting, updating  or deleting the contents of the Matching Engine Index.
+                The string must be a valid Google Cloud Storage directory path. If this
+                field is set when calling IndexService.UpdateIndex, then no other
+                Index field can be  also updated as part of the same call.
+                The expected structure and format of the files this URI points to is
+                described at
+                https://docs.google.com/document/d/12DLVB6Nq6rdv8grxfBsPhUA283KWrQ9ZenPBp0zUC30
+            dimensions (int):
+                Required. The number of dimensions of the input vectors.
+            approximate_neighbors_count (int):
+                Required. The default number of neighbors to find via approximate search before exact reordering is
+                performed. Exact reordering is a procedure where results returned by an
+                approximate search algorithm are reordered via a more expensive distance computation.
+            distance_measure_type (matching_engine_index_config.DistanceMeasureType):
+                Optional. The distance measure used in nearest neighbor search.
+            description (str):
+                Optional. The description of the Index.
+            labels (Dict[str, str]):
+                Optional. The labels with user-defined
+                metadata to organize your Index.
+                Label keys and values can be no longer than 64
+                characters (Unicode codepoints), can only
+                contain lowercase letters, numeric characters,
+                underscores and dashes. International characters
+                are allowed.
+                See https://goo.gl/xmQnxf for more information
+                on and examples of labels. No more than 64 user
+                labels can be associated with one
+                Index(System labels are excluded)."
+                System reserved label keys are prefixed with
+                "aiplatform.googleapis.com/" and are immutable.
+            project (str):
+                Optional. Project to create EntityType in. If not set, project
+                set in aiplatform.init will be used.
+            location (str):
+                Optional. Location to create EntityType in. If not set, location
+                set in aiplatform.init will be used.
+            credentials (auth_credentials.Credentials):
+                Optional. Custom credentials to use to create EntityTypes. Overrides
+                credentials set in aiplatform.init.
+            request_metadata (Sequence[Tuple[str, str]]):
+                Optional. Strings which should be sent along with the request as metadata.
+            encryption_spec (str):
+                Optional. Customer-managed encryption key
+                spec for data storage. If set, both of the
+                online and offline data storage will be secured
+                by this key.
+            sync (bool):
+                Optional. Whether to execute this creation synchronously. If False, this method
+                will be executed in concurrent Future and any downstream object will
+                be immediately returned and synced when the Future has completed.
+
+        Returns:
+            MatchingEngineIndex - Index resource object
+
+        """
+
         algorithm_config = matching_engine_index_config.BruteForceConfig()
 
         config = matching_engine_index_config.MatchingEngineIndexConfig(

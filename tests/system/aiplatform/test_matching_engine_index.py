@@ -15,6 +15,8 @@
 # limitations under the License.
 #
 
+from datetime import datetime
+
 from google.cloud import aiplatform
 from tests.system.aiplatform import e2e_base
 from google.cloud.aiplatform.compat.types import (
@@ -38,7 +40,7 @@ _TEST_LEAF_NODES_TO_SEARCH_PERCENT = 50
 
 
 _TEST_CONTENTS_DELTA_URI = f"gs://ivanmkc-test2/matching-engine/initial"
-_TEST_CONTENTS_DELTA_URI_UPDATE = "gs://ivanmkc-test2/matching-engine/incremental"
+_TEST_CONTENTS_DELTA_URI_UPDATE = "gs://y-test2/matching-engine/incremental"
 _TEST_IS_COMPLETE_OVERWRITE = True
 _TEST_INDEX_DISTANCE_MEASURE_TYPE = "SQUARED_L2_DISTANCE"
 
@@ -71,121 +73,125 @@ class TestMatchingEngine(e2e_base.TestEndToEnd):
 
     _temp_prefix = "temp_vertex_sdk_e2e_matching_engine_test"
 
-    def test_create_get_list_matching_engine_index(self, shared_state):
-        aiplatform.init(
-            project=e2e_base._PROJECT, location=e2e_base._LOCATION,
-        )
 
-        # Get list of existing indices
-        existing_index_count = len(aiplatform.MatchingEngineIndex.list())
+def test_create_get_list_matching_engine_index(self, shared_state):
+    aiplatform.init(
+        project=e2e_base._PROJECT, location=e2e_base._LOCATION,
+    )
 
-        # Create an index
-        index = aiplatform.MatchingEngineIndex.create_tree_ah_index(
-            index_id=_TEST_INDEX_ID,
-            display_name=_TEST_INDEX_DISPLAY_NAME,
-            contents_delta_uri=_TEST_CONTENTS_DELTA_URI,
-            dimensions=_TEST_INDEX_CONFIG_DIMENSIONS,
-            approximate_neighbors_count=_TEST_INDEX_APPROXIMATE_NEIGHBORS_COUNT,
-            distance_measure_type=_TEST_INDEX_DISTANCE_MEASURE_TYPE,
-            leaf_node_embedding_count=_TEST_LEAF_NODE_EMBEDDING_COUNT,
-            leaf_nodes_to_search_percent=_TEST_LEAF_NODES_TO_SEARCH_PERCENT,
-            description=_TEST_INDEX_DESCRIPTION,
-            labels=_TEST_LABELS,
-        )
+    # Generate random timestamp
+    TIMESTAMP = datetime.now().strftime("%Y%m%d%H%M%S")
+    index_id = f"{_TEST_INDEX_ID}_{TIMESTAMP}"
 
-        shared_state["resources"] = [index]
-        shared_state["index"] = index
-        shared_state["index_name"] = index.resource_name
+    # Create an index
+    index = aiplatform.MatchingEngineIndex.create_tree_ah_index(
+        index_id=index_id,
+        display_name=_TEST_INDEX_DISPLAY_NAME,
+        contents_delta_uri=_TEST_CONTENTS_DELTA_URI,
+        dimensions=_TEST_INDEX_CONFIG_DIMENSIONS,
+        approximate_neighbors_count=_TEST_INDEX_APPROXIMATE_NEIGHBORS_COUNT,
+        distance_measure_type=_TEST_INDEX_DISTANCE_MEASURE_TYPE,
+        leaf_node_embedding_count=_TEST_LEAF_NODE_EMBEDDING_COUNT,
+        leaf_nodes_to_search_percent=_TEST_LEAF_NODES_TO_SEARCH_PERCENT,
+        description=_TEST_INDEX_DESCRIPTION,
+        labels=_TEST_LABELS,
+    )
 
-        # Verify that the retrieved index is the same
-        get_index = aiplatform.MatchingEngineIndex(index_name=index.resource_name)
-        assert index.resource_name == get_index.resource_name
+    shared_state["resources"] = [index]
+    shared_state["index"] = index
+    shared_state["index_name"] = index.resource_name
 
-        # Verify that the index count has increased
-        list_indexes = aiplatform.MatchingEngineIndex.list()
-        assert (len(list_indexes) - existing_index_count) == 1
+    # Verify that the retrieved index is the same
+    get_index = aiplatform.MatchingEngineIndex(index_name=index.resource_name)
+    assert index.resource_name == get_index.resource_name
 
-        # Update the index metadata
-        updated_index = get_index.update_metadata(
-            display_name=_TEST_DISPLAY_NAME_UPDATE,
-            description=_TEST_DESCRIPTION_UPDATE,
-            labels=_TEST_LABELS_UPDATE,
-        )
+    # Verify that the index count has increased
+    list_indexes = aiplatform.MatchingEngineIndex.list()
+    assert get_index.resource_name in [index.resource_name for index in list_indexes]
 
-        assert updated_index.display_name == _TEST_DISPLAY_NAME_UPDATE
-        assert updated_index.description == _TEST_DESCRIPTION_UPDATE
-        assert updated_index.labels == _TEST_LABELS
+    # Update the index metadata
+    updated_index = get_index.update_metadata(
+        display_name=_TEST_DISPLAY_NAME_UPDATE,
+        description=_TEST_DESCRIPTION_UPDATE,
+        labels=_TEST_LABELS_UPDATE,
+    )
 
-        # Update the index embeddings
-        updated_index = get_index.update_embeddings(
-            contents_delta_uri=_TEST_CONTENTS_DELTA_URI_UPDATE,
-            is_complete_overwrite=_TEST_IS_COMPLETE_OVERWRITE,
-        )
+    assert updated_index.display_name == _TEST_DISPLAY_NAME_UPDATE
+    assert updated_index.description == _TEST_DESCRIPTION_UPDATE
+    assert updated_index.labels == _TEST_LABELS
 
-        assert updated_index.contents_delta_uri == _TEST_CONTENTS_DELTA_URI
+    # Update the index embeddings
+    updated_index = get_index.update_embeddings(
+        contents_delta_uri=_TEST_CONTENTS_DELTA_URI_UPDATE,
+        is_complete_overwrite=_TEST_IS_COMPLETE_OVERWRITE,
+    )
 
-        # Create endpoint
-        my_index_endpoint = aiplatform.MatchingEngineIndexEndpoint(
-            index_endpoint_name=_TEST_INDEX_ENDPOINT_ID
-        )
+    assert updated_index.contents_delta_uri == _TEST_CONTENTS_DELTA_URI
 
-        # Deploy endpoint
-        my_index_endpoint = my_index_endpoint.deploy_index(
-            index=index,
-            deployed_index_id=_TEST_DEPLOYED_INDEX_ID,
-            display_name=_TEST_DEPLOYED_INDEX_DISPLAY_NAME,
-        )
+    # Create endpoint
+    my_index_endpoint = aiplatform.MatchingEngineIndexEndpoint(
+        index_endpoint_name=_TEST_INDEX_ENDPOINT_ID
+    )
 
-        # Update endpoint
-        updated_index_endpoint = my_index_endpoint.update(
-            display_name=_TEST_DISPLAY_NAME_UPDATE,
-            description=_TEST_DESCRIPTION_UPDATE,
-            labels=_TEST_LABELS_UPDATE,
-        )
+    # Deploy endpoint
+    my_index_endpoint = my_index_endpoint.deploy_index(
+        index=index,
+        deployed_index_id=_TEST_DEPLOYED_INDEX_ID,
+        display_name=_TEST_DEPLOYED_INDEX_DISPLAY_NAME,
+    )
 
-        assert updated_index_endpoint.display_name == _TEST_DISPLAY_NAME_UPDATE
-        assert updated_index_endpoint.description == _TEST_DESCRIPTION_UPDATE
-        assert updated_index_endpoint.labels == _TEST_LABELS
+    # Update endpoint
+    updated_index_endpoint = my_index_endpoint.update(
+        display_name=_TEST_DISPLAY_NAME_UPDATE,
+        description=_TEST_DESCRIPTION_UPDATE,
+        labels=_TEST_LABELS_UPDATE,
+    )
 
-        # Mutate deployed index
-        my_index_endpoint.mutate_deployed_index(
-            index_id=index.id,
-            deployed_index_id=_TEST_DEPLOYED_INDEX_ID,
-            display_name=_TEST_DEPLOYED_INDEX_DISPLAY_NAME_UPDATED,
-            min_replica_count=_TEST_MIN_REPLICA_COUNT_UPDATED,
-            max_replica_count=_TEST_MAX_REPLICA_COUNT_UPDATED,
-            enable_access_logging=_TEST_ENABLE_ACCESS_LOGGING_UPDATED,
-            reserved_ip_ranges=_TEST_RESERVED_IP_RANGES_UPDATED,
-            deployment_group=_TEST_DEPLOYMENT_GROUP_UPDATED,
-            auth_config_audiences=_TEST_AUTH_CONFIG_AUDIENCES_UPDATED,
-            auth_config_allowed_issuers=_TEST_AUTH_CONFIG_ALLOWED_ISSUERS_UPDATED,
-        )
+    assert updated_index_endpoint.display_name == _TEST_DISPLAY_NAME_UPDATE
+    assert updated_index_endpoint.description == _TEST_DESCRIPTION_UPDATE
+    assert updated_index_endpoint.labels == _TEST_LABELS
 
-        deployed_index = my_index_endpoint.deployed_indexes[0]
+    # Mutate deployed index
+    my_index_endpoint.mutate_deployed_index(
+        index_id=index.id,
+        deployed_index_id=_TEST_DEPLOYED_INDEX_ID,
+        display_name=_TEST_DEPLOYED_INDEX_DISPLAY_NAME_UPDATED,
+        min_replica_count=_TEST_MIN_REPLICA_COUNT_UPDATED,
+        max_replica_count=_TEST_MAX_REPLICA_COUNT_UPDATED,
+        enable_access_logging=_TEST_ENABLE_ACCESS_LOGGING_UPDATED,
+        reserved_ip_ranges=_TEST_RESERVED_IP_RANGES_UPDATED,
+        deployment_group=_TEST_DEPLOYMENT_GROUP_UPDATED,
+        auth_config_audiences=_TEST_AUTH_CONFIG_AUDIENCES_UPDATED,
+        auth_config_allowed_issuers=_TEST_AUTH_CONFIG_ALLOWED_ISSUERS_UPDATED,
+    )
 
-        assert deployed_index == gca_matching_engine_index_endpoint.DeployedIndex(
-            id=_TEST_DEPLOYED_INDEX_ID,
-            index=index.name,
-            display_name=_TEST_DEPLOYED_INDEX_DISPLAY_NAME_UPDATED,
-            enable_access_logging=_TEST_ENABLE_ACCESS_LOGGING_UPDATED,
-            reserved_ip_ranges=_TEST_RESERVED_IP_RANGES_UPDATED,
-            deployment_group=_TEST_DEPLOYMENT_GROUP_UPDATED,
-            automatic_resources={
-                "min_replica_count": _TEST_MIN_REPLICA_COUNT_UPDATED,
-                "max_replica_count": _TEST_MAX_REPLICA_COUNT_UPDATED,
-            },
-            deployed_index_auth_config=gca_matching_engine_index_endpoint.DeployedIndexAuthConfig(
-                auth_provider=gca_matching_engine_index_endpoint.DeployedIndexAuthConfig.AuthProvider(
-                    audiences=_TEST_AUTH_CONFIG_AUDIENCES_UPDATED,
-                    allowed_issuers=_TEST_AUTH_CONFIG_ALLOWED_ISSUERS_UPDATED,
-                )
-            ),
-        )
+    deployed_index = my_index_endpoint.deployed_indexes[0]
 
-        # Undeploy endpoint
-        my_index_endpoint = my_index_endpoint.undeploy_index(index=index)
+    assert deployed_index == gca_matching_engine_index_endpoint.DeployedIndex(
+        id=_TEST_DEPLOYED_INDEX_ID,
+        index=index.name,
+        display_name=_TEST_DEPLOYED_INDEX_DISPLAY_NAME_UPDATED,
+        enable_access_logging=_TEST_ENABLE_ACCESS_LOGGING_UPDATED,
+        reserved_ip_ranges=_TEST_RESERVED_IP_RANGES_UPDATED,
+        deployment_group=_TEST_DEPLOYMENT_GROUP_UPDATED,
+        automatic_resources={
+            "min_replica_count": _TEST_MIN_REPLICA_COUNT_UPDATED,
+            "max_replica_count": _TEST_MAX_REPLICA_COUNT_UPDATED,
+        },
+        deployed_index_auth_config=gca_matching_engine_index_endpoint.DeployedIndexAuthConfig(
+            auth_provider=gca_matching_engine_index_endpoint.DeployedIndexAuthConfig.AuthProvider(
+                audiences=_TEST_AUTH_CONFIG_AUDIENCES_UPDATED,
+                allowed_issuers=_TEST_AUTH_CONFIG_ALLOWED_ISSUERS_UPDATED,
+            )
+        ),
+    )
 
-        # Delete index and check that count has returned to the starting value
-        index.delete()
-        list_indexes = aiplatform.MatchingEngineIndex.list()
-        assert len(list_indexes) == existing_index_count
+    # Undeploy endpoint
+    my_index_endpoint = my_index_endpoint.undeploy_index(index=index)
+
+    # Delete index and check that count has returned to the starting value
+    index.delete()
+    list_indexes = aiplatform.MatchingEngineIndex.list()
+    assert get_index.resource_name not in [
+        index.resource_name for index in list_indexes
+    ]

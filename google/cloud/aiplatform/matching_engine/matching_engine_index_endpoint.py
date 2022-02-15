@@ -142,6 +142,34 @@ class MatchingEngineIndexEndpoint(base.VertexAiResourceNounWithFutureManager):
                 IndexEndpoint (System labels are excluded)."
                 System reserved label keys are prefixed with
                 "aiplatform.googleapis.com/" and are immutable.
+            network (str):
+                Optional. The full name of the Google Compute Engine
+                `network <https://cloud.google.com/compute/docs/networks-and-firewalls#networks>`__
+                to which the IndexEndpoint should be peered.
+
+                Private services access must already be configured for the
+                network. If left unspecified, the Endpoint is not peered
+                with any network.
+
+                Only one of the fields,
+                [network][google.cloud.aiplatform.v1.IndexEndpoint.network]
+                or
+                [enable_private_service_connect][google.cloud.aiplatform.v1.IndexEndpoint.enable_private_service_connect],
+                can be set.
+
+                `Format <https://cloud.google.com/compute/docs/reference/rest/v1/networks/insert>`__:
+                projects/{project}/global/networks/{network}. Where
+                {project} is a project number, as in '12345', and {network}
+                is network name.
+            enable_private_service_connect (bool):
+                Optional. If true, expose the IndexEndpoint via private
+                service connect.
+
+                Only one of the fields,
+                [network][google.cloud.aiplatform.v1.IndexEndpoint.network]
+                or
+                [enable_private_service_connect][google.cloud.aiplatform.v1.IndexEndpoint.enable_private_service_connect],
+                can be set.
             project (str):
                 Optional. Project to create EntityType in. If not set, project
                 set in aiplatform.init will be used.
@@ -153,11 +181,6 @@ class MatchingEngineIndexEndpoint(base.VertexAiResourceNounWithFutureManager):
                 credentials set in aiplatform.init.
             request_metadata (Sequence[Tuple[str, str]]):
                 Optional. Strings which should be sent along with the request as metadata.
-            encryption_spec (str):
-                Optional. Customer-managed encryption key
-                spec for data storage. If set, both of the
-                online and offline data storage will be secured
-                by this key.
             sync (bool):
                 Optional. Whether to execute this creation synchronously. If False, this method
                 will be executed in concurrent Future and any downstream object will
@@ -503,6 +526,73 @@ class MatchingEngineIndexEndpoint(base.VertexAiResourceNounWithFutureManager):
             display_name (str):
                 The display name of the DeployedIndex. If not provided upon
                 creation, the Index's display_name is used.
+            min_replica_count (int):
+                Optional. The minimum number of machine replicas this deployed
+                model will be always deployed on. If traffic against it increases,
+                it may dynamically be deployed onto more replicas, and as traffic
+                decreases, some of these extra replicas may be freed.
+            max_replica_count (int):
+                Optional. The maximum number of replicas this deployed model may
+                be deployed on when the traffic against it increases. If requested
+                value is too large, the deployment will error, but if deployment
+                succeeds then the ability to scale the model to that many replicas
+                is guaranteed (barring service outages). If traffic against the
+                deployed model increases beyond what its replicas at maximum may
+                handle, a portion of the traffic will be dropped. If this value
+                is not provided, the larger value of min_replica_count or 1 will
+                be used. If value provided is smaller than min_replica_count, it
+                will automatically be increased to be min_replica_count.
+            enable_access_logging (bool):
+                Optional. If true, private endpoint's access
+                logs are sent to StackDriver Logging.
+                These logs are like standard server access logs,
+                containing information like timestamp and
+                latency for each MatchRequest.
+                Note that Stackdriver logs may incur a cost,
+                especially if the deployed index receives a high
+                queries per second rate (QPS). Estimate your
+                costs before enabling this option.
+            deployed_index_auth_config (google.cloud.aiplatform_v1.types.DeployedIndexAuthConfig):
+                Optional. If set, the authentication is
+                enabled for the private endpoint.
+            reserved_ip_ranges (Sequence[str]):
+                Optional. A list of reserved ip ranges under
+                the VPC network that can be used for this
+                DeployedIndex.
+                If set, we will deploy the index within the
+                provided ip ranges. Otherwise, the index might
+                be deployed to any ip ranges under the provided
+                VPC network.
+
+                The value sohuld be the name of the address
+                (https://cloud.google.com/compute/docs/reference/rest/v1/addresses)
+                Example: 'vertex-ai-ip-range'.
+            deployment_group (str):
+                Optional. The deployment group can be no longer than 64
+                characters (eg: 'test', 'prod'). If not set, we will use the
+                'default' deployment group.
+
+                Creating ``deployment_groups`` with ``reserved_ip_ranges``
+                is a recommended practice when the peered network has
+                multiple peering ranges. This creates your deployments from
+                predictable IP spaces for easier traffic administration.
+                Also, one deployment_group (except 'default') can only be
+                used with the same reserved_ip_ranges which means if the
+                deployment_group has been used with reserved_ip_ranges: [a,
+                b, c], using it with [a, b] or [d, e] is disallowed.
+
+                Note: we only support up to 5 deployment groups(not
+                including 'default').
+            auth_config_audiences (Sequence[str]):
+                Optional. The list of JWT
+                `audiences <https://tools.ietf.org/html/draft-ietf-oauth-json-web-token-32#section-4.1.3>`__.
+                that are allowed to access. A JWT containing any of these
+                audiences will be accepted.
+            auth_config_allowed_issuers (Sequence[str]):
+                Optional. A list of allowed JWT issuers. Each entry must be a valid
+                Google service account, in the following format:
+
+                ``service-account-name@project-id.iam.gserviceaccount.com``                
             request_metadata (Sequence[Tuple[str, str]]):
                 Optional. Strings which should be sent along with the request as metadata.
         """
