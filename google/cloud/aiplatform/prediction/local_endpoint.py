@@ -174,7 +174,7 @@ class LocalEndpoint:
         return self
 
     def __exit__(self, exc_type, exc_value, exc_traceback):
-        """Exits the runtime context related to this project.
+        """Exits the runtime context related to this object.
 
         Args:
             exc_type:
