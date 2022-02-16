@@ -32,7 +32,7 @@ def _remove_parameter(value: Optional[str]):
 
     Args:
         value (str):
-            Optional. The header value needs to be removed the parameter.
+            Optional. The original full header value.
 
     Returns:
         The value without the parameter or None.
