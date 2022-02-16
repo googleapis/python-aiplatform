@@ -274,7 +274,10 @@ class MatchingEngineIndex(base.VertexAiResourceNounWithFutureManager):
             "Update", "index", self.__class__, update_lro
         )
 
-        self._gca_resource = update_lro.result()
+        update_lro.result()
+
+        # update local resource
+        self._sync_gca_resource()
 
         _LOGGER.log_action_completed_against_resource("index", "Updated", self)
 
@@ -333,7 +336,10 @@ class MatchingEngineIndex(base.VertexAiResourceNounWithFutureManager):
             "Update", "index", self.__class__, update_lro
         )
 
-        self._gca_resource = update_lro.result()
+        update_lro.result()
+
+        # update local resource
+        self._sync_gca_resource()
 
         _LOGGER.log_action_completed_against_resource("index", "Updated", self)
 

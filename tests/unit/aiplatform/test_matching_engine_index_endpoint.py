@@ -28,6 +28,8 @@ from google.protobuf import field_mask_pb2
 from google.cloud import aiplatform
 from google.cloud.aiplatform import base
 from google.cloud.aiplatform import initializer
+from google.cloud.aiplatform.matching_engine import match_service_pb2_grpc
+
 from google.cloud.aiplatform_v1.services.index_endpoint_service import (
     client as index_endpoint_service_client,
 )
@@ -80,21 +82,8 @@ _TEST_AUTH_CONFIG_ALLOWED_ISSUERS = [
 ]
 
 # deployment_updated
-_TEST_DEPLOYED_INDEX_DISPLAY_NAME_UPDATED = f"deployed_index_display_name_updated"
 _TEST_MIN_REPLICA_COUNT_UPDATED = 4
 _TEST_MAX_REPLICA_COUNT_UPDATED = 4
-_TEST_ENABLE_ACCESS_LOGGING_UPDATED = True
-_TEST_RESERVED_IP_RANGES_UPDATED = [
-    "vertex-ai-ip-range-1-updated",
-    "vertex-ai-ip-range-2-updated",
-]
-_TEST_DEPLOYMENT_GROUP_UPDATED = "prod-updated"
-_TEST_AUTH_CONFIG_AUDIENCES_UPDATED = ["a-updated", "b-updated"]
-_TEST_AUTH_CONFIG_ALLOWED_ISSUERS_UPDATED = [
-    "service-account-name-1-updated@project-id.iam.gserviceaccount.com",
-    "service-account-name-2-updated@project-id.iam.gserviceaccount.com",
-]
-
 
 # request_metadata
 _TEST_REQUEST_METADATA = ()
@@ -117,6 +106,113 @@ _TEST_INDEX_ENDPOINT_LIST = [
         description=_TEST_INDEX_ENDPOINT_DESCRIPTION,
     ),
 ]
+
+# Match
+_TEST_QUERIES = [
+    [
+        -0.11333,
+        0.48402,
+        0.090771,
+        -0.22439,
+        0.034206,
+        -0.55831,
+        0.041849,
+        -0.53573,
+        0.18809,
+        -0.58722,
+        0.015313,
+        -0.014555,
+        0.80842,
+        -0.038519,
+        0.75348,
+        0.70502,
+        -0.17863,
+        0.3222,
+        0.67575,
+        0.67198,
+        0.26044,
+        0.4187,
+        -0.34122,
+        0.2286,
+        -0.53529,
+        1.2582,
+        -0.091543,
+        0.19716,
+        -0.037454,
+        -0.3336,
+        0.31399,
+        0.36488,
+        0.71263,
+        0.1307,
+        -0.24654,
+        -0.52445,
+        -0.036091,
+        0.55068,
+        0.10017,
+        0.48095,
+        0.71104,
+        -0.053462,
+        0.22325,
+        0.30917,
+        -0.39926,
+        0.036634,
+        -0.35431,
+        -0.42795,
+        0.46444,
+        0.25586,
+        0.68257,
+        -0.20821,
+        0.38433,
+        0.055773,
+        -0.2539,
+        -0.20804,
+        0.52522,
+        -0.11399,
+        -0.3253,
+        -0.44104,
+        0.17528,
+        0.62255,
+        0.50237,
+        -0.7607,
+        -0.071786,
+        0.0080131,
+        -0.13286,
+        0.50097,
+        0.18824,
+        -0.54722,
+        -0.42664,
+        0.4292,
+        0.14877,
+        -0.0072514,
+        -0.16484,
+        -0.059798,
+        0.9895,
+        -0.61738,
+        0.054169,
+        0.48424,
+        -0.35084,
+        -0.27053,
+        0.37829,
+        0.11503,
+        -0.39613,
+        0.24266,
+        0.39147,
+        -0.075256,
+        0.65093,
+        -0.20822,
+        -0.17456,
+        0.53571,
+        -0.16537,
+        0.13582,
+        -0.56016,
+        0.016964,
+        0.1277,
+        0.94071,
+        -0.22608,
+        -0.021106,
+    ]
+]
+_TEST_NUM_NEIGHBOURS = 1
 
 
 def uuid_mock():
@@ -273,6 +369,18 @@ def undeploy_all_mock():
     ) as undeploy_all_mock:
         undeploy_all_mock.return_value = None
         yield undeploy_all_mock
+
+
+@pytest.fixture
+def match_mock():
+    """Mocks the match method"""
+    with mock.patch.object(
+        match_service_pb2_grpc.MatchServiceStub, "BatchMatch"
+    ) as match_mock:
+        match_lro_mock = mock.Mock(operation.Operation)
+        match_lro_mock.result.return_value = "TODO"
+        match_mock.return_value = match_lro_mock
+        yield match_mock
 
 
 class TestMatchingEngineIndex:
@@ -512,3 +620,21 @@ class TestMatchingEngineIndex:
         delete_index_endpoint_mock.assert_called_once_with(
             name=_TEST_INDEX_ENDPOINT_NAME
         )
+
+    @pytest.mark.usefixtures("get_index_endpoint_mock")
+    @pytest.mark.parametrize("sync", [True, False])
+    def test_delete_index_endpoint_with_force(self, match_mock, sync):
+
+        my_index_endpoint = aiplatform.MatchingEngineIndexEndpoint(
+            index_endpoint_name=_TEST_INDEX_ENDPOINT_NAME
+        )
+
+        response = my_index_endpoint.match(
+            deployed_index_id=_TEST_DEPLOYED_INDEX_ID,
+            queries=_TEST_QUERIES,
+            num_neighbors=_TEST_NUM_NEIGHBOURS,
+        )
+
+        match_mock.assert_called_once_with(name=_TEST_INDEX_ENDPOINT_NAME)
+
+        assert response == "TODO"

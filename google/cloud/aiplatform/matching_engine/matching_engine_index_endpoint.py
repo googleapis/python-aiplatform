@@ -29,6 +29,10 @@ from google.cloud.aiplatform import initializer
 from google.cloud.aiplatform import utils
 
 from google.cloud.aiplatform import matching_engine
+from google.cloud.aiplatform.matching_engine import match_service_pb2
+from google.cloud.aiplatform.matching_engine import match_service_pb2_grpc
+
+import grpc
 
 _LOGGER = base.Logger(__name__)
 
@@ -791,3 +795,50 @@ class MatchingEngineIndexEndpoint(base.VertexAiResourceNounWithFutureManager):
         """Description of the index endpoint."""
         self._assert_gca_resource_is_available()
         return self._gca_resource.description
+
+    def match(
+        self, deployed_index_id: str, queries: List[List[float]], num_neighbors: int = 1
+    ) -> List["MatchResponse"]:
+
+        # def match(
+        #     self,
+        #     deployed_index_ids: List[str],
+        #     queries: List[List[float]],
+        #     num_neighbors: int = 1
+        # ) -> List[gca_matching_engine_index_endpoint.DeployedIndex]:
+
+        deployed_indexes = [
+            deployed_index
+            for deployed_index in self.deployed_indexes
+            if deployed_index.id == deployed_index_id
+        ]
+
+        if not deployed_indexes:
+            raise RuntimeError(f"No deployed index with id '{deployed_index_id}' found")
+
+        server_ip = deployed_indexes[0].private_endpoints.match_grpc_address
+
+        channel = grpc.insecure_channel("{}:10000".format(server_ip))
+        stub = match_service_pb2_grpc.MatchServiceStub(channel)
+
+        def get_request(embedding, deployed_index_id):
+            request = match_service_pb2.MatchRequest(num_neighbors=num_neighbors)
+            request.deployed_index_id = deployed_index_id
+            request.float_val.extend(embedding)
+            return request
+
+        batch_request = match_service_pb2.BatchMatchRequest()
+        batch_request_ann = (
+            match_service_pb2.BatchMatchRequest.BatchMatchRequestPerIndex()
+        )
+
+        batch_request_ann.deployed_index_id = deployed_index_id
+        batch_request_ann.requests.extend(
+            [get_request(query, deployed_index_id) for query in queries]
+        )
+
+        batch_request.requests.append(batch_request_ann)
+
+        response = stub.BatchMatch(batch_request)
+
+        return response

@@ -39,7 +39,7 @@ _TEST_LEAF_NODES_TO_SEARCH_PERCENT = 50
 
 
 _TEST_CONTENTS_DELTA_URI = f"gs://ivanmkc-test2/matching-engine/initial"
-_TEST_CONTENTS_DELTA_URI_UPDATE = "gs://y-test2/matching-engine/incremental"
+_TEST_CONTENTS_DELTA_URI_UPDATE = "gs://ivanmkc-test2/matching-engine/incremental"
 _TEST_IS_COMPLETE_OVERWRITE = True
 _TEST_INDEX_DISTANCE_MEASURE_TYPE = "SQUARED_L2_DISTANCE"
 
@@ -116,7 +116,7 @@ class TestMatchingEngine(e2e_base.TestEndToEnd):
             is_complete_overwrite=_TEST_IS_COMPLETE_OVERWRITE,
         )
 
-        assert updated_index.contents_delta_uri == _TEST_CONTENTS_DELTA_URI
+        assert updated_index.metadata.contents_delta_uri == _TEST_CONTENTS_DELTA_URI
 
         # Create endpoint
         my_index_endpoint = aiplatform.MatchingEngineIndexEndpoint.create(
