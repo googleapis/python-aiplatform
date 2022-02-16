@@ -28,7 +28,6 @@ _TEST_PROJECT = "test-project"
 _TEST_LOCATION = "us-central1"
 _TEST_PARENT = f"projects/{_TEST_PROJECT}/locations/{_TEST_LOCATION}"
 
-_TEST_INDEX_ID = "index_id"
 _TEST_INDEX_DISPLAY_NAME = f"index_display_name"
 _TEST_INDEX_DESCRIPTION = f"index_description"
 _TEST_INDEX_DISTANCE_MEASURE_TYPE = "SQUARED_L2_DISTANCE"
@@ -50,7 +49,12 @@ _TEST_DISPLAY_NAME_UPDATE = "my new display name"
 _TEST_DESCRIPTION_UPDATE = "my description update"
 _TEST_LABELS_UPDATE = {"my_key_update": "my_value_update"}
 
-_TEST_INDEX_ENDPOINT_ID = "index_endpoint_id"
+# ENDPOINT
+_TEST_INDEX_ENDPOINT_DISPLAY_NAME = "endpoint_name"
+_TEST_INDEX_ENDPOINT_DESCRIPTION = "my endpoint"
+_TEST_INDEX_ENDPOINT_VPC_NETWORK = None
+
+# DEPLOYED INDEX
 _TEST_DEPLOYED_INDEX_ID = f"deployed_index_id"
 _TEST_DEPLOYED_INDEX_DISPLAY_NAME = f"deployed_index_display_name"
 _TEST_MIN_REPLICA_COUNT_UPDATED = 4
@@ -100,9 +104,11 @@ class TestMatchingEngine(e2e_base.TestEndToEnd):
             labels=_TEST_LABELS_UPDATE,
         )
 
-        assert updated_index.labels == _TEST_LABELS_UPDATE
+        print(f"ASDF: {updated_index}")
+        print(f"ASDF2: {updated_index.gca_resource}")
         assert updated_index.display_name == _TEST_DISPLAY_NAME_UPDATE
         assert updated_index.description == _TEST_DESCRIPTION_UPDATE
+        assert updated_index.labels == _TEST_LABELS_UPDATE
 
         # Update the index embeddings
         updated_index = get_index.update_embeddings(
@@ -113,8 +119,10 @@ class TestMatchingEngine(e2e_base.TestEndToEnd):
         assert updated_index.contents_delta_uri == _TEST_CONTENTS_DELTA_URI
 
         # Create endpoint
-        my_index_endpoint = aiplatform.MatchingEngineIndexEndpoint(
-            index_endpoint_name=_TEST_INDEX_ENDPOINT_ID
+        my_index_endpoint = aiplatform.MatchingEngineIndexEndpoint.create(
+            display_name=_TEST_INDEX_ENDPOINT_DISPLAY_NAME,
+            description=_TEST_INDEX_ENDPOINT_DESCRIPTION,
+            network=_TEST_INDEX_ENDPOINT_VPC_NETWORK,
         )
 
         # Deploy endpoint

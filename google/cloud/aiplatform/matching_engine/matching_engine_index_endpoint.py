@@ -92,7 +92,6 @@ class MatchingEngineIndexEndpoint(base.VertexAiResourceNounWithFutureManager):
     @base.optional_sync()
     def create(
         cls,
-        index_endpoint_id: str,
         display_name: str,
         description: Optional[str] = None,
         labels: Optional[Dict[str, str]] = None,
@@ -109,19 +108,10 @@ class MatchingEngineIndexEndpoint(base.VertexAiResourceNounWithFutureManager):
         Example Usage:
 
             my_index_endpoint = aiplatform.IndexEndpoint.create(
-                index_endpoint_id='my_index_endpoint_id',
+                display_name='my_endpoint',
             )
 
         Args:
-            index_endpoint_id (str):
-                Required. The ID to use for this index endpoint, which will
-                become the final component of the index endpoint's resource
-                name.
-
-                This value may be up to 60 characters, and valid characters
-                are ``[a-z0-9_]``. The first character cannot be a number.
-
-                The value must be unique within the project and location.
             display_name (str):
                 Required. The display name of the IndexEndpoint.
                 The name can be up to 128 characters long and
@@ -191,7 +181,6 @@ class MatchingEngineIndexEndpoint(base.VertexAiResourceNounWithFutureManager):
 
         """
         gapic_index_endpoint = gca_matching_engine_index_endpoint.IndexEndpoint(
-            name=index_endpoint_id,
             display_name=display_name,
             description=description,
             network=network,
