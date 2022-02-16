@@ -66,13 +66,8 @@ class TestMatchingEngine(e2e_base.TestEndToEnd):
             project=e2e_base._PROJECT, location=e2e_base._LOCATION,
         )
 
-        # Generate random timestamp
-        TIMESTAMP = datetime.now().strftime("%Y%m%d%H%M%S")
-        index_id = f"{_TEST_INDEX_ID}_{TIMESTAMP}"
-
         # Create an index
         index = aiplatform.MatchingEngineIndex.create_tree_ah_index(
-            index_id=index_id,
             display_name=_TEST_INDEX_DISPLAY_NAME,
             contents_delta_uri=_TEST_CONTENTS_DELTA_URI,
             dimensions=_TEST_INDEX_CONFIG_DIMENSIONS,
@@ -105,7 +100,7 @@ class TestMatchingEngine(e2e_base.TestEndToEnd):
             labels=_TEST_LABELS_UPDATE,
         )
 
-        assert updated_index.labels == _TEST_LABELS
+        assert updated_index.labels == _TEST_LABELS_UPDATE
         assert updated_index.display_name == _TEST_DISPLAY_NAME_UPDATE
         assert updated_index.description == _TEST_DESCRIPTION_UPDATE
 

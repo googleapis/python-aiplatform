@@ -206,10 +206,16 @@ def update_index_endpoint_mock():
     with patch.object(
         index_endpoint_service_client.IndexEndpointServiceClient,
         "update_index_endpoint",
-    ) as update_index_endpoint_mock:
-        update_index_endpoint_lro_mock = mock.Mock(operation.Operation)
-        update_index_endpoint_mock.return_value = update_index_endpoint_lro_mock
-        yield update_index_endpoint_mock
+    ) as index_endpoint_mock:
+        index_endpoint_lro_mock = mock.Mock(operation.Operation)
+        index_endpoint_lro_mock.result.return_value = gca_index_endpoint.IndexEndpoint(
+            name=_TEST_INDEX_ENDPOINT_NAME,
+            display_name=_TEST_DISPLAY_NAME_UPDATE,
+            description=_TEST_DESCRIPTION_UPDATE,
+        )
+
+        index_endpoint_mock.return_value = index_endpoint_lro_mock
+        yield index_endpoint_mock
 
 
 @pytest.fixture
@@ -298,7 +304,7 @@ class TestMatchingEngineIndex:
         my_index_endpoint = aiplatform.MatchingEngineIndexEndpoint(
             index_endpoint_name=_TEST_INDEX_ENDPOINT_ID
         )
-        my_index_endpoint.update(
+        updated_endpoint = my_index_endpoint.update(
             display_name=_TEST_DISPLAY_NAME_UPDATE,
             description=_TEST_DESCRIPTION_UPDATE,
             labels=_TEST_LABELS_UPDATE,
@@ -319,6 +325,8 @@ class TestMatchingEngineIndex:
             labels=_TEST_LABELS_UPDATE,
             metadata=_TEST_REQUEST_METADATA,
         )
+
+        assert updated_endpoint.gca_resource == expected
 
     def test_list_index_endpoints(self, list_index_endpoints_mock):
         aiplatform.init(project=_TEST_PROJECT)

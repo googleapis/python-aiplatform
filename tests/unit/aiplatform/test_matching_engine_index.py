@@ -48,6 +48,9 @@ _TEST_CONTENTS_DELTA_URI = f"gs://contents"
 _TEST_IS_COMPLETE_OVERWRITE = False
 _TEST_INDEX_DISTANCE_MEASURE_TYPE = "SQUARED_L2_DISTANCE"
 
+_TEST_CONTENTS_DELTA_URI_UPDATE = f"gs://contents_update"
+_TEST_IS_COMPLETE_OVERWRITE_UPDATE = True
+
 _TEST_INDEX_CONFIG_DIMENSIONS = 100
 _TEST_INDEX_APPROXIMATE_NEIGHBORS_COUNT = 150
 _TEST_LEAF_NODE_EMBEDDING_COUNT = 123
@@ -103,12 +106,35 @@ def get_index_mock():
 
 
 @pytest.fixture
-def update_index_mock():
+def update_index_metadata_mock():
     with patch.object(
         index_service_client.IndexServiceClient, "update_index"
     ) as update_index_mock:
-        update_index_lro_mock = mock.Mock(operation.Operation)
-        update_index_mock.return_value = update_index_lro_mock
+        index_lro_mock = mock.Mock(operation.Operation)
+        index_lro_mock.result.return_value = gca_index.Index(
+            name=_TEST_INDEX_NAME,
+            display_name=_TEST_DISPLAY_NAME_UPDATE,
+            description=_TEST_DESCRIPTION_UPDATE,
+            labels=_TEST_LABELS_UPDATE,
+        )
+        update_index_mock.return_value = index_lro_mock
+        yield update_index_mock
+
+
+@pytest.fixture
+def update_index_embeddings_mock():
+    with patch.object(
+        index_service_client.IndexServiceClient, "update_index"
+    ) as update_index_mock:
+        index_lro_mock = mock.Mock(operation.Operation)
+        index_lro_mock.result.return_value = gca_index.Index(
+            name=_TEST_INDEX_NAME,
+            metadata={
+                "contentsDeltaUri": _TEST_CONTENTS_DELTA_URI_UPDATE,
+                "isCompleteOverwrite": _TEST_IS_COMPLETE_OVERWRITE_UPDATE,
+            },
+        )
+        update_index_mock.return_value = index_lro_mock
         yield update_index_mock
 
 
@@ -165,11 +191,11 @@ class TestMatchingEngineIndex:
         )
 
     @pytest.mark.usefixtures("get_index_mock")
-    def test_update_index(self, update_index_mock):
+    def test_update_index_metadata(self, update_index_metadata_mock):
         aiplatform.init(project=_TEST_PROJECT)
 
         my_index = aiplatform.MatchingEngineIndex(index_name=_TEST_INDEX_ID)
-        my_index.update_metadata(
+        updated_index = my_index.update_metadata(
             display_name=_TEST_DISPLAY_NAME_UPDATE,
             description=_TEST_DESCRIPTION_UPDATE,
             labels=_TEST_LABELS_UPDATE,
@@ -182,7 +208,7 @@ class TestMatchingEngineIndex:
             labels=_TEST_LABELS_UPDATE,
         )
 
-        update_index_mock.assert_called_once_with(
+        update_index_metadata_mock.assert_called_once_with(
             index=expected,
             update_mask=field_mask_pb2.FieldMask(
                 paths=["labels", "display_name", "description"]
@@ -190,29 +216,33 @@ class TestMatchingEngineIndex:
             metadata=_TEST_REQUEST_METADATA,
         )
 
+        assert updated_index.gca_resource == expected
+
     @pytest.mark.usefixtures("get_index_mock")
-    def test_update_index_embeddings(self, update_index_mock):
+    def test_update_index_embeddings(self, update_index_embeddings_mock):
         aiplatform.init(project=_TEST_PROJECT)
 
         my_index = aiplatform.MatchingEngineIndex(index_name=_TEST_INDEX_ID)
-        my_index.update_embeddings(
-            contents_delta_uri=_TEST_CONTENTS_DELTA_URI,
-            is_complete_overwrite=_TEST_IS_COMPLETE_OVERWRITE,
+        updated_index = my_index.update_embeddings(
+            contents_delta_uri=_TEST_CONTENTS_DELTA_URI_UPDATE,
+            is_complete_overwrite=_TEST_IS_COMPLETE_OVERWRITE_UPDATE,
         )
 
         expected = gca_index.Index(
             name=_TEST_INDEX_NAME,
             metadata={
-                "contentsDeltaUri": _TEST_CONTENTS_DELTA_URI,
-                "isCompleteOverwrite": _TEST_IS_COMPLETE_OVERWRITE,
+                "contentsDeltaUri": _TEST_CONTENTS_DELTA_URI_UPDATE,
+                "isCompleteOverwrite": _TEST_IS_COMPLETE_OVERWRITE_UPDATE,
             },
         )
 
-        update_index_mock.assert_called_once_with(
+        update_index_embeddings_mock.assert_called_once_with(
             index=expected,
             update_mask=field_mask_pb2.FieldMask(paths=["metadata"]),
             metadata=_TEST_REQUEST_METADATA,
         )
+
+        assert updated_index.gca_resource == expected
 
     def test_list_indexes(self, list_indexes_mock):
         aiplatform.init(project=_TEST_PROJECT)

@@ -296,7 +296,7 @@ class MatchingEngineIndexEndpoint(base.VertexAiResourceNounWithFutureManager):
             "Update", "index_endpoint", self.__class__, update_lro
         )
 
-        update_lro.result()
+        self._gca_resource = update_lro.result()
 
         _LOGGER.log_action_completed_against_resource("index_endpoint", "Updated", self)
 
@@ -583,6 +583,9 @@ class MatchingEngineIndexEndpoint(base.VertexAiResourceNounWithFutureManager):
         _LOGGER.log_action_completed_against_resource(
             "index_endpoint", "Deployed index", self
         )
+
+        # update local resource
+        self._sync_gca_resource()
 
         return self
 
