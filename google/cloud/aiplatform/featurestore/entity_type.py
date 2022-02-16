@@ -123,15 +123,20 @@ class EntityType(base.VertexAiResourceNounWithFutureManager):
             location=self.location, credentials=credentials,
         )
 
-    @property
-    def featurestore_name(self) -> str:
-        """Full qualified resource name of the managed featurestore in which this EntityType is."""
+    def _get_featurestore_name(self) -> str:
+        """Gets full qualified resource name of the managed featurestore in which this EntityType is."""
         entity_type_name_components = self._parse_resource_name(self.resource_name)
         return featurestore.Featurestore._format_resource_name(
             project=entity_type_name_components["project"],
             location=entity_type_name_components["location"],
             featurestore=entity_type_name_components["featurestore"],
         )
+
+    @property
+    def featurestore_name(self) -> str:
+        """Full qualified resource name of the managed featurestore in which this EntityType is."""
+        self.wait()
+        return self._get_featurestore_name()
 
     def get_featurestore(self) -> "featurestore.Featurestore":
         """Retrieves the managed featurestore in which this EntityType is.
@@ -140,6 +145,26 @@ class EntityType(base.VertexAiResourceNounWithFutureManager):
             featurestore.Featurestore - The managed featurestore in which this EntityType is.
         """
         return featurestore.Featurestore(self.featurestore_name)
+
+    def _get_feature(self, feature_id: str) -> "featurestore.Feature":
+        """Retrieves an existing managed feature in this EntityType.
+
+        Args:
+            feature_id (str):
+                Required. The managed feature resource ID in this EntityType.
+        Returns:
+            featurestore.Feature - The managed feature resource object.
+        """
+        entity_type_name_components = self._parse_resource_name(self.resource_name)
+        return featurestore.Feature(
+            feature_name=featurestore.Feature._format_resource_name(
+                project=entity_type_name_components["project"],
+                location=entity_type_name_components["location"],
+                featurestore=entity_type_name_components["featurestore"],
+                entity_type=entity_type_name_components["entity_type"],
+                feature=feature_id,
+            )
+        )
 
     def get_feature(self, feature_id: str) -> "featurestore.Feature":
         """Retrieves an existing managed feature in this EntityType.
@@ -150,17 +175,8 @@ class EntityType(base.VertexAiResourceNounWithFutureManager):
         Returns:
             featurestore.Feature - The managed feature resource object.
         """
-        entity_type_name_components = self._parse_resource_name(self.resource_name)
-
-        return featurestore.Feature(
-            feature_name=featurestore.Feature._format_resource_name(
-                project=entity_type_name_components["project"],
-                location=entity_type_name_components["location"],
-                featurestore=entity_type_name_components["featurestore"],
-                entity_type=entity_type_name_components["entity_type"],
-                feature=feature_id,
-            )
-        )
+        self.wait()
+        return self._get_feature(feature_id=feature_id)
 
     def update(
         self,
@@ -202,6 +218,7 @@ class EntityType(base.VertexAiResourceNounWithFutureManager):
         Returns:
             EntityType - The updated entityType resource object.
         """
+        self.wait()
         update_mask = list()
 
         if description:
@@ -380,6 +397,7 @@ class EntityType(base.VertexAiResourceNounWithFutureManager):
         Returns:
             List[featurestore.Feature] - A list of managed feature resource objects.
         """
+        self.wait()
         return featurestore.Feature.list(
             entity_type_name=self.resource_name, filter=filter, order_by=order_by,
         )
@@ -399,7 +417,7 @@ class EntityType(base.VertexAiResourceNounWithFutureManager):
         """
         features = []
         for feature_id in feature_ids:
-            feature = self.get_feature(feature_id=feature_id)
+            feature = self._get_feature(feature_id=feature_id)
             feature.delete(sync=False)
             features.append(feature)
 
@@ -626,6 +644,7 @@ class EntityType(base.VertexAiResourceNounWithFutureManager):
             featurestore.Feature - feature resource object
 
         """
+        self.wait()
         return featurestore.Feature.create(
             feature_id=feature_id,
             value_type=value_type,
@@ -761,8 +780,9 @@ class EntityType(base.VertexAiResourceNounWithFutureManager):
 
         return self
 
+    @staticmethod
     def _validate_and_get_import_feature_values_request(
-        self,
+        entity_type_name: str,
         feature_ids: List[str],
         feature_time: Union[str, datetime.datetime],
         data_source: Union[gca_io.AvroSource, gca_io.BigQuerySource, gca_io.CsvSource],
@@ -773,6 +793,8 @@ class EntityType(base.VertexAiResourceNounWithFutureManager):
     ) -> gca_featurestore_service.ImportFeatureValuesRequest:
         """Validates and get import feature values request.
         Args:
+            entity_type_name (str):
+                Required. A fully-qualified entityType resource name.
             feature_ids (List[str]):
                 Required. IDs of the Feature to import values
                 of. The Features must exist in the target
@@ -840,7 +862,7 @@ class EntityType(base.VertexAiResourceNounWithFutureManager):
         ]
 
         import_feature_values_request = gca_featurestore_service.ImportFeatureValuesRequest(
-            entity_type=self.resource_name,
+            entity_type=entity_type_name,
             feature_specs=feature_specs,
             entity_id_field=entity_id_field,
             disable_online_serving=disable_online_serving,
@@ -992,6 +1014,7 @@ class EntityType(base.VertexAiResourceNounWithFutureManager):
         bigquery_source = gca_io.BigQuerySource(input_uri=bq_source_uri)
 
         import_feature_values_request = self._validate_and_get_import_feature_values_request(
+            entity_type_name=self.resource_name,
             feature_ids=feature_ids,
             feature_time=feature_time,
             data_source=bigquery_source,
@@ -1114,6 +1137,7 @@ class EntityType(base.VertexAiResourceNounWithFutureManager):
             data_source = gca_io.AvroSource(gcs_source=gcs_source)
 
         import_feature_values_request = self._validate_and_get_import_feature_values_request(
+            entity_type_name=self.resource_name,
             feature_ids=feature_ids,
             feature_time=feature_time,
             data_source=data_source,
@@ -1213,6 +1237,7 @@ class EntityType(base.VertexAiResourceNounWithFutureManager):
             project=self.project, credentials=self.credentials
         )
 
+        self.wait()
         entity_type_name_components = self._parse_resource_name(self.resource_name)
         featurestore_id, entity_type_id = (
             entity_type_name_components["featurestore"],
@@ -1222,6 +1247,8 @@ class EntityType(base.VertexAiResourceNounWithFutureManager):
         temp_bq_dataset_name = f"temp_{featurestore_id}_{uuid.uuid4()}".replace(
             "-", "_"
         )
+
+        # TODO(b/216497263): Add support for resource project does not match initializer.global_config.project
         temp_bq_dataset_id = f"{initializer.global_config.project}.{temp_bq_dataset_name}"[
             :1024
         ]
@@ -1297,7 +1324,7 @@ class EntityType(base.VertexAiResourceNounWithFutureManager):
         Returns:
             pd.DataFrame: entities' feature values in DataFrame
         """
-
+        self.wait()
         if isinstance(feature_ids, str):
             feature_ids = [feature_ids]
 
@@ -1339,7 +1366,7 @@ class EntityType(base.VertexAiResourceNounWithFutureManager):
             feature_descriptor.id for feature_descriptor in header.feature_descriptors
         ]
 
-        return EntityType._construct_dataframe(
+        return self._construct_dataframe(
             feature_ids=feature_ids, entity_views=entity_views,
         )
 

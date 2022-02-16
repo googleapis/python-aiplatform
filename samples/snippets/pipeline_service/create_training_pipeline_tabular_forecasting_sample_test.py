@@ -77,10 +77,10 @@ def test_ucaip_generated_create_training_pipeline_sample(capsys, shared_state):
         target_column=TARGET_COLUMN,
         time_series_identifier_column="county",
         time_column="date",
-        static_columns=["state_name"],
-        time_variant_past_only_columns=["deaths"],
-        time_variant_past_and_future_columns=["date"],
-        forecast_window_end=10,
+        time_series_attribute_columns=["state_name"],
+        unavailable_at_forecast=["deaths"],
+        available_at_forecast=["date"],
+        forecast_horizon=10,
     )
 
     out, _ = capsys.readouterr()

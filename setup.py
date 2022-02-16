@@ -47,7 +47,11 @@ profiler_extra_require = [
     "werkzeug >= 2.0.0",
     "tensorflow >=2.4.0",
 ]
-featurestore_extra_require = ["pandas >= 1.0.0", "pyarrow >= 6.0.1"]
+featurestore_extra_require = [
+    "google-cloud-bigquery-storage",
+    "pandas >= 1.0.0",
+    "pyarrow >= 6.0.1",
+]
 
 full_extra_require = list(
     set(
@@ -94,7 +98,7 @@ setuptools.setup(
         "google-api-core[grpc] >= 1.26.0, <3.0.0dev",
         "proto-plus >= 1.10.1",
         "packaging >= 14.3",
-        "google-cloud-storage >= 1.32.0, < 2.0.0dev",
+        "google-cloud-storage >= 1.32.0, < 3.0.0dev",
         "google-cloud-bigquery >= 1.15.0, < 3.0.0dev",
     ),
     extras_require={
@@ -107,7 +111,6 @@ setuptools.setup(
         "cloud_profiler": profiler_extra_require,
     },
     python_requires=">=3.6",
-    scripts=[],
     classifiers=[
         "Development Status :: 5 - Production/Stable",
         "Intended Audience :: Developers",
