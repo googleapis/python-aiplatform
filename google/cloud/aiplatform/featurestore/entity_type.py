@@ -1259,9 +1259,29 @@ class EntityType(base.VertexAiResourceNounWithFutureManager):
 
         temp_bq_dataset = bigquery_client.create_dataset(temp_bq_dataset)
 
+        feature_source_fields = feature_source_fields or {}
+
         try:
+
+            schema = []
+            for feature_id in feature_ids:
+                feature_value_type = self.get_feature(feature_id).to_dict()["valueType"]
+                bq_data_type = utils.featurestore_utils.FEATURE_STORE_VALUE_TYPE_TO_BQ_DATA_TYPE_MAP[
+                    feature_value_type
+                ]
+                bq_schema_field = bigquery.SchemaField(
+                    name=feature_source_fields.get(feature_id, feature_id),
+                    field_type=bq_data_type["field_type"],
+                    mode=bq_data_type.get("mode") or "NULLABLE",
+                )
+                schema.append(bq_schema_field)
+
+            job_config = bigquery.LoadJobConfig(schema=schema)
+
             job = bigquery_client.load_table_from_dataframe(
-                dataframe=df_source, destination=temp_bq_table_id
+                dataframe=df_source,
+                destination=temp_bq_table_id,
+                job_config=job_config,
             )
             job.result()
 

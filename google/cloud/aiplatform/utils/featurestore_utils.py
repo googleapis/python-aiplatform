@@ -33,6 +33,18 @@ GCS_DESTINATION_TYPE = {"csv", "tfrecord"}
 
 _FEATURE_VALUE_TYPE_UNSPECIFIED = "VALUE_TYPE_UNSPECIFIED"
 
+FEATURE_STORE_VALUE_TYPE_TO_BQ_DATA_TYPE_MAP = {
+    "BOOL": {"field_type": "BOOL"},
+    "BOOL_ARRAY": {"field_type": "BOOL", "mode": "REPEATED"},
+    "DOUBLE": {"field_type": "DOUBLE"},
+    "DOUBLE_ARRAY": {"field_type": "DOUBLE", "mode": "REPEATED"},
+    "INT64": {"field_type": "INT64"},
+    "INT64_ARRAY": {"field_type": "INT64", "mode": "REPEATED"},
+    "STRING": {"field_type": "STRING"},
+    "STRING_ARRAY": {"field_type": "STRING", "mode": "REPEATED"},
+    "BYTES": {"field_type": "BYTES"},
+}
+
 
 def validate_id(resource_id: str) -> None:
     """Validates feature store resource ID pattern.
