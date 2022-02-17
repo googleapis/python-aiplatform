@@ -271,6 +271,24 @@ def get_index_endpoint_mock():
                     )
                 ),
             ),
+            gca_matching_engine_index_endpoint.DeployedIndex(
+                id=f"{_TEST_DEPLOYED_INDEX_ID}_2",
+                index=f"{_TEST_INDEX_NAME}_2",
+                display_name=_TEST_DEPLOYED_INDEX_DISPLAY_NAME,
+                enable_access_logging=_TEST_ENABLE_ACCESS_LOGGING,
+                reserved_ip_ranges=_TEST_RESERVED_IP_RANGES,
+                deployment_group=_TEST_DEPLOYMENT_GROUP,
+                automatic_resources={
+                    "min_replica_count": _TEST_MIN_REPLICA_COUNT,
+                    "max_replica_count": _TEST_MAX_REPLICA_COUNT,
+                },
+                deployed_index_auth_config=gca_matching_engine_index_endpoint.DeployedIndexAuthConfig(
+                    auth_provider=gca_matching_engine_index_endpoint.DeployedIndexAuthConfig.AuthProvider(
+                        audiences=_TEST_AUTH_CONFIG_AUDIENCES,
+                        allowed_issuers=_TEST_AUTH_CONFIG_ALLOWED_ISSUERS,
+                    )
+                ),
+            ),
         ]
 
         get_index_endpoint_mock.return_value = index_endpoint
@@ -358,16 +376,6 @@ def create_index_endpoint_mock():
         )
         create_index_endpoint_mock.return_value = create_index_endpoint_lro_mock
         yield create_index_endpoint_mock
-
-
-@pytest.fixture
-def undeploy_all_mock():
-    """Mocks the undeploy_all method"""
-    with patch.object(
-        aiplatform.MatchingEngineIndexEndpoint, "undeploy_all"
-    ) as undeploy_all_mock:
-        undeploy_all_mock.return_value = None
-        yield undeploy_all_mock
 
 
 @pytest.fixture
@@ -579,7 +587,7 @@ class TestMatchingEngineIndexEndpoint:
     @pytest.mark.usefixtures("get_index_endpoint_mock")
     @pytest.mark.parametrize("sync", [True, False])
     def test_delete_index_endpoint_without_force(
-        self, undeploy_all_mock, delete_index_endpoint_mock, sync
+        self, undeploy_index_mock, delete_index_endpoint_mock, sync
     ):
 
         my_index_endpoint = aiplatform.MatchingEngineIndexEndpoint(
@@ -591,8 +599,8 @@ class TestMatchingEngineIndexEndpoint:
         if not sync:
             my_index_endpoint.wait()
 
-        # undeploy_all() should not be called unless force is set to True
-        undeploy_all_mock.assert_not_called()
+        # undeploy_index_mock should not be called unless force is set to True
+        undeploy_index_mock.assert_not_called()
 
         delete_index_endpoint_mock.assert_called_once_with(
             name=_TEST_INDEX_ENDPOINT_NAME
@@ -601,7 +609,7 @@ class TestMatchingEngineIndexEndpoint:
     @pytest.mark.usefixtures("get_index_endpoint_mock")
     @pytest.mark.parametrize("sync", [True, False])
     def test_delete_index_endpoint_with_force(
-        self, undeploy_all_mock, delete_index_endpoint_mock, sync
+        self, undeploy_index_mock, delete_index_endpoint_mock, sync
     ):
 
         my_index_endpoint = aiplatform.MatchingEngineIndexEndpoint(
@@ -612,8 +620,8 @@ class TestMatchingEngineIndexEndpoint:
         if not sync:
             my_index_endpoint.wait()
 
-        # undeploy_all() should be called if force is set to True
-        undeploy_all_mock.assert_called_once()
+        # undeploy_index_mock should be called if force is set to True
+        assert undeploy_index_mock.call_count == 2
 
         delete_index_endpoint_mock.assert_called_once_with(
             name=_TEST_INDEX_ENDPOINT_NAME

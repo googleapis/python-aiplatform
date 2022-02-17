@@ -708,7 +708,7 @@ class MatchingEngineIndexEndpoint(base.VertexAiResourceNounWithFutureManager):
                 Optional. Strings which should be sent along with the request as
                 metadata.
         """
-        self._sync_gca_resource_if_skipped()
+        self._sync_gca_resource()
 
         _LOGGER.log_action_start_against_resource("Undeploying", "index_endpoint", self)
 
