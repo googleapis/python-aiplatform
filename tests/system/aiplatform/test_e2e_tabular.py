@@ -46,7 +46,7 @@ _INSTANCE = {
 }
 
 
-@pytest.mark.usefixtures("prepare_staging_bucket", "delete_staging_bucket", "teardown")
+@pytest.mark.usefixtures("prepare_staging_bucket", "delete_staging_bucket")
 class TestEndToEndTabular(e2e_base.TestEndToEnd):
     """End to end system test of the Vertex SDK with tabular data adapted from
     reference notebook http://shortn/_eyoNx3SN0X"""
@@ -109,6 +109,8 @@ class TestEndToEndTabular(e2e_base.TestEndToEnd):
             ds,
             replica_count=1,
             model_display_name=self._make_display_name("custom-housing-model"),
+            timeout=1234,
+            restart_job_on_worker_restart=True,
             enable_web_access=True,
             sync=False,
         )
@@ -147,6 +149,19 @@ class TestEndToEndTabular(e2e_base.TestEndToEnd):
         # Send online prediction with same instance to both deployed models
         # This sample is taken from an observation where median_house_value = 94600
         custom_endpoint.wait()
+
+        # Check scheduling is correctly set
+        assert (
+            custom_job._gca_resource.training_task_inputs["scheduling"]["timeout"]
+            == "1234s"
+        )
+        assert (
+            custom_job._gca_resource.training_task_inputs["scheduling"][
+                "restartJobOnWorkerRestart"
+            ]
+            is True
+        )
+
         custom_prediction = custom_endpoint.predict([_INSTANCE])
 
         custom_batch_prediction_job.wait()
