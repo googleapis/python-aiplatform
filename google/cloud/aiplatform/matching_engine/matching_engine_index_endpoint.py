@@ -100,7 +100,6 @@ class MatchingEngineIndexEndpoint(base.VertexAiResourceNounWithFutureManager):
         description: Optional[str] = None,
         labels: Optional[Dict[str, str]] = None,
         network: Optional[str] = None,
-        enable_private_service_connect: Optional[bool] = None,
         project: Optional[str] = None,
         location: Optional[str] = None,
         credentials: Optional[auth_credentials.Credentials] = None,
@@ -145,25 +144,10 @@ class MatchingEngineIndexEndpoint(base.VertexAiResourceNounWithFutureManager):
                 network. If left unspecified, the Endpoint is not peered
                 with any network.
 
-                Only one of the fields,
-                [network][google.cloud.aiplatform.v1.IndexEndpoint.network]
-                or
-                [enable_private_service_connect][google.cloud.aiplatform.v1.IndexEndpoint.enable_private_service_connect],
-                can be set.
-
                 `Format <https://cloud.google.com/compute/docs/reference/rest/v1/networks/insert>`__:
                 projects/{project}/global/networks/{network}. Where
                 {project} is a project number, as in '12345', and {network}
                 is network name.
-            enable_private_service_connect (bool):
-                Optional. If true, expose the IndexEndpoint via private
-                service connect.
-
-                Only one of the fields,
-                [network][google.cloud.aiplatform.v1.IndexEndpoint.network]
-                or
-                [enable_private_service_connect][google.cloud.aiplatform.v1.IndexEndpoint.enable_private_service_connect],
-                can be set.
             project (str):
                 Optional. Project to create EntityType in. If not set, project
                 set in aiplatform.init will be used.
@@ -185,10 +169,7 @@ class MatchingEngineIndexEndpoint(base.VertexAiResourceNounWithFutureManager):
 
         """
         gapic_index_endpoint = gca_matching_engine_index_endpoint.IndexEndpoint(
-            display_name=display_name,
-            description=description,
-            network=network,
-            enable_private_service_connect=enable_private_service_connect,
+            display_name=display_name, description=description, network=network,
         )
 
         if labels:
@@ -311,7 +292,7 @@ class MatchingEngineIndexEndpoint(base.VertexAiResourceNounWithFutureManager):
         auth_config_audiences: Optional[Sequence[str]] = None,
         auth_config_allowed_issuers: Optional[Sequence[str]] = None,
     ) -> gca_matching_engine_index_endpoint.DeployedIndex:
-        """Updates an existing deployed index under this endpoint resource.
+        """Builds a DeployedIndex.
 
         Args:
             index_resource_name (str):
@@ -638,7 +619,7 @@ class MatchingEngineIndexEndpoint(base.VertexAiResourceNounWithFutureManager):
         """Updates an existing deployed index under this endpoint resource.
 
         Args:
-            deployed_index_id (str):
+            index_id (str):
                 Required. The ID of the MatchingEnginIndex associated with the DeployedIndex.
             deployed_index_id (str):
                 Required. The user specified ID of the
