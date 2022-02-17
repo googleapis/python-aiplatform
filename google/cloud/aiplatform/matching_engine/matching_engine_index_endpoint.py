@@ -714,7 +714,7 @@ class MatchingEngineIndexEndpoint(base.VertexAiResourceNounWithFutureManager):
 
         operation_future = self.api_client.undeploy_index(
             index_endpoint=self.resource_name,
-            deployed_model_id=deployed_index_id,
+            deployed_index_id=deployed_index_id,
             metadata=metadata,
         )
 
@@ -744,7 +744,7 @@ class MatchingEngineIndexEndpoint(base.VertexAiResourceNounWithFutureManager):
         self._sync_gca_resource()
 
         for deployed_index in self.deployed_indexes:
-            self._undeploy(deployed_model_id=deployed_index.id, sync=sync)
+            self._undeploy(deployed_index_id=deployed_index.id, sync=sync)
 
         return self
 

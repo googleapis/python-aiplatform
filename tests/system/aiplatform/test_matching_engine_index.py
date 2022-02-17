@@ -53,11 +53,8 @@ _TEST_LABELS_UPDATE = {"my_key_update": "my_value_update"}
 _TEST_INDEX_ENDPOINT_DISPLAY_NAME = "endpoint_name"
 _TEST_INDEX_ENDPOINT_DESCRIPTION = "my endpoint"
 
-_, PROJECT_NUMBER = google.auth.default()
-
-NETWORK_NAME = os.getenv("private-net")
 _TEST_INDEX_ENDPOINT_VPC_NETWORK = "projects/{}/global/networks/{}".format(
-    PROJECT_NUMBER, NETWORK_NAME
+    e2e_base._PROJECT_NUMBER, e2e_base._VPC_NETWORK_NAME
 )
 
 # DEPLOYED INDEX
@@ -65,9 +62,6 @@ _TEST_DEPLOYED_INDEX_ID = f"deployed_index_id"
 _TEST_DEPLOYED_INDEX_DISPLAY_NAME = f"deployed_index_display_name"
 _TEST_MIN_REPLICA_COUNT_UPDATED = 4
 _TEST_MAX_REPLICA_COUNT_UPDATED = 4
-
-# assert PROJECT_NUMBER is not None
-# assert NETWORK_NAME is not None
 
 
 class TestMatchingEngine(e2e_base.TestEndToEnd):
@@ -133,6 +127,8 @@ class TestMatchingEngine(e2e_base.TestEndToEnd):
             description=_TEST_INDEX_ENDPOINT_DESCRIPTION,
             network=_TEST_INDEX_ENDPOINT_VPC_NETWORK,
         )
+
+        shared_state["resources"].append(my_index_endpoint)
 
         # Deploy endpoint
         my_index_endpoint = my_index_endpoint.deploy_index(

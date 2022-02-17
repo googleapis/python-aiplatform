@@ -29,6 +29,8 @@ from google.cloud import storage
 from google.cloud.aiplatform import initializer
 
 _PROJECT = os.getenv("BUILD_SPECIFIC_GCLOUD_PROJECT")
+_PROJECT_NUMBER = os.getenv("PROJECT_NUMBER")
+_VPC_NETWORK_NAME = os.getenv("private-net")
 _LOCATION = "us-central1"
 
 
@@ -139,7 +141,14 @@ class TestEndToEnd(metaclass=abc.ABCMeta):
 
         for resource in shared_state["resources"]:
             try:
-                if isinstance(resource, (aiplatform.Endpoint, aiplatform.Featurestore)):
+                if isinstance(
+                    resource,
+                    (
+                        aiplatform.Endpoint,
+                        aiplatform.Featurestore,
+                        aiplatform.MatchingEngineIndexEndpoint,
+                    ),
+                ):
                     # For endpoint, undeploy model then delete endpoint
                     # For featurestore, force delete its entity_types and features with the featurestore
                     resource.delete(force=True)
