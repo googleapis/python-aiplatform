@@ -279,7 +279,7 @@ def get_index_endpoint_mock():
 
 @pytest.fixture
 def deploy_index_mock():
-    with mock.patch.object(
+    with patch.object(
         index_endpoint_service_client.IndexEndpointServiceClient, "deploy_index",
     ) as deploy_index_mock:
         deploy_index_lro_mock = mock.Mock(operation.Operation)
@@ -289,7 +289,7 @@ def deploy_index_mock():
 
 @pytest.fixture
 def undeploy_index_mock():
-    with mock.patch.object(
+    with patch.object(
         index_endpoint_service_client.IndexEndpointServiceClient, "undeploy_index",
     ) as undeploy_index_mock:
         undeploy_index_lro_mock = mock.Mock(operation.Operation)
@@ -303,15 +303,13 @@ def update_index_endpoint_mock():
         index_endpoint_service_client.IndexEndpointServiceClient,
         "update_index_endpoint",
     ) as index_endpoint_mock:
-        index_endpoint_lro_mock = mock.Mock(operation.Operation)
-        index_endpoint_lro_mock.result.return_value = gca_index_endpoint.IndexEndpoint(
+        index_endpoint_mock.return_value = gca_index_endpoint.IndexEndpoint(
             name=_TEST_INDEX_ENDPOINT_NAME,
             display_name=_TEST_DISPLAY_NAME_UPDATE,
             description=_TEST_DESCRIPTION_UPDATE,
             labels=_TEST_LABELS_UPDATE,
         )
 
-        index_endpoint_mock.return_value = index_endpoint_lro_mock
         yield index_endpoint_mock
 
 
@@ -337,7 +335,7 @@ def list_index_endpoints_mock():
 
 @pytest.fixture
 def delete_index_endpoint_mock():
-    with mock.patch.object(
+    with patch.object(
         index_endpoint_service_client.IndexEndpointServiceClient,
         "delete_index_endpoint",
     ) as delete_index_endpoint_mock:
@@ -365,7 +363,7 @@ def create_index_endpoint_mock():
 @pytest.fixture
 def undeploy_all_mock():
     """Mocks the undeploy_all method"""
-    with mock.patch.object(
+    with patch.object(
         aiplatform.MatchingEngineIndexEndpoint, "undeploy_all"
     ) as undeploy_all_mock:
         undeploy_all_mock.return_value = None
@@ -375,7 +373,7 @@ def undeploy_all_mock():
 @pytest.fixture
 def match_mock():
     """Mocks the match method"""
-    with mock.patch.object(
+    with patch.object(
         match_service_pb2_grpc.MatchServiceStub, "BatchMatch"
     ) as match_mock:
         match_lro_mock = mock.Mock(operation.Operation)
