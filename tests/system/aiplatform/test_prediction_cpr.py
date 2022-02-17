@@ -36,7 +36,7 @@ _IMAGE_URI = f"gcr.io/ucaip-sample-tests/prediction-cpr/sklearn:{_TIMESTAMP}"
 _DIR_NAME = os.path.dirname(os.path.abspath(__file__))
 _USER_CODE_DIR = os.path.join(_DIR_NAME, "test_resources/cpr_user_code")
 _REQUIREMENTS_FILE = "requirements.txt"
-_ARTIFACT_URI = "gs://cloud-samples-data-us-central1/vertex-ai/prediction-cpr/sklearn"
+_ARTIFACT_URI = "gs://cloud-aiplatform-us-central1/vertex-ai/prediction-cpr/sklearn"
 _PREDICTION_INPUT = [[4.6, 3.1, 1.5, 0.2]]
 
 
