@@ -1276,7 +1276,14 @@ class EntityType(base.VertexAiResourceNounWithFutureManager):
                 )
                 schema.append(bq_schema_field)
 
-            job_config = bigquery.LoadJobConfig(schema=schema)
+            parquet_options = bigquery.format_options.ParquetOptions()
+            parquet_options.enable_list_inference = True
+
+            job_config = bigquery.LoadJobConfig(
+                schema=schema,
+                source_format=bigquery.SourceFormat.PARQUET,
+                parquet_options=parquet_options,
+            )
 
             job = bigquery_client.load_table_from_dataframe(
                 dataframe=df_source,
@@ -1385,7 +1392,7 @@ class EntityType(base.VertexAiResourceNounWithFutureManager):
         feature_ids = [
             feature_descriptor.id for feature_descriptor in header.feature_descriptors
         ]
-
+        print(entity_views)
         return self._construct_dataframe(
             feature_ids=feature_ids, entity_views=entity_views,
         )
