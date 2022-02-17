@@ -308,6 +308,7 @@ def update_index_endpoint_mock():
             name=_TEST_INDEX_ENDPOINT_NAME,
             display_name=_TEST_DISPLAY_NAME_UPDATE,
             description=_TEST_DESCRIPTION_UPDATE,
+            labels=_TEST_LABELS_UPDATE,
         )
 
         index_endpoint_mock.return_value = index_endpoint_lro_mock
@@ -383,7 +384,7 @@ def match_mock():
         yield match_mock
 
 
-class TestMatchingEngineIndex:
+class TestMatchingEngineIndexEndpoint:
     def setup_method(self):
         reload(initializer)
         reload(aiplatform)
@@ -480,7 +481,6 @@ class TestMatchingEngineIndex:
             my_index_endpoint.wait()
 
         expected = gca_index_endpoint.IndexEndpoint(
-            name=_TEST_INDEX_ENDPOINT_ID,
             display_name=_TEST_INDEX_ENDPOINT_DISPLAY_NAME,
             description=_TEST_INDEX_ENDPOINT_DESCRIPTION,
             labels=_TEST_LABELS,
@@ -623,7 +623,7 @@ class TestMatchingEngineIndex:
 
     @pytest.mark.usefixtures("get_index_endpoint_mock")
     @pytest.mark.parametrize("sync", [True, False])
-    def test_delete_index_endpoint_with_force(self, match_mock, sync):
+    def test_match(self, match_mock, sync):
 
         my_index_endpoint = aiplatform.MatchingEngineIndexEndpoint(
             index_endpoint_name=_TEST_INDEX_ENDPOINT_NAME

@@ -258,23 +258,11 @@ class MatchingEngineIndexEndpoint(base.VertexAiResourceNounWithFutureManager):
             labels=labels,
         )
 
-        _LOGGER.log_action_start_against_resource(
-            "Updating", "index_endpoint", self,
-        )
-
-        update_lro = self.api_client.update_index_endpoint(
+        self._gca_resource = self.api_client.update_index_endpoint(
             index_endpoint=gapic_index_endpoint,
             update_mask=update_mask,
             metadata=request_metadata,
         )
-
-        _LOGGER.log_action_started_against_resource_with_lro(
-            "Update", "index_endpoint", self.__class__, update_lro
-        )
-
-        self._gca_resource = update_lro.result()
-
-        _LOGGER.log_action_completed_against_resource("index_endpoint", "Updated", self)
 
         return self
 
@@ -284,8 +272,8 @@ class MatchingEngineIndexEndpoint(base.VertexAiResourceNounWithFutureManager):
         deployed_index_id: str,
         display_name: Optional[str] = None,
         machine_type: Optional[str] = None,
-        min_replica_count: int = 1,
-        max_replica_count: int = 1,
+        min_replica_count: Optional[int] = None,
+        max_replica_count: Optional[int] = None,
         enable_access_logging: Optional[bool] = None,
         reserved_ip_ranges: Optional[Sequence[str]] = None,
         deployment_group: Optional[str] = None,
@@ -316,6 +304,8 @@ class MatchingEngineIndexEndpoint(base.VertexAiResourceNounWithFutureManager):
                 model will be always deployed on. If traffic against it increases,
                 it may dynamically be deployed onto more replicas, and as traffic
                 decreases, some of these extra replicas may be freed.
+
+                If this value is not provided, the value of 2 will be used.
             max_replica_count (int):
                 Optional. The maximum number of replicas this deployed model may
                 be deployed on when the traffic against it increases. If requested
@@ -324,7 +314,7 @@ class MatchingEngineIndexEndpoint(base.VertexAiResourceNounWithFutureManager):
                 is guaranteed (barring service outages). If traffic against the
                 deployed model increases beyond what its replicas at maximum may
                 handle, a portion of the traffic will be dropped. If this value
-                is not provided, the larger value of min_replica_count or 1 will
+                is not provided, the larger value of min_replica_count or 2 will
                 be used. If value provided is smaller than min_replica_count, it
                 will automatically be increased to be min_replica_count.
             enable_access_logging (bool):
@@ -423,8 +413,8 @@ class MatchingEngineIndexEndpoint(base.VertexAiResourceNounWithFutureManager):
         deployed_index_id: str,
         display_name: Optional[str] = None,
         machine_type: Optional[str] = None,
-        min_replica_count: int = 1,
-        max_replica_count: int = 1,
+        min_replica_count: Optional[int] = None,
+        max_replica_count: Optional[int] = None,
         enable_access_logging: Optional[bool] = None,
         reserved_ip_ranges: Optional[Sequence[str]] = None,
         deployment_group: Optional[str] = None,
@@ -457,6 +447,8 @@ class MatchingEngineIndexEndpoint(base.VertexAiResourceNounWithFutureManager):
                 model will be always deployed on. If traffic against it increases,
                 it may dynamically be deployed onto more replicas, and as traffic
                 decreases, some of these extra replicas may be freed.
+
+                If this value is not provided, the value of 2 will be used.
             max_replica_count (int):
                 Optional. The maximum number of replicas this deployed model may
                 be deployed on when the traffic against it increases. If requested
@@ -465,7 +457,7 @@ class MatchingEngineIndexEndpoint(base.VertexAiResourceNounWithFutureManager):
                 is guaranteed (barring service outages). If traffic against the
                 deployed model increases beyond what its replicas at maximum may
                 handle, a portion of the traffic will be dropped. If this value
-                is not provided, the larger value of min_replica_count or 1 will
+                is not provided, the larger value of min_replica_count or 2 will
                 be used. If value provided is smaller than min_replica_count, it
                 will automatically be increased to be min_replica_count.
             enable_access_logging (bool):

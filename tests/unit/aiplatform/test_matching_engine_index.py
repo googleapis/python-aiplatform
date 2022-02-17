@@ -184,7 +184,7 @@ class TestMatchingEngineIndex:
             name=my_index.resource_name, retry=base._DEFAULT_RETRY
         )
 
-    @pytest.mark.usefixtures("get_index_mock")
+    @pytest.mark.usefixtures("get_index_mock")  #
     def test_update_index_metadata(self, update_index_metadata_mock):
         aiplatform.init(project=_TEST_PROJECT)
 
