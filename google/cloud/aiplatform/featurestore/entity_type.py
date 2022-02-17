@@ -1392,7 +1392,7 @@ class EntityType(base.VertexAiResourceNounWithFutureManager):
         feature_ids = [
             feature_descriptor.id for feature_descriptor in header.feature_descriptors
         ]
-        print(entity_views)
+
         return self._construct_dataframe(
             feature_ids=feature_ids, entity_views=entity_views,
         )
