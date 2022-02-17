@@ -423,6 +423,7 @@ class TestMatchingEngineIndex:
             name=_TEST_INDEX_ENDPOINT_NAME,
             display_name=_TEST_DISPLAY_NAME_UPDATE,
             description=_TEST_DESCRIPTION_UPDATE,
+            labels=_TEST_LABELS_UPDATE,
         )
 
         update_index_endpoint_mock.assert_called_once_with(
@@ -430,7 +431,6 @@ class TestMatchingEngineIndex:
             update_mask=field_mask_pb2.FieldMask(
                 paths=["labels", "display_name", "description"]
             ),
-            labels=_TEST_LABELS_UPDATE,
             metadata=_TEST_REQUEST_METADATA,
         )
 

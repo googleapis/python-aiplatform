@@ -17,17 +17,17 @@
 
 from datetime import datetime
 
+import google.auth
 from google.cloud import aiplatform
+
+import os
+
 from tests.system.aiplatform import e2e_base
 from google.cloud.aiplatform.compat.types import (
     matching_engine_index_endpoint as gca_matching_engine_index_endpoint,
 )
 
 # project
-_TEST_PROJECT = "test-project"
-_TEST_LOCATION = "us-central1"
-_TEST_PARENT = f"projects/{_TEST_PROJECT}/locations/{_TEST_LOCATION}"
-
 _TEST_INDEX_DISPLAY_NAME = f"index_display_name"
 _TEST_INDEX_DESCRIPTION = f"index_description"
 _TEST_INDEX_DISTANCE_MEASURE_TYPE = "SQUARED_L2_DISTANCE"
@@ -52,13 +52,22 @@ _TEST_LABELS_UPDATE = {"my_key_update": "my_value_update"}
 # ENDPOINT
 _TEST_INDEX_ENDPOINT_DISPLAY_NAME = "endpoint_name"
 _TEST_INDEX_ENDPOINT_DESCRIPTION = "my endpoint"
-_TEST_INDEX_ENDPOINT_VPC_NETWORK = None
+
+_, PROJECT_NUMBER = google.auth.default()
+
+NETWORK_NAME = os.getenv("private-net")
+_TEST_INDEX_ENDPOINT_VPC_NETWORK = "projects/{}/global/networks/{}".format(
+    PROJECT_NUMBER, NETWORK_NAME
+)
 
 # DEPLOYED INDEX
 _TEST_DEPLOYED_INDEX_ID = f"deployed_index_id"
 _TEST_DEPLOYED_INDEX_DISPLAY_NAME = f"deployed_index_display_name"
 _TEST_MIN_REPLICA_COUNT_UPDATED = 4
 _TEST_MAX_REPLICA_COUNT_UPDATED = 4
+
+assert PROJECT_NUMBER is not None
+assert NETWORK_NAME is not None
 
 
 class TestMatchingEngine(e2e_base.TestEndToEnd):
@@ -104,8 +113,6 @@ class TestMatchingEngine(e2e_base.TestEndToEnd):
             labels=_TEST_LABELS_UPDATE,
         )
 
-        print(f"ASDF: {updated_index}")
-        print(f"ASDF2: {updated_index.gca_resource}")
         assert updated_index.display_name == _TEST_DISPLAY_NAME_UPDATE
         assert updated_index.description == _TEST_DESCRIPTION_UPDATE
         assert updated_index.labels == _TEST_LABELS_UPDATE
@@ -116,7 +123,7 @@ class TestMatchingEngine(e2e_base.TestEndToEnd):
             is_complete_overwrite=_TEST_IS_COMPLETE_OVERWRITE,
         )
 
-        assert updated_index.metadata.contents_delta_uri == _TEST_CONTENTS_DELTA_URI
+        assert updated_index.name == get_index.name
 
         # Create endpoint
         my_index_endpoint = aiplatform.MatchingEngineIndexEndpoint.create(
@@ -161,6 +168,8 @@ class TestMatchingEngine(e2e_base.TestEndToEnd):
                 "max_replica_count": _TEST_MAX_REPLICA_COUNT_UPDATED,
             },
         )
+
+        # TODO: Test `my_index_endpoint.match` request. This requires running this test in a VPC.
 
         # Undeploy endpoint
         my_index_endpoint = my_index_endpoint.undeploy_index(index=index)

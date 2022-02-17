@@ -271,7 +271,10 @@ class MatchingEngineIndexEndpoint(base.VertexAiResourceNounWithFutureManager):
         update_mask = field_mask_pb2.FieldMask(paths=update_mask)
 
         gapic_index_endpoint = gca_matching_engine_index_endpoint.IndexEndpoint(
-            name=self.resource_name, display_name=display_name, description=description,
+            name=self.resource_name,
+            display_name=display_name,
+            description=description,
+            labels=labels,
         )
 
         _LOGGER.log_action_start_against_resource(
@@ -282,7 +285,6 @@ class MatchingEngineIndexEndpoint(base.VertexAiResourceNounWithFutureManager):
             index_endpoint=gapic_index_endpoint,
             update_mask=update_mask,
             metadata=request_metadata,
-            labels=labels,
         )
 
         _LOGGER.log_action_started_against_resource_with_lro(
@@ -698,6 +700,9 @@ class MatchingEngineIndexEndpoint(base.VertexAiResourceNounWithFutureManager):
 
         deploy_lro.result()
 
+        # update local resource
+        self._sync_gca_resource()
+
         _LOGGER.log_action_completed_against_resource("index_endpoint", "Mutated", self)
 
         return self
@@ -747,12 +752,12 @@ class MatchingEngineIndexEndpoint(base.VertexAiResourceNounWithFutureManager):
         # block before returning
         operation_future.result()
 
+        # update local resource
+        self._sync_gca_resource()
+
         _LOGGER.log_action_completed_against_resource(
             "index_endpoint", "undeployed", self
         )
-
-        # update local resource
-        self._sync_gca_resource()
 
     def undeploy_all(self, sync: bool = True) -> "MatchingEngineIndexEndpoint":
         """Undeploys every index deployed to this MatchingEngineIndexEndpoint.

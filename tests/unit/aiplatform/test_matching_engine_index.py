@@ -127,13 +127,7 @@ def update_index_embeddings_mock():
         index_service_client.IndexServiceClient, "update_index"
     ) as update_index_mock:
         index_lro_mock = mock.Mock(operation.Operation)
-        index_lro_mock.result.return_value = gca_index.Index(
-            name=_TEST_INDEX_NAME,
-            metadata={
-                "contentsDeltaUri": _TEST_CONTENTS_DELTA_URI_UPDATE,
-                "isCompleteOverwrite": _TEST_IS_COMPLETE_OVERWRITE_UPDATE,
-            },
-        )
+        index_lro_mock.result.return_value = gca_index.Index(name=_TEST_INDEX_NAME,)
         update_index_mock.return_value = index_lro_mock
         yield update_index_mock
 
@@ -242,7 +236,8 @@ class TestMatchingEngineIndex:
             metadata=_TEST_REQUEST_METADATA,
         )
 
-        assert updated_index.gca_resource == expected
+        # The service only returns the name of the Index
+        assert updated_index.gca_resource == gca_index.Index(name=_TEST_INDEX_NAME)
 
     def test_list_indexes(self, list_indexes_mock):
         aiplatform.init(project=_TEST_PROJECT)
