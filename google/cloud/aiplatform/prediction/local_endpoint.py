@@ -212,7 +212,7 @@ class LocalEndpoint:
         elapsed_time = 0
         try:
             response = self.run_health_check()
-        except:
+        except requests.exceptions.RequestException:
             response = None
 
         while response is None or (
@@ -223,7 +223,7 @@ class LocalEndpoint:
             elapsed_time += self.container_ready_check_interval
             try:
                 response = self.run_health_check()
-            except:
+            except requests.exceptions.RequestException:
                 response = None
 
         if elapsed_time >= self.container_ready_timeout:
@@ -257,6 +257,7 @@ class LocalEndpoint:
             ValueError: If both of request and request_file are specified, both of
                 request and request_file are not provided, or request_file is specified
                 but does not exist.
+            requests.exception.RequestException: If the request fails with an exception.
         """
         if request is not None and request_file is not None:
             raise ValueError(
@@ -284,6 +285,9 @@ class LocalEndpoint:
 
         Returns:
             The response from the health check or None if the health check raises exception.
+
+        Raises:
+            requests.exception.RequestException: If the request fails with an exception.
         """
         try:
             url = f"http://localhost:{self.host_port}{self.serving_container_health_route}"
