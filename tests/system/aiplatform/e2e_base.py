@@ -124,10 +124,12 @@ class TestEndToEnd(metaclass=abc.ABCMeta):
         )  # Make an API request.
 
     @pytest.fixture(scope="class", autouse=True)
-    def teardown(self, shared_state: Dict[str, Any]):
+    def tear_down_resources(self, shared_state: Dict[str, Any]):
         """Delete every Vertex AI resource created during test"""
 
         yield
+
+        # TODO(b/218310362): Add resource deletion system tests
 
         # Bring all Endpoints to the front of the list
         # Ensures Models are undeployed first before we attempt deletion

@@ -98,7 +98,7 @@ setuptools.setup(
         "google-api-core[grpc] >= 1.26.0, <3.0.0dev",
         "proto-plus >= 1.10.1",
         "packaging >= 14.3",
-        "google-cloud-storage >= 1.32.0, < 2.0.0dev",
+        "google-cloud-storage >= 1.32.0, < 3.0.0dev",
         "google-cloud-bigquery >= 1.15.0, < 3.0.0dev",
     ),
     extras_require={
@@ -111,7 +111,6 @@ setuptools.setup(
         "cloud_profiler": profiler_extra_require,
     },
     python_requires=">=3.6",
-    scripts=[],
     classifiers=[
         "Development Status :: 5 - Production/Stable",
         "Intended Audience :: Developers",
