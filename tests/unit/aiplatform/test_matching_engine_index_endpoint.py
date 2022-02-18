@@ -564,7 +564,6 @@ class TestMatchingEngineIndexEndpoint:
         )
 
         my_index_endpoint.mutate_deployed_index(
-            index_id=_TEST_INDEX_ID,
             deployed_index_id=_TEST_DEPLOYED_INDEX_ID,
             min_replica_count=_TEST_MIN_REPLICA_COUNT_UPDATED,
             max_replica_count=_TEST_MAX_REPLICA_COUNT_UPDATED,

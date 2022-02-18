@@ -154,7 +154,6 @@ class TestMatchingEngine(e2e_base.TestEndToEnd):
 
         # Mutate deployed index
         my_index_endpoint.mutate_deployed_index(
-            index_id=index.id,
             deployed_index_id=_TEST_DEPLOYED_INDEX_ID,
             min_replica_count=_TEST_MIN_REPLICA_COUNT_UPDATED,
             max_replica_count=_TEST_MAX_REPLICA_COUNT_UPDATED,

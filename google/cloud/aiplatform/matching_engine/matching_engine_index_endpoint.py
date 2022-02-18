@@ -268,8 +268,8 @@ class MatchingEngineIndexEndpoint(base.VertexAiResourceNounWithFutureManager):
 
     @staticmethod
     def _build_deployed_index(
-        index_resource_name: str,
         deployed_index_id: str,
+        index_resource_name: Optional[str] = None,
         display_name: Optional[str] = None,
         machine_type: Optional[str] = None,
         min_replica_count: Optional[int] = None,
@@ -283,9 +283,6 @@ class MatchingEngineIndexEndpoint(base.VertexAiResourceNounWithFutureManager):
         """Builds a DeployedIndex.
 
         Args:
-            index_resource_name (str):
-                Required. A fully-qualified index endpoint resource name or a index ID.
-                Example: "projects/123/locations/us-central1/index_endpoints/my_index_id"
             deployed_index_id (str):
                 Required. The user specified ID of the
                 DeployedIndex. The ID can be up to 128
@@ -293,6 +290,9 @@ class MatchingEngineIndexEndpoint(base.VertexAiResourceNounWithFutureManager):
                 only contain letters, numbers, and underscores.
                 The ID must be unique within the project it is
                 created in.
+            index_resource_name (str):
+                Optional. A fully-qualified index endpoint resource name or a index ID.
+                Example: "projects/123/locations/us-central1/index_endpoints/my_index_id"                
             display_name (str):
                 Optional. The display name of the DeployedIndex. If not provided upon
                 creation, the Index's display_name is used.
@@ -523,8 +523,8 @@ class MatchingEngineIndexEndpoint(base.VertexAiResourceNounWithFutureManager):
         )
 
         deployed_index = self._build_deployed_index(
-            index_resource_name=index.resource_name,
             deployed_index_id=deployed_index_id,
+            index_resource_name=index.resource_name,
             display_name=display_name,
             machine_type=machine_type,
             min_replica_count=min_replica_count,
@@ -602,7 +602,6 @@ class MatchingEngineIndexEndpoint(base.VertexAiResourceNounWithFutureManager):
 
     def mutate_deployed_index(
         self,
-        index_id: str,
         deployed_index_id: str,
         min_replica_count: int = 1,
         max_replica_count: int = 1,
@@ -644,18 +643,8 @@ class MatchingEngineIndexEndpoint(base.VertexAiResourceNounWithFutureManager):
             "Mutating index", "index_endpoint", self,
         )
 
-        index_resource_name = utils.full_resource_name(
-            resource_name=index_id,
-            resource_noun=matching_engine.MatchingEngineIndex._resource_noun,
-            parse_resource_name_method=matching_engine.MatchingEngineIndex._parse_resource_name,
-            format_resource_name_method=matching_engine.MatchingEngineIndex._format_resource_name,
-            project=self.project,
-            location=self.location,
-            resource_id_validator=matching_engine.MatchingEngineIndex._resource_id_validator,
-        )
-
         deployed_index = self._build_deployed_index(
-            index_resource_name=index_resource_name,
+            index_resource_name=None,
             deployed_index_id=deployed_index_id,
             min_replica_count=min_replica_count,
             max_replica_count=max_replica_count,
