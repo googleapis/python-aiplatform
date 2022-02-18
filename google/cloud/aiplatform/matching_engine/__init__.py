@@ -23,6 +23,7 @@ from google.cloud.aiplatform.matching_engine.matching_engine_index_endpoint impo
 )
 
 from google.cloud.aiplatform.matching_engine.matching_engine_index_config import (
+    MatchingEngineIndexConfig as MatchingEngineIndexConfig,
     BruteForceConfig as MatchingEngineBruteForceAlgorithmConfig,
     TreeAhConfig as MatchingEngineTreeAhAlgorithmConfig,
 )
@@ -30,6 +31,7 @@ from google.cloud.aiplatform.matching_engine.matching_engine_index_config import
 __all__ = (
     "MatchingEngineIndex",
     "MatchingEngineIndexEndpoint",
+    "MatchingEngineIndexConfig",
     "MatchingEngineBruteForceAlgorithmConfig",
     "MatchingEngineTreeAhAlgorithmConfig",
     "TreeAhConfig",
