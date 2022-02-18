@@ -25,7 +25,7 @@ __protobuf__ = proto.module(
 
 
 class Featurestore(proto.Message):
-    r"""Vertex Feature Store provides a centralized repository for
+    r"""Vertex AI Feature Store provides a centralized repository for
     organizing, storing, and serving ML features. The Featurestore
     is a top-level container for your features and their values.
 
@@ -40,8 +40,8 @@ class Featurestore(proto.Message):
             Output only. Timestamp when this Featurestore
             was last updated.
         etag (str):
-            Optional. Used to perform consistent read-
-            odify-write updates. If not set, a blind
+            Optional. Used to perform consistent
+            read-modify-write updates. If not set, a blind
             "overwrite" update happens.
         labels (Sequence[google.cloud.aiplatform_v1.types.Featurestore.LabelsEntry]):
             Optional. The labels with user-defined
@@ -81,10 +81,11 @@ class Featurestore(proto.Message):
 
         Attributes:
             fixed_node_count (int):
-                The number of nodes for each cluster. The
-                number of nodes will not scale automatically but
-                can be scaled manually by providing different
-                values when updating.
+                The number of nodes for each cluster. The number of nodes
+                will not scale automatically but can be scaled manually by
+                providing different values when updating. Only one of
+                ``fixed_node_count`` and ``scaling`` can be set. Setting one
+                will reset the other.
         """
 
         fixed_node_count = proto.Field(proto.INT32, number=2,)

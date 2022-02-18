@@ -39,8 +39,8 @@ class Artifact(proto.Message):
             artifact file. May be empty if there is no
             actual artifact file.
         etag (str):
-            An eTag used to perform consistent read-
-            odify-write updates. If not set, a blind
+            An eTag used to perform consistent
+            read-modify-write updates. If not set, a blind
             "overwrite" update happens.
         labels (Sequence[google.cloud.aiplatform_v1beta1.types.Artifact.LabelsEntry]):
             The labels with user-defined metadata to
@@ -62,9 +62,9 @@ class Artifact(proto.Message):
             The state of this Artifact. This is a
             property of the Artifact, and does not imply or
             capture any ongoing process. This property is
-            managed by clients (such as Vertex Pipelines),
-            and the system does not prescribe or check the
-            validity of state transitions.
+            managed by clients (such as Vertex AI
+            Pipelines), and the system does not prescribe or
+            check the validity of state transitions.
         schema_title (str):
             The title of the schema describing the
             metadata.

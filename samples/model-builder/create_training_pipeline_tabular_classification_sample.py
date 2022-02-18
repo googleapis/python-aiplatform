@@ -33,6 +33,7 @@ def create_training_pipeline_tabular_classification_sample(
 
     tabular_classification_job = aiplatform.AutoMLTabularTrainingJob(
         display_name=display_name,
+        optimization_prediction_type="classification"
     )
 
     my_tabular_dataset = aiplatform.TabularDataset(dataset_id)

@@ -73,8 +73,7 @@ class IndexEndpoint(proto.Message):
             of the original Indexes they are the deployments
             of.
         network (str):
-            Required. Immutable. The full name of the Google Compute
-            Engine
+            Optional. The full name of the Google Compute Engine
             `network <https://cloud.google.com/compute/docs/networks-and-firewalls#networks>`__
             to which the IndexEndpoint should be peered.
 
@@ -82,10 +81,25 @@ class IndexEndpoint(proto.Message):
             network. If left unspecified, the Endpoint is not peered
             with any network.
 
+            Only one of the fields,
+            [network][google.cloud.aiplatform.v1beta1.IndexEndpoint.network]
+            or
+            [enable_private_service_connect][google.cloud.aiplatform.v1beta1.IndexEndpoint.enable_private_service_connect],
+            can be set.
+
             `Format <https://cloud.google.com/compute/docs/reference/rest/v1/networks/insert>`__:
             projects/{project}/global/networks/{network}. Where
             {project} is a project number, as in '12345', and {network}
             is network name.
+        enable_private_service_connect (bool):
+            Optional. If true, expose the IndexEndpoint via private
+            service connect.
+
+            Only one of the fields,
+            [network][google.cloud.aiplatform.v1beta1.IndexEndpoint.network]
+            or
+            [enable_private_service_connect][google.cloud.aiplatform.v1beta1.IndexEndpoint.enable_private_service_connect],
+            can be set.
     """
 
     name = proto.Field(proto.STRING, number=1,)
@@ -99,6 +113,7 @@ class IndexEndpoint(proto.Message):
     create_time = proto.Field(proto.MESSAGE, number=7, message=timestamp_pb2.Timestamp,)
     update_time = proto.Field(proto.MESSAGE, number=8, message=timestamp_pb2.Timestamp,)
     network = proto.Field(proto.STRING, number=9,)
+    enable_private_service_connect = proto.Field(proto.BOOL, number=10,)
 
 
 class DeployedIndex(proto.Message):
@@ -152,11 +167,19 @@ class DeployedIndex(proto.Message):
             Optional. A description of resources that the DeployedIndex
             uses, which to large degree are decided by Vertex AI, and
             optionally allows only a modest additional configuration. If
-            min_replica_count is not set, the default value is 1. If
+            min_replica_count is not set, the default value is 2 (we
+            don't provide SLA when min_replica_count=1). If
             max_replica_count is not set, the default value is
             min_replica_count. The max allowed replica count is 1000.
-            The user is billed for the resources (at least their minimal
-            amount) even if the DeployedIndex receives no traffic.
+        dedicated_resources (google.cloud.aiplatform_v1beta1.types.DedicatedResources):
+            Optional. A description of resources that are dedicated to
+            the DeployedIndex, and that need a higher degree of manual
+            configuration. If min_replica_count is not set, the default
+            value is 2 (we don't provide SLA when min_replica_count=1).
+            If max_replica_count is not set, the default value is
+            min_replica_count. The max allowed replica count is 1000.
+
+            Available machine types: n1-standard-16 n1-standard-32
         enable_access_logging (bool):
             Optional. If true, private endpoint's access
             logs are sent to StackDriver Logging.
@@ -213,6 +236,9 @@ class DeployedIndex(proto.Message):
     automatic_resources = proto.Field(
         proto.MESSAGE, number=7, message=machine_resources.AutomaticResources,
     )
+    dedicated_resources = proto.Field(
+        proto.MESSAGE, number=16, message=machine_resources.DedicatedResources,
+    )
     enable_access_logging = proto.Field(proto.BOOL, number=8,)
     deployed_index_auth_config = proto.Field(
         proto.MESSAGE, number=9, message="DeployedIndexAuthConfig",
@@ -256,16 +282,24 @@ class DeployedIndexAuthConfig(proto.Message):
 
 
 class IndexPrivateEndpoints(proto.Message):
-    r"""IndexPrivateEndpoints proto is used to provide paths for
-    users to send requests via private services access.
+    r"""IndexPrivateEndpoints proto is used to provide paths for users to
+    send requests via private endpoints (e.g. private service access,
+    private service connect). To send request via private service
+    access, use match_grpc_address. To send request via private service
+    connect, use service_attachment.
 
     Attributes:
         match_grpc_address (str):
             Output only. The ip address used to send
             match gRPC requests.
+        service_attachment (str):
+            Output only. The name of the service
+            attachment resource. Populated if private
+            service connect is enabled.
     """
 
     match_grpc_address = proto.Field(proto.STRING, number=1,)
+    service_attachment = proto.Field(proto.STRING, number=2,)
 
 
 __all__ = tuple(sorted(__protobuf__.manifest))

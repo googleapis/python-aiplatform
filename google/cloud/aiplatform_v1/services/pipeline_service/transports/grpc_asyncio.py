@@ -41,7 +41,7 @@ class PipelineServiceGrpcAsyncIOTransport(PipelineServiceTransport):
 
     A service for creating and managing Vertex AI's pipelines. This
     includes both ``TrainingPipeline`` resources (used for AutoML and
-    custom training) and ``PipelineJob`` resources (used for Vertex
+    custom training) and ``PipelineJob`` resources (used for Vertex AI
     Pipelines).
 
     This class defines the same methods as the primary client, so the
@@ -214,8 +214,11 @@ class PipelineServiceGrpcAsyncIOTransport(PipelineServiceTransport):
         if not self._grpc_channel:
             self._grpc_channel = type(self).create_channel(
                 self._host,
+                # use the credentials which are saved
                 credentials=self._credentials,
-                credentials_file=credentials_file,
+                # Set ``credentials_file`` to ``None`` here as
+                # the credentials that we saved earlier should be used.
+                credentials_file=None,
                 scopes=self._scopes,
                 ssl_credentials=self._ssl_channel_credentials,
                 quota_project_id=quota_project_id,
@@ -245,7 +248,7 @@ class PipelineServiceGrpcAsyncIOTransport(PipelineServiceTransport):
         This property caches on the instance; repeated calls return the same
         client.
         """
-        # Sanity check: Only create a new client if we do not already have one.
+        # Quick check: Only create a new client if we do not already have one.
         if self._operations_client is None:
             self._operations_client = operations_v1.OperationsAsyncClient(
                 self.grpc_channel

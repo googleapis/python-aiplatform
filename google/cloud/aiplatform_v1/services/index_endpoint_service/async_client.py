@@ -16,7 +16,7 @@
 from collections import OrderedDict
 import functools
 import re
-from typing import Dict, Sequence, Tuple, Type, Union
+from typing import Dict, Optional, Sequence, Tuple, Type, Union
 import pkg_resources
 
 from google.api_core.client_options import ClientOptions
@@ -117,6 +117,42 @@ class IndexEndpointServiceAsyncClient:
         return IndexEndpointServiceClient.from_service_account_file.__func__(IndexEndpointServiceAsyncClient, filename, *args, **kwargs)  # type: ignore
 
     from_service_account_json = from_service_account_file
+
+    @classmethod
+    def get_mtls_endpoint_and_cert_source(
+        cls, client_options: Optional[ClientOptions] = None
+    ):
+        """Return the API endpoint and client cert source for mutual TLS.
+
+        The client cert source is determined in the following order:
+        (1) if `GOOGLE_API_USE_CLIENT_CERTIFICATE` environment variable is not "true", the
+        client cert source is None.
+        (2) if `client_options.client_cert_source` is provided, use the provided one; if the
+        default client cert source exists, use the default one; otherwise the client cert
+        source is None.
+
+        The API endpoint is determined in the following order:
+        (1) if `client_options.api_endpoint` if provided, use the provided one.
+        (2) if `GOOGLE_API_USE_CLIENT_CERTIFICATE` environment variable is "always", use the
+        default mTLS endpoint; if the environment variabel is "never", use the default API
+        endpoint; otherwise if client cert source exists, use the default mTLS endpoint, otherwise
+        use the default API endpoint.
+
+        More details can be found at https://google.aip.dev/auth/4114.
+
+        Args:
+            client_options (google.api_core.client_options.ClientOptions): Custom options for the
+                client. Only the `api_endpoint` and `client_cert_source` properties may be used
+                in this method.
+
+        Returns:
+            Tuple[str, Callable[[], Tuple[bytes, bytes]]]: returns the API endpoint and the
+                client cert source to use.
+
+        Raises:
+            google.auth.exceptions.MutualTLSChannelError: If any errors happen.
+        """
+        return IndexEndpointServiceClient.get_mtls_endpoint_and_cert_source(client_options)  # type: ignore
 
     @property
     def transport(self) -> IndexEndpointServiceTransport:
@@ -225,7 +261,7 @@ class IndexEndpointServiceAsyncClient:
 
         """
         # Create or coerce a protobuf request object.
-        # Sanity check: If we got a request object, we should *not* have
+        # Quick check: If we got a request object, we should *not* have
         # gotten any keyword arguments that map to the request.
         has_flattened_params = any([parent, index_endpoint])
         if request is not None and has_flattened_params:
@@ -308,7 +344,7 @@ class IndexEndpointServiceAsyncClient:
 
         """
         # Create or coerce a protobuf request object.
-        # Sanity check: If we got a request object, we should *not* have
+        # Quick check: If we got a request object, we should *not* have
         # gotten any keyword arguments that map to the request.
         has_flattened_params = any([name])
         if request is not None and has_flattened_params:
@@ -383,7 +419,7 @@ class IndexEndpointServiceAsyncClient:
 
         """
         # Create or coerce a protobuf request object.
-        # Sanity check: If we got a request object, we should *not* have
+        # Quick check: If we got a request object, we should *not* have
         # gotten any keyword arguments that map to the request.
         has_flattened_params = any([parent])
         if request is not None and has_flattened_params:
@@ -469,7 +505,7 @@ class IndexEndpointServiceAsyncClient:
 
         """
         # Create or coerce a protobuf request object.
-        # Sanity check: If we got a request object, we should *not* have
+        # Quick check: If we got a request object, we should *not* have
         # gotten any keyword arguments that map to the request.
         has_flattened_params = any([index_endpoint, update_mask])
         if request is not None and has_flattened_params:
@@ -558,7 +594,7 @@ class IndexEndpointServiceAsyncClient:
 
         """
         # Create or coerce a protobuf request object.
-        # Sanity check: If we got a request object, we should *not* have
+        # Quick check: If we got a request object, we should *not* have
         # gotten any keyword arguments that map to the request.
         has_flattened_params = any([name])
         if request is not None and has_flattened_params:
@@ -652,7 +688,7 @@ class IndexEndpointServiceAsyncClient:
 
         """
         # Create or coerce a protobuf request object.
-        # Sanity check: If we got a request object, we should *not* have
+        # Quick check: If we got a request object, we should *not* have
         # gotten any keyword arguments that map to the request.
         has_flattened_params = any([index_endpoint, deployed_index])
         if request is not None and has_flattened_params:
@@ -750,7 +786,7 @@ class IndexEndpointServiceAsyncClient:
 
         """
         # Create or coerce a protobuf request object.
-        # Sanity check: If we got a request object, we should *not* have
+        # Quick check: If we got a request object, we should *not* have
         # gotten any keyword arguments that map to the request.
         has_flattened_params = any([index_endpoint, deployed_index_id])
         if request is not None and has_flattened_params:
@@ -793,6 +829,105 @@ class IndexEndpointServiceAsyncClient:
             self._client._transport.operations_client,
             index_endpoint_service.UndeployIndexResponse,
             metadata_type=index_endpoint_service.UndeployIndexOperationMetadata,
+        )
+
+        # Done; return the response.
+        return response
+
+    async def mutate_deployed_index(
+        self,
+        request: Union[index_endpoint_service.MutateDeployedIndexRequest, dict] = None,
+        *,
+        index_endpoint: str = None,
+        deployed_index: gca_index_endpoint.DeployedIndex = None,
+        retry: OptionalRetry = gapic_v1.method.DEFAULT,
+        timeout: float = None,
+        metadata: Sequence[Tuple[str, str]] = (),
+    ) -> operation_async.AsyncOperation:
+        r"""Update an existing DeployedIndex under an
+        IndexEndpoint.
+
+        Args:
+            request (Union[google.cloud.aiplatform_v1.types.MutateDeployedIndexRequest, dict]):
+                The request object. Request message for
+                [IndexEndpointService.MutateDeployedIndex][google.cloud.aiplatform.v1.IndexEndpointService.MutateDeployedIndex].
+            index_endpoint (:class:`str`):
+                Required. The name of the IndexEndpoint resource into
+                which to deploy an Index. Format:
+                ``projects/{project}/locations/{location}/indexEndpoints/{index_endpoint}``
+
+                This corresponds to the ``index_endpoint`` field
+                on the ``request`` instance; if ``request`` is provided, this
+                should not be set.
+            deployed_index (:class:`google.cloud.aiplatform_v1.types.DeployedIndex`):
+                Required. The DeployedIndex to be updated within the
+                IndexEndpoint. Currently, the updatable fields are
+                [DeployedIndex][automatic_resources] and
+                [DeployedIndex][dedicated_resources]
+
+                This corresponds to the ``deployed_index`` field
+                on the ``request`` instance; if ``request`` is provided, this
+                should not be set.
+            retry (google.api_core.retry.Retry): Designation of what errors, if any,
+                should be retried.
+            timeout (float): The timeout for this request.
+            metadata (Sequence[Tuple[str, str]]): Strings which should be
+                sent along with the request as metadata.
+
+        Returns:
+            google.api_core.operation_async.AsyncOperation:
+                An object representing a long-running operation.
+
+                The result type for the operation will be
+                :class:`google.cloud.aiplatform_v1.types.MutateDeployedIndexResponse`
+                Response message for
+                [IndexEndpointService.MutateDeployedIndex][google.cloud.aiplatform.v1.IndexEndpointService.MutateDeployedIndex].
+
+        """
+        # Create or coerce a protobuf request object.
+        # Quick check: If we got a request object, we should *not* have
+        # gotten any keyword arguments that map to the request.
+        has_flattened_params = any([index_endpoint, deployed_index])
+        if request is not None and has_flattened_params:
+            raise ValueError(
+                "If the `request` argument is set, then none of "
+                "the individual field arguments should be set."
+            )
+
+        request = index_endpoint_service.MutateDeployedIndexRequest(request)
+
+        # If we have keyword arguments corresponding to fields on the
+        # request, apply these.
+        if index_endpoint is not None:
+            request.index_endpoint = index_endpoint
+        if deployed_index is not None:
+            request.deployed_index = deployed_index
+
+        # Wrap the RPC method; this adds retry and timeout information,
+        # and friendly error handling.
+        rpc = gapic_v1.method_async.wrap_method(
+            self._client._transport.mutate_deployed_index,
+            default_timeout=None,
+            client_info=DEFAULT_CLIENT_INFO,
+        )
+
+        # Certain fields should be provided within the metadata header;
+        # add these here.
+        metadata = tuple(metadata) + (
+            gapic_v1.routing_header.to_grpc_metadata(
+                (("index_endpoint", request.index_endpoint),)
+            ),
+        )
+
+        # Send the request.
+        response = await rpc(request, retry=retry, timeout=timeout, metadata=metadata,)
+
+        # Wrap the response in an operation future.
+        response = operation_async.from_gapic(
+            response,
+            self._client._transport.operations_client,
+            index_endpoint_service.MutateDeployedIndexResponse,
+            metadata_type=index_endpoint_service.MutateDeployedIndexOperationMetadata,
         )
 
         # Done; return the response.

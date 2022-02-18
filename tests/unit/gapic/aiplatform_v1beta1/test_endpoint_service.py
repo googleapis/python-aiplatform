@@ -29,6 +29,7 @@ from google.api_core import future
 from google.api_core import gapic_v1
 from google.api_core import grpc_helpers
 from google.api_core import grpc_helpers_async
+from google.api_core import operation
 from google.api_core import operation_async  # type: ignore
 from google.api_core import operations_v1
 from google.api_core import path_template
@@ -266,20 +267,20 @@ def test_endpoint_service_client_client_options(
     # unsupported value.
     with mock.patch.dict(os.environ, {"GOOGLE_API_USE_MTLS_ENDPOINT": "Unsupported"}):
         with pytest.raises(MutualTLSChannelError):
-            client = client_class()
+            client = client_class(transport=transport_name)
 
     # Check the case GOOGLE_API_USE_CLIENT_CERTIFICATE has unsupported value.
     with mock.patch.dict(
         os.environ, {"GOOGLE_API_USE_CLIENT_CERTIFICATE": "Unsupported"}
     ):
         with pytest.raises(ValueError):
-            client = client_class()
+            client = client_class(transport=transport_name)
 
     # Check the case quota_project_id is provided
     options = client_options.ClientOptions(quota_project_id="octopus")
     with mock.patch.object(transport_class, "__init__") as patched:
         patched.return_value = None
-        client = client_class(transport=transport_name, client_options=options)
+        client = client_class(client_options=options, transport=transport_name)
         patched.assert_called_once_with(
             credentials=None,
             credentials_file=None,
@@ -348,7 +349,7 @@ def test_endpoint_service_client_mtls_env_auto(
         )
         with mock.patch.object(transport_class, "__init__") as patched:
             patched.return_value = None
-            client = client_class(transport=transport_name, client_options=options)
+            client = client_class(client_options=options, transport=transport_name)
 
             if use_client_cert_env == "false":
                 expected_client_cert_source = None
@@ -426,6 +427,87 @@ def test_endpoint_service_client_mtls_env_auto(
 
 
 @pytest.mark.parametrize(
+    "client_class", [EndpointServiceClient, EndpointServiceAsyncClient]
+)
+@mock.patch.object(
+    EndpointServiceClient,
+    "DEFAULT_ENDPOINT",
+    modify_default_endpoint(EndpointServiceClient),
+)
+@mock.patch.object(
+    EndpointServiceAsyncClient,
+    "DEFAULT_ENDPOINT",
+    modify_default_endpoint(EndpointServiceAsyncClient),
+)
+def test_endpoint_service_client_get_mtls_endpoint_and_cert_source(client_class):
+    mock_client_cert_source = mock.Mock()
+
+    # Test the case GOOGLE_API_USE_CLIENT_CERTIFICATE is "true".
+    with mock.patch.dict(os.environ, {"GOOGLE_API_USE_CLIENT_CERTIFICATE": "true"}):
+        mock_api_endpoint = "foo"
+        options = client_options.ClientOptions(
+            client_cert_source=mock_client_cert_source, api_endpoint=mock_api_endpoint
+        )
+        api_endpoint, cert_source = client_class.get_mtls_endpoint_and_cert_source(
+            options
+        )
+        assert api_endpoint == mock_api_endpoint
+        assert cert_source == mock_client_cert_source
+
+    # Test the case GOOGLE_API_USE_CLIENT_CERTIFICATE is "false".
+    with mock.patch.dict(os.environ, {"GOOGLE_API_USE_CLIENT_CERTIFICATE": "false"}):
+        mock_client_cert_source = mock.Mock()
+        mock_api_endpoint = "foo"
+        options = client_options.ClientOptions(
+            client_cert_source=mock_client_cert_source, api_endpoint=mock_api_endpoint
+        )
+        api_endpoint, cert_source = client_class.get_mtls_endpoint_and_cert_source(
+            options
+        )
+        assert api_endpoint == mock_api_endpoint
+        assert cert_source is None
+
+    # Test the case GOOGLE_API_USE_MTLS_ENDPOINT is "never".
+    with mock.patch.dict(os.environ, {"GOOGLE_API_USE_MTLS_ENDPOINT": "never"}):
+        api_endpoint, cert_source = client_class.get_mtls_endpoint_and_cert_source()
+        assert api_endpoint == client_class.DEFAULT_ENDPOINT
+        assert cert_source is None
+
+    # Test the case GOOGLE_API_USE_MTLS_ENDPOINT is "always".
+    with mock.patch.dict(os.environ, {"GOOGLE_API_USE_MTLS_ENDPOINT": "always"}):
+        api_endpoint, cert_source = client_class.get_mtls_endpoint_and_cert_source()
+        assert api_endpoint == client_class.DEFAULT_MTLS_ENDPOINT
+        assert cert_source is None
+
+    # Test the case GOOGLE_API_USE_MTLS_ENDPOINT is "auto" and default cert doesn't exist.
+    with mock.patch.dict(os.environ, {"GOOGLE_API_USE_CLIENT_CERTIFICATE": "true"}):
+        with mock.patch(
+            "google.auth.transport.mtls.has_default_client_cert_source",
+            return_value=False,
+        ):
+            api_endpoint, cert_source = client_class.get_mtls_endpoint_and_cert_source()
+            assert api_endpoint == client_class.DEFAULT_ENDPOINT
+            assert cert_source is None
+
+    # Test the case GOOGLE_API_USE_MTLS_ENDPOINT is "auto" and default cert exists.
+    with mock.patch.dict(os.environ, {"GOOGLE_API_USE_CLIENT_CERTIFICATE": "true"}):
+        with mock.patch(
+            "google.auth.transport.mtls.has_default_client_cert_source",
+            return_value=True,
+        ):
+            with mock.patch(
+                "google.auth.transport.mtls.default_client_cert_source",
+                return_value=mock_client_cert_source,
+            ):
+                (
+                    api_endpoint,
+                    cert_source,
+                ) = client_class.get_mtls_endpoint_and_cert_source()
+                assert api_endpoint == client_class.DEFAULT_MTLS_ENDPOINT
+                assert cert_source == mock_client_cert_source
+
+
+@pytest.mark.parametrize(
     "client_class,transport_class,transport_name",
     [
         (EndpointServiceClient, transports.EndpointServiceGrpcTransport, "grpc"),
@@ -443,7 +525,7 @@ def test_endpoint_service_client_client_options_scopes(
     options = client_options.ClientOptions(scopes=["1", "2"],)
     with mock.patch.object(transport_class, "__init__") as patched:
         patched.return_value = None
-        client = client_class(transport=transport_name, client_options=options)
+        client = client_class(client_options=options, transport=transport_name)
         patched.assert_called_once_with(
             credentials=None,
             credentials_file=None,
@@ -457,24 +539,31 @@ def test_endpoint_service_client_client_options_scopes(
 
 
 @pytest.mark.parametrize(
-    "client_class,transport_class,transport_name",
+    "client_class,transport_class,transport_name,grpc_helpers",
     [
-        (EndpointServiceClient, transports.EndpointServiceGrpcTransport, "grpc"),
+        (
+            EndpointServiceClient,
+            transports.EndpointServiceGrpcTransport,
+            "grpc",
+            grpc_helpers,
+        ),
         (
             EndpointServiceAsyncClient,
             transports.EndpointServiceGrpcAsyncIOTransport,
             "grpc_asyncio",
+            grpc_helpers_async,
         ),
     ],
 )
 def test_endpoint_service_client_client_options_credentials_file(
-    client_class, transport_class, transport_name
+    client_class, transport_class, transport_name, grpc_helpers
 ):
     # Check the case credentials file is provided.
     options = client_options.ClientOptions(credentials_file="credentials.json")
+
     with mock.patch.object(transport_class, "__init__") as patched:
         patched.return_value = None
-        client = client_class(transport=transport_name, client_options=options)
+        client = client_class(client_options=options, transport=transport_name)
         patched.assert_called_once_with(
             credentials=None,
             credentials_file="credentials.json",
@@ -485,6 +574,35 @@ def test_endpoint_service_client_client_options_credentials_file(
             client_info=transports.base.DEFAULT_CLIENT_INFO,
             always_use_jwt_access=True,
         )
+
+    if "grpc" in transport_name:
+        # test that the credentials from file are saved and used as the credentials.
+        with mock.patch.object(
+            google.auth, "load_credentials_from_file", autospec=True
+        ) as load_creds, mock.patch.object(
+            google.auth, "default", autospec=True
+        ) as adc, mock.patch.object(
+            grpc_helpers, "create_channel"
+        ) as create_channel:
+            creds = ga_credentials.AnonymousCredentials()
+            file_creds = ga_credentials.AnonymousCredentials()
+            load_creds.return_value = (file_creds, None)
+            adc.return_value = (creds, None)
+            client = client_class(client_options=options, transport=transport_name)
+            create_channel.assert_called_with(
+                "aiplatform.googleapis.com:443",
+                credentials=file_creds,
+                credentials_file=None,
+                quota_project_id=None,
+                default_scopes=("https://www.googleapis.com/auth/cloud-platform",),
+                scopes=None,
+                default_host="aiplatform.googleapis.com",
+                ssl_credentials=None,
+                options=[
+                    ("grpc.max_send_message_length", -1),
+                    ("grpc.max_receive_message_length", -1),
+                ],
+            )
 
 
 def test_endpoint_service_client_client_options_from_dict():
@@ -507,9 +625,10 @@ def test_endpoint_service_client_client_options_from_dict():
         )
 
 
-def test_create_endpoint(
-    transport: str = "grpc", request_type=endpoint_service.CreateEndpointRequest
-):
+@pytest.mark.parametrize(
+    "request_type", [endpoint_service.CreateEndpointRequest, dict,]
+)
+def test_create_endpoint(request_type, transport: str = "grpc"):
     client = EndpointServiceClient(
         credentials=ga_credentials.AnonymousCredentials(), transport=transport,
     )
@@ -531,10 +650,6 @@ def test_create_endpoint(
 
     # Establish that the response is the type that we expect.
     assert isinstance(response, future.Future)
-
-
-def test_create_endpoint_from_dict():
-    test_create_endpoint(request_type=dict)
 
 
 def test_create_endpoint_empty_call():
@@ -649,7 +764,9 @@ def test_create_endpoint_flattened():
         # Call the method with a truthy value for each flattened field,
         # using the keyword arguments to the method.
         client.create_endpoint(
-            parent="parent_value", endpoint=gca_endpoint.Endpoint(name="name_value"),
+            parent="parent_value",
+            endpoint=gca_endpoint.Endpoint(name="name_value"),
+            endpoint_id="endpoint_id_value",
         )
 
         # Establish that the underlying call was made with the expected
@@ -661,6 +778,9 @@ def test_create_endpoint_flattened():
         assert arg == mock_val
         arg = args[0].endpoint
         mock_val = gca_endpoint.Endpoint(name="name_value")
+        assert arg == mock_val
+        arg = args[0].endpoint_id
+        mock_val = "endpoint_id_value"
         assert arg == mock_val
 
 
@@ -674,6 +794,7 @@ def test_create_endpoint_flattened_error():
             endpoint_service.CreateEndpointRequest(),
             parent="parent_value",
             endpoint=gca_endpoint.Endpoint(name="name_value"),
+            endpoint_id="endpoint_id_value",
         )
 
 
@@ -694,7 +815,9 @@ async def test_create_endpoint_flattened_async():
         # Call the method with a truthy value for each flattened field,
         # using the keyword arguments to the method.
         response = await client.create_endpoint(
-            parent="parent_value", endpoint=gca_endpoint.Endpoint(name="name_value"),
+            parent="parent_value",
+            endpoint=gca_endpoint.Endpoint(name="name_value"),
+            endpoint_id="endpoint_id_value",
         )
 
         # Establish that the underlying call was made with the expected
@@ -706,6 +829,9 @@ async def test_create_endpoint_flattened_async():
         assert arg == mock_val
         arg = args[0].endpoint
         mock_val = gca_endpoint.Endpoint(name="name_value")
+        assert arg == mock_val
+        arg = args[0].endpoint_id
+        mock_val = "endpoint_id_value"
         assert arg == mock_val
 
 
@@ -722,12 +848,12 @@ async def test_create_endpoint_flattened_error_async():
             endpoint_service.CreateEndpointRequest(),
             parent="parent_value",
             endpoint=gca_endpoint.Endpoint(name="name_value"),
+            endpoint_id="endpoint_id_value",
         )
 
 
-def test_get_endpoint(
-    transport: str = "grpc", request_type=endpoint_service.GetEndpointRequest
-):
+@pytest.mark.parametrize("request_type", [endpoint_service.GetEndpointRequest, dict,])
+def test_get_endpoint(request_type, transport: str = "grpc"):
     client = EndpointServiceClient(
         credentials=ga_credentials.AnonymousCredentials(), transport=transport,
     )
@@ -745,6 +871,7 @@ def test_get_endpoint(
             description="description_value",
             etag="etag_value",
             network="network_value",
+            enable_private_service_connect=True,
             model_deployment_monitoring_job="model_deployment_monitoring_job_value",
         )
         response = client.get_endpoint(request)
@@ -761,14 +888,11 @@ def test_get_endpoint(
     assert response.description == "description_value"
     assert response.etag == "etag_value"
     assert response.network == "network_value"
+    assert response.enable_private_service_connect is True
     assert (
         response.model_deployment_monitoring_job
         == "model_deployment_monitoring_job_value"
     )
-
-
-def test_get_endpoint_from_dict():
-    test_get_endpoint(request_type=dict)
 
 
 def test_get_endpoint_empty_call():
@@ -808,6 +932,7 @@ async def test_get_endpoint_async(
                 description="description_value",
                 etag="etag_value",
                 network="network_value",
+                enable_private_service_connect=True,
                 model_deployment_monitoring_job="model_deployment_monitoring_job_value",
             )
         )
@@ -825,6 +950,7 @@ async def test_get_endpoint_async(
     assert response.description == "description_value"
     assert response.etag == "etag_value"
     assert response.network == "network_value"
+    assert response.enable_private_service_connect is True
     assert (
         response.model_deployment_monitoring_job
         == "model_deployment_monitoring_job_value"
@@ -957,9 +1083,8 @@ async def test_get_endpoint_flattened_error_async():
         )
 
 
-def test_list_endpoints(
-    transport: str = "grpc", request_type=endpoint_service.ListEndpointsRequest
-):
+@pytest.mark.parametrize("request_type", [endpoint_service.ListEndpointsRequest, dict,])
+def test_list_endpoints(request_type, transport: str = "grpc"):
     client = EndpointServiceClient(
         credentials=ga_credentials.AnonymousCredentials(), transport=transport,
     )
@@ -984,10 +1109,6 @@ def test_list_endpoints(
     # Establish that the response is the type that we expect.
     assert isinstance(response, pagers.ListEndpointsPager)
     assert response.next_page_token == "next_page_token_value"
-
-
-def test_list_endpoints_from_dict():
-    test_list_endpoints(request_type=dict)
 
 
 def test_list_endpoints_empty_call():
@@ -1167,8 +1288,10 @@ async def test_list_endpoints_flattened_error_async():
         )
 
 
-def test_list_endpoints_pager():
-    client = EndpointServiceClient(credentials=ga_credentials.AnonymousCredentials,)
+def test_list_endpoints_pager(transport_name: str = "grpc"):
+    client = EndpointServiceClient(
+        credentials=ga_credentials.AnonymousCredentials, transport=transport_name,
+    )
 
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(type(client.transport.list_endpoints), "__call__") as call:
@@ -1207,8 +1330,10 @@ def test_list_endpoints_pager():
         assert all(isinstance(i, endpoint.Endpoint) for i in results)
 
 
-def test_list_endpoints_pages():
-    client = EndpointServiceClient(credentials=ga_credentials.AnonymousCredentials,)
+def test_list_endpoints_pages(transport_name: str = "grpc"):
+    client = EndpointServiceClient(
+        credentials=ga_credentials.AnonymousCredentials, transport=transport_name,
+    )
 
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(type(client.transport.list_endpoints), "__call__") as call:
@@ -1317,9 +1442,10 @@ async def test_list_endpoints_async_pages():
             assert page_.raw_page.next_page_token == token
 
 
-def test_update_endpoint(
-    transport: str = "grpc", request_type=endpoint_service.UpdateEndpointRequest
-):
+@pytest.mark.parametrize(
+    "request_type", [endpoint_service.UpdateEndpointRequest, dict,]
+)
+def test_update_endpoint(request_type, transport: str = "grpc"):
     client = EndpointServiceClient(
         credentials=ga_credentials.AnonymousCredentials(), transport=transport,
     )
@@ -1337,6 +1463,7 @@ def test_update_endpoint(
             description="description_value",
             etag="etag_value",
             network="network_value",
+            enable_private_service_connect=True,
             model_deployment_monitoring_job="model_deployment_monitoring_job_value",
         )
         response = client.update_endpoint(request)
@@ -1353,14 +1480,11 @@ def test_update_endpoint(
     assert response.description == "description_value"
     assert response.etag == "etag_value"
     assert response.network == "network_value"
+    assert response.enable_private_service_connect is True
     assert (
         response.model_deployment_monitoring_job
         == "model_deployment_monitoring_job_value"
     )
-
-
-def test_update_endpoint_from_dict():
-    test_update_endpoint(request_type=dict)
 
 
 def test_update_endpoint_empty_call():
@@ -1400,6 +1524,7 @@ async def test_update_endpoint_async(
                 description="description_value",
                 etag="etag_value",
                 network="network_value",
+                enable_private_service_connect=True,
                 model_deployment_monitoring_job="model_deployment_monitoring_job_value",
             )
         )
@@ -1417,6 +1542,7 @@ async def test_update_endpoint_async(
     assert response.description == "description_value"
     assert response.etag == "etag_value"
     assert response.network == "network_value"
+    assert response.enable_private_service_connect is True
     assert (
         response.model_deployment_monitoring_job
         == "model_deployment_monitoring_job_value"
@@ -1573,9 +1699,10 @@ async def test_update_endpoint_flattened_error_async():
         )
 
 
-def test_delete_endpoint(
-    transport: str = "grpc", request_type=endpoint_service.DeleteEndpointRequest
-):
+@pytest.mark.parametrize(
+    "request_type", [endpoint_service.DeleteEndpointRequest, dict,]
+)
+def test_delete_endpoint(request_type, transport: str = "grpc"):
     client = EndpointServiceClient(
         credentials=ga_credentials.AnonymousCredentials(), transport=transport,
     )
@@ -1597,10 +1724,6 @@ def test_delete_endpoint(
 
     # Establish that the response is the type that we expect.
     assert isinstance(response, future.Future)
-
-
-def test_delete_endpoint_from_dict():
-    test_delete_endpoint(request_type=dict)
 
 
 def test_delete_endpoint_empty_call():
@@ -1777,9 +1900,8 @@ async def test_delete_endpoint_flattened_error_async():
         )
 
 
-def test_deploy_model(
-    transport: str = "grpc", request_type=endpoint_service.DeployModelRequest
-):
+@pytest.mark.parametrize("request_type", [endpoint_service.DeployModelRequest, dict,])
+def test_deploy_model(request_type, transport: str = "grpc"):
     client = EndpointServiceClient(
         credentials=ga_credentials.AnonymousCredentials(), transport=transport,
     )
@@ -1801,10 +1923,6 @@ def test_deploy_model(
 
     # Establish that the response is the type that we expect.
     assert isinstance(response, future.Future)
-
-
-def test_deploy_model_from_dict():
-    test_deploy_model(request_type=dict)
 
 
 def test_deploy_model_empty_call():
@@ -2043,9 +2161,8 @@ async def test_deploy_model_flattened_error_async():
         )
 
 
-def test_undeploy_model(
-    transport: str = "grpc", request_type=endpoint_service.UndeployModelRequest
-):
+@pytest.mark.parametrize("request_type", [endpoint_service.UndeployModelRequest, dict,])
+def test_undeploy_model(request_type, transport: str = "grpc"):
     client = EndpointServiceClient(
         credentials=ga_credentials.AnonymousCredentials(), transport=transport,
     )
@@ -2067,10 +2184,6 @@ def test_undeploy_model(
 
     # Establish that the response is the type that we expect.
     assert isinstance(response, future.Future)
-
-
-def test_undeploy_model_from_dict():
-    test_undeploy_model(request_type=dict)
 
 
 def test_undeploy_model_empty_call():
@@ -2291,6 +2404,23 @@ def test_credentials_transport_error():
         client = EndpointServiceClient(
             client_options={"credentials_file": "credentials.json"},
             transport=transport,
+        )
+
+    # It is an error to provide an api_key and a transport instance.
+    transport = transports.EndpointServiceGrpcTransport(
+        credentials=ga_credentials.AnonymousCredentials(),
+    )
+    options = client_options.ClientOptions()
+    options.api_key = "api_key"
+    with pytest.raises(ValueError):
+        client = EndpointServiceClient(client_options=options, transport=transport,)
+
+    # It is an error to provide an api_key and a credential.
+    options = mock.Mock()
+    options.api_key = "api_key"
+    with pytest.raises(ValueError):
+        client = EndpointServiceClient(
+            client_options=options, credentials=ga_credentials.AnonymousCredentials()
         )
 
     # It is an error to provide scopes and a transport instance.
@@ -2898,7 +3028,7 @@ def test_parse_common_location_path():
     assert expected == actual
 
 
-def test_client_withDEFAULT_CLIENT_INFO():
+def test_client_with_default_client_info():
     client_info = gapic_v1.client_info.ClientInfo()
 
     with mock.patch.object(
@@ -2963,3 +3093,33 @@ def test_client_ctx():
             with client:
                 pass
             close.assert_called()
+
+
+@pytest.mark.parametrize(
+    "client_class,transport_class",
+    [
+        (EndpointServiceClient, transports.EndpointServiceGrpcTransport),
+        (EndpointServiceAsyncClient, transports.EndpointServiceGrpcAsyncIOTransport),
+    ],
+)
+def test_api_key_credentials(client_class, transport_class):
+    with mock.patch.object(
+        google.auth._default, "get_api_key_credentials", create=True
+    ) as get_api_key_credentials:
+        mock_cred = mock.Mock()
+        get_api_key_credentials.return_value = mock_cred
+        options = client_options.ClientOptions()
+        options.api_key = "api_key"
+        with mock.patch.object(transport_class, "__init__") as patched:
+            patched.return_value = None
+            client = client_class(client_options=options)
+            patched.assert_called_once_with(
+                credentials=mock_cred,
+                credentials_file=None,
+                host=client.DEFAULT_ENDPOINT,
+                scopes=None,
+                client_cert_source_for_mtls=None,
+                quota_project_id=None,
+                client_info=transports.base.DEFAULT_CLIENT_INFO,
+                always_use_jwt_access=True,
+            )

@@ -33,13 +33,40 @@ with open(os.path.join(package_root, "google/cloud/aiplatform/version.py")) as f
     exec(fp.read(), version)
 version = version["__version__"]
 
-tensorboard_extra_require = ["tensorflow >=2.3.0, <=2.5.0"]
+tensorboard_extra_require = ["tensorflow >=2.3.0, <=2.7.0"]
 metadata_extra_require = ["pandas >= 1.0.0"]
 xai_extra_require = ["tensorflow >=2.3.0, <=2.5.0"]
+lit_extra_require = [
+    "tensorflow >= 2.3.0",
+    "pandas >= 1.0.0",
+    "lit-nlp >= 0.4.0",
+    "explainable-ai-sdk >= 1.0.0",
+]
+profiler_extra_require = [
+    "tensorboard-plugin-profile >= 2.4.0",
+    "werkzeug >= 2.0.0",
+    "tensorflow >=2.4.0",
+]
+featurestore_extra_require = [
+    "google-cloud-bigquery-storage",
+    "pandas >= 1.0.0",
+    "pyarrow >= 6.0.1",
+]
+
 full_extra_require = list(
-    set(tensorboard_extra_require + metadata_extra_require + xai_extra_require)
+    set(
+        tensorboard_extra_require
+        + metadata_extra_require
+        + xai_extra_require
+        + lit_extra_require
+        + featurestore_extra_require
+    )
 )
-testing_extra_require = full_extra_require + ["grpcio-testing", "pytest-xdist"]
+testing_extra_require = (
+    full_extra_require
+    + profiler_extra_require
+    + ["grpcio-testing", "pytest-xdist", "ipython"]
+)
 
 
 setuptools.setup(
@@ -71,7 +98,7 @@ setuptools.setup(
         "google-api-core[grpc] >= 1.26.0, <3.0.0dev",
         "proto-plus >= 1.10.1",
         "packaging >= 14.3",
-        "google-cloud-storage >= 1.32.0, < 2.0.0dev",
+        "google-cloud-storage >= 1.32.0, < 3.0.0dev",
         "google-cloud-bigquery >= 1.15.0, < 3.0.0dev",
     ),
     extras_require={
@@ -80,9 +107,10 @@ setuptools.setup(
         "tensorboard": tensorboard_extra_require,
         "testing": testing_extra_require,
         "xai": xai_extra_require,
+        "lit": lit_extra_require,
+        "cloud_profiler": profiler_extra_require,
     },
     python_requires=">=3.6",
-    scripts=[],
     classifiers=[
         "Development Status :: 5 - Production/Stable",
         "Intended Audience :: Developers",

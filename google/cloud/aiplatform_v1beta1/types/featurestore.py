@@ -25,8 +25,9 @@ __protobuf__ = proto.module(
 
 
 class Featurestore(proto.Message):
-    r"""Featurestore configuration information on how the
-    Featurestore is configured.
+    r"""Vertex AI Feature Store provides a centralized repository for
+    organizing, storing, and serving ML features. The Featurestore
+    is a top-level container for your features and their values.
 
     Attributes:
         name (str):
@@ -39,8 +40,8 @@ class Featurestore(proto.Message):
             Output only. Timestamp when this Featurestore
             was last updated.
         etag (str):
-            Optional. Used to perform consistent read-
-            odify-write updates. If not set, a blind
+            Optional. Used to perform consistent
+            read-modify-write updates. If not set, a blind
             "overwrite" update happens.
         labels (Sequence[google.cloud.aiplatform_v1beta1.types.Featurestore.LabelsEntry]):
             Optional. The labels with user-defined
@@ -80,13 +81,39 @@ class Featurestore(proto.Message):
 
         Attributes:
             fixed_node_count (int):
-                The number of nodes for each cluster. The
-                number of nodes will not scale automatically but
-                can be scaled manually by providing different
-                values when updating.
+                The number of nodes for each cluster. The number of nodes
+                will not scale automatically but can be scaled manually by
+                providing different values when updating. Only one of
+                ``fixed_node_count`` and ``scaling`` can be set. Setting one
+                will reset the other.
+            scaling (google.cloud.aiplatform_v1beta1.types.Featurestore.OnlineServingConfig.Scaling):
+                Online serving scaling configuration. Only one of
+                ``fixed_node_count`` and ``scaling`` can be set. Setting one
+                will reset the other.
         """
 
+        class Scaling(proto.Message):
+            r"""Online serving scaling configuration. If min_node_count and
+            max_node_count are set to the same value, the cluster will be
+            configured with the fixed number of node (no auto-scaling).
+
+            Attributes:
+                min_node_count (int):
+                    Required. The minimum number of nodes to
+                    scale down to. Must be greater than or equal to
+                    1.
+                max_node_count (int):
+                    The maximum number of nodes to scale up to. Must be greater
+                    or equal to min_node_count.
+            """
+
+            min_node_count = proto.Field(proto.INT32, number=1,)
+            max_node_count = proto.Field(proto.INT32, number=2,)
+
         fixed_node_count = proto.Field(proto.INT32, number=2,)
+        scaling = proto.Field(
+            proto.MESSAGE, number=4, message="Featurestore.OnlineServingConfig.Scaling",
+        )
 
     name = proto.Field(proto.STRING, number=1,)
     create_time = proto.Field(proto.MESSAGE, number=3, message=timestamp_pb2.Timestamp,)

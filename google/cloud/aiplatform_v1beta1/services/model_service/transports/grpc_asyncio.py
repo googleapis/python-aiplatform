@@ -210,8 +210,11 @@ class ModelServiceGrpcAsyncIOTransport(ModelServiceTransport):
         if not self._grpc_channel:
             self._grpc_channel = type(self).create_channel(
                 self._host,
+                # use the credentials which are saved
                 credentials=self._credentials,
-                credentials_file=credentials_file,
+                # Set ``credentials_file`` to ``None`` here as
+                # the credentials that we saved earlier should be used.
+                credentials_file=None,
                 scopes=self._scopes,
                 ssl_credentials=self._ssl_channel_credentials,
                 quota_project_id=quota_project_id,
@@ -241,7 +244,7 @@ class ModelServiceGrpcAsyncIOTransport(ModelServiceTransport):
         This property caches on the instance; repeated calls return the same
         client.
         """
-        # Sanity check: Only create a new client if we do not already have one.
+        # Quick check: Only create a new client if we do not already have one.
         if self._operations_client is None:
             self._operations_client = operations_v1.OperationsAsyncClient(
                 self.grpc_channel
@@ -368,8 +371,13 @@ class ModelServiceGrpcAsyncIOTransport(ModelServiceTransport):
 
         Deletes a Model.
 
-        Model can only be deleted if there are no [DeployedModels][]
-        created from it.
+        A model cannot be deleted if any
+        [Endpoint][google.cloud.aiplatform.v1beta1.Endpoint] resource
+        has a
+        [DeployedModel][google.cloud.aiplatform.v1beta1.DeployedModel]
+        based on the model in its
+        [deployed_models][google.cloud.aiplatform.v1beta1.Endpoint.deployed_models]
+        field.
 
         Returns:
             Callable[[~.DeleteModelRequest],
@@ -397,7 +405,7 @@ class ModelServiceGrpcAsyncIOTransport(ModelServiceTransport):
     ]:
         r"""Return a callable for the export model method over gRPC.
 
-        Exports a trained, exportable, Model to a location specified by
+        Exports a trained, exportable Model to a location specified by
         the user. A Model is considered to be exportable if it has at
         least one [supported export
         format][google.cloud.aiplatform.v1beta1.Model.supported_export_formats].

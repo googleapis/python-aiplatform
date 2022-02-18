@@ -44,8 +44,8 @@ class ModelMonitoringObjectiveConfig(proto.Message):
         prediction_drift_detection_config (google.cloud.aiplatform_v1beta1.types.ModelMonitoringObjectiveConfig.PredictionDriftDetectionConfig):
             The config for drift of prediction data.
         explanation_config (google.cloud.aiplatform_v1beta1.types.ModelMonitoringObjectiveConfig.ExplanationConfig):
-            The config for integrated with Explainable
-            AI.
+            The config for integrating with Vertex
+            Explainable AI.
     """
 
     class TrainingDataset(proto.Message):
@@ -160,14 +160,14 @@ class ModelMonitoringObjectiveConfig(proto.Message):
         )
 
     class ExplanationConfig(proto.Message):
-        r"""The config for integrated with Explainable AI. Only applicable if
-        the Model has explanation_spec populated.
+        r"""The config for integrating with Vertex Explainable AI. Only
+        applicable if the Model has explanation_spec populated.
 
         Attributes:
             enable_feature_attributes (bool):
-                If want to analyze the Explainable AI feature
-                attribute scores or not. If set to true, Vertex
-                AI will log the feature attributions from
+                If want to analyze the Vertex Explainable AI
+                feature attribute scores or not. If set to true,
+                Vertex AI will log the feature attributions from
                 explain response and do the skew/drift detection
                 for them.
             explanation_baseline (google.cloud.aiplatform_v1beta1.types.ModelMonitoringObjectiveConfig.ExplanationConfig.ExplanationBaseline):
@@ -246,7 +246,7 @@ class ModelMonitoringObjectiveConfig(proto.Message):
 
 
 class ModelMonitoringAlertConfig(proto.Message):
-    r"""Next ID: 2
+    r"""Next ID: 3
 
     .. _oneof: https://proto-plus-python.readthedocs.io/en/stable/fields.html#oneofs-mutually-exclusive-fields
 
@@ -255,6 +255,12 @@ class ModelMonitoringAlertConfig(proto.Message):
             Email alert config.
 
             This field is a member of `oneof`_ ``alert``.
+        enable_logging (bool):
+            Dump the anomalies to Cloud Logging. The anomalies will be
+            put to json payload encoded from proto
+            [google.cloud.aiplatform.logging.ModelMonitoringAnomaliesLogEntry][].
+            This can be further sinked to Pub/Sub or any other services
+            supported by Cloud Logging.
     """
 
     class EmailAlertConfig(proto.Message):
@@ -270,6 +276,7 @@ class ModelMonitoringAlertConfig(proto.Message):
     email_alert_config = proto.Field(
         proto.MESSAGE, number=1, oneof="alert", message=EmailAlertConfig,
     )
+    enable_logging = proto.Field(proto.BOOL, number=2,)
 
 
 class ThresholdConfig(proto.Message):

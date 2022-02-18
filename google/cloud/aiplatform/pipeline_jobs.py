@@ -16,6 +16,7 @@
 #
 
 import datetime
+import logging
 import time
 import re
 from typing import Any, Dict, List, Optional
@@ -79,12 +80,12 @@ def _set_enable_caching_value(
 class PipelineJob(base.VertexAiResourceNounWithFutureManager):
 
     client_class = utils.PipelineJobClientWithOverride
-    _is_client_prediction_client = False
-
     _resource_noun = "pipelineJobs"
     _delete_method = "delete_pipeline_job"
     _getter_method = "get_pipeline_job"
     _list_method = "list_pipeline_jobs"
+    _parse_resource_name_method = "parse_pipeline_job_path"
+    _format_resource_name_method = "pipeline_job_path"
 
     def __init__(
         self,
@@ -273,6 +274,10 @@ class PipelineJob(base.VertexAiResourceNounWithFutureManager):
         if network:
             self._gca_resource.network = network
 
+        # Prevents logs from being supressed on TFX pipelines
+        if self._gca_resource.pipeline_spec.get("sdkVersion", "").startswith("tfx"):
+            _LOGGER.setLevel(logging.INFO)
+
         _LOGGER.log_create_with_lro(self.__class__)
 
         self._gca_resource = self.api_client.create_pipeline_job(
@@ -315,8 +320,8 @@ class PipelineJob(base.VertexAiResourceNounWithFutureManager):
     def _dashboard_uri(self) -> str:
         """Helper method to compose the dashboard uri where pipeline can be
         viewed."""
-        fields = utils.extract_fields_from_resource_name(self.resource_name)
-        url = f"https://console.cloud.google.com/vertex-ai/locations/{fields.location}/pipelines/runs/{fields.id}?project={fields.project}"
+        fields = self._parse_resource_name(self.resource_name)
+        url = f"https://console.cloud.google.com/vertex-ai/locations/{fields['location']}/pipelines/runs/{fields['pipeline_job']}?project={fields['project']}"
         return url
 
     def _block_until_complete(self):

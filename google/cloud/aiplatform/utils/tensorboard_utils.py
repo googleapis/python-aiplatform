@@ -33,7 +33,7 @@ def _parse_experiment_name(experiment_name: str) -> Dict[str, str]:
       Components of the experiment name.
 
     Raises:
-      ValueError if the experiment_name is invalid.
+      ValueError: If the experiment_name is invalid.
     """
     matched = TensorboardServiceClient.parse_tensorboard_experiment_path(
         experiment_name

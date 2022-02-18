@@ -158,13 +158,15 @@ class ModelDeploymentMonitoringJob(proto.Message):
         encryption_spec (google.cloud.aiplatform_v1beta1.types.EncryptionSpec):
             Customer-managed encryption key spec for a
             ModelDeploymentMonitoringJob. If set, this
-            ModelDeploymentMonitoringJob and all sub-
-            resources of this ModelDeploymentMonitoringJob
-            will be secured by this key.
+            ModelDeploymentMonitoringJob and all
+            sub-resources of this
+            ModelDeploymentMonitoringJob will be secured by
+            this key.
         enable_monitoring_pipeline_logs (bool):
-            If true, the scheduled monitoring pipeline status logs are
-            sent to Google Cloud Logging. Please note the logs incur
-            cost, which are subject to `Cloud Logging
+            If true, the scheduled monitoring pipeline logs are sent to
+            Google Cloud Logging, including pipeline status and
+            anomalies detected. Please note the logs incur cost, which
+            are subject to `Cloud Logging
             pricing <https://cloud.google.com/logging#pricing>`__.
         error (google.rpc.status_pb2.Status):
             Output only. Only populated when the job's state is
@@ -282,9 +284,10 @@ class ModelDeploymentMonitoringScheduleConfig(proto.Message):
 
     Attributes:
         monitor_interval (google.protobuf.duration_pb2.Duration):
-            Required. The model monitoring job running
+            Required. The model monitoring job scheduling
             interval. It will be rounded up to next full
-            hour.
+            hour. This defines how often the monitoring jobs
+            are triggered.
     """
 
     monitor_interval = proto.Field(

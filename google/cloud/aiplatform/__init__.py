@@ -33,6 +33,11 @@ from google.cloud.aiplatform.datasets import (
 from google.cloud.aiplatform import explain
 from google.cloud.aiplatform import gapic
 from google.cloud.aiplatform import hyperparameter_tuning
+from google.cloud.aiplatform.featurestore import (
+    EntityType,
+    Feature,
+    Featurestore,
+)
 from google.cloud.aiplatform.metadata import metadata
 from google.cloud.aiplatform.models import Endpoint
 from google.cloud.aiplatform.models import Model
@@ -42,7 +47,11 @@ from google.cloud.aiplatform.jobs import (
     HyperparameterTuningJob,
 )
 from google.cloud.aiplatform.pipeline_jobs import PipelineJob
-from google.cloud.aiplatform.tensorboard import Tensorboard
+from google.cloud.aiplatform.tensorboard import (
+    Tensorboard,
+    TensorboardExperiment,
+    TensorboardRun,
+)
 from google.cloud.aiplatform.training_jobs import (
     CustomTrainingJob,
     CustomContainerTrainingJob,
@@ -92,13 +101,18 @@ __all__ = (
     "CustomContainerTrainingJob",
     "CustomPythonPackageTrainingJob",
     "Endpoint",
+    "EntityType",
+    "Feature",
+    "Featurestore",
     "ImageDataset",
     "HyperparameterTuningJob",
     "Model",
     "PipelineJob",
     "TabularDataset",
+    "Tensorboard",
+    "TensorboardExperiment",
+    "TensorboardRun",
     "TextDataset",
     "TimeSeriesDataset",
     "VideoDataset",
-    "Tensorboard",
 )

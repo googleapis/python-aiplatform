@@ -105,7 +105,6 @@ class IndexEndpointServiceTransport(abc.ABC):
             credentials, _ = google.auth.load_credentials_from_file(
                 credentials_file, **scopes_kwargs, quota_project_id=quota_project_id
             )
-
         elif credentials is None:
             credentials, _ = google.auth.default(
                 **scopes_kwargs, quota_project_id=quota_project_id
@@ -153,6 +152,11 @@ class IndexEndpointServiceTransport(abc.ABC):
             ),
             self.undeploy_index: gapic_v1.method.wrap_method(
                 self.undeploy_index, default_timeout=None, client_info=client_info,
+            ),
+            self.mutate_deployed_index: gapic_v1.method.wrap_method(
+                self.mutate_deployed_index,
+                default_timeout=None,
+                client_info=client_info,
             ),
         }
 
@@ -235,6 +239,15 @@ class IndexEndpointServiceTransport(abc.ABC):
         self,
     ) -> Callable[
         [index_endpoint_service.UndeployIndexRequest],
+        Union[operations_pb2.Operation, Awaitable[operations_pb2.Operation]],
+    ]:
+        raise NotImplementedError()
+
+    @property
+    def mutate_deployed_index(
+        self,
+    ) -> Callable[
+        [index_endpoint_service.MutateDeployedIndexRequest],
         Union[operations_pb2.Operation, Awaitable[operations_pb2.Operation]],
     ]:
         raise NotImplementedError()

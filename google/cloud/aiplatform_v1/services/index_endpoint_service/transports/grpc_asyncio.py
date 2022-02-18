@@ -208,8 +208,11 @@ class IndexEndpointServiceGrpcAsyncIOTransport(IndexEndpointServiceTransport):
         if not self._grpc_channel:
             self._grpc_channel = type(self).create_channel(
                 self._host,
+                # use the credentials which are saved
                 credentials=self._credentials,
-                credentials_file=credentials_file,
+                # Set ``credentials_file`` to ``None`` here as
+                # the credentials that we saved earlier should be used.
+                credentials_file=None,
                 scopes=self._scopes,
                 ssl_credentials=self._ssl_channel_credentials,
                 quota_project_id=quota_project_id,
@@ -239,7 +242,7 @@ class IndexEndpointServiceGrpcAsyncIOTransport(IndexEndpointServiceTransport):
         This property caches on the instance; repeated calls return the same
         client.
         """
-        # Sanity check: Only create a new client if we do not already have one.
+        # Quick check: Only create a new client if we do not already have one.
         if self._operations_client is None:
             self._operations_client = operations_v1.OperationsAsyncClient(
                 self.grpc_channel
@@ -453,6 +456,36 @@ class IndexEndpointServiceGrpcAsyncIOTransport(IndexEndpointServiceTransport):
                 response_deserializer=operations_pb2.Operation.FromString,
             )
         return self._stubs["undeploy_index"]
+
+    @property
+    def mutate_deployed_index(
+        self,
+    ) -> Callable[
+        [index_endpoint_service.MutateDeployedIndexRequest],
+        Awaitable[operations_pb2.Operation],
+    ]:
+        r"""Return a callable for the mutate deployed index method over gRPC.
+
+        Update an existing DeployedIndex under an
+        IndexEndpoint.
+
+        Returns:
+            Callable[[~.MutateDeployedIndexRequest],
+                    Awaitable[~.Operation]]:
+                A function that, when called, will call the underlying RPC
+                on the server.
+        """
+        # Generate a "stub function" on-the-fly which will actually make
+        # the request.
+        # gRPC handles serialization and deserialization, so we just need
+        # to pass in the functions for each.
+        if "mutate_deployed_index" not in self._stubs:
+            self._stubs["mutate_deployed_index"] = self.grpc_channel.unary_unary(
+                "/google.cloud.aiplatform.v1.IndexEndpointService/MutateDeployedIndex",
+                request_serializer=index_endpoint_service.MutateDeployedIndexRequest.serialize,
+                response_deserializer=operations_pb2.Operation.FromString,
+            )
+        return self._stubs["mutate_deployed_index"]
 
     def close(self):
         return self.grpc_channel.close()

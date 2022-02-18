@@ -97,13 +97,14 @@ class Trial(proto.Message):
         client_id (str):
             Output only. The identifier of the client that originally
             requested this Trial. Each client is identified by a unique
-            client_id. When a client asks for a suggestion, Vizier will
-            assign it a Trial. The client should evaluate the Trial,
-            complete it, and report back to Vizier. If suggestion is
-            asked again by same client_id before the Trial is completed,
-            the same Trial will be returned. Multiple clients with
-            different client_ids can ask for suggestions simultaneously,
-            each of them will get their own Trial.
+            client_id. When a client asks for a suggestion, Vertex AI
+            Vizier will assign it a Trial. The client should evaluate
+            the Trial, complete it, and report back to Vertex AI Vizier.
+            If suggestion is asked again by same client_id before the
+            Trial is completed, the same Trial will be returned.
+            Multiple clients with different client_ids can ask for
+            suggestions simultaneously, each of them will get their own
+            Trial.
         infeasible_reason (str):
             Output only. A human readable string describing why the
             Trial is infeasible. This is set only if Trial state is
@@ -202,9 +203,9 @@ class StudySpec(proto.Message):
             The search algorithm specified for the Study.
         observation_noise (google.cloud.aiplatform_v1.types.StudySpec.ObservationNoise):
             The observation noise level of the study.
-            Currently only supported by the Vizier service.
-            Not supported by HyperparamterTuningJob or
-            TrainingPipeline.
+            Currently only supported by the Vertex AI Vizier
+            service. Not supported by HyperparamterTuningJob
+            or TrainingPipeline.
         measurement_selection_type (google.cloud.aiplatform_v1.types.StudySpec.MeasurementSelectionType):
             Describe which measurement selection type
             will be used
@@ -329,8 +330,8 @@ class StudySpec(proto.Message):
                     to be a relatively good starting point. Unset value signals
                     that there is no offered starting point.
 
-                    Currently only supported by the Vizier service. Not
-                    supported by HyperparamterTuningJob or TrainingPipeline.
+                    Currently only supported by the Vertex AI Vizier service.
+                    Not supported by HyperparamterTuningJob or TrainingPipeline.
 
                     This field is a member of `oneof`_ ``_default_value``.
             """
@@ -354,8 +355,8 @@ class StudySpec(proto.Message):
                     to be a relatively good starting point. Unset value signals
                     that there is no offered starting point.
 
-                    Currently only supported by the Vizier service. Not
-                    supported by HyperparamterTuningJob or TrainingPipeline.
+                    Currently only supported by the Vertex AI Vizier service.
+                    Not supported by HyperparamterTuningJob or TrainingPipeline.
 
                     This field is a member of `oneof`_ ``_default_value``.
             """

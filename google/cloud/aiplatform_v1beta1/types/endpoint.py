@@ -80,22 +80,36 @@ class Endpoint(proto.Message):
             last updated.
         encryption_spec (google.cloud.aiplatform_v1beta1.types.EncryptionSpec):
             Customer-managed encryption key spec for an
-            Endpoint. If set, this Endpoint and all sub-
-            resources of this Endpoint will be secured by
-            this key.
+            Endpoint. If set, this Endpoint and all
+            sub-resources of this Endpoint will be secured
+            by this key.
         network (str):
             The full name of the Google Compute Engine
-            `network </compute/docs/networks-and-firewalls#networks>`__
+            `network <https://cloud.google.com//compute/docs/networks-and-firewalls#networks>`__
             to which the Endpoint should be peered.
 
             Private services access must already be configured for the
             network. If left unspecified, the Endpoint is not peered
             with any network.
 
+            Only one of the fields,
+            [network][google.cloud.aiplatform.v1beta1.Endpoint.network]
+            or
+            [enable_private_service_connect][google.cloud.aiplatform.v1beta1.Endpoint.enable_private_service_connect],
+            can be set.
+
             `Format <https://cloud.google.com/compute/docs/reference/rest/v1/networks/insert>`__:
-            projects/{project}/global/networks/{network}. Where
-            {project} is a project number, as in '12345', and {network}
-            is network name.
+            ``projects/{project}/global/networks/{network}``. Where
+            ``{project}`` is a project number, as in ``12345``, and
+            ``{network}`` is network name.
+        enable_private_service_connect (bool):
+            If true, expose the Endpoint via private service connect.
+
+            Only one of the fields,
+            [network][google.cloud.aiplatform.v1beta1.Endpoint.network]
+            or
+            [enable_private_service_connect][google.cloud.aiplatform.v1beta1.Endpoint.enable_private_service_connect],
+            can be set.
         model_deployment_monitoring_job (str):
             Output only. Resource name of the Model Monitoring job
             associated with this Endpoint if monitoring is enabled by
@@ -118,6 +132,7 @@ class Endpoint(proto.Message):
         proto.MESSAGE, number=10, message=gca_encryption_spec.EncryptionSpec,
     )
     network = proto.Field(proto.STRING, number=13,)
+    enable_private_service_connect = proto.Field(proto.BOOL, number=17,)
     model_deployment_monitoring_job = proto.Field(proto.STRING, number=14,)
 
 
@@ -146,7 +161,11 @@ class DeployedModel(proto.Message):
 
             This field is a member of `oneof`_ ``prediction_resources``.
         id (str):
-            Output only. The ID of the DeployedModel.
+            Immutable. The ID of the DeployedModel. If not provided upon
+            deployment, Vertex AI will generate a value for this ID.
+
+            This value should be 1-10 characters, and valid characters
+            are /[0-9]/.
         model (str):
             Required. The name of the Model that this is
             the deployment of. Note that the Model may be in
@@ -239,8 +258,10 @@ class DeployedModel(proto.Message):
 
 
 class PrivateEndpoints(proto.Message):
-    r"""PrivateEndpoints is used to provide paths for users to send
-    requests via private services access.
+    r"""PrivateEndpoints proto is used to provide paths for users to send
+    requests privately. To send request via private service access, use
+    predict_http_uri, explain_http_uri or health_http_uri. To send
+    request via private service connect, use service_attachment.
 
     Attributes:
         predict_http_uri (str):
@@ -252,11 +273,16 @@ class PrivateEndpoints(proto.Message):
         health_http_uri (str):
             Output only. Http(s) path to send health
             check requests.
+        service_attachment (str):
+            Output only. The name of the service
+            attachment resource. Populated if private
+            service connect is enabled.
     """
 
     predict_http_uri = proto.Field(proto.STRING, number=1,)
     explain_http_uri = proto.Field(proto.STRING, number=2,)
     health_http_uri = proto.Field(proto.STRING, number=3,)
+    service_attachment = proto.Field(proto.STRING, number=4,)
 
 
 __all__ = tuple(sorted(__protobuf__.manifest))

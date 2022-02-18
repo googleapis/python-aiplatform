@@ -37,8 +37,8 @@ from .grpc import VizierServiceGrpcTransport
 class VizierServiceGrpcAsyncIOTransport(VizierServiceTransport):
     """gRPC AsyncIO backend transport for VizierService.
 
-    Vertex Vizier API.
-    Vizier service is a GCP service to solve blackbox optimization
+    Vertex AI Vizier API.
+    Vertex AI Vizier is a service to solve blackbox optimization
     problems, such as tuning machine learning hyperparameters and
     searching over deep learning architectures.
 
@@ -212,8 +212,11 @@ class VizierServiceGrpcAsyncIOTransport(VizierServiceTransport):
         if not self._grpc_channel:
             self._grpc_channel = type(self).create_channel(
                 self._host,
+                # use the credentials which are saved
                 credentials=self._credentials,
-                credentials_file=credentials_file,
+                # Set ``credentials_file`` to ``None`` here as
+                # the credentials that we saved earlier should be used.
+                credentials_file=None,
                 scopes=self._scopes,
                 ssl_credentials=self._ssl_channel_credentials,
                 quota_project_id=quota_project_id,
@@ -243,7 +246,7 @@ class VizierServiceGrpcAsyncIOTransport(VizierServiceTransport):
         This property caches on the instance; repeated calls return the same
         client.
         """
-        # Sanity check: Only create a new client if we do not already have one.
+        # Quick check: Only create a new client if we do not already have one.
         if self._operations_client is None:
             self._operations_client = operations_v1.OperationsAsyncClient(
                 self.grpc_channel
@@ -397,7 +400,7 @@ class VizierServiceGrpcAsyncIOTransport(VizierServiceTransport):
         r"""Return a callable for the suggest trials method over gRPC.
 
         Adds one or more Trials to a Study, with parameter values
-        suggested by Vertex Vizier. Returns a long-running operation
+        suggested by Vertex AI Vizier. Returns a long-running operation
         associated with the generation of Trial suggestions. When this
         long-running operation succeeds, it will contain a
         [SuggestTrialsResponse][google.cloud.ml.v1.SuggestTrialsResponse].

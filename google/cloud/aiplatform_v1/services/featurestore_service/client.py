@@ -294,6 +294,73 @@ class FeaturestoreServiceClient(metaclass=FeaturestoreServiceClientMeta):
         m = re.match(r"^projects/(?P<project>.+?)/locations/(?P<location>.+?)$", path)
         return m.groupdict() if m else {}
 
+    @classmethod
+    def get_mtls_endpoint_and_cert_source(
+        cls, client_options: Optional[client_options_lib.ClientOptions] = None
+    ):
+        """Return the API endpoint and client cert source for mutual TLS.
+
+        The client cert source is determined in the following order:
+        (1) if `GOOGLE_API_USE_CLIENT_CERTIFICATE` environment variable is not "true", the
+        client cert source is None.
+        (2) if `client_options.client_cert_source` is provided, use the provided one; if the
+        default client cert source exists, use the default one; otherwise the client cert
+        source is None.
+
+        The API endpoint is determined in the following order:
+        (1) if `client_options.api_endpoint` if provided, use the provided one.
+        (2) if `GOOGLE_API_USE_CLIENT_CERTIFICATE` environment variable is "always", use the
+        default mTLS endpoint; if the environment variabel is "never", use the default API
+        endpoint; otherwise if client cert source exists, use the default mTLS endpoint, otherwise
+        use the default API endpoint.
+
+        More details can be found at https://google.aip.dev/auth/4114.
+
+        Args:
+            client_options (google.api_core.client_options.ClientOptions): Custom options for the
+                client. Only the `api_endpoint` and `client_cert_source` properties may be used
+                in this method.
+
+        Returns:
+            Tuple[str, Callable[[], Tuple[bytes, bytes]]]: returns the API endpoint and the
+                client cert source to use.
+
+        Raises:
+            google.auth.exceptions.MutualTLSChannelError: If any errors happen.
+        """
+        if client_options is None:
+            client_options = client_options_lib.ClientOptions()
+        use_client_cert = os.getenv("GOOGLE_API_USE_CLIENT_CERTIFICATE", "false")
+        use_mtls_endpoint = os.getenv("GOOGLE_API_USE_MTLS_ENDPOINT", "auto")
+        if use_client_cert not in ("true", "false"):
+            raise ValueError(
+                "Environment variable `GOOGLE_API_USE_CLIENT_CERTIFICATE` must be either `true` or `false`"
+            )
+        if use_mtls_endpoint not in ("auto", "never", "always"):
+            raise MutualTLSChannelError(
+                "Environment variable `GOOGLE_API_USE_MTLS_ENDPOINT` must be `never`, `auto` or `always`"
+            )
+
+        # Figure out the client cert source to use.
+        client_cert_source = None
+        if use_client_cert == "true":
+            if client_options.client_cert_source:
+                client_cert_source = client_options.client_cert_source
+            elif mtls.has_default_client_cert_source():
+                client_cert_source = mtls.default_client_cert_source()
+
+        # Figure out which api endpoint to use.
+        if client_options.api_endpoint is not None:
+            api_endpoint = client_options.api_endpoint
+        elif use_mtls_endpoint == "always" or (
+            use_mtls_endpoint == "auto" and client_cert_source
+        ):
+            api_endpoint = cls.DEFAULT_MTLS_ENDPOINT
+        else:
+            api_endpoint = cls.DEFAULT_ENDPOINT
+
+        return api_endpoint, client_cert_source
+
     def __init__(
         self,
         *,
@@ -344,57 +411,22 @@ class FeaturestoreServiceClient(metaclass=FeaturestoreServiceClientMeta):
         if client_options is None:
             client_options = client_options_lib.ClientOptions()
 
-        # Create SSL credentials for mutual TLS if needed.
-        if os.getenv("GOOGLE_API_USE_CLIENT_CERTIFICATE", "false") not in (
-            "true",
-            "false",
-        ):
-            raise ValueError(
-                "Environment variable `GOOGLE_API_USE_CLIENT_CERTIFICATE` must be either `true` or `false`"
-            )
-        use_client_cert = (
-            os.getenv("GOOGLE_API_USE_CLIENT_CERTIFICATE", "false") == "true"
+        api_endpoint, client_cert_source_func = self.get_mtls_endpoint_and_cert_source(
+            client_options
         )
 
-        client_cert_source_func = None
-        is_mtls = False
-        if use_client_cert:
-            if client_options.client_cert_source:
-                is_mtls = True
-                client_cert_source_func = client_options.client_cert_source
-            else:
-                is_mtls = mtls.has_default_client_cert_source()
-                if is_mtls:
-                    client_cert_source_func = mtls.default_client_cert_source()
-                else:
-                    client_cert_source_func = None
-
-        # Figure out which api endpoint to use.
-        if client_options.api_endpoint is not None:
-            api_endpoint = client_options.api_endpoint
-        else:
-            use_mtls_env = os.getenv("GOOGLE_API_USE_MTLS_ENDPOINT", "auto")
-            if use_mtls_env == "never":
-                api_endpoint = self.DEFAULT_ENDPOINT
-            elif use_mtls_env == "always":
-                api_endpoint = self.DEFAULT_MTLS_ENDPOINT
-            elif use_mtls_env == "auto":
-                if is_mtls:
-                    api_endpoint = self.DEFAULT_MTLS_ENDPOINT
-                else:
-                    api_endpoint = self.DEFAULT_ENDPOINT
-            else:
-                raise MutualTLSChannelError(
-                    "Unsupported GOOGLE_API_USE_MTLS_ENDPOINT value. Accepted "
-                    "values: never, auto, always"
-                )
+        api_key_value = getattr(client_options, "api_key", None)
+        if api_key_value and credentials:
+            raise ValueError(
+                "client_options.api_key and credentials are mutually exclusive"
+            )
 
         # Save or instantiate the transport.
         # Ordinarily, we provide the transport, but allowing a custom transport
         # instance provides an extensibility point for unusual situations.
         if isinstance(transport, FeaturestoreServiceTransport):
             # transport is a FeaturestoreServiceTransport instance.
-            if credentials or client_options.credentials_file:
+            if credentials or client_options.credentials_file or api_key_value:
                 raise ValueError(
                     "When providing a transport instance, "
                     "provide its credentials directly."
@@ -406,6 +438,15 @@ class FeaturestoreServiceClient(metaclass=FeaturestoreServiceClientMeta):
                 )
             self._transport = transport
         else:
+            import google.auth._default  # type: ignore
+
+            if api_key_value and hasattr(
+                google.auth._default, "get_api_key_credentials"
+            ):
+                credentials = google.auth._default.get_api_key_credentials(
+                    api_key_value
+                )
+
             Transport = type(self).get_transport_class(transport)
             self._transport = Transport(
                 credentials=credentials,
@@ -424,6 +465,7 @@ class FeaturestoreServiceClient(metaclass=FeaturestoreServiceClientMeta):
         *,
         parent: str = None,
         featurestore: gca_featurestore.Featurestore = None,
+        featurestore_id: str = None,
         retry: OptionalRetry = gapic_v1.method.DEFAULT,
         timeout: float = None,
         metadata: Sequence[Tuple[str, str]] = (),
@@ -448,6 +490,21 @@ class FeaturestoreServiceClient(metaclass=FeaturestoreServiceClientMeta):
                 This corresponds to the ``featurestore`` field
                 on the ``request`` instance; if ``request`` is provided, this
                 should not be set.
+            featurestore_id (str):
+                Required. The ID to use for this Featurestore, which
+                will become the final component of the Featurestore's
+                resource name.
+
+                This value may be up to 60 characters, and valid
+                characters are ``[a-z0-9_]``. The first character cannot
+                be a number.
+
+                The value must be unique within the project and
+                location.
+
+                This corresponds to the ``featurestore_id`` field
+                on the ``request`` instance; if ``request`` is provided, this
+                should not be set.
             retry (google.api_core.retry.Retry): Designation of what errors, if any,
                 should be retried.
             timeout (float): The timeout for this request.
@@ -458,16 +515,16 @@ class FeaturestoreServiceClient(metaclass=FeaturestoreServiceClientMeta):
             google.api_core.operation.Operation:
                 An object representing a long-running operation.
 
-                The result type for the operation will be :class:`google.cloud.aiplatform_v1.types.Featurestore` Vertex Feature Store provides a centralized repository for organizing,
+                The result type for the operation will be :class:`google.cloud.aiplatform_v1.types.Featurestore` Vertex AI Feature Store provides a centralized repository for organizing,
                    storing, and serving ML features. The Featurestore is
                    a top-level container for your features and their
                    values.
 
         """
         # Create or coerce a protobuf request object.
-        # Sanity check: If we got a request object, we should *not* have
+        # Quick check: If we got a request object, we should *not* have
         # gotten any keyword arguments that map to the request.
-        has_flattened_params = any([parent, featurestore])
+        has_flattened_params = any([parent, featurestore, featurestore_id])
         if request is not None and has_flattened_params:
             raise ValueError(
                 "If the `request` argument is set, then none of "
@@ -486,6 +543,8 @@ class FeaturestoreServiceClient(metaclass=FeaturestoreServiceClientMeta):
                 request.parent = parent
             if featurestore is not None:
                 request.featurestore = featurestore
+            if featurestore_id is not None:
+                request.featurestore_id = featurestore_id
 
         # Wrap the RPC method; this adds retry and timeout information,
         # and friendly error handling.
@@ -541,7 +600,7 @@ class FeaturestoreServiceClient(metaclass=FeaturestoreServiceClientMeta):
 
         Returns:
             google.cloud.aiplatform_v1.types.Featurestore:
-                Vertex Feature Store provides a
+                Vertex AI Feature Store provides a
                 centralized repository for organizing,
                 storing, and serving ML features. The
                 Featurestore is a top-level container
@@ -549,7 +608,7 @@ class FeaturestoreServiceClient(metaclass=FeaturestoreServiceClientMeta):
 
         """
         # Create or coerce a protobuf request object.
-        # Sanity check: If we got a request object, we should *not* have
+        # Quick check: If we got a request object, we should *not* have
         # gotten any keyword arguments that map to the request.
         has_flattened_params = any([name])
         if request is not None and has_flattened_params:
@@ -624,7 +683,7 @@ class FeaturestoreServiceClient(metaclass=FeaturestoreServiceClientMeta):
 
         """
         # Create or coerce a protobuf request object.
-        # Sanity check: If we got a request object, we should *not* have
+        # Quick check: If we got a request object, we should *not* have
         # gotten any keyword arguments that map to the request.
         has_flattened_params = any([parent])
         if request is not None and has_flattened_params:
@@ -718,14 +777,14 @@ class FeaturestoreServiceClient(metaclass=FeaturestoreServiceClientMeta):
             google.api_core.operation.Operation:
                 An object representing a long-running operation.
 
-                The result type for the operation will be :class:`google.cloud.aiplatform_v1.types.Featurestore` Vertex Feature Store provides a centralized repository for organizing,
+                The result type for the operation will be :class:`google.cloud.aiplatform_v1.types.Featurestore` Vertex AI Feature Store provides a centralized repository for organizing,
                    storing, and serving ML features. The Featurestore is
                    a top-level container for your features and their
                    values.
 
         """
         # Create or coerce a protobuf request object.
-        # Sanity check: If we got a request object, we should *not* have
+        # Quick check: If we got a request object, we should *not* have
         # gotten any keyword arguments that map to the request.
         has_flattened_params = any([featurestore, update_mask])
         if request is not None and has_flattened_params:
@@ -835,7 +894,7 @@ class FeaturestoreServiceClient(metaclass=FeaturestoreServiceClientMeta):
 
         """
         # Create or coerce a protobuf request object.
-        # Sanity check: If we got a request object, we should *not* have
+        # Quick check: If we got a request object, we should *not* have
         # gotten any keyword arguments that map to the request.
         has_flattened_params = any([name, force])
         if request is not None and has_flattened_params:
@@ -887,6 +946,7 @@ class FeaturestoreServiceClient(metaclass=FeaturestoreServiceClientMeta):
         *,
         parent: str = None,
         entity_type: gca_entity_type.EntityType = None,
+        entity_type_id: str = None,
         retry: OptionalRetry = gapic_v1.method.DEFAULT,
         timeout: float = None,
         metadata: Sequence[Tuple[str, str]] = (),
@@ -910,6 +970,20 @@ class FeaturestoreServiceClient(metaclass=FeaturestoreServiceClientMeta):
                 This corresponds to the ``entity_type`` field
                 on the ``request`` instance; if ``request`` is provided, this
                 should not be set.
+            entity_type_id (str):
+                Required. The ID to use for the EntityType, which will
+                become the final component of the EntityType's resource
+                name.
+
+                This value may be up to 60 characters, and valid
+                characters are ``[a-z0-9_]``. The first character cannot
+                be a number.
+
+                The value must be unique within a featurestore.
+
+                This corresponds to the ``entity_type_id`` field
+                on the ``request`` instance; if ``request`` is provided, this
+                should not be set.
             retry (google.api_core.retry.Retry): Designation of what errors, if any,
                 should be retried.
             timeout (float): The timeout for this request.
@@ -927,9 +1001,9 @@ class FeaturestoreServiceClient(metaclass=FeaturestoreServiceClientMeta):
 
         """
         # Create or coerce a protobuf request object.
-        # Sanity check: If we got a request object, we should *not* have
+        # Quick check: If we got a request object, we should *not* have
         # gotten any keyword arguments that map to the request.
-        has_flattened_params = any([parent, entity_type])
+        has_flattened_params = any([parent, entity_type, entity_type_id])
         if request is not None and has_flattened_params:
             raise ValueError(
                 "If the `request` argument is set, then none of "
@@ -948,6 +1022,8 @@ class FeaturestoreServiceClient(metaclass=FeaturestoreServiceClientMeta):
                 request.parent = parent
             if entity_type is not None:
                 request.entity_type = entity_type
+            if entity_type_id is not None:
+                request.entity_type_id = entity_type_id
 
         # Wrap the RPC method; this adds retry and timeout information,
         # and friendly error handling.
@@ -1012,7 +1088,7 @@ class FeaturestoreServiceClient(metaclass=FeaturestoreServiceClientMeta):
 
         """
         # Create or coerce a protobuf request object.
-        # Sanity check: If we got a request object, we should *not* have
+        # Quick check: If we got a request object, we should *not* have
         # gotten any keyword arguments that map to the request.
         has_flattened_params = any([name])
         if request is not None and has_flattened_params:
@@ -1087,7 +1163,7 @@ class FeaturestoreServiceClient(metaclass=FeaturestoreServiceClientMeta):
 
         """
         # Create or coerce a protobuf request object.
-        # Sanity check: If we got a request object, we should *not* have
+        # Quick check: If we got a request object, we should *not* have
         # gotten any keyword arguments that map to the request.
         has_flattened_params = any([parent])
         if request is not None and has_flattened_params:
@@ -1190,7 +1266,7 @@ class FeaturestoreServiceClient(metaclass=FeaturestoreServiceClientMeta):
 
         """
         # Create or coerce a protobuf request object.
-        # Sanity check: If we got a request object, we should *not* have
+        # Quick check: If we got a request object, we should *not* have
         # gotten any keyword arguments that map to the request.
         has_flattened_params = any([entity_type, update_mask])
         if request is not None and has_flattened_params:
@@ -1291,7 +1367,7 @@ class FeaturestoreServiceClient(metaclass=FeaturestoreServiceClientMeta):
 
         """
         # Create or coerce a protobuf request object.
-        # Sanity check: If we got a request object, we should *not* have
+        # Quick check: If we got a request object, we should *not* have
         # gotten any keyword arguments that map to the request.
         has_flattened_params = any([name, force])
         if request is not None and has_flattened_params:
@@ -1343,6 +1419,7 @@ class FeaturestoreServiceClient(metaclass=FeaturestoreServiceClientMeta):
         *,
         parent: str = None,
         feature: gca_feature.Feature = None,
+        feature_id: str = None,
         retry: OptionalRetry = gapic_v1.method.DEFAULT,
         timeout: float = None,
         metadata: Sequence[Tuple[str, str]] = (),
@@ -1366,6 +1443,20 @@ class FeaturestoreServiceClient(metaclass=FeaturestoreServiceClientMeta):
                 This corresponds to the ``feature`` field
                 on the ``request`` instance; if ``request`` is provided, this
                 should not be set.
+            feature_id (str):
+                Required. The ID to use for the Feature, which will
+                become the final component of the Feature's resource
+                name.
+
+                This value may be up to 60 characters, and valid
+                characters are ``[a-z0-9_]``. The first character cannot
+                be a number.
+
+                The value must be unique within an EntityType.
+
+                This corresponds to the ``feature_id`` field
+                on the ``request`` instance; if ``request`` is provided, this
+                should not be set.
             retry (google.api_core.retry.Retry): Designation of what errors, if any,
                 should be retried.
             timeout (float): The timeout for this request.
@@ -1382,9 +1473,9 @@ class FeaturestoreServiceClient(metaclass=FeaturestoreServiceClientMeta):
 
         """
         # Create or coerce a protobuf request object.
-        # Sanity check: If we got a request object, we should *not* have
+        # Quick check: If we got a request object, we should *not* have
         # gotten any keyword arguments that map to the request.
-        has_flattened_params = any([parent, feature])
+        has_flattened_params = any([parent, feature, feature_id])
         if request is not None and has_flattened_params:
             raise ValueError(
                 "If the `request` argument is set, then none of "
@@ -1403,6 +1494,8 @@ class FeaturestoreServiceClient(metaclass=FeaturestoreServiceClientMeta):
                 request.parent = parent
             if feature is not None:
                 request.feature = feature
+            if feature_id is not None:
+                request.feature_id = feature_id
 
         # Wrap the RPC method; this adds retry and timeout information,
         # and friendly error handling.
@@ -1480,7 +1573,7 @@ class FeaturestoreServiceClient(metaclass=FeaturestoreServiceClientMeta):
 
         """
         # Create or coerce a protobuf request object.
-        # Sanity check: If we got a request object, we should *not* have
+        # Quick check: If we got a request object, we should *not* have
         # gotten any keyword arguments that map to the request.
         has_flattened_params = any([parent, requests])
         if request is not None and has_flattened_params:
@@ -1564,7 +1657,7 @@ class FeaturestoreServiceClient(metaclass=FeaturestoreServiceClientMeta):
 
         """
         # Create or coerce a protobuf request object.
-        # Sanity check: If we got a request object, we should *not* have
+        # Quick check: If we got a request object, we should *not* have
         # gotten any keyword arguments that map to the request.
         has_flattened_params = any([name])
         if request is not None and has_flattened_params:
@@ -1639,7 +1732,7 @@ class FeaturestoreServiceClient(metaclass=FeaturestoreServiceClientMeta):
 
         """
         # Create or coerce a protobuf request object.
-        # Sanity check: If we got a request object, we should *not* have
+        # Quick check: If we got a request object, we should *not* have
         # gotten any keyword arguments that map to the request.
         has_flattened_params = any([parent])
         if request is not None and has_flattened_params:
@@ -1741,7 +1834,7 @@ class FeaturestoreServiceClient(metaclass=FeaturestoreServiceClientMeta):
 
         """
         # Create or coerce a protobuf request object.
-        # Sanity check: If we got a request object, we should *not* have
+        # Quick check: If we got a request object, we should *not* have
         # gotten any keyword arguments that map to the request.
         has_flattened_params = any([feature, update_mask])
         if request is not None and has_flattened_params:
@@ -1830,7 +1923,7 @@ class FeaturestoreServiceClient(metaclass=FeaturestoreServiceClientMeta):
 
         """
         # Create or coerce a protobuf request object.
-        # Sanity check: If we got a request object, we should *not* have
+        # Quick check: If we got a request object, we should *not* have
         # gotten any keyword arguments that map to the request.
         has_flattened_params = any([name])
         if request is not None and has_flattened_params:
@@ -1935,7 +2028,7 @@ class FeaturestoreServiceClient(metaclass=FeaturestoreServiceClientMeta):
 
         """
         # Create or coerce a protobuf request object.
-        # Sanity check: If we got a request object, we should *not* have
+        # Quick check: If we got a request object, we should *not* have
         # gotten any keyword arguments that map to the request.
         has_flattened_params = any([entity_type])
         if request is not None and has_flattened_params:
@@ -2026,7 +2119,7 @@ class FeaturestoreServiceClient(metaclass=FeaturestoreServiceClientMeta):
 
         """
         # Create or coerce a protobuf request object.
-        # Sanity check: If we got a request object, we should *not* have
+        # Quick check: If we got a request object, we should *not* have
         # gotten any keyword arguments that map to the request.
         has_flattened_params = any([featurestore])
         if request is not None and has_flattened_params:
@@ -2115,7 +2208,7 @@ class FeaturestoreServiceClient(metaclass=FeaturestoreServiceClientMeta):
 
         """
         # Create or coerce a protobuf request object.
-        # Sanity check: If we got a request object, we should *not* have
+        # Quick check: If we got a request object, we should *not* have
         # gotten any keyword arguments that map to the request.
         has_flattened_params = any([entity_type])
         if request is not None and has_flattened_params:
@@ -2277,7 +2370,7 @@ class FeaturestoreServiceClient(metaclass=FeaturestoreServiceClientMeta):
 
         """
         # Create or coerce a protobuf request object.
-        # Sanity check: If we got a request object, we should *not* have
+        # Quick check: If we got a request object, we should *not* have
         # gotten any keyword arguments that map to the request.
         has_flattened_params = any([location, query])
         if request is not None and has_flattened_params:

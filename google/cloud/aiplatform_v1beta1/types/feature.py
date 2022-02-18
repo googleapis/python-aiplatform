@@ -65,9 +65,9 @@ class Feature(proto.Message):
             System reserved label keys are prefixed with
             "aiplatform.googleapis.com/" and are immutable.
         etag (str):
-            Used to perform a consistent read-modify-
-            rite updates. If not set, a blind "overwrite"
-            update happens.
+            Used to perform a consistent
+            read-modify-write updates. If not set, a blind
+            "overwrite" update happens.
         monitoring_config (google.cloud.aiplatform_v1beta1.types.FeaturestoreMonitoringConfig):
             Optional. The custom monitoring configuration for this
             Feature, if not set, use the monitoring_config defined for
@@ -85,7 +85,7 @@ class Feature(proto.Message):
             the EntityType's this Feature belongs to.
         monitoring_stats (Sequence[google.cloud.aiplatform_v1beta1.types.FeatureStatsAnomaly]):
             Output only. A list of historical [Snapshot
-            Analysis][google.cloud.aiplatform.master.FeaturestoreMonitoringConfig.SnapshotAnalysis]
+            Analysis][FeaturestoreMonitoringConfig.SnapshotAnalysis]
             stats requested by user, sorted by
             [FeatureStatsAnomaly.start_time][google.cloud.aiplatform.v1beta1.FeatureStatsAnomaly.start_time]
             descending.
