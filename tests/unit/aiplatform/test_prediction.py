@@ -336,6 +336,15 @@ class TestHandlerUtils:
 
         assert content_type == expected_content_type
 
+    def test_get_content_type_from_headers_with_parameter(self):
+        expected_content_type = "content_type"
+        content_type_with_parameter = f"{expected_content_type}; charset"
+        headers = Headers({"Content-Type": content_type_with_parameter})
+
+        content_type = handler_utils.get_content_type_from_headers(headers)
+
+        assert content_type == expected_content_type
+
     def test_get_content_type_from_headers_no_headers(self):
         headers = Headers({})
 
@@ -352,6 +361,15 @@ class TestHandlerUtils:
     def test_get_accept_from_headers(self, header_keys):
         expected_accept = "accept"
         headers = Headers({header_keys: expected_accept})
+
+        accept = handler_utils.get_accept_from_headers(headers)
+
+        assert accept == expected_accept
+
+    def test_get_accept_from_headers_with_parameter(self):
+        expected_accept = "accept"
+        accept_with_parameter = f"{expected_accept}; charset"
+        headers = Headers({"Accept": accept_with_parameter})
 
         accept = handler_utils.get_accept_from_headers(headers)
 
