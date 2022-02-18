@@ -2870,7 +2870,7 @@ class JobServiceClient(metaclass=JobServiceClientMeta):
             model_deployment_monitoring_job (str):
                 Required. ModelDeploymentMonitoring Job resource name.
                 Format:
-                \`projects/{project}/locations/{location}/modelDeploymentMonitoringJobs/{model_deployment_monitoring_job}
+                ``projects/{project}/locations/{location}/modelDeploymentMonitoringJobs/{model_deployment_monitoring_job}``
 
                 This corresponds to the ``model_deployment_monitoring_job`` field
                 on the ``request`` instance; if ``request`` is provided, this
