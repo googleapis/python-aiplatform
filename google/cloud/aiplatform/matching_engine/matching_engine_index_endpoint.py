@@ -806,17 +806,17 @@ class MatchingEngineIndexEndpoint(base.VertexAiResourceNounWithFutureManager):
             return request
 
         batch_request = match_service_pb2.BatchMatchRequest()
-        batch_request_ann = (
+        batch_request_for_index = (
             match_service_pb2.BatchMatchRequest.BatchMatchRequestPerIndex()
         )
 
-        batch_request_ann.deployed_index_id = deployed_index_id
-        batch_request_ann.requests.extend(
+        batch_request_for_index.deployed_index_id = deployed_index_id
+        batch_request_for_index.requests.extend(
             [get_request(query, deployed_index_id) for query in queries]
         )
 
-        batch_request.requests.append(batch_request_ann)
+        batch_request.requests.append(batch_request_for_index)
 
         response = stub.BatchMatch(batch_request)
 
-        return response
+        return response.responses[0]

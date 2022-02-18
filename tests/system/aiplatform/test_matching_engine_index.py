@@ -38,8 +38,8 @@ _TEST_LEAF_NODE_EMBEDDING_COUNT = 123
 _TEST_LEAF_NODES_TO_SEARCH_PERCENT = 50
 
 
-_TEST_CONTENTS_DELTA_URI = f"gs://ivanmkc-test2/matching-engine/initial"
-_TEST_CONTENTS_DELTA_URI_UPDATE = "gs://ivanmkc-test2/matching-engine/incremental"
+_TEST_CONTENTS_DELTA_URI = f"gs://cloud-samples-data-us-central1/vertex-ai/matching_engine/glove100/initial"
+_TEST_CONTENTS_DELTA_URI_UPDATE = "gs://cloud-samples-data-us-central1/vertex-ai/matching_engine/glove100/incremental"
 _TEST_IS_COMPLETE_OVERWRITE = True
 _TEST_INDEX_DISTANCE_MEASURE_TYPE = "SQUARED_L2_DISTANCE"
 
