@@ -378,16 +378,16 @@ def create_index_endpoint_mock():
         yield create_index_endpoint_mock
 
 
-@pytest.fixture
-def match_mock():
-    """Mocks the match method"""
-    with patch.object(
-        match_service_pb2_grpc.MatchServiceStub, "BatchMatch"
-    ) as match_mock:
-        match_lro_mock = mock.Mock(operation.Operation)
-        match_lro_mock.result.return_value = "TODO"
-        match_mock.return_value = match_lro_mock
-        yield match_mock
+# @pytest.fixture
+# def match_mock():
+#     """Mocks the match method"""
+#     with patch.object(
+#         match_service_pb2_grpc.MatchServiceStub, "BatchMatch"
+#     ) as match_mock:
+#         match_lro_mock = mock.Mock(operation.Operation)
+#         match_lro_mock.result.return_value = "TODO"
+#         match_mock.return_value = match_lro_mock
+#         yield match_mock
 
 
 class TestMatchingEngineIndexEndpoint:
@@ -627,20 +627,20 @@ class TestMatchingEngineIndexEndpoint:
             name=_TEST_INDEX_ENDPOINT_NAME
         )
 
-    @pytest.mark.usefixtures("get_index_endpoint_mock")
-    @pytest.mark.parametrize("sync", [True, False])
-    def test_match(self, match_mock, sync):
+    # @pytest.mark.usefixtures("get_index_endpoint_mock")
+    # @pytest.mark.parametrize("sync", [True, False])
+    # def test_match(self, match_mock, sync):
 
-        my_index_endpoint = aiplatform.MatchingEngineIndexEndpoint(
-            index_endpoint_name=_TEST_INDEX_ENDPOINT_NAME
-        )
+    #     my_index_endpoint = aiplatform.MatchingEngineIndexEndpoint(
+    #         index_endpoint_name=_TEST_INDEX_ENDPOINT_NAME
+    #     )
 
-        response = my_index_endpoint.match(
-            deployed_index_id=_TEST_DEPLOYED_INDEX_ID,
-            queries=_TEST_QUERIES,
-            num_neighbors=_TEST_NUM_NEIGHBOURS,
-        )
+    #     response = my_index_endpoint.match(
+    #         deployed_index_id=_TEST_DEPLOYED_INDEX_ID,
+    #         queries=_TEST_QUERIES,
+    #         num_neighbors=_TEST_NUM_NEIGHBOURS,
+    #     )
 
-        match_mock.assert_called_once_with(name=_TEST_INDEX_ENDPOINT_NAME)
+    #     match_mock.assert_called_once_with(name=_TEST_INDEX_ENDPOINT_NAME)
 
-        assert response == "TODO"
+    #     assert response == "TODO"
