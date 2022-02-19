@@ -28,7 +28,7 @@ from google.cloud.aiplatform.compat.types import (
 from google.cloud.aiplatform import initializer
 from google.cloud.aiplatform import utils
 
-import google.cloud.aiplatform.matching_engine.matching_engine_index_config as matching_engine_index_config
+from google.cloud.aiplatform.matching_engine import matching_engine_index_config
 
 _LOGGER = base.Logger(__name__)
 

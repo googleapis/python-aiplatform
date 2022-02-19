@@ -15,6 +15,7 @@
 # limitations under the License.
 #
 
+from dataclasses import dataclass
 from typing import Dict, List, Optional, Sequence, Tuple
 
 from google.auth import credentials as auth_credentials
@@ -35,6 +36,12 @@ from google.cloud.aiplatform.matching_engine import match_service_pb2_grpc
 import grpc
 
 _LOGGER = base.Logger(__name__)
+
+
+@dataclass
+class MatchNeighbor:
+    id: str
+    distance: float
 
 
 class MatchingEngineIndexEndpoint(base.VertexAiResourceNounWithFutureManager):
@@ -765,15 +772,7 @@ class MatchingEngineIndexEndpoint(base.VertexAiResourceNounWithFutureManager):
 
     def match(
         self, deployed_index_id: str, queries: List[List[float]], num_neighbors: int = 1
-    ) -> List["MatchResponse"]:
-
-        # def match(
-        #     self,
-        #     deployed_index_ids: List[str],
-        #     queries: List[List[float]],
-        #     num_neighbors: int = 1
-        # ) -> List[gca_matching_engine_index_endpoint.DeployedIndex]:
-
+    ) -> List[List[MatchNeighbor]]:
         deployed_indexes = [
             deployed_index
             for deployed_index in self.deployed_indexes

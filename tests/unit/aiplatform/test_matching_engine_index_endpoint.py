@@ -574,7 +574,6 @@ class TestMatchingEngineIndexEndpoint:
             index_endpoint=_TEST_INDEX_ENDPOINT_NAME,
             deployed_index=gca_matching_engine_index_endpoint.DeployedIndex(
                 id=_TEST_DEPLOYED_INDEX_ID,
-                index=_TEST_INDEX_NAME,
                 automatic_resources={
                     "min_replica_count": _TEST_MIN_REPLICA_COUNT_UPDATED,
                     "max_replica_count": _TEST_MAX_REPLICA_COUNT_UPDATED,
