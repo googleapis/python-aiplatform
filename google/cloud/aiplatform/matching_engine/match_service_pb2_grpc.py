@@ -2,7 +2,7 @@
 """Client and server classes corresponding to protobuf-defined services."""
 import grpc
 
-import google.cloud.aiplatform.matching_engine.match_service_pb2 as match__service__pb2
+from google.cloud.aiplatform.matching_engine import match_service_pb2
 
 
 class MatchServiceStub(object):
@@ -18,13 +18,13 @@ class MatchServiceStub(object):
         """
         self.Match = channel.unary_unary(
             "/google.cloud.aiplatform.container.v1beta1.MatchService/Match",
-            request_serializer=match__service__pb2.MatchRequest.SerializeToString,
-            response_deserializer=match__service__pb2.MatchResponse.FromString,
+            request_serializer=match_service_pb2.MatchRequest.SerializeToString,
+            response_deserializer=match_service_pb2.MatchResponse.FromString,
         )
         self.BatchMatch = channel.unary_unary(
             "/google.cloud.aiplatform.container.v1beta1.MatchService/BatchMatch",
-            request_serializer=match__service__pb2.BatchMatchRequest.SerializeToString,
-            response_deserializer=match__service__pb2.BatchMatchResponse.FromString,
+            request_serializer=match_service_pb2.BatchMatchRequest.SerializeToString,
+            response_deserializer=match_service_pb2.BatchMatchResponse.FromString,
         )
 
 
@@ -54,13 +54,13 @@ def add_MatchServiceServicer_to_server(servicer, server):
     rpc_method_handlers = {
         "Match": grpc.unary_unary_rpc_method_handler(
             servicer.Match,
-            request_deserializer=match__service__pb2.MatchRequest.FromString,
-            response_serializer=match__service__pb2.MatchResponse.SerializeToString,
+            request_deserializer=match_service_pb2.MatchRequest.FromString,
+            response_serializer=match_service_pb2.MatchResponse.SerializeToString,
         ),
         "BatchMatch": grpc.unary_unary_rpc_method_handler(
             servicer.BatchMatch,
-            request_deserializer=match__service__pb2.BatchMatchRequest.FromString,
-            response_serializer=match__service__pb2.BatchMatchResponse.SerializeToString,
+            request_deserializer=match_service_pb2.BatchMatchRequest.FromString,
+            response_serializer=match_service_pb2.BatchMatchResponse.SerializeToString,
         ),
     }
     generic_handler = grpc.method_handlers_generic_handler(
@@ -92,8 +92,8 @@ class MatchService(object):
             request,
             target,
             "/google.cloud.aiplatform.container.v1beta1.MatchService/Match",
-            match__service__pb2.MatchRequest.SerializeToString,
-            match__service__pb2.MatchResponse.FromString,
+            match_service_pb2.MatchRequest.SerializeToString,
+            match_service_pb2.MatchResponse.FromString,
             options,
             channel_credentials,
             insecure,
@@ -121,8 +121,8 @@ class MatchService(object):
             request,
             target,
             "/google.cloud.aiplatform.container.v1beta1.MatchService/BatchMatch",
-            match__service__pb2.BatchMatchRequest.SerializeToString,
-            match__service__pb2.BatchMatchResponse.FromString,
+            match_service_pb2.BatchMatchRequest.SerializeToString,
+            match_service_pb2.BatchMatchResponse.FromString,
             options,
             channel_credentials,
             insecure,
