@@ -807,4 +807,11 @@ class MatchingEngineIndexEndpoint(base.VertexAiResourceNounWithFutureManager):
 
         response = stub.BatchMatch(batch_request)
 
-        return response.responses[0]
+        return [
+            [
+                MatchNeighbor(id=neighbor.id, distance=neighbor.distance)
+                for neighbor in embedding_neighbors.neighbor
+            ]
+            for embedding_neighbors in response.responses[0].responses
+        ]
+
