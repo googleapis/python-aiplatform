@@ -32,7 +32,7 @@ _, _TEST_PROJECT = google_auth.default()
 _TEST_LOCATION = "us-central1"
 
 _TIMESTAMP = f"{datetime.datetime.now().strftime('%Y%m%d_%H%M%S')}"
-_IMAGE_URI = f"gcr.io/cloud-ml-e2e-testing/chunhsiang-cpr/cpr:{_TIMESTAMP}"
+_IMAGE_URI = f"gcr.io/ucaip-sample-tests/prediction-cpr/sklearn:{_TIMESTAMP}"
 _DIR_NAME = os.path.dirname(os.path.abspath(__file__))
 _USER_CODE_DIR = os.path.join(_DIR_NAME, "test_resources/cpr_user_code")
 _REQUIREMENTS_FILE = "requirements.txt"
