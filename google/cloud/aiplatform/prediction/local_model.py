@@ -54,7 +54,7 @@ class LocalModel:
         serving_container_environment_variables: Optional[Dict[str, str]] = None,
         serving_container_ports: Optional[Sequence[int]] = None,
     ) -> "LocalModel":
-        """Creates a local model from a built image and given container spec.
+        """Creates a local model from an existing image and given container spec.
 
         Args:
             serving_container_image_uri (str):
