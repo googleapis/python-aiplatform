@@ -575,10 +575,6 @@ class MatchingEngineIndexEndpoint(base.VertexAiResourceNounWithFutureManager):
             deployed_index_id (str):
                 Required. The ID of the DeployedIndex
                 to be undeployed from the IndexEndpoint.
-
-                This corresponds to the ``deployed_index_id`` field
-                on the ``request`` instance; if ``request`` is provided, this
-                should not be set.
             request_metadata (Sequence[Tuple[str, str]]):
                 Optional. Strings which should be sent along with the request as metadata.
         Returns:
@@ -773,6 +769,21 @@ class MatchingEngineIndexEndpoint(base.VertexAiResourceNounWithFutureManager):
     def match(
         self, deployed_index_id: str, queries: List[List[float]], num_neighbors: int = 1
     ) -> List[List[MatchNeighbor]]:
+        """Retrieves nearest neighbors for the given embedding queries on the specified deployed index.
+
+        Args:
+            deployed_index_id (str):
+                Required. The ID of the DeployedIndex to match the queries against.
+            queries (List[List[float]]):
+                Required. A list of queries. Each query is a list of floats, representing a single embedding.
+            num_neighbors (int):
+                Required. The number of nearest neighbors to be retrieved from database for
+                each query.
+
+        Returns:
+            List[List[MatchNeighbor]] - A list of nearest neighbors for each query.
+        """
+
         deployed_indexes = [
             deployed_index
             for deployed_index in self.deployed_indexes
