@@ -788,9 +788,12 @@ class MatchingEngineIndexEndpoint(base.VertexAiResourceNounWithFutureManager):
         stub = match_service_pb2_grpc.MatchServiceStub(channel)
 
         def get_request(embedding, deployed_index_id):
-            request = match_service_pb2.MatchRequest(num_neighbors=num_neighbors)
-            request.deployed_index_id = deployed_index_id
-            request.float_val.extend(embedding)
+            request = match_service_pb2.MatchRequest(
+                num_neighbors=num_neighbors,
+                deployed_index_id=deployed_index_id,
+                float_val=embedding,
+            )
+
             return request
 
         batch_request = match_service_pb2.BatchMatchRequest()
