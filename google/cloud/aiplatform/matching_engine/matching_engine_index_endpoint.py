@@ -814,4 +814,3 @@ class MatchingEngineIndexEndpoint(base.VertexAiResourceNounWithFutureManager):
             ]
             for embedding_neighbors in response.responses[0].responses
         ]
-
