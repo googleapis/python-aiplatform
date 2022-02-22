@@ -53,14 +53,14 @@ _TEST_PARENT = f"projects/{_TEST_PROJECT}/locations/{_TEST_LOCATION}"
 # index
 _TEST_INDEX_ID = "index_id"
 _TEST_INDEX_NAME = f"{_TEST_PARENT}/indexes/{_TEST_INDEX_ID}"
-_TEST_INDEX_DISPLAY_NAME = f"index_display_name"
+_TEST_INDEX_DISPLAY_NAME = "index_display_name"
 
 # index_endpoint
 _TEST_INDEX_ENDPOINT_ID = "index_endpoint_id"
 _TEST_INDEX_ENDPOINT_NAME = f"{_TEST_PARENT}/indexEndpoints/{_TEST_INDEX_ENDPOINT_ID}"
-_TEST_INDEX_ENDPOINT_DISPLAY_NAME = f"index_endpoint_display_name"
-_TEST_INDEX_ENDPOINT_DESCRIPTION = f"index_endpoint_description"
-_TEST_INDEX_DESCRIPTION = f"index_description"
+_TEST_INDEX_ENDPOINT_DISPLAY_NAME = "index_endpoint_display_name"
+_TEST_INDEX_ENDPOINT_DESCRIPTION = "index_endpoint_description"
+_TEST_INDEX_DESCRIPTION = "index_description"
 
 _TEST_LABELS = {"my_key": "my_value"}
 _TEST_DISPLAY_NAME_UPDATE = "my new display name"
@@ -68,8 +68,8 @@ _TEST_DESCRIPTION_UPDATE = "my description update"
 _TEST_LABELS_UPDATE = {"my_key_update": "my_value_update"}
 
 # deployment
-_TEST_DEPLOYED_INDEX_ID = f"deployed_index_id"
-_TEST_DEPLOYED_INDEX_DISPLAY_NAME = f"deployed_index_display_name"
+_TEST_DEPLOYED_INDEX_ID = "deployed_index_id"
+_TEST_DEPLOYED_INDEX_DISPLAY_NAME = "deployed_index_display_name"
 _TEST_MIN_REPLICA_COUNT = 2
 _TEST_MAX_REPLICA_COUNT = 2
 _TEST_ENABLE_ACCESS_LOGGING = False

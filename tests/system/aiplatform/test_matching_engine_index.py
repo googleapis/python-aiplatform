@@ -15,12 +15,7 @@
 # limitations under the License.
 #
 
-from datetime import datetime
-
-import google.auth
 from google.cloud import aiplatform
-
-import os
 
 from tests.system.aiplatform import e2e_base
 from google.cloud.aiplatform.compat.types import (
@@ -28,8 +23,8 @@ from google.cloud.aiplatform.compat.types import (
 )
 
 # project
-_TEST_INDEX_DISPLAY_NAME = f"index_display_name"
-_TEST_INDEX_DESCRIPTION = f"index_description"
+_TEST_INDEX_DISPLAY_NAME = "index_display_name"
+_TEST_INDEX_DESCRIPTION = "index_description"
 _TEST_INDEX_DISTANCE_MEASURE_TYPE = "SQUARED_L2_DISTANCE"
 
 _TEST_INDEX_CONFIG_DIMENSIONS = 100
@@ -39,7 +34,7 @@ _TEST_LEAF_NODES_TO_SEARCH_PERCENT = 50
 
 
 _TEST_CONTENTS_DELTA_URI = (
-    f"gs://cloud-samples-data-us-central1/vertex-ai/matching_engine/glove100/initial"
+    "gs://cloud-samples-data-us-central1/vertex-ai/matching_engine/glove100/initial"
 )
 _TEST_CONTENTS_DELTA_URI_UPDATE = (
     "gs://cloud-samples-data-us-central1/vertex-ai/matching_engine/glove100/incremental"
@@ -62,8 +57,8 @@ _TEST_INDEX_ENDPOINT_VPC_NETWORK = "projects/{}/global/networks/{}".format(
 )
 
 # DEPLOYED INDEX
-_TEST_DEPLOYED_INDEX_ID = f"deployed_index_id"
-_TEST_DEPLOYED_INDEX_DISPLAY_NAME = f"deployed_index_display_name"
+_TEST_DEPLOYED_INDEX_ID = "deployed_index_id"
+_TEST_DEPLOYED_INDEX_DISPLAY_NAME = "deployed_index_display_name"
 _TEST_MIN_REPLICA_COUNT_UPDATED = 4
 _TEST_MAX_REPLICA_COUNT_UPDATED = 4
 

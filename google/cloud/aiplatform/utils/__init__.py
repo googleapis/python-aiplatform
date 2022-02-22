@@ -47,8 +47,6 @@ from google.cloud.aiplatform.compat.services import (
     pipeline_service_client_v1beta1,
     prediction_service_client_v1beta1,
     tensorboard_service_client_v1beta1,
-    index_service_client_v1beta1,
-    index_endpoint_service_client_v1beta1,
 )
 from google.cloud.aiplatform.compat.services import (
     dataset_service_client_v1,
