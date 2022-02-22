@@ -112,7 +112,6 @@ setuptools.setup(
         "cloud_profiler": profiler_extra_require,
     },
     python_requires=">=3.6",
-    scripts=[],
     classifiers=[
         "Development Status :: 5 - Production/Stable",
         "Intended Audience :: Developers",
