@@ -28,20 +28,18 @@ from google.cloud import aiplatform_v1beta1
 
 
 def sample_get_model_deployment_monitoring_job():
-    """Snippet for get_model_deployment_monitoring_job"""
-
     # Create a client
     client = aiplatform_v1beta1.JobServiceClient()
 
     # Initialize request argument(s)
     request = aiplatform_v1beta1.GetModelDeploymentMonitoringJobRequest(
-        name="projects/{project}/locations/{location}/modelDeploymentMonitoringJobs/{model_deployment_monitoring_job}",
+        name="name_value",
     )
 
     # Make the request
     response = client.get_model_deployment_monitoring_job(request=request)
 
-    # Handle response
+    # Handle the response
     print(response)
 
 # [END aiplatform_generated_aiplatform_v1beta1_JobService_GetModelDeploymentMonitoringJob_sync]

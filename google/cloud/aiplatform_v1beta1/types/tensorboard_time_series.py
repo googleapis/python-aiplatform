@@ -49,9 +49,9 @@ class TensorboardTimeSeries(proto.Message):
             Output only. Timestamp when this
             TensorboardTimeSeries was last updated.
         etag (str):
-            Used to perform a consistent read-modify-
-            rite updates. If not set, a blind "overwrite"
-            update happens.
+            Used to perform a consistent
+            read-modify-write updates. If not set, a blind
+            "overwrite" update happens.
         plugin_name (str):
             Immutable. Name of the plugin this time
             series pertain to. Such as Scalar, Tensor, Blob

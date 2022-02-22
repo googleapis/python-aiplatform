@@ -28,20 +28,18 @@ from google.cloud import aiplatform_v1beta1
 
 
 async def sample_create_execution():
-    """Snippet for create_execution"""
-
     # Create a client
     client = aiplatform_v1beta1.MetadataServiceAsyncClient()
 
     # Initialize request argument(s)
     request = aiplatform_v1beta1.CreateExecutionRequest(
-        parent="projects/{project}/locations/{location}/metadataStores/{metadata_store}",
+        parent="parent_value",
     )
 
     # Make the request
     response = await client.create_execution(request=request)
 
-    # Handle response
+    # Handle the response
     print(response)
 
 # [END aiplatform_generated_aiplatform_v1beta1_MetadataService_CreateExecution_async]

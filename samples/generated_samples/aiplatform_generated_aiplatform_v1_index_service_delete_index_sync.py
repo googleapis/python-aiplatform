@@ -28,14 +28,12 @@ from google.cloud import aiplatform_v1
 
 
 def sample_delete_index():
-    """Snippet for delete_index"""
-
     # Create a client
     client = aiplatform_v1.IndexServiceClient()
 
     # Initialize request argument(s)
     request = aiplatform_v1.DeleteIndexRequest(
-        name="projects/{project}/locations/{location}/indexes/{index}",
+        name="name_value",
     )
 
     # Make the request
@@ -44,6 +42,8 @@ def sample_delete_index():
     print("Waiting for operation to complete...")
 
     response = operation.result()
+
+    # Handle the response
     print(response)
 
 # [END aiplatform_generated_aiplatform_v1_IndexService_DeleteIndex_sync]

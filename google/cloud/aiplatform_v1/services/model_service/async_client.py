@@ -16,7 +16,7 @@
 from collections import OrderedDict
 import functools
 import re
-from typing import Dict, Sequence, Tuple, Type, Union
+from typing import Dict, Optional, Sequence, Tuple, Type, Union
 import pkg_resources
 
 from google.api_core.client_options import ClientOptions
@@ -132,6 +132,42 @@ class ModelServiceAsyncClient:
 
     from_service_account_json = from_service_account_file
 
+    @classmethod
+    def get_mtls_endpoint_and_cert_source(
+        cls, client_options: Optional[ClientOptions] = None
+    ):
+        """Return the API endpoint and client cert source for mutual TLS.
+
+        The client cert source is determined in the following order:
+        (1) if `GOOGLE_API_USE_CLIENT_CERTIFICATE` environment variable is not "true", the
+        client cert source is None.
+        (2) if `client_options.client_cert_source` is provided, use the provided one; if the
+        default client cert source exists, use the default one; otherwise the client cert
+        source is None.
+
+        The API endpoint is determined in the following order:
+        (1) if `client_options.api_endpoint` if provided, use the provided one.
+        (2) if `GOOGLE_API_USE_CLIENT_CERTIFICATE` environment variable is "always", use the
+        default mTLS endpoint; if the environment variabel is "never", use the default API
+        endpoint; otherwise if client cert source exists, use the default mTLS endpoint, otherwise
+        use the default API endpoint.
+
+        More details can be found at https://google.aip.dev/auth/4114.
+
+        Args:
+            client_options (google.api_core.client_options.ClientOptions): Custom options for the
+                client. Only the `api_endpoint` and `client_cert_source` properties may be used
+                in this method.
+
+        Returns:
+            Tuple[str, Callable[[], Tuple[bytes, bytes]]]: returns the API endpoint and the
+                client cert source to use.
+
+        Raises:
+            google.auth.exceptions.MutualTLSChannelError: If any errors happen.
+        """
+        return ModelServiceClient.get_mtls_endpoint_and_cert_source(client_options)  # type: ignore
+
     @property
     def transport(self) -> ModelServiceTransport:
         """Returns the transport used by the client instance.
@@ -204,6 +240,33 @@ class ModelServiceAsyncClient:
     ) -> operation_async.AsyncOperation:
         r"""Uploads a Model artifact into Vertex AI.
 
+        .. code-block::
+
+            from google.cloud import aiplatform_v1
+
+            def sample_upload_model():
+                # Create a client
+                client = aiplatform_v1.ModelServiceClient()
+
+                # Initialize request argument(s)
+                model = aiplatform_v1.Model()
+                model.display_name = "display_name_value"
+
+                request = aiplatform_v1.UploadModelRequest(
+                    parent="parent_value",
+                    model=model,
+                )
+
+                # Make the request
+                operation = client.upload_model(request=request)
+
+                print("Waiting for operation to complete...")
+
+                response = operation.result()
+
+                # Handle the response
+                print(response)
+
         Args:
             request (Union[google.cloud.aiplatform_v1.types.UploadModelRequest, dict]):
                 The request object. Request message for
@@ -239,7 +302,7 @@ class ModelServiceAsyncClient:
 
         """
         # Create or coerce a protobuf request object.
-        # Sanity check: If we got a request object, we should *not* have
+        # Quick check: If we got a request object, we should *not* have
         # gotten any keyword arguments that map to the request.
         has_flattened_params = any([parent, model])
         if request is not None and has_flattened_params:
@@ -296,6 +359,25 @@ class ModelServiceAsyncClient:
     ) -> model.Model:
         r"""Gets a Model.
 
+        .. code-block::
+
+            from google.cloud import aiplatform_v1
+
+            def sample_get_model():
+                # Create a client
+                client = aiplatform_v1.ModelServiceClient()
+
+                # Initialize request argument(s)
+                request = aiplatform_v1.GetModelRequest(
+                    name="name_value",
+                )
+
+                # Make the request
+                response = client.get_model(request=request)
+
+                # Handle the response
+                print(response)
+
         Args:
             request (Union[google.cloud.aiplatform_v1.types.GetModelRequest, dict]):
                 The request object. Request message for
@@ -318,7 +400,7 @@ class ModelServiceAsyncClient:
                 A trained machine learning Model.
         """
         # Create or coerce a protobuf request object.
-        # Sanity check: If we got a request object, we should *not* have
+        # Quick check: If we got a request object, we should *not* have
         # gotten any keyword arguments that map to the request.
         has_flattened_params = any([name])
         if request is not None and has_flattened_params:
@@ -365,6 +447,26 @@ class ModelServiceAsyncClient:
     ) -> pagers.ListModelsAsyncPager:
         r"""Lists Models in a Location.
 
+        .. code-block::
+
+            from google.cloud import aiplatform_v1
+
+            def sample_list_models():
+                # Create a client
+                client = aiplatform_v1.ModelServiceClient()
+
+                # Initialize request argument(s)
+                request = aiplatform_v1.ListModelsRequest(
+                    parent="parent_value",
+                )
+
+                # Make the request
+                page_result = client.list_models(request=request)
+
+                # Handle the response
+                for response in page_result:
+                    print(response)
+
         Args:
             request (Union[google.cloud.aiplatform_v1.types.ListModelsRequest, dict]):
                 The request object. Request message for
@@ -393,7 +495,7 @@ class ModelServiceAsyncClient:
 
         """
         # Create or coerce a protobuf request object.
-        # Sanity check: If we got a request object, we should *not* have
+        # Quick check: If we got a request object, we should *not* have
         # gotten any keyword arguments that map to the request.
         has_flattened_params = any([parent])
         if request is not None and has_flattened_params:
@@ -447,6 +549,28 @@ class ModelServiceAsyncClient:
     ) -> gca_model.Model:
         r"""Updates a Model.
 
+        .. code-block::
+
+            from google.cloud import aiplatform_v1
+
+            def sample_update_model():
+                # Create a client
+                client = aiplatform_v1.ModelServiceClient()
+
+                # Initialize request argument(s)
+                model = aiplatform_v1.Model()
+                model.display_name = "display_name_value"
+
+                request = aiplatform_v1.UpdateModelRequest(
+                    model=model,
+                )
+
+                # Make the request
+                response = client.update_model(request=request)
+
+                # Handle the response
+                print(response)
+
         Args:
             request (Union[google.cloud.aiplatform_v1.types.UpdateModelRequest, dict]):
                 The request object. Request message for
@@ -477,7 +601,7 @@ class ModelServiceAsyncClient:
                 A trained machine learning Model.
         """
         # Create or coerce a protobuf request object.
-        # Sanity check: If we got a request object, we should *not* have
+        # Quick check: If we got a request object, we should *not* have
         # gotten any keyword arguments that map to the request.
         has_flattened_params = any([model, update_mask])
         if request is not None and has_flattened_params:
@@ -535,6 +659,30 @@ class ModelServiceAsyncClient:
         [deployed_models][google.cloud.aiplatform.v1.Endpoint.deployed_models]
         field.
 
+
+        .. code-block::
+
+            from google.cloud import aiplatform_v1
+
+            def sample_delete_model():
+                # Create a client
+                client = aiplatform_v1.ModelServiceClient()
+
+                # Initialize request argument(s)
+                request = aiplatform_v1.DeleteModelRequest(
+                    name="name_value",
+                )
+
+                # Make the request
+                operation = client.delete_model(request=request)
+
+                print("Waiting for operation to complete...")
+
+                response = operation.result()
+
+                # Handle the response
+                print(response)
+
         Args:
             request (Union[google.cloud.aiplatform_v1.types.DeleteModelRequest, dict]):
                 The request object. Request message for
@@ -573,7 +721,7 @@ class ModelServiceAsyncClient:
 
         """
         # Create or coerce a protobuf request object.
-        # Sanity check: If we got a request object, we should *not* have
+        # Quick check: If we got a request object, we should *not* have
         # gotten any keyword arguments that map to the request.
         has_flattened_params = any([name])
         if request is not None and has_flattened_params:
@@ -632,6 +780,30 @@ class ModelServiceAsyncClient:
         least one [supported export
         format][google.cloud.aiplatform.v1.Model.supported_export_formats].
 
+
+        .. code-block::
+
+            from google.cloud import aiplatform_v1
+
+            def sample_export_model():
+                # Create a client
+                client = aiplatform_v1.ModelServiceClient()
+
+                # Initialize request argument(s)
+                request = aiplatform_v1.ExportModelRequest(
+                    name="name_value",
+                )
+
+                # Make the request
+                operation = client.export_model(request=request)
+
+                print("Waiting for operation to complete...")
+
+                response = operation.result()
+
+                # Handle the response
+                print(response)
+
         Args:
             request (Union[google.cloud.aiplatform_v1.types.ExportModelRequest, dict]):
                 The request object. Request message for
@@ -668,7 +840,7 @@ class ModelServiceAsyncClient:
 
         """
         # Create or coerce a protobuf request object.
-        # Sanity check: If we got a request object, we should *not* have
+        # Quick check: If we got a request object, we should *not* have
         # gotten any keyword arguments that map to the request.
         has_flattened_params = any([name, output_config])
         if request is not None and has_flattened_params:
@@ -725,6 +897,25 @@ class ModelServiceAsyncClient:
     ) -> model_evaluation.ModelEvaluation:
         r"""Gets a ModelEvaluation.
 
+        .. code-block::
+
+            from google.cloud import aiplatform_v1
+
+            def sample_get_model_evaluation():
+                # Create a client
+                client = aiplatform_v1.ModelServiceClient()
+
+                # Initialize request argument(s)
+                request = aiplatform_v1.GetModelEvaluationRequest(
+                    name="name_value",
+                )
+
+                # Make the request
+                response = client.get_model_evaluation(request=request)
+
+                # Handle the response
+                print(response)
+
         Args:
             request (Union[google.cloud.aiplatform_v1.types.GetModelEvaluationRequest, dict]):
                 The request object. Request message for
@@ -752,7 +943,7 @@ class ModelServiceAsyncClient:
 
         """
         # Create or coerce a protobuf request object.
-        # Sanity check: If we got a request object, we should *not* have
+        # Quick check: If we got a request object, we should *not* have
         # gotten any keyword arguments that map to the request.
         has_flattened_params = any([name])
         if request is not None and has_flattened_params:
@@ -799,6 +990,26 @@ class ModelServiceAsyncClient:
     ) -> pagers.ListModelEvaluationsAsyncPager:
         r"""Lists ModelEvaluations in a Model.
 
+        .. code-block::
+
+            from google.cloud import aiplatform_v1
+
+            def sample_list_model_evaluations():
+                # Create a client
+                client = aiplatform_v1.ModelServiceClient()
+
+                # Initialize request argument(s)
+                request = aiplatform_v1.ListModelEvaluationsRequest(
+                    parent="parent_value",
+                )
+
+                # Make the request
+                page_result = client.list_model_evaluations(request=request)
+
+                # Handle the response
+                for response in page_result:
+                    print(response)
+
         Args:
             request (Union[google.cloud.aiplatform_v1.types.ListModelEvaluationsRequest, dict]):
                 The request object. Request message for
@@ -827,7 +1038,7 @@ class ModelServiceAsyncClient:
 
         """
         # Create or coerce a protobuf request object.
-        # Sanity check: If we got a request object, we should *not* have
+        # Quick check: If we got a request object, we should *not* have
         # gotten any keyword arguments that map to the request.
         has_flattened_params = any([parent])
         if request is not None and has_flattened_params:
@@ -880,6 +1091,25 @@ class ModelServiceAsyncClient:
     ) -> model_evaluation_slice.ModelEvaluationSlice:
         r"""Gets a ModelEvaluationSlice.
 
+        .. code-block::
+
+            from google.cloud import aiplatform_v1
+
+            def sample_get_model_evaluation_slice():
+                # Create a client
+                client = aiplatform_v1.ModelServiceClient()
+
+                # Initialize request argument(s)
+                request = aiplatform_v1.GetModelEvaluationSliceRequest(
+                    name="name_value",
+                )
+
+                # Make the request
+                response = client.get_model_evaluation_slice(request=request)
+
+                # Handle the response
+                print(response)
+
         Args:
             request (Union[google.cloud.aiplatform_v1.types.GetModelEvaluationSliceRequest, dict]):
                 The request object. Request message for
@@ -907,7 +1137,7 @@ class ModelServiceAsyncClient:
 
         """
         # Create or coerce a protobuf request object.
-        # Sanity check: If we got a request object, we should *not* have
+        # Quick check: If we got a request object, we should *not* have
         # gotten any keyword arguments that map to the request.
         has_flattened_params = any([name])
         if request is not None and has_flattened_params:
@@ -954,6 +1184,26 @@ class ModelServiceAsyncClient:
     ) -> pagers.ListModelEvaluationSlicesAsyncPager:
         r"""Lists ModelEvaluationSlices in a ModelEvaluation.
 
+        .. code-block::
+
+            from google.cloud import aiplatform_v1
+
+            def sample_list_model_evaluation_slices():
+                # Create a client
+                client = aiplatform_v1.ModelServiceClient()
+
+                # Initialize request argument(s)
+                request = aiplatform_v1.ListModelEvaluationSlicesRequest(
+                    parent="parent_value",
+                )
+
+                # Make the request
+                page_result = client.list_model_evaluation_slices(request=request)
+
+                # Handle the response
+                for response in page_result:
+                    print(response)
+
         Args:
             request (Union[google.cloud.aiplatform_v1.types.ListModelEvaluationSlicesRequest, dict]):
                 The request object. Request message for
@@ -982,7 +1232,7 @@ class ModelServiceAsyncClient:
 
         """
         # Create or coerce a protobuf request object.
-        # Sanity check: If we got a request object, we should *not* have
+        # Quick check: If we got a request object, we should *not* have
         # gotten any keyword arguments that map to the request.
         has_flattened_params = any([parent])
         if request is not None and has_flattened_params:

@@ -28,8 +28,6 @@ from google.cloud import aiplatform_v1beta1
 
 
 async def sample_update_index():
-    """Snippet for update_index"""
-
     # Create a client
     client = aiplatform_v1beta1.IndexServiceAsyncClient()
 
@@ -47,6 +45,8 @@ async def sample_update_index():
     print("Waiting for operation to complete...")
 
     response = await operation.result()
+
+    # Handle the response
     print(response)
 
 # [END aiplatform_generated_aiplatform_v1beta1_IndexService_UpdateIndex_async]

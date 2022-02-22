@@ -28,14 +28,12 @@ from google.cloud import aiplatform_v1
 
 
 async def sample_delete_model():
-    """Snippet for delete_model"""
-
     # Create a client
     client = aiplatform_v1.ModelServiceAsyncClient()
 
     # Initialize request argument(s)
     request = aiplatform_v1.DeleteModelRequest(
-        name="projects/{project}/locations/{location}/models/{model}",
+        name="name_value",
     )
 
     # Make the request
@@ -44,6 +42,8 @@ async def sample_delete_model():
     print("Waiting for operation to complete...")
 
     response = await operation.result()
+
+    # Handle the response
     print(response)
 
 # [END aiplatform_generated_aiplatform_v1_ModelService_DeleteModel_async]

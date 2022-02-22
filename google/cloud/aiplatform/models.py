@@ -2534,7 +2534,7 @@ class Model(base.VertexAiResourceNounWithFutureManager):
     def upload_xgboost_model_file(
         cls,
         model_file_path: str,
-        xgboost_version: str = "1.4",
+        xgboost_version: Optional[str] = None,
         display_name: str = "XGBoost model",
         description: Optional[str] = None,
         instance_schema_uri: Optional[str] = None,
@@ -2674,7 +2674,7 @@ class Model(base.VertexAiResourceNounWithFutureManager):
         container_image_uri = aiplatform.helpers.get_prebuilt_prediction_container_uri(
             region=location,
             framework="xgboost",
-            framework_version=xgboost_version,
+            framework_version=xgboost_version or "1.4",
             accelerator="cpu",
         )
 
@@ -2729,7 +2729,7 @@ class Model(base.VertexAiResourceNounWithFutureManager):
     def upload_scikit_learn_model_file(
         cls,
         model_file_path: str,
-        sklearn_version: str = "1.0",
+        sklearn_version: Optional[str] = None,
         display_name: str = "Scikit-learn model",
         description: Optional[str] = None,
         instance_schema_uri: Optional[str] = None,
@@ -2869,7 +2869,7 @@ class Model(base.VertexAiResourceNounWithFutureManager):
         container_image_uri = aiplatform.helpers.get_prebuilt_prediction_container_uri(
             region=location,
             framework="sklearn",
-            framework_version=sklearn_version,
+            framework_version=sklearn_version or "1.0",
             accelerator="cpu",
         )
 
@@ -2923,7 +2923,7 @@ class Model(base.VertexAiResourceNounWithFutureManager):
     def upload_tensorflow_saved_model(
         cls,
         saved_model_dir: str,
-        tensorflow_version: str = "2.7",
+        tensorflow_version: Optional[str] = None,
         use_gpu: bool = False,
         display_name: str = "Tensorflow model",
         description: Optional[str] = None,
@@ -3061,7 +3061,7 @@ class Model(base.VertexAiResourceNounWithFutureManager):
         container_image_uri = aiplatform.helpers.get_prebuilt_prediction_container_uri(
             region=location,
             framework="tensorflow",
-            framework_version=tensorflow_version,
+            framework_version=tensorflow_version or "2.7",
             accelerator="gpu" if use_gpu else "cpu",
         )
 

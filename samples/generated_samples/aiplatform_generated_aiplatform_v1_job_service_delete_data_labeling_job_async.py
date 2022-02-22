@@ -28,14 +28,12 @@ from google.cloud import aiplatform_v1
 
 
 async def sample_delete_data_labeling_job():
-    """Snippet for delete_data_labeling_job"""
-
     # Create a client
     client = aiplatform_v1.JobServiceAsyncClient()
 
     # Initialize request argument(s)
     request = aiplatform_v1.DeleteDataLabelingJobRequest(
-        name="projects/{project}/locations/{location}/dataLabelingJobs/{data_labeling_job}",
+        name="name_value",
     )
 
     # Make the request
@@ -44,6 +42,8 @@ async def sample_delete_data_labeling_job():
     print("Waiting for operation to complete...")
 
     response = await operation.result()
+
+    # Handle the response
     print(response)
 
 # [END aiplatform_generated_aiplatform_v1_JobService_DeleteDataLabelingJob_async]
