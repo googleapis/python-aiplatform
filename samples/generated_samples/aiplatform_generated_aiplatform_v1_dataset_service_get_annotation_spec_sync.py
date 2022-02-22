@@ -28,20 +28,18 @@ from google.cloud import aiplatform_v1
 
 
 def sample_get_annotation_spec():
-    """Snippet for get_annotation_spec"""
-
     # Create a client
     client = aiplatform_v1.DatasetServiceClient()
 
     # Initialize request argument(s)
     request = aiplatform_v1.GetAnnotationSpecRequest(
-        name="projects/{project}/locations/{location}/datasets/{dataset}/annotationSpecs/{annotation_spec}",
+        name="name_value",
     )
 
     # Make the request
     response = client.get_annotation_spec(request=request)
 
-    # Handle response
+    # Handle the response
     print(response)
 
 # [END aiplatform_generated_aiplatform_v1_DatasetService_GetAnnotationSpec_sync]

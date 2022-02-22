@@ -28,20 +28,18 @@ from google.cloud import aiplatform_v1
 
 
 def sample_add_execution_events():
-    """Snippet for add_execution_events"""
-
     # Create a client
     client = aiplatform_v1.MetadataServiceClient()
 
     # Initialize request argument(s)
     request = aiplatform_v1.AddExecutionEventsRequest(
-        execution="projects/{project}/locations/{location}/metadataStores/{metadata_store}/executions/{execution}",
+        execution="execution_value",
     )
 
     # Make the request
     response = client.add_execution_events(request=request)
 
-    # Handle response
+    # Handle the response
     print(response)
 
 # [END aiplatform_generated_aiplatform_v1_MetadataService_AddExecutionEvents_sync]

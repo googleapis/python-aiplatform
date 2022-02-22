@@ -28,8 +28,6 @@ from google.cloud import aiplatform_v1beta1
 
 
 async def sample_create_endpoint():
-    """Snippet for create_endpoint"""
-
     # Create a client
     client = aiplatform_v1beta1.EndpointServiceAsyncClient()
 
@@ -38,7 +36,7 @@ async def sample_create_endpoint():
     endpoint.display_name = "display_name_value"
 
     request = aiplatform_v1beta1.CreateEndpointRequest(
-        parent="projects/{project}/locations/{location}",
+        parent="parent_value",
         endpoint=endpoint,
     )
 
@@ -48,6 +46,8 @@ async def sample_create_endpoint():
     print("Waiting for operation to complete...")
 
     response = await operation.result()
+
+    # Handle the response
     print(response)
 
 # [END aiplatform_generated_aiplatform_v1beta1_EndpointService_CreateEndpoint_async]

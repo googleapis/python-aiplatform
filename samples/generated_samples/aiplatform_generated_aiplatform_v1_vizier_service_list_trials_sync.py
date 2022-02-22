@@ -28,18 +28,18 @@ from google.cloud import aiplatform_v1
 
 
 def sample_list_trials():
-    """Snippet for list_trials"""
-
     # Create a client
     client = aiplatform_v1.VizierServiceClient()
 
     # Initialize request argument(s)
     request = aiplatform_v1.ListTrialsRequest(
-        parent="projects/{project}/locations/{location}/studies/{study}",
+        parent="parent_value",
     )
 
     # Make the request
     page_result = client.list_trials(request=request)
+
+    # Handle the response
     for response in page_result:
         print(response)
 

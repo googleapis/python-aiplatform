@@ -28,20 +28,18 @@ from google.cloud import aiplatform_v1beta1
 
 
 async def sample_get_tensorboard():
-    """Snippet for get_tensorboard"""
-
     # Create a client
     client = aiplatform_v1beta1.TensorboardServiceAsyncClient()
 
     # Initialize request argument(s)
     request = aiplatform_v1beta1.GetTensorboardRequest(
-        name="projects/{project}/locations/{location}/tensorboards/{tensorboard}",
+        name="name_value",
     )
 
     # Make the request
     response = await client.get_tensorboard(request=request)
 
-    # Handle response
+    # Handle the response
     print(response)
 
 # [END aiplatform_generated_aiplatform_v1beta1_TensorboardService_GetTensorboard_async]

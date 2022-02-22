@@ -28,29 +28,27 @@ from google.cloud import aiplatform_v1
 
 
 def sample_create_data_labeling_job():
-    """Snippet for create_data_labeling_job"""
-
     # Create a client
     client = aiplatform_v1.JobServiceClient()
 
     # Initialize request argument(s)
     data_labeling_job = aiplatform_v1.DataLabelingJob()
     data_labeling_job.display_name = "display_name_value"
-    data_labeling_job.datasets = "projects/{project}/locations/{location}/datasets/{dataset}"
+    data_labeling_job.datasets = ['datasets_value_1', 'datasets_value_2']
     data_labeling_job.labeler_count = 1375
     data_labeling_job.instruction_uri = "instruction_uri_value"
     data_labeling_job.inputs_schema_uri = "inputs_schema_uri_value"
     data_labeling_job.inputs.null_value = "NULL_VALUE"
 
     request = aiplatform_v1.CreateDataLabelingJobRequest(
-        parent="projects/{project}/locations/{location}",
+        parent="parent_value",
         data_labeling_job=data_labeling_job,
     )
 
     # Make the request
     response = client.create_data_labeling_job(request=request)
 
-    # Handle response
+    # Handle the response
     print(response)
 
 # [END aiplatform_generated_aiplatform_v1_JobService_CreateDataLabelingJob_sync]
