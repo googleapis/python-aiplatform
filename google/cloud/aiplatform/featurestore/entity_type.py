@@ -1238,6 +1238,21 @@ class EntityType(base.VertexAiResourceNounWithFutureManager):
         )
 
         self.wait()
+
+        feature_source_fields = feature_source_fields or {}
+        bq_schema = []
+        for feature_id in feature_ids:
+            feature_field_name = feature_source_fields.get(feature_id, feature_id)
+            bq_data_type = utils.featurestore_utils.FEATURE_STORE_VALUE_TYPE_TO_BQ_DATA_TYPE_MAP[
+                self.get_feature(feature_id).to_dict()["valueType"]
+            ]
+            bq_schema_field = bigquery.SchemaField(
+                name=feature_field_name,
+                field_type=bq_data_type["field_type"],
+                mode=bq_data_type.get("mode") or "NULLABLE",
+            )
+            bq_schema.append(bq_schema_field)
+
         entity_type_name_components = self._parse_resource_name(self.resource_name)
         featurestore_id, entity_type_id = (
             entity_type_name_components["featurestore"],
@@ -1259,28 +1274,13 @@ class EntityType(base.VertexAiResourceNounWithFutureManager):
 
         temp_bq_dataset = bigquery_client.create_dataset(temp_bq_dataset)
 
-        feature_source_fields = feature_source_fields or {}
-
         try:
-
-            schema = []
-            for feature_id in feature_ids:
-                feature_value_type = self.get_feature(feature_id).to_dict()["valueType"]
-                bq_data_type = utils.featurestore_utils.FEATURE_STORE_VALUE_TYPE_TO_BQ_DATA_TYPE_MAP[
-                    feature_value_type
-                ]
-                bq_schema_field = bigquery.SchemaField(
-                    name=feature_source_fields.get(feature_id, feature_id),
-                    field_type=bq_data_type["field_type"],
-                    mode=bq_data_type.get("mode") or "NULLABLE",
-                )
-                schema.append(bq_schema_field)
 
             parquet_options = bigquery.format_options.ParquetOptions()
             parquet_options.enable_list_inference = True
 
             job_config = bigquery.LoadJobConfig(
-                schema=schema,
+                schema=bq_schema,
                 source_format=bigquery.SourceFormat.PARQUET,
                 parquet_options=parquet_options,
             )

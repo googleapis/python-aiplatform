@@ -1672,6 +1672,7 @@ class TestEntityType:
 
     @pytest.mark.usefixtures(
         "get_entity_type_mock",
+        "get_feature_mock",
         "bq_init_client_mock",
         "bq_init_dataset_mock",
         "bq_create_dataset_mock",
@@ -1720,6 +1721,7 @@ class TestEntityType:
 
     @pytest.mark.usefixtures(
         "get_entity_type_mock",
+        "get_feature_mock",
         "bq_init_client_mock",
         "bq_init_dataset_mock",
         "bq_create_dataset_mock",
