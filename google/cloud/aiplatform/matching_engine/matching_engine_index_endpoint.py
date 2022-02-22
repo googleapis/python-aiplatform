@@ -38,6 +38,15 @@ _LOGGER = base.Logger(__name__)
 
 @dataclass
 class MatchNeighbor:
+    """The id and distance of a nearest neighbor match for a given query embedding.
+
+    Args:
+        id (str):
+            Required. The id of the neighbor.
+        distance (float):
+            Required. The distance to the query embedding.
+    """
+
     id: str
     distance: float
 
