@@ -290,3 +290,10 @@ class TestMatchingEngine(e2e_base.TestEndToEnd):
         assert get_index.resource_name not in [
             index.resource_name for index in list_indexes
         ]
+
+        # Delete index endpoint and check that it is no longer listed
+        my_index_endpoint.delete()
+        assert my_index_endpoint.resource_name not in [
+            index_endpoint.resource_name
+            for index_endpoint in aiplatform.MatchingEngineIndexEndpoint.list()
+        ]
