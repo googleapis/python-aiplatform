@@ -16,10 +16,10 @@
 #
 
 import abc
-from dataclasses import dataclass
 import enum
+from dataclasses import dataclass
+from typing import Dict, Optional
 
-from typing import Optional, Dict
 
 # This file mirrors the configuration options as defined in gs://google-cloud-aiplatform/schema/matchingengine/metadata/nearest_neighbor_search_1.0.0.yaml
 class DistanceMeasureType(enum.Enum):

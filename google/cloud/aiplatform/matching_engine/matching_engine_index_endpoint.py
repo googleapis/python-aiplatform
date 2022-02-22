@@ -19,19 +19,17 @@ from dataclasses import dataclass
 from typing import Dict, List, Optional, Sequence, Tuple
 
 from google.auth import credentials as auth_credentials
-from google.protobuf import field_mask_pb2
-
 from google.cloud.aiplatform import base
-from google.cloud.aiplatform.compat.types import (
-    matching_engine_index_endpoint as gca_matching_engine_index_endpoint,
-    machine_resources as gca_machine_resources_compat,
-)
 from google.cloud.aiplatform import initializer
-from google.cloud.aiplatform import utils
-
 from google.cloud.aiplatform import matching_engine
+from google.cloud.aiplatform import utils
+from google.cloud.aiplatform.compat.types import (
+    machine_resources as gca_machine_resources_compat,
+    matching_engine_index_endpoint as gca_matching_engine_index_endpoint,
+)
 from google.cloud.aiplatform.matching_engine import match_service_pb2
 from google.cloud.aiplatform.matching_engine import match_service_pb2_grpc
+from google.protobuf import field_mask_pb2
 
 import grpc
 
@@ -299,7 +297,7 @@ class MatchingEngineIndexEndpoint(base.VertexAiResourceNounWithFutureManager):
                 created in.
             index_resource_name (str):
                 Optional. A fully-qualified index endpoint resource name or a index ID.
-                Example: "projects/123/locations/us-central1/index_endpoints/my_index_id"                
+                Example: "projects/123/locations/us-central1/index_endpoints/my_index_id"
             display_name (str):
                 Optional. The display name of the DeployedIndex. If not provided upon
                 creation, the Index's display_name is used.
@@ -374,7 +372,7 @@ class MatchingEngineIndexEndpoint(base.VertexAiResourceNounWithFutureManager):
                 Optional. A list of allowed JWT issuers. Each entry must be a valid
                 Google service account, in the following format:
 
-                ``service-account-name@project-id.iam.gserviceaccount.com``                
+                ``service-account-name@project-id.iam.gserviceaccount.com``
             request_metadata (Sequence[Tuple[str, str]]):
                 Optional. Strings which should be sent along with the request as metadata.
         """
@@ -442,7 +440,7 @@ class MatchingEngineIndexEndpoint(base.VertexAiResourceNounWithFutureManager):
                 characters long and must start with a letter and
                 only contain letters, numbers, and underscores.
                 The ID must be unique within the project it is
-                created in.                
+                created in.
             display_name (str):
                 The display name of the DeployedIndex. If not provided upon
                 creation, the Index's display_name is used.
@@ -522,7 +520,7 @@ class MatchingEngineIndexEndpoint(base.VertexAiResourceNounWithFutureManager):
             request_metadata (Sequence[Tuple[str, str]]):
                 Optional. Strings which should be sent along with the request as metadata.
         Returns:
-            MatchingEngineIndexEndpoint - IndexEndpoint resource object                
+            MatchingEngineIndexEndpoint - IndexEndpoint resource object
         """
 
         _LOGGER.log_action_start_against_resource(
@@ -578,7 +576,7 @@ class MatchingEngineIndexEndpoint(base.VertexAiResourceNounWithFutureManager):
             request_metadata (Sequence[Tuple[str, str]]):
                 Optional. Strings which should be sent along with the request as metadata.
         Returns:
-            MatchingEngineIndexEndpoint - IndexEndpoint resource object                
+            MatchingEngineIndexEndpoint - IndexEndpoint resource object
         """
 
         _LOGGER.log_action_start_against_resource(
@@ -677,7 +675,7 @@ class MatchingEngineIndexEndpoint(base.VertexAiResourceNounWithFutureManager):
         self,
     ) -> List[gca_matching_engine_index_endpoint.DeployedIndex]:
         """Returns a list of deployed indexes on this endpoint.
-        
+
         Returns:
             List[gca_matching_engine_index_endpoint.DeployedIndex] - Deployed indexes
         """

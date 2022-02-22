@@ -15,20 +15,18 @@
 # limitations under the License.
 #
 
-from typing import Dict, List, Optional, Sequence, Tuple, Union
+from typing import Dict, List, Optional, Sequence, Tuple
 
 from google.auth import credentials as auth_credentials
-from google.protobuf import field_mask_pb2
-
 from google.cloud.aiplatform import base
-from google.cloud.aiplatform.compat.types import (
-    matching_engine_index as gca_matching_engine_index,
-    matching_engine_deployed_index_ref as gca_matching_engine_deployed_index_ref,
-)
 from google.cloud.aiplatform import initializer
 from google.cloud.aiplatform import utils
-
+from google.cloud.aiplatform.compat.types import (
+    matching_engine_deployed_index_ref as gca_matching_engine_deployed_index_ref,
+    matching_engine_index as gca_matching_engine_index,
+)
 from google.cloud.aiplatform.matching_engine import matching_engine_index_config
+from google.protobuf import field_mask_pb2
 
 _LOGGER = base.Logger(__name__)
 
@@ -125,7 +123,7 @@ class MatchingEngineIndex(base.VertexAiResourceNounWithFutureManager):
                 described at
                 https://docs.google.com/document/d/12DLVB6Nq6rdv8grxfBsPhUA283KWrQ9ZenPBp0zUC30
             config (Union[matching_engine_index_config.MatchingEngineIndexConfig]):
-                Required. The configuration with regard to the algorithms used for efficient search.                
+                Required. The configuration with regard to the algorithms used for efficient search.
             description (str):
                 Optional. The description of the Index.
             labels (Dict[str, str]):
@@ -218,7 +216,7 @@ class MatchingEngineIndex(base.VertexAiResourceNounWithFutureManager):
             display_name (str):
                 The display name of the Index.
                 The name can be up to 128 characters long and
-                can be consist of any UTF-8 characters.       
+                can be consist of any UTF-8 characters.
             description (str):
                 The description of the Index.
             labels (Dict[str, str]):
@@ -299,7 +297,7 @@ class MatchingEngineIndex(base.VertexAiResourceNounWithFutureManager):
                 https://docs.google.com/document/d/12DLVB6Nq6rdv8grxfBsPhUA283KWrQ9ZenPBp0zUC30
             is_complete_overwrite (str):
                 If this field is set together with contentsDeltaUri when calling IndexService.UpdateIndex,
-                then existing content of the Index will be replaced by the data from the contentsDeltaUri.                            
+                then existing content of the Index will be replaced by the data from the contentsDeltaUri.
             request_metadata (Sequence[Tuple[str, str]]):
                 Optional. Strings which should be sent along with the request as metadata.
 
@@ -344,7 +342,7 @@ class MatchingEngineIndex(base.VertexAiResourceNounWithFutureManager):
         self,
     ) -> List[gca_matching_engine_deployed_index_ref.DeployedIndexRef]:
         """Returns a list of deployed index references that originate from this index.
-        
+
         Returns:
             List[gca_matching_engine_deployed_index_ref.DeployedIndexRef] - Deployed index references
         """

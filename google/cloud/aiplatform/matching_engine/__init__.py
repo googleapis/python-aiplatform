@@ -18,14 +18,13 @@
 from google.cloud.aiplatform.matching_engine.matching_engine_index import (
     MatchingEngineIndex,
 )
+from google.cloud.aiplatform.matching_engine.matching_engine_index_config import (
+    BruteForceConfig as MatchingEngineBruteForceAlgorithmConfig,
+    MatchingEngineIndexConfig as MatchingEngineIndexConfig,
+    TreeAhConfig as MatchingEngineTreeAhAlgorithmConfig,
+)
 from google.cloud.aiplatform.matching_engine.matching_engine_index_endpoint import (
     MatchingEngineIndexEndpoint,
-)
-
-from google.cloud.aiplatform.matching_engine.matching_engine_index_config import (
-    MatchingEngineIndexConfig as MatchingEngineIndexConfig,
-    BruteForceConfig as MatchingEngineBruteForceAlgorithmConfig,
-    TreeAhConfig as MatchingEngineTreeAhAlgorithmConfig,
 )
 
 __all__ = (
