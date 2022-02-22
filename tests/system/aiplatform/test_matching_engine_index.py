@@ -224,13 +224,17 @@ class TestMatchingEngine(e2e_base.TestEndToEnd):
 
         assert updated_index.name == get_index.name
 
-        # Create endpoint
+        # Create endpoint and check that it is listed
         my_index_endpoint = aiplatform.MatchingEngineIndexEndpoint.create(
             display_name=_TEST_INDEX_ENDPOINT_DISPLAY_NAME,
             description=_TEST_INDEX_ENDPOINT_DESCRIPTION,
             network=_TEST_INDEX_ENDPOINT_VPC_NETWORK,
             labels=_TEST_LABELS,
         )
+        assert my_index_endpoint.resource_name in [
+            index_endpoint.resource_name
+            for index_endpoint in aiplatform.MatchingEngineIndexEndpoint.list()
+        ]
 
         assert my_index_endpoint.labels == _TEST_LABELS
         assert my_index_endpoint.display_name == _TEST_INDEX_ENDPOINT_DISPLAY_NAME

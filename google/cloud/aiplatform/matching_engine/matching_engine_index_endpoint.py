@@ -791,6 +791,7 @@ class MatchingEngineIndexEndpoint(base.VertexAiResourceNounWithFutureManager):
             List[List[MatchNeighbor]] - A list of nearest neighbors for each query.
         """
 
+        # Find the deployed index by id
         deployed_indexes = [
             deployed_index
             for deployed_index in self.deployed_indexes
@@ -800,34 +801,35 @@ class MatchingEngineIndexEndpoint(base.VertexAiResourceNounWithFutureManager):
         if not deployed_indexes:
             raise RuntimeError(f"No deployed index with id '{deployed_index_id}' found")
 
+        # Retrieve server ip from deployed index
         server_ip = deployed_indexes[0].private_endpoints.match_grpc_address
 
+        # Set up channel and stub
         channel = grpc.insecure_channel("{}:10000".format(server_ip))
         stub = match_service_pb2_grpc.MatchServiceStub(channel)
 
-        def get_request(embedding, deployed_index_id):
-            request = match_service_pb2.MatchRequest(
-                num_neighbors=num_neighbors,
-                deployed_index_id=deployed_index_id,
-                float_val=embedding,
-            )
-
-            return request
-
+        # Create the batch match request
         batch_request = match_service_pb2.BatchMatchRequest()
         batch_request_for_index = (
             match_service_pb2.BatchMatchRequest.BatchMatchRequestPerIndex()
         )
-
         batch_request_for_index.deployed_index_id = deployed_index_id
         batch_request_for_index.requests.extend(
-            [get_request(query, deployed_index_id) for query in queries]
+            [
+                match_service_pb2.MatchRequest(
+                    num_neighbors=num_neighbors,
+                    deployed_index_id=deployed_index_id,
+                    float_val=query,
+                )
+                for query in queries
+            ]
         )
-
         batch_request.requests.append(batch_request_for_index)
 
+        # Perform the request
         response = stub.BatchMatch(batch_request)
 
+        # Wrap the results in MatchNeighbor objects and return
         return [
             [
                 MatchNeighbor(id=neighbor.id, distance=neighbor.distance)
