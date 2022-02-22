@@ -281,7 +281,7 @@ class TestMatchingEngine(e2e_base.TestEndToEnd):
 
         assert results[0][0].id == 870
 
-        # Undeploy endpoint
+        # Undeploy index
         my_index_endpoint = my_index_endpoint.undeploy_index(index=index)
 
         # Delete index and check that it is no longer listed
