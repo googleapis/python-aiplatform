@@ -49,7 +49,7 @@ class AlgorithmConfig(abc.ABC):
 
     def as_dict(self) -> Dict:
         """Returns the configuration as a dictionary.
-        
+
         Returns:
             Dict[str, Any]
         """
@@ -74,7 +74,7 @@ class TreeAhConfig(AlgorithmConfig):
 
     def as_dict(self) -> Dict:
         """Returns the configuration as a dictionary.
-        
+
         Returns:
             Dict[str, Any]
         """
@@ -95,7 +95,7 @@ class BruteForceConfig(AlgorithmConfig):
 
     def as_dict(self) -> Dict:
         """Returns the configuration as a dictionary.
-        
+
         Returns:
             Dict[str, Any]
         """
@@ -116,7 +116,7 @@ class MatchingEngineIndexConfig:
             Optional. The default number of neighbors to find via approximate search before exact reordering is
             performed. Exact reordering is a procedure where results returned by an
             approximate search algorithm are reordered via a more expensive distance computation.
-            
+
             Required if tree-AH algorithm is used.
         distance_measure_type (DistanceMeasureType):
             Optional. The distance measure used in nearest neighbor search.
@@ -129,7 +129,7 @@ class MatchingEngineIndexConfig:
 
     def as_dict(self) -> Dict[str, Any]:
         """Returns the configuration as a dictionary.
-        
+
         Returns:
             Dict[str, Any]
         """

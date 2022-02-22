@@ -15,35 +15,32 @@
 # limitations under the License.
 #
 
-import pytest
 import uuid
-
-from unittest import mock
 from importlib import reload
+from unittest import mock
 from unittest.mock import patch
 
 from google.api_core import operation
-from google.protobuf import field_mask_pb2
-
 from google.cloud import aiplatform
 from google.cloud.aiplatform import base
 from google.cloud.aiplatform import initializer
-from google.cloud.aiplatform.matching_engine import match_service_pb2_grpc
-
+from google.cloud.aiplatform.compat.types import (
+    matching_engine_deployed_index_ref as gca_matching_engine_deployed_index_ref,
+    matching_engine_index_endpoint as gca_matching_engine_index_endpoint,
+)
 from google.cloud.aiplatform_v1.services.index_endpoint_service import (
     client as index_endpoint_service_client,
-)
-from google.cloud.aiplatform_v1.types import (
-    index_endpoint as gca_index_endpoint,
-    index as gca_index,
-)
-from google.cloud.aiplatform.compat.types import (
-    matching_engine_index_endpoint as gca_matching_engine_index_endpoint,
-    matching_engine_deployed_index_ref as gca_matching_engine_deployed_index_ref,
 )
 from google.cloud.aiplatform_v1.services.index_service import (
     client as index_service_client,
 )
+from google.cloud.aiplatform_v1.types import (
+    index as gca_index,
+    index_endpoint as gca_index_endpoint,
+)
+from google.protobuf import field_mask_pb2
+
+import pytest
 
 # project
 _TEST_PROJECT = "test-project"
