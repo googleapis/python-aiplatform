@@ -27,7 +27,6 @@ from google.auth import credentials as auth_credentials
 
 from google.cloud import aiplatform
 from google.cloud.aiplatform import base
-from google.cloud.aiplatform import explain
 from google.cloud.aiplatform import initializer
 from google.cloud.aiplatform import jobs
 from google.cloud.aiplatform import models
@@ -235,7 +234,7 @@ class Endpoint(base.VertexAiResourceNounWithFutureManager):
             credentials (auth_credentials.Credentials):
                 Optional. Custom credentials to use to upload this model. Overrides
                 credentials set in aiplatform.init.
-            encryption_spec_key_name (Optional[str]):
+            encryption_spec_key_name (str):
                 Optional. The Cloud KMS resource identifier of the customer
                 managed encryption key used to protect the model. Has the
                 form:
@@ -328,7 +327,7 @@ class Endpoint(base.VertexAiResourceNounWithFutureManager):
             credentials (auth_credentials.Credentials):
                 Optional. Custom credentials to use to upload this model. Overrides
                 credentials set in aiplatform.init.
-            encryption_spec (Optional[gca_encryption_spec.EncryptionSpec]):
+            encryption_spec (gca_encryption_spec.EncryptionSpec):
                 Optional. The Cloud KMS customer managed encryption key used to protect the dataset.
                 The key needs to be in the same region as where the compute
                 resource is created.
@@ -492,8 +491,10 @@ class Endpoint(base.VertexAiResourceNounWithFutureManager):
         deployed_model_display_name: Optional[str],
         traffic_split: Optional[Dict[str, int]],
         traffic_percentage: int,
-        explanation_metadata: Optional[explain.ExplanationMetadata] = None,
-        explanation_parameters: Optional[explain.ExplanationParameters] = None,
+        explanation_metadata: Optional[aiplatform.explain.ExplanationMetadata] = None,
+        explanation_parameters: Optional[
+            aiplatform.explain.ExplanationParameters
+        ] = None,
     ):
         """Helper method to validate deploy arguments.
 
@@ -536,12 +537,12 @@ class Endpoint(base.VertexAiResourceNounWithFutureManager):
                 not be provided. Traffic of previously deployed models at the endpoint
                 will be scaled down to accommodate new deployed model's traffic.
                 Should not be provided if traffic_split is provided.
-            explanation_metadata (explain.ExplanationMetadata):
+            explanation_metadata (aiplatform.explain.ExplanationMetadata):
                 Optional. Metadata describing the Model's input and output for explanation.
                 Both `explanation_metadata` and `explanation_parameters` must be
                 passed together when used. For more details, see
                 `Ref docs <http://tinyurl.com/1igh60kt>`
-            explanation_parameters (explain.ExplanationParameters):
+            explanation_parameters (aiplatform.explain.ExplanationParameters):
                 Optional. Parameters to configure explaining for Model's predictions.
                 For more details, see `Ref docs <http://tinyurl.com/1an4zake>`
 
@@ -593,8 +594,10 @@ class Endpoint(base.VertexAiResourceNounWithFutureManager):
         accelerator_type: Optional[str] = None,
         accelerator_count: Optional[int] = None,
         service_account: Optional[str] = None,
-        explanation_metadata: Optional[explain.ExplanationMetadata] = None,
-        explanation_parameters: Optional[explain.ExplanationParameters] = None,
+        explanation_metadata: Optional[aiplatform.explain.ExplanationMetadata] = None,
+        explanation_parameters: Optional[
+            aiplatform.explain.ExplanationParameters
+        ] = None,
         metadata: Optional[Sequence[Tuple[str, str]]] = (),
         sync=True,
     ) -> None:
@@ -653,12 +656,12 @@ class Endpoint(base.VertexAiResourceNounWithFutureManager):
                 to the resource project.
                 Users deploying the Model must have the `iam.serviceAccounts.actAs`
                 permission on this service account.
-            explanation_metadata (explain.ExplanationMetadata):
+            explanation_metadata (aiplatform.explain.ExplanationMetadata):
                 Optional. Metadata describing the Model's input and output for explanation.
                 Both `explanation_metadata` and `explanation_parameters` must be
                 passed together when used. For more details, see
                 `Ref docs <http://tinyurl.com/1igh60kt>`
-            explanation_parameters (explain.ExplanationParameters):
+            explanation_parameters (aiplatform.explain.ExplanationParameters):
                 Optional. Parameters to configure explaining for Model's predictions.
                 For more details, see `Ref docs <http://tinyurl.com/1an4zake>`
             metadata (Sequence[Tuple[str, str]]):
@@ -712,8 +715,10 @@ class Endpoint(base.VertexAiResourceNounWithFutureManager):
         accelerator_type: Optional[str] = None,
         accelerator_count: Optional[int] = None,
         service_account: Optional[str] = None,
-        explanation_metadata: Optional[explain.ExplanationMetadata] = None,
-        explanation_parameters: Optional[explain.ExplanationParameters] = None,
+        explanation_metadata: Optional[aiplatform.explain.ExplanationMetadata] = None,
+        explanation_parameters: Optional[
+            aiplatform.explain.ExplanationParameters
+        ] = None,
         metadata: Optional[Sequence[Tuple[str, str]]] = (),
         sync=True,
     ) -> None:
@@ -772,12 +777,12 @@ class Endpoint(base.VertexAiResourceNounWithFutureManager):
                 to the resource project.
                 Users deploying the Model must have the `iam.serviceAccounts.actAs`
                 permission on this service account.
-            explanation_metadata (explain.ExplanationMetadata):
+            explanation_metadata (aiplatform.explain.ExplanationMetadata):
                 Optional. Metadata describing the Model's input and output for explanation.
                 Both `explanation_metadata` and `explanation_parameters` must be
                 passed together when used. For more details, see
                 `Ref docs <http://tinyurl.com/1igh60kt>`
-            explanation_parameters (explain.ExplanationParameters):
+            explanation_parameters (aiplatform.explain.ExplanationParameters):
                 Optional. Parameters to configure explaining for Model's predictions.
                 For more details, see `Ref docs <http://tinyurl.com/1an4zake>`
             metadata (Sequence[Tuple[str, str]]):
@@ -834,8 +839,10 @@ class Endpoint(base.VertexAiResourceNounWithFutureManager):
         accelerator_type: Optional[str] = None,
         accelerator_count: Optional[int] = None,
         service_account: Optional[str] = None,
-        explanation_metadata: Optional[explain.ExplanationMetadata] = None,
-        explanation_parameters: Optional[explain.ExplanationParameters] = None,
+        explanation_metadata: Optional[aiplatform.explain.ExplanationMetadata] = None,
+        explanation_parameters: Optional[
+            aiplatform.explain.ExplanationParameters
+        ] = None,
         metadata: Optional[Sequence[Tuple[str, str]]] = (),
     ):
         """Helper method to deploy model to endpoint.
@@ -893,12 +900,12 @@ class Endpoint(base.VertexAiResourceNounWithFutureManager):
                 to the resource project.
                 Users deploying the Model must have the `iam.serviceAccounts.actAs`
                 permission on this service account.
-            explanation_metadata (explain.ExplanationMetadata):
+            explanation_metadata (aiplatform.explain.ExplanationMetadata):
                 Optional. Metadata describing the Model's input and output for explanation.
                 Both `explanation_metadata` and `explanation_parameters` must be
                 passed together when used. For more details, see
                 `Ref docs <http://tinyurl.com/1igh60kt>`
-            explanation_parameters (explain.ExplanationParameters):
+            explanation_parameters (aiplatform.explain.ExplanationParameters):
                 Optional. Parameters to configure explaining for Model's predictions.
                 For more details, see `Ref docs <http://tinyurl.com/1an4zake>`
             metadata (Sequence[Tuple[str, str]]):
@@ -1588,8 +1595,10 @@ class Model(base.VertexAiResourceNounWithFutureManager):
         instance_schema_uri: Optional[str] = None,
         parameters_schema_uri: Optional[str] = None,
         prediction_schema_uri: Optional[str] = None,
-        explanation_metadata: Optional[explain.ExplanationMetadata] = None,
-        explanation_parameters: Optional[explain.ExplanationParameters] = None,
+        explanation_metadata: Optional[aiplatform.explain.ExplanationMetadata] = None,
+        explanation_parameters: Optional[
+            aiplatform.explain.ExplanationParameters
+        ] = None,
         project: Optional[str] = None,
         location: Optional[str] = None,
         credentials: Optional[auth_credentials.Credentials] = None,
@@ -1701,12 +1710,12 @@ class Model(base.VertexAiResourceNounWithFutureManager):
                 and probably different, including the URI scheme, than the
                 one given on input. The output URI will point to a location
                 where the user only has a read access.
-            explanation_metadata (explain.ExplanationMetadata):
+            explanation_metadata (aiplatform.explain.ExplanationMetadata):
                 Optional. Metadata describing the Model's input and output for explanation.
                 Both `explanation_metadata` and `explanation_parameters` must be
                 passed together when used. For more details, see
                 `Ref docs <http://tinyurl.com/1igh60kt>`
-            explanation_parameters (explain.ExplanationParameters):
+            explanation_parameters (aiplatform.explain.ExplanationParameters):
                 Optional. Parameters to configure explaining for Model's predictions.
                 For more details, see `Ref docs <http://tinyurl.com/1an4zake>`
             project: Optional[str]=None,
@@ -1873,8 +1882,10 @@ class Model(base.VertexAiResourceNounWithFutureManager):
         accelerator_type: Optional[str] = None,
         accelerator_count: Optional[int] = None,
         service_account: Optional[str] = None,
-        explanation_metadata: Optional[explain.ExplanationMetadata] = None,
-        explanation_parameters: Optional[explain.ExplanationParameters] = None,
+        explanation_metadata: Optional[aiplatform.explain.ExplanationMetadata] = None,
+        explanation_parameters: Optional[
+            aiplatform.explain.ExplanationParameters
+        ] = None,
         metadata: Optional[Sequence[Tuple[str, str]]] = (),
         encryption_spec_key_name: Optional[str] = None,
         sync=True,
@@ -1888,7 +1899,7 @@ class Model(base.VertexAiResourceNounWithFutureManager):
             deployed_model_display_name (str):
                 Optional. The display name of the DeployedModel. If not provided
                 upon creation, the Model's display_name is used.
-            traffic_percentage (int):
+                        traffic_percentage (int):
                 Optional. Desired traffic to newly deployed model. Defaults to
                 0 if there are pre-existing deployed models. Defaults to 100 if
                 there are no pre-existing deployed models. Negative values should
@@ -1934,12 +1945,12 @@ class Model(base.VertexAiResourceNounWithFutureManager):
                 to the resource project.
                 Users deploying the Model must have the `iam.serviceAccounts.actAs`
                 permission on this service account.
-            explanation_metadata (explain.ExplanationMetadata):
+            explanation_metadata (aiplatform.explain.ExplanationMetadata):
                 Optional. Metadata describing the Model's input and output for explanation.
                 Both `explanation_metadata` and `explanation_parameters` must be
                 passed together when used. For more details, see
                 `Ref docs <http://tinyurl.com/1igh60kt>`
-            explanation_parameters (explain.ExplanationParameters):
+            explanation_parameters (aiplatform.explain.ExplanationParameters):
                 Optional. Parameters to configure explaining for Model's predictions.
                 For more details, see `Ref docs <http://tinyurl.com/1an4zake>`
             metadata (Sequence[Tuple[str, str]]):
@@ -2008,8 +2019,10 @@ class Model(base.VertexAiResourceNounWithFutureManager):
         accelerator_type: Optional[str] = None,
         accelerator_count: Optional[int] = None,
         service_account: Optional[str] = None,
-        explanation_metadata: Optional[explain.ExplanationMetadata] = None,
-        explanation_parameters: Optional[explain.ExplanationParameters] = None,
+        explanation_metadata: Optional[aiplatform.explain.ExplanationMetadata] = None,
+        explanation_parameters: Optional[
+            aiplatform.explain.ExplanationParameters
+        ] = None,
         metadata: Optional[Sequence[Tuple[str, str]]] = (),
         encryption_spec_key_name: Optional[str] = None,
         sync: bool = True,
@@ -2069,12 +2082,12 @@ class Model(base.VertexAiResourceNounWithFutureManager):
                 to the resource project.
                 Users deploying the Model must have the `iam.serviceAccounts.actAs`
                 permission on this service account.
-            explanation_metadata (explain.ExplanationMetadata):
+            explanation_metadata (aiplatform.explain.ExplanationMetadata):
                 Optional. Metadata describing the Model's input and output for explanation.
                 Both `explanation_metadata` and `explanation_parameters` must be
                 passed together when used. For more details, see
                 `Ref docs <http://tinyurl.com/1igh60kt>`
-            explanation_parameters (explain.ExplanationParameters):
+            explanation_parameters (aiplatform.explain.ExplanationParameters):
                 Optional. Parameters to configure explaining for Model's predictions.
                 For more details, see `Ref docs <http://tinyurl.com/1an4zake>`
             metadata (Sequence[Tuple[str, str]]):
@@ -2153,8 +2166,10 @@ class Model(base.VertexAiResourceNounWithFutureManager):
         starting_replica_count: Optional[int] = None,
         max_replica_count: Optional[int] = None,
         generate_explanation: Optional[bool] = False,
-        explanation_metadata: Optional[explain.ExplanationMetadata] = None,
-        explanation_parameters: Optional[explain.ExplanationParameters] = None,
+        explanation_metadata: Optional[aiplatform.explain.ExplanationMetadata] = None,
+        explanation_parameters: Optional[
+            aiplatform.explain.ExplanationParameters
+        ] = None,
         labels: Optional[Dict[str, str]] = None,
         credentials: Optional[auth_credentials.Credentials] = None,
         encryption_spec_key_name: Optional[str] = None,
@@ -2273,7 +2288,7 @@ class Model(base.VertexAiResourceNounWithFutureManager):
                         keyed `explanation`. The value of the entry is a JSON object that
                         conforms to the [aiplatform.gapic.Explanation] object.
                     - `csv`: Generating explanations for CSV format is not supported.
-            explanation_metadata (explain.ExplanationMetadata):
+            explanation_metadata (aiplatform.explain.ExplanationMetadata):
                 Optional. Explanation metadata configuration for this BatchPredictionJob.
                 Can be specified only if `generate_explanation` is set to `True`.
 
@@ -2282,7 +2297,7 @@ class Model(base.VertexAiResourceNounWithFutureManager):
                 a field of the `explanation_metadata` object is not populated, the
                 corresponding field of the `Model.explanation_metadata` object is inherited.
                 For more details, see `Ref docs <http://tinyurl.com/1igh60kt>`
-            explanation_parameters (explain.ExplanationParameters):
+            explanation_parameters (aiplatform.explain.ExplanationParameters):
                 Optional. Parameters to configure explaining for Model's predictions.
                 Can be specified only if `generate_explanation` is set to `True`.
 
@@ -2540,8 +2555,10 @@ class Model(base.VertexAiResourceNounWithFutureManager):
         instance_schema_uri: Optional[str] = None,
         parameters_schema_uri: Optional[str] = None,
         prediction_schema_uri: Optional[str] = None,
-        explanation_metadata: Optional[explain.ExplanationMetadata] = None,
-        explanation_parameters: Optional[explain.ExplanationParameters] = None,
+        explanation_metadata: Optional[aiplatform.explain.ExplanationMetadata] = None,
+        explanation_parameters: Optional[
+            aiplatform.explain.ExplanationParameters
+        ] = None,
         project: Optional[str] = None,
         location: Optional[str] = None,
         credentials: Optional[auth_credentials.Credentials] = None,
@@ -2617,12 +2634,12 @@ class Model(base.VertexAiResourceNounWithFutureManager):
                 and probably different, including the URI scheme, than the
                 one given on input. The output URI will point to a location
                 where the user only has a read access.
-            explanation_metadata (explain.ExplanationMetadata):
+            explanation_metadata (aiplatform.explain.ExplanationMetadata):
                 Optional. Metadata describing the Model's input and output for explanation.
                 Both `explanation_metadata` and `explanation_parameters` must be
                 passed together when used. For more details, see
                 `Ref docs <http://tinyurl.com/1igh60kt>`
-            explanation_parameters (explain.ExplanationParameters):
+            explanation_parameters (aiplatform.explain.ExplanationParameters):
                 Optional. Parameters to configure explaining for Model's predictions.
                 For more details, see `Ref docs <http://tinyurl.com/1an4zake>`
             project: Optional[str]=None,
@@ -2735,8 +2752,10 @@ class Model(base.VertexAiResourceNounWithFutureManager):
         instance_schema_uri: Optional[str] = None,
         parameters_schema_uri: Optional[str] = None,
         prediction_schema_uri: Optional[str] = None,
-        explanation_metadata: Optional[explain.ExplanationMetadata] = None,
-        explanation_parameters: Optional[explain.ExplanationParameters] = None,
+        explanation_metadata: Optional[aiplatform.explain.ExplanationMetadata] = None,
+        explanation_parameters: Optional[
+            aiplatform.explain.ExplanationParameters
+        ] = None,
         project: Optional[str] = None,
         location: Optional[str] = None,
         credentials: Optional[auth_credentials.Credentials] = None,
@@ -2813,12 +2832,12 @@ class Model(base.VertexAiResourceNounWithFutureManager):
                 and probably different, including the URI scheme, than the
                 one given on input. The output URI will point to a location
                 where the user only has a read access.
-            explanation_metadata (explain.ExplanationMetadata):
+            explanation_metadata (aiplatform.explain.ExplanationMetadata):
                 Optional. Metadata describing the Model's input and output for explanation.
                 Both `explanation_metadata` and `explanation_parameters` must be
                 passed together when used. For more details, see
                 `Ref docs <http://tinyurl.com/1igh60kt>`
-            explanation_parameters (explain.ExplanationParameters):
+            explanation_parameters (aiplatform.explain.ExplanationParameters):
                 Optional. Parameters to configure explaining for Model's predictions.
                 For more details, see `Ref docs <http://tinyurl.com/1an4zake>`
             project: Optional[str]=None,
@@ -2930,8 +2949,10 @@ class Model(base.VertexAiResourceNounWithFutureManager):
         instance_schema_uri: Optional[str] = None,
         parameters_schema_uri: Optional[str] = None,
         prediction_schema_uri: Optional[str] = None,
-        explanation_metadata: Optional[explain.ExplanationMetadata] = None,
-        explanation_parameters: Optional[explain.ExplanationParameters] = None,
+        explanation_metadata: Optional[aiplatform.explain.ExplanationMetadata] = None,
+        explanation_parameters: Optional[
+            aiplatform.explain.ExplanationParameters
+        ] = None,
         project: Optional[str] = None,
         location: Optional[str] = None,
         credentials: Optional[auth_credentials.Credentials] = None,
@@ -3010,12 +3031,12 @@ class Model(base.VertexAiResourceNounWithFutureManager):
                 and probably different, including the URI scheme, than the
                 one given on input. The output URI will point to a location
                 where the user only has a read access.
-            explanation_metadata (explain.ExplanationMetadata):
+            explanation_metadata (aiplatform.explain.ExplanationMetadata):
                 Optional. Metadata describing the Model's input and output for explanation.
                 Both `explanation_metadata` and `explanation_parameters` must be
                 passed together when used. For more details, see
                 `Ref docs <http://tinyurl.com/1igh60kt>`
-            explanation_parameters (explain.ExplanationParameters):
+            explanation_parameters (aiplatform.explain.ExplanationParameters):
                 Optional. Parameters to configure explaining for Model's predictions.
                 For more details, see `Ref docs <http://tinyurl.com/1an4zake>`
             project: Optional[str]=None,
