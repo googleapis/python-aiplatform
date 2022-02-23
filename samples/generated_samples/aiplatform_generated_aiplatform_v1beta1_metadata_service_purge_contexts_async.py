@@ -28,14 +28,12 @@ from google.cloud import aiplatform_v1beta1
 
 
 async def sample_purge_contexts():
-    """Snippet for purge_contexts"""
-
     # Create a client
     client = aiplatform_v1beta1.MetadataServiceAsyncClient()
 
     # Initialize request argument(s)
     request = aiplatform_v1beta1.PurgeContextsRequest(
-        parent="projects/{project}/locations/{location}/metadataStores/{metadata_store}/contexts/{context}",
+        parent="parent_value",
         filter="filter_value",
     )
 
@@ -45,6 +43,8 @@ async def sample_purge_contexts():
     print("Waiting for operation to complete...")
 
     response = await operation.result()
+
+    # Handle the response
     print(response)
 
 # [END aiplatform_generated_aiplatform_v1beta1_MetadataService_PurgeContexts_async]

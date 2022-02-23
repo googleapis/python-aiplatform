@@ -28,18 +28,18 @@ from google.cloud import aiplatform_v1beta1
 
 
 def sample_list_tensorboard_time_series():
-    """Snippet for list_tensorboard_time_series"""
-
     # Create a client
     client = aiplatform_v1beta1.TensorboardServiceClient()
 
     # Initialize request argument(s)
     request = aiplatform_v1beta1.ListTensorboardTimeSeriesRequest(
-        parent="projects/{project}/locations/{location}/tensorboards/{tensorboard}/experiments/{experiment}/runs/{run}/timeSeries/{time_series}",
+        parent="parent_value",
     )
 
     # Make the request
     page_result = client.list_tensorboard_time_series(request=request)
+
+    # Handle the response
     for response in page_result:
         print(response)
 

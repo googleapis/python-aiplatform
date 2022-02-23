@@ -630,7 +630,7 @@ class SearchModelDeploymentMonitoringStatsAnomaliesRequest(proto.Message):
         model_deployment_monitoring_job (str):
             Required. ModelDeploymentMonitoring Job resource name.
             Format:
-            \`projects/{project}/locations/{location}/modelDeploymentMonitoringJobs/{model_deployment_monitoring_job}
+            ``projects/{project}/locations/{location}/modelDeploymentMonitoringJobs/{model_deployment_monitoring_job}``
         deployed_model_id (str):
             Required. The DeployedModel ID of the
             [ModelDeploymentMonitoringObjectiveConfig.deployed_model_id].

@@ -451,6 +451,36 @@ class VizierServiceClient(metaclass=VizierServiceClientMeta):
         r"""Creates a Study. A resource name will be generated
         after creation of the Study.
 
+
+
+        .. code-block::
+
+            from google.cloud import aiplatform_v1beta1
+
+            def sample_create_study():
+                # Create a client
+                client = aiplatform_v1beta1.VizierServiceClient()
+
+                # Initialize request argument(s)
+                study = aiplatform_v1beta1.Study()
+                study.display_name = "display_name_value"
+                study.study_spec.metrics.metric_id = "metric_id_value"
+                study.study_spec.metrics.goal = "MINIMIZE"
+                study.study_spec.parameters.double_value_spec.min_value = 0.96
+                study.study_spec.parameters.double_value_spec.max_value = 0.962
+                study.study_spec.parameters.parameter_id = "parameter_id_value"
+
+                request = aiplatform_v1beta1.CreateStudyRequest(
+                    parent="parent_value",
+                    study=study,
+                )
+
+                # Make the request
+                response = client.create_study(request=request)
+
+                # Handle the response
+                print(response)
+
         Args:
             request (Union[google.cloud.aiplatform_v1beta1.types.CreateStudyRequest, dict]):
                 The request object. Request message for
@@ -530,6 +560,26 @@ class VizierServiceClient(metaclass=VizierServiceClientMeta):
     ) -> study.Study:
         r"""Gets a Study by name.
 
+
+        .. code-block::
+
+            from google.cloud import aiplatform_v1beta1
+
+            def sample_get_study():
+                # Create a client
+                client = aiplatform_v1beta1.VizierServiceClient()
+
+                # Initialize request argument(s)
+                request = aiplatform_v1beta1.GetStudyRequest(
+                    name="name_value",
+                )
+
+                # Make the request
+                response = client.get_study(request=request)
+
+                # Handle the response
+                print(response)
+
         Args:
             request (Union[google.cloud.aiplatform_v1beta1.types.GetStudyRequest, dict]):
                 The request object. Request message for
@@ -599,6 +649,28 @@ class VizierServiceClient(metaclass=VizierServiceClientMeta):
     ) -> pagers.ListStudiesPager:
         r"""Lists all the studies in a region for an associated
         project.
+
+
+
+        .. code-block::
+
+            from google.cloud import aiplatform_v1beta1
+
+            def sample_list_studies():
+                # Create a client
+                client = aiplatform_v1beta1.VizierServiceClient()
+
+                # Initialize request argument(s)
+                request = aiplatform_v1beta1.ListStudiesRequest(
+                    parent="parent_value",
+                )
+
+                # Make the request
+                page_result = client.list_studies(request=request)
+
+                # Handle the response
+                for response in page_result:
+                    print(response)
 
         Args:
             request (Union[google.cloud.aiplatform_v1beta1.types.ListStudiesRequest, dict]):
@@ -681,6 +753,23 @@ class VizierServiceClient(metaclass=VizierServiceClientMeta):
     ) -> None:
         r"""Deletes a Study.
 
+
+        .. code-block::
+
+            from google.cloud import aiplatform_v1beta1
+
+            def sample_delete_study():
+                # Create a client
+                client = aiplatform_v1beta1.VizierServiceClient()
+
+                # Initialize request argument(s)
+                request = aiplatform_v1beta1.DeleteStudyRequest(
+                    name="name_value",
+                )
+
+                # Make the request
+                client.delete_study(request=request)
+
         Args:
             request (Union[google.cloud.aiplatform_v1beta1.types.DeleteStudyRequest, dict]):
                 The request object. Request message for
@@ -746,6 +835,28 @@ class VizierServiceClient(metaclass=VizierServiceClientMeta):
     ) -> study.Study:
         r"""Looks a study up using the user-defined display_name field
         instead of the fully qualified resource name.
+
+
+
+        .. code-block::
+
+            from google.cloud import aiplatform_v1beta1
+
+            def sample_lookup_study():
+                # Create a client
+                client = aiplatform_v1beta1.VizierServiceClient()
+
+                # Initialize request argument(s)
+                request = aiplatform_v1beta1.LookupStudyRequest(
+                    parent="parent_value",
+                    display_name="display_name_value",
+                )
+
+                # Make the request
+                response = client.lookup_study(request=request)
+
+                # Handle the response
+                print(response)
 
         Args:
             request (Union[google.cloud.aiplatform_v1beta1.types.LookupStudyRequest, dict]):
@@ -820,6 +931,33 @@ class VizierServiceClient(metaclass=VizierServiceClientMeta):
         long-running operation succeeds, it will contain a
         [SuggestTrialsResponse][google.cloud.ml.v1.SuggestTrialsResponse].
 
+
+
+        .. code-block::
+
+            from google.cloud import aiplatform_v1beta1
+
+            def sample_suggest_trials():
+                # Create a client
+                client = aiplatform_v1beta1.VizierServiceClient()
+
+                # Initialize request argument(s)
+                request = aiplatform_v1beta1.SuggestTrialsRequest(
+                    parent="parent_value",
+                    suggestion_count=1744,
+                    client_id="client_id_value",
+                )
+
+                # Make the request
+                operation = client.suggest_trials(request=request)
+
+                print("Waiting for operation to complete...")
+
+                response = operation.result()
+
+                # Handle the response
+                print(response)
+
         Args:
             request (Union[google.cloud.aiplatform_v1beta1.types.SuggestTrialsRequest, dict]):
                 The request object. Request message for
@@ -883,6 +1021,26 @@ class VizierServiceClient(metaclass=VizierServiceClientMeta):
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> study.Trial:
         r"""Adds a user provided Trial to a Study.
+
+
+        .. code-block::
+
+            from google.cloud import aiplatform_v1beta1
+
+            def sample_create_trial():
+                # Create a client
+                client = aiplatform_v1beta1.VizierServiceClient()
+
+                # Initialize request argument(s)
+                request = aiplatform_v1beta1.CreateTrialRequest(
+                    parent="parent_value",
+                )
+
+                # Make the request
+                response = client.create_trial(request=request)
+
+                # Handle the response
+                print(response)
 
         Args:
             request (Union[google.cloud.aiplatform_v1beta1.types.CreateTrialRequest, dict]):
@@ -966,6 +1124,26 @@ class VizierServiceClient(metaclass=VizierServiceClientMeta):
     ) -> study.Trial:
         r"""Gets a Trial.
 
+
+        .. code-block::
+
+            from google.cloud import aiplatform_v1beta1
+
+            def sample_get_trial():
+                # Create a client
+                client = aiplatform_v1beta1.VizierServiceClient()
+
+                # Initialize request argument(s)
+                request = aiplatform_v1beta1.GetTrialRequest(
+                    name="name_value",
+                )
+
+                # Make the request
+                response = client.get_trial(request=request)
+
+                # Handle the response
+                print(response)
+
         Args:
             request (Union[google.cloud.aiplatform_v1beta1.types.GetTrialRequest, dict]):
                 The request object. Request message for
@@ -1039,6 +1217,27 @@ class VizierServiceClient(metaclass=VizierServiceClientMeta):
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> pagers.ListTrialsPager:
         r"""Lists the Trials associated with a Study.
+
+
+        .. code-block::
+
+            from google.cloud import aiplatform_v1beta1
+
+            def sample_list_trials():
+                # Create a client
+                client = aiplatform_v1beta1.VizierServiceClient()
+
+                # Initialize request argument(s)
+                request = aiplatform_v1beta1.ListTrialsRequest(
+                    parent="parent_value",
+                )
+
+                # Make the request
+                page_result = client.list_trials(request=request)
+
+                # Handle the response
+                for response in page_result:
+                    print(response)
 
         Args:
             request (Union[google.cloud.aiplatform_v1beta1.types.ListTrialsRequest, dict]):
@@ -1122,6 +1321,27 @@ class VizierServiceClient(metaclass=VizierServiceClientMeta):
         Trial. This measurement is assumed to have been taken
         before the Trial is complete.
 
+
+
+        .. code-block::
+
+            from google.cloud import aiplatform_v1beta1
+
+            def sample_add_trial_measurement():
+                # Create a client
+                client = aiplatform_v1beta1.VizierServiceClient()
+
+                # Initialize request argument(s)
+                request = aiplatform_v1beta1.AddTrialMeasurementRequest(
+                    trial_name="trial_name_value",
+                )
+
+                # Make the request
+                response = client.add_trial_measurement(request=request)
+
+                # Handle the response
+                print(response)
+
         Args:
             request (Union[google.cloud.aiplatform_v1beta1.types.AddTrialMeasurementRequest, dict]):
                 The request object. Request message for
@@ -1177,6 +1397,26 @@ class VizierServiceClient(metaclass=VizierServiceClientMeta):
     ) -> study.Trial:
         r"""Marks a Trial as complete.
 
+
+        .. code-block::
+
+            from google.cloud import aiplatform_v1beta1
+
+            def sample_complete_trial():
+                # Create a client
+                client = aiplatform_v1beta1.VizierServiceClient()
+
+                # Initialize request argument(s)
+                request = aiplatform_v1beta1.CompleteTrialRequest(
+                    name="name_value",
+                )
+
+                # Make the request
+                response = client.complete_trial(request=request)
+
+                # Handle the response
+                print(response)
+
         Args:
             request (Union[google.cloud.aiplatform_v1beta1.types.CompleteTrialRequest, dict]):
                 The request object. Request message for
@@ -1230,6 +1470,23 @@ class VizierServiceClient(metaclass=VizierServiceClientMeta):
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> None:
         r"""Deletes a Trial.
+
+
+        .. code-block::
+
+            from google.cloud import aiplatform_v1beta1
+
+            def sample_delete_trial():
+                # Create a client
+                client = aiplatform_v1beta1.VizierServiceClient()
+
+                # Initialize request argument(s)
+                request = aiplatform_v1beta1.DeleteTrialRequest(
+                    name="name_value",
+                )
+
+                # Make the request
+                client.delete_trial(request=request)
 
         Args:
             request (Union[google.cloud.aiplatform_v1beta1.types.DeleteTrialRequest, dict]):
@@ -1297,6 +1554,31 @@ class VizierServiceClient(metaclass=VizierServiceClientMeta):
         will contain a
         [CheckTrialEarlyStoppingStateResponse][google.cloud.ml.v1.CheckTrialEarlyStoppingStateResponse].
 
+
+
+        .. code-block::
+
+            from google.cloud import aiplatform_v1beta1
+
+            def sample_check_trial_early_stopping_state():
+                # Create a client
+                client = aiplatform_v1beta1.VizierServiceClient()
+
+                # Initialize request argument(s)
+                request = aiplatform_v1beta1.CheckTrialEarlyStoppingStateRequest(
+                    trial_name="trial_name_value",
+                )
+
+                # Make the request
+                operation = client.check_trial_early_stopping_state(request=request)
+
+                print("Waiting for operation to complete...")
+
+                response = operation.result()
+
+                # Handle the response
+                print(response)
+
         Args:
             request (Union[google.cloud.aiplatform_v1beta1.types.CheckTrialEarlyStoppingStateRequest, dict]):
                 The request object. Request message for
@@ -1363,6 +1645,26 @@ class VizierServiceClient(metaclass=VizierServiceClientMeta):
     ) -> study.Trial:
         r"""Stops a Trial.
 
+
+        .. code-block::
+
+            from google.cloud import aiplatform_v1beta1
+
+            def sample_stop_trial():
+                # Create a client
+                client = aiplatform_v1beta1.VizierServiceClient()
+
+                # Initialize request argument(s)
+                request = aiplatform_v1beta1.StopTrialRequest(
+                    name="name_value",
+                )
+
+                # Make the request
+                response = client.stop_trial(request=request)
+
+                # Handle the response
+                print(response)
+
         Args:
             request (Union[google.cloud.aiplatform_v1beta1.types.StopTrialRequest, dict]):
                 The request object. Request message for
@@ -1419,6 +1721,27 @@ class VizierServiceClient(metaclass=VizierServiceClientMeta):
         optimal Trials for single-objective Study. The definition of
         pareto-optimal can be checked in wiki page.
         https://en.wikipedia.org/wiki/Pareto_efficiency
+
+
+
+        .. code-block::
+
+            from google.cloud import aiplatform_v1beta1
+
+            def sample_list_optimal_trials():
+                # Create a client
+                client = aiplatform_v1beta1.VizierServiceClient()
+
+                # Initialize request argument(s)
+                request = aiplatform_v1beta1.ListOptimalTrialsRequest(
+                    parent="parent_value",
+                )
+
+                # Make the request
+                response = client.list_optimal_trials(request=request)
+
+                # Handle the response
+                print(response)
 
         Args:
             request (Union[google.cloud.aiplatform_v1beta1.types.ListOptimalTrialsRequest, dict]):

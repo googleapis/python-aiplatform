@@ -28,8 +28,6 @@ from google.cloud import aiplatform_v1beta1
 
 
 async def sample_update_tensorboard_experiment():
-    """Snippet for update_tensorboard_experiment"""
-
     # Create a client
     client = aiplatform_v1beta1.TensorboardServiceAsyncClient()
 
@@ -40,7 +38,7 @@ async def sample_update_tensorboard_experiment():
     # Make the request
     response = await client.update_tensorboard_experiment(request=request)
 
-    # Handle response
+    # Handle the response
     print(response)
 
 # [END aiplatform_generated_aiplatform_v1beta1_TensorboardService_UpdateTensorboardExperiment_async]

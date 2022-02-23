@@ -28,18 +28,18 @@ from google.cloud import aiplatform_v1
 
 
 def sample_list_features():
-    """Snippet for list_features"""
-
     # Create a client
     client = aiplatform_v1.FeaturestoreServiceClient()
 
     # Initialize request argument(s)
     request = aiplatform_v1.ListFeaturesRequest(
-        parent="projects/{project}/locations/{location}/featurestores/{featurestore}/entityTypes/{entity_type}/features/{feature}",
+        parent="parent_value",
     )
 
     # Make the request
     page_result = client.list_features(request=request)
+
+    # Handle the response
     for response in page_result:
         print(response)
 

@@ -28,8 +28,6 @@ from google.cloud import aiplatform_v1
 
 
 async def sample_upload_model():
-    """Snippet for upload_model"""
-
     # Create a client
     client = aiplatform_v1.ModelServiceAsyncClient()
 
@@ -38,7 +36,7 @@ async def sample_upload_model():
     model.display_name = "display_name_value"
 
     request = aiplatform_v1.UploadModelRequest(
-        parent="projects/{project}/locations/{location}",
+        parent="parent_value",
         model=model,
     )
 
@@ -48,6 +46,8 @@ async def sample_upload_model():
     print("Waiting for operation to complete...")
 
     response = await operation.result()
+
+    # Handle the response
     print(response)
 
 # [END aiplatform_generated_aiplatform_v1_ModelService_UploadModel_async]

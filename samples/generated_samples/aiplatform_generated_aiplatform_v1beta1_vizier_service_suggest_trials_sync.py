@@ -28,14 +28,12 @@ from google.cloud import aiplatform_v1beta1
 
 
 def sample_suggest_trials():
-    """Snippet for suggest_trials"""
-
     # Create a client
     client = aiplatform_v1beta1.VizierServiceClient()
 
     # Initialize request argument(s)
     request = aiplatform_v1beta1.SuggestTrialsRequest(
-        parent="projects/{project}/locations/{location}/studies/{study}",
+        parent="parent_value",
         suggestion_count=1744,
         client_id="client_id_value",
     )
@@ -46,6 +44,8 @@ def sample_suggest_trials():
     print("Waiting for operation to complete...")
 
     response = operation.result()
+
+    # Handle the response
     print(response)
 
 # [END aiplatform_generated_aiplatform_v1beta1_VizierService_SuggestTrials_sync]
