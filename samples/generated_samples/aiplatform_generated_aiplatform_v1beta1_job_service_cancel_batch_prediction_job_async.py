@@ -28,18 +28,16 @@ from google.cloud import aiplatform_v1beta1
 
 
 async def sample_cancel_batch_prediction_job():
-    """Snippet for cancel_batch_prediction_job"""
-
     # Create a client
     client = aiplatform_v1beta1.JobServiceAsyncClient()
 
     # Initialize request argument(s)
     request = aiplatform_v1beta1.CancelBatchPredictionJobRequest(
-        name="projects/{project}/locations/{location}/batchPredictionJobs/{batch_prediction_job}",
+        name="name_value",
     )
 
     # Make the request
-    response = await client.cancel_batch_prediction_job(request=request)
+    await client.cancel_batch_prediction_job(request=request)
 
 
 # [END aiplatform_generated_aiplatform_v1beta1_JobService_CancelBatchPredictionJob_async]

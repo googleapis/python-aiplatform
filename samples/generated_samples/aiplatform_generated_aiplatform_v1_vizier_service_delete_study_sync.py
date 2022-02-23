@@ -28,18 +28,16 @@ from google.cloud import aiplatform_v1
 
 
 def sample_delete_study():
-    """Snippet for delete_study"""
-
     # Create a client
     client = aiplatform_v1.VizierServiceClient()
 
     # Initialize request argument(s)
     request = aiplatform_v1.DeleteStudyRequest(
-        name="projects/{project}/locations/{location}/studies/{study}",
+        name="name_value",
     )
 
     # Make the request
-    response = client.delete_study(request=request)
+    client.delete_study(request=request)
 
 
 # [END aiplatform_generated_aiplatform_v1_VizierService_DeleteStudy_sync]

@@ -16,7 +16,7 @@
 from collections import OrderedDict
 import functools
 import re
-from typing import Dict, Sequence, Tuple, Type, Union
+from typing import Dict, Optional, Sequence, Tuple, Type, Union
 import pkg_resources
 
 from google.api_core.client_options import ClientOptions
@@ -129,6 +129,42 @@ class DatasetServiceAsyncClient:
 
     from_service_account_json = from_service_account_file
 
+    @classmethod
+    def get_mtls_endpoint_and_cert_source(
+        cls, client_options: Optional[ClientOptions] = None
+    ):
+        """Return the API endpoint and client cert source for mutual TLS.
+
+        The client cert source is determined in the following order:
+        (1) if `GOOGLE_API_USE_CLIENT_CERTIFICATE` environment variable is not "true", the
+        client cert source is None.
+        (2) if `client_options.client_cert_source` is provided, use the provided one; if the
+        default client cert source exists, use the default one; otherwise the client cert
+        source is None.
+
+        The API endpoint is determined in the following order:
+        (1) if `client_options.api_endpoint` if provided, use the provided one.
+        (2) if `GOOGLE_API_USE_CLIENT_CERTIFICATE` environment variable is "always", use the
+        default mTLS endpoint; if the environment variabel is "never", use the default API
+        endpoint; otherwise if client cert source exists, use the default mTLS endpoint, otherwise
+        use the default API endpoint.
+
+        More details can be found at https://google.aip.dev/auth/4114.
+
+        Args:
+            client_options (google.api_core.client_options.ClientOptions): Custom options for the
+                client. Only the `api_endpoint` and `client_cert_source` properties may be used
+                in this method.
+
+        Returns:
+            Tuple[str, Callable[[], Tuple[bytes, bytes]]]: returns the API endpoint and the
+                client cert source to use.
+
+        Raises:
+            google.auth.exceptions.MutualTLSChannelError: If any errors happen.
+        """
+        return DatasetServiceClient.get_mtls_endpoint_and_cert_source(client_options)  # type: ignore
+
     @property
     def transport(self) -> DatasetServiceTransport:
         """Returns the transport used by the client instance.
@@ -201,6 +237,35 @@ class DatasetServiceAsyncClient:
     ) -> operation_async.AsyncOperation:
         r"""Creates a Dataset.
 
+        .. code-block::
+
+            from google.cloud import aiplatform_v1
+
+            def sample_create_dataset():
+                # Create a client
+                client = aiplatform_v1.DatasetServiceClient()
+
+                # Initialize request argument(s)
+                dataset = aiplatform_v1.Dataset()
+                dataset.display_name = "display_name_value"
+                dataset.metadata_schema_uri = "metadata_schema_uri_value"
+                dataset.metadata.null_value = "NULL_VALUE"
+
+                request = aiplatform_v1.CreateDatasetRequest(
+                    parent="parent_value",
+                    dataset=dataset,
+                )
+
+                # Make the request
+                operation = client.create_dataset(request=request)
+
+                print("Waiting for operation to complete...")
+
+                response = operation.result()
+
+                # Handle the response
+                print(response)
+
         Args:
             request (Union[google.cloud.aiplatform_v1.types.CreateDatasetRequest, dict]):
                 The request object. Request message for
@@ -234,7 +299,7 @@ class DatasetServiceAsyncClient:
 
         """
         # Create or coerce a protobuf request object.
-        # Sanity check: If we got a request object, we should *not* have
+        # Quick check: If we got a request object, we should *not* have
         # gotten any keyword arguments that map to the request.
         has_flattened_params = any([parent, dataset])
         if request is not None and has_flattened_params:
@@ -291,6 +356,25 @@ class DatasetServiceAsyncClient:
     ) -> dataset.Dataset:
         r"""Gets a Dataset.
 
+        .. code-block::
+
+            from google.cloud import aiplatform_v1
+
+            def sample_get_dataset():
+                # Create a client
+                client = aiplatform_v1.DatasetServiceClient()
+
+                # Initialize request argument(s)
+                request = aiplatform_v1.GetDatasetRequest(
+                    name="name_value",
+                )
+
+                # Make the request
+                response = client.get_dataset(request=request)
+
+                # Handle the response
+                print(response)
+
         Args:
             request (Union[google.cloud.aiplatform_v1.types.GetDatasetRequest, dict]):
                 The request object. Request message for
@@ -315,7 +399,7 @@ class DatasetServiceAsyncClient:
 
         """
         # Create or coerce a protobuf request object.
-        # Sanity check: If we got a request object, we should *not* have
+        # Quick check: If we got a request object, we should *not* have
         # gotten any keyword arguments that map to the request.
         has_flattened_params = any([name])
         if request is not None and has_flattened_params:
@@ -363,6 +447,30 @@ class DatasetServiceAsyncClient:
     ) -> gca_dataset.Dataset:
         r"""Updates a Dataset.
 
+        .. code-block::
+
+            from google.cloud import aiplatform_v1
+
+            def sample_update_dataset():
+                # Create a client
+                client = aiplatform_v1.DatasetServiceClient()
+
+                # Initialize request argument(s)
+                dataset = aiplatform_v1.Dataset()
+                dataset.display_name = "display_name_value"
+                dataset.metadata_schema_uri = "metadata_schema_uri_value"
+                dataset.metadata.null_value = "NULL_VALUE"
+
+                request = aiplatform_v1.UpdateDatasetRequest(
+                    dataset=dataset,
+                )
+
+                # Make the request
+                response = client.update_dataset(request=request)
+
+                # Handle the response
+                print(response)
+
         Args:
             request (Union[google.cloud.aiplatform_v1.types.UpdateDatasetRequest, dict]):
                 The request object. Request message for
@@ -400,7 +508,7 @@ class DatasetServiceAsyncClient:
 
         """
         # Create or coerce a protobuf request object.
-        # Sanity check: If we got a request object, we should *not* have
+        # Quick check: If we got a request object, we should *not* have
         # gotten any keyword arguments that map to the request.
         has_flattened_params = any([dataset, update_mask])
         if request is not None and has_flattened_params:
@@ -451,6 +559,26 @@ class DatasetServiceAsyncClient:
     ) -> pagers.ListDatasetsAsyncPager:
         r"""Lists Datasets in a Location.
 
+        .. code-block::
+
+            from google.cloud import aiplatform_v1
+
+            def sample_list_datasets():
+                # Create a client
+                client = aiplatform_v1.DatasetServiceClient()
+
+                # Initialize request argument(s)
+                request = aiplatform_v1.ListDatasetsRequest(
+                    parent="parent_value",
+                )
+
+                # Make the request
+                page_result = client.list_datasets(request=request)
+
+                # Handle the response
+                for response in page_result:
+                    print(response)
+
         Args:
             request (Union[google.cloud.aiplatform_v1.types.ListDatasetsRequest, dict]):
                 The request object. Request message for
@@ -478,7 +606,7 @@ class DatasetServiceAsyncClient:
 
         """
         # Create or coerce a protobuf request object.
-        # Sanity check: If we got a request object, we should *not* have
+        # Quick check: If we got a request object, we should *not* have
         # gotten any keyword arguments that map to the request.
         has_flattened_params = any([parent])
         if request is not None and has_flattened_params:
@@ -531,6 +659,29 @@ class DatasetServiceAsyncClient:
     ) -> operation_async.AsyncOperation:
         r"""Deletes a Dataset.
 
+        .. code-block::
+
+            from google.cloud import aiplatform_v1
+
+            def sample_delete_dataset():
+                # Create a client
+                client = aiplatform_v1.DatasetServiceClient()
+
+                # Initialize request argument(s)
+                request = aiplatform_v1.DeleteDatasetRequest(
+                    name="name_value",
+                )
+
+                # Make the request
+                operation = client.delete_dataset(request=request)
+
+                print("Waiting for operation to complete...")
+
+                response = operation.result()
+
+                # Handle the response
+                print(response)
+
         Args:
             request (Union[google.cloud.aiplatform_v1.types.DeleteDatasetRequest, dict]):
                 The request object. Request message for
@@ -569,7 +720,7 @@ class DatasetServiceAsyncClient:
 
         """
         # Create or coerce a protobuf request object.
-        # Sanity check: If we got a request object, we should *not* have
+        # Quick check: If we got a request object, we should *not* have
         # gotten any keyword arguments that map to the request.
         has_flattened_params = any([name])
         if request is not None and has_flattened_params:
@@ -625,6 +776,34 @@ class DatasetServiceAsyncClient:
     ) -> operation_async.AsyncOperation:
         r"""Imports data into a Dataset.
 
+        .. code-block::
+
+            from google.cloud import aiplatform_v1
+
+            def sample_import_data():
+                # Create a client
+                client = aiplatform_v1.DatasetServiceClient()
+
+                # Initialize request argument(s)
+                import_configs = aiplatform_v1.ImportDataConfig()
+                import_configs.gcs_source.uris = ['uris_value_1', 'uris_value_2']
+                import_configs.import_schema_uri = "import_schema_uri_value"
+
+                request = aiplatform_v1.ImportDataRequest(
+                    name="name_value",
+                    import_configs=import_configs,
+                )
+
+                # Make the request
+                operation = client.import_data(request=request)
+
+                print("Waiting for operation to complete...")
+
+                response = operation.result()
+
+                # Handle the response
+                print(response)
+
         Args:
             request (Union[google.cloud.aiplatform_v1.types.ImportDataRequest, dict]):
                 The request object. Request message for
@@ -661,7 +840,7 @@ class DatasetServiceAsyncClient:
 
         """
         # Create or coerce a protobuf request object.
-        # Sanity check: If we got a request object, we should *not* have
+        # Quick check: If we got a request object, we should *not* have
         # gotten any keyword arguments that map to the request.
         has_flattened_params = any([name, import_configs])
         if request is not None and has_flattened_params:
@@ -719,6 +898,33 @@ class DatasetServiceAsyncClient:
     ) -> operation_async.AsyncOperation:
         r"""Exports data from a Dataset.
 
+        .. code-block::
+
+            from google.cloud import aiplatform_v1
+
+            def sample_export_data():
+                # Create a client
+                client = aiplatform_v1.DatasetServiceClient()
+
+                # Initialize request argument(s)
+                export_config = aiplatform_v1.ExportDataConfig()
+                export_config.gcs_destination.output_uri_prefix = "output_uri_prefix_value"
+
+                request = aiplatform_v1.ExportDataRequest(
+                    name="name_value",
+                    export_config=export_config,
+                )
+
+                # Make the request
+                operation = client.export_data(request=request)
+
+                print("Waiting for operation to complete...")
+
+                response = operation.result()
+
+                # Handle the response
+                print(response)
+
         Args:
             request (Union[google.cloud.aiplatform_v1.types.ExportDataRequest, dict]):
                 The request object. Request message for
@@ -754,7 +960,7 @@ class DatasetServiceAsyncClient:
 
         """
         # Create or coerce a protobuf request object.
-        # Sanity check: If we got a request object, we should *not* have
+        # Quick check: If we got a request object, we should *not* have
         # gotten any keyword arguments that map to the request.
         has_flattened_params = any([name, export_config])
         if request is not None and has_flattened_params:
@@ -811,6 +1017,26 @@ class DatasetServiceAsyncClient:
     ) -> pagers.ListDataItemsAsyncPager:
         r"""Lists DataItems in a Dataset.
 
+        .. code-block::
+
+            from google.cloud import aiplatform_v1
+
+            def sample_list_data_items():
+                # Create a client
+                client = aiplatform_v1.DatasetServiceClient()
+
+                # Initialize request argument(s)
+                request = aiplatform_v1.ListDataItemsRequest(
+                    parent="parent_value",
+                )
+
+                # Make the request
+                page_result = client.list_data_items(request=request)
+
+                # Handle the response
+                for response in page_result:
+                    print(response)
+
         Args:
             request (Union[google.cloud.aiplatform_v1.types.ListDataItemsRequest, dict]):
                 The request object. Request message for
@@ -839,7 +1065,7 @@ class DatasetServiceAsyncClient:
 
         """
         # Create or coerce a protobuf request object.
-        # Sanity check: If we got a request object, we should *not* have
+        # Quick check: If we got a request object, we should *not* have
         # gotten any keyword arguments that map to the request.
         has_flattened_params = any([parent])
         if request is not None and has_flattened_params:
@@ -892,6 +1118,25 @@ class DatasetServiceAsyncClient:
     ) -> annotation_spec.AnnotationSpec:
         r"""Gets an AnnotationSpec.
 
+        .. code-block::
+
+            from google.cloud import aiplatform_v1
+
+            def sample_get_annotation_spec():
+                # Create a client
+                client = aiplatform_v1.DatasetServiceClient()
+
+                # Initialize request argument(s)
+                request = aiplatform_v1.GetAnnotationSpecRequest(
+                    name="name_value",
+                )
+
+                # Make the request
+                response = client.get_annotation_spec(request=request)
+
+                # Handle the response
+                print(response)
+
         Args:
             request (Union[google.cloud.aiplatform_v1.types.GetAnnotationSpecRequest, dict]):
                 The request object. Request message for
@@ -917,7 +1162,7 @@ class DatasetServiceAsyncClient:
 
         """
         # Create or coerce a protobuf request object.
-        # Sanity check: If we got a request object, we should *not* have
+        # Quick check: If we got a request object, we should *not* have
         # gotten any keyword arguments that map to the request.
         has_flattened_params = any([name])
         if request is not None and has_flattened_params:
@@ -964,6 +1209,26 @@ class DatasetServiceAsyncClient:
     ) -> pagers.ListAnnotationsAsyncPager:
         r"""Lists Annotations belongs to a dataitem
 
+        .. code-block::
+
+            from google.cloud import aiplatform_v1
+
+            def sample_list_annotations():
+                # Create a client
+                client = aiplatform_v1.DatasetServiceClient()
+
+                # Initialize request argument(s)
+                request = aiplatform_v1.ListAnnotationsRequest(
+                    parent="parent_value",
+                )
+
+                # Make the request
+                page_result = client.list_annotations(request=request)
+
+                # Handle the response
+                for response in page_result:
+                    print(response)
+
         Args:
             request (Union[google.cloud.aiplatform_v1.types.ListAnnotationsRequest, dict]):
                 The request object. Request message for
@@ -992,7 +1257,7 @@ class DatasetServiceAsyncClient:
 
         """
         # Create or coerce a protobuf request object.
-        # Sanity check: If we got a request object, we should *not* have
+        # Quick check: If we got a request object, we should *not* have
         # gotten any keyword arguments that map to the request.
         has_flattened_params = any([parent])
         if request is not None and has_flattened_params:

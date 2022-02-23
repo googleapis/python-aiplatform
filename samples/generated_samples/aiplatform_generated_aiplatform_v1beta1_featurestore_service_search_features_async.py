@@ -28,18 +28,18 @@ from google.cloud import aiplatform_v1beta1
 
 
 async def sample_search_features():
-    """Snippet for search_features"""
-
     # Create a client
     client = aiplatform_v1beta1.FeaturestoreServiceAsyncClient()
 
     # Initialize request argument(s)
     request = aiplatform_v1beta1.SearchFeaturesRequest(
-        location="projects/{project}/locations/{location}",
+        location="location_value",
     )
 
     # Make the request
     page_result = client.search_features(request=request)
+
+    # Handle the response
     async for response in page_result:
         print(response)
 

@@ -28,14 +28,12 @@ from google.cloud import aiplatform_v1beta1
 
 
 async def sample_delete_batch_prediction_job():
-    """Snippet for delete_batch_prediction_job"""
-
     # Create a client
     client = aiplatform_v1beta1.JobServiceAsyncClient()
 
     # Initialize request argument(s)
     request = aiplatform_v1beta1.DeleteBatchPredictionJobRequest(
-        name="projects/{project}/locations/{location}/batchPredictionJobs/{batch_prediction_job}",
+        name="name_value",
     )
 
     # Make the request
@@ -44,6 +42,8 @@ async def sample_delete_batch_prediction_job():
     print("Waiting for operation to complete...")
 
     response = await operation.result()
+
+    # Handle the response
     print(response)
 
 # [END aiplatform_generated_aiplatform_v1beta1_JobService_DeleteBatchPredictionJob_async]

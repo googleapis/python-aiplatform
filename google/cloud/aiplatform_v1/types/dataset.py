@@ -46,8 +46,7 @@ class Dataset(proto.Message):
             information about the Dataset. The schema is
             defined as an OpenAPI 3.0.2 Schema Object. The
             schema files that can be used here are found in
-            gs://google-cloud-
-            aiplatform/schema/dataset/metadata/.
+            gs://google-cloud-aiplatform/schema/dataset/metadata/.
         metadata (google.protobuf.struct_pb2.Value):
             Required. Additional information about the
             Dataset.
@@ -82,8 +81,8 @@ class Dataset(proto.Message):
                title.
         encryption_spec (google.cloud.aiplatform_v1.types.EncryptionSpec):
             Customer-managed encryption key spec for a
-            Dataset. If set, this Dataset and all sub-
-            resources of this Dataset will be secured by
+            Dataset. If set, this Dataset and all
+            sub-resources of this Dataset will be secured by
             this key.
     """
 

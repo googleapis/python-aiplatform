@@ -28,14 +28,12 @@ from google.cloud import aiplatform_v1
 
 
 def sample_undeploy_model():
-    """Snippet for undeploy_model"""
-
     # Create a client
     client = aiplatform_v1.EndpointServiceClient()
 
     # Initialize request argument(s)
     request = aiplatform_v1.UndeployModelRequest(
-        endpoint="projects/{project}/locations/{location}/endpoints/{endpoint}",
+        endpoint="endpoint_value",
         deployed_model_id="deployed_model_id_value",
     )
 
@@ -45,6 +43,8 @@ def sample_undeploy_model():
     print("Waiting for operation to complete...")
 
     response = operation.result()
+
+    # Handle the response
     print(response)
 
 # [END aiplatform_generated_aiplatform_v1_EndpointService_UndeployModel_sync]

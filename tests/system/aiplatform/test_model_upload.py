@@ -32,7 +32,7 @@ _TEST_LOCATION = "us-central1"
 _XGBOOST_MODEL_URI = "gs://cloud-samples-data-us-central1/vertex-ai/google-cloud-aiplatform-ci-artifacts/models/iris_xgboost/model.bst"
 
 
-@pytest.mark.usefixtures("delete_staging_bucket", "teardown")
+@pytest.mark.usefixtures("delete_staging_bucket")
 class TestModel(e2e_base.TestEndToEnd):
     _temp_prefix = f"{_TEST_PROJECT}-vertex-staging-{_TEST_LOCATION}"
 
@@ -72,5 +72,5 @@ class TestModel(e2e_base.TestEndToEnd):
             labels={"my_label": "updated"},
         )
         assert model.display_name == "new_name"
-        assert model.display_name == "new_description"
+        assert model.description == "new_description"
         assert model.labels == {"my_label": "updated"}
