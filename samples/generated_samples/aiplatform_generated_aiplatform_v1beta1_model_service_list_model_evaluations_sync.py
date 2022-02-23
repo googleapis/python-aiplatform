@@ -28,18 +28,18 @@ from google.cloud import aiplatform_v1beta1
 
 
 def sample_list_model_evaluations():
-    """Snippet for list_model_evaluations"""
-
     # Create a client
     client = aiplatform_v1beta1.ModelServiceClient()
 
     # Initialize request argument(s)
     request = aiplatform_v1beta1.ListModelEvaluationsRequest(
-        parent="projects/{project}/locations/{location}/models/{model}",
+        parent="parent_value",
     )
 
     # Make the request
     page_result = client.list_model_evaluations(request=request)
+
+    # Handle the response
     for response in page_result:
         print(response)
 

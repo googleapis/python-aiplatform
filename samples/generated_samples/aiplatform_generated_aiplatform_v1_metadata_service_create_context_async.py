@@ -28,20 +28,18 @@ from google.cloud import aiplatform_v1
 
 
 async def sample_create_context():
-    """Snippet for create_context"""
-
     # Create a client
     client = aiplatform_v1.MetadataServiceAsyncClient()
 
     # Initialize request argument(s)
     request = aiplatform_v1.CreateContextRequest(
-        parent="projects/{project}/locations/{location}/metadataStores/{metadata_store}",
+        parent="parent_value",
     )
 
     # Make the request
     response = await client.create_context(request=request)
 
-    # Handle response
+    # Handle the response
     print(response)
 
 # [END aiplatform_generated_aiplatform_v1_MetadataService_CreateContext_async]

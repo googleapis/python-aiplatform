@@ -28,18 +28,18 @@ from google.cloud import aiplatform_v1beta1
 
 
 def sample_list_specialist_pools():
-    """Snippet for list_specialist_pools"""
-
     # Create a client
     client = aiplatform_v1beta1.SpecialistPoolServiceClient()
 
     # Initialize request argument(s)
     request = aiplatform_v1beta1.ListSpecialistPoolsRequest(
-        parent="projects/{project}/locations/{location}",
+        parent="parent_value",
     )
 
     # Make the request
     page_result = client.list_specialist_pools(request=request)
+
+    # Handle the response
     for response in page_result:
         print(response)
 
