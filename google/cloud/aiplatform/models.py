@@ -79,7 +79,7 @@ class Prediction(NamedTuple):
             of elements as instances to be explained. Default is None.
     """
 
-    predictions: Dict[str, List]
+    predictions: List[Dict[str, Any]]
     deployed_model_id: str
     explanations: Optional[Sequence[gca_explanation_compat.Explanation]] = None
 
@@ -1407,17 +1407,26 @@ class PrivateEndpoint(Endpoint):
     @property
     def predict_http_uri(self) -> Optional[str]:
         """Http(s) path to send prediction requests to, used when calling `PrivateEndpoint.predict()`"""
-        return self._custom_predict_uri or self._gca_resource.deployed_models[0].private_endpoints.predict_http_uri
+        return (
+            self._custom_predict_uri
+            or self._gca_resource.deployed_models[0].private_endpoints.predict_http_uri
+        )
 
     @property
     def explain_http_uri(self) -> Optional[str]:
         """Http(s) path to send explain requests to, used when calling `PrivateEndpoint.explain()`"""
-        return self._custom_explain_uri or self._gca_resource.deployed_models[0].private_endpoints.explain_http_uri
+        return (
+            self._custom_explain_uri
+            or self._gca_resource.deployed_models[0].private_endpoints.explain_http_uri
+        )
 
     @property
     def health_http_uri(self) -> Optional[str]:
         """Http(s) path to send health check requests to, used when calling `PrivateEndpoint.health_check()`"""
-        return self._custom_health_uri or self._gca_resource.deployed_models[0].private_endpoints.health_http_uri
+        return (
+            self._custom_health_uri
+            or self._gca_resource.deployed_models[0].private_endpoints.health_http_uri
+        )
 
     @classmethod
     def create(
@@ -1576,7 +1585,7 @@ class PrivateEndpoint(Endpoint):
             else:
                 raise RuntimeError(
                     f"{response.status} - Failed to make prediction request, see response:\n",
-                    response.data
+                    response.data,
                 )
 
         except urllib3.exceptions.MaxRetryError:
@@ -1586,7 +1595,6 @@ class PrivateEndpoint(Endpoint):
                 f"({self._gca_resource.network}), calling health_check() returns True, "
                 f"and that {url} is a valid URL."
             )
-
 
     def predict(self, instances: List, parameters: Optional[Dict] = None) -> Prediction:
         """Make a prediction against this private Endpoint using unauthenticated HTTP.
@@ -1651,7 +1659,9 @@ class PrivateEndpoint(Endpoint):
         except urllib3.exceptions.MaxRetryError as err:
             if not (
                 self._custom_explain_uri
-                or self._gca_resource.deployed_models[0].private_endpoints.explain_http_uri
+                or self._gca_resource.deployed_models[
+                    0
+                ].private_endpoints.explain_http_uri
             ):
                 raise RuntimeError(
                     "There is no URI for explanations on this private Endpoint, please "
@@ -1676,8 +1686,7 @@ class PrivateEndpoint(Endpoint):
         self._sync_gca_resource_if_skipped()
 
         response = self._unauthenticated_http_call(
-            method="GET",
-            url=self.health_http_uri,
+            method="GET", url=self.health_http_uri,
         )
 
         return response.status == 200
