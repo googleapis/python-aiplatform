@@ -277,6 +277,8 @@ def make_dockerfile(
         )
     )
 
+    dockerfile += _prepare_package_entry(main_package)
+
     dockerfile += _prepare_dependency_entries(
         requirements_path=requirements_path,
         setup_path=setup_path,
@@ -286,7 +288,6 @@ def make_dockerfile(
         pip_command=pip_command,
     )
 
-    dockerfile += _prepare_package_entry(main_package)
     dockerfile += _prepare_exposed_ports(exposed_ports)
     dockerfile += _prepare_entrypoint(main_package, python_command=python_command)
 
