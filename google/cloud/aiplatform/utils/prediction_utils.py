@@ -33,7 +33,7 @@ _logger = logging.getLogger(__name__)
 def _inspect_source_from_class(
     custom_class: Type[Any], src_dir: str,
 ):
-    """Inspects the source file from a custom class and retruns its import path.
+    """Inspects the source file from a custom class and returns its import path.
 
     Args:
         custom_class (Type[Any]):
