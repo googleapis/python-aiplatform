@@ -15,6 +15,8 @@
 # limitations under the License.
 #
 
+import uuid
+
 from google.cloud import aiplatform
 
 from tests.system.aiplatform import e2e_base
@@ -57,8 +59,8 @@ _TEST_INDEX_ENDPOINT_VPC_NETWORK = "projects/{}/global/networks/{}".format(
 )
 
 # DEPLOYED INDEX
-_TEST_DEPLOYED_INDEX_ID = "deployed_index_id"
-_TEST_DEPLOYED_INDEX_DISPLAY_NAME = "deployed_index_display_name"
+_TEST_DEPLOYED_INDEX_ID = f"deployed_index_id_{uuid.uuid4()}"
+_TEST_DEPLOYED_INDEX_DISPLAY_NAME = f"deployed_index_display_name_{uuid.uuid4()}"
 _TEST_MIN_REPLICA_COUNT_UPDATED = 4
 _TEST_MAX_REPLICA_COUNT_UPDATED = 4
 
