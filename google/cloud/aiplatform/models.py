@@ -14,12 +14,14 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
+import json
 import pathlib
 import proto
 import re
 import shutil
 import tempfile
-from typing import Dict, List, NamedTuple, Optional, Sequence, Tuple, Union
+import urllib3
+from typing import Any, Dict, List, NamedTuple, Optional, Sequence, Tuple, Union
 
 from google.api_core import operation
 from google.api_core import exceptions as api_exceptions
@@ -291,6 +293,7 @@ class Endpoint(base.VertexAiResourceNounWithFutureManager):
         metadata: Optional[Sequence[Tuple[str, str]]] = (),
         credentials: Optional[auth_credentials.Credentials] = None,
         encryption_spec: Optional[gca_encryption_spec.EncryptionSpec] = None,
+        network: Optional[str] = None,
         sync=True,
     ) -> "Endpoint":
         """Creates a new endpoint by calling the API client.
@@ -333,6 +336,13 @@ class Endpoint(base.VertexAiResourceNounWithFutureManager):
                 resource is created.
 
                 If set, this Dataset and all sub-resources of this Dataset will be secured by this key.
+            network (str):
+                Optional. The full name of the Compute Engine network to which
+                this Endpoint will be peered. E.g. "projects/12345/global/networks/myVPC".
+                Private services access must already be configured for the network.
+
+                If set, this will be a private Endpoint. Read more about private
+                Endpoints [in the documentation](https://cloud.google.com/vertex-ai/docs/predictions/using-private-endpoints)
             sync (bool):
                 Whether to create this endpoint synchronously.
         Returns:
@@ -349,6 +359,7 @@ class Endpoint(base.VertexAiResourceNounWithFutureManager):
             description=description,
             labels=labels,
             encryption_spec=encryption_spec,
+            network=network,
         )
 
         operation_future = api_client.create_endpoint(
@@ -483,8 +494,9 @@ class Endpoint(base.VertexAiResourceNounWithFutureManager):
 
         return new_traffic_split
 
-    @staticmethod
+    @classmethod
     def _validate_deploy_args(
+        cls,
         min_replica_count: int,
         max_replica_count: int,
         accelerator_type: Optional[str],
@@ -523,7 +535,7 @@ class Endpoint(base.VertexAiResourceNounWithFutureManager):
                 Required. The display name of the DeployedModel. If not provided
                 upon creation, the Model's display_name is used.
             traffic_split (Dict[str, int]):
-                Required. A map from a DeployedModel's ID to the percentage of
+                Optional. A map from a DeployedModel's ID to the percentage of
                 this Endpoint's traffic that should be forwarded to that DeployedModel.
                 If a DeployedModel's ID is not listed in this map, then it receives
                 no traffic. The traffic percentage values must add up to 100, or
@@ -531,7 +543,7 @@ class Endpoint(base.VertexAiResourceNounWithFutureManager):
                 the moment. Key for model being deployed is "0". Should not be
                 provided if traffic_percentage is provided.
             traffic_percentage (int):
-                Required. Desired traffic to newly deployed model. Defaults to
+                Optional. Desired traffic to newly deployed model. Defaults to
                 0 if there are pre-existing deployed models. Defaults to 100 if
                 there are no pre-existing deployed models. Negative values should
                 not be provided. Traffic of previously deployed models at the endpoint
@@ -560,18 +572,20 @@ class Endpoint(base.VertexAiResourceNounWithFutureManager):
         if deployed_model_display_name is not None:
             utils.validate_display_name(deployed_model_display_name)
 
-        if traffic_split is None:
-            if traffic_percentage > 100:
-                raise ValueError("Traffic percentage cannot be greater than 100.")
-            if traffic_percentage < 0:
-                raise ValueError("Traffic percentage cannot be negative.")
+        # TODO(b/): private Endpoints do not yet support traffic splitting
+        if cls == Endpoint:
+            if traffic_split is None:
+                if traffic_percentage > 100:
+                    raise ValueError("Traffic percentage cannot be greater than 100.")
+                if traffic_percentage < 0:
+                    raise ValueError("Traffic percentage cannot be negative.")
 
-        elif traffic_split:
-            # TODO(b/172678233) verify every referenced deployed model exists
-            if sum(traffic_split.values()) != 100:
-                raise ValueError(
-                    "Sum of all traffic within traffic split needs to be 100."
-                )
+            elif traffic_split:
+                # TODO(b/172678233) verify every referenced deployed model exists
+                if sum(traffic_split.values()) != 100:
+                    raise ValueError(
+                        "Sum of all traffic within traffic split needs to be 100."
+                    )
 
         if bool(explanation_metadata) != bool(explanation_parameters):
             raise ValueError(
@@ -964,7 +978,8 @@ class Endpoint(base.VertexAiResourceNounWithFutureManager):
             explanation_spec.parameters = explanation_parameters
             deployed_model.explanation_spec = explanation_spec
 
-        if traffic_split is None:
+        # TODO(b/): Remove check for class once PrivateEndpoint supports traffic split
+        if traffic_split is None and cls.__class__ == Endpoint:
             # new model traffic needs to be 100 if no pre-existing models
             if not endpoint_resource_traffic_split:
                 # default scenario
@@ -1085,7 +1100,16 @@ class Endpoint(base.VertexAiResourceNounWithFutureManager):
         self._sync_gca_resource_if_skipped()
         current_traffic_split = traffic_split or dict(self._gca_resource.traffic_split)
 
-        if deployed_model_id in current_traffic_split:
+        # TODO(b/211351292): Remove check once traffic split is supported
+        # Skip unallocating traffic and raise if new split is provided
+        if self.__class__ == PrivateEndpoint:
+            if traffic_split:
+                raise ValueError(
+                    "Traffic splitting is not yet supported by private Endpoints. "
+                    "Undeploy the current model without providing a `traffic_split`."
+                )
+
+        elif deployed_model_id in current_traffic_split:
             current_traffic_split = self._unallocate_traffic(
                 traffic_split=current_traffic_split,
                 deployed_model_id=deployed_model_id,
@@ -1274,6 +1298,9 @@ class Endpoint(base.VertexAiResourceNounWithFutureManager):
         """
 
         return cls._list_with_local_order(
+            cls_filter=lambda ep: not bool(
+                ep.network
+            ),  # `network` is empty for public Endpoints
             filter=filter,
             order_by=order_by,
             project=project,
@@ -1331,6 +1358,491 @@ class Endpoint(base.VertexAiResourceNounWithFutureManager):
             self.undeploy_all(sync=sync)
 
         super().delete(sync=sync)
+
+
+class PrivateEndpoint(Endpoint):
+    """
+    Represents a Vertex AI private Endpoint resource.
+
+    Read more [about private endpoints in the documentation.](https://cloud.google.com/vertex-ai/docs/predictions/using-private-endpoints)
+    """
+
+    def __init__(
+        self,
+        endpoint_name: str,
+        project: Optional[str] = None,
+        location: Optional[str] = None,
+        credentials: Optional[auth_credentials.Credentials] = None,
+    ):
+        """Retrieves a private Endpoint resource.
+
+        Args:
+            endpoint_name (str):
+                Required. A fully-qualified endpoint resource name or endpoint ID.
+                Example: "projects/123/locations/us-central1/endpoints/456" or
+                "456" when project and location are initialized or passed.
+            project (str):
+                Optional. Project to retrieve endpoint from. If not set, project
+                set in aiplatform.init will be used.
+            location (str):
+                Optional. Location to retrieve endpoint from. If not set, location
+                set in aiplatform.init will be used.
+            credentials (auth_credentials.Credentials):
+                Optional. Custom credentials to use to upload this model. Overrides
+                credentials set in aiplatform.init.
+        """
+        super().__init__(
+            endpoint_name=endpoint_name,
+            project=project,
+            location=location,
+            credentials=credentials,
+        )
+
+        self._custom_predict_uri = None
+        self._custom_explain_uri = None
+        self._custom_health_uri = None
+
+        self._http_client = urllib3.PoolManager()
+
+    @classmethod
+    def create(
+        cls,
+        display_name: str,
+        network: Optional[str] = None,
+        description: Optional[str] = None,
+        labels: Optional[Dict[str, str]] = None,
+        project: Optional[str] = None,
+        location: Optional[str] = None,
+        credentials: Optional[auth_credentials.Credentials] = None,
+        encryption_spec_key_name: Optional[str] = None,
+        sync=True,
+    ) -> "Endpoint":
+        """Creates a new private Endpoint.
+
+        Args:
+            display_name (str):
+                Required. The user-defined name of the Endpoint.
+                The name can be up to 128 characters long and can be consist
+                of any UTF-8 characters.
+            project (str):
+                Required. Project to retrieve endpoint from. If not set, project
+                set in aiplatform.init will be used.
+            location (str):
+                Required. Location to retrieve endpoint from. If not set, location
+                set in aiplatform.init will be used.
+            network (str):
+                Required. The full name of the Compute Engine network to which
+                this Endpoint will be peered. E.g. "projects/12345/global/networks/myVPC".
+                Private services access must already be configured for the network.
+                If not set, `network` set in aiplatform.init will be used.
+            description (str):
+                Optional. The description of the Endpoint.
+            labels (Dict[str, str]):
+                Optional. The labels with user-defined metadata to
+                organize your Endpoints.
+                Label keys and values can be no longer than 64
+                characters (Unicode codepoints), can only
+                contain lowercase letters, numeric characters,
+                underscores and dashes. International characters
+                are allowed.
+                See https://goo.gl/xmQnxf for more information
+                and examples of labels.
+            credentials (auth_credentials.Credentials):
+                Optional. Custom credentials to use to upload this model. Overrides
+                credentials set in aiplatform.init.
+            encryption_spec_key_name (str):
+                Optional. The Cloud KMS resource identifier of the customer
+                managed encryption key used to protect the model. Has the
+                form:
+                ``projects/my-project/locations/my-region/keyRings/my-kr/cryptoKeys/my-key``.
+                The key needs to be in the same region as where the compute
+                resource is created.
+
+                If set, this Endpoint and all sub-resources of this Endpoint will be secured by this key.
+
+                Overrides encryption_spec_key_name set in aiplatform.init.
+
+            sync (bool):
+                Whether to execute this method synchronously. If False, this method
+                will be executed in concurrent Future and any downstream object will
+                be immediately returned and synced when the Future has completed.
+        Returns:
+            endpoint (endpoint.Endpoint):
+                Created endpoint.
+        """
+        api_client = cls._instantiate_client(location=location, credentials=credentials)
+
+        utils.validate_display_name(display_name)
+        if labels:
+            utils.validate_labels(labels)
+
+        project = project or initializer.global_config.project
+        location = location or initializer.global_config.location
+        network = network or initializer.global_config.network
+
+        if not network:
+            raise ValueError(
+                "Please provide required argument `network` or set "
+                "using aiplatform.init(network=...)"
+            )
+
+        return cls._create(
+            api_client=api_client,
+            display_name=display_name,
+            project=project,
+            location=location,
+            description=description,
+            labels=labels,
+            credentials=credentials,
+            encryption_spec=initializer.global_config.get_encryption_spec(
+                encryption_spec_key_name=encryption_spec_key_name
+            ),
+            network=network,
+            sync=sync,
+        )
+
+    @classmethod
+    def _construct_sdk_resource_from_gapic(
+        cls,
+        gapic_resource: proto.Message,
+        project: Optional[str] = None,
+        location: Optional[str] = None,
+        credentials: Optional[auth_credentials.Credentials] = None,
+    ) -> "PrivateEndpoint":
+        """Given a GAPIC private Endpoint object, return the SDK representation.
+
+        Args:
+            gapic_resource (proto.Message):
+                A GAPIC representation of a private Endpoint resource, usually
+                retrieved by a get_* or in a list_* API call.
+            project (str):
+                Optional. Project to construct Endpoint object from. If not set,
+                project set in aiplatform.init will be used.
+            location (str):
+                Optional. Location to construct Endpoint object from. If not set,
+                location set in aiplatform.init will be used.
+            credentials (auth_credentials.Credentials):
+                Optional. Custom credentials to use to construct Endpoint.
+                Overrides credentials set in aiplatform.init.
+
+        Returns:
+            PrivateEndpoint:
+                An initialized PrivateEndpoint resource.
+        """
+        endpoint = cls._empty_constructor(
+            project=project, location=location, credentials=credentials
+        )
+
+        endpoint._gca_resource = gapic_resource
+
+        endpoint._custom_predict_uri = None
+        endpoint._custom_explain_uri = None
+        endpoint._custom_health_uri = None
+
+        endpoint._http_client = urllib3.PoolManager()
+
+        return endpoint
+
+    def _unauthenticated_http_call(
+        self,
+        method: str,
+        url: str,
+        body: Optional[Dict[Any, Any]] = None,
+        headers: Optional[Dict[str, str]] = None,
+    ) -> urllib3.response.HTTPResponse:
+
+        try:
+            response = self._http_client.request(
+                method, url, body=body, headers=headers
+            )
+
+            print("Dumping urllib3 response", response.data)
+            print("Dumping urllib3 response", response.status)
+            if response.status < 300:
+                return response
+            else:
+                raise RuntimeError(
+                    f"{response.status} - Failed to make prediction request, see response:\n",
+                    response.data
+                )
+
+        except urllib3.exceptions.MaxRetryError:
+            raise RuntimeError(
+                f"Failed to make a {method} request to this URI, make sure: "
+                " this call is being made inside the network this private Endpoint is peered to "
+                f"({self._gca_resource.network}), calling health_check() returns True, "
+                f"and that {url} is a valid URL."
+            )
+
+
+    def predict(self, instances: List, parameters: Optional[Dict] = None) -> Prediction:
+        """Make a prediction against this private Endpoint using unauthenticated HTTP.
+
+        This method must be called within the network the private Endpoint is peered to.
+        The predict() call will fail otherwise. To check, use `PrivateEndpoint.network`.
+
+        Args:
+            instances (List):
+                Required. The instances that are the input to the
+                prediction call. A DeployedModel may have an upper limit
+                on the number of instances it supports per request, and
+                when it is exceeded the prediction call errors in case
+                of AutoML Models, or, in case of customer created
+                Models, the behaviour is as documented by that Model.
+                The schema of any single instance may be specified via
+                Endpoint's DeployedModels'
+                [Model's][google.cloud.aiplatform.v1beta1.DeployedModel.model]
+                [PredictSchemata's][google.cloud.aiplatform.v1beta1.Model.predict_schemata]
+                ``instance_schema_uri``.
+            parameters (Dict):
+                The parameters that govern the prediction. The schema of
+                the parameters may be specified via Endpoint's
+                DeployedModels' [Model's
+                ][google.cloud.aiplatform.v1beta1.DeployedModel.model]
+                [PredictSchemata's][google.cloud.aiplatform.v1beta1.Model.predict_schemata]
+                ``parameters_schema_uri``.
+        Returns:
+            prediction: Prediction with returned predictions and Model Id.
+        """
+        self.wait()
+        self._sync_gca_resource_if_skipped()
+
+        response = self._unauthenticated_http_call(
+            method="POST",
+            url=self._custom_predict_uri
+            or self._gca_resource.deployed_models[0].private_endpoints.predict_http_uri,
+            body=json.dumps({"instances": instances}),
+            headers={"Content-Type": "application/json"},
+        )
+
+        prediction_response = json.loads(response.data)
+
+        return Prediction(
+            predictions=prediction_response.get("predictions"),
+            deployed_model_id=prediction_response.get("deployedModelId"),
+        )
+
+    def explain(
+        self, instances: List[Dict], parameters: Optional[Dict] = None,
+    ) -> Prediction:
+        self.wait()
+        self._sync_gca_resource_if_skipped()
+
+        try:
+            response = self._unauthenticated_http_call(
+                method="POST",
+                url=self._custom_explain_uri
+                or self._gca_resource.deployed_models[0].private_endpoints.explain_http_uri,
+                body=json.dumps({"instances": instances}),
+                headers={"Content-Type": "application/json"},
+            )
+
+        except urllib3.exceptions.MaxRetryError as err:
+            if not (
+                self._custom_explain_uri
+                or self._gca_resource.deployed_models[0].private_endpoints.explain_http_uri
+            ):
+                raise RuntimeError(
+                    "There is no URI for explanations on this private Endpoint, please "
+                    "check if the model deployed supports explanations."
+                )
+            raise err
+
+        prediction_response = response.data.decode("utf-8")
+
+        return Prediction(
+            predictions=prediction_response.get("predictions"),
+            deployed_model_id=prediction_response.get("deployedModelId"),
+            explanations=prediction_response.get("explanations"),
+        )
+
+    def health_check(self) -> bool:
+        """
+        Makes GET request to this private Endpoint's health check URI. Must be within network
+        that this private Endpoint
+        """
+        self.wait()
+        self._sync_gca_resource_if_skipped()
+
+        response = self._unauthenticated_http_call(
+            method="GET",
+            url=self._custom_health_uri
+            or self._gca_resource.deployed_models[0].private_endpoints.health_http_uri,
+        )
+
+        return response.status == 200
+
+    @classmethod
+    def list(
+        cls,
+        filter: Optional[str] = None,
+        order_by: Optional[str] = None,
+        project: Optional[str] = None,
+        location: Optional[str] = None,
+        credentials: Optional[auth_credentials.Credentials] = None,
+    ) -> List["models.PrivateEndpoint"]:
+        """List all private Endpoint resource instances.
+
+        Example Usage:
+        ```
+        aiplatform.PrivateEndpoint.list(
+            filter='labels.my_label="my_label_value" OR display_name=!"old_endpoint"',
+        )
+        ```
+
+        Args:
+            filter (str):
+                Optional. An expression for filtering the results of the request.
+                For field names both snake_case and camelCase are supported.
+            order_by (str):
+                Optional. A comma-separated list of fields to order by, sorted in
+                ascending order. Use "desc" after a field name for descending.
+                Supported fields: `display_name`, `create_time`, `update_time`
+            project (str):
+                Optional. Project to retrieve list from. If not set, project
+                set in aiplatform.init will be used.
+            location (str):
+                Optional. Location to retrieve list from. If not set, location
+                set in aiplatform.init will be used.
+            credentials (auth_credentials.Credentials):
+                Optional. Custom credentials to use to retrieve list. Overrides
+                credentials set in aiplatform.init.
+
+        Returns:
+            List[models.PrivateEndpoint] - A list of PrivateEndpoint resource objects
+        """
+
+        return cls._list_with_local_order(
+            cls_filter=lambda ep: bool(
+                ep.network
+            ),  # Only private Endpoints have a network set
+            filter=filter,
+            order_by=order_by,
+            project=project,
+            location=location,
+            credentials=credentials,
+        )
+
+    def deploy(
+        self,
+        model: "Model",
+        deployed_model_display_name: Optional[str] = None,
+        machine_type: Optional[str] = None,
+        min_replica_count: int = 1,
+        max_replica_count: int = 1,
+        accelerator_type: Optional[str] = None,
+        accelerator_count: Optional[int] = None,
+        service_account: Optional[str] = None,
+        explanation_metadata: Optional[aiplatform.explain.ExplanationMetadata] = None,
+        explanation_parameters: Optional[
+            aiplatform.explain.ExplanationParameters
+        ] = None,
+        metadata: Optional[Sequence[Tuple[str, str]]] = (),
+        sync=True,
+    ) -> None:
+        """Deploys a Model to the private Endpoint.
+
+        Args:
+            model (aiplatform.Model):
+                Required. Model to be deployed.
+            deployed_model_display_name (str):
+                Optional. The display name of the DeployedModel. If not provided
+                upon creation, the Model's display_name is used.
+            machine_type (str):
+                Optional. The type of machine. Not specifying machine type will
+                result in model to be deployed with automatic resources.
+            min_replica_count (int):
+                Optional. The minimum number of machine replicas this deployed
+                model will be always deployed on. If traffic against it increases,
+                it may dynamically be deployed onto more replicas, and as traffic
+                decreases, some of these extra replicas may be freed.
+            max_replica_count (int):
+                Optional. The maximum number of replicas this deployed model may
+                be deployed on when the traffic against it increases. If requested
+                value is too large, the deployment will error, but if deployment
+                succeeds then the ability to scale the model to that many replicas
+                is guaranteed (barring service outages). If traffic against the
+                deployed model increases beyond what its replicas at maximum may
+                handle, a portion of the traffic will be dropped. If this value
+                is not provided, the larger value of min_replica_count or 1 will
+                be used. If value provided is smaller than min_replica_count, it
+                will automatically be increased to be min_replica_count.
+            accelerator_type (str):
+                Optional. Hardware accelerator type. Must also set accelerator_count if used.
+                One of ACCELERATOR_TYPE_UNSPECIFIED, NVIDIA_TESLA_K80, NVIDIA_TESLA_P100,
+                NVIDIA_TESLA_V100, NVIDIA_TESLA_P4, NVIDIA_TESLA_T4
+            accelerator_count (int):
+                Optional. The number of accelerators to attach to a worker replica.
+            service_account (str):
+                The service account that the DeployedModel's container runs as. Specify the
+                email address of the service account. If this service account is not
+                specified, the container runs as a service account that doesn't have access
+                to the resource project.
+                Users deploying the Model must have the `iam.serviceAccounts.actAs`
+                permission on this service account.
+            explanation_metadata (aiplatform.explain.ExplanationMetadata):
+                Optional. Metadata describing the Model's input and output for explanation.
+                Both `explanation_metadata` and `explanation_parameters` must be
+                passed together when used. For more details, see
+                `Ref docs <http://tinyurl.com/1igh60kt>`
+            explanation_parameters (aiplatform.explain.ExplanationParameters):
+                Optional. Parameters to configure explaining for Model's predictions.
+                For more details, see `Ref docs <http://tinyurl.com/1an4zake>`
+            metadata (Sequence[Tuple[str, str]]):
+                Optional. Strings which should be sent along with the request as
+                metadata.
+            sync (bool):
+                Whether to execute this method synchronously. If False, this method
+                will be executed in concurrent Future and any downstream object will
+                be immediately returned and synced when the Future has completed.
+        """
+        self._sync_gca_resource_if_skipped()
+
+        if len(self._gca_resource.deployed_models):
+            raise ValueError(
+                "A maximum of one model can be deployed to each private Endpoint. "
+                "Please call PrivateEndpoint.undeploy_all() before deploying another "
+                "model."
+            )
+
+        self._validate_deploy_args(
+            min_replica_count,
+            max_replica_count,
+            accelerator_type,
+            deployed_model_display_name,
+            explanation_metadata,
+            explanation_parameters,
+        )
+
+        self._deploy(
+            model=model,
+            deployed_model_display_name=deployed_model_display_name,
+            machine_type=machine_type,
+            min_replica_count=min_replica_count,
+            max_replica_count=max_replica_count,
+            accelerator_type=accelerator_type,
+            accelerator_count=accelerator_count,
+            service_account=service_account,
+            explanation_metadata=explanation_metadata,
+            explanation_parameters=explanation_parameters,
+            metadata=metadata,
+            sync=sync,
+        )
+
+    def undeploy(self, deployed_model_id: str, sync=True,) -> None:
+        """Undeploys a deployed model from the private Endpoint.
+
+        Args:
+            deployed_model_id (str):
+                Required. The ID of the DeployedModel to be undeployed from the
+                private Endpoint. Use PrivateEndpoint.list_models() to get the
+                deployed model ID. 
+        """
+        self._sync_gca_resource_if_skipped()
+
+        self._undeploy(
+            deployed_model_id=deployed_model_id, sync=sync,
+        )
 
 
 class Model(base.VertexAiResourceNounWithFutureManager):
@@ -1872,7 +2384,7 @@ class Model(base.VertexAiResourceNounWithFutureManager):
     # TODO(b/172502059) support deploying with endpoint resource name
     def deploy(
         self,
-        endpoint: Optional["Endpoint"] = None,
+        endpoint: Optional[Union["Endpoint", "PrivateEndpoint"]] = None,
         deployed_model_display_name: Optional[str] = None,
         traffic_percentage: Optional[int] = 0,
         traffic_split: Optional[Dict[str, int]] = None,
@@ -1888,32 +2400,18 @@ class Model(base.VertexAiResourceNounWithFutureManager):
         ] = None,
         metadata: Optional[Sequence[Tuple[str, str]]] = (),
         encryption_spec_key_name: Optional[str] = None,
+        network: Optional[str] = None,
         sync=True,
     ) -> Endpoint:
         """Deploys model to endpoint. Endpoint will be created if unspecified.
 
         Args:
-            endpoint ("Endpoint"):
-                Optional. Endpoint to deploy model to. If not specified, endpoint
-                display name will be model display name+'_endpoint'.
+            endpoint (Union["Endpoint", "PrivateEndpoint"]):
+                Optional. Public or private Endpoint to deploy model to. If not specified,
+                endpoint display name will be model display name+'_endpoint'.
             deployed_model_display_name (str):
                 Optional. The display name of the DeployedModel. If not provided
                 upon creation, the Model's display_name is used.
-                        traffic_percentage (int):
-                Optional. Desired traffic to newly deployed model. Defaults to
-                0 if there are pre-existing deployed models. Defaults to 100 if
-                there are no pre-existing deployed models. Negative values should
-                not be provided. Traffic of previously deployed models at the endpoint
-                will be scaled down to accommodate new deployed model's traffic.
-                Should not be provided if traffic_split is provided.
-            traffic_split (Dict[str, int]):
-                Optional. A map from a DeployedModel's ID to the percentage of
-                this Endpoint's traffic that should be forwarded to that DeployedModel.
-                If a DeployedModel's ID is not listed in this map, then it receives
-                no traffic. The traffic percentage values must add up to 100, or
-                map must be empty if the Endpoint is to not accept any traffic at
-                the moment. Key for model being deployed is "0". Should not be
-                provided if traffic_percentage is provided.
             machine_type (str):
                 Optional. The type of machine. Not specifying machine type will
                 result in model to be deployed with automatic resources.
@@ -1967,6 +2465,13 @@ class Model(base.VertexAiResourceNounWithFutureManager):
                 If set, this Model and all sub-resources of this Model will be secured by this key.
 
                 Overrides encryption_spec_key_name set in aiplatform.init
+            network (str):
+                Optional. The full name of the Compute Engine network to which
+                this Endpoint will be peered. E.g. "projects/12345/global/networks/myVPC".
+                Private services access must already be configured for the network.
+
+                If set, a private Endpoint will be created. Read more about private
+                Endpoints [in the documentation](https://cloud.google.com/vertex-ai/docs/predictions/using-private-endpoints)
             sync (bool):
                 Whether to execute this method synchronously. If False, this method
                 will be executed in concurrent Future and any downstream object will
@@ -1987,6 +2492,15 @@ class Model(base.VertexAiResourceNounWithFutureManager):
             explanation_parameters,
         )
 
+        if endpoint and endpoint.__class__ == "PrivateEndpoint"():
+            if traffic_percentage or traffic_split:
+                raise ValueError(
+                    "Traffic splitting is not yet supported for private Endpoints. "
+                    "Try calling deploy() without providing a `traffic_split` or "
+                    "`traffic_percentage`. A maximum of one model can be deployed "
+                    "to each private Endpoint."
+                )
+
         return self._deploy(
             endpoint=endpoint,
             deployed_model_display_name=deployed_model_display_name,
@@ -2003,13 +2517,14 @@ class Model(base.VertexAiResourceNounWithFutureManager):
             metadata=metadata,
             encryption_spec_key_name=encryption_spec_key_name
             or initializer.global_config.encryption_spec_key_name,
+            network=network,
             sync=sync,
         )
 
     @base.optional_sync(return_input_arg="endpoint", bind_future_to_self=False)
     def _deploy(
         self,
-        endpoint: Optional["Endpoint"] = None,
+        endpoint: Optional[Union["Endpoint", "PrivateEndpoint"]] = None,
         deployed_model_display_name: Optional[str] = None,
         traffic_percentage: Optional[int] = 0,
         traffic_split: Optional[Dict[str, int]] = None,
@@ -2025,14 +2540,15 @@ class Model(base.VertexAiResourceNounWithFutureManager):
         ] = None,
         metadata: Optional[Sequence[Tuple[str, str]]] = (),
         encryption_spec_key_name: Optional[str] = None,
+        network: Optional[str] = None,
         sync: bool = True,
     ) -> Endpoint:
         """Deploys model to endpoint. Endpoint will be created if unspecified.
 
         Args:
-            endpoint ("Endpoint"):
-                Optional. Endpoint to deploy model to. If not specified, endpoint
-                display name will be model display name+'_endpoint'.
+            endpoint (Union["Endpoint", "PrivateEndpoint"]):
+                Optional. Public or private Endpoint to deploy model to. If not specified,
+                endpoint display name will be model display name+'_endpoint'.
             deployed_model_display_name (str):
                 Optional. The display name of the DeployedModel. If not provided
                 upon creation, the Model's display_name is used.
@@ -2104,6 +2620,13 @@ class Model(base.VertexAiResourceNounWithFutureManager):
                 If set, this Model and all sub-resources of this Model will be secured by this key.
 
                 Overrides encryption_spec_key_name set in aiplatform.init
+            network (str):
+                Optional. The full name of the Compute Engine network to which
+                this Endpoint will be peered. E.g. "projects/12345/global/networks/myVPC".
+                Private services access must already be configured for the network.
+
+                If set, a private Endpoint will be created. Read more about private
+                Endpoints [in the documentation](https://cloud.google.com/vertex-ai/docs/predictions/using-private-endpoints)
             sync (bool):
                 Whether to execute this method synchronously. If False, this method
                 will be executed in concurrent Future and any downstream object will
@@ -2115,17 +2638,28 @@ class Model(base.VertexAiResourceNounWithFutureManager):
 
         if endpoint is None:
             display_name = self.display_name[:118] + "_endpoint"
-            endpoint = Endpoint.create(
-                display_name=display_name,
-                project=self.project,
-                location=self.location,
-                credentials=self.credentials,
-                encryption_spec_key_name=encryption_spec_key_name,
-            )
+
+            if not network:
+                endpoint = Endpoint.create(
+                    display_name=display_name,
+                    project=self.project,
+                    location=self.location,
+                    credentials=self.credentials,
+                    encryption_spec_key_name=encryption_spec_key_name,
+                )
+            else:
+                endpoint = PrivateEndpoint.create(
+                    display_name=display_name,
+                    network=network,
+                    project=self.project,
+                    location=self.location,
+                    credentials=self.credentials,
+                    encryption_spec_key_name=encryption_spec_key_name,
+                )
 
         _LOGGER.log_action_start_against_resource("Deploying model to", "", endpoint)
 
-        Endpoint._deploy_call(
+        endpoint.__class__._deploy_call(
             endpoint.api_client,
             endpoint.resource_name,
             self.resource_name,

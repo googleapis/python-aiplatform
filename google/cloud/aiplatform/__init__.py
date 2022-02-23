@@ -40,6 +40,7 @@ from google.cloud.aiplatform.featurestore import (
 )
 from google.cloud.aiplatform.metadata import metadata
 from google.cloud.aiplatform.models import Endpoint
+from google.cloud.aiplatform.models import PrivateEndpoint
 from google.cloud.aiplatform.models import Model
 from google.cloud.aiplatform.jobs import (
     BatchPredictionJob,
@@ -108,6 +109,7 @@ __all__ = (
     "HyperparameterTuningJob",
     "Model",
     "PipelineJob",
+    "PrivateEndpoint",
     "TabularDataset",
     "Tensorboard",
     "TensorboardExperiment",
