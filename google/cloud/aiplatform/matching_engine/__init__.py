@@ -33,5 +33,4 @@ __all__ = (
     "MatchingEngineIndexConfig",
     "MatchingEngineBruteForceAlgorithmConfig",
     "MatchingEngineTreeAhAlgorithmConfig",
-    "TreeAhConfig",
 )

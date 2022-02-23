@@ -99,8 +99,13 @@ __all__ = (
     # v1
     dataset_service_client_v1,
     endpoint_service_client_v1,
+<<<<<<< HEAD
     featurestore_online_serving_service_client_v1,
     featurestore_service_client_v1,
+=======
+    featurestore_online_serving_service_client_v1beta1,
+    featurestore_service_client_v1beta1,
+>>>>>>> e621402e (Addressed PR comments)
     index_service_client_v1,
     index_endpoint_service_client_v1,
     job_service_client_v1,
@@ -113,8 +118,15 @@ __all__ = (
     # v1beta1
     dataset_service_client_v1beta1,
     endpoint_service_client_v1beta1,
+<<<<<<< HEAD
     featurestore_online_serving_service_client_v1beta1,
     featurestore_service_client_v1beta1,
+=======
+    featurestore_online_serving_service_client_v1,
+    featurestore_service_client_v1,
+    index_service_client_v1beta1,
+    index_endpoint_service_client_v1beta1,
+>>>>>>> e621402e (Addressed PR comments)
     job_service_client_v1beta1,
     model_service_client_v1beta1,
     pipeline_service_client_v1beta1,

@@ -110,8 +110,6 @@ __all__ = (
     "Featurestore",
     "MatchingEngineIndex",
     "MatchingEngineIndexEndpoint",
-    "MatchingEngineBruteForceAlgorithmConfig",
-    "MatchingEngineTreeAhAlgorithmConfig",
     "ImageDataset",
     "HyperparameterTuningJob",
     "Model",

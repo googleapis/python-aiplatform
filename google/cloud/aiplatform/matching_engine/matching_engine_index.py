@@ -122,7 +122,7 @@ class MatchingEngineIndex(base.VertexAiResourceNounWithFutureManager):
                 The expected structure and format of the files this URI points to is
                 described at
                 https://docs.google.com/document/d/12DLVB6Nq6rdv8grxfBsPhUA283KWrQ9ZenPBp0zUC30
-            config (Union[matching_engine_index_config.MatchingEngineIndexConfig]):
+            config (matching_engine_index_config.MatchingEngineIndexConfig):
                 Required. The configuration with regard to the algorithms used for efficient search.
             description (str):
                 Optional. The description of the Index.
@@ -205,7 +205,7 @@ class MatchingEngineIndex(base.VertexAiResourceNounWithFutureManager):
 
     def update_metadata(
         self,
-        display_name: str = None,
+        display_name: Optional[str] = None,
         description: Optional[str] = None,
         labels: Optional[Dict[str, str]] = None,
         request_metadata: Optional[Sequence[Tuple[str, str]]] = (),
@@ -214,11 +214,11 @@ class MatchingEngineIndex(base.VertexAiResourceNounWithFutureManager):
 
         Args:
             display_name (str):
-                The display name of the Index.
+                Optional. The display name of the Index.
                 The name can be up to 128 characters long and
                 can be consist of any UTF-8 characters.
             description (str):
-                The description of the Index.
+                Optional. The description of the Index.
             labels (Dict[str, str]):
                 Optional. The labels with user-defined
                 metadata to organize your Indexs.
@@ -296,7 +296,7 @@ class MatchingEngineIndex(base.VertexAiResourceNounWithFutureManager):
                 described at
                 https://docs.google.com/document/d/12DLVB6Nq6rdv8grxfBsPhUA283KWrQ9ZenPBp0zUC30
             is_complete_overwrite (str):
-                If this field is set together with contentsDeltaUri when calling IndexService.UpdateIndex,
+                Optional. If this field is set together with contentsDeltaUri when calling IndexService.UpdateIndex,
                 then existing content of the Index will be replaced by the data from the contentsDeltaUri.
             request_metadata (Sequence[Tuple[str, str]]):
                 Optional. Strings which should be sent along with the request as metadata.
@@ -484,7 +484,6 @@ class MatchingEngineIndex(base.VertexAiResourceNounWithFutureManager):
         display_name: str,
         contents_delta_uri: str,
         dimensions: int,
-        approximate_neighbors_count: int,
         distance_measure_type: Optional[
             matching_engine_index_config.DistanceMeasureType
         ] = None,
