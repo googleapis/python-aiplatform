@@ -28,8 +28,6 @@ from google.cloud import aiplatform_v1beta1
 
 
 async def sample_write_tensorboard_run_data():
-    """Snippet for write_tensorboard_run_data"""
-
     # Create a client
     client = aiplatform_v1beta1.TensorboardServiceAsyncClient()
 
@@ -39,14 +37,14 @@ async def sample_write_tensorboard_run_data():
     time_series_data.value_type = "BLOB_SEQUENCE"
 
     request = aiplatform_v1beta1.WriteTensorboardRunDataRequest(
-        tensorboard_run="projects/{project}/locations/{location}/tensorboards/{tensorboard}/experiments/{experiment}/runs/{run}",
+        tensorboard_run="tensorboard_run_value",
         time_series_data=time_series_data,
     )
 
     # Make the request
     response = await client.write_tensorboard_run_data(request=request)
 
-    # Handle response
+    # Handle the response
     print(response)
 
 # [END aiplatform_generated_aiplatform_v1beta1_TensorboardService_WriteTensorboardRunData_async]

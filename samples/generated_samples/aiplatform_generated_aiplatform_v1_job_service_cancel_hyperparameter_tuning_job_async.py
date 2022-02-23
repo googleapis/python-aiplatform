@@ -28,18 +28,16 @@ from google.cloud import aiplatform_v1
 
 
 async def sample_cancel_hyperparameter_tuning_job():
-    """Snippet for cancel_hyperparameter_tuning_job"""
-
     # Create a client
     client = aiplatform_v1.JobServiceAsyncClient()
 
     # Initialize request argument(s)
     request = aiplatform_v1.CancelHyperparameterTuningJobRequest(
-        name="projects/{project}/locations/{location}/hyperparameterTuningJobs/{hyperparameter_tuning_job}",
+        name="name_value",
     )
 
     # Make the request
-    response = await client.cancel_hyperparameter_tuning_job(request=request)
+    await client.cancel_hyperparameter_tuning_job(request=request)
 
 
 # [END aiplatform_generated_aiplatform_v1_JobService_CancelHyperparameterTuningJob_async]

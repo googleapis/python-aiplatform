@@ -28,18 +28,18 @@ from google.cloud import aiplatform_v1
 
 
 def sample_list_artifacts():
-    """Snippet for list_artifacts"""
-
     # Create a client
     client = aiplatform_v1.MetadataServiceClient()
 
     # Initialize request argument(s)
     request = aiplatform_v1.ListArtifactsRequest(
-        parent="projects/{project}/locations/{location}/metadataStores/{metadata_store}/artifacts/{artifact}",
+        parent="parent_value",
     )
 
     # Make the request
     page_result = client.list_artifacts(request=request)
+
+    # Handle the response
     for response in page_result:
         print(response)
 

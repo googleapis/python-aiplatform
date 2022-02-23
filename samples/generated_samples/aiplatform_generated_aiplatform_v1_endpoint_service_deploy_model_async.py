@@ -28,18 +28,16 @@ from google.cloud import aiplatform_v1
 
 
 async def sample_deploy_model():
-    """Snippet for deploy_model"""
-
     # Create a client
     client = aiplatform_v1.EndpointServiceAsyncClient()
 
     # Initialize request argument(s)
     deployed_model = aiplatform_v1.DeployedModel()
     deployed_model.dedicated_resources.min_replica_count = 1803
-    deployed_model.model = "projects/{project}/locations/{location}/models/{model}"
+    deployed_model.model = "model_value"
 
     request = aiplatform_v1.DeployModelRequest(
-        endpoint="projects/{project}/locations/{location}/endpoints/{endpoint}",
+        endpoint="endpoint_value",
         deployed_model=deployed_model,
     )
 
@@ -49,6 +47,8 @@ async def sample_deploy_model():
     print("Waiting for operation to complete...")
 
     response = await operation.result()
+
+    # Handle the response
     print(response)
 
 # [END aiplatform_generated_aiplatform_v1_EndpointService_DeployModel_async]

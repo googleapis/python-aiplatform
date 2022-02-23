@@ -28,20 +28,18 @@ from google.cloud import aiplatform_v1beta1
 
 
 def sample_complete_trial():
-    """Snippet for complete_trial"""
-
     # Create a client
     client = aiplatform_v1beta1.VizierServiceClient()
 
     # Initialize request argument(s)
     request = aiplatform_v1beta1.CompleteTrialRequest(
-        name="projects/{project}/locations/{location}/studies/{study}/trials/{trial}",
+        name="name_value",
     )
 
     # Make the request
     response = client.complete_trial(request=request)
 
-    # Handle response
+    # Handle the response
     print(response)
 
 # [END aiplatform_generated_aiplatform_v1beta1_VizierService_CompleteTrial_sync]

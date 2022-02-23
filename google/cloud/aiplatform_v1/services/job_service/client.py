@@ -619,6 +619,32 @@ class JobServiceClient(metaclass=JobServiceClientMeta):
         r"""Creates a CustomJob. A created CustomJob right away
         will be attempted to be run.
 
+
+
+        .. code-block::
+
+            from google.cloud import aiplatform_v1
+
+            def sample_create_custom_job():
+                # Create a client
+                client = aiplatform_v1.JobServiceClient()
+
+                # Initialize request argument(s)
+                custom_job = aiplatform_v1.CustomJob()
+                custom_job.display_name = "display_name_value"
+                custom_job.job_spec.worker_pool_specs.container_spec.image_uri = "image_uri_value"
+
+                request = aiplatform_v1.CreateCustomJobRequest(
+                    parent="parent_value",
+                    custom_job=custom_job,
+                )
+
+                # Make the request
+                response = client.create_custom_job(request=request)
+
+                # Handle the response
+                print(response)
+
         Args:
             request (Union[google.cloud.aiplatform_v1.types.CreateCustomJobRequest, dict]):
                 The request object. Request message for
@@ -704,6 +730,26 @@ class JobServiceClient(metaclass=JobServiceClientMeta):
     ) -> custom_job.CustomJob:
         r"""Gets a CustomJob.
 
+
+        .. code-block::
+
+            from google.cloud import aiplatform_v1
+
+            def sample_get_custom_job():
+                # Create a client
+                client = aiplatform_v1.JobServiceClient()
+
+                # Initialize request argument(s)
+                request = aiplatform_v1.GetCustomJobRequest(
+                    name="name_value",
+                )
+
+                # Make the request
+                response = client.get_custom_job(request=request)
+
+                # Handle the response
+                print(response)
+
         Args:
             request (Union[google.cloud.aiplatform_v1.types.GetCustomJobRequest, dict]):
                 The request object. Request message for
@@ -780,6 +826,27 @@ class JobServiceClient(metaclass=JobServiceClientMeta):
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> pagers.ListCustomJobsPager:
         r"""Lists CustomJobs in a Location.
+
+
+        .. code-block::
+
+            from google.cloud import aiplatform_v1
+
+            def sample_list_custom_jobs():
+                # Create a client
+                client = aiplatform_v1.JobServiceClient()
+
+                # Initialize request argument(s)
+                request = aiplatform_v1.ListCustomJobsRequest(
+                    parent="parent_value",
+                )
+
+                # Make the request
+                page_result = client.list_custom_jobs(request=request)
+
+                # Handle the response
+                for response in page_result:
+                    print(response)
 
         Args:
             request (Union[google.cloud.aiplatform_v1.types.ListCustomJobsRequest, dict]):
@@ -861,6 +928,30 @@ class JobServiceClient(metaclass=JobServiceClientMeta):
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> gac_operation.Operation:
         r"""Deletes a CustomJob.
+
+
+        .. code-block::
+
+            from google.cloud import aiplatform_v1
+
+            def sample_delete_custom_job():
+                # Create a client
+                client = aiplatform_v1.JobServiceClient()
+
+                # Initialize request argument(s)
+                request = aiplatform_v1.DeleteCustomJobRequest(
+                    name="name_value",
+                )
+
+                # Make the request
+                operation = client.delete_custom_job(request=request)
+
+                print("Waiting for operation to complete...")
+
+                response = operation.result()
+
+                # Handle the response
+                print(response)
 
         Args:
             request (Union[google.cloud.aiplatform_v1.types.DeleteCustomJobRequest, dict]):
@@ -967,6 +1058,24 @@ class JobServiceClient(metaclass=JobServiceClientMeta):
         [CustomJob.state][google.cloud.aiplatform.v1.CustomJob.state] is
         set to ``CANCELLED``.
 
+
+
+        .. code-block::
+
+            from google.cloud import aiplatform_v1
+
+            def sample_cancel_custom_job():
+                # Create a client
+                client = aiplatform_v1.JobServiceClient()
+
+                # Initialize request argument(s)
+                request = aiplatform_v1.CancelCustomJobRequest(
+                    name="name_value",
+                )
+
+                # Make the request
+                client.cancel_custom_job(request=request)
+
         Args:
             request (Union[google.cloud.aiplatform_v1.types.CancelCustomJobRequest, dict]):
                 The request object. Request message for
@@ -1031,6 +1140,35 @@ class JobServiceClient(metaclass=JobServiceClientMeta):
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> gca_data_labeling_job.DataLabelingJob:
         r"""Creates a DataLabelingJob.
+
+
+        .. code-block::
+
+            from google.cloud import aiplatform_v1
+
+            def sample_create_data_labeling_job():
+                # Create a client
+                client = aiplatform_v1.JobServiceClient()
+
+                # Initialize request argument(s)
+                data_labeling_job = aiplatform_v1.DataLabelingJob()
+                data_labeling_job.display_name = "display_name_value"
+                data_labeling_job.datasets = ['datasets_value_1', 'datasets_value_2']
+                data_labeling_job.labeler_count = 1375
+                data_labeling_job.instruction_uri = "instruction_uri_value"
+                data_labeling_job.inputs_schema_uri = "inputs_schema_uri_value"
+                data_labeling_job.inputs.null_value = "NULL_VALUE"
+
+                request = aiplatform_v1.CreateDataLabelingJobRequest(
+                    parent="parent_value",
+                    data_labeling_job=data_labeling_job,
+                )
+
+                # Make the request
+                response = client.create_data_labeling_job(request=request)
+
+                # Handle the response
+                print(response)
 
         Args:
             request (Union[google.cloud.aiplatform_v1.types.CreateDataLabelingJobRequest, dict]):
@@ -1113,6 +1251,26 @@ class JobServiceClient(metaclass=JobServiceClientMeta):
     ) -> data_labeling_job.DataLabelingJob:
         r"""Gets a DataLabelingJob.
 
+
+        .. code-block::
+
+            from google.cloud import aiplatform_v1
+
+            def sample_get_data_labeling_job():
+                # Create a client
+                client = aiplatform_v1.JobServiceClient()
+
+                # Initialize request argument(s)
+                request = aiplatform_v1.GetDataLabelingJobRequest(
+                    name="name_value",
+                )
+
+                # Make the request
+                response = client.get_data_labeling_job(request=request)
+
+                # Handle the response
+                print(response)
+
         Args:
             request (Union[google.cloud.aiplatform_v1.types.GetDataLabelingJobRequest, dict]):
                 The request object. Request message for
@@ -1184,6 +1342,27 @@ class JobServiceClient(metaclass=JobServiceClientMeta):
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> pagers.ListDataLabelingJobsPager:
         r"""Lists DataLabelingJobs in a Location.
+
+
+        .. code-block::
+
+            from google.cloud import aiplatform_v1
+
+            def sample_list_data_labeling_jobs():
+                # Create a client
+                client = aiplatform_v1.JobServiceClient()
+
+                # Initialize request argument(s)
+                request = aiplatform_v1.ListDataLabelingJobsRequest(
+                    parent="parent_value",
+                )
+
+                # Make the request
+                page_result = client.list_data_labeling_jobs(request=request)
+
+                # Handle the response
+                for response in page_result:
+                    print(response)
 
         Args:
             request (Union[google.cloud.aiplatform_v1.types.ListDataLabelingJobsRequest, dict]):
@@ -1264,6 +1443,30 @@ class JobServiceClient(metaclass=JobServiceClientMeta):
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> gac_operation.Operation:
         r"""Deletes a DataLabelingJob.
+
+
+        .. code-block::
+
+            from google.cloud import aiplatform_v1
+
+            def sample_delete_data_labeling_job():
+                # Create a client
+                client = aiplatform_v1.JobServiceClient()
+
+                # Initialize request argument(s)
+                request = aiplatform_v1.DeleteDataLabelingJobRequest(
+                    name="name_value",
+                )
+
+                # Make the request
+                operation = client.delete_data_labeling_job(request=request)
+
+                print("Waiting for operation to complete...")
+
+                response = operation.result()
+
+                # Handle the response
+                print(response)
 
         Args:
             request (Union[google.cloud.aiplatform_v1.types.DeleteDataLabelingJobRequest, dict]):
@@ -1359,6 +1562,24 @@ class JobServiceClient(metaclass=JobServiceClientMeta):
         r"""Cancels a DataLabelingJob. Success of cancellation is
         not guaranteed.
 
+
+
+        .. code-block::
+
+            from google.cloud import aiplatform_v1
+
+            def sample_cancel_data_labeling_job():
+                # Create a client
+                client = aiplatform_v1.JobServiceClient()
+
+                # Initialize request argument(s)
+                request = aiplatform_v1.CancelDataLabelingJobRequest(
+                    name="name_value",
+                )
+
+                # Make the request
+                client.cancel_data_labeling_job(request=request)
+
         Args:
             request (Union[google.cloud.aiplatform_v1.types.CancelDataLabelingJobRequest, dict]):
                 The request object. Request message for
@@ -1423,6 +1644,38 @@ class JobServiceClient(metaclass=JobServiceClientMeta):
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> gca_hyperparameter_tuning_job.HyperparameterTuningJob:
         r"""Creates a HyperparameterTuningJob
+
+
+        .. code-block::
+
+            from google.cloud import aiplatform_v1
+
+            def sample_create_hyperparameter_tuning_job():
+                # Create a client
+                client = aiplatform_v1.JobServiceClient()
+
+                # Initialize request argument(s)
+                hyperparameter_tuning_job = aiplatform_v1.HyperparameterTuningJob()
+                hyperparameter_tuning_job.display_name = "display_name_value"
+                hyperparameter_tuning_job.study_spec.metrics.metric_id = "metric_id_value"
+                hyperparameter_tuning_job.study_spec.metrics.goal = "MINIMIZE"
+                hyperparameter_tuning_job.study_spec.parameters.double_value_spec.min_value = 0.96
+                hyperparameter_tuning_job.study_spec.parameters.double_value_spec.max_value = 0.962
+                hyperparameter_tuning_job.study_spec.parameters.parameter_id = "parameter_id_value"
+                hyperparameter_tuning_job.max_trial_count = 1609
+                hyperparameter_tuning_job.parallel_trial_count = 2128
+                hyperparameter_tuning_job.trial_job_spec.worker_pool_specs.container_spec.image_uri = "image_uri_value"
+
+                request = aiplatform_v1.CreateHyperparameterTuningJobRequest(
+                    parent="parent_value",
+                    hyperparameter_tuning_job=hyperparameter_tuning_job,
+                )
+
+                # Make the request
+                response = client.create_hyperparameter_tuning_job(request=request)
+
+                # Handle the response
+                print(response)
 
         Args:
             request (Union[google.cloud.aiplatform_v1.types.CreateHyperparameterTuningJobRequest, dict]):
@@ -1509,6 +1762,26 @@ class JobServiceClient(metaclass=JobServiceClientMeta):
     ) -> hyperparameter_tuning_job.HyperparameterTuningJob:
         r"""Gets a HyperparameterTuningJob
 
+
+        .. code-block::
+
+            from google.cloud import aiplatform_v1
+
+            def sample_get_hyperparameter_tuning_job():
+                # Create a client
+                client = aiplatform_v1.JobServiceClient()
+
+                # Initialize request argument(s)
+                request = aiplatform_v1.GetHyperparameterTuningJobRequest(
+                    name="name_value",
+                )
+
+                # Make the request
+                response = client.get_hyperparameter_tuning_job(request=request)
+
+                # Handle the response
+                print(response)
+
         Args:
             request (Union[google.cloud.aiplatform_v1.types.GetHyperparameterTuningJobRequest, dict]):
                 The request object. Request message for
@@ -1584,6 +1857,27 @@ class JobServiceClient(metaclass=JobServiceClientMeta):
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> pagers.ListHyperparameterTuningJobsPager:
         r"""Lists HyperparameterTuningJobs in a Location.
+
+
+        .. code-block::
+
+            from google.cloud import aiplatform_v1
+
+            def sample_list_hyperparameter_tuning_jobs():
+                # Create a client
+                client = aiplatform_v1.JobServiceClient()
+
+                # Initialize request argument(s)
+                request = aiplatform_v1.ListHyperparameterTuningJobsRequest(
+                    parent="parent_value",
+                )
+
+                # Make the request
+                page_result = client.list_hyperparameter_tuning_jobs(request=request)
+
+                # Handle the response
+                for response in page_result:
+                    print(response)
 
         Args:
             request (Union[google.cloud.aiplatform_v1.types.ListHyperparameterTuningJobsRequest, dict]):
@@ -1667,6 +1961,30 @@ class JobServiceClient(metaclass=JobServiceClientMeta):
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> gac_operation.Operation:
         r"""Deletes a HyperparameterTuningJob.
+
+
+        .. code-block::
+
+            from google.cloud import aiplatform_v1
+
+            def sample_delete_hyperparameter_tuning_job():
+                # Create a client
+                client = aiplatform_v1.JobServiceClient()
+
+                # Initialize request argument(s)
+                request = aiplatform_v1.DeleteHyperparameterTuningJobRequest(
+                    name="name_value",
+                )
+
+                # Make the request
+                operation = client.delete_hyperparameter_tuning_job(request=request)
+
+                print("Waiting for operation to complete...")
+
+                response = operation.result()
+
+                # Handle the response
+                print(response)
 
         Args:
             request (Union[google.cloud.aiplatform_v1.types.DeleteHyperparameterTuningJobRequest, dict]):
@@ -1776,6 +2094,24 @@ class JobServiceClient(metaclass=JobServiceClientMeta):
         [HyperparameterTuningJob.state][google.cloud.aiplatform.v1.HyperparameterTuningJob.state]
         is set to ``CANCELLED``.
 
+
+
+        .. code-block::
+
+            from google.cloud import aiplatform_v1
+
+            def sample_cancel_hyperparameter_tuning_job():
+                # Create a client
+                client = aiplatform_v1.JobServiceClient()
+
+                # Initialize request argument(s)
+                request = aiplatform_v1.CancelHyperparameterTuningJobRequest(
+                    name="name_value",
+                )
+
+                # Make the request
+                client.cancel_hyperparameter_tuning_job(request=request)
+
         Args:
             request (Union[google.cloud.aiplatform_v1.types.CancelHyperparameterTuningJobRequest, dict]):
                 The request object. Request message for
@@ -1844,6 +2180,35 @@ class JobServiceClient(metaclass=JobServiceClientMeta):
     ) -> gca_batch_prediction_job.BatchPredictionJob:
         r"""Creates a BatchPredictionJob. A BatchPredictionJob
         once created will right away be attempted to start.
+
+
+
+        .. code-block::
+
+            from google.cloud import aiplatform_v1
+
+            def sample_create_batch_prediction_job():
+                # Create a client
+                client = aiplatform_v1.JobServiceClient()
+
+                # Initialize request argument(s)
+                batch_prediction_job = aiplatform_v1.BatchPredictionJob()
+                batch_prediction_job.display_name = "display_name_value"
+                batch_prediction_job.input_config.gcs_source.uris = ['uris_value_1', 'uris_value_2']
+                batch_prediction_job.input_config.instances_format = "instances_format_value"
+                batch_prediction_job.output_config.gcs_destination.output_uri_prefix = "output_uri_prefix_value"
+                batch_prediction_job.output_config.predictions_format = "predictions_format_value"
+
+                request = aiplatform_v1.CreateBatchPredictionJobRequest(
+                    parent="parent_value",
+                    batch_prediction_job=batch_prediction_job,
+                )
+
+                # Make the request
+                response = client.create_batch_prediction_job(request=request)
+
+                # Handle the response
+                print(response)
 
         Args:
             request (Union[google.cloud.aiplatform_v1.types.CreateBatchPredictionJobRequest, dict]):
@@ -1932,6 +2297,26 @@ class JobServiceClient(metaclass=JobServiceClientMeta):
     ) -> batch_prediction_job.BatchPredictionJob:
         r"""Gets a BatchPredictionJob
 
+
+        .. code-block::
+
+            from google.cloud import aiplatform_v1
+
+            def sample_get_batch_prediction_job():
+                # Create a client
+                client = aiplatform_v1.JobServiceClient()
+
+                # Initialize request argument(s)
+                request = aiplatform_v1.GetBatchPredictionJobRequest(
+                    name="name_value",
+                )
+
+                # Make the request
+                response = client.get_batch_prediction_job(request=request)
+
+                # Handle the response
+                print(response)
+
         Args:
             request (Union[google.cloud.aiplatform_v1.types.GetBatchPredictionJobRequest, dict]):
                 The request object. Request message for
@@ -2007,6 +2392,27 @@ class JobServiceClient(metaclass=JobServiceClientMeta):
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> pagers.ListBatchPredictionJobsPager:
         r"""Lists BatchPredictionJobs in a Location.
+
+
+        .. code-block::
+
+            from google.cloud import aiplatform_v1
+
+            def sample_list_batch_prediction_jobs():
+                # Create a client
+                client = aiplatform_v1.JobServiceClient()
+
+                # Initialize request argument(s)
+                request = aiplatform_v1.ListBatchPredictionJobsRequest(
+                    parent="parent_value",
+                )
+
+                # Make the request
+                page_result = client.list_batch_prediction_jobs(request=request)
+
+                # Handle the response
+                for response in page_result:
+                    print(response)
 
         Args:
             request (Union[google.cloud.aiplatform_v1.types.ListBatchPredictionJobsRequest, dict]):
@@ -2091,6 +2497,31 @@ class JobServiceClient(metaclass=JobServiceClientMeta):
     ) -> gac_operation.Operation:
         r"""Deletes a BatchPredictionJob. Can only be called on
         jobs that already finished.
+
+
+
+        .. code-block::
+
+            from google.cloud import aiplatform_v1
+
+            def sample_delete_batch_prediction_job():
+                # Create a client
+                client = aiplatform_v1.JobServiceClient()
+
+                # Initialize request argument(s)
+                request = aiplatform_v1.DeleteBatchPredictionJobRequest(
+                    name="name_value",
+                )
+
+                # Make the request
+                operation = client.delete_batch_prediction_job(request=request)
+
+                print("Waiting for operation to complete...")
+
+                response = operation.result()
+
+                # Handle the response
+                print(response)
 
         Args:
             request (Union[google.cloud.aiplatform_v1.types.DeleteBatchPredictionJobRequest, dict]):
@@ -2198,6 +2629,24 @@ class JobServiceClient(metaclass=JobServiceClientMeta):
         is set to ``CANCELLED``. Any files already outputted by the job
         are not deleted.
 
+
+
+        .. code-block::
+
+            from google.cloud import aiplatform_v1
+
+            def sample_cancel_batch_prediction_job():
+                # Create a client
+                client = aiplatform_v1.JobServiceClient()
+
+                # Initialize request argument(s)
+                request = aiplatform_v1.CancelBatchPredictionJobRequest(
+                    name="name_value",
+                )
+
+                # Make the request
+                client.cancel_batch_prediction_job(request=request)
+
         Args:
             request (Union[google.cloud.aiplatform_v1.types.CancelBatchPredictionJobRequest, dict]):
                 The request object. Request message for
@@ -2268,6 +2717,32 @@ class JobServiceClient(metaclass=JobServiceClientMeta):
     ) -> gca_model_deployment_monitoring_job.ModelDeploymentMonitoringJob:
         r"""Creates a ModelDeploymentMonitoringJob. It will run
         periodically on a configured interval.
+
+
+
+        .. code-block::
+
+            from google.cloud import aiplatform_v1
+
+            def sample_create_model_deployment_monitoring_job():
+                # Create a client
+                client = aiplatform_v1.JobServiceClient()
+
+                # Initialize request argument(s)
+                model_deployment_monitoring_job = aiplatform_v1.ModelDeploymentMonitoringJob()
+                model_deployment_monitoring_job.display_name = "display_name_value"
+                model_deployment_monitoring_job.endpoint = "endpoint_value"
+
+                request = aiplatform_v1.CreateModelDeploymentMonitoringJobRequest(
+                    parent="parent_value",
+                    model_deployment_monitoring_job=model_deployment_monitoring_job,
+                )
+
+                # Make the request
+                response = client.create_model_deployment_monitoring_job(request=request)
+
+                # Handle the response
+                print(response)
 
         Args:
             request (Union[google.cloud.aiplatform_v1.types.CreateModelDeploymentMonitoringJobRequest, dict]):
@@ -2363,6 +2838,29 @@ class JobServiceClient(metaclass=JobServiceClientMeta):
         r"""Searches Model Monitoring Statistics generated within
         a given time window.
 
+
+
+        .. code-block::
+
+            from google.cloud import aiplatform_v1
+
+            def sample_search_model_deployment_monitoring_stats_anomalies():
+                # Create a client
+                client = aiplatform_v1.JobServiceClient()
+
+                # Initialize request argument(s)
+                request = aiplatform_v1.SearchModelDeploymentMonitoringStatsAnomaliesRequest(
+                    model_deployment_monitoring_job="model_deployment_monitoring_job_value",
+                    deployed_model_id="deployed_model_id_value",
+                )
+
+                # Make the request
+                page_result = client.search_model_deployment_monitoring_stats_anomalies(request=request)
+
+                # Handle the response
+                for response in page_result:
+                    print(response)
+
         Args:
             request (Union[google.cloud.aiplatform_v1.types.SearchModelDeploymentMonitoringStatsAnomaliesRequest, dict]):
                 The request object. Request message for
@@ -2370,7 +2868,7 @@ class JobServiceClient(metaclass=JobServiceClientMeta):
             model_deployment_monitoring_job (str):
                 Required. ModelDeploymentMonitoring Job resource name.
                 Format:
-                \`projects/{project}/locations/{location}/modelDeploymentMonitoringJobs/{model_deployment_monitoring_job}
+                ``projects/{project}/locations/{location}/modelDeploymentMonitoringJobs/{model_deployment_monitoring_job}``
 
                 This corresponds to the ``model_deployment_monitoring_job`` field
                 on the ``request`` instance; if ``request`` is provided, this
@@ -2468,6 +2966,26 @@ class JobServiceClient(metaclass=JobServiceClientMeta):
     ) -> model_deployment_monitoring_job.ModelDeploymentMonitoringJob:
         r"""Gets a ModelDeploymentMonitoringJob.
 
+
+        .. code-block::
+
+            from google.cloud import aiplatform_v1
+
+            def sample_get_model_deployment_monitoring_job():
+                # Create a client
+                client = aiplatform_v1.JobServiceClient()
+
+                # Initialize request argument(s)
+                request = aiplatform_v1.GetModelDeploymentMonitoringJobRequest(
+                    name="name_value",
+                )
+
+                # Make the request
+                response = client.get_model_deployment_monitoring_job(request=request)
+
+                # Handle the response
+                print(response)
+
         Args:
             request (Union[google.cloud.aiplatform_v1.types.GetModelDeploymentMonitoringJobRequest, dict]):
                 The request object. Request message for
@@ -2546,6 +3064,27 @@ class JobServiceClient(metaclass=JobServiceClientMeta):
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> pagers.ListModelDeploymentMonitoringJobsPager:
         r"""Lists ModelDeploymentMonitoringJobs in a Location.
+
+
+        .. code-block::
+
+            from google.cloud import aiplatform_v1
+
+            def sample_list_model_deployment_monitoring_jobs():
+                # Create a client
+                client = aiplatform_v1.JobServiceClient()
+
+                # Initialize request argument(s)
+                request = aiplatform_v1.ListModelDeploymentMonitoringJobsRequest(
+                    parent="parent_value",
+                )
+
+                # Make the request
+                page_result = client.list_model_deployment_monitoring_jobs(request=request)
+
+                # Handle the response
+                for response in page_result:
+                    print(response)
 
         Args:
             request (Union[google.cloud.aiplatform_v1.types.ListModelDeploymentMonitoringJobsRequest, dict]):
@@ -2634,6 +3173,34 @@ class JobServiceClient(metaclass=JobServiceClientMeta):
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> gac_operation.Operation:
         r"""Updates a ModelDeploymentMonitoringJob.
+
+
+        .. code-block::
+
+            from google.cloud import aiplatform_v1
+
+            def sample_update_model_deployment_monitoring_job():
+                # Create a client
+                client = aiplatform_v1.JobServiceClient()
+
+                # Initialize request argument(s)
+                model_deployment_monitoring_job = aiplatform_v1.ModelDeploymentMonitoringJob()
+                model_deployment_monitoring_job.display_name = "display_name_value"
+                model_deployment_monitoring_job.endpoint = "endpoint_value"
+
+                request = aiplatform_v1.UpdateModelDeploymentMonitoringJobRequest(
+                    model_deployment_monitoring_job=model_deployment_monitoring_job,
+                )
+
+                # Make the request
+                operation = client.update_model_deployment_monitoring_job(request=request)
+
+                print("Waiting for operation to complete...")
+
+                response = operation.result()
+
+                # Handle the response
+                print(response)
 
         Args:
             request (Union[google.cloud.aiplatform_v1.types.UpdateModelDeploymentMonitoringJobRequest, dict]):
@@ -2768,6 +3335,30 @@ class JobServiceClient(metaclass=JobServiceClientMeta):
     ) -> gac_operation.Operation:
         r"""Deletes a ModelDeploymentMonitoringJob.
 
+
+        .. code-block::
+
+            from google.cloud import aiplatform_v1
+
+            def sample_delete_model_deployment_monitoring_job():
+                # Create a client
+                client = aiplatform_v1.JobServiceClient()
+
+                # Initialize request argument(s)
+                request = aiplatform_v1.DeleteModelDeploymentMonitoringJobRequest(
+                    name="name_value",
+                )
+
+                # Make the request
+                operation = client.delete_model_deployment_monitoring_job(request=request)
+
+                print("Waiting for operation to complete...")
+
+                response = operation.result()
+
+                # Handle the response
+                print(response)
+
         Args:
             request (Union[google.cloud.aiplatform_v1.types.DeleteModelDeploymentMonitoringJobRequest, dict]):
                 The request object. Request message for
@@ -2870,6 +3461,24 @@ class JobServiceClient(metaclass=JobServiceClientMeta):
         [ModelDeploymentMonitoringJob.state][google.cloud.aiplatform.v1.ModelDeploymentMonitoringJob.state]
         to 'PAUSED'.
 
+
+
+        .. code-block::
+
+            from google.cloud import aiplatform_v1
+
+            def sample_pause_model_deployment_monitoring_job():
+                # Create a client
+                client = aiplatform_v1.JobServiceClient()
+
+                # Initialize request argument(s)
+                request = aiplatform_v1.PauseModelDeploymentMonitoringJobRequest(
+                    name="name_value",
+                )
+
+                # Make the request
+                client.pause_model_deployment_monitoring_job(request=request)
+
         Args:
             request (Union[google.cloud.aiplatform_v1.types.PauseModelDeploymentMonitoringJobRequest, dict]):
                 The request object. Request message for
@@ -2942,6 +3551,24 @@ class JobServiceClient(metaclass=JobServiceClientMeta):
         r"""Resumes a paused ModelDeploymentMonitoringJob. It
         will start to run from next scheduled time. A deleted
         ModelDeploymentMonitoringJob can't be resumed.
+
+
+
+        .. code-block::
+
+            from google.cloud import aiplatform_v1
+
+            def sample_resume_model_deployment_monitoring_job():
+                # Create a client
+                client = aiplatform_v1.JobServiceClient()
+
+                # Initialize request argument(s)
+                request = aiplatform_v1.ResumeModelDeploymentMonitoringJobRequest(
+                    name="name_value",
+                )
+
+                # Make the request
+                client.resume_model_deployment_monitoring_job(request=request)
 
         Args:
             request (Union[google.cloud.aiplatform_v1.types.ResumeModelDeploymentMonitoringJobRequest, dict]):

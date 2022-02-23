@@ -28,8 +28,6 @@ from google.cloud import aiplatform_v1beta1
 
 
 async def sample_update_feature():
-    """Snippet for update_feature"""
-
     # Create a client
     client = aiplatform_v1beta1.FeaturestoreServiceAsyncClient()
 
@@ -44,7 +42,7 @@ async def sample_update_feature():
     # Make the request
     response = await client.update_feature(request=request)
 
-    # Handle response
+    # Handle the response
     print(response)
 
 # [END aiplatform_generated_aiplatform_v1beta1_FeaturestoreService_UpdateFeature_async]
