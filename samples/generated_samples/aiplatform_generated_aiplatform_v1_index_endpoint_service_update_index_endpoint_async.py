@@ -28,15 +28,12 @@ from google.cloud import aiplatform_v1
 
 
 async def sample_update_index_endpoint():
-    """Snippet for update_index_endpoint"""
-
     # Create a client
     client = aiplatform_v1.IndexEndpointServiceAsyncClient()
 
     # Initialize request argument(s)
     index_endpoint = aiplatform_v1.IndexEndpoint()
     index_endpoint.display_name = "display_name_value"
-    index_endpoint.network = "network_value"
 
     request = aiplatform_v1.UpdateIndexEndpointRequest(
         index_endpoint=index_endpoint,
@@ -45,7 +42,7 @@ async def sample_update_index_endpoint():
     # Make the request
     response = await client.update_index_endpoint(request=request)
 
-    # Handle response
+    # Handle the response
     print(response)
 
 # [END aiplatform_generated_aiplatform_v1_IndexEndpointService_UpdateIndexEndpoint_async]

@@ -28,8 +28,6 @@ from google.cloud import aiplatform_v1beta1
 
 
 def sample_update_artifact():
-    """Snippet for update_artifact"""
-
     # Create a client
     client = aiplatform_v1beta1.MetadataServiceClient()
 
@@ -40,7 +38,7 @@ def sample_update_artifact():
     # Make the request
     response = client.update_artifact(request=request)
 
-    # Handle response
+    # Handle the response
     print(response)
 
 # [END aiplatform_generated_aiplatform_v1beta1_MetadataService_UpdateArtifact_sync]

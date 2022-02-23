@@ -28,18 +28,16 @@ from google.cloud import aiplatform_v1
 
 
 def sample_pause_model_deployment_monitoring_job():
-    """Snippet for pause_model_deployment_monitoring_job"""
-
     # Create a client
     client = aiplatform_v1.JobServiceClient()
 
     # Initialize request argument(s)
     request = aiplatform_v1.PauseModelDeploymentMonitoringJobRequest(
-        name="projects/{project}/locations/{location}/modelDeploymentMonitoringJobs/{model_deployment_monitoring_job}",
+        name="name_value",
     )
 
     # Make the request
-    response = client.pause_model_deployment_monitoring_job(request=request)
+    client.pause_model_deployment_monitoring_job(request=request)
 
 
 # [END aiplatform_generated_aiplatform_v1_JobService_PauseModelDeploymentMonitoringJob_sync]

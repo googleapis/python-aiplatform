@@ -28,18 +28,18 @@ from google.cloud import aiplatform_v1beta1
 
 
 def sample_list_data_labeling_jobs():
-    """Snippet for list_data_labeling_jobs"""
-
     # Create a client
     client = aiplatform_v1beta1.JobServiceClient()
 
     # Initialize request argument(s)
     request = aiplatform_v1beta1.ListDataLabelingJobsRequest(
-        parent="projects/{project}/locations/{location}",
+        parent="parent_value",
     )
 
     # Make the request
     page_result = client.list_data_labeling_jobs(request=request)
+
+    # Handle the response
     for response in page_result:
         print(response)
 

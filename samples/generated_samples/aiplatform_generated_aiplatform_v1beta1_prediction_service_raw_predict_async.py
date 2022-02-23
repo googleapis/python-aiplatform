@@ -28,20 +28,18 @@ from google.cloud import aiplatform_v1beta1
 
 
 async def sample_raw_predict():
-    """Snippet for raw_predict"""
-
     # Create a client
     client = aiplatform_v1beta1.PredictionServiceAsyncClient()
 
     # Initialize request argument(s)
     request = aiplatform_v1beta1.RawPredictRequest(
-        endpoint="projects/{project}/locations/{location}/endpoints/{endpoint}",
+        endpoint="endpoint_value",
     )
 
     # Make the request
     response = await client.raw_predict(request=request)
 
-    # Handle response
+    # Handle the response
     print(response)
 
 # [END aiplatform_generated_aiplatform_v1beta1_PredictionService_RawPredict_async]
