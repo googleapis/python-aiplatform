@@ -1404,6 +1404,21 @@ class PrivateEndpoint(Endpoint):
 
         self._http_client = urllib3.PoolManager()
 
+    @property
+    def predict_http_uri(self) -> Optional[str]:
+        """Http(s) path to send prediction requests to, used when calling `PrivateEndpoint.predict()`"""
+        return self._custom_predict_uri or self._gca_resource.deployed_models[0].private_endpoints.predict_http_uri
+
+    @property
+    def explain_http_uri(self) -> Optional[str]:
+        """Http(s) path to send explain requests to, used when calling `PrivateEndpoint.explain()`"""
+        return self._custom_explain_uri or self._gca_resource.deployed_models[0].private_endpoints.explain_http_uri
+
+    @property
+    def health_http_uri(self) -> Optional[str]:
+        """Http(s) path to send health check requests to, used when calling `PrivateEndpoint.health_check()`"""
+        return self._custom_health_uri or self._gca_resource.deployed_models[0].private_endpoints.health_http_uri
+
     @classmethod
     def create(
         cls,
@@ -1556,8 +1571,6 @@ class PrivateEndpoint(Endpoint):
                 method, url, body=body, headers=headers
             )
 
-            print("Dumping urllib3 response", response.data)
-            print("Dumping urllib3 response", response.status)
             if response.status < 300:
                 return response
             else:
@@ -1609,8 +1622,7 @@ class PrivateEndpoint(Endpoint):
 
         response = self._unauthenticated_http_call(
             method="POST",
-            url=self._custom_predict_uri
-            or self._gca_resource.deployed_models[0].private_endpoints.predict_http_uri,
+            url=self.predict_http_uri,
             body=json.dumps({"instances": instances}),
             headers={"Content-Type": "application/json"},
         )
@@ -1631,8 +1643,7 @@ class PrivateEndpoint(Endpoint):
         try:
             response = self._unauthenticated_http_call(
                 method="POST",
-                url=self._custom_explain_uri
-                or self._gca_resource.deployed_models[0].private_endpoints.explain_http_uri,
+                url=self.explain_http_uri,
                 body=json.dumps({"instances": instances}),
                 headers={"Content-Type": "application/json"},
             )
@@ -1666,8 +1677,7 @@ class PrivateEndpoint(Endpoint):
 
         response = self._unauthenticated_http_call(
             method="GET",
-            url=self._custom_health_uri
-            or self._gca_resource.deployed_models[0].private_endpoints.health_http_uri,
+            url=self.health_http_uri,
         )
 
         return response.status == 200
