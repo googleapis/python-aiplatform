@@ -31,10 +31,6 @@ STAGING_BUCKET = "gs://my-staging-bucket"
 EXPERIMENT_NAME = "fraud-detection-trial-72"
 CREDENTIALS = credentials.AnonymousCredentials()
 
-FEAUTURESTORE_NAME = "featurestore_sample"
-ENTITY_TYPE_ID = "entity_type_sample"
-FEATURE_ID = "feature_sample"
-FEATURE_VALUE_TYPE = "INT64"
 RESOURCE_ID = str(randint(10000000, 99999999))  # Create random resource ID
 RESOURCE_ID_2 = str(randint(10000000, 99999999))
 
@@ -204,6 +200,9 @@ MODEL_TYPE = "CLOUD"
 
 # Feature store constants
 FEAUTURESTORE_NAME = "featurestore_sample"
+ENTITY_TYPE_ID = "entity_type_sample"
+FEATURE_ID = "feature_sample"
+FEATURE_VALUE_TYPE = "INT64"
 ONLINE_STORE_FIXED_NODE_COUNT = 1
 SYNC = True
 FORCE = True
