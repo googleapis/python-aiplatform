@@ -100,7 +100,7 @@ setuptools.setup(
         "google-cloud-storage >= 1.32.0, < 3.0.0dev",
         "packaging >= 14.3",
         "proto-plus >= 1.10.1",
-        "urllib3 >=1.21.1, <1.27"
+        "urllib3 >=1.21.1, <1.27",
     ),
     extras_require={
         "full": full_extra_require,
