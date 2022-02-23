@@ -18,15 +18,15 @@
 from typing import Dict, List, Optional, Sequence, Tuple
 
 from google.auth import credentials as auth_credentials
+from google.protobuf import field_mask_pb2
 from google.cloud.aiplatform import base
-from google.cloud.aiplatform import initializer
-from google.cloud.aiplatform import utils
 from google.cloud.aiplatform.compat.types import (
     matching_engine_deployed_index_ref as gca_matching_engine_deployed_index_ref,
     matching_engine_index as gca_matching_engine_index,
 )
+from google.cloud.aiplatform import initializer
 from google.cloud.aiplatform.matching_engine import matching_engine_index_config
-from google.protobuf import field_mask_pb2
+from google.cloud.aiplatform import utils
 
 _LOGGER = base.Logger(__name__)
 
