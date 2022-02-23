@@ -1243,13 +1243,9 @@ class EntityType(base.VertexAiResourceNounWithFutureManager):
         bq_schema = []
         for feature_id in feature_ids:
             feature_field_name = feature_source_fields.get(feature_id, feature_id)
-            bq_data_type = utils.featurestore_utils.FEATURE_STORE_VALUE_TYPE_TO_BQ_DATA_TYPE_MAP[
-                self.get_feature(feature_id).to_dict()["valueType"]
-            ]
-            bq_schema_field = bigquery.SchemaField(
-                name=feature_field_name,
-                field_type=bq_data_type["field_type"],
-                mode=bq_data_type.get("mode") or "NULLABLE",
+            feature_value_type = self.get_feature(feature_id).to_dict()["valueType"]
+            bq_schema_field = self._get_bq_schema_field(
+                feature_field_name, feature_value_type
             )
             bq_schema.append(bq_schema_field)
 
@@ -1307,6 +1303,32 @@ class EntityType(base.VertexAiResourceNounWithFutureManager):
             )
 
         return entity_type_obj
+
+    @staticmethod
+    def _get_bq_schema_field(
+        name: str, feature_value_type: str
+    ) -> bigquery.SchemaField:
+        """Helper method to get BigQuery Schema Field.
+
+        Args:
+            name (str):
+                Required. The name of the schema field, which can be either the feature_id,
+                or the field_name in BigQuery for the feature if different than the feature_id.
+            feature_value_type (str):
+                Required. The feature value_type.
+
+        Returns:
+            bigquery.SchemaField: bigquery.SchemaField
+        """
+        bq_data_type = utils.featurestore_utils.FEATURE_STORE_VALUE_TYPE_TO_BQ_DATA_TYPE_MAP[
+            feature_value_type
+        ]
+        bq_schema_field = bigquery.SchemaField(
+            name=name,
+            field_type=bq_data_type["field_type"],
+            mode=bq_data_type.get("mode") or "NULLABLE",
+        )
+        return bq_schema_field
 
     @staticmethod
     def _instantiate_featurestore_online_client(

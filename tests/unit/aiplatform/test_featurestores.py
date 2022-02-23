@@ -1771,6 +1771,30 @@ class TestEntityType:
             request=true_import_feature_values_request, metadata=_TEST_REQUEST_METADATA,
         )
 
+    @pytest.mark.parametrize(
+        "feature_value_type, expected_field_type, expected_mode",
+        [
+            ("BOOL", "BOOL", "NULLABLE"),
+            ("BOOL_ARRAY", "BOOL", "REPEATED"),
+            ("DOUBLE", "FLOAT64", "NULLABLE"),
+            ("DOUBLE_ARRAY", "FLOAT64", "REPEATED"),
+            ("INT64", "INT64", "NULLABLE"),
+            ("INT64_ARRAY", "INT64", "REPEATED"),
+            ("STRING", "STRING", "NULLABLE"),
+            ("STRING_ARRAY", "STRING", "REPEATED"),
+            ("BYTES", "BYTES", "NULLABLE"),
+        ],
+    )
+    def test_get_bq_schema_field(
+        self, feature_value_type, expected_field_type, expected_mode
+    ):
+        expected_bq_schema_field = bigquery.SchemaField(
+            name=_TEST_FEATURE_ID, field_type=expected_field_type, mode=expected_mode,
+        )
+        assert expected_bq_schema_field == aiplatform.EntityType._get_bq_schema_field(
+            name=_TEST_FEATURE_ID, feature_value_type=feature_value_type
+        )
+
     @pytest.mark.usefixtures("get_entity_type_mock", "get_feature_mock")
     def test_read_single_entity(self, read_feature_values_mock):
         aiplatform.init(project=_TEST_PROJECT)
