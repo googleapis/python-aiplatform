@@ -21,7 +21,7 @@ def test_create_featurestore_sample(mock_sdk_init, mock_create_featurestore):
     create_featurestore_sample.create_featurestore_sample(
         project=constants.PROJECT,
         location=constants.LOCATION,
-        featurestore_id=constants.FEAUTURESTORE_NAME,
+        featurestore_id=constants.FEAUTURESTORE_ID,
         online_store_fixed_node_count=constants.ONLINE_STORE_FIXED_NODE_COUNT,
         sync=constants.SYNC,
     )
