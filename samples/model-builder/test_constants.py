@@ -199,7 +199,8 @@ PYTHON_MODULE_NAME = "trainer.task"
 MODEL_TYPE = "CLOUD"
 
 # Feature store constants
-FEAUTURESTORE_NAME = "featurestore_sample"
+FEAUTURESTORE_NAME = "projects/123/locations/us-central1/featurestores/featurestore_id"
+FEAUTURESTORE_ID = "featurestore_id"
 ENTITY_TYPE_ID = "entity_type_sample"
 FEATURE_ID = "feature_sample"
 FEATURE_VALUE_TYPE = "INT64"
