@@ -31,7 +31,7 @@ def test_create_featurestore_sample(mock_sdk_init, mock_create_featurestore):
     )
 
     mock_create_featurestore.assert_called_once_with(
-        featurestore_id=constants.FEAUTURESTORE_NAME,
+        featurestore_id=constants.FEAUTURESTORE_ID,
         online_store_fixed_node_count=constants.ONLINE_STORE_FIXED_NODE_COUNT,
         sync=constants.SYNC,
     )
