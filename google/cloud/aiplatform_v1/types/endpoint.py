@@ -80,9 +80,9 @@ class Endpoint(proto.Message):
             last updated.
         encryption_spec (google.cloud.aiplatform_v1.types.EncryptionSpec):
             Customer-managed encryption key spec for an
-            Endpoint. If set, this Endpoint and all sub-
-            resources of this Endpoint will be secured by
-            this key.
+            Endpoint. If set, this Endpoint and all
+            sub-resources of this Endpoint will be secured
+            by this key.
         network (str):
             The full name of the Google Compute Engine
             `network <https://cloud.google.com//compute/docs/networks-and-firewalls#networks>`__
