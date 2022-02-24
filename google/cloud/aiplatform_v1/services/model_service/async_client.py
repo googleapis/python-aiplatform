@@ -240,6 +240,33 @@ class ModelServiceAsyncClient:
     ) -> operation_async.AsyncOperation:
         r"""Uploads a Model artifact into Vertex AI.
 
+        .. code-block::
+
+            from google.cloud import aiplatform_v1
+
+            def sample_upload_model():
+                # Create a client
+                client = aiplatform_v1.ModelServiceClient()
+
+                # Initialize request argument(s)
+                model = aiplatform_v1.Model()
+                model.display_name = "display_name_value"
+
+                request = aiplatform_v1.UploadModelRequest(
+                    parent="parent_value",
+                    model=model,
+                )
+
+                # Make the request
+                operation = client.upload_model(request=request)
+
+                print("Waiting for operation to complete...")
+
+                response = operation.result()
+
+                # Handle the response
+                print(response)
+
         Args:
             request (Union[google.cloud.aiplatform_v1.types.UploadModelRequest, dict]):
                 The request object. Request message for
@@ -332,6 +359,25 @@ class ModelServiceAsyncClient:
     ) -> model.Model:
         r"""Gets a Model.
 
+        .. code-block::
+
+            from google.cloud import aiplatform_v1
+
+            def sample_get_model():
+                # Create a client
+                client = aiplatform_v1.ModelServiceClient()
+
+                # Initialize request argument(s)
+                request = aiplatform_v1.GetModelRequest(
+                    name="name_value",
+                )
+
+                # Make the request
+                response = client.get_model(request=request)
+
+                # Handle the response
+                print(response)
+
         Args:
             request (Union[google.cloud.aiplatform_v1.types.GetModelRequest, dict]):
                 The request object. Request message for
@@ -400,6 +446,26 @@ class ModelServiceAsyncClient:
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> pagers.ListModelsAsyncPager:
         r"""Lists Models in a Location.
+
+        .. code-block::
+
+            from google.cloud import aiplatform_v1
+
+            def sample_list_models():
+                # Create a client
+                client = aiplatform_v1.ModelServiceClient()
+
+                # Initialize request argument(s)
+                request = aiplatform_v1.ListModelsRequest(
+                    parent="parent_value",
+                )
+
+                # Make the request
+                page_result = client.list_models(request=request)
+
+                # Handle the response
+                for response in page_result:
+                    print(response)
 
         Args:
             request (Union[google.cloud.aiplatform_v1.types.ListModelsRequest, dict]):
@@ -482,6 +548,28 @@ class ModelServiceAsyncClient:
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> gca_model.Model:
         r"""Updates a Model.
+
+        .. code-block::
+
+            from google.cloud import aiplatform_v1
+
+            def sample_update_model():
+                # Create a client
+                client = aiplatform_v1.ModelServiceClient()
+
+                # Initialize request argument(s)
+                model = aiplatform_v1.Model()
+                model.display_name = "display_name_value"
+
+                request = aiplatform_v1.UpdateModelRequest(
+                    model=model,
+                )
+
+                # Make the request
+                response = client.update_model(request=request)
+
+                # Handle the response
+                print(response)
 
         Args:
             request (Union[google.cloud.aiplatform_v1.types.UpdateModelRequest, dict]):
@@ -570,6 +658,30 @@ class ModelServiceAsyncClient:
         on the model in its
         [deployed_models][google.cloud.aiplatform.v1.Endpoint.deployed_models]
         field.
+
+
+        .. code-block::
+
+            from google.cloud import aiplatform_v1
+
+            def sample_delete_model():
+                # Create a client
+                client = aiplatform_v1.ModelServiceClient()
+
+                # Initialize request argument(s)
+                request = aiplatform_v1.DeleteModelRequest(
+                    name="name_value",
+                )
+
+                # Make the request
+                operation = client.delete_model(request=request)
+
+                print("Waiting for operation to complete...")
+
+                response = operation.result()
+
+                # Handle the response
+                print(response)
 
         Args:
             request (Union[google.cloud.aiplatform_v1.types.DeleteModelRequest, dict]):
@@ -668,6 +780,30 @@ class ModelServiceAsyncClient:
         least one [supported export
         format][google.cloud.aiplatform.v1.Model.supported_export_formats].
 
+
+        .. code-block::
+
+            from google.cloud import aiplatform_v1
+
+            def sample_export_model():
+                # Create a client
+                client = aiplatform_v1.ModelServiceClient()
+
+                # Initialize request argument(s)
+                request = aiplatform_v1.ExportModelRequest(
+                    name="name_value",
+                )
+
+                # Make the request
+                operation = client.export_model(request=request)
+
+                print("Waiting for operation to complete...")
+
+                response = operation.result()
+
+                # Handle the response
+                print(response)
+
         Args:
             request (Union[google.cloud.aiplatform_v1.types.ExportModelRequest, dict]):
                 The request object. Request message for
@@ -761,6 +897,25 @@ class ModelServiceAsyncClient:
     ) -> model_evaluation.ModelEvaluation:
         r"""Gets a ModelEvaluation.
 
+        .. code-block::
+
+            from google.cloud import aiplatform_v1
+
+            def sample_get_model_evaluation():
+                # Create a client
+                client = aiplatform_v1.ModelServiceClient()
+
+                # Initialize request argument(s)
+                request = aiplatform_v1.GetModelEvaluationRequest(
+                    name="name_value",
+                )
+
+                # Make the request
+                response = client.get_model_evaluation(request=request)
+
+                # Handle the response
+                print(response)
+
         Args:
             request (Union[google.cloud.aiplatform_v1.types.GetModelEvaluationRequest, dict]):
                 The request object. Request message for
@@ -834,6 +989,26 @@ class ModelServiceAsyncClient:
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> pagers.ListModelEvaluationsAsyncPager:
         r"""Lists ModelEvaluations in a Model.
+
+        .. code-block::
+
+            from google.cloud import aiplatform_v1
+
+            def sample_list_model_evaluations():
+                # Create a client
+                client = aiplatform_v1.ModelServiceClient()
+
+                # Initialize request argument(s)
+                request = aiplatform_v1.ListModelEvaluationsRequest(
+                    parent="parent_value",
+                )
+
+                # Make the request
+                page_result = client.list_model_evaluations(request=request)
+
+                # Handle the response
+                for response in page_result:
+                    print(response)
 
         Args:
             request (Union[google.cloud.aiplatform_v1.types.ListModelEvaluationsRequest, dict]):
@@ -916,6 +1091,25 @@ class ModelServiceAsyncClient:
     ) -> model_evaluation_slice.ModelEvaluationSlice:
         r"""Gets a ModelEvaluationSlice.
 
+        .. code-block::
+
+            from google.cloud import aiplatform_v1
+
+            def sample_get_model_evaluation_slice():
+                # Create a client
+                client = aiplatform_v1.ModelServiceClient()
+
+                # Initialize request argument(s)
+                request = aiplatform_v1.GetModelEvaluationSliceRequest(
+                    name="name_value",
+                )
+
+                # Make the request
+                response = client.get_model_evaluation_slice(request=request)
+
+                # Handle the response
+                print(response)
+
         Args:
             request (Union[google.cloud.aiplatform_v1.types.GetModelEvaluationSliceRequest, dict]):
                 The request object. Request message for
@@ -989,6 +1183,26 @@ class ModelServiceAsyncClient:
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> pagers.ListModelEvaluationSlicesAsyncPager:
         r"""Lists ModelEvaluationSlices in a ModelEvaluation.
+
+        .. code-block::
+
+            from google.cloud import aiplatform_v1
+
+            def sample_list_model_evaluation_slices():
+                # Create a client
+                client = aiplatform_v1.ModelServiceClient()
+
+                # Initialize request argument(s)
+                request = aiplatform_v1.ListModelEvaluationSlicesRequest(
+                    parent="parent_value",
+                )
+
+                # Make the request
+                page_result = client.list_model_evaluation_slices(request=request)
+
+                # Handle the response
+                for response in page_result:
+                    print(response)
 
         Args:
             request (Union[google.cloud.aiplatform_v1.types.ListModelEvaluationSlicesRequest, dict]):

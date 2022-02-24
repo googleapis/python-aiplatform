@@ -87,8 +87,8 @@ __all__ = (
     # v1
     dataset_service_client_v1,
     endpoint_service_client_v1,
-    featurestore_online_serving_service_client_v1beta1,
-    featurestore_service_client_v1beta1,
+    featurestore_online_serving_service_client_v1,
+    featurestore_service_client_v1,
     job_service_client_v1,
     metadata_service_client_v1,
     model_service_client_v1,
@@ -99,8 +99,8 @@ __all__ = (
     # v1beta1
     dataset_service_client_v1beta1,
     endpoint_service_client_v1beta1,
-    featurestore_online_serving_service_client_v1,
-    featurestore_service_client_v1,
+    featurestore_online_serving_service_client_v1beta1,
+    featurestore_service_client_v1beta1,
     job_service_client_v1beta1,
     model_service_client_v1beta1,
     pipeline_service_client_v1beta1,

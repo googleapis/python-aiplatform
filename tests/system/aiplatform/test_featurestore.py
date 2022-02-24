@@ -219,7 +219,7 @@ class TestFeaturestore(e2e_base.TestEndToEnd):
 
         movie_feature_configs = {
             _TEST_MOVIE_TITLE_FEATURE_ID: {"value_type": "STRING"},
-            _TEST_MOVIE_GENRES_FEATURE_ID: {"value_type": "STRING"},
+            _TEST_MOVIE_GENRES_FEATURE_ID: {"value_type": "STRING_ARRAY"},
             _TEST_MOVIE_AVERAGE_RATING_FEATURE_ID: {"value_type": "DOUBLE"},
         }
 
@@ -277,14 +277,14 @@ class TestFeaturestore(e2e_base.TestEndToEnd):
                     "movie_id": "movie_01",
                     "average_rating": 4.9,
                     "title": "The Shawshank Redemption",
-                    "genres": "Drama",
+                    "genres": ["Drama"],
                     "update_time": "2021-08-20 20:44:11.094375+00:00",
                 },
                 {
                     "movie_id": "movie_02",
                     "average_rating": 4.2,
                     "title": "The Shining",
-                    "genres": "Horror",
+                    "genres": ["Horror"],
                     "update_time": "2021-08-20 20:44:11.094375+00:00",
                 },
             ],
@@ -312,13 +312,13 @@ class TestFeaturestore(e2e_base.TestEndToEnd):
                 "movie_id": "movie_01",
                 "average_rating": 4.9,
                 "title": "The Shawshank Redemption",
-                "genres": "Drama",
+                "genres": ["Drama"],
             },
             {
                 "movie_id": "movie_02",
                 "average_rating": 4.2,
                 "title": "The Shining",
-                "genres": "Horror",
+                "genres": ["Horror"],
             },
         ]
         expected_movie_entity_views_df_after_ingest = pd.DataFrame(
@@ -350,13 +350,13 @@ class TestFeaturestore(e2e_base.TestEndToEnd):
                     "movie_id": "movie_03",
                     "average_rating": 4.5,
                     "title": "Cinema Paradiso",
-                    "genres": "Romance",
+                    "genres": ["Romance"],
                 },
                 {
                     "movie_id": "movie_04",
                     "average_rating": 4.6,
                     "title": "The Dark Knight",
-                    "genres": "Action",
+                    "genres": ["Action"],
                 },
             ],
             columns=["movie_id", "average_rating", "title", "genres"],
