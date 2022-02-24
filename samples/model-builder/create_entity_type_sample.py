@@ -23,13 +23,13 @@ def create_entity_type_sample(
 
     aiplatform.init(project=project, location=location)
 
-    fs = aiplatform.EntityType.create(
+    my_entity_type = aiplatform.EntityType.create(
         entity_type_id=entity_type_id, featurestore_name=featurestore_name
     )
 
-    fs.wait()
+    my_entity_type.wait()
 
-    return fs
+    return my_entity_type
 
 
 #  [END aiplatform_sdk_create_entity_type_sample]

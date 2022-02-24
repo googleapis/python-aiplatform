@@ -23,8 +23,8 @@ def test_create_feature_sample(mock_sdk_init, mock_create_feature):
         location=constants.LOCATION,
         feature_id=constants.FEATURE_ID,
         value_type=constants.FEATURE_VALUE_TYPE,
-        entity_type_name=constants.ENTITY_TYPE_ID,
-        featurestore_id=constants.FEAUTURESTORE_NAME,
+        entity_type_id=constants.ENTITY_TYPE_ID,
+        featurestore_id=constants.FEATURESTORE_ID,
     )
 
     mock_sdk_init.assert_called_once_with(
@@ -35,5 +35,5 @@ def test_create_feature_sample(mock_sdk_init, mock_create_feature):
         feature_id=constants.FEATURE_ID,
         value_type=constants.FEATURE_VALUE_TYPE,
         entity_type_name=constants.ENTITY_TYPE_ID,
-        featurestore_id=constants.FEAUTURESTORE_NAME,
+        featurestore_id=constants.FEATURESTORE_ID,
     )

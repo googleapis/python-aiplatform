@@ -22,7 +22,7 @@ def test_create_entity_type_sample(mock_sdk_init, mock_create_entity_type):
         project=constants.PROJECT,
         location=constants.LOCATION,
         entity_type_id=constants.ENTITY_TYPE_ID,
-        featurestore_name=constants.FEAUTURESTORE_NAME,
+        featurestore_name=constants.FEATURESTORE_NAME,
     )
 
     mock_sdk_init.assert_called_once_with(
@@ -31,5 +31,5 @@ def test_create_entity_type_sample(mock_sdk_init, mock_create_entity_type):
 
     mock_create_entity_type.assert_called_once_with(
         entity_type_id=constants.ENTITY_TYPE_ID,
-        featurestore_name=constants.FEAUTURESTORE_NAME,
+        featurestore_name=constants.FEATURESTORE_NAME,
     )

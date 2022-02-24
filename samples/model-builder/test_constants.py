@@ -199,10 +199,12 @@ PYTHON_MODULE_NAME = "trainer.task"
 MODEL_TYPE = "CLOUD"
 
 # Feature store constants
-FEAUTURESTORE_NAME = "projects/123/locations/us-central1/featurestores/featurestore_id"
-FEAUTURESTORE_ID = "featurestore_id"
-ENTITY_TYPE_ID = "entity_type_sample"
-FEATURE_ID = "feature_sample"
+FEATURESTORE_ID = "featurestore_id"
+FEATURESTORE_NAME = "projects/123/locations/us-central1/featurestores/featurestore_id"
+ENTITY_TYPE_ID = "entity_type_id"
+ENTITY_TYPE_NAME = "projects/123/locations/us-central1/featurestores/featurestore_id/entityTypes/entity_type_id"
+FEATURE_ID = "feature_id"
+FEATURE_NAME = "projects/123/locations/us-central1/featurestores/featurestore_id/entityTypes/entity_type_id/features/feature_id"
 FEATURE_VALUE_TYPE = "INT64"
 ONLINE_STORE_FIXED_NODE_COUNT = 1
 SYNC = True

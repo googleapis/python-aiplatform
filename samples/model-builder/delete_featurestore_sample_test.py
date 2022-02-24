@@ -23,7 +23,7 @@ def test_delete_featurestore_sample(
     delete_featurestore_sample.delete_featurestore_sample(
         project=constants.PROJECT,
         location=constants.LOCATION,
-        featurestore_name=constants.FEAUTURESTORE_NAME,
+        featurestore_name=constants.FEATURESTORE_NAME,
         sync=constants.SYNC,
         force=constants.FORCE,
     )
@@ -33,7 +33,7 @@ def test_delete_featurestore_sample(
     )
 
     mock_get_featurestore.assert_called_once_with(
-        featurestore_name=constants.FEAUTURESTORE_NAME
+        featurestore_name=constants.FEATURESTORE_NAME
     )
 
     mock_delete_featurestore.assert_called_once_with(

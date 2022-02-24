@@ -22,22 +22,22 @@ def create_feature_sample(
     location: str,
     feature_id: str,
     value_type: str,
-    entity_type_name: str,
+    entity_type_id: str,
     featurestore_id: str,
 ):
 
     aiplatform.init(project=project, location=location)
 
-    fs = aiplatform.Feature.create(
+    my_feature = aiplatform.Feature.create(
         feature_id=feature_id,
         value_type=value_type,
-        entity_type_name=entity_type_name,
+        entity_type_name=entity_type_id,
         featurestore_id=featurestore_id,
     )
 
-    fs.wait()
+    my_feature.wait()
 
-    return fs
+    return my_feature
 
 
 #  [END aiplatform_sdk_create_feature_sample]
