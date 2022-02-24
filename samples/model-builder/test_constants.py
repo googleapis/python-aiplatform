@@ -204,6 +204,7 @@ FEAUTURESTORE_ID = "featurestore_id"
 ENTITY_TYPE_ID = "entity_type_sample"
 FEATURE_ID = "feature_sample"
 FEATURE_VALUE_TYPE = "INT64"
+
 ONLINE_STORE_FIXED_NODE_COUNT = 1
 SYNC = True
 FORCE = True
