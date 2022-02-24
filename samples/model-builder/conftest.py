@@ -387,9 +387,12 @@ def mock_get_featurestore(mock_featurestore):
 
 
 @pytest.fixture
-def mock_create_featurestore():
-    with patch.object(aiplatform.Featurestore, "create") as mock:
-        yield mock
+def mock_create_featurestore(mock_featurestore):
+    with patch.object(
+        aiplatform.featurestore.Featurestore, "create"
+    ) as mock_create_featurestore:
+        mock_create_featurestore.return_value = mock_featurestore
+        yield mock_create_featurestore
 
 
 @pytest.fixture
