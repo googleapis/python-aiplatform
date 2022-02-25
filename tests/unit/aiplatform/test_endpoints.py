@@ -73,6 +73,7 @@ _TEST_PARENT = f"projects/{_TEST_PROJECT}/locations/{_TEST_LOCATION}"
 _TEST_MODEL_NAME = (
     f"projects/{_TEST_PROJECT}/locations/{_TEST_LOCATION}/models/{_TEST_ID}"
 )
+_TEST_NETWORK = f"projects/{_TEST_PROJECT}/global/networks/{_TEST_ID}"
 
 _TEST_MODEL_ID = "1028944691210842416"
 _TEST_PREDICTION = [[1.0, 2.0, 3.0], [3.0, 3.0, 1.0]]
@@ -1268,3 +1269,34 @@ class TestEndpoint:
         sdk_undeploy_all_mock.assert_called_once()
 
         delete_endpoint_mock.assert_called_once_with(name=_TEST_ENDPOINT_NAME)
+
+class TestPrivateEndpoint(TestEndpoint):
+    def test_http_health_check(self):
+        pass
+
+    def test_http_health_check_unhealthy(self):
+        pass
+
+    def test_http_predict(self):
+        pass
+
+    def test_http_predict_no_response(self):
+        pass
+
+    def test_http_predict_404(self):
+        pass
+
+    def test_http_predict_500(self):
+        pass
+
+    def test_deploy_private_endpoint(self):
+        pass
+
+    def test_undeploy_private_endpoint(self):
+        pass
+
+    def test_create_private_endpoint(self):
+        pass
+
+    def test_list_private_endpoints(self):
+        pass

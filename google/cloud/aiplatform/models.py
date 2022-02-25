@@ -572,7 +572,7 @@ class Endpoint(base.VertexAiResourceNounWithFutureManager):
         if deployed_model_display_name is not None:
             utils.validate_display_name(deployed_model_display_name)
 
-        # TODO(b/): private Endpoints do not yet support traffic splitting
+        # TODO(b/221059294): private Endpoints do not yet support traffic splitting
         if cls == Endpoint:
             if traffic_split is None:
                 if traffic_percentage > 100:
@@ -978,8 +978,8 @@ class Endpoint(base.VertexAiResourceNounWithFutureManager):
             explanation_spec.parameters = explanation_parameters
             deployed_model.explanation_spec = explanation_spec
 
-        # TODO(b/): Remove check for class once PrivateEndpoint supports traffic split
-        if traffic_split is None and cls.__class__ == Endpoint:
+        # TODO(b/221059294): Remove check for class once PrivateEndpoint supports traffic split
+        if traffic_split is None and cls == Endpoint:
             # new model traffic needs to be 100 if no pre-existing models
             if not endpoint_resource_traffic_split:
                 # default scenario
@@ -1584,7 +1584,7 @@ class PrivateEndpoint(Endpoint):
                 return response
             else:
                 raise RuntimeError(
-                    f"{response.status} - Failed to make prediction request, see response:\n",
+                    f"{response.status} - Failed to make request, see response:\n",
                     response.data,
                 )
 
@@ -2536,7 +2536,7 @@ class Model(base.VertexAiResourceNounWithFutureManager):
             metadata=metadata,
             encryption_spec_key_name=encryption_spec_key_name
             or initializer.global_config.encryption_spec_key_name,
-            network=network,
+            network=network or initializer.global_config.network,
             sync=sync,
         )
 
