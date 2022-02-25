@@ -209,3 +209,17 @@ FEATURE_VALUE_TYPE = "INT64"
 ONLINE_STORE_FIXED_NODE_COUNT = 1
 SYNC = True
 FORCE = True
+FEATURE_CONFIGS = {
+    "age": {
+        "value_type": "INT64",
+        "description": "User age",
+    },
+    "gender": {
+        "value_type": "STRING",
+        "description": "User gender",
+    },
+    "liked_genres": {
+        "value_type": "STRING_ARRAY",
+        "description": "An array of genres this user liked",
+    },
+}
