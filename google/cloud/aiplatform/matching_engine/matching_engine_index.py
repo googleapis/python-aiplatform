@@ -532,10 +532,6 @@ class MatchingEngineIndex(base.VertexAiResourceNounWithFutureManager):
                 https://docs.google.com/document/d/12DLVB6Nq6rdv8grxfBsPhUA283KWrQ9ZenPBp0zUC30
             dimensions (int):
                 Required. The number of dimensions of the input vectors.
-            approximate_neighbors_count (int):
-                Required. The default number of neighbors to find via approximate search before exact reordering is
-                performed. Exact reordering is a procedure where results returned by an
-                approximate search algorithm are reordered via a more expensive distance computation.
             distance_measure_type (matching_engine_index_config.DistanceMeasureType):
                 Optional. The distance measure used in nearest neighbor search.
             description (str):
@@ -585,7 +581,6 @@ class MatchingEngineIndex(base.VertexAiResourceNounWithFutureManager):
         config = matching_engine_index_config.MatchingEngineIndexConfig(
             dimensions=dimensions,
             algorithm_config=algorithm_config,
-            approximate_neighbors_count=approximate_neighbors_count,
             distance_measure_type=distance_measure_type,
         )
 
