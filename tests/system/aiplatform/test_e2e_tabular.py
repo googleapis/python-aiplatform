@@ -46,7 +46,7 @@ _INSTANCE = {
 }
 
 
-@pytest.mark.usefixtures("prepare_staging_bucket", "delete_staging_bucket", "teardown")
+@pytest.mark.usefixtures("prepare_staging_bucket", "delete_staging_bucket")
 class TestEndToEndTabular(e2e_base.TestEndToEnd):
     """End to end system test of the Vertex SDK with tabular data adapted from
     reference notebook http://shortn/_eyoNx3SN0X"""
