@@ -1270,6 +1270,7 @@ class TestEndpoint:
 
         delete_endpoint_mock.assert_called_once_with(name=_TEST_ENDPOINT_NAME)
 
+
 class TestPrivateEndpoint(TestEndpoint):
     def test_http_health_check(self):
         pass
