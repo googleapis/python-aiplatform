@@ -13,28 +13,30 @@
 # limitations under the License.
 
 
-#  [START aiplatform_sdk_batch_create_features_sample]
+#  [START aiplatform_sdk_batch_serve_features_to_bq_sample]
 from google.cloud import aiplatform
 
 
-def batch_create_features_sample(
+def batch_serve_features_to_bq_sample(
     project: str,
     location: str,
-    entity_type_name: str,
-    featurestore_id: str,
-    feature_configs: Dict[str, Dict[str, Union[bool, int, Dict[str, str], str]]],
+    featurestore_name: str,
+    bq_destination_output_uri: str,
+    serving_feature_ids: Dict[str, List[str]],
+    read_instances_uri: str,
     sync: bool = True,
 ):
 
     aiplatform.init(project=project, location=location)
 
-    my_entity_type = aiplatform.featurestore.EntityType(
-        entity_type_name=entity_type_name,
-        featurestore_id=featurestore_id)
+    fs = aiplatform.featurestore.Featurestore(
+        featurestore_name=featurestore_name)
 
-    my_entity_type.batch_create_features(
-        feature_configs=feature_configs,
+    fs.batch_create_features(
+        bq_destination_output_uri=bq_destination_output_uri,
+        serving_feature_ids=serving_feature_ids,
+        read_instances_uri=read_instances_uri,
         sync=sync)
 
 
-#  [END aiplatform_sdk_batch_create_features_sample]
+#  [END aiplatform_sdk_batch_serve_features_to_bq_sample]

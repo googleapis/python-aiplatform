@@ -16,7 +16,7 @@ import batch_create_features_sample
 import test_constants as constants
 
 
-def test_batch_create_features_sample(
+def test_delete_featurestore_sample(
     mock_sdk_init, mock_get_entity_type, mock_batch_create_features
 ):
 

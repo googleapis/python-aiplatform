@@ -223,3 +223,8 @@ FEATURE_CONFIGS = {
         "description": "An array of genres this user liked",
     },
 }
+SERVING_FEATURE_IDS = {
+    "users": ["age", "gender", "liked_genres"],
+    "movies": ["title", "average_rating", "genres"],
+}
+INPUT_CSV_FILE = "gs://cloud-samples-data-us-central1/vertex-ai/feature-store/datasets/movie_prediction.csv"
