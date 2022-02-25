@@ -1379,6 +1379,8 @@ class _CustomTrainingJob(_TrainingJob):
         base_output_dir: Optional[str] = None,
         service_account: Optional[str] = None,
         network: Optional[str] = None,
+        timeout: Optional[int] = None,
+        restart_job_on_worker_restart: bool = False,
         enable_web_access: bool = False,
         tensorboard: Optional[str] = None,
     ) -> Tuple[Dict, str]:
@@ -1398,6 +1400,13 @@ class _CustomTrainingJob(_TrainingJob):
                 should be peered. For example, projects/12345/global/networks/myVPC.
                 Private services access must already be configured for the network.
                 If left unspecified, the job is not peered with any network.
+            timeout (int):
+                The maximum job running time in seconds. The default is 7 days.
+            restart_job_on_worker_restart (bool):
+                Restarts the entire CustomJob if a worker
+                gets restarted. This feature can be used by
+                distributed training jobs that are not resilient
+                to workers leaving and joining a job.
             enable_web_access (bool):
                 Whether you want Vertex AI to enable interactive shell access
                 to training containers.
@@ -1441,6 +1450,14 @@ class _CustomTrainingJob(_TrainingJob):
             training_task_inputs["tensorboard"] = tensorboard
         if enable_web_access:
             training_task_inputs["enable_web_access"] = enable_web_access
+
+        if timeout or restart_job_on_worker_restart:
+            timeout = f"{timeout}s" if timeout else None
+            scheduling = {
+                "timeout": timeout,
+                "restart_job_on_worker_restart": restart_job_on_worker_restart,
+            }
+            training_task_inputs["scheduling"] = scheduling
 
         return training_task_inputs, base_output_dir
 
@@ -1794,6 +1811,8 @@ class CustomTrainingJob(_CustomTrainingJob):
         test_filter_split: Optional[str] = None,
         predefined_split_column_name: Optional[str] = None,
         timestamp_split_column_name: Optional[str] = None,
+        timeout: Optional[int] = None,
+        restart_job_on_worker_restart: bool = False,
         enable_web_access: bool = False,
         tensorboard: Optional[str] = None,
         sync=True,
@@ -2014,6 +2033,13 @@ class CustomTrainingJob(_CustomTrainingJob):
                 that piece is ignored by the pipeline.
 
                 Supported only for tabular and time series Datasets.
+            timeout (int):
+                The maximum job running time in seconds. The default is 7 days.
+            restart_job_on_worker_restart (bool):
+                Restarts the entire CustomJob if a worker
+                gets restarted. This feature can be used by
+                distributed training jobs that are not resilient
+                to workers leaving and joining a job.
             enable_web_access (bool):
                 Whether you want Vertex AI to enable interactive shell access
                 to training containers.
@@ -2080,6 +2106,8 @@ class CustomTrainingJob(_CustomTrainingJob):
             test_filter_split=test_filter_split,
             predefined_split_column_name=predefined_split_column_name,
             timestamp_split_column_name=timestamp_split_column_name,
+            timeout=timeout,
+            restart_job_on_worker_restart=restart_job_on_worker_restart,
             enable_web_access=enable_web_access,
             tensorboard=tensorboard,
             reduction_server_container_uri=reduction_server_container_uri
@@ -2117,6 +2145,8 @@ class CustomTrainingJob(_CustomTrainingJob):
         test_filter_split: Optional[str] = None,
         predefined_split_column_name: Optional[str] = None,
         timestamp_split_column_name: Optional[str] = None,
+        timeout: Optional[int] = None,
+        restart_job_on_worker_restart: bool = False,
         enable_web_access: bool = False,
         tensorboard: Optional[str] = None,
         reduction_server_container_uri: Optional[str] = None,
@@ -2237,6 +2267,13 @@ class CustomTrainingJob(_CustomTrainingJob):
                 that piece is ignored by the pipeline.
 
                 Supported only for tabular and time series Datasets.
+            timeout (int):
+                The maximum job running time in seconds. The default is 7 days.
+            restart_job_on_worker_restart (bool):
+                Restarts the entire CustomJob if a worker
+                gets restarted. This feature can be used by
+                distributed training jobs that are not resilient
+                to workers leaving and joining a job.
             enable_web_access (bool):
                 Whether you want Vertex AI to enable interactive shell access
                 to training containers.
@@ -2309,6 +2346,8 @@ class CustomTrainingJob(_CustomTrainingJob):
             base_output_dir=base_output_dir,
             service_account=service_account,
             network=network,
+            timeout=timeout,
+            restart_job_on_worker_restart=restart_job_on_worker_restart,
             enable_web_access=enable_web_access,
             tensorboard=tensorboard,
         )
@@ -2598,6 +2637,8 @@ class CustomContainerTrainingJob(_CustomTrainingJob):
         test_filter_split: Optional[str] = None,
         predefined_split_column_name: Optional[str] = None,
         timestamp_split_column_name: Optional[str] = None,
+        timeout: Optional[int] = None,
+        restart_job_on_worker_restart: bool = False,
         enable_web_access: bool = False,
         tensorboard: Optional[str] = None,
         sync=True,
@@ -2811,6 +2852,13 @@ class CustomContainerTrainingJob(_CustomTrainingJob):
                 that piece is ignored by the pipeline.
 
                 Supported only for tabular and time series Datasets.
+            timeout (int):
+                The maximum job running time in seconds. The default is 7 days.
+            restart_job_on_worker_restart (bool):
+                Restarts the entire CustomJob if a worker
+                gets restarted. This feature can be used by
+                distributed training jobs that are not resilient
+                to workers leaving and joining a job.
             enable_web_access (bool):
                 Whether you want Vertex AI to enable interactive shell access
                 to training containers.
@@ -2876,6 +2924,8 @@ class CustomContainerTrainingJob(_CustomTrainingJob):
             test_filter_split=test_filter_split,
             predefined_split_column_name=predefined_split_column_name,
             timestamp_split_column_name=timestamp_split_column_name,
+            timeout=timeout,
+            restart_job_on_worker_restart=restart_job_on_worker_restart,
             enable_web_access=enable_web_access,
             tensorboard=tensorboard,
             reduction_server_container_uri=reduction_server_container_uri
@@ -2912,6 +2962,8 @@ class CustomContainerTrainingJob(_CustomTrainingJob):
         test_filter_split: Optional[str] = None,
         predefined_split_column_name: Optional[str] = None,
         timestamp_split_column_name: Optional[str] = None,
+        timeout: Optional[int] = None,
+        restart_job_on_worker_restart: bool = False,
         enable_web_access: bool = False,
         tensorboard: Optional[str] = None,
         reduction_server_container_uri: Optional[str] = None,
@@ -2965,6 +3017,13 @@ class CustomContainerTrainingJob(_CustomTrainingJob):
                 should be peered. For example, projects/12345/global/networks/myVPC.
                 Private services access must already be configured for the network.
                 If left unspecified, the job is not peered with any network.
+            timeout (int):
+                The maximum job running time in seconds. The default is 7 days.
+            restart_job_on_worker_restart (bool):
+                Restarts the entire CustomJob if a worker
+                gets restarted. This feature can be used by
+                distributed training jobs that are not resilient
+                to workers leaving and joining a job.
             bigquery_destination (str):
                 The BigQuery project location where the training data is to
                 be written to. In the given project a new dataset is created
@@ -3094,6 +3153,8 @@ class CustomContainerTrainingJob(_CustomTrainingJob):
             base_output_dir=base_output_dir,
             service_account=service_account,
             network=network,
+            timeout=timeout,
+            restart_job_on_worker_restart=restart_job_on_worker_restart,
             enable_web_access=enable_web_access,
             tensorboard=tensorboard,
         )
@@ -5189,6 +5250,8 @@ class CustomPythonPackageTrainingJob(_CustomTrainingJob):
         test_filter_split: Optional[str] = None,
         predefined_split_column_name: Optional[str] = None,
         timestamp_split_column_name: Optional[str] = None,
+        timeout: Optional[int] = None,
+        restart_job_on_worker_restart: bool = False,
         enable_web_access: bool = False,
         tensorboard: Optional[str] = None,
         sync=True,
@@ -5402,6 +5465,13 @@ class CustomPythonPackageTrainingJob(_CustomTrainingJob):
                 that piece is ignored by the pipeline.
 
                 Supported only for tabular and time series Datasets.
+            timeout (int):
+                The maximum job running time in seconds. The default is 7 days.
+            restart_job_on_worker_restart (bool):
+                Restarts the entire CustomJob if a worker
+                gets restarted. This feature can be used by
+                distributed training jobs that are not resilient
+                to workers leaving and joining a job.
             enable_web_access (bool):
                 Whether you want Vertex AI to enable interactive shell access
                 to training containers.
@@ -5462,6 +5532,8 @@ class CustomPythonPackageTrainingJob(_CustomTrainingJob):
             predefined_split_column_name=predefined_split_column_name,
             timestamp_split_column_name=timestamp_split_column_name,
             bigquery_destination=bigquery_destination,
+            timeout=timeout,
+            restart_job_on_worker_restart=restart_job_on_worker_restart,
             enable_web_access=enable_web_access,
             tensorboard=tensorboard,
             reduction_server_container_uri=reduction_server_container_uri
@@ -5498,6 +5570,8 @@ class CustomPythonPackageTrainingJob(_CustomTrainingJob):
         predefined_split_column_name: Optional[str] = None,
         timestamp_split_column_name: Optional[str] = None,
         bigquery_destination: Optional[str] = None,
+        timeout: Optional[int] = None,
+        restart_job_on_worker_restart: bool = False,
         enable_web_access: bool = False,
         tensorboard: Optional[str] = None,
         reduction_server_container_uri: Optional[str] = None,
@@ -5601,6 +5675,13 @@ class CustomPythonPackageTrainingJob(_CustomTrainingJob):
                 that piece is ignored by the pipeline.
 
                 Supported only for tabular and time series Datasets.
+            timeout (int):
+                The maximum job running time in seconds. The default is 7 days.
+            restart_job_on_worker_restart (bool):
+                Restarts the entire CustomJob if a worker
+                gets restarted. This feature can be used by
+                distributed training jobs that are not resilient
+                to workers leaving and joining a job.
             enable_web_access (bool):
                 Whether you want Vertex AI to enable interactive shell access
                 to training containers.
@@ -5667,6 +5748,8 @@ class CustomPythonPackageTrainingJob(_CustomTrainingJob):
             base_output_dir=base_output_dir,
             service_account=service_account,
             network=network,
+            timeout=timeout,
+            restart_job_on_worker_restart=restart_job_on_worker_restart,
             enable_web_access=enable_web_access,
             tensorboard=tensorboard,
         )

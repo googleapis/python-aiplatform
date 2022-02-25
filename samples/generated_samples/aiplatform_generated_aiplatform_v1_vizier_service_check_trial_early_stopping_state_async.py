@@ -28,14 +28,12 @@ from google.cloud import aiplatform_v1
 
 
 async def sample_check_trial_early_stopping_state():
-    """Snippet for check_trial_early_stopping_state"""
-
     # Create a client
     client = aiplatform_v1.VizierServiceAsyncClient()
 
     # Initialize request argument(s)
     request = aiplatform_v1.CheckTrialEarlyStoppingStateRequest(
-        trial_name="projects/{project}/locations/{location}/studies/{study}/trials/{trial}",
+        trial_name="trial_name_value",
     )
 
     # Make the request
@@ -44,6 +42,8 @@ async def sample_check_trial_early_stopping_state():
     print("Waiting for operation to complete...")
 
     response = await operation.result()
+
+    # Handle the response
     print(response)
 
 # [END aiplatform_generated_aiplatform_v1_VizierService_CheckTrialEarlyStoppingState_async]

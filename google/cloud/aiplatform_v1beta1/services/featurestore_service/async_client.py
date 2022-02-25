@@ -242,6 +242,31 @@ class FeaturestoreServiceAsyncClient:
         r"""Creates a new Featurestore in a given project and
         location.
 
+
+        .. code-block::
+
+            from google.cloud import aiplatform_v1beta1
+
+            def sample_create_featurestore():
+                # Create a client
+                client = aiplatform_v1beta1.FeaturestoreServiceClient()
+
+                # Initialize request argument(s)
+                request = aiplatform_v1beta1.CreateFeaturestoreRequest(
+                    parent="parent_value",
+                    featurestore_id="featurestore_id_value",
+                )
+
+                # Make the request
+                operation = client.create_featurestore(request=request)
+
+                print("Waiting for operation to complete...")
+
+                response = operation.result()
+
+                # Handle the response
+                print(response)
+
         Args:
             request (Union[google.cloud.aiplatform_v1beta1.types.CreateFeaturestoreRequest, dict]):
                 The request object. Request message for
@@ -350,6 +375,25 @@ class FeaturestoreServiceAsyncClient:
     ) -> featurestore.Featurestore:
         r"""Gets details of a single Featurestore.
 
+        .. code-block::
+
+            from google.cloud import aiplatform_v1beta1
+
+            def sample_get_featurestore():
+                # Create a client
+                client = aiplatform_v1beta1.FeaturestoreServiceClient()
+
+                # Initialize request argument(s)
+                request = aiplatform_v1beta1.GetFeaturestoreRequest(
+                    name="name_value",
+                )
+
+                # Make the request
+                response = client.get_featurestore(request=request)
+
+                # Handle the response
+                print(response)
+
         Args:
             request (Union[google.cloud.aiplatform_v1beta1.types.GetFeaturestoreRequest, dict]):
                 The request object. Request message for
@@ -423,6 +467,26 @@ class FeaturestoreServiceAsyncClient:
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> pagers.ListFeaturestoresAsyncPager:
         r"""Lists Featurestores in a given project and location.
+
+        .. code-block::
+
+            from google.cloud import aiplatform_v1beta1
+
+            def sample_list_featurestores():
+                # Create a client
+                client = aiplatform_v1beta1.FeaturestoreServiceClient()
+
+                # Initialize request argument(s)
+                request = aiplatform_v1beta1.ListFeaturestoresRequest(
+                    parent="parent_value",
+                )
+
+                # Make the request
+                page_result = client.list_featurestores(request=request)
+
+                # Handle the response
+                for response in page_result:
+                    print(response)
 
         Args:
             request (Union[google.cloud.aiplatform_v1beta1.types.ListFeaturestoresRequest, dict]):
@@ -505,6 +569,28 @@ class FeaturestoreServiceAsyncClient:
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> operation_async.AsyncOperation:
         r"""Updates the parameters of a single Featurestore.
+
+        .. code-block::
+
+            from google.cloud import aiplatform_v1beta1
+
+            def sample_update_featurestore():
+                # Create a client
+                client = aiplatform_v1beta1.FeaturestoreServiceClient()
+
+                # Initialize request argument(s)
+                request = aiplatform_v1beta1.UpdateFeaturestoreRequest(
+                )
+
+                # Make the request
+                operation = client.update_featurestore(request=request)
+
+                print("Waiting for operation to complete...")
+
+                response = operation.result()
+
+                # Handle the response
+                print(response)
 
         Args:
             request (Union[google.cloud.aiplatform_v1beta1.types.UpdateFeaturestoreRequest, dict]):
@@ -615,6 +701,30 @@ class FeaturestoreServiceAsyncClient:
         any EntityTypes or ``force`` must be set to true for the request
         to succeed.
 
+
+        .. code-block::
+
+            from google.cloud import aiplatform_v1beta1
+
+            def sample_delete_featurestore():
+                # Create a client
+                client = aiplatform_v1beta1.FeaturestoreServiceClient()
+
+                # Initialize request argument(s)
+                request = aiplatform_v1beta1.DeleteFeaturestoreRequest(
+                    name="name_value",
+                )
+
+                # Make the request
+                operation = client.delete_featurestore(request=request)
+
+                print("Waiting for operation to complete...")
+
+                response = operation.result()
+
+                # Handle the response
+                print(response)
+
         Args:
             request (Union[google.cloud.aiplatform_v1beta1.types.DeleteFeaturestoreRequest, dict]):
                 The request object. Request message for
@@ -721,6 +831,30 @@ class FeaturestoreServiceAsyncClient:
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> operation_async.AsyncOperation:
         r"""Creates a new EntityType in a given Featurestore.
+
+        .. code-block::
+
+            from google.cloud import aiplatform_v1beta1
+
+            def sample_create_entity_type():
+                # Create a client
+                client = aiplatform_v1beta1.FeaturestoreServiceClient()
+
+                # Initialize request argument(s)
+                request = aiplatform_v1beta1.CreateEntityTypeRequest(
+                    parent="parent_value",
+                    entity_type_id="entity_type_id_value",
+                )
+
+                # Make the request
+                operation = client.create_entity_type(request=request)
+
+                print("Waiting for operation to complete...")
+
+                response = operation.result()
+
+                # Handle the response
+                print(response)
 
         Args:
             request (Union[google.cloud.aiplatform_v1beta1.types.CreateEntityTypeRequest, dict]):
@@ -829,6 +963,25 @@ class FeaturestoreServiceAsyncClient:
     ) -> entity_type.EntityType:
         r"""Gets details of a single EntityType.
 
+        .. code-block::
+
+            from google.cloud import aiplatform_v1beta1
+
+            def sample_get_entity_type():
+                # Create a client
+                client = aiplatform_v1beta1.FeaturestoreServiceClient()
+
+                # Initialize request argument(s)
+                request = aiplatform_v1beta1.GetEntityTypeRequest(
+                    name="name_value",
+                )
+
+                # Make the request
+                response = client.get_entity_type(request=request)
+
+                # Handle the response
+                print(response)
+
         Args:
             request (Union[google.cloud.aiplatform_v1beta1.types.GetEntityTypeRequest, dict]):
                 The request object. Request message for
@@ -903,6 +1056,26 @@ class FeaturestoreServiceAsyncClient:
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> pagers.ListEntityTypesAsyncPager:
         r"""Lists EntityTypes in a given Featurestore.
+
+        .. code-block::
+
+            from google.cloud import aiplatform_v1beta1
+
+            def sample_list_entity_types():
+                # Create a client
+                client = aiplatform_v1beta1.FeaturestoreServiceClient()
+
+                # Initialize request argument(s)
+                request = aiplatform_v1beta1.ListEntityTypesRequest(
+                    parent="parent_value",
+                )
+
+                # Make the request
+                page_result = client.list_entity_types(request=request)
+
+                # Handle the response
+                for response in page_result:
+                    print(response)
 
         Args:
             request (Union[google.cloud.aiplatform_v1beta1.types.ListEntityTypesRequest, dict]):
@@ -985,6 +1158,24 @@ class FeaturestoreServiceAsyncClient:
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> gca_entity_type.EntityType:
         r"""Updates the parameters of a single EntityType.
+
+        .. code-block::
+
+            from google.cloud import aiplatform_v1beta1
+
+            def sample_update_entity_type():
+                # Create a client
+                client = aiplatform_v1beta1.FeaturestoreServiceClient()
+
+                # Initialize request argument(s)
+                request = aiplatform_v1beta1.UpdateEntityTypeRequest(
+                )
+
+                # Make the request
+                response = client.update_entity_type(request=request)
+
+                # Handle the response
+                print(response)
 
         Args:
             request (Union[google.cloud.aiplatform_v1beta1.types.UpdateEntityTypeRequest, dict]):
@@ -1088,6 +1279,30 @@ class FeaturestoreServiceAsyncClient:
         r"""Deletes a single EntityType. The EntityType must not have any
         Features or ``force`` must be set to true for the request to
         succeed.
+
+
+        .. code-block::
+
+            from google.cloud import aiplatform_v1beta1
+
+            def sample_delete_entity_type():
+                # Create a client
+                client = aiplatform_v1beta1.FeaturestoreServiceClient()
+
+                # Initialize request argument(s)
+                request = aiplatform_v1beta1.DeleteEntityTypeRequest(
+                    name="name_value",
+                )
+
+                # Make the request
+                operation = client.delete_entity_type(request=request)
+
+                print("Waiting for operation to complete...")
+
+                response = operation.result()
+
+                # Handle the response
+                print(response)
 
         Args:
             request (Union[google.cloud.aiplatform_v1beta1.types.DeleteEntityTypeRequest, dict]):
@@ -1194,6 +1409,34 @@ class FeaturestoreServiceAsyncClient:
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> operation_async.AsyncOperation:
         r"""Creates a new Feature in a given EntityType.
+
+        .. code-block::
+
+            from google.cloud import aiplatform_v1beta1
+
+            def sample_create_feature():
+                # Create a client
+                client = aiplatform_v1beta1.FeaturestoreServiceClient()
+
+                # Initialize request argument(s)
+                feature = aiplatform_v1beta1.Feature()
+                feature.value_type = "BYTES"
+
+                request = aiplatform_v1beta1.CreateFeatureRequest(
+                    parent="parent_value",
+                    feature=feature,
+                    feature_id="feature_id_value",
+                )
+
+                # Make the request
+                operation = client.create_feature(request=request)
+
+                print("Waiting for operation to complete...")
+
+                response = operation.result()
+
+                # Handle the response
+                print(response)
 
         Args:
             request (Union[google.cloud.aiplatform_v1beta1.types.CreateFeatureRequest, dict]):
@@ -1302,6 +1545,35 @@ class FeaturestoreServiceAsyncClient:
     ) -> operation_async.AsyncOperation:
         r"""Creates a batch of Features in a given EntityType.
 
+        .. code-block::
+
+            from google.cloud import aiplatform_v1beta1
+
+            def sample_batch_create_features():
+                # Create a client
+                client = aiplatform_v1beta1.FeaturestoreServiceClient()
+
+                # Initialize request argument(s)
+                requests = aiplatform_v1beta1.CreateFeatureRequest()
+                requests.parent = "parent_value"
+                requests.feature.value_type = "BYTES"
+                requests.feature_id = "feature_id_value"
+
+                request = aiplatform_v1beta1.BatchCreateFeaturesRequest(
+                    parent="parent_value",
+                    requests=requests,
+                )
+
+                # Make the request
+                operation = client.batch_create_features(request=request)
+
+                print("Waiting for operation to complete...")
+
+                response = operation.result()
+
+                # Handle the response
+                print(response)
+
         Args:
             request (Union[google.cloud.aiplatform_v1beta1.types.BatchCreateFeaturesRequest, dict]):
                 The request object. Request message for
@@ -1399,6 +1671,25 @@ class FeaturestoreServiceAsyncClient:
     ) -> feature.Feature:
         r"""Gets details of a single Feature.
 
+        .. code-block::
+
+            from google.cloud import aiplatform_v1beta1
+
+            def sample_get_feature():
+                # Create a client
+                client = aiplatform_v1beta1.FeaturestoreServiceClient()
+
+                # Initialize request argument(s)
+                request = aiplatform_v1beta1.GetFeatureRequest(
+                    name="name_value",
+                )
+
+                # Make the request
+                response = client.get_feature(request=request)
+
+                # Handle the response
+                print(response)
+
         Args:
             request (Union[google.cloud.aiplatform_v1beta1.types.GetFeatureRequest, dict]):
                 The request object. Request message for
@@ -1472,6 +1763,26 @@ class FeaturestoreServiceAsyncClient:
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> pagers.ListFeaturesAsyncPager:
         r"""Lists Features in a given EntityType.
+
+        .. code-block::
+
+            from google.cloud import aiplatform_v1beta1
+
+            def sample_list_features():
+                # Create a client
+                client = aiplatform_v1beta1.FeaturestoreServiceClient()
+
+                # Initialize request argument(s)
+                request = aiplatform_v1beta1.ListFeaturesRequest(
+                    parent="parent_value",
+                )
+
+                # Make the request
+                page_result = client.list_features(request=request)
+
+                # Handle the response
+                for response in page_result:
+                    print(response)
 
         Args:
             request (Union[google.cloud.aiplatform_v1beta1.types.ListFeaturesRequest, dict]):
@@ -1554,6 +1865,28 @@ class FeaturestoreServiceAsyncClient:
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> gca_feature.Feature:
         r"""Updates the parameters of a single Feature.
+
+        .. code-block::
+
+            from google.cloud import aiplatform_v1beta1
+
+            def sample_update_feature():
+                # Create a client
+                client = aiplatform_v1beta1.FeaturestoreServiceClient()
+
+                # Initialize request argument(s)
+                feature = aiplatform_v1beta1.Feature()
+                feature.value_type = "BYTES"
+
+                request = aiplatform_v1beta1.UpdateFeatureRequest(
+                    feature=feature,
+                )
+
+                # Make the request
+                response = client.update_feature(request=request)
+
+                # Handle the response
+                print(response)
 
         Args:
             request (Union[google.cloud.aiplatform_v1beta1.types.UpdateFeatureRequest, dict]):
@@ -1653,6 +1986,29 @@ class FeaturestoreServiceAsyncClient:
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> operation_async.AsyncOperation:
         r"""Deletes a single Feature.
+
+        .. code-block::
+
+            from google.cloud import aiplatform_v1beta1
+
+            def sample_delete_feature():
+                # Create a client
+                client = aiplatform_v1beta1.FeaturestoreServiceClient()
+
+                # Initialize request argument(s)
+                request = aiplatform_v1beta1.DeleteFeatureRequest(
+                    name="name_value",
+                )
+
+                # Make the request
+                operation = client.delete_feature(request=request)
+
+                print("Waiting for operation to complete...")
+
+                response = operation.result()
+
+                # Handle the response
+                print(response)
 
         Args:
             request (Union[google.cloud.aiplatform_v1beta1.types.DeleteFeatureRequest, dict]):
@@ -1767,6 +2123,39 @@ class FeaturestoreServiceAsyncClient:
         or retention policy.
          - Online serving cluster is under-provisioned.
 
+
+        .. code-block::
+
+            from google.cloud import aiplatform_v1beta1
+
+            def sample_import_feature_values():
+                # Create a client
+                client = aiplatform_v1beta1.FeaturestoreServiceClient()
+
+                # Initialize request argument(s)
+                avro_source = aiplatform_v1beta1.AvroSource()
+                avro_source.gcs_source.uris = ['uris_value_1', 'uris_value_2']
+
+                feature_specs = aiplatform_v1beta1.FeatureSpec()
+                feature_specs.id = "id_value"
+
+                request = aiplatform_v1beta1.ImportFeatureValuesRequest(
+                    avro_source=avro_source,
+                    feature_time_field="feature_time_field_value",
+                    entity_type="entity_type_value",
+                    feature_specs=feature_specs,
+                )
+
+                # Make the request
+                operation = client.import_feature_values(request=request)
+
+                print("Waiting for operation to complete...")
+
+                response = operation.result()
+
+                # Handle the response
+                print(response)
+
         Args:
             request (Union[google.cloud.aiplatform_v1beta1.types.ImportFeatureValuesRequest, dict]):
                 The request object. Request message for
@@ -1859,6 +2248,43 @@ class FeaturestoreServiceAsyncClient:
         correctness is guaranteed for Feature values of each
         read instance as of each instance's read timestamp.
 
+
+        .. code-block::
+
+            from google.cloud import aiplatform_v1beta1
+
+            def sample_batch_read_feature_values():
+                # Create a client
+                client = aiplatform_v1beta1.FeaturestoreServiceClient()
+
+                # Initialize request argument(s)
+                csv_read_instances = aiplatform_v1beta1.CsvSource()
+                csv_read_instances.gcs_source.uris = ['uris_value_1', 'uris_value_2']
+
+                destination = aiplatform_v1beta1.FeatureValueDestination()
+                destination.bigquery_destination.output_uri = "output_uri_value"
+
+                entity_type_specs = aiplatform_v1beta1.EntityTypeSpec()
+                entity_type_specs.entity_type_id = "entity_type_id_value"
+                entity_type_specs.feature_selector.id_matcher.ids = ['ids_value_1', 'ids_value_2']
+
+                request = aiplatform_v1beta1.BatchReadFeatureValuesRequest(
+                    csv_read_instances=csv_read_instances,
+                    featurestore="featurestore_value",
+                    destination=destination,
+                    entity_type_specs=entity_type_specs,
+                )
+
+                # Make the request
+                operation = client.batch_read_feature_values(request=request)
+
+                print("Waiting for operation to complete...")
+
+                response = operation.result()
+
+                # Handle the response
+                print(response)
+
         Args:
             request (Union[google.cloud.aiplatform_v1beta1.types.BatchReadFeatureValuesRequest, dict]):
                 The request object. Request message for
@@ -1945,6 +2371,38 @@ class FeaturestoreServiceAsyncClient:
     ) -> operation_async.AsyncOperation:
         r"""Exports Feature values from all the entities of a
         target EntityType.
+
+
+        .. code-block::
+
+            from google.cloud import aiplatform_v1beta1
+
+            def sample_export_feature_values():
+                # Create a client
+                client = aiplatform_v1beta1.FeaturestoreServiceClient()
+
+                # Initialize request argument(s)
+                destination = aiplatform_v1beta1.FeatureValueDestination()
+                destination.bigquery_destination.output_uri = "output_uri_value"
+
+                feature_selector = aiplatform_v1beta1.FeatureSelector()
+                feature_selector.id_matcher.ids = ['ids_value_1', 'ids_value_2']
+
+                request = aiplatform_v1beta1.ExportFeatureValuesRequest(
+                    entity_type="entity_type_value",
+                    destination=destination,
+                    feature_selector=feature_selector,
+                )
+
+                # Make the request
+                operation = client.export_feature_values(request=request)
+
+                print("Waiting for operation to complete...")
+
+                response = operation.result()
+
+                # Handle the response
+                print(response)
 
         Args:
             request (Union[google.cloud.aiplatform_v1beta1.types.ExportFeatureValuesRequest, dict]):
@@ -2033,6 +2491,27 @@ class FeaturestoreServiceAsyncClient:
     ) -> pagers.SearchFeaturesAsyncPager:
         r"""Searches Features matching a query in a given
         project.
+
+
+        .. code-block::
+
+            from google.cloud import aiplatform_v1beta1
+
+            def sample_search_features():
+                # Create a client
+                client = aiplatform_v1beta1.FeaturestoreServiceClient()
+
+                # Initialize request argument(s)
+                request = aiplatform_v1beta1.SearchFeaturesRequest(
+                    location="location_value",
+                )
+
+                # Make the request
+                page_result = client.search_features(request=request)
+
+                # Handle the response
+                for response in page_result:
+                    print(response)
 
         Args:
             request (Union[google.cloud.aiplatform_v1beta1.types.SearchFeaturesRequest, dict]):

@@ -28,26 +28,24 @@ from google.cloud import aiplatform_v1beta1
 
 
 def sample_batch_create_tensorboard_runs():
-    """Snippet for batch_create_tensorboard_runs"""
-
     # Create a client
     client = aiplatform_v1beta1.TensorboardServiceClient()
 
     # Initialize request argument(s)
     requests = aiplatform_v1beta1.CreateTensorboardRunRequest()
-    requests.parent = "projects/{project}/locations/{location}/tensorboards/{tensorboard}/experiments/{experiment}/runs/{run}"
+    requests.parent = "parent_value"
     requests.tensorboard_run.display_name = "display_name_value"
     requests.tensorboard_run_id = "tensorboard_run_id_value"
 
     request = aiplatform_v1beta1.BatchCreateTensorboardRunsRequest(
-        parent="projects/{project}/locations/{location}/tensorboards/{tensorboard}/experiments/{experiment}",
+        parent="parent_value",
         requests=requests,
     )
 
     # Make the request
     response = client.batch_create_tensorboard_runs(request=request)
 
-    # Handle response
+    # Handle the response
     print(response)
 
 # [END aiplatform_generated_aiplatform_v1beta1_TensorboardService_BatchCreateTensorboardRuns_sync]

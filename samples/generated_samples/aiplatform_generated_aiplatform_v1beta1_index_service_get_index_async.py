@@ -28,20 +28,18 @@ from google.cloud import aiplatform_v1beta1
 
 
 async def sample_get_index():
-    """Snippet for get_index"""
-
     # Create a client
     client = aiplatform_v1beta1.IndexServiceAsyncClient()
 
     # Initialize request argument(s)
     request = aiplatform_v1beta1.GetIndexRequest(
-        name="projects/{project}/locations/{location}/indexes/{index}",
+        name="name_value",
     )
 
     # Make the request
     response = await client.get_index(request=request)
 
-    # Handle response
+    # Handle the response
     print(response)
 
 # [END aiplatform_generated_aiplatform_v1beta1_IndexService_GetIndex_async]

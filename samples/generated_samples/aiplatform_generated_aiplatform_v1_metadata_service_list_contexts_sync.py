@@ -28,18 +28,18 @@ from google.cloud import aiplatform_v1
 
 
 def sample_list_contexts():
-    """Snippet for list_contexts"""
-
     # Create a client
     client = aiplatform_v1.MetadataServiceClient()
 
     # Initialize request argument(s)
     request = aiplatform_v1.ListContextsRequest(
-        parent="projects/{project}/locations/{location}/metadataStores/{metadata_store}/contexts/{context}",
+        parent="parent_value",
     )
 
     # Make the request
     page_result = client.list_contexts(request=request)
+
+    # Handle the response
     for response in page_result:
         print(response)
 

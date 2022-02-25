@@ -28,21 +28,19 @@ from google.cloud import aiplatform_v1beta1
 
 
 async def sample_lookup_study():
-    """Snippet for lookup_study"""
-
     # Create a client
     client = aiplatform_v1beta1.VizierServiceAsyncClient()
 
     # Initialize request argument(s)
     request = aiplatform_v1beta1.LookupStudyRequest(
-        parent="projects/{project}/locations/{location}",
+        parent="parent_value",
         display_name="display_name_value",
     )
 
     # Make the request
     response = await client.lookup_study(request=request)
 
-    # Handle response
+    # Handle the response
     print(response)
 
 # [END aiplatform_generated_aiplatform_v1beta1_VizierService_LookupStudy_async]

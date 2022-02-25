@@ -28,20 +28,18 @@ from google.cloud import aiplatform_v1
 
 
 def sample_query_artifact_lineage_subgraph():
-    """Snippet for query_artifact_lineage_subgraph"""
-
     # Create a client
     client = aiplatform_v1.MetadataServiceClient()
 
     # Initialize request argument(s)
     request = aiplatform_v1.QueryArtifactLineageSubgraphRequest(
-        artifact="projects/{project}/locations/{location}/metadataStores/{metadata_store}/artifacts/{artifact}",
+        artifact="artifact_value",
     )
 
     # Make the request
     response = client.query_artifact_lineage_subgraph(request=request)
 
-    # Handle response
+    # Handle the response
     print(response)
 
 # [END aiplatform_generated_aiplatform_v1_MetadataService_QueryArtifactLineageSubgraph_sync]
