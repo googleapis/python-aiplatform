@@ -82,6 +82,16 @@ class LocalModel:
         https://cloud.google.com/artifact-registry/docs/docker/authentication to set
         up the authentication.
 
+        For Artifact Registry, the repository must be created before you are able to
+        push images to it. Otherwise, you will hit the error, "Repository {REPOSITORY} not found".
+        To create Artifact Registry repositories, use UI or call gcloud command. An
+        example of gcloud command:
+            gcloud artifacts repositories create {REPOSITORY} \
+                --project {PROJECT} \
+                --location {REGION} \
+                --repository-format docker
+        See https://cloud.google.com/artifact-registry/docs/manage-repos#create for more details.
+
         Raises:
             ValueError: If the image uri is not a container registry or artifact registry
                 uri.
