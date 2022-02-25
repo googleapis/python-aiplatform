@@ -227,7 +227,7 @@ class IndexEndpointServiceAsyncClient:
     ) -> operation_async.AsyncOperation:
         r"""Creates an IndexEndpoint.
 
-        .. code-block::
+        .. code-block:: python
 
             from google.cloud import aiplatform_v1
 
@@ -345,7 +345,7 @@ class IndexEndpointServiceAsyncClient:
     ) -> index_endpoint.IndexEndpoint:
         r"""Gets an IndexEndpoint.
 
-        .. code-block::
+        .. code-block:: python
 
             from google.cloud import aiplatform_v1
 
@@ -437,7 +437,7 @@ class IndexEndpointServiceAsyncClient:
     ) -> pagers.ListIndexEndpointsAsyncPager:
         r"""Lists IndexEndpoints in a Location.
 
-        .. code-block::
+        .. code-block:: python
 
             from google.cloud import aiplatform_v1
 
@@ -539,7 +539,7 @@ class IndexEndpointServiceAsyncClient:
     ) -> gca_index_endpoint.IndexEndpoint:
         r"""Updates an IndexEndpoint.
 
-        .. code-block::
+        .. code-block:: python
 
             from google.cloud import aiplatform_v1
 
@@ -644,7 +644,7 @@ class IndexEndpointServiceAsyncClient:
     ) -> operation_async.AsyncOperation:
         r"""Deletes an IndexEndpoint.
 
-        .. code-block::
+        .. code-block:: python
 
             from google.cloud import aiplatform_v1
 
@@ -764,7 +764,7 @@ class IndexEndpointServiceAsyncClient:
         Only non-empty Indexes can be deployed.
 
 
-        .. code-block::
+        .. code-block:: python
 
             from google.cloud import aiplatform_v1
 
@@ -891,7 +891,7 @@ class IndexEndpointServiceAsyncClient:
         using.
 
 
-        .. code-block::
+        .. code-block:: python
 
             from google.cloud import aiplatform_v1
 
@@ -1013,7 +1013,7 @@ class IndexEndpointServiceAsyncClient:
         IndexEndpoint.
 
 
-        .. code-block::
+        .. code-block:: python
 
             from google.cloud import aiplatform_v1
 

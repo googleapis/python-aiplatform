@@ -437,8 +437,7 @@ class IndexServiceClient(metaclass=IndexServiceClientMeta):
     ) -> gac_operation.Operation:
         r"""Creates an Index.
 
-
-        .. code-block::
+        .. code-block:: python
 
             from google.cloud import aiplatform_v1
 
@@ -555,8 +554,7 @@ class IndexServiceClient(metaclass=IndexServiceClientMeta):
     ) -> index.Index:
         r"""Gets an Index.
 
-
-        .. code-block::
+        .. code-block:: python
 
             from google.cloud import aiplatform_v1
 
@@ -648,8 +646,7 @@ class IndexServiceClient(metaclass=IndexServiceClientMeta):
     ) -> pagers.ListIndexesPager:
         r"""Lists Indexes in a Location.
 
-
-        .. code-block::
+        .. code-block:: python
 
             from google.cloud import aiplatform_v1
 
@@ -751,8 +748,7 @@ class IndexServiceClient(metaclass=IndexServiceClientMeta):
     ) -> gac_operation.Operation:
         r"""Updates an Index.
 
-
-        .. code-block::
+        .. code-block:: python
 
             from google.cloud import aiplatform_v1
 
@@ -875,8 +871,7 @@ class IndexServiceClient(metaclass=IndexServiceClientMeta):
         had been undeployed.
 
 
-
-        .. code-block::
+        .. code-block:: python
 
             from google.cloud import aiplatform_v1
 

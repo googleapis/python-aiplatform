@@ -234,7 +234,7 @@ class EndpointServiceAsyncClient:
     ) -> operation_async.AsyncOperation:
         r"""Creates an Endpoint.
 
-        .. code-block::
+        .. code-block:: python
 
             from google.cloud import aiplatform_v1
 
@@ -367,7 +367,7 @@ class EndpointServiceAsyncClient:
     ) -> endpoint.Endpoint:
         r"""Gets an Endpoint.
 
-        .. code-block::
+        .. code-block:: python
 
             from google.cloud import aiplatform_v1
 
@@ -458,7 +458,7 @@ class EndpointServiceAsyncClient:
     ) -> pagers.ListEndpointsAsyncPager:
         r"""Lists Endpoints in a Location.
 
-        .. code-block::
+        .. code-block:: python
 
             from google.cloud import aiplatform_v1
 
@@ -560,7 +560,7 @@ class EndpointServiceAsyncClient:
     ) -> gca_endpoint.Endpoint:
         r"""Updates an Endpoint.
 
-        .. code-block::
+        .. code-block:: python
 
             from google.cloud import aiplatform_v1
 
@@ -665,7 +665,7 @@ class EndpointServiceAsyncClient:
     ) -> operation_async.AsyncOperation:
         r"""Deletes an Endpoint.
 
-        .. code-block::
+        .. code-block:: python
 
             from google.cloud import aiplatform_v1
 
@@ -787,7 +787,7 @@ class EndpointServiceAsyncClient:
         DeployedModel within it.
 
 
-        .. code-block::
+        .. code-block:: python
 
             from google.cloud import aiplatform_v1
 
@@ -942,7 +942,7 @@ class EndpointServiceAsyncClient:
         using.
 
 
-        .. code-block::
+        .. code-block:: python
 
             from google.cloud import aiplatform_v1
 

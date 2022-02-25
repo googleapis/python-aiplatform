@@ -241,7 +241,7 @@ class FeaturestoreServiceAsyncClient:
         location.
 
 
-        .. code-block::
+        .. code-block:: python
 
             from google.cloud import aiplatform_v1
 
@@ -373,7 +373,7 @@ class FeaturestoreServiceAsyncClient:
     ) -> featurestore.Featurestore:
         r"""Gets details of a single Featurestore.
 
-        .. code-block::
+        .. code-block:: python
 
             from google.cloud import aiplatform_v1
 
@@ -466,7 +466,7 @@ class FeaturestoreServiceAsyncClient:
     ) -> pagers.ListFeaturestoresAsyncPager:
         r"""Lists Featurestores in a given project and location.
 
-        .. code-block::
+        .. code-block:: python
 
             from google.cloud import aiplatform_v1
 
@@ -568,7 +568,7 @@ class FeaturestoreServiceAsyncClient:
     ) -> operation_async.AsyncOperation:
         r"""Updates the parameters of a single Featurestore.
 
-        .. code-block::
+        .. code-block:: python
 
             from google.cloud import aiplatform_v1
 
@@ -700,7 +700,7 @@ class FeaturestoreServiceAsyncClient:
         to succeed.
 
 
-        .. code-block::
+        .. code-block:: python
 
             from google.cloud import aiplatform_v1
 
@@ -830,7 +830,7 @@ class FeaturestoreServiceAsyncClient:
     ) -> operation_async.AsyncOperation:
         r"""Creates a new EntityType in a given Featurestore.
 
-        .. code-block::
+        .. code-block:: python
 
             from google.cloud import aiplatform_v1
 
@@ -961,7 +961,7 @@ class FeaturestoreServiceAsyncClient:
     ) -> entity_type.EntityType:
         r"""Gets details of a single EntityType.
 
-        .. code-block::
+        .. code-block:: python
 
             from google.cloud import aiplatform_v1
 
@@ -1055,7 +1055,7 @@ class FeaturestoreServiceAsyncClient:
     ) -> pagers.ListEntityTypesAsyncPager:
         r"""Lists EntityTypes in a given Featurestore.
 
-        .. code-block::
+        .. code-block:: python
 
             from google.cloud import aiplatform_v1
 
@@ -1157,7 +1157,7 @@ class FeaturestoreServiceAsyncClient:
     ) -> gca_entity_type.EntityType:
         r"""Updates the parameters of a single EntityType.
 
-        .. code-block::
+        .. code-block:: python
 
             from google.cloud import aiplatform_v1
 
@@ -1279,7 +1279,7 @@ class FeaturestoreServiceAsyncClient:
         succeed.
 
 
-        .. code-block::
+        .. code-block:: python
 
             from google.cloud import aiplatform_v1
 
@@ -1408,7 +1408,7 @@ class FeaturestoreServiceAsyncClient:
     ) -> operation_async.AsyncOperation:
         r"""Creates a new Feature in a given EntityType.
 
-        .. code-block::
+        .. code-block:: python
 
             from google.cloud import aiplatform_v1
 
@@ -1543,7 +1543,7 @@ class FeaturestoreServiceAsyncClient:
     ) -> operation_async.AsyncOperation:
         r"""Creates a batch of Features in a given EntityType.
 
-        .. code-block::
+        .. code-block:: python
 
             from google.cloud import aiplatform_v1
 
@@ -1669,7 +1669,7 @@ class FeaturestoreServiceAsyncClient:
     ) -> feature.Feature:
         r"""Gets details of a single Feature.
 
-        .. code-block::
+        .. code-block:: python
 
             from google.cloud import aiplatform_v1
 
@@ -1762,7 +1762,7 @@ class FeaturestoreServiceAsyncClient:
     ) -> pagers.ListFeaturesAsyncPager:
         r"""Lists Features in a given EntityType.
 
-        .. code-block::
+        .. code-block:: python
 
             from google.cloud import aiplatform_v1
 
@@ -1864,7 +1864,7 @@ class FeaturestoreServiceAsyncClient:
     ) -> gca_feature.Feature:
         r"""Updates the parameters of a single Feature.
 
-        .. code-block::
+        .. code-block:: python
 
             from google.cloud import aiplatform_v1
 
@@ -1985,7 +1985,7 @@ class FeaturestoreServiceAsyncClient:
     ) -> operation_async.AsyncOperation:
         r"""Deletes a single Feature.
 
-        .. code-block::
+        .. code-block:: python
 
             from google.cloud import aiplatform_v1
 
@@ -2122,7 +2122,7 @@ class FeaturestoreServiceAsyncClient:
          - Online serving cluster is under-provisioned.
 
 
-        .. code-block::
+        .. code-block:: python
 
             from google.cloud import aiplatform_v1
 
@@ -2247,7 +2247,7 @@ class FeaturestoreServiceAsyncClient:
         read instance as of each instance's read timestamp.
 
 
-        .. code-block::
+        .. code-block:: python
 
             from google.cloud import aiplatform_v1
 
@@ -2371,7 +2371,7 @@ class FeaturestoreServiceAsyncClient:
         target EntityType.
 
 
-        .. code-block::
+        .. code-block:: python
 
             from google.cloud import aiplatform_v1
 
@@ -2491,7 +2491,7 @@ class FeaturestoreServiceAsyncClient:
         project.
 
 
-        .. code-block::
+        .. code-block:: python
 
             from google.cloud import aiplatform_v1
 

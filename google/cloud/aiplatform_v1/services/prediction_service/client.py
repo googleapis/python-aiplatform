@@ -433,8 +433,7 @@ class PredictionServiceClient(metaclass=PredictionServiceClientMeta):
     ) -> prediction_service.PredictResponse:
         r"""Perform an online prediction.
 
-
-        .. code-block::
+        .. code-block:: python
 
             from google.cloud import aiplatform_v1
 
@@ -572,8 +571,7 @@ class PredictionServiceClient(metaclass=PredictionServiceClientMeta):
            that served this prediction.
 
 
-
-        .. code-block::
+        .. code-block:: python
 
             from google.cloud import aiplatform_v1
 
@@ -751,8 +749,7 @@ class PredictionServiceClient(metaclass=PredictionServiceClientMeta):
         explanation_spec.
 
 
-
-        .. code-block::
+        .. code-block:: python
 
             from google.cloud import aiplatform_v1
 

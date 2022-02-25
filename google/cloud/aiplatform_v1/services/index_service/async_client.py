@@ -226,7 +226,7 @@ class IndexServiceAsyncClient:
     ) -> operation_async.AsyncOperation:
         r"""Creates an Index.
 
-        .. code-block::
+        .. code-block:: python
 
             from google.cloud import aiplatform_v1
 
@@ -343,7 +343,7 @@ class IndexServiceAsyncClient:
     ) -> index.Index:
         r"""Gets an Index.
 
-        .. code-block::
+        .. code-block:: python
 
             from google.cloud import aiplatform_v1
 
@@ -435,7 +435,7 @@ class IndexServiceAsyncClient:
     ) -> pagers.ListIndexesAsyncPager:
         r"""Lists Indexes in a Location.
 
-        .. code-block::
+        .. code-block:: python
 
             from google.cloud import aiplatform_v1
 
@@ -537,7 +537,7 @@ class IndexServiceAsyncClient:
     ) -> operation_async.AsyncOperation:
         r"""Updates an Index.
 
-        .. code-block::
+        .. code-block:: python
 
             from google.cloud import aiplatform_v1
 
@@ -660,7 +660,7 @@ class IndexServiceAsyncClient:
         had been undeployed.
 
 
-        .. code-block::
+        .. code-block:: python
 
             from google.cloud import aiplatform_v1
 

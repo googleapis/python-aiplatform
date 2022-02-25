@@ -236,7 +236,7 @@ class SpecialistPoolServiceAsyncClient:
     ) -> operation_async.AsyncOperation:
         r"""Creates a SpecialistPool.
 
-        .. code-block::
+        .. code-block:: python
 
             from google.cloud import aiplatform_v1
 
@@ -361,7 +361,7 @@ class SpecialistPoolServiceAsyncClient:
     ) -> specialist_pool.SpecialistPool:
         r"""Gets a SpecialistPool.
 
-        .. code-block::
+        .. code-block:: python
 
             from google.cloud import aiplatform_v1
 
@@ -462,7 +462,7 @@ class SpecialistPoolServiceAsyncClient:
     ) -> pagers.ListSpecialistPoolsAsyncPager:
         r"""Lists SpecialistPools in a Location.
 
-        .. code-block::
+        .. code-block:: python
 
             from google.cloud import aiplatform_v1
 
@@ -567,7 +567,7 @@ class SpecialistPoolServiceAsyncClient:
         in the pool.
 
 
-        .. code-block::
+        .. code-block:: python
 
             from google.cloud import aiplatform_v1
 
@@ -686,7 +686,7 @@ class SpecialistPoolServiceAsyncClient:
     ) -> operation_async.AsyncOperation:
         r"""Updates a SpecialistPool.
 
-        .. code-block::
+        .. code-block:: python
 
             from google.cloud import aiplatform_v1
 

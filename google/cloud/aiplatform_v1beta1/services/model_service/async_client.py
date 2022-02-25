@@ -240,7 +240,7 @@ class ModelServiceAsyncClient:
     ) -> operation_async.AsyncOperation:
         r"""Uploads a Model artifact into Vertex AI.
 
-        .. code-block::
+        .. code-block:: python
 
             from google.cloud import aiplatform_v1beta1
 
@@ -359,7 +359,7 @@ class ModelServiceAsyncClient:
     ) -> model.Model:
         r"""Gets a Model.
 
-        .. code-block::
+        .. code-block:: python
 
             from google.cloud import aiplatform_v1beta1
 
@@ -447,7 +447,7 @@ class ModelServiceAsyncClient:
     ) -> pagers.ListModelsAsyncPager:
         r"""Lists Models in a Location.
 
-        .. code-block::
+        .. code-block:: python
 
             from google.cloud import aiplatform_v1beta1
 
@@ -549,7 +549,7 @@ class ModelServiceAsyncClient:
     ) -> gca_model.Model:
         r"""Updates a Model.
 
-        .. code-block::
+        .. code-block:: python
 
             from google.cloud import aiplatform_v1beta1
 
@@ -661,7 +661,7 @@ class ModelServiceAsyncClient:
         field.
 
 
-        .. code-block::
+        .. code-block:: python
 
             from google.cloud import aiplatform_v1beta1
 
@@ -782,7 +782,7 @@ class ModelServiceAsyncClient:
         format][google.cloud.aiplatform.v1beta1.Model.supported_export_formats].
 
 
-        .. code-block::
+        .. code-block:: python
 
             from google.cloud import aiplatform_v1beta1
 
@@ -898,7 +898,7 @@ class ModelServiceAsyncClient:
     ) -> model_evaluation.ModelEvaluation:
         r"""Gets a ModelEvaluation.
 
-        .. code-block::
+        .. code-block:: python
 
             from google.cloud import aiplatform_v1beta1
 
@@ -991,7 +991,7 @@ class ModelServiceAsyncClient:
     ) -> pagers.ListModelEvaluationsAsyncPager:
         r"""Lists ModelEvaluations in a Model.
 
-        .. code-block::
+        .. code-block:: python
 
             from google.cloud import aiplatform_v1beta1
 
@@ -1092,7 +1092,7 @@ class ModelServiceAsyncClient:
     ) -> model_evaluation_slice.ModelEvaluationSlice:
         r"""Gets a ModelEvaluationSlice.
 
-        .. code-block::
+        .. code-block:: python
 
             from google.cloud import aiplatform_v1beta1
 
@@ -1185,7 +1185,7 @@ class ModelServiceAsyncClient:
     ) -> pagers.ListModelEvaluationSlicesAsyncPager:
         r"""Lists ModelEvaluationSlices in a ModelEvaluation.
 
-        .. code-block::
+        .. code-block:: python
 
             from google.cloud import aiplatform_v1beta1
 

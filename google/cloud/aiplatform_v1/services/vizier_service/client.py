@@ -452,8 +452,7 @@ class VizierServiceClient(metaclass=VizierServiceClientMeta):
         after creation of the Study.
 
 
-
-        .. code-block::
+        .. code-block:: python
 
             from google.cloud import aiplatform_v1
 
@@ -560,8 +559,7 @@ class VizierServiceClient(metaclass=VizierServiceClientMeta):
     ) -> study.Study:
         r"""Gets a Study by name.
 
-
-        .. code-block::
+        .. code-block:: python
 
             from google.cloud import aiplatform_v1
 
@@ -651,8 +649,7 @@ class VizierServiceClient(metaclass=VizierServiceClientMeta):
         project.
 
 
-
-        .. code-block::
+        .. code-block:: python
 
             from google.cloud import aiplatform_v1
 
@@ -753,8 +750,7 @@ class VizierServiceClient(metaclass=VizierServiceClientMeta):
     ) -> None:
         r"""Deletes a Study.
 
-
-        .. code-block::
+        .. code-block:: python
 
             from google.cloud import aiplatform_v1
 
@@ -837,8 +833,7 @@ class VizierServiceClient(metaclass=VizierServiceClientMeta):
         instead of the fully qualified resource name.
 
 
-
-        .. code-block::
+        .. code-block:: python
 
             from google.cloud import aiplatform_v1
 
@@ -932,8 +927,7 @@ class VizierServiceClient(metaclass=VizierServiceClientMeta):
         [SuggestTrialsResponse][google.cloud.ml.v1.SuggestTrialsResponse].
 
 
-
-        .. code-block::
+        .. code-block:: python
 
             from google.cloud import aiplatform_v1
 
@@ -1022,8 +1016,7 @@ class VizierServiceClient(metaclass=VizierServiceClientMeta):
     ) -> study.Trial:
         r"""Adds a user provided Trial to a Study.
 
-
-        .. code-block::
+        .. code-block:: python
 
             from google.cloud import aiplatform_v1
 
@@ -1124,8 +1117,7 @@ class VizierServiceClient(metaclass=VizierServiceClientMeta):
     ) -> study.Trial:
         r"""Gets a Trial.
 
-
-        .. code-block::
+        .. code-block:: python
 
             from google.cloud import aiplatform_v1
 
@@ -1218,8 +1210,7 @@ class VizierServiceClient(metaclass=VizierServiceClientMeta):
     ) -> pagers.ListTrialsPager:
         r"""Lists the Trials associated with a Study.
 
-
-        .. code-block::
+        .. code-block:: python
 
             from google.cloud import aiplatform_v1
 
@@ -1322,8 +1313,7 @@ class VizierServiceClient(metaclass=VizierServiceClientMeta):
         before the Trial is complete.
 
 
-
-        .. code-block::
+        .. code-block:: python
 
             from google.cloud import aiplatform_v1
 
@@ -1397,8 +1387,7 @@ class VizierServiceClient(metaclass=VizierServiceClientMeta):
     ) -> study.Trial:
         r"""Marks a Trial as complete.
 
-
-        .. code-block::
+        .. code-block:: python
 
             from google.cloud import aiplatform_v1
 
@@ -1471,8 +1460,7 @@ class VizierServiceClient(metaclass=VizierServiceClientMeta):
     ) -> None:
         r"""Deletes a Trial.
 
-
-        .. code-block::
+        .. code-block:: python
 
             from google.cloud import aiplatform_v1
 
@@ -1555,8 +1543,7 @@ class VizierServiceClient(metaclass=VizierServiceClientMeta):
         [CheckTrialEarlyStoppingStateResponse][google.cloud.ml.v1.CheckTrialEarlyStoppingStateResponse].
 
 
-
-        .. code-block::
+        .. code-block:: python
 
             from google.cloud import aiplatform_v1
 
@@ -1645,8 +1632,7 @@ class VizierServiceClient(metaclass=VizierServiceClientMeta):
     ) -> study.Trial:
         r"""Stops a Trial.
 
-
-        .. code-block::
+        .. code-block:: python
 
             from google.cloud import aiplatform_v1
 
@@ -1723,8 +1709,7 @@ class VizierServiceClient(metaclass=VizierServiceClientMeta):
         https://en.wikipedia.org/wiki/Pareto_efficiency
 
 
-
-        .. code-block::
+        .. code-block:: python
 
             from google.cloud import aiplatform_v1
 

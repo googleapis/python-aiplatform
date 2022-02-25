@@ -487,8 +487,7 @@ class DatasetServiceClient(metaclass=DatasetServiceClientMeta):
     ) -> gac_operation.Operation:
         r"""Creates a Dataset.
 
-
-        .. code-block::
+        .. code-block:: python
 
             from google.cloud import aiplatform_v1beta1
 
@@ -607,8 +606,7 @@ class DatasetServiceClient(metaclass=DatasetServiceClientMeta):
     ) -> dataset.Dataset:
         r"""Gets a Dataset.
 
-
-        .. code-block::
+        .. code-block:: python
 
             from google.cloud import aiplatform_v1beta1
 
@@ -699,8 +697,7 @@ class DatasetServiceClient(metaclass=DatasetServiceClientMeta):
     ) -> gca_dataset.Dataset:
         r"""Updates a Dataset.
 
-
-        .. code-block::
+        .. code-block:: python
 
             from google.cloud import aiplatform_v1beta1
 
@@ -812,8 +809,7 @@ class DatasetServiceClient(metaclass=DatasetServiceClientMeta):
     ) -> pagers.ListDatasetsPager:
         r"""Lists Datasets in a Location.
 
-
-        .. code-block::
+        .. code-block:: python
 
             from google.cloud import aiplatform_v1beta1
 
@@ -913,8 +909,7 @@ class DatasetServiceClient(metaclass=DatasetServiceClientMeta):
     ) -> gac_operation.Operation:
         r"""Deletes a Dataset.
 
-
-        .. code-block::
+        .. code-block:: python
 
             from google.cloud import aiplatform_v1beta1
 
@@ -1031,8 +1026,7 @@ class DatasetServiceClient(metaclass=DatasetServiceClientMeta):
     ) -> gac_operation.Operation:
         r"""Imports data into a Dataset.
 
-
-        .. code-block::
+        .. code-block:: python
 
             from google.cloud import aiplatform_v1beta1
 
@@ -1154,8 +1148,7 @@ class DatasetServiceClient(metaclass=DatasetServiceClientMeta):
     ) -> gac_operation.Operation:
         r"""Exports data from a Dataset.
 
-
-        .. code-block::
+        .. code-block:: python
 
             from google.cloud import aiplatform_v1beta1
 
@@ -1274,8 +1267,7 @@ class DatasetServiceClient(metaclass=DatasetServiceClientMeta):
     ) -> pagers.ListDataItemsPager:
         r"""Lists DataItems in a Dataset.
 
-
-        .. code-block::
+        .. code-block:: python
 
             from google.cloud import aiplatform_v1beta1
 
@@ -1376,8 +1368,7 @@ class DatasetServiceClient(metaclass=DatasetServiceClientMeta):
     ) -> annotation_spec.AnnotationSpec:
         r"""Gets an AnnotationSpec.
 
-
-        .. code-block::
+        .. code-block:: python
 
             from google.cloud import aiplatform_v1beta1
 
@@ -1468,8 +1459,7 @@ class DatasetServiceClient(metaclass=DatasetServiceClientMeta):
     ) -> pagers.ListAnnotationsPager:
         r"""Lists Annotations belongs to a dataitem
 
-
-        .. code-block::
+        .. code-block:: python
 
             from google.cloud import aiplatform_v1beta1
 

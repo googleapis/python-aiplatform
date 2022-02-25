@@ -622,8 +622,7 @@ class JobServiceClient(metaclass=JobServiceClientMeta):
         will be attempted to be run.
 
 
-
-        .. code-block::
+        .. code-block:: python
 
             from google.cloud import aiplatform_v1beta1
 
@@ -732,8 +731,7 @@ class JobServiceClient(metaclass=JobServiceClientMeta):
     ) -> custom_job.CustomJob:
         r"""Gets a CustomJob.
 
-
-        .. code-block::
+        .. code-block:: python
 
             from google.cloud import aiplatform_v1beta1
 
@@ -829,8 +827,7 @@ class JobServiceClient(metaclass=JobServiceClientMeta):
     ) -> pagers.ListCustomJobsPager:
         r"""Lists CustomJobs in a Location.
 
-
-        .. code-block::
+        .. code-block:: python
 
             from google.cloud import aiplatform_v1beta1
 
@@ -931,8 +928,7 @@ class JobServiceClient(metaclass=JobServiceClientMeta):
     ) -> gac_operation.Operation:
         r"""Deletes a CustomJob.
 
-
-        .. code-block::
+        .. code-block:: python
 
             from google.cloud import aiplatform_v1beta1
 
@@ -1061,8 +1057,7 @@ class JobServiceClient(metaclass=JobServiceClientMeta):
         is set to ``CANCELLED``.
 
 
-
-        .. code-block::
+        .. code-block:: python
 
             from google.cloud import aiplatform_v1beta1
 
@@ -1143,8 +1138,7 @@ class JobServiceClient(metaclass=JobServiceClientMeta):
     ) -> gca_data_labeling_job.DataLabelingJob:
         r"""Creates a DataLabelingJob.
 
-
-        .. code-block::
+        .. code-block:: python
 
             from google.cloud import aiplatform_v1beta1
 
@@ -1253,8 +1247,7 @@ class JobServiceClient(metaclass=JobServiceClientMeta):
     ) -> data_labeling_job.DataLabelingJob:
         r"""Gets a DataLabelingJob.
 
-
-        .. code-block::
+        .. code-block:: python
 
             from google.cloud import aiplatform_v1beta1
 
@@ -1345,8 +1338,7 @@ class JobServiceClient(metaclass=JobServiceClientMeta):
     ) -> pagers.ListDataLabelingJobsPager:
         r"""Lists DataLabelingJobs in a Location.
 
-
-        .. code-block::
+        .. code-block:: python
 
             from google.cloud import aiplatform_v1beta1
 
@@ -1446,8 +1438,7 @@ class JobServiceClient(metaclass=JobServiceClientMeta):
     ) -> gac_operation.Operation:
         r"""Deletes a DataLabelingJob.
 
-
-        .. code-block::
+        .. code-block:: python
 
             from google.cloud import aiplatform_v1beta1
 
@@ -1565,8 +1556,7 @@ class JobServiceClient(metaclass=JobServiceClientMeta):
         not guaranteed.
 
 
-
-        .. code-block::
+        .. code-block:: python
 
             from google.cloud import aiplatform_v1beta1
 
@@ -1647,8 +1637,7 @@ class JobServiceClient(metaclass=JobServiceClientMeta):
     ) -> gca_hyperparameter_tuning_job.HyperparameterTuningJob:
         r"""Creates a HyperparameterTuningJob
 
-
-        .. code-block::
+        .. code-block:: python
 
             from google.cloud import aiplatform_v1beta1
 
@@ -1764,8 +1753,7 @@ class JobServiceClient(metaclass=JobServiceClientMeta):
     ) -> hyperparameter_tuning_job.HyperparameterTuningJob:
         r"""Gets a HyperparameterTuningJob
 
-
-        .. code-block::
+        .. code-block:: python
 
             from google.cloud import aiplatform_v1beta1
 
@@ -1860,8 +1848,7 @@ class JobServiceClient(metaclass=JobServiceClientMeta):
     ) -> pagers.ListHyperparameterTuningJobsPager:
         r"""Lists HyperparameterTuningJobs in a Location.
 
-
-        .. code-block::
+        .. code-block:: python
 
             from google.cloud import aiplatform_v1beta1
 
@@ -1964,8 +1951,7 @@ class JobServiceClient(metaclass=JobServiceClientMeta):
     ) -> gac_operation.Operation:
         r"""Deletes a HyperparameterTuningJob.
 
-
-        .. code-block::
+        .. code-block:: python
 
             from google.cloud import aiplatform_v1beta1
 
@@ -2097,8 +2083,7 @@ class JobServiceClient(metaclass=JobServiceClientMeta):
         is set to ``CANCELLED``.
 
 
-
-        .. code-block::
+        .. code-block:: python
 
             from google.cloud import aiplatform_v1beta1
 
@@ -2184,8 +2169,7 @@ class JobServiceClient(metaclass=JobServiceClientMeta):
         once created will right away be attempted to start.
 
 
-
-        .. code-block::
+        .. code-block:: python
 
             from google.cloud import aiplatform_v1beta1
 
@@ -2299,8 +2283,7 @@ class JobServiceClient(metaclass=JobServiceClientMeta):
     ) -> batch_prediction_job.BatchPredictionJob:
         r"""Gets a BatchPredictionJob
 
-
-        .. code-block::
+        .. code-block:: python
 
             from google.cloud import aiplatform_v1beta1
 
@@ -2395,8 +2378,7 @@ class JobServiceClient(metaclass=JobServiceClientMeta):
     ) -> pagers.ListBatchPredictionJobsPager:
         r"""Lists BatchPredictionJobs in a Location.
 
-
-        .. code-block::
+        .. code-block:: python
 
             from google.cloud import aiplatform_v1beta1
 
@@ -2501,8 +2483,7 @@ class JobServiceClient(metaclass=JobServiceClientMeta):
         jobs that already finished.
 
 
-
-        .. code-block::
+        .. code-block:: python
 
             from google.cloud import aiplatform_v1beta1
 
@@ -2632,8 +2613,7 @@ class JobServiceClient(metaclass=JobServiceClientMeta):
         are not deleted.
 
 
-
-        .. code-block::
+        .. code-block:: python
 
             from google.cloud import aiplatform_v1beta1
 
@@ -2721,8 +2701,7 @@ class JobServiceClient(metaclass=JobServiceClientMeta):
         periodically on a configured interval.
 
 
-
-        .. code-block::
+        .. code-block:: python
 
             from google.cloud import aiplatform_v1beta1
 
@@ -2841,8 +2820,7 @@ class JobServiceClient(metaclass=JobServiceClientMeta):
         a given time window.
 
 
-
-        .. code-block::
+        .. code-block:: python
 
             from google.cloud import aiplatform_v1beta1
 
@@ -2968,8 +2946,7 @@ class JobServiceClient(metaclass=JobServiceClientMeta):
     ) -> model_deployment_monitoring_job.ModelDeploymentMonitoringJob:
         r"""Gets a ModelDeploymentMonitoringJob.
 
-
-        .. code-block::
+        .. code-block:: python
 
             from google.cloud import aiplatform_v1beta1
 
@@ -3067,8 +3044,7 @@ class JobServiceClient(metaclass=JobServiceClientMeta):
     ) -> pagers.ListModelDeploymentMonitoringJobsPager:
         r"""Lists ModelDeploymentMonitoringJobs in a Location.
 
-
-        .. code-block::
+        .. code-block:: python
 
             from google.cloud import aiplatform_v1beta1
 
@@ -3176,8 +3152,7 @@ class JobServiceClient(metaclass=JobServiceClientMeta):
     ) -> gac_operation.Operation:
         r"""Updates a ModelDeploymentMonitoringJob.
 
-
-        .. code-block::
+        .. code-block:: python
 
             from google.cloud import aiplatform_v1beta1
 
@@ -3337,8 +3312,7 @@ class JobServiceClient(metaclass=JobServiceClientMeta):
     ) -> gac_operation.Operation:
         r"""Deletes a ModelDeploymentMonitoringJob.
 
-
-        .. code-block::
+        .. code-block:: python
 
             from google.cloud import aiplatform_v1beta1
 
@@ -3464,8 +3438,7 @@ class JobServiceClient(metaclass=JobServiceClientMeta):
         to 'PAUSED'.
 
 
-
-        .. code-block::
+        .. code-block:: python
 
             from google.cloud import aiplatform_v1beta1
 
@@ -3555,8 +3528,7 @@ class JobServiceClient(metaclass=JobServiceClientMeta):
         ModelDeploymentMonitoringJob can't be resumed.
 
 
-
-        .. code-block::
+        .. code-block:: python
 
             from google.cloud import aiplatform_v1beta1
 

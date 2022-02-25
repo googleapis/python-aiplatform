@@ -220,7 +220,7 @@ class PredictionServiceAsyncClient:
     ) -> prediction_service.PredictResponse:
         r"""Perform an online prediction.
 
-        .. code-block::
+        .. code-block:: python
 
             from google.cloud import aiplatform_v1
 
@@ -358,7 +358,7 @@ class PredictionServiceAsyncClient:
            that served this prediction.
 
 
-        .. code-block::
+        .. code-block:: python
 
             from google.cloud import aiplatform_v1
 
@@ -536,7 +536,7 @@ class PredictionServiceAsyncClient:
         explanation_spec.
 
 
-        .. code-block::
+        .. code-block:: python
 
             from google.cloud import aiplatform_v1
 

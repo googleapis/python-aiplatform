@@ -236,7 +236,7 @@ class MigrationServiceAsyncClient:
         given location.
 
 
-        .. code-block::
+        .. code-block:: python
 
             from google.cloud import aiplatform_v1
 
@@ -345,7 +345,7 @@ class MigrationServiceAsyncClient:
         to Vertex AI.
 
 
-        .. code-block::
+        .. code-block:: python
 
             from google.cloud import aiplatform_v1
 

@@ -518,8 +518,7 @@ class MetadataServiceClient(metaclass=MetadataServiceClientMeta):
         resources.
 
 
-
-        .. code-block::
+        .. code-block:: python
 
             from google.cloud import aiplatform_v1beta1
 
@@ -650,8 +649,7 @@ class MetadataServiceClient(metaclass=MetadataServiceClientMeta):
     ) -> metadata_store.MetadataStore:
         r"""Retrieves a specific MetadataStore.
 
-
-        .. code-block::
+        .. code-block:: python
 
             from google.cloud import aiplatform_v1beta1
 
@@ -743,8 +741,7 @@ class MetadataServiceClient(metaclass=MetadataServiceClientMeta):
     ) -> pagers.ListMetadataStoresPager:
         r"""Lists MetadataStores for a Location.
 
-
-        .. code-block::
+        .. code-block:: python
 
             from google.cloud import aiplatform_v1beta1
 
@@ -847,8 +844,7 @@ class MetadataServiceClient(metaclass=MetadataServiceClientMeta):
         resources (Artifacts, Executions, and Contexts).
 
 
-
-        .. code-block::
+        .. code-block:: python
 
             from google.cloud import aiplatform_v1beta1
 
@@ -966,8 +962,7 @@ class MetadataServiceClient(metaclass=MetadataServiceClientMeta):
     ) -> gca_artifact.Artifact:
         r"""Creates an Artifact associated with a MetadataStore.
 
-
-        .. code-block::
+        .. code-block:: python
 
             from google.cloud import aiplatform_v1beta1
 
@@ -1080,8 +1075,7 @@ class MetadataServiceClient(metaclass=MetadataServiceClientMeta):
     ) -> artifact.Artifact:
         r"""Retrieves a specific Artifact.
 
-
-        .. code-block::
+        .. code-block:: python
 
             from google.cloud import aiplatform_v1beta1
 
@@ -1170,8 +1164,7 @@ class MetadataServiceClient(metaclass=MetadataServiceClientMeta):
     ) -> pagers.ListArtifactsPager:
         r"""Lists Artifacts in the MetadataStore.
 
-
-        .. code-block::
+        .. code-block:: python
 
             from google.cloud import aiplatform_v1beta1
 
@@ -1273,8 +1266,7 @@ class MetadataServiceClient(metaclass=MetadataServiceClientMeta):
     ) -> gca_artifact.Artifact:
         r"""Updates a stored Artifact.
 
-
-        .. code-block::
+        .. code-block:: python
 
             from google.cloud import aiplatform_v1beta1
 
@@ -1378,8 +1370,7 @@ class MetadataServiceClient(metaclass=MetadataServiceClientMeta):
     ) -> gac_operation.Operation:
         r"""Deletes an Artifact.
 
-
-        .. code-block::
+        .. code-block:: python
 
             from google.cloud import aiplatform_v1beta1
 
@@ -1495,8 +1486,7 @@ class MetadataServiceClient(metaclass=MetadataServiceClientMeta):
     ) -> gac_operation.Operation:
         r"""Purges Artifacts.
 
-
-        .. code-block::
+        .. code-block:: python
 
             from google.cloud import aiplatform_v1beta1
 
@@ -1606,8 +1596,7 @@ class MetadataServiceClient(metaclass=MetadataServiceClientMeta):
     ) -> gca_context.Context:
         r"""Creates a Context associated with a MetadataStore.
 
-
-        .. code-block::
+        .. code-block:: python
 
             from google.cloud import aiplatform_v1beta1
 
@@ -1720,8 +1709,7 @@ class MetadataServiceClient(metaclass=MetadataServiceClientMeta):
     ) -> context.Context:
         r"""Retrieves a specific Context.
 
-
-        .. code-block::
+        .. code-block:: python
 
             from google.cloud import aiplatform_v1beta1
 
@@ -1810,8 +1798,7 @@ class MetadataServiceClient(metaclass=MetadataServiceClientMeta):
     ) -> pagers.ListContextsPager:
         r"""Lists Contexts on the MetadataStore.
 
-
-        .. code-block::
+        .. code-block:: python
 
             from google.cloud import aiplatform_v1beta1
 
@@ -1913,8 +1900,7 @@ class MetadataServiceClient(metaclass=MetadataServiceClientMeta):
     ) -> gca_context.Context:
         r"""Updates a stored Context.
 
-
-        .. code-block::
+        .. code-block:: python
 
             from google.cloud import aiplatform_v1beta1
 
@@ -2017,8 +2003,7 @@ class MetadataServiceClient(metaclass=MetadataServiceClientMeta):
     ) -> gac_operation.Operation:
         r"""Deletes a stored Context.
 
-
-        .. code-block::
+        .. code-block:: python
 
             from google.cloud import aiplatform_v1beta1
 
@@ -2134,8 +2119,7 @@ class MetadataServiceClient(metaclass=MetadataServiceClientMeta):
     ) -> gac_operation.Operation:
         r"""Purges Contexts.
 
-
-        .. code-block::
+        .. code-block:: python
 
             from google.cloud import aiplatform_v1beta1
 
@@ -2250,8 +2234,7 @@ class MetadataServiceClient(metaclass=MetadataServiceClientMeta):
         added to a Context, they are simply skipped.
 
 
-
-        .. code-block::
+        .. code-block:: python
 
             from google.cloud import aiplatform_v1beta1
 
@@ -2376,8 +2359,7 @@ class MetadataServiceClient(metaclass=MetadataServiceClientMeta):
         request will fail with an INVALID_ARGUMENT error.
 
 
-
-        .. code-block::
+        .. code-block:: python
 
             from google.cloud import aiplatform_v1beta1
 
@@ -2483,8 +2465,7 @@ class MetadataServiceClient(metaclass=MetadataServiceClientMeta):
         as a LineageSubgraph.
 
 
-
-        .. code-block::
+        .. code-block:: python
 
             from google.cloud import aiplatform_v1beta1
 
@@ -2586,8 +2567,7 @@ class MetadataServiceClient(metaclass=MetadataServiceClientMeta):
     ) -> gca_execution.Execution:
         r"""Creates an Execution associated with a MetadataStore.
 
-
-        .. code-block::
+        .. code-block:: python
 
             from google.cloud import aiplatform_v1beta1
 
@@ -2700,8 +2680,7 @@ class MetadataServiceClient(metaclass=MetadataServiceClientMeta):
     ) -> execution.Execution:
         r"""Retrieves a specific Execution.
 
-
-        .. code-block::
+        .. code-block:: python
 
             from google.cloud import aiplatform_v1beta1
 
@@ -2790,8 +2769,7 @@ class MetadataServiceClient(metaclass=MetadataServiceClientMeta):
     ) -> pagers.ListExecutionsPager:
         r"""Lists Executions in the MetadataStore.
 
-
-        .. code-block::
+        .. code-block:: python
 
             from google.cloud import aiplatform_v1beta1
 
@@ -2893,8 +2871,7 @@ class MetadataServiceClient(metaclass=MetadataServiceClientMeta):
     ) -> gca_execution.Execution:
         r"""Updates a stored Execution.
 
-
-        .. code-block::
+        .. code-block:: python
 
             from google.cloud import aiplatform_v1beta1
 
@@ -2998,8 +2975,7 @@ class MetadataServiceClient(metaclass=MetadataServiceClientMeta):
     ) -> gac_operation.Operation:
         r"""Deletes an Execution.
 
-
-        .. code-block::
+        .. code-block:: python
 
             from google.cloud import aiplatform_v1beta1
 
@@ -3115,8 +3091,7 @@ class MetadataServiceClient(metaclass=MetadataServiceClientMeta):
     ) -> gac_operation.Operation:
         r"""Purges Executions.
 
-
-        .. code-block::
+        .. code-block:: python
 
             from google.cloud import aiplatform_v1beta1
 
@@ -3230,8 +3205,7 @@ class MetadataServiceClient(metaclass=MetadataServiceClientMeta):
         skipped.
 
 
-
-        .. code-block::
+        .. code-block:: python
 
             from google.cloud import aiplatform_v1beta1
 
@@ -3336,8 +3310,7 @@ class MetadataServiceClient(metaclass=MetadataServiceClientMeta):
         contains the Execution and connecting Events.
 
 
-
-        .. code-block::
+        .. code-block:: python
 
             from google.cloud import aiplatform_v1beta1
 
@@ -3438,8 +3411,7 @@ class MetadataServiceClient(metaclass=MetadataServiceClientMeta):
     ) -> gca_metadata_schema.MetadataSchema:
         r"""Creates a MetadataSchema.
 
-
-        .. code-block::
+        .. code-block:: python
 
             from google.cloud import aiplatform_v1beta1
 
@@ -3558,8 +3530,7 @@ class MetadataServiceClient(metaclass=MetadataServiceClientMeta):
     ) -> metadata_schema.MetadataSchema:
         r"""Retrieves a specific MetadataSchema.
 
-
-        .. code-block::
+        .. code-block:: python
 
             from google.cloud import aiplatform_v1beta1
 
@@ -3648,8 +3619,7 @@ class MetadataServiceClient(metaclass=MetadataServiceClientMeta):
     ) -> pagers.ListMetadataSchemasPager:
         r"""Lists MetadataSchemas.
 
-
-        .. code-block::
+        .. code-block:: python
 
             from google.cloud import aiplatform_v1beta1
 
@@ -3755,8 +3725,7 @@ class MetadataServiceClient(metaclass=MetadataServiceClientMeta):
         returned as a LineageSubgraph.
 
 
-
-        .. code-block::
+        .. code-block:: python
 
             from google.cloud import aiplatform_v1beta1
 

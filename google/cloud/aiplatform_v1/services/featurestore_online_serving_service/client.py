@@ -431,8 +431,7 @@ class FeaturestoreOnlineServingServiceClient(
         StreamingReadFeatureValues.
 
 
-
-        .. code-block::
+        .. code-block:: python
 
             from google.cloud import aiplatform_v1
 
@@ -540,8 +539,7 @@ class FeaturestoreOnlineServingServiceClient(
         up across multiple responses.
 
 
-
-        .. code-block::
+        .. code-block:: python
 
             from google.cloud import aiplatform_v1
 

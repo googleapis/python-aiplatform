@@ -278,7 +278,7 @@ class JobServiceAsyncClient:
         will be attempted to be run.
 
 
-        .. code-block::
+        .. code-block:: python
 
             from google.cloud import aiplatform_v1
 
@@ -387,7 +387,7 @@ class JobServiceAsyncClient:
     ) -> custom_job.CustomJob:
         r"""Gets a CustomJob.
 
-        .. code-block::
+        .. code-block:: python
 
             from google.cloud import aiplatform_v1
 
@@ -483,7 +483,7 @@ class JobServiceAsyncClient:
     ) -> pagers.ListCustomJobsAsyncPager:
         r"""Lists CustomJobs in a Location.
 
-        .. code-block::
+        .. code-block:: python
 
             from google.cloud import aiplatform_v1
 
@@ -584,7 +584,7 @@ class JobServiceAsyncClient:
     ) -> operation_async.AsyncOperation:
         r"""Deletes a CustomJob.
 
-        .. code-block::
+        .. code-block:: python
 
             from google.cloud import aiplatform_v1
 
@@ -713,7 +713,7 @@ class JobServiceAsyncClient:
         set to ``CANCELLED``.
 
 
-        .. code-block::
+        .. code-block:: python
 
             from google.cloud import aiplatform_v1
 
@@ -794,7 +794,7 @@ class JobServiceAsyncClient:
     ) -> gca_data_labeling_job.DataLabelingJob:
         r"""Creates a DataLabelingJob.
 
-        .. code-block::
+        .. code-block:: python
 
             from google.cloud import aiplatform_v1
 
@@ -903,7 +903,7 @@ class JobServiceAsyncClient:
     ) -> data_labeling_job.DataLabelingJob:
         r"""Gets a DataLabelingJob.
 
-        .. code-block::
+        .. code-block:: python
 
             from google.cloud import aiplatform_v1
 
@@ -994,7 +994,7 @@ class JobServiceAsyncClient:
     ) -> pagers.ListDataLabelingJobsAsyncPager:
         r"""Lists DataLabelingJobs in a Location.
 
-        .. code-block::
+        .. code-block:: python
 
             from google.cloud import aiplatform_v1
 
@@ -1094,7 +1094,7 @@ class JobServiceAsyncClient:
     ) -> operation_async.AsyncOperation:
         r"""Deletes a DataLabelingJob.
 
-        .. code-block::
+        .. code-block:: python
 
             from google.cloud import aiplatform_v1
 
@@ -1212,7 +1212,7 @@ class JobServiceAsyncClient:
         not guaranteed.
 
 
-        .. code-block::
+        .. code-block:: python
 
             from google.cloud import aiplatform_v1
 
@@ -1293,7 +1293,7 @@ class JobServiceAsyncClient:
     ) -> gca_hyperparameter_tuning_job.HyperparameterTuningJob:
         r"""Creates a HyperparameterTuningJob
 
-        .. code-block::
+        .. code-block:: python
 
             from google.cloud import aiplatform_v1
 
@@ -1407,7 +1407,7 @@ class JobServiceAsyncClient:
     ) -> hyperparameter_tuning_job.HyperparameterTuningJob:
         r"""Gets a HyperparameterTuningJob
 
-        .. code-block::
+        .. code-block:: python
 
             from google.cloud import aiplatform_v1
 
@@ -1500,7 +1500,7 @@ class JobServiceAsyncClient:
     ) -> pagers.ListHyperparameterTuningJobsAsyncPager:
         r"""Lists HyperparameterTuningJobs in a Location.
 
-        .. code-block::
+        .. code-block:: python
 
             from google.cloud import aiplatform_v1
 
@@ -1601,7 +1601,7 @@ class JobServiceAsyncClient:
     ) -> operation_async.AsyncOperation:
         r"""Deletes a HyperparameterTuningJob.
 
-        .. code-block::
+        .. code-block:: python
 
             from google.cloud import aiplatform_v1
 
@@ -1731,7 +1731,7 @@ class JobServiceAsyncClient:
         is set to ``CANCELLED``.
 
 
-        .. code-block::
+        .. code-block:: python
 
             from google.cloud import aiplatform_v1
 
@@ -1815,7 +1815,7 @@ class JobServiceAsyncClient:
         once created will right away be attempted to start.
 
 
-        .. code-block::
+        .. code-block:: python
 
             from google.cloud import aiplatform_v1
 
@@ -1927,7 +1927,7 @@ class JobServiceAsyncClient:
     ) -> batch_prediction_job.BatchPredictionJob:
         r"""Gets a BatchPredictionJob
 
-        .. code-block::
+        .. code-block:: python
 
             from google.cloud import aiplatform_v1
 
@@ -2022,7 +2022,7 @@ class JobServiceAsyncClient:
     ) -> pagers.ListBatchPredictionJobsAsyncPager:
         r"""Lists BatchPredictionJobs in a Location.
 
-        .. code-block::
+        .. code-block:: python
 
             from google.cloud import aiplatform_v1
 
@@ -2125,7 +2125,7 @@ class JobServiceAsyncClient:
         jobs that already finished.
 
 
-        .. code-block::
+        .. code-block:: python
 
             from google.cloud import aiplatform_v1
 
@@ -2253,7 +2253,7 @@ class JobServiceAsyncClient:
         are not deleted.
 
 
-        .. code-block::
+        .. code-block:: python
 
             from google.cloud import aiplatform_v1
 
@@ -2339,7 +2339,7 @@ class JobServiceAsyncClient:
         periodically on a configured interval.
 
 
-        .. code-block::
+        .. code-block:: python
 
             from google.cloud import aiplatform_v1
 
@@ -2452,7 +2452,7 @@ class JobServiceAsyncClient:
         a given time window.
 
 
-        .. code-block::
+        .. code-block:: python
 
             from google.cloud import aiplatform_v1
 
@@ -2572,7 +2572,7 @@ class JobServiceAsyncClient:
     ) -> model_deployment_monitoring_job.ModelDeploymentMonitoringJob:
         r"""Gets a ModelDeploymentMonitoringJob.
 
-        .. code-block::
+        .. code-block:: python
 
             from google.cloud import aiplatform_v1
 
@@ -2668,7 +2668,7 @@ class JobServiceAsyncClient:
     ) -> pagers.ListModelDeploymentMonitoringJobsAsyncPager:
         r"""Lists ModelDeploymentMonitoringJobs in a Location.
 
-        .. code-block::
+        .. code-block:: python
 
             from google.cloud import aiplatform_v1
 
@@ -2772,7 +2772,7 @@ class JobServiceAsyncClient:
     ) -> operation_async.AsyncOperation:
         r"""Updates a ModelDeploymentMonitoringJob.
 
-        .. code-block::
+        .. code-block:: python
 
             from google.cloud import aiplatform_v1
 
@@ -2926,7 +2926,7 @@ class JobServiceAsyncClient:
     ) -> operation_async.AsyncOperation:
         r"""Deletes a ModelDeploymentMonitoringJob.
 
-        .. code-block::
+        .. code-block:: python
 
             from google.cloud import aiplatform_v1
 
@@ -3048,7 +3048,7 @@ class JobServiceAsyncClient:
         to 'PAUSED'.
 
 
-        .. code-block::
+        .. code-block:: python
 
             from google.cloud import aiplatform_v1
 
@@ -3134,7 +3134,7 @@ class JobServiceAsyncClient:
         ModelDeploymentMonitoringJob can't be resumed.
 
 
-        .. code-block::
+        .. code-block:: python
 
             from google.cloud import aiplatform_v1
 

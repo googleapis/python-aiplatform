@@ -237,7 +237,7 @@ class DatasetServiceAsyncClient:
     ) -> operation_async.AsyncOperation:
         r"""Creates a Dataset.
 
-        .. code-block::
+        .. code-block:: python
 
             from google.cloud import aiplatform_v1
 
@@ -356,7 +356,7 @@ class DatasetServiceAsyncClient:
     ) -> dataset.Dataset:
         r"""Gets a Dataset.
 
-        .. code-block::
+        .. code-block:: python
 
             from google.cloud import aiplatform_v1
 
@@ -447,7 +447,7 @@ class DatasetServiceAsyncClient:
     ) -> gca_dataset.Dataset:
         r"""Updates a Dataset.
 
-        .. code-block::
+        .. code-block:: python
 
             from google.cloud import aiplatform_v1
 
@@ -559,7 +559,7 @@ class DatasetServiceAsyncClient:
     ) -> pagers.ListDatasetsAsyncPager:
         r"""Lists Datasets in a Location.
 
-        .. code-block::
+        .. code-block:: python
 
             from google.cloud import aiplatform_v1
 
@@ -659,7 +659,7 @@ class DatasetServiceAsyncClient:
     ) -> operation_async.AsyncOperation:
         r"""Deletes a Dataset.
 
-        .. code-block::
+        .. code-block:: python
 
             from google.cloud import aiplatform_v1
 
@@ -776,7 +776,7 @@ class DatasetServiceAsyncClient:
     ) -> operation_async.AsyncOperation:
         r"""Imports data into a Dataset.
 
-        .. code-block::
+        .. code-block:: python
 
             from google.cloud import aiplatform_v1
 
@@ -898,7 +898,7 @@ class DatasetServiceAsyncClient:
     ) -> operation_async.AsyncOperation:
         r"""Exports data from a Dataset.
 
-        .. code-block::
+        .. code-block:: python
 
             from google.cloud import aiplatform_v1
 
@@ -1017,7 +1017,7 @@ class DatasetServiceAsyncClient:
     ) -> pagers.ListDataItemsAsyncPager:
         r"""Lists DataItems in a Dataset.
 
-        .. code-block::
+        .. code-block:: python
 
             from google.cloud import aiplatform_v1
 
@@ -1118,7 +1118,7 @@ class DatasetServiceAsyncClient:
     ) -> annotation_spec.AnnotationSpec:
         r"""Gets an AnnotationSpec.
 
-        .. code-block::
+        .. code-block:: python
 
             from google.cloud import aiplatform_v1
 
@@ -1209,7 +1209,7 @@ class DatasetServiceAsyncClient:
     ) -> pagers.ListAnnotationsAsyncPager:
         r"""Lists Annotations belongs to a dataitem
 
-        .. code-block::
+        .. code-block:: python
 
             from google.cloud import aiplatform_v1
 
