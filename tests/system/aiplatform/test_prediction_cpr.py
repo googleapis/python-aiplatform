@@ -67,6 +67,11 @@ class TestPredictionCpr(e2e_base.TestEndToEnd):
         #     )
         # assert len(json.loads(local_predict_response.content)["predictions"]) == 1
 
+        assert os.environ.get("GOOGLE_APPLICATION_CREDENTIALS") is not None
+        with open(os.environ.get("GOOGLE_APPLICATION_CREDENTIALS")) as f:
+            data = json.loads(f.reads())
+        assert data["client_email"] == ""
+
         local_model.push_image()
 
         model = local_model.upload(
