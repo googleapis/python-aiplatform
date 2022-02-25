@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-# Copyright 2020 Google LLC
+# Copyright 2022 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -40,7 +40,6 @@ _ARTIFACT_URI = "gs://cloud-aiplatform-us-central1/vertex-ai/prediction-cpr/skle
 _PREDICTION_INPUT = [[4.6, 3.1, 1.5, 0.2]]
 
 
-@pytest.mark.usefixtures("teardown")
 class TestPredictionCpr(e2e_base.TestEndToEnd):
     """End to end system test of the Vertex SDK with Prediction custom prediction routines."""
 
