@@ -3460,7 +3460,7 @@ class AutoMLTabularTrainingJob(_TrainingJob):
 
         if self._has_run:
             raise RuntimeError("AutoML Tabular Training has already run.")
-        
+
         if additional_experiments:
             self._add_additional_experiments(additional_experiments)
 
@@ -4079,7 +4079,7 @@ class AutoMLForecastingTrainingJob(_TrainingJob):
 
         if self._has_run:
             raise RuntimeError("AutoML Forecasting Training has already run.")
-            
+
         if additional_experiments:
             self._add_additional_experiments(additional_experiments)
 
