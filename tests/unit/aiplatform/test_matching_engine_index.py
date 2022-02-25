@@ -183,7 +183,7 @@ class TestMatchingEngineIndex:
             name=my_index.resource_name, retry=base._DEFAULT_RETRY
         )
 
-    @pytest.mark.usefixtures("get_index_mock")  #
+    @pytest.mark.usefixtures("get_index_mock")
     def test_update_index_metadata(self, update_index_metadata_mock):
         aiplatform.init(project=_TEST_PROJECT)
 
@@ -319,7 +319,6 @@ class TestMatchingEngineIndex:
             display_name=_TEST_INDEX_DISPLAY_NAME,
             contents_delta_uri=_TEST_CONTENTS_DELTA_URI,
             dimensions=_TEST_INDEX_CONFIG_DIMENSIONS,
-            approximate_neighbors_count=_TEST_INDEX_APPROXIMATE_NEIGHBORS_COUNT,
             distance_measure_type=_TEST_INDEX_DISTANCE_MEASURE_TYPE,
             description=_TEST_INDEX_DESCRIPTION,
             labels=_TEST_LABELS,
