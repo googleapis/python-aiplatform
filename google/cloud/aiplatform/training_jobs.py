@@ -1015,6 +1015,8 @@ class _CustomTrainingJob(_TrainingJob):
 
     def __init__(
         self,
+        # TODO: Make display_name parameter fully optional in next major release
+        display_name: Optional[str],
         container_uri: str,
         model_serving_container_image_uri: Optional[str] = None,
         model_serving_container_predict_route: Optional[str] = None,
@@ -1027,7 +1029,6 @@ class _CustomTrainingJob(_TrainingJob):
         model_instance_schema_uri: Optional[str] = None,
         model_parameters_schema_uri: Optional[str] = None,
         model_prediction_schema_uri: Optional[str] = None,
-        display_name: Optional[str] = None,
         project: Optional[str] = None,
         location: Optional[str] = None,
         credentials: Optional[auth_credentials.Credentials] = None,
@@ -1554,6 +1555,8 @@ class CustomTrainingJob(_CustomTrainingJob):
 
     def __init__(
         self,
+        # TODO: Make display_name parameter fully optional in next major release
+        display_name: Optional[str],
         script_path: str,
         container_uri: str,
         requirements: Optional[Sequence[str]] = None,
@@ -1568,7 +1571,6 @@ class CustomTrainingJob(_CustomTrainingJob):
         model_instance_schema_uri: Optional[str] = None,
         model_parameters_schema_uri: Optional[str] = None,
         model_prediction_schema_uri: Optional[str] = None,
-        display_name: Optional[str] = None,
         project: Optional[str] = None,
         location: Optional[str] = None,
         credentials: Optional[auth_credentials.Credentials] = None,
@@ -2385,6 +2387,8 @@ class CustomContainerTrainingJob(_CustomTrainingJob):
 
     def __init__(
         self,
+        # TODO: Make display_name parameter fully optional in next major release
+        display_name: Optional[str],
         container_uri: str,
         command: Sequence[str] = None,
         model_serving_container_image_uri: Optional[str] = None,
@@ -2398,7 +2402,6 @@ class CustomContainerTrainingJob(_CustomTrainingJob):
         model_instance_schema_uri: Optional[str] = None,
         model_parameters_schema_uri: Optional[str] = None,
         model_prediction_schema_uri: Optional[str] = None,
-        display_name: Optional[str] = None,
         project: Optional[str] = None,
         location: Optional[str] = None,
         credentials: Optional[auth_credentials.Credentials] = None,
@@ -3193,13 +3196,14 @@ class AutoMLTabularTrainingJob(_TrainingJob):
 
     def __init__(
         self,
+        # TODO: Make display_name parameter fully optional in next major release
+        display_name: Optional[str],
         optimization_prediction_type: str,
         optimization_objective: Optional[str] = None,
         column_specs: Optional[Dict[str, str]] = None,
         column_transformations: Optional[List[Dict[str, Dict[str, str]]]] = None,
         optimization_objective_recall_value: Optional[float] = None,
         optimization_objective_precision_value: Optional[float] = None,
-        display_name: Optional[str] = None,
         project: Optional[str] = None,
         location: Optional[str] = None,
         credentials: Optional[auth_credentials.Credentials] = None,
@@ -5184,6 +5188,8 @@ class CustomPythonPackageTrainingJob(_CustomTrainingJob):
 
     def __init__(
         self,
+        # TODO: Make display_name parameter fully optional in next major release
+        display_name: Optional[str],
         python_package_gcs_uri: str,
         python_module_name: str,
         container_uri: str,
@@ -5198,7 +5204,6 @@ class CustomPythonPackageTrainingJob(_CustomTrainingJob):
         model_instance_schema_uri: Optional[str] = None,
         model_parameters_schema_uri: Optional[str] = None,
         model_prediction_schema_uri: Optional[str] = None,
-        display_name: Optional[str] = None,
         project: Optional[str] = None,
         location: Optional[str] = None,
         credentials: Optional[auth_credentials.Credentials] = None,
@@ -6355,10 +6360,11 @@ class AutoMLTextTrainingJob(_TrainingJob):
 
     def __init__(
         self,
+        # TODO: Make display_name parameter fully optional in next major release
+        display_name: Optional[str],
         prediction_type: str,
         multi_label: bool = False,
         sentiment_max: int = 10,
-        display_name: Optional[str] = None,
         project: Optional[str] = None,
         location: Optional[str] = None,
         credentials: Optional[auth_credentials.Credentials] = None,
