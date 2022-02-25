@@ -171,6 +171,15 @@ class DeployedIndex(proto.Message):
             don't provide SLA when min_replica_count=1). If
             max_replica_count is not set, the default value is
             min_replica_count. The max allowed replica count is 1000.
+        dedicated_resources (google.cloud.aiplatform_v1.types.DedicatedResources):
+            Optional. A description of resources that are dedicated to
+            the DeployedIndex, and that need a higher degree of manual
+            configuration. If min_replica_count is not set, the default
+            value is 2 (we don't provide SLA when min_replica_count=1).
+            If max_replica_count is not set, the default value is
+            min_replica_count. The max allowed replica count is 1000.
+
+            Available machine types: n1-standard-16 n1-standard-32
         enable_access_logging (bool):
             Optional. If true, private endpoint's access
             logs are sent to StackDriver Logging.
@@ -226,6 +235,9 @@ class DeployedIndex(proto.Message):
     )
     automatic_resources = proto.Field(
         proto.MESSAGE, number=7, message=machine_resources.AutomaticResources,
+    )
+    dedicated_resources = proto.Field(
+        proto.MESSAGE, number=16, message=machine_resources.DedicatedResources,
     )
     enable_access_logging = proto.Field(proto.BOOL, number=8,)
     deployed_index_auth_config = proto.Field(
