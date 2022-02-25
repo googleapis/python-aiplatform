@@ -251,6 +251,9 @@ class MatchingEngineIndexEndpoint(base.VertexAiResourceNounWithFutureManager):
         Returns:
             MatchingEngineIndexEndpoint - The updated index endpoint resource object.
         """
+
+        self.wait()
+
         update_mask = list()
 
         if labels:

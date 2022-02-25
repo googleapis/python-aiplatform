@@ -239,6 +239,9 @@ class MatchingEngineIndex(base.VertexAiResourceNounWithFutureManager):
         Returns:
             MatchingEngineIndex - The updated index resource object.
         """
+
+        self.wait()
+
         update_mask = list()
 
         if labels:
@@ -304,6 +307,9 @@ class MatchingEngineIndex(base.VertexAiResourceNounWithFutureManager):
         Returns:
             MatchingEngineIndex - The updated index resource object.
         """
+
+        self.wait()
+
         update_mask = list()
 
         if contents_delta_uri or is_complete_overwrite:
@@ -346,6 +352,8 @@ class MatchingEngineIndex(base.VertexAiResourceNounWithFutureManager):
         Returns:
             List[gca_matching_engine_deployed_index_ref.DeployedIndexRef] - Deployed index references
         """
+
+        self.wait()
 
         return self._gca_resource.deployed_indexes
 

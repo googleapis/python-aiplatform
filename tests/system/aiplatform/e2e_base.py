@@ -136,7 +136,11 @@ class TestEndToEnd(metaclass=abc.ABCMeta):
         # Bring all Endpoints to the front of the list
         # Ensures Models are undeployed first before we attempt deletion
         shared_state["resources"].sort(
-            key=lambda r: 1 if isinstance(r, aiplatform.Endpoint) else 2
+            key=lambda r: 1
+            if isinstance(
+                r, aiplatform.Endpoint, aiplatform.MatchingEngineIndexEndpoint
+            )
+            else 2
         )
 
         for resource in shared_state["resources"]:
