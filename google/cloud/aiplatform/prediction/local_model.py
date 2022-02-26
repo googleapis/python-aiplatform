@@ -106,7 +106,9 @@ class LocalModel:
             handler (Type[Handler]):
                 Required. The handler class to handle requests in the model server.
             base_image (str):
-                Required. The base image used to build the custom images.
+                Required. The base image used to build the custom images. The base image must
+                have python and pip installed where the two commands `python` and `pip` must be
+                available.
             requirements_path (str):
                 Optional. The path to the local requirements.txt file. This file will be copied
                 to the image and the needed packages listed in it will be installed.
