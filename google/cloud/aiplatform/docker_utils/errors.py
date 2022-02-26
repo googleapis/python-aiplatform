@@ -15,6 +15,9 @@
 # limitations under the License.
 #
 
+import textwrap
+from typing import List, NoReturn
+
 
 class Error(Exception):
     """A base exception for all user recoverable errors."""
@@ -32,3 +35,26 @@ class DockerError(Error):
         self.message = message
         self.cmd = cmd
         self.exit_code = exit_code
+
+
+def raise_docker_error_with_command(command: List[str], return_code: int) -> NoReturn:
+    """Raises DockerError with the given command and return code.
+
+    Args:
+        command (List(str)):
+            Required. The docker command that fails.
+        return_code (int):
+            Required. The return code from the command.
+
+    Raises:
+        DockerError which error message populated by the given command and return code.
+    """
+    error_msg = textwrap.dedent(
+        """
+        Docker failed with error code {code}.
+        Command: {cmd}
+        """.format(
+            code=return_code, cmd=" ".join(command)
+        )
+    )
+    raise DockerError(error_msg, command, return_code)

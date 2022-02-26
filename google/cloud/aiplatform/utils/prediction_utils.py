@@ -19,6 +19,7 @@ import inspect
 import logging
 import os
 from pathlib import Path
+import re
 import textwrap
 from typing import Any, Optional, Type
 
@@ -28,6 +29,9 @@ from google.cloud.aiplatform.prediction.predictor import Predictor
 from google.cloud.aiplatform.utils import path_utils
 
 _logger = logging.getLogger(__name__)
+
+
+REGISTRY_REGEX = re.compile(r"^([\w\-]+\-docker\.pkg\.dev|([\w]+\.|)gcr\.io)")
 
 
 def _inspect_source_from_class(
@@ -170,3 +174,16 @@ def populate_entrypoint_if_not_exists(
     )
 
     entrypoint_path.write_text(entrypoint_content)
+
+
+def is_registry_uri(image_uri: str) -> bool:
+    """Checks whether the image uri is in container registry or artifact registry.
+
+    Args:
+        image_uri (str):
+            The image uri to check if it is in container registry or artifact registry.
+
+    Returns:
+        True if the image uri is in container registry or artifact registry.
+    """
+    return REGISTRY_REGEX.match(image_uri) is not None

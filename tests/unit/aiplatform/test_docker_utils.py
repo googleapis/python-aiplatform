@@ -17,9 +17,11 @@
 
 import io
 import pytest
+import textwrap
 from unittest import mock
 
 from google.cloud.aiplatform.docker_utils import build
+from google.cloud.aiplatform.docker_utils import errors
 from google.cloud.aiplatform.docker_utils import local_util
 from google.cloud.aiplatform.docker_utils import utils
 
@@ -368,3 +370,24 @@ class TestLocalUtil:
         return_code = local_util.execute_command(["ls"], "Test string.")
 
         assert return_code == 0
+
+
+class TestErrors:
+    def test_raise_docker_error_with_command(self):
+        command = ["ls", "-l"]
+        return_code = 1
+        expected_message = textwrap.dedent(
+            """
+            Docker failed with error code {return_code}.
+            Command: {command}
+            """.format(
+                return_code=return_code, command=" ".join(command)
+            )
+        )
+
+        with pytest.raises(errors.DockerError) as exception:
+            errors.raise_docker_error_with_command(command, return_code)
+
+        assert exception.value.message == expected_message
+        assert exception.value.cmd == command
+        assert exception.value.exit_code == return_code

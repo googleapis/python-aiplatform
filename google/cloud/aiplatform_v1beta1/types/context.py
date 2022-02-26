@@ -35,8 +35,8 @@ class Context(proto.Message):
             User provided display name of the Context.
             May be up to 128 Unicode characters.
         etag (str):
-            An eTag used to perform consistent read-
-            odify-write updates. If not set, a blind
+            An eTag used to perform consistent
+            read-modify-write updates. If not set, a blind
             "overwrite" update happens.
         labels (Sequence[google.cloud.aiplatform_v1beta1.types.Context.LabelsEntry]):
             The labels with user-defined metadata to
