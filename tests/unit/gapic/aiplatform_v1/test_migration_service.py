@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# Copyright 2020 Google LLC
+# Copyright 2022 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -1817,31 +1817,7 @@ def test_parse_dataset_path():
 
 def test_dataset_path():
     project = "squid"
-    location = "clam"
-    dataset = "whelk"
-    expected = "projects/{project}/locations/{location}/datasets/{dataset}".format(
-        project=project, location=location, dataset=dataset,
-    )
-    actual = MigrationServiceClient.dataset_path(project, location, dataset)
-    assert expected == actual
-
-
-def test_parse_dataset_path():
-    expected = {
-        "project": "octopus",
-        "location": "oyster",
-        "dataset": "nudibranch",
-    }
-    path = MigrationServiceClient.dataset_path(**expected)
-
-    # Check that the path construction is reversible.
-    actual = MigrationServiceClient.parse_dataset_path(path)
-    assert expected == actual
-
-
-def test_dataset_path():
-    project = "cuttlefish"
-    dataset = "mussel"
+    dataset = "clam"
     expected = "projects/{project}/datasets/{dataset}".format(
         project=project, dataset=dataset,
     )
@@ -1851,7 +1827,31 @@ def test_dataset_path():
 
 def test_parse_dataset_path():
     expected = {
-        "project": "winkle",
+        "project": "whelk",
+        "dataset": "octopus",
+    }
+    path = MigrationServiceClient.dataset_path(**expected)
+
+    # Check that the path construction is reversible.
+    actual = MigrationServiceClient.parse_dataset_path(path)
+    assert expected == actual
+
+
+def test_dataset_path():
+    project = "oyster"
+    location = "nudibranch"
+    dataset = "cuttlefish"
+    expected = "projects/{project}/locations/{location}/datasets/{dataset}".format(
+        project=project, location=location, dataset=dataset,
+    )
+    actual = MigrationServiceClient.dataset_path(project, location, dataset)
+    assert expected == actual
+
+
+def test_parse_dataset_path():
+    expected = {
+        "project": "mussel",
+        "location": "winkle",
         "dataset": "nautilus",
     }
     path = MigrationServiceClient.dataset_path(**expected)
