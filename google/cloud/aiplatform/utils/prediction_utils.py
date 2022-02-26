@@ -15,24 +15,19 @@
 # limitations under the License.
 #
 
-from google.cloud.aiplatform.prediction.handler import (
-    Handler,
-    PredictionHandler,
-)
-from google.cloud.aiplatform.prediction.local_model import LocalModel
-from google.cloud.aiplatform.prediction.model_server import ModelServer
-from google.cloud.aiplatform.prediction.predictor import Predictor
-from google.cloud.aiplatform.prediction.serializer import (
-    DefaultSerializer,
-    Serializer,
-)
+import re
 
-__all__ = (
-    "DefaultSerializer",
-    "Handler",
-    "LocalModel",
-    "ModelServer",
-    "PredictionHandler",
-    "Predictor",
-    "Serializer",
-)
+REGISTRY_REGEX = re.compile(r"^([\w\-]+\-docker\.pkg\.dev|([\w]+\.|)gcr\.io)")
+
+
+def is_registry_uri(image_uri: str) -> bool:
+    """Checks whether the image uri is in container registry or artifact registry.
+
+    Args:
+        image_uri (str):
+            The image uri to check if it is in container registry or artifact registry.
+
+    Returns:
+        True if the image uri is in container registry or artifact registry.
+    """
+    return REGISTRY_REGEX.match(image_uri) is not None

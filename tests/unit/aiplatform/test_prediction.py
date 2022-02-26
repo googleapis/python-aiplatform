@@ -27,12 +27,17 @@ from fastapi import Response
 from starlette.datastructures import Headers
 from starlette.testclient import TestClient
 
+from google.cloud.aiplatform.compat.types import model as gca_model_compat
+from google.cloud.aiplatform.docker_utils import errors
+from google.cloud.aiplatform.docker_utils import local_util
+from google.cloud.aiplatform.prediction import LocalModel
 from google.cloud.aiplatform.prediction import handler_utils
 from google.cloud.aiplatform.prediction.handler import Handler
 from google.cloud.aiplatform.prediction.handler import PredictionHandler
 from google.cloud.aiplatform.prediction.model_server import ModelServer
 from google.cloud.aiplatform.prediction.predictor import Predictor
 from google.cloud.aiplatform.prediction.serializer import DefaultSerializer
+from google.cloud.aiplatform.utils import prediction_utils
 
 
 _TEST_INPUT = b'{"instances": [[1, 2, 3, 4]]}'
@@ -45,6 +50,8 @@ _TEST_GCS_ARTIFACTS_URI = ""
 _TEST_AIP_HTTP_PORT = "8080"
 _TEST_AIP_HEALTH_ROUTE = "/health"
 _TEST_AIP_PREDICT_ROUTE = "/predict"
+
+_TEST_IMAGE_URI = "test_image:latest"
 
 
 @pytest.fixture
@@ -131,6 +138,48 @@ def get_test_predictor():
             pass
 
     return _TestPredictor
+
+
+@pytest.fixture
+def execute_command_mock():
+    with mock.patch.object(local_util, "execute_command") as execute_command_mock:
+        execute_command_mock.return_value = 0
+        yield execute_command_mock
+
+
+@pytest.fixture
+def execute_command_return_code_1_mock():
+    with mock.patch.object(
+        local_util, "execute_command"
+    ) as execute_command_return_code_1_mock:
+        execute_command_mock.return_value = 1
+        yield execute_command_return_code_1_mock
+
+
+@pytest.fixture
+def raise_docker_error_with_command_mock():
+    with mock.patch.object(
+        errors, "raise_docker_error_with_command"
+    ) as raise_docker_error_with_command:
+        raise_docker_error_with_command.side_effect = errors.DockerError()
+
+
+@pytest.fixture
+def is_registry_uri_true_mock():
+    with mock.patch.object(
+        prediction_utils, "is_registry_uri"
+    ) as is_registry_uri_true_mock:
+        is_registry_uri_true_mock.return_value = True
+        yield is_registry_uri_true_mock
+
+
+@pytest.fixture
+def is_registry_uri_false_mock():
+    with mock.patch.object(
+        prediction_utils, "is_registry_uri"
+    ) as is_registry_uri_false_mock:
+        is_registry_uri_false_mock.return_value = False
+        yield is_registry_uri_false_mock
 
 
 class TestPredictor:
@@ -521,3 +570,93 @@ class TestModelServer:
 
         assert response.status_code == 500
         assert json.loads(response.content)["detail"] == expected_message
+
+
+class TestLocalModel:
+    def test_copy_image(
+        self, execute_command_mock,
+    ):
+        container_spec = gca_model_compat.ModelContainerSpec(image_uri=_TEST_IMAGE_URI)
+        local_model = LocalModel(container_spec)
+        dst_image_uri = "new_image:latest"
+        expected_command = ["docker", "tag", f"{_TEST_IMAGE_URI}", f"{dst_image_uri}"]
+
+        new_local_model = local_model.copy_image(dst_image_uri)
+
+        execute_command_mock.assert_called_once_with(expected_command)
+        assert new_local_model.serving_container_spec.image_uri == dst_image_uri
+
+    def test_copy_image_raises_exception(
+        self, execute_command_return_code_1_mock,
+    ):
+        container_spec = gca_model_compat.ModelContainerSpec(image_uri=_TEST_IMAGE_URI)
+        local_model = LocalModel(container_spec)
+        dst_image_uri = "new_image:latest"
+        expected_command = ["docker", "tag", f"{_TEST_IMAGE_URI}", f"{dst_image_uri}"]
+        expected_message = "Docker failed with error code"
+        expected_return_code = 1
+
+        with mock.patch.object(
+            errors, "raise_docker_error_with_command"
+        ) as raise_docker_error_with_command:
+            raise_docker_error_with_command.side_effect = errors.DockerError(
+                expected_message, expected_command, expected_return_code
+            )
+
+            with pytest.raises(errors.DockerError) as exception:
+                local_model.copy_image(dst_image_uri)
+
+        execute_command_return_code_1_mock.assert_called_once_with(expected_command)
+        assert exception.value.message == expected_message
+        assert exception.value.cmd == expected_command
+        assert exception.value.exit_code == expected_return_code
+
+    def test_push_image(
+        self, execute_command_mock, is_registry_uri_true_mock,
+    ):
+        container_spec = gca_model_compat.ModelContainerSpec(image_uri=_TEST_IMAGE_URI)
+        local_model = LocalModel(container_spec)
+        expected_command = ["docker", "push", f"{_TEST_IMAGE_URI}"]
+
+        local_model.push_image()
+
+        execute_command_mock.assert_called_once_with(expected_command)
+
+    def test_push_image_image_uri_is_not_registry_uri(
+        self, execute_command_mock, is_registry_uri_false_mock,
+    ):
+        container_spec = gca_model_compat.ModelContainerSpec(image_uri=_TEST_IMAGE_URI)
+        local_model = LocalModel(container_spec)
+        expected_message = (
+            "The image uri must be a container registry or artifact registry uri "
+            f"but it is: {_TEST_IMAGE_URI}."
+        )
+
+        with pytest.raises(ValueError) as exception:
+            local_model.push_image()
+
+        assert str(exception.value) == expected_message
+
+    def test_push_image_raises_exception(
+        self, execute_command_return_code_1_mock, is_registry_uri_true_mock,
+    ):
+        container_spec = gca_model_compat.ModelContainerSpec(image_uri=_TEST_IMAGE_URI)
+        local_model = LocalModel(container_spec)
+        expected_command = ["docker", "push", f"{_TEST_IMAGE_URI}"]
+        expected_message = "Docker failed with error code"
+        expected_return_code = 1
+
+        with mock.patch.object(
+            errors, "raise_docker_error_with_command"
+        ) as raise_docker_error_with_command:
+            raise_docker_error_with_command.side_effect = errors.DockerError(
+                expected_message, expected_command, expected_return_code
+            )
+
+            with pytest.raises(errors.DockerError) as exception:
+                local_model.push_image()
+
+        execute_command_return_code_1_mock.assert_called_once_with(expected_command)
+        assert exception.value.message == expected_message
+        assert exception.value.cmd == expected_command
+        assert exception.value.exit_code == expected_return_code
