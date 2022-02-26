@@ -99,9 +99,9 @@ class AutoMlTablesInputs(proto.Message):
             operating characteristic (ROC) curve.
             "minimize-log-loss" - Minimize log loss.
               "maximize-au-prc" - Maximize the area under
-            the precision-recall curve.   "maximize-
-            precision-at-recall" - Maximize precision for a
-            specified
+            the precision-recall curve.
+            "maximize-precision-at-recall" - Maximize
+            precision for a specified
             recall value.   "maximize-recall-at-precision" -
             Maximize recall for a specified
             precision value.
@@ -109,11 +109,11 @@ class AutoMlTablesInputs(proto.Message):
               "minimize-log-loss" (default) - Minimize log
             loss.
             regression:
-              "minimize-rmse" (default) - Minimize root-
-            mean-squared error (RMSE).   "minimize-mae" -
-            Minimize mean-absolute error (MAE).   "minimize-
-            rmsle" - Minimize root-mean-squared log error
-            (RMSLE).
+              "minimize-rmse" (default) - Minimize
+            root-mean-squared error (RMSE).   "minimize-mae"
+            - Minimize mean-absolute error (MAE).
+            "minimize-rmsle" - Minimize root-mean-squared
+            log error (RMSLE).
         train_budget_milli_node_hours (int):
             Required. The train budget of creating this
             model, expressed in milli node hours i.e. 1,000

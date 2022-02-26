@@ -25,6 +25,24 @@ ANY = "*/*"
 DEFAULT_ACCEPT = "application/json"
 
 
+def _remove_parameter(value: Optional[str]):
+    """Removes the parameter part from the header value.
+
+    Referring to https://www.w3.org/Protocols/rfc2616/rfc2616-sec3.html#sec3.7.
+
+    Args:
+        value (str):
+            Optional. The original full header value.
+
+    Returns:
+        The value without the parameter or None.
+    """
+    if value is None:
+        return None
+
+    return value.split(";")[0]
+
+
 def get_content_type_from_headers(
     headers: Optional["starlette.datastructures.Headers"],  # noqa: F821
 ) -> Optional[str]:
@@ -40,7 +58,7 @@ def get_content_type_from_headers(
     if headers is not None:
         for key, value in headers.items():
             if CONTENT_TYPE_HEADER_REGEX.match(key):
-                return value
+                return _remove_parameter(value)
 
     return None
 
@@ -62,6 +80,6 @@ def get_accept_from_headers(
     if headers is not None:
         for key, value in headers.items():
             if ACCEPT_HEADER_REGEX.match(key):
-                return value if value != ANY else DEFAULT_ACCEPT
+                return _remove_parameter(value) if value != ANY else DEFAULT_ACCEPT
 
     return DEFAULT_ACCEPT
