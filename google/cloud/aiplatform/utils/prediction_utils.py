@@ -42,8 +42,9 @@ def get_prediction_aip_http_port(
 ):
     """Gets the used prediction container port from serving container ports.
 
-    When you create a Model, set the containerSpec.ports field. The first entry in this
-    field becomes the value of AIP_HTTP_PORT. Default value is 8080.
+    If containerSpec.ports is specified during Model or LocalModel creation time, retrieve
+    the first entry in this field. Otherwise use the default value of 8080. The environment
+    variable AIP_HTTP_PORT will be set to this value.
     See https://cloud.google.com/vertex-ai/docs/predictions/custom-container-requirements
     for more details.
 

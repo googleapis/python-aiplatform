@@ -66,8 +66,9 @@ def run_prediction_container(
         serving_container_image_uri (str):
             Required. The URI of the Model serving container.
         artifact_uri (str):
-            Optional. The path to the directory containing the Model artifact and
-            any of its supporting files. Not present for AutoML Models.
+            Optional. The Cloud Storage path to the directory containing the Model artifact
+            and any of its supporting files. The AIP_STORAGE_URI environment variable will
+            be set to this uri if given; otherwise, an empty string.
         serving_container_predict_route (str):
             Optional. An HTTP path to send prediction requests to the container, and
             which must be supported by it. If not specified a default HTTP path will
@@ -135,7 +136,7 @@ def run_prediction_container(
 
     if artifact_uri is not None and not artifact_uri.startswith("gs://"):
         raise ValueError(f'artifact_uri must be a GCS path but it is "{artifact_uri}".')
-    envs[prediction.AIP_STORAGE_URI] = artifact_uri
+    envs[prediction.AIP_STORAGE_URI] = artifact_uri if artifact_uri is not None else ""
 
     command = (
         serving_container_command[:] if serving_container_command is not None else []
