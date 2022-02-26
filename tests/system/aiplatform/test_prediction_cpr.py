@@ -57,20 +57,15 @@ class TestPredictionCpr(e2e_base.TestEndToEnd):
             requirements_path=os.path.join(_USER_CODE_DIR, _REQUIREMENTS_FILE),
         )
 
-        # with local_model.deploy_to_local_endpoint(
-        #     artifact_uri=_ARTIFACT_URI,
-        #     credential_path=os.environ.get("GOOGLE_APPLICATION_CREDENTIALS"),
-        # ) as local_endpoint:
-        #     local_predict_response = local_endpoint.predict(
-        #         request=f'{{"instances": {_PREDICTION_INPUT}}}',
-        #         headers={"Content-Type": "application/json"},
-        #     )
-        # assert len(json.loads(local_predict_response.content)["predictions"]) == 1
-
-        assert os.environ.get("GOOGLE_APPLICATION_CREDENTIALS") is not None
-        with open(os.environ.get("GOOGLE_APPLICATION_CREDENTIALS")) as f:
-            data = json.loads(f.reads())
-        assert data["client_email"] == ""
+        with local_model.deploy_to_local_endpoint(
+            artifact_uri=_ARTIFACT_URI,
+            credential_path=os.environ.get("GOOGLE_APPLICATION_CREDENTIALS"),
+        ) as local_endpoint:
+            local_predict_response = local_endpoint.predict(
+                request=f'{{"instances": {_PREDICTION_INPUT}}}',
+                headers={"Content-Type": "application/json"},
+            )
+        assert len(json.loads(local_predict_response.content)["predictions"]) == 1
 
         local_model.push_image()
 
