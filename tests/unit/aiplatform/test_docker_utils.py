@@ -548,6 +548,19 @@ class TestRun:
         assert logger_mock.info.call_count == (_TEST_CONTAINER_LOGS_LEN - start_index)
 
 
+    def test_print_container_logs_with_message(self, docker_container_mock):
+        with mock.patch(
+            "google.cloud.aiplatform.docker_utils.run._logger"
+        ) as logger_mock:
+            logs_len = run.print_container_logs(
+                docker_container_mock, message="Test message:"
+            )
+
+        assert logs_len == _TEST_CONTAINER_LOGS_LEN
+        assert docker_container_mock.logs.called
+        assert logger_mock.info.call_count == _TEST_CONTAINER_LOGS_LEN + 1
+
+
 class TestErrors:
     def test_raise_docker_error_with_command(self):
         command = ["ls", "-l"]

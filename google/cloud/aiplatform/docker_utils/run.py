@@ -174,7 +174,9 @@ def run_prediction_container(
 
 
 def print_container_logs(
-    container: docker.models.containers.Container, start_index: Optional[int] = None
+    container: docker.models.containers.Container,
+    start_index: Optional[int] = None,
+    message: Optional[str] = None,
 ) -> int:
     """Prints container logs.
 
@@ -183,10 +185,15 @@ def print_container_logs(
             Required. The container object to print the logs.
         start_index (int):
             Optional. The index of log entries to start printing.
+        message (str):
+            Optional. The message to be printed before printing the logs.
 
     Returns:
         The total number of log entries.
     """
+    if message is not None:
+        _logger.info(message)
+
     logs = container.logs().decode("utf-8").strip().split("\n")
     start_index = 0 if start_index is None else start_index
     for i in range(start_index, len(logs)):

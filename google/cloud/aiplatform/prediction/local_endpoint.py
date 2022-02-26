@@ -215,8 +215,8 @@ class LocalEndpoint:
         except requests.exceptions.RequestException:
             response = None
 
-        while response is None or (
-            response.status_code != 200 and elapsed_time < self.container_ready_timeout
+        while elapsed_time < self.container_ready_timeout and (
+            response is None or response.status_code != 200
         ):
             _logger.info("Waiting for the first health check succeeding.")
             time.sleep(self.container_ready_check_interval)
@@ -226,8 +226,21 @@ class LocalEndpoint:
             except requests.exceptions.RequestException:
                 response = None
 
+            if self.get_container_status() != run.CONTAINER_RUNNING_STATUS:
+                self.print_container_logs(
+                    show_all=True,
+                    message="Container already exited, all container logs:",
+                )
+                raise DockerError(
+                    "Container exited before the first health check succeeded.", "", 1
+                )
+
         if elapsed_time >= self.container_ready_timeout:
-            raise DockerError("The health check never succeeds.", "", 1)
+            self.print_container_logs(
+                show_all=True,
+                message="Health check never succeeds, all container logs:",
+            )
+            raise DockerError("The health check never succeeded.", "", 1)
 
     def _stop_container_if_exists(self):
         """Stops the container if the container exists."""
@@ -297,27 +310,35 @@ class LocalEndpoint:
             _logger.warning(f"Exception during health check: {exception}")
             raise
 
-    def print_container_logs(self, show_all: bool = False):
+    def print_container_logs(
+        self, show_all: bool = False, message: Optional[str] = None
+    ):
         """Prints container logs.
 
         Args:
             show_all (bool):
                 Required. If True, prints all logs since the container starts.
+            message (str):
+                Optional. The message to be printed before printing the logs.
         """
         start_index = None if show_all else self.log_start_index
         self.log_start_index = run.print_container_logs(
-            self.container, start_index=start_index
+            self.container, start_index=start_index, message=message
         )
 
-    def print_container_logs_if_container_is_not_running(self, show_all: bool = False):
+    def print_container_logs_if_container_is_not_running(
+        self, show_all: bool = False, message: Optional[str] = None
+    ):
         """Prints container logs if the container is not in "running" status.
 
         Args:
             show_all (bool):
                 Required. If True, prints all logs since the container starts.
+            message (str):
+                Optional. The message to be printed before printing the logs.
         """
         if self.get_container_status() != run.CONTAINER_RUNNING_STATUS:
-            self.print_container_logs(show_all=show_all)
+            self.print_container_logs(show_all=show_all, message=message)
 
     def get_container_status(self) -> str:
         """Gets the container status.
