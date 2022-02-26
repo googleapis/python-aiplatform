@@ -61,9 +61,6 @@ class TestFeaturestore(e2e_base.TestEndToEnd):
             project=e2e_base._PROJECT, location=e2e_base._LOCATION,
         )
 
-        base_list_featurestores = len(aiplatform.Featurestore.list())
-        shared_state["base_list_searched_features"] = len(aiplatform.Feature.search())
-
         featurestore_id = self._make_display_name(key=_TEST_FEATURESTORE_ID).replace(
             "-", "_"
         )[:60]
@@ -79,7 +76,7 @@ class TestFeaturestore(e2e_base.TestEndToEnd):
         assert featurestore.resource_name == get_featurestore.resource_name
 
         list_featurestores = aiplatform.Featurestore.list()
-        assert (len(list_featurestores) - base_list_featurestores) == 1
+        assert len(list_featurestores) >= 1
 
     def test_create_get_list_entity_types(self, shared_state):
 
@@ -400,16 +397,12 @@ class TestFeaturestore(e2e_base.TestEndToEnd):
 
     def test_search_features(self, shared_state):
 
-        assert shared_state["base_list_searched_features"] is not None
-
         aiplatform.init(
             project=e2e_base._PROJECT, location=e2e_base._LOCATION,
         )
 
         list_searched_features = aiplatform.Feature.search()
-        assert (
-            len(list_searched_features) - shared_state["base_list_searched_features"]
-        ) == 6
+        assert len(list_searched_features) >= 1
 
     def test_batch_serve_to_df(self, shared_state, caplog):
 
