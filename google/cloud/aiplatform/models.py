@@ -48,8 +48,7 @@ from google.cloud.aiplatform.compat.types import (
     env_var as gca_env_var_compat,
 )
 
-from google.protobuf import json_format
-
+from google.protobuf import field_mask_pb2, json_format
 
 _LOGGER = base.Logger(__name__)
 
@@ -1502,6 +1501,73 @@ class Model(base.VertexAiResourceNounWithFutureManager):
         )
         self._gca_resource = self._get_gca_resource(resource_name=model_name)
 
+    def update(
+        self,
+        display_name: Optional[str] = None,
+        description: Optional[str] = None,
+        labels: Optional[Dict[str, str]] = None,
+    ) -> "Model":
+        """Updates a model.
+
+        Example usage:
+
+        my_model = my_model.update(
+            display_name='my-model',
+            description='my description',
+            labels={'key': 'value'},
+        )
+
+        Args:
+            display_name (str):
+                The display name of the Model. The name can be up to 128
+                characters long and can be consist of any UTF-8 characters.
+            description (str):
+                The description of the model.
+            labels (Dict[str, str]):
+                Optional. The labels with user-defined metadata to
+                organize your Models.
+                Label keys and values can be no longer than 64
+                characters (Unicode codepoints), can only
+                contain lowercase letters, numeric characters,
+                underscores and dashes. International characters
+                are allowed.
+                See https://goo.gl/xmQnxf for more information
+                and examples of labels.
+        Returns:
+            model: Updated model resource.
+        Raises:
+            ValueError: If `labels` is not the correct format.
+        """
+
+        current_model_proto = self.gca_resource
+        copied_model_proto = current_model_proto.__class__(current_model_proto)
+
+        update_mask: List[str] = []
+
+        if display_name:
+            utils.validate_display_name(display_name)
+
+            copied_model_proto.display_name = display_name
+            update_mask.append("display_name")
+
+        if description:
+            copied_model_proto.description = description
+            update_mask.append("description")
+
+        if labels:
+            utils.validate_labels(labels)
+
+            copied_model_proto.labels = labels
+            update_mask.append("labels")
+
+        update_mask = field_mask_pb2.FieldMask(paths=update_mask)
+
+        self.api_client.update_model(model=copied_model_proto, update_mask=update_mask)
+
+        self._sync_gca_resource()
+
+        return self
+
     # TODO(b/170979552) Add support for predict schemata
     # TODO(b/170979926) Add support for metadata and metadata schema
     @classmethod
@@ -2468,7 +2534,7 @@ class Model(base.VertexAiResourceNounWithFutureManager):
     def upload_xgboost_model_file(
         cls,
         model_file_path: str,
-        xgboost_version: str = "1.4",
+        xgboost_version: Optional[str] = None,
         display_name: str = "XGBoost model",
         description: Optional[str] = None,
         instance_schema_uri: Optional[str] = None,
@@ -2608,7 +2674,7 @@ class Model(base.VertexAiResourceNounWithFutureManager):
         container_image_uri = aiplatform.helpers.get_prebuilt_prediction_container_uri(
             region=location,
             framework="xgboost",
-            framework_version=xgboost_version,
+            framework_version=xgboost_version or "1.4",
             accelerator="cpu",
         )
 
@@ -2663,7 +2729,7 @@ class Model(base.VertexAiResourceNounWithFutureManager):
     def upload_scikit_learn_model_file(
         cls,
         model_file_path: str,
-        sklearn_version: str = "1.0",
+        sklearn_version: Optional[str] = None,
         display_name: str = "Scikit-learn model",
         description: Optional[str] = None,
         instance_schema_uri: Optional[str] = None,
@@ -2803,7 +2869,7 @@ class Model(base.VertexAiResourceNounWithFutureManager):
         container_image_uri = aiplatform.helpers.get_prebuilt_prediction_container_uri(
             region=location,
             framework="sklearn",
-            framework_version=sklearn_version,
+            framework_version=sklearn_version or "1.0",
             accelerator="cpu",
         )
 
@@ -2857,7 +2923,7 @@ class Model(base.VertexAiResourceNounWithFutureManager):
     def upload_tensorflow_saved_model(
         cls,
         saved_model_dir: str,
-        tensorflow_version: str = "2.7",
+        tensorflow_version: Optional[str] = None,
         use_gpu: bool = False,
         display_name: str = "Tensorflow model",
         description: Optional[str] = None,
@@ -2995,7 +3061,7 @@ class Model(base.VertexAiResourceNounWithFutureManager):
         container_image_uri = aiplatform.helpers.get_prebuilt_prediction_container_uri(
             region=location,
             framework="tensorflow",
-            framework_version=tensorflow_version,
+            framework_version=tensorflow_version or "2.7",
             accelerator="gpu" if use_gpu else "cpu",
         )
 

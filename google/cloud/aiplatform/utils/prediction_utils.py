@@ -15,9 +15,26 @@
 # limitations under the License.
 #
 
+import re
 from typing import Optional, Sequence
 
 from google.cloud.aiplatform.constants import prediction
+
+
+REGISTRY_REGEX = re.compile(r"^([\w\-]+\-docker\.pkg\.dev|([\w]+\.|)gcr\.io)")
+
+
+def is_registry_uri(image_uri: str) -> bool:
+    """Checks whether the image uri is in container registry or artifact registry.
+
+    Args:
+        image_uri (str):
+            The image uri to check if it is in container registry or artifact registry.
+
+    Returns:
+        True if the image uri is in container registry or artifact registry.
+    """
+    return REGISTRY_REGEX.match(image_uri) is not None
 
 
 def get_prediction_aip_http_port(
