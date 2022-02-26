@@ -1090,7 +1090,7 @@ class TestLocalEndpoint:
             endpoint.print_container_logs()
 
         run_print_container_logs_mock.assert_called_once_with(
-            run_prediction_container_mock(), start_index=0
+            run_prediction_container_mock(), start_index=0, message=None
         )
 
     def test_print_container_logs_show_all(
@@ -1105,7 +1105,7 @@ class TestLocalEndpoint:
             endpoint.print_container_logs(show_all=True)
 
         run_print_container_logs_mock.assert_called_once_with(
-            run_prediction_container_mock(), start_index=None
+            run_prediction_container_mock(), start_index=None, message=None
         )
 
     def test_print_container_logs_if_container_is_not_running_container_running(
@@ -1136,7 +1136,9 @@ class TestLocalEndpoint:
             endpoint.print_container_logs_if_container_is_not_running()
 
         assert get_container_status_exited_mock.called
-        local_endpoint_print_container_logs_mock.assert_called_once_with(show_all=False)
+        local_endpoint_print_container_logs_mock.assert_called_once_with(
+            show_all=False, message=None
+        )
 
     def test_print_container_logs_if_container_is_not_running_container_exited_show_all(
         self,
@@ -1151,7 +1153,9 @@ class TestLocalEndpoint:
             endpoint.print_container_logs_if_container_is_not_running(show_all=True)
 
         assert get_container_status_exited_mock.called
-        local_endpoint_print_container_logs_mock.assert_called_once_with(show_all=True)
+        local_endpoint_print_container_logs_mock.assert_called_once_with(
+            show_all=True, message=None
+        )
 
     def test_get_container_status(
         self,
