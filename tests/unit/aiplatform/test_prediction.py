@@ -122,6 +122,12 @@ _ENTRYPOINT_FILE = "entrypoint.py"
 _TEST_SRC_DIR = "user_code"
 _TEST_PREDICTOR_FILE = "predictor.py"
 _TEST_OUTPUT_IMAGE = "cpr_image:latest"
+_DEFAULT_SDK_REQUIREMENTS = [
+    (
+        "google-cloud-aiplatform[prediction] @ "
+        "git+https://github.com/googleapis/python-aiplatform.git@custom-prediction-routine"
+    )
+]
 
 
 @pytest.fixture
@@ -823,6 +829,7 @@ class TestLocalModel:
             _TEST_SRC_DIR,
             entrypoint,
             _TEST_OUTPUT_IMAGE,
+            requirements=_DEFAULT_SDK_REQUIREMENTS,
             requirements_path=None,
             exposed_ports=[DEFAULT_HTTP_PORT],
             pip_command="pip",
@@ -872,6 +879,7 @@ class TestLocalModel:
             _TEST_SRC_DIR,
             entrypoint,
             _TEST_OUTPUT_IMAGE,
+            requirements=_DEFAULT_SDK_REQUIREMENTS,
             requirements_path=None,
             exposed_ports=[DEFAULT_HTTP_PORT],
             pip_command="pip3",
@@ -925,6 +933,7 @@ class TestLocalModel:
             _TEST_SRC_DIR,
             entrypoint,
             _TEST_OUTPUT_IMAGE,
+            requirements=_DEFAULT_SDK_REQUIREMENTS,
             requirements_path=requirements_path,
             exposed_ports=[DEFAULT_HTTP_PORT],
             pip_command="pip",

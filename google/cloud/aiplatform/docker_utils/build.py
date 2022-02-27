@@ -132,7 +132,7 @@ def _prepare_dependency_entries(
         for requirement in extra_requirements:
             ret += textwrap.dedent(
                 """
-                RUN {} install --no-cache-dir --upgrade {}
+                RUN {} install --no-cache-dir {}
                 """.format(
                     pip_command, shlex_quote(requirement)
                 )

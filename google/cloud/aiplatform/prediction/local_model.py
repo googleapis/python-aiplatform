@@ -42,6 +42,12 @@ from google.cloud.aiplatform.utils import prediction_utils
 DEFAULT_PREDICT_ROUTE = "/predict"
 DEFAULT_HEALTH_ROUTE = "/health"
 DEFAULT_HTTP_PORT = 8080
+_DEFAULT_SDK_REQUIREMENTS = [
+    (
+        "google-cloud-aiplatform[prediction] @ "
+        "git+https://github.com/googleapis/python-aiplatform.git@custom-prediction-routine"
+    )
+]
 
 
 class LocalModel:
@@ -218,6 +224,7 @@ class LocalModel:
             src_dir,
             Path(src_dir).joinpath(entrypoint_file).as_posix(),
             output_image_uri,
+            requirements=_DEFAULT_SDK_REQUIREMENTS,
             requirements_path=requirements_path,
             exposed_ports=[DEFAULT_HTTP_PORT],
             pip_command="pip3" if is_prebuilt_prediction_image else "pip",
