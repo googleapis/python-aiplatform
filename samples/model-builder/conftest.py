@@ -439,12 +439,18 @@ def mock_delete_featurestore(mock_featurestore):
 
 
 @pytest.fixture
+def mock_batch_serve_to_bq(mock_featurestore):
+    with patch.object(mock_featurestore, "batch_serve_to_bq") as mock_batch_serve_to_bq:
+        yield mock_batch_serve_to_bq
+
+
+@pytest.fixture
 def mock_batch_create_features(mock_entity_type):
     with patch.object(mock_entity_type, "batch_create_features") as mock_batch_create_features:
         yield mock_batch_create_features
 
 
 @pytest.fixture
-def mock_batch_serve_to_bq(mock_featurestore):
-    with patch.object(mock_featurestore, "batch_serve_to_bq") as mock_batch_serve_to_bq:
-        yield mock_batch_serve_to_bq
+def mock_read_feature_values(mock_entity_type):
+    with patch.object(mock_entity_type, "read") as mock_read_feature_values:
+        yield mock_read_feature_values

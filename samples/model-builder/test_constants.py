@@ -202,13 +202,12 @@ MODEL_TYPE = "CLOUD"
 FEATURESTORE_ID = "featurestore_id"
 FEATURESTORE_NAME = f"projects/{PROJECT}/locations/{LOCATION}/featurestores/{FEATURESTORE_ID}"
 ENTITY_TYPE_ID = "entity_type_id"
+ENTITY_TYPE_IDS = ["alice", "bob"]
 ENTITY_TYPE_NAME = f"projects/{PROJECT}/locations/{LOCATION}/featurestores/{FEATURESTORE_ID}/entityTypes/{ENTITY_TYPE_ID}"
 FEATURE_ID = "feature_id"
+FEATURE_IDS = ["age", "gender", "liked_genres"]
 FEATURE_NAME = f"projects/{PROJECT}/locations/{LOCATION}/featurestores/{FEATURESTORE_ID}/entityTypes/{ENTITY_TYPE_ID}/features/{FEATURE_ID}"
 FEATURE_VALUE_TYPE = "INT64"
-ONLINE_STORE_FIXED_NODE_COUNT = 1
-SYNC = True
-FORCE = True
 FEATURE_CONFIGS = {
     "age": {
         "value_type": "INT64",
@@ -223,9 +222,12 @@ FEATURE_CONFIGS = {
         "description": "An array of genres this user liked",
     },
 }
-BQ_DESTINATION_OUTPUT_URI = f"bq://{PROJECT}.example_dataset.example_table"
 SERVING_FEATURE_IDS = {
     "users": ["age", "gender", "liked_genres"],
     "movies": ["title", "average_rating", "genres"],
 }
+ONLINE_STORE_FIXED_NODE_COUNT = 1
+SYNC = True
+FORCE = True
+BQ_DESTINATION_OUTPUT_URI = f"bq://{PROJECT}.example_dataset.example_table"
 INPUT_CSV_FILE = "gs://cloud-samples-data-us-central1/vertex-ai/feature-store/datasets/movie_prediction.csv"
