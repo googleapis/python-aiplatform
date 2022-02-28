@@ -200,11 +200,11 @@ MODEL_TYPE = "CLOUD"
 
 # Feature store constants
 FEATURESTORE_ID = "featurestore_id"
-FEATURESTORE_NAME = "projects/123/locations/us-central1/featurestores/featurestore_id"
+FEATURESTORE_NAME = f"projects/{PROJECT}/locations/{LOCATION}/featurestores/{FEATURESTORE_ID}"
 ENTITY_TYPE_ID = "entity_type_id"
-ENTITY_TYPE_NAME = "projects/123/locations/us-central1/featurestores/featurestore_id/entityTypes/entity_type_id"
+ENTITY_TYPE_NAME = f"projects/{PROJECT}/locations/{LOCATION}/featurestores/{FEATURESTORE_ID}/entityTypes/{ENTITY_TYPE_ID}"
 FEATURE_ID = "feature_id"
-FEATURE_NAME = "projects/123/locations/us-central1/featurestores/featurestore_id/entityTypes/entity_type_id/features/feature_id"
+FEATURE_NAME = f"projects/{PROJECT}/locations/{LOCATION}/featurestores/{FEATURESTORE_ID}/entityTypes/{ENTITY_TYPE_ID}/features/{FEATURE_ID}"
 FEATURE_VALUE_TYPE = "INT64"
 ONLINE_STORE_FIXED_NODE_COUNT = 1
 SYNC = True
@@ -223,6 +223,7 @@ FEATURE_CONFIGS = {
         "description": "An array of genres this user liked",
     },
 }
+BQ_DESTINATION_OUTPUT_URI = f"bq://{PROJECT}.example_dataset.example_table"
 SERVING_FEATURE_IDS = {
     "users": ["age", "gender", "liked_genres"],
     "movies": ["title", "average_rating", "genres"],

@@ -12,19 +12,21 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import batch_create_features_sample
+import batch_serve_features_to_bq_sample
 import test_constants as constants
 
 
-def test_delete_featurestore_sample(
-    mock_sdk_init, mock_get_entity_type, mock_batch_create_features
+def test_batch_serve_features_to_bq_sample(
+    mock_sdk_init, mock_get_featurestore, mock_batch_serve_to_bq
 ):
 
-    batch_create_features_sample.batch_create_features_sample(
+    batch_serve_features_to_bq_sample.batch_serve_features_to_bq_sample(
         project=constants.PROJECT,
         location=constants.LOCATION,
-        entity_type_name=constants.ENTITY_TYPE_NAME,
-        featurestore_id=constants.FEATURESTORE_ID,
+        featurestore_name=constants.FEATURESTORE_NAME,
+        bq_destination_output_uri=constants.BQ_DESTINATION_OUTPUT_URI,
+        serving_feature_ids=constants.SERVING_FEATURE_IDS,
+        read_instances_uri=constants.INPUT_CSV_FILE,
         sync=constants.SYNC,
     )
 
@@ -32,12 +34,11 @@ def test_delete_featurestore_sample(
         project=constants.PROJECT, location=constants.LOCATION
     )
 
-    mock_get_entity_type.assert_called_once_with(
-        entity_type_name=constants.ENTITY_TYPE_NAME,
-        featurestore_id=constants.FEATURESTORE_ID
+    mock_get_featurestore.assert_called_once_with(
+        featurestore_name=constants.FEATURESTORE_NAME
     )
 
-    mock_batch_create_features.assert_called_once_with(
+    mock_batch_serve_to_bq.assert_called_once_with(
         feature_configs=constants.FEATURE_CONFIGS,
         sync=constants.SYNC
     )

@@ -25,6 +25,7 @@ def test_batch_create_features_sample(
         location=constants.LOCATION,
         entity_type_name=constants.ENTITY_TYPE_NAME,
         featurestore_id=constants.FEATURESTORE_ID,
+        feature_configs=constants.FEATURE_CONFIGS,
         sync=constants.SYNC,
     )
 
