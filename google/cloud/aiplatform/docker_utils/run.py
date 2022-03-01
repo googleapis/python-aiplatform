@@ -198,5 +198,5 @@ def print_container_logs(
     logs = container.logs().decode("utf-8").strip().split("\n")
     start_index = 0 if start_index is None else start_index
     for i in range(start_index, len(logs)):
-        _logger.info(logs[i])
+        _logger.warning(logs[i])
     return len(logs)
