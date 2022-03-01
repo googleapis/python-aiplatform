@@ -19,29 +19,28 @@ import tempfile
 
 import pytest
 
-from google import auth as google_auth
 from google.cloud import aiplatform
 from google.cloud import storage
 
 from tests.system.aiplatform import e2e_base
 
-# TODO(vinnys): Replace with env var `BUILD_SPECIFIC_GCP_PROJECT` once supported
-_, _TEST_PROJECT = google_auth.default()
-_TEST_LOCATION = "us-central1"
 
 _XGBOOST_MODEL_URI = "gs://cloud-samples-data-us-central1/vertex-ai/google-cloud-aiplatform-ci-artifacts/models/iris_xgboost/model.bst"
 
 
 @pytest.mark.usefixtures("delete_staging_bucket")
 class TestModel(e2e_base.TestEndToEnd):
-    _temp_prefix = f"{_TEST_PROJECT}-vertex-staging-{_TEST_LOCATION}"
+
+    _temp_prefix = "temp_vertex_sdk_e2e_model_upload_test"
 
     def test_upload_and_deploy_xgboost_model(self, shared_state):
         """Upload XGBoost model from local file and deploy it for prediction. Additionally, update model name, description and labels"""
 
-        aiplatform.init(project=_TEST_PROJECT, location=_TEST_LOCATION)
+        aiplatform.init(
+            project=e2e_base._PROJECT, location=e2e_base._LOCATION,
+        )
 
-        storage_client = storage.Client(project=_TEST_PROJECT)
+        storage_client = storage.Client(project=e2e_base._PROJECT)
         model_blob = storage.Blob.from_string(
             uri=_XGBOOST_MODEL_URI, client=storage_client
         )
