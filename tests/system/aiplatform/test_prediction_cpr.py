@@ -20,6 +20,7 @@ import json
 import logging
 import os
 import pytest
+import subprocess
 
 from test_resources.cpr_user_code.predictor import SklearnPredictor
 
@@ -69,6 +70,12 @@ class TestPredictionCpr(e2e_base.TestEndToEnd):
                 headers={"Content-Type": "application/json"},
             )
         assert len(json.loads(local_predict_response.content)["predictions"]) == 1
+
+        # Use the service account key as your password to authenticate with Docker.
+        subprocess.call(
+            ["cat", f'{os.environ.get("GOOGLE_APPLICATION_CREDENTIALS")}', "|",
+            "docker", "login", "-u", "_json_key", "--password-stdin", "https://gcr.io"]
+        )
 
         local_model.push_image()
 
