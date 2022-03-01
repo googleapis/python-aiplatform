@@ -17,6 +17,7 @@
 
 import datetime
 import json
+import logging
 import os
 import pytest
 
@@ -45,8 +46,10 @@ class TestPredictionCpr(e2e_base.TestEndToEnd):
 
     _temp_prefix = "temp-vertex-sdk-e2e-prediction-cpr"
 
-    def test_create_cpr_model_upload_and_deploy(self, shared_state):
+    def test_create_cpr_model_upload_and_deploy(self, shared_state, caplog):
         """Creates a CPR model from custom predictor, uploads it and deploys."""
+
+        caplog.set_level(logging.INFO)
 
         aiplatform.init(project=_TEST_PROJECT, location=_TEST_LOCATION)
 
@@ -80,3 +83,5 @@ class TestPredictionCpr(e2e_base.TestEndToEnd):
         shared_state["resources"].append(endpoint)
         predict_response = endpoint.predict(instances=_PREDICTION_INPUT)
         assert len(predict_response.predictions) == 1
+
+        caplog.clear()
