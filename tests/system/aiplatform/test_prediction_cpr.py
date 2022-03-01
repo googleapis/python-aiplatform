@@ -72,15 +72,15 @@ class TestPredictionCpr(e2e_base.TestEndToEnd):
         assert len(json.loads(local_predict_response.content)["predictions"]) == 1
 
         # Configure docker.
-        # subprocess.run(["gcloud", "auth", "configure-docker"], capture_output=True)
+        logging.info(subprocess.run(["gcloud", "auth", "configure-docker"], capture_output=True))
         # Use the service account key as your password to authenticate with Docker.
-        logging.info(subprocess.run(
-            ["docker", "login", "-u", "_json_key", "-p",
-            f'"$(cat {os.environ.get("GOOGLE_APPLICATION_CREDENTIALS")})"', "https://gcr.io"],
-            # ["cat", f'{os.environ.get("GOOGLE_APPLICATION_CREDENTIALS")}', "|",
-            # "docker", "login", "-u", "_json_key", "--password-stdin", "https://gcr.io"],
-            capture_output=True
-        ))
+        # logging.info(subprocess.run(
+        #     ["docker", "login", "-u", "_json_key", "-p",
+        #     f'"$(cat {os.environ.get("GOOGLE_APPLICATION_CREDENTIALS")})"', "https://gcr.io"],
+        #     # ["cat", f'{os.environ.get("GOOGLE_APPLICATION_CREDENTIALS")}', "|",
+        #     # "docker", "login", "-u", "_json_key", "--password-stdin", "https://gcr.io"],
+        #     capture_output=True
+        # ))
 
         local_model.push_image()
 
