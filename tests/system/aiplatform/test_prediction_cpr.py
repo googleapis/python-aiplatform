@@ -30,9 +30,6 @@ from google.cloud import aiplatform
 from tests.system.aiplatform import e2e_base
 from google.cloud.aiplatform.prediction import LocalModel
 
-_, _TEST_PROJECT = google_auth.default()
-_TEST_LOCATION = "us-central1"
-
 _TIMESTAMP = f"{datetime.datetime.now().strftime('%Y%m%d_%H%M%S')}"
 _IMAGE_URI = f"gcr.io/ucaip-sample-tests/prediction-cpr/sklearn:{_TIMESTAMP}"
 _DIR_NAME = os.path.dirname(os.path.abspath(__file__))
@@ -52,8 +49,7 @@ class TestPredictionCpr(e2e_base.TestEndToEnd):
 
         caplog.set_level(logging.INFO)
 
-        logging.info(_TEST_PROJECT)
-        aiplatform.init(project=_TEST_PROJECT, location=_TEST_LOCATION)
+        aiplatform.init(project=e2e_base._PROJECT, location=e2e_base._LOCATION)
 
         local_model = LocalModel.create_cpr_model(
             _USER_CODE_DIR,
@@ -84,9 +80,6 @@ class TestPredictionCpr(e2e_base.TestEndToEnd):
         # ))
 
         local_model.push_image()
-
-        # To avoid the gcloud authentication overwriting the testing project.
-        aiplatform.init(project=_TEST_PROJECT, location=_TEST_LOCATION)
 
         model = local_model.upload(
             f"cpr_e2e_test_{_TIMESTAMP}", artifact_uri=_ARTIFACT_URI
