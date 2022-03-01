@@ -52,6 +52,7 @@ class TestPredictionCpr(e2e_base.TestEndToEnd):
 
         caplog.set_level(logging.INFO)
 
+        logging.info(_TEST_PROJECT)
         aiplatform.init(project=_TEST_PROJECT, location=_TEST_LOCATION)
 
         local_model = LocalModel.create_cpr_model(
@@ -83,6 +84,9 @@ class TestPredictionCpr(e2e_base.TestEndToEnd):
         # ))
 
         local_model.push_image()
+
+        # To avoid the gcloud authentication overwriting the testing project.
+        aiplatform.init(project=_TEST_PROJECT, location=_TEST_LOCATION)
 
         model = local_model.upload(
             f"cpr_e2e_test_{_TIMESTAMP}", artifact_uri=_ARTIFACT_URI
