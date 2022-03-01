@@ -75,8 +75,10 @@ class TestPredictionCpr(e2e_base.TestEndToEnd):
         # subprocess.run(["gcloud", "auth", "configure-docker"], capture_output=True)
         # Use the service account key as your password to authenticate with Docker.
         logging.info(subprocess.run(
-            ["cat", f'{os.environ.get("GOOGLE_APPLICATION_CREDENTIALS")}', "|",
-            "docker", "login", "-u", "_json_key", "--password-stdin", "https://gcr.io"],
+            ["docker", "login", "-u", "_json_key", "-p",
+            f'"$(cat {os.environ.get("GOOGLE_APPLICATION_CREDENTIALS")})"', "https://gcr.io"],
+            # ["cat", f'{os.environ.get("GOOGLE_APPLICATION_CREDENTIALS")}', "|",
+            # "docker", "login", "-u", "_json_key", "--password-stdin", "https://gcr.io"],
             capture_output=True
         ))
 
