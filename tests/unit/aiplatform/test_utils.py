@@ -16,9 +16,11 @@
 #
 
 
-import pytest
-from typing import Callable, Dict, Optional
 import datetime
+import importlib
+import pytest
+import textwrap
+from typing import Callable, Dict, Optional
 
 from google.protobuf import timestamp_pb2
 
@@ -519,6 +521,232 @@ class TestTensorboardUtils:
 
 
 class TestPredictionUtils:
+    SRC_DIR = "user_code"
+    ENTRYPOINT_FILE = "entrypoint.py"
+    PREDICTOR_FILE = "predictor.py"
+    HANDLER_FILE = "custom_handler.py"
+
+    def _load_module(self, name, location):
+        spec = importlib.util.spec_from_file_location(name, location)
+        return importlib.util.module_from_spec(spec)
+
+    def test_populate_entrypoint_if_not_exists(self, tmp_path):
+        src_dir = tmp_path / self.SRC_DIR
+        src_dir.mkdir()
+        predictor = src_dir / self.PREDICTOR_FILE
+        predictor.write_text(
+            textwrap.dedent(
+                """
+            class MyPredictor(Predictor):
+                pass
+            """
+            )
+        )
+        my_predictor = self._load_module("MyPredictor", str(predictor))
+
+        prediction_utils.populate_entrypoint_if_not_exists(
+            str(src_dir), self.ENTRYPOINT_FILE, predictor=my_predictor,
+        )
+
+        entrypoint = src_dir / self.ENTRYPOINT_FILE
+
+        assert "from predictor import MyPredictor" in entrypoint.read_text()
+        assert "predictor_class=MyPredictor" in entrypoint.read_text()
+
+    def test_populate_entrypoint_if_not_exists_invalid_src_dir(self):
+        with pytest.raises(ValueError) as exception:
+            prediction_utils.populate_entrypoint_if_not_exists(
+                self.SRC_DIR, self.ENTRYPOINT_FILE, predictor=None,
+            )
+
+        assert "is not a valid path to a directory." in str(exception.value)
+
+    def test_populate_entrypoint_if_not_exists_entrypoint_exists(self, tmp_path):
+        src_dir = tmp_path / self.SRC_DIR
+        src_dir.mkdir()
+        entrypoint = src_dir / self.ENTRYPOINT_FILE
+        entrypoint.write_text("")
+
+        prediction_utils.populate_entrypoint_if_not_exists(
+            str(src_dir), self.ENTRYPOINT_FILE, predictor=None,
+        )
+
+        assert (
+            "from google.cloud.aiplatform import prediction"
+            not in entrypoint.read_text()
+        )
+
+    def test_populate_entrypoint_if_not_exists_predictor_not_in_src_dir(self, tmp_path):
+        src_dir = tmp_path / self.SRC_DIR
+        src_dir.mkdir()
+        predictor = tmp_path / self.PREDICTOR_FILE
+        predictor.write_text(
+            textwrap.dedent(
+                """
+            class MyPredictor(Predictor):
+                pass
+            """
+            )
+        )
+        my_predictor = self._load_module("MyPredictor", str(predictor))
+
+        with pytest.raises(ValueError) as exception:
+            prediction_utils.populate_entrypoint_if_not_exists(
+                str(src_dir), self.ENTRYPOINT_FILE, predictor=my_predictor,
+            )
+
+        assert 'The file implementing "MyPredictor" must be' in str(exception.value)
+
+    def test_populate_entrypoint_if_not_exists_predictor_is_none(self, tmp_path):
+        src_dir = tmp_path / self.SRC_DIR
+        src_dir.mkdir()
+        handler = src_dir / self.HANDLER_FILE
+        handler.write_text(
+            textwrap.dedent(
+                """
+            class CustomHandler(Handler):
+                pass
+            """
+            )
+        )
+        custom_handler = self._load_module("CustomHandler", str(handler))
+
+        prediction_utils.populate_entrypoint_if_not_exists(
+            str(src_dir), self.ENTRYPOINT_FILE, predictor=None, handler=custom_handler,
+        )
+
+        entrypoint = src_dir / self.ENTRYPOINT_FILE
+
+        assert "predictor_class=None" in entrypoint.read_text()
+
+    def test_populate_entrypoint_if_not_exists_handler_is_none(self, tmp_path):
+        src_dir = tmp_path / self.SRC_DIR
+        src_dir.mkdir()
+        expected_message = "A handler must be provided but handler is None."
+
+        with pytest.raises(ValueError) as exception:
+            prediction_utils.populate_entrypoint_if_not_exists(
+                str(src_dir), self.ENTRYPOINT_FILE, predictor=None, handler=None,
+            )
+
+        assert str(exception.value) == expected_message
+
+    def test_populate_entrypoint_if_not_exists_predictionhandler_predictor_is_none(
+        self, tmp_path
+    ):
+        src_dir = tmp_path / self.SRC_DIR
+        src_dir.mkdir()
+        expected_message = (
+            "PredictionHandler must have a predictor class but predictor is None."
+        )
+
+        with pytest.raises(ValueError) as exception:
+            prediction_utils.populate_entrypoint_if_not_exists(
+                str(src_dir), self.ENTRYPOINT_FILE, predictor=None,
+            )
+
+        assert str(exception.value) == expected_message
+
+    def test_populate_entrypoint_if_not_exists_with_custom_handler(self, tmp_path):
+        src_dir = tmp_path / self.SRC_DIR
+        src_dir.mkdir()
+        predictor = src_dir / self.PREDICTOR_FILE
+        predictor.write_text(
+            textwrap.dedent(
+                """
+            class MyPredictor(Predictor):
+                pass
+            """
+            )
+        )
+        my_predictor = self._load_module("MyPredictor", str(predictor))
+        handler = src_dir / self.HANDLER_FILE
+        handler.write_text(
+            textwrap.dedent(
+                """
+            class CustomHandler(Handler):
+                pass
+            """
+            )
+        )
+        custom_handler = self._load_module("CustomHandler", str(handler))
+
+        prediction_utils.populate_entrypoint_if_not_exists(
+            str(src_dir),
+            self.ENTRYPOINT_FILE,
+            predictor=my_predictor,
+            handler=custom_handler,
+        )
+
+        entrypoint = src_dir / self.ENTRYPOINT_FILE
+
+        assert "from predictor import MyPredictor" in entrypoint.read_text()
+        assert "from custom_handler import CustomHandler" in entrypoint.read_text()
+        assert "predictor_class=MyPredictor" in entrypoint.read_text()
+        assert "handler_class=CustomHandler" in entrypoint.read_text()
+
+    def test_populate_entrypoint_if_not_exists_with_custom_handler_and_predictor_is_none(
+        self, tmp_path
+    ):
+        src_dir = tmp_path / self.SRC_DIR
+        src_dir.mkdir()
+        handler = src_dir / self.HANDLER_FILE
+        handler.write_text(
+            textwrap.dedent(
+                """
+            class CustomHandler(Handler):
+                pass
+            """
+            )
+        )
+        custom_handler = self._load_module("CustomHandler", str(handler))
+
+        prediction_utils.populate_entrypoint_if_not_exists(
+            str(src_dir), self.ENTRYPOINT_FILE, predictor=None, handler=custom_handler,
+        )
+
+        entrypoint = src_dir / self.ENTRYPOINT_FILE
+
+        assert "from custom_handler import CustomHandler" in entrypoint.read_text()
+        assert "predictor_class=None" in entrypoint.read_text()
+        assert "handler_class=CustomHandler" in entrypoint.read_text()
+
+    def test_populate_entrypoint_if_not_exists_custom_handler_not_in_src_dir(
+        self, tmp_path
+    ):
+        src_dir = tmp_path / self.SRC_DIR
+        src_dir.mkdir()
+        predictor = src_dir / self.PREDICTOR_FILE
+        predictor.write_text(
+            textwrap.dedent(
+                """
+            class MyPredictor(Predictor):
+                pass
+            """
+            )
+        )
+        my_predictor = self._load_module("MyPredictor", str(predictor))
+        handler = tmp_path / self.HANDLER_FILE
+        handler.write_text(
+            textwrap.dedent(
+                """
+            class CustomHandler(Handler):
+                pass
+            """
+            )
+        )
+        custom_handler = self._load_module("CustomHandler", str(handler))
+
+        with pytest.raises(ValueError) as exception:
+            prediction_utils.populate_entrypoint_if_not_exists(
+                str(src_dir),
+                self.ENTRYPOINT_FILE,
+                predictor=my_predictor,
+                handler=custom_handler,
+            )
+
+        assert 'The file implementing "CustomHandler" must be' in str(exception.value)
+
     @pytest.mark.parametrize(
         "image_uri, expected",
         [
@@ -534,3 +762,15 @@ class TestPredictionUtils:
         result = prediction_utils.is_registry_uri(image_uri)
 
         assert result == expected
+
+    def test_get_prediction_aip_http_port(self):
+        ports = [1000, 2000, 3000]
+
+        http_port = prediction_utils.get_prediction_aip_http_port(ports)
+
+        assert http_port == ports[0]
+
+    def test_get_prediction_aip_http_port_default(self):
+        http_port = prediction_utils.get_prediction_aip_http_port(None)
+
+        assert http_port == 8080
