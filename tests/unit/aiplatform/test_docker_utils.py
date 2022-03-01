@@ -135,9 +135,7 @@ class TestBuild:
         assert f"ENV HOME={self.HOME}\n" in result
         assert f'COPY [".", "{self.HOST_WORKDIR_BASENAME}"]\n' in result
         assert f'ENTRYPOINT ["python", "{self.SCRIPT}"]' in result
-        assert (
-            f"RUN pip install --no-cache-dir {extra_requirement}\n" in result
-        )
+        assert f"RUN pip install --no-cache-dir {extra_requirement}\n" in result
 
     def test_make_dockerfile_with_extra_packages(self):
         extra_package_basename = "custom_package"
