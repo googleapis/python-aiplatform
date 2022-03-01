@@ -180,13 +180,30 @@ def populate_entrypoint_if_not_exists(
     entrypoint_path.write_text(entrypoint_content)
 
 
+REGISTRY_REGEX = re.compile(r"^([\w\-]+\-docker\.pkg\.dev|([\w]+\.|)gcr\.io)")
+
+
+def is_registry_uri(image_uri: str) -> bool:
+    """Checks whether the image uri is in container registry or artifact registry.
+
+    Args:
+        image_uri (str):
+            The image uri to check if it is in container registry or artifact registry.
+
+    Returns:
+        True if the image uri is in container registry or artifact registry.
+    """
+    return REGISTRY_REGEX.match(image_uri) is not None
+
+
 def get_prediction_aip_http_port(
     serving_container_ports: Optional[Sequence[int]] = None,
 ):
     """Gets the used prediction container port from serving container ports.
 
-    When you create a Model, set the containerSpec.ports field. The first entry in this
-    field becomes the value of AIP_HTTP_PORT. Default value is 8080.
+    If containerSpec.ports is specified during Model or LocalModel creation time, retrieve
+    the first entry in this field. Otherwise use the default value of 8080. The environment
+    variable AIP_HTTP_PORT will be set to this value.
     See https://cloud.google.com/vertex-ai/docs/predictions/custom-container-requirements
     for more details.
 

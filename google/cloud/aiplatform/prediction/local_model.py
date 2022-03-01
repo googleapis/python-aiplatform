@@ -414,10 +414,27 @@ class LocalModel:
     ):
         """Deploys the local model instance to a local endpoint.
 
+        An example usage of a LocalModel instance, local_model:
+            with local_model.deploy_to_local_endpoint(
+                artifact_uri="gs://path/to/your/model",
+                credential_path="local/path/to/your/credentials",
+            ) as local_endpoint:
+                health_check_response = local_endpoint.run_health_check()
+                print(health_check_response, health_check_response.content)
+
+                predict_response = local_endpoint.predict(
+                    request='{"instances": [[1, 2, 3, 4]]}',
+                    headers={"header-key": "header-value"},
+                )
+                print(predict_response, predict_response.content)
+
+                local_endpoint.print_container_logs()
+
         Args:
             artifact_uri (str):
-                Optional. The path to the directory containing the Model artifact and
-                any of its supporting files. Not present for AutoML Models.
+                Optional. The Cloud Storage path to the directory containing the Model artifact
+                and any of its supporting files. The AIP_STORAGE_URI environment variable will
+                be set to this uri if given; otherwise, an empty string.
             credential_path (str):
                 Optional. The path to the credential key that will be mounted to the container.
                 If it's unset, the environment variable, GOOGLE_APPLICATION_CREDENTIALS, will

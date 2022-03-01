@@ -44,6 +44,7 @@ from google.cloud.aiplatform.compat.types import (
 )
 from google.cloud.aiplatform.constants import prediction
 from google.cloud.aiplatform.docker_utils import build
+from google.cloud.aiplatform.docker_utils import run
 from google.cloud.aiplatform.docker_utils import errors
 from google.cloud.aiplatform.docker_utils import local_util
 from google.cloud.aiplatform.docker_utils import run
@@ -124,6 +125,7 @@ _TEST_PREDICTOR_FILE = "predictor.py"
 _TEST_OUTPUT_IMAGE = "cpr_image:latest"
 
 _TEST_IMAGE_URI = "test_image:latest"
+
 _TEST_PREDICT_RESPONSE_CONTENT = b'{"x": [[1]]}'
 _TEST_HEALTH_CHECK_RESPONSE_CONTENT = b"{}"
 _TEST_HTTP_ERROR_MESSAGE = "HTTP Error Occurred."
