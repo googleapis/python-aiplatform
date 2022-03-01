@@ -27,8 +27,7 @@ __protobuf__ = proto.module(
 
 
 class Study(proto.Message):
-    r"""LINT.IfChange
-    A message representing a Study.
+    r"""A message representing a Study.
 
     Attributes:
         name (str):

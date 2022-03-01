@@ -17,6 +17,7 @@
 
 import datetime
 from typing import Dict, List, Optional, Sequence, Tuple, Union
+import uuid
 
 from google.auth import credentials as auth_credentials
 from google.protobuf import field_mask_pb2
@@ -24,12 +25,17 @@ from google.protobuf import field_mask_pb2
 from google.cloud.aiplatform import base
 from google.cloud.aiplatform.compat.types import (
     entity_type as gca_entity_type,
+    feature_selector as gca_feature_selector,
     featurestore_service as gca_featurestore_service,
+    featurestore_online_service as gca_featurestore_online_service,
     io as gca_io,
 )
 from google.cloud.aiplatform import featurestore
+from google.cloud.aiplatform import initializer
 from google.cloud.aiplatform import utils
 from google.cloud.aiplatform.utils import featurestore_utils
+
+from google.cloud import bigquery
 
 _LOGGER = base.Logger(__name__)
 _ALL_FEATURE_IDS = "*"
@@ -40,7 +46,6 @@ class EntityType(base.VertexAiResourceNounWithFutureManager):
 
     client_class = utils.FeaturestoreClientWithOverride
 
-    _is_client_prediction_client = False
     _resource_noun = "entityTypes"
     _getter_method = "get_entity_type"
     _list_method = "list_entity_types"
@@ -114,15 +119,24 @@ class EntityType(base.VertexAiResourceNounWithFutureManager):
             else featurestore_id,
         )
 
-    @property
-    def featurestore_name(self) -> str:
-        """Full qualified resource name of the managed featurestore in which this EntityType is."""
+        self._featurestore_online_client = self._instantiate_featurestore_online_client(
+            location=self.location, credentials=credentials,
+        )
+
+    def _get_featurestore_name(self) -> str:
+        """Gets full qualified resource name of the managed featurestore in which this EntityType is."""
         entity_type_name_components = self._parse_resource_name(self.resource_name)
         return featurestore.Featurestore._format_resource_name(
             project=entity_type_name_components["project"],
             location=entity_type_name_components["location"],
             featurestore=entity_type_name_components["featurestore"],
         )
+
+    @property
+    def featurestore_name(self) -> str:
+        """Full qualified resource name of the managed featurestore in which this EntityType is."""
+        self.wait()
+        return self._get_featurestore_name()
 
     def get_featurestore(self) -> "featurestore.Featurestore":
         """Retrieves the managed featurestore in which this EntityType is.
@@ -132,7 +146,7 @@ class EntityType(base.VertexAiResourceNounWithFutureManager):
         """
         return featurestore.Featurestore(self.featurestore_name)
 
-    def get_feature(self, feature_id: str) -> "featurestore.Feature":
+    def _get_feature(self, feature_id: str) -> "featurestore.Feature":
         """Retrieves an existing managed feature in this EntityType.
 
         Args:
@@ -142,7 +156,6 @@ class EntityType(base.VertexAiResourceNounWithFutureManager):
             featurestore.Feature - The managed feature resource object.
         """
         entity_type_name_components = self._parse_resource_name(self.resource_name)
-
         return featurestore.Feature(
             feature_name=featurestore.Feature._format_resource_name(
                 project=entity_type_name_components["project"],
@@ -153,11 +166,23 @@ class EntityType(base.VertexAiResourceNounWithFutureManager):
             )
         )
 
+    def get_feature(self, feature_id: str) -> "featurestore.Feature":
+        """Retrieves an existing managed feature in this EntityType.
+
+        Args:
+            feature_id (str):
+                Required. The managed feature resource ID in this EntityType.
+        Returns:
+            featurestore.Feature - The managed feature resource object.
+        """
+        self.wait()
+        return self._get_feature(feature_id=feature_id)
+
     def update(
         self,
         description: Optional[str] = None,
         labels: Optional[Dict[str, str]] = None,
-        request_metadata: Optional[Sequence[Tuple[str, str]]] = (),
+        request_metadata: Sequence[Tuple[str, str]] = (),
     ) -> "EntityType":
         """Updates an existing managed entityType resource.
 
@@ -189,10 +214,11 @@ class EntityType(base.VertexAiResourceNounWithFutureManager):
                 System reserved label keys are prefixed with
                 "aiplatform.googleapis.com/" and are immutable.
             request_metadata (Sequence[Tuple[str, str]]):
-                Optional. Strings which should be sent along with the request as metadata.
+                Required. Strings which should be sent along with the request as metadata.
         Returns:
             EntityType - The updated entityType resource object.
         """
+        self.wait()
         update_mask = list()
 
         if description:
@@ -371,6 +397,7 @@ class EntityType(base.VertexAiResourceNounWithFutureManager):
         Returns:
             List[featurestore.Feature] - A list of managed feature resource objects.
         """
+        self.wait()
         return featurestore.Feature.list(
             entity_type_name=self.resource_name, filter=filter, order_by=order_by,
         )
@@ -390,7 +417,7 @@ class EntityType(base.VertexAiResourceNounWithFutureManager):
         """
         features = []
         for feature_id in feature_ids:
-            feature = self.get_feature(feature_id=feature_id)
+            feature = self._get_feature(feature_id=feature_id)
             feature.delete(sync=False)
             features.append(feature)
 
@@ -617,6 +644,7 @@ class EntityType(base.VertexAiResourceNounWithFutureManager):
             featurestore.Feature - feature resource object
 
         """
+        self.wait()
         return featurestore.Feature.create(
             feature_id=feature_id,
             value_type=value_type,
@@ -752,8 +780,9 @@ class EntityType(base.VertexAiResourceNounWithFutureManager):
 
         return self
 
+    @staticmethod
     def _validate_and_get_import_feature_values_request(
-        self,
+        entity_type_name: str,
         feature_ids: List[str],
         feature_time: Union[str, datetime.datetime],
         data_source: Union[gca_io.AvroSource, gca_io.BigQuerySource, gca_io.CsvSource],
@@ -764,6 +793,8 @@ class EntityType(base.VertexAiResourceNounWithFutureManager):
     ) -> gca_featurestore_service.ImportFeatureValuesRequest:
         """Validates and get import feature values request.
         Args:
+            entity_type_name (str):
+                Required. A fully-qualified entityType resource name.
             feature_ids (List[str]):
                 Required. IDs of the Feature to import values
                 of. The Features must exist in the target
@@ -788,23 +819,16 @@ class EntityType(base.VertexAiResourceNounWithFutureManager):
                 If not provided, the source column need to be the same as the Feature ID.
 
                 Example:
+                    feature_ids = ['my_feature_id_1', 'my_feature_id_2', 'my_feature_id_3']
 
-                     feature_ids = ['my_feature_id_1', 'my_feature_id_2', 'my_feature_id_3']
-
-                     In case all features' source field and ID match:
-                     feature_source_fields = None or {}
-
-                     In case all features' source field and ID do not match:
-                     feature_source_fields = {
+                    feature_source_fields = {
                         'my_feature_id_1': 'my_feature_id_1_source_field',
-                        'my_feature_id_2': 'my_feature_id_2_source_field',
-                        'my_feature_id_3': 'my_feature_id_3_source_field',
-                     }
+                    }
 
-                     In case some features' source field and ID do not match:
-                     feature_source_fields = {
-                        'my_feature_id_1': 'my_feature_id_1_source_field',
-                     }
+                    Note:
+                        The source column of 'my_feature_id_1' is 'my_feature_id_1_source_field',
+                        The source column of 'my_feature_id_2' is the ID of the feature, same for 'my_feature_id_3'.
+
             entity_id_field (str):
                 Optional. Source column that holds entity IDs. If not provided, entity
                 IDs are extracted from the column named ``entity_id``.
@@ -838,7 +862,7 @@ class EntityType(base.VertexAiResourceNounWithFutureManager):
         ]
 
         import_feature_values_request = gca_featurestore_service.ImportFeatureValuesRequest(
-            entity_type=self.resource_name,
+            entity_type=entity_type_name,
             feature_specs=feature_specs,
             entity_id_field=entity_id_field,
             disable_online_serving=disable_online_serving,
@@ -947,23 +971,16 @@ class EntityType(base.VertexAiResourceNounWithFutureManager):
                 If not provided, the source column need to be the same as the Feature ID.
 
                 Example:
+                    feature_ids = ['my_feature_id_1', 'my_feature_id_2', 'my_feature_id_3']
 
-                     feature_ids = ['my_feature_id_1', 'my_feature_id_2', 'my_feature_id_3']
-
-                     In case all features' source field and ID match:
-                     feature_source_fields = None or {}
-
-                     In case all features' source field and ID do not match:
-                     feature_source_fields = {
+                    feature_source_fields = {
                         'my_feature_id_1': 'my_feature_id_1_source_field',
-                        'my_feature_id_2': 'my_feature_id_2_source_field',
-                        'my_feature_id_3': 'my_feature_id_3_source_field',
-                     }
+                    }
 
-                     In case some features' source field and ID do not match:
-                     feature_source_fields = {
-                        'my_feature_id_1': 'my_feature_id_1_source_field',
-                     }
+                    Note:
+                        The source column of 'my_feature_id_1' is 'my_feature_id_1_source_field',
+                        The source column of 'my_feature_id_2' is the ID of the feature, same for 'my_feature_id_3'.
+
             entity_id_field (str):
                 Optional. Source column that holds entity IDs. If not provided, entity
                 IDs are extracted from the column named ``entity_id``.
@@ -993,9 +1010,11 @@ class EntityType(base.VertexAiResourceNounWithFutureManager):
             EntityType - The entityType resource object with feature values imported.
 
         """
+
         bigquery_source = gca_io.BigQuerySource(input_uri=bq_source_uri)
 
         import_feature_values_request = self._validate_and_get_import_feature_values_request(
+            entity_type_name=self.resource_name,
             feature_ids=feature_ids,
             feature_time=feature_time,
             data_source=bigquery_source,
@@ -1058,23 +1077,16 @@ class EntityType(base.VertexAiResourceNounWithFutureManager):
                 If not provided, the source column need to be the same as the Feature ID.
 
                 Example:
+                    feature_ids = ['my_feature_id_1', 'my_feature_id_2', 'my_feature_id_3']
 
-                     feature_ids = ['my_feature_id_1', 'my_feature_id_2', 'my_feature_id_3']
-
-                     In case all features' source field and ID match:
-                     feature_source_fields = None or {}
-
-                     In case all features' source field and ID do not match:
-                     feature_source_fields = {
+                    feature_source_fields = {
                         'my_feature_id_1': 'my_feature_id_1_source_field',
-                        'my_feature_id_2': 'my_feature_id_2_source_field',
-                        'my_feature_id_3': 'my_feature_id_3_source_field',
-                     }
+                    }
 
-                     In case some features' source field and ID do not match:
-                     feature_source_fields = {
-                        'my_feature_id_1': 'my_feature_id_1_source_field',
-                     }
+                    Note:
+                        The source column of 'my_feature_id_1' is 'my_feature_id_1_source_field',
+                        The source column of 'my_feature_id_2' is the ID of the feature, same for 'my_feature_id_3'.
+
             entity_id_field (str):
                 Optional. Source column that holds entity IDs. If not provided, entity
                 IDs are extracted from the column named ``entity_id``.
@@ -1125,6 +1137,7 @@ class EntityType(base.VertexAiResourceNounWithFutureManager):
             data_source = gca_io.AvroSource(gcs_source=gcs_source)
 
         import_feature_values_request = self._validate_and_get_import_feature_values_request(
+            entity_type_name=self.resource_name,
             feature_ids=feature_ids,
             feature_time=feature_time,
             data_source=data_source,
@@ -1138,3 +1151,273 @@ class EntityType(base.VertexAiResourceNounWithFutureManager):
             import_feature_values_request=import_feature_values_request,
             request_metadata=request_metadata,
         )
+
+    def ingest_from_df(
+        self,
+        feature_ids: List[str],
+        feature_time: Union[str, datetime.datetime],
+        df_source: "pd.DataFrame",  # noqa: F821 - skip check for undefined name 'pd'
+        feature_source_fields: Optional[Dict[str, str]] = None,
+        entity_id_field: Optional[str] = None,
+        request_metadata: Optional[Sequence[Tuple[str, str]]] = (),
+    ) -> "EntityType":
+        """Ingest feature values from DataFrame.
+
+        Note:
+            Calling this method will automatically create and delete a temporary
+            bigquery dataset in the same GCP project, which will be used
+            as the intermediary storage for ingesting feature values
+            from dataframe to featurestore.
+
+            The call will return upon ingestion completes, where the
+            feature values will be ingested into the entity_type.
+
+        Args:
+            feature_ids (List[str]):
+                Required. IDs of the Feature to import values
+                of. The Features must exist in the target
+                EntityType, or the request will fail.
+            feature_time (Union[str, datetime.datetime]):
+                Required. The feature_time can be one of:
+                    - The source column that holds the Feature
+                    timestamp for all Feature values in each entity.
+
+                    Note:
+                        The dtype of the source column should be `datetime64`.
+
+                    - A single Feature timestamp for all entities
+                    being imported. The timestamp must not have
+                    higher than millisecond precision.
+
+                    Example:
+                        feature_time = datetime.datetime(year=2022, month=1, day=1, hour=11, minute=59, second=59)
+                        or
+                        feature_time_str = datetime.datetime.now().isoformat(sep=" ", timespec="milliseconds")
+                        feature_time = datetime.datetime.strptime(feature_time_str, "%Y-%m-%d %H:%M:%S.%f")
+
+            df_source (pd.DataFrame):
+                Required. Pandas DataFrame containing the source data for ingestion.
+            feature_source_fields (Dict[str, str]):
+                Optional. User defined dictionary to map ID of the Feature for importing values
+                of to the source column for getting the Feature values from.
+
+                Specify the features whose ID and source column are not the same.
+                If not provided, the source column need to be the same as the Feature ID.
+
+                Example:
+                    feature_ids = ['my_feature_id_1', 'my_feature_id_2', 'my_feature_id_3']
+
+                    feature_source_fields = {
+                        'my_feature_id_1': 'my_feature_id_1_source_field',
+                    }
+
+                    Note:
+                        The source column of 'my_feature_id_1' is 'my_feature_id_1_source_field',
+                        The source column of 'my_feature_id_2' is the ID of the feature, same for 'my_feature_id_3'.
+
+            entity_id_field (str):
+                Optional. Source column that holds entity IDs. If not provided, entity
+                IDs are extracted from the column named ``entity_id``.
+            request_metadata (Sequence[Tuple[str, str]]):
+                Optional. Strings which should be sent along with the request as metadata.
+
+        Returns:
+            EntityType - The entityType resource object with feature values imported.
+
+        """
+        try:
+            import pyarrow  # noqa: F401 - skip check for 'pyarrow' which is required when using 'google.cloud.bigquery'
+        except ImportError:
+            raise ImportError(
+                f"Pyarrow is not installed. Please install pyarrow to use "
+                f"{self.ingest_from_df.__name__}"
+            )
+
+        bigquery_client = bigquery.Client(
+            project=self.project, credentials=self.credentials
+        )
+
+        self.wait()
+        entity_type_name_components = self._parse_resource_name(self.resource_name)
+        featurestore_id, entity_type_id = (
+            entity_type_name_components["featurestore"],
+            entity_type_name_components["entity_type"],
+        )
+
+        temp_bq_dataset_name = f"temp_{featurestore_id}_{uuid.uuid4()}".replace(
+            "-", "_"
+        )
+
+        # TODO(b/216497263): Add support for resource project does not match initializer.global_config.project
+        temp_bq_dataset_id = f"{initializer.global_config.project}.{temp_bq_dataset_name}"[
+            :1024
+        ]
+        temp_bq_table_id = f"{temp_bq_dataset_id}.{entity_type_id}"
+
+        temp_bq_dataset = bigquery.Dataset(dataset_ref=temp_bq_dataset_id)
+        temp_bq_dataset.location = self.location
+
+        temp_bq_dataset = bigquery_client.create_dataset(temp_bq_dataset)
+
+        try:
+            job = bigquery_client.load_table_from_dataframe(
+                dataframe=df_source, destination=temp_bq_table_id
+            )
+            job.result()
+
+            entity_type_obj = self.ingest_from_bq(
+                feature_ids=feature_ids,
+                feature_time=feature_time,
+                bq_source_uri=f"bq://{temp_bq_table_id}",
+                feature_source_fields=feature_source_fields,
+                entity_id_field=entity_id_field,
+                request_metadata=request_metadata,
+            )
+
+        finally:
+            bigquery_client.delete_dataset(
+                dataset=temp_bq_dataset.dataset_id, delete_contents=True,
+            )
+
+        return entity_type_obj
+
+    @staticmethod
+    def _instantiate_featurestore_online_client(
+        location: Optional[str] = None,
+        credentials: Optional[auth_credentials.Credentials] = None,
+    ) -> utils.FeaturestoreOnlineServingClientWithOverride:
+        """Helper method to instantiates featurestore online client.
+
+        Args:
+            location (str): The location of this featurestore.
+            credentials (google.auth.credentials.Credentials):
+                Optional custom credentials to use when interacting with
+                the featurestore online client.
+        Returns:
+            utils.FeaturestoreOnlineServingClientWithOverride:
+                Initialized featurestore online client with optional overrides.
+        """
+        return initializer.global_config.create_client(
+            client_class=utils.FeaturestoreOnlineServingClientWithOverride,
+            credentials=credentials,
+            location_override=location,
+        )
+
+    def read(
+        self,
+        entity_ids: Union[str, List[str]],
+        feature_ids: Union[str, List[str]] = "*",
+        request_metadata: Optional[Sequence[Tuple[str, str]]] = (),
+    ) -> "pd.DataFrame":  # noqa: F821 - skip check for undefined name 'pd'
+        """Reads feature values for given feature IDs of given entity IDs in this EntityType.
+
+        Args:
+            entity_ids (Union[str, List[str]]):
+                Required. ID for a specific entity, or a list of IDs of entities
+                to read Feature values of. The maximum number of IDs is 100 if a list.
+            feature_ids (Union[str, List[str]]):
+                Required. ID for a specific feature, or a list of IDs of Features in the EntityType
+                for reading feature values. Default to "*", where value of all features will be read.
+            request_metadata (Sequence[Tuple[str, str]]):
+                Optional. Strings which should be sent along with the request as metadata.
+
+        Returns:
+            pd.DataFrame: entities' feature values in DataFrame
+        """
+        self.wait()
+        if isinstance(feature_ids, str):
+            feature_ids = [feature_ids]
+
+        feature_selector = gca_feature_selector.FeatureSelector(
+            id_matcher=gca_feature_selector.IdMatcher(ids=feature_ids)
+        )
+
+        if isinstance(entity_ids, str):
+            read_feature_values_request = gca_featurestore_online_service.ReadFeatureValuesRequest(
+                entity_type=self.resource_name,
+                entity_id=entity_ids,
+                feature_selector=feature_selector,
+            )
+            read_feature_values_response = self._featurestore_online_client.read_feature_values(
+                request=read_feature_values_request, metadata=request_metadata
+            )
+            header = read_feature_values_response.header
+            entity_views = [read_feature_values_response.entity_view]
+        elif isinstance(entity_ids, list):
+            streaming_read_feature_values_request = gca_featurestore_online_service.StreamingReadFeatureValuesRequest(
+                entity_type=self.resource_name,
+                entity_ids=entity_ids,
+                feature_selector=feature_selector,
+            )
+            streaming_read_feature_values_responses = [
+                response
+                for response in self._featurestore_online_client.streaming_read_feature_values(
+                    request=streaming_read_feature_values_request,
+                    metadata=request_metadata,
+                )
+            ]
+            header = streaming_read_feature_values_responses[0].header
+            entity_views = [
+                response.entity_view
+                for response in streaming_read_feature_values_responses[1:]
+            ]
+
+        feature_ids = [
+            feature_descriptor.id for feature_descriptor in header.feature_descriptors
+        ]
+
+        return self._construct_dataframe(
+            feature_ids=feature_ids, entity_views=entity_views,
+        )
+
+    @staticmethod
+    def _construct_dataframe(
+        feature_ids: List[str],
+        entity_views: List[
+            gca_featurestore_online_service.ReadFeatureValuesResponse.EntityView
+        ],
+    ) -> "pd.DataFrame":  # noqa: F821 - skip check for undefined name 'pd'
+        """Constructs a dataframe using the header and entity_views
+
+        Args:
+            feature_ids (List[str]):
+                Required. A list of feature ids corresponding to the feature values for each entity in entity_views.
+            entity_views (List[gca_featurestore_online_service.ReadFeatureValuesResponse.EntityView]):
+                Required. A list of Entity views with Feature values.
+                For each Entity view, it may be
+                the entity in the Featurestore if values for all
+                Features were requested, or a projection of the
+                entity in the Featurestore if values for only
+                some Features were requested.
+
+        Raises:
+            ImportError: If pandas is not installed when using this method.
+
+        Returns:
+            pd.DataFrame - entities feature values in DataFrame
+        )
+        """
+
+        try:
+            import pandas as pd
+        except ImportError:
+            raise ImportError(
+                f"Pandas is not installed. Please install pandas to use "
+                f"{EntityType._construct_dataframe.__name__}"
+            )
+
+        data = []
+        for entity_view in entity_views:
+            entity_data = {"entity_id": entity_view.entity_id}
+            for feature_id, feature_data in zip(feature_ids, entity_view.data):
+                if feature_data._pb.HasField("value"):
+                    value_type = feature_data.value._pb.WhichOneof("value")
+                    feature_value = getattr(feature_data.value, value_type)
+                    if hasattr(feature_value, "values"):
+                        feature_value = feature_value.values
+                    entity_data[feature_id] = feature_value
+                else:
+                    entity_data[feature_id] = None
+            data.append(entity_data)
+
+        return pd.DataFrame(data=data, columns=["entity_id"] + feature_ids)

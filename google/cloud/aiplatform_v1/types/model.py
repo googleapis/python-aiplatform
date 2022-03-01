@@ -397,7 +397,7 @@ class ModelContainerSpec(proto.Message):
     r"""Specification of a container for serving predictions. Some fields in
     this message correspond to fields in the `Kubernetes Container v1
     core
-    specification <https://v1-18.docs.kubernetes.io/docs/reference/generated/kubernetes-api/v1.18/#container-v1-core>`__.
+    specification <https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.23/#container-v1-core>`__.
 
     Attributes:
         image_uri (str):
@@ -463,7 +463,7 @@ class ModelContainerSpec(proto.Message):
             this syntax with ``$$``; for example: $$(VARIABLE_NAME) This
             field corresponds to the ``command`` field of the Kubernetes
             Containers `v1 core
-            API <https://v1-18.docs.kubernetes.io/docs/reference/generated/kubernetes-api/v1.18/#container-v1-core>`__.
+            API <https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.23/#container-v1-core>`__.
         args (Sequence[str]):
             Immutable. Specifies arguments for the command that runs
             when the container starts. This overrides the container's
@@ -502,7 +502,7 @@ class ModelContainerSpec(proto.Message):
             this syntax with ``$$``; for example: $$(VARIABLE_NAME) This
             field corresponds to the ``args`` field of the Kubernetes
             Containers `v1 core
-            API <https://v1-18.docs.kubernetes.io/docs/reference/generated/kubernetes-api/v1.18/#container-v1-core>`__.
+            API <https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.23/#container-v1-core>`__.
         env (Sequence[google.cloud.aiplatform_v1.types.EnvVar]):
             Immutable. List of environment variables to set in the
             container. After the container starts running, code running
@@ -535,7 +535,7 @@ class ModelContainerSpec(proto.Message):
 
             This field corresponds to the ``env`` field of the
             Kubernetes Containers `v1 core
-            API <https://v1-18.docs.kubernetes.io/docs/reference/generated/kubernetes-api/v1.18/#container-v1-core>`__.
+            API <https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.23/#container-v1-core>`__.
         ports (Sequence[google.cloud.aiplatform_v1.types.Port]):
             Immutable. List of ports to expose from the container.
             Vertex AI sends any prediction requests that it receives to
@@ -558,7 +558,7 @@ class ModelContainerSpec(proto.Message):
             Vertex AI does not use ports other than the first one
             listed. This field corresponds to the ``ports`` field of the
             Kubernetes Containers `v1 core
-            API <https://v1-18.docs.kubernetes.io/docs/reference/generated/kubernetes-api/v1.18/#container-v1-core>`__.
+            API <https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.23/#container-v1-core>`__.
         predict_route (str):
             Immutable. HTTP path on the container to send prediction
             requests to. Vertex AI forwards requests sent using
