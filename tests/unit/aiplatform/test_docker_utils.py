@@ -158,7 +158,7 @@ class TestBuild:
         assert f'COPY [".", "{self.HOST_WORKDIR_BASENAME}"]\n' in result
         assert f'ENTRYPOINT ["python", "{self.SCRIPT}"]' in result
         assert (
-            f"RUN pip install --no-cache-dir --upgrade {extra_requirement}\n" in result
+            f"RUN pip install --no-cache-dir {extra_requirement}\n" in result
         )
 
     def test_make_dockerfile_with_extra_packages(self):
@@ -409,7 +409,7 @@ class TestRun:
                 prediction.AIP_HTTP_PORT: prediction.DEFAULT_AIP_HTTP_PORT,
                 prediction.AIP_HEALTH_ROUTE: None,
                 prediction.AIP_PREDICT_ROUTE: None,
-                prediction.AIP_STORAGE_URI: None,
+                prediction.AIP_STORAGE_URI: "",
                 run._ADC_ENVIRONMENT_VARIABLE: run._DEFAULT_CONTAINER_CRED_KEY_PATH,
             },
             volumes=[],
@@ -481,7 +481,7 @@ class TestRun:
                 prediction.AIP_HTTP_PORT: prediction.DEFAULT_AIP_HTTP_PORT,
                 prediction.AIP_HEALTH_ROUTE: None,
                 prediction.AIP_PREDICT_ROUTE: None,
-                prediction.AIP_STORAGE_URI: None,
+                prediction.AIP_STORAGE_URI: "",
                 run._ADC_ENVIRONMENT_VARIABLE: run._DEFAULT_CONTAINER_CRED_KEY_PATH,
             },
             volumes=volumes,

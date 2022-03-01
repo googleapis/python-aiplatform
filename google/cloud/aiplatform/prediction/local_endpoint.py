@@ -56,8 +56,9 @@ class LocalEndpoint:
             serving_container_image_uri (str):
                 Required. The URI of the Model serving container.
             artifact_uri (str):
-                Optional. The path to the directory containing the Model artifact and
-                any of its supporting files. Not present for AutoML Models.
+                Optional. The Cloud Storage path to the directory containing the Model artifact
+                and any of its supporting files. The AIP_STORAGE_URI environment variable will
+                be set to this uri if given; otherwise, an empty string.
             serving_container_predict_route (str):
                 Optional. An HTTP path to send prediction requests to the container, and
                 which must be supported by it. If not specified a default HTTP path will
@@ -207,7 +208,7 @@ class LocalEndpoint:
         """Waits until a health check succeeds or timeout.
 
         Raises:
-            DockerError: If timeout.
+            DockerError: If container exits or timeout.
         """
         elapsed_time = 0
         try:
@@ -264,7 +265,7 @@ class LocalEndpoint:
                 Optional. The headers in the prediction request.
 
         Returns:
-            The response from the prediction; None if the prediction raises exception.
+            The prediction response.
 
         Raises:
             ValueError: If both of request and request_file are specified, both of
@@ -290,14 +291,14 @@ class LocalEndpoint:
                     response = requests.post(url, data=data, headers=headers)
             return response
         except requests.exceptions.RequestException as exception:
-            _logger.warning(f"Exception during health check: {exception}")
+            _logger.warning(f"Exception during prediction: {exception}")
             raise
 
     def run_health_check(self) -> requests.models.Response:
         """Runs a health check.
 
         Returns:
-            The response from the health check or None if the health check raises exception.
+            The health check response.
 
         Raises:
             requests.exception.RequestException: If the request fails with an exception.

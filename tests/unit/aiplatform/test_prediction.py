@@ -44,6 +44,7 @@ from google.cloud.aiplatform.compat.types import (
 )
 from google.cloud.aiplatform.constants import prediction
 from google.cloud.aiplatform.docker_utils import build
+from google.cloud.aiplatform.docker_utils import run
 from google.cloud.aiplatform.docker_utils import errors
 from google.cloud.aiplatform.docker_utils import local_util
 from google.cloud.aiplatform.docker_utils import run
@@ -124,12 +125,20 @@ _TEST_PREDICTOR_FILE = "predictor.py"
 _TEST_OUTPUT_IMAGE = "cpr_image:latest"
 
 _TEST_IMAGE_URI = "test_image:latest"
+
 _TEST_PREDICT_RESPONSE_CONTENT = b'{"x": [[1]]}'
 _TEST_HEALTH_CHECK_RESPONSE_CONTENT = b"{}"
 _TEST_HTTP_ERROR_MESSAGE = "HTTP Error Occurred."
 _TEST_CONTAINER_LOGS_LEN = 5
 _CONTAINER_RUNNING_STATUS = "running"
 _CONTAINER_EXITED_STATUS = "exited"
+
+_DEFAULT_SDK_REQUIREMENTS = [
+    (
+        "google-cloud-aiplatform[prediction] @ "
+        "git+https://github.com/googleapis/python-aiplatform.git@custom-prediction-routine"
+    )
+]
 
 
 @pytest.fixture
@@ -273,6 +282,7 @@ def build_image_mock():
     with mock.patch.object(build, "build_image") as build_image_mock:
         build_image_mock.return_value = None
         yield build_image_mock
+
 
 @pytest.fixture
 def local_endpoint_init_mock():
@@ -945,6 +955,160 @@ class TestLocalModel:
         assert local_model.serving_container_spec.env == container_spec.env
         assert local_model.serving_container_spec.ports == container_spec.ports
 
+    def test_create_cpr_model_creates_and_get_localmodel(
+        self,
+        tmp_path,
+        populate_entrypoint_if_not_exists_mock,
+        is_prebuilt_prediction_container_uri_is_false_mock,
+        build_image_mock,
+    ):
+        src_dir = tmp_path / _TEST_SRC_DIR
+        src_dir.mkdir()
+        predictor = src_dir / _TEST_PREDICTOR_FILE
+        predictor.write_text(
+            textwrap.dedent(
+                """
+            class MyPredictor:
+                pass
+            """
+            )
+        )
+        my_predictor = self._load_module("MyPredictor", str(predictor))
+        entrypoint = f"{_TEST_SRC_DIR}/{_ENTRYPOINT_FILE}"
+
+        local_model = LocalModel.create_cpr_model(
+            _TEST_SRC_DIR, _TEST_OUTPUT_IMAGE, predictor=my_predictor,
+        )
+
+        assert local_model.serving_container_spec.image_uri == _TEST_OUTPUT_IMAGE
+        assert local_model.serving_container_spec.predict_route == DEFAULT_PREDICT_ROUTE
+        assert local_model.serving_container_spec.health_route == DEFAULT_HEALTH_ROUTE
+
+        populate_entrypoint_if_not_exists_mock.assert_called_once_with(
+            _TEST_SRC_DIR,
+            _ENTRYPOINT_FILE,
+            predictor=my_predictor,
+            handler=PredictionHandler,
+        )
+        is_prebuilt_prediction_container_uri_is_false_mock.assert_called_once_with(
+            _DEFAULT_BASE_IMAGE
+        )
+        build_image_mock.assert_called_once_with(
+            _DEFAULT_BASE_IMAGE,
+            _TEST_SRC_DIR,
+            entrypoint,
+            _TEST_OUTPUT_IMAGE,
+            requirements=_DEFAULT_SDK_REQUIREMENTS,
+            requirements_path=None,
+            exposed_ports=[DEFAULT_HTTP_PORT],
+            pip_command="pip",
+            python_command="python",
+        )
+
+    def test_create_cpr_model_creates_and_get_localmodel_base_is_prebuilt(
+        self,
+        tmp_path,
+        populate_entrypoint_if_not_exists_mock,
+        is_prebuilt_prediction_container_uri_is_true_mock,
+        build_image_mock,
+    ):
+        src_dir = tmp_path / _TEST_SRC_DIR
+        src_dir.mkdir()
+        predictor = src_dir / _TEST_PREDICTOR_FILE
+        predictor.write_text(
+            textwrap.dedent(
+                """
+            class MyPredictor:
+                pass
+            """
+            )
+        )
+        my_predictor = self._load_module("MyPredictor", str(predictor))
+        entrypoint = f"{_TEST_SRC_DIR}/{_ENTRYPOINT_FILE}"
+
+        local_model = LocalModel.create_cpr_model(
+            _TEST_SRC_DIR, _TEST_OUTPUT_IMAGE, predictor=my_predictor,
+        )
+
+        assert local_model.serving_container_spec.image_uri == _TEST_OUTPUT_IMAGE
+        assert local_model.serving_container_spec.predict_route == DEFAULT_PREDICT_ROUTE
+        assert local_model.serving_container_spec.health_route == DEFAULT_HEALTH_ROUTE
+
+        populate_entrypoint_if_not_exists_mock.assert_called_once_with(
+            _TEST_SRC_DIR,
+            _ENTRYPOINT_FILE,
+            predictor=my_predictor,
+            handler=PredictionHandler,
+        )
+        is_prebuilt_prediction_container_uri_is_true_mock.assert_called_once_with(
+            _DEFAULT_BASE_IMAGE
+        )
+        build_image_mock.assert_called_once_with(
+            _DEFAULT_BASE_IMAGE,
+            _TEST_SRC_DIR,
+            entrypoint,
+            _TEST_OUTPUT_IMAGE,
+            requirements=_DEFAULT_SDK_REQUIREMENTS,
+            requirements_path=None,
+            exposed_ports=[DEFAULT_HTTP_PORT],
+            pip_command="pip3",
+            python_command="python3",
+        )
+
+    def test_create_cpr_model_creates_and_get_localmodel_with_requirements_path(
+        self,
+        tmp_path,
+        populate_entrypoint_if_not_exists_mock,
+        is_prebuilt_prediction_container_uri_is_false_mock,
+        build_image_mock,
+    ):
+        src_dir = tmp_path / _TEST_SRC_DIR
+        src_dir.mkdir()
+        predictor = src_dir / _TEST_PREDICTOR_FILE
+        predictor.write_text(
+            textwrap.dedent(
+                """
+            class MyPredictor:
+                pass
+            """
+            )
+        )
+        my_predictor = self._load_module("MyPredictor", str(predictor))
+        entrypoint = f"{_TEST_SRC_DIR}/{_ENTRYPOINT_FILE}"
+        requirements_path = f"{_TEST_SRC_DIR}/requirements.txt"
+
+        local_model = LocalModel.create_cpr_model(
+            _TEST_SRC_DIR,
+            _TEST_OUTPUT_IMAGE,
+            predictor=my_predictor,
+            requirements_path=requirements_path,
+        )
+
+        assert local_model.serving_container_spec.image_uri == _TEST_OUTPUT_IMAGE
+        assert local_model.serving_container_spec.predict_route == DEFAULT_PREDICT_ROUTE
+        assert local_model.serving_container_spec.health_route == DEFAULT_HEALTH_ROUTE
+
+        populate_entrypoint_if_not_exists_mock.assert_called_once_with(
+            _TEST_SRC_DIR,
+            _ENTRYPOINT_FILE,
+            predictor=my_predictor,
+            handler=PredictionHandler,
+        )
+        is_prebuilt_prediction_container_uri_is_false_mock.assert_called_once_with(
+            _DEFAULT_BASE_IMAGE
+        )
+        build_image_mock.assert_called_once_with(
+            _DEFAULT_BASE_IMAGE,
+            _TEST_SRC_DIR,
+            entrypoint,
+            _TEST_OUTPUT_IMAGE,
+            requirements=_DEFAULT_SDK_REQUIREMENTS,
+            requirements_path=requirements_path,
+            exposed_ports=[DEFAULT_HTTP_PORT],
+            pip_command="pip",
+            python_command="python",
+        )
+
     @pytest.mark.parametrize("sync", [True, False])
     def test_upload_uploads_and_gets_model(
         self, upload_model_mock, get_model_mock, sync
@@ -1042,157 +1206,6 @@ class TestLocalModel:
         )
         get_model_mock.assert_called_once_with(
             name=_TEST_MODEL_RESOURCE_NAME, retry=base._DEFAULT_RETRY
-        )
-
-    def test_create_cpr_model_creates_and_get_localmodel(
-        self,
-        tmp_path,
-        populate_entrypoint_if_not_exists_mock,
-        is_prebuilt_prediction_container_uri_is_false_mock,
-        build_image_mock,
-    ):
-        src_dir = tmp_path / _TEST_SRC_DIR
-        src_dir.mkdir()
-        predictor = src_dir / _TEST_PREDICTOR_FILE
-        predictor.write_text(
-            textwrap.dedent(
-                """
-            class MyPredictor:
-                pass
-            """
-            )
-        )
-        my_predictor = self._load_module("MyPredictor", str(predictor))
-        entrypoint = f"{_TEST_SRC_DIR}/{_ENTRYPOINT_FILE}"
-
-        local_model = LocalModel.create_cpr_model(
-            _TEST_SRC_DIR, _TEST_OUTPUT_IMAGE, predictor=my_predictor,
-        )
-
-        assert local_model.serving_container_spec.image_uri == _TEST_OUTPUT_IMAGE
-        assert local_model.serving_container_spec.predict_route == DEFAULT_PREDICT_ROUTE
-        assert local_model.serving_container_spec.health_route == DEFAULT_HEALTH_ROUTE
-
-        populate_entrypoint_if_not_exists_mock.assert_called_once_with(
-            _TEST_SRC_DIR,
-            _ENTRYPOINT_FILE,
-            predictor=my_predictor,
-            handler=PredictionHandler,
-        )
-        is_prebuilt_prediction_container_uri_is_false_mock.assert_called_once_with(
-            _DEFAULT_BASE_IMAGE
-        )
-        build_image_mock.assert_called_once_with(
-            _DEFAULT_BASE_IMAGE,
-            _TEST_SRC_DIR,
-            entrypoint,
-            _TEST_OUTPUT_IMAGE,
-            requirements_path=None,
-            exposed_ports=[DEFAULT_HTTP_PORT],
-            pip_command="pip",
-            python_command="python",
-        )
-
-    def test_create_cpr_model_creates_and_get_localmodel_base_is_prebuilt(
-        self,
-        tmp_path,
-        populate_entrypoint_if_not_exists_mock,
-        is_prebuilt_prediction_container_uri_is_true_mock,
-        build_image_mock,
-    ):
-        src_dir = tmp_path / _TEST_SRC_DIR
-        src_dir.mkdir()
-        predictor = src_dir / _TEST_PREDICTOR_FILE
-        predictor.write_text(
-            textwrap.dedent(
-                """
-            class MyPredictor:
-                pass
-            """
-            )
-        )
-        my_predictor = self._load_module("MyPredictor", str(predictor))
-        entrypoint = f"{_TEST_SRC_DIR}/{_ENTRYPOINT_FILE}"
-
-        local_model = LocalModel.create_cpr_model(
-            _TEST_SRC_DIR, _TEST_OUTPUT_IMAGE, predictor=my_predictor,
-        )
-
-        assert local_model.serving_container_spec.image_uri == _TEST_OUTPUT_IMAGE
-        assert local_model.serving_container_spec.predict_route == DEFAULT_PREDICT_ROUTE
-        assert local_model.serving_container_spec.health_route == DEFAULT_HEALTH_ROUTE
-
-        populate_entrypoint_if_not_exists_mock.assert_called_once_with(
-            _TEST_SRC_DIR,
-            _ENTRYPOINT_FILE,
-            predictor=my_predictor,
-            handler=PredictionHandler,
-        )
-        is_prebuilt_prediction_container_uri_is_true_mock.assert_called_once_with(
-            _DEFAULT_BASE_IMAGE
-        )
-        build_image_mock.assert_called_once_with(
-            _DEFAULT_BASE_IMAGE,
-            _TEST_SRC_DIR,
-            entrypoint,
-            _TEST_OUTPUT_IMAGE,
-            requirements_path=None,
-            exposed_ports=[DEFAULT_HTTP_PORT],
-            pip_command="pip3",
-            python_command="python3",
-        )
-
-    def test_create_cpr_model_creates_and_get_localmodel_with_requirements_path(
-        self,
-        tmp_path,
-        populate_entrypoint_if_not_exists_mock,
-        is_prebuilt_prediction_container_uri_is_false_mock,
-        build_image_mock,
-    ):
-        src_dir = tmp_path / _TEST_SRC_DIR
-        src_dir.mkdir()
-        predictor = src_dir / _TEST_PREDICTOR_FILE
-        predictor.write_text(
-            textwrap.dedent(
-                """
-            class MyPredictor:
-                pass
-            """
-            )
-        )
-        my_predictor = self._load_module("MyPredictor", str(predictor))
-        entrypoint = f"{_TEST_SRC_DIR}/{_ENTRYPOINT_FILE}"
-        requirements_path = f"{_TEST_SRC_DIR}/requirements.txt"
-
-        local_model = LocalModel.create_cpr_model(
-            _TEST_SRC_DIR,
-            _TEST_OUTPUT_IMAGE,
-            predictor=my_predictor,
-            requirements_path=requirements_path,
-        )
-
-        assert local_model.serving_container_spec.image_uri == _TEST_OUTPUT_IMAGE
-        assert local_model.serving_container_spec.predict_route == DEFAULT_PREDICT_ROUTE
-        assert local_model.serving_container_spec.health_route == DEFAULT_HEALTH_ROUTE
-
-        populate_entrypoint_if_not_exists_mock.assert_called_once_with(
-            _TEST_SRC_DIR,
-            _ENTRYPOINT_FILE,
-            predictor=my_predictor,
-            handler=PredictionHandler,
-        )
-        is_prebuilt_prediction_container_uri_is_false_mock.assert_called_once_with(
-            _DEFAULT_BASE_IMAGE
-        )
-        build_image_mock.assert_called_once_with(
-            _DEFAULT_BASE_IMAGE,
-            _TEST_SRC_DIR,
-            entrypoint,
-            _TEST_OUTPUT_IMAGE,
-            requirements_path=requirements_path,
-            exposed_ports=[DEFAULT_HTTP_PORT],
-            pip_command="pip",
-            python_command="python",
         )
 
     def test_deploy_to_local_endpoint(

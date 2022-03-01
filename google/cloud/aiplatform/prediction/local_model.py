@@ -45,6 +45,13 @@ DEFAULT_PREDICT_ROUTE = "/predict"
 DEFAULT_HEALTH_ROUTE = "/health"
 DEFAULT_HTTP_PORT = 8080
 
+_DEFAULT_SDK_REQUIREMENTS = [
+    (
+        "google-cloud-aiplatform[prediction] @ "
+        "git+https://github.com/googleapis/python-aiplatform.git@custom-prediction-routine"
+    )
+]
+
 
 class LocalModel:
     """Class that represents a local model."""
@@ -71,7 +78,7 @@ class LocalModel:
         serving_container_environment_variables: Optional[Dict[str, str]] = None,
         serving_container_ports: Optional[Sequence[int]] = None,
     ) -> "LocalModel":
-        """Creates a local model from a built image and given container spec.
+        """Creates a local model from an existing image and given container spec.
 
         Args:
             serving_container_image_uri (str):
@@ -196,7 +203,9 @@ class LocalModel:
             handler (Type[Handler]):
                 Required. The handler class to handle requests in the model server.
             base_image (str):
-                Required. The base image used to build the custom images.
+                Required. The base image used to build the custom images. The base image must
+                have python and pip installed where the two commands `python` and `pip` must be
+                available.
             requirements_path (str):
                 Optional. The path to the local requirements.txt file. This file will be copied
                 to the image and the needed packages listed in it will be installed.
@@ -218,6 +227,7 @@ class LocalModel:
             src_dir,
             Path(src_dir).joinpath(entrypoint_file).as_posix(),
             output_image_uri,
+            requirements=_DEFAULT_SDK_REQUIREMENTS,
             requirements_path=requirements_path,
             exposed_ports=[DEFAULT_HTTP_PORT],
             pip_command="pip3" if is_prebuilt_prediction_image else "pip",
@@ -404,10 +414,27 @@ class LocalModel:
     ):
         """Deploys the local model instance to a local endpoint.
 
+        An example usage of a LocalModel instance, local_model:
+            with local_model.deploy_to_local_endpoint(
+                artifact_uri="gs://path/to/your/model",
+                credential_path="local/path/to/your/credentials",
+            ) as local_endpoint:
+                health_check_response = local_endpoint.run_health_check()
+                print(health_check_response, health_check_response.content)
+
+                predict_response = local_endpoint.predict(
+                    request='{"instances": [[1, 2, 3, 4]]}',
+                    headers={"header-key": "header-value"},
+                )
+                print(predict_response, predict_response.content)
+
+                local_endpoint.print_container_logs()
+
         Args:
             artifact_uri (str):
-                Optional. The path to the directory containing the Model artifact and
-                any of its supporting files. Not present for AutoML Models.
+                Optional. The Cloud Storage path to the directory containing the Model artifact
+                and any of its supporting files. The AIP_STORAGE_URI environment variable will
+                be set to this uri if given; otherwise, an empty string.
             credential_path (str):
                 Optional. The path to the credential key that will be mounted to the container.
                 If it's unset, the environment variable, GOOGLE_APPLICATION_CREDENTIALS, will

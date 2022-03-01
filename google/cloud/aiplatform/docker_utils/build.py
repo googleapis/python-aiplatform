@@ -132,7 +132,7 @@ def _prepare_dependency_entries(
         for requirement in extra_requirements:
             ret += textwrap.dedent(
                 """
-                RUN {} install --no-cache-dir --upgrade {}
+                RUN {} install --no-cache-dir {}
                 """.format(
                     pip_command, shlex_quote(requirement)
                 )
@@ -182,7 +182,7 @@ def _prepare_package_entry(package: Package):
             Required. The main application copied to and run in the container.
     """
     copy_code = _generate_copy_command(
-        ".",  # Dockefile context localtion has been changed to host_workdir
+        ".",  # Dockefile context location has been changed to host_workdir
         Path(package.package_path).name,
         comment="Copy the source directory into the docker container.",
     )
