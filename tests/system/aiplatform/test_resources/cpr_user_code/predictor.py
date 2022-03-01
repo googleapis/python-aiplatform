@@ -25,6 +25,8 @@ from google.cloud.aiplatform.prediction.predictor import Predictor
 
 class SklearnPredictor(Predictor):
     """Interface for Predictor class that users would be implementing."""
+    def __init__(self):
+        return
 
     def load(self, gcs_artifacts_uri: str):
         """Loads the model artifact.
