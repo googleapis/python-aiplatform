@@ -17,8 +17,10 @@
 
 import datetime
 import json
+import logging
 import os
 import pytest
+import subprocess
 
 from test_resources.cpr_user_code.predictor import SklearnPredictor
 
@@ -27,9 +29,6 @@ from google.cloud import aiplatform
 
 from tests.system.aiplatform import e2e_base
 from google.cloud.aiplatform.prediction import LocalModel
-
-_, _TEST_PROJECT = google_auth.default()
-_TEST_LOCATION = "us-central1"
 
 _TIMESTAMP = f"{datetime.datetime.now().strftime('%Y%m%d_%H%M%S')}"
 _IMAGE_URI = f"gcr.io/ucaip-sample-tests/prediction-cpr/sklearn:{_TIMESTAMP}"
@@ -45,10 +44,12 @@ class TestPredictionCpr(e2e_base.TestEndToEnd):
 
     _temp_prefix = "temp-vertex-sdk-e2e-prediction-cpr"
 
-    def test_create_cpr_model_upload_and_deploy(self, shared_state):
+    def test_create_cpr_model_upload_and_deploy(self, shared_state, caplog):
         """Creates a CPR model from custom predictor, uploads it and deploys."""
 
-        aiplatform.init(project=_TEST_PROJECT, location=_TEST_LOCATION)
+        caplog.set_level(logging.INFO)
+
+        aiplatform.init(project=e2e_base._PROJECT, location=e2e_base._LOCATION)
 
         local_model = LocalModel.create_cpr_model(
             _USER_CODE_DIR,
@@ -67,6 +68,9 @@ class TestPredictionCpr(e2e_base.TestEndToEnd):
             )
         assert len(json.loads(local_predict_response.content)["predictions"]) == 1
 
+        # Configure docker.
+        logging.info(subprocess.run(["gcloud", "auth", "configure-docker"], capture_output=True))
+
         local_model.push_image()
 
         model = local_model.upload(
@@ -80,3 +84,5 @@ class TestPredictionCpr(e2e_base.TestEndToEnd):
         shared_state["resources"].append(endpoint)
         predict_response = endpoint.predict(instances=_PREDICTION_INPUT)
         assert len(predict_response.predictions) == 1
+
+        caplog.clear()
