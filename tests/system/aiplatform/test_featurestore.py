@@ -61,9 +61,6 @@ class TestFeaturestore(e2e_base.TestEndToEnd):
             project=e2e_base._PROJECT, location=e2e_base._LOCATION,
         )
 
-        base_list_featurestores = len(aiplatform.Featurestore.list())
-        shared_state["base_list_searched_features"] = len(aiplatform.Feature.search())
-
         featurestore_id = self._make_display_name(key=_TEST_FEATURESTORE_ID).replace(
             "-", "_"
         )[:60]
@@ -79,7 +76,9 @@ class TestFeaturestore(e2e_base.TestEndToEnd):
         assert featurestore.resource_name == get_featurestore.resource_name
 
         list_featurestores = aiplatform.Featurestore.list()
-        assert (len(list_featurestores) - base_list_featurestores) == 1
+        assert get_featurestore.resource_name in [
+            featurestore.resource_name for featurestore in list_featurestores
+        ]
 
     def test_create_get_list_entity_types(self, shared_state):
 
@@ -121,7 +120,9 @@ class TestFeaturestore(e2e_base.TestEndToEnd):
         list_entity_types = aiplatform.EntityType.list(
             featurestore_name=featurestore_name
         )
-        assert len(list_entity_types) == 2
+        assert get_movie_entity_type.resource_name in [
+            entity_type.resource_name for entity_type in list_entity_types
+        ]
 
     def test_create_get_list_features(self, shared_state):
 
@@ -133,9 +134,6 @@ class TestFeaturestore(e2e_base.TestEndToEnd):
         aiplatform.init(
             project=e2e_base._PROJECT, location=e2e_base._LOCATION,
         )
-
-        list_user_features = user_entity_type.list_features()
-        assert len(list_user_features) == 0
 
         # User Features
         user_age_feature = user_entity_type.create_feature(
@@ -179,7 +177,16 @@ class TestFeaturestore(e2e_base.TestEndToEnd):
         )
 
         list_user_features = user_entity_type.list_features()
-        assert len(list_user_features) == 3
+        list_user_feature_resource_names = [
+            feature.resource_name for feature in list_user_features
+        ]
+
+        assert get_user_age_feature.resource_name in list_user_feature_resource_names
+        assert get_user_gender_feature.resource_name in list_user_feature_resource_names
+        assert (
+            get_user_liked_genres_feature.resource_name
+            in list_user_feature_resource_names
+        )
 
     def test_ingest_feature_values(self, shared_state, caplog):
 
@@ -223,13 +230,28 @@ class TestFeaturestore(e2e_base.TestEndToEnd):
             _TEST_MOVIE_AVERAGE_RATING_FEATURE_ID: {"value_type": "DOUBLE"},
         }
 
-        list_movie_features = movie_entity_type.list_features()
-        assert len(list_movie_features) == 0
-
         movie_entity_type.batch_create_features(feature_configs=movie_feature_configs)
 
+        get_movie_title_feature = movie_entity_type.get_feature(
+            feature_id=_TEST_MOVIE_TITLE_FEATURE_ID
+        )
+        get_movie_genres_feature = movie_entity_type.get_feature(
+            feature_id=_TEST_MOVIE_GENRES_FEATURE_ID
+        )
+        get_movie_avg_rating_feature = movie_entity_type.get_feature(
+            feature_id=_TEST_MOVIE_AVERAGE_RATING_FEATURE_ID
+        )
+
         list_movie_features = movie_entity_type.list_features()
-        assert len(list_movie_features) == 3
+        movie_feature_resource_names = [
+            feature.resource_name for feature in list_movie_features
+        ]
+
+        assert get_movie_title_feature.resource_name in movie_feature_resource_names
+        assert get_movie_genres_feature.resource_name in movie_feature_resource_names
+        assert (
+            get_movie_avg_rating_feature.resource_name in movie_feature_resource_names
+        )
 
     def test_ingest_feature_values_from_df_using_feature_time_column_and_online_read_multiple_entities(
         self, shared_state, caplog
@@ -400,16 +422,12 @@ class TestFeaturestore(e2e_base.TestEndToEnd):
 
     def test_search_features(self, shared_state):
 
-        assert shared_state["base_list_searched_features"] is not None
-
         aiplatform.init(
             project=e2e_base._PROJECT, location=e2e_base._LOCATION,
         )
 
         list_searched_features = aiplatform.Feature.search()
-        assert (
-            len(list_searched_features) - shared_state["base_list_searched_features"]
-        ) == 6
+        assert len(list_searched_features) >= 1
 
     def test_batch_serve_to_df(self, shared_state, caplog):
 
