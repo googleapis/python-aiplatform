@@ -20,6 +20,7 @@ import logging
 import os
 import re
 from pathlib import Path
+import re
 import textwrap
 from typing import Any, Optional, Sequence, Type
 
@@ -30,6 +31,9 @@ from google.cloud.aiplatform.prediction.predictor import Predictor
 from google.cloud.aiplatform.utils import path_utils
 
 _logger = logging.getLogger(__name__)
+
+REGISTRY_REGEX = re.compile(r"^([\w\-]+\-docker\.pkg\.dev|([\w]+\.|)gcr\.io)")
+
 
 REGISTRY_REGEX = re.compile(r"^([\w\-]+\-docker\.pkg\.dev|([\w]+\.|)gcr\.io)")
 
