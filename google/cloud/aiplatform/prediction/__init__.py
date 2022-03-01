@@ -20,7 +20,12 @@ from google.cloud.aiplatform.prediction.handler import (
     PredictionHandler,
 )
 from google.cloud.aiplatform.prediction.local_endpoint import LocalEndpoint
-from google.cloud.aiplatform.prediction.local_model import LocalModel
+from google.cloud.aiplatform.prediction.local_model import (
+    DEFAULT_HEALTH_ROUTE,
+    DEFAULT_HTTP_PORT,
+    DEFAULT_PREDICT_ROUTE,
+    LocalModel,
+)
 from google.cloud.aiplatform.prediction.model_server import ModelServer
 from google.cloud.aiplatform.prediction.predictor import Predictor
 from google.cloud.aiplatform.prediction.serializer import (
@@ -29,6 +34,9 @@ from google.cloud.aiplatform.prediction.serializer import (
 )
 
 __all__ = (
+    "DEFAULT_HEALTH_ROUTE",
+    "DEFAULT_HTTP_PORT",
+    "DEFAULT_PREDICT_ROUTE",
     "DefaultSerializer",
     "Handler",
     "LocalEndpoint",

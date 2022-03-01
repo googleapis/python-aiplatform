@@ -22,6 +22,12 @@ CONTAINER_URI_PATTERN = re.compile(
     r"(?P<framework>[\w]+)\-(?P<accelerator>[\w]+)\.(?P<version>[\d-]+):latest"
 )
 
+CONTAINER_URI_REGEX = (
+    r"^(us|europe|asia)-docker.pkg.dev/"
+    r"vertex-ai/prediction/"
+    r"(tf|sklearn|xgboost).+$"
+)
+
 SKLEARN = "sklearn"
 TF = "tf"
 TF2 = "tf2"

@@ -12,6 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import re
 from typing import Optional
 
 from google.cloud.aiplatform.constants import prediction
@@ -107,3 +108,17 @@ def get_prebuilt_prediction_container_uri(
         )
 
     return final_uri
+
+
+def is_prebuilt_prediction_container_uri(image_uri: str) -> bool:
+    """Checks whether the image is pre-built by Vertex AI prediction.
+
+    Args:
+        image_uri (str):
+            Required. The image uri to be checked whether it is prebuilt by Vertex
+            AI prediction.
+
+    Returns:
+        If the image is prebuilt by Vertex AI prediction.
+    """
+    return re.fullmatch(prediction.CONTAINER_URI_REGEX, image_uri) is not None
