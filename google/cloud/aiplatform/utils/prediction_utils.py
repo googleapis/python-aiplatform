@@ -21,8 +21,9 @@ import os
 from pathlib import Path
 import re
 import textwrap
-from typing import Any, Optional, Type
+from typing import Any, Optional, Sequence, Type
 
+from google.cloud.aiplatform.constants import prediction
 from google.cloud.aiplatform.prediction.handler import Handler
 from google.cloud.aiplatform.prediction.handler import PredictionHandler
 from google.cloud.aiplatform.prediction.predictor import Predictor
@@ -187,3 +188,30 @@ def is_registry_uri(image_uri: str) -> bool:
         True if the image uri is in container registry or artifact registry.
     """
     return REGISTRY_REGEX.match(image_uri) is not None
+
+
+def get_prediction_aip_http_port(
+    serving_container_ports: Optional[Sequence[int]] = None,
+):
+    """Gets the used prediction container port from serving container ports.
+
+    If containerSpec.ports is specified during Model or LocalModel creation time, retrieve
+    the first entry in this field. Otherwise use the default value of 8080. The environment
+    variable AIP_HTTP_PORT will be set to this value.
+    See https://cloud.google.com/vertex-ai/docs/predictions/custom-container-requirements
+    for more details.
+
+    Args:
+        serving_container_ports (Sequence[int]):
+            Optional. Declaration of ports that are exposed by the container. This field is
+            primarily informational, it gives Vertex AI information about the
+            network connections the container uses. Listing or not a port here has
+            no impact on whether the port is actually exposed, any port listening on
+            the default "0.0.0.0" address inside a container will be accessible from
+            the network.
+    """
+    return (
+        serving_container_ports[0]
+        if serving_container_ports is not None and len(serving_container_ports) > 0
+        else prediction.DEFAULT_AIP_HTTP_PORT
+    )

@@ -53,6 +53,7 @@ featurestore_extra_require = [
     "pyarrow >= 6.0.1",
 ]
 prediction_extra_require = [
+    "docker >= 5.0.3",
     "fastapi >= 0.71.0",
     "uvicorn >= 0.16.0",
 ]

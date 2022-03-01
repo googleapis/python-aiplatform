@@ -762,3 +762,15 @@ class TestPredictionUtils:
         result = prediction_utils.is_registry_uri(image_uri)
 
         assert result == expected
+
+    def test_get_prediction_aip_http_port(self):
+        ports = [1000, 2000, 3000]
+
+        http_port = prediction_utils.get_prediction_aip_http_port(ports)
+
+        assert http_port == ports[0]
+
+    def test_get_prediction_aip_http_port_default(self):
+        http_port = prediction_utils.get_prediction_aip_http_port(None)
+
+        assert http_port == 8080
