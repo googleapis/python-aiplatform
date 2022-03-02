@@ -15,6 +15,7 @@
 
 #  [START aiplatform_sdk_batch_serve_features_to_bq_sample]
 from typing import Dict, List
+
 from google.cloud import aiplatform
 
 

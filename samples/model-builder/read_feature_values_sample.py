@@ -14,7 +14,8 @@
 
 
 #  [START aiplatform_sdk_read_features_sample]
-from typing import Union, List
+from typing import List, Union
+
 from google.cloud import aiplatform
 
 

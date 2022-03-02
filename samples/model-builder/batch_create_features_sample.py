@@ -15,6 +15,7 @@
 
 #  [START aiplatform_sdk_batch_create_features_sample]
 from typing import Dict, Union
+
 from google.cloud import aiplatform
 
 

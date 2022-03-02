@@ -15,7 +15,8 @@
 
 #  [START aiplatform_sdk_import_feature_values_sample]
 import datetime
-from typing import Union, List
+from typing import List, Union
+
 from google.cloud import aiplatform
 
 
