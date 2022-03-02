@@ -344,7 +344,7 @@ class BatchPredictionJob(_Job):
     @classmethod
     def create(
         cls,
-        job_display_name: str,
+        job_display_name: Optional[str],
         model_name: Union[str, "aiplatform.Model"],
         instances_format: str = "jsonl",
         predictions_format: str = "jsonl",
@@ -374,7 +374,7 @@ class BatchPredictionJob(_Job):
 
         Args:
             job_display_name (str):
-                Required. The user-defined name of the BatchPredictionJob.
+                Optional. The user-defined name of the BatchPredictionJob.
                 The name can be up to 128 characters long and can be consist
                 of any UTF-8 characters.
             model_name (Union[str, aiplatform.Model]):
