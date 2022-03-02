@@ -12,30 +12,24 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import delete_featurestore_sample
+import create_entity_type_sample
 import test_constants as constants
 
 
-def test_delete_featurestore_sample(
-    mock_sdk_init, mock_get_featurestore, mock_delete_featurestore
-):
+def test_create_entity_type_sample(mock_sdk_init, mock_create_entity_type):
 
-    delete_featurestore_sample.delete_featurestore_sample(
+    create_entity_type_sample.create_entity_type_sample(
         project=constants.PROJECT,
         location=constants.LOCATION,
+        entity_type_id=constants.ENTITY_TYPE_ID,
         featurestore_name=constants.FEATURESTORE_NAME,
-        sync=constants.SYNC,
-        force=constants.FORCE,
     )
 
     mock_sdk_init.assert_called_once_with(
         project=constants.PROJECT, location=constants.LOCATION
     )
 
-    mock_get_featurestore.assert_called_once_with(
-        featurestore_name=constants.FEATURESTORE_NAME
-    )
-
-    mock_delete_featurestore.assert_called_once_with(
-        sync=constants.SYNC, force=constants.FORCE
+    mock_create_entity_type.assert_called_once_with(
+        entity_type_id=constants.ENTITY_TYPE_ID,
+        featurestore_name=constants.FEATURESTORE_NAME,
     )
