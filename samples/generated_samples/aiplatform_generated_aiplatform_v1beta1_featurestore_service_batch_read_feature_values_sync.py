@@ -28,8 +28,6 @@ from google.cloud import aiplatform_v1beta1
 
 
 def sample_batch_read_feature_values():
-    """Snippet for batch_read_feature_values"""
-
     # Create a client
     client = aiplatform_v1beta1.FeaturestoreServiceClient()
 
@@ -46,7 +44,7 @@ def sample_batch_read_feature_values():
 
     request = aiplatform_v1beta1.BatchReadFeatureValuesRequest(
         csv_read_instances=csv_read_instances,
-        featurestore="projects/{project}/locations/{location}/featurestores/{featurestore}",
+        featurestore="featurestore_value",
         destination=destination,
         entity_type_specs=entity_type_specs,
     )
@@ -57,6 +55,8 @@ def sample_batch_read_feature_values():
     print("Waiting for operation to complete...")
 
     response = operation.result()
+
+    # Handle the response
     print(response)
 
 # [END aiplatform_generated_aiplatform_v1beta1_FeaturestoreService_BatchReadFeatureValues_sync]

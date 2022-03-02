@@ -28,20 +28,18 @@ from google.cloud import aiplatform_v1beta1
 
 
 def sample_get_model():
-    """Snippet for get_model"""
-
     # Create a client
     client = aiplatform_v1beta1.ModelServiceClient()
 
     # Initialize request argument(s)
     request = aiplatform_v1beta1.GetModelRequest(
-        name="projects/{project}/locations/{location}/models/{model}",
+        name="name_value",
     )
 
     # Make the request
     response = client.get_model(request=request)
 
-    # Handle response
+    # Handle the response
     print(response)
 
 # [END aiplatform_generated_aiplatform_v1beta1_ModelService_GetModel_sync]

@@ -28,8 +28,6 @@ from google.cloud import aiplatform_v1beta1
 
 
 async def sample_export_feature_values():
-    """Snippet for export_feature_values"""
-
     # Create a client
     client = aiplatform_v1beta1.FeaturestoreServiceAsyncClient()
 
@@ -41,7 +39,7 @@ async def sample_export_feature_values():
     feature_selector.id_matcher.ids = ['ids_value_1', 'ids_value_2']
 
     request = aiplatform_v1beta1.ExportFeatureValuesRequest(
-        entity_type="projects/{project}/locations/{location}/featurestores/{featurestore}/entityTypes/{entity_type}",
+        entity_type="entity_type_value",
         destination=destination,
         feature_selector=feature_selector,
     )
@@ -52,6 +50,8 @@ async def sample_export_feature_values():
     print("Waiting for operation to complete...")
 
     response = await operation.result()
+
+    # Handle the response
     print(response)
 
 # [END aiplatform_generated_aiplatform_v1beta1_FeaturestoreService_ExportFeatureValues_async]

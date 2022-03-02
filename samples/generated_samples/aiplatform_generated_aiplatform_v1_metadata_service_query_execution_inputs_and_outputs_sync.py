@@ -28,20 +28,18 @@ from google.cloud import aiplatform_v1
 
 
 def sample_query_execution_inputs_and_outputs():
-    """Snippet for query_execution_inputs_and_outputs"""
-
     # Create a client
     client = aiplatform_v1.MetadataServiceClient()
 
     # Initialize request argument(s)
     request = aiplatform_v1.QueryExecutionInputsAndOutputsRequest(
-        execution="projects/{project}/locations/{location}/metadataStores/{metadata_store}/executions/{execution}",
+        execution="execution_value",
     )
 
     # Make the request
     response = client.query_execution_inputs_and_outputs(request=request)
 
-    # Handle response
+    # Handle the response
     print(response)
 
 # [END aiplatform_generated_aiplatform_v1_MetadataService_QueryExecutionInputsAndOutputs_sync]
