@@ -30,14 +30,14 @@ def batch_serve_features_to_bq_sample(
 
     aiplatform.init(project=project, location=location)
 
-    fs = aiplatform.featurestore.Featurestore(
-        featurestore_name=featurestore_name)
+    fs = aiplatform.featurestore.Featurestore(featurestore_name=featurestore_name)
 
     fs.batch_serve_to_bq(
         bq_destination_output_uri=bq_destination_output_uri,
         serving_feature_ids=serving_feature_ids,
         read_instances_uri=read_instances_uri,
-        sync=sync)
+        sync=sync,
+    )
 
 
 #  [END aiplatform_sdk_batch_serve_features_to_bq_sample]

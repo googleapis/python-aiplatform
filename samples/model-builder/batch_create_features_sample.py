@@ -30,12 +30,10 @@ def batch_create_features_sample(
     aiplatform.init(project=project, location=location)
 
     my_entity_type = aiplatform.featurestore.EntityType(
-        entity_type_name=entity_type_name,
-        featurestore_id=featurestore_id)
+        entity_type_name=entity_type_name, featurestore_id=featurestore_id
+    )
 
-    my_entity_type.batch_create_features(
-        feature_configs=feature_configs,
-        sync=sync)
+    my_entity_type.batch_create_features(feature_configs=feature_configs, sync=sync)
 
 
 #  [END aiplatform_sdk_batch_create_features_sample]

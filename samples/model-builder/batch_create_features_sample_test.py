@@ -35,10 +35,9 @@ def test_batch_create_features_sample(
 
     mock_get_entity_type.assert_called_once_with(
         entity_type_name=constants.ENTITY_TYPE_NAME,
-        featurestore_id=constants.FEATURESTORE_ID
+        featurestore_id=constants.FEATURESTORE_ID,
     )
 
     mock_batch_create_features.assert_called_once_with(
-        feature_configs=constants.FEATURE_CONFIGS,
-        sync=constants.SYNC
+        feature_configs=constants.FEATURE_CONFIGS, sync=constants.SYNC
     )

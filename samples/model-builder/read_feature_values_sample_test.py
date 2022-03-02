@@ -35,10 +35,9 @@ def test_read_feature_values_sample(
 
     mock_get_entity_type.assert_called_once_with(
         entity_type_name=constants.ENTITY_TYPE_NAME,
-        featurestore_id=constants.FEATURESTORE_ID
+        featurestore_id=constants.FEATURESTORE_ID,
     )
 
     mock_read_feature_values.assert_called_once_with(
-        entity_ids=constants.ENTITY_TYPE_IDS,
-        feature_ids=constants.FEATURE_IDS
+        entity_ids=constants.ENTITY_TYPE_IDS, feature_ids=constants.FEATURE_IDS
     )

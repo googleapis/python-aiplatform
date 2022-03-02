@@ -425,9 +425,7 @@ def mock_create_entity_type(mock_entity_type):
 
 @pytest.fixture
 def mock_create_feature(mock_feature):
-    with patch.object(
-        aiplatform.featurestore.Feature, "create"
-    ) as mock_create_feature:
+    with patch.object(aiplatform.featurestore.Feature, "create") as mock_create_feature:
         mock_create_feature.return_value = mock_feature
         yield mock_create_feature
 
@@ -446,7 +444,9 @@ def mock_batch_serve_to_bq(mock_featurestore):
 
 @pytest.fixture
 def mock_batch_create_features(mock_entity_type):
-    with patch.object(mock_entity_type, "batch_create_features") as mock_batch_create_features:
+    with patch.object(
+        mock_entity_type, "batch_create_features"
+    ) as mock_batch_create_features:
         yield mock_batch_create_features
 
 
@@ -454,3 +454,11 @@ def mock_batch_create_features(mock_entity_type):
 def mock_read_feature_values(mock_entity_type):
     with patch.object(mock_entity_type, "read") as mock_read_feature_values:
         yield mock_read_feature_values
+
+
+@pytest.fixture
+def mock_import_feature_values(mock_entity_type):
+    with patch.object(
+        mock_entity_type, "ingest_from_gcs"
+    ) as mock_import_feature_values:
+        yield mock_import_feature_values
