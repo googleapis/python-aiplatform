@@ -28,8 +28,6 @@ from google.cloud import aiplatform_v1
 
 
 async def sample_update_context():
-    """Snippet for update_context"""
-
     # Create a client
     client = aiplatform_v1.MetadataServiceAsyncClient()
 
@@ -40,7 +38,7 @@ async def sample_update_context():
     # Make the request
     response = await client.update_context(request=request)
 
-    # Handle response
+    # Handle the response
     print(response)
 
 # [END aiplatform_generated_aiplatform_v1_MetadataService_UpdateContext_async]

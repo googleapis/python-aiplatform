@@ -28,20 +28,18 @@ from google.cloud import aiplatform_v1
 
 
 async def sample_create_pipeline_job():
-    """Snippet for create_pipeline_job"""
-
     # Create a client
     client = aiplatform_v1.PipelineServiceAsyncClient()
 
     # Initialize request argument(s)
     request = aiplatform_v1.CreatePipelineJobRequest(
-        parent="projects/{project}/locations/{location}",
+        parent="parent_value",
     )
 
     # Make the request
     response = await client.create_pipeline_job(request=request)
 
-    # Handle response
+    # Handle the response
     print(response)
 
 # [END aiplatform_generated_aiplatform_v1_PipelineService_CreatePipelineJob_async]

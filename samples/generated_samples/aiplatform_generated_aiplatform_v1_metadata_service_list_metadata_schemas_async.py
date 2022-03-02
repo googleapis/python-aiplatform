@@ -28,18 +28,18 @@ from google.cloud import aiplatform_v1
 
 
 async def sample_list_metadata_schemas():
-    """Snippet for list_metadata_schemas"""
-
     # Create a client
     client = aiplatform_v1.MetadataServiceAsyncClient()
 
     # Initialize request argument(s)
     request = aiplatform_v1.ListMetadataSchemasRequest(
-        parent="projects/{project}/locations/{location}/metadataStores/{metadata_store}/metadataSchemas/{metadata_schema}",
+        parent="parent_value",
     )
 
     # Make the request
     page_result = client.list_metadata_schemas(request=request)
+
+    # Handle the response
     async for response in page_result:
         print(response)
 

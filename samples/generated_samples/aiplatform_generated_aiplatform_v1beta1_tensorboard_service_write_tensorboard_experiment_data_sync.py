@@ -28,26 +28,24 @@ from google.cloud import aiplatform_v1beta1
 
 
 def sample_write_tensorboard_experiment_data():
-    """Snippet for write_tensorboard_experiment_data"""
-
     # Create a client
     client = aiplatform_v1beta1.TensorboardServiceClient()
 
     # Initialize request argument(s)
     write_run_data_requests = aiplatform_v1beta1.WriteTensorboardRunDataRequest()
-    write_run_data_requests.tensorboard_run = "projects/{project}/locations/{location}/tensorboards/{tensorboard}/experiments/{experiment}/runs/{run}"
+    write_run_data_requests.tensorboard_run = "tensorboard_run_value"
     write_run_data_requests.time_series_data.tensorboard_time_series_id = "tensorboard_time_series_id_value"
     write_run_data_requests.time_series_data.value_type = "BLOB_SEQUENCE"
 
     request = aiplatform_v1beta1.WriteTensorboardExperimentDataRequest(
-        tensorboard_experiment="projects/{project}/locations/{location}/tensorboards/{tensorboard}/experiments/{experiment}",
+        tensorboard_experiment="tensorboard_experiment_value",
         write_run_data_requests=write_run_data_requests,
     )
 
     # Make the request
     response = client.write_tensorboard_experiment_data(request=request)
 
-    # Handle response
+    # Handle the response
     print(response)
 
 # [END aiplatform_generated_aiplatform_v1beta1_TensorboardService_WriteTensorboardExperimentData_sync]

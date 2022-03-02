@@ -28,8 +28,6 @@ from google.cloud import aiplatform_v1beta1
 
 
 async def sample_update_dataset():
-    """Snippet for update_dataset"""
-
     # Create a client
     client = aiplatform_v1beta1.DatasetServiceAsyncClient()
 
@@ -46,7 +44,7 @@ async def sample_update_dataset():
     # Make the request
     response = await client.update_dataset(request=request)
 
-    # Handle response
+    # Handle the response
     print(response)
 
 # [END aiplatform_generated_aiplatform_v1beta1_DatasetService_UpdateDataset_async]

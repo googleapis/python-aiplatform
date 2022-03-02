@@ -28,8 +28,6 @@ from google.cloud import aiplatform_v1beta1
 
 
 def sample_create_feature():
-    """Snippet for create_feature"""
-
     # Create a client
     client = aiplatform_v1beta1.FeaturestoreServiceClient()
 
@@ -38,7 +36,7 @@ def sample_create_feature():
     feature.value_type = "BYTES"
 
     request = aiplatform_v1beta1.CreateFeatureRequest(
-        parent="projects/{project}/locations/{location}/featurestores/{featurestore}/entityTypes/{entity_type}",
+        parent="parent_value",
         feature=feature,
         feature_id="feature_id_value",
     )
@@ -49,6 +47,8 @@ def sample_create_feature():
     print("Waiting for operation to complete...")
 
     response = operation.result()
+
+    # Handle the response
     print(response)
 
 # [END aiplatform_generated_aiplatform_v1beta1_FeaturestoreService_CreateFeature_sync]

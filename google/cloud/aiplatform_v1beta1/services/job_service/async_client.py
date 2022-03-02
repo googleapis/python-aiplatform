@@ -16,7 +16,7 @@
 from collections import OrderedDict
 import functools
 import re
-from typing import Dict, Sequence, Tuple, Type, Union
+from typing import Dict, Optional, Sequence, Tuple, Type, Union
 import pkg_resources
 
 from google.api_core.client_options import ClientOptions
@@ -170,6 +170,42 @@ class JobServiceAsyncClient:
 
     from_service_account_json = from_service_account_file
 
+    @classmethod
+    def get_mtls_endpoint_and_cert_source(
+        cls, client_options: Optional[ClientOptions] = None
+    ):
+        """Return the API endpoint and client cert source for mutual TLS.
+
+        The client cert source is determined in the following order:
+        (1) if `GOOGLE_API_USE_CLIENT_CERTIFICATE` environment variable is not "true", the
+        client cert source is None.
+        (2) if `client_options.client_cert_source` is provided, use the provided one; if the
+        default client cert source exists, use the default one; otherwise the client cert
+        source is None.
+
+        The API endpoint is determined in the following order:
+        (1) if `client_options.api_endpoint` if provided, use the provided one.
+        (2) if `GOOGLE_API_USE_CLIENT_CERTIFICATE` environment variable is "always", use the
+        default mTLS endpoint; if the environment variabel is "never", use the default API
+        endpoint; otherwise if client cert source exists, use the default mTLS endpoint, otherwise
+        use the default API endpoint.
+
+        More details can be found at https://google.aip.dev/auth/4114.
+
+        Args:
+            client_options (google.api_core.client_options.ClientOptions): Custom options for the
+                client. Only the `api_endpoint` and `client_cert_source` properties may be used
+                in this method.
+
+        Returns:
+            Tuple[str, Callable[[], Tuple[bytes, bytes]]]: returns the API endpoint and the
+                client cert source to use.
+
+        Raises:
+            google.auth.exceptions.MutualTLSChannelError: If any errors happen.
+        """
+        return JobServiceClient.get_mtls_endpoint_and_cert_source(client_options)  # type: ignore
+
     @property
     def transport(self) -> JobServiceTransport:
         """Returns the transport used by the client instance.
@@ -243,6 +279,31 @@ class JobServiceAsyncClient:
         r"""Creates a CustomJob. A created CustomJob right away
         will be attempted to be run.
 
+
+        .. code-block::
+
+            from google.cloud import aiplatform_v1beta1
+
+            def sample_create_custom_job():
+                # Create a client
+                client = aiplatform_v1beta1.JobServiceClient()
+
+                # Initialize request argument(s)
+                custom_job = aiplatform_v1beta1.CustomJob()
+                custom_job.display_name = "display_name_value"
+                custom_job.job_spec.worker_pool_specs.container_spec.image_uri = "image_uri_value"
+
+                request = aiplatform_v1beta1.CreateCustomJobRequest(
+                    parent="parent_value",
+                    custom_job=custom_job,
+                )
+
+                # Make the request
+                response = client.create_custom_job(request=request)
+
+                # Handle the response
+                print(response)
+
         Args:
             request (Union[google.cloud.aiplatform_v1beta1.types.CreateCustomJobRequest, dict]):
                 The request object. Request message for
@@ -279,7 +340,7 @@ class JobServiceAsyncClient:
 
         """
         # Create or coerce a protobuf request object.
-        # Sanity check: If we got a request object, we should *not* have
+        # Quick check: If we got a request object, we should *not* have
         # gotten any keyword arguments that map to the request.
         has_flattened_params = any([parent, custom_job])
         if request is not None and has_flattened_params:
@@ -328,6 +389,25 @@ class JobServiceAsyncClient:
     ) -> custom_job.CustomJob:
         r"""Gets a CustomJob.
 
+        .. code-block::
+
+            from google.cloud import aiplatform_v1beta1
+
+            def sample_get_custom_job():
+                # Create a client
+                client = aiplatform_v1beta1.JobServiceClient()
+
+                # Initialize request argument(s)
+                request = aiplatform_v1beta1.GetCustomJobRequest(
+                    name="name_value",
+                )
+
+                # Make the request
+                response = client.get_custom_job(request=request)
+
+                # Handle the response
+                print(response)
+
         Args:
             request (Union[google.cloud.aiplatform_v1beta1.types.GetCustomJobRequest, dict]):
                 The request object. Request message for
@@ -358,7 +438,7 @@ class JobServiceAsyncClient:
 
         """
         # Create or coerce a protobuf request object.
-        # Sanity check: If we got a request object, we should *not* have
+        # Quick check: If we got a request object, we should *not* have
         # gotten any keyword arguments that map to the request.
         has_flattened_params = any([name])
         if request is not None and has_flattened_params:
@@ -405,6 +485,26 @@ class JobServiceAsyncClient:
     ) -> pagers.ListCustomJobsAsyncPager:
         r"""Lists CustomJobs in a Location.
 
+        .. code-block::
+
+            from google.cloud import aiplatform_v1beta1
+
+            def sample_list_custom_jobs():
+                # Create a client
+                client = aiplatform_v1beta1.JobServiceClient()
+
+                # Initialize request argument(s)
+                request = aiplatform_v1beta1.ListCustomJobsRequest(
+                    parent="parent_value",
+                )
+
+                # Make the request
+                page_result = client.list_custom_jobs(request=request)
+
+                # Handle the response
+                for response in page_result:
+                    print(response)
+
         Args:
             request (Union[google.cloud.aiplatform_v1beta1.types.ListCustomJobsRequest, dict]):
                 The request object. Request message for
@@ -433,7 +533,7 @@ class JobServiceAsyncClient:
 
         """
         # Create or coerce a protobuf request object.
-        # Sanity check: If we got a request object, we should *not* have
+        # Quick check: If we got a request object, we should *not* have
         # gotten any keyword arguments that map to the request.
         has_flattened_params = any([parent])
         if request is not None and has_flattened_params:
@@ -486,6 +586,29 @@ class JobServiceAsyncClient:
     ) -> operation_async.AsyncOperation:
         r"""Deletes a CustomJob.
 
+        .. code-block::
+
+            from google.cloud import aiplatform_v1beta1
+
+            def sample_delete_custom_job():
+                # Create a client
+                client = aiplatform_v1beta1.JobServiceClient()
+
+                # Initialize request argument(s)
+                request = aiplatform_v1beta1.DeleteCustomJobRequest(
+                    name="name_value",
+                )
+
+                # Make the request
+                operation = client.delete_custom_job(request=request)
+
+                print("Waiting for operation to complete...")
+
+                response = operation.result()
+
+                # Handle the response
+                print(response)
+
         Args:
             request (Union[google.cloud.aiplatform_v1beta1.types.DeleteCustomJobRequest, dict]):
                 The request object. Request message for
@@ -524,7 +647,7 @@ class JobServiceAsyncClient:
 
         """
         # Create or coerce a protobuf request object.
-        # Sanity check: If we got a request object, we should *not* have
+        # Quick check: If we got a request object, we should *not* have
         # gotten any keyword arguments that map to the request.
         has_flattened_params = any([name])
         if request is not None and has_flattened_params:
@@ -591,6 +714,23 @@ class JobServiceAsyncClient:
         [CustomJob.state][google.cloud.aiplatform.v1beta1.CustomJob.state]
         is set to ``CANCELLED``.
 
+
+        .. code-block::
+
+            from google.cloud import aiplatform_v1beta1
+
+            def sample_cancel_custom_job():
+                # Create a client
+                client = aiplatform_v1beta1.JobServiceClient()
+
+                # Initialize request argument(s)
+                request = aiplatform_v1beta1.CancelCustomJobRequest(
+                    name="name_value",
+                )
+
+                # Make the request
+                client.cancel_custom_job(request=request)
+
         Args:
             request (Union[google.cloud.aiplatform_v1beta1.types.CancelCustomJobRequest, dict]):
                 The request object. Request message for
@@ -609,7 +749,7 @@ class JobServiceAsyncClient:
                 sent along with the request as metadata.
         """
         # Create or coerce a protobuf request object.
-        # Sanity check: If we got a request object, we should *not* have
+        # Quick check: If we got a request object, we should *not* have
         # gotten any keyword arguments that map to the request.
         has_flattened_params = any([name])
         if request is not None and has_flattened_params:
@@ -656,6 +796,34 @@ class JobServiceAsyncClient:
     ) -> gca_data_labeling_job.DataLabelingJob:
         r"""Creates a DataLabelingJob.
 
+        .. code-block::
+
+            from google.cloud import aiplatform_v1beta1
+
+            def sample_create_data_labeling_job():
+                # Create a client
+                client = aiplatform_v1beta1.JobServiceClient()
+
+                # Initialize request argument(s)
+                data_labeling_job = aiplatform_v1beta1.DataLabelingJob()
+                data_labeling_job.display_name = "display_name_value"
+                data_labeling_job.datasets = ['datasets_value_1', 'datasets_value_2']
+                data_labeling_job.labeler_count = 1375
+                data_labeling_job.instruction_uri = "instruction_uri_value"
+                data_labeling_job.inputs_schema_uri = "inputs_schema_uri_value"
+                data_labeling_job.inputs.null_value = "NULL_VALUE"
+
+                request = aiplatform_v1beta1.CreateDataLabelingJobRequest(
+                    parent="parent_value",
+                    data_labeling_job=data_labeling_job,
+                )
+
+                # Make the request
+                response = client.create_data_labeling_job(request=request)
+
+                # Handle the response
+                print(response)
+
         Args:
             request (Union[google.cloud.aiplatform_v1beta1.types.CreateDataLabelingJobRequest, dict]):
                 The request object. Request message for
@@ -688,7 +856,7 @@ class JobServiceAsyncClient:
 
         """
         # Create or coerce a protobuf request object.
-        # Sanity check: If we got a request object, we should *not* have
+        # Quick check: If we got a request object, we should *not* have
         # gotten any keyword arguments that map to the request.
         has_flattened_params = any([parent, data_labeling_job])
         if request is not None and has_flattened_params:
@@ -737,6 +905,25 @@ class JobServiceAsyncClient:
     ) -> data_labeling_job.DataLabelingJob:
         r"""Gets a DataLabelingJob.
 
+        .. code-block::
+
+            from google.cloud import aiplatform_v1beta1
+
+            def sample_get_data_labeling_job():
+                # Create a client
+                client = aiplatform_v1beta1.JobServiceClient()
+
+                # Initialize request argument(s)
+                request = aiplatform_v1beta1.GetDataLabelingJobRequest(
+                    name="name_value",
+                )
+
+                # Make the request
+                response = client.get_data_labeling_job(request=request)
+
+                # Handle the response
+                print(response)
+
         Args:
             request (Union[google.cloud.aiplatform_v1beta1.types.GetDataLabelingJobRequest, dict]):
                 The request object. Request message for
@@ -762,7 +949,7 @@ class JobServiceAsyncClient:
 
         """
         # Create or coerce a protobuf request object.
-        # Sanity check: If we got a request object, we should *not* have
+        # Quick check: If we got a request object, we should *not* have
         # gotten any keyword arguments that map to the request.
         has_flattened_params = any([name])
         if request is not None and has_flattened_params:
@@ -809,6 +996,26 @@ class JobServiceAsyncClient:
     ) -> pagers.ListDataLabelingJobsAsyncPager:
         r"""Lists DataLabelingJobs in a Location.
 
+        .. code-block::
+
+            from google.cloud import aiplatform_v1beta1
+
+            def sample_list_data_labeling_jobs():
+                # Create a client
+                client = aiplatform_v1beta1.JobServiceClient()
+
+                # Initialize request argument(s)
+                request = aiplatform_v1beta1.ListDataLabelingJobsRequest(
+                    parent="parent_value",
+                )
+
+                # Make the request
+                page_result = client.list_data_labeling_jobs(request=request)
+
+                # Handle the response
+                for response in page_result:
+                    print(response)
+
         Args:
             request (Union[google.cloud.aiplatform_v1beta1.types.ListDataLabelingJobsRequest, dict]):
                 The request object. Request message for
@@ -836,7 +1043,7 @@ class JobServiceAsyncClient:
 
         """
         # Create or coerce a protobuf request object.
-        # Sanity check: If we got a request object, we should *not* have
+        # Quick check: If we got a request object, we should *not* have
         # gotten any keyword arguments that map to the request.
         has_flattened_params = any([parent])
         if request is not None and has_flattened_params:
@@ -889,6 +1096,29 @@ class JobServiceAsyncClient:
     ) -> operation_async.AsyncOperation:
         r"""Deletes a DataLabelingJob.
 
+        .. code-block::
+
+            from google.cloud import aiplatform_v1beta1
+
+            def sample_delete_data_labeling_job():
+                # Create a client
+                client = aiplatform_v1beta1.JobServiceClient()
+
+                # Initialize request argument(s)
+                request = aiplatform_v1beta1.DeleteDataLabelingJobRequest(
+                    name="name_value",
+                )
+
+                # Make the request
+                operation = client.delete_data_labeling_job(request=request)
+
+                print("Waiting for operation to complete...")
+
+                response = operation.result()
+
+                # Handle the response
+                print(response)
+
         Args:
             request (Union[google.cloud.aiplatform_v1beta1.types.DeleteDataLabelingJobRequest, dict]):
                 The request object. Request message for
@@ -927,7 +1157,7 @@ class JobServiceAsyncClient:
 
         """
         # Create or coerce a protobuf request object.
-        # Sanity check: If we got a request object, we should *not* have
+        # Quick check: If we got a request object, we should *not* have
         # gotten any keyword arguments that map to the request.
         has_flattened_params = any([name])
         if request is not None and has_flattened_params:
@@ -983,6 +1213,23 @@ class JobServiceAsyncClient:
         r"""Cancels a DataLabelingJob. Success of cancellation is
         not guaranteed.
 
+
+        .. code-block::
+
+            from google.cloud import aiplatform_v1beta1
+
+            def sample_cancel_data_labeling_job():
+                # Create a client
+                client = aiplatform_v1beta1.JobServiceClient()
+
+                # Initialize request argument(s)
+                request = aiplatform_v1beta1.CancelDataLabelingJobRequest(
+                    name="name_value",
+                )
+
+                # Make the request
+                client.cancel_data_labeling_job(request=request)
+
         Args:
             request (Union[google.cloud.aiplatform_v1beta1.types.CancelDataLabelingJobRequest, dict]):
                 The request object. Request message for
@@ -1001,7 +1248,7 @@ class JobServiceAsyncClient:
                 sent along with the request as metadata.
         """
         # Create or coerce a protobuf request object.
-        # Sanity check: If we got a request object, we should *not* have
+        # Quick check: If we got a request object, we should *not* have
         # gotten any keyword arguments that map to the request.
         has_flattened_params = any([name])
         if request is not None and has_flattened_params:
@@ -1048,6 +1295,37 @@ class JobServiceAsyncClient:
     ) -> gca_hyperparameter_tuning_job.HyperparameterTuningJob:
         r"""Creates a HyperparameterTuningJob
 
+        .. code-block::
+
+            from google.cloud import aiplatform_v1beta1
+
+            def sample_create_hyperparameter_tuning_job():
+                # Create a client
+                client = aiplatform_v1beta1.JobServiceClient()
+
+                # Initialize request argument(s)
+                hyperparameter_tuning_job = aiplatform_v1beta1.HyperparameterTuningJob()
+                hyperparameter_tuning_job.display_name = "display_name_value"
+                hyperparameter_tuning_job.study_spec.metrics.metric_id = "metric_id_value"
+                hyperparameter_tuning_job.study_spec.metrics.goal = "MINIMIZE"
+                hyperparameter_tuning_job.study_spec.parameters.double_value_spec.min_value = 0.96
+                hyperparameter_tuning_job.study_spec.parameters.double_value_spec.max_value = 0.962
+                hyperparameter_tuning_job.study_spec.parameters.parameter_id = "parameter_id_value"
+                hyperparameter_tuning_job.max_trial_count = 1609
+                hyperparameter_tuning_job.parallel_trial_count = 2128
+                hyperparameter_tuning_job.trial_job_spec.worker_pool_specs.container_spec.image_uri = "image_uri_value"
+
+                request = aiplatform_v1beta1.CreateHyperparameterTuningJobRequest(
+                    parent="parent_value",
+                    hyperparameter_tuning_job=hyperparameter_tuning_job,
+                )
+
+                # Make the request
+                response = client.create_hyperparameter_tuning_job(request=request)
+
+                # Handle the response
+                print(response)
+
         Args:
             request (Union[google.cloud.aiplatform_v1beta1.types.CreateHyperparameterTuningJobRequest, dict]):
                 The request object. Request message for
@@ -1082,7 +1360,7 @@ class JobServiceAsyncClient:
 
         """
         # Create or coerce a protobuf request object.
-        # Sanity check: If we got a request object, we should *not* have
+        # Quick check: If we got a request object, we should *not* have
         # gotten any keyword arguments that map to the request.
         has_flattened_params = any([parent, hyperparameter_tuning_job])
         if request is not None and has_flattened_params:
@@ -1131,6 +1409,25 @@ class JobServiceAsyncClient:
     ) -> hyperparameter_tuning_job.HyperparameterTuningJob:
         r"""Gets a HyperparameterTuningJob
 
+        .. code-block::
+
+            from google.cloud import aiplatform_v1beta1
+
+            def sample_get_hyperparameter_tuning_job():
+                # Create a client
+                client = aiplatform_v1beta1.JobServiceClient()
+
+                # Initialize request argument(s)
+                request = aiplatform_v1beta1.GetHyperparameterTuningJobRequest(
+                    name="name_value",
+                )
+
+                # Make the request
+                response = client.get_hyperparameter_tuning_job(request=request)
+
+                # Handle the response
+                print(response)
+
         Args:
             request (Union[google.cloud.aiplatform_v1beta1.types.GetHyperparameterTuningJobRequest, dict]):
                 The request object. Request message for
@@ -1158,7 +1455,7 @@ class JobServiceAsyncClient:
 
         """
         # Create or coerce a protobuf request object.
-        # Sanity check: If we got a request object, we should *not* have
+        # Quick check: If we got a request object, we should *not* have
         # gotten any keyword arguments that map to the request.
         has_flattened_params = any([name])
         if request is not None and has_flattened_params:
@@ -1205,6 +1502,26 @@ class JobServiceAsyncClient:
     ) -> pagers.ListHyperparameterTuningJobsAsyncPager:
         r"""Lists HyperparameterTuningJobs in a Location.
 
+        .. code-block::
+
+            from google.cloud import aiplatform_v1beta1
+
+            def sample_list_hyperparameter_tuning_jobs():
+                # Create a client
+                client = aiplatform_v1beta1.JobServiceClient()
+
+                # Initialize request argument(s)
+                request = aiplatform_v1beta1.ListHyperparameterTuningJobsRequest(
+                    parent="parent_value",
+                )
+
+                # Make the request
+                page_result = client.list_hyperparameter_tuning_jobs(request=request)
+
+                # Handle the response
+                for response in page_result:
+                    print(response)
+
         Args:
             request (Union[google.cloud.aiplatform_v1beta1.types.ListHyperparameterTuningJobsRequest, dict]):
                 The request object. Request message for
@@ -1233,7 +1550,7 @@ class JobServiceAsyncClient:
 
         """
         # Create or coerce a protobuf request object.
-        # Sanity check: If we got a request object, we should *not* have
+        # Quick check: If we got a request object, we should *not* have
         # gotten any keyword arguments that map to the request.
         has_flattened_params = any([parent])
         if request is not None and has_flattened_params:
@@ -1286,6 +1603,29 @@ class JobServiceAsyncClient:
     ) -> operation_async.AsyncOperation:
         r"""Deletes a HyperparameterTuningJob.
 
+        .. code-block::
+
+            from google.cloud import aiplatform_v1beta1
+
+            def sample_delete_hyperparameter_tuning_job():
+                # Create a client
+                client = aiplatform_v1beta1.JobServiceClient()
+
+                # Initialize request argument(s)
+                request = aiplatform_v1beta1.DeleteHyperparameterTuningJobRequest(
+                    name="name_value",
+                )
+
+                # Make the request
+                operation = client.delete_hyperparameter_tuning_job(request=request)
+
+                print("Waiting for operation to complete...")
+
+                response = operation.result()
+
+                # Handle the response
+                print(response)
+
         Args:
             request (Union[google.cloud.aiplatform_v1beta1.types.DeleteHyperparameterTuningJobRequest, dict]):
                 The request object. Request message for
@@ -1324,7 +1664,7 @@ class JobServiceAsyncClient:
 
         """
         # Create or coerce a protobuf request object.
-        # Sanity check: If we got a request object, we should *not* have
+        # Quick check: If we got a request object, we should *not* have
         # gotten any keyword arguments that map to the request.
         has_flattened_params = any([name])
         if request is not None and has_flattened_params:
@@ -1392,6 +1732,23 @@ class JobServiceAsyncClient:
         [HyperparameterTuningJob.state][google.cloud.aiplatform.v1beta1.HyperparameterTuningJob.state]
         is set to ``CANCELLED``.
 
+
+        .. code-block::
+
+            from google.cloud import aiplatform_v1beta1
+
+            def sample_cancel_hyperparameter_tuning_job():
+                # Create a client
+                client = aiplatform_v1beta1.JobServiceClient()
+
+                # Initialize request argument(s)
+                request = aiplatform_v1beta1.CancelHyperparameterTuningJobRequest(
+                    name="name_value",
+                )
+
+                # Make the request
+                client.cancel_hyperparameter_tuning_job(request=request)
+
         Args:
             request (Union[google.cloud.aiplatform_v1beta1.types.CancelHyperparameterTuningJobRequest, dict]):
                 The request object. Request message for
@@ -1411,7 +1768,7 @@ class JobServiceAsyncClient:
                 sent along with the request as metadata.
         """
         # Create or coerce a protobuf request object.
-        # Sanity check: If we got a request object, we should *not* have
+        # Quick check: If we got a request object, we should *not* have
         # gotten any keyword arguments that map to the request.
         has_flattened_params = any([name])
         if request is not None and has_flattened_params:
@@ -1459,6 +1816,34 @@ class JobServiceAsyncClient:
         r"""Creates a BatchPredictionJob. A BatchPredictionJob
         once created will right away be attempted to start.
 
+
+        .. code-block::
+
+            from google.cloud import aiplatform_v1beta1
+
+            def sample_create_batch_prediction_job():
+                # Create a client
+                client = aiplatform_v1beta1.JobServiceClient()
+
+                # Initialize request argument(s)
+                batch_prediction_job = aiplatform_v1beta1.BatchPredictionJob()
+                batch_prediction_job.display_name = "display_name_value"
+                batch_prediction_job.input_config.gcs_source.uris = ['uris_value_1', 'uris_value_2']
+                batch_prediction_job.input_config.instances_format = "instances_format_value"
+                batch_prediction_job.output_config.gcs_destination.output_uri_prefix = "output_uri_prefix_value"
+                batch_prediction_job.output_config.predictions_format = "predictions_format_value"
+
+                request = aiplatform_v1beta1.CreateBatchPredictionJobRequest(
+                    parent="parent_value",
+                    batch_prediction_job=batch_prediction_job,
+                )
+
+                # Make the request
+                response = client.create_batch_prediction_job(request=request)
+
+                # Handle the response
+                print(response)
+
         Args:
             request (Union[google.cloud.aiplatform_v1beta1.types.CreateBatchPredictionJobRequest, dict]):
                 The request object. Request message for
@@ -1495,7 +1880,7 @@ class JobServiceAsyncClient:
 
         """
         # Create or coerce a protobuf request object.
-        # Sanity check: If we got a request object, we should *not* have
+        # Quick check: If we got a request object, we should *not* have
         # gotten any keyword arguments that map to the request.
         has_flattened_params = any([parent, batch_prediction_job])
         if request is not None and has_flattened_params:
@@ -1544,6 +1929,25 @@ class JobServiceAsyncClient:
     ) -> batch_prediction_job.BatchPredictionJob:
         r"""Gets a BatchPredictionJob
 
+        .. code-block::
+
+            from google.cloud import aiplatform_v1beta1
+
+            def sample_get_batch_prediction_job():
+                # Create a client
+                client = aiplatform_v1beta1.JobServiceClient()
+
+                # Initialize request argument(s)
+                request = aiplatform_v1beta1.GetBatchPredictionJobRequest(
+                    name="name_value",
+                )
+
+                # Make the request
+                response = client.get_batch_prediction_job(request=request)
+
+                # Handle the response
+                print(response)
+
         Args:
             request (Union[google.cloud.aiplatform_v1beta1.types.GetBatchPredictionJobRequest, dict]):
                 The request object. Request message for
@@ -1573,7 +1977,7 @@ class JobServiceAsyncClient:
 
         """
         # Create or coerce a protobuf request object.
-        # Sanity check: If we got a request object, we should *not* have
+        # Quick check: If we got a request object, we should *not* have
         # gotten any keyword arguments that map to the request.
         has_flattened_params = any([name])
         if request is not None and has_flattened_params:
@@ -1620,6 +2024,26 @@ class JobServiceAsyncClient:
     ) -> pagers.ListBatchPredictionJobsAsyncPager:
         r"""Lists BatchPredictionJobs in a Location.
 
+        .. code-block::
+
+            from google.cloud import aiplatform_v1beta1
+
+            def sample_list_batch_prediction_jobs():
+                # Create a client
+                client = aiplatform_v1beta1.JobServiceClient()
+
+                # Initialize request argument(s)
+                request = aiplatform_v1beta1.ListBatchPredictionJobsRequest(
+                    parent="parent_value",
+                )
+
+                # Make the request
+                page_result = client.list_batch_prediction_jobs(request=request)
+
+                # Handle the response
+                for response in page_result:
+                    print(response)
+
         Args:
             request (Union[google.cloud.aiplatform_v1beta1.types.ListBatchPredictionJobsRequest, dict]):
                 The request object. Request message for
@@ -1648,7 +2072,7 @@ class JobServiceAsyncClient:
 
         """
         # Create or coerce a protobuf request object.
-        # Sanity check: If we got a request object, we should *not* have
+        # Quick check: If we got a request object, we should *not* have
         # gotten any keyword arguments that map to the request.
         has_flattened_params = any([parent])
         if request is not None and has_flattened_params:
@@ -1702,6 +2126,30 @@ class JobServiceAsyncClient:
         r"""Deletes a BatchPredictionJob. Can only be called on
         jobs that already finished.
 
+
+        .. code-block::
+
+            from google.cloud import aiplatform_v1beta1
+
+            def sample_delete_batch_prediction_job():
+                # Create a client
+                client = aiplatform_v1beta1.JobServiceClient()
+
+                # Initialize request argument(s)
+                request = aiplatform_v1beta1.DeleteBatchPredictionJobRequest(
+                    name="name_value",
+                )
+
+                # Make the request
+                operation = client.delete_batch_prediction_job(request=request)
+
+                print("Waiting for operation to complete...")
+
+                response = operation.result()
+
+                # Handle the response
+                print(response)
+
         Args:
             request (Union[google.cloud.aiplatform_v1beta1.types.DeleteBatchPredictionJobRequest, dict]):
                 The request object. Request message for
@@ -1740,7 +2188,7 @@ class JobServiceAsyncClient:
 
         """
         # Create or coerce a protobuf request object.
-        # Sanity check: If we got a request object, we should *not* have
+        # Quick check: If we got a request object, we should *not* have
         # gotten any keyword arguments that map to the request.
         has_flattened_params = any([name])
         if request is not None and has_flattened_params:
@@ -1806,6 +2254,23 @@ class JobServiceAsyncClient:
         is set to ``CANCELLED``. Any files already outputted by the job
         are not deleted.
 
+
+        .. code-block::
+
+            from google.cloud import aiplatform_v1beta1
+
+            def sample_cancel_batch_prediction_job():
+                # Create a client
+                client = aiplatform_v1beta1.JobServiceClient()
+
+                # Initialize request argument(s)
+                request = aiplatform_v1beta1.CancelBatchPredictionJobRequest(
+                    name="name_value",
+                )
+
+                # Make the request
+                client.cancel_batch_prediction_job(request=request)
+
         Args:
             request (Union[google.cloud.aiplatform_v1beta1.types.CancelBatchPredictionJobRequest, dict]):
                 The request object. Request message for
@@ -1825,7 +2290,7 @@ class JobServiceAsyncClient:
                 sent along with the request as metadata.
         """
         # Create or coerce a protobuf request object.
-        # Sanity check: If we got a request object, we should *not* have
+        # Quick check: If we got a request object, we should *not* have
         # gotten any keyword arguments that map to the request.
         has_flattened_params = any([name])
         if request is not None and has_flattened_params:
@@ -1875,6 +2340,31 @@ class JobServiceAsyncClient:
         r"""Creates a ModelDeploymentMonitoringJob. It will run
         periodically on a configured interval.
 
+
+        .. code-block::
+
+            from google.cloud import aiplatform_v1beta1
+
+            def sample_create_model_deployment_monitoring_job():
+                # Create a client
+                client = aiplatform_v1beta1.JobServiceClient()
+
+                # Initialize request argument(s)
+                model_deployment_monitoring_job = aiplatform_v1beta1.ModelDeploymentMonitoringJob()
+                model_deployment_monitoring_job.display_name = "display_name_value"
+                model_deployment_monitoring_job.endpoint = "endpoint_value"
+
+                request = aiplatform_v1beta1.CreateModelDeploymentMonitoringJobRequest(
+                    parent="parent_value",
+                    model_deployment_monitoring_job=model_deployment_monitoring_job,
+                )
+
+                # Make the request
+                response = client.create_model_deployment_monitoring_job(request=request)
+
+                # Handle the response
+                print(response)
+
         Args:
             request (Union[google.cloud.aiplatform_v1beta1.types.CreateModelDeploymentMonitoringJobRequest, dict]):
                 The request object. Request message for
@@ -1910,7 +2400,7 @@ class JobServiceAsyncClient:
 
         """
         # Create or coerce a protobuf request object.
-        # Sanity check: If we got a request object, we should *not* have
+        # Quick check: If we got a request object, we should *not* have
         # gotten any keyword arguments that map to the request.
         has_flattened_params = any([parent, model_deployment_monitoring_job])
         if request is not None and has_flattened_params:
@@ -1963,6 +2453,28 @@ class JobServiceAsyncClient:
         r"""Searches Model Monitoring Statistics generated within
         a given time window.
 
+
+        .. code-block::
+
+            from google.cloud import aiplatform_v1beta1
+
+            def sample_search_model_deployment_monitoring_stats_anomalies():
+                # Create a client
+                client = aiplatform_v1beta1.JobServiceClient()
+
+                # Initialize request argument(s)
+                request = aiplatform_v1beta1.SearchModelDeploymentMonitoringStatsAnomaliesRequest(
+                    model_deployment_monitoring_job="model_deployment_monitoring_job_value",
+                    deployed_model_id="deployed_model_id_value",
+                )
+
+                # Make the request
+                page_result = client.search_model_deployment_monitoring_stats_anomalies(request=request)
+
+                # Handle the response
+                for response in page_result:
+                    print(response)
+
         Args:
             request (Union[google.cloud.aiplatform_v1beta1.types.SearchModelDeploymentMonitoringStatsAnomaliesRequest, dict]):
                 The request object. Request message for
@@ -1970,7 +2482,7 @@ class JobServiceAsyncClient:
             model_deployment_monitoring_job (:class:`str`):
                 Required. ModelDeploymentMonitoring Job resource name.
                 Format:
-                \`projects/{project}/locations/{location}/modelDeploymentMonitoringJobs/{model_deployment_monitoring_job}
+                ``projects/{project}/locations/{location}/modelDeploymentMonitoringJobs/{model_deployment_monitoring_job}``
 
                 This corresponds to the ``model_deployment_monitoring_job`` field
                 on the ``request`` instance; if ``request`` is provided, this
@@ -1998,7 +2510,7 @@ class JobServiceAsyncClient:
 
         """
         # Create or coerce a protobuf request object.
-        # Sanity check: If we got a request object, we should *not* have
+        # Quick check: If we got a request object, we should *not* have
         # gotten any keyword arguments that map to the request.
         has_flattened_params = any([model_deployment_monitoring_job, deployed_model_id])
         if request is not None and has_flattened_params:
@@ -2062,6 +2574,25 @@ class JobServiceAsyncClient:
     ) -> model_deployment_monitoring_job.ModelDeploymentMonitoringJob:
         r"""Gets a ModelDeploymentMonitoringJob.
 
+        .. code-block::
+
+            from google.cloud import aiplatform_v1beta1
+
+            def sample_get_model_deployment_monitoring_job():
+                # Create a client
+                client = aiplatform_v1beta1.JobServiceClient()
+
+                # Initialize request argument(s)
+                request = aiplatform_v1beta1.GetModelDeploymentMonitoringJobRequest(
+                    name="name_value",
+                )
+
+                # Make the request
+                response = client.get_model_deployment_monitoring_job(request=request)
+
+                # Handle the response
+                print(response)
+
         Args:
             request (Union[google.cloud.aiplatform_v1beta1.types.GetModelDeploymentMonitoringJobRequest, dict]):
                 The request object. Request message for
@@ -2090,7 +2621,7 @@ class JobServiceAsyncClient:
 
         """
         # Create or coerce a protobuf request object.
-        # Sanity check: If we got a request object, we should *not* have
+        # Quick check: If we got a request object, we should *not* have
         # gotten any keyword arguments that map to the request.
         has_flattened_params = any([name])
         if request is not None and has_flattened_params:
@@ -2139,6 +2670,26 @@ class JobServiceAsyncClient:
     ) -> pagers.ListModelDeploymentMonitoringJobsAsyncPager:
         r"""Lists ModelDeploymentMonitoringJobs in a Location.
 
+        .. code-block::
+
+            from google.cloud import aiplatform_v1beta1
+
+            def sample_list_model_deployment_monitoring_jobs():
+                # Create a client
+                client = aiplatform_v1beta1.JobServiceClient()
+
+                # Initialize request argument(s)
+                request = aiplatform_v1beta1.ListModelDeploymentMonitoringJobsRequest(
+                    parent="parent_value",
+                )
+
+                # Make the request
+                page_result = client.list_model_deployment_monitoring_jobs(request=request)
+
+                # Handle the response
+                for response in page_result:
+                    print(response)
+
         Args:
             request (Union[google.cloud.aiplatform_v1beta1.types.ListModelDeploymentMonitoringJobsRequest, dict]):
                 The request object. Request message for
@@ -2167,7 +2718,7 @@ class JobServiceAsyncClient:
 
         """
         # Create or coerce a protobuf request object.
-        # Sanity check: If we got a request object, we should *not* have
+        # Quick check: If we got a request object, we should *not* have
         # gotten any keyword arguments that map to the request.
         has_flattened_params = any([parent])
         if request is not None and has_flattened_params:
@@ -2222,6 +2773,33 @@ class JobServiceAsyncClient:
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> operation_async.AsyncOperation:
         r"""Updates a ModelDeploymentMonitoringJob.
+
+        .. code-block::
+
+            from google.cloud import aiplatform_v1beta1
+
+            def sample_update_model_deployment_monitoring_job():
+                # Create a client
+                client = aiplatform_v1beta1.JobServiceClient()
+
+                # Initialize request argument(s)
+                model_deployment_monitoring_job = aiplatform_v1beta1.ModelDeploymentMonitoringJob()
+                model_deployment_monitoring_job.display_name = "display_name_value"
+                model_deployment_monitoring_job.endpoint = "endpoint_value"
+
+                request = aiplatform_v1beta1.UpdateModelDeploymentMonitoringJobRequest(
+                    model_deployment_monitoring_job=model_deployment_monitoring_job,
+                )
+
+                # Make the request
+                operation = client.update_model_deployment_monitoring_job(request=request)
+
+                print("Waiting for operation to complete...")
+
+                response = operation.result()
+
+                # Handle the response
+                print(response)
 
         Args:
             request (Union[google.cloud.aiplatform_v1beta1.types.UpdateModelDeploymentMonitoringJobRequest, dict]):
@@ -2284,7 +2862,7 @@ class JobServiceAsyncClient:
 
         """
         # Create or coerce a protobuf request object.
-        # Sanity check: If we got a request object, we should *not* have
+        # Quick check: If we got a request object, we should *not* have
         # gotten any keyword arguments that map to the request.
         has_flattened_params = any([model_deployment_monitoring_job, update_mask])
         if request is not None and has_flattened_params:
@@ -2350,6 +2928,29 @@ class JobServiceAsyncClient:
     ) -> operation_async.AsyncOperation:
         r"""Deletes a ModelDeploymentMonitoringJob.
 
+        .. code-block::
+
+            from google.cloud import aiplatform_v1beta1
+
+            def sample_delete_model_deployment_monitoring_job():
+                # Create a client
+                client = aiplatform_v1beta1.JobServiceClient()
+
+                # Initialize request argument(s)
+                request = aiplatform_v1beta1.DeleteModelDeploymentMonitoringJobRequest(
+                    name="name_value",
+                )
+
+                # Make the request
+                operation = client.delete_model_deployment_monitoring_job(request=request)
+
+                print("Waiting for operation to complete...")
+
+                response = operation.result()
+
+                # Handle the response
+                print(response)
+
         Args:
             request (Union[google.cloud.aiplatform_v1beta1.types.DeleteModelDeploymentMonitoringJobRequest, dict]):
                 The request object. Request message for
@@ -2388,7 +2989,7 @@ class JobServiceAsyncClient:
 
         """
         # Create or coerce a protobuf request object.
-        # Sanity check: If we got a request object, we should *not* have
+        # Quick check: If we got a request object, we should *not* have
         # gotten any keyword arguments that map to the request.
         has_flattened_params = any([name])
         if request is not None and has_flattened_params:
@@ -2448,6 +3049,23 @@ class JobServiceAsyncClient:
         [ModelDeploymentMonitoringJob.state][google.cloud.aiplatform.v1beta1.ModelDeploymentMonitoringJob.state]
         to 'PAUSED'.
 
+
+        .. code-block::
+
+            from google.cloud import aiplatform_v1beta1
+
+            def sample_pause_model_deployment_monitoring_job():
+                # Create a client
+                client = aiplatform_v1beta1.JobServiceClient()
+
+                # Initialize request argument(s)
+                request = aiplatform_v1beta1.PauseModelDeploymentMonitoringJobRequest(
+                    name="name_value",
+                )
+
+                # Make the request
+                client.pause_model_deployment_monitoring_job(request=request)
+
         Args:
             request (Union[google.cloud.aiplatform_v1beta1.types.PauseModelDeploymentMonitoringJobRequest, dict]):
                 The request object. Request message for
@@ -2467,7 +3085,7 @@ class JobServiceAsyncClient:
                 sent along with the request as metadata.
         """
         # Create or coerce a protobuf request object.
-        # Sanity check: If we got a request object, we should *not* have
+        # Quick check: If we got a request object, we should *not* have
         # gotten any keyword arguments that map to the request.
         has_flattened_params = any([name])
         if request is not None and has_flattened_params:
@@ -2517,6 +3135,23 @@ class JobServiceAsyncClient:
         will start to run from next scheduled time. A deleted
         ModelDeploymentMonitoringJob can't be resumed.
 
+
+        .. code-block::
+
+            from google.cloud import aiplatform_v1beta1
+
+            def sample_resume_model_deployment_monitoring_job():
+                # Create a client
+                client = aiplatform_v1beta1.JobServiceClient()
+
+                # Initialize request argument(s)
+                request = aiplatform_v1beta1.ResumeModelDeploymentMonitoringJobRequest(
+                    name="name_value",
+                )
+
+                # Make the request
+                client.resume_model_deployment_monitoring_job(request=request)
+
         Args:
             request (Union[google.cloud.aiplatform_v1beta1.types.ResumeModelDeploymentMonitoringJobRequest, dict]):
                 The request object. Request message for
@@ -2536,7 +3171,7 @@ class JobServiceAsyncClient:
                 sent along with the request as metadata.
         """
         # Create or coerce a protobuf request object.
-        # Sanity check: If we got a request object, we should *not* have
+        # Quick check: If we got a request object, we should *not* have
         # gotten any keyword arguments that map to the request.
         has_flattened_params = any([name])
         if request is not None and has_flattened_params:

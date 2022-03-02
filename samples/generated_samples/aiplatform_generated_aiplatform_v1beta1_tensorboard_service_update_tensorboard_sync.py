@@ -28,8 +28,6 @@ from google.cloud import aiplatform_v1beta1
 
 
 def sample_update_tensorboard():
-    """Snippet for update_tensorboard"""
-
     # Create a client
     client = aiplatform_v1beta1.TensorboardServiceClient()
 
@@ -47,6 +45,8 @@ def sample_update_tensorboard():
     print("Waiting for operation to complete...")
 
     response = operation.result()
+
+    # Handle the response
     print(response)
 
 # [END aiplatform_generated_aiplatform_v1beta1_TensorboardService_UpdateTensorboard_sync]
