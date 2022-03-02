@@ -19,12 +19,10 @@ import datetime
 import json
 import logging
 import os
-import pytest
 import subprocess
 
 from test_resources.cpr_user_code.predictor import SklearnPredictor
 
-from google import auth as google_auth
 from google.cloud import aiplatform
 
 from tests.system.aiplatform import e2e_base
@@ -69,7 +67,9 @@ class TestPredictionCpr(e2e_base.TestEndToEnd):
         assert len(json.loads(local_predict_response.content)["predictions"]) == 1
 
         # Configure docker.
-        logging.info(subprocess.run(["gcloud", "auth", "configure-docker"], capture_output=True))
+        logging.info(
+            subprocess.run(["gcloud", "auth", "configure-docker"], capture_output=True)
+        )
 
         local_model.push_image()
 
