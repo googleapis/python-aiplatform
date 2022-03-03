@@ -43,10 +43,10 @@ class SklearnPredictor(Predictor):
             )
         self._model = joblib.load("model.joblib")
 
-    def preprocess(self, prediction_input: Any) -> Any:
-        """Converts the request body to a bumpy array before prediction.
+    def preprocess(self, prediction_input: dict) -> np.ndarray:
+        """Converts the request body to a numpy array before prediction.
         Args:
-            prediction_input (Any):
+            prediction_input (dict):
                 Required. The prediction input needs to be preprocessed.
         Returns:
             The preprocessed prediction input.
@@ -54,11 +54,11 @@ class SklearnPredictor(Predictor):
         instances = instances["instances"]
         return np.asarray(instances)
 
-    def predict(self, instances: Any) -> Any:
+    def predict(self, instances: np.ndarray) -> np.ndarray:
         """Performs prediction.
 
         Args:
-            instances (Any):
+            instances (np.ndarray):
                 Required. The instances to perform prediction.
 
         Returns:
@@ -66,10 +66,10 @@ class SklearnPredictor(Predictor):
         """
         return self._model.predict(inputs)
 
-    def postprocess(self, prediction_results: Any) -> Any:
-        """Converts bumpy array to list.
+    def postprocess(self, prediction_results: np.ndarray) -> dict:
+        """Converts numpy array to a dict.
         Args:
-            prediction_results (Any):
+            prediction_results (np.ndarray):
                 Required. The prediction results.
         Returns:
             The postprocessed prediction results.
