@@ -51,7 +51,7 @@ class SklearnPredictor(Predictor):
         Returns:
             The preprocessed prediction input.
         """
-        instances = instances["instances"]
+        instances = prediction_input["instances"]
         return np.asarray(instances)
 
     def predict(self, instances: np.ndarray) -> np.ndarray:
@@ -64,7 +64,7 @@ class SklearnPredictor(Predictor):
         Returns:
             Prediction results.
         """
-        return self._model.predict(inputs)
+        return self._model.predict(instances)
 
     def postprocess(self, prediction_results: np.ndarray) -> dict:
         """Converts numpy array to a dict.
