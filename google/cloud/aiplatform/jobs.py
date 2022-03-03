@@ -850,6 +850,39 @@ class _RunnableJob(_Job):
 
         self._logged_web_access_uris = set()
 
+    @classmethod
+    def _empty_constructor(
+        cls,
+        project: Optional[str] = None,
+        location: Optional[str] = None,
+        credentials: Optional[auth_credentials.Credentials] = None,
+        resource_name: Optional[str] = None,
+    ) -> "_RunnableJob":
+        """Initializes with all attributes set to None.
+
+            The attributes should be populated after a future is complete. This allows
+            scheduling of additional API calls before the resource is created.
+
+            Args:
+                project (str): Optional. Project of the resource noun.
+                location (str): Optional. The location of the resource noun.
+                credentials(google.auth.crendentials.Crendentials):
+                    Optional. custom credentials to use when accessing interacting with
+                    resource noun.
+                resource_name(str): A fully-qualified resource name or ID.
+            Returns:
+                An instance of this class with attributes set to None.
+            """
+        self = super()._empty_constructor(
+            project=project,
+            location=location,
+            credentials=credentials,
+            resource_name=resource_name,
+        )
+
+        self._logged_web_access_uris = set()
+        return self
+
     @property
     def web_access_uris(self) -> Dict[str, Union[str, Dict[str, str]]]:
         """Fetch the runnable job again and return the latest web access uris.
