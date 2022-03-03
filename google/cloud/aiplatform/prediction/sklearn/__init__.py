@@ -17,7 +17,4 @@
 
 from google.cloud.aiplatform.prediction.sklearn.predictor import SklearnPredictor
 
-__all__ = (
-    "SklearnPredictor",
-)
-
+__all__ = ("SklearnPredictor",)
