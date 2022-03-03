@@ -866,10 +866,10 @@ class _RunnableJob(_Job):
             Args:
                 project (str): Optional. Project of the resource noun.
                 location (str): Optional. The location of the resource noun.
-                credentials(google.auth.crendentials.Crendentials):
+                credentials(crendentials.Crendentials):
                     Optional. custom credentials to use when accessing interacting with
                     resource noun.
-                resource_name(str): A fully-qualified resource name or ID.
+                resource_name(str): Optional. A fully-qualified resource name or ID.
             Returns:
                 An instance of this class with attributes set to None.
             """
