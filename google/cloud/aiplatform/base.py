@@ -1250,6 +1250,6 @@ class VertexAiStatefulResource(VertexAiResourceNounWithFutureManager, StatefulRe
     """Extends StatefulResource to include a check for self._gca_resource."""
     def done(self) -> bool:
         if self._gca_resource:
-            return super(self).done()
+            return super().done()
         else:
             return False

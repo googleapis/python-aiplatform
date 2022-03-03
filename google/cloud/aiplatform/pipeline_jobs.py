@@ -77,7 +77,7 @@ def _set_enable_caching_value(
                 task["cachingOptions"] = {"enableCache": enable_caching}
 
 
-class PipelineJob(base.VertexAiResourceNounWithFutureManager):
+class PipelineJob(base.VertexAiStatefulResource):
 
     client_class = utils.PipelineJobClientWithOverride
     _resource_noun = "pipelineJobs"
@@ -86,6 +86,8 @@ class PipelineJob(base.VertexAiResourceNounWithFutureManager):
     _list_method = "list_pipeline_jobs"
     _parse_resource_name_method = "parse_pipeline_job_path"
     _format_resource_name_method = "pipeline_job_path"
+
+    _valid_done_states = _PIPELINE_COMPLETE_STATES
 
     def __init__(
         self,
