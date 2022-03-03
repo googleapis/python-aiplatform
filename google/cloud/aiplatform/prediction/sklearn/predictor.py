@@ -37,7 +37,7 @@ class SklearnPredictor(Predictor):
                 Required. The value of the environment variable AIP_STORAGE_URI.
         """
         gcs_client = storage.Client()
-        with open("model.joblib", 'wb') as model_f:
+        with open("model.joblib", "wb") as model_f:
             gcs_client.download_blob_to_file(
                 f"{gcs_artifacts_uri}/model.joblib", model_f
             )
