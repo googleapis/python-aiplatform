@@ -52,6 +52,11 @@ featurestore_extra_require = [
     "pandas >= 1.0.0",
     "pyarrow >= 6.0.1",
 ]
+prediction_extra_require = [
+    "docker >= 5.0.3",
+    "fastapi >= 0.71.0",
+    "uvicorn >= 0.16.0",
+]
 
 full_extra_require = list(
     set(
@@ -60,12 +65,13 @@ full_extra_require = list(
         + xai_extra_require
         + lit_extra_require
         + featurestore_extra_require
+        + prediction_extra_require
     )
 )
 testing_extra_require = (
     full_extra_require
     + profiler_extra_require
-    + ["grpcio-testing", "pytest-xdist", "ipython"]
+    + ["grpcio-testing", "pytest-asyncio", "pytest-xdist", "ipython"]
 )
 
 
@@ -109,6 +115,7 @@ setuptools.setup(
         "xai": xai_extra_require,
         "lit": lit_extra_require,
         "cloud_profiler": profiler_extra_require,
+        "prediction": prediction_extra_require,
     },
     python_requires=">=3.6",
     classifiers=[
