@@ -17,7 +17,6 @@
 
 import joblib
 import numpy as np
-from typing import Any
 
 from google.cloud import storage
 from google.cloud.aiplatform.prediction.predictor import Predictor
