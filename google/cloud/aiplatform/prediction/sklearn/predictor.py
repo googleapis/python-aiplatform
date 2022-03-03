@@ -43,17 +43,35 @@ class SklearnPredictor(Predictor):
             )
         self._model = joblib.load("model.joblib")
 
-    def predict(self, instances: Any) -> Any:
+    def preprocess(self, prediction_input: dict) -> np.ndarray:
+        """Converts the request body to a numpy array before prediction.
+        Args:
+            prediction_input (dict):
+                Required. The prediction input needs to be preprocessed.
+        Returns:
+            The preprocessed prediction input.
+        """
+        instances = prediction_input["instances"]
+        return np.asarray(instances)
+
+    def predict(self, instances: np.ndarray) -> np.ndarray:
         """Performs prediction.
 
         Args:
-            instances (Any):
+            instances (np.ndarray):
                 Required. The instances to perform prediction.
 
         Returns:
             Prediction results.
         """
-        instances = instances["instances"]
-        inputs = np.asarray(instances)
-        outputs = self._model.predict(inputs)
-        return {"predictions": outputs.tolist()}
+        return self._model.predict(instances)
+
+    def postprocess(self, prediction_results: np.ndarray) -> dict:
+        """Converts numpy array to a dict.
+        Args:
+            prediction_results (np.ndarray):
+                Required. The prediction results.
+        Returns:
+            The postprocessed prediction results.
+        """
+        return {"predictions": prediction_results.tolist()}
