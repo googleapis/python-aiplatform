@@ -33,9 +33,14 @@ def batch_serve_features_to_bq_sample(
 
     fs = aiplatform.featurestore.Featurestore(featurestore_name=featurestore_name)
 
+    SERVING_FEATURE_IDS = {
+        "users": ["age", "gender", "liked_genres"],
+        "movies": ["title", "average_rating", "genres"],
+    }
+
     fs.batch_serve_to_bq(
         bq_destination_output_uri=bq_destination_output_uri,
-        serving_feature_ids=serving_feature_ids,
+        serving_feature_ids=SERVING_FEATURE_IDS,
         read_instances_uri=read_instances_uri,
         sync=sync,
     )

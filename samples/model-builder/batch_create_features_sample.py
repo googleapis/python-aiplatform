@@ -14,27 +14,33 @@
 
 
 #  [START aiplatform_sdk_batch_create_features_sample]
-from typing import Dict, Union
-
 from google.cloud import aiplatform
 
 
 def batch_create_features_sample(
     project: str,
     location: str,
-    entity_type_name: str,
+    entity_type_id: str,
     featurestore_id: str,
-    feature_configs: Dict[str, Dict[str, Union[bool, int, Dict[str, str], str]]],
     sync: bool = True,
 ):
 
     aiplatform.init(project=project, location=location)
 
     my_entity_type = aiplatform.featurestore.EntityType(
-        entity_type_name=entity_type_name, featurestore_id=featurestore_id
+        entity_type_name=entity_type_id, featurestore_id=featurestore_id
     )
 
-    my_entity_type.batch_create_features(feature_configs=feature_configs, sync=sync)
+    FEATURE_CONFIGS = {
+        "age": {"value_type": "INT64", "description": "User age"},
+        "gender": {"value_type": "STRING", "description": "User gender"},
+        "liked_genres": {
+            "value_type": "STRING_ARRAY",
+            "description": "An array of genres this user liked",
+        },
+    }
+
+    my_entity_type.batch_create_features(feature_configs=FEATURE_CONFIGS, sync=sync)
 
 
 #  [END aiplatform_sdk_batch_create_features_sample]

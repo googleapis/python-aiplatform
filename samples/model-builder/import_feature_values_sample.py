@@ -23,7 +23,7 @@ from google.cloud import aiplatform
 def import_feature_values_sample(
     project: str,
     location: str,
-    entity_type_name: str,
+    entity_type_id: str,
     featurestore_id: str,
     feature_ids: List[str],
     feature_time: Union[str, datetime.datetime],
@@ -34,7 +34,7 @@ def import_feature_values_sample(
     aiplatform.init(project=project, location=location)
 
     my_entity_type = aiplatform.featurestore.EntityType(
-        entity_type_name=entity_type_name, featurestore_id=featurestore_id
+        entity_type_name=entity_type_id, featurestore_id=featurestore_id
     )
 
     my_entity_type.ingest_from_gcs(

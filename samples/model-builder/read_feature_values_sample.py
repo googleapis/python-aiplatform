@@ -22,7 +22,7 @@ from google.cloud import aiplatform
 def read_feature_values_sample(
     project: str,
     location: str,
-    entity_type_name: str,
+    entity_type_id: str,
     featurestore_id: str,
     entity_ids: Union[str, List[str]],
     feature_ids: Union[str, List[str]] = "*",
@@ -31,10 +31,12 @@ def read_feature_values_sample(
     aiplatform.init(project=project, location=location)
 
     my_entity_type = aiplatform.featurestore.EntityType(
-        entity_type_name=entity_type_name, featurestore_id=featurestore_id
+        entity_type_name=entity_type_id, featurestore_id=featurestore_id
     )
 
-    my_entity_type.read(entity_ids=entity_ids, feature_ids=feature_ids)
+    my_dataframe = my_entity_type.read(entity_ids=entity_ids, feature_ids=feature_ids)
+
+    return my_dataframe
 
 
 #  [END aiplatform_sdk_read_features_sample]

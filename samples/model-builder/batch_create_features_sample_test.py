@@ -23,7 +23,7 @@ def test_batch_create_features_sample(
     batch_create_features_sample.batch_create_features_sample(
         project=constants.PROJECT,
         location=constants.LOCATION,
-        entity_type_name=constants.ENTITY_TYPE_NAME,
+        entity_type_name=constants.ENTITY_TYPE_ID,
         featurestore_id=constants.FEATURESTORE_ID,
         feature_configs=constants.FEATURE_CONFIGS,
         sync=constants.SYNC,
@@ -34,7 +34,7 @@ def test_batch_create_features_sample(
     )
 
     mock_get_entity_type.assert_called_once_with(
-        entity_type_name=constants.ENTITY_TYPE_NAME,
+        entity_type_name=constants.ENTITY_TYPE_ID,
         featurestore_id=constants.FEATURESTORE_ID,
     )
 

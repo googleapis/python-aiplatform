@@ -23,7 +23,7 @@ def test_import_feature_values_sample(
     import_feature_values_sample.import_feature_values_sample(
         project=constants.PROJECT,
         location=constants.LOCATION,
-        entity_type_name=constants.ENTITY_TYPE_NAME,
+        entity_type_name=constants.ENTITY_TYPE_ID,
         featurestore_id=constants.FEATURESTORE_ID,
         feature_ids=constants.FEATURE_IDS,
         feature_time=constants.USERS_FEATURE_TIME,
@@ -36,7 +36,7 @@ def test_import_feature_values_sample(
     )
 
     mock_get_entity_type.assert_called_once_with(
-        entity_type_name=constants.ENTITY_TYPE_NAME,
+        entity_type_name=constants.ENTITY_TYPE_ID,
         featurestore_id=constants.FEATURESTORE_ID,
     )
 
