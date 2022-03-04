@@ -144,7 +144,6 @@ class TestEndToEndTabular(e2e_base.TestEndToEnd):
 
         in_progress_done_check = custom_job.done()
         custom_job.wait_for_resource_creation()
-        completion_done_check = custom_job.done()
 
         automl_job.wait_for_resource_creation()
         custom_batch_prediction_job.wait_for_resource_creation()
@@ -165,14 +164,6 @@ class TestEndToEndTabular(e2e_base.TestEndToEnd):
             is True
         )
 
-        # Check done() method works correctly
-        assert (
-            in_progress_done_check == False
-        )
-        assert (
-            completion_done_check == True
-        )
-
         custom_prediction = custom_endpoint.predict([_INSTANCE])
 
         custom_batch_prediction_job.wait()
@@ -185,6 +176,8 @@ class TestEndToEndTabular(e2e_base.TestEndToEnd):
         # Test lazy loading of Endpoint, check getter was never called after predict()
         custom_endpoint = aiplatform.Endpoint(custom_endpoint.resource_name)
         custom_endpoint.predict([_INSTANCE])
+
+        completion_done_check = custom_job.done()
         assert custom_endpoint._skipped_getter_call()
 
         assert (
@@ -212,3 +205,7 @@ class TestEndToEndTabular(e2e_base.TestEndToEnd):
             assert 200000 > custom_result > 50000
         except KeyError as e:
             raise RuntimeError("Unexpected prediction response structure:", e)
+
+        # Check done() method works correctly
+        assert in_progress_done_check is False
+        assert completion_done_check is True
