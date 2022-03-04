@@ -111,9 +111,9 @@ class MatchingEngineIndexEndpoint(base.VertexAiResourceNounWithFutureManager):
     def create(
         cls,
         display_name: str,
+        network: str,
         description: Optional[str] = None,
         labels: Optional[Dict[str, str]] = None,
-        network: Optional[str] = None,
         project: Optional[str] = None,
         location: Optional[str] = None,
         credentials: Optional[auth_credentials.Credentials] = None,
@@ -133,6 +133,19 @@ class MatchingEngineIndexEndpoint(base.VertexAiResourceNounWithFutureManager):
                 Required. The display name of the IndexEndpoint.
                 The name can be up to 128 characters long and
                 can be consist of any UTF-8 characters.
+            network (str):
+                Required. The full name of the Google Compute Engine
+                `network <https://cloud.google.com/compute/docs/networks-and-firewalls#networks>`__
+                to which the IndexEndpoint should be peered.
+
+                Private services access must already be configured for the
+                network. If left unspecified, the Endpoint is not peered
+                with any network.
+
+                `Format <https://cloud.google.com/compute/docs/reference/rest/v1/networks/insert>`__:
+                projects/{project}/global/networks/{network}. Where
+                {project} is a project number, as in '12345', and {network}
+                is network name.                
             description (str):
                 Optional. The description of the IndexEndpoint.
             labels (Dict[str, str]):
@@ -148,20 +161,7 @@ class MatchingEngineIndexEndpoint(base.VertexAiResourceNounWithFutureManager):
                 labels can be associated with one
                 IndexEndpoint (System labels are excluded)."
                 System reserved label keys are prefixed with
-                "aiplatform.googleapis.com/" and are immutable.
-            network (str):
-                Optional. The full name of the Google Compute Engine
-                `network <https://cloud.google.com/compute/docs/networks-and-firewalls#networks>`__
-                to which the IndexEndpoint should be peered.
-
-                Private services access must already be configured for the
-                network. If left unspecified, the Endpoint is not peered
-                with any network.
-
-                `Format <https://cloud.google.com/compute/docs/reference/rest/v1/networks/insert>`__:
-                projects/{project}/global/networks/{network}. Where
-                {project} is a project number, as in '12345', and {network}
-                is network name.
+                "aiplatform.googleapis.com/" and are immutable.            
             project (str):
                 Optional. Project to create EntityType in. If not set, project
                 set in aiplatform.init will be used.

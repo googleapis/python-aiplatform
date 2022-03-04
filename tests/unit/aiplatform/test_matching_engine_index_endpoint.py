@@ -58,6 +58,9 @@ _TEST_INDEX_ENDPOINT_NAME = f"{_TEST_PARENT}/indexEndpoints/{_TEST_INDEX_ENDPOIN
 _TEST_INDEX_ENDPOINT_DISPLAY_NAME = "index_endpoint_display_name"
 _TEST_INDEX_ENDPOINT_DESCRIPTION = "index_endpoint_description"
 _TEST_INDEX_DESCRIPTION = "index_description"
+_TEST_INDEX_ENDPOINT_VPC_NETWORK = "projects/{}/global/networks/{}".format(
+    "12345", "network"
+)
 
 _TEST_LABELS = {"my_key": "my_value"}
 _TEST_DISPLAY_NAME_UPDATE = "my new display name"
@@ -464,6 +467,7 @@ class TestMatchingEngineIndexEndpoint:
 
         my_index_endpoint = aiplatform.MatchingEngineIndexEndpoint.create(
             display_name=_TEST_INDEX_ENDPOINT_DISPLAY_NAME,
+            network=_TEST_INDEX_ENDPOINT_VPC_NETWORK,
             description=_TEST_INDEX_ENDPOINT_DESCRIPTION,
             labels=_TEST_LABELS,
         )
