@@ -1221,14 +1221,18 @@ def get_annotation_class(annotation: type) -> type:
     else:
         return annotation
 
+
 class DoneMixin(abc.ABC):
     """An abstract class to check whether an operation has completed."""
+
     @abc.abstractmethod
     def done(self) -> bool:
         pass
 
+
 class StatefulResource(DoneMixin):
     """Extends DoneMixin to check whether a job returning a stateful resource has compelted."""
+
     @property
     @abc.abstractmethod
     def state(self):
@@ -1246,8 +1250,10 @@ class StatefulResource(DoneMixin):
         else:
             return False
 
+
 class VertexAiStatefulResource(VertexAiResourceNounWithFutureManager, StatefulResource):
     """Extends StatefulResource to include a check for self._gca_resource."""
+
     def done(self) -> bool:
         if self._gca_resource:
             return super().done()

@@ -142,7 +142,10 @@ class TestEndToEndTabular(e2e_base.TestEndToEnd):
 
         shared_state["resources"].append(custom_batch_prediction_job)
 
+        in_progress_done_check = custom_job.done()
         custom_job.wait_for_resource_creation()
+        completion_done_check = custom_job.done()
+
         automl_job.wait_for_resource_creation()
         custom_batch_prediction_job.wait_for_resource_creation()
 
@@ -160,6 +163,14 @@ class TestEndToEndTabular(e2e_base.TestEndToEnd):
                 "restartJobOnWorkerRestart"
             ]
             is True
+        )
+
+        # Check done() method works correctly
+        assert (
+            in_progress_done_check == False
+        )
+        assert (
+            completion_done_check == True
         )
 
         custom_prediction = custom_endpoint.predict([_INSTANCE])
