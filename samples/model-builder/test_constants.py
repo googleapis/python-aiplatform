@@ -199,14 +199,14 @@ PYTHON_MODULE_NAME = "trainer.task"
 MODEL_TYPE = "CLOUD"
 
 # Feature store constants
-FEATURESTORE_ID = "featurestore_id"
+FEATURESTORE_ID = "movie_prediction"
 FEATURESTORE_NAME = (
     f"projects/{PROJECT}/locations/{LOCATION}/featurestores/{FEATURESTORE_ID}"
 )
-ENTITY_TYPE_ID = "entity_type_id"
-ENTITY_TYPE_IDS = ["alice", "bob"]
+ENTITY_TYPE_ID = "users"
+ENTITY_IDS = ["alice", "bob"]
 ENTITY_TYPE_NAME = f"projects/{PROJECT}/locations/{LOCATION}/featurestores/{FEATURESTORE_ID}/entityTypes/{ENTITY_TYPE_ID}"
-FEATURE_ID = "feature_id"
+FEATURE_ID = "liked_genres"
 FEATURE_IDS = ["age", "gender", "liked_genres"]
 FEATURE_NAME = f"projects/{PROJECT}/locations/{LOCATION}/featurestores/{FEATURESTORE_ID}/entityTypes/{ENTITY_TYPE_ID}/features/{FEATURE_ID}"
 FEATURE_VALUE_TYPE = "INT64"

@@ -23,9 +23,9 @@ def test_read_feature_values_sample(
     read_feature_values_sample.read_feature_values_sample(
         project=constants.PROJECT,
         location=constants.LOCATION,
-        entity_type_name=constants.ENTITY_TYPE_ID,
+        entity_type_id=constants.ENTITY_TYPE_ID,
         featurestore_id=constants.FEATURESTORE_ID,
-        entity_ids=constants.ENTITY_TYPE_IDS,
+        entity_ids=constants.ENTITY_IDS,
         feature_ids=constants.FEATURE_IDS,
     )
 
@@ -39,5 +39,5 @@ def test_read_feature_values_sample(
     )
 
     mock_read_feature_values.assert_called_once_with(
-        entity_ids=constants.ENTITY_TYPE_IDS, feature_ids=constants.FEATURE_IDS
+        entity_ids=constants.ENTITY_IDS, feature_ids=constants.FEATURE_IDS
     )

@@ -425,9 +425,7 @@ def mock_create_entity_type(mock_entity_type):
 
 @pytest.fixture
 def mock_create_feature(mock_feature):
-    with patch.object(
-        aiplatform.featurestore.Feature, "create"
-    ) as mock_create_feature:
+    with patch.object(aiplatform.featurestore.Feature, "create") as mock_create_feature:
         mock_create_feature.return_value = mock_feature
         yield mock_create_feature
 

@@ -25,7 +25,6 @@ def test_batch_serve_features_to_bq_sample(
         location=constants.LOCATION,
         featurestore_name=constants.FEATURESTORE_NAME,
         bq_destination_output_uri=constants.BQ_DESTINATION_OUTPUT_URI,
-        serving_feature_ids=constants.SERVING_FEATURE_IDS,
         read_instances_uri=constants.INPUT_CSV_FILE,
         sync=constants.SYNC,
     )

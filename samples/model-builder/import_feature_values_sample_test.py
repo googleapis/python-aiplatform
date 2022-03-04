@@ -23,7 +23,7 @@ def test_import_feature_values_sample(
     import_feature_values_sample.import_feature_values_sample(
         project=constants.PROJECT,
         location=constants.LOCATION,
-        entity_type_name=constants.ENTITY_TYPE_ID,
+        entity_type_id=constants.ENTITY_TYPE_ID,
         featurestore_id=constants.FEATURESTORE_ID,
         feature_ids=constants.FEATURE_IDS,
         feature_time=constants.USERS_FEATURE_TIME,

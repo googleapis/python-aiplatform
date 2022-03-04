@@ -14,8 +14,6 @@
 
 
 #  [START aiplatform_sdk_batch_serve_features_to_bq_sample]
-from typing import Dict, List
-
 from google.cloud import aiplatform
 
 
@@ -24,7 +22,6 @@ def batch_serve_features_to_bq_sample(
     location: str,
     featurestore_name: str,
     bq_destination_output_uri: str,
-    serving_feature_ids: Dict[str, List[str]],
     read_instances_uri: str,
     sync: bool = True,
 ):
