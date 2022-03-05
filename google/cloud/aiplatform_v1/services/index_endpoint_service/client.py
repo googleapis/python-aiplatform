@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# Copyright 2020 Google LLC
+# Copyright 2022 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -437,8 +437,7 @@ class IndexEndpointServiceClient(metaclass=IndexEndpointServiceClientMeta):
     ) -> gac_operation.Operation:
         r"""Creates an IndexEndpoint.
 
-
-        .. code-block::
+        .. code-block:: python
 
             from google.cloud import aiplatform_v1
 
@@ -556,8 +555,7 @@ class IndexEndpointServiceClient(metaclass=IndexEndpointServiceClientMeta):
     ) -> index_endpoint.IndexEndpoint:
         r"""Gets an IndexEndpoint.
 
-
-        .. code-block::
+        .. code-block:: python
 
             from google.cloud import aiplatform_v1
 
@@ -649,8 +647,7 @@ class IndexEndpointServiceClient(metaclass=IndexEndpointServiceClientMeta):
     ) -> pagers.ListIndexEndpointsPager:
         r"""Lists IndexEndpoints in a Location.
 
-
-        .. code-block::
+        .. code-block:: python
 
             from google.cloud import aiplatform_v1
 
@@ -752,8 +749,7 @@ class IndexEndpointServiceClient(metaclass=IndexEndpointServiceClientMeta):
     ) -> gca_index_endpoint.IndexEndpoint:
         r"""Updates an IndexEndpoint.
 
-
-        .. code-block::
+        .. code-block:: python
 
             from google.cloud import aiplatform_v1
 
@@ -858,8 +854,7 @@ class IndexEndpointServiceClient(metaclass=IndexEndpointServiceClientMeta):
     ) -> gac_operation.Operation:
         r"""Deletes an IndexEndpoint.
 
-
-        .. code-block::
+        .. code-block:: python
 
             from google.cloud import aiplatform_v1
 
@@ -979,8 +974,7 @@ class IndexEndpointServiceClient(metaclass=IndexEndpointServiceClientMeta):
         Only non-empty Indexes can be deployed.
 
 
-
-        .. code-block::
+        .. code-block:: python
 
             from google.cloud import aiplatform_v1
 
@@ -1107,8 +1101,7 @@ class IndexEndpointServiceClient(metaclass=IndexEndpointServiceClientMeta):
         using.
 
 
-
-        .. code-block::
+        .. code-block:: python
 
             from google.cloud import aiplatform_v1
 
@@ -1230,8 +1223,7 @@ class IndexEndpointServiceClient(metaclass=IndexEndpointServiceClientMeta):
         IndexEndpoint.
 
 
-
-        .. code-block::
+        .. code-block:: python
 
             from google.cloud import aiplatform_v1
 
