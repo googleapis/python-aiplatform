@@ -477,6 +477,7 @@ class TestMatchingEngineIndexEndpoint:
 
         expected = gca_index_endpoint.IndexEndpoint(
             display_name=_TEST_INDEX_ENDPOINT_DISPLAY_NAME,
+            network=_TEST_INDEX_ENDPOINT_VPC_NETWORK,
             description=_TEST_INDEX_ENDPOINT_DESCRIPTION,
             labels=_TEST_LABELS,
         )

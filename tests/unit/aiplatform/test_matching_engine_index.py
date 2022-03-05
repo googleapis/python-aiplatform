@@ -336,7 +336,6 @@ class TestMatchingEngineIndex:
                 "config": {
                     "algorithmConfig": config,
                     "dimensions": _TEST_INDEX_CONFIG_DIMENSIONS,
-                    "approximateNeighborsCount": _TEST_INDEX_APPROXIMATE_NEIGHBORS_COUNT,
                     "distanceMeasureType": _TEST_INDEX_DISTANCE_MEASURE_TYPE,
                 },
                 "contentsDeltaUri": _TEST_CONTENTS_DELTA_URI,
