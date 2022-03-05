@@ -102,6 +102,6 @@ class PredictionHandler(Handler):
             self._predictor.predict(self._predictor.preprocess(prediction_input))
         )
 
-        accept = handler_utils.get_content_type_from_headers(request.headers)
+        accept = handler_utils.get_accept_from_headers(request.headers)
         data = DefaultSerializer.serialize(prediction_results, accept)
         return Response(content=data, media_type=accept)

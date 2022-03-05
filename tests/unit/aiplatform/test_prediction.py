@@ -193,6 +193,10 @@ def model_server_env_mock():
         yield
 
 
+def get_test_headers():
+    return Headers({"content-type": _APPLICATION_JSON, "accept": _APPLICATION_JSON})
+
+
 def get_test_request():
     async def _create_request_receive():
         return {
@@ -202,14 +206,27 @@ def get_test_request():
         }
 
     return Request(
-        scope={
-            "type": "http",
-            "headers": Headers(
-                {"content-type": _APPLICATION_JSON, "accept": _APPLICATION_JSON}
-            ).raw,
-        },
+        scope={"type": "http", "headers": get_test_headers().raw},
         receive=_create_request_receive,
     )
+
+
+@pytest.fixture
+def get_content_type_from_headers_mock():
+    with mock.patch.object(
+        handler_utils, "get_content_type_from_headers"
+    ) as get_content_type_from_headers_mock:
+        get_content_type_from_headers_mock.return_value = _APPLICATION_JSON
+        yield get_content_type_from_headers_mock
+
+
+@pytest.fixture
+def get_accept_from_headers_mock():
+    with mock.patch.object(
+        handler_utils, "get_accept_from_headers"
+    ) as get_accept_from_headers_mock:
+        get_accept_from_headers_mock.return_value = _APPLICATION_JSON
+        yield get_accept_from_headers_mock
 
 
 def get_test_predictor():
@@ -587,7 +604,14 @@ class TestPredictionHandler:
         assert str(exception.value) == expected_message
 
     @pytest.mark.asyncio
-    async def test_handle(self, deserialize_mock, predictor_mock, serialize_mock):
+    async def test_handle(
+        self,
+        deserialize_mock,
+        get_content_type_from_headers_mock,
+        predictor_mock,
+        get_accept_from_headers_mock,
+        serialize_mock,
+    ):
         handler = PredictionHandler(_TEST_GCS_ARTIFACTS_URI, predictor=predictor_mock)
 
         response = await handler.handle(get_test_request())
@@ -596,16 +620,23 @@ class TestPredictionHandler:
         assert response.body == _TEST_SERIALIZED_OUTPUT
 
         deserialize_mock.assert_called_once_with(_TEST_INPUT, _APPLICATION_JSON)
+        get_content_type_from_headers_mock.assert_called_once_with(get_test_headers())
         predictor_mock().preprocess.assert_called_once_with(_TEST_DESERIALIZED_INPUT)
         predictor_mock().predict.assert_called_once_with(_TEST_DESERIALIZED_INPUT)
         predictor_mock().postprocess.assert_called_once_with(_TEST_PREDICTION_OUTPUT)
+        get_accept_from_headers_mock.assert_called_once_with(get_test_headers())
         serialize_mock.assert_called_once_with(
             _TEST_SERIALIZED_OUTPUT, _APPLICATION_JSON
         )
 
     @pytest.mark.asyncio
     async def test_handle_deserialize_raises_exception(
-        self, deserialize_exception_mock, predictor_mock, serialize_mock
+        self,
+        deserialize_exception_mock,
+        get_content_type_from_headers_mock,
+        predictor_mock,
+        get_accept_from_headers_mock,
+        serialize_mock,
     ):
         handler = PredictionHandler(_TEST_GCS_ARTIFACTS_URI, predictor=predictor_mock)
 
@@ -615,14 +646,20 @@ class TestPredictionHandler:
         deserialize_exception_mock.assert_called_once_with(
             _TEST_INPUT, _APPLICATION_JSON
         )
+        get_content_type_from_headers_mock.assert_called_once_with(get_test_headers())
         assert not predictor_mock().preprocess.called
         assert not predictor_mock().predict.called
         assert not predictor_mock().postprocess.called
+        assert not get_accept_from_headers_mock.called
         assert not serialize_mock.called
 
     @pytest.mark.asyncio
     async def test_handle_predictor_raises_exception(
-        self, deserialize_mock, serialize_mock
+        self,
+        deserialize_mock,
+        get_content_type_from_headers_mock,
+        get_accept_from_headers_mock,
+        serialize_mock,
     ):
         preprocess_mock = mock.MagicMock(return_value=_TEST_DESERIALIZED_INPUT)
         predict_mock = mock.MagicMock(side_effect=Exception())
@@ -641,14 +678,23 @@ class TestPredictionHandler:
                 await handler.handle(get_test_request())
 
             deserialize_mock.assert_called_once_with(_TEST_INPUT, _APPLICATION_JSON)
+            get_content_type_from_headers_mock.assert_called_once_with(
+                get_test_headers()
+            )
             preprocess_mock.assert_called_once_with(_TEST_DESERIALIZED_INPUT)
             predict_mock.assert_called_once_with(_TEST_DESERIALIZED_INPUT)
             assert not postprocess_mock.called
+            assert not get_accept_from_headers_mock.called
             assert not serialize_mock.called
 
     @pytest.mark.asyncio
     async def test_handle_serialize_raises_exception(
-        self, deserialize_mock, predictor_mock, serialize_exception_mock
+        self,
+        deserialize_mock,
+        get_content_type_from_headers_mock,
+        predictor_mock,
+        get_accept_from_headers_mock,
+        serialize_exception_mock,
     ):
         handler = PredictionHandler(_TEST_GCS_ARTIFACTS_URI, predictor=predictor_mock)
 
@@ -656,9 +702,11 @@ class TestPredictionHandler:
             await handler.handle(get_test_request())
 
         deserialize_mock.assert_called_once_with(_TEST_INPUT, _APPLICATION_JSON)
+        get_content_type_from_headers_mock.assert_called_once_with(get_test_headers())
         predictor_mock().preprocess.assert_called_once_with(_TEST_DESERIALIZED_INPUT)
         predictor_mock().predict.assert_called_once_with(_TEST_DESERIALIZED_INPUT)
         predictor_mock().postprocess.assert_called_once_with(_TEST_PREDICTION_OUTPUT)
+        get_accept_from_headers_mock.assert_called_once_with(get_test_headers())
         serialize_exception_mock.assert_called_once_with(
             _TEST_SERIALIZED_OUTPUT, _APPLICATION_JSON
         )
