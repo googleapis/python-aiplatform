@@ -1012,9 +1012,10 @@ class CustomJob(_RunnableJob):
 
     def __init__(
         self,
+        # TODO: Make display_name parameter fully optional in next major release
+        display_name: Optional[str],
         worker_pool_specs: Union[List[Dict], List[aiplatform.gapic.WorkerPoolSpec]],
         base_output_dir: Optional[str] = None,
-        display_name: Optional[str] = None,
         project: Optional[str] = None,
         location: Optional[str] = None,
         credentials: Optional[auth_credentials.Credentials] = None,
@@ -1171,6 +1172,8 @@ class CustomJob(_RunnableJob):
     @classmethod
     def from_local_script(
         cls,
+        # TODO: Make display_name parameter fully optional in next major release
+        display_name: Optional[str],
         script_path: str,
         container_uri: str,
         args: Optional[Sequence[str]] = None,
@@ -1186,7 +1189,6 @@ class CustomJob(_RunnableJob):
         reduction_server_machine_type: Optional[str] = None,
         reduction_server_container_uri: Optional[str] = None,
         base_output_dir: Optional[str] = None,
-        display_name: Optional[str] = None,
         project: Optional[str] = None,
         location: Optional[str] = None,
         credentials: Optional[auth_credentials.Credentials] = None,
@@ -1490,6 +1492,8 @@ class HyperparameterTuningJob(_RunnableJob):
 
     def __init__(
         self,
+        # TODO: Make display_name parameter fully optional in next major release
+        display_name: Optional[str],
         custom_job: CustomJob,
         metric_spec: Dict[str, str],
         parameter_spec: Dict[str, hyperparameter_tuning._ParameterSpec],
@@ -1498,7 +1502,6 @@ class HyperparameterTuningJob(_RunnableJob):
         max_failed_trial_count: int = 0,
         search_algorithm: Optional[str] = None,
         measurement_selection: Optional[str] = "best",
-        display_name: Optional[str] = None,
         project: Optional[str] = None,
         location: Optional[str] = None,
         credentials: Optional[auth_credentials.Credentials] = None,
