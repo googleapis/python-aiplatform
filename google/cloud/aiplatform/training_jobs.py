@@ -76,6 +76,7 @@ class _TrainingJob(base.VertexAiStatefulResource):
     _parse_resource_name_method = "parse_training_pipeline_path"
     _format_resource_name_method = "training_pipeline_path"
 
+    # Required by the done() method
     _valid_done_states = _PIPELINE_COMPLETE_STATES
 
     def __init__(

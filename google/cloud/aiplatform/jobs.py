@@ -83,6 +83,7 @@ class _Job(base.VertexAiStatefulResource):
 
     client_class = utils.JobClientWithOverride
 
+    # Required by the done() method
     _valid_done_states = _JOB_COMPLETE_STATES
 
     def __init__(
