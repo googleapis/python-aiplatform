@@ -106,7 +106,7 @@ class _Dataset(base.VertexAiResourceNounWithFutureManager):
     @classmethod
     def create(
         cls,
-        display_name: str,
+        display_name: Optional[str],
         metadata_schema_uri: str,
         gcs_source: Optional[Union[str, Sequence[str]]] = None,
         bq_source: Optional[str] = None,
