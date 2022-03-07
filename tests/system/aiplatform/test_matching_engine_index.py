@@ -20,9 +20,6 @@ import uuid
 from google.cloud import aiplatform
 
 from tests.system.aiplatform import e2e_base
-from google.cloud.aiplatform.compat.types import (
-    matching_engine_index_endpoint as gca_matching_engine_index_endpoint,
-)
 
 # project
 _TEST_INDEX_DISPLAY_NAME = "index_display_name"
