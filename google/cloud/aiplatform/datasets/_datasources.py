@@ -73,7 +73,7 @@ class TabularDatasource(Datasource):
                     "bq://project.dataset.table_name"
 
         Raises:
-            ValueError if source configuration is not valid.
+            ValueError: If source configuration is not valid.
         """
 
         dataset_metadata = None
@@ -217,7 +217,7 @@ def create_datasource(
         datasource (Datasource)
 
     Raises:
-        ValueError when below scenarios happen
+        ValueError: When below scenarios happen:
         - import_schema_uri is identified for creating TabularDatasource
         - either import_schema_uri or gcs_source is missing for creating NonTabularDatasourceImportable
     """

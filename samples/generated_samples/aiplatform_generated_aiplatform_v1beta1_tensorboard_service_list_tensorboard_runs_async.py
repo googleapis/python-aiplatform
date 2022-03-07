@@ -28,18 +28,18 @@ from google.cloud import aiplatform_v1beta1
 
 
 async def sample_list_tensorboard_runs():
-    """Snippet for list_tensorboard_runs"""
-
     # Create a client
     client = aiplatform_v1beta1.TensorboardServiceAsyncClient()
 
     # Initialize request argument(s)
     request = aiplatform_v1beta1.ListTensorboardRunsRequest(
-        parent="projects/{project}/locations/{location}/tensorboards/{tensorboard}/experiments/{experiment}/runs/{run}",
+        parent="parent_value",
     )
 
     # Make the request
     page_result = client.list_tensorboard_runs(request=request)
+
+    # Handle the response
     async for response in page_result:
         print(response)
 

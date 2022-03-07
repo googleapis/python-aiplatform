@@ -28,26 +28,24 @@ from google.cloud import aiplatform_v1beta1
 
 
 async def sample_batch_create_tensorboard_time_series():
-    """Snippet for batch_create_tensorboard_time_series"""
-
     # Create a client
     client = aiplatform_v1beta1.TensorboardServiceAsyncClient()
 
     # Initialize request argument(s)
     requests = aiplatform_v1beta1.CreateTensorboardTimeSeriesRequest()
-    requests.parent = "projects/{project}/locations/{location}/tensorboards/{tensorboard}/experiments/{experiment}/runs/{run}/timeSeries/{time_series}"
+    requests.parent = "parent_value"
     requests.tensorboard_time_series.display_name = "display_name_value"
     requests.tensorboard_time_series.value_type = "BLOB_SEQUENCE"
 
     request = aiplatform_v1beta1.BatchCreateTensorboardTimeSeriesRequest(
-        parent="projects/{project}/locations/{location}/tensorboards/{tensorboard}/experiments/{experiment}",
+        parent="parent_value",
         requests=requests,
     )
 
     # Make the request
     response = await client.batch_create_tensorboard_time_series(request=request)
 
-    # Handle response
+    # Handle the response
     print(response)
 
 # [END aiplatform_generated_aiplatform_v1beta1_TensorboardService_BatchCreateTensorboardTimeSeries_async]

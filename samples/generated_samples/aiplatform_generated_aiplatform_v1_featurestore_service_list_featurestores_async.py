@@ -28,18 +28,18 @@ from google.cloud import aiplatform_v1
 
 
 async def sample_list_featurestores():
-    """Snippet for list_featurestores"""
-
     # Create a client
     client = aiplatform_v1.FeaturestoreServiceAsyncClient()
 
     # Initialize request argument(s)
     request = aiplatform_v1.ListFeaturestoresRequest(
-        parent="projects/{project}/locations/{location}/featurestores/{featurestore}",
+        parent="parent_value",
     )
 
     # Make the request
     page_result = client.list_featurestores(request=request)
+
+    # Handle the response
     async for response in page_result:
         print(response)
 

@@ -28,20 +28,18 @@ from google.cloud import aiplatform_v1
 
 
 def sample_add_trial_measurement():
-    """Snippet for add_trial_measurement"""
-
     # Create a client
     client = aiplatform_v1.VizierServiceClient()
 
     # Initialize request argument(s)
     request = aiplatform_v1.AddTrialMeasurementRequest(
-        trial_name="projects/{project}/locations/{location}/studies/{study}/trials/{trial}",
+        trial_name="trial_name_value",
     )
 
     # Make the request
     response = client.add_trial_measurement(request=request)
 
-    # Handle response
+    # Handle the response
     print(response)
 
 # [END aiplatform_generated_aiplatform_v1_VizierService_AddTrialMeasurement_sync]

@@ -28,20 +28,18 @@ from google.cloud import aiplatform_v1
 
 
 def sample_get_metadata_store():
-    """Snippet for get_metadata_store"""
-
     # Create a client
     client = aiplatform_v1.MetadataServiceClient()
 
     # Initialize request argument(s)
     request = aiplatform_v1.GetMetadataStoreRequest(
-        name="projects/{project}/locations/{location}/metadataStores/{metadata_store}",
+        name="name_value",
     )
 
     # Make the request
     response = client.get_metadata_store(request=request)
 
-    # Handle response
+    # Handle the response
     print(response)
 
 # [END aiplatform_generated_aiplatform_v1_MetadataService_GetMetadataStore_sync]

@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# Copyright 2020 Google LLC
+# Copyright 2022 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -76,9 +76,9 @@ class DataLabelingJob(proto.Message):
             Google Cloud Storage describing the config for a
             specific type of DataLabelingJob. The schema
             files that can be used here are found in the
-            https://storage.googleapis.com/google-cloud-
-            aiplatform bucket in the
-            /schema/datalabelingjob/inputs/ folder.
+            https://storage.googleapis.com/google-cloud-aiplatform
+            bucket in the /schema/datalabelingjob/inputs/
+            folder.
         inputs (google.protobuf.struct_pb2.Value):
             Required. Input config parameters for the
             DataLabelingJob.

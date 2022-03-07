@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# Copyright 2020 Google LLC
+# Copyright 2022 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -68,13 +68,13 @@ class TrainingPipeline(proto.Message):
             is responsible for producing the model artifact,
             and may also include additional auxiliary work.
             The definition files that can be used here are
-            found in gs://google-cloud-
-            aiplatform/schema/trainingjob/definition/. Note:
-            The URI given on output will be immutable and
-            probably different, including the URI scheme,
-            than the one given on input. The output URI will
-            point to a location where the user only has a
-            read access.
+            found in
+            gs://google-cloud-aiplatform/schema/trainingjob/definition/.
+            Note: The URI given on output will be immutable
+            and probably different, including the URI
+            scheme, than the one given on input. The output
+            URI will point to a location where the user only
+            has a read access.
         training_task_inputs (google.protobuf.struct_pb2.Value):
             Required. The training task's parameter(s), as specified in
             the

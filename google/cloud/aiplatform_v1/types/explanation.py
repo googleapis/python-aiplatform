@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# Copyright 2020 Google LLC
+# Copyright 2022 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -280,10 +280,10 @@ class ExplanationParameters(proto.Message):
 
             This field is a member of `oneof`_ ``method``.
         integrated_gradients_attribution (google.cloud.aiplatform_v1.types.IntegratedGradientsAttribution):
-            An attribution method that computes Aumann-
-            hapley values taking advantage of the model's
-            fully differentiable structure. Refer to this
-            paper for more details:
+            An attribution method that computes
+            Aumann-Shapley values taking advantage of the
+            model's fully differentiable structure. Refer to
+            this paper for more details:
             https://arxiv.org/abs/1703.01365
 
             This field is a member of `oneof`_ ``method``.
