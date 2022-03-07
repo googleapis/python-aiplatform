@@ -1012,7 +1012,7 @@ class CustomJob(_RunnableJob):
 
     def __init__(
         self,
-        # TODO: Make display_name parameter fully optional in next major release
+        # TODO(b/223262536): Make display_name parameter fully optional in next major release
         display_name: Optional[str],
         worker_pool_specs: Union[List[Dict], List[aiplatform.gapic.WorkerPoolSpec]],
         base_output_dir: Optional[str] = None,
@@ -1172,7 +1172,7 @@ class CustomJob(_RunnableJob):
     @classmethod
     def from_local_script(
         cls,
-        # TODO: Make display_name parameter fully optional in next major release
+        # TODO(b/223262536): Make display_name parameter fully optional in next major release
         display_name: Optional[str],
         script_path: str,
         container_uri: str,
@@ -1492,7 +1492,7 @@ class HyperparameterTuningJob(_RunnableJob):
 
     def __init__(
         self,
-        # TODO: Make display_name parameter fully optional in next major release
+        # TODO(b/223262536): Make display_name parameter fully optional in next major release
         display_name: Optional[str],
         custom_job: CustomJob,
         metric_spec: Dict[str, str],
