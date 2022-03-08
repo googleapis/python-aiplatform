@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# Copyright 2020 Google LLC
+# Copyright 2022 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -256,7 +256,7 @@ class PipelineServiceAsyncClient:
         TrainingPipeline right away will be attempted to be run.
 
 
-        .. code-block::
+        .. code-block:: python
 
             from google.cloud import aiplatform_v1beta1
 
@@ -366,7 +366,7 @@ class PipelineServiceAsyncClient:
     ) -> training_pipeline.TrainingPipeline:
         r"""Gets a TrainingPipeline.
 
-        .. code-block::
+        .. code-block:: python
 
             from google.cloud import aiplatform_v1beta1
 
@@ -461,7 +461,7 @@ class PipelineServiceAsyncClient:
     ) -> pagers.ListTrainingPipelinesAsyncPager:
         r"""Lists TrainingPipelines in a Location.
 
-        .. code-block::
+        .. code-block:: python
 
             from google.cloud import aiplatform_v1beta1
 
@@ -562,7 +562,7 @@ class PipelineServiceAsyncClient:
     ) -> operation_async.AsyncOperation:
         r"""Deletes a TrainingPipeline.
 
-        .. code-block::
+        .. code-block:: python
 
             from google.cloud import aiplatform_v1beta1
 
@@ -691,7 +691,7 @@ class PipelineServiceAsyncClient:
         is set to ``CANCELLED``.
 
 
-        .. code-block::
+        .. code-block:: python
 
             from google.cloud import aiplatform_v1beta1
 
@@ -776,7 +776,7 @@ class PipelineServiceAsyncClient:
         immediately when created.
 
 
-        .. code-block::
+        .. code-block:: python
 
             from google.cloud import aiplatform_v1beta1
 
@@ -887,7 +887,7 @@ class PipelineServiceAsyncClient:
     ) -> pipeline_job.PipelineJob:
         r"""Gets a PipelineJob.
 
-        .. code-block::
+        .. code-block:: python
 
             from google.cloud import aiplatform_v1beta1
 
@@ -977,7 +977,7 @@ class PipelineServiceAsyncClient:
     ) -> pagers.ListPipelineJobsAsyncPager:
         r"""Lists PipelineJobs in a Location.
 
-        .. code-block::
+        .. code-block:: python
 
             from google.cloud import aiplatform_v1beta1
 
@@ -1078,7 +1078,7 @@ class PipelineServiceAsyncClient:
     ) -> operation_async.AsyncOperation:
         r"""Deletes a PipelineJob.
 
-        .. code-block::
+        .. code-block:: python
 
             from google.cloud import aiplatform_v1beta1
 
@@ -1207,7 +1207,7 @@ class PipelineServiceAsyncClient:
         is set to ``CANCELLED``.
 
 
-        .. code-block::
+        .. code-block:: python
 
             from google.cloud import aiplatform_v1beta1
 

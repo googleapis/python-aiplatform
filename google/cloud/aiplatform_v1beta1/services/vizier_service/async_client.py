@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# Copyright 2020 Google LLC
+# Copyright 2022 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -229,7 +229,7 @@ class VizierServiceAsyncClient:
         after creation of the Study.
 
 
-        .. code-block::
+        .. code-block:: python
 
             from google.cloud import aiplatform_v1beta1
 
@@ -336,7 +336,7 @@ class VizierServiceAsyncClient:
     ) -> study.Study:
         r"""Gets a Study by name.
 
-        .. code-block::
+        .. code-block:: python
 
             from google.cloud import aiplatform_v1beta1
 
@@ -426,7 +426,7 @@ class VizierServiceAsyncClient:
         project.
 
 
-        .. code-block::
+        .. code-block:: python
 
             from google.cloud import aiplatform_v1beta1
 
@@ -527,7 +527,7 @@ class VizierServiceAsyncClient:
     ) -> None:
         r"""Deletes a Study.
 
-        .. code-block::
+        .. code-block:: python
 
             from google.cloud import aiplatform_v1beta1
 
@@ -610,7 +610,7 @@ class VizierServiceAsyncClient:
         instead of the fully qualified resource name.
 
 
-        .. code-block::
+        .. code-block:: python
 
             from google.cloud import aiplatform_v1beta1
 
@@ -704,7 +704,7 @@ class VizierServiceAsyncClient:
         [SuggestTrialsResponse][google.cloud.ml.v1.SuggestTrialsResponse].
 
 
-        .. code-block::
+        .. code-block:: python
 
             from google.cloud import aiplatform_v1beta1
 
@@ -792,7 +792,7 @@ class VizierServiceAsyncClient:
     ) -> study.Trial:
         r"""Adds a user provided Trial to a Study.
 
-        .. code-block::
+        .. code-block:: python
 
             from google.cloud import aiplatform_v1beta1
 
@@ -893,7 +893,7 @@ class VizierServiceAsyncClient:
     ) -> study.Trial:
         r"""Gets a Trial.
 
-        .. code-block::
+        .. code-block:: python
 
             from google.cloud import aiplatform_v1beta1
 
@@ -986,7 +986,7 @@ class VizierServiceAsyncClient:
     ) -> pagers.ListTrialsAsyncPager:
         r"""Lists the Trials associated with a Study.
 
-        .. code-block::
+        .. code-block:: python
 
             from google.cloud import aiplatform_v1beta1
 
@@ -1089,7 +1089,7 @@ class VizierServiceAsyncClient:
         before the Trial is complete.
 
 
-        .. code-block::
+        .. code-block:: python
 
             from google.cloud import aiplatform_v1beta1
 
@@ -1162,7 +1162,7 @@ class VizierServiceAsyncClient:
     ) -> study.Trial:
         r"""Marks a Trial as complete.
 
-        .. code-block::
+        .. code-block:: python
 
             from google.cloud import aiplatform_v1beta1
 
@@ -1234,7 +1234,7 @@ class VizierServiceAsyncClient:
     ) -> None:
         r"""Deletes a Trial.
 
-        .. code-block::
+        .. code-block:: python
 
             from google.cloud import aiplatform_v1beta1
 
@@ -1317,7 +1317,7 @@ class VizierServiceAsyncClient:
         [CheckTrialEarlyStoppingStateResponse][google.cloud.ml.v1.CheckTrialEarlyStoppingStateResponse].
 
 
-        .. code-block::
+        .. code-block:: python
 
             from google.cloud import aiplatform_v1beta1
 
@@ -1403,7 +1403,7 @@ class VizierServiceAsyncClient:
     ) -> study.Trial:
         r"""Stops a Trial.
 
-        .. code-block::
+        .. code-block:: python
 
             from google.cloud import aiplatform_v1beta1
 
@@ -1479,7 +1479,7 @@ class VizierServiceAsyncClient:
         https://en.wikipedia.org/wiki/Pareto_efficiency
 
 
-        .. code-block::
+        .. code-block:: python
 
             from google.cloud import aiplatform_v1beta1
 

@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# Copyright 2020 Google LLC
+# Copyright 2022 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -472,8 +472,7 @@ class EndpointServiceClient(metaclass=EndpointServiceClientMeta):
     ) -> gac_operation.Operation:
         r"""Creates an Endpoint.
 
-
-        .. code-block::
+        .. code-block:: python
 
             from google.cloud import aiplatform_v1
 
@@ -606,8 +605,7 @@ class EndpointServiceClient(metaclass=EndpointServiceClientMeta):
     ) -> endpoint.Endpoint:
         r"""Gets an Endpoint.
 
-
-        .. code-block::
+        .. code-block:: python
 
             from google.cloud import aiplatform_v1
 
@@ -698,8 +696,7 @@ class EndpointServiceClient(metaclass=EndpointServiceClientMeta):
     ) -> pagers.ListEndpointsPager:
         r"""Lists Endpoints in a Location.
 
-
-        .. code-block::
+        .. code-block:: python
 
             from google.cloud import aiplatform_v1
 
@@ -801,8 +798,7 @@ class EndpointServiceClient(metaclass=EndpointServiceClientMeta):
     ) -> gca_endpoint.Endpoint:
         r"""Updates an Endpoint.
 
-
-        .. code-block::
+        .. code-block:: python
 
             from google.cloud import aiplatform_v1
 
@@ -907,8 +903,7 @@ class EndpointServiceClient(metaclass=EndpointServiceClientMeta):
     ) -> gac_operation.Operation:
         r"""Deletes an Endpoint.
 
-
-        .. code-block::
+        .. code-block:: python
 
             from google.cloud import aiplatform_v1
 
@@ -1030,8 +1025,7 @@ class EndpointServiceClient(metaclass=EndpointServiceClientMeta):
         DeployedModel within it.
 
 
-
-        .. code-block::
+        .. code-block:: python
 
             from google.cloud import aiplatform_v1
 
@@ -1185,8 +1179,7 @@ class EndpointServiceClient(metaclass=EndpointServiceClientMeta):
         using.
 
 
-
-        .. code-block::
+        .. code-block:: python
 
             from google.cloud import aiplatform_v1
 
