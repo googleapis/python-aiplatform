@@ -2435,6 +2435,7 @@ class TestCustomContainerTrainingJob:
 
         assert job.done() is True
 
+    @pytest.mark.parametrize("sync", [True, False])
     def test_run_call_pipeline_service_create_with_tabular_dataset(
         self,
         mock_pipeline_service_create,
