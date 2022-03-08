@@ -211,8 +211,14 @@ FEATURE_IDS = ["age", "gender", "liked_genres"]
 FEATURE_NAME = f"projects/{PROJECT}/locations/{LOCATION}/featurestores/{FEATURESTORE_ID}/entityTypes/{ENTITY_TYPE_ID}/features/{FEATURE_ID}"
 FEATURE_VALUE_TYPE = "INT64"
 FEATURE_CONFIGS = {
-    "age": {"value_type": "INT64", "description": "User age"},
-    "gender": {"value_type": "STRING", "description": "User gender"},
+    "age": {
+        "value_type": "INT64",
+        "description": "User age"
+    },
+    "gender": {
+        "value_type": "STRING",
+        "description": "User gender"
+    },
     "liked_genres": {
         "value_type": "STRING_ARRAY",
         "description": "An array of genres this user liked",
