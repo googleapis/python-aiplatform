@@ -21,6 +21,9 @@ import requests
 import time
 from typing import Any, Dict, Optional, Sequence
 
+from google.auth.exceptions import GoogleAuthError
+
+from google.cloud.aiplatform import initializer
 from google.cloud.aiplatform.constants import prediction
 from google.cloud.aiplatform.docker_utils import run
 from google.cloud.aiplatform.docker_utils.errors import DockerError
@@ -30,6 +33,8 @@ _logger = logging.getLogger(__name__)
 
 _DEFAULT_CONTAINER_READY_TIMEOUT = 300
 _DEFAULT_CONTAINER_READY_CHECK_INTERVAL = 1
+
+_GCLOUD_PROJECT_ENV = "GOOGLE_CLOUD_PROJECT"
 
 
 class LocalEndpoint:
@@ -140,11 +145,34 @@ class LocalEndpoint:
     def __enter__(self):
         """Enters the runtime context related to this object.
 
+        An environment variable, GCLOUD_PROJECT, will be set to the project in the global config.
+        This is required if the credentials file does not have project specified and used to
+        recognize the project by the Cloud Storage client.
+
         Raises:
             DockerError: If the container is not ready or health checks do not succeed after the
                 timeout.
         """
         try:
+            try:
+                project_id = initializer.global_config.project
+                _logger.info(
+                    f"Got the project id from the global config: {project_id}."
+                )
+            except (GoogleAuthError, ValueError):
+                project_id = None
+
+            envs = (
+                {
+                    key: value
+                    for key, value in self.serving_container_environment_variables.items()
+                }
+                if self.serving_container_environment_variables is not None
+                else {}
+            )
+            if project_id is not None:
+                envs[_GCLOUD_PROJECT_ENV] = project_id
+
             self.container = run.run_prediction_container(
                 self.serving_container_image_uri,
                 artifact_uri=self.artifact_uri,
@@ -152,7 +180,7 @@ class LocalEndpoint:
                 serving_container_health_route=self.serving_container_health_route,
                 serving_container_command=self.serving_container_command,
                 serving_container_args=self.serving_container_args,
-                serving_container_environment_variables=self.serving_container_environment_variables,
+                serving_container_environment_variables=envs,
                 serving_container_ports=self.serving_container_ports,
                 credential_path=self.credential_path,
                 host_port=self.host_port,
