@@ -145,7 +145,7 @@ class MatchingEngineIndexEndpoint(base.VertexAiResourceNounWithFutureManager):
                 `Format <https://cloud.google.com/compute/docs/reference/rest/v1/networks/insert>`__:
                 projects/{project}/global/networks/{network}. Where
                 {project} is a project number, as in '12345', and {network}
-                is network name.                
+                is network name.
             description (str):
                 Optional. The description of the IndexEndpoint.
             labels (Dict[str, str]):
@@ -161,7 +161,7 @@ class MatchingEngineIndexEndpoint(base.VertexAiResourceNounWithFutureManager):
                 labels can be associated with one
                 IndexEndpoint (System labels are excluded)."
                 System reserved label keys are prefixed with
-                "aiplatform.googleapis.com/" and are immutable.            
+                "aiplatform.googleapis.com/" and are immutable.
             project (str):
                 Optional. Project to create EntityType in. If not set, project
                 set in aiplatform.init will be used.
