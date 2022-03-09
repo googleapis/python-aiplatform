@@ -19,8 +19,8 @@ import re
 from typing import Optional
 
 
-CONTENT_TYPE_HEADER_REGEX = re.compile("^[Cc]ontent-?[Tt]ype")
-ACCEPT_HEADER_REGEX = re.compile("^[Aa]ccept")
+CONTENT_TYPE_HEADER_REGEX = re.compile("^[Cc]ontent-?[Tt]ype$")
+ACCEPT_HEADER_REGEX = re.compile("^[Aa]ccept$")
 ANY = "*/*"
 DEFAULT_ACCEPT = "application/json"
 
