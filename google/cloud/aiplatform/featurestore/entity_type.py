@@ -33,7 +33,7 @@ from google.cloud.aiplatform.compat.types import (
 from google.cloud.aiplatform import featurestore
 from google.cloud.aiplatform import initializer
 from google.cloud.aiplatform import utils
-from google.cloud.aiplatform.utils import featurestore_utils
+from google.cloud.aiplatform.utils import featurestore_utils, resource_manager_utils
 
 from google.cloud import bigquery
 
@@ -1259,10 +1259,11 @@ class EntityType(base.VertexAiResourceNounWithFutureManager):
             "-", "_"
         )
 
-        # TODO(b/216497263): Add support for resource project does not match initializer.global_config.project
-        temp_bq_dataset_id = f"{initializer.global_config.project}.{temp_bq_dataset_name}"[
-            :1024
-        ]
+        project_id = resource_manager_utils.get_project_id(
+            project_number=entity_type_name_components["project"],
+            credentials=self.credentials,
+        )
+        temp_bq_dataset_id = f"{project_id}.{temp_bq_dataset_name}"[:1024]
         temp_bq_table_id = f"{temp_bq_dataset_id}.{entity_type_id}"
 
         temp_bq_dataset = bigquery.Dataset(dataset_ref=temp_bq_dataset_id)
