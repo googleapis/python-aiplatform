@@ -42,7 +42,7 @@ model_service_client_default = model_service_client_v1
 
 def test_invalid_region_raises_with_invalid_region():
     with pytest.raises(ValueError):
-        aiplatform.utils.validate_region(region="us-west4")
+        aiplatform.utils.validate_region(region="us-west3")
 
 
 def test_invalid_region_does_not_raise_with_valid_region():
