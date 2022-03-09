@@ -46,7 +46,7 @@ def _generate_copy_command(from_path: str, to_path: str, comment: Optional[str] 
         comment (str):
             Optional. A comment explaining the copy operation.
     """
-    cmd = "COPY {}\n".format(json.dumps([from_path, to_path]))
+    cmd = "COPY {}".format(json.dumps([from_path, to_path]))
 
     if comment is not None:
         formatted_comment = "\n# ".join(comment.split("\n"))
@@ -166,7 +166,7 @@ def _prepare_entrypoint(package: Package, python_command: str = "python"):
         executable = [python_command] if ext == ".py" else ["/bin/bash"]
         exec_str = json.dumps(executable + [package.script])
 
-    return "\nENTRYPOINT {}".format(exec_str)
+    return "\nENTRYPOINT {}\n".format(exec_str)
 
 
 def _prepare_package_entry(package: Package):
@@ -203,8 +203,35 @@ def _prepare_exposed_ports(exposed_ports: Optional[List[int]] = None):
         return ret
 
     for port in exposed_ports:
-        ret += "EXPOSE {}".format(port)
+        ret += "\nEXPOSE {}\n".format(port)
     return ret
+
+
+def _get_relative_path_to_workdir(
+    workdir: str, path: Optional[str] = None, value_name: str = "value",
+) -> str:
+    """Returns the relative path to the workdir.
+
+    Args:
+        workdir (str):
+            Required. The directory that the retrieved path relative to.
+        path (str):
+            Optional. The path to retrieve the relative path to the workdir.
+        value_name (str):
+            Required. The variable name specified in the exception message.
+
+    Returns:
+        The relative path to the workdir or None if path is None.
+
+    Raises:
+        ValueError: If the path is not relative to the workdir.
+    """
+    if path is None:
+        return None
+
+    if not path_utils._is_relative_to(path, workdir):
+        raise ValueError(f'The {value_name} "{path}" must be in "{workdir}".')
+    return Path(path).relative_to(workdir).as_posix()
 
 
 def make_dockerfile(
@@ -262,34 +289,63 @@ def make_dockerfile(
         """
         FROM {base_image}
 
+        # Keeps Python from generating .pyc files in the container
+        ENV PYTHONDONTWRITEBYTECODE=1
+        """.format(
+            base_image=base_image,
+        )
+    )
+
+    dockerfile += _prepare_exposed_ports(exposed_ports)
+
+    dockerfile += _prepare_entrypoint(main_package, python_command=python_command)
+
+    dockerfile += textwrap.dedent(
+        """
         # The directory is created by root. This sets permissions so that any user can
         # access the folder.
         RUN mkdir -m 777 -p {workdir} {container_home}
         WORKDIR {workdir}
         ENV HOME={container_home}
-
-        # Keeps Python from generating .pyc files in the container
-        ENV PYTHONDONTWRITEBYTECODE=1
         """.format(
-            base_image=base_image,
             workdir=shlex_quote(container_workdir),
             container_home=shlex_quote(container_home),
         )
     )
 
-    dockerfile += _prepare_package_entry(main_package)
+    # Installs extra requirements which do not involve user source code.
+    dockerfile += _prepare_dependency_entries(
+        requirements_path=None,
+        setup_path=None,
+        extra_requirements=extra_requirements,
+        extra_packages=None,
+        extra_dirs=None,
+        pip_command=pip_command,
+    )
 
+    # Installs packages from requirements_path which copies requirements_path
+    # to the image before installing.
     dockerfile += _prepare_dependency_entries(
         requirements_path=requirements_path,
+        setup_path=None,
+        extra_requirements=None,
+        extra_packages=None,
+        extra_dirs=None,
+        pip_command=pip_command,
+    )
+
+    # Copies user code to the image.
+    dockerfile += _prepare_package_entry(main_package)
+
+    # Installs additional packages from user code.
+    dockerfile += _prepare_dependency_entries(
+        requirements_path=None,
         setup_path=setup_path,
-        extra_requirements=extra_requirements,
+        extra_requirements=None,
         extra_packages=extra_packages,
         extra_dirs=extra_dirs,
         pip_command=pip_command,
     )
-
-    dockerfile += _prepare_exposed_ports(exposed_ports)
-    dockerfile += _prepare_entrypoint(main_package, python_command=python_command)
 
     return dockerfile
 
@@ -300,8 +356,8 @@ def build_image(
     main_script: str,
     output_image_name: str,
     python_module: Optional[str] = None,
-    requirements: Optional[List[str]] = None,
     requirements_path: Optional[str] = None,
+    extra_requirements: Optional[List[str]] = None,
     setup_path: Optional[str] = None,
     extra_packages: Optional[List[str]] = None,
     container_workdir: Optional[str] = None,
@@ -330,10 +386,10 @@ def build_image(
             Required. The name of the built image.
         python_module (str):
             Optional. The executable main script in form of a python module, if applicable.
-        requirements (List[str]):
-            Optional. The list of required dependencies to install from PyPI.
         requirements_path (str):
             Optional. The path to a local file including required dependencies to install from PyPI.
+        extra_requirements (List[str]):
+            Optional. The list of required dependencies to install from PyPI.
         setup_path (str):
             Optional. The path to a local setup.py used for installing packages.
         extra_packages (List[str]):
@@ -351,7 +407,10 @@ def build_image(
         python_command (str):
             Required. The python command used for running python scripts.
         no_cache (bool):
-            Required. Do not use cache when building the image.
+            Required. Do not use cache when building the image. Using build cache usually
+            reduces the image building time. See
+            https://docs.docker.com/develop/develop-images/dockerfile_best-practices/#leverage-build-cache
+            for more details.
         **kwargs:
             Other arguments to pass to underlying method that generates the Dockerfile.
 
@@ -360,6 +419,7 @@ def build_image(
 
     Raises:
         DockerError: An error occurred when executing `docker build`
+        ValueError: If the needed code is not relative to the host workdir.
     """
 
     tag_options = ["-t", output_image_name]
@@ -369,23 +429,25 @@ def build_image(
         ["docker", "build"] + cache_args + tag_options + ["--rm", "-f-", host_workdir]
     )
 
-    requirements_relative_path = None
-    if requirements_path is not None:
-        if not path_utils._is_relative_to(requirements_path, host_workdir):
-            raise ValueError(
-                f'The requirements_path "{requirements_path}" must be in "{host_workdir}".'
-            )
-        requirements_relative_path = (
-            Path(requirements_path).relative_to(host_workdir).as_posix()
-        )
+    requirements_relative_path = _get_relative_path_to_workdir(
+        host_workdir, path=requirements_path, value_name="requirements_path",
+    )
 
-    setup_relative_path = None
-    if setup_path is not None:
-        if not path_utils._is_relative_to(setup_path, host_workdir):
-            raise ValueError(
-                f'The setup_path "{setup_path}" must be in "{host_workdir}".'
+    setup_relative_path = _get_relative_path_to_workdir(
+        host_workdir, path=setup_path, value_name="setup_path",
+    )
+
+    extra_packages_relative_paths = (
+        None
+        if extra_packages is None
+        else [
+            _get_relative_path_to_workdir(
+                host_workdir, path=extra_package, value_name="extra_packages"
             )
-        setup_relative_path = Path(setup_path).relative_to(host_workdir).as_posix()
+            for extra_package in extra_packages
+            if extra_package is not None
+        ]
+    )
 
     home_dir = container_home or _DEFAULT_HOME
     work_dir = container_workdir or _DEFAULT_WORKDIR
@@ -404,8 +466,8 @@ def build_image(
         home_dir,
         requirements_path=requirements_relative_path,
         setup_path=setup_relative_path,
-        extra_requirements=requirements,
-        extra_packages=extra_packages,
+        extra_requirements=extra_requirements,
+        extra_packages=extra_packages_relative_paths,
         extra_dirs=extra_dirs,
         exposed_ports=exposed_ports,
         pip_command=pip_command,

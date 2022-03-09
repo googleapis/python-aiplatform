@@ -79,6 +79,12 @@ def textiowrapper_mock():
         yield textiowrapper_mock
 
 
+@pytest.fixture
+def make_dockerfile_mock():
+    with mock.patch.object(build, "make_dockerfile") as make_dockerfile_mock:
+        yield make_dockerfile_mock
+
+
 class TestRun:
     IMAGE_URI = "test_image:latest"
 
@@ -252,11 +258,17 @@ class TestBuild:
     HOME = build._DEFAULT_HOME
     WORKDIR = build._DEFAULT_WORKDIR
     SCRIPT = "./user_code/entrypoint.py"
+    SCRIPT_PACKAGE_PATH = "user_code/entrypoint.py"
     MAIN_SCRIPT = f"{HOST_WORKDIR}/entrypoint.py"
     PACKAGE = utils.Package(
         script=SCRIPT, package_path=HOST_WORKDIR, python_module=None
     )
     OUTPUT_IMAGE_NAME = "test_image:latest"
+    REQUIREMENTS_FILE = "requirements.txt"
+    EXTRA_PACKAGE = "custom_package.tar.gz"
+    SETUP_FILE = "setup.py"
+    PIP = "pip"
+    PYTHON = "python"
 
     def test_make_dockerfile(self):
         result = build.make_dockerfile(
@@ -381,56 +393,136 @@ class TestBuild:
         assert f'ENTRYPOINT ["python", "{self.SCRIPT}"]' in result
         assert f"EXPOSE {exposed_port}\n" in result
 
-    def test_build_image(self, execute_command_mock):
+    def test_build_image(self, make_dockerfile_mock, execute_command_mock):
         image = build.build_image(
             self.BASE_IMAGE, self.HOST_WORKDIR, self.MAIN_SCRIPT, self.OUTPUT_IMAGE_NAME
         )
 
+        make_dockerfile_mock.assert_called_once_with(
+            self.BASE_IMAGE,
+            utils.Package(
+                script=self.SCRIPT_PACKAGE_PATH,
+                package_path=self.HOST_WORKDIR,
+                python_module=None,
+            ),
+            build._DEFAULT_WORKDIR,
+            build._DEFAULT_HOME,
+            requirements_path=None,
+            setup_path=None,
+            extra_requirements=None,
+            extra_packages=None,
+            extra_dirs=None,
+            exposed_ports=None,
+            pip_command=self.PIP,
+            python_command=self.PYTHON,
+        )
         assert image.name == self.OUTPUT_IMAGE_NAME
         assert image.default_home == self.HOME
         assert image.default_workdir == self.WORKDIR
 
-    def test_build_image_with_python_module(self, execute_command_mock):
+    def test_build_image_with_python_module(
+        self, make_dockerfile_mock, execute_command_mock
+    ):
+        python_module = "custom.python.module"
         image = build.build_image(
             self.BASE_IMAGE,
             self.HOST_WORKDIR,
             self.MAIN_SCRIPT,
             self.OUTPUT_IMAGE_NAME,
-            python_module="custom.python.module",
+            python_module=python_module,
         )
 
+        make_dockerfile_mock.assert_called_once_with(
+            self.BASE_IMAGE,
+            utils.Package(
+                script=self.SCRIPT_PACKAGE_PATH,
+                package_path=self.HOST_WORKDIR,
+                python_module=python_module,
+            ),
+            build._DEFAULT_WORKDIR,
+            build._DEFAULT_HOME,
+            requirements_path=None,
+            setup_path=None,
+            extra_requirements=None,
+            extra_packages=None,
+            extra_dirs=None,
+            exposed_ports=None,
+            pip_command=self.PIP,
+            python_command=self.PYTHON,
+        )
         assert image.name == self.OUTPUT_IMAGE_NAME
         assert image.default_home == self.HOME
         assert image.default_workdir == self.WORKDIR
 
-    def test_build_image_with_requirements(self, execute_command_mock):
+    def test_build_image_with_extra_requirements(
+        self, make_dockerfile_mock, execute_command_mock
+    ):
+        extra_requirements = ["custom_package==1.0"]
         image = build.build_image(
             self.BASE_IMAGE,
             self.HOST_WORKDIR,
             self.MAIN_SCRIPT,
             self.OUTPUT_IMAGE_NAME,
-            requirements=["custom_package==1.0"],
+            extra_requirements=extra_requirements,
         )
 
+        make_dockerfile_mock.assert_called_once_with(
+            self.BASE_IMAGE,
+            utils.Package(
+                script=self.SCRIPT_PACKAGE_PATH,
+                package_path=self.HOST_WORKDIR,
+                python_module=None,
+            ),
+            build._DEFAULT_WORKDIR,
+            build._DEFAULT_HOME,
+            requirements_path=None,
+            setup_path=None,
+            extra_requirements=extra_requirements,
+            extra_packages=None,
+            extra_dirs=None,
+            exposed_ports=None,
+            pip_command=self.PIP,
+            python_command=self.PYTHON,
+        )
         assert image.name == self.OUTPUT_IMAGE_NAME
         assert image.default_home == self.HOME
         assert image.default_workdir == self.WORKDIR
 
-    def test_build_image_with_requirements_path(self, execute_command_mock):
+    def test_build_image_with_requirements_path(
+        self, make_dockerfile_mock, execute_command_mock
+    ):
         image = build.build_image(
             self.BASE_IMAGE,
             self.HOST_WORKDIR,
             self.MAIN_SCRIPT,
             self.OUTPUT_IMAGE_NAME,
-            requirements_path=f"{self.HOST_WORKDIR}/requirements.txt",
+            requirements_path=f"{self.HOST_WORKDIR}/{self.REQUIREMENTS_FILE}",
         )
 
+        make_dockerfile_mock.assert_called_once_with(
+            self.BASE_IMAGE,
+            utils.Package(
+                script=self.SCRIPT_PACKAGE_PATH,
+                package_path=self.HOST_WORKDIR,
+                python_module=None,
+            ),
+            build._DEFAULT_WORKDIR,
+            build._DEFAULT_HOME,
+            requirements_path=self.REQUIREMENTS_FILE,
+            setup_path=None,
+            extra_requirements=None,
+            extra_packages=None,
+            extra_dirs=None,
+            exposed_ports=None,
+            pip_command=self.PIP,
+            python_command=self.PYTHON,
+        )
         assert image.name == self.OUTPUT_IMAGE_NAME
         assert image.default_home == self.HOME
         assert image.default_workdir == self.WORKDIR
 
-    def test_build_image_invalid_requirements_path(self):
-        requirements_path = "./another_src/requirements.txt"
+    def test_build_image_invalid_requirements_path(self, make_dockerfile_mock):
+        requirements_path = f"./another_src/{self.REQUIREMENTS_FILE}"
         expected_message = f'The requirements_path "{requirements_path}" must be in "{self.HOST_WORKDIR}".'
 
         with pytest.raises(ValueError) as exception:
@@ -442,23 +534,44 @@ class TestBuild:
                 requirements_path=requirements_path,
             )
 
+        assert not make_dockerfile_mock.called
         assert str(exception.value) == expected_message
 
-    def test_build_image_with_setup_path(self, execute_command_mock):
+    def test_build_image_with_setup_path(
+        self, make_dockerfile_mock, execute_command_mock
+    ):
         image = build.build_image(
             self.BASE_IMAGE,
             self.HOST_WORKDIR,
             self.MAIN_SCRIPT,
             self.OUTPUT_IMAGE_NAME,
-            setup_path=f"{self.HOST_WORKDIR}/setup.py",
+            setup_path=f"{self.HOST_WORKDIR}/{self.SETUP_FILE}",
         )
 
+        make_dockerfile_mock.assert_called_once_with(
+            self.BASE_IMAGE,
+            utils.Package(
+                script=self.SCRIPT_PACKAGE_PATH,
+                package_path=self.HOST_WORKDIR,
+                python_module=None,
+            ),
+            build._DEFAULT_WORKDIR,
+            build._DEFAULT_HOME,
+            requirements_path=None,
+            setup_path=self.SETUP_FILE,
+            extra_requirements=None,
+            extra_packages=None,
+            extra_dirs=None,
+            exposed_ports=None,
+            pip_command=self.PIP,
+            python_command=self.PYTHON,
+        )
         assert image.name == self.OUTPUT_IMAGE_NAME
         assert image.default_home == self.HOME
         assert image.default_workdir == self.WORKDIR
 
-    def test_build_image_invalid_setup_path(self):
-        setup_path = "./another_src/setup.py"
+    def test_build_image_invalid_setup_path(self, make_dockerfile_mock):
+        setup_path = f"./another_src/{self.SETUP_FILE}"
         expected_message = (
             f'The setup_path "{setup_path}" must be in "{self.HOST_WORKDIR}".'
         )
@@ -472,22 +585,65 @@ class TestBuild:
                 setup_path=setup_path,
             )
 
+        assert not make_dockerfile_mock.called
         assert str(exception.value) == expected_message
 
-    def test_build_image_with_extra_packages(self, execute_command_mock):
+    def test_build_image_with_extra_packages(
+        self, make_dockerfile_mock, execute_command_mock
+    ):
         image = build.build_image(
             self.BASE_IMAGE,
             self.HOST_WORKDIR,
             self.MAIN_SCRIPT,
             self.OUTPUT_IMAGE_NAME,
-            extra_packages=["./another_src/custom_package"],
+            extra_packages=[f"{self.HOST_WORKDIR}/{self.EXTRA_PACKAGE}"],
         )
 
+        make_dockerfile_mock.assert_called_once_with(
+            self.BASE_IMAGE,
+            utils.Package(
+                script=self.SCRIPT_PACKAGE_PATH,
+                package_path=self.HOST_WORKDIR,
+                python_module=None,
+            ),
+            build._DEFAULT_WORKDIR,
+            build._DEFAULT_HOME,
+            requirements_path=None,
+            setup_path=None,
+            extra_requirements=None,
+            extra_packages=[self.EXTRA_PACKAGE],
+            extra_dirs=None,
+            exposed_ports=None,
+            pip_command=self.PIP,
+            python_command=self.PYTHON,
+        )
         assert image.name == self.OUTPUT_IMAGE_NAME
         assert image.default_home == self.HOME
         assert image.default_workdir == self.WORKDIR
 
-    def test_build_image_with_container_workdir(self, execute_command_mock):
+    def test_build_image_invalid_extra_packages(
+        self, make_dockerfile_mock, execute_command_mock
+    ):
+        extra_package = f"./another_src/{self.EXTRA_PACKAGE}"
+        expected_message = (
+            f'The extra_packages "{extra_package}" must be in "{self.HOST_WORKDIR}".'
+        )
+
+        with pytest.raises(ValueError) as exception:
+            _ = build.build_image(
+                self.BASE_IMAGE,
+                self.HOST_WORKDIR,
+                self.MAIN_SCRIPT,
+                self.OUTPUT_IMAGE_NAME,
+                extra_packages=[extra_package],
+            )
+
+        assert not make_dockerfile_mock.called
+        assert str(exception.value) == expected_message
+
+    def test_build_image_with_container_workdir(
+        self, make_dockerfile_mock, execute_command_mock
+    ):
         container_workdir = "/custom_workdir"
 
         image = build.build_image(
@@ -498,11 +654,31 @@ class TestBuild:
             container_workdir=container_workdir,
         )
 
+        make_dockerfile_mock.assert_called_once_with(
+            self.BASE_IMAGE,
+            utils.Package(
+                script=self.SCRIPT_PACKAGE_PATH,
+                package_path=self.HOST_WORKDIR,
+                python_module=None,
+            ),
+            container_workdir,
+            build._DEFAULT_HOME,
+            requirements_path=None,
+            setup_path=None,
+            extra_requirements=None,
+            extra_packages=None,
+            extra_dirs=None,
+            exposed_ports=None,
+            pip_command=self.PIP,
+            python_command=self.PYTHON,
+        )
         assert image.name == self.OUTPUT_IMAGE_NAME
         assert image.default_home == self.HOME
         assert image.default_workdir == container_workdir
 
-    def test_build_image_with_container_home(self, execute_command_mock):
+    def test_build_image_with_container_home(
+        self, make_dockerfile_mock, execute_command_mock
+    ):
         container_home = "/custom_home"
 
         image = build.build_image(
@@ -513,32 +689,92 @@ class TestBuild:
             container_home=container_home,
         )
 
+        make_dockerfile_mock.assert_called_once_with(
+            self.BASE_IMAGE,
+            utils.Package(
+                script=self.SCRIPT_PACKAGE_PATH,
+                package_path=self.HOST_WORKDIR,
+                python_module=None,
+            ),
+            build._DEFAULT_WORKDIR,
+            container_home,
+            requirements_path=None,
+            setup_path=None,
+            extra_requirements=None,
+            extra_packages=None,
+            extra_dirs=None,
+            exposed_ports=None,
+            pip_command=self.PIP,
+            python_command=self.PYTHON,
+        )
         assert image.name == self.OUTPUT_IMAGE_NAME
         assert image.default_home == container_home
         assert image.default_workdir == self.WORKDIR
 
-    def test_build_image_with_extra_dirs(self, execute_command_mock):
+    def test_build_image_with_extra_dirs(
+        self, make_dockerfile_mock, execute_command_mock
+    ):
+        extra_dirs = ["./another_src"]
         image = build.build_image(
             self.BASE_IMAGE,
             self.HOST_WORKDIR,
             self.MAIN_SCRIPT,
             self.OUTPUT_IMAGE_NAME,
-            extra_dirs=["./another_src"],
+            extra_dirs=extra_dirs,
         )
 
+        make_dockerfile_mock.assert_called_once_with(
+            self.BASE_IMAGE,
+            utils.Package(
+                script=self.SCRIPT_PACKAGE_PATH,
+                package_path=self.HOST_WORKDIR,
+                python_module=None,
+            ),
+            build._DEFAULT_WORKDIR,
+            build._DEFAULT_HOME,
+            requirements_path=None,
+            setup_path=None,
+            extra_requirements=None,
+            extra_packages=None,
+            extra_dirs=extra_dirs,
+            exposed_ports=None,
+            pip_command=self.PIP,
+            python_command=self.PYTHON,
+        )
         assert image.name == self.OUTPUT_IMAGE_NAME
         assert image.default_home == self.HOME
         assert image.default_workdir == self.WORKDIR
 
-    def test_build_image_with_exposed_ports(self, execute_command_mock):
+    def test_build_image_with_exposed_ports(
+        self, make_dockerfile_mock, execute_command_mock
+    ):
+        exposed_ports = [8080]
         image = build.build_image(
             self.BASE_IMAGE,
             self.HOST_WORKDIR,
             self.MAIN_SCRIPT,
             self.OUTPUT_IMAGE_NAME,
-            exposed_ports=[8080],
+            exposed_ports=exposed_ports,
         )
 
+        make_dockerfile_mock.assert_called_once_with(
+            self.BASE_IMAGE,
+            utils.Package(
+                script=self.SCRIPT_PACKAGE_PATH,
+                package_path=self.HOST_WORKDIR,
+                python_module=None,
+            ),
+            build._DEFAULT_WORKDIR,
+            build._DEFAULT_HOME,
+            requirements_path=None,
+            setup_path=None,
+            extra_requirements=None,
+            extra_packages=None,
+            extra_dirs=None,
+            exposed_ports=exposed_ports,
+            pip_command=self.PIP,
+            python_command=self.PYTHON,
+        )
         assert image.name == self.OUTPUT_IMAGE_NAME
         assert image.default_home == self.HOME
         assert image.default_workdir == self.WORKDIR
