@@ -533,6 +533,39 @@ class TestPipelineJob:
         )
 
     @pytest.mark.parametrize(
+        "job_spec_json", [_TEST_PIPELINE_SPEC, _TEST_PIPELINE_JOB],
+    )
+    def test_done_method_pipeline_service(
+        self,
+        mock_pipeline_service_create,
+        mock_pipeline_service_get,
+        job_spec_json,
+        mock_load_json,
+    ):
+        aiplatform.init(
+            project=_TEST_PROJECT,
+            staging_bucket=_TEST_GCS_BUCKET_NAME,
+            location=_TEST_LOCATION,
+            credentials=_TEST_CREDENTIALS,
+        )
+
+        job = pipeline_jobs.PipelineJob(
+            display_name=_TEST_PIPELINE_JOB_DISPLAY_NAME,
+            template_path=_TEST_TEMPLATE_PATH,
+            job_id=_TEST_PIPELINE_JOB_ID,
+            parameter_values=_TEST_PIPELINE_PARAMETER_VALUES,
+            enable_caching=True,
+        )
+
+        job.submit(service_account=_TEST_SERVICE_ACCOUNT, network=_TEST_NETWORK)
+
+        assert job.done() is False
+
+        job.wait()
+
+        assert job.done() is True
+
+    @pytest.mark.parametrize(
         "job_spec_json", [_TEST_PIPELINE_SPEC_LEGACY, _TEST_PIPELINE_JOB_LEGACY],
     )
     def test_submit_call_pipeline_service_pipeline_job_create_legacy(
