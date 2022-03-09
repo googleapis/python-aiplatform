@@ -5919,7 +5919,7 @@ class AutoMLVideoTrainingJob(_TrainingJob):
         model_labels: Optional[Dict[str, str]] = None,
         sync: bool = True,
     ) -> models.Model:
-        """Runs the AutoML Image training job and returns a model.
+        """Runs the AutoML Video training job and returns a model.
 
         If training on a Vertex AI dataset, you can use one of the following split configurations:
             Data fraction splits:
