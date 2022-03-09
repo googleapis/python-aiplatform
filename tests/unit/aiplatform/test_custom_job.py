@@ -547,6 +547,13 @@ class TestCustomJob:
                 assert job.web_access_uris == _TEST_WEB_ACCESS_URIS
                 break
 
+    def test_log_access_web_uris_after_get(
+        self, get_custom_job_mock_with_enable_web_access
+    ):
+        job = aiplatform.CustomJob.get(_TEST_CUSTOM_JOB_NAME)
+        job._block_until_complete()
+        assert job._logged_web_access_uris == set(_TEST_WEB_ACCESS_URIS.values())
+
     def test_get_web_access_uris_job_succeeded(
         self, get_custom_job_mock_with_enable_web_access_succeeded
     ):

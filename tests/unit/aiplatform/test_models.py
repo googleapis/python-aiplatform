@@ -825,6 +825,10 @@ class TestModel:
     def test_deploy(self, deploy_model_mock, sync):
 
         test_model = models.Model(_TEST_ID)
+        test_model._gca_resource.supported_deployment_resources_types.append(
+            aiplatform.gapic.Model.DeploymentResourcesType.AUTOMATIC_RESOURCES
+        )
+
         test_endpoint = models.Endpoint(_TEST_ID)
 
         assert test_model.deploy(test_endpoint, sync=sync,) == test_endpoint
@@ -854,6 +858,9 @@ class TestModel:
     def test_deploy_no_endpoint(self, deploy_model_mock, sync):
 
         test_model = models.Model(_TEST_ID)
+        test_model._gca_resource.supported_deployment_resources_types.append(
+            aiplatform.gapic.Model.DeploymentResourcesType.AUTOMATIC_RESOURCES
+        )
         test_endpoint = test_model.deploy(sync=sync)
 
         if not sync:
@@ -881,6 +888,9 @@ class TestModel:
     def test_deploy_no_endpoint_dedicated_resources(self, deploy_model_mock, sync):
 
         test_model = models.Model(_TEST_ID)
+        test_model._gca_resource.supported_deployment_resources_types.append(
+            aiplatform.gapic.Model.DeploymentResourcesType.DEDICATED_RESOURCES
+        )
         test_endpoint = test_model.deploy(
             machine_type=_TEST_MACHINE_TYPE,
             accelerator_type=_TEST_ACCELERATOR_TYPE,
@@ -919,6 +929,9 @@ class TestModel:
     @pytest.mark.parametrize("sync", [True, False])
     def test_deploy_no_endpoint_with_explanations(self, deploy_model_mock, sync):
         test_model = models.Model(_TEST_ID)
+        test_model._gca_resource.supported_deployment_resources_types.append(
+            aiplatform.gapic.Model.DeploymentResourcesType.DEDICATED_RESOURCES
+        )
         test_endpoint = test_model.deploy(
             machine_type=_TEST_MACHINE_TYPE,
             accelerator_type=_TEST_ACCELERATOR_TYPE,
@@ -961,6 +974,9 @@ class TestModel:
     def test_deploy_raises_with_impartial_explanation_spec(self):
 
         test_model = models.Model(_TEST_ID)
+        test_model._gca_resource.supported_deployment_resources_types.append(
+            aiplatform.gapic.Model.DeploymentResourcesType.DEDICATED_RESOURCES
+        )
 
         with pytest.raises(ValueError) as e:
             test_model.deploy(

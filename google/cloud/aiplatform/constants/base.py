@@ -36,6 +36,8 @@ SUPPORTED_REGIONS = {
     "us-east4",
     "us-west1",
     "us-west2",
+    "us-west4",
+    "southamerica-east1",
 }
 
 API_BASE_PATH = "aiplatform.googleapis.com"

@@ -732,3 +732,15 @@ class TestHyperparameterTuningJob:
         assert job.trials == []
 
         caplog.clear()
+
+    def test_log_enable_web_access_after_get_hyperparameter_tuning_job(
+        self, get_hyperparameter_tuning_job_mock_with_enable_web_access,
+    ):
+
+        hp_job = aiplatform.HyperparameterTuningJob.get(
+            _TEST_HYPERPARAMETERTUNING_JOB_NAME
+        )
+        hp_job._block_until_complete()
+        assert hp_job._logged_web_access_uris == set(
+            test_custom_job._TEST_WEB_ACCESS_URIS.values()
+        )
