@@ -32,6 +32,8 @@ def get_project_id(
     Args:
         project_number (str):
             Required. The automatically generated unique identifier for your GCP project.
+        credentials: The custom credentials to use when making API calls.
+            Optional. If not provided, default credentials will be used.
 
     Returns:
         str - The unique string used to differentiate your GCP project from all others in Google Cloud.
