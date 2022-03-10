@@ -656,7 +656,7 @@ class VertexAiResourceNoun(metaclass=abc.ABCMeta):
         return self._gca_resource
 
     @property
-    def resource_is_available(self) -> bool:
+    def _resource_is_available(self) -> bool:
         """Returns True if GCA resource has been created and is available, otherwise False"""
         try:
             self._assert_gca_resource_is_available()
@@ -1162,7 +1162,7 @@ class VertexAiResourceNounWithFutureManager(VertexAiResourceNoun, FutureManager)
         _LOGGER.log_action_completed_against_resource("deleted.", "", self)
 
     def __repr__(self) -> str:
-        if self._gca_resource and self.resource_is_available:
+        if self._gca_resource and self._resource_is_available:
             return VertexAiResourceNoun.__repr__(self)
 
         return FutureManager.__repr__(self)

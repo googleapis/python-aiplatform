@@ -661,8 +661,8 @@ class TestCustomJob:
         assert (
             job._gca_resource.state == gca_job_state_compat.JobState.JOB_STATE_SUCCEEDED
         )
-
-    def test_check_custom_job_availability(self, get_custom_job_mock, create_custom_job_mock):
+    @pytest.mark.usefixtures('get_custom_job_mock', 'create_custom_job_mock')
+    def test_check_custom_job_availability(self):
         aiplatform.init(
             project=_TEST_PROJECT,
             location=_TEST_LOCATION,
@@ -677,7 +677,7 @@ class TestCustomJob:
             labels=_TEST_LABELS,
         )
 
-        assert not job.resource_is_available
+        assert not job._resource_is_available
         assert job.__repr__().startswith('<google.cloud.aiplatform.jobs.CustomJob object')
 
 
@@ -690,7 +690,7 @@ class TestCustomJob:
 
         job.wait_for_resource_creation()
 
-        assert job.resource_is_available
+        assert job._resource_is_available
         assert 'resource name' in job.__repr__()
 
         job.wait()
