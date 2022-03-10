@@ -68,6 +68,7 @@ def _prepare_dependency_entries(
     extra_packages: Optional[List[str]] = None,
     extra_requirements: Optional[List[str]] = None,
     extra_dirs: Optional[List[str]] = None,
+    force_reinstall: bool = False,
     pip_command: str = "pip",
 ):
     """Returns the Dockerfile entries required to install dependencies.
@@ -83,6 +84,8 @@ def _prepare_dependency_entries(
             Optional. The list of required dependencies to be installed from remote resource archives.
         extra_dirs (List[str]):
             Optional. The directories other than the work_dir required.
+        force_reinstall (bool):
+            Required. Whether or not force reinstall all packages even if they are already up-to-date.
         pip_command (str):
             Required. The pip command used for install packages.
     """
@@ -95,9 +98,10 @@ def _prepare_dependency_entries(
             comment="setup.py file specified, thus copy it to the docker container.",
         ) + textwrap.dedent(
             """
-            RUN {} install --no-cache-dir .
+            RUN {} install --no-cache-dir {} .
             """.format(
                 pip_command,
+                "--force-reinstall" if force_reinstall else "",
             )
         )
 
@@ -108,9 +112,10 @@ def _prepare_dependency_entries(
             comment="requirements.txt file specified, thus copy it to the docker container.",
         ) + textwrap.dedent(
             """
-            RUN {} install --no-cache-dir -r ./requirements.txt
+            RUN {} install --no-cache-dir {} -r ./requirements.txt
             """.format(
                 pip_command,
+                "--force-reinstall" if force_reinstall else "",
             )
         )
 
@@ -120,10 +125,11 @@ def _prepare_dependency_entries(
             ret += textwrap.dedent(
                 """
                 {}
-                RUN {} install --no-cache-dir {}
+                RUN {} install --no-cache-dir {} {}
                 """.format(
                     _generate_copy_command(extra, package_name),
                     pip_command,
+                    "--force-reinstall" if force_reinstall else "",
                     shlex_quote(package_name),
                 )
             )
@@ -132,9 +138,11 @@ def _prepare_dependency_entries(
         for requirement in extra_requirements:
             ret += textwrap.dedent(
                 """
-                RUN {} install --no-cache-dir {}
+                RUN {} install --no-cache-dir {} {}
                 """.format(
-                    pip_command, shlex_quote(requirement)
+                    pip_command,
+                    "--force-reinstall" if force_reinstall else "",
+                    shlex_quote(requirement),
                 )
             )
 
@@ -320,6 +328,7 @@ def make_dockerfile(
         extra_requirements=extra_requirements,
         extra_packages=None,
         extra_dirs=None,
+        force_reinstall=True,
         pip_command=pip_command,
     )
 
