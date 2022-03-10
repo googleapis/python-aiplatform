@@ -31,6 +31,7 @@ from starlette.datastructures import Headers
 from starlette.testclient import TestClient
 
 from google.api_core import operation as ga_operation
+from google.auth.exceptions import GoogleAuthError
 
 from google.cloud import aiplatform
 from google.cloud.aiplatform import base
@@ -53,6 +54,7 @@ from google.cloud.aiplatform.prediction import DEFAULT_HTTP_PORT
 from google.cloud.aiplatform.prediction import DEFAULT_PREDICT_ROUTE
 from google.cloud.aiplatform.prediction import LocalModel
 from google.cloud.aiplatform.prediction import LocalEndpoint
+from google.cloud.aiplatform.prediction import local_endpoint
 from google.cloud.aiplatform.prediction import handler_utils
 from google.cloud.aiplatform.prediction.handler import Handler
 from google.cloud.aiplatform.prediction.handler import PredictionHandler
@@ -277,6 +279,14 @@ def build_image_mock():
 
 
 @pytest.fixture
+def local_endpoint_logger_mock():
+    with mock.patch(
+        "google.cloud.aiplatform.prediction.local_endpoint._logger"
+    ) as local_endpoint_logger_mock:
+        yield local_endpoint_logger_mock
+
+
+@pytest.fixture
 def local_endpoint_init_mock():
     with mock.patch.object(LocalEndpoint, "__init__") as local_endpoint_init_mock:
         local_endpoint_init_mock.return_value = None
@@ -293,6 +303,18 @@ def local_endpoint_enter_mock():
 def local_endpoint_exit_mock():
     with mock.patch.object(LocalEndpoint, "__exit__") as local_endpoint_exit_mock:
         yield local_endpoint_exit_mock
+
+
+@pytest.fixture
+def initializer_mock():
+    global_config = initializer.global_config
+    type(global_config).project = mock.PropertyMock(return_value=_TEST_PROJECT)
+
+
+@pytest.fixture
+def initializer_project_none_mock():
+    global_config = initializer.global_config
+    type(global_config).project = mock.PropertyMock(side_effect=GoogleAuthError)
 
 
 def get_docker_container_mock():
@@ -1450,6 +1472,7 @@ class TestLocalModel:
 class TestLocalEndpoint:
     def test_init(
         self,
+        initializer_project_none_mock,
         run_prediction_container_mock,
         wait_until_container_runs_mock,
         wait_until_health_check_succeeds_mock,
@@ -1465,7 +1488,7 @@ class TestLocalEndpoint:
             serving_container_health_route=prediction.DEFAULT_LOCAL_HEALTH_ROUTE,
             serving_container_command=None,
             serving_container_args=None,
-            serving_container_environment_variables=None,
+            serving_container_environment_variables={},
             serving_container_ports=None,
             credential_path=None,
             host_port=None,
@@ -1476,6 +1499,7 @@ class TestLocalEndpoint:
 
     def test_init_with_all_parameters(
         self,
+        initializer_project_none_mock,
         run_prediction_container_mock,
         wait_until_container_runs_mock,
         wait_until_health_check_succeeds_mock,
@@ -1520,6 +1544,35 @@ class TestLocalEndpoint:
             serving_container_ports=serving_container_ports,
             credential_path=credential_path,
             host_port=host_port,
+        )
+        wait_until_container_runs_mock.assert_called_once_with()
+        wait_until_health_check_succeeds_mock.assert_called_once_with()
+        stop_container_if_exists_mock.assert_called_once_with()
+
+    def test_init_with_initializer_project(
+        self,
+        initializer_mock,
+        run_prediction_container_mock,
+        wait_until_container_runs_mock,
+        wait_until_health_check_succeeds_mock,
+        stop_container_if_exists_mock,
+    ):
+        with LocalEndpoint(_TEST_IMAGE_URI):
+            pass
+
+        run_prediction_container_mock.assert_called_once_with(
+            _TEST_IMAGE_URI,
+            artifact_uri=None,
+            serving_container_predict_route=prediction.DEFAULT_LOCAL_PREDICT_ROUTE,
+            serving_container_health_route=prediction.DEFAULT_LOCAL_HEALTH_ROUTE,
+            serving_container_command=None,
+            serving_container_args=None,
+            serving_container_environment_variables={
+                local_endpoint._GCLOUD_PROJECT_ENV: _TEST_PROJECT
+            },
+            serving_container_ports=None,
+            credential_path=None,
+            host_port=None,
         )
         wait_until_container_runs_mock.assert_called_once_with()
         wait_until_health_check_succeeds_mock.assert_called_once_with()
@@ -1707,6 +1760,7 @@ class TestLocalEndpoint:
 
     def test_predict_raises_exception(
         self,
+        local_endpoint_logger_mock,
         run_prediction_container_mock,
         wait_until_container_runs_mock,
         wait_until_health_check_succeeds_mock,
@@ -1729,6 +1783,35 @@ class TestLocalEndpoint:
         requests_post_raises_exception_mock.assert_called_once_with(
             url, data=request, headers=None
         )
+        assert local_endpoint_logger_mock.warning.called
+        assert str(exception.value) == _TEST_HTTP_ERROR_MESSAGE
+
+    def test_predict_raises_exception_not_verbose(
+        self,
+        local_endpoint_logger_mock,
+        run_prediction_container_mock,
+        wait_until_container_runs_mock,
+        wait_until_health_check_succeeds_mock,
+        stop_container_if_exists_mock,
+        requests_post_raises_exception_mock,
+    ):
+        serving_container_predict_route = "/custom_predict"
+        host_port = 8080
+        url = f"http://localhost:{host_port}{serving_container_predict_route}"
+        request = '{"instances": [{"x": [[1.1, 2.2, 3.3, 5.5]]}]}'
+
+        with pytest.raises(requests.exceptions.RequestException) as exception:
+            with LocalEndpoint(
+                _TEST_IMAGE_URI,
+                serving_container_predict_route=serving_container_predict_route,
+                host_port=host_port,
+            ) as endpoint:
+                endpoint.predict(request=request, verbose=False)
+
+        requests_post_raises_exception_mock.assert_called_once_with(
+            url, data=request, headers=None
+        )
+        assert not local_endpoint_logger_mock.warning.called
         assert str(exception.value) == _TEST_HTTP_ERROR_MESSAGE
 
     def test_run_health_check(
@@ -1756,6 +1839,7 @@ class TestLocalEndpoint:
 
     def test_run_health_check_raises_exception(
         self,
+        local_endpoint_logger_mock,
         run_prediction_container_mock,
         wait_until_container_runs_mock,
         wait_until_health_check_succeeds_mock,
@@ -1775,6 +1859,32 @@ class TestLocalEndpoint:
                 endpoint.run_health_check()
 
         requests_get_raises_exception_mock.assert_called_once_with(url)
+        assert local_endpoint_logger_mock.warning.called
+        assert str(exception.value) == _TEST_HTTP_ERROR_MESSAGE
+
+    def test_run_health_check_raises_exception_not_verbose(
+        self,
+        local_endpoint_logger_mock,
+        run_prediction_container_mock,
+        wait_until_container_runs_mock,
+        wait_until_health_check_succeeds_mock,
+        stop_container_if_exists_mock,
+        requests_get_raises_exception_mock,
+    ):
+        serving_container_health_route = "/custom_health"
+        host_port = 8080
+        url = f"http://localhost:{host_port}{serving_container_health_route}"
+
+        with pytest.raises(requests.exceptions.RequestException) as exception:
+            with LocalEndpoint(
+                _TEST_IMAGE_URI,
+                serving_container_health_route=serving_container_health_route,
+                host_port=host_port,
+            ) as endpoint:
+                endpoint.run_health_check(verbose=False)
+
+        requests_get_raises_exception_mock.assert_called_once_with(url)
+        assert not local_endpoint_logger_mock.warning.called
         assert str(exception.value) == _TEST_HTTP_ERROR_MESSAGE
 
     def test_print_container_logs(

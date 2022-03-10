@@ -413,6 +413,10 @@ class LocalModel:
     ):
         """Deploys the local model instance to a local endpoint.
 
+        An environment variable, GOOGLE_CLOUD_PROJECT, will be set to the project in the global config.
+        This is required if the credentials file does not have project specified and used to
+        recognize the project by the Cloud Storage client.
+
         An example usage of a LocalModel instance, local_model:
             with local_model.deploy_to_local_endpoint(
                 artifact_uri="gs://path/to/your/model",

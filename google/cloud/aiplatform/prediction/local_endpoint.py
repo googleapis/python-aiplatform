@@ -21,6 +21,9 @@ import requests
 import time
 from typing import Any, Dict, Optional, Sequence
 
+from google.auth.exceptions import GoogleAuthError
+
+from google.cloud.aiplatform import initializer
 from google.cloud.aiplatform.constants import prediction
 from google.cloud.aiplatform.docker_utils import run
 from google.cloud.aiplatform.docker_utils.errors import DockerError
@@ -30,6 +33,8 @@ _logger = logging.getLogger(__name__)
 
 _DEFAULT_CONTAINER_READY_TIMEOUT = 300
 _DEFAULT_CONTAINER_READY_CHECK_INTERVAL = 1
+
+_GCLOUD_PROJECT_ENV = "GOOGLE_CLOUD_PROJECT"
 
 
 class LocalEndpoint:
@@ -140,11 +145,31 @@ class LocalEndpoint:
     def __enter__(self):
         """Enters the runtime context related to this object.
 
+        An environment variable, GOOGLE_CLOUD_PROJECT, will be set to the project in the global config.
+        This is required if the credentials file does not have project specified and used to
+        recognize the project by the Cloud Storage client.
+
         Raises:
             DockerError: If the container is not ready or health checks do not succeed after the
                 timeout.
         """
         try:
+            try:
+                project_id = initializer.global_config.project
+                _logger.info(
+                    f"Got the project id from the global config: {project_id}."
+                )
+            except (GoogleAuthError, ValueError):
+                project_id = None
+
+            envs = (
+                dict(self.serving_container_environment_variables)
+                if self.serving_container_environment_variables is not None
+                else {}
+            )
+            if project_id is not None:
+                envs[_GCLOUD_PROJECT_ENV] = project_id
+
             self.container = run.run_prediction_container(
                 self.serving_container_image_uri,
                 artifact_uri=self.artifact_uri,
@@ -152,7 +177,7 @@ class LocalEndpoint:
                 serving_container_health_route=self.serving_container_health_route,
                 serving_container_command=self.serving_container_command,
                 serving_container_args=self.serving_container_args,
-                serving_container_environment_variables=self.serving_container_environment_variables,
+                serving_container_environment_variables=envs,
                 serving_container_ports=self.serving_container_ports,
                 credential_path=self.credential_path,
                 host_port=self.host_port,
@@ -212,18 +237,17 @@ class LocalEndpoint:
         """
         elapsed_time = 0
         try:
-            response = self.run_health_check()
+            response = self.run_health_check(verbose=False)
         except requests.exceptions.RequestException:
             response = None
 
         while elapsed_time < self.container_ready_timeout and (
             response is None or response.status_code != 200
         ):
-            _logger.info("Waiting for the first health check succeeding.")
             time.sleep(self.container_ready_check_interval)
             elapsed_time += self.container_ready_check_interval
             try:
-                response = self.run_health_check()
+                response = self.run_health_check(verbose=False)
             except requests.exceptions.RequestException:
                 response = None
 
@@ -253,6 +277,7 @@ class LocalEndpoint:
         request: Optional[Any] = None,
         request_file: Optional[str] = None,
         headers: Optional[Dict] = None,
+        verbose: bool = True,
     ) -> requests.models.Response:
         """Executes a prediction.
 
@@ -263,6 +288,8 @@ class LocalEndpoint:
                 Optional. The path to a request file sent to the container.
             headers (Dict):
                 Optional. The headers in the prediction request.
+            verbose (bool):
+                Required. Whether or not print logs if any.
 
         Returns:
             The prediction response.
@@ -291,11 +318,16 @@ class LocalEndpoint:
                     response = requests.post(url, data=data, headers=headers)
             return response
         except requests.exceptions.RequestException as exception:
-            _logger.warning(f"Exception during prediction: {exception}")
+            if verbose:
+                _logger.warning(f"Exception during prediction: {exception}")
             raise
 
-    def run_health_check(self) -> requests.models.Response:
+    def run_health_check(self, verbose: bool = True) -> requests.models.Response:
         """Runs a health check.
+
+        Args:
+            verbose (bool):
+                Required. Whether or not print logs if any.
 
         Returns:
             The health check response.
@@ -308,7 +340,8 @@ class LocalEndpoint:
             response = requests.get(url)
             return response
         except requests.exceptions.RequestException as exception:
-            _logger.warning(f"Exception during health check: {exception}")
+            if verbose:
+                _logger.warning(f"Exception during health check: {exception}")
             raise
 
     def print_container_logs(
