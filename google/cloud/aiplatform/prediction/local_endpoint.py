@@ -212,18 +212,17 @@ class LocalEndpoint:
         """
         elapsed_time = 0
         try:
-            response = self.run_health_check()
+            response = self.run_health_check(verbose=False)
         except requests.exceptions.RequestException:
             response = None
 
         while elapsed_time < self.container_ready_timeout and (
             response is None or response.status_code != 200
         ):
-            _logger.info("Waiting for the first health check succeeding.")
             time.sleep(self.container_ready_check_interval)
             elapsed_time += self.container_ready_check_interval
             try:
-                response = self.run_health_check()
+                response = self.run_health_check(verbose=False)
             except requests.exceptions.RequestException:
                 response = None
 
@@ -253,6 +252,7 @@ class LocalEndpoint:
         request: Optional[Any] = None,
         request_file: Optional[str] = None,
         headers: Optional[Dict] = None,
+        verbose: bool = True,
     ) -> requests.models.Response:
         """Executes a prediction.
 
@@ -263,6 +263,8 @@ class LocalEndpoint:
                 Optional. The path to a request file sent to the container.
             headers (Dict):
                 Optional. The headers in the prediction request.
+            verbose (bool):
+                Required. Whether or not print logs if any.
 
         Returns:
             The prediction response.
@@ -291,11 +293,16 @@ class LocalEndpoint:
                     response = requests.post(url, data=data, headers=headers)
             return response
         except requests.exceptions.RequestException as exception:
-            _logger.warning(f"Exception during prediction: {exception}")
+            if verbose:
+                _logger.warning(f"Exception during prediction: {exception}")
             raise
 
-    def run_health_check(self) -> requests.models.Response:
+    def run_health_check(self, verbose: bool = True) -> requests.models.Response:
         """Runs a health check.
+
+        Args:
+            verbose (bool):
+                Required. Whether or not print logs if any.
 
         Returns:
             The health check response.
@@ -308,7 +315,8 @@ class LocalEndpoint:
             response = requests.get(url)
             return response
         except requests.exceptions.RequestException as exception:
-            _logger.warning(f"Exception during health check: {exception}")
+            if verbose:
+                _logger.warning(f"Exception during health check: {exception}")
             raise
 
     def print_container_logs(
