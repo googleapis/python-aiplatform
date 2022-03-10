@@ -66,7 +66,7 @@ _PIPELINE_COMPLETE_STATES = set(
 )
 
 
-class _TrainingJob(base.VertexAiResourceNounWithFutureManager):
+class _TrainingJob(base.VertexAiStatefulResource):
 
     client_class = utils.PipelineClientWithOverride
     _resource_noun = "trainingPipelines"
@@ -75,6 +75,9 @@ class _TrainingJob(base.VertexAiResourceNounWithFutureManager):
     _delete_method = "delete_training_pipeline"
     _parse_resource_name_method = "parse_training_pipeline_path"
     _format_resource_name_method = "training_pipeline_path"
+
+    # Required by the done() method
+    _valid_done_states = _PIPELINE_COMPLETE_STATES
 
     def __init__(
         self,
@@ -5919,7 +5922,7 @@ class AutoMLVideoTrainingJob(_TrainingJob):
         model_labels: Optional[Dict[str, str]] = None,
         sync: bool = True,
     ) -> models.Model:
-        """Runs the AutoML Image training job and returns a model.
+        """Runs the AutoML Video training job and returns a model.
 
         If training on a Vertex AI dataset, you can use one of the following split configurations:
             Data fraction splits:

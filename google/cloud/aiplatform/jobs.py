@@ -66,7 +66,7 @@ _JOB_ERROR_STATES = (
 )
 
 
-class _Job(base.VertexAiResourceNounWithFutureManager):
+class _Job(base.VertexAiStatefulResource):
     """Class that represents a general Job resource in Vertex AI.
     Cannot be directly instantiated.
 
@@ -82,6 +82,9 @@ class _Job(base.VertexAiResourceNounWithFutureManager):
     """
 
     client_class = utils.JobClientWithOverride
+
+    # Required by the done() method
+    _valid_done_states = _JOB_COMPLETE_STATES
 
     def __init__(
         self,
@@ -849,6 +852,39 @@ class _RunnableJob(_Job):
         )
 
         self._logged_web_access_uris = set()
+
+    @classmethod
+    def _empty_constructor(
+        cls,
+        project: Optional[str] = None,
+        location: Optional[str] = None,
+        credentials: Optional[auth_credentials.Credentials] = None,
+        resource_name: Optional[str] = None,
+    ) -> "_RunnableJob":
+        """Initializes with all attributes set to None.
+
+            The attributes should be populated after a future is complete. This allows
+            scheduling of additional API calls before the resource is created.
+
+            Args:
+                project (str): Optional. Project of the resource noun.
+                location (str): Optional. The location of the resource noun.
+                credentials(google.auth.credentials.Credentials):
+                    Optional. custom credentials to use when accessing interacting with
+                    resource noun.
+                resource_name(str): Optional. A fully-qualified resource name or ID.
+            Returns:
+                An instance of this class with attributes set to None.
+            """
+        self = super()._empty_constructor(
+            project=project,
+            location=location,
+            credentials=credentials,
+            resource_name=resource_name,
+        )
+
+        self._logged_web_access_uris = set()
+        return self
 
     @property
     def web_access_uris(self) -> Dict[str, Union[str, Dict[str, str]]]:

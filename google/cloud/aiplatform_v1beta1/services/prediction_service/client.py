@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# Copyright 2020 Google LLC
+# Copyright 2022 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -433,8 +433,7 @@ class PredictionServiceClient(metaclass=PredictionServiceClientMeta):
     ) -> prediction_service.PredictResponse:
         r"""Perform an online prediction.
 
-
-        .. code-block::
+        .. code-block:: python
 
             from google.cloud import aiplatform_v1beta1
 
@@ -572,8 +571,7 @@ class PredictionServiceClient(metaclass=PredictionServiceClientMeta):
            that served this prediction.
 
 
-
-        .. code-block::
+        .. code-block:: python
 
             from google.cloud import aiplatform_v1beta1
 
@@ -751,8 +749,7 @@ class PredictionServiceClient(metaclass=PredictionServiceClientMeta):
         explanation_spec.
 
 
-
-        .. code-block::
+        .. code-block:: python
 
             from google.cloud import aiplatform_v1beta1
 

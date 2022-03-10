@@ -31,7 +31,7 @@ from google.cloud.aiplatform.compat.types import (
 from google.cloud.aiplatform import featurestore
 from google.cloud.aiplatform import initializer
 from google.cloud.aiplatform import utils
-from google.cloud.aiplatform.utils import featurestore_utils
+from google.cloud.aiplatform.utils import featurestore_utils, resource_manager_utils
 
 from google.cloud import bigquery
 
@@ -1147,10 +1147,11 @@ class Featurestore(base.VertexAiResourceNounWithFutureManager):
             "-", "_"
         )
 
-        # TODO(b/216497263): Add support for resource project does not match initializer.global_config.project
-        temp_bq_dataset_id = f"{initializer.global_config.project}.{temp_bq_dataset_name}"[
-            :1024
-        ]
+        project_id = resource_manager_utils.get_project_id(
+            project_number=featurestore_name_components["project"],
+            credentials=self.credentials,
+        )
+        temp_bq_dataset_id = f"{project_id}.{temp_bq_dataset_name}"[:1024]
         temp_bq_dataset = bigquery.Dataset(dataset_ref=temp_bq_dataset_id)
         temp_bq_dataset.location = self.location
         temp_bq_dataset = bigquery_client.create_dataset(temp_bq_dataset)
