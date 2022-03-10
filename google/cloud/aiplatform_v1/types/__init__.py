@@ -65,6 +65,7 @@ from .encryption_spec import EncryptionSpec
 from .endpoint import (
     DeployedModel,
     Endpoint,
+    PredictRequestResponseLoggingConfig,
     PrivateEndpoints,
 )
 from .endpoint_service import (
@@ -546,6 +547,7 @@ __all__ = (
     "EncryptionSpec",
     "DeployedModel",
     "Endpoint",
+    "PredictRequestResponseLoggingConfig",
     "PrivateEndpoints",
     "CreateEndpointOperationMetadata",
     "CreateEndpointRequest",

@@ -48,6 +48,7 @@ from google.cloud.aiplatform_v1.types import endpoint as gca_endpoint
 from google.cloud.aiplatform_v1.types import endpoint_service
 from google.cloud.aiplatform_v1.types import explanation
 from google.cloud.aiplatform_v1.types import explanation_metadata
+from google.cloud.aiplatform_v1.types import io
 from google.cloud.aiplatform_v1.types import machine_resources
 from google.cloud.aiplatform_v1.types import operation as gca_operation
 from google.longrunning import operations_pb2

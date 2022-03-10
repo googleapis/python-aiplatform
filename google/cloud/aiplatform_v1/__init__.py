@@ -93,6 +93,7 @@ from .types.deployed_model_ref import DeployedModelRef
 from .types.encryption_spec import EncryptionSpec
 from .types.endpoint import DeployedModel
 from .types.endpoint import Endpoint
+from .types.endpoint import PredictRequestResponseLoggingConfig
 from .types.endpoint import PrivateEndpoints
 from .types.endpoint_service import CreateEndpointOperationMetadata
 from .types.endpoint_service import CreateEndpointRequest
@@ -831,6 +832,7 @@ __all__ = (
     "Port",
     "PredefinedSplit",
     "PredictRequest",
+    "PredictRequestResponseLoggingConfig",
     "PredictResponse",
     "PredictSchemata",
     "PredictionServiceClient",
