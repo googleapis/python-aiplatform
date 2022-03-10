@@ -32,6 +32,7 @@ from google.cloud import aiplatform
 from google.cloud.aiplatform import base
 from google.cloud.aiplatform import initializer
 from google.cloud.aiplatform import utils
+from google.cloud.aiplatform.utils import resource_manager_utils
 
 from google.cloud.aiplatform.utils import featurestore_utils
 from google.cloud.aiplatform_v1.services.featurestore_service import (
@@ -54,11 +55,13 @@ from google.cloud.aiplatform_v1.types import (
 
 from google.cloud import bigquery
 from google.cloud import bigquery_storage
+from google.cloud import resourcemanager
 
 from google.cloud.bigquery_storage_v1.types import stream as gcbqs_stream
 
 # project
 _TEST_PROJECT = "test-project"
+_TEST_PROJECT_DIFF = "test-project-diff"
 _TEST_LOCATION = "us-central1"
 _TEST_PARENT = f"projects/{_TEST_PROJECT}/locations/{_TEST_LOCATION}"
 
@@ -338,6 +341,18 @@ def _get_entity_view_proto(entity_id, feature_value_types, feature_values):
 
 def uuid_mock():
     return uuid.UUID(int=1)
+
+
+# All Resource Manager Mocks
+@pytest.fixture
+def get_project_mock():
+    with patch.object(
+        resourcemanager.ProjectsClient, "get_project"
+    ) as get_project_mock:
+        get_project_mock.return_value = resourcemanager.Project(
+            project_id=_TEST_PROJECT,
+        )
+        yield get_project_mock
 
 
 # All BigQuery Mocks
@@ -1286,10 +1301,13 @@ class TestFeaturestore:
         "bq_delete_dataset_mock",
         "bqs_init_client_mock",
         "bqs_create_read_session",
+        "get_project_mock",
     )
     @patch("uuid.uuid4", uuid_mock)
     def test_batch_serve_to_df(self, batch_read_feature_values_mock):
-        aiplatform.init(project=_TEST_PROJECT)
+
+        aiplatform.init(project=_TEST_PROJECT_DIFF)
+
         my_featurestore = aiplatform.Featurestore(
             featurestore_name=_TEST_FEATURESTORE_NAME
         )
@@ -1299,7 +1317,7 @@ class TestFeaturestore:
         expected_temp_bq_dataset_name = f"temp_{_TEST_FEATURESTORE_ID}_{uuid.uuid4()}".replace(
             "-", "_"
         )
-        expecte_temp_bq_dataset_id = f"{initializer.global_config.project}.{expected_temp_bq_dataset_name}"[
+        expecte_temp_bq_dataset_id = f"{_TEST_PROJECT}.{expected_temp_bq_dataset_name}"[
             :1024
         ]
         expected_temp_bq_read_instances_table_id = (
@@ -1695,6 +1713,7 @@ class TestEntityType:
         "bq_init_dataset_mock",
         "bq_create_dataset_mock",
         "bq_delete_dataset_mock",
+        "get_project_mock",
     )
     @patch("uuid.uuid4", uuid_mock)
     def test_ingest_from_df_using_column(
@@ -1704,7 +1723,7 @@ class TestEntityType:
         bq_init_schema_field_mock,
     ):
 
-        aiplatform.init(project=_TEST_PROJECT)
+        aiplatform.init(project=_TEST_PROJECT_DIFF)
 
         my_entity_type = aiplatform.EntityType(entity_type_name=_TEST_ENTITY_TYPE_NAME)
         df_source = pd.DataFrame()
@@ -1717,7 +1736,7 @@ class TestEntityType:
         expected_temp_bq_dataset_name = f"temp_{_TEST_FEATURESTORE_ID}_{uuid.uuid4()}".replace(
             "-", "_"
         )
-        expecte_temp_bq_dataset_id = f"{initializer.global_config.project}.{expected_temp_bq_dataset_name}"[
+        expecte_temp_bq_dataset_id = f"{_TEST_PROJECT}.{expected_temp_bq_dataset_name}"[
             :1024
         ]
         expected_temp_bq_table_id = (
@@ -1755,6 +1774,7 @@ class TestEntityType:
         "bq_init_dataset_mock",
         "bq_create_dataset_mock",
         "bq_delete_dataset_mock",
+        "get_project_mock",
     )
     @patch("uuid.uuid4", uuid_mock)
     def test_ingest_from_df_using_datetime(
@@ -1763,7 +1783,8 @@ class TestEntityType:
         bq_load_table_from_dataframe_mock,
         bq_init_schema_field_mock,
     ):
-        aiplatform.init(project=_TEST_PROJECT)
+
+        aiplatform.init(project=_TEST_PROJECT_DIFF)
 
         my_entity_type = aiplatform.EntityType(entity_type_name=_TEST_ENTITY_TYPE_NAME)
         df_source = pd.DataFrame()
@@ -1777,7 +1798,7 @@ class TestEntityType:
         expected_temp_bq_dataset_name = f"temp_{_TEST_FEATURESTORE_ID}_{uuid.uuid4()}".replace(
             "-", "_"
         )
-        expecte_temp_bq_dataset_id = f"{initializer.global_config.project}.{expected_temp_bq_dataset_name}"[
+        expecte_temp_bq_dataset_id = f"{_TEST_PROJECT}.{expected_temp_bq_dataset_name}"[
             :1024
         ]
         expected_temp_bq_table_id = (
@@ -2431,3 +2452,10 @@ class TestFeature:
             ),
             metadata=_TEST_REQUEST_METADATA,
         )
+
+
+class TestResourceManagerUtils:
+    @pytest.mark.usefixtures("get_project_mock")
+    def test_get_project_id(self):
+        project_id = resource_manager_utils.get_project_id(project_number="123456")
+        assert project_id == _TEST_PROJECT
