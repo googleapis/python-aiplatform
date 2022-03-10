@@ -145,7 +145,7 @@ class LocalEndpoint:
     def __enter__(self):
         """Enters the runtime context related to this object.
 
-        An environment variable, GCLOUD_PROJECT, will be set to the project in the global config.
+        An environment variable, GOOGLE_CLOUD_PROJECT, will be set to the project in the global config.
         This is required if the credentials file does not have project specified and used to
         recognize the project by the Cloud Storage client.
 
