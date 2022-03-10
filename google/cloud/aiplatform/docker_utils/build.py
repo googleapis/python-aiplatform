@@ -100,8 +100,7 @@ def _prepare_dependency_entries(
             """
             RUN {} install --no-cache-dir {} .
             """.format(
-                pip_command,
-                "--force-reinstall" if force_reinstall else "",
+                pip_command, "--force-reinstall" if force_reinstall else "",
             )
         )
 
@@ -114,8 +113,7 @@ def _prepare_dependency_entries(
             """
             RUN {} install --no-cache-dir {} -r ./requirements.txt
             """.format(
-                pip_command,
-                "--force-reinstall" if force_reinstall else "",
+                pip_command, "--force-reinstall" if force_reinstall else "",
             )
         )
 
