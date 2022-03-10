@@ -338,6 +338,7 @@ def make_dockerfile(
         extra_requirements=None,
         extra_packages=None,
         extra_dirs=None,
+        force_reinstall=True,
         pip_command=pip_command,
     )
 
@@ -351,6 +352,7 @@ def make_dockerfile(
         extra_requirements=None,
         extra_packages=extra_packages,
         extra_dirs=extra_dirs,
+        force_reinstall=True,
         pip_command=pip_command,
     )
 

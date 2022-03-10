@@ -298,7 +298,10 @@ class TestBuild:
         assert f'COPY [".", "{self.HOST_WORKDIR_BASENAME}"]\n' in result
         assert f'ENTRYPOINT ["python", "{self.SCRIPT}"]' in result
         assert f'COPY ["{requirements_path}", "./requirements.txt"]\n' in result
-        assert "RUN pip install --no-cache-dir  -r ./requirements.txt\n" in result
+        assert (
+            "RUN pip install --no-cache-dir --force-reinstall -r ./requirements.txt\n"
+            in result
+        )
 
     def test_make_dockerfile_with_setup_path(self):
         setup_path = "./custom_setup.py"
@@ -317,7 +320,7 @@ class TestBuild:
         assert f'COPY [".", "{self.HOST_WORKDIR_BASENAME}"]\n' in result
         assert f'ENTRYPOINT ["python", "{self.SCRIPT}"]' in result
         assert f'COPY ["{setup_path}", "./setup.py"]\n' in result
-        assert "RUN pip install --no-cache-dir  .\n" in result
+        assert "RUN pip install --no-cache-dir --force-reinstall .\n" in result
 
     def test_make_dockerfile_with_extra_requirements(self):
         extra_requirement = "custom_package==1.0"
@@ -358,7 +361,10 @@ class TestBuild:
         assert f'COPY [".", "{self.HOST_WORKDIR_BASENAME}"]\n' in result
         assert f'ENTRYPOINT ["python", "{self.SCRIPT}"]' in result
         assert f'COPY ["{extra_package}", "{extra_package_basename}"]\n'
-        assert f"RUN pip install --no-cache-dir  {extra_package_basename}\n" in result
+        assert (
+            f"RUN pip install --no-cache-dir --force-reinstall {extra_package_basename}\n"
+            in result
+        )
 
     def test_make_dockerfile_with_extra_dirs(self):
         extra_dir = "./subdir"
