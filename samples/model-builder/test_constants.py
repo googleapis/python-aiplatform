@@ -199,13 +199,44 @@ PYTHON_MODULE_NAME = "trainer.task"
 MODEL_TYPE = "CLOUD"
 
 # Feature store constants
-FEATURESTORE_ID = "featurestore_id"
-FEATURESTORE_NAME = "projects/123/locations/us-central1/featurestores/featurestore_id"
-ENTITY_TYPE_ID = "entity_type_id"
-ENTITY_TYPE_NAME = "projects/123/locations/us-central1/featurestores/featurestore_id/entityTypes/entity_type_id"
-FEATURE_ID = "feature_id"
-FEATURE_NAME = "projects/123/locations/us-central1/featurestores/featurestore_id/entityTypes/entity_type_id/features/feature_id"
+FEATURESTORE_ID = "movie_prediction"
+FEATURESTORE_NAME = (
+    f"projects/{PROJECT}/locations/{LOCATION}/featurestores/{FEATURESTORE_ID}"
+)
+ENTITY_TYPE_ID = "users"
+ENTITY_IDS = ["alice", "bob"]
+ENTITY_TYPE_NAME = f"projects/{PROJECT}/locations/{LOCATION}/featurestores/{FEATURESTORE_ID}/entityTypes/{ENTITY_TYPE_ID}"
+FEATURE_ID = "liked_genres"
+FEATURE_IDS = ["age", "gender", "liked_genres"]
+FEATURE_NAME = f"projects/{PROJECT}/locations/{LOCATION}/featurestores/{FEATURESTORE_ID}/entityTypes/{ENTITY_TYPE_ID}/features/{FEATURE_ID}"
 FEATURE_VALUE_TYPE = "INT64"
+FEATURE_CONFIGS = {
+    "age": {
+        "value_type": "INT64",
+        "description": "User age"
+    },
+    "gender": {
+        "value_type": "STRING",
+        "description": "User gender"
+    },
+    "liked_genres": {
+        "value_type": "STRING_ARRAY",
+        "description": "An array of genres this user liked",
+    },
+}
+SERVING_FEATURE_IDS = {
+    "users": ["age", "gender", "liked_genres"],
+    "movies": ["title", "average_rating", "genres"],
+}
 ONLINE_STORE_FIXED_NODE_COUNT = 1
 SYNC = True
 FORCE = True
+BQ_DESTINATION_OUTPUT_URI = f"bq://{PROJECT}.example_dataset.example_table"
+INPUT_CSV_FILE = "gs://cloud-samples-data-us-central1/vertex-ai/feature-store/datasets/movie_prediction.csv"
+USERS_FEATURE_TIME = "update_time"
+USERS_ENTITY_ID_FIELD = "user_id"
+USERS_GCS_SOURCE_URI = (
+    "gs://cloud-samples-data-us-central1/vertex-ai/feature-store/datasets/users.avro"
+)
+GCS_SOURCE_TYPE = "avro"
+WORKER_COUNT = 1
