@@ -163,10 +163,7 @@ class LocalEndpoint:
                 project_id = None
 
             envs = (
-                {
-                    key: value
-                    for key, value in self.serving_container_environment_variables.items()
-                }
+                dict(self.serving_container_environment_variables)
                 if self.serving_container_environment_variables is not None
                 else {}
             )
