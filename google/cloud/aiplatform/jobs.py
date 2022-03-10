@@ -66,7 +66,7 @@ _JOB_ERROR_STATES = (
 )
 
 
-class _Job(base.VertexAiResourceNounWithFutureManager):
+class _Job(base.VertexAiStatefulResource):
     """Class that represents a general Job resource in Vertex AI.
     Cannot be directly instantiated.
 
@@ -82,6 +82,9 @@ class _Job(base.VertexAiResourceNounWithFutureManager):
     """
 
     client_class = utils.JobClientWithOverride
+
+    # Required by the done() method
+    _valid_done_states = _JOB_COMPLETE_STATES
 
     def __init__(
         self,
