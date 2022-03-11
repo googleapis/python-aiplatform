@@ -314,6 +314,9 @@ class ImportFeatureValuesRequest(proto.Message):
             not set, defaults to using 1 worker. The low
             count ensures minimal impact on online serving
             performance.
+        disable_ingestion_analysis (bool):
+            If true, API doesn't start ingestion analysis
+            pipeline.
     """
 
     class FeatureSpec(proto.Message):
@@ -356,6 +359,7 @@ class ImportFeatureValuesRequest(proto.Message):
     feature_specs = proto.RepeatedField(proto.MESSAGE, number=8, message=FeatureSpec,)
     disable_online_serving = proto.Field(proto.BOOL, number=9,)
     worker_count = proto.Field(proto.INT32, number=11,)
+    disable_ingestion_analysis = proto.Field(proto.BOOL, number=12,)
 
 
 class ImportFeatureValuesResponse(proto.Message):
@@ -851,7 +855,12 @@ class UpdateEntityTypeRequest(proto.Message):
             -  ``description``
             -  ``labels``
             -  ``monitoring_config.snapshot_analysis.disabled``
-            -  ``monitoring_config.snapshot_analysis.monitoring_interval``
+            -  ``monitoring_config.snapshot_analysis.monitoring_interval_days``
+            -  ``monitoring_config.snapshot_analysis.staleness_days``
+            -  ``monitoring_config.import_features_analysis.state``
+            -  ``monitoring_config.import_features_analysis.anomaly_detection_baseline``
+            -  ``monitoring_config.numerical_threshold_config.value``
+            -  ``monitoring_config.categorical_threshold_config.value``
     """
 
     entity_type = proto.Field(
@@ -1212,8 +1221,7 @@ class UpdateFeatureRequest(proto.Message):
 
             -  ``description``
             -  ``labels``
-            -  ``monitoring_config.snapshot_analysis.disabled``
-            -  ``monitoring_config.snapshot_analysis.monitoring_interval``
+            -  ``disable_monitoring``
     """
 
     feature = proto.Field(proto.MESSAGE, number=1, message=gca_feature.Feature,)
