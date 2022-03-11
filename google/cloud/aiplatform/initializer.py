@@ -32,6 +32,7 @@ from google.cloud.aiplatform import compat
 from google.cloud.aiplatform.constants import base as constants
 from google.cloud.aiplatform import utils
 from google.cloud.aiplatform.metadata import metadata
+from google.cloud.aiplatform.utils import resource_manager_utils
 
 from google.cloud.aiplatform.compat.types import (
     encryption_spec as gca_encryption_spec_compat,
@@ -156,27 +157,17 @@ class _Config:
         # CLOUD_ML_PROJECT_ID env variable or Vertex AI starts setting GOOGLE_CLOUD_PROJECT env variable.
         project_number = os.environ.get("CLOUD_ML_PROJECT_ID")
         if project_number:
-            self._project = project_number
             # Try to convert project number to project ID which is more readable.
             try:
-                from googleapiclient import discovery
-
-                cloud_resource_manager_service = discovery.build(
-                    "cloudresourcemanager", "v3"
+                project_id = resource_manager_utils.get_project_id(
+                    project_number=project_number, credentials=self.credentials,
                 )
-                project_id = (
-                    cloud_resource_manager_service.projects()
-                    .get(name=f"projects/{project_number}")
-                    .execute()["projectId"]
+                return project_id
+            except:
+                logging.getLogger(__name__).warning(
+                    "Failed to convert project number to project ID.", exc_info=True
                 )
-                self._project = project_id
-            except ImportError:
-                logging.debug(
-                    "Need google-api-python-client to convert project number to project ID."
-                )
-            except Exception as e:
-                logging.warning(f"Error converting project number to project ID: {e}")
-            return self._project
+                return project_number
 
         project_not_found_exception_str = (
             "Unable to find your project. Please provide a project ID by:"
