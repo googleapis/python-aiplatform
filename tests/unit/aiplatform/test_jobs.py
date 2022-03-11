@@ -401,6 +401,14 @@ class TestBatchPredictionJob:
             name=_TEST_BATCH_PREDICTION_JOB_NAME, retry=base._DEFAULT_RETRY
         )
 
+    def test_batch_prediction_job_done_get(self, get_batch_prediction_job_mock):
+        bp = jobs.BatchPredictionJob(
+            batch_prediction_job_name=_TEST_BATCH_PREDICTION_JOB_NAME
+        )
+
+        assert bp.done() is False
+        assert get_batch_prediction_job_mock.call_count == 2
+
     @pytest.mark.usefixtures("get_batch_prediction_job_gcs_output_mock")
     def test_batch_prediction_iter_dirs_gcs(self, storage_list_blobs_mock):
         bp = jobs.BatchPredictionJob(
@@ -506,6 +514,27 @@ class TestBatchPredictionJob:
             parent=_TEST_PARENT,
             batch_prediction_job=expected_gapic_batch_prediction_job,
         )
+
+    @pytest.mark.usefixtures("get_batch_prediction_job_mock")
+    def test_batch_predict_job_done_create(self, create_batch_prediction_job_mock):
+        aiplatform.init(project=_TEST_PROJECT, location=_TEST_LOCATION)
+
+        # Make SDK batch_predict method call
+        batch_prediction_job = jobs.BatchPredictionJob.create(
+            model_name=_TEST_MODEL_NAME,
+            job_display_name=_TEST_BATCH_PREDICTION_JOB_DISPLAY_NAME,
+            gcs_source=_TEST_BATCH_PREDICTION_GCS_SOURCE,
+            gcs_destination_prefix=_TEST_BATCH_PREDICTION_GCS_DEST_PREFIX,
+            sync=False,
+        )
+
+        batch_prediction_job.wait_for_resource_creation()
+
+        assert batch_prediction_job.done() is False
+
+        batch_prediction_job.wait()
+
+        assert batch_prediction_job.done() is True
 
     @pytest.mark.parametrize("sync", [True, False])
     @pytest.mark.usefixtures("get_batch_prediction_job_mock")

@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# Copyright 2020 Google LLC
+# Copyright 2022 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -474,8 +474,7 @@ class FeaturestoreServiceClient(metaclass=FeaturestoreServiceClientMeta):
         location.
 
 
-
-        .. code-block::
+        .. code-block:: python
 
             from google.cloud import aiplatform_v1
 
@@ -607,8 +606,7 @@ class FeaturestoreServiceClient(metaclass=FeaturestoreServiceClientMeta):
     ) -> featurestore.Featurestore:
         r"""Gets details of a single Featurestore.
 
-
-        .. code-block::
+        .. code-block:: python
 
             from google.cloud import aiplatform_v1
 
@@ -701,8 +699,7 @@ class FeaturestoreServiceClient(metaclass=FeaturestoreServiceClientMeta):
     ) -> pagers.ListFeaturestoresPager:
         r"""Lists Featurestores in a given project and location.
 
-
-        .. code-block::
+        .. code-block:: python
 
             from google.cloud import aiplatform_v1
 
@@ -804,8 +801,7 @@ class FeaturestoreServiceClient(metaclass=FeaturestoreServiceClientMeta):
     ) -> gac_operation.Operation:
         r"""Updates the parameters of a single Featurestore.
 
-
-        .. code-block::
+        .. code-block:: python
 
             from google.cloud import aiplatform_v1
 
@@ -937,8 +933,7 @@ class FeaturestoreServiceClient(metaclass=FeaturestoreServiceClientMeta):
         to succeed.
 
 
-
-        .. code-block::
+        .. code-block:: python
 
             from google.cloud import aiplatform_v1
 
@@ -1068,8 +1063,7 @@ class FeaturestoreServiceClient(metaclass=FeaturestoreServiceClientMeta):
     ) -> gac_operation.Operation:
         r"""Creates a new EntityType in a given Featurestore.
 
-
-        .. code-block::
+        .. code-block:: python
 
             from google.cloud import aiplatform_v1
 
@@ -1200,8 +1194,7 @@ class FeaturestoreServiceClient(metaclass=FeaturestoreServiceClientMeta):
     ) -> entity_type.EntityType:
         r"""Gets details of a single EntityType.
 
-
-        .. code-block::
+        .. code-block:: python
 
             from google.cloud import aiplatform_v1
 
@@ -1295,8 +1288,7 @@ class FeaturestoreServiceClient(metaclass=FeaturestoreServiceClientMeta):
     ) -> pagers.ListEntityTypesPager:
         r"""Lists EntityTypes in a given Featurestore.
 
-
-        .. code-block::
+        .. code-block:: python
 
             from google.cloud import aiplatform_v1
 
@@ -1398,8 +1390,7 @@ class FeaturestoreServiceClient(metaclass=FeaturestoreServiceClientMeta):
     ) -> gca_entity_type.EntityType:
         r"""Updates the parameters of a single EntityType.
 
-
-        .. code-block::
+        .. code-block:: python
 
             from google.cloud import aiplatform_v1
 
@@ -1521,8 +1512,7 @@ class FeaturestoreServiceClient(metaclass=FeaturestoreServiceClientMeta):
         succeed.
 
 
-
-        .. code-block::
+        .. code-block:: python
 
             from google.cloud import aiplatform_v1
 
@@ -1651,8 +1641,7 @@ class FeaturestoreServiceClient(metaclass=FeaturestoreServiceClientMeta):
     ) -> gac_operation.Operation:
         r"""Creates a new Feature in a given EntityType.
 
-
-        .. code-block::
+        .. code-block:: python
 
             from google.cloud import aiplatform_v1
 
@@ -1787,8 +1776,7 @@ class FeaturestoreServiceClient(metaclass=FeaturestoreServiceClientMeta):
     ) -> gac_operation.Operation:
         r"""Creates a batch of Features in a given EntityType.
 
-
-        .. code-block::
+        .. code-block:: python
 
             from google.cloud import aiplatform_v1
 
@@ -1914,8 +1902,7 @@ class FeaturestoreServiceClient(metaclass=FeaturestoreServiceClientMeta):
     ) -> feature.Feature:
         r"""Gets details of a single Feature.
 
-
-        .. code-block::
+        .. code-block:: python
 
             from google.cloud import aiplatform_v1
 
@@ -2008,8 +1995,7 @@ class FeaturestoreServiceClient(metaclass=FeaturestoreServiceClientMeta):
     ) -> pagers.ListFeaturesPager:
         r"""Lists Features in a given EntityType.
 
-
-        .. code-block::
+        .. code-block:: python
 
             from google.cloud import aiplatform_v1
 
@@ -2111,8 +2097,7 @@ class FeaturestoreServiceClient(metaclass=FeaturestoreServiceClientMeta):
     ) -> gca_feature.Feature:
         r"""Updates the parameters of a single Feature.
 
-
-        .. code-block::
+        .. code-block:: python
 
             from google.cloud import aiplatform_v1
 
@@ -2233,8 +2218,7 @@ class FeaturestoreServiceClient(metaclass=FeaturestoreServiceClientMeta):
     ) -> gac_operation.Operation:
         r"""Deletes a single Feature.
 
-
-        .. code-block::
+        .. code-block:: python
 
             from google.cloud import aiplatform_v1
 
@@ -2371,8 +2355,7 @@ class FeaturestoreServiceClient(metaclass=FeaturestoreServiceClientMeta):
          - Online serving cluster is under-provisioned.
 
 
-
-        .. code-block::
+        .. code-block:: python
 
             from google.cloud import aiplatform_v1
 
@@ -2497,8 +2480,7 @@ class FeaturestoreServiceClient(metaclass=FeaturestoreServiceClientMeta):
         read instance as of each instance's read timestamp.
 
 
-
-        .. code-block::
+        .. code-block:: python
 
             from google.cloud import aiplatform_v1
 
@@ -2624,8 +2606,7 @@ class FeaturestoreServiceClient(metaclass=FeaturestoreServiceClientMeta):
         target EntityType.
 
 
-
-        .. code-block::
+        .. code-block:: python
 
             from google.cloud import aiplatform_v1
 
@@ -2745,8 +2726,7 @@ class FeaturestoreServiceClient(metaclass=FeaturestoreServiceClientMeta):
         project.
 
 
-
-        .. code-block::
+        .. code-block:: python
 
             from google.cloud import aiplatform_v1
 

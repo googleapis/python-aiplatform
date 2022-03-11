@@ -33,7 +33,7 @@ from google.cloud.aiplatform.compat.types import (
 from google.cloud.aiplatform import featurestore
 from google.cloud.aiplatform import initializer
 from google.cloud.aiplatform import utils
-from google.cloud.aiplatform.utils import featurestore_utils
+from google.cloud.aiplatform.utils import featurestore_utils, resource_manager_utils
 
 from google.cloud import bigquery
 
@@ -1238,6 +1238,17 @@ class EntityType(base.VertexAiResourceNounWithFutureManager):
         )
 
         self.wait()
+
+        feature_source_fields = feature_source_fields or {}
+        bq_schema = []
+        for feature_id in feature_ids:
+            feature_field_name = feature_source_fields.get(feature_id, feature_id)
+            feature_value_type = self.get_feature(feature_id).to_dict()["valueType"]
+            bq_schema_field = self._get_bq_schema_field(
+                feature_field_name, feature_value_type
+            )
+            bq_schema.append(bq_schema_field)
+
         entity_type_name_components = self._parse_resource_name(self.resource_name)
         featurestore_id, entity_type_id = (
             entity_type_name_components["featurestore"],
@@ -1248,10 +1259,11 @@ class EntityType(base.VertexAiResourceNounWithFutureManager):
             "-", "_"
         )
 
-        # TODO(b/216497263): Add support for resource project does not match initializer.global_config.project
-        temp_bq_dataset_id = f"{initializer.global_config.project}.{temp_bq_dataset_name}"[
-            :1024
-        ]
+        project_id = resource_manager_utils.get_project_id(
+            project_number=entity_type_name_components["project"],
+            credentials=self.credentials,
+        )
+        temp_bq_dataset_id = f"{project_id}.{temp_bq_dataset_name}"[:1024]
         temp_bq_table_id = f"{temp_bq_dataset_id}.{entity_type_id}"
 
         temp_bq_dataset = bigquery.Dataset(dataset_ref=temp_bq_dataset_id)
@@ -1260,8 +1272,20 @@ class EntityType(base.VertexAiResourceNounWithFutureManager):
         temp_bq_dataset = bigquery_client.create_dataset(temp_bq_dataset)
 
         try:
+
+            parquet_options = bigquery.format_options.ParquetOptions()
+            parquet_options.enable_list_inference = True
+
+            job_config = bigquery.LoadJobConfig(
+                schema=bq_schema,
+                source_format=bigquery.SourceFormat.PARQUET,
+                parquet_options=parquet_options,
+            )
+
             job = bigquery_client.load_table_from_dataframe(
-                dataframe=df_source, destination=temp_bq_table_id
+                dataframe=df_source,
+                destination=temp_bq_table_id,
+                job_config=job_config,
             )
             job.result()
 
@@ -1280,6 +1304,32 @@ class EntityType(base.VertexAiResourceNounWithFutureManager):
             )
 
         return entity_type_obj
+
+    @staticmethod
+    def _get_bq_schema_field(
+        name: str, feature_value_type: str
+    ) -> bigquery.SchemaField:
+        """Helper method to get BigQuery Schema Field.
+
+        Args:
+            name (str):
+                Required. The name of the schema field, which can be either the feature_id,
+                or the field_name in BigQuery for the feature if different than the feature_id.
+            feature_value_type (str):
+                Required. The feature value_type.
+
+        Returns:
+            bigquery.SchemaField: bigquery.SchemaField
+        """
+        bq_data_type = utils.featurestore_utils.FEATURE_STORE_VALUE_TYPE_TO_BQ_DATA_TYPE_MAP[
+            feature_value_type
+        ]
+        bq_schema_field = bigquery.SchemaField(
+            name=name,
+            field_type=bq_data_type["field_type"],
+            mode=bq_data_type.get("mode") or "NULLABLE",
+        )
+        return bq_schema_field
 
     @staticmethod
     def _instantiate_featurestore_online_client(

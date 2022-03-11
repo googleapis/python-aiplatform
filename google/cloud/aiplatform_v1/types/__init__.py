@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# Copyright 2020 Google LLC
+# Copyright 2022 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -65,6 +65,7 @@ from .encryption_spec import EncryptionSpec
 from .endpoint import (
     DeployedModel,
     Endpoint,
+    PredictRequestResponseLoggingConfig,
     PrivateEndpoints,
 )
 from .endpoint_service import (
@@ -546,6 +547,7 @@ __all__ = (
     "EncryptionSpec",
     "DeployedModel",
     "Endpoint",
+    "PredictRequestResponseLoggingConfig",
     "PrivateEndpoints",
     "CreateEndpointOperationMetadata",
     "CreateEndpointRequest",

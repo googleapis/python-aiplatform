@@ -18,7 +18,7 @@ import logging
 import os
 
 from google.cloud import aiplatform
-from typing import Dict, List, Optional, Tuple, Union
+from typing import Dict, List, Mapping, Optional, Tuple, Union
 
 try:
     from lit_nlp.api import dataset as lit_dataset
@@ -154,7 +154,12 @@ class _EndpointLitModel(lit_model.Model):
             prediction_object = self._endpoint.predict(instances)
         outputs = []
         for prediction in prediction_object.predictions:
-            outputs.append({key: prediction[key] for key in self._output_types})
+            if isinstance(prediction, Mapping):
+                outputs.append({key: prediction[key] for key in self._output_types})
+            else:
+                outputs.append(
+                    {key: prediction[i] for i, key in enumerate(self._output_types)}
+                )
         if self._explanation_enabled:
             for i, explanation in enumerate(prediction_object.explanations):
                 attributions = explanation.attributions
