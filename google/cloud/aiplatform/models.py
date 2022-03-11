@@ -1111,7 +1111,7 @@ class Endpoint(base.VertexAiResourceNounWithFutureManager):
                 on the number of instances it supports per request, and
                 when it is exceeded the prediction call errors in case
                 of AutoML Models, or, in case of customer created
-                Models, the behavior is as documented by that Model.
+                Models, the behaviour is as documented by that Model.
                 The schema of any single instance may be specified via
                 Endpoint's DeployedModels'
                 [Model's][google.cloud.aiplatform.v1beta1.DeployedModel.model]
@@ -1160,7 +1160,7 @@ class Endpoint(base.VertexAiResourceNounWithFutureManager):
                 on the number of instances it supports per request, and
                 when it is exceeded the prediction call errors in case
                 of AutoML Models, or, in case of customer created
-                Models, the behavior is as documented by that Model.
+                Models, the behaviour is as documented by that Model.
                 The schema of any single instance may be specified via
                 Endpoint's DeployedModels'
                 [Model's][google.cloud.aiplatform.v1beta1.DeployedModel.model]

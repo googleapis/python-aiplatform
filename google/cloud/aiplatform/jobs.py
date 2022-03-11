@@ -1485,7 +1485,7 @@ class HyperparameterTuningJob(_RunnableJob):
                 where your system can "over-train" and you expect the performance to
                 get better for a while but then start declining, choose
                 'best'. B) Are your measurements significantly noisy
-                and/or unreproducible? If so, 'best' will tend to be
+                and/or irreproducible? If so, 'best' will tend to be
                 over-optimistic, and it may be better to choose 'last'. If
                 both or neither of (A) and (B) apply, it doesn't matter which
                 selection type is chosen.

@@ -3876,7 +3876,7 @@ class AutoMLForecastingTrainingJob(_TrainingJob):
                 Applies only if [export_evaluated_data_items] is True and
                 [export_evaluated_data_items_bigquery_destination_uri] is specified.
             quantiles (List[float]):
-                Quantiles to use for the `minimize-quantile-loss`
+                Quantiles to use for the `minizmize-quantile-loss`
                 [AutoMLForecastingTrainingJob.optimization_objective]. This argument is required in
                 this case.
 
@@ -4082,7 +4082,7 @@ class AutoMLForecastingTrainingJob(_TrainingJob):
                 Applies only if [export_evaluated_data_items] is True and
                 [export_evaluated_data_items_bigquery_destination_uri] is specified.
             quantiles (List[float]):
-                Quantiles to use for the `minimize-quantile-loss`
+                Quantiles to use for the `minizmize-quantile-loss`
                 [AutoMLForecastingTrainingJob.optimization_objective]. This argument is required in
                 this case.
 
@@ -4306,7 +4306,7 @@ class AutoMLForecastingTrainingJob(_TrainingJob):
                 Applies only if [export_evaluated_data_items] is True and
                 [export_evaluated_data_items_bigquery_destination_uri] is specified.
             quantiles (List[float]):
-                Quantiles to use for the `minimize-quantile-loss`
+                Quantiles to use for the `minizmize-quantile-loss`
                 [AutoMLForecastingTrainingJob.optimization_objective]. This argument is required in
                 this case.
 
