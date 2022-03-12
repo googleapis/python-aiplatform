@@ -37,7 +37,7 @@ try:
 except ImportError:
     raise ImportError(
         "Tensorflow is not installed and is required to load saved model. "
-        'Please install the SDK using "pip install pip install google-cloud-aiplatform[lit]"'
+        'Please install the SDK using "pip install google-cloud-aiplatform[lit]"'
     )
 
 try:
