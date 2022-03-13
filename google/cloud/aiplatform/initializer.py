@@ -163,7 +163,7 @@ class _Config:
                     project_number=project_number, credentials=self.credentials,
                 )
                 return project_id
-            except:
+            except Exception:
                 logging.getLogger(__name__).warning(
                     "Failed to convert project number to project ID.", exc_info=True
                 )
