@@ -655,6 +655,15 @@ class VertexAiResourceNoun(metaclass=abc.ABCMeta):
         self._assert_gca_resource_is_available()
         return self._gca_resource
 
+    @property
+    def _resource_is_available(self) -> bool:
+        """Returns True if GCA resource has been created and is available, otherwise False"""
+        try:
+            self._assert_gca_resource_is_available()
+            return True
+        except RuntimeError:
+            return False
+
     def _assert_gca_resource_is_available(self) -> None:
         """Helper method to raise when property is not accessible.
 
@@ -1153,7 +1162,7 @@ class VertexAiResourceNounWithFutureManager(VertexAiResourceNoun, FutureManager)
         _LOGGER.log_action_completed_against_resource("deleted.", "", self)
 
     def __repr__(self) -> str:
-        if self._gca_resource:
+        if self._gca_resource and self._resource_is_available:
             return VertexAiResourceNoun.__repr__(self)
 
         return FutureManager.__repr__(self)
@@ -1220,3 +1229,58 @@ def get_annotation_class(annotation: type) -> type:
         return annotation.__args__[0]
     else:
         return annotation
+
+
+class DoneMixin(abc.ABC):
+    """An abstract class for implementing a done method, indicating
+    whether a job has completed.
+
+    """
+
+    @abc.abstractmethod
+    def done(self) -> bool:
+        """Method indicating whether a job has completed."""
+        pass
+
+
+class StatefulResource(DoneMixin):
+    """Extends DoneMixin to check whether a job returning a stateful resource has compted."""
+
+    @property
+    @abc.abstractmethod
+    def state(self):
+        """The current state of the job."""
+        pass
+
+    @property
+    @classmethod
+    @abc.abstractmethod
+    def _valid_done_states(cls):
+        """A set() containing all job states associated with a completed job."""
+        pass
+
+    def done(self) -> bool:
+        """Method indicating whether a job has completed.
+
+        Returns:
+            True if the job has completed.
+        """
+        if self.state in self._valid_done_states:
+            return True
+        else:
+            return False
+
+
+class VertexAiStatefulResource(VertexAiResourceNounWithFutureManager, StatefulResource):
+    """Extends StatefulResource to include a check for self._gca_resource."""
+
+    def done(self) -> bool:
+        """Method indicating whether a job has completed.
+
+        Returns:
+            True if the job has completed.
+        """
+        if self._gca_resource and self._gca_resource.name:
+            return super().done()
+        else:
+            return False

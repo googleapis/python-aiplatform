@@ -28,8 +28,6 @@ from google.cloud import aiplatform_v1beta1
 
 
 async def sample_update_model():
-    """Snippet for update_model"""
-
     # Create a client
     client = aiplatform_v1beta1.ModelServiceAsyncClient()
 
@@ -44,7 +42,7 @@ async def sample_update_model():
     # Make the request
     response = await client.update_model(request=request)
 
-    # Handle response
+    # Handle the response
     print(response)
 
 # [END aiplatform_generated_aiplatform_v1beta1_ModelService_UpdateModel_async]

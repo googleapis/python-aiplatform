@@ -28,8 +28,6 @@ from google.cloud import aiplatform_v1beta1
 
 
 def sample_import_data():
-    """Snippet for import_data"""
-
     # Create a client
     client = aiplatform_v1beta1.DatasetServiceClient()
 
@@ -39,7 +37,7 @@ def sample_import_data():
     import_configs.import_schema_uri = "import_schema_uri_value"
 
     request = aiplatform_v1beta1.ImportDataRequest(
-        name="projects/{project}/locations/{location}/datasets/{dataset}",
+        name="name_value",
         import_configs=import_configs,
     )
 
@@ -49,6 +47,8 @@ def sample_import_data():
     print("Waiting for operation to complete...")
 
     response = operation.result()
+
+    # Handle the response
     print(response)
 
 # [END aiplatform_generated_aiplatform_v1beta1_DatasetService_ImportData_sync]

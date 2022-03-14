@@ -28,8 +28,6 @@ from google.cloud import aiplatform_v1beta1
 
 
 def sample_create_tensorboard_run():
-    """Snippet for create_tensorboard_run"""
-
     # Create a client
     client = aiplatform_v1beta1.TensorboardServiceClient()
 
@@ -38,7 +36,7 @@ def sample_create_tensorboard_run():
     tensorboard_run.display_name = "display_name_value"
 
     request = aiplatform_v1beta1.CreateTensorboardRunRequest(
-        parent="projects/{project}/locations/{location}/tensorboards/{tensorboard}/experiments/{experiment}/runs/{run}",
+        parent="parent_value",
         tensorboard_run=tensorboard_run,
         tensorboard_run_id="tensorboard_run_id_value",
     )
@@ -46,7 +44,7 @@ def sample_create_tensorboard_run():
     # Make the request
     response = client.create_tensorboard_run(request=request)
 
-    # Handle response
+    # Handle the response
     print(response)
 
 # [END aiplatform_generated_aiplatform_v1beta1_TensorboardService_CreateTensorboardRun_sync]

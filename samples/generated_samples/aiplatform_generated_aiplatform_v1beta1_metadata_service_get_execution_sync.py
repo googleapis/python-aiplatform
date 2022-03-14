@@ -28,20 +28,18 @@ from google.cloud import aiplatform_v1beta1
 
 
 def sample_get_execution():
-    """Snippet for get_execution"""
-
     # Create a client
     client = aiplatform_v1beta1.MetadataServiceClient()
 
     # Initialize request argument(s)
     request = aiplatform_v1beta1.GetExecutionRequest(
-        name="projects/{project}/locations/{location}/metadataStores/{metadata_store}/executions/{execution}",
+        name="name_value",
     )
 
     # Make the request
     response = client.get_execution(request=request)
 
-    # Handle response
+    # Handle the response
     print(response)
 
 # [END aiplatform_generated_aiplatform_v1beta1_MetadataService_GetExecution_sync]

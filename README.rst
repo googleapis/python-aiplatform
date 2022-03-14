@@ -123,7 +123,7 @@ Initialize the SDK to store common configurations that you use with the SDK.
         experiment='my-experiment',
 
         # description of the experiment above
-        experiment_description='my experiment decsription'
+        experiment_description='my experiment description'
     )
 
 Datasets

@@ -28,25 +28,23 @@ from google.cloud import aiplatform_v1
 
 
 async def sample_create_model_deployment_monitoring_job():
-    """Snippet for create_model_deployment_monitoring_job"""
-
     # Create a client
     client = aiplatform_v1.JobServiceAsyncClient()
 
     # Initialize request argument(s)
     model_deployment_monitoring_job = aiplatform_v1.ModelDeploymentMonitoringJob()
     model_deployment_monitoring_job.display_name = "display_name_value"
-    model_deployment_monitoring_job.endpoint = "projects/{project}/locations/{location}/endpoints/{endpoint}"
+    model_deployment_monitoring_job.endpoint = "endpoint_value"
 
     request = aiplatform_v1.CreateModelDeploymentMonitoringJobRequest(
-        parent="projects/{project}/locations/{location}",
+        parent="parent_value",
         model_deployment_monitoring_job=model_deployment_monitoring_job,
     )
 
     # Make the request
     response = await client.create_model_deployment_monitoring_job(request=request)
 
-    # Handle response
+    # Handle the response
     print(response)
 
 # [END aiplatform_generated_aiplatform_v1_JobService_CreateModelDeploymentMonitoringJob_async]

@@ -28,8 +28,6 @@ from google.cloud import aiplatform_v1beta1
 
 
 def sample_import_feature_values():
-    """Snippet for import_feature_values"""
-
     # Create a client
     client = aiplatform_v1beta1.FeaturestoreServiceClient()
 
@@ -43,7 +41,7 @@ def sample_import_feature_values():
     request = aiplatform_v1beta1.ImportFeatureValuesRequest(
         avro_source=avro_source,
         feature_time_field="feature_time_field_value",
-        entity_type="projects/{project}/locations/{location}/featurestores/{featurestore}/entityTypes/{entity_type}",
+        entity_type="entity_type_value",
         feature_specs=feature_specs,
     )
 
@@ -53,6 +51,8 @@ def sample_import_feature_values():
     print("Waiting for operation to complete...")
 
     response = operation.result()
+
+    # Handle the response
     print(response)
 
 # [END aiplatform_generated_aiplatform_v1beta1_FeaturestoreService_ImportFeatureValues_sync]

@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# Copyright 2020 Google LLC
+# Copyright 2022 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -472,6 +472,33 @@ class EndpointServiceClient(metaclass=EndpointServiceClientMeta):
     ) -> gac_operation.Operation:
         r"""Creates an Endpoint.
 
+        .. code-block:: python
+
+            from google.cloud import aiplatform_v1
+
+            def sample_create_endpoint():
+                # Create a client
+                client = aiplatform_v1.EndpointServiceClient()
+
+                # Initialize request argument(s)
+                endpoint = aiplatform_v1.Endpoint()
+                endpoint.display_name = "display_name_value"
+
+                request = aiplatform_v1.CreateEndpointRequest(
+                    parent="parent_value",
+                    endpoint=endpoint,
+                )
+
+                # Make the request
+                operation = client.create_endpoint(request=request)
+
+                print("Waiting for operation to complete...")
+
+                response = operation.result()
+
+                # Handle the response
+                print(response)
+
         Args:
             request (Union[google.cloud.aiplatform_v1.types.CreateEndpointRequest, dict]):
                 The request object. Request message for
@@ -578,6 +605,25 @@ class EndpointServiceClient(metaclass=EndpointServiceClientMeta):
     ) -> endpoint.Endpoint:
         r"""Gets an Endpoint.
 
+        .. code-block:: python
+
+            from google.cloud import aiplatform_v1
+
+            def sample_get_endpoint():
+                # Create a client
+                client = aiplatform_v1.EndpointServiceClient()
+
+                # Initialize request argument(s)
+                request = aiplatform_v1.GetEndpointRequest(
+                    name="name_value",
+                )
+
+                # Make the request
+                response = client.get_endpoint(request=request)
+
+                # Handle the response
+                print(response)
+
         Args:
             request (Union[google.cloud.aiplatform_v1.types.GetEndpointRequest, dict]):
                 The request object. Request message for
@@ -649,6 +695,26 @@ class EndpointServiceClient(metaclass=EndpointServiceClientMeta):
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> pagers.ListEndpointsPager:
         r"""Lists Endpoints in a Location.
+
+        .. code-block:: python
+
+            from google.cloud import aiplatform_v1
+
+            def sample_list_endpoints():
+                # Create a client
+                client = aiplatform_v1.EndpointServiceClient()
+
+                # Initialize request argument(s)
+                request = aiplatform_v1.ListEndpointsRequest(
+                    parent="parent_value",
+                )
+
+                # Make the request
+                page_result = client.list_endpoints(request=request)
+
+                # Handle the response
+                for response in page_result:
+                    print(response)
 
         Args:
             request (Union[google.cloud.aiplatform_v1.types.ListEndpointsRequest, dict]):
@@ -732,6 +798,28 @@ class EndpointServiceClient(metaclass=EndpointServiceClientMeta):
     ) -> gca_endpoint.Endpoint:
         r"""Updates an Endpoint.
 
+        .. code-block:: python
+
+            from google.cloud import aiplatform_v1
+
+            def sample_update_endpoint():
+                # Create a client
+                client = aiplatform_v1.EndpointServiceClient()
+
+                # Initialize request argument(s)
+                endpoint = aiplatform_v1.Endpoint()
+                endpoint.display_name = "display_name_value"
+
+                request = aiplatform_v1.UpdateEndpointRequest(
+                    endpoint=endpoint,
+                )
+
+                # Make the request
+                response = client.update_endpoint(request=request)
+
+                # Handle the response
+                print(response)
+
         Args:
             request (Union[google.cloud.aiplatform_v1.types.UpdateEndpointRequest, dict]):
                 The request object. Request message for
@@ -814,6 +902,29 @@ class EndpointServiceClient(metaclass=EndpointServiceClientMeta):
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> gac_operation.Operation:
         r"""Deletes an Endpoint.
+
+        .. code-block:: python
+
+            from google.cloud import aiplatform_v1
+
+            def sample_delete_endpoint():
+                # Create a client
+                client = aiplatform_v1.EndpointServiceClient()
+
+                # Initialize request argument(s)
+                request = aiplatform_v1.DeleteEndpointRequest(
+                    name="name_value",
+                )
+
+                # Make the request
+                operation = client.delete_endpoint(request=request)
+
+                print("Waiting for operation to complete...")
+
+                response = operation.result()
+
+                # Handle the response
+                print(response)
 
         Args:
             request (Union[google.cloud.aiplatform_v1.types.DeleteEndpointRequest, dict]):
@@ -912,6 +1023,35 @@ class EndpointServiceClient(metaclass=EndpointServiceClientMeta):
     ) -> gac_operation.Operation:
         r"""Deploys a Model into this Endpoint, creating a
         DeployedModel within it.
+
+
+        .. code-block:: python
+
+            from google.cloud import aiplatform_v1
+
+            def sample_deploy_model():
+                # Create a client
+                client = aiplatform_v1.EndpointServiceClient()
+
+                # Initialize request argument(s)
+                deployed_model = aiplatform_v1.DeployedModel()
+                deployed_model.dedicated_resources.min_replica_count = 1803
+                deployed_model.model = "model_value"
+
+                request = aiplatform_v1.DeployModelRequest(
+                    endpoint="endpoint_value",
+                    deployed_model=deployed_model,
+                )
+
+                # Make the request
+                operation = client.deploy_model(request=request)
+
+                print("Waiting for operation to complete...")
+
+                response = operation.result()
+
+                # Handle the response
+                print(response)
 
         Args:
             request (Union[google.cloud.aiplatform_v1.types.DeployModelRequest, dict]):
@@ -1037,6 +1177,31 @@ class EndpointServiceClient(metaclass=EndpointServiceClientMeta):
         r"""Undeploys a Model from an Endpoint, removing a
         DeployedModel from it, and freeing all resources it's
         using.
+
+
+        .. code-block:: python
+
+            from google.cloud import aiplatform_v1
+
+            def sample_undeploy_model():
+                # Create a client
+                client = aiplatform_v1.EndpointServiceClient()
+
+                # Initialize request argument(s)
+                request = aiplatform_v1.UndeployModelRequest(
+                    endpoint="endpoint_value",
+                    deployed_model_id="deployed_model_id_value",
+                )
+
+                # Make the request
+                operation = client.undeploy_model(request=request)
+
+                print("Waiting for operation to complete...")
+
+                response = operation.result()
+
+                # Handle the response
+                print(response)
 
         Args:
             request (Union[google.cloud.aiplatform_v1.types.UndeployModelRequest, dict]):

@@ -32,6 +32,7 @@ from google.cloud import aiplatform
 from google.cloud.aiplatform import base
 from google.cloud.aiplatform import initializer
 from google.cloud.aiplatform import utils
+from google.cloud.aiplatform.utils import resource_manager_utils
 
 from google.cloud.aiplatform.utils import featurestore_utils
 from google.cloud.aiplatform_v1.services.featurestore_service import (
@@ -54,11 +55,13 @@ from google.cloud.aiplatform_v1.types import (
 
 from google.cloud import bigquery
 from google.cloud import bigquery_storage
+from google.cloud import resourcemanager
 
 from google.cloud.bigquery_storage_v1.types import stream as gcbqs_stream
 
 # project
 _TEST_PROJECT = "test-project"
+_TEST_PROJECT_DIFF = "test-project-diff"
 _TEST_LOCATION = "us-central1"
 _TEST_PARENT = f"projects/{_TEST_PROJECT}/locations/{_TEST_LOCATION}"
 
@@ -114,6 +117,8 @@ _FEATURE_VALUE_TYPE_KEYS = {
 }
 
 _TEST_FEATURE_VALUE_TYPE = _TEST_INT_TYPE
+_TEST_FEATURE_VALUE_TYPE_BQ_FIELD_TYPE = "INT64"
+_TEST_FEATURE_VALUE_TYPE_BQ_MODE = "NULLABLE"
 
 _ARRAY_FEATURE_VALUE_TYPE_TO_GCA_TYPE_MAP = {
     _TEST_BOOL_ARR_TYPE: gca_types.BoolArray,
@@ -210,6 +215,9 @@ _TEST_FEATURE_LIST = [
 _TEST_FEATURE_CONFIGS = {
     "my_feature_id_1": {"value_type": _TEST_FEATURE_VALUE_TYPE_STR},
 }
+
+_TEST_IMPORTING_FEATURE_ID = "my_feature_id_1"
+_TEST_IMPORTING_FEATURE_SOURCE_FIELD = "my_feature_id_1_source_field"
 
 _TEST_IMPORTING_FEATURE_IDS = ["my_feature_id_1"]
 
@@ -335,6 +343,18 @@ def uuid_mock():
     return uuid.UUID(int=1)
 
 
+# All Resource Manager Mocks
+@pytest.fixture
+def get_project_mock():
+    with patch.object(
+        resourcemanager.ProjectsClient, "get_project"
+    ) as get_project_mock:
+        get_project_mock.return_value = resourcemanager.Project(
+            project_id=_TEST_PROJECT,
+        )
+        yield get_project_mock
+
+
 # All BigQuery Mocks
 @pytest.fixture
 def bq_client_mock():
@@ -363,22 +383,22 @@ def bq_init_dataset_mock(bq_dataset_mock):
 
 
 @pytest.fixture
-def bq_create_dataset_mock(bq_init_client_mock):
-    with patch.object(bigquery.Client, "create_dataset") as bq_create_dataset_mock:
+def bq_create_dataset_mock(bq_client_mock):
+    with patch.object(bq_client_mock, "create_dataset") as bq_create_dataset_mock:
         yield bq_create_dataset_mock
 
 
 @pytest.fixture
-def bq_load_table_from_dataframe_mock(bq_init_client_mock):
+def bq_load_table_from_dataframe_mock(bq_client_mock):
     with patch.object(
-        bigquery.Client, "load_table_from_dataframe"
+        bq_client_mock, "load_table_from_dataframe"
     ) as bq_load_table_from_dataframe_mock:
         yield bq_load_table_from_dataframe_mock
 
 
 @pytest.fixture
-def bq_delete_dataset_mock(bq_init_client_mock):
-    with patch.object(bigquery.Client, "delete_dataset") as bq_delete_dataset_mock:
+def bq_delete_dataset_mock(bq_client_mock):
+    with patch.object(bq_client_mock, "delete_dataset") as bq_delete_dataset_mock:
         yield bq_delete_dataset_mock
 
 
@@ -396,14 +416,27 @@ def bqs_init_client_mock(bqs_client_mock):
 
 
 @pytest.fixture
-def bqs_create_read_session(bqs_init_client_mock):
+def bqs_create_read_session(bqs_client_mock):
     with patch.object(
-        bigquery_storage.BigQueryReadClient, "create_read_session"
+        bqs_client_mock, "create_read_session"
     ) as bqs_create_read_session:
         read_session_proto = gcbqs_stream.ReadSession()
         read_session_proto.streams = [gcbqs_stream.ReadStream()]
         bqs_create_read_session.return_value = read_session_proto
         yield bqs_create_read_session
+
+
+@pytest.fixture
+def bq_schema_field_mock():
+    mock = MagicMock(bigquery.SchemaField)
+    yield mock
+
+
+@pytest.fixture
+def bq_init_schema_field_mock(bq_schema_field_mock):
+    with patch.object(bigquery, "SchemaField") as bq_init_schema_field_mock:
+        bq_init_schema_field_mock.return_value = bq_schema_field_mock
+        yield bq_init_schema_field_mock
 
 
 # All Featurestore Mocks
@@ -1268,10 +1301,13 @@ class TestFeaturestore:
         "bq_delete_dataset_mock",
         "bqs_init_client_mock",
         "bqs_create_read_session",
+        "get_project_mock",
     )
     @patch("uuid.uuid4", uuid_mock)
     def test_batch_serve_to_df(self, batch_read_feature_values_mock):
-        aiplatform.init(project=_TEST_PROJECT)
+
+        aiplatform.init(project=_TEST_PROJECT_DIFF)
+
         my_featurestore = aiplatform.Featurestore(
             featurestore_name=_TEST_FEATURESTORE_NAME
         )
@@ -1281,7 +1317,7 @@ class TestFeaturestore:
         expected_temp_bq_dataset_name = f"temp_{_TEST_FEATURESTORE_ID}_{uuid.uuid4()}".replace(
             "-", "_"
         )
-        expecte_temp_bq_dataset_id = f"{initializer.global_config.project}.{expected_temp_bq_dataset_name}"[
+        expecte_temp_bq_dataset_id = f"{_TEST_PROJECT}.{expected_temp_bq_dataset_name}"[
             :1024
         ]
         expected_temp_bq_read_instances_table_id = (
@@ -1672,16 +1708,22 @@ class TestEntityType:
 
     @pytest.mark.usefixtures(
         "get_entity_type_mock",
+        "get_feature_mock",
         "bq_init_client_mock",
         "bq_init_dataset_mock",
         "bq_create_dataset_mock",
-        "bq_load_table_from_dataframe_mock",
         "bq_delete_dataset_mock",
+        "get_project_mock",
     )
     @patch("uuid.uuid4", uuid_mock)
-    def test_ingest_from_df_using_column(self, import_feature_values_mock):
+    def test_ingest_from_df_using_column(
+        self,
+        import_feature_values_mock,
+        bq_load_table_from_dataframe_mock,
+        bq_init_schema_field_mock,
+    ):
 
-        aiplatform.init(project=_TEST_PROJECT)
+        aiplatform.init(project=_TEST_PROJECT_DIFF)
 
         my_entity_type = aiplatform.EntityType(entity_type_name=_TEST_ENTITY_TYPE_NAME)
         df_source = pd.DataFrame()
@@ -1694,14 +1736,14 @@ class TestEntityType:
         expected_temp_bq_dataset_name = f"temp_{_TEST_FEATURESTORE_ID}_{uuid.uuid4()}".replace(
             "-", "_"
         )
-        expecte_temp_bq_dataset_id = f"{initializer.global_config.project}.{expected_temp_bq_dataset_name}"[
+        expecte_temp_bq_dataset_id = f"{_TEST_PROJECT}.{expected_temp_bq_dataset_name}"[
             :1024
         ]
         expected_temp_bq_table_id = (
             f"{expecte_temp_bq_dataset_id}.{_TEST_ENTITY_TYPE_ID}"
         )
 
-        true_import_feature_values_request = gca_featurestore_service.ImportFeatureValuesRequest(
+        expected_import_feature_values_request = gca_featurestore_service.ImportFeatureValuesRequest(
             entity_type=_TEST_ENTITY_TYPE_NAME,
             feature_specs=[
                 gca_featurestore_service.ImportFeatureValuesRequest.FeatureSpec(
@@ -1714,21 +1756,35 @@ class TestEntityType:
             feature_time_field=_TEST_FEATURE_TIME_FIELD,
         )
 
+        bq_init_schema_field_mock.assert_called_once_with(
+            name=_TEST_IMPORTING_FEATURE_SOURCE_FIELD,
+            field_type=_TEST_FEATURE_VALUE_TYPE_BQ_FIELD_TYPE,
+            mode=_TEST_FEATURE_VALUE_TYPE_BQ_MODE,
+        )
+
         import_feature_values_mock.assert_called_once_with(
-            request=true_import_feature_values_request, metadata=_TEST_REQUEST_METADATA,
+            request=expected_import_feature_values_request,
+            metadata=_TEST_REQUEST_METADATA,
         )
 
     @pytest.mark.usefixtures(
         "get_entity_type_mock",
+        "get_feature_mock",
         "bq_init_client_mock",
         "bq_init_dataset_mock",
         "bq_create_dataset_mock",
-        "bq_load_table_from_dataframe_mock",
         "bq_delete_dataset_mock",
+        "get_project_mock",
     )
     @patch("uuid.uuid4", uuid_mock)
-    def test_ingest_from_df_using_datetime(self, import_feature_values_mock):
-        aiplatform.init(project=_TEST_PROJECT)
+    def test_ingest_from_df_using_datetime(
+        self,
+        import_feature_values_mock,
+        bq_load_table_from_dataframe_mock,
+        bq_init_schema_field_mock,
+    ):
+
+        aiplatform.init(project=_TEST_PROJECT_DIFF)
 
         my_entity_type = aiplatform.EntityType(entity_type_name=_TEST_ENTITY_TYPE_NAME)
         df_source = pd.DataFrame()
@@ -1742,7 +1798,7 @@ class TestEntityType:
         expected_temp_bq_dataset_name = f"temp_{_TEST_FEATURESTORE_ID}_{uuid.uuid4()}".replace(
             "-", "_"
         )
-        expecte_temp_bq_dataset_id = f"{initializer.global_config.project}.{expected_temp_bq_dataset_name}"[
+        expecte_temp_bq_dataset_id = f"{_TEST_PROJECT}.{expected_temp_bq_dataset_name}"[
             :1024
         ]
         expected_temp_bq_table_id = (
@@ -1752,7 +1808,7 @@ class TestEntityType:
         timestamp_proto = timestamp_pb2.Timestamp()
         timestamp_proto.FromDatetime(_TEST_FEATURE_TIME_DATETIME)
 
-        true_import_feature_values_request = gca_featurestore_service.ImportFeatureValuesRequest(
+        expected_import_feature_values_request = gca_featurestore_service.ImportFeatureValuesRequest(
             entity_type=_TEST_ENTITY_TYPE_NAME,
             feature_specs=[
                 gca_featurestore_service.ImportFeatureValuesRequest.FeatureSpec(
@@ -1765,8 +1821,39 @@ class TestEntityType:
             feature_time=timestamp_proto,
         )
 
+        bq_init_schema_field_mock.assert_called_once_with(
+            name=_TEST_IMPORTING_FEATURE_SOURCE_FIELD,
+            field_type=_TEST_FEATURE_VALUE_TYPE_BQ_FIELD_TYPE,
+            mode=_TEST_FEATURE_VALUE_TYPE_BQ_MODE,
+        )
+
         import_feature_values_mock.assert_called_once_with(
-            request=true_import_feature_values_request, metadata=_TEST_REQUEST_METADATA,
+            request=expected_import_feature_values_request,
+            metadata=_TEST_REQUEST_METADATA,
+        )
+
+    @pytest.mark.parametrize(
+        "feature_value_type, expected_field_type, expected_mode",
+        [
+            ("BOOL", "BOOL", "NULLABLE"),
+            ("BOOL_ARRAY", "BOOL", "REPEATED"),
+            ("DOUBLE", "FLOAT64", "NULLABLE"),
+            ("DOUBLE_ARRAY", "FLOAT64", "REPEATED"),
+            ("INT64", "INT64", "NULLABLE"),
+            ("INT64_ARRAY", "INT64", "REPEATED"),
+            ("STRING", "STRING", "NULLABLE"),
+            ("STRING_ARRAY", "STRING", "REPEATED"),
+            ("BYTES", "BYTES", "NULLABLE"),
+        ],
+    )
+    def test_get_bq_schema_field(
+        self, feature_value_type, expected_field_type, expected_mode
+    ):
+        expected_bq_schema_field = bigquery.SchemaField(
+            name=_TEST_FEATURE_ID, field_type=expected_field_type, mode=expected_mode,
+        )
+        assert expected_bq_schema_field == aiplatform.EntityType._get_bq_schema_field(
+            name=_TEST_FEATURE_ID, feature_value_type=feature_value_type
         )
 
     @pytest.mark.usefixtures("get_entity_type_mock", "get_feature_mock")
@@ -2365,3 +2452,10 @@ class TestFeature:
             ),
             metadata=_TEST_REQUEST_METADATA,
         )
+
+
+class TestResourceManagerUtils:
+    @pytest.mark.usefixtures("get_project_mock")
+    def test_get_project_id(self):
+        project_id = resource_manager_utils.get_project_id(project_number="123456")
+        assert project_id == _TEST_PROJECT

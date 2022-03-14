@@ -28,18 +28,16 @@ from google.cloud import aiplatform_v1beta1
 
 
 def sample_cancel_training_pipeline():
-    """Snippet for cancel_training_pipeline"""
-
     # Create a client
     client = aiplatform_v1beta1.PipelineServiceClient()
 
     # Initialize request argument(s)
     request = aiplatform_v1beta1.CancelTrainingPipelineRequest(
-        name="projects/{project}/locations/{location}/trainingPipelines/{training_pipeline}",
+        name="name_value",
     )
 
     # Make the request
-    response = client.cancel_training_pipeline(request=request)
+    client.cancel_training_pipeline(request=request)
 
 
 # [END aiplatform_generated_aiplatform_v1beta1_PipelineService_CancelTrainingPipeline_sync]

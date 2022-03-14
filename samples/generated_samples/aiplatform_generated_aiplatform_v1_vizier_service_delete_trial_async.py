@@ -28,18 +28,16 @@ from google.cloud import aiplatform_v1
 
 
 async def sample_delete_trial():
-    """Snippet for delete_trial"""
-
     # Create a client
     client = aiplatform_v1.VizierServiceAsyncClient()
 
     # Initialize request argument(s)
     request = aiplatform_v1.DeleteTrialRequest(
-        name="projects/{project}/locations/{location}/studies/{study}/trials/{trial}",
+        name="name_value",
     )
 
     # Make the request
-    response = await client.delete_trial(request=request)
+    await client.delete_trial(request=request)
 
 
 # [END aiplatform_generated_aiplatform_v1_VizierService_DeleteTrial_async]
