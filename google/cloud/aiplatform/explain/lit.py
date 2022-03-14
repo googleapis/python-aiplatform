@@ -29,7 +29,7 @@ try:
 except ImportError:
     raise ImportError(
         "LIT is not installed and is required to get Dataset as the return format. "
-        'Please install the SDK using "pip install python-aiplatform[lit]"'
+        'Please install the SDK using "pip install google-cloud-aiplatform[lit]"'
     )
 
 try:
@@ -37,7 +37,7 @@ try:
 except ImportError:
     raise ImportError(
         "Tensorflow is not installed and is required to load saved model. "
-        'Please install the SDK using "pip install pip install python-aiplatform[lit]"'
+        'Please install the SDK using "pip install google-cloud-aiplatform[lit]"'
     )
 
 try:
@@ -45,7 +45,7 @@ try:
 except ImportError:
     raise ImportError(
         "Pandas is not installed and is required to read the dataset. "
-        'Please install Pandas using "pip install python-aiplatform[lit]"'
+        'Please install Pandas using "pip install google-cloud-aiplatform[lit]"'
     )
 
 
