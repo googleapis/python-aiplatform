@@ -47,22 +47,27 @@ from google.cloud.aiplatform import utils
 from google.cloud.aiplatform.compat.types import encryption_spec as gca_encryption_spec
 from google.protobuf import json_format
 
-logging.basicConfig(level=logging.INFO, stream=sys.stdout)
-
 # This is the default retry callback to be used with get methods.
 _DEFAULT_RETRY = retry.Retry()
-
 
 class Logger:
     """Logging wrapper class with high level helper methods."""
 
-    def __init__(self, name: str = ""):
-        """Initializes logger with name.
+    def __init__(self, name: str = __name__):
+        """Initializes logger with optional name.
 
         Args:
             name (str): Name to associate with logger.
         """
         self._logger = logging.getLogger(name)
+        self._logger.setLevel(logging.INFO)
+
+        handler = logging.StreamHandler()
+        handler.setLevel(logging.INFO)
+        handler.setStream(sys.stdout)
+
+        self._logger.addHandler(handler)
+        
 
     def log_create_with_lro(
         self,
