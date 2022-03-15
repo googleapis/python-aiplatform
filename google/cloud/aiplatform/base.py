@@ -50,6 +50,7 @@ from google.protobuf import json_format
 # This is the default retry callback to be used with get methods.
 _DEFAULT_RETRY = retry.Retry()
 
+
 class Logger:
     """Logging wrapper class with high level helper methods."""
 
@@ -67,7 +68,6 @@ class Logger:
         handler.setStream(sys.stdout)
 
         self._logger.addHandler(handler)
-        
 
     def log_create_with_lro(
         self,
