@@ -26,10 +26,10 @@ def create_training_pipeline_tabular_forecasting_sample(
     target_column: str,
     time_series_identifier_column: str,
     time_column: str,
-    static_columns: str,
-    time_variant_past_only_columns: str,
-    time_variant_past_and_future_columns: str,
-    forecast_window_end: int,
+    time_series_attribute_columns: str,
+    unavailable_at_forecast: str,
+    available_at_forecast: str,
+    forecast_horizon: int,
     location: str = "us-central1",
     api_endpoint: str = "us-central1-aiplatform.googleapis.com",
 ):
@@ -47,7 +47,7 @@ def create_training_pipeline_tabular_forecasting_sample(
         {"auto": {"column_name": "deaths"}},
     ]
 
-    period = {"unit": "day", "quantity": 1}
+    data_granularity = {"unit": "day", "quantity": 1}
 
     # the inputs should be formatted according to the training_task_definition yaml file
     training_task_inputs_dict = {
@@ -56,13 +56,13 @@ def create_training_pipeline_tabular_forecasting_sample(
         "timeSeriesIdentifierColumn": time_series_identifier_column,
         "timeColumn": time_column,
         "transformations": transformations,
-        "period": period,
+        "dataGranularity": data_granularity,
         "optimizationObjective": "minimize-rmse",
         "trainBudgetMilliNodeHours": 8000,
-        "staticColumns": static_columns,
-        "timeVariantPastOnlyColumns": time_variant_past_only_columns,
-        "timeVariantPastAndFutureColumns": time_variant_past_and_future_columns,
-        "forecastWindowEnd": forecast_window_end,
+        "timeSeriesAttributeColumns": time_series_attribute_columns,
+        "unavailableAtForecast": unavailable_at_forecast,
+        "availableAtForecast": available_at_forecast,
+        "forecastHorizon": forecast_horizon,
     }
 
     training_task_inputs = json_format.ParseDict(training_task_inputs_dict, Value())

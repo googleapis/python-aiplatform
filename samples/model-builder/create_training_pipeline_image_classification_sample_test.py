@@ -44,7 +44,10 @@ def test_create_training_pipeline_image_classification_sample(
         project=constants.PROJECT, location=constants.LOCATION
     )
     mock_get_automl_image_training_job.assert_called_once_with(
-        display_name=constants.DISPLAY_NAME
+        display_name=constants.DISPLAY_NAME,
+        model_type=constants.MODEL_TYPE,
+        multi_label=False,
+        prediction_type='classification'
     )
     mock_run_automl_image_training_job.assert_called_once_with(
         dataset=mock_image_dataset,

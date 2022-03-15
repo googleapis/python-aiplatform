@@ -19,8 +19,8 @@ import pytest
 
 from importlib import reload
 
-from google.cloud.aiplatform.utils import source_utils
 from google.cloud import aiplatform
+from google.cloud.aiplatform import base
 from google.cloud.aiplatform import initializer
 from google.cloud.aiplatform import models
 from google.cloud.aiplatform import schema
@@ -223,7 +223,7 @@ class TestEndToEnd:
             },
             "python_package_spec": {
                 "executor_image_uri": test_training_jobs._TEST_TRAINING_CONTAINER_IMAGE,
-                "python_module": source_utils._TrainingScriptPythonPackager.module_name,
+                "python_module": test_training_jobs._TEST_MODULE_NAME,
                 "package_uris": [test_training_jobs._TEST_OUTPUT_PYTHON_PACKAGE_PATH],
                 "args": true_args,
             },
@@ -280,7 +280,7 @@ class TestEndToEnd:
         )
 
         mock_model_service_get.assert_called_once_with(
-            name=test_training_jobs._TEST_MODEL_NAME
+            name=test_training_jobs._TEST_MODEL_NAME, retry=base._DEFAULT_RETRY
         )
 
         assert model_from_job._gca_resource is mock_model_service_get.return_value
@@ -410,7 +410,7 @@ class TestEndToEnd:
             },
             "python_package_spec": {
                 "executor_image_uri": test_training_jobs._TEST_TRAINING_CONTAINER_IMAGE,
-                "python_module": source_utils._TrainingScriptPythonPackager.module_name,
+                "python_module": test_training_jobs._TEST_MODULE_NAME,
                 "package_uris": [test_training_jobs._TEST_OUTPUT_PYTHON_PACKAGE_PATH],
                 "args": true_args,
             },

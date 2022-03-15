@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# Copyright 2020 Google LLC
+# Copyright 2022 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -29,6 +29,7 @@ __protobuf__ = proto.module(
 
 class Dataset(proto.Message):
     r"""A collection of DataItems and Annotations on them.
+
     Attributes:
         name (str):
             Output only. The resource name of the
@@ -45,8 +46,7 @@ class Dataset(proto.Message):
             information about the Dataset. The schema is
             defined as an OpenAPI 3.0.2 Schema Object. The
             schema files that can be used here are found in
-            gs://google-cloud-
-            aiplatform/schema/dataset/metadata/.
+            gs://google-cloud-aiplatform/schema/dataset/metadata/.
         metadata (google.protobuf.struct_pb2.Value):
             Required. Additional information about the
             Dataset.
@@ -81,8 +81,8 @@ class Dataset(proto.Message):
                title.
         encryption_spec (google.cloud.aiplatform_v1beta1.types.EncryptionSpec):
             Customer-managed encryption key spec for a
-            Dataset. If set, this Dataset and all sub-
-            resources of this Dataset will be secured by
+            Dataset. If set, this Dataset and all
+            sub-resources of this Dataset will be secured by
             this key.
     """
 
@@ -105,10 +105,15 @@ class ImportDataConfig(proto.Message):
     Dataset, together with the labels that will be applied to the
     DataItems and the Annotations.
 
+
+    .. _oneof: https://proto-plus-python.readthedocs.io/en/stable/fields.html#oneofs-mutually-exclusive-fields
+
     Attributes:
         gcs_source (google.cloud.aiplatform_v1beta1.types.GcsSource):
             The Google Cloud Storage location for the
             input content.
+
+            This field is a member of `oneof`_ ``source``.
         data_item_labels (Sequence[google.cloud.aiplatform_v1beta1.types.ImportDataConfig.DataItemLabelsEntry]):
             Labels that will be applied to newly imported DataItems. If
             an identical DataItem as one being imported already exists
@@ -143,6 +148,9 @@ class ExportDataConfig(proto.Message):
     r"""Describes what part of the Dataset is to be exported, the
     destination of the export and how to export.
 
+
+    .. _oneof: https://proto-plus-python.readthedocs.io/en/stable/fields.html#oneofs-mutually-exclusive-fields
+
     Attributes:
         gcs_destination (google.cloud.aiplatform_v1beta1.types.GcsDestination):
             The Google Cloud Storage location where the output is to be
@@ -156,6 +164,8 @@ class ExportDataConfig(proto.Message):
             with the corresponding annotations' schema title. Inside
             these sub directories, a schema.yaml will be created to
             describe the output format.
+
+            This field is a member of `oneof`_ ``destination``.
         annotations_filter (str):
             A filter on Annotations of the Dataset. Only Annotations on
             to-be-exported DataItems(specified by [data_items_filter][])

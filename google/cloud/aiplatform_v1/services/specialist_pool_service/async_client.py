@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# Copyright 2020 Google LLC
+# Copyright 2022 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -16,15 +16,20 @@
 from collections import OrderedDict
 import functools
 import re
-from typing import Dict, Sequence, Tuple, Type, Union
+from typing import Dict, Optional, Sequence, Tuple, Type, Union
 import pkg_resources
 
-import google.api_core.client_options as ClientOptions  # type: ignore
-from google.api_core import exceptions as core_exceptions  # type: ignore
-from google.api_core import gapic_v1  # type: ignore
-from google.api_core import retry as retries  # type: ignore
+from google.api_core.client_options import ClientOptions
+from google.api_core import exceptions as core_exceptions
+from google.api_core import gapic_v1
+from google.api_core import retry as retries
 from google.auth import credentials as ga_credentials  # type: ignore
 from google.oauth2 import service_account  # type: ignore
+
+try:
+    OptionalRetry = Union[retries.Retry, gapic_v1.method._MethodDefault]
+except AttributeError:  # pragma: NO COVER
+    OptionalRetry = Union[retries.Retry, object]  # type: ignore
 
 from google.api_core import operation as gac_operation  # type: ignore
 from google.api_core import operation_async  # type: ignore
@@ -120,6 +125,42 @@ class SpecialistPoolServiceAsyncClient:
 
     from_service_account_json = from_service_account_file
 
+    @classmethod
+    def get_mtls_endpoint_and_cert_source(
+        cls, client_options: Optional[ClientOptions] = None
+    ):
+        """Return the API endpoint and client cert source for mutual TLS.
+
+        The client cert source is determined in the following order:
+        (1) if `GOOGLE_API_USE_CLIENT_CERTIFICATE` environment variable is not "true", the
+        client cert source is None.
+        (2) if `client_options.client_cert_source` is provided, use the provided one; if the
+        default client cert source exists, use the default one; otherwise the client cert
+        source is None.
+
+        The API endpoint is determined in the following order:
+        (1) if `client_options.api_endpoint` if provided, use the provided one.
+        (2) if `GOOGLE_API_USE_CLIENT_CERTIFICATE` environment variable is "always", use the
+        default mTLS endpoint; if the environment variabel is "never", use the default API
+        endpoint; otherwise if client cert source exists, use the default mTLS endpoint, otherwise
+        use the default API endpoint.
+
+        More details can be found at https://google.aip.dev/auth/4114.
+
+        Args:
+            client_options (google.api_core.client_options.ClientOptions): Custom options for the
+                client. Only the `api_endpoint` and `client_cert_source` properties may be used
+                in this method.
+
+        Returns:
+            Tuple[str, Callable[[], Tuple[bytes, bytes]]]: returns the API endpoint and the
+                client cert source to use.
+
+        Raises:
+            google.auth.exceptions.MutualTLSChannelError: If any errors happen.
+        """
+        return SpecialistPoolServiceClient.get_mtls_endpoint_and_cert_source(client_options)  # type: ignore
+
     @property
     def transport(self) -> SpecialistPoolServiceTransport:
         """Returns the transport used by the client instance.
@@ -183,18 +224,48 @@ class SpecialistPoolServiceAsyncClient:
 
     async def create_specialist_pool(
         self,
-        request: specialist_pool_service.CreateSpecialistPoolRequest = None,
+        request: Union[
+            specialist_pool_service.CreateSpecialistPoolRequest, dict
+        ] = None,
         *,
         parent: str = None,
         specialist_pool: gca_specialist_pool.SpecialistPool = None,
-        retry: retries.Retry = gapic_v1.method.DEFAULT,
+        retry: OptionalRetry = gapic_v1.method.DEFAULT,
         timeout: float = None,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> operation_async.AsyncOperation:
         r"""Creates a SpecialistPool.
 
+        .. code-block:: python
+
+            from google.cloud import aiplatform_v1
+
+            def sample_create_specialist_pool():
+                # Create a client
+                client = aiplatform_v1.SpecialistPoolServiceClient()
+
+                # Initialize request argument(s)
+                specialist_pool = aiplatform_v1.SpecialistPool()
+                specialist_pool.name = "name_value"
+                specialist_pool.display_name = "display_name_value"
+
+                request = aiplatform_v1.CreateSpecialistPoolRequest(
+                    parent="parent_value",
+                    specialist_pool=specialist_pool,
+                )
+
+                # Make the request
+                operation = client.create_specialist_pool(request=request)
+
+                print("Waiting for operation to complete...")
+
+                response = operation.result()
+
+                # Handle the response
+                print(response)
+
         Args:
-            request (:class:`google.cloud.aiplatform_v1.types.CreateSpecialistPoolRequest`):
+            request (Union[google.cloud.aiplatform_v1.types.CreateSpecialistPoolRequest, dict]):
                 The request object. Request message for
                 [SpecialistPoolService.CreateSpecialistPool][google.cloud.aiplatform.v1.SpecialistPoolService.CreateSpecialistPool].
             parent (:class:`str`):
@@ -233,7 +304,7 @@ class SpecialistPoolServiceAsyncClient:
 
         """
         # Create or coerce a protobuf request object.
-        # Sanity check: If we got a request object, we should *not* have
+        # Quick check: If we got a request object, we should *not* have
         # gotten any keyword arguments that map to the request.
         has_flattened_params = any([parent, specialist_pool])
         if request is not None and has_flattened_params:
@@ -281,17 +352,36 @@ class SpecialistPoolServiceAsyncClient:
 
     async def get_specialist_pool(
         self,
-        request: specialist_pool_service.GetSpecialistPoolRequest = None,
+        request: Union[specialist_pool_service.GetSpecialistPoolRequest, dict] = None,
         *,
         name: str = None,
-        retry: retries.Retry = gapic_v1.method.DEFAULT,
+        retry: OptionalRetry = gapic_v1.method.DEFAULT,
         timeout: float = None,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> specialist_pool.SpecialistPool:
         r"""Gets a SpecialistPool.
 
+        .. code-block:: python
+
+            from google.cloud import aiplatform_v1
+
+            def sample_get_specialist_pool():
+                # Create a client
+                client = aiplatform_v1.SpecialistPoolServiceClient()
+
+                # Initialize request argument(s)
+                request = aiplatform_v1.GetSpecialistPoolRequest(
+                    name="name_value",
+                )
+
+                # Make the request
+                response = client.get_specialist_pool(request=request)
+
+                # Handle the response
+                print(response)
+
         Args:
-            request (:class:`google.cloud.aiplatform_v1.types.GetSpecialistPoolRequest`):
+            request (Union[google.cloud.aiplatform_v1.types.GetSpecialistPoolRequest, dict]):
                 The request object. Request message for
                 [SpecialistPoolService.GetSpecialistPool][google.cloud.aiplatform.v1.SpecialistPoolService.GetSpecialistPool].
             name (:class:`str`):
@@ -325,7 +415,7 @@ class SpecialistPoolServiceAsyncClient:
 
         """
         # Create or coerce a protobuf request object.
-        # Sanity check: If we got a request object, we should *not* have
+        # Quick check: If we got a request object, we should *not* have
         # gotten any keyword arguments that map to the request.
         has_flattened_params = any([name])
         if request is not None and has_flattened_params:
@@ -363,17 +453,37 @@ class SpecialistPoolServiceAsyncClient:
 
     async def list_specialist_pools(
         self,
-        request: specialist_pool_service.ListSpecialistPoolsRequest = None,
+        request: Union[specialist_pool_service.ListSpecialistPoolsRequest, dict] = None,
         *,
         parent: str = None,
-        retry: retries.Retry = gapic_v1.method.DEFAULT,
+        retry: OptionalRetry = gapic_v1.method.DEFAULT,
         timeout: float = None,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> pagers.ListSpecialistPoolsAsyncPager:
         r"""Lists SpecialistPools in a Location.
 
+        .. code-block:: python
+
+            from google.cloud import aiplatform_v1
+
+            def sample_list_specialist_pools():
+                # Create a client
+                client = aiplatform_v1.SpecialistPoolServiceClient()
+
+                # Initialize request argument(s)
+                request = aiplatform_v1.ListSpecialistPoolsRequest(
+                    parent="parent_value",
+                )
+
+                # Make the request
+                page_result = client.list_specialist_pools(request=request)
+
+                # Handle the response
+                for response in page_result:
+                    print(response)
+
         Args:
-            request (:class:`google.cloud.aiplatform_v1.types.ListSpecialistPoolsRequest`):
+            request (Union[google.cloud.aiplatform_v1.types.ListSpecialistPoolsRequest, dict]):
                 The request object. Request message for
                 [SpecialistPoolService.ListSpecialistPools][google.cloud.aiplatform.v1.SpecialistPoolService.ListSpecialistPools].
             parent (:class:`str`):
@@ -400,7 +510,7 @@ class SpecialistPoolServiceAsyncClient:
 
         """
         # Create or coerce a protobuf request object.
-        # Sanity check: If we got a request object, we should *not* have
+        # Quick check: If we got a request object, we should *not* have
         # gotten any keyword arguments that map to the request.
         has_flattened_params = any([parent])
         if request is not None and has_flattened_params:
@@ -444,18 +554,44 @@ class SpecialistPoolServiceAsyncClient:
 
     async def delete_specialist_pool(
         self,
-        request: specialist_pool_service.DeleteSpecialistPoolRequest = None,
+        request: Union[
+            specialist_pool_service.DeleteSpecialistPoolRequest, dict
+        ] = None,
         *,
         name: str = None,
-        retry: retries.Retry = gapic_v1.method.DEFAULT,
+        retry: OptionalRetry = gapic_v1.method.DEFAULT,
         timeout: float = None,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> operation_async.AsyncOperation:
         r"""Deletes a SpecialistPool as well as all Specialists
         in the pool.
 
+
+        .. code-block:: python
+
+            from google.cloud import aiplatform_v1
+
+            def sample_delete_specialist_pool():
+                # Create a client
+                client = aiplatform_v1.SpecialistPoolServiceClient()
+
+                # Initialize request argument(s)
+                request = aiplatform_v1.DeleteSpecialistPoolRequest(
+                    name="name_value",
+                )
+
+                # Make the request
+                operation = client.delete_specialist_pool(request=request)
+
+                print("Waiting for operation to complete...")
+
+                response = operation.result()
+
+                # Handle the response
+                print(response)
+
         Args:
-            request (:class:`google.cloud.aiplatform_v1.types.DeleteSpecialistPoolRequest`):
+            request (Union[google.cloud.aiplatform_v1.types.DeleteSpecialistPoolRequest, dict]):
                 The request object. Request message for
                 [SpecialistPoolService.DeleteSpecialistPool][google.cloud.aiplatform.v1.SpecialistPoolService.DeleteSpecialistPool].
             name (:class:`str`):
@@ -492,7 +628,7 @@ class SpecialistPoolServiceAsyncClient:
 
         """
         # Create or coerce a protobuf request object.
-        # Sanity check: If we got a request object, we should *not* have
+        # Quick check: If we got a request object, we should *not* have
         # gotten any keyword arguments that map to the request.
         has_flattened_params = any([name])
         if request is not None and has_flattened_params:
@@ -538,18 +674,47 @@ class SpecialistPoolServiceAsyncClient:
 
     async def update_specialist_pool(
         self,
-        request: specialist_pool_service.UpdateSpecialistPoolRequest = None,
+        request: Union[
+            specialist_pool_service.UpdateSpecialistPoolRequest, dict
+        ] = None,
         *,
         specialist_pool: gca_specialist_pool.SpecialistPool = None,
         update_mask: field_mask_pb2.FieldMask = None,
-        retry: retries.Retry = gapic_v1.method.DEFAULT,
+        retry: OptionalRetry = gapic_v1.method.DEFAULT,
         timeout: float = None,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> operation_async.AsyncOperation:
         r"""Updates a SpecialistPool.
 
+        .. code-block:: python
+
+            from google.cloud import aiplatform_v1
+
+            def sample_update_specialist_pool():
+                # Create a client
+                client = aiplatform_v1.SpecialistPoolServiceClient()
+
+                # Initialize request argument(s)
+                specialist_pool = aiplatform_v1.SpecialistPool()
+                specialist_pool.name = "name_value"
+                specialist_pool.display_name = "display_name_value"
+
+                request = aiplatform_v1.UpdateSpecialistPoolRequest(
+                    specialist_pool=specialist_pool,
+                )
+
+                # Make the request
+                operation = client.update_specialist_pool(request=request)
+
+                print("Waiting for operation to complete...")
+
+                response = operation.result()
+
+                # Handle the response
+                print(response)
+
         Args:
-            request (:class:`google.cloud.aiplatform_v1.types.UpdateSpecialistPoolRequest`):
+            request (Union[google.cloud.aiplatform_v1.types.UpdateSpecialistPoolRequest, dict]):
                 The request object. Request message for
                 [SpecialistPoolService.UpdateSpecialistPool][google.cloud.aiplatform.v1.SpecialistPoolService.UpdateSpecialistPool].
             specialist_pool (:class:`google.cloud.aiplatform_v1.types.SpecialistPool`):
@@ -587,7 +752,7 @@ class SpecialistPoolServiceAsyncClient:
 
         """
         # Create or coerce a protobuf request object.
-        # Sanity check: If we got a request object, we should *not* have
+        # Quick check: If we got a request object, we should *not* have
         # gotten any keyword arguments that map to the request.
         has_flattened_params = any([specialist_pool, update_mask])
         if request is not None and has_flattened_params:
@@ -634,6 +799,12 @@ class SpecialistPoolServiceAsyncClient:
 
         # Done; return the response.
         return response
+
+    async def __aenter__(self):
+        return self
+
+    async def __aexit__(self, exc_type, exc, tb):
+        await self.transport.close()
 
 
 try:

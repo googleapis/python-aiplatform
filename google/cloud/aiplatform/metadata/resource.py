@@ -26,23 +26,25 @@ from google.api_core import exceptions
 from google.auth import credentials as auth_credentials
 
 from google.cloud.aiplatform import base, initializer
+from google.cloud.aiplatform import metadata
 from google.cloud.aiplatform import utils
-from google.cloud.aiplatform_v1beta1 import Artifact as GapicArtifact
-from google.cloud.aiplatform_v1beta1 import Context as GapicContext
-from google.cloud.aiplatform_v1beta1 import Execution as GapicExecution
+from google.cloud.aiplatform.compat.types import artifact as gca_artifact
+from google.cloud.aiplatform.compat.types import context as gca_context
+from google.cloud.aiplatform.compat.types import execution as gca_execution
 
 
 class _Resource(base.VertexAiResourceNounWithFutureManager, abc.ABC):
     """Metadata Resource for Vertex AI"""
 
     client_class = utils.MetadataClientWithOverride
-    _is_client_prediction_client = False
     _delete_method = None
 
     def __init__(
         self,
         resource_name: Optional[str] = None,
-        resource: Optional[Union[GapicContext, GapicArtifact, GapicExecution]] = None,
+        resource: Optional[
+            Union[gca_context.Context, gca_artifact.Artifact, gca_execution.Execution]
+        ] = None,
         metadata_store_id: str = "default",
         project: Optional[str] = None,
         location: Optional[str] = None,
@@ -56,7 +58,7 @@ class _Resource(base.VertexAiResourceNounWithFutureManager, abc.ABC):
                 Example: "projects/123/locations/us-central1/metadataStores/default/<resource_noun>/my-resource".
                 or "my-resource" when project and location are initialized or passed. if ``resource`` is provided, this
                 should not be set.
-            resource (Union[GapicContext, GapicArtifact, GapicExecution]):
+            resource (Union[gca_context.Context, gca_artifact.Artifact, gca_execution.Execution]):
                 The proto.Message that contains the full information of the resource. If both set, this field overrides
                 ``resource_name`` field.
             metadata_store_id (str):
@@ -79,21 +81,22 @@ class _Resource(base.VertexAiResourceNounWithFutureManager, abc.ABC):
 
         if resource:
             self._gca_resource = resource
-            return
-
-        full_resource_name = resource_name
-        # Construct the full_resource_name if input resource_name is the resource_id
-        if "/" not in resource_name:
+        else:
             full_resource_name = utils.full_resource_name(
                 resource_name=resource_name,
-                resource_noun=f"metadataStores/{metadata_store_id}/{self._resource_noun}",
+                resource_noun=self._resource_noun,
+                parse_resource_name_method=self._parse_resource_name,
+                format_resource_name_method=self._format_resource_name,
+                parent_resource_name_fields={
+                    metadata.metadata_store._MetadataStore._resource_noun: metadata_store_id
+                },
                 project=self.project,
                 location=self.location,
             )
 
-        self._gca_resource = getattr(self.api_client, self._getter_method)(
-            name=full_resource_name
-        )
+            self._gca_resource = getattr(self.api_client, self._getter_method)(
+                name=full_resource_name, retry=base._DEFAULT_RETRY
+            )
 
     @property
     def metadata(self) -> Dict:
@@ -449,7 +452,7 @@ class _Resource(base.VertexAiResourceNounWithFutureManager, abc.ABC):
             metadata_store_id (str):
                 The metadata store id for the particular resource name.
         Raises:
-            ValueError if it does not exist.
+            ValueError: If it does not exist.
         """
         pattern = re.compile(
             r"^projects\/(?P<project>[\w-]+)\/locations\/(?P<location>[\w-]+)\/metadataStores\/(?P<store>[\w-]+)\/"

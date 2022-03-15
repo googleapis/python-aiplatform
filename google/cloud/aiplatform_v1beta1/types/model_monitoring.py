@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# Copyright 2020 Google LLC
+# Copyright 2022 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -31,6 +31,7 @@ __protobuf__ = proto.module(
 
 class ModelMonitoringObjectiveConfig(proto.Message):
     r"""Next ID: 6
+
     Attributes:
         training_dataset (google.cloud.aiplatform_v1beta1.types.ModelMonitoringObjectiveConfig.TrainingDataset):
             Training dataset for models. This field has
@@ -43,22 +44,36 @@ class ModelMonitoringObjectiveConfig(proto.Message):
         prediction_drift_detection_config (google.cloud.aiplatform_v1beta1.types.ModelMonitoringObjectiveConfig.PredictionDriftDetectionConfig):
             The config for drift of prediction data.
         explanation_config (google.cloud.aiplatform_v1beta1.types.ModelMonitoringObjectiveConfig.ExplanationConfig):
-            The config for integrated with Explainable
-            AI.
+            The config for integrating with Vertex
+            Explainable AI.
     """
 
     class TrainingDataset(proto.Message):
         r"""Training Dataset information.
+
+        This message has `oneof`_ fields (mutually exclusive fields).
+        For each oneof, at most one member field can be set at the same time.
+        Setting any member of the oneof automatically clears all other
+        members.
+
+        .. _oneof: https://proto-plus-python.readthedocs.io/en/stable/fields.html#oneofs-mutually-exclusive-fields
+
         Attributes:
             dataset (str):
                 The resource name of the Dataset used to
                 train this Model.
+
+                This field is a member of `oneof`_ ``data_source``.
             gcs_source (google.cloud.aiplatform_v1beta1.types.GcsSource):
                 The Google Cloud Storage uri of the unmanaged
                 Dataset used to train this Model.
+
+                This field is a member of `oneof`_ ``data_source``.
             bigquery_source (google.cloud.aiplatform_v1beta1.types.BigQuerySource):
                 The BigQuery table of the unmanaged Dataset
                 used to train this Model.
+
+                This field is a member of `oneof`_ ``data_source``.
             data_format (str):
                 Data format of the dataset, only applicable
                 if the input is from Google Cloud Storage.
@@ -121,6 +136,7 @@ class ModelMonitoringObjectiveConfig(proto.Message):
 
     class PredictionDriftDetectionConfig(proto.Message):
         r"""The config for Prediction data drift detection.
+
         Attributes:
             drift_thresholds (Sequence[google.cloud.aiplatform_v1beta1.types.ModelMonitoringObjectiveConfig.PredictionDriftDetectionConfig.DriftThresholdsEntry]):
                 Key is the feature name and value is the
@@ -144,14 +160,14 @@ class ModelMonitoringObjectiveConfig(proto.Message):
         )
 
     class ExplanationConfig(proto.Message):
-        r"""The config for integrated with Explainable AI. Only applicable if
-        the Model has explanation_spec populated.
+        r"""The config for integrating with Vertex Explainable AI. Only
+        applicable if the Model has explanation_spec populated.
 
         Attributes:
             enable_feature_attributes (bool):
-                If want to analyze the Explainable AI feature
-                attribute scores or not. If set to true, Vertex
-                AI will log the feature attributions from
+                If want to analyze the Vertex Explainable AI
+                feature attribute scores or not. If set to true,
+                Vertex AI will log the feature attributions from
                 explain response and do the skew/drift detection
                 for them.
             explanation_baseline (google.cloud.aiplatform_v1beta1.types.ModelMonitoringObjectiveConfig.ExplanationConfig.ExplanationBaseline):
@@ -165,12 +181,23 @@ class ModelMonitoringObjectiveConfig(proto.Message):
             for Model Monitoring baseline dataset, which can be used to generate
             baseline attribution scores.
 
+            This message has `oneof`_ fields (mutually exclusive fields).
+            For each oneof, at most one member field can be set at the same time.
+            Setting any member of the oneof automatically clears all other
+            members.
+
+            .. _oneof: https://proto-plus-python.readthedocs.io/en/stable/fields.html#oneofs-mutually-exclusive-fields
+
             Attributes:
                 gcs (google.cloud.aiplatform_v1beta1.types.GcsDestination):
                     Cloud Storage location for BatchExplain
                     output.
+
+                    This field is a member of `oneof`_ ``destination``.
                 bigquery (google.cloud.aiplatform_v1beta1.types.BigQueryDestination):
                     BigQuery location for BatchExplain output.
+
+                    This field is a member of `oneof`_ ``destination``.
                 prediction_format (google.cloud.aiplatform_v1beta1.types.ModelMonitoringObjectiveConfig.ExplanationConfig.ExplanationBaseline.PredictionFormat):
                     The storage format of the predictions
                     generated BatchPrediction job.
@@ -219,14 +246,26 @@ class ModelMonitoringObjectiveConfig(proto.Message):
 
 
 class ModelMonitoringAlertConfig(proto.Message):
-    r"""Next ID: 2
+    r"""Next ID: 3
+
+    .. _oneof: https://proto-plus-python.readthedocs.io/en/stable/fields.html#oneofs-mutually-exclusive-fields
+
     Attributes:
         email_alert_config (google.cloud.aiplatform_v1beta1.types.ModelMonitoringAlertConfig.EmailAlertConfig):
             Email alert config.
+
+            This field is a member of `oneof`_ ``alert``.
+        enable_logging (bool):
+            Dump the anomalies to Cloud Logging. The anomalies will be
+            put to json payload encoded from proto
+            [google.cloud.aiplatform.logging.ModelMonitoringAnomaliesLogEntry][].
+            This can be further sinked to Pub/Sub or any other services
+            supported by Cloud Logging.
     """
 
     class EmailAlertConfig(proto.Message):
         r"""The config for email alert.
+
         Attributes:
             user_emails (Sequence[str]):
                 The email addresses to send the alert.
@@ -237,11 +276,15 @@ class ModelMonitoringAlertConfig(proto.Message):
     email_alert_config = proto.Field(
         proto.MESSAGE, number=1, oneof="alert", message=EmailAlertConfig,
     )
+    enable_logging = proto.Field(proto.BOOL, number=2,)
 
 
 class ThresholdConfig(proto.Message):
     r"""The config for feature monitoring threshold.
     Next ID: 3
+
+
+    .. _oneof: https://proto-plus-python.readthedocs.io/en/stable/fields.html#oneofs-mutually-exclusive-fields
 
     Attributes:
         value (float):
@@ -256,6 +299,8 @@ class ThresholdConfig(proto.Message):
             Each feature must have a non-zero threshold if
             they need to be monitored. Otherwise no alert
             will be triggered for that feature.
+
+            This field is a member of `oneof`_ ``threshold``.
     """
 
     value = proto.Field(proto.DOUBLE, number=1, oneof="threshold",)
@@ -274,6 +319,7 @@ class SamplingStrategy(proto.Message):
 
     class RandomSampleConfig(proto.Message):
         r"""Requests are randomly selected.
+
         Attributes:
             sample_rate (float):
                 Sample rate (0, 1]

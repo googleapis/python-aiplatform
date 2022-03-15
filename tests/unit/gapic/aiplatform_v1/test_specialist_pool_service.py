@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# Copyright 2020 Google LLC
+# Copyright 2022 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -15,7 +15,6 @@
 #
 import os
 import mock
-import packaging.version
 
 import grpc
 from grpc.experimental import aio
@@ -30,8 +29,10 @@ from google.api_core import future
 from google.api_core import gapic_v1
 from google.api_core import grpc_helpers
 from google.api_core import grpc_helpers_async
+from google.api_core import operation
 from google.api_core import operation_async  # type: ignore
 from google.api_core import operations_v1
+from google.api_core import path_template
 from google.auth import credentials as ga_credentials
 from google.auth.exceptions import MutualTLSChannelError
 from google.cloud.aiplatform_v1.services.specialist_pool_service import (
@@ -42,9 +43,6 @@ from google.cloud.aiplatform_v1.services.specialist_pool_service import (
 )
 from google.cloud.aiplatform_v1.services.specialist_pool_service import pagers
 from google.cloud.aiplatform_v1.services.specialist_pool_service import transports
-from google.cloud.aiplatform_v1.services.specialist_pool_service.transports.base import (
-    _GOOGLE_AUTH_VERSION,
-)
 from google.cloud.aiplatform_v1.types import operation as gca_operation
 from google.cloud.aiplatform_v1.types import specialist_pool
 from google.cloud.aiplatform_v1.types import specialist_pool as gca_specialist_pool
@@ -53,20 +51,6 @@ from google.longrunning import operations_pb2
 from google.oauth2 import service_account
 from google.protobuf import field_mask_pb2  # type: ignore
 import google.auth
-
-
-# TODO(busunkim): Once google-auth >= 1.25.0 is required transitively
-# through google-api-core:
-# - Delete the auth "less than" test cases
-# - Delete these pytest markers (Make the "greater than or equal to" tests the default).
-requires_google_auth_lt_1_25_0 = pytest.mark.skipif(
-    packaging.version.parse(_GOOGLE_AUTH_VERSION) >= packaging.version.parse("1.25.0"),
-    reason="This test requires google-auth < 1.25.0",
-)
-requires_google_auth_gte_1_25_0 = pytest.mark.skipif(
-    packaging.version.parse(_GOOGLE_AUTH_VERSION) < packaging.version.parse("1.25.0"),
-    reason="This test requires google-auth >= 1.25.0",
-)
 
 
 def client_cert_source_callback():
@@ -230,7 +214,7 @@ def test_specialist_pool_service_client_client_options(
     options = client_options.ClientOptions(api_endpoint="squid.clam.whelk")
     with mock.patch.object(transport_class, "__init__") as patched:
         patched.return_value = None
-        client = client_class(client_options=options)
+        client = client_class(transport=transport_name, client_options=options)
         patched.assert_called_once_with(
             credentials=None,
             credentials_file=None,
@@ -247,7 +231,7 @@ def test_specialist_pool_service_client_client_options(
     with mock.patch.dict(os.environ, {"GOOGLE_API_USE_MTLS_ENDPOINT": "never"}):
         with mock.patch.object(transport_class, "__init__") as patched:
             patched.return_value = None
-            client = client_class()
+            client = client_class(transport=transport_name)
             patched.assert_called_once_with(
                 credentials=None,
                 credentials_file=None,
@@ -264,7 +248,7 @@ def test_specialist_pool_service_client_client_options(
     with mock.patch.dict(os.environ, {"GOOGLE_API_USE_MTLS_ENDPOINT": "always"}):
         with mock.patch.object(transport_class, "__init__") as patched:
             patched.return_value = None
-            client = client_class()
+            client = client_class(transport=transport_name)
             patched.assert_called_once_with(
                 credentials=None,
                 credentials_file=None,
@@ -280,20 +264,20 @@ def test_specialist_pool_service_client_client_options(
     # unsupported value.
     with mock.patch.dict(os.environ, {"GOOGLE_API_USE_MTLS_ENDPOINT": "Unsupported"}):
         with pytest.raises(MutualTLSChannelError):
-            client = client_class()
+            client = client_class(transport=transport_name)
 
     # Check the case GOOGLE_API_USE_CLIENT_CERTIFICATE has unsupported value.
     with mock.patch.dict(
         os.environ, {"GOOGLE_API_USE_CLIENT_CERTIFICATE": "Unsupported"}
     ):
         with pytest.raises(ValueError):
-            client = client_class()
+            client = client_class(transport=transport_name)
 
     # Check the case quota_project_id is provided
     options = client_options.ClientOptions(quota_project_id="octopus")
     with mock.patch.object(transport_class, "__init__") as patched:
         patched.return_value = None
-        client = client_class(client_options=options)
+        client = client_class(client_options=options, transport=transport_name)
         patched.assert_called_once_with(
             credentials=None,
             credentials_file=None,
@@ -362,7 +346,7 @@ def test_specialist_pool_service_client_mtls_env_auto(
         )
         with mock.patch.object(transport_class, "__init__") as patched:
             patched.return_value = None
-            client = client_class(client_options=options)
+            client = client_class(client_options=options, transport=transport_name)
 
             if use_client_cert_env == "false":
                 expected_client_cert_source = None
@@ -404,7 +388,7 @@ def test_specialist_pool_service_client_mtls_env_auto(
                         expected_client_cert_source = client_cert_source_callback
 
                     patched.return_value = None
-                    client = client_class()
+                    client = client_class(transport=transport_name)
                     patched.assert_called_once_with(
                         credentials=None,
                         credentials_file=None,
@@ -426,7 +410,7 @@ def test_specialist_pool_service_client_mtls_env_auto(
                 return_value=False,
             ):
                 patched.return_value = None
-                client = client_class()
+                client = client_class(transport=transport_name)
                 patched.assert_called_once_with(
                     credentials=None,
                     credentials_file=None,
@@ -437,6 +421,87 @@ def test_specialist_pool_service_client_mtls_env_auto(
                     client_info=transports.base.DEFAULT_CLIENT_INFO,
                     always_use_jwt_access=True,
                 )
+
+
+@pytest.mark.parametrize(
+    "client_class", [SpecialistPoolServiceClient, SpecialistPoolServiceAsyncClient]
+)
+@mock.patch.object(
+    SpecialistPoolServiceClient,
+    "DEFAULT_ENDPOINT",
+    modify_default_endpoint(SpecialistPoolServiceClient),
+)
+@mock.patch.object(
+    SpecialistPoolServiceAsyncClient,
+    "DEFAULT_ENDPOINT",
+    modify_default_endpoint(SpecialistPoolServiceAsyncClient),
+)
+def test_specialist_pool_service_client_get_mtls_endpoint_and_cert_source(client_class):
+    mock_client_cert_source = mock.Mock()
+
+    # Test the case GOOGLE_API_USE_CLIENT_CERTIFICATE is "true".
+    with mock.patch.dict(os.environ, {"GOOGLE_API_USE_CLIENT_CERTIFICATE": "true"}):
+        mock_api_endpoint = "foo"
+        options = client_options.ClientOptions(
+            client_cert_source=mock_client_cert_source, api_endpoint=mock_api_endpoint
+        )
+        api_endpoint, cert_source = client_class.get_mtls_endpoint_and_cert_source(
+            options
+        )
+        assert api_endpoint == mock_api_endpoint
+        assert cert_source == mock_client_cert_source
+
+    # Test the case GOOGLE_API_USE_CLIENT_CERTIFICATE is "false".
+    with mock.patch.dict(os.environ, {"GOOGLE_API_USE_CLIENT_CERTIFICATE": "false"}):
+        mock_client_cert_source = mock.Mock()
+        mock_api_endpoint = "foo"
+        options = client_options.ClientOptions(
+            client_cert_source=mock_client_cert_source, api_endpoint=mock_api_endpoint
+        )
+        api_endpoint, cert_source = client_class.get_mtls_endpoint_and_cert_source(
+            options
+        )
+        assert api_endpoint == mock_api_endpoint
+        assert cert_source is None
+
+    # Test the case GOOGLE_API_USE_MTLS_ENDPOINT is "never".
+    with mock.patch.dict(os.environ, {"GOOGLE_API_USE_MTLS_ENDPOINT": "never"}):
+        api_endpoint, cert_source = client_class.get_mtls_endpoint_and_cert_source()
+        assert api_endpoint == client_class.DEFAULT_ENDPOINT
+        assert cert_source is None
+
+    # Test the case GOOGLE_API_USE_MTLS_ENDPOINT is "always".
+    with mock.patch.dict(os.environ, {"GOOGLE_API_USE_MTLS_ENDPOINT": "always"}):
+        api_endpoint, cert_source = client_class.get_mtls_endpoint_and_cert_source()
+        assert api_endpoint == client_class.DEFAULT_MTLS_ENDPOINT
+        assert cert_source is None
+
+    # Test the case GOOGLE_API_USE_MTLS_ENDPOINT is "auto" and default cert doesn't exist.
+    with mock.patch.dict(os.environ, {"GOOGLE_API_USE_CLIENT_CERTIFICATE": "true"}):
+        with mock.patch(
+            "google.auth.transport.mtls.has_default_client_cert_source",
+            return_value=False,
+        ):
+            api_endpoint, cert_source = client_class.get_mtls_endpoint_and_cert_source()
+            assert api_endpoint == client_class.DEFAULT_ENDPOINT
+            assert cert_source is None
+
+    # Test the case GOOGLE_API_USE_MTLS_ENDPOINT is "auto" and default cert exists.
+    with mock.patch.dict(os.environ, {"GOOGLE_API_USE_CLIENT_CERTIFICATE": "true"}):
+        with mock.patch(
+            "google.auth.transport.mtls.has_default_client_cert_source",
+            return_value=True,
+        ):
+            with mock.patch(
+                "google.auth.transport.mtls.default_client_cert_source",
+                return_value=mock_client_cert_source,
+            ):
+                (
+                    api_endpoint,
+                    cert_source,
+                ) = client_class.get_mtls_endpoint_and_cert_source()
+                assert api_endpoint == client_class.DEFAULT_MTLS_ENDPOINT
+                assert cert_source == mock_client_cert_source
 
 
 @pytest.mark.parametrize(
@@ -461,7 +526,7 @@ def test_specialist_pool_service_client_client_options_scopes(
     options = client_options.ClientOptions(scopes=["1", "2"],)
     with mock.patch.object(transport_class, "__init__") as patched:
         patched.return_value = None
-        client = client_class(client_options=options)
+        client = client_class(client_options=options, transport=transport_name)
         patched.assert_called_once_with(
             credentials=None,
             credentials_file=None,
@@ -475,28 +540,31 @@ def test_specialist_pool_service_client_client_options_scopes(
 
 
 @pytest.mark.parametrize(
-    "client_class,transport_class,transport_name",
+    "client_class,transport_class,transport_name,grpc_helpers",
     [
         (
             SpecialistPoolServiceClient,
             transports.SpecialistPoolServiceGrpcTransport,
             "grpc",
+            grpc_helpers,
         ),
         (
             SpecialistPoolServiceAsyncClient,
             transports.SpecialistPoolServiceGrpcAsyncIOTransport,
             "grpc_asyncio",
+            grpc_helpers_async,
         ),
     ],
 )
 def test_specialist_pool_service_client_client_options_credentials_file(
-    client_class, transport_class, transport_name
+    client_class, transport_class, transport_name, grpc_helpers
 ):
     # Check the case credentials file is provided.
     options = client_options.ClientOptions(credentials_file="credentials.json")
+
     with mock.patch.object(transport_class, "__init__") as patched:
         patched.return_value = None
-        client = client_class(client_options=options)
+        client = client_class(client_options=options, transport=transport_name)
         patched.assert_called_once_with(
             credentials=None,
             credentials_file="credentials.json",
@@ -529,10 +597,76 @@ def test_specialist_pool_service_client_client_options_from_dict():
         )
 
 
-def test_create_specialist_pool(
-    transport: str = "grpc",
-    request_type=specialist_pool_service.CreateSpecialistPoolRequest,
+@pytest.mark.parametrize(
+    "client_class,transport_class,transport_name,grpc_helpers",
+    [
+        (
+            SpecialistPoolServiceClient,
+            transports.SpecialistPoolServiceGrpcTransport,
+            "grpc",
+            grpc_helpers,
+        ),
+        (
+            SpecialistPoolServiceAsyncClient,
+            transports.SpecialistPoolServiceGrpcAsyncIOTransport,
+            "grpc_asyncio",
+            grpc_helpers_async,
+        ),
+    ],
+)
+def test_specialist_pool_service_client_create_channel_credentials_file(
+    client_class, transport_class, transport_name, grpc_helpers
 ):
+    # Check the case credentials file is provided.
+    options = client_options.ClientOptions(credentials_file="credentials.json")
+
+    with mock.patch.object(transport_class, "__init__") as patched:
+        patched.return_value = None
+        client = client_class(client_options=options, transport=transport_name)
+        patched.assert_called_once_with(
+            credentials=None,
+            credentials_file="credentials.json",
+            host=client.DEFAULT_ENDPOINT,
+            scopes=None,
+            client_cert_source_for_mtls=None,
+            quota_project_id=None,
+            client_info=transports.base.DEFAULT_CLIENT_INFO,
+            always_use_jwt_access=True,
+        )
+
+    # test that the credentials from file are saved and used as the credentials.
+    with mock.patch.object(
+        google.auth, "load_credentials_from_file", autospec=True
+    ) as load_creds, mock.patch.object(
+        google.auth, "default", autospec=True
+    ) as adc, mock.patch.object(
+        grpc_helpers, "create_channel"
+    ) as create_channel:
+        creds = ga_credentials.AnonymousCredentials()
+        file_creds = ga_credentials.AnonymousCredentials()
+        load_creds.return_value = (file_creds, None)
+        adc.return_value = (creds, None)
+        client = client_class(client_options=options, transport=transport_name)
+        create_channel.assert_called_with(
+            "aiplatform.googleapis.com:443",
+            credentials=file_creds,
+            credentials_file=None,
+            quota_project_id=None,
+            default_scopes=("https://www.googleapis.com/auth/cloud-platform",),
+            scopes=None,
+            default_host="aiplatform.googleapis.com",
+            ssl_credentials=None,
+            options=[
+                ("grpc.max_send_message_length", -1),
+                ("grpc.max_receive_message_length", -1),
+            ],
+        )
+
+
+@pytest.mark.parametrize(
+    "request_type", [specialist_pool_service.CreateSpecialistPoolRequest, dict,]
+)
+def test_create_specialist_pool(request_type, transport: str = "grpc"):
     client = SpecialistPoolServiceClient(
         credentials=ga_credentials.AnonymousCredentials(), transport=transport,
     )
@@ -556,10 +690,6 @@ def test_create_specialist_pool(
 
     # Establish that the response is the type that we expect.
     assert isinstance(response, future.Future)
-
-
-def test_create_specialist_pool_from_dict():
-    test_create_specialist_pool(request_type=dict)
 
 
 def test_create_specialist_pool_empty_call():
@@ -697,10 +827,12 @@ def test_create_specialist_pool_flattened():
         # request object values.
         assert len(call.mock_calls) == 1
         _, args, _ = call.mock_calls[0]
-        assert args[0].parent == "parent_value"
-        assert args[0].specialist_pool == gca_specialist_pool.SpecialistPool(
-            name="name_value"
-        )
+        arg = args[0].parent
+        mock_val = "parent_value"
+        assert arg == mock_val
+        arg = args[0].specialist_pool
+        mock_val = gca_specialist_pool.SpecialistPool(name="name_value")
+        assert arg == mock_val
 
 
 def test_create_specialist_pool_flattened_error():
@@ -745,10 +877,12 @@ async def test_create_specialist_pool_flattened_async():
         # request object values.
         assert len(call.mock_calls)
         _, args, _ = call.mock_calls[0]
-        assert args[0].parent == "parent_value"
-        assert args[0].specialist_pool == gca_specialist_pool.SpecialistPool(
-            name="name_value"
-        )
+        arg = args[0].parent
+        mock_val = "parent_value"
+        assert arg == mock_val
+        arg = args[0].specialist_pool
+        mock_val = gca_specialist_pool.SpecialistPool(name="name_value")
+        assert arg == mock_val
 
 
 @pytest.mark.asyncio
@@ -767,10 +901,10 @@ async def test_create_specialist_pool_flattened_error_async():
         )
 
 
-def test_get_specialist_pool(
-    transport: str = "grpc",
-    request_type=specialist_pool_service.GetSpecialistPoolRequest,
-):
+@pytest.mark.parametrize(
+    "request_type", [specialist_pool_service.GetSpecialistPoolRequest, dict,]
+)
+def test_get_specialist_pool(request_type, transport: str = "grpc"):
     client = SpecialistPoolServiceClient(
         credentials=ga_credentials.AnonymousCredentials(), transport=transport,
     )
@@ -790,6 +924,7 @@ def test_get_specialist_pool(
             specialist_managers_count=2662,
             specialist_manager_emails=["specialist_manager_emails_value"],
             pending_data_labeling_jobs=["pending_data_labeling_jobs_value"],
+            specialist_worker_emails=["specialist_worker_emails_value"],
         )
         response = client.get_specialist_pool(request)
 
@@ -805,10 +940,7 @@ def test_get_specialist_pool(
     assert response.specialist_managers_count == 2662
     assert response.specialist_manager_emails == ["specialist_manager_emails_value"]
     assert response.pending_data_labeling_jobs == ["pending_data_labeling_jobs_value"]
-
-
-def test_get_specialist_pool_from_dict():
-    test_get_specialist_pool(request_type=dict)
+    assert response.specialist_worker_emails == ["specialist_worker_emails_value"]
 
 
 def test_get_specialist_pool_empty_call():
@@ -853,6 +985,7 @@ async def test_get_specialist_pool_async(
                 specialist_managers_count=2662,
                 specialist_manager_emails=["specialist_manager_emails_value"],
                 pending_data_labeling_jobs=["pending_data_labeling_jobs_value"],
+                specialist_worker_emails=["specialist_worker_emails_value"],
             )
         )
         response = await client.get_specialist_pool(request)
@@ -869,6 +1002,7 @@ async def test_get_specialist_pool_async(
     assert response.specialist_managers_count == 2662
     assert response.specialist_manager_emails == ["specialist_manager_emails_value"]
     assert response.pending_data_labeling_jobs == ["pending_data_labeling_jobs_value"]
+    assert response.specialist_worker_emails == ["specialist_worker_emails_value"]
 
 
 @pytest.mark.asyncio
@@ -954,7 +1088,9 @@ def test_get_specialist_pool_flattened():
         # request object values.
         assert len(call.mock_calls) == 1
         _, args, _ = call.mock_calls[0]
-        assert args[0].name == "name_value"
+        arg = args[0].name
+        mock_val = "name_value"
+        assert arg == mock_val
 
 
 def test_get_specialist_pool_flattened_error():
@@ -994,7 +1130,9 @@ async def test_get_specialist_pool_flattened_async():
         # request object values.
         assert len(call.mock_calls)
         _, args, _ = call.mock_calls[0]
-        assert args[0].name == "name_value"
+        arg = args[0].name
+        mock_val = "name_value"
+        assert arg == mock_val
 
 
 @pytest.mark.asyncio
@@ -1011,10 +1149,10 @@ async def test_get_specialist_pool_flattened_error_async():
         )
 
 
-def test_list_specialist_pools(
-    transport: str = "grpc",
-    request_type=specialist_pool_service.ListSpecialistPoolsRequest,
-):
+@pytest.mark.parametrize(
+    "request_type", [specialist_pool_service.ListSpecialistPoolsRequest, dict,]
+)
+def test_list_specialist_pools(request_type, transport: str = "grpc"):
     client = SpecialistPoolServiceClient(
         credentials=ga_credentials.AnonymousCredentials(), transport=transport,
     )
@@ -1041,10 +1179,6 @@ def test_list_specialist_pools(
     # Establish that the response is the type that we expect.
     assert isinstance(response, pagers.ListSpecialistPoolsPager)
     assert response.next_page_token == "next_page_token_value"
-
-
-def test_list_specialist_pools_from_dict():
-    test_list_specialist_pools(request_type=dict)
 
 
 def test_list_specialist_pools_empty_call():
@@ -1182,7 +1316,9 @@ def test_list_specialist_pools_flattened():
         # request object values.
         assert len(call.mock_calls) == 1
         _, args, _ = call.mock_calls[0]
-        assert args[0].parent == "parent_value"
+        arg = args[0].parent
+        mock_val = "parent_value"
+        assert arg == mock_val
 
 
 def test_list_specialist_pools_flattened_error():
@@ -1222,7 +1358,9 @@ async def test_list_specialist_pools_flattened_async():
         # request object values.
         assert len(call.mock_calls)
         _, args, _ = call.mock_calls[0]
-        assert args[0].parent == "parent_value"
+        arg = args[0].parent
+        mock_val = "parent_value"
+        assert arg == mock_val
 
 
 @pytest.mark.asyncio
@@ -1239,9 +1377,9 @@ async def test_list_specialist_pools_flattened_error_async():
         )
 
 
-def test_list_specialist_pools_pager():
+def test_list_specialist_pools_pager(transport_name: str = "grpc"):
     client = SpecialistPoolServiceClient(
-        credentials=ga_credentials.AnonymousCredentials,
+        credentials=ga_credentials.AnonymousCredentials, transport=transport_name,
     )
 
     # Mock the actual call within the gRPC stub, and fake the request.
@@ -1287,9 +1425,9 @@ def test_list_specialist_pools_pager():
         assert all(isinstance(i, specialist_pool.SpecialistPool) for i in results)
 
 
-def test_list_specialist_pools_pages():
+def test_list_specialist_pools_pages(transport_name: str = "grpc"):
     client = SpecialistPoolServiceClient(
-        credentials=ga_credentials.AnonymousCredentials,
+        credentials=ga_credentials.AnonymousCredentials, transport=transport_name,
     )
 
     # Mock the actual call within the gRPC stub, and fake the request.
@@ -1417,10 +1555,10 @@ async def test_list_specialist_pools_async_pages():
             assert page_.raw_page.next_page_token == token
 
 
-def test_delete_specialist_pool(
-    transport: str = "grpc",
-    request_type=specialist_pool_service.DeleteSpecialistPoolRequest,
-):
+@pytest.mark.parametrize(
+    "request_type", [specialist_pool_service.DeleteSpecialistPoolRequest, dict,]
+)
+def test_delete_specialist_pool(request_type, transport: str = "grpc"):
     client = SpecialistPoolServiceClient(
         credentials=ga_credentials.AnonymousCredentials(), transport=transport,
     )
@@ -1444,10 +1582,6 @@ def test_delete_specialist_pool(
 
     # Establish that the response is the type that we expect.
     assert isinstance(response, future.Future)
-
-
-def test_delete_specialist_pool_from_dict():
-    test_delete_specialist_pool(request_type=dict)
 
 
 def test_delete_specialist_pool_empty_call():
@@ -1582,7 +1716,9 @@ def test_delete_specialist_pool_flattened():
         # request object values.
         assert len(call.mock_calls) == 1
         _, args, _ = call.mock_calls[0]
-        assert args[0].name == "name_value"
+        arg = args[0].name
+        mock_val = "name_value"
+        assert arg == mock_val
 
 
 def test_delete_specialist_pool_flattened_error():
@@ -1622,7 +1758,9 @@ async def test_delete_specialist_pool_flattened_async():
         # request object values.
         assert len(call.mock_calls)
         _, args, _ = call.mock_calls[0]
-        assert args[0].name == "name_value"
+        arg = args[0].name
+        mock_val = "name_value"
+        assert arg == mock_val
 
 
 @pytest.mark.asyncio
@@ -1639,10 +1777,10 @@ async def test_delete_specialist_pool_flattened_error_async():
         )
 
 
-def test_update_specialist_pool(
-    transport: str = "grpc",
-    request_type=specialist_pool_service.UpdateSpecialistPoolRequest,
-):
+@pytest.mark.parametrize(
+    "request_type", [specialist_pool_service.UpdateSpecialistPoolRequest, dict,]
+)
+def test_update_specialist_pool(request_type, transport: str = "grpc"):
     client = SpecialistPoolServiceClient(
         credentials=ga_credentials.AnonymousCredentials(), transport=transport,
     )
@@ -1666,10 +1804,6 @@ def test_update_specialist_pool(
 
     # Establish that the response is the type that we expect.
     assert isinstance(response, future.Future)
-
-
-def test_update_specialist_pool_from_dict():
-    test_update_specialist_pool(request_type=dict)
 
 
 def test_update_specialist_pool_empty_call():
@@ -1813,10 +1947,12 @@ def test_update_specialist_pool_flattened():
         # request object values.
         assert len(call.mock_calls) == 1
         _, args, _ = call.mock_calls[0]
-        assert args[0].specialist_pool == gca_specialist_pool.SpecialistPool(
-            name="name_value"
-        )
-        assert args[0].update_mask == field_mask_pb2.FieldMask(paths=["paths_value"])
+        arg = args[0].specialist_pool
+        mock_val = gca_specialist_pool.SpecialistPool(name="name_value")
+        assert arg == mock_val
+        arg = args[0].update_mask
+        mock_val = field_mask_pb2.FieldMask(paths=["paths_value"])
+        assert arg == mock_val
 
 
 def test_update_specialist_pool_flattened_error():
@@ -1861,10 +1997,12 @@ async def test_update_specialist_pool_flattened_async():
         # request object values.
         assert len(call.mock_calls)
         _, args, _ = call.mock_calls[0]
-        assert args[0].specialist_pool == gca_specialist_pool.SpecialistPool(
-            name="name_value"
-        )
-        assert args[0].update_mask == field_mask_pb2.FieldMask(paths=["paths_value"])
+        arg = args[0].specialist_pool
+        mock_val = gca_specialist_pool.SpecialistPool(name="name_value")
+        assert arg == mock_val
+        arg = args[0].update_mask
+        mock_val = field_mask_pb2.FieldMask(paths=["paths_value"])
+        assert arg == mock_val
 
 
 @pytest.mark.asyncio
@@ -1901,6 +2039,25 @@ def test_credentials_transport_error():
         client = SpecialistPoolServiceClient(
             client_options={"credentials_file": "credentials.json"},
             transport=transport,
+        )
+
+    # It is an error to provide an api_key and a transport instance.
+    transport = transports.SpecialistPoolServiceGrpcTransport(
+        credentials=ga_credentials.AnonymousCredentials(),
+    )
+    options = client_options.ClientOptions()
+    options.api_key = "api_key"
+    with pytest.raises(ValueError):
+        client = SpecialistPoolServiceClient(
+            client_options=options, transport=transport,
+        )
+
+    # It is an error to provide an api_key and a credential.
+    options = mock.Mock()
+    options.api_key = "api_key"
+    with pytest.raises(ValueError):
+        client = SpecialistPoolServiceClient(
+            client_options=options, credentials=ga_credentials.AnonymousCredentials()
         )
 
     # It is an error to provide scopes and a transport instance.
@@ -1992,13 +2149,15 @@ def test_specialist_pool_service_base_transport():
         with pytest.raises(NotImplementedError):
             getattr(transport, method)(request=object())
 
+    with pytest.raises(NotImplementedError):
+        transport.close()
+
     # Additionally, the LRO client (a property) should
     # also raise NotImplementedError
     with pytest.raises(NotImplementedError):
         transport.operations_client
 
 
-@requires_google_auth_gte_1_25_0
 def test_specialist_pool_service_base_transport_with_credentials_file():
     # Instantiate the base transport with a credentials file
     with mock.patch.object(
@@ -2019,26 +2178,6 @@ def test_specialist_pool_service_base_transport_with_credentials_file():
         )
 
 
-@requires_google_auth_lt_1_25_0
-def test_specialist_pool_service_base_transport_with_credentials_file_old_google_auth():
-    # Instantiate the base transport with a credentials file
-    with mock.patch.object(
-        google.auth, "load_credentials_from_file", autospec=True
-    ) as load_creds, mock.patch(
-        "google.cloud.aiplatform_v1.services.specialist_pool_service.transports.SpecialistPoolServiceTransport._prep_wrapped_messages"
-    ) as Transport:
-        Transport.return_value = None
-        load_creds.return_value = (ga_credentials.AnonymousCredentials(), None)
-        transport = transports.SpecialistPoolServiceTransport(
-            credentials_file="credentials.json", quota_project_id="octopus",
-        )
-        load_creds.assert_called_once_with(
-            "credentials.json",
-            scopes=("https://www.googleapis.com/auth/cloud-platform",),
-            quota_project_id="octopus",
-        )
-
-
 def test_specialist_pool_service_base_transport_with_adc():
     # Test the default credentials are used if credentials and credentials_file are None.
     with mock.patch.object(google.auth, "default", autospec=True) as adc, mock.patch(
@@ -2050,7 +2189,6 @@ def test_specialist_pool_service_base_transport_with_adc():
         adc.assert_called_once()
 
 
-@requires_google_auth_gte_1_25_0
 def test_specialist_pool_service_auth_adc():
     # If no credentials are provided, we should use ADC credentials.
     with mock.patch.object(google.auth, "default", autospec=True) as adc:
@@ -2063,18 +2201,6 @@ def test_specialist_pool_service_auth_adc():
         )
 
 
-@requires_google_auth_lt_1_25_0
-def test_specialist_pool_service_auth_adc_old_google_auth():
-    # If no credentials are provided, we should use ADC credentials.
-    with mock.patch.object(google.auth, "default", autospec=True) as adc:
-        adc.return_value = (ga_credentials.AnonymousCredentials(), None)
-        SpecialistPoolServiceClient()
-        adc.assert_called_once_with(
-            scopes=("https://www.googleapis.com/auth/cloud-platform",),
-            quota_project_id=None,
-        )
-
-
 @pytest.mark.parametrize(
     "transport_class",
     [
@@ -2082,7 +2208,6 @@ def test_specialist_pool_service_auth_adc_old_google_auth():
         transports.SpecialistPoolServiceGrpcAsyncIOTransport,
     ],
 )
-@requires_google_auth_gte_1_25_0
 def test_specialist_pool_service_transport_auth_adc(transport_class):
     # If credentials and host are not provided, the transport class should use
     # ADC credentials.
@@ -2092,26 +2217,6 @@ def test_specialist_pool_service_transport_auth_adc(transport_class):
         adc.assert_called_once_with(
             scopes=["1", "2"],
             default_scopes=("https://www.googleapis.com/auth/cloud-platform",),
-            quota_project_id="octopus",
-        )
-
-
-@pytest.mark.parametrize(
-    "transport_class",
-    [
-        transports.SpecialistPoolServiceGrpcTransport,
-        transports.SpecialistPoolServiceGrpcAsyncIOTransport,
-    ],
-)
-@requires_google_auth_lt_1_25_0
-def test_specialist_pool_service_transport_auth_adc_old_google_auth(transport_class):
-    # If credentials and host are not provided, the transport class should use
-    # ADC credentials.
-    with mock.patch.object(google.auth, "default", autospec=True) as adc:
-        adc.return_value = (ga_credentials.AnonymousCredentials(), None)
-        transport_class(quota_project_id="octopus")
-        adc.assert_called_once_with(
-            scopes=("https://www.googleapis.com/auth/cloud-platform",),
             quota_project_id="octopus",
         )
 
@@ -2492,7 +2597,7 @@ def test_parse_common_location_path():
     assert expected == actual
 
 
-def test_client_withDEFAULT_CLIENT_INFO():
+def test_client_with_default_client_info():
     client_info = gapic_v1.client_info.ClientInfo()
 
     with mock.patch.object(
@@ -2511,3 +2616,82 @@ def test_client_withDEFAULT_CLIENT_INFO():
             credentials=ga_credentials.AnonymousCredentials(), client_info=client_info,
         )
         prep.assert_called_once_with(client_info)
+
+
+@pytest.mark.asyncio
+async def test_transport_close_async():
+    client = SpecialistPoolServiceAsyncClient(
+        credentials=ga_credentials.AnonymousCredentials(), transport="grpc_asyncio",
+    )
+    with mock.patch.object(
+        type(getattr(client.transport, "grpc_channel")), "close"
+    ) as close:
+        async with client:
+            close.assert_not_called()
+        close.assert_called_once()
+
+
+def test_transport_close():
+    transports = {
+        "grpc": "_grpc_channel",
+    }
+
+    for transport, close_name in transports.items():
+        client = SpecialistPoolServiceClient(
+            credentials=ga_credentials.AnonymousCredentials(), transport=transport
+        )
+        with mock.patch.object(
+            type(getattr(client.transport, close_name)), "close"
+        ) as close:
+            with client:
+                close.assert_not_called()
+            close.assert_called_once()
+
+
+def test_client_ctx():
+    transports = [
+        "grpc",
+    ]
+    for transport in transports:
+        client = SpecialistPoolServiceClient(
+            credentials=ga_credentials.AnonymousCredentials(), transport=transport
+        )
+        # Test client calls underlying transport.
+        with mock.patch.object(type(client.transport), "close") as close:
+            close.assert_not_called()
+            with client:
+                pass
+            close.assert_called()
+
+
+@pytest.mark.parametrize(
+    "client_class,transport_class",
+    [
+        (SpecialistPoolServiceClient, transports.SpecialistPoolServiceGrpcTransport),
+        (
+            SpecialistPoolServiceAsyncClient,
+            transports.SpecialistPoolServiceGrpcAsyncIOTransport,
+        ),
+    ],
+)
+def test_api_key_credentials(client_class, transport_class):
+    with mock.patch.object(
+        google.auth._default, "get_api_key_credentials", create=True
+    ) as get_api_key_credentials:
+        mock_cred = mock.Mock()
+        get_api_key_credentials.return_value = mock_cred
+        options = client_options.ClientOptions()
+        options.api_key = "api_key"
+        with mock.patch.object(transport_class, "__init__") as patched:
+            patched.return_value = None
+            client = client_class(client_options=options)
+            patched.assert_called_once_with(
+                credentials=mock_cred,
+                credentials_file=None,
+                host=client.DEFAULT_ENDPOINT,
+                scopes=None,
+                client_cert_source_for_mtls=None,
+                quota_project_id=None,
+                client_info=transports.base.DEFAULT_CLIENT_INFO,
+                always_use_jwt_access=True,
+            )

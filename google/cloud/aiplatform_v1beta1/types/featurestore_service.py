@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# Copyright 2020 Google LLC
+# Copyright 2022 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -127,12 +127,15 @@ class ListFeaturestoresRequest(proto.Message):
             Lists the featurestores that match the filter expression.
             The following fields are supported:
 
-            -  ``create_time``: Supports =, !=, <, >, <=, and >=
-               comparisons. Values must be in RFC 3339 format.
-            -  ``update_time``: Supports =, !=, <, >, <=, and >=
-               comparisons. Values must be in RFC 3339 format.
-            -  ``online_serving_config.fixed_node_count``: Supports =,
-               !=, <, >, <=, and >= comparisons.
+            -  ``create_time``: Supports ``=``, ``!=``, ``<``, ``>``,
+               ``<=``, and ``>=`` comparisons. Values must be in RFC
+               3339 format.
+            -  ``update_time``: Supports ``=``, ``!=``, ``<``, ``>``,
+               ``<=``, and ``>=`` comparisons. Values must be in RFC
+               3339 format.
+            -  ``online_serving_config.fixed_node_count``: Supports
+               ``=``, ``!=``, ``<``, ``>``, ``<=``, and ``>=``
+               comparisons.
             -  ``labels``: Supports key-value equality and key presence.
 
             Examples:
@@ -256,20 +259,34 @@ class ImportFeatureValuesRequest(proto.Message):
     r"""Request message for
     [FeaturestoreService.ImportFeatureValues][google.cloud.aiplatform.v1beta1.FeaturestoreService.ImportFeatureValues].
 
+    This message has `oneof`_ fields (mutually exclusive fields).
+    For each oneof, at most one member field can be set at the same time.
+    Setting any member of the oneof automatically clears all other
+    members.
+
+    .. _oneof: https://proto-plus-python.readthedocs.io/en/stable/fields.html#oneofs-mutually-exclusive-fields
+
     Attributes:
         avro_source (google.cloud.aiplatform_v1beta1.types.AvroSource):
 
+            This field is a member of `oneof`_ ``source``.
         bigquery_source (google.cloud.aiplatform_v1beta1.types.BigQuerySource):
 
+            This field is a member of `oneof`_ ``source``.
         csv_source (google.cloud.aiplatform_v1beta1.types.CsvSource):
 
+            This field is a member of `oneof`_ ``source``.
         feature_time_field (str):
             Source column that holds the Feature
             timestamp for all Feature values in each entity.
+
+            This field is a member of `oneof`_ ``feature_time_source``.
         feature_time (google.protobuf.timestamp_pb2.Timestamp):
             Single Feature timestamp for all entities
             being imported. The timestamp must not have
             higher than millisecond precision.
+
+            This field is a member of `oneof`_ ``feature_time_source``.
         entity_type (str):
             Required. The resource name of the EntityType grouping the
             Features for which values are being imported. Format:
@@ -301,6 +318,7 @@ class ImportFeatureValuesRequest(proto.Message):
 
     class FeatureSpec(proto.Message):
         r"""Defines the Feature value(s) to import.
+
         Attributes:
             id (str):
                 Required. ID of the Feature to import values
@@ -369,7 +387,13 @@ class ImportFeatureValuesResponse(proto.Message):
 class BatchReadFeatureValuesRequest(proto.Message):
     r"""Request message for
     [FeaturestoreService.BatchReadFeatureValues][google.cloud.aiplatform.v1beta1.FeaturestoreService.BatchReadFeatureValues].
-    (- Next Id: 6 -)
+
+    This message has `oneof`_ fields (mutually exclusive fields).
+    For each oneof, at most one member field can be set at the same time.
+    Setting any member of the oneof automatically clears all other
+    members.
+
+    .. _oneof: https://proto-plus-python.readthedocs.io/en/stable/fields.html#oneofs-mutually-exclusive-fields
 
     Attributes:
         csv_read_instances (google.cloud.aiplatform_v1beta1.types.CsvSource):
@@ -396,8 +420,12 @@ class BatchReadFeatureValuesRequest(proto.Message):
 
             Values in the timestamp column must use the RFC 3339 format,
             e.g. ``2012-07-30T10:43:17.123Z``.
+
+            This field is a member of `oneof`_ ``read_option``.
         bigquery_read_instances (google.cloud.aiplatform_v1beta1.types.BigQuerySource):
             Similar to csv_read_instances, but from BigQuery source.
+
+            This field is a member of `oneof`_ ``read_option``.
         featurestore (str):
             Required. The resource name of the Featurestore from which
             to query Feature values. Format:
@@ -423,6 +451,7 @@ class BatchReadFeatureValuesRequest(proto.Message):
 
     class PassThroughField(proto.Message):
         r"""Describe pass-through fields in read_instance source.
+
         Attributes:
             field_name (str):
                 Required. The name of the field in the CSV header or the
@@ -480,10 +509,24 @@ class ExportFeatureValuesRequest(proto.Message):
     r"""Request message for
     [FeaturestoreService.ExportFeatureValues][google.cloud.aiplatform.v1beta1.FeaturestoreService.ExportFeatureValues].
 
+    This message has `oneof`_ fields (mutually exclusive fields).
+    For each oneof, at most one member field can be set at the same time.
+    Setting any member of the oneof automatically clears all other
+    members.
+
+    .. _oneof: https://proto-plus-python.readthedocs.io/en/stable/fields.html#oneofs-mutually-exclusive-fields
+
     Attributes:
         snapshot_export (google.cloud.aiplatform_v1beta1.types.ExportFeatureValuesRequest.SnapshotExport):
-            Exports Feature values of all entities of the
-            EntityType as of a snapshot time.
+            Exports the latest Feature values of all
+            entities of the EntityType within a time range.
+
+            This field is a member of `oneof`_ ``mode``.
+        full_export (google.cloud.aiplatform_v1beta1.types.ExportFeatureValuesRequest.FullExport):
+            Exports all historical values of all entities
+            of the EntityType within a time range
+
+            This field is a member of `oneof`_ ``mode``.
         entity_type (str):
             Required. The resource name of the EntityType from which to
             export Feature values. Format:
@@ -499,8 +542,8 @@ class ExportFeatureValuesRequest(proto.Message):
     """
 
     class SnapshotExport(proto.Message):
-        r"""Describes exporting Feature values as of the snapshot
-        timestamp.
+        r"""Describes exporting the latest Feature values of all entities of the
+        EntityType between [start_time, snapshot_time].
 
         Attributes:
             snapshot_time (google.protobuf.timestamp_pb2.Timestamp):
@@ -508,14 +551,51 @@ class ExportFeatureValuesRequest(proto.Message):
                 If not set, retrieve values as of now.
                 Timestamp, if present, must not have higher than
                 millisecond precision.
+            start_time (google.protobuf.timestamp_pb2.Timestamp):
+                Excludes Feature values with feature
+                generation timestamp before this timestamp. If
+                not set, retrieve oldest values kept in Feature
+                Store. Timestamp, if present, must not have
+                higher than millisecond precision.
         """
 
         snapshot_time = proto.Field(
             proto.MESSAGE, number=1, message=timestamp_pb2.Timestamp,
         )
+        start_time = proto.Field(
+            proto.MESSAGE, number=2, message=timestamp_pb2.Timestamp,
+        )
+
+    class FullExport(proto.Message):
+        r"""Describes exporting all historical Feature values of all entities of
+        the EntityType between [start_time, end_time].
+
+        Attributes:
+            start_time (google.protobuf.timestamp_pb2.Timestamp):
+                Excludes Feature values with feature
+                generation timestamp before this timestamp. If
+                not set, retrieve oldest values kept in Feature
+                Store. Timestamp, if present, must not have
+                higher than millisecond precision.
+            end_time (google.protobuf.timestamp_pb2.Timestamp):
+                Exports Feature values as of this timestamp.
+                If not set, retrieve values as of now.
+                Timestamp, if present, must not have higher than
+                millisecond precision.
+        """
+
+        start_time = proto.Field(
+            proto.MESSAGE, number=2, message=timestamp_pb2.Timestamp,
+        )
+        end_time = proto.Field(
+            proto.MESSAGE, number=1, message=timestamp_pb2.Timestamp,
+        )
 
     snapshot_export = proto.Field(
         proto.MESSAGE, number=3, oneof="mode", message=SnapshotExport,
+    )
+    full_export = proto.Field(
+        proto.MESSAGE, number=7, oneof="mode", message=FullExport,
     )
     entity_type = proto.Field(proto.STRING, number=1,)
     destination = proto.Field(
@@ -531,6 +611,7 @@ class ExportFeatureValuesRequest(proto.Message):
 
 class DestinationFeatureSetting(proto.Message):
     r"""
+
     Attributes:
         feature_id (str):
             Required. The ID of the Feature to apply the
@@ -547,6 +628,14 @@ class DestinationFeatureSetting(proto.Message):
 
 class FeatureValueDestination(proto.Message):
     r"""A destination location for Feature values and format.
+
+    This message has `oneof`_ fields (mutually exclusive fields).
+    For each oneof, at most one member field can be set at the same time.
+    Setting any member of the oneof automatically clears all other
+    members.
+
+    .. _oneof: https://proto-plus-python.readthedocs.io/en/stable/fields.html#oneofs-mutually-exclusive-fields
+
     Attributes:
         bigquery_destination (google.cloud.aiplatform_v1beta1.types.BigQueryDestination):
             Output in BigQuery format.
@@ -554,6 +643,8 @@ class FeatureValueDestination(proto.Message):
             in
             [FeatureValueDestination.bigquery_destination][google.cloud.aiplatform.v1beta1.FeatureValueDestination.bigquery_destination]
             must refer to a table.
+
+            This field is a member of `oneof`_ ``destination``.
         tfrecord_destination (google.cloud.aiplatform_v1beta1.types.TFRecordDestination):
             Output in TFRecord format.
 
@@ -568,9 +659,13 @@ class FeatureValueDestination(proto.Message):
                 STRING, STRING_ARRAY, BYTES                | BYTES_LIST
                 true -> byte_string("true"), false -> byte_string("false")
                 BOOL, BOOL_ARRAY (true, false)             | BYTES_LIST
+
+            This field is a member of `oneof`_ ``destination``.
         csv_destination (google.cloud.aiplatform_v1beta1.types.CsvDestination):
             Output in CSV format. Array Feature value
             types are not allowed in CSV format.
+
+            This field is a member of `oneof`_ ``destination``.
     """
 
     bigquery_destination = proto.Field(
@@ -587,13 +682,15 @@ class FeatureValueDestination(proto.Message):
 class ExportFeatureValuesResponse(proto.Message):
     r"""Response message for
     [FeaturestoreService.ExportFeatureValues][google.cloud.aiplatform.v1beta1.FeaturestoreService.ExportFeatureValues].
-        """
+
+    """
 
 
 class BatchReadFeatureValuesResponse(proto.Message):
     r"""Response message for
     [FeaturestoreService.BatchReadFeatureValues][google.cloud.aiplatform.v1beta1.FeaturestoreService.BatchReadFeatureValues].
-        """
+
+    """
 
 
 class CreateEntityTypeRequest(proto.Message):
@@ -651,10 +748,12 @@ class ListEntityTypesRequest(proto.Message):
             Lists the EntityTypes that match the filter expression. The
             following filters are supported:
 
-            -  ``create_time``: Supports =, !=, <, >, >=, and <=
-               comparisons. Values must be in RFC 3339 format.
-            -  ``update_time``: Supports =, !=, <, >, >=, and <=
-               comparisons. Values must be in RFC 3339 format.
+            -  ``create_time``: Supports ``=``, ``!=``, ``<``, ``>``,
+               ``>=``, and ``<=`` comparisons. Values must be in RFC
+               3339 format.
+            -  ``update_time``: Supports ``=``, ``!=``, ``<``, ``>``,
+               ``>=``, and ``<=`` comparisons. Values must be in RFC
+               3339 format.
             -  ``labels``: Supports key-value equality as well as key
                presence.
 
@@ -765,6 +864,7 @@ class UpdateEntityTypeRequest(proto.Message):
 
 class DeleteEntityTypeRequest(proto.Message):
     r"""Request message for [FeaturestoreService.DeleteEntityTypes][].
+
     Attributes:
         name (str):
             Required. The name of the EntityType to be deleted. Format:
@@ -979,9 +1079,9 @@ class SearchFeaturesRequest(proto.Message):
 
             -  Removing leading/trailing whitespace and tokenizing the
                search value. Characters that are not one of alphanumeric
-               [a-zA-Z0-9], underscore [_], or asterisk [*] are treated
-               as delimiters for tokens. (*) is treated as a wildcard
-               that matches characters within a token.
+               ``[a-zA-Z0-9]``, underscore ``_``, or asterisk ``*`` are
+               treated as delimiters for tokens. ``*`` is treated as a
+               wildcard that matches characters within a token.
             -  Ignoring case.
             -  Prepending an asterisk to the first and appending an
                asterisk to the last token in QUERY.
@@ -1137,6 +1237,7 @@ class DeleteFeatureRequest(proto.Message):
 
 class CreateFeaturestoreOperationMetadata(proto.Message):
     r"""Details of operations that perform create Featurestore.
+
     Attributes:
         generic_metadata (google.cloud.aiplatform_v1beta1.types.GenericOperationMetadata):
             Operation metadata for Featurestore.
@@ -1149,6 +1250,7 @@ class CreateFeaturestoreOperationMetadata(proto.Message):
 
 class UpdateFeaturestoreOperationMetadata(proto.Message):
     r"""Details of operations that perform update Featurestore.
+
     Attributes:
         generic_metadata (google.cloud.aiplatform_v1beta1.types.GenericOperationMetadata):
             Operation metadata for Featurestore.
@@ -1160,16 +1262,17 @@ class UpdateFeaturestoreOperationMetadata(proto.Message):
 
 
 class ImportFeatureValuesOperationMetadata(proto.Message):
-    r"""Details of operations that perform import feature values.
+    r"""Details of operations that perform import Feature values.
+
     Attributes:
         generic_metadata (google.cloud.aiplatform_v1beta1.types.GenericOperationMetadata):
             Operation metadata for Featurestore import
-            feature values.
+            Feature values.
         imported_entity_count (int):
             Number of entities that have been imported by
             the operation.
         imported_feature_value_count (int):
-            Number of feature values that have been
+            Number of Feature values that have been
             imported by the operation.
         invalid_row_count (int):
             The number of rows in input source that weren't imported due
@@ -1191,6 +1294,7 @@ class ImportFeatureValuesOperationMetadata(proto.Message):
 
 class ExportFeatureValuesOperationMetadata(proto.Message):
     r"""Details of operations that exports Features values.
+
     Attributes:
         generic_metadata (google.cloud.aiplatform_v1beta1.types.GenericOperationMetadata):
             Operation metadata for Featurestore export
@@ -1204,6 +1308,7 @@ class ExportFeatureValuesOperationMetadata(proto.Message):
 
 class BatchReadFeatureValuesOperationMetadata(proto.Message):
     r"""Details of operations that batch reads Feature values.
+
     Attributes:
         generic_metadata (google.cloud.aiplatform_v1beta1.types.GenericOperationMetadata):
             Operation metadata for Featurestore batch
@@ -1217,6 +1322,7 @@ class BatchReadFeatureValuesOperationMetadata(proto.Message):
 
 class CreateEntityTypeOperationMetadata(proto.Message):
     r"""Details of operations that perform create EntityType.
+
     Attributes:
         generic_metadata (google.cloud.aiplatform_v1beta1.types.GenericOperationMetadata):
             Operation metadata for EntityType.
@@ -1229,6 +1335,7 @@ class CreateEntityTypeOperationMetadata(proto.Message):
 
 class CreateFeatureOperationMetadata(proto.Message):
     r"""Details of operations that perform create Feature.
+
     Attributes:
         generic_metadata (google.cloud.aiplatform_v1beta1.types.GenericOperationMetadata):
             Operation metadata for Feature.
@@ -1241,6 +1348,7 @@ class CreateFeatureOperationMetadata(proto.Message):
 
 class BatchCreateFeaturesOperationMetadata(proto.Message):
     r"""Details of operations that perform batch create Features.
+
     Attributes:
         generic_metadata (google.cloud.aiplatform_v1beta1.types.GenericOperationMetadata):
             Operation metadata for Feature.

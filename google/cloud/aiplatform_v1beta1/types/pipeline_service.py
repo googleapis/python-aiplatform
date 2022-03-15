@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# Copyright 2020 Google LLC
+# Copyright 2022 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -223,6 +223,13 @@ class ListPipelineJobsRequest(proto.Message):
             following fields are supported:
 
             -  ``pipeline_name``: Supports ``=`` and ``!=`` comparisons.
+            -  ``display_name``: Supports ``=``, ``!=`` comparisons, and
+               ``:`` wildcard.
+            -  ``pipeline_job_user_id``: Supports ``=``, ``!=``
+               comparisons, and ``:`` wildcard. for example, can check
+               if pipeline's display_name contains *step* by doing
+               display_name:"*step*"
+            -  ``state``: Supports ``=`` and ``!=`` comparisons.
             -  ``create_time``: Supports ``=``, ``!=``, ``<``, ``>``,
                ``<=``, and ``>=`` comparisons. Values must be in RFC
                3339 format.
@@ -256,12 +263,30 @@ class ListPipelineJobsRequest(proto.Message):
             of the previous
             [PipelineService.ListPipelineJobs][google.cloud.aiplatform.v1beta1.PipelineService.ListPipelineJobs]
             call.
+        order_by (str):
+            A comma-separated list of fields to order by. The default
+            sort order is in ascending order. Use "desc" after a field
+            name for descending. You can have multiple order_by fields
+            provided e.g. "create_time desc, end_time", "end_time,
+            start_time, update_time" For example, using "create_time
+            desc, end_time" will order results by create time in
+            descending order, and if there are multiple jobs having the
+            same create time, order them by the end time in ascending
+            order. if order_by is not specified, it will order by
+            default order is create time in descending order. Supported
+            fields:
+
+            -  ``create_time``
+            -  ``update_time``
+            -  ``end_time``
+            -  ``start_time``
     """
 
     parent = proto.Field(proto.STRING, number=1,)
     filter = proto.Field(proto.STRING, number=2,)
     page_size = proto.Field(proto.INT32, number=3,)
     page_token = proto.Field(proto.STRING, number=4,)
+    order_by = proto.Field(proto.STRING, number=6,)
 
 
 class ListPipelineJobsResponse(proto.Message):

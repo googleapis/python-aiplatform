@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# Copyright 2020 Google LLC
+# Copyright 2022 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -24,6 +24,7 @@ __protobuf__ = proto.module(
 
 class TabularClassificationPredictionResult(proto.Message):
     r"""Prediction output format for Tabular Classification.
+
     Attributes:
         classes (Sequence[str]):
             The name of the classes being classified,

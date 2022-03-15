@@ -24,7 +24,7 @@ from google.auth import credentials as auth_credentials
 from google.cloud.aiplatform import base, initializer
 from google.cloud.aiplatform import compat
 from google.cloud.aiplatform import utils
-from google.cloud.aiplatform_v1beta1.types import metadata_store as gca_metadata_store
+from google.cloud.aiplatform.compat.types import metadata_store as gca_metadata_store
 
 
 class _MetadataStore(base.VertexAiResourceNounWithFutureManager):
@@ -35,6 +35,8 @@ class _MetadataStore(base.VertexAiResourceNounWithFutureManager):
     _resource_noun = "metadataStores"
     _getter_method = "get_metadata_store"
     _delete_method = "delete_metadata_store"
+    _parse_resource_name_method = "parse_metadata_store_path"
+    _format_resource_name_method = "metadata_store_path"
 
     def __init__(
         self,
@@ -176,7 +178,7 @@ class _MetadataStore(base.VertexAiResourceNounWithFutureManager):
         gapic_metadata_store = gca_metadata_store.MetadataStore(
             encryption_spec=initializer.global_config.get_encryption_spec(
                 encryption_spec_key_name=encryption_spec_key_name,
-                select_version=compat.V1BETA1,
+                select_version=compat.DEFAULT_VERSION,
             )
         )
 

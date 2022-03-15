@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# Copyright 2020 Google LLC
+# Copyright 2022 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -82,12 +82,23 @@ class PredictResponse(proto.Message):
         deployed_model_id (str):
             ID of the Endpoint's DeployedModel that
             served this prediction.
+        model (str):
+            Output only. The resource name of the Model
+            which is deployed as the DeployedModel that this
+            prediction hits.
+        model_display_name (str):
+            Output only. The [display
+            name][google.cloud.aiplatform.v1beta1.Model.display_name] of
+            the Model which is deployed as the DeployedModel that this
+            prediction hits.
     """
 
     predictions = proto.RepeatedField(
         proto.MESSAGE, number=1, message=struct_pb2.Value,
     )
     deployed_model_id = proto.Field(proto.STRING, number=2,)
+    model = proto.Field(proto.STRING, number=3,)
+    model_display_name = proto.Field(proto.STRING, number=4,)
 
 
 class RawPredictRequest(proto.Message):

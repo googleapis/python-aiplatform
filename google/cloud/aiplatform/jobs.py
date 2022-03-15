@@ -35,16 +35,14 @@ from google.cloud.aiplatform.compat.types import (
     batch_prediction_job as gca_bp_job_compat,
     completion_stats as gca_completion_stats,
     custom_job as gca_custom_job_compat,
-    custom_job_v1beta1 as gca_custom_job_v1beta1,
     explanation as gca_explanation_compat,
     io as gca_io_compat,
     job_state as gca_job_state,
     hyperparameter_tuning_job as gca_hyperparameter_tuning_job_compat,
-    hyperparameter_tuning_job_v1beta1 as gca_hyperparameter_tuning_job_v1beta1,
     machine_resources as gca_machine_resources_compat,
     study as gca_study_compat,
 )
-from google.cloud.aiplatform import constants
+from google.cloud.aiplatform.constants import base as constants
 from google.cloud.aiplatform import initializer
 from google.cloud.aiplatform import hyperparameter_tuning
 from google.cloud.aiplatform import utils
@@ -68,7 +66,7 @@ _JOB_ERROR_STATES = (
 )
 
 
-class _Job(base.VertexAiResourceNounWithFutureManager):
+class _Job(base.VertexAiStatefulResource):
     """Class that represents a general Job resource in Vertex AI.
     Cannot be directly instantiated.
 
@@ -84,7 +82,9 @@ class _Job(base.VertexAiResourceNounWithFutureManager):
     """
 
     client_class = utils.JobClientWithOverride
-    _is_client_prediction_client = False
+
+    # Required by the done() method
+    _valid_done_states = _JOB_COMPLETE_STATES
 
     def __init__(
         self,
@@ -169,9 +169,23 @@ class _Job(base.VertexAiResourceNounWithFutureManager):
     def _dashboard_uri(self) -> Optional[str]:
         """Helper method to compose the dashboard uri where job can be
         viewed."""
-        fields = utils.extract_fields_from_resource_name(self.resource_name)
-        url = f"https://console.cloud.google.com/ai/platform/locations/{fields.location}/{self._job_type}/{fields.id}?project={fields.project}"
+        fields = self._parse_resource_name(self.resource_name)
+        location = fields.pop("location")
+        project = fields.pop("project")
+        job = list(fields.values())[0]
+        url = f"https://console.cloud.google.com/ai/platform/locations/{location}/{self._job_type}/{job}?project={project}"
         return url
+
+    def _log_job_state(self):
+        """Helper method to log job state."""
+        _LOGGER.info(
+            "%s %s current state:\n%s"
+            % (
+                self.__class__.__name__,
+                self._gca_resource.name,
+                self._gca_resource.state,
+            )
+        )
 
     def _block_until_complete(self):
         """Helper method to block and check on job until complete.
@@ -190,26 +204,13 @@ class _Job(base.VertexAiResourceNounWithFutureManager):
         while self.state not in _JOB_COMPLETE_STATES:
             current_time = time.time()
             if current_time - previous_time >= log_wait:
-                _LOGGER.info(
-                    "%s %s current state:\n%s"
-                    % (
-                        self.__class__.__name__,
-                        self._gca_resource.name,
-                        self._gca_resource.state,
-                    )
-                )
+                self._log_job_state()
                 log_wait = min(log_wait * multiplier, max_wait)
                 previous_time = current_time
             time.sleep(wait)
 
-        _LOGGER.info(
-            "%s %s current state:\n%s"
-            % (
-                self.__class__.__name__,
-                self._gca_resource.name,
-                self._gca_resource.state,
-            )
-        )
+        self._log_job_state()
+
         # Error is only populated when the job state is
         # JOB_STATE_FAILED or JOB_STATE_CANCELLED.
         if self._gca_resource.state in _JOB_ERROR_STATES:
@@ -283,6 +284,8 @@ class BatchPredictionJob(_Job):
     _cancel_method = "cancel_batch_prediction_job"
     _delete_method = "delete_batch_prediction_job"
     _job_type = "batch-predictions"
+    _parse_resource_name_method = "parse_batch_prediction_job_path"
+    _format_resource_name_method = "batch_prediction_job_path"
 
     def __init__(
         self,
@@ -384,13 +387,14 @@ class BatchPredictionJob(_Job):
 
                 Or an instance of aiplatform.Model.
             instances_format (str):
-                Required. The format in which instances are given, must be one
-                of "jsonl", "csv", "bigquery", "tf-record", "tf-record-gzip",
-                or "file-list". Default is "jsonl" when using `gcs_source`. If a
-                `bigquery_source` is provided, this is overridden to "bigquery".
+                Required. The format in which instances are provided. Must be one
+                of the formats listed in `Model.supported_input_storage_formats`.
+                Default is "jsonl" when using `gcs_source`. If a `bigquery_source`
+                is provided, this is overridden to "bigquery".
             predictions_format (str):
-                Required. The format in which Vertex AI gives the
-                predictions, must be one of "jsonl", "csv", or "bigquery".
+                Required. The format in which Vertex AI outputs the
+                predictions, must be one of the formats specified in
+                `Model.supported_output_storage_formats`.
                 Default is "jsonl" when using `gcs_destination_prefix`. If a
                 `bigquery_destination_prefix` is provided, this is overridden to
                 "bigquery".
@@ -536,6 +540,8 @@ class BatchPredictionJob(_Job):
             model_name = utils.full_resource_name(
                 resource_name=model_name,
                 resource_noun="models",
+                parse_resource_name_method=aiplatform.Model._parse_resource_name,
+                format_resource_name_method=aiplatform.Model._format_resource_name,
                 project=project,
                 location=location,
             )
@@ -845,6 +851,96 @@ class _RunnableJob(_Job):
             project=project, location=location
         )
 
+        self._logged_web_access_uris = set()
+
+    @classmethod
+    def _empty_constructor(
+        cls,
+        project: Optional[str] = None,
+        location: Optional[str] = None,
+        credentials: Optional[auth_credentials.Credentials] = None,
+        resource_name: Optional[str] = None,
+    ) -> "_RunnableJob":
+        """Initializes with all attributes set to None.
+
+            The attributes should be populated after a future is complete. This allows
+            scheduling of additional API calls before the resource is created.
+
+            Args:
+                project (str): Optional. Project of the resource noun.
+                location (str): Optional. The location of the resource noun.
+                credentials(google.auth.credentials.Credentials):
+                    Optional. custom credentials to use when accessing interacting with
+                    resource noun.
+                resource_name(str): Optional. A fully-qualified resource name or ID.
+            Returns:
+                An instance of this class with attributes set to None.
+            """
+        self = super()._empty_constructor(
+            project=project,
+            location=location,
+            credentials=credentials,
+            resource_name=resource_name,
+        )
+
+        self._logged_web_access_uris = set()
+        return self
+
+    @property
+    def web_access_uris(self) -> Dict[str, Union[str, Dict[str, str]]]:
+        """Fetch the runnable job again and return the latest web access uris.
+
+        Returns:
+            (Dict[str, Union[str, Dict[str, str]]]):
+                Web access uris of the runnable job.
+        """
+
+        # Fetch the Job again for most up-to-date web access uris
+        self._sync_gca_resource()
+        return self._get_web_access_uris()
+
+    @abc.abstractmethod
+    def _get_web_access_uris(self):
+        """Helper method to get the web access uris of the runnable job"""
+        pass
+
+    @abc.abstractmethod
+    def _log_web_access_uris(self):
+        """Helper method to log the web access uris of the runnable job"""
+        pass
+
+    def _block_until_complete(self):
+        """Helper method to block and check on runnable job until complete.
+
+        Raises:
+            RuntimeError: If job failed or cancelled.
+        """
+
+        # Used these numbers so failures surface fast
+        wait = 5  # start at five seconds
+        log_wait = 5
+        max_wait = 60 * 5  # 5 minute wait
+        multiplier = 2  # scale wait by 2 every iteration
+
+        previous_time = time.time()
+        while self.state not in _JOB_COMPLETE_STATES:
+            current_time = time.time()
+            if current_time - previous_time >= log_wait:
+                self._log_job_state()
+                log_wait = min(log_wait * multiplier, max_wait)
+                previous_time = current_time
+            self._log_web_access_uris()
+            time.sleep(wait)
+
+        self._log_job_state()
+
+        # Error is only populated when the job state is
+        # JOB_STATE_FAILED or JOB_STATE_CANCELLED.
+        if self._gca_resource.state in _JOB_ERROR_STATES:
+            raise RuntimeError("Job failed with:\n%s" % self._gca_resource.error)
+        else:
+            _LOGGER.log_action_completed_against_resource("run", "completed", self)
+
     @abc.abstractmethod
     def run(self) -> None:
         pass
@@ -898,6 +994,8 @@ class DataLabelingJob(_Job):
     _cancel_method = "cancel_data_labeling_job"
     _delete_method = "delete_data_labeling_job"
     _job_type = "labeling-tasks"
+    _parse_resource_name_method = "parse_data_labeling_job_path"
+    _format_resource_name_method = "data_labeling_job_path"
     pass
 
 
@@ -909,6 +1007,8 @@ class CustomJob(_RunnableJob):
     _list_method = "list_custom_jobs"
     _cancel_method = "cancel_custom_job"
     _delete_method = "delete_custom_job"
+    _parse_resource_name_method = "parse_custom_job_path"
+    _format_resource_name_method = "custom_job_path"
     _job_type = "training"
 
     def __init__(
@@ -995,7 +1095,7 @@ class CustomJob(_RunnableJob):
                 staging_bucket set in aiplatform.init.
 
         Raises:
-            RuntimeError is not staging bucket was set using aiplatform.init and a staging
+            RuntimeError: If staging bucket was not set using aiplatform.init and a staging
             bucket was not passed in.
         """
 
@@ -1046,6 +1146,26 @@ class CustomJob(_RunnableJob):
         self._assert_gca_resource_is_available()
         return self._gca_resource.job_spec.network
 
+    def _get_web_access_uris(self) -> Dict[str, str]:
+        """Helper method to get the web access uris of the custom job
+
+        Returns:
+            (Dict[str, str]):
+                Web access uris of the custom job.
+        """
+        return dict(self._gca_resource.web_access_uris)
+
+    def _log_web_access_uris(self):
+        """Helper method to log the web access uris of the custom job"""
+
+        for worker, uri in self._get_web_access_uris().items():
+            if uri not in self._logged_web_access_uris:
+                _LOGGER.info(
+                    "%s %s access the interactive shell terminals for the custom job:\n%s:\n%s"
+                    % (self.__class__.__name__, self._gca_resource.name, worker, uri,),
+                )
+                self._logged_web_access_uris.add(uri)
+
     @classmethod
     def from_local_script(
         cls,
@@ -1061,6 +1181,9 @@ class CustomJob(_RunnableJob):
         accelerator_count: int = 0,
         boot_disk_type: str = "pd-ssd",
         boot_disk_size_gb: int = 100,
+        reduction_server_replica_count: int = 0,
+        reduction_server_machine_type: Optional[str] = None,
+        reduction_server_container_uri: Optional[str] = None,
         base_output_dir: Optional[str] = None,
         project: Optional[str] = None,
         location: Optional[str] = None,
@@ -1127,6 +1250,13 @@ class CustomJob(_RunnableJob):
             boot_disk_size_gb (int):
                 Optional. Size in GB of the boot disk, default is 100GB.
                 boot disk size must be within the range of [100, 64000].
+            reduction_server_replica_count (int):
+                The number of reduction server replicas, default is 0.
+            reduction_server_machine_type (str):
+                Optional. The type of machine to use for reduction server.
+            reduction_server_container_uri (str):
+                Optional. The Uri of the reduction server container image.
+                See details: https://cloud.google.com/vertex-ai/docs/training/distributed-training#reduce_training_time_with_reduction_server
             base_output_dir (str):
                 Optional. GCS output directory of job. If not provided a
                 timestamped directory in the staging directory will be used.
@@ -1157,7 +1287,7 @@ class CustomJob(_RunnableJob):
                 staging_bucket set in aiplatform.init.
 
         Raises:
-            RuntimeError is not staging bucket was set using aiplatform.init and a staging
+            RuntimeError: If staging bucket was not set using aiplatform.init and a staging
             bucket was not passed in.
         """
 
@@ -1181,6 +1311,8 @@ class CustomJob(_RunnableJob):
             accelerator_type=accelerator_type,
             boot_disk_type=boot_disk_type,
             boot_disk_size_gb=boot_disk_size_gb,
+            reduction_server_replica_count=reduction_server_replica_count,
+            reduction_server_machine_type=reduction_server_machine_type,
         ).pool_specs
 
         python_packager = source_utils._TrainingScriptPythonPackager(
@@ -1191,21 +1323,33 @@ class CustomJob(_RunnableJob):
             gcs_staging_dir=staging_bucket, project=project, credentials=credentials,
         )
 
-        for spec in worker_pool_specs:
-            spec["python_package_spec"] = {
-                "executor_image_uri": container_uri,
-                "python_module": python_packager.module_name,
-                "package_uris": [package_gcs_uri],
-            }
+        for spec_order, spec in enumerate(worker_pool_specs):
 
-            if args:
-                spec["python_package_spec"]["args"] = args
+            if not spec:
+                continue
 
-            if environment_variables:
-                spec["python_package_spec"]["env"] = [
-                    {"name": key, "value": value}
-                    for key, value in environment_variables.items()
-                ]
+            if (
+                spec_order == worker_spec_utils._SPEC_ORDERS["server_spec"]
+                and reduction_server_replica_count > 0
+            ):
+                spec["container_spec"] = {
+                    "image_uri": reduction_server_container_uri,
+                }
+            else:
+                spec["python_package_spec"] = {
+                    "executor_image_uri": container_uri,
+                    "python_module": python_packager.module_name,
+                    "package_uris": [package_gcs_uri],
+                }
+
+                if args:
+                    spec["python_package_spec"]["args"] = args
+
+                if environment_variables:
+                    spec["python_package_spec"]["env"] = [
+                        {"name": key, "value": value}
+                        for key, value in environment_variables.items()
+                    ]
 
         return cls(
             display_name=display_name,
@@ -1226,6 +1370,7 @@ class CustomJob(_RunnableJob):
         network: Optional[str] = None,
         timeout: Optional[int] = None,
         restart_job_on_worker_restart: bool = False,
+        enable_web_access: bool = False,
         tensorboard: Optional[str] = None,
         sync: bool = True,
     ) -> None:
@@ -1247,6 +1392,10 @@ class CustomJob(_RunnableJob):
                 gets restarted. This feature can be used by
                 distributed training jobs that are not resilient
                 to workers leaving and joining a job.
+            enable_web_access (bool):
+                Whether you want Vertex AI to enable interactive shell access
+                to training containers.
+                https://cloud.google.com/vertex-ai/docs/training/monitor-debug-interactive-shell
             tensorboard (str):
                 Optional. The name of a Vertex AI
                 [Tensorboard][google.cloud.aiplatform.v1beta1.Tensorboard]
@@ -1280,18 +1429,15 @@ class CustomJob(_RunnableJob):
                 restart_job_on_worker_restart=restart_job_on_worker_restart,
             )
 
+        if enable_web_access:
+            self._gca_resource.job_spec.enable_web_access = enable_web_access
+
         if tensorboard:
-            v1beta1_gca_resource = gca_custom_job_v1beta1.CustomJob()
-            v1beta1_gca_resource._pb.MergeFromString(
-                self._gca_resource._pb.SerializeToString()
-            )
-            self._gca_resource = v1beta1_gca_resource
             self._gca_resource.job_spec.tensorboard = tensorboard
 
         _LOGGER.log_create_with_lro(self.__class__)
 
-        version = "v1beta1" if tensorboard else "v1"
-        self._gca_resource = self.api_client.select_version(version).create_custom_job(
+        self._gca_resource = self.api_client.create_custom_job(
             parent=self._parent, custom_job=self._gca_resource
         )
 
@@ -1336,6 +1482,8 @@ class HyperparameterTuningJob(_RunnableJob):
     _list_method = "list_hyperparameter_tuning_jobs"
     _cancel_method = "cancel_hyperparameter_tuning_job"
     _delete_method = "delete_hyperparameter_tuning_job"
+    _parse_resource_name_method = "parse_hyperparameter_tuning_job_path"
+    _format_resource_name_method = "hyperparameter_tuning_job_path"
     _job_type = "training"
 
     def __init__(
@@ -1564,6 +1712,38 @@ class HyperparameterTuningJob(_RunnableJob):
         self._assert_gca_resource_is_available()
         return getattr(self._gca_resource.trial_job_spec, "network")
 
+    def _get_web_access_uris(self) -> Dict[str, Dict[str, str]]:
+        """Helper method to get the web access uris of the hyperparameter job
+
+        Returns:
+            (Dict[str, Dict[str, str]]):
+                Web access uris of the hyperparameter job.
+        """
+        web_access_uris = dict()
+        for trial in self.trials:
+            web_access_uris[trial.id] = web_access_uris.get(trial.id, dict())
+            for worker, uri in trial.web_access_uris.items():
+                web_access_uris[trial.id][worker] = uri
+        return web_access_uris
+
+    def _log_web_access_uris(self):
+        """Helper method to log the web access uris of the hyperparameter job"""
+
+        for trial_id, trial_web_access_uris in self._get_web_access_uris().items():
+            for worker, uri in trial_web_access_uris.items():
+                if uri not in self._logged_web_access_uris:
+                    _LOGGER.info(
+                        "%s %s access the interactive shell terminals for trial - %s:\n%s:\n%s"
+                        % (
+                            self.__class__.__name__,
+                            self._gca_resource.name,
+                            trial_id,
+                            worker,
+                            uri,
+                        ),
+                    )
+                    self._logged_web_access_uris.add(uri)
+
     @base.optional_sync()
     def run(
         self,
@@ -1571,6 +1751,7 @@ class HyperparameterTuningJob(_RunnableJob):
         network: Optional[str] = None,
         timeout: Optional[int] = None,  # seconds
         restart_job_on_worker_restart: bool = False,
+        enable_web_access: bool = False,
         tensorboard: Optional[str] = None,
         sync: bool = True,
     ) -> None:
@@ -1592,6 +1773,10 @@ class HyperparameterTuningJob(_RunnableJob):
                 gets restarted. This feature can be used by
                 distributed training jobs that are not resilient
                 to workers leaving and joining a job.
+            enable_web_access (bool):
+                Whether you want Vertex AI to enable interactive shell access
+                to training containers.
+                https://cloud.google.com/vertex-ai/docs/training/monitor-debug-interactive-shell
             tensorboard (str):
                 Optional. The name of a Vertex AI
                 [Tensorboard][google.cloud.aiplatform.v1beta1.Tensorboard]
@@ -1625,22 +1810,15 @@ class HyperparameterTuningJob(_RunnableJob):
                 restart_job_on_worker_restart=restart_job_on_worker_restart,
             )
 
+        if enable_web_access:
+            self._gca_resource.trial_job_spec.enable_web_access = enable_web_access
+
         if tensorboard:
-            v1beta1_gca_resource = (
-                gca_hyperparameter_tuning_job_v1beta1.HyperparameterTuningJob()
-            )
-            v1beta1_gca_resource._pb.MergeFromString(
-                self._gca_resource._pb.SerializeToString()
-            )
-            self._gca_resource = v1beta1_gca_resource
             self._gca_resource.trial_job_spec.tensorboard = tensorboard
 
         _LOGGER.log_create_with_lro(self.__class__)
 
-        version = "v1beta1" if tensorboard else "v1"
-        self._gca_resource = self.api_client.select_version(
-            version
-        ).create_hyperparameter_tuning_job(
+        self._gca_resource = self.api_client.create_hyperparameter_tuning_job(
             parent=self._parent, hyperparameter_tuning_job=self._gca_resource
         )
 

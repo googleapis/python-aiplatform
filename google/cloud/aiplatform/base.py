@@ -39,6 +39,7 @@ from typing import (
 
 import proto
 
+from google.api_core import retry
 from google.api_core import operation
 from google.auth import credentials as auth_credentials
 from google.cloud.aiplatform import initializer
@@ -47,6 +48,9 @@ from google.cloud.aiplatform.compat.types import encryption_spec as gca_encrypti
 from google.protobuf import json_format
 
 logging.basicConfig(level=logging.INFO, stream=sys.stdout)
+
+# This is the default retry callback to be used with get methods.
+_DEFAULT_RETRY = retry.Retry()
 
 
 class Logger:
@@ -393,7 +397,6 @@ class VertexAiResourceNoun(metaclass=abc.ABCMeta):
     Subclasses require two class attributes:
 
     client_class: The client to instantiate to interact with this resource noun.
-    _is_client_prediction_client: Flag to indicate if the client requires a prediction endpoint.
 
     Subclass is required to populate private attribute _gca_resource which is the
     service representation of the resource noun.
@@ -410,28 +413,42 @@ class VertexAiResourceNoun(metaclass=abc.ABCMeta):
     @property
     @classmethod
     @abc.abstractmethod
-    def _is_client_prediction_client(cls) -> bool:
-        """Flag to indicate whether to use prediction endpoint with client."""
-        pass
-
-    @property
-    @abc.abstractmethod
     def _getter_method(cls) -> str:
         """Name of getter method of client class for retrieving the
         resource."""
         pass
 
     @property
+    @classmethod
     @abc.abstractmethod
     def _delete_method(cls) -> str:
         """Name of delete method of client class for deleting the resource."""
         pass
 
     @property
+    @classmethod
     @abc.abstractmethod
     def _resource_noun(cls) -> str:
         """Resource noun."""
         pass
+
+    @property
+    @classmethod
+    @abc.abstractmethod
+    def _parse_resource_name_method(cls) -> str:
+        """Method name on GAPIC client to parse a resource name."""
+        pass
+
+    @property
+    @classmethod
+    @abc.abstractmethod
+    def _format_resource_name_method(self) -> str:
+        """Method name on GAPIC client to format a resource name."""
+        pass
+
+    # Override this value with staticmethod
+    # to use custom resource id validators per resource
+    _resource_id_validator: Optional[Callable[[str], None]] = None
 
     def __init__(
         self,
@@ -482,15 +499,48 @@ class VertexAiResourceNoun(metaclass=abc.ABCMeta):
             client_class=cls.client_class,
             credentials=credentials,
             location_override=location,
-            prediction_client=cls._is_client_prediction_client,
         )
+
+    @classmethod
+    def _parse_resource_name(cls, resource_name: str) -> Dict[str, str]:
+        """
+        Parses resource name into its component segments.
+
+        Args:
+            resource_name: Resource name of this resource.
+        Returns:
+            Dictionary of component segments.
+        """
+        # gets the underlying wrapped gapic client class
+        return getattr(
+            cls.client_class.get_gapic_client_class(), cls._parse_resource_name_method
+        )(resource_name)
+
+    @classmethod
+    def _format_resource_name(cls, **kwargs: str) -> str:
+        """
+        Formats a resource name using its component segments.
+
+        Args:
+            **kwargs: Resource name parts. Singular and snake case. ie:
+            format_resource_name(
+                project='my-project',
+                location='us-central1'
+            )
+        Returns:
+            Resource name.
+        """
+        # gets the underlying wrapped gapic client class
+        return getattr(
+            cls.client_class.get_gapic_client_class(), cls._format_resource_name_method
+        )(**kwargs)
 
     def _get_and_validate_project_location(
         self,
         resource_name: str,
         project: Optional[str] = None,
         location: Optional[str] = None,
-    ) -> Tuple:
+    ) -> Tuple[str, str]:
 
         """Validate the project and location for the resource.
 
@@ -500,39 +550,50 @@ class VertexAiResourceNoun(metaclass=abc.ABCMeta):
             location(str): The location of the resource noun.
 
         Raises:
-            RuntimeError if location is different from resource location
+            RuntimeError: If location is different from resource location
         """
 
-        fields = utils.extract_fields_from_resource_name(
-            resource_name, self._resource_noun
-        )
+        fields = self._parse_resource_name(resource_name)
+
         if not fields:
             return project, location
 
-        if location and fields.location != location:
+        if location and fields["location"] != location:
             raise RuntimeError(
                 f"location {location} is provided, but different from "
-                f"the resource location {fields.location}"
+                f"the resource location {fields['location']}"
             )
 
-        return fields.project, fields.location
+        return fields["project"], fields["location"]
 
-    def _get_gca_resource(self, resource_name: str) -> proto.Message:
-        """Returns GAPIC service representation of client class resource."""
-        """
+    def _get_gca_resource(
+        self,
+        resource_name: str,
+        parent_resource_name_fields: Optional[Dict[str, str]] = None,
+    ) -> proto.Message:
+        """Returns GAPIC service representation of client class resource.
+
         Args:
-            resource_name (str):
-            Required. A fully-qualified resource name or ID.
+            resource_name (str): Required. A fully-qualified resource name or ID.
+            parent_resource_name_fields (Dict[str,str]):
+                Optional. Mapping of parent resource name key to values. These
+                will be used to compose the resource name if only resource ID is given.
+                Should not include project and location.
         """
-
         resource_name = utils.full_resource_name(
             resource_name=resource_name,
             resource_noun=self._resource_noun,
+            parse_resource_name_method=self._parse_resource_name,
+            format_resource_name_method=self._format_resource_name,
             project=self.project,
             location=self.location,
+            parent_resource_name_fields=parent_resource_name_fields,
+            resource_id_validator=self._resource_id_validator,
         )
 
-        return getattr(self.api_client, self._getter_method)(name=resource_name)
+        return getattr(self.api_client, self._getter_method)(
+            name=resource_name, retry=_DEFAULT_RETRY
+        )
 
     def _sync_gca_resource(self):
         """Sync GAPIC service representation of client class resource."""
@@ -586,7 +647,7 @@ class VertexAiResourceNoun(metaclass=abc.ABCMeta):
         Read more about labels at https://goo.gl/xmQnxf
         """
         self._assert_gca_resource_is_available()
-        return self._gca_resource.labels
+        return dict(self._gca_resource.labels)
 
     @property
     def gca_resource(self) -> proto.Message:
@@ -594,11 +655,20 @@ class VertexAiResourceNoun(metaclass=abc.ABCMeta):
         self._assert_gca_resource_is_available()
         return self._gca_resource
 
+    @property
+    def _resource_is_available(self) -> bool:
+        """Returns True if GCA resource has been created and is available, otherwise False"""
+        try:
+            self._assert_gca_resource_is_available()
+            return True
+        except RuntimeError:
+            return False
+
     def _assert_gca_resource_is_available(self) -> None:
         """Helper method to raise when property is not accessible.
 
         Raises:
-            RuntimeError if _gca_resource is has not been created.
+            RuntimeError: If _gca_resource is has not been created.
         """
         if self._gca_resource is None:
             raise RuntimeError(
@@ -665,7 +735,7 @@ def optional_sync(
             # if sync then wait for any Futures to complete and execute
             if sync:
                 if self:
-                    self.wait()
+                    VertexAiResourceNounWithFutureManager.wait(self)
                 return method(*args, **kwargs)
 
             # callbacks to call within the Future (in same Thread)
@@ -892,6 +962,7 @@ class VertexAiResourceNounWithFutureManager(VertexAiResourceNoun, FutureManager)
         project: Optional[str] = None,
         location: Optional[str] = None,
         credentials: Optional[auth_credentials.Credentials] = None,
+        parent: Optional[str] = None,
     ) -> List[VertexAiResourceNoun]:
         """Private method to list all instances of this Vertex AI Resource,
         takes a `cls_filter` arg to filter to a particular SDK resource
@@ -919,6 +990,8 @@ class VertexAiResourceNounWithFutureManager(VertexAiResourceNoun, FutureManager)
             credentials (auth_credentials.Credentials):
                 Optional. Custom credentials to use to retrieve list. Overrides
                 credentials set in aiplatform.init.
+            parent (str):
+                Optional. The parent resource name if any to retrieve resource list from.
 
         Returns:
             List[VertexAiResourceNoun] - A list of SDK resource objects
@@ -928,12 +1001,13 @@ class VertexAiResourceNounWithFutureManager(VertexAiResourceNoun, FutureManager)
         )
 
         # Fetch credentials once and re-use for all `_empty_constructor()` calls
-        creds = initializer.global_config.credentials
+        creds = resource.credentials
 
         resource_list_method = getattr(resource.api_client, resource._list_method)
 
         list_request = {
-            "parent": initializer.global_config.common_location_path(
+            "parent": parent
+            or initializer.global_config.common_location_path(
                 project=project, location=location
             ),
             "filter": filter,
@@ -1023,6 +1097,7 @@ class VertexAiResourceNounWithFutureManager(VertexAiResourceNoun, FutureManager)
         project: Optional[str] = None,
         location: Optional[str] = None,
         credentials: Optional[auth_credentials.Credentials] = None,
+        parent: Optional[str] = None,
     ) -> List[VertexAiResourceNoun]:
         """List all instances of this Vertex AI Resource.
 
@@ -1051,6 +1126,8 @@ class VertexAiResourceNounWithFutureManager(VertexAiResourceNoun, FutureManager)
             credentials (auth_credentials.Credentials):
                 Optional. Custom credentials to use to retrieve list. Overrides
                 credentials set in aiplatform.init.
+            parent (str):
+                Optional. The parent resource name if any to retrieve list from.
 
         Returns:
             List[VertexAiResourceNoun] - A list of SDK resource objects
@@ -1062,6 +1139,7 @@ class VertexAiResourceNounWithFutureManager(VertexAiResourceNoun, FutureManager)
             project=project,
             location=location,
             credentials=credentials,
+            parent=parent,
         )
 
     @optional_sync()
@@ -1084,7 +1162,7 @@ class VertexAiResourceNounWithFutureManager(VertexAiResourceNoun, FutureManager)
         _LOGGER.log_action_completed_against_resource("deleted.", "", self)
 
     def __repr__(self) -> str:
-        if self._gca_resource:
+        if self._gca_resource and self._resource_is_available:
             return VertexAiResourceNoun.__repr__(self)
 
         return FutureManager.__repr__(self)
@@ -1101,7 +1179,7 @@ class VertexAiResourceNounWithFutureManager(VertexAiResourceNoun, FutureManager)
         job.run(sync=False, ...)
         job._wait_for_resource_creation()
         Raises:
-            RuntimeError if the resource has not been scheduled to be created.
+            RuntimeError: If the resource has not been scheduled to be created.
         """
 
         # If the user calls this but didn't actually invoke an API to create
@@ -1127,7 +1205,7 @@ class VertexAiResourceNounWithFutureManager(VertexAiResourceNoun, FutureManager)
         resource creation has failed asynchronously.
 
         Raises:
-            RuntimeError when resource has not been created.
+            RuntimeError: When resource has not been created.
         """
         if not getattr(self._gca_resource, "name", None):
             raise RuntimeError(
@@ -1151,3 +1229,58 @@ def get_annotation_class(annotation: type) -> type:
         return annotation.__args__[0]
     else:
         return annotation
+
+
+class DoneMixin(abc.ABC):
+    """An abstract class for implementing a done method, indicating
+    whether a job has completed.
+
+    """
+
+    @abc.abstractmethod
+    def done(self) -> bool:
+        """Method indicating whether a job has completed."""
+        pass
+
+
+class StatefulResource(DoneMixin):
+    """Extends DoneMixin to check whether a job returning a stateful resource has compted."""
+
+    @property
+    @abc.abstractmethod
+    def state(self):
+        """The current state of the job."""
+        pass
+
+    @property
+    @classmethod
+    @abc.abstractmethod
+    def _valid_done_states(cls):
+        """A set() containing all job states associated with a completed job."""
+        pass
+
+    def done(self) -> bool:
+        """Method indicating whether a job has completed.
+
+        Returns:
+            True if the job has completed.
+        """
+        if self.state in self._valid_done_states:
+            return True
+        else:
+            return False
+
+
+class VertexAiStatefulResource(VertexAiResourceNounWithFutureManager, StatefulResource):
+    """Extends StatefulResource to include a check for self._gca_resource."""
+
+    def done(self) -> bool:
+        """Method indicating whether a job has completed.
+
+        Returns:
+            True if the job has completed.
+        """
+        if self._gca_resource and self._gca_resource.name:
+            return super().done()
+        else:
+            return False

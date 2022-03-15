@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# Copyright 2020 Google LLC
+# Copyright 2022 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -15,13 +15,13 @@
 #
 from typing import (
     Any,
-    AsyncIterable,
+    AsyncIterator,
     Awaitable,
     Callable,
-    Iterable,
     Sequence,
     Tuple,
     Optional,
+    Iterator,
 )
 
 from google.cloud.aiplatform_v1beta1.types import tensorboard
@@ -79,14 +79,14 @@ class ListTensorboardsPager:
         return getattr(self._response, name)
 
     @property
-    def pages(self) -> Iterable[tensorboard_service.ListTensorboardsResponse]:
+    def pages(self) -> Iterator[tensorboard_service.ListTensorboardsResponse]:
         yield self._response
         while self._response.next_page_token:
             self._request.page_token = self._response.next_page_token
             self._response = self._method(self._request, metadata=self._metadata)
             yield self._response
 
-    def __iter__(self) -> Iterable[tensorboard.Tensorboard]:
+    def __iter__(self) -> Iterator[tensorboard.Tensorboard]:
         for page in self.pages:
             yield from page.tensorboards
 
@@ -143,14 +143,14 @@ class ListTensorboardsAsyncPager:
     @property
     async def pages(
         self,
-    ) -> AsyncIterable[tensorboard_service.ListTensorboardsResponse]:
+    ) -> AsyncIterator[tensorboard_service.ListTensorboardsResponse]:
         yield self._response
         while self._response.next_page_token:
             self._request.page_token = self._response.next_page_token
             self._response = await self._method(self._request, metadata=self._metadata)
             yield self._response
 
-    def __aiter__(self) -> AsyncIterable[tensorboard.Tensorboard]:
+    def __aiter__(self) -> AsyncIterator[tensorboard.Tensorboard]:
         async def async_generator():
             async for page in self.pages:
                 for response in page.tensorboards:
@@ -209,14 +209,14 @@ class ListTensorboardExperimentsPager:
         return getattr(self._response, name)
 
     @property
-    def pages(self) -> Iterable[tensorboard_service.ListTensorboardExperimentsResponse]:
+    def pages(self) -> Iterator[tensorboard_service.ListTensorboardExperimentsResponse]:
         yield self._response
         while self._response.next_page_token:
             self._request.page_token = self._response.next_page_token
             self._response = self._method(self._request, metadata=self._metadata)
             yield self._response
 
-    def __iter__(self) -> Iterable[tensorboard_experiment.TensorboardExperiment]:
+    def __iter__(self) -> Iterator[tensorboard_experiment.TensorboardExperiment]:
         for page in self.pages:
             yield from page.tensorboard_experiments
 
@@ -275,14 +275,14 @@ class ListTensorboardExperimentsAsyncPager:
     @property
     async def pages(
         self,
-    ) -> AsyncIterable[tensorboard_service.ListTensorboardExperimentsResponse]:
+    ) -> AsyncIterator[tensorboard_service.ListTensorboardExperimentsResponse]:
         yield self._response
         while self._response.next_page_token:
             self._request.page_token = self._response.next_page_token
             self._response = await self._method(self._request, metadata=self._metadata)
             yield self._response
 
-    def __aiter__(self) -> AsyncIterable[tensorboard_experiment.TensorboardExperiment]:
+    def __aiter__(self) -> AsyncIterator[tensorboard_experiment.TensorboardExperiment]:
         async def async_generator():
             async for page in self.pages:
                 for response in page.tensorboard_experiments:
@@ -341,14 +341,14 @@ class ListTensorboardRunsPager:
         return getattr(self._response, name)
 
     @property
-    def pages(self) -> Iterable[tensorboard_service.ListTensorboardRunsResponse]:
+    def pages(self) -> Iterator[tensorboard_service.ListTensorboardRunsResponse]:
         yield self._response
         while self._response.next_page_token:
             self._request.page_token = self._response.next_page_token
             self._response = self._method(self._request, metadata=self._metadata)
             yield self._response
 
-    def __iter__(self) -> Iterable[tensorboard_run.TensorboardRun]:
+    def __iter__(self) -> Iterator[tensorboard_run.TensorboardRun]:
         for page in self.pages:
             yield from page.tensorboard_runs
 
@@ -407,14 +407,14 @@ class ListTensorboardRunsAsyncPager:
     @property
     async def pages(
         self,
-    ) -> AsyncIterable[tensorboard_service.ListTensorboardRunsResponse]:
+    ) -> AsyncIterator[tensorboard_service.ListTensorboardRunsResponse]:
         yield self._response
         while self._response.next_page_token:
             self._request.page_token = self._response.next_page_token
             self._response = await self._method(self._request, metadata=self._metadata)
             yield self._response
 
-    def __aiter__(self) -> AsyncIterable[tensorboard_run.TensorboardRun]:
+    def __aiter__(self) -> AsyncIterator[tensorboard_run.TensorboardRun]:
         async def async_generator():
             async for page in self.pages:
                 for response in page.tensorboard_runs:
@@ -473,14 +473,14 @@ class ListTensorboardTimeSeriesPager:
         return getattr(self._response, name)
 
     @property
-    def pages(self) -> Iterable[tensorboard_service.ListTensorboardTimeSeriesResponse]:
+    def pages(self) -> Iterator[tensorboard_service.ListTensorboardTimeSeriesResponse]:
         yield self._response
         while self._response.next_page_token:
             self._request.page_token = self._response.next_page_token
             self._response = self._method(self._request, metadata=self._metadata)
             yield self._response
 
-    def __iter__(self) -> Iterable[tensorboard_time_series.TensorboardTimeSeries]:
+    def __iter__(self) -> Iterator[tensorboard_time_series.TensorboardTimeSeries]:
         for page in self.pages:
             yield from page.tensorboard_time_series
 
@@ -539,14 +539,14 @@ class ListTensorboardTimeSeriesAsyncPager:
     @property
     async def pages(
         self,
-    ) -> AsyncIterable[tensorboard_service.ListTensorboardTimeSeriesResponse]:
+    ) -> AsyncIterator[tensorboard_service.ListTensorboardTimeSeriesResponse]:
         yield self._response
         while self._response.next_page_token:
             self._request.page_token = self._response.next_page_token
             self._response = await self._method(self._request, metadata=self._metadata)
             yield self._response
 
-    def __aiter__(self) -> AsyncIterable[tensorboard_time_series.TensorboardTimeSeries]:
+    def __aiter__(self) -> AsyncIterator[tensorboard_time_series.TensorboardTimeSeries]:
         async def async_generator():
             async for page in self.pages:
                 for response in page.tensorboard_time_series:
@@ -611,14 +611,14 @@ class ExportTensorboardTimeSeriesDataPager:
     @property
     def pages(
         self,
-    ) -> Iterable[tensorboard_service.ExportTensorboardTimeSeriesDataResponse]:
+    ) -> Iterator[tensorboard_service.ExportTensorboardTimeSeriesDataResponse]:
         yield self._response
         while self._response.next_page_token:
             self._request.page_token = self._response.next_page_token
             self._response = self._method(self._request, metadata=self._metadata)
             yield self._response
 
-    def __iter__(self) -> Iterable[tensorboard_data.TimeSeriesDataPoint]:
+    def __iter__(self) -> Iterator[tensorboard_data.TimeSeriesDataPoint]:
         for page in self.pages:
             yield from page.time_series_data_points
 
@@ -679,14 +679,14 @@ class ExportTensorboardTimeSeriesDataAsyncPager:
     @property
     async def pages(
         self,
-    ) -> AsyncIterable[tensorboard_service.ExportTensorboardTimeSeriesDataResponse]:
+    ) -> AsyncIterator[tensorboard_service.ExportTensorboardTimeSeriesDataResponse]:
         yield self._response
         while self._response.next_page_token:
             self._request.page_token = self._response.next_page_token
             self._response = await self._method(self._request, metadata=self._metadata)
             yield self._response
 
-    def __aiter__(self) -> AsyncIterable[tensorboard_data.TimeSeriesDataPoint]:
+    def __aiter__(self) -> AsyncIterator[tensorboard_data.TimeSeriesDataPoint]:
         async def async_generator():
             async for page in self.pages:
                 for response in page.time_series_data_points:

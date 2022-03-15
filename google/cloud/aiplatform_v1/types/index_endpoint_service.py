@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# Copyright 2020 Google LLC
+# Copyright 2022 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -36,6 +36,9 @@ __protobuf__ = proto.module(
         "UndeployIndexRequest",
         "UndeployIndexResponse",
         "UndeployIndexOperationMetadata",
+        "MutateDeployedIndexRequest",
+        "MutateDeployedIndexResponse",
+        "MutateDeployedIndexOperationMetadata",
     },
 )
 
@@ -271,7 +274,8 @@ class UndeployIndexRequest(proto.Message):
 class UndeployIndexResponse(proto.Message):
     r"""Response message for
     [IndexEndpointService.UndeployIndex][google.cloud.aiplatform.v1.IndexEndpointService.UndeployIndex].
-        """
+
+    """
 
 
 class UndeployIndexOperationMetadata(proto.Message):
@@ -286,6 +290,60 @@ class UndeployIndexOperationMetadata(proto.Message):
     generic_metadata = proto.Field(
         proto.MESSAGE, number=1, message=operation.GenericOperationMetadata,
     )
+
+
+class MutateDeployedIndexRequest(proto.Message):
+    r"""Request message for
+    [IndexEndpointService.MutateDeployedIndex][google.cloud.aiplatform.v1.IndexEndpointService.MutateDeployedIndex].
+
+    Attributes:
+        index_endpoint (str):
+            Required. The name of the IndexEndpoint resource into which
+            to deploy an Index. Format:
+            ``projects/{project}/locations/{location}/indexEndpoints/{index_endpoint}``
+        deployed_index (google.cloud.aiplatform_v1.types.DeployedIndex):
+            Required. The DeployedIndex to be updated within the
+            IndexEndpoint. Currently, the updatable fields are
+            [DeployedIndex][automatic_resources] and
+            [DeployedIndex][dedicated_resources]
+    """
+
+    index_endpoint = proto.Field(proto.STRING, number=1,)
+    deployed_index = proto.Field(
+        proto.MESSAGE, number=2, message=gca_index_endpoint.DeployedIndex,
+    )
+
+
+class MutateDeployedIndexResponse(proto.Message):
+    r"""Response message for
+    [IndexEndpointService.MutateDeployedIndex][google.cloud.aiplatform.v1.IndexEndpointService.MutateDeployedIndex].
+
+    Attributes:
+        deployed_index (google.cloud.aiplatform_v1.types.DeployedIndex):
+            The DeployedIndex that had been updated in
+            the IndexEndpoint.
+    """
+
+    deployed_index = proto.Field(
+        proto.MESSAGE, number=1, message=gca_index_endpoint.DeployedIndex,
+    )
+
+
+class MutateDeployedIndexOperationMetadata(proto.Message):
+    r"""Runtime operation information for
+    [IndexEndpointService.MutateDeployedIndex][google.cloud.aiplatform.v1.IndexEndpointService.MutateDeployedIndex].
+
+    Attributes:
+        generic_metadata (google.cloud.aiplatform_v1.types.GenericOperationMetadata):
+            The operation generic information.
+        deployed_index_id (str):
+            The unique index id specified by user
+    """
+
+    generic_metadata = proto.Field(
+        proto.MESSAGE, number=1, message=operation.GenericOperationMetadata,
+    )
+    deployed_index_id = proto.Field(proto.STRING, number=2,)
 
 
 __all__ = tuple(sorted(__protobuf__.manifest))

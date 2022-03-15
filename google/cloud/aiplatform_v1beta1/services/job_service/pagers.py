@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# Copyright 2020 Google LLC
+# Copyright 2022 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -15,13 +15,13 @@
 #
 from typing import (
     Any,
-    AsyncIterable,
+    AsyncIterator,
     Awaitable,
     Callable,
-    Iterable,
     Sequence,
     Tuple,
     Optional,
+    Iterator,
 )
 
 from google.cloud.aiplatform_v1beta1.types import batch_prediction_job
@@ -82,14 +82,14 @@ class ListCustomJobsPager:
         return getattr(self._response, name)
 
     @property
-    def pages(self) -> Iterable[job_service.ListCustomJobsResponse]:
+    def pages(self) -> Iterator[job_service.ListCustomJobsResponse]:
         yield self._response
         while self._response.next_page_token:
             self._request.page_token = self._response.next_page_token
             self._response = self._method(self._request, metadata=self._metadata)
             yield self._response
 
-    def __iter__(self) -> Iterable[custom_job.CustomJob]:
+    def __iter__(self) -> Iterator[custom_job.CustomJob]:
         for page in self.pages:
             yield from page.custom_jobs
 
@@ -144,14 +144,14 @@ class ListCustomJobsAsyncPager:
         return getattr(self._response, name)
 
     @property
-    async def pages(self) -> AsyncIterable[job_service.ListCustomJobsResponse]:
+    async def pages(self) -> AsyncIterator[job_service.ListCustomJobsResponse]:
         yield self._response
         while self._response.next_page_token:
             self._request.page_token = self._response.next_page_token
             self._response = await self._method(self._request, metadata=self._metadata)
             yield self._response
 
-    def __aiter__(self) -> AsyncIterable[custom_job.CustomJob]:
+    def __aiter__(self) -> AsyncIterator[custom_job.CustomJob]:
         async def async_generator():
             async for page in self.pages:
                 for response in page.custom_jobs:
@@ -210,14 +210,14 @@ class ListDataLabelingJobsPager:
         return getattr(self._response, name)
 
     @property
-    def pages(self) -> Iterable[job_service.ListDataLabelingJobsResponse]:
+    def pages(self) -> Iterator[job_service.ListDataLabelingJobsResponse]:
         yield self._response
         while self._response.next_page_token:
             self._request.page_token = self._response.next_page_token
             self._response = self._method(self._request, metadata=self._metadata)
             yield self._response
 
-    def __iter__(self) -> Iterable[data_labeling_job.DataLabelingJob]:
+    def __iter__(self) -> Iterator[data_labeling_job.DataLabelingJob]:
         for page in self.pages:
             yield from page.data_labeling_jobs
 
@@ -272,14 +272,14 @@ class ListDataLabelingJobsAsyncPager:
         return getattr(self._response, name)
 
     @property
-    async def pages(self) -> AsyncIterable[job_service.ListDataLabelingJobsResponse]:
+    async def pages(self) -> AsyncIterator[job_service.ListDataLabelingJobsResponse]:
         yield self._response
         while self._response.next_page_token:
             self._request.page_token = self._response.next_page_token
             self._response = await self._method(self._request, metadata=self._metadata)
             yield self._response
 
-    def __aiter__(self) -> AsyncIterable[data_labeling_job.DataLabelingJob]:
+    def __aiter__(self) -> AsyncIterator[data_labeling_job.DataLabelingJob]:
         async def async_generator():
             async for page in self.pages:
                 for response in page.data_labeling_jobs:
@@ -338,14 +338,14 @@ class ListHyperparameterTuningJobsPager:
         return getattr(self._response, name)
 
     @property
-    def pages(self) -> Iterable[job_service.ListHyperparameterTuningJobsResponse]:
+    def pages(self) -> Iterator[job_service.ListHyperparameterTuningJobsResponse]:
         yield self._response
         while self._response.next_page_token:
             self._request.page_token = self._response.next_page_token
             self._response = self._method(self._request, metadata=self._metadata)
             yield self._response
 
-    def __iter__(self) -> Iterable[hyperparameter_tuning_job.HyperparameterTuningJob]:
+    def __iter__(self) -> Iterator[hyperparameter_tuning_job.HyperparameterTuningJob]:
         for page in self.pages:
             yield from page.hyperparameter_tuning_jobs
 
@@ -404,7 +404,7 @@ class ListHyperparameterTuningJobsAsyncPager:
     @property
     async def pages(
         self,
-    ) -> AsyncIterable[job_service.ListHyperparameterTuningJobsResponse]:
+    ) -> AsyncIterator[job_service.ListHyperparameterTuningJobsResponse]:
         yield self._response
         while self._response.next_page_token:
             self._request.page_token = self._response.next_page_token
@@ -413,7 +413,7 @@ class ListHyperparameterTuningJobsAsyncPager:
 
     def __aiter__(
         self,
-    ) -> AsyncIterable[hyperparameter_tuning_job.HyperparameterTuningJob]:
+    ) -> AsyncIterator[hyperparameter_tuning_job.HyperparameterTuningJob]:
         async def async_generator():
             async for page in self.pages:
                 for response in page.hyperparameter_tuning_jobs:
@@ -472,14 +472,14 @@ class ListBatchPredictionJobsPager:
         return getattr(self._response, name)
 
     @property
-    def pages(self) -> Iterable[job_service.ListBatchPredictionJobsResponse]:
+    def pages(self) -> Iterator[job_service.ListBatchPredictionJobsResponse]:
         yield self._response
         while self._response.next_page_token:
             self._request.page_token = self._response.next_page_token
             self._response = self._method(self._request, metadata=self._metadata)
             yield self._response
 
-    def __iter__(self) -> Iterable[batch_prediction_job.BatchPredictionJob]:
+    def __iter__(self) -> Iterator[batch_prediction_job.BatchPredictionJob]:
         for page in self.pages:
             yield from page.batch_prediction_jobs
 
@@ -534,14 +534,14 @@ class ListBatchPredictionJobsAsyncPager:
         return getattr(self._response, name)
 
     @property
-    async def pages(self) -> AsyncIterable[job_service.ListBatchPredictionJobsResponse]:
+    async def pages(self) -> AsyncIterator[job_service.ListBatchPredictionJobsResponse]:
         yield self._response
         while self._response.next_page_token:
             self._request.page_token = self._response.next_page_token
             self._response = await self._method(self._request, metadata=self._metadata)
             yield self._response
 
-    def __aiter__(self) -> AsyncIterable[batch_prediction_job.BatchPredictionJob]:
+    def __aiter__(self) -> AsyncIterator[batch_prediction_job.BatchPredictionJob]:
         async def async_generator():
             async for page in self.pages:
                 for response in page.batch_prediction_jobs:
@@ -606,7 +606,7 @@ class SearchModelDeploymentMonitoringStatsAnomaliesPager:
     @property
     def pages(
         self,
-    ) -> Iterable[job_service.SearchModelDeploymentMonitoringStatsAnomaliesResponse]:
+    ) -> Iterator[job_service.SearchModelDeploymentMonitoringStatsAnomaliesResponse]:
         yield self._response
         while self._response.next_page_token:
             self._request.page_token = self._response.next_page_token
@@ -615,7 +615,7 @@ class SearchModelDeploymentMonitoringStatsAnomaliesPager:
 
     def __iter__(
         self,
-    ) -> Iterable[gca_model_deployment_monitoring_job.ModelMonitoringStatsAnomalies]:
+    ) -> Iterator[gca_model_deployment_monitoring_job.ModelMonitoringStatsAnomalies]:
         for page in self.pages:
             yield from page.monitoring_stats
 
@@ -679,7 +679,7 @@ class SearchModelDeploymentMonitoringStatsAnomaliesAsyncPager:
     @property
     async def pages(
         self,
-    ) -> AsyncIterable[
+    ) -> AsyncIterator[
         job_service.SearchModelDeploymentMonitoringStatsAnomaliesResponse
     ]:
         yield self._response
@@ -690,7 +690,7 @@ class SearchModelDeploymentMonitoringStatsAnomaliesAsyncPager:
 
     def __aiter__(
         self,
-    ) -> AsyncIterable[
+    ) -> AsyncIterator[
         gca_model_deployment_monitoring_job.ModelMonitoringStatsAnomalies
     ]:
         async def async_generator():
@@ -751,7 +751,7 @@ class ListModelDeploymentMonitoringJobsPager:
         return getattr(self._response, name)
 
     @property
-    def pages(self) -> Iterable[job_service.ListModelDeploymentMonitoringJobsResponse]:
+    def pages(self) -> Iterator[job_service.ListModelDeploymentMonitoringJobsResponse]:
         yield self._response
         while self._response.next_page_token:
             self._request.page_token = self._response.next_page_token
@@ -760,7 +760,7 @@ class ListModelDeploymentMonitoringJobsPager:
 
     def __iter__(
         self,
-    ) -> Iterable[model_deployment_monitoring_job.ModelDeploymentMonitoringJob]:
+    ) -> Iterator[model_deployment_monitoring_job.ModelDeploymentMonitoringJob]:
         for page in self.pages:
             yield from page.model_deployment_monitoring_jobs
 
@@ -819,7 +819,7 @@ class ListModelDeploymentMonitoringJobsAsyncPager:
     @property
     async def pages(
         self,
-    ) -> AsyncIterable[job_service.ListModelDeploymentMonitoringJobsResponse]:
+    ) -> AsyncIterator[job_service.ListModelDeploymentMonitoringJobsResponse]:
         yield self._response
         while self._response.next_page_token:
             self._request.page_token = self._response.next_page_token
@@ -828,7 +828,7 @@ class ListModelDeploymentMonitoringJobsAsyncPager:
 
     def __aiter__(
         self,
-    ) -> AsyncIterable[model_deployment_monitoring_job.ModelDeploymentMonitoringJob]:
+    ) -> AsyncIterator[model_deployment_monitoring_job.ModelDeploymentMonitoringJob]:
         async def async_generator():
             async for page in self.pages:
                 for response in page.model_deployment_monitoring_jobs:

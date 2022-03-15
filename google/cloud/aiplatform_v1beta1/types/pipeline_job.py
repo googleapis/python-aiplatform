@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# Copyright 2020 Google LLC
+# Copyright 2022 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -39,6 +39,7 @@ __protobuf__ = proto.module(
 
 class PipelineJob(proto.Message):
     r"""An instance of a machine learning PipelineJob.
+
     Attributes:
         name (str):
             Output only. The resource name of the
@@ -112,12 +113,19 @@ class PipelineJob(proto.Message):
 
     class RuntimeConfig(proto.Message):
         r"""The runtime config of a PipelineJob.
+
         Attributes:
             parameters (Sequence[google.cloud.aiplatform_v1beta1.types.PipelineJob.RuntimeConfig.ParametersEntry]):
-                The runtime parameters of the PipelineJob. The parameters
-                will be passed into
+                Deprecated. Use
+                [RuntimeConfig.parameter_values][google.cloud.aiplatform.v1beta1.PipelineJob.RuntimeConfig.parameter_values]
+                instead. The runtime parameters of the PipelineJob. The
+                parameters will be passed into
                 [PipelineJob.pipeline_spec][google.cloud.aiplatform.v1beta1.PipelineJob.pipeline_spec]
-                to replace the placeholders at runtime.
+                to replace the placeholders at runtime. This field is used
+                by pipelines built using
+                ``PipelineJob.pipeline_spec.schema_version`` 2.0.0 or lower,
+                such as pipelines built using Kubeflow Pipelines SDK 1.8 or
+                lower.
             gcs_output_directory (str):
                 Required. A path in a Cloud Storage bucket, which will be
                 treated as the root output directory of the pipeline. It is
@@ -127,12 +135,24 @@ class PipelineJob(proto.Message):
                 specified output directory. The service account specified in
                 this pipeline must have the ``storage.objects.get`` and
                 ``storage.objects.create`` permissions for this bucket.
+            parameter_values (Sequence[google.cloud.aiplatform_v1beta1.types.PipelineJob.RuntimeConfig.ParameterValuesEntry]):
+                The runtime parameters of the PipelineJob. The parameters
+                will be passed into
+                [PipelineJob.pipeline_spec][google.cloud.aiplatform.v1beta1.PipelineJob.pipeline_spec]
+                to replace the placeholders at runtime. This field is used
+                by pipelines built using
+                ``PipelineJob.pipeline_spec.schema_version`` 2.1.0, such as
+                pipelines built using Kubeflow Pipelines SDK 1.9 or higher
+                and the v2 DSL.
         """
 
         parameters = proto.MapField(
             proto.STRING, proto.MESSAGE, number=1, message=gca_value.Value,
         )
         gcs_output_directory = proto.Field(proto.STRING, number=2,)
+        parameter_values = proto.MapField(
+            proto.STRING, proto.MESSAGE, number=3, message=struct_pb2.Value,
+        )
 
     name = proto.Field(proto.STRING, number=1,)
     display_name = proto.Field(proto.STRING, number=2,)
@@ -155,6 +175,7 @@ class PipelineJob(proto.Message):
 
 class PipelineJobDetail(proto.Message):
     r"""The runtime detail of PipelineJob.
+
     Attributes:
         pipeline_context (google.cloud.aiplatform_v1beta1.types.Context):
             Output only. The context of the pipeline.
@@ -177,6 +198,7 @@ class PipelineJobDetail(proto.Message):
 
 class PipelineTaskDetail(proto.Message):
     r"""The runtime detail of a task execution.
+
     Attributes:
         task_id (int):
             Output only. The system generated ID of the
@@ -205,6 +227,10 @@ class PipelineTaskDetail(proto.Message):
             Output only. The error that occurred during
             task execution. Only populated when the task's
             state is FAILED or CANCELLED.
+        pipeline_task_status (Sequence[google.cloud.aiplatform_v1beta1.types.PipelineTaskDetail.PipelineTaskStatus]):
+            Output only. A list of task status. This
+            field keeps a record of task status evolving
+            over time.
         inputs (Sequence[google.cloud.aiplatform_v1beta1.types.PipelineTaskDetail.InputsEntry]):
             Output only. The runtime input artifacts of
             the task.
@@ -226,8 +252,33 @@ class PipelineTaskDetail(proto.Message):
         SKIPPED = 8
         NOT_TRIGGERED = 9
 
+    class PipelineTaskStatus(proto.Message):
+        r"""A single record of the task status.
+
+        Attributes:
+            update_time (google.protobuf.timestamp_pb2.Timestamp):
+                Output only. Update time of this status.
+            state (google.cloud.aiplatform_v1beta1.types.PipelineTaskDetail.State):
+                Output only. The state of the task.
+            error (google.rpc.status_pb2.Status):
+                Output only. The error that occurred during
+                the state. May be set when the state is any of
+                the non-final state (PENDING/RUNNING/CANCELLING)
+                or FAILED state. If the state is FAILED, the
+                error here is final and not going to be retried.
+                If the state is a non-final state, the error
+                indicates a system-error being retried.
+        """
+
+        update_time = proto.Field(
+            proto.MESSAGE, number=1, message=timestamp_pb2.Timestamp,
+        )
+        state = proto.Field(proto.ENUM, number=2, enum="PipelineTaskDetail.State",)
+        error = proto.Field(proto.MESSAGE, number=3, message=status_pb2.Status,)
+
     class ArtifactList(proto.Message):
         r"""A list of artifact metadata.
+
         Attributes:
             artifacts (Sequence[google.cloud.aiplatform_v1beta1.types.Artifact]):
                 Output only. A list of artifact metadata.
@@ -249,6 +300,9 @@ class PipelineTaskDetail(proto.Message):
     state = proto.Field(proto.ENUM, number=7, enum=State,)
     execution = proto.Field(proto.MESSAGE, number=8, message=gca_execution.Execution,)
     error = proto.Field(proto.MESSAGE, number=9, message=status_pb2.Status,)
+    pipeline_task_status = proto.RepeatedField(
+        proto.MESSAGE, number=13, message=PipelineTaskStatus,
+    )
     inputs = proto.MapField(
         proto.STRING, proto.MESSAGE, number=10, message=ArtifactList,
     )
@@ -259,13 +313,25 @@ class PipelineTaskDetail(proto.Message):
 
 class PipelineTaskExecutorDetail(proto.Message):
     r"""The runtime detail of a pipeline executor.
+
+    This message has `oneof`_ fields (mutually exclusive fields).
+    For each oneof, at most one member field can be set at the same time.
+    Setting any member of the oneof automatically clears all other
+    members.
+
+    .. _oneof: https://proto-plus-python.readthedocs.io/en/stable/fields.html#oneofs-mutually-exclusive-fields
+
     Attributes:
         container_detail (google.cloud.aiplatform_v1beta1.types.PipelineTaskExecutorDetail.ContainerDetail):
             Output only. The detailed info for a
             container executor.
+
+            This field is a member of `oneof`_ ``details``.
         custom_job_detail (google.cloud.aiplatform_v1beta1.types.PipelineTaskExecutorDetail.CustomJobDetail):
             Output only. The detailed info for a custom
             job executor.
+
+            This field is a member of `oneof`_ ``details``.
     """
 
     class ContainerDetail(proto.Message):
@@ -292,6 +358,7 @@ class PipelineTaskExecutorDetail(proto.Message):
 
     class CustomJobDetail(proto.Message):
         r"""The detailed info for a custom job executor.
+
         Attributes:
             job (str):
                 Output only. The name of the

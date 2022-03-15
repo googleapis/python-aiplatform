@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# Copyright 2020 Google LLC
+# Copyright 2022 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -121,6 +121,8 @@ class CustomJob(proto.Message):
 
 class CustomJobSpec(proto.Message):
     r"""Represents the spec of a CustomJob.
+    Next Id: 14
+
     Attributes:
         worker_pool_specs (Sequence[google.cloud.aiplatform_v1.types.WorkerPoolSpec]):
             Required. The spec of the worker pools
@@ -147,9 +149,12 @@ class CustomJobSpec(proto.Message):
             {project} is a project number, as in ``12345``, and
             {network} is a network name.
 
-            Private services access must already be configured for the
-            network. If left unspecified, the job is not peered with any
-            network.
+            To specify this field, you must have already `configured VPC
+            Network Peering for Vertex
+            AI <https://cloud.google.com/vertex-ai/docs/general/vpc-peering>`__.
+
+            If this field is left unspecified, the job is not peered
+            with any network.
         base_output_directory (google.cloud.aiplatform_v1.types.GcsDestination):
             The Cloud Storage location to store the output of this
             CustomJob or HyperparameterTuningJob. For
@@ -177,6 +182,12 @@ class CustomJobSpec(proto.Message):
                ``<base_output_directory>/<trial_id>/checkpoints/``
             -  AIP_TENSORBOARD_LOG_DIR =
                ``<base_output_directory>/<trial_id>/logs/``
+        tensorboard (str):
+            Optional. The name of a Vertex AI
+            [Tensorboard][google.cloud.aiplatform.v1.Tensorboard]
+            resource to which this CustomJob will upload Tensorboard
+            logs. Format:
+            ``projects/{project}/locations/{location}/tensorboards/{tensorboard}``
         enable_web_access (bool):
             Optional. Whether you want Vertex AI to enable `interactive
             shell
@@ -201,16 +212,29 @@ class CustomJobSpec(proto.Message):
     base_output_directory = proto.Field(
         proto.MESSAGE, number=6, message=io.GcsDestination,
     )
+    tensorboard = proto.Field(proto.STRING, number=7,)
     enable_web_access = proto.Field(proto.BOOL, number=10,)
 
 
 class WorkerPoolSpec(proto.Message):
     r"""Represents the spec of a worker pool in a job.
+
+    This message has `oneof`_ fields (mutually exclusive fields).
+    For each oneof, at most one member field can be set at the same time.
+    Setting any member of the oneof automatically clears all other
+    members.
+
+    .. _oneof: https://proto-plus-python.readthedocs.io/en/stable/fields.html#oneofs-mutually-exclusive-fields
+
     Attributes:
         container_spec (google.cloud.aiplatform_v1.types.ContainerSpec):
             The custom container task.
+
+            This field is a member of `oneof`_ ``task``.
         python_package_spec (google.cloud.aiplatform_v1.types.PythonPackageSpec):
             The Python packaged task.
+
+            This field is a member of `oneof`_ ``task``.
         machine_spec (google.cloud.aiplatform_v1.types.MachineSpec):
             Optional. Immutable. The specification of a
             single machine.
@@ -238,6 +262,7 @@ class WorkerPoolSpec(proto.Message):
 
 class ContainerSpec(proto.Message):
     r"""The spec of a Container.
+
     Attributes:
         image_uri (str):
             Required. The URI of a container image in the
@@ -263,6 +288,7 @@ class ContainerSpec(proto.Message):
 
 class PythonPackageSpec(proto.Message):
     r"""The spec of a Python packaged code.
+
     Attributes:
         executor_image_uri (str):
             Required. The URI of a container image in Artifact Registry

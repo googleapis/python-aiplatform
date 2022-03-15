@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# Copyright 2020 Google LLC
+# Copyright 2022 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -15,7 +15,6 @@
 #
 import os
 import mock
-import packaging.version
 
 import grpc
 from grpc.experimental import aio
@@ -30,17 +29,16 @@ from google.api_core import future
 from google.api_core import gapic_v1
 from google.api_core import grpc_helpers
 from google.api_core import grpc_helpers_async
+from google.api_core import operation
 from google.api_core import operation_async  # type: ignore
 from google.api_core import operations_v1
+from google.api_core import path_template
 from google.auth import credentials as ga_credentials
 from google.auth.exceptions import MutualTLSChannelError
 from google.cloud.aiplatform_v1.services.job_service import JobServiceAsyncClient
 from google.cloud.aiplatform_v1.services.job_service import JobServiceClient
 from google.cloud.aiplatform_v1.services.job_service import pagers
 from google.cloud.aiplatform_v1.services.job_service import transports
-from google.cloud.aiplatform_v1.services.job_service.transports.base import (
-    _GOOGLE_AUTH_VERSION,
-)
 from google.cloud.aiplatform_v1.types import accelerator_type
 from google.cloud.aiplatform_v1.types import batch_prediction_job
 from google.cloud.aiplatform_v1.types import (
@@ -64,6 +62,7 @@ from google.cloud.aiplatform_v1.types import job_service
 from google.cloud.aiplatform_v1.types import job_state
 from google.cloud.aiplatform_v1.types import machine_resources
 from google.cloud.aiplatform_v1.types import manual_batch_tuning_parameters
+from google.cloud.aiplatform_v1.types import model
 from google.cloud.aiplatform_v1.types import model_deployment_monitoring_job
 from google.cloud.aiplatform_v1.types import (
     model_deployment_monitoring_job as gca_model_deployment_monitoring_job,
@@ -71,6 +70,7 @@ from google.cloud.aiplatform_v1.types import (
 from google.cloud.aiplatform_v1.types import model_monitoring
 from google.cloud.aiplatform_v1.types import operation as gca_operation
 from google.cloud.aiplatform_v1.types import study
+from google.cloud.aiplatform_v1.types import unmanaged_container_model
 from google.longrunning import operations_pb2
 from google.oauth2 import service_account
 from google.protobuf import any_pb2  # type: ignore
@@ -81,20 +81,6 @@ from google.protobuf import timestamp_pb2  # type: ignore
 from google.rpc import status_pb2  # type: ignore
 from google.type import money_pb2  # type: ignore
 import google.auth
-
-
-# TODO(busunkim): Once google-auth >= 1.25.0 is required transitively
-# through google-api-core:
-# - Delete the auth "less than" test cases
-# - Delete these pytest markers (Make the "greater than or equal to" tests the default).
-requires_google_auth_lt_1_25_0 = pytest.mark.skipif(
-    packaging.version.parse(_GOOGLE_AUTH_VERSION) >= packaging.version.parse("1.25.0"),
-    reason="This test requires google-auth < 1.25.0",
-)
-requires_google_auth_gte_1_25_0 = pytest.mark.skipif(
-    packaging.version.parse(_GOOGLE_AUTH_VERSION) < packaging.version.parse("1.25.0"),
-    reason="This test requires google-auth >= 1.25.0",
-)
 
 
 def client_cert_source_callback():
@@ -244,7 +230,7 @@ def test_job_service_client_client_options(
     options = client_options.ClientOptions(api_endpoint="squid.clam.whelk")
     with mock.patch.object(transport_class, "__init__") as patched:
         patched.return_value = None
-        client = client_class(client_options=options)
+        client = client_class(transport=transport_name, client_options=options)
         patched.assert_called_once_with(
             credentials=None,
             credentials_file=None,
@@ -261,7 +247,7 @@ def test_job_service_client_client_options(
     with mock.patch.dict(os.environ, {"GOOGLE_API_USE_MTLS_ENDPOINT": "never"}):
         with mock.patch.object(transport_class, "__init__") as patched:
             patched.return_value = None
-            client = client_class()
+            client = client_class(transport=transport_name)
             patched.assert_called_once_with(
                 credentials=None,
                 credentials_file=None,
@@ -278,7 +264,7 @@ def test_job_service_client_client_options(
     with mock.patch.dict(os.environ, {"GOOGLE_API_USE_MTLS_ENDPOINT": "always"}):
         with mock.patch.object(transport_class, "__init__") as patched:
             patched.return_value = None
-            client = client_class()
+            client = client_class(transport=transport_name)
             patched.assert_called_once_with(
                 credentials=None,
                 credentials_file=None,
@@ -294,20 +280,20 @@ def test_job_service_client_client_options(
     # unsupported value.
     with mock.patch.dict(os.environ, {"GOOGLE_API_USE_MTLS_ENDPOINT": "Unsupported"}):
         with pytest.raises(MutualTLSChannelError):
-            client = client_class()
+            client = client_class(transport=transport_name)
 
     # Check the case GOOGLE_API_USE_CLIENT_CERTIFICATE has unsupported value.
     with mock.patch.dict(
         os.environ, {"GOOGLE_API_USE_CLIENT_CERTIFICATE": "Unsupported"}
     ):
         with pytest.raises(ValueError):
-            client = client_class()
+            client = client_class(transport=transport_name)
 
     # Check the case quota_project_id is provided
     options = client_options.ClientOptions(quota_project_id="octopus")
     with mock.patch.object(transport_class, "__init__") as patched:
         patched.return_value = None
-        client = client_class(client_options=options)
+        client = client_class(client_options=options, transport=transport_name)
         patched.assert_called_once_with(
             credentials=None,
             credentials_file=None,
@@ -364,7 +350,7 @@ def test_job_service_client_mtls_env_auto(
         )
         with mock.patch.object(transport_class, "__init__") as patched:
             patched.return_value = None
-            client = client_class(client_options=options)
+            client = client_class(client_options=options, transport=transport_name)
 
             if use_client_cert_env == "false":
                 expected_client_cert_source = None
@@ -406,7 +392,7 @@ def test_job_service_client_mtls_env_auto(
                         expected_client_cert_source = client_cert_source_callback
 
                     patched.return_value = None
-                    client = client_class()
+                    client = client_class(transport=transport_name)
                     patched.assert_called_once_with(
                         credentials=None,
                         credentials_file=None,
@@ -428,7 +414,7 @@ def test_job_service_client_mtls_env_auto(
                 return_value=False,
             ):
                 patched.return_value = None
-                client = client_class()
+                client = client_class(transport=transport_name)
                 patched.assert_called_once_with(
                     credentials=None,
                     credentials_file=None,
@@ -439,6 +425,83 @@ def test_job_service_client_mtls_env_auto(
                     client_info=transports.base.DEFAULT_CLIENT_INFO,
                     always_use_jwt_access=True,
                 )
+
+
+@pytest.mark.parametrize("client_class", [JobServiceClient, JobServiceAsyncClient])
+@mock.patch.object(
+    JobServiceClient, "DEFAULT_ENDPOINT", modify_default_endpoint(JobServiceClient)
+)
+@mock.patch.object(
+    JobServiceAsyncClient,
+    "DEFAULT_ENDPOINT",
+    modify_default_endpoint(JobServiceAsyncClient),
+)
+def test_job_service_client_get_mtls_endpoint_and_cert_source(client_class):
+    mock_client_cert_source = mock.Mock()
+
+    # Test the case GOOGLE_API_USE_CLIENT_CERTIFICATE is "true".
+    with mock.patch.dict(os.environ, {"GOOGLE_API_USE_CLIENT_CERTIFICATE": "true"}):
+        mock_api_endpoint = "foo"
+        options = client_options.ClientOptions(
+            client_cert_source=mock_client_cert_source, api_endpoint=mock_api_endpoint
+        )
+        api_endpoint, cert_source = client_class.get_mtls_endpoint_and_cert_source(
+            options
+        )
+        assert api_endpoint == mock_api_endpoint
+        assert cert_source == mock_client_cert_source
+
+    # Test the case GOOGLE_API_USE_CLIENT_CERTIFICATE is "false".
+    with mock.patch.dict(os.environ, {"GOOGLE_API_USE_CLIENT_CERTIFICATE": "false"}):
+        mock_client_cert_source = mock.Mock()
+        mock_api_endpoint = "foo"
+        options = client_options.ClientOptions(
+            client_cert_source=mock_client_cert_source, api_endpoint=mock_api_endpoint
+        )
+        api_endpoint, cert_source = client_class.get_mtls_endpoint_and_cert_source(
+            options
+        )
+        assert api_endpoint == mock_api_endpoint
+        assert cert_source is None
+
+    # Test the case GOOGLE_API_USE_MTLS_ENDPOINT is "never".
+    with mock.patch.dict(os.environ, {"GOOGLE_API_USE_MTLS_ENDPOINT": "never"}):
+        api_endpoint, cert_source = client_class.get_mtls_endpoint_and_cert_source()
+        assert api_endpoint == client_class.DEFAULT_ENDPOINT
+        assert cert_source is None
+
+    # Test the case GOOGLE_API_USE_MTLS_ENDPOINT is "always".
+    with mock.patch.dict(os.environ, {"GOOGLE_API_USE_MTLS_ENDPOINT": "always"}):
+        api_endpoint, cert_source = client_class.get_mtls_endpoint_and_cert_source()
+        assert api_endpoint == client_class.DEFAULT_MTLS_ENDPOINT
+        assert cert_source is None
+
+    # Test the case GOOGLE_API_USE_MTLS_ENDPOINT is "auto" and default cert doesn't exist.
+    with mock.patch.dict(os.environ, {"GOOGLE_API_USE_CLIENT_CERTIFICATE": "true"}):
+        with mock.patch(
+            "google.auth.transport.mtls.has_default_client_cert_source",
+            return_value=False,
+        ):
+            api_endpoint, cert_source = client_class.get_mtls_endpoint_and_cert_source()
+            assert api_endpoint == client_class.DEFAULT_ENDPOINT
+            assert cert_source is None
+
+    # Test the case GOOGLE_API_USE_MTLS_ENDPOINT is "auto" and default cert exists.
+    with mock.patch.dict(os.environ, {"GOOGLE_API_USE_CLIENT_CERTIFICATE": "true"}):
+        with mock.patch(
+            "google.auth.transport.mtls.has_default_client_cert_source",
+            return_value=True,
+        ):
+            with mock.patch(
+                "google.auth.transport.mtls.default_client_cert_source",
+                return_value=mock_client_cert_source,
+            ):
+                (
+                    api_endpoint,
+                    cert_source,
+                ) = client_class.get_mtls_endpoint_and_cert_source()
+                assert api_endpoint == client_class.DEFAULT_MTLS_ENDPOINT
+                assert cert_source == mock_client_cert_source
 
 
 @pytest.mark.parametrize(
@@ -459,7 +522,7 @@ def test_job_service_client_client_options_scopes(
     options = client_options.ClientOptions(scopes=["1", "2"],)
     with mock.patch.object(transport_class, "__init__") as patched:
         patched.return_value = None
-        client = client_class(client_options=options)
+        client = client_class(client_options=options, transport=transport_name)
         patched.assert_called_once_with(
             credentials=None,
             credentials_file=None,
@@ -473,24 +536,26 @@ def test_job_service_client_client_options_scopes(
 
 
 @pytest.mark.parametrize(
-    "client_class,transport_class,transport_name",
+    "client_class,transport_class,transport_name,grpc_helpers",
     [
-        (JobServiceClient, transports.JobServiceGrpcTransport, "grpc"),
+        (JobServiceClient, transports.JobServiceGrpcTransport, "grpc", grpc_helpers),
         (
             JobServiceAsyncClient,
             transports.JobServiceGrpcAsyncIOTransport,
             "grpc_asyncio",
+            grpc_helpers_async,
         ),
     ],
 )
 def test_job_service_client_client_options_credentials_file(
-    client_class, transport_class, transport_name
+    client_class, transport_class, transport_name, grpc_helpers
 ):
     # Check the case credentials file is provided.
     options = client_options.ClientOptions(credentials_file="credentials.json")
+
     with mock.patch.object(transport_class, "__init__") as patched:
         patched.return_value = None
-        client = client_class(client_options=options)
+        client = client_class(client_options=options, transport=transport_name)
         patched.assert_called_once_with(
             credentials=None,
             credentials_file="credentials.json",
@@ -521,9 +586,69 @@ def test_job_service_client_client_options_from_dict():
         )
 
 
-def test_create_custom_job(
-    transport: str = "grpc", request_type=job_service.CreateCustomJobRequest
+@pytest.mark.parametrize(
+    "client_class,transport_class,transport_name,grpc_helpers",
+    [
+        (JobServiceClient, transports.JobServiceGrpcTransport, "grpc", grpc_helpers),
+        (
+            JobServiceAsyncClient,
+            transports.JobServiceGrpcAsyncIOTransport,
+            "grpc_asyncio",
+            grpc_helpers_async,
+        ),
+    ],
+)
+def test_job_service_client_create_channel_credentials_file(
+    client_class, transport_class, transport_name, grpc_helpers
 ):
+    # Check the case credentials file is provided.
+    options = client_options.ClientOptions(credentials_file="credentials.json")
+
+    with mock.patch.object(transport_class, "__init__") as patched:
+        patched.return_value = None
+        client = client_class(client_options=options, transport=transport_name)
+        patched.assert_called_once_with(
+            credentials=None,
+            credentials_file="credentials.json",
+            host=client.DEFAULT_ENDPOINT,
+            scopes=None,
+            client_cert_source_for_mtls=None,
+            quota_project_id=None,
+            client_info=transports.base.DEFAULT_CLIENT_INFO,
+            always_use_jwt_access=True,
+        )
+
+    # test that the credentials from file are saved and used as the credentials.
+    with mock.patch.object(
+        google.auth, "load_credentials_from_file", autospec=True
+    ) as load_creds, mock.patch.object(
+        google.auth, "default", autospec=True
+    ) as adc, mock.patch.object(
+        grpc_helpers, "create_channel"
+    ) as create_channel:
+        creds = ga_credentials.AnonymousCredentials()
+        file_creds = ga_credentials.AnonymousCredentials()
+        load_creds.return_value = (file_creds, None)
+        adc.return_value = (creds, None)
+        client = client_class(client_options=options, transport=transport_name)
+        create_channel.assert_called_with(
+            "aiplatform.googleapis.com:443",
+            credentials=file_creds,
+            credentials_file=None,
+            quota_project_id=None,
+            default_scopes=("https://www.googleapis.com/auth/cloud-platform",),
+            scopes=None,
+            default_host="aiplatform.googleapis.com",
+            ssl_credentials=None,
+            options=[
+                ("grpc.max_send_message_length", -1),
+                ("grpc.max_receive_message_length", -1),
+            ],
+        )
+
+
+@pytest.mark.parametrize("request_type", [job_service.CreateCustomJobRequest, dict,])
+def test_create_custom_job(request_type, transport: str = "grpc"):
     client = JobServiceClient(
         credentials=ga_credentials.AnonymousCredentials(), transport=transport,
     )
@@ -554,10 +679,6 @@ def test_create_custom_job(
     assert response.name == "name_value"
     assert response.display_name == "display_name_value"
     assert response.state == job_state.JobState.JOB_STATE_QUEUED
-
-
-def test_create_custom_job_from_dict():
-    test_create_custom_job(request_type=dict)
 
 
 def test_create_custom_job_empty_call():
@@ -695,8 +816,12 @@ def test_create_custom_job_flattened():
         # request object values.
         assert len(call.mock_calls) == 1
         _, args, _ = call.mock_calls[0]
-        assert args[0].parent == "parent_value"
-        assert args[0].custom_job == gca_custom_job.CustomJob(name="name_value")
+        arg = args[0].parent
+        mock_val = "parent_value"
+        assert arg == mock_val
+        arg = args[0].custom_job
+        mock_val = gca_custom_job.CustomJob(name="name_value")
+        assert arg == mock_val
 
 
 def test_create_custom_job_flattened_error():
@@ -737,8 +862,12 @@ async def test_create_custom_job_flattened_async():
         # request object values.
         assert len(call.mock_calls)
         _, args, _ = call.mock_calls[0]
-        assert args[0].parent == "parent_value"
-        assert args[0].custom_job == gca_custom_job.CustomJob(name="name_value")
+        arg = args[0].parent
+        mock_val = "parent_value"
+        assert arg == mock_val
+        arg = args[0].custom_job
+        mock_val = gca_custom_job.CustomJob(name="name_value")
+        assert arg == mock_val
 
 
 @pytest.mark.asyncio
@@ -755,9 +884,8 @@ async def test_create_custom_job_flattened_error_async():
         )
 
 
-def test_get_custom_job(
-    transport: str = "grpc", request_type=job_service.GetCustomJobRequest
-):
+@pytest.mark.parametrize("request_type", [job_service.GetCustomJobRequest, dict,])
+def test_get_custom_job(request_type, transport: str = "grpc"):
     client = JobServiceClient(
         credentials=ga_credentials.AnonymousCredentials(), transport=transport,
     )
@@ -786,10 +914,6 @@ def test_get_custom_job(
     assert response.name == "name_value"
     assert response.display_name == "display_name_value"
     assert response.state == job_state.JobState.JOB_STATE_QUEUED
-
-
-def test_get_custom_job_from_dict():
-    test_get_custom_job(request_type=dict)
 
 
 def test_get_custom_job_empty_call():
@@ -914,7 +1038,9 @@ def test_get_custom_job_flattened():
         # request object values.
         assert len(call.mock_calls) == 1
         _, args, _ = call.mock_calls[0]
-        assert args[0].name == "name_value"
+        arg = args[0].name
+        mock_val = "name_value"
+        assert arg == mock_val
 
 
 def test_get_custom_job_flattened_error():
@@ -948,7 +1074,9 @@ async def test_get_custom_job_flattened_async():
         # request object values.
         assert len(call.mock_calls)
         _, args, _ = call.mock_calls[0]
-        assert args[0].name == "name_value"
+        arg = args[0].name
+        mock_val = "name_value"
+        assert arg == mock_val
 
 
 @pytest.mark.asyncio
@@ -963,9 +1091,8 @@ async def test_get_custom_job_flattened_error_async():
         )
 
 
-def test_list_custom_jobs(
-    transport: str = "grpc", request_type=job_service.ListCustomJobsRequest
-):
+@pytest.mark.parametrize("request_type", [job_service.ListCustomJobsRequest, dict,])
+def test_list_custom_jobs(request_type, transport: str = "grpc"):
     client = JobServiceClient(
         credentials=ga_credentials.AnonymousCredentials(), transport=transport,
     )
@@ -990,10 +1117,6 @@ def test_list_custom_jobs(
     # Establish that the response is the type that we expect.
     assert isinstance(response, pagers.ListCustomJobsPager)
     assert response.next_page_token == "next_page_token_value"
-
-
-def test_list_custom_jobs_from_dict():
-    test_list_custom_jobs(request_type=dict)
 
 
 def test_list_custom_jobs_empty_call():
@@ -1112,7 +1235,9 @@ def test_list_custom_jobs_flattened():
         # request object values.
         assert len(call.mock_calls) == 1
         _, args, _ = call.mock_calls[0]
-        assert args[0].parent == "parent_value"
+        arg = args[0].parent
+        mock_val = "parent_value"
+        assert arg == mock_val
 
 
 def test_list_custom_jobs_flattened_error():
@@ -1146,7 +1271,9 @@ async def test_list_custom_jobs_flattened_async():
         # request object values.
         assert len(call.mock_calls)
         _, args, _ = call.mock_calls[0]
-        assert args[0].parent == "parent_value"
+        arg = args[0].parent
+        mock_val = "parent_value"
+        assert arg == mock_val
 
 
 @pytest.mark.asyncio
@@ -1161,8 +1288,10 @@ async def test_list_custom_jobs_flattened_error_async():
         )
 
 
-def test_list_custom_jobs_pager():
-    client = JobServiceClient(credentials=ga_credentials.AnonymousCredentials,)
+def test_list_custom_jobs_pager(transport_name: str = "grpc"):
+    client = JobServiceClient(
+        credentials=ga_credentials.AnonymousCredentials, transport=transport_name,
+    )
 
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(type(client.transport.list_custom_jobs), "__call__") as call:
@@ -1199,8 +1328,10 @@ def test_list_custom_jobs_pager():
         assert all(isinstance(i, custom_job.CustomJob) for i in results)
 
 
-def test_list_custom_jobs_pages():
-    client = JobServiceClient(credentials=ga_credentials.AnonymousCredentials,)
+def test_list_custom_jobs_pages(transport_name: str = "grpc"):
+    client = JobServiceClient(
+        credentials=ga_credentials.AnonymousCredentials, transport=transport_name,
+    )
 
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(type(client.transport.list_custom_jobs), "__call__") as call:
@@ -1299,9 +1430,8 @@ async def test_list_custom_jobs_async_pages():
             assert page_.raw_page.next_page_token == token
 
 
-def test_delete_custom_job(
-    transport: str = "grpc", request_type=job_service.DeleteCustomJobRequest
-):
+@pytest.mark.parametrize("request_type", [job_service.DeleteCustomJobRequest, dict,])
+def test_delete_custom_job(request_type, transport: str = "grpc"):
     client = JobServiceClient(
         credentials=ga_credentials.AnonymousCredentials(), transport=transport,
     )
@@ -1325,10 +1455,6 @@ def test_delete_custom_job(
 
     # Establish that the response is the type that we expect.
     assert isinstance(response, future.Future)
-
-
-def test_delete_custom_job_from_dict():
-    test_delete_custom_job(request_type=dict)
 
 
 def test_delete_custom_job_empty_call():
@@ -1456,7 +1582,9 @@ def test_delete_custom_job_flattened():
         # request object values.
         assert len(call.mock_calls) == 1
         _, args, _ = call.mock_calls[0]
-        assert args[0].name == "name_value"
+        arg = args[0].name
+        mock_val = "name_value"
+        assert arg == mock_val
 
 
 def test_delete_custom_job_flattened_error():
@@ -1492,7 +1620,9 @@ async def test_delete_custom_job_flattened_async():
         # request object values.
         assert len(call.mock_calls)
         _, args, _ = call.mock_calls[0]
-        assert args[0].name == "name_value"
+        arg = args[0].name
+        mock_val = "name_value"
+        assert arg == mock_val
 
 
 @pytest.mark.asyncio
@@ -1507,9 +1637,8 @@ async def test_delete_custom_job_flattened_error_async():
         )
 
 
-def test_cancel_custom_job(
-    transport: str = "grpc", request_type=job_service.CancelCustomJobRequest
-):
+@pytest.mark.parametrize("request_type", [job_service.CancelCustomJobRequest, dict,])
+def test_cancel_custom_job(request_type, transport: str = "grpc"):
     client = JobServiceClient(
         credentials=ga_credentials.AnonymousCredentials(), transport=transport,
     )
@@ -1533,10 +1662,6 @@ def test_cancel_custom_job(
 
     # Establish that the response is the type that we expect.
     assert response is None
-
-
-def test_cancel_custom_job_from_dict():
-    test_cancel_custom_job(request_type=dict)
 
 
 def test_cancel_custom_job_empty_call():
@@ -1660,7 +1785,9 @@ def test_cancel_custom_job_flattened():
         # request object values.
         assert len(call.mock_calls) == 1
         _, args, _ = call.mock_calls[0]
-        assert args[0].name == "name_value"
+        arg = args[0].name
+        mock_val = "name_value"
+        assert arg == mock_val
 
 
 def test_cancel_custom_job_flattened_error():
@@ -1694,7 +1821,9 @@ async def test_cancel_custom_job_flattened_async():
         # request object values.
         assert len(call.mock_calls)
         _, args, _ = call.mock_calls[0]
-        assert args[0].name == "name_value"
+        arg = args[0].name
+        mock_val = "name_value"
+        assert arg == mock_val
 
 
 @pytest.mark.asyncio
@@ -1709,9 +1838,10 @@ async def test_cancel_custom_job_flattened_error_async():
         )
 
 
-def test_create_data_labeling_job(
-    transport: str = "grpc", request_type=job_service.CreateDataLabelingJobRequest
-):
+@pytest.mark.parametrize(
+    "request_type", [job_service.CreateDataLabelingJobRequest, dict,]
+)
+def test_create_data_labeling_job(request_type, transport: str = "grpc"):
     client = JobServiceClient(
         credentials=ga_credentials.AnonymousCredentials(), transport=transport,
     )
@@ -1754,10 +1884,6 @@ def test_create_data_labeling_job(
     assert response.state == job_state.JobState.JOB_STATE_QUEUED
     assert response.labeling_progress == 1810
     assert response.specialist_pools == ["specialist_pools_value"]
-
-
-def test_create_data_labeling_job_from_dict():
-    test_create_data_labeling_job(request_type=dict)
 
 
 def test_create_data_labeling_job_empty_call():
@@ -1908,10 +2034,12 @@ def test_create_data_labeling_job_flattened():
         # request object values.
         assert len(call.mock_calls) == 1
         _, args, _ = call.mock_calls[0]
-        assert args[0].parent == "parent_value"
-        assert args[0].data_labeling_job == gca_data_labeling_job.DataLabelingJob(
-            name="name_value"
-        )
+        arg = args[0].parent
+        mock_val = "parent_value"
+        assert arg == mock_val
+        arg = args[0].data_labeling_job
+        mock_val = gca_data_labeling_job.DataLabelingJob(name="name_value")
+        assert arg == mock_val
 
 
 def test_create_data_labeling_job_flattened_error():
@@ -1952,10 +2080,12 @@ async def test_create_data_labeling_job_flattened_async():
         # request object values.
         assert len(call.mock_calls)
         _, args, _ = call.mock_calls[0]
-        assert args[0].parent == "parent_value"
-        assert args[0].data_labeling_job == gca_data_labeling_job.DataLabelingJob(
-            name="name_value"
-        )
+        arg = args[0].parent
+        mock_val = "parent_value"
+        assert arg == mock_val
+        arg = args[0].data_labeling_job
+        mock_val = gca_data_labeling_job.DataLabelingJob(name="name_value")
+        assert arg == mock_val
 
 
 @pytest.mark.asyncio
@@ -1972,9 +2102,8 @@ async def test_create_data_labeling_job_flattened_error_async():
         )
 
 
-def test_get_data_labeling_job(
-    transport: str = "grpc", request_type=job_service.GetDataLabelingJobRequest
-):
+@pytest.mark.parametrize("request_type", [job_service.GetDataLabelingJobRequest, dict,])
+def test_get_data_labeling_job(request_type, transport: str = "grpc"):
     client = JobServiceClient(
         credentials=ga_credentials.AnonymousCredentials(), transport=transport,
     )
@@ -2017,10 +2146,6 @@ def test_get_data_labeling_job(
     assert response.state == job_state.JobState.JOB_STATE_QUEUED
     assert response.labeling_progress == 1810
     assert response.specialist_pools == ["specialist_pools_value"]
-
-
-def test_get_data_labeling_job_from_dict():
-    test_get_data_labeling_job(request_type=dict)
 
 
 def test_get_data_labeling_job_empty_call():
@@ -2167,7 +2292,9 @@ def test_get_data_labeling_job_flattened():
         # request object values.
         assert len(call.mock_calls) == 1
         _, args, _ = call.mock_calls[0]
-        assert args[0].name == "name_value"
+        arg = args[0].name
+        mock_val = "name_value"
+        assert arg == mock_val
 
 
 def test_get_data_labeling_job_flattened_error():
@@ -2203,7 +2330,9 @@ async def test_get_data_labeling_job_flattened_async():
         # request object values.
         assert len(call.mock_calls)
         _, args, _ = call.mock_calls[0]
-        assert args[0].name == "name_value"
+        arg = args[0].name
+        mock_val = "name_value"
+        assert arg == mock_val
 
 
 @pytest.mark.asyncio
@@ -2218,9 +2347,10 @@ async def test_get_data_labeling_job_flattened_error_async():
         )
 
 
-def test_list_data_labeling_jobs(
-    transport: str = "grpc", request_type=job_service.ListDataLabelingJobsRequest
-):
+@pytest.mark.parametrize(
+    "request_type", [job_service.ListDataLabelingJobsRequest, dict,]
+)
+def test_list_data_labeling_jobs(request_type, transport: str = "grpc"):
     client = JobServiceClient(
         credentials=ga_credentials.AnonymousCredentials(), transport=transport,
     )
@@ -2247,10 +2377,6 @@ def test_list_data_labeling_jobs(
     # Establish that the response is the type that we expect.
     assert isinstance(response, pagers.ListDataLabelingJobsPager)
     assert response.next_page_token == "next_page_token_value"
-
-
-def test_list_data_labeling_jobs_from_dict():
-    test_list_data_labeling_jobs(request_type=dict)
 
 
 def test_list_data_labeling_jobs_empty_call():
@@ -2382,7 +2508,9 @@ def test_list_data_labeling_jobs_flattened():
         # request object values.
         assert len(call.mock_calls) == 1
         _, args, _ = call.mock_calls[0]
-        assert args[0].parent == "parent_value"
+        arg = args[0].parent
+        mock_val = "parent_value"
+        assert arg == mock_val
 
 
 def test_list_data_labeling_jobs_flattened_error():
@@ -2418,7 +2546,9 @@ async def test_list_data_labeling_jobs_flattened_async():
         # request object values.
         assert len(call.mock_calls)
         _, args, _ = call.mock_calls[0]
-        assert args[0].parent == "parent_value"
+        arg = args[0].parent
+        mock_val = "parent_value"
+        assert arg == mock_val
 
 
 @pytest.mark.asyncio
@@ -2433,8 +2563,10 @@ async def test_list_data_labeling_jobs_flattened_error_async():
         )
 
 
-def test_list_data_labeling_jobs_pager():
-    client = JobServiceClient(credentials=ga_credentials.AnonymousCredentials,)
+def test_list_data_labeling_jobs_pager(transport_name: str = "grpc"):
+    client = JobServiceClient(
+        credentials=ga_credentials.AnonymousCredentials, transport=transport_name,
+    )
 
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(
@@ -2479,8 +2611,10 @@ def test_list_data_labeling_jobs_pager():
         assert all(isinstance(i, data_labeling_job.DataLabelingJob) for i in results)
 
 
-def test_list_data_labeling_jobs_pages():
-    client = JobServiceClient(credentials=ga_credentials.AnonymousCredentials,)
+def test_list_data_labeling_jobs_pages(transport_name: str = "grpc"):
+    client = JobServiceClient(
+        credentials=ga_credentials.AnonymousCredentials, transport=transport_name,
+    )
 
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(
@@ -2603,9 +2737,10 @@ async def test_list_data_labeling_jobs_async_pages():
             assert page_.raw_page.next_page_token == token
 
 
-def test_delete_data_labeling_job(
-    transport: str = "grpc", request_type=job_service.DeleteDataLabelingJobRequest
-):
+@pytest.mark.parametrize(
+    "request_type", [job_service.DeleteDataLabelingJobRequest, dict,]
+)
+def test_delete_data_labeling_job(request_type, transport: str = "grpc"):
     client = JobServiceClient(
         credentials=ga_credentials.AnonymousCredentials(), transport=transport,
     )
@@ -2629,10 +2764,6 @@ def test_delete_data_labeling_job(
 
     # Establish that the response is the type that we expect.
     assert isinstance(response, future.Future)
-
-
-def test_delete_data_labeling_job_from_dict():
-    test_delete_data_labeling_job(request_type=dict)
 
 
 def test_delete_data_labeling_job_empty_call():
@@ -2761,7 +2892,9 @@ def test_delete_data_labeling_job_flattened():
         # request object values.
         assert len(call.mock_calls) == 1
         _, args, _ = call.mock_calls[0]
-        assert args[0].name == "name_value"
+        arg = args[0].name
+        mock_val = "name_value"
+        assert arg == mock_val
 
 
 def test_delete_data_labeling_job_flattened_error():
@@ -2797,7 +2930,9 @@ async def test_delete_data_labeling_job_flattened_async():
         # request object values.
         assert len(call.mock_calls)
         _, args, _ = call.mock_calls[0]
-        assert args[0].name == "name_value"
+        arg = args[0].name
+        mock_val = "name_value"
+        assert arg == mock_val
 
 
 @pytest.mark.asyncio
@@ -2812,9 +2947,10 @@ async def test_delete_data_labeling_job_flattened_error_async():
         )
 
 
-def test_cancel_data_labeling_job(
-    transport: str = "grpc", request_type=job_service.CancelDataLabelingJobRequest
-):
+@pytest.mark.parametrize(
+    "request_type", [job_service.CancelDataLabelingJobRequest, dict,]
+)
+def test_cancel_data_labeling_job(request_type, transport: str = "grpc"):
     client = JobServiceClient(
         credentials=ga_credentials.AnonymousCredentials(), transport=transport,
     )
@@ -2838,10 +2974,6 @@ def test_cancel_data_labeling_job(
 
     # Establish that the response is the type that we expect.
     assert response is None
-
-
-def test_cancel_data_labeling_job_from_dict():
-    test_cancel_data_labeling_job(request_type=dict)
 
 
 def test_cancel_data_labeling_job_empty_call():
@@ -2966,7 +3098,9 @@ def test_cancel_data_labeling_job_flattened():
         # request object values.
         assert len(call.mock_calls) == 1
         _, args, _ = call.mock_calls[0]
-        assert args[0].name == "name_value"
+        arg = args[0].name
+        mock_val = "name_value"
+        assert arg == mock_val
 
 
 def test_cancel_data_labeling_job_flattened_error():
@@ -3000,7 +3134,9 @@ async def test_cancel_data_labeling_job_flattened_async():
         # request object values.
         assert len(call.mock_calls)
         _, args, _ = call.mock_calls[0]
-        assert args[0].name == "name_value"
+        arg = args[0].name
+        mock_val = "name_value"
+        assert arg == mock_val
 
 
 @pytest.mark.asyncio
@@ -3015,10 +3151,10 @@ async def test_cancel_data_labeling_job_flattened_error_async():
         )
 
 
-def test_create_hyperparameter_tuning_job(
-    transport: str = "grpc",
-    request_type=job_service.CreateHyperparameterTuningJobRequest,
-):
+@pytest.mark.parametrize(
+    "request_type", [job_service.CreateHyperparameterTuningJobRequest, dict,]
+)
+def test_create_hyperparameter_tuning_job(request_type, transport: str = "grpc"):
     client = JobServiceClient(
         credentials=ga_credentials.AnonymousCredentials(), transport=transport,
     )
@@ -3055,10 +3191,6 @@ def test_create_hyperparameter_tuning_job(
     assert response.parallel_trial_count == 2128
     assert response.max_failed_trial_count == 2317
     assert response.state == job_state.JobState.JOB_STATE_QUEUED
-
-
-def test_create_hyperparameter_tuning_job_from_dict():
-    test_create_hyperparameter_tuning_job(request_type=dict)
 
 
 def test_create_hyperparameter_tuning_job_empty_call():
@@ -3205,12 +3337,14 @@ def test_create_hyperparameter_tuning_job_flattened():
         # request object values.
         assert len(call.mock_calls) == 1
         _, args, _ = call.mock_calls[0]
-        assert args[0].parent == "parent_value"
-        assert args[
-            0
-        ].hyperparameter_tuning_job == gca_hyperparameter_tuning_job.HyperparameterTuningJob(
+        arg = args[0].parent
+        mock_val = "parent_value"
+        assert arg == mock_val
+        arg = args[0].hyperparameter_tuning_job
+        mock_val = gca_hyperparameter_tuning_job.HyperparameterTuningJob(
             name="name_value"
         )
+        assert arg == mock_val
 
 
 def test_create_hyperparameter_tuning_job_flattened_error():
@@ -3255,12 +3389,14 @@ async def test_create_hyperparameter_tuning_job_flattened_async():
         # request object values.
         assert len(call.mock_calls)
         _, args, _ = call.mock_calls[0]
-        assert args[0].parent == "parent_value"
-        assert args[
-            0
-        ].hyperparameter_tuning_job == gca_hyperparameter_tuning_job.HyperparameterTuningJob(
+        arg = args[0].parent
+        mock_val = "parent_value"
+        assert arg == mock_val
+        arg = args[0].hyperparameter_tuning_job
+        mock_val = gca_hyperparameter_tuning_job.HyperparameterTuningJob(
             name="name_value"
         )
+        assert arg == mock_val
 
 
 @pytest.mark.asyncio
@@ -3279,9 +3415,10 @@ async def test_create_hyperparameter_tuning_job_flattened_error_async():
         )
 
 
-def test_get_hyperparameter_tuning_job(
-    transport: str = "grpc", request_type=job_service.GetHyperparameterTuningJobRequest
-):
+@pytest.mark.parametrize(
+    "request_type", [job_service.GetHyperparameterTuningJobRequest, dict,]
+)
+def test_get_hyperparameter_tuning_job(request_type, transport: str = "grpc"):
     client = JobServiceClient(
         credentials=ga_credentials.AnonymousCredentials(), transport=transport,
     )
@@ -3318,10 +3455,6 @@ def test_get_hyperparameter_tuning_job(
     assert response.parallel_trial_count == 2128
     assert response.max_failed_trial_count == 2317
     assert response.state == job_state.JobState.JOB_STATE_QUEUED
-
-
-def test_get_hyperparameter_tuning_job_from_dict():
-    test_get_hyperparameter_tuning_job(request_type=dict)
 
 
 def test_get_hyperparameter_tuning_job_empty_call():
@@ -3463,7 +3596,9 @@ def test_get_hyperparameter_tuning_job_flattened():
         # request object values.
         assert len(call.mock_calls) == 1
         _, args, _ = call.mock_calls[0]
-        assert args[0].name == "name_value"
+        arg = args[0].name
+        mock_val = "name_value"
+        assert arg == mock_val
 
 
 def test_get_hyperparameter_tuning_job_flattened_error():
@@ -3499,7 +3634,9 @@ async def test_get_hyperparameter_tuning_job_flattened_async():
         # request object values.
         assert len(call.mock_calls)
         _, args, _ = call.mock_calls[0]
-        assert args[0].name == "name_value"
+        arg = args[0].name
+        mock_val = "name_value"
+        assert arg == mock_val
 
 
 @pytest.mark.asyncio
@@ -3514,10 +3651,10 @@ async def test_get_hyperparameter_tuning_job_flattened_error_async():
         )
 
 
-def test_list_hyperparameter_tuning_jobs(
-    transport: str = "grpc",
-    request_type=job_service.ListHyperparameterTuningJobsRequest,
-):
+@pytest.mark.parametrize(
+    "request_type", [job_service.ListHyperparameterTuningJobsRequest, dict,]
+)
+def test_list_hyperparameter_tuning_jobs(request_type, transport: str = "grpc"):
     client = JobServiceClient(
         credentials=ga_credentials.AnonymousCredentials(), transport=transport,
     )
@@ -3544,10 +3681,6 @@ def test_list_hyperparameter_tuning_jobs(
     # Establish that the response is the type that we expect.
     assert isinstance(response, pagers.ListHyperparameterTuningJobsPager)
     assert response.next_page_token == "next_page_token_value"
-
-
-def test_list_hyperparameter_tuning_jobs_from_dict():
-    test_list_hyperparameter_tuning_jobs(request_type=dict)
 
 
 def test_list_hyperparameter_tuning_jobs_empty_call():
@@ -3679,7 +3812,9 @@ def test_list_hyperparameter_tuning_jobs_flattened():
         # request object values.
         assert len(call.mock_calls) == 1
         _, args, _ = call.mock_calls[0]
-        assert args[0].parent == "parent_value"
+        arg = args[0].parent
+        mock_val = "parent_value"
+        assert arg == mock_val
 
 
 def test_list_hyperparameter_tuning_jobs_flattened_error():
@@ -3715,7 +3850,9 @@ async def test_list_hyperparameter_tuning_jobs_flattened_async():
         # request object values.
         assert len(call.mock_calls)
         _, args, _ = call.mock_calls[0]
-        assert args[0].parent == "parent_value"
+        arg = args[0].parent
+        mock_val = "parent_value"
+        assert arg == mock_val
 
 
 @pytest.mark.asyncio
@@ -3730,8 +3867,10 @@ async def test_list_hyperparameter_tuning_jobs_flattened_error_async():
         )
 
 
-def test_list_hyperparameter_tuning_jobs_pager():
-    client = JobServiceClient(credentials=ga_credentials.AnonymousCredentials,)
+def test_list_hyperparameter_tuning_jobs_pager(transport_name: str = "grpc"):
+    client = JobServiceClient(
+        credentials=ga_credentials.AnonymousCredentials, transport=transport_name,
+    )
 
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(
@@ -3781,8 +3920,10 @@ def test_list_hyperparameter_tuning_jobs_pager():
         )
 
 
-def test_list_hyperparameter_tuning_jobs_pages():
-    client = JobServiceClient(credentials=ga_credentials.AnonymousCredentials,)
+def test_list_hyperparameter_tuning_jobs_pages(transport_name: str = "grpc"):
+    client = JobServiceClient(
+        credentials=ga_credentials.AnonymousCredentials, transport=transport_name,
+    )
 
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(
@@ -3916,10 +4057,10 @@ async def test_list_hyperparameter_tuning_jobs_async_pages():
             assert page_.raw_page.next_page_token == token
 
 
-def test_delete_hyperparameter_tuning_job(
-    transport: str = "grpc",
-    request_type=job_service.DeleteHyperparameterTuningJobRequest,
-):
+@pytest.mark.parametrize(
+    "request_type", [job_service.DeleteHyperparameterTuningJobRequest, dict,]
+)
+def test_delete_hyperparameter_tuning_job(request_type, transport: str = "grpc"):
     client = JobServiceClient(
         credentials=ga_credentials.AnonymousCredentials(), transport=transport,
     )
@@ -3943,10 +4084,6 @@ def test_delete_hyperparameter_tuning_job(
 
     # Establish that the response is the type that we expect.
     assert isinstance(response, future.Future)
-
-
-def test_delete_hyperparameter_tuning_job_from_dict():
-    test_delete_hyperparameter_tuning_job(request_type=dict)
 
 
 def test_delete_hyperparameter_tuning_job_empty_call():
@@ -4075,7 +4212,9 @@ def test_delete_hyperparameter_tuning_job_flattened():
         # request object values.
         assert len(call.mock_calls) == 1
         _, args, _ = call.mock_calls[0]
-        assert args[0].name == "name_value"
+        arg = args[0].name
+        mock_val = "name_value"
+        assert arg == mock_val
 
 
 def test_delete_hyperparameter_tuning_job_flattened_error():
@@ -4111,7 +4250,9 @@ async def test_delete_hyperparameter_tuning_job_flattened_async():
         # request object values.
         assert len(call.mock_calls)
         _, args, _ = call.mock_calls[0]
-        assert args[0].name == "name_value"
+        arg = args[0].name
+        mock_val = "name_value"
+        assert arg == mock_val
 
 
 @pytest.mark.asyncio
@@ -4126,10 +4267,10 @@ async def test_delete_hyperparameter_tuning_job_flattened_error_async():
         )
 
 
-def test_cancel_hyperparameter_tuning_job(
-    transport: str = "grpc",
-    request_type=job_service.CancelHyperparameterTuningJobRequest,
-):
+@pytest.mark.parametrize(
+    "request_type", [job_service.CancelHyperparameterTuningJobRequest, dict,]
+)
+def test_cancel_hyperparameter_tuning_job(request_type, transport: str = "grpc"):
     client = JobServiceClient(
         credentials=ga_credentials.AnonymousCredentials(), transport=transport,
     )
@@ -4153,10 +4294,6 @@ def test_cancel_hyperparameter_tuning_job(
 
     # Establish that the response is the type that we expect.
     assert response is None
-
-
-def test_cancel_hyperparameter_tuning_job_from_dict():
-    test_cancel_hyperparameter_tuning_job(request_type=dict)
 
 
 def test_cancel_hyperparameter_tuning_job_empty_call():
@@ -4281,7 +4418,9 @@ def test_cancel_hyperparameter_tuning_job_flattened():
         # request object values.
         assert len(call.mock_calls) == 1
         _, args, _ = call.mock_calls[0]
-        assert args[0].name == "name_value"
+        arg = args[0].name
+        mock_val = "name_value"
+        assert arg == mock_val
 
 
 def test_cancel_hyperparameter_tuning_job_flattened_error():
@@ -4315,7 +4454,9 @@ async def test_cancel_hyperparameter_tuning_job_flattened_async():
         # request object values.
         assert len(call.mock_calls)
         _, args, _ = call.mock_calls[0]
-        assert args[0].name == "name_value"
+        arg = args[0].name
+        mock_val = "name_value"
+        assert arg == mock_val
 
 
 @pytest.mark.asyncio
@@ -4330,9 +4471,10 @@ async def test_cancel_hyperparameter_tuning_job_flattened_error_async():
         )
 
 
-def test_create_batch_prediction_job(
-    transport: str = "grpc", request_type=job_service.CreateBatchPredictionJobRequest
-):
+@pytest.mark.parametrize(
+    "request_type", [job_service.CreateBatchPredictionJobRequest, dict,]
+)
+def test_create_batch_prediction_job(request_type, transport: str = "grpc"):
     client = JobServiceClient(
         credentials=ga_credentials.AnonymousCredentials(), transport=transport,
     )
@@ -4367,10 +4509,6 @@ def test_create_batch_prediction_job(
     assert response.model == "model_value"
     assert response.generate_explanation is True
     assert response.state == job_state.JobState.JOB_STATE_QUEUED
-
-
-def test_create_batch_prediction_job_from_dict():
-    test_create_batch_prediction_job(request_type=dict)
 
 
 def test_create_batch_prediction_job_empty_call():
@@ -4515,12 +4653,12 @@ def test_create_batch_prediction_job_flattened():
         # request object values.
         assert len(call.mock_calls) == 1
         _, args, _ = call.mock_calls[0]
-        assert args[0].parent == "parent_value"
-        assert args[
-            0
-        ].batch_prediction_job == gca_batch_prediction_job.BatchPredictionJob(
-            name="name_value"
-        )
+        arg = args[0].parent
+        mock_val = "parent_value"
+        assert arg == mock_val
+        arg = args[0].batch_prediction_job
+        mock_val = gca_batch_prediction_job.BatchPredictionJob(name="name_value")
+        assert arg == mock_val
 
 
 def test_create_batch_prediction_job_flattened_error():
@@ -4565,12 +4703,12 @@ async def test_create_batch_prediction_job_flattened_async():
         # request object values.
         assert len(call.mock_calls)
         _, args, _ = call.mock_calls[0]
-        assert args[0].parent == "parent_value"
-        assert args[
-            0
-        ].batch_prediction_job == gca_batch_prediction_job.BatchPredictionJob(
-            name="name_value"
-        )
+        arg = args[0].parent
+        mock_val = "parent_value"
+        assert arg == mock_val
+        arg = args[0].batch_prediction_job
+        mock_val = gca_batch_prediction_job.BatchPredictionJob(name="name_value")
+        assert arg == mock_val
 
 
 @pytest.mark.asyncio
@@ -4589,9 +4727,10 @@ async def test_create_batch_prediction_job_flattened_error_async():
         )
 
 
-def test_get_batch_prediction_job(
-    transport: str = "grpc", request_type=job_service.GetBatchPredictionJobRequest
-):
+@pytest.mark.parametrize(
+    "request_type", [job_service.GetBatchPredictionJobRequest, dict,]
+)
+def test_get_batch_prediction_job(request_type, transport: str = "grpc"):
     client = JobServiceClient(
         credentials=ga_credentials.AnonymousCredentials(), transport=transport,
     )
@@ -4626,10 +4765,6 @@ def test_get_batch_prediction_job(
     assert response.model == "model_value"
     assert response.generate_explanation is True
     assert response.state == job_state.JobState.JOB_STATE_QUEUED
-
-
-def test_get_batch_prediction_job_from_dict():
-    test_get_batch_prediction_job(request_type=dict)
 
 
 def test_get_batch_prediction_job_empty_call():
@@ -4769,7 +4904,9 @@ def test_get_batch_prediction_job_flattened():
         # request object values.
         assert len(call.mock_calls) == 1
         _, args, _ = call.mock_calls[0]
-        assert args[0].name == "name_value"
+        arg = args[0].name
+        mock_val = "name_value"
+        assert arg == mock_val
 
 
 def test_get_batch_prediction_job_flattened_error():
@@ -4805,7 +4942,9 @@ async def test_get_batch_prediction_job_flattened_async():
         # request object values.
         assert len(call.mock_calls)
         _, args, _ = call.mock_calls[0]
-        assert args[0].name == "name_value"
+        arg = args[0].name
+        mock_val = "name_value"
+        assert arg == mock_val
 
 
 @pytest.mark.asyncio
@@ -4820,9 +4959,10 @@ async def test_get_batch_prediction_job_flattened_error_async():
         )
 
 
-def test_list_batch_prediction_jobs(
-    transport: str = "grpc", request_type=job_service.ListBatchPredictionJobsRequest
-):
+@pytest.mark.parametrize(
+    "request_type", [job_service.ListBatchPredictionJobsRequest, dict,]
+)
+def test_list_batch_prediction_jobs(request_type, transport: str = "grpc"):
     client = JobServiceClient(
         credentials=ga_credentials.AnonymousCredentials(), transport=transport,
     )
@@ -4849,10 +4989,6 @@ def test_list_batch_prediction_jobs(
     # Establish that the response is the type that we expect.
     assert isinstance(response, pagers.ListBatchPredictionJobsPager)
     assert response.next_page_token == "next_page_token_value"
-
-
-def test_list_batch_prediction_jobs_from_dict():
-    test_list_batch_prediction_jobs(request_type=dict)
 
 
 def test_list_batch_prediction_jobs_empty_call():
@@ -4984,7 +5120,9 @@ def test_list_batch_prediction_jobs_flattened():
         # request object values.
         assert len(call.mock_calls) == 1
         _, args, _ = call.mock_calls[0]
-        assert args[0].parent == "parent_value"
+        arg = args[0].parent
+        mock_val = "parent_value"
+        assert arg == mock_val
 
 
 def test_list_batch_prediction_jobs_flattened_error():
@@ -5020,7 +5158,9 @@ async def test_list_batch_prediction_jobs_flattened_async():
         # request object values.
         assert len(call.mock_calls)
         _, args, _ = call.mock_calls[0]
-        assert args[0].parent == "parent_value"
+        arg = args[0].parent
+        mock_val = "parent_value"
+        assert arg == mock_val
 
 
 @pytest.mark.asyncio
@@ -5035,8 +5175,10 @@ async def test_list_batch_prediction_jobs_flattened_error_async():
         )
 
 
-def test_list_batch_prediction_jobs_pager():
-    client = JobServiceClient(credentials=ga_credentials.AnonymousCredentials,)
+def test_list_batch_prediction_jobs_pager(transport_name: str = "grpc"):
+    client = JobServiceClient(
+        credentials=ga_credentials.AnonymousCredentials, transport=transport_name,
+    )
 
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(
@@ -5083,8 +5225,10 @@ def test_list_batch_prediction_jobs_pager():
         )
 
 
-def test_list_batch_prediction_jobs_pages():
-    client = JobServiceClient(credentials=ga_credentials.AnonymousCredentials,)
+def test_list_batch_prediction_jobs_pages(transport_name: str = "grpc"):
+    client = JobServiceClient(
+        credentials=ga_credentials.AnonymousCredentials, transport=transport_name,
+    )
 
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(
@@ -5209,9 +5353,10 @@ async def test_list_batch_prediction_jobs_async_pages():
             assert page_.raw_page.next_page_token == token
 
 
-def test_delete_batch_prediction_job(
-    transport: str = "grpc", request_type=job_service.DeleteBatchPredictionJobRequest
-):
+@pytest.mark.parametrize(
+    "request_type", [job_service.DeleteBatchPredictionJobRequest, dict,]
+)
+def test_delete_batch_prediction_job(request_type, transport: str = "grpc"):
     client = JobServiceClient(
         credentials=ga_credentials.AnonymousCredentials(), transport=transport,
     )
@@ -5235,10 +5380,6 @@ def test_delete_batch_prediction_job(
 
     # Establish that the response is the type that we expect.
     assert isinstance(response, future.Future)
-
-
-def test_delete_batch_prediction_job_from_dict():
-    test_delete_batch_prediction_job(request_type=dict)
 
 
 def test_delete_batch_prediction_job_empty_call():
@@ -5367,7 +5508,9 @@ def test_delete_batch_prediction_job_flattened():
         # request object values.
         assert len(call.mock_calls) == 1
         _, args, _ = call.mock_calls[0]
-        assert args[0].name == "name_value"
+        arg = args[0].name
+        mock_val = "name_value"
+        assert arg == mock_val
 
 
 def test_delete_batch_prediction_job_flattened_error():
@@ -5403,7 +5546,9 @@ async def test_delete_batch_prediction_job_flattened_async():
         # request object values.
         assert len(call.mock_calls)
         _, args, _ = call.mock_calls[0]
-        assert args[0].name == "name_value"
+        arg = args[0].name
+        mock_val = "name_value"
+        assert arg == mock_val
 
 
 @pytest.mark.asyncio
@@ -5418,9 +5563,10 @@ async def test_delete_batch_prediction_job_flattened_error_async():
         )
 
 
-def test_cancel_batch_prediction_job(
-    transport: str = "grpc", request_type=job_service.CancelBatchPredictionJobRequest
-):
+@pytest.mark.parametrize(
+    "request_type", [job_service.CancelBatchPredictionJobRequest, dict,]
+)
+def test_cancel_batch_prediction_job(request_type, transport: str = "grpc"):
     client = JobServiceClient(
         credentials=ga_credentials.AnonymousCredentials(), transport=transport,
     )
@@ -5444,10 +5590,6 @@ def test_cancel_batch_prediction_job(
 
     # Establish that the response is the type that we expect.
     assert response is None
-
-
-def test_cancel_batch_prediction_job_from_dict():
-    test_cancel_batch_prediction_job(request_type=dict)
 
 
 def test_cancel_batch_prediction_job_empty_call():
@@ -5572,7 +5714,9 @@ def test_cancel_batch_prediction_job_flattened():
         # request object values.
         assert len(call.mock_calls) == 1
         _, args, _ = call.mock_calls[0]
-        assert args[0].name == "name_value"
+        arg = args[0].name
+        mock_val = "name_value"
+        assert arg == mock_val
 
 
 def test_cancel_batch_prediction_job_flattened_error():
@@ -5606,7 +5750,9 @@ async def test_cancel_batch_prediction_job_flattened_async():
         # request object values.
         assert len(call.mock_calls)
         _, args, _ = call.mock_calls[0]
-        assert args[0].name == "name_value"
+        arg = args[0].name
+        mock_val = "name_value"
+        assert arg == mock_val
 
 
 @pytest.mark.asyncio
@@ -5621,10 +5767,10 @@ async def test_cancel_batch_prediction_job_flattened_error_async():
         )
 
 
-def test_create_model_deployment_monitoring_job(
-    transport: str = "grpc",
-    request_type=job_service.CreateModelDeploymentMonitoringJobRequest,
-):
+@pytest.mark.parametrize(
+    "request_type", [job_service.CreateModelDeploymentMonitoringJobRequest, dict,]
+)
+def test_create_model_deployment_monitoring_job(request_type, transport: str = "grpc"):
     client = JobServiceClient(
         credentials=ga_credentials.AnonymousCredentials(), transport=transport,
     )
@@ -5646,6 +5792,7 @@ def test_create_model_deployment_monitoring_job(
             schedule_state=gca_model_deployment_monitoring_job.ModelDeploymentMonitoringJob.MonitoringScheduleState.PENDING,
             predict_instance_schema_uri="predict_instance_schema_uri_value",
             analysis_instance_schema_uri="analysis_instance_schema_uri_value",
+            enable_monitoring_pipeline_logs=True,
         )
         response = client.create_model_deployment_monitoring_job(request)
 
@@ -5668,10 +5815,7 @@ def test_create_model_deployment_monitoring_job(
     )
     assert response.predict_instance_schema_uri == "predict_instance_schema_uri_value"
     assert response.analysis_instance_schema_uri == "analysis_instance_schema_uri_value"
-
-
-def test_create_model_deployment_monitoring_job_from_dict():
-    test_create_model_deployment_monitoring_job(request_type=dict)
+    assert response.enable_monitoring_pipeline_logs is True
 
 
 def test_create_model_deployment_monitoring_job_empty_call():
@@ -5718,6 +5862,7 @@ async def test_create_model_deployment_monitoring_job_async(
                 schedule_state=gca_model_deployment_monitoring_job.ModelDeploymentMonitoringJob.MonitoringScheduleState.PENDING,
                 predict_instance_schema_uri="predict_instance_schema_uri_value",
                 analysis_instance_schema_uri="analysis_instance_schema_uri_value",
+                enable_monitoring_pipeline_logs=True,
             )
         )
         response = await client.create_model_deployment_monitoring_job(request)
@@ -5741,6 +5886,7 @@ async def test_create_model_deployment_monitoring_job_async(
     )
     assert response.predict_instance_schema_uri == "predict_instance_schema_uri_value"
     assert response.analysis_instance_schema_uri == "analysis_instance_schema_uri_value"
+    assert response.enable_monitoring_pipeline_logs is True
 
 
 @pytest.mark.asyncio
@@ -5829,12 +5975,14 @@ def test_create_model_deployment_monitoring_job_flattened():
         # request object values.
         assert len(call.mock_calls) == 1
         _, args, _ = call.mock_calls[0]
-        assert args[0].parent == "parent_value"
-        assert args[
-            0
-        ].model_deployment_monitoring_job == gca_model_deployment_monitoring_job.ModelDeploymentMonitoringJob(
+        arg = args[0].parent
+        mock_val = "parent_value"
+        assert arg == mock_val
+        arg = args[0].model_deployment_monitoring_job
+        mock_val = gca_model_deployment_monitoring_job.ModelDeploymentMonitoringJob(
             name="name_value"
         )
+        assert arg == mock_val
 
 
 def test_create_model_deployment_monitoring_job_flattened_error():
@@ -5881,12 +6029,14 @@ async def test_create_model_deployment_monitoring_job_flattened_async():
         # request object values.
         assert len(call.mock_calls)
         _, args, _ = call.mock_calls[0]
-        assert args[0].parent == "parent_value"
-        assert args[
-            0
-        ].model_deployment_monitoring_job == gca_model_deployment_monitoring_job.ModelDeploymentMonitoringJob(
+        arg = args[0].parent
+        mock_val = "parent_value"
+        assert arg == mock_val
+        arg = args[0].model_deployment_monitoring_job
+        mock_val = gca_model_deployment_monitoring_job.ModelDeploymentMonitoringJob(
             name="name_value"
         )
+        assert arg == mock_val
 
 
 @pytest.mark.asyncio
@@ -5905,9 +6055,12 @@ async def test_create_model_deployment_monitoring_job_flattened_error_async():
         )
 
 
+@pytest.mark.parametrize(
+    "request_type",
+    [job_service.SearchModelDeploymentMonitoringStatsAnomaliesRequest, dict,],
+)
 def test_search_model_deployment_monitoring_stats_anomalies(
-    transport: str = "grpc",
-    request_type=job_service.SearchModelDeploymentMonitoringStatsAnomaliesRequest,
+    request_type, transport: str = "grpc"
 ):
     client = JobServiceClient(
         credentials=ga_credentials.AnonymousCredentials(), transport=transport,
@@ -5941,10 +6094,6 @@ def test_search_model_deployment_monitoring_stats_anomalies(
         response, pagers.SearchModelDeploymentMonitoringStatsAnomaliesPager
     )
     assert response.next_page_token == "next_page_token_value"
-
-
-def test_search_model_deployment_monitoring_stats_anomalies_from_dict():
-    test_search_model_deployment_monitoring_stats_anomalies(request_type=dict)
 
 
 def test_search_model_deployment_monitoring_stats_anomalies_empty_call():
@@ -6106,11 +6255,12 @@ def test_search_model_deployment_monitoring_stats_anomalies_flattened():
         # request object values.
         assert len(call.mock_calls) == 1
         _, args, _ = call.mock_calls[0]
-        assert (
-            args[0].model_deployment_monitoring_job
-            == "model_deployment_monitoring_job_value"
-        )
-        assert args[0].deployed_model_id == "deployed_model_id_value"
+        arg = args[0].model_deployment_monitoring_job
+        mock_val = "model_deployment_monitoring_job_value"
+        assert arg == mock_val
+        arg = args[0].deployed_model_id
+        mock_val = "deployed_model_id_value"
+        assert arg == mock_val
 
 
 def test_search_model_deployment_monitoring_stats_anomalies_flattened_error():
@@ -6154,11 +6304,12 @@ async def test_search_model_deployment_monitoring_stats_anomalies_flattened_asyn
         # request object values.
         assert len(call.mock_calls)
         _, args, _ = call.mock_calls[0]
-        assert (
-            args[0].model_deployment_monitoring_job
-            == "model_deployment_monitoring_job_value"
-        )
-        assert args[0].deployed_model_id == "deployed_model_id_value"
+        arg = args[0].model_deployment_monitoring_job
+        mock_val = "model_deployment_monitoring_job_value"
+        assert arg == mock_val
+        arg = args[0].deployed_model_id
+        mock_val = "deployed_model_id_value"
+        assert arg == mock_val
 
 
 @pytest.mark.asyncio
@@ -6175,8 +6326,12 @@ async def test_search_model_deployment_monitoring_stats_anomalies_flattened_erro
         )
 
 
-def test_search_model_deployment_monitoring_stats_anomalies_pager():
-    client = JobServiceClient(credentials=ga_credentials.AnonymousCredentials,)
+def test_search_model_deployment_monitoring_stats_anomalies_pager(
+    transport_name: str = "grpc",
+):
+    client = JobServiceClient(
+        credentials=ga_credentials.AnonymousCredentials, transport=transport_name,
+    )
 
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(
@@ -6231,8 +6386,12 @@ def test_search_model_deployment_monitoring_stats_anomalies_pager():
         )
 
 
-def test_search_model_deployment_monitoring_stats_anomalies_pages():
-    client = JobServiceClient(credentials=ga_credentials.AnonymousCredentials,)
+def test_search_model_deployment_monitoring_stats_anomalies_pages(
+    transport_name: str = "grpc",
+):
+    client = JobServiceClient(
+        credentials=ga_credentials.AnonymousCredentials, transport=transport_name,
+    )
 
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(
@@ -6373,10 +6532,10 @@ async def test_search_model_deployment_monitoring_stats_anomalies_async_pages():
             assert page_.raw_page.next_page_token == token
 
 
-def test_get_model_deployment_monitoring_job(
-    transport: str = "grpc",
-    request_type=job_service.GetModelDeploymentMonitoringJobRequest,
-):
+@pytest.mark.parametrize(
+    "request_type", [job_service.GetModelDeploymentMonitoringJobRequest, dict,]
+)
+def test_get_model_deployment_monitoring_job(request_type, transport: str = "grpc"):
     client = JobServiceClient(
         credentials=ga_credentials.AnonymousCredentials(), transport=transport,
     )
@@ -6398,6 +6557,7 @@ def test_get_model_deployment_monitoring_job(
             schedule_state=model_deployment_monitoring_job.ModelDeploymentMonitoringJob.MonitoringScheduleState.PENDING,
             predict_instance_schema_uri="predict_instance_schema_uri_value",
             analysis_instance_schema_uri="analysis_instance_schema_uri_value",
+            enable_monitoring_pipeline_logs=True,
         )
         response = client.get_model_deployment_monitoring_job(request)
 
@@ -6420,10 +6580,7 @@ def test_get_model_deployment_monitoring_job(
     )
     assert response.predict_instance_schema_uri == "predict_instance_schema_uri_value"
     assert response.analysis_instance_schema_uri == "analysis_instance_schema_uri_value"
-
-
-def test_get_model_deployment_monitoring_job_from_dict():
-    test_get_model_deployment_monitoring_job(request_type=dict)
+    assert response.enable_monitoring_pipeline_logs is True
 
 
 def test_get_model_deployment_monitoring_job_empty_call():
@@ -6470,6 +6627,7 @@ async def test_get_model_deployment_monitoring_job_async(
                 schedule_state=model_deployment_monitoring_job.ModelDeploymentMonitoringJob.MonitoringScheduleState.PENDING,
                 predict_instance_schema_uri="predict_instance_schema_uri_value",
                 analysis_instance_schema_uri="analysis_instance_schema_uri_value",
+                enable_monitoring_pipeline_logs=True,
             )
         )
         response = await client.get_model_deployment_monitoring_job(request)
@@ -6493,6 +6651,7 @@ async def test_get_model_deployment_monitoring_job_async(
     )
     assert response.predict_instance_schema_uri == "predict_instance_schema_uri_value"
     assert response.analysis_instance_schema_uri == "analysis_instance_schema_uri_value"
+    assert response.enable_monitoring_pipeline_logs is True
 
 
 @pytest.mark.asyncio
@@ -6576,7 +6735,9 @@ def test_get_model_deployment_monitoring_job_flattened():
         # request object values.
         assert len(call.mock_calls) == 1
         _, args, _ = call.mock_calls[0]
-        assert args[0].name == "name_value"
+        arg = args[0].name
+        mock_val = "name_value"
+        assert arg == mock_val
 
 
 def test_get_model_deployment_monitoring_job_flattened_error():
@@ -6614,7 +6775,9 @@ async def test_get_model_deployment_monitoring_job_flattened_async():
         # request object values.
         assert len(call.mock_calls)
         _, args, _ = call.mock_calls[0]
-        assert args[0].name == "name_value"
+        arg = args[0].name
+        mock_val = "name_value"
+        assert arg == mock_val
 
 
 @pytest.mark.asyncio
@@ -6629,10 +6792,10 @@ async def test_get_model_deployment_monitoring_job_flattened_error_async():
         )
 
 
-def test_list_model_deployment_monitoring_jobs(
-    transport: str = "grpc",
-    request_type=job_service.ListModelDeploymentMonitoringJobsRequest,
-):
+@pytest.mark.parametrize(
+    "request_type", [job_service.ListModelDeploymentMonitoringJobsRequest, dict,]
+)
+def test_list_model_deployment_monitoring_jobs(request_type, transport: str = "grpc"):
     client = JobServiceClient(
         credentials=ga_credentials.AnonymousCredentials(), transport=transport,
     )
@@ -6659,10 +6822,6 @@ def test_list_model_deployment_monitoring_jobs(
     # Establish that the response is the type that we expect.
     assert isinstance(response, pagers.ListModelDeploymentMonitoringJobsPager)
     assert response.next_page_token == "next_page_token_value"
-
-
-def test_list_model_deployment_monitoring_jobs_from_dict():
-    test_list_model_deployment_monitoring_jobs(request_type=dict)
 
 
 def test_list_model_deployment_monitoring_jobs_empty_call():
@@ -6794,7 +6953,9 @@ def test_list_model_deployment_monitoring_jobs_flattened():
         # request object values.
         assert len(call.mock_calls) == 1
         _, args, _ = call.mock_calls[0]
-        assert args[0].parent == "parent_value"
+        arg = args[0].parent
+        mock_val = "parent_value"
+        assert arg == mock_val
 
 
 def test_list_model_deployment_monitoring_jobs_flattened_error():
@@ -6833,7 +6994,9 @@ async def test_list_model_deployment_monitoring_jobs_flattened_async():
         # request object values.
         assert len(call.mock_calls)
         _, args, _ = call.mock_calls[0]
-        assert args[0].parent == "parent_value"
+        arg = args[0].parent
+        mock_val = "parent_value"
+        assert arg == mock_val
 
 
 @pytest.mark.asyncio
@@ -6849,8 +7012,10 @@ async def test_list_model_deployment_monitoring_jobs_flattened_error_async():
         )
 
 
-def test_list_model_deployment_monitoring_jobs_pager():
-    client = JobServiceClient(credentials=ga_credentials.AnonymousCredentials,)
+def test_list_model_deployment_monitoring_jobs_pager(transport_name: str = "grpc"):
+    client = JobServiceClient(
+        credentials=ga_credentials.AnonymousCredentials, transport=transport_name,
+    )
 
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(
@@ -6900,8 +7065,10 @@ def test_list_model_deployment_monitoring_jobs_pager():
         )
 
 
-def test_list_model_deployment_monitoring_jobs_pages():
-    client = JobServiceClient(credentials=ga_credentials.AnonymousCredentials,)
+def test_list_model_deployment_monitoring_jobs_pages(transport_name: str = "grpc"):
+    client = JobServiceClient(
+        credentials=ga_credentials.AnonymousCredentials, transport=transport_name,
+    )
 
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(
@@ -7035,10 +7202,10 @@ async def test_list_model_deployment_monitoring_jobs_async_pages():
             assert page_.raw_page.next_page_token == token
 
 
-def test_update_model_deployment_monitoring_job(
-    transport: str = "grpc",
-    request_type=job_service.UpdateModelDeploymentMonitoringJobRequest,
-):
+@pytest.mark.parametrize(
+    "request_type", [job_service.UpdateModelDeploymentMonitoringJobRequest, dict,]
+)
+def test_update_model_deployment_monitoring_job(request_type, transport: str = "grpc"):
     client = JobServiceClient(
         credentials=ga_credentials.AnonymousCredentials(), transport=transport,
     )
@@ -7062,10 +7229,6 @@ def test_update_model_deployment_monitoring_job(
 
     # Establish that the response is the type that we expect.
     assert isinstance(response, future.Future)
-
-
-def test_update_model_deployment_monitoring_job_from_dict():
-    test_update_model_deployment_monitoring_job(request_type=dict)
 
 
 def test_update_model_deployment_monitoring_job_empty_call():
@@ -7209,12 +7372,14 @@ def test_update_model_deployment_monitoring_job_flattened():
         # request object values.
         assert len(call.mock_calls) == 1
         _, args, _ = call.mock_calls[0]
-        assert args[
-            0
-        ].model_deployment_monitoring_job == gca_model_deployment_monitoring_job.ModelDeploymentMonitoringJob(
+        arg = args[0].model_deployment_monitoring_job
+        mock_val = gca_model_deployment_monitoring_job.ModelDeploymentMonitoringJob(
             name="name_value"
         )
-        assert args[0].update_mask == field_mask_pb2.FieldMask(paths=["paths_value"])
+        assert arg == mock_val
+        arg = args[0].update_mask
+        mock_val = field_mask_pb2.FieldMask(paths=["paths_value"])
+        assert arg == mock_val
 
 
 def test_update_model_deployment_monitoring_job_flattened_error():
@@ -7259,12 +7424,14 @@ async def test_update_model_deployment_monitoring_job_flattened_async():
         # request object values.
         assert len(call.mock_calls)
         _, args, _ = call.mock_calls[0]
-        assert args[
-            0
-        ].model_deployment_monitoring_job == gca_model_deployment_monitoring_job.ModelDeploymentMonitoringJob(
+        arg = args[0].model_deployment_monitoring_job
+        mock_val = gca_model_deployment_monitoring_job.ModelDeploymentMonitoringJob(
             name="name_value"
         )
-        assert args[0].update_mask == field_mask_pb2.FieldMask(paths=["paths_value"])
+        assert arg == mock_val
+        arg = args[0].update_mask
+        mock_val = field_mask_pb2.FieldMask(paths=["paths_value"])
+        assert arg == mock_val
 
 
 @pytest.mark.asyncio
@@ -7283,10 +7450,10 @@ async def test_update_model_deployment_monitoring_job_flattened_error_async():
         )
 
 
-def test_delete_model_deployment_monitoring_job(
-    transport: str = "grpc",
-    request_type=job_service.DeleteModelDeploymentMonitoringJobRequest,
-):
+@pytest.mark.parametrize(
+    "request_type", [job_service.DeleteModelDeploymentMonitoringJobRequest, dict,]
+)
+def test_delete_model_deployment_monitoring_job(request_type, transport: str = "grpc"):
     client = JobServiceClient(
         credentials=ga_credentials.AnonymousCredentials(), transport=transport,
     )
@@ -7310,10 +7477,6 @@ def test_delete_model_deployment_monitoring_job(
 
     # Establish that the response is the type that we expect.
     assert isinstance(response, future.Future)
-
-
-def test_delete_model_deployment_monitoring_job_from_dict():
-    test_delete_model_deployment_monitoring_job(request_type=dict)
 
 
 def test_delete_model_deployment_monitoring_job_empty_call():
@@ -7442,7 +7605,9 @@ def test_delete_model_deployment_monitoring_job_flattened():
         # request object values.
         assert len(call.mock_calls) == 1
         _, args, _ = call.mock_calls[0]
-        assert args[0].name == "name_value"
+        arg = args[0].name
+        mock_val = "name_value"
+        assert arg == mock_val
 
 
 def test_delete_model_deployment_monitoring_job_flattened_error():
@@ -7480,7 +7645,9 @@ async def test_delete_model_deployment_monitoring_job_flattened_async():
         # request object values.
         assert len(call.mock_calls)
         _, args, _ = call.mock_calls[0]
-        assert args[0].name == "name_value"
+        arg = args[0].name
+        mock_val = "name_value"
+        assert arg == mock_val
 
 
 @pytest.mark.asyncio
@@ -7495,10 +7662,10 @@ async def test_delete_model_deployment_monitoring_job_flattened_error_async():
         )
 
 
-def test_pause_model_deployment_monitoring_job(
-    transport: str = "grpc",
-    request_type=job_service.PauseModelDeploymentMonitoringJobRequest,
-):
+@pytest.mark.parametrize(
+    "request_type", [job_service.PauseModelDeploymentMonitoringJobRequest, dict,]
+)
+def test_pause_model_deployment_monitoring_job(request_type, transport: str = "grpc"):
     client = JobServiceClient(
         credentials=ga_credentials.AnonymousCredentials(), transport=transport,
     )
@@ -7522,10 +7689,6 @@ def test_pause_model_deployment_monitoring_job(
 
     # Establish that the response is the type that we expect.
     assert response is None
-
-
-def test_pause_model_deployment_monitoring_job_from_dict():
-    test_pause_model_deployment_monitoring_job(request_type=dict)
 
 
 def test_pause_model_deployment_monitoring_job_empty_call():
@@ -7650,7 +7813,9 @@ def test_pause_model_deployment_monitoring_job_flattened():
         # request object values.
         assert len(call.mock_calls) == 1
         _, args, _ = call.mock_calls[0]
-        assert args[0].name == "name_value"
+        arg = args[0].name
+        mock_val = "name_value"
+        assert arg == mock_val
 
 
 def test_pause_model_deployment_monitoring_job_flattened_error():
@@ -7686,7 +7851,9 @@ async def test_pause_model_deployment_monitoring_job_flattened_async():
         # request object values.
         assert len(call.mock_calls)
         _, args, _ = call.mock_calls[0]
-        assert args[0].name == "name_value"
+        arg = args[0].name
+        mock_val = "name_value"
+        assert arg == mock_val
 
 
 @pytest.mark.asyncio
@@ -7701,10 +7868,10 @@ async def test_pause_model_deployment_monitoring_job_flattened_error_async():
         )
 
 
-def test_resume_model_deployment_monitoring_job(
-    transport: str = "grpc",
-    request_type=job_service.ResumeModelDeploymentMonitoringJobRequest,
-):
+@pytest.mark.parametrize(
+    "request_type", [job_service.ResumeModelDeploymentMonitoringJobRequest, dict,]
+)
+def test_resume_model_deployment_monitoring_job(request_type, transport: str = "grpc"):
     client = JobServiceClient(
         credentials=ga_credentials.AnonymousCredentials(), transport=transport,
     )
@@ -7728,10 +7895,6 @@ def test_resume_model_deployment_monitoring_job(
 
     # Establish that the response is the type that we expect.
     assert response is None
-
-
-def test_resume_model_deployment_monitoring_job_from_dict():
-    test_resume_model_deployment_monitoring_job(request_type=dict)
 
 
 def test_resume_model_deployment_monitoring_job_empty_call():
@@ -7856,7 +8019,9 @@ def test_resume_model_deployment_monitoring_job_flattened():
         # request object values.
         assert len(call.mock_calls) == 1
         _, args, _ = call.mock_calls[0]
-        assert args[0].name == "name_value"
+        arg = args[0].name
+        mock_val = "name_value"
+        assert arg == mock_val
 
 
 def test_resume_model_deployment_monitoring_job_flattened_error():
@@ -7892,7 +8057,9 @@ async def test_resume_model_deployment_monitoring_job_flattened_async():
         # request object values.
         assert len(call.mock_calls)
         _, args, _ = call.mock_calls[0]
-        assert args[0].name == "name_value"
+        arg = args[0].name
+        mock_val = "name_value"
+        assert arg == mock_val
 
 
 @pytest.mark.asyncio
@@ -7925,6 +8092,23 @@ def test_credentials_transport_error():
         client = JobServiceClient(
             client_options={"credentials_file": "credentials.json"},
             transport=transport,
+        )
+
+    # It is an error to provide an api_key and a transport instance.
+    transport = transports.JobServiceGrpcTransport(
+        credentials=ga_credentials.AnonymousCredentials(),
+    )
+    options = client_options.ClientOptions()
+    options.api_key = "api_key"
+    with pytest.raises(ValueError):
+        client = JobServiceClient(client_options=options, transport=transport,)
+
+    # It is an error to provide an api_key and a credential.
+    options = mock.Mock()
+    options.api_key = "api_key"
+    with pytest.raises(ValueError):
+        client = JobServiceClient(
+            client_options=options, credentials=ga_credentials.AnonymousCredentials()
         )
 
     # It is an error to provide scopes and a transport instance.
@@ -8034,13 +8218,15 @@ def test_job_service_base_transport():
         with pytest.raises(NotImplementedError):
             getattr(transport, method)(request=object())
 
+    with pytest.raises(NotImplementedError):
+        transport.close()
+
     # Additionally, the LRO client (a property) should
     # also raise NotImplementedError
     with pytest.raises(NotImplementedError):
         transport.operations_client
 
 
-@requires_google_auth_gte_1_25_0
 def test_job_service_base_transport_with_credentials_file():
     # Instantiate the base transport with a credentials file
     with mock.patch.object(
@@ -8061,26 +8247,6 @@ def test_job_service_base_transport_with_credentials_file():
         )
 
 
-@requires_google_auth_lt_1_25_0
-def test_job_service_base_transport_with_credentials_file_old_google_auth():
-    # Instantiate the base transport with a credentials file
-    with mock.patch.object(
-        google.auth, "load_credentials_from_file", autospec=True
-    ) as load_creds, mock.patch(
-        "google.cloud.aiplatform_v1.services.job_service.transports.JobServiceTransport._prep_wrapped_messages"
-    ) as Transport:
-        Transport.return_value = None
-        load_creds.return_value = (ga_credentials.AnonymousCredentials(), None)
-        transport = transports.JobServiceTransport(
-            credentials_file="credentials.json", quota_project_id="octopus",
-        )
-        load_creds.assert_called_once_with(
-            "credentials.json",
-            scopes=("https://www.googleapis.com/auth/cloud-platform",),
-            quota_project_id="octopus",
-        )
-
-
 def test_job_service_base_transport_with_adc():
     # Test the default credentials are used if credentials and credentials_file are None.
     with mock.patch.object(google.auth, "default", autospec=True) as adc, mock.patch(
@@ -8092,7 +8258,6 @@ def test_job_service_base_transport_with_adc():
         adc.assert_called_once()
 
 
-@requires_google_auth_gte_1_25_0
 def test_job_service_auth_adc():
     # If no credentials are provided, we should use ADC credentials.
     with mock.patch.object(google.auth, "default", autospec=True) as adc:
@@ -8105,23 +8270,10 @@ def test_job_service_auth_adc():
         )
 
 
-@requires_google_auth_lt_1_25_0
-def test_job_service_auth_adc_old_google_auth():
-    # If no credentials are provided, we should use ADC credentials.
-    with mock.patch.object(google.auth, "default", autospec=True) as adc:
-        adc.return_value = (ga_credentials.AnonymousCredentials(), None)
-        JobServiceClient()
-        adc.assert_called_once_with(
-            scopes=("https://www.googleapis.com/auth/cloud-platform",),
-            quota_project_id=None,
-        )
-
-
 @pytest.mark.parametrize(
     "transport_class",
     [transports.JobServiceGrpcTransport, transports.JobServiceGrpcAsyncIOTransport,],
 )
-@requires_google_auth_gte_1_25_0
 def test_job_service_transport_auth_adc(transport_class):
     # If credentials and host are not provided, the transport class should use
     # ADC credentials.
@@ -8131,23 +8283,6 @@ def test_job_service_transport_auth_adc(transport_class):
         adc.assert_called_once_with(
             scopes=["1", "2"],
             default_scopes=("https://www.googleapis.com/auth/cloud-platform",),
-            quota_project_id="octopus",
-        )
-
-
-@pytest.mark.parametrize(
-    "transport_class",
-    [transports.JobServiceGrpcTransport, transports.JobServiceGrpcAsyncIOTransport,],
-)
-@requires_google_auth_lt_1_25_0
-def test_job_service_transport_auth_adc_old_google_auth(transport_class):
-    # If credentials and host are not provided, the transport class should use
-    # ADC credentials.
-    with mock.patch.object(google.auth, "default", autospec=True) as adc:
-        adc.return_value = (ga_credentials.AnonymousCredentials(), None)
-        transport_class(quota_project_id="octopus")
-        adc.assert_called_once_with(
-            scopes=("https://www.googleapis.com/auth/cloud-platform",),
             quota_project_id="octopus",
         )
 
@@ -8617,11 +8752,35 @@ def test_parse_network_path():
     assert expected == actual
 
 
-def test_trial_path():
+def test_tensorboard_path():
     project = "oyster"
     location = "nudibranch"
-    study = "cuttlefish"
-    trial = "mussel"
+    tensorboard = "cuttlefish"
+    expected = "projects/{project}/locations/{location}/tensorboards/{tensorboard}".format(
+        project=project, location=location, tensorboard=tensorboard,
+    )
+    actual = JobServiceClient.tensorboard_path(project, location, tensorboard)
+    assert expected == actual
+
+
+def test_parse_tensorboard_path():
+    expected = {
+        "project": "mussel",
+        "location": "winkle",
+        "tensorboard": "nautilus",
+    }
+    path = JobServiceClient.tensorboard_path(**expected)
+
+    # Check that the path construction is reversible.
+    actual = JobServiceClient.parse_tensorboard_path(path)
+    assert expected == actual
+
+
+def test_trial_path():
+    project = "scallop"
+    location = "abalone"
+    study = "squid"
+    trial = "clam"
     expected = "projects/{project}/locations/{location}/studies/{study}/trials/{trial}".format(
         project=project, location=location, study=study, trial=trial,
     )
@@ -8631,10 +8790,10 @@ def test_trial_path():
 
 def test_parse_trial_path():
     expected = {
-        "project": "winkle",
-        "location": "nautilus",
-        "study": "scallop",
-        "trial": "abalone",
+        "project": "whelk",
+        "location": "octopus",
+        "study": "oyster",
+        "trial": "nudibranch",
     }
     path = JobServiceClient.trial_path(**expected)
 
@@ -8644,7 +8803,7 @@ def test_parse_trial_path():
 
 
 def test_common_billing_account_path():
-    billing_account = "squid"
+    billing_account = "cuttlefish"
     expected = "billingAccounts/{billing_account}".format(
         billing_account=billing_account,
     )
@@ -8654,7 +8813,7 @@ def test_common_billing_account_path():
 
 def test_parse_common_billing_account_path():
     expected = {
-        "billing_account": "clam",
+        "billing_account": "mussel",
     }
     path = JobServiceClient.common_billing_account_path(**expected)
 
@@ -8664,7 +8823,7 @@ def test_parse_common_billing_account_path():
 
 
 def test_common_folder_path():
-    folder = "whelk"
+    folder = "winkle"
     expected = "folders/{folder}".format(folder=folder,)
     actual = JobServiceClient.common_folder_path(folder)
     assert expected == actual
@@ -8672,7 +8831,7 @@ def test_common_folder_path():
 
 def test_parse_common_folder_path():
     expected = {
-        "folder": "octopus",
+        "folder": "nautilus",
     }
     path = JobServiceClient.common_folder_path(**expected)
 
@@ -8682,7 +8841,7 @@ def test_parse_common_folder_path():
 
 
 def test_common_organization_path():
-    organization = "oyster"
+    organization = "scallop"
     expected = "organizations/{organization}".format(organization=organization,)
     actual = JobServiceClient.common_organization_path(organization)
     assert expected == actual
@@ -8690,7 +8849,7 @@ def test_common_organization_path():
 
 def test_parse_common_organization_path():
     expected = {
-        "organization": "nudibranch",
+        "organization": "abalone",
     }
     path = JobServiceClient.common_organization_path(**expected)
 
@@ -8700,7 +8859,7 @@ def test_parse_common_organization_path():
 
 
 def test_common_project_path():
-    project = "cuttlefish"
+    project = "squid"
     expected = "projects/{project}".format(project=project,)
     actual = JobServiceClient.common_project_path(project)
     assert expected == actual
@@ -8708,7 +8867,7 @@ def test_common_project_path():
 
 def test_parse_common_project_path():
     expected = {
-        "project": "mussel",
+        "project": "clam",
     }
     path = JobServiceClient.common_project_path(**expected)
 
@@ -8718,8 +8877,8 @@ def test_parse_common_project_path():
 
 
 def test_common_location_path():
-    project = "winkle"
-    location = "nautilus"
+    project = "whelk"
+    location = "octopus"
     expected = "projects/{project}/locations/{location}".format(
         project=project, location=location,
     )
@@ -8729,8 +8888,8 @@ def test_common_location_path():
 
 def test_parse_common_location_path():
     expected = {
-        "project": "scallop",
-        "location": "abalone",
+        "project": "oyster",
+        "location": "nudibranch",
     }
     path = JobServiceClient.common_location_path(**expected)
 
@@ -8739,7 +8898,7 @@ def test_parse_common_location_path():
     assert expected == actual
 
 
-def test_client_withDEFAULT_CLIENT_INFO():
+def test_client_with_default_client_info():
     client_info = gapic_v1.client_info.ClientInfo()
 
     with mock.patch.object(
@@ -8758,3 +8917,79 @@ def test_client_withDEFAULT_CLIENT_INFO():
             credentials=ga_credentials.AnonymousCredentials(), client_info=client_info,
         )
         prep.assert_called_once_with(client_info)
+
+
+@pytest.mark.asyncio
+async def test_transport_close_async():
+    client = JobServiceAsyncClient(
+        credentials=ga_credentials.AnonymousCredentials(), transport="grpc_asyncio",
+    )
+    with mock.patch.object(
+        type(getattr(client.transport, "grpc_channel")), "close"
+    ) as close:
+        async with client:
+            close.assert_not_called()
+        close.assert_called_once()
+
+
+def test_transport_close():
+    transports = {
+        "grpc": "_grpc_channel",
+    }
+
+    for transport, close_name in transports.items():
+        client = JobServiceClient(
+            credentials=ga_credentials.AnonymousCredentials(), transport=transport
+        )
+        with mock.patch.object(
+            type(getattr(client.transport, close_name)), "close"
+        ) as close:
+            with client:
+                close.assert_not_called()
+            close.assert_called_once()
+
+
+def test_client_ctx():
+    transports = [
+        "grpc",
+    ]
+    for transport in transports:
+        client = JobServiceClient(
+            credentials=ga_credentials.AnonymousCredentials(), transport=transport
+        )
+        # Test client calls underlying transport.
+        with mock.patch.object(type(client.transport), "close") as close:
+            close.assert_not_called()
+            with client:
+                pass
+            close.assert_called()
+
+
+@pytest.mark.parametrize(
+    "client_class,transport_class",
+    [
+        (JobServiceClient, transports.JobServiceGrpcTransport),
+        (JobServiceAsyncClient, transports.JobServiceGrpcAsyncIOTransport),
+    ],
+)
+def test_api_key_credentials(client_class, transport_class):
+    with mock.patch.object(
+        google.auth._default, "get_api_key_credentials", create=True
+    ) as get_api_key_credentials:
+        mock_cred = mock.Mock()
+        get_api_key_credentials.return_value = mock_cred
+        options = client_options.ClientOptions()
+        options.api_key = "api_key"
+        with mock.patch.object(transport_class, "__init__") as patched:
+            patched.return_value = None
+            client = client_class(client_options=options)
+            patched.assert_called_once_with(
+                credentials=mock_cred,
+                credentials_file=None,
+                host=client.DEFAULT_ENDPOINT,
+                scopes=None,
+                client_cert_source_for_mtls=None,
+                quota_project_id=None,
+                client_info=transports.base.DEFAULT_CLIENT_INFO,
+                always_use_jwt_access=True,
+            )

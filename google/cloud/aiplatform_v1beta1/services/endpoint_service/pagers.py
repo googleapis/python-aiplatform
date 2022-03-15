@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# Copyright 2020 Google LLC
+# Copyright 2022 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -15,13 +15,13 @@
 #
 from typing import (
     Any,
-    AsyncIterable,
+    AsyncIterator,
     Awaitable,
     Callable,
-    Iterable,
     Sequence,
     Tuple,
     Optional,
+    Iterator,
 )
 
 from google.cloud.aiplatform_v1beta1.types import endpoint
@@ -75,14 +75,14 @@ class ListEndpointsPager:
         return getattr(self._response, name)
 
     @property
-    def pages(self) -> Iterable[endpoint_service.ListEndpointsResponse]:
+    def pages(self) -> Iterator[endpoint_service.ListEndpointsResponse]:
         yield self._response
         while self._response.next_page_token:
             self._request.page_token = self._response.next_page_token
             self._response = self._method(self._request, metadata=self._metadata)
             yield self._response
 
-    def __iter__(self) -> Iterable[endpoint.Endpoint]:
+    def __iter__(self) -> Iterator[endpoint.Endpoint]:
         for page in self.pages:
             yield from page.endpoints
 
@@ -137,14 +137,14 @@ class ListEndpointsAsyncPager:
         return getattr(self._response, name)
 
     @property
-    async def pages(self) -> AsyncIterable[endpoint_service.ListEndpointsResponse]:
+    async def pages(self) -> AsyncIterator[endpoint_service.ListEndpointsResponse]:
         yield self._response
         while self._response.next_page_token:
             self._request.page_token = self._response.next_page_token
             self._response = await self._method(self._request, metadata=self._metadata)
             yield self._response
 
-    def __aiter__(self) -> AsyncIterable[endpoint.Endpoint]:
+    def __aiter__(self) -> AsyncIterator[endpoint.Endpoint]:
         async def async_generator():
             async for page in self.pages:
                 for response in page.endpoints:

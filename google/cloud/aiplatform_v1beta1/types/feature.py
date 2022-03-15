@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# Copyright 2020 Google LLC
+# Copyright 2022 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -65,13 +65,16 @@ class Feature(proto.Message):
             System reserved label keys are prefixed with
             "aiplatform.googleapis.com/" and are immutable.
         etag (str):
-            Used to perform a consistent read-modify-
-            rite updates. If not set, a blind "overwrite"
-            update happens.
+            Used to perform a consistent
+            read-modify-write updates. If not set, a blind
+            "overwrite" update happens.
         monitoring_config (google.cloud.aiplatform_v1beta1.types.FeaturestoreMonitoringConfig):
             Optional. The custom monitoring configuration for this
             Feature, if not set, use the monitoring_config defined for
-            the EntityType this Feature belongs to.
+            the EntityType this Feature belongs to. Only Features with
+            type
+            ([Feature.ValueType][google.cloud.aiplatform.v1beta1.Feature.ValueType])
+            BOOL, STRING, DOUBLE or INT64 can enable monitoring.
 
             If this is populated with
             [FeaturestoreMonitoringConfig.disabled][] = true, snapshot
@@ -82,7 +85,7 @@ class Feature(proto.Message):
             the EntityType's this Feature belongs to.
         monitoring_stats (Sequence[google.cloud.aiplatform_v1beta1.types.FeatureStatsAnomaly]):
             Output only. A list of historical [Snapshot
-            Analysis][google.cloud.aiplatform.master.FeaturestoreMonitoringConfig.SnapshotAnalysis]
+            Analysis][FeaturestoreMonitoringConfig.SnapshotAnalysis]
             stats requested by user, sorted by
             [FeatureStatsAnomaly.start_time][google.cloud.aiplatform.v1beta1.FeatureStatsAnomaly.start_time]
             descending.

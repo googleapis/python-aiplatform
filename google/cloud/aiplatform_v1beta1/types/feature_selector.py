@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# Copyright 2020 Google LLC
+# Copyright 2022 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -24,6 +24,7 @@ __protobuf__ = proto.module(
 
 class IdMatcher(proto.Message):
     r"""Matcher for Features of an EntityType by Feature ID.
+
     Attributes:
         ids (Sequence[str]):
             Required. The following are accepted as ``ids``:
@@ -39,6 +40,7 @@ class IdMatcher(proto.Message):
 
 class FeatureSelector(proto.Message):
     r"""Selector for Features of an EntityType.
+
     Attributes:
         id_matcher (google.cloud.aiplatform_v1beta1.types.IdMatcher):
             Required. Matches Features based on ID.

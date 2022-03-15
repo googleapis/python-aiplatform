@@ -26,7 +26,7 @@ from google.auth import credentials
 
 from google.cloud.aiplatform import initializer
 from google.cloud.aiplatform.metadata.metadata import metadata_service
-from google.cloud.aiplatform import constants
+from google.cloud.aiplatform.constants import base as constants
 from google.cloud.aiplatform import utils
 
 from google.cloud.aiplatform_v1.services.model_service import (
@@ -180,6 +180,15 @@ class TestInit:
             ).api_endpoint
             == expected_endpoint
         )
+
+    def test_get_client_options_with_api_override(self):
+        initializer.global_config.init(location="asia-east1")
+
+        client_options = initializer.global_config.get_client_options(
+            api_base_path_override="override.googleapis.com"
+        )
+
+        assert client_options.api_endpoint == "asia-east1-override.googleapis.com"
 
 
 class TestThreadPool:

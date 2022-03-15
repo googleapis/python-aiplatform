@@ -20,16 +20,19 @@ from typing import Optional, Dict
 import proto
 
 from google.cloud.aiplatform import utils
-from google.cloud.aiplatform.metadata.resource import _Resource
-from google.cloud.aiplatform_v1beta1 import ListArtifactsRequest
-from google.cloud.aiplatform_v1beta1.types import artifact as gca_artifact
+from google.cloud.aiplatform.compat.types import artifact as gca_artifact
+from google.cloud.aiplatform.compat.types import metadata_service
+from google.cloud.aiplatform.metadata import resource
 
 
-class _Artifact(_Resource):
+class _Artifact(resource._Resource):
     """Metadata Artifact resource for Vertex AI"""
 
     _resource_noun = "artifacts"
     _getter_method = "get_artifact"
+    _delete_method = "delete_artifact"
+    _parse_resource_name_method = "parse_artifact_path"
+    _format_resource_name_method = "artifact_path"
 
     @classmethod
     def _create_resource(
@@ -86,5 +89,7 @@ class _Artifact(_Resource):
             filter (str):
                 Optional. filter string to restrict the list result
         """
-        list_request = ListArtifactsRequest(parent=parent, filter=filter,)
+        list_request = metadata_service.ListArtifactsRequest(
+            parent=parent, filter=filter,
+        )
         return client.list_artifacts(request=list_request)

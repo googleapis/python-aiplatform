@@ -481,6 +481,11 @@
                 "list_index_endpoints"
               ]
             },
+            "MutateDeployedIndex": {
+              "methods": [
+                "mutate_deployed_index"
+              ]
+            },
             "UndeployIndex": {
               "methods": [
                 "undeploy_index"
@@ -519,6 +524,11 @@
             "ListIndexEndpoints": {
               "methods": [
                 "list_index_endpoints"
+              ]
+            },
+            "MutateDeployedIndex": {
+              "methods": [
+                "mutate_deployed_index"
               ]
             },
             "UndeployIndex": {
@@ -1602,6 +1612,11 @@
                 "batch_create_tensorboard_time_series"
               ]
             },
+            "BatchReadTensorboardTimeSeriesData": {
+              "methods": [
+                "batch_read_tensorboard_time_series_data"
+              ]
+            },
             "CreateTensorboard": {
               "methods": [
                 "create_tensorboard"
@@ -1740,6 +1755,11 @@
             "BatchCreateTensorboardTimeSeries": {
               "methods": [
                 "batch_create_tensorboard_time_series"
+              ]
+            },
+            "BatchReadTensorboardTimeSeriesData": {
+              "methods": [
+                "batch_read_tensorboard_time_series_data"
               ]
             },
             "CreateTensorboard": {

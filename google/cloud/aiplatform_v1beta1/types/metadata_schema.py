@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# Copyright 2020 Google LLC
+# Copyright 2022 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -25,6 +25,7 @@ __protobuf__ = proto.module(
 
 class MetadataSchema(proto.Message):
     r"""Instance of a general MetadataSchema.
+
     Attributes:
         name (str):
             Output only. The resource name of the
@@ -33,7 +34,8 @@ class MetadataSchema(proto.Message):
             The version of the MetadataSchema. The version's format must
             match the following regular expression:
             ``^[0-9]+[.][0-9]+[.][0-9]+$``, which would allow to
-            order/compare different versions.Example: 1.0.0, 1.0.1, etc.
+            order/compare different versions. Example: 1.0.0, 1.0.1,
+            etc.
         schema (str):
             Required. The raw YAML string representation of the
             MetadataSchema. The combination of [MetadataSchema.version]

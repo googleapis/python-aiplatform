@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# Copyright 2020 Google LLC
+# Copyright 2022 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -27,6 +27,7 @@ __protobuf__ = proto.module(
 
 class GenericOperationMetadata(proto.Message):
     r"""Generic Metadata shared by all operations.
+
     Attributes:
         partial_failures (Sequence[google.rpc.status_pb2.Status]):
             Output only. Partial failures encountered.
@@ -53,6 +54,7 @@ class GenericOperationMetadata(proto.Message):
 
 class DeleteOperationMetadata(proto.Message):
     r"""Details of operations that perform deletes of any entities.
+
     Attributes:
         generic_metadata (google.cloud.aiplatform_v1beta1.types.GenericOperationMetadata):
             The common part of the operation metadata.

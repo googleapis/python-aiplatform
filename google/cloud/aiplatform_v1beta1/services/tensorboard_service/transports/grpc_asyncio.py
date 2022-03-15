@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# Copyright 2020 Google LLC
+# Copyright 2022 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -16,12 +16,11 @@
 import warnings
 from typing import Awaitable, Callable, Dict, Optional, Sequence, Tuple, Union
 
-from google.api_core import gapic_v1  # type: ignore
-from google.api_core import grpc_helpers_async  # type: ignore
-from google.api_core import operations_v1  # type: ignore
+from google.api_core import gapic_v1
+from google.api_core import grpc_helpers_async
+from google.api_core import operations_v1
 from google.auth import credentials as ga_credentials  # type: ignore
 from google.auth.transport.grpc import SslCredentials  # type: ignore
-import packaging.version
 
 import grpc  # type: ignore
 from grpc.experimental import aio  # type: ignore
@@ -170,7 +169,7 @@ class TensorboardServiceGrpcAsyncIOTransport(TensorboardServiceTransport):
         self._grpc_channel = None
         self._ssl_channel_credentials = ssl_channel_credentials
         self._stubs: Dict[str, Callable] = {}
-        self._operations_client = None
+        self._operations_client: Optional[operations_v1.OperationsAsyncClient] = None
 
         if api_mtls_endpoint:
             warnings.warn("api_mtls_endpoint is deprecated", DeprecationWarning)
@@ -218,8 +217,11 @@ class TensorboardServiceGrpcAsyncIOTransport(TensorboardServiceTransport):
         if not self._grpc_channel:
             self._grpc_channel = type(self).create_channel(
                 self._host,
+                # use the credentials which are saved
                 credentials=self._credentials,
-                credentials_file=credentials_file,
+                # Set ``credentials_file`` to ``None`` here as
+                # the credentials that we saved earlier should be used.
+                credentials_file=None,
                 scopes=self._scopes,
                 ssl_credentials=self._ssl_channel_credentials,
                 quota_project_id=quota_project_id,
@@ -249,7 +251,7 @@ class TensorboardServiceGrpcAsyncIOTransport(TensorboardServiceTransport):
         This property caches on the instance; repeated calls return the same
         client.
         """
-        # Sanity check: Only create a new client if we do not already have one.
+        # Quick check: Only create a new client if we do not already have one.
         if self._operations_client is None:
             self._operations_client = operations_v1.OperationsAsyncClient(
                 self.grpc_channel
@@ -914,6 +916,43 @@ class TensorboardServiceGrpcAsyncIOTransport(TensorboardServiceTransport):
         return self._stubs["delete_tensorboard_time_series"]
 
     @property
+    def batch_read_tensorboard_time_series_data(
+        self,
+    ) -> Callable[
+        [tensorboard_service.BatchReadTensorboardTimeSeriesDataRequest],
+        Awaitable[tensorboard_service.BatchReadTensorboardTimeSeriesDataResponse],
+    ]:
+        r"""Return a callable for the batch read tensorboard time
+        series data method over gRPC.
+
+        Reads multiple TensorboardTimeSeries' data. The data
+        point number limit is 1000 for scalars, 100 for tensors
+        and blob references. If the number of data points stored
+        is less than the limit, all data will be returned.
+        Otherwise, that limit number of data points will be
+        randomly selected from this time series and returned.
+
+        Returns:
+            Callable[[~.BatchReadTensorboardTimeSeriesDataRequest],
+                    Awaitable[~.BatchReadTensorboardTimeSeriesDataResponse]]:
+                A function that, when called, will call the underlying RPC
+                on the server.
+        """
+        # Generate a "stub function" on-the-fly which will actually make
+        # the request.
+        # gRPC handles serialization and deserialization, so we just need
+        # to pass in the functions for each.
+        if "batch_read_tensorboard_time_series_data" not in self._stubs:
+            self._stubs[
+                "batch_read_tensorboard_time_series_data"
+            ] = self.grpc_channel.unary_unary(
+                "/google.cloud.aiplatform.v1beta1.TensorboardService/BatchReadTensorboardTimeSeriesData",
+                request_serializer=tensorboard_service.BatchReadTensorboardTimeSeriesDataRequest.serialize,
+                response_deserializer=tensorboard_service.BatchReadTensorboardTimeSeriesDataResponse.deserialize,
+            )
+        return self._stubs["batch_read_tensorboard_time_series_data"]
+
+    @property
     def read_tensorboard_time_series_data(
         self,
     ) -> Callable[
@@ -923,12 +962,11 @@ class TensorboardServiceGrpcAsyncIOTransport(TensorboardServiceTransport):
         r"""Return a callable for the read tensorboard time series
         data method over gRPC.
 
-        Reads a TensorboardTimeSeries' data. Data is returned in
-        paginated responses. By default, if the number of data points
-        stored is less than 1000, all data will be returned. Otherwise,
-        1000 data points will be randomly selected from this time series
-        and returned. This value can be changed by changing
-        max_data_points.
+        Reads a TensorboardTimeSeries' data. By default, if the number
+        of data points stored is less than 1000, all data will be
+        returned. Otherwise, 1000 data points will be randomly selected
+        from this time series and returned. This value can be changed by
+        changing max_data_points, which can't be greater than 10k.
 
         Returns:
             Callable[[~.ReadTensorboardTimeSeriesDataRequest],
@@ -1079,6 +1117,9 @@ class TensorboardServiceGrpcAsyncIOTransport(TensorboardServiceTransport):
                 response_deserializer=tensorboard_service.ExportTensorboardTimeSeriesDataResponse.deserialize,
             )
         return self._stubs["export_tensorboard_time_series_data"]
+
+    def close(self):
+        return self.grpc_channel.close()
 
 
 __all__ = ("TensorboardServiceGrpcAsyncIOTransport",)

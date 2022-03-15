@@ -3,7 +3,7 @@ import pytest
 from unittest import mock
 
 from google.cloud import aiplatform
-
+from google.cloud.aiplatform import base
 from google.cloud.aiplatform import datasets
 from google.cloud.aiplatform import initializer
 from google.cloud.aiplatform import schema
@@ -330,6 +330,7 @@ class TestAutoMLTabularTrainingJob:
             weight_column=_TEST_TRAINING_WEIGHT_COLUMN,
             budget_milli_node_hours=_TEST_TRAINING_BUDGET_MILLI_NODE_HOURS,
             disable_early_stopping=_TEST_TRAINING_DISABLE_EARLY_STOPPING,
+            additional_experiments=_TEST_ADDITIONAL_EXPERIMENTS,
             sync=sync,
         )
 
@@ -354,7 +355,7 @@ class TestAutoMLTabularTrainingJob:
             display_name=_TEST_DISPLAY_NAME,
             labels=_TEST_LABELS,
             training_task_definition=schema.training_job.definition.automl_tabular,
-            training_task_inputs=_TEST_TRAINING_TASK_INPUTS,
+            training_task_inputs=_TEST_TRAINING_TASK_INPUTS_WITH_ADDITIONAL_EXPERIMENTS,
             model_to_upload=true_managed_model,
             input_data_config=true_input_data_config,
             encryption_spec=_TEST_DEFAULT_ENCRYPTION_SPEC,
@@ -367,7 +368,9 @@ class TestAutoMLTabularTrainingJob:
 
         assert job._gca_resource is mock_pipeline_service_get.return_value
 
-        mock_model_service_get.assert_called_once_with(name=_TEST_MODEL_NAME)
+        mock_model_service_get.assert_called_once_with(
+            name=_TEST_MODEL_NAME, retry=base._DEFAULT_RETRY
+        )
 
         assert model_from_job._gca_resource is mock_model_service_get.return_value
 
@@ -446,7 +449,9 @@ class TestAutoMLTabularTrainingJob:
 
         assert job._gca_resource is mock_pipeline_service_get.return_value
 
-        mock_model_service_get.assert_called_once_with(name=_TEST_MODEL_NAME)
+        mock_model_service_get.assert_called_once_with(
+            name=_TEST_MODEL_NAME, retry=base._DEFAULT_RETRY
+        )
 
         assert model_from_job._gca_resource is mock_model_service_get.return_value
 

@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# Copyright 2020 Google LLC
+# Copyright 2022 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -14,21 +14,25 @@
 # limitations under the License.
 #
 from collections import OrderedDict
-from distutils import util
 import os
 import re
 from typing import Dict, Optional, Sequence, Tuple, Type, Union
 import pkg_resources
 
-from google.api_core import client_options as client_options_lib  # type: ignore
-from google.api_core import exceptions as core_exceptions  # type: ignore
-from google.api_core import gapic_v1  # type: ignore
-from google.api_core import retry as retries  # type: ignore
+from google.api_core import client_options as client_options_lib
+from google.api_core import exceptions as core_exceptions
+from google.api_core import gapic_v1
+from google.api_core import retry as retries
 from google.auth import credentials as ga_credentials  # type: ignore
 from google.auth.transport import mtls  # type: ignore
 from google.auth.transport.grpc import SslCredentials  # type: ignore
 from google.auth.exceptions import MutualTLSChannelError  # type: ignore
 from google.oauth2 import service_account  # type: ignore
+
+try:
+    OptionalRetry = Union[retries.Retry, gapic_v1.method._MethodDefault]
+except AttributeError:  # pragma: NO COVER
+    OptionalRetry = Union[retries.Retry, object]  # type: ignore
 
 from google.api_core import operation as gac_operation  # type: ignore
 from google.api_core import operation_async  # type: ignore
@@ -334,6 +338,73 @@ class MetadataServiceClient(metaclass=MetadataServiceClientMeta):
         m = re.match(r"^projects/(?P<project>.+?)/locations/(?P<location>.+?)$", path)
         return m.groupdict() if m else {}
 
+    @classmethod
+    def get_mtls_endpoint_and_cert_source(
+        cls, client_options: Optional[client_options_lib.ClientOptions] = None
+    ):
+        """Return the API endpoint and client cert source for mutual TLS.
+
+        The client cert source is determined in the following order:
+        (1) if `GOOGLE_API_USE_CLIENT_CERTIFICATE` environment variable is not "true", the
+        client cert source is None.
+        (2) if `client_options.client_cert_source` is provided, use the provided one; if the
+        default client cert source exists, use the default one; otherwise the client cert
+        source is None.
+
+        The API endpoint is determined in the following order:
+        (1) if `client_options.api_endpoint` if provided, use the provided one.
+        (2) if `GOOGLE_API_USE_CLIENT_CERTIFICATE` environment variable is "always", use the
+        default mTLS endpoint; if the environment variabel is "never", use the default API
+        endpoint; otherwise if client cert source exists, use the default mTLS endpoint, otherwise
+        use the default API endpoint.
+
+        More details can be found at https://google.aip.dev/auth/4114.
+
+        Args:
+            client_options (google.api_core.client_options.ClientOptions): Custom options for the
+                client. Only the `api_endpoint` and `client_cert_source` properties may be used
+                in this method.
+
+        Returns:
+            Tuple[str, Callable[[], Tuple[bytes, bytes]]]: returns the API endpoint and the
+                client cert source to use.
+
+        Raises:
+            google.auth.exceptions.MutualTLSChannelError: If any errors happen.
+        """
+        if client_options is None:
+            client_options = client_options_lib.ClientOptions()
+        use_client_cert = os.getenv("GOOGLE_API_USE_CLIENT_CERTIFICATE", "false")
+        use_mtls_endpoint = os.getenv("GOOGLE_API_USE_MTLS_ENDPOINT", "auto")
+        if use_client_cert not in ("true", "false"):
+            raise ValueError(
+                "Environment variable `GOOGLE_API_USE_CLIENT_CERTIFICATE` must be either `true` or `false`"
+            )
+        if use_mtls_endpoint not in ("auto", "never", "always"):
+            raise MutualTLSChannelError(
+                "Environment variable `GOOGLE_API_USE_MTLS_ENDPOINT` must be `never`, `auto` or `always`"
+            )
+
+        # Figure out the client cert source to use.
+        client_cert_source = None
+        if use_client_cert == "true":
+            if client_options.client_cert_source:
+                client_cert_source = client_options.client_cert_source
+            elif mtls.has_default_client_cert_source():
+                client_cert_source = mtls.default_client_cert_source()
+
+        # Figure out which api endpoint to use.
+        if client_options.api_endpoint is not None:
+            api_endpoint = client_options.api_endpoint
+        elif use_mtls_endpoint == "always" or (
+            use_mtls_endpoint == "auto" and client_cert_source
+        ):
+            api_endpoint = cls.DEFAULT_MTLS_ENDPOINT
+        else:
+            api_endpoint = cls.DEFAULT_ENDPOINT
+
+        return api_endpoint, client_cert_source
+
     def __init__(
         self,
         *,
@@ -384,50 +455,22 @@ class MetadataServiceClient(metaclass=MetadataServiceClientMeta):
         if client_options is None:
             client_options = client_options_lib.ClientOptions()
 
-        # Create SSL credentials for mutual TLS if needed.
-        use_client_cert = bool(
-            util.strtobool(os.getenv("GOOGLE_API_USE_CLIENT_CERTIFICATE", "false"))
+        api_endpoint, client_cert_source_func = self.get_mtls_endpoint_and_cert_source(
+            client_options
         )
 
-        client_cert_source_func = None
-        is_mtls = False
-        if use_client_cert:
-            if client_options.client_cert_source:
-                is_mtls = True
-                client_cert_source_func = client_options.client_cert_source
-            else:
-                is_mtls = mtls.has_default_client_cert_source()
-                if is_mtls:
-                    client_cert_source_func = mtls.default_client_cert_source()
-                else:
-                    client_cert_source_func = None
-
-        # Figure out which api endpoint to use.
-        if client_options.api_endpoint is not None:
-            api_endpoint = client_options.api_endpoint
-        else:
-            use_mtls_env = os.getenv("GOOGLE_API_USE_MTLS_ENDPOINT", "auto")
-            if use_mtls_env == "never":
-                api_endpoint = self.DEFAULT_ENDPOINT
-            elif use_mtls_env == "always":
-                api_endpoint = self.DEFAULT_MTLS_ENDPOINT
-            elif use_mtls_env == "auto":
-                if is_mtls:
-                    api_endpoint = self.DEFAULT_MTLS_ENDPOINT
-                else:
-                    api_endpoint = self.DEFAULT_ENDPOINT
-            else:
-                raise MutualTLSChannelError(
-                    "Unsupported GOOGLE_API_USE_MTLS_ENDPOINT value. Accepted "
-                    "values: never, auto, always"
-                )
+        api_key_value = getattr(client_options, "api_key", None)
+        if api_key_value and credentials:
+            raise ValueError(
+                "client_options.api_key and credentials are mutually exclusive"
+            )
 
         # Save or instantiate the transport.
         # Ordinarily, we provide the transport, but allowing a custom transport
         # instance provides an extensibility point for unusual situations.
         if isinstance(transport, MetadataServiceTransport):
             # transport is a MetadataServiceTransport instance.
-            if credentials or client_options.credentials_file:
+            if credentials or client_options.credentials_file or api_key_value:
                 raise ValueError(
                     "When providing a transport instance, "
                     "provide its credentials directly."
@@ -439,6 +482,15 @@ class MetadataServiceClient(metaclass=MetadataServiceClientMeta):
                 )
             self._transport = transport
         else:
+            import google.auth._default  # type: ignore
+
+            if api_key_value and hasattr(
+                google.auth._default, "get_api_key_credentials"
+            ):
+                credentials = google.auth._default.get_api_key_credentials(
+                    api_key_value
+                )
+
             Transport = type(self).get_transport_class(transport)
             self._transport = Transport(
                 credentials=credentials,
@@ -448,10 +500,7 @@ class MetadataServiceClient(metaclass=MetadataServiceClientMeta):
                 client_cert_source_for_mtls=client_cert_source_func,
                 quota_project_id=client_options.quota_project_id,
                 client_info=client_info,
-                always_use_jwt_access=(
-                    Transport == type(self).get_transport_class("grpc")
-                    or Transport == type(self).get_transport_class("grpc_asyncio")
-                ),
+                always_use_jwt_access=True,
             )
 
     def create_metadata_store(
@@ -461,22 +510,45 @@ class MetadataServiceClient(metaclass=MetadataServiceClientMeta):
         parent: str = None,
         metadata_store: gca_metadata_store.MetadataStore = None,
         metadata_store_id: str = None,
-        retry: retries.Retry = gapic_v1.method.DEFAULT,
+        retry: OptionalRetry = gapic_v1.method.DEFAULT,
         timeout: float = None,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> gac_operation.Operation:
         r"""Initializes a MetadataStore, including allocation of
         resources.
 
+
+        .. code-block:: python
+
+            from google.cloud import aiplatform_v1beta1
+
+            def sample_create_metadata_store():
+                # Create a client
+                client = aiplatform_v1beta1.MetadataServiceClient()
+
+                # Initialize request argument(s)
+                request = aiplatform_v1beta1.CreateMetadataStoreRequest(
+                    parent="parent_value",
+                )
+
+                # Make the request
+                operation = client.create_metadata_store(request=request)
+
+                print("Waiting for operation to complete...")
+
+                response = operation.result()
+
+                # Handle the response
+                print(response)
+
         Args:
             request (Union[google.cloud.aiplatform_v1beta1.types.CreateMetadataStoreRequest, dict]):
                 The request object. Request message for
                 [MetadataService.CreateMetadataStore][google.cloud.aiplatform.v1beta1.MetadataService.CreateMetadataStore].
             parent (str):
-                Required. The resource name of the
-                Location where the MetadataStore should
-                be created. Format:
-                projects/{project}/locations/{location}/
+                Required. The resource name of the Location where the
+                MetadataStore should be created. Format:
+                ``projects/{project}/locations/{location}/``
 
                 This corresponds to the ``parent`` field
                 on the ``request`` instance; if ``request`` is provided, this
@@ -491,10 +563,10 @@ class MetadataServiceClient(metaclass=MetadataServiceClientMeta):
             metadata_store_id (str):
                 The {metadatastore} portion of the resource name with
                 the format:
-                projects/{project}/locations/{location}/metadataStores/{metadatastore}
+                ``projects/{project}/locations/{location}/metadataStores/{metadatastore}``
                 If not provided, the MetadataStore's ID will be a UUID
                 generated by the service. Must be 4-128 characters in
-                length. Valid characters are /[a-z][0-9]-/. Must be
+                length. Valid characters are ``/[a-z][0-9]-/``. Must be
                 unique across all MetadataStores in the parent Location.
                 (Otherwise the request will fail with ALREADY_EXISTS, or
                 PERMISSION_DENIED if the caller can't view the
@@ -518,7 +590,7 @@ class MetadataServiceClient(metaclass=MetadataServiceClientMeta):
 
         """
         # Create or coerce a protobuf request object.
-        # Sanity check: If we got a request object, we should *not* have
+        # Quick check: If we got a request object, we should *not* have
         # gotten any keyword arguments that map to the request.
         has_flattened_params = any([parent, metadata_store, metadata_store_id])
         if request is not None and has_flattened_params:
@@ -571,20 +643,39 @@ class MetadataServiceClient(metaclass=MetadataServiceClientMeta):
         request: Union[metadata_service.GetMetadataStoreRequest, dict] = None,
         *,
         name: str = None,
-        retry: retries.Retry = gapic_v1.method.DEFAULT,
+        retry: OptionalRetry = gapic_v1.method.DEFAULT,
         timeout: float = None,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> metadata_store.MetadataStore:
         r"""Retrieves a specific MetadataStore.
+
+        .. code-block:: python
+
+            from google.cloud import aiplatform_v1beta1
+
+            def sample_get_metadata_store():
+                # Create a client
+                client = aiplatform_v1beta1.MetadataServiceClient()
+
+                # Initialize request argument(s)
+                request = aiplatform_v1beta1.GetMetadataStoreRequest(
+                    name="name_value",
+                )
+
+                # Make the request
+                response = client.get_metadata_store(request=request)
+
+                # Handle the response
+                print(response)
 
         Args:
             request (Union[google.cloud.aiplatform_v1beta1.types.GetMetadataStoreRequest, dict]):
                 The request object. Request message for
                 [MetadataService.GetMetadataStore][google.cloud.aiplatform.v1beta1.MetadataService.GetMetadataStore].
             name (str):
-                Required. The resource name of the
-                MetadataStore to retrieve. Format:
-                projects/{project}/locations/{location}/metadataStores/{metadatastore}
+                Required. The resource name of the MetadataStore to
+                retrieve. Format:
+                ``projects/{project}/locations/{location}/metadataStores/{metadatastore}``
 
                 This corresponds to the ``name`` field
                 on the ``request`` instance; if ``request`` is provided, this
@@ -603,7 +694,7 @@ class MetadataServiceClient(metaclass=MetadataServiceClientMeta):
 
         """
         # Create or coerce a protobuf request object.
-        # Sanity check: If we got a request object, we should *not* have
+        # Quick check: If we got a request object, we should *not* have
         # gotten any keyword arguments that map to the request.
         has_flattened_params = any([name])
         if request is not None and has_flattened_params:
@@ -644,20 +735,40 @@ class MetadataServiceClient(metaclass=MetadataServiceClientMeta):
         request: Union[metadata_service.ListMetadataStoresRequest, dict] = None,
         *,
         parent: str = None,
-        retry: retries.Retry = gapic_v1.method.DEFAULT,
+        retry: OptionalRetry = gapic_v1.method.DEFAULT,
         timeout: float = None,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> pagers.ListMetadataStoresPager:
         r"""Lists MetadataStores for a Location.
+
+        .. code-block:: python
+
+            from google.cloud import aiplatform_v1beta1
+
+            def sample_list_metadata_stores():
+                # Create a client
+                client = aiplatform_v1beta1.MetadataServiceClient()
+
+                # Initialize request argument(s)
+                request = aiplatform_v1beta1.ListMetadataStoresRequest(
+                    parent="parent_value",
+                )
+
+                # Make the request
+                page_result = client.list_metadata_stores(request=request)
+
+                # Handle the response
+                for response in page_result:
+                    print(response)
 
         Args:
             request (Union[google.cloud.aiplatform_v1beta1.types.ListMetadataStoresRequest, dict]):
                 The request object. Request message for
                 [MetadataService.ListMetadataStores][google.cloud.aiplatform.v1beta1.MetadataService.ListMetadataStores].
             parent (str):
-                Required. The Location whose
-                MetadataStores should be listed. Format:
-                projects/{project}/locations/{location}
+                Required. The Location whose MetadataStores should be
+                listed. Format:
+                ``projects/{project}/locations/{location}``
 
                 This corresponds to the ``parent`` field
                 on the ``request`` instance; if ``request`` is provided, this
@@ -678,7 +789,7 @@ class MetadataServiceClient(metaclass=MetadataServiceClientMeta):
 
         """
         # Create or coerce a protobuf request object.
-        # Sanity check: If we got a request object, we should *not* have
+        # Quick check: If we got a request object, we should *not* have
         # gotten any keyword arguments that map to the request.
         has_flattened_params = any([parent])
         if request is not None and has_flattened_params:
@@ -725,21 +836,45 @@ class MetadataServiceClient(metaclass=MetadataServiceClientMeta):
         request: Union[metadata_service.DeleteMetadataStoreRequest, dict] = None,
         *,
         name: str = None,
-        retry: retries.Retry = gapic_v1.method.DEFAULT,
+        retry: OptionalRetry = gapic_v1.method.DEFAULT,
         timeout: float = None,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> gac_operation.Operation:
         r"""Deletes a single MetadataStore and all its child
         resources (Artifacts, Executions, and Contexts).
 
+
+        .. code-block:: python
+
+            from google.cloud import aiplatform_v1beta1
+
+            def sample_delete_metadata_store():
+                # Create a client
+                client = aiplatform_v1beta1.MetadataServiceClient()
+
+                # Initialize request argument(s)
+                request = aiplatform_v1beta1.DeleteMetadataStoreRequest(
+                    name="name_value",
+                )
+
+                # Make the request
+                operation = client.delete_metadata_store(request=request)
+
+                print("Waiting for operation to complete...")
+
+                response = operation.result()
+
+                # Handle the response
+                print(response)
+
         Args:
             request (Union[google.cloud.aiplatform_v1beta1.types.DeleteMetadataStoreRequest, dict]):
                 The request object. Request message for
                 [MetadataService.DeleteMetadataStore][google.cloud.aiplatform.v1beta1.MetadataService.DeleteMetadataStore].
             name (str):
-                Required. The resource name of the
-                MetadataStore to delete. Format:
-                projects/{project}/locations/{location}/metadataStores/{metadatastore}
+                Required. The resource name of the MetadataStore to
+                delete. Format:
+                ``projects/{project}/locations/{location}/metadataStores/{metadatastore}``
 
                 This corresponds to the ``name`` field
                 on the ``request`` instance; if ``request`` is provided, this
@@ -770,7 +905,7 @@ class MetadataServiceClient(metaclass=MetadataServiceClientMeta):
 
         """
         # Create or coerce a protobuf request object.
-        # Sanity check: If we got a request object, we should *not* have
+        # Quick check: If we got a request object, we should *not* have
         # gotten any keyword arguments that map to the request.
         has_flattened_params = any([name])
         if request is not None and has_flattened_params:
@@ -821,21 +956,39 @@ class MetadataServiceClient(metaclass=MetadataServiceClientMeta):
         parent: str = None,
         artifact: gca_artifact.Artifact = None,
         artifact_id: str = None,
-        retry: retries.Retry = gapic_v1.method.DEFAULT,
+        retry: OptionalRetry = gapic_v1.method.DEFAULT,
         timeout: float = None,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> gca_artifact.Artifact:
         r"""Creates an Artifact associated with a MetadataStore.
+
+        .. code-block:: python
+
+            from google.cloud import aiplatform_v1beta1
+
+            def sample_create_artifact():
+                # Create a client
+                client = aiplatform_v1beta1.MetadataServiceClient()
+
+                # Initialize request argument(s)
+                request = aiplatform_v1beta1.CreateArtifactRequest(
+                    parent="parent_value",
+                )
+
+                # Make the request
+                response = client.create_artifact(request=request)
+
+                # Handle the response
+                print(response)
 
         Args:
             request (Union[google.cloud.aiplatform_v1beta1.types.CreateArtifactRequest, dict]):
                 The request object. Request message for
                 [MetadataService.CreateArtifact][google.cloud.aiplatform.v1beta1.MetadataService.CreateArtifact].
             parent (str):
-                Required. The resource name of the
-                MetadataStore where the Artifact should
-                be created. Format:
-                projects/{project}/locations/{location}/metadataStores/{metadatastore}
+                Required. The resource name of the MetadataStore where
+                the Artifact should be created. Format:
+                ``projects/{project}/locations/{location}/metadataStores/{metadatastore}``
 
                 This corresponds to the ``parent`` field
                 on the ``request`` instance; if ``request`` is provided, this
@@ -848,10 +1001,10 @@ class MetadataServiceClient(metaclass=MetadataServiceClientMeta):
             artifact_id (str):
                 The {artifact} portion of the resource name with the
                 format:
-                projects/{project}/locations/{location}/metadataStores/{metadatastore}/artifacts/{artifact}
+                ``projects/{project}/locations/{location}/metadataStores/{metadatastore}/artifacts/{artifact}``
                 If not provided, the Artifact's ID will be a UUID
                 generated by the service. Must be 4-128 characters in
-                length. Valid characters are /[a-z][0-9]-/. Must be
+                length. Valid characters are ``/[a-z][0-9]-/``. Must be
                 unique across all Artifacts in the parent MetadataStore.
                 (Otherwise the request will fail with ALREADY_EXISTS, or
                 PERMISSION_DENIED if the caller can't view the
@@ -871,7 +1024,7 @@ class MetadataServiceClient(metaclass=MetadataServiceClientMeta):
                 Instance of a general artifact.
         """
         # Create or coerce a protobuf request object.
-        # Sanity check: If we got a request object, we should *not* have
+        # Quick check: If we got a request object, we should *not* have
         # gotten any keyword arguments that map to the request.
         has_flattened_params = any([parent, artifact, artifact_id])
         if request is not None and has_flattened_params:
@@ -916,20 +1069,39 @@ class MetadataServiceClient(metaclass=MetadataServiceClientMeta):
         request: Union[metadata_service.GetArtifactRequest, dict] = None,
         *,
         name: str = None,
-        retry: retries.Retry = gapic_v1.method.DEFAULT,
+        retry: OptionalRetry = gapic_v1.method.DEFAULT,
         timeout: float = None,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> artifact.Artifact:
         r"""Retrieves a specific Artifact.
+
+        .. code-block:: python
+
+            from google.cloud import aiplatform_v1beta1
+
+            def sample_get_artifact():
+                # Create a client
+                client = aiplatform_v1beta1.MetadataServiceClient()
+
+                # Initialize request argument(s)
+                request = aiplatform_v1beta1.GetArtifactRequest(
+                    name="name_value",
+                )
+
+                # Make the request
+                response = client.get_artifact(request=request)
+
+                # Handle the response
+                print(response)
 
         Args:
             request (Union[google.cloud.aiplatform_v1beta1.types.GetArtifactRequest, dict]):
                 The request object. Request message for
                 [MetadataService.GetArtifact][google.cloud.aiplatform.v1beta1.MetadataService.GetArtifact].
             name (str):
-                Required. The resource name of the
-                Artifact to retrieve. Format:
-                projects/{project}/locations/{location}/metadataStores/{metadatastore}/artifacts/{artifact}
+                Required. The resource name of the Artifact to retrieve.
+                Format:
+                ``projects/{project}/locations/{location}/metadataStores/{metadatastore}/artifacts/{artifact}``
 
                 This corresponds to the ``name`` field
                 on the ``request`` instance; if ``request`` is provided, this
@@ -945,7 +1117,7 @@ class MetadataServiceClient(metaclass=MetadataServiceClientMeta):
                 Instance of a general artifact.
         """
         # Create or coerce a protobuf request object.
-        # Sanity check: If we got a request object, we should *not* have
+        # Quick check: If we got a request object, we should *not* have
         # gotten any keyword arguments that map to the request.
         has_flattened_params = any([name])
         if request is not None and has_flattened_params:
@@ -986,20 +1158,40 @@ class MetadataServiceClient(metaclass=MetadataServiceClientMeta):
         request: Union[metadata_service.ListArtifactsRequest, dict] = None,
         *,
         parent: str = None,
-        retry: retries.Retry = gapic_v1.method.DEFAULT,
+        retry: OptionalRetry = gapic_v1.method.DEFAULT,
         timeout: float = None,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> pagers.ListArtifactsPager:
         r"""Lists Artifacts in the MetadataStore.
+
+        .. code-block:: python
+
+            from google.cloud import aiplatform_v1beta1
+
+            def sample_list_artifacts():
+                # Create a client
+                client = aiplatform_v1beta1.MetadataServiceClient()
+
+                # Initialize request argument(s)
+                request = aiplatform_v1beta1.ListArtifactsRequest(
+                    parent="parent_value",
+                )
+
+                # Make the request
+                page_result = client.list_artifacts(request=request)
+
+                # Handle the response
+                for response in page_result:
+                    print(response)
 
         Args:
             request (Union[google.cloud.aiplatform_v1beta1.types.ListArtifactsRequest, dict]):
                 The request object. Request message for
                 [MetadataService.ListArtifacts][google.cloud.aiplatform.v1beta1.MetadataService.ListArtifacts].
             parent (str):
-                Required. The MetadataStore whose
-                Artifacts should be listed. Format:
-                projects/{project}/locations/{location}/metadataStores/{metadatastore}
+                Required. The MetadataStore whose Artifacts should be
+                listed. Format:
+                ``projects/{project}/locations/{location}/metadataStores/{metadatastore}``
 
                 This corresponds to the ``parent`` field
                 on the ``request`` instance; if ``request`` is provided, this
@@ -1020,7 +1212,7 @@ class MetadataServiceClient(metaclass=MetadataServiceClientMeta):
 
         """
         # Create or coerce a protobuf request object.
-        # Sanity check: If we got a request object, we should *not* have
+        # Quick check: If we got a request object, we should *not* have
         # gotten any keyword arguments that map to the request.
         has_flattened_params = any([parent])
         if request is not None and has_flattened_params:
@@ -1068,11 +1260,29 @@ class MetadataServiceClient(metaclass=MetadataServiceClientMeta):
         *,
         artifact: gca_artifact.Artifact = None,
         update_mask: field_mask_pb2.FieldMask = None,
-        retry: retries.Retry = gapic_v1.method.DEFAULT,
+        retry: OptionalRetry = gapic_v1.method.DEFAULT,
         timeout: float = None,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> gca_artifact.Artifact:
         r"""Updates a stored Artifact.
+
+        .. code-block:: python
+
+            from google.cloud import aiplatform_v1beta1
+
+            def sample_update_artifact():
+                # Create a client
+                client = aiplatform_v1beta1.MetadataServiceClient()
+
+                # Initialize request argument(s)
+                request = aiplatform_v1beta1.UpdateArtifactRequest(
+                )
+
+                # Make the request
+                response = client.update_artifact(request=request)
+
+                # Handle the response
+                print(response)
 
         Args:
             request (Union[google.cloud.aiplatform_v1beta1.types.UpdateArtifactRequest, dict]):
@@ -1084,7 +1294,7 @@ class MetadataServiceClient(metaclass=MetadataServiceClientMeta):
                 [Artifact.name][google.cloud.aiplatform.v1beta1.Artifact.name]
                 field is used to identify the Artifact to be updated.
                 Format:
-                projects/{project}/locations/{location}/metadataStores/{metadatastore}/artifacts/{artifact}
+                ``projects/{project}/locations/{location}/metadataStores/{metadatastore}/artifacts/{artifact}``
 
                 This corresponds to the ``artifact`` field
                 on the ``request`` instance; if ``request`` is provided, this
@@ -1109,7 +1319,7 @@ class MetadataServiceClient(metaclass=MetadataServiceClientMeta):
                 Instance of a general artifact.
         """
         # Create or coerce a protobuf request object.
-        # Sanity check: If we got a request object, we should *not* have
+        # Quick check: If we got a request object, we should *not* have
         # gotten any keyword arguments that map to the request.
         has_flattened_params = any([artifact, update_mask])
         if request is not None and has_flattened_params:
@@ -1154,20 +1364,43 @@ class MetadataServiceClient(metaclass=MetadataServiceClientMeta):
         request: Union[metadata_service.DeleteArtifactRequest, dict] = None,
         *,
         name: str = None,
-        retry: retries.Retry = gapic_v1.method.DEFAULT,
+        retry: OptionalRetry = gapic_v1.method.DEFAULT,
         timeout: float = None,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> gac_operation.Operation:
         r"""Deletes an Artifact.
+
+        .. code-block:: python
+
+            from google.cloud import aiplatform_v1beta1
+
+            def sample_delete_artifact():
+                # Create a client
+                client = aiplatform_v1beta1.MetadataServiceClient()
+
+                # Initialize request argument(s)
+                request = aiplatform_v1beta1.DeleteArtifactRequest(
+                    name="name_value",
+                )
+
+                # Make the request
+                operation = client.delete_artifact(request=request)
+
+                print("Waiting for operation to complete...")
+
+                response = operation.result()
+
+                # Handle the response
+                print(response)
 
         Args:
             request (Union[google.cloud.aiplatform_v1beta1.types.DeleteArtifactRequest, dict]):
                 The request object. Request message for
                 [MetadataService.DeleteArtifact][google.cloud.aiplatform.v1beta1.MetadataService.DeleteArtifact].
             name (str):
-                Required. The resource name of the
-                Artifact to delete. Format:
-                projects/{project}/locations/{location}/metadataStores/{metadatastore}/artifacts/{artifact}
+                Required. The resource name of the Artifact to delete.
+                Format:
+                ``projects/{project}/locations/{location}/metadataStores/{metadatastore}/artifacts/{artifact}``
 
                 This corresponds to the ``name`` field
                 on the ``request`` instance; if ``request`` is provided, this
@@ -1198,7 +1431,7 @@ class MetadataServiceClient(metaclass=MetadataServiceClientMeta):
 
         """
         # Create or coerce a protobuf request object.
-        # Sanity check: If we got a request object, we should *not* have
+        # Quick check: If we got a request object, we should *not* have
         # gotten any keyword arguments that map to the request.
         has_flattened_params = any([name])
         if request is not None and has_flattened_params:
@@ -1247,20 +1480,44 @@ class MetadataServiceClient(metaclass=MetadataServiceClientMeta):
         request: Union[metadata_service.PurgeArtifactsRequest, dict] = None,
         *,
         parent: str = None,
-        retry: retries.Retry = gapic_v1.method.DEFAULT,
+        retry: OptionalRetry = gapic_v1.method.DEFAULT,
         timeout: float = None,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> gac_operation.Operation:
         r"""Purges Artifacts.
+
+        .. code-block:: python
+
+            from google.cloud import aiplatform_v1beta1
+
+            def sample_purge_artifacts():
+                # Create a client
+                client = aiplatform_v1beta1.MetadataServiceClient()
+
+                # Initialize request argument(s)
+                request = aiplatform_v1beta1.PurgeArtifactsRequest(
+                    parent="parent_value",
+                    filter="filter_value",
+                )
+
+                # Make the request
+                operation = client.purge_artifacts(request=request)
+
+                print("Waiting for operation to complete...")
+
+                response = operation.result()
+
+                # Handle the response
+                print(response)
 
         Args:
             request (Union[google.cloud.aiplatform_v1beta1.types.PurgeArtifactsRequest, dict]):
                 The request object. Request message for
                 [MetadataService.PurgeArtifacts][google.cloud.aiplatform.v1beta1.MetadataService.PurgeArtifacts].
             parent (str):
-                Required. The metadata store to purge
-                Artifacts from. Format:
-                projects/{project}/locations/{location}/metadataStores/{metadatastore}
+                Required. The metadata store to purge Artifacts from.
+                Format:
+                ``projects/{project}/locations/{location}/metadataStores/{metadatastore}``
 
                 This corresponds to the ``parent`` field
                 on the ``request`` instance; if ``request`` is provided, this
@@ -1282,7 +1539,7 @@ class MetadataServiceClient(metaclass=MetadataServiceClientMeta):
 
         """
         # Create or coerce a protobuf request object.
-        # Sanity check: If we got a request object, we should *not* have
+        # Quick check: If we got a request object, we should *not* have
         # gotten any keyword arguments that map to the request.
         has_flattened_params = any([parent])
         if request is not None and has_flattened_params:
@@ -1333,21 +1590,39 @@ class MetadataServiceClient(metaclass=MetadataServiceClientMeta):
         parent: str = None,
         context: gca_context.Context = None,
         context_id: str = None,
-        retry: retries.Retry = gapic_v1.method.DEFAULT,
+        retry: OptionalRetry = gapic_v1.method.DEFAULT,
         timeout: float = None,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> gca_context.Context:
         r"""Creates a Context associated with a MetadataStore.
+
+        .. code-block:: python
+
+            from google.cloud import aiplatform_v1beta1
+
+            def sample_create_context():
+                # Create a client
+                client = aiplatform_v1beta1.MetadataServiceClient()
+
+                # Initialize request argument(s)
+                request = aiplatform_v1beta1.CreateContextRequest(
+                    parent="parent_value",
+                )
+
+                # Make the request
+                response = client.create_context(request=request)
+
+                # Handle the response
+                print(response)
 
         Args:
             request (Union[google.cloud.aiplatform_v1beta1.types.CreateContextRequest, dict]):
                 The request object. Request message for
                 [MetadataService.CreateContext][google.cloud.aiplatform.v1beta1.MetadataService.CreateContext].
             parent (str):
-                Required. The resource name of the
-                MetadataStore where the Context should
-                be created. Format:
-                projects/{project}/locations/{location}/metadataStores/{metadatastore}
+                Required. The resource name of the MetadataStore where
+                the Context should be created. Format:
+                ``projects/{project}/locations/{location}/metadataStores/{metadatastore}``
 
                 This corresponds to the ``parent`` field
                 on the ``request`` instance; if ``request`` is provided, this
@@ -1360,10 +1635,10 @@ class MetadataServiceClient(metaclass=MetadataServiceClientMeta):
             context_id (str):
                 The {context} portion of the resource name with the
                 format:
-                projects/{project}/locations/{location}/metadataStores/{metadatastore}/contexts/{context}.
+                ``projects/{project}/locations/{location}/metadataStores/{metadatastore}/contexts/{context}``.
                 If not provided, the Context's ID will be a UUID
                 generated by the service. Must be 4-128 characters in
-                length. Valid characters are /[a-z][0-9]-/. Must be
+                length. Valid characters are ``/[a-z][0-9]-/``. Must be
                 unique across all Contexts in the parent MetadataStore.
                 (Otherwise the request will fail with ALREADY_EXISTS, or
                 PERMISSION_DENIED if the caller can't view the
@@ -1383,7 +1658,7 @@ class MetadataServiceClient(metaclass=MetadataServiceClientMeta):
                 Instance of a general context.
         """
         # Create or coerce a protobuf request object.
-        # Sanity check: If we got a request object, we should *not* have
+        # Quick check: If we got a request object, we should *not* have
         # gotten any keyword arguments that map to the request.
         has_flattened_params = any([parent, context, context_id])
         if request is not None and has_flattened_params:
@@ -1428,20 +1703,39 @@ class MetadataServiceClient(metaclass=MetadataServiceClientMeta):
         request: Union[metadata_service.GetContextRequest, dict] = None,
         *,
         name: str = None,
-        retry: retries.Retry = gapic_v1.method.DEFAULT,
+        retry: OptionalRetry = gapic_v1.method.DEFAULT,
         timeout: float = None,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> context.Context:
         r"""Retrieves a specific Context.
+
+        .. code-block:: python
+
+            from google.cloud import aiplatform_v1beta1
+
+            def sample_get_context():
+                # Create a client
+                client = aiplatform_v1beta1.MetadataServiceClient()
+
+                # Initialize request argument(s)
+                request = aiplatform_v1beta1.GetContextRequest(
+                    name="name_value",
+                )
+
+                # Make the request
+                response = client.get_context(request=request)
+
+                # Handle the response
+                print(response)
 
         Args:
             request (Union[google.cloud.aiplatform_v1beta1.types.GetContextRequest, dict]):
                 The request object. Request message for
                 [MetadataService.GetContext][google.cloud.aiplatform.v1beta1.MetadataService.GetContext].
             name (str):
-                Required. The resource name of the
-                Context to retrieve. Format:
-                projects/{project}/locations/{location}/metadataStores/{metadatastore}/contexts/{context}
+                Required. The resource name of the Context to retrieve.
+                Format:
+                ``projects/{project}/locations/{location}/metadataStores/{metadatastore}/contexts/{context}``
 
                 This corresponds to the ``name`` field
                 on the ``request`` instance; if ``request`` is provided, this
@@ -1457,7 +1751,7 @@ class MetadataServiceClient(metaclass=MetadataServiceClientMeta):
                 Instance of a general context.
         """
         # Create or coerce a protobuf request object.
-        # Sanity check: If we got a request object, we should *not* have
+        # Quick check: If we got a request object, we should *not* have
         # gotten any keyword arguments that map to the request.
         has_flattened_params = any([name])
         if request is not None and has_flattened_params:
@@ -1498,20 +1792,40 @@ class MetadataServiceClient(metaclass=MetadataServiceClientMeta):
         request: Union[metadata_service.ListContextsRequest, dict] = None,
         *,
         parent: str = None,
-        retry: retries.Retry = gapic_v1.method.DEFAULT,
+        retry: OptionalRetry = gapic_v1.method.DEFAULT,
         timeout: float = None,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> pagers.ListContextsPager:
         r"""Lists Contexts on the MetadataStore.
+
+        .. code-block:: python
+
+            from google.cloud import aiplatform_v1beta1
+
+            def sample_list_contexts():
+                # Create a client
+                client = aiplatform_v1beta1.MetadataServiceClient()
+
+                # Initialize request argument(s)
+                request = aiplatform_v1beta1.ListContextsRequest(
+                    parent="parent_value",
+                )
+
+                # Make the request
+                page_result = client.list_contexts(request=request)
+
+                # Handle the response
+                for response in page_result:
+                    print(response)
 
         Args:
             request (Union[google.cloud.aiplatform_v1beta1.types.ListContextsRequest, dict]):
                 The request object. Request message for
                 [MetadataService.ListContexts][google.cloud.aiplatform.v1beta1.MetadataService.ListContexts]
             parent (str):
-                Required. The MetadataStore whose
-                Contexts should be listed. Format:
-                projects/{project}/locations/{location}/metadataStores/{metadatastore}
+                Required. The MetadataStore whose Contexts should be
+                listed. Format:
+                ``projects/{project}/locations/{location}/metadataStores/{metadatastore}``
 
                 This corresponds to the ``parent`` field
                 on the ``request`` instance; if ``request`` is provided, this
@@ -1532,7 +1846,7 @@ class MetadataServiceClient(metaclass=MetadataServiceClientMeta):
 
         """
         # Create or coerce a protobuf request object.
-        # Sanity check: If we got a request object, we should *not* have
+        # Quick check: If we got a request object, we should *not* have
         # gotten any keyword arguments that map to the request.
         has_flattened_params = any([parent])
         if request is not None and has_flattened_params:
@@ -1580,11 +1894,29 @@ class MetadataServiceClient(metaclass=MetadataServiceClientMeta):
         *,
         context: gca_context.Context = None,
         update_mask: field_mask_pb2.FieldMask = None,
-        retry: retries.Retry = gapic_v1.method.DEFAULT,
+        retry: OptionalRetry = gapic_v1.method.DEFAULT,
         timeout: float = None,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> gca_context.Context:
         r"""Updates a stored Context.
+
+        .. code-block:: python
+
+            from google.cloud import aiplatform_v1beta1
+
+            def sample_update_context():
+                # Create a client
+                client = aiplatform_v1beta1.MetadataServiceClient()
+
+                # Initialize request argument(s)
+                request = aiplatform_v1beta1.UpdateContextRequest(
+                )
+
+                # Make the request
+                response = client.update_context(request=request)
+
+                # Handle the response
+                print(response)
 
         Args:
             request (Union[google.cloud.aiplatform_v1beta1.types.UpdateContextRequest, dict]):
@@ -1595,7 +1927,7 @@ class MetadataServiceClient(metaclass=MetadataServiceClientMeta):
                 [Context.name][google.cloud.aiplatform.v1beta1.Context.name]
                 field is used to identify the Context to be updated.
                 Format:
-                projects/{project}/locations/{location}/metadataStores/{metadatastore}/contexts/{context}
+                ``projects/{project}/locations/{location}/metadataStores/{metadatastore}/contexts/{context}``
 
                 This corresponds to the ``context`` field
                 on the ``request`` instance; if ``request`` is provided, this
@@ -1620,7 +1952,7 @@ class MetadataServiceClient(metaclass=MetadataServiceClientMeta):
                 Instance of a general context.
         """
         # Create or coerce a protobuf request object.
-        # Sanity check: If we got a request object, we should *not* have
+        # Quick check: If we got a request object, we should *not* have
         # gotten any keyword arguments that map to the request.
         has_flattened_params = any([context, update_mask])
         if request is not None and has_flattened_params:
@@ -1665,20 +1997,43 @@ class MetadataServiceClient(metaclass=MetadataServiceClientMeta):
         request: Union[metadata_service.DeleteContextRequest, dict] = None,
         *,
         name: str = None,
-        retry: retries.Retry = gapic_v1.method.DEFAULT,
+        retry: OptionalRetry = gapic_v1.method.DEFAULT,
         timeout: float = None,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> gac_operation.Operation:
         r"""Deletes a stored Context.
+
+        .. code-block:: python
+
+            from google.cloud import aiplatform_v1beta1
+
+            def sample_delete_context():
+                # Create a client
+                client = aiplatform_v1beta1.MetadataServiceClient()
+
+                # Initialize request argument(s)
+                request = aiplatform_v1beta1.DeleteContextRequest(
+                    name="name_value",
+                )
+
+                # Make the request
+                operation = client.delete_context(request=request)
+
+                print("Waiting for operation to complete...")
+
+                response = operation.result()
+
+                # Handle the response
+                print(response)
 
         Args:
             request (Union[google.cloud.aiplatform_v1beta1.types.DeleteContextRequest, dict]):
                 The request object. Request message for
                 [MetadataService.DeleteContext][google.cloud.aiplatform.v1beta1.MetadataService.DeleteContext].
             name (str):
-                Required. The resource name of the
-                Context to delete. Format:
-                projects/{project}/locations/{location}/metadataStores/{metadatastore}/contexts/{context}
+                Required. The resource name of the Context to delete.
+                Format:
+                ``projects/{project}/locations/{location}/metadataStores/{metadatastore}/contexts/{context}``
 
                 This corresponds to the ``name`` field
                 on the ``request`` instance; if ``request`` is provided, this
@@ -1709,7 +2064,7 @@ class MetadataServiceClient(metaclass=MetadataServiceClientMeta):
 
         """
         # Create or coerce a protobuf request object.
-        # Sanity check: If we got a request object, we should *not* have
+        # Quick check: If we got a request object, we should *not* have
         # gotten any keyword arguments that map to the request.
         has_flattened_params = any([name])
         if request is not None and has_flattened_params:
@@ -1758,20 +2113,44 @@ class MetadataServiceClient(metaclass=MetadataServiceClientMeta):
         request: Union[metadata_service.PurgeContextsRequest, dict] = None,
         *,
         parent: str = None,
-        retry: retries.Retry = gapic_v1.method.DEFAULT,
+        retry: OptionalRetry = gapic_v1.method.DEFAULT,
         timeout: float = None,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> gac_operation.Operation:
         r"""Purges Contexts.
+
+        .. code-block:: python
+
+            from google.cloud import aiplatform_v1beta1
+
+            def sample_purge_contexts():
+                # Create a client
+                client = aiplatform_v1beta1.MetadataServiceClient()
+
+                # Initialize request argument(s)
+                request = aiplatform_v1beta1.PurgeContextsRequest(
+                    parent="parent_value",
+                    filter="filter_value",
+                )
+
+                # Make the request
+                operation = client.purge_contexts(request=request)
+
+                print("Waiting for operation to complete...")
+
+                response = operation.result()
+
+                # Handle the response
+                print(response)
 
         Args:
             request (Union[google.cloud.aiplatform_v1beta1.types.PurgeContextsRequest, dict]):
                 The request object. Request message for
                 [MetadataService.PurgeContexts][google.cloud.aiplatform.v1beta1.MetadataService.PurgeContexts].
             parent (str):
-                Required. The metadata store to purge
-                Contexts from. Format:
-                projects/{project}/locations/{location}/metadataStores/{metadatastore}
+                Required. The metadata store to purge Contexts from.
+                Format:
+                ``projects/{project}/locations/{location}/metadataStores/{metadatastore}``
 
                 This corresponds to the ``parent`` field
                 on the ``request`` instance; if ``request`` is provided, this
@@ -1793,7 +2172,7 @@ class MetadataServiceClient(metaclass=MetadataServiceClientMeta):
 
         """
         # Create or coerce a protobuf request object.
-        # Sanity check: If we got a request object, we should *not* have
+        # Quick check: If we got a request object, we should *not* have
         # gotten any keyword arguments that map to the request.
         has_flattened_params = any([parent])
         if request is not None and has_flattened_params:
@@ -1846,7 +2225,7 @@ class MetadataServiceClient(metaclass=MetadataServiceClientMeta):
         context: str = None,
         artifacts: Sequence[str] = None,
         executions: Sequence[str] = None,
-        retry: retries.Retry = gapic_v1.method.DEFAULT,
+        retry: OptionalRetry = gapic_v1.method.DEFAULT,
         timeout: float = None,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> metadata_service.AddContextArtifactsAndExecutionsResponse:
@@ -1854,34 +2233,54 @@ class MetadataServiceClient(metaclass=MetadataServiceClientMeta):
         If any of the Artifacts or Executions have already been
         added to a Context, they are simply skipped.
 
+
+        .. code-block:: python
+
+            from google.cloud import aiplatform_v1beta1
+
+            def sample_add_context_artifacts_and_executions():
+                # Create a client
+                client = aiplatform_v1beta1.MetadataServiceClient()
+
+                # Initialize request argument(s)
+                request = aiplatform_v1beta1.AddContextArtifactsAndExecutionsRequest(
+                    context="context_value",
+                )
+
+                # Make the request
+                response = client.add_context_artifacts_and_executions(request=request)
+
+                # Handle the response
+                print(response)
+
         Args:
             request (Union[google.cloud.aiplatform_v1beta1.types.AddContextArtifactsAndExecutionsRequest, dict]):
                 The request object. Request message for
                 [MetadataService.AddContextArtifactsAndExecutions][google.cloud.aiplatform.v1beta1.MetadataService.AddContextArtifactsAndExecutions].
             context (str):
-                Required. The resource name of the
-                Context that the Artifacts and
-                Executions belong to. Format:
-                projects/{project}/locations/{location}/metadataStores/{metadatastore}/contexts/{context}
+                Required. The resource name of the Context that the
+                Artifacts and Executions belong to. Format:
+                ``projects/{project}/locations/{location}/metadataStores/{metadatastore}/contexts/{context}``
 
                 This corresponds to the ``context`` field
                 on the ``request`` instance; if ``request`` is provided, this
                 should not be set.
             artifacts (Sequence[str]):
-                The resource names of the Artifacts
-                to attribute to the Context.
+                The resource names of the Artifacts to attribute to the
+                Context.
+
                 Format:
-                projects/{project}/locations/{location}/metadataStores/{metadatastore}/artifacts/{artifact}
+                ``projects/{project}/locations/{location}/metadataStores/{metadatastore}/artifacts/{artifact}``
 
                 This corresponds to the ``artifacts`` field
                 on the ``request`` instance; if ``request`` is provided, this
                 should not be set.
             executions (Sequence[str]):
-                The resource names of the Executions
-                to associate with the Context.
+                The resource names of the Executions to associate with
+                the Context.
 
                 Format:
-                projects/{project}/locations/{location}/metadataStores/{metadatastore}/executions/{execution}
+                ``projects/{project}/locations/{location}/metadataStores/{metadatastore}/executions/{execution}``
 
                 This corresponds to the ``executions`` field
                 on the ``request`` instance; if ``request`` is provided, this
@@ -1899,7 +2298,7 @@ class MetadataServiceClient(metaclass=MetadataServiceClientMeta):
 
         """
         # Create or coerce a protobuf request object.
-        # Sanity check: If we got a request object, we should *not* have
+        # Quick check: If we got a request object, we should *not* have
         # gotten any keyword arguments that map to the request.
         has_flattened_params = any([context, artifacts, executions])
         if request is not None and has_flattened_params:
@@ -1949,7 +2348,7 @@ class MetadataServiceClient(metaclass=MetadataServiceClientMeta):
         *,
         context: str = None,
         child_contexts: Sequence[str] = None,
-        retry: retries.Retry = gapic_v1.method.DEFAULT,
+        retry: OptionalRetry = gapic_v1.method.DEFAULT,
         timeout: float = None,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> metadata_service.AddContextChildrenResponse:
@@ -1959,15 +2358,35 @@ class MetadataServiceClient(metaclass=MetadataServiceClientMeta):
         cycle or cause any Context to have more than 10 parents, the
         request will fail with an INVALID_ARGUMENT error.
 
+
+        .. code-block:: python
+
+            from google.cloud import aiplatform_v1beta1
+
+            def sample_add_context_children():
+                # Create a client
+                client = aiplatform_v1beta1.MetadataServiceClient()
+
+                # Initialize request argument(s)
+                request = aiplatform_v1beta1.AddContextChildrenRequest(
+                    context="context_value",
+                )
+
+                # Make the request
+                response = client.add_context_children(request=request)
+
+                # Handle the response
+                print(response)
+
         Args:
             request (Union[google.cloud.aiplatform_v1beta1.types.AddContextChildrenRequest, dict]):
                 The request object. Request message for
                 [MetadataService.AddContextChildren][google.cloud.aiplatform.v1beta1.MetadataService.AddContextChildren].
             context (str):
-                Required. The resource name of the
-                parent Context.
+                Required. The resource name of the parent Context.
+
                 Format:
-                projects/{project}/locations/{location}/metadataStores/{metadatastore}/contexts/{context}
+                ``projects/{project}/locations/{location}/metadataStores/{metadatastore}/contexts/{context}``
 
                 This corresponds to the ``context`` field
                 on the ``request`` instance; if ``request`` is provided, this
@@ -1992,7 +2411,7 @@ class MetadataServiceClient(metaclass=MetadataServiceClientMeta):
 
         """
         # Create or coerce a protobuf request object.
-        # Sanity check: If we got a request object, we should *not* have
+        # Quick check: If we got a request object, we should *not* have
         # gotten any keyword arguments that map to the request.
         has_flattened_params = any([context, child_contexts])
         if request is not None and has_flattened_params:
@@ -2037,13 +2456,33 @@ class MetadataServiceClient(metaclass=MetadataServiceClientMeta):
         ] = None,
         *,
         context: str = None,
-        retry: retries.Retry = gapic_v1.method.DEFAULT,
+        retry: OptionalRetry = gapic_v1.method.DEFAULT,
         timeout: float = None,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> lineage_subgraph.LineageSubgraph:
         r"""Retrieves Artifacts and Executions within the
         specified Context, connected by Event edges and returned
         as a LineageSubgraph.
+
+
+        .. code-block:: python
+
+            from google.cloud import aiplatform_v1beta1
+
+            def sample_query_context_lineage_subgraph():
+                # Create a client
+                client = aiplatform_v1beta1.MetadataServiceClient()
+
+                # Initialize request argument(s)
+                request = aiplatform_v1beta1.QueryContextLineageSubgraphRequest(
+                    context="context_value",
+                )
+
+                # Make the request
+                response = client.query_context_lineage_subgraph(request=request)
+
+                # Handle the response
+                print(response)
 
         Args:
             request (Union[google.cloud.aiplatform_v1beta1.types.QueryContextLineageSubgraphRequest, dict]):
@@ -2053,7 +2492,7 @@ class MetadataServiceClient(metaclass=MetadataServiceClientMeta):
                 Required. The resource name of the Context whose
                 Artifacts and Executions should be retrieved as a
                 LineageSubgraph. Format:
-                projects/{project}/locations/{location}/metadataStores/{metadatastore}/contexts/{context}
+                ``projects/{project}/locations/{location}/metadataStores/{metadatastore}/contexts/{context}``
 
                 The request may error with FAILED_PRECONDITION if the
                 number of Artifacts, the number of Executions, or the
@@ -2077,7 +2516,7 @@ class MetadataServiceClient(metaclass=MetadataServiceClientMeta):
 
         """
         # Create or coerce a protobuf request object.
-        # Sanity check: If we got a request object, we should *not* have
+        # Quick check: If we got a request object, we should *not* have
         # gotten any keyword arguments that map to the request.
         has_flattened_params = any([context])
         if request is not None and has_flattened_params:
@@ -2122,21 +2561,39 @@ class MetadataServiceClient(metaclass=MetadataServiceClientMeta):
         parent: str = None,
         execution: gca_execution.Execution = None,
         execution_id: str = None,
-        retry: retries.Retry = gapic_v1.method.DEFAULT,
+        retry: OptionalRetry = gapic_v1.method.DEFAULT,
         timeout: float = None,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> gca_execution.Execution:
         r"""Creates an Execution associated with a MetadataStore.
+
+        .. code-block:: python
+
+            from google.cloud import aiplatform_v1beta1
+
+            def sample_create_execution():
+                # Create a client
+                client = aiplatform_v1beta1.MetadataServiceClient()
+
+                # Initialize request argument(s)
+                request = aiplatform_v1beta1.CreateExecutionRequest(
+                    parent="parent_value",
+                )
+
+                # Make the request
+                response = client.create_execution(request=request)
+
+                # Handle the response
+                print(response)
 
         Args:
             request (Union[google.cloud.aiplatform_v1beta1.types.CreateExecutionRequest, dict]):
                 The request object. Request message for
                 [MetadataService.CreateExecution][google.cloud.aiplatform.v1beta1.MetadataService.CreateExecution].
             parent (str):
-                Required. The resource name of the
-                MetadataStore where the Execution should
-                be created. Format:
-                projects/{project}/locations/{location}/metadataStores/{metadatastore}
+                Required. The resource name of the MetadataStore where
+                the Execution should be created. Format:
+                ``projects/{project}/locations/{location}/metadataStores/{metadatastore}``
 
                 This corresponds to the ``parent`` field
                 on the ``request`` instance; if ``request`` is provided, this
@@ -2149,10 +2606,10 @@ class MetadataServiceClient(metaclass=MetadataServiceClientMeta):
             execution_id (str):
                 The {execution} portion of the resource name with the
                 format:
-                projects/{project}/locations/{location}/metadataStores/{metadatastore}/executions/{execution}
+                ``projects/{project}/locations/{location}/metadataStores/{metadatastore}/executions/{execution}``
                 If not provided, the Execution's ID will be a UUID
                 generated by the service. Must be 4-128 characters in
-                length. Valid characters are /[a-z][0-9]-/. Must be
+                length. Valid characters are ``/[a-z][0-9]-/``. Must be
                 unique across all Executions in the parent
                 MetadataStore. (Otherwise the request will fail with
                 ALREADY_EXISTS, or PERMISSION_DENIED if the caller can't
@@ -2172,7 +2629,7 @@ class MetadataServiceClient(metaclass=MetadataServiceClientMeta):
                 Instance of a general execution.
         """
         # Create or coerce a protobuf request object.
-        # Sanity check: If we got a request object, we should *not* have
+        # Quick check: If we got a request object, we should *not* have
         # gotten any keyword arguments that map to the request.
         has_flattened_params = any([parent, execution, execution_id])
         if request is not None and has_flattened_params:
@@ -2217,20 +2674,39 @@ class MetadataServiceClient(metaclass=MetadataServiceClientMeta):
         request: Union[metadata_service.GetExecutionRequest, dict] = None,
         *,
         name: str = None,
-        retry: retries.Retry = gapic_v1.method.DEFAULT,
+        retry: OptionalRetry = gapic_v1.method.DEFAULT,
         timeout: float = None,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> execution.Execution:
         r"""Retrieves a specific Execution.
+
+        .. code-block:: python
+
+            from google.cloud import aiplatform_v1beta1
+
+            def sample_get_execution():
+                # Create a client
+                client = aiplatform_v1beta1.MetadataServiceClient()
+
+                # Initialize request argument(s)
+                request = aiplatform_v1beta1.GetExecutionRequest(
+                    name="name_value",
+                )
+
+                # Make the request
+                response = client.get_execution(request=request)
+
+                # Handle the response
+                print(response)
 
         Args:
             request (Union[google.cloud.aiplatform_v1beta1.types.GetExecutionRequest, dict]):
                 The request object. Request message for
                 [MetadataService.GetExecution][google.cloud.aiplatform.v1beta1.MetadataService.GetExecution].
             name (str):
-                Required. The resource name of the
-                Execution to retrieve. Format:
-                projects/{project}/locations/{location}/metadataStores/{metadatastore}/executions/{execution}
+                Required. The resource name of the Execution to
+                retrieve. Format:
+                ``projects/{project}/locations/{location}/metadataStores/{metadatastore}/executions/{execution}``
 
                 This corresponds to the ``name`` field
                 on the ``request`` instance; if ``request`` is provided, this
@@ -2246,7 +2722,7 @@ class MetadataServiceClient(metaclass=MetadataServiceClientMeta):
                 Instance of a general execution.
         """
         # Create or coerce a protobuf request object.
-        # Sanity check: If we got a request object, we should *not* have
+        # Quick check: If we got a request object, we should *not* have
         # gotten any keyword arguments that map to the request.
         has_flattened_params = any([name])
         if request is not None and has_flattened_params:
@@ -2287,20 +2763,40 @@ class MetadataServiceClient(metaclass=MetadataServiceClientMeta):
         request: Union[metadata_service.ListExecutionsRequest, dict] = None,
         *,
         parent: str = None,
-        retry: retries.Retry = gapic_v1.method.DEFAULT,
+        retry: OptionalRetry = gapic_v1.method.DEFAULT,
         timeout: float = None,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> pagers.ListExecutionsPager:
         r"""Lists Executions in the MetadataStore.
+
+        .. code-block:: python
+
+            from google.cloud import aiplatform_v1beta1
+
+            def sample_list_executions():
+                # Create a client
+                client = aiplatform_v1beta1.MetadataServiceClient()
+
+                # Initialize request argument(s)
+                request = aiplatform_v1beta1.ListExecutionsRequest(
+                    parent="parent_value",
+                )
+
+                # Make the request
+                page_result = client.list_executions(request=request)
+
+                # Handle the response
+                for response in page_result:
+                    print(response)
 
         Args:
             request (Union[google.cloud.aiplatform_v1beta1.types.ListExecutionsRequest, dict]):
                 The request object. Request message for
                 [MetadataService.ListExecutions][google.cloud.aiplatform.v1beta1.MetadataService.ListExecutions].
             parent (str):
-                Required. The MetadataStore whose
-                Executions should be listed. Format:
-                projects/{project}/locations/{location}/metadataStores/{metadatastore}
+                Required. The MetadataStore whose Executions should be
+                listed. Format:
+                ``projects/{project}/locations/{location}/metadataStores/{metadatastore}``
 
                 This corresponds to the ``parent`` field
                 on the ``request`` instance; if ``request`` is provided, this
@@ -2321,7 +2817,7 @@ class MetadataServiceClient(metaclass=MetadataServiceClientMeta):
 
         """
         # Create or coerce a protobuf request object.
-        # Sanity check: If we got a request object, we should *not* have
+        # Quick check: If we got a request object, we should *not* have
         # gotten any keyword arguments that map to the request.
         has_flattened_params = any([parent])
         if request is not None and has_flattened_params:
@@ -2369,11 +2865,29 @@ class MetadataServiceClient(metaclass=MetadataServiceClientMeta):
         *,
         execution: gca_execution.Execution = None,
         update_mask: field_mask_pb2.FieldMask = None,
-        retry: retries.Retry = gapic_v1.method.DEFAULT,
+        retry: OptionalRetry = gapic_v1.method.DEFAULT,
         timeout: float = None,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> gca_execution.Execution:
         r"""Updates a stored Execution.
+
+        .. code-block:: python
+
+            from google.cloud import aiplatform_v1beta1
+
+            def sample_update_execution():
+                # Create a client
+                client = aiplatform_v1beta1.MetadataServiceClient()
+
+                # Initialize request argument(s)
+                request = aiplatform_v1beta1.UpdateExecutionRequest(
+                )
+
+                # Make the request
+                response = client.update_execution(request=request)
+
+                # Handle the response
+                print(response)
 
         Args:
             request (Union[google.cloud.aiplatform_v1beta1.types.UpdateExecutionRequest, dict]):
@@ -2385,7 +2899,7 @@ class MetadataServiceClient(metaclass=MetadataServiceClientMeta):
                 [Execution.name][google.cloud.aiplatform.v1beta1.Execution.name]
                 field is used to identify the Execution to be updated.
                 Format:
-                projects/{project}/locations/{location}/metadataStores/{metadatastore}/executions/{execution}
+                ``projects/{project}/locations/{location}/metadataStores/{metadatastore}/executions/{execution}``
 
                 This corresponds to the ``execution`` field
                 on the ``request`` instance; if ``request`` is provided, this
@@ -2410,7 +2924,7 @@ class MetadataServiceClient(metaclass=MetadataServiceClientMeta):
                 Instance of a general execution.
         """
         # Create or coerce a protobuf request object.
-        # Sanity check: If we got a request object, we should *not* have
+        # Quick check: If we got a request object, we should *not* have
         # gotten any keyword arguments that map to the request.
         has_flattened_params = any([execution, update_mask])
         if request is not None and has_flattened_params:
@@ -2455,20 +2969,43 @@ class MetadataServiceClient(metaclass=MetadataServiceClientMeta):
         request: Union[metadata_service.DeleteExecutionRequest, dict] = None,
         *,
         name: str = None,
-        retry: retries.Retry = gapic_v1.method.DEFAULT,
+        retry: OptionalRetry = gapic_v1.method.DEFAULT,
         timeout: float = None,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> gac_operation.Operation:
         r"""Deletes an Execution.
+
+        .. code-block:: python
+
+            from google.cloud import aiplatform_v1beta1
+
+            def sample_delete_execution():
+                # Create a client
+                client = aiplatform_v1beta1.MetadataServiceClient()
+
+                # Initialize request argument(s)
+                request = aiplatform_v1beta1.DeleteExecutionRequest(
+                    name="name_value",
+                )
+
+                # Make the request
+                operation = client.delete_execution(request=request)
+
+                print("Waiting for operation to complete...")
+
+                response = operation.result()
+
+                # Handle the response
+                print(response)
 
         Args:
             request (Union[google.cloud.aiplatform_v1beta1.types.DeleteExecutionRequest, dict]):
                 The request object. Request message for
                 [MetadataService.DeleteExecution][google.cloud.aiplatform.v1beta1.MetadataService.DeleteExecution].
             name (str):
-                Required. The resource name of the
-                Execution to delete. Format:
-                projects/{project}/locations/{location}/metadataStores/{metadatastore}/executions/{execution}
+                Required. The resource name of the Execution to delete.
+                Format:
+                ``projects/{project}/locations/{location}/metadataStores/{metadatastore}/executions/{execution}``
 
                 This corresponds to the ``name`` field
                 on the ``request`` instance; if ``request`` is provided, this
@@ -2499,7 +3036,7 @@ class MetadataServiceClient(metaclass=MetadataServiceClientMeta):
 
         """
         # Create or coerce a protobuf request object.
-        # Sanity check: If we got a request object, we should *not* have
+        # Quick check: If we got a request object, we should *not* have
         # gotten any keyword arguments that map to the request.
         has_flattened_params = any([name])
         if request is not None and has_flattened_params:
@@ -2548,20 +3085,44 @@ class MetadataServiceClient(metaclass=MetadataServiceClientMeta):
         request: Union[metadata_service.PurgeExecutionsRequest, dict] = None,
         *,
         parent: str = None,
-        retry: retries.Retry = gapic_v1.method.DEFAULT,
+        retry: OptionalRetry = gapic_v1.method.DEFAULT,
         timeout: float = None,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> gac_operation.Operation:
         r"""Purges Executions.
+
+        .. code-block:: python
+
+            from google.cloud import aiplatform_v1beta1
+
+            def sample_purge_executions():
+                # Create a client
+                client = aiplatform_v1beta1.MetadataServiceClient()
+
+                # Initialize request argument(s)
+                request = aiplatform_v1beta1.PurgeExecutionsRequest(
+                    parent="parent_value",
+                    filter="filter_value",
+                )
+
+                # Make the request
+                operation = client.purge_executions(request=request)
+
+                print("Waiting for operation to complete...")
+
+                response = operation.result()
+
+                # Handle the response
+                print(response)
 
         Args:
             request (Union[google.cloud.aiplatform_v1beta1.types.PurgeExecutionsRequest, dict]):
                 The request object. Request message for
                 [MetadataService.PurgeExecutions][google.cloud.aiplatform.v1beta1.MetadataService.PurgeExecutions].
             parent (str):
-                Required. The metadata store to purge
-                Executions from. Format:
-                projects/{project}/locations/{location}/metadataStores/{metadatastore}
+                Required. The metadata store to purge Executions from.
+                Format:
+                ``projects/{project}/locations/{location}/metadataStores/{metadatastore}``
 
                 This corresponds to the ``parent`` field
                 on the ``request`` instance; if ``request`` is provided, this
@@ -2583,7 +3144,7 @@ class MetadataServiceClient(metaclass=MetadataServiceClientMeta):
 
         """
         # Create or coerce a protobuf request object.
-        # Sanity check: If we got a request object, we should *not* have
+        # Quick check: If we got a request object, we should *not* have
         # gotten any keyword arguments that map to the request.
         has_flattened_params = any([parent])
         if request is not None and has_flattened_params:
@@ -2633,7 +3194,7 @@ class MetadataServiceClient(metaclass=MetadataServiceClientMeta):
         *,
         execution: str = None,
         events: Sequence[event.Event] = None,
-        retry: retries.Retry = gapic_v1.method.DEFAULT,
+        retry: OptionalRetry = gapic_v1.method.DEFAULT,
         timeout: float = None,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> metadata_service.AddExecutionEventsResponse:
@@ -2643,15 +3204,34 @@ class MetadataServiceClient(metaclass=MetadataServiceClientMeta):
         between the Execution and the Artifact, the Event is
         skipped.
 
+
+        .. code-block:: python
+
+            from google.cloud import aiplatform_v1beta1
+
+            def sample_add_execution_events():
+                # Create a client
+                client = aiplatform_v1beta1.MetadataServiceClient()
+
+                # Initialize request argument(s)
+                request = aiplatform_v1beta1.AddExecutionEventsRequest(
+                    execution="execution_value",
+                )
+
+                # Make the request
+                response = client.add_execution_events(request=request)
+
+                # Handle the response
+                print(response)
+
         Args:
             request (Union[google.cloud.aiplatform_v1beta1.types.AddExecutionEventsRequest, dict]):
                 The request object. Request message for
                 [MetadataService.AddExecutionEvents][google.cloud.aiplatform.v1beta1.MetadataService.AddExecutionEvents].
             execution (str):
-                Required. The resource name of the
-                Execution that the Events connect
-                Artifacts with. Format:
-                projects/{project}/locations/{location}/metadataStores/{metadatastore}/executions/{execution}
+                Required. The resource name of the Execution that the
+                Events connect Artifacts with. Format:
+                ``projects/{project}/locations/{location}/metadataStores/{metadatastore}/executions/{execution}``
 
                 This corresponds to the ``execution`` field
                 on the ``request`` instance; if ``request`` is provided, this
@@ -2674,7 +3254,7 @@ class MetadataServiceClient(metaclass=MetadataServiceClientMeta):
 
         """
         # Create or coerce a protobuf request object.
-        # Sanity check: If we got a request object, we should *not* have
+        # Quick check: If we got a request object, we should *not* have
         # gotten any keyword arguments that map to the request.
         has_flattened_params = any([execution, events])
         if request is not None and has_flattened_params:
@@ -2721,7 +3301,7 @@ class MetadataServiceClient(metaclass=MetadataServiceClientMeta):
         ] = None,
         *,
         execution: str = None,
-        retry: retries.Retry = gapic_v1.method.DEFAULT,
+        retry: OptionalRetry = gapic_v1.method.DEFAULT,
         timeout: float = None,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> lineage_subgraph.LineageSubgraph:
@@ -2729,16 +3309,35 @@ class MetadataServiceClient(metaclass=MetadataServiceClientMeta):
         this Execution, in the form of LineageSubgraph that also
         contains the Execution and connecting Events.
 
+
+        .. code-block:: python
+
+            from google.cloud import aiplatform_v1beta1
+
+            def sample_query_execution_inputs_and_outputs():
+                # Create a client
+                client = aiplatform_v1beta1.MetadataServiceClient()
+
+                # Initialize request argument(s)
+                request = aiplatform_v1beta1.QueryExecutionInputsAndOutputsRequest(
+                    execution="execution_value",
+                )
+
+                # Make the request
+                response = client.query_execution_inputs_and_outputs(request=request)
+
+                # Handle the response
+                print(response)
+
         Args:
             request (Union[google.cloud.aiplatform_v1beta1.types.QueryExecutionInputsAndOutputsRequest, dict]):
                 The request object. Request message for
                 [MetadataService.QueryExecutionInputsAndOutputs][google.cloud.aiplatform.v1beta1.MetadataService.QueryExecutionInputsAndOutputs].
             execution (str):
-                Required. The resource name of the
-                Execution whose input and output
-                Artifacts should be retrieved as a
+                Required. The resource name of the Execution whose input
+                and output Artifacts should be retrieved as a
                 LineageSubgraph. Format:
-                projects/{project}/locations/{location}/metadataStores/{metadatastore}/executions/{execution}
+                ``projects/{project}/locations/{location}/metadataStores/{metadatastore}/executions/{execution}``
 
                 This corresponds to the ``execution`` field
                 on the ``request`` instance; if ``request`` is provided, this
@@ -2757,7 +3356,7 @@ class MetadataServiceClient(metaclass=MetadataServiceClientMeta):
 
         """
         # Create or coerce a protobuf request object.
-        # Sanity check: If we got a request object, we should *not* have
+        # Quick check: If we got a request object, we should *not* have
         # gotten any keyword arguments that map to the request.
         has_flattened_params = any([execution])
         if request is not None and has_flattened_params:
@@ -2806,21 +3405,43 @@ class MetadataServiceClient(metaclass=MetadataServiceClientMeta):
         parent: str = None,
         metadata_schema: gca_metadata_schema.MetadataSchema = None,
         metadata_schema_id: str = None,
-        retry: retries.Retry = gapic_v1.method.DEFAULT,
+        retry: OptionalRetry = gapic_v1.method.DEFAULT,
         timeout: float = None,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> gca_metadata_schema.MetadataSchema:
         r"""Creates a MetadataSchema.
+
+        .. code-block:: python
+
+            from google.cloud import aiplatform_v1beta1
+
+            def sample_create_metadata_schema():
+                # Create a client
+                client = aiplatform_v1beta1.MetadataServiceClient()
+
+                # Initialize request argument(s)
+                metadata_schema = aiplatform_v1beta1.MetadataSchema()
+                metadata_schema.schema = "schema_value"
+
+                request = aiplatform_v1beta1.CreateMetadataSchemaRequest(
+                    parent="parent_value",
+                    metadata_schema=metadata_schema,
+                )
+
+                # Make the request
+                response = client.create_metadata_schema(request=request)
+
+                # Handle the response
+                print(response)
 
         Args:
             request (Union[google.cloud.aiplatform_v1beta1.types.CreateMetadataSchemaRequest, dict]):
                 The request object. Request message for
                 [MetadataService.CreateMetadataSchema][google.cloud.aiplatform.v1beta1.MetadataService.CreateMetadataSchema].
             parent (str):
-                Required. The resource name of the
-                MetadataStore where the MetadataSchema
-                should be created. Format:
-                projects/{project}/locations/{location}/metadataStores/{metadatastore}
+                Required. The resource name of the MetadataStore where
+                the MetadataSchema should be created. Format:
+                ``projects/{project}/locations/{location}/metadataStores/{metadatastore}``
 
                 This corresponds to the ``parent`` field
                 on the ``request`` instance; if ``request`` is provided, this
@@ -2835,10 +3456,10 @@ class MetadataServiceClient(metaclass=MetadataServiceClientMeta):
             metadata_schema_id (str):
                 The {metadata_schema} portion of the resource name with
                 the format:
-                projects/{project}/locations/{location}/metadataStores/{metadatastore}/metadataSchemas/{metadataschema}
+                ``projects/{project}/locations/{location}/metadataStores/{metadatastore}/metadataSchemas/{metadataschema}``
                 If not provided, the MetadataStore's ID will be a UUID
                 generated by the service. Must be 4-128 characters in
-                length. Valid characters are /[a-z][0-9]-/. Must be
+                length. Valid characters are ``/[a-z][0-9]-/``. Must be
                 unique across all MetadataSchemas in the parent
                 Location. (Otherwise the request will fail with
                 ALREADY_EXISTS, or PERMISSION_DENIED if the caller can't
@@ -2858,7 +3479,7 @@ class MetadataServiceClient(metaclass=MetadataServiceClientMeta):
                 Instance of a general MetadataSchema.
         """
         # Create or coerce a protobuf request object.
-        # Sanity check: If we got a request object, we should *not* have
+        # Quick check: If we got a request object, we should *not* have
         # gotten any keyword arguments that map to the request.
         has_flattened_params = any([parent, metadata_schema, metadata_schema_id])
         if request is not None and has_flattened_params:
@@ -2903,20 +3524,39 @@ class MetadataServiceClient(metaclass=MetadataServiceClientMeta):
         request: Union[metadata_service.GetMetadataSchemaRequest, dict] = None,
         *,
         name: str = None,
-        retry: retries.Retry = gapic_v1.method.DEFAULT,
+        retry: OptionalRetry = gapic_v1.method.DEFAULT,
         timeout: float = None,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> metadata_schema.MetadataSchema:
         r"""Retrieves a specific MetadataSchema.
+
+        .. code-block:: python
+
+            from google.cloud import aiplatform_v1beta1
+
+            def sample_get_metadata_schema():
+                # Create a client
+                client = aiplatform_v1beta1.MetadataServiceClient()
+
+                # Initialize request argument(s)
+                request = aiplatform_v1beta1.GetMetadataSchemaRequest(
+                    name="name_value",
+                )
+
+                # Make the request
+                response = client.get_metadata_schema(request=request)
+
+                # Handle the response
+                print(response)
 
         Args:
             request (Union[google.cloud.aiplatform_v1beta1.types.GetMetadataSchemaRequest, dict]):
                 The request object. Request message for
                 [MetadataService.GetMetadataSchema][google.cloud.aiplatform.v1beta1.MetadataService.GetMetadataSchema].
             name (str):
-                Required. The resource name of the
-                MetadataSchema to retrieve. Format:
-                projects/{project}/locations/{location}/metadataStores/{metadatastore}/metadataSchemas/{metadataschema}
+                Required. The resource name of the MetadataSchema to
+                retrieve. Format:
+                ``projects/{project}/locations/{location}/metadataStores/{metadatastore}/metadataSchemas/{metadataschema}``
 
                 This corresponds to the ``name`` field
                 on the ``request`` instance; if ``request`` is provided, this
@@ -2932,7 +3572,7 @@ class MetadataServiceClient(metaclass=MetadataServiceClientMeta):
                 Instance of a general MetadataSchema.
         """
         # Create or coerce a protobuf request object.
-        # Sanity check: If we got a request object, we should *not* have
+        # Quick check: If we got a request object, we should *not* have
         # gotten any keyword arguments that map to the request.
         has_flattened_params = any([name])
         if request is not None and has_flattened_params:
@@ -2973,21 +3613,40 @@ class MetadataServiceClient(metaclass=MetadataServiceClientMeta):
         request: Union[metadata_service.ListMetadataSchemasRequest, dict] = None,
         *,
         parent: str = None,
-        retry: retries.Retry = gapic_v1.method.DEFAULT,
+        retry: OptionalRetry = gapic_v1.method.DEFAULT,
         timeout: float = None,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> pagers.ListMetadataSchemasPager:
         r"""Lists MetadataSchemas.
+
+        .. code-block:: python
+
+            from google.cloud import aiplatform_v1beta1
+
+            def sample_list_metadata_schemas():
+                # Create a client
+                client = aiplatform_v1beta1.MetadataServiceClient()
+
+                # Initialize request argument(s)
+                request = aiplatform_v1beta1.ListMetadataSchemasRequest(
+                    parent="parent_value",
+                )
+
+                # Make the request
+                page_result = client.list_metadata_schemas(request=request)
+
+                # Handle the response
+                for response in page_result:
+                    print(response)
 
         Args:
             request (Union[google.cloud.aiplatform_v1beta1.types.ListMetadataSchemasRequest, dict]):
                 The request object. Request message for
                 [MetadataService.ListMetadataSchemas][google.cloud.aiplatform.v1beta1.MetadataService.ListMetadataSchemas].
             parent (str):
-                Required. The MetadataStore whose
-                MetadataSchemas should be listed.
-                Format:
-                projects/{project}/locations/{location}/metadataStores/{metadatastore}
+                Required. The MetadataStore whose MetadataSchemas should
+                be listed. Format:
+                ``projects/{project}/locations/{location}/metadataStores/{metadatastore}``
 
                 This corresponds to the ``parent`` field
                 on the ``request`` instance; if ``request`` is provided, this
@@ -3008,7 +3667,7 @@ class MetadataServiceClient(metaclass=MetadataServiceClientMeta):
 
         """
         # Create or coerce a protobuf request object.
-        # Sanity check: If we got a request object, we should *not* have
+        # Quick check: If we got a request object, we should *not* have
         # gotten any keyword arguments that map to the request.
         has_flattened_params = any([parent])
         if request is not None and has_flattened_params:
@@ -3057,13 +3716,33 @@ class MetadataServiceClient(metaclass=MetadataServiceClientMeta):
         ] = None,
         *,
         artifact: str = None,
-        retry: retries.Retry = gapic_v1.method.DEFAULT,
+        retry: OptionalRetry = gapic_v1.method.DEFAULT,
         timeout: float = None,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> lineage_subgraph.LineageSubgraph:
         r"""Retrieves lineage of an Artifact represented through
         Artifacts and Executions connected by Event edges and
         returned as a LineageSubgraph.
+
+
+        .. code-block:: python
+
+            from google.cloud import aiplatform_v1beta1
+
+            def sample_query_artifact_lineage_subgraph():
+                # Create a client
+                client = aiplatform_v1beta1.MetadataServiceClient()
+
+                # Initialize request argument(s)
+                request = aiplatform_v1beta1.QueryArtifactLineageSubgraphRequest(
+                    artifact="artifact_value",
+                )
+
+                # Make the request
+                response = client.query_artifact_lineage_subgraph(request=request)
+
+                # Handle the response
+                print(response)
 
         Args:
             request (Union[google.cloud.aiplatform_v1beta1.types.QueryArtifactLineageSubgraphRequest, dict]):
@@ -3073,7 +3752,7 @@ class MetadataServiceClient(metaclass=MetadataServiceClientMeta):
                 Required. The resource name of the Artifact whose
                 Lineage needs to be retrieved as a LineageSubgraph.
                 Format:
-                projects/{project}/locations/{location}/metadataStores/{metadatastore}/artifacts/{artifact}
+                ``projects/{project}/locations/{location}/metadataStores/{metadatastore}/artifacts/{artifact}``
 
                 The request may error with FAILED_PRECONDITION if the
                 number of Artifacts, the number of Executions, or the
@@ -3097,7 +3776,7 @@ class MetadataServiceClient(metaclass=MetadataServiceClientMeta):
 
         """
         # Create or coerce a protobuf request object.
-        # Sanity check: If we got a request object, we should *not* have
+        # Quick check: If we got a request object, we should *not* have
         # gotten any keyword arguments that map to the request.
         has_flattened_params = any([artifact])
         if request is not None and has_flattened_params:
@@ -3136,6 +3815,19 @@ class MetadataServiceClient(metaclass=MetadataServiceClientMeta):
 
         # Done; return the response.
         return response
+
+    def __enter__(self):
+        return self
+
+    def __exit__(self, type, value, traceback):
+        """Releases underlying transport's resources.
+
+        .. warning::
+            ONLY use as a context manager if the transport is NOT shared
+            with other clients! Exiting the with block will CLOSE the transport
+            and may cause errors in other clients!
+        """
+        self.transport.close()
 
 
 try:

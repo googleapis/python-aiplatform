@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# Copyright 2020 Google LLC
+# Copyright 2022 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -226,7 +226,8 @@ class ImportDataRequest(proto.Message):
 class ImportDataResponse(proto.Message):
     r"""Response message for
     [DatasetService.ImportData][google.cloud.aiplatform.v1.DatasetService.ImportData].
-        """
+
+    """
 
 
 class ImportDataOperationMetadata(proto.Message):

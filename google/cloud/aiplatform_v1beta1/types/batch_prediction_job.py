@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# Copyright 2020 Google LLC
+# Copyright 2022 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -25,6 +25,9 @@ from google.cloud.aiplatform_v1beta1.types import job_state
 from google.cloud.aiplatform_v1beta1.types import machine_resources
 from google.cloud.aiplatform_v1beta1.types import (
     manual_batch_tuning_parameters as gca_manual_batch_tuning_parameters,
+)
+from google.cloud.aiplatform_v1beta1.types import (
+    unmanaged_container_model as gca_unmanaged_container_model,
 )
 from google.protobuf import struct_pb2  # type: ignore
 from google.protobuf import timestamp_pb2  # type: ignore
@@ -53,11 +56,16 @@ class BatchPredictionJob(proto.Message):
             Required. The user-defined name of this
             BatchPredictionJob.
         model (str):
-            Required. The name of the Model that produces
-            the predictions via this job, must share the
-            same ancestor Location. Starting this job has no
-            impact on any existing deployments of the Model
-            and their resources.
+            The name of the Model resoure that produces the predictions
+            via this job, must share the same ancestor Location.
+            Starting this job has no impact on any existing deployments
+            of the Model and their resources. Exactly one of model and
+            unmanaged_container_model must be set.
+        unmanaged_container_model (google.cloud.aiplatform_v1beta1.types.UnmanagedContainerModel):
+            Contains model information necessary to perform batch
+            prediction without requiring uploading to model registry.
+            Exactly one of model and unmanaged_container_model must be
+            set.
         input_config (google.cloud.aiplatform_v1beta1.types.BatchPredictionJob.InputConfig):
             Required. Input configuration of the instances on which
             predictions are performed. The schema of any single instance
@@ -196,10 +204,19 @@ class BatchPredictionJob(proto.Message):
         for Model's supported input formats, and how instances should be
         expressed via any of them.
 
+        This message has `oneof`_ fields (mutually exclusive fields).
+        For each oneof, at most one member field can be set at the same time.
+        Setting any member of the oneof automatically clears all other
+        members.
+
+        .. _oneof: https://proto-plus-python.readthedocs.io/en/stable/fields.html#oneofs-mutually-exclusive-fields
+
         Attributes:
             gcs_source (google.cloud.aiplatform_v1beta1.types.GcsSource):
                 The Cloud Storage location for the input
                 instances.
+
+                This field is a member of `oneof`_ ``source``.
             bigquery_source (google.cloud.aiplatform_v1beta1.types.BigQuerySource):
                 The BigQuery location of the input table.
                 The schema of the table should be in the format
@@ -207,6 +224,8 @@ class BatchPredictionJob(proto.Message):
                 if one is provided. The table may contain
                 additional columns that are not described by the
                 schema, and they will be ignored.
+
+                This field is a member of `oneof`_ ``source``.
             instances_format (str):
                 Required. The format in which instances are given, must be
                 one of the
@@ -229,6 +248,13 @@ class BatchPredictionJob(proto.Message):
         [Model.supported_output_storage_formats][google.cloud.aiplatform.v1beta1.Model.supported_output_storage_formats]
         for supported output formats, and how predictions are expressed via
         any of them.
+
+        This message has `oneof`_ fields (mutually exclusive fields).
+        For each oneof, at most one member field can be set at the same time.
+        Setting any member of the oneof automatically clears all other
+        members.
+
+        .. _oneof: https://proto-plus-python.readthedocs.io/en/stable/fields.html#oneofs-mutually-exclusive-fields
 
         Attributes:
             gcs_destination (google.cloud.aiplatform_v1beta1.types.GcsDestination):
@@ -258,6 +284,8 @@ class BatchPredictionJob(proto.Message):
                 per their schema, followed by an additional ``error`` field
                 which as value has [google.rpc.Status][google.rpc.Status]
                 containing only ``code`` and ``message`` fields.
+
+                This field is a member of `oneof`_ ``destination``.
             bigquery_destination (google.cloud.aiplatform_v1beta1.types.BigQueryDestination):
                 The BigQuery project or dataset location where the output is
                 to be written to. If project is provided, a new dataset is
@@ -280,6 +308,8 @@ class BatchPredictionJob(proto.Message):
                 followed by a single "errors" column, which as values has
                 [google.rpc.Status][google.rpc.Status] represented as a
                 STRUCT, and containing only ``code`` and ``message``.
+
+                This field is a member of `oneof`_ ``destination``.
             predictions_format (str):
                 Required. The format in which Vertex AI gives the
                 predictions, must be one of the
@@ -302,15 +332,26 @@ class BatchPredictionJob(proto.Message):
         r"""Further describes this job's output. Supplements
         [output_config][google.cloud.aiplatform.v1beta1.BatchPredictionJob.output_config].
 
+        This message has `oneof`_ fields (mutually exclusive fields).
+        For each oneof, at most one member field can be set at the same time.
+        Setting any member of the oneof automatically clears all other
+        members.
+
+        .. _oneof: https://proto-plus-python.readthedocs.io/en/stable/fields.html#oneofs-mutually-exclusive-fields
+
         Attributes:
             gcs_output_directory (str):
                 Output only. The full path of the Cloud
                 Storage directory created, into which the
                 prediction output is written.
+
+                This field is a member of `oneof`_ ``output_location``.
             bigquery_output_dataset (str):
                 Output only. The path of the BigQuery dataset created, in
                 ``bq://projectId.bqDatasetId`` format, into which the
                 prediction output is written.
+
+                This field is a member of `oneof`_ ``output_location``.
             bigquery_output_table (str):
                 Output only. The name of the BigQuery table created, in
                 ``predictions_<timestamp>`` format, into which the
@@ -329,6 +370,11 @@ class BatchPredictionJob(proto.Message):
     name = proto.Field(proto.STRING, number=1,)
     display_name = proto.Field(proto.STRING, number=2,)
     model = proto.Field(proto.STRING, number=3,)
+    unmanaged_container_model = proto.Field(
+        proto.MESSAGE,
+        number=28,
+        message=gca_unmanaged_container_model.UnmanagedContainerModel,
+    )
     input_config = proto.Field(proto.MESSAGE, number=4, message=InputConfig,)
     model_parameters = proto.Field(proto.MESSAGE, number=5, message=struct_pb2.Value,)
     output_config = proto.Field(proto.MESSAGE, number=6, message=OutputConfig,)

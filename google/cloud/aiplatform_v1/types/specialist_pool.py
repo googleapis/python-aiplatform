@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# Copyright 2020 Google LLC
+# Copyright 2022 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -49,6 +49,9 @@ class SpecialistPool(proto.Message):
         pending_data_labeling_jobs (Sequence[str]):
             Output only. The resource name of the pending
             data labeling jobs.
+        specialist_worker_emails (Sequence[str]):
+            The email addresses of workers in the
+            SpecialistPool.
     """
 
     name = proto.Field(proto.STRING, number=1,)
@@ -56,6 +59,7 @@ class SpecialistPool(proto.Message):
     specialist_managers_count = proto.Field(proto.INT32, number=3,)
     specialist_manager_emails = proto.RepeatedField(proto.STRING, number=4,)
     pending_data_labeling_jobs = proto.RepeatedField(proto.STRING, number=5,)
+    specialist_worker_emails = proto.RepeatedField(proto.STRING, number=7,)
 
 
 __all__ = tuple(sorted(__protobuf__.manifest))

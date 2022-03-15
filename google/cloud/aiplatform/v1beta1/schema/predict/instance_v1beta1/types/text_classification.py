@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# Copyright 2020 Google LLC
+# Copyright 2022 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -24,6 +24,7 @@ __protobuf__ = proto.module(
 
 class TextClassificationPredictionInstance(proto.Message):
     r"""Prediction input format for Text Classification.
+
     Attributes:
         content (str):
             The text snippet to make the predictions on.

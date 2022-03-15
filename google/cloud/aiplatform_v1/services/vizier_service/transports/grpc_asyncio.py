@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# Copyright 2020 Google LLC
+# Copyright 2022 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -16,12 +16,11 @@
 import warnings
 from typing import Awaitable, Callable, Dict, Optional, Sequence, Tuple, Union
 
-from google.api_core import gapic_v1  # type: ignore
-from google.api_core import grpc_helpers_async  # type: ignore
-from google.api_core import operations_v1  # type: ignore
+from google.api_core import gapic_v1
+from google.api_core import grpc_helpers_async
+from google.api_core import operations_v1
 from google.auth import credentials as ga_credentials  # type: ignore
 from google.auth.transport.grpc import SslCredentials  # type: ignore
-import packaging.version
 
 import grpc  # type: ignore
 from grpc.experimental import aio  # type: ignore
@@ -38,8 +37,8 @@ from .grpc import VizierServiceGrpcTransport
 class VizierServiceGrpcAsyncIOTransport(VizierServiceTransport):
     """gRPC AsyncIO backend transport for VizierService.
 
-    Vertex Vizier API.
-    Vizier service is a GCP service to solve blackbox optimization
+    Vertex AI Vizier API.
+    Vertex AI Vizier is a service to solve blackbox optimization
     problems, such as tuning machine learning hyperparameters and
     searching over deep learning architectures.
 
@@ -165,7 +164,7 @@ class VizierServiceGrpcAsyncIOTransport(VizierServiceTransport):
         self._grpc_channel = None
         self._ssl_channel_credentials = ssl_channel_credentials
         self._stubs: Dict[str, Callable] = {}
-        self._operations_client = None
+        self._operations_client: Optional[operations_v1.OperationsAsyncClient] = None
 
         if api_mtls_endpoint:
             warnings.warn("api_mtls_endpoint is deprecated", DeprecationWarning)
@@ -213,8 +212,11 @@ class VizierServiceGrpcAsyncIOTransport(VizierServiceTransport):
         if not self._grpc_channel:
             self._grpc_channel = type(self).create_channel(
                 self._host,
+                # use the credentials which are saved
                 credentials=self._credentials,
-                credentials_file=credentials_file,
+                # Set ``credentials_file`` to ``None`` here as
+                # the credentials that we saved earlier should be used.
+                credentials_file=None,
                 scopes=self._scopes,
                 ssl_credentials=self._ssl_channel_credentials,
                 quota_project_id=quota_project_id,
@@ -244,7 +246,7 @@ class VizierServiceGrpcAsyncIOTransport(VizierServiceTransport):
         This property caches on the instance; repeated calls return the same
         client.
         """
-        # Sanity check: Only create a new client if we do not already have one.
+        # Quick check: Only create a new client if we do not already have one.
         if self._operations_client is None:
             self._operations_client = operations_v1.OperationsAsyncClient(
                 self.grpc_channel
@@ -398,7 +400,7 @@ class VizierServiceGrpcAsyncIOTransport(VizierServiceTransport):
         r"""Return a callable for the suggest trials method over gRPC.
 
         Adds one or more Trials to a Study, with parameter values
-        suggested by Vertex Vizier. Returns a long-running operation
+        suggested by Vertex AI Vizier. Returns a long-running operation
         associated with the generation of Trial suggestions. When this
         long-running operation succeeds, it will contain a
         [SuggestTrialsResponse][google.cloud.ml.v1.SuggestTrialsResponse].
@@ -673,6 +675,9 @@ class VizierServiceGrpcAsyncIOTransport(VizierServiceTransport):
                 response_deserializer=vizier_service.ListOptimalTrialsResponse.deserialize,
             )
         return self._stubs["list_optimal_trials"]
+
+    def close(self):
+        return self.grpc_channel.close()
 
 
 __all__ = ("VizierServiceGrpcAsyncIOTransport",)

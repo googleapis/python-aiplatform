@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# Copyright 2020 Google LLC
+# Copyright 2022 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -34,6 +34,7 @@ __protobuf__ = proto.module(
 
 class MachineSpec(proto.Message):
     r"""Specification of a single machine.
+
     Attributes:
         machine_type (str):
             Immutable. The type of the machine.
@@ -199,6 +200,7 @@ class BatchDedicatedResources(proto.Message):
 
 class ResourcesConsumed(proto.Message):
     r"""Statistics information about resource consumption.
+
     Attributes:
         replica_hours (float):
             Output only. The number of replica hours
@@ -213,6 +215,7 @@ class ResourcesConsumed(proto.Message):
 
 class DiskSpec(proto.Message):
     r"""Represents the spec of disk options.
+
     Attributes:
         boot_disk_type (str):
             Type of the boot disk (default is "pd-ssd").

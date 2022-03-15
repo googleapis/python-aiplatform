@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# Copyright 2020 Google LLC
+# Copyright 2022 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -26,6 +26,7 @@ __protobuf__ = proto.module(
 
 class FeaturestoreMonitoringConfig(proto.Message):
     r"""Configuration of how features in Featurestore are monitored.
+
     Attributes:
         snapshot_analysis (google.cloud.aiplatform_v1beta1.types.FeaturestoreMonitoringConfig.SnapshotAnalysis):
             The config for Snapshot Analysis Based

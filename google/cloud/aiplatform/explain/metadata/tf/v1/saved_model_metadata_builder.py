@@ -50,7 +50,7 @@ class SavedModelMetadataBuilder(metadata_builder.MetadataBuilder):
               signature_name) specifies multiple outputs.
 
         Raises:
-            ValueError if outputs_to_explain contains more than 1 element or
+            ValueError: If outputs_to_explain contains more than 1 element or
             signature contains multiple outputs.
         """
         if outputs_to_explain:

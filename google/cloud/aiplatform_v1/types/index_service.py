@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# Copyright 2020 Google LLC
+# Copyright 2022 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -210,6 +210,7 @@ class NearestNeighborSearchOperationMetadata(proto.Message):
 
     class RecordError(proto.Message):
         r"""
+
         Attributes:
             error_type (google.cloud.aiplatform_v1.types.NearestNeighborSearchOperationMetadata.RecordError.RecordErrorType):
                 The error type of this record.
@@ -250,6 +251,7 @@ class NearestNeighborSearchOperationMetadata(proto.Message):
 
     class ContentValidationStats(proto.Message):
         r"""
+
         Attributes:
             source_gcs_uri (str):
                 Cloud Storage URI pointing to the original

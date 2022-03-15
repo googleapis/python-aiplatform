@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# Copyright 2020 Google LLC
+# Copyright 2022 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -88,6 +88,7 @@ from .event import Event
 from .execution import Execution
 from .explanation import (
     Attribution,
+    BlurBaselineConfig,
     Explanation,
     ExplanationMetadataOverride,
     ExplanationParameters,
@@ -97,6 +98,7 @@ from .explanation import (
     IntegratedGradientsAttribution,
     ModelExplanation,
     SampledShapleyAttribution,
+    Similarity,
     SmoothGradConfig,
     XraiAttribution,
 )
@@ -174,6 +176,9 @@ from .index_endpoint_service import (
     GetIndexEndpointRequest,
     ListIndexEndpointsRequest,
     ListIndexEndpointsResponse,
+    MutateDeployedIndexOperationMetadata,
+    MutateDeployedIndexRequest,
+    MutateDeployedIndexResponse,
     UndeployIndexOperationMetadata,
     UndeployIndexRequest,
     UndeployIndexResponse,
@@ -415,6 +420,8 @@ from .tensorboard_service import (
     BatchCreateTensorboardRunsResponse,
     BatchCreateTensorboardTimeSeriesRequest,
     BatchCreateTensorboardTimeSeriesResponse,
+    BatchReadTensorboardTimeSeriesDataRequest,
+    BatchReadTensorboardTimeSeriesDataResponse,
     CreateTensorboardExperimentRequest,
     CreateTensorboardOperationMetadata,
     CreateTensorboardRequest,
@@ -458,6 +465,7 @@ from .training_pipeline import (
     FractionSplit,
     InputDataConfig,
     PredefinedSplit,
+    StratifiedSplit,
     TimestampSplit,
     TrainingPipeline,
 )
@@ -467,6 +475,7 @@ from .types import (
     Int64Array,
     StringArray,
 )
+from .unmanaged_container_model import UnmanagedContainerModel
 from .user_action_reference import UserActionReference
 from .value import Value
 from .vizier_service import (
@@ -558,6 +567,7 @@ __all__ = (
     "Event",
     "Execution",
     "Attribution",
+    "BlurBaselineConfig",
     "Explanation",
     "ExplanationMetadataOverride",
     "ExplanationParameters",
@@ -567,6 +577,7 @@ __all__ = (
     "IntegratedGradientsAttribution",
     "ModelExplanation",
     "SampledShapleyAttribution",
+    "Similarity",
     "SmoothGradConfig",
     "XraiAttribution",
     "ExplanationMetadata",
@@ -634,6 +645,9 @@ __all__ = (
     "GetIndexEndpointRequest",
     "ListIndexEndpointsRequest",
     "ListIndexEndpointsResponse",
+    "MutateDeployedIndexOperationMetadata",
+    "MutateDeployedIndexRequest",
+    "MutateDeployedIndexResponse",
     "UndeployIndexOperationMetadata",
     "UndeployIndexRequest",
     "UndeployIndexResponse",
@@ -841,6 +855,8 @@ __all__ = (
     "BatchCreateTensorboardRunsResponse",
     "BatchCreateTensorboardTimeSeriesRequest",
     "BatchCreateTensorboardTimeSeriesResponse",
+    "BatchReadTensorboardTimeSeriesDataRequest",
+    "BatchReadTensorboardTimeSeriesDataResponse",
     "CreateTensorboardExperimentRequest",
     "CreateTensorboardOperationMetadata",
     "CreateTensorboardRequest",
@@ -882,12 +898,14 @@ __all__ = (
     "FractionSplit",
     "InputDataConfig",
     "PredefinedSplit",
+    "StratifiedSplit",
     "TimestampSplit",
     "TrainingPipeline",
     "BoolArray",
     "DoubleArray",
     "Int64Array",
     "StringArray",
+    "UnmanagedContainerModel",
     "UserActionReference",
     "Value",
     "AddTrialMeasurementRequest",

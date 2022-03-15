@@ -25,23 +25,24 @@ from google.api_core import operation
 from google.auth import credentials
 
 from google.cloud import aiplatform
+from google.cloud.aiplatform import base
 from google.cloud.aiplatform import initializer
 from google.cloud.aiplatform.metadata import constants
 from google.cloud.aiplatform.metadata import metadata
-from google.cloud.aiplatform_v1beta1 import (
+from google.cloud.aiplatform_v1 import (
     AddContextArtifactsAndExecutionsResponse,
     Event,
     LineageSubgraph,
     ListExecutionsRequest,
 )
-from google.cloud.aiplatform_v1beta1 import Artifact as GapicArtifact
-from google.cloud.aiplatform_v1beta1 import Context as GapicContext
-from google.cloud.aiplatform_v1beta1 import Execution as GapicExecution
-from google.cloud.aiplatform_v1beta1 import (
+from google.cloud.aiplatform_v1 import Artifact as GapicArtifact
+from google.cloud.aiplatform_v1 import Context as GapicContext
+from google.cloud.aiplatform_v1 import Execution as GapicExecution
+from google.cloud.aiplatform_v1 import (
     MetadataServiceClient,
     AddExecutionEventsResponse,
 )
-from google.cloud.aiplatform_v1beta1 import MetadataStore as GapicMetadataStore
+from google.cloud.aiplatform_v1 import MetadataStore as GapicMetadataStore
 
 # project
 
@@ -390,8 +391,12 @@ class TestMetadata:
             project=_TEST_PROJECT, location=_TEST_LOCATION, experiment=_TEST_EXPERIMENT
         )
 
-        get_metadata_store_mock.assert_called_once_with(name=_TEST_METADATASTORE)
-        get_context_mock.assert_called_once_with(name=_TEST_CONTEXT_NAME)
+        get_metadata_store_mock.assert_called_once_with(
+            name=_TEST_METADATASTORE, retry=base._DEFAULT_RETRY
+        )
+        get_context_mock.assert_called_once_with(
+            name=_TEST_CONTEXT_NAME, retry=base._DEFAULT_RETRY
+        )
 
     def test_init_experiment_with_credentials(
         self, get_metadata_store_mock, get_context_mock
@@ -410,8 +415,12 @@ class TestMetadata:
             == creds
         )
 
-        get_metadata_store_mock.assert_called_once_with(name=_TEST_METADATASTORE)
-        get_context_mock.assert_called_once_with(name=_TEST_CONTEXT_NAME)
+        get_metadata_store_mock.assert_called_once_with(
+            name=_TEST_METADATASTORE, retry=base._DEFAULT_RETRY
+        )
+        get_context_mock.assert_called_once_with(
+            name=_TEST_CONTEXT_NAME, retry=base._DEFAULT_RETRY
+        )
 
     def test_init_and_get_metadata_store_with_credentials(
         self, get_metadata_store_mock
@@ -451,8 +460,12 @@ class TestMetadata:
             experiment_description=_TEST_EXPERIMENT_DESCRIPTION,
         )
 
-        get_metadata_store_mock.assert_called_once_with(name=_TEST_METADATASTORE)
-        get_context_mock.assert_called_once_with(name=_TEST_CONTEXT_NAME)
+        get_metadata_store_mock.assert_called_once_with(
+            name=_TEST_METADATASTORE, retry=base._DEFAULT_RETRY
+        )
+        get_context_mock.assert_called_once_with(
+            name=_TEST_CONTEXT_NAME, retry=base._DEFAULT_RETRY
+        )
 
     @pytest.mark.usefixtures("get_metadata_store_mock")
     @pytest.mark.usefixtures("get_context_mock")
@@ -521,13 +534,17 @@ class TestMetadata:
         )
         aiplatform.start_run(_TEST_RUN)
 
-        get_execution_mock.assert_called_once_with(name=_TEST_EXECUTION_NAME)
+        get_execution_mock.assert_called_once_with(
+            name=_TEST_EXECUTION_NAME, retry=base._DEFAULT_RETRY
+        )
         add_context_artifacts_and_executions_mock.assert_called_once_with(
             context=_TEST_CONTEXT_NAME,
             artifacts=None,
             executions=[_TEST_EXECUTION_NAME],
         )
-        get_artifact_mock.assert_called_once_with(name=_TEST_ARTIFACT_NAME)
+        get_artifact_mock.assert_called_once_with(
+            name=_TEST_ARTIFACT_NAME, retry=base._DEFAULT_RETRY
+        )
         add_execution_events_mock.assert_called_once_with(
             execution=_TEST_EXECUTION_NAME,
             events=[Event(artifact=_TEST_ARTIFACT_NAME, type_=Event.Type.OUTPUT)],

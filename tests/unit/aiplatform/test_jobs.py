@@ -27,7 +27,7 @@ from google.cloud import bigquery
 from google.auth import credentials as auth_credentials
 
 from google.cloud import aiplatform
-
+from google.cloud.aiplatform import base
 from google.cloud.aiplatform import initializer
 from google.cloud.aiplatform import jobs
 
@@ -142,11 +142,11 @@ _TEST_EXPLANATION_PARAMETERS = aiplatform.explain.ExplanationParameters(
     {"sampled_shapley_attribution": {"path_count": 10}}
 )
 
-_TEST_JOB_GET_METHOD_NAME = "get_fake_job"
-_TEST_JOB_LIST_METHOD_NAME = "list_fake_job"
-_TEST_JOB_CANCEL_METHOD_NAME = "cancel_fake_job"
-_TEST_JOB_DELETE_METHOD_NAME = "delete_fake_job"
-_TEST_JOB_RESOURCE_NAME = f"{_TEST_PARENT}/fakeJobs/{_TEST_ID}"
+_TEST_JOB_GET_METHOD_NAME = "get_custom_job"
+_TEST_JOB_LIST_METHOD_NAME = "list_custom_job"
+_TEST_JOB_CANCEL_METHOD_NAME = "cancel_custom_job"
+_TEST_JOB_DELETE_METHOD_NAME = "delete_custom_job"
+_TEST_JOB_RESOURCE_NAME = f"{_TEST_PARENT}/customJobs/{_TEST_ID}"
 
 # TODO(b/171333554): Move reusable test fixtures to conftest.py file
 
@@ -170,12 +170,14 @@ def fake_job_cancel_mock():
 
 class TestJob:
     class FakeJob(jobs._Job):
-        _job_type = "fake-job"
-        _resource_noun = "fakeJobs"
+        _job_type = "custom-job"
+        _resource_noun = "customJobs"
         _getter_method = _TEST_JOB_GET_METHOD_NAME
         _list_method = _TEST_JOB_LIST_METHOD_NAME
         _cancel_method = _TEST_JOB_CANCEL_METHOD_NAME
         _delete_method = _TEST_JOB_DELETE_METHOD_NAME
+        _parse_resource_name_method = "parse_custom_job_path"
+        _format_resource_name_method = "custom_job_path"
         resource_name = _TEST_JOB_RESOURCE_NAME
 
     def setup_method(self):
@@ -381,7 +383,7 @@ class TestBatchPredictionJob:
             batch_prediction_job_name=_TEST_BATCH_PREDICTION_JOB_NAME
         )
         get_batch_prediction_job_mock.assert_called_once_with(
-            name=_TEST_BATCH_PREDICTION_JOB_NAME
+            name=_TEST_BATCH_PREDICTION_JOB_NAME, retry=base._DEFAULT_RETRY
         )
 
     def test_batch_prediction_job_status(self, get_batch_prediction_job_mock):
@@ -396,8 +398,16 @@ class TestBatchPredictionJob:
         assert bp_job_state == _TEST_JOB_STATE_RUNNING
 
         get_batch_prediction_job_mock.assert_called_with(
-            name=_TEST_BATCH_PREDICTION_JOB_NAME
+            name=_TEST_BATCH_PREDICTION_JOB_NAME, retry=base._DEFAULT_RETRY
         )
+
+    def test_batch_prediction_job_done_get(self, get_batch_prediction_job_mock):
+        bp = jobs.BatchPredictionJob(
+            batch_prediction_job_name=_TEST_BATCH_PREDICTION_JOB_NAME
+        )
+
+        assert bp.done() is False
+        assert get_batch_prediction_job_mock.call_count == 2
 
     @pytest.mark.usefixtures("get_batch_prediction_job_gcs_output_mock")
     def test_batch_prediction_iter_dirs_gcs(self, storage_list_blobs_mock):
@@ -504,6 +514,27 @@ class TestBatchPredictionJob:
             parent=_TEST_PARENT,
             batch_prediction_job=expected_gapic_batch_prediction_job,
         )
+
+    @pytest.mark.usefixtures("get_batch_prediction_job_mock")
+    def test_batch_predict_job_done_create(self, create_batch_prediction_job_mock):
+        aiplatform.init(project=_TEST_PROJECT, location=_TEST_LOCATION)
+
+        # Make SDK batch_predict method call
+        batch_prediction_job = jobs.BatchPredictionJob.create(
+            model_name=_TEST_MODEL_NAME,
+            job_display_name=_TEST_BATCH_PREDICTION_JOB_DISPLAY_NAME,
+            gcs_source=_TEST_BATCH_PREDICTION_GCS_SOURCE,
+            gcs_destination_prefix=_TEST_BATCH_PREDICTION_GCS_DEST_PREFIX,
+            sync=False,
+        )
+
+        batch_prediction_job.wait_for_resource_creation()
+
+        assert batch_prediction_job.done() is False
+
+        batch_prediction_job.wait()
+
+        assert batch_prediction_job.done() is True
 
     @pytest.mark.parametrize("sync", [True, False])
     @pytest.mark.usefixtures("get_batch_prediction_job_mock")

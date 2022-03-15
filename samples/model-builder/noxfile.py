@@ -14,6 +14,7 @@
 
 from __future__ import print_function
 
+import glob
 import os
 from pathlib import Path
 import sys
@@ -87,7 +88,7 @@ def get_pytest_env_vars() -> Dict[str, str]:
 
 # DO NOT EDIT - automatically generated.
 # All versions used to test samples.
-ALL_VERSIONS = ["3.6", "3.7", "3.8", "3.9"]
+ALL_VERSIONS = ["3.6", "3.7", "3.8", "3.9", "3.10"]
 
 # Any default versions that should be ignored.
 IGNORED_VERSIONS = TEST_CONFIG["ignored_versions"]
@@ -184,21 +185,36 @@ PYTEST_COMMON_ARGS = ["--junitxml=sponge_log.xml"]
 def _session_tests(
     session: nox.sessions.Session, post_install: Callable = None
 ) -> None:
+    # check for presence of tests
+    test_list = glob.glob("*_test.py") + glob.glob("test_*.py")
+    test_list.extend(glob.glob("tests"))
+
+    if len(test_list) == 0:
+        print("No tests found, skipping directory.")
+        return
+
     if TEST_CONFIG["pip_version_override"]:
         pip_version = TEST_CONFIG["pip_version_override"]
         session.install(f"pip=={pip_version}")
     """Runs py.test for a particular project."""
+    concurrent_args = []
     if os.path.exists("requirements.txt"):
         if os.path.exists("constraints.txt"):
             session.install("-r", "requirements.txt", "-c", "constraints.txt")
         else:
             session.install("-r", "requirements.txt")
+        with open("requirements.txt") as rfile:
+            packages = rfile.read()
 
     if os.path.exists("requirements-test.txt"):
         if os.path.exists("constraints-test.txt"):
-            session.install("-r", "requirements-test.txt", "-c", "constraints-test.txt")
+            session.install(
+                "-r", "requirements-test.txt", "-c", "constraints-test.txt"
+            )
         else:
             session.install("-r", "requirements-test.txt")
+        with open("requirements-test.txt") as rtfile:
+            packages += rtfile.read()
 
     if INSTALL_LIBRARY_FROM_SOURCE:
         session.install("-e", _get_repo_root())
@@ -206,9 +222,14 @@ def _session_tests(
     if post_install:
         post_install(session)
 
+    if "pytest-parallel" in packages:
+        concurrent_args.extend(['--workers', 'auto', '--tests-per-worker', 'auto'])
+    elif "pytest-xdist" in packages:
+        concurrent_args.extend(['-n', 'auto'])
+
     session.run(
         "pytest",
-        *(PYTEST_COMMON_ARGS + session.posargs),
+        *(PYTEST_COMMON_ARGS + session.posargs + concurrent_args),
         # Pytest will return 5 when no tests are collected. This can happen
         # on travis where slow and flaky tests are excluded.
         # See http://doc.pytest.org/en/latest/_modules/_pytest/main.html

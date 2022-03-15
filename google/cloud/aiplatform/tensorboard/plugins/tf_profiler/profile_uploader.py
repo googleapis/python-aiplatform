@@ -38,20 +38,14 @@ from tensorboard.util import tb_logging
 import tensorflow as tf
 
 from google.cloud import storage
-from google.cloud.aiplatform.compat.services import tensorboard_service_client_v1beta1
-from google.cloud.aiplatform.compat.types import (
-    tensorboard_data_v1beta1 as tensorboard_data,
-)
-from google.cloud.aiplatform.compat.types import (
-    tensorboard_service_v1beta1 as tensorboard_service,
-)
-from google.cloud.aiplatform.compat.types import (
-    tensorboard_time_series_v1beta1 as tensorboard_time_series,
-)
+from google.cloud.aiplatform.compat.services import tensorboard_service_client
+from google.cloud.aiplatform.compat.types import tensorboard_data
+from google.cloud.aiplatform.compat.types import tensorboard_service
+from google.cloud.aiplatform.compat.types import tensorboard_time_series
 from google.cloud.aiplatform.tensorboard import uploader_utils
 from google.protobuf import timestamp_pb2 as timestamp
 
-TensorboardServiceClient = tensorboard_service_client_v1beta1.TensorboardServiceClient
+TensorboardServiceClient = tensorboard_service_client.TensorboardServiceClient
 
 logger = tb_logging.get_logger()
 

@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# Copyright 2020 Google LLC
+# Copyright 2022 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -16,15 +16,20 @@
 from collections import OrderedDict
 import functools
 import re
-from typing import Dict, Sequence, Tuple, Type, Union
+from typing import Dict, Optional, Sequence, Tuple, Type, Union
 import pkg_resources
 
-import google.api_core.client_options as ClientOptions  # type: ignore
-from google.api_core import exceptions as core_exceptions  # type: ignore
-from google.api_core import gapic_v1  # type: ignore
-from google.api_core import retry as retries  # type: ignore
+from google.api_core.client_options import ClientOptions
+from google.api_core import exceptions as core_exceptions
+from google.api_core import gapic_v1
+from google.api_core import retry as retries
 from google.auth import credentials as ga_credentials  # type: ignore
 from google.oauth2 import service_account  # type: ignore
+
+try:
+    OptionalRetry = Union[retries.Retry, gapic_v1.method._MethodDefault]
+except AttributeError:  # pragma: NO COVER
+    OptionalRetry = Union[retries.Retry, object]  # type: ignore
 
 from google.api import httpbody_pb2  # type: ignore
 from google.cloud.aiplatform_v1beta1.types import explanation
@@ -46,6 +51,8 @@ class PredictionServiceAsyncClient:
 
     endpoint_path = staticmethod(PredictionServiceClient.endpoint_path)
     parse_endpoint_path = staticmethod(PredictionServiceClient.parse_endpoint_path)
+    model_path = staticmethod(PredictionServiceClient.model_path)
+    parse_model_path = staticmethod(PredictionServiceClient.parse_model_path)
     common_billing_account_path = staticmethod(
         PredictionServiceClient.common_billing_account_path
     )
@@ -103,6 +110,42 @@ class PredictionServiceAsyncClient:
         return PredictionServiceClient.from_service_account_file.__func__(PredictionServiceAsyncClient, filename, *args, **kwargs)  # type: ignore
 
     from_service_account_json = from_service_account_file
+
+    @classmethod
+    def get_mtls_endpoint_and_cert_source(
+        cls, client_options: Optional[ClientOptions] = None
+    ):
+        """Return the API endpoint and client cert source for mutual TLS.
+
+        The client cert source is determined in the following order:
+        (1) if `GOOGLE_API_USE_CLIENT_CERTIFICATE` environment variable is not "true", the
+        client cert source is None.
+        (2) if `client_options.client_cert_source` is provided, use the provided one; if the
+        default client cert source exists, use the default one; otherwise the client cert
+        source is None.
+
+        The API endpoint is determined in the following order:
+        (1) if `client_options.api_endpoint` if provided, use the provided one.
+        (2) if `GOOGLE_API_USE_CLIENT_CERTIFICATE` environment variable is "always", use the
+        default mTLS endpoint; if the environment variabel is "never", use the default API
+        endpoint; otherwise if client cert source exists, use the default mTLS endpoint, otherwise
+        use the default API endpoint.
+
+        More details can be found at https://google.aip.dev/auth/4114.
+
+        Args:
+            client_options (google.api_core.client_options.ClientOptions): Custom options for the
+                client. Only the `api_endpoint` and `client_cert_source` properties may be used
+                in this method.
+
+        Returns:
+            Tuple[str, Callable[[], Tuple[bytes, bytes]]]: returns the API endpoint and the
+                client cert source to use.
+
+        Raises:
+            google.auth.exceptions.MutualTLSChannelError: If any errors happen.
+        """
+        return PredictionServiceClient.get_mtls_endpoint_and_cert_source(client_options)  # type: ignore
 
     @property
     def transport(self) -> PredictionServiceTransport:
@@ -166,19 +209,42 @@ class PredictionServiceAsyncClient:
 
     async def predict(
         self,
-        request: prediction_service.PredictRequest = None,
+        request: Union[prediction_service.PredictRequest, dict] = None,
         *,
         endpoint: str = None,
         instances: Sequence[struct_pb2.Value] = None,
         parameters: struct_pb2.Value = None,
-        retry: retries.Retry = gapic_v1.method.DEFAULT,
+        retry: OptionalRetry = gapic_v1.method.DEFAULT,
         timeout: float = None,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> prediction_service.PredictResponse:
         r"""Perform an online prediction.
 
+        .. code-block:: python
+
+            from google.cloud import aiplatform_v1beta1
+
+            def sample_predict():
+                # Create a client
+                client = aiplatform_v1beta1.PredictionServiceClient()
+
+                # Initialize request argument(s)
+                instances = aiplatform_v1beta1.Value()
+                instances.null_value = "NULL_VALUE"
+
+                request = aiplatform_v1beta1.PredictRequest(
+                    endpoint="endpoint_value",
+                    instances=instances,
+                )
+
+                # Make the request
+                response = client.predict(request=request)
+
+                # Handle the response
+                print(response)
+
         Args:
-            request (:class:`google.cloud.aiplatform_v1beta1.types.PredictRequest`):
+            request (Union[google.cloud.aiplatform_v1beta1.types.PredictRequest, dict]):
                 The request object. Request message for
                 [PredictionService.Predict][google.cloud.aiplatform.v1beta1.PredictionService.Predict].
             endpoint (:class:`str`):
@@ -229,7 +295,7 @@ class PredictionServiceAsyncClient:
 
         """
         # Create or coerce a protobuf request object.
-        # Sanity check: If we got a request object, we should *not* have
+        # Quick check: If we got a request object, we should *not* have
         # gotten any keyword arguments that map to the request.
         has_flattened_params = any([endpoint, instances, parameters])
         if request is not None and has_flattened_params:
@@ -271,19 +337,48 @@ class PredictionServiceAsyncClient:
 
     async def raw_predict(
         self,
-        request: prediction_service.RawPredictRequest = None,
+        request: Union[prediction_service.RawPredictRequest, dict] = None,
         *,
         endpoint: str = None,
         http_body: httpbody_pb2.HttpBody = None,
-        retry: retries.Retry = gapic_v1.method.DEFAULT,
+        retry: OptionalRetry = gapic_v1.method.DEFAULT,
         timeout: float = None,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> httpbody_pb2.HttpBody:
-        r"""Perform an online prediction with arbitrary http
-        payload.
+        r"""Perform an online prediction with an arbitrary HTTP payload.
+
+        The response includes the following HTTP headers:
+
+        -  ``X-Vertex-AI-Endpoint-Id``: ID of the
+           [Endpoint][google.cloud.aiplatform.v1beta1.Endpoint] that
+           served this prediction.
+
+        -  ``X-Vertex-AI-Deployed-Model-Id``: ID of the Endpoint's
+           [DeployedModel][google.cloud.aiplatform.v1beta1.DeployedModel]
+           that served this prediction.
+
+
+        .. code-block:: python
+
+            from google.cloud import aiplatform_v1beta1
+
+            def sample_raw_predict():
+                # Create a client
+                client = aiplatform_v1beta1.PredictionServiceClient()
+
+                # Initialize request argument(s)
+                request = aiplatform_v1beta1.RawPredictRequest(
+                    endpoint="endpoint_value",
+                )
+
+                # Make the request
+                response = client.raw_predict(request=request)
+
+                # Handle the response
+                print(response)
 
         Args:
-            request (:class:`google.cloud.aiplatform_v1beta1.types.RawPredictRequest`):
+            request (Union[google.cloud.aiplatform_v1beta1.types.RawPredictRequest, dict]):
                 The request object. Request message for
                 [PredictionService.RawPredict][google.cloud.aiplatform.v1beta1.PredictionService.RawPredict].
             endpoint (:class:`str`):
@@ -352,10 +447,11 @@ class PredictionServiceAsyncClient:
                       }
 
                       service ResourceService {
-                         rpc GetResource(GetResourceRequest) returns
-                         (google.api.HttpBody); rpc
-                         UpdateResource(google.api.HttpBody) returns
-                         (google.protobuf.Empty);
+                         rpc GetResource(GetResourceRequest)
+                            returns (google.api.HttpBody);
+
+                         rpc UpdateResource(google.api.HttpBody)
+                            returns (google.protobuf.Empty);
 
                       }
 
@@ -376,7 +472,7 @@ class PredictionServiceAsyncClient:
 
         """
         # Create or coerce a protobuf request object.
-        # Sanity check: If we got a request object, we should *not* have
+        # Quick check: If we got a request object, we should *not* have
         # gotten any keyword arguments that map to the request.
         has_flattened_params = any([endpoint, http_body])
         if request is not None and has_flattened_params:
@@ -416,13 +512,13 @@ class PredictionServiceAsyncClient:
 
     async def explain(
         self,
-        request: prediction_service.ExplainRequest = None,
+        request: Union[prediction_service.ExplainRequest, dict] = None,
         *,
         endpoint: str = None,
         instances: Sequence[struct_pb2.Value] = None,
         parameters: struct_pb2.Value = None,
         deployed_model_id: str = None,
-        retry: retries.Retry = gapic_v1.method.DEFAULT,
+        retry: OptionalRetry = gapic_v1.method.DEFAULT,
         timeout: float = None,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> prediction_service.ExplainResponse:
@@ -439,8 +535,32 @@ class PredictionServiceAsyncClient:
         populated. Only deployed AutoML tabular Models have
         explanation_spec.
 
+
+        .. code-block:: python
+
+            from google.cloud import aiplatform_v1beta1
+
+            def sample_explain():
+                # Create a client
+                client = aiplatform_v1beta1.PredictionServiceClient()
+
+                # Initialize request argument(s)
+                instances = aiplatform_v1beta1.Value()
+                instances.null_value = "NULL_VALUE"
+
+                request = aiplatform_v1beta1.ExplainRequest(
+                    endpoint="endpoint_value",
+                    instances=instances,
+                )
+
+                # Make the request
+                response = client.explain(request=request)
+
+                # Handle the response
+                print(response)
+
         Args:
-            request (:class:`google.cloud.aiplatform_v1beta1.types.ExplainRequest`):
+            request (Union[google.cloud.aiplatform_v1beta1.types.ExplainRequest, dict]):
                 The request object. Request message for
                 [PredictionService.Explain][google.cloud.aiplatform.v1beta1.PredictionService.Explain].
             endpoint (:class:`str`):
@@ -499,7 +619,7 @@ class PredictionServiceAsyncClient:
 
         """
         # Create or coerce a protobuf request object.
-        # Sanity check: If we got a request object, we should *not* have
+        # Quick check: If we got a request object, we should *not* have
         # gotten any keyword arguments that map to the request.
         has_flattened_params = any([endpoint, instances, parameters, deployed_model_id])
         if request is not None and has_flattened_params:
@@ -540,6 +660,12 @@ class PredictionServiceAsyncClient:
 
         # Done; return the response.
         return response
+
+    async def __aenter__(self):
+        return self
+
+    async def __aexit__(self, exc_type, exc, tb):
+        await self.transport.close()
 
 
 try:

@@ -21,21 +21,52 @@ import os
 import setuptools  # type: ignore
 
 name = "google-cloud-aiplatform"
-version = "1.5.0"
-description = "Cloud AI Platform API client library"
+description = "Vertex AI API client library"
 
 package_root = os.path.abspath(os.path.dirname(__file__))
 readme_filename = os.path.join(package_root, "README.rst")
 with io.open(readme_filename, encoding="utf-8") as readme_file:
     readme = readme_file.read()
 
-tensorboard_extra_require = ["tensorflow >=2.3.0, <=2.5.0"]
+version = {}
+with open(os.path.join(package_root, "google/cloud/aiplatform/version.py")) as fp:
+    exec(fp.read(), version)
+version = version["__version__"]
+
+tensorboard_extra_require = ["tensorflow >=2.3.0, <=2.7.0"]
 metadata_extra_require = ["pandas >= 1.0.0"]
 xai_extra_require = ["tensorflow >=2.3.0, <=2.5.0"]
+lit_extra_require = [
+    "tensorflow >= 2.3.0",
+    "pandas >= 1.0.0",
+    "lit-nlp >= 0.4.0",
+    "explainable-ai-sdk >= 1.0.0",
+]
+profiler_extra_require = [
+    "tensorboard-plugin-profile >= 2.4.0",
+    "werkzeug >= 2.0.0",
+    "tensorflow >=2.4.0",
+]
+featurestore_extra_require = [
+    "google-cloud-bigquery-storage",
+    "pandas >= 1.0.0",
+    "pyarrow >= 6.0.1",
+]
+
 full_extra_require = list(
-    set(tensorboard_extra_require + metadata_extra_require + xai_extra_require)
+    set(
+        tensorboard_extra_require
+        + metadata_extra_require
+        + xai_extra_require
+        + lit_extra_require
+        + featurestore_extra_require
+    )
 )
-testing_extra_require = full_extra_require + ["grpcio-testing", "pytest-xdist"]
+testing_extra_require = (
+    full_extra_require
+    + profiler_extra_require
+    + ["grpcio-testing", "pytest-xdist", "ipython"]
+)
 
 
 setuptools.setup(
@@ -64,11 +95,12 @@ setuptools.setup(
         # NOTE: Maintainers, please do not require google-api-core>=2.x.x
         # Until this issue is closed
         # https://github.com/googleapis/google-cloud-python/issues/10566
-        "google-api-core[grpc] >= 1.26.0, <3.0.0dev",
-        "proto-plus >= 1.10.1",
+        "google-api-core[grpc] >= 1.31.5, <3.0.0dev,!=2.0.*,!=2.1.*,!=2.2.*,!=2.3.0",
+        "proto-plus >= 1.15.0",
         "packaging >= 14.3",
-        "google-cloud-storage >= 1.32.0, < 2.0.0dev",
+        "google-cloud-storage >= 1.32.0, < 3.0.0dev",
         "google-cloud-bigquery >= 1.15.0, < 3.0.0dev",
+        "google-cloud-resource-manager >= 1.3.3, < 3.0.0dev",
     ),
     extras_require={
         "full": full_extra_require,
@@ -76,16 +108,20 @@ setuptools.setup(
         "tensorboard": tensorboard_extra_require,
         "testing": testing_extra_require,
         "xai": xai_extra_require,
+        "lit": lit_extra_require,
+        "cloud_profiler": profiler_extra_require,
     },
     python_requires=">=3.6",
-    scripts=[],
     classifiers=[
         "Development Status :: 5 - Production/Stable",
         "Intended Audience :: Developers",
         "Operating System :: OS Independent",
+        "Programming Language :: Python",
+        "Programming Language :: Python :: 3",
         "Programming Language :: Python :: 3.6",
         "Programming Language :: Python :: 3.7",
         "Programming Language :: Python :: 3.8",
+        "Programming Language :: Python :: 3.9",
         "Topic :: Internet",
         "Topic :: Software Development :: Libraries :: Python Modules",
     ],

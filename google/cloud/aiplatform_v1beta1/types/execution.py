@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# Copyright 2020 Google LLC
+# Copyright 2022 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -26,6 +26,7 @@ __protobuf__ = proto.module(
 
 class Execution(proto.Message):
     r"""Instance of a general execution.
+
     Attributes:
         name (str):
             Output only. The resource name of the
@@ -37,12 +38,12 @@ class Execution(proto.Message):
             The state of this Execution. This is a
             property of the Execution, and does not imply or
             capture any ongoing process. This property is
-            managed by clients (such as Vertex Pipelines)
+            managed by clients (such as Vertex AI Pipelines)
             and the system does not prescribe or check the
             validity of state transitions.
         etag (str):
-            An eTag used to perform consistent read-
-            odify-write updates. If not set, a blind
+            An eTag used to perform consistent
+            read-modify-write updates. If not set, a blind
             "overwrite" update happens.
         labels (Sequence[google.cloud.aiplatform_v1beta1.types.Execution.LabelsEntry]):
             The labels with user-defined metadata to

@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# Copyright 2020 Google LLC
+# Copyright 2022 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -215,8 +215,8 @@ class ExportModelRequest(proto.Message):
 
     Attributes:
         name (str):
-            Required. The resource name of the Model to export. Format:
-            ``projects/{project}/locations/{location}/models/{model}``
+            Required. The resource name of the Model to
+            export.
         output_config (google.cloud.aiplatform_v1beta1.types.ExportModelRequest.OutputConfig):
             Required. The desired output location and
             configuration.
@@ -224,6 +224,7 @@ class ExportModelRequest(proto.Message):
 
     class OutputConfig(proto.Message):
         r"""Output configuration for the Model export.
+
         Attributes:
             export_format_id (str):
                 The ID of the format in which the Model must be exported.
@@ -305,7 +306,8 @@ class ExportModelResponse(proto.Message):
     r"""Response message of
     [ModelService.ExportModel][google.cloud.aiplatform.v1beta1.ModelService.ExportModel]
     operation.
-        """
+
+    """
 
 
 class GetModelEvaluationRequest(proto.Message):

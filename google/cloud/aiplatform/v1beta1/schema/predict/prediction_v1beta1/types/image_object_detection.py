@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# Copyright 2020 Google LLC
+# Copyright 2022 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -26,6 +26,7 @@ __protobuf__ = proto.module(
 
 class ImageObjectDetectionPredictionResult(proto.Message):
     r"""Prediction output format for Image Object Detection.
+
     Attributes:
         ids (Sequence[int]):
             The resource IDs of the AnnotationSpecs that

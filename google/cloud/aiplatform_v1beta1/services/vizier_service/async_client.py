@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# Copyright 2020 Google LLC
+# Copyright 2022 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -16,15 +16,20 @@
 from collections import OrderedDict
 import functools
 import re
-from typing import Dict, Sequence, Tuple, Type, Union
+from typing import Dict, Optional, Sequence, Tuple, Type, Union
 import pkg_resources
 
-import google.api_core.client_options as ClientOptions  # type: ignore
-from google.api_core import exceptions as core_exceptions  # type: ignore
-from google.api_core import gapic_v1  # type: ignore
-from google.api_core import retry as retries  # type: ignore
+from google.api_core.client_options import ClientOptions
+from google.api_core import exceptions as core_exceptions
+from google.api_core import gapic_v1
+from google.api_core import retry as retries
 from google.auth import credentials as ga_credentials  # type: ignore
 from google.oauth2 import service_account  # type: ignore
+
+try:
+    OptionalRetry = Union[retries.Retry, gapic_v1.method._MethodDefault]
+except AttributeError:  # pragma: NO COVER
+    OptionalRetry = Union[retries.Retry, object]  # type: ignore
 
 from google.api_core import operation  # type: ignore
 from google.api_core import operation_async  # type: ignore
@@ -39,8 +44,8 @@ from .client import VizierServiceClient
 
 
 class VizierServiceAsyncClient:
-    """Vertex Vizier API.
-    Vizier service is a GCP service to solve blackbox optimization
+    """Vertex AI Vizier API.
+    Vertex AI Vizier is a service to solve blackbox optimization
     problems, such as tuning machine learning hyperparameters and
     searching over deep learning architectures.
     """
@@ -114,6 +119,42 @@ class VizierServiceAsyncClient:
 
     from_service_account_json = from_service_account_file
 
+    @classmethod
+    def get_mtls_endpoint_and_cert_source(
+        cls, client_options: Optional[ClientOptions] = None
+    ):
+        """Return the API endpoint and client cert source for mutual TLS.
+
+        The client cert source is determined in the following order:
+        (1) if `GOOGLE_API_USE_CLIENT_CERTIFICATE` environment variable is not "true", the
+        client cert source is None.
+        (2) if `client_options.client_cert_source` is provided, use the provided one; if the
+        default client cert source exists, use the default one; otherwise the client cert
+        source is None.
+
+        The API endpoint is determined in the following order:
+        (1) if `client_options.api_endpoint` if provided, use the provided one.
+        (2) if `GOOGLE_API_USE_CLIENT_CERTIFICATE` environment variable is "always", use the
+        default mTLS endpoint; if the environment variabel is "never", use the default API
+        endpoint; otherwise if client cert source exists, use the default mTLS endpoint, otherwise
+        use the default API endpoint.
+
+        More details can be found at https://google.aip.dev/auth/4114.
+
+        Args:
+            client_options (google.api_core.client_options.ClientOptions): Custom options for the
+                client. Only the `api_endpoint` and `client_cert_source` properties may be used
+                in this method.
+
+        Returns:
+            Tuple[str, Callable[[], Tuple[bytes, bytes]]]: returns the API endpoint and the
+                client cert source to use.
+
+        Raises:
+            google.auth.exceptions.MutualTLSChannelError: If any errors happen.
+        """
+        return VizierServiceClient.get_mtls_endpoint_and_cert_source(client_options)  # type: ignore
+
     @property
     def transport(self) -> VizierServiceTransport:
         """Returns the transport used by the client instance.
@@ -176,19 +217,48 @@ class VizierServiceAsyncClient:
 
     async def create_study(
         self,
-        request: vizier_service.CreateStudyRequest = None,
+        request: Union[vizier_service.CreateStudyRequest, dict] = None,
         *,
         parent: str = None,
         study: gca_study.Study = None,
-        retry: retries.Retry = gapic_v1.method.DEFAULT,
+        retry: OptionalRetry = gapic_v1.method.DEFAULT,
         timeout: float = None,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> gca_study.Study:
         r"""Creates a Study. A resource name will be generated
         after creation of the Study.
 
+
+        .. code-block:: python
+
+            from google.cloud import aiplatform_v1beta1
+
+            def sample_create_study():
+                # Create a client
+                client = aiplatform_v1beta1.VizierServiceClient()
+
+                # Initialize request argument(s)
+                study = aiplatform_v1beta1.Study()
+                study.display_name = "display_name_value"
+                study.study_spec.metrics.metric_id = "metric_id_value"
+                study.study_spec.metrics.goal = "MINIMIZE"
+                study.study_spec.parameters.double_value_spec.min_value = 0.96
+                study.study_spec.parameters.double_value_spec.max_value = 0.962
+                study.study_spec.parameters.parameter_id = "parameter_id_value"
+
+                request = aiplatform_v1beta1.CreateStudyRequest(
+                    parent="parent_value",
+                    study=study,
+                )
+
+                # Make the request
+                response = client.create_study(request=request)
+
+                # Handle the response
+                print(response)
+
         Args:
-            request (:class:`google.cloud.aiplatform_v1beta1.types.CreateStudyRequest`):
+            request (Union[google.cloud.aiplatform_v1beta1.types.CreateStudyRequest, dict]):
                 The request object. Request message for
                 [VizierService.CreateStudy][google.cloud.aiplatform.v1beta1.VizierService.CreateStudy].
             parent (:class:`str`):
@@ -217,7 +287,7 @@ class VizierServiceAsyncClient:
                 A message representing a Study.
         """
         # Create or coerce a protobuf request object.
-        # Sanity check: If we got a request object, we should *not* have
+        # Quick check: If we got a request object, we should *not* have
         # gotten any keyword arguments that map to the request.
         has_flattened_params = any([parent, study])
         if request is not None and has_flattened_params:
@@ -257,17 +327,36 @@ class VizierServiceAsyncClient:
 
     async def get_study(
         self,
-        request: vizier_service.GetStudyRequest = None,
+        request: Union[vizier_service.GetStudyRequest, dict] = None,
         *,
         name: str = None,
-        retry: retries.Retry = gapic_v1.method.DEFAULT,
+        retry: OptionalRetry = gapic_v1.method.DEFAULT,
         timeout: float = None,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> study.Study:
         r"""Gets a Study by name.
 
+        .. code-block:: python
+
+            from google.cloud import aiplatform_v1beta1
+
+            def sample_get_study():
+                # Create a client
+                client = aiplatform_v1beta1.VizierServiceClient()
+
+                # Initialize request argument(s)
+                request = aiplatform_v1beta1.GetStudyRequest(
+                    name="name_value",
+                )
+
+                # Make the request
+                response = client.get_study(request=request)
+
+                # Handle the response
+                print(response)
+
         Args:
-            request (:class:`google.cloud.aiplatform_v1beta1.types.GetStudyRequest`):
+            request (Union[google.cloud.aiplatform_v1beta1.types.GetStudyRequest, dict]):
                 The request object. Request message for
                 [VizierService.GetStudy][google.cloud.aiplatform.v1beta1.VizierService.GetStudy].
             name (:class:`str`):
@@ -288,7 +377,7 @@ class VizierServiceAsyncClient:
                 A message representing a Study.
         """
         # Create or coerce a protobuf request object.
-        # Sanity check: If we got a request object, we should *not* have
+        # Quick check: If we got a request object, we should *not* have
         # gotten any keyword arguments that map to the request.
         has_flattened_params = any([name])
         if request is not None and has_flattened_params:
@@ -326,18 +415,39 @@ class VizierServiceAsyncClient:
 
     async def list_studies(
         self,
-        request: vizier_service.ListStudiesRequest = None,
+        request: Union[vizier_service.ListStudiesRequest, dict] = None,
         *,
         parent: str = None,
-        retry: retries.Retry = gapic_v1.method.DEFAULT,
+        retry: OptionalRetry = gapic_v1.method.DEFAULT,
         timeout: float = None,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> pagers.ListStudiesAsyncPager:
         r"""Lists all the studies in a region for an associated
         project.
 
+
+        .. code-block:: python
+
+            from google.cloud import aiplatform_v1beta1
+
+            def sample_list_studies():
+                # Create a client
+                client = aiplatform_v1beta1.VizierServiceClient()
+
+                # Initialize request argument(s)
+                request = aiplatform_v1beta1.ListStudiesRequest(
+                    parent="parent_value",
+                )
+
+                # Make the request
+                page_result = client.list_studies(request=request)
+
+                # Handle the response
+                for response in page_result:
+                    print(response)
+
         Args:
-            request (:class:`google.cloud.aiplatform_v1beta1.types.ListStudiesRequest`):
+            request (Union[google.cloud.aiplatform_v1beta1.types.ListStudiesRequest, dict]):
                 The request object. Request message for
                 [VizierService.ListStudies][google.cloud.aiplatform.v1beta1.VizierService.ListStudies].
             parent (:class:`str`):
@@ -364,7 +474,7 @@ class VizierServiceAsyncClient:
 
         """
         # Create or coerce a protobuf request object.
-        # Sanity check: If we got a request object, we should *not* have
+        # Quick check: If we got a request object, we should *not* have
         # gotten any keyword arguments that map to the request.
         has_flattened_params = any([parent])
         if request is not None and has_flattened_params:
@@ -408,17 +518,33 @@ class VizierServiceAsyncClient:
 
     async def delete_study(
         self,
-        request: vizier_service.DeleteStudyRequest = None,
+        request: Union[vizier_service.DeleteStudyRequest, dict] = None,
         *,
         name: str = None,
-        retry: retries.Retry = gapic_v1.method.DEFAULT,
+        retry: OptionalRetry = gapic_v1.method.DEFAULT,
         timeout: float = None,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> None:
         r"""Deletes a Study.
 
+        .. code-block:: python
+
+            from google.cloud import aiplatform_v1beta1
+
+            def sample_delete_study():
+                # Create a client
+                client = aiplatform_v1beta1.VizierServiceClient()
+
+                # Initialize request argument(s)
+                request = aiplatform_v1beta1.DeleteStudyRequest(
+                    name="name_value",
+                )
+
+                # Make the request
+                client.delete_study(request=request)
+
         Args:
-            request (:class:`google.cloud.aiplatform_v1beta1.types.DeleteStudyRequest`):
+            request (Union[google.cloud.aiplatform_v1beta1.types.DeleteStudyRequest, dict]):
                 The request object. Request message for
                 [VizierService.DeleteStudy][google.cloud.aiplatform.v1beta1.VizierService.DeleteStudy].
             name (:class:`str`):
@@ -436,7 +562,7 @@ class VizierServiceAsyncClient:
                 sent along with the request as metadata.
         """
         # Create or coerce a protobuf request object.
-        # Sanity check: If we got a request object, we should *not* have
+        # Quick check: If we got a request object, we should *not* have
         # gotten any keyword arguments that map to the request.
         has_flattened_params = any([name])
         if request is not None and has_flattened_params:
@@ -473,18 +599,39 @@ class VizierServiceAsyncClient:
 
     async def lookup_study(
         self,
-        request: vizier_service.LookupStudyRequest = None,
+        request: Union[vizier_service.LookupStudyRequest, dict] = None,
         *,
         parent: str = None,
-        retry: retries.Retry = gapic_v1.method.DEFAULT,
+        retry: OptionalRetry = gapic_v1.method.DEFAULT,
         timeout: float = None,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> study.Study:
         r"""Looks a study up using the user-defined display_name field
         instead of the fully qualified resource name.
 
+
+        .. code-block:: python
+
+            from google.cloud import aiplatform_v1beta1
+
+            def sample_lookup_study():
+                # Create a client
+                client = aiplatform_v1beta1.VizierServiceClient()
+
+                # Initialize request argument(s)
+                request = aiplatform_v1beta1.LookupStudyRequest(
+                    parent="parent_value",
+                    display_name="display_name_value",
+                )
+
+                # Make the request
+                response = client.lookup_study(request=request)
+
+                # Handle the response
+                print(response)
+
         Args:
-            request (:class:`google.cloud.aiplatform_v1beta1.types.LookupStudyRequest`):
+            request (Union[google.cloud.aiplatform_v1beta1.types.LookupStudyRequest, dict]):
                 The request object. Request message for
                 [VizierService.LookupStudy][google.cloud.aiplatform.v1beta1.VizierService.LookupStudy].
             parent (:class:`str`):
@@ -506,7 +653,7 @@ class VizierServiceAsyncClient:
                 A message representing a Study.
         """
         # Create or coerce a protobuf request object.
-        # Sanity check: If we got a request object, we should *not* have
+        # Quick check: If we got a request object, we should *not* have
         # gotten any keyword arguments that map to the request.
         has_flattened_params = any([parent])
         if request is not None and has_flattened_params:
@@ -544,20 +691,46 @@ class VizierServiceAsyncClient:
 
     async def suggest_trials(
         self,
-        request: vizier_service.SuggestTrialsRequest = None,
+        request: Union[vizier_service.SuggestTrialsRequest, dict] = None,
         *,
-        retry: retries.Retry = gapic_v1.method.DEFAULT,
+        retry: OptionalRetry = gapic_v1.method.DEFAULT,
         timeout: float = None,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> operation_async.AsyncOperation:
         r"""Adds one or more Trials to a Study, with parameter values
-        suggested by Vertex Vizier. Returns a long-running operation
+        suggested by Vertex AI Vizier. Returns a long-running operation
         associated with the generation of Trial suggestions. When this
         long-running operation succeeds, it will contain a
         [SuggestTrialsResponse][google.cloud.ml.v1.SuggestTrialsResponse].
 
+
+        .. code-block:: python
+
+            from google.cloud import aiplatform_v1beta1
+
+            def sample_suggest_trials():
+                # Create a client
+                client = aiplatform_v1beta1.VizierServiceClient()
+
+                # Initialize request argument(s)
+                request = aiplatform_v1beta1.SuggestTrialsRequest(
+                    parent="parent_value",
+                    suggestion_count=1744,
+                    client_id="client_id_value",
+                )
+
+                # Make the request
+                operation = client.suggest_trials(request=request)
+
+                print("Waiting for operation to complete...")
+
+                response = operation.result()
+
+                # Handle the response
+                print(response)
+
         Args:
-            request (:class:`google.cloud.aiplatform_v1beta1.types.SuggestTrialsRequest`):
+            request (Union[google.cloud.aiplatform_v1beta1.types.SuggestTrialsRequest, dict]):
                 The request object. Request message for
                 [VizierService.SuggestTrials][google.cloud.aiplatform.v1beta1.VizierService.SuggestTrials].
             retry (google.api_core.retry.Retry): Designation of what errors, if any,
@@ -609,18 +782,37 @@ class VizierServiceAsyncClient:
 
     async def create_trial(
         self,
-        request: vizier_service.CreateTrialRequest = None,
+        request: Union[vizier_service.CreateTrialRequest, dict] = None,
         *,
         parent: str = None,
         trial: study.Trial = None,
-        retry: retries.Retry = gapic_v1.method.DEFAULT,
+        retry: OptionalRetry = gapic_v1.method.DEFAULT,
         timeout: float = None,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> study.Trial:
         r"""Adds a user provided Trial to a Study.
 
+        .. code-block:: python
+
+            from google.cloud import aiplatform_v1beta1
+
+            def sample_create_trial():
+                # Create a client
+                client = aiplatform_v1beta1.VizierServiceClient()
+
+                # Initialize request argument(s)
+                request = aiplatform_v1beta1.CreateTrialRequest(
+                    parent="parent_value",
+                )
+
+                # Make the request
+                response = client.create_trial(request=request)
+
+                # Handle the response
+                print(response)
+
         Args:
-            request (:class:`google.cloud.aiplatform_v1beta1.types.CreateTrialRequest`):
+            request (Union[google.cloud.aiplatform_v1beta1.types.CreateTrialRequest, dict]):
                 The request object. Request message for
                 [VizierService.CreateTrial][google.cloud.aiplatform.v1beta1.VizierService.CreateTrial].
             parent (:class:`str`):
@@ -652,7 +844,7 @@ class VizierServiceAsyncClient:
 
         """
         # Create or coerce a protobuf request object.
-        # Sanity check: If we got a request object, we should *not* have
+        # Quick check: If we got a request object, we should *not* have
         # gotten any keyword arguments that map to the request.
         has_flattened_params = any([parent, trial])
         if request is not None and has_flattened_params:
@@ -692,17 +884,36 @@ class VizierServiceAsyncClient:
 
     async def get_trial(
         self,
-        request: vizier_service.GetTrialRequest = None,
+        request: Union[vizier_service.GetTrialRequest, dict] = None,
         *,
         name: str = None,
-        retry: retries.Retry = gapic_v1.method.DEFAULT,
+        retry: OptionalRetry = gapic_v1.method.DEFAULT,
         timeout: float = None,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> study.Trial:
         r"""Gets a Trial.
 
+        .. code-block:: python
+
+            from google.cloud import aiplatform_v1beta1
+
+            def sample_get_trial():
+                # Create a client
+                client = aiplatform_v1beta1.VizierServiceClient()
+
+                # Initialize request argument(s)
+                request = aiplatform_v1beta1.GetTrialRequest(
+                    name="name_value",
+                )
+
+                # Make the request
+                response = client.get_trial(request=request)
+
+                # Handle the response
+                print(response)
+
         Args:
-            request (:class:`google.cloud.aiplatform_v1beta1.types.GetTrialRequest`):
+            request (Union[google.cloud.aiplatform_v1beta1.types.GetTrialRequest, dict]):
                 The request object. Request message for
                 [VizierService.GetTrial][google.cloud.aiplatform.v1beta1.VizierService.GetTrial].
             name (:class:`str`):
@@ -728,7 +939,7 @@ class VizierServiceAsyncClient:
 
         """
         # Create or coerce a protobuf request object.
-        # Sanity check: If we got a request object, we should *not* have
+        # Quick check: If we got a request object, we should *not* have
         # gotten any keyword arguments that map to the request.
         has_flattened_params = any([name])
         if request is not None and has_flattened_params:
@@ -766,17 +977,37 @@ class VizierServiceAsyncClient:
 
     async def list_trials(
         self,
-        request: vizier_service.ListTrialsRequest = None,
+        request: Union[vizier_service.ListTrialsRequest, dict] = None,
         *,
         parent: str = None,
-        retry: retries.Retry = gapic_v1.method.DEFAULT,
+        retry: OptionalRetry = gapic_v1.method.DEFAULT,
         timeout: float = None,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> pagers.ListTrialsAsyncPager:
         r"""Lists the Trials associated with a Study.
 
+        .. code-block:: python
+
+            from google.cloud import aiplatform_v1beta1
+
+            def sample_list_trials():
+                # Create a client
+                client = aiplatform_v1beta1.VizierServiceClient()
+
+                # Initialize request argument(s)
+                request = aiplatform_v1beta1.ListTrialsRequest(
+                    parent="parent_value",
+                )
+
+                # Make the request
+                page_result = client.list_trials(request=request)
+
+                # Handle the response
+                for response in page_result:
+                    print(response)
+
         Args:
-            request (:class:`google.cloud.aiplatform_v1beta1.types.ListTrialsRequest`):
+            request (Union[google.cloud.aiplatform_v1beta1.types.ListTrialsRequest, dict]):
                 The request object. Request message for
                 [VizierService.ListTrials][google.cloud.aiplatform.v1beta1.VizierService.ListTrials].
             parent (:class:`str`):
@@ -803,7 +1034,7 @@ class VizierServiceAsyncClient:
 
         """
         # Create or coerce a protobuf request object.
-        # Sanity check: If we got a request object, we should *not* have
+        # Quick check: If we got a request object, we should *not* have
         # gotten any keyword arguments that map to the request.
         has_flattened_params = any([parent])
         if request is not None and has_flattened_params:
@@ -847,9 +1078,9 @@ class VizierServiceAsyncClient:
 
     async def add_trial_measurement(
         self,
-        request: vizier_service.AddTrialMeasurementRequest = None,
+        request: Union[vizier_service.AddTrialMeasurementRequest, dict] = None,
         *,
-        retry: retries.Retry = gapic_v1.method.DEFAULT,
+        retry: OptionalRetry = gapic_v1.method.DEFAULT,
         timeout: float = None,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> study.Trial:
@@ -857,8 +1088,28 @@ class VizierServiceAsyncClient:
         Trial. This measurement is assumed to have been taken
         before the Trial is complete.
 
+
+        .. code-block:: python
+
+            from google.cloud import aiplatform_v1beta1
+
+            def sample_add_trial_measurement():
+                # Create a client
+                client = aiplatform_v1beta1.VizierServiceClient()
+
+                # Initialize request argument(s)
+                request = aiplatform_v1beta1.AddTrialMeasurementRequest(
+                    trial_name="trial_name_value",
+                )
+
+                # Make the request
+                response = client.add_trial_measurement(request=request)
+
+                # Handle the response
+                print(response)
+
         Args:
-            request (:class:`google.cloud.aiplatform_v1beta1.types.AddTrialMeasurementRequest`):
+            request (Union[google.cloud.aiplatform_v1beta1.types.AddTrialMeasurementRequest, dict]):
                 The request object. Request message for
                 [VizierService.AddTrialMeasurement][google.cloud.aiplatform.v1beta1.VizierService.AddTrialMeasurement].
             retry (google.api_core.retry.Retry): Designation of what errors, if any,
@@ -903,16 +1154,35 @@ class VizierServiceAsyncClient:
 
     async def complete_trial(
         self,
-        request: vizier_service.CompleteTrialRequest = None,
+        request: Union[vizier_service.CompleteTrialRequest, dict] = None,
         *,
-        retry: retries.Retry = gapic_v1.method.DEFAULT,
+        retry: OptionalRetry = gapic_v1.method.DEFAULT,
         timeout: float = None,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> study.Trial:
         r"""Marks a Trial as complete.
 
+        .. code-block:: python
+
+            from google.cloud import aiplatform_v1beta1
+
+            def sample_complete_trial():
+                # Create a client
+                client = aiplatform_v1beta1.VizierServiceClient()
+
+                # Initialize request argument(s)
+                request = aiplatform_v1beta1.CompleteTrialRequest(
+                    name="name_value",
+                )
+
+                # Make the request
+                response = client.complete_trial(request=request)
+
+                # Handle the response
+                print(response)
+
         Args:
-            request (:class:`google.cloud.aiplatform_v1beta1.types.CompleteTrialRequest`):
+            request (Union[google.cloud.aiplatform_v1beta1.types.CompleteTrialRequest, dict]):
                 The request object. Request message for
                 [VizierService.CompleteTrial][google.cloud.aiplatform.v1beta1.VizierService.CompleteTrial].
             retry (google.api_core.retry.Retry): Designation of what errors, if any,
@@ -955,17 +1225,33 @@ class VizierServiceAsyncClient:
 
     async def delete_trial(
         self,
-        request: vizier_service.DeleteTrialRequest = None,
+        request: Union[vizier_service.DeleteTrialRequest, dict] = None,
         *,
         name: str = None,
-        retry: retries.Retry = gapic_v1.method.DEFAULT,
+        retry: OptionalRetry = gapic_v1.method.DEFAULT,
         timeout: float = None,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> None:
         r"""Deletes a Trial.
 
+        .. code-block:: python
+
+            from google.cloud import aiplatform_v1beta1
+
+            def sample_delete_trial():
+                # Create a client
+                client = aiplatform_v1beta1.VizierServiceClient()
+
+                # Initialize request argument(s)
+                request = aiplatform_v1beta1.DeleteTrialRequest(
+                    name="name_value",
+                )
+
+                # Make the request
+                client.delete_trial(request=request)
+
         Args:
-            request (:class:`google.cloud.aiplatform_v1beta1.types.DeleteTrialRequest`):
+            request (Union[google.cloud.aiplatform_v1beta1.types.DeleteTrialRequest, dict]):
                 The request object. Request message for
                 [VizierService.DeleteTrial][google.cloud.aiplatform.v1beta1.VizierService.DeleteTrial].
             name (:class:`str`):
@@ -982,7 +1268,7 @@ class VizierServiceAsyncClient:
                 sent along with the request as metadata.
         """
         # Create or coerce a protobuf request object.
-        # Sanity check: If we got a request object, we should *not* have
+        # Quick check: If we got a request object, we should *not* have
         # gotten any keyword arguments that map to the request.
         has_flattened_params = any([name])
         if request is not None and has_flattened_params:
@@ -1019,9 +1305,9 @@ class VizierServiceAsyncClient:
 
     async def check_trial_early_stopping_state(
         self,
-        request: vizier_service.CheckTrialEarlyStoppingStateRequest = None,
+        request: Union[vizier_service.CheckTrialEarlyStoppingStateRequest, dict] = None,
         *,
-        retry: retries.Retry = gapic_v1.method.DEFAULT,
+        retry: OptionalRetry = gapic_v1.method.DEFAULT,
         timeout: float = None,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> operation_async.AsyncOperation:
@@ -1030,8 +1316,32 @@ class VizierServiceAsyncClient:
         will contain a
         [CheckTrialEarlyStoppingStateResponse][google.cloud.ml.v1.CheckTrialEarlyStoppingStateResponse].
 
+
+        .. code-block:: python
+
+            from google.cloud import aiplatform_v1beta1
+
+            def sample_check_trial_early_stopping_state():
+                # Create a client
+                client = aiplatform_v1beta1.VizierServiceClient()
+
+                # Initialize request argument(s)
+                request = aiplatform_v1beta1.CheckTrialEarlyStoppingStateRequest(
+                    trial_name="trial_name_value",
+                )
+
+                # Make the request
+                operation = client.check_trial_early_stopping_state(request=request)
+
+                print("Waiting for operation to complete...")
+
+                response = operation.result()
+
+                # Handle the response
+                print(response)
+
         Args:
-            request (:class:`google.cloud.aiplatform_v1beta1.types.CheckTrialEarlyStoppingStateRequest`):
+            request (Union[google.cloud.aiplatform_v1beta1.types.CheckTrialEarlyStoppingStateRequest, dict]):
                 The request object. Request message for
                 [VizierService.CheckTrialEarlyStoppingState][google.cloud.aiplatform.v1beta1.VizierService.CheckTrialEarlyStoppingState].
             retry (google.api_core.retry.Retry): Designation of what errors, if any,
@@ -1085,16 +1395,35 @@ class VizierServiceAsyncClient:
 
     async def stop_trial(
         self,
-        request: vizier_service.StopTrialRequest = None,
+        request: Union[vizier_service.StopTrialRequest, dict] = None,
         *,
-        retry: retries.Retry = gapic_v1.method.DEFAULT,
+        retry: OptionalRetry = gapic_v1.method.DEFAULT,
         timeout: float = None,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> study.Trial:
         r"""Stops a Trial.
 
+        .. code-block:: python
+
+            from google.cloud import aiplatform_v1beta1
+
+            def sample_stop_trial():
+                # Create a client
+                client = aiplatform_v1beta1.VizierServiceClient()
+
+                # Initialize request argument(s)
+                request = aiplatform_v1beta1.StopTrialRequest(
+                    name="name_value",
+                )
+
+                # Make the request
+                response = client.stop_trial(request=request)
+
+                # Handle the response
+                print(response)
+
         Args:
-            request (:class:`google.cloud.aiplatform_v1beta1.types.StopTrialRequest`):
+            request (Union[google.cloud.aiplatform_v1beta1.types.StopTrialRequest, dict]):
                 The request object. Request message for
                 [VizierService.StopTrial][google.cloud.aiplatform.v1beta1.VizierService.StopTrial].
             retry (google.api_core.retry.Retry): Designation of what errors, if any,
@@ -1137,10 +1466,10 @@ class VizierServiceAsyncClient:
 
     async def list_optimal_trials(
         self,
-        request: vizier_service.ListOptimalTrialsRequest = None,
+        request: Union[vizier_service.ListOptimalTrialsRequest, dict] = None,
         *,
         parent: str = None,
-        retry: retries.Retry = gapic_v1.method.DEFAULT,
+        retry: OptionalRetry = gapic_v1.method.DEFAULT,
         timeout: float = None,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> vizier_service.ListOptimalTrialsResponse:
@@ -1149,8 +1478,28 @@ class VizierServiceAsyncClient:
         pareto-optimal can be checked in wiki page.
         https://en.wikipedia.org/wiki/Pareto_efficiency
 
+
+        .. code-block:: python
+
+            from google.cloud import aiplatform_v1beta1
+
+            def sample_list_optimal_trials():
+                # Create a client
+                client = aiplatform_v1beta1.VizierServiceClient()
+
+                # Initialize request argument(s)
+                request = aiplatform_v1beta1.ListOptimalTrialsRequest(
+                    parent="parent_value",
+                )
+
+                # Make the request
+                response = client.list_optimal_trials(request=request)
+
+                # Handle the response
+                print(response)
+
         Args:
-            request (:class:`google.cloud.aiplatform_v1beta1.types.ListOptimalTrialsRequest`):
+            request (Union[google.cloud.aiplatform_v1beta1.types.ListOptimalTrialsRequest, dict]):
                 The request object. Request message for
                 [VizierService.ListOptimalTrials][google.cloud.aiplatform.v1beta1.VizierService.ListOptimalTrials].
             parent (:class:`str`):
@@ -1173,7 +1522,7 @@ class VizierServiceAsyncClient:
 
         """
         # Create or coerce a protobuf request object.
-        # Sanity check: If we got a request object, we should *not* have
+        # Quick check: If we got a request object, we should *not* have
         # gotten any keyword arguments that map to the request.
         has_flattened_params = any([parent])
         if request is not None and has_flattened_params:
@@ -1208,6 +1557,12 @@ class VizierServiceAsyncClient:
 
         # Done; return the response.
         return response
+
+    async def __aenter__(self):
+        return self
+
+    async def __aexit__(self, exc_type, exc, tb):
+        await self.transport.close()
 
 
 try:

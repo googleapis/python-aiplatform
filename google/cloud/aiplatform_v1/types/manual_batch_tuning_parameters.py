@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# Copyright 2020 Google LLC
+# Copyright 2022 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -23,6 +23,7 @@ __protobuf__ = proto.module(
 
 class ManualBatchTuningParameters(proto.Message):
     r"""Manual batch tuning parameters.
+
     Attributes:
         batch_size (int):
             Immutable. The number of the records (e.g.

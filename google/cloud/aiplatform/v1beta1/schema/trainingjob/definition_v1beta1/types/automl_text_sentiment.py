@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# Copyright 2020 Google LLC
+# Copyright 2022 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -36,6 +36,7 @@ class AutoMlTextSentiment(proto.Message):
 
 class AutoMlTextSentimentInputs(proto.Message):
     r"""
+
     Attributes:
         sentiment_max (int):
             A sentiment is expressed as an integer

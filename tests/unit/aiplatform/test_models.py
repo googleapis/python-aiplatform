@@ -17,6 +17,7 @@
 
 import importlib
 from concurrent import futures
+import pathlib
 import pytest
 from unittest import mock
 from unittest.mock import patch
@@ -26,7 +27,7 @@ from google.api_core import exceptions as api_exceptions
 from google.auth import credentials as auth_credentials
 
 from google.cloud import aiplatform
-
+from google.cloud.aiplatform import base
 from google.cloud.aiplatform import initializer
 from google.cloud.aiplatform import models
 from google.cloud.aiplatform import utils
@@ -53,6 +54,7 @@ from google.cloud.aiplatform.compat.types import (
     encryption_spec as gca_encryption_spec,
 )
 
+from google.protobuf import field_mask_pb2
 
 from test_endpoints import create_endpoint_mock  # noqa: F401
 
@@ -177,6 +179,27 @@ _TEST_CONTAINER_REGISTRY_DESTINATION
 
 
 @pytest.fixture
+def mock_model():
+    model = mock.MagicMock(models.Model)
+    model.name = _TEST_ID
+    model._latest_future = None
+    model._exception = None
+    model._gca_resource = gca_model.Model(
+        display_name=_TEST_MODEL_NAME,
+        description=_TEST_DESCRIPTION,
+        labels=_TEST_LABEL,
+    )
+    yield model
+
+
+@pytest.fixture
+def update_model_mock(mock_model):
+    with patch.object(model_service_client.ModelServiceClient, "update_model") as mock:
+        mock.return_value = mock_model
+        yield mock
+
+
+@pytest.fixture
 def get_endpoint_mock():
     with mock.patch.object(
         endpoint_service_client.EndpointServiceClient, "get_endpoint"
@@ -198,6 +221,7 @@ def get_model_mock():
         get_model_mock.return_value = gca_model.Model(
             display_name=_TEST_MODEL_NAME, name=_TEST_MODEL_RESOURCE_NAME,
         )
+
         yield get_model_mock
 
 
@@ -423,6 +447,16 @@ def create_client_mock():
         yield create_client_mock
 
 
+@pytest.fixture
+def mock_storage_blob_upload_from_filename():
+    with patch(
+        "google.cloud.storage.Blob.upload_from_filename"
+    ) as mock_blob_upload_from_filename, patch(
+        "google.cloud.storage.Bucket.exists", return_value=True
+    ):
+        yield mock_blob_upload_from_filename
+
+
 class TestModel:
     def setup_method(self):
         importlib.reload(initializer)
@@ -443,7 +477,6 @@ class TestModel:
             client_class=utils.ModelClientWithOverride,
             credentials=initializer.global_config.credentials,
             location_override=_TEST_LOCATION,
-            prediction_client=False,
         )
 
     def test_constructor_create_client_with_custom_location(self, create_client_mock):
@@ -457,7 +490,6 @@ class TestModel:
             client_class=utils.ModelClientWithOverride,
             credentials=initializer.global_config.credentials,
             location_override=_TEST_LOCATION_2,
-            prediction_client=False,
         )
 
     def test_constructor_creates_client_with_custom_credentials(
@@ -469,26 +501,31 @@ class TestModel:
             client_class=utils.ModelClientWithOverride,
             credentials=creds,
             location_override=_TEST_LOCATION,
-            prediction_client=False,
         )
 
     def test_constructor_gets_model(self, get_model_mock):
         models.Model(_TEST_ID)
-        get_model_mock.assert_called_once_with(name=_TEST_MODEL_RESOURCE_NAME)
+        get_model_mock.assert_called_once_with(
+            name=_TEST_MODEL_RESOURCE_NAME, retry=base._DEFAULT_RETRY
+        )
 
     def test_constructor_gets_model_with_custom_project(self, get_model_mock):
         models.Model(_TEST_ID, project=_TEST_PROJECT_2)
         test_model_resource_name = model_service_client.ModelServiceClient.model_path(
             _TEST_PROJECT_2, _TEST_LOCATION, _TEST_ID
         )
-        get_model_mock.assert_called_once_with(name=test_model_resource_name)
+        get_model_mock.assert_called_once_with(
+            name=test_model_resource_name, retry=base._DEFAULT_RETRY
+        )
 
     def test_constructor_gets_model_with_custom_location(self, get_model_mock):
         models.Model(_TEST_ID, location=_TEST_LOCATION_2)
         test_model_resource_name = model_service_client.ModelServiceClient.model_path(
             _TEST_PROJECT, _TEST_LOCATION_2, _TEST_ID
         )
-        get_model_mock.assert_called_once_with(name=test_model_resource_name)
+        get_model_mock.assert_called_once_with(
+            name=test_model_resource_name, retry=base._DEFAULT_RETRY
+        )
 
     @pytest.mark.parametrize("sync", [True, False])
     def test_upload_uploads_and_gets_model(
@@ -521,7 +558,9 @@ class TestModel:
             model=managed_model,
         )
 
-        get_model_mock.assert_called_once_with(name=_TEST_MODEL_RESOURCE_NAME)
+        get_model_mock.assert_called_once_with(
+            name=_TEST_MODEL_RESOURCE_NAME, retry=base._DEFAULT_RETRY
+        )
 
     @pytest.mark.parametrize("sync", [True, False])
     def test_upload_uploads_and_gets_model_with_labels(
@@ -557,7 +596,9 @@ class TestModel:
             model=managed_model,
         )
 
-        get_model_mock.assert_called_once_with(name=_TEST_MODEL_RESOURCE_NAME)
+        get_model_mock.assert_called_once_with(
+            name=_TEST_MODEL_RESOURCE_NAME, retry=base._DEFAULT_RETRY
+        )
 
     def test_upload_raises_with_impartial_explanation_spec(self):
 
@@ -641,7 +682,9 @@ class TestModel:
             parent=initializer.global_config.common_location_path(),
             model=managed_model,
         )
-        get_model_mock.assert_called_once_with(name=_TEST_MODEL_RESOURCE_NAME)
+        get_model_mock.assert_called_once_with(
+            name=_TEST_MODEL_RESOURCE_NAME, retry=base._DEFAULT_RETRY
+        )
 
     @pytest.mark.usefixtures("get_model_with_custom_project_mock")
     @pytest.mark.parametrize("sync", [True, False])
@@ -687,7 +730,7 @@ class TestModel:
         )
 
         get_model_with_custom_project_mock.assert_called_once_with(
-            name=test_model_resource_name
+            name=test_model_resource_name, retry=base._DEFAULT_RETRY
         )
 
         assert my_model.uri == _TEST_ARTIFACT_URI
@@ -774,7 +817,7 @@ class TestModel:
         )
 
         get_model_with_custom_location_mock.assert_called_once_with(
-            name=test_model_resource_name
+            name=test_model_resource_name, retry=base._DEFAULT_RETRY
         )
 
     @pytest.mark.usefixtures("get_endpoint_mock", "get_model_mock")
@@ -782,6 +825,10 @@ class TestModel:
     def test_deploy(self, deploy_model_mock, sync):
 
         test_model = models.Model(_TEST_ID)
+        test_model._gca_resource.supported_deployment_resources_types.append(
+            aiplatform.gapic.Model.DeploymentResourcesType.AUTOMATIC_RESOURCES
+        )
+
         test_endpoint = models.Endpoint(_TEST_ID)
 
         assert test_model.deploy(test_endpoint, sync=sync,) == test_endpoint
@@ -811,6 +858,9 @@ class TestModel:
     def test_deploy_no_endpoint(self, deploy_model_mock, sync):
 
         test_model = models.Model(_TEST_ID)
+        test_model._gca_resource.supported_deployment_resources_types.append(
+            aiplatform.gapic.Model.DeploymentResourcesType.AUTOMATIC_RESOURCES
+        )
         test_endpoint = test_model.deploy(sync=sync)
 
         if not sync:
@@ -838,6 +888,9 @@ class TestModel:
     def test_deploy_no_endpoint_dedicated_resources(self, deploy_model_mock, sync):
 
         test_model = models.Model(_TEST_ID)
+        test_model._gca_resource.supported_deployment_resources_types.append(
+            aiplatform.gapic.Model.DeploymentResourcesType.DEDICATED_RESOURCES
+        )
         test_endpoint = test_model.deploy(
             machine_type=_TEST_MACHINE_TYPE,
             accelerator_type=_TEST_ACCELERATOR_TYPE,
@@ -876,6 +929,9 @@ class TestModel:
     @pytest.mark.parametrize("sync", [True, False])
     def test_deploy_no_endpoint_with_explanations(self, deploy_model_mock, sync):
         test_model = models.Model(_TEST_ID)
+        test_model._gca_resource.supported_deployment_resources_types.append(
+            aiplatform.gapic.Model.DeploymentResourcesType.DEDICATED_RESOURCES
+        )
         test_endpoint = test_model.deploy(
             machine_type=_TEST_MACHINE_TYPE,
             accelerator_type=_TEST_ACCELERATOR_TYPE,
@@ -918,6 +974,9 @@ class TestModel:
     def test_deploy_raises_with_impartial_explanation_spec(self):
 
         test_model = models.Model(_TEST_ID)
+        test_model._gca_resource.supported_deployment_resources_types.append(
+            aiplatform.gapic.Model.DeploymentResourcesType.DEDICATED_RESOURCES
+        )
 
         with pytest.raises(ValueError) as e:
             test_model.deploy(
@@ -1429,4 +1488,240 @@ class TestModel:
                 r"The training job used to create this model could not be found: "
                 fr"{_TEST_PIPELINE_RESOURCE_NAME}"
             )
+        )
+
+    @pytest.mark.parametrize("sync", [True, False])
+    @pytest.mark.parametrize(
+        "model_file_name",
+        ["my_model.xgb", "my_model.pkl", "my_model.joblib", "my_model.bst"],
+    )
+    def test_upload_xgboost_model_file_uploads_and_gets_model(
+        self,
+        tmp_path: pathlib.Path,
+        model_file_name: str,
+        mock_storage_blob_upload_from_filename,
+        upload_model_mock,
+        get_model_mock,
+        sync: bool,
+    ):
+        model_file_path = tmp_path / model_file_name
+        model_file_path.touch()
+
+        my_model = models.Model.upload_xgboost_model_file(
+            model_file_path=str(model_file_path),
+            xgboost_version="1.4",
+            display_name=_TEST_MODEL_NAME,
+            project=_TEST_PROJECT,
+            location=_TEST_LOCATION,
+            sync=sync,
+        )
+
+        if not sync:
+            my_model.wait()
+
+        upload_model_mock.assert_called_once()
+        upload_model_call_kwargs = upload_model_mock.call_args[1]
+        upload_model_model = upload_model_call_kwargs["model"]
+
+        # Verifying the container image selection
+        assert (
+            upload_model_model.container_spec.image_uri
+            == "us-docker.pkg.dev/vertex-ai/prediction/xgboost-cpu.1-4:latest"
+        )
+
+        # Verifying the staging bucket name generation
+        assert upload_model_model.artifact_uri.startswith(
+            f"gs://{_TEST_PROJECT}-vertex-staging-{_TEST_LOCATION}"
+        )
+        assert "/vertex_ai_auto_staging/" in upload_model_model.artifact_uri
+
+        # Verifying that the model was renamed to a file name that is acceptable for Model.upload
+        staged_model_file_path = mock_storage_blob_upload_from_filename.call_args[1][
+            "filename"
+        ]
+        staged_model_file_name = staged_model_file_path.split("/")[-1]
+        assert staged_model_file_name in ["model.bst", "model.pkl", "model.joblib"]
+
+    @pytest.mark.parametrize("sync", [True, False])
+    @pytest.mark.parametrize(
+        "model_file_name",
+        [
+            "model.bst",
+            "model.pkl",
+            "model.joblib",
+            "saved_model.pb",
+            "saved_model.pbtxt",
+        ],
+    )
+    def test_upload_stages_data_uploads_and_gets_model(
+        self,
+        tmp_path: pathlib.Path,
+        model_file_name: str,
+        mock_storage_blob_upload_from_filename,
+        upload_model_mock,
+        get_model_mock,
+        sync: bool,
+    ):
+        model_file_path = tmp_path / model_file_name
+        model_file_path.touch()
+
+        my_model = models.Model.upload(
+            artifact_uri=str(tmp_path),
+            serving_container_image_uri="us-docker.pkg.dev/vertex-ai/prediction/xgboost-cpu.1-4:latest",
+            display_name=_TEST_MODEL_NAME,
+            project=_TEST_PROJECT,
+            location=_TEST_LOCATION,
+            sync=sync,
+        )
+
+        if not sync:
+            my_model.wait()
+
+        upload_model_mock.assert_called_once()
+        upload_model_call_kwargs = upload_model_mock.call_args[1]
+        upload_model_model = upload_model_call_kwargs["model"]
+
+        # Verifying the staging bucket name generation
+        assert upload_model_model.artifact_uri.startswith(
+            f"gs://{_TEST_PROJECT}-vertex-staging-{_TEST_LOCATION}"
+        )
+        assert "/vertex_ai_auto_staging/" in upload_model_model.artifact_uri
+
+        # Verifying that the model was renamed to a file name that is acceptable for Model.upload
+        staged_model_file_path = mock_storage_blob_upload_from_filename.call_args[1][
+            "filename"
+        ]
+        staged_model_file_name = staged_model_file_path.split("/")[-1]
+        assert staged_model_file_name in [
+            "model.bst",
+            "model.pkl",
+            "model.joblib",
+            "saved_model.pb",
+            "saved_model.pbtxt",
+        ]
+
+    @pytest.mark.parametrize("sync", [True, False])
+    @pytest.mark.parametrize(
+        "model_file_name", ["my_model.pkl", "my_model.joblib"],
+    )
+    def test_upload_scikit_learn_model_file_uploads_and_gets_model(
+        self,
+        tmp_path: pathlib.Path,
+        model_file_name: str,
+        mock_storage_blob_upload_from_filename,
+        upload_model_mock,
+        get_model_mock,
+        sync: bool,
+    ):
+        model_file_path = tmp_path / model_file_name
+        model_file_path.touch()
+
+        my_model = models.Model.upload_scikit_learn_model_file(
+            model_file_path=str(model_file_path),
+            sklearn_version="0.24",
+            display_name=_TEST_MODEL_NAME,
+            project=_TEST_PROJECT,
+            location=_TEST_LOCATION,
+            sync=sync,
+        )
+
+        if not sync:
+            my_model.wait()
+
+        upload_model_mock.assert_called_once()
+        upload_model_call_kwargs = upload_model_mock.call_args[1]
+        upload_model_model = upload_model_call_kwargs["model"]
+
+        # Verifying the container image selection
+        assert (
+            upload_model_model.container_spec.image_uri
+            == "us-docker.pkg.dev/vertex-ai/prediction/sklearn-cpu.0-24:latest"
+        )
+
+        # Verifying the staging bucket name generation
+        assert upload_model_model.artifact_uri.startswith(
+            f"gs://{_TEST_PROJECT}-vertex-staging-{_TEST_LOCATION}"
+        )
+        assert "/vertex_ai_auto_staging/" in upload_model_model.artifact_uri
+
+        # Verifying that the model was renamed to a file name that is acceptable for Model.upload
+        staged_model_file_path = mock_storage_blob_upload_from_filename.call_args[1][
+            "filename"
+        ]
+        staged_model_file_name = staged_model_file_path.split("/")[-1]
+        assert staged_model_file_name in ["model.pkl", "model.joblib"]
+
+    @pytest.mark.parametrize("sync", [True, False])
+    def test_upload_tensorflow_saved_model_uploads_and_gets_model(
+        self,
+        tmp_path: pathlib.Path,
+        mock_storage_blob_upload_from_filename,
+        upload_model_mock,
+        get_model_mock,
+        sync: bool,
+    ):
+        saved_model_dir = tmp_path / "saved_model"
+        saved_model_dir.mkdir()
+        (saved_model_dir / "saved_model.pb").touch()
+
+        my_model = models.Model.upload_tensorflow_saved_model(
+            saved_model_dir=str(saved_model_dir),
+            tensorflow_version="2.6",
+            use_gpu=True,
+            display_name=_TEST_MODEL_NAME,
+            project=_TEST_PROJECT,
+            location=_TEST_LOCATION,
+            sync=sync,
+        )
+
+        if not sync:
+            my_model.wait()
+
+        upload_model_mock.assert_called_once()
+        upload_model_call_kwargs = upload_model_mock.call_args[1]
+        upload_model_model = upload_model_call_kwargs["model"]
+
+        # Verifying the container image selection
+        assert (
+            upload_model_model.container_spec.image_uri
+            == "us-docker.pkg.dev/vertex-ai/prediction/tf2-gpu.2-6:latest"
+        )
+
+        # Verifying the staging bucket name generation
+        assert upload_model_model.artifact_uri.startswith(
+            f"gs://{_TEST_PROJECT}-vertex-staging-{_TEST_LOCATION}"
+        )
+        assert "/vertex_ai_auto_staging/" in upload_model_model.artifact_uri
+
+        # Verifying that the model files were uploaded
+        staged_model_file_path = mock_storage_blob_upload_from_filename.call_args[1][
+            "filename"
+        ]
+        staged_model_file_name = staged_model_file_path.split("/")[-1]
+        assert staged_model_file_name in ["saved_model.pb", "saved_model.pbtxt"]
+
+    @pytest.mark.usefixtures("get_model_mock")
+    def test_update(self, update_model_mock, get_model_mock):
+
+        test_model = models.Model(_TEST_ID)
+
+        test_model.update(
+            display_name=_TEST_MODEL_NAME,
+            description=_TEST_DESCRIPTION,
+            labels=_TEST_LABEL,
+        )
+
+        current_model_proto = gca_model.Model(
+            display_name=_TEST_MODEL_NAME,
+            description=_TEST_DESCRIPTION,
+            labels=_TEST_LABEL,
+            name=_TEST_MODEL_RESOURCE_NAME,
+        )
+
+        update_mask = field_mask_pb2.FieldMask(
+            paths=["display_name", "description", "labels"]
+        )
+
+        update_model_mock.assert_called_once_with(
+            model=current_model_proto, update_mask=update_mask
         )

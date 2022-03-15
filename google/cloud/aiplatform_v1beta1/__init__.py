@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# Copyright 2020 Google LLC
+# Copyright 2022 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -112,6 +112,7 @@ from .types.env_var import EnvVar
 from .types.event import Event
 from .types.execution import Execution
 from .types.explanation import Attribution
+from .types.explanation import BlurBaselineConfig
 from .types.explanation import Explanation
 from .types.explanation import ExplanationMetadataOverride
 from .types.explanation import ExplanationParameters
@@ -121,6 +122,7 @@ from .types.explanation import FeatureNoiseSigma
 from .types.explanation import IntegratedGradientsAttribution
 from .types.explanation import ModelExplanation
 from .types.explanation import SampledShapleyAttribution
+from .types.explanation import Similarity
 from .types.explanation import SmoothGradConfig
 from .types.explanation import XraiAttribution
 from .types.explanation_metadata import ExplanationMetadata
@@ -188,6 +190,9 @@ from .types.index_endpoint_service import DeployIndexResponse
 from .types.index_endpoint_service import GetIndexEndpointRequest
 from .types.index_endpoint_service import ListIndexEndpointsRequest
 from .types.index_endpoint_service import ListIndexEndpointsResponse
+from .types.index_endpoint_service import MutateDeployedIndexOperationMetadata
+from .types.index_endpoint_service import MutateDeployedIndexRequest
+from .types.index_endpoint_service import MutateDeployedIndexResponse
 from .types.index_endpoint_service import UndeployIndexOperationMetadata
 from .types.index_endpoint_service import UndeployIndexRequest
 from .types.index_endpoint_service import UndeployIndexResponse
@@ -403,6 +408,8 @@ from .types.tensorboard_service import BatchCreateTensorboardRunsRequest
 from .types.tensorboard_service import BatchCreateTensorboardRunsResponse
 from .types.tensorboard_service import BatchCreateTensorboardTimeSeriesRequest
 from .types.tensorboard_service import BatchCreateTensorboardTimeSeriesResponse
+from .types.tensorboard_service import BatchReadTensorboardTimeSeriesDataRequest
+from .types.tensorboard_service import BatchReadTensorboardTimeSeriesDataResponse
 from .types.tensorboard_service import CreateTensorboardExperimentRequest
 from .types.tensorboard_service import CreateTensorboardOperationMetadata
 from .types.tensorboard_service import CreateTensorboardRequest
@@ -444,12 +451,14 @@ from .types.training_pipeline import FilterSplit
 from .types.training_pipeline import FractionSplit
 from .types.training_pipeline import InputDataConfig
 from .types.training_pipeline import PredefinedSplit
+from .types.training_pipeline import StratifiedSplit
 from .types.training_pipeline import TimestampSplit
 from .types.training_pipeline import TrainingPipeline
 from .types.types import BoolArray
 from .types.types import DoubleArray
 from .types.types import Int64Array
 from .types.types import StringArray
+from .types.unmanaged_container_model import UnmanagedContainerModel
 from .types.user_action_reference import UserActionReference
 from .types.value import Value
 from .types.vizier_service import AddTrialMeasurementRequest
@@ -522,8 +531,11 @@ __all__ = (
     "BatchReadFeatureValuesOperationMetadata",
     "BatchReadFeatureValuesRequest",
     "BatchReadFeatureValuesResponse",
+    "BatchReadTensorboardTimeSeriesDataRequest",
+    "BatchReadTensorboardTimeSeriesDataResponse",
     "BigQueryDestination",
     "BigQuerySource",
+    "BlurBaselineConfig",
     "BoolArray",
     "CancelBatchPredictionJobRequest",
     "CancelCustomJobRequest",
@@ -808,6 +820,9 @@ __all__ = (
     "ModelMonitoringObjectiveConfig",
     "ModelMonitoringStatsAnomalies",
     "ModelServiceClient",
+    "MutateDeployedIndexOperationMetadata",
+    "MutateDeployedIndexRequest",
+    "MutateDeployedIndexResponse",
     "NearestNeighborSearchOperationMetadata",
     "PauseModelDeploymentMonitoringJobRequest",
     "PipelineJob",
@@ -856,10 +871,12 @@ __all__ = (
     "SearchMigratableResourcesResponse",
     "SearchModelDeploymentMonitoringStatsAnomaliesRequest",
     "SearchModelDeploymentMonitoringStatsAnomaliesResponse",
+    "Similarity",
     "SmoothGradConfig",
     "SpecialistPool",
     "SpecialistPoolServiceClient",
     "StopTrialRequest",
+    "StratifiedSplit",
     "StreamingReadFeatureValuesRequest",
     "StringArray",
     "Study",
@@ -889,6 +906,7 @@ __all__ = (
     "UndeployModelOperationMetadata",
     "UndeployModelRequest",
     "UndeployModelResponse",
+    "UnmanagedContainerModel",
     "UpdateArtifactRequest",
     "UpdateContextRequest",
     "UpdateDatasetRequest",

@@ -21,18 +21,21 @@ import proto
 from google.api_core import exceptions
 
 from google.cloud.aiplatform import utils
-from google.cloud.aiplatform.metadata.artifact import _Artifact
-from google.cloud.aiplatform.metadata.resource import _Resource
-from google.cloud.aiplatform_v1beta1 import Event
-from google.cloud.aiplatform_v1beta1.types import execution as gca_execution
-from google.cloud.aiplatform_v1beta1.types.metadata_service import ListExecutionsRequest
+from google.cloud.aiplatform.compat.types import event as gca_event
+from google.cloud.aiplatform.compat.types import execution as gca_execution
+from google.cloud.aiplatform.compat.types import metadata_service
+from google.cloud.aiplatform.metadata import artifact
+from google.cloud.aiplatform.metadata import resource
 
 
-class _Execution(_Resource):
+class _Execution(resource._Resource):
     """Metadata Execution resource for Vertex AI"""
 
     _resource_noun = "executions"
     _getter_method = "get_execution"
+    _delete_method = "delete_execution"
+    _parse_resource_name_method = "parse_execution_path"
+    _format_resource_name_method = "execution_path"
 
     def add_artifact(
         self, artifact_resource_name: str, input: bool,
@@ -46,16 +49,16 @@ class _Execution(_Resource):
                 Required. Whether Artifact is an input event to the Execution or not.
         """
 
-        event = Event(
+        event = gca_event.Event(
             artifact=artifact_resource_name,
-            type_=Event.Type.INPUT if input else Event.Type.OUTPUT,
+            type_=gca_event.Event.Type.INPUT if input else gca_event.Event.Type.OUTPUT,
         )
 
         self.api_client.add_execution_events(
             execution=self.resource_name, events=[event],
         )
 
-    def query_input_and_output_artifacts(self) -> Sequence[_Artifact]:
+    def query_input_and_output_artifacts(self) -> Sequence[artifact._Artifact]:
         """query the input and output artifacts connected to the execution.
 
         Returns:
@@ -70,13 +73,13 @@ class _Execution(_Resource):
             return []
 
         return [
-            _Artifact(
-                resource=artifact,
+            artifact._Artifact(
+                resource=metadata_artifact,
                 project=self.project,
                 location=self.location,
                 credentials=self.credentials,
             )
-            for artifact in artifacts
+            for metadata_artifact in artifacts
         ]
 
     @classmethod
@@ -120,7 +123,9 @@ class _Execution(_Resource):
                 Optional. filter string to restrict the list result
         """
 
-        list_request = ListExecutionsRequest(parent=parent, filter=filter,)
+        list_request = metadata_service.ListExecutionsRequest(
+            parent=parent, filter=filter,
+        )
         return client.list_executions(request=list_request)
 
     @classmethod

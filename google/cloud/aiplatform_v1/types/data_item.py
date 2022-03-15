@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# Copyright 2020 Google LLC
+# Copyright 2022 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -60,8 +60,8 @@ class DataItem(proto.Message):
             schema's][google.cloud.aiplatform.v1.Dataset.metadata_schema_uri]
             dataItemSchemaUri field.
         etag (str):
-            Optional. Used to perform consistent read-
-            odify-write updates. If not set, a blind
+            Optional. Used to perform consistent
+            read-modify-write updates. If not set, a blind
             "overwrite" update happens.
     """
 

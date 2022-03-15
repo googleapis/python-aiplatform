@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# Copyright 2020 Google LLC
+# Copyright 2022 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -52,6 +52,7 @@ class MetadataStore(proto.Message):
 
     class MetadataStoreState(proto.Message):
         r"""Represents state information for a MetadataStore.
+
         Attributes:
             disk_utilization_bytes (int):
                 The disk utilization of the MetadataStore in

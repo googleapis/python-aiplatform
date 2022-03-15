@@ -17,7 +17,7 @@
 # the code snippet
 
 # [START aiplatform_create_featurestore_sample]
-from google.cloud import aiplatform_v1beta1 as aiplatform
+from google.cloud import aiplatform
 
 
 def create_featurestore_sample(
@@ -33,13 +33,13 @@ def create_featurestore_sample(
     client_options = {"api_endpoint": api_endpoint}
     # Initialize client that will be used to create and send requests.
     # This client only needs to be created once, and can be reused for multiple requests.
-    client = aiplatform.FeaturestoreServiceClient(client_options=client_options)
+    client = aiplatform.gapic.FeaturestoreServiceClient(client_options=client_options)
     parent = f"projects/{project}/locations/{location}"
-    create_featurestore_request = aiplatform.CreateFeaturestoreRequest(
+    create_featurestore_request = aiplatform.gapic.CreateFeaturestoreRequest(
         parent=parent,
         featurestore_id=featurestore_id,
-        featurestore=aiplatform.Featurestore(
-            online_serving_config=aiplatform.Featurestore.OnlineServingConfig(
+        featurestore=aiplatform.gapic.Featurestore(
+            online_serving_config=aiplatform.gapic.Featurestore.OnlineServingConfig(
                 fixed_node_count=fixed_node_count,
             ),
         ),

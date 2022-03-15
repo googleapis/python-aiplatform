@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# Copyright 2020 Google LLC
+# Copyright 2022 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -19,17 +19,44 @@ import proto  # type: ignore
 __protobuf__ = proto.module(
     package="google.cloud.aiplatform.v1",
     manifest={
+        "AvroSource",
+        "CsvSource",
         "GcsSource",
         "GcsDestination",
         "BigQuerySource",
         "BigQueryDestination",
+        "CsvDestination",
+        "TFRecordDestination",
         "ContainerRegistryDestination",
     },
 )
 
 
+class AvroSource(proto.Message):
+    r"""The storage details for Avro input content.
+
+    Attributes:
+        gcs_source (google.cloud.aiplatform_v1.types.GcsSource):
+            Required. Google Cloud Storage location.
+    """
+
+    gcs_source = proto.Field(proto.MESSAGE, number=1, message="GcsSource",)
+
+
+class CsvSource(proto.Message):
+    r"""The storage details for CSV input content.
+
+    Attributes:
+        gcs_source (google.cloud.aiplatform_v1.types.GcsSource):
+            Required. Google Cloud Storage location.
+    """
+
+    gcs_source = proto.Field(proto.MESSAGE, number=1, message="GcsSource",)
+
+
 class GcsSource(proto.Message):
     r"""The Google Cloud Storage location for the input content.
+
     Attributes:
         uris (Sequence[str]):
             Required. Google Cloud Storage URI(-s) to the
@@ -58,6 +85,7 @@ class GcsDestination(proto.Message):
 
 class BigQuerySource(proto.Message):
     r"""The BigQuery location for the input content.
+
     Attributes:
         input_uri (str):
             Required. BigQuery URI to a table, up to 2000 characters
@@ -72,6 +100,7 @@ class BigQuerySource(proto.Message):
 
 class BigQueryDestination(proto.Message):
     r"""The BigQuery location for the output content.
+
     Attributes:
         output_uri (str):
             Required. BigQuery URI to a project or table, up to 2000
@@ -91,8 +120,31 @@ class BigQueryDestination(proto.Message):
     output_uri = proto.Field(proto.STRING, number=1,)
 
 
+class CsvDestination(proto.Message):
+    r"""The storage details for CSV output content.
+
+    Attributes:
+        gcs_destination (google.cloud.aiplatform_v1.types.GcsDestination):
+            Required. Google Cloud Storage location.
+    """
+
+    gcs_destination = proto.Field(proto.MESSAGE, number=1, message="GcsDestination",)
+
+
+class TFRecordDestination(proto.Message):
+    r"""The storage details for TFRecord output content.
+
+    Attributes:
+        gcs_destination (google.cloud.aiplatform_v1.types.GcsDestination):
+            Required. Google Cloud Storage location.
+    """
+
+    gcs_destination = proto.Field(proto.MESSAGE, number=1, message="GcsDestination",)
+
+
 class ContainerRegistryDestination(proto.Message):
     r"""The Container Registry location for the container image.
+
     Attributes:
         output_uri (str):
             Required. Container Registry URI of a container image. Only

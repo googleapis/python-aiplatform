@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# Copyright 2020 Google LLC
+# Copyright 2022 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -16,6 +16,7 @@
 import proto  # type: ignore
 
 from google.cloud.aiplatform_v1beta1.types import explanation_metadata
+from google.cloud.aiplatform_v1beta1.types import io
 from google.protobuf import struct_pb2  # type: ignore
 
 
@@ -32,6 +33,8 @@ __protobuf__ = proto.module(
         "XraiAttribution",
         "SmoothGradConfig",
         "FeatureNoiseSigma",
+        "BlurBaselineConfig",
+        "Similarity",
         "ExplanationSpecOverride",
         "ExplanationMetadataOverride",
     },
@@ -114,6 +117,7 @@ class ModelExplanation(proto.Message):
 
 class Attribution(proto.Message):
     r"""Attribution that explains a particular prediction output.
+
     Attributes:
         baseline_output_value (float):
             Output only. Model predicted output if the input instance is
@@ -240,6 +244,7 @@ class Attribution(proto.Message):
 
 class ExplanationSpec(proto.Message):
     r"""Specification of Model explanation.
+
     Attributes:
         parameters (google.cloud.aiplatform_v1beta1.types.ExplanationParameters):
             Required. Parameters that configure
@@ -257,6 +262,14 @@ class ExplanationSpec(proto.Message):
 
 class ExplanationParameters(proto.Message):
     r"""Parameters to configure explaining for Model's predictions.
+
+    This message has `oneof`_ fields (mutually exclusive fields).
+    For each oneof, at most one member field can be set at the same time.
+    Setting any member of the oneof automatically clears all other
+    members.
+
+    .. _oneof: https://proto-plus-python.readthedocs.io/en/stable/fields.html#oneofs-mutually-exclusive-fields
+
     Attributes:
         sampled_shapley_attribution (google.cloud.aiplatform_v1beta1.types.SampledShapleyAttribution):
             An attribution method that approximates
@@ -266,12 +279,16 @@ class ExplanationParameters(proto.Message):
             considering all subsets of features. Refer to
             this paper for model details:
             https://arxiv.org/abs/1306.4265.
+
+            This field is a member of `oneof`_ ``method``.
         integrated_gradients_attribution (google.cloud.aiplatform_v1beta1.types.IntegratedGradientsAttribution):
-            An attribution method that computes Aumann-
-            hapley values taking advantage of the model's
-            fully differentiable structure. Refer to this
-            paper for more details:
+            An attribution method that computes
+            Aumann-Shapley values taking advantage of the
+            model's fully differentiable structure. Refer to
+            this paper for more details:
             https://arxiv.org/abs/1703.01365
+
+            This field is a member of `oneof`_ ``method``.
         xrai_attribution (google.cloud.aiplatform_v1beta1.types.XraiAttribution):
             An attribution method that redistributes
             Integrated Gradients attribution to segmented
@@ -286,6 +303,13 @@ class ExplanationParameters(proto.Message):
             or from diagnostic equipment, like x-rays or
             quality-control cameras, use Integrated
             Gradients instead.
+
+            This field is a member of `oneof`_ ``method``.
+        similarity (google.cloud.aiplatform_v1beta1.types.Similarity):
+            Similarity explainability that returns the
+            nearest neighbors from the provided dataset.
+
+            This field is a member of `oneof`_ ``method``.
         top_k (int):
             If populated, returns attributions for top K
             indices of outputs (defaults to 1). Only applies
@@ -318,6 +342,9 @@ class ExplanationParameters(proto.Message):
     )
     xrai_attribution = proto.Field(
         proto.MESSAGE, number=3, oneof="method", message="XraiAttribution",
+    )
+    similarity = proto.Field(
+        proto.MESSAGE, number=7, oneof="method", message="Similarity",
     )
     top_k = proto.Field(proto.INT32, number=4,)
     output_indices = proto.Field(proto.MESSAGE, number=5, message=struct_pb2.ListValue,)
@@ -363,11 +390,21 @@ class IntegratedGradientsAttribution(proto.Message):
             help improve the computed gradients. Refer to
             this paper for more details:
             https://arxiv.org/pdf/1706.03825.pdf
+        blur_baseline_config (google.cloud.aiplatform_v1beta1.types.BlurBaselineConfig):
+            Config for IG with blur baseline.
+            When enabled, a linear path from the maximally
+            blurred image to the input image is created.
+            Using a blurred baseline instead of zero (black
+            image) is motivated by the BlurIG approach
+            explained here: https://arxiv.org/abs/2004.03383
     """
 
     step_count = proto.Field(proto.INT32, number=1,)
     smooth_grad_config = proto.Field(
         proto.MESSAGE, number=2, message="SmoothGradConfig",
+    )
+    blur_baseline_config = proto.Field(
+        proto.MESSAGE, number=3, message="BlurBaselineConfig",
     )
 
 
@@ -396,11 +433,21 @@ class XraiAttribution(proto.Message):
             help improve the computed gradients. Refer to
             this paper for more details:
             https://arxiv.org/pdf/1706.03825.pdf
+        blur_baseline_config (google.cloud.aiplatform_v1beta1.types.BlurBaselineConfig):
+            Config for XRAI with blur baseline.
+            When enabled, a linear path from the maximally
+            blurred image to the input image is created.
+            Using a blurred baseline instead of zero (black
+            image) is motivated by the BlurIG approach
+            explained here: https://arxiv.org/abs/2004.03383
     """
 
     step_count = proto.Field(proto.INT32, number=1,)
     smooth_grad_config = proto.Field(
         proto.MESSAGE, number=2, message="SmoothGradConfig",
+    )
+    blur_baseline_config = proto.Field(
+        proto.MESSAGE, number=3, message="BlurBaselineConfig",
     )
 
 
@@ -411,6 +458,13 @@ class SmoothGradConfig(proto.Message):
     Adding noise can help improve the computed gradients. Refer to
     this paper for more details:
     https://arxiv.org/pdf/1706.03825.pdf
+
+    This message has `oneof`_ fields (mutually exclusive fields).
+    For each oneof, at most one member field can be set at the same time.
+    Setting any member of the oneof automatically clears all other
+    members.
+
+    .. _oneof: https://proto-plus-python.readthedocs.io/en/stable/fields.html#oneofs-mutually-exclusive-fields
 
     Attributes:
         noise_sigma (float):
@@ -429,6 +483,8 @@ class SmoothGradConfig(proto.Message):
             If the distribution is different per feature, set
             [feature_noise_sigma][google.cloud.aiplatform.v1beta1.SmoothGradConfig.feature_noise_sigma]
             instead for each feature.
+
+            This field is a member of `oneof`_ ``GradientNoiseSigma``.
         feature_noise_sigma (google.cloud.aiplatform_v1beta1.types.FeatureNoiseSigma):
             This is similar to
             [noise_sigma][google.cloud.aiplatform.v1beta1.SmoothGradConfig.noise_sigma],
@@ -438,6 +494,8 @@ class SmoothGradConfig(proto.Message):
             that are not set. If this field is unset,
             [noise_sigma][google.cloud.aiplatform.v1beta1.SmoothGradConfig.noise_sigma]
             will be used for all features.
+
+            This field is a member of `oneof`_ ``GradientNoiseSigma``.
         noisy_sample_count (int):
             The number of gradient samples to use for approximation. The
             higher this number, the more accurate the gradient is, but
@@ -468,6 +526,7 @@ class FeatureNoiseSigma(proto.Message):
 
     class NoiseSigmaForFeature(proto.Message):
         r"""Noise sigma for a single feature.
+
         Attributes:
             name (str):
                 The name of the input feature for which noise sigma is
@@ -487,6 +546,47 @@ class FeatureNoiseSigma(proto.Message):
 
     noise_sigma = proto.RepeatedField(
         proto.MESSAGE, number=1, message=NoiseSigmaForFeature,
+    )
+
+
+class BlurBaselineConfig(proto.Message):
+    r"""Config for blur baseline.
+    When enabled, a linear path from the maximally blurred image to
+    the input image is created. Using a blurred baseline instead of
+    zero (black image) is motivated by the BlurIG approach explained
+    here:
+    https://arxiv.org/abs/2004.03383
+
+    Attributes:
+        max_blur_sigma (float):
+            The standard deviation of the blur kernel for
+            the blurred baseline. The same blurring
+            parameter is used for both the height and the
+            width dimension. If not set, the method defaults
+            to the zero (i.e. black for images) baseline.
+    """
+
+    max_blur_sigma = proto.Field(proto.FLOAT, number=1,)
+
+
+class Similarity(proto.Message):
+    r"""Similarity explainability that returns the nearest neighbors
+    from the provided dataset.
+
+    Attributes:
+        gcs_source (google.cloud.aiplatform_v1beta1.types.GcsSource):
+            The Cloud Storage location for the input
+            instances.
+        nearest_neighbor_search_config (google.protobuf.struct_pb2.Value):
+            The configuration for the generated index, the semantics are
+            the same as
+            [metadata][google.cloud.aiplatform.v1beta1.Index.metadata]
+            and should match NearestNeighborSearchConfig.
+    """
+
+    gcs_source = proto.Field(proto.MESSAGE, number=1, message=io.GcsSource,)
+    nearest_neighbor_search_config = proto.Field(
+        proto.MESSAGE, number=2, message=struct_pb2.Value,
     )
 
 
