@@ -5,9 +5,9 @@
 #
 # e.g., if setup.py has "foo >= 1.14.0, < 2.0.0dev",
 # Then this file should have foo==1.14.0
-google-api-core==1.26.0
+google-api-core==1.31.5
 libcst==0.2.5
-proto-plus==1.10.1
+proto-plus==1.15.0
 mock==4.0.2
 google-cloud-storage==1.32.0
 google-auth==1.25.0  # TODO: Remove when google-api-core >= 1.26.0 is required

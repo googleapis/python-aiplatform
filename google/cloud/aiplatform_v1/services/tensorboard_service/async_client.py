@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# Copyright 2020 Google LLC
+# Copyright 2022 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -262,7 +262,7 @@ class TensorboardServiceAsyncClient:
     ) -> operation_async.AsyncOperation:
         r"""Creates a Tensorboard.
 
-        .. code-block::
+        .. code-block:: python
 
             from google.cloud import aiplatform_v1
 
@@ -380,7 +380,7 @@ class TensorboardServiceAsyncClient:
     ) -> tensorboard.Tensorboard:
         r"""Gets a Tensorboard.
 
-        .. code-block::
+        .. code-block:: python
 
             from google.cloud import aiplatform_v1
 
@@ -475,7 +475,7 @@ class TensorboardServiceAsyncClient:
     ) -> operation_async.AsyncOperation:
         r"""Updates a Tensorboard.
 
-        .. code-block::
+        .. code-block:: python
 
             from google.cloud import aiplatform_v1
 
@@ -601,7 +601,7 @@ class TensorboardServiceAsyncClient:
     ) -> pagers.ListTensorboardsAsyncPager:
         r"""Lists Tensorboards in a Location.
 
-        .. code-block::
+        .. code-block:: python
 
             from google.cloud import aiplatform_v1
 
@@ -702,7 +702,7 @@ class TensorboardServiceAsyncClient:
     ) -> operation_async.AsyncOperation:
         r"""Deletes a Tensorboard.
 
-        .. code-block::
+        .. code-block:: python
 
             from google.cloud import aiplatform_v1
 
@@ -822,7 +822,7 @@ class TensorboardServiceAsyncClient:
     ) -> gca_tensorboard_experiment.TensorboardExperiment:
         r"""Creates a TensorboardExperiment.
 
-        .. code-block::
+        .. code-block:: python
 
             from google.cloud import aiplatform_v1
 
@@ -940,7 +940,7 @@ class TensorboardServiceAsyncClient:
     ) -> tensorboard_experiment.TensorboardExperiment:
         r"""Gets a TensorboardExperiment.
 
-        .. code-block::
+        .. code-block:: python
 
             from google.cloud import aiplatform_v1
 
@@ -1036,7 +1036,7 @@ class TensorboardServiceAsyncClient:
     ) -> gca_tensorboard_experiment.TensorboardExperiment:
         r"""Updates a TensorboardExperiment.
 
-        .. code-block::
+        .. code-block:: python
 
             from google.cloud import aiplatform_v1
 
@@ -1147,7 +1147,7 @@ class TensorboardServiceAsyncClient:
     ) -> pagers.ListTensorboardExperimentsAsyncPager:
         r"""Lists TensorboardExperiments in a Location.
 
-        .. code-block::
+        .. code-block:: python
 
             from google.cloud import aiplatform_v1
 
@@ -1251,7 +1251,7 @@ class TensorboardServiceAsyncClient:
     ) -> operation_async.AsyncOperation:
         r"""Deletes a TensorboardExperiment.
 
-        .. code-block::
+        .. code-block:: python
 
             from google.cloud import aiplatform_v1
 
@@ -1369,7 +1369,7 @@ class TensorboardServiceAsyncClient:
     ) -> gca_tensorboard_run.TensorboardRun:
         r"""Creates a TensorboardRun.
 
-        .. code-block::
+        .. code-block:: python
 
             from google.cloud import aiplatform_v1
 
@@ -1492,7 +1492,7 @@ class TensorboardServiceAsyncClient:
     ) -> tensorboard_service.BatchCreateTensorboardRunsResponse:
         r"""Batch create TensorboardRuns.
 
-        .. code-block::
+        .. code-block:: python
 
             from google.cloud import aiplatform_v1
 
@@ -1603,7 +1603,7 @@ class TensorboardServiceAsyncClient:
     ) -> tensorboard_run.TensorboardRun:
         r"""Gets a TensorboardRun.
 
-        .. code-block::
+        .. code-block:: python
 
             from google.cloud import aiplatform_v1
 
@@ -1697,7 +1697,7 @@ class TensorboardServiceAsyncClient:
     ) -> gca_tensorboard_run.TensorboardRun:
         r"""Updates a TensorboardRun.
 
-        .. code-block::
+        .. code-block:: python
 
             from google.cloud import aiplatform_v1
 
@@ -1809,7 +1809,7 @@ class TensorboardServiceAsyncClient:
     ) -> pagers.ListTensorboardRunsAsyncPager:
         r"""Lists TensorboardRuns in a Location.
 
-        .. code-block::
+        .. code-block:: python
 
             from google.cloud import aiplatform_v1
 
@@ -1911,7 +1911,7 @@ class TensorboardServiceAsyncClient:
     ) -> operation_async.AsyncOperation:
         r"""Deletes a TensorboardRun.
 
-        .. code-block::
+        .. code-block:: python
 
             from google.cloud import aiplatform_v1
 
@@ -2034,7 +2034,7 @@ class TensorboardServiceAsyncClient:
         TensorboardExperiment.
 
 
-        .. code-block::
+        .. code-block:: python
 
             from google.cloud import aiplatform_v1
 
@@ -2149,7 +2149,7 @@ class TensorboardServiceAsyncClient:
     ) -> gca_tensorboard_time_series.TensorboardTimeSeries:
         r"""Creates a TensorboardTimeSeries.
 
-        .. code-block::
+        .. code-block:: python
 
             from google.cloud import aiplatform_v1
 
@@ -2256,7 +2256,7 @@ class TensorboardServiceAsyncClient:
     ) -> tensorboard_time_series.TensorboardTimeSeries:
         r"""Gets a TensorboardTimeSeries.
 
-        .. code-block::
+        .. code-block:: python
 
             from google.cloud import aiplatform_v1
 
@@ -2350,7 +2350,7 @@ class TensorboardServiceAsyncClient:
     ) -> gca_tensorboard_time_series.TensorboardTimeSeries:
         r"""Updates a TensorboardTimeSeries.
 
-        .. code-block::
+        .. code-block:: python
 
             from google.cloud import aiplatform_v1
 
@@ -2469,7 +2469,7 @@ class TensorboardServiceAsyncClient:
     ) -> pagers.ListTensorboardTimeSeriesAsyncPager:
         r"""Lists TensorboardTimeSeries in a Location.
 
-        .. code-block::
+        .. code-block:: python
 
             from google.cloud import aiplatform_v1
 
@@ -2573,7 +2573,7 @@ class TensorboardServiceAsyncClient:
     ) -> operation_async.AsyncOperation:
         r"""Deletes a TensorboardTimeSeries.
 
-        .. code-block::
+        .. code-block:: python
 
             from google.cloud import aiplatform_v1
 
@@ -2697,7 +2697,7 @@ class TensorboardServiceAsyncClient:
         randomly selected from this time series and returned.
 
 
-        .. code-block::
+        .. code-block:: python
 
             from google.cloud import aiplatform_v1
 
@@ -2802,7 +2802,7 @@ class TensorboardServiceAsyncClient:
         changing max_data_points, which can't be greater than 10k.
 
 
-        .. code-block::
+        .. code-block:: python
 
             from google.cloud import aiplatform_v1
 
@@ -2899,7 +2899,7 @@ class TensorboardServiceAsyncClient:
         obtain Cloud Storage access permission.
 
 
-        .. code-block::
+        .. code-block:: python
 
             from google.cloud import aiplatform_v1
 
@@ -3001,7 +3001,7 @@ class TensorboardServiceAsyncClient:
         any data fail to be ingested, an error will be returned.
 
 
-        .. code-block::
+        .. code-block:: python
 
             from google.cloud import aiplatform_v1
 
@@ -3113,7 +3113,7 @@ class TensorboardServiceAsyncClient:
         data fail to be ingested, an error will be returned.
 
 
-        .. code-block::
+        .. code-block:: python
 
             from google.cloud import aiplatform_v1
 
@@ -3230,7 +3230,7 @@ class TensorboardServiceAsyncClient:
         returned in paginated responses.
 
 
-        .. code-block::
+        .. code-block:: python
 
             from google.cloud import aiplatform_v1
 

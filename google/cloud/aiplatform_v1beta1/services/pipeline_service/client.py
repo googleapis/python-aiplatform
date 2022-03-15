@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# Copyright 2020 Google LLC
+# Copyright 2022 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -577,8 +577,7 @@ class PipelineServiceClient(metaclass=PipelineServiceClientMeta):
         TrainingPipeline right away will be attempted to be run.
 
 
-
-        .. code-block::
+        .. code-block:: python
 
             from google.cloud import aiplatform_v1beta1
 
@@ -688,8 +687,7 @@ class PipelineServiceClient(metaclass=PipelineServiceClientMeta):
     ) -> training_pipeline.TrainingPipeline:
         r"""Gets a TrainingPipeline.
 
-
-        .. code-block::
+        .. code-block:: python
 
             from google.cloud import aiplatform_v1beta1
 
@@ -784,8 +782,7 @@ class PipelineServiceClient(metaclass=PipelineServiceClientMeta):
     ) -> pagers.ListTrainingPipelinesPager:
         r"""Lists TrainingPipelines in a Location.
 
-
-        .. code-block::
+        .. code-block:: python
 
             from google.cloud import aiplatform_v1beta1
 
@@ -886,8 +883,7 @@ class PipelineServiceClient(metaclass=PipelineServiceClientMeta):
     ) -> gac_operation.Operation:
         r"""Deletes a TrainingPipeline.
 
-
-        .. code-block::
+        .. code-block:: python
 
             from google.cloud import aiplatform_v1beta1
 
@@ -1016,8 +1012,7 @@ class PipelineServiceClient(metaclass=PipelineServiceClientMeta):
         is set to ``CANCELLED``.
 
 
-
-        .. code-block::
+        .. code-block:: python
 
             from google.cloud import aiplatform_v1beta1
 
@@ -1102,8 +1097,7 @@ class PipelineServiceClient(metaclass=PipelineServiceClientMeta):
         immediately when created.
 
 
-
-        .. code-block::
+        .. code-block:: python
 
             from google.cloud import aiplatform_v1beta1
 
@@ -1214,8 +1208,7 @@ class PipelineServiceClient(metaclass=PipelineServiceClientMeta):
     ) -> pipeline_job.PipelineJob:
         r"""Gets a PipelineJob.
 
-
-        .. code-block::
+        .. code-block:: python
 
             from google.cloud import aiplatform_v1beta1
 
@@ -1305,8 +1298,7 @@ class PipelineServiceClient(metaclass=PipelineServiceClientMeta):
     ) -> pagers.ListPipelineJobsPager:
         r"""Lists PipelineJobs in a Location.
 
-
-        .. code-block::
+        .. code-block:: python
 
             from google.cloud import aiplatform_v1beta1
 
@@ -1407,8 +1399,7 @@ class PipelineServiceClient(metaclass=PipelineServiceClientMeta):
     ) -> gac_operation.Operation:
         r"""Deletes a PipelineJob.
 
-
-        .. code-block::
+        .. code-block:: python
 
             from google.cloud import aiplatform_v1beta1
 
@@ -1537,8 +1528,7 @@ class PipelineServiceClient(metaclass=PipelineServiceClientMeta):
         is set to ``CANCELLED``.
 
 
-
-        .. code-block::
+        .. code-block:: python
 
             from google.cloud import aiplatform_v1beta1
 
