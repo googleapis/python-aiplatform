@@ -15,11 +15,8 @@
 # limitations under the License.
 #
 
-from google.cloud import aiplatform
 from google.cloud.aiplatform import base
-from importlib import reload
 import logging
-from unittest.mock import patch
 
 
 class TestLogging:
