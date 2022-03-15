@@ -98,7 +98,7 @@ class Logger:
             cls (VertexAiResourceNoun):
                 Vertex AI Resource Noun class that is being created.
             resource (proto.Message):
-                Vertex AI Resourc proto.Message
+                Vertex AI Resource proto.Message
             variable_name (str): Name of variable to use for code snippet
         """
         self._logger.info(f"{cls.__name__} created. Resource name: {resource.name}")
@@ -121,7 +121,7 @@ class Logger:
             cls (VertexAiResourceNoun):
                 Vertex AI Resource Noun class that is being created.
             resource (proto.Message):
-                Vertex AI Resourc proto.Message
+                Vertex AI Resource proto.Message
             variable_name (str): Name of variable to use for code snippet
         """
         self._logger.info(f"{cls.__name__} created. Resource name: {resource.name}")
@@ -462,7 +462,7 @@ class VertexAiResourceNoun(metaclass=abc.ABCMeta):
         Args:
             project(str): Project of the resource noun.
             location(str): The location of the resource noun.
-            credentials(google.auth.crendentials.Crendentials): Optional custom
+            credentials(google.auth.credentials.Credentials): Optional custom
                 credentials to use when accessing interacting with resource noun.
             resource_name(str): A fully-qualified resource name or ID.
         """
@@ -842,7 +842,7 @@ class VertexAiResourceNounWithFutureManager(VertexAiResourceNoun, FutureManager)
         Args:
             project (str): Optional. Project of the resource noun.
             location (str): Optional. The location of the resource noun.
-            credentials(google.auth.crendentials.Crendentials):
+            credentials(google.auth.credentials.Credentials):
                 Optional. custom credentials to use when accessing interacting with
                 resource noun.
             resource_name(str): A fully-qualified resource name or ID.
@@ -872,7 +872,7 @@ class VertexAiResourceNounWithFutureManager(VertexAiResourceNoun, FutureManager)
         Args:
             project (str): Optional. Project of the resource noun.
             location (str): Optional. The location of the resource noun.
-            credentials(google.auth.crendentials.Crendentials):
+            credentials(google.auth.credentials.Credentials):
                 Optional. custom credentials to use when accessing interacting with
                 resource noun.
             resource_name(str): A fully-qualified resource name or ID.

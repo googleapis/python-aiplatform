@@ -325,7 +325,7 @@ class BatchPredictionJob(_Job):
         """Information describing the output of this job, including output location
         into which prediction output is written.
 
-        This is only available for batch predicition jobs that have run successfully.
+        This is only available for batch prediction jobs that have run successfully.
         """
         self._assert_gca_resource_is_available()
         return self._gca_resource.output_info
@@ -839,7 +839,7 @@ class _RunnableJob(_Job):
         Args:
             project(str): Project of the resource noun.
             location(str): The location of the resource noun.
-            credentials(google.auth.crendentials.Crendentials): Optional custom
+            credentials(google.auth.credentials.Credentials): Optional custom
                 credentials to use when accessing interacting with resource noun.
         """
 
@@ -1023,7 +1023,7 @@ class CustomJob(_RunnableJob):
         encryption_spec_key_name: Optional[str] = None,
         staging_bucket: Optional[str] = None,
     ):
-        """Cosntruct a Custom Job with Worker Pool Specs.
+        """Constructs a Custom Job with Worker Pool Specs.
 
         ```
         Example usage:
@@ -1569,7 +1569,7 @@ class HyperparameterTuningJob(_RunnableJob):
                 Required. Configured CustomJob. The worker pool spec from this custom job
                 applies to the CustomJobs created in all the trials.
             metric_spec: Dict[str, str]
-                Required. Dicionary representing metrics to optimize. The dictionary key is the metric_id,
+                Required. Dictionary representing metrics to optimize. The dictionary key is the metric_id,
                 which is reported by your training job, and the dictionary value is the
                 optimization goal of the metric('minimize' or 'maximize'). example:
 
@@ -1594,7 +1594,7 @@ class HyperparameterTuningJob(_RunnableJob):
                 DoubleParameterSpec, IntegerParameterSpec, CategoricalParameterSpace, DiscreteParameterSpec
 
             max_trial_count (int):
-                Reuired. The desired total number of Trials.
+                Required. The desired total number of Trials.
             parallel_trial_count (int):
                 Required. The desired number of Trials to run in parallel.
             max_failed_trial_count (int):
