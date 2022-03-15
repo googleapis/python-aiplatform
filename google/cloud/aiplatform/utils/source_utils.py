@@ -28,7 +28,7 @@ from google.auth import credentials as auth_credentials
 from google.cloud.aiplatform import base
 from google.cloud.aiplatform import utils
 
-_LOGGER = base.Logger(__name__)
+_LOGGER = base.Logger()
 
 
 def _get_python_executable() -> str:

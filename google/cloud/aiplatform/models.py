@@ -52,7 +52,7 @@ from google.protobuf import field_mask_pb2, json_format
 
 _DEFAULT_MACHINE_TYPE = "n1-standard-2"
 
-_LOGGER = base.Logger(__name__)
+_LOGGER = base.Logger()
 
 
 _SUPPORTED_MODEL_FILE_NAMES = [

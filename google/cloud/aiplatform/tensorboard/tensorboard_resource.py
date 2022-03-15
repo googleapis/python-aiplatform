@@ -29,7 +29,7 @@ from google.cloud.aiplatform.compat.types import (
 from google.cloud.aiplatform import initializer
 from google.cloud.aiplatform import utils
 
-_LOGGER = base.Logger(__name__)
+_LOGGER = base.Logger()
 
 
 class _TensorboardServiceResource(base.VertexAiResourceNounWithFutureManager):

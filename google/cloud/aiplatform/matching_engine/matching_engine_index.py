@@ -28,7 +28,7 @@ from google.cloud.aiplatform import initializer
 from google.cloud.aiplatform.matching_engine import matching_engine_index_config
 from google.cloud.aiplatform import utils
 
-_LOGGER = base.Logger(__name__)
+_LOGGER = base.Logger()
 
 
 class MatchingEngineIndex(base.VertexAiResourceNounWithFutureManager):
