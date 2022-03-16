@@ -8,8 +8,6 @@ Experiments are focused on validating a prototype and are not guaranteed to be r
 
 **Do not hesitate to contact vertexai-cpr-feedback@google.com if you have <ins>any</ins> questions or run into <ins>any</ins> issues.**
 
-The usage of the product is free during the Experimental release period: you will still incur charges for other GCP products usage, such as storage. 
-
 
 ## Introduction
 
