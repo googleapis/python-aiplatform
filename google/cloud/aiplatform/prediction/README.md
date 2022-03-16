@@ -15,7 +15,7 @@ The usage of the product is free during the Experimental release period: you wil
 
 On Vertex AI Prediction, users are able to deploy models with either [Prediction’s pre-built containers](https://cloud.google.com/vertex-ai/docs/predictions/pre-built-containers) or [custom containers](https://cloud.google.com/vertex-ai/docs/predictions/use-custom-container). Custom containers are flexible but are difficult to write, build, and maintain. To build custom containers, users need to have the knowledge of model servers, Docker, etc, and may try a few times to get their images working on Vertex Prediction. To address this, Vertex AI Prediction is launching Custom Prediction Routine with Vertex SDK integration, which allows users to easily build custom containers with their own custom Predictor and locally test the built images through SDK.
 
-This is currently an experimental feature and not yet officially supported by the Vertex AI SDK. In this tutorial, we'll be installing the Vertex AI SDK from an experimental branch on github.
+This is currently an **experimental feature** and not yet officially supported by the Vertex AI SDK. In this tutorial, we'll be installing the Vertex AI SDK from an experimental branch on github.
 
 ## Setup
 
