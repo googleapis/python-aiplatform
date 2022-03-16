@@ -21,7 +21,7 @@ This is currently an **experimental feature** and not yet officially supported b
 
 For the CPR experimental feature, we use the **custom-prediction-routine** branch in the [python-aiplatform](https://github.com/googleapis/python-aiplatform/tree/custom-prediction-routine) repository.
 
-We recommend installing this library in a [virtualenv](https://virtualenv.pypa.io/en/latest/) using pip. [virtualenv](https://virtualenv.pypa.io/en/latest/) is a tool to create isolated Python environments. The basic problem it addresses is one of dependencies and versions, and indirectly permissions.
+We recommend installing the Vertex AI SDK in a [virtualenv](https://virtualenv.pypa.io/en/latest/) using pip. [virtualenv](https://virtualenv.pypa.io/en/latest/) is a tool to create isolated Python environments and helps manage dependencies and versions, and indirectly permissions.
 
 With [virtualenv](https://virtualenv.pypa.io/en/latest/), it's possible to install this library without needing system install permissions, and without clashing with the installed system dependencies.
 
