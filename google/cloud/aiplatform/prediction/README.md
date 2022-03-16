@@ -23,7 +23,7 @@ For the CPR experimental feature, we use the **custom-prediction-routine** branc
 
 We recommend installing the Vertex AI SDK in a [virtualenv](https://virtualenv.pypa.io/en/latest/) using pip. [virtualenv](https://virtualenv.pypa.io/en/latest/) is a tool to create isolated Python environments and helps manage dependencies and versions, and indirectly permissions.
 
-With [virtualenv](https://virtualenv.pypa.io/en/latest/), it's possible to install this library without needing system install permissions, and without clashing with the installed system dependencies.
+With [virtualenv](https://virtualenv.pypa.io/en/latest/), you can install the Vertex AI SDK without system install permissions, and avoid conflicts with the existing installed system dependencies.
 
 ### Mac/Linux
 ```shell
