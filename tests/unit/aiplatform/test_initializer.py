@@ -63,13 +63,18 @@ class TestInit:
         assert initializer.global_config.project == _TEST_PROJECT
 
     def test_infer_project_id(self):
-        def mock_get_project_id():
+        cloud_project_number = "123"
+
+        def mock_get_project_id(project_number: str, **_):
+            assert project_number == cloud_project_number
             return _TEST_PROJECT
 
         with mock.patch.object(
             target=resource_manager_utils,
             attribute="get_project_id",
             new=mock_get_project_id,
+        ), mock.patch.dict(
+            os.environ, {"CLOUD_ML_PROJECT_ID": cloud_project_number}, clear=True
         ):
             assert initializer.global_config.project == _TEST_PROJECT
 
