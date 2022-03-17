@@ -23,7 +23,7 @@ import tensorflow as tf
 
 
 #  [START aiplatform_sdk_predict_image_classification_sample]
-def predict_tabular_classification_sample(
+def predict_image_classification_sample(
     project: str,
     location: str,
     endpoint_name: str,
