@@ -67,7 +67,9 @@ class TestInit:
             return _TEST_PROJECT
 
         with mock.patch.object(
-            target=os, attribute="cpu_count", new=mock_get_project_id
+            target=resource_manager_utils,
+            attribute="get_project_id",
+            new=mock_get_project_id,
         ):
             assert initializer.global_config.project == _TEST_PROJECT
 
