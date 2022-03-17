@@ -54,6 +54,7 @@ from google.cloud.aiplatform.compat.types import (
     encryption_spec as gca_encryption_spec,
 )
 
+from google.protobuf import field_mask_pb2
 
 from test_endpoints import create_endpoint_mock  # noqa: F401
 
@@ -178,6 +179,27 @@ _TEST_CONTAINER_REGISTRY_DESTINATION
 
 
 @pytest.fixture
+def mock_model():
+    model = mock.MagicMock(models.Model)
+    model.name = _TEST_ID
+    model._latest_future = None
+    model._exception = None
+    model._gca_resource = gca_model.Model(
+        display_name=_TEST_MODEL_NAME,
+        description=_TEST_DESCRIPTION,
+        labels=_TEST_LABEL,
+    )
+    yield model
+
+
+@pytest.fixture
+def update_model_mock(mock_model):
+    with patch.object(model_service_client.ModelServiceClient, "update_model") as mock:
+        mock.return_value = mock_model
+        yield mock
+
+
+@pytest.fixture
 def get_endpoint_mock():
     with mock.patch.object(
         endpoint_service_client.EndpointServiceClient, "get_endpoint"
@@ -199,6 +221,7 @@ def get_model_mock():
         get_model_mock.return_value = gca_model.Model(
             display_name=_TEST_MODEL_NAME, name=_TEST_MODEL_RESOURCE_NAME,
         )
+
         yield get_model_mock
 
 
@@ -802,6 +825,10 @@ class TestModel:
     def test_deploy(self, deploy_model_mock, sync):
 
         test_model = models.Model(_TEST_ID)
+        test_model._gca_resource.supported_deployment_resources_types.append(
+            aiplatform.gapic.Model.DeploymentResourcesType.AUTOMATIC_RESOURCES
+        )
+
         test_endpoint = models.Endpoint(_TEST_ID)
 
         assert test_model.deploy(test_endpoint, sync=sync,) == test_endpoint
@@ -831,6 +858,9 @@ class TestModel:
     def test_deploy_no_endpoint(self, deploy_model_mock, sync):
 
         test_model = models.Model(_TEST_ID)
+        test_model._gca_resource.supported_deployment_resources_types.append(
+            aiplatform.gapic.Model.DeploymentResourcesType.AUTOMATIC_RESOURCES
+        )
         test_endpoint = test_model.deploy(sync=sync)
 
         if not sync:
@@ -858,6 +888,9 @@ class TestModel:
     def test_deploy_no_endpoint_dedicated_resources(self, deploy_model_mock, sync):
 
         test_model = models.Model(_TEST_ID)
+        test_model._gca_resource.supported_deployment_resources_types.append(
+            aiplatform.gapic.Model.DeploymentResourcesType.DEDICATED_RESOURCES
+        )
         test_endpoint = test_model.deploy(
             machine_type=_TEST_MACHINE_TYPE,
             accelerator_type=_TEST_ACCELERATOR_TYPE,
@@ -896,6 +929,9 @@ class TestModel:
     @pytest.mark.parametrize("sync", [True, False])
     def test_deploy_no_endpoint_with_explanations(self, deploy_model_mock, sync):
         test_model = models.Model(_TEST_ID)
+        test_model._gca_resource.supported_deployment_resources_types.append(
+            aiplatform.gapic.Model.DeploymentResourcesType.DEDICATED_RESOURCES
+        )
         test_endpoint = test_model.deploy(
             machine_type=_TEST_MACHINE_TYPE,
             accelerator_type=_TEST_ACCELERATOR_TYPE,
@@ -938,6 +974,9 @@ class TestModel:
     def test_deploy_raises_with_impartial_explanation_spec(self):
 
         test_model = models.Model(_TEST_ID)
+        test_model._gca_resource.supported_deployment_resources_types.append(
+            aiplatform.gapic.Model.DeploymentResourcesType.DEDICATED_RESOURCES
+        )
 
         with pytest.raises(ValueError) as e:
             test_model.deploy(
@@ -1660,3 +1699,29 @@ class TestModel:
         ]
         staged_model_file_name = staged_model_file_path.split("/")[-1]
         assert staged_model_file_name in ["saved_model.pb", "saved_model.pbtxt"]
+
+    @pytest.mark.usefixtures("get_model_mock")
+    def test_update(self, update_model_mock, get_model_mock):
+
+        test_model = models.Model(_TEST_ID)
+
+        test_model.update(
+            display_name=_TEST_MODEL_NAME,
+            description=_TEST_DESCRIPTION,
+            labels=_TEST_LABEL,
+        )
+
+        current_model_proto = gca_model.Model(
+            display_name=_TEST_MODEL_NAME,
+            description=_TEST_DESCRIPTION,
+            labels=_TEST_LABEL,
+            name=_TEST_MODEL_RESOURCE_NAME,
+        )
+
+        update_mask = field_mask_pb2.FieldMask(
+            paths=["display_name", "description", "labels"]
+        )
+
+        update_model_mock.assert_called_once_with(
+            model=current_model_proto, update_mask=update_mask
+        )

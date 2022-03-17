@@ -36,11 +36,21 @@ version = version["__version__"]
 tensorboard_extra_require = ["tensorflow >=2.3.0, <=2.7.0"]
 metadata_extra_require = ["pandas >= 1.0.0"]
 xai_extra_require = ["tensorflow >=2.3.0, <=2.5.0"]
-lit_extra_require = ["tensorflow >= 2.3.0", "pandas >= 1.0.0", "lit-nlp >= 0.4.0"]
+lit_extra_require = [
+    "tensorflow >= 2.3.0",
+    "pandas >= 1.0.0",
+    "lit-nlp >= 0.4.0",
+    "explainable-ai-sdk >= 1.0.0",
+]
 profiler_extra_require = [
     "tensorboard-plugin-profile >= 2.4.0",
     "werkzeug >= 2.0.0",
     "tensorflow >=2.4.0",
+]
+featurestore_extra_require = [
+    "google-cloud-bigquery-storage",
+    "pandas >= 1.0.0",
+    "pyarrow >= 6.0.1",
 ]
 
 full_extra_require = list(
@@ -49,6 +59,7 @@ full_extra_require = list(
         + metadata_extra_require
         + xai_extra_require
         + lit_extra_require
+        + featurestore_extra_require
     )
 )
 testing_extra_require = (
@@ -84,11 +95,12 @@ setuptools.setup(
         # NOTE: Maintainers, please do not require google-api-core>=2.x.x
         # Until this issue is closed
         # https://github.com/googleapis/google-cloud-python/issues/10566
-        "google-api-core[grpc] >= 1.26.0, <3.0.0dev",
-        "proto-plus >= 1.10.1",
+        "google-api-core[grpc] >= 1.31.5, <3.0.0dev,!=2.0.*,!=2.1.*,!=2.2.*,!=2.3.0",
+        "proto-plus >= 1.15.0",
         "packaging >= 14.3",
-        "google-cloud-storage >= 1.32.0, < 2.0.0dev",
+        "google-cloud-storage >= 1.32.0, < 3.0.0dev",
         "google-cloud-bigquery >= 1.15.0, < 3.0.0dev",
+        "google-cloud-resource-manager >= 1.3.3, < 3.0.0dev",
     ),
     extras_require={
         "full": full_extra_require,
@@ -100,7 +112,6 @@ setuptools.setup(
         "cloud_profiler": profiler_extra_require,
     },
     python_requires=">=3.6",
-    scripts=[],
     classifiers=[
         "Development Status :: 5 - Production/Stable",
         "Intended Audience :: Developers",

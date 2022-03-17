@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# Copyright 2020 Google LLC
+# Copyright 2022 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -16,7 +16,7 @@
 from collections import OrderedDict
 import functools
 import re
-from typing import Dict, Sequence, Tuple, Type, Union
+from typing import Dict, Optional, Sequence, Tuple, Type, Union
 import pkg_resources
 
 from google.api_core.client_options import ClientOptions
@@ -125,6 +125,42 @@ class EndpointServiceAsyncClient:
 
     from_service_account_json = from_service_account_file
 
+    @classmethod
+    def get_mtls_endpoint_and_cert_source(
+        cls, client_options: Optional[ClientOptions] = None
+    ):
+        """Return the API endpoint and client cert source for mutual TLS.
+
+        The client cert source is determined in the following order:
+        (1) if `GOOGLE_API_USE_CLIENT_CERTIFICATE` environment variable is not "true", the
+        client cert source is None.
+        (2) if `client_options.client_cert_source` is provided, use the provided one; if the
+        default client cert source exists, use the default one; otherwise the client cert
+        source is None.
+
+        The API endpoint is determined in the following order:
+        (1) if `client_options.api_endpoint` if provided, use the provided one.
+        (2) if `GOOGLE_API_USE_CLIENT_CERTIFICATE` environment variable is "always", use the
+        default mTLS endpoint; if the environment variabel is "never", use the default API
+        endpoint; otherwise if client cert source exists, use the default mTLS endpoint, otherwise
+        use the default API endpoint.
+
+        More details can be found at https://google.aip.dev/auth/4114.
+
+        Args:
+            client_options (google.api_core.client_options.ClientOptions): Custom options for the
+                client. Only the `api_endpoint` and `client_cert_source` properties may be used
+                in this method.
+
+        Returns:
+            Tuple[str, Callable[[], Tuple[bytes, bytes]]]: returns the API endpoint and the
+                client cert source to use.
+
+        Raises:
+            google.auth.exceptions.MutualTLSChannelError: If any errors happen.
+        """
+        return EndpointServiceClient.get_mtls_endpoint_and_cert_source(client_options)  # type: ignore
+
     @property
     def transport(self) -> EndpointServiceTransport:
         """Returns the transport used by the client instance.
@@ -198,6 +234,33 @@ class EndpointServiceAsyncClient:
     ) -> operation_async.AsyncOperation:
         r"""Creates an Endpoint.
 
+        .. code-block:: python
+
+            from google.cloud import aiplatform_v1
+
+            def sample_create_endpoint():
+                # Create a client
+                client = aiplatform_v1.EndpointServiceClient()
+
+                # Initialize request argument(s)
+                endpoint = aiplatform_v1.Endpoint()
+                endpoint.display_name = "display_name_value"
+
+                request = aiplatform_v1.CreateEndpointRequest(
+                    parent="parent_value",
+                    endpoint=endpoint,
+                )
+
+                # Make the request
+                operation = client.create_endpoint(request=request)
+
+                print("Waiting for operation to complete...")
+
+                response = operation.result()
+
+                # Handle the response
+                print(response)
+
         Args:
             request (Union[google.cloud.aiplatform_v1.types.CreateEndpointRequest, dict]):
                 The request object. Request message for
@@ -245,7 +308,7 @@ class EndpointServiceAsyncClient:
 
         """
         # Create or coerce a protobuf request object.
-        # Sanity check: If we got a request object, we should *not* have
+        # Quick check: If we got a request object, we should *not* have
         # gotten any keyword arguments that map to the request.
         has_flattened_params = any([parent, endpoint, endpoint_id])
         if request is not None and has_flattened_params:
@@ -304,6 +367,25 @@ class EndpointServiceAsyncClient:
     ) -> endpoint.Endpoint:
         r"""Gets an Endpoint.
 
+        .. code-block:: python
+
+            from google.cloud import aiplatform_v1
+
+            def sample_get_endpoint():
+                # Create a client
+                client = aiplatform_v1.EndpointServiceClient()
+
+                # Initialize request argument(s)
+                request = aiplatform_v1.GetEndpointRequest(
+                    name="name_value",
+                )
+
+                # Make the request
+                response = client.get_endpoint(request=request)
+
+                # Handle the response
+                print(response)
+
         Args:
             request (Union[google.cloud.aiplatform_v1.types.GetEndpointRequest, dict]):
                 The request object. Request message for
@@ -329,7 +411,7 @@ class EndpointServiceAsyncClient:
 
         """
         # Create or coerce a protobuf request object.
-        # Sanity check: If we got a request object, we should *not* have
+        # Quick check: If we got a request object, we should *not* have
         # gotten any keyword arguments that map to the request.
         has_flattened_params = any([name])
         if request is not None and has_flattened_params:
@@ -376,6 +458,26 @@ class EndpointServiceAsyncClient:
     ) -> pagers.ListEndpointsAsyncPager:
         r"""Lists Endpoints in a Location.
 
+        .. code-block:: python
+
+            from google.cloud import aiplatform_v1
+
+            def sample_list_endpoints():
+                # Create a client
+                client = aiplatform_v1.EndpointServiceClient()
+
+                # Initialize request argument(s)
+                request = aiplatform_v1.ListEndpointsRequest(
+                    parent="parent_value",
+                )
+
+                # Make the request
+                page_result = client.list_endpoints(request=request)
+
+                # Handle the response
+                for response in page_result:
+                    print(response)
+
         Args:
             request (Union[google.cloud.aiplatform_v1.types.ListEndpointsRequest, dict]):
                 The request object. Request message for
@@ -404,7 +506,7 @@ class EndpointServiceAsyncClient:
 
         """
         # Create or coerce a protobuf request object.
-        # Sanity check: If we got a request object, we should *not* have
+        # Quick check: If we got a request object, we should *not* have
         # gotten any keyword arguments that map to the request.
         has_flattened_params = any([parent])
         if request is not None and has_flattened_params:
@@ -458,6 +560,28 @@ class EndpointServiceAsyncClient:
     ) -> gca_endpoint.Endpoint:
         r"""Updates an Endpoint.
 
+        .. code-block:: python
+
+            from google.cloud import aiplatform_v1
+
+            def sample_update_endpoint():
+                # Create a client
+                client = aiplatform_v1.EndpointServiceClient()
+
+                # Initialize request argument(s)
+                endpoint = aiplatform_v1.Endpoint()
+                endpoint.display_name = "display_name_value"
+
+                request = aiplatform_v1.UpdateEndpointRequest(
+                    endpoint=endpoint,
+                )
+
+                # Make the request
+                response = client.update_endpoint(request=request)
+
+                # Handle the response
+                print(response)
+
         Args:
             request (Union[google.cloud.aiplatform_v1.types.UpdateEndpointRequest, dict]):
                 The request object. Request message for
@@ -490,7 +614,7 @@ class EndpointServiceAsyncClient:
 
         """
         # Create or coerce a protobuf request object.
-        # Sanity check: If we got a request object, we should *not* have
+        # Quick check: If we got a request object, we should *not* have
         # gotten any keyword arguments that map to the request.
         has_flattened_params = any([endpoint, update_mask])
         if request is not None and has_flattened_params:
@@ -541,6 +665,29 @@ class EndpointServiceAsyncClient:
     ) -> operation_async.AsyncOperation:
         r"""Deletes an Endpoint.
 
+        .. code-block:: python
+
+            from google.cloud import aiplatform_v1
+
+            def sample_delete_endpoint():
+                # Create a client
+                client = aiplatform_v1.EndpointServiceClient()
+
+                # Initialize request argument(s)
+                request = aiplatform_v1.DeleteEndpointRequest(
+                    name="name_value",
+                )
+
+                # Make the request
+                operation = client.delete_endpoint(request=request)
+
+                print("Waiting for operation to complete...")
+
+                response = operation.result()
+
+                # Handle the response
+                print(response)
+
         Args:
             request (Union[google.cloud.aiplatform_v1.types.DeleteEndpointRequest, dict]):
                 The request object. Request message for
@@ -579,7 +726,7 @@ class EndpointServiceAsyncClient:
 
         """
         # Create or coerce a protobuf request object.
-        # Sanity check: If we got a request object, we should *not* have
+        # Quick check: If we got a request object, we should *not* have
         # gotten any keyword arguments that map to the request.
         has_flattened_params = any([name])
         if request is not None and has_flattened_params:
@@ -638,6 +785,35 @@ class EndpointServiceAsyncClient:
     ) -> operation_async.AsyncOperation:
         r"""Deploys a Model into this Endpoint, creating a
         DeployedModel within it.
+
+
+        .. code-block:: python
+
+            from google.cloud import aiplatform_v1
+
+            def sample_deploy_model():
+                # Create a client
+                client = aiplatform_v1.EndpointServiceClient()
+
+                # Initialize request argument(s)
+                deployed_model = aiplatform_v1.DeployedModel()
+                deployed_model.dedicated_resources.min_replica_count = 1803
+                deployed_model.model = "model_value"
+
+                request = aiplatform_v1.DeployModelRequest(
+                    endpoint="endpoint_value",
+                    deployed_model=deployed_model,
+                )
+
+                # Make the request
+                operation = client.deploy_model(request=request)
+
+                print("Waiting for operation to complete...")
+
+                response = operation.result()
+
+                # Handle the response
+                print(response)
 
         Args:
             request (Union[google.cloud.aiplatform_v1.types.DeployModelRequest, dict]):
@@ -699,7 +875,7 @@ class EndpointServiceAsyncClient:
 
         """
         # Create or coerce a protobuf request object.
-        # Sanity check: If we got a request object, we should *not* have
+        # Quick check: If we got a request object, we should *not* have
         # gotten any keyword arguments that map to the request.
         has_flattened_params = any([endpoint, deployed_model, traffic_split])
         if request is not None and has_flattened_params:
@@ -765,6 +941,31 @@ class EndpointServiceAsyncClient:
         DeployedModel from it, and freeing all resources it's
         using.
 
+
+        .. code-block:: python
+
+            from google.cloud import aiplatform_v1
+
+            def sample_undeploy_model():
+                # Create a client
+                client = aiplatform_v1.EndpointServiceClient()
+
+                # Initialize request argument(s)
+                request = aiplatform_v1.UndeployModelRequest(
+                    endpoint="endpoint_value",
+                    deployed_model_id="deployed_model_id_value",
+                )
+
+                # Make the request
+                operation = client.undeploy_model(request=request)
+
+                print("Waiting for operation to complete...")
+
+                response = operation.result()
+
+                # Handle the response
+                print(response)
+
         Args:
             request (Union[google.cloud.aiplatform_v1.types.UndeployModelRequest, dict]):
                 The request object. Request message for
@@ -815,7 +1016,7 @@ class EndpointServiceAsyncClient:
 
         """
         # Create or coerce a protobuf request object.
-        # Sanity check: If we got a request object, we should *not* have
+        # Quick check: If we got a request object, we should *not* have
         # gotten any keyword arguments that map to the request.
         has_flattened_params = any([endpoint, deployed_model_id, traffic_split])
         if request is not None and has_flattened_params:

@@ -28,8 +28,6 @@ from google.cloud import aiplatform_v1beta1
 
 
 def sample_create_tensorboard():
-    """Snippet for create_tensorboard"""
-
     # Create a client
     client = aiplatform_v1beta1.TensorboardServiceClient()
 
@@ -38,7 +36,7 @@ def sample_create_tensorboard():
     tensorboard.display_name = "display_name_value"
 
     request = aiplatform_v1beta1.CreateTensorboardRequest(
-        parent="projects/{project}/locations/{location}/tensorboards/{tensorboard}",
+        parent="parent_value",
         tensorboard=tensorboard,
     )
 
@@ -48,6 +46,8 @@ def sample_create_tensorboard():
     print("Waiting for operation to complete...")
 
     response = operation.result()
+
+    # Handle the response
     print(response)
 
 # [END aiplatform_generated_aiplatform_v1beta1_TensorboardService_CreateTensorboard_sync]

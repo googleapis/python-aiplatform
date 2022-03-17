@@ -111,7 +111,7 @@ Initialize the SDK to store common configurations that you use with the SDK.
         staging_bucket='gs://my_staging_bucket',
 
         # custom google.auth.credentials.Credentials
-        # environment default creds used if not set
+        # environment default credentials used if not set
         credentials=my_credentials,
 
         # customer managed encryption key resource name
@@ -123,7 +123,7 @@ Initialize the SDK to store common configurations that you use with the SDK.
         experiment='my-experiment',
 
         # description of the experiment above
-        experiment_description='my experiment decsription'
+        experiment_description='my experiment description'
     )
 
 Datasets
@@ -188,7 +188,7 @@ Please visit `Using a managed dataset in a custom training application`_ for a d
 
 .. _Using a managed dataset in a custom training application: https://cloud.google.com/vertex-ai/docs/training/using-managed-datasets
 
-It must write the model artifact to the environment variable populated by the traing service:
+It must write the model artifact to the environment variable populated by the training service:
 
 .. code-block:: Python
 

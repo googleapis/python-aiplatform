@@ -28,18 +28,18 @@ from google.cloud import aiplatform_v1beta1
 
 
 async def sample_list_model_evaluation_slices():
-    """Snippet for list_model_evaluation_slices"""
-
     # Create a client
     client = aiplatform_v1beta1.ModelServiceAsyncClient()
 
     # Initialize request argument(s)
     request = aiplatform_v1beta1.ListModelEvaluationSlicesRequest(
-        parent="projects/{project}/locations/{location}/models/{model}/evaluations/{evaluation}",
+        parent="parent_value",
     )
 
     # Make the request
     page_result = client.list_model_evaluation_slices(request=request)
+
+    # Handle the response
     async for response in page_result:
         print(response)
 

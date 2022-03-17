@@ -16,6 +16,7 @@
 
 
 import functools
+import os
 import pathlib
 import shutil
 import subprocess
@@ -62,7 +63,7 @@ class _TrainingScriptPythonPackager:
             Constant command to generate the source distribution package.
 
     Attributes:
-        script_path: local path of script to package
+        script_path: local path of script or folder to package
         requirements: list of Python dependencies to add to package
 
     Usage:
@@ -70,7 +71,7 @@ class _TrainingScriptPythonPackager:
     packager = TrainingScriptPythonPackager('my_script.py', ['pandas', 'pytorch'])
     gcs_path = packager.package_and_copy_to_gcs(
         gcs_staging_dir='my-bucket',
-        project='my-prject')
+        project='my-project')
     module_name = packager.module_name
 
     The package after installed can be executed as:
@@ -79,7 +80,6 @@ class _TrainingScriptPythonPackager:
 
     _TRAINER_FOLDER = "trainer"
     _ROOT_MODULE = "aiplatform_custom_trainer_script"
-    _TASK_MODULE_NAME = "task"
     _SETUP_PY_VERSION = "0.1"
 
     _SETUP_PY_TEMPLATE = """from setuptools import find_packages
@@ -96,10 +96,12 @@ setup(
 
     _SETUP_PY_SOURCE_DISTRIBUTION_CMD = "setup.py sdist --formats=gztar"
 
-    # Module name that can be executed during training. ie. python -m
-    module_name = f"{_ROOT_MODULE}.{_TASK_MODULE_NAME}"
-
-    def __init__(self, script_path: str, requirements: Optional[Sequence[str]] = None):
+    def __init__(
+        self,
+        script_path: str,
+        task_module_name: str = "task",
+        requirements: Optional[Sequence[str]] = None,
+    ):
         """Initializes packager.
 
         Args:
@@ -109,7 +111,13 @@ setup(
         """
 
         self.script_path = script_path
+        self.task_module_name = task_module_name
         self.requirements = requirements or []
+
+    @property
+    def module_name(self) -> str:
+        # Module name that can be executed during training. ie. python -m
+        return f"{self._ROOT_MODULE}.{self.task_module_name}"
 
     def make_package(self, package_directory: str) -> str:
         """Converts script into a Python package suitable for python module
@@ -133,9 +141,6 @@ setup(
 
         # __init__.py path in root module
         init_path = trainer_path / "__init__.py"
-
-        # The module that will contain the script
-        script_out_path = trainer_path / f"{self._TASK_MODULE_NAME}.py"
 
         # The path to setup.py in the package.
         setup_py_path = trainer_root_path / "setup.py"
@@ -165,8 +170,14 @@ setup(
         with setup_py_path.open("w") as fp:
             fp.write(setup_py_output)
 
-        # Copy script as module of python package.
-        shutil.copy(self.script_path, script_out_path)
+        if os.path.isdir(self.script_path):
+            shutil.copytree(self.script_path, trainer_path, dirs_exist_ok=True)
+        else:
+            # The module that will contain the script
+            script_out_path = trainer_path / f"{self.task_module_name}.py"
+
+            # Copy script as module of python package.
+            shutil.copy(self.script_path, script_out_path)
 
         # Run setup.py to create the source distribution.
         setup_cmd = [

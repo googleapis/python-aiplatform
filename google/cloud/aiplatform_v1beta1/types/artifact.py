@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# Copyright 2020 Google LLC
+# Copyright 2022 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -39,8 +39,8 @@ class Artifact(proto.Message):
             artifact file. May be empty if there is no
             actual artifact file.
         etag (str):
-            An eTag used to perform consistent read-
-            odify-write updates. If not set, a blind
+            An eTag used to perform consistent
+            read-modify-write updates. If not set, a blind
             "overwrite" update happens.
         labels (Sequence[google.cloud.aiplatform_v1beta1.types.Artifact.LabelsEntry]):
             The labels with user-defined metadata to

@@ -16,6 +16,7 @@
 #
 
 import datetime
+import logging
 import time
 import re
 from typing import Any, Dict, List, Optional
@@ -76,7 +77,7 @@ def _set_enable_caching_value(
                 task["cachingOptions"] = {"enableCache": enable_caching}
 
 
-class PipelineJob(base.VertexAiResourceNounWithFutureManager):
+class PipelineJob(base.VertexAiStatefulResource):
 
     client_class = utils.PipelineJobClientWithOverride
     _resource_noun = "pipelineJobs"
@@ -85,6 +86,9 @@ class PipelineJob(base.VertexAiResourceNounWithFutureManager):
     _list_method = "list_pipeline_jobs"
     _parse_resource_name_method = "parse_pipeline_job_path"
     _format_resource_name_method = "pipeline_job_path"
+
+    # Required by the done() method
+    _valid_done_states = _PIPELINE_COMPLETE_STATES
 
     def __init__(
         self,
@@ -272,6 +276,10 @@ class PipelineJob(base.VertexAiResourceNounWithFutureManager):
 
         if network:
             self._gca_resource.network = network
+
+        # Prevents logs from being supressed on TFX pipelines
+        if self._gca_resource.pipeline_spec.get("sdkVersion", "").startswith("tfx"):
+            _LOGGER.setLevel(logging.INFO)
 
         _LOGGER.log_create_with_lro(self.__class__)
 

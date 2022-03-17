@@ -28,18 +28,18 @@ from google.cloud import aiplatform_v1
 
 
 async def sample_list_annotations():
-    """Snippet for list_annotations"""
-
     # Create a client
     client = aiplatform_v1.DatasetServiceAsyncClient()
 
     # Initialize request argument(s)
     request = aiplatform_v1.ListAnnotationsRequest(
-        parent="projects/{project}/locations/{location}/datasets/{dataset}/dataItems/{data_item}",
+        parent="parent_value",
     )
 
     # Make the request
     page_result = client.list_annotations(request=request)
+
+    # Handle the response
     async for response in page_result:
         print(response)
 

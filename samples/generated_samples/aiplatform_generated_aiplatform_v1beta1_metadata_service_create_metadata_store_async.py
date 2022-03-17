@@ -28,14 +28,12 @@ from google.cloud import aiplatform_v1beta1
 
 
 async def sample_create_metadata_store():
-    """Snippet for create_metadata_store"""
-
     # Create a client
     client = aiplatform_v1beta1.MetadataServiceAsyncClient()
 
     # Initialize request argument(s)
     request = aiplatform_v1beta1.CreateMetadataStoreRequest(
-        parent="projects/{project}/locations/{location}",
+        parent="parent_value",
     )
 
     # Make the request
@@ -44,6 +42,8 @@ async def sample_create_metadata_store():
     print("Waiting for operation to complete...")
 
     response = await operation.result()
+
+    # Handle the response
     print(response)
 
 # [END aiplatform_generated_aiplatform_v1beta1_MetadataService_CreateMetadataStore_async]

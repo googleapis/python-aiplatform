@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# Copyright 2020 Google LLC
+# Copyright 2022 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -30,6 +30,8 @@ class AcceleratorType(proto.Enum):
     NVIDIA_TESLA_P4 = 4
     NVIDIA_TESLA_T4 = 5
     NVIDIA_TESLA_A100 = 8
+    TPU_V2 = 6
+    TPU_V3 = 7
 
 
 __all__ = tuple(sorted(__protobuf__.manifest))

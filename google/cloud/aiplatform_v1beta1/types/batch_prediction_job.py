@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# Copyright 2020 Google LLC
+# Copyright 2022 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -95,6 +95,16 @@ class BatchPredictionJob(proto.Message):
             DEDICATED_RESOURCES this config may be provided (and the job
             will use these resources), if the Model doesn't support
             AUTOMATIC_RESOURCES, this config must be provided.
+        service_account (str):
+            The service account that the DeployedModel's container runs
+            as. If not specified, a system generated one will be used,
+            which has minimal permissions and the custom container, if
+            used, may not have enough permission to access other GCP
+            resources.
+
+            Users deploying the Model must have the
+            ``iam.serviceAccounts.actAs`` permission on this service
+            account.
         manual_batch_tuning_parameters (google.cloud.aiplatform_v1beta1.types.ManualBatchTuningParameters):
             Immutable. Parameters configuring the batch behavior.
             Currently only applicable when
@@ -381,6 +391,7 @@ class BatchPredictionJob(proto.Message):
     dedicated_resources = proto.Field(
         proto.MESSAGE, number=7, message=machine_resources.BatchDedicatedResources,
     )
+    service_account = proto.Field(proto.STRING, number=29,)
     manual_batch_tuning_parameters = proto.Field(
         proto.MESSAGE,
         number=8,

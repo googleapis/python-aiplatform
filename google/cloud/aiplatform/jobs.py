@@ -66,7 +66,7 @@ _JOB_ERROR_STATES = (
 )
 
 
-class _Job(base.VertexAiResourceNounWithFutureManager):
+class _Job(base.VertexAiStatefulResource):
     """Class that represents a general Job resource in Vertex AI.
     Cannot be directly instantiated.
 
@@ -82,6 +82,9 @@ class _Job(base.VertexAiResourceNounWithFutureManager):
     """
 
     client_class = utils.JobClientWithOverride
+
+    # Required by the done() method
+    _valid_done_states = _JOB_COMPLETE_STATES
 
     def __init__(
         self,
@@ -322,7 +325,7 @@ class BatchPredictionJob(_Job):
         """Information describing the output of this job, including output location
         into which prediction output is written.
 
-        This is only available for batch predicition jobs that have run successfully.
+        This is only available for batch prediction jobs that have run successfully.
         """
         self._assert_gca_resource_is_available()
         return self._gca_resource.output_info
@@ -836,7 +839,7 @@ class _RunnableJob(_Job):
         Args:
             project(str): Project of the resource noun.
             location(str): The location of the resource noun.
-            credentials(google.auth.crendentials.Crendentials): Optional custom
+            credentials(google.auth.credentials.Credentials): Optional custom
                 credentials to use when accessing interacting with resource noun.
         """
 
@@ -849,6 +852,39 @@ class _RunnableJob(_Job):
         )
 
         self._logged_web_access_uris = set()
+
+    @classmethod
+    def _empty_constructor(
+        cls,
+        project: Optional[str] = None,
+        location: Optional[str] = None,
+        credentials: Optional[auth_credentials.Credentials] = None,
+        resource_name: Optional[str] = None,
+    ) -> "_RunnableJob":
+        """Initializes with all attributes set to None.
+
+            The attributes should be populated after a future is complete. This allows
+            scheduling of additional API calls before the resource is created.
+
+            Args:
+                project (str): Optional. Project of the resource noun.
+                location (str): Optional. The location of the resource noun.
+                credentials(google.auth.credentials.Credentials):
+                    Optional. custom credentials to use when accessing interacting with
+                    resource noun.
+                resource_name(str): Optional. A fully-qualified resource name or ID.
+            Returns:
+                An instance of this class with attributes set to None.
+            """
+        self = super()._empty_constructor(
+            project=project,
+            location=location,
+            credentials=credentials,
+            resource_name=resource_name,
+        )
+
+        self._logged_web_access_uris = set()
+        return self
 
     @property
     def web_access_uris(self) -> Dict[str, Union[str, Dict[str, str]]]:
@@ -987,7 +1023,7 @@ class CustomJob(_RunnableJob):
         encryption_spec_key_name: Optional[str] = None,
         staging_bucket: Optional[str] = None,
     ):
-        """Cosntruct a Custom Job with Worker Pool Specs.
+        """Constructs a Custom Job with Worker Pool Specs.
 
         ```
         Example usage:
@@ -1533,7 +1569,7 @@ class HyperparameterTuningJob(_RunnableJob):
                 Required. Configured CustomJob. The worker pool spec from this custom job
                 applies to the CustomJobs created in all the trials.
             metric_spec: Dict[str, str]
-                Required. Dicionary representing metrics to optimize. The dictionary key is the metric_id,
+                Required. Dictionary representing metrics to optimize. The dictionary key is the metric_id,
                 which is reported by your training job, and the dictionary value is the
                 optimization goal of the metric('minimize' or 'maximize'). example:
 
@@ -1558,7 +1594,7 @@ class HyperparameterTuningJob(_RunnableJob):
                 DoubleParameterSpec, IntegerParameterSpec, CategoricalParameterSpace, DiscreteParameterSpec
 
             max_trial_count (int):
-                Reuired. The desired total number of Trials.
+                Required. The desired total number of Trials.
             parallel_trial_count (int):
                 Required. The desired number of Trials to run in parallel.
             max_failed_trial_count (int):

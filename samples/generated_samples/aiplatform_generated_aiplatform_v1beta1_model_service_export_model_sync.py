@@ -28,14 +28,12 @@ from google.cloud import aiplatform_v1beta1
 
 
 def sample_export_model():
-    """Snippet for export_model"""
-
     # Create a client
     client = aiplatform_v1beta1.ModelServiceClient()
 
     # Initialize request argument(s)
     request = aiplatform_v1beta1.ExportModelRequest(
-        name="projects/{project}/locations/{location}/models/{model}",
+        name="name_value",
     )
 
     # Make the request
@@ -44,6 +42,8 @@ def sample_export_model():
     print("Waiting for operation to complete...")
 
     response = operation.result()
+
+    # Handle the response
     print(response)
 
 # [END aiplatform_generated_aiplatform_v1beta1_ModelService_ExportModel_sync]

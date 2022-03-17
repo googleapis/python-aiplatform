@@ -48,8 +48,9 @@ from google.cloud.aiplatform.compat.types import (
     env_var as gca_env_var_compat,
 )
 
-from google.protobuf import json_format
+from google.protobuf import field_mask_pb2, json_format
 
+_DEFAULT_MACHINE_TYPE = "n1-standard-2"
 
 _LOGGER = base.Logger(__name__)
 
@@ -799,7 +800,7 @@ class Endpoint(base.VertexAiResourceNounWithFutureManager):
         self._deploy_call(
             self.api_client,
             self.resource_name,
-            model.resource_name,
+            model,
             self._gca_resource.traffic_split,
             deployed_model_display_name=deployed_model_display_name,
             traffic_percentage=traffic_percentage,
@@ -824,7 +825,7 @@ class Endpoint(base.VertexAiResourceNounWithFutureManager):
         cls,
         api_client: endpoint_service_client.EndpointServiceClient,
         endpoint_resource_name: str,
-        model_resource_name: str,
+        model: "Model",
         endpoint_resource_traffic_split: Optional[proto.MapField] = None,
         deployed_model_display_name: Optional[str] = None,
         traffic_percentage: Optional[int] = 0,
@@ -846,8 +847,8 @@ class Endpoint(base.VertexAiResourceNounWithFutureManager):
                 Required. endpoint_service_client.EndpointServiceClient to make call.
             endpoint_resource_name (str):
                 Required. Endpoint resource name to deploy model to.
-            model_resource_name (str):
-                Required. Model resource name of Model to deploy.
+            model (aiplatform.Model):
+                Required. Model to be deployed.
             endpoint_resource_traffic_split (proto.MapField):
                 Optional. Endpoint current resource traffic split.
             deployed_model_display_name (str):
@@ -914,6 +915,7 @@ class Endpoint(base.VertexAiResourceNounWithFutureManager):
                 is not 0 or 100.
             ValueError: If only `explanation_metadata` or `explanation_parameters`
                 is specified.
+            ValueError: If model does not support deployment.
         """
 
         max_replica_count = max(min_replica_count, max_replica_count)
@@ -924,12 +926,40 @@ class Endpoint(base.VertexAiResourceNounWithFutureManager):
             )
 
         deployed_model = gca_endpoint_compat.DeployedModel(
-            model=model_resource_name,
+            model=model.resource_name,
             display_name=deployed_model_display_name,
             service_account=service_account,
         )
 
-        if machine_type:
+        supports_automatic_resources = (
+            aiplatform.gapic.Model.DeploymentResourcesType.AUTOMATIC_RESOURCES
+            in model.supported_deployment_resources_types
+        )
+        supports_dedicated_resources = (
+            aiplatform.gapic.Model.DeploymentResourcesType.DEDICATED_RESOURCES
+            in model.supported_deployment_resources_types
+        )
+        provided_custom_machine_spec = (
+            machine_type or accelerator_type or accelerator_count
+        )
+
+        # If the model supports both automatic and dedicated deployment resources,
+        # decide based on the presence of machine spec customizations
+        use_dedicated_resources = supports_dedicated_resources and (
+            not supports_automatic_resources or provided_custom_machine_spec
+        )
+
+        if provided_custom_machine_spec and not use_dedicated_resources:
+            _LOGGER.info(
+                "Model does not support dedicated deployment resources. "
+                "The machine_type, accelerator_type and accelerator_count parameters are ignored."
+            )
+
+        if use_dedicated_resources and not machine_type:
+            machine_type = _DEFAULT_MACHINE_TYPE
+            _LOGGER.info(f"Using default machine_type: {machine_type}")
+
+        if use_dedicated_resources:
             machine_spec = gca_machine_resources_compat.MachineSpec(
                 machine_type=machine_type
             )
@@ -945,10 +975,15 @@ class Endpoint(base.VertexAiResourceNounWithFutureManager):
                 max_replica_count=max_replica_count,
             )
 
-        else:
+        elif supports_automatic_resources:
             deployed_model.automatic_resources = gca_machine_resources_compat.AutomaticResources(
                 min_replica_count=min_replica_count,
                 max_replica_count=max_replica_count,
+            )
+        else:
+            raise ValueError(
+                "Model does not support deployment. "
+                "See https://cloud.google.com/vertex-ai/docs/reference/rpc/google.cloud.aiplatform.v1#google.cloud.aiplatform.v1.Model.FIELDS.repeated.google.cloud.aiplatform.v1.Model.DeploymentResourcesType.google.cloud.aiplatform.v1.Model.supported_deployment_resources_types"
             )
 
         # Service will throw error if both metadata and parameters are not provided
@@ -1502,6 +1537,75 @@ class Model(base.VertexAiResourceNounWithFutureManager):
         )
         self._gca_resource = self._get_gca_resource(resource_name=model_name)
 
+    def update(
+        self,
+        display_name: Optional[str] = None,
+        description: Optional[str] = None,
+        labels: Optional[Dict[str, str]] = None,
+    ) -> "Model":
+        """Updates a model.
+
+        Example usage:
+
+        my_model = my_model.update(
+            display_name='my-model',
+            description='my description',
+            labels={'key': 'value'},
+        )
+
+        Args:
+            display_name (str):
+                The display name of the Model. The name can be up to 128
+                characters long and can be consist of any UTF-8 characters.
+            description (str):
+                The description of the model.
+            labels (Dict[str, str]):
+                Optional. The labels with user-defined metadata to
+                organize your Models.
+                Label keys and values can be no longer than 64
+                characters (Unicode codepoints), can only
+                contain lowercase letters, numeric characters,
+                underscores and dashes. International characters
+                are allowed.
+                See https://goo.gl/xmQnxf for more information
+                and examples of labels.
+        Returns:
+            model: Updated model resource.
+        Raises:
+            ValueError: If `labels` is not the correct format.
+        """
+
+        self.wait()
+
+        current_model_proto = self.gca_resource
+        copied_model_proto = current_model_proto.__class__(current_model_proto)
+
+        update_mask: List[str] = []
+
+        if display_name:
+            utils.validate_display_name(display_name)
+
+            copied_model_proto.display_name = display_name
+            update_mask.append("display_name")
+
+        if description:
+            copied_model_proto.description = description
+            update_mask.append("description")
+
+        if labels:
+            utils.validate_labels(labels)
+
+            copied_model_proto.labels = labels
+            update_mask.append("labels")
+
+        update_mask = field_mask_pb2.FieldMask(paths=update_mask)
+
+        self.api_client.update_model(model=copied_model_proto, update_mask=update_mask)
+
+        self._sync_gca_resource()
+
+        return self
+
     # TODO(b/170979552) Add support for predict schemata
     # TODO(b/170979926) Add support for metadata and metadata schema
     @classmethod
@@ -2049,7 +2153,7 @@ class Model(base.VertexAiResourceNounWithFutureManager):
         Endpoint._deploy_call(
             endpoint.api_client,
             endpoint.resource_name,
-            self.resource_name,
+            self,
             endpoint._gca_resource.traffic_split,
             deployed_model_display_name=deployed_model_display_name,
             traffic_percentage=traffic_percentage,
@@ -2394,6 +2498,8 @@ class Model(base.VertexAiResourceNounWithFutureManager):
             ValueError: If invalid arguments or export formats are provided.
         """
 
+        self.wait()
+
         # Model does not support exporting
         if not self.supported_export_formats:
             raise ValueError(f"The model `{self.resource_name}` is not exportable.")
@@ -2468,7 +2574,7 @@ class Model(base.VertexAiResourceNounWithFutureManager):
     def upload_xgboost_model_file(
         cls,
         model_file_path: str,
-        xgboost_version: str = "1.4",
+        xgboost_version: Optional[str] = None,
         display_name: str = "XGBoost model",
         description: Optional[str] = None,
         instance_schema_uri: Optional[str] = None,
@@ -2608,7 +2714,7 @@ class Model(base.VertexAiResourceNounWithFutureManager):
         container_image_uri = aiplatform.helpers.get_prebuilt_prediction_container_uri(
             region=location,
             framework="xgboost",
-            framework_version=xgboost_version,
+            framework_version=xgboost_version or "1.4",
             accelerator="cpu",
         )
 
@@ -2663,7 +2769,7 @@ class Model(base.VertexAiResourceNounWithFutureManager):
     def upload_scikit_learn_model_file(
         cls,
         model_file_path: str,
-        sklearn_version: str = "1.0",
+        sklearn_version: Optional[str] = None,
         display_name: str = "Scikit-learn model",
         description: Optional[str] = None,
         instance_schema_uri: Optional[str] = None,
@@ -2803,7 +2909,7 @@ class Model(base.VertexAiResourceNounWithFutureManager):
         container_image_uri = aiplatform.helpers.get_prebuilt_prediction_container_uri(
             region=location,
             framework="sklearn",
-            framework_version=sklearn_version,
+            framework_version=sklearn_version or "1.0",
             accelerator="cpu",
         )
 
@@ -2857,7 +2963,7 @@ class Model(base.VertexAiResourceNounWithFutureManager):
     def upload_tensorflow_saved_model(
         cls,
         saved_model_dir: str,
-        tensorflow_version: str = "2.7",
+        tensorflow_version: Optional[str] = None,
         use_gpu: bool = False,
         display_name: str = "Tensorflow model",
         description: Optional[str] = None,
@@ -2995,7 +3101,7 @@ class Model(base.VertexAiResourceNounWithFutureManager):
         container_image_uri = aiplatform.helpers.get_prebuilt_prediction_container_uri(
             region=location,
             framework="tensorflow",
-            framework_version=tensorflow_version,
+            framework_version=tensorflow_version or "2.7",
             accelerator="gpu" if use_gpu else "cpu",
         )
 

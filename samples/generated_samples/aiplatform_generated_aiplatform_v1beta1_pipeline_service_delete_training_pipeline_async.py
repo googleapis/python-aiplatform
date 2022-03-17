@@ -28,14 +28,12 @@ from google.cloud import aiplatform_v1beta1
 
 
 async def sample_delete_training_pipeline():
-    """Snippet for delete_training_pipeline"""
-
     # Create a client
     client = aiplatform_v1beta1.PipelineServiceAsyncClient()
 
     # Initialize request argument(s)
     request = aiplatform_v1beta1.DeleteTrainingPipelineRequest(
-        name="projects/{project}/locations/{location}/trainingPipelines/{training_pipeline}",
+        name="name_value",
     )
 
     # Make the request
@@ -44,6 +42,8 @@ async def sample_delete_training_pipeline():
     print("Waiting for operation to complete...")
 
     response = await operation.result()
+
+    # Handle the response
     print(response)
 
 # [END aiplatform_generated_aiplatform_v1beta1_PipelineService_DeleteTrainingPipeline_async]

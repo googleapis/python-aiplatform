@@ -28,21 +28,19 @@ from google.cloud import aiplatform_v1beta1
 
 
 async def sample_create_tensorboard_experiment():
-    """Snippet for create_tensorboard_experiment"""
-
     # Create a client
     client = aiplatform_v1beta1.TensorboardServiceAsyncClient()
 
     # Initialize request argument(s)
     request = aiplatform_v1beta1.CreateTensorboardExperimentRequest(
-        parent="projects/{project}/locations/{location}/tensorboards/{tensorboard}/experiments/{experiment}",
+        parent="parent_value",
         tensorboard_experiment_id="tensorboard_experiment_id_value",
     )
 
     # Make the request
     response = await client.create_tensorboard_experiment(request=request)
 
-    # Handle response
+    # Handle the response
     print(response)
 
 # [END aiplatform_generated_aiplatform_v1beta1_TensorboardService_CreateTensorboardExperiment_async]

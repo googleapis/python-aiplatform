@@ -28,18 +28,18 @@ from google.cloud import aiplatform_v1beta1
 
 
 def sample_list_tensorboard_experiments():
-    """Snippet for list_tensorboard_experiments"""
-
     # Create a client
     client = aiplatform_v1beta1.TensorboardServiceClient()
 
     # Initialize request argument(s)
     request = aiplatform_v1beta1.ListTensorboardExperimentsRequest(
-        parent="projects/{project}/locations/{location}/tensorboards/{tensorboard}/experiments/{experiment}",
+        parent="parent_value",
     )
 
     # Make the request
     page_result = client.list_tensorboard_experiments(request=request)
+
+    # Handle the response
     for response in page_result:
         print(response)
 
