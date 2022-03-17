@@ -43,7 +43,7 @@ def predict_image_classification_sample(
 
     instances = []
     for image in images:
-        with tf.io.gfile.GFile(image, "rb") as f:
+        with open(image, "rb") as f:
             content = f.read()
         instances.append({"content": base64.b64encode(content).decode("utf-8")})
 
