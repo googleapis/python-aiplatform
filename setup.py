@@ -101,6 +101,7 @@ setuptools.setup(
         "google-cloud-storage >= 1.32.0, < 3.0.0dev",
         "google-cloud-bigquery >= 1.15.0, < 3.0.0dev",
         "google-cloud-resource-manager >= 1.3.3, < 3.0.0dev",
+        "pyyaml>=5.3,<6",
     ),
     extras_require={
         "full": full_extra_require,
