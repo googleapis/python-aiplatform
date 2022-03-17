@@ -28,6 +28,7 @@ from google.cloud.aiplatform import initializer
 from google.cloud.aiplatform.metadata.metadata import metadata_service
 from google.cloud.aiplatform.constants import base as constants
 from google.cloud.aiplatform import utils
+from google.cloud.aiplatform.utils import resource_manager_utils
 
 from google.cloud.aiplatform_v1.services.model_service import (
     client as model_service_client,
@@ -60,6 +61,15 @@ class TestInit:
 
         monkeypatch.setattr(google.auth, "default", mock_auth_default)
         assert initializer.global_config.project == _TEST_PROJECT
+
+    def test_infer_project_id(self):
+        def mock_get_project_id():
+            return _TEST_PROJECT
+
+        with mock.patch.object(
+            target=os, attribute="cpu_count", new=mock_get_project_id
+        ):
+            assert initializer.global_config.project == _TEST_PROJECT
 
     def test_init_location_sets_location(self):
         initializer.global_config.init(location=_TEST_LOCATION)
