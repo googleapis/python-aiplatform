@@ -16,9 +16,9 @@
 #  [START aiplatform_sdk_predict_image_classification_sample]
 import base64
 
-from google.cloud import aiplatform
-
 from typing import List
+
+from google.cloud import aiplatform
 
 
 def predict_image_classification_sample(
