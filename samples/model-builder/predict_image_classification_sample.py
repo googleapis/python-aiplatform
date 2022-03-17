@@ -12,17 +12,15 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-
-import base64
-
 from typing import List
-
-from google.cloud import aiplatform
-
-import tensorflow as tf
 
 
 #  [START aiplatform_sdk_predict_image_classification_sample]
+import base64
+
+from google.cloud import aiplatform
+
+
 def predict_image_classification_sample(
     project: str,
     location: str,
