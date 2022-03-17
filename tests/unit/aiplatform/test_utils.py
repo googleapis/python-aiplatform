@@ -16,26 +16,24 @@
 #
 
 
-import pytest
-from typing import Callable, Dict, Optional
 import datetime
+import json
+import os
+from typing import Callable, Dict, Optional
 
-from google.protobuf import timestamp_pb2
-
-from google.api_core import client_options
-from google.api_core import gapic_v1
+import pytest
+import yaml
+from google.api_core import client_options, gapic_v1
 from google.cloud import aiplatform
-from google.cloud.aiplatform import compat
-from google.cloud.aiplatform import utils
-from google.cloud.aiplatform.utils import pipeline_utils
-from google.cloud.aiplatform.utils import tensorboard_utils
-
-from google.cloud.aiplatform_v1beta1.services.model_service import (
-    client as model_service_client_v1beta1,
-)
+from google.cloud.aiplatform import compat, utils
+from google.cloud.aiplatform.utils import pipeline_utils, tensorboard_utils, yaml_utils
 from google.cloud.aiplatform_v1.services.model_service import (
     client as model_service_client_v1,
 )
+from google.cloud.aiplatform_v1beta1.services.model_service import (
+    client as model_service_client_v1beta1,
+)
+from google.protobuf import timestamp_pb2
 
 model_service_client_default = model_service_client_v1
 
@@ -515,3 +513,33 @@ class TestTensorboardUtils:
     def test_get_experiments_compare_url_bad_experiment_name(self):
         with pytest.raises(ValueError, match="Invalid experiment name: foo-bar."):
             tensorboard_utils.get_experiments_compare_url(("foo-bar", "foo-bar1"))
+
+
+@pytest.fixture(scope="function")
+def yaml_file(tmp_path):
+    data = {"key": "val", "list": ["1", 2, 3.0]}
+    yaml_file_path = os.path.join(tmp_path, "test.yaml")
+    with open(yaml_file_path, "w") as f:
+        yaml.dump(data, f)
+    yield yaml_file_path
+
+
+@pytest.fixture(scope="function")
+def json_file(tmp_path):
+    data = {"key": "val", "list": ["1", 2, 3.0]}
+    json_file_path = os.path.join(tmp_path, "test.json")
+    with open(json_file_path, "w") as f:
+        json.dump(data, f)
+    yield json_file_path
+
+
+class TestYamlUtils:
+    def test_load_yaml_from_local_file__with_json(self, yaml_file):
+        data = yaml_utils.load_yaml(yaml_file)
+        assert data["key"] == "val"
+        assert len(data["list"]) == 3
+
+    def test_load_yaml_from_local_file__with_yaml(self, json_file):
+        data = yaml_utils.load_yaml(json_file)
+        assert data["key"] == "val"
+        assert len(data["list"]) == 3
