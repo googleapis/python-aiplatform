@@ -125,7 +125,7 @@ class _Dataset(base.VertexAiResourceNounWithFutureManager):
 
         Args:
             display_name (str):
-                Optional. The user-defined name of the Dataset.
+                Required. The user-defined name of the Dataset.
                 The name can be up to 128 characters long and can be consist
                 of any UTF-8 characters.
             metadata_schema_uri (str):
