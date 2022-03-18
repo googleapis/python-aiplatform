@@ -11,7 +11,7 @@ Experiments are focused on validating a prototype and are not guaranteed to be r
 
 ## Introduction
 
-On Vertex AI Prediction, users are able to deploy models with either [Prediction’s pre-built containers](https://cloud.google.com/vertex-ai/docs/predictions/pre-built-containers) or [custom containers](https://cloud.google.com/vertex-ai/docs/predictions/use-custom-container). Custom containers are flexible but are difficult to write, build, and maintain. To build custom containers, users need to have the knowledge of model servers, Docker, etc., and may try a few times to get their images working on Vertex AI Prediction. To address this, Vertex AI Prediction is launching Custom Prediction Routine with Vertex SDK integration, which allows users to easily build custom containers with their own custom Predictor and locally test the built images through SDK.
+On Vertex AI Prediction, users are able to deploy models with either [Prediction’s pre-built containers](https://cloud.google.com/vertex-ai/docs/predictions/pre-built-containers) or [custom containers](https://cloud.google.com/vertex-ai/docs/predictions/use-custom-container). Pre-built containers handle prediction requests by performing the prediction operation of the machine learning framework. If users want to preprocess the prediction input before prediction is performed, or postprocess the model's prediction before sending the prediction result, then they have to build a custom container, which requires knowledge of model servers, Docker etc. To make building custom containers with pre and/or post processing significantly easier for our users, Vertex AI Prediction is launching Custom Prediction Routines (CPR) with Vertex SDK integration, which allows users to easily build custom containers with their own custom Predictor and locally test the built images through SDK.
 
 This is currently an **experimental feature** and not yet officially supported by the Vertex AI SDK. In this tutorial, we'll be installing the Vertex AI SDK from an experimental branch on github.
 
@@ -24,6 +24,7 @@ We recommend installing the Vertex AI SDK in a [virtualenv](https://virtualenv.p
 With [virtualenv](https://virtualenv.pypa.io/en/latest/), you can install the Vertex AI SDK without system install permissions, and avoid conflicts with the existing installed system dependencies.
 
 ### Mac/Linux
+Specify `<your-env>` in the following snippets. `<your-env>` should be a string which will be the folder name of your environment.
 ```shell
 pip install virtualenv
 virtualenv <your-env>
@@ -32,6 +33,7 @@ source <your-env>/bin/activate
 ```
 
 ### Windows
+Specify `<your-env>` in the following snippets. `<your-env>` should be a string which will be the folder name of your environment.
 ```shell
 pip install virtualenv
 virtualenv <your-env>
@@ -41,12 +43,12 @@ virtualenv <your-env>
 
 If you have installed **google-cloud-aiplatform** from pypi in your environment, you need to add **--force-reinstall** to install it from our experimental branch.
 
-### Mac/Linux
+### Mac/Linux (Force Reinstall)
 ```shell
 <your-env>/bin/pip install --force-reinstall "google-cloud-aiplatform[prediction] @ git+https://github.com/googleapis/python-aiplatform.git@custom-prediction-routine"
 ```
 
-### Windows
+### Windows (Force Reinstall)
 ```shell
 <your-env>\Scripts\pip.exe install --force-reinstall "google-cloud-aiplatform[prediction] @ git+https://github.com/googleapis/python-aiplatform.git@custom-prediction-routine"
 ```
@@ -61,7 +63,7 @@ If you have installed **google-cloud-aiplatform** from pypi in your environment,
 
 Typically building a serving container requires writing model server code. However, with the Custom Prediction Routine feature, Vertex AI Prediction has published a [model server](https://github.com/googleapis/python-aiplatform/blob/custom-prediction-routine/google/cloud/aiplatform/prediction/model_server.py) that can be used out of the box.
 
-A custom serving container contains the follow 3 pieces of code:
+A custom serving container in this release contains the follow 3 pieces of code:
 1. [Model server](https://github.com/googleapis/python-aiplatform/blob/custom-prediction-routine/google/cloud/aiplatform/prediction/model_server.py)
     - HTTP server that hosts the model
     - Responsible for setting up routes/ports/etc.
@@ -69,7 +71,7 @@ A custom serving container contains the follow 3 pieces of code:
     - Responsible for webserver aspects of handling a request, such as deserializing the request body, and serializing the response, setting response headers, etc.
     - Vertex Prediction also provides a default prediction handler `google.cloud.aiplatform.prediction.handler.PredictionHandler` in the SDK.
 3. [Predictor](https://github.com/googleapis/python-aiplatform/blob/custom-prediction-routine/google/cloud/aiplatform/prediction/predictor.py)
-    - Responsible for the ML logic for processing a prediction request.
+    - Responsible for the ML logic for processing a prediction request, such as custom preprocessing and postprocessing.
 
 Each of these three pieces can be customized based on the requirements of the custom container.
 
@@ -79,7 +81,7 @@ We provide two classes for Custom Prediction Routine.
 1. [Local Model](https://github.com/googleapis/python-aiplatform/blob/custom-prediction-routine/google/cloud/aiplatform/prediction/local_model.py)
     - Analogous to the local version of Vertex Model resource.
     - Created from either an existing image or a custom predictor.
-    - Build custom containers if given a custom predictor.
+    - Build custom containers from a given custom predictor.
     - Call `deploy_to_local_endpoint` to create a Local Endpoint.
     - Call `upload` to create a Vertex Model.
 2. [Local Endpoint](https://github.com/googleapis/python-aiplatform/blob/custom-prediction-routine/google/cloud/aiplatform/prediction/local_endpoint.py)
@@ -201,7 +203,7 @@ Check out the serving container spec of the built image.
 local_model.get_serving_container_spec()
 ```
 
-Run and test the container locally. Here, we execute a prediction request and a health check.
+Run and test the container locally. This step is required only if you want to test the container locally. If not, you can proceed directly to pushing the image to a registry. Here, we execute a prediction request and a health check.
 ```py
 with local_model.deploy_to_local_endpoint(
     artifact_uri={GCS_PATH_TO_MODEL_ARTIFACTS},
@@ -246,7 +248,7 @@ endpoint = model.deploy(machine_type="n1-standard-4")
 
 ## Notebook Samples
 
-The four samples below showcase the different ways you can deploy an sklearn iris model with custom pre/post-processing on Vertex AI Prediction.
+The four samples below showcase the different ways you can deploy a sklearn iris model with custom pre/post-processing on Vertex AI Prediction.
 
 The samples start with the simplest user journey (custom pre/post processing for sklearn). Each subsequent sample follows user journeys that allows for more flexibility during prediction handling. 
 
