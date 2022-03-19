@@ -110,6 +110,7 @@ from .feature_selector import (
     IdMatcher,
 )
 from .featurestore import Featurestore
+from .featurestore_monitoring import FeaturestoreMonitoringConfig
 from .featurestore_online_service import (
     FeatureValue,
     FeatureValueList,
@@ -585,6 +586,7 @@ __all__ = (
     "FeatureSelector",
     "IdMatcher",
     "Featurestore",
+    "FeaturestoreMonitoringConfig",
     "FeatureValue",
     "FeatureValueList",
     "ReadFeatureValuesRequest",

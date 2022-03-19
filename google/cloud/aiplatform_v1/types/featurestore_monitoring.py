@@ -15,12 +15,9 @@
 #
 import proto  # type: ignore
 
-from google.protobuf import duration_pb2  # type: ignore
-
 
 __protobuf__ = proto.module(
-    package="google.cloud.aiplatform.v1beta1",
-    manifest={"FeaturestoreMonitoringConfig",},
+    package="google.cloud.aiplatform.v1", manifest={"FeaturestoreMonitoringConfig",},
 )
 
 
@@ -28,23 +25,23 @@ class FeaturestoreMonitoringConfig(proto.Message):
     r"""Configuration of how features in Featurestore are monitored.
 
     Attributes:
-        snapshot_analysis (google.cloud.aiplatform_v1beta1.types.FeaturestoreMonitoringConfig.SnapshotAnalysis):
+        snapshot_analysis (google.cloud.aiplatform_v1.types.FeaturestoreMonitoringConfig.SnapshotAnalysis):
             The config for Snapshot Analysis Based
             Feature Monitoring.
-        import_features_analysis (google.cloud.aiplatform_v1beta1.types.FeaturestoreMonitoringConfig.ImportFeaturesAnalysis):
+        import_features_analysis (google.cloud.aiplatform_v1.types.FeaturestoreMonitoringConfig.ImportFeaturesAnalysis):
             The config for ImportFeatures Analysis Based
             Feature Monitoring.
-        numerical_threshold_config (google.cloud.aiplatform_v1beta1.types.FeaturestoreMonitoringConfig.ThresholdConfig):
+        numerical_threshold_config (google.cloud.aiplatform_v1.types.FeaturestoreMonitoringConfig.ThresholdConfig):
             Threshold for numerical features of anomaly detection. This
             is shared by all objectives of Featurestore Monitoring for
             numerical features (i.e. Features with type
-            ([Feature.ValueType][google.cloud.aiplatform.v1beta1.Feature.ValueType])
+            ([Feature.ValueType][google.cloud.aiplatform.v1.Feature.ValueType])
             DOUBLE or INT64).
-        categorical_threshold_config (google.cloud.aiplatform_v1beta1.types.FeaturestoreMonitoringConfig.ThresholdConfig):
+        categorical_threshold_config (google.cloud.aiplatform_v1.types.FeaturestoreMonitoringConfig.ThresholdConfig):
             Threshold for categorical features of anomaly detection.
             This is shared by all types of Featurestore Monitoring for
             categorical features (i.e. Features with type
-            ([Feature.ValueType][google.cloud.aiplatform.v1beta1.Feature.ValueType])
+            ([Feature.ValueType][google.cloud.aiplatform.v1.Feature.ValueType])
             BOOL or STRING).
     """
 
@@ -67,19 +64,15 @@ class FeaturestoreMonitoringConfig(proto.Message):
                 analysis monitoring with monitoring_interval regardless of
                 the EntityType-level config. Explicitly Disable the snapshot
                 analysis based monitoring.
-            monitoring_interval (google.protobuf.duration_pb2.Duration):
-                Configuration of the snapshot analysis based
-                monitoring pipeline running interval. The value
-                is rolled up to full day.
             monitoring_interval_days (int):
                 Configuration of the snapshot analysis based monitoring
                 pipeline running interval. The value indicates number of
                 days. If both
-                [FeaturestoreMonitoringConfig.SnapshotAnalysis.monitoring_interval_days][google.cloud.aiplatform.v1beta1.FeaturestoreMonitoringConfig.SnapshotAnalysis.monitoring_interval_days]
+                [FeaturestoreMonitoringConfig.SnapshotAnalysis.monitoring_interval_days][google.cloud.aiplatform.v1.FeaturestoreMonitoringConfig.SnapshotAnalysis.monitoring_interval_days]
                 and
-                [FeaturestoreMonitoringConfig.SnapshotAnalysis.monitoring_interval][google.cloud.aiplatform.v1beta1.FeaturestoreMonitoringConfig.SnapshotAnalysis.monitoring_interval]
+                [FeaturestoreMonitoringConfig.SnapshotAnalysis.monitoring_interval][]
                 are set when creating/updating EntityTypes/Features,
-                [FeaturestoreMonitoringConfig.SnapshotAnalysis.monitoring_interval_days][google.cloud.aiplatform.v1beta1.FeaturestoreMonitoringConfig.SnapshotAnalysis.monitoring_interval_days]
+                [FeaturestoreMonitoringConfig.SnapshotAnalysis.monitoring_interval_days][google.cloud.aiplatform.v1.FeaturestoreMonitoringConfig.SnapshotAnalysis.monitoring_interval_days]
                 will be used.
             staleness_days (int):
                 Customized export features time window for
@@ -89,9 +82,6 @@ class FeaturestoreMonitoringConfig(proto.Message):
         """
 
         disabled = proto.Field(proto.BOOL, number=1,)
-        monitoring_interval = proto.Field(
-            proto.MESSAGE, number=2, message=duration_pb2.Duration,
-        )
         monitoring_interval_days = proto.Field(proto.INT32, number=3,)
         staleness_days = proto.Field(proto.INT32, number=4,)
 
@@ -101,10 +91,10 @@ class FeaturestoreMonitoringConfig(proto.Message):
         each Feature imported by every [ImportFeatureValues][] operation.
 
         Attributes:
-            state (google.cloud.aiplatform_v1beta1.types.FeaturestoreMonitoringConfig.ImportFeaturesAnalysis.State):
+            state (google.cloud.aiplatform_v1.types.FeaturestoreMonitoringConfig.ImportFeaturesAnalysis.State):
                 Whether to enable / disable / inherite
                 default hebavior for import features analysis.
-            anomaly_detection_baseline (google.cloud.aiplatform_v1beta1.types.FeaturestoreMonitoringConfig.ImportFeaturesAnalysis.Baseline):
+            anomaly_detection_baseline (google.cloud.aiplatform_v1.types.FeaturestoreMonitoringConfig.ImportFeaturesAnalysis.Baseline):
                 The baseline used to do anomaly detection for
                 the statistics generated by import features
                 analysis.
