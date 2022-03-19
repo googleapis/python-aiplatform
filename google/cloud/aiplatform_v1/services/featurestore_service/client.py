@@ -44,6 +44,7 @@ from google.cloud.aiplatform_v1.types import feature
 from google.cloud.aiplatform_v1.types import feature as gca_feature
 from google.cloud.aiplatform_v1.types import featurestore
 from google.cloud.aiplatform_v1.types import featurestore as gca_featurestore
+from google.cloud.aiplatform_v1.types import featurestore_monitoring
 from google.cloud.aiplatform_v1.types import featurestore_service
 from google.cloud.aiplatform_v1.types import operation as gca_operation
 from google.protobuf import empty_pb2  # type: ignore
@@ -1435,7 +1436,12 @@ class FeaturestoreServiceClient(metaclass=FeaturestoreServiceClientMeta):
                 -  ``description``
                 -  ``labels``
                 -  ``monitoring_config.snapshot_analysis.disabled``
-                -  ``monitoring_config.snapshot_analysis.monitoring_interval``
+                -  ``monitoring_config.snapshot_analysis.monitoring_interval_days``
+                -  ``monitoring_config.snapshot_analysis.staleness_days``
+                -  ``monitoring_config.import_features_analysis.state``
+                -  ``monitoring_config.import_features_analysis.anomaly_detection_baseline``
+                -  ``monitoring_config.numerical_threshold_config.value``
+                -  ``monitoring_config.categorical_threshold_config.value``
 
                 This corresponds to the ``update_mask`` field
                 on the ``request`` instance; if ``request`` is provided, this
@@ -2145,8 +2151,7 @@ class FeaturestoreServiceClient(metaclass=FeaturestoreServiceClientMeta):
 
                 -  ``description``
                 -  ``labels``
-                -  ``monitoring_config.snapshot_analysis.disabled``
-                -  ``monitoring_config.snapshot_analysis.monitoring_interval``
+                -  ``disable_monitoring``
 
                 This corresponds to the ``update_mask`` field
                 on the ``request`` instance; if ``request`` is provided, this

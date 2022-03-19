@@ -377,7 +377,7 @@ class TimeSeriesResourceManager(object):
 
         Returns:
             time_series (tensorboard_time_series.TensorboardTimeSeries):
-                A new or existing tensorboard_time_series.TensorbaordTimeSeries.
+                A new or existing tensorboard_time_series.TensorboardTimeSeries.
 
         Raises:
             exceptions.InvalidArgument:

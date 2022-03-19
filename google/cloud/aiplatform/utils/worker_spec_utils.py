@@ -186,7 +186,7 @@ class _DistributedTrainingSpec(NamedTuple):
         reduction_server_replica_count: int = 0,
         reduction_server_machine_type: str = None,
     ) -> "_DistributedTrainingSpec":
-        """Parameterizes Config to support only chief with worker replicas.
+        """Parametrizes Config to support only chief with worker replicas.
 
         For replica is assigned to chief and the remainder to workers. All spec have the
         same machine type, accelerator count, and accelerator type.

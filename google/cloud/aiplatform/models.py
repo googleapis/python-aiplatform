@@ -50,6 +50,8 @@ from google.cloud.aiplatform.compat.types import (
 
 from google.protobuf import field_mask_pb2, json_format
 
+_DEFAULT_MACHINE_TYPE = "n1-standard-2"
+
 _LOGGER = base.Logger(__name__)
 
 
@@ -798,7 +800,7 @@ class Endpoint(base.VertexAiResourceNounWithFutureManager):
         self._deploy_call(
             self.api_client,
             self.resource_name,
-            model.resource_name,
+            model,
             self._gca_resource.traffic_split,
             deployed_model_display_name=deployed_model_display_name,
             traffic_percentage=traffic_percentage,
@@ -823,7 +825,7 @@ class Endpoint(base.VertexAiResourceNounWithFutureManager):
         cls,
         api_client: endpoint_service_client.EndpointServiceClient,
         endpoint_resource_name: str,
-        model_resource_name: str,
+        model: "Model",
         endpoint_resource_traffic_split: Optional[proto.MapField] = None,
         deployed_model_display_name: Optional[str] = None,
         traffic_percentage: Optional[int] = 0,
@@ -845,8 +847,8 @@ class Endpoint(base.VertexAiResourceNounWithFutureManager):
                 Required. endpoint_service_client.EndpointServiceClient to make call.
             endpoint_resource_name (str):
                 Required. Endpoint resource name to deploy model to.
-            model_resource_name (str):
-                Required. Model resource name of Model to deploy.
+            model (aiplatform.Model):
+                Required. Model to be deployed.
             endpoint_resource_traffic_split (proto.MapField):
                 Optional. Endpoint current resource traffic split.
             deployed_model_display_name (str):
@@ -913,6 +915,7 @@ class Endpoint(base.VertexAiResourceNounWithFutureManager):
                 is not 0 or 100.
             ValueError: If only `explanation_metadata` or `explanation_parameters`
                 is specified.
+            ValueError: If model does not support deployment.
         """
 
         max_replica_count = max(min_replica_count, max_replica_count)
@@ -923,12 +926,40 @@ class Endpoint(base.VertexAiResourceNounWithFutureManager):
             )
 
         deployed_model = gca_endpoint_compat.DeployedModel(
-            model=model_resource_name,
+            model=model.resource_name,
             display_name=deployed_model_display_name,
             service_account=service_account,
         )
 
-        if machine_type:
+        supports_automatic_resources = (
+            aiplatform.gapic.Model.DeploymentResourcesType.AUTOMATIC_RESOURCES
+            in model.supported_deployment_resources_types
+        )
+        supports_dedicated_resources = (
+            aiplatform.gapic.Model.DeploymentResourcesType.DEDICATED_RESOURCES
+            in model.supported_deployment_resources_types
+        )
+        provided_custom_machine_spec = (
+            machine_type or accelerator_type or accelerator_count
+        )
+
+        # If the model supports both automatic and dedicated deployment resources,
+        # decide based on the presence of machine spec customizations
+        use_dedicated_resources = supports_dedicated_resources and (
+            not supports_automatic_resources or provided_custom_machine_spec
+        )
+
+        if provided_custom_machine_spec and not use_dedicated_resources:
+            _LOGGER.info(
+                "Model does not support dedicated deployment resources. "
+                "The machine_type, accelerator_type and accelerator_count parameters are ignored."
+            )
+
+        if use_dedicated_resources and not machine_type:
+            machine_type = _DEFAULT_MACHINE_TYPE
+            _LOGGER.info(f"Using default machine_type: {machine_type}")
+
+        if use_dedicated_resources:
             machine_spec = gca_machine_resources_compat.MachineSpec(
                 machine_type=machine_type
             )
@@ -944,10 +975,15 @@ class Endpoint(base.VertexAiResourceNounWithFutureManager):
                 max_replica_count=max_replica_count,
             )
 
-        else:
+        elif supports_automatic_resources:
             deployed_model.automatic_resources = gca_machine_resources_compat.AutomaticResources(
                 min_replica_count=min_replica_count,
                 max_replica_count=max_replica_count,
+            )
+        else:
+            raise ValueError(
+                "Model does not support deployment. "
+                "See https://cloud.google.com/vertex-ai/docs/reference/rpc/google.cloud.aiplatform.v1#google.cloud.aiplatform.v1.Model.FIELDS.repeated.google.cloud.aiplatform.v1.Model.DeploymentResourcesType.google.cloud.aiplatform.v1.Model.supported_deployment_resources_types"
             )
 
         # Service will throw error if both metadata and parameters are not provided
@@ -1539,6 +1575,8 @@ class Model(base.VertexAiResourceNounWithFutureManager):
             ValueError: If `labels` is not the correct format.
         """
 
+        self.wait()
+
         current_model_proto = self.gca_resource
         copied_model_proto = current_model_proto.__class__(current_model_proto)
 
@@ -2115,7 +2153,7 @@ class Model(base.VertexAiResourceNounWithFutureManager):
         Endpoint._deploy_call(
             endpoint.api_client,
             endpoint.resource_name,
-            self.resource_name,
+            self,
             endpoint._gca_resource.traffic_split,
             deployed_model_display_name=deployed_model_display_name,
             traffic_percentage=traffic_percentage,
@@ -2459,6 +2497,8 @@ class Model(base.VertexAiResourceNounWithFutureManager):
 
             ValueError: If invalid arguments or export formats are provided.
         """
+
+        self.wait()
 
         # Model does not support exporting
         if not self.supported_export_formats:

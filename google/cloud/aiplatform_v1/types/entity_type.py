@@ -15,6 +15,7 @@
 #
 import proto  # type: ignore
 
+from google.cloud.aiplatform_v1.types import featurestore_monitoring
 from google.protobuf import timestamp_pb2  # type: ignore
 
 
@@ -65,6 +66,16 @@ class EntityType(proto.Message):
             Optional. Used to perform a consistent
             read-modify-write updates. If not set, a blind
             "overwrite" update happens.
+        monitoring_config (google.cloud.aiplatform_v1.types.FeaturestoreMonitoringConfig):
+            Optional. The default monitoring configuration for all
+            Features with value type
+            ([Feature.ValueType][google.cloud.aiplatform.v1.Feature.ValueType])
+            BOOL, STRING, DOUBLE or INT64 under this EntityType.
+
+            If this is populated with
+            [FeaturestoreMonitoringConfig.monitoring_interval]
+            specified, snapshot analysis monitoring is enabled.
+            Otherwise, snapshot analysis monitoring is disabled.
     """
 
     name = proto.Field(proto.STRING, number=1,)
@@ -73,6 +84,11 @@ class EntityType(proto.Message):
     update_time = proto.Field(proto.MESSAGE, number=4, message=timestamp_pb2.Timestamp,)
     labels = proto.MapField(proto.STRING, proto.STRING, number=6,)
     etag = proto.Field(proto.STRING, number=7,)
+    monitoring_config = proto.Field(
+        proto.MESSAGE,
+        number=8,
+        message=featurestore_monitoring.FeaturestoreMonitoringConfig,
+    )
 
 
 __all__ = tuple(sorted(__protobuf__.manifest))

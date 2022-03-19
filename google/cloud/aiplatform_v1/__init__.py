@@ -93,6 +93,7 @@ from .types.deployed_model_ref import DeployedModelRef
 from .types.encryption_spec import EncryptionSpec
 from .types.endpoint import DeployedModel
 from .types.endpoint import Endpoint
+from .types.endpoint import PredictRequestResponseLoggingConfig
 from .types.endpoint import PrivateEndpoints
 from .types.endpoint_service import CreateEndpointOperationMetadata
 from .types.endpoint_service import CreateEndpointRequest
@@ -130,6 +131,7 @@ from .types.feature_monitoring_stats import FeatureStatsAnomaly
 from .types.feature_selector import FeatureSelector
 from .types.feature_selector import IdMatcher
 from .types.featurestore import Featurestore
+from .types.featurestore_monitoring import FeaturestoreMonitoringConfig
 from .types.featurestore_online_service import FeatureValue
 from .types.featurestore_online_service import FeatureValueList
 from .types.featurestore_online_service import ReadFeatureValuesRequest
@@ -671,6 +673,7 @@ __all__ = (
     "FeatureValueDestination",
     "FeatureValueList",
     "Featurestore",
+    "FeaturestoreMonitoringConfig",
     "FeaturestoreOnlineServingServiceClient",
     "FeaturestoreServiceClient",
     "FilterSplit",
@@ -831,6 +834,7 @@ __all__ = (
     "Port",
     "PredefinedSplit",
     "PredictRequest",
+    "PredictRequestResponseLoggingConfig",
     "PredictResponse",
     "PredictSchemata",
     "PredictionServiceClient",

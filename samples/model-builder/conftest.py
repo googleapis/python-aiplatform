@@ -368,7 +368,7 @@ def mock_endpoint_explain(mock_endpoint):
 
 """
 ----------------------------------------------------------------------------
-FeatureStore Fixtures
+Feature Store Fixtures
 ----------------------------------------------------------------------------
 """
 
@@ -399,6 +399,13 @@ def mock_get_featurestore(mock_featurestore):
 
 
 @pytest.fixture
+def mock_get_entity_type(mock_entity_type):
+    with patch.object(aiplatform.featurestore, "EntityType") as mock_get_entity_type:
+        mock_get_entity_type.return_value = mock_entity_type
+        yield mock_get_entity_type
+
+
+@pytest.fixture
 def mock_create_featurestore(mock_featurestore):
     with patch.object(
         aiplatform.featurestore.Featurestore, "create"
@@ -418,9 +425,7 @@ def mock_create_entity_type(mock_entity_type):
 
 @pytest.fixture
 def mock_create_feature(mock_feature):
-    with patch.object(
-        aiplatform.featurestore.Feature, "create"
-    ) as mock_create_feature:
+    with patch.object(aiplatform.featurestore.Feature, "create") as mock_create_feature:
         mock_create_feature.return_value = mock_feature
         yield mock_create_feature
 
@@ -429,3 +434,31 @@ def mock_create_feature(mock_feature):
 def mock_delete_featurestore(mock_featurestore):
     with patch.object(mock_featurestore, "delete") as mock_delete_featurestore:
         yield mock_delete_featurestore
+
+
+@pytest.fixture
+def mock_batch_serve_to_bq(mock_featurestore):
+    with patch.object(mock_featurestore, "batch_serve_to_bq") as mock_batch_serve_to_bq:
+        yield mock_batch_serve_to_bq
+
+
+@pytest.fixture
+def mock_batch_create_features(mock_entity_type):
+    with patch.object(
+        mock_entity_type, "batch_create_features"
+    ) as mock_batch_create_features:
+        yield mock_batch_create_features
+
+
+@pytest.fixture
+def mock_read_feature_values(mock_entity_type):
+    with patch.object(mock_entity_type, "read") as mock_read_feature_values:
+        yield mock_read_feature_values
+
+
+@pytest.fixture
+def mock_import_feature_values(mock_entity_type):
+    with patch.object(
+        mock_entity_type, "ingest_from_gcs"
+    ) as mock_import_feature_values:
+        yield mock_import_feature_values

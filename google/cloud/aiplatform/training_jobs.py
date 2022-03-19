@@ -66,7 +66,7 @@ _PIPELINE_COMPLETE_STATES = set(
 )
 
 
-class _TrainingJob(base.VertexAiResourceNounWithFutureManager):
+class _TrainingJob(base.VertexAiStatefulResource):
 
     client_class = utils.PipelineClientWithOverride
     _resource_noun = "trainingPipelines"
@@ -75,6 +75,9 @@ class _TrainingJob(base.VertexAiResourceNounWithFutureManager):
     _delete_method = "delete_training_pipeline"
     _parse_resource_name_method = "parse_training_pipeline_path"
     _format_resource_name_method = "training_pipeline_path"
+
+    # Required by the done() method
+    _valid_done_states = _PIPELINE_COMPLETE_STATES
 
     def __init__(
         self,
@@ -432,7 +435,7 @@ class _TrainingJob(base.VertexAiResourceNounWithFutureManager):
                 -  AIP_TEST_DATA_URI = "bigquery_destination.dataset_*.test"
         Raises:
             ValueError: When more than 1 type of split configuration is passed or when
-                the split configuartion passed is incompatible with the dataset schema.
+                the split configuration passed is incompatible with the dataset schema.
         """
 
         input_data_config = None
@@ -5808,7 +5811,7 @@ class AutoMLVideoTrainingJob(_TrainingJob):
                         multiple objects in shots and segments. You can use these
                         models to track objects in your videos according to your
                         own pre-defined, custom labels.
-                    "action_recognition" - A video action reconition model pinpoints
+                    "action_recognition" - A video action recognition model pinpoints
                         the location of actions with short temporal durations (~1 second).
             model_type: str = "CLOUD"
                 Required. One of the following:
@@ -5919,7 +5922,7 @@ class AutoMLVideoTrainingJob(_TrainingJob):
         model_labels: Optional[Dict[str, str]] = None,
         sync: bool = True,
     ) -> models.Model:
-        """Runs the AutoML Image training job and returns a model.
+        """Runs the AutoML Video training job and returns a model.
 
         If training on a Vertex AI dataset, you can use one of the following split configurations:
             Data fraction splits:
