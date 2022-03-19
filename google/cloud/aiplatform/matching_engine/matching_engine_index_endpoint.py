@@ -535,6 +535,8 @@ class MatchingEngineIndexEndpoint(base.VertexAiResourceNounWithFutureManager):
             MatchingEngineIndexEndpoint - IndexEndpoint resource object
         """
 
+        self.wait()
+
         _LOGGER.log_action_start_against_resource(
             "Deploying index", "index_endpoint", self,
         )
@@ -590,6 +592,8 @@ class MatchingEngineIndexEndpoint(base.VertexAiResourceNounWithFutureManager):
         Returns:
             MatchingEngineIndexEndpoint - IndexEndpoint resource object
         """
+
+        self.wait()
 
         _LOGGER.log_action_start_against_resource(
             "Undeploying index", "index_endpoint", self,
@@ -652,6 +656,8 @@ class MatchingEngineIndexEndpoint(base.VertexAiResourceNounWithFutureManager):
                 Optional. Strings which should be sent along with the request as metadata.
         """
 
+        self.wait()
+
         _LOGGER.log_action_start_against_resource(
             "Mutating index", "index_endpoint", self,
         )
@@ -691,6 +697,7 @@ class MatchingEngineIndexEndpoint(base.VertexAiResourceNounWithFutureManager):
         Returns:
             List[gca_matching_engine_index_endpoint.DeployedIndex] - Deployed indexes
         """
+        self._assert_gca_resource_is_available()
         return self._gca_resource.deployed_indexes
 
     @base.optional_sync()

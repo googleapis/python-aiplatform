@@ -48,9 +48,11 @@ from google.cloud.aiplatform_v1.types import entity_type
 from google.cloud.aiplatform_v1.types import entity_type as gca_entity_type
 from google.cloud.aiplatform_v1.types import feature
 from google.cloud.aiplatform_v1.types import feature as gca_feature
+from google.cloud.aiplatform_v1.types import feature_monitoring_stats
 from google.cloud.aiplatform_v1.types import feature_selector
 from google.cloud.aiplatform_v1.types import featurestore
 from google.cloud.aiplatform_v1.types import featurestore as gca_featurestore
+from google.cloud.aiplatform_v1.types import featurestore_monitoring
 from google.cloud.aiplatform_v1.types import featurestore_service
 from google.cloud.aiplatform_v1.types import io
 from google.cloud.aiplatform_v1.types import operation as gca_operation
@@ -3855,6 +3857,7 @@ def test_get_feature(request_type, transport: str = "grpc"):
             description="description_value",
             value_type=feature.Feature.ValueType.BOOL,
             etag="etag_value",
+            disable_monitoring=True,
         )
         response = client.get_feature(request)
 
@@ -3869,6 +3872,7 @@ def test_get_feature(request_type, transport: str = "grpc"):
     assert response.description == "description_value"
     assert response.value_type == feature.Feature.ValueType.BOOL
     assert response.etag == "etag_value"
+    assert response.disable_monitoring is True
 
 
 def test_get_feature_empty_call():
@@ -3907,6 +3911,7 @@ async def test_get_feature_async(
                 description="description_value",
                 value_type=feature.Feature.ValueType.BOOL,
                 etag="etag_value",
+                disable_monitoring=True,
             )
         )
         response = await client.get_feature(request)
@@ -3922,6 +3927,7 @@ async def test_get_feature_async(
     assert response.description == "description_value"
     assert response.value_type == feature.Feature.ValueType.BOOL
     assert response.etag == "etag_value"
+    assert response.disable_monitoring is True
 
 
 @pytest.mark.asyncio
@@ -4428,6 +4434,7 @@ def test_update_feature(request_type, transport: str = "grpc"):
             description="description_value",
             value_type=gca_feature.Feature.ValueType.BOOL,
             etag="etag_value",
+            disable_monitoring=True,
         )
         response = client.update_feature(request)
 
@@ -4442,6 +4449,7 @@ def test_update_feature(request_type, transport: str = "grpc"):
     assert response.description == "description_value"
     assert response.value_type == gca_feature.Feature.ValueType.BOOL
     assert response.etag == "etag_value"
+    assert response.disable_monitoring is True
 
 
 def test_update_feature_empty_call():
@@ -4481,6 +4489,7 @@ async def test_update_feature_async(
                 description="description_value",
                 value_type=gca_feature.Feature.ValueType.BOOL,
                 etag="etag_value",
+                disable_monitoring=True,
             )
         )
         response = await client.update_feature(request)
@@ -4496,6 +4505,7 @@ async def test_update_feature_async(
     assert response.description == "description_value"
     assert response.value_type == gca_feature.Feature.ValueType.BOOL
     assert response.etag == "etag_value"
+    assert response.disable_monitoring is True
 
 
 @pytest.mark.asyncio
