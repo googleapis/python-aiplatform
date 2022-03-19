@@ -1575,6 +1575,8 @@ class Model(base.VertexAiResourceNounWithFutureManager):
             ValueError: If `labels` is not the correct format.
         """
 
+        self.wait()
+
         current_model_proto = self.gca_resource
         copied_model_proto = current_model_proto.__class__(current_model_proto)
 
@@ -2495,6 +2497,8 @@ class Model(base.VertexAiResourceNounWithFutureManager):
 
             ValueError: If invalid arguments or export formats are provided.
         """
+
+        self.wait()
 
         # Model does not support exporting
         if not self.supported_export_formats:
