@@ -1167,7 +1167,12 @@ class Endpoint(base.VertexAiResourceNounWithFutureManager):
             prediction_client=True,
         )
 
-    def predict(self, instances: List, parameters: Optional[Dict] = None) -> Prediction:
+    def predict(
+        self,
+        instances: List,
+        parameters: Optional[Dict] = None,
+        timeout: Optional[float] = None,
+    ) -> Prediction:
         """Make a prediction against this Endpoint.
 
         Args:
@@ -1190,13 +1195,17 @@ class Endpoint(base.VertexAiResourceNounWithFutureManager):
                 ][google.cloud.aiplatform.v1beta1.DeployedModel.model]
                 [PredictSchemata's][google.cloud.aiplatform.v1beta1.Model.predict_schemata]
                 ``parameters_schema_uri``.
+            timeout (float): The timeout for this request in seconds.
         Returns:
             prediction: Prediction with returned predictions and Model Id.
         """
         self.wait()
 
         prediction_response = self._prediction_client.predict(
-            endpoint=self._gca_resource.name, instances=instances, parameters=parameters
+            endpoint=self._gca_resource.name,
+            instances=instances,
+            parameters=parameters,
+            timeout=timeout,
         )
 
         return Prediction(
@@ -1212,6 +1221,7 @@ class Endpoint(base.VertexAiResourceNounWithFutureManager):
         instances: List[Dict],
         parameters: Optional[Dict] = None,
         deployed_model_id: Optional[str] = None,
+        timeout: Optional[float] = None,
     ) -> Prediction:
         """Make a prediction with explanations against this Endpoint.
 
@@ -1242,6 +1252,7 @@ class Endpoint(base.VertexAiResourceNounWithFutureManager):
             deployed_model_id (str):
                 Optional. If specified, this ExplainRequest will be served by the
                 chosen DeployedModel, overriding this Endpoint's traffic split.
+            timeout (float): The timeout for this request in seconds.
         Returns:
             prediction: Prediction with returned predictions, explanations and Model Id.
         """
@@ -1252,6 +1263,7 @@ class Endpoint(base.VertexAiResourceNounWithFutureManager):
             instances=instances,
             parameters=parameters,
             deployed_model_id=deployed_model_id,
+            timeout=timeout,
         )
 
         return Prediction(
