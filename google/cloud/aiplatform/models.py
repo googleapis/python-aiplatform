@@ -1195,7 +1195,7 @@ class Endpoint(base.VertexAiResourceNounWithFutureManager):
                 ][google.cloud.aiplatform.v1beta1.DeployedModel.model]
                 [PredictSchemata's][google.cloud.aiplatform.v1beta1.Model.predict_schemata]
                 ``parameters_schema_uri``.
-            timeout (float): The timeout for this request in seconds.
+            timeout (float): Optional. The timeout for this request in seconds.
         Returns:
             prediction: Prediction with returned predictions and Model Id.
         """
@@ -1252,7 +1252,7 @@ class Endpoint(base.VertexAiResourceNounWithFutureManager):
             deployed_model_id (str):
                 Optional. If specified, this ExplainRequest will be served by the
                 chosen DeployedModel, overriding this Endpoint's traffic split.
-            timeout (float): The timeout for this request in seconds.
+            timeout (float): Optional. The timeout for this request in seconds.
         Returns:
             prediction: Prediction with returned predictions, explanations and Model Id.
         """
