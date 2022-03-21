@@ -174,6 +174,7 @@ class TestEndToEnd:
             endpoint=test_endpoints._TEST_ENDPOINT_NAME,
             instances=[[1.0, 2.0, 3.0], [1.0, 3.0, 4.0]],
             parameters={"param": 3.0},
+            timeout=None,
         )
 
         expected_dataset = gca_dataset.Dataset(
