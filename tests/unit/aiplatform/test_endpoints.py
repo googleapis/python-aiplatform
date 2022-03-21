@@ -1162,6 +1162,7 @@ class TestEndpoint:
             endpoint=_TEST_ENDPOINT_NAME,
             instances=_TEST_INSTANCES,
             parameters={"param": 3.0},
+            timeout=None,
         )
 
     def test_explain(self, get_endpoint_mock, predict_client_explain_mock):
@@ -1187,6 +1188,43 @@ class TestEndpoint:
             instances=_TEST_INSTANCES,
             parameters={"param": 3.0},
             deployed_model_id=_TEST_MODEL_ID,
+            timeout=None,
+        )
+
+    @pytest.mark.usefixtures("get_endpoint_mock")
+    def test_predict_with_timeout(self, predict_client_predict_mock):
+
+        test_endpoint = models.Endpoint(_TEST_ID)
+
+        test_endpoint.predict(
+            instances=_TEST_INSTANCES, parameters={"param": 3.0}, timeout=10.0
+        )
+
+        predict_client_predict_mock.assert_called_once_with(
+            endpoint=_TEST_ENDPOINT_NAME,
+            instances=_TEST_INSTANCES,
+            parameters={"param": 3.0},
+            timeout=10.0,
+        )
+
+    @pytest.mark.usefixtures("get_endpoint_mock")
+    def test_explain_with_timeout(self, predict_client_explain_mock):
+
+        test_endpoint = models.Endpoint(_TEST_ID)
+
+        test_endpoint.explain(
+            instances=_TEST_INSTANCES,
+            parameters={"param": 3.0},
+            deployed_model_id=_TEST_MODEL_ID,
+            timeout=10.0,
+        )
+
+        predict_client_explain_mock.assert_called_once_with(
+            endpoint=_TEST_ENDPOINT_NAME,
+            instances=_TEST_INSTANCES,
+            parameters={"param": 3.0},
+            deployed_model_id=_TEST_MODEL_ID,
+            timeout=10.0,
         )
 
     def test_list_models(self, get_endpoint_with_models_mock):
