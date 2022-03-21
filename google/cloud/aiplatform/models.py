@@ -2265,24 +2265,25 @@ class Model(base.VertexAiResourceNounWithFutureManager):
                 which as value has ```google.rpc.Status`` <Status>`__
                 containing only ``code`` and ``message`` fields.
             bigquery_destination_prefix: Optional[str] = None
-                The BigQuery project location where the output is to be
-                written to. In the given project a new dataset is created
-                with name
-                ``prediction_<model-display-name>_<job-create-time>`` where
-                is made BigQuery-dataset-name compatible (for example, most
-                special characters become underscores), and timestamp is in
-                YYYY_MM_DDThh_mm_ss_sssZ "based on ISO-8601" format. In the
-                dataset two tables will be created, ``predictions``, and
-                ``errors``. If the Model has both ``instance`` and ``prediction``
-                schemata defined then the tables have columns as follows:
-                The ``predictions`` table contains instances for which the
-                prediction succeeded, it has columns as per a concatenation
-                of the Model's instance and prediction schemata. The
-                ``errors`` table contains rows for which the prediction has
-                failed, it has instance columns, as per the instance schema,
-                followed by a single "errors" column, which as values has
-                ```google.rpc.Status`` <Status>`__ represented as a STRUCT,
-                and containing only ``code`` and ``message``.
+                The BigQuery URI to a project or table where the batch
+                prediction output is to be written. Acceptable formats
+                include `bq://project-id` or
+                `bq://project-id.bq-dataset-id.bq-table-id`. If only a project
+                URI is provided, in the given project a new dataset is created
+                with the name ``prediction_<model-display-name>_<job-create-time>``
+                where the table name is made BigQuery-dataset-name compatible
+                (for example, most special characters become underscores), and
+                timestamp is in YYYY_MM_DDThh_mm_ss_sssZ "based on ISO-8601"
+                format. In the dataset two tables will be created, ``predictions``,
+                and ``errors``. If the Model has both ``instance`` and
+                ``prediction`` schemata defined then the tables have columns as
+                follows: The ``predictions`` table contains instances for which
+                the prediction succeeded, it has columns as per a concatenation
+                of the Model's instance and prediction schemata. The ``errors``
+                table contains rows for which the prediction has failed, it has
+                instance columns, as per the instance schema, followed by a single
+                "errors" column, which as values has ```google.rpc.Status`` <Status>`__
+                represented as a STRUCT, and containing only ``code`` and ``message``.
             predictions_format: str = "jsonl"
                 Required. The format in which Vertex AI outputs the
                 predictions, must be one of the formats specified in
