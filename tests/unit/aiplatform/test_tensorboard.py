@@ -339,7 +339,9 @@ class TestTensorboard:
             project=_TEST_PROJECT, encryption_spec_key_name=_TEST_ENCRYPTION_KEY_NAME,
         )
 
-        tensorboard.Tensorboard.create(display_name=_TEST_DISPLAY_NAME,)
+        tensorboard.Tensorboard.create(
+            display_name=_TEST_DISPLAY_NAME, timeout=None,
+        )
 
         expected_tensorboard = gca_tensorboard.Tensorboard(
             display_name=_TEST_DISPLAY_NAME, encryption_spec=_TEST_ENCRYPTION_SPEC,
@@ -349,6 +351,7 @@ class TestTensorboard:
             parent=_TEST_PARENT,
             tensorboard=expected_tensorboard,
             metadata=_TEST_REQUEST_METADATA,
+            timeout=None,
         )
 
     @pytest.mark.usefixtures("get_tensorboard_mock")
@@ -359,6 +362,7 @@ class TestTensorboard:
         tensorboard.Tensorboard.create(
             display_name=_TEST_DISPLAY_NAME,
             encryption_spec_key_name=_TEST_ENCRYPTION_KEY_NAME,
+            timeout=None,
         )
 
         expected_tensorboard = gca_tensorboard.Tensorboard(
@@ -369,6 +373,29 @@ class TestTensorboard:
             parent=_TEST_PARENT,
             tensorboard=expected_tensorboard,
             metadata=_TEST_REQUEST_METADATA,
+            timeout=None,
+        )
+
+    @pytest.mark.usefixtures("get_tensorboard_mock")
+    def test_create_tensorboard_with_timeout(self, create_tensorboard_mock):
+
+        aiplatform.init(project=_TEST_PROJECT,)
+
+        tensorboard.Tensorboard.create(
+            display_name=_TEST_DISPLAY_NAME,
+            encryption_spec_key_name=_TEST_ENCRYPTION_KEY_NAME,
+            timeout=180.0,
+        )
+
+        expected_tensorboard = gca_tensorboard.Tensorboard(
+            display_name=_TEST_DISPLAY_NAME, encryption_spec=_TEST_ENCRYPTION_SPEC,
+        )
+
+        create_tensorboard_mock.assert_called_once_with(
+            parent=_TEST_PARENT,
+            tensorboard=expected_tensorboard,
+            metadata=_TEST_REQUEST_METADATA,
+            timeout=180.0,
         )
 
     @pytest.mark.usefixtures("get_tensorboard_mock")

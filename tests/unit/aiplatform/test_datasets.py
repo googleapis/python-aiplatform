@@ -17,6 +17,7 @@
 
 import os
 from socket import timeout
+from time import time
 
 import pytest
 
@@ -655,7 +656,7 @@ class TestDataset:
             parent=_TEST_PARENT,
             dataset=expected_dataset,
             metadata=_TEST_REQUEST_METADATA,
-            timeout=180.0
+            timeout=180.0,
         )
 
     @pytest.mark.usefixtures("get_dataset_mock")
@@ -706,7 +707,7 @@ class TestDataset:
             parent=_TEST_PARENT,
             dataset=expected_dataset,
             metadata=_TEST_REQUEST_METADATA,
-            timeout=180.0
+            timeout=180.0,
         )
 
     @pytest.mark.usefixtures("get_dataset_mock")
@@ -751,7 +752,7 @@ class TestDataset:
         )
 
         import_data_mock.assert_called_once_with(
-            name=_TEST_NAME, import_configs=[expected_import_config]
+            name=_TEST_NAME, import_configs=[expected_import_config], timeout=None,
         )
 
         expected_dataset.name = _TEST_NAME
@@ -768,6 +769,7 @@ class TestDataset:
             gcs_source=_TEST_SOURCE_URI_GCS,
             import_schema_uri=_TEST_IMPORT_SCHEMA_URI,
             data_item_labels=_TEST_DATA_LABEL_ITEMS,
+            timeout=None,
             sync=sync,
         )
 
@@ -781,7 +783,35 @@ class TestDataset:
         )
 
         import_data_mock.assert_called_once_with(
-            name=_TEST_NAME, import_configs=[expected_import_config]
+            name=_TEST_NAME, import_configs=[expected_import_config], timeout=None,
+        )
+
+    @pytest.mark.usefixtures("get_dataset_mock")
+    @pytest.mark.parametrize("sync", [True, False])
+    def test_import_data_with_timeout(self, import_data_mock, sync):
+        aiplatform.init(project=_TEST_PROJECT)
+
+        my_dataset = datasets._Dataset(dataset_name=_TEST_NAME)
+
+        my_dataset.import_data(
+            gcs_source=_TEST_SOURCE_URI_GCS,
+            import_schema_uri=_TEST_IMPORT_SCHEMA_URI,
+            data_item_labels=_TEST_DATA_LABEL_ITEMS,
+            timeout=180.0,
+            sync=sync,
+        )
+
+        if not sync:
+            my_dataset.wait()
+
+        expected_import_config = gca_dataset.ImportDataConfig(
+            gcs_source=gca_io.GcsSource(uris=[_TEST_SOURCE_URI_GCS]),
+            import_schema_uri=_TEST_IMPORT_SCHEMA_URI,
+            data_item_labels=_TEST_DATA_LABEL_ITEMS,
+        )
+
+        import_data_mock.assert_called_once_with(
+            name=_TEST_NAME, import_configs=[expected_import_config], timeout=180.0,
         )
 
     @pytest.mark.usefixtures("get_dataset_mock")
@@ -819,6 +849,7 @@ class TestDataset:
             gcs_source=_TEST_SOURCE_URI_GCS,
             import_schema_uri=_TEST_IMPORT_SCHEMA_URI,
             data_item_labels=_TEST_DATA_LABEL_ITEMS,
+            timeout=None,
             sync=sync,
         )
 
@@ -850,7 +881,7 @@ class TestDataset:
         )
 
         import_data_mock.assert_called_once_with(
-            name=_TEST_NAME, import_configs=[expected_import_config]
+            name=_TEST_NAME, import_configs=[expected_import_config], timeout=None,
         )
 
         expected_dataset.name = _TEST_NAME
@@ -957,7 +988,7 @@ class TestImageDataset:
             import_schema_uri=_TEST_IMPORT_SCHEMA_URI_IMAGE,
         )
         import_data_mock.assert_called_once_with(
-            name=_TEST_NAME, import_configs=[expected_import_config]
+            name=_TEST_NAME, import_configs=[expected_import_config], timeout=None,
         )
 
         expected_dataset.name = _TEST_NAME
@@ -973,6 +1004,7 @@ class TestImageDataset:
         my_dataset.import_data(
             gcs_source=[_TEST_SOURCE_URI_GCS],
             import_schema_uri=_TEST_IMPORT_SCHEMA_URI_IMAGE,
+            timeout=None,
             sync=sync,
         )
 
@@ -985,7 +1017,7 @@ class TestImageDataset:
         )
 
         import_data_mock.assert_called_once_with(
-            name=_TEST_NAME, import_configs=[expected_import_config]
+            name=_TEST_NAME, import_configs=[expected_import_config], timeout=None,
         )
 
     @pytest.mark.parametrize("sync", [True, False])
@@ -1005,6 +1037,7 @@ class TestImageDataset:
         my_dataset.import_data(
             gcs_source=[_TEST_SOURCE_URI_GCS],
             import_schema_uri=_TEST_IMPORT_SCHEMA_URI_IMAGE,
+            timeout=None,
             sync=sync,
         )
 
@@ -1034,7 +1067,7 @@ class TestImageDataset:
         )
 
         import_data_mock.assert_called_once_with(
-            name=_TEST_NAME, import_configs=[expected_import_config]
+            name=_TEST_NAME, import_configs=[expected_import_config], timeout=None,
         )
 
         expected_dataset.name = _TEST_NAME
@@ -1048,7 +1081,10 @@ class TestImageDataset:
         )
 
         my_dataset = datasets.ImageDataset.create(
-            display_name=_TEST_DISPLAY_NAME, labels=_TEST_LABELS, sync=sync, timeout=None,
+            display_name=_TEST_DISPLAY_NAME,
+            labels=_TEST_LABELS,
+            sync=sync,
+            timeout=None,
         )
 
         if not sync:
@@ -1102,7 +1138,10 @@ class TestTabularDataset:
         )
 
         my_dataset = datasets.TabularDataset.create(
-            display_name=_TEST_DISPLAY_NAME, bq_source=_TEST_SOURCE_URI_BQ, sync=sync, timeout=None,
+            display_name=_TEST_DISPLAY_NAME,
+            bq_source=_TEST_SOURCE_URI_BQ,
+            sync=sync,
+            timeout=None,
         )
 
         if not sync:
@@ -1412,7 +1451,7 @@ class TestTextDataset:
             import_schema_uri=_TEST_IMPORT_SCHEMA_URI_TEXT,
         )
         import_data_mock.assert_called_once_with(
-            name=_TEST_NAME, import_configs=[expected_import_config]
+            name=_TEST_NAME, import_configs=[expected_import_config], timeout=None,
         )
 
         expected_dataset.name = _TEST_NAME
@@ -1465,6 +1504,7 @@ class TestTextDataset:
         my_dataset.import_data(
             gcs_source=[_TEST_SOURCE_URI_GCS],
             import_schema_uri=_TEST_IMPORT_SCHEMA_URI_TEXT,
+            timeout=None,
             sync=sync,
         )
 
@@ -1477,7 +1517,7 @@ class TestTextDataset:
         )
 
         import_data_mock.assert_called_once_with(
-            name=_TEST_NAME, import_configs=[expected_import_config]
+            name=_TEST_NAME, import_configs=[expected_import_config], timeout=None,
         )
 
     @pytest.mark.parametrize("sync", [True, False])
@@ -1497,6 +1537,7 @@ class TestTextDataset:
         my_dataset.import_data(
             gcs_source=[_TEST_SOURCE_URI_GCS],
             import_schema_uri=_TEST_IMPORT_SCHEMA_URI_TEXT,
+            timeout=None,
             sync=sync,
         )
 
@@ -1526,7 +1567,7 @@ class TestTextDataset:
         )
 
         import_data_mock.assert_called_once_with(
-            name=_TEST_NAME, import_configs=[expected_import_config]
+            name=_TEST_NAME, import_configs=[expected_import_config], timeout=None,
         )
 
         expected_dataset.name = _TEST_NAME
@@ -1540,7 +1581,10 @@ class TestTextDataset:
         )
 
         my_dataset = datasets.TextDataset.create(
-            display_name=_TEST_DISPLAY_NAME, labels=_TEST_LABELS, sync=sync, timeout=None,
+            display_name=_TEST_DISPLAY_NAME,
+            labels=_TEST_LABELS,
+            sync=sync,
+            timeout=None,
         )
 
         if not sync:
@@ -1649,7 +1693,7 @@ class TestVideoDataset:
             import_schema_uri=_TEST_IMPORT_SCHEMA_URI_VIDEO,
         )
         import_data_mock.assert_called_once_with(
-            name=_TEST_NAME, import_configs=[expected_import_config]
+            name=_TEST_NAME, import_configs=[expected_import_config], timeout=None,
         )
 
         expected_dataset.name = _TEST_NAME
@@ -1665,6 +1709,7 @@ class TestVideoDataset:
         my_dataset.import_data(
             gcs_source=[_TEST_SOURCE_URI_GCS],
             import_schema_uri=_TEST_IMPORT_SCHEMA_URI_VIDEO,
+            timeout=None,
             sync=sync,
         )
 
@@ -1677,7 +1722,7 @@ class TestVideoDataset:
         )
 
         import_data_mock.assert_called_once_with(
-            name=_TEST_NAME, import_configs=[expected_import_config]
+            name=_TEST_NAME, import_configs=[expected_import_config], timeout=None,
         )
 
     @pytest.mark.parametrize("sync", [True, False])
@@ -1697,6 +1742,7 @@ class TestVideoDataset:
         my_dataset.import_data(
             gcs_source=[_TEST_SOURCE_URI_GCS],
             import_schema_uri=_TEST_IMPORT_SCHEMA_URI_VIDEO,
+            timeout=None,
             sync=sync,
         )
 
@@ -1726,7 +1772,7 @@ class TestVideoDataset:
         )
 
         import_data_mock.assert_called_once_with(
-            name=_TEST_NAME, import_configs=[expected_import_config]
+            name=_TEST_NAME, import_configs=[expected_import_config], timeout=None,
         )
 
         expected_dataset.name = _TEST_NAME
@@ -1740,7 +1786,10 @@ class TestVideoDataset:
         )
 
         my_dataset = datasets.VideoDataset.create(
-            display_name=_TEST_DISPLAY_NAME, labels=_TEST_LABELS, sync=sync, timeout=None,
+            display_name=_TEST_DISPLAY_NAME,
+            labels=_TEST_LABELS,
+            sync=sync,
+            timeout=None,
         )
 
         if not sync:

@@ -353,16 +353,16 @@ class _Dataset(base.VertexAiResourceNounWithFutureManager):
 
         # Import if import datasource is DatasourceImportable
         if isinstance(datasource, _datasources.DatasourceImportable):
-            dataset_obj._import_and_wait(datasource)
+            dataset_obj._import_and_wait(datasource, timeout=None)
 
         return dataset_obj
 
-    def _import_and_wait(self, datasource):
+    def _import_and_wait(self, datasource, timeout):
         _LOGGER.log_action_start_against_resource(
             "Importing", "data", self,
         )
 
-        import_lro = self._import(datasource=datasource)
+        import_lro = self._import(datasource=datasource, timeout=timeout)
 
         _LOGGER.log_action_started_against_resource_with_lro(
             "Import", "data", self.__class__, import_lro
@@ -383,7 +383,7 @@ class _Dataset(base.VertexAiResourceNounWithFutureManager):
         request_metadata: Sequence[Tuple[str, str]] = (),
         labels: Optional[Dict[str, str]] = None,
         encryption_spec: Optional[gca_encryption_spec.EncryptionSpec] = None,
-        timeout: Optional[float] =  None,
+        timeout: Optional[float] = None,
     ) -> operation.Operation:
         """Creates a new managed dataset by directly calling API client.
 
@@ -442,11 +442,16 @@ class _Dataset(base.VertexAiResourceNounWithFutureManager):
         )
 
         return api_client.create_dataset(
-            parent=parent, dataset=gapic_dataset, metadata=request_metadata, timeout=timeout,
+            parent=parent,
+            dataset=gapic_dataset,
+            metadata=request_metadata,
+            timeout=timeout,
         )
 
     def _import(
-        self, datasource: _datasources.DatasourceImportable,
+        self,
+        datasource: _datasources.DatasourceImportable,
+        timeout: Optional[float] = None,
     ) -> operation.Operation:
         """Imports data into managed dataset by directly calling API client.
 
@@ -459,7 +464,9 @@ class _Dataset(base.VertexAiResourceNounWithFutureManager):
                 An object representing a long-running operation.
         """
         return self.api_client.import_data(
-            name=self.resource_name, import_configs=[datasource.import_data_config]
+            name=self.resource_name,
+            import_configs=[datasource.import_data_config],
+            timeout=timeout,
         )
 
     @base.optional_sync(return_input_arg="self")
@@ -468,6 +475,7 @@ class _Dataset(base.VertexAiResourceNounWithFutureManager):
         gcs_source: Union[str, Sequence[str]],
         import_schema_uri: str,
         data_item_labels: Optional[Dict] = None,
+        timeout: Optional[float] = None,
         sync: bool = True,
     ) -> "_Dataset":
         """Upload data to existing managed dataset.
@@ -502,6 +510,8 @@ class _Dataset(base.VertexAiResourceNounWithFutureManager):
                 labels specified inside index file referenced by
                 ``import_schema_uri``,
                 e.g. jsonl file.
+            timeout (float):
+                Optional. The timeout for this request in seconds.
             sync (bool):
                 Whether to execute this method synchronously. If False, this method
                 will be executed in concurrent Future and any downstream object will
@@ -518,7 +528,7 @@ class _Dataset(base.VertexAiResourceNounWithFutureManager):
             data_item_labels=data_item_labels,
         )
 
-        self._import_and_wait(datasource=datasource)
+        self._import_and_wait(datasource=datasource, timeout=timeout)
         return self
 
     # TODO(b/174751568) add optional sync support

@@ -565,9 +565,7 @@ class TestModel:
         )
 
     @pytest.mark.parametrize("sync", [True, False])
-    def test_upload_with_timeout(
-        self, upload_model_mock, get_model_mock, sync
-    ):
+    def test_upload_with_timeout(self, upload_model_mock, get_model_mock, sync):
         my_model = models.Model.upload(
             display_name=_TEST_MODEL_NAME,
             serving_container_image_uri=_TEST_SERVING_CONTAINER_IMAGE,
@@ -583,14 +581,13 @@ class TestModel:
         )
 
         managed_model = gca_model.Model(
-            display_name=_TEST_MODEL_NAME, 
-            container_spec=container_spec,
+            display_name=_TEST_MODEL_NAME, container_spec=container_spec,
         )
 
         upload_model_mock.assert_called_once_with(
             parent=initializer.global_config.common_location_path(),
             model=managed_model,
-            timeout=180.0
+            timeout=180.0,
         )
 
     @pytest.mark.parametrize("sync", [True, False])
