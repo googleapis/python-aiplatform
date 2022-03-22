@@ -82,6 +82,7 @@ class TestEndToEndTabular(e2e_base.TestEndToEnd):
         ds = aiplatform.TabularDataset.create(
             display_name=self._make_display_name("dataset"),
             gcs_source=[dataset_gcs_source],
+            timeout=180.0,
             sync=False,
         )
 

@@ -31,7 +31,7 @@ class TestTensorboard(e2e_base.TestEndToEnd):
 
         display_name = self._make_display_name("tensorboard")
 
-        tb = aiplatform.Tensorboard.create(display_name=display_name)
+        tb = aiplatform.Tensorboard.create(display_name=display_name, timeout=180.0,)
 
         shared_state["resources"] = [tb]
 

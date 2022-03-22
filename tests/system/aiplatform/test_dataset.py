@@ -16,6 +16,7 @@
 #
 
 import os
+from socket import timeout
 import uuid
 import pytest
 import importlib
@@ -196,6 +197,7 @@ class TestDataset:
         my_dataset.import_data(
             gcs_source=_TEST_TEXT_ENTITY_EXTRACTION_GCS_SOURCE,
             import_schema_uri=_TEST_TEXT_ENTITY_IMPORT_SCHEMA,
+            timeout=180.0,
         )
 
         data_items_post_import = dataset_gapic_client.list_data_items(
