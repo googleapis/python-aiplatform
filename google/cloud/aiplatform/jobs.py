@@ -429,13 +429,13 @@ class BatchPredictionJob(_Job):
                 which as value has ```google.rpc.Status`` <Status>`__
                 containing only ``code`` and ``message`` fields.
             bigquery_destination_prefix (Optional[str]):
-                The BigQuery URI to a project or table where the batch
-                prediction output is to be written. Acceptable formats
-                include `bq://project-id` or
-                `bq://project-id.bq-dataset-id.bq-table-id`. If a full table URI is
-                specified, the dataset must exist and the table must not exist. If
-                only a project URI is provided, in the given project a new dataset
-                is created with the name
+                The BigQuery URI to a project or table, up to 2000 characters long.
+                When only the project is specified, the Dataset and Table is created.
+                When the full table reference is specified, the Dataset must exist and
+                table must not exist. Accepted forms: ``bq://projectId`` or
+                ``bq://projectId.bqDatasetId`` or
+                ``bq://projectId.bqDatasetId.bqTableId``. If no Dataset is specified, 
+                a new one is created with the name
                 ``prediction_<model-display-name>_<job-create-time>``
                 where the table name is made BigQuery-dataset-name compatible
                 (for example, most special characters become underscores), and
