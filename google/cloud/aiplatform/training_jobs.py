@@ -2406,9 +2406,9 @@ class CustomContainerTrainingJob(_CustomTrainingJob):
     ):
         """Constructs a Custom Container Training Job.
 
-        job = aiplatform.CustomTrainingJob(
+        job = aiplatform.CustomContainerTrainingJob(
             display_name='test-train',
-            container_uri='gcr.io/cloud-aiplatform/training/tf-cpu.2-2:latest',
+            container_uri='gcr.io/my_project_id/my_image_name:tag',
             command=['python3', 'run_script.py']
             model_serving_container_image_uri='gcr.io/my-trainer/serving:1',
             model_serving_container_predict_route='predict',
