@@ -118,6 +118,7 @@ class _Dataset(base.VertexAiResourceNounWithFutureManager):
         request_metadata: Optional[Sequence[Tuple[str, str]]] = (),
         labels: Optional[Dict[str, str]] = None,
         encryption_spec_key_name: Optional[str] = None,
+        timeout: Optional[float] = None,
         sync: bool = True,
     ) -> "_Dataset":
         """Creates a new dataset and optionally imports data into dataset when
@@ -199,6 +200,8 @@ class _Dataset(base.VertexAiResourceNounWithFutureManager):
                 If set, this Dataset and all sub-resources of this Dataset will be secured by this key.
 
                 Overrides encryption_spec_key_name set in aiplatform.init.
+            timeout (float):
+                Optional. The timeout for this request in seconds.
             sync (bool):
                 Whether to execute this method synchronously. If False, this method
                 will be executed in concurrent Future and any downstream object will
@@ -239,6 +242,7 @@ class _Dataset(base.VertexAiResourceNounWithFutureManager):
             encryption_spec=initializer.global_config.get_encryption_spec(
                 encryption_spec_key_name=encryption_spec_key_name
             ),
+            timeout=timeout,
             sync=sync,
         )
 
@@ -257,6 +261,7 @@ class _Dataset(base.VertexAiResourceNounWithFutureManager):
         request_metadata: Optional[Sequence[Tuple[str, str]]] = (),
         labels: Optional[Dict[str, str]] = None,
         encryption_spec: Optional[gca_encryption_spec.EncryptionSpec] = None,
+        timeout: Optional[float] = None,
         sync: bool = True,
     ) -> "_Dataset":
         """Creates a new dataset and optionally imports data into dataset when
@@ -309,6 +314,8 @@ class _Dataset(base.VertexAiResourceNounWithFutureManager):
                 resource is created.
 
                 If set, this Dataset and all sub-resources of this Dataset will be secured by this key.
+            timeout (float):
+                Optional. The timeout for this request in seconds.
             sync (bool):
                 Whether to execute this method synchronously. If False, this method
                 will be executed in concurrent Future and any downstream object will
@@ -328,6 +335,7 @@ class _Dataset(base.VertexAiResourceNounWithFutureManager):
             request_metadata=request_metadata,
             labels=labels,
             encryption_spec=encryption_spec,
+            timeout=timeout,
         )
 
         _LOGGER.log_create_with_lro(cls, create_dataset_lro)
@@ -375,6 +383,7 @@ class _Dataset(base.VertexAiResourceNounWithFutureManager):
         request_metadata: Sequence[Tuple[str, str]] = (),
         labels: Optional[Dict[str, str]] = None,
         encryption_spec: Optional[gca_encryption_spec.EncryptionSpec] = None,
+        timeout: Optional[float] =  None,
     ) -> operation.Operation:
         """Creates a new managed dataset by directly calling API client.
 
@@ -417,6 +426,8 @@ class _Dataset(base.VertexAiResourceNounWithFutureManager):
                 resource is created.
 
                 If set, this Dataset and all sub-resources of this Dataset will be secured by this key.
+            timeout (float):
+                Optional. The timeout for this request in seconds.
         Returns:
             operation (Operation):
                 An object representing a long-running operation.
@@ -431,7 +442,7 @@ class _Dataset(base.VertexAiResourceNounWithFutureManager):
         )
 
         return api_client.create_dataset(
-            parent=parent, dataset=gapic_dataset, metadata=request_metadata
+            parent=parent, dataset=gapic_dataset, metadata=request_metadata, timeout=timeout,
         )
 
     def _import(

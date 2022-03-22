@@ -46,6 +46,7 @@ class TextDataset(datasets._Dataset):
         request_metadata: Optional[Sequence[Tuple[str, str]]] = (),
         labels: Optional[Dict[str, str]] = None,
         encryption_spec_key_name: Optional[str] = None,
+        timeout: Optional[float] = None,
         sync: bool = True,
     ) -> "TextDataset":
         """Creates a new text dataset and optionally imports data into dataset
@@ -124,6 +125,8 @@ class TextDataset(datasets._Dataset):
                 If set, this Dataset and all sub-resources of this Dataset will be secured by this key.
 
                 Overrides encryption_spec_key_name set in aiplatform.init.
+            timeout (float):
+                Optional. The timeout for this request in seconds.
             sync (bool):
                 Whether to execute this method synchronously. If False, this method
                 will be executed in concurrent Future and any downstream object will
@@ -165,5 +168,6 @@ class TextDataset(datasets._Dataset):
             encryption_spec=initializer.global_config.get_encryption_spec(
                 encryption_spec_key_name=encryption_spec_key_name
             ),
+            timeout=timeout,
             sync=sync,
         )
