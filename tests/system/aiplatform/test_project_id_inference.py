@@ -18,8 +18,16 @@
 import pytest
 
 from google.cloud import aiplatform
-from google.cloud.aiplatform.compat.types import pipeline_state as gca_pipeline_state
+from google.cloud.aiplatform.compat.types import job_state as gca_job_state
 from tests.system.aiplatform import e2e_base
+
+_SCRIPT = """
+from google.cloud import aiplatform
+# Not initializing the Vertex SDK explicitly
+# Checking the project ID
+print(aiplatform.initializer.global_config.project)
+assert not aiplatform.initializer.global_config.project.endswith("-tp")
+"""
 
 
 @pytest.mark.usefixtures("prepare_staging_bucket", "delete_staging_bucket")
@@ -38,28 +46,19 @@ class TestProjectIDInference(e2e_base.TestEndToEnd):
 
         worker_pool_specs = [
             {
-                "machine_spec": {"machine_type": "n1-standard-2"},
+                "machine_spec": {"machine_type": "n1-standard-4"},
                 "replica_count": 1,
                 "container_spec": {
                     "image_uri": "python:3.9",
                     "command": [
                         "sh",
                         "-exc",
-                        """python3 -m pip install git+https://github.com/Ark-kun/python-aiplatform@fix--Fixed-getitng-project-ID-when-running-on-Vertex-AI#egg=google-cloud-aiplatform&subdirectory=.
+                        """python3 -m pip install git+https://github.com/googleapis/python-aiplatform@main
                             "$0" "$@"
                             """,
                         "python3",
                         "-c",
-                        """
-                            from google.cloud import aiplatform
-                            # Not initializing the Vertex SDK explicitly
-                            # Checking teh project ID
-                            print(aiplatform.initializer.global_config.project)
-                            assert not aiplatform.initializer.global_config.project.endswith("-tp")
-                            # Testing ability to list resources
-                            endpoints = aiplatform.Endpoint.list()
-                            print(endpoints)
-                            """,
+                        _SCRIPT,
                     ],
                     "args": [],
                 },
@@ -70,22 +69,8 @@ class TestProjectIDInference(e2e_base.TestEndToEnd):
             display_name=self._make_display_name("custom"),
             worker_pool_specs=worker_pool_specs,
         )
-        custom_job.run(
-            enable_web_access=True, sync=False,
-        )
+        custom_job.run()
 
         shared_state["resources"].append(custom_job)
 
-        in_progress_done_check = custom_job.done()
-        custom_job.wait_for_resource_creation()
-
-        completion_done_check = custom_job.done()
-
-        assert (
-            custom_job.state
-            == gca_pipeline_state.PipelineState.PIPELINE_STATE_SUCCEEDED
-        )
-
-        # Check done() method works correctly
-        assert in_progress_done_check is False
-        assert completion_done_check is True
+        assert custom_job.state == gca_job_state.JobState.JOB_STATE_SUCCEEDED
