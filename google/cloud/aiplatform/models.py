@@ -1646,6 +1646,7 @@ class Model(base.VertexAiResourceNounWithFutureManager):
         labels: Optional[Dict[str, str]] = None,
         encryption_spec_key_name: Optional[str] = None,
         staging_bucket: Optional[str] = None,
+        timeout: Optional[float] = None,
         sync=True,
     ) -> "Model":
         """Uploads a model and returns a Model representing the uploaded Model
@@ -1792,6 +1793,8 @@ class Model(base.VertexAiResourceNounWithFutureManager):
             staging_bucket (str):
                 Optional. Bucket to stage local model artifacts. Overrides
                 staging_bucket set in aiplatform.init.
+            timeout (float):
+                Optional. The timeout for this request in seconds.
         Returns:
             model: Instantiated representation of the uploaded model resource.
         Raises:
@@ -1898,6 +1901,7 @@ class Model(base.VertexAiResourceNounWithFutureManager):
         lro = api_client.upload_model(
             parent=initializer.global_config.common_location_path(project, location),
             model=managed_model,
+            timeout=timeout,
         )
 
         _LOGGER.log_create_with_lro(cls, lro)
