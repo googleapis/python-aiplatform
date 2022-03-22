@@ -1673,6 +1673,9 @@ class PrivateEndpoint(Endpoint):
 
         prediction_response = json.loads(response.data)
 
+        # remove this line, just testing
+        print(prediction_response)
+
         return Prediction(
             predictions=prediction_response.get("predictions"),
             deployed_model_id=prediction_response.get("deployedModelId"),
