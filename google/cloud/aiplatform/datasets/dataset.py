@@ -356,7 +356,7 @@ class _Dataset(base.VertexAiResourceNounWithFutureManager):
         )
 
         # Import if import datasource is DatasourceImportable
-        # import_request_timeout is None since user is issuing a single request with create and import 
+        # import_request_timeout is None since user is issuing a single request with create and import
         if isinstance(datasource, _datasources.DatasourceImportable):
             dataset_obj._import_and_wait(datasource, import_request_timeout=None)
 
@@ -367,7 +367,9 @@ class _Dataset(base.VertexAiResourceNounWithFutureManager):
             "Importing", "data", self,
         )
 
-        import_lro = self._import(datasource=datasource, import_request_timeout=import_request_timeout)
+        import_lro = self._import(
+            datasource=datasource, import_request_timeout=import_request_timeout
+        )
 
         _LOGGER.log_action_started_against_resource_with_lro(
             "Import", "data", self.__class__, import_lro
@@ -537,7 +539,9 @@ class _Dataset(base.VertexAiResourceNounWithFutureManager):
             data_item_labels=data_item_labels,
         )
 
-        self._import_and_wait(datasource=datasource, import_request_timeout=import_request_timeout)
+        self._import_and_wait(
+            datasource=datasource, import_request_timeout=import_request_timeout
+        )
         return self
 
     # TODO(b/174751568) add optional sync support
