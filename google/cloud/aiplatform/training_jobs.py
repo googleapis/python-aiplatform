@@ -16,10 +16,12 @@
 #
 
 import datetime
+from socket import timeout
 import time
 from typing import Dict, List, Optional, Sequence, Tuple, Union
 
 import abc
+from venv import create
 
 from google.auth import credentials as auth_credentials
 from google.cloud.aiplatform import base
@@ -568,6 +570,7 @@ class _TrainingJob(base.VertexAiStatefulResource):
         model: Optional[gca_model.Model] = None,
         gcs_destination_uri_prefix: Optional[str] = None,
         bigquery_destination: Optional[str] = None,
+        create_request_timeout: Optional[float] = None,
     ) -> Optional[models.Model]:
         """Runs the training job.
 
@@ -713,6 +716,10 @@ class _TrainingJob(base.VertexAiStatefulResource):
                 -  AIP_TRAINING_DATA_URI ="bigquery_destination.dataset_*.training"
                 -  AIP_VALIDATION_DATA_URI = "bigquery_destination.dataset_*.validation"
                 -  AIP_TEST_DATA_URI = "bigquery_destination.dataset_*.test"
+            create_request_timeout (float):
+                Optional. The timeout for initiating this request in seconds. Note: 
+                this does not set the timeout on the underlying training job, only on 
+                the time to initiate the request.
         """
 
         input_data_config = self._create_input_data_config(
@@ -746,6 +753,7 @@ class _TrainingJob(base.VertexAiStatefulResource):
                 self.project, self.location
             ),
             training_pipeline=training_pipeline,
+            timeout=create_request_timeout,
         )
 
         self._gca_resource = training_pipeline
@@ -1818,6 +1826,7 @@ class CustomTrainingJob(_CustomTrainingJob):
         restart_job_on_worker_restart: bool = False,
         enable_web_access: bool = False,
         tensorboard: Optional[str] = None,
+        create_request_timeout: Optional[float] = None,
         sync=True,
     ) -> Optional[models.Model]:
         """Runs the custom training job.
@@ -2062,6 +2071,10 @@ class CustomTrainingJob(_CustomTrainingJob):
                 `service_account` is required with provided `tensorboard`.
                 For more information on configuring your service account please visit:
                 https://cloud.google.com/vertex-ai/docs/experiments/tensorboard-training
+            create_request_timeout (float):
+                Optional. The timeout for initiating this request in seconds. Note: 
+                this does not set the timeout on the underlying training job, only on 
+                the time to initiate the request.
             sync (bool):
                 Whether to execute this method synchronously. If False, this method
                 will be executed in concurrent Future and any downstream object will
@@ -2116,6 +2129,7 @@ class CustomTrainingJob(_CustomTrainingJob):
             reduction_server_container_uri=reduction_server_container_uri
             if reduction_server_replica_count > 0
             else None,
+            create_request_timeout=create_request_timeout,
             sync=sync,
         )
 
@@ -2153,6 +2167,7 @@ class CustomTrainingJob(_CustomTrainingJob):
         enable_web_access: bool = False,
         tensorboard: Optional[str] = None,
         reduction_server_container_uri: Optional[str] = None,
+        create_request_timeout: Optional[float] = None,
         sync=True,
     ) -> Optional[models.Model]:
         """Packages local script and launches training_job.
@@ -2298,6 +2313,10 @@ class CustomTrainingJob(_CustomTrainingJob):
                 https://cloud.google.com/vertex-ai/docs/experiments/tensorboard-training
             reduction_server_container_uri (str):
                 Optional. The Uri of the reduction server container image.
+            create_request_timeout (float)
+                Optional. The timeout for initiating this request in seconds. Note: 
+                this does not set the timeout on the underlying training job, only on the 
+                time to initiate the request.
             sync (bool):
                 Whether to execute this method synchronously. If False, this method
                 will be executed in concurrent Future and any downstream object will
@@ -2371,6 +2390,7 @@ class CustomTrainingJob(_CustomTrainingJob):
             model=managed_model,
             gcs_destination_uri_prefix=base_output_dir,
             bigquery_destination=bigquery_destination,
+            create_request_timeout=create_request_timeout,
         )
 
         return model
@@ -2403,6 +2423,7 @@ class CustomContainerTrainingJob(_CustomTrainingJob):
         training_encryption_spec_key_name: Optional[str] = None,
         model_encryption_spec_key_name: Optional[str] = None,
         staging_bucket: Optional[str] = None,
+        create_request_timeout: Optional[float] = None,
     ):
         """Constructs a Custom Container Training Job.
 
@@ -2578,6 +2599,10 @@ class CustomContainerTrainingJob(_CustomTrainingJob):
             staging_bucket (str):
                 Bucket used to stage source and training artifacts. Overrides
                 staging_bucket set in aiplatform.init.
+            create_request_timeout (float):
+                Optional. The timeout for initiating this request in seconds. Note: 
+                this does not set the timeout on the underlying training job, only on 
+                the time to initiate the request.
         """
         super().__init__(
             display_name=display_name,
@@ -2644,6 +2669,7 @@ class CustomContainerTrainingJob(_CustomTrainingJob):
         restart_job_on_worker_restart: bool = False,
         enable_web_access: bool = False,
         tensorboard: Optional[str] = None,
+        create_request_timeout: Optional[float] = None,
         sync=True,
     ) -> Optional[models.Model]:
         """Runs the custom training job.
@@ -2881,6 +2907,10 @@ class CustomContainerTrainingJob(_CustomTrainingJob):
                 `service_account` is required with provided `tensorboard`.
                 For more information on configuring your service account please visit:
                 https://cloud.google.com/vertex-ai/docs/experiments/tensorboard-training
+            create_request_timeout (float):
+                Optional. The timeout for initiating this request in seconds. Note: 
+                this does not set the timeout on the underlying training job, only on 
+                the time to initiate the request.
             sync (bool):
                 Whether to execute this method synchronously. If False, this method
                 will be executed in concurrent Future and any downstream object will
@@ -2934,6 +2964,7 @@ class CustomContainerTrainingJob(_CustomTrainingJob):
             reduction_server_container_uri=reduction_server_container_uri
             if reduction_server_replica_count > 0
             else None,
+            create_request_timeout=create_request_timeout,
             sync=sync,
         )
 
@@ -2970,6 +3001,7 @@ class CustomContainerTrainingJob(_CustomTrainingJob):
         enable_web_access: bool = False,
         tensorboard: Optional[str] = None,
         reduction_server_container_uri: Optional[str] = None,
+        create_request_timeout: Optional[float] = None,
         sync=True,
     ) -> Optional[models.Model]:
         """Packages local script and launches training_job.
@@ -3111,6 +3143,10 @@ class CustomContainerTrainingJob(_CustomTrainingJob):
                 https://cloud.google.com/vertex-ai/docs/experiments/tensorboard-training
             reduction_server_container_uri (str):
                 Optional. The Uri of the reduction server container image.
+            create_request_timeout (float):
+                Optional. The timeout for initiating this request in seconds. Note: 
+                this does not set the timeout on the underlying training job, only on 
+                the time to initiate the request.
             sync (bool):
                 Whether to execute this method synchronously. If False, this method
                 will be executed in concurrent Future and any downstream object will
@@ -3178,6 +3214,7 @@ class CustomContainerTrainingJob(_CustomTrainingJob):
             model=managed_model,
             gcs_destination_uri_prefix=base_output_dir,
             bigquery_destination=bigquery_destination,
+            create_request_timeout=create_request_timeout,
         )
 
         return model
@@ -3565,6 +3602,7 @@ class AutoMLTabularTrainingJob(_TrainingJob):
         export_evaluated_data_items: bool = False,
         export_evaluated_data_items_bigquery_destination_uri: Optional[str] = None,
         export_evaluated_data_items_override_destination: bool = False,
+        create_request_timeout: Optional[float] = None,
         sync: bool = True,
     ) -> models.Model:
         """Runs the training job and returns a model.
@@ -3691,6 +3729,10 @@ class AutoMLTabularTrainingJob(_TrainingJob):
 
                 Applies only if [export_evaluated_data_items] is True and
                 [export_evaluated_data_items_bigquery_destination_uri] is specified.
+            create_request_timeout (float):
+                Optional. The timeout for initiating this request in seconds. Note: 
+                this does not set the timeout on the underlying training job, only on 
+                the time to initiate the request.
             sync (bool):
                 Whether to execute this method synchronously. If False, this method
                 will be executed in concurrent Future and any downstream object will
@@ -3768,6 +3810,7 @@ class AutoMLTabularTrainingJob(_TrainingJob):
             predefined_split_column_name=predefined_split_column_name,
             timestamp_split_column_name=timestamp_split_column_name,
             model=model,
+            create_request_timeout=create_request_timeout,
         )
 
     @property
@@ -3971,6 +4014,7 @@ class AutoMLForecastingTrainingJob(_TrainingJob):
         model_display_name: Optional[str] = None,
         model_labels: Optional[Dict[str, str]] = None,
         additional_experiments: Optional[List[str]] = None,
+        create_request_timeout: Optional[float] = None,
         sync: bool = True,
     ) -> models.Model:
         """Runs the training job and returns a model.
@@ -4119,6 +4163,10 @@ class AutoMLForecastingTrainingJob(_TrainingJob):
                 and examples of labels.
             additional_experiments (List[str]):
                 Optional. Additional experiment flags for the time series forcasting training.
+            create_request_timeout (float):
+                Optional. The timeout for initiating this request in seconds. Note: 
+                this does not set the timeout on the underlying training job, only on 
+                the time to initiate the request.
             sync (bool):
                 Whether to execute this method synchronously. If False, this method
                 will be executed in concurrent Future and any downstream object will
@@ -4172,6 +4220,7 @@ class AutoMLForecastingTrainingJob(_TrainingJob):
             validation_options=validation_options,
             model_display_name=model_display_name,
             model_labels=model_labels,
+            create_request_timeout=create_request_timeout,
             sync=sync,
         )
 
@@ -4202,6 +4251,7 @@ class AutoMLForecastingTrainingJob(_TrainingJob):
         budget_milli_node_hours: int = 1000,
         model_display_name: Optional[str] = None,
         model_labels: Optional[Dict[str, str]] = None,
+        create_request_timeout: Optional[float] = None,
         sync: bool = True,
     ) -> models.Model:
         """Runs the training job and returns a model.
@@ -4356,6 +4406,10 @@ class AutoMLForecastingTrainingJob(_TrainingJob):
                 are allowed.
                 See https://goo.gl/xmQnxf for more information
                 and examples of labels.
+            create_request_timeout (float):
+                Optional. The timeout for initiating this request in seconds. Note: 
+                this does not set the timeout on the underlying training job, only on 
+                the time to initiate the request.
             sync (bool):
                 Whether to execute this method synchronously. If False, this method
                 will be executed in concurrent Future and any downstream object will
@@ -4438,6 +4492,7 @@ class AutoMLForecastingTrainingJob(_TrainingJob):
             test_fraction_split=test_fraction_split,
             predefined_split_column_name=predefined_split_column_name,
             timestamp_split_column_name=None,  # Not supported by AutoMLForecasting
+            create_request_timeout=create_request_timeout,
             model=model,
         )
 
@@ -4814,6 +4869,7 @@ class AutoMLImageTrainingJob(_TrainingJob):
         model_display_name: Optional[str] = None,
         model_labels: Optional[Dict[str, str]] = None,
         disable_early_stopping: bool = False,
+        create_request_timeout: Optional[float] = None,
         sync: bool = True,
     ) -> models.Model:
         """Runs the training job and returns a model.
@@ -4916,6 +4972,10 @@ class AutoMLImageTrainingJob(_TrainingJob):
                 that training might stop before the entire training budget has been
                 used, if further training does no longer brings significant improvement
                 to the model.
+            create_request_timeout (float):
+                Optional. The timeout for initiating this request in seconds. Note: 
+                this does not set the timeout on the underlying training job, only on 
+                the time to initiate the request.
             sync (bool):
                 Whether to execute this method synchronously. If False, this method
                 will be executed in concurrent Future and any downstream object will
@@ -4968,6 +5028,7 @@ class AutoMLImageTrainingJob(_TrainingJob):
             validation_filter_split=validation_filter_split,
             test_filter_split=test_filter_split,
             model=model_tbt,
+            create_request_timeout=create_request_timeout,
         )
 
     @property
@@ -5257,6 +5318,7 @@ class CustomPythonPackageTrainingJob(_CustomTrainingJob):
         restart_job_on_worker_restart: bool = False,
         enable_web_access: bool = False,
         tensorboard: Optional[str] = None,
+        create_request_timeout: Optional[float] = None,
         sync=True,
     ) -> Optional[models.Model]:
         """Runs the custom training job.
@@ -5494,6 +5556,10 @@ class CustomPythonPackageTrainingJob(_CustomTrainingJob):
                 `service_account` is required with provided `tensorboard`.
                 For more information on configuring your service account please visit:
                 https://cloud.google.com/vertex-ai/docs/experiments/tensorboard-training
+            create_request_timeout (float):
+                Optional. The timeout for initiating this request in seconds. Note: 
+                this does not set the timeout on the underlying training job, only on 
+                the time to initiate the request.
             sync (bool):
                 Whether to execute this method synchronously. If False, this method
                 will be executed in concurrent Future and any downstream object will
@@ -5542,6 +5608,7 @@ class CustomPythonPackageTrainingJob(_CustomTrainingJob):
             reduction_server_container_uri=reduction_server_container_uri
             if reduction_server_replica_count > 0
             else None,
+            create_request_timeout=create_request_timeout,
             sync=sync,
         )
 
@@ -5578,6 +5645,7 @@ class CustomPythonPackageTrainingJob(_CustomTrainingJob):
         enable_web_access: bool = False,
         tensorboard: Optional[str] = None,
         reduction_server_container_uri: Optional[str] = None,
+        create_request_timeout: Optional[float] = None,
         sync=True,
     ) -> Optional[models.Model]:
         """Packages local script and launches training_job.
@@ -5706,6 +5774,10 @@ class CustomPythonPackageTrainingJob(_CustomTrainingJob):
                 https://cloud.google.com/vertex-ai/docs/experiments/tensorboard-training
             reduction_server_container_uri (str):
                 Optional. The Uri of the reduction server container image.
+            create_request_timeout (float):
+                Optional. The timeout for initiating this request in seconds. Note: 
+                this does not set the timeout on the underlying training job, only on 
+                the time to initiate the request.
             sync (bool):
                 Whether to execute this method synchronously. If False, this method
                 will be executed in concurrent Future and any downstream object will
@@ -5773,6 +5845,7 @@ class CustomPythonPackageTrainingJob(_CustomTrainingJob):
             model=managed_model,
             gcs_destination_uri_prefix=base_output_dir,
             bigquery_destination=bigquery_destination,
+            create_request_timeout=create_request_timeout,
         )
 
         return model
@@ -6028,6 +6101,7 @@ class AutoMLVideoTrainingJob(_TrainingJob):
         test_filter_split: Optional[str] = None,
         model_display_name: Optional[str] = None,
         model_labels: Optional[Dict[str, str]] = None,
+        create_request_timeout: Optional[float] = None,
         sync: bool = True,
     ) -> models.Model:
         """Runs the training job and returns a model.
@@ -6094,6 +6168,10 @@ class AutoMLVideoTrainingJob(_TrainingJob):
                 are allowed.
                 See https://goo.gl/xmQnxf for more information
                 and examples of labels.
+            create_request_timeout (float):
+                Optional. The timeout for initiating this request in seconds. Note: 
+                this does not set the timeout on the underlying training job, only on 
+                the time to initiate the request.
             sync (bool):
                 Whether to execute this method synchronously. If False, this method
                 will be executed in concurrent Future and any downstream object will
@@ -6135,6 +6213,7 @@ class AutoMLVideoTrainingJob(_TrainingJob):
             validation_filter_split=validation_filter_split,
             test_filter_split=test_filter_split,
             model=model_tbt,
+            create_request_timeout=create_request_timeout,
         )
 
     @property
@@ -6419,6 +6498,7 @@ class AutoMLTextTrainingJob(_TrainingJob):
         test_filter_split: Optional[str] = None,
         model_display_name: Optional[str] = None,
         model_labels: Optional[Dict[str, str]] = None,
+        create_request_timeout: Optional[float] = None,
         sync: bool = True,
     ) -> models.Model:
         """Runs the training job and returns a model.
@@ -6497,6 +6577,10 @@ class AutoMLTextTrainingJob(_TrainingJob):
                 are allowed.
                 See https://goo.gl/xmQnxf for more information
                 and examples of labels.
+            create_request_timeout (float):
+                Optional. The timeout for initiating this request in seconds. Note: 
+                this does not set the timeout on the underlying training job, only on 
+                the time to initiate the request.
             sync (bool):
                 Whether to execute this method synchronously. If False, this method
                 will be executed in concurrent Future and any downstream object will
@@ -6524,6 +6608,7 @@ class AutoMLTextTrainingJob(_TrainingJob):
             validation_filter_split=validation_filter_split,
             test_filter_split=test_filter_split,
             model=model,
+            create_request_timeout=create_request_timeout,
         )
 
     @property
