@@ -1,4 +1,4 @@
-# Vertex AI Prediction: User guide for Custom Prediction Routine
+# Vertex AI Prediction: User guide for Custom Prediction Routines
 
 **This is an Experimental release**, covered by the Pre-GA Offerings Terms of your Google Cloud Platform [Terms of Service](https://cloud.google.com/terms).
 
@@ -11,7 +11,7 @@ Experiments are focused on validating a prototype and are not guaranteed to be r
 
 ## Introduction
 
-On Vertex AI Prediction, users are able to deploy models with either [Prediction’s pre-built containers](https://cloud.google.com/vertex-ai/docs/predictions/pre-built-containers) or [custom containers](https://cloud.google.com/vertex-ai/docs/predictions/use-custom-container). Pre-built containers handle prediction requests by performing the prediction operation of the machine learning framework. If users want to preprocess the prediction input before prediction is performed, or postprocess the model's prediction before sending the prediction result, then they have to build a custom container, which requires knowledge of model servers, Docker etc. To make building custom containers with pre and/or post processing significantly easier for our users, Vertex AI Prediction is launching Custom Prediction Routines (CPR) with Vertex SDK integration, which allows users to easily build custom containers with their own custom Predictor and locally test the built images through SDK.
+On Vertex AI Prediction, users are able to deploy models with either [Prediction’s pre-built containers](https://cloud.google.com/vertex-ai/docs/predictions/pre-built-containers) or [custom containers](https://cloud.google.com/vertex-ai/docs/predictions/use-custom-container). Pre-built containers handle prediction requests by performing the prediction operation of the machine learning framework. If users want to preprocess the prediction input before prediction is performed, or postprocess the model's prediction before returning the prediction result, then they have to build a custom container, which requires knowledge of model servers, Docker etc. To make building custom containers with pre and/or post processing significantly easier for our users, Vertex AI Prediction is launching Custom Prediction Routines (CPR) with Vertex SDK integration, which allows users to easily build custom containers with their own custom Predictor and locally test the built images through SDK.
 
 This is currently an **experimental feature** and not yet officially supported by the Vertex AI SDK. In this tutorial, we'll be installing the Vertex AI SDK from an experimental branch on github.
 
