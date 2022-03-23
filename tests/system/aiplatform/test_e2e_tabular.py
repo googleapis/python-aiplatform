@@ -164,13 +164,14 @@ class TestEndToEndTabular(e2e_base.TestEndToEnd):
             is True
         )
 
-        custom_prediction = custom_endpoint.predict([_INSTANCE])
+        custom_prediction = custom_endpoint.predict([_INSTANCE], timeout=180.0)
 
         custom_batch_prediction_job.wait()
 
         automl_endpoint.wait()
         automl_prediction = automl_endpoint.predict(
-            [{k: str(v) for k, v in _INSTANCE.items()}]  # Cast int values to strings
+            [{k: str(v) for k, v in _INSTANCE.items()}],  # Cast int values to strings
+            timeout=180.0,
         )
 
         # Test lazy loading of Endpoint, check getter was never called after predict()
