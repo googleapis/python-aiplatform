@@ -15,6 +15,7 @@
 # limitations under the License.
 #
 import pathlib
+from socket import timeout
 import proto
 import re
 import shutil
@@ -839,6 +840,7 @@ class Endpoint(base.VertexAiResourceNounWithFutureManager):
         explanation_metadata: Optional[explain.ExplanationMetadata] = None,
         explanation_parameters: Optional[explain.ExplanationParameters] = None,
         metadata: Optional[Sequence[Tuple[str, str]]] = (),
+        deploy_request_timeout: Optional[float] = None,
     ):
         """Helper method to deploy model to endpoint.
 
@@ -906,6 +908,10 @@ class Endpoint(base.VertexAiResourceNounWithFutureManager):
             metadata (Sequence[Tuple[str, str]]):
                 Optional. Strings which should be sent along with the request as
                 metadata.
+            deploy_request_timeout (float):
+                Optional. The timeout for initiating this deploy request in seconds. Note: 
+                this does not set the timeout on the underlying deploy job, only on the time 
+                to initiate the deploy request.
             sync (bool):
                 Whether to execute this method synchronously. If False, this method
                 will be executed in concurrent Future and any downstream object will
@@ -1015,6 +1021,7 @@ class Endpoint(base.VertexAiResourceNounWithFutureManager):
             deployed_model=deployed_model,
             traffic_split=traffic_split,
             metadata=metadata,
+            timeout=deploy_request_timeout,
         )
 
         _LOGGER.log_action_started_against_resource_with_lro(
@@ -1933,6 +1940,7 @@ class Model(base.VertexAiResourceNounWithFutureManager):
         explanation_parameters: Optional[explain.ExplanationParameters] = None,
         metadata: Optional[Sequence[Tuple[str, str]]] = (),
         encryption_spec_key_name: Optional[str] = None,
+        deploy_request_timeout: Optional[float] = None,
         sync=True,
     ) -> Endpoint:
         """Deploys model to endpoint. Endpoint will be created if unspecified.
@@ -2012,6 +2020,10 @@ class Model(base.VertexAiResourceNounWithFutureManager):
                 If set, this Model and all sub-resources of this Model will be secured by this key.
 
                 Overrides encryption_spec_key_name set in aiplatform.init
+            deploy_request_timeout (float):
+                Optional. The timeout for initiating this deploy request in seconds. Note: 
+                this does not set the timeout on the underlying deploy job, only on the time 
+                to initiate the deploy request.
             sync (bool):
                 Whether to execute this method synchronously. If False, this method
                 will be executed in concurrent Future and any downstream object will
@@ -2048,6 +2060,7 @@ class Model(base.VertexAiResourceNounWithFutureManager):
             metadata=metadata,
             encryption_spec_key_name=encryption_spec_key_name
             or initializer.global_config.encryption_spec_key_name,
+            deploy_request_timeout=deploy_request_timeout,
             sync=sync,
         )
 
@@ -2068,6 +2081,7 @@ class Model(base.VertexAiResourceNounWithFutureManager):
         explanation_parameters: Optional[explain.ExplanationParameters] = None,
         metadata: Optional[Sequence[Tuple[str, str]]] = (),
         encryption_spec_key_name: Optional[str] = None,
+        deploy_request_timeout: Optional[float] = None,
         sync: bool = True,
     ) -> Endpoint:
         """Deploys model to endpoint. Endpoint will be created if unspecified.
@@ -2147,6 +2161,10 @@ class Model(base.VertexAiResourceNounWithFutureManager):
                 If set, this Model and all sub-resources of this Model will be secured by this key.
 
                 Overrides encryption_spec_key_name set in aiplatform.init
+            deploy_request_timeout (float):
+                Optional. The timeout for initiating this deploy request in seconds. Note: 
+                this does not set the timeout on the underlying deploy job, only on the time 
+                to initiate the deploy request.
             sync (bool):
                 Whether to execute this method synchronously. If False, this method
                 will be executed in concurrent Future and any downstream object will
@@ -2184,6 +2202,7 @@ class Model(base.VertexAiResourceNounWithFutureManager):
             service_account=service_account,
             explanation_metadata=explanation_metadata,
             explanation_parameters=explanation_parameters,
+            deploy_request_timeout=deploy_request_timeout,
             metadata=metadata,
         )
 

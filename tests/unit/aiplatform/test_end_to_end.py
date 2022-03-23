@@ -200,7 +200,7 @@ class TestEndToEnd:
         )
 
         import_data_mock.assert_called_once_with(
-            name=test_datasets._TEST_NAME, 
+            name=test_datasets._TEST_NAME,
             import_configs=[expected_import_config],
             timeout=None,
         )
