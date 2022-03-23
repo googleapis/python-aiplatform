@@ -579,7 +579,7 @@ class TestDataset:
             display_name=_TEST_DISPLAY_NAME,
             metadata_schema_uri=_TEST_METADATA_SCHEMA_URI_NONTABULAR,
             sync=sync,
-            timeout=None,
+            create_request_timeout=None,
         )
 
         if not sync:
@@ -608,7 +608,7 @@ class TestDataset:
             display_name=_TEST_DISPLAY_NAME,
             metadata_schema_uri=_TEST_METADATA_SCHEMA_URI_NONTABULAR,
             encryption_spec_key_name=_TEST_ENCRYPTION_KEY_NAME,
-            timeout=None,
+            create_request_timeout=None,
             sync=sync,
         )
 
@@ -638,7 +638,7 @@ class TestDataset:
             display_name=_TEST_DISPLAY_NAME,
             metadata_schema_uri=_TEST_METADATA_SCHEMA_URI_NONTABULAR,
             encryption_spec_key_name=_TEST_ENCRYPTION_KEY_NAME,
-            timeout=180.0,
+            create_request_timeout=180.0,
             sync=sync,
         )
 
@@ -668,7 +668,7 @@ class TestDataset:
             metadata_schema_uri=_TEST_METADATA_SCHEMA_URI_TABULAR,
             bq_source=_TEST_SOURCE_URI_BQ,
             encryption_spec_key_name=_TEST_ENCRYPTION_KEY_NAME,
-            timeout=None,
+            create_request_timeout=None,
         )
 
         expected_dataset = gca_dataset.Dataset(
@@ -693,7 +693,7 @@ class TestDataset:
             display_name=_TEST_DISPLAY_NAME,
             metadata_schema_uri=_TEST_METADATA_SCHEMA_URI_NONTABULAR,
             encryption_spec_key_name=_TEST_ENCRYPTION_KEY_NAME,
-            timeout=180.0,
+            create_request_timeout=180.0,
         )
 
         expected_dataset = gca_dataset.Dataset(
@@ -724,7 +724,7 @@ class TestDataset:
             import_schema_uri=_TEST_IMPORT_SCHEMA_URI,
             data_item_labels=_TEST_DATA_LABEL_ITEMS,
             encryption_spec_key_name=_TEST_ENCRYPTION_KEY_NAME,
-            timeout=None,
+            create_request_timeout=None,
             sync=sync,
         )
 
@@ -769,7 +769,7 @@ class TestDataset:
             gcs_source=_TEST_SOURCE_URI_GCS,
             import_schema_uri=_TEST_IMPORT_SCHEMA_URI,
             data_item_labels=_TEST_DATA_LABEL_ITEMS,
-            timeout=None,
+            import_request_timeout=None,
             sync=sync,
         )
 
@@ -797,7 +797,7 @@ class TestDataset:
             gcs_source=_TEST_SOURCE_URI_GCS,
             import_schema_uri=_TEST_IMPORT_SCHEMA_URI,
             data_item_labels=_TEST_DATA_LABEL_ITEMS,
-            timeout=180.0,
+            import_request_timeout=180.0,
             sync=sync,
         )
 
@@ -841,7 +841,7 @@ class TestDataset:
             display_name=_TEST_DISPLAY_NAME,
             metadata_schema_uri=_TEST_METADATA_SCHEMA_URI_NONTABULAR,
             encryption_spec_key_name=_TEST_ENCRYPTION_KEY_NAME,
-            timeout=None,
+            create_request_timeout=None,
             sync=sync,
         )
 
@@ -849,7 +849,7 @@ class TestDataset:
             gcs_source=_TEST_SOURCE_URI_GCS,
             import_schema_uri=_TEST_IMPORT_SCHEMA_URI,
             data_item_labels=_TEST_DATA_LABEL_ITEMS,
-            timeout=None,
+            import_request_timeout=None,
             sync=sync,
         )
 
@@ -930,7 +930,7 @@ class TestImageDataset:
         )
 
         my_dataset = datasets.ImageDataset.create(
-            display_name=_TEST_DISPLAY_NAME, sync=sync, timeout=None,
+            display_name=_TEST_DISPLAY_NAME, sync=sync, create_request_timeout=None,
         )
 
         if not sync:
@@ -962,7 +962,7 @@ class TestImageDataset:
             gcs_source=[_TEST_SOURCE_URI_GCS],
             import_schema_uri=_TEST_IMPORT_SCHEMA_URI_IMAGE,
             encryption_spec_key_name=_TEST_ENCRYPTION_KEY_NAME,
-            timeout=None,
+            create_request_timeout=None,
             sync=sync,
         )
 
@@ -1004,7 +1004,7 @@ class TestImageDataset:
         my_dataset.import_data(
             gcs_source=[_TEST_SOURCE_URI_GCS],
             import_schema_uri=_TEST_IMPORT_SCHEMA_URI_IMAGE,
-            timeout=None,
+            import_request_timeout=None,
             sync=sync,
         )
 
@@ -1030,14 +1030,14 @@ class TestImageDataset:
         my_dataset = datasets.ImageDataset.create(
             display_name=_TEST_DISPLAY_NAME,
             encryption_spec_key_name=_TEST_ENCRYPTION_KEY_NAME,
-            timeout=None,
+            create_request_timeout=None,
             sync=sync,
         )
 
         my_dataset.import_data(
             gcs_source=[_TEST_SOURCE_URI_GCS],
             import_schema_uri=_TEST_IMPORT_SCHEMA_URI_IMAGE,
-            timeout=None,
+            import_request_timeout=None,
             sync=sync,
         )
 
@@ -1084,7 +1084,7 @@ class TestImageDataset:
             display_name=_TEST_DISPLAY_NAME,
             labels=_TEST_LABELS,
             sync=sync,
-            timeout=None,
+            create_request_timeout=None,
         )
 
         if not sync:
@@ -1141,7 +1141,7 @@ class TestTabularDataset:
             display_name=_TEST_DISPLAY_NAME,
             bq_source=_TEST_SOURCE_URI_BQ,
             sync=sync,
-            timeout=None,
+            create_request_timeout=None,
         )
 
         if not sync:
@@ -1197,7 +1197,7 @@ class TestTabularDataset:
             display_name=_TEST_DISPLAY_NAME,
             bq_source=_TEST_SOURCE_URI_BQ,
             encryption_spec_key_name=_TEST_ENCRYPTION_KEY_NAME,
-            timeout=None,
+            create_request_timeout=None,
             sync=sync,
         )
 
@@ -1341,7 +1341,7 @@ class TestTabularDataset:
             bq_source=_TEST_SOURCE_URI_BQ,
             labels=_TEST_LABELS,
             encryption_spec_key_name=_TEST_ENCRYPTION_KEY_NAME,
-            timeout=None,
+            create_request_timeout=None,
             sync=sync,
         )
 
@@ -1393,7 +1393,7 @@ class TestTextDataset:
         )
 
         my_dataset = datasets.TextDataset.create(
-            display_name=_TEST_DISPLAY_NAME, sync=sync, timeout=None,
+            display_name=_TEST_DISPLAY_NAME, sync=sync, create_request_timeout=None,
         )
 
         if not sync:
@@ -1425,7 +1425,7 @@ class TestTextDataset:
             gcs_source=[_TEST_SOURCE_URI_GCS],
             import_schema_uri=_TEST_IMPORT_SCHEMA_URI_TEXT,
             encryption_spec_key_name=_TEST_ENCRYPTION_KEY_NAME,
-            timeout=None,
+            create_request_timeout=None,
             sync=sync,
         )
 
@@ -1504,7 +1504,7 @@ class TestTextDataset:
         my_dataset.import_data(
             gcs_source=[_TEST_SOURCE_URI_GCS],
             import_schema_uri=_TEST_IMPORT_SCHEMA_URI_TEXT,
-            timeout=None,
+            import_request_timeout=None,
             sync=sync,
         )
 
@@ -1530,14 +1530,14 @@ class TestTextDataset:
         my_dataset = datasets.TextDataset.create(
             display_name=_TEST_DISPLAY_NAME,
             encryption_spec_key_name=_TEST_ENCRYPTION_KEY_NAME,
-            timeout=None,
+            create_request_timeout=None,
             sync=sync,
         )
 
         my_dataset.import_data(
             gcs_source=[_TEST_SOURCE_URI_GCS],
             import_schema_uri=_TEST_IMPORT_SCHEMA_URI_TEXT,
-            timeout=None,
+            import_request_timeout=None,
             sync=sync,
         )
 
@@ -1584,7 +1584,7 @@ class TestTextDataset:
             display_name=_TEST_DISPLAY_NAME,
             labels=_TEST_LABELS,
             sync=sync,
-            timeout=None,
+            create_request_timeout=None,
         )
 
         if not sync:
@@ -1635,7 +1635,7 @@ class TestVideoDataset:
         )
 
         my_dataset = datasets.VideoDataset.create(
-            display_name=_TEST_DISPLAY_NAME, sync=sync, timeout=None,
+            display_name=_TEST_DISPLAY_NAME, sync=sync, create_request_timeout=None,
         )
 
         if not sync:
@@ -1667,7 +1667,7 @@ class TestVideoDataset:
             gcs_source=[_TEST_SOURCE_URI_GCS],
             import_schema_uri=_TEST_IMPORT_SCHEMA_URI_VIDEO,
             encryption_spec_key_name=_TEST_ENCRYPTION_KEY_NAME,
-            timeout=None,
+            create_request_timeout=None,
             sync=sync,
         )
 
@@ -1709,7 +1709,7 @@ class TestVideoDataset:
         my_dataset.import_data(
             gcs_source=[_TEST_SOURCE_URI_GCS],
             import_schema_uri=_TEST_IMPORT_SCHEMA_URI_VIDEO,
-            timeout=None,
+            import_request_timeout=None,
             sync=sync,
         )
 
@@ -1735,14 +1735,14 @@ class TestVideoDataset:
         my_dataset = datasets.VideoDataset.create(
             display_name=_TEST_DISPLAY_NAME,
             encryption_spec_key_name=_TEST_ENCRYPTION_KEY_NAME,
-            timeout=None,
+            create_request_timeout=None,
             sync=sync,
         )
 
         my_dataset.import_data(
             gcs_source=[_TEST_SOURCE_URI_GCS],
             import_schema_uri=_TEST_IMPORT_SCHEMA_URI_VIDEO,
-            timeout=None,
+            import_request_timeout=None,
             sync=sync,
         )
 
@@ -1789,7 +1789,7 @@ class TestVideoDataset:
             display_name=_TEST_DISPLAY_NAME,
             labels=_TEST_LABELS,
             sync=sync,
-            timeout=None,
+            create_request_timeout=None,
         )
 
         if not sync:

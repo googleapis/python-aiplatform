@@ -90,7 +90,7 @@ class Tensorboard(_TensorboardServiceResource):
         credentials: Optional[auth_credentials.Credentials] = None,
         request_metadata: Optional[Sequence[Tuple[str, str]]] = (),
         encryption_spec_key_name: Optional[str] = None,
-        timeout: Optional[float] = None,
+        create_request_timeout: Optional[float] = None,
     ) -> "Tensorboard":
         """Creates a new tensorboard.
 
@@ -144,8 +144,10 @@ class Tensorboard(_TensorboardServiceResource):
                 If set, this Tensorboard and all sub-resources of this Tensorboard will be secured by this key.
 
                 Overrides encryption_spec_key_name set in aiplatform.init.
-            timeout (float):
-                Optional. The timeout for this request in seconds.
+            create_request_timeout (float):
+                Optional. The timeout for initiating this create request in seconds. Note: 
+                this does not set the timeout on the underlying create job, only on the time 
+                to initiate the create request.
 
         Returns:
             tensorboard (Tensorboard):
@@ -177,7 +179,7 @@ class Tensorboard(_TensorboardServiceResource):
             parent=parent,
             tensorboard=gapic_tensorboard,
             metadata=request_metadata,
-            timeout=timeout,
+            timeout=create_request_timeout,
         )
 
         _LOGGER.log_create_with_lro(cls, create_tensorboard_lro)

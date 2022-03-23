@@ -102,6 +102,7 @@ class TestEndToEnd:
         my_dataset = aiplatform.ImageDataset.create(
             display_name=test_datasets._TEST_DISPLAY_NAME,
             encryption_spec_key_name=_TEST_ENCRYPTION_KEY_NAME,
+            create_request_timeout=None,
             sync=sync,
         )
 
@@ -109,6 +110,7 @@ class TestEndToEnd:
             gcs_source=test_datasets._TEST_SOURCE_URI_GCS,
             import_schema_uri=test_datasets._TEST_IMPORT_SCHEMA_URI,
             data_item_labels=test_datasets._TEST_DATA_LABEL_ITEMS,
+            import_request_timeout=None,
             sync=sync,
         )
 
@@ -194,10 +196,13 @@ class TestEndToEnd:
             parent=test_datasets._TEST_PARENT,
             dataset=expected_dataset,
             metadata=test_datasets._TEST_REQUEST_METADATA,
+            timeout=None,
         )
 
         import_data_mock.assert_called_once_with(
-            name=test_datasets._TEST_NAME, import_configs=[expected_import_config]
+            name=test_datasets._TEST_NAME, 
+            import_configs=[expected_import_config],
+            timeout=None,
         )
 
         expected_dataset.name = test_datasets._TEST_NAME

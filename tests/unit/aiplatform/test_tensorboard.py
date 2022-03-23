@@ -340,7 +340,7 @@ class TestTensorboard:
         )
 
         tensorboard.Tensorboard.create(
-            display_name=_TEST_DISPLAY_NAME, timeout=None,
+            display_name=_TEST_DISPLAY_NAME, create_request_timeout=None,
         )
 
         expected_tensorboard = gca_tensorboard.Tensorboard(
@@ -362,7 +362,7 @@ class TestTensorboard:
         tensorboard.Tensorboard.create(
             display_name=_TEST_DISPLAY_NAME,
             encryption_spec_key_name=_TEST_ENCRYPTION_KEY_NAME,
-            timeout=None,
+            create_request_timeout=None,
         )
 
         expected_tensorboard = gca_tensorboard.Tensorboard(
@@ -384,7 +384,7 @@ class TestTensorboard:
         tensorboard.Tensorboard.create(
             display_name=_TEST_DISPLAY_NAME,
             encryption_spec_key_name=_TEST_ENCRYPTION_KEY_NAME,
-            timeout=180.0,
+            create_request_timeout=180.0,
         )
 
         expected_tensorboard = gca_tensorboard.Tensorboard(

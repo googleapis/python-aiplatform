@@ -1646,7 +1646,7 @@ class Model(base.VertexAiResourceNounWithFutureManager):
         labels: Optional[Dict[str, str]] = None,
         encryption_spec_key_name: Optional[str] = None,
         staging_bucket: Optional[str] = None,
-        timeout: Optional[float] = None,
+        upload_request_timeout: Optional[float] = None,
         sync=True,
     ) -> "Model":
         """Uploads a model and returns a Model representing the uploaded Model
@@ -1793,8 +1793,10 @@ class Model(base.VertexAiResourceNounWithFutureManager):
             staging_bucket (str):
                 Optional. Bucket to stage local model artifacts. Overrides
                 staging_bucket set in aiplatform.init.
-            timeout (float):
-                Optional. The timeout for this request in seconds.
+            upload_request_timeout (float):
+                Optional. The timeout for initiating this upload request in seconds. Note: 
+                this does not set the timeout on the underlying upload job, only on the time 
+                to initiate the upload request.
         Returns:
             model: Instantiated representation of the uploaded model resource.
         Raises:
@@ -1901,7 +1903,7 @@ class Model(base.VertexAiResourceNounWithFutureManager):
         lro = api_client.upload_model(
             parent=initializer.global_config.common_location_path(project, location),
             model=managed_model,
-            timeout=timeout,
+            timeout=upload_request_timeout,
         )
 
         _LOGGER.log_create_with_lro(cls, lro)
@@ -2604,6 +2606,7 @@ class Model(base.VertexAiResourceNounWithFutureManager):
         labels: Optional[Dict[str, str]] = None,
         encryption_spec_key_name: Optional[str] = None,
         staging_bucket: Optional[str] = None,
+        upload_request_timeout: Optional[float] = None,
         sync=True,
     ) -> "Model":
         """Uploads a model and returns a Model representing the uploaded Model
@@ -2714,6 +2717,10 @@ class Model(base.VertexAiResourceNounWithFutureManager):
             staging_bucket (str):
                 Optional. Bucket to stage local model artifacts. Overrides
                 staging_bucket set in aiplatform.init.
+            upload_request_timeout (float):
+                Optional. The timeout for initiating this upload request in seconds. Note: 
+                this does not set the timeout on the underlying upload job, only on the time 
+                to initiate the upload request.
         Returns:
             model: Instantiated representation of the uploaded model resource.
         Raises:
@@ -2777,6 +2784,7 @@ class Model(base.VertexAiResourceNounWithFutureManager):
                 labels=labels,
                 encryption_spec_key_name=encryption_spec_key_name,
                 staging_bucket=staging_bucket,
+                upload_request_timeout=upload_request_timeout,
                 sync=True,
             )
 
@@ -2799,6 +2807,7 @@ class Model(base.VertexAiResourceNounWithFutureManager):
         labels: Optional[Dict[str, str]] = None,
         encryption_spec_key_name: Optional[str] = None,
         staging_bucket: Optional[str] = None,
+        upload_request_timeout: Optional[float] = None,
         sync=True,
     ) -> "Model":
         """Uploads a model and returns a Model representing the uploaded Model
@@ -2910,6 +2919,10 @@ class Model(base.VertexAiResourceNounWithFutureManager):
             staging_bucket (str):
                 Optional. Bucket to stage local model artifacts. Overrides
                 staging_bucket set in aiplatform.init.
+            upload_request_timeout (float):
+                Optional. The timeout for initiating this upload request in seconds. Note: 
+                this does not set the timeout on the underlying upload job, only on the time 
+                to initiate the upload request.
         Returns:
             model: Instantiated representation of the uploaded model resource.
         Raises:
@@ -2972,6 +2985,7 @@ class Model(base.VertexAiResourceNounWithFutureManager):
                 labels=labels,
                 encryption_spec_key_name=encryption_spec_key_name,
                 staging_bucket=staging_bucket,
+                upload_request_timeout=upload_request_timeout,
                 sync=True,
             )
 
@@ -2994,6 +3008,7 @@ class Model(base.VertexAiResourceNounWithFutureManager):
         labels: Optional[Dict[str, str]] = None,
         encryption_spec_key_name: Optional[str] = None,
         staging_bucket: Optional[str] = None,
+        upload_request_timeout: Optional[str] = None,
         sync=True,
     ) -> "Model":
         """Uploads a model and returns a Model representing the uploaded Model
@@ -3107,6 +3122,10 @@ class Model(base.VertexAiResourceNounWithFutureManager):
             staging_bucket (str):
                 Optional. Bucket to stage local model artifacts. Overrides
                 staging_bucket set in aiplatform.init.
+            upload_request_timeout (float):
+                Optional. The timeout for initiating this upload request in seconds. Note: 
+                this does not set the timeout on the underlying upload job, only on the time 
+                to initiate the upload request.
         Returns:
             model: Instantiated representation of the uploaded model resource.
         Raises:
@@ -3137,5 +3156,6 @@ class Model(base.VertexAiResourceNounWithFutureManager):
             labels=labels,
             encryption_spec_key_name=encryption_spec_key_name,
             staging_bucket=staging_bucket,
+            upload_request_timeout=upload_request_timeout,
             sync=sync,
         )

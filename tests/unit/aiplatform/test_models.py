@@ -537,7 +537,7 @@ class TestModel:
             serving_container_image_uri=_TEST_SERVING_CONTAINER_IMAGE,
             serving_container_predict_route=_TEST_SERVING_CONTAINER_PREDICTION_ROUTE,
             serving_container_health_route=_TEST_SERVING_CONTAINER_HEALTH_ROUTE,
-            timeout=None,
+            upload_request_timeout=None,
             sync=sync,
         )
 
@@ -569,7 +569,7 @@ class TestModel:
         my_model = models.Model.upload(
             display_name=_TEST_MODEL_NAME,
             serving_container_image_uri=_TEST_SERVING_CONTAINER_IMAGE,
-            timeout=180.0,
+            upload_request_timeout=180.0,
             sync=sync,
         )
 
@@ -601,7 +601,7 @@ class TestModel:
             serving_container_predict_route=_TEST_SERVING_CONTAINER_PREDICTION_ROUTE,
             serving_container_health_route=_TEST_SERVING_CONTAINER_HEALTH_ROUTE,
             labels=_TEST_LABEL,
-            timeout=None,
+            upload_request_timeout=None,
             sync=sync,
         )
 
@@ -665,7 +665,7 @@ class TestModel:
             explanation_metadata=_TEST_EXPLANATION_METADATA,
             explanation_parameters=_TEST_EXPLANATION_PARAMETERS,
             labels=_TEST_LABEL,
-            timeout=None,
+            upload_request_timeout=None,
             sync=sync,
         )
 
@@ -738,7 +738,7 @@ class TestModel:
             serving_container_predict_route=_TEST_SERVING_CONTAINER_PREDICTION_ROUTE,
             serving_container_health_route=_TEST_SERVING_CONTAINER_HEALTH_ROUTE,
             project=_TEST_PROJECT_2,
-            timeout=None,
+            upload_request_timeout=None,
             sync=sync,
         )
 
@@ -827,7 +827,7 @@ class TestModel:
             serving_container_predict_route=_TEST_SERVING_CONTAINER_PREDICTION_ROUTE,
             serving_container_health_route=_TEST_SERVING_CONTAINER_HEALTH_ROUTE,
             location=_TEST_LOCATION_2,
-            timeout=None,
+            upload_request_timeout=None,
             sync=sync,
         )
 
@@ -1549,6 +1549,7 @@ class TestModel:
             display_name=_TEST_MODEL_NAME,
             project=_TEST_PROJECT,
             location=_TEST_LOCATION,
+            upload_request_timeout=None,
             sync=sync,
         )
 
@@ -1658,6 +1659,7 @@ class TestModel:
             display_name=_TEST_MODEL_NAME,
             project=_TEST_PROJECT,
             location=_TEST_LOCATION,
+            upload_request_timeout=None,
             sync=sync,
         )
 
@@ -1707,6 +1709,7 @@ class TestModel:
             display_name=_TEST_MODEL_NAME,
             project=_TEST_PROJECT,
             location=_TEST_LOCATION,
+            upload_request_timeout=None,
             sync=sync,
         )
 
