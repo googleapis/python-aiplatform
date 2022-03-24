@@ -2270,7 +2270,7 @@ class Model(base.VertexAiResourceNounWithFutureManager):
                 When the full table reference is specified, the Dataset must exist and
                 table must not exist. Accepted forms: ``bq://projectId`` or
                 ``bq://projectId.bqDatasetId`` or
-                ``bq://projectId.bqDatasetId.bqTableId``. If no Dataset is specified, 
+                ``bq://projectId.bqDatasetId.bqTableId``. If no Dataset is specified,
                 a new one is created with the name
                 ``prediction_<model-display-name>_<job-create-time>``
                 where the table name is made BigQuery-dataset-name compatible
