@@ -111,7 +111,7 @@ class PipelineJob(base.VertexAiStatefulResource):
             display_name (str):
                 Required. The user-defined name of this Pipeline.
             template_path (str):
-                Required. The path of PipelineJob or PipelineSpec JSON file. It
+                Required. The path of PipelineJob or PipelineSpec JSON or YAML file. It
                 can be a local path or a Google Cloud Storage URI.
                 Example: "gs://project.name"
             job_id (str):
