@@ -34,7 +34,7 @@ from google.cloud.aiplatform.compat.types import (
     pipeline_state_v1 as gca_pipeline_state_v1,
 )
 
-_LOGGER = base.Logger()
+_LOGGER = base.Logger(__name__)
 
 _PIPELINE_COMPLETE_STATES = set(
     [

@@ -35,7 +35,7 @@ from google.cloud.aiplatform.utils import featurestore_utils, resource_manager_u
 
 from google.cloud import bigquery
 
-_LOGGER = base.Logger()
+_LOGGER = base.Logger(__name__)
 
 
 class Featurestore(base.VertexAiResourceNounWithFutureManager):

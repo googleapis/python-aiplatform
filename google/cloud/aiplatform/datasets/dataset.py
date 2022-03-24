@@ -32,7 +32,7 @@ from google.cloud.aiplatform.compat.types import (
 )
 from google.cloud.aiplatform.datasets import _datasources
 
-_LOGGER = base.Logger()
+_LOGGER = base.Logger(__name__)
 
 
 class _Dataset(base.VertexAiResourceNounWithFutureManager):

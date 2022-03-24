@@ -27,7 +27,7 @@ from google.cloud.aiplatform import initializer
 from google.cloud.aiplatform import utils
 from google.cloud.aiplatform.utils import featurestore_utils
 
-_LOGGER = base.Logger()
+_LOGGER = base.Logger(__name__)
 
 
 class Feature(base.VertexAiResourceNounWithFutureManager):

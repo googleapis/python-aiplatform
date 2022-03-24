@@ -51,7 +51,7 @@ from google.cloud.aiplatform.utils import source_utils
 from google.cloud.aiplatform.utils import worker_spec_utils
 
 
-_LOGGER = base.Logger()
+_LOGGER = base.Logger(__name__)
 
 _JOB_COMPLETE_STATES = (
     gca_job_state.JobState.JOB_STATE_SUCCEEDED,

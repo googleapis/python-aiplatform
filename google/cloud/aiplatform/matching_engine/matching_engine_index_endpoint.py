@@ -33,7 +33,7 @@ from google.protobuf import field_mask_pb2
 
 import grpc
 
-_LOGGER = base.Logger()
+_LOGGER = base.Logger(__name__)
 
 
 @dataclass

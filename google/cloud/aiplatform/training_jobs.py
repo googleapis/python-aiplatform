@@ -54,7 +54,7 @@ from google.rpc import status_pb2
 import proto
 
 
-_LOGGER = base.Logger()
+_LOGGER = base.Logger(__name__)
 
 _PIPELINE_COMPLETE_STATES = set(
     [
