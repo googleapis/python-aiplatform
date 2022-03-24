@@ -1274,7 +1274,7 @@ class Endpoint(base.VertexAiResourceNounWithFutureManager):
                 Optional. If specified, this ExplainRequest will be served by the
                 chosen DeployedModel, overriding this Endpoint's traffic split.
         Returns:
-            prediction: Prediction with returned predictions, explanations and Model Id.
+            prediction: Prediction with returned predictions, explanations, and Model Id.
         """
         self.wait()
 
@@ -1412,11 +1412,20 @@ class PrivateEndpoint(Endpoint):
     ):
         """Retrieves a private Endpoint resource.
 
+        Example usage:
+            my_private_endpoint = aiplatform.PrivateEndpoint(
+                endpoint_name="projects/123/locations/us-central1/endpoints/my_endpoint_id"
+            )
+            or (when project and location are initialized)
+            my_private_endpoint = aiplatform.PrivateEndpoint(
+                endpoint_name='my_endpoint_id'
+            )
+
         Args:
             endpoint_name (str):
                 Required. A fully-qualified endpoint resource name or endpoint ID.
-                Example: "projects/123/locations/us-central1/endpoints/456" or
-                "456" when project and location are initialized or passed.
+                Example: "projects/123/locations/us-central1/endpoints/my_endpoint_id" or
+                "my_endpoint_id" when project and location are initialized or passed.
             project (str):
                 Optional. Project to retrieve endpoint from. If not set, project
                 set in aiplatform.init will be used.
@@ -1479,6 +1488,19 @@ class PrivateEndpoint(Endpoint):
     ) -> "Endpoint":
         """Creates a new private Endpoint.
 
+        Example usage:
+            my_private_endpoint = aiplatform.PrivateEndpoint.create(
+                display_name='my_endpoint_name',
+                project='123',
+                location='us-central1'
+                network='my_vpc'
+            )
+            or (when project and location are initialized)
+            my_private_endpoint = aiplatform.PrivateEndpoint.create(
+                display_name='my_endpoint_name',
+                network='my_vpc'
+            )
+
         Args:
             display_name (str):
                 Required. The user-defined name of the Endpoint.
@@ -1492,7 +1514,7 @@ class PrivateEndpoint(Endpoint):
                 set in aiplatform.init will be used.
             network (str):
                 Required. The full name of the Compute Engine network to which
-                this Endpoint will be peered. E.g. "projects/12345/global/networks/myVPC".
+                this Endpoint will be peered. E.g. "projects/123/global/networks/my_vpc".
                 Private services access must already be configured for the network.
                 If not set, `network` set in aiplatform.init will be used.
             description (str):
@@ -1526,6 +1548,7 @@ class PrivateEndpoint(Endpoint):
                 Whether to execute this method synchronously. If False, this method
                 will be executed in concurrent Future and any downstream object will
                 be immediately returned and synced when the Future has completed.
+
         Returns:
             endpoint (endpoint.Endpoint):
                 Created endpoint.
@@ -1603,7 +1626,7 @@ class PrivateEndpoint(Endpoint):
 
         return endpoint
 
-    def _unauthenticated_http_call(
+    def _http_request(
         self,
         method: str,
         url: str,
@@ -1634,9 +1657,12 @@ class PrivateEndpoint(Endpoint):
 
     def predict(self, instances: List, parameters: Optional[Dict] = None) -> Prediction:
         """Make a prediction against this private Endpoint using unauthenticated HTTP.
-
         This method must be called within the network the private Endpoint is peered to.
         The predict() call will fail otherwise. To check, use `PrivateEndpoint.network`.
+
+        Example usage:
+            response = my_private_endpoint.predict(instances=[...])
+            my_predictions = response.predictions
 
         Args:
             instances (List):
@@ -1658,13 +1684,15 @@ class PrivateEndpoint(Endpoint):
                 ][google.cloud.aiplatform.v1beta1.DeployedModel.model]
                 [PredictSchemata's][google.cloud.aiplatform.v1beta1.Model.predict_schemata]
                 ``parameters_schema_uri``.
+                
         Returns:
             prediction: Prediction with returned predictions and Model Id.
         """
         self.wait()
         self._sync_gca_resource_if_skipped()
 
-        response = self._unauthenticated_http_call(
+
+        response = self._http_request(
             method="POST",
             url=self.predict_http_uri,
             body=json.dumps({"instances": instances}),
@@ -1684,11 +1712,38 @@ class PrivateEndpoint(Endpoint):
     def explain(
         self, instances: List[Dict], parameters: Optional[Dict] = None,
     ) -> Prediction:
+        """Make a prediction with explanations against this private Endpoint.
+
+        Example usage:
+            response = my_private_endpoint.explain(instances=[...])
+            my_explanations = response.explanations
+
+        Args:
+            instances (List):
+                Required. The instances that are the input to the
+                prediction call. A DeployedModel may have an upper limit
+                on the number of instances it supports per request, and
+                when it is exceeded the prediction call errors in case
+                of AutoML Models, or, in case of customer created
+                Models, the behaviour is as documented by that Model.
+                The schema of any single instance may be specified via
+                Endpoint's DeployedModels'
+                [Model's][google.cloud.aiplatform.v1beta1.DeployedModel.model]
+                [PredictSchemata's][google.cloud.aiplatform.v1beta1.Model.predict_schemata]
+                ``instance_schema_uri``.
+            parameters (Dict):
+                The parameters that govern the prediction. The schema of
+                the parameters may be specified via Endpoint's
+                DeployedModels' [Model's
+                ][google.cloud.aiplatform.v1beta1.DeployedModel.model]
+                [PredictSchemata's][google.cloud.aiplatform.v1beta1.Model.predict_schemata]
+                ``parameters_schema_uri``.
+        """
         self.wait()
         self._sync_gca_resource_if_skipped()
 
         try:
-            response = self._unauthenticated_http_call(
+            response = self._http_request(
                 method="POST",
                 url=self.explain_http_uri,
                 body=json.dumps({"instances": instances}),
@@ -1698,9 +1753,7 @@ class PrivateEndpoint(Endpoint):
         except urllib3.exceptions.MaxRetryError as err:
             if not (
                 self._custom_explain_uri
-                or self._gca_resource.deployed_models[
-                    0
-                ].private_endpoints.explain_http_uri
+                or self._gca_resource.deployed_models[0].private_endpoints.explain_http_uri
             ):
                 raise RuntimeError(
                     "There is no URI for explanations on this private Endpoint, please "
@@ -1724,7 +1777,7 @@ class PrivateEndpoint(Endpoint):
         self.wait()
         self._sync_gca_resource_if_skipped()
 
-        response = self._unauthenticated_http_call(
+        response = self._http_request(
             method="GET", url=self.health_http_uri,
         )
 
@@ -1742,11 +1795,11 @@ class PrivateEndpoint(Endpoint):
         """List all private Endpoint resource instances.
 
         Example Usage:
-        ```
-        aiplatform.PrivateEndpoint.list(
-            filter='labels.my_label="my_label_value" OR display_name=!"old_endpoint"',
-        )
-        ```
+            my_private_endpoints = aiplatform.PrivateEndpoint.list()
+            or
+            my_private_endpoints = aiplatform.PrivateEndpoint.list(
+                filter='labels.my_label="my_label_value" OR display_name=!"old_endpoint"',
+            )
 
         Args:
             filter (str):
