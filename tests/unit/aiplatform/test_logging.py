@@ -35,7 +35,7 @@ class TestLogging:
 
     def test_log_level_coexistance(self, caplog):
         # The aiplatform module and the root logger can have different log levels.
-        aip_logger = base.Logger()
+        aip_logger = base.Logger(__name__)
 
         caplog.set_level(logging.DEBUG)
 
