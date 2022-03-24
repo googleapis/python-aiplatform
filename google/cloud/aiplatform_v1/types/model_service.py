@@ -17,7 +17,7 @@ import proto  # type: ignore
 
 from google.cloud.aiplatform_v1.types import io
 from google.cloud.aiplatform_v1.types import model as gca_model
-from google.cloud.aiplatform_v1.types import model_evaluation
+from google.cloud.aiplatform_v1.types import model_evaluation as gca_model_evaluation
 from google.cloud.aiplatform_v1.types import model_evaluation_slice
 from google.cloud.aiplatform_v1.types import operation
 from google.protobuf import field_mask_pb2  # type: ignore
@@ -37,6 +37,7 @@ __protobuf__ = proto.module(
         "ExportModelRequest",
         "ExportModelOperationMetadata",
         "ExportModelResponse",
+        "ImportModelEvaluationRequest",
         "GetModelEvaluationRequest",
         "ListModelEvaluationsRequest",
         "ListModelEvaluationsResponse",
@@ -321,6 +322,25 @@ class ExportModelResponse(proto.Message):
     """
 
 
+class ImportModelEvaluationRequest(proto.Message):
+    r"""Request message for
+    [ModelService.ImportModelEvaluation][google.cloud.aiplatform.v1.ModelService.ImportModelEvaluation]
+
+    Attributes:
+        parent (str):
+            Required. The name of the parent model resource. Format:
+            ``projects/{project}/locations/{location}/models/{model}``
+        model_evaluation (google.cloud.aiplatform_v1.types.ModelEvaluation):
+            Required. Model evaluation resource to be
+            imported.
+    """
+
+    parent = proto.Field(proto.STRING, number=1,)
+    model_evaluation = proto.Field(
+        proto.MESSAGE, number=2, message=gca_model_evaluation.ModelEvaluation,
+    )
+
+
 class GetModelEvaluationRequest(proto.Message):
     r"""Request message for
     [ModelService.GetModelEvaluation][google.cloud.aiplatform.v1.ModelService.GetModelEvaluation].
@@ -383,7 +403,7 @@ class ListModelEvaluationsResponse(proto.Message):
         return self
 
     model_evaluations = proto.RepeatedField(
-        proto.MESSAGE, number=1, message=model_evaluation.ModelEvaluation,
+        proto.MESSAGE, number=1, message=gca_model_evaluation.ModelEvaluation,
     )
     next_page_token = proto.Field(proto.STRING, number=2,)
 
