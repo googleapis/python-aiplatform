@@ -10485,6 +10485,95 @@
           "service": {
             "shortName": "ModelService"
           },
+          "shortName": "ImportModelEvaluation"
+        }
+      },
+      "file": "aiplatform_v1beta1_generated_model_service_import_model_evaluation_async.py",
+      "regionTag": "aiplatform_v1beta1_generated_ModelService_ImportModelEvaluation_async",
+      "segments": [
+        {
+          "end": 44,
+          "start": 27,
+          "type": "FULL"
+        },
+        {
+          "end": 44,
+          "start": 27,
+          "type": "SHORT"
+        },
+        {
+          "end": 33,
+          "start": 31,
+          "type": "CLIENT_INITIALIZATION"
+        },
+        {
+          "end": 38,
+          "start": 34,
+          "type": "REQUEST_INITIALIZATION"
+        },
+        {
+          "end": 41,
+          "start": 39,
+          "type": "REQUEST_EXECUTION"
+        },
+        {
+          "end": 45,
+          "start": 42,
+          "type": "RESPONSE_HANDLING"
+        }
+      ]
+    },
+    {
+      "clientMethod": {
+        "method": {
+          "service": {
+            "shortName": "ModelService"
+          },
+          "shortName": "ImportModelEvaluation"
+        }
+      },
+      "file": "aiplatform_v1beta1_generated_model_service_import_model_evaluation_sync.py",
+      "regionTag": "aiplatform_v1beta1_generated_ModelService_ImportModelEvaluation_sync",
+      "segments": [
+        {
+          "end": 44,
+          "start": 27,
+          "type": "FULL"
+        },
+        {
+          "end": 44,
+          "start": 27,
+          "type": "SHORT"
+        },
+        {
+          "end": 33,
+          "start": 31,
+          "type": "CLIENT_INITIALIZATION"
+        },
+        {
+          "end": 38,
+          "start": 34,
+          "type": "REQUEST_INITIALIZATION"
+        },
+        {
+          "end": 41,
+          "start": 39,
+          "type": "REQUEST_EXECUTION"
+        },
+        {
+          "end": 45,
+          "start": 42,
+          "type": "RESPONSE_HANDLING"
+        }
+      ]
+    },
+    {
+      "clientMethod": {
+        "async": true,
+        "method": {
+          "service": {
+            "shortName": "ModelService"
+          },
           "shortName": "ListModelEvaluationSlices"
         }
       },
