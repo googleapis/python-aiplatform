@@ -4048,9 +4048,11 @@ class AutoMLForecastingTrainingJob(_TrainingJob):
                 For time series Datasets, all their data is exported to
                 training, to pick and choose from.
             target_column (str):
-                Required. Name of the column that the Model is to predict values for.
+                Required. Name of the column that the Model is to predict values for. This
+                column must be unavailable at forecast.
             time_column (str):
                 Required. Name of the column that identifies time order in the time series.
+                This column must be available at forecast.
             time_series_identifier_column (str):
                 Required. Name of the column that identifies the time series.
             unavailable_at_forecast_columns (List[str]):
@@ -4089,7 +4091,7 @@ class AutoMLForecastingTrainingJob(_TrainingJob):
                 during Model training. The column must have numeric values between 0 and
                 10000 inclusively, and 0 value means that the row is ignored.
                 If the weight column field is not set, then all rows are assumed to have
-                equal weight of 1.
+                equal weight of 1. This column must be available at forecast.
             time_series_attribute_columns (List[str]):
                 Optional. Column names that should be used as attribute columns.
                 Each column is constant within a time series.
@@ -4121,7 +4123,7 @@ class AutoMLForecastingTrainingJob(_TrainingJob):
                 Applies only if [export_evaluated_data_items] is True and
                 [export_evaluated_data_items_bigquery_destination_uri] is specified.
             quantiles (List[float]):
-                Quantiles to use for the `minizmize-quantile-loss`
+                Quantiles to use for the `minimize-quantile-loss`
                 [AutoMLForecastingTrainingJob.optimization_objective]. This argument is required in
                 this case.
 
@@ -4285,9 +4287,11 @@ class AutoMLForecastingTrainingJob(_TrainingJob):
                 For time series Datasets, all their data is exported to
                 training, to pick and choose from.
             target_column (str):
-                Required. Name of the column that the Model is to predict values for.
+                Required. Name of the column that the Model is to predict values for. This
+                column must be unavailable at forecast.
             time_column (str):
                 Required. Name of the column that identifies time order in the time series.
+                This column must be available at forecast.
             time_series_identifier_column (str):
                 Required. Name of the column that identifies the time series.
             unavailable_at_forecast_columns (List[str]):
@@ -4335,7 +4339,7 @@ class AutoMLForecastingTrainingJob(_TrainingJob):
                 during Model training. The column must have numeric values between 0 and
                 10000 inclusively, and 0 value means that the row is ignored.
                 If the weight column field is not set, then all rows are assumed to have
-                equal weight of 1.
+                equal weight of 1. This column must be available at forecast.
             time_series_attribute_columns (List[str]):
                 Optional. Column names that should be used as attribute columns.
                 Each column is constant within a time series.
@@ -4366,7 +4370,7 @@ class AutoMLForecastingTrainingJob(_TrainingJob):
                 Applies only if [export_evaluated_data_items] is True and
                 [export_evaluated_data_items_bigquery_destination_uri] is specified.
             quantiles (List[float]):
-                Quantiles to use for the `minizmize-quantile-loss`
+                Quantiles to use for the `minimize-quantile-loss`
                 [AutoMLForecastingTrainingJob.optimization_objective]. This argument is required in
                 this case.
 

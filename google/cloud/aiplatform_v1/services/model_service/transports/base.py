@@ -29,6 +29,7 @@ from google.oauth2 import service_account  # type: ignore
 from google.cloud.aiplatform_v1.types import model
 from google.cloud.aiplatform_v1.types import model as gca_model
 from google.cloud.aiplatform_v1.types import model_evaluation
+from google.cloud.aiplatform_v1.types import model_evaluation as gca_model_evaluation
 from google.cloud.aiplatform_v1.types import model_evaluation_slice
 from google.cloud.aiplatform_v1.types import model_service
 from google.longrunning import operations_pb2  # type: ignore
@@ -144,6 +145,11 @@ class ModelServiceTransport(abc.ABC):
             self.export_model: gapic_v1.method.wrap_method(
                 self.export_model, default_timeout=None, client_info=client_info,
             ),
+            self.import_model_evaluation: gapic_v1.method.wrap_method(
+                self.import_model_evaluation,
+                default_timeout=None,
+                client_info=client_info,
+            ),
             self.get_model_evaluation: gapic_v1.method.wrap_method(
                 self.get_model_evaluation,
                 default_timeout=None,
@@ -233,6 +239,18 @@ class ModelServiceTransport(abc.ABC):
     ) -> Callable[
         [model_service.ExportModelRequest],
         Union[operations_pb2.Operation, Awaitable[operations_pb2.Operation]],
+    ]:
+        raise NotImplementedError()
+
+    @property
+    def import_model_evaluation(
+        self,
+    ) -> Callable[
+        [model_service.ImportModelEvaluationRequest],
+        Union[
+            gca_model_evaluation.ModelEvaluation,
+            Awaitable[gca_model_evaluation.ModelEvaluation],
+        ],
     ]:
         raise NotImplementedError()
 
