@@ -2421,7 +2421,6 @@ class CustomContainerTrainingJob(_CustomTrainingJob):
         training_encryption_spec_key_name: Optional[str] = None,
         model_encryption_spec_key_name: Optional[str] = None,
         staging_bucket: Optional[str] = None,
-        create_request_timeout: Optional[float] = None,
     ):
         """Constructs a Custom Container Training Job.
 
@@ -2597,10 +2596,6 @@ class CustomContainerTrainingJob(_CustomTrainingJob):
             staging_bucket (str):
                 Bucket used to stage source and training artifacts. Overrides
                 staging_bucket set in aiplatform.init.
-            create_request_timeout (float):
-                Optional. The timeout for initiating this request in seconds. Note:
-                this does not set the timeout on the underlying training job, only on
-                the time to initiate the request.
         """
         super().__init__(
             display_name=display_name,
@@ -3410,6 +3405,7 @@ class AutoMLTabularTrainingJob(_TrainingJob):
         export_evaluated_data_items_bigquery_destination_uri: Optional[str] = None,
         export_evaluated_data_items_override_destination: bool = False,
         additional_experiments: Optional[List[str]] = None,
+        create_request_timeout: Optional[float] = None,
         sync: bool = True,
     ) -> models.Model:
         """Runs the training job and returns a model.
@@ -3538,6 +3534,10 @@ class AutoMLTabularTrainingJob(_TrainingJob):
                 [export_evaluated_data_items_bigquery_destination_uri] is specified.
             additional_experiments (List[str]):
                 Optional. Additional experiment flags for the automl tables training.
+            create_request_timeout (float):
+                Optional. The timeout for initiating this request in seconds. Note:
+                this does not set the timeout on the underlying job, only on
+                the time to initiate the request.
             sync (bool):
                 Whether to execute this method synchronously. If False, this method
                 will be executed in concurrent Future and any downstream object will
@@ -3579,6 +3579,7 @@ class AutoMLTabularTrainingJob(_TrainingJob):
             export_evaluated_data_items=export_evaluated_data_items,
             export_evaluated_data_items_bigquery_destination_uri=export_evaluated_data_items_bigquery_destination_uri,
             export_evaluated_data_items_override_destination=export_evaluated_data_items_override_destination,
+            create_request_timeout=create_request_timeout,
             sync=sync,
         )
 
