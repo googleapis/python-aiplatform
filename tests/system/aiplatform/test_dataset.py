@@ -16,7 +16,6 @@
 #
 
 import os
-from socket import timeout
 import uuid
 import pytest
 import importlib
@@ -197,7 +196,7 @@ class TestDataset:
         my_dataset.import_data(
             gcs_source=_TEST_TEXT_ENTITY_EXTRACTION_GCS_SOURCE,
             import_schema_uri=_TEST_TEXT_ENTITY_IMPORT_SCHEMA,
-            timeout=180.0,
+            timeout=None,
         )
 
         data_items_post_import = dataset_gapic_client.list_data_items(
@@ -218,6 +217,7 @@ class TestDataset:
             display_name=f"temp_sdk_integration_create_and_import_dataset_{uuid.uuid4()}",
             gcs_source=_TEST_IMAGE_OBJECT_DETECTION_GCS_SOURCE,
             import_schema_uri=_TEST_IMAGE_OBJ_DET_IMPORT_SCHEMA,
+            timeout=None,
         )
 
         shared_state["dataset_name"] = img_dataset.resource_name
@@ -238,6 +238,7 @@ class TestDataset:
         tabular_dataset = aiplatform.TabularDataset.create(
             display_name=f"temp_sdk_integration_create_and_import_dataset_{uuid.uuid4()}",
             gcs_source=[_TEST_TABULAR_CLASSIFICATION_GCS_SOURCE],
+            timeout=None,
         )
 
         shared_state["dataset_name"] = tabular_dataset.resource_name
