@@ -54,7 +54,7 @@ _DEFAULT_RETRY = retry.Retry()
 class Logger:
     """Logging wrapper class with high level helper methods."""
 
-    def __init__(self, name: str = __name__):
+    def __init__(self, name: str):
         """Initializes logger with optional name.
 
         Args:
