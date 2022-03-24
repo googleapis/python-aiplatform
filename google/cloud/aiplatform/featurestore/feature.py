@@ -15,6 +15,7 @@
 # limitations under the License.
 #
 
+from socket import timeout
 from typing import Dict, List, Optional, Sequence, Tuple
 
 from google.auth import credentials as auth_credentials
@@ -174,6 +175,7 @@ class Feature(base.VertexAiResourceNounWithFutureManager):
         description: Optional[str] = None,
         labels: Optional[Dict[str, str]] = None,
         request_metadata: Optional[Sequence[Tuple[str, str]]] = (),
+        update_request_timeout: Optional[float] = None,
     ) -> "Feature":
         """Updates an existing managed feature resource.
 
@@ -207,6 +209,10 @@ class Feature(base.VertexAiResourceNounWithFutureManager):
                 "aiplatform.googleapis.com/" and are immutable.
             request_metadata (Sequence[Tuple[str, str]]):
                 Optional. Strings which should be sent along with the request as metadata.
+            update_request_timeout (float):
+                Optional. The timeout for initiating this request in seconds. Note:
+                this does not set the timeout on the underlying job, only on
+                the time to initiate the request.
 
         Returns:
             Feature - The updated feature resource object.
@@ -232,7 +238,10 @@ class Feature(base.VertexAiResourceNounWithFutureManager):
         )
 
         update_feature_lro = self.api_client.update_feature(
-            feature=gapic_feature, update_mask=update_mask, metadata=request_metadata,
+            feature=gapic_feature,
+            update_mask=update_mask,
+            metadata=request_metadata,
+            timeout=update_request_timeout,
         )
 
         _LOGGER.log_action_started_against_resource_with_lro(
@@ -500,6 +509,7 @@ class Feature(base.VertexAiResourceNounWithFutureManager):
         location: Optional[str] = None,
         credentials: Optional[auth_credentials.Credentials] = None,
         request_metadata: Optional[Sequence[Tuple[str, str]]] = (),
+        create_request_timeout: Optional[float] = None,
         sync: bool = True,
     ) -> "Feature":
         """Creates a Feature resource in an EntityType.
@@ -567,6 +577,10 @@ class Feature(base.VertexAiResourceNounWithFutureManager):
                 credentials set in aiplatform.init.
             request_metadata (Sequence[Tuple[str, str]]):
                 Optional. Strings which should be sent along with the request as metadata.
+            create_request_timeout (float):
+                Optional. The timeout for initiating this request in seconds. Note:
+                this does not set the timeout on the underlying job, only on
+                the time to initiate the request.
             sync (bool):
                 Optional. Whether to execute this creation synchronously. If False, this method
                 will be executed in concurrent Future and any downstream object will
@@ -609,7 +623,9 @@ class Feature(base.VertexAiResourceNounWithFutureManager):
         )
 
         created_feature_lro = api_client.create_feature(
-            request=create_feature_request, metadata=request_metadata,
+            request=create_feature_request,
+            metadata=request_metadata,
+            timeout=create_request_timeout,
         )
 
         _LOGGER.log_create_with_lro(cls, created_feature_lro)

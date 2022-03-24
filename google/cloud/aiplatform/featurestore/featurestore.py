@@ -138,6 +138,7 @@ class Featurestore(base.VertexAiResourceNounWithFutureManager):
         self,
         labels: Optional[Dict[str, str]] = None,
         request_metadata: Optional[Sequence[Tuple[str, str]]] = (),
+        update_request_timeout: Optional[float] = None,
     ) -> "Featurestore":
         """Updates an existing managed featurestore resource.
 
@@ -167,18 +168,27 @@ class Featurestore(base.VertexAiResourceNounWithFutureManager):
                 "aiplatform.googleapis.com/" and are immutable.
             request_metadata (Sequence[Tuple[str, str]]):
                 Optional. Strings which should be sent along with the request as metadata.
+            update_request_timeout (float):
+                Optional. The timeout for initiating this request in seconds. Note:
+                this does not set the timeout on the underlying job, only on
+                the time to initiate the request.
 
         Returns:
             Featurestore - The updated featurestore resource object.
         """
 
-        return self._update(labels=labels, request_metadata=request_metadata)
+        return self._update(
+            labels=labels,
+            request_metadata=request_metadata,
+            update_request_timeout=update_request_timeout,
+        )
 
     # TODO(b/206818784): Add enable_online_store and disable_online_store methods
     def update_online_store(
         self,
         fixed_node_count: int,
         request_metadata: Optional[Sequence[Tuple[str, str]]] = (),
+        update_request_timeout: Optional[float] = None,
     ) -> "Featurestore":
         """Updates the online store of an existing managed featurestore resource.
 
@@ -196,12 +206,18 @@ class Featurestore(base.VertexAiResourceNounWithFutureManager):
                 Required. Config for online serving resources, can only update the node count to >= 1.
             request_metadata (Sequence[Tuple[str, str]]):
                 Optional. Strings which should be sent along with the request as metadata.
+            update_request_timeout (float):
+                Optional. The timeout for initiating this request in seconds. Note:
+                this does not set the timeout on the underlying job, only on
+                the time to initiate the request.
 
         Returns:
             Featurestore - The updated featurestore resource object.
         """
         return self._update(
-            fixed_node_count=fixed_node_count, request_metadata=request_metadata
+            fixed_node_count=fixed_node_count,
+            request_metadata=request_metadata,
+            update_request_timeout=update_request_timeout,
         )
 
     def _update(
@@ -209,6 +225,7 @@ class Featurestore(base.VertexAiResourceNounWithFutureManager):
         labels: Optional[Dict[str, str]] = None,
         fixed_node_count: Optional[int] = None,
         request_metadata: Optional[Sequence[Tuple[str, str]]] = (),
+        update_request_timeout: Optional[float] = None,
     ) -> "Featurestore":
         """Updates an existing managed featurestore resource.
 
@@ -231,6 +248,10 @@ class Featurestore(base.VertexAiResourceNounWithFutureManager):
                 Optional. Config for online serving resources, can only update the node count to >= 1.
             request_metadata (Sequence[Tuple[str, str]]):
                 Optional. Strings which should be sent along with the request as metadata.
+            update_request_timeout (float):
+                Optional. The timeout for initiating this request in seconds. Note:
+                this does not set the timeout on the underlying job, only on
+                the time to initiate the request.
 
         Returns:
             Featurestore - The updated featurestore resource object.
@@ -263,6 +284,7 @@ class Featurestore(base.VertexAiResourceNounWithFutureManager):
             featurestore=gapic_featurestore,
             update_mask=update_mask,
             metadata=request_metadata,
+            timeout=update_request_timeout,
         )
 
         _LOGGER.log_action_started_against_resource_with_lro(
@@ -399,6 +421,7 @@ class Featurestore(base.VertexAiResourceNounWithFutureManager):
         credentials: Optional[auth_credentials.Credentials] = None,
         request_metadata: Optional[Sequence[Tuple[str, str]]] = (),
         encryption_spec_key_name: Optional[str] = None,
+        create_request_timeout: Optional[float] = None,
         sync: bool = True,
     ) -> "Featurestore":
         """Creates a Featurestore resource.
@@ -457,6 +480,10 @@ class Featurestore(base.VertexAiResourceNounWithFutureManager):
                 spec for data storage. If set, both of the
                 online and offline data storage will be secured
                 by this key.
+            create_request_timeout (float):
+                Optional. The timeout for initiating this create request in seconds. Note:
+                this does not set the timeout on the underlying job, only on the time
+                to initiate the create request.
             sync (bool):
                 Optional. Whether to execute this creation synchronously. If False, this method
                 will be executed in concurrent Future and any downstream object will
@@ -490,6 +517,7 @@ class Featurestore(base.VertexAiResourceNounWithFutureManager):
             featurestore=gapic_featurestore,
             featurestore_id=featurestore_id,
             metadata=request_metadata,
+            timeout=create_request_timeout,
         )
 
         _LOGGER.log_create_with_lro(cls, created_featurestore_lro)
@@ -513,6 +541,7 @@ class Featurestore(base.VertexAiResourceNounWithFutureManager):
         description: Optional[str] = None,
         labels: Optional[Dict[str, str]] = None,
         request_metadata: Optional[Sequence[Tuple[str, str]]] = (),
+        create_request_timeout: Optional[float] = None,
         sync: bool = True,
     ) -> "featurestore.EntityType":
         """Creates an EntityType resource in this Featurestore.
@@ -554,6 +583,10 @@ class Featurestore(base.VertexAiResourceNounWithFutureManager):
                 "aiplatform.googleapis.com/" and are immutable.
             request_metadata (Sequence[Tuple[str, str]]):
                 Optional. Strings which should be sent along with the request as metadata.
+            create_request_timeout (float):
+                Optional. The timeout for initiating this request in seconds. Note:
+                this does not set the timeout on the underlying job, only on
+                the time to initiate the request.
             sync (bool):
                 Optional. Whether to execute this creation synchronously. If False, this method
                 will be executed in concurrent Future and any downstream object will
@@ -570,6 +603,7 @@ class Featurestore(base.VertexAiResourceNounWithFutureManager):
             description=description,
             labels=labels,
             request_metadata=request_metadata,
+            create_request_timeout=create_request_timeout,
             sync=sync,
         )
 
@@ -577,6 +611,7 @@ class Featurestore(base.VertexAiResourceNounWithFutureManager):
         self,
         batch_read_feature_values_request: gca_featurestore_service.BatchReadFeatureValuesRequest,
         request_metadata: Optional[Sequence[Tuple[str, str]]] = (),
+        serve_request_timeout: Optional[float] = None,
     ) -> "Featurestore":
         """Batch read Feature values from the Featurestore to a destination storage.
 
@@ -585,6 +620,10 @@ class Featurestore(base.VertexAiResourceNounWithFutureManager):
                 Required. Request of batch read feature values.
             request_metadata (Sequence[Tuple[str, str]]):
                 Optional. Strings which should be sent along with the request as metadata.
+            serve_request_timeout (float):
+                Optional. The timeout for initiating this request in seconds. Note:
+                this does not set the timeout on the underlying job, only on
+                the time to initiate the request.
 
         Returns:
             Featurestore: The featurestore resource object batch read feature values from.
@@ -595,7 +634,9 @@ class Featurestore(base.VertexAiResourceNounWithFutureManager):
         )
 
         batch_read_lro = self.api_client.batch_read_feature_values(
-            request=batch_read_feature_values_request, metadata=request_metadata,
+            request=batch_read_feature_values_request,
+            metadata=request_metadata,
+            timeout=serve_request_timeout,
         )
 
         _LOGGER.log_action_started_against_resource_with_lro(
@@ -775,6 +816,7 @@ class Featurestore(base.VertexAiResourceNounWithFutureManager):
         pass_through_fields: Optional[List[str]] = None,
         feature_destination_fields: Optional[Dict[str, str]] = None,
         request_metadata: Optional[Sequence[Tuple[str, str]]] = (),
+        serve_request_timeout: Optional[float] = None,
         sync: bool = True,
     ) -> "Featurestore":
         """ Batch serves feature values to BigQuery destination
@@ -847,7 +889,10 @@ class Featurestore(base.VertexAiResourceNounWithFutureManager):
                         'projects/123/locations/us-central1/featurestores/fs_id/entityTypes/et_id1/features/f_id11': 'foo',
                         'projects/123/locations/us-central1/featurestores/fs_id/entityTypes/et_id2/features/f_id22': 'bar',
                      }
-
+            serve_request_timeout (float):
+                Optional. The timeout for initiating this request in seconds. Note:
+                this does not set the timeout on the underlying job, only on
+                the time to initiate the request.
         Returns:
             Featurestore: The featurestore resource object batch read feature values from.
 
@@ -871,6 +916,7 @@ class Featurestore(base.VertexAiResourceNounWithFutureManager):
         return self._batch_read_feature_values(
             batch_read_feature_values_request=batch_read_feature_values_request,
             request_metadata=request_metadata,
+            serve_request_timeout=serve_request_timeout,
         )
 
     @base.optional_sync(return_input_arg="self")
@@ -883,6 +929,7 @@ class Featurestore(base.VertexAiResourceNounWithFutureManager):
         pass_through_fields: Optional[List[str]] = None,
         feature_destination_fields: Optional[Dict[str, str]] = None,
         request_metadata: Optional[Sequence[Tuple[str, str]]] = (),
+        serve_request_timeout: Optional[float] = None,
         sync: bool = True,
     ) -> "Featurestore":
         """ Batch serves feature values to GCS destination
@@ -976,6 +1023,10 @@ class Featurestore(base.VertexAiResourceNounWithFutureManager):
                         'projects/123/locations/us-central1/featurestores/fs_id/entityTypes/et_id1/features/f_id11': 'foo',
                         'projects/123/locations/us-central1/featurestores/fs_id/entityTypes/et_id2/features/f_id22': 'bar',
                      }
+            serve_request_timeout (float):
+                Optional. The timeout for initiating this request in seconds. Note:
+                this does not set the timeout on the underlying job, only on
+                the time to initiate the request.
 
         Returns:
             Featurestore: The featurestore resource object batch read feature values from.
@@ -1016,6 +1067,7 @@ class Featurestore(base.VertexAiResourceNounWithFutureManager):
         return self._batch_read_feature_values(
             batch_read_feature_values_request=batch_read_feature_values_request,
             request_metadata=request_metadata,
+            serve_request_timeout=serve_request_timeout,
         )
 
     def batch_serve_to_df(
@@ -1025,6 +1077,7 @@ class Featurestore(base.VertexAiResourceNounWithFutureManager):
         pass_through_fields: Optional[List[str]] = None,
         feature_destination_fields: Optional[Dict[str, str]] = None,
         request_metadata: Optional[Sequence[Tuple[str, str]]] = (),
+        serve_request_timeout: Optional[float] = None,
     ) -> "pd.DataFrame":  # noqa: F821 - skip check for undefined name 'pd'
         """ Batch serves feature values to pandas DataFrame
 
@@ -1106,6 +1159,10 @@ class Featurestore(base.VertexAiResourceNounWithFutureManager):
                         'projects/123/locations/us-central1/featurestores/fs_id/entityTypes/et_id1/features/f_id11': 'foo',
                         'projects/123/locations/us-central1/featurestores/fs_id/entityTypes/et_id2/features/f_id22': 'bar',
                      }
+            serve_request_timeout (float):
+                Optional. The timeout for initiating this request in seconds. Note:
+                this does not set the timeout on the underlying job, only on
+                the time to initiate the request.
 
         Returns:
             pd.DataFrame: The pandas DataFrame containing feature values from batch serving.
@@ -1179,6 +1236,7 @@ class Featurestore(base.VertexAiResourceNounWithFutureManager):
                 pass_through_fields=pass_through_fields,
                 feature_destination_fields=feature_destination_fields,
                 request_metadata=request_metadata,
+                serve_request_timeout=serve_request_timeout,
             )
 
             bigquery_storage_read_client = bigquery_storage.BigQueryReadClient(
