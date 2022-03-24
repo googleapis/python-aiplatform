@@ -17,7 +17,6 @@
 
 from typing import Any, Dict, Optional
 
-import yaml
 from google.auth import credentials as auth_credentials
 from google.cloud import storage
 
@@ -65,6 +64,13 @@ def _load_yaml_from_gs_uri(
     Returns:
       A Dict object representing the YAML document.
     """
+    try:
+        import yaml
+    except ImportError:
+        raise ImportError(
+            "pyyaml is not installed and is required to parse PipelineJob or PipelineSpec files. "
+            'Please install the SDK using "pip install google-cloud-aiplatform[pipelines]"'
+        )
     storage_client = storage.Client(project=project, credentials=credentials)
     blob = storage.Blob.from_string(uri, storage_client)
     return yaml.safe_load(blob.download_as_bytes())
@@ -80,5 +86,12 @@ def _load_yaml_from_local_file(file_path: str) -> Dict[str, Any]:
     Returns:
       A Dict object representing the YAML document.
     """
+    try:
+        import yaml
+    except ImportError:
+        raise ImportError(
+            "pyyaml is not installed and is required to parse PipelineJob or PipelineSpec files. "
+            'Please install the SDK using "pip install google-cloud-aiplatform[pipelines]"'
+        )
     with open(file_path) as f:
         return yaml.safe_load(f)
