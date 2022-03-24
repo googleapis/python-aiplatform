@@ -535,11 +535,11 @@ def json_file(tmp_path):
 
 class TestYamlUtils:
     def test_load_yaml_from_local_file__with_json(self, yaml_file):
-        data = yaml_utils.load_yaml(yaml_file)
-        assert data["key"] == "val"
-        assert len(data["list"]) == 3
+        actual = yaml_utils.load_yaml(yaml_file)
+        expected = {"key": "val", "list": ["1", 2, 3.0]}
+        assert actual == expected
 
     def test_load_yaml_from_local_file__with_yaml(self, json_file):
-        data = yaml_utils.load_yaml(json_file)
-        assert data["key"] == "val"
-        assert len(data["list"]) == 3
+        actual = yaml_utils.load_yaml(json_file)
+        expected = {"key": "val", "list": ["1", 2, 3.0]}
+        assert actual == expected
