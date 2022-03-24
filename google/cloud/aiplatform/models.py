@@ -1691,7 +1691,6 @@ class PrivateEndpoint(Endpoint):
         self.wait()
         self._sync_gca_resource_if_skipped()
 
-
         response = self._http_request(
             method="POST",
             url=self.predict_http_uri,
@@ -1753,7 +1752,9 @@ class PrivateEndpoint(Endpoint):
         except urllib3.exceptions.MaxRetryError as err:
             if not (
                 self._custom_explain_uri
-                or self._gca_resource.deployed_models[0].private_endpoints.explain_http_uri
+                or self._gca_resource.deployed_models[
+                    0
+                ].private_endpoints.explain_http_uri
             ):
                 raise RuntimeError(
                     "There is no URI for explanations on this private Endpoint, please "
@@ -1777,9 +1778,7 @@ class PrivateEndpoint(Endpoint):
         self.wait()
         self._sync_gca_resource_if_skipped()
 
-        response = self._http_request(
-            method="GET", url=self.health_http_uri,
-        )
+        response = self._http_request(method="GET", url=self.health_http_uri,)
 
         return response.status == 200
 
