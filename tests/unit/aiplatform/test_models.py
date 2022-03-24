@@ -18,7 +18,6 @@
 import importlib
 from concurrent import futures
 import pathlib
-from socket import timeout
 import pytest
 from unittest import mock
 from unittest.mock import patch

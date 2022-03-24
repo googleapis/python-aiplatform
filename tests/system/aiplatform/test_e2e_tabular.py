@@ -113,7 +113,7 @@ class TestEndToEndTabular(e2e_base.TestEndToEnd):
             timeout=1234,
             restart_job_on_worker_restart=True,
             enable_web_access=True,
-            timeout=None,
+            create_request_timeout=None,
             sync=False,
         )
 
@@ -121,7 +121,6 @@ class TestEndToEndTabular(e2e_base.TestEndToEnd):
             dataset=ds,
             target_column="median_house_value",
             model_display_name=self._make_display_name("automl-housing-model"),
-            timeout=None,
             sync=False,
         )
 

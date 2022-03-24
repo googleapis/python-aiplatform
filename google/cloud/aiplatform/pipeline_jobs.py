@@ -17,7 +17,6 @@
 
 import datetime
 import logging
-from socket import timeout
 import time
 import re
 from typing import Any, Dict, List, Optional
@@ -251,8 +250,8 @@ class PipelineJob(base.VertexAiStatefulResource):
                 Private services access must already be configured for the network.
                 If left unspecified, the job is not peered with any network.
             create_request_timeout (float):
-                Optional. The timeout for initiating this job create request in seconds. Note: 
-                this does not set the timeout on the underlying job create job, only on the time 
+                Optional. The timeout for initiating this job create request in seconds. Note:
+                this does not set the timeout on the underlying job create job, only on the time
                 to initiate the job create request.
             sync (bool):
                 Optional. Whether to execute this method synchronously. If False, this method will unblock and it will be executed in a concurrent Future.
@@ -284,8 +283,8 @@ class PipelineJob(base.VertexAiStatefulResource):
                 Private services access must already be configured for the network.
                 If left unspecified, the job is not peered with any network.
             create_request_timeout (float):
-                Optional. The timeout for initiating this job create request in seconds. Note: 
-                this does not set the timeout on the underlying job create job, only on the time 
+                Optional. The timeout for initiating this job create request in seconds. Note:
+                this does not set the timeout on the underlying job create job, only on the time
                 to initiate the job create request.
         """
         if service_account:

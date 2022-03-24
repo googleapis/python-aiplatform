@@ -16,8 +16,6 @@
 #
 
 import os
-from socket import timeout
-from time import time
 
 import pytest
 
@@ -688,13 +686,6 @@ class TestDataset:
     @pytest.mark.usefixtures("get_dataset_mock")
     def test_create_dataset_tabular_with_timeout(self, create_dataset_mock):
         aiplatform.init(project=_TEST_PROJECT)
-
-        my_dataset = datasets._Dataset.create(
-            display_name=_TEST_DISPLAY_NAME,
-            metadata_schema_uri=_TEST_METADATA_SCHEMA_URI_NONTABULAR,
-            encryption_spec_key_name=_TEST_ENCRYPTION_KEY_NAME,
-            create_request_timeout=180.0,
-        )
 
         expected_dataset = gca_dataset.Dataset(
             display_name=_TEST_DISPLAY_NAME,

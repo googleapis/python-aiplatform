@@ -100,8 +100,8 @@ class TabularDataset(datasets._ColumnNamesDataset):
 
                 Overrides encryption_spec_key_name set in aiplatform.init.
             create_request_timeout (float):
-                Optional. The timeout for initiating this create request in seconds. Note: 
-                this does not set the timeout on the underlying create job, only on the time 
+                Optional. The timeout for initiating this create request in seconds. Note:
+                this does not set the timeout on the underlying create job, only on the time
                 to initiate the create request.
             sync (bool):
                 Whether to execute this method synchronously. If False, this method

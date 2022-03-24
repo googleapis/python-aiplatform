@@ -15,7 +15,6 @@
 # limitations under the License.
 #
 import pathlib
-from socket import timeout
 import proto
 import re
 import shutil
@@ -909,8 +908,8 @@ class Endpoint(base.VertexAiResourceNounWithFutureManager):
                 Optional. Strings which should be sent along with the request as
                 metadata.
             deploy_request_timeout (float):
-                Optional. The timeout for initiating this deploy request in seconds. Note: 
-                this does not set the timeout on the underlying deploy job, only on the time 
+                Optional. The timeout for initiating this deploy request in seconds. Note:
+                this does not set the timeout on the underlying deploy job, only on the time
                 to initiate the deploy request.
             sync (bool):
                 Whether to execute this method synchronously. If False, this method
@@ -1801,8 +1800,8 @@ class Model(base.VertexAiResourceNounWithFutureManager):
                 Optional. Bucket to stage local model artifacts. Overrides
                 staging_bucket set in aiplatform.init.
             upload_request_timeout (float):
-                Optional. The timeout for initiating this upload request in seconds. Note: 
-                this does not set the timeout on the underlying upload job, only on the time 
+                Optional. The timeout for initiating this upload request in seconds. Note:
+                this does not set the timeout on the underlying upload job, only on the time
                 to initiate the upload request.
         Returns:
             model: Instantiated representation of the uploaded model resource.
@@ -2021,8 +2020,8 @@ class Model(base.VertexAiResourceNounWithFutureManager):
 
                 Overrides encryption_spec_key_name set in aiplatform.init
             deploy_request_timeout (float):
-                Optional. The timeout for initiating this deploy request in seconds. Note: 
-                this does not set the timeout on the underlying deploy job, only on the time 
+                Optional. The timeout for initiating this deploy request in seconds. Note:
+                this does not set the timeout on the underlying deploy job, only on the time
                 to initiate the deploy request.
             sync (bool):
                 Whether to execute this method synchronously. If False, this method
@@ -2162,8 +2161,8 @@ class Model(base.VertexAiResourceNounWithFutureManager):
 
                 Overrides encryption_spec_key_name set in aiplatform.init
             deploy_request_timeout (float):
-                Optional. The timeout for initiating this deploy request in seconds. Note: 
-                this does not set the timeout on the underlying deploy job, only on the time 
+                Optional. The timeout for initiating this deploy request in seconds. Note:
+                this does not set the timeout on the underlying deploy job, only on the time
                 to initiate the deploy request.
             sync (bool):
                 Whether to execute this method synchronously. If False, this method
@@ -2737,8 +2736,8 @@ class Model(base.VertexAiResourceNounWithFutureManager):
                 Optional. Bucket to stage local model artifacts. Overrides
                 staging_bucket set in aiplatform.init.
             upload_request_timeout (float):
-                Optional. The timeout for initiating this upload request in seconds. Note: 
-                this does not set the timeout on the underlying upload job, only on the time 
+                Optional. The timeout for initiating this upload request in seconds. Note:
+                this does not set the timeout on the underlying upload job, only on the time
                 to initiate the upload request.
         Returns:
             model: Instantiated representation of the uploaded model resource.
@@ -2939,8 +2938,8 @@ class Model(base.VertexAiResourceNounWithFutureManager):
                 Optional. Bucket to stage local model artifacts. Overrides
                 staging_bucket set in aiplatform.init.
             upload_request_timeout (float):
-                Optional. The timeout for initiating this upload request in seconds. Note: 
-                this does not set the timeout on the underlying upload job, only on the time 
+                Optional. The timeout for initiating this upload request in seconds. Note:
+                this does not set the timeout on the underlying upload job, only on the time
                 to initiate the upload request.
         Returns:
             model: Instantiated representation of the uploaded model resource.
@@ -3142,8 +3141,8 @@ class Model(base.VertexAiResourceNounWithFutureManager):
                 Optional. Bucket to stage local model artifacts. Overrides
                 staging_bucket set in aiplatform.init.
             upload_request_timeout (float):
-                Optional. The timeout for initiating this upload request in seconds. Note: 
-                this does not set the timeout on the underlying upload job, only on the time 
+                Optional. The timeout for initiating this upload request in seconds. Note:
+                this does not set the timeout on the underlying upload job, only on the time
                 to initiate the upload request.
         Returns:
             model: Instantiated representation of the uploaded model resource.

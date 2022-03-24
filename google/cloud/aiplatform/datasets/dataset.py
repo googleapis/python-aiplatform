@@ -201,8 +201,8 @@ class _Dataset(base.VertexAiResourceNounWithFutureManager):
 
                 Overrides encryption_spec_key_name set in aiplatform.init.
             create_request_timeout (float):
-                Optional. The timeout for initiating this create request in seconds. Note: 
-                this does not set the timeout on the underlying create job, only on the time 
+                Optional. The timeout for initiating this create request in seconds. Note:
+                this does not set the timeout on the underlying create job, only on the time
                 to initiate the create request.
             sync (bool):
                 Whether to execute this method synchronously. If False, this method
@@ -317,8 +317,8 @@ class _Dataset(base.VertexAiResourceNounWithFutureManager):
 
                 If set, this Dataset and all sub-resources of this Dataset will be secured by this key.
             create_request_timeout (float):
-                Optional. The timeout for initiating this create request in seconds. Note: 
-                this does not set the timeout on the underlying create job, only on the time 
+                Optional. The timeout for initiating this create request in seconds. Note:
+                this does not set the timeout on the underlying create job, only on the time
                 to initiate the create request.
             sync (bool):
                 Whether to execute this method synchronously. If False, this method
@@ -434,8 +434,8 @@ class _Dataset(base.VertexAiResourceNounWithFutureManager):
 
                 If set, this Dataset and all sub-resources of this Dataset will be secured by this key.
             create_request_timeout (float):
-                Optional. The timeout for initiating this create request in seconds. Note: 
-                this does not set the timeout on the underlying create job, only on the time 
+                Optional. The timeout for initiating this create request in seconds. Note:
+                this does not set the timeout on the underlying create job, only on the time
                 to initiate the create request.
         Returns:
             operation (Operation):
@@ -520,8 +520,8 @@ class _Dataset(base.VertexAiResourceNounWithFutureManager):
                 ``import_schema_uri``,
                 e.g. jsonl file.
             import_request_timeout (float):
-                Optional. The timeout for initiating this import request in seconds. Note: 
-                this does not set the timeout on the underlying import job, only on the time 
+                Optional. The timeout for initiating this import request in seconds. Note:
+                this does not set the timeout on the underlying import job, only on the time
                 to initiate the import request.
             sync (bool):
                 Whether to execute this method synchronously. If False, this method

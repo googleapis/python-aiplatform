@@ -15,7 +15,6 @@
 # limitations under the License.
 #
 
-from socket import timeout
 import pytest
 import json
 

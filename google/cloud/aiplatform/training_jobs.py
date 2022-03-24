@@ -16,12 +16,10 @@
 #
 
 import datetime
-from socket import timeout
 import time
 from typing import Dict, List, Optional, Sequence, Tuple, Union
 
 import abc
-from venv import create
 
 from google.auth import credentials as auth_credentials
 from google.cloud.aiplatform import base
@@ -717,8 +715,8 @@ class _TrainingJob(base.VertexAiStatefulResource):
                 -  AIP_VALIDATION_DATA_URI = "bigquery_destination.dataset_*.validation"
                 -  AIP_TEST_DATA_URI = "bigquery_destination.dataset_*.test"
             create_request_timeout (float):
-                Optional. The timeout for initiating this request in seconds. Note: 
-                this does not set the timeout on the underlying training job, only on 
+                Optional. The timeout for initiating this request in seconds. Note:
+                this does not set the timeout on the underlying training job, only on
                 the time to initiate the request.
         """
 
@@ -2072,8 +2070,8 @@ class CustomTrainingJob(_CustomTrainingJob):
                 For more information on configuring your service account please visit:
                 https://cloud.google.com/vertex-ai/docs/experiments/tensorboard-training
             create_request_timeout (float):
-                Optional. The timeout for initiating this request in seconds. Note: 
-                this does not set the timeout on the underlying training job, only on 
+                Optional. The timeout for initiating this request in seconds. Note:
+                this does not set the timeout on the underlying training job, only on
                 the time to initiate the request.
             sync (bool):
                 Whether to execute this method synchronously. If False, this method
@@ -2314,8 +2312,8 @@ class CustomTrainingJob(_CustomTrainingJob):
             reduction_server_container_uri (str):
                 Optional. The Uri of the reduction server container image.
             create_request_timeout (float)
-                Optional. The timeout for initiating this request in seconds. Note: 
-                this does not set the timeout on the underlying training job, only on the 
+                Optional. The timeout for initiating this request in seconds. Note:
+                this does not set the timeout on the underlying training job, only on the
                 time to initiate the request.
             sync (bool):
                 Whether to execute this method synchronously. If False, this method
@@ -2600,8 +2598,8 @@ class CustomContainerTrainingJob(_CustomTrainingJob):
                 Bucket used to stage source and training artifacts. Overrides
                 staging_bucket set in aiplatform.init.
             create_request_timeout (float):
-                Optional. The timeout for initiating this request in seconds. Note: 
-                this does not set the timeout on the underlying training job, only on 
+                Optional. The timeout for initiating this request in seconds. Note:
+                this does not set the timeout on the underlying training job, only on
                 the time to initiate the request.
         """
         super().__init__(
@@ -2908,8 +2906,8 @@ class CustomContainerTrainingJob(_CustomTrainingJob):
                 For more information on configuring your service account please visit:
                 https://cloud.google.com/vertex-ai/docs/experiments/tensorboard-training
             create_request_timeout (float):
-                Optional. The timeout for initiating this request in seconds. Note: 
-                this does not set the timeout on the underlying training job, only on 
+                Optional. The timeout for initiating this request in seconds. Note:
+                this does not set the timeout on the underlying training job, only on
                 the time to initiate the request.
             sync (bool):
                 Whether to execute this method synchronously. If False, this method
@@ -3144,8 +3142,8 @@ class CustomContainerTrainingJob(_CustomTrainingJob):
             reduction_server_container_uri (str):
                 Optional. The Uri of the reduction server container image.
             create_request_timeout (float):
-                Optional. The timeout for initiating this request in seconds. Note: 
-                this does not set the timeout on the underlying training job, only on 
+                Optional. The timeout for initiating this request in seconds. Note:
+                this does not set the timeout on the underlying training job, only on
                 the time to initiate the request.
             sync (bool):
                 Whether to execute this method synchronously. If False, this method
@@ -3730,8 +3728,8 @@ class AutoMLTabularTrainingJob(_TrainingJob):
                 Applies only if [export_evaluated_data_items] is True and
                 [export_evaluated_data_items_bigquery_destination_uri] is specified.
             create_request_timeout (float):
-                Optional. The timeout for initiating this request in seconds. Note: 
-                this does not set the timeout on the underlying training job, only on 
+                Optional. The timeout for initiating this request in seconds. Note:
+                this does not set the timeout on the underlying training job, only on
                 the time to initiate the request.
             sync (bool):
                 Whether to execute this method synchronously. If False, this method
@@ -4164,8 +4162,8 @@ class AutoMLForecastingTrainingJob(_TrainingJob):
             additional_experiments (List[str]):
                 Optional. Additional experiment flags for the time series forcasting training.
             create_request_timeout (float):
-                Optional. The timeout for initiating this request in seconds. Note: 
-                this does not set the timeout on the underlying training job, only on 
+                Optional. The timeout for initiating this request in seconds. Note:
+                this does not set the timeout on the underlying training job, only on
                 the time to initiate the request.
             sync (bool):
                 Whether to execute this method synchronously. If False, this method
@@ -4407,8 +4405,8 @@ class AutoMLForecastingTrainingJob(_TrainingJob):
                 See https://goo.gl/xmQnxf for more information
                 and examples of labels.
             create_request_timeout (float):
-                Optional. The timeout for initiating this request in seconds. Note: 
-                this does not set the timeout on the underlying training job, only on 
+                Optional. The timeout for initiating this request in seconds. Note:
+                this does not set the timeout on the underlying training job, only on
                 the time to initiate the request.
             sync (bool):
                 Whether to execute this method synchronously. If False, this method
@@ -4973,8 +4971,8 @@ class AutoMLImageTrainingJob(_TrainingJob):
                 used, if further training does no longer brings significant improvement
                 to the model.
             create_request_timeout (float):
-                Optional. The timeout for initiating this request in seconds. Note: 
-                this does not set the timeout on the underlying training job, only on 
+                Optional. The timeout for initiating this request in seconds. Note:
+                this does not set the timeout on the underlying training job, only on
                 the time to initiate the request.
             sync (bool):
                 Whether to execute this method synchronously. If False, this method
@@ -5557,8 +5555,8 @@ class CustomPythonPackageTrainingJob(_CustomTrainingJob):
                 For more information on configuring your service account please visit:
                 https://cloud.google.com/vertex-ai/docs/experiments/tensorboard-training
             create_request_timeout (float):
-                Optional. The timeout for initiating this request in seconds. Note: 
-                this does not set the timeout on the underlying training job, only on 
+                Optional. The timeout for initiating this request in seconds. Note:
+                this does not set the timeout on the underlying training job, only on
                 the time to initiate the request.
             sync (bool):
                 Whether to execute this method synchronously. If False, this method
@@ -5775,8 +5773,8 @@ class CustomPythonPackageTrainingJob(_CustomTrainingJob):
             reduction_server_container_uri (str):
                 Optional. The Uri of the reduction server container image.
             create_request_timeout (float):
-                Optional. The timeout for initiating this request in seconds. Note: 
-                this does not set the timeout on the underlying training job, only on 
+                Optional. The timeout for initiating this request in seconds. Note:
+                this does not set the timeout on the underlying training job, only on
                 the time to initiate the request.
             sync (bool):
                 Whether to execute this method synchronously. If False, this method
@@ -6169,8 +6167,8 @@ class AutoMLVideoTrainingJob(_TrainingJob):
                 See https://goo.gl/xmQnxf for more information
                 and examples of labels.
             create_request_timeout (float):
-                Optional. The timeout for initiating this request in seconds. Note: 
-                this does not set the timeout on the underlying training job, only on 
+                Optional. The timeout for initiating this request in seconds. Note:
+                this does not set the timeout on the underlying training job, only on
                 the time to initiate the request.
             sync (bool):
                 Whether to execute this method synchronously. If False, this method
@@ -6578,8 +6576,8 @@ class AutoMLTextTrainingJob(_TrainingJob):
                 See https://goo.gl/xmQnxf for more information
                 and examples of labels.
             create_request_timeout (float):
-                Optional. The timeout for initiating this request in seconds. Note: 
-                this does not set the timeout on the underlying training job, only on 
+                Optional. The timeout for initiating this request in seconds. Note:
+                this does not set the timeout on the underlying training job, only on
                 the time to initiate the request.
             sync (bool):
                 Whether to execute this method synchronously. If False, this method
