@@ -48,6 +48,7 @@ from google.cloud.aiplatform_v1.types import io
 from google.cloud.aiplatform_v1.types import model
 from google.cloud.aiplatform_v1.types import model as gca_model
 from google.cloud.aiplatform_v1.types import model_evaluation
+from google.cloud.aiplatform_v1.types import model_evaluation as gca_model_evaluation
 from google.cloud.aiplatform_v1.types import model_evaluation_slice
 from google.cloud.aiplatform_v1.types import model_service
 from google.cloud.aiplatform_v1.types import operation as gca_operation
@@ -2088,6 +2089,254 @@ async def test_export_model_flattened_error_async():
 
 
 @pytest.mark.parametrize(
+    "request_type", [model_service.ImportModelEvaluationRequest, dict,]
+)
+def test_import_model_evaluation(request_type, transport: str = "grpc"):
+    client = ModelServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(), transport=transport,
+    )
+
+    # Everything is optional in proto3 as far as the runtime is concerned,
+    # and we are mocking out the actual API, so just send an empty request.
+    request = request_type()
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(
+        type(client.transport.import_model_evaluation), "__call__"
+    ) as call:
+        # Designate an appropriate return value for the call.
+        call.return_value = gca_model_evaluation.ModelEvaluation(
+            name="name_value",
+            metrics_schema_uri="metrics_schema_uri_value",
+            slice_dimensions=["slice_dimensions_value"],
+            data_item_schema_uri="data_item_schema_uri_value",
+            annotation_schema_uri="annotation_schema_uri_value",
+        )
+        response = client.import_model_evaluation(request)
+
+        # Establish that the underlying gRPC stub method was called.
+        assert len(call.mock_calls) == 1
+        _, args, _ = call.mock_calls[0]
+        assert args[0] == model_service.ImportModelEvaluationRequest()
+
+    # Establish that the response is the type that we expect.
+    assert isinstance(response, gca_model_evaluation.ModelEvaluation)
+    assert response.name == "name_value"
+    assert response.metrics_schema_uri == "metrics_schema_uri_value"
+    assert response.slice_dimensions == ["slice_dimensions_value"]
+    assert response.data_item_schema_uri == "data_item_schema_uri_value"
+    assert response.annotation_schema_uri == "annotation_schema_uri_value"
+
+
+def test_import_model_evaluation_empty_call():
+    # This test is a coverage failsafe to make sure that totally empty calls,
+    # i.e. request == None and no flattened fields passed, work.
+    client = ModelServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(), transport="grpc",
+    )
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(
+        type(client.transport.import_model_evaluation), "__call__"
+    ) as call:
+        client.import_model_evaluation()
+        call.assert_called()
+        _, args, _ = call.mock_calls[0]
+        assert args[0] == model_service.ImportModelEvaluationRequest()
+
+
+@pytest.mark.asyncio
+async def test_import_model_evaluation_async(
+    transport: str = "grpc_asyncio",
+    request_type=model_service.ImportModelEvaluationRequest,
+):
+    client = ModelServiceAsyncClient(
+        credentials=ga_credentials.AnonymousCredentials(), transport=transport,
+    )
+
+    # Everything is optional in proto3 as far as the runtime is concerned,
+    # and we are mocking out the actual API, so just send an empty request.
+    request = request_type()
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(
+        type(client.transport.import_model_evaluation), "__call__"
+    ) as call:
+        # Designate an appropriate return value for the call.
+        call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(
+            gca_model_evaluation.ModelEvaluation(
+                name="name_value",
+                metrics_schema_uri="metrics_schema_uri_value",
+                slice_dimensions=["slice_dimensions_value"],
+                data_item_schema_uri="data_item_schema_uri_value",
+                annotation_schema_uri="annotation_schema_uri_value",
+            )
+        )
+        response = await client.import_model_evaluation(request)
+
+        # Establish that the underlying gRPC stub method was called.
+        assert len(call.mock_calls)
+        _, args, _ = call.mock_calls[0]
+        assert args[0] == model_service.ImportModelEvaluationRequest()
+
+    # Establish that the response is the type that we expect.
+    assert isinstance(response, gca_model_evaluation.ModelEvaluation)
+    assert response.name == "name_value"
+    assert response.metrics_schema_uri == "metrics_schema_uri_value"
+    assert response.slice_dimensions == ["slice_dimensions_value"]
+    assert response.data_item_schema_uri == "data_item_schema_uri_value"
+    assert response.annotation_schema_uri == "annotation_schema_uri_value"
+
+
+@pytest.mark.asyncio
+async def test_import_model_evaluation_async_from_dict():
+    await test_import_model_evaluation_async(request_type=dict)
+
+
+def test_import_model_evaluation_field_headers():
+    client = ModelServiceClient(credentials=ga_credentials.AnonymousCredentials(),)
+
+    # Any value that is part of the HTTP/1.1 URI should be sent as
+    # a field header. Set these to a non-empty value.
+    request = model_service.ImportModelEvaluationRequest()
+
+    request.parent = "parent/value"
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(
+        type(client.transport.import_model_evaluation), "__call__"
+    ) as call:
+        call.return_value = gca_model_evaluation.ModelEvaluation()
+        client.import_model_evaluation(request)
+
+        # Establish that the underlying gRPC stub method was called.
+        assert len(call.mock_calls) == 1
+        _, args, _ = call.mock_calls[0]
+        assert args[0] == request
+
+    # Establish that the field header was sent.
+    _, _, kw = call.mock_calls[0]
+    assert ("x-goog-request-params", "parent=parent/value",) in kw["metadata"]
+
+
+@pytest.mark.asyncio
+async def test_import_model_evaluation_field_headers_async():
+    client = ModelServiceAsyncClient(credentials=ga_credentials.AnonymousCredentials(),)
+
+    # Any value that is part of the HTTP/1.1 URI should be sent as
+    # a field header. Set these to a non-empty value.
+    request = model_service.ImportModelEvaluationRequest()
+
+    request.parent = "parent/value"
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(
+        type(client.transport.import_model_evaluation), "__call__"
+    ) as call:
+        call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(
+            gca_model_evaluation.ModelEvaluation()
+        )
+        await client.import_model_evaluation(request)
+
+        # Establish that the underlying gRPC stub method was called.
+        assert len(call.mock_calls)
+        _, args, _ = call.mock_calls[0]
+        assert args[0] == request
+
+    # Establish that the field header was sent.
+    _, _, kw = call.mock_calls[0]
+    assert ("x-goog-request-params", "parent=parent/value",) in kw["metadata"]
+
+
+def test_import_model_evaluation_flattened():
+    client = ModelServiceClient(credentials=ga_credentials.AnonymousCredentials(),)
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(
+        type(client.transport.import_model_evaluation), "__call__"
+    ) as call:
+        # Designate an appropriate return value for the call.
+        call.return_value = gca_model_evaluation.ModelEvaluation()
+        # Call the method with a truthy value for each flattened field,
+        # using the keyword arguments to the method.
+        client.import_model_evaluation(
+            parent="parent_value",
+            model_evaluation=gca_model_evaluation.ModelEvaluation(name="name_value"),
+        )
+
+        # Establish that the underlying call was made with the expected
+        # request object values.
+        assert len(call.mock_calls) == 1
+        _, args, _ = call.mock_calls[0]
+        arg = args[0].parent
+        mock_val = "parent_value"
+        assert arg == mock_val
+        arg = args[0].model_evaluation
+        mock_val = gca_model_evaluation.ModelEvaluation(name="name_value")
+        assert arg == mock_val
+
+
+def test_import_model_evaluation_flattened_error():
+    client = ModelServiceClient(credentials=ga_credentials.AnonymousCredentials(),)
+
+    # Attempting to call a method with both a request object and flattened
+    # fields is an error.
+    with pytest.raises(ValueError):
+        client.import_model_evaluation(
+            model_service.ImportModelEvaluationRequest(),
+            parent="parent_value",
+            model_evaluation=gca_model_evaluation.ModelEvaluation(name="name_value"),
+        )
+
+
+@pytest.mark.asyncio
+async def test_import_model_evaluation_flattened_async():
+    client = ModelServiceAsyncClient(credentials=ga_credentials.AnonymousCredentials(),)
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(
+        type(client.transport.import_model_evaluation), "__call__"
+    ) as call:
+        # Designate an appropriate return value for the call.
+        call.return_value = gca_model_evaluation.ModelEvaluation()
+
+        call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(
+            gca_model_evaluation.ModelEvaluation()
+        )
+        # Call the method with a truthy value for each flattened field,
+        # using the keyword arguments to the method.
+        response = await client.import_model_evaluation(
+            parent="parent_value",
+            model_evaluation=gca_model_evaluation.ModelEvaluation(name="name_value"),
+        )
+
+        # Establish that the underlying call was made with the expected
+        # request object values.
+        assert len(call.mock_calls)
+        _, args, _ = call.mock_calls[0]
+        arg = args[0].parent
+        mock_val = "parent_value"
+        assert arg == mock_val
+        arg = args[0].model_evaluation
+        mock_val = gca_model_evaluation.ModelEvaluation(name="name_value")
+        assert arg == mock_val
+
+
+@pytest.mark.asyncio
+async def test_import_model_evaluation_flattened_error_async():
+    client = ModelServiceAsyncClient(credentials=ga_credentials.AnonymousCredentials(),)
+
+    # Attempting to call a method with both a request object and flattened
+    # fields is an error.
+    with pytest.raises(ValueError):
+        await client.import_model_evaluation(
+            model_service.ImportModelEvaluationRequest(),
+            parent="parent_value",
+            model_evaluation=gca_model_evaluation.ModelEvaluation(name="name_value"),
+        )
+
+
+@pytest.mark.parametrize(
     "request_type", [model_service.GetModelEvaluationRequest, dict,]
 )
 def test_get_model_evaluation(request_type, transport: str = "grpc"):
@@ -2108,6 +2357,8 @@ def test_get_model_evaluation(request_type, transport: str = "grpc"):
             name="name_value",
             metrics_schema_uri="metrics_schema_uri_value",
             slice_dimensions=["slice_dimensions_value"],
+            data_item_schema_uri="data_item_schema_uri_value",
+            annotation_schema_uri="annotation_schema_uri_value",
         )
         response = client.get_model_evaluation(request)
 
@@ -2121,6 +2372,8 @@ def test_get_model_evaluation(request_type, transport: str = "grpc"):
     assert response.name == "name_value"
     assert response.metrics_schema_uri == "metrics_schema_uri_value"
     assert response.slice_dimensions == ["slice_dimensions_value"]
+    assert response.data_item_schema_uri == "data_item_schema_uri_value"
+    assert response.annotation_schema_uri == "annotation_schema_uri_value"
 
 
 def test_get_model_evaluation_empty_call():
@@ -2163,6 +2416,8 @@ async def test_get_model_evaluation_async(
                 name="name_value",
                 metrics_schema_uri="metrics_schema_uri_value",
                 slice_dimensions=["slice_dimensions_value"],
+                data_item_schema_uri="data_item_schema_uri_value",
+                annotation_schema_uri="annotation_schema_uri_value",
             )
         )
         response = await client.get_model_evaluation(request)
@@ -2177,6 +2432,8 @@ async def test_get_model_evaluation_async(
     assert response.name == "name_value"
     assert response.metrics_schema_uri == "metrics_schema_uri_value"
     assert response.slice_dimensions == ["slice_dimensions_value"]
+    assert response.data_item_schema_uri == "data_item_schema_uri_value"
+    assert response.annotation_schema_uri == "annotation_schema_uri_value"
 
 
 @pytest.mark.asyncio
@@ -3444,6 +3701,7 @@ def test_model_service_base_transport():
         "update_model",
         "delete_model",
         "export_model",
+        "import_model_evaluation",
         "get_model_evaluation",
         "list_model_evaluations",
         "get_model_evaluation_slice",

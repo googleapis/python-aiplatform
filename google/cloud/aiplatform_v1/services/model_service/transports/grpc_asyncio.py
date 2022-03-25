@@ -28,6 +28,7 @@ from grpc.experimental import aio  # type: ignore
 from google.cloud.aiplatform_v1.types import model
 from google.cloud.aiplatform_v1.types import model as gca_model
 from google.cloud.aiplatform_v1.types import model_evaluation
+from google.cloud.aiplatform_v1.types import model_evaluation as gca_model_evaluation
 from google.cloud.aiplatform_v1.types import model_evaluation_slice
 from google.cloud.aiplatform_v1.types import model_service
 from google.longrunning import operations_pb2  # type: ignore
@@ -426,6 +427,35 @@ class ModelServiceGrpcAsyncIOTransport(ModelServiceTransport):
                 response_deserializer=operations_pb2.Operation.FromString,
             )
         return self._stubs["export_model"]
+
+    @property
+    def import_model_evaluation(
+        self,
+    ) -> Callable[
+        [model_service.ImportModelEvaluationRequest],
+        Awaitable[gca_model_evaluation.ModelEvaluation],
+    ]:
+        r"""Return a callable for the import model evaluation method over gRPC.
+
+        Imports an externally generated ModelEvaluation.
+
+        Returns:
+            Callable[[~.ImportModelEvaluationRequest],
+                    Awaitable[~.ModelEvaluation]]:
+                A function that, when called, will call the underlying RPC
+                on the server.
+        """
+        # Generate a "stub function" on-the-fly which will actually make
+        # the request.
+        # gRPC handles serialization and deserialization, so we just need
+        # to pass in the functions for each.
+        if "import_model_evaluation" not in self._stubs:
+            self._stubs["import_model_evaluation"] = self.grpc_channel.unary_unary(
+                "/google.cloud.aiplatform.v1.ModelService/ImportModelEvaluation",
+                request_serializer=model_service.ImportModelEvaluationRequest.serialize,
+                response_deserializer=gca_model_evaluation.ModelEvaluation.deserialize,
+            )
+        return self._stubs["import_model_evaluation"]
 
     @property
     def get_model_evaluation(
