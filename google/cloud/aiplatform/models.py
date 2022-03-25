@@ -15,6 +15,7 @@
 # limitations under the License.
 #
 import pathlib
+from venv import create
 import proto
 import re
 import shutil
@@ -204,6 +205,7 @@ class Endpoint(base.VertexAiResourceNounWithFutureManager):
         location: Optional[str] = None,
         credentials: Optional[auth_credentials.Credentials] = None,
         encryption_spec_key_name: Optional[str] = None,
+        create_request_timeout: Optional[float] = None,
         sync=True,
     ) -> "Endpoint":
         """Creates a new endpoint.
@@ -248,6 +250,10 @@ class Endpoint(base.VertexAiResourceNounWithFutureManager):
                 If set, this Endpoint and all sub-resources of this Endpoint will be secured by this key.
 
                 Overrides encryption_spec_key_name set in aiplatform.init.
+            create_request_timeout (float):
+                Optional. The timeout for initiating this request in seconds. Note:
+                this does not set the timeout on the underlying job, only on
+                the time to initiate the request.
             sync (bool):
                 Whether to execute this method synchronously. If False, this method
                 will be executed in concurrent Future and any downstream object will
@@ -278,6 +284,7 @@ class Endpoint(base.VertexAiResourceNounWithFutureManager):
             encryption_spec=initializer.global_config.get_encryption_spec(
                 encryption_spec_key_name=encryption_spec_key_name
             ),
+            create_request_timeout=create_request_timeout,
             sync=sync,
         )
 
@@ -294,6 +301,7 @@ class Endpoint(base.VertexAiResourceNounWithFutureManager):
         metadata: Optional[Sequence[Tuple[str, str]]] = (),
         credentials: Optional[auth_credentials.Credentials] = None,
         encryption_spec: Optional[gca_encryption_spec.EncryptionSpec] = None,
+        create_request_timeout: Optional[float] = None,
         sync=True,
     ) -> "Endpoint":
         """Creates a new endpoint by calling the API client.
@@ -336,6 +344,10 @@ class Endpoint(base.VertexAiResourceNounWithFutureManager):
                 resource is created.
 
                 If set, this Dataset and all sub-resources of this Dataset will be secured by this key.
+            create_request_timeout (float):
+                Optional. The timeout for initiating this request in seconds. Note:
+                this does not set the timeout on the underlying job, only on
+                the time to initiate the request.
             sync (bool):
                 Whether to create this endpoint synchronously.
         Returns:
@@ -355,7 +367,10 @@ class Endpoint(base.VertexAiResourceNounWithFutureManager):
         )
 
         operation_future = api_client.create_endpoint(
-            parent=parent, endpoint=gapic_endpoint, metadata=metadata
+            parent=parent,
+            endpoint=gapic_endpoint,
+            metadata=metadata,
+            timeout=create_request_timeout,
         )
 
         _LOGGER.log_create_with_lro(cls, operation_future)
@@ -598,6 +613,7 @@ class Endpoint(base.VertexAiResourceNounWithFutureManager):
         explanation_metadata: Optional[explain.ExplanationMetadata] = None,
         explanation_parameters: Optional[explain.ExplanationParameters] = None,
         metadata: Optional[Sequence[Tuple[str, str]]] = (),
+        deploy_request_timeout: Optional[float] = None,
         sync=True,
     ) -> None:
         """Deploys a Model to the Endpoint.
@@ -666,6 +682,10 @@ class Endpoint(base.VertexAiResourceNounWithFutureManager):
             metadata (Sequence[Tuple[str, str]]):
                 Optional. Strings which should be sent along with the request as
                 metadata.
+            deploy_request_timeout (float):
+                Optional. The timeout for initiating this request in seconds. Note:
+                this does not set the timeout on the underlying job, only on
+                the time to initiate the request.
             sync (bool):
                 Whether to execute this method synchronously. If False, this method
                 will be executed in concurrent Future and any downstream object will
@@ -698,6 +718,7 @@ class Endpoint(base.VertexAiResourceNounWithFutureManager):
             explanation_metadata=explanation_metadata,
             explanation_parameters=explanation_parameters,
             metadata=metadata,
+            deploy_request_timeout=deploy_request_timeout,
             sync=sync,
         )
 
@@ -717,6 +738,7 @@ class Endpoint(base.VertexAiResourceNounWithFutureManager):
         explanation_metadata: Optional[explain.ExplanationMetadata] = None,
         explanation_parameters: Optional[explain.ExplanationParameters] = None,
         metadata: Optional[Sequence[Tuple[str, str]]] = (),
+        deploy_request_timeout: Optional[float] = None,
         sync=True,
     ) -> None:
         """Deploys a Model to the Endpoint.
@@ -785,6 +807,10 @@ class Endpoint(base.VertexAiResourceNounWithFutureManager):
             metadata (Sequence[Tuple[str, str]]):
                 Optional. Strings which should be sent along with the request as
                 metadata.
+            deploy_request_timeout (float):
+                Optional. The timeout for initiating this request in seconds. Note:
+                this does not set the timeout on the underlying job, only on
+                the time to initiate the request.
             sync (bool):
                 Whether to execute this method synchronously. If False, this method
                 will be executed in concurrent Future and any downstream object will
@@ -814,6 +840,7 @@ class Endpoint(base.VertexAiResourceNounWithFutureManager):
             explanation_metadata=explanation_metadata,
             explanation_parameters=explanation_parameters,
             metadata=metadata,
+            deploy_request_timeout=deploy_request_timeout,
         )
 
         _LOGGER.log_action_completed_against_resource("model", "deployed", self)
@@ -2232,6 +2259,7 @@ class Model(base.VertexAiResourceNounWithFutureManager):
         labels: Optional[Dict[str, str]] = None,
         credentials: Optional[auth_credentials.Credentials] = None,
         encryption_spec_key_name: Optional[str] = None,
+        create_request_timeout: Optional[float] = None,
         sync: bool = True,
     ) -> jobs.BatchPredictionJob:
         """Creates a batch prediction job using this Model and outputs
@@ -2386,6 +2414,10 @@ class Model(base.VertexAiResourceNounWithFutureManager):
                 If set, this Model and all sub-resources of this Model will be secured by this key.
 
                 Overrides encryption_spec_key_name set in aiplatform.init.
+            create_request_timeout (float):
+                Optional. The timeout for initiating this request in seconds. Note:
+                this does not set the timeout on the underlying job, only on
+                the time to initiate the request.
         Returns:
             (jobs.BatchPredictionJob):
                 Instantiated representation of the created batch prediction job.
@@ -2414,6 +2446,7 @@ class Model(base.VertexAiResourceNounWithFutureManager):
             location=self.location,
             credentials=credentials or self.credentials,
             encryption_spec_key_name=encryption_spec_key_name,
+            create_request_timeout=create_request_timeout,
             sync=sync,
         )
 

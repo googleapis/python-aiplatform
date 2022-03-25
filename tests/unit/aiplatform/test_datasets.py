@@ -684,24 +684,6 @@ class TestDataset:
         )
 
     @pytest.mark.usefixtures("get_dataset_mock")
-    def test_create_dataset_tabular_with_timeout(self, create_dataset_mock):
-        aiplatform.init(project=_TEST_PROJECT)
-
-        expected_dataset = gca_dataset.Dataset(
-            display_name=_TEST_DISPLAY_NAME,
-            metadata_schema_uri=_TEST_METADATA_SCHEMA_URI_NONTABULAR,
-            metadata=_TEST_NONTABULAR_DATASET_METADATA,
-            encryption_spec=_TEST_ENCRYPTION_SPEC,
-        )
-
-        create_dataset_mock.assert_called_once_with(
-            parent=_TEST_PARENT,
-            dataset=expected_dataset,
-            metadata=_TEST_REQUEST_METADATA,
-            timeout=180.0,
-        )
-
-    @pytest.mark.usefixtures("get_dataset_mock")
     @pytest.mark.parametrize("sync", [True, False])
     def test_create_and_import_dataset(
         self, create_dataset_mock, import_data_mock, sync

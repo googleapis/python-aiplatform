@@ -4716,6 +4716,7 @@ class AutoMLImageTrainingJob(_TrainingJob):
         model_display_name: Optional[str] = None,
         model_labels: Optional[Dict[str, str]] = None,
         disable_early_stopping: bool = False,
+        create_request_timeout: Optional[float] = False,
         sync: bool = True,
     ) -> models.Model:
         """Runs the AutoML Image training job and returns a model.
@@ -4818,6 +4819,10 @@ class AutoMLImageTrainingJob(_TrainingJob):
                 that training might stop before the entire training budget has been
                 used, if further training does no longer brings significant improvement
                 to the model.
+            create_request_timeout (float):
+                Optional. The timeout for initiating this request in seconds. Note:
+                this does not set the timeout on the underlying job, only on
+                the time to initiate the request.
             sync: bool = True
                 Whether to execute this method synchronously. If False, this method
                 will be executed in concurrent Future and any downstream object will
@@ -4854,6 +4859,7 @@ class AutoMLImageTrainingJob(_TrainingJob):
             model_display_name=model_display_name,
             model_labels=model_labels,
             disable_early_stopping=disable_early_stopping,
+            create_request_timeout=create_request_timeout,
             sync=sync,
         )
 
@@ -5996,6 +6002,7 @@ class AutoMLVideoTrainingJob(_TrainingJob):
         test_filter_split: Optional[str] = None,
         model_display_name: Optional[str] = None,
         model_labels: Optional[Dict[str, str]] = None,
+        create_request_timeout: Optional[float] = None,
         sync: bool = True,
     ) -> models.Model:
         """Runs the AutoML Video training job and returns a model.
@@ -6060,6 +6067,10 @@ class AutoMLVideoTrainingJob(_TrainingJob):
                 are allowed.
                 See https://goo.gl/xmQnxf for more information
                 and examples of labels.
+            create_request_timeout (float):
+                Optional. The timeout for initiating this request in seconds. Note:
+                this does not set the timeout on the underlying job, only on
+                the time to initiate the request.
             sync: bool = True
                 Whether to execute this method synchronously. If False, this method
                 will be executed in concurrent Future and any downstream object will
@@ -6091,6 +6102,7 @@ class AutoMLVideoTrainingJob(_TrainingJob):
             test_filter_split=test_filter_split,
             model_display_name=model_display_name,
             model_labels=model_labels,
+            create_request_timeout=create_request_timeout,
             sync=sync,
         )
 
@@ -6378,6 +6390,7 @@ class AutoMLTextTrainingJob(_TrainingJob):
         test_filter_split: Optional[str] = None,
         model_display_name: Optional[str] = None,
         model_labels: Optional[Dict[str, str]] = None,
+        create_request_timeout: Optional[float] = None,
         sync: bool = True,
     ) -> models.Model:
         """Runs the training job and returns a model.
@@ -6454,6 +6467,10 @@ class AutoMLTextTrainingJob(_TrainingJob):
                 are allowed.
                 See https://goo.gl/xmQnxf for more information
                 and examples of labels.
+            create_request_timeout (float):
+                Optional. The timeout for initiating this request in seconds. Note:
+                this does not set the timeout on the underlying job, only on
+                the time to initiate the request.
             sync (bool):
                 Whether to execute this method synchronously. If False, this method
                 will be executed in concurrent Future and any downstream object will
@@ -6486,6 +6503,7 @@ class AutoMLTextTrainingJob(_TrainingJob):
             test_filter_split=test_filter_split,
             model_display_name=model_display_name,
             model_labels=model_labels,
+            create_request_timeout=create_request_timeout,
             sync=sync,
         )
 
