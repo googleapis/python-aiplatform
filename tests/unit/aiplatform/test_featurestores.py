@@ -2085,7 +2085,7 @@ class TestEntityType:
                 id_matcher=gca_feature_selector.IdMatcher(ids=["*"])
             ),
         )
-        result = my_entity_type.read(
+        my_entity_type.read(
             entity_ids=_TEST_READ_ENTITY_ID, read_request_timeout=180.0,
         )
         read_feature_values_mock.assert_called_once_with(

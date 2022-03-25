@@ -15,7 +15,6 @@
 # limitations under the License.
 #
 
-from socket import timeout
 from typing import Dict, List, Optional, Sequence, Tuple
 
 from google.auth import credentials as auth_credentials

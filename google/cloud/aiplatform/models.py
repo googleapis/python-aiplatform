@@ -15,7 +15,6 @@
 # limitations under the License.
 #
 import pathlib
-from venv import create
 import proto
 import re
 import shutil
