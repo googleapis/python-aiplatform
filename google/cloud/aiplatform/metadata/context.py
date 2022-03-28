@@ -73,12 +73,16 @@ class _Context(resource._Resource):
             metadata=metadata if metadata else {},
         )
         return client.create_context(
-            parent=parent, context=gapic_context, context_id=resource_id,
+            parent=parent,
+            context=gapic_context,
+            context_id=resource_id,
         )
 
     @classmethod
     def _update_resource(
-        cls, client: utils.MetadataClientWithOverride, resource: proto.Message,
+        cls,
+        client: utils.MetadataClientWithOverride,
+        resource: proto.Message,
     ) -> proto.Message:
         """Update Contexts with given input.
 
@@ -110,6 +114,7 @@ class _Context(resource._Resource):
         """
 
         list_request = metadata_service.ListContextsRequest(
-            parent=parent, filter=filter,
+            parent=parent,
+            filter=filter,
         )
         return client.list_contexts(request=list_request)
