@@ -2406,9 +2406,9 @@ class CustomContainerTrainingJob(_CustomTrainingJob):
     ):
         """Constructs a Custom Container Training Job.
 
-        job = aiplatform.CustomTrainingJob(
+        job = aiplatform.CustomContainerTrainingJob(
             display_name='test-train',
-            container_uri='gcr.io/cloud-aiplatform/training/tf-cpu.2-2:latest',
+            container_uri='gcr.io/my_project_id/my_image_name:tag',
             command=['python3', 'run_script.py']
             model_serving_container_image_uri='gcr.io/my-trainer/serving:1',
             model_serving_container_predict_route='predict',
@@ -3264,7 +3264,10 @@ class AutoMLTabularTrainingJob(_TrainingJob):
                 If an input column has no transformations on it, such a column is
                 ignored by the training, except for the targetColumn, which should have
                 no transformations defined on.
-                Only one of column_transformations or column_specs should be passed.
+                Only one of column_transformations or column_specs should be passed. If none
+                of column_transformations or column_specs is passed, the service account
+                being used will try setting column_specs to "auto". To do this, the service
+                account needes read access to the GCS or BigQuery training data source.
             column_transformations (List[Dict[str, Dict[str, str]]]):
                 Optional. Transformations to apply to the input columns (i.e. columns other
                 than the targetColumn). Each transformation may produce multiple
@@ -3276,7 +3279,11 @@ class AutoMLTabularTrainingJob(_TrainingJob):
                 ignored by the training, except for the targetColumn, which should have
                 no transformations defined on.
                 Only one of column_transformations or column_specs should be passed.
-                Consider using column_specs as column_transformations will be deprecated eventually.
+                Consider using column_specs as column_transformations will be deprecated
+                eventually. If none of column_transformations or column_specs is passed,
+                the service account being used will try setting column_transformations
+                to "auto". To do this, the service account needes read access to the GCS
+                or BigQuery training data source.
             optimization_objective_recall_value (float):
                 Optional. Required when maximize-precision-at-recall optimizationObjective was
                 picked, represents the recall value at which the optimization is done.
