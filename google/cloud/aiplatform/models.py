@@ -1654,13 +1654,15 @@ class PrivateEndpoint(Endpoint):
                 method, url, body=body, headers=headers
             )
 
+            # delete later, use for testing
+            print(response.data)
+
             if response.status < 300:
                 return response
             else:
                 # add if statements for explain vs. predict 404 errors
                 raise RuntimeError(
-                    f"{response.status} - Failed to make request, see response:\n",
-                    response.data,
+                    f"{response.status} - Failed to make request, see response:\n" + response.data.decode("utf-8")
                 )
 
         except urllib3.exceptions.MaxRetryError:
@@ -1757,26 +1759,21 @@ class PrivateEndpoint(Endpoint):
         self.wait()
         self._sync_gca_resource_if_skipped()
 
-        try:
-            response = self._http_request(
-                method="POST",
-                url=self.explain_http_uri,
-                body=json.dumps({"instances": instances}),
-                headers={"Content-Type": "application/json"},
+        if (self.explain_http_uri and not self._gca_resource.deployed_models[
+                0].explanation_metadata and not self._gca_resource.deployed_models[
+                0].explanation_parameters):
+            raise RuntimeError(
+                "This deployed model cannot do explanations. Please undeploy and redeploy "
+                "the model with the explanation_metadata and explanation_parameters arguments "
+                "specified."
             )
 
-        except urllib3.exceptions.MaxRetryError as err:
-            if not (
-                self._custom_explain_uri
-                or self._gca_resource.deployed_models[
-                    0
-                ].private_endpoints.explain_http_uri
-            ):
-                raise RuntimeError(
-                    "There is no URI for explanations on this private Endpoint, please "
-                    "check if the model deployed supports explanations."
-                )
-            raise err
+        response = self._http_request(
+            method="POST",
+            url=self.explain_http_uri,
+            body=json.dumps({"instances": instances}),
+            headers={"Content-Type": "application/json"},
+        )
 
         prediction_response = response.data.decode("utf-8")
 
