@@ -43,9 +43,9 @@ lit_extra_require = [
     "explainable-ai-sdk >= 1.0.0",
 ]
 profiler_extra_require = [
-    "tensorboard-plugin-profile >= 2.4.0",
-    "werkzeug >= 2.0.0",
-    "tensorflow >=2.4.0",
+    "tensorboard-plugin-profile >= 2.4.0, <3.0.0dev",
+    "werkzeug >= 2.0.0, <2.1.0dev",
+    "tensorflow >=2.4.0, <3.0.0dev",
 ]
 featurestore_extra_require = [
     "google-cloud-bigquery-storage",
