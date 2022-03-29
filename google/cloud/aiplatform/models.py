@@ -1634,6 +1634,13 @@ class PrivateEndpoint(Endpoint):
         headers: Optional[Dict[str, str]] = None,
     ) -> urllib3.response.HTTPResponse:
 
+        if not self._gca_resource.deployed_models:
+            raise RuntimeError(
+                f"Failed to make a {method} request. A model is not deployed "
+                f"to this private Endpoint and a model must be deployed to make a {method} request."
+                )
+
+
         try:
             response = self._http_client.request(
                 method, url, body=body, headers=headers
@@ -1642,6 +1649,7 @@ class PrivateEndpoint(Endpoint):
             if response.status < 300:
                 return response
             else:
+                # add if statements for explain vs. predict 404 errors
                 raise RuntimeError(
                     f"{response.status} - Failed to make request, see response:\n",
                     response.data,
@@ -1684,7 +1692,7 @@ class PrivateEndpoint(Endpoint):
                 ][google.cloud.aiplatform.v1beta1.DeployedModel.model]
                 [PredictSchemata's][google.cloud.aiplatform.v1beta1.Model.predict_schemata]
                 ``parameters_schema_uri``.
-                
+
         Returns:
             prediction: Prediction with returned predictions and Model Id.
         """
