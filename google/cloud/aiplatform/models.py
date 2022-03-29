@@ -1452,6 +1452,11 @@ class PrivateEndpoint(Endpoint):
     @property
     def predict_http_uri(self) -> Optional[str]:
         """Http(s) path to send prediction requests to, used when calling `PrivateEndpoint.predict()`"""
+        if not self._gca_resource.deployed_models:
+            raise RuntimeError(
+                "Cannot make a predict request because a model has not been deployed on this private "
+                "Endpoint. Please ensure a model has been deployed."
+            )
         return (
             self._custom_predict_uri
             or self._gca_resource.deployed_models[0].private_endpoints.predict_http_uri
@@ -1460,6 +1465,11 @@ class PrivateEndpoint(Endpoint):
     @property
     def explain_http_uri(self) -> Optional[str]:
         """Http(s) path to send explain requests to, used when calling `PrivateEndpoint.explain()`"""
+        if not self._gca_resource.deployed_models:
+            raise RuntimeError(
+                "Cannot make a explain request because a model has not been deployed on this private "
+                "Endpoint. Please ensure a model has been deployed."
+            )
         return (
             self._custom_explain_uri
             or self._gca_resource.deployed_models[0].private_endpoints.explain_http_uri
@@ -1468,6 +1478,11 @@ class PrivateEndpoint(Endpoint):
     @property
     def health_http_uri(self) -> Optional[str]:
         """Http(s) path to send health check requests to, used when calling `PrivateEndpoint.health_check()`"""
+        if not self._gca_resource.deployed_models:
+            raise RuntimeError(
+                "Cannot make a health check request because a model has not been deployed on this private "
+                "Endpoint. Please ensure a model has been deployed."
+            )
         return (
             self._custom_health_uri
             or self._gca_resource.deployed_models[0].private_endpoints.health_http_uri
@@ -1633,13 +1648,6 @@ class PrivateEndpoint(Endpoint):
         body: Optional[Dict[Any, Any]] = None,
         headers: Optional[Dict[str, str]] = None,
     ) -> urllib3.response.HTTPResponse:
-
-        if not self._gca_resource.deployed_models:
-            raise RuntimeError(
-                f"Failed to make a {method} request. A model is not deployed "
-                f"to this private Endpoint and a model must be deployed to make a {method} request."
-                )
-
 
         try:
             response = self._http_client.request(
