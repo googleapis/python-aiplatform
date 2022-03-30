@@ -40,6 +40,7 @@ class TestProjectIDInference(e2e_base.TestEndToEnd):
         shared_state["resources"] = []
 
         aiplatform.init(
+            project=e2e_base._PROJECT,
             location=e2e_base._LOCATION,
             staging_bucket=shared_state["staging_bucket_name"],
         )
