@@ -1760,7 +1760,7 @@ class PrivateEndpoint(Endpoint):
         """
         self.wait()
         self._sync_gca_resource_if_skipped()
-
+        '''
         if (self.explain_http_uri and not self._gca_resource.deployed_models[
                 0].explanation_metadata and not self._gca_resource.deployed_models[
                 0].explanation_parameters):
@@ -1769,7 +1769,7 @@ class PrivateEndpoint(Endpoint):
                 "the model with the explanation_metadata and explanation_parameters arguments "
                 "specified."
             )
-
+        '''
         response = self._http_request(
             method="POST",
             url=self.explain_http_uri,
