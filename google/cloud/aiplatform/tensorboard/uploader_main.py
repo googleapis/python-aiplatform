@@ -99,7 +99,8 @@ def main(argv):
     project_id = m[1]
     region = m[2]
     api_client = aiplatform.initializer.global_config.create_client(
-        client_class=TensorboardClientWithOverride, location_override=region,
+        client_class=TensorboardClientWithOverride,
+        location_override=region,
     )
 
     try:
@@ -163,7 +164,9 @@ def get_experiment_display_name_with_override(
     if experiment_name.isdecimal() and not experiment_display_name:
         try:
             return jobs.CustomJob.get(
-                resource_name=experiment_name, project=project_id, location=region,
+                resource_name=experiment_name,
+                project=project_id,
+                location=region,
             ).display_name
         except exceptions.NotFound:
             return experiment_display_name

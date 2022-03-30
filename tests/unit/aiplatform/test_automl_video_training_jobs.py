@@ -50,7 +50,8 @@ _TEST_MODEL_LABELS = {"model_key": "model_value"}
 _TEST_MODEL_ID = "98777645321"  # TODO
 
 _TEST_TRAINING_TASK_INPUTS = json_format.ParseDict(
-    {"modelType": "CLOUD"}, struct_pb2.Value(),
+    {"modelType": "CLOUD"},
+    struct_pb2.Value(),
 )
 
 _TEST_FRACTION_SPLIT_TRAINING = 0.8
@@ -92,10 +93,12 @@ def mock_pipeline_service_create():
     with mock.patch.object(
         pipeline_service_client.PipelineServiceClient, "create_training_pipeline"
     ) as mock_create_training_pipeline:
-        mock_create_training_pipeline.return_value = gca_training_pipeline.TrainingPipeline(
-            name=_TEST_PIPELINE_RESOURCE_NAME,
-            state=gca_pipeline_state.PipelineState.PIPELINE_STATE_SUCCEEDED,
-            model_to_upload=gca_model.Model(name=_TEST_MODEL_NAME),
+        mock_create_training_pipeline.return_value = (
+            gca_training_pipeline.TrainingPipeline(
+                name=_TEST_PIPELINE_RESOURCE_NAME,
+                state=gca_pipeline_state.PipelineState.PIPELINE_STATE_SUCCEEDED,
+                model_to_upload=gca_model.Model(name=_TEST_MODEL_NAME),
+            )
         )
         yield mock_create_training_pipeline
 
@@ -105,10 +108,12 @@ def mock_pipeline_service_get():
     with mock.patch.object(
         pipeline_service_client.PipelineServiceClient, "get_training_pipeline"
     ) as mock_get_training_pipeline:
-        mock_get_training_pipeline.return_value = gca_training_pipeline.TrainingPipeline(
-            name=_TEST_PIPELINE_RESOURCE_NAME,
-            state=gca_pipeline_state.PipelineState.PIPELINE_STATE_SUCCEEDED,
-            model_to_upload=gca_model.Model(name=_TEST_MODEL_NAME),
+        mock_get_training_pipeline.return_value = (
+            gca_training_pipeline.TrainingPipeline(
+                name=_TEST_PIPELINE_RESOURCE_NAME,
+                state=gca_pipeline_state.PipelineState.PIPELINE_STATE_SUCCEEDED,
+                model_to_upload=gca_model.Model(name=_TEST_MODEL_NAME),
+            )
         )
         yield mock_get_training_pipeline
 
@@ -118,17 +123,21 @@ def mock_pipeline_service_create_and_get_with_fail():
     with mock.patch.object(
         pipeline_service_client.PipelineServiceClient, "create_training_pipeline"
     ) as mock_create_training_pipeline:
-        mock_create_training_pipeline.return_value = gca_training_pipeline.TrainingPipeline(
-            name=_TEST_PIPELINE_RESOURCE_NAME,
-            state=gca_pipeline_state.PipelineState.PIPELINE_STATE_RUNNING,
+        mock_create_training_pipeline.return_value = (
+            gca_training_pipeline.TrainingPipeline(
+                name=_TEST_PIPELINE_RESOURCE_NAME,
+                state=gca_pipeline_state.PipelineState.PIPELINE_STATE_RUNNING,
+            )
         )
 
         with mock.patch.object(
             pipeline_service_client.PipelineServiceClient, "get_training_pipeline"
         ) as mock_get_training_pipeline:
-            mock_get_training_pipeline.return_value = gca_training_pipeline.TrainingPipeline(
-                name=_TEST_PIPELINE_RESOURCE_NAME,
-                state=gca_pipeline_state.PipelineState.PIPELINE_STATE_FAILED,
+            mock_get_training_pipeline.return_value = (
+                gca_training_pipeline.TrainingPipeline(
+                    name=_TEST_PIPELINE_RESOURCE_NAME,
+                    state=gca_pipeline_state.PipelineState.PIPELINE_STATE_FAILED,
+                )
             )
 
             yield mock_create_training_pipeline, mock_get_training_pipeline
@@ -167,7 +176,8 @@ def mock_model():
     model._latest_future = None
     model._exception = None
     model._gca_resource = gca_model.Model(
-        display_name=_TEST_MODEL_DISPLAY_NAME, name=_TEST_MODEL_NAME,
+        display_name=_TEST_MODEL_DISPLAY_NAME,
+        name=_TEST_MODEL_NAME,
     )
     yield model
 
@@ -202,7 +212,8 @@ class TestAutoMLVideoTrainingJob:
 
         with pytest.raises(ValueError, match=r"not a supported prediction type"):
             training_jobs.AutoMLVideoTrainingJob(
-                display_name=_TEST_DISPLAY_NAME, prediction_type="abcdefg",
+                display_name=_TEST_DISPLAY_NAME,
+                prediction_type="abcdefg",
             )
 
         with pytest.raises(ValueError, match=r"not a supported model_type for"):
@@ -330,7 +341,8 @@ class TestAutoMLVideoTrainingJob:
         )
 
         true_input_data_config = gca_training_pipeline.InputDataConfig(
-            fraction_split=true_fraction_split, dataset_id=mock_dataset_video.name,
+            fraction_split=true_fraction_split,
+            dataset_id=mock_dataset_video.name,
         )
 
         true_training_pipeline = gca_training_pipeline.TrainingPipeline(
@@ -397,7 +409,8 @@ class TestAutoMLVideoTrainingJob:
         )
 
         true_input_data_config = gca_training_pipeline.InputDataConfig(
-            filter_split=true_filter_split, dataset_id=mock_dataset_video.name,
+            filter_split=true_filter_split,
+            dataset_id=mock_dataset_video.name,
         )
 
         true_training_pipeline = gca_training_pipeline.TrainingPipeline(
@@ -522,7 +535,8 @@ class TestAutoMLVideoTrainingJob:
         )
 
         true_input_data_config = gca_training_pipeline.InputDataConfig(
-            filter_split=true_filter_split, dataset_id=mock_dataset_video.name,
+            filter_split=true_filter_split,
+            dataset_id=mock_dataset_video.name,
         )
 
         true_training_pipeline = gca_training_pipeline.TrainingPipeline(
@@ -584,11 +598,13 @@ class TestAutoMLVideoTrainingJob:
 
         # Test that if defaults to the job display name
         true_managed_model = gca_model.Model(
-            display_name=_TEST_DISPLAY_NAME, labels=_TEST_LABELS,
+            display_name=_TEST_DISPLAY_NAME,
+            labels=_TEST_LABELS,
         )
 
         true_input_data_config = gca_training_pipeline.InputDataConfig(
-            fraction_split=true_fraction_split, dataset_id=mock_dataset_video.name,
+            fraction_split=true_fraction_split,
+            dataset_id=mock_dataset_video.name,
         )
 
         true_training_pipeline = gca_training_pipeline.TrainingPipeline(
@@ -612,11 +628,15 @@ class TestAutoMLVideoTrainingJob:
     )
     @pytest.mark.parametrize("sync", [True, False])
     def test_run_called_twice_raises(
-        self, mock_dataset_video, sync,
+        self,
+        mock_dataset_video,
+        sync,
     ):
         aiplatform.init(project=_TEST_PROJECT)
 
-        job = training_jobs.AutoMLVideoTrainingJob(display_name=_TEST_DISPLAY_NAME,)
+        job = training_jobs.AutoMLVideoTrainingJob(
+            display_name=_TEST_DISPLAY_NAME,
+        )
 
         job.run(
             dataset=mock_dataset_video,
@@ -638,11 +658,15 @@ class TestAutoMLVideoTrainingJob:
     )
     @pytest.mark.parametrize("sync", [True, False])
     def test_run_with_two_split_raises(
-        self, mock_dataset_video, sync,
+        self,
+        mock_dataset_video,
+        sync,
     ):
         aiplatform.init(project=_TEST_PROJECT)
 
-        job = training_jobs.AutoMLVideoTrainingJob(display_name=_TEST_DISPLAY_NAME,)
+        job = training_jobs.AutoMLVideoTrainingJob(
+            display_name=_TEST_DISPLAY_NAME,
+        )
 
         with pytest.raises(ValueError):
             model_from_job = job.run(
@@ -664,7 +688,9 @@ class TestAutoMLVideoTrainingJob:
 
         aiplatform.init(project=_TEST_PROJECT)
 
-        job = training_jobs.AutoMLVideoTrainingJob(display_name=_TEST_DISPLAY_NAME,)
+        job = training_jobs.AutoMLVideoTrainingJob(
+            display_name=_TEST_DISPLAY_NAME,
+        )
 
         with pytest.raises(RuntimeError):
             job.run(
@@ -684,7 +710,9 @@ class TestAutoMLVideoTrainingJob:
     def test_raises_before_run_is_called(self, mock_pipeline_service_create):
         aiplatform.init(project=_TEST_PROJECT)
 
-        job = training_jobs.AutoMLVideoTrainingJob(display_name=_TEST_DISPLAY_NAME,)
+        job = training_jobs.AutoMLVideoTrainingJob(
+            display_name=_TEST_DISPLAY_NAME,
+        )
 
         with pytest.raises(RuntimeError):
             job.get_model()

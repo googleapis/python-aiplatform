@@ -22,7 +22,8 @@ from google.cloud.aiplatform import datasets
 
 
 def get_default_column_transformations(
-    dataset: datasets._ColumnNamesDataset, target_column: str,
+    dataset: datasets._ColumnNamesDataset,
+    target_column: str,
 ) -> Tuple[List[Dict[str, Dict[str, str]]], List[str]]:
     """Get default column transformations from the column names, while omitting the target column.
 

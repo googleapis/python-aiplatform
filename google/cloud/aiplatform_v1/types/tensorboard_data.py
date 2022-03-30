@@ -49,14 +49,19 @@ class TimeSeriesData(proto.Message):
             Required. Data points in this time series.
     """
 
-    tensorboard_time_series_id = proto.Field(proto.STRING, number=1,)
+    tensorboard_time_series_id = proto.Field(
+        proto.STRING,
+        number=1,
+    )
     value_type = proto.Field(
         proto.ENUM,
         number=2,
         enum=tensorboard_time_series.TensorboardTimeSeries.ValueType,
     )
     values = proto.RepeatedField(
-        proto.MESSAGE, number=3, message="TimeSeriesDataPoint",
+        proto.MESSAGE,
+        number=3,
+        message="TimeSeriesDataPoint",
     )
 
 
@@ -90,15 +95,33 @@ class TimeSeriesDataPoint(proto.Message):
             Step index of this data point within the run.
     """
 
-    scalar = proto.Field(proto.MESSAGE, number=3, oneof="value", message="Scalar",)
+    scalar = proto.Field(
+        proto.MESSAGE,
+        number=3,
+        oneof="value",
+        message="Scalar",
+    )
     tensor = proto.Field(
-        proto.MESSAGE, number=4, oneof="value", message="TensorboardTensor",
+        proto.MESSAGE,
+        number=4,
+        oneof="value",
+        message="TensorboardTensor",
     )
     blobs = proto.Field(
-        proto.MESSAGE, number=5, oneof="value", message="TensorboardBlobSequence",
+        proto.MESSAGE,
+        number=5,
+        oneof="value",
+        message="TensorboardBlobSequence",
     )
-    wall_time = proto.Field(proto.MESSAGE, number=1, message=timestamp_pb2.Timestamp,)
-    step = proto.Field(proto.INT64, number=2,)
+    wall_time = proto.Field(
+        proto.MESSAGE,
+        number=1,
+        message=timestamp_pb2.Timestamp,
+    )
+    step = proto.Field(
+        proto.INT64,
+        number=2,
+    )
 
 
 class Scalar(proto.Message):
@@ -109,7 +132,10 @@ class Scalar(proto.Message):
             Value of the point at this step / timestamp.
     """
 
-    value = proto.Field(proto.DOUBLE, number=1,)
+    value = proto.Field(
+        proto.DOUBLE,
+        number=1,
+    )
 
 
 class TensorboardTensor(proto.Message):
@@ -124,8 +150,14 @@ class TensorboardTensor(proto.Message):
             [value][google.cloud.aiplatform.v1.TensorboardTensor.value].
     """
 
-    value = proto.Field(proto.BYTES, number=1,)
-    version_number = proto.Field(proto.INT32, number=2,)
+    value = proto.Field(
+        proto.BYTES,
+        number=1,
+    )
+    version_number = proto.Field(
+        proto.INT32,
+        number=2,
+    )
 
 
 class TensorboardBlobSequence(proto.Message):
@@ -138,7 +170,11 @@ class TensorboardBlobSequence(proto.Message):
             List of blobs contained within the sequence.
     """
 
-    values = proto.RepeatedField(proto.MESSAGE, number=1, message="TensorboardBlob",)
+    values = proto.RepeatedField(
+        proto.MESSAGE,
+        number=1,
+        message="TensorboardBlob",
+    )
 
 
 class TensorboardBlob(proto.Message):
@@ -156,8 +192,14 @@ class TensorboardBlob(proto.Message):
             ReadTensorboardBlobData endpoint.
     """
 
-    id = proto.Field(proto.STRING, number=1,)
-    data = proto.Field(proto.BYTES, number=2,)
+    id = proto.Field(
+        proto.STRING,
+        number=1,
+    )
+    data = proto.Field(
+        proto.BYTES,
+        number=2,
+    )
 
 
 __all__ = tuple(sorted(__protobuf__.manifest))

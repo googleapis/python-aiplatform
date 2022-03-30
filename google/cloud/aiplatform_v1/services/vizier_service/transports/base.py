@@ -126,31 +126,49 @@ class VizierServiceTransport(abc.ABC):
         # Precompute the wrapped methods.
         self._wrapped_methods = {
             self.create_study: gapic_v1.method.wrap_method(
-                self.create_study, default_timeout=None, client_info=client_info,
+                self.create_study,
+                default_timeout=None,
+                client_info=client_info,
             ),
             self.get_study: gapic_v1.method.wrap_method(
-                self.get_study, default_timeout=None, client_info=client_info,
+                self.get_study,
+                default_timeout=None,
+                client_info=client_info,
             ),
             self.list_studies: gapic_v1.method.wrap_method(
-                self.list_studies, default_timeout=None, client_info=client_info,
+                self.list_studies,
+                default_timeout=None,
+                client_info=client_info,
             ),
             self.delete_study: gapic_v1.method.wrap_method(
-                self.delete_study, default_timeout=None, client_info=client_info,
+                self.delete_study,
+                default_timeout=None,
+                client_info=client_info,
             ),
             self.lookup_study: gapic_v1.method.wrap_method(
-                self.lookup_study, default_timeout=None, client_info=client_info,
+                self.lookup_study,
+                default_timeout=None,
+                client_info=client_info,
             ),
             self.suggest_trials: gapic_v1.method.wrap_method(
-                self.suggest_trials, default_timeout=None, client_info=client_info,
+                self.suggest_trials,
+                default_timeout=None,
+                client_info=client_info,
             ),
             self.create_trial: gapic_v1.method.wrap_method(
-                self.create_trial, default_timeout=None, client_info=client_info,
+                self.create_trial,
+                default_timeout=None,
+                client_info=client_info,
             ),
             self.get_trial: gapic_v1.method.wrap_method(
-                self.get_trial, default_timeout=None, client_info=client_info,
+                self.get_trial,
+                default_timeout=None,
+                client_info=client_info,
             ),
             self.list_trials: gapic_v1.method.wrap_method(
-                self.list_trials, default_timeout=None, client_info=client_info,
+                self.list_trials,
+                default_timeout=None,
+                client_info=client_info,
             ),
             self.add_trial_measurement: gapic_v1.method.wrap_method(
                 self.add_trial_measurement,
@@ -158,10 +176,14 @@ class VizierServiceTransport(abc.ABC):
                 client_info=client_info,
             ),
             self.complete_trial: gapic_v1.method.wrap_method(
-                self.complete_trial, default_timeout=None, client_info=client_info,
+                self.complete_trial,
+                default_timeout=None,
+                client_info=client_info,
             ),
             self.delete_trial: gapic_v1.method.wrap_method(
-                self.delete_trial, default_timeout=None, client_info=client_info,
+                self.delete_trial,
+                default_timeout=None,
+                client_info=client_info,
             ),
             self.check_trial_early_stopping_state: gapic_v1.method.wrap_method(
                 self.check_trial_early_stopping_state,
@@ -169,19 +191,23 @@ class VizierServiceTransport(abc.ABC):
                 client_info=client_info,
             ),
             self.stop_trial: gapic_v1.method.wrap_method(
-                self.stop_trial, default_timeout=None, client_info=client_info,
+                self.stop_trial,
+                default_timeout=None,
+                client_info=client_info,
             ),
             self.list_optimal_trials: gapic_v1.method.wrap_method(
-                self.list_optimal_trials, default_timeout=None, client_info=client_info,
+                self.list_optimal_trials,
+                default_timeout=None,
+                client_info=client_info,
             ),
         }
 
     def close(self):
         """Closes resources associated with the transport.
 
-       .. warning::
-            Only call this method if the transport is NOT shared
-            with other clients - this may cause errors in other clients!
+        .. warning::
+             Only call this method if the transport is NOT shared
+             with other clients - this may cause errors in other clients!
         """
         raise NotImplementedError()
 

@@ -20,7 +20,9 @@ from google.protobuf import duration_pb2  # type: ignore
 
 __protobuf__ = proto.module(
     package="google.cloud.aiplatform.v1beta1",
-    manifest={"FeaturestoreMonitoringConfig",},
+    manifest={
+        "FeaturestoreMonitoringConfig",
+    },
 )
 
 
@@ -88,12 +90,23 @@ class FeaturestoreMonitoringConfig(proto.Message):
                 Maximum value is 4000 days.
         """
 
-        disabled = proto.Field(proto.BOOL, number=1,)
-        monitoring_interval = proto.Field(
-            proto.MESSAGE, number=2, message=duration_pb2.Duration,
+        disabled = proto.Field(
+            proto.BOOL,
+            number=1,
         )
-        monitoring_interval_days = proto.Field(proto.INT32, number=3,)
-        staleness_days = proto.Field(proto.INT32, number=4,)
+        monitoring_interval = proto.Field(
+            proto.MESSAGE,
+            number=2,
+            message=duration_pb2.Duration,
+        )
+        monitoring_interval_days = proto.Field(
+            proto.INT32,
+            number=3,
+        )
+        staleness_days = proto.Field(
+            proto.INT32,
+            number=4,
+        )
 
     class ImportFeaturesAnalysis(proto.Message):
         r"""Configuration of the Featurestore's ImportFeature Analysis Based
@@ -158,17 +171,31 @@ class FeaturestoreMonitoringConfig(proto.Message):
                 This field is a member of `oneof`_ ``threshold``.
         """
 
-        value = proto.Field(proto.DOUBLE, number=1, oneof="threshold",)
+        value = proto.Field(
+            proto.DOUBLE,
+            number=1,
+            oneof="threshold",
+        )
 
-    snapshot_analysis = proto.Field(proto.MESSAGE, number=1, message=SnapshotAnalysis,)
+    snapshot_analysis = proto.Field(
+        proto.MESSAGE,
+        number=1,
+        message=SnapshotAnalysis,
+    )
     import_features_analysis = proto.Field(
-        proto.MESSAGE, number=2, message=ImportFeaturesAnalysis,
+        proto.MESSAGE,
+        number=2,
+        message=ImportFeaturesAnalysis,
     )
     numerical_threshold_config = proto.Field(
-        proto.MESSAGE, number=3, message=ThresholdConfig,
+        proto.MESSAGE,
+        number=3,
+        message=ThresholdConfig,
     )
     categorical_threshold_config = proto.Field(
-        proto.MESSAGE, number=4, message=ThresholdConfig,
+        proto.MESSAGE,
+        number=4,
+        message=ThresholdConfig,
     )
 
 

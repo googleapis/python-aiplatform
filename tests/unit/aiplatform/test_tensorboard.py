@@ -137,8 +137,10 @@ def delete_tensorboard_mock():
         tensorboard_service_client.TensorboardServiceClient, "delete_tensorboard"
     ) as delete_tensorboard_mock:
         delete_tensorboard_lro_mock = mock.Mock(operation.Operation)
-        delete_tensorboard_lro_mock.result.return_value = gca_tensorboard_service.DeleteTensorboardRequest(
-            name=_TEST_NAME,
+        delete_tensorboard_lro_mock.result.return_value = (
+            gca_tensorboard_service.DeleteTensorboardRequest(
+                name=_TEST_NAME,
+            )
         )
         delete_tensorboard_mock.return_value = delete_tensorboard_lro_mock
         yield delete_tensorboard_mock
@@ -150,8 +152,11 @@ def get_tensorboard_experiment_mock():
         tensorboard_service_client.TensorboardServiceClient,
         "get_tensorboard_experiment",
     ) as get_tensorboard_experiment__mock:
-        get_tensorboard_experiment__mock.return_value = gca_tensorboard_experiment.TensorboardExperiment(
-            name=_TEST_TENSORBOARD_EXPERIMENT_NAME, display_name=_TEST_DISPLAY_NAME,
+        get_tensorboard_experiment__mock.return_value = (
+            gca_tensorboard_experiment.TensorboardExperiment(
+                name=_TEST_TENSORBOARD_EXPERIMENT_NAME,
+                display_name=_TEST_DISPLAY_NAME,
+            )
         )
         yield get_tensorboard_experiment__mock
 
@@ -162,8 +167,11 @@ def create_tensorboard_experiment_mock():
         tensorboard_service_client.TensorboardServiceClient,
         "create_tensorboard_experiment",
     ) as create_tensorboard_experiment_mock:
-        create_tensorboard_experiment_mock.return_value = gca_tensorboard_experiment.TensorboardExperiment(
-            name=_TEST_TENSORBOARD_EXPERIMENT_NAME, display_name=_TEST_DISPLAY_NAME,
+        create_tensorboard_experiment_mock.return_value = (
+            gca_tensorboard_experiment.TensorboardExperiment(
+                name=_TEST_TENSORBOARD_EXPERIMENT_NAME,
+                display_name=_TEST_DISPLAY_NAME,
+            )
         )
         yield create_tensorboard_experiment_mock
 
@@ -175,8 +183,10 @@ def delete_tensorboard_experiment_mock():
         "delete_tensorboard_experiment",
     ) as delete_tensorboard_experiment_mock:
         delete_tensorboard_lro_experiment_mock = mock.Mock(operation.Operation)
-        delete_tensorboard_lro_experiment_mock.result.return_value = gca_tensorboard_service.DeleteTensorboardExperimentRequest(
-            name=_TEST_TENSORBOARD_EXPERIMENT_NAME,
+        delete_tensorboard_lro_experiment_mock.result.return_value = (
+            gca_tensorboard_service.DeleteTensorboardExperimentRequest(
+                name=_TEST_TENSORBOARD_EXPERIMENT_NAME,
+            )
         )
         delete_tensorboard_experiment_mock.return_value = (
             delete_tensorboard_lro_experiment_mock
@@ -192,7 +202,8 @@ def list_tensorboard_experiment_mock():
     ) as list_tensorboard_experiment_mock:
         list_tensorboard_experiment_mock.return_value = [
             gca_tensorboard_experiment.TensorboardExperiment(
-                name=_TEST_TENSORBOARD_EXPERIMENT_NAME, display_name=_TEST_DISPLAY_NAME,
+                name=_TEST_TENSORBOARD_EXPERIMENT_NAME,
+                display_name=_TEST_DISPLAY_NAME,
             )
         ]
         yield list_tensorboard_experiment_mock
@@ -201,10 +212,12 @@ def list_tensorboard_experiment_mock():
 @pytest.fixture
 def get_tensorboard_run_mock():
     with patch.object(
-        tensorboard_service_client.TensorboardServiceClient, "get_tensorboard_run",
+        tensorboard_service_client.TensorboardServiceClient,
+        "get_tensorboard_run",
     ) as get_tensorboard_run_mock:
         get_tensorboard_run_mock.return_value = gca_tensorboard_run.TensorboardRun(
-            name=_TEST_TENSORBOARD_RUN_NAME, display_name=_TEST_DISPLAY_NAME,
+            name=_TEST_TENSORBOARD_RUN_NAME,
+            display_name=_TEST_DISPLAY_NAME,
         )
         yield get_tensorboard_run_mock
 
@@ -212,10 +225,12 @@ def get_tensorboard_run_mock():
 @pytest.fixture
 def create_tensorboard_run_mock():
     with patch.object(
-        tensorboard_service_client.TensorboardServiceClient, "create_tensorboard_run",
+        tensorboard_service_client.TensorboardServiceClient,
+        "create_tensorboard_run",
     ) as create_tensorboard_run_mock:
         create_tensorboard_run_mock.return_value = gca_tensorboard_run.TensorboardRun(
-            name=_TEST_TENSORBOARD_RUN_NAME, display_name=_TEST_DISPLAY_NAME,
+            name=_TEST_TENSORBOARD_RUN_NAME,
+            display_name=_TEST_DISPLAY_NAME,
         )
         yield create_tensorboard_run_mock
 
@@ -223,11 +238,14 @@ def create_tensorboard_run_mock():
 @pytest.fixture
 def delete_tensorboard_run_mock():
     with mock.patch.object(
-        tensorboard_service_client.TensorboardServiceClient, "delete_tensorboard_run",
+        tensorboard_service_client.TensorboardServiceClient,
+        "delete_tensorboard_run",
     ) as delete_tensorboard_run_mock:
         delete_tensorboard_lro_run_mock = mock.Mock(operation.Operation)
-        delete_tensorboard_lro_run_mock.result.return_value = gca_tensorboard_service.DeleteTensorboardRunRequest(
-            name=_TEST_TENSORBOARD_RUN_NAME,
+        delete_tensorboard_lro_run_mock.result.return_value = (
+            gca_tensorboard_service.DeleteTensorboardRunRequest(
+                name=_TEST_TENSORBOARD_RUN_NAME,
+            )
         )
         delete_tensorboard_run_mock.return_value = delete_tensorboard_lro_run_mock
         yield delete_tensorboard_run_mock
@@ -236,11 +254,13 @@ def delete_tensorboard_run_mock():
 @pytest.fixture
 def list_tensorboard_run_mock():
     with patch.object(
-        tensorboard_service_client.TensorboardServiceClient, "list_tensorboard_runs",
+        tensorboard_service_client.TensorboardServiceClient,
+        "list_tensorboard_runs",
     ) as list_tensorboard_run_mock:
         list_tensorboard_run_mock.return_value = [
             gca_tensorboard_run.TensorboardRun(
-                name=_TEST_TENSORBOARD_RUN_NAME, display_name=_TEST_DISPLAY_NAME,
+                name=_TEST_TENSORBOARD_RUN_NAME,
+                display_name=_TEST_DISPLAY_NAME,
             )
         ]
         yield list_tensorboard_run_mock
@@ -294,7 +314,9 @@ class TestTensorboard:
 
     def test_init_tensorboard_with_alt_location(self, get_tensorboard_mock):
         aiplatform.init(project=_TEST_PROJECT, location=_TEST_ALT_LOCATION)
-        tensorboard.Tensorboard(tensorboard_name=_TEST_NAME,)
+        tensorboard.Tensorboard(
+            tensorboard_name=_TEST_NAME,
+        )
         get_tensorboard_mock.assert_called_once_with(
             name=_TEST_NAME, retry=base._DEFAULT_RETRY
         )
@@ -336,13 +358,17 @@ class TestTensorboard:
         self, create_tensorboard_mock
     ):
         aiplatform.init(
-            project=_TEST_PROJECT, encryption_spec_key_name=_TEST_ENCRYPTION_KEY_NAME,
+            project=_TEST_PROJECT,
+            encryption_spec_key_name=_TEST_ENCRYPTION_KEY_NAME,
         )
 
-        tensorboard.Tensorboard.create(display_name=_TEST_DISPLAY_NAME,)
+        tensorboard.Tensorboard.create(
+            display_name=_TEST_DISPLAY_NAME,
+        )
 
         expected_tensorboard = gca_tensorboard.Tensorboard(
-            display_name=_TEST_DISPLAY_NAME, encryption_spec=_TEST_ENCRYPTION_SPEC,
+            display_name=_TEST_DISPLAY_NAME,
+            encryption_spec=_TEST_ENCRYPTION_SPEC,
         )
 
         create_tensorboard_mock.assert_called_once_with(
@@ -354,7 +380,9 @@ class TestTensorboard:
     @pytest.mark.usefixtures("get_tensorboard_mock")
     def test_create_tensorboard(self, create_tensorboard_mock):
 
-        aiplatform.init(project=_TEST_PROJECT,)
+        aiplatform.init(
+            project=_TEST_PROJECT,
+        )
 
         tensorboard.Tensorboard.create(
             display_name=_TEST_DISPLAY_NAME,
@@ -362,7 +390,8 @@ class TestTensorboard:
         )
 
         expected_tensorboard = gca_tensorboard.Tensorboard(
-            display_name=_TEST_DISPLAY_NAME, encryption_spec=_TEST_ENCRYPTION_SPEC,
+            display_name=_TEST_DISPLAY_NAME,
+            encryption_spec=_TEST_ENCRYPTION_SPEC,
         )
 
         create_tensorboard_mock.assert_called_once_with(
@@ -391,7 +420,8 @@ class TestTensorboard:
         my_tensorboard.update(display_name=_TEST_DISPLAY_NAME_UPDATE)
 
         expected_tensorboard = gca_tensorboard.Tensorboard(
-            name=_TEST_NAME, display_name=_TEST_DISPLAY_NAME_UPDATE,
+            name=_TEST_NAME,
+            display_name=_TEST_DISPLAY_NAME_UPDATE,
         )
         update_tensorboard_mock.assert_called_once_with(
             update_mask=field_mask_pb2.FieldMask(paths=["display_name"]),
@@ -407,7 +437,8 @@ class TestTensorboard:
         my_tensorboard.update(encryption_spec_key_name=_TEST_ENCRYPTION_KEY_NAME)
 
         expected_tensorboard = gca_tensorboard.Tensorboard(
-            name=_TEST_NAME, encryption_spec=_TEST_ENCRYPTION_SPEC,
+            name=_TEST_NAME,
+            encryption_spec=_TEST_ENCRYPTION_SPEC,
         )
         update_tensorboard_mock.assert_called_once_with(
             update_mask=field_mask_pb2.FieldMask(paths=["encryption_spec"]),
@@ -463,7 +494,9 @@ class TestTensorboardExperiment:
         self, create_tensorboard_experiment_mock, get_tensorboard_experiment_mock
     ):
 
-        aiplatform.init(project=_TEST_PROJECT,)
+        aiplatform.init(
+            project=_TEST_PROJECT,
+        )
 
         tensorboard.TensorboardExperiment.create(
             tensorboard_experiment_id=_TEST_TENSORBOARD_EXPERIMENT_ID,
@@ -471,8 +504,10 @@ class TestTensorboardExperiment:
             display_name=_TEST_DISPLAY_NAME,
         )
 
-        expected_tensorboard_experiment = gca_tensorboard_experiment.TensorboardExperiment(
-            display_name=_TEST_DISPLAY_NAME,
+        expected_tensorboard_experiment = (
+            gca_tensorboard_experiment.TensorboardExperiment(
+                display_name=_TEST_DISPLAY_NAME,
+            )
         )
 
         create_tensorboard_experiment_mock.assert_called_once_with(
@@ -557,7 +592,9 @@ class TestTensorboardRun:
         self, create_tensorboard_run_mock, get_tensorboard_run_mock
     ):
 
-        aiplatform.init(project=_TEST_PROJECT,)
+        aiplatform.init(
+            project=_TEST_PROJECT,
+        )
 
         tensorboard.TensorboardRun.create(
             tensorboard_run_id=_TEST_TENSORBOARD_RUN_ID,

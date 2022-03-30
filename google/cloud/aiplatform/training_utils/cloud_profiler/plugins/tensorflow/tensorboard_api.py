@@ -84,8 +84,8 @@ def _make_upload_limits() -> server_info_pb2.UploadLimits:
     """
     upload_limits = server_info_pb2.UploadLimits()
     upload_limits.min_blob_request_interval = 10
-    upload_limits.max_blob_request_size = 4 * (2 ** 20) - 256 * (2 ** 10)
-    upload_limits.max_blob_size = 10 * (2 ** 30)  # 10GiB
+    upload_limits.max_blob_request_size = 4 * (2**20) - 256 * (2**10)
+    upload_limits.max_blob_size = 10 * (2**30)  # 10GiB
 
     return upload_limits
 
@@ -171,7 +171,9 @@ def create_profile_request_sender() -> profile_uploader.ProfileRequestSender:
         upload_limits.min_blob_request_interval / 100
     )
 
-    blob_storage_bucket, blob_storage_folder = _get_blob_items(api_client,)
+    blob_storage_bucket, blob_storage_folder = _get_blob_items(
+        api_client,
+    )
 
     source_bucket = uploader_utils.get_source_bucket(
         training_utils.environment_variables.tensorboard_log_dir
