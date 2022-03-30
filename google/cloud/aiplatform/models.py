@@ -1662,7 +1662,7 @@ class PrivateEndpoint(Endpoint):
             else:
                 # add if statements for explain vs. predict 404 errors
                 raise RuntimeError(
-                    f"{response.status} - Failed to make request, see response:\n" + response.data.decode("utf-8")
+                    f"{response.status} - Failed to make request, see response: " + response.data.decode("utf-8")
                 )
 
         except urllib3.exceptions.MaxRetryError:
@@ -1720,6 +1720,8 @@ class PrivateEndpoint(Endpoint):
 
         # remove this line, just testing
         print(prediction_response)
+        print('==================================')
+        print(response.data.decode("utf-8"))
 
         return Prediction(
             predictions=prediction_response.get("predictions"),
