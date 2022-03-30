@@ -65,15 +65,17 @@ _TEST_PIPELINE_PARAMETER_VALUES = {
     "struct_param": {"key1": 12345, "key2": 67890},
 }
 
-_TEST_PIPELINE_SPEC_LEGACY_JSON = {
-    "pipelineInfo": {"name": "my-pipeline"},
-    "root": {
-        "dag": {"tasks": {}},
-        "inputDefinitions": {"parameters": {"string_param": {"type": "STRING"}}},
-    },
-    "schemaVersion": "2.0.0",
-    "components": {},
-}
+_TEST_PIPELINE_SPEC_LEGACY_JSON = json.dumps(
+    {
+        "pipelineInfo": {"name": "my-pipeline"},
+        "root": {
+            "dag": {"tasks": {}},
+            "inputDefinitions": {"parameters": {"string_param": {"type": "STRING"}}},
+        },
+        "schemaVersion": "2.0.0",
+        "components": {},
+    }
+)
 _TEST_PIPELINE_SPEC_LEGACY_YAML = """\
 pipelineInfo:
   name: my-pipeline
@@ -87,25 +89,27 @@ root:
 schemaVersion: 2.0.0
 components: {}
 """
-_TEST_PIPELINE_SPEC_JSON = {
-    "pipelineInfo": {"name": "my-pipeline"},
-    "root": {
-        "dag": {"tasks": {}},
-        "inputDefinitions": {
-            "parameters": {
-                "string_param": {"parameterType": "STRING"},
-                "bool_param": {"parameterType": "BOOLEAN"},
-                "double_param": {"parameterType": "NUMBER_DOUBLE"},
-                "int_param": {"parameterType": "NUMBER_INTEGER"},
-                "list_int_param": {"parameterType": "LIST"},
-                "list_string_param": {"parameterType": "LIST"},
-                "struct_param": {"parameterType": "STRUCT"},
-            }
+_TEST_PIPELINE_SPEC_JSON = json.dumps(
+    {
+        "pipelineInfo": {"name": "my-pipeline"},
+        "root": {
+            "dag": {"tasks": {}},
+            "inputDefinitions": {
+                "parameters": {
+                    "string_param": {"parameterType": "STRING"},
+                    "bool_param": {"parameterType": "BOOLEAN"},
+                    "double_param": {"parameterType": "NUMBER_DOUBLE"},
+                    "int_param": {"parameterType": "NUMBER_INTEGER"},
+                    "list_int_param": {"parameterType": "LIST"},
+                    "list_string_param": {"parameterType": "LIST"},
+                    "struct_param": {"parameterType": "STRUCT"},
+                }
+            },
         },
-    },
-    "schemaVersion": "2.1.0",
-    "components": {},
-}
+        "schemaVersion": "2.1.0",
+        "components": {},
+    }
+)
 _TEST_PIPELINE_SPEC_YAML = """\
 pipelineInfo:
   name: my-pipeline
@@ -131,16 +135,18 @@ root:
 schemaVersion: 2.1.0
 components: {}
 """
-_TEST_TFX_PIPELINE_SPEC_JSON = {
-    "pipelineInfo": {"name": "my-pipeline"},
-    "root": {
-        "dag": {"tasks": {}},
-        "inputDefinitions": {"parameters": {"string_param": {"type": "STRING"}}},
-    },
-    "schemaVersion": "2.0.0",
-    "sdkVersion": "tfx-1.4.0",
-    "components": {},
-}
+_TEST_TFX_PIPELINE_SPEC_JSON = json.dumps(
+    {
+        "pipelineInfo": {"name": "my-pipeline"},
+        "root": {
+            "dag": {"tasks": {}},
+            "inputDefinitions": {"parameters": {"string_param": {"type": "STRING"}}},
+        },
+        "schemaVersion": "2.0.0",
+        "sdkVersion": "tfx-1.4.0",
+        "components": {},
+    }
+)
 _TEST_TFX_PIPELINE_SPEC_YAML = """\
 pipelineInfo:
   name: my-pipeline
@@ -156,18 +162,18 @@ sdkVersion: tfx-1.4.0
 components: {}
 """
 
-_TEST_PIPELINE_JOB_LEGACY = {
-    "runtimeConfig": {},
-    "pipelineSpec": _TEST_PIPELINE_SPEC_LEGACY_JSON,
-}
-_TEST_PIPELINE_JOB = {
-    "runtimeConfig": {"parameterValues": _TEST_PIPELINE_PARAMETER_VALUES},
-    "pipelineSpec": _TEST_PIPELINE_SPEC_JSON,
-}
-_TEST_PIPELINE_JOB_TFX = {
-    "runtimeConfig": {},
-    "pipelineSpec": _TEST_TFX_PIPELINE_SPEC_JSON,
-}
+_TEST_PIPELINE_JOB_LEGACY = json.dumps(
+    {"runtimeConfig": {}, "pipelineSpec": json.loads(_TEST_PIPELINE_SPEC_LEGACY_JSON)}
+)
+_TEST_PIPELINE_JOB = json.dumps(
+    {
+        "runtimeConfig": {"parameterValues": _TEST_PIPELINE_PARAMETER_VALUES},
+        "pipelineSpec": json.loads(_TEST_PIPELINE_SPEC_JSON),
+    }
+)
+_TEST_PIPELINE_JOB_TFX = json.dumps(
+    {"runtimeConfig": {}, "pipelineSpec": json.loads(_TEST_TFX_PIPELINE_SPEC_JSON)}
+)
 
 _TEST_PIPELINE_GET_METHOD_NAME = "get_fake_pipeline_job"
 _TEST_PIPELINE_LIST_METHOD_NAME = "list_fake_pipeline_jobs"
@@ -281,8 +287,7 @@ def mock_pipeline_service_list():
 @pytest.fixture
 def mock_load_yaml_and_json(job_spec):
     with patch.object(storage.Blob, "download_as_bytes") as mock_load_yaml_and_json:
-        job_spec_str = json.dumps(job_spec) if isinstance(job_spec, dict) else job_spec
-        mock_load_yaml_and_json.return_value = job_spec_str.encode()
+        mock_load_yaml_and_json.return_value = job_spec.encode()
         yield mock_load_yaml_and_json
 
 
