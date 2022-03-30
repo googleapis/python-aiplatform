@@ -80,7 +80,11 @@ def _run_app_thread(server: webserver.WebServer, port: int):
     daemon = threading.Thread(
         name="profile_server",
         target=serving.run_simple,
-        args=("0.0.0.0", port, server,),
+        args=(
+            "0.0.0.0",
+            port,
+            server,
+        ),
     )
     daemon.setDaemon(True)
     daemon.start()

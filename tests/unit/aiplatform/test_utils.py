@@ -196,7 +196,10 @@ def test_full_resource_name_with_partial_name(
     [("347292", "trainingPipelines", "857392", "us-west2020")],
 )
 def test_full_resource_name_raises_value_error(
-    partial_name: str, resource_noun: str, project: str, location: str,
+    partial_name: str,
+    resource_noun: str,
+    project: str,
+    location: str,
 ):
     with pytest.raises(ValueError):
         aiplatform.utils.full_resource_name(
@@ -293,7 +296,8 @@ def test_client_w_override_default_version():
     test_client_options = client_options.ClientOptions()
 
     client_w_override = utils.ModelClientWithOverride(
-        client_options=test_client_options, client_info=test_client_info,
+        client_options=test_client_options,
+        client_info=test_client_info,
     )
     assert isinstance(
         client_w_override._clients[
@@ -309,7 +313,8 @@ def test_client_w_override_select_version():
     test_client_options = client_options.ClientOptions()
 
     client_w_override = utils.ModelClientWithOverride(
-        client_options=test_client_options, client_info=test_client_info,
+        client_options=test_client_options,
+        client_info=test_client_info,
     )
 
     assert isinstance(
@@ -325,8 +330,28 @@ def test_client_w_override_select_version():
 @pytest.mark.parametrize(
     "year,month,day,hour,minute,second,microsecond,expected_seconds,expected_nanos",
     [
-        (2021, 12, 23, 23, 59, 59, 999999, 1640303999, 999000000,),
-        (2013, 1, 1, 1, 1, 1, 199999, 1357002061, 199000000,),
+        (
+            2021,
+            12,
+            23,
+            23,
+            59,
+            59,
+            999999,
+            1640303999,
+            999000000,
+        ),
+        (
+            2013,
+            1,
+            1,
+            1,
+            1,
+            1,
+            199999,
+            1357002061,
+            199000000,
+        ),
     ],
 )
 def test_get_timestamp_proto(
@@ -503,7 +528,8 @@ class TestTensorboardUtils:
 
     def test_tensorboard_get_experiments_compare_url_fail_diff_region(self):
         with pytest.raises(
-            ValueError, match="Got experiments from different locations: asia-east.",
+            ValueError,
+            match="Got experiments from different locations: asia-east.",
         ):
             tensorboard_utils.get_experiments_compare_url(
                 (

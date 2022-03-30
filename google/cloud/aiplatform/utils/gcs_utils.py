@@ -139,7 +139,9 @@ def stage_local_data_in_gcs(
         if not staging_bucket.exists():
             _logger.info(f'Creating staging GCS bucket "{staging_bucket_name}"')
             staging_bucket = client.create_bucket(
-                bucket_or_name=staging_bucket, project=project, location=location,
+                bucket_or_name=staging_bucket,
+                project=project,
+                location=location,
             )
         staging_gcs_dir = "gs://" + staging_bucket_name
 

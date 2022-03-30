@@ -18,7 +18,10 @@ import proto  # type: ignore
 
 __protobuf__ = proto.module(
     package="google.cloud.aiplatform.v1beta1.schema.trainingjob.definition",
-    manifest={"AutoMlTextSentiment", "AutoMlTextSentimentInputs",},
+    manifest={
+        "AutoMlTextSentiment",
+        "AutoMlTextSentimentInputs",
+    },
 )
 
 
@@ -31,7 +34,11 @@ class AutoMlTextSentiment(proto.Message):
             The input parameters of this TrainingJob.
     """
 
-    inputs = proto.Field(proto.MESSAGE, number=1, message="AutoMlTextSentimentInputs",)
+    inputs = proto.Field(
+        proto.MESSAGE,
+        number=1,
+        message="AutoMlTextSentimentInputs",
+    )
 
 
 class AutoMlTextSentimentInputs(proto.Message):
@@ -51,7 +58,10 @@ class AutoMlTextSentimentInputs(proto.Message):
             between 1 and 10 (inclusive).
     """
 
-    sentiment_max = proto.Field(proto.INT32, number=1,)
+    sentiment_max = proto.Field(
+        proto.INT32,
+        number=1,
+    )
 
 
 __all__ = tuple(sorted(__protobuf__.manifest))
