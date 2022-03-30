@@ -177,7 +177,11 @@ class TestInit:
         "init_location, location_override, expected_endpoint",
         [
             ("us-central1", None, "us-central1-aiplatform.googleapis.com"),
-            ("us-central1", "europe-west4", "europe-west4-aiplatform.googleapis.com",),
+            (
+                "us-central1",
+                "europe-west4",
+                "europe-west4-aiplatform.googleapis.com",
+            ),
             ("asia-east1", None, "asia-east1-aiplatform.googleapis.com"),
             (
                 "asia-southeast1",
@@ -187,7 +191,10 @@ class TestInit:
         ],
     )
     def test_get_client_options(
-        self, init_location: str, location_override: str, expected_endpoint: str,
+        self,
+        init_location: str,
+        location_override: str,
+        expected_endpoint: str,
     ):
         initializer.global_config.init(location=init_location)
 

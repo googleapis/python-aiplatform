@@ -18,7 +18,9 @@ import proto  # type: ignore
 
 __protobuf__ = proto.module(
     package="google.cloud.aiplatform.v1.schema.predict.params",
-    manifest={"VideoActionRecognitionPredictionParams",},
+    manifest={
+        "VideoActionRecognitionPredictionParams",
+    },
 )
 
 
@@ -38,8 +40,14 @@ class VideoActionRecognitionPredictionParams(proto.Message):
             Default value is 50.
     """
 
-    confidence_threshold = proto.Field(proto.FLOAT, number=1,)
-    max_predictions = proto.Field(proto.INT32, number=2,)
+    confidence_threshold = proto.Field(
+        proto.FLOAT,
+        number=1,
+    )
+    max_predictions = proto.Field(
+        proto.INT32,
+        number=2,
+    )
 
 
 __all__ = tuple(sorted(__protobuf__.manifest))

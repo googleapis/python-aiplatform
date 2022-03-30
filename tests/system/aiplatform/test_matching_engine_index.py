@@ -172,7 +172,8 @@ class TestMatchingEngine(e2e_base.TestEndToEnd):
 
     def test_create_get_list_matching_engine_index(self, shared_state):
         aiplatform.init(
-            project=e2e_base._PROJECT, location=e2e_base._LOCATION,
+            project=e2e_base._PROJECT,
+            location=e2e_base._LOCATION,
         )
 
         # Create an index
