@@ -130,7 +130,9 @@ class IndexEndpointServiceTransport(abc.ABC):
                 client_info=client_info,
             ),
             self.get_index_endpoint: gapic_v1.method.wrap_method(
-                self.get_index_endpoint, default_timeout=None, client_info=client_info,
+                self.get_index_endpoint,
+                default_timeout=None,
+                client_info=client_info,
             ),
             self.list_index_endpoints: gapic_v1.method.wrap_method(
                 self.list_index_endpoints,
@@ -148,10 +150,14 @@ class IndexEndpointServiceTransport(abc.ABC):
                 client_info=client_info,
             ),
             self.deploy_index: gapic_v1.method.wrap_method(
-                self.deploy_index, default_timeout=None, client_info=client_info,
+                self.deploy_index,
+                default_timeout=None,
+                client_info=client_info,
             ),
             self.undeploy_index: gapic_v1.method.wrap_method(
-                self.undeploy_index, default_timeout=None, client_info=client_info,
+                self.undeploy_index,
+                default_timeout=None,
+                client_info=client_info,
             ),
             self.mutate_deployed_index: gapic_v1.method.wrap_method(
                 self.mutate_deployed_index,
@@ -163,9 +169,9 @@ class IndexEndpointServiceTransport(abc.ABC):
     def close(self):
         """Closes resources associated with the transport.
 
-       .. warning::
-            Only call this method if the transport is NOT shared
-            with other clients - this may cause errors in other clients!
+        .. warning::
+             Only call this method if the transport is NOT shared
+             with other clients - this may cause errors in other clients!
         """
         raise NotImplementedError()
 

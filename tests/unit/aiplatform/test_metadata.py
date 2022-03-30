@@ -117,7 +117,9 @@ def get_metadata_store_mock_raise_not_found_exception():
     ) as get_metadata_store_mock:
         get_metadata_store_mock.side_effect = [
             exceptions.NotFound("Test store not found."),
-            GapicMetadataStore(name=_TEST_METADATASTORE,),
+            GapicMetadataStore(
+                name=_TEST_METADATASTORE,
+            ),
         ]
 
         yield get_metadata_store_mock
@@ -553,7 +555,9 @@ class TestMetadata:
     @pytest.mark.usefixtures("get_metadata_store_mock")
     @pytest.mark.usefixtures("get_context_mock")
     @pytest.mark.usefixtures("get_execution_wrong_schema_mock")
-    def test_start_run_with_wrong_run_execution_schema(self,):
+    def test_start_run_with_wrong_run_execution_schema(
+        self,
+    ):
         aiplatform.init(
             project=_TEST_PROJECT, location=_TEST_LOCATION, experiment=_TEST_EXPERIMENT
         )
@@ -565,7 +569,9 @@ class TestMetadata:
     @pytest.mark.usefixtures("get_execution_mock")
     @pytest.mark.usefixtures("add_context_artifacts_and_executions_mock")
     @pytest.mark.usefixtures("get_artifact_wrong_schema_mock")
-    def test_start_run_with_wrong_metrics_artifact_schema(self,):
+    def test_start_run_with_wrong_metrics_artifact_schema(
+        self,
+    ):
         aiplatform.init(
             project=_TEST_PROJECT, location=_TEST_LOCATION, experiment=_TEST_EXPERIMENT
         )
@@ -579,7 +585,8 @@ class TestMetadata:
     @pytest.mark.usefixtures("get_artifact_mock")
     @pytest.mark.usefixtures("add_execution_events_mock")
     def test_log_params(
-        self, update_execution_mock,
+        self,
+        update_execution_mock,
     ):
         aiplatform.init(
             project=_TEST_PROJECT, location=_TEST_LOCATION, experiment=_TEST_EXPERIMENT
@@ -604,7 +611,8 @@ class TestMetadata:
     @pytest.mark.usefixtures("get_artifact_mock")
     @pytest.mark.usefixtures("add_execution_events_mock")
     def test_log_metrics(
-        self, update_artifact_mock,
+        self,
+        update_artifact_mock,
     ):
         aiplatform.init(
             project=_TEST_PROJECT, location=_TEST_LOCATION, experiment=_TEST_EXPERIMENT
@@ -653,7 +661,10 @@ class TestMetadata:
 
         expected_filter = f'schema_title="{constants.SYSTEM_RUN}" AND in_context("{_TEST_CONTEXT_NAME}")'
         list_executions_mock.assert_called_once_with(
-            request=ListExecutionsRequest(parent=_TEST_PARENT, filter=expected_filter,)
+            request=ListExecutionsRequest(
+                parent=_TEST_PARENT,
+                filter=expected_filter,
+            )
         )
         query_execution_inputs_and_outputs_mock.assert_has_calls(
             [
@@ -712,7 +723,10 @@ class TestMetadata:
 
         expected_filter = f'schema_title="{constants.SYSTEM_RUN}" AND in_context("{_TEST_CONTEXT_NAME}")'
         list_executions_mock.assert_called_once_with(
-            request=ListExecutionsRequest(parent=_TEST_PARENT, filter=expected_filter,)
+            request=ListExecutionsRequest(
+                parent=_TEST_PARENT,
+                filter=expected_filter,
+            )
         )
         query_execution_inputs_and_outputs_mock.assert_has_calls(
             [
