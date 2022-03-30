@@ -160,7 +160,8 @@ class _Config:
             # Try to convert project number to project ID which is more readable.
             try:
                 project_id = resource_manager_utils.get_project_id(
-                    project_number=project_number, credentials=self.credentials,
+                    project_number=project_number,
+                    credentials=self.credentials,
                 )
                 return project_id
             except Exception:

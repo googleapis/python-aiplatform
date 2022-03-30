@@ -70,7 +70,10 @@ scalar_v2_pb = summary_v1._scalar_summary.scalar_pb
 image_pb = summary_v1._image_summary.pb
 
 _SCALARS_HISTOGRAMS_AND_GRAPHS = frozenset(
-    (scalars_metadata.PLUGIN_NAME, graphs_metadata.PLUGIN_NAME,)
+    (
+        scalars_metadata.PLUGIN_NAME,
+        graphs_metadata.PLUGIN_NAME,
+    )
 )
 
 # Sentinel for `_create_*` helpers, for arguments for which we want to
@@ -151,7 +154,8 @@ def _create_mock_client():
             else tensorboard_time_series.display_name
         )
         return tensorboard_time_series_type.TensorboardTimeSeries(
-            name=name, display_name=tensorboard_time_series.display_name,
+            name=name,
+            display_name=tensorboard_time_series.display_name,
         )
 
     test_channel = grpc_testing.channel(
@@ -241,7 +245,10 @@ def _create_uploader(
 
 
 def _create_dispatcher(
-    experiment_resource_name, api=None, allowed_plugins=_USE_DEFAULT, logdir=None,
+    experiment_resource_name,
+    api=None,
+    allowed_plugins=_USE_DEFAULT,
+    logdir=None,
 ):
     if api is _USE_DEFAULT:
         api = _create_mock_client()
@@ -292,7 +299,8 @@ def _create_dispatcher(
         )
 
     return uploader_lib._Dispatcher(
-        request_sender=request_sender, additional_senders=additional_senders,
+        request_sender=request_sender,
+        additional_senders=additional_senders,
     )
 
 
@@ -712,7 +720,8 @@ class TensorboardUploaderTest(tf.test.TestCase):
                 raise SuccessError()
 
         uploader = _create_uploader(
-            logdir=self.get_temp_dir(), logdir_poll_rate_limiter=mock_rate_limiter,
+            logdir=self.get_temp_dir(),
+            logdir_poll_rate_limiter=mock_rate_limiter,
         )
         uploader._upload_once = mock_upload_once
 
@@ -1110,7 +1119,9 @@ class BatchedRequestSenderTest(tf.test.TestCase):
             step=1, wall_time=123.456, summary=scalar_v2_pb("foo", 5.0)
         )
         call_args_lists = self._populate_run_from_events(
-            0, [event], allowed_plugins=frozenset("not-scalars"),
+            0,
+            [event],
+            allowed_plugins=frozenset("not-scalars"),
         )
         self.assertEqual(call_args_lists, [])
 
@@ -1172,7 +1183,11 @@ class ProfileRequestSenderTest(tf.test.TestCase):
         )
 
     def _populate_run_from_events(
-        self, events, logdir, mock_client=None, builder=None,
+        self,
+        events,
+        logdir,
+        mock_client=None,
+        builder=None,
     ):
         if not mock_client:
             mock_client = _create_mock_client()
@@ -1328,7 +1343,10 @@ class ProfileRequestSenderTest(tf.test.TestCase):
 
             with named_temp(dir=run_path):
                 call_args_list = self._populate_run_from_events(
-                    events, logdir, mock_client=mock_client, builder=builder,
+                    events,
+                    logdir,
+                    mock_client=mock_client,
+                    builder=builder,
                 )
 
             self.assertLen(call_args_list, 1)
@@ -1345,7 +1363,10 @@ class ProfileRequestSenderTest(tf.test.TestCase):
 
             with named_temp(dir=run_path):
                 call_args_list = self._populate_run_from_events(
-                    events, logdir, mock_client=mock_client, builder=builder,
+                    events,
+                    logdir,
+                    mock_client=mock_client,
+                    builder=builder,
                 )
 
             self.assertLen(call_args_list, 1)
@@ -1364,7 +1385,8 @@ class ScalarBatchedRequestSenderTest(tf.test.TestCase):
     def _add_events_and_flush(self, events, expected_n_time_series):
         mock_client = _create_mock_client()
         sender = _create_scalar_request_sender(
-            experiment_resource_id=_TEST_EXPERIMENT_NAME, api=mock_client,
+            experiment_resource_id=_TEST_EXPERIMENT_NAME,
+            api=mock_client,
         )
         self._add_events(sender, events)
         sender.flush()
@@ -1381,7 +1403,9 @@ class ScalarBatchedRequestSenderTest(tf.test.TestCase):
     def test_aggregation_by_tag(self):
         def make_event(step, wall_time, tag, value):
             return event_pb2.Event(
-                step=step, wall_time=wall_time, summary=scalar_v2_pb(tag, value),
+                step=step,
+                wall_time=wall_time,
+                summary=scalar_v2_pb(tag, value),
             )
 
         events = [
@@ -1698,7 +1722,9 @@ class ScalarBatchedRequestSenderTest(tf.test.TestCase):
                 raise uploader_lib._OutOfSpaceError()
 
         with mock.patch.object(
-            uploader_lib._ByteBudgetManager, "add_point", mock_add_point,
+            uploader_lib._ByteBudgetManager,
+            "add_point",
+            mock_add_point,
         ):
             sender = _create_scalar_request_sender("123", mock_client)
             self._add_events(sender, _apply_compat([event_1]))
@@ -1770,7 +1796,8 @@ class FileRequestSenderTest(tf.test.TestCase):
     def test_empty_files_no_messages(self):
         mock_client = _create_mock_client()
         sender = _create_file_request_sender(
-            api=mock_client, run_resource_id=_TEST_ONE_PLATFORM_RUN_NAME,
+            api=mock_client,
+            run_resource_id=_TEST_ONE_PLATFORM_RUN_NAME,
         )
 
         sender.add_files(
@@ -1782,7 +1809,8 @@ class FileRequestSenderTest(tf.test.TestCase):
     def test_fake_files_no_sent_messages(self):
         mock_client = _create_mock_client()
         sender = _create_file_request_sender(
-            api=mock_client, run_resource_id=_TEST_ONE_PLATFORM_RUN_NAME,
+            api=mock_client,
+            run_resource_id=_TEST_ONE_PLATFORM_RUN_NAME,
         )
 
         with mock.patch("os.path.isfile", return_value=False):
@@ -1820,7 +1848,8 @@ class FileRequestSenderTest(tf.test.TestCase):
     def test_single_file_upload(self):
         mock_client = _create_mock_client()
         sender = _create_file_request_sender(
-            api=mock_client, run_resource_id=_TEST_ONE_PLATFORM_RUN_NAME,
+            api=mock_client,
+            run_resource_id=_TEST_ONE_PLATFORM_RUN_NAME,
         )
 
         with tempfile.NamedTemporaryFile() as f1:
@@ -1842,7 +1871,8 @@ class FileRequestSenderTest(tf.test.TestCase):
     def test_multi_file_upload(self):
         mock_client = _create_mock_client()
         sender = _create_file_request_sender(
-            api=mock_client, run_resource_id=_TEST_ONE_PLATFORM_RUN_NAME,
+            api=mock_client,
+            run_resource_id=_TEST_ONE_PLATFORM_RUN_NAME,
         )
 
         files = None
@@ -1872,7 +1902,8 @@ class FileRequestSenderTest(tf.test.TestCase):
         mock_client.write_tensorboard_run_data.side_effect = grpc.RpcError
 
         sender = _create_file_request_sender(
-            api=mock_client, run_resource_id=_TEST_ONE_PLATFORM_RUN_NAME,
+            api=mock_client,
+            run_resource_id=_TEST_ONE_PLATFORM_RUN_NAME,
         )
 
         with tempfile.NamedTemporaryFile() as f1:
@@ -1913,7 +1944,8 @@ class FileRequestSenderTest(tf.test.TestCase):
     def test_copy_blobs(self):
         mock_client = _create_mock_client()
         sender = _create_file_request_sender(
-            api=mock_client, run_resource_id=_TEST_ONE_PLATFORM_RUN_NAME,
+            api=mock_client,
+            run_resource_id=_TEST_ONE_PLATFORM_RUN_NAME,
         )
 
         sender._copy_between_buckets("gs://path/to/my/file", None)

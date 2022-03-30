@@ -41,9 +41,15 @@ class AutoMlForecasting(proto.Message):
             The metadata information.
     """
 
-    inputs = proto.Field(proto.MESSAGE, number=1, message="AutoMlForecastingInputs",)
+    inputs = proto.Field(
+        proto.MESSAGE,
+        number=1,
+        message="AutoMlForecastingInputs",
+    )
     metadata = proto.Field(
-        proto.MESSAGE, number=2, message="AutoMlForecastingMetadata",
+        proto.MESSAGE,
+        number=2,
+        message="AutoMlForecastingMetadata",
     )
 
 
@@ -210,7 +216,10 @@ class AutoMlForecastingInputs(proto.Message):
 
             """
 
-            column_name = proto.Field(proto.STRING, number=1,)
+            column_name = proto.Field(
+                proto.STRING,
+                number=1,
+            )
 
         class NumericTransformation(proto.Message):
             r"""Training pipeline will perform following transformation functions.
@@ -234,7 +243,10 @@ class AutoMlForecastingInputs(proto.Message):
 
             """
 
-            column_name = proto.Field(proto.STRING, number=1,)
+            column_name = proto.Field(
+                proto.STRING,
+                number=1,
+            )
 
         class CategoricalTransformation(proto.Message):
             r"""Training pipeline will perform following transformation functions.
@@ -254,7 +266,10 @@ class AutoMlForecastingInputs(proto.Message):
 
             """
 
-            column_name = proto.Field(proto.STRING, number=1,)
+            column_name = proto.Field(
+                proto.STRING,
+                number=1,
+            )
 
         class TimestampTransformation(proto.Message):
             r"""Training pipeline will perform following transformation functions.
@@ -293,8 +308,14 @@ class AutoMlForecastingInputs(proto.Message):
                     (e.g. 1985-04-12T23:20:50.52Z)
             """
 
-            column_name = proto.Field(proto.STRING, number=1,)
-            time_format = proto.Field(proto.STRING, number=2,)
+            column_name = proto.Field(
+                proto.STRING,
+                number=1,
+            )
+            time_format = proto.Field(
+                proto.STRING,
+                number=2,
+            )
 
         class TextTransformation(proto.Message):
             r"""Training pipeline will perform following transformation functions.
@@ -310,7 +331,10 @@ class AutoMlForecastingInputs(proto.Message):
 
             """
 
-            column_name = proto.Field(proto.STRING, number=1,)
+            column_name = proto.Field(
+                proto.STRING,
+                number=1,
+            )
 
         auto = proto.Field(
             proto.MESSAGE,
@@ -369,32 +393,86 @@ class AutoMlForecastingInputs(proto.Message):
                 ``granularity_unit``, must be 1.
         """
 
-        unit = proto.Field(proto.STRING, number=1,)
-        quantity = proto.Field(proto.INT64, number=2,)
+        unit = proto.Field(
+            proto.STRING,
+            number=1,
+        )
+        quantity = proto.Field(
+            proto.INT64,
+            number=2,
+        )
 
-    target_column = proto.Field(proto.STRING, number=1,)
-    time_series_identifier_column = proto.Field(proto.STRING, number=2,)
-    time_column = proto.Field(proto.STRING, number=3,)
-    transformations = proto.RepeatedField(
-        proto.MESSAGE, number=4, message=Transformation,
+    target_column = proto.Field(
+        proto.STRING,
+        number=1,
     )
-    optimization_objective = proto.Field(proto.STRING, number=5,)
-    train_budget_milli_node_hours = proto.Field(proto.INT64, number=6,)
-    weight_column = proto.Field(proto.STRING, number=7,)
-    time_series_attribute_columns = proto.RepeatedField(proto.STRING, number=19,)
-    unavailable_at_forecast_columns = proto.RepeatedField(proto.STRING, number=20,)
-    available_at_forecast_columns = proto.RepeatedField(proto.STRING, number=21,)
-    data_granularity = proto.Field(proto.MESSAGE, number=22, message=Granularity,)
-    forecast_horizon = proto.Field(proto.INT64, number=23,)
-    context_window = proto.Field(proto.INT64, number=24,)
+    time_series_identifier_column = proto.Field(
+        proto.STRING,
+        number=2,
+    )
+    time_column = proto.Field(
+        proto.STRING,
+        number=3,
+    )
+    transformations = proto.RepeatedField(
+        proto.MESSAGE,
+        number=4,
+        message=Transformation,
+    )
+    optimization_objective = proto.Field(
+        proto.STRING,
+        number=5,
+    )
+    train_budget_milli_node_hours = proto.Field(
+        proto.INT64,
+        number=6,
+    )
+    weight_column = proto.Field(
+        proto.STRING,
+        number=7,
+    )
+    time_series_attribute_columns = proto.RepeatedField(
+        proto.STRING,
+        number=19,
+    )
+    unavailable_at_forecast_columns = proto.RepeatedField(
+        proto.STRING,
+        number=20,
+    )
+    available_at_forecast_columns = proto.RepeatedField(
+        proto.STRING,
+        number=21,
+    )
+    data_granularity = proto.Field(
+        proto.MESSAGE,
+        number=22,
+        message=Granularity,
+    )
+    forecast_horizon = proto.Field(
+        proto.INT64,
+        number=23,
+    )
+    context_window = proto.Field(
+        proto.INT64,
+        number=24,
+    )
     export_evaluated_data_items_config = proto.Field(
         proto.MESSAGE,
         number=15,
         message=gcastd_export_evaluated_data_items_config.ExportEvaluatedDataItemsConfig,
     )
-    quantiles = proto.RepeatedField(proto.DOUBLE, number=16,)
-    validation_options = proto.Field(proto.STRING, number=17,)
-    additional_experiments = proto.RepeatedField(proto.STRING, number=25,)
+    quantiles = proto.RepeatedField(
+        proto.DOUBLE,
+        number=16,
+    )
+    validation_options = proto.Field(
+        proto.STRING,
+        number=17,
+    )
+    additional_experiments = proto.RepeatedField(
+        proto.STRING,
+        number=25,
+    )
 
 
 class AutoMlForecastingMetadata(proto.Message):
@@ -408,7 +486,10 @@ class AutoMlForecastingMetadata(proto.Message):
             Guaranteed to not exceed the train budget.
     """
 
-    train_cost_milli_node_hours = proto.Field(proto.INT64, number=1,)
+    train_cost_milli_node_hours = proto.Field(
+        proto.INT64,
+        number=1,
+    )
 
 
 __all__ = tuple(sorted(__protobuf__.manifest))

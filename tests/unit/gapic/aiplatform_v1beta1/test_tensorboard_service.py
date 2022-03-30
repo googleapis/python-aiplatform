@@ -112,7 +112,11 @@ def test__get_default_mtls_endpoint():
 
 
 @pytest.mark.parametrize(
-    "client_class", [TensorboardServiceClient, TensorboardServiceAsyncClient,]
+    "client_class",
+    [
+        TensorboardServiceClient,
+        TensorboardServiceAsyncClient,
+    ],
 )
 def test_tensorboard_service_client_from_service_account_info(client_class):
     creds = ga_credentials.AnonymousCredentials()
@@ -154,7 +158,11 @@ def test_tensorboard_service_client_service_account_always_use_jwt(
 
 
 @pytest.mark.parametrize(
-    "client_class", [TensorboardServiceClient, TensorboardServiceAsyncClient,]
+    "client_class",
+    [
+        TensorboardServiceClient,
+        TensorboardServiceAsyncClient,
+    ],
 )
 def test_tensorboard_service_client_from_service_account_file(client_class):
     creds = ga_credentials.AnonymousCredentials()
@@ -528,7 +536,9 @@ def test_tensorboard_service_client_client_options_scopes(
     client_class, transport_class, transport_name
 ):
     # Check the case scopes are provided.
-    options = client_options.ClientOptions(scopes=["1", "2"],)
+    options = client_options.ClientOptions(
+        scopes=["1", "2"],
+    )
     with mock.patch.object(transport_class, "__init__") as patched:
         patched.return_value = None
         client = client_class(client_options=options, transport=transport_name)
@@ -669,11 +679,16 @@ def test_tensorboard_service_client_create_channel_credentials_file(
 
 
 @pytest.mark.parametrize(
-    "request_type", [tensorboard_service.CreateTensorboardRequest, dict,]
+    "request_type",
+    [
+        tensorboard_service.CreateTensorboardRequest,
+        dict,
+    ],
 )
 def test_create_tensorboard(request_type, transport: str = "grpc"):
     client = TensorboardServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(), transport=transport,
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport=transport,
     )
 
     # Everything is optional in proto3 as far as the runtime is concerned,
@@ -701,7 +716,8 @@ def test_create_tensorboard_empty_call():
     # This test is a coverage failsafe to make sure that totally empty calls,
     # i.e. request == None and no flattened fields passed, work.
     client = TensorboardServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(), transport="grpc",
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="grpc",
     )
 
     # Mock the actual call within the gRPC stub, and fake the request.
@@ -720,7 +736,8 @@ async def test_create_tensorboard_async(
     request_type=tensorboard_service.CreateTensorboardRequest,
 ):
     client = TensorboardServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(), transport=transport,
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport=transport,
     )
 
     # Everything is optional in proto3 as far as the runtime is concerned,
@@ -776,7 +793,10 @@ def test_create_tensorboard_field_headers():
 
     # Establish that the field header was sent.
     _, _, kw = call.mock_calls[0]
-    assert ("x-goog-request-params", "parent=parent/value",) in kw["metadata"]
+    assert (
+        "x-goog-request-params",
+        "parent=parent/value",
+    ) in kw["metadata"]
 
 
 @pytest.mark.asyncio
@@ -807,7 +827,10 @@ async def test_create_tensorboard_field_headers_async():
 
     # Establish that the field header was sent.
     _, _, kw = call.mock_calls[0]
-    assert ("x-goog-request-params", "parent=parent/value",) in kw["metadata"]
+    assert (
+        "x-goog-request-params",
+        "parent=parent/value",
+    ) in kw["metadata"]
 
 
 def test_create_tensorboard_flattened():
@@ -907,11 +930,16 @@ async def test_create_tensorboard_flattened_error_async():
 
 
 @pytest.mark.parametrize(
-    "request_type", [tensorboard_service.GetTensorboardRequest, dict,]
+    "request_type",
+    [
+        tensorboard_service.GetTensorboardRequest,
+        dict,
+    ],
 )
 def test_get_tensorboard(request_type, transport: str = "grpc"):
     client = TensorboardServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(), transport=transport,
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport=transport,
     )
 
     # Everything is optional in proto3 as far as the runtime is concerned,
@@ -950,7 +978,8 @@ def test_get_tensorboard_empty_call():
     # This test is a coverage failsafe to make sure that totally empty calls,
     # i.e. request == None and no flattened fields passed, work.
     client = TensorboardServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(), transport="grpc",
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="grpc",
     )
 
     # Mock the actual call within the gRPC stub, and fake the request.
@@ -967,7 +996,8 @@ async def test_get_tensorboard_async(
     request_type=tensorboard_service.GetTensorboardRequest,
 ):
     client = TensorboardServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(), transport=transport,
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport=transport,
     )
 
     # Everything is optional in proto3 as far as the runtime is concerned,
@@ -1032,7 +1062,10 @@ def test_get_tensorboard_field_headers():
 
     # Establish that the field header was sent.
     _, _, kw = call.mock_calls[0]
-    assert ("x-goog-request-params", "name=name/value",) in kw["metadata"]
+    assert (
+        "x-goog-request-params",
+        "name=name/value",
+    ) in kw["metadata"]
 
 
 @pytest.mark.asyncio
@@ -1061,7 +1094,10 @@ async def test_get_tensorboard_field_headers_async():
 
     # Establish that the field header was sent.
     _, _, kw = call.mock_calls[0]
-    assert ("x-goog-request-params", "name=name/value",) in kw["metadata"]
+    assert (
+        "x-goog-request-params",
+        "name=name/value",
+    ) in kw["metadata"]
 
 
 def test_get_tensorboard_flattened():
@@ -1075,7 +1111,9 @@ def test_get_tensorboard_flattened():
         call.return_value = tensorboard.Tensorboard()
         # Call the method with a truthy value for each flattened field,
         # using the keyword arguments to the method.
-        client.get_tensorboard(name="name_value",)
+        client.get_tensorboard(
+            name="name_value",
+        )
 
         # Establish that the underlying call was made with the expected
         # request object values.
@@ -1095,7 +1133,8 @@ def test_get_tensorboard_flattened_error():
     # fields is an error.
     with pytest.raises(ValueError):
         client.get_tensorboard(
-            tensorboard_service.GetTensorboardRequest(), name="name_value",
+            tensorboard_service.GetTensorboardRequest(),
+            name="name_value",
         )
 
 
@@ -1115,7 +1154,9 @@ async def test_get_tensorboard_flattened_async():
         )
         # Call the method with a truthy value for each flattened field,
         # using the keyword arguments to the method.
-        response = await client.get_tensorboard(name="name_value",)
+        response = await client.get_tensorboard(
+            name="name_value",
+        )
 
         # Establish that the underlying call was made with the expected
         # request object values.
@@ -1136,16 +1177,22 @@ async def test_get_tensorboard_flattened_error_async():
     # fields is an error.
     with pytest.raises(ValueError):
         await client.get_tensorboard(
-            tensorboard_service.GetTensorboardRequest(), name="name_value",
+            tensorboard_service.GetTensorboardRequest(),
+            name="name_value",
         )
 
 
 @pytest.mark.parametrize(
-    "request_type", [tensorboard_service.UpdateTensorboardRequest, dict,]
+    "request_type",
+    [
+        tensorboard_service.UpdateTensorboardRequest,
+        dict,
+    ],
 )
 def test_update_tensorboard(request_type, transport: str = "grpc"):
     client = TensorboardServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(), transport=transport,
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport=transport,
     )
 
     # Everything is optional in proto3 as far as the runtime is concerned,
@@ -1173,7 +1220,8 @@ def test_update_tensorboard_empty_call():
     # This test is a coverage failsafe to make sure that totally empty calls,
     # i.e. request == None and no flattened fields passed, work.
     client = TensorboardServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(), transport="grpc",
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="grpc",
     )
 
     # Mock the actual call within the gRPC stub, and fake the request.
@@ -1192,7 +1240,8 @@ async def test_update_tensorboard_async(
     request_type=tensorboard_service.UpdateTensorboardRequest,
 ):
     client = TensorboardServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(), transport=transport,
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport=transport,
     )
 
     # Everything is optional in proto3 as far as the runtime is concerned,
@@ -1248,9 +1297,10 @@ def test_update_tensorboard_field_headers():
 
     # Establish that the field header was sent.
     _, _, kw = call.mock_calls[0]
-    assert ("x-goog-request-params", "tensorboard.name=tensorboard.name/value",) in kw[
-        "metadata"
-    ]
+    assert (
+        "x-goog-request-params",
+        "tensorboard.name=tensorboard.name/value",
+    ) in kw["metadata"]
 
 
 @pytest.mark.asyncio
@@ -1281,9 +1331,10 @@ async def test_update_tensorboard_field_headers_async():
 
     # Establish that the field header was sent.
     _, _, kw = call.mock_calls[0]
-    assert ("x-goog-request-params", "tensorboard.name=tensorboard.name/value",) in kw[
-        "metadata"
-    ]
+    assert (
+        "x-goog-request-params",
+        "tensorboard.name=tensorboard.name/value",
+    ) in kw["metadata"]
 
 
 def test_update_tensorboard_flattened():
@@ -1383,11 +1434,16 @@ async def test_update_tensorboard_flattened_error_async():
 
 
 @pytest.mark.parametrize(
-    "request_type", [tensorboard_service.ListTensorboardsRequest, dict,]
+    "request_type",
+    [
+        tensorboard_service.ListTensorboardsRequest,
+        dict,
+    ],
 )
 def test_list_tensorboards(request_type, transport: str = "grpc"):
     client = TensorboardServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(), transport=transport,
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport=transport,
     )
 
     # Everything is optional in proto3 as far as the runtime is concerned,
@@ -1418,7 +1474,8 @@ def test_list_tensorboards_empty_call():
     # This test is a coverage failsafe to make sure that totally empty calls,
     # i.e. request == None and no flattened fields passed, work.
     client = TensorboardServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(), transport="grpc",
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="grpc",
     )
 
     # Mock the actual call within the gRPC stub, and fake the request.
@@ -1437,7 +1494,8 @@ async def test_list_tensorboards_async(
     request_type=tensorboard_service.ListTensorboardsRequest,
 ):
     client = TensorboardServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(), transport=transport,
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport=transport,
     )
 
     # Everything is optional in proto3 as far as the runtime is concerned,
@@ -1496,7 +1554,10 @@ def test_list_tensorboards_field_headers():
 
     # Establish that the field header was sent.
     _, _, kw = call.mock_calls[0]
-    assert ("x-goog-request-params", "parent=parent/value",) in kw["metadata"]
+    assert (
+        "x-goog-request-params",
+        "parent=parent/value",
+    ) in kw["metadata"]
 
 
 @pytest.mark.asyncio
@@ -1527,7 +1588,10 @@ async def test_list_tensorboards_field_headers_async():
 
     # Establish that the field header was sent.
     _, _, kw = call.mock_calls[0]
-    assert ("x-goog-request-params", "parent=parent/value",) in kw["metadata"]
+    assert (
+        "x-goog-request-params",
+        "parent=parent/value",
+    ) in kw["metadata"]
 
 
 def test_list_tensorboards_flattened():
@@ -1543,7 +1607,9 @@ def test_list_tensorboards_flattened():
         call.return_value = tensorboard_service.ListTensorboardsResponse()
         # Call the method with a truthy value for each flattened field,
         # using the keyword arguments to the method.
-        client.list_tensorboards(parent="parent_value",)
+        client.list_tensorboards(
+            parent="parent_value",
+        )
 
         # Establish that the underlying call was made with the expected
         # request object values.
@@ -1563,7 +1629,8 @@ def test_list_tensorboards_flattened_error():
     # fields is an error.
     with pytest.raises(ValueError):
         client.list_tensorboards(
-            tensorboard_service.ListTensorboardsRequest(), parent="parent_value",
+            tensorboard_service.ListTensorboardsRequest(),
+            parent="parent_value",
         )
 
 
@@ -1585,7 +1652,9 @@ async def test_list_tensorboards_flattened_async():
         )
         # Call the method with a truthy value for each flattened field,
         # using the keyword arguments to the method.
-        response = await client.list_tensorboards(parent="parent_value",)
+        response = await client.list_tensorboards(
+            parent="parent_value",
+        )
 
         # Establish that the underlying call was made with the expected
         # request object values.
@@ -1606,13 +1675,15 @@ async def test_list_tensorboards_flattened_error_async():
     # fields is an error.
     with pytest.raises(ValueError):
         await client.list_tensorboards(
-            tensorboard_service.ListTensorboardsRequest(), parent="parent_value",
+            tensorboard_service.ListTensorboardsRequest(),
+            parent="parent_value",
         )
 
 
 def test_list_tensorboards_pager(transport_name: str = "grpc"):
     client = TensorboardServiceClient(
-        credentials=ga_credentials.AnonymousCredentials, transport=transport_name,
+        credentials=ga_credentials.AnonymousCredentials,
+        transport=transport_name,
     )
 
     # Mock the actual call within the gRPC stub, and fake the request.
@@ -1630,13 +1701,20 @@ def test_list_tensorboards_pager(transport_name: str = "grpc"):
                 next_page_token="abc",
             ),
             tensorboard_service.ListTensorboardsResponse(
-                tensorboards=[], next_page_token="def",
+                tensorboards=[],
+                next_page_token="def",
             ),
             tensorboard_service.ListTensorboardsResponse(
-                tensorboards=[tensorboard.Tensorboard(),], next_page_token="ghi",
+                tensorboards=[
+                    tensorboard.Tensorboard(),
+                ],
+                next_page_token="ghi",
             ),
             tensorboard_service.ListTensorboardsResponse(
-                tensorboards=[tensorboard.Tensorboard(), tensorboard.Tensorboard(),],
+                tensorboards=[
+                    tensorboard.Tensorboard(),
+                    tensorboard.Tensorboard(),
+                ],
             ),
             RuntimeError,
         )
@@ -1656,7 +1734,8 @@ def test_list_tensorboards_pager(transport_name: str = "grpc"):
 
 def test_list_tensorboards_pages(transport_name: str = "grpc"):
     client = TensorboardServiceClient(
-        credentials=ga_credentials.AnonymousCredentials, transport=transport_name,
+        credentials=ga_credentials.AnonymousCredentials,
+        transport=transport_name,
     )
 
     # Mock the actual call within the gRPC stub, and fake the request.
@@ -1674,13 +1753,20 @@ def test_list_tensorboards_pages(transport_name: str = "grpc"):
                 next_page_token="abc",
             ),
             tensorboard_service.ListTensorboardsResponse(
-                tensorboards=[], next_page_token="def",
+                tensorboards=[],
+                next_page_token="def",
             ),
             tensorboard_service.ListTensorboardsResponse(
-                tensorboards=[tensorboard.Tensorboard(),], next_page_token="ghi",
+                tensorboards=[
+                    tensorboard.Tensorboard(),
+                ],
+                next_page_token="ghi",
             ),
             tensorboard_service.ListTensorboardsResponse(
-                tensorboards=[tensorboard.Tensorboard(), tensorboard.Tensorboard(),],
+                tensorboards=[
+                    tensorboard.Tensorboard(),
+                    tensorboard.Tensorboard(),
+                ],
             ),
             RuntimeError,
         )
@@ -1712,17 +1798,26 @@ async def test_list_tensorboards_async_pager():
                 next_page_token="abc",
             ),
             tensorboard_service.ListTensorboardsResponse(
-                tensorboards=[], next_page_token="def",
+                tensorboards=[],
+                next_page_token="def",
             ),
             tensorboard_service.ListTensorboardsResponse(
-                tensorboards=[tensorboard.Tensorboard(),], next_page_token="ghi",
+                tensorboards=[
+                    tensorboard.Tensorboard(),
+                ],
+                next_page_token="ghi",
             ),
             tensorboard_service.ListTensorboardsResponse(
-                tensorboards=[tensorboard.Tensorboard(), tensorboard.Tensorboard(),],
+                tensorboards=[
+                    tensorboard.Tensorboard(),
+                    tensorboard.Tensorboard(),
+                ],
             ),
             RuntimeError,
         )
-        async_pager = await client.list_tensorboards(request={},)
+        async_pager = await client.list_tensorboards(
+            request={},
+        )
         assert async_pager.next_page_token == "abc"
         responses = []
         async for response in async_pager:
@@ -1755,13 +1850,20 @@ async def test_list_tensorboards_async_pages():
                 next_page_token="abc",
             ),
             tensorboard_service.ListTensorboardsResponse(
-                tensorboards=[], next_page_token="def",
+                tensorboards=[],
+                next_page_token="def",
             ),
             tensorboard_service.ListTensorboardsResponse(
-                tensorboards=[tensorboard.Tensorboard(),], next_page_token="ghi",
+                tensorboards=[
+                    tensorboard.Tensorboard(),
+                ],
+                next_page_token="ghi",
             ),
             tensorboard_service.ListTensorboardsResponse(
-                tensorboards=[tensorboard.Tensorboard(), tensorboard.Tensorboard(),],
+                tensorboards=[
+                    tensorboard.Tensorboard(),
+                    tensorboard.Tensorboard(),
+                ],
             ),
             RuntimeError,
         )
@@ -1773,11 +1875,16 @@ async def test_list_tensorboards_async_pages():
 
 
 @pytest.mark.parametrize(
-    "request_type", [tensorboard_service.DeleteTensorboardRequest, dict,]
+    "request_type",
+    [
+        tensorboard_service.DeleteTensorboardRequest,
+        dict,
+    ],
 )
 def test_delete_tensorboard(request_type, transport: str = "grpc"):
     client = TensorboardServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(), transport=transport,
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport=transport,
     )
 
     # Everything is optional in proto3 as far as the runtime is concerned,
@@ -1805,7 +1912,8 @@ def test_delete_tensorboard_empty_call():
     # This test is a coverage failsafe to make sure that totally empty calls,
     # i.e. request == None and no flattened fields passed, work.
     client = TensorboardServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(), transport="grpc",
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="grpc",
     )
 
     # Mock the actual call within the gRPC stub, and fake the request.
@@ -1824,7 +1932,8 @@ async def test_delete_tensorboard_async(
     request_type=tensorboard_service.DeleteTensorboardRequest,
 ):
     client = TensorboardServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(), transport=transport,
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport=transport,
     )
 
     # Everything is optional in proto3 as far as the runtime is concerned,
@@ -1880,7 +1989,10 @@ def test_delete_tensorboard_field_headers():
 
     # Establish that the field header was sent.
     _, _, kw = call.mock_calls[0]
-    assert ("x-goog-request-params", "name=name/value",) in kw["metadata"]
+    assert (
+        "x-goog-request-params",
+        "name=name/value",
+    ) in kw["metadata"]
 
 
 @pytest.mark.asyncio
@@ -1911,7 +2023,10 @@ async def test_delete_tensorboard_field_headers_async():
 
     # Establish that the field header was sent.
     _, _, kw = call.mock_calls[0]
-    assert ("x-goog-request-params", "name=name/value",) in kw["metadata"]
+    assert (
+        "x-goog-request-params",
+        "name=name/value",
+    ) in kw["metadata"]
 
 
 def test_delete_tensorboard_flattened():
@@ -1927,7 +2042,9 @@ def test_delete_tensorboard_flattened():
         call.return_value = operations_pb2.Operation(name="operations/op")
         # Call the method with a truthy value for each flattened field,
         # using the keyword arguments to the method.
-        client.delete_tensorboard(name="name_value",)
+        client.delete_tensorboard(
+            name="name_value",
+        )
 
         # Establish that the underlying call was made with the expected
         # request object values.
@@ -1947,7 +2064,8 @@ def test_delete_tensorboard_flattened_error():
     # fields is an error.
     with pytest.raises(ValueError):
         client.delete_tensorboard(
-            tensorboard_service.DeleteTensorboardRequest(), name="name_value",
+            tensorboard_service.DeleteTensorboardRequest(),
+            name="name_value",
         )
 
 
@@ -1969,7 +2087,9 @@ async def test_delete_tensorboard_flattened_async():
         )
         # Call the method with a truthy value for each flattened field,
         # using the keyword arguments to the method.
-        response = await client.delete_tensorboard(name="name_value",)
+        response = await client.delete_tensorboard(
+            name="name_value",
+        )
 
         # Establish that the underlying call was made with the expected
         # request object values.
@@ -1990,16 +2110,22 @@ async def test_delete_tensorboard_flattened_error_async():
     # fields is an error.
     with pytest.raises(ValueError):
         await client.delete_tensorboard(
-            tensorboard_service.DeleteTensorboardRequest(), name="name_value",
+            tensorboard_service.DeleteTensorboardRequest(),
+            name="name_value",
         )
 
 
 @pytest.mark.parametrize(
-    "request_type", [tensorboard_service.CreateTensorboardExperimentRequest, dict,]
+    "request_type",
+    [
+        tensorboard_service.CreateTensorboardExperimentRequest,
+        dict,
+    ],
 )
 def test_create_tensorboard_experiment(request_type, transport: str = "grpc"):
     client = TensorboardServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(), transport=transport,
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport=transport,
     )
 
     # Everything is optional in proto3 as far as the runtime is concerned,
@@ -2038,7 +2164,8 @@ def test_create_tensorboard_experiment_empty_call():
     # This test is a coverage failsafe to make sure that totally empty calls,
     # i.e. request == None and no flattened fields passed, work.
     client = TensorboardServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(), transport="grpc",
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="grpc",
     )
 
     # Mock the actual call within the gRPC stub, and fake the request.
@@ -2057,7 +2184,8 @@ async def test_create_tensorboard_experiment_async(
     request_type=tensorboard_service.CreateTensorboardExperimentRequest,
 ):
     client = TensorboardServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(), transport=transport,
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport=transport,
     )
 
     # Everything is optional in proto3 as far as the runtime is concerned,
@@ -2124,7 +2252,10 @@ def test_create_tensorboard_experiment_field_headers():
 
     # Establish that the field header was sent.
     _, _, kw = call.mock_calls[0]
-    assert ("x-goog-request-params", "parent=parent/value",) in kw["metadata"]
+    assert (
+        "x-goog-request-params",
+        "parent=parent/value",
+    ) in kw["metadata"]
 
 
 @pytest.mark.asyncio
@@ -2155,7 +2286,10 @@ async def test_create_tensorboard_experiment_field_headers_async():
 
     # Establish that the field header was sent.
     _, _, kw = call.mock_calls[0]
-    assert ("x-goog-request-params", "parent=parent/value",) in kw["metadata"]
+    assert (
+        "x-goog-request-params",
+        "parent=parent/value",
+    ) in kw["metadata"]
 
 
 def test_create_tensorboard_experiment_flattened():
@@ -2273,11 +2407,16 @@ async def test_create_tensorboard_experiment_flattened_error_async():
 
 
 @pytest.mark.parametrize(
-    "request_type", [tensorboard_service.GetTensorboardExperimentRequest, dict,]
+    "request_type",
+    [
+        tensorboard_service.GetTensorboardExperimentRequest,
+        dict,
+    ],
 )
 def test_get_tensorboard_experiment(request_type, transport: str = "grpc"):
     client = TensorboardServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(), transport=transport,
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport=transport,
     )
 
     # Everything is optional in proto3 as far as the runtime is concerned,
@@ -2316,7 +2455,8 @@ def test_get_tensorboard_experiment_empty_call():
     # This test is a coverage failsafe to make sure that totally empty calls,
     # i.e. request == None and no flattened fields passed, work.
     client = TensorboardServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(), transport="grpc",
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="grpc",
     )
 
     # Mock the actual call within the gRPC stub, and fake the request.
@@ -2335,7 +2475,8 @@ async def test_get_tensorboard_experiment_async(
     request_type=tensorboard_service.GetTensorboardExperimentRequest,
 ):
     client = TensorboardServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(), transport=transport,
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport=transport,
     )
 
     # Everything is optional in proto3 as far as the runtime is concerned,
@@ -2402,7 +2543,10 @@ def test_get_tensorboard_experiment_field_headers():
 
     # Establish that the field header was sent.
     _, _, kw = call.mock_calls[0]
-    assert ("x-goog-request-params", "name=name/value",) in kw["metadata"]
+    assert (
+        "x-goog-request-params",
+        "name=name/value",
+    ) in kw["metadata"]
 
 
 @pytest.mark.asyncio
@@ -2433,7 +2577,10 @@ async def test_get_tensorboard_experiment_field_headers_async():
 
     # Establish that the field header was sent.
     _, _, kw = call.mock_calls[0]
-    assert ("x-goog-request-params", "name=name/value",) in kw["metadata"]
+    assert (
+        "x-goog-request-params",
+        "name=name/value",
+    ) in kw["metadata"]
 
 
 def test_get_tensorboard_experiment_flattened():
@@ -2449,7 +2596,9 @@ def test_get_tensorboard_experiment_flattened():
         call.return_value = tensorboard_experiment.TensorboardExperiment()
         # Call the method with a truthy value for each flattened field,
         # using the keyword arguments to the method.
-        client.get_tensorboard_experiment(name="name_value",)
+        client.get_tensorboard_experiment(
+            name="name_value",
+        )
 
         # Establish that the underlying call was made with the expected
         # request object values.
@@ -2469,7 +2618,8 @@ def test_get_tensorboard_experiment_flattened_error():
     # fields is an error.
     with pytest.raises(ValueError):
         client.get_tensorboard_experiment(
-            tensorboard_service.GetTensorboardExperimentRequest(), name="name_value",
+            tensorboard_service.GetTensorboardExperimentRequest(),
+            name="name_value",
         )
 
 
@@ -2491,7 +2641,9 @@ async def test_get_tensorboard_experiment_flattened_async():
         )
         # Call the method with a truthy value for each flattened field,
         # using the keyword arguments to the method.
-        response = await client.get_tensorboard_experiment(name="name_value",)
+        response = await client.get_tensorboard_experiment(
+            name="name_value",
+        )
 
         # Establish that the underlying call was made with the expected
         # request object values.
@@ -2512,16 +2664,22 @@ async def test_get_tensorboard_experiment_flattened_error_async():
     # fields is an error.
     with pytest.raises(ValueError):
         await client.get_tensorboard_experiment(
-            tensorboard_service.GetTensorboardExperimentRequest(), name="name_value",
+            tensorboard_service.GetTensorboardExperimentRequest(),
+            name="name_value",
         )
 
 
 @pytest.mark.parametrize(
-    "request_type", [tensorboard_service.UpdateTensorboardExperimentRequest, dict,]
+    "request_type",
+    [
+        tensorboard_service.UpdateTensorboardExperimentRequest,
+        dict,
+    ],
 )
 def test_update_tensorboard_experiment(request_type, transport: str = "grpc"):
     client = TensorboardServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(), transport=transport,
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport=transport,
     )
 
     # Everything is optional in proto3 as far as the runtime is concerned,
@@ -2560,7 +2718,8 @@ def test_update_tensorboard_experiment_empty_call():
     # This test is a coverage failsafe to make sure that totally empty calls,
     # i.e. request == None and no flattened fields passed, work.
     client = TensorboardServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(), transport="grpc",
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="grpc",
     )
 
     # Mock the actual call within the gRPC stub, and fake the request.
@@ -2579,7 +2738,8 @@ async def test_update_tensorboard_experiment_async(
     request_type=tensorboard_service.UpdateTensorboardExperimentRequest,
 ):
     client = TensorboardServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(), transport=transport,
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport=transport,
     )
 
     # Everything is optional in proto3 as far as the runtime is concerned,
@@ -2791,11 +2951,16 @@ async def test_update_tensorboard_experiment_flattened_error_async():
 
 
 @pytest.mark.parametrize(
-    "request_type", [tensorboard_service.ListTensorboardExperimentsRequest, dict,]
+    "request_type",
+    [
+        tensorboard_service.ListTensorboardExperimentsRequest,
+        dict,
+    ],
 )
 def test_list_tensorboard_experiments(request_type, transport: str = "grpc"):
     client = TensorboardServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(), transport=transport,
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport=transport,
     )
 
     # Everything is optional in proto3 as far as the runtime is concerned,
@@ -2826,7 +2991,8 @@ def test_list_tensorboard_experiments_empty_call():
     # This test is a coverage failsafe to make sure that totally empty calls,
     # i.e. request == None and no flattened fields passed, work.
     client = TensorboardServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(), transport="grpc",
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="grpc",
     )
 
     # Mock the actual call within the gRPC stub, and fake the request.
@@ -2845,7 +3011,8 @@ async def test_list_tensorboard_experiments_async(
     request_type=tensorboard_service.ListTensorboardExperimentsRequest,
 ):
     client = TensorboardServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(), transport=transport,
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport=transport,
     )
 
     # Everything is optional in proto3 as far as the runtime is concerned,
@@ -2904,7 +3071,10 @@ def test_list_tensorboard_experiments_field_headers():
 
     # Establish that the field header was sent.
     _, _, kw = call.mock_calls[0]
-    assert ("x-goog-request-params", "parent=parent/value",) in kw["metadata"]
+    assert (
+        "x-goog-request-params",
+        "parent=parent/value",
+    ) in kw["metadata"]
 
 
 @pytest.mark.asyncio
@@ -2935,7 +3105,10 @@ async def test_list_tensorboard_experiments_field_headers_async():
 
     # Establish that the field header was sent.
     _, _, kw = call.mock_calls[0]
-    assert ("x-goog-request-params", "parent=parent/value",) in kw["metadata"]
+    assert (
+        "x-goog-request-params",
+        "parent=parent/value",
+    ) in kw["metadata"]
 
 
 def test_list_tensorboard_experiments_flattened():
@@ -2951,7 +3124,9 @@ def test_list_tensorboard_experiments_flattened():
         call.return_value = tensorboard_service.ListTensorboardExperimentsResponse()
         # Call the method with a truthy value for each flattened field,
         # using the keyword arguments to the method.
-        client.list_tensorboard_experiments(parent="parent_value",)
+        client.list_tensorboard_experiments(
+            parent="parent_value",
+        )
 
         # Establish that the underlying call was made with the expected
         # request object values.
@@ -2994,7 +3169,9 @@ async def test_list_tensorboard_experiments_flattened_async():
         )
         # Call the method with a truthy value for each flattened field,
         # using the keyword arguments to the method.
-        response = await client.list_tensorboard_experiments(parent="parent_value",)
+        response = await client.list_tensorboard_experiments(
+            parent="parent_value",
+        )
 
         # Establish that the underlying call was made with the expected
         # request object values.
@@ -3022,7 +3199,8 @@ async def test_list_tensorboard_experiments_flattened_error_async():
 
 def test_list_tensorboard_experiments_pager(transport_name: str = "grpc"):
     client = TensorboardServiceClient(
-        credentials=ga_credentials.AnonymousCredentials, transport=transport_name,
+        credentials=ga_credentials.AnonymousCredentials,
+        transport=transport_name,
     )
 
     # Mock the actual call within the gRPC stub, and fake the request.
@@ -3040,7 +3218,8 @@ def test_list_tensorboard_experiments_pager(transport_name: str = "grpc"):
                 next_page_token="abc",
             ),
             tensorboard_service.ListTensorboardExperimentsResponse(
-                tensorboard_experiments=[], next_page_token="def",
+                tensorboard_experiments=[],
+                next_page_token="def",
             ),
             tensorboard_service.ListTensorboardExperimentsResponse(
                 tensorboard_experiments=[
@@ -3074,7 +3253,8 @@ def test_list_tensorboard_experiments_pager(transport_name: str = "grpc"):
 
 def test_list_tensorboard_experiments_pages(transport_name: str = "grpc"):
     client = TensorboardServiceClient(
-        credentials=ga_credentials.AnonymousCredentials, transport=transport_name,
+        credentials=ga_credentials.AnonymousCredentials,
+        transport=transport_name,
     )
 
     # Mock the actual call within the gRPC stub, and fake the request.
@@ -3092,7 +3272,8 @@ def test_list_tensorboard_experiments_pages(transport_name: str = "grpc"):
                 next_page_token="abc",
             ),
             tensorboard_service.ListTensorboardExperimentsResponse(
-                tensorboard_experiments=[], next_page_token="def",
+                tensorboard_experiments=[],
+                next_page_token="def",
             ),
             tensorboard_service.ListTensorboardExperimentsResponse(
                 tensorboard_experiments=[
@@ -3136,7 +3317,8 @@ async def test_list_tensorboard_experiments_async_pager():
                 next_page_token="abc",
             ),
             tensorboard_service.ListTensorboardExperimentsResponse(
-                tensorboard_experiments=[], next_page_token="def",
+                tensorboard_experiments=[],
+                next_page_token="def",
             ),
             tensorboard_service.ListTensorboardExperimentsResponse(
                 tensorboard_experiments=[
@@ -3152,7 +3334,9 @@ async def test_list_tensorboard_experiments_async_pager():
             ),
             RuntimeError,
         )
-        async_pager = await client.list_tensorboard_experiments(request={},)
+        async_pager = await client.list_tensorboard_experiments(
+            request={},
+        )
         assert async_pager.next_page_token == "abc"
         responses = []
         async for response in async_pager:
@@ -3188,7 +3372,8 @@ async def test_list_tensorboard_experiments_async_pages():
                 next_page_token="abc",
             ),
             tensorboard_service.ListTensorboardExperimentsResponse(
-                tensorboard_experiments=[], next_page_token="def",
+                tensorboard_experiments=[],
+                next_page_token="def",
             ),
             tensorboard_service.ListTensorboardExperimentsResponse(
                 tensorboard_experiments=[
@@ -3214,11 +3399,16 @@ async def test_list_tensorboard_experiments_async_pages():
 
 
 @pytest.mark.parametrize(
-    "request_type", [tensorboard_service.DeleteTensorboardExperimentRequest, dict,]
+    "request_type",
+    [
+        tensorboard_service.DeleteTensorboardExperimentRequest,
+        dict,
+    ],
 )
 def test_delete_tensorboard_experiment(request_type, transport: str = "grpc"):
     client = TensorboardServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(), transport=transport,
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport=transport,
     )
 
     # Everything is optional in proto3 as far as the runtime is concerned,
@@ -3246,7 +3436,8 @@ def test_delete_tensorboard_experiment_empty_call():
     # This test is a coverage failsafe to make sure that totally empty calls,
     # i.e. request == None and no flattened fields passed, work.
     client = TensorboardServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(), transport="grpc",
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="grpc",
     )
 
     # Mock the actual call within the gRPC stub, and fake the request.
@@ -3265,7 +3456,8 @@ async def test_delete_tensorboard_experiment_async(
     request_type=tensorboard_service.DeleteTensorboardExperimentRequest,
 ):
     client = TensorboardServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(), transport=transport,
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport=transport,
     )
 
     # Everything is optional in proto3 as far as the runtime is concerned,
@@ -3321,7 +3513,10 @@ def test_delete_tensorboard_experiment_field_headers():
 
     # Establish that the field header was sent.
     _, _, kw = call.mock_calls[0]
-    assert ("x-goog-request-params", "name=name/value",) in kw["metadata"]
+    assert (
+        "x-goog-request-params",
+        "name=name/value",
+    ) in kw["metadata"]
 
 
 @pytest.mark.asyncio
@@ -3352,7 +3547,10 @@ async def test_delete_tensorboard_experiment_field_headers_async():
 
     # Establish that the field header was sent.
     _, _, kw = call.mock_calls[0]
-    assert ("x-goog-request-params", "name=name/value",) in kw["metadata"]
+    assert (
+        "x-goog-request-params",
+        "name=name/value",
+    ) in kw["metadata"]
 
 
 def test_delete_tensorboard_experiment_flattened():
@@ -3368,7 +3566,9 @@ def test_delete_tensorboard_experiment_flattened():
         call.return_value = operations_pb2.Operation(name="operations/op")
         # Call the method with a truthy value for each flattened field,
         # using the keyword arguments to the method.
-        client.delete_tensorboard_experiment(name="name_value",)
+        client.delete_tensorboard_experiment(
+            name="name_value",
+        )
 
         # Establish that the underlying call was made with the expected
         # request object values.
@@ -3388,7 +3588,8 @@ def test_delete_tensorboard_experiment_flattened_error():
     # fields is an error.
     with pytest.raises(ValueError):
         client.delete_tensorboard_experiment(
-            tensorboard_service.DeleteTensorboardExperimentRequest(), name="name_value",
+            tensorboard_service.DeleteTensorboardExperimentRequest(),
+            name="name_value",
         )
 
 
@@ -3410,7 +3611,9 @@ async def test_delete_tensorboard_experiment_flattened_async():
         )
         # Call the method with a truthy value for each flattened field,
         # using the keyword arguments to the method.
-        response = await client.delete_tensorboard_experiment(name="name_value",)
+        response = await client.delete_tensorboard_experiment(
+            name="name_value",
+        )
 
         # Establish that the underlying call was made with the expected
         # request object values.
@@ -3431,16 +3634,22 @@ async def test_delete_tensorboard_experiment_flattened_error_async():
     # fields is an error.
     with pytest.raises(ValueError):
         await client.delete_tensorboard_experiment(
-            tensorboard_service.DeleteTensorboardExperimentRequest(), name="name_value",
+            tensorboard_service.DeleteTensorboardExperimentRequest(),
+            name="name_value",
         )
 
 
 @pytest.mark.parametrize(
-    "request_type", [tensorboard_service.CreateTensorboardRunRequest, dict,]
+    "request_type",
+    [
+        tensorboard_service.CreateTensorboardRunRequest,
+        dict,
+    ],
 )
 def test_create_tensorboard_run(request_type, transport: str = "grpc"):
     client = TensorboardServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(), transport=transport,
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport=transport,
     )
 
     # Everything is optional in proto3 as far as the runtime is concerned,
@@ -3477,7 +3686,8 @@ def test_create_tensorboard_run_empty_call():
     # This test is a coverage failsafe to make sure that totally empty calls,
     # i.e. request == None and no flattened fields passed, work.
     client = TensorboardServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(), transport="grpc",
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="grpc",
     )
 
     # Mock the actual call within the gRPC stub, and fake the request.
@@ -3496,7 +3706,8 @@ async def test_create_tensorboard_run_async(
     request_type=tensorboard_service.CreateTensorboardRunRequest,
 ):
     client = TensorboardServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(), transport=transport,
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport=transport,
     )
 
     # Everything is optional in proto3 as far as the runtime is concerned,
@@ -3561,7 +3772,10 @@ def test_create_tensorboard_run_field_headers():
 
     # Establish that the field header was sent.
     _, _, kw = call.mock_calls[0]
-    assert ("x-goog-request-params", "parent=parent/value",) in kw["metadata"]
+    assert (
+        "x-goog-request-params",
+        "parent=parent/value",
+    ) in kw["metadata"]
 
 
 @pytest.mark.asyncio
@@ -3592,7 +3806,10 @@ async def test_create_tensorboard_run_field_headers_async():
 
     # Establish that the field header was sent.
     _, _, kw = call.mock_calls[0]
-    assert ("x-goog-request-params", "parent=parent/value",) in kw["metadata"]
+    assert (
+        "x-goog-request-params",
+        "parent=parent/value",
+    ) in kw["metadata"]
 
 
 def test_create_tensorboard_run_flattened():
@@ -3702,11 +3919,16 @@ async def test_create_tensorboard_run_flattened_error_async():
 
 
 @pytest.mark.parametrize(
-    "request_type", [tensorboard_service.BatchCreateTensorboardRunsRequest, dict,]
+    "request_type",
+    [
+        tensorboard_service.BatchCreateTensorboardRunsRequest,
+        dict,
+    ],
 )
 def test_batch_create_tensorboard_runs(request_type, transport: str = "grpc"):
     client = TensorboardServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(), transport=transport,
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport=transport,
     )
 
     # Everything is optional in proto3 as far as the runtime is concerned,
@@ -3734,7 +3956,8 @@ def test_batch_create_tensorboard_runs_empty_call():
     # This test is a coverage failsafe to make sure that totally empty calls,
     # i.e. request == None and no flattened fields passed, work.
     client = TensorboardServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(), transport="grpc",
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="grpc",
     )
 
     # Mock the actual call within the gRPC stub, and fake the request.
@@ -3753,7 +3976,8 @@ async def test_batch_create_tensorboard_runs_async(
     request_type=tensorboard_service.BatchCreateTensorboardRunsRequest,
 ):
     client = TensorboardServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(), transport=transport,
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport=transport,
     )
 
     # Everything is optional in proto3 as far as the runtime is concerned,
@@ -3809,7 +4033,10 @@ def test_batch_create_tensorboard_runs_field_headers():
 
     # Establish that the field header was sent.
     _, _, kw = call.mock_calls[0]
-    assert ("x-goog-request-params", "parent=parent/value",) in kw["metadata"]
+    assert (
+        "x-goog-request-params",
+        "parent=parent/value",
+    ) in kw["metadata"]
 
 
 @pytest.mark.asyncio
@@ -3840,7 +4067,10 @@ async def test_batch_create_tensorboard_runs_field_headers_async():
 
     # Establish that the field header was sent.
     _, _, kw = call.mock_calls[0]
-    assert ("x-goog-request-params", "parent=parent/value",) in kw["metadata"]
+    assert (
+        "x-goog-request-params",
+        "parent=parent/value",
+    ) in kw["metadata"]
 
 
 def test_batch_create_tensorboard_runs_flattened():
@@ -3952,11 +4182,16 @@ async def test_batch_create_tensorboard_runs_flattened_error_async():
 
 
 @pytest.mark.parametrize(
-    "request_type", [tensorboard_service.GetTensorboardRunRequest, dict,]
+    "request_type",
+    [
+        tensorboard_service.GetTensorboardRunRequest,
+        dict,
+    ],
 )
 def test_get_tensorboard_run(request_type, transport: str = "grpc"):
     client = TensorboardServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(), transport=transport,
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport=transport,
     )
 
     # Everything is optional in proto3 as far as the runtime is concerned,
@@ -3993,7 +4228,8 @@ def test_get_tensorboard_run_empty_call():
     # This test is a coverage failsafe to make sure that totally empty calls,
     # i.e. request == None and no flattened fields passed, work.
     client = TensorboardServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(), transport="grpc",
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="grpc",
     )
 
     # Mock the actual call within the gRPC stub, and fake the request.
@@ -4012,7 +4248,8 @@ async def test_get_tensorboard_run_async(
     request_type=tensorboard_service.GetTensorboardRunRequest,
 ):
     client = TensorboardServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(), transport=transport,
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport=transport,
     )
 
     # Everything is optional in proto3 as far as the runtime is concerned,
@@ -4077,7 +4314,10 @@ def test_get_tensorboard_run_field_headers():
 
     # Establish that the field header was sent.
     _, _, kw = call.mock_calls[0]
-    assert ("x-goog-request-params", "name=name/value",) in kw["metadata"]
+    assert (
+        "x-goog-request-params",
+        "name=name/value",
+    ) in kw["metadata"]
 
 
 @pytest.mark.asyncio
@@ -4108,7 +4348,10 @@ async def test_get_tensorboard_run_field_headers_async():
 
     # Establish that the field header was sent.
     _, _, kw = call.mock_calls[0]
-    assert ("x-goog-request-params", "name=name/value",) in kw["metadata"]
+    assert (
+        "x-goog-request-params",
+        "name=name/value",
+    ) in kw["metadata"]
 
 
 def test_get_tensorboard_run_flattened():
@@ -4124,7 +4367,9 @@ def test_get_tensorboard_run_flattened():
         call.return_value = tensorboard_run.TensorboardRun()
         # Call the method with a truthy value for each flattened field,
         # using the keyword arguments to the method.
-        client.get_tensorboard_run(name="name_value",)
+        client.get_tensorboard_run(
+            name="name_value",
+        )
 
         # Establish that the underlying call was made with the expected
         # request object values.
@@ -4144,7 +4389,8 @@ def test_get_tensorboard_run_flattened_error():
     # fields is an error.
     with pytest.raises(ValueError):
         client.get_tensorboard_run(
-            tensorboard_service.GetTensorboardRunRequest(), name="name_value",
+            tensorboard_service.GetTensorboardRunRequest(),
+            name="name_value",
         )
 
 
@@ -4166,7 +4412,9 @@ async def test_get_tensorboard_run_flattened_async():
         )
         # Call the method with a truthy value for each flattened field,
         # using the keyword arguments to the method.
-        response = await client.get_tensorboard_run(name="name_value",)
+        response = await client.get_tensorboard_run(
+            name="name_value",
+        )
 
         # Establish that the underlying call was made with the expected
         # request object values.
@@ -4187,16 +4435,22 @@ async def test_get_tensorboard_run_flattened_error_async():
     # fields is an error.
     with pytest.raises(ValueError):
         await client.get_tensorboard_run(
-            tensorboard_service.GetTensorboardRunRequest(), name="name_value",
+            tensorboard_service.GetTensorboardRunRequest(),
+            name="name_value",
         )
 
 
 @pytest.mark.parametrize(
-    "request_type", [tensorboard_service.UpdateTensorboardRunRequest, dict,]
+    "request_type",
+    [
+        tensorboard_service.UpdateTensorboardRunRequest,
+        dict,
+    ],
 )
 def test_update_tensorboard_run(request_type, transport: str = "grpc"):
     client = TensorboardServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(), transport=transport,
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport=transport,
     )
 
     # Everything is optional in proto3 as far as the runtime is concerned,
@@ -4233,7 +4487,8 @@ def test_update_tensorboard_run_empty_call():
     # This test is a coverage failsafe to make sure that totally empty calls,
     # i.e. request == None and no flattened fields passed, work.
     client = TensorboardServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(), transport="grpc",
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="grpc",
     )
 
     # Mock the actual call within the gRPC stub, and fake the request.
@@ -4252,7 +4507,8 @@ async def test_update_tensorboard_run_async(
     request_type=tensorboard_service.UpdateTensorboardRunRequest,
 ):
     client = TensorboardServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(), transport=transport,
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport=transport,
     )
 
     # Everything is optional in proto3 as far as the runtime is concerned,
@@ -4454,11 +4710,16 @@ async def test_update_tensorboard_run_flattened_error_async():
 
 
 @pytest.mark.parametrize(
-    "request_type", [tensorboard_service.ListTensorboardRunsRequest, dict,]
+    "request_type",
+    [
+        tensorboard_service.ListTensorboardRunsRequest,
+        dict,
+    ],
 )
 def test_list_tensorboard_runs(request_type, transport: str = "grpc"):
     client = TensorboardServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(), transport=transport,
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport=transport,
     )
 
     # Everything is optional in proto3 as far as the runtime is concerned,
@@ -4489,7 +4750,8 @@ def test_list_tensorboard_runs_empty_call():
     # This test is a coverage failsafe to make sure that totally empty calls,
     # i.e. request == None and no flattened fields passed, work.
     client = TensorboardServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(), transport="grpc",
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="grpc",
     )
 
     # Mock the actual call within the gRPC stub, and fake the request.
@@ -4508,7 +4770,8 @@ async def test_list_tensorboard_runs_async(
     request_type=tensorboard_service.ListTensorboardRunsRequest,
 ):
     client = TensorboardServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(), transport=transport,
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport=transport,
     )
 
     # Everything is optional in proto3 as far as the runtime is concerned,
@@ -4567,7 +4830,10 @@ def test_list_tensorboard_runs_field_headers():
 
     # Establish that the field header was sent.
     _, _, kw = call.mock_calls[0]
-    assert ("x-goog-request-params", "parent=parent/value",) in kw["metadata"]
+    assert (
+        "x-goog-request-params",
+        "parent=parent/value",
+    ) in kw["metadata"]
 
 
 @pytest.mark.asyncio
@@ -4598,7 +4864,10 @@ async def test_list_tensorboard_runs_field_headers_async():
 
     # Establish that the field header was sent.
     _, _, kw = call.mock_calls[0]
-    assert ("x-goog-request-params", "parent=parent/value",) in kw["metadata"]
+    assert (
+        "x-goog-request-params",
+        "parent=parent/value",
+    ) in kw["metadata"]
 
 
 def test_list_tensorboard_runs_flattened():
@@ -4614,7 +4883,9 @@ def test_list_tensorboard_runs_flattened():
         call.return_value = tensorboard_service.ListTensorboardRunsResponse()
         # Call the method with a truthy value for each flattened field,
         # using the keyword arguments to the method.
-        client.list_tensorboard_runs(parent="parent_value",)
+        client.list_tensorboard_runs(
+            parent="parent_value",
+        )
 
         # Establish that the underlying call was made with the expected
         # request object values.
@@ -4634,7 +4905,8 @@ def test_list_tensorboard_runs_flattened_error():
     # fields is an error.
     with pytest.raises(ValueError):
         client.list_tensorboard_runs(
-            tensorboard_service.ListTensorboardRunsRequest(), parent="parent_value",
+            tensorboard_service.ListTensorboardRunsRequest(),
+            parent="parent_value",
         )
 
 
@@ -4656,7 +4928,9 @@ async def test_list_tensorboard_runs_flattened_async():
         )
         # Call the method with a truthy value for each flattened field,
         # using the keyword arguments to the method.
-        response = await client.list_tensorboard_runs(parent="parent_value",)
+        response = await client.list_tensorboard_runs(
+            parent="parent_value",
+        )
 
         # Establish that the underlying call was made with the expected
         # request object values.
@@ -4677,13 +4951,15 @@ async def test_list_tensorboard_runs_flattened_error_async():
     # fields is an error.
     with pytest.raises(ValueError):
         await client.list_tensorboard_runs(
-            tensorboard_service.ListTensorboardRunsRequest(), parent="parent_value",
+            tensorboard_service.ListTensorboardRunsRequest(),
+            parent="parent_value",
         )
 
 
 def test_list_tensorboard_runs_pager(transport_name: str = "grpc"):
     client = TensorboardServiceClient(
-        credentials=ga_credentials.AnonymousCredentials, transport=transport_name,
+        credentials=ga_credentials.AnonymousCredentials,
+        transport=transport_name,
     )
 
     # Mock the actual call within the gRPC stub, and fake the request.
@@ -4701,10 +4977,13 @@ def test_list_tensorboard_runs_pager(transport_name: str = "grpc"):
                 next_page_token="abc",
             ),
             tensorboard_service.ListTensorboardRunsResponse(
-                tensorboard_runs=[], next_page_token="def",
+                tensorboard_runs=[],
+                next_page_token="def",
             ),
             tensorboard_service.ListTensorboardRunsResponse(
-                tensorboard_runs=[tensorboard_run.TensorboardRun(),],
+                tensorboard_runs=[
+                    tensorboard_run.TensorboardRun(),
+                ],
                 next_page_token="ghi",
             ),
             tensorboard_service.ListTensorboardRunsResponse(
@@ -4731,7 +5010,8 @@ def test_list_tensorboard_runs_pager(transport_name: str = "grpc"):
 
 def test_list_tensorboard_runs_pages(transport_name: str = "grpc"):
     client = TensorboardServiceClient(
-        credentials=ga_credentials.AnonymousCredentials, transport=transport_name,
+        credentials=ga_credentials.AnonymousCredentials,
+        transport=transport_name,
     )
 
     # Mock the actual call within the gRPC stub, and fake the request.
@@ -4749,10 +5029,13 @@ def test_list_tensorboard_runs_pages(transport_name: str = "grpc"):
                 next_page_token="abc",
             ),
             tensorboard_service.ListTensorboardRunsResponse(
-                tensorboard_runs=[], next_page_token="def",
+                tensorboard_runs=[],
+                next_page_token="def",
             ),
             tensorboard_service.ListTensorboardRunsResponse(
-                tensorboard_runs=[tensorboard_run.TensorboardRun(),],
+                tensorboard_runs=[
+                    tensorboard_run.TensorboardRun(),
+                ],
                 next_page_token="ghi",
             ),
             tensorboard_service.ListTensorboardRunsResponse(
@@ -4791,10 +5074,13 @@ async def test_list_tensorboard_runs_async_pager():
                 next_page_token="abc",
             ),
             tensorboard_service.ListTensorboardRunsResponse(
-                tensorboard_runs=[], next_page_token="def",
+                tensorboard_runs=[],
+                next_page_token="def",
             ),
             tensorboard_service.ListTensorboardRunsResponse(
-                tensorboard_runs=[tensorboard_run.TensorboardRun(),],
+                tensorboard_runs=[
+                    tensorboard_run.TensorboardRun(),
+                ],
                 next_page_token="ghi",
             ),
             tensorboard_service.ListTensorboardRunsResponse(
@@ -4805,7 +5091,9 @@ async def test_list_tensorboard_runs_async_pager():
             ),
             RuntimeError,
         )
-        async_pager = await client.list_tensorboard_runs(request={},)
+        async_pager = await client.list_tensorboard_runs(
+            request={},
+        )
         assert async_pager.next_page_token == "abc"
         responses = []
         async for response in async_pager:
@@ -4838,10 +5126,13 @@ async def test_list_tensorboard_runs_async_pages():
                 next_page_token="abc",
             ),
             tensorboard_service.ListTensorboardRunsResponse(
-                tensorboard_runs=[], next_page_token="def",
+                tensorboard_runs=[],
+                next_page_token="def",
             ),
             tensorboard_service.ListTensorboardRunsResponse(
-                tensorboard_runs=[tensorboard_run.TensorboardRun(),],
+                tensorboard_runs=[
+                    tensorboard_run.TensorboardRun(),
+                ],
                 next_page_token="ghi",
             ),
             tensorboard_service.ListTensorboardRunsResponse(
@@ -4860,11 +5151,16 @@ async def test_list_tensorboard_runs_async_pages():
 
 
 @pytest.mark.parametrize(
-    "request_type", [tensorboard_service.DeleteTensorboardRunRequest, dict,]
+    "request_type",
+    [
+        tensorboard_service.DeleteTensorboardRunRequest,
+        dict,
+    ],
 )
 def test_delete_tensorboard_run(request_type, transport: str = "grpc"):
     client = TensorboardServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(), transport=transport,
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport=transport,
     )
 
     # Everything is optional in proto3 as far as the runtime is concerned,
@@ -4892,7 +5188,8 @@ def test_delete_tensorboard_run_empty_call():
     # This test is a coverage failsafe to make sure that totally empty calls,
     # i.e. request == None and no flattened fields passed, work.
     client = TensorboardServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(), transport="grpc",
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="grpc",
     )
 
     # Mock the actual call within the gRPC stub, and fake the request.
@@ -4911,7 +5208,8 @@ async def test_delete_tensorboard_run_async(
     request_type=tensorboard_service.DeleteTensorboardRunRequest,
 ):
     client = TensorboardServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(), transport=transport,
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport=transport,
     )
 
     # Everything is optional in proto3 as far as the runtime is concerned,
@@ -4967,7 +5265,10 @@ def test_delete_tensorboard_run_field_headers():
 
     # Establish that the field header was sent.
     _, _, kw = call.mock_calls[0]
-    assert ("x-goog-request-params", "name=name/value",) in kw["metadata"]
+    assert (
+        "x-goog-request-params",
+        "name=name/value",
+    ) in kw["metadata"]
 
 
 @pytest.mark.asyncio
@@ -4998,7 +5299,10 @@ async def test_delete_tensorboard_run_field_headers_async():
 
     # Establish that the field header was sent.
     _, _, kw = call.mock_calls[0]
-    assert ("x-goog-request-params", "name=name/value",) in kw["metadata"]
+    assert (
+        "x-goog-request-params",
+        "name=name/value",
+    ) in kw["metadata"]
 
 
 def test_delete_tensorboard_run_flattened():
@@ -5014,7 +5318,9 @@ def test_delete_tensorboard_run_flattened():
         call.return_value = operations_pb2.Operation(name="operations/op")
         # Call the method with a truthy value for each flattened field,
         # using the keyword arguments to the method.
-        client.delete_tensorboard_run(name="name_value",)
+        client.delete_tensorboard_run(
+            name="name_value",
+        )
 
         # Establish that the underlying call was made with the expected
         # request object values.
@@ -5034,7 +5340,8 @@ def test_delete_tensorboard_run_flattened_error():
     # fields is an error.
     with pytest.raises(ValueError):
         client.delete_tensorboard_run(
-            tensorboard_service.DeleteTensorboardRunRequest(), name="name_value",
+            tensorboard_service.DeleteTensorboardRunRequest(),
+            name="name_value",
         )
 
 
@@ -5056,7 +5363,9 @@ async def test_delete_tensorboard_run_flattened_async():
         )
         # Call the method with a truthy value for each flattened field,
         # using the keyword arguments to the method.
-        response = await client.delete_tensorboard_run(name="name_value",)
+        response = await client.delete_tensorboard_run(
+            name="name_value",
+        )
 
         # Establish that the underlying call was made with the expected
         # request object values.
@@ -5077,16 +5386,22 @@ async def test_delete_tensorboard_run_flattened_error_async():
     # fields is an error.
     with pytest.raises(ValueError):
         await client.delete_tensorboard_run(
-            tensorboard_service.DeleteTensorboardRunRequest(), name="name_value",
+            tensorboard_service.DeleteTensorboardRunRequest(),
+            name="name_value",
         )
 
 
 @pytest.mark.parametrize(
-    "request_type", [tensorboard_service.BatchCreateTensorboardTimeSeriesRequest, dict,]
+    "request_type",
+    [
+        tensorboard_service.BatchCreateTensorboardTimeSeriesRequest,
+        dict,
+    ],
 )
 def test_batch_create_tensorboard_time_series(request_type, transport: str = "grpc"):
     client = TensorboardServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(), transport=transport,
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport=transport,
     )
 
     # Everything is optional in proto3 as far as the runtime is concerned,
@@ -5118,7 +5433,8 @@ def test_batch_create_tensorboard_time_series_empty_call():
     # This test is a coverage failsafe to make sure that totally empty calls,
     # i.e. request == None and no flattened fields passed, work.
     client = TensorboardServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(), transport="grpc",
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="grpc",
     )
 
     # Mock the actual call within the gRPC stub, and fake the request.
@@ -5137,7 +5453,8 @@ async def test_batch_create_tensorboard_time_series_async(
     request_type=tensorboard_service.BatchCreateTensorboardTimeSeriesRequest,
 ):
     client = TensorboardServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(), transport=transport,
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport=transport,
     )
 
     # Everything is optional in proto3 as far as the runtime is concerned,
@@ -5197,7 +5514,10 @@ def test_batch_create_tensorboard_time_series_field_headers():
 
     # Establish that the field header was sent.
     _, _, kw = call.mock_calls[0]
-    assert ("x-goog-request-params", "parent=parent/value",) in kw["metadata"]
+    assert (
+        "x-goog-request-params",
+        "parent=parent/value",
+    ) in kw["metadata"]
 
 
 @pytest.mark.asyncio
@@ -5228,7 +5548,10 @@ async def test_batch_create_tensorboard_time_series_field_headers_async():
 
     # Establish that the field header was sent.
     _, _, kw = call.mock_calls[0]
-    assert ("x-goog-request-params", "parent=parent/value",) in kw["metadata"]
+    assert (
+        "x-goog-request-params",
+        "parent=parent/value",
+    ) in kw["metadata"]
 
 
 def test_batch_create_tensorboard_time_series_flattened():
@@ -5356,11 +5679,16 @@ async def test_batch_create_tensorboard_time_series_flattened_error_async():
 
 
 @pytest.mark.parametrize(
-    "request_type", [tensorboard_service.CreateTensorboardTimeSeriesRequest, dict,]
+    "request_type",
+    [
+        tensorboard_service.CreateTensorboardTimeSeriesRequest,
+        dict,
+    ],
 )
 def test_create_tensorboard_time_series(request_type, transport: str = "grpc"):
     client = TensorboardServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(), transport=transport,
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport=transport,
     )
 
     # Everything is optional in proto3 as far as the runtime is concerned,
@@ -5406,7 +5734,8 @@ def test_create_tensorboard_time_series_empty_call():
     # This test is a coverage failsafe to make sure that totally empty calls,
     # i.e. request == None and no flattened fields passed, work.
     client = TensorboardServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(), transport="grpc",
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="grpc",
     )
 
     # Mock the actual call within the gRPC stub, and fake the request.
@@ -5425,7 +5754,8 @@ async def test_create_tensorboard_time_series_async(
     request_type=tensorboard_service.CreateTensorboardTimeSeriesRequest,
 ):
     client = TensorboardServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(), transport=transport,
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport=transport,
     )
 
     # Everything is optional in proto3 as far as the runtime is concerned,
@@ -5499,7 +5829,10 @@ def test_create_tensorboard_time_series_field_headers():
 
     # Establish that the field header was sent.
     _, _, kw = call.mock_calls[0]
-    assert ("x-goog-request-params", "parent=parent/value",) in kw["metadata"]
+    assert (
+        "x-goog-request-params",
+        "parent=parent/value",
+    ) in kw["metadata"]
 
 
 @pytest.mark.asyncio
@@ -5530,7 +5863,10 @@ async def test_create_tensorboard_time_series_field_headers_async():
 
     # Establish that the field header was sent.
     _, _, kw = call.mock_calls[0]
-    assert ("x-goog-request-params", "parent=parent/value",) in kw["metadata"]
+    assert (
+        "x-goog-request-params",
+        "parent=parent/value",
+    ) in kw["metadata"]
 
 
 def test_create_tensorboard_time_series_flattened():
@@ -5638,11 +5974,16 @@ async def test_create_tensorboard_time_series_flattened_error_async():
 
 
 @pytest.mark.parametrize(
-    "request_type", [tensorboard_service.GetTensorboardTimeSeriesRequest, dict,]
+    "request_type",
+    [
+        tensorboard_service.GetTensorboardTimeSeriesRequest,
+        dict,
+    ],
 )
 def test_get_tensorboard_time_series(request_type, transport: str = "grpc"):
     client = TensorboardServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(), transport=transport,
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport=transport,
     )
 
     # Everything is optional in proto3 as far as the runtime is concerned,
@@ -5688,7 +6029,8 @@ def test_get_tensorboard_time_series_empty_call():
     # This test is a coverage failsafe to make sure that totally empty calls,
     # i.e. request == None and no flattened fields passed, work.
     client = TensorboardServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(), transport="grpc",
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="grpc",
     )
 
     # Mock the actual call within the gRPC stub, and fake the request.
@@ -5707,7 +6049,8 @@ async def test_get_tensorboard_time_series_async(
     request_type=tensorboard_service.GetTensorboardTimeSeriesRequest,
 ):
     client = TensorboardServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(), transport=transport,
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport=transport,
     )
 
     # Everything is optional in proto3 as far as the runtime is concerned,
@@ -5781,7 +6124,10 @@ def test_get_tensorboard_time_series_field_headers():
 
     # Establish that the field header was sent.
     _, _, kw = call.mock_calls[0]
-    assert ("x-goog-request-params", "name=name/value",) in kw["metadata"]
+    assert (
+        "x-goog-request-params",
+        "name=name/value",
+    ) in kw["metadata"]
 
 
 @pytest.mark.asyncio
@@ -5812,7 +6158,10 @@ async def test_get_tensorboard_time_series_field_headers_async():
 
     # Establish that the field header was sent.
     _, _, kw = call.mock_calls[0]
-    assert ("x-goog-request-params", "name=name/value",) in kw["metadata"]
+    assert (
+        "x-goog-request-params",
+        "name=name/value",
+    ) in kw["metadata"]
 
 
 def test_get_tensorboard_time_series_flattened():
@@ -5828,7 +6177,9 @@ def test_get_tensorboard_time_series_flattened():
         call.return_value = tensorboard_time_series.TensorboardTimeSeries()
         # Call the method with a truthy value for each flattened field,
         # using the keyword arguments to the method.
-        client.get_tensorboard_time_series(name="name_value",)
+        client.get_tensorboard_time_series(
+            name="name_value",
+        )
 
         # Establish that the underlying call was made with the expected
         # request object values.
@@ -5848,7 +6199,8 @@ def test_get_tensorboard_time_series_flattened_error():
     # fields is an error.
     with pytest.raises(ValueError):
         client.get_tensorboard_time_series(
-            tensorboard_service.GetTensorboardTimeSeriesRequest(), name="name_value",
+            tensorboard_service.GetTensorboardTimeSeriesRequest(),
+            name="name_value",
         )
 
 
@@ -5870,7 +6222,9 @@ async def test_get_tensorboard_time_series_flattened_async():
         )
         # Call the method with a truthy value for each flattened field,
         # using the keyword arguments to the method.
-        response = await client.get_tensorboard_time_series(name="name_value",)
+        response = await client.get_tensorboard_time_series(
+            name="name_value",
+        )
 
         # Establish that the underlying call was made with the expected
         # request object values.
@@ -5891,16 +6245,22 @@ async def test_get_tensorboard_time_series_flattened_error_async():
     # fields is an error.
     with pytest.raises(ValueError):
         await client.get_tensorboard_time_series(
-            tensorboard_service.GetTensorboardTimeSeriesRequest(), name="name_value",
+            tensorboard_service.GetTensorboardTimeSeriesRequest(),
+            name="name_value",
         )
 
 
 @pytest.mark.parametrize(
-    "request_type", [tensorboard_service.UpdateTensorboardTimeSeriesRequest, dict,]
+    "request_type",
+    [
+        tensorboard_service.UpdateTensorboardTimeSeriesRequest,
+        dict,
+    ],
 )
 def test_update_tensorboard_time_series(request_type, transport: str = "grpc"):
     client = TensorboardServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(), transport=transport,
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport=transport,
     )
 
     # Everything is optional in proto3 as far as the runtime is concerned,
@@ -5946,7 +6306,8 @@ def test_update_tensorboard_time_series_empty_call():
     # This test is a coverage failsafe to make sure that totally empty calls,
     # i.e. request == None and no flattened fields passed, work.
     client = TensorboardServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(), transport="grpc",
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="grpc",
     )
 
     # Mock the actual call within the gRPC stub, and fake the request.
@@ -5965,7 +6326,8 @@ async def test_update_tensorboard_time_series_async(
     request_type=tensorboard_service.UpdateTensorboardTimeSeriesRequest,
 ):
     client = TensorboardServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(), transport=transport,
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport=transport,
     )
 
     # Everything is optional in proto3 as far as the runtime is concerned,
@@ -6184,11 +6546,16 @@ async def test_update_tensorboard_time_series_flattened_error_async():
 
 
 @pytest.mark.parametrize(
-    "request_type", [tensorboard_service.ListTensorboardTimeSeriesRequest, dict,]
+    "request_type",
+    [
+        tensorboard_service.ListTensorboardTimeSeriesRequest,
+        dict,
+    ],
 )
 def test_list_tensorboard_time_series(request_type, transport: str = "grpc"):
     client = TensorboardServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(), transport=transport,
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport=transport,
     )
 
     # Everything is optional in proto3 as far as the runtime is concerned,
@@ -6219,7 +6586,8 @@ def test_list_tensorboard_time_series_empty_call():
     # This test is a coverage failsafe to make sure that totally empty calls,
     # i.e. request == None and no flattened fields passed, work.
     client = TensorboardServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(), transport="grpc",
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="grpc",
     )
 
     # Mock the actual call within the gRPC stub, and fake the request.
@@ -6238,7 +6606,8 @@ async def test_list_tensorboard_time_series_async(
     request_type=tensorboard_service.ListTensorboardTimeSeriesRequest,
 ):
     client = TensorboardServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(), transport=transport,
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport=transport,
     )
 
     # Everything is optional in proto3 as far as the runtime is concerned,
@@ -6297,7 +6666,10 @@ def test_list_tensorboard_time_series_field_headers():
 
     # Establish that the field header was sent.
     _, _, kw = call.mock_calls[0]
-    assert ("x-goog-request-params", "parent=parent/value",) in kw["metadata"]
+    assert (
+        "x-goog-request-params",
+        "parent=parent/value",
+    ) in kw["metadata"]
 
 
 @pytest.mark.asyncio
@@ -6328,7 +6700,10 @@ async def test_list_tensorboard_time_series_field_headers_async():
 
     # Establish that the field header was sent.
     _, _, kw = call.mock_calls[0]
-    assert ("x-goog-request-params", "parent=parent/value",) in kw["metadata"]
+    assert (
+        "x-goog-request-params",
+        "parent=parent/value",
+    ) in kw["metadata"]
 
 
 def test_list_tensorboard_time_series_flattened():
@@ -6344,7 +6719,9 @@ def test_list_tensorboard_time_series_flattened():
         call.return_value = tensorboard_service.ListTensorboardTimeSeriesResponse()
         # Call the method with a truthy value for each flattened field,
         # using the keyword arguments to the method.
-        client.list_tensorboard_time_series(parent="parent_value",)
+        client.list_tensorboard_time_series(
+            parent="parent_value",
+        )
 
         # Establish that the underlying call was made with the expected
         # request object values.
@@ -6387,7 +6764,9 @@ async def test_list_tensorboard_time_series_flattened_async():
         )
         # Call the method with a truthy value for each flattened field,
         # using the keyword arguments to the method.
-        response = await client.list_tensorboard_time_series(parent="parent_value",)
+        response = await client.list_tensorboard_time_series(
+            parent="parent_value",
+        )
 
         # Establish that the underlying call was made with the expected
         # request object values.
@@ -6415,7 +6794,8 @@ async def test_list_tensorboard_time_series_flattened_error_async():
 
 def test_list_tensorboard_time_series_pager(transport_name: str = "grpc"):
     client = TensorboardServiceClient(
-        credentials=ga_credentials.AnonymousCredentials, transport=transport_name,
+        credentials=ga_credentials.AnonymousCredentials,
+        transport=transport_name,
     )
 
     # Mock the actual call within the gRPC stub, and fake the request.
@@ -6433,7 +6813,8 @@ def test_list_tensorboard_time_series_pager(transport_name: str = "grpc"):
                 next_page_token="abc",
             ),
             tensorboard_service.ListTensorboardTimeSeriesResponse(
-                tensorboard_time_series=[], next_page_token="def",
+                tensorboard_time_series=[],
+                next_page_token="def",
             ),
             tensorboard_service.ListTensorboardTimeSeriesResponse(
                 tensorboard_time_series=[
@@ -6468,7 +6849,8 @@ def test_list_tensorboard_time_series_pager(transport_name: str = "grpc"):
 
 def test_list_tensorboard_time_series_pages(transport_name: str = "grpc"):
     client = TensorboardServiceClient(
-        credentials=ga_credentials.AnonymousCredentials, transport=transport_name,
+        credentials=ga_credentials.AnonymousCredentials,
+        transport=transport_name,
     )
 
     # Mock the actual call within the gRPC stub, and fake the request.
@@ -6486,7 +6868,8 @@ def test_list_tensorboard_time_series_pages(transport_name: str = "grpc"):
                 next_page_token="abc",
             ),
             tensorboard_service.ListTensorboardTimeSeriesResponse(
-                tensorboard_time_series=[], next_page_token="def",
+                tensorboard_time_series=[],
+                next_page_token="def",
             ),
             tensorboard_service.ListTensorboardTimeSeriesResponse(
                 tensorboard_time_series=[
@@ -6530,7 +6913,8 @@ async def test_list_tensorboard_time_series_async_pager():
                 next_page_token="abc",
             ),
             tensorboard_service.ListTensorboardTimeSeriesResponse(
-                tensorboard_time_series=[], next_page_token="def",
+                tensorboard_time_series=[],
+                next_page_token="def",
             ),
             tensorboard_service.ListTensorboardTimeSeriesResponse(
                 tensorboard_time_series=[
@@ -6546,7 +6930,9 @@ async def test_list_tensorboard_time_series_async_pager():
             ),
             RuntimeError,
         )
-        async_pager = await client.list_tensorboard_time_series(request={},)
+        async_pager = await client.list_tensorboard_time_series(
+            request={},
+        )
         assert async_pager.next_page_token == "abc"
         responses = []
         async for response in async_pager:
@@ -6582,7 +6968,8 @@ async def test_list_tensorboard_time_series_async_pages():
                 next_page_token="abc",
             ),
             tensorboard_service.ListTensorboardTimeSeriesResponse(
-                tensorboard_time_series=[], next_page_token="def",
+                tensorboard_time_series=[],
+                next_page_token="def",
             ),
             tensorboard_service.ListTensorboardTimeSeriesResponse(
                 tensorboard_time_series=[
@@ -6608,11 +6995,16 @@ async def test_list_tensorboard_time_series_async_pages():
 
 
 @pytest.mark.parametrize(
-    "request_type", [tensorboard_service.DeleteTensorboardTimeSeriesRequest, dict,]
+    "request_type",
+    [
+        tensorboard_service.DeleteTensorboardTimeSeriesRequest,
+        dict,
+    ],
 )
 def test_delete_tensorboard_time_series(request_type, transport: str = "grpc"):
     client = TensorboardServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(), transport=transport,
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport=transport,
     )
 
     # Everything is optional in proto3 as far as the runtime is concerned,
@@ -6640,7 +7032,8 @@ def test_delete_tensorboard_time_series_empty_call():
     # This test is a coverage failsafe to make sure that totally empty calls,
     # i.e. request == None and no flattened fields passed, work.
     client = TensorboardServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(), transport="grpc",
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="grpc",
     )
 
     # Mock the actual call within the gRPC stub, and fake the request.
@@ -6659,7 +7052,8 @@ async def test_delete_tensorboard_time_series_async(
     request_type=tensorboard_service.DeleteTensorboardTimeSeriesRequest,
 ):
     client = TensorboardServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(), transport=transport,
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport=transport,
     )
 
     # Everything is optional in proto3 as far as the runtime is concerned,
@@ -6715,7 +7109,10 @@ def test_delete_tensorboard_time_series_field_headers():
 
     # Establish that the field header was sent.
     _, _, kw = call.mock_calls[0]
-    assert ("x-goog-request-params", "name=name/value",) in kw["metadata"]
+    assert (
+        "x-goog-request-params",
+        "name=name/value",
+    ) in kw["metadata"]
 
 
 @pytest.mark.asyncio
@@ -6746,7 +7143,10 @@ async def test_delete_tensorboard_time_series_field_headers_async():
 
     # Establish that the field header was sent.
     _, _, kw = call.mock_calls[0]
-    assert ("x-goog-request-params", "name=name/value",) in kw["metadata"]
+    assert (
+        "x-goog-request-params",
+        "name=name/value",
+    ) in kw["metadata"]
 
 
 def test_delete_tensorboard_time_series_flattened():
@@ -6762,7 +7162,9 @@ def test_delete_tensorboard_time_series_flattened():
         call.return_value = operations_pb2.Operation(name="operations/op")
         # Call the method with a truthy value for each flattened field,
         # using the keyword arguments to the method.
-        client.delete_tensorboard_time_series(name="name_value",)
+        client.delete_tensorboard_time_series(
+            name="name_value",
+        )
 
         # Establish that the underlying call was made with the expected
         # request object values.
@@ -6782,7 +7184,8 @@ def test_delete_tensorboard_time_series_flattened_error():
     # fields is an error.
     with pytest.raises(ValueError):
         client.delete_tensorboard_time_series(
-            tensorboard_service.DeleteTensorboardTimeSeriesRequest(), name="name_value",
+            tensorboard_service.DeleteTensorboardTimeSeriesRequest(),
+            name="name_value",
         )
 
 
@@ -6804,7 +7207,9 @@ async def test_delete_tensorboard_time_series_flattened_async():
         )
         # Call the method with a truthy value for each flattened field,
         # using the keyword arguments to the method.
-        response = await client.delete_tensorboard_time_series(name="name_value",)
+        response = await client.delete_tensorboard_time_series(
+            name="name_value",
+        )
 
         # Establish that the underlying call was made with the expected
         # request object values.
@@ -6825,17 +7230,22 @@ async def test_delete_tensorboard_time_series_flattened_error_async():
     # fields is an error.
     with pytest.raises(ValueError):
         await client.delete_tensorboard_time_series(
-            tensorboard_service.DeleteTensorboardTimeSeriesRequest(), name="name_value",
+            tensorboard_service.DeleteTensorboardTimeSeriesRequest(),
+            name="name_value",
         )
 
 
 @pytest.mark.parametrize(
     "request_type",
-    [tensorboard_service.BatchReadTensorboardTimeSeriesDataRequest, dict,],
+    [
+        tensorboard_service.BatchReadTensorboardTimeSeriesDataRequest,
+        dict,
+    ],
 )
 def test_batch_read_tensorboard_time_series_data(request_type, transport: str = "grpc"):
     client = TensorboardServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(), transport=transport,
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport=transport,
     )
 
     # Everything is optional in proto3 as far as the runtime is concerned,
@@ -6869,7 +7279,8 @@ def test_batch_read_tensorboard_time_series_data_empty_call():
     # This test is a coverage failsafe to make sure that totally empty calls,
     # i.e. request == None and no flattened fields passed, work.
     client = TensorboardServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(), transport="grpc",
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="grpc",
     )
 
     # Mock the actual call within the gRPC stub, and fake the request.
@@ -6890,7 +7301,8 @@ async def test_batch_read_tensorboard_time_series_data_async(
     request_type=tensorboard_service.BatchReadTensorboardTimeSeriesDataRequest,
 ):
     client = TensorboardServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(), transport=transport,
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport=transport,
     )
 
     # Everything is optional in proto3 as far as the runtime is concerned,
@@ -6952,7 +7364,10 @@ def test_batch_read_tensorboard_time_series_data_field_headers():
 
     # Establish that the field header was sent.
     _, _, kw = call.mock_calls[0]
-    assert ("x-goog-request-params", "tensorboard=tensorboard/value",) in kw["metadata"]
+    assert (
+        "x-goog-request-params",
+        "tensorboard=tensorboard/value",
+    ) in kw["metadata"]
 
 
 @pytest.mark.asyncio
@@ -6983,7 +7398,10 @@ async def test_batch_read_tensorboard_time_series_data_field_headers_async():
 
     # Establish that the field header was sent.
     _, _, kw = call.mock_calls[0]
-    assert ("x-goog-request-params", "tensorboard=tensorboard/value",) in kw["metadata"]
+    assert (
+        "x-goog-request-params",
+        "tensorboard=tensorboard/value",
+    ) in kw["metadata"]
 
 
 def test_batch_read_tensorboard_time_series_data_flattened():
@@ -7001,7 +7419,9 @@ def test_batch_read_tensorboard_time_series_data_flattened():
         )
         # Call the method with a truthy value for each flattened field,
         # using the keyword arguments to the method.
-        client.batch_read_tensorboard_time_series_data(tensorboard="tensorboard_value",)
+        client.batch_read_tensorboard_time_series_data(
+            tensorboard="tensorboard_value",
+        )
 
         # Establish that the underlying call was made with the expected
         # request object values.
@@ -7075,11 +7495,16 @@ async def test_batch_read_tensorboard_time_series_data_flattened_error_async():
 
 
 @pytest.mark.parametrize(
-    "request_type", [tensorboard_service.ReadTensorboardTimeSeriesDataRequest, dict,]
+    "request_type",
+    [
+        tensorboard_service.ReadTensorboardTimeSeriesDataRequest,
+        dict,
+    ],
 )
 def test_read_tensorboard_time_series_data(request_type, transport: str = "grpc"):
     client = TensorboardServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(), transport=transport,
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport=transport,
     )
 
     # Everything is optional in proto3 as far as the runtime is concerned,
@@ -7109,7 +7534,8 @@ def test_read_tensorboard_time_series_data_empty_call():
     # This test is a coverage failsafe to make sure that totally empty calls,
     # i.e. request == None and no flattened fields passed, work.
     client = TensorboardServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(), transport="grpc",
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="grpc",
     )
 
     # Mock the actual call within the gRPC stub, and fake the request.
@@ -7128,7 +7554,8 @@ async def test_read_tensorboard_time_series_data_async(
     request_type=tensorboard_service.ReadTensorboardTimeSeriesDataRequest,
 ):
     client = TensorboardServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(), transport=transport,
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport=transport,
     )
 
     # Everything is optional in proto3 as far as the runtime is concerned,
@@ -7313,11 +7740,16 @@ async def test_read_tensorboard_time_series_data_flattened_error_async():
 
 
 @pytest.mark.parametrize(
-    "request_type", [tensorboard_service.ReadTensorboardBlobDataRequest, dict,]
+    "request_type",
+    [
+        tensorboard_service.ReadTensorboardBlobDataRequest,
+        dict,
+    ],
 )
 def test_read_tensorboard_blob_data(request_type, transport: str = "grpc"):
     client = TensorboardServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(), transport=transport,
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport=transport,
     )
 
     # Everything is optional in proto3 as far as the runtime is concerned,
@@ -7348,7 +7780,8 @@ def test_read_tensorboard_blob_data_empty_call():
     # This test is a coverage failsafe to make sure that totally empty calls,
     # i.e. request == None and no flattened fields passed, work.
     client = TensorboardServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(), transport="grpc",
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="grpc",
     )
 
     # Mock the actual call within the gRPC stub, and fake the request.
@@ -7367,7 +7800,8 @@ async def test_read_tensorboard_blob_data_async(
     request_type=tensorboard_service.ReadTensorboardBlobDataRequest,
 ):
     client = TensorboardServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(), transport=transport,
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport=transport,
     )
 
     # Everything is optional in proto3 as far as the runtime is concerned,
@@ -7427,7 +7861,10 @@ def test_read_tensorboard_blob_data_field_headers():
 
     # Establish that the field header was sent.
     _, _, kw = call.mock_calls[0]
-    assert ("x-goog-request-params", "time_series=time_series/value",) in kw["metadata"]
+    assert (
+        "x-goog-request-params",
+        "time_series=time_series/value",
+    ) in kw["metadata"]
 
 
 @pytest.mark.asyncio
@@ -7459,7 +7896,10 @@ async def test_read_tensorboard_blob_data_field_headers_async():
 
     # Establish that the field header was sent.
     _, _, kw = call.mock_calls[0]
-    assert ("x-goog-request-params", "time_series=time_series/value",) in kw["metadata"]
+    assert (
+        "x-goog-request-params",
+        "time_series=time_series/value",
+    ) in kw["metadata"]
 
 
 def test_read_tensorboard_blob_data_flattened():
@@ -7477,7 +7917,9 @@ def test_read_tensorboard_blob_data_flattened():
         )
         # Call the method with a truthy value for each flattened field,
         # using the keyword arguments to the method.
-        client.read_tensorboard_blob_data(time_series="time_series_value",)
+        client.read_tensorboard_blob_data(
+            time_series="time_series_value",
+        )
 
         # Establish that the underlying call was made with the expected
         # request object values.
@@ -7549,11 +7991,16 @@ async def test_read_tensorboard_blob_data_flattened_error_async():
 
 
 @pytest.mark.parametrize(
-    "request_type", [tensorboard_service.WriteTensorboardExperimentDataRequest, dict,]
+    "request_type",
+    [
+        tensorboard_service.WriteTensorboardExperimentDataRequest,
+        dict,
+    ],
 )
 def test_write_tensorboard_experiment_data(request_type, transport: str = "grpc"):
     client = TensorboardServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(), transport=transport,
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport=transport,
     )
 
     # Everything is optional in proto3 as far as the runtime is concerned,
@@ -7583,7 +8030,8 @@ def test_write_tensorboard_experiment_data_empty_call():
     # This test is a coverage failsafe to make sure that totally empty calls,
     # i.e. request == None and no flattened fields passed, work.
     client = TensorboardServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(), transport="grpc",
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="grpc",
     )
 
     # Mock the actual call within the gRPC stub, and fake the request.
@@ -7602,7 +8050,8 @@ async def test_write_tensorboard_experiment_data_async(
     request_type=tensorboard_service.WriteTensorboardExperimentDataRequest,
 ):
     client = TensorboardServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(), transport=transport,
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport=transport,
     )
 
     # Everything is optional in proto3 as far as the runtime is concerned,
@@ -7821,11 +8270,16 @@ async def test_write_tensorboard_experiment_data_flattened_error_async():
 
 
 @pytest.mark.parametrize(
-    "request_type", [tensorboard_service.WriteTensorboardRunDataRequest, dict,]
+    "request_type",
+    [
+        tensorboard_service.WriteTensorboardRunDataRequest,
+        dict,
+    ],
 )
 def test_write_tensorboard_run_data(request_type, transport: str = "grpc"):
     client = TensorboardServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(), transport=transport,
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport=transport,
     )
 
     # Everything is optional in proto3 as far as the runtime is concerned,
@@ -7853,7 +8307,8 @@ def test_write_tensorboard_run_data_empty_call():
     # This test is a coverage failsafe to make sure that totally empty calls,
     # i.e. request == None and no flattened fields passed, work.
     client = TensorboardServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(), transport="grpc",
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="grpc",
     )
 
     # Mock the actual call within the gRPC stub, and fake the request.
@@ -7872,7 +8327,8 @@ async def test_write_tensorboard_run_data_async(
     request_type=tensorboard_service.WriteTensorboardRunDataRequest,
 ):
     client = TensorboardServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(), transport=transport,
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport=transport,
     )
 
     # Everything is optional in proto3 as far as the runtime is concerned,
@@ -7928,9 +8384,10 @@ def test_write_tensorboard_run_data_field_headers():
 
     # Establish that the field header was sent.
     _, _, kw = call.mock_calls[0]
-    assert ("x-goog-request-params", "tensorboard_run=tensorboard_run/value",) in kw[
-        "metadata"
-    ]
+    assert (
+        "x-goog-request-params",
+        "tensorboard_run=tensorboard_run/value",
+    ) in kw["metadata"]
 
 
 @pytest.mark.asyncio
@@ -7961,9 +8418,10 @@ async def test_write_tensorboard_run_data_field_headers_async():
 
     # Establish that the field header was sent.
     _, _, kw = call.mock_calls[0]
-    assert ("x-goog-request-params", "tensorboard_run=tensorboard_run/value",) in kw[
-        "metadata"
-    ]
+    assert (
+        "x-goog-request-params",
+        "tensorboard_run=tensorboard_run/value",
+    ) in kw["metadata"]
 
 
 def test_write_tensorboard_run_data_flattened():
@@ -8087,11 +8545,16 @@ async def test_write_tensorboard_run_data_flattened_error_async():
 
 
 @pytest.mark.parametrize(
-    "request_type", [tensorboard_service.ExportTensorboardTimeSeriesDataRequest, dict,]
+    "request_type",
+    [
+        tensorboard_service.ExportTensorboardTimeSeriesDataRequest,
+        dict,
+    ],
 )
 def test_export_tensorboard_time_series_data(request_type, transport: str = "grpc"):
     client = TensorboardServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(), transport=transport,
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport=transport,
     )
 
     # Everything is optional in proto3 as far as the runtime is concerned,
@@ -8122,7 +8585,8 @@ def test_export_tensorboard_time_series_data_empty_call():
     # This test is a coverage failsafe to make sure that totally empty calls,
     # i.e. request == None and no flattened fields passed, work.
     client = TensorboardServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(), transport="grpc",
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="grpc",
     )
 
     # Mock the actual call within the gRPC stub, and fake the request.
@@ -8141,7 +8605,8 @@ async def test_export_tensorboard_time_series_data_async(
     request_type=tensorboard_service.ExportTensorboardTimeSeriesDataRequest,
 ):
     client = TensorboardServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(), transport=transport,
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport=transport,
     )
 
     # Everything is optional in proto3 as far as the runtime is concerned,
@@ -8334,7 +8799,8 @@ async def test_export_tensorboard_time_series_data_flattened_error_async():
 
 def test_export_tensorboard_time_series_data_pager(transport_name: str = "grpc"):
     client = TensorboardServiceClient(
-        credentials=ga_credentials.AnonymousCredentials, transport=transport_name,
+        credentials=ga_credentials.AnonymousCredentials,
+        transport=transport_name,
     )
 
     # Mock the actual call within the gRPC stub, and fake the request.
@@ -8352,10 +8818,13 @@ def test_export_tensorboard_time_series_data_pager(transport_name: str = "grpc")
                 next_page_token="abc",
             ),
             tensorboard_service.ExportTensorboardTimeSeriesDataResponse(
-                time_series_data_points=[], next_page_token="def",
+                time_series_data_points=[],
+                next_page_token="def",
             ),
             tensorboard_service.ExportTensorboardTimeSeriesDataResponse(
-                time_series_data_points=[tensorboard_data.TimeSeriesDataPoint(),],
+                time_series_data_points=[
+                    tensorboard_data.TimeSeriesDataPoint(),
+                ],
                 next_page_token="ghi",
             ),
             tensorboard_service.ExportTensorboardTimeSeriesDataResponse(
@@ -8384,7 +8853,8 @@ def test_export_tensorboard_time_series_data_pager(transport_name: str = "grpc")
 
 def test_export_tensorboard_time_series_data_pages(transport_name: str = "grpc"):
     client = TensorboardServiceClient(
-        credentials=ga_credentials.AnonymousCredentials, transport=transport_name,
+        credentials=ga_credentials.AnonymousCredentials,
+        transport=transport_name,
     )
 
     # Mock the actual call within the gRPC stub, and fake the request.
@@ -8402,10 +8872,13 @@ def test_export_tensorboard_time_series_data_pages(transport_name: str = "grpc")
                 next_page_token="abc",
             ),
             tensorboard_service.ExportTensorboardTimeSeriesDataResponse(
-                time_series_data_points=[], next_page_token="def",
+                time_series_data_points=[],
+                next_page_token="def",
             ),
             tensorboard_service.ExportTensorboardTimeSeriesDataResponse(
-                time_series_data_points=[tensorboard_data.TimeSeriesDataPoint(),],
+                time_series_data_points=[
+                    tensorboard_data.TimeSeriesDataPoint(),
+                ],
                 next_page_token="ghi",
             ),
             tensorboard_service.ExportTensorboardTimeSeriesDataResponse(
@@ -8444,10 +8917,13 @@ async def test_export_tensorboard_time_series_data_async_pager():
                 next_page_token="abc",
             ),
             tensorboard_service.ExportTensorboardTimeSeriesDataResponse(
-                time_series_data_points=[], next_page_token="def",
+                time_series_data_points=[],
+                next_page_token="def",
             ),
             tensorboard_service.ExportTensorboardTimeSeriesDataResponse(
-                time_series_data_points=[tensorboard_data.TimeSeriesDataPoint(),],
+                time_series_data_points=[
+                    tensorboard_data.TimeSeriesDataPoint(),
+                ],
                 next_page_token="ghi",
             ),
             tensorboard_service.ExportTensorboardTimeSeriesDataResponse(
@@ -8458,7 +8934,9 @@ async def test_export_tensorboard_time_series_data_async_pager():
             ),
             RuntimeError,
         )
-        async_pager = await client.export_tensorboard_time_series_data(request={},)
+        async_pager = await client.export_tensorboard_time_series_data(
+            request={},
+        )
         assert async_pager.next_page_token == "abc"
         responses = []
         async for response in async_pager:
@@ -8493,10 +8971,13 @@ async def test_export_tensorboard_time_series_data_async_pages():
                 next_page_token="abc",
             ),
             tensorboard_service.ExportTensorboardTimeSeriesDataResponse(
-                time_series_data_points=[], next_page_token="def",
+                time_series_data_points=[],
+                next_page_token="def",
             ),
             tensorboard_service.ExportTensorboardTimeSeriesDataResponse(
-                time_series_data_points=[tensorboard_data.TimeSeriesDataPoint(),],
+                time_series_data_points=[
+                    tensorboard_data.TimeSeriesDataPoint(),
+                ],
                 next_page_token="ghi",
             ),
             tensorboard_service.ExportTensorboardTimeSeriesDataResponse(
@@ -8523,7 +9004,8 @@ def test_credentials_transport_error():
     )
     with pytest.raises(ValueError):
         client = TensorboardServiceClient(
-            credentials=ga_credentials.AnonymousCredentials(), transport=transport,
+            credentials=ga_credentials.AnonymousCredentials(),
+            transport=transport,
         )
 
     # It is an error to provide a credentials file and a transport instance.
@@ -8543,7 +9025,10 @@ def test_credentials_transport_error():
     options = client_options.ClientOptions()
     options.api_key = "api_key"
     with pytest.raises(ValueError):
-        client = TensorboardServiceClient(client_options=options, transport=transport,)
+        client = TensorboardServiceClient(
+            client_options=options,
+            transport=transport,
+        )
 
     # It is an error to provide an api_key and a credential.
     options = mock.Mock()
@@ -8559,7 +9044,8 @@ def test_credentials_transport_error():
     )
     with pytest.raises(ValueError):
         client = TensorboardServiceClient(
-            client_options={"scopes": ["1", "2"]}, transport=transport,
+            client_options={"scopes": ["1", "2"]},
+            transport=transport,
         )
 
 
@@ -8607,7 +9093,10 @@ def test_transport_grpc_default():
     client = TensorboardServiceClient(
         credentials=ga_credentials.AnonymousCredentials(),
     )
-    assert isinstance(client.transport, transports.TensorboardServiceGrpcTransport,)
+    assert isinstance(
+        client.transport,
+        transports.TensorboardServiceGrpcTransport,
+    )
 
 
 def test_tensorboard_service_base_transport_error():
@@ -8684,7 +9173,8 @@ def test_tensorboard_service_base_transport_with_credentials_file():
         Transport.return_value = None
         load_creds.return_value = (ga_credentials.AnonymousCredentials(), None)
         transport = transports.TensorboardServiceTransport(
-            credentials_file="credentials.json", quota_project_id="octopus",
+            credentials_file="credentials.json",
+            quota_project_id="octopus",
         )
         load_creds.assert_called_once_with(
             "credentials.json",
@@ -8844,7 +9334,8 @@ def test_tensorboard_service_grpc_transport_channel():
 
     # Check that channel is used if provided.
     transport = transports.TensorboardServiceGrpcTransport(
-        host="squid.clam.whelk", channel=channel,
+        host="squid.clam.whelk",
+        channel=channel,
     )
     assert transport.grpc_channel == channel
     assert transport._host == "squid.clam.whelk:443"
@@ -8856,7 +9347,8 @@ def test_tensorboard_service_grpc_asyncio_transport_channel():
 
     # Check that channel is used if provided.
     transport = transports.TensorboardServiceGrpcAsyncIOTransport(
-        host="squid.clam.whelk", channel=channel,
+        host="squid.clam.whelk",
+        channel=channel,
     )
     assert transport.grpc_channel == channel
     assert transport._host == "squid.clam.whelk:443"
@@ -8965,12 +9457,16 @@ def test_tensorboard_service_transport_channel_mtls_with_adc(transport_class):
 
 def test_tensorboard_service_grpc_lro_client():
     client = TensorboardServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(), transport="grpc",
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="grpc",
     )
     transport = client.transport
 
     # Ensure that we have a api-core operations client.
-    assert isinstance(transport.operations_client, operations_v1.OperationsClient,)
+    assert isinstance(
+        transport.operations_client,
+        operations_v1.OperationsClient,
+    )
 
     # Ensure that subsequent calls to the property send the exact same object.
     assert transport.operations_client is transport.operations_client
@@ -8978,12 +9474,16 @@ def test_tensorboard_service_grpc_lro_client():
 
 def test_tensorboard_service_grpc_lro_async_client():
     client = TensorboardServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(), transport="grpc_asyncio",
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="grpc_asyncio",
     )
     transport = client.transport
 
     # Ensure that we have a api-core operations client.
-    assert isinstance(transport.operations_client, operations_v1.OperationsAsyncClient,)
+    assert isinstance(
+        transport.operations_client,
+        operations_v1.OperationsAsyncClient,
+    )
 
     # Ensure that subsequent calls to the property send the exact same object.
     assert transport.operations_client is transport.operations_client
@@ -8993,8 +9493,12 @@ def test_tensorboard_path():
     project = "squid"
     location = "clam"
     tensorboard = "whelk"
-    expected = "projects/{project}/locations/{location}/tensorboards/{tensorboard}".format(
-        project=project, location=location, tensorboard=tensorboard,
+    expected = (
+        "projects/{project}/locations/{location}/tensorboards/{tensorboard}".format(
+            project=project,
+            location=location,
+            tensorboard=tensorboard,
+        )
     )
     actual = TensorboardServiceClient.tensorboard_path(project, location, tensorboard)
     assert expected == actual
@@ -9137,7 +9641,9 @@ def test_parse_common_billing_account_path():
 
 def test_common_folder_path():
     folder = "whelk"
-    expected = "folders/{folder}".format(folder=folder,)
+    expected = "folders/{folder}".format(
+        folder=folder,
+    )
     actual = TensorboardServiceClient.common_folder_path(folder)
     assert expected == actual
 
@@ -9155,7 +9661,9 @@ def test_parse_common_folder_path():
 
 def test_common_organization_path():
     organization = "oyster"
-    expected = "organizations/{organization}".format(organization=organization,)
+    expected = "organizations/{organization}".format(
+        organization=organization,
+    )
     actual = TensorboardServiceClient.common_organization_path(organization)
     assert expected == actual
 
@@ -9173,7 +9681,9 @@ def test_parse_common_organization_path():
 
 def test_common_project_path():
     project = "cuttlefish"
-    expected = "projects/{project}".format(project=project,)
+    expected = "projects/{project}".format(
+        project=project,
+    )
     actual = TensorboardServiceClient.common_project_path(project)
     assert expected == actual
 
@@ -9193,7 +9703,8 @@ def test_common_location_path():
     project = "winkle"
     location = "nautilus"
     expected = "projects/{project}/locations/{location}".format(
-        project=project, location=location,
+        project=project,
+        location=location,
     )
     actual = TensorboardServiceClient.common_location_path(project, location)
     assert expected == actual
@@ -9218,7 +9729,8 @@ def test_client_with_default_client_info():
         transports.TensorboardServiceTransport, "_prep_wrapped_messages"
     ) as prep:
         client = TensorboardServiceClient(
-            credentials=ga_credentials.AnonymousCredentials(), client_info=client_info,
+            credentials=ga_credentials.AnonymousCredentials(),
+            client_info=client_info,
         )
         prep.assert_called_once_with(client_info)
 
@@ -9227,7 +9739,8 @@ def test_client_with_default_client_info():
     ) as prep:
         transport_class = TensorboardServiceClient.get_transport_class()
         transport = transport_class(
-            credentials=ga_credentials.AnonymousCredentials(), client_info=client_info,
+            credentials=ga_credentials.AnonymousCredentials(),
+            client_info=client_info,
         )
         prep.assert_called_once_with(client_info)
 
@@ -9235,7 +9748,8 @@ def test_client_with_default_client_info():
 @pytest.mark.asyncio
 async def test_transport_close_async():
     client = TensorboardServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(), transport="grpc_asyncio",
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="grpc_asyncio",
     )
     with mock.patch.object(
         type(getattr(client.transport, "grpc_channel")), "close"
