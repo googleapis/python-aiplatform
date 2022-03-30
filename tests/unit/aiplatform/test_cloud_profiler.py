@@ -100,7 +100,8 @@ def tf_profile_plugin_mock():
 @pytest.fixture
 def tensorboard_api_mock():
     with mock.patch.object(
-        tensorboard_api, "create_profile_request_sender",
+        tensorboard_api,
+        "create_profile_request_sender",
     ) as sender_mock:
         sender_mock.return_value = mock.Mock()
         yield sender_mock

@@ -67,7 +67,8 @@ def get_metadata_store_mock():
         MetadataServiceClient, "get_metadata_store"
     ) as get_metadata_store_mock:
         get_metadata_store_mock.return_value = GapicMetadataStore(
-            name=_TEST_NAME, encryption_spec=_TEST_ENCRYPTION_SPEC,
+            name=_TEST_NAME,
+            encryption_spec=_TEST_ENCRYPTION_SPEC,
         )
         yield get_metadata_store_mock
 
@@ -78,7 +79,8 @@ def get_default_metadata_store_mock():
         MetadataServiceClient, "get_metadata_store"
     ) as get_metadata_store_mock:
         get_metadata_store_mock.return_value = GapicMetadataStore(
-            name=_TEST_DEFAULT_NAME, encryption_spec=_TEST_ENCRYPTION_SPEC,
+            name=_TEST_DEFAULT_NAME,
+            encryption_spec=_TEST_ENCRYPTION_SPEC,
         )
         yield get_metadata_store_mock
 
@@ -101,7 +103,8 @@ def create_metadata_store_mock():
     ) as create_metadata_store_mock:
         create_metadata_store_lro_mock = mock.Mock(operation.Operation)
         create_metadata_store_lro_mock.result.return_value = GapicMetadataStore(
-            name=_TEST_NAME, encryption_spec=_TEST_ENCRYPTION_SPEC,
+            name=_TEST_NAME,
+            encryption_spec=_TEST_ENCRYPTION_SPEC,
         )
         create_metadata_store_mock.return_value = create_metadata_store_lro_mock
         yield create_metadata_store_mock
@@ -114,7 +117,8 @@ def create_default_metadata_store_mock():
     ) as create_metadata_store_mock:
         create_metadata_store_lro_mock = mock.Mock(operation.Operation)
         create_metadata_store_lro_mock.result.return_value = GapicMetadataStore(
-            name=_TEST_DEFAULT_NAME, encryption_spec=_TEST_ENCRYPTION_SPEC,
+            name=_TEST_DEFAULT_NAME,
+            encryption_spec=_TEST_ENCRYPTION_SPEC,
         )
         create_metadata_store_mock.return_value = create_metadata_store_lro_mock
         yield create_metadata_store_mock
@@ -193,7 +197,8 @@ class TestMetadataStore:
         self, create_default_metadata_store_mock
     ):
         aiplatform.init(
-            project=_TEST_PROJECT, encryption_spec_key_name=_TEST_ENCRYPTION_KEY_NAME,
+            project=_TEST_PROJECT,
+            encryption_spec_key_name=_TEST_ENCRYPTION_KEY_NAME,
         )
 
         my_metadata_store = metadata_store._MetadataStore._create(

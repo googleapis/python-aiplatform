@@ -317,7 +317,8 @@ class TestEndToEnd:
         )
 
         my_dataset = aiplatform.ImageDataset.create(
-            display_name=test_datasets._TEST_DISPLAY_NAME, sync=sync,
+            display_name=test_datasets._TEST_DISPLAY_NAME,
+            sync=sync,
         )
 
         my_dataset.import_data(
@@ -337,7 +338,8 @@ class TestEndToEnd:
         )
 
         created_endpoint = models.Endpoint.create(
-            display_name=test_endpoints._TEST_DISPLAY_NAME, sync=sync,
+            display_name=test_endpoints._TEST_DISPLAY_NAME,
+            sync=sync,
         )
 
         model_from_job = job.run(

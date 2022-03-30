@@ -224,15 +224,21 @@ class Feature(base.VertexAiResourceNounWithFutureManager):
         update_mask = field_mask_pb2.FieldMask(paths=update_mask)
 
         gapic_feature = gca_feature.Feature(
-            name=self.resource_name, description=description, labels=labels,
+            name=self.resource_name,
+            description=description,
+            labels=labels,
         )
 
         _LOGGER.log_action_start_against_resource(
-            "Updating", "feature", self,
+            "Updating",
+            "feature",
+            self,
         )
 
         update_feature_lro = self.api_client.update_feature(
-            feature=gapic_feature, update_mask=update_mask, metadata=request_metadata,
+            feature=gapic_feature,
+            update_mask=update_mask,
+            metadata=request_metadata,
         )
 
         _LOGGER.log_action_started_against_resource_with_lro(
@@ -605,11 +611,13 @@ class Feature(base.VertexAiResourceNounWithFutureManager):
         create_feature_request.parent = entity_type_name
 
         api_client = cls._instantiate_client(
-            location=entity_type_name_components["location"], credentials=credentials,
+            location=entity_type_name_components["location"],
+            credentials=credentials,
         )
 
         created_feature_lro = api_client.create_feature(
-            request=create_feature_request, metadata=request_metadata,
+            request=create_feature_request,
+            metadata=request_metadata,
         )
 
         _LOGGER.log_create_with_lro(cls, created_feature_lro)
