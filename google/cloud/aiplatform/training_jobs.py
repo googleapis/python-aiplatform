@@ -3272,9 +3272,9 @@ class AutoMLTabularTrainingJob(_TrainingJob):
                 ignored by the training, except for the targetColumn, which should have
                 no transformations defined on.
                 Only one of column_transformations or column_specs should be passed. If none
-                of column_transformations or column_specs is passed, the service account
-                being used will try setting column_specs to "auto". To do this, the service
-                account needes read access to the GCS or BigQuery training data source.
+                of column_transformations or column_specs is passed, the local credentials
+                being used will try setting column_specs to "auto". To do this, the local
+                credentials require read access to the GCS or BigQuery training data source.
             column_transformations (List[Dict[str, Dict[str, str]]]):
                 Optional. Transformations to apply to the input columns (i.e. columns other
                 than the targetColumn). Each transformation may produce multiple
@@ -3288,9 +3288,9 @@ class AutoMLTabularTrainingJob(_TrainingJob):
                 Only one of column_transformations or column_specs should be passed.
                 Consider using column_specs as column_transformations will be deprecated
                 eventually. If none of column_transformations or column_specs is passed,
-                the service account being used will try setting column_transformations
-                to "auto". To do this, the service account needes read access to the GCS
-                or BigQuery training data source.
+                the local credentials being used will try setting column_transformations to
+                "auto". To do this, the local credentials require read access to the GCS or
+                BigQuery training data source.
             optimization_objective_recall_value (float):
                 Optional. Required when maximize-precision-at-recall optimizationObjective was
                 picked, represents the recall value at which the optimization is done.
