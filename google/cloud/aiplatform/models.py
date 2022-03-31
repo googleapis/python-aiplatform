@@ -140,7 +140,8 @@ class Endpoint(base.VertexAiResourceNounWithFutureManager):
         self._gca_resource = gca_endpoint_compat.Endpoint(name=endpoint_name)
 
         self._prediction_client = self._instantiate_prediction_client(
-            location=self.location, credentials=credentials,
+            location=self.location,
+            credentials=credentials,
         )
 
     def _skipped_getter_call(self) -> bool:
@@ -406,14 +407,16 @@ class Endpoint(base.VertexAiResourceNounWithFutureManager):
         endpoint._gca_resource = gapic_resource
 
         endpoint._prediction_client = cls._instantiate_prediction_client(
-            location=endpoint.location, credentials=credentials,
+            location=endpoint.location,
+            credentials=credentials,
         )
 
         return endpoint
 
     @staticmethod
     def _allocate_traffic(
-        traffic_split: Dict[str, int], traffic_percentage: int,
+        traffic_split: Dict[str, int],
+        traffic_percentage: int,
     ) -> Dict[str, int]:
         """Allocates desired traffic to new deployed model and scales traffic
         of older deployed models.
@@ -449,7 +452,8 @@ class Endpoint(base.VertexAiResourceNounWithFutureManager):
 
     @staticmethod
     def _unallocate_traffic(
-        traffic_split: Dict[str, int], deployed_model_id: str,
+        traffic_split: Dict[str, int],
+        deployed_model_id: str,
     ) -> Dict[str, int]:
         """Sets deployed model id's traffic to 0 and scales the traffic of
         other deployed models.
@@ -969,16 +973,20 @@ class Endpoint(base.VertexAiResourceNounWithFutureManager):
                 machine_spec.accelerator_type = accelerator_type
                 machine_spec.accelerator_count = accelerator_count
 
-            deployed_model.dedicated_resources = gca_machine_resources_compat.DedicatedResources(
-                machine_spec=machine_spec,
-                min_replica_count=min_replica_count,
-                max_replica_count=max_replica_count,
+            deployed_model.dedicated_resources = (
+                gca_machine_resources_compat.DedicatedResources(
+                    machine_spec=machine_spec,
+                    min_replica_count=min_replica_count,
+                    max_replica_count=max_replica_count,
+                )
             )
 
         elif supports_automatic_resources:
-            deployed_model.automatic_resources = gca_machine_resources_compat.AutomaticResources(
-                min_replica_count=min_replica_count,
-                max_replica_count=max_replica_count,
+            deployed_model.automatic_resources = (
+                gca_machine_resources_compat.AutomaticResources(
+                    min_replica_count=min_replica_count,
+                    max_replica_count=max_replica_count,
+                )
             )
         else:
             raise ValueError(
@@ -1167,7 +1175,12 @@ class Endpoint(base.VertexAiResourceNounWithFutureManager):
             prediction_client=True,
         )
 
-    def predict(self, instances: List, parameters: Optional[Dict] = None) -> Prediction:
+    def predict(
+        self,
+        instances: List,
+        parameters: Optional[Dict] = None,
+        timeout: Optional[float] = None,
+    ) -> Prediction:
         """Make a prediction against this Endpoint.
 
         Args:
@@ -1190,13 +1203,17 @@ class Endpoint(base.VertexAiResourceNounWithFutureManager):
                 ][google.cloud.aiplatform.v1beta1.DeployedModel.model]
                 [PredictSchemata's][google.cloud.aiplatform.v1beta1.Model.predict_schemata]
                 ``parameters_schema_uri``.
+            timeout (float): Optional. The timeout for this request in seconds.
         Returns:
             prediction: Prediction with returned predictions and Model Id.
         """
         self.wait()
 
         prediction_response = self._prediction_client.predict(
-            endpoint=self._gca_resource.name, instances=instances, parameters=parameters
+            endpoint=self._gca_resource.name,
+            instances=instances,
+            parameters=parameters,
+            timeout=timeout,
         )
 
         return Prediction(
@@ -1212,6 +1229,7 @@ class Endpoint(base.VertexAiResourceNounWithFutureManager):
         instances: List[Dict],
         parameters: Optional[Dict] = None,
         deployed_model_id: Optional[str] = None,
+        timeout: Optional[float] = None,
     ) -> Prediction:
         """Make a prediction with explanations against this Endpoint.
 
@@ -1242,6 +1260,7 @@ class Endpoint(base.VertexAiResourceNounWithFutureManager):
             deployed_model_id (str):
                 Optional. If specified, this ExplainRequest will be served by the
                 chosen DeployedModel, overriding this Endpoint's traffic split.
+            timeout (float): Optional. The timeout for this request in seconds.
         Returns:
             prediction: Prediction with returned predictions, explanations and Model Id.
         """
@@ -1252,6 +1271,7 @@ class Endpoint(base.VertexAiResourceNounWithFutureManager):
             instances=instances,
             parameters=parameters,
             deployed_model_id=deployed_model_id,
+            timeout=timeout,
         )
 
         return Prediction(
@@ -2253,24 +2273,27 @@ class Model(base.VertexAiResourceNounWithFutureManager):
                 which as value has ```google.rpc.Status`` <Status>`__
                 containing only ``code`` and ``message`` fields.
             bigquery_destination_prefix: Optional[str] = None
-                The BigQuery project location where the output is to be
-                written to. In the given project a new dataset is created
-                with name
-                ``prediction_<model-display-name>_<job-create-time>`` where
-                is made BigQuery-dataset-name compatible (for example, most
-                special characters become underscores), and timestamp is in
-                YYYY_MM_DDThh_mm_ss_sssZ "based on ISO-8601" format. In the
-                dataset two tables will be created, ``predictions``, and
-                ``errors``. If the Model has both ``instance`` and ``prediction``
-                schemata defined then the tables have columns as follows:
-                The ``predictions`` table contains instances for which the
-                prediction succeeded, it has columns as per a concatenation
-                of the Model's instance and prediction schemata. The
-                ``errors`` table contains rows for which the prediction has
-                failed, it has instance columns, as per the instance schema,
-                followed by a single "errors" column, which as values has
-                ```google.rpc.Status`` <Status>`__ represented as a STRUCT,
-                and containing only ``code`` and ``message``.
+                The BigQuery URI to a project or table, up to 2000 characters long.
+                When only the project is specified, the Dataset and Table is created.
+                When the full table reference is specified, the Dataset must exist and
+                table must not exist. Accepted forms: ``bq://projectId`` or
+                ``bq://projectId.bqDatasetId`` or
+                ``bq://projectId.bqDatasetId.bqTableId``. If no Dataset is specified,
+                a new one is created with the name
+                ``prediction_<model-display-name>_<job-create-time>``
+                where the table name is made BigQuery-dataset-name compatible
+                (for example, most special characters become underscores), and
+                timestamp is in YYYY_MM_DDThh_mm_ss_sssZ "based on ISO-8601"
+                format. In the dataset two tables will be created, ``predictions``,
+                and ``errors``. If the Model has both ``instance`` and
+                ``prediction`` schemata defined then the tables have columns as
+                follows: The ``predictions`` table contains instances for which
+                the prediction succeeded, it has columns as per a concatenation
+                of the Model's instance and prediction schemata. The ``errors``
+                table contains rows for which the prediction has failed, it has
+                instance columns, as per the instance schema, followed by a single
+                "errors" column, which as values has ```google.rpc.Status`` <Status>`__
+                represented as a STRUCT, and containing only ``code`` and ``message``.
             predictions_format: str = "jsonl"
                 Required. The format in which Vertex AI outputs the
                 predictions, must be one of the formats specified in
@@ -2548,8 +2571,8 @@ class Model(base.VertexAiResourceNounWithFutureManager):
             )
 
         if image_destination:
-            output_config.image_destination = gca_io_compat.ContainerRegistryDestination(
-                output_uri=image_destination
+            output_config.image_destination = (
+                gca_io_compat.ContainerRegistryDestination(output_uri=image_destination)
             )
 
         _LOGGER.log_action_start_against_resource("Exporting", "model", self)

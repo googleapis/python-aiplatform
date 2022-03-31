@@ -216,7 +216,8 @@ class _ProfileSessionLoader(object):
     PROF_PATH_REGEX = r".*\/plugins\/profile\/[0-9]{4}_[0-9]{2}_[0-9]{2}_[0-9]{2}_[0-9]{2}_[0-9]{2}\/?$"
 
     def __init__(
-        self, path: str,
+        self,
+        path: str,
     ):
         """Create a loader for profiling sessions with a training run.
 
@@ -543,7 +544,9 @@ class _FileRequestSender(object):
         source_blob = self._source_bucket.blob(blob_name)
 
         self._source_bucket.copy_blob(
-            source_blob, self._bucket, blob_path,
+            source_blob,
+            self._bucket,
+            blob_path,
         )
 
     def _upload_from_local(self, filename: str, blob_path: str):

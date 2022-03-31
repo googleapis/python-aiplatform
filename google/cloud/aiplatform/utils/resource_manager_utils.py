@@ -25,7 +25,8 @@ from google.cloud.aiplatform import initializer
 
 
 def get_project_id(
-    project_number: str, credentials: Optional[auth_credentials.Credentials] = None,
+    project_number: str,
+    credentials: Optional[auth_credentials.Credentials] = None,
 ) -> str:
     """Gets project ID given the project number
 

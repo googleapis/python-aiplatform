@@ -21,7 +21,10 @@ from google.protobuf import timestamp_pb2  # type: ignore
 
 
 __protobuf__ = proto.module(
-    package="google.cloud.aiplatform.v1beta1", manifest={"Index",},
+    package="google.cloud.aiplatform.v1beta1",
+    manifest={
+        "Index",
+    },
 )
 
 
@@ -89,21 +92,50 @@ class Index(proto.Message):
             Index is reflected in it.
     """
 
-    name = proto.Field(proto.STRING, number=1,)
-    display_name = proto.Field(proto.STRING, number=2,)
-    description = proto.Field(proto.STRING, number=3,)
-    metadata_schema_uri = proto.Field(proto.STRING, number=4,)
-    metadata = proto.Field(proto.MESSAGE, number=6, message=struct_pb2.Value,)
-    deployed_indexes = proto.RepeatedField(
-        proto.MESSAGE, number=7, message=deployed_index_ref.DeployedIndexRef,
+    name = proto.Field(
+        proto.STRING,
+        number=1,
     )
-    etag = proto.Field(proto.STRING, number=8,)
-    labels = proto.MapField(proto.STRING, proto.STRING, number=9,)
+    display_name = proto.Field(
+        proto.STRING,
+        number=2,
+    )
+    description = proto.Field(
+        proto.STRING,
+        number=3,
+    )
+    metadata_schema_uri = proto.Field(
+        proto.STRING,
+        number=4,
+    )
+    metadata = proto.Field(
+        proto.MESSAGE,
+        number=6,
+        message=struct_pb2.Value,
+    )
+    deployed_indexes = proto.RepeatedField(
+        proto.MESSAGE,
+        number=7,
+        message=deployed_index_ref.DeployedIndexRef,
+    )
+    etag = proto.Field(
+        proto.STRING,
+        number=8,
+    )
+    labels = proto.MapField(
+        proto.STRING,
+        proto.STRING,
+        number=9,
+    )
     create_time = proto.Field(
-        proto.MESSAGE, number=10, message=timestamp_pb2.Timestamp,
+        proto.MESSAGE,
+        number=10,
+        message=timestamp_pb2.Timestamp,
     )
     update_time = proto.Field(
-        proto.MESSAGE, number=11, message=timestamp_pb2.Timestamp,
+        proto.MESSAGE,
+        number=11,
+        message=timestamp_pb2.Timestamp,
     )
 
 
