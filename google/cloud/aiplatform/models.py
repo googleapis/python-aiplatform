@@ -1655,7 +1655,7 @@ class PrivateEndpoint(Endpoint):
             )
 
             # delete later, use for testing
-            print(response.data)
+            print(response)
 
             if response.status < 300:
                 return response
@@ -1719,8 +1719,6 @@ class PrivateEndpoint(Endpoint):
         prediction_response = json.loads(response.data)
 
         # remove this line, just testing
-        print(prediction_response)
-        print('==================================')
         print(response.data.decode("utf-8"))
 
         return Prediction(
@@ -1760,16 +1758,7 @@ class PrivateEndpoint(Endpoint):
         """
         self.wait()
         self._sync_gca_resource_if_skipped()
-        '''
-        if (self.explain_http_uri and not self._gca_resource.deployed_models[
-                0].explanation_metadata and not self._gca_resource.deployed_models[
-                0].explanation_parameters):
-            raise RuntimeError(
-                "This deployed model cannot do explanations. Please undeploy and redeploy "
-                "the model with the explanation_metadata and explanation_parameters arguments "
-                "specified."
-            )
-        '''
+
         response = self._http_request(
             method="POST",
             url=self.explain_http_uri,
@@ -1788,7 +1777,7 @@ class PrivateEndpoint(Endpoint):
     def health_check(self) -> bool:
         """
         Makes GET request to this private Endpoint's health check URI. Must be within network
-        that this private Endpoint
+        that this private Endpoint is in.
         """
         self.wait()
         self._sync_gca_resource_if_skipped()
