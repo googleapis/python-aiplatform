@@ -209,9 +209,7 @@ class Feature(base.VertexAiResourceNounWithFutureManager):
             request_metadata (Sequence[Tuple[str, str]]):
                 Optional. Strings which should be sent along with the request as metadata.
             update_request_timeout (float):
-                Optional. The timeout for initiating this request in seconds. Note:
-                this does not set the timeout on the underlying job, only on
-                the time to initiate the request.
+                Optional. The timeout for the update request in seconds.
 
         Returns:
             Feature - The updated feature resource object.
@@ -229,11 +227,15 @@ class Feature(base.VertexAiResourceNounWithFutureManager):
         update_mask = field_mask_pb2.FieldMask(paths=update_mask)
 
         gapic_feature = gca_feature.Feature(
-            name=self.resource_name, description=description, labels=labels,
+            name=self.resource_name,
+            description=description,
+            labels=labels,
         )
 
         _LOGGER.log_action_start_against_resource(
-            "Updating", "feature", self,
+            "Updating",
+            "feature",
+            self,
         )
 
         update_feature_lro = self.api_client.update_feature(
@@ -508,8 +510,8 @@ class Feature(base.VertexAiResourceNounWithFutureManager):
         location: Optional[str] = None,
         credentials: Optional[auth_credentials.Credentials] = None,
         request_metadata: Optional[Sequence[Tuple[str, str]]] = (),
-        create_request_timeout: Optional[float] = None,
         sync: bool = True,
+        create_request_timeout: Optional[float] = None,
     ) -> "Feature":
         """Creates a Feature resource in an EntityType.
 
@@ -576,14 +578,12 @@ class Feature(base.VertexAiResourceNounWithFutureManager):
                 credentials set in aiplatform.init.
             request_metadata (Sequence[Tuple[str, str]]):
                 Optional. Strings which should be sent along with the request as metadata.
-            create_request_timeout (float):
-                Optional. The timeout for initiating this request in seconds. Note:
-                this does not set the timeout on the underlying job, only on
-                the time to initiate the request.
             sync (bool):
                 Optional. Whether to execute this creation synchronously. If False, this method
                 will be executed in concurrent Future and any downstream object will
                 be immediately returned and synced when the Future has completed.
+            create_request_timeout (float):
+                Optional. The timeout for the create request in seconds.
 
         Returns:
             Feature - feature resource object
@@ -618,7 +618,8 @@ class Feature(base.VertexAiResourceNounWithFutureManager):
         create_feature_request.parent = entity_type_name
 
         api_client = cls._instantiate_client(
-            location=entity_type_name_components["location"], credentials=credentials,
+            location=entity_type_name_components["location"],
+            credentials=credentials,
         )
 
         created_feature_lro = api_client.create_feature(

@@ -66,7 +66,9 @@ class _MetadataStore(base.VertexAiResourceNounWithFutureManager):
         """
 
         super().__init__(
-            project=project, location=location, credentials=credentials,
+            project=project,
+            location=location,
+            credentials=credentials,
         )
         self._gca_resource = self._get_gca_resource(resource_name=metadata_store_name)
 
@@ -79,7 +81,7 @@ class _MetadataStore(base.VertexAiResourceNounWithFutureManager):
         credentials: Optional[auth_credentials.Credentials] = None,
         encryption_spec_key_name: Optional[str] = None,
     ) -> "_MetadataStore":
-        """"Retrieves or Creates (if it does not exist) a Metadata Store.
+        """ "Retrieves or Creates (if it does not exist) a Metadata Store.
 
         Args:
             metadata_store_id (str):

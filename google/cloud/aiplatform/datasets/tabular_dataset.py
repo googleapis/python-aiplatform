@@ -45,8 +45,8 @@ class TabularDataset(datasets._ColumnNamesDataset):
         request_metadata: Optional[Sequence[Tuple[str, str]]] = (),
         labels: Optional[Dict[str, str]] = None,
         encryption_spec_key_name: Optional[str] = None,
-        create_request_timeout: Optional[float] = None,
         sync: bool = True,
+        create_request_timeout: Optional[float] = None,
     ) -> "TabularDataset":
         """Creates a new tabular dataset.
 
@@ -99,14 +99,12 @@ class TabularDataset(datasets._ColumnNamesDataset):
                 If set, this Dataset and all sub-resources of this Dataset will be secured by this key.
 
                 Overrides encryption_spec_key_name set in aiplatform.init.
-            create_request_timeout (float):
-                Optional. The timeout for initiating this create request in seconds. Note:
-                this does not set the timeout on the underlying create job, only on the time
-                to initiate the create request.
             sync (bool):
                 Whether to execute this method synchronously. If False, this method
                 will be executed in concurrent Future and any downstream object will
                 be immediately returned and synced when the Future has completed.
+            create_request_timeout (float):
+                Optional. The timeout for the create request in seconds.
 
         Returns:
             tabular_dataset (TabularDataset):
@@ -143,8 +141,8 @@ class TabularDataset(datasets._ColumnNamesDataset):
             encryption_spec=initializer.global_config.get_encryption_spec(
                 encryption_spec_key_name=encryption_spec_key_name
             ),
-            create_request_timeout=create_request_timeout,
             sync=sync,
+            create_request_timeout=create_request_timeout,
         )
 
     def import_data(self):

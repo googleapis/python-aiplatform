@@ -233,9 +233,11 @@ def create_custom_job_mock_with_enable_web_access():
     with mock.patch.object(
         job_service_client.JobServiceClient, "create_custom_job"
     ) as create_custom_job_mock:
-        create_custom_job_mock.return_value = _get_custom_job_proto_with_enable_web_access(
-            name=_TEST_CUSTOM_JOB_NAME,
-            state=gca_job_state_compat.JobState.JOB_STATE_PENDING,
+        create_custom_job_mock.return_value = (
+            _get_custom_job_proto_with_enable_web_access(
+                name=_TEST_CUSTOM_JOB_NAME,
+                state=gca_job_state_compat.JobState.JOB_STATE_PENDING,
+            )
         )
         yield create_custom_job_mock
 
@@ -648,7 +650,9 @@ class TestCustomJob:
             job._gca_resource.state == gca_job_state_compat.JobState.JOB_STATE_SUCCEEDED
         )
 
-    def test_create_custom_job_without_base_output_dir(self,):
+    def test_create_custom_job_without_base_output_dir(
+        self,
+    ):
 
         aiplatform.init(
             project=_TEST_PROJECT,
@@ -658,7 +662,8 @@ class TestCustomJob:
         )
 
         job = aiplatform.CustomJob(
-            display_name=_TEST_DISPLAY_NAME, worker_pool_specs=_TEST_WORKER_POOL_SPEC,
+            display_name=_TEST_DISPLAY_NAME,
+            worker_pool_specs=_TEST_WORKER_POOL_SPEC,
         )
 
         assert job.job_spec.base_output_directory.output_uri_prefix.startswith(

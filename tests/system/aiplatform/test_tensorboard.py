@@ -26,7 +26,8 @@ class TestTensorboard(e2e_base.TestEndToEnd):
     def test_create_and_get_tensorboard(self, shared_state):
 
         aiplatform.init(
-            project=e2e_base._PROJECT, location=e2e_base._LOCATION,
+            project=e2e_base._PROJECT,
+            location=e2e_base._LOCATION,
         )
 
         display_name = self._make_display_name("tensorboard")

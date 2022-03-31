@@ -140,7 +140,8 @@ class Endpoint(base.VertexAiResourceNounWithFutureManager):
         self._gca_resource = gca_endpoint_compat.Endpoint(name=endpoint_name)
 
         self._prediction_client = self._instantiate_prediction_client(
-            location=self.location, credentials=credentials,
+            location=self.location,
+            credentials=credentials,
         )
 
     def _skipped_getter_call(self) -> bool:
@@ -204,8 +205,8 @@ class Endpoint(base.VertexAiResourceNounWithFutureManager):
         location: Optional[str] = None,
         credentials: Optional[auth_credentials.Credentials] = None,
         encryption_spec_key_name: Optional[str] = None,
-        create_request_timeout: Optional[float] = None,
         sync=True,
+        create_request_timeout: Optional[float] = None,
     ) -> "Endpoint":
         """Creates a new endpoint.
 
@@ -249,14 +250,12 @@ class Endpoint(base.VertexAiResourceNounWithFutureManager):
                 If set, this Endpoint and all sub-resources of this Endpoint will be secured by this key.
 
                 Overrides encryption_spec_key_name set in aiplatform.init.
-            create_request_timeout (float):
-                Optional. The timeout for initiating this request in seconds. Note:
-                this does not set the timeout on the underlying job, only on
-                the time to initiate the request.
             sync (bool):
                 Whether to execute this method synchronously. If False, this method
                 will be executed in concurrent Future and any downstream object will
                 be immediately returned and synced when the Future has completed.
+            create_request_timeout (float):
+                Optional. The timeout for the create request in seconds.
         Returns:
             endpoint (endpoint.Endpoint):
                 Created endpoint.
@@ -283,8 +282,8 @@ class Endpoint(base.VertexAiResourceNounWithFutureManager):
             encryption_spec=initializer.global_config.get_encryption_spec(
                 encryption_spec_key_name=encryption_spec_key_name
             ),
-            create_request_timeout=create_request_timeout,
             sync=sync,
+            create_request_timeout=create_request_timeout,
         )
 
     @classmethod
@@ -300,8 +299,8 @@ class Endpoint(base.VertexAiResourceNounWithFutureManager):
         metadata: Optional[Sequence[Tuple[str, str]]] = (),
         credentials: Optional[auth_credentials.Credentials] = None,
         encryption_spec: Optional[gca_encryption_spec.EncryptionSpec] = None,
-        create_request_timeout: Optional[float] = None,
         sync=True,
+        create_request_timeout: Optional[float] = None,
     ) -> "Endpoint":
         """Creates a new endpoint by calling the API client.
 
@@ -343,12 +342,10 @@ class Endpoint(base.VertexAiResourceNounWithFutureManager):
                 resource is created.
 
                 If set, this Dataset and all sub-resources of this Dataset will be secured by this key.
-            create_request_timeout (float):
-                Optional. The timeout for initiating this request in seconds. Note:
-                this does not set the timeout on the underlying job, only on
-                the time to initiate the request.
             sync (bool):
                 Whether to create this endpoint synchronously.
+            create_request_timeout (float):
+                Optional. The timeout for the create request in seconds.
         Returns:
             endpoint (endpoint.Endpoint):
                 Created endpoint.
@@ -420,14 +417,16 @@ class Endpoint(base.VertexAiResourceNounWithFutureManager):
         endpoint._gca_resource = gapic_resource
 
         endpoint._prediction_client = cls._instantiate_prediction_client(
-            location=endpoint.location, credentials=credentials,
+            location=endpoint.location,
+            credentials=credentials,
         )
 
         return endpoint
 
     @staticmethod
     def _allocate_traffic(
-        traffic_split: Dict[str, int], traffic_percentage: int,
+        traffic_split: Dict[str, int],
+        traffic_percentage: int,
     ) -> Dict[str, int]:
         """Allocates desired traffic to new deployed model and scales traffic
         of older deployed models.
@@ -463,7 +462,8 @@ class Endpoint(base.VertexAiResourceNounWithFutureManager):
 
     @staticmethod
     def _unallocate_traffic(
-        traffic_split: Dict[str, int], deployed_model_id: str,
+        traffic_split: Dict[str, int],
+        deployed_model_id: str,
     ) -> Dict[str, int]:
         """Sets deployed model id's traffic to 0 and scales the traffic of
         other deployed models.
@@ -612,8 +612,8 @@ class Endpoint(base.VertexAiResourceNounWithFutureManager):
         explanation_metadata: Optional[explain.ExplanationMetadata] = None,
         explanation_parameters: Optional[explain.ExplanationParameters] = None,
         metadata: Optional[Sequence[Tuple[str, str]]] = (),
-        deploy_request_timeout: Optional[float] = None,
         sync=True,
+        deploy_request_timeout: Optional[float] = None,
     ) -> None:
         """Deploys a Model to the Endpoint.
 
@@ -681,14 +681,12 @@ class Endpoint(base.VertexAiResourceNounWithFutureManager):
             metadata (Sequence[Tuple[str, str]]):
                 Optional. Strings which should be sent along with the request as
                 metadata.
-            deploy_request_timeout (float):
-                Optional. The timeout for initiating this request in seconds. Note:
-                this does not set the timeout on the underlying job, only on
-                the time to initiate the request.
             sync (bool):
                 Whether to execute this method synchronously. If False, this method
                 will be executed in concurrent Future and any downstream object will
                 be immediately returned and synced when the Future has completed.
+            deploy_request_timeout (float):
+                Optional. The timeout for the deploy request in seconds.
         """
         self._sync_gca_resource_if_skipped()
 
@@ -717,8 +715,8 @@ class Endpoint(base.VertexAiResourceNounWithFutureManager):
             explanation_metadata=explanation_metadata,
             explanation_parameters=explanation_parameters,
             metadata=metadata,
-            deploy_request_timeout=deploy_request_timeout,
             sync=sync,
+            deploy_request_timeout=deploy_request_timeout,
         )
 
     @base.optional_sync()
@@ -737,8 +735,8 @@ class Endpoint(base.VertexAiResourceNounWithFutureManager):
         explanation_metadata: Optional[explain.ExplanationMetadata] = None,
         explanation_parameters: Optional[explain.ExplanationParameters] = None,
         metadata: Optional[Sequence[Tuple[str, str]]] = (),
-        deploy_request_timeout: Optional[float] = None,
         sync=True,
+        deploy_request_timeout: Optional[float] = None,
     ) -> None:
         """Deploys a Model to the Endpoint.
 
@@ -806,14 +804,12 @@ class Endpoint(base.VertexAiResourceNounWithFutureManager):
             metadata (Sequence[Tuple[str, str]]):
                 Optional. Strings which should be sent along with the request as
                 metadata.
-            deploy_request_timeout (float):
-                Optional. The timeout for initiating this request in seconds. Note:
-                this does not set the timeout on the underlying job, only on
-                the time to initiate the request.
             sync (bool):
                 Whether to execute this method synchronously. If False, this method
                 will be executed in concurrent Future and any downstream object will
                 be immediately returned and synced when the Future has completed.
+            deploy_request_timeout (float):
+                Optional. The timeout for the deploy request in seconds.
         Raises:
             ValueError: If there is not current traffic split and traffic percentage
             is not 0 or 100.
@@ -933,14 +929,12 @@ class Endpoint(base.VertexAiResourceNounWithFutureManager):
             metadata (Sequence[Tuple[str, str]]):
                 Optional. Strings which should be sent along with the request as
                 metadata.
-            deploy_request_timeout (float):
-                Optional. The timeout for initiating this deploy request in seconds. Note:
-                this does not set the timeout on the underlying deploy job, only on the time
-                to initiate the deploy request.
             sync (bool):
                 Whether to execute this method synchronously. If False, this method
                 will be executed in concurrent Future and any downstream object will
                 be immediately returned and synced when the Future has completed.
+            deploy_request_timeout (float):
+                Optional. The timeout for the deploy request in seconds.
         Raises:
             ValueError: If there is not current traffic split and traffic percentage
                 is not 0 or 100.
@@ -1000,16 +994,20 @@ class Endpoint(base.VertexAiResourceNounWithFutureManager):
                 machine_spec.accelerator_type = accelerator_type
                 machine_spec.accelerator_count = accelerator_count
 
-            deployed_model.dedicated_resources = gca_machine_resources_compat.DedicatedResources(
-                machine_spec=machine_spec,
-                min_replica_count=min_replica_count,
-                max_replica_count=max_replica_count,
+            deployed_model.dedicated_resources = (
+                gca_machine_resources_compat.DedicatedResources(
+                    machine_spec=machine_spec,
+                    min_replica_count=min_replica_count,
+                    max_replica_count=max_replica_count,
+                )
             )
 
         elif supports_automatic_resources:
-            deployed_model.automatic_resources = gca_machine_resources_compat.AutomaticResources(
-                min_replica_count=min_replica_count,
-                max_replica_count=max_replica_count,
+            deployed_model.automatic_resources = (
+                gca_machine_resources_compat.AutomaticResources(
+                    min_replica_count=min_replica_count,
+                    max_replica_count=max_replica_count,
+                )
             )
         else:
             raise ValueError(
@@ -1678,8 +1676,8 @@ class Model(base.VertexAiResourceNounWithFutureManager):
         labels: Optional[Dict[str, str]] = None,
         encryption_spec_key_name: Optional[str] = None,
         staging_bucket: Optional[str] = None,
-        upload_request_timeout: Optional[float] = None,
         sync=True,
+        upload_request_timeout: Optional[float] = None,
     ) -> "Model":
         """Uploads a model and returns a Model representing the uploaded Model
         resource.
@@ -1826,9 +1824,7 @@ class Model(base.VertexAiResourceNounWithFutureManager):
                 Optional. Bucket to stage local model artifacts. Overrides
                 staging_bucket set in aiplatform.init.
             upload_request_timeout (float):
-                Optional. The timeout for initiating this upload request in seconds. Note:
-                this does not set the timeout on the underlying upload job, only on the time
-                to initiate the upload request.
+                Optional. The timeout for the upload request in seconds.
         Returns:
             model: Instantiated representation of the uploaded model resource.
         Raises:
@@ -1965,8 +1961,8 @@ class Model(base.VertexAiResourceNounWithFutureManager):
         explanation_parameters: Optional[explain.ExplanationParameters] = None,
         metadata: Optional[Sequence[Tuple[str, str]]] = (),
         encryption_spec_key_name: Optional[str] = None,
-        deploy_request_timeout: Optional[float] = None,
         sync=True,
+        deploy_request_timeout: Optional[float] = None,
     ) -> Endpoint:
         """Deploys model to endpoint. Endpoint will be created if unspecified.
 
@@ -2045,14 +2041,12 @@ class Model(base.VertexAiResourceNounWithFutureManager):
                 If set, this Model and all sub-resources of this Model will be secured by this key.
 
                 Overrides encryption_spec_key_name set in aiplatform.init
-            deploy_request_timeout (float):
-                Optional. The timeout for initiating this deploy request in seconds. Note:
-                this does not set the timeout on the underlying deploy job, only on the time
-                to initiate the deploy request.
             sync (bool):
                 Whether to execute this method synchronously. If False, this method
                 will be executed in concurrent Future and any downstream object will
                 be immediately returned and synced when the Future has completed.
+            deploy_request_timeout (float):
+                Optional. The timeout for the deploy request in seconds.
         Returns:
             endpoint ("Endpoint"):
                 Endpoint with the deployed model.
@@ -2085,8 +2079,8 @@ class Model(base.VertexAiResourceNounWithFutureManager):
             metadata=metadata,
             encryption_spec_key_name=encryption_spec_key_name
             or initializer.global_config.encryption_spec_key_name,
-            deploy_request_timeout=deploy_request_timeout,
             sync=sync,
+            deploy_request_timeout=deploy_request_timeout,
         )
 
     @base.optional_sync(return_input_arg="endpoint", bind_future_to_self=False)
@@ -2106,8 +2100,8 @@ class Model(base.VertexAiResourceNounWithFutureManager):
         explanation_parameters: Optional[explain.ExplanationParameters] = None,
         metadata: Optional[Sequence[Tuple[str, str]]] = (),
         encryption_spec_key_name: Optional[str] = None,
-        deploy_request_timeout: Optional[float] = None,
         sync: bool = True,
+        deploy_request_timeout: Optional[float] = None,
     ) -> Endpoint:
         """Deploys model to endpoint. Endpoint will be created if unspecified.
 
@@ -2186,14 +2180,12 @@ class Model(base.VertexAiResourceNounWithFutureManager):
                 If set, this Model and all sub-resources of this Model will be secured by this key.
 
                 Overrides encryption_spec_key_name set in aiplatform.init
-            deploy_request_timeout (float):
-                Optional. The timeout for initiating this deploy request in seconds. Note:
-                this does not set the timeout on the underlying deploy job, only on the time
-                to initiate the deploy request.
             sync (bool):
                 Whether to execute this method synchronously. If False, this method
                 will be executed in concurrent Future and any downstream object will
                 be immediately returned and synced when the Future has completed.
+            deploy_request_timeout (float):
+                Optional. The timeout for the deploy request in seconds.
         Returns:
             endpoint ("Endpoint"):
                 Endpoint with the deployed model.
@@ -2227,8 +2219,8 @@ class Model(base.VertexAiResourceNounWithFutureManager):
             service_account=service_account,
             explanation_metadata=explanation_metadata,
             explanation_parameters=explanation_parameters,
-            deploy_request_timeout=deploy_request_timeout,
             metadata=metadata,
+            deploy_request_timeout=deploy_request_timeout,
         )
 
         _LOGGER.log_action_completed_against_resource("model", "deployed", endpoint)
@@ -2258,8 +2250,8 @@ class Model(base.VertexAiResourceNounWithFutureManager):
         labels: Optional[Dict[str, str]] = None,
         credentials: Optional[auth_credentials.Credentials] = None,
         encryption_spec_key_name: Optional[str] = None,
-        create_request_timeout: Optional[float] = None,
         sync: bool = True,
+        create_request_timeout: Optional[float] = None,
     ) -> jobs.BatchPredictionJob:
         """Creates a batch prediction job using this Model and outputs
         prediction results to the provided destination prefix in the specified
@@ -2316,24 +2308,27 @@ class Model(base.VertexAiResourceNounWithFutureManager):
                 which as value has ```google.rpc.Status`` <Status>`__
                 containing only ``code`` and ``message`` fields.
             bigquery_destination_prefix: Optional[str] = None
-                The BigQuery project location where the output is to be
-                written to. In the given project a new dataset is created
-                with name
-                ``prediction_<model-display-name>_<job-create-time>`` where
-                is made BigQuery-dataset-name compatible (for example, most
-                special characters become underscores), and timestamp is in
-                YYYY_MM_DDThh_mm_ss_sssZ "based on ISO-8601" format. In the
-                dataset two tables will be created, ``predictions``, and
-                ``errors``. If the Model has both ``instance`` and ``prediction``
-                schemata defined then the tables have columns as follows:
-                The ``predictions`` table contains instances for which the
-                prediction succeeded, it has columns as per a concatenation
-                of the Model's instance and prediction schemata. The
-                ``errors`` table contains rows for which the prediction has
-                failed, it has instance columns, as per the instance schema,
-                followed by a single "errors" column, which as values has
-                ```google.rpc.Status`` <Status>`__ represented as a STRUCT,
-                and containing only ``code`` and ``message``.
+                The BigQuery URI to a project or table, up to 2000 characters long.
+                When only the project is specified, the Dataset and Table is created.
+                When the full table reference is specified, the Dataset must exist and
+                table must not exist. Accepted forms: ``bq://projectId`` or
+                ``bq://projectId.bqDatasetId`` or
+                ``bq://projectId.bqDatasetId.bqTableId``. If no Dataset is specified,
+                a new one is created with the name
+                ``prediction_<model-display-name>_<job-create-time>``
+                where the table name is made BigQuery-dataset-name compatible
+                (for example, most special characters become underscores), and
+                timestamp is in YYYY_MM_DDThh_mm_ss_sssZ "based on ISO-8601"
+                format. In the dataset two tables will be created, ``predictions``,
+                and ``errors``. If the Model has both ``instance`` and
+                ``prediction`` schemata defined then the tables have columns as
+                follows: The ``predictions`` table contains instances for which
+                the prediction succeeded, it has columns as per a concatenation
+                of the Model's instance and prediction schemata. The ``errors``
+                table contains rows for which the prediction has failed, it has
+                instance columns, as per the instance schema, followed by a single
+                "errors" column, which as values has ```google.rpc.Status`` <Status>`__
+                represented as a STRUCT, and containing only ``code`` and ``message``.
             predictions_format: str = "jsonl"
                 Required. The format in which Vertex AI outputs the
                 predictions, must be one of the formats specified in
@@ -2414,9 +2409,7 @@ class Model(base.VertexAiResourceNounWithFutureManager):
 
                 Overrides encryption_spec_key_name set in aiplatform.init.
             create_request_timeout (float):
-                Optional. The timeout for initiating this request in seconds. Note:
-                this does not set the timeout on the underlying job, only on
-                the time to initiate the request.
+                Optional. The timeout for the create request in seconds.
         Returns:
             (jobs.BatchPredictionJob):
                 Instantiated representation of the created batch prediction job.
@@ -2445,8 +2438,8 @@ class Model(base.VertexAiResourceNounWithFutureManager):
             location=self.location,
             credentials=credentials or self.credentials,
             encryption_spec_key_name=encryption_spec_key_name,
-            create_request_timeout=create_request_timeout,
             sync=sync,
+            create_request_timeout=create_request_timeout,
         )
 
     @classmethod
@@ -2616,8 +2609,8 @@ class Model(base.VertexAiResourceNounWithFutureManager):
             )
 
         if image_destination:
-            output_config.image_destination = gca_io_compat.ContainerRegistryDestination(
-                output_uri=image_destination
+            output_config.image_destination = (
+                gca_io_compat.ContainerRegistryDestination(output_uri=image_destination)
             )
 
         _LOGGER.log_action_start_against_resource("Exporting", "model", self)
@@ -2656,8 +2649,8 @@ class Model(base.VertexAiResourceNounWithFutureManager):
         labels: Optional[Dict[str, str]] = None,
         encryption_spec_key_name: Optional[str] = None,
         staging_bucket: Optional[str] = None,
-        upload_request_timeout: Optional[float] = None,
         sync=True,
+        upload_request_timeout: Optional[float] = None,
     ) -> "Model":
         """Uploads a model and returns a Model representing the uploaded Model
         resource.
@@ -2768,9 +2761,7 @@ class Model(base.VertexAiResourceNounWithFutureManager):
                 Optional. Bucket to stage local model artifacts. Overrides
                 staging_bucket set in aiplatform.init.
             upload_request_timeout (float):
-                Optional. The timeout for initiating this upload request in seconds. Note:
-                this does not set the timeout on the underlying upload job, only on the time
-                to initiate the upload request.
+                Optional. The timeout for the upload request in seconds.
         Returns:
             model: Instantiated representation of the uploaded model resource.
         Raises:
@@ -2834,8 +2825,8 @@ class Model(base.VertexAiResourceNounWithFutureManager):
                 labels=labels,
                 encryption_spec_key_name=encryption_spec_key_name,
                 staging_bucket=staging_bucket,
-                upload_request_timeout=upload_request_timeout,
                 sync=True,
+                upload_request_timeout=upload_request_timeout,
             )
 
     @classmethod
@@ -2857,8 +2848,8 @@ class Model(base.VertexAiResourceNounWithFutureManager):
         labels: Optional[Dict[str, str]] = None,
         encryption_spec_key_name: Optional[str] = None,
         staging_bucket: Optional[str] = None,
-        upload_request_timeout: Optional[float] = None,
         sync=True,
+        upload_request_timeout: Optional[float] = None,
     ) -> "Model":
         """Uploads a model and returns a Model representing the uploaded Model
         resource.
@@ -2970,9 +2961,7 @@ class Model(base.VertexAiResourceNounWithFutureManager):
                 Optional. Bucket to stage local model artifacts. Overrides
                 staging_bucket set in aiplatform.init.
             upload_request_timeout (float):
-                Optional. The timeout for initiating this upload request in seconds. Note:
-                this does not set the timeout on the underlying upload job, only on the time
-                to initiate the upload request.
+                Optional. The timeout for the upload request in seconds.
         Returns:
             model: Instantiated representation of the uploaded model resource.
         Raises:
@@ -3035,8 +3024,8 @@ class Model(base.VertexAiResourceNounWithFutureManager):
                 labels=labels,
                 encryption_spec_key_name=encryption_spec_key_name,
                 staging_bucket=staging_bucket,
-                upload_request_timeout=upload_request_timeout,
                 sync=True,
+                upload_request_timeout=upload_request_timeout,
             )
 
     @classmethod
@@ -3058,8 +3047,8 @@ class Model(base.VertexAiResourceNounWithFutureManager):
         labels: Optional[Dict[str, str]] = None,
         encryption_spec_key_name: Optional[str] = None,
         staging_bucket: Optional[str] = None,
-        upload_request_timeout: Optional[str] = None,
         sync=True,
+        upload_request_timeout: Optional[str] = None,
     ) -> "Model":
         """Uploads a model and returns a Model representing the uploaded Model
         resource.
@@ -3173,9 +3162,7 @@ class Model(base.VertexAiResourceNounWithFutureManager):
                 Optional. Bucket to stage local model artifacts. Overrides
                 staging_bucket set in aiplatform.init.
             upload_request_timeout (float):
-                Optional. The timeout for initiating this upload request in seconds. Note:
-                this does not set the timeout on the underlying upload job, only on the time
-                to initiate the upload request.
+                Optional. The timeout for the upload request in seconds.
         Returns:
             model: Instantiated representation of the uploaded model resource.
         Raises:
@@ -3206,6 +3193,6 @@ class Model(base.VertexAiResourceNounWithFutureManager):
             labels=labels,
             encryption_spec_key_name=encryption_spec_key_name,
             staging_bucket=staging_bucket,
-            upload_request_timeout=upload_request_timeout,
             sync=sync,
+            upload_request_timeout=upload_request_timeout,
         )

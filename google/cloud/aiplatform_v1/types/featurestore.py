@@ -20,7 +20,10 @@ from google.protobuf import timestamp_pb2  # type: ignore
 
 
 __protobuf__ = proto.module(
-    package="google.cloud.aiplatform.v1", manifest={"Featurestore",},
+    package="google.cloud.aiplatform.v1",
+    manifest={
+        "Featurestore",
+    },
 )
 
 
@@ -88,19 +91,48 @@ class Featurestore(proto.Message):
                 will reset the other.
         """
 
-        fixed_node_count = proto.Field(proto.INT32, number=2,)
+        fixed_node_count = proto.Field(
+            proto.INT32,
+            number=2,
+        )
 
-    name = proto.Field(proto.STRING, number=1,)
-    create_time = proto.Field(proto.MESSAGE, number=3, message=timestamp_pb2.Timestamp,)
-    update_time = proto.Field(proto.MESSAGE, number=4, message=timestamp_pb2.Timestamp,)
-    etag = proto.Field(proto.STRING, number=5,)
-    labels = proto.MapField(proto.STRING, proto.STRING, number=6,)
-    online_serving_config = proto.Field(
-        proto.MESSAGE, number=7, message=OnlineServingConfig,
+    name = proto.Field(
+        proto.STRING,
+        number=1,
     )
-    state = proto.Field(proto.ENUM, number=8, enum=State,)
+    create_time = proto.Field(
+        proto.MESSAGE,
+        number=3,
+        message=timestamp_pb2.Timestamp,
+    )
+    update_time = proto.Field(
+        proto.MESSAGE,
+        number=4,
+        message=timestamp_pb2.Timestamp,
+    )
+    etag = proto.Field(
+        proto.STRING,
+        number=5,
+    )
+    labels = proto.MapField(
+        proto.STRING,
+        proto.STRING,
+        number=6,
+    )
+    online_serving_config = proto.Field(
+        proto.MESSAGE,
+        number=7,
+        message=OnlineServingConfig,
+    )
+    state = proto.Field(
+        proto.ENUM,
+        number=8,
+        enum=State,
+    )
     encryption_spec = proto.Field(
-        proto.MESSAGE, number=10, message=gca_encryption_spec.EncryptionSpec,
+        proto.MESSAGE,
+        number=10,
+        message=gca_encryption_spec.EncryptionSpec,
     )
 
 

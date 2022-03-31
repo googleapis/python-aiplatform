@@ -58,7 +58,10 @@ class MigrationServiceClientMeta(type):
     _transport_registry["grpc"] = MigrationServiceGrpcTransport
     _transport_registry["grpc_asyncio"] = MigrationServiceGrpcAsyncIOTransport
 
-    def get_transport_class(cls, label: str = None,) -> Type[MigrationServiceTransport]:
+    def get_transport_class(
+        cls,
+        label: str = None,
+    ) -> Type[MigrationServiceTransport]:
         """Returns an appropriate transport class.
 
         Args:
@@ -166,11 +169,15 @@ class MigrationServiceClient(metaclass=MigrationServiceClientMeta):
 
     @staticmethod
     def annotated_dataset_path(
-        project: str, dataset: str, annotated_dataset: str,
+        project: str,
+        dataset: str,
+        annotated_dataset: str,
     ) -> str:
         """Returns a fully-qualified annotated_dataset string."""
         return "projects/{project}/datasets/{dataset}/annotatedDatasets/{annotated_dataset}".format(
-            project=project, dataset=dataset, annotated_dataset=annotated_dataset,
+            project=project,
+            dataset=dataset,
+            annotated_dataset=annotated_dataset,
         )
 
     @staticmethod
@@ -183,10 +190,16 @@ class MigrationServiceClient(metaclass=MigrationServiceClientMeta):
         return m.groupdict() if m else {}
 
     @staticmethod
-    def dataset_path(project: str, location: str, dataset: str,) -> str:
+    def dataset_path(
+        project: str,
+        location: str,
+        dataset: str,
+    ) -> str:
         """Returns a fully-qualified dataset string."""
         return "projects/{project}/locations/{location}/datasets/{dataset}".format(
-            project=project, location=location, dataset=dataset,
+            project=project,
+            location=location,
+            dataset=dataset,
         )
 
     @staticmethod
@@ -199,10 +212,14 @@ class MigrationServiceClient(metaclass=MigrationServiceClientMeta):
         return m.groupdict() if m else {}
 
     @staticmethod
-    def dataset_path(project: str, dataset: str,) -> str:
+    def dataset_path(
+        project: str,
+        dataset: str,
+    ) -> str:
         """Returns a fully-qualified dataset string."""
         return "projects/{project}/datasets/{dataset}".format(
-            project=project, dataset=dataset,
+            project=project,
+            dataset=dataset,
         )
 
     @staticmethod
@@ -212,10 +229,16 @@ class MigrationServiceClient(metaclass=MigrationServiceClientMeta):
         return m.groupdict() if m else {}
 
     @staticmethod
-    def dataset_path(project: str, location: str, dataset: str,) -> str:
+    def dataset_path(
+        project: str,
+        location: str,
+        dataset: str,
+    ) -> str:
         """Returns a fully-qualified dataset string."""
         return "projects/{project}/locations/{location}/datasets/{dataset}".format(
-            project=project, location=location, dataset=dataset,
+            project=project,
+            location=location,
+            dataset=dataset,
         )
 
     @staticmethod
@@ -228,10 +251,16 @@ class MigrationServiceClient(metaclass=MigrationServiceClientMeta):
         return m.groupdict() if m else {}
 
     @staticmethod
-    def model_path(project: str, location: str, model: str,) -> str:
+    def model_path(
+        project: str,
+        location: str,
+        model: str,
+    ) -> str:
         """Returns a fully-qualified model string."""
         return "projects/{project}/locations/{location}/models/{model}".format(
-            project=project, location=location, model=model,
+            project=project,
+            location=location,
+            model=model,
         )
 
     @staticmethod
@@ -244,10 +273,16 @@ class MigrationServiceClient(metaclass=MigrationServiceClientMeta):
         return m.groupdict() if m else {}
 
     @staticmethod
-    def model_path(project: str, location: str, model: str,) -> str:
+    def model_path(
+        project: str,
+        location: str,
+        model: str,
+    ) -> str:
         """Returns a fully-qualified model string."""
         return "projects/{project}/locations/{location}/models/{model}".format(
-            project=project, location=location, model=model,
+            project=project,
+            location=location,
+            model=model,
         )
 
     @staticmethod
@@ -260,10 +295,16 @@ class MigrationServiceClient(metaclass=MigrationServiceClientMeta):
         return m.groupdict() if m else {}
 
     @staticmethod
-    def version_path(project: str, model: str, version: str,) -> str:
+    def version_path(
+        project: str,
+        model: str,
+        version: str,
+    ) -> str:
         """Returns a fully-qualified version string."""
         return "projects/{project}/models/{model}/versions/{version}".format(
-            project=project, model=model, version=version,
+            project=project,
+            model=model,
+            version=version,
         )
 
     @staticmethod
@@ -276,7 +317,9 @@ class MigrationServiceClient(metaclass=MigrationServiceClientMeta):
         return m.groupdict() if m else {}
 
     @staticmethod
-    def common_billing_account_path(billing_account: str,) -> str:
+    def common_billing_account_path(
+        billing_account: str,
+    ) -> str:
         """Returns a fully-qualified billing_account string."""
         return "billingAccounts/{billing_account}".format(
             billing_account=billing_account,
@@ -289,9 +332,13 @@ class MigrationServiceClient(metaclass=MigrationServiceClientMeta):
         return m.groupdict() if m else {}
 
     @staticmethod
-    def common_folder_path(folder: str,) -> str:
+    def common_folder_path(
+        folder: str,
+    ) -> str:
         """Returns a fully-qualified folder string."""
-        return "folders/{folder}".format(folder=folder,)
+        return "folders/{folder}".format(
+            folder=folder,
+        )
 
     @staticmethod
     def parse_common_folder_path(path: str) -> Dict[str, str]:
@@ -300,9 +347,13 @@ class MigrationServiceClient(metaclass=MigrationServiceClientMeta):
         return m.groupdict() if m else {}
 
     @staticmethod
-    def common_organization_path(organization: str,) -> str:
+    def common_organization_path(
+        organization: str,
+    ) -> str:
         """Returns a fully-qualified organization string."""
-        return "organizations/{organization}".format(organization=organization,)
+        return "organizations/{organization}".format(
+            organization=organization,
+        )
 
     @staticmethod
     def parse_common_organization_path(path: str) -> Dict[str, str]:
@@ -311,9 +362,13 @@ class MigrationServiceClient(metaclass=MigrationServiceClientMeta):
         return m.groupdict() if m else {}
 
     @staticmethod
-    def common_project_path(project: str,) -> str:
+    def common_project_path(
+        project: str,
+    ) -> str:
         """Returns a fully-qualified project string."""
-        return "projects/{project}".format(project=project,)
+        return "projects/{project}".format(
+            project=project,
+        )
 
     @staticmethod
     def parse_common_project_path(path: str) -> Dict[str, str]:
@@ -322,10 +377,14 @@ class MigrationServiceClient(metaclass=MigrationServiceClientMeta):
         return m.groupdict() if m else {}
 
     @staticmethod
-    def common_location_path(project: str, location: str,) -> str:
+    def common_location_path(
+        project: str,
+        location: str,
+    ) -> str:
         """Returns a fully-qualified location string."""
         return "projects/{project}/locations/{location}".format(
-            project=project, location=location,
+            project=project,
+            location=location,
         )
 
     @staticmethod
@@ -597,12 +656,20 @@ class MigrationServiceClient(metaclass=MigrationServiceClientMeta):
         )
 
         # Send the request.
-        response = rpc(request, retry=retry, timeout=timeout, metadata=metadata,)
+        response = rpc(
+            request,
+            retry=retry,
+            timeout=timeout,
+            metadata=metadata,
+        )
 
         # This method is paged; wrap the response in a pager, which provides
         # an `__iter__` convenience method.
         response = pagers.SearchMigratableResourcesPager(
-            method=rpc, request=request, response=response, metadata=metadata,
+            method=rpc,
+            request=request,
+            response=response,
+            metadata=metadata,
         )
 
         # Done; return the response.
@@ -726,7 +793,12 @@ class MigrationServiceClient(metaclass=MigrationServiceClientMeta):
         )
 
         # Send the request.
-        response = rpc(request, retry=retry, timeout=timeout, metadata=metadata,)
+        response = rpc(
+            request,
+            retry=retry,
+            timeout=timeout,
+            metadata=metadata,
+        )
 
         # Wrap the response in an operation future.
         response = operation.from_gapic(

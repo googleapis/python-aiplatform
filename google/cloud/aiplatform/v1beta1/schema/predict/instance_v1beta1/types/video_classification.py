@@ -18,7 +18,9 @@ import proto  # type: ignore
 
 __protobuf__ = proto.module(
     package="google.cloud.aiplatform.v1beta1.schema.predict.instance",
-    manifest={"VideoClassificationPredictionInstance",},
+    manifest={
+        "VideoClassificationPredictionInstance",
+    },
 )
 
 
@@ -50,10 +52,22 @@ class VideoClassificationPredictionInstance(proto.Message):
             is allowed, which means the end of the video.
     """
 
-    content = proto.Field(proto.STRING, number=1,)
-    mime_type = proto.Field(proto.STRING, number=2,)
-    time_segment_start = proto.Field(proto.STRING, number=3,)
-    time_segment_end = proto.Field(proto.STRING, number=4,)
+    content = proto.Field(
+        proto.STRING,
+        number=1,
+    )
+    mime_type = proto.Field(
+        proto.STRING,
+        number=2,
+    )
+    time_segment_start = proto.Field(
+        proto.STRING,
+        number=3,
+    )
+    time_segment_end = proto.Field(
+        proto.STRING,
+        number=4,
+    )
 
 
 __all__ = tuple(sorted(__protobuf__.manifest))

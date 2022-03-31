@@ -251,7 +251,8 @@ class TestPipelineJob:
         initializer.global_pool.shutdown(wait=True)
 
     @pytest.mark.parametrize(
-        "job_spec_json", [_TEST_PIPELINE_SPEC, _TEST_PIPELINE_JOB],
+        "job_spec_json",
+        [_TEST_PIPELINE_SPEC, _TEST_PIPELINE_JOB],
     )
     @pytest.mark.parametrize("sync", [True, False])
     def test_run_call_pipeline_service_create(
@@ -281,7 +282,10 @@ class TestPipelineJob:
             service_account=_TEST_SERVICE_ACCOUNT,
             network=_TEST_NETWORK,
             sync=sync,
+<<<<<<< HEAD
             create_request_timeout=None,
+=======
+>>>>>>> main
         )
 
         if not sync:
@@ -476,7 +480,8 @@ class TestPipelineJob:
         )
 
     @pytest.mark.parametrize(
-        "job_spec_json", [_TEST_TFX_PIPELINE_SPEC, _TEST_PIPELINE_JOB_TFX],
+        "job_spec_json",
+        [_TEST_TFX_PIPELINE_SPEC, _TEST_PIPELINE_JOB_TFX],
     )
     @pytest.mark.parametrize("sync", [True, False])
     def test_run_call_pipeline_service_create_tfx(
@@ -552,7 +557,8 @@ class TestPipelineJob:
         )
 
     @pytest.mark.parametrize(
-        "job_spec_json", [_TEST_PIPELINE_SPEC, _TEST_PIPELINE_JOB],
+        "job_spec_json",
+        [_TEST_PIPELINE_SPEC, _TEST_PIPELINE_JOB],
     )
     def test_submit_call_pipeline_service_pipeline_job_create(
         self,
@@ -625,7 +631,8 @@ class TestPipelineJob:
         )
 
     @pytest.mark.parametrize(
-        "job_spec_json", [_TEST_PIPELINE_SPEC, _TEST_PIPELINE_JOB],
+        "job_spec_json",
+        [_TEST_PIPELINE_SPEC, _TEST_PIPELINE_JOB],
     )
     def test_done_method_pipeline_service(
         self,
@@ -658,7 +665,8 @@ class TestPipelineJob:
         assert job.done() is True
 
     @pytest.mark.parametrize(
-        "job_spec_json", [_TEST_PIPELINE_SPEC_LEGACY, _TEST_PIPELINE_JOB_LEGACY],
+        "job_spec_json",
+        [_TEST_PIPELINE_SPEC_LEGACY, _TEST_PIPELINE_JOB_LEGACY],
     )
     def test_submit_call_pipeline_service_pipeline_job_create_legacy(
         self,
@@ -741,7 +749,8 @@ class TestPipelineJob:
         assert isinstance(job, pipeline_jobs.PipelineJob)
 
     @pytest.mark.usefixtures(
-        "mock_pipeline_service_create", "mock_pipeline_service_get",
+        "mock_pipeline_service_create",
+        "mock_pipeline_service_get",
     )
     @pytest.mark.parametrize(
         "job_spec_json",
@@ -773,7 +782,8 @@ class TestPipelineJob:
         )
 
     @pytest.mark.usefixtures(
-        "mock_pipeline_service_create", "mock_pipeline_service_get",
+        "mock_pipeline_service_create",
+        "mock_pipeline_service_get",
     )
     @pytest.mark.parametrize(
         "job_spec_json",
@@ -805,7 +815,8 @@ class TestPipelineJob:
         )
 
     @pytest.mark.usefixtures(
-        "mock_pipeline_service_create", "mock_pipeline_service_get",
+        "mock_pipeline_service_create",
+        "mock_pipeline_service_get",
     )
     @pytest.mark.parametrize(
         "job_spec_json",
@@ -817,7 +828,9 @@ class TestPipelineJob:
         ],
     )
     def test_cancel_pipeline_job_without_running(
-        self, mock_pipeline_service_cancel, mock_load_json,
+        self,
+        mock_pipeline_service_cancel,
+        mock_load_json,
     ):
         aiplatform.init(
             project=_TEST_PROJECT,
@@ -837,10 +850,12 @@ class TestPipelineJob:
         assert e.match(regexp=r"PipelineJob resource has not been created")
 
     @pytest.mark.usefixtures(
-        "mock_pipeline_service_create", "mock_pipeline_service_get_with_fail",
+        "mock_pipeline_service_create",
+        "mock_pipeline_service_get_with_fail",
     )
     @pytest.mark.parametrize(
-        "job_spec_json", [_TEST_PIPELINE_SPEC, _TEST_PIPELINE_JOB],
+        "job_spec_json",
+        [_TEST_PIPELINE_SPEC, _TEST_PIPELINE_JOB],
     )
     @pytest.mark.parametrize("sync", [True, False])
     def test_pipeline_failure_raises(self, mock_load_json, sync):
@@ -861,7 +876,9 @@ class TestPipelineJob:
 
         with pytest.raises(RuntimeError):
             job.run(
-                service_account=_TEST_SERVICE_ACCOUNT, network=_TEST_NETWORK, sync=sync,
+                service_account=_TEST_SERVICE_ACCOUNT,
+                network=_TEST_NETWORK,
+                sync=sync,
             )
 
             if not sync:

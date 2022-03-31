@@ -183,7 +183,9 @@ class MatchingEngineIndexEndpoint(base.VertexAiResourceNounWithFutureManager):
 
         """
         gapic_index_endpoint = gca_matching_engine_index_endpoint.IndexEndpoint(
-            display_name=display_name, description=description, network=network,
+            display_name=display_name,
+            description=description,
+            network=network,
         )
 
         if labels:
@@ -411,16 +413,20 @@ class MatchingEngineIndexEndpoint(base.VertexAiResourceNounWithFutureManager):
                 machine_type=machine_type
             )
 
-            deployed_index.dedicated_resources = gca_machine_resources_compat.DedicatedResources(
-                machine_spec=machine_spec,
-                min_replica_count=min_replica_count,
-                max_replica_count=max_replica_count,
+            deployed_index.dedicated_resources = (
+                gca_machine_resources_compat.DedicatedResources(
+                    machine_spec=machine_spec,
+                    min_replica_count=min_replica_count,
+                    max_replica_count=max_replica_count,
+                )
             )
 
         else:
-            deployed_index.automatic_resources = gca_machine_resources_compat.AutomaticResources(
-                min_replica_count=min_replica_count,
-                max_replica_count=max_replica_count,
+            deployed_index.automatic_resources = (
+                gca_machine_resources_compat.AutomaticResources(
+                    min_replica_count=min_replica_count,
+                    max_replica_count=max_replica_count,
+                )
             )
         return deployed_index
 
@@ -538,7 +544,9 @@ class MatchingEngineIndexEndpoint(base.VertexAiResourceNounWithFutureManager):
         self.wait()
 
         _LOGGER.log_action_start_against_resource(
-            "Deploying index", "index_endpoint", self,
+            "Deploying index",
+            "index_endpoint",
+            self,
         )
 
         deployed_index = self._build_deployed_index(
@@ -596,7 +604,9 @@ class MatchingEngineIndexEndpoint(base.VertexAiResourceNounWithFutureManager):
         self.wait()
 
         _LOGGER.log_action_start_against_resource(
-            "Undeploying index", "index_endpoint", self,
+            "Undeploying index",
+            "index_endpoint",
+            self,
         )
 
         undeploy_lro = self.api_client.undeploy_index(
@@ -659,7 +669,9 @@ class MatchingEngineIndexEndpoint(base.VertexAiResourceNounWithFutureManager):
         self.wait()
 
         _LOGGER.log_action_start_against_resource(
-            "Mutating index", "index_endpoint", self,
+            "Mutating index",
+            "index_endpoint",
+            self,
         )
 
         deployed_index = self._build_deployed_index(

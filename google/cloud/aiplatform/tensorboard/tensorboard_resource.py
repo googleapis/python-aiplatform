@@ -145,9 +145,7 @@ class Tensorboard(_TensorboardServiceResource):
 
                 Overrides encryption_spec_key_name set in aiplatform.init.
             create_request_timeout (float):
-                Optional. The timeout for initiating this create request in seconds. Note:
-                this does not set the timeout on the underlying job, only on the time
-                to initiate the create request.
+                Optional. The timeout for the create request in seconds.
 
         Returns:
             tensorboard (Tensorboard):
@@ -188,7 +186,10 @@ class Tensorboard(_TensorboardServiceResource):
 
         _LOGGER.log_create_complete(cls, created_tensorboard, "tb")
 
-        return cls(tensorboard_name=created_tensorboard.name, credentials=credentials,)
+        return cls(
+            tensorboard_name=created_tensorboard.name,
+            credentials=credentials,
+        )
 
     def update(
         self,
@@ -273,7 +274,9 @@ class Tensorboard(_TensorboardServiceResource):
         )
 
         _LOGGER.log_action_start_against_resource(
-            "Updating", "tensorboard", self,
+            "Updating",
+            "tensorboard",
+            self,
         )
 
         update_tensorboard_lro = self.api_client.update_tensorboard(
@@ -428,9 +431,7 @@ class TensorboardExperiment(_TensorboardServiceResource):
             request_metadata (Sequence[Tuple[str, str]]):
                 Optional. Strings which should be sent along with the request as metadata.
             create_request_timeout (float):
-                Optional. The timeout for initiating this request in seconds. Note:
-                this does not set the timeout on the underlying job, only on
-                the time to initiate the request.
+                Optional. The timeout for the create request in seconds.
         Returns:
             TensorboardExperiment: The TensorboardExperiment resource.
         """
@@ -453,7 +454,9 @@ class TensorboardExperiment(_TensorboardServiceResource):
         )
 
         gapic_tensorboard_experiment = gca_tensorboard_experiment.TensorboardExperiment(
-            display_name=display_name, description=description, labels=labels,
+            display_name=display_name,
+            description=description,
+            labels=labels,
         )
 
         _LOGGER.log_create_with_lro(cls)
@@ -689,9 +692,7 @@ class TensorboardRun(_TensorboardServiceResource):
             request_metadata (Sequence[Tuple[str, str]]):
                 Optional. Strings which should be sent along with the request as metadata.
             create_request_timeout (float):
-                Optional. The timeout for initiating this request in seconds. Note:
-                this does not set the timeout on the underlying job, only on
-                the time to initiate the request.
+                Optional. The timeout for the create request in seconds.
         Returns:
             TensorboardExperiment: The TensorboardExperiment resource.
         """
@@ -717,7 +718,9 @@ class TensorboardRun(_TensorboardServiceResource):
         )
 
         gapic_tensorboard_run = gca_tensorboard_run.TensorboardRun(
-            display_name=display_name, description=description, labels=labels,
+            display_name=display_name,
+            description=description,
+            labels=labels,
         )
 
         _LOGGER.log_create_with_lro(cls)
@@ -732,7 +735,10 @@ class TensorboardRun(_TensorboardServiceResource):
 
         _LOGGER.log_create_complete(cls, tensorboard_run, "tb_run")
 
-        return cls(tensorboard_run_name=tensorboard_run.name, credentials=credentials,)
+        return cls(
+            tensorboard_run_name=tensorboard_run.name,
+            credentials=credentials,
+        )
 
     @classmethod
     def list(
