@@ -338,7 +338,9 @@ class TestPipelineJob:
         )
 
         job.run(
-            service_account=_TEST_SERVICE_ACCOUNT, network=_TEST_NETWORK, sync=sync,
+            service_account=_TEST_SERVICE_ACCOUNT,
+            network=_TEST_NETWORK,
+            sync=sync,
         )
 
         if not sync:
@@ -415,7 +417,9 @@ class TestPipelineJob:
         )
 
         job.run(
-            service_account=_TEST_SERVICE_ACCOUNT, network=_TEST_NETWORK, sync=sync,
+            service_account=_TEST_SERVICE_ACCOUNT,
+            network=_TEST_NETWORK,
+            sync=sync,
         )
 
         if not sync:
@@ -492,7 +496,9 @@ class TestPipelineJob:
         )
 
         job.run(
-            service_account=_TEST_SERVICE_ACCOUNT, network=_TEST_NETWORK, sync=sync,
+            service_account=_TEST_SERVICE_ACCOUNT,
+            network=_TEST_NETWORK,
+            sync=sync,
         )
 
         if not sync:
@@ -726,7 +732,8 @@ class TestPipelineJob:
         assert isinstance(job, pipeline_jobs.PipelineJob)
 
     @pytest.mark.usefixtures(
-        "mock_pipeline_service_create", "mock_pipeline_service_get",
+        "mock_pipeline_service_create",
+        "mock_pipeline_service_get",
     )
     @pytest.mark.parametrize(
         "job_spec",
@@ -762,7 +769,8 @@ class TestPipelineJob:
         )
 
     @pytest.mark.usefixtures(
-        "mock_pipeline_service_create", "mock_pipeline_service_get",
+        "mock_pipeline_service_create",
+        "mock_pipeline_service_get",
     )
     @pytest.mark.parametrize(
         "job_spec",
@@ -798,7 +806,8 @@ class TestPipelineJob:
         )
 
     @pytest.mark.usefixtures(
-        "mock_pipeline_service_create", "mock_pipeline_service_get",
+        "mock_pipeline_service_create",
+        "mock_pipeline_service_get",
     )
     @pytest.mark.parametrize(
         "job_spec",
@@ -812,7 +821,9 @@ class TestPipelineJob:
         ],
     )
     def test_cancel_pipeline_job_without_running(
-        self, mock_pipeline_service_cancel, mock_load_yaml_and_json,
+        self,
+        mock_pipeline_service_cancel,
+        mock_load_yaml_and_json,
     ):
         aiplatform.init(
             project=_TEST_PROJECT,
@@ -832,7 +843,8 @@ class TestPipelineJob:
         assert e.match(regexp=r"PipelineJob resource has not been created")
 
     @pytest.mark.usefixtures(
-        "mock_pipeline_service_create", "mock_pipeline_service_get_with_fail",
+        "mock_pipeline_service_create",
+        "mock_pipeline_service_get_with_fail",
     )
     @pytest.mark.parametrize(
         "job_spec",
@@ -857,7 +869,9 @@ class TestPipelineJob:
 
         with pytest.raises(RuntimeError):
             job.run(
-                service_account=_TEST_SERVICE_ACCOUNT, network=_TEST_NETWORK, sync=sync,
+                service_account=_TEST_SERVICE_ACCOUNT,
+                network=_TEST_NETWORK,
+                sync=sync,
             )
 
             if not sync:
