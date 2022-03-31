@@ -263,6 +263,7 @@ class _Dataset(base.VertexAiResourceNounWithFutureManager):
         encryption_spec: Optional[gca_encryption_spec.EncryptionSpec] = None,
         sync: bool = True,
         create_request_timeout: Optional[float] = None,
+        import_request_timeout: Optional[float] = None,
     ) -> "_Dataset":
         """Creates a new dataset and optionally imports data into dataset when
         source and import_schema_uri are passed.
@@ -320,6 +321,8 @@ class _Dataset(base.VertexAiResourceNounWithFutureManager):
                 be immediately returned and synced when the Future has completed.
             create_request_timeout (float):
                 Optional. The timeout for the create request in seconds.
+            import_request_timeout (float):
+                Optional. The timeout for the import request in seconds.
 
         Returns:
             dataset (Dataset):
@@ -352,13 +355,16 @@ class _Dataset(base.VertexAiResourceNounWithFutureManager):
         )
 
         # Import if import datasource is DatasourceImportable
-        # import_request_timeout is None since user is issuing a single request with create and import
         if isinstance(datasource, _datasources.DatasourceImportable):
-            dataset_obj._import_and_wait(datasource, import_request_timeout=None)
+            dataset_obj._import_and_wait(datasource, import_request_timeout=import_request_timeout)
 
         return dataset_obj
 
-    def _import_and_wait(self, datasource, import_request_timeout):
+    def _import_and_wait(
+        self,
+        datasource,
+        import_request_timeout: Optional[float] = None,
+    ):
         _LOGGER.log_action_start_against_resource(
             "Importing",
             "data",
@@ -463,6 +469,8 @@ class _Dataset(base.VertexAiResourceNounWithFutureManager):
         Args:
             datasource (_datasources.DatasourceImportable):
                 Required. Datasource for importing data to an existing dataset for Vertex AI.
+            import_request_timeout (float):
+                Optional. The timeout for the import request in seconds.
 
         Returns:
             operation (Operation):
