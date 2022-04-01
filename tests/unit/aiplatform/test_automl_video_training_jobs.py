@@ -324,8 +324,8 @@ class TestAutoMLVideoTrainingJob:
             model_display_name=_TEST_MODEL_DISPLAY_NAME,
             training_fraction_split=_TEST_FRACTION_SPLIT_TRAINING,
             test_fraction_split=_TEST_FRACTION_SPLIT_TEST,
-            create_request_timeout=None,
             sync=sync,
+            create_request_timeout=None,
         )
 
         if not sync:

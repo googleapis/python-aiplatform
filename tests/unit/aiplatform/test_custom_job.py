@@ -638,8 +638,8 @@ class TestCustomJob:
             network=_TEST_NETWORK,
             timeout=_TEST_TIMEOUT,
             restart_job_on_worker_restart=_TEST_RESTART_JOB_ON_WORKER_RESTART,
-            create_request_timeout=None,
             sync=sync,
+            create_request_timeout=None,
         )
 
         job.wait()

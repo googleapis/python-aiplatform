@@ -110,8 +110,8 @@ class TestEndToEnd:
             gcs_source=test_datasets._TEST_SOURCE_URI_GCS,
             import_schema_uri=test_datasets._TEST_IMPORT_SCHEMA_URI,
             data_item_labels=test_datasets._TEST_DATA_LABEL_ITEMS,
-            import_request_timeout=None,
             sync=sync,
+            import_request_timeout=None,
         )
 
         job = aiplatform.CustomTrainingJob(

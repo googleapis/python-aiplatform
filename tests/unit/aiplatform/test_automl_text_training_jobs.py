@@ -632,8 +632,8 @@ class TestAutoMLTextTrainingJob:
         model_from_job = job.run(
             dataset=mock_dataset_text,
             model_display_name=None,  # Omit model_display_name
-            create_request_timeout=None,
             sync=sync,
+            create_request_timeout=None,
         )
 
         if not sync:
@@ -861,8 +861,8 @@ class TestAutoMLTextTrainingJob:
             training_filter_split=_TEST_FILTER_SPLIT_TRAINING,
             validation_filter_split=_TEST_FILTER_SPLIT_VALIDATION,
             test_filter_split=_TEST_FILTER_SPLIT_TEST,
-            create_request_timeout=None,
             sync=sync,
+            create_request_timeout=None,
         )
 
         if not sync:

@@ -821,8 +821,8 @@ class TestDataset:
             display_name=_TEST_DISPLAY_NAME,
             metadata_schema_uri=_TEST_METADATA_SCHEMA_URI_NONTABULAR,
             encryption_spec_key_name=_TEST_ENCRYPTION_KEY_NAME,
-            create_request_timeout=None,
             sync=sync,
+            create_request_timeout=None,
         )
 
         my_dataset.import_data(
@@ -991,8 +991,8 @@ class TestImageDataset:
         my_dataset.import_data(
             gcs_source=[_TEST_SOURCE_URI_GCS],
             import_schema_uri=_TEST_IMPORT_SCHEMA_URI_IMAGE,
-            import_request_timeout=None,
             sync=sync,
+            import_request_timeout=None,
         )
 
         if not sync:
@@ -1507,8 +1507,8 @@ class TestTextDataset:
         my_dataset.import_data(
             gcs_source=[_TEST_SOURCE_URI_GCS],
             import_schema_uri=_TEST_IMPORT_SCHEMA_URI_TEXT,
-            import_request_timeout=None,
             sync=sync,
+            import_request_timeout=None,
         )
 
         if not sync:
@@ -1542,8 +1542,8 @@ class TestTextDataset:
         my_dataset.import_data(
             gcs_source=[_TEST_SOURCE_URI_GCS],
             import_schema_uri=_TEST_IMPORT_SCHEMA_URI_TEXT,
-            import_request_timeout=None,
             sync=sync,
+            import_request_timeout=None,
         )
 
         if not sync:
@@ -1721,8 +1721,8 @@ class TestVideoDataset:
         my_dataset.import_data(
             gcs_source=[_TEST_SOURCE_URI_GCS],
             import_schema_uri=_TEST_IMPORT_SCHEMA_URI_VIDEO,
-            import_request_timeout=None,
             sync=sync,
+            import_request_timeout=None,
         )
 
         if not sync:
@@ -1756,8 +1756,8 @@ class TestVideoDataset:
         my_dataset.import_data(
             gcs_source=[_TEST_SOURCE_URI_GCS],
             import_schema_uri=_TEST_IMPORT_SCHEMA_URI_VIDEO,
-            import_request_timeout=None,
             sync=sync,
+            import_request_timeout=None,
         )
 
         if not sync:

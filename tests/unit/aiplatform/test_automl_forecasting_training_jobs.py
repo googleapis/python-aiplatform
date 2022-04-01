@@ -713,8 +713,8 @@ class TestAutoMLForecastingTrainingJob:
             export_evaluated_data_items_override_destination=_TEST_TRAINING_EXPORT_EVALUATED_DATA_ITEMS_OVERRIDE_DESTINATION,
             quantiles=_TEST_TRAINING_QUANTILES,
             validation_options=_TEST_TRAINING_VALIDATION_OPTIONS,
-            create_request_timeout=None,
             sync=sync,
+            create_request_timeout=None,
         )
 
         if not sync:

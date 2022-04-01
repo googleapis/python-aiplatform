@@ -667,8 +667,8 @@ class TestAutoMLImageTrainingJob:
             test_filter_split=_TEST_FILTER_SPLIT_TEST,
             budget_milli_node_hours=_TEST_TRAINING_BUDGET_MILLI_NODE_HOURS,
             disable_early_stopping=_TEST_TRAINING_DISABLE_EARLY_STOPPING,
-            create_request_timeout=None,
             sync=sync,
+            create_request_timeout=None,
         )
 
         if not sync:
