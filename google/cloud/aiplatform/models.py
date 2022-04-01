@@ -1655,7 +1655,13 @@ class PrivateEndpoint(Endpoint):
             )
 
             # delete later, use for testing
-            print(response)
+            print(response.body)
+            print(response.fields)
+            print(response.headers)
+            print(response.retries)
+            print(response.json)
+
+
 
             if response.status < 300:
                 return response
@@ -1760,7 +1766,7 @@ class PrivateEndpoint(Endpoint):
         self._sync_gca_resource_if_skipped()
 
         response = self._http_request(
-            method="POST",
+            method="GET",
             url=self.explain_http_uri,
             body=json.dumps({"instances": instances}),
             headers={"Content-Type": "application/json"},
