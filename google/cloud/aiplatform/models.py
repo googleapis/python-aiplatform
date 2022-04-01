@@ -1655,11 +1655,7 @@ class PrivateEndpoint(Endpoint):
             )
 
             # delete later, use for testing
-            print(response.body)
-            print(response.fields)
-            print(response.headers)
-            print(response.retries)
-            print(response.json)
+            print(response.items())
 
 
 
