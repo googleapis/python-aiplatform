@@ -295,8 +295,8 @@ class TestCustomJob:
             network=_TEST_NETWORK,
             timeout=_TEST_TIMEOUT,
             restart_job_on_worker_restart=_TEST_RESTART_JOB_ON_WORKER_RESTART,
-            create_request_timeout=None,
             sync=sync,
+            create_request_timeout=None,
         )
 
         job.wait_for_resource_creation()
@@ -308,7 +308,9 @@ class TestCustomJob:
         expected_custom_job = _get_custom_job_proto()
 
         create_custom_job_mock.assert_called_once_with(
-            parent=_TEST_PARENT, custom_job=expected_custom_job, timeout=None,
+            parent=_TEST_PARENT,
+            custom_job=expected_custom_job,
+            timeout=None,
         )
 
         assert job.job_spec == expected_custom_job.job_spec
@@ -341,8 +343,8 @@ class TestCustomJob:
             network=_TEST_NETWORK,
             timeout=_TEST_TIMEOUT,
             restart_job_on_worker_restart=_TEST_RESTART_JOB_ON_WORKER_RESTART,
-            create_request_timeout=180.0,
             sync=sync,
+            create_request_timeout=180.0,
         )
 
         job.wait_for_resource_creation()
@@ -354,7 +356,9 @@ class TestCustomJob:
         expected_custom_job = _get_custom_job_proto()
 
         create_custom_job_mock.assert_called_once_with(
-            parent=_TEST_PARENT, custom_job=expected_custom_job, timeout=180.0,
+            parent=_TEST_PARENT,
+            custom_job=expected_custom_job,
+            timeout=180.0,
         )
 
     @pytest.mark.parametrize("sync", [True, False])
@@ -385,8 +389,8 @@ class TestCustomJob:
                 network=_TEST_NETWORK,
                 timeout=_TEST_TIMEOUT,
                 restart_job_on_worker_restart=_TEST_RESTART_JOB_ON_WORKER_RESTART,
-                create_request_timeout=None,
                 sync=sync,
+                create_request_timeout=None,
             )
 
             job.wait()
@@ -398,7 +402,9 @@ class TestCustomJob:
         expected_custom_job = _get_custom_job_proto()
 
         create_custom_job_mock.assert_called_once_with(
-            parent=_TEST_PARENT, custom_job=expected_custom_job, timeout=None,
+            parent=_TEST_PARENT,
+            custom_job=expected_custom_job,
+            timeout=None,
         )
 
         assert job.job_spec == expected_custom_job.job_spec
@@ -561,8 +567,8 @@ class TestCustomJob:
             network=_TEST_NETWORK,
             timeout=_TEST_TIMEOUT,
             restart_job_on_worker_restart=_TEST_RESTART_JOB_ON_WORKER_RESTART,
-            create_request_timeout=None,
             sync=sync,
+            create_request_timeout=None,
         )
 
         job.wait_for_resource_creation()
@@ -576,7 +582,9 @@ class TestCustomJob:
         expected_custom_job = _get_custom_job_proto_with_enable_web_access()
 
         create_custom_job_mock_with_enable_web_access.assert_called_once_with(
-            parent=_TEST_PARENT, custom_job=expected_custom_job, timeout=None,
+            parent=_TEST_PARENT,
+            custom_job=expected_custom_job,
+            timeout=None,
         )
 
         assert job.job_spec == expected_custom_job.job_spec
@@ -640,7 +648,9 @@ class TestCustomJob:
         expected_custom_job.job_spec.tensorboard = _TEST_TENSORBOARD_NAME
 
         create_custom_job_mock_with_tensorboard.assert_called_once_with(
-            parent=_TEST_PARENT, custom_job=expected_custom_job, timeout=None,
+            parent=_TEST_PARENT,
+            custom_job=expected_custom_job,
+            timeout=None,
         )
 
         expected_custom_job = _get_custom_job_proto()

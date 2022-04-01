@@ -507,8 +507,8 @@ class TestBatchPredictionJob:
             job_display_name=_TEST_BATCH_PREDICTION_JOB_DISPLAY_NAME,
             gcs_source=_TEST_BATCH_PREDICTION_GCS_SOURCE,
             gcs_destination_prefix=_TEST_BATCH_PREDICTION_GCS_DEST_PREFIX,
-            create_request_timeout=None,
             sync=sync,
+            create_request_timeout=None,
         )
 
         batch_prediction_job.wait_for_resource_creation()
@@ -552,8 +552,8 @@ class TestBatchPredictionJob:
             job_display_name=_TEST_BATCH_PREDICTION_JOB_DISPLAY_NAME,
             gcs_source=_TEST_BATCH_PREDICTION_GCS_SOURCE,
             gcs_destination_prefix=_TEST_BATCH_PREDICTION_GCS_DEST_PREFIX,
-            create_request_timeout=180.0,
             sync=sync,
+            create_request_timeout=180.0,
         )
 
         batch_prediction_job.wait_for_resource_creation()
@@ -617,8 +617,8 @@ class TestBatchPredictionJob:
             job_display_name=_TEST_BATCH_PREDICTION_JOB_DISPLAY_NAME,
             gcs_source=_TEST_BATCH_PREDICTION_GCS_SOURCE,
             bigquery_destination_prefix=_TEST_BATCH_PREDICTION_BQ_PREFIX,
-            create_request_timeout=None,
             sync=sync,
+            create_request_timeout=None,
         )
 
         batch_prediction_job.wait_for_resource_creation()
@@ -679,8 +679,8 @@ class TestBatchPredictionJob:
             explanation_parameters=_TEST_EXPLANATION_PARAMETERS,
             labels=_TEST_LABEL,
             credentials=creds,
-            create_request_timeout=None,
             sync=sync,
+            create_request_timeout=None,
         )
 
         batch_prediction_job.wait_for_resource_creation()

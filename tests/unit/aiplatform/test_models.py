@@ -550,8 +550,8 @@ class TestModel:
             serving_container_image_uri=_TEST_SERVING_CONTAINER_IMAGE,
             serving_container_predict_route=_TEST_SERVING_CONTAINER_PREDICTION_ROUTE,
             serving_container_health_route=_TEST_SERVING_CONTAINER_HEALTH_ROUTE,
-            upload_request_timeout=None,
             sync=sync,
+            upload_request_timeout=None,
         )
 
         if not sync:
@@ -583,8 +583,8 @@ class TestModel:
         my_model = models.Model.upload(
             display_name=_TEST_MODEL_NAME,
             serving_container_image_uri=_TEST_SERVING_CONTAINER_IMAGE,
-            upload_request_timeout=180.0,
             sync=sync,
+            upload_request_timeout=180.0,
         )
 
         if not sync:
@@ -595,7 +595,8 @@ class TestModel:
         )
 
         managed_model = gca_model.Model(
-            display_name=_TEST_MODEL_NAME, container_spec=container_spec,
+            display_name=_TEST_MODEL_NAME,
+            container_spec=container_spec,
         )
 
         upload_model_mock.assert_called_once_with(
@@ -679,8 +680,8 @@ class TestModel:
             explanation_metadata=_TEST_EXPLANATION_METADATA,
             explanation_parameters=_TEST_EXPLANATION_PARAMETERS,
             labels=_TEST_LABEL,
-            upload_request_timeout=None,
             sync=sync,
+            upload_request_timeout=None,
         )
 
         if not sync:
@@ -752,8 +753,8 @@ class TestModel:
             serving_container_predict_route=_TEST_SERVING_CONTAINER_PREDICTION_ROUTE,
             serving_container_health_route=_TEST_SERVING_CONTAINER_HEALTH_ROUTE,
             project=_TEST_PROJECT_2,
-            upload_request_timeout=None,
             sync=sync,
+            upload_request_timeout=None,
         )
 
         if not sync:
@@ -843,8 +844,8 @@ class TestModel:
             serving_container_predict_route=_TEST_SERVING_CONTAINER_PREDICTION_ROUTE,
             serving_container_health_route=_TEST_SERVING_CONTAINER_HEALTH_ROUTE,
             location=_TEST_LOCATION_2,
-            upload_request_timeout=None,
             sync=sync,
+            upload_request_timeout=None,
         )
 
         if not sync:
@@ -930,7 +931,8 @@ class TestModel:
             test_endpoint.wait()
 
         automatic_resources = gca_machine_resources.AutomaticResources(
-            min_replica_count=1, max_replica_count=1,
+            min_replica_count=1,
+            max_replica_count=1,
         )
         deployed_model = gca_endpoint.DeployedModel(
             automatic_resources=automatic_resources,
@@ -992,8 +994,8 @@ class TestModel:
             accelerator_type=_TEST_ACCELERATOR_TYPE,
             accelerator_count=_TEST_ACCELERATOR_COUNT,
             service_account=_TEST_SERVICE_ACCOUNT,
-            deploy_request_timeout=None,
             sync=sync,
+            deploy_request_timeout=None,
         )
 
         if not sync:
@@ -1036,8 +1038,8 @@ class TestModel:
             accelerator_count=_TEST_ACCELERATOR_COUNT,
             explanation_metadata=_TEST_EXPLANATION_METADATA,
             explanation_parameters=_TEST_EXPLANATION_PARAMETERS,
-            deploy_request_timeout=None,
             sync=sync,
+            deploy_request_timeout=None,
         )
 
         if not sync:
@@ -1106,8 +1108,8 @@ class TestModel:
             job_display_name=_TEST_BATCH_PREDICTION_DISPLAY_NAME,
             gcs_source=_TEST_BATCH_PREDICTION_GCS_SOURCE,
             gcs_destination_prefix=_TEST_BATCH_PREDICTION_GCS_DEST_PREFIX,
-            create_request_timeout=None,
             sync=sync,
+            create_request_timeout=None,
         )
 
         if not sync:
@@ -1155,8 +1157,8 @@ class TestModel:
             job_display_name=_TEST_BATCH_PREDICTION_DISPLAY_NAME,
             gcs_source=_TEST_BATCH_PREDICTION_GCS_SOURCE,
             gcs_destination_prefix=_TEST_BATCH_PREDICTION_GCS_DEST_PREFIX,
-            create_request_timeout=None,
             sync=sync,
+            create_request_timeout=None,
         )
 
         if not sync:
@@ -1203,8 +1205,8 @@ class TestModel:
             job_display_name=_TEST_BATCH_PREDICTION_DISPLAY_NAME,
             gcs_source=_TEST_BATCH_PREDICTION_GCS_SOURCE,
             bigquery_destination_prefix=_TEST_BATCH_PREDICTION_BQ_PREFIX,
-            create_request_timeout=None,
             sync=sync,
+            create_request_timeout=None,
         )
 
         if not sync:
@@ -1262,8 +1264,8 @@ class TestModel:
             labels=_TEST_LABEL,
             credentials=creds,
             encryption_spec_key_name=_TEST_ENCRYPTION_KEY_NAME,
-            create_request_timeout=None,
             sync=sync,
+            create_request_timeout=None,
         )
 
         if not sync:
@@ -1638,8 +1640,8 @@ class TestModel:
             display_name=_TEST_MODEL_NAME,
             project=_TEST_PROJECT,
             location=_TEST_LOCATION,
-            upload_request_timeout=None,
             sync=sync,
+            upload_request_timeout=None,
         )
 
         if not sync:
@@ -1749,8 +1751,8 @@ class TestModel:
             display_name=_TEST_MODEL_NAME,
             project=_TEST_PROJECT,
             location=_TEST_LOCATION,
-            upload_request_timeout=None,
             sync=sync,
+            upload_request_timeout=None,
         )
 
         if not sync:
@@ -1799,8 +1801,8 @@ class TestModel:
             display_name=_TEST_MODEL_NAME,
             project=_TEST_PROJECT,
             location=_TEST_LOCATION,
-            upload_request_timeout=None,
             sync=sync,
+            upload_request_timeout=None,
         )
 
         if not sync:

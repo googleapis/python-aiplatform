@@ -403,8 +403,8 @@ class TestHyperparameterTuningJob:
             network=_TEST_NETWORK,
             timeout=_TEST_TIMEOUT,
             restart_job_on_worker_restart=_TEST_RESTART_JOB_ON_WORKER_RESTART,
-            create_request_timeout=None,
             sync=sync,
+            create_request_timeout=None,
         )
 
         job.wait()
@@ -469,8 +469,8 @@ class TestHyperparameterTuningJob:
             network=_TEST_NETWORK,
             timeout=_TEST_TIMEOUT,
             restart_job_on_worker_restart=_TEST_RESTART_JOB_ON_WORKER_RESTART,
-            create_request_timeout=180.0,
             sync=sync,
+            create_request_timeout=180.0,
         )
 
         job.wait()
@@ -713,8 +713,8 @@ class TestHyperparameterTuningJob:
             timeout=_TEST_TIMEOUT,
             restart_job_on_worker_restart=_TEST_RESTART_JOB_ON_WORKER_RESTART,
             tensorboard=test_custom_job._TEST_TENSORBOARD_NAME,
-            create_request_timeout=None,
             sync=sync,
+            create_request_timeout=None,
         )
 
         job.wait()
@@ -785,8 +785,8 @@ class TestHyperparameterTuningJob:
             timeout=_TEST_TIMEOUT,
             restart_job_on_worker_restart=_TEST_RESTART_JOB_ON_WORKER_RESTART,
             enable_web_access=test_custom_job._TEST_ENABLE_WEB_ACCESS,
-            create_request_timeout=None,
             sync=sync,
+            create_request_timeout=None,
         )
 
         job.wait()

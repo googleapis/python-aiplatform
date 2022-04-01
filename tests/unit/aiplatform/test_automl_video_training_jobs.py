@@ -252,8 +252,8 @@ class TestAutoMLVideoTrainingJob:
         model_from_job = job.run(
             dataset=mock_dataset_video,
             model_display_name=_TEST_MODEL_DISPLAY_NAME,
-            create_request_timeout=None,
             sync=sync,
+            create_request_timeout=None,
         )
 
         if not sync:
@@ -394,8 +394,8 @@ class TestAutoMLVideoTrainingJob:
             model_display_name=_TEST_MODEL_DISPLAY_NAME,
             training_filter_split=_TEST_FILTER_SPLIT_TRAINING,
             test_filter_split=_TEST_FILTER_SPLIT_TEST,
-            create_request_timeout=None,
             sync=sync,
+            create_request_timeout=None,
         )
 
         if not sync:
@@ -462,8 +462,8 @@ class TestAutoMLVideoTrainingJob:
         model_from_job = job.run(
             dataset=mock_dataset_video,
             model_display_name=_TEST_MODEL_DISPLAY_NAME,
-            create_request_timeout=None,
             sync=sync,
+            create_request_timeout=None,
         )
 
         if not sync:
@@ -523,8 +523,8 @@ class TestAutoMLVideoTrainingJob:
             model_labels=_TEST_MODEL_LABELS,
             training_filter_split=_TEST_FILTER_SPLIT_TRAINING,
             test_filter_split=_TEST_FILTER_SPLIT_TEST,
-            create_request_timeout=None,
             sync=sync,
+            create_request_timeout=None,
         )
 
         if not sync:
@@ -602,8 +602,8 @@ class TestAutoMLVideoTrainingJob:
             model_labels=_TEST_MODEL_LABELS,
             training_filter_split=_TEST_FILTER_SPLIT_TRAINING,
             test_filter_split=_TEST_FILTER_SPLIT_TEST,
-            create_request_timeout=180.0,
             sync=sync,
+            create_request_timeout=180.0,
         )
 
         if not sync:
@@ -623,7 +623,8 @@ class TestAutoMLVideoTrainingJob:
         )
 
         true_input_data_config = gca_training_pipeline.InputDataConfig(
-            filter_split=true_filter_split, dataset_id=mock_dataset_video.name,
+            filter_split=true_filter_split,
+            dataset_id=mock_dataset_video.name,
         )
 
         true_training_pipeline = gca_training_pipeline.TrainingPipeline(

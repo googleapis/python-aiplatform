@@ -282,8 +282,8 @@ class TestAutoMLImageTrainingJob:
             test_filter_split=_TEST_FILTER_SPLIT_TEST,
             budget_milli_node_hours=_TEST_TRAINING_BUDGET_MILLI_NODE_HOURS,
             disable_early_stopping=_TEST_TRAINING_DISABLE_EARLY_STOPPING,
-            create_request_timeout=None,
             sync=sync,
+            create_request_timeout=None,
         )
 
         if not sync:
@@ -350,7 +350,9 @@ class TestAutoMLImageTrainingJob:
         )
 
         job = training_jobs.AutoMLImageTrainingJob(
-            display_name=_TEST_DISPLAY_NAME, base_model=mock_model, labels=_TEST_LABELS,
+            display_name=_TEST_DISPLAY_NAME,
+            base_model=mock_model,
+            labels=_TEST_LABELS,
         )
 
         model_from_job = job.run(
@@ -362,8 +364,8 @@ class TestAutoMLImageTrainingJob:
             test_filter_split=_TEST_FILTER_SPLIT_TEST,
             budget_milli_node_hours=_TEST_TRAINING_BUDGET_MILLI_NODE_HOURS,
             disable_early_stopping=_TEST_TRAINING_DISABLE_EARLY_STOPPING,
-            create_request_timeout=180.0,
             sync=sync,
+            create_request_timeout=180.0,
         )
 
         if not sync:
@@ -383,7 +385,8 @@ class TestAutoMLImageTrainingJob:
         )
 
         true_input_data_config = gca_training_pipeline.InputDataConfig(
-            filter_split=true_filter_split, dataset_id=mock_dataset_image.name,
+            filter_split=true_filter_split,
+            dataset_id=mock_dataset_image.name,
         )
 
         true_training_pipeline = gca_training_pipeline.TrainingPipeline(
@@ -593,8 +596,8 @@ class TestAutoMLImageTrainingJob:
             test_fraction_split=_TEST_FRACTION_SPLIT_TEST,
             budget_milli_node_hours=_TEST_TRAINING_BUDGET_MILLI_NODE_HOURS,
             disable_early_stopping=_TEST_TRAINING_DISABLE_EARLY_STOPPING,
-            create_request_timeout=None,
             sync=sync,
+            create_request_timeout=None,
         )
 
         if not sync:
@@ -732,8 +735,8 @@ class TestAutoMLImageTrainingJob:
             model_display_name=_TEST_MODEL_DISPLAY_NAME,
             budget_milli_node_hours=_TEST_TRAINING_BUDGET_MILLI_NODE_HOURS,
             disable_early_stopping=_TEST_TRAINING_DISABLE_EARLY_STOPPING,
-            create_request_timeout=None,
             sync=sync,
+            create_request_timeout=None,
         )
 
         if not sync:

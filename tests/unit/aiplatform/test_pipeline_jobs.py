@@ -282,10 +282,7 @@ class TestPipelineJob:
             service_account=_TEST_SERVICE_ACCOUNT,
             network=_TEST_NETWORK,
             sync=sync,
-<<<<<<< HEAD
             create_request_timeout=None,
-=======
->>>>>>> main
         )
 
         if not sync:
@@ -330,7 +327,8 @@ class TestPipelineJob:
         )
 
     @pytest.mark.parametrize(
-        "job_spec_json", [_TEST_PIPELINE_SPEC, _TEST_PIPELINE_JOB],
+        "job_spec_json",
+        [_TEST_PIPELINE_SPEC, _TEST_PIPELINE_JOB],
     )
     @pytest.mark.parametrize("sync", [True, False])
     def test_run_call_pipeline_service_create_with_timeout(
@@ -405,7 +403,8 @@ class TestPipelineJob:
         # )
 
     @pytest.mark.parametrize(
-        "job_spec_json", [_TEST_PIPELINE_SPEC_LEGACY, _TEST_PIPELINE_JOB_LEGACY],
+        "job_spec_json",
+        [_TEST_PIPELINE_SPEC_LEGACY, _TEST_PIPELINE_JOB_LEGACY],
     )
     @pytest.mark.parametrize("sync", [True, False])
     def test_run_call_pipeline_service_create_legacy(

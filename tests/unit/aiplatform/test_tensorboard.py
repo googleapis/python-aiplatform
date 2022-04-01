@@ -363,7 +363,8 @@ class TestTensorboard:
         )
 
         tensorboard.Tensorboard.create(
-            display_name=_TEST_DISPLAY_NAME, create_request_timeout=None,
+            display_name=_TEST_DISPLAY_NAME,
+            create_request_timeout=None,
         )
 
         expected_tensorboard = gca_tensorboard.Tensorboard(
@@ -406,7 +407,9 @@ class TestTensorboard:
     @pytest.mark.usefixtures("get_tensorboard_mock")
     def test_create_tensorboard_with_timeout(self, create_tensorboard_mock):
 
-        aiplatform.init(project=_TEST_PROJECT,)
+        aiplatform.init(
+            project=_TEST_PROJECT,
+        )
 
         tensorboard.Tensorboard.create(
             display_name=_TEST_DISPLAY_NAME,
@@ -415,7 +418,8 @@ class TestTensorboard:
         )
 
         expected_tensorboard = gca_tensorboard.Tensorboard(
-            display_name=_TEST_DISPLAY_NAME, encryption_spec=_TEST_ENCRYPTION_SPEC,
+            display_name=_TEST_DISPLAY_NAME,
+            encryption_spec=_TEST_ENCRYPTION_SPEC,
         )
 
         create_tensorboard_mock.assert_called_once_with(
@@ -552,7 +556,9 @@ class TestTensorboardExperiment:
         self, create_tensorboard_experiment_mock, get_tensorboard_experiment_mock
     ):
 
-        aiplatform.init(project=_TEST_PROJECT,)
+        aiplatform.init(
+            project=_TEST_PROJECT,
+        )
 
         tensorboard.TensorboardExperiment.create(
             tensorboard_experiment_id=_TEST_TENSORBOARD_EXPERIMENT_ID,
@@ -561,8 +567,10 @@ class TestTensorboardExperiment:
             create_request_timeout=180.0,
         )
 
-        expected_tensorboard_experiment = gca_tensorboard_experiment.TensorboardExperiment(
-            display_name=_TEST_DISPLAY_NAME,
+        expected_tensorboard_experiment = (
+            gca_tensorboard_experiment.TensorboardExperiment(
+                display_name=_TEST_DISPLAY_NAME,
+            )
         )
 
         create_tensorboard_experiment_mock.assert_called_once_with(
@@ -674,7 +682,9 @@ class TestTensorboardRun:
         self, create_tensorboard_run_mock, get_tensorboard_run_mock
     ):
 
-        aiplatform.init(project=_TEST_PROJECT,)
+        aiplatform.init(
+            project=_TEST_PROJECT,
+        )
 
         tensorboard.TensorboardRun.create(
             tensorboard_run_id=_TEST_TENSORBOARD_RUN_ID,

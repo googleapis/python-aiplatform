@@ -1447,10 +1447,12 @@ class EntityType(base.VertexAiResourceNounWithFutureManager):
                     feature_selector=feature_selector,
                 )
             )
-            read_feature_values_response = self._featurestore_online_client.read_feature_values(
-                request=read_feature_values_request,
-                metadata=request_metadata,
-                timeout=read_request_timeout,
+            read_feature_values_response = (
+                self._featurestore_online_client.read_feature_values(
+                    request=read_feature_values_request,
+                    metadata=request_metadata,
+                    timeout=read_request_timeout,
+                )
             )
             header = read_feature_values_response.header
             entity_views = [read_feature_values_response.entity_view]

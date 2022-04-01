@@ -82,8 +82,8 @@ class TestEndToEndTabular(e2e_base.TestEndToEnd):
         ds = aiplatform.TabularDataset.create(
             display_name=self._make_display_name("dataset"),
             gcs_source=[dataset_gcs_source],
-            create_request_timeout=180.0,
             sync=False,
+            create_request_timeout=180.0,
         )
 
         shared_state["resources"].extend([ds])
@@ -113,8 +113,8 @@ class TestEndToEndTabular(e2e_base.TestEndToEnd):
             timeout=1234,
             restart_job_on_worker_restart=True,
             enable_web_access=True,
-            create_request_timeout=None,
             sync=False,
+            create_request_timeout=None,
         )
 
         automl_model = automl_job.run(

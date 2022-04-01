@@ -356,7 +356,9 @@ class _Dataset(base.VertexAiResourceNounWithFutureManager):
 
         # Import if import datasource is DatasourceImportable
         if isinstance(datasource, _datasources.DatasourceImportable):
-            dataset_obj._import_and_wait(datasource, import_request_timeout=import_request_timeout)
+            dataset_obj._import_and_wait(
+                datasource, import_request_timeout=import_request_timeout
+            )
 
         return dataset_obj
 

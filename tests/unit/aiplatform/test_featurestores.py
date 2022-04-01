@@ -881,7 +881,8 @@ class TestFeaturestore:
             featurestore_name=_TEST_FEATURESTORE_ID
         )
         my_featurestore.update(
-            labels=_TEST_LABELS_UPDATE, update_request_timeout=None,
+            labels=_TEST_LABELS_UPDATE,
+            update_request_timeout=None,
         )
 
         expected_featurestore = gca_featurestore.Featurestore(
@@ -904,7 +905,8 @@ class TestFeaturestore:
             featurestore_name=_TEST_FEATURESTORE_ID
         )
         my_featurestore.update(
-            labels=_TEST_LABELS_UPDATE, update_request_timeout=180.0,
+            labels=_TEST_LABELS_UPDATE,
+            update_request_timeout=180.0,
         )
 
         expected_featurestore = gca_featurestore.Featurestore(
@@ -1049,8 +1051,8 @@ class TestFeaturestore:
             entity_type_id=_TEST_ENTITY_TYPE_ID,
             description=_TEST_DESCRIPTION,
             labels=_TEST_LABELS,
-            create_request_timeout=None,
             sync=sync,
+            create_request_timeout=None,
         )
 
         if not sync:
@@ -1080,15 +1082,16 @@ class TestFeaturestore:
             entity_type_id=_TEST_ENTITY_TYPE_ID,
             description=_TEST_DESCRIPTION,
             labels=_TEST_LABELS,
-            create_request_timeout=180.0,
             sync=sync,
+            create_request_timeout=180.0,
         )
 
         if not sync:
             my_entity_type.wait()
 
         expected_entity_type = gca_entity_type.EntityType(
-            labels=_TEST_LABELS, description=_TEST_DESCRIPTION,
+            labels=_TEST_LABELS,
+            description=_TEST_DESCRIPTION,
         )
         create_entity_type_mock.assert_called_once_with(
             parent=_TEST_FEATURESTORE_NAME,
@@ -1340,8 +1343,8 @@ class TestFeaturestore:
             bq_destination_output_uri=_TEST_BQ_DESTINATION_URI,
             serving_feature_ids=_TEST_SERVING_FEATURE_IDS,
             read_instances_uri=_TEST_BQ_SOURCE_URI,
-            serve_request_timeout=None,
             sync=sync,
+            serve_request_timeout=None,
         )
 
         if not sync:
@@ -1372,21 +1375,23 @@ class TestFeaturestore:
             ),
         ]
 
-        expected_batch_read_feature_values_request = gca_featurestore_service.BatchReadFeatureValuesRequest(
-            featurestore=my_featurestore.resource_name,
-            destination=gca_featurestore_service.FeatureValueDestination(
-                bigquery_destination=_TEST_BQ_DESTINATION,
-            ),
-            entity_type_specs=expected_entity_type_specs,
-            bigquery_read_instances=_TEST_BQ_SOURCE,
+        expected_batch_read_feature_values_request = (
+            gca_featurestore_service.BatchReadFeatureValuesRequest(
+                featurestore=my_featurestore.resource_name,
+                destination=gca_featurestore_service.FeatureValueDestination(
+                    bigquery_destination=_TEST_BQ_DESTINATION,
+                ),
+                entity_type_specs=expected_entity_type_specs,
+                bigquery_read_instances=_TEST_BQ_SOURCE,
+            )
         )
 
         my_featurestore.batch_serve_to_bq(
             bq_destination_output_uri=_TEST_BQ_DESTINATION_URI,
             serving_feature_ids=_TEST_SERVING_FEATURE_IDS,
             read_instances_uri=_TEST_BQ_SOURCE_URI,
-            serve_request_timeout=180.0,
             sync=sync,
+            serve_request_timeout=180.0,
         )
 
         if not sync:
@@ -1433,8 +1438,8 @@ class TestFeaturestore:
             gcs_destination_type=_TEST_GCS_DESTINATION_TYPE_TFRECORD,
             serving_feature_ids=_TEST_SERVING_FEATURE_IDS,
             read_instances_uri=_TEST_GCS_CSV_SOURCE_URI,
-            serve_request_timeout=None,
             sync=sync,
+            serve_request_timeout=None,
         )
 
         if not sync:
@@ -1594,7 +1599,8 @@ class TestEntityType:
 
         my_entity_type = aiplatform.EntityType(entity_type_name=_TEST_ENTITY_TYPE_NAME)
         my_entity_type.update(
-            labels=_TEST_LABELS_UPDATE, update_request_timeout=None,
+            labels=_TEST_LABELS_UPDATE,
+            update_request_timeout=None,
         )
 
         expected_entity_type = gca_entity_type.EntityType(
@@ -1689,12 +1695,9 @@ class TestEntityType:
         )
 
         create_feature_mock.assert_called_once_with(
-<<<<<<< HEAD
-            request=expected_request, metadata=_TEST_REQUEST_METADATA, timeout=None,
-=======
             request=expected_request,
             metadata=_TEST_REQUEST_METADATA,
->>>>>>> main
+            timeout=None,
         )
 
     @pytest.mark.usefixtures("get_entity_type_mock")
@@ -1836,8 +1839,8 @@ class TestEntityType:
             feature_time=_TEST_FEATURE_TIME_FIELD,
             bq_source_uri=_TEST_BQ_SOURCE_URI,
             feature_source_fields=_TEST_IMPORTING_FEATURE_SOURCE_FIELDS,
-            ingest_request_timeout=None,
             sync=sync,
+            ingest_request_timeout=None,
         )
 
         if not sync:
@@ -1873,22 +1876,25 @@ class TestEntityType:
             feature_time=_TEST_FEATURE_TIME_FIELD,
             bq_source_uri=_TEST_BQ_SOURCE_URI,
             feature_source_fields=_TEST_IMPORTING_FEATURE_SOURCE_FIELDS,
-            ingest_request_timeout=180.0,
             sync=sync,
+            ingest_request_timeout=180.0,
         )
 
         if not sync:
             my_entity_type.wait()
 
-        true_import_feature_values_request = gca_featurestore_service.ImportFeatureValuesRequest(
-            entity_type=_TEST_ENTITY_TYPE_NAME,
-            feature_specs=[
-                gca_featurestore_service.ImportFeatureValuesRequest.FeatureSpec(
-                    id="my_feature_id_1", source_field="my_feature_id_1_source_field"
-                ),
-            ],
-            bigquery_source=_TEST_BQ_SOURCE,
-            feature_time_field=_TEST_FEATURE_TIME_FIELD,
+        true_import_feature_values_request = (
+            gca_featurestore_service.ImportFeatureValuesRequest(
+                entity_type=_TEST_ENTITY_TYPE_NAME,
+                feature_specs=[
+                    gca_featurestore_service.ImportFeatureValuesRequest.FeatureSpec(
+                        id="my_feature_id_1",
+                        source_field="my_feature_id_1_source_field",
+                    ),
+                ],
+                bigquery_source=_TEST_BQ_SOURCE,
+                feature_time_field=_TEST_FEATURE_TIME_FIELD,
+            )
         )
         import_feature_values_mock.assert_called_once_with(
             request=true_import_feature_values_request,
@@ -1907,8 +1913,8 @@ class TestEntityType:
             feature_time=_TEST_FEATURE_TIME,
             gcs_source_uris=_TEST_GCS_AVRO_SOURCE_URIS,
             gcs_source_type=_TEST_GCS_SOURCE_TYPE_AVRO,
-            ingest_request_timeout=None,
             sync=sync,
+            ingest_request_timeout=None,
         )
 
         if not sync:
@@ -2121,7 +2127,8 @@ class TestEntityType:
             )
         )
         result = my_entity_type.read(
-            entity_ids=_TEST_READ_ENTITY_ID, read_request_timeout=None,
+            entity_ids=_TEST_READ_ENTITY_ID,
+            read_request_timeout=None,
         )
         read_feature_values_mock.assert_called_once_with(
             request=expected_read_feature_values_request,
@@ -2137,15 +2144,18 @@ class TestEntityType:
     def test_read_single_entity_with_timeout(self, read_feature_values_mock):
         aiplatform.init(project=_TEST_PROJECT)
         my_entity_type = aiplatform.EntityType(entity_type_name=_TEST_ENTITY_TYPE_NAME)
-        expected_read_feature_values_request = gca_featurestore_online_service.ReadFeatureValuesRequest(
-            entity_type=my_entity_type.resource_name,
-            entity_id=_TEST_READ_ENTITY_ID,
-            feature_selector=gca_feature_selector.FeatureSelector(
-                id_matcher=gca_feature_selector.IdMatcher(ids=["*"])
-            ),
+        expected_read_feature_values_request = (
+            gca_featurestore_online_service.ReadFeatureValuesRequest(
+                entity_type=my_entity_type.resource_name,
+                entity_id=_TEST_READ_ENTITY_ID,
+                feature_selector=gca_feature_selector.FeatureSelector(
+                    id_matcher=gca_feature_selector.IdMatcher(ids=["*"])
+                ),
+            )
         )
         my_entity_type.read(
-            entity_ids=_TEST_READ_ENTITY_ID, read_request_timeout=180.0,
+            entity_ids=_TEST_READ_ENTITY_ID,
+            read_request_timeout=180.0,
         )
         read_feature_values_mock.assert_called_once_with(
             request=expected_read_feature_values_request,
@@ -2666,7 +2676,8 @@ class TestFeature:
 
         my_feature = aiplatform.Feature(feature_name=_TEST_FEATURE_NAME)
         my_feature.update(
-            labels=_TEST_LABELS_UPDATE, update_request_timeout=None,
+            labels=_TEST_LABELS_UPDATE,
+            update_request_timeout=None,
         )
 
         expected_feature = gca_feature.Feature(

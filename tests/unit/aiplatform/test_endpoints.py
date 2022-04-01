@@ -533,7 +533,9 @@ class TestEndpoint:
             encryption_spec_key_name=_TEST_ENCRYPTION_KEY_NAME,
         )
         my_endpoint = models.Endpoint.create(
-            display_name=_TEST_DISPLAY_NAME, sync=sync, create_request_timeout=None,
+            display_name=_TEST_DISPLAY_NAME,
+            sync=sync,
+            create_request_timeout=None,
         )
 
         if not sync:
@@ -543,13 +545,10 @@ class TestEndpoint:
             display_name=_TEST_DISPLAY_NAME, encryption_spec=_TEST_ENCRYPTION_SPEC
         )
         create_endpoint_mock.assert_called_once_with(
-<<<<<<< HEAD
-            parent=_TEST_PARENT, endpoint=expected_endpoint, metadata=(), timeout=None,
-=======
             parent=_TEST_PARENT,
             endpoint=expected_endpoint,
             metadata=(),
->>>>>>> main
+            timeout=None,
         )
 
         expected_endpoint.name = _TEST_ENDPOINT_NAME
@@ -561,8 +560,8 @@ class TestEndpoint:
         my_endpoint = models.Endpoint.create(
             display_name=_TEST_DISPLAY_NAME,
             encryption_spec_key_name=_TEST_ENCRYPTION_KEY_NAME,
-            create_request_timeout=None,
             sync=sync,
+            create_request_timeout=None,
         )
 
         if not sync:
@@ -572,13 +571,10 @@ class TestEndpoint:
             display_name=_TEST_DISPLAY_NAME, encryption_spec=_TEST_ENCRYPTION_SPEC
         )
         create_endpoint_mock.assert_called_once_with(
-<<<<<<< HEAD
-            parent=_TEST_PARENT, endpoint=expected_endpoint, metadata=(), timeout=None,
-=======
             parent=_TEST_PARENT,
             endpoint=expected_endpoint,
             metadata=(),
->>>>>>> main
+            timeout=None,
         )
 
         expected_endpoint.name = _TEST_ENDPOINT_NAME
@@ -590,8 +586,8 @@ class TestEndpoint:
         my_endpoint = models.Endpoint.create(
             display_name=_TEST_DISPLAY_NAME,
             encryption_spec_key_name=_TEST_ENCRYPTION_KEY_NAME,
-            create_request_timeout=180.0,
             sync=sync,
+            create_request_timeout=180.0,
         )
 
         if not sync:
@@ -601,7 +597,10 @@ class TestEndpoint:
             display_name=_TEST_DISPLAY_NAME, encryption_spec=_TEST_ENCRYPTION_SPEC
         )
         create_endpoint_mock.assert_called_once_with(
-            parent=_TEST_PARENT, endpoint=expected_endpoint, metadata=(), timeout=180.0,
+            parent=_TEST_PARENT,
+            endpoint=expected_endpoint,
+            metadata=(),
+            timeout=180.0,
         )
 
     @pytest.mark.usefixtures("get_empty_endpoint_mock")
@@ -630,8 +629,8 @@ class TestEndpoint:
         my_endpoint = models.Endpoint.create(
             display_name=_TEST_DISPLAY_NAME,
             description=_TEST_DESCRIPTION,
-            create_request_timeout=None,
             sync=sync,
+            create_request_timeout=None,
         )
         if not sync:
             my_endpoint.wait()
@@ -641,7 +640,10 @@ class TestEndpoint:
             description=_TEST_DESCRIPTION,
         )
         create_endpoint_mock.assert_called_once_with(
-            parent=_TEST_PARENT, endpoint=expected_endpoint, metadata=(), timeout=None,
+            parent=_TEST_PARENT,
+            endpoint=expected_endpoint,
+            metadata=(),
+            timeout=None,
         )
 
     @pytest.mark.usefixtures("get_endpoint_mock")
@@ -650,8 +652,8 @@ class TestEndpoint:
         my_endpoint = models.Endpoint.create(
             display_name=_TEST_DISPLAY_NAME,
             labels=_TEST_LABELS,
-            create_request_timeout=None,
             sync=sync,
+            create_request_timeout=None,
         )
         if not sync:
             my_endpoint.wait()
@@ -661,7 +663,10 @@ class TestEndpoint:
             labels=_TEST_LABELS,
         )
         create_endpoint_mock.assert_called_once_with(
-            parent=_TEST_PARENT, endpoint=expected_endpoint, metadata=(), timeout=None,
+            parent=_TEST_PARENT,
+            endpoint=expected_endpoint,
+            metadata=(),
+            timeout=None,
         )
 
     @pytest.mark.usefixtures("get_endpoint_mock", "get_model_mock")
@@ -673,7 +678,9 @@ class TestEndpoint:
             aiplatform.gapic.Model.DeploymentResourcesType.AUTOMATIC_RESOURCES
         )
         test_endpoint.deploy(
-            test_model, sync=sync, deploy_request_timeout=None,
+            test_model,
+            sync=sync,
+            deploy_request_timeout=None,
         )
 
         if not sync:
@@ -705,14 +712,17 @@ class TestEndpoint:
             aiplatform.gapic.Model.DeploymentResourcesType.AUTOMATIC_RESOURCES
         )
         test_endpoint.deploy(
-            test_model, sync=sync, deploy_request_timeout=180.0,
+            test_model,
+            sync=sync,
+            deploy_request_timeout=180.0,
         )
 
         if not sync:
             test_endpoint.wait()
 
         automatic_resources = gca_machine_resources.AutomaticResources(
-            min_replica_count=1, max_replica_count=1,
+            min_replica_count=1,
+            max_replica_count=1,
         )
         deployed_model = gca_endpoint.DeployedModel(
             automatic_resources=automatic_resources,
@@ -930,8 +940,8 @@ class TestEndpoint:
             accelerator_type=_TEST_ACCELERATOR_TYPE,
             accelerator_count=_TEST_ACCELERATOR_COUNT,
             service_account=_TEST_SERVICE_ACCOUNT,
-            deploy_request_timeout=None,
             sync=sync,
+            deploy_request_timeout=None,
         )
 
         if not sync:
@@ -976,8 +986,8 @@ class TestEndpoint:
             accelerator_count=_TEST_ACCELERATOR_COUNT,
             explanation_metadata=_TEST_EXPLANATION_METADATA,
             explanation_parameters=_TEST_EXPLANATION_PARAMETERS,
-            deploy_request_timeout=None,
             sync=sync,
+            deploy_request_timeout=None,
         )
 
         if not sync:
