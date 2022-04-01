@@ -33,19 +33,19 @@ with open(os.path.join(package_root, "google/cloud/aiplatform/version.py")) as f
     exec(fp.read(), version)
 version = version["__version__"]
 
-tensorboard_extra_require = ["tensorflow >=2.3.0, <=2.7.0"]
+tensorboard_extra_require = ["tensorflow >=2.3.0, <3.0.0dev"]
 metadata_extra_require = ["pandas >= 1.0.0"]
-xai_extra_require = ["tensorflow >=2.3.0, <=2.5.0"]
+xai_extra_require = ["tensorflow >=2.3.0, <3.0.0dev"]
 lit_extra_require = [
-    "tensorflow >= 2.3.0",
+    "tensorflow >= 2.3.0, <3.0.0dev",
     "pandas >= 1.0.0",
     "lit-nlp >= 0.4.0",
     "explainable-ai-sdk >= 1.0.0",
 ]
 profiler_extra_require = [
-    "tensorboard-plugin-profile >= 2.4.0",
-    "werkzeug >= 2.0.0",
-    "tensorflow >=2.4.0",
+    "tensorboard-plugin-profile >= 2.4.0, <3.0.0dev",
+    "werkzeug >= 2.0.0, <2.1.0dev",
+    "tensorflow >=2.4.0, <3.0.0dev",
 ]
 featurestore_extra_require = [
     "google-cloud-bigquery-storage",
@@ -100,6 +100,7 @@ setuptools.setup(
         "packaging >= 14.3",
         "google-cloud-storage >= 1.32.0, < 3.0.0dev",
         "google-cloud-bigquery >= 1.15.0, < 3.0.0dev",
+        "google-cloud-resource-manager >= 1.3.3, < 3.0.0dev",
     ),
     extras_require={
         "full": full_extra_require,

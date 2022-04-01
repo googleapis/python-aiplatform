@@ -165,7 +165,7 @@ class _Dataset(base.VertexAiResourceNounWithFutureManager):
                 be picked randomly. Two DataItems are considered identical
                 if their content bytes are identical (e.g. image bytes or
                 pdf bytes). These labels will be overridden by Annotation
-                labels specified inside index file refenced by
+                labels specified inside index file referenced by
                 ``import_schema_uri``,
                 e.g. jsonl file.
             project (str):
@@ -353,7 +353,9 @@ class _Dataset(base.VertexAiResourceNounWithFutureManager):
 
     def _import_and_wait(self, datasource):
         _LOGGER.log_action_start_against_resource(
-            "Importing", "data", self,
+            "Importing",
+            "data",
+            self,
         )
 
         import_lro = self._import(datasource=datasource)
@@ -437,7 +439,8 @@ class _Dataset(base.VertexAiResourceNounWithFutureManager):
         )
 
     def _import(
-        self, datasource: _datasources.DatasourceImportable,
+        self,
+        datasource: _datasources.DatasourceImportable,
     ) -> operation.Operation:
         """Imports data into managed dataset by directly calling API client.
 
@@ -490,7 +493,7 @@ class _Dataset(base.VertexAiResourceNounWithFutureManager):
                 be picked randomly. Two DataItems are considered identical
                 if their content bytes are identical (e.g. image bytes or
                 pdf bytes). These labels will be overridden by Annotation
-                labels specified inside index file refenced by
+                labels specified inside index file referenced by
                 ``import_schema_uri``,
                 e.g. jsonl file.
             sync (bool):

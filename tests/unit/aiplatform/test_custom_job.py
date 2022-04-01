@@ -233,9 +233,11 @@ def create_custom_job_mock_with_enable_web_access():
     with mock.patch.object(
         job_service_client.JobServiceClient, "create_custom_job"
     ) as create_custom_job_mock:
-        create_custom_job_mock.return_value = _get_custom_job_proto_with_enable_web_access(
-            name=_TEST_CUSTOM_JOB_NAME,
-            state=gca_job_state_compat.JobState.JOB_STATE_PENDING,
+        create_custom_job_mock.return_value = (
+            _get_custom_job_proto_with_enable_web_access(
+                name=_TEST_CUSTOM_JOB_NAME,
+                state=gca_job_state_compat.JobState.JOB_STATE_PENDING,
+            )
         )
         yield create_custom_job_mock
 
@@ -604,7 +606,9 @@ class TestCustomJob:
             job._gca_resource.state == gca_job_state_compat.JobState.JOB_STATE_SUCCEEDED
         )
 
-    def test_create_custom_job_without_base_output_dir(self,):
+    def test_create_custom_job_without_base_output_dir(
+        self,
+    ):
 
         aiplatform.init(
             project=_TEST_PROJECT,
@@ -614,7 +618,8 @@ class TestCustomJob:
         )
 
         job = aiplatform.CustomJob(
-            display_name=_TEST_DISPLAY_NAME, worker_pool_specs=_TEST_WORKER_POOL_SPEC,
+            display_name=_TEST_DISPLAY_NAME,
+            worker_pool_specs=_TEST_WORKER_POOL_SPEC,
         )
 
         assert job.job_spec.base_output_directory.output_uri_prefix.startswith(
@@ -661,3 +666,38 @@ class TestCustomJob:
         assert (
             job._gca_resource.state == gca_job_state_compat.JobState.JOB_STATE_SUCCEEDED
         )
+
+    @pytest.mark.usefixtures("get_custom_job_mock", "create_custom_job_mock")
+    def test_check_custom_job_availability(self):
+        aiplatform.init(
+            project=_TEST_PROJECT,
+            location=_TEST_LOCATION,
+            staging_bucket=_TEST_STAGING_BUCKET,
+            encryption_spec_key_name=_TEST_DEFAULT_ENCRYPTION_KEY_NAME,
+        )
+
+        job = aiplatform.CustomJob(
+            display_name=_TEST_DISPLAY_NAME,
+            worker_pool_specs=_TEST_WORKER_POOL_SPEC,
+            base_output_dir=_TEST_BASE_OUTPUT_DIR,
+            labels=_TEST_LABELS,
+        )
+
+        assert not job._resource_is_available
+        assert job.__repr__().startswith(
+            "<google.cloud.aiplatform.jobs.CustomJob object"
+        )
+
+        job.run(
+            service_account=_TEST_SERVICE_ACCOUNT,
+            network=_TEST_NETWORK,
+            timeout=_TEST_TIMEOUT,
+            restart_job_on_worker_restart=_TEST_RESTART_JOB_ON_WORKER_RESTART,
+        )
+
+        job.wait_for_resource_creation()
+
+        assert job._resource_is_available
+        assert "resource name" in job.__repr__()
+
+        job.wait()

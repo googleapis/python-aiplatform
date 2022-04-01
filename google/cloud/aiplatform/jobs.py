@@ -66,7 +66,7 @@ _JOB_ERROR_STATES = (
 )
 
 
-class _Job(base.VertexAiResourceNounWithFutureManager):
+class _Job(base.VertexAiStatefulResource):
     """Class that represents a general Job resource in Vertex AI.
     Cannot be directly instantiated.
 
@@ -82,6 +82,9 @@ class _Job(base.VertexAiResourceNounWithFutureManager):
     """
 
     client_class = utils.JobClientWithOverride
+
+    # Required by the done() method
+    _valid_done_states = _JOB_COMPLETE_STATES
 
     def __init__(
         self,
@@ -318,11 +321,13 @@ class BatchPredictionJob(_Job):
         )
 
     @property
-    def output_info(self,) -> Optional[aiplatform.gapic.BatchPredictionJob.OutputInfo]:
+    def output_info(
+        self,
+    ) -> Optional[aiplatform.gapic.BatchPredictionJob.OutputInfo]:
         """Information describing the output of this job, including output location
         into which prediction output is written.
 
-        This is only available for batch predicition jobs that have run successfully.
+        This is only available for batch prediction jobs that have run successfully.
         """
         self._assert_gca_resource_is_available()
         return self._gca_resource.output_info
@@ -427,24 +432,27 @@ class BatchPredictionJob(_Job):
                 which as value has ```google.rpc.Status`` <Status>`__
                 containing only ``code`` and ``message`` fields.
             bigquery_destination_prefix (Optional[str]):
-                The BigQuery project location where the output is to be
-                written to. In the given project a new dataset is created
-                with name
-                ``prediction_<model-display-name>_<job-create-time>`` where
-                is made BigQuery-dataset-name compatible (for example, most
-                special characters become underscores), and timestamp is in
-                YYYY_MM_DDThh_mm_ss_sssZ "based on ISO-8601" format. In the
-                dataset two tables will be created, ``predictions``, and
-                ``errors``. If the Model has both ``instance`` and ``prediction``
-                schemata defined then the tables have columns as follows:
-                The ``predictions`` table contains instances for which the
-                prediction succeeded, it has columns as per a concatenation
-                of the Model's instance and prediction schemata. The
-                ``errors`` table contains rows for which the prediction has
-                failed, it has instance columns, as per the instance schema,
-                followed by a single "errors" column, which as values has
-                ```google.rpc.Status`` <Status>`__ represented as a STRUCT,
-                and containing only ``code`` and ``message``.
+                The BigQuery URI to a project or table, up to 2000 characters long.
+                When only the project is specified, the Dataset and Table is created.
+                When the full table reference is specified, the Dataset must exist and
+                table must not exist. Accepted forms: ``bq://projectId`` or
+                ``bq://projectId.bqDatasetId`` or
+                ``bq://projectId.bqDatasetId.bqTableId``. If no Dataset is specified,
+                a new one is created with the name
+                ``prediction_<model-display-name>_<job-create-time>``
+                where the table name is made BigQuery-dataset-name compatible
+                (for example, most special characters become underscores), and
+                timestamp is in YYYY_MM_DDThh_mm_ss_sssZ "based on ISO-8601"
+                format. In the dataset two tables will be created, ``predictions``,
+                and ``errors``. If the Model has both ``instance`` and
+                ``prediction`` schemata defined then the tables have columns as
+                follows: The ``predictions`` table contains instances for which
+                the prediction succeeded, it has columns as per a concatenation
+                of the Model's instance and prediction schemata. The ``errors``
+                table contains rows for which the prediction has failed, it has
+                instance columns, as per the instance schema, followed by a single
+                "errors" column, which as values has ```google.rpc.Status`` <Status>`__
+                represented as a STRUCT, and containing only ``code`` and ``message``.
             model_parameters (Optional[Dict]):
                 The parameters that govern the predictions. The schema of
                 the parameters may be specified via the Model's `parameters_schema_uri`.
@@ -612,8 +620,10 @@ class BatchPredictionJob(_Job):
         gapic_batch_prediction_job.output_config = output_config
 
         # Optional Fields
-        gapic_batch_prediction_job.encryption_spec = initializer.global_config.get_encryption_spec(
-            encryption_spec_key_name=encryption_spec_key_name
+        gapic_batch_prediction_job.encryption_spec = (
+            initializer.global_config.get_encryption_spec(
+                encryption_spec_key_name=encryption_spec_key_name
+            )
         )
 
         if model_parameters:
@@ -645,12 +655,16 @@ class BatchPredictionJob(_Job):
             gapic_batch_prediction_job.generate_explanation = generate_explanation
 
         if explanation_metadata or explanation_parameters:
-            gapic_batch_prediction_job.explanation_spec = gca_explanation_compat.ExplanationSpec(
-                metadata=explanation_metadata, parameters=explanation_parameters
+            gapic_batch_prediction_job.explanation_spec = (
+                gca_explanation_compat.ExplanationSpec(
+                    metadata=explanation_metadata, parameters=explanation_parameters
+                )
             )
 
         empty_batch_prediction_job = cls._empty_constructor(
-            project=project, location=location, credentials=credentials,
+            project=project,
+            location=location,
+            credentials=credentials,
         )
 
         return cls._create(
@@ -839,7 +853,7 @@ class _RunnableJob(_Job):
         Args:
             project(str): Project of the resource noun.
             location(str): The location of the resource noun.
-            credentials(google.auth.crendentials.Crendentials): Optional custom
+            credentials(google.auth.credentials.Credentials): Optional custom
                 credentials to use when accessing interacting with resource noun.
         """
 
@@ -863,19 +877,19 @@ class _RunnableJob(_Job):
     ) -> "_RunnableJob":
         """Initializes with all attributes set to None.
 
-            The attributes should be populated after a future is complete. This allows
-            scheduling of additional API calls before the resource is created.
+        The attributes should be populated after a future is complete. This allows
+        scheduling of additional API calls before the resource is created.
 
-            Args:
-                project (str): Optional. Project of the resource noun.
-                location (str): Optional. The location of the resource noun.
-                credentials(google.auth.credentials.Credentials):
-                    Optional. custom credentials to use when accessing interacting with
-                    resource noun.
-                resource_name(str): Optional. A fully-qualified resource name or ID.
-            Returns:
-                An instance of this class with attributes set to None.
-            """
+        Args:
+            project (str): Optional. Project of the resource noun.
+            location (str): Optional. The location of the resource noun.
+            credentials(google.auth.credentials.Credentials):
+                Optional. custom credentials to use when accessing interacting with
+                resource noun.
+            resource_name(str): Optional. A fully-qualified resource name or ID.
+        Returns:
+            An instance of this class with attributes set to None.
+        """
         self = super()._empty_constructor(
             project=project,
             location=location,
@@ -1024,7 +1038,7 @@ class CustomJob(_RunnableJob):
         encryption_spec_key_name: Optional[str] = None,
         staging_bucket: Optional[str] = None,
     ):
-        """Cosntruct a Custom Job with Worker Pool Specs.
+        """Constructs a Custom Job with Worker Pool Specs.
 
         ```
         Example usage:
@@ -1166,7 +1180,12 @@ class CustomJob(_RunnableJob):
             if uri not in self._logged_web_access_uris:
                 _LOGGER.info(
                     "%s %s access the interactive shell terminals for the custom job:\n%s:\n%s"
-                    % (self.__class__.__name__, self._gca_resource.name, worker, uri,),
+                    % (
+                        self.__class__.__name__,
+                        self._gca_resource.name,
+                        worker,
+                        uri,
+                    ),
                 )
                 self._logged_web_access_uris.add(uri)
 
@@ -1309,23 +1328,27 @@ class CustomJob(_RunnableJob):
         if labels:
             utils.validate_labels(labels)
 
-        worker_pool_specs = worker_spec_utils._DistributedTrainingSpec.chief_worker_pool(
-            replica_count=replica_count,
-            machine_type=machine_type,
-            accelerator_count=accelerator_count,
-            accelerator_type=accelerator_type,
-            boot_disk_type=boot_disk_type,
-            boot_disk_size_gb=boot_disk_size_gb,
-            reduction_server_replica_count=reduction_server_replica_count,
-            reduction_server_machine_type=reduction_server_machine_type,
-        ).pool_specs
+        worker_pool_specs = (
+            worker_spec_utils._DistributedTrainingSpec.chief_worker_pool(
+                replica_count=replica_count,
+                machine_type=machine_type,
+                accelerator_count=accelerator_count,
+                accelerator_type=accelerator_type,
+                boot_disk_type=boot_disk_type,
+                boot_disk_size_gb=boot_disk_size_gb,
+                reduction_server_replica_count=reduction_server_replica_count,
+                reduction_server_machine_type=reduction_server_machine_type,
+            ).pool_specs
+        )
 
         python_packager = source_utils._TrainingScriptPythonPackager(
             script_path=script_path, requirements=requirements
         )
 
         package_gcs_uri = python_packager.package_and_copy_to_gcs(
-            gcs_staging_dir=staging_bucket, project=project, credentials=credentials,
+            gcs_staging_dir=staging_bucket,
+            project=project,
+            credentials=credentials,
         )
 
         for spec_order, spec in enumerate(worker_pool_specs):
@@ -1575,7 +1598,7 @@ class HyperparameterTuningJob(_RunnableJob):
                 Required. Configured CustomJob. The worker pool spec from this custom job
                 applies to the CustomJobs created in all the trials.
             metric_spec: Dict[str, str]
-                Required. Dicionary representing metrics to optimize. The dictionary key is the metric_id,
+                Required. Dictionary representing metrics to optimize. The dictionary key is the metric_id,
                 which is reported by your training job, and the dictionary value is the
                 optimization goal of the metric('minimize' or 'maximize'). example:
 
@@ -1600,7 +1623,7 @@ class HyperparameterTuningJob(_RunnableJob):
                 DoubleParameterSpec, IntegerParameterSpec, CategoricalParameterSpace, DiscreteParameterSpec
 
             max_trial_count (int):
-                Reuired. The desired total number of Trials.
+                Required. The desired total number of Trials.
             parallel_trial_count (int):
                 Required. The desired number of Trials to run in parallel.
             max_failed_trial_count (int):
@@ -1693,17 +1716,19 @@ class HyperparameterTuningJob(_RunnableJob):
         if not display_name:
             display_name = self.__class__._generate_display_name()
 
-        self._gca_resource = gca_hyperparameter_tuning_job_compat.HyperparameterTuningJob(
-            display_name=display_name,
-            study_spec=study_spec,
-            max_trial_count=max_trial_count,
-            parallel_trial_count=parallel_trial_count,
-            max_failed_trial_count=max_failed_trial_count,
-            trial_job_spec=copy.deepcopy(custom_job.job_spec),
-            labels=labels,
-            encryption_spec=initializer.global_config.get_encryption_spec(
-                encryption_spec_key_name=encryption_spec_key_name
-            ),
+        self._gca_resource = (
+            gca_hyperparameter_tuning_job_compat.HyperparameterTuningJob(
+                display_name=display_name,
+                study_spec=study_spec,
+                max_trial_count=max_trial_count,
+                parallel_trial_count=parallel_trial_count,
+                max_failed_trial_count=max_failed_trial_count,
+                trial_job_spec=copy.deepcopy(custom_job.job_spec),
+                labels=labels,
+                encryption_spec=initializer.global_config.get_encryption_spec(
+                    encryption_spec_key_name=encryption_spec_key_name
+                ),
+            )
         )
 
     @property
@@ -1814,9 +1839,11 @@ class HyperparameterTuningJob(_RunnableJob):
 
         if timeout or restart_job_on_worker_restart:
             duration = duration_pb2.Duration(seconds=timeout) if timeout else None
-            self._gca_resource.trial_job_spec.scheduling = gca_custom_job_compat.Scheduling(
-                timeout=duration,
-                restart_job_on_worker_restart=restart_job_on_worker_restart,
+            self._gca_resource.trial_job_spec.scheduling = (
+                gca_custom_job_compat.Scheduling(
+                    timeout=duration,
+                    restart_job_on_worker_restart=restart_job_on_worker_restart,
+                )
             )
 
         if enable_web_access:

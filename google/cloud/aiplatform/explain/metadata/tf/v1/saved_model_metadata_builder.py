@@ -120,7 +120,8 @@ class SavedModelMetadataBuilder(metadata_builder.MetadataBuilder):
             ExplanationMetadata object format of the explanation metadata.
         """
         return explanation_metadata.ExplanationMetadata(
-            inputs=self._inputs, outputs=self._outputs,
+            inputs=self._inputs,
+            outputs=self._outputs,
         )
 
 

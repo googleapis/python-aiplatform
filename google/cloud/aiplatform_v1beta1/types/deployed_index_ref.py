@@ -17,7 +17,10 @@ import proto  # type: ignore
 
 
 __protobuf__ = proto.module(
-    package="google.cloud.aiplatform.v1beta1", manifest={"DeployedIndexRef",},
+    package="google.cloud.aiplatform.v1beta1",
+    manifest={
+        "DeployedIndexRef",
+    },
 )
 
 
@@ -33,8 +36,14 @@ class DeployedIndexRef(proto.Message):
             above IndexEndpoint.
     """
 
-    index_endpoint = proto.Field(proto.STRING, number=1,)
-    deployed_index_id = proto.Field(proto.STRING, number=2,)
+    index_endpoint = proto.Field(
+        proto.STRING,
+        number=1,
+    )
+    deployed_index_id = proto.Field(
+        proto.STRING,
+        number=2,
+    )
 
 
 __all__ = tuple(sorted(__protobuf__.manifest))

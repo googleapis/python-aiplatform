@@ -231,11 +231,13 @@ def get_training_job_custom_mock():
     with patch.object(
         pipeline_service_client.PipelineServiceClient, "get_training_pipeline"
     ) as get_training_job_custom_mock:
-        get_training_job_custom_mock.return_value = gca_training_pipeline.TrainingPipeline(
-            name=_TEST_PIPELINE_RESOURCE_NAME,
-            state=gca_pipeline_state.PipelineState.PIPELINE_STATE_SUCCEEDED,
-            model_to_upload=gca_model.Model(name=_TEST_MODEL_NAME),
-            training_task_definition=schema.training_job.definition.custom_task,
+        get_training_job_custom_mock.return_value = (
+            gca_training_pipeline.TrainingPipeline(
+                name=_TEST_PIPELINE_RESOURCE_NAME,
+                state=gca_pipeline_state.PipelineState.PIPELINE_STATE_SUCCEEDED,
+                model_to_upload=gca_model.Model(name=_TEST_MODEL_NAME),
+                training_task_definition=schema.training_job.definition.custom_task,
+            )
         )
 
         yield get_training_job_custom_mock
@@ -246,11 +248,13 @@ def get_training_job_custom_mock_no_model_to_upload():
     with patch.object(
         pipeline_service_client.PipelineServiceClient, "get_training_pipeline"
     ) as get_training_job_custom_mock:
-        get_training_job_custom_mock.return_value = gca_training_pipeline.TrainingPipeline(
-            name=_TEST_PIPELINE_RESOURCE_NAME,
-            state=gca_pipeline_state.PipelineState.PIPELINE_STATE_SUCCEEDED,
-            model_to_upload=None,
-            training_task_definition=schema.training_job.definition.custom_task,
+        get_training_job_custom_mock.return_value = (
+            gca_training_pipeline.TrainingPipeline(
+                name=_TEST_PIPELINE_RESOURCE_NAME,
+                state=gca_pipeline_state.PipelineState.PIPELINE_STATE_SUCCEEDED,
+                model_to_upload=None,
+                training_task_definition=schema.training_job.definition.custom_task,
+            )
         )
 
         yield get_training_job_custom_mock
@@ -261,11 +265,13 @@ def get_training_job_tabular_mock():
     with patch.object(
         pipeline_service_client.PipelineServiceClient, "get_training_pipeline"
     ) as get_training_job_tabular_mock:
-        get_training_job_tabular_mock.return_value = gca_training_pipeline.TrainingPipeline(
-            name=_TEST_PIPELINE_RESOURCE_NAME,
-            state=gca_pipeline_state.PipelineState.PIPELINE_STATE_SUCCEEDED,
-            model_to_upload=gca_model.Model(name=_TEST_MODEL_NAME),
-            training_task_definition=schema.training_job.definition.automl_tabular,
+        get_training_job_tabular_mock.return_value = (
+            gca_training_pipeline.TrainingPipeline(
+                name=_TEST_PIPELINE_RESOURCE_NAME,
+                state=gca_pipeline_state.PipelineState.PIPELINE_STATE_SUCCEEDED,
+                model_to_upload=gca_model.Model(name=_TEST_MODEL_NAME),
+                training_task_definition=schema.training_job.definition.automl_tabular,
+            )
         )
 
         yield get_training_job_tabular_mock
@@ -528,10 +534,12 @@ def mock_pipeline_service_create():
     with mock.patch.object(
         pipeline_service_client.PipelineServiceClient, "create_training_pipeline"
     ) as mock_create_training_pipeline:
-        mock_create_training_pipeline.return_value = gca_training_pipeline.TrainingPipeline(
-            name=_TEST_PIPELINE_RESOURCE_NAME,
-            state=gca_pipeline_state.PipelineState.PIPELINE_STATE_SUCCEEDED,
-            model_to_upload=gca_model.Model(name=_TEST_MODEL_NAME),
+        mock_create_training_pipeline.return_value = (
+            gca_training_pipeline.TrainingPipeline(
+                name=_TEST_PIPELINE_RESOURCE_NAME,
+                state=gca_pipeline_state.PipelineState.PIPELINE_STATE_SUCCEEDED,
+                model_to_upload=gca_model.Model(name=_TEST_MODEL_NAME),
+            )
         )
         yield mock_create_training_pipeline
 
@@ -550,7 +558,8 @@ def make_training_pipeline(state, add_training_task_metadata=True):
 
 def make_training_pipeline_with_no_model_upload(state):
     return gca_training_pipeline.TrainingPipeline(
-        name=_TEST_PIPELINE_RESOURCE_NAME, state=state,
+        name=_TEST_PIPELINE_RESOURCE_NAME,
+        state=state,
     )
 
 
@@ -696,9 +705,11 @@ def mock_pipeline_service_create_with_no_model_to_upload():
     with mock.patch.object(
         pipeline_service_client.PipelineServiceClient, "create_training_pipeline"
     ) as mock_create_training_pipeline:
-        mock_create_training_pipeline.return_value = gca_training_pipeline.TrainingPipeline(
-            name=_TEST_PIPELINE_RESOURCE_NAME,
-            state=gca_pipeline_state.PipelineState.PIPELINE_STATE_SUCCEEDED,
+        mock_create_training_pipeline.return_value = (
+            gca_training_pipeline.TrainingPipeline(
+                name=_TEST_PIPELINE_RESOURCE_NAME,
+                state=gca_pipeline_state.PipelineState.PIPELINE_STATE_SUCCEEDED,
+            )
         )
         yield mock_create_training_pipeline
 
@@ -708,8 +719,10 @@ def mock_pipeline_service_create_with_enable_web_access():
     with mock.patch.object(
         pipeline_service_client.PipelineServiceClient, "create_training_pipeline"
     ) as mock_create_training_pipeline:
-        mock_create_training_pipeline.return_value = make_training_pipeline_with_enable_web_access(
-            state=gca_pipeline_state.PipelineState.PIPELINE_STATE_PENDING,
+        mock_create_training_pipeline.return_value = (
+            make_training_pipeline_with_enable_web_access(
+                state=gca_pipeline_state.PipelineState.PIPELINE_STATE_PENDING,
+            )
         )
         yield mock_create_training_pipeline
 
@@ -719,8 +732,10 @@ def mock_pipeline_service_create_with_scheduling():
     with mock.patch.object(
         pipeline_service_client.PipelineServiceClient, "create_training_pipeline"
     ) as mock_create_training_pipeline:
-        mock_create_training_pipeline.return_value = make_training_pipeline_with_scheduling(
-            state=gca_pipeline_state.PipelineState.PIPELINE_STATE_PENDING,
+        mock_create_training_pipeline.return_value = (
+            make_training_pipeline_with_scheduling(
+                state=gca_pipeline_state.PipelineState.PIPELINE_STATE_PENDING,
+            )
         )
         yield mock_create_training_pipeline
 
@@ -730,9 +745,11 @@ def mock_pipeline_service_get_with_no_model_to_upload():
     with mock.patch.object(
         pipeline_service_client.PipelineServiceClient, "get_training_pipeline"
     ) as mock_get_training_pipeline:
-        mock_get_training_pipeline.return_value = gca_training_pipeline.TrainingPipeline(
-            name=_TEST_PIPELINE_RESOURCE_NAME,
-            state=gca_pipeline_state.PipelineState.PIPELINE_STATE_SUCCEEDED,
+        mock_get_training_pipeline.return_value = (
+            gca_training_pipeline.TrainingPipeline(
+                name=_TEST_PIPELINE_RESOURCE_NAME,
+                state=gca_pipeline_state.PipelineState.PIPELINE_STATE_SUCCEEDED,
+            )
         )
         yield mock_get_training_pipeline
 
@@ -742,17 +759,21 @@ def mock_pipeline_service_create_and_get_with_fail():
     with mock.patch.object(
         pipeline_service_client.PipelineServiceClient, "create_training_pipeline"
     ) as mock_create_training_pipeline:
-        mock_create_training_pipeline.return_value = gca_training_pipeline.TrainingPipeline(
-            name=_TEST_PIPELINE_RESOURCE_NAME,
-            state=gca_pipeline_state.PipelineState.PIPELINE_STATE_RUNNING,
+        mock_create_training_pipeline.return_value = (
+            gca_training_pipeline.TrainingPipeline(
+                name=_TEST_PIPELINE_RESOURCE_NAME,
+                state=gca_pipeline_state.PipelineState.PIPELINE_STATE_RUNNING,
+            )
         )
 
         with mock.patch.object(
             pipeline_service_client.PipelineServiceClient, "get_training_pipeline"
         ) as mock_get_training_pipeline:
-            mock_get_training_pipeline.return_value = gca_training_pipeline.TrainingPipeline(
-                name=_TEST_PIPELINE_RESOURCE_NAME,
-                state=gca_pipeline_state.PipelineState.PIPELINE_STATE_FAILED,
+            mock_get_training_pipeline.return_value = (
+                gca_training_pipeline.TrainingPipeline(
+                    name=_TEST_PIPELINE_RESOURCE_NAME,
+                    state=gca_pipeline_state.PipelineState.PIPELINE_STATE_FAILED,
+                )
             )
 
             yield mock_create_training_pipeline, mock_get_training_pipeline
@@ -764,6 +785,9 @@ def mock_model_service_get():
         model_service_client.ModelServiceClient, "get_model"
     ) as mock_get_model:
         mock_get_model.return_value = gca_model.Model(name=_TEST_MODEL_NAME)
+        mock_get_model.return_value.supported_deployment_resources_types.append(
+            aiplatform.gapic.Model.DeploymentResourcesType.DEDICATED_RESOURCES
+        )
         yield mock_get_model
 
 
@@ -1004,6 +1028,65 @@ class TestCustomTrainingJob:
 
         assert job._has_logged_custom_job
 
+    def test_custom_training_tabular_done(
+        self,
+        mock_pipeline_service_create,
+        mock_pipeline_service_get,
+        mock_python_package_to_gcs,
+        mock_tabular_dataset,
+        mock_model_service_get,
+    ):
+        aiplatform.init(
+            project=_TEST_PROJECT,
+            staging_bucket=_TEST_BUCKET_NAME,
+            credentials=_TEST_CREDENTIALS,
+            encryption_spec_key_name=_TEST_DEFAULT_ENCRYPTION_KEY_NAME,
+        )
+
+        job = training_jobs.CustomTrainingJob(
+            display_name=_TEST_DISPLAY_NAME,
+            labels=_TEST_LABELS,
+            script_path=_TEST_LOCAL_SCRIPT_FILE_NAME,
+            container_uri=_TEST_TRAINING_CONTAINER_IMAGE,
+            model_serving_container_image_uri=_TEST_SERVING_CONTAINER_IMAGE,
+            model_serving_container_predict_route=_TEST_SERVING_CONTAINER_PREDICTION_ROUTE,
+            model_serving_container_health_route=_TEST_SERVING_CONTAINER_HEALTH_ROUTE,
+            model_instance_schema_uri=_TEST_MODEL_INSTANCE_SCHEMA_URI,
+            model_parameters_schema_uri=_TEST_MODEL_PARAMETERS_SCHEMA_URI,
+            model_prediction_schema_uri=_TEST_MODEL_PREDICTION_SCHEMA_URI,
+            model_serving_container_command=_TEST_MODEL_SERVING_CONTAINER_COMMAND,
+            model_serving_container_args=_TEST_MODEL_SERVING_CONTAINER_ARGS,
+            model_serving_container_environment_variables=_TEST_MODEL_SERVING_CONTAINER_ENVIRONMENT_VARIABLES,
+            model_serving_container_ports=_TEST_MODEL_SERVING_CONTAINER_PORTS,
+            model_description=_TEST_MODEL_DESCRIPTION,
+        )
+
+        job.run(
+            dataset=mock_tabular_dataset,
+            base_output_dir=_TEST_BASE_OUTPUT_DIR,
+            service_account=_TEST_SERVICE_ACCOUNT,
+            network=_TEST_NETWORK,
+            args=_TEST_RUN_ARGS,
+            environment_variables=_TEST_ENVIRONMENT_VARIABLES,
+            machine_type=_TEST_MACHINE_TYPE,
+            accelerator_type=_TEST_ACCELERATOR_TYPE,
+            accelerator_count=_TEST_ACCELERATOR_COUNT,
+            model_display_name=_TEST_MODEL_DISPLAY_NAME,
+            model_labels=_TEST_MODEL_LABELS,
+            training_fraction_split=_TEST_TRAINING_FRACTION_SPLIT,
+            validation_fraction_split=_TEST_VALIDATION_FRACTION_SPLIT,
+            test_fraction_split=_TEST_TEST_FRACTION_SPLIT,
+            timestamp_split_column_name=_TEST_TIMESTAMP_SPLIT_COLUMN_NAME,
+            tensorboard=_TEST_TENSORBOARD_RESOURCE_NAME,
+            sync=False,
+        )
+
+        assert job.done() is False
+
+        job.wait()
+
+        assert job.done() is True
+
     @pytest.mark.parametrize("sync", [True, False])
     def test_run_call_pipeline_service_create_with_bigquery_destination(
         self,
@@ -1015,7 +1098,8 @@ class TestCustomTrainingJob:
         sync,
     ):
         aiplatform.init(
-            project=_TEST_PROJECT, staging_bucket=_TEST_BUCKET_NAME,
+            project=_TEST_PROJECT,
+            staging_bucket=_TEST_BUCKET_NAME,
         )
 
         job = training_jobs.CustomTrainingJob(
@@ -1168,7 +1252,9 @@ class TestCustomTrainingJob:
     )
     @pytest.mark.parametrize("sync", [True, False])
     def test_run_called_twice_raises(
-        self, mock_tabular_dataset, sync,
+        self,
+        mock_tabular_dataset,
+        sync,
     ):
         aiplatform.init(project=_TEST_PROJECT, staging_bucket=_TEST_BUCKET_NAME)
 
@@ -1527,7 +1613,9 @@ class TestCustomTrainingJob:
     )
     @pytest.mark.parametrize("sync", [True, False])
     def test_run_returns_none_if_no_model_to_upload(
-        self, mock_tabular_dataset, sync,
+        self,
+        mock_tabular_dataset,
+        sync,
     ):
         aiplatform.init(project=_TEST_PROJECT, staging_bucket=_TEST_BUCKET_NAME)
 
@@ -1560,7 +1648,9 @@ class TestCustomTrainingJob:
     )
     @pytest.mark.parametrize("sync", [True, False])
     def test_get_model_raises_if_no_model_to_upload(
-        self, mock_tabular_dataset, sync,
+        self,
+        mock_tabular_dataset,
+        sync,
     ):
         aiplatform.init(project=_TEST_PROJECT, staging_bucket=_TEST_BUCKET_NAME)
 
@@ -2231,10 +2321,12 @@ class TestCustomTrainingJob:
         assert job.state == gca_pipeline_state.PipelineState.PIPELINE_STATE_SUCCEEDED
 
     def test_run_call_pipeline_service_create_with_nontabular_dataset_raises_if_annotation_schema_uri(
-        self, mock_nontabular_dataset,
+        self,
+        mock_nontabular_dataset,
     ):
         aiplatform.init(
-            project=_TEST_PROJECT, staging_bucket=_TEST_BUCKET_NAME,
+            project=_TEST_PROJECT,
+            staging_bucket=_TEST_BUCKET_NAME,
         )
 
         job = training_jobs.CustomTrainingJob(
@@ -2274,7 +2366,8 @@ class TestCustomTrainingJob:
     )
     def test_cancel_training_job(self, mock_pipeline_service_cancel):
         aiplatform.init(
-            project=_TEST_PROJECT, staging_bucket=_TEST_BUCKET_NAME,
+            project=_TEST_PROJECT,
+            staging_bucket=_TEST_BUCKET_NAME,
         )
 
         job = training_jobs.CustomTrainingJob(
@@ -2297,7 +2390,8 @@ class TestCustomTrainingJob:
     )
     def test_cancel_training_job_without_running(self, mock_pipeline_service_cancel):
         aiplatform.init(
-            project=_TEST_PROJECT, staging_bucket=_TEST_BUCKET_NAME,
+            project=_TEST_PROJECT,
+            staging_bucket=_TEST_BUCKET_NAME,
         )
 
         job = training_jobs.CustomTrainingJob(
@@ -2319,6 +2413,59 @@ class TestCustomContainerTrainingJob:
 
     def teardown_method(self):
         initializer.global_pool.shutdown(wait=True)
+
+    def test_custom_container_training_tabular_done(
+        self,
+        mock_pipeline_service_create,
+        mock_pipeline_service_get,
+        mock_tabular_dataset,
+        mock_model_service_get,
+    ):
+        aiplatform.init(
+            project=_TEST_PROJECT,
+            staging_bucket=_TEST_BUCKET_NAME,
+            encryption_spec_key_name=_TEST_DEFAULT_ENCRYPTION_KEY_NAME,
+        )
+
+        job = training_jobs.CustomContainerTrainingJob(
+            display_name=_TEST_DISPLAY_NAME,
+            labels=_TEST_LABELS,
+            container_uri=_TEST_TRAINING_CONTAINER_IMAGE,
+            command=_TEST_TRAINING_CONTAINER_CMD,
+            model_serving_container_image_uri=_TEST_SERVING_CONTAINER_IMAGE,
+            model_serving_container_predict_route=_TEST_SERVING_CONTAINER_PREDICTION_ROUTE,
+            model_serving_container_health_route=_TEST_SERVING_CONTAINER_HEALTH_ROUTE,
+            model_instance_schema_uri=_TEST_MODEL_INSTANCE_SCHEMA_URI,
+            model_parameters_schema_uri=_TEST_MODEL_PARAMETERS_SCHEMA_URI,
+            model_prediction_schema_uri=_TEST_MODEL_PREDICTION_SCHEMA_URI,
+            model_serving_container_command=_TEST_MODEL_SERVING_CONTAINER_COMMAND,
+            model_serving_container_args=_TEST_MODEL_SERVING_CONTAINER_ARGS,
+            model_serving_container_environment_variables=_TEST_MODEL_SERVING_CONTAINER_ENVIRONMENT_VARIABLES,
+            model_serving_container_ports=_TEST_MODEL_SERVING_CONTAINER_PORTS,
+            model_description=_TEST_MODEL_DESCRIPTION,
+        )
+
+        job.run(
+            dataset=mock_tabular_dataset,
+            base_output_dir=_TEST_BASE_OUTPUT_DIR,
+            args=_TEST_RUN_ARGS,
+            environment_variables=_TEST_ENVIRONMENT_VARIABLES,
+            machine_type=_TEST_MACHINE_TYPE,
+            accelerator_type=_TEST_ACCELERATOR_TYPE,
+            accelerator_count=_TEST_ACCELERATOR_COUNT,
+            model_display_name=_TEST_MODEL_DISPLAY_NAME,
+            model_labels=_TEST_MODEL_LABELS,
+            predefined_split_column_name=_TEST_PREDEFINED_SPLIT_COLUMN_NAME,
+            service_account=_TEST_SERVICE_ACCOUNT,
+            tensorboard=_TEST_TENSORBOARD_RESOURCE_NAME,
+            sync=False,
+        )
+
+        assert job.done() is False
+
+        job.wait()
+
+        assert job.done() is True
 
     @pytest.mark.parametrize("sync", [True, False])
     def test_run_call_pipeline_service_create_with_tabular_dataset(
@@ -2645,7 +2792,9 @@ class TestCustomContainerTrainingJob:
     )
     @pytest.mark.parametrize("sync", [True, False])
     def test_run_called_twice_raises(
-        self, mock_tabular_dataset, sync,
+        self,
+        mock_tabular_dataset,
+        sync,
     ):
         aiplatform.init(project=_TEST_PROJECT, staging_bucket=_TEST_BUCKET_NAME)
 
@@ -3008,7 +3157,9 @@ class TestCustomContainerTrainingJob:
     )
     @pytest.mark.parametrize("sync", [True, False])
     def test_get_model_raises_if_no_model_to_upload(
-        self, mock_tabular_dataset, sync,
+        self,
+        mock_tabular_dataset,
+        sync,
     ):
         aiplatform.init(project=_TEST_PROJECT, staging_bucket=_TEST_BUCKET_NAME)
 
@@ -3375,7 +3526,8 @@ class TestCustomContainerTrainingJob:
         sync,
     ):
         aiplatform.init(
-            project=_TEST_PROJECT, staging_bucket=_TEST_BUCKET_NAME,
+            project=_TEST_PROJECT,
+            staging_bucket=_TEST_BUCKET_NAME,
         )
 
         job = training_jobs.CustomContainerTrainingJob(
@@ -3525,10 +3677,12 @@ class TestCustomContainerTrainingJob:
         assert job.state == gca_pipeline_state.PipelineState.PIPELINE_STATE_SUCCEEDED
 
     def test_run_call_pipeline_service_create_with_nontabular_dataset_raises_if_annotation_schema_uri(
-        self, mock_nontabular_dataset,
+        self,
+        mock_nontabular_dataset,
     ):
         aiplatform.init(
-            project=_TEST_PROJECT, staging_bucket=_TEST_BUCKET_NAME,
+            project=_TEST_PROJECT,
+            staging_bucket=_TEST_BUCKET_NAME,
         )
 
         job = training_jobs.CustomContainerTrainingJob(
@@ -3746,11 +3900,13 @@ class Test_DistributedTrainingSpec:
 
     def test_chief_worker_pool_returns_spec(self):
 
-        chief_worker_spec = worker_spec_utils._DistributedTrainingSpec.chief_worker_pool(
-            replica_count=10,
-            machine_type=_TEST_MACHINE_TYPE,
-            accelerator_count=_TEST_ACCELERATOR_COUNT,
-            accelerator_type=_TEST_ACCELERATOR_TYPE,
+        chief_worker_spec = (
+            worker_spec_utils._DistributedTrainingSpec.chief_worker_pool(
+                replica_count=10,
+                machine_type=_TEST_MACHINE_TYPE,
+                accelerator_count=_TEST_ACCELERATOR_COUNT,
+                accelerator_type=_TEST_ACCELERATOR_TYPE,
+            )
         )
 
         true_pool_spec = [
@@ -3784,11 +3940,13 @@ class Test_DistributedTrainingSpec:
 
     def test_chief_worker_pool_returns_just_chief(self):
 
-        chief_worker_spec = worker_spec_utils._DistributedTrainingSpec.chief_worker_pool(
-            replica_count=1,
-            machine_type=_TEST_MACHINE_TYPE,
-            accelerator_count=_TEST_ACCELERATOR_COUNT,
-            accelerator_type=_TEST_ACCELERATOR_TYPE,
+        chief_worker_spec = (
+            worker_spec_utils._DistributedTrainingSpec.chief_worker_pool(
+                replica_count=1,
+                machine_type=_TEST_MACHINE_TYPE,
+                accelerator_count=_TEST_ACCELERATOR_COUNT,
+                accelerator_type=_TEST_ACCELERATOR_TYPE,
+            )
         )
 
         true_pool_spec = [
@@ -4365,7 +4523,9 @@ class TestCustomPythonPackageTrainingJob:
     )
     @pytest.mark.parametrize("sync", [True, False])
     def test_run_called_twice_raises(
-        self, mock_tabular_dataset, sync,
+        self,
+        mock_tabular_dataset,
+        sync,
     ):
         aiplatform.init(project=_TEST_PROJECT, staging_bucket=_TEST_BUCKET_NAME)
 
@@ -4705,7 +4865,9 @@ class TestCustomPythonPackageTrainingJob:
     )
     @pytest.mark.parametrize("sync", [True, False])
     def test_run_returns_none_if_no_model_to_upload(
-        self, mock_tabular_dataset, sync,
+        self,
+        mock_tabular_dataset,
+        sync,
     ):
         aiplatform.init(project=_TEST_PROJECT, staging_bucket=_TEST_BUCKET_NAME)
 
@@ -4738,7 +4900,9 @@ class TestCustomPythonPackageTrainingJob:
     )
     @pytest.mark.parametrize("sync", [True, False])
     def test_get_model_raises_if_no_model_to_upload(
-        self, mock_tabular_dataset, sync,
+        self,
+        mock_tabular_dataset,
+        sync,
     ):
         aiplatform.init(project=_TEST_PROJECT, staging_bucket=_TEST_BUCKET_NAME)
 
@@ -5112,7 +5276,8 @@ class TestCustomPythonPackageTrainingJob:
         sync,
     ):
         aiplatform.init(
-            project=_TEST_PROJECT, staging_bucket=_TEST_BUCKET_NAME,
+            project=_TEST_PROJECT,
+            staging_bucket=_TEST_BUCKET_NAME,
         )
 
         job = training_jobs.CustomPythonPackageTrainingJob(
@@ -5264,10 +5429,12 @@ class TestCustomPythonPackageTrainingJob:
         assert job._has_logged_custom_job
 
     def test_run_call_pipeline_service_create_with_nontabular_dataset_raises_if_annotation_schema_uri(
-        self, mock_nontabular_dataset,
+        self,
+        mock_nontabular_dataset,
     ):
         aiplatform.init(
-            project=_TEST_PROJECT, staging_bucket=_TEST_BUCKET_NAME,
+            project=_TEST_PROJECT,
+            staging_bucket=_TEST_BUCKET_NAME,
         )
 
         job = training_jobs.CustomPythonPackageTrainingJob(

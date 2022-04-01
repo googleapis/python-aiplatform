@@ -21,7 +21,10 @@ from google.protobuf import timestamp_pb2  # type: ignore
 
 
 __protobuf__ = proto.module(
-    package="google.cloud.aiplatform.v1beta1", manifest={"ModelEvaluation",},
+    package="google.cloud.aiplatform.v1beta1",
+    manifest={
+        "ModelEvaluation",
+    },
 )
 
 
@@ -35,35 +38,35 @@ class ModelEvaluation(proto.Message):
             Output only. The resource name of the
             ModelEvaluation.
         metrics_schema_uri (str):
-            Output only. Points to a YAML file stored on Google Cloud
-            Storage describing the
+            Points to a YAML file stored on Google Cloud Storage
+            describing the
             [metrics][google.cloud.aiplatform.v1beta1.ModelEvaluation.metrics]
             of this ModelEvaluation. The schema is defined as an OpenAPI
             3.0.2 `Schema
             Object <https://github.com/OAI/OpenAPI-Specification/blob/main/versions/3.0.2.md#schemaObject>`__.
         metrics (google.protobuf.struct_pb2.Value):
-            Output only. Evaluation metrics of the Model. The schema of
-            the metrics is stored in
+            Evaluation metrics of the Model. The schema of the metrics
+            is stored in
             [metrics_schema_uri][google.cloud.aiplatform.v1beta1.ModelEvaluation.metrics_schema_uri]
         create_time (google.protobuf.timestamp_pb2.Timestamp):
             Output only. Timestamp when this
             ModelEvaluation was created.
         slice_dimensions (Sequence[str]):
-            Output only. All possible
+            All possible
             [dimensions][ModelEvaluationSlice.slice.dimension] of
             ModelEvaluationSlices. The dimensions can be used as the
             filter of the
             [ModelService.ListModelEvaluationSlices][google.cloud.aiplatform.v1beta1.ModelService.ListModelEvaluationSlices]
             request, in the form of ``slice.dimension = <dimension>``.
         model_explanation (google.cloud.aiplatform_v1beta1.types.ModelExplanation):
-            Output only. Aggregated explanation metrics
-            for the Model's prediction output over the data
-            this ModelEvaluation uses. This field is
-            populated only if the Model is evaluated with
+            Aggregated explanation metrics for the
+            Model's prediction output over the data this
+            ModelEvaluation uses. This field is populated
+            only if the Model is evaluated with
             explanations, and only for AutoML tabular
             Models.
         explanation_specs (Sequence[google.cloud.aiplatform_v1beta1.types.ModelEvaluation.ModelEvaluationExplanationSpec]):
-            Output only. Describes the values of
+            Describes the values of
             [ExplanationSpec][google.cloud.aiplatform.v1beta1.ExplanationSpec]
             that are used for explaining the predicted values on the
             evaluated data.
@@ -84,21 +87,47 @@ class ModelEvaluation(proto.Message):
                 Explanation spec details.
         """
 
-        explanation_type = proto.Field(proto.STRING, number=1,)
+        explanation_type = proto.Field(
+            proto.STRING,
+            number=1,
+        )
         explanation_spec = proto.Field(
-            proto.MESSAGE, number=2, message=explanation.ExplanationSpec,
+            proto.MESSAGE,
+            number=2,
+            message=explanation.ExplanationSpec,
         )
 
-    name = proto.Field(proto.STRING, number=1,)
-    metrics_schema_uri = proto.Field(proto.STRING, number=2,)
-    metrics = proto.Field(proto.MESSAGE, number=3, message=struct_pb2.Value,)
-    create_time = proto.Field(proto.MESSAGE, number=4, message=timestamp_pb2.Timestamp,)
-    slice_dimensions = proto.RepeatedField(proto.STRING, number=5,)
+    name = proto.Field(
+        proto.STRING,
+        number=1,
+    )
+    metrics_schema_uri = proto.Field(
+        proto.STRING,
+        number=2,
+    )
+    metrics = proto.Field(
+        proto.MESSAGE,
+        number=3,
+        message=struct_pb2.Value,
+    )
+    create_time = proto.Field(
+        proto.MESSAGE,
+        number=4,
+        message=timestamp_pb2.Timestamp,
+    )
+    slice_dimensions = proto.RepeatedField(
+        proto.STRING,
+        number=5,
+    )
     model_explanation = proto.Field(
-        proto.MESSAGE, number=8, message=explanation.ModelExplanation,
+        proto.MESSAGE,
+        number=8,
+        message=explanation.ModelExplanation,
     )
     explanation_specs = proto.RepeatedField(
-        proto.MESSAGE, number=9, message=ModelEvaluationExplanationSpec,
+        proto.MESSAGE,
+        number=9,
+        message=ModelEvaluationExplanationSpec,
     )
 
 

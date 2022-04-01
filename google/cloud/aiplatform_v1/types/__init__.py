@@ -65,6 +65,7 @@ from .encryption_spec import EncryptionSpec
 from .endpoint import (
     DeployedModel,
     Endpoint,
+    PredictRequestResponseLoggingConfig,
     PrivateEndpoints,
 )
 from .endpoint_service import (
@@ -109,6 +110,7 @@ from .feature_selector import (
     IdMatcher,
 )
 from .featurestore import Featurestore
+from .featurestore_monitoring import FeaturestoreMonitoringConfig
 from .featurestore_online_service import (
     FeatureValue,
     FeatureValueList,
@@ -343,6 +345,7 @@ from .model_service import (
     GetModelEvaluationRequest,
     GetModelEvaluationSliceRequest,
     GetModelRequest,
+    ImportModelEvaluationRequest,
     ListModelEvaluationSlicesRequest,
     ListModelEvaluationSlicesResponse,
     ListModelEvaluationsRequest,
@@ -546,6 +549,7 @@ __all__ = (
     "EncryptionSpec",
     "DeployedModel",
     "Endpoint",
+    "PredictRequestResponseLoggingConfig",
     "PrivateEndpoints",
     "CreateEndpointOperationMetadata",
     "CreateEndpointRequest",
@@ -583,6 +587,7 @@ __all__ = (
     "FeatureSelector",
     "IdMatcher",
     "Featurestore",
+    "FeaturestoreMonitoringConfig",
     "FeatureValue",
     "FeatureValueList",
     "ReadFeatureValuesRequest",
@@ -791,6 +796,7 @@ __all__ = (
     "GetModelEvaluationRequest",
     "GetModelEvaluationSliceRequest",
     "GetModelRequest",
+    "ImportModelEvaluationRequest",
     "ListModelEvaluationSlicesRequest",
     "ListModelEvaluationSlicesResponse",
     "ListModelEvaluationsRequest",

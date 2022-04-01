@@ -17,13 +17,19 @@ import proto  # type: ignore
 
 from google.cloud.aiplatform_v1.types import encryption_spec as gca_encryption_spec
 from google.cloud.aiplatform_v1.types import explanation
+from google.cloud.aiplatform_v1.types import io
 from google.cloud.aiplatform_v1.types import machine_resources
 from google.protobuf import timestamp_pb2  # type: ignore
 
 
 __protobuf__ = proto.module(
     package="google.cloud.aiplatform.v1",
-    manifest={"Endpoint", "DeployedModel", "PrivateEndpoints",},
+    manifest={
+        "Endpoint",
+        "DeployedModel",
+        "PrivateEndpoints",
+        "PredictRequestResponseLoggingConfig",
+    },
 )
 
 
@@ -113,25 +119,74 @@ class Endpoint(proto.Message):
             associated with this Endpoint if monitoring is enabled by
             [CreateModelDeploymentMonitoringJob][]. Format:
             ``projects/{project}/locations/{location}/modelDeploymentMonitoringJobs/{model_deployment_monitoring_job}``
+        predict_request_response_logging_config (google.cloud.aiplatform_v1.types.PredictRequestResponseLoggingConfig):
+            Configures the request-response logging for
+            online prediction.
     """
 
-    name = proto.Field(proto.STRING, number=1,)
-    display_name = proto.Field(proto.STRING, number=2,)
-    description = proto.Field(proto.STRING, number=3,)
+    name = proto.Field(
+        proto.STRING,
+        number=1,
+    )
+    display_name = proto.Field(
+        proto.STRING,
+        number=2,
+    )
+    description = proto.Field(
+        proto.STRING,
+        number=3,
+    )
     deployed_models = proto.RepeatedField(
-        proto.MESSAGE, number=4, message="DeployedModel",
+        proto.MESSAGE,
+        number=4,
+        message="DeployedModel",
     )
-    traffic_split = proto.MapField(proto.STRING, proto.INT32, number=5,)
-    etag = proto.Field(proto.STRING, number=6,)
-    labels = proto.MapField(proto.STRING, proto.STRING, number=7,)
-    create_time = proto.Field(proto.MESSAGE, number=8, message=timestamp_pb2.Timestamp,)
-    update_time = proto.Field(proto.MESSAGE, number=9, message=timestamp_pb2.Timestamp,)
+    traffic_split = proto.MapField(
+        proto.STRING,
+        proto.INT32,
+        number=5,
+    )
+    etag = proto.Field(
+        proto.STRING,
+        number=6,
+    )
+    labels = proto.MapField(
+        proto.STRING,
+        proto.STRING,
+        number=7,
+    )
+    create_time = proto.Field(
+        proto.MESSAGE,
+        number=8,
+        message=timestamp_pb2.Timestamp,
+    )
+    update_time = proto.Field(
+        proto.MESSAGE,
+        number=9,
+        message=timestamp_pb2.Timestamp,
+    )
     encryption_spec = proto.Field(
-        proto.MESSAGE, number=10, message=gca_encryption_spec.EncryptionSpec,
+        proto.MESSAGE,
+        number=10,
+        message=gca_encryption_spec.EncryptionSpec,
     )
-    network = proto.Field(proto.STRING, number=13,)
-    enable_private_service_connect = proto.Field(proto.BOOL, number=17,)
-    model_deployment_monitoring_job = proto.Field(proto.STRING, number=14,)
+    network = proto.Field(
+        proto.STRING,
+        number=13,
+    )
+    enable_private_service_connect = proto.Field(
+        proto.BOOL,
+        number=17,
+    )
+    model_deployment_monitoring_job = proto.Field(
+        proto.STRING,
+        number=14,
+    )
+    predict_request_response_logging_config = proto.Field(
+        proto.MESSAGE,
+        number=18,
+        message="PredictRequestResponseLoggingConfig",
+    )
 
 
 class DeployedModel(proto.Message):
@@ -243,18 +298,44 @@ class DeployedModel(proto.Message):
         oneof="prediction_resources",
         message=machine_resources.AutomaticResources,
     )
-    id = proto.Field(proto.STRING, number=1,)
-    model = proto.Field(proto.STRING, number=2,)
-    display_name = proto.Field(proto.STRING, number=3,)
-    create_time = proto.Field(proto.MESSAGE, number=6, message=timestamp_pb2.Timestamp,)
-    explanation_spec = proto.Field(
-        proto.MESSAGE, number=9, message=explanation.ExplanationSpec,
+    id = proto.Field(
+        proto.STRING,
+        number=1,
     )
-    service_account = proto.Field(proto.STRING, number=11,)
-    disable_container_logging = proto.Field(proto.BOOL, number=15,)
-    enable_access_logging = proto.Field(proto.BOOL, number=13,)
+    model = proto.Field(
+        proto.STRING,
+        number=2,
+    )
+    display_name = proto.Field(
+        proto.STRING,
+        number=3,
+    )
+    create_time = proto.Field(
+        proto.MESSAGE,
+        number=6,
+        message=timestamp_pb2.Timestamp,
+    )
+    explanation_spec = proto.Field(
+        proto.MESSAGE,
+        number=9,
+        message=explanation.ExplanationSpec,
+    )
+    service_account = proto.Field(
+        proto.STRING,
+        number=11,
+    )
+    disable_container_logging = proto.Field(
+        proto.BOOL,
+        number=15,
+    )
+    enable_access_logging = proto.Field(
+        proto.BOOL,
+        number=13,
+    )
     private_endpoints = proto.Field(
-        proto.MESSAGE, number=14, message="PrivateEndpoints",
+        proto.MESSAGE,
+        number=14,
+        message="PrivateEndpoints",
     )
 
 
@@ -280,10 +361,57 @@ class PrivateEndpoints(proto.Message):
             service connect is enabled.
     """
 
-    predict_http_uri = proto.Field(proto.STRING, number=1,)
-    explain_http_uri = proto.Field(proto.STRING, number=2,)
-    health_http_uri = proto.Field(proto.STRING, number=3,)
-    service_attachment = proto.Field(proto.STRING, number=4,)
+    predict_http_uri = proto.Field(
+        proto.STRING,
+        number=1,
+    )
+    explain_http_uri = proto.Field(
+        proto.STRING,
+        number=2,
+    )
+    health_http_uri = proto.Field(
+        proto.STRING,
+        number=3,
+    )
+    service_attachment = proto.Field(
+        proto.STRING,
+        number=4,
+    )
+
+
+class PredictRequestResponseLoggingConfig(proto.Message):
+    r"""Configuration for logging request-response to a BigQuery
+    table.
+
+    Attributes:
+        enabled (bool):
+            If logging is enabled or not.
+        sampling_rate (float):
+            Percentage of requests to be logged, expressed as a fraction
+            in range(0,1].
+        bigquery_destination (google.cloud.aiplatform_v1.types.BigQueryDestination):
+            BigQuery table for logging. If only given project, a new
+            dataset will be created with name
+            ``logging_<endpoint-display-name>_<endpoint-id>`` where will
+            be made BigQuery-dataset-name compatible (e.g. most special
+            characters will become underscores). If no table name is
+            given, a new table will be created with name
+            ``request_response_logging``
+    """
+
+    enabled = proto.Field(
+        proto.BOOL,
+        number=1,
+    )
+    sampling_rate = proto.Field(
+        proto.DOUBLE,
+        number=2,
+    )
+    bigquery_destination = proto.Field(
+        proto.MESSAGE,
+        number=3,
+        message=io.BigQueryDestination,
+    )
 
 
 __all__ = tuple(sorted(__protobuf__.manifest))

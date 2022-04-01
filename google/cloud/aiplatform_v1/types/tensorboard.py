@@ -20,7 +20,10 @@ from google.protobuf import timestamp_pb2  # type: ignore
 
 
 __protobuf__ = proto.module(
-    package="google.cloud.aiplatform.v1", manifest={"Tensorboard",},
+    package="google.cloud.aiplatform.v1",
+    manifest={
+        "Tensorboard",
+    },
 )
 
 
@@ -79,18 +82,50 @@ class Tensorboard(proto.Message):
             "overwrite" update happens.
     """
 
-    name = proto.Field(proto.STRING, number=1,)
-    display_name = proto.Field(proto.STRING, number=2,)
-    description = proto.Field(proto.STRING, number=3,)
-    encryption_spec = proto.Field(
-        proto.MESSAGE, number=11, message=gca_encryption_spec.EncryptionSpec,
+    name = proto.Field(
+        proto.STRING,
+        number=1,
     )
-    blob_storage_path_prefix = proto.Field(proto.STRING, number=10,)
-    run_count = proto.Field(proto.INT32, number=5,)
-    create_time = proto.Field(proto.MESSAGE, number=6, message=timestamp_pb2.Timestamp,)
-    update_time = proto.Field(proto.MESSAGE, number=7, message=timestamp_pb2.Timestamp,)
-    labels = proto.MapField(proto.STRING, proto.STRING, number=8,)
-    etag = proto.Field(proto.STRING, number=9,)
+    display_name = proto.Field(
+        proto.STRING,
+        number=2,
+    )
+    description = proto.Field(
+        proto.STRING,
+        number=3,
+    )
+    encryption_spec = proto.Field(
+        proto.MESSAGE,
+        number=11,
+        message=gca_encryption_spec.EncryptionSpec,
+    )
+    blob_storage_path_prefix = proto.Field(
+        proto.STRING,
+        number=10,
+    )
+    run_count = proto.Field(
+        proto.INT32,
+        number=5,
+    )
+    create_time = proto.Field(
+        proto.MESSAGE,
+        number=6,
+        message=timestamp_pb2.Timestamp,
+    )
+    update_time = proto.Field(
+        proto.MESSAGE,
+        number=7,
+        message=timestamp_pb2.Timestamp,
+    )
+    labels = proto.MapField(
+        proto.STRING,
+        proto.STRING,
+        number=8,
+    )
+    etag = proto.Field(
+        proto.STRING,
+        number=9,
+    )
 
 
 __all__ = tuple(sorted(__protobuf__.manifest))
