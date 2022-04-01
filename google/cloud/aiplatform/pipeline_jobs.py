@@ -235,6 +235,7 @@ class PipelineJob(base.VertexAiStatefulResource):
         service_account: Optional[str] = None,
         network: Optional[str] = None,
         sync: Optional[bool] = True,
+        create_request_timeout: Optional[float] = None,
     ) -> None:
         """Run this configured PipelineJob and monitor the job until completion.
 
@@ -250,8 +251,14 @@ class PipelineJob(base.VertexAiStatefulResource):
                 If left unspecified, the job is not peered with any network.
             sync (bool):
                 Optional. Whether to execute this method synchronously. If False, this method will unblock and it will be executed in a concurrent Future.
+            create_request_timeout (float):
+                Optional. The timeout for the create request in seconds.
         """
-        self.submit(service_account=service_account, network=network)
+        self.submit(
+            service_account=service_account,
+            network=network,
+            create_request_timeout=create_request_timeout,
+        )
 
         self._block_until_complete()
 
@@ -259,6 +266,7 @@ class PipelineJob(base.VertexAiStatefulResource):
         self,
         service_account: Optional[str] = None,
         network: Optional[str] = None,
+        create_request_timeout: Optional[float] = None,
     ) -> None:
         """Run this configured PipelineJob.
 
@@ -272,6 +280,8 @@ class PipelineJob(base.VertexAiStatefulResource):
 
                 Private services access must already be configured for the network.
                 If left unspecified, the job is not peered with any network.
+            create_request_timeout (float):
+                Optional. The timeout for the create request in seconds.
         """
         if service_account:
             self._gca_resource.service_account = service_account
@@ -289,6 +299,7 @@ class PipelineJob(base.VertexAiStatefulResource):
             parent=self._parent,
             pipeline_job=self._gca_resource,
             pipeline_job_id=self.job_id,
+            timeout=create_request_timeout,
         )
 
         _LOGGER.log_create_complete_with_getter(

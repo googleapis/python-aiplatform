@@ -174,6 +174,7 @@ class Feature(base.VertexAiResourceNounWithFutureManager):
         description: Optional[str] = None,
         labels: Optional[Dict[str, str]] = None,
         request_metadata: Optional[Sequence[Tuple[str, str]]] = (),
+        update_request_timeout: Optional[float] = None,
     ) -> "Feature":
         """Updates an existing managed feature resource.
 
@@ -207,6 +208,8 @@ class Feature(base.VertexAiResourceNounWithFutureManager):
                 "aiplatform.googleapis.com/" and are immutable.
             request_metadata (Sequence[Tuple[str, str]]):
                 Optional. Strings which should be sent along with the request as metadata.
+            update_request_timeout (float):
+                Optional. The timeout for the update request in seconds.
 
         Returns:
             Feature - The updated feature resource object.
@@ -239,6 +242,7 @@ class Feature(base.VertexAiResourceNounWithFutureManager):
             feature=gapic_feature,
             update_mask=update_mask,
             metadata=request_metadata,
+            timeout=update_request_timeout,
         )
 
         _LOGGER.log_action_started_against_resource_with_lro(
@@ -507,6 +511,7 @@ class Feature(base.VertexAiResourceNounWithFutureManager):
         credentials: Optional[auth_credentials.Credentials] = None,
         request_metadata: Optional[Sequence[Tuple[str, str]]] = (),
         sync: bool = True,
+        create_request_timeout: Optional[float] = None,
     ) -> "Feature":
         """Creates a Feature resource in an EntityType.
 
@@ -577,6 +582,8 @@ class Feature(base.VertexAiResourceNounWithFutureManager):
                 Optional. Whether to execute this creation synchronously. If False, this method
                 will be executed in concurrent Future and any downstream object will
                 be immediately returned and synced when the Future has completed.
+            create_request_timeout (float):
+                Optional. The timeout for the create request in seconds.
 
         Returns:
             Feature - feature resource object
@@ -618,6 +625,7 @@ class Feature(base.VertexAiResourceNounWithFutureManager):
         created_feature_lro = api_client.create_feature(
             request=create_feature_request,
             metadata=request_metadata,
+            timeout=create_request_timeout,
         )
 
         _LOGGER.log_create_with_lro(cls, created_feature_lro)
