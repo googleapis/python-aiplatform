@@ -1655,7 +1655,7 @@ class PrivateEndpoint(Endpoint):
             )
 
             # delete later, use for testing
-            print(response.items())
+            print(response.__dict__)
 
 
 
