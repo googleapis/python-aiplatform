@@ -1016,7 +1016,7 @@ class _CustomTrainingJob(_TrainingJob):
     def __init__(
         self,
         # TODO(b/223262536): Make display_name parameter fully optional in next major release
-        display_name: Optional[str],
+        display_name: str,
         container_uri: str,
         model_serving_container_image_uri: Optional[str] = None,
         model_serving_container_predict_route: Optional[str] = None,
@@ -1040,7 +1040,7 @@ class _CustomTrainingJob(_TrainingJob):
         """
         Args:
             display_name (str):
-                Optional. The user-defined name of this TrainingPipeline.
+                Required. The user-defined name of this TrainingPipeline.
             container_uri (str):
                 Required: Uri of the training container image in the GCR.
             model_serving_container_image_uri (str):
@@ -1556,7 +1556,7 @@ class CustomTrainingJob(_CustomTrainingJob):
     def __init__(
         self,
         # TODO(b/223262536): Make display_name parameter fully optional in next major release
-        display_name: Optional[str],
+        display_name: str,
         script_path: str,
         container_uri: str,
         requirements: Optional[Sequence[str]] = None,
@@ -1616,7 +1616,7 @@ class CustomTrainingJob(_CustomTrainingJob):
 
         Args:
             display_name (str):
-                Optional. The user-defined name of this TrainingPipeline.
+                Required. The user-defined name of this TrainingPipeline.
             script_path (str): Required. Local path to training script.
             container_uri (str):
                 Required: Uri of the training container image in the GCR.
@@ -2388,7 +2388,7 @@ class CustomContainerTrainingJob(_CustomTrainingJob):
     def __init__(
         self,
         # TODO(b/223262536): Make display_name parameter fully optional in next major release
-        display_name: Optional[str],
+        display_name: str,
         container_uri: str,
         command: Sequence[str] = None,
         model_serving_container_image_uri: Optional[str] = None,
@@ -2446,7 +2446,7 @@ class CustomContainerTrainingJob(_CustomTrainingJob):
 
         Args:
             display_name (str):
-                Optional. The user-defined name of this TrainingPipeline.
+                Required. The user-defined name of this TrainingPipeline.
             container_uri (str):
                 Required: Uri of the training container image in the GCR.
             command (Sequence[str]):
@@ -3197,7 +3197,7 @@ class AutoMLTabularTrainingJob(_TrainingJob):
     def __init__(
         self,
         # TODO(b/223262536): Make display_name parameter fully optional in next major release
-        display_name: Optional[str],
+        display_name: str,
         optimization_prediction_type: str,
         optimization_objective: Optional[str] = None,
         column_specs: Optional[Dict[str, str]] = None,
@@ -3225,7 +3225,7 @@ class AutoMLTabularTrainingJob(_TrainingJob):
 
         Args:
             display_name (str):
-                Optional. The user-defined name of this TrainingPipeline.
+                Required. The user-defined name of this TrainingPipeline.
             optimization_prediction_type (str):
                 The type of prediction the Model is to produce.
                 "classification" - Predict one out of multiple target values is
@@ -5005,7 +5005,7 @@ class CustomPythonPackageTrainingJob(_CustomTrainingJob):
     def __init__(
         self,
         # TODO(b/223262536): Make display_name parameter fully optional in next major release
-        display_name: Optional[str],
+        display_name: str,
         python_package_gcs_uri: str,
         python_module_name: str,
         container_uri: str,
@@ -6177,7 +6177,7 @@ class AutoMLTextTrainingJob(_TrainingJob):
     def __init__(
         self,
         # TODO(b/223262536): Make display_name parameter fully optional in next major release
-        display_name: Optional[str],
+        display_name: str,
         prediction_type: str,
         multi_label: bool = False,
         sentiment_max: int = 10,

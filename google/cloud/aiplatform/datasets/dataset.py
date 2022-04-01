@@ -106,7 +106,8 @@ class _Dataset(base.VertexAiResourceNounWithFutureManager):
     @classmethod
     def create(
         cls,
-        display_name: Optional[str],
+        # TODO(b/223262536): Make the display_name parameter optional in the next major release
+        display_name: str,
         metadata_schema_uri: str,
         gcs_source: Optional[Union[str, Sequence[str]]] = None,
         bq_source: Optional[str] = None,

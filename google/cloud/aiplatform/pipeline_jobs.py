@@ -89,8 +89,9 @@ class PipelineJob(base.VertexAiResourceNounWithFutureManager):
 
     def __init__(
         self,
+        # TODO(b/223262536): Make the display_name parameter optional in the next major release
+        display_name: str,
         template_path: str,
-        display_name: Optional[str],
         job_id: Optional[str] = None,
         pipeline_root: Optional[str] = None,
         parameter_values: Optional[Dict[str, Any]] = None,
@@ -106,7 +107,7 @@ class PipelineJob(base.VertexAiResourceNounWithFutureManager):
 
         Args:
             display_name (str):
-                Optional. The user-defined name of this Pipeline.
+                Required. The user-defined name of this Pipeline.
             template_path (str):
                 Required. The path of PipelineJob or PipelineSpec JSON file. It
                 can be a local path or a Google Cloud Storage URI.

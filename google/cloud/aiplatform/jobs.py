@@ -344,7 +344,8 @@ class BatchPredictionJob(_Job):
     @classmethod
     def create(
         cls,
-        job_display_name: Optional[str],
+        # TODO(b/223262536): Make the job_display_name parameter optional in the next major release
+        job_display_name: str,
         model_name: Union[str, "aiplatform.Model"],
         instances_format: str = "jsonl",
         predictions_format: str = "jsonl",
@@ -374,7 +375,7 @@ class BatchPredictionJob(_Job):
 
         Args:
             job_display_name (str):
-                Optional. The user-defined name of the BatchPredictionJob.
+                Required. The user-defined name of the BatchPredictionJob.
                 The name can be up to 128 characters long and can be consist
                 of any UTF-8 characters.
             model_name (Union[str, aiplatform.Model]):
@@ -1013,7 +1014,7 @@ class CustomJob(_RunnableJob):
     def __init__(
         self,
         # TODO(b/223262536): Make display_name parameter fully optional in next major release
-        display_name: Optional[str],
+        display_name: str,
         worker_pool_specs: Union[List[Dict], List[aiplatform.gapic.WorkerPoolSpec]],
         base_output_dir: Optional[str] = None,
         project: Optional[str] = None,
@@ -1059,7 +1060,7 @@ class CustomJob(_RunnableJob):
 
         Args:
             display_name (str):
-                Optional. The user-defined name of the HyperparameterTuningJob.
+                Required. The user-defined name of the HyperparameterTuningJob.
                 The name can be up to 128 characters long and can be consist
                 of any UTF-8 characters.
             worker_pool_specs (Union[List[Dict], List[aiplatform.gapic.WorkerPoolSpec]]):
@@ -1173,7 +1174,7 @@ class CustomJob(_RunnableJob):
     def from_local_script(
         cls,
         # TODO(b/223262536): Make display_name parameter fully optional in next major release
-        display_name: Optional[str],
+        display_name: str,
         script_path: str,
         container_uri: str,
         args: Optional[Sequence[str]] = None,
@@ -1216,7 +1217,7 @@ class CustomJob(_RunnableJob):
 
         Args:
             display_name (str):
-                Optional. The user-defined name of this CustomJob.
+                Required. The user-defined name of this CustomJob.
             script_path (str):
                 Required. Local path to training script.
             container_uri (str):
@@ -1493,7 +1494,7 @@ class HyperparameterTuningJob(_RunnableJob):
     def __init__(
         self,
         # TODO(b/223262536): Make display_name parameter fully optional in next major release
-        display_name: Optional[str],
+        display_name: str,
         custom_job: CustomJob,
         metric_spec: Dict[str, str],
         parameter_spec: Dict[str, hyperparameter_tuning._ParameterSpec],
@@ -1567,7 +1568,7 @@ class HyperparameterTuningJob(_RunnableJob):
 
         Args:
             display_name (str):
-                Optional. The user-defined name of the HyperparameterTuningJob.
+                Required. The user-defined name of the HyperparameterTuningJob.
                 The name can be up to 128 characters long and can be consist
                 of any UTF-8 characters.
             custom_job (aiplatform.CustomJob):
