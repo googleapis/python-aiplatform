@@ -374,6 +374,7 @@ class BatchPredictionJob(_Job):
         credentials: Optional[auth_credentials.Credentials] = None,
         encryption_spec_key_name: Optional[str] = None,
         sync: bool = True,
+        create_request_timeout: Optional[float] = None,
     ) -> "BatchPredictionJob":
         """Create a batch prediction job.
 
@@ -530,7 +531,8 @@ class BatchPredictionJob(_Job):
                 Whether to execute this method synchronously. If False, this method
                 will be executed in concurrent Future and any downstream object will
                 be immediately returned and synced when the Future has completed.
-
+            create_request_timeout (float):
+                Optional. The timeout for the create request in seconds.
         Returns:
             (jobs.BatchPredictionJob):
                 Instantiated representation of the created batch prediction job.
@@ -670,6 +672,7 @@ class BatchPredictionJob(_Job):
             gca_batch_prediction_job=gapic_batch_prediction_job,
             generate_explanation=generate_explanation,
             sync=sync,
+            create_request_timeout=create_request_timeout,
         )
 
     @classmethod
@@ -681,6 +684,7 @@ class BatchPredictionJob(_Job):
         gca_batch_prediction_job: gca_bp_job_compat.BatchPredictionJob,
         generate_explanation: bool,
         sync: bool = True,
+        create_request_timeout: Optional[float] = None,
     ) -> "BatchPredictionJob":
         """Create a batch prediction job.
 
@@ -695,6 +699,8 @@ class BatchPredictionJob(_Job):
             generate_explanation (bool):
                 Required. Generate explanation along with the batch prediction
                 results.
+            create_request_timeout (float):
+                Optional. The timeout for the create request in seconds.
         Returns:
             (jobs.BatchPredictionJob):
                 Instantiated representation of the created batch prediction job.
@@ -725,7 +731,9 @@ class BatchPredictionJob(_Job):
         _LOGGER.log_create_with_lro(cls)
 
         gca_batch_prediction_job = api_client.create_batch_prediction_job(
-            parent=parent, batch_prediction_job=gca_batch_prediction_job
+            parent=parent,
+            batch_prediction_job=gca_batch_prediction_job,
+            timeout=create_request_timeout,
         )
 
         empty_batch_prediction_job._gca_resource = gca_batch_prediction_job
@@ -1393,6 +1401,7 @@ class CustomJob(_RunnableJob):
         enable_web_access: bool = False,
         tensorboard: Optional[str] = None,
         sync: bool = True,
+        create_request_timeout: Optional[float] = None,
     ) -> None:
         """Run this configured CustomJob.
 
@@ -1434,6 +1443,8 @@ class CustomJob(_RunnableJob):
             sync (bool):
                 Whether to execute this method synchronously. If False, this method
                 will unblock and it will be executed in a concurrent Future.
+            create_request_timeout (float):
+                Optional. The timeout for the create request in seconds.
         """
 
         if service_account:
@@ -1458,7 +1469,9 @@ class CustomJob(_RunnableJob):
         _LOGGER.log_create_with_lro(self.__class__)
 
         self._gca_resource = self.api_client.create_custom_job(
-            parent=self._parent, custom_job=self._gca_resource
+            parent=self._parent,
+            custom_job=self._gca_resource,
+            timeout=create_request_timeout,
         )
 
         _LOGGER.log_create_complete_with_getter(
@@ -1776,6 +1789,7 @@ class HyperparameterTuningJob(_RunnableJob):
         enable_web_access: bool = False,
         tensorboard: Optional[str] = None,
         sync: bool = True,
+        create_request_timeout: Optional[float] = None,
     ) -> None:
         """Run this configured CustomJob.
 
@@ -1817,6 +1831,8 @@ class HyperparameterTuningJob(_RunnableJob):
             sync (bool):
                 Whether to execute this method synchronously. If False, this method
                 will unblock and it will be executed in a concurrent Future.
+            create_request_timeout (float):
+                Optional. The timeout for the create request in seconds.
         """
 
         if service_account:
@@ -1843,7 +1859,9 @@ class HyperparameterTuningJob(_RunnableJob):
         _LOGGER.log_create_with_lro(self.__class__)
 
         self._gca_resource = self.api_client.create_hyperparameter_tuning_job(
-            parent=self._parent, hyperparameter_tuning_job=self._gca_resource
+            parent=self._parent,
+            hyperparameter_tuning_job=self._gca_resource,
+            timeout=create_request_timeout,
         )
 
         _LOGGER.log_create_complete_with_getter(
