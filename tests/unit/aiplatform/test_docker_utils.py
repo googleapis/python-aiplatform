@@ -95,6 +95,7 @@ class TestRun:
         docker_client_mock.containers.run.assert_called_once_with(
             self.IMAGE_URI,
             command=None,
+            entrypoint=None,
             ports={prediction.DEFAULT_AIP_HTTP_PORT: None},
             environment={
                 prediction.AIP_HTTP_PORT: prediction.DEFAULT_AIP_HTTP_PORT,
@@ -145,7 +146,8 @@ class TestRun:
 
         docker_client_mock.containers.run.assert_called_once_with(
             self.IMAGE_URI,
-            command=serving_container_command + serving_container_args,
+            command=serving_container_args,
+            entrypoint=serving_container_command,
             ports={serving_container_ports[0]: host_port},
             environment=environment,
             volumes=volumes,
@@ -167,6 +169,7 @@ class TestRun:
         docker_client_mock.containers.run.assert_called_once_with(
             self.IMAGE_URI,
             command=None,
+            entrypoint=None,
             ports={prediction.DEFAULT_AIP_HTTP_PORT: None},
             environment={
                 prediction.AIP_HTTP_PORT: prediction.DEFAULT_AIP_HTTP_PORT,

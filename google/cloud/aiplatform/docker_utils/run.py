@@ -138,10 +138,10 @@ def run_prediction_container(
         raise ValueError(f'artifact_uri must be a GCS path but it is "{artifact_uri}".')
     envs[prediction.AIP_STORAGE_URI] = artifact_uri if artifact_uri is not None else ""
 
-    command = (
+    entrypoint = (
         serving_container_command[:] if serving_container_command is not None else []
     )
-    command += serving_container_args if serving_container_args is not None else []
+    command = serving_container_args[:] if serving_container_args is not None else []
 
     credential_from_adc_env = credential_path is None
     credential_path = credential_path or _get_adc_environment_variable()
@@ -165,6 +165,7 @@ def run_prediction_container(
     container = client.containers.run(
         serving_container_image_uri,
         command=command if len(command) > 0 else None,
+        entrypoint=entrypoint if len(entrypoint) > 0 else None,
         ports={port: host_port},
         environment=envs,
         volumes=volumes,
