@@ -1719,10 +1719,10 @@ class PrivateEndpoint(Endpoint):
             deployed_model_id=self._gca_resource.deployed_models[0].id,
         )
 
-    def explain(self):
-        raise NotImplementedError(
-            f"{self.__class__.__name__} class does not support 'explain' as of now."
-        )
+    #def explain(self):
+    #    raise NotImplementedError(
+    #        f"{self.__class__.__name__} class does not support 'explain' as of now."
+    #    )
 
     def health_check(self) -> bool:
         """
