@@ -108,8 +108,6 @@ __all__ = (
     "EntityType",
     "Feature",
     "Featurestore",
-    "MatchingEngineIndex",
-    "MatchingEngineIndexEndpoint",
     "ImageDataset",
     "HyperparameterTuningJob",
     "Model",
