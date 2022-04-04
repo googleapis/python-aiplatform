@@ -87,7 +87,7 @@ templated_files = common.py_library(
     unit_test_python_versions=["3.6", "3.7", "3.8", "3.9"],
     unit_test_extras=['testing'],
     microgenerator=True)
-python.py_samples(skip_readmes=True)
+
 s.move(
     templated_files,
     excludes=[
@@ -98,6 +98,10 @@ s.move(
         ".github/workflows", # exclude gh actions as credentials are needed for tests
     ]
 )  # the microgenerator has a good coveragerc file
+
+python.py_samples(skip_readmes=True)
+
+python.configure_previous_major_version_branches()
 
 # Update samples config to use `ucaip-sample-tests` project
 s.replace(".kokoro/samples/python3.*/common.cfg",
