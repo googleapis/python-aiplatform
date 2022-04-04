@@ -1654,15 +1654,9 @@ class PrivateEndpoint(Endpoint):
                 method, url, body=body, headers=headers
             )
 
-            # delete later, use for testing
-            print(response.__dict__)
-
-
-
             if response.status < 300:
                 return response
             else:
-                # add if statements for explain vs. predict 404 errors
                 raise RuntimeError(
                     f"{response.status} - Failed to make request, see response: " + response.data.decode("utf-8")
                 )
@@ -1720,60 +1714,14 @@ class PrivateEndpoint(Endpoint):
 
         prediction_response = json.loads(response.data)
 
-        # remove this line, just testing
-        print(response.data.decode("utf-8"))
-
         return Prediction(
             predictions=prediction_response.get("predictions"),
-            deployed_model_id=prediction_response.get("deployedModelId"),
+            deployed_model_id=self._gca_resource.deployed_models[0].id,
         )
 
-    def explain(
-        self, instances: List[Dict], parameters: Optional[Dict] = None,
-    ) -> Prediction:
-        """Make a prediction with explanations against this private Endpoint.
-
-        Example usage:
-            response = my_private_endpoint.explain(instances=[...])
-            my_explanations = response.explanations
-
-        Args:
-            instances (List):
-                Required. The instances that are the input to the
-                prediction call. A DeployedModel may have an upper limit
-                on the number of instances it supports per request, and
-                when it is exceeded the prediction call errors in case
-                of AutoML Models, or, in case of customer created
-                Models, the behaviour is as documented by that Model.
-                The schema of any single instance may be specified via
-                Endpoint's DeployedModels'
-                [Model's][google.cloud.aiplatform.v1beta1.DeployedModel.model]
-                [PredictSchemata's][google.cloud.aiplatform.v1beta1.Model.predict_schemata]
-                ``instance_schema_uri``.
-            parameters (Dict):
-                The parameters that govern the prediction. The schema of
-                the parameters may be specified via Endpoint's
-                DeployedModels' [Model's
-                ][google.cloud.aiplatform.v1beta1.DeployedModel.model]
-                [PredictSchemata's][google.cloud.aiplatform.v1beta1.Model.predict_schemata]
-                ``parameters_schema_uri``.
-        """
-        self.wait()
-        self._sync_gca_resource_if_skipped()
-
-        response = self._http_request(
-            method="GET",
-            url=self.explain_http_uri,
-            body=json.dumps({"instances": instances}),
-            headers={"Content-Type": "application/json"},
-        )
-
-        prediction_response = response.data.decode("utf-8")
-
-        return Prediction(
-            predictions=prediction_response.get("predictions"),
-            deployed_model_id=prediction_response.get("deployedModelId"),
-            explanations=prediction_response.get("explanations"),
+    def explain(self):
+        raise NotImplementedError(
+            f"{self.__class__.__name__} class does not support 'explain' as of now."
         )
 
     def health_check(self) -> bool:
