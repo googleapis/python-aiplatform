@@ -253,6 +253,7 @@ class Endpoint(base.VertexAiResourceNounWithFutureManager):
                 Whether to execute this method synchronously. If False, this method
                 will be executed in concurrent Future and any downstream object will
                 be immediately returned and synced when the Future has completed.
+
         Returns:
             endpoint (endpoint.Endpoint):
                 Created endpoint.
@@ -347,6 +348,7 @@ class Endpoint(base.VertexAiResourceNounWithFutureManager):
                 Endpoints [in the documentation](https://cloud.google.com/vertex-ai/docs/predictions/using-private-endpoints)
             sync (bool):
                 Whether to create this endpoint synchronously.
+
         Returns:
             endpoint (endpoint.Endpoint):
                 Created endpoint.
@@ -433,6 +435,7 @@ class Endpoint(base.VertexAiResourceNounWithFutureManager):
                 Required. Current traffic split of deployed models in endpoint.
             traffic_percentage (int):
                 Required. Desired traffic to new deployed model.
+
         Returns:
             new_traffic_split (Dict[str, int]):
                 Traffic split to use.
@@ -469,6 +472,7 @@ class Endpoint(base.VertexAiResourceNounWithFutureManager):
                 Required. Current traffic split of deployed models in endpoint.
             deployed_model_id (str):
                 Required. Desired traffic to new deployed model.
+
         Returns:
             new_traffic_split (Dict[str, int]):
                 Traffic split to use.
@@ -808,6 +812,7 @@ class Endpoint(base.VertexAiResourceNounWithFutureManager):
                 Whether to execute this method synchronously. If False, this method
                 will be executed in concurrent Future and any downstream object will
                 be immediately returned and synced when the Future has completed.
+
         Raises:
             ValueError: If there is not current traffic split and traffic percentage
             is not 0 or 100.
@@ -931,6 +936,7 @@ class Endpoint(base.VertexAiResourceNounWithFutureManager):
                 Whether to execute this method synchronously. If False, this method
                 will be executed in concurrent Future and any downstream object will
                 be immediately returned and synced when the Future has completed.
+
         Raises:
             ValueError: If there is not current traffic split and traffic percentage
                 is not 0 or 100.
@@ -1187,6 +1193,7 @@ class Endpoint(base.VertexAiResourceNounWithFutureManager):
             credentials (google.auth.credentials.Credentials):
                 Optional custom credentials to use when accessing interacting with
                 the prediction client.
+
         Returns:
             prediction_client (prediction_service_client.PredictionServiceClient):
                 Initialized prediction client with optional overrides.
@@ -1221,6 +1228,7 @@ class Endpoint(base.VertexAiResourceNounWithFutureManager):
                 ][google.cloud.aiplatform.v1beta1.DeployedModel.model]
                 [PredictSchemata's][google.cloud.aiplatform.v1beta1.Model.predict_schemata]
                 ``parameters_schema_uri``.
+
         Returns:
             prediction: Prediction with returned predictions and Model Id.
         """
@@ -1247,6 +1255,7 @@ class Endpoint(base.VertexAiResourceNounWithFutureManager):
         """Make a prediction with explanations against this Endpoint.
 
         Example usage:
+
             response = my_endpoint.explain(instances=[...])
             my_explanations = response.explanations
 
@@ -1273,6 +1282,7 @@ class Endpoint(base.VertexAiResourceNounWithFutureManager):
             deployed_model_id (str):
                 Optional. If specified, this ExplainRequest will be served by the
                 chosen DeployedModel, overriding this Endpoint's traffic split.
+
         Returns:
             prediction: Prediction with returned predictions, explanations, and Model Id.
         """
@@ -1330,7 +1340,7 @@ class Endpoint(base.VertexAiResourceNounWithFutureManager):
                 credentials set in aiplatform.init.
 
         Returns:
-            List[models.Endpoint] - A list of Endpoint resource objects
+            List[models.Endpoint]: A list of Endpoint resource objects
         """
 
         return cls._list_with_local_order(
@@ -1387,6 +1397,7 @@ class Endpoint(base.VertexAiResourceNounWithFutureManager):
                 Whether to execute this method synchronously. If False, this method
                 will be executed in concurrent Future and any downstream object will
                 be immediately returned and synced when the Future has completed.
+
         Raises:
             FailedPrecondition: If models are deployed on this Endpoint and force = False.
         """
@@ -1413,10 +1424,13 @@ class PrivateEndpoint(Endpoint):
         """Retrieves a private Endpoint resource.
 
         Example usage:
+
             my_private_endpoint = aiplatform.PrivateEndpoint(
                 endpoint_name="projects/123/locations/us-central1/endpoints/my_endpoint_id"
             )
+
             or (when project and location are initialized)
+
             my_private_endpoint = aiplatform.PrivateEndpoint(
                 endpoint_name='my_endpoint_id'
             )
@@ -1504,13 +1518,16 @@ class PrivateEndpoint(Endpoint):
         """Creates a new private Endpoint.
 
         Example usage:
+
             my_private_endpoint = aiplatform.PrivateEndpoint.create(
                 display_name='my_endpoint_name',
                 project='123',
                 location='us-central1'
                 network='my_vpc'
             )
+
             or (when project and location are initialized)
+
             my_private_endpoint = aiplatform.PrivateEndpoint.create(
                 display_name='my_endpoint_name',
                 network='my_vpc'
@@ -1648,6 +1665,24 @@ class PrivateEndpoint(Endpoint):
         body: Optional[Dict[Any, Any]] = None,
         headers: Optional[Dict[str, str]] = None,
     ) -> urllib3.response.HTTPResponse:
+        """Helper function used to perform HTTP requests for private Endpoint.
+
+        Args:
+            method (str):
+                Required. The HTTP request method to use. Example: "POST" or "GET"
+            url (str):
+                Required. Project to construct Endpoint object from. If not set,
+                project set in aiplatform.init will be used.
+            body (Dict[Any, Any]):
+                Optional. Data sent to the url in the HTTP request. For private
+                Endpoint, an instance is sent and a prediction response is expected.
+            headers (Dict[str, str]):
+                Optional. Header in the HTTP request.
+
+        Returns:
+            urllib3.response.HTTPResponse:
+                An initialized PrivateEndpoint resource.
+        """
 
         try:
             response = self._http_client.request(
@@ -1675,6 +1710,7 @@ class PrivateEndpoint(Endpoint):
         The predict() call will fail otherwise. To check, use `PrivateEndpoint.network`.
 
         Example usage:
+
             response = my_private_endpoint.predict(instances=[...])
             my_predictions = response.predictions
 
@@ -1728,6 +1764,14 @@ class PrivateEndpoint(Endpoint):
         """
         Makes GET request to this private Endpoint's health check URI. Must be within network
         that this private Endpoint is in.
+
+        Example Usage:
+
+            if my_private_endpoint.health_check():
+                print("Endpoint is healthy!")
+        
+        Returns:
+            bool: Checks if calls can be made to this private Endpoint.
         """
         self.wait()
         self._sync_gca_resource_if_skipped()
@@ -1748,8 +1792,11 @@ class PrivateEndpoint(Endpoint):
         """List all private Endpoint resource instances.
 
         Example Usage:
+
             my_private_endpoints = aiplatform.PrivateEndpoint.list()
+
             or
+
             my_private_endpoints = aiplatform.PrivateEndpoint.list(
                 filter='labels.my_label="my_label_value" OR display_name=!"old_endpoint"',
             )
@@ -1805,6 +1852,12 @@ class PrivateEndpoint(Endpoint):
         sync=True,
     ) -> None:
         """Deploys a Model to the private Endpoint.
+
+        Example Usage:
+
+            my_private_endpoint.deploy(
+                model=my_model
+            )
 
         Args:
             model (aiplatform.Model):
@@ -1895,6 +1948,19 @@ class PrivateEndpoint(Endpoint):
 
     def undeploy(self, deployed_model_id: str, sync=True,) -> None:
         """Undeploys a deployed model from the private Endpoint.
+
+        Example Usage:
+
+            my_private_endpoint.undeploy(
+                deployed_model_id="1234567891232567891"
+            )
+
+            or
+
+            my_deployed_model_id = my_private_endpoint.list_models()[0].id
+            my_private_endpoint.undeploy(
+                deployed_model_id=my_deployed_model_id
+            )
 
         Args:
             deployed_model_id (str):
@@ -2094,11 +2160,11 @@ class Model(base.VertexAiResourceNounWithFutureManager):
 
         Example usage:
 
-        my_model = my_model.update(
-            display_name='my-model',
-            description='my description',
-            labels={'key': 'value'},
-        )
+            my_model = my_model.update(
+                display_name='my-model',
+                description='my description',
+                labels={'key': 'value'},
+            )
 
         Args:
             display_name (str):
@@ -2116,8 +2182,10 @@ class Model(base.VertexAiResourceNounWithFutureManager):
                 are allowed.
                 See https://goo.gl/xmQnxf for more information
                 and examples of labels.
+
         Returns:
             model: Updated model resource.
+
         Raises:
             ValueError: If `labels` is not the correct format.
         """
@@ -2188,11 +2256,11 @@ class Model(base.VertexAiResourceNounWithFutureManager):
 
         Example usage:
 
-        my_model = Model.upload(
-            display_name='my-model',
-            artifact_uri='gs://my-model/saved-model'
-            serving_container_image_uri='tensorflow/serving'
-        )
+            my_model = Model.upload(
+                display_name='my-model',
+                artifact_uri='gs://my-model/saved-model'
+                serving_container_image_uri='tensorflow/serving'
+            )
 
         Args:
             display_name (str):
@@ -2327,8 +2395,10 @@ class Model(base.VertexAiResourceNounWithFutureManager):
             staging_bucket (str):
                 Optional. Bucket to stage local model artifacts. Overrides
                 staging_bucket set in aiplatform.init.
+
         Returns:
             model: Instantiated representation of the uploaded model resource.
+
         Raises:
             ValueError: If only `explanation_metadata` or `explanation_parameters`
                 is specified.
@@ -2540,6 +2610,7 @@ class Model(base.VertexAiResourceNounWithFutureManager):
                 Whether to execute this method synchronously. If False, this method
                 will be executed in concurrent Future and any downstream object will
                 be immediately returned and synced when the Future has completed.
+
         Returns:
             endpoint ("Endpoint"):
                 Endpoint with the deployed model.
@@ -2695,6 +2766,7 @@ class Model(base.VertexAiResourceNounWithFutureManager):
                 Whether to execute this method synchronously. If False, this method
                 will be executed in concurrent Future and any downstream object will
                 be immediately returned and synced when the Future has completed.
+
         Returns:
             endpoint ("Endpoint"):
                 Endpoint with the deployed model.
@@ -2780,12 +2852,12 @@ class Model(base.VertexAiResourceNounWithFutureManager):
 
         Example usage:
 
-        my_model.batch_predict(
-            job_display_name="prediction-123",
-            gcs_source="gs://example-bucket/instances.csv",
-            instances_format="csv",
-            bigquery_destination_prefix="projectId.bqDatasetId.bqTableId"
-        )
+            my_model.batch_predict(
+                job_display_name="prediction-123",
+                gcs_source="gs://example-bucket/instances.csv",
+                instances_format="csv",
+                bigquery_destination_prefix="projectId.bqDatasetId.bqTableId"
+            )
 
         Args:
             job_display_name (str):
@@ -2925,6 +2997,7 @@ class Model(base.VertexAiResourceNounWithFutureManager):
                 If set, this Model and all sub-resources of this Model will be secured by this key.
 
                 Overrides encryption_spec_key_name set in aiplatform.init.
+
         Returns:
             (jobs.BatchPredictionJob):
                 Instantiated representation of the created batch prediction job.
@@ -2969,9 +3042,9 @@ class Model(base.VertexAiResourceNounWithFutureManager):
 
         Example Usage:
 
-        aiplatform.Model.list(
-            filter='labels.my_label="my_label_value" AND display_name="my_model"',
-        )
+            aiplatform.Model.list(
+                filter='labels.my_label="my_label_value" AND display_name="my_model"',
+            )
 
         Args:
             filter (str):
@@ -3018,7 +3091,8 @@ class Model(base.VertexAiResourceNounWithFutureManager):
         A Model is considered to be exportable if it has at least one `supported_export_formats`.
         Either `artifact_destination` or `image_destination` must be provided.
 
-        Usage:
+        Example Usage:
+
             my_model.export(
                 export_format_id='tf-saved-model'
                 artifact_destination='gs://my-bucket/models/'
@@ -3170,7 +3244,7 @@ class Model(base.VertexAiResourceNounWithFutureManager):
 
         Note: This function is *experimental* and can be changed in the future.
 
-        Example usage::
+        Example usage:
 
             my_model = Model.upload_xgboost_model_file(
                 model_file_path="iris.xgboost_model.bst"
@@ -3273,8 +3347,10 @@ class Model(base.VertexAiResourceNounWithFutureManager):
             staging_bucket (str):
                 Optional. Bucket to stage local model artifacts. Overrides
                 staging_bucket set in aiplatform.init.
+
         Returns:
             model: Instantiated representation of the uploaded model resource.
+
         Raises:
             ValueError: If only `explanation_metadata` or `explanation_parameters`
                 is specified.
@@ -3367,7 +3443,7 @@ class Model(base.VertexAiResourceNounWithFutureManager):
 
         Note: This function is *experimental* and can be changed in the future.
 
-        Example usage::
+        Example usage:
 
             my_model = Model.upload_scikit_learn_model_file(
                 model_file_path="iris.sklearn_model.joblib"
@@ -3471,8 +3547,10 @@ class Model(base.VertexAiResourceNounWithFutureManager):
             staging_bucket (str):
                 Optional. Bucket to stage local model artifacts. Overrides
                 staging_bucket set in aiplatform.init.
+
         Returns:
             model: Instantiated representation of the uploaded model resource.
+
         Raises:
             ValueError: If only `explanation_metadata` or `explanation_parameters`
                 is specified.
@@ -3564,7 +3642,7 @@ class Model(base.VertexAiResourceNounWithFutureManager):
 
         Note: This function is *experimental* and can be changed in the future.
 
-        Example usage::
+        Example usage:
 
             my_model = Model.upload_scikit_learn_model_file(
                 model_file_path="iris.tensorflow_model.SavedModel"
@@ -3670,8 +3748,10 @@ class Model(base.VertexAiResourceNounWithFutureManager):
             staging_bucket (str):
                 Optional. Bucket to stage local model artifacts. Overrides
                 staging_bucket set in aiplatform.init.
+
         Returns:
             model: Instantiated representation of the uploaded model resource.
+
         Raises:
             ValueError: If only `explanation_metadata` or `explanation_parameters`
                 is specified.
