@@ -354,7 +354,7 @@ class TestPipelineJob:
         runtime_config = gca_pipeline_job_v1.PipelineJob.RuntimeConfig()._pb
         json_format.ParseDict(expected_runtime_config_dict, runtime_config)
 
-        job_spec = job_spec if isinstance(job_spec, dict) else yaml.safe_load(job_spec)
+        job_spec = yaml.safe_load(job_spec)
         pipeline_spec = job_spec.get("pipelineSpec") or job_spec
 
         # Construct expected request
@@ -435,7 +435,7 @@ class TestPipelineJob:
         runtime_config = gca_pipeline_job_v1.PipelineJob.RuntimeConfig()._pb
         json_format.ParseDict(expected_runtime_config_dict, runtime_config)
 
-        job_spec = job_spec if isinstance(job_spec, dict) else yaml.safe_load(job_spec)
+        job_spec = yaml.safe_load(job_spec)
         pipeline_spec = job_spec.get("pipelineSpec") or job_spec
 
         # Construct expected request
@@ -516,7 +516,7 @@ class TestPipelineJob:
         runtime_config = gca_pipeline_job_v1.PipelineJob.RuntimeConfig()._pb
         json_format.ParseDict(expected_runtime_config_dict, runtime_config)
 
-        job_spec = job_spec if isinstance(job_spec, dict) else yaml.safe_load(job_spec)
+        job_spec = yaml.safe_load(job_spec)
         pipeline_spec = job_spec.get("pipelineSpec") or job_spec
 
         # Construct expected request
@@ -597,7 +597,7 @@ class TestPipelineJob:
         runtime_config = gca_pipeline_job_v1.PipelineJob.RuntimeConfig()._pb
         json_format.ParseDict(expected_runtime_config_dict, runtime_config)
 
-        job_spec = job_spec if isinstance(job_spec, dict) else yaml.safe_load(job_spec)
+        job_spec = yaml.safe_load(job_spec)
         pipeline_spec = job_spec.get("pipelineSpec") or job_spec
 
         # Construct expected request
@@ -669,7 +669,7 @@ class TestPipelineJob:
         runtime_config = gca_pipeline_job_v1.PipelineJob.RuntimeConfig()._pb
         json_format.ParseDict(expected_runtime_config_dict, runtime_config)
 
-        job_spec = job_spec if isinstance(job_spec, dict) else yaml.safe_load(job_spec)
+        job_spec = yaml.safe_load(job_spec)
         pipeline_spec = job_spec.get("pipelineSpec") or job_spec
 
         # Construct expected request
@@ -782,7 +782,7 @@ class TestPipelineJob:
         runtime_config = gca_pipeline_job_v1.PipelineJob.RuntimeConfig()._pb
         json_format.ParseDict(expected_runtime_config_dict, runtime_config)
 
-        job_spec = job_spec if isinstance(job_spec, dict) else yaml.safe_load(job_spec)
+        job_spec = yaml.safe_load(job_spec)
         pipeline_spec = job_spec.get("pipelineSpec") or job_spec
 
         # Construct expected request
