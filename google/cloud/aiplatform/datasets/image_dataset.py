@@ -36,7 +36,7 @@ class ImageDataset(datasets._Dataset):
     @classmethod
     def create(
         cls,
-        display_name: str,
+        display_name: Optional[str] = None,
         gcs_source: Optional[Union[str, Sequence[str]]] = None,
         import_schema_uri: Optional[str] = None,
         data_item_labels: Optional[Dict] = None,
@@ -47,13 +47,14 @@ class ImageDataset(datasets._Dataset):
         labels: Optional[Dict[str, str]] = None,
         encryption_spec_key_name: Optional[str] = None,
         sync: bool = True,
+        create_request_timeout: Optional[float] = None,
     ) -> "ImageDataset":
         """Creates a new image dataset and optionally imports data into dataset
         when source and import_schema_uri are passed.
 
         Args:
             display_name (str):
-                Required. The user-defined name of the Dataset.
+                Optional. The user-defined name of the Dataset.
                 The name can be up to 128 characters long and can be consist
                 of any UTF-8 characters.
             gcs_source (Union[str, Sequence[str]]):
@@ -121,11 +122,15 @@ class ImageDataset(datasets._Dataset):
                 Whether to execute this method synchronously. If False, this method
                 will be executed in concurrent Future and any downstream object will
                 be immediately returned and synced when the Future has completed.
+            create_request_timeout (float):
+                Optional. The timeout for the create request in seconds.
 
         Returns:
             image_dataset (ImageDataset):
                 Instantiated representation of the managed image dataset resource.
         """
+        if not display_name:
+            display_name = cls._generate_display_name()
 
         utils.validate_display_name(display_name)
         if labels:
@@ -159,4 +164,5 @@ class ImageDataset(datasets._Dataset):
                 encryption_spec_key_name=encryption_spec_key_name
             ),
             sync=sync,
+            create_request_timeout=create_request_timeout,
         )

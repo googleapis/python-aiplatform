@@ -85,6 +85,7 @@ templated_files = common.py_library(
     cov_level=99,
     system_test_python_versions=["3.8"],
     unit_test_python_versions=["3.6", "3.7", "3.8", "3.9"],
+    unit_test_extras=['testing'],
     microgenerator=True)
 python.py_samples(skip_readmes=True)
 s.move(
@@ -112,12 +113,5 @@ s.replace(".kokoro/samples/python3.*/common.cfg",
 
 # Don't treat docs warnings as errors
 s.replace("noxfile.py", """["']-W["'],  # warnings as errors""", "")
-
-# Replacement to install extra testing dependencies
-s.replace(
-    "noxfile.py",
-    """session.install\("-e", ".", "-c", constraints_path\)""",
-    """session.install("-e", ".[testing]", "-c", constraints_path)"""
-)
 
 s.shell.run(["nox", "-s", "blacken"], hide_output=False)
