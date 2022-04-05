@@ -106,6 +106,7 @@ class _Dataset(base.VertexAiResourceNounWithFutureManager):
     @classmethod
     def create(
         cls,
+        # TODO(b/223262536): Make the display_name parameter optional in the next major release
         display_name: str,
         metadata_schema_uri: str,
         gcs_source: Optional[Union[str, Sequence[str]]] = None,
@@ -211,7 +212,8 @@ class _Dataset(base.VertexAiResourceNounWithFutureManager):
             dataset (Dataset):
                 Instantiated representation of the managed dataset resource.
         """
-
+        if not display_name:
+            display_name = cls._generate_display_name()
         utils.validate_display_name(display_name)
         if labels:
             utils.validate_labels(labels)

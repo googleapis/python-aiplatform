@@ -82,7 +82,7 @@ class Tensorboard(_TensorboardServiceResource):
     @classmethod
     def create(
         cls,
-        display_name: str,
+        display_name: Optional[str] = None,
         description: Optional[str] = None,
         labels: Optional[Dict[str, str]] = None,
         project: Optional[str] = None,
@@ -107,7 +107,7 @@ class Tensorboard(_TensorboardServiceResource):
 
         Args:
             display_name (str):
-                Required. The user-defined name of the Tensorboard.
+                Optional. The user-defined name of the Tensorboard.
                 The name can be up to 128 characters long and can be consist
                 of any UTF-8 characters.
             description (str):
@@ -151,6 +151,8 @@ class Tensorboard(_TensorboardServiceResource):
             tensorboard (Tensorboard):
                 Instantiated representation of the managed tensorboard resource.
         """
+        if not display_name:
+            display_name = cls._generate_display_name()
 
         utils.validate_display_name(display_name)
         if labels:
