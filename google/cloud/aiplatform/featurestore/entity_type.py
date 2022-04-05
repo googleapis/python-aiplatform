@@ -184,6 +184,7 @@ class EntityType(base.VertexAiResourceNounWithFutureManager):
         description: Optional[str] = None,
         labels: Optional[Dict[str, str]] = None,
         request_metadata: Sequence[Tuple[str, str]] = (),
+        update_request_timeout: Optional[float] = None,
     ) -> "EntityType":
         """Updates an existing managed entityType resource.
 
@@ -216,6 +217,8 @@ class EntityType(base.VertexAiResourceNounWithFutureManager):
                 "aiplatform.googleapis.com/" and are immutable.
             request_metadata (Sequence[Tuple[str, str]]):
                 Required. Strings which should be sent along with the request as metadata.
+            update_request_timeout (float):
+                Optional. The timeout for the update request in seconds.
         Returns:
             EntityType - The updated entityType resource object.
         """
@@ -247,6 +250,7 @@ class EntityType(base.VertexAiResourceNounWithFutureManager):
             entity_type=gapic_entity_type,
             update_mask=update_mask,
             metadata=request_metadata,
+            timeout=update_request_timeout,
         )
 
         _LOGGER.log_action_started_against_resource_with_lro(
@@ -480,6 +484,7 @@ class EntityType(base.VertexAiResourceNounWithFutureManager):
         credentials: Optional[auth_credentials.Credentials] = None,
         request_metadata: Optional[Sequence[Tuple[str, str]]] = (),
         sync: bool = True,
+        create_request_timeout: Optional[float] = None,
     ) -> "EntityType":
         """Creates an EntityType resource in a Featurestore.
 
@@ -541,7 +546,8 @@ class EntityType(base.VertexAiResourceNounWithFutureManager):
                 Optional. Whether to execute this creation synchronously. If False, this method
                 will be executed in concurrent Future and any downstream object will
                 be immediately returned and synced when the Future has completed.
-
+            create_request_timeout (float):
+                Optional. The timeout for the create request in seconds.
         Returns:
             EntityType - entity_type resource object
 
@@ -580,6 +586,7 @@ class EntityType(base.VertexAiResourceNounWithFutureManager):
             entity_type=gapic_entity_type,
             entity_type_id=entity_type_id,
             metadata=request_metadata,
+            timeout=create_request_timeout,
         )
 
         _LOGGER.log_create_with_lro(cls, created_entity_type_lro)
@@ -605,6 +612,7 @@ class EntityType(base.VertexAiResourceNounWithFutureManager):
         labels: Optional[Dict[str, str]] = None,
         request_metadata: Optional[Sequence[Tuple[str, str]]] = (),
         sync: bool = True,
+        create_request_timeout: Optional[float] = None,
     ) -> "featurestore.Feature":
         """Creates a Feature resource in this EntityType.
 
@@ -649,6 +657,8 @@ class EntityType(base.VertexAiResourceNounWithFutureManager):
                 "aiplatform.googleapis.com/" and are immutable.
             request_metadata (Sequence[Tuple[str, str]]):
                 Optional. Strings which should be sent along with the request as metadata.
+            create_request_timeout (float):
+                Optional. The timeout for the create request in seconds.
             sync (bool):
                 Optional. Whether to execute this creation synchronously. If False, this method
                 will be executed in concurrent Future and any downstream object will
@@ -667,6 +677,7 @@ class EntityType(base.VertexAiResourceNounWithFutureManager):
             labels=labels,
             request_metadata=request_metadata,
             sync=sync,
+            create_request_timeout=create_request_timeout,
         )
 
     def _validate_and_get_create_feature_requests(
@@ -918,6 +929,7 @@ class EntityType(base.VertexAiResourceNounWithFutureManager):
         self,
         import_feature_values_request: gca_featurestore_service.ImportFeatureValuesRequest,
         request_metadata: Optional[Sequence[Tuple[str, str]]] = (),
+        ingest_request_timeout: Optional[float] = None,
     ) -> "EntityType":
         """Imports Feature values into the Featurestore from a source storage.
 
@@ -926,7 +938,8 @@ class EntityType(base.VertexAiResourceNounWithFutureManager):
                 Required. Request message for importing feature values.
             request_metadata (Sequence[Tuple[str, str]]):
                 Optional. Strings which should be sent along with the request as metadata.
-
+            ingest_request_timeout (float):
+                Optional. The timeout for the ingest request in seconds.
         Returns:
             EntityType - The entityType resource object with imported feature values.
         """
@@ -939,6 +952,7 @@ class EntityType(base.VertexAiResourceNounWithFutureManager):
         import_lro = self.api_client.import_feature_values(
             request=import_feature_values_request,
             metadata=request_metadata,
+            timeout=ingest_request_timeout,
         )
 
         _LOGGER.log_action_started_against_resource_with_lro(
@@ -965,6 +979,7 @@ class EntityType(base.VertexAiResourceNounWithFutureManager):
         worker_count: Optional[int] = None,
         request_metadata: Optional[Sequence[Tuple[str, str]]] = (),
         sync: bool = True,
+        ingest_request_timeout: Optional[float] = None,
     ) -> "EntityType":
         """Ingest feature values from BigQuery.
 
@@ -1026,6 +1041,8 @@ class EntityType(base.VertexAiResourceNounWithFutureManager):
                 Optional. Whether to execute this import synchronously. If False, this method
                 will be executed in concurrent Future and any downstream object will
                 be immediately returned and synced when the Future has completed.
+            ingest_request_timeout (float):
+                Optional. The timeout for the ingest request in seconds.
 
         Returns:
             EntityType - The entityType resource object with feature values imported.
@@ -1050,6 +1067,7 @@ class EntityType(base.VertexAiResourceNounWithFutureManager):
         return self._import_feature_values(
             import_feature_values_request=import_feature_values_request,
             request_metadata=request_metadata,
+            ingest_request_timeout=ingest_request_timeout,
         )
 
     @base.optional_sync(return_input_arg="self")
@@ -1065,6 +1083,7 @@ class EntityType(base.VertexAiResourceNounWithFutureManager):
         worker_count: Optional[int] = None,
         request_metadata: Optional[Sequence[Tuple[str, str]]] = (),
         sync: bool = True,
+        ingest_request_timeout: Optional[float] = None,
     ) -> "EntityType":
         """Ingest feature values from GCS.
 
@@ -1134,6 +1153,8 @@ class EntityType(base.VertexAiResourceNounWithFutureManager):
                 Optional. Whether to execute this import synchronously. If False, this method
                 will be executed in concurrent Future and any downstream object will
                 be immediately returned and synced when the Future has completed.
+            ingest_request_timeout (float):
+                Optional. The timeout for the ingest request in seconds.
 
         Returns:
             EntityType - The entityType resource object with feature values imported.
@@ -1175,6 +1196,7 @@ class EntityType(base.VertexAiResourceNounWithFutureManager):
         return self._import_feature_values(
             import_feature_values_request=import_feature_values_request,
             request_metadata=request_metadata,
+            ingest_request_timeout=ingest_request_timeout,
         )
 
     def ingest_from_df(
@@ -1185,6 +1207,7 @@ class EntityType(base.VertexAiResourceNounWithFutureManager):
         feature_source_fields: Optional[Dict[str, str]] = None,
         entity_id_field: Optional[str] = None,
         request_metadata: Optional[Sequence[Tuple[str, str]]] = (),
+        ingest_request_timeout: Optional[float] = None,
     ) -> "EntityType":
         """Ingest feature values from DataFrame.
 
@@ -1245,6 +1268,8 @@ class EntityType(base.VertexAiResourceNounWithFutureManager):
                 IDs are extracted from the column named ``entity_id``.
             request_metadata (Sequence[Tuple[str, str]]):
                 Optional. Strings which should be sent along with the request as metadata.
+            ingest_request_timeout (float):
+                Optional. The timeout for the ingest request in seconds.
 
         Returns:
             EntityType - The entityType resource object with feature values imported.
@@ -1321,6 +1346,7 @@ class EntityType(base.VertexAiResourceNounWithFutureManager):
                 feature_source_fields=feature_source_fields,
                 entity_id_field=entity_id_field,
                 request_metadata=request_metadata,
+                ingest_request_timeout=ingest_request_timeout,
             )
 
         finally:
@@ -1386,6 +1412,7 @@ class EntityType(base.VertexAiResourceNounWithFutureManager):
         entity_ids: Union[str, List[str]],
         feature_ids: Union[str, List[str]] = "*",
         request_metadata: Optional[Sequence[Tuple[str, str]]] = (),
+        read_request_timeout: Optional[float] = None,
     ) -> "pd.DataFrame":  # noqa: F821 - skip check for undefined name 'pd'
         """Reads feature values for given feature IDs of given entity IDs in this EntityType.
 
@@ -1398,6 +1425,8 @@ class EntityType(base.VertexAiResourceNounWithFutureManager):
                 for reading feature values. Default to "*", where value of all features will be read.
             request_metadata (Sequence[Tuple[str, str]]):
                 Optional. Strings which should be sent along with the request as metadata.
+            read_request_timeout (float):
+                Optional. The timeout for the read request in seconds.
 
         Returns:
             pd.DataFrame: entities' feature values in DataFrame
@@ -1420,7 +1449,9 @@ class EntityType(base.VertexAiResourceNounWithFutureManager):
             )
             read_feature_values_response = (
                 self._featurestore_online_client.read_feature_values(
-                    request=read_feature_values_request, metadata=request_metadata
+                    request=read_feature_values_request,
+                    metadata=request_metadata,
+                    timeout=read_request_timeout,
                 )
             )
             header = read_feature_values_response.header
@@ -1438,6 +1469,7 @@ class EntityType(base.VertexAiResourceNounWithFutureManager):
                 for response in self._featurestore_online_client.streaming_read_feature_values(
                     request=streaming_read_feature_values_request,
                     metadata=request_metadata,
+                    timeout=read_request_timeout,
                 )
             ]
             header = streaming_read_feature_values_responses[0].header
