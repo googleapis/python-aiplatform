@@ -31,7 +31,8 @@ for library in s.get_staging_dirs(default_version):
 
     # https://github.com/googleapis/gapic-generator-python/issues/413
     s.replace(
-        library / f"google/cloud/aiplatform_{library.name}/services/prediction_service/client.py",
+        library
+        / f"google/cloud/aiplatform_{library.name}/services/prediction_service/client.py",
         "request.instances = instances",
         "request.instances.extend(instances)",
     )
@@ -39,7 +40,8 @@ for library in s.get_staging_dirs(default_version):
     # Remove test_predict_flattened/test_predict_flattened_async due to gapic generator bug
     # https://github.com/googleapis/gapic-generator-python/issues/414
     s.replace(
-        library / f"tests/unit/gapic/aiplatform_{library.name}/test_prediction_service.py",
+        library
+        / f"tests/unit/gapic/aiplatform_{library.name}/test_prediction_service.py",
         """def test_predict_flattened.*?def test_predict_flattened_error""",
         "def test_predict_flattened_error",
         flags=re.MULTILINE | re.DOTALL,
@@ -48,7 +50,8 @@ for library in s.get_staging_dirs(default_version):
     # Remove test_explain_flattened/test_explain_flattened_async due to gapic generator bug
     # https://github.com/googleapis/gapic-generator-python/issues/414
     s.replace(
-        library / f"tests/unit/gapic/aiplatform_{library.name}/test_prediction_service.py",
+        library
+        / f"tests/unit/gapic/aiplatform_{library.name}/test_prediction_service.py",
         """def test_explain_flattened.*?def test_explain_flattened_error""",
         "def test_explain_flattened_error",
         flags=re.MULTILINE | re.DOTALL,
@@ -85,9 +88,10 @@ templated_files = common.py_library(
     cov_level=99,
     system_test_python_versions=["3.8"],
     unit_test_python_versions=["3.6", "3.7", "3.8", "3.9"],
-    unit_test_extras=['testing'],
-    system_test_extras=['testing'],
-    microgenerator=True)
+    unit_test_extras=["testing"],
+    system_test_extras=["testing"],
+    microgenerator=True,
+)
 python.py_samples(skip_readmes=True)
 s.move(
     templated_files,
@@ -96,12 +100,13 @@ s.move(
         ".kokoro/continuous/common.cfg",
         ".kokoro/presubmit/presubmit.cfg",
         ".github/CODEOWNERS",
-        ".github/workflows", # exclude gh actions as credentials are needed for tests
-    ]
+        ".github/workflows",  # exclude gh actions as credentials are needed for tests
+    ],
 )  # the microgenerator has a good coveragerc file
 
 # Update samples config to use `ucaip-sample-tests` project
-s.replace(".kokoro/samples/python3.*/common.cfg",
+s.replace(
+    ".kokoro/samples/python3.*/common.cfg",
     """env_vars: \{
     key: "BUILD_SPECIFIC_GCLOUD_PROJECT"
     value: "python-docs-samples-tests-.*?"
@@ -109,7 +114,7 @@ s.replace(".kokoro/samples/python3.*/common.cfg",
     """env_vars: {
     key: "BUILD_SPECIFIC_GCLOUD_PROJECT"
     value: "ucaip-sample-tests"
-}"""
+}""",
 )
 
 # Don't treat docs warnings as errors
