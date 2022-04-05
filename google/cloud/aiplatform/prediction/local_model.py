@@ -429,6 +429,9 @@ class LocalModel:
         artifact_uri: Optional[str] = None,
         credential_path: Optional[str] = None,
         host_port: Optional[str] = None,
+        gpu_count: Optional[int] = None,
+        gpu_device_ids: Optional[List[str]] = None,
+        gpu_capabilities: Optional[List[List[str]]] = None,
         container_ready_timeout: Optional[int] = None,
         container_ready_check_interval: Optional[int] = None,
     ):
@@ -466,6 +469,18 @@ class LocalModel:
             host_port (str):
                 Optional. The port on the host that the port, AIP_HTTP_PORT, inside the container
                 will be exposed as. If it's unset, a random host port will be assigned.
+            gpu_count (int):
+                Optional. Number or devices to request. Set to -1 to request all available devices.
+                To use GPU, set either `gpu_count` or `gpu_device_ids`.
+            gpu_device_ids (List[str]):
+                Optional. List of strings for device IDs.
+                To use GPU, set either `gpu_count` or `gpu_device_ids`.
+            gpu_capabilities (List[List[str]]):
+                Optional. List of lists of strings to request capabilities. To use GPU, you need
+                to set this. The global list acts like an OR, and the sub-lists are AND. The driver
+                will try to satisfy one of the sub-lists.
+                Available capabilities for the NVIDIA driver can be found in
+                https://github.com/NVIDIA/nvidia-container-runtime.
             container_ready_timeout (int):
                 Optional. The timeout in second used for starting the container or succeeding the
                 first health check.
@@ -479,6 +494,18 @@ class LocalModel:
         envs = {env.name: env.value for env in self.serving_container_spec.env}
         ports = [port.container_port for port in self.serving_container_spec.ports]
 
+        if gpu_count and gpu_device_ids:
+            raise ValueError(
+                "Either gpu_count or gpu_device_ids can be set but both are set."
+            )
+        if ((gpu_count or gpu_device_ids) and gpu_capabilities is None) or (
+            gpu_capabilities and gpu_count is None and gpu_device_ids is None
+        ):
+            raise ValueError(
+                "To use GPU, either gpu_count or gpu_device_ids should be set "
+                "and gpu_capabilities should be set."
+            )
+
         try:
             with LocalEndpoint(
                 serving_container_image_uri=self.serving_container_spec.image_uri,
@@ -491,6 +518,9 @@ class LocalModel:
                 serving_container_ports=ports,
                 credential_path=credential_path,
                 host_port=host_port,
+                gpu_count=gpu_count,
+                gpu_device_ids=gpu_device_ids,
+                gpu_capabilities=gpu_capabilities,
                 container_ready_timeout=container_ready_timeout,
                 container_ready_check_interval=container_ready_check_interval,
             ) as local_endpoint:

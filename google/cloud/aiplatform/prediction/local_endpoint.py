@@ -19,7 +19,7 @@ import logging
 from pathlib import Path
 import requests
 import time
-from typing import Any, Dict, Optional, Sequence
+from typing import Any, Dict, List, Optional, Sequence
 
 from google.auth.exceptions import GoogleAuthError
 
@@ -52,6 +52,9 @@ class LocalEndpoint:
         serving_container_ports: Optional[Sequence[int]] = None,
         credential_path: Optional[str] = None,
         host_port: Optional[str] = None,
+        gpu_count: Optional[int] = None,
+        gpu_device_ids: Optional[List[str]] = None,
+        gpu_capabilities: Optional[List[List[str]]] = None,
         container_ready_timeout: Optional[int] = None,
         container_ready_check_interval: Optional[int] = None,
     ):
@@ -105,12 +108,27 @@ class LocalEndpoint:
             host_port (str):
                 Optional. The port on the host that the port, AIP_HTTP_PORT, inside the container
                 will be exposed as. If it's unset, a random host port will be assigned.
+            gpu_count (int):
+                Optional. Number or devices to request. Set to -1 to request all available devices.
+                To use GPU, set either `gpu_count` or `gpu_device_ids`.
+            gpu_device_ids (List[str]):
+                Optional. List of strings for device IDs.
+                To use GPU, set either `gpu_count` or `gpu_device_ids`.
+            gpu_capabilities (List[List[str]]):
+                Optional. List of lists of strings to request capabilities. To use GPU, you need
+                to set this. The global list acts like an OR, and the sub-lists are AND. The driver
+                will try to satisfy one of the sub-lists.
+                Available capabilities for the NVIDIA driver can be found in
+                https://github.com/NVIDIA/nvidia-container-runtime.
             container_ready_timeout (int):
                 Optional. The timeout in second used for starting the container or succeeding the
                 first health check.
             container_ready_check_interval (int):
                 Optional. The time interval in second to check if the container is ready or the
                 first health check succeeds.
+
+        Raises:
+            ValueError: If both of gpu_count and gpu_device_ids are set.
         """
         self.container = None
         self.log_start_index = 0
@@ -128,12 +146,32 @@ class LocalEndpoint:
             serving_container_environment_variables
         )
         self.serving_container_ports = serving_container_ports
-        self.credential_path = credential_path
-        self.host_port = host_port
-
         self.container_port = prediction_utils.get_prediction_aip_http_port(
             serving_container_ports
         )
+
+        self.credential_path = credential_path
+        self.host_port = host_port
+
+        self.gpu_count = gpu_count
+        self.gpu_device_ids = gpu_device_ids
+        self.gpu_capabilities = gpu_capabilities
+
+        if self.gpu_count and self.gpu_device_ids:
+            raise ValueError(
+                "Either gpu_count or gpu_device_ids can be set but both are set."
+            )
+        if (
+            (self.gpu_count or self.gpu_device_ids) and self.gpu_capabilities is None
+        ) or (
+            self.gpu_capabilities
+            and self.gpu_count is None
+            and self.gpu_device_ids is None
+        ):
+            raise ValueError(
+                "To use GPU, either gpu_count or gpu_device_ids should be set "
+                "and gpu_capabilities should be set."
+            )
 
         self.container_ready_timeout = (
             container_ready_timeout or _DEFAULT_CONTAINER_READY_TIMEOUT
@@ -181,6 +219,9 @@ class LocalEndpoint:
                 serving_container_ports=self.serving_container_ports,
                 credential_path=self.credential_path,
                 host_port=self.host_port,
+                gpu_count=self.gpu_count,
+                gpu_device_ids=self.gpu_device_ids,
+                gpu_capabilities=self.gpu_capabilities,
             )
 
             # Retrieves the assigned host port.

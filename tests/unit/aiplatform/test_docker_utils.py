@@ -21,6 +21,8 @@ import pytest
 import textwrap
 from unittest import mock
 
+import docker
+
 from google.cloud.aiplatform.constants import prediction
 from google.cloud.aiplatform.docker_utils import build
 from google.cloud.aiplatform.docker_utils import errors
@@ -105,6 +107,7 @@ class TestRun:
                 run._ADC_ENVIRONMENT_VARIABLE: run._DEFAULT_CONTAINER_CRED_KEY_PATH,
             },
             volumes=[],
+            device_requests=None,
             detach=True,
         )
 
@@ -151,6 +154,7 @@ class TestRun:
             ports={serving_container_ports[0]: host_port},
             environment=environment,
             volumes=volumes,
+            device_requests=None,
             detach=True,
         )
 
@@ -179,6 +183,71 @@ class TestRun:
                 run._ADC_ENVIRONMENT_VARIABLE: run._DEFAULT_CONTAINER_CRED_KEY_PATH,
             },
             volumes=volumes,
+            device_requests=None,
+            detach=True,
+        )
+
+    @mock.patch.dict(os.environ, {}, clear=True)
+    def test_run_prediction_container_gpu_count(self, docker_client_mock):
+        gpu_count = 1
+        gpu_capabilities = [["gpu"]]
+
+        run.run_prediction_container(
+            self.IMAGE_URI,
+            gpu_count=gpu_count,
+            gpu_capabilities=gpu_capabilities,
+        )
+
+        docker_client_mock.containers.run.assert_called_once_with(
+            self.IMAGE_URI,
+            command=None,
+            entrypoint=None,
+            ports={prediction.DEFAULT_AIP_HTTP_PORT: None},
+            environment={
+                prediction.AIP_HTTP_PORT: prediction.DEFAULT_AIP_HTTP_PORT,
+                prediction.AIP_HEALTH_ROUTE: None,
+                prediction.AIP_PREDICT_ROUTE: None,
+                prediction.AIP_STORAGE_URI: "",
+                run._ADC_ENVIRONMENT_VARIABLE: run._DEFAULT_CONTAINER_CRED_KEY_PATH,
+            },
+            volumes=[],
+            device_requests=[
+                docker.types.DeviceRequest(
+                    count=gpu_count, capabilities=gpu_capabilities
+                )
+            ],
+            detach=True,
+        )
+
+    @mock.patch.dict(os.environ, {}, clear=True)
+    def test_run_prediction_container_gpu_device_ids(self, docker_client_mock):
+        gpu_device_ids = ["1"]
+        gpu_capabilities = [["gpu"]]
+
+        run.run_prediction_container(
+            self.IMAGE_URI,
+            gpu_device_ids=gpu_device_ids,
+            gpu_capabilities=gpu_capabilities,
+        )
+
+        docker_client_mock.containers.run.assert_called_once_with(
+            self.IMAGE_URI,
+            command=None,
+            entrypoint=None,
+            ports={prediction.DEFAULT_AIP_HTTP_PORT: None},
+            environment={
+                prediction.AIP_HTTP_PORT: prediction.DEFAULT_AIP_HTTP_PORT,
+                prediction.AIP_HEALTH_ROUTE: None,
+                prediction.AIP_PREDICT_ROUTE: None,
+                prediction.AIP_STORAGE_URI: "",
+                run._ADC_ENVIRONMENT_VARIABLE: run._DEFAULT_CONTAINER_CRED_KEY_PATH,
+            },
+            volumes=[],
+            device_requests=[
+                docker.types.DeviceRequest(
+                    device_ids=gpu_device_ids, capabilities=gpu_capabilities
+                )
+            ],
             detach=True,
         )
 
