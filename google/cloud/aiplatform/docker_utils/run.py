@@ -18,6 +18,7 @@
 import logging
 import os
 from pathlib import Path
+import re
 from typing import Dict, Optional, Sequence
 
 try:
@@ -46,6 +47,32 @@ def _get_adc_environment_variable():
         The value of the environment variable or None if unset.
     """
     return os.environ.get(_ADC_ENVIRONMENT_VARIABLE)
+
+
+def _replace_env_var_reference(
+        target: str, env_vars: Dict[str, str],
+    ) -> str:
+    """Replaces the environment variable reference in the given string.
+
+    Variable references $(VAR_NAME) are expanded using the container's environment.
+    If a variable cannot be resolved, the reference in the input string will be unchanged.
+    The $(VAR_NAME) syntax can be escaped with a double $$, ie: $$(VAR_NAME). Escaped
+    references will never be expanded, regardless of whether the variable exists or not.
+    More info:
+    https://kubernetes.io/docs/tasks/inject-data-application/define-command-argument-container/#running-a-command-in-a-shell
+
+    Args:
+        target (str):
+            Required. The string to be replaced with the environment variable reference.
+        env_vars (Dict[str, str]):
+            Required. The environment variables used for reference.
+
+    Returns:
+        The updated string.
+    """
+    for key, value in env_vars.items():
+        target = re.sub(fr"(?<!\$)\$\({key}\)", str(value), target)
+    return target
 
 
 def run_prediction_container(
@@ -122,11 +149,10 @@ def run_prediction_container(
     """
     client = docker.from_env()
 
-    envs = (
-        {key: value for key, value in serving_container_environment_variables.items()}
-        if serving_container_environment_variables is not None
-        else {}
-    )
+    envs = {}
+    if serving_container_environment_variables is not None:
+        for key, value in serving_container_environment_variables.items():
+            envs[key] = _replace_env_var_reference(value, envs)
 
     port = prediction_utils.get_prediction_aip_http_port(serving_container_ports)
     envs[prediction.AIP_HTTP_PORT] = port
@@ -137,11 +163,6 @@ def run_prediction_container(
     if artifact_uri is not None and not artifact_uri.startswith("gs://"):
         raise ValueError(f'artifact_uri must be a GCS path but it is "{artifact_uri}".')
     envs[prediction.AIP_STORAGE_URI] = artifact_uri if artifact_uri is not None else ""
-
-    entrypoint = (
-        serving_container_command[:] if serving_container_command is not None else []
-    )
-    command = serving_container_args[:] if serving_container_args is not None else []
 
     credential_from_adc_env = credential_path is None
     credential_path = credential_path or _get_adc_environment_variable()
@@ -161,6 +182,13 @@ def run_prediction_container(
         else []
     )
     envs[_ADC_ENVIRONMENT_VARIABLE] = credential_mount_path
+
+    entrypoint = [
+        _replace_env_var_reference(i, envs) for i in serving_container_command
+    ] if serving_container_command is not None else []
+    command = [
+        _replace_env_var_reference(i, envs) for i in serving_container_args
+    ] if serving_container_args is not None else []
 
     container = client.containers.run(
         serving_container_image_uri,
