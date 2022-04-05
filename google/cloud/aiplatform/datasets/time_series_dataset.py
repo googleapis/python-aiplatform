@@ -36,7 +36,7 @@ class TimeSeriesDataset(datasets._ColumnNamesDataset):
     @classmethod
     def create(
         cls,
-        display_name: str,
+        display_name: Optional[str] = None,
         gcs_source: Optional[Union[str, Sequence[str]]] = None,
         bq_source: Optional[str] = None,
         project: Optional[str] = None,
@@ -51,7 +51,7 @@ class TimeSeriesDataset(datasets._ColumnNamesDataset):
 
         Args:
             display_name (str):
-                Required. The user-defined name of the Dataset.
+                Optional. The user-defined name of the Dataset.
                 The name can be up to 128 characters long and can be consist
                 of any UTF-8 characters.
             gcs_source (Union[str, Sequence[str]]):
@@ -108,7 +108,8 @@ class TimeSeriesDataset(datasets._ColumnNamesDataset):
                 Instantiated representation of the managed time series dataset resource.
 
         """
-
+        if not display_name:
+            display_name = cls._generate_display_name()
         utils.validate_display_name(display_name)
         if labels:
             utils.validate_labels(labels)
