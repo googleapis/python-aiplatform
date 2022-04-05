@@ -1215,6 +1215,23 @@ class TestTabularDataset:
         )
 
     @pytest.mark.usefixtures("get_dataset_tabular_bq_mock")
+    @pytest.mark.parametrize("sync", [True, False])
+    def test_create_dataset_with_default_display_name(self, create_dataset_mock, sync):
+
+        my_dataset = datasets.TabularDataset.create(
+            bq_source=_TEST_SOURCE_URI_BQ,
+            sync=sync,
+        )
+
+        if not sync:
+            my_dataset.wait()
+
+        create_dataset_mock.assert_called_once()
+        create_dataset_mock.call_args[1]["dataset"].display_name.startswith(
+            "TabularDataset "
+        )
+
+    @pytest.mark.usefixtures("get_dataset_tabular_bq_mock")
     def test_no_import_data_method(self):
 
         my_dataset = datasets.TabularDataset(dataset_name=_TEST_NAME)

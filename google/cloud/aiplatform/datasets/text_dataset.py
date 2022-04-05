@@ -36,7 +36,7 @@ class TextDataset(datasets._Dataset):
     @classmethod
     def create(
         cls,
-        display_name: str,
+        display_name: Optional[str] = None,
         gcs_source: Optional[Union[str, Sequence[str]]] = None,
         import_schema_uri: Optional[str] = None,
         data_item_labels: Optional[Dict] = None,
@@ -61,7 +61,7 @@ class TextDataset(datasets._Dataset):
 
         Args:
             display_name (str):
-                Required. The user-defined name of the Dataset.
+                Optional. The user-defined name of the Dataset.
                 The name can be up to 128 characters long and can be consist
                 of any UTF-8 characters.
             gcs_source (Union[str, Sequence[str]]):
@@ -136,7 +136,8 @@ class TextDataset(datasets._Dataset):
             text_dataset (TextDataset):
                 Instantiated representation of the managed text dataset resource.
         """
-
+        if not display_name:
+            display_name = cls._generate_display_name()
         utils.validate_display_name(display_name)
         if labels:
             utils.validate_labels(labels)

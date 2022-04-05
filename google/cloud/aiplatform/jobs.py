@@ -349,6 +349,7 @@ class BatchPredictionJob(_Job):
     @classmethod
     def create(
         cls,
+        # TODO(b/223262536): Make the job_display_name parameter optional in the next major release
         job_display_name: str,
         model_name: Union[str, "aiplatform.Model"],
         instances_format: str = "jsonl",
@@ -537,6 +538,8 @@ class BatchPredictionJob(_Job):
             (jobs.BatchPredictionJob):
                 Instantiated representation of the created batch prediction job.
         """
+        if not job_display_name:
+            job_display_name = cls._generate_display_name()
 
         utils.validate_display_name(job_display_name)
 
@@ -1032,6 +1035,7 @@ class CustomJob(_RunnableJob):
 
     def __init__(
         self,
+        # TODO(b/223262536): Make display_name parameter fully optional in next major release
         display_name: str,
         worker_pool_specs: Union[List[Dict], List[aiplatform.gapic.WorkerPoolSpec]],
         base_output_dir: Optional[str] = None,
@@ -1136,6 +1140,9 @@ class CustomJob(_RunnableJob):
             staging_bucket, "aiplatform-custom-job"
         )
 
+        if not display_name:
+            display_name = self.__class__._generate_display_name()
+
         self._gca_resource = gca_custom_job_compat.CustomJob(
             display_name=display_name,
             job_spec=gca_custom_job_compat.CustomJobSpec(
@@ -1193,6 +1200,7 @@ class CustomJob(_RunnableJob):
     @classmethod
     def from_local_script(
         cls,
+        # TODO(b/223262536): Make display_name parameter fully optional in next major release
         display_name: str,
         script_path: str,
         container_uri: str,
@@ -1521,6 +1529,7 @@ class HyperparameterTuningJob(_RunnableJob):
 
     def __init__(
         self,
+        # TODO(b/223262536): Make display_name parameter fully optional in next major release
         display_name: str,
         custom_job: CustomJob,
         metric_spec: Dict[str, str],
@@ -1716,6 +1725,9 @@ class HyperparameterTuningJob(_RunnableJob):
                 measurement_selection
             ],
         )
+
+        if not display_name:
+            display_name = self.__class__._generate_display_name()
 
         self._gca_resource = (
             gca_hyperparameter_tuning_job_compat.HyperparameterTuningJob(
