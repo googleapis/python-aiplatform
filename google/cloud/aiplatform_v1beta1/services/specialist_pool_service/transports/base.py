@@ -129,7 +129,9 @@ class SpecialistPoolServiceTransport(abc.ABC):
                 client_info=client_info,
             ),
             self.get_specialist_pool: gapic_v1.method.wrap_method(
-                self.get_specialist_pool, default_timeout=5.0, client_info=client_info,
+                self.get_specialist_pool,
+                default_timeout=5.0,
+                client_info=client_info,
             ),
             self.list_specialist_pools: gapic_v1.method.wrap_method(
                 self.list_specialist_pools,
@@ -151,9 +153,9 @@ class SpecialistPoolServiceTransport(abc.ABC):
     def close(self):
         """Closes resources associated with the transport.
 
-       .. warning::
-            Only call this method if the transport is NOT shared
-            with other clients - this may cause errors in other clients!
+        .. warning::
+             Only call this method if the transport is NOT shared
+             with other clients - this may cause errors in other clients!
         """
         raise NotImplementedError()
 

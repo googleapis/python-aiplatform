@@ -28,6 +28,7 @@ from google.cloud.aiplatform import initializer
 from google.cloud.aiplatform.metadata.metadata import metadata_service
 from google.cloud.aiplatform.constants import base as constants
 from google.cloud.aiplatform import utils
+from google.cloud.aiplatform.utils import resource_manager_utils
 
 from google.cloud.aiplatform_v1.services.model_service import (
     client as model_service_client,
@@ -60,6 +61,22 @@ class TestInit:
 
         monkeypatch.setattr(google.auth, "default", mock_auth_default)
         assert initializer.global_config.project == _TEST_PROJECT
+
+    def test_infer_project_id(self):
+        cloud_project_number = "123"
+
+        def mock_get_project_id(project_number: str, **_):
+            assert project_number == cloud_project_number
+            return _TEST_PROJECT
+
+        with mock.patch.object(
+            target=resource_manager_utils,
+            attribute="get_project_id",
+            new=mock_get_project_id,
+        ), mock.patch.dict(
+            os.environ, {"CLOUD_ML_PROJECT_ID": cloud_project_number}, clear=True
+        ):
+            assert initializer.global_config.project == _TEST_PROJECT
 
     def test_init_location_sets_location(self):
         initializer.global_config.init(location=_TEST_LOCATION)
@@ -160,7 +177,11 @@ class TestInit:
         "init_location, location_override, expected_endpoint",
         [
             ("us-central1", None, "us-central1-aiplatform.googleapis.com"),
-            ("us-central1", "europe-west4", "europe-west4-aiplatform.googleapis.com",),
+            (
+                "us-central1",
+                "europe-west4",
+                "europe-west4-aiplatform.googleapis.com",
+            ),
             ("asia-east1", None, "asia-east1-aiplatform.googleapis.com"),
             (
                 "asia-southeast1",
@@ -170,7 +191,10 @@ class TestInit:
         ],
     )
     def test_get_client_options(
-        self, init_location: str, location_override: str, expected_endpoint: str,
+        self,
+        init_location: str,
+        location_override: str,
+        expected_endpoint: str,
     ):
         initializer.global_config.init(location=init_location)
 

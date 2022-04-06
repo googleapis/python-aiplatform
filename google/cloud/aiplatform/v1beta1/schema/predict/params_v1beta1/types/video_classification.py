@@ -18,7 +18,9 @@ import proto  # type: ignore
 
 __protobuf__ = proto.module(
     package="google.cloud.aiplatform.v1beta1.schema.predict.params",
-    manifest={"VideoClassificationPredictionParams",},
+    manifest={
+        "VideoClassificationPredictionParams",
+    },
 )
 
 
@@ -68,11 +70,26 @@ class VideoClassificationPredictionParams(proto.Message):
             describe that quality. Default value is false
     """
 
-    confidence_threshold = proto.Field(proto.FLOAT, number=1,)
-    max_predictions = proto.Field(proto.INT32, number=2,)
-    segment_classification = proto.Field(proto.BOOL, number=3,)
-    shot_classification = proto.Field(proto.BOOL, number=4,)
-    one_sec_interval_classification = proto.Field(proto.BOOL, number=5,)
+    confidence_threshold = proto.Field(
+        proto.FLOAT,
+        number=1,
+    )
+    max_predictions = proto.Field(
+        proto.INT32,
+        number=2,
+    )
+    segment_classification = proto.Field(
+        proto.BOOL,
+        number=3,
+    )
+    shot_classification = proto.Field(
+        proto.BOOL,
+        number=4,
+    )
+    one_sec_interval_classification = proto.Field(
+        proto.BOOL,
+        number=5,
+    )
 
 
 __all__ = tuple(sorted(__protobuf__.manifest))

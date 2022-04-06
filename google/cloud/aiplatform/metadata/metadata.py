@@ -155,7 +155,7 @@ class _MetadataService:
 
         Args:
             metrics (Dict):
-                Required. Metrics key/value pairs. Only flot and int are supported format for value.
+                Required. Metrics key/value pairs. Only float and int are supported format for value.
         Raises:
             TypeError: If value contains unsupported types.
             ValueError: If Experiment or Run is not set.
@@ -176,43 +176,45 @@ class _MetadataService:
     ) -> "pd.DataFrame":  # noqa: F821
         """Returns a Pandas DataFrame of the parameters and metrics associated with one experiment.
 
-            Example:
+        Example:
 
-            aiplatform.init(experiment='exp-1')
-            aiplatform.start_run(run='run-1')
-            aiplatform.log_params({'learning_rate': 0.1})
-            aiplatform.log_metrics({'accuracy': 0.9})
+        aiplatform.init(experiment='exp-1')
+        aiplatform.start_run(run='run-1')
+        aiplatform.log_params({'learning_rate': 0.1})
+        aiplatform.log_metrics({'accuracy': 0.9})
 
-            aiplatform.start_run(run='run-2')
-            aiplatform.log_params({'learning_rate': 0.2})
-            aiplatform.log_metrics({'accuracy': 0.95})
+        aiplatform.start_run(run='run-2')
+        aiplatform.log_params({'learning_rate': 0.2})
+        aiplatform.log_metrics({'accuracy': 0.95})
 
-            Will result in the following DataFrame
-            ___________________________________________________________________________
-            | experiment_name | run_name      | param.learning_rate | metric.accuracy |
-            ---------------------------------------------------------------------------
-            | exp-1           | run-1         | 0.1                 | 0.9             |
-            | exp-1           | run-2         | 0.2                 | 0.95            |
-            ---------------------------------------------------------------------------
+        Will result in the following DataFrame
+        ___________________________________________________________________________
+        | experiment_name | run_name      | param.learning_rate | metric.accuracy |
+        ---------------------------------------------------------------------------
+        | exp-1           | run-1         | 0.1                 | 0.9             |
+        | exp-1           | run-2         | 0.2                 | 0.95            |
+        ---------------------------------------------------------------------------
 
-            Args:
-                experiment (str):
-                Name of the Experiment to filter results. If not set, return results of current active experiment.
+        Args:
+            experiment (str):
+            Name of the Experiment to filter results. If not set, return results of current active experiment.
 
-            Returns:
-                Pandas Dataframe of Experiment with metrics and parameters.
+        Returns:
+            Pandas Dataframe of Experiment with metrics and parameters.
 
-            Raise:
-                NotFound exception if experiment does not exist.
-                ValueError if given experiment is not associated with a wrong schema.
-            """
+        Raise:
+            NotFound exception if experiment does not exist.
+            ValueError if given experiment is not associated with a wrong schema.
+        """
 
         if not experiment:
             experiment = self._experiment.name
 
         source = "experiment"
         experiment_resource_name = self._get_experiment_or_pipeline_resource_name(
-            name=experiment, source=source, expected_schema=constants.SYSTEM_EXPERIMENT,
+            name=experiment,
+            source=source,
+            expected_schema=constants.SYSTEM_EXPERIMENT,
         )
 
         return self._query_runs_to_data_frame(
@@ -263,7 +265,7 @@ class _MetadataService:
 
         Args:
             metrics (Dict):
-                Required. Metrics key/value pairs. Only flot and int are supported format for value.
+                Required. Metrics key/value pairs. Only float and int are supported format for value.
         Raises:
             TypeError: If value contains unsupported types.
         """
@@ -357,7 +359,8 @@ class _MetadataService:
 
     @staticmethod
     def _execution_to_column_named_metadata(
-        metadata_type: str, metadata: Dict,
+        metadata_type: str,
+        metadata: Dict,
     ) -> Dict[str, Union[int, float, str]]:
         """Returns a dict of the Execution/Artifact metadata with column names.
 

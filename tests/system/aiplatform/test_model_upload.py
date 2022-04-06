@@ -37,7 +37,8 @@ class TestModel(e2e_base.TestEndToEnd):
         """Upload XGBoost model from local file and deploy it for prediction. Additionally, update model name, description and labels"""
 
         aiplatform.init(
-            project=e2e_base._PROJECT, location=e2e_base._LOCATION,
+            project=e2e_base._PROJECT,
+            location=e2e_base._LOCATION,
         )
 
         storage_client = storage.Client(project=e2e_base._PROJECT)
@@ -47,7 +48,9 @@ class TestModel(e2e_base.TestEndToEnd):
         model_path = tempfile.mktemp() + ".my_model.xgb"
         model_blob.download_to_filename(filename=model_path)
 
-        model = aiplatform.Model.upload_xgboost_model_file(model_file_path=model_path,)
+        model = aiplatform.Model.upload_xgboost_model_file(
+            model_file_path=model_path,
+        )
         shared_state["resources"] = [model]
 
         staging_bucket = storage.Blob.from_string(

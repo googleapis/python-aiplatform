@@ -33,26 +33,28 @@ with open(os.path.join(package_root, "google/cloud/aiplatform/version.py")) as f
     exec(fp.read(), version)
 version = version["__version__"]
 
-tensorboard_extra_require = ["tensorflow >=2.3.0, <=2.7.0"]
+tensorboard_extra_require = ["tensorflow >=2.3.0, <3.0.0dev"]
 metadata_extra_require = ["pandas >= 1.0.0"]
-xai_extra_require = ["tensorflow >=2.3.0, <=2.5.0"]
+xai_extra_require = ["tensorflow >=2.3.0, <3.0.0dev"]
 lit_extra_require = [
-    "tensorflow >= 2.3.0",
+    "tensorflow >= 2.3.0, <3.0.0dev",
     "pandas >= 1.0.0",
     "lit-nlp >= 0.4.0",
     "explainable-ai-sdk >= 1.0.0",
 ]
 profiler_extra_require = [
-    "tensorboard-plugin-profile >= 2.4.0",
-    "werkzeug >= 2.0.0",
-    "tensorflow >=2.4.0",
+    "tensorboard-plugin-profile >= 2.4.0, <3.0.0dev",
+    "werkzeug >= 2.0.0, <2.1.0dev",
+    "tensorflow >=2.4.0, <3.0.0dev",
 ]
 featurestore_extra_require = [
     "google-cloud-bigquery-storage",
     "pandas >= 1.0.0",
     "pyarrow >= 6.0.1",
 ]
-
+pipelines_extra_requires = [
+    "pyyaml>=5.3,<6",
+]
 full_extra_require = list(
     set(
         tensorboard_extra_require
@@ -60,6 +62,7 @@ full_extra_require = list(
         + xai_extra_require
         + lit_extra_require
         + featurestore_extra_require
+        + pipelines_extra_requires
     )
 )
 testing_extra_require = (
@@ -111,6 +114,7 @@ setuptools.setup(
         "xai": xai_extra_require,
         "lit": lit_extra_require,
         "cloud_profiler": profiler_extra_require,
+        "pipelines": pipelines_extra_requires,
     },
     python_requires=">=3.6",
     classifiers=[

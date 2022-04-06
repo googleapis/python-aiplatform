@@ -86,7 +86,7 @@ class OnePlatformResourceManager(object):
             run_names: a list of run_names for creating the TensorboardRuns.
         Returns:
             the created TensorboardRuns
-       """
+        """
         batch_size = OnePlatformResourceManager.CREATE_RUN_BATCH_SIZE
         created_runs = []
         for i in range(0, len(run_names), batch_size):
@@ -103,7 +103,8 @@ class OnePlatformResourceManager(object):
             ]
 
             tb_runs = self._api.batch_create_tensorboard_runs(
-                parent=self._experiment_resource_name, requests=tb_run_requests,
+                parent=self._experiment_resource_name,
+                requests=tb_run_requests,
             ).tensorboard_runs
 
             self._run_name_to_run_resource_name.update(
@@ -122,12 +123,12 @@ class OnePlatformResourceManager(object):
     ) -> List[tensorboard_time_series.TensorboardTimeSeries]:
         """Batch creates TensorboardTimeSeries.
 
-          Args:
-              run_tag_name_to_time_series: a dictionary of
-              (run_name, tag_name) to TensorboardTimeSeries proto, containing
-              the TensorboardTimeSeries to create.
-          Returns:
-              the created TensorboardTimeSeries
+        Args:
+            run_tag_name_to_time_series: a dictionary of
+            (run_name, tag_name) to TensorboardTimeSeries proto, containing
+            the TensorboardTimeSeries to create.
+        Returns:
+            the created TensorboardTimeSeries
         """
         batch_size = OnePlatformResourceManager.CREATE_TIME_SERIES_BATCH_SIZE
         run_tag_name_to_time_series_entries = list(run_tag_name_to_time_series.items())
@@ -148,7 +149,8 @@ class OnePlatformResourceManager(object):
             ]
 
             time_series = self._api.batch_create_tensorboard_time_series(
-                parent=self._experiment_resource_name, requests=requests,
+                parent=self._experiment_resource_name,
+                requests=requests,
             ).tensorboard_time_series
 
             self._run_tag_name_to_time_series_name.update(
@@ -377,7 +379,7 @@ class TimeSeriesResourceManager(object):
 
         Returns:
             time_series (tensorboard_time_series.TensorboardTimeSeries):
-                A new or existing tensorboard_time_series.TensorbaordTimeSeries.
+                A new or existing tensorboard_time_series.TensorboardTimeSeries.
 
         Raises:
             exceptions.InvalidArgument:
@@ -472,5 +474,7 @@ def request_logger(
     yield
     upload_duration_secs = time.time() - upload_start_time
     logger.info(
-        "Upload of (%d bytes) took %.3f seconds", request_bytes, upload_duration_secs,
+        "Upload of (%d bytes) took %.3f seconds",
+        request_bytes,
+        upload_duration_secs,
     )
