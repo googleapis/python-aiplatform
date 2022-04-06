@@ -52,7 +52,9 @@ featurestore_extra_require = [
     "pandas >= 1.0.0",
     "pyarrow >= 6.0.1",
 ]
-
+pipelines_extra_requires = [
+    "pyyaml>=5.3,<6",
+]
 full_extra_require = list(
     set(
         tensorboard_extra_require
@@ -60,6 +62,7 @@ full_extra_require = list(
         + xai_extra_require
         + lit_extra_require
         + featurestore_extra_require
+        + pipelines_extra_requires
     )
 )
 testing_extra_require = (
@@ -110,6 +113,7 @@ setuptools.setup(
         "xai": xai_extra_require,
         "lit": lit_extra_require,
         "cloud_profiler": profiler_extra_require,
+        "pipelines": pipelines_extra_requires,
     },
     python_requires=">=3.6",
     classifiers=[
