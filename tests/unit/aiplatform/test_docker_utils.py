@@ -154,6 +154,7 @@ class TestRun:
             detach=True,
         )
 
+    @mock.patch.dict(os.environ, {}, clear=True)
     def test_run_prediction_container_with_envs_replaced_by_envs(
         self, tmp_path, docker_client_mock
     ):
@@ -189,6 +190,7 @@ class TestRun:
             detach=True,
         )
 
+    @mock.patch.dict(os.environ, {}, clear=True)
     def test_run_prediction_container_with_command_replaced_by_envs(
         self, tmp_path, docker_client_mock
     ):
@@ -223,6 +225,7 @@ class TestRun:
             detach=True,
         )
 
+    @mock.patch.dict(os.environ, {}, clear=True)
     def test_run_prediction_container_with_args_replaced_by_envs(
         self, tmp_path, docker_client_mock
     ):
