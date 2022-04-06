@@ -92,6 +92,7 @@ class PipelineJob(base.VertexAiStatefulResource):
 
     def __init__(
         self,
+        # TODO(b/223262536): Make the display_name parameter optional in the next major release
         display_name: str,
         template_path: str,
         job_id: Optional[str] = None,
@@ -160,6 +161,8 @@ class PipelineJob(base.VertexAiStatefulResource):
         Raises:
             ValueError: If job_id or labels have incorrect format.
         """
+        if not display_name:
+            display_name = self.__class__._generate_display_name()
         utils.validate_display_name(display_name)
 
         if labels:

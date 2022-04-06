@@ -167,6 +167,7 @@ def create_index_mock():
         yield create_index_mock
 
 
+@pytest.mark.skip(reason="MatchingEngineIndex not available")
 class TestMatchingEngineIndex:
     def setup_method(self):
         reload(initializer)

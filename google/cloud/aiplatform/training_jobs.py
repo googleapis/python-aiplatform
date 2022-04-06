@@ -81,7 +81,7 @@ class _TrainingJob(base.VertexAiStatefulResource):
 
     def __init__(
         self,
-        display_name: str,
+        display_name: Optional[str] = None,
         project: Optional[str] = None,
         location: Optional[str] = None,
         credentials: Optional[auth_credentials.Credentials] = None,
@@ -93,7 +93,7 @@ class _TrainingJob(base.VertexAiStatefulResource):
 
         Args:
             display_name (str):
-                Required. The user-defined name of this TrainingPipeline.
+                Optional. The user-defined name of this TrainingPipeline.
             project (str):
                 Optional project to retrieve model from. If not set, project set in
                 aiplatform.init will be used.
@@ -138,6 +138,8 @@ class _TrainingJob(base.VertexAiStatefulResource):
 
                 Overrides encryption_spec_key_name set in aiplatform.init.
         """
+        if not display_name:
+            display_name = self.__class__._generate_display_name()
         utils.validate_display_name(display_name)
         if labels:
             utils.validate_labels(labels)
@@ -1020,6 +1022,7 @@ class _CustomTrainingJob(_TrainingJob):
 
     def __init__(
         self,
+        # TODO(b/223262536): Make display_name parameter fully optional in next major release
         display_name: str,
         container_uri: str,
         model_serving_container_image_uri: Optional[str] = None,
@@ -1180,6 +1183,8 @@ class _CustomTrainingJob(_TrainingJob):
                 Bucket used to stage source and training artifacts. Overrides
                 staging_bucket set in aiplatform.init.
         """
+        if not display_name:
+            display_name = self.__class__._generate_display_name()
         super().__init__(
             display_name=display_name,
             project=project,
@@ -1564,6 +1569,7 @@ class CustomTrainingJob(_CustomTrainingJob):
 
     def __init__(
         self,
+        # TODO(b/223262536): Make display_name parameter fully optional in next major release
         display_name: str,
         script_path: str,
         container_uri: str,
@@ -1763,6 +1769,8 @@ class CustomTrainingJob(_CustomTrainingJob):
                 Bucket used to stage source and training artifacts. Overrides
                 staging_bucket set in aiplatform.init.
         """
+        if not display_name:
+            display_name = self.__class__._generate_display_name()
         super().__init__(
             display_name=display_name,
             project=project,
@@ -2401,6 +2409,7 @@ class CustomContainerTrainingJob(_CustomTrainingJob):
 
     def __init__(
         self,
+        # TODO(b/223262536): Make display_name parameter fully optional in next major release
         display_name: str,
         container_uri: str,
         command: Sequence[str] = None,
@@ -2598,6 +2607,8 @@ class CustomContainerTrainingJob(_CustomTrainingJob):
                 Bucket used to stage source and training artifacts. Overrides
                 staging_bucket set in aiplatform.init.
         """
+        if not display_name:
+            display_name = self.__class__._generate_display_name()
         super().__init__(
             display_name=display_name,
             project=project,
@@ -3215,6 +3226,7 @@ class AutoMLTabularTrainingJob(_TrainingJob):
 
     def __init__(
         self,
+        # TODO(b/223262536): Make display_name parameter fully optional in next major release
         display_name: str,
         optimization_prediction_type: str,
         optimization_objective: Optional[str] = None,
@@ -3368,6 +3380,8 @@ class AutoMLTabularTrainingJob(_TrainingJob):
         Raises:
             ValueError: If both column_transformations and column_specs were provided.
         """
+        if not display_name:
+            display_name = self.__class__._generate_display_name()
         super().__init__(
             display_name=display_name,
             project=project,
@@ -3875,7 +3889,7 @@ class AutoMLForecastingTrainingJob(_TrainingJob):
 
     def __init__(
         self,
-        display_name: str,
+        display_name: Optional[str] = None,
         optimization_objective: Optional[str] = None,
         column_specs: Optional[Dict[str, str]] = None,
         column_transformations: Optional[List[Dict[str, Dict[str, str]]]] = None,
@@ -3890,7 +3904,7 @@ class AutoMLForecastingTrainingJob(_TrainingJob):
 
         Args:
             display_name (str):
-                Required. The user-defined name of this TrainingPipeline.
+                Optional. The user-defined name of this TrainingPipeline.
             optimization_objective (str):
                 Optional. Objective function the model is to be optimized towards.
                 The training process creates a Model that optimizes the value of the objective
@@ -3972,6 +3986,8 @@ class AutoMLForecastingTrainingJob(_TrainingJob):
         Raises:
             ValueError: If both column_transformations and column_specs were provided.
         """
+        if not display_name:
+            display_name = self.__class__._generate_display_name()
         super().__init__(
             display_name=display_name,
             project=project,
@@ -4550,7 +4566,7 @@ class AutoMLImageTrainingJob(_TrainingJob):
 
     def __init__(
         self,
-        display_name: str,
+        display_name: Optional[str] = None,
         prediction_type: str = "classification",
         multi_label: bool = False,
         model_type: str = "CLOUD",
@@ -4566,7 +4582,7 @@ class AutoMLImageTrainingJob(_TrainingJob):
 
         Args:
             display_name (str):
-                Required. The user-defined name of this TrainingPipeline.
+                Optional. The user-defined name of this TrainingPipeline.
             prediction_type (str):
                 The type of prediction the Model is to produce, one of:
                     "classification" - Predict one out of multiple target values is
@@ -4662,6 +4678,8 @@ class AutoMLImageTrainingJob(_TrainingJob):
         Raises:
             ValueError: When an invalid prediction_type or model_type is provided.
         """
+        if not display_name:
+            display_name = self.__class__._generate_display_name()
 
         valid_model_types = constants.AUTOML_IMAGE_PREDICTION_MODEL_TYPES.get(
             prediction_type, None
@@ -5056,6 +5074,7 @@ class CustomPythonPackageTrainingJob(_CustomTrainingJob):
 
     def __init__(
         self,
+        # TODO(b/223262536): Make display_name parameter fully optional in next major release
         display_name: str,
         python_package_gcs_uri: str,
         python_module_name: str,
@@ -5258,6 +5277,8 @@ class CustomPythonPackageTrainingJob(_CustomTrainingJob):
                 Bucket used to stage source and training artifacts. Overrides
                 staging_bucket set in aiplatform.init.
         """
+        if not display_name:
+            display_name = self.__class__._generate_display_name()
         super().__init__(
             display_name=display_name,
             project=project,
@@ -5863,7 +5884,7 @@ class AutoMLVideoTrainingJob(_TrainingJob):
 
     def __init__(
         self,
-        display_name: str,
+        display_name: Optional[str] = None,
         prediction_type: str = "classification",
         model_type: str = "CLOUD",
         project: Optional[str] = None,
@@ -5957,6 +5978,9 @@ class AutoMLVideoTrainingJob(_TrainingJob):
         Raises:
             ValueError: When an invalid prediction_type and/or model_type is provided.
         """
+        if not display_name:
+            display_name = self.__class__._generate_display_name()
+
         valid_model_types = constants.AUTOML_VIDEO_PREDICTION_MODEL_TYPES.get(
             prediction_type, None
         )
@@ -6238,6 +6262,7 @@ class AutoMLTextTrainingJob(_TrainingJob):
 
     def __init__(
         self,
+        # TODO(b/223262536): Make display_name parameter fully optional in next major release
         display_name: str,
         prediction_type: str,
         multi_label: bool = False,
@@ -6325,6 +6350,8 @@ class AutoMLTextTrainingJob(_TrainingJob):
 
                 Overrides encryption_spec_key_name set in aiplatform.init.
         """
+        if not display_name:
+            display_name = self.__class__._generate_display_name()
         super().__init__(
             display_name=display_name,
             project=project,
