@@ -20,7 +20,9 @@ from google.protobuf import duration_pb2  # type: ignore
 
 __protobuf__ = proto.module(
     package="google.cloud.aiplatform.v1beta1",
-    manifest={"FeaturestoreMonitoringConfig",},
+    manifest={
+        "FeaturestoreMonitoringConfig",
+    },
 )
 
 
@@ -68,13 +70,25 @@ class FeaturestoreMonitoringConfig(proto.Message):
                 will be used.
         """
 
-        disabled = proto.Field(proto.BOOL, number=1,)
-        monitoring_interval = proto.Field(
-            proto.MESSAGE, number=2, message=duration_pb2.Duration,
+        disabled = proto.Field(
+            proto.BOOL,
+            number=1,
         )
-        monitoring_interval_days = proto.Field(proto.INT32, number=3,)
+        monitoring_interval = proto.Field(
+            proto.MESSAGE,
+            number=2,
+            message=duration_pb2.Duration,
+        )
+        monitoring_interval_days = proto.Field(
+            proto.INT32,
+            number=3,
+        )
 
-    snapshot_analysis = proto.Field(proto.MESSAGE, number=1, message=SnapshotAnalysis,)
+    snapshot_analysis = proto.Field(
+        proto.MESSAGE,
+        number=1,
+        message=SnapshotAnalysis,
+    )
 
 
 __all__ = tuple(sorted(__protobuf__.manifest))

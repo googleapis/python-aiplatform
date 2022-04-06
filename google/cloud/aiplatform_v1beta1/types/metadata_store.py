@@ -20,7 +20,10 @@ from google.protobuf import timestamp_pb2  # type: ignore
 
 
 __protobuf__ = proto.module(
-    package="google.cloud.aiplatform.v1beta1", manifest={"MetadataStore",},
+    package="google.cloud.aiplatform.v1beta1",
+    manifest={
+        "MetadataStore",
+    },
 )
 
 
@@ -59,16 +62,39 @@ class MetadataStore(proto.Message):
                 bytes.
         """
 
-        disk_utilization_bytes = proto.Field(proto.INT64, number=1,)
+        disk_utilization_bytes = proto.Field(
+            proto.INT64,
+            number=1,
+        )
 
-    name = proto.Field(proto.STRING, number=1,)
-    create_time = proto.Field(proto.MESSAGE, number=3, message=timestamp_pb2.Timestamp,)
-    update_time = proto.Field(proto.MESSAGE, number=4, message=timestamp_pb2.Timestamp,)
-    encryption_spec = proto.Field(
-        proto.MESSAGE, number=5, message=gca_encryption_spec.EncryptionSpec,
+    name = proto.Field(
+        proto.STRING,
+        number=1,
     )
-    description = proto.Field(proto.STRING, number=6,)
-    state = proto.Field(proto.MESSAGE, number=7, message=MetadataStoreState,)
+    create_time = proto.Field(
+        proto.MESSAGE,
+        number=3,
+        message=timestamp_pb2.Timestamp,
+    )
+    update_time = proto.Field(
+        proto.MESSAGE,
+        number=4,
+        message=timestamp_pb2.Timestamp,
+    )
+    encryption_spec = proto.Field(
+        proto.MESSAGE,
+        number=5,
+        message=gca_encryption_spec.EncryptionSpec,
+    )
+    description = proto.Field(
+        proto.STRING,
+        number=6,
+    )
+    state = proto.Field(
+        proto.MESSAGE,
+        number=7,
+        message=MetadataStoreState,
+    )
 
 
 __all__ = tuple(sorted(__protobuf__.manifest))

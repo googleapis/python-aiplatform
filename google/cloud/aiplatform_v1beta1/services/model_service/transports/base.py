@@ -127,25 +127,39 @@ class ModelServiceTransport(abc.ABC):
         # Precompute the wrapped methods.
         self._wrapped_methods = {
             self.upload_model: gapic_v1.method.wrap_method(
-                self.upload_model, default_timeout=5.0, client_info=client_info,
+                self.upload_model,
+                default_timeout=5.0,
+                client_info=client_info,
             ),
             self.get_model: gapic_v1.method.wrap_method(
-                self.get_model, default_timeout=5.0, client_info=client_info,
+                self.get_model,
+                default_timeout=5.0,
+                client_info=client_info,
             ),
             self.list_models: gapic_v1.method.wrap_method(
-                self.list_models, default_timeout=5.0, client_info=client_info,
+                self.list_models,
+                default_timeout=5.0,
+                client_info=client_info,
             ),
             self.update_model: gapic_v1.method.wrap_method(
-                self.update_model, default_timeout=5.0, client_info=client_info,
+                self.update_model,
+                default_timeout=5.0,
+                client_info=client_info,
             ),
             self.delete_model: gapic_v1.method.wrap_method(
-                self.delete_model, default_timeout=5.0, client_info=client_info,
+                self.delete_model,
+                default_timeout=5.0,
+                client_info=client_info,
             ),
             self.export_model: gapic_v1.method.wrap_method(
-                self.export_model, default_timeout=5.0, client_info=client_info,
+                self.export_model,
+                default_timeout=5.0,
+                client_info=client_info,
             ),
             self.get_model_evaluation: gapic_v1.method.wrap_method(
-                self.get_model_evaluation, default_timeout=5.0, client_info=client_info,
+                self.get_model_evaluation,
+                default_timeout=5.0,
+                client_info=client_info,
             ),
             self.list_model_evaluations: gapic_v1.method.wrap_method(
                 self.list_model_evaluations,
@@ -167,9 +181,9 @@ class ModelServiceTransport(abc.ABC):
     def close(self):
         """Closes resources associated with the transport.
 
-       .. warning::
-            Only call this method if the transport is NOT shared
-            with other clients - this may cause errors in other clients!
+        .. warning::
+             Only call this method if the transport is NOT shared
+             with other clients - this may cause errors in other clients!
         """
         raise NotImplementedError()
 

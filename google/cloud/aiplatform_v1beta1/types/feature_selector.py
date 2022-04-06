@@ -18,7 +18,10 @@ import proto  # type: ignore
 
 __protobuf__ = proto.module(
     package="google.cloud.aiplatform.v1beta1",
-    manifest={"IdMatcher", "FeatureSelector",},
+    manifest={
+        "IdMatcher",
+        "FeatureSelector",
+    },
 )
 
 
@@ -35,7 +38,10 @@ class IdMatcher(proto.Message):
                Features with those IDs in the target EntityType.
     """
 
-    ids = proto.RepeatedField(proto.STRING, number=1,)
+    ids = proto.RepeatedField(
+        proto.STRING,
+        number=1,
+    )
 
 
 class FeatureSelector(proto.Message):
@@ -46,7 +52,11 @@ class FeatureSelector(proto.Message):
             Required. Matches Features based on ID.
     """
 
-    id_matcher = proto.Field(proto.MESSAGE, number=1, message="IdMatcher",)
+    id_matcher = proto.Field(
+        proto.MESSAGE,
+        number=1,
+        message="IdMatcher",
+    )
 
 
 __all__ = tuple(sorted(__protobuf__.manifest))

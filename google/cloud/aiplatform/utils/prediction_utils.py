@@ -36,7 +36,8 @@ REGISTRY_REGEX = re.compile(r"^([\w\-]+\-docker\.pkg\.dev|([\w]+\.|)gcr\.io)")
 
 
 def _inspect_source_from_class(
-    custom_class: Type[Any], src_dir: str,
+    custom_class: Type[Any],
+    src_dir: str,
 ):
     """Inspects the source file from a custom class and returns its import path.
 
@@ -120,8 +121,11 @@ def populate_entrypoint_if_not_exists(
         predictor_import, predictor_name = _inspect_source_from_class(
             predictor, src_dir
         )
-        predictor_import_line = "from {predictor_import_file} import {predictor_class}".format(
-            predictor_import_file=predictor_import, predictor_class=predictor_name,
+        predictor_import_line = (
+            "from {predictor_import_file} import {predictor_class}".format(
+                predictor_import_file=predictor_import,
+                predictor_class=predictor_name,
+            )
         )
 
     handler_import_line = ""
@@ -136,8 +140,11 @@ def populate_entrypoint_if_not_exists(
             )
     else:
         handler_import, handler_name = _inspect_source_from_class(handler, src_dir)
-        handler_import_line = "from {handler_import_file} import {handler_class}".format(
-            handler_import_file=handler_import, handler_class=handler_name,
+        handler_import_line = (
+            "from {handler_import_file} import {handler_class}".format(
+                handler_import_file=handler_import,
+                handler_class=handler_name,
+            )
         )
 
     entrypoint_content = textwrap.dedent(

@@ -151,7 +151,9 @@ def _get_hyperparameter_tuning_job_proto_with_enable_web_access(
     state=None, name=None, error=None, trials=[]
 ):
     hyperparameter_tuning_job_proto = _get_hyperparameter_tuning_job_proto(
-        state=state, name=name, error=error,
+        state=state,
+        name=name,
+        error=error,
     )
     hyperparameter_tuning_job_proto.trial_job_spec.enable_web_access = (
         test_custom_job._TEST_ENABLE_WEB_ACCESS
@@ -295,9 +297,11 @@ def create_hyperparameter_tuning_job_mock():
     with mock.patch.object(
         job_service_client.JobServiceClient, "create_hyperparameter_tuning_job"
     ) as create_hyperparameter_tuning_job_mock:
-        create_hyperparameter_tuning_job_mock.return_value = _get_hyperparameter_tuning_job_proto(
-            name=_TEST_HYPERPARAMETERTUNING_JOB_NAME,
-            state=gca_job_state_compat.JobState.JOB_STATE_PENDING,
+        create_hyperparameter_tuning_job_mock.return_value = (
+            _get_hyperparameter_tuning_job_proto(
+                name=_TEST_HYPERPARAMETERTUNING_JOB_NAME,
+                state=gca_job_state_compat.JobState.JOB_STATE_PENDING,
+            )
         )
         yield create_hyperparameter_tuning_job_mock
 
@@ -307,9 +311,11 @@ def create_hyperparameter_tuning_job_mock_with_enable_web_access():
     with mock.patch.object(
         job_service_client.JobServiceClient, "create_hyperparameter_tuning_job"
     ) as create_hyperparameter_tuning_job_mock:
-        create_hyperparameter_tuning_job_mock.return_value = _get_hyperparameter_tuning_job_proto_with_enable_web_access(
-            name=_TEST_HYPERPARAMETERTUNING_JOB_NAME,
-            state=gca_job_state_compat.JobState.JOB_STATE_PENDING,
+        create_hyperparameter_tuning_job_mock.return_value = (
+            _get_hyperparameter_tuning_job_proto_with_enable_web_access(
+                name=_TEST_HYPERPARAMETERTUNING_JOB_NAME,
+                state=gca_job_state_compat.JobState.JOB_STATE_PENDING,
+            )
         )
         yield create_hyperparameter_tuning_job_mock
 
