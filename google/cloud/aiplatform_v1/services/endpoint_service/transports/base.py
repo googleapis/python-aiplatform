@@ -125,34 +125,48 @@ class EndpointServiceTransport(abc.ABC):
         # Precompute the wrapped methods.
         self._wrapped_methods = {
             self.create_endpoint: gapic_v1.method.wrap_method(
-                self.create_endpoint, default_timeout=None, client_info=client_info,
+                self.create_endpoint,
+                default_timeout=None,
+                client_info=client_info,
             ),
             self.get_endpoint: gapic_v1.method.wrap_method(
-                self.get_endpoint, default_timeout=None, client_info=client_info,
+                self.get_endpoint,
+                default_timeout=None,
+                client_info=client_info,
             ),
             self.list_endpoints: gapic_v1.method.wrap_method(
-                self.list_endpoints, default_timeout=None, client_info=client_info,
+                self.list_endpoints,
+                default_timeout=None,
+                client_info=client_info,
             ),
             self.update_endpoint: gapic_v1.method.wrap_method(
-                self.update_endpoint, default_timeout=None, client_info=client_info,
+                self.update_endpoint,
+                default_timeout=None,
+                client_info=client_info,
             ),
             self.delete_endpoint: gapic_v1.method.wrap_method(
-                self.delete_endpoint, default_timeout=None, client_info=client_info,
+                self.delete_endpoint,
+                default_timeout=None,
+                client_info=client_info,
             ),
             self.deploy_model: gapic_v1.method.wrap_method(
-                self.deploy_model, default_timeout=None, client_info=client_info,
+                self.deploy_model,
+                default_timeout=None,
+                client_info=client_info,
             ),
             self.undeploy_model: gapic_v1.method.wrap_method(
-                self.undeploy_model, default_timeout=None, client_info=client_info,
+                self.undeploy_model,
+                default_timeout=None,
+                client_info=client_info,
             ),
         }
 
     def close(self):
         """Closes resources associated with the transport.
 
-       .. warning::
-            Only call this method if the transport is NOT shared
-            with other clients - this may cause errors in other clients!
+        .. warning::
+             Only call this method if the transport is NOT shared
+             with other clients - this may cause errors in other clients!
         """
         raise NotImplementedError()
 

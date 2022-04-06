@@ -140,19 +140,29 @@ class JobServiceTransport(abc.ABC):
         # Precompute the wrapped methods.
         self._wrapped_methods = {
             self.create_custom_job: gapic_v1.method.wrap_method(
-                self.create_custom_job, default_timeout=None, client_info=client_info,
+                self.create_custom_job,
+                default_timeout=None,
+                client_info=client_info,
             ),
             self.get_custom_job: gapic_v1.method.wrap_method(
-                self.get_custom_job, default_timeout=None, client_info=client_info,
+                self.get_custom_job,
+                default_timeout=None,
+                client_info=client_info,
             ),
             self.list_custom_jobs: gapic_v1.method.wrap_method(
-                self.list_custom_jobs, default_timeout=None, client_info=client_info,
+                self.list_custom_jobs,
+                default_timeout=None,
+                client_info=client_info,
             ),
             self.delete_custom_job: gapic_v1.method.wrap_method(
-                self.delete_custom_job, default_timeout=None, client_info=client_info,
+                self.delete_custom_job,
+                default_timeout=None,
+                client_info=client_info,
             ),
             self.cancel_custom_job: gapic_v1.method.wrap_method(
-                self.cancel_custom_job, default_timeout=None, client_info=client_info,
+                self.cancel_custom_job,
+                default_timeout=None,
+                client_info=client_info,
             ),
             self.create_data_labeling_job: gapic_v1.method.wrap_method(
                 self.create_data_labeling_job,
@@ -274,9 +284,9 @@ class JobServiceTransport(abc.ABC):
     def close(self):
         """Closes resources associated with the transport.
 
-       .. warning::
-            Only call this method if the transport is NOT shared
-            with other clients - this may cause errors in other clients!
+        .. warning::
+             Only call this method if the transport is NOT shared
+             with other clients - this may cause errors in other clients!
         """
         raise NotImplementedError()
 

@@ -52,7 +52,8 @@ class PipelineRuntimeConfigBuilder(object):
 
     @classmethod
     def from_job_spec_json(
-        cls, job_spec: Mapping[str, Any],
+        cls,
+        job_spec: Mapping[str, Any],
     ) -> "PipelineRuntimeConfigBuilder":
         """Creates a PipelineRuntimeConfigBuilder object from PipelineJob json spec.
 

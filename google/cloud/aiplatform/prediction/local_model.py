@@ -56,7 +56,8 @@ class LocalModel:
     """Class that represents a local model."""
 
     def __init__(
-        self, serving_container_spec: aiplatform.gapic.ModelContainerSpec,
+        self,
+        serving_container_spec: aiplatform.gapic.ModelContainerSpec,
     ):
         """Creates a local model instance.
 
@@ -230,7 +231,10 @@ class LocalModel:
         entrypoint_file = "entrypoint.py"
 
         prediction_utils.populate_entrypoint_if_not_exists(
-            src_dir, entrypoint_file, predictor=predictor, handler=handler,
+            src_dir,
+            entrypoint_file,
+            predictor=predictor,
+            handler=handler,
         )
 
         is_prebuilt_prediction_image = helpers.is_prebuilt_prediction_container_uri(

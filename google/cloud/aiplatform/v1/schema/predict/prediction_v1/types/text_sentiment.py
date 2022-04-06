@@ -18,7 +18,9 @@ import proto  # type: ignore
 
 __protobuf__ = proto.module(
     package="google.cloud.aiplatform.v1.schema.predict.prediction",
-    manifest={"TextSentimentPredictionResult",},
+    manifest={
+        "TextSentimentPredictionResult",
+    },
 )
 
 
@@ -37,7 +39,10 @@ class TextSentimentPredictionResult(proto.Message):
             (inclusive) and 10 (inclusive).
     """
 
-    sentiment = proto.Field(proto.INT32, number=1,)
+    sentiment = proto.Field(
+        proto.INT32,
+        number=1,
+    )
 
 
 __all__ = tuple(sorted(__protobuf__.manifest))

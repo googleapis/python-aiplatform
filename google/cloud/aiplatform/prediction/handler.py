@@ -35,7 +35,9 @@ class Handler:
     """Interface for Handler class to handle prediction requests."""
 
     def __init__(
-        self, gcs_artifacts_uri: str, predictor: Optional[Type[Predictor]] = None,
+        self,
+        gcs_artifacts_uri: str,
+        predictor: Optional[Type[Predictor]] = None,
     ):
         """Initializes a Handler instance.
 
@@ -65,7 +67,9 @@ class PredictionHandler(Handler):
     """Default prediction handler for the prediction requests sent to the application."""
 
     def __init__(
-        self, gcs_artifacts_uri: str, predictor: Optional[Type[Predictor]] = None,
+        self,
+        gcs_artifacts_uri: str,
+        predictor: Optional[Type[Predictor]] = None,
     ):
         """Initializes a Handler instance.
 

@@ -199,7 +199,10 @@ def test_full_resource_name_with_partial_name(
     [("347292", "trainingPipelines", "857392", "us-west2020")],
 )
 def test_full_resource_name_raises_value_error(
-    partial_name: str, resource_noun: str, project: str, location: str,
+    partial_name: str,
+    resource_noun: str,
+    project: str,
+    location: str,
 ):
     with pytest.raises(ValueError):
         aiplatform.utils.full_resource_name(
@@ -296,7 +299,8 @@ def test_client_w_override_default_version():
     test_client_options = client_options.ClientOptions()
 
     client_w_override = utils.ModelClientWithOverride(
-        client_options=test_client_options, client_info=test_client_info,
+        client_options=test_client_options,
+        client_info=test_client_info,
     )
     assert isinstance(
         client_w_override._clients[
@@ -312,7 +316,8 @@ def test_client_w_override_select_version():
     test_client_options = client_options.ClientOptions()
 
     client_w_override = utils.ModelClientWithOverride(
-        client_options=test_client_options, client_info=test_client_info,
+        client_options=test_client_options,
+        client_info=test_client_info,
     )
 
     assert isinstance(
@@ -328,8 +333,28 @@ def test_client_w_override_select_version():
 @pytest.mark.parametrize(
     "year,month,day,hour,minute,second,microsecond,expected_seconds,expected_nanos",
     [
-        (2021, 12, 23, 23, 59, 59, 999999, 1640303999, 999000000,),
-        (2013, 1, 1, 1, 1, 1, 199999, 1357002061, 199000000,),
+        (
+            2021,
+            12,
+            23,
+            23,
+            59,
+            59,
+            999999,
+            1640303999,
+            999000000,
+        ),
+        (
+            2013,
+            1,
+            1,
+            1,
+            1,
+            1,
+            199999,
+            1357002061,
+            199000000,
+        ),
     ],
 )
 def test_get_timestamp_proto(
@@ -506,7 +531,8 @@ class TestTensorboardUtils:
 
     def test_tensorboard_get_experiments_compare_url_fail_diff_region(self):
         with pytest.raises(
-            ValueError, match="Got experiments from different locations: asia-east.",
+            ValueError,
+            match="Got experiments from different locations: asia-east.",
         ):
             tensorboard_utils.get_experiments_compare_url(
                 (
@@ -545,7 +571,9 @@ class TestPredictionUtils:
         my_predictor = self._load_module("MyPredictor", str(predictor))
 
         prediction_utils.populate_entrypoint_if_not_exists(
-            str(src_dir), self.ENTRYPOINT_FILE, predictor=my_predictor,
+            str(src_dir),
+            self.ENTRYPOINT_FILE,
+            predictor=my_predictor,
         )
 
         entrypoint = src_dir / self.ENTRYPOINT_FILE
@@ -556,7 +584,9 @@ class TestPredictionUtils:
     def test_populate_entrypoint_if_not_exists_invalid_src_dir(self):
         with pytest.raises(ValueError) as exception:
             prediction_utils.populate_entrypoint_if_not_exists(
-                self.SRC_DIR, self.ENTRYPOINT_FILE, predictor=None,
+                self.SRC_DIR,
+                self.ENTRYPOINT_FILE,
+                predictor=None,
             )
 
         assert "is not a valid path to a directory." in str(exception.value)
@@ -568,7 +598,9 @@ class TestPredictionUtils:
         entrypoint.write_text("")
 
         prediction_utils.populate_entrypoint_if_not_exists(
-            str(src_dir), self.ENTRYPOINT_FILE, predictor=None,
+            str(src_dir),
+            self.ENTRYPOINT_FILE,
+            predictor=None,
         )
 
         assert (
@@ -592,7 +624,9 @@ class TestPredictionUtils:
 
         with pytest.raises(ValueError) as exception:
             prediction_utils.populate_entrypoint_if_not_exists(
-                str(src_dir), self.ENTRYPOINT_FILE, predictor=my_predictor,
+                str(src_dir),
+                self.ENTRYPOINT_FILE,
+                predictor=my_predictor,
             )
 
         assert 'The file implementing "MyPredictor" must be' in str(exception.value)
@@ -612,7 +646,10 @@ class TestPredictionUtils:
         custom_handler = self._load_module("CustomHandler", str(handler))
 
         prediction_utils.populate_entrypoint_if_not_exists(
-            str(src_dir), self.ENTRYPOINT_FILE, predictor=None, handler=custom_handler,
+            str(src_dir),
+            self.ENTRYPOINT_FILE,
+            predictor=None,
+            handler=custom_handler,
         )
 
         entrypoint = src_dir / self.ENTRYPOINT_FILE
@@ -626,7 +663,10 @@ class TestPredictionUtils:
 
         with pytest.raises(ValueError) as exception:
             prediction_utils.populate_entrypoint_if_not_exists(
-                str(src_dir), self.ENTRYPOINT_FILE, predictor=None, handler=None,
+                str(src_dir),
+                self.ENTRYPOINT_FILE,
+                predictor=None,
+                handler=None,
             )
 
         assert str(exception.value) == expected_message
@@ -642,7 +682,9 @@ class TestPredictionUtils:
 
         with pytest.raises(ValueError) as exception:
             prediction_utils.populate_entrypoint_if_not_exists(
-                str(src_dir), self.ENTRYPOINT_FILE, predictor=None,
+                str(src_dir),
+                self.ENTRYPOINT_FILE,
+                predictor=None,
             )
 
         assert str(exception.value) == expected_message
@@ -702,7 +744,10 @@ class TestPredictionUtils:
         custom_handler = self._load_module("CustomHandler", str(handler))
 
         prediction_utils.populate_entrypoint_if_not_exists(
-            str(src_dir), self.ENTRYPOINT_FILE, predictor=None, handler=custom_handler,
+            str(src_dir),
+            self.ENTRYPOINT_FILE,
+            predictor=None,
+            handler=custom_handler,
         )
 
         entrypoint = src_dir / self.ENTRYPOINT_FILE

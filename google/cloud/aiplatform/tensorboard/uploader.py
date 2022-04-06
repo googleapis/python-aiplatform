@@ -83,7 +83,7 @@ _MAX_VARINT64_LENGTH_BYTES = 10
 _DEFAULT_MIN_SCALAR_REQUEST_INTERVAL = 10
 
 # Default maximum WriteTensorbordRunData request size in bytes.
-_DEFAULT_MAX_SCALAR_REQUEST_SIZE = 128 * (2 ** 10)  # 128KiB
+_DEFAULT_MAX_SCALAR_REQUEST_SIZE = 128 * (2**10)  # 128KiB
 
 # Default minimum interval between initiating WriteTensorbordRunData RPCs in
 # milliseconds.
@@ -94,14 +94,14 @@ _DEFAULT_MIN_TENSOR_REQUEST_INTERVAL = 10
 _DEFAULT_MIN_BLOB_REQUEST_INTERVAL = 10
 
 # Default maximum WriteTensorbordRunData request size in bytes.
-_DEFAULT_MAX_TENSOR_REQUEST_SIZE = 512 * (2 ** 10)  # 512KiB
+_DEFAULT_MAX_TENSOR_REQUEST_SIZE = 512 * (2**10)  # 512KiB
 
-_DEFAULT_MAX_BLOB_REQUEST_SIZE = 128 * (2 ** 10)  # 24KiB
+_DEFAULT_MAX_BLOB_REQUEST_SIZE = 128 * (2**10)  # 24KiB
 
 # Default maximum tensor point size in bytes.
-_DEFAULT_MAX_TENSOR_POINT_SIZE = 16 * (2 ** 10)  # 16KiB
+_DEFAULT_MAX_TENSOR_POINT_SIZE = 16 * (2**10)  # 16KiB
 
-_DEFAULT_MAX_BLOB_SIZE = 10 * (2 ** 30)  # 10GiB
+_DEFAULT_MAX_BLOB_SIZE = 10 * (2**30)  # 10GiB
 
 logger = tb_logging.get_logger()
 logger.setLevel(logging.WARNING)
@@ -672,7 +672,8 @@ class _Dispatcher(object):
         self._additional_senders = additional_senders
 
     def _dispatch_additional_senders(
-        self, run_name: str,
+        self,
+        run_name: str,
     ):
         """Dispatch events to any additional senders.
 
@@ -879,15 +880,17 @@ class _BaseBatchedRequestSender(object):
           _OutOfSpaceError: If adding the tag would exceed the remaining
             request budget.
         """
-        time_series_resource_name = self._one_platform_resource_manager.get_time_series_resource_name(
-            run_name,
-            tag_name,
-            lambda: tensorboard_time_series.TensorboardTimeSeries(
-                display_name=tag_name,
-                value_type=self._value_type,
-                plugin_name=metadata.plugin_data.plugin_name,
-                plugin_data=metadata.plugin_data.content,
-            ),
+        time_series_resource_name = (
+            self._one_platform_resource_manager.get_time_series_resource_name(
+                run_name,
+                tag_name,
+                lambda: tensorboard_time_series.TensorboardTimeSeries(
+                    display_name=tag_name,
+                    value_type=self._value_type,
+                    plugin_name=metadata.plugin_data.plugin_name,
+                    plugin_data=metadata.plugin_data.content,
+                ),
+            )
         )
 
         time_series_data_proto = tensorboard_data.TimeSeriesData(
@@ -943,7 +946,9 @@ class _BaseBatchedRequestSender(object):
     @property
     @classmethod
     @abc.abstractmethod
-    def _value_type(cls,) -> tensorboard_time_series.TensorboardTimeSeries.ValueType:
+    def _value_type(
+        cls,
+    ) -> tensorboard_time_series.TensorboardTimeSeries.ValueType:
         """
         :return: Value type of the time series.
         """
@@ -1034,7 +1039,7 @@ class _ScalarBatchedRequestSender(_BaseBatchedRequestSender):
             scalar=scalar_proto,
             wall_time=timestamp.Timestamp(
                 seconds=int(event.wall_time),
-                nanos=int(round((event.wall_time % 1) * 10 ** 9)),
+                nanos=int(round((event.wall_time % 1) * 10**9)),
             ),
         )
 
@@ -1111,7 +1116,7 @@ class _TensorBatchedRequestSender(_BaseBatchedRequestSender):
             ),
             wall_time=timestamp.Timestamp(
                 seconds=int(event.wall_time),
-                nanos=int(round((event.wall_time % 1) * 10 ** 9)),
+                nanos=int(round((event.wall_time % 1) * 10**9)),
             ),
         )
 
@@ -1339,7 +1344,7 @@ class _BlobRequestSender(_BaseBatchedRequestSender):
             ),
             wall_time=timestamp.Timestamp(
                 seconds=int(event.wall_time),
-                nanos=int(round((event.wall_time % 1) * 10 ** 9)),
+                nanos=int(round((event.wall_time % 1) * 10**9)),
             ),
         )
 
@@ -1437,7 +1442,8 @@ def _filtered_graph_bytes(graph_bytes: bytes):
     # a combination of mysterious circumstances.
     except (message.DecodeError, RuntimeWarning):
         logger.warning(
-            "Could not parse GraphDef of size %d. Skipping.", len(graph_bytes),
+            "Could not parse GraphDef of size %d. Skipping.",
+            len(graph_bytes),
         )
         return None
     # Use the default filter parameters:

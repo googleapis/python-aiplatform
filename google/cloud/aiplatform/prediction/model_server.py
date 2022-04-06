@@ -73,10 +73,14 @@ class ModelServer:
 
         self.app = FastAPI()
         self.app.add_api_route(
-            path=self.health_route, endpoint=self.health, methods=["GET"],
+            path=self.health_route,
+            endpoint=self.health,
+            methods=["GET"],
         )
         self.app.add_api_route(
-            path=self.predict_route, endpoint=self.predict, methods=["POST"],
+            path=self.predict_route,
+            endpoint=self.predict,
+            methods=["POST"],
         )
 
     def _init_logging(self):

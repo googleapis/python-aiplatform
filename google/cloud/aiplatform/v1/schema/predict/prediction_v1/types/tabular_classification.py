@@ -18,7 +18,9 @@ import proto  # type: ignore
 
 __protobuf__ = proto.module(
     package="google.cloud.aiplatform.v1.schema.predict.prediction",
-    manifest={"TabularClassificationPredictionResult",},
+    manifest={
+        "TabularClassificationPredictionResult",
+    },
 )
 
 
@@ -37,8 +39,14 @@ class TabularClassificationPredictionResult(proto.Message):
             classes.
     """
 
-    classes = proto.RepeatedField(proto.STRING, number=1,)
-    scores = proto.RepeatedField(proto.FLOAT, number=2,)
+    classes = proto.RepeatedField(
+        proto.STRING,
+        number=1,
+    )
+    scores = proto.RepeatedField(
+        proto.FLOAT,
+        number=2,
+    )
 
 
 __all__ = tuple(sorted(__protobuf__.manifest))

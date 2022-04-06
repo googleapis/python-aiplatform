@@ -154,7 +154,9 @@ def deserialize_exception_mock():
     with mock.patch.object(
         DefaultSerializer, "deserialize"
     ) as deserialize_exception_mock:
-        deserialize_exception_mock.side_effect = HTTPException(status_code=400,)
+        deserialize_exception_mock.side_effect = HTTPException(
+            status_code=400,
+        )
         yield deserialize_exception_mock
 
 
@@ -168,7 +170,9 @@ def serialize_mock():
 @pytest.fixture
 def serialize_exception_mock():
     with mock.patch.object(DefaultSerializer, "serialize") as serialize_exception_mock:
-        serialize_exception_mock.side_effect = HTTPException(status_code=400,)
+        serialize_exception_mock.side_effect = HTTPException(
+            status_code=400,
+        )
         yield serialize_exception_mock
 
 
@@ -462,7 +466,8 @@ def get_model_mock():
         model_service_client.ModelServiceClient, "get_model"
     ) as get_model_mock:
         get_model_mock.return_value = gca_model_compat.Model(
-            display_name=_TEST_MODEL_NAME, name=_TEST_MODEL_RESOURCE_NAME,
+            display_name=_TEST_MODEL_NAME,
+            name=_TEST_MODEL_RESOURCE_NAME,
         )
         yield get_model_mock
 
@@ -1080,7 +1085,9 @@ class TestLocalModel:
         entrypoint = f"{_TEST_SRC_DIR}/{_ENTRYPOINT_FILE}"
 
         local_model = LocalModel.create_cpr_model(
-            _TEST_SRC_DIR, _TEST_OUTPUT_IMAGE, predictor=my_predictor,
+            _TEST_SRC_DIR,
+            _TEST_OUTPUT_IMAGE,
+            predictor=my_predictor,
         )
 
         assert local_model.serving_container_spec.image_uri == _TEST_OUTPUT_IMAGE
@@ -1132,7 +1139,9 @@ class TestLocalModel:
         entrypoint = f"{_TEST_SRC_DIR}/{_ENTRYPOINT_FILE}"
 
         local_model = LocalModel.create_cpr_model(
-            _TEST_SRC_DIR, _TEST_OUTPUT_IMAGE, predictor=my_predictor,
+            _TEST_SRC_DIR,
+            _TEST_OUTPUT_IMAGE,
+            predictor=my_predictor,
         )
 
         assert local_model.serving_container_spec.image_uri == _TEST_OUTPUT_IMAGE
@@ -1340,13 +1349,17 @@ class TestLocalModel:
 
         local_model = LocalModel(container_spec)
 
-        my_model = local_model.upload(display_name=_TEST_MODEL_NAME, sync=sync,)
+        my_model = local_model.upload(
+            display_name=_TEST_MODEL_NAME,
+            sync=sync,
+        )
 
         if not sync:
             my_model.wait()
 
         managed_model = gca_model_compat.Model(
-            display_name=_TEST_MODEL_NAME, container_spec=container_spec,
+            display_name=_TEST_MODEL_NAME,
+            container_spec=container_spec,
         )
 
         upload_model_mock.assert_called_once_with(
@@ -1496,7 +1509,8 @@ class TestLocalModel:
         assert local_endpoint_exit_mock.called
 
     def test_copy_image(
-        self, execute_command_mock,
+        self,
+        execute_command_mock,
     ):
         container_spec = gca_model_compat.ModelContainerSpec(image_uri=_TEST_IMAGE_URI)
         local_model = LocalModel(container_spec)
@@ -1509,7 +1523,8 @@ class TestLocalModel:
         assert new_local_model.serving_container_spec.image_uri == dst_image_uri
 
     def test_copy_image_raises_exception(
-        self, execute_command_return_code_1_mock,
+        self,
+        execute_command_return_code_1_mock,
     ):
         container_spec = gca_model_compat.ModelContainerSpec(image_uri=_TEST_IMAGE_URI)
         local_model = LocalModel(container_spec)
@@ -1534,7 +1549,9 @@ class TestLocalModel:
         assert exception.value.exit_code == expected_return_code
 
     def test_push_image(
-        self, execute_command_mock, is_registry_uri_true_mock,
+        self,
+        execute_command_mock,
+        is_registry_uri_true_mock,
     ):
         container_spec = gca_model_compat.ModelContainerSpec(image_uri=_TEST_IMAGE_URI)
         local_model = LocalModel(container_spec)
@@ -1545,7 +1562,9 @@ class TestLocalModel:
         execute_command_mock.assert_called_once_with(expected_command)
 
     def test_push_image_image_uri_is_not_registry_uri(
-        self, execute_command_mock, is_registry_uri_false_mock,
+        self,
+        execute_command_mock,
+        is_registry_uri_false_mock,
     ):
         container_spec = gca_model_compat.ModelContainerSpec(image_uri=_TEST_IMAGE_URI)
         local_model = LocalModel(container_spec)
@@ -1560,7 +1579,9 @@ class TestLocalModel:
         assert str(exception.value) == expected_message
 
     def test_push_image_raises_exception(
-        self, execute_command_return_code_1_mock, is_registry_uri_true_mock,
+        self,
+        execute_command_return_code_1_mock,
+        is_registry_uri_true_mock,
     ):
         container_spec = gca_model_compat.ModelContainerSpec(image_uri=_TEST_IMAGE_URI)
         local_model = LocalModel(container_spec)

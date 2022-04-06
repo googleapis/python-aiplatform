@@ -108,10 +108,12 @@ def mock_pipeline_service_create():
     with mock.patch.object(
         pipeline_service_client.PipelineServiceClient, "create_training_pipeline"
     ) as mock_create_training_pipeline:
-        mock_create_training_pipeline.return_value = gca_training_pipeline.TrainingPipeline(
-            name=_TEST_PIPELINE_RESOURCE_NAME,
-            state=gca_pipeline_state.PipelineState.PIPELINE_STATE_SUCCEEDED,
-            model_to_upload=gca_model.Model(name=_TEST_MODEL_NAME),
+        mock_create_training_pipeline.return_value = (
+            gca_training_pipeline.TrainingPipeline(
+                name=_TEST_PIPELINE_RESOURCE_NAME,
+                state=gca_pipeline_state.PipelineState.PIPELINE_STATE_SUCCEEDED,
+                model_to_upload=gca_model.Model(name=_TEST_MODEL_NAME),
+            )
         )
         yield mock_create_training_pipeline
 
@@ -121,10 +123,12 @@ def mock_pipeline_service_get():
     with mock.patch.object(
         pipeline_service_client.PipelineServiceClient, "get_training_pipeline"
     ) as mock_get_training_pipeline:
-        mock_get_training_pipeline.return_value = gca_training_pipeline.TrainingPipeline(
-            name=_TEST_PIPELINE_RESOURCE_NAME,
-            state=gca_pipeline_state.PipelineState.PIPELINE_STATE_SUCCEEDED,
-            model_to_upload=gca_model.Model(name=_TEST_MODEL_NAME),
+        mock_get_training_pipeline.return_value = (
+            gca_training_pipeline.TrainingPipeline(
+                name=_TEST_PIPELINE_RESOURCE_NAME,
+                state=gca_pipeline_state.PipelineState.PIPELINE_STATE_SUCCEEDED,
+                model_to_upload=gca_model.Model(name=_TEST_MODEL_NAME),
+            )
         )
         yield mock_get_training_pipeline
 
@@ -134,17 +138,21 @@ def mock_pipeline_service_create_and_get_with_fail():
     with mock.patch.object(
         pipeline_service_client.PipelineServiceClient, "create_training_pipeline"
     ) as mock_create_training_pipeline:
-        mock_create_training_pipeline.return_value = gca_training_pipeline.TrainingPipeline(
-            name=_TEST_PIPELINE_RESOURCE_NAME,
-            state=gca_pipeline_state.PipelineState.PIPELINE_STATE_RUNNING,
+        mock_create_training_pipeline.return_value = (
+            gca_training_pipeline.TrainingPipeline(
+                name=_TEST_PIPELINE_RESOURCE_NAME,
+                state=gca_pipeline_state.PipelineState.PIPELINE_STATE_RUNNING,
+            )
         )
 
         with mock.patch.object(
             pipeline_service_client.PipelineServiceClient, "get_training_pipeline"
         ) as mock_get_training_pipeline:
-            mock_get_training_pipeline.return_value = gca_training_pipeline.TrainingPipeline(
-                name=_TEST_PIPELINE_RESOURCE_NAME,
-                state=gca_pipeline_state.PipelineState.PIPELINE_STATE_FAILED,
+            mock_get_training_pipeline.return_value = (
+                gca_training_pipeline.TrainingPipeline(
+                    name=_TEST_PIPELINE_RESOURCE_NAME,
+                    state=gca_pipeline_state.PipelineState.PIPELINE_STATE_FAILED,
+                )
             )
 
             yield mock_create_training_pipeline, mock_get_training_pipeline
@@ -224,7 +232,8 @@ class TestAutoMLImageTrainingJob:
 
         with pytest.raises(ValueError, match=r"not a supported prediction type"):
             training_jobs.AutoMLImageTrainingJob(
-                display_name=_TEST_DISPLAY_NAME, prediction_type="abcdefg",
+                display_name=_TEST_DISPLAY_NAME,
+                prediction_type="abcdefg",
             )
 
         with pytest.raises(ValueError, match=r"not a supported model_type for"):
@@ -259,7 +268,9 @@ class TestAutoMLImageTrainingJob:
         )
 
         job = training_jobs.AutoMLImageTrainingJob(
-            display_name=_TEST_DISPLAY_NAME, base_model=mock_model, labels=_TEST_LABELS,
+            display_name=_TEST_DISPLAY_NAME,
+            base_model=mock_model,
+            labels=_TEST_LABELS,
         )
 
         model_from_job = job.run(
@@ -291,7 +302,8 @@ class TestAutoMLImageTrainingJob:
         )
 
         true_input_data_config = gca_training_pipeline.InputDataConfig(
-            filter_split=true_filter_split, dataset_id=mock_dataset_image.name,
+            filter_split=true_filter_split,
+            dataset_id=mock_dataset_image.name,
         )
 
         true_training_pipeline = gca_training_pipeline.TrainingPipeline(
@@ -380,7 +392,9 @@ class TestAutoMLImageTrainingJob:
     def test_run_called_twice_raises(self, mock_dataset_image, sync):
         aiplatform.init(project=_TEST_PROJECT)
 
-        job = training_jobs.AutoMLImageTrainingJob(display_name=_TEST_DISPLAY_NAME,)
+        job = training_jobs.AutoMLImageTrainingJob(
+            display_name=_TEST_DISPLAY_NAME,
+        )
 
         job.run(
             dataset=mock_dataset_image,
@@ -406,11 +420,15 @@ class TestAutoMLImageTrainingJob:
     )
     @pytest.mark.parametrize("sync", [True, False])
     def test_run_with_two_split_raises(
-        self, mock_dataset_image, sync,
+        self,
+        mock_dataset_image,
+        sync,
     ):
         aiplatform.init(project=_TEST_PROJECT)
 
-        job = training_jobs.AutoMLImageTrainingJob(display_name=_TEST_DISPLAY_NAME,)
+        job = training_jobs.AutoMLImageTrainingJob(
+            display_name=_TEST_DISPLAY_NAME,
+        )
 
         with pytest.raises(ValueError):
             model_from_job = job.run(
@@ -434,7 +452,9 @@ class TestAutoMLImageTrainingJob:
 
         aiplatform.init(project=_TEST_PROJECT)
 
-        job = training_jobs.AutoMLImageTrainingJob(display_name=_TEST_DISPLAY_NAME,)
+        job = training_jobs.AutoMLImageTrainingJob(
+            display_name=_TEST_DISPLAY_NAME,
+        )
 
         with pytest.raises(RuntimeError):
             job.run(
@@ -455,7 +475,9 @@ class TestAutoMLImageTrainingJob:
     def test_raises_before_run_is_called(self, mock_pipeline_service_create):
         aiplatform.init(project=_TEST_PROJECT)
 
-        job = training_jobs.AutoMLImageTrainingJob(display_name=_TEST_DISPLAY_NAME,)
+        job = training_jobs.AutoMLImageTrainingJob(
+            display_name=_TEST_DISPLAY_NAME,
+        )
 
         with pytest.raises(RuntimeError):
             job.get_model()
@@ -516,7 +538,8 @@ class TestAutoMLImageTrainingJob:
         )
 
         true_input_data_config = gca_training_pipeline.InputDataConfig(
-            fraction_split=true_fraction_split, dataset_id=mock_dataset_image.name,
+            fraction_split=true_fraction_split,
+            dataset_id=mock_dataset_image.name,
         )
 
         true_training_pipeline = gca_training_pipeline.TrainingPipeline(
@@ -584,7 +607,8 @@ class TestAutoMLImageTrainingJob:
         )
 
         true_input_data_config = gca_training_pipeline.InputDataConfig(
-            filter_split=true_filter_split, dataset_id=mock_dataset_image.name,
+            filter_split=true_filter_split,
+            dataset_id=mock_dataset_image.name,
         )
 
         true_training_pipeline = gca_training_pipeline.TrainingPipeline(

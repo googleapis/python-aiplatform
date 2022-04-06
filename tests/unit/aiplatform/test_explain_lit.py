@@ -259,7 +259,8 @@ class TestExplainLit:
         initializer.global_pool.shutdown(wait=True)
 
     def test_create_lit_dataset_from_pandas_returns_dataset(
-        self, set_up_pandas_dataframe_and_columns,
+        self,
+        set_up_pandas_dataframe_and_columns,
     ):
         pd_dataset, lit_columns = set_up_pandas_dataframe_and_columns
         lit_dataset = create_lit_dataset(pd_dataset, lit_columns)

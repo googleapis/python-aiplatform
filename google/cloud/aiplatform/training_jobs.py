@@ -1348,16 +1348,18 @@ class _CustomTrainingJob(_TrainingJob):
             model_display_name = model_display_name or self._display_name + "-model"
 
         # validates args and will raise
-        worker_pool_specs = worker_spec_utils._DistributedTrainingSpec.chief_worker_pool(
-            replica_count=replica_count,
-            machine_type=machine_type,
-            accelerator_count=accelerator_count,
-            accelerator_type=accelerator_type,
-            boot_disk_type=boot_disk_type,
-            boot_disk_size_gb=boot_disk_size_gb,
-            reduction_server_replica_count=reduction_server_replica_count,
-            reduction_server_machine_type=reduction_server_machine_type,
-        ).pool_specs
+        worker_pool_specs = (
+            worker_spec_utils._DistributedTrainingSpec.chief_worker_pool(
+                replica_count=replica_count,
+                machine_type=machine_type,
+                accelerator_count=accelerator_count,
+                accelerator_type=accelerator_type,
+                boot_disk_type=boot_disk_type,
+                boot_disk_size_gb=boot_disk_size_gb,
+                reduction_server_replica_count=reduction_server_replica_count,
+                reduction_server_machine_type=reduction_server_machine_type,
+            ).pool_specs
+        )
 
         managed_model = self._managed_model
         if model_display_name:
@@ -1472,7 +1474,12 @@ class _CustomTrainingJob(_TrainingJob):
             if uri not in self._logged_web_access_uris:
                 _LOGGER.info(
                     "%s %s access the interactive shell terminals for the backing custom job:\n%s:\n%s"
-                    % (self.__class__.__name__, self._gca_resource.name, worker, uri,),
+                    % (
+                        self.__class__.__name__,
+                        self._gca_resource.name,
+                        worker,
+                        uri,
+                    ),
                 )
                 self._logged_web_access_uris.add(uri)
 
@@ -3280,8 +3287,10 @@ class AutoMLTabularTrainingJob(_TrainingJob):
             model_encryption_spec_key_name=model_encryption_spec_key_name,
         )
 
-        self._column_transformations = column_transformations_utils.validate_and_get_column_transformations(
-            column_specs, column_transformations
+        self._column_transformations = (
+            column_transformations_utils.validate_and_get_column_transformations(
+                column_specs, column_transformations
+            )
         )
 
         self._optimization_objective = optimization_objective
@@ -3718,7 +3727,8 @@ class AutoMLTabularTrainingJob(_TrainingJob):
 
     @staticmethod
     def get_auto_column_specs(
-        dataset: datasets.TabularDataset, target_column: str,
+        dataset: datasets.TabularDataset,
+        target_column: str,
     ) -> Dict[str, str]:
         """Returns a dict with all non-target columns as keys and 'auto' as values.
 
@@ -3867,8 +3877,10 @@ class AutoMLForecastingTrainingJob(_TrainingJob):
             model_encryption_spec_key_name=model_encryption_spec_key_name,
         )
 
-        self._column_transformations = column_transformations_utils.validate_and_get_column_transformations(
-            column_specs, column_transformations
+        self._column_transformations = (
+            column_transformations_utils.validate_and_get_column_transformations(
+                column_specs, column_transformations
+            )
         )
 
         self._optimization_objective = optimization_objective
@@ -6358,8 +6370,10 @@ class AutoMLTextTrainingJob(_TrainingJob):
                 schema.training_job.definition.automl_text_classification
             )
 
-            training_task_inputs_dict = training_job_inputs.AutoMlTextClassificationInputs(
-                multi_label=multi_label
+            training_task_inputs_dict = (
+                training_job_inputs.AutoMlTextClassificationInputs(
+                    multi_label=multi_label
+                )
             )
         elif prediction_type == "extraction":
             training_task_definition = (
