@@ -248,7 +248,7 @@ endpoint = model.deploy(machine_type="n1-standard-4")
 
 ## Notebook Samples
 
-The four samples below showcase the different ways you can deploy a sklearn iris model with custom pre/post-processing on Vertex AI Prediction.
+The samples below showcase the different ways you can deploy an iris model with custom pre/post-processing on Vertex AI Prediction.
 
 The samples start with the simplest user journey (custom pre/post processing for sklearn). Each subsequent sample follows user journeys that allows for more flexibility during prediction handling. 
 
@@ -263,7 +263,13 @@ Each sample will also cover the local debugging experience.
     - Custom implementation of Predictor and Handler.
     - Customizing the Handler allows the model server to handle csv inputs.
     - https://github.com/googleapis/python-aiplatform/blob/custom-prediction-routine/samples/notebooks/prediction/SDK_Custom_Predict_and_Handler_SDK_Integration.ipynb
+- Custom Predictor, build your own container with Vertex SDK for PyTorch.
+    - Custom implementation of the Predictor.
+    - https://github.com/googleapis/python-aiplatform/blob/custom-prediction-routine/samples/notebooks/prediction/SDK_Pytorch_Custom_Predict.ipynb
 - Custom Predictor, build your own container with docker commands.
     - Custom container building.
     - Users have full control over the docker build process (files included in the container, dependencies installed, entrypoint, etc.).
     - https://github.com/googleapis/python-aiplatform/blob/custom-prediction-routine/samples/notebooks/prediction/SDK_Custom_Predict.ipynb
+- Existing image, test prediction locally and deploy models with Vertex SDK.
+    - Use NVIDIA Triton inference server for PyTorch models.
+    - https://github.com/googleapis/python-aiplatform/blob/custom-prediction-routine/samples/notebooks/prediction/SDK_Triton_PyTorch_Local_Prediction.ipynb
