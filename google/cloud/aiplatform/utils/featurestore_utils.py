@@ -147,7 +147,9 @@ class _FeatureConfig(NamedTuple):
     ) -> gca_featurestore_service.CreateFeatureRequest:
         """Return create feature request."""
 
-        gapic_feature = gca_feature.Feature(value_type=self._get_value_type_enum(),)
+        gapic_feature = gca_feature.Feature(
+            value_type=self._get_value_type_enum(),
+        )
 
         if self.labels:
             utils.validate_labels(self.labels)

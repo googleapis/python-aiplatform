@@ -71,7 +71,10 @@ class PipelineServiceClientMeta(type):
     _transport_registry["grpc"] = PipelineServiceGrpcTransport
     _transport_registry["grpc_asyncio"] = PipelineServiceGrpcAsyncIOTransport
 
-    def get_transport_class(cls, label: str = None,) -> Type[PipelineServiceTransport]:
+    def get_transport_class(
+        cls,
+        label: str = None,
+    ) -> Type[PipelineServiceTransport]:
         """Returns an appropriate transport class.
 
         Args:
@@ -181,7 +184,10 @@ class PipelineServiceClient(metaclass=PipelineServiceClientMeta):
 
     @staticmethod
     def artifact_path(
-        project: str, location: str, metadata_store: str, artifact: str,
+        project: str,
+        location: str,
+        metadata_store: str,
+        artifact: str,
     ) -> str:
         """Returns a fully-qualified artifact string."""
         return "projects/{project}/locations/{location}/metadataStores/{metadata_store}/artifacts/{artifact}".format(
@@ -202,7 +208,10 @@ class PipelineServiceClient(metaclass=PipelineServiceClientMeta):
 
     @staticmethod
     def context_path(
-        project: str, location: str, metadata_store: str, context: str,
+        project: str,
+        location: str,
+        metadata_store: str,
+        context: str,
     ) -> str:
         """Returns a fully-qualified context string."""
         return "projects/{project}/locations/{location}/metadataStores/{metadata_store}/contexts/{context}".format(
@@ -222,10 +231,16 @@ class PipelineServiceClient(metaclass=PipelineServiceClientMeta):
         return m.groupdict() if m else {}
 
     @staticmethod
-    def custom_job_path(project: str, location: str, custom_job: str,) -> str:
+    def custom_job_path(
+        project: str,
+        location: str,
+        custom_job: str,
+    ) -> str:
         """Returns a fully-qualified custom_job string."""
         return "projects/{project}/locations/{location}/customJobs/{custom_job}".format(
-            project=project, location=location, custom_job=custom_job,
+            project=project,
+            location=location,
+            custom_job=custom_job,
         )
 
     @staticmethod
@@ -238,10 +253,16 @@ class PipelineServiceClient(metaclass=PipelineServiceClientMeta):
         return m.groupdict() if m else {}
 
     @staticmethod
-    def endpoint_path(project: str, location: str, endpoint: str,) -> str:
+    def endpoint_path(
+        project: str,
+        location: str,
+        endpoint: str,
+    ) -> str:
         """Returns a fully-qualified endpoint string."""
         return "projects/{project}/locations/{location}/endpoints/{endpoint}".format(
-            project=project, location=location, endpoint=endpoint,
+            project=project,
+            location=location,
+            endpoint=endpoint,
         )
 
     @staticmethod
@@ -255,7 +276,10 @@ class PipelineServiceClient(metaclass=PipelineServiceClientMeta):
 
     @staticmethod
     def execution_path(
-        project: str, location: str, metadata_store: str, execution: str,
+        project: str,
+        location: str,
+        metadata_store: str,
+        execution: str,
     ) -> str:
         """Returns a fully-qualified execution string."""
         return "projects/{project}/locations/{location}/metadataStores/{metadata_store}/executions/{execution}".format(
@@ -275,10 +299,16 @@ class PipelineServiceClient(metaclass=PipelineServiceClientMeta):
         return m.groupdict() if m else {}
 
     @staticmethod
-    def model_path(project: str, location: str, model: str,) -> str:
+    def model_path(
+        project: str,
+        location: str,
+        model: str,
+    ) -> str:
         """Returns a fully-qualified model string."""
         return "projects/{project}/locations/{location}/models/{model}".format(
-            project=project, location=location, model=model,
+            project=project,
+            location=location,
+            model=model,
         )
 
     @staticmethod
@@ -291,10 +321,14 @@ class PipelineServiceClient(metaclass=PipelineServiceClientMeta):
         return m.groupdict() if m else {}
 
     @staticmethod
-    def network_path(project: str, network: str,) -> str:
+    def network_path(
+        project: str,
+        network: str,
+    ) -> str:
         """Returns a fully-qualified network string."""
         return "projects/{project}/global/networks/{network}".format(
-            project=project, network=network,
+            project=project,
+            network=network,
         )
 
     @staticmethod
@@ -306,10 +340,16 @@ class PipelineServiceClient(metaclass=PipelineServiceClientMeta):
         return m.groupdict() if m else {}
 
     @staticmethod
-    def pipeline_job_path(project: str, location: str, pipeline_job: str,) -> str:
+    def pipeline_job_path(
+        project: str,
+        location: str,
+        pipeline_job: str,
+    ) -> str:
         """Returns a fully-qualified pipeline_job string."""
         return "projects/{project}/locations/{location}/pipelineJobs/{pipeline_job}".format(
-            project=project, location=location, pipeline_job=pipeline_job,
+            project=project,
+            location=location,
+            pipeline_job=pipeline_job,
         )
 
     @staticmethod
@@ -323,11 +363,15 @@ class PipelineServiceClient(metaclass=PipelineServiceClientMeta):
 
     @staticmethod
     def training_pipeline_path(
-        project: str, location: str, training_pipeline: str,
+        project: str,
+        location: str,
+        training_pipeline: str,
     ) -> str:
         """Returns a fully-qualified training_pipeline string."""
         return "projects/{project}/locations/{location}/trainingPipelines/{training_pipeline}".format(
-            project=project, location=location, training_pipeline=training_pipeline,
+            project=project,
+            location=location,
+            training_pipeline=training_pipeline,
         )
 
     @staticmethod
@@ -340,7 +384,9 @@ class PipelineServiceClient(metaclass=PipelineServiceClientMeta):
         return m.groupdict() if m else {}
 
     @staticmethod
-    def common_billing_account_path(billing_account: str,) -> str:
+    def common_billing_account_path(
+        billing_account: str,
+    ) -> str:
         """Returns a fully-qualified billing_account string."""
         return "billingAccounts/{billing_account}".format(
             billing_account=billing_account,
@@ -353,9 +399,13 @@ class PipelineServiceClient(metaclass=PipelineServiceClientMeta):
         return m.groupdict() if m else {}
 
     @staticmethod
-    def common_folder_path(folder: str,) -> str:
+    def common_folder_path(
+        folder: str,
+    ) -> str:
         """Returns a fully-qualified folder string."""
-        return "folders/{folder}".format(folder=folder,)
+        return "folders/{folder}".format(
+            folder=folder,
+        )
 
     @staticmethod
     def parse_common_folder_path(path: str) -> Dict[str, str]:
@@ -364,9 +414,13 @@ class PipelineServiceClient(metaclass=PipelineServiceClientMeta):
         return m.groupdict() if m else {}
 
     @staticmethod
-    def common_organization_path(organization: str,) -> str:
+    def common_organization_path(
+        organization: str,
+    ) -> str:
         """Returns a fully-qualified organization string."""
-        return "organizations/{organization}".format(organization=organization,)
+        return "organizations/{organization}".format(
+            organization=organization,
+        )
 
     @staticmethod
     def parse_common_organization_path(path: str) -> Dict[str, str]:
@@ -375,9 +429,13 @@ class PipelineServiceClient(metaclass=PipelineServiceClientMeta):
         return m.groupdict() if m else {}
 
     @staticmethod
-    def common_project_path(project: str,) -> str:
+    def common_project_path(
+        project: str,
+    ) -> str:
         """Returns a fully-qualified project string."""
-        return "projects/{project}".format(project=project,)
+        return "projects/{project}".format(
+            project=project,
+        )
 
     @staticmethod
     def parse_common_project_path(path: str) -> Dict[str, str]:
@@ -386,10 +444,14 @@ class PipelineServiceClient(metaclass=PipelineServiceClientMeta):
         return m.groupdict() if m else {}
 
     @staticmethod
-    def common_location_path(project: str, location: str,) -> str:
+    def common_location_path(
+        project: str,
+        location: str,
+    ) -> str:
         """Returns a fully-qualified location string."""
         return "projects/{project}/locations/{location}".format(
-            project=project, location=location,
+            project=project,
+            location=location,
         )
 
     @staticmethod
@@ -645,7 +707,12 @@ class PipelineServiceClient(metaclass=PipelineServiceClientMeta):
         )
 
         # Send the request.
-        response = rpc(request, retry=retry, timeout=timeout, metadata=metadata,)
+        response = rpc(
+            request,
+            retry=retry,
+            timeout=timeout,
+            metadata=metadata,
+        )
 
         # Done; return the response.
         return response
@@ -721,7 +788,12 @@ class PipelineServiceClient(metaclass=PipelineServiceClientMeta):
         )
 
         # Send the request.
-        response = rpc(request, retry=retry, timeout=timeout, metadata=metadata,)
+        response = rpc(
+            request,
+            retry=retry,
+            timeout=timeout,
+            metadata=metadata,
+        )
 
         # Done; return the response.
         return response
@@ -796,12 +868,20 @@ class PipelineServiceClient(metaclass=PipelineServiceClientMeta):
         )
 
         # Send the request.
-        response = rpc(request, retry=retry, timeout=timeout, metadata=metadata,)
+        response = rpc(
+            request,
+            retry=retry,
+            timeout=timeout,
+            metadata=metadata,
+        )
 
         # This method is paged; wrap the response in a pager, which provides
         # an `__iter__` convenience method.
         response = pagers.ListTrainingPipelinesPager(
-            method=rpc, request=request, response=response, metadata=metadata,
+            method=rpc,
+            request=request,
+            response=response,
+            metadata=metadata,
         )
 
         # Done; return the response.
@@ -887,7 +967,12 @@ class PipelineServiceClient(metaclass=PipelineServiceClientMeta):
         )
 
         # Send the request.
-        response = rpc(request, retry=retry, timeout=timeout, metadata=metadata,)
+        response = rpc(
+            request,
+            retry=retry,
+            timeout=timeout,
+            metadata=metadata,
+        )
 
         # Wrap the response in an operation future.
         response = gac_operation.from_gapic(
@@ -974,7 +1059,10 @@ class PipelineServiceClient(metaclass=PipelineServiceClientMeta):
 
         # Send the request.
         rpc(
-            request, retry=retry, timeout=timeout, metadata=metadata,
+            request,
+            retry=retry,
+            timeout=timeout,
+            metadata=metadata,
         )
 
     def create_pipeline_job(
@@ -1067,7 +1155,12 @@ class PipelineServiceClient(metaclass=PipelineServiceClientMeta):
         )
 
         # Send the request.
-        response = rpc(request, retry=retry, timeout=timeout, metadata=metadata,)
+        response = rpc(
+            request,
+            retry=retry,
+            timeout=timeout,
+            metadata=metadata,
+        )
 
         # Done; return the response.
         return response
@@ -1138,7 +1231,12 @@ class PipelineServiceClient(metaclass=PipelineServiceClientMeta):
         )
 
         # Send the request.
-        response = rpc(request, retry=retry, timeout=timeout, metadata=metadata,)
+        response = rpc(
+            request,
+            retry=retry,
+            timeout=timeout,
+            metadata=metadata,
+        )
 
         # Done; return the response.
         return response
@@ -1213,12 +1311,20 @@ class PipelineServiceClient(metaclass=PipelineServiceClientMeta):
         )
 
         # Send the request.
-        response = rpc(request, retry=retry, timeout=timeout, metadata=metadata,)
+        response = rpc(
+            request,
+            retry=retry,
+            timeout=timeout,
+            metadata=metadata,
+        )
 
         # This method is paged; wrap the response in a pager, which provides
         # an `__iter__` convenience method.
         response = pagers.ListPipelineJobsPager(
-            method=rpc, request=request, response=response, metadata=metadata,
+            method=rpc,
+            request=request,
+            response=response,
+            metadata=metadata,
         )
 
         # Done; return the response.
@@ -1304,7 +1410,12 @@ class PipelineServiceClient(metaclass=PipelineServiceClientMeta):
         )
 
         # Send the request.
-        response = rpc(request, retry=retry, timeout=timeout, metadata=metadata,)
+        response = rpc(
+            request,
+            retry=retry,
+            timeout=timeout,
+            metadata=metadata,
+        )
 
         # Wrap the response in an operation future.
         response = gac_operation.from_gapic(
@@ -1390,7 +1501,10 @@ class PipelineServiceClient(metaclass=PipelineServiceClientMeta):
 
         # Send the request.
         rpc(
-            request, retry=retry, timeout=timeout, metadata=metadata,
+            request,
+            retry=retry,
+            timeout=timeout,
+            metadata=metadata,
         )
 
     def __enter__(self):

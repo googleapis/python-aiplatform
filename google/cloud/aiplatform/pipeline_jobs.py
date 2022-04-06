@@ -252,7 +252,9 @@ class PipelineJob(base.VertexAiResourceNounWithFutureManager):
         self._block_until_complete()
 
     def submit(
-        self, service_account: Optional[str] = None, network: Optional[str] = None,
+        self,
+        service_account: Optional[str] = None,
+        network: Optional[str] = None,
     ) -> None:
         """Run this configured PipelineJob.
 

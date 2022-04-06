@@ -19,7 +19,10 @@ from google.cloud.aiplatform_v1.types import model
 
 
 __protobuf__ = proto.module(
-    package="google.cloud.aiplatform.v1", manifest={"UnmanagedContainerModel",},
+    package="google.cloud.aiplatform.v1",
+    manifest={
+        "UnmanagedContainerModel",
+    },
 )
 
 
@@ -40,12 +43,19 @@ class UnmanagedContainerModel(proto.Message):
             Model.
     """
 
-    artifact_uri = proto.Field(proto.STRING, number=1,)
+    artifact_uri = proto.Field(
+        proto.STRING,
+        number=1,
+    )
     predict_schemata = proto.Field(
-        proto.MESSAGE, number=2, message=model.PredictSchemata,
+        proto.MESSAGE,
+        number=2,
+        message=model.PredictSchemata,
     )
     container_spec = proto.Field(
-        proto.MESSAGE, number=3, message=model.ModelContainerSpec,
+        proto.MESSAGE,
+        number=3,
+        message=model.ModelContainerSpec,
     )
 
 

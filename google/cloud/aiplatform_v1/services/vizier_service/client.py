@@ -58,7 +58,10 @@ class VizierServiceClientMeta(type):
     _transport_registry["grpc"] = VizierServiceGrpcTransport
     _transport_registry["grpc_asyncio"] = VizierServiceGrpcAsyncIOTransport
 
-    def get_transport_class(cls, label: str = None,) -> Type[VizierServiceTransport]:
+    def get_transport_class(
+        cls,
+        label: str = None,
+    ) -> Type[VizierServiceTransport]:
         """Returns an appropriate transport class.
 
         Args:
@@ -167,10 +170,16 @@ class VizierServiceClient(metaclass=VizierServiceClientMeta):
         return self._transport
 
     @staticmethod
-    def custom_job_path(project: str, location: str, custom_job: str,) -> str:
+    def custom_job_path(
+        project: str,
+        location: str,
+        custom_job: str,
+    ) -> str:
         """Returns a fully-qualified custom_job string."""
         return "projects/{project}/locations/{location}/customJobs/{custom_job}".format(
-            project=project, location=location, custom_job=custom_job,
+            project=project,
+            location=location,
+            custom_job=custom_job,
         )
 
     @staticmethod
@@ -183,10 +192,16 @@ class VizierServiceClient(metaclass=VizierServiceClientMeta):
         return m.groupdict() if m else {}
 
     @staticmethod
-    def study_path(project: str, location: str, study: str,) -> str:
+    def study_path(
+        project: str,
+        location: str,
+        study: str,
+    ) -> str:
         """Returns a fully-qualified study string."""
         return "projects/{project}/locations/{location}/studies/{study}".format(
-            project=project, location=location, study=study,
+            project=project,
+            location=location,
+            study=study,
         )
 
     @staticmethod
@@ -199,10 +214,18 @@ class VizierServiceClient(metaclass=VizierServiceClientMeta):
         return m.groupdict() if m else {}
 
     @staticmethod
-    def trial_path(project: str, location: str, study: str, trial: str,) -> str:
+    def trial_path(
+        project: str,
+        location: str,
+        study: str,
+        trial: str,
+    ) -> str:
         """Returns a fully-qualified trial string."""
         return "projects/{project}/locations/{location}/studies/{study}/trials/{trial}".format(
-            project=project, location=location, study=study, trial=trial,
+            project=project,
+            location=location,
+            study=study,
+            trial=trial,
         )
 
     @staticmethod
@@ -215,7 +238,9 @@ class VizierServiceClient(metaclass=VizierServiceClientMeta):
         return m.groupdict() if m else {}
 
     @staticmethod
-    def common_billing_account_path(billing_account: str,) -> str:
+    def common_billing_account_path(
+        billing_account: str,
+    ) -> str:
         """Returns a fully-qualified billing_account string."""
         return "billingAccounts/{billing_account}".format(
             billing_account=billing_account,
@@ -228,9 +253,13 @@ class VizierServiceClient(metaclass=VizierServiceClientMeta):
         return m.groupdict() if m else {}
 
     @staticmethod
-    def common_folder_path(folder: str,) -> str:
+    def common_folder_path(
+        folder: str,
+    ) -> str:
         """Returns a fully-qualified folder string."""
-        return "folders/{folder}".format(folder=folder,)
+        return "folders/{folder}".format(
+            folder=folder,
+        )
 
     @staticmethod
     def parse_common_folder_path(path: str) -> Dict[str, str]:
@@ -239,9 +268,13 @@ class VizierServiceClient(metaclass=VizierServiceClientMeta):
         return m.groupdict() if m else {}
 
     @staticmethod
-    def common_organization_path(organization: str,) -> str:
+    def common_organization_path(
+        organization: str,
+    ) -> str:
         """Returns a fully-qualified organization string."""
-        return "organizations/{organization}".format(organization=organization,)
+        return "organizations/{organization}".format(
+            organization=organization,
+        )
 
     @staticmethod
     def parse_common_organization_path(path: str) -> Dict[str, str]:
@@ -250,9 +283,13 @@ class VizierServiceClient(metaclass=VizierServiceClientMeta):
         return m.groupdict() if m else {}
 
     @staticmethod
-    def common_project_path(project: str,) -> str:
+    def common_project_path(
+        project: str,
+    ) -> str:
         """Returns a fully-qualified project string."""
-        return "projects/{project}".format(project=project,)
+        return "projects/{project}".format(
+            project=project,
+        )
 
     @staticmethod
     def parse_common_project_path(path: str) -> Dict[str, str]:
@@ -261,10 +298,14 @@ class VizierServiceClient(metaclass=VizierServiceClientMeta):
         return m.groupdict() if m else {}
 
     @staticmethod
-    def common_location_path(project: str, location: str,) -> str:
+    def common_location_path(
+        project: str,
+        location: str,
+    ) -> str:
         """Returns a fully-qualified location string."""
         return "projects/{project}/locations/{location}".format(
-            project=project, location=location,
+            project=project,
+            location=location,
         )
 
     @staticmethod
@@ -514,7 +555,12 @@ class VizierServiceClient(metaclass=VizierServiceClientMeta):
         )
 
         # Send the request.
-        response = rpc(request, retry=retry, timeout=timeout, metadata=metadata,)
+        response = rpc(
+            request,
+            retry=retry,
+            timeout=timeout,
+            metadata=metadata,
+        )
 
         # Done; return the response.
         return response
@@ -583,7 +629,12 @@ class VizierServiceClient(metaclass=VizierServiceClientMeta):
         )
 
         # Send the request.
-        response = rpc(request, retry=retry, timeout=timeout, metadata=metadata,)
+        response = rpc(
+            request,
+            retry=retry,
+            timeout=timeout,
+            metadata=metadata,
+        )
 
         # Done; return the response.
         return response
@@ -659,12 +710,20 @@ class VizierServiceClient(metaclass=VizierServiceClientMeta):
         )
 
         # Send the request.
-        response = rpc(request, retry=retry, timeout=timeout, metadata=metadata,)
+        response = rpc(
+            request,
+            retry=retry,
+            timeout=timeout,
+            metadata=metadata,
+        )
 
         # This method is paged; wrap the response in a pager, which provides
         # an `__iter__` convenience method.
         response = pagers.ListStudiesPager(
-            method=rpc, request=request, response=response, metadata=metadata,
+            method=rpc,
+            request=request,
+            response=response,
+            metadata=metadata,
         )
 
         # Done; return the response.
@@ -732,7 +791,10 @@ class VizierServiceClient(metaclass=VizierServiceClientMeta):
 
         # Send the request.
         rpc(
-            request, retry=retry, timeout=timeout, metadata=metadata,
+            request,
+            retry=retry,
+            timeout=timeout,
+            metadata=metadata,
         )
 
     def lookup_study(
@@ -801,7 +863,12 @@ class VizierServiceClient(metaclass=VizierServiceClientMeta):
         )
 
         # Send the request.
-        response = rpc(request, retry=retry, timeout=timeout, metadata=metadata,)
+        response = rpc(
+            request,
+            retry=retry,
+            timeout=timeout,
+            metadata=metadata,
+        )
 
         # Done; return the response.
         return response
@@ -859,7 +926,12 @@ class VizierServiceClient(metaclass=VizierServiceClientMeta):
         )
 
         # Send the request.
-        response = rpc(request, retry=retry, timeout=timeout, metadata=metadata,)
+        response = rpc(
+            request,
+            retry=retry,
+            timeout=timeout,
+            metadata=metadata,
+        )
 
         # Wrap the response in an operation future.
         response = operation.from_gapic(
@@ -950,7 +1022,12 @@ class VizierServiceClient(metaclass=VizierServiceClientMeta):
         )
 
         # Send the request.
-        response = rpc(request, retry=retry, timeout=timeout, metadata=metadata,)
+        response = rpc(
+            request,
+            retry=retry,
+            timeout=timeout,
+            metadata=metadata,
+        )
 
         # Done; return the response.
         return response
@@ -1024,7 +1101,12 @@ class VizierServiceClient(metaclass=VizierServiceClientMeta):
         )
 
         # Send the request.
-        response = rpc(request, retry=retry, timeout=timeout, metadata=metadata,)
+        response = rpc(
+            request,
+            retry=retry,
+            timeout=timeout,
+            metadata=metadata,
+        )
 
         # Done; return the response.
         return response
@@ -1099,12 +1181,20 @@ class VizierServiceClient(metaclass=VizierServiceClientMeta):
         )
 
         # Send the request.
-        response = rpc(request, retry=retry, timeout=timeout, metadata=metadata,)
+        response = rpc(
+            request,
+            retry=retry,
+            timeout=timeout,
+            metadata=metadata,
+        )
 
         # This method is paged; wrap the response in a pager, which provides
         # an `__iter__` convenience method.
         response = pagers.ListTrialsPager(
-            method=rpc, request=request, response=response, metadata=metadata,
+            method=rpc,
+            request=request,
+            response=response,
+            metadata=metadata,
         )
 
         # Done; return the response.
@@ -1162,7 +1252,12 @@ class VizierServiceClient(metaclass=VizierServiceClientMeta):
         )
 
         # Send the request.
-        response = rpc(request, retry=retry, timeout=timeout, metadata=metadata,)
+        response = rpc(
+            request,
+            retry=retry,
+            timeout=timeout,
+            metadata=metadata,
+        )
 
         # Done; return the response.
         return response
@@ -1215,7 +1310,12 @@ class VizierServiceClient(metaclass=VizierServiceClientMeta):
         )
 
         # Send the request.
-        response = rpc(request, retry=retry, timeout=timeout, metadata=metadata,)
+        response = rpc(
+            request,
+            retry=retry,
+            timeout=timeout,
+            metadata=metadata,
+        )
 
         # Done; return the response.
         return response
@@ -1281,7 +1381,10 @@ class VizierServiceClient(metaclass=VizierServiceClientMeta):
 
         # Send the request.
         rpc(
-            request, retry=retry, timeout=timeout, metadata=metadata,
+            request,
+            retry=retry,
+            timeout=timeout,
+            metadata=metadata,
         )
 
     def check_trial_early_stopping_state(
@@ -1340,7 +1443,12 @@ class VizierServiceClient(metaclass=VizierServiceClientMeta):
         )
 
         # Send the request.
-        response = rpc(request, retry=retry, timeout=timeout, metadata=metadata,)
+        response = rpc(
+            request,
+            retry=retry,
+            timeout=timeout,
+            metadata=metadata,
+        )
 
         # Wrap the response in an operation future.
         response = operation.from_gapic(
@@ -1401,7 +1509,12 @@ class VizierServiceClient(metaclass=VizierServiceClientMeta):
         )
 
         # Send the request.
-        response = rpc(request, retry=retry, timeout=timeout, metadata=metadata,)
+        response = rpc(
+            request,
+            retry=retry,
+            timeout=timeout,
+            metadata=metadata,
+        )
 
         # Done; return the response.
         return response
@@ -1475,7 +1588,12 @@ class VizierServiceClient(metaclass=VizierServiceClientMeta):
         )
 
         # Send the request.
-        response = rpc(request, retry=retry, timeout=timeout, metadata=metadata,)
+        response = rpc(
+            request,
+            retry=retry,
+            timeout=timeout,
+            metadata=metadata,
+        )
 
         # Done; return the response.
         return response

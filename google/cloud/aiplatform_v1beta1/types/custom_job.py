@@ -102,20 +102,64 @@ class CustomJob(proto.Message):
             The values are the URIs for each node's interactive shell.
     """
 
-    name = proto.Field(proto.STRING, number=1,)
-    display_name = proto.Field(proto.STRING, number=2,)
-    job_spec = proto.Field(proto.MESSAGE, number=4, message="CustomJobSpec",)
-    state = proto.Field(proto.ENUM, number=5, enum=job_state.JobState,)
-    create_time = proto.Field(proto.MESSAGE, number=6, message=timestamp_pb2.Timestamp,)
-    start_time = proto.Field(proto.MESSAGE, number=7, message=timestamp_pb2.Timestamp,)
-    end_time = proto.Field(proto.MESSAGE, number=8, message=timestamp_pb2.Timestamp,)
-    update_time = proto.Field(proto.MESSAGE, number=9, message=timestamp_pb2.Timestamp,)
-    error = proto.Field(proto.MESSAGE, number=10, message=status_pb2.Status,)
-    labels = proto.MapField(proto.STRING, proto.STRING, number=11,)
-    encryption_spec = proto.Field(
-        proto.MESSAGE, number=12, message=gca_encryption_spec.EncryptionSpec,
+    name = proto.Field(
+        proto.STRING,
+        number=1,
     )
-    web_access_uris = proto.MapField(proto.STRING, proto.STRING, number=16,)
+    display_name = proto.Field(
+        proto.STRING,
+        number=2,
+    )
+    job_spec = proto.Field(
+        proto.MESSAGE,
+        number=4,
+        message="CustomJobSpec",
+    )
+    state = proto.Field(
+        proto.ENUM,
+        number=5,
+        enum=job_state.JobState,
+    )
+    create_time = proto.Field(
+        proto.MESSAGE,
+        number=6,
+        message=timestamp_pb2.Timestamp,
+    )
+    start_time = proto.Field(
+        proto.MESSAGE,
+        number=7,
+        message=timestamp_pb2.Timestamp,
+    )
+    end_time = proto.Field(
+        proto.MESSAGE,
+        number=8,
+        message=timestamp_pb2.Timestamp,
+    )
+    update_time = proto.Field(
+        proto.MESSAGE,
+        number=9,
+        message=timestamp_pb2.Timestamp,
+    )
+    error = proto.Field(
+        proto.MESSAGE,
+        number=10,
+        message=status_pb2.Status,
+    )
+    labels = proto.MapField(
+        proto.STRING,
+        proto.STRING,
+        number=11,
+    )
+    encryption_spec = proto.Field(
+        proto.MESSAGE,
+        number=12,
+        message=gca_encryption_spec.EncryptionSpec,
+    )
+    web_access_uris = proto.MapField(
+        proto.STRING,
+        proto.STRING,
+        number=16,
+    )
 
 
 class CustomJobSpec(proto.Message):
@@ -203,16 +247,36 @@ class CustomJobSpec(proto.Message):
     """
 
     worker_pool_specs = proto.RepeatedField(
-        proto.MESSAGE, number=1, message="WorkerPoolSpec",
+        proto.MESSAGE,
+        number=1,
+        message="WorkerPoolSpec",
     )
-    scheduling = proto.Field(proto.MESSAGE, number=3, message="Scheduling",)
-    service_account = proto.Field(proto.STRING, number=4,)
-    network = proto.Field(proto.STRING, number=5,)
+    scheduling = proto.Field(
+        proto.MESSAGE,
+        number=3,
+        message="Scheduling",
+    )
+    service_account = proto.Field(
+        proto.STRING,
+        number=4,
+    )
+    network = proto.Field(
+        proto.STRING,
+        number=5,
+    )
     base_output_directory = proto.Field(
-        proto.MESSAGE, number=6, message=io.GcsDestination,
+        proto.MESSAGE,
+        number=6,
+        message=io.GcsDestination,
     )
-    tensorboard = proto.Field(proto.STRING, number=7,)
-    enable_web_access = proto.Field(proto.BOOL, number=10,)
+    tensorboard = proto.Field(
+        proto.STRING,
+        number=7,
+    )
+    enable_web_access = proto.Field(
+        proto.BOOL,
+        number=10,
+    )
 
 
 class WorkerPoolSpec(proto.Message):
@@ -245,17 +309,30 @@ class WorkerPoolSpec(proto.Message):
     """
 
     container_spec = proto.Field(
-        proto.MESSAGE, number=6, oneof="task", message="ContainerSpec",
+        proto.MESSAGE,
+        number=6,
+        oneof="task",
+        message="ContainerSpec",
     )
     python_package_spec = proto.Field(
-        proto.MESSAGE, number=7, oneof="task", message="PythonPackageSpec",
+        proto.MESSAGE,
+        number=7,
+        oneof="task",
+        message="PythonPackageSpec",
     )
     machine_spec = proto.Field(
-        proto.MESSAGE, number=1, message=machine_resources.MachineSpec,
+        proto.MESSAGE,
+        number=1,
+        message=machine_resources.MachineSpec,
     )
-    replica_count = proto.Field(proto.INT64, number=2,)
+    replica_count = proto.Field(
+        proto.INT64,
+        number=2,
+    )
     disk_spec = proto.Field(
-        proto.MESSAGE, number=5, message=machine_resources.DiskSpec,
+        proto.MESSAGE,
+        number=5,
+        message=machine_resources.DiskSpec,
     )
 
 
@@ -276,9 +353,18 @@ class ContainerSpec(proto.Message):
             container.
     """
 
-    image_uri = proto.Field(proto.STRING, number=1,)
-    command = proto.RepeatedField(proto.STRING, number=2,)
-    args = proto.RepeatedField(proto.STRING, number=3,)
+    image_uri = proto.Field(
+        proto.STRING,
+        number=1,
+    )
+    command = proto.RepeatedField(
+        proto.STRING,
+        number=2,
+    )
+    args = proto.RepeatedField(
+        proto.STRING,
+        number=3,
+    )
 
 
 class PythonPackageSpec(proto.Message):
@@ -306,10 +392,22 @@ class PythonPackageSpec(proto.Message):
             Python task.
     """
 
-    executor_image_uri = proto.Field(proto.STRING, number=1,)
-    package_uris = proto.RepeatedField(proto.STRING, number=2,)
-    python_module = proto.Field(proto.STRING, number=3,)
-    args = proto.RepeatedField(proto.STRING, number=4,)
+    executor_image_uri = proto.Field(
+        proto.STRING,
+        number=1,
+    )
+    package_uris = proto.RepeatedField(
+        proto.STRING,
+        number=2,
+    )
+    python_module = proto.Field(
+        proto.STRING,
+        number=3,
+    )
+    args = proto.RepeatedField(
+        proto.STRING,
+        number=4,
+    )
 
 
 class Scheduling(proto.Message):
@@ -327,8 +425,15 @@ class Scheduling(proto.Message):
             to workers leaving and joining a job.
     """
 
-    timeout = proto.Field(proto.MESSAGE, number=1, message=duration_pb2.Duration,)
-    restart_job_on_worker_restart = proto.Field(proto.BOOL, number=3,)
+    timeout = proto.Field(
+        proto.MESSAGE,
+        number=1,
+        message=duration_pb2.Duration,
+    )
+    restart_job_on_worker_restart = proto.Field(
+        proto.BOOL,
+        number=3,
+    )
 
 
 __all__ = tuple(sorted(__protobuf__.manifest))

@@ -55,7 +55,8 @@ def _generate_copy_command(from_path: str, to_path: str, comment: Optional[str] 
             # {}
             {}
             """.format(
-                formatted_comment, cmd,
+                formatted_comment,
+                cmd,
             )
         )
 
@@ -100,7 +101,8 @@ def _prepare_dependency_entries(
             """
             RUN {} install --no-cache-dir {} .
             """.format(
-                pip_command, "--force-reinstall" if force_reinstall else "",
+                pip_command,
+                "--force-reinstall" if force_reinstall else "",
             )
         )
 
@@ -113,7 +115,8 @@ def _prepare_dependency_entries(
             """
             RUN {} install --no-cache-dir {} -r ./requirements.txt
             """.format(
-                pip_command, "--force-reinstall" if force_reinstall else "",
+                pip_command,
+                "--force-reinstall" if force_reinstall else "",
             )
         )
 
@@ -214,7 +217,9 @@ def _prepare_exposed_ports(exposed_ports: Optional[List[int]] = None):
 
 
 def _get_relative_path_to_workdir(
-    workdir: str, path: Optional[str] = None, value_name: str = "value",
+    workdir: str,
+    path: Optional[str] = None,
+    value_name: str = "value",
 ) -> str:
     """Returns the relative path to the workdir.
 
@@ -439,11 +444,15 @@ def build_image(
     )
 
     requirements_relative_path = _get_relative_path_to_workdir(
-        host_workdir, path=requirements_path, value_name="requirements_path",
+        host_workdir,
+        path=requirements_path,
+        value_name="requirements_path",
     )
 
     setup_relative_path = _get_relative_path_to_workdir(
-        host_workdir, path=setup_path, value_name="setup_path",
+        host_workdir,
+        path=setup_path,
+        value_name="setup_path",
     )
 
     extra_packages_relative_paths = (

@@ -97,7 +97,11 @@ def test__get_default_mtls_endpoint():
 
 
 @pytest.mark.parametrize(
-    "client_class", [VizierServiceClient, VizierServiceAsyncClient,]
+    "client_class",
+    [
+        VizierServiceClient,
+        VizierServiceAsyncClient,
+    ],
 )
 def test_vizier_service_client_from_service_account_info(client_class):
     creds = ga_credentials.AnonymousCredentials()
@@ -139,7 +143,11 @@ def test_vizier_service_client_service_account_always_use_jwt(
 
 
 @pytest.mark.parametrize(
-    "client_class", [VizierServiceClient, VizierServiceAsyncClient,]
+    "client_class",
+    [
+        VizierServiceClient,
+        VizierServiceAsyncClient,
+    ],
 )
 def test_vizier_service_client_from_service_account_file(client_class):
     creds = ga_credentials.AnonymousCredentials()
@@ -503,7 +511,9 @@ def test_vizier_service_client_client_options_scopes(
     client_class, transport_class, transport_name
 ):
     # Check the case scopes are provided.
-    options = client_options.ClientOptions(scopes=["1", "2"],)
+    options = client_options.ClientOptions(
+        scopes=["1", "2"],
+    )
     with mock.patch.object(transport_class, "__init__") as patched:
         patched.return_value = None
         client = client_class(client_options=options, transport=transport_name)
@@ -606,10 +616,17 @@ def test_vizier_service_client_client_options_from_dict():
         )
 
 
-@pytest.mark.parametrize("request_type", [vizier_service.CreateStudyRequest, dict,])
+@pytest.mark.parametrize(
+    "request_type",
+    [
+        vizier_service.CreateStudyRequest,
+        dict,
+    ],
+)
 def test_create_study(request_type, transport: str = "grpc"):
     client = VizierServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(), transport=transport,
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport=transport,
     )
 
     # Everything is optional in proto3 as far as the runtime is concerned,
@@ -644,7 +661,8 @@ def test_create_study_empty_call():
     # This test is a coverage failsafe to make sure that totally empty calls,
     # i.e. request == None and no flattened fields passed, work.
     client = VizierServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(), transport="grpc",
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="grpc",
     )
 
     # Mock the actual call within the gRPC stub, and fake the request.
@@ -660,7 +678,8 @@ async def test_create_study_async(
     transport: str = "grpc_asyncio", request_type=vizier_service.CreateStudyRequest
 ):
     client = VizierServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(), transport=transport,
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport=transport,
     )
 
     # Everything is optional in proto3 as far as the runtime is concerned,
@@ -699,7 +718,9 @@ async def test_create_study_async_from_dict():
 
 
 def test_create_study_field_headers():
-    client = VizierServiceClient(credentials=ga_credentials.AnonymousCredentials(),)
+    client = VizierServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+    )
 
     # Any value that is part of the HTTP/1.1 URI should be sent as
     # a field header. Set these to a non-empty value.
@@ -719,7 +740,10 @@ def test_create_study_field_headers():
 
     # Establish that the field header was sent.
     _, _, kw = call.mock_calls[0]
-    assert ("x-goog-request-params", "parent=parent/value",) in kw["metadata"]
+    assert (
+        "x-goog-request-params",
+        "parent=parent/value",
+    ) in kw["metadata"]
 
 
 @pytest.mark.asyncio
@@ -746,11 +770,16 @@ async def test_create_study_field_headers_async():
 
     # Establish that the field header was sent.
     _, _, kw = call.mock_calls[0]
-    assert ("x-goog-request-params", "parent=parent/value",) in kw["metadata"]
+    assert (
+        "x-goog-request-params",
+        "parent=parent/value",
+    ) in kw["metadata"]
 
 
 def test_create_study_flattened():
-    client = VizierServiceClient(credentials=ga_credentials.AnonymousCredentials(),)
+    client = VizierServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+    )
 
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(type(client.transport.create_study), "__call__") as call:
@@ -759,7 +788,8 @@ def test_create_study_flattened():
         # Call the method with a truthy value for each flattened field,
         # using the keyword arguments to the method.
         client.create_study(
-            parent="parent_value", study=gca_study.Study(name="name_value"),
+            parent="parent_value",
+            study=gca_study.Study(name="name_value"),
         )
 
         # Establish that the underlying call was made with the expected
@@ -775,7 +805,9 @@ def test_create_study_flattened():
 
 
 def test_create_study_flattened_error():
-    client = VizierServiceClient(credentials=ga_credentials.AnonymousCredentials(),)
+    client = VizierServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+    )
 
     # Attempting to call a method with both a request object and flattened
     # fields is an error.
@@ -802,7 +834,8 @@ async def test_create_study_flattened_async():
         # Call the method with a truthy value for each flattened field,
         # using the keyword arguments to the method.
         response = await client.create_study(
-            parent="parent_value", study=gca_study.Study(name="name_value"),
+            parent="parent_value",
+            study=gca_study.Study(name="name_value"),
         )
 
         # Establish that the underlying call was made with the expected
@@ -833,10 +866,17 @@ async def test_create_study_flattened_error_async():
         )
 
 
-@pytest.mark.parametrize("request_type", [vizier_service.GetStudyRequest, dict,])
+@pytest.mark.parametrize(
+    "request_type",
+    [
+        vizier_service.GetStudyRequest,
+        dict,
+    ],
+)
 def test_get_study(request_type, transport: str = "grpc"):
     client = VizierServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(), transport=transport,
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport=transport,
     )
 
     # Everything is optional in proto3 as far as the runtime is concerned,
@@ -871,7 +911,8 @@ def test_get_study_empty_call():
     # This test is a coverage failsafe to make sure that totally empty calls,
     # i.e. request == None and no flattened fields passed, work.
     client = VizierServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(), transport="grpc",
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="grpc",
     )
 
     # Mock the actual call within the gRPC stub, and fake the request.
@@ -887,7 +928,8 @@ async def test_get_study_async(
     transport: str = "grpc_asyncio", request_type=vizier_service.GetStudyRequest
 ):
     client = VizierServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(), transport=transport,
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport=transport,
     )
 
     # Everything is optional in proto3 as far as the runtime is concerned,
@@ -926,7 +968,9 @@ async def test_get_study_async_from_dict():
 
 
 def test_get_study_field_headers():
-    client = VizierServiceClient(credentials=ga_credentials.AnonymousCredentials(),)
+    client = VizierServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+    )
 
     # Any value that is part of the HTTP/1.1 URI should be sent as
     # a field header. Set these to a non-empty value.
@@ -946,7 +990,10 @@ def test_get_study_field_headers():
 
     # Establish that the field header was sent.
     _, _, kw = call.mock_calls[0]
-    assert ("x-goog-request-params", "name=name/value",) in kw["metadata"]
+    assert (
+        "x-goog-request-params",
+        "name=name/value",
+    ) in kw["metadata"]
 
 
 @pytest.mark.asyncio
@@ -973,11 +1020,16 @@ async def test_get_study_field_headers_async():
 
     # Establish that the field header was sent.
     _, _, kw = call.mock_calls[0]
-    assert ("x-goog-request-params", "name=name/value",) in kw["metadata"]
+    assert (
+        "x-goog-request-params",
+        "name=name/value",
+    ) in kw["metadata"]
 
 
 def test_get_study_flattened():
-    client = VizierServiceClient(credentials=ga_credentials.AnonymousCredentials(),)
+    client = VizierServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+    )
 
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(type(client.transport.get_study), "__call__") as call:
@@ -985,7 +1037,9 @@ def test_get_study_flattened():
         call.return_value = study.Study()
         # Call the method with a truthy value for each flattened field,
         # using the keyword arguments to the method.
-        client.get_study(name="name_value",)
+        client.get_study(
+            name="name_value",
+        )
 
         # Establish that the underlying call was made with the expected
         # request object values.
@@ -997,13 +1051,16 @@ def test_get_study_flattened():
 
 
 def test_get_study_flattened_error():
-    client = VizierServiceClient(credentials=ga_credentials.AnonymousCredentials(),)
+    client = VizierServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+    )
 
     # Attempting to call a method with both a request object and flattened
     # fields is an error.
     with pytest.raises(ValueError):
         client.get_study(
-            vizier_service.GetStudyRequest(), name="name_value",
+            vizier_service.GetStudyRequest(),
+            name="name_value",
         )
 
 
@@ -1021,7 +1078,9 @@ async def test_get_study_flattened_async():
         call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(study.Study())
         # Call the method with a truthy value for each flattened field,
         # using the keyword arguments to the method.
-        response = await client.get_study(name="name_value",)
+        response = await client.get_study(
+            name="name_value",
+        )
 
         # Establish that the underlying call was made with the expected
         # request object values.
@@ -1042,14 +1101,22 @@ async def test_get_study_flattened_error_async():
     # fields is an error.
     with pytest.raises(ValueError):
         await client.get_study(
-            vizier_service.GetStudyRequest(), name="name_value",
+            vizier_service.GetStudyRequest(),
+            name="name_value",
         )
 
 
-@pytest.mark.parametrize("request_type", [vizier_service.ListStudiesRequest, dict,])
+@pytest.mark.parametrize(
+    "request_type",
+    [
+        vizier_service.ListStudiesRequest,
+        dict,
+    ],
+)
 def test_list_studies(request_type, transport: str = "grpc"):
     client = VizierServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(), transport=transport,
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport=transport,
     )
 
     # Everything is optional in proto3 as far as the runtime is concerned,
@@ -1078,7 +1145,8 @@ def test_list_studies_empty_call():
     # This test is a coverage failsafe to make sure that totally empty calls,
     # i.e. request == None and no flattened fields passed, work.
     client = VizierServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(), transport="grpc",
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="grpc",
     )
 
     # Mock the actual call within the gRPC stub, and fake the request.
@@ -1094,7 +1162,8 @@ async def test_list_studies_async(
     transport: str = "grpc_asyncio", request_type=vizier_service.ListStudiesRequest
 ):
     client = VizierServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(), transport=transport,
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport=transport,
     )
 
     # Everything is optional in proto3 as far as the runtime is concerned,
@@ -1105,7 +1174,9 @@ async def test_list_studies_async(
     with mock.patch.object(type(client.transport.list_studies), "__call__") as call:
         # Designate an appropriate return value for the call.
         call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(
-            vizier_service.ListStudiesResponse(next_page_token="next_page_token_value",)
+            vizier_service.ListStudiesResponse(
+                next_page_token="next_page_token_value",
+            )
         )
         response = await client.list_studies(request)
 
@@ -1125,7 +1196,9 @@ async def test_list_studies_async_from_dict():
 
 
 def test_list_studies_field_headers():
-    client = VizierServiceClient(credentials=ga_credentials.AnonymousCredentials(),)
+    client = VizierServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+    )
 
     # Any value that is part of the HTTP/1.1 URI should be sent as
     # a field header. Set these to a non-empty value.
@@ -1145,7 +1218,10 @@ def test_list_studies_field_headers():
 
     # Establish that the field header was sent.
     _, _, kw = call.mock_calls[0]
-    assert ("x-goog-request-params", "parent=parent/value",) in kw["metadata"]
+    assert (
+        "x-goog-request-params",
+        "parent=parent/value",
+    ) in kw["metadata"]
 
 
 @pytest.mark.asyncio
@@ -1174,11 +1250,16 @@ async def test_list_studies_field_headers_async():
 
     # Establish that the field header was sent.
     _, _, kw = call.mock_calls[0]
-    assert ("x-goog-request-params", "parent=parent/value",) in kw["metadata"]
+    assert (
+        "x-goog-request-params",
+        "parent=parent/value",
+    ) in kw["metadata"]
 
 
 def test_list_studies_flattened():
-    client = VizierServiceClient(credentials=ga_credentials.AnonymousCredentials(),)
+    client = VizierServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+    )
 
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(type(client.transport.list_studies), "__call__") as call:
@@ -1186,7 +1267,9 @@ def test_list_studies_flattened():
         call.return_value = vizier_service.ListStudiesResponse()
         # Call the method with a truthy value for each flattened field,
         # using the keyword arguments to the method.
-        client.list_studies(parent="parent_value",)
+        client.list_studies(
+            parent="parent_value",
+        )
 
         # Establish that the underlying call was made with the expected
         # request object values.
@@ -1198,13 +1281,16 @@ def test_list_studies_flattened():
 
 
 def test_list_studies_flattened_error():
-    client = VizierServiceClient(credentials=ga_credentials.AnonymousCredentials(),)
+    client = VizierServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+    )
 
     # Attempting to call a method with both a request object and flattened
     # fields is an error.
     with pytest.raises(ValueError):
         client.list_studies(
-            vizier_service.ListStudiesRequest(), parent="parent_value",
+            vizier_service.ListStudiesRequest(),
+            parent="parent_value",
         )
 
 
@@ -1224,7 +1310,9 @@ async def test_list_studies_flattened_async():
         )
         # Call the method with a truthy value for each flattened field,
         # using the keyword arguments to the method.
-        response = await client.list_studies(parent="parent_value",)
+        response = await client.list_studies(
+            parent="parent_value",
+        )
 
         # Establish that the underlying call was made with the expected
         # request object values.
@@ -1245,13 +1333,15 @@ async def test_list_studies_flattened_error_async():
     # fields is an error.
     with pytest.raises(ValueError):
         await client.list_studies(
-            vizier_service.ListStudiesRequest(), parent="parent_value",
+            vizier_service.ListStudiesRequest(),
+            parent="parent_value",
         )
 
 
 def test_list_studies_pager(transport_name: str = "grpc"):
     client = VizierServiceClient(
-        credentials=ga_credentials.AnonymousCredentials, transport=transport_name,
+        credentials=ga_credentials.AnonymousCredentials,
+        transport=transport_name,
     )
 
     # Mock the actual call within the gRPC stub, and fake the request.
@@ -1259,15 +1349,28 @@ def test_list_studies_pager(transport_name: str = "grpc"):
         # Set the response to a series of pages.
         call.side_effect = (
             vizier_service.ListStudiesResponse(
-                studies=[study.Study(), study.Study(), study.Study(),],
+                studies=[
+                    study.Study(),
+                    study.Study(),
+                    study.Study(),
+                ],
                 next_page_token="abc",
             ),
-            vizier_service.ListStudiesResponse(studies=[], next_page_token="def",),
             vizier_service.ListStudiesResponse(
-                studies=[study.Study(),], next_page_token="ghi",
+                studies=[],
+                next_page_token="def",
             ),
             vizier_service.ListStudiesResponse(
-                studies=[study.Study(), study.Study(),],
+                studies=[
+                    study.Study(),
+                ],
+                next_page_token="ghi",
+            ),
+            vizier_service.ListStudiesResponse(
+                studies=[
+                    study.Study(),
+                    study.Study(),
+                ],
             ),
             RuntimeError,
         )
@@ -1287,7 +1390,8 @@ def test_list_studies_pager(transport_name: str = "grpc"):
 
 def test_list_studies_pages(transport_name: str = "grpc"):
     client = VizierServiceClient(
-        credentials=ga_credentials.AnonymousCredentials, transport=transport_name,
+        credentials=ga_credentials.AnonymousCredentials,
+        transport=transport_name,
     )
 
     # Mock the actual call within the gRPC stub, and fake the request.
@@ -1295,15 +1399,28 @@ def test_list_studies_pages(transport_name: str = "grpc"):
         # Set the response to a series of pages.
         call.side_effect = (
             vizier_service.ListStudiesResponse(
-                studies=[study.Study(), study.Study(), study.Study(),],
+                studies=[
+                    study.Study(),
+                    study.Study(),
+                    study.Study(),
+                ],
                 next_page_token="abc",
             ),
-            vizier_service.ListStudiesResponse(studies=[], next_page_token="def",),
             vizier_service.ListStudiesResponse(
-                studies=[study.Study(),], next_page_token="ghi",
+                studies=[],
+                next_page_token="def",
             ),
             vizier_service.ListStudiesResponse(
-                studies=[study.Study(), study.Study(),],
+                studies=[
+                    study.Study(),
+                ],
+                next_page_token="ghi",
+            ),
+            vizier_service.ListStudiesResponse(
+                studies=[
+                    study.Study(),
+                    study.Study(),
+                ],
             ),
             RuntimeError,
         )
@@ -1314,7 +1431,9 @@ def test_list_studies_pages(transport_name: str = "grpc"):
 
 @pytest.mark.asyncio
 async def test_list_studies_async_pager():
-    client = VizierServiceAsyncClient(credentials=ga_credentials.AnonymousCredentials,)
+    client = VizierServiceAsyncClient(
+        credentials=ga_credentials.AnonymousCredentials,
+    )
 
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(
@@ -1323,19 +1442,34 @@ async def test_list_studies_async_pager():
         # Set the response to a series of pages.
         call.side_effect = (
             vizier_service.ListStudiesResponse(
-                studies=[study.Study(), study.Study(), study.Study(),],
+                studies=[
+                    study.Study(),
+                    study.Study(),
+                    study.Study(),
+                ],
                 next_page_token="abc",
             ),
-            vizier_service.ListStudiesResponse(studies=[], next_page_token="def",),
             vizier_service.ListStudiesResponse(
-                studies=[study.Study(),], next_page_token="ghi",
+                studies=[],
+                next_page_token="def",
             ),
             vizier_service.ListStudiesResponse(
-                studies=[study.Study(), study.Study(),],
+                studies=[
+                    study.Study(),
+                ],
+                next_page_token="ghi",
+            ),
+            vizier_service.ListStudiesResponse(
+                studies=[
+                    study.Study(),
+                    study.Study(),
+                ],
             ),
             RuntimeError,
         )
-        async_pager = await client.list_studies(request={},)
+        async_pager = await client.list_studies(
+            request={},
+        )
         assert async_pager.next_page_token == "abc"
         responses = []
         async for response in async_pager:
@@ -1347,7 +1481,9 @@ async def test_list_studies_async_pager():
 
 @pytest.mark.asyncio
 async def test_list_studies_async_pages():
-    client = VizierServiceAsyncClient(credentials=ga_credentials.AnonymousCredentials,)
+    client = VizierServiceAsyncClient(
+        credentials=ga_credentials.AnonymousCredentials,
+    )
 
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(
@@ -1356,15 +1492,28 @@ async def test_list_studies_async_pages():
         # Set the response to a series of pages.
         call.side_effect = (
             vizier_service.ListStudiesResponse(
-                studies=[study.Study(), study.Study(), study.Study(),],
+                studies=[
+                    study.Study(),
+                    study.Study(),
+                    study.Study(),
+                ],
                 next_page_token="abc",
             ),
-            vizier_service.ListStudiesResponse(studies=[], next_page_token="def",),
             vizier_service.ListStudiesResponse(
-                studies=[study.Study(),], next_page_token="ghi",
+                studies=[],
+                next_page_token="def",
             ),
             vizier_service.ListStudiesResponse(
-                studies=[study.Study(), study.Study(),],
+                studies=[
+                    study.Study(),
+                ],
+                next_page_token="ghi",
+            ),
+            vizier_service.ListStudiesResponse(
+                studies=[
+                    study.Study(),
+                    study.Study(),
+                ],
             ),
             RuntimeError,
         )
@@ -1375,10 +1524,17 @@ async def test_list_studies_async_pages():
             assert page_.raw_page.next_page_token == token
 
 
-@pytest.mark.parametrize("request_type", [vizier_service.DeleteStudyRequest, dict,])
+@pytest.mark.parametrize(
+    "request_type",
+    [
+        vizier_service.DeleteStudyRequest,
+        dict,
+    ],
+)
 def test_delete_study(request_type, transport: str = "grpc"):
     client = VizierServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(), transport=transport,
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport=transport,
     )
 
     # Everything is optional in proto3 as far as the runtime is concerned,
@@ -1404,7 +1560,8 @@ def test_delete_study_empty_call():
     # This test is a coverage failsafe to make sure that totally empty calls,
     # i.e. request == None and no flattened fields passed, work.
     client = VizierServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(), transport="grpc",
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="grpc",
     )
 
     # Mock the actual call within the gRPC stub, and fake the request.
@@ -1420,7 +1577,8 @@ async def test_delete_study_async(
     transport: str = "grpc_asyncio", request_type=vizier_service.DeleteStudyRequest
 ):
     client = VizierServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(), transport=transport,
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport=transport,
     )
 
     # Everything is optional in proto3 as far as the runtime is concerned,
@@ -1448,7 +1606,9 @@ async def test_delete_study_async_from_dict():
 
 
 def test_delete_study_field_headers():
-    client = VizierServiceClient(credentials=ga_credentials.AnonymousCredentials(),)
+    client = VizierServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+    )
 
     # Any value that is part of the HTTP/1.1 URI should be sent as
     # a field header. Set these to a non-empty value.
@@ -1468,7 +1628,10 @@ def test_delete_study_field_headers():
 
     # Establish that the field header was sent.
     _, _, kw = call.mock_calls[0]
-    assert ("x-goog-request-params", "name=name/value",) in kw["metadata"]
+    assert (
+        "x-goog-request-params",
+        "name=name/value",
+    ) in kw["metadata"]
 
 
 @pytest.mark.asyncio
@@ -1495,11 +1658,16 @@ async def test_delete_study_field_headers_async():
 
     # Establish that the field header was sent.
     _, _, kw = call.mock_calls[0]
-    assert ("x-goog-request-params", "name=name/value",) in kw["metadata"]
+    assert (
+        "x-goog-request-params",
+        "name=name/value",
+    ) in kw["metadata"]
 
 
 def test_delete_study_flattened():
-    client = VizierServiceClient(credentials=ga_credentials.AnonymousCredentials(),)
+    client = VizierServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+    )
 
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(type(client.transport.delete_study), "__call__") as call:
@@ -1507,7 +1675,9 @@ def test_delete_study_flattened():
         call.return_value = None
         # Call the method with a truthy value for each flattened field,
         # using the keyword arguments to the method.
-        client.delete_study(name="name_value",)
+        client.delete_study(
+            name="name_value",
+        )
 
         # Establish that the underlying call was made with the expected
         # request object values.
@@ -1519,13 +1689,16 @@ def test_delete_study_flattened():
 
 
 def test_delete_study_flattened_error():
-    client = VizierServiceClient(credentials=ga_credentials.AnonymousCredentials(),)
+    client = VizierServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+    )
 
     # Attempting to call a method with both a request object and flattened
     # fields is an error.
     with pytest.raises(ValueError):
         client.delete_study(
-            vizier_service.DeleteStudyRequest(), name="name_value",
+            vizier_service.DeleteStudyRequest(),
+            name="name_value",
         )
 
 
@@ -1543,7 +1716,9 @@ async def test_delete_study_flattened_async():
         call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(None)
         # Call the method with a truthy value for each flattened field,
         # using the keyword arguments to the method.
-        response = await client.delete_study(name="name_value",)
+        response = await client.delete_study(
+            name="name_value",
+        )
 
         # Establish that the underlying call was made with the expected
         # request object values.
@@ -1564,14 +1739,22 @@ async def test_delete_study_flattened_error_async():
     # fields is an error.
     with pytest.raises(ValueError):
         await client.delete_study(
-            vizier_service.DeleteStudyRequest(), name="name_value",
+            vizier_service.DeleteStudyRequest(),
+            name="name_value",
         )
 
 
-@pytest.mark.parametrize("request_type", [vizier_service.LookupStudyRequest, dict,])
+@pytest.mark.parametrize(
+    "request_type",
+    [
+        vizier_service.LookupStudyRequest,
+        dict,
+    ],
+)
 def test_lookup_study(request_type, transport: str = "grpc"):
     client = VizierServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(), transport=transport,
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport=transport,
     )
 
     # Everything is optional in proto3 as far as the runtime is concerned,
@@ -1606,7 +1789,8 @@ def test_lookup_study_empty_call():
     # This test is a coverage failsafe to make sure that totally empty calls,
     # i.e. request == None and no flattened fields passed, work.
     client = VizierServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(), transport="grpc",
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="grpc",
     )
 
     # Mock the actual call within the gRPC stub, and fake the request.
@@ -1622,7 +1806,8 @@ async def test_lookup_study_async(
     transport: str = "grpc_asyncio", request_type=vizier_service.LookupStudyRequest
 ):
     client = VizierServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(), transport=transport,
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport=transport,
     )
 
     # Everything is optional in proto3 as far as the runtime is concerned,
@@ -1661,7 +1846,9 @@ async def test_lookup_study_async_from_dict():
 
 
 def test_lookup_study_field_headers():
-    client = VizierServiceClient(credentials=ga_credentials.AnonymousCredentials(),)
+    client = VizierServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+    )
 
     # Any value that is part of the HTTP/1.1 URI should be sent as
     # a field header. Set these to a non-empty value.
@@ -1681,7 +1868,10 @@ def test_lookup_study_field_headers():
 
     # Establish that the field header was sent.
     _, _, kw = call.mock_calls[0]
-    assert ("x-goog-request-params", "parent=parent/value",) in kw["metadata"]
+    assert (
+        "x-goog-request-params",
+        "parent=parent/value",
+    ) in kw["metadata"]
 
 
 @pytest.mark.asyncio
@@ -1708,11 +1898,16 @@ async def test_lookup_study_field_headers_async():
 
     # Establish that the field header was sent.
     _, _, kw = call.mock_calls[0]
-    assert ("x-goog-request-params", "parent=parent/value",) in kw["metadata"]
+    assert (
+        "x-goog-request-params",
+        "parent=parent/value",
+    ) in kw["metadata"]
 
 
 def test_lookup_study_flattened():
-    client = VizierServiceClient(credentials=ga_credentials.AnonymousCredentials(),)
+    client = VizierServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+    )
 
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(type(client.transport.lookup_study), "__call__") as call:
@@ -1720,7 +1915,9 @@ def test_lookup_study_flattened():
         call.return_value = study.Study()
         # Call the method with a truthy value for each flattened field,
         # using the keyword arguments to the method.
-        client.lookup_study(parent="parent_value",)
+        client.lookup_study(
+            parent="parent_value",
+        )
 
         # Establish that the underlying call was made with the expected
         # request object values.
@@ -1732,13 +1929,16 @@ def test_lookup_study_flattened():
 
 
 def test_lookup_study_flattened_error():
-    client = VizierServiceClient(credentials=ga_credentials.AnonymousCredentials(),)
+    client = VizierServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+    )
 
     # Attempting to call a method with both a request object and flattened
     # fields is an error.
     with pytest.raises(ValueError):
         client.lookup_study(
-            vizier_service.LookupStudyRequest(), parent="parent_value",
+            vizier_service.LookupStudyRequest(),
+            parent="parent_value",
         )
 
 
@@ -1756,7 +1956,9 @@ async def test_lookup_study_flattened_async():
         call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(study.Study())
         # Call the method with a truthy value for each flattened field,
         # using the keyword arguments to the method.
-        response = await client.lookup_study(parent="parent_value",)
+        response = await client.lookup_study(
+            parent="parent_value",
+        )
 
         # Establish that the underlying call was made with the expected
         # request object values.
@@ -1777,14 +1979,22 @@ async def test_lookup_study_flattened_error_async():
     # fields is an error.
     with pytest.raises(ValueError):
         await client.lookup_study(
-            vizier_service.LookupStudyRequest(), parent="parent_value",
+            vizier_service.LookupStudyRequest(),
+            parent="parent_value",
         )
 
 
-@pytest.mark.parametrize("request_type", [vizier_service.SuggestTrialsRequest, dict,])
+@pytest.mark.parametrize(
+    "request_type",
+    [
+        vizier_service.SuggestTrialsRequest,
+        dict,
+    ],
+)
 def test_suggest_trials(request_type, transport: str = "grpc"):
     client = VizierServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(), transport=transport,
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport=transport,
     )
 
     # Everything is optional in proto3 as far as the runtime is concerned,
@@ -1810,7 +2020,8 @@ def test_suggest_trials_empty_call():
     # This test is a coverage failsafe to make sure that totally empty calls,
     # i.e. request == None and no flattened fields passed, work.
     client = VizierServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(), transport="grpc",
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="grpc",
     )
 
     # Mock the actual call within the gRPC stub, and fake the request.
@@ -1826,7 +2037,8 @@ async def test_suggest_trials_async(
     transport: str = "grpc_asyncio", request_type=vizier_service.SuggestTrialsRequest
 ):
     client = VizierServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(), transport=transport,
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport=transport,
     )
 
     # Everything is optional in proto3 as far as the runtime is concerned,
@@ -1856,7 +2068,9 @@ async def test_suggest_trials_async_from_dict():
 
 
 def test_suggest_trials_field_headers():
-    client = VizierServiceClient(credentials=ga_credentials.AnonymousCredentials(),)
+    client = VizierServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+    )
 
     # Any value that is part of the HTTP/1.1 URI should be sent as
     # a field header. Set these to a non-empty value.
@@ -1876,7 +2090,10 @@ def test_suggest_trials_field_headers():
 
     # Establish that the field header was sent.
     _, _, kw = call.mock_calls[0]
-    assert ("x-goog-request-params", "parent=parent/value",) in kw["metadata"]
+    assert (
+        "x-goog-request-params",
+        "parent=parent/value",
+    ) in kw["metadata"]
 
 
 @pytest.mark.asyncio
@@ -1905,13 +2122,23 @@ async def test_suggest_trials_field_headers_async():
 
     # Establish that the field header was sent.
     _, _, kw = call.mock_calls[0]
-    assert ("x-goog-request-params", "parent=parent/value",) in kw["metadata"]
+    assert (
+        "x-goog-request-params",
+        "parent=parent/value",
+    ) in kw["metadata"]
 
 
-@pytest.mark.parametrize("request_type", [vizier_service.CreateTrialRequest, dict,])
+@pytest.mark.parametrize(
+    "request_type",
+    [
+        vizier_service.CreateTrialRequest,
+        dict,
+    ],
+)
 def test_create_trial(request_type, transport: str = "grpc"):
     client = VizierServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(), transport=transport,
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport=transport,
     )
 
     # Everything is optional in proto3 as far as the runtime is concerned,
@@ -1950,7 +2177,8 @@ def test_create_trial_empty_call():
     # This test is a coverage failsafe to make sure that totally empty calls,
     # i.e. request == None and no flattened fields passed, work.
     client = VizierServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(), transport="grpc",
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="grpc",
     )
 
     # Mock the actual call within the gRPC stub, and fake the request.
@@ -1966,7 +2194,8 @@ async def test_create_trial_async(
     transport: str = "grpc_asyncio", request_type=vizier_service.CreateTrialRequest
 ):
     client = VizierServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(), transport=transport,
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport=transport,
     )
 
     # Everything is optional in proto3 as far as the runtime is concerned,
@@ -2009,7 +2238,9 @@ async def test_create_trial_async_from_dict():
 
 
 def test_create_trial_field_headers():
-    client = VizierServiceClient(credentials=ga_credentials.AnonymousCredentials(),)
+    client = VizierServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+    )
 
     # Any value that is part of the HTTP/1.1 URI should be sent as
     # a field header. Set these to a non-empty value.
@@ -2029,7 +2260,10 @@ def test_create_trial_field_headers():
 
     # Establish that the field header was sent.
     _, _, kw = call.mock_calls[0]
-    assert ("x-goog-request-params", "parent=parent/value",) in kw["metadata"]
+    assert (
+        "x-goog-request-params",
+        "parent=parent/value",
+    ) in kw["metadata"]
 
 
 @pytest.mark.asyncio
@@ -2056,11 +2290,16 @@ async def test_create_trial_field_headers_async():
 
     # Establish that the field header was sent.
     _, _, kw = call.mock_calls[0]
-    assert ("x-goog-request-params", "parent=parent/value",) in kw["metadata"]
+    assert (
+        "x-goog-request-params",
+        "parent=parent/value",
+    ) in kw["metadata"]
 
 
 def test_create_trial_flattened():
-    client = VizierServiceClient(credentials=ga_credentials.AnonymousCredentials(),)
+    client = VizierServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+    )
 
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(type(client.transport.create_trial), "__call__") as call:
@@ -2069,7 +2308,8 @@ def test_create_trial_flattened():
         # Call the method with a truthy value for each flattened field,
         # using the keyword arguments to the method.
         client.create_trial(
-            parent="parent_value", trial=study.Trial(name="name_value"),
+            parent="parent_value",
+            trial=study.Trial(name="name_value"),
         )
 
         # Establish that the underlying call was made with the expected
@@ -2085,7 +2325,9 @@ def test_create_trial_flattened():
 
 
 def test_create_trial_flattened_error():
-    client = VizierServiceClient(credentials=ga_credentials.AnonymousCredentials(),)
+    client = VizierServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+    )
 
     # Attempting to call a method with both a request object and flattened
     # fields is an error.
@@ -2112,7 +2354,8 @@ async def test_create_trial_flattened_async():
         # Call the method with a truthy value for each flattened field,
         # using the keyword arguments to the method.
         response = await client.create_trial(
-            parent="parent_value", trial=study.Trial(name="name_value"),
+            parent="parent_value",
+            trial=study.Trial(name="name_value"),
         )
 
         # Establish that the underlying call was made with the expected
@@ -2143,10 +2386,17 @@ async def test_create_trial_flattened_error_async():
         )
 
 
-@pytest.mark.parametrize("request_type", [vizier_service.GetTrialRequest, dict,])
+@pytest.mark.parametrize(
+    "request_type",
+    [
+        vizier_service.GetTrialRequest,
+        dict,
+    ],
+)
 def test_get_trial(request_type, transport: str = "grpc"):
     client = VizierServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(), transport=transport,
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport=transport,
     )
 
     # Everything is optional in proto3 as far as the runtime is concerned,
@@ -2185,7 +2435,8 @@ def test_get_trial_empty_call():
     # This test is a coverage failsafe to make sure that totally empty calls,
     # i.e. request == None and no flattened fields passed, work.
     client = VizierServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(), transport="grpc",
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="grpc",
     )
 
     # Mock the actual call within the gRPC stub, and fake the request.
@@ -2201,7 +2452,8 @@ async def test_get_trial_async(
     transport: str = "grpc_asyncio", request_type=vizier_service.GetTrialRequest
 ):
     client = VizierServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(), transport=transport,
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport=transport,
     )
 
     # Everything is optional in proto3 as far as the runtime is concerned,
@@ -2244,7 +2496,9 @@ async def test_get_trial_async_from_dict():
 
 
 def test_get_trial_field_headers():
-    client = VizierServiceClient(credentials=ga_credentials.AnonymousCredentials(),)
+    client = VizierServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+    )
 
     # Any value that is part of the HTTP/1.1 URI should be sent as
     # a field header. Set these to a non-empty value.
@@ -2264,7 +2518,10 @@ def test_get_trial_field_headers():
 
     # Establish that the field header was sent.
     _, _, kw = call.mock_calls[0]
-    assert ("x-goog-request-params", "name=name/value",) in kw["metadata"]
+    assert (
+        "x-goog-request-params",
+        "name=name/value",
+    ) in kw["metadata"]
 
 
 @pytest.mark.asyncio
@@ -2291,11 +2548,16 @@ async def test_get_trial_field_headers_async():
 
     # Establish that the field header was sent.
     _, _, kw = call.mock_calls[0]
-    assert ("x-goog-request-params", "name=name/value",) in kw["metadata"]
+    assert (
+        "x-goog-request-params",
+        "name=name/value",
+    ) in kw["metadata"]
 
 
 def test_get_trial_flattened():
-    client = VizierServiceClient(credentials=ga_credentials.AnonymousCredentials(),)
+    client = VizierServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+    )
 
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(type(client.transport.get_trial), "__call__") as call:
@@ -2303,7 +2565,9 @@ def test_get_trial_flattened():
         call.return_value = study.Trial()
         # Call the method with a truthy value for each flattened field,
         # using the keyword arguments to the method.
-        client.get_trial(name="name_value",)
+        client.get_trial(
+            name="name_value",
+        )
 
         # Establish that the underlying call was made with the expected
         # request object values.
@@ -2315,13 +2579,16 @@ def test_get_trial_flattened():
 
 
 def test_get_trial_flattened_error():
-    client = VizierServiceClient(credentials=ga_credentials.AnonymousCredentials(),)
+    client = VizierServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+    )
 
     # Attempting to call a method with both a request object and flattened
     # fields is an error.
     with pytest.raises(ValueError):
         client.get_trial(
-            vizier_service.GetTrialRequest(), name="name_value",
+            vizier_service.GetTrialRequest(),
+            name="name_value",
         )
 
 
@@ -2339,7 +2606,9 @@ async def test_get_trial_flattened_async():
         call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(study.Trial())
         # Call the method with a truthy value for each flattened field,
         # using the keyword arguments to the method.
-        response = await client.get_trial(name="name_value",)
+        response = await client.get_trial(
+            name="name_value",
+        )
 
         # Establish that the underlying call was made with the expected
         # request object values.
@@ -2360,14 +2629,22 @@ async def test_get_trial_flattened_error_async():
     # fields is an error.
     with pytest.raises(ValueError):
         await client.get_trial(
-            vizier_service.GetTrialRequest(), name="name_value",
+            vizier_service.GetTrialRequest(),
+            name="name_value",
         )
 
 
-@pytest.mark.parametrize("request_type", [vizier_service.ListTrialsRequest, dict,])
+@pytest.mark.parametrize(
+    "request_type",
+    [
+        vizier_service.ListTrialsRequest,
+        dict,
+    ],
+)
 def test_list_trials(request_type, transport: str = "grpc"):
     client = VizierServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(), transport=transport,
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport=transport,
     )
 
     # Everything is optional in proto3 as far as the runtime is concerned,
@@ -2396,7 +2673,8 @@ def test_list_trials_empty_call():
     # This test is a coverage failsafe to make sure that totally empty calls,
     # i.e. request == None and no flattened fields passed, work.
     client = VizierServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(), transport="grpc",
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="grpc",
     )
 
     # Mock the actual call within the gRPC stub, and fake the request.
@@ -2412,7 +2690,8 @@ async def test_list_trials_async(
     transport: str = "grpc_asyncio", request_type=vizier_service.ListTrialsRequest
 ):
     client = VizierServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(), transport=transport,
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport=transport,
     )
 
     # Everything is optional in proto3 as far as the runtime is concerned,
@@ -2423,7 +2702,9 @@ async def test_list_trials_async(
     with mock.patch.object(type(client.transport.list_trials), "__call__") as call:
         # Designate an appropriate return value for the call.
         call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(
-            vizier_service.ListTrialsResponse(next_page_token="next_page_token_value",)
+            vizier_service.ListTrialsResponse(
+                next_page_token="next_page_token_value",
+            )
         )
         response = await client.list_trials(request)
 
@@ -2443,7 +2724,9 @@ async def test_list_trials_async_from_dict():
 
 
 def test_list_trials_field_headers():
-    client = VizierServiceClient(credentials=ga_credentials.AnonymousCredentials(),)
+    client = VizierServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+    )
 
     # Any value that is part of the HTTP/1.1 URI should be sent as
     # a field header. Set these to a non-empty value.
@@ -2463,7 +2746,10 @@ def test_list_trials_field_headers():
 
     # Establish that the field header was sent.
     _, _, kw = call.mock_calls[0]
-    assert ("x-goog-request-params", "parent=parent/value",) in kw["metadata"]
+    assert (
+        "x-goog-request-params",
+        "parent=parent/value",
+    ) in kw["metadata"]
 
 
 @pytest.mark.asyncio
@@ -2492,11 +2778,16 @@ async def test_list_trials_field_headers_async():
 
     # Establish that the field header was sent.
     _, _, kw = call.mock_calls[0]
-    assert ("x-goog-request-params", "parent=parent/value",) in kw["metadata"]
+    assert (
+        "x-goog-request-params",
+        "parent=parent/value",
+    ) in kw["metadata"]
 
 
 def test_list_trials_flattened():
-    client = VizierServiceClient(credentials=ga_credentials.AnonymousCredentials(),)
+    client = VizierServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+    )
 
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(type(client.transport.list_trials), "__call__") as call:
@@ -2504,7 +2795,9 @@ def test_list_trials_flattened():
         call.return_value = vizier_service.ListTrialsResponse()
         # Call the method with a truthy value for each flattened field,
         # using the keyword arguments to the method.
-        client.list_trials(parent="parent_value",)
+        client.list_trials(
+            parent="parent_value",
+        )
 
         # Establish that the underlying call was made with the expected
         # request object values.
@@ -2516,13 +2809,16 @@ def test_list_trials_flattened():
 
 
 def test_list_trials_flattened_error():
-    client = VizierServiceClient(credentials=ga_credentials.AnonymousCredentials(),)
+    client = VizierServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+    )
 
     # Attempting to call a method with both a request object and flattened
     # fields is an error.
     with pytest.raises(ValueError):
         client.list_trials(
-            vizier_service.ListTrialsRequest(), parent="parent_value",
+            vizier_service.ListTrialsRequest(),
+            parent="parent_value",
         )
 
 
@@ -2542,7 +2838,9 @@ async def test_list_trials_flattened_async():
         )
         # Call the method with a truthy value for each flattened field,
         # using the keyword arguments to the method.
-        response = await client.list_trials(parent="parent_value",)
+        response = await client.list_trials(
+            parent="parent_value",
+        )
 
         # Establish that the underlying call was made with the expected
         # request object values.
@@ -2563,13 +2861,15 @@ async def test_list_trials_flattened_error_async():
     # fields is an error.
     with pytest.raises(ValueError):
         await client.list_trials(
-            vizier_service.ListTrialsRequest(), parent="parent_value",
+            vizier_service.ListTrialsRequest(),
+            parent="parent_value",
         )
 
 
 def test_list_trials_pager(transport_name: str = "grpc"):
     client = VizierServiceClient(
-        credentials=ga_credentials.AnonymousCredentials, transport=transport_name,
+        credentials=ga_credentials.AnonymousCredentials,
+        transport=transport_name,
     )
 
     # Mock the actual call within the gRPC stub, and fake the request.
@@ -2577,14 +2877,29 @@ def test_list_trials_pager(transport_name: str = "grpc"):
         # Set the response to a series of pages.
         call.side_effect = (
             vizier_service.ListTrialsResponse(
-                trials=[study.Trial(), study.Trial(), study.Trial(),],
+                trials=[
+                    study.Trial(),
+                    study.Trial(),
+                    study.Trial(),
+                ],
                 next_page_token="abc",
             ),
-            vizier_service.ListTrialsResponse(trials=[], next_page_token="def",),
             vizier_service.ListTrialsResponse(
-                trials=[study.Trial(),], next_page_token="ghi",
+                trials=[],
+                next_page_token="def",
             ),
-            vizier_service.ListTrialsResponse(trials=[study.Trial(), study.Trial(),],),
+            vizier_service.ListTrialsResponse(
+                trials=[
+                    study.Trial(),
+                ],
+                next_page_token="ghi",
+            ),
+            vizier_service.ListTrialsResponse(
+                trials=[
+                    study.Trial(),
+                    study.Trial(),
+                ],
+            ),
             RuntimeError,
         )
 
@@ -2603,7 +2918,8 @@ def test_list_trials_pager(transport_name: str = "grpc"):
 
 def test_list_trials_pages(transport_name: str = "grpc"):
     client = VizierServiceClient(
-        credentials=ga_credentials.AnonymousCredentials, transport=transport_name,
+        credentials=ga_credentials.AnonymousCredentials,
+        transport=transport_name,
     )
 
     # Mock the actual call within the gRPC stub, and fake the request.
@@ -2611,14 +2927,29 @@ def test_list_trials_pages(transport_name: str = "grpc"):
         # Set the response to a series of pages.
         call.side_effect = (
             vizier_service.ListTrialsResponse(
-                trials=[study.Trial(), study.Trial(), study.Trial(),],
+                trials=[
+                    study.Trial(),
+                    study.Trial(),
+                    study.Trial(),
+                ],
                 next_page_token="abc",
             ),
-            vizier_service.ListTrialsResponse(trials=[], next_page_token="def",),
             vizier_service.ListTrialsResponse(
-                trials=[study.Trial(),], next_page_token="ghi",
+                trials=[],
+                next_page_token="def",
             ),
-            vizier_service.ListTrialsResponse(trials=[study.Trial(), study.Trial(),],),
+            vizier_service.ListTrialsResponse(
+                trials=[
+                    study.Trial(),
+                ],
+                next_page_token="ghi",
+            ),
+            vizier_service.ListTrialsResponse(
+                trials=[
+                    study.Trial(),
+                    study.Trial(),
+                ],
+            ),
             RuntimeError,
         )
         pages = list(client.list_trials(request={}).pages)
@@ -2628,7 +2959,9 @@ def test_list_trials_pages(transport_name: str = "grpc"):
 
 @pytest.mark.asyncio
 async def test_list_trials_async_pager():
-    client = VizierServiceAsyncClient(credentials=ga_credentials.AnonymousCredentials,)
+    client = VizierServiceAsyncClient(
+        credentials=ga_credentials.AnonymousCredentials,
+    )
 
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(
@@ -2637,17 +2970,34 @@ async def test_list_trials_async_pager():
         # Set the response to a series of pages.
         call.side_effect = (
             vizier_service.ListTrialsResponse(
-                trials=[study.Trial(), study.Trial(), study.Trial(),],
+                trials=[
+                    study.Trial(),
+                    study.Trial(),
+                    study.Trial(),
+                ],
                 next_page_token="abc",
             ),
-            vizier_service.ListTrialsResponse(trials=[], next_page_token="def",),
             vizier_service.ListTrialsResponse(
-                trials=[study.Trial(),], next_page_token="ghi",
+                trials=[],
+                next_page_token="def",
             ),
-            vizier_service.ListTrialsResponse(trials=[study.Trial(), study.Trial(),],),
+            vizier_service.ListTrialsResponse(
+                trials=[
+                    study.Trial(),
+                ],
+                next_page_token="ghi",
+            ),
+            vizier_service.ListTrialsResponse(
+                trials=[
+                    study.Trial(),
+                    study.Trial(),
+                ],
+            ),
             RuntimeError,
         )
-        async_pager = await client.list_trials(request={},)
+        async_pager = await client.list_trials(
+            request={},
+        )
         assert async_pager.next_page_token == "abc"
         responses = []
         async for response in async_pager:
@@ -2659,7 +3009,9 @@ async def test_list_trials_async_pager():
 
 @pytest.mark.asyncio
 async def test_list_trials_async_pages():
-    client = VizierServiceAsyncClient(credentials=ga_credentials.AnonymousCredentials,)
+    client = VizierServiceAsyncClient(
+        credentials=ga_credentials.AnonymousCredentials,
+    )
 
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(
@@ -2668,14 +3020,29 @@ async def test_list_trials_async_pages():
         # Set the response to a series of pages.
         call.side_effect = (
             vizier_service.ListTrialsResponse(
-                trials=[study.Trial(), study.Trial(), study.Trial(),],
+                trials=[
+                    study.Trial(),
+                    study.Trial(),
+                    study.Trial(),
+                ],
                 next_page_token="abc",
             ),
-            vizier_service.ListTrialsResponse(trials=[], next_page_token="def",),
             vizier_service.ListTrialsResponse(
-                trials=[study.Trial(),], next_page_token="ghi",
+                trials=[],
+                next_page_token="def",
             ),
-            vizier_service.ListTrialsResponse(trials=[study.Trial(), study.Trial(),],),
+            vizier_service.ListTrialsResponse(
+                trials=[
+                    study.Trial(),
+                ],
+                next_page_token="ghi",
+            ),
+            vizier_service.ListTrialsResponse(
+                trials=[
+                    study.Trial(),
+                    study.Trial(),
+                ],
+            ),
             RuntimeError,
         )
         pages = []
@@ -2686,11 +3053,16 @@ async def test_list_trials_async_pages():
 
 
 @pytest.mark.parametrize(
-    "request_type", [vizier_service.AddTrialMeasurementRequest, dict,]
+    "request_type",
+    [
+        vizier_service.AddTrialMeasurementRequest,
+        dict,
+    ],
 )
 def test_add_trial_measurement(request_type, transport: str = "grpc"):
     client = VizierServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(), transport=transport,
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport=transport,
     )
 
     # Everything is optional in proto3 as far as the runtime is concerned,
@@ -2731,7 +3103,8 @@ def test_add_trial_measurement_empty_call():
     # This test is a coverage failsafe to make sure that totally empty calls,
     # i.e. request == None and no flattened fields passed, work.
     client = VizierServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(), transport="grpc",
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="grpc",
     )
 
     # Mock the actual call within the gRPC stub, and fake the request.
@@ -2750,7 +3123,8 @@ async def test_add_trial_measurement_async(
     request_type=vizier_service.AddTrialMeasurementRequest,
 ):
     client = VizierServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(), transport=transport,
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport=transport,
     )
 
     # Everything is optional in proto3 as far as the runtime is concerned,
@@ -2795,7 +3169,9 @@ async def test_add_trial_measurement_async_from_dict():
 
 
 def test_add_trial_measurement_field_headers():
-    client = VizierServiceClient(credentials=ga_credentials.AnonymousCredentials(),)
+    client = VizierServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+    )
 
     # Any value that is part of the HTTP/1.1 URI should be sent as
     # a field header. Set these to a non-empty value.
@@ -2817,7 +3193,10 @@ def test_add_trial_measurement_field_headers():
 
     # Establish that the field header was sent.
     _, _, kw = call.mock_calls[0]
-    assert ("x-goog-request-params", "trial_name=trial_name/value",) in kw["metadata"]
+    assert (
+        "x-goog-request-params",
+        "trial_name=trial_name/value",
+    ) in kw["metadata"]
 
 
 @pytest.mark.asyncio
@@ -2846,13 +3225,23 @@ async def test_add_trial_measurement_field_headers_async():
 
     # Establish that the field header was sent.
     _, _, kw = call.mock_calls[0]
-    assert ("x-goog-request-params", "trial_name=trial_name/value",) in kw["metadata"]
+    assert (
+        "x-goog-request-params",
+        "trial_name=trial_name/value",
+    ) in kw["metadata"]
 
 
-@pytest.mark.parametrize("request_type", [vizier_service.CompleteTrialRequest, dict,])
+@pytest.mark.parametrize(
+    "request_type",
+    [
+        vizier_service.CompleteTrialRequest,
+        dict,
+    ],
+)
 def test_complete_trial(request_type, transport: str = "grpc"):
     client = VizierServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(), transport=transport,
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport=transport,
     )
 
     # Everything is optional in proto3 as far as the runtime is concerned,
@@ -2891,7 +3280,8 @@ def test_complete_trial_empty_call():
     # This test is a coverage failsafe to make sure that totally empty calls,
     # i.e. request == None and no flattened fields passed, work.
     client = VizierServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(), transport="grpc",
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="grpc",
     )
 
     # Mock the actual call within the gRPC stub, and fake the request.
@@ -2907,7 +3297,8 @@ async def test_complete_trial_async(
     transport: str = "grpc_asyncio", request_type=vizier_service.CompleteTrialRequest
 ):
     client = VizierServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(), transport=transport,
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport=transport,
     )
 
     # Everything is optional in proto3 as far as the runtime is concerned,
@@ -2950,7 +3341,9 @@ async def test_complete_trial_async_from_dict():
 
 
 def test_complete_trial_field_headers():
-    client = VizierServiceClient(credentials=ga_credentials.AnonymousCredentials(),)
+    client = VizierServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+    )
 
     # Any value that is part of the HTTP/1.1 URI should be sent as
     # a field header. Set these to a non-empty value.
@@ -2970,7 +3363,10 @@ def test_complete_trial_field_headers():
 
     # Establish that the field header was sent.
     _, _, kw = call.mock_calls[0]
-    assert ("x-goog-request-params", "name=name/value",) in kw["metadata"]
+    assert (
+        "x-goog-request-params",
+        "name=name/value",
+    ) in kw["metadata"]
 
 
 @pytest.mark.asyncio
@@ -2997,13 +3393,23 @@ async def test_complete_trial_field_headers_async():
 
     # Establish that the field header was sent.
     _, _, kw = call.mock_calls[0]
-    assert ("x-goog-request-params", "name=name/value",) in kw["metadata"]
+    assert (
+        "x-goog-request-params",
+        "name=name/value",
+    ) in kw["metadata"]
 
 
-@pytest.mark.parametrize("request_type", [vizier_service.DeleteTrialRequest, dict,])
+@pytest.mark.parametrize(
+    "request_type",
+    [
+        vizier_service.DeleteTrialRequest,
+        dict,
+    ],
+)
 def test_delete_trial(request_type, transport: str = "grpc"):
     client = VizierServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(), transport=transport,
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport=transport,
     )
 
     # Everything is optional in proto3 as far as the runtime is concerned,
@@ -3029,7 +3435,8 @@ def test_delete_trial_empty_call():
     # This test is a coverage failsafe to make sure that totally empty calls,
     # i.e. request == None and no flattened fields passed, work.
     client = VizierServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(), transport="grpc",
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="grpc",
     )
 
     # Mock the actual call within the gRPC stub, and fake the request.
@@ -3045,7 +3452,8 @@ async def test_delete_trial_async(
     transport: str = "grpc_asyncio", request_type=vizier_service.DeleteTrialRequest
 ):
     client = VizierServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(), transport=transport,
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport=transport,
     )
 
     # Everything is optional in proto3 as far as the runtime is concerned,
@@ -3073,7 +3481,9 @@ async def test_delete_trial_async_from_dict():
 
 
 def test_delete_trial_field_headers():
-    client = VizierServiceClient(credentials=ga_credentials.AnonymousCredentials(),)
+    client = VizierServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+    )
 
     # Any value that is part of the HTTP/1.1 URI should be sent as
     # a field header. Set these to a non-empty value.
@@ -3093,7 +3503,10 @@ def test_delete_trial_field_headers():
 
     # Establish that the field header was sent.
     _, _, kw = call.mock_calls[0]
-    assert ("x-goog-request-params", "name=name/value",) in kw["metadata"]
+    assert (
+        "x-goog-request-params",
+        "name=name/value",
+    ) in kw["metadata"]
 
 
 @pytest.mark.asyncio
@@ -3120,11 +3533,16 @@ async def test_delete_trial_field_headers_async():
 
     # Establish that the field header was sent.
     _, _, kw = call.mock_calls[0]
-    assert ("x-goog-request-params", "name=name/value",) in kw["metadata"]
+    assert (
+        "x-goog-request-params",
+        "name=name/value",
+    ) in kw["metadata"]
 
 
 def test_delete_trial_flattened():
-    client = VizierServiceClient(credentials=ga_credentials.AnonymousCredentials(),)
+    client = VizierServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+    )
 
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(type(client.transport.delete_trial), "__call__") as call:
@@ -3132,7 +3550,9 @@ def test_delete_trial_flattened():
         call.return_value = None
         # Call the method with a truthy value for each flattened field,
         # using the keyword arguments to the method.
-        client.delete_trial(name="name_value",)
+        client.delete_trial(
+            name="name_value",
+        )
 
         # Establish that the underlying call was made with the expected
         # request object values.
@@ -3144,13 +3564,16 @@ def test_delete_trial_flattened():
 
 
 def test_delete_trial_flattened_error():
-    client = VizierServiceClient(credentials=ga_credentials.AnonymousCredentials(),)
+    client = VizierServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+    )
 
     # Attempting to call a method with both a request object and flattened
     # fields is an error.
     with pytest.raises(ValueError):
         client.delete_trial(
-            vizier_service.DeleteTrialRequest(), name="name_value",
+            vizier_service.DeleteTrialRequest(),
+            name="name_value",
         )
 
 
@@ -3168,7 +3591,9 @@ async def test_delete_trial_flattened_async():
         call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(None)
         # Call the method with a truthy value for each flattened field,
         # using the keyword arguments to the method.
-        response = await client.delete_trial(name="name_value",)
+        response = await client.delete_trial(
+            name="name_value",
+        )
 
         # Establish that the underlying call was made with the expected
         # request object values.
@@ -3189,16 +3614,22 @@ async def test_delete_trial_flattened_error_async():
     # fields is an error.
     with pytest.raises(ValueError):
         await client.delete_trial(
-            vizier_service.DeleteTrialRequest(), name="name_value",
+            vizier_service.DeleteTrialRequest(),
+            name="name_value",
         )
 
 
 @pytest.mark.parametrize(
-    "request_type", [vizier_service.CheckTrialEarlyStoppingStateRequest, dict,]
+    "request_type",
+    [
+        vizier_service.CheckTrialEarlyStoppingStateRequest,
+        dict,
+    ],
 )
 def test_check_trial_early_stopping_state(request_type, transport: str = "grpc"):
     client = VizierServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(), transport=transport,
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport=transport,
     )
 
     # Everything is optional in proto3 as far as the runtime is concerned,
@@ -3226,7 +3657,8 @@ def test_check_trial_early_stopping_state_empty_call():
     # This test is a coverage failsafe to make sure that totally empty calls,
     # i.e. request == None and no flattened fields passed, work.
     client = VizierServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(), transport="grpc",
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="grpc",
     )
 
     # Mock the actual call within the gRPC stub, and fake the request.
@@ -3245,7 +3677,8 @@ async def test_check_trial_early_stopping_state_async(
     request_type=vizier_service.CheckTrialEarlyStoppingStateRequest,
 ):
     client = VizierServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(), transport=transport,
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport=transport,
     )
 
     # Everything is optional in proto3 as far as the runtime is concerned,
@@ -3277,7 +3710,9 @@ async def test_check_trial_early_stopping_state_async_from_dict():
 
 
 def test_check_trial_early_stopping_state_field_headers():
-    client = VizierServiceClient(credentials=ga_credentials.AnonymousCredentials(),)
+    client = VizierServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+    )
 
     # Any value that is part of the HTTP/1.1 URI should be sent as
     # a field header. Set these to a non-empty value.
@@ -3299,7 +3734,10 @@ def test_check_trial_early_stopping_state_field_headers():
 
     # Establish that the field header was sent.
     _, _, kw = call.mock_calls[0]
-    assert ("x-goog-request-params", "trial_name=trial_name/value",) in kw["metadata"]
+    assert (
+        "x-goog-request-params",
+        "trial_name=trial_name/value",
+    ) in kw["metadata"]
 
 
 @pytest.mark.asyncio
@@ -3330,13 +3768,23 @@ async def test_check_trial_early_stopping_state_field_headers_async():
 
     # Establish that the field header was sent.
     _, _, kw = call.mock_calls[0]
-    assert ("x-goog-request-params", "trial_name=trial_name/value",) in kw["metadata"]
+    assert (
+        "x-goog-request-params",
+        "trial_name=trial_name/value",
+    ) in kw["metadata"]
 
 
-@pytest.mark.parametrize("request_type", [vizier_service.StopTrialRequest, dict,])
+@pytest.mark.parametrize(
+    "request_type",
+    [
+        vizier_service.StopTrialRequest,
+        dict,
+    ],
+)
 def test_stop_trial(request_type, transport: str = "grpc"):
     client = VizierServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(), transport=transport,
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport=transport,
     )
 
     # Everything is optional in proto3 as far as the runtime is concerned,
@@ -3375,7 +3823,8 @@ def test_stop_trial_empty_call():
     # This test is a coverage failsafe to make sure that totally empty calls,
     # i.e. request == None and no flattened fields passed, work.
     client = VizierServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(), transport="grpc",
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="grpc",
     )
 
     # Mock the actual call within the gRPC stub, and fake the request.
@@ -3391,7 +3840,8 @@ async def test_stop_trial_async(
     transport: str = "grpc_asyncio", request_type=vizier_service.StopTrialRequest
 ):
     client = VizierServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(), transport=transport,
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport=transport,
     )
 
     # Everything is optional in proto3 as far as the runtime is concerned,
@@ -3434,7 +3884,9 @@ async def test_stop_trial_async_from_dict():
 
 
 def test_stop_trial_field_headers():
-    client = VizierServiceClient(credentials=ga_credentials.AnonymousCredentials(),)
+    client = VizierServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+    )
 
     # Any value that is part of the HTTP/1.1 URI should be sent as
     # a field header. Set these to a non-empty value.
@@ -3454,7 +3906,10 @@ def test_stop_trial_field_headers():
 
     # Establish that the field header was sent.
     _, _, kw = call.mock_calls[0]
-    assert ("x-goog-request-params", "name=name/value",) in kw["metadata"]
+    assert (
+        "x-goog-request-params",
+        "name=name/value",
+    ) in kw["metadata"]
 
 
 @pytest.mark.asyncio
@@ -3481,15 +3936,23 @@ async def test_stop_trial_field_headers_async():
 
     # Establish that the field header was sent.
     _, _, kw = call.mock_calls[0]
-    assert ("x-goog-request-params", "name=name/value",) in kw["metadata"]
+    assert (
+        "x-goog-request-params",
+        "name=name/value",
+    ) in kw["metadata"]
 
 
 @pytest.mark.parametrize(
-    "request_type", [vizier_service.ListOptimalTrialsRequest, dict,]
+    "request_type",
+    [
+        vizier_service.ListOptimalTrialsRequest,
+        dict,
+    ],
 )
 def test_list_optimal_trials(request_type, transport: str = "grpc"):
     client = VizierServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(), transport=transport,
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport=transport,
     )
 
     # Everything is optional in proto3 as far as the runtime is concerned,
@@ -3517,7 +3980,8 @@ def test_list_optimal_trials_empty_call():
     # This test is a coverage failsafe to make sure that totally empty calls,
     # i.e. request == None and no flattened fields passed, work.
     client = VizierServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(), transport="grpc",
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="grpc",
     )
 
     # Mock the actual call within the gRPC stub, and fake the request.
@@ -3536,7 +4000,8 @@ async def test_list_optimal_trials_async(
     request_type=vizier_service.ListOptimalTrialsRequest,
 ):
     client = VizierServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(), transport=transport,
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport=transport,
     )
 
     # Everything is optional in proto3 as far as the runtime is concerned,
@@ -3568,7 +4033,9 @@ async def test_list_optimal_trials_async_from_dict():
 
 
 def test_list_optimal_trials_field_headers():
-    client = VizierServiceClient(credentials=ga_credentials.AnonymousCredentials(),)
+    client = VizierServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+    )
 
     # Any value that is part of the HTTP/1.1 URI should be sent as
     # a field header. Set these to a non-empty value.
@@ -3590,7 +4057,10 @@ def test_list_optimal_trials_field_headers():
 
     # Establish that the field header was sent.
     _, _, kw = call.mock_calls[0]
-    assert ("x-goog-request-params", "parent=parent/value",) in kw["metadata"]
+    assert (
+        "x-goog-request-params",
+        "parent=parent/value",
+    ) in kw["metadata"]
 
 
 @pytest.mark.asyncio
@@ -3621,11 +4091,16 @@ async def test_list_optimal_trials_field_headers_async():
 
     # Establish that the field header was sent.
     _, _, kw = call.mock_calls[0]
-    assert ("x-goog-request-params", "parent=parent/value",) in kw["metadata"]
+    assert (
+        "x-goog-request-params",
+        "parent=parent/value",
+    ) in kw["metadata"]
 
 
 def test_list_optimal_trials_flattened():
-    client = VizierServiceClient(credentials=ga_credentials.AnonymousCredentials(),)
+    client = VizierServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+    )
 
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(
@@ -3635,7 +4110,9 @@ def test_list_optimal_trials_flattened():
         call.return_value = vizier_service.ListOptimalTrialsResponse()
         # Call the method with a truthy value for each flattened field,
         # using the keyword arguments to the method.
-        client.list_optimal_trials(parent="parent_value",)
+        client.list_optimal_trials(
+            parent="parent_value",
+        )
 
         # Establish that the underlying call was made with the expected
         # request object values.
@@ -3647,13 +4124,16 @@ def test_list_optimal_trials_flattened():
 
 
 def test_list_optimal_trials_flattened_error():
-    client = VizierServiceClient(credentials=ga_credentials.AnonymousCredentials(),)
+    client = VizierServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+    )
 
     # Attempting to call a method with both a request object and flattened
     # fields is an error.
     with pytest.raises(ValueError):
         client.list_optimal_trials(
-            vizier_service.ListOptimalTrialsRequest(), parent="parent_value",
+            vizier_service.ListOptimalTrialsRequest(),
+            parent="parent_value",
         )
 
 
@@ -3675,7 +4155,9 @@ async def test_list_optimal_trials_flattened_async():
         )
         # Call the method with a truthy value for each flattened field,
         # using the keyword arguments to the method.
-        response = await client.list_optimal_trials(parent="parent_value",)
+        response = await client.list_optimal_trials(
+            parent="parent_value",
+        )
 
         # Establish that the underlying call was made with the expected
         # request object values.
@@ -3696,7 +4178,8 @@ async def test_list_optimal_trials_flattened_error_async():
     # fields is an error.
     with pytest.raises(ValueError):
         await client.list_optimal_trials(
-            vizier_service.ListOptimalTrialsRequest(), parent="parent_value",
+            vizier_service.ListOptimalTrialsRequest(),
+            parent="parent_value",
         )
 
 
@@ -3707,7 +4190,8 @@ def test_credentials_transport_error():
     )
     with pytest.raises(ValueError):
         client = VizierServiceClient(
-            credentials=ga_credentials.AnonymousCredentials(), transport=transport,
+            credentials=ga_credentials.AnonymousCredentials(),
+            transport=transport,
         )
 
     # It is an error to provide a credentials file and a transport instance.
@@ -3727,7 +4211,10 @@ def test_credentials_transport_error():
     options = client_options.ClientOptions()
     options.api_key = "api_key"
     with pytest.raises(ValueError):
-        client = VizierServiceClient(client_options=options, transport=transport,)
+        client = VizierServiceClient(
+            client_options=options,
+            transport=transport,
+        )
 
     # It is an error to provide an api_key and a credential.
     options = mock.Mock()
@@ -3743,7 +4230,8 @@ def test_credentials_transport_error():
     )
     with pytest.raises(ValueError):
         client = VizierServiceClient(
-            client_options={"scopes": ["1", "2"]}, transport=transport,
+            client_options={"scopes": ["1", "2"]},
+            transport=transport,
         )
 
 
@@ -3788,8 +4276,13 @@ def test_transport_adc(transport_class):
 
 def test_transport_grpc_default():
     # A client should use the gRPC transport by default.
-    client = VizierServiceClient(credentials=ga_credentials.AnonymousCredentials(),)
-    assert isinstance(client.transport, transports.VizierServiceGrpcTransport,)
+    client = VizierServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+    )
+    assert isinstance(
+        client.transport,
+        transports.VizierServiceGrpcTransport,
+    )
 
 
 def test_vizier_service_base_transport_error():
@@ -3853,7 +4346,8 @@ def test_vizier_service_base_transport_with_credentials_file():
         Transport.return_value = None
         load_creds.return_value = (ga_credentials.AnonymousCredentials(), None)
         transport = transports.VizierServiceTransport(
-            credentials_file="credentials.json", quota_project_id="octopus",
+            credentials_file="credentials.json",
+            quota_project_id="octopus",
         )
         load_creds.assert_called_once_with(
             "credentials.json",
@@ -4011,7 +4505,8 @@ def test_vizier_service_grpc_transport_channel():
 
     # Check that channel is used if provided.
     transport = transports.VizierServiceGrpcTransport(
-        host="squid.clam.whelk", channel=channel,
+        host="squid.clam.whelk",
+        channel=channel,
     )
     assert transport.grpc_channel == channel
     assert transport._host == "squid.clam.whelk:443"
@@ -4023,7 +4518,8 @@ def test_vizier_service_grpc_asyncio_transport_channel():
 
     # Check that channel is used if provided.
     transport = transports.VizierServiceGrpcAsyncIOTransport(
-        host="squid.clam.whelk", channel=channel,
+        host="squid.clam.whelk",
+        channel=channel,
     )
     assert transport.grpc_channel == channel
     assert transport._host == "squid.clam.whelk:443"
@@ -4130,12 +4626,16 @@ def test_vizier_service_transport_channel_mtls_with_adc(transport_class):
 
 def test_vizier_service_grpc_lro_client():
     client = VizierServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(), transport="grpc",
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="grpc",
     )
     transport = client.transport
 
     # Ensure that we have a api-core operations client.
-    assert isinstance(transport.operations_client, operations_v1.OperationsClient,)
+    assert isinstance(
+        transport.operations_client,
+        operations_v1.OperationsClient,
+    )
 
     # Ensure that subsequent calls to the property send the exact same object.
     assert transport.operations_client is transport.operations_client
@@ -4143,12 +4643,16 @@ def test_vizier_service_grpc_lro_client():
 
 def test_vizier_service_grpc_lro_async_client():
     client = VizierServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(), transport="grpc_asyncio",
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="grpc_asyncio",
     )
     transport = client.transport
 
     # Ensure that we have a api-core operations client.
-    assert isinstance(transport.operations_client, operations_v1.OperationsAsyncClient,)
+    assert isinstance(
+        transport.operations_client,
+        operations_v1.OperationsAsyncClient,
+    )
 
     # Ensure that subsequent calls to the property send the exact same object.
     assert transport.operations_client is transport.operations_client
@@ -4159,7 +4663,9 @@ def test_custom_job_path():
     location = "clam"
     custom_job = "whelk"
     expected = "projects/{project}/locations/{location}/customJobs/{custom_job}".format(
-        project=project, location=location, custom_job=custom_job,
+        project=project,
+        location=location,
+        custom_job=custom_job,
     )
     actual = VizierServiceClient.custom_job_path(project, location, custom_job)
     assert expected == actual
@@ -4183,7 +4689,9 @@ def test_study_path():
     location = "mussel"
     study = "winkle"
     expected = "projects/{project}/locations/{location}/studies/{study}".format(
-        project=project, location=location, study=study,
+        project=project,
+        location=location,
+        study=study,
     )
     actual = VizierServiceClient.study_path(project, location, study)
     assert expected == actual
@@ -4207,8 +4715,13 @@ def test_trial_path():
     location = "clam"
     study = "whelk"
     trial = "octopus"
-    expected = "projects/{project}/locations/{location}/studies/{study}/trials/{trial}".format(
-        project=project, location=location, study=study, trial=trial,
+    expected = (
+        "projects/{project}/locations/{location}/studies/{study}/trials/{trial}".format(
+            project=project,
+            location=location,
+            study=study,
+            trial=trial,
+        )
     )
     actual = VizierServiceClient.trial_path(project, location, study, trial)
     assert expected == actual
@@ -4250,7 +4763,9 @@ def test_parse_common_billing_account_path():
 
 def test_common_folder_path():
     folder = "scallop"
-    expected = "folders/{folder}".format(folder=folder,)
+    expected = "folders/{folder}".format(
+        folder=folder,
+    )
     actual = VizierServiceClient.common_folder_path(folder)
     assert expected == actual
 
@@ -4268,7 +4783,9 @@ def test_parse_common_folder_path():
 
 def test_common_organization_path():
     organization = "squid"
-    expected = "organizations/{organization}".format(organization=organization,)
+    expected = "organizations/{organization}".format(
+        organization=organization,
+    )
     actual = VizierServiceClient.common_organization_path(organization)
     assert expected == actual
 
@@ -4286,7 +4803,9 @@ def test_parse_common_organization_path():
 
 def test_common_project_path():
     project = "whelk"
-    expected = "projects/{project}".format(project=project,)
+    expected = "projects/{project}".format(
+        project=project,
+    )
     actual = VizierServiceClient.common_project_path(project)
     assert expected == actual
 
@@ -4306,7 +4825,8 @@ def test_common_location_path():
     project = "oyster"
     location = "nudibranch"
     expected = "projects/{project}/locations/{location}".format(
-        project=project, location=location,
+        project=project,
+        location=location,
     )
     actual = VizierServiceClient.common_location_path(project, location)
     assert expected == actual
@@ -4331,7 +4851,8 @@ def test_client_with_default_client_info():
         transports.VizierServiceTransport, "_prep_wrapped_messages"
     ) as prep:
         client = VizierServiceClient(
-            credentials=ga_credentials.AnonymousCredentials(), client_info=client_info,
+            credentials=ga_credentials.AnonymousCredentials(),
+            client_info=client_info,
         )
         prep.assert_called_once_with(client_info)
 
@@ -4340,7 +4861,8 @@ def test_client_with_default_client_info():
     ) as prep:
         transport_class = VizierServiceClient.get_transport_class()
         transport = transport_class(
-            credentials=ga_credentials.AnonymousCredentials(), client_info=client_info,
+            credentials=ga_credentials.AnonymousCredentials(),
+            client_info=client_info,
         )
         prep.assert_called_once_with(client_info)
 
@@ -4348,7 +4870,8 @@ def test_client_with_default_client_info():
 @pytest.mark.asyncio
 async def test_transport_close_async():
     client = VizierServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(), transport="grpc_asyncio",
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="grpc_asyncio",
     )
     with mock.patch.object(
         type(getattr(client.transport, "grpc_channel")), "close"
