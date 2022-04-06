@@ -167,7 +167,9 @@ class TestRun:
         environment[prediction.AIP_HEALTH_ROUTE] = None
         environment[prediction.AIP_PREDICT_ROUTE] = None
         environment[prediction.AIP_STORAGE_URI] = ""
-        environment[run._ADC_ENVIRONMENT_VARIABLE] = run._DEFAULT_CONTAINER_CRED_KEY_PATH
+        environment[
+            run._ADC_ENVIRONMENT_VARIABLE
+        ] = run._DEFAULT_CONTAINER_CRED_KEY_PATH
         # Envs referencing earlier entries will be changed. Those envs referencing later
         # entries won't be changed.
         environment["VAR_3"] = "foo bar"
@@ -199,7 +201,9 @@ class TestRun:
         environment[prediction.AIP_HEALTH_ROUTE] = None
         environment[prediction.AIP_PREDICT_ROUTE] = None
         environment[prediction.AIP_STORAGE_URI] = ""
-        environment[run._ADC_ENVIRONMENT_VARIABLE] = run._DEFAULT_CONTAINER_CRED_KEY_PATH
+        environment[
+            run._ADC_ENVIRONMENT_VARIABLE
+        ] = run._DEFAULT_CONTAINER_CRED_KEY_PATH
         # Command references existing environment variables.
         expected_entrypoint = ["foo", "$$(VAR_1)", "$(VAR_2)"]
 
@@ -231,7 +235,9 @@ class TestRun:
         environment[prediction.AIP_HEALTH_ROUTE] = None
         environment[prediction.AIP_PREDICT_ROUTE] = None
         environment[prediction.AIP_STORAGE_URI] = ""
-        environment[run._ADC_ENVIRONMENT_VARIABLE] = run._DEFAULT_CONTAINER_CRED_KEY_PATH
+        environment[
+            run._ADC_ENVIRONMENT_VARIABLE
+        ] = run._DEFAULT_CONTAINER_CRED_KEY_PATH
         # Args references existing environment variables.
         expected_command = ["foo", "$$(VAR_1)", "$(VAR_2)"]
 

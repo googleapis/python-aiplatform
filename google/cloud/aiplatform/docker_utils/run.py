@@ -50,8 +50,9 @@ def _get_adc_environment_variable():
 
 
 def _replace_env_var_reference(
-        target: str, env_vars: Dict[str, str],
-    ) -> str:
+    target: str,
+    env_vars: Dict[str, str],
+) -> str:
     """Replaces the environment variable reference in the given string.
 
     Variable references $(VAR_NAME) are expanded using the container's environment.
@@ -71,7 +72,7 @@ def _replace_env_var_reference(
         The updated string.
     """
     for key, value in env_vars.items():
-        target = re.sub(fr"(?<!\$)\$\({key}\)", str(value), target)
+        target = re.sub(rf"(?<!\$)\$\({key}\)", str(value), target)
     return target
 
 
@@ -183,12 +184,16 @@ def run_prediction_container(
     )
     envs[_ADC_ENVIRONMENT_VARIABLE] = credential_mount_path
 
-    entrypoint = [
-        _replace_env_var_reference(i, envs) for i in serving_container_command
-    ] if serving_container_command is not None else []
-    command = [
-        _replace_env_var_reference(i, envs) for i in serving_container_args
-    ] if serving_container_args is not None else []
+    entrypoint = (
+        [_replace_env_var_reference(i, envs) for i in serving_container_command]
+        if serving_container_command is not None
+        else []
+    )
+    command = (
+        [_replace_env_var_reference(i, envs) for i in serving_container_args]
+        if serving_container_args is not None
+        else []
+    )
 
     container = client.containers.run(
         serving_container_image_uri,
