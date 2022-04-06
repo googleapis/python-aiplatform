@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# Copyright 2020 Google LLC
+# Copyright 2022 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -104,7 +104,6 @@ class IndexServiceTransport(abc.ABC):
             credentials, _ = google.auth.load_credentials_from_file(
                 credentials_file, **scopes_kwargs, quota_project_id=quota_project_id
             )
-
         elif credentials is None:
             credentials, _ = google.auth.default(
                 **scopes_kwargs, quota_project_id=quota_project_id
@@ -125,28 +124,38 @@ class IndexServiceTransport(abc.ABC):
         # Precompute the wrapped methods.
         self._wrapped_methods = {
             self.create_index: gapic_v1.method.wrap_method(
-                self.create_index, default_timeout=5.0, client_info=client_info,
+                self.create_index,
+                default_timeout=5.0,
+                client_info=client_info,
             ),
             self.get_index: gapic_v1.method.wrap_method(
-                self.get_index, default_timeout=5.0, client_info=client_info,
+                self.get_index,
+                default_timeout=5.0,
+                client_info=client_info,
             ),
             self.list_indexes: gapic_v1.method.wrap_method(
-                self.list_indexes, default_timeout=5.0, client_info=client_info,
+                self.list_indexes,
+                default_timeout=5.0,
+                client_info=client_info,
             ),
             self.update_index: gapic_v1.method.wrap_method(
-                self.update_index, default_timeout=5.0, client_info=client_info,
+                self.update_index,
+                default_timeout=5.0,
+                client_info=client_info,
             ),
             self.delete_index: gapic_v1.method.wrap_method(
-                self.delete_index, default_timeout=5.0, client_info=client_info,
+                self.delete_index,
+                default_timeout=5.0,
+                client_info=client_info,
             ),
         }
 
     def close(self):
         """Closes resources associated with the transport.
 
-       .. warning::
-            Only call this method if the transport is NOT shared
-            with other clients - this may cause errors in other clients!
+        .. warning::
+             Only call this method if the transport is NOT shared
+             with other clients - this may cause errors in other clients!
         """
         raise NotImplementedError()
 

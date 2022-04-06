@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# Copyright 2020 Google LLC
+# Copyright 2022 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -20,7 +20,10 @@ from google.protobuf import timestamp_pb2  # type: ignore
 
 
 __protobuf__ = proto.module(
-    package="google.cloud.aiplatform.v1", manifest={"Context",},
+    package="google.cloud.aiplatform.v1",
+    manifest={
+        "Context",
+    },
 )
 
 
@@ -35,8 +38,8 @@ class Context(proto.Message):
             User provided display name of the Context.
             May be up to 128 Unicode characters.
         etag (str):
-            An eTag used to perform consistent read-
-            odify-write updates. If not set, a blind
+            An eTag used to perform consistent
+            read-modify-write updates. If not set, a blind
             "overwrite" update happens.
         labels (Sequence[google.cloud.aiplatform_v1.types.Context.LabelsEntry]):
             The labels with user-defined metadata to
@@ -80,21 +83,54 @@ class Context(proto.Message):
             Description of the Context
     """
 
-    name = proto.Field(proto.STRING, number=1,)
-    display_name = proto.Field(proto.STRING, number=2,)
-    etag = proto.Field(proto.STRING, number=8,)
-    labels = proto.MapField(proto.STRING, proto.STRING, number=9,)
+    name = proto.Field(
+        proto.STRING,
+        number=1,
+    )
+    display_name = proto.Field(
+        proto.STRING,
+        number=2,
+    )
+    etag = proto.Field(
+        proto.STRING,
+        number=8,
+    )
+    labels = proto.MapField(
+        proto.STRING,
+        proto.STRING,
+        number=9,
+    )
     create_time = proto.Field(
-        proto.MESSAGE, number=10, message=timestamp_pb2.Timestamp,
+        proto.MESSAGE,
+        number=10,
+        message=timestamp_pb2.Timestamp,
     )
     update_time = proto.Field(
-        proto.MESSAGE, number=11, message=timestamp_pb2.Timestamp,
+        proto.MESSAGE,
+        number=11,
+        message=timestamp_pb2.Timestamp,
     )
-    parent_contexts = proto.RepeatedField(proto.STRING, number=12,)
-    schema_title = proto.Field(proto.STRING, number=13,)
-    schema_version = proto.Field(proto.STRING, number=14,)
-    metadata = proto.Field(proto.MESSAGE, number=15, message=struct_pb2.Struct,)
-    description = proto.Field(proto.STRING, number=16,)
+    parent_contexts = proto.RepeatedField(
+        proto.STRING,
+        number=12,
+    )
+    schema_title = proto.Field(
+        proto.STRING,
+        number=13,
+    )
+    schema_version = proto.Field(
+        proto.STRING,
+        number=14,
+    )
+    metadata = proto.Field(
+        proto.MESSAGE,
+        number=15,
+        message=struct_pb2.Struct,
+    )
+    description = proto.Field(
+        proto.STRING,
+        number=16,
+    )
 
 
 __all__ = tuple(sorted(__protobuf__.manifest))

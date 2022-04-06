@@ -32,6 +32,7 @@ from google.cloud.aiplatform import compat
 from google.cloud.aiplatform.constants import base as constants
 from google.cloud.aiplatform import utils
 from google.cloud.aiplatform.metadata import metadata
+from google.cloud.aiplatform.utils import resource_manager_utils
 from google.cloud.aiplatform.tensorboard import tensorboard_resource
 
 from google.cloud.aiplatform.compat.types import (
@@ -225,6 +226,26 @@ class _Config:
         if self._project:
             return self._project
 
+        # Project is not set. Trying to get it from the environment.
+        # See https://github.com/googleapis/python-aiplatform/issues/852
+        # See https://github.com/googleapis/google-auth-library-python/issues/924
+        # TODO: Remove when google.auth.default() learns the
+        # CLOUD_ML_PROJECT_ID env variable or Vertex AI starts setting GOOGLE_CLOUD_PROJECT env variable.
+        project_number = os.environ.get("CLOUD_ML_PROJECT_ID")
+        if project_number:
+            # Try to convert project number to project ID which is more readable.
+            try:
+                project_id = resource_manager_utils.get_project_id(
+                    project_number=project_number,
+                    credentials=self.credentials,
+                )
+                return project_id
+            except Exception:
+                logging.getLogger(__name__).warning(
+                    "Failed to convert project number to project ID.", exc_info=True
+                )
+                return project_number
+
         project_not_found_exception_str = (
             "Unable to find your project. Please provide a project ID by:"
             "\n- Passing a constructor argument"
@@ -276,7 +297,7 @@ class _Config:
         if metadata._EXPERIMENT_TRACKING_VERSION == "v2":
             return metadata.experiment_tracker.experiment_name
         return metadata.metadata_service.experiment_name
-    
+
 
     def get_client_options(
         self,

@@ -233,9 +233,11 @@ def create_custom_job_mock_with_enable_web_access():
     with mock.patch.object(
         job_service_client.JobServiceClient, "create_custom_job"
     ) as create_custom_job_mock:
-        create_custom_job_mock.return_value = _get_custom_job_proto_with_enable_web_access(
-            name=_TEST_CUSTOM_JOB_NAME,
-            state=gca_job_state_compat.JobState.JOB_STATE_PENDING,
+        create_custom_job_mock.return_value = (
+            _get_custom_job_proto_with_enable_web_access(
+                name=_TEST_CUSTOM_JOB_NAME,
+                state=gca_job_state_compat.JobState.JOB_STATE_PENDING,
+            )
         )
         yield create_custom_job_mock
 
@@ -294,6 +296,7 @@ class TestCustomJob:
             timeout=_TEST_TIMEOUT,
             restart_job_on_worker_restart=_TEST_RESTART_JOB_ON_WORKER_RESTART,
             sync=sync,
+            create_request_timeout=None,
         )
 
         job.wait_for_resource_creation()
@@ -305,7 +308,9 @@ class TestCustomJob:
         expected_custom_job = _get_custom_job_proto()
 
         create_custom_job_mock.assert_called_once_with(
-            parent=_TEST_PARENT, custom_job=expected_custom_job
+            parent=_TEST_PARENT,
+            custom_job=expected_custom_job,
+            timeout=None,
         )
 
         assert job.job_spec == expected_custom_job.job_spec
@@ -313,6 +318,48 @@ class TestCustomJob:
             job._gca_resource.state == gca_job_state_compat.JobState.JOB_STATE_SUCCEEDED
         )
         assert job.network == _TEST_NETWORK
+
+    @pytest.mark.parametrize("sync", [True, False])
+    def test_create_custom_job_with_timeout(
+        self, create_custom_job_mock, get_custom_job_mock, sync
+    ):
+
+        aiplatform.init(
+            project=_TEST_PROJECT,
+            location=_TEST_LOCATION,
+            staging_bucket=_TEST_STAGING_BUCKET,
+            encryption_spec_key_name=_TEST_DEFAULT_ENCRYPTION_KEY_NAME,
+        )
+
+        job = aiplatform.CustomJob(
+            display_name=_TEST_DISPLAY_NAME,
+            worker_pool_specs=_TEST_WORKER_POOL_SPEC,
+            base_output_dir=_TEST_BASE_OUTPUT_DIR,
+            labels=_TEST_LABELS,
+        )
+
+        job.run(
+            service_account=_TEST_SERVICE_ACCOUNT,
+            network=_TEST_NETWORK,
+            timeout=_TEST_TIMEOUT,
+            restart_job_on_worker_restart=_TEST_RESTART_JOB_ON_WORKER_RESTART,
+            sync=sync,
+            create_request_timeout=180.0,
+        )
+
+        job.wait_for_resource_creation()
+
+        assert job.resource_name == _TEST_CUSTOM_JOB_NAME
+
+        job.wait()
+
+        expected_custom_job = _get_custom_job_proto()
+
+        create_custom_job_mock.assert_called_once_with(
+            parent=_TEST_PARENT,
+            custom_job=expected_custom_job,
+            timeout=180.0,
+        )
 
     @pytest.mark.parametrize("sync", [True, False])
     def test_run_custom_job_with_fail_raises(
@@ -343,6 +390,7 @@ class TestCustomJob:
                 timeout=_TEST_TIMEOUT,
                 restart_job_on_worker_restart=_TEST_RESTART_JOB_ON_WORKER_RESTART,
                 sync=sync,
+                create_request_timeout=None,
             )
 
             job.wait()
@@ -354,7 +402,9 @@ class TestCustomJob:
         expected_custom_job = _get_custom_job_proto()
 
         create_custom_job_mock.assert_called_once_with(
-            parent=_TEST_PARENT, custom_job=expected_custom_job
+            parent=_TEST_PARENT,
+            custom_job=expected_custom_job,
+            timeout=None,
         )
 
         assert job.job_spec == expected_custom_job.job_spec
@@ -518,6 +568,7 @@ class TestCustomJob:
             timeout=_TEST_TIMEOUT,
             restart_job_on_worker_restart=_TEST_RESTART_JOB_ON_WORKER_RESTART,
             sync=sync,
+            create_request_timeout=None,
         )
 
         job.wait_for_resource_creation()
@@ -531,7 +582,9 @@ class TestCustomJob:
         expected_custom_job = _get_custom_job_proto_with_enable_web_access()
 
         create_custom_job_mock_with_enable_web_access.assert_called_once_with(
-            parent=_TEST_PARENT, custom_job=expected_custom_job
+            parent=_TEST_PARENT,
+            custom_job=expected_custom_job,
+            timeout=None,
         )
 
         assert job.job_spec == expected_custom_job.job_spec
@@ -546,6 +599,13 @@ class TestCustomJob:
             if job.web_access_uris:
                 assert job.web_access_uris == _TEST_WEB_ACCESS_URIS
                 break
+
+    def test_log_access_web_uris_after_get(
+        self, get_custom_job_mock_with_enable_web_access
+    ):
+        job = aiplatform.CustomJob.get(_TEST_CUSTOM_JOB_NAME)
+        job._block_until_complete()
+        assert job._logged_web_access_uris == set(_TEST_WEB_ACCESS_URIS.values())
 
     def test_get_web_access_uris_job_succeeded(
         self, get_custom_job_mock_with_enable_web_access_succeeded
@@ -579,6 +639,7 @@ class TestCustomJob:
             timeout=_TEST_TIMEOUT,
             restart_job_on_worker_restart=_TEST_RESTART_JOB_ON_WORKER_RESTART,
             sync=sync,
+            create_request_timeout=None,
         )
 
         job.wait()
@@ -587,7 +648,9 @@ class TestCustomJob:
         expected_custom_job.job_spec.tensorboard = _TEST_TENSORBOARD_NAME
 
         create_custom_job_mock_with_tensorboard.assert_called_once_with(
-            parent=_TEST_PARENT, custom_job=expected_custom_job
+            parent=_TEST_PARENT,
+            custom_job=expected_custom_job,
+            timeout=None,
         )
 
         expected_custom_job = _get_custom_job_proto()
@@ -597,7 +660,9 @@ class TestCustomJob:
             job._gca_resource.state == gca_job_state_compat.JobState.JOB_STATE_SUCCEEDED
         )
 
-    def test_create_custom_job_without_base_output_dir(self,):
+    def test_create_custom_job_without_base_output_dir(
+        self,
+    ):
 
         aiplatform.init(
             project=_TEST_PROJECT,
@@ -607,7 +672,8 @@ class TestCustomJob:
         )
 
         job = aiplatform.CustomJob(
-            display_name=_TEST_DISPLAY_NAME, worker_pool_specs=_TEST_WORKER_POOL_SPEC,
+            display_name=_TEST_DISPLAY_NAME,
+            worker_pool_specs=_TEST_WORKER_POOL_SPEC,
         )
 
         assert job.job_spec.base_output_directory.output_uri_prefix.startswith(
@@ -654,3 +720,38 @@ class TestCustomJob:
         assert (
             job._gca_resource.state == gca_job_state_compat.JobState.JOB_STATE_SUCCEEDED
         )
+
+    @pytest.mark.usefixtures("get_custom_job_mock", "create_custom_job_mock")
+    def test_check_custom_job_availability(self):
+        aiplatform.init(
+            project=_TEST_PROJECT,
+            location=_TEST_LOCATION,
+            staging_bucket=_TEST_STAGING_BUCKET,
+            encryption_spec_key_name=_TEST_DEFAULT_ENCRYPTION_KEY_NAME,
+        )
+
+        job = aiplatform.CustomJob(
+            display_name=_TEST_DISPLAY_NAME,
+            worker_pool_specs=_TEST_WORKER_POOL_SPEC,
+            base_output_dir=_TEST_BASE_OUTPUT_DIR,
+            labels=_TEST_LABELS,
+        )
+
+        assert not job._resource_is_available
+        assert job.__repr__().startswith(
+            "<google.cloud.aiplatform.jobs.CustomJob object"
+        )
+
+        job.run(
+            service_account=_TEST_SERVICE_ACCOUNT,
+            network=_TEST_NETWORK,
+            timeout=_TEST_TIMEOUT,
+            restart_job_on_worker_restart=_TEST_RESTART_JOB_ON_WORKER_RESTART,
+        )
+
+        job.wait_for_resource_creation()
+
+        assert job._resource_is_available
+        assert "resource name" in job.__repr__()
+
+        job.wait()

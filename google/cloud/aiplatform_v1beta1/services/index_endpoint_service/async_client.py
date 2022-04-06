@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# Copyright 2020 Google LLC
+# Copyright 2022 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -16,7 +16,7 @@
 from collections import OrderedDict
 import functools
 import re
-from typing import Dict, Sequence, Tuple, Type, Union
+from typing import Dict, Optional, Sequence, Tuple, Type, Union
 import pkg_resources
 
 from google.api_core.client_options import ClientOptions
@@ -118,6 +118,42 @@ class IndexEndpointServiceAsyncClient:
 
     from_service_account_json = from_service_account_file
 
+    @classmethod
+    def get_mtls_endpoint_and_cert_source(
+        cls, client_options: Optional[ClientOptions] = None
+    ):
+        """Return the API endpoint and client cert source for mutual TLS.
+
+        The client cert source is determined in the following order:
+        (1) if `GOOGLE_API_USE_CLIENT_CERTIFICATE` environment variable is not "true", the
+        client cert source is None.
+        (2) if `client_options.client_cert_source` is provided, use the provided one; if the
+        default client cert source exists, use the default one; otherwise the client cert
+        source is None.
+
+        The API endpoint is determined in the following order:
+        (1) if `client_options.api_endpoint` if provided, use the provided one.
+        (2) if `GOOGLE_API_USE_CLIENT_CERTIFICATE` environment variable is "always", use the
+        default mTLS endpoint; if the environment variabel is "never", use the default API
+        endpoint; otherwise if client cert source exists, use the default mTLS endpoint, otherwise
+        use the default API endpoint.
+
+        More details can be found at https://google.aip.dev/auth/4114.
+
+        Args:
+            client_options (google.api_core.client_options.ClientOptions): Custom options for the
+                client. Only the `api_endpoint` and `client_cert_source` properties may be used
+                in this method.
+
+        Returns:
+            Tuple[str, Callable[[], Tuple[bytes, bytes]]]: returns the API endpoint and the
+                client cert source to use.
+
+        Raises:
+            google.auth.exceptions.MutualTLSChannelError: If any errors happen.
+        """
+        return IndexEndpointServiceClient.get_mtls_endpoint_and_cert_source(client_options)  # type: ignore
+
     @property
     def transport(self) -> IndexEndpointServiceTransport:
         """Returns the transport used by the client instance.
@@ -191,6 +227,33 @@ class IndexEndpointServiceAsyncClient:
     ) -> operation_async.AsyncOperation:
         r"""Creates an IndexEndpoint.
 
+        .. code-block:: python
+
+            from google.cloud import aiplatform_v1beta1
+
+            def sample_create_index_endpoint():
+                # Create a client
+                client = aiplatform_v1beta1.IndexEndpointServiceClient()
+
+                # Initialize request argument(s)
+                index_endpoint = aiplatform_v1beta1.IndexEndpoint()
+                index_endpoint.display_name = "display_name_value"
+
+                request = aiplatform_v1beta1.CreateIndexEndpointRequest(
+                    parent="parent_value",
+                    index_endpoint=index_endpoint,
+                )
+
+                # Make the request
+                operation = client.create_index_endpoint(request=request)
+
+                print("Waiting for operation to complete...")
+
+                response = operation.result()
+
+                # Handle the response
+                print(response)
+
         Args:
             request (Union[google.cloud.aiplatform_v1beta1.types.CreateIndexEndpointRequest, dict]):
                 The request object. Request message for
@@ -225,7 +288,7 @@ class IndexEndpointServiceAsyncClient:
 
         """
         # Create or coerce a protobuf request object.
-        # Sanity check: If we got a request object, we should *not* have
+        # Quick check: If we got a request object, we should *not* have
         # gotten any keyword arguments that map to the request.
         has_flattened_params = any([parent, index_endpoint])
         if request is not None and has_flattened_params:
@@ -258,7 +321,12 @@ class IndexEndpointServiceAsyncClient:
         )
 
         # Send the request.
-        response = await rpc(request, retry=retry, timeout=timeout, metadata=metadata,)
+        response = await rpc(
+            request,
+            retry=retry,
+            timeout=timeout,
+            metadata=metadata,
+        )
 
         # Wrap the response in an operation future.
         response = operation_async.from_gapic(
@@ -281,6 +349,25 @@ class IndexEndpointServiceAsyncClient:
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> index_endpoint.IndexEndpoint:
         r"""Gets an IndexEndpoint.
+
+        .. code-block:: python
+
+            from google.cloud import aiplatform_v1beta1
+
+            def sample_get_index_endpoint():
+                # Create a client
+                client = aiplatform_v1beta1.IndexEndpointServiceClient()
+
+                # Initialize request argument(s)
+                request = aiplatform_v1beta1.GetIndexEndpointRequest(
+                    name="name_value",
+                )
+
+                # Make the request
+                response = client.get_index_endpoint(request=request)
+
+                # Handle the response
+                print(response)
 
         Args:
             request (Union[google.cloud.aiplatform_v1beta1.types.GetIndexEndpointRequest, dict]):
@@ -308,7 +395,7 @@ class IndexEndpointServiceAsyncClient:
 
         """
         # Create or coerce a protobuf request object.
-        # Sanity check: If we got a request object, we should *not* have
+        # Quick check: If we got a request object, we should *not* have
         # gotten any keyword arguments that map to the request.
         has_flattened_params = any([name])
         if request is not None and has_flattened_params:
@@ -339,7 +426,12 @@ class IndexEndpointServiceAsyncClient:
         )
 
         # Send the request.
-        response = await rpc(request, retry=retry, timeout=timeout, metadata=metadata,)
+        response = await rpc(
+            request,
+            retry=retry,
+            timeout=timeout,
+            metadata=metadata,
+        )
 
         # Done; return the response.
         return response
@@ -354,6 +446,26 @@ class IndexEndpointServiceAsyncClient:
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> pagers.ListIndexEndpointsAsyncPager:
         r"""Lists IndexEndpoints in a Location.
+
+        .. code-block:: python
+
+            from google.cloud import aiplatform_v1beta1
+
+            def sample_list_index_endpoints():
+                # Create a client
+                client = aiplatform_v1beta1.IndexEndpointServiceClient()
+
+                # Initialize request argument(s)
+                request = aiplatform_v1beta1.ListIndexEndpointsRequest(
+                    parent="parent_value",
+                )
+
+                # Make the request
+                page_result = client.list_index_endpoints(request=request)
+
+                # Handle the response
+                for response in page_result:
+                    print(response)
 
         Args:
             request (Union[google.cloud.aiplatform_v1beta1.types.ListIndexEndpointsRequest, dict]):
@@ -383,7 +495,7 @@ class IndexEndpointServiceAsyncClient:
 
         """
         # Create or coerce a protobuf request object.
-        # Sanity check: If we got a request object, we should *not* have
+        # Quick check: If we got a request object, we should *not* have
         # gotten any keyword arguments that map to the request.
         has_flattened_params = any([parent])
         if request is not None and has_flattened_params:
@@ -414,12 +526,20 @@ class IndexEndpointServiceAsyncClient:
         )
 
         # Send the request.
-        response = await rpc(request, retry=retry, timeout=timeout, metadata=metadata,)
+        response = await rpc(
+            request,
+            retry=retry,
+            timeout=timeout,
+            metadata=metadata,
+        )
 
         # This method is paged; wrap the response in a pager, which provides
         # an `__aiter__` convenience method.
         response = pagers.ListIndexEndpointsAsyncPager(
-            method=rpc, request=request, response=response, metadata=metadata,
+            method=rpc,
+            request=request,
+            response=response,
+            metadata=metadata,
         )
 
         # Done; return the response.
@@ -436,6 +556,28 @@ class IndexEndpointServiceAsyncClient:
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> gca_index_endpoint.IndexEndpoint:
         r"""Updates an IndexEndpoint.
+
+        .. code-block:: python
+
+            from google.cloud import aiplatform_v1beta1
+
+            def sample_update_index_endpoint():
+                # Create a client
+                client = aiplatform_v1beta1.IndexEndpointServiceClient()
+
+                # Initialize request argument(s)
+                index_endpoint = aiplatform_v1beta1.IndexEndpoint()
+                index_endpoint.display_name = "display_name_value"
+
+                request = aiplatform_v1beta1.UpdateIndexEndpointRequest(
+                    index_endpoint=index_endpoint,
+                )
+
+                # Make the request
+                response = client.update_index_endpoint(request=request)
+
+                # Handle the response
+                print(response)
 
         Args:
             request (Union[google.cloud.aiplatform_v1beta1.types.UpdateIndexEndpointRequest, dict]):
@@ -469,7 +611,7 @@ class IndexEndpointServiceAsyncClient:
 
         """
         # Create or coerce a protobuf request object.
-        # Sanity check: If we got a request object, we should *not* have
+        # Quick check: If we got a request object, we should *not* have
         # gotten any keyword arguments that map to the request.
         has_flattened_params = any([index_endpoint, update_mask])
         if request is not None and has_flattened_params:
@@ -504,7 +646,12 @@ class IndexEndpointServiceAsyncClient:
         )
 
         # Send the request.
-        response = await rpc(request, retry=retry, timeout=timeout, metadata=metadata,)
+        response = await rpc(
+            request,
+            retry=retry,
+            timeout=timeout,
+            metadata=metadata,
+        )
 
         # Done; return the response.
         return response
@@ -519,6 +666,29 @@ class IndexEndpointServiceAsyncClient:
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> operation_async.AsyncOperation:
         r"""Deletes an IndexEndpoint.
+
+        .. code-block:: python
+
+            from google.cloud import aiplatform_v1beta1
+
+            def sample_delete_index_endpoint():
+                # Create a client
+                client = aiplatform_v1beta1.IndexEndpointServiceClient()
+
+                # Initialize request argument(s)
+                request = aiplatform_v1beta1.DeleteIndexEndpointRequest(
+                    name="name_value",
+                )
+
+                # Make the request
+                operation = client.delete_index_endpoint(request=request)
+
+                print("Waiting for operation to complete...")
+
+                response = operation.result()
+
+                # Handle the response
+                print(response)
 
         Args:
             request (Union[google.cloud.aiplatform_v1beta1.types.DeleteIndexEndpointRequest, dict]):
@@ -558,7 +728,7 @@ class IndexEndpointServiceAsyncClient:
 
         """
         # Create or coerce a protobuf request object.
-        # Sanity check: If we got a request object, we should *not* have
+        # Quick check: If we got a request object, we should *not* have
         # gotten any keyword arguments that map to the request.
         has_flattened_params = any([name])
         if request is not None and has_flattened_params:
@@ -589,7 +759,12 @@ class IndexEndpointServiceAsyncClient:
         )
 
         # Send the request.
-        response = await rpc(request, retry=retry, timeout=timeout, metadata=metadata,)
+        response = await rpc(
+            request,
+            retry=retry,
+            timeout=timeout,
+            metadata=metadata,
+        )
 
         # Wrap the response in an operation future.
         response = operation_async.from_gapic(
@@ -615,6 +790,35 @@ class IndexEndpointServiceAsyncClient:
         r"""Deploys an Index into this IndexEndpoint, creating a
         DeployedIndex within it.
         Only non-empty Indexes can be deployed.
+
+
+        .. code-block:: python
+
+            from google.cloud import aiplatform_v1beta1
+
+            def sample_deploy_index():
+                # Create a client
+                client = aiplatform_v1beta1.IndexEndpointServiceClient()
+
+                # Initialize request argument(s)
+                deployed_index = aiplatform_v1beta1.DeployedIndex()
+                deployed_index.id = "id_value"
+                deployed_index.index = "index_value"
+
+                request = aiplatform_v1beta1.DeployIndexRequest(
+                    index_endpoint="index_endpoint_value",
+                    deployed_index=deployed_index,
+                )
+
+                # Make the request
+                operation = client.deploy_index(request=request)
+
+                print("Waiting for operation to complete...")
+
+                response = operation.result()
+
+                # Handle the response
+                print(response)
 
         Args:
             request (Union[google.cloud.aiplatform_v1beta1.types.DeployIndexRequest, dict]):
@@ -652,7 +856,7 @@ class IndexEndpointServiceAsyncClient:
 
         """
         # Create or coerce a protobuf request object.
-        # Sanity check: If we got a request object, we should *not* have
+        # Quick check: If we got a request object, we should *not* have
         # gotten any keyword arguments that map to the request.
         has_flattened_params = any([index_endpoint, deployed_index])
         if request is not None and has_flattened_params:
@@ -687,7 +891,12 @@ class IndexEndpointServiceAsyncClient:
         )
 
         # Send the request.
-        response = await rpc(request, retry=retry, timeout=timeout, metadata=metadata,)
+        response = await rpc(
+            request,
+            retry=retry,
+            timeout=timeout,
+            metadata=metadata,
+        )
 
         # Wrap the response in an operation future.
         response = operation_async.from_gapic(
@@ -713,6 +922,31 @@ class IndexEndpointServiceAsyncClient:
         r"""Undeploys an Index from an IndexEndpoint, removing a
         DeployedIndex from it, and freeing all resources it's
         using.
+
+
+        .. code-block:: python
+
+            from google.cloud import aiplatform_v1beta1
+
+            def sample_undeploy_index():
+                # Create a client
+                client = aiplatform_v1beta1.IndexEndpointServiceClient()
+
+                # Initialize request argument(s)
+                request = aiplatform_v1beta1.UndeployIndexRequest(
+                    index_endpoint="index_endpoint_value",
+                    deployed_index_id="deployed_index_id_value",
+                )
+
+                # Make the request
+                operation = client.undeploy_index(request=request)
+
+                print("Waiting for operation to complete...")
+
+                response = operation.result()
+
+                # Handle the response
+                print(response)
 
         Args:
             request (Union[google.cloud.aiplatform_v1beta1.types.UndeployIndexRequest, dict]):
@@ -750,7 +984,7 @@ class IndexEndpointServiceAsyncClient:
 
         """
         # Create or coerce a protobuf request object.
-        # Sanity check: If we got a request object, we should *not* have
+        # Quick check: If we got a request object, we should *not* have
         # gotten any keyword arguments that map to the request.
         has_flattened_params = any([index_endpoint, deployed_index_id])
         if request is not None and has_flattened_params:
@@ -785,7 +1019,12 @@ class IndexEndpointServiceAsyncClient:
         )
 
         # Send the request.
-        response = await rpc(request, retry=retry, timeout=timeout, metadata=metadata,)
+        response = await rpc(
+            request,
+            retry=retry,
+            timeout=timeout,
+            metadata=metadata,
+        )
 
         # Wrap the response in an operation future.
         response = operation_async.from_gapic(
@@ -810,6 +1049,35 @@ class IndexEndpointServiceAsyncClient:
     ) -> operation_async.AsyncOperation:
         r"""Update an existing DeployedIndex under an
         IndexEndpoint.
+
+
+        .. code-block:: python
+
+            from google.cloud import aiplatform_v1beta1
+
+            def sample_mutate_deployed_index():
+                # Create a client
+                client = aiplatform_v1beta1.IndexEndpointServiceClient()
+
+                # Initialize request argument(s)
+                deployed_index = aiplatform_v1beta1.DeployedIndex()
+                deployed_index.id = "id_value"
+                deployed_index.index = "index_value"
+
+                request = aiplatform_v1beta1.MutateDeployedIndexRequest(
+                    index_endpoint="index_endpoint_value",
+                    deployed_index=deployed_index,
+                )
+
+                # Make the request
+                operation = client.mutate_deployed_index(request=request)
+
+                print("Waiting for operation to complete...")
+
+                response = operation.result()
+
+                # Handle the response
+                print(response)
 
         Args:
             request (Union[google.cloud.aiplatform_v1beta1.types.MutateDeployedIndexRequest, dict]):
@@ -849,7 +1117,7 @@ class IndexEndpointServiceAsyncClient:
 
         """
         # Create or coerce a protobuf request object.
-        # Sanity check: If we got a request object, we should *not* have
+        # Quick check: If we got a request object, we should *not* have
         # gotten any keyword arguments that map to the request.
         has_flattened_params = any([index_endpoint, deployed_index])
         if request is not None and has_flattened_params:
@@ -884,7 +1152,12 @@ class IndexEndpointServiceAsyncClient:
         )
 
         # Send the request.
-        response = await rpc(request, retry=retry, timeout=timeout, metadata=metadata,)
+        response = await rpc(
+            request,
+            retry=retry,
+            timeout=timeout,
+            metadata=metadata,
+        )
 
         # Wrap the response in an operation future.
         response = operation_async.from_gapic(

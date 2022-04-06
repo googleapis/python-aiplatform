@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# Copyright 2020 Google LLC
+# Copyright 2022 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -21,7 +21,9 @@ from google.protobuf import wrappers_pb2  # type: ignore
 
 __protobuf__ = proto.module(
     package="google.cloud.aiplatform.v1.schema.predict.prediction",
-    manifest={"VideoObjectTrackingPredictionResult",},
+    manifest={
+        "VideoObjectTrackingPredictionResult",
+    },
 )
 
 
@@ -85,23 +87,59 @@ class VideoObjectTrackingPredictionResult(proto.Message):
         """
 
         time_offset = proto.Field(
-            proto.MESSAGE, number=1, message=duration_pb2.Duration,
+            proto.MESSAGE,
+            number=1,
+            message=duration_pb2.Duration,
         )
-        x_min = proto.Field(proto.MESSAGE, number=2, message=wrappers_pb2.FloatValue,)
-        x_max = proto.Field(proto.MESSAGE, number=3, message=wrappers_pb2.FloatValue,)
-        y_min = proto.Field(proto.MESSAGE, number=4, message=wrappers_pb2.FloatValue,)
-        y_max = proto.Field(proto.MESSAGE, number=5, message=wrappers_pb2.FloatValue,)
+        x_min = proto.Field(
+            proto.MESSAGE,
+            number=2,
+            message=wrappers_pb2.FloatValue,
+        )
+        x_max = proto.Field(
+            proto.MESSAGE,
+            number=3,
+            message=wrappers_pb2.FloatValue,
+        )
+        y_min = proto.Field(
+            proto.MESSAGE,
+            number=4,
+            message=wrappers_pb2.FloatValue,
+        )
+        y_max = proto.Field(
+            proto.MESSAGE,
+            number=5,
+            message=wrappers_pb2.FloatValue,
+        )
 
-    id = proto.Field(proto.STRING, number=1,)
-    display_name = proto.Field(proto.STRING, number=2,)
+    id = proto.Field(
+        proto.STRING,
+        number=1,
+    )
+    display_name = proto.Field(
+        proto.STRING,
+        number=2,
+    )
     time_segment_start = proto.Field(
-        proto.MESSAGE, number=3, message=duration_pb2.Duration,
+        proto.MESSAGE,
+        number=3,
+        message=duration_pb2.Duration,
     )
     time_segment_end = proto.Field(
-        proto.MESSAGE, number=4, message=duration_pb2.Duration,
+        proto.MESSAGE,
+        number=4,
+        message=duration_pb2.Duration,
     )
-    confidence = proto.Field(proto.MESSAGE, number=5, message=wrappers_pb2.FloatValue,)
-    frames = proto.RepeatedField(proto.MESSAGE, number=6, message=Frame,)
+    confidence = proto.Field(
+        proto.MESSAGE,
+        number=5,
+        message=wrappers_pb2.FloatValue,
+    )
+    frames = proto.RepeatedField(
+        proto.MESSAGE,
+        number=6,
+        message=Frame,
+    )
 
 
 __all__ = tuple(sorted(__protobuf__.manifest))

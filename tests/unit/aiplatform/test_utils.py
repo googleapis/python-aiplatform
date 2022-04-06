@@ -19,7 +19,6 @@
 import pytest
 from typing import Callable, Dict, Optional
 import datetime
-from decimal import Decimal
 
 from google.protobuf import timestamp_pb2
 
@@ -43,7 +42,7 @@ model_service_client_default = model_service_client_v1
 
 def test_invalid_region_raises_with_invalid_region():
     with pytest.raises(ValueError):
-        aiplatform.utils.validate_region(region="us-west4")
+        aiplatform.utils.validate_region(region="us-west3")
 
 
 def test_invalid_region_does_not_raise_with_valid_region():
@@ -197,7 +196,10 @@ def test_full_resource_name_with_partial_name(
     [("347292", "trainingPipelines", "857392", "us-west2020")],
 )
 def test_full_resource_name_raises_value_error(
-    partial_name: str, resource_noun: str, project: str, location: str,
+    partial_name: str,
+    resource_noun: str,
+    project: str,
+    location: str,
 ):
     with pytest.raises(ValueError):
         aiplatform.utils.full_resource_name(
@@ -294,7 +296,8 @@ def test_client_w_override_default_version():
     test_client_options = client_options.ClientOptions()
 
     client_w_override = utils.ModelClientWithOverride(
-        client_options=test_client_options, client_info=test_client_info,
+        client_options=test_client_options,
+        client_info=test_client_info,
     )
     assert isinstance(
         client_w_override._clients[
@@ -310,7 +313,8 @@ def test_client_w_override_select_version():
     test_client_options = client_options.ClientOptions()
 
     client_w_override = utils.ModelClientWithOverride(
-        client_options=test_client_options, client_info=test_client_info,
+        client_options=test_client_options,
+        client_info=test_client_info,
     )
 
     assert isinstance(
@@ -335,7 +339,7 @@ def test_client_w_override_select_version():
             59,
             999999,
             1640303999,
-            int(str(Decimal(1640303999.999999)).split(".")[1][:9]),
+            999000000,
         ),
         (
             2013,
@@ -346,7 +350,7 @@ def test_client_w_override_select_version():
             1,
             199999,
             1357002061,
-            int(str(Decimal(1357002061.199999)).split(".")[1][:9]),
+            199000000,
         ),
     ],
 )
@@ -369,7 +373,6 @@ def test_get_timestamp_proto(
         minute=minute,
         second=second,
         microsecond=microsecond,
-        tzinfo=datetime.timezone.utc,
     )
     true_timestamp_proto = timestamp_pb2.Timestamp(
         seconds=expected_seconds, nanos=expected_nanos
@@ -525,7 +528,8 @@ class TestTensorboardUtils:
 
     def test_tensorboard_get_experiments_compare_url_fail_diff_region(self):
         with pytest.raises(
-            ValueError, match="Got experiments from different locations: asia-east.",
+            ValueError,
+            match="Got experiments from different locations: asia-east.",
         ):
             tensorboard_utils.get_experiments_compare_url(
                 (

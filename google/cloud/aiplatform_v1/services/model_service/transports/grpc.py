@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# Copyright 2020 Google LLC
+# Copyright 2022 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -28,6 +28,7 @@ import grpc  # type: ignore
 from google.cloud.aiplatform_v1.types import model
 from google.cloud.aiplatform_v1.types import model as gca_model
 from google.cloud.aiplatform_v1.types import model_evaluation
+from google.cloud.aiplatform_v1.types import model_evaluation as gca_model_evaluation
 from google.cloud.aiplatform_v1.types import model_evaluation_slice
 from google.cloud.aiplatform_v1.types import model_service
 from google.longrunning import operations_pb2  # type: ignore
@@ -165,8 +166,11 @@ class ModelServiceGrpcTransport(ModelServiceTransport):
         if not self._grpc_channel:
             self._grpc_channel = type(self).create_channel(
                 self._host,
+                # use the credentials which are saved
                 credentials=self._credentials,
-                credentials_file=credentials_file,
+                # Set ``credentials_file`` to ``None`` here as
+                # the credentials that we saved earlier should be used.
+                credentials_file=None,
                 scopes=self._scopes,
                 ssl_credentials=self._ssl_channel_credentials,
                 quota_project_id=quota_project_id,
@@ -228,8 +232,7 @@ class ModelServiceGrpcTransport(ModelServiceTransport):
 
     @property
     def grpc_channel(self) -> grpc.Channel:
-        """Return the channel designed to connect to this service.
-        """
+        """Return the channel designed to connect to this service."""
         return self._grpc_channel
 
     @property
@@ -239,7 +242,7 @@ class ModelServiceGrpcTransport(ModelServiceTransport):
         This property caches on the instance; repeated calls return the same
         client.
         """
-        # Sanity check: Only create a new client if we do not already have one.
+        # Quick check: Only create a new client if we do not already have one.
         if self._operations_client is None:
             self._operations_client = operations_v1.OperationsClient(self.grpc_channel)
 
@@ -409,6 +412,35 @@ class ModelServiceGrpcTransport(ModelServiceTransport):
                 response_deserializer=operations_pb2.Operation.FromString,
             )
         return self._stubs["export_model"]
+
+    @property
+    def import_model_evaluation(
+        self,
+    ) -> Callable[
+        [model_service.ImportModelEvaluationRequest],
+        gca_model_evaluation.ModelEvaluation,
+    ]:
+        r"""Return a callable for the import model evaluation method over gRPC.
+
+        Imports an externally generated ModelEvaluation.
+
+        Returns:
+            Callable[[~.ImportModelEvaluationRequest],
+                    ~.ModelEvaluation]:
+                A function that, when called, will call the underlying RPC
+                on the server.
+        """
+        # Generate a "stub function" on-the-fly which will actually make
+        # the request.
+        # gRPC handles serialization and deserialization, so we just need
+        # to pass in the functions for each.
+        if "import_model_evaluation" not in self._stubs:
+            self._stubs["import_model_evaluation"] = self.grpc_channel.unary_unary(
+                "/google.cloud.aiplatform.v1.ModelService/ImportModelEvaluation",
+                request_serializer=model_service.ImportModelEvaluationRequest.serialize,
+                response_deserializer=gca_model_evaluation.ModelEvaluation.deserialize,
+            )
+        return self._stubs["import_model_evaluation"]
 
     @property
     def get_model_evaluation(

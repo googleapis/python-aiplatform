@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# Copyright 2020 Google LLC
+# Copyright 2022 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -61,9 +61,20 @@ class PredictRequest(proto.Message):
             [parameters_schema_uri][google.cloud.aiplatform.v1.PredictSchemata.parameters_schema_uri].
     """
 
-    endpoint = proto.Field(proto.STRING, number=1,)
-    instances = proto.RepeatedField(proto.MESSAGE, number=2, message=struct_pb2.Value,)
-    parameters = proto.Field(proto.MESSAGE, number=3, message=struct_pb2.Value,)
+    endpoint = proto.Field(
+        proto.STRING,
+        number=1,
+    )
+    instances = proto.RepeatedField(
+        proto.MESSAGE,
+        number=2,
+        message=struct_pb2.Value,
+    )
+    parameters = proto.Field(
+        proto.MESSAGE,
+        number=3,
+        message=struct_pb2.Value,
+    )
 
 
 class PredictResponse(proto.Message):
@@ -93,11 +104,22 @@ class PredictResponse(proto.Message):
     """
 
     predictions = proto.RepeatedField(
-        proto.MESSAGE, number=1, message=struct_pb2.Value,
+        proto.MESSAGE,
+        number=1,
+        message=struct_pb2.Value,
     )
-    deployed_model_id = proto.Field(proto.STRING, number=2,)
-    model = proto.Field(proto.STRING, number=3,)
-    model_display_name = proto.Field(proto.STRING, number=4,)
+    deployed_model_id = proto.Field(
+        proto.STRING,
+        number=2,
+    )
+    model = proto.Field(
+        proto.STRING,
+        number=3,
+    )
+    model_display_name = proto.Field(
+        proto.STRING,
+        number=4,
+    )
 
 
 class RawPredictRequest(proto.Message):
@@ -131,8 +153,15 @@ class RawPredictRequest(proto.Message):
             use the ``RawPredict`` method.
     """
 
-    endpoint = proto.Field(proto.STRING, number=1,)
-    http_body = proto.Field(proto.MESSAGE, number=2, message=httpbody_pb2.HttpBody,)
+    endpoint = proto.Field(
+        proto.STRING,
+        number=1,
+    )
+    http_body = proto.Field(
+        proto.MESSAGE,
+        number=2,
+        message=httpbody_pb2.HttpBody,
+    )
 
 
 class ExplainRequest(proto.Message):
@@ -179,13 +208,29 @@ class ExplainRequest(proto.Message):
             [Endpoint.traffic_split][google.cloud.aiplatform.v1.Endpoint.traffic_split].
     """
 
-    endpoint = proto.Field(proto.STRING, number=1,)
-    instances = proto.RepeatedField(proto.MESSAGE, number=2, message=struct_pb2.Value,)
-    parameters = proto.Field(proto.MESSAGE, number=4, message=struct_pb2.Value,)
-    explanation_spec_override = proto.Field(
-        proto.MESSAGE, number=5, message=explanation.ExplanationSpecOverride,
+    endpoint = proto.Field(
+        proto.STRING,
+        number=1,
     )
-    deployed_model_id = proto.Field(proto.STRING, number=3,)
+    instances = proto.RepeatedField(
+        proto.MESSAGE,
+        number=2,
+        message=struct_pb2.Value,
+    )
+    parameters = proto.Field(
+        proto.MESSAGE,
+        number=4,
+        message=struct_pb2.Value,
+    )
+    explanation_spec_override = proto.Field(
+        proto.MESSAGE,
+        number=5,
+        message=explanation.ExplanationSpecOverride,
+    )
+    deployed_model_id = proto.Field(
+        proto.STRING,
+        number=3,
+    )
 
 
 class ExplainResponse(proto.Message):
@@ -210,11 +255,18 @@ class ExplainResponse(proto.Message):
     """
 
     explanations = proto.RepeatedField(
-        proto.MESSAGE, number=1, message=explanation.Explanation,
+        proto.MESSAGE,
+        number=1,
+        message=explanation.Explanation,
     )
-    deployed_model_id = proto.Field(proto.STRING, number=2,)
+    deployed_model_id = proto.Field(
+        proto.STRING,
+        number=2,
+    )
     predictions = proto.RepeatedField(
-        proto.MESSAGE, number=3, message=struct_pb2.Value,
+        proto.MESSAGE,
+        number=3,
+        message=struct_pb2.Value,
     )
 
 

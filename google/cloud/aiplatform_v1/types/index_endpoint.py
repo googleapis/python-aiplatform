@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# Copyright 2020 Google LLC
+# Copyright 2022 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -102,18 +102,50 @@ class IndexEndpoint(proto.Message):
             can be set.
     """
 
-    name = proto.Field(proto.STRING, number=1,)
-    display_name = proto.Field(proto.STRING, number=2,)
-    description = proto.Field(proto.STRING, number=3,)
-    deployed_indexes = proto.RepeatedField(
-        proto.MESSAGE, number=4, message="DeployedIndex",
+    name = proto.Field(
+        proto.STRING,
+        number=1,
     )
-    etag = proto.Field(proto.STRING, number=5,)
-    labels = proto.MapField(proto.STRING, proto.STRING, number=6,)
-    create_time = proto.Field(proto.MESSAGE, number=7, message=timestamp_pb2.Timestamp,)
-    update_time = proto.Field(proto.MESSAGE, number=8, message=timestamp_pb2.Timestamp,)
-    network = proto.Field(proto.STRING, number=9,)
-    enable_private_service_connect = proto.Field(proto.BOOL, number=10,)
+    display_name = proto.Field(
+        proto.STRING,
+        number=2,
+    )
+    description = proto.Field(
+        proto.STRING,
+        number=3,
+    )
+    deployed_indexes = proto.RepeatedField(
+        proto.MESSAGE,
+        number=4,
+        message="DeployedIndex",
+    )
+    etag = proto.Field(
+        proto.STRING,
+        number=5,
+    )
+    labels = proto.MapField(
+        proto.STRING,
+        proto.STRING,
+        number=6,
+    )
+    create_time = proto.Field(
+        proto.MESSAGE,
+        number=7,
+        message=timestamp_pb2.Timestamp,
+    )
+    update_time = proto.Field(
+        proto.MESSAGE,
+        number=8,
+        message=timestamp_pb2.Timestamp,
+    )
+    network = proto.Field(
+        proto.STRING,
+        number=9,
+    )
+    enable_private_service_connect = proto.Field(
+        proto.BOOL,
+        number=10,
+    )
 
 
 class DeployedIndex(proto.Message):
@@ -171,6 +203,15 @@ class DeployedIndex(proto.Message):
             don't provide SLA when min_replica_count=1). If
             max_replica_count is not set, the default value is
             min_replica_count. The max allowed replica count is 1000.
+        dedicated_resources (google.cloud.aiplatform_v1.types.DedicatedResources):
+            Optional. A description of resources that are dedicated to
+            the DeployedIndex, and that need a higher degree of manual
+            configuration. If min_replica_count is not set, the default
+            value is 2 (we don't provide SLA when min_replica_count=1).
+            If max_replica_count is not set, the default value is
+            min_replica_count. The max allowed replica count is 1000.
+
+            Available machine types: n1-standard-16 n1-standard-32
         enable_access_logging (bool):
             Optional. If true, private endpoint's access
             logs are sent to StackDriver Logging.
@@ -214,25 +255,60 @@ class DeployedIndex(proto.Message):
             including 'default').
     """
 
-    id = proto.Field(proto.STRING, number=1,)
-    index = proto.Field(proto.STRING, number=2,)
-    display_name = proto.Field(proto.STRING, number=3,)
-    create_time = proto.Field(proto.MESSAGE, number=4, message=timestamp_pb2.Timestamp,)
+    id = proto.Field(
+        proto.STRING,
+        number=1,
+    )
+    index = proto.Field(
+        proto.STRING,
+        number=2,
+    )
+    display_name = proto.Field(
+        proto.STRING,
+        number=3,
+    )
+    create_time = proto.Field(
+        proto.MESSAGE,
+        number=4,
+        message=timestamp_pb2.Timestamp,
+    )
     private_endpoints = proto.Field(
-        proto.MESSAGE, number=5, message="IndexPrivateEndpoints",
+        proto.MESSAGE,
+        number=5,
+        message="IndexPrivateEndpoints",
     )
     index_sync_time = proto.Field(
-        proto.MESSAGE, number=6, message=timestamp_pb2.Timestamp,
+        proto.MESSAGE,
+        number=6,
+        message=timestamp_pb2.Timestamp,
     )
     automatic_resources = proto.Field(
-        proto.MESSAGE, number=7, message=machine_resources.AutomaticResources,
+        proto.MESSAGE,
+        number=7,
+        message=machine_resources.AutomaticResources,
     )
-    enable_access_logging = proto.Field(proto.BOOL, number=8,)
+    dedicated_resources = proto.Field(
+        proto.MESSAGE,
+        number=16,
+        message=machine_resources.DedicatedResources,
+    )
+    enable_access_logging = proto.Field(
+        proto.BOOL,
+        number=8,
+    )
     deployed_index_auth_config = proto.Field(
-        proto.MESSAGE, number=9, message="DeployedIndexAuthConfig",
+        proto.MESSAGE,
+        number=9,
+        message="DeployedIndexAuthConfig",
     )
-    reserved_ip_ranges = proto.RepeatedField(proto.STRING, number=10,)
-    deployment_group = proto.Field(proto.STRING, number=11,)
+    reserved_ip_ranges = proto.RepeatedField(
+        proto.STRING,
+        number=10,
+    )
+    deployment_group = proto.Field(
+        proto.STRING,
+        number=11,
+    )
 
 
 class DeployedIndexAuthConfig(proto.Message):
@@ -263,10 +339,20 @@ class DeployedIndexAuthConfig(proto.Message):
                 ``service-account-name@project-id.iam.gserviceaccount.com``
         """
 
-        audiences = proto.RepeatedField(proto.STRING, number=1,)
-        allowed_issuers = proto.RepeatedField(proto.STRING, number=2,)
+        audiences = proto.RepeatedField(
+            proto.STRING,
+            number=1,
+        )
+        allowed_issuers = proto.RepeatedField(
+            proto.STRING,
+            number=2,
+        )
 
-    auth_provider = proto.Field(proto.MESSAGE, number=1, message=AuthProvider,)
+    auth_provider = proto.Field(
+        proto.MESSAGE,
+        number=1,
+        message=AuthProvider,
+    )
 
 
 class IndexPrivateEndpoints(proto.Message):
@@ -286,8 +372,14 @@ class IndexPrivateEndpoints(proto.Message):
             service connect is enabled.
     """
 
-    match_grpc_address = proto.Field(proto.STRING, number=1,)
-    service_attachment = proto.Field(proto.STRING, number=2,)
+    match_grpc_address = proto.Field(
+        proto.STRING,
+        number=1,
+    )
+    service_attachment = proto.Field(
+        proto.STRING,
+        number=2,
+    )
 
 
 __all__ = tuple(sorted(__protobuf__.manifest))

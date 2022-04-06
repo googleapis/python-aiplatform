@@ -39,6 +39,8 @@ from google.cloud.aiplatform.compat.services import (
     endpoint_service_client_v1beta1,
     featurestore_online_serving_service_client_v1beta1,
     featurestore_service_client_v1beta1,
+    index_service_client_v1beta1,
+    index_endpoint_service_client_v1beta1,
     job_service_client_v1beta1,
     metadata_service_client_v1beta1,
     model_service_client_v1beta1,
@@ -51,6 +53,8 @@ from google.cloud.aiplatform.compat.services import (
     endpoint_service_client_v1,
     featurestore_online_serving_service_client_v1,
     featurestore_service_client_v1,
+    index_service_client_v1,
+    index_endpoint_service_client_v1,
     job_service_client_v1,
     metadata_service_client_v1,
     model_service_client_v1,
@@ -70,6 +74,8 @@ VertexAiServiceClient = TypeVar(
     endpoint_service_client_v1beta1.EndpointServiceClient,
     featurestore_online_serving_service_client_v1beta1.FeaturestoreOnlineServingServiceClient,
     featurestore_service_client_v1beta1.FeaturestoreServiceClient,
+    index_service_client_v1beta1.IndexServiceClient,
+    index_endpoint_service_client_v1beta1.IndexEndpointServiceClient,
     model_service_client_v1beta1.ModelServiceClient,
     prediction_service_client_v1beta1.PredictionServiceClient,
     pipeline_service_client_v1beta1.PipelineServiceClient,
@@ -187,6 +193,7 @@ def full_resource_name(
 # Resource nouns that are not plural in their resource names.
 # Userd below to avoid conversion from plural to singular.
 _SINGULAR_RESOURCE_NOUNS = {"time_series"}
+_SINGULAR_RESOURCE_NOUNS_MAP = {"indexes": "index"}
 
 
 def convert_camel_case_resource_noun_to_snake_case(resource_noun: str) -> str:
@@ -202,6 +209,8 @@ def convert_camel_case_resource_noun_to_snake_case(resource_noun: str) -> str:
     # plural to singular
     if snake_case in _SINGULAR_RESOURCE_NOUNS or not snake_case.endswith("s"):
         return snake_case
+    elif snake_case in _SINGULAR_RESOURCE_NOUNS_MAP:
+        return _SINGULAR_RESOURCE_NOUNS_MAP[snake_case]
     else:
         return snake_case[:-1]
 
@@ -370,7 +379,7 @@ class ClientWithOverride:
 
     @property
     def api_endpoint(self) -> str:
-        """Default API endpoint used by this client.""" 
+        """Default API endpoint used by this client."""
         client = self._clients[self._default_version]
 
         if self._is_temporary:
@@ -450,6 +459,27 @@ class EndpointClientWithOverride(ClientWithOverride):
     _version_map = (
         (compat.V1, endpoint_service_client_v1.EndpointServiceClient),
         (compat.V1BETA1, endpoint_service_client_v1beta1.EndpointServiceClient),
+    )
+
+
+class IndexClientWithOverride(ClientWithOverride):
+    _is_temporary = True
+    _default_version = compat.DEFAULT_VERSION
+    _version_map = (
+        (compat.V1, index_service_client_v1.IndexServiceClient),
+        (compat.V1BETA1, index_service_client_v1beta1.IndexServiceClient),
+    )
+
+
+class IndexEndpointClientWithOverride(ClientWithOverride):
+    _is_temporary = True
+    _default_version = compat.DEFAULT_VERSION
+    _version_map = (
+        (compat.V1, index_endpoint_service_client_v1.IndexEndpointServiceClient),
+        (
+            compat.V1BETA1,
+            index_endpoint_service_client_v1beta1.IndexEndpointServiceClient,
+        ),
     )
 
 
@@ -638,9 +668,11 @@ def get_timestamp_proto(
     """
     if not time:
         time = datetime.datetime.now()
-    t = time.timestamp()
-    seconds = int(t)
-    # must not have higher than millisecond precision.
-    nanos = int((t % 1 * 1e6) * 1e3)
 
-    return timestamp_pb2.Timestamp(seconds=seconds, nanos=nanos)
+    time_str = time.isoformat(sep=" ", timespec="milliseconds")
+    time = datetime.datetime.strptime(time_str, "%Y-%m-%d %H:%M:%S.%f")
+
+    timestamp_proto = timestamp_pb2.Timestamp()
+    timestamp_proto.FromDatetime(time)
+
+    return timestamp_proto

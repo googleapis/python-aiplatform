@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# Copyright 2020 Google LLC
+# Copyright 2022 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -108,7 +108,6 @@ class PipelineServiceTransport(abc.ABC):
             credentials, _ = google.auth.load_credentials_from_file(
                 credentials_file, **scopes_kwargs, quota_project_id=quota_project_id
             )
-
         elif credentials is None:
             credentials, _ = google.auth.default(
                 **scopes_kwargs, quota_project_id=quota_project_id
@@ -154,28 +153,38 @@ class PipelineServiceTransport(abc.ABC):
                 client_info=client_info,
             ),
             self.create_pipeline_job: gapic_v1.method.wrap_method(
-                self.create_pipeline_job, default_timeout=None, client_info=client_info,
+                self.create_pipeline_job,
+                default_timeout=None,
+                client_info=client_info,
             ),
             self.get_pipeline_job: gapic_v1.method.wrap_method(
-                self.get_pipeline_job, default_timeout=None, client_info=client_info,
+                self.get_pipeline_job,
+                default_timeout=None,
+                client_info=client_info,
             ),
             self.list_pipeline_jobs: gapic_v1.method.wrap_method(
-                self.list_pipeline_jobs, default_timeout=None, client_info=client_info,
+                self.list_pipeline_jobs,
+                default_timeout=None,
+                client_info=client_info,
             ),
             self.delete_pipeline_job: gapic_v1.method.wrap_method(
-                self.delete_pipeline_job, default_timeout=None, client_info=client_info,
+                self.delete_pipeline_job,
+                default_timeout=None,
+                client_info=client_info,
             ),
             self.cancel_pipeline_job: gapic_v1.method.wrap_method(
-                self.cancel_pipeline_job, default_timeout=None, client_info=client_info,
+                self.cancel_pipeline_job,
+                default_timeout=None,
+                client_info=client_info,
             ),
         }
 
     def close(self):
         """Closes resources associated with the transport.
 
-       .. warning::
-            Only call this method if the transport is NOT shared
-            with other clients - this may cause errors in other clients!
+        .. warning::
+             Only call this method if the transport is NOT shared
+             with other clients - this may cause errors in other clients!
         """
         raise NotImplementedError()
 

@@ -28,19 +28,17 @@ from google.cloud import aiplatform_v1
 
 
 def sample_batch_create_features():
-    """Snippet for batch_create_features"""
-
     # Create a client
     client = aiplatform_v1.FeaturestoreServiceClient()
 
     # Initialize request argument(s)
     requests = aiplatform_v1.CreateFeatureRequest()
-    requests.parent = "projects/{project}/locations/{location}/featurestores/{featurestore}/entityTypes/{entity_type}"
+    requests.parent = "parent_value"
     requests.feature.value_type = "BYTES"
     requests.feature_id = "feature_id_value"
 
     request = aiplatform_v1.BatchCreateFeaturesRequest(
-        parent="projects/{project}/locations/{location}/featurestores/{featurestore}/entityTypes/{entity_type}",
+        parent="parent_value",
         requests=requests,
     )
 
@@ -50,6 +48,8 @@ def sample_batch_create_features():
     print("Waiting for operation to complete...")
 
     response = operation.result()
+
+    # Handle the response
     print(response)
 
 # [END aiplatform_generated_aiplatform_v1_FeaturestoreService_BatchCreateFeatures_sync]

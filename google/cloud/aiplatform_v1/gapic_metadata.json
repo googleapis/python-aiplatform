@@ -1291,6 +1291,11 @@
                 "get_model_evaluation_slice"
               ]
             },
+            "ImportModelEvaluation": {
+              "methods": [
+                "import_model_evaluation"
+              ]
+            },
             "ListModelEvaluationSlices": {
               "methods": [
                 "list_model_evaluation_slices"
@@ -1344,6 +1349,11 @@
             "GetModelEvaluationSlice": {
               "methods": [
                 "get_model_evaluation_slice"
+              ]
+            },
+            "ImportModelEvaluation": {
+              "methods": [
+                "import_model_evaluation"
               ]
             },
             "ListModelEvaluationSlices": {

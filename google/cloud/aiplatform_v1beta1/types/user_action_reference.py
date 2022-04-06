@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# Copyright 2020 Google LLC
+# Copyright 2022 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -17,7 +17,10 @@ import proto  # type: ignore
 
 
 __protobuf__ = proto.module(
-    package="google.cloud.aiplatform.v1beta1", manifest={"UserActionReference",},
+    package="google.cloud.aiplatform.v1beta1",
+    manifest={
+        "UserActionReference",
+    },
 )
 
 
@@ -53,9 +56,20 @@ class UserActionReference(proto.Message):
             "/google.cloud.aiplatform.{apiVersion}.DatasetService.CreateDataset".
     """
 
-    operation = proto.Field(proto.STRING, number=1, oneof="reference",)
-    data_labeling_job = proto.Field(proto.STRING, number=2, oneof="reference",)
-    method = proto.Field(proto.STRING, number=3,)
+    operation = proto.Field(
+        proto.STRING,
+        number=1,
+        oneof="reference",
+    )
+    data_labeling_job = proto.Field(
+        proto.STRING,
+        number=2,
+        oneof="reference",
+    )
+    method = proto.Field(
+        proto.STRING,
+        number=3,
+    )
 
 
 __all__ = tuple(sorted(__protobuf__.manifest))

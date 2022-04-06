@@ -28,20 +28,18 @@ from google.cloud import aiplatform_v1
 
 
 async def sample_get_model_evaluation():
-    """Snippet for get_model_evaluation"""
-
     # Create a client
     client = aiplatform_v1.ModelServiceAsyncClient()
 
     # Initialize request argument(s)
     request = aiplatform_v1.GetModelEvaluationRequest(
-        name="projects/{project}/locations/{location}/models/{model}/evaluations/{evaluation}",
+        name="name_value",
     )
 
     # Make the request
     response = await client.get_model_evaluation(request=request)
 
-    # Handle response
+    # Handle the response
     print(response)
 
 # [END aiplatform_generated_aiplatform_v1_ModelService_GetModelEvaluation_async]

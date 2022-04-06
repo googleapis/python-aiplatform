@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# Copyright 2020 Google LLC
+# Copyright 2022 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -16,7 +16,16 @@
 from collections import OrderedDict
 import functools
 import re
-from typing import Dict, AsyncIterable, Awaitable, Sequence, Tuple, Type, Union
+from typing import (
+    Dict,
+    Optional,
+    AsyncIterable,
+    Awaitable,
+    Sequence,
+    Tuple,
+    Type,
+    Union,
+)
 import pkg_resources
 
 from google.api_core.client_options import ClientOptions
@@ -144,6 +153,42 @@ class TensorboardServiceAsyncClient:
 
     from_service_account_json = from_service_account_file
 
+    @classmethod
+    def get_mtls_endpoint_and_cert_source(
+        cls, client_options: Optional[ClientOptions] = None
+    ):
+        """Return the API endpoint and client cert source for mutual TLS.
+
+        The client cert source is determined in the following order:
+        (1) if `GOOGLE_API_USE_CLIENT_CERTIFICATE` environment variable is not "true", the
+        client cert source is None.
+        (2) if `client_options.client_cert_source` is provided, use the provided one; if the
+        default client cert source exists, use the default one; otherwise the client cert
+        source is None.
+
+        The API endpoint is determined in the following order:
+        (1) if `client_options.api_endpoint` if provided, use the provided one.
+        (2) if `GOOGLE_API_USE_CLIENT_CERTIFICATE` environment variable is "always", use the
+        default mTLS endpoint; if the environment variabel is "never", use the default API
+        endpoint; otherwise if client cert source exists, use the default mTLS endpoint, otherwise
+        use the default API endpoint.
+
+        More details can be found at https://google.aip.dev/auth/4114.
+
+        Args:
+            client_options (google.api_core.client_options.ClientOptions): Custom options for the
+                client. Only the `api_endpoint` and `client_cert_source` properties may be used
+                in this method.
+
+        Returns:
+            Tuple[str, Callable[[], Tuple[bytes, bytes]]]: returns the API endpoint and the
+                client cert source to use.
+
+        Raises:
+            google.auth.exceptions.MutualTLSChannelError: If any errors happen.
+        """
+        return TensorboardServiceClient.get_mtls_endpoint_and_cert_source(client_options)  # type: ignore
+
     @property
     def transport(self) -> TensorboardServiceTransport:
         """Returns the transport used by the client instance.
@@ -217,6 +262,33 @@ class TensorboardServiceAsyncClient:
     ) -> operation_async.AsyncOperation:
         r"""Creates a Tensorboard.
 
+        .. code-block:: python
+
+            from google.cloud import aiplatform_v1beta1
+
+            def sample_create_tensorboard():
+                # Create a client
+                client = aiplatform_v1beta1.TensorboardServiceClient()
+
+                # Initialize request argument(s)
+                tensorboard = aiplatform_v1beta1.Tensorboard()
+                tensorboard.display_name = "display_name_value"
+
+                request = aiplatform_v1beta1.CreateTensorboardRequest(
+                    parent="parent_value",
+                    tensorboard=tensorboard,
+                )
+
+                # Make the request
+                operation = client.create_tensorboard(request=request)
+
+                print("Waiting for operation to complete...")
+
+                response = operation.result()
+
+                # Handle the response
+                print(response)
+
         Args:
             request (Union[google.cloud.aiplatform_v1beta1.types.CreateTensorboardRequest, dict]):
                 The request object. Request message for
@@ -251,7 +323,7 @@ class TensorboardServiceAsyncClient:
 
         """
         # Create or coerce a protobuf request object.
-        # Sanity check: If we got a request object, we should *not* have
+        # Quick check: If we got a request object, we should *not* have
         # gotten any keyword arguments that map to the request.
         has_flattened_params = any([parent, tensorboard])
         if request is not None and has_flattened_params:
@@ -284,7 +356,12 @@ class TensorboardServiceAsyncClient:
         )
 
         # Send the request.
-        response = await rpc(request, retry=retry, timeout=timeout, metadata=metadata,)
+        response = await rpc(
+            request,
+            retry=retry,
+            timeout=timeout,
+            metadata=metadata,
+        )
 
         # Wrap the response in an operation future.
         response = operation_async.from_gapic(
@@ -307,6 +384,25 @@ class TensorboardServiceAsyncClient:
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> tensorboard.Tensorboard:
         r"""Gets a Tensorboard.
+
+        .. code-block:: python
+
+            from google.cloud import aiplatform_v1beta1
+
+            def sample_get_tensorboard():
+                # Create a client
+                client = aiplatform_v1beta1.TensorboardServiceClient()
+
+                # Initialize request argument(s)
+                request = aiplatform_v1beta1.GetTensorboardRequest(
+                    name="name_value",
+                )
+
+                # Make the request
+                response = client.get_tensorboard(request=request)
+
+                # Handle the response
+                print(response)
 
         Args:
             request (Union[google.cloud.aiplatform_v1beta1.types.GetTensorboardRequest, dict]):
@@ -336,7 +432,7 @@ class TensorboardServiceAsyncClient:
 
         """
         # Create or coerce a protobuf request object.
-        # Sanity check: If we got a request object, we should *not* have
+        # Quick check: If we got a request object, we should *not* have
         # gotten any keyword arguments that map to the request.
         has_flattened_params = any([name])
         if request is not None and has_flattened_params:
@@ -367,7 +463,12 @@ class TensorboardServiceAsyncClient:
         )
 
         # Send the request.
-        response = await rpc(request, retry=retry, timeout=timeout, metadata=metadata,)
+        response = await rpc(
+            request,
+            retry=retry,
+            timeout=timeout,
+            metadata=metadata,
+        )
 
         # Done; return the response.
         return response
@@ -383,6 +484,32 @@ class TensorboardServiceAsyncClient:
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> operation_async.AsyncOperation:
         r"""Updates a Tensorboard.
+
+        .. code-block:: python
+
+            from google.cloud import aiplatform_v1beta1
+
+            def sample_update_tensorboard():
+                # Create a client
+                client = aiplatform_v1beta1.TensorboardServiceClient()
+
+                # Initialize request argument(s)
+                tensorboard = aiplatform_v1beta1.Tensorboard()
+                tensorboard.display_name = "display_name_value"
+
+                request = aiplatform_v1beta1.UpdateTensorboardRequest(
+                    tensorboard=tensorboard,
+                )
+
+                # Make the request
+                operation = client.update_tensorboard(request=request)
+
+                print("Waiting for operation to complete...")
+
+                response = operation.result()
+
+                # Handle the response
+                print(response)
 
         Args:
             request (Union[google.cloud.aiplatform_v1beta1.types.UpdateTensorboardRequest, dict]):
@@ -425,7 +552,7 @@ class TensorboardServiceAsyncClient:
 
         """
         # Create or coerce a protobuf request object.
-        # Sanity check: If we got a request object, we should *not* have
+        # Quick check: If we got a request object, we should *not* have
         # gotten any keyword arguments that map to the request.
         has_flattened_params = any([tensorboard, update_mask])
         if request is not None and has_flattened_params:
@@ -460,7 +587,12 @@ class TensorboardServiceAsyncClient:
         )
 
         # Send the request.
-        response = await rpc(request, retry=retry, timeout=timeout, metadata=metadata,)
+        response = await rpc(
+            request,
+            retry=retry,
+            timeout=timeout,
+            metadata=metadata,
+        )
 
         # Wrap the response in an operation future.
         response = operation_async.from_gapic(
@@ -483,6 +615,26 @@ class TensorboardServiceAsyncClient:
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> pagers.ListTensorboardsAsyncPager:
         r"""Lists Tensorboards in a Location.
+
+        .. code-block:: python
+
+            from google.cloud import aiplatform_v1beta1
+
+            def sample_list_tensorboards():
+                # Create a client
+                client = aiplatform_v1beta1.TensorboardServiceClient()
+
+                # Initialize request argument(s)
+                request = aiplatform_v1beta1.ListTensorboardsRequest(
+                    parent="parent_value",
+                )
+
+                # Make the request
+                page_result = client.list_tensorboards(request=request)
+
+                # Handle the response
+                for response in page_result:
+                    print(response)
 
         Args:
             request (Union[google.cloud.aiplatform_v1beta1.types.ListTensorboardsRequest, dict]):
@@ -512,7 +664,7 @@ class TensorboardServiceAsyncClient:
 
         """
         # Create or coerce a protobuf request object.
-        # Sanity check: If we got a request object, we should *not* have
+        # Quick check: If we got a request object, we should *not* have
         # gotten any keyword arguments that map to the request.
         has_flattened_params = any([parent])
         if request is not None and has_flattened_params:
@@ -543,12 +695,20 @@ class TensorboardServiceAsyncClient:
         )
 
         # Send the request.
-        response = await rpc(request, retry=retry, timeout=timeout, metadata=metadata,)
+        response = await rpc(
+            request,
+            retry=retry,
+            timeout=timeout,
+            metadata=metadata,
+        )
 
         # This method is paged; wrap the response in a pager, which provides
         # an `__aiter__` convenience method.
         response = pagers.ListTensorboardsAsyncPager(
-            method=rpc, request=request, response=response, metadata=metadata,
+            method=rpc,
+            request=request,
+            response=response,
+            metadata=metadata,
         )
 
         # Done; return the response.
@@ -564,6 +724,29 @@ class TensorboardServiceAsyncClient:
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> operation_async.AsyncOperation:
         r"""Deletes a Tensorboard.
+
+        .. code-block:: python
+
+            from google.cloud import aiplatform_v1beta1
+
+            def sample_delete_tensorboard():
+                # Create a client
+                client = aiplatform_v1beta1.TensorboardServiceClient()
+
+                # Initialize request argument(s)
+                request = aiplatform_v1beta1.DeleteTensorboardRequest(
+                    name="name_value",
+                )
+
+                # Make the request
+                operation = client.delete_tensorboard(request=request)
+
+                print("Waiting for operation to complete...")
+
+                response = operation.result()
+
+                # Handle the response
+                print(response)
 
         Args:
             request (Union[google.cloud.aiplatform_v1beta1.types.DeleteTensorboardRequest, dict]):
@@ -603,7 +786,7 @@ class TensorboardServiceAsyncClient:
 
         """
         # Create or coerce a protobuf request object.
-        # Sanity check: If we got a request object, we should *not* have
+        # Quick check: If we got a request object, we should *not* have
         # gotten any keyword arguments that map to the request.
         has_flattened_params = any([name])
         if request is not None and has_flattened_params:
@@ -634,7 +817,12 @@ class TensorboardServiceAsyncClient:
         )
 
         # Send the request.
-        response = await rpc(request, retry=retry, timeout=timeout, metadata=metadata,)
+        response = await rpc(
+            request,
+            retry=retry,
+            timeout=timeout,
+            metadata=metadata,
+        )
 
         # Wrap the response in an operation future.
         response = operation_async.from_gapic(
@@ -661,6 +849,26 @@ class TensorboardServiceAsyncClient:
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> gca_tensorboard_experiment.TensorboardExperiment:
         r"""Creates a TensorboardExperiment.
+
+        .. code-block:: python
+
+            from google.cloud import aiplatform_v1beta1
+
+            def sample_create_tensorboard_experiment():
+                # Create a client
+                client = aiplatform_v1beta1.TensorboardServiceClient()
+
+                # Initialize request argument(s)
+                request = aiplatform_v1beta1.CreateTensorboardExperimentRequest(
+                    parent="parent_value",
+                    tensorboard_experiment_id="tensorboard_experiment_id_value",
+                )
+
+                # Make the request
+                response = client.create_tensorboard_experiment(request=request)
+
+                # Handle the response
+                print(response)
 
         Args:
             request (Union[google.cloud.aiplatform_v1beta1.types.CreateTensorboardExperimentRequest, dict]):
@@ -705,7 +913,7 @@ class TensorboardServiceAsyncClient:
 
         """
         # Create or coerce a protobuf request object.
-        # Sanity check: If we got a request object, we should *not* have
+        # Quick check: If we got a request object, we should *not* have
         # gotten any keyword arguments that map to the request.
         has_flattened_params = any(
             [parent, tensorboard_experiment, tensorboard_experiment_id]
@@ -742,7 +950,12 @@ class TensorboardServiceAsyncClient:
         )
 
         # Send the request.
-        response = await rpc(request, retry=retry, timeout=timeout, metadata=metadata,)
+        response = await rpc(
+            request,
+            retry=retry,
+            timeout=timeout,
+            metadata=metadata,
+        )
 
         # Done; return the response.
         return response
@@ -759,6 +972,25 @@ class TensorboardServiceAsyncClient:
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> tensorboard_experiment.TensorboardExperiment:
         r"""Gets a TensorboardExperiment.
+
+        .. code-block:: python
+
+            from google.cloud import aiplatform_v1beta1
+
+            def sample_get_tensorboard_experiment():
+                # Create a client
+                client = aiplatform_v1beta1.TensorboardServiceClient()
+
+                # Initialize request argument(s)
+                request = aiplatform_v1beta1.GetTensorboardExperimentRequest(
+                    name="name_value",
+                )
+
+                # Make the request
+                response = client.get_tensorboard_experiment(request=request)
+
+                # Handle the response
+                print(response)
 
         Args:
             request (Union[google.cloud.aiplatform_v1beta1.types.GetTensorboardExperimentRequest, dict]):
@@ -787,7 +1019,7 @@ class TensorboardServiceAsyncClient:
 
         """
         # Create or coerce a protobuf request object.
-        # Sanity check: If we got a request object, we should *not* have
+        # Quick check: If we got a request object, we should *not* have
         # gotten any keyword arguments that map to the request.
         has_flattened_params = any([name])
         if request is not None and has_flattened_params:
@@ -818,7 +1050,12 @@ class TensorboardServiceAsyncClient:
         )
 
         # Send the request.
-        response = await rpc(request, retry=retry, timeout=timeout, metadata=metadata,)
+        response = await rpc(
+            request,
+            retry=retry,
+            timeout=timeout,
+            metadata=metadata,
+        )
 
         # Done; return the response.
         return response
@@ -836,6 +1073,24 @@ class TensorboardServiceAsyncClient:
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> gca_tensorboard_experiment.TensorboardExperiment:
         r"""Updates a TensorboardExperiment.
+
+        .. code-block:: python
+
+            from google.cloud import aiplatform_v1beta1
+
+            def sample_update_tensorboard_experiment():
+                # Create a client
+                client = aiplatform_v1beta1.TensorboardServiceClient()
+
+                # Initialize request argument(s)
+                request = aiplatform_v1beta1.UpdateTensorboardExperimentRequest(
+                )
+
+                # Make the request
+                response = client.update_tensorboard_experiment(request=request)
+
+                # Handle the response
+                print(response)
 
         Args:
             request (Union[google.cloud.aiplatform_v1beta1.types.UpdateTensorboardExperimentRequest, dict]):
@@ -877,7 +1132,7 @@ class TensorboardServiceAsyncClient:
 
         """
         # Create or coerce a protobuf request object.
-        # Sanity check: If we got a request object, we should *not* have
+        # Quick check: If we got a request object, we should *not* have
         # gotten any keyword arguments that map to the request.
         has_flattened_params = any([tensorboard_experiment, update_mask])
         if request is not None and has_flattened_params:
@@ -912,7 +1167,12 @@ class TensorboardServiceAsyncClient:
         )
 
         # Send the request.
-        response = await rpc(request, retry=retry, timeout=timeout, metadata=metadata,)
+        response = await rpc(
+            request,
+            retry=retry,
+            timeout=timeout,
+            metadata=metadata,
+        )
 
         # Done; return the response.
         return response
@@ -929,6 +1189,26 @@ class TensorboardServiceAsyncClient:
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> pagers.ListTensorboardExperimentsAsyncPager:
         r"""Lists TensorboardExperiments in a Location.
+
+        .. code-block:: python
+
+            from google.cloud import aiplatform_v1beta1
+
+            def sample_list_tensorboard_experiments():
+                # Create a client
+                client = aiplatform_v1beta1.TensorboardServiceClient()
+
+                # Initialize request argument(s)
+                request = aiplatform_v1beta1.ListTensorboardExperimentsRequest(
+                    parent="parent_value",
+                )
+
+                # Make the request
+                page_result = client.list_tensorboard_experiments(request=request)
+
+                # Handle the response
+                for response in page_result:
+                    print(response)
 
         Args:
             request (Union[google.cloud.aiplatform_v1beta1.types.ListTensorboardExperimentsRequest, dict]):
@@ -959,7 +1239,7 @@ class TensorboardServiceAsyncClient:
 
         """
         # Create or coerce a protobuf request object.
-        # Sanity check: If we got a request object, we should *not* have
+        # Quick check: If we got a request object, we should *not* have
         # gotten any keyword arguments that map to the request.
         has_flattened_params = any([parent])
         if request is not None and has_flattened_params:
@@ -990,12 +1270,20 @@ class TensorboardServiceAsyncClient:
         )
 
         # Send the request.
-        response = await rpc(request, retry=retry, timeout=timeout, metadata=metadata,)
+        response = await rpc(
+            request,
+            retry=retry,
+            timeout=timeout,
+            metadata=metadata,
+        )
 
         # This method is paged; wrap the response in a pager, which provides
         # an `__aiter__` convenience method.
         response = pagers.ListTensorboardExperimentsAsyncPager(
-            method=rpc, request=request, response=response, metadata=metadata,
+            method=rpc,
+            request=request,
+            response=response,
+            metadata=metadata,
         )
 
         # Done; return the response.
@@ -1013,6 +1301,29 @@ class TensorboardServiceAsyncClient:
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> operation_async.AsyncOperation:
         r"""Deletes a TensorboardExperiment.
+
+        .. code-block:: python
+
+            from google.cloud import aiplatform_v1beta1
+
+            def sample_delete_tensorboard_experiment():
+                # Create a client
+                client = aiplatform_v1beta1.TensorboardServiceClient()
+
+                # Initialize request argument(s)
+                request = aiplatform_v1beta1.DeleteTensorboardExperimentRequest(
+                    name="name_value",
+                )
+
+                # Make the request
+                operation = client.delete_tensorboard_experiment(request=request)
+
+                print("Waiting for operation to complete...")
+
+                response = operation.result()
+
+                # Handle the response
+                print(response)
 
         Args:
             request (Union[google.cloud.aiplatform_v1beta1.types.DeleteTensorboardExperimentRequest, dict]):
@@ -1052,7 +1363,7 @@ class TensorboardServiceAsyncClient:
 
         """
         # Create or coerce a protobuf request object.
-        # Sanity check: If we got a request object, we should *not* have
+        # Quick check: If we got a request object, we should *not* have
         # gotten any keyword arguments that map to the request.
         has_flattened_params = any([name])
         if request is not None and has_flattened_params:
@@ -1083,7 +1394,12 @@ class TensorboardServiceAsyncClient:
         )
 
         # Send the request.
-        response = await rpc(request, retry=retry, timeout=timeout, metadata=metadata,)
+        response = await rpc(
+            request,
+            retry=retry,
+            timeout=timeout,
+            metadata=metadata,
+        )
 
         # Wrap the response in an operation future.
         response = operation_async.from_gapic(
@@ -1108,6 +1424,30 @@ class TensorboardServiceAsyncClient:
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> gca_tensorboard_run.TensorboardRun:
         r"""Creates a TensorboardRun.
+
+        .. code-block:: python
+
+            from google.cloud import aiplatform_v1beta1
+
+            def sample_create_tensorboard_run():
+                # Create a client
+                client = aiplatform_v1beta1.TensorboardServiceClient()
+
+                # Initialize request argument(s)
+                tensorboard_run = aiplatform_v1beta1.TensorboardRun()
+                tensorboard_run.display_name = "display_name_value"
+
+                request = aiplatform_v1beta1.CreateTensorboardRunRequest(
+                    parent="parent_value",
+                    tensorboard_run=tensorboard_run,
+                    tensorboard_run_id="tensorboard_run_id_value",
+                )
+
+                # Make the request
+                response = client.create_tensorboard_run(request=request)
+
+                # Handle the response
+                print(response)
 
         Args:
             request (Union[google.cloud.aiplatform_v1beta1.types.CreateTensorboardRunRequest, dict]):
@@ -1154,7 +1494,7 @@ class TensorboardServiceAsyncClient:
 
         """
         # Create or coerce a protobuf request object.
-        # Sanity check: If we got a request object, we should *not* have
+        # Quick check: If we got a request object, we should *not* have
         # gotten any keyword arguments that map to the request.
         has_flattened_params = any([parent, tensorboard_run, tensorboard_run_id])
         if request is not None and has_flattened_params:
@@ -1189,7 +1529,12 @@ class TensorboardServiceAsyncClient:
         )
 
         # Send the request.
-        response = await rpc(request, retry=retry, timeout=timeout, metadata=metadata,)
+        response = await rpc(
+            request,
+            retry=retry,
+            timeout=timeout,
+            metadata=metadata,
+        )
 
         # Done; return the response.
         return response
@@ -1207,6 +1552,31 @@ class TensorboardServiceAsyncClient:
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> tensorboard_service.BatchCreateTensorboardRunsResponse:
         r"""Batch create TensorboardRuns.
+
+        .. code-block:: python
+
+            from google.cloud import aiplatform_v1beta1
+
+            def sample_batch_create_tensorboard_runs():
+                # Create a client
+                client = aiplatform_v1beta1.TensorboardServiceClient()
+
+                # Initialize request argument(s)
+                requests = aiplatform_v1beta1.CreateTensorboardRunRequest()
+                requests.parent = "parent_value"
+                requests.tensorboard_run.display_name = "display_name_value"
+                requests.tensorboard_run_id = "tensorboard_run_id_value"
+
+                request = aiplatform_v1beta1.BatchCreateTensorboardRunsRequest(
+                    parent="parent_value",
+                    requests=requests,
+                )
+
+                # Make the request
+                response = client.batch_create_tensorboard_runs(request=request)
+
+                # Handle the response
+                print(response)
 
         Args:
             request (Union[google.cloud.aiplatform_v1beta1.types.BatchCreateTensorboardRunsRequest, dict]):
@@ -1245,7 +1615,7 @@ class TensorboardServiceAsyncClient:
 
         """
         # Create or coerce a protobuf request object.
-        # Sanity check: If we got a request object, we should *not* have
+        # Quick check: If we got a request object, we should *not* have
         # gotten any keyword arguments that map to the request.
         has_flattened_params = any([parent, requests])
         if request is not None and has_flattened_params:
@@ -1278,7 +1648,12 @@ class TensorboardServiceAsyncClient:
         )
 
         # Send the request.
-        response = await rpc(request, retry=retry, timeout=timeout, metadata=metadata,)
+        response = await rpc(
+            request,
+            retry=retry,
+            timeout=timeout,
+            metadata=metadata,
+        )
 
         # Done; return the response.
         return response
@@ -1293,6 +1668,25 @@ class TensorboardServiceAsyncClient:
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> tensorboard_run.TensorboardRun:
         r"""Gets a TensorboardRun.
+
+        .. code-block:: python
+
+            from google.cloud import aiplatform_v1beta1
+
+            def sample_get_tensorboard_run():
+                # Create a client
+                client = aiplatform_v1beta1.TensorboardServiceClient()
+
+                # Initialize request argument(s)
+                request = aiplatform_v1beta1.GetTensorboardRunRequest(
+                    name="name_value",
+                )
+
+                # Make the request
+                response = client.get_tensorboard_run(request=request)
+
+                # Handle the response
+                print(response)
 
         Args:
             request (Union[google.cloud.aiplatform_v1beta1.types.GetTensorboardRunRequest, dict]):
@@ -1321,7 +1715,7 @@ class TensorboardServiceAsyncClient:
 
         """
         # Create or coerce a protobuf request object.
-        # Sanity check: If we got a request object, we should *not* have
+        # Quick check: If we got a request object, we should *not* have
         # gotten any keyword arguments that map to the request.
         has_flattened_params = any([name])
         if request is not None and has_flattened_params:
@@ -1352,7 +1746,12 @@ class TensorboardServiceAsyncClient:
         )
 
         # Send the request.
-        response = await rpc(request, retry=retry, timeout=timeout, metadata=metadata,)
+        response = await rpc(
+            request,
+            retry=retry,
+            timeout=timeout,
+            metadata=metadata,
+        )
 
         # Done; return the response.
         return response
@@ -1368,6 +1767,28 @@ class TensorboardServiceAsyncClient:
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> gca_tensorboard_run.TensorboardRun:
         r"""Updates a TensorboardRun.
+
+        .. code-block:: python
+
+            from google.cloud import aiplatform_v1beta1
+
+            def sample_update_tensorboard_run():
+                # Create a client
+                client = aiplatform_v1beta1.TensorboardServiceClient()
+
+                # Initialize request argument(s)
+                tensorboard_run = aiplatform_v1beta1.TensorboardRun()
+                tensorboard_run.display_name = "display_name_value"
+
+                request = aiplatform_v1beta1.UpdateTensorboardRunRequest(
+                    tensorboard_run=tensorboard_run,
+                )
+
+                # Make the request
+                response = client.update_tensorboard_run(request=request)
+
+                # Handle the response
+                print(response)
 
         Args:
             request (Union[google.cloud.aiplatform_v1beta1.types.UpdateTensorboardRunRequest, dict]):
@@ -1408,7 +1829,7 @@ class TensorboardServiceAsyncClient:
 
         """
         # Create or coerce a protobuf request object.
-        # Sanity check: If we got a request object, we should *not* have
+        # Quick check: If we got a request object, we should *not* have
         # gotten any keyword arguments that map to the request.
         has_flattened_params = any([tensorboard_run, update_mask])
         if request is not None and has_flattened_params:
@@ -1443,7 +1864,12 @@ class TensorboardServiceAsyncClient:
         )
 
         # Send the request.
-        response = await rpc(request, retry=retry, timeout=timeout, metadata=metadata,)
+        response = await rpc(
+            request,
+            retry=retry,
+            timeout=timeout,
+            metadata=metadata,
+        )
 
         # Done; return the response.
         return response
@@ -1458,6 +1884,26 @@ class TensorboardServiceAsyncClient:
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> pagers.ListTensorboardRunsAsyncPager:
         r"""Lists TensorboardRuns in a Location.
+
+        .. code-block:: python
+
+            from google.cloud import aiplatform_v1beta1
+
+            def sample_list_tensorboard_runs():
+                # Create a client
+                client = aiplatform_v1beta1.TensorboardServiceClient()
+
+                # Initialize request argument(s)
+                request = aiplatform_v1beta1.ListTensorboardRunsRequest(
+                    parent="parent_value",
+                )
+
+                # Make the request
+                page_result = client.list_tensorboard_runs(request=request)
+
+                # Handle the response
+                for response in page_result:
+                    print(response)
 
         Args:
             request (Union[google.cloud.aiplatform_v1beta1.types.ListTensorboardRunsRequest, dict]):
@@ -1488,7 +1934,7 @@ class TensorboardServiceAsyncClient:
 
         """
         # Create or coerce a protobuf request object.
-        # Sanity check: If we got a request object, we should *not* have
+        # Quick check: If we got a request object, we should *not* have
         # gotten any keyword arguments that map to the request.
         has_flattened_params = any([parent])
         if request is not None and has_flattened_params:
@@ -1519,12 +1965,20 @@ class TensorboardServiceAsyncClient:
         )
 
         # Send the request.
-        response = await rpc(request, retry=retry, timeout=timeout, metadata=metadata,)
+        response = await rpc(
+            request,
+            retry=retry,
+            timeout=timeout,
+            metadata=metadata,
+        )
 
         # This method is paged; wrap the response in a pager, which provides
         # an `__aiter__` convenience method.
         response = pagers.ListTensorboardRunsAsyncPager(
-            method=rpc, request=request, response=response, metadata=metadata,
+            method=rpc,
+            request=request,
+            response=response,
+            metadata=metadata,
         )
 
         # Done; return the response.
@@ -1540,6 +1994,29 @@ class TensorboardServiceAsyncClient:
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> operation_async.AsyncOperation:
         r"""Deletes a TensorboardRun.
+
+        .. code-block:: python
+
+            from google.cloud import aiplatform_v1beta1
+
+            def sample_delete_tensorboard_run():
+                # Create a client
+                client = aiplatform_v1beta1.TensorboardServiceClient()
+
+                # Initialize request argument(s)
+                request = aiplatform_v1beta1.DeleteTensorboardRunRequest(
+                    name="name_value",
+                )
+
+                # Make the request
+                operation = client.delete_tensorboard_run(request=request)
+
+                print("Waiting for operation to complete...")
+
+                response = operation.result()
+
+                # Handle the response
+                print(response)
 
         Args:
             request (Union[google.cloud.aiplatform_v1beta1.types.DeleteTensorboardRunRequest, dict]):
@@ -1579,7 +2056,7 @@ class TensorboardServiceAsyncClient:
 
         """
         # Create or coerce a protobuf request object.
-        # Sanity check: If we got a request object, we should *not* have
+        # Quick check: If we got a request object, we should *not* have
         # gotten any keyword arguments that map to the request.
         has_flattened_params = any([name])
         if request is not None and has_flattened_params:
@@ -1610,7 +2087,12 @@ class TensorboardServiceAsyncClient:
         )
 
         # Send the request.
-        response = await rpc(request, retry=retry, timeout=timeout, metadata=metadata,)
+        response = await rpc(
+            request,
+            retry=retry,
+            timeout=timeout,
+            metadata=metadata,
+        )
 
         # Wrap the response in an operation future.
         response = operation_async.from_gapic(
@@ -1639,6 +2121,32 @@ class TensorboardServiceAsyncClient:
     ) -> tensorboard_service.BatchCreateTensorboardTimeSeriesResponse:
         r"""Batch create TensorboardTimeSeries that belong to a
         TensorboardExperiment.
+
+
+        .. code-block:: python
+
+            from google.cloud import aiplatform_v1beta1
+
+            def sample_batch_create_tensorboard_time_series():
+                # Create a client
+                client = aiplatform_v1beta1.TensorboardServiceClient()
+
+                # Initialize request argument(s)
+                requests = aiplatform_v1beta1.CreateTensorboardTimeSeriesRequest()
+                requests.parent = "parent_value"
+                requests.tensorboard_time_series.display_name = "display_name_value"
+                requests.tensorboard_time_series.value_type = "BLOB_SEQUENCE"
+
+                request = aiplatform_v1beta1.BatchCreateTensorboardTimeSeriesRequest(
+                    parent="parent_value",
+                    requests=requests,
+                )
+
+                # Make the request
+                response = client.batch_create_tensorboard_time_series(request=request)
+
+                # Handle the response
+                print(response)
 
         Args:
             request (Union[google.cloud.aiplatform_v1beta1.types.BatchCreateTensorboardTimeSeriesRequest, dict]):
@@ -1678,7 +2186,7 @@ class TensorboardServiceAsyncClient:
 
         """
         # Create or coerce a protobuf request object.
-        # Sanity check: If we got a request object, we should *not* have
+        # Quick check: If we got a request object, we should *not* have
         # gotten any keyword arguments that map to the request.
         has_flattened_params = any([parent, requests])
         if request is not None and has_flattened_params:
@@ -1711,7 +2219,12 @@ class TensorboardServiceAsyncClient:
         )
 
         # Send the request.
-        response = await rpc(request, retry=retry, timeout=timeout, metadata=metadata,)
+        response = await rpc(
+            request,
+            retry=retry,
+            timeout=timeout,
+            metadata=metadata,
+        )
 
         # Done; return the response.
         return response
@@ -1729,6 +2242,30 @@ class TensorboardServiceAsyncClient:
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> gca_tensorboard_time_series.TensorboardTimeSeries:
         r"""Creates a TensorboardTimeSeries.
+
+        .. code-block:: python
+
+            from google.cloud import aiplatform_v1beta1
+
+            def sample_create_tensorboard_time_series():
+                # Create a client
+                client = aiplatform_v1beta1.TensorboardServiceClient()
+
+                # Initialize request argument(s)
+                tensorboard_time_series = aiplatform_v1beta1.TensorboardTimeSeries()
+                tensorboard_time_series.display_name = "display_name_value"
+                tensorboard_time_series.value_type = "BLOB_SEQUENCE"
+
+                request = aiplatform_v1beta1.CreateTensorboardTimeSeriesRequest(
+                    parent="parent_value",
+                    tensorboard_time_series=tensorboard_time_series,
+                )
+
+                # Make the request
+                response = client.create_tensorboard_time_series(request=request)
+
+                # Handle the response
+                print(response)
 
         Args:
             request (Union[google.cloud.aiplatform_v1beta1.types.CreateTensorboardTimeSeriesRequest, dict]):
@@ -1762,7 +2299,7 @@ class TensorboardServiceAsyncClient:
 
         """
         # Create or coerce a protobuf request object.
-        # Sanity check: If we got a request object, we should *not* have
+        # Quick check: If we got a request object, we should *not* have
         # gotten any keyword arguments that map to the request.
         has_flattened_params = any([parent, tensorboard_time_series])
         if request is not None and has_flattened_params:
@@ -1795,7 +2332,12 @@ class TensorboardServiceAsyncClient:
         )
 
         # Send the request.
-        response = await rpc(request, retry=retry, timeout=timeout, metadata=metadata,)
+        response = await rpc(
+            request,
+            retry=retry,
+            timeout=timeout,
+            metadata=metadata,
+        )
 
         # Done; return the response.
         return response
@@ -1812,6 +2354,25 @@ class TensorboardServiceAsyncClient:
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> tensorboard_time_series.TensorboardTimeSeries:
         r"""Gets a TensorboardTimeSeries.
+
+        .. code-block:: python
+
+            from google.cloud import aiplatform_v1beta1
+
+            def sample_get_tensorboard_time_series():
+                # Create a client
+                client = aiplatform_v1beta1.TensorboardServiceClient()
+
+                # Initialize request argument(s)
+                request = aiplatform_v1beta1.GetTensorboardTimeSeriesRequest(
+                    name="name_value",
+                )
+
+                # Make the request
+                response = client.get_tensorboard_time_series(request=request)
+
+                # Handle the response
+                print(response)
 
         Args:
             request (Union[google.cloud.aiplatform_v1beta1.types.GetTensorboardTimeSeriesRequest, dict]):
@@ -1838,7 +2399,7 @@ class TensorboardServiceAsyncClient:
 
         """
         # Create or coerce a protobuf request object.
-        # Sanity check: If we got a request object, we should *not* have
+        # Quick check: If we got a request object, we should *not* have
         # gotten any keyword arguments that map to the request.
         has_flattened_params = any([name])
         if request is not None and has_flattened_params:
@@ -1869,7 +2430,12 @@ class TensorboardServiceAsyncClient:
         )
 
         # Send the request.
-        response = await rpc(request, retry=retry, timeout=timeout, metadata=metadata,)
+        response = await rpc(
+            request,
+            retry=retry,
+            timeout=timeout,
+            metadata=metadata,
+        )
 
         # Done; return the response.
         return response
@@ -1887,6 +2453,29 @@ class TensorboardServiceAsyncClient:
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> gca_tensorboard_time_series.TensorboardTimeSeries:
         r"""Updates a TensorboardTimeSeries.
+
+        .. code-block:: python
+
+            from google.cloud import aiplatform_v1beta1
+
+            def sample_update_tensorboard_time_series():
+                # Create a client
+                client = aiplatform_v1beta1.TensorboardServiceClient()
+
+                # Initialize request argument(s)
+                tensorboard_time_series = aiplatform_v1beta1.TensorboardTimeSeries()
+                tensorboard_time_series.display_name = "display_name_value"
+                tensorboard_time_series.value_type = "BLOB_SEQUENCE"
+
+                request = aiplatform_v1beta1.UpdateTensorboardTimeSeriesRequest(
+                    tensorboard_time_series=tensorboard_time_series,
+                )
+
+                # Make the request
+                response = client.update_tensorboard_time_series(request=request)
+
+                # Handle the response
+                print(response)
 
         Args:
             request (Union[google.cloud.aiplatform_v1beta1.types.UpdateTensorboardTimeSeriesRequest, dict]):
@@ -1926,7 +2515,7 @@ class TensorboardServiceAsyncClient:
 
         """
         # Create or coerce a protobuf request object.
-        # Sanity check: If we got a request object, we should *not* have
+        # Quick check: If we got a request object, we should *not* have
         # gotten any keyword arguments that map to the request.
         has_flattened_params = any([tensorboard_time_series, update_mask])
         if request is not None and has_flattened_params:
@@ -1966,7 +2555,12 @@ class TensorboardServiceAsyncClient:
         )
 
         # Send the request.
-        response = await rpc(request, retry=retry, timeout=timeout, metadata=metadata,)
+        response = await rpc(
+            request,
+            retry=retry,
+            timeout=timeout,
+            metadata=metadata,
+        )
 
         # Done; return the response.
         return response
@@ -1983,6 +2577,26 @@ class TensorboardServiceAsyncClient:
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> pagers.ListTensorboardTimeSeriesAsyncPager:
         r"""Lists TensorboardTimeSeries in a Location.
+
+        .. code-block:: python
+
+            from google.cloud import aiplatform_v1beta1
+
+            def sample_list_tensorboard_time_series():
+                # Create a client
+                client = aiplatform_v1beta1.TensorboardServiceClient()
+
+                # Initialize request argument(s)
+                request = aiplatform_v1beta1.ListTensorboardTimeSeriesRequest(
+                    parent="parent_value",
+                )
+
+                # Make the request
+                page_result = client.list_tensorboard_time_series(request=request)
+
+                # Handle the response
+                for response in page_result:
+                    print(response)
 
         Args:
             request (Union[google.cloud.aiplatform_v1beta1.types.ListTensorboardTimeSeriesRequest, dict]):
@@ -2013,7 +2627,7 @@ class TensorboardServiceAsyncClient:
 
         """
         # Create or coerce a protobuf request object.
-        # Sanity check: If we got a request object, we should *not* have
+        # Quick check: If we got a request object, we should *not* have
         # gotten any keyword arguments that map to the request.
         has_flattened_params = any([parent])
         if request is not None and has_flattened_params:
@@ -2044,12 +2658,20 @@ class TensorboardServiceAsyncClient:
         )
 
         # Send the request.
-        response = await rpc(request, retry=retry, timeout=timeout, metadata=metadata,)
+        response = await rpc(
+            request,
+            retry=retry,
+            timeout=timeout,
+            metadata=metadata,
+        )
 
         # This method is paged; wrap the response in a pager, which provides
         # an `__aiter__` convenience method.
         response = pagers.ListTensorboardTimeSeriesAsyncPager(
-            method=rpc, request=request, response=response, metadata=metadata,
+            method=rpc,
+            request=request,
+            response=response,
+            metadata=metadata,
         )
 
         # Done; return the response.
@@ -2067,6 +2689,29 @@ class TensorboardServiceAsyncClient:
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> operation_async.AsyncOperation:
         r"""Deletes a TensorboardTimeSeries.
+
+        .. code-block:: python
+
+            from google.cloud import aiplatform_v1beta1
+
+            def sample_delete_tensorboard_time_series():
+                # Create a client
+                client = aiplatform_v1beta1.TensorboardServiceClient()
+
+                # Initialize request argument(s)
+                request = aiplatform_v1beta1.DeleteTensorboardTimeSeriesRequest(
+                    name="name_value",
+                )
+
+                # Make the request
+                operation = client.delete_tensorboard_time_series(request=request)
+
+                print("Waiting for operation to complete...")
+
+                response = operation.result()
+
+                # Handle the response
+                print(response)
 
         Args:
             request (Union[google.cloud.aiplatform_v1beta1.types.DeleteTensorboardTimeSeriesRequest, dict]):
@@ -2106,7 +2751,7 @@ class TensorboardServiceAsyncClient:
 
         """
         # Create or coerce a protobuf request object.
-        # Sanity check: If we got a request object, we should *not* have
+        # Quick check: If we got a request object, we should *not* have
         # gotten any keyword arguments that map to the request.
         has_flattened_params = any([name])
         if request is not None and has_flattened_params:
@@ -2137,7 +2782,12 @@ class TensorboardServiceAsyncClient:
         )
 
         # Send the request.
-        response = await rpc(request, retry=retry, timeout=timeout, metadata=metadata,)
+        response = await rpc(
+            request,
+            retry=retry,
+            timeout=timeout,
+            metadata=metadata,
+        )
 
         # Wrap the response in an operation future.
         response = operation_async.from_gapic(
@@ -2168,6 +2818,27 @@ class TensorboardServiceAsyncClient:
         Otherwise, that limit number of data points will be
         randomly selected from this time series and returned.
 
+
+        .. code-block:: python
+
+            from google.cloud import aiplatform_v1beta1
+
+            def sample_batch_read_tensorboard_time_series_data():
+                # Create a client
+                client = aiplatform_v1beta1.TensorboardServiceClient()
+
+                # Initialize request argument(s)
+                request = aiplatform_v1beta1.BatchReadTensorboardTimeSeriesDataRequest(
+                    tensorboard="tensorboard_value",
+                    time_series=['time_series_value_1', 'time_series_value_2'],
+                )
+
+                # Make the request
+                response = client.batch_read_tensorboard_time_series_data(request=request)
+
+                # Handle the response
+                print(response)
+
         Args:
             request (Union[google.cloud.aiplatform_v1beta1.types.BatchReadTensorboardTimeSeriesDataRequest, dict]):
                 The request object. Request message for
@@ -2197,7 +2868,7 @@ class TensorboardServiceAsyncClient:
 
         """
         # Create or coerce a protobuf request object.
-        # Sanity check: If we got a request object, we should *not* have
+        # Quick check: If we got a request object, we should *not* have
         # gotten any keyword arguments that map to the request.
         has_flattened_params = any([tensorboard])
         if request is not None and has_flattened_params:
@@ -2230,7 +2901,12 @@ class TensorboardServiceAsyncClient:
         )
 
         # Send the request.
-        response = await rpc(request, retry=retry, timeout=timeout, metadata=metadata,)
+        response = await rpc(
+            request,
+            retry=retry,
+            timeout=timeout,
+            metadata=metadata,
+        )
 
         # Done; return the response.
         return response
@@ -2251,6 +2927,26 @@ class TensorboardServiceAsyncClient:
         returned. Otherwise, 1000 data points will be randomly selected
         from this time series and returned. This value can be changed by
         changing max_data_points, which can't be greater than 10k.
+
+
+        .. code-block:: python
+
+            from google.cloud import aiplatform_v1beta1
+
+            def sample_read_tensorboard_time_series_data():
+                # Create a client
+                client = aiplatform_v1beta1.TensorboardServiceClient()
+
+                # Initialize request argument(s)
+                request = aiplatform_v1beta1.ReadTensorboardTimeSeriesDataRequest(
+                    tensorboard_time_series="tensorboard_time_series_value",
+                )
+
+                # Make the request
+                response = client.read_tensorboard_time_series_data(request=request)
+
+                # Handle the response
+                print(response)
 
         Args:
             request (Union[google.cloud.aiplatform_v1beta1.types.ReadTensorboardTimeSeriesDataRequest, dict]):
@@ -2277,7 +2973,7 @@ class TensorboardServiceAsyncClient:
 
         """
         # Create or coerce a protobuf request object.
-        # Sanity check: If we got a request object, we should *not* have
+        # Quick check: If we got a request object, we should *not* have
         # gotten any keyword arguments that map to the request.
         has_flattened_params = any([tensorboard_time_series])
         if request is not None and has_flattened_params:
@@ -2310,7 +3006,12 @@ class TensorboardServiceAsyncClient:
         )
 
         # Send the request.
-        response = await rpc(request, retry=retry, timeout=timeout, metadata=metadata,)
+        response = await rpc(
+            request,
+            retry=retry,
+            timeout=timeout,
+            metadata=metadata,
+        )
 
         # Done; return the response.
         return response
@@ -2328,6 +3029,27 @@ class TensorboardServiceAsyncClient:
         This is to allow reading blob data stored in consumer
         project's Cloud Storage bucket without users having to
         obtain Cloud Storage access permission.
+
+
+        .. code-block:: python
+
+            from google.cloud import aiplatform_v1beta1
+
+            def sample_read_tensorboard_blob_data():
+                # Create a client
+                client = aiplatform_v1beta1.TensorboardServiceClient()
+
+                # Initialize request argument(s)
+                request = aiplatform_v1beta1.ReadTensorboardBlobDataRequest(
+                    time_series="time_series_value",
+                )
+
+                # Make the request
+                stream = client.read_tensorboard_blob_data(request=request)
+
+                # Handle the response
+                for response in stream:
+                    print(response)
 
         Args:
             request (Union[google.cloud.aiplatform_v1beta1.types.ReadTensorboardBlobDataRequest, dict]):
@@ -2354,7 +3076,7 @@ class TensorboardServiceAsyncClient:
 
         """
         # Create or coerce a protobuf request object.
-        # Sanity check: If we got a request object, we should *not* have
+        # Quick check: If we got a request object, we should *not* have
         # gotten any keyword arguments that map to the request.
         has_flattened_params = any([time_series])
         if request is not None and has_flattened_params:
@@ -2387,7 +3109,12 @@ class TensorboardServiceAsyncClient:
         )
 
         # Send the request.
-        response = rpc(request, retry=retry, timeout=timeout, metadata=metadata,)
+        response = rpc(
+            request,
+            retry=retry,
+            timeout=timeout,
+            metadata=metadata,
+        )
 
         # Done; return the response.
         return response
@@ -2409,6 +3136,32 @@ class TensorboardServiceAsyncClient:
         r"""Write time series data points of multiple
         TensorboardTimeSeries in multiple TensorboardRun's. If
         any data fail to be ingested, an error will be returned.
+
+
+        .. code-block:: python
+
+            from google.cloud import aiplatform_v1beta1
+
+            def sample_write_tensorboard_experiment_data():
+                # Create a client
+                client = aiplatform_v1beta1.TensorboardServiceClient()
+
+                # Initialize request argument(s)
+                write_run_data_requests = aiplatform_v1beta1.WriteTensorboardRunDataRequest()
+                write_run_data_requests.tensorboard_run = "tensorboard_run_value"
+                write_run_data_requests.time_series_data.tensorboard_time_series_id = "tensorboard_time_series_id_value"
+                write_run_data_requests.time_series_data.value_type = "BLOB_SEQUENCE"
+
+                request = aiplatform_v1beta1.WriteTensorboardExperimentDataRequest(
+                    tensorboard_experiment="tensorboard_experiment_value",
+                    write_run_data_requests=write_run_data_requests,
+                )
+
+                # Make the request
+                response = client.write_tensorboard_experiment_data(request=request)
+
+                # Handle the response
+                print(response)
 
         Args:
             request (Union[google.cloud.aiplatform_v1beta1.types.WriteTensorboardExperimentDataRequest, dict]):
@@ -2442,7 +3195,7 @@ class TensorboardServiceAsyncClient:
 
         """
         # Create or coerce a protobuf request object.
-        # Sanity check: If we got a request object, we should *not* have
+        # Quick check: If we got a request object, we should *not* have
         # gotten any keyword arguments that map to the request.
         has_flattened_params = any([tensorboard_experiment, write_run_data_requests])
         if request is not None and has_flattened_params:
@@ -2477,7 +3230,12 @@ class TensorboardServiceAsyncClient:
         )
 
         # Send the request.
-        response = await rpc(request, retry=retry, timeout=timeout, metadata=metadata,)
+        response = await rpc(
+            request,
+            retry=retry,
+            timeout=timeout,
+            metadata=metadata,
+        )
 
         # Done; return the response.
         return response
@@ -2495,6 +3253,31 @@ class TensorboardServiceAsyncClient:
         r"""Write time series data points into multiple
         TensorboardTimeSeries under a TensorboardRun. If any
         data fail to be ingested, an error will be returned.
+
+
+        .. code-block:: python
+
+            from google.cloud import aiplatform_v1beta1
+
+            def sample_write_tensorboard_run_data():
+                # Create a client
+                client = aiplatform_v1beta1.TensorboardServiceClient()
+
+                # Initialize request argument(s)
+                time_series_data = aiplatform_v1beta1.TimeSeriesData()
+                time_series_data.tensorboard_time_series_id = "tensorboard_time_series_id_value"
+                time_series_data.value_type = "BLOB_SEQUENCE"
+
+                request = aiplatform_v1beta1.WriteTensorboardRunDataRequest(
+                    tensorboard_run="tensorboard_run_value",
+                    time_series_data=time_series_data,
+                )
+
+                # Make the request
+                response = client.write_tensorboard_run_data(request=request)
+
+                # Handle the response
+                print(response)
 
         Args:
             request (Union[google.cloud.aiplatform_v1beta1.types.WriteTensorboardRunDataRequest, dict]):
@@ -2534,7 +3317,7 @@ class TensorboardServiceAsyncClient:
 
         """
         # Create or coerce a protobuf request object.
-        # Sanity check: If we got a request object, we should *not* have
+        # Quick check: If we got a request object, we should *not* have
         # gotten any keyword arguments that map to the request.
         has_flattened_params = any([tensorboard_run, time_series_data])
         if request is not None and has_flattened_params:
@@ -2569,7 +3352,12 @@ class TensorboardServiceAsyncClient:
         )
 
         # Send the request.
-        response = await rpc(request, retry=retry, timeout=timeout, metadata=metadata,)
+        response = await rpc(
+            request,
+            retry=retry,
+            timeout=timeout,
+            metadata=metadata,
+        )
 
         # Done; return the response.
         return response
@@ -2587,6 +3375,27 @@ class TensorboardServiceAsyncClient:
     ) -> pagers.ExportTensorboardTimeSeriesDataAsyncPager:
         r"""Exports a TensorboardTimeSeries' data. Data is
         returned in paginated responses.
+
+
+        .. code-block:: python
+
+            from google.cloud import aiplatform_v1beta1
+
+            def sample_export_tensorboard_time_series_data():
+                # Create a client
+                client = aiplatform_v1beta1.TensorboardServiceClient()
+
+                # Initialize request argument(s)
+                request = aiplatform_v1beta1.ExportTensorboardTimeSeriesDataRequest(
+                    tensorboard_time_series="tensorboard_time_series_value",
+                )
+
+                # Make the request
+                page_result = client.export_tensorboard_time_series_data(request=request)
+
+                # Handle the response
+                for response in page_result:
+                    print(response)
 
         Args:
             request (Union[google.cloud.aiplatform_v1beta1.types.ExportTensorboardTimeSeriesDataRequest, dict]):
@@ -2616,7 +3425,7 @@ class TensorboardServiceAsyncClient:
 
         """
         # Create or coerce a protobuf request object.
-        # Sanity check: If we got a request object, we should *not* have
+        # Quick check: If we got a request object, we should *not* have
         # gotten any keyword arguments that map to the request.
         has_flattened_params = any([tensorboard_time_series])
         if request is not None and has_flattened_params:
@@ -2649,12 +3458,20 @@ class TensorboardServiceAsyncClient:
         )
 
         # Send the request.
-        response = await rpc(request, retry=retry, timeout=timeout, metadata=metadata,)
+        response = await rpc(
+            request,
+            retry=retry,
+            timeout=timeout,
+            metadata=metadata,
+        )
 
         # This method is paged; wrap the response in a pager, which provides
         # an `__aiter__` convenience method.
         response = pagers.ExportTensorboardTimeSeriesDataAsyncPager(
-            method=rpc, request=request, response=response, metadata=metadata,
+            method=rpc,
+            request=request,
+            response=response,
+            metadata=metadata,
         )
 
         # Done; return the response.

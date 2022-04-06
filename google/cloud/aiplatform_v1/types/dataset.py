@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# Copyright 2020 Google LLC
+# Copyright 2022 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -23,7 +23,11 @@ from google.protobuf import timestamp_pb2  # type: ignore
 
 __protobuf__ = proto.module(
     package="google.cloud.aiplatform.v1",
-    manifest={"Dataset", "ImportDataConfig", "ExportDataConfig",},
+    manifest={
+        "Dataset",
+        "ImportDataConfig",
+        "ExportDataConfig",
+    },
 )
 
 
@@ -46,8 +50,7 @@ class Dataset(proto.Message):
             information about the Dataset. The schema is
             defined as an OpenAPI 3.0.2 Schema Object. The
             schema files that can be used here are found in
-            gs://google-cloud-
-            aiplatform/schema/dataset/metadata/.
+            gs://google-cloud-aiplatform/schema/dataset/metadata/.
         metadata (google.protobuf.struct_pb2.Value):
             Required. Additional information about the
             Dataset.
@@ -82,22 +85,55 @@ class Dataset(proto.Message):
                title.
         encryption_spec (google.cloud.aiplatform_v1.types.EncryptionSpec):
             Customer-managed encryption key spec for a
-            Dataset. If set, this Dataset and all sub-
-            resources of this Dataset will be secured by
+            Dataset. If set, this Dataset and all
+            sub-resources of this Dataset will be secured by
             this key.
     """
 
-    name = proto.Field(proto.STRING, number=1,)
-    display_name = proto.Field(proto.STRING, number=2,)
-    description = proto.Field(proto.STRING, number=16,)
-    metadata_schema_uri = proto.Field(proto.STRING, number=3,)
-    metadata = proto.Field(proto.MESSAGE, number=8, message=struct_pb2.Value,)
-    create_time = proto.Field(proto.MESSAGE, number=4, message=timestamp_pb2.Timestamp,)
-    update_time = proto.Field(proto.MESSAGE, number=5, message=timestamp_pb2.Timestamp,)
-    etag = proto.Field(proto.STRING, number=6,)
-    labels = proto.MapField(proto.STRING, proto.STRING, number=7,)
+    name = proto.Field(
+        proto.STRING,
+        number=1,
+    )
+    display_name = proto.Field(
+        proto.STRING,
+        number=2,
+    )
+    description = proto.Field(
+        proto.STRING,
+        number=16,
+    )
+    metadata_schema_uri = proto.Field(
+        proto.STRING,
+        number=3,
+    )
+    metadata = proto.Field(
+        proto.MESSAGE,
+        number=8,
+        message=struct_pb2.Value,
+    )
+    create_time = proto.Field(
+        proto.MESSAGE,
+        number=4,
+        message=timestamp_pb2.Timestamp,
+    )
+    update_time = proto.Field(
+        proto.MESSAGE,
+        number=5,
+        message=timestamp_pb2.Timestamp,
+    )
+    etag = proto.Field(
+        proto.STRING,
+        number=6,
+    )
+    labels = proto.MapField(
+        proto.STRING,
+        proto.STRING,
+        number=7,
+    )
     encryption_spec = proto.Field(
-        proto.MESSAGE, number=11, message=gca_encryption_spec.EncryptionSpec,
+        proto.MESSAGE,
+        number=11,
+        message=gca_encryption_spec.EncryptionSpec,
     )
 
 
@@ -139,10 +175,20 @@ class ImportDataConfig(proto.Message):
     """
 
     gcs_source = proto.Field(
-        proto.MESSAGE, number=1, oneof="source", message=io.GcsSource,
+        proto.MESSAGE,
+        number=1,
+        oneof="source",
+        message=io.GcsSource,
     )
-    data_item_labels = proto.MapField(proto.STRING, proto.STRING, number=2,)
-    import_schema_uri = proto.Field(proto.STRING, number=4,)
+    data_item_labels = proto.MapField(
+        proto.STRING,
+        proto.STRING,
+        number=2,
+    )
+    import_schema_uri = proto.Field(
+        proto.STRING,
+        number=4,
+    )
 
 
 class ExportDataConfig(proto.Message):
@@ -176,9 +222,15 @@ class ExportDataConfig(proto.Message):
     """
 
     gcs_destination = proto.Field(
-        proto.MESSAGE, number=1, oneof="destination", message=io.GcsDestination,
+        proto.MESSAGE,
+        number=1,
+        oneof="destination",
+        message=io.GcsDestination,
     )
-    annotations_filter = proto.Field(proto.STRING, number=2,)
+    annotations_filter = proto.Field(
+        proto.STRING,
+        number=2,
+    )
 
 
 __all__ = tuple(sorted(__protobuf__.manifest))

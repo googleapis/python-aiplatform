@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# Copyright 2020 Google LLC
+# Copyright 2022 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -18,7 +18,9 @@ import proto  # type: ignore
 
 __protobuf__ = proto.module(
     package="google.cloud.aiplatform.v1beta1.schema.predict.params",
-    manifest={"VideoObjectTrackingPredictionParams",},
+    manifest={
+        "VideoObjectTrackingPredictionParams",
+    },
 )
 
 
@@ -42,9 +44,18 @@ class VideoObjectTrackingPredictionParams(proto.Message):
             frame size are returned. Default value is 0.0.
     """
 
-    confidence_threshold = proto.Field(proto.FLOAT, number=1,)
-    max_predictions = proto.Field(proto.INT32, number=2,)
-    min_bounding_box_size = proto.Field(proto.FLOAT, number=3,)
+    confidence_threshold = proto.Field(
+        proto.FLOAT,
+        number=1,
+    )
+    max_predictions = proto.Field(
+        proto.INT32,
+        number=2,
+    )
+    min_bounding_box_size = proto.Field(
+        proto.FLOAT,
+        number=3,
+    )
 
 
 __all__ = tuple(sorted(__protobuf__.manifest))

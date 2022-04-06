@@ -28,18 +28,18 @@ from google.cloud import aiplatform_v1beta1
 
 
 async def sample_list_batch_prediction_jobs():
-    """Snippet for list_batch_prediction_jobs"""
-
     # Create a client
     client = aiplatform_v1beta1.JobServiceAsyncClient()
 
     # Initialize request argument(s)
     request = aiplatform_v1beta1.ListBatchPredictionJobsRequest(
-        parent="projects/{project}/locations/{location}",
+        parent="parent_value",
     )
 
     # Make the request
     page_result = client.list_batch_prediction_jobs(request=request)
+
+    # Handle the response
     async for response in page_result:
         print(response)
 

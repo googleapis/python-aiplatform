@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# Copyright 2020 Google LLC
+# Copyright 2022 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -93,6 +93,7 @@ from .types.deployed_model_ref import DeployedModelRef
 from .types.encryption_spec import EncryptionSpec
 from .types.endpoint import DeployedModel
 from .types.endpoint import Endpoint
+from .types.endpoint import PredictRequestResponseLoggingConfig
 from .types.endpoint import PrivateEndpoints
 from .types.endpoint_service import CreateEndpointOperationMetadata
 from .types.endpoint_service import CreateEndpointRequest
@@ -130,6 +131,7 @@ from .types.feature_monitoring_stats import FeatureStatsAnomaly
 from .types.feature_selector import FeatureSelector
 from .types.feature_selector import IdMatcher
 from .types.featurestore import Featurestore
+from .types.featurestore_monitoring import FeaturestoreMonitoringConfig
 from .types.featurestore_online_service import FeatureValue
 from .types.featurestore_online_service import FeatureValueList
 from .types.featurestore_online_service import ReadFeatureValuesRequest
@@ -346,6 +348,7 @@ from .types.model_service import ExportModelResponse
 from .types.model_service import GetModelEvaluationRequest
 from .types.model_service import GetModelEvaluationSliceRequest
 from .types.model_service import GetModelRequest
+from .types.model_service import ImportModelEvaluationRequest
 from .types.model_service import ListModelEvaluationSlicesRequest
 from .types.model_service import ListModelEvaluationSlicesResponse
 from .types.model_service import ListModelEvaluationsRequest
@@ -671,6 +674,7 @@ __all__ = (
     "FeatureValueDestination",
     "FeatureValueList",
     "Featurestore",
+    "FeaturestoreMonitoringConfig",
     "FeaturestoreOnlineServingServiceClient",
     "FeaturestoreServiceClient",
     "FilterSplit",
@@ -717,6 +721,7 @@ __all__ = (
     "ImportFeatureValuesOperationMetadata",
     "ImportFeatureValuesRequest",
     "ImportFeatureValuesResponse",
+    "ImportModelEvaluationRequest",
     "Index",
     "IndexEndpoint",
     "IndexEndpointServiceClient",
@@ -831,6 +836,7 @@ __all__ = (
     "Port",
     "PredefinedSplit",
     "PredictRequest",
+    "PredictRequestResponseLoggingConfig",
     "PredictResponse",
     "PredictSchemata",
     "PredictionServiceClient",

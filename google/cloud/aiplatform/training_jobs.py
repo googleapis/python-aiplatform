@@ -66,7 +66,7 @@ _PIPELINE_COMPLETE_STATES = set(
 )
 
 
-class _TrainingJob(base.VertexAiResourceNounWithFutureManager):
+class _TrainingJob(base.VertexAiStatefulResource):
 
     client_class = utils.PipelineClientWithOverride
     _resource_noun = "trainingPipelines"
@@ -76,9 +76,12 @@ class _TrainingJob(base.VertexAiResourceNounWithFutureManager):
     _parse_resource_name_method = "parse_training_pipeline_path"
     _format_resource_name_method = "training_pipeline_path"
 
+    # Required by the done() method
+    _valid_done_states = _PIPELINE_COMPLETE_STATES
+
     def __init__(
         self,
-        display_name: str,
+        display_name: Optional[str] = None,
         project: Optional[str] = None,
         location: Optional[str] = None,
         credentials: Optional[auth_credentials.Credentials] = None,
@@ -90,7 +93,7 @@ class _TrainingJob(base.VertexAiResourceNounWithFutureManager):
 
         Args:
             display_name (str):
-                Required. The user-defined name of this TrainingPipeline.
+                Optional. The user-defined name of this TrainingPipeline.
             project (str):
                 Optional project to retrieve model from. If not set, project set in
                 aiplatform.init will be used.
@@ -135,6 +138,8 @@ class _TrainingJob(base.VertexAiResourceNounWithFutureManager):
 
                 Overrides encryption_spec_key_name set in aiplatform.init.
         """
+        if not display_name:
+            display_name = self.__class__._generate_display_name()
         utils.validate_display_name(display_name)
         if labels:
             utils.validate_labels(labels)
@@ -432,7 +437,7 @@ class _TrainingJob(base.VertexAiResourceNounWithFutureManager):
                 -  AIP_TEST_DATA_URI = "bigquery_destination.dataset_*.test"
         Raises:
             ValueError: When more than 1 type of split configuration is passed or when
-                the split configuartion passed is incompatible with the dataset schema.
+                the split configuration passed is incompatible with the dataset schema.
         """
 
         input_data_config = None
@@ -565,6 +570,7 @@ class _TrainingJob(base.VertexAiResourceNounWithFutureManager):
         model: Optional[gca_model.Model] = None,
         gcs_destination_uri_prefix: Optional[str] = None,
         bigquery_destination: Optional[str] = None,
+        create_request_timeout: Optional[float] = None,
     ) -> Optional[models.Model]:
         """Runs the training job.
 
@@ -710,6 +716,8 @@ class _TrainingJob(base.VertexAiResourceNounWithFutureManager):
                 -  AIP_TRAINING_DATA_URI ="bigquery_destination.dataset_*.training"
                 -  AIP_VALIDATION_DATA_URI = "bigquery_destination.dataset_*.validation"
                 -  AIP_TEST_DATA_URI = "bigquery_destination.dataset_*.test"
+            create_request_timeout (float):
+                Optional. The timeout for the create request in seconds.
         """
 
         input_data_config = self._create_input_data_config(
@@ -743,6 +751,7 @@ class _TrainingJob(base.VertexAiResourceNounWithFutureManager):
                 self.project, self.location
             ),
             training_pipeline=training_pipeline,
+            timeout=create_request_timeout,
         )
 
         self._gca_resource = training_pipeline
@@ -1013,6 +1022,7 @@ class _CustomTrainingJob(_TrainingJob):
 
     def __init__(
         self,
+        # TODO(b/223262536): Make display_name parameter fully optional in next major release
         display_name: str,
         container_uri: str,
         model_serving_container_image_uri: Optional[str] = None,
@@ -1173,6 +1183,8 @@ class _CustomTrainingJob(_TrainingJob):
                 Bucket used to stage source and training artifacts. Overrides
                 staging_bucket set in aiplatform.init.
         """
+        if not display_name:
+            display_name = self.__class__._generate_display_name()
         super().__init__(
             display_name=display_name,
             project=project,
@@ -1348,16 +1360,18 @@ class _CustomTrainingJob(_TrainingJob):
             model_display_name = model_display_name or self._display_name + "-model"
 
         # validates args and will raise
-        worker_pool_specs = worker_spec_utils._DistributedTrainingSpec.chief_worker_pool(
-            replica_count=replica_count,
-            machine_type=machine_type,
-            accelerator_count=accelerator_count,
-            accelerator_type=accelerator_type,
-            boot_disk_type=boot_disk_type,
-            boot_disk_size_gb=boot_disk_size_gb,
-            reduction_server_replica_count=reduction_server_replica_count,
-            reduction_server_machine_type=reduction_server_machine_type,
-        ).pool_specs
+        worker_pool_specs = (
+            worker_spec_utils._DistributedTrainingSpec.chief_worker_pool(
+                replica_count=replica_count,
+                machine_type=machine_type,
+                accelerator_count=accelerator_count,
+                accelerator_type=accelerator_type,
+                boot_disk_type=boot_disk_type,
+                boot_disk_size_gb=boot_disk_size_gb,
+                reduction_server_replica_count=reduction_server_replica_count,
+                reduction_server_machine_type=reduction_server_machine_type,
+            ).pool_specs
+        )
 
         managed_model = self._managed_model
         if model_display_name:
@@ -1379,6 +1393,8 @@ class _CustomTrainingJob(_TrainingJob):
         base_output_dir: Optional[str] = None,
         service_account: Optional[str] = None,
         network: Optional[str] = None,
+        timeout: Optional[int] = None,
+        restart_job_on_worker_restart: bool = False,
         enable_web_access: bool = False,
         tensorboard: Optional[str] = None,
     ) -> Tuple[Dict, str]:
@@ -1398,6 +1414,13 @@ class _CustomTrainingJob(_TrainingJob):
                 should be peered. For example, projects/12345/global/networks/myVPC.
                 Private services access must already be configured for the network.
                 If left unspecified, the job is not peered with any network.
+            timeout (int):
+                The maximum job running time in seconds. The default is 7 days.
+            restart_job_on_worker_restart (bool):
+                Restarts the entire CustomJob if a worker
+                gets restarted. This feature can be used by
+                distributed training jobs that are not resilient
+                to workers leaving and joining a job.
             enable_web_access (bool):
                 Whether you want Vertex AI to enable interactive shell access
                 to training containers.
@@ -1442,6 +1465,14 @@ class _CustomTrainingJob(_TrainingJob):
         if enable_web_access:
             training_task_inputs["enable_web_access"] = enable_web_access
 
+        if timeout or restart_job_on_worker_restart:
+            timeout = f"{timeout}s" if timeout else None
+            scheduling = {
+                "timeout": timeout,
+                "restart_job_on_worker_restart": restart_job_on_worker_restart,
+            }
+            training_task_inputs["scheduling"] = scheduling
+
         return training_task_inputs, base_output_dir
 
     @property
@@ -1472,7 +1503,12 @@ class _CustomTrainingJob(_TrainingJob):
             if uri not in self._logged_web_access_uris:
                 _LOGGER.info(
                     "%s %s access the interactive shell terminals for the backing custom job:\n%s:\n%s"
-                    % (self.__class__.__name__, self._gca_resource.name, worker, uri,),
+                    % (
+                        self.__class__.__name__,
+                        self._gca_resource.name,
+                        worker,
+                        uri,
+                    ),
                 )
                 self._logged_web_access_uris.add(uri)
 
@@ -1533,6 +1569,7 @@ class CustomTrainingJob(_CustomTrainingJob):
 
     def __init__(
         self,
+        # TODO(b/223262536): Make display_name parameter fully optional in next major release
         display_name: str,
         script_path: str,
         container_uri: str,
@@ -1732,6 +1769,8 @@ class CustomTrainingJob(_CustomTrainingJob):
                 Bucket used to stage source and training artifacts. Overrides
                 staging_bucket set in aiplatform.init.
         """
+        if not display_name:
+            display_name = self.__class__._generate_display_name()
         super().__init__(
             display_name=display_name,
             project=project,
@@ -1794,9 +1833,12 @@ class CustomTrainingJob(_CustomTrainingJob):
         test_filter_split: Optional[str] = None,
         predefined_split_column_name: Optional[str] = None,
         timestamp_split_column_name: Optional[str] = None,
+        timeout: Optional[int] = None,
+        restart_job_on_worker_restart: bool = False,
         enable_web_access: bool = False,
         tensorboard: Optional[str] = None,
         sync=True,
+        create_request_timeout: Optional[float] = None,
     ) -> Optional[models.Model]:
         """Runs the custom training job.
 
@@ -2014,6 +2056,13 @@ class CustomTrainingJob(_CustomTrainingJob):
                 that piece is ignored by the pipeline.
 
                 Supported only for tabular and time series Datasets.
+            timeout (int):
+                The maximum job running time in seconds. The default is 7 days.
+            restart_job_on_worker_restart (bool):
+                Restarts the entire CustomJob if a worker
+                gets restarted. This feature can be used by
+                distributed training jobs that are not resilient
+                to workers leaving and joining a job.
             enable_web_access (bool):
                 Whether you want Vertex AI to enable interactive shell access
                 to training containers.
@@ -2033,6 +2082,8 @@ class CustomTrainingJob(_CustomTrainingJob):
                 `service_account` is required with provided `tensorboard`.
                 For more information on configuring your service account please visit:
                 https://cloud.google.com/vertex-ai/docs/experiments/tensorboard-training
+            create_request_timeout (float):
+                Optional. The timeout for the create request in seconds.
             sync (bool):
                 Whether to execute this method synchronously. If False, this method
                 will be executed in concurrent Future and any downstream object will
@@ -2080,12 +2131,15 @@ class CustomTrainingJob(_CustomTrainingJob):
             test_filter_split=test_filter_split,
             predefined_split_column_name=predefined_split_column_name,
             timestamp_split_column_name=timestamp_split_column_name,
+            timeout=timeout,
+            restart_job_on_worker_restart=restart_job_on_worker_restart,
             enable_web_access=enable_web_access,
             tensorboard=tensorboard,
             reduction_server_container_uri=reduction_server_container_uri
             if reduction_server_replica_count > 0
             else None,
             sync=sync,
+            create_request_timeout=create_request_timeout,
         )
 
     @base.optional_sync(construct_object_on_arg="managed_model")
@@ -2117,10 +2171,13 @@ class CustomTrainingJob(_CustomTrainingJob):
         test_filter_split: Optional[str] = None,
         predefined_split_column_name: Optional[str] = None,
         timestamp_split_column_name: Optional[str] = None,
+        timeout: Optional[int] = None,
+        restart_job_on_worker_restart: bool = False,
         enable_web_access: bool = False,
         tensorboard: Optional[str] = None,
         reduction_server_container_uri: Optional[str] = None,
         sync=True,
+        create_request_timeout: Optional[float] = None,
     ) -> Optional[models.Model]:
         """Packages local script and launches training_job.
 
@@ -2237,6 +2294,13 @@ class CustomTrainingJob(_CustomTrainingJob):
                 that piece is ignored by the pipeline.
 
                 Supported only for tabular and time series Datasets.
+            timeout (int):
+                The maximum job running time in seconds. The default is 7 days.
+            restart_job_on_worker_restart (bool):
+                Restarts the entire CustomJob if a worker
+                gets restarted. This feature can be used by
+                distributed training jobs that are not resilient
+                to workers leaving and joining a job.
             enable_web_access (bool):
                 Whether you want Vertex AI to enable interactive shell access
                 to training containers.
@@ -2262,6 +2326,8 @@ class CustomTrainingJob(_CustomTrainingJob):
                 Whether to execute this method synchronously. If False, this method
                 will be executed in concurrent Future and any downstream object will
                 be immediately returned and synced when the Future has completed.
+            create_request_timeout (float)
+                Optional. The timeout for the create request in seconds
 
         Returns:
             model: The trained Vertex AI Model resource or None if training did not
@@ -2309,6 +2375,8 @@ class CustomTrainingJob(_CustomTrainingJob):
             base_output_dir=base_output_dir,
             service_account=service_account,
             network=network,
+            timeout=timeout,
+            restart_job_on_worker_restart=restart_job_on_worker_restart,
             enable_web_access=enable_web_access,
             tensorboard=tensorboard,
         )
@@ -2329,6 +2397,7 @@ class CustomTrainingJob(_CustomTrainingJob):
             model=managed_model,
             gcs_destination_uri_prefix=base_output_dir,
             bigquery_destination=bigquery_destination,
+            create_request_timeout=create_request_timeout,
         )
 
         return model
@@ -2340,6 +2409,7 @@ class CustomContainerTrainingJob(_CustomTrainingJob):
 
     def __init__(
         self,
+        # TODO(b/223262536): Make display_name parameter fully optional in next major release
         display_name: str,
         container_uri: str,
         command: Sequence[str] = None,
@@ -2364,9 +2434,9 @@ class CustomContainerTrainingJob(_CustomTrainingJob):
     ):
         """Constructs a Custom Container Training Job.
 
-        job = aiplatform.CustomTrainingJob(
+        job = aiplatform.CustomContainerTrainingJob(
             display_name='test-train',
-            container_uri='gcr.io/cloud-aiplatform/training/tf-cpu.2-2:latest',
+            container_uri='gcr.io/my_project_id/my_image_name:tag',
             command=['python3', 'run_script.py']
             model_serving_container_image_uri='gcr.io/my-trainer/serving:1',
             model_serving_container_predict_route='predict',
@@ -2537,6 +2607,8 @@ class CustomContainerTrainingJob(_CustomTrainingJob):
                 Bucket used to stage source and training artifacts. Overrides
                 staging_bucket set in aiplatform.init.
         """
+        if not display_name:
+            display_name = self.__class__._generate_display_name()
         super().__init__(
             display_name=display_name,
             project=project,
@@ -2598,9 +2670,12 @@ class CustomContainerTrainingJob(_CustomTrainingJob):
         test_filter_split: Optional[str] = None,
         predefined_split_column_name: Optional[str] = None,
         timestamp_split_column_name: Optional[str] = None,
+        timeout: Optional[int] = None,
+        restart_job_on_worker_restart: bool = False,
         enable_web_access: bool = False,
         tensorboard: Optional[str] = None,
         sync=True,
+        create_request_timeout: Optional[float] = None,
     ) -> Optional[models.Model]:
         """Runs the custom training job.
 
@@ -2811,6 +2886,13 @@ class CustomContainerTrainingJob(_CustomTrainingJob):
                 that piece is ignored by the pipeline.
 
                 Supported only for tabular and time series Datasets.
+            timeout (int):
+                The maximum job running time in seconds. The default is 7 days.
+            restart_job_on_worker_restart (bool):
+                Restarts the entire CustomJob if a worker
+                gets restarted. This feature can be used by
+                distributed training jobs that are not resilient
+                to workers leaving and joining a job.
             enable_web_access (bool):
                 Whether you want Vertex AI to enable interactive shell access
                 to training containers.
@@ -2834,6 +2916,8 @@ class CustomContainerTrainingJob(_CustomTrainingJob):
                 Whether to execute this method synchronously. If False, this method
                 will be executed in concurrent Future and any downstream object will
                 be immediately returned and synced when the Future has completed.
+            create_request_timeout (float):
+                Optional. The timeout for the create request in seconds.
 
         Returns:
             model: The trained Vertex AI Model resource or None if training did not
@@ -2876,12 +2960,15 @@ class CustomContainerTrainingJob(_CustomTrainingJob):
             test_filter_split=test_filter_split,
             predefined_split_column_name=predefined_split_column_name,
             timestamp_split_column_name=timestamp_split_column_name,
+            timeout=timeout,
+            restart_job_on_worker_restart=restart_job_on_worker_restart,
             enable_web_access=enable_web_access,
             tensorboard=tensorboard,
             reduction_server_container_uri=reduction_server_container_uri
             if reduction_server_replica_count > 0
             else None,
             sync=sync,
+            create_request_timeout=create_request_timeout,
         )
 
     @base.optional_sync(construct_object_on_arg="managed_model")
@@ -2912,10 +2999,13 @@ class CustomContainerTrainingJob(_CustomTrainingJob):
         test_filter_split: Optional[str] = None,
         predefined_split_column_name: Optional[str] = None,
         timestamp_split_column_name: Optional[str] = None,
+        timeout: Optional[int] = None,
+        restart_job_on_worker_restart: bool = False,
         enable_web_access: bool = False,
         tensorboard: Optional[str] = None,
         reduction_server_container_uri: Optional[str] = None,
         sync=True,
+        create_request_timeout: Optional[float] = None,
     ) -> Optional[models.Model]:
         """Packages local script and launches training_job.
         Args:
@@ -2965,6 +3055,13 @@ class CustomContainerTrainingJob(_CustomTrainingJob):
                 should be peered. For example, projects/12345/global/networks/myVPC.
                 Private services access must already be configured for the network.
                 If left unspecified, the job is not peered with any network.
+            timeout (int):
+                The maximum job running time in seconds. The default is 7 days.
+            restart_job_on_worker_restart (bool):
+                Restarts the entire CustomJob if a worker
+                gets restarted. This feature can be used by
+                distributed training jobs that are not resilient
+                to workers leaving and joining a job.
             bigquery_destination (str):
                 The BigQuery project location where the training data is to
                 be written to. In the given project a new dataset is created
@@ -3053,6 +3150,8 @@ class CustomContainerTrainingJob(_CustomTrainingJob):
                 Whether to execute this method synchronously. If False, this method
                 will be executed in concurrent Future and any downstream object will
                 be immediately returned and synced when the Future has completed.
+            create_request_timeout (float):
+                Optional. The timeout for the create request in seconds.
 
         Returns:
             model: The trained Vertex AI Model resource or None if training did not
@@ -3094,6 +3193,8 @@ class CustomContainerTrainingJob(_CustomTrainingJob):
             base_output_dir=base_output_dir,
             service_account=service_account,
             network=network,
+            timeout=timeout,
+            restart_job_on_worker_restart=restart_job_on_worker_restart,
             enable_web_access=enable_web_access,
             tensorboard=tensorboard,
         )
@@ -3114,6 +3215,7 @@ class CustomContainerTrainingJob(_CustomTrainingJob):
             model=managed_model,
             gcs_destination_uri_prefix=base_output_dir,
             bigquery_destination=bigquery_destination,
+            create_request_timeout=create_request_timeout,
         )
 
         return model
@@ -3124,6 +3226,7 @@ class AutoMLTabularTrainingJob(_TrainingJob):
 
     def __init__(
         self,
+        # TODO(b/223262536): Make display_name parameter fully optional in next major release
         display_name: str,
         optimization_prediction_type: str,
         optimization_objective: Optional[str] = None,
@@ -3200,7 +3303,10 @@ class AutoMLTabularTrainingJob(_TrainingJob):
                 If an input column has no transformations on it, such a column is
                 ignored by the training, except for the targetColumn, which should have
                 no transformations defined on.
-                Only one of column_transformations or column_specs should be passed.
+                Only one of column_transformations or column_specs should be passed. If none
+                of column_transformations or column_specs is passed, the local credentials
+                being used will try setting column_specs to "auto". To do this, the local
+                credentials require read access to the GCS or BigQuery training data source.
             column_transformations (List[Dict[str, Dict[str, str]]]):
                 Optional. Transformations to apply to the input columns (i.e. columns other
                 than the targetColumn). Each transformation may produce multiple
@@ -3212,7 +3318,11 @@ class AutoMLTabularTrainingJob(_TrainingJob):
                 ignored by the training, except for the targetColumn, which should have
                 no transformations defined on.
                 Only one of column_transformations or column_specs should be passed.
-                Consider using column_specs as column_transformations will be deprecated eventually.
+                Consider using column_specs as column_transformations will be deprecated
+                eventually. If none of column_transformations or column_specs is passed,
+                the local credentials being used will try setting column_transformations to
+                "auto". To do this, the local credentials require read access to the GCS or
+                BigQuery training data source.
             optimization_objective_recall_value (float):
                 Optional. Required when maximize-precision-at-recall optimizationObjective was
                 picked, represents the recall value at which the optimization is done.
@@ -3270,6 +3380,8 @@ class AutoMLTabularTrainingJob(_TrainingJob):
         Raises:
             ValueError: If both column_transformations and column_specs were provided.
         """
+        if not display_name:
+            display_name = self.__class__._generate_display_name()
         super().__init__(
             display_name=display_name,
             project=project,
@@ -3280,8 +3392,10 @@ class AutoMLTabularTrainingJob(_TrainingJob):
             model_encryption_spec_key_name=model_encryption_spec_key_name,
         )
 
-        self._column_transformations = column_transformations_utils.validate_and_get_column_transformations(
-            column_specs, column_transformations
+        self._column_transformations = (
+            column_transformations_utils.validate_and_get_column_transformations(
+                column_specs, column_transformations
+            )
         )
 
         self._optimization_objective = optimization_objective
@@ -3310,7 +3424,9 @@ class AutoMLTabularTrainingJob(_TrainingJob):
         export_evaluated_data_items: bool = False,
         export_evaluated_data_items_bigquery_destination_uri: Optional[str] = None,
         export_evaluated_data_items_override_destination: bool = False,
+        additional_experiments: Optional[List[str]] = None,
         sync: bool = True,
+        create_request_timeout: Optional[float] = None,
     ) -> models.Model:
         """Runs the training job and returns a model.
 
@@ -3436,10 +3552,14 @@ class AutoMLTabularTrainingJob(_TrainingJob):
 
                 Applies only if [export_evaluated_data_items] is True and
                 [export_evaluated_data_items_bigquery_destination_uri] is specified.
+            additional_experiments (List[str]):
+                Optional. Additional experiment flags for the automl tables training.
             sync (bool):
                 Whether to execute this method synchronously. If False, this method
                 will be executed in concurrent Future and any downstream object will
                 be immediately returned and synced when the Future has completed.
+            create_request_timeout (float):
+                Optional. The timeout for the create request in seconds.
         Returns:
             model: The trained Vertex AI Model resource or None if training did not
                 produce a Vertex AI Model.
@@ -3458,6 +3578,9 @@ class AutoMLTabularTrainingJob(_TrainingJob):
         if self._has_run:
             raise RuntimeError("AutoML Tabular Training has already run.")
 
+        if additional_experiments:
+            self._add_additional_experiments(additional_experiments)
+
         return self._run(
             dataset=dataset,
             target_column=target_column,
@@ -3475,6 +3598,7 @@ class AutoMLTabularTrainingJob(_TrainingJob):
             export_evaluated_data_items_bigquery_destination_uri=export_evaluated_data_items_bigquery_destination_uri,
             export_evaluated_data_items_override_destination=export_evaluated_data_items_override_destination,
             sync=sync,
+            create_request_timeout=create_request_timeout,
         )
 
     @base.optional_sync()
@@ -3496,6 +3620,7 @@ class AutoMLTabularTrainingJob(_TrainingJob):
         export_evaluated_data_items_bigquery_destination_uri: Optional[str] = None,
         export_evaluated_data_items_override_destination: bool = False,
         sync: bool = True,
+        create_request_timeout: Optional[float] = None,
     ) -> models.Model:
         """Runs the training job and returns a model.
 
@@ -3625,6 +3750,8 @@ class AutoMLTabularTrainingJob(_TrainingJob):
                 Whether to execute this method synchronously. If False, this method
                 will be executed in concurrent Future and any downstream object will
                 be immediately returned and synced when the Future has completed.
+            create_request_timeout (float):
+                Optional. The timeout for the create request in seconds.
 
         Returns:
             model: The trained Vertex AI Model resource or None if training did not
@@ -3698,6 +3825,7 @@ class AutoMLTabularTrainingJob(_TrainingJob):
             predefined_split_column_name=predefined_split_column_name,
             timestamp_split_column_name=timestamp_split_column_name,
             model=model,
+            create_request_timeout=create_request_timeout,
         )
 
     @property
@@ -3718,7 +3846,8 @@ class AutoMLTabularTrainingJob(_TrainingJob):
 
     @staticmethod
     def get_auto_column_specs(
-        dataset: datasets.TabularDataset, target_column: str,
+        dataset: datasets.TabularDataset,
+        target_column: str,
     ) -> Dict[str, str]:
         """Returns a dict with all non-target columns as keys and 'auto' as values.
 
@@ -3760,7 +3889,7 @@ class AutoMLForecastingTrainingJob(_TrainingJob):
 
     def __init__(
         self,
-        display_name: str,
+        display_name: Optional[str] = None,
         optimization_objective: Optional[str] = None,
         column_specs: Optional[Dict[str, str]] = None,
         column_transformations: Optional[List[Dict[str, Dict[str, str]]]] = None,
@@ -3775,7 +3904,7 @@ class AutoMLForecastingTrainingJob(_TrainingJob):
 
         Args:
             display_name (str):
-                Required. The user-defined name of this TrainingPipeline.
+                Optional. The user-defined name of this TrainingPipeline.
             optimization_objective (str):
                 Optional. Objective function the model is to be optimized towards.
                 The training process creates a Model that optimizes the value of the objective
@@ -3857,6 +3986,8 @@ class AutoMLForecastingTrainingJob(_TrainingJob):
         Raises:
             ValueError: If both column_transformations and column_specs were provided.
         """
+        if not display_name:
+            display_name = self.__class__._generate_display_name()
         super().__init__(
             display_name=display_name,
             project=project,
@@ -3867,8 +3998,10 @@ class AutoMLForecastingTrainingJob(_TrainingJob):
             model_encryption_spec_key_name=model_encryption_spec_key_name,
         )
 
-        self._column_transformations = column_transformations_utils.validate_and_get_column_transformations(
-            column_specs, column_transformations
+        self._column_transformations = (
+            column_transformations_utils.validate_and_get_column_transformations(
+                column_specs, column_transformations
+            )
         )
 
         self._optimization_objective = optimization_objective
@@ -3900,7 +4033,9 @@ class AutoMLForecastingTrainingJob(_TrainingJob):
         budget_milli_node_hours: int = 1000,
         model_display_name: Optional[str] = None,
         model_labels: Optional[Dict[str, str]] = None,
+        additional_experiments: Optional[List[str]] = None,
         sync: bool = True,
+        create_request_timeout: Optional[float] = None,
     ) -> models.Model:
         """Runs the training job and returns a model.
 
@@ -3934,9 +4069,11 @@ class AutoMLForecastingTrainingJob(_TrainingJob):
                 For time series Datasets, all their data is exported to
                 training, to pick and choose from.
             target_column (str):
-                Required. Name of the column that the Model is to predict values for.
+                Required. Name of the column that the Model is to predict values for. This
+                column must be unavailable at forecast.
             time_column (str):
                 Required. Name of the column that identifies time order in the time series.
+                This column must be available at forecast.
             time_series_identifier_column (str):
                 Required. Name of the column that identifies the time series.
             unavailable_at_forecast_columns (List[str]):
@@ -3975,7 +4112,7 @@ class AutoMLForecastingTrainingJob(_TrainingJob):
                 during Model training. The column must have numeric values between 0 and
                 10000 inclusively, and 0 value means that the row is ignored.
                 If the weight column field is not set, then all rows are assumed to have
-                equal weight of 1.
+                equal weight of 1. This column must be available at forecast.
             time_series_attribute_columns (List[str]):
                 Optional. Column names that should be used as attribute columns.
                 Each column is constant within a time series.
@@ -4007,7 +4144,7 @@ class AutoMLForecastingTrainingJob(_TrainingJob):
                 Applies only if [export_evaluated_data_items] is True and
                 [export_evaluated_data_items_bigquery_destination_uri] is specified.
             quantiles (List[float]):
-                Quantiles to use for the `minizmize-quantile-loss`
+                Quantiles to use for the `minimize-quantile-loss`
                 [AutoMLForecastingTrainingJob.optimization_objective]. This argument is required in
                 this case.
 
@@ -4046,6 +4183,10 @@ class AutoMLForecastingTrainingJob(_TrainingJob):
                 are allowed.
                 See https://goo.gl/xmQnxf for more information
                 and examples of labels.
+            additional_experiments (List[str]):
+                Optional. Additional experiment flags for the time series forcasting training.
+            create_request_timeout (float):
+                Optional. The timeout for the create request in seconds.
             sync (bool):
                 Whether to execute this method synchronously. If False, this method
                 will be executed in concurrent Future and any downstream object will
@@ -4070,6 +4211,9 @@ class AutoMLForecastingTrainingJob(_TrainingJob):
 
         if self._has_run:
             raise RuntimeError("AutoML Forecasting Training has already run.")
+
+        if additional_experiments:
+            self._add_additional_experiments(additional_experiments)
 
         return self._run(
             dataset=dataset,
@@ -4097,202 +4241,7 @@ class AutoMLForecastingTrainingJob(_TrainingJob):
             model_display_name=model_display_name,
             model_labels=model_labels,
             sync=sync,
-        )
-
-    def _run_with_experiments(
-        self,
-        dataset: datasets.TimeSeriesDataset,
-        target_column: str,
-        time_column: str,
-        time_series_identifier_column: str,
-        unavailable_at_forecast_columns: List[str],
-        available_at_forecast_columns: List[str],
-        forecast_horizon: int,
-        data_granularity_unit: str,
-        data_granularity_count: int,
-        predefined_split_column_name: Optional[str] = None,
-        weight_column: Optional[str] = None,
-        time_series_attribute_columns: Optional[List[str]] = None,
-        context_window: Optional[int] = None,
-        export_evaluated_data_items: bool = False,
-        export_evaluated_data_items_bigquery_destination_uri: Optional[str] = None,
-        export_evaluated_data_items_override_destination: bool = False,
-        quantiles: Optional[List[float]] = None,
-        validation_options: Optional[str] = None,
-        budget_milli_node_hours: int = 1000,
-        model_display_name: Optional[str] = None,
-        model_labels: Optional[Dict[str, str]] = None,
-        sync: bool = True,
-        additional_experiments: Optional[List[str]] = None,
-    ) -> models.Model:
-        """Runs the training job with experiment flags and returns a model.
-
-        The training data splits are set by default: Roughly 80% will be used for training,
-        10% for validation, and 10% for test.
-
-        Args:
-            dataset (datasets.TimeSeriesDataset):
-                Required. The dataset within the same Project from which data will be used to train the Model. The
-                Dataset must use schema compatible with Model being trained,
-                and what is compatible should be described in the used
-                TrainingPipeline's [training_task_definition]
-                [google.cloud.aiplatform.v1beta1.TrainingPipeline.training_task_definition].
-                For time series Datasets, all their data is exported to
-                training, to pick and choose from.
-            target_column (str):
-                Required. Name of the column that the Model is to predict values for.
-            time_column (str):
-                Required. Name of the column that identifies time order in the time series.
-            time_series_identifier_column (str):
-                Required. Name of the column that identifies the time series.
-            unavailable_at_forecast_columns (List[str]):
-                Required. Column names of columns that are unavailable at forecast.
-                Each column contains information for the given entity (identified by the
-                [time_series_identifier_column]) that is unknown before the forecast
-                (e.g. population of a city in a given year, or weather on a given day).
-            available_at_forecast_columns (List[str]):
-                Required. Column names of columns that are available at forecast.
-                Each column contains information for the given entity (identified by the
-                [time_series_identifier_column]) that is known at forecast.
-            forecast_horizon: (int):
-                Required. The amount of time into the future for which forecasted values for the target are
-                returned. Expressed in number of units defined by the [data_granularity_unit] and
-                [data_granularity_count] field. Inclusive.
-            data_granularity_unit (str):
-                Required. The data granularity unit. Accepted values are ``minute``,
-                ``hour``, ``day``, ``week``, ``month``, ``year``.
-            data_granularity_count (int):
-                Required. The number of data granularity units between data points in the training
-                data. If [data_granularity_unit] is `minute`, can be 1, 5, 10, 15, or 30. For all other
-                values of [data_granularity_unit], must be 1.
-            predefined_split_column_name (str):
-                Optional. The key is a name of one of the Dataset's data
-                columns. The value of the key (either the label's value or
-                value in the column) must be one of {``TRAIN``,
-                ``VALIDATE``, ``TEST``}, and it defines to which set the
-                given piece of data is assigned. If for a piece of data the
-                key is not present or has an invalid value, that piece is
-                ignored by the pipeline.
-
-                Supported only for tabular and time series Datasets.
-            weight_column (str):
-                Optional. Name of the column that should be used as the weight column.
-                Higher values in this column give more importance to the row
-                during Model training. The column must have numeric values between 0 and
-                10000 inclusively, and 0 value means that the row is ignored.
-                If the weight column field is not set, then all rows are assumed to have
-                equal weight of 1.
-            time_series_attribute_columns (List[str]):
-                Optional. Column names that should be used as attribute columns.
-                Each column is constant within a time series.
-            context_window (int):
-                Optional. The amount of time into the past training and prediction data is used for
-                model training and prediction respectively. Expressed in number of units defined by the
-                [data_granularity_unit] and [data_granularity_count] fields. When not provided uses the
-                default value of 0 which means the model sets each series context window to be 0 (also
-                known as "cold start"). Inclusive.
-            export_evaluated_data_items (bool):
-                Whether to export the test set predictions to a BigQuery table.
-                If False, then the export is not performed.
-            export_evaluated_data_items_bigquery_destination_uri (string):
-                Optional. URI of desired destination BigQuery table for exported test set predictions.
-
-                Expected format:
-                ``bq://<project_id>:<dataset_id>:<table>``
-
-                If not specified, then results are exported to the following auto-created BigQuery
-                table:
-                ``<project_id>:export_evaluated_examples_<model_name>_<yyyy_MM_dd'T'HH_mm_ss_SSS'Z'>.evaluated_examples``
-
-                Applies only if [export_evaluated_data_items] is True.
-            export_evaluated_data_items_override_destination (bool):
-                Whether to override the contents of [export_evaluated_data_items_bigquery_destination_uri],
-                if the table exists, for exported test set predictions. If False, and the
-                table exists, then the training job will fail.
-
-                Applies only if [export_evaluated_data_items] is True and
-                [export_evaluated_data_items_bigquery_destination_uri] is specified.
-            quantiles (List[float]):
-                Quantiles to use for the `minizmize-quantile-loss`
-                [AutoMLForecastingTrainingJob.optimization_objective]. This argument is required in
-                this case.
-
-                Accepts up to 5 quantiles in the form of a double from 0 to 1, exclusive.
-                Each quantile must be unique.
-            validation_options (str):
-                Validation options for the data validation component. The available options are:
-                "fail-pipeline" - (default), will validate against the validation and fail the pipeline
-                                  if it fails.
-                "ignore-validation" - ignore the results of the validation and continue the pipeline
-            budget_milli_node_hours (int):
-                Optional. The train budget of creating this Model, expressed in milli node
-                hours i.e. 1,000 value in this field means 1 node hour.
-                The training cost of the model will not exceed this budget. The final
-                cost will be attempted to be close to the budget, though may end up
-                being (even) noticeably smaller - at the backend's discretion. This
-                especially may happen when further model training ceases to provide
-                any improvements.
-                If the budget is set to a value known to be insufficient to train a
-                Model for the given training set, the training won't be attempted and
-                will error.
-                The minimum value is 1000 and the maximum is 72000.
-            model_display_name (str):
-                Optional. If the script produces a managed Vertex AI Model. The display name of
-                the Model. The name can be up to 128 characters long and can be consist
-                of any UTF-8 characters.
-
-                If not provided upon creation, the job's display_name is used.
-            model_labels (Dict[str, str]):
-                Optional. The labels with user-defined metadata to
-                organize your Models.
-                Label keys and values can be no longer than 64
-                characters (Unicode codepoints), can only
-                contain lowercase letters, numeric characters,
-                underscores and dashes. International characters
-                are allowed.
-                See https://goo.gl/xmQnxf for more information
-                and examples of labels.
-            sync (bool):
-                Whether to execute this method synchronously. If False, this method
-                will be executed in concurrent Future and any downstream object will
-                be immediately returned and synced when the Future has completed.
-            additional_experiments (List[str]):
-                Additional experiment flags for the time series forcasting training.
-
-        Returns:
-            model: The trained Vertex AI Model resource or None if training did not
-                produce a Vertex AI Model.
-
-        Raises:
-            RuntimeError: If Training job has already been run or is waiting to run.
-        """
-
-        if additional_experiments:
-            self._add_additional_experiments(additional_experiments)
-
-        return self.run(
-            dataset=dataset,
-            target_column=target_column,
-            time_column=time_column,
-            time_series_identifier_column=time_series_identifier_column,
-            unavailable_at_forecast_columns=unavailable_at_forecast_columns,
-            available_at_forecast_columns=available_at_forecast_columns,
-            forecast_horizon=forecast_horizon,
-            data_granularity_unit=data_granularity_unit,
-            data_granularity_count=data_granularity_count,
-            predefined_split_column_name=predefined_split_column_name,
-            weight_column=weight_column,
-            time_series_attribute_columns=time_series_attribute_columns,
-            context_window=context_window,
-            budget_milli_node_hours=budget_milli_node_hours,
-            export_evaluated_data_items=export_evaluated_data_items,
-            export_evaluated_data_items_bigquery_destination_uri=export_evaluated_data_items_bigquery_destination_uri,
-            export_evaluated_data_items_override_destination=export_evaluated_data_items_override_destination,
-            quantiles=quantiles,
-            validation_options=validation_options,
-            model_display_name=model_display_name,
-            model_labels=model_labels,
-            sync=sync,
+            create_request_timeout=create_request_timeout,
         )
 
     @base.optional_sync()
@@ -4323,6 +4272,7 @@ class AutoMLForecastingTrainingJob(_TrainingJob):
         model_display_name: Optional[str] = None,
         model_labels: Optional[Dict[str, str]] = None,
         sync: bool = True,
+        create_request_timeout: Optional[float] = None,
     ) -> models.Model:
         """Runs the training job and returns a model.
 
@@ -4356,9 +4306,11 @@ class AutoMLForecastingTrainingJob(_TrainingJob):
                 For time series Datasets, all their data is exported to
                 training, to pick and choose from.
             target_column (str):
-                Required. Name of the column that the Model is to predict values for.
+                Required. Name of the column that the Model is to predict values for. This
+                column must be unavailable at forecast.
             time_column (str):
                 Required. Name of the column that identifies time order in the time series.
+                This column must be available at forecast.
             time_series_identifier_column (str):
                 Required. Name of the column that identifies the time series.
             unavailable_at_forecast_columns (List[str]):
@@ -4406,7 +4358,7 @@ class AutoMLForecastingTrainingJob(_TrainingJob):
                 during Model training. The column must have numeric values between 0 and
                 10000 inclusively, and 0 value means that the row is ignored.
                 If the weight column field is not set, then all rows are assumed to have
-                equal weight of 1.
+                equal weight of 1. This column must be available at forecast.
             time_series_attribute_columns (List[str]):
                 Optional. Column names that should be used as attribute columns.
                 Each column is constant within a time series.
@@ -4437,7 +4389,7 @@ class AutoMLForecastingTrainingJob(_TrainingJob):
                 Applies only if [export_evaluated_data_items] is True and
                 [export_evaluated_data_items_bigquery_destination_uri] is specified.
             quantiles (List[float]):
-                Quantiles to use for the `minizmize-quantile-loss`
+                Quantiles to use for the `minimize-quantile-loss`
                 [AutoMLForecastingTrainingJob.optimization_objective]. This argument is required in
                 this case.
 
@@ -4480,6 +4432,8 @@ class AutoMLForecastingTrainingJob(_TrainingJob):
                 Whether to execute this method synchronously. If False, this method
                 will be executed in concurrent Future and any downstream object will
                 be immediately returned and synced when the Future has completed.
+            create_request_timeout (float):
+                Optional. The timeout for the create request in seconds.
         Returns:
             model: The trained Vertex AI Model resource or None if training did not
                 produce a Vertex AI Model.
@@ -4559,6 +4513,7 @@ class AutoMLForecastingTrainingJob(_TrainingJob):
             predefined_split_column_name=predefined_split_column_name,
             timestamp_split_column_name=None,  # Not supported by AutoMLForecasting
             model=model,
+            create_request_timeout=create_request_timeout,
         )
 
         if export_evaluated_data_items:
@@ -4611,7 +4566,7 @@ class AutoMLImageTrainingJob(_TrainingJob):
 
     def __init__(
         self,
-        display_name: str,
+        display_name: Optional[str] = None,
         prediction_type: str = "classification",
         multi_label: bool = False,
         model_type: str = "CLOUD",
@@ -4627,7 +4582,7 @@ class AutoMLImageTrainingJob(_TrainingJob):
 
         Args:
             display_name (str):
-                Required. The user-defined name of this TrainingPipeline.
+                Optional. The user-defined name of this TrainingPipeline.
             prediction_type (str):
                 The type of prediction the Model is to produce, one of:
                     "classification" - Predict one out of multiple target values is
@@ -4723,6 +4678,8 @@ class AutoMLImageTrainingJob(_TrainingJob):
         Raises:
             ValueError: When an invalid prediction_type or model_type is provided.
         """
+        if not display_name:
+            display_name = self.__class__._generate_display_name()
 
         valid_model_types = constants.AUTOML_IMAGE_PREDICTION_MODEL_TYPES.get(
             prediction_type, None
@@ -4779,6 +4736,7 @@ class AutoMLImageTrainingJob(_TrainingJob):
         model_labels: Optional[Dict[str, str]] = None,
         disable_early_stopping: bool = False,
         sync: bool = True,
+        create_request_timeout: Optional[float] = False,
     ) -> models.Model:
         """Runs the AutoML Image training job and returns a model.
 
@@ -4884,6 +4842,8 @@ class AutoMLImageTrainingJob(_TrainingJob):
                 Whether to execute this method synchronously. If False, this method
                 will be executed in concurrent Future and any downstream object will
                 be immediately returned and synced when the Future has completed.
+            create_request_timeout (float):
+                Optional. The timeout for the create request in seconds.
         Returns:
             model: The trained Vertex AI Model resource or None if training did not
                 produce a Vertex AI Model.
@@ -4917,6 +4877,7 @@ class AutoMLImageTrainingJob(_TrainingJob):
             model_labels=model_labels,
             disable_early_stopping=disable_early_stopping,
             sync=sync,
+            create_request_timeout=create_request_timeout,
         )
 
     @base.optional_sync()
@@ -4935,6 +4896,7 @@ class AutoMLImageTrainingJob(_TrainingJob):
         model_labels: Optional[Dict[str, str]] = None,
         disable_early_stopping: bool = False,
         sync: bool = True,
+        create_request_timeout: Optional[float] = None,
     ) -> models.Model:
         """Runs the training job and returns a model.
 
@@ -5040,6 +5002,8 @@ class AutoMLImageTrainingJob(_TrainingJob):
                 Whether to execute this method synchronously. If False, this method
                 will be executed in concurrent Future and any downstream object will
                 be immediately returned and synced when the Future has completed.
+            create_request_timeout (float):
+                Optional. The timeout for the create request in seconds.
 
         Returns:
             model: The trained Vertex AI Model resource or None if training did not
@@ -5088,6 +5052,7 @@ class AutoMLImageTrainingJob(_TrainingJob):
             validation_filter_split=validation_filter_split,
             test_filter_split=test_filter_split,
             model=model_tbt,
+            create_request_timeout=create_request_timeout,
         )
 
     @property
@@ -5109,6 +5074,7 @@ class CustomPythonPackageTrainingJob(_CustomTrainingJob):
 
     def __init__(
         self,
+        # TODO(b/223262536): Make display_name parameter fully optional in next major release
         display_name: str,
         python_package_gcs_uri: str,
         python_module_name: str,
@@ -5311,6 +5277,8 @@ class CustomPythonPackageTrainingJob(_CustomTrainingJob):
                 Bucket used to stage source and training artifacts. Overrides
                 staging_bucket set in aiplatform.init.
         """
+        if not display_name:
+            display_name = self.__class__._generate_display_name()
         super().__init__(
             display_name=display_name,
             project=project,
@@ -5373,9 +5341,12 @@ class CustomPythonPackageTrainingJob(_CustomTrainingJob):
         test_filter_split: Optional[str] = None,
         predefined_split_column_name: Optional[str] = None,
         timestamp_split_column_name: Optional[str] = None,
+        timeout: Optional[int] = None,
+        restart_job_on_worker_restart: bool = False,
         enable_web_access: bool = False,
         tensorboard: Optional[str] = None,
         sync=True,
+        create_request_timeout: Optional[float] = None,
     ) -> Optional[models.Model]:
         """Runs the custom training job.
 
@@ -5586,6 +5557,13 @@ class CustomPythonPackageTrainingJob(_CustomTrainingJob):
                 that piece is ignored by the pipeline.
 
                 Supported only for tabular and time series Datasets.
+            timeout (int):
+                The maximum job running time in seconds. The default is 7 days.
+            restart_job_on_worker_restart (bool):
+                Restarts the entire CustomJob if a worker
+                gets restarted. This feature can be used by
+                distributed training jobs that are not resilient
+                to workers leaving and joining a job.
             enable_web_access (bool):
                 Whether you want Vertex AI to enable interactive shell access
                 to training containers.
@@ -5609,6 +5587,8 @@ class CustomPythonPackageTrainingJob(_CustomTrainingJob):
                 Whether to execute this method synchronously. If False, this method
                 will be executed in concurrent Future and any downstream object will
                 be immediately returned and synced when the Future has completed.
+            create_request_timeout (float):
+                Optional. The timeout for the create request in seconds.
 
         Returns:
             model: The trained Vertex AI Model resource or None if training did not
@@ -5646,12 +5626,15 @@ class CustomPythonPackageTrainingJob(_CustomTrainingJob):
             predefined_split_column_name=predefined_split_column_name,
             timestamp_split_column_name=timestamp_split_column_name,
             bigquery_destination=bigquery_destination,
+            timeout=timeout,
+            restart_job_on_worker_restart=restart_job_on_worker_restart,
             enable_web_access=enable_web_access,
             tensorboard=tensorboard,
             reduction_server_container_uri=reduction_server_container_uri
             if reduction_server_replica_count > 0
             else None,
             sync=sync,
+            create_request_timeout=create_request_timeout,
         )
 
     @base.optional_sync(construct_object_on_arg="managed_model")
@@ -5682,10 +5665,13 @@ class CustomPythonPackageTrainingJob(_CustomTrainingJob):
         predefined_split_column_name: Optional[str] = None,
         timestamp_split_column_name: Optional[str] = None,
         bigquery_destination: Optional[str] = None,
+        timeout: Optional[int] = None,
+        restart_job_on_worker_restart: bool = False,
         enable_web_access: bool = False,
         tensorboard: Optional[str] = None,
         reduction_server_container_uri: Optional[str] = None,
         sync=True,
+        create_request_timeout: Optional[float] = None,
     ) -> Optional[models.Model]:
         """Packages local script and launches training_job.
 
@@ -5785,6 +5771,13 @@ class CustomPythonPackageTrainingJob(_CustomTrainingJob):
                 that piece is ignored by the pipeline.
 
                 Supported only for tabular and time series Datasets.
+            timeout (int):
+                The maximum job running time in seconds. The default is 7 days.
+            restart_job_on_worker_restart (bool):
+                Restarts the entire CustomJob if a worker
+                gets restarted. This feature can be used by
+                distributed training jobs that are not resilient
+                to workers leaving and joining a job.
             enable_web_access (bool):
                 Whether you want Vertex AI to enable interactive shell access
                 to training containers.
@@ -5810,6 +5803,8 @@ class CustomPythonPackageTrainingJob(_CustomTrainingJob):
                 Whether to execute this method synchronously. If False, this method
                 will be executed in concurrent Future and any downstream object will
                 be immediately returned and synced when the Future has completed.
+            create_request_timeout (float):
+                Optional. The timeout for the create request in seconds.
 
         Returns:
             model: The trained Vertex AI Model resource or None if training did not
@@ -5851,6 +5846,8 @@ class CustomPythonPackageTrainingJob(_CustomTrainingJob):
             base_output_dir=base_output_dir,
             service_account=service_account,
             network=network,
+            timeout=timeout,
+            restart_job_on_worker_restart=restart_job_on_worker_restart,
             enable_web_access=enable_web_access,
             tensorboard=tensorboard,
         )
@@ -5871,6 +5868,7 @@ class CustomPythonPackageTrainingJob(_CustomTrainingJob):
             model=managed_model,
             gcs_destination_uri_prefix=base_output_dir,
             bigquery_destination=bigquery_destination,
+            create_request_timeout=create_request_timeout,
         )
 
         return model
@@ -5886,7 +5884,7 @@ class AutoMLVideoTrainingJob(_TrainingJob):
 
     def __init__(
         self,
-        display_name: str,
+        display_name: Optional[str] = None,
         prediction_type: str = "classification",
         model_type: str = "CLOUD",
         project: Optional[str] = None,
@@ -5909,7 +5907,7 @@ class AutoMLVideoTrainingJob(_TrainingJob):
                         multiple objects in shots and segments. You can use these
                         models to track objects in your videos according to your
                         own pre-defined, custom labels.
-                    "action_recognition" - A video action reconition model pinpoints
+                    "action_recognition" - A video action recognition model pinpoints
                         the location of actions with short temporal durations (~1 second).
             model_type: str = "CLOUD"
                 Required. One of the following:
@@ -5980,6 +5978,9 @@ class AutoMLVideoTrainingJob(_TrainingJob):
         Raises:
             ValueError: When an invalid prediction_type and/or model_type is provided.
         """
+        if not display_name:
+            display_name = self.__class__._generate_display_name()
+
         valid_model_types = constants.AUTOML_VIDEO_PREDICTION_MODEL_TYPES.get(
             prediction_type, None
         )
@@ -6019,8 +6020,9 @@ class AutoMLVideoTrainingJob(_TrainingJob):
         model_display_name: Optional[str] = None,
         model_labels: Optional[Dict[str, str]] = None,
         sync: bool = True,
+        create_request_timeout: Optional[float] = None,
     ) -> models.Model:
-        """Runs the AutoML Image training job and returns a model.
+        """Runs the AutoML Video training job and returns a model.
 
         If training on a Vertex AI dataset, you can use one of the following split configurations:
             Data fraction splits:
@@ -6086,6 +6088,8 @@ class AutoMLVideoTrainingJob(_TrainingJob):
                 Whether to execute this method synchronously. If False, this method
                 will be executed in concurrent Future and any downstream object will
                 be immediately returned and synced when the Future has completed.
+            create_request_timeout (float):
+                Optional. The timeout for the create request in seconds.
         Returns:
             model: The trained Vertex AI Model resource or None if training did not
                 produce a Vertex AI Model.
@@ -6114,6 +6118,7 @@ class AutoMLVideoTrainingJob(_TrainingJob):
             model_display_name=model_display_name,
             model_labels=model_labels,
             sync=sync,
+            create_request_timeout=create_request_timeout,
         )
 
     @base.optional_sync()
@@ -6127,6 +6132,7 @@ class AutoMLVideoTrainingJob(_TrainingJob):
         model_display_name: Optional[str] = None,
         model_labels: Optional[Dict[str, str]] = None,
         sync: bool = True,
+        create_request_timeout: Optional[float] = None,
     ) -> models.Model:
         """Runs the training job and returns a model.
 
@@ -6196,6 +6202,8 @@ class AutoMLVideoTrainingJob(_TrainingJob):
                 Whether to execute this method synchronously. If False, this method
                 will be executed in concurrent Future and any downstream object will
                 be immediately returned and synced when the Future has completed.
+            create_request_timeout (float):
+                Optional. The timeout for the create request in seconds.
 
         Returns:
             model: The trained Vertex AI Model resource or None if training did not
@@ -6233,6 +6241,7 @@ class AutoMLVideoTrainingJob(_TrainingJob):
             validation_filter_split=validation_filter_split,
             test_filter_split=test_filter_split,
             model=model_tbt,
+            create_request_timeout=create_request_timeout,
         )
 
     @property
@@ -6253,6 +6262,7 @@ class AutoMLTextTrainingJob(_TrainingJob):
 
     def __init__(
         self,
+        # TODO(b/223262536): Make display_name parameter fully optional in next major release
         display_name: str,
         prediction_type: str,
         multi_label: bool = False,
@@ -6340,6 +6350,8 @@ class AutoMLTextTrainingJob(_TrainingJob):
 
                 Overrides encryption_spec_key_name set in aiplatform.init.
         """
+        if not display_name:
+            display_name = self.__class__._generate_display_name()
         super().__init__(
             display_name=display_name,
             project=project,
@@ -6358,8 +6370,10 @@ class AutoMLTextTrainingJob(_TrainingJob):
                 schema.training_job.definition.automl_text_classification
             )
 
-            training_task_inputs_dict = training_job_inputs.AutoMlTextClassificationInputs(
-                multi_label=multi_label
+            training_task_inputs_dict = (
+                training_job_inputs.AutoMlTextClassificationInputs(
+                    multi_label=multi_label
+                )
             )
         elif prediction_type == "extraction":
             training_task_definition = (
@@ -6395,6 +6409,7 @@ class AutoMLTextTrainingJob(_TrainingJob):
         model_display_name: Optional[str] = None,
         model_labels: Optional[Dict[str, str]] = None,
         sync: bool = True,
+        create_request_timeout: Optional[float] = None,
     ) -> models.Model:
         """Runs the training job and returns a model.
 
@@ -6469,11 +6484,13 @@ class AutoMLTextTrainingJob(_TrainingJob):
                 underscores and dashes. International characters
                 are allowed.
                 See https://goo.gl/xmQnxf for more information
-                and examples of labels.
+                and examples of labels..
             sync (bool):
                 Whether to execute this method synchronously. If False, this method
                 will be executed in concurrent Future and any downstream object will
                 be immediately returned and synced when the Future has completed.
+            create_request_timeout (float):
+                Optional. The timeout for the create request in seconds
         Returns:
             model: The trained Vertex AI Model resource.
 
@@ -6503,6 +6520,7 @@ class AutoMLTextTrainingJob(_TrainingJob):
             model_display_name=model_display_name,
             model_labels=model_labels,
             sync=sync,
+            create_request_timeout=create_request_timeout,
         )
 
     @base.optional_sync()
@@ -6518,6 +6536,7 @@ class AutoMLTextTrainingJob(_TrainingJob):
         model_display_name: Optional[str] = None,
         model_labels: Optional[Dict[str, str]] = None,
         sync: bool = True,
+        create_request_timeout: Optional[float] = None,
     ) -> models.Model:
         """Runs the training job and returns a model.
 
@@ -6599,6 +6618,8 @@ class AutoMLTextTrainingJob(_TrainingJob):
                 Whether to execute this method synchronously. If False, this method
                 will be executed in concurrent Future and any downstream object will
                 be immediately returned and synced when the Future has completed.
+            create_request_timeout (float):
+                Optional. The timeout for the create request in seconds.
 
         Returns:
             model: The trained Vertex AI Model resource or None if training did not
@@ -6622,6 +6643,7 @@ class AutoMLTextTrainingJob(_TrainingJob):
             validation_filter_split=validation_filter_split,
             test_filter_split=test_filter_split,
             model=model,
+            create_request_timeout=create_request_timeout,
         )
 
     @property

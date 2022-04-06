@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# Copyright 2020 Google LLC
+# Copyright 2022 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -16,7 +16,7 @@
 from collections import OrderedDict
 import functools
 import re
-from typing import Dict, Sequence, Tuple, Type, Union
+from typing import Dict, Optional, Sequence, Tuple, Type, Union
 import pkg_resources
 
 from google.api_core.client_options import ClientOptions
@@ -146,6 +146,42 @@ class PipelineServiceAsyncClient:
 
     from_service_account_json = from_service_account_file
 
+    @classmethod
+    def get_mtls_endpoint_and_cert_source(
+        cls, client_options: Optional[ClientOptions] = None
+    ):
+        """Return the API endpoint and client cert source for mutual TLS.
+
+        The client cert source is determined in the following order:
+        (1) if `GOOGLE_API_USE_CLIENT_CERTIFICATE` environment variable is not "true", the
+        client cert source is None.
+        (2) if `client_options.client_cert_source` is provided, use the provided one; if the
+        default client cert source exists, use the default one; otherwise the client cert
+        source is None.
+
+        The API endpoint is determined in the following order:
+        (1) if `client_options.api_endpoint` if provided, use the provided one.
+        (2) if `GOOGLE_API_USE_CLIENT_CERTIFICATE` environment variable is "always", use the
+        default mTLS endpoint; if the environment variabel is "never", use the default API
+        endpoint; otherwise if client cert source exists, use the default mTLS endpoint, otherwise
+        use the default API endpoint.
+
+        More details can be found at https://google.aip.dev/auth/4114.
+
+        Args:
+            client_options (google.api_core.client_options.ClientOptions): Custom options for the
+                client. Only the `api_endpoint` and `client_cert_source` properties may be used
+                in this method.
+
+        Returns:
+            Tuple[str, Callable[[], Tuple[bytes, bytes]]]: returns the API endpoint and the
+                client cert source to use.
+
+        Raises:
+            google.auth.exceptions.MutualTLSChannelError: If any errors happen.
+        """
+        return PipelineServiceClient.get_mtls_endpoint_and_cert_source(client_options)  # type: ignore
+
     @property
     def transport(self) -> PipelineServiceTransport:
         """Returns the transport used by the client instance.
@@ -219,6 +255,32 @@ class PipelineServiceAsyncClient:
         r"""Creates a TrainingPipeline. A created
         TrainingPipeline right away will be attempted to be run.
 
+
+        .. code-block:: python
+
+            from google.cloud import aiplatform_v1beta1
+
+            def sample_create_training_pipeline():
+                # Create a client
+                client = aiplatform_v1beta1.PipelineServiceClient()
+
+                # Initialize request argument(s)
+                training_pipeline = aiplatform_v1beta1.TrainingPipeline()
+                training_pipeline.display_name = "display_name_value"
+                training_pipeline.training_task_definition = "training_task_definition_value"
+                training_pipeline.training_task_inputs.null_value = "NULL_VALUE"
+
+                request = aiplatform_v1beta1.CreateTrainingPipelineRequest(
+                    parent="parent_value",
+                    training_pipeline=training_pipeline,
+                )
+
+                # Make the request
+                response = client.create_training_pipeline(request=request)
+
+                # Handle the response
+                print(response)
+
         Args:
             request (Union[google.cloud.aiplatform_v1beta1.types.CreateTrainingPipelineRequest, dict]):
                 The request object. Request message for
@@ -255,7 +317,7 @@ class PipelineServiceAsyncClient:
 
         """
         # Create or coerce a protobuf request object.
-        # Sanity check: If we got a request object, we should *not* have
+        # Quick check: If we got a request object, we should *not* have
         # gotten any keyword arguments that map to the request.
         has_flattened_params = any([parent, training_pipeline])
         if request is not None and has_flattened_params:
@@ -288,7 +350,12 @@ class PipelineServiceAsyncClient:
         )
 
         # Send the request.
-        response = await rpc(request, retry=retry, timeout=timeout, metadata=metadata,)
+        response = await rpc(
+            request,
+            retry=retry,
+            timeout=timeout,
+            metadata=metadata,
+        )
 
         # Done; return the response.
         return response
@@ -303,6 +370,25 @@ class PipelineServiceAsyncClient:
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> training_pipeline.TrainingPipeline:
         r"""Gets a TrainingPipeline.
+
+        .. code-block:: python
+
+            from google.cloud import aiplatform_v1beta1
+
+            def sample_get_training_pipeline():
+                # Create a client
+                client = aiplatform_v1beta1.PipelineServiceClient()
+
+                # Initialize request argument(s)
+                request = aiplatform_v1beta1.GetTrainingPipelineRequest(
+                    name="name_value",
+                )
+
+                # Make the request
+                response = client.get_training_pipeline(request=request)
+
+                # Handle the response
+                print(response)
 
         Args:
             request (Union[google.cloud.aiplatform_v1beta1.types.GetTrainingPipelineRequest, dict]):
@@ -333,7 +419,7 @@ class PipelineServiceAsyncClient:
 
         """
         # Create or coerce a protobuf request object.
-        # Sanity check: If we got a request object, we should *not* have
+        # Quick check: If we got a request object, we should *not* have
         # gotten any keyword arguments that map to the request.
         has_flattened_params = any([name])
         if request is not None and has_flattened_params:
@@ -364,7 +450,12 @@ class PipelineServiceAsyncClient:
         )
 
         # Send the request.
-        response = await rpc(request, retry=retry, timeout=timeout, metadata=metadata,)
+        response = await rpc(
+            request,
+            retry=retry,
+            timeout=timeout,
+            metadata=metadata,
+        )
 
         # Done; return the response.
         return response
@@ -379,6 +470,26 @@ class PipelineServiceAsyncClient:
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> pagers.ListTrainingPipelinesAsyncPager:
         r"""Lists TrainingPipelines in a Location.
+
+        .. code-block:: python
+
+            from google.cloud import aiplatform_v1beta1
+
+            def sample_list_training_pipelines():
+                # Create a client
+                client = aiplatform_v1beta1.PipelineServiceClient()
+
+                # Initialize request argument(s)
+                request = aiplatform_v1beta1.ListTrainingPipelinesRequest(
+                    parent="parent_value",
+                )
+
+                # Make the request
+                page_result = client.list_training_pipelines(request=request)
+
+                # Handle the response
+                for response in page_result:
+                    print(response)
 
         Args:
             request (Union[google.cloud.aiplatform_v1beta1.types.ListTrainingPipelinesRequest, dict]):
@@ -408,7 +519,7 @@ class PipelineServiceAsyncClient:
 
         """
         # Create or coerce a protobuf request object.
-        # Sanity check: If we got a request object, we should *not* have
+        # Quick check: If we got a request object, we should *not* have
         # gotten any keyword arguments that map to the request.
         has_flattened_params = any([parent])
         if request is not None and has_flattened_params:
@@ -439,12 +550,20 @@ class PipelineServiceAsyncClient:
         )
 
         # Send the request.
-        response = await rpc(request, retry=retry, timeout=timeout, metadata=metadata,)
+        response = await rpc(
+            request,
+            retry=retry,
+            timeout=timeout,
+            metadata=metadata,
+        )
 
         # This method is paged; wrap the response in a pager, which provides
         # an `__aiter__` convenience method.
         response = pagers.ListTrainingPipelinesAsyncPager(
-            method=rpc, request=request, response=response, metadata=metadata,
+            method=rpc,
+            request=request,
+            response=response,
+            metadata=metadata,
         )
 
         # Done; return the response.
@@ -460,6 +579,29 @@ class PipelineServiceAsyncClient:
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> operation_async.AsyncOperation:
         r"""Deletes a TrainingPipeline.
+
+        .. code-block:: python
+
+            from google.cloud import aiplatform_v1beta1
+
+            def sample_delete_training_pipeline():
+                # Create a client
+                client = aiplatform_v1beta1.PipelineServiceClient()
+
+                # Initialize request argument(s)
+                request = aiplatform_v1beta1.DeleteTrainingPipelineRequest(
+                    name="name_value",
+                )
+
+                # Make the request
+                operation = client.delete_training_pipeline(request=request)
+
+                print("Waiting for operation to complete...")
+
+                response = operation.result()
+
+                # Handle the response
+                print(response)
 
         Args:
             request (Union[google.cloud.aiplatform_v1beta1.types.DeleteTrainingPipelineRequest, dict]):
@@ -499,7 +641,7 @@ class PipelineServiceAsyncClient:
 
         """
         # Create or coerce a protobuf request object.
-        # Sanity check: If we got a request object, we should *not* have
+        # Quick check: If we got a request object, we should *not* have
         # gotten any keyword arguments that map to the request.
         has_flattened_params = any([name])
         if request is not None and has_flattened_params:
@@ -530,7 +672,12 @@ class PipelineServiceAsyncClient:
         )
 
         # Send the request.
-        response = await rpc(request, retry=retry, timeout=timeout, metadata=metadata,)
+        response = await rpc(
+            request,
+            retry=retry,
+            timeout=timeout,
+            metadata=metadata,
+        )
 
         # Wrap the response in an operation future.
         response = operation_async.from_gapic(
@@ -566,6 +713,23 @@ class PipelineServiceAsyncClient:
         [TrainingPipeline.state][google.cloud.aiplatform.v1beta1.TrainingPipeline.state]
         is set to ``CANCELLED``.
 
+
+        .. code-block:: python
+
+            from google.cloud import aiplatform_v1beta1
+
+            def sample_cancel_training_pipeline():
+                # Create a client
+                client = aiplatform_v1beta1.PipelineServiceClient()
+
+                # Initialize request argument(s)
+                request = aiplatform_v1beta1.CancelTrainingPipelineRequest(
+                    name="name_value",
+                )
+
+                # Make the request
+                client.cancel_training_pipeline(request=request)
+
         Args:
             request (Union[google.cloud.aiplatform_v1beta1.types.CancelTrainingPipelineRequest, dict]):
                 The request object. Request message for
@@ -585,7 +749,7 @@ class PipelineServiceAsyncClient:
                 sent along with the request as metadata.
         """
         # Create or coerce a protobuf request object.
-        # Sanity check: If we got a request object, we should *not* have
+        # Quick check: If we got a request object, we should *not* have
         # gotten any keyword arguments that map to the request.
         has_flattened_params = any([name])
         if request is not None and has_flattened_params:
@@ -617,7 +781,10 @@ class PipelineServiceAsyncClient:
 
         # Send the request.
         await rpc(
-            request, retry=retry, timeout=timeout, metadata=metadata,
+            request,
+            retry=retry,
+            timeout=timeout,
+            metadata=metadata,
         )
 
     async def create_pipeline_job(
@@ -633,6 +800,26 @@ class PipelineServiceAsyncClient:
     ) -> gca_pipeline_job.PipelineJob:
         r"""Creates a PipelineJob. A PipelineJob will run
         immediately when created.
+
+
+        .. code-block:: python
+
+            from google.cloud import aiplatform_v1beta1
+
+            def sample_create_pipeline_job():
+                # Create a client
+                client = aiplatform_v1beta1.PipelineServiceClient()
+
+                # Initialize request argument(s)
+                request = aiplatform_v1beta1.CreatePipelineJobRequest(
+                    parent="parent_value",
+                )
+
+                # Make the request
+                response = client.create_pipeline_job(request=request)
+
+                # Handle the response
+                print(response)
 
         Args:
             request (Union[google.cloud.aiplatform_v1beta1.types.CreatePipelineJobRequest, dict]):
@@ -675,7 +862,7 @@ class PipelineServiceAsyncClient:
 
         """
         # Create or coerce a protobuf request object.
-        # Sanity check: If we got a request object, we should *not* have
+        # Quick check: If we got a request object, we should *not* have
         # gotten any keyword arguments that map to the request.
         has_flattened_params = any([parent, pipeline_job, pipeline_job_id])
         if request is not None and has_flattened_params:
@@ -710,7 +897,12 @@ class PipelineServiceAsyncClient:
         )
 
         # Send the request.
-        response = await rpc(request, retry=retry, timeout=timeout, metadata=metadata,)
+        response = await rpc(
+            request,
+            retry=retry,
+            timeout=timeout,
+            metadata=metadata,
+        )
 
         # Done; return the response.
         return response
@@ -725,6 +917,25 @@ class PipelineServiceAsyncClient:
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> pipeline_job.PipelineJob:
         r"""Gets a PipelineJob.
+
+        .. code-block:: python
+
+            from google.cloud import aiplatform_v1beta1
+
+            def sample_get_pipeline_job():
+                # Create a client
+                client = aiplatform_v1beta1.PipelineServiceClient()
+
+                # Initialize request argument(s)
+                request = aiplatform_v1beta1.GetPipelineJobRequest(
+                    name="name_value",
+                )
+
+                # Make the request
+                response = client.get_pipeline_job(request=request)
+
+                # Handle the response
+                print(response)
 
         Args:
             request (Union[google.cloud.aiplatform_v1beta1.types.GetPipelineJobRequest, dict]):
@@ -750,7 +961,7 @@ class PipelineServiceAsyncClient:
 
         """
         # Create or coerce a protobuf request object.
-        # Sanity check: If we got a request object, we should *not* have
+        # Quick check: If we got a request object, we should *not* have
         # gotten any keyword arguments that map to the request.
         has_flattened_params = any([name])
         if request is not None and has_flattened_params:
@@ -781,7 +992,12 @@ class PipelineServiceAsyncClient:
         )
 
         # Send the request.
-        response = await rpc(request, retry=retry, timeout=timeout, metadata=metadata,)
+        response = await rpc(
+            request,
+            retry=retry,
+            timeout=timeout,
+            metadata=metadata,
+        )
 
         # Done; return the response.
         return response
@@ -796,6 +1012,26 @@ class PipelineServiceAsyncClient:
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> pagers.ListPipelineJobsAsyncPager:
         r"""Lists PipelineJobs in a Location.
+
+        .. code-block:: python
+
+            from google.cloud import aiplatform_v1beta1
+
+            def sample_list_pipeline_jobs():
+                # Create a client
+                client = aiplatform_v1beta1.PipelineServiceClient()
+
+                # Initialize request argument(s)
+                request = aiplatform_v1beta1.ListPipelineJobsRequest(
+                    parent="parent_value",
+                )
+
+                # Make the request
+                page_result = client.list_pipeline_jobs(request=request)
+
+                # Handle the response
+                for response in page_result:
+                    print(response)
 
         Args:
             request (Union[google.cloud.aiplatform_v1beta1.types.ListPipelineJobsRequest, dict]):
@@ -825,7 +1061,7 @@ class PipelineServiceAsyncClient:
 
         """
         # Create or coerce a protobuf request object.
-        # Sanity check: If we got a request object, we should *not* have
+        # Quick check: If we got a request object, we should *not* have
         # gotten any keyword arguments that map to the request.
         has_flattened_params = any([parent])
         if request is not None and has_flattened_params:
@@ -856,12 +1092,20 @@ class PipelineServiceAsyncClient:
         )
 
         # Send the request.
-        response = await rpc(request, retry=retry, timeout=timeout, metadata=metadata,)
+        response = await rpc(
+            request,
+            retry=retry,
+            timeout=timeout,
+            metadata=metadata,
+        )
 
         # This method is paged; wrap the response in a pager, which provides
         # an `__aiter__` convenience method.
         response = pagers.ListPipelineJobsAsyncPager(
-            method=rpc, request=request, response=response, metadata=metadata,
+            method=rpc,
+            request=request,
+            response=response,
+            metadata=metadata,
         )
 
         # Done; return the response.
@@ -877,6 +1121,29 @@ class PipelineServiceAsyncClient:
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> operation_async.AsyncOperation:
         r"""Deletes a PipelineJob.
+
+        .. code-block:: python
+
+            from google.cloud import aiplatform_v1beta1
+
+            def sample_delete_pipeline_job():
+                # Create a client
+                client = aiplatform_v1beta1.PipelineServiceClient()
+
+                # Initialize request argument(s)
+                request = aiplatform_v1beta1.DeletePipelineJobRequest(
+                    name="name_value",
+                )
+
+                # Make the request
+                operation = client.delete_pipeline_job(request=request)
+
+                print("Waiting for operation to complete...")
+
+                response = operation.result()
+
+                # Handle the response
+                print(response)
 
         Args:
             request (Union[google.cloud.aiplatform_v1beta1.types.DeletePipelineJobRequest, dict]):
@@ -916,7 +1183,7 @@ class PipelineServiceAsyncClient:
 
         """
         # Create or coerce a protobuf request object.
-        # Sanity check: If we got a request object, we should *not* have
+        # Quick check: If we got a request object, we should *not* have
         # gotten any keyword arguments that map to the request.
         has_flattened_params = any([name])
         if request is not None and has_flattened_params:
@@ -947,7 +1214,12 @@ class PipelineServiceAsyncClient:
         )
 
         # Send the request.
-        response = await rpc(request, retry=retry, timeout=timeout, metadata=metadata,)
+        response = await rpc(
+            request,
+            retry=retry,
+            timeout=timeout,
+            metadata=metadata,
+        )
 
         # Wrap the response in an operation future.
         response = operation_async.from_gapic(
@@ -983,6 +1255,23 @@ class PipelineServiceAsyncClient:
         [PipelineJob.state][google.cloud.aiplatform.v1beta1.PipelineJob.state]
         is set to ``CANCELLED``.
 
+
+        .. code-block:: python
+
+            from google.cloud import aiplatform_v1beta1
+
+            def sample_cancel_pipeline_job():
+                # Create a client
+                client = aiplatform_v1beta1.PipelineServiceClient()
+
+                # Initialize request argument(s)
+                request = aiplatform_v1beta1.CancelPipelineJobRequest(
+                    name="name_value",
+                )
+
+                # Make the request
+                client.cancel_pipeline_job(request=request)
+
         Args:
             request (Union[google.cloud.aiplatform_v1beta1.types.CancelPipelineJobRequest, dict]):
                 The request object. Request message for
@@ -1001,7 +1290,7 @@ class PipelineServiceAsyncClient:
                 sent along with the request as metadata.
         """
         # Create or coerce a protobuf request object.
-        # Sanity check: If we got a request object, we should *not* have
+        # Quick check: If we got a request object, we should *not* have
         # gotten any keyword arguments that map to the request.
         has_flattened_params = any([name])
         if request is not None and has_flattened_params:
@@ -1033,7 +1322,10 @@ class PipelineServiceAsyncClient:
 
         # Send the request.
         await rpc(
-            request, retry=retry, timeout=timeout, metadata=metadata,
+            request,
+            retry=retry,
+            timeout=timeout,
+            metadata=metadata,
         )
 
     async def __aenter__(self):

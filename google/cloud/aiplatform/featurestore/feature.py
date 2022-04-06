@@ -35,7 +35,6 @@ class Feature(base.VertexAiResourceNounWithFutureManager):
 
     client_class = utils.FeaturestoreClientWithOverride
 
-    _is_client_prediction_client = False
     _resource_noun = "features"
     _getter_method = "get_feature"
     _list_method = "list_features"
@@ -123,16 +122,20 @@ class Feature(base.VertexAiResourceNounWithFutureManager):
             else featurestore_id,
         )
 
-    @property
-    def featurestore_name(self) -> str:
-        """Full qualified resource name of the managed featurestore in which this Feature is."""
+    def _get_featurestore_name(self) -> str:
+        """Gets full qualified resource name of the managed featurestore in which this Feature is."""
         feature_path_components = self._parse_resource_name(self.resource_name)
-
         return featurestore.Featurestore._format_resource_name(
             project=feature_path_components["project"],
             location=feature_path_components["location"],
             featurestore=feature_path_components["featurestore"],
         )
+
+    @property
+    def featurestore_name(self) -> str:
+        """Full qualified resource name of the managed featurestore in which this Feature is."""
+        self.wait()
+        return self._get_featurestore_name()
 
     def get_featurestore(self) -> "featurestore.Featurestore":
         """Retrieves the managed featurestore in which this Feature is.
@@ -142,17 +145,21 @@ class Feature(base.VertexAiResourceNounWithFutureManager):
         """
         return featurestore.Featurestore(featurestore_name=self.featurestore_name)
 
-    @property
-    def entity_type_name(self) -> str:
-        """Full qualified resource name of the managed entityType in which this Feature is."""
+    def _get_entity_type_name(self) -> str:
+        """Gets full qualified resource name of the managed entityType in which this Feature is."""
         feature_path_components = self._parse_resource_name(self.resource_name)
-
         return featurestore.EntityType._format_resource_name(
             project=feature_path_components["project"],
             location=feature_path_components["location"],
             featurestore=feature_path_components["featurestore"],
             entity_type=feature_path_components["entity_type"],
         )
+
+    @property
+    def entity_type_name(self) -> str:
+        """Full qualified resource name of the managed entityType in which this Feature is."""
+        self.wait()
+        return self._get_entity_type_name()
 
     def get_entity_type(self) -> "featurestore.EntityType":
         """Retrieves the managed entityType in which this Feature is.
@@ -167,6 +174,7 @@ class Feature(base.VertexAiResourceNounWithFutureManager):
         description: Optional[str] = None,
         labels: Optional[Dict[str, str]] = None,
         request_metadata: Optional[Sequence[Tuple[str, str]]] = (),
+        update_request_timeout: Optional[float] = None,
     ) -> "Feature":
         """Updates an existing managed feature resource.
 
@@ -200,10 +208,13 @@ class Feature(base.VertexAiResourceNounWithFutureManager):
                 "aiplatform.googleapis.com/" and are immutable.
             request_metadata (Sequence[Tuple[str, str]]):
                 Optional. Strings which should be sent along with the request as metadata.
+            update_request_timeout (float):
+                Optional. The timeout for the update request in seconds.
 
         Returns:
             Feature - The updated feature resource object.
         """
+        self.wait()
         update_mask = list()
 
         if description:
@@ -216,15 +227,22 @@ class Feature(base.VertexAiResourceNounWithFutureManager):
         update_mask = field_mask_pb2.FieldMask(paths=update_mask)
 
         gapic_feature = gca_feature.Feature(
-            name=self.resource_name, description=description, labels=labels,
+            name=self.resource_name,
+            description=description,
+            labels=labels,
         )
 
         _LOGGER.log_action_start_against_resource(
-            "Updating", "feature", self,
+            "Updating",
+            "feature",
+            self,
         )
 
         update_feature_lro = self.api_client.update_feature(
-            feature=gapic_feature, update_mask=update_mask, metadata=request_metadata,
+            feature=gapic_feature,
+            update_mask=update_mask,
+            metadata=request_metadata,
+            timeout=update_request_timeout,
         )
 
         _LOGGER.log_action_started_against_resource_with_lro(
@@ -493,6 +511,7 @@ class Feature(base.VertexAiResourceNounWithFutureManager):
         credentials: Optional[auth_credentials.Credentials] = None,
         request_metadata: Optional[Sequence[Tuple[str, str]]] = (),
         sync: bool = True,
+        create_request_timeout: Optional[float] = None,
     ) -> "Feature":
         """Creates a Feature resource in an EntityType.
 
@@ -563,6 +582,8 @@ class Feature(base.VertexAiResourceNounWithFutureManager):
                 Optional. Whether to execute this creation synchronously. If False, this method
                 will be executed in concurrent Future and any downstream object will
                 be immediately returned and synced when the Future has completed.
+            create_request_timeout (float):
+                Optional. The timeout for the create request in seconds.
 
         Returns:
             Feature - feature resource object
@@ -597,11 +618,14 @@ class Feature(base.VertexAiResourceNounWithFutureManager):
         create_feature_request.parent = entity_type_name
 
         api_client = cls._instantiate_client(
-            location=entity_type_name_components["location"], credentials=credentials,
+            location=entity_type_name_components["location"],
+            credentials=credentials,
         )
 
         created_feature_lro = api_client.create_feature(
-            request=create_feature_request, metadata=request_metadata,
+            request=create_feature_request,
+            metadata=request_metadata,
+            timeout=create_request_timeout,
         )
 
         _LOGGER.log_create_with_lro(cls, created_feature_lro)

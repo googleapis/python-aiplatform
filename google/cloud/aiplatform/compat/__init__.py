@@ -77,6 +77,11 @@ if DEFAULT_VERSION == V1BETA1:
     types.lineage_subgraph = types.lineage_subgraph_v1beta1
     types.machine_resources = types.machine_resources_v1beta1
     types.manual_batch_tuning_parameters = types.manual_batch_tuning_parameters_v1beta1
+    types.matching_engine_deployed_index_ref = (
+        types.matching_engine_deployed_index_ref_v1beta1
+    )
+    types.matching_engine_index = types.matching_engine_index_v1beta1
+    types.matching_engine_index_endpoint = types.matching_engine_index_endpoint_v1beta1
     types.metadata_service = types.metadata_service_v1beta1
     types.metadata_schema = types.metadata_schema_v1beta1
     types.metadata_store = types.metadata_store_v1beta1
@@ -150,6 +155,11 @@ if DEFAULT_VERSION == V1:
     types.lineage_subgraph = types.lineage_subgraph_v1
     types.machine_resources = types.machine_resources_v1
     types.manual_batch_tuning_parameters = types.manual_batch_tuning_parameters_v1
+    types.matching_engine_deployed_index_ref = (
+        types.matching_engine_deployed_index_ref_v1
+    )
+    types.matching_engine_index = types.matching_engine_index_v1
+    types.matching_engine_index_endpoint = types.matching_engine_index_endpoint_v1
     types.metadata_service = types.metadata_service_v1
     types.metadata_schema = types.metadata_schema_v1
     types.metadata_store = types.metadata_store_v1

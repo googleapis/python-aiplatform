@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# Copyright 2020 Google LLC
+# Copyright 2022 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -17,7 +17,10 @@ import proto  # type: ignore
 
 
 __protobuf__ = proto.module(
-    package="google.cloud.aiplatform.v1", manifest={"CompletionStats",},
+    package="google.cloud.aiplatform.v1",
+    manifest={
+        "CompletionStats",
+    },
 )
 
 
@@ -43,9 +46,18 @@ class CompletionStats(proto.Message):
             number could be collected).
     """
 
-    successful_count = proto.Field(proto.INT64, number=1,)
-    failed_count = proto.Field(proto.INT64, number=2,)
-    incomplete_count = proto.Field(proto.INT64, number=3,)
+    successful_count = proto.Field(
+        proto.INT64,
+        number=1,
+    )
+    failed_count = proto.Field(
+        proto.INT64,
+        number=2,
+    )
+    incomplete_count = proto.Field(
+        proto.INT64,
+        number=3,
+    )
 
 
 __all__ = tuple(sorted(__protobuf__.manifest))

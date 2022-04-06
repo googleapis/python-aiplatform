@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# Copyright 2020 Google LLC
+# Copyright 2022 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -16,7 +16,7 @@
 from collections import OrderedDict
 import functools
 import re
-from typing import Dict, Sequence, Tuple, Type, Union
+from typing import Dict, Optional, Sequence, Tuple, Type, Union
 import pkg_resources
 
 from google.api_core.client_options import ClientOptions
@@ -138,6 +138,42 @@ class MetadataServiceAsyncClient:
 
     from_service_account_json = from_service_account_file
 
+    @classmethod
+    def get_mtls_endpoint_and_cert_source(
+        cls, client_options: Optional[ClientOptions] = None
+    ):
+        """Return the API endpoint and client cert source for mutual TLS.
+
+        The client cert source is determined in the following order:
+        (1) if `GOOGLE_API_USE_CLIENT_CERTIFICATE` environment variable is not "true", the
+        client cert source is None.
+        (2) if `client_options.client_cert_source` is provided, use the provided one; if the
+        default client cert source exists, use the default one; otherwise the client cert
+        source is None.
+
+        The API endpoint is determined in the following order:
+        (1) if `client_options.api_endpoint` if provided, use the provided one.
+        (2) if `GOOGLE_API_USE_CLIENT_CERTIFICATE` environment variable is "always", use the
+        default mTLS endpoint; if the environment variabel is "never", use the default API
+        endpoint; otherwise if client cert source exists, use the default mTLS endpoint, otherwise
+        use the default API endpoint.
+
+        More details can be found at https://google.aip.dev/auth/4114.
+
+        Args:
+            client_options (google.api_core.client_options.ClientOptions): Custom options for the
+                client. Only the `api_endpoint` and `client_cert_source` properties may be used
+                in this method.
+
+        Returns:
+            Tuple[str, Callable[[], Tuple[bytes, bytes]]]: returns the API endpoint and the
+                client cert source to use.
+
+        Raises:
+            google.auth.exceptions.MutualTLSChannelError: If any errors happen.
+        """
+        return MetadataServiceClient.get_mtls_endpoint_and_cert_source(client_options)  # type: ignore
+
     @property
     def transport(self) -> MetadataServiceTransport:
         """Returns the transport used by the client instance.
@@ -212,6 +248,30 @@ class MetadataServiceAsyncClient:
         r"""Initializes a MetadataStore, including allocation of
         resources.
 
+
+        .. code-block:: python
+
+            from google.cloud import aiplatform_v1
+
+            def sample_create_metadata_store():
+                # Create a client
+                client = aiplatform_v1.MetadataServiceClient()
+
+                # Initialize request argument(s)
+                request = aiplatform_v1.CreateMetadataStoreRequest(
+                    parent="parent_value",
+                )
+
+                # Make the request
+                operation = client.create_metadata_store(request=request)
+
+                print("Waiting for operation to complete...")
+
+                response = operation.result()
+
+                # Handle the response
+                print(response)
+
         Args:
             request (Union[google.cloud.aiplatform_v1.types.CreateMetadataStoreRequest, dict]):
                 The request object. Request message for
@@ -261,7 +321,7 @@ class MetadataServiceAsyncClient:
 
         """
         # Create or coerce a protobuf request object.
-        # Sanity check: If we got a request object, we should *not* have
+        # Quick check: If we got a request object, we should *not* have
         # gotten any keyword arguments that map to the request.
         has_flattened_params = any([parent, metadata_store, metadata_store_id])
         if request is not None and has_flattened_params:
@@ -296,7 +356,12 @@ class MetadataServiceAsyncClient:
         )
 
         # Send the request.
-        response = await rpc(request, retry=retry, timeout=timeout, metadata=metadata,)
+        response = await rpc(
+            request,
+            retry=retry,
+            timeout=timeout,
+            metadata=metadata,
+        )
 
         # Wrap the response in an operation future.
         response = operation_async.from_gapic(
@@ -319,6 +384,25 @@ class MetadataServiceAsyncClient:
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> metadata_store.MetadataStore:
         r"""Retrieves a specific MetadataStore.
+
+        .. code-block:: python
+
+            from google.cloud import aiplatform_v1
+
+            def sample_get_metadata_store():
+                # Create a client
+                client = aiplatform_v1.MetadataServiceClient()
+
+                # Initialize request argument(s)
+                request = aiplatform_v1.GetMetadataStoreRequest(
+                    name="name_value",
+                )
+
+                # Make the request
+                response = client.get_metadata_store(request=request)
+
+                # Handle the response
+                print(response)
 
         Args:
             request (Union[google.cloud.aiplatform_v1.types.GetMetadataStoreRequest, dict]):
@@ -346,7 +430,7 @@ class MetadataServiceAsyncClient:
 
         """
         # Create or coerce a protobuf request object.
-        # Sanity check: If we got a request object, we should *not* have
+        # Quick check: If we got a request object, we should *not* have
         # gotten any keyword arguments that map to the request.
         has_flattened_params = any([name])
         if request is not None and has_flattened_params:
@@ -377,7 +461,12 @@ class MetadataServiceAsyncClient:
         )
 
         # Send the request.
-        response = await rpc(request, retry=retry, timeout=timeout, metadata=metadata,)
+        response = await rpc(
+            request,
+            retry=retry,
+            timeout=timeout,
+            metadata=metadata,
+        )
 
         # Done; return the response.
         return response
@@ -392,6 +481,26 @@ class MetadataServiceAsyncClient:
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> pagers.ListMetadataStoresAsyncPager:
         r"""Lists MetadataStores for a Location.
+
+        .. code-block:: python
+
+            from google.cloud import aiplatform_v1
+
+            def sample_list_metadata_stores():
+                # Create a client
+                client = aiplatform_v1.MetadataServiceClient()
+
+                # Initialize request argument(s)
+                request = aiplatform_v1.ListMetadataStoresRequest(
+                    parent="parent_value",
+                )
+
+                # Make the request
+                page_result = client.list_metadata_stores(request=request)
+
+                # Handle the response
+                for response in page_result:
+                    print(response)
 
         Args:
             request (Union[google.cloud.aiplatform_v1.types.ListMetadataStoresRequest, dict]):
@@ -421,7 +530,7 @@ class MetadataServiceAsyncClient:
 
         """
         # Create or coerce a protobuf request object.
-        # Sanity check: If we got a request object, we should *not* have
+        # Quick check: If we got a request object, we should *not* have
         # gotten any keyword arguments that map to the request.
         has_flattened_params = any([parent])
         if request is not None and has_flattened_params:
@@ -452,12 +561,20 @@ class MetadataServiceAsyncClient:
         )
 
         # Send the request.
-        response = await rpc(request, retry=retry, timeout=timeout, metadata=metadata,)
+        response = await rpc(
+            request,
+            retry=retry,
+            timeout=timeout,
+            metadata=metadata,
+        )
 
         # This method is paged; wrap the response in a pager, which provides
         # an `__aiter__` convenience method.
         response = pagers.ListMetadataStoresAsyncPager(
-            method=rpc, request=request, response=response, metadata=metadata,
+            method=rpc,
+            request=request,
+            response=response,
+            metadata=metadata,
         )
 
         # Done; return the response.
@@ -474,6 +591,30 @@ class MetadataServiceAsyncClient:
     ) -> operation_async.AsyncOperation:
         r"""Deletes a single MetadataStore and all its child
         resources (Artifacts, Executions, and Contexts).
+
+
+        .. code-block:: python
+
+            from google.cloud import aiplatform_v1
+
+            def sample_delete_metadata_store():
+                # Create a client
+                client = aiplatform_v1.MetadataServiceClient()
+
+                # Initialize request argument(s)
+                request = aiplatform_v1.DeleteMetadataStoreRequest(
+                    name="name_value",
+                )
+
+                # Make the request
+                operation = client.delete_metadata_store(request=request)
+
+                print("Waiting for operation to complete...")
+
+                response = operation.result()
+
+                # Handle the response
+                print(response)
 
         Args:
             request (Union[google.cloud.aiplatform_v1.types.DeleteMetadataStoreRequest, dict]):
@@ -513,7 +654,7 @@ class MetadataServiceAsyncClient:
 
         """
         # Create or coerce a protobuf request object.
-        # Sanity check: If we got a request object, we should *not* have
+        # Quick check: If we got a request object, we should *not* have
         # gotten any keyword arguments that map to the request.
         has_flattened_params = any([name])
         if request is not None and has_flattened_params:
@@ -544,7 +685,12 @@ class MetadataServiceAsyncClient:
         )
 
         # Send the request.
-        response = await rpc(request, retry=retry, timeout=timeout, metadata=metadata,)
+        response = await rpc(
+            request,
+            retry=retry,
+            timeout=timeout,
+            metadata=metadata,
+        )
 
         # Wrap the response in an operation future.
         response = operation_async.from_gapic(
@@ -569,6 +715,25 @@ class MetadataServiceAsyncClient:
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> gca_artifact.Artifact:
         r"""Creates an Artifact associated with a MetadataStore.
+
+        .. code-block:: python
+
+            from google.cloud import aiplatform_v1
+
+            def sample_create_artifact():
+                # Create a client
+                client = aiplatform_v1.MetadataServiceClient()
+
+                # Initialize request argument(s)
+                request = aiplatform_v1.CreateArtifactRequest(
+                    parent="parent_value",
+                )
+
+                # Make the request
+                response = client.create_artifact(request=request)
+
+                # Handle the response
+                print(response)
 
         Args:
             request (Union[google.cloud.aiplatform_v1.types.CreateArtifactRequest, dict]):
@@ -613,7 +778,7 @@ class MetadataServiceAsyncClient:
                 Instance of a general artifact.
         """
         # Create or coerce a protobuf request object.
-        # Sanity check: If we got a request object, we should *not* have
+        # Quick check: If we got a request object, we should *not* have
         # gotten any keyword arguments that map to the request.
         has_flattened_params = any([parent, artifact, artifact_id])
         if request is not None and has_flattened_params:
@@ -648,7 +813,12 @@ class MetadataServiceAsyncClient:
         )
 
         # Send the request.
-        response = await rpc(request, retry=retry, timeout=timeout, metadata=metadata,)
+        response = await rpc(
+            request,
+            retry=retry,
+            timeout=timeout,
+            metadata=metadata,
+        )
 
         # Done; return the response.
         return response
@@ -663,6 +833,25 @@ class MetadataServiceAsyncClient:
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> artifact.Artifact:
         r"""Retrieves a specific Artifact.
+
+        .. code-block:: python
+
+            from google.cloud import aiplatform_v1
+
+            def sample_get_artifact():
+                # Create a client
+                client = aiplatform_v1.MetadataServiceClient()
+
+                # Initialize request argument(s)
+                request = aiplatform_v1.GetArtifactRequest(
+                    name="name_value",
+                )
+
+                # Make the request
+                response = client.get_artifact(request=request)
+
+                # Handle the response
+                print(response)
 
         Args:
             request (Union[google.cloud.aiplatform_v1.types.GetArtifactRequest, dict]):
@@ -687,7 +876,7 @@ class MetadataServiceAsyncClient:
                 Instance of a general artifact.
         """
         # Create or coerce a protobuf request object.
-        # Sanity check: If we got a request object, we should *not* have
+        # Quick check: If we got a request object, we should *not* have
         # gotten any keyword arguments that map to the request.
         has_flattened_params = any([name])
         if request is not None and has_flattened_params:
@@ -718,7 +907,12 @@ class MetadataServiceAsyncClient:
         )
 
         # Send the request.
-        response = await rpc(request, retry=retry, timeout=timeout, metadata=metadata,)
+        response = await rpc(
+            request,
+            retry=retry,
+            timeout=timeout,
+            metadata=metadata,
+        )
 
         # Done; return the response.
         return response
@@ -733,6 +927,26 @@ class MetadataServiceAsyncClient:
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> pagers.ListArtifactsAsyncPager:
         r"""Lists Artifacts in the MetadataStore.
+
+        .. code-block:: python
+
+            from google.cloud import aiplatform_v1
+
+            def sample_list_artifacts():
+                # Create a client
+                client = aiplatform_v1.MetadataServiceClient()
+
+                # Initialize request argument(s)
+                request = aiplatform_v1.ListArtifactsRequest(
+                    parent="parent_value",
+                )
+
+                # Make the request
+                page_result = client.list_artifacts(request=request)
+
+                # Handle the response
+                for response in page_result:
+                    print(response)
 
         Args:
             request (Union[google.cloud.aiplatform_v1.types.ListArtifactsRequest, dict]):
@@ -762,7 +976,7 @@ class MetadataServiceAsyncClient:
 
         """
         # Create or coerce a protobuf request object.
-        # Sanity check: If we got a request object, we should *not* have
+        # Quick check: If we got a request object, we should *not* have
         # gotten any keyword arguments that map to the request.
         has_flattened_params = any([parent])
         if request is not None and has_flattened_params:
@@ -793,12 +1007,20 @@ class MetadataServiceAsyncClient:
         )
 
         # Send the request.
-        response = await rpc(request, retry=retry, timeout=timeout, metadata=metadata,)
+        response = await rpc(
+            request,
+            retry=retry,
+            timeout=timeout,
+            metadata=metadata,
+        )
 
         # This method is paged; wrap the response in a pager, which provides
         # an `__aiter__` convenience method.
         response = pagers.ListArtifactsAsyncPager(
-            method=rpc, request=request, response=response, metadata=metadata,
+            method=rpc,
+            request=request,
+            response=response,
+            metadata=metadata,
         )
 
         # Done; return the response.
@@ -815,6 +1037,24 @@ class MetadataServiceAsyncClient:
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> gca_artifact.Artifact:
         r"""Updates a stored Artifact.
+
+        .. code-block:: python
+
+            from google.cloud import aiplatform_v1
+
+            def sample_update_artifact():
+                # Create a client
+                client = aiplatform_v1.MetadataServiceClient()
+
+                # Initialize request argument(s)
+                request = aiplatform_v1.UpdateArtifactRequest(
+                )
+
+                # Make the request
+                response = client.update_artifact(request=request)
+
+                # Handle the response
+                print(response)
 
         Args:
             request (Union[google.cloud.aiplatform_v1.types.UpdateArtifactRequest, dict]):
@@ -851,7 +1091,7 @@ class MetadataServiceAsyncClient:
                 Instance of a general artifact.
         """
         # Create or coerce a protobuf request object.
-        # Sanity check: If we got a request object, we should *not* have
+        # Quick check: If we got a request object, we should *not* have
         # gotten any keyword arguments that map to the request.
         has_flattened_params = any([artifact, update_mask])
         if request is not None and has_flattened_params:
@@ -886,7 +1126,12 @@ class MetadataServiceAsyncClient:
         )
 
         # Send the request.
-        response = await rpc(request, retry=retry, timeout=timeout, metadata=metadata,)
+        response = await rpc(
+            request,
+            retry=retry,
+            timeout=timeout,
+            metadata=metadata,
+        )
 
         # Done; return the response.
         return response
@@ -901,6 +1146,29 @@ class MetadataServiceAsyncClient:
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> operation_async.AsyncOperation:
         r"""Deletes an Artifact.
+
+        .. code-block:: python
+
+            from google.cloud import aiplatform_v1
+
+            def sample_delete_artifact():
+                # Create a client
+                client = aiplatform_v1.MetadataServiceClient()
+
+                # Initialize request argument(s)
+                request = aiplatform_v1.DeleteArtifactRequest(
+                    name="name_value",
+                )
+
+                # Make the request
+                operation = client.delete_artifact(request=request)
+
+                print("Waiting for operation to complete...")
+
+                response = operation.result()
+
+                # Handle the response
+                print(response)
 
         Args:
             request (Union[google.cloud.aiplatform_v1.types.DeleteArtifactRequest, dict]):
@@ -940,7 +1208,7 @@ class MetadataServiceAsyncClient:
 
         """
         # Create or coerce a protobuf request object.
-        # Sanity check: If we got a request object, we should *not* have
+        # Quick check: If we got a request object, we should *not* have
         # gotten any keyword arguments that map to the request.
         has_flattened_params = any([name])
         if request is not None and has_flattened_params:
@@ -971,7 +1239,12 @@ class MetadataServiceAsyncClient:
         )
 
         # Send the request.
-        response = await rpc(request, retry=retry, timeout=timeout, metadata=metadata,)
+        response = await rpc(
+            request,
+            retry=retry,
+            timeout=timeout,
+            metadata=metadata,
+        )
 
         # Wrap the response in an operation future.
         response = operation_async.from_gapic(
@@ -994,6 +1267,30 @@ class MetadataServiceAsyncClient:
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> operation_async.AsyncOperation:
         r"""Purges Artifacts.
+
+        .. code-block:: python
+
+            from google.cloud import aiplatform_v1
+
+            def sample_purge_artifacts():
+                # Create a client
+                client = aiplatform_v1.MetadataServiceClient()
+
+                # Initialize request argument(s)
+                request = aiplatform_v1.PurgeArtifactsRequest(
+                    parent="parent_value",
+                    filter="filter_value",
+                )
+
+                # Make the request
+                operation = client.purge_artifacts(request=request)
+
+                print("Waiting for operation to complete...")
+
+                response = operation.result()
+
+                # Handle the response
+                print(response)
 
         Args:
             request (Union[google.cloud.aiplatform_v1.types.PurgeArtifactsRequest, dict]):
@@ -1024,7 +1321,7 @@ class MetadataServiceAsyncClient:
 
         """
         # Create or coerce a protobuf request object.
-        # Sanity check: If we got a request object, we should *not* have
+        # Quick check: If we got a request object, we should *not* have
         # gotten any keyword arguments that map to the request.
         has_flattened_params = any([parent])
         if request is not None and has_flattened_params:
@@ -1055,7 +1352,12 @@ class MetadataServiceAsyncClient:
         )
 
         # Send the request.
-        response = await rpc(request, retry=retry, timeout=timeout, metadata=metadata,)
+        response = await rpc(
+            request,
+            retry=retry,
+            timeout=timeout,
+            metadata=metadata,
+        )
 
         # Wrap the response in an operation future.
         response = operation_async.from_gapic(
@@ -1080,6 +1382,25 @@ class MetadataServiceAsyncClient:
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> gca_context.Context:
         r"""Creates a Context associated with a MetadataStore.
+
+        .. code-block:: python
+
+            from google.cloud import aiplatform_v1
+
+            def sample_create_context():
+                # Create a client
+                client = aiplatform_v1.MetadataServiceClient()
+
+                # Initialize request argument(s)
+                request = aiplatform_v1.CreateContextRequest(
+                    parent="parent_value",
+                )
+
+                # Make the request
+                response = client.create_context(request=request)
+
+                # Handle the response
+                print(response)
 
         Args:
             request (Union[google.cloud.aiplatform_v1.types.CreateContextRequest, dict]):
@@ -1124,7 +1445,7 @@ class MetadataServiceAsyncClient:
                 Instance of a general context.
         """
         # Create or coerce a protobuf request object.
-        # Sanity check: If we got a request object, we should *not* have
+        # Quick check: If we got a request object, we should *not* have
         # gotten any keyword arguments that map to the request.
         has_flattened_params = any([parent, context, context_id])
         if request is not None and has_flattened_params:
@@ -1159,7 +1480,12 @@ class MetadataServiceAsyncClient:
         )
 
         # Send the request.
-        response = await rpc(request, retry=retry, timeout=timeout, metadata=metadata,)
+        response = await rpc(
+            request,
+            retry=retry,
+            timeout=timeout,
+            metadata=metadata,
+        )
 
         # Done; return the response.
         return response
@@ -1174,6 +1500,25 @@ class MetadataServiceAsyncClient:
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> context.Context:
         r"""Retrieves a specific Context.
+
+        .. code-block:: python
+
+            from google.cloud import aiplatform_v1
+
+            def sample_get_context():
+                # Create a client
+                client = aiplatform_v1.MetadataServiceClient()
+
+                # Initialize request argument(s)
+                request = aiplatform_v1.GetContextRequest(
+                    name="name_value",
+                )
+
+                # Make the request
+                response = client.get_context(request=request)
+
+                # Handle the response
+                print(response)
 
         Args:
             request (Union[google.cloud.aiplatform_v1.types.GetContextRequest, dict]):
@@ -1198,7 +1543,7 @@ class MetadataServiceAsyncClient:
                 Instance of a general context.
         """
         # Create or coerce a protobuf request object.
-        # Sanity check: If we got a request object, we should *not* have
+        # Quick check: If we got a request object, we should *not* have
         # gotten any keyword arguments that map to the request.
         has_flattened_params = any([name])
         if request is not None and has_flattened_params:
@@ -1229,7 +1574,12 @@ class MetadataServiceAsyncClient:
         )
 
         # Send the request.
-        response = await rpc(request, retry=retry, timeout=timeout, metadata=metadata,)
+        response = await rpc(
+            request,
+            retry=retry,
+            timeout=timeout,
+            metadata=metadata,
+        )
 
         # Done; return the response.
         return response
@@ -1244,6 +1594,26 @@ class MetadataServiceAsyncClient:
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> pagers.ListContextsAsyncPager:
         r"""Lists Contexts on the MetadataStore.
+
+        .. code-block:: python
+
+            from google.cloud import aiplatform_v1
+
+            def sample_list_contexts():
+                # Create a client
+                client = aiplatform_v1.MetadataServiceClient()
+
+                # Initialize request argument(s)
+                request = aiplatform_v1.ListContextsRequest(
+                    parent="parent_value",
+                )
+
+                # Make the request
+                page_result = client.list_contexts(request=request)
+
+                # Handle the response
+                for response in page_result:
+                    print(response)
 
         Args:
             request (Union[google.cloud.aiplatform_v1.types.ListContextsRequest, dict]):
@@ -1273,7 +1643,7 @@ class MetadataServiceAsyncClient:
 
         """
         # Create or coerce a protobuf request object.
-        # Sanity check: If we got a request object, we should *not* have
+        # Quick check: If we got a request object, we should *not* have
         # gotten any keyword arguments that map to the request.
         has_flattened_params = any([parent])
         if request is not None and has_flattened_params:
@@ -1304,12 +1674,20 @@ class MetadataServiceAsyncClient:
         )
 
         # Send the request.
-        response = await rpc(request, retry=retry, timeout=timeout, metadata=metadata,)
+        response = await rpc(
+            request,
+            retry=retry,
+            timeout=timeout,
+            metadata=metadata,
+        )
 
         # This method is paged; wrap the response in a pager, which provides
         # an `__aiter__` convenience method.
         response = pagers.ListContextsAsyncPager(
-            method=rpc, request=request, response=response, metadata=metadata,
+            method=rpc,
+            request=request,
+            response=response,
+            metadata=metadata,
         )
 
         # Done; return the response.
@@ -1326,6 +1704,24 @@ class MetadataServiceAsyncClient:
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> gca_context.Context:
         r"""Updates a stored Context.
+
+        .. code-block:: python
+
+            from google.cloud import aiplatform_v1
+
+            def sample_update_context():
+                # Create a client
+                client = aiplatform_v1.MetadataServiceClient()
+
+                # Initialize request argument(s)
+                request = aiplatform_v1.UpdateContextRequest(
+                )
+
+                # Make the request
+                response = client.update_context(request=request)
+
+                # Handle the response
+                print(response)
 
         Args:
             request (Union[google.cloud.aiplatform_v1.types.UpdateContextRequest, dict]):
@@ -1361,7 +1757,7 @@ class MetadataServiceAsyncClient:
                 Instance of a general context.
         """
         # Create or coerce a protobuf request object.
-        # Sanity check: If we got a request object, we should *not* have
+        # Quick check: If we got a request object, we should *not* have
         # gotten any keyword arguments that map to the request.
         has_flattened_params = any([context, update_mask])
         if request is not None and has_flattened_params:
@@ -1396,7 +1792,12 @@ class MetadataServiceAsyncClient:
         )
 
         # Send the request.
-        response = await rpc(request, retry=retry, timeout=timeout, metadata=metadata,)
+        response = await rpc(
+            request,
+            retry=retry,
+            timeout=timeout,
+            metadata=metadata,
+        )
 
         # Done; return the response.
         return response
@@ -1411,6 +1812,29 @@ class MetadataServiceAsyncClient:
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> operation_async.AsyncOperation:
         r"""Deletes a stored Context.
+
+        .. code-block:: python
+
+            from google.cloud import aiplatform_v1
+
+            def sample_delete_context():
+                # Create a client
+                client = aiplatform_v1.MetadataServiceClient()
+
+                # Initialize request argument(s)
+                request = aiplatform_v1.DeleteContextRequest(
+                    name="name_value",
+                )
+
+                # Make the request
+                operation = client.delete_context(request=request)
+
+                print("Waiting for operation to complete...")
+
+                response = operation.result()
+
+                # Handle the response
+                print(response)
 
         Args:
             request (Union[google.cloud.aiplatform_v1.types.DeleteContextRequest, dict]):
@@ -1450,7 +1874,7 @@ class MetadataServiceAsyncClient:
 
         """
         # Create or coerce a protobuf request object.
-        # Sanity check: If we got a request object, we should *not* have
+        # Quick check: If we got a request object, we should *not* have
         # gotten any keyword arguments that map to the request.
         has_flattened_params = any([name])
         if request is not None and has_flattened_params:
@@ -1481,7 +1905,12 @@ class MetadataServiceAsyncClient:
         )
 
         # Send the request.
-        response = await rpc(request, retry=retry, timeout=timeout, metadata=metadata,)
+        response = await rpc(
+            request,
+            retry=retry,
+            timeout=timeout,
+            metadata=metadata,
+        )
 
         # Wrap the response in an operation future.
         response = operation_async.from_gapic(
@@ -1504,6 +1933,30 @@ class MetadataServiceAsyncClient:
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> operation_async.AsyncOperation:
         r"""Purges Contexts.
+
+        .. code-block:: python
+
+            from google.cloud import aiplatform_v1
+
+            def sample_purge_contexts():
+                # Create a client
+                client = aiplatform_v1.MetadataServiceClient()
+
+                # Initialize request argument(s)
+                request = aiplatform_v1.PurgeContextsRequest(
+                    parent="parent_value",
+                    filter="filter_value",
+                )
+
+                # Make the request
+                operation = client.purge_contexts(request=request)
+
+                print("Waiting for operation to complete...")
+
+                response = operation.result()
+
+                # Handle the response
+                print(response)
 
         Args:
             request (Union[google.cloud.aiplatform_v1.types.PurgeContextsRequest, dict]):
@@ -1534,7 +1987,7 @@ class MetadataServiceAsyncClient:
 
         """
         # Create or coerce a protobuf request object.
-        # Sanity check: If we got a request object, we should *not* have
+        # Quick check: If we got a request object, we should *not* have
         # gotten any keyword arguments that map to the request.
         has_flattened_params = any([parent])
         if request is not None and has_flattened_params:
@@ -1565,7 +2018,12 @@ class MetadataServiceAsyncClient:
         )
 
         # Send the request.
-        response = await rpc(request, retry=retry, timeout=timeout, metadata=metadata,)
+        response = await rpc(
+            request,
+            retry=retry,
+            timeout=timeout,
+            metadata=metadata,
+        )
 
         # Wrap the response in an operation future.
         response = operation_async.from_gapic(
@@ -1594,6 +2052,26 @@ class MetadataServiceAsyncClient:
         r"""Adds a set of Artifacts and Executions to a Context.
         If any of the Artifacts or Executions have already been
         added to a Context, they are simply skipped.
+
+
+        .. code-block:: python
+
+            from google.cloud import aiplatform_v1
+
+            def sample_add_context_artifacts_and_executions():
+                # Create a client
+                client = aiplatform_v1.MetadataServiceClient()
+
+                # Initialize request argument(s)
+                request = aiplatform_v1.AddContextArtifactsAndExecutionsRequest(
+                    context="context_value",
+                )
+
+                # Make the request
+                response = client.add_context_artifacts_and_executions(request=request)
+
+                # Handle the response
+                print(response)
 
         Args:
             request (Union[google.cloud.aiplatform_v1.types.AddContextArtifactsAndExecutionsRequest, dict]):
@@ -1640,7 +2118,7 @@ class MetadataServiceAsyncClient:
 
         """
         # Create or coerce a protobuf request object.
-        # Sanity check: If we got a request object, we should *not* have
+        # Quick check: If we got a request object, we should *not* have
         # gotten any keyword arguments that map to the request.
         has_flattened_params = any([context, artifacts, executions])
         if request is not None and has_flattened_params:
@@ -1675,7 +2153,12 @@ class MetadataServiceAsyncClient:
         )
 
         # Send the request.
-        response = await rpc(request, retry=retry, timeout=timeout, metadata=metadata,)
+        response = await rpc(
+            request,
+            retry=retry,
+            timeout=timeout,
+            metadata=metadata,
+        )
 
         # Done; return the response.
         return response
@@ -1695,6 +2178,26 @@ class MetadataServiceAsyncClient:
         Context, they are simply skipped. If this call would create a
         cycle or cause any Context to have more than 10 parents, the
         request will fail with an INVALID_ARGUMENT error.
+
+
+        .. code-block:: python
+
+            from google.cloud import aiplatform_v1
+
+            def sample_add_context_children():
+                # Create a client
+                client = aiplatform_v1.MetadataServiceClient()
+
+                # Initialize request argument(s)
+                request = aiplatform_v1.AddContextChildrenRequest(
+                    context="context_value",
+                )
+
+                # Make the request
+                response = client.add_context_children(request=request)
+
+                # Handle the response
+                print(response)
 
         Args:
             request (Union[google.cloud.aiplatform_v1.types.AddContextChildrenRequest, dict]):
@@ -1729,7 +2232,7 @@ class MetadataServiceAsyncClient:
 
         """
         # Create or coerce a protobuf request object.
-        # Sanity check: If we got a request object, we should *not* have
+        # Quick check: If we got a request object, we should *not* have
         # gotten any keyword arguments that map to the request.
         has_flattened_params = any([context, child_contexts])
         if request is not None and has_flattened_params:
@@ -1762,7 +2265,12 @@ class MetadataServiceAsyncClient:
         )
 
         # Send the request.
-        response = await rpc(request, retry=retry, timeout=timeout, metadata=metadata,)
+        response = await rpc(
+            request,
+            retry=retry,
+            timeout=timeout,
+            metadata=metadata,
+        )
 
         # Done; return the response.
         return response
@@ -1781,6 +2289,26 @@ class MetadataServiceAsyncClient:
         r"""Retrieves Artifacts and Executions within the
         specified Context, connected by Event edges and returned
         as a LineageSubgraph.
+
+
+        .. code-block:: python
+
+            from google.cloud import aiplatform_v1
+
+            def sample_query_context_lineage_subgraph():
+                # Create a client
+                client = aiplatform_v1.MetadataServiceClient()
+
+                # Initialize request argument(s)
+                request = aiplatform_v1.QueryContextLineageSubgraphRequest(
+                    context="context_value",
+                )
+
+                # Make the request
+                response = client.query_context_lineage_subgraph(request=request)
+
+                # Handle the response
+                print(response)
 
         Args:
             request (Union[google.cloud.aiplatform_v1.types.QueryContextLineageSubgraphRequest, dict]):
@@ -1814,7 +2342,7 @@ class MetadataServiceAsyncClient:
 
         """
         # Create or coerce a protobuf request object.
-        # Sanity check: If we got a request object, we should *not* have
+        # Quick check: If we got a request object, we should *not* have
         # gotten any keyword arguments that map to the request.
         has_flattened_params = any([context])
         if request is not None and has_flattened_params:
@@ -1845,7 +2373,12 @@ class MetadataServiceAsyncClient:
         )
 
         # Send the request.
-        response = await rpc(request, retry=retry, timeout=timeout, metadata=metadata,)
+        response = await rpc(
+            request,
+            retry=retry,
+            timeout=timeout,
+            metadata=metadata,
+        )
 
         # Done; return the response.
         return response
@@ -1862,6 +2395,25 @@ class MetadataServiceAsyncClient:
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> gca_execution.Execution:
         r"""Creates an Execution associated with a MetadataStore.
+
+        .. code-block:: python
+
+            from google.cloud import aiplatform_v1
+
+            def sample_create_execution():
+                # Create a client
+                client = aiplatform_v1.MetadataServiceClient()
+
+                # Initialize request argument(s)
+                request = aiplatform_v1.CreateExecutionRequest(
+                    parent="parent_value",
+                )
+
+                # Make the request
+                response = client.create_execution(request=request)
+
+                # Handle the response
+                print(response)
 
         Args:
             request (Union[google.cloud.aiplatform_v1.types.CreateExecutionRequest, dict]):
@@ -1906,7 +2458,7 @@ class MetadataServiceAsyncClient:
                 Instance of a general execution.
         """
         # Create or coerce a protobuf request object.
-        # Sanity check: If we got a request object, we should *not* have
+        # Quick check: If we got a request object, we should *not* have
         # gotten any keyword arguments that map to the request.
         has_flattened_params = any([parent, execution, execution_id])
         if request is not None and has_flattened_params:
@@ -1941,7 +2493,12 @@ class MetadataServiceAsyncClient:
         )
 
         # Send the request.
-        response = await rpc(request, retry=retry, timeout=timeout, metadata=metadata,)
+        response = await rpc(
+            request,
+            retry=retry,
+            timeout=timeout,
+            metadata=metadata,
+        )
 
         # Done; return the response.
         return response
@@ -1956,6 +2513,25 @@ class MetadataServiceAsyncClient:
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> execution.Execution:
         r"""Retrieves a specific Execution.
+
+        .. code-block:: python
+
+            from google.cloud import aiplatform_v1
+
+            def sample_get_execution():
+                # Create a client
+                client = aiplatform_v1.MetadataServiceClient()
+
+                # Initialize request argument(s)
+                request = aiplatform_v1.GetExecutionRequest(
+                    name="name_value",
+                )
+
+                # Make the request
+                response = client.get_execution(request=request)
+
+                # Handle the response
+                print(response)
 
         Args:
             request (Union[google.cloud.aiplatform_v1.types.GetExecutionRequest, dict]):
@@ -1980,7 +2556,7 @@ class MetadataServiceAsyncClient:
                 Instance of a general execution.
         """
         # Create or coerce a protobuf request object.
-        # Sanity check: If we got a request object, we should *not* have
+        # Quick check: If we got a request object, we should *not* have
         # gotten any keyword arguments that map to the request.
         has_flattened_params = any([name])
         if request is not None and has_flattened_params:
@@ -2011,7 +2587,12 @@ class MetadataServiceAsyncClient:
         )
 
         # Send the request.
-        response = await rpc(request, retry=retry, timeout=timeout, metadata=metadata,)
+        response = await rpc(
+            request,
+            retry=retry,
+            timeout=timeout,
+            metadata=metadata,
+        )
 
         # Done; return the response.
         return response
@@ -2026,6 +2607,26 @@ class MetadataServiceAsyncClient:
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> pagers.ListExecutionsAsyncPager:
         r"""Lists Executions in the MetadataStore.
+
+        .. code-block:: python
+
+            from google.cloud import aiplatform_v1
+
+            def sample_list_executions():
+                # Create a client
+                client = aiplatform_v1.MetadataServiceClient()
+
+                # Initialize request argument(s)
+                request = aiplatform_v1.ListExecutionsRequest(
+                    parent="parent_value",
+                )
+
+                # Make the request
+                page_result = client.list_executions(request=request)
+
+                # Handle the response
+                for response in page_result:
+                    print(response)
 
         Args:
             request (Union[google.cloud.aiplatform_v1.types.ListExecutionsRequest, dict]):
@@ -2055,7 +2656,7 @@ class MetadataServiceAsyncClient:
 
         """
         # Create or coerce a protobuf request object.
-        # Sanity check: If we got a request object, we should *not* have
+        # Quick check: If we got a request object, we should *not* have
         # gotten any keyword arguments that map to the request.
         has_flattened_params = any([parent])
         if request is not None and has_flattened_params:
@@ -2086,12 +2687,20 @@ class MetadataServiceAsyncClient:
         )
 
         # Send the request.
-        response = await rpc(request, retry=retry, timeout=timeout, metadata=metadata,)
+        response = await rpc(
+            request,
+            retry=retry,
+            timeout=timeout,
+            metadata=metadata,
+        )
 
         # This method is paged; wrap the response in a pager, which provides
         # an `__aiter__` convenience method.
         response = pagers.ListExecutionsAsyncPager(
-            method=rpc, request=request, response=response, metadata=metadata,
+            method=rpc,
+            request=request,
+            response=response,
+            metadata=metadata,
         )
 
         # Done; return the response.
@@ -2108,6 +2717,24 @@ class MetadataServiceAsyncClient:
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> gca_execution.Execution:
         r"""Updates a stored Execution.
+
+        .. code-block:: python
+
+            from google.cloud import aiplatform_v1
+
+            def sample_update_execution():
+                # Create a client
+                client = aiplatform_v1.MetadataServiceClient()
+
+                # Initialize request argument(s)
+                request = aiplatform_v1.UpdateExecutionRequest(
+                )
+
+                # Make the request
+                response = client.update_execution(request=request)
+
+                # Handle the response
+                print(response)
 
         Args:
             request (Union[google.cloud.aiplatform_v1.types.UpdateExecutionRequest, dict]):
@@ -2144,7 +2771,7 @@ class MetadataServiceAsyncClient:
                 Instance of a general execution.
         """
         # Create or coerce a protobuf request object.
-        # Sanity check: If we got a request object, we should *not* have
+        # Quick check: If we got a request object, we should *not* have
         # gotten any keyword arguments that map to the request.
         has_flattened_params = any([execution, update_mask])
         if request is not None and has_flattened_params:
@@ -2179,7 +2806,12 @@ class MetadataServiceAsyncClient:
         )
 
         # Send the request.
-        response = await rpc(request, retry=retry, timeout=timeout, metadata=metadata,)
+        response = await rpc(
+            request,
+            retry=retry,
+            timeout=timeout,
+            metadata=metadata,
+        )
 
         # Done; return the response.
         return response
@@ -2194,6 +2826,29 @@ class MetadataServiceAsyncClient:
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> operation_async.AsyncOperation:
         r"""Deletes an Execution.
+
+        .. code-block:: python
+
+            from google.cloud import aiplatform_v1
+
+            def sample_delete_execution():
+                # Create a client
+                client = aiplatform_v1.MetadataServiceClient()
+
+                # Initialize request argument(s)
+                request = aiplatform_v1.DeleteExecutionRequest(
+                    name="name_value",
+                )
+
+                # Make the request
+                operation = client.delete_execution(request=request)
+
+                print("Waiting for operation to complete...")
+
+                response = operation.result()
+
+                # Handle the response
+                print(response)
 
         Args:
             request (Union[google.cloud.aiplatform_v1.types.DeleteExecutionRequest, dict]):
@@ -2233,7 +2888,7 @@ class MetadataServiceAsyncClient:
 
         """
         # Create or coerce a protobuf request object.
-        # Sanity check: If we got a request object, we should *not* have
+        # Quick check: If we got a request object, we should *not* have
         # gotten any keyword arguments that map to the request.
         has_flattened_params = any([name])
         if request is not None and has_flattened_params:
@@ -2264,7 +2919,12 @@ class MetadataServiceAsyncClient:
         )
 
         # Send the request.
-        response = await rpc(request, retry=retry, timeout=timeout, metadata=metadata,)
+        response = await rpc(
+            request,
+            retry=retry,
+            timeout=timeout,
+            metadata=metadata,
+        )
 
         # Wrap the response in an operation future.
         response = operation_async.from_gapic(
@@ -2287,6 +2947,30 @@ class MetadataServiceAsyncClient:
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> operation_async.AsyncOperation:
         r"""Purges Executions.
+
+        .. code-block:: python
+
+            from google.cloud import aiplatform_v1
+
+            def sample_purge_executions():
+                # Create a client
+                client = aiplatform_v1.MetadataServiceClient()
+
+                # Initialize request argument(s)
+                request = aiplatform_v1.PurgeExecutionsRequest(
+                    parent="parent_value",
+                    filter="filter_value",
+                )
+
+                # Make the request
+                operation = client.purge_executions(request=request)
+
+                print("Waiting for operation to complete...")
+
+                response = operation.result()
+
+                # Handle the response
+                print(response)
 
         Args:
             request (Union[google.cloud.aiplatform_v1.types.PurgeExecutionsRequest, dict]):
@@ -2317,7 +3001,7 @@ class MetadataServiceAsyncClient:
 
         """
         # Create or coerce a protobuf request object.
-        # Sanity check: If we got a request object, we should *not* have
+        # Quick check: If we got a request object, we should *not* have
         # gotten any keyword arguments that map to the request.
         has_flattened_params = any([parent])
         if request is not None and has_flattened_params:
@@ -2348,7 +3032,12 @@ class MetadataServiceAsyncClient:
         )
 
         # Send the request.
-        response = await rpc(request, retry=retry, timeout=timeout, metadata=metadata,)
+        response = await rpc(
+            request,
+            retry=retry,
+            timeout=timeout,
+            metadata=metadata,
+        )
 
         # Wrap the response in an operation future.
         response = operation_async.from_gapic(
@@ -2376,6 +3065,26 @@ class MetadataServiceAsyncClient:
         output for an Execution. If an Event already exists
         between the Execution and the Artifact, the Event is
         skipped.
+
+
+        .. code-block:: python
+
+            from google.cloud import aiplatform_v1
+
+            def sample_add_execution_events():
+                # Create a client
+                client = aiplatform_v1.MetadataServiceClient()
+
+                # Initialize request argument(s)
+                request = aiplatform_v1.AddExecutionEventsRequest(
+                    execution="execution_value",
+                )
+
+                # Make the request
+                response = client.add_execution_events(request=request)
+
+                # Handle the response
+                print(response)
 
         Args:
             request (Union[google.cloud.aiplatform_v1.types.AddExecutionEventsRequest, dict]):
@@ -2407,7 +3116,7 @@ class MetadataServiceAsyncClient:
 
         """
         # Create or coerce a protobuf request object.
-        # Sanity check: If we got a request object, we should *not* have
+        # Quick check: If we got a request object, we should *not* have
         # gotten any keyword arguments that map to the request.
         has_flattened_params = any([execution, events])
         if request is not None and has_flattened_params:
@@ -2442,7 +3151,12 @@ class MetadataServiceAsyncClient:
         )
 
         # Send the request.
-        response = await rpc(request, retry=retry, timeout=timeout, metadata=metadata,)
+        response = await rpc(
+            request,
+            retry=retry,
+            timeout=timeout,
+            metadata=metadata,
+        )
 
         # Done; return the response.
         return response
@@ -2461,6 +3175,26 @@ class MetadataServiceAsyncClient:
         r"""Obtains the set of input and output Artifacts for
         this Execution, in the form of LineageSubgraph that also
         contains the Execution and connecting Events.
+
+
+        .. code-block:: python
+
+            from google.cloud import aiplatform_v1
+
+            def sample_query_execution_inputs_and_outputs():
+                # Create a client
+                client = aiplatform_v1.MetadataServiceClient()
+
+                # Initialize request argument(s)
+                request = aiplatform_v1.QueryExecutionInputsAndOutputsRequest(
+                    execution="execution_value",
+                )
+
+                # Make the request
+                response = client.query_execution_inputs_and_outputs(request=request)
+
+                # Handle the response
+                print(response)
 
         Args:
             request (Union[google.cloud.aiplatform_v1.types.QueryExecutionInputsAndOutputsRequest, dict]):
@@ -2489,7 +3223,7 @@ class MetadataServiceAsyncClient:
 
         """
         # Create or coerce a protobuf request object.
-        # Sanity check: If we got a request object, we should *not* have
+        # Quick check: If we got a request object, we should *not* have
         # gotten any keyword arguments that map to the request.
         has_flattened_params = any([execution])
         if request is not None and has_flattened_params:
@@ -2522,7 +3256,12 @@ class MetadataServiceAsyncClient:
         )
 
         # Send the request.
-        response = await rpc(request, retry=retry, timeout=timeout, metadata=metadata,)
+        response = await rpc(
+            request,
+            retry=retry,
+            timeout=timeout,
+            metadata=metadata,
+        )
 
         # Done; return the response.
         return response
@@ -2539,6 +3278,29 @@ class MetadataServiceAsyncClient:
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> gca_metadata_schema.MetadataSchema:
         r"""Creates a MetadataSchema.
+
+        .. code-block:: python
+
+            from google.cloud import aiplatform_v1
+
+            def sample_create_metadata_schema():
+                # Create a client
+                client = aiplatform_v1.MetadataServiceClient()
+
+                # Initialize request argument(s)
+                metadata_schema = aiplatform_v1.MetadataSchema()
+                metadata_schema.schema = "schema_value"
+
+                request = aiplatform_v1.CreateMetadataSchemaRequest(
+                    parent="parent_value",
+                    metadata_schema=metadata_schema,
+                )
+
+                # Make the request
+                response = client.create_metadata_schema(request=request)
+
+                # Handle the response
+                print(response)
 
         Args:
             request (Union[google.cloud.aiplatform_v1.types.CreateMetadataSchemaRequest, dict]):
@@ -2585,7 +3347,7 @@ class MetadataServiceAsyncClient:
                 Instance of a general MetadataSchema.
         """
         # Create or coerce a protobuf request object.
-        # Sanity check: If we got a request object, we should *not* have
+        # Quick check: If we got a request object, we should *not* have
         # gotten any keyword arguments that map to the request.
         has_flattened_params = any([parent, metadata_schema, metadata_schema_id])
         if request is not None and has_flattened_params:
@@ -2620,7 +3382,12 @@ class MetadataServiceAsyncClient:
         )
 
         # Send the request.
-        response = await rpc(request, retry=retry, timeout=timeout, metadata=metadata,)
+        response = await rpc(
+            request,
+            retry=retry,
+            timeout=timeout,
+            metadata=metadata,
+        )
 
         # Done; return the response.
         return response
@@ -2635,6 +3402,25 @@ class MetadataServiceAsyncClient:
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> metadata_schema.MetadataSchema:
         r"""Retrieves a specific MetadataSchema.
+
+        .. code-block:: python
+
+            from google.cloud import aiplatform_v1
+
+            def sample_get_metadata_schema():
+                # Create a client
+                client = aiplatform_v1.MetadataServiceClient()
+
+                # Initialize request argument(s)
+                request = aiplatform_v1.GetMetadataSchemaRequest(
+                    name="name_value",
+                )
+
+                # Make the request
+                response = client.get_metadata_schema(request=request)
+
+                # Handle the response
+                print(response)
 
         Args:
             request (Union[google.cloud.aiplatform_v1.types.GetMetadataSchemaRequest, dict]):
@@ -2659,7 +3445,7 @@ class MetadataServiceAsyncClient:
                 Instance of a general MetadataSchema.
         """
         # Create or coerce a protobuf request object.
-        # Sanity check: If we got a request object, we should *not* have
+        # Quick check: If we got a request object, we should *not* have
         # gotten any keyword arguments that map to the request.
         has_flattened_params = any([name])
         if request is not None and has_flattened_params:
@@ -2690,7 +3476,12 @@ class MetadataServiceAsyncClient:
         )
 
         # Send the request.
-        response = await rpc(request, retry=retry, timeout=timeout, metadata=metadata,)
+        response = await rpc(
+            request,
+            retry=retry,
+            timeout=timeout,
+            metadata=metadata,
+        )
 
         # Done; return the response.
         return response
@@ -2705,6 +3496,26 @@ class MetadataServiceAsyncClient:
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> pagers.ListMetadataSchemasAsyncPager:
         r"""Lists MetadataSchemas.
+
+        .. code-block:: python
+
+            from google.cloud import aiplatform_v1
+
+            def sample_list_metadata_schemas():
+                # Create a client
+                client = aiplatform_v1.MetadataServiceClient()
+
+                # Initialize request argument(s)
+                request = aiplatform_v1.ListMetadataSchemasRequest(
+                    parent="parent_value",
+                )
+
+                # Make the request
+                page_result = client.list_metadata_schemas(request=request)
+
+                # Handle the response
+                for response in page_result:
+                    print(response)
 
         Args:
             request (Union[google.cloud.aiplatform_v1.types.ListMetadataSchemasRequest, dict]):
@@ -2734,7 +3545,7 @@ class MetadataServiceAsyncClient:
 
         """
         # Create or coerce a protobuf request object.
-        # Sanity check: If we got a request object, we should *not* have
+        # Quick check: If we got a request object, we should *not* have
         # gotten any keyword arguments that map to the request.
         has_flattened_params = any([parent])
         if request is not None and has_flattened_params:
@@ -2765,12 +3576,20 @@ class MetadataServiceAsyncClient:
         )
 
         # Send the request.
-        response = await rpc(request, retry=retry, timeout=timeout, metadata=metadata,)
+        response = await rpc(
+            request,
+            retry=retry,
+            timeout=timeout,
+            metadata=metadata,
+        )
 
         # This method is paged; wrap the response in a pager, which provides
         # an `__aiter__` convenience method.
         response = pagers.ListMetadataSchemasAsyncPager(
-            method=rpc, request=request, response=response, metadata=metadata,
+            method=rpc,
+            request=request,
+            response=response,
+            metadata=metadata,
         )
 
         # Done; return the response.
@@ -2790,6 +3609,26 @@ class MetadataServiceAsyncClient:
         r"""Retrieves lineage of an Artifact represented through
         Artifacts and Executions connected by Event edges and
         returned as a LineageSubgraph.
+
+
+        .. code-block:: python
+
+            from google.cloud import aiplatform_v1
+
+            def sample_query_artifact_lineage_subgraph():
+                # Create a client
+                client = aiplatform_v1.MetadataServiceClient()
+
+                # Initialize request argument(s)
+                request = aiplatform_v1.QueryArtifactLineageSubgraphRequest(
+                    artifact="artifact_value",
+                )
+
+                # Make the request
+                response = client.query_artifact_lineage_subgraph(request=request)
+
+                # Handle the response
+                print(response)
 
         Args:
             request (Union[google.cloud.aiplatform_v1.types.QueryArtifactLineageSubgraphRequest, dict]):
@@ -2823,7 +3662,7 @@ class MetadataServiceAsyncClient:
 
         """
         # Create or coerce a protobuf request object.
-        # Sanity check: If we got a request object, we should *not* have
+        # Quick check: If we got a request object, we should *not* have
         # gotten any keyword arguments that map to the request.
         has_flattened_params = any([artifact])
         if request is not None and has_flattened_params:
@@ -2854,7 +3693,12 @@ class MetadataServiceAsyncClient:
         )
 
         # Send the request.
-        response = await rpc(request, retry=retry, timeout=timeout, metadata=metadata,)
+        response = await rpc(
+            request,
+            retry=retry,
+            timeout=timeout,
+            metadata=metadata,
+        )
 
         # Done; return the response.
         return response

@@ -28,18 +28,18 @@ from google.cloud import aiplatform_v1beta1
 
 
 async def sample_read_tensorboard_blob_data():
-    """Snippet for read_tensorboard_blob_data"""
-
     # Create a client
     client = aiplatform_v1beta1.TensorboardServiceAsyncClient()
 
     # Initialize request argument(s)
     request = aiplatform_v1beta1.ReadTensorboardBlobDataRequest(
-        time_series="projects/{project}/locations/{location}/tensorboards/{tensorboard}/experiments/{experiment}/runs/{run}/timeSeries/{time_series}",
+        time_series="time_series_value",
     )
 
     # Make the request
     stream = await client.read_tensorboard_blob_data(request=request)
+
+    # Handle the response
     async for response in stream:
         print(response)
 

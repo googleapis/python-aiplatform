@@ -99,7 +99,7 @@ class _MetadataService:
 
         self.reset()
 
-        
+
         context = _Context.get_or_create(
             resource_id=experiment,
             display_name=experiment,
@@ -108,7 +108,7 @@ class _MetadataService:
             schema_version=_get_experiment_schema_version(),
             metadata=constants.EXPERIMENT_METADATA,
         )
-        
+
         if context.schema_title != constants.SYSTEM_EXPERIMENT:
             raise ValueError(
                 f"Experiment name {experiment} has been used to create other type of resources "
@@ -186,7 +186,7 @@ class _MetadataService:
                 f"Run name {run} has been used to create other type of resources ({run_execution.schema_title}) "
                 "in this MetadataStore, please choose a different run name."
             )
-        
+
         self._experiment.add_artifacts_and_executions(
             execution_resource_names=[run_execution.resource_name]
         )
@@ -232,7 +232,7 @@ class _MetadataService:
 
         Args:
             metrics (Dict):
-                Required. Metrics key/value pairs. Only flot and int are supported format for value.
+                Required. Metrics key/value pairs. Only float and int are supported format for value.
         Raises:
             TypeError: If value contains unsupported types.
             ValueError: If Experiment or Run is not set.
@@ -253,36 +253,36 @@ class _MetadataService:
     ) -> "pd.DataFrame":  # noqa: F821
         """Returns a Pandas DataFrame of the parameters and metrics associated with one experiment.
 
-            Example:
+        Example:
 
-            aiplatform.init(experiment='exp-1')
-            aiplatform.start_run(run='run-1')
-            aiplatform.log_params({'learning_rate': 0.1})
-            aiplatform.log_metrics({'accuracy': 0.9})
+        aiplatform.init(experiment='exp-1')
+        aiplatform.start_run(run='run-1')
+        aiplatform.log_params({'learning_rate': 0.1})
+        aiplatform.log_metrics({'accuracy': 0.9})
 
-            aiplatform.start_run(run='run-2')
-            aiplatform.log_params({'learning_rate': 0.2})
-            aiplatform.log_metrics({'accuracy': 0.95})
+        aiplatform.start_run(run='run-2')
+        aiplatform.log_params({'learning_rate': 0.2})
+        aiplatform.log_metrics({'accuracy': 0.95})
 
-            Will result in the following DataFrame
-            ___________________________________________________________________________
-            | experiment_name | run_name      | param.learning_rate | metric.accuracy |
-            ---------------------------------------------------------------------------
-            | exp-1           | run-1         | 0.1                 | 0.9             |
-            | exp-1           | run-2         | 0.2                 | 0.95            |
-            ---------------------------------------------------------------------------
+        Will result in the following DataFrame
+        ___________________________________________________________________________
+        | experiment_name | run_name      | param.learning_rate | metric.accuracy |
+        ---------------------------------------------------------------------------
+        | exp-1           | run-1         | 0.1                 | 0.9             |
+        | exp-1           | run-2         | 0.2                 | 0.95            |
+        ---------------------------------------------------------------------------
 
-            Args:
-                experiment (str):
-                Name of the Experiment to filter results. If not set, return results of current active experiment.
+        Args:
+            experiment (str):
+            Name of the Experiment to filter results. If not set, return results of current active experiment.
 
-            Returns:
-                Pandas Dataframe of Experiment with metrics and parameters.
+        Returns:
+            Pandas Dataframe of Experiment with metrics and parameters.
 
-            Raise:
-                NotFound exception if experiment does not exist.
-                ValueError if given experiment is not associated with a wrong schema.
-            """
+        Raise:
+            NotFound exception if experiment does not exist.
+            ValueError if given experiment is not associated with a wrong schema.
+        """
 
         source = "experiment"
         if not experiment:
@@ -350,7 +350,7 @@ class _MetadataService:
 
         Args:
             metrics (Dict):
-                Required. Metrics key/value pairs. Only flot and int are supported format for value.
+                Required. Metrics key/value pairs. Only float and int are supported format for value.
         Raises:
             TypeError: If value contains unsupported types.
         """
@@ -492,7 +492,7 @@ class _MetadataService:
                     pipeline_params = self._execution_to_column_named_metadata(
                         metadata_type="param",
                         metadata=execution.metadata,
-                        filter_prefix=constants.PIPELINE_PARAM_PREFIX) 
+                        filter_prefix=constants.PIPELINE_PARAM_PREFIX)
                 else:
                     execution_dict = pipeline_run_dict.copy()
                     execution_dict['execution_name'] = execution.display_name
@@ -504,7 +504,7 @@ class _MetadataService:
                             execution_with_metric_dict['output_name'] = artifact.display_name
                             execution_with_metric_dict.update(self._execution_to_column_named_metadata("metric", artifact.metadata))
                             artifact_dicts.append(execution_with_metric_dict)
-                    
+
                     # if this is the only artifact then we only need one row for this execution
                     # otherwise we need to create a row per metric artifact
                     # ignore all executions that didn't create metrics to remove noise
@@ -555,7 +555,7 @@ class _MetadataService:
 
         df = pd.DataFrame(context_summary)
         columns = df.columns
-        columns = sorted(columns, key=column_sort_key) 
+        columns = sorted(columns, key=column_sort_key)
         df = df.reindex(columns, axis=1)
 
         return df
@@ -820,17 +820,17 @@ class ExperimentTracker:
         pipeline_job: Optional[pipeline_jobs.PipelineJob]=None,
         artifact: Optional[Artifact]=None):
         """Log Vertex AI Resources and Artifacts to the current Experiment Run.
-        
+
         Args:
             pipeline_job (pipeline_jobs.PipelineJob):
                 Optional. Vertex PipelineJob to associate to this Experiment Run.
 
-                Metrics produced by the PipelineJob as system.Metric Artifacts 
+                Metrics produced by the PipelineJob as system.Metric Artifacts
                 will be associated as metrics to the current Experiment Run.
 
                 Pipeline parameters will be associated as parameters to the
                 current Experiment Run.
-        """ 
+        """
         self._validate_experiment_and_run(method_name="log")
         self._experiment_run.log(pipeline_job=pipeline_job, artifact=artifact)
 
@@ -880,7 +880,7 @@ class ExperimentTracker:
             artifact = Artifact(resource_name=artifact_name)
         else:
             artifact = Artifact.get_with_uri(uri=uri)
-        
+
         if assign_as_input:
             self._experiment_run.assign_artifact_as_input(artifact=artifact)
 

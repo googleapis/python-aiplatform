@@ -38,7 +38,9 @@ class _Execution(resource._Resource):
     _format_resource_name_method = "execution_path"
 
     def add_artifact(
-        self, artifact_resource_name: str, input: bool,
+        self,
+        artifact_resource_name: str,
+        input: bool,
     ):
         """Connect Artifact to a given Execution.
 
@@ -55,7 +57,8 @@ class _Execution(resource._Resource):
         )
 
         self.api_client.add_execution_events(
-            execution=self.resource_name, events=[event],
+            execution=self.resource_name,
+            events=[event],
         )
 
     def query_input_and_output_artifacts(self) -> Sequence[artifact._Artifact]:
@@ -128,7 +131,9 @@ class _Execution(resource._Resource):
             metadata=metadata if metadata else {},
         )
         return client.create_execution(
-            parent=parent, execution=gapic_execution, execution_id=resource_id,
+            parent=parent,
+            execution=gapic_execution,
+            execution_id=resource_id,
         )
 
     @classmethod
@@ -150,13 +155,16 @@ class _Execution(resource._Resource):
         """
 
         list_request = metadata_service.ListExecutionsRequest(
-            parent=parent, filter=filter,
+            parent=parent,
+            filter=filter,
         )
         return client.list_executions(request=list_request)
 
     @classmethod
     def _update_resource(
-        cls, client: utils.MetadataClientWithOverride, resource: proto.Message,
+        cls,
+        client: utils.MetadataClientWithOverride,
+        resource: proto.Message,
     ) -> proto.Message:
         """Update Executions with given input.
 

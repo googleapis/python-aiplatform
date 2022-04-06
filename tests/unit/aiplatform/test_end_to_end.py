@@ -24,7 +24,6 @@ from google.cloud.aiplatform import base
 from google.cloud.aiplatform import initializer
 from google.cloud.aiplatform import models
 from google.cloud.aiplatform import schema
-from google.cloud.aiplatform.utils import source_utils
 
 from google.cloud.aiplatform_v1.types import (
     dataset as gca_dataset,
@@ -104,6 +103,7 @@ class TestEndToEnd:
             display_name=test_datasets._TEST_DISPLAY_NAME,
             encryption_spec_key_name=_TEST_ENCRYPTION_KEY_NAME,
             sync=sync,
+            create_request_timeout=None,
         )
 
         my_dataset.import_data(
@@ -111,6 +111,7 @@ class TestEndToEnd:
             import_schema_uri=test_datasets._TEST_IMPORT_SCHEMA_URI,
             data_item_labels=test_datasets._TEST_DATA_LABEL_ITEMS,
             sync=sync,
+            import_request_timeout=None,
         )
 
         job = aiplatform.CustomTrainingJob(
@@ -135,16 +136,20 @@ class TestEndToEnd:
             validation_fraction_split=test_training_jobs._TEST_VALIDATION_FRACTION_SPLIT,
             test_fraction_split=test_training_jobs._TEST_TEST_FRACTION_SPLIT,
             sync=sync,
+            create_request_timeout=None,
         )
 
         created_endpoint = models.Endpoint.create(
             display_name=test_endpoints._TEST_DISPLAY_NAME,
             encryption_spec_key_name=_TEST_ENCRYPTION_KEY_NAME,
             sync=sync,
+            create_request_timeout=None,
         )
 
         my_endpoint = model_from_job.deploy(
-            encryption_spec_key_name=_TEST_ENCRYPTION_KEY_NAME, sync=sync
+            encryption_spec_key_name=_TEST_ENCRYPTION_KEY_NAME,
+            sync=sync,
+            deploy_request_timeout=None,
         )
 
         endpoint_deploy_return = created_endpoint.deploy(model_from_job, sync=sync)
@@ -175,6 +180,7 @@ class TestEndToEnd:
             endpoint=test_endpoints._TEST_ENDPOINT_NAME,
             instances=[[1.0, 2.0, 3.0], [1.0, 3.0, 4.0]],
             parameters={"param": 3.0},
+            timeout=None,
         )
 
         expected_dataset = gca_dataset.Dataset(
@@ -194,10 +200,13 @@ class TestEndToEnd:
             parent=test_datasets._TEST_PARENT,
             dataset=expected_dataset,
             metadata=test_datasets._TEST_REQUEST_METADATA,
+            timeout=None,
         )
 
         import_data_mock.assert_called_once_with(
-            name=test_datasets._TEST_NAME, import_configs=[expected_import_config]
+            name=test_datasets._TEST_NAME,
+            import_configs=[expected_import_config],
+            timeout=None,
         )
 
         expected_dataset.name = test_datasets._TEST_NAME
@@ -224,7 +233,7 @@ class TestEndToEnd:
             },
             "python_package_spec": {
                 "executor_image_uri": test_training_jobs._TEST_TRAINING_CONTAINER_IMAGE,
-                "python_module": source_utils._TrainingScriptPythonPackager.module_name,
+                "python_module": test_training_jobs._TEST_MODULE_NAME,
                 "package_uris": [test_training_jobs._TEST_OUTPUT_PYTHON_PACKAGE_PATH],
                 "args": true_args,
             },
@@ -274,6 +283,7 @@ class TestEndToEnd:
         mock_pipeline_service_create.assert_called_once_with(
             parent=initializer.global_config.common_location_path(),
             training_pipeline=true_training_pipeline,
+            timeout=None,
         )
 
         assert job._gca_resource == make_training_pipeline(
@@ -317,7 +327,9 @@ class TestEndToEnd:
         )
 
         my_dataset = aiplatform.ImageDataset.create(
-            display_name=test_datasets._TEST_DISPLAY_NAME, sync=sync,
+            display_name=test_datasets._TEST_DISPLAY_NAME,
+            sync=sync,
+            create_request_timeout=None,
         )
 
         my_dataset.import_data(
@@ -325,6 +337,7 @@ class TestEndToEnd:
             import_schema_uri=test_datasets._TEST_IMPORT_SCHEMA_URI,
             data_item_labels=test_datasets._TEST_DATA_LABEL_ITEMS,
             sync=sync,
+            import_request_timeout=None,
         )
 
         job = aiplatform.CustomTrainingJob(
@@ -337,7 +350,9 @@ class TestEndToEnd:
         )
 
         created_endpoint = models.Endpoint.create(
-            display_name=test_endpoints._TEST_DISPLAY_NAME, sync=sync,
+            display_name=test_endpoints._TEST_DISPLAY_NAME,
+            sync=sync,
+            create_request_timeout=None,
         )
 
         model_from_job = job.run(
@@ -353,6 +368,7 @@ class TestEndToEnd:
             validation_fraction_split=test_training_jobs._TEST_VALIDATION_FRACTION_SPLIT,
             test_fraction_split=test_training_jobs._TEST_TEST_FRACTION_SPLIT,
             sync=sync,
+            create_request_timeout=None,
         )
 
         with pytest.raises(RuntimeError):
@@ -381,10 +397,13 @@ class TestEndToEnd:
             parent=test_datasets._TEST_PARENT,
             dataset=expected_dataset,
             metadata=test_datasets._TEST_REQUEST_METADATA,
+            timeout=None,
         )
 
         import_data_mock.assert_called_once_with(
-            name=test_datasets._TEST_NAME, import_configs=[expected_import_config]
+            name=test_datasets._TEST_NAME,
+            import_configs=[expected_import_config],
+            timeout=None,
         )
 
         expected_dataset.name = test_datasets._TEST_NAME
@@ -411,7 +430,7 @@ class TestEndToEnd:
             },
             "python_package_spec": {
                 "executor_image_uri": test_training_jobs._TEST_TRAINING_CONTAINER_IMAGE,
-                "python_module": source_utils._TrainingScriptPythonPackager.module_name,
+                "python_module": test_training_jobs._TEST_MODULE_NAME,
                 "package_uris": [test_training_jobs._TEST_OUTPUT_PYTHON_PACKAGE_PATH],
                 "args": true_args,
             },
@@ -463,6 +482,7 @@ class TestEndToEnd:
         mock_pipeline_service_create_and_get_with_fail[0].assert_called_once_with(
             parent=initializer.global_config.common_location_path(),
             training_pipeline=true_training_pipeline,
+            timeout=None,
         )
 
         assert (

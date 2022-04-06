@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# Copyright 2020 Google LLC
+# Copyright 2022 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -20,7 +20,10 @@ from google.protobuf import timestamp_pb2  # type: ignore
 
 
 __protobuf__ = proto.module(
-    package="google.cloud.aiplatform.v1beta1", manifest={"Artifact",},
+    package="google.cloud.aiplatform.v1beta1",
+    manifest={
+        "Artifact",
+    },
 )
 
 
@@ -39,8 +42,8 @@ class Artifact(proto.Message):
             artifact file. May be empty if there is no
             actual artifact file.
         etag (str):
-            An eTag used to perform consistent read-
-            odify-write updates. If not set, a blind
+            An eTag used to perform consistent
+            read-modify-write updates. If not set, a blind
             "overwrite" update happens.
         labels (Sequence[google.cloud.aiplatform_v1beta1.types.Artifact.LabelsEntry]):
             The labels with user-defined metadata to
@@ -93,22 +96,59 @@ class Artifact(proto.Message):
         PENDING = 1
         LIVE = 2
 
-    name = proto.Field(proto.STRING, number=1,)
-    display_name = proto.Field(proto.STRING, number=2,)
-    uri = proto.Field(proto.STRING, number=6,)
-    etag = proto.Field(proto.STRING, number=9,)
-    labels = proto.MapField(proto.STRING, proto.STRING, number=10,)
+    name = proto.Field(
+        proto.STRING,
+        number=1,
+    )
+    display_name = proto.Field(
+        proto.STRING,
+        number=2,
+    )
+    uri = proto.Field(
+        proto.STRING,
+        number=6,
+    )
+    etag = proto.Field(
+        proto.STRING,
+        number=9,
+    )
+    labels = proto.MapField(
+        proto.STRING,
+        proto.STRING,
+        number=10,
+    )
     create_time = proto.Field(
-        proto.MESSAGE, number=11, message=timestamp_pb2.Timestamp,
+        proto.MESSAGE,
+        number=11,
+        message=timestamp_pb2.Timestamp,
     )
     update_time = proto.Field(
-        proto.MESSAGE, number=12, message=timestamp_pb2.Timestamp,
+        proto.MESSAGE,
+        number=12,
+        message=timestamp_pb2.Timestamp,
     )
-    state = proto.Field(proto.ENUM, number=13, enum=State,)
-    schema_title = proto.Field(proto.STRING, number=14,)
-    schema_version = proto.Field(proto.STRING, number=15,)
-    metadata = proto.Field(proto.MESSAGE, number=16, message=struct_pb2.Struct,)
-    description = proto.Field(proto.STRING, number=17,)
+    state = proto.Field(
+        proto.ENUM,
+        number=13,
+        enum=State,
+    )
+    schema_title = proto.Field(
+        proto.STRING,
+        number=14,
+    )
+    schema_version = proto.Field(
+        proto.STRING,
+        number=15,
+    )
+    metadata = proto.Field(
+        proto.MESSAGE,
+        number=16,
+        message=struct_pb2.Struct,
+    )
+    description = proto.Field(
+        proto.STRING,
+        number=17,
+    )
 
 
 __all__ = tuple(sorted(__protobuf__.manifest))

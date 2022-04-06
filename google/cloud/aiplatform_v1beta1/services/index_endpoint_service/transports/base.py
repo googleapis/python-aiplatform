@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# Copyright 2020 Google LLC
+# Copyright 2022 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -105,7 +105,6 @@ class IndexEndpointServiceTransport(abc.ABC):
             credentials, _ = google.auth.load_credentials_from_file(
                 credentials_file, **scopes_kwargs, quota_project_id=quota_project_id
             )
-
         elif credentials is None:
             credentials, _ = google.auth.default(
                 **scopes_kwargs, quota_project_id=quota_project_id
@@ -131,10 +130,14 @@ class IndexEndpointServiceTransport(abc.ABC):
                 client_info=client_info,
             ),
             self.get_index_endpoint: gapic_v1.method.wrap_method(
-                self.get_index_endpoint, default_timeout=5.0, client_info=client_info,
+                self.get_index_endpoint,
+                default_timeout=5.0,
+                client_info=client_info,
             ),
             self.list_index_endpoints: gapic_v1.method.wrap_method(
-                self.list_index_endpoints, default_timeout=5.0, client_info=client_info,
+                self.list_index_endpoints,
+                default_timeout=5.0,
+                client_info=client_info,
             ),
             self.update_index_endpoint: gapic_v1.method.wrap_method(
                 self.update_index_endpoint,
@@ -147,10 +150,14 @@ class IndexEndpointServiceTransport(abc.ABC):
                 client_info=client_info,
             ),
             self.deploy_index: gapic_v1.method.wrap_method(
-                self.deploy_index, default_timeout=5.0, client_info=client_info,
+                self.deploy_index,
+                default_timeout=5.0,
+                client_info=client_info,
             ),
             self.undeploy_index: gapic_v1.method.wrap_method(
-                self.undeploy_index, default_timeout=5.0, client_info=client_info,
+                self.undeploy_index,
+                default_timeout=5.0,
+                client_info=client_info,
             ),
             self.mutate_deployed_index: gapic_v1.method.wrap_method(
                 self.mutate_deployed_index,
@@ -162,9 +169,9 @@ class IndexEndpointServiceTransport(abc.ABC):
     def close(self):
         """Closes resources associated with the transport.
 
-       .. warning::
-            Only call this method if the transport is NOT shared
-            with other clients - this may cause errors in other clients!
+        .. warning::
+             Only call this method if the transport is NOT shared
+             with other clients - this may cause errors in other clients!
         """
         raise NotImplementedError()
 

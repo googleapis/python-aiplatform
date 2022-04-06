@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# Copyright 2020 Google LLC
+# Copyright 2022 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -20,7 +20,10 @@ from google.protobuf import timestamp_pb2  # type: ignore
 
 
 __protobuf__ = proto.module(
-    package="google.cloud.aiplatform.v1", manifest={"Execution",},
+    package="google.cloud.aiplatform.v1",
+    manifest={
+        "Execution",
+    },
 )
 
 
@@ -42,8 +45,8 @@ class Execution(proto.Message):
             and the system does not prescribe or check the
             validity of state transitions.
         etag (str):
-            An eTag used to perform consistent read-
-            odify-write updates. If not set, a blind
+            An eTag used to perform consistent
+            read-modify-write updates. If not set, a blind
             "overwrite" update happens.
         labels (Sequence[google.cloud.aiplatform_v1.types.Execution.LabelsEntry]):
             The labels with user-defined metadata to
@@ -93,21 +96,55 @@ class Execution(proto.Message):
         CACHED = 5
         CANCELLED = 6
 
-    name = proto.Field(proto.STRING, number=1,)
-    display_name = proto.Field(proto.STRING, number=2,)
-    state = proto.Field(proto.ENUM, number=6, enum=State,)
-    etag = proto.Field(proto.STRING, number=9,)
-    labels = proto.MapField(proto.STRING, proto.STRING, number=10,)
+    name = proto.Field(
+        proto.STRING,
+        number=1,
+    )
+    display_name = proto.Field(
+        proto.STRING,
+        number=2,
+    )
+    state = proto.Field(
+        proto.ENUM,
+        number=6,
+        enum=State,
+    )
+    etag = proto.Field(
+        proto.STRING,
+        number=9,
+    )
+    labels = proto.MapField(
+        proto.STRING,
+        proto.STRING,
+        number=10,
+    )
     create_time = proto.Field(
-        proto.MESSAGE, number=11, message=timestamp_pb2.Timestamp,
+        proto.MESSAGE,
+        number=11,
+        message=timestamp_pb2.Timestamp,
     )
     update_time = proto.Field(
-        proto.MESSAGE, number=12, message=timestamp_pb2.Timestamp,
+        proto.MESSAGE,
+        number=12,
+        message=timestamp_pb2.Timestamp,
     )
-    schema_title = proto.Field(proto.STRING, number=13,)
-    schema_version = proto.Field(proto.STRING, number=14,)
-    metadata = proto.Field(proto.MESSAGE, number=15, message=struct_pb2.Struct,)
-    description = proto.Field(proto.STRING, number=16,)
+    schema_title = proto.Field(
+        proto.STRING,
+        number=13,
+    )
+    schema_version = proto.Field(
+        proto.STRING,
+        number=14,
+    )
+    metadata = proto.Field(
+        proto.MESSAGE,
+        number=15,
+        message=struct_pb2.Struct,
+    )
+    description = proto.Field(
+        proto.STRING,
+        number=16,
+    )
 
 
 __all__ = tuple(sorted(__protobuf__.manifest))

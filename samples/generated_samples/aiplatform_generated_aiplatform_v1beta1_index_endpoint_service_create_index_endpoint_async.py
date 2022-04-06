@@ -28,18 +28,15 @@ from google.cloud import aiplatform_v1beta1
 
 
 async def sample_create_index_endpoint():
-    """Snippet for create_index_endpoint"""
-
     # Create a client
     client = aiplatform_v1beta1.IndexEndpointServiceAsyncClient()
 
     # Initialize request argument(s)
     index_endpoint = aiplatform_v1beta1.IndexEndpoint()
     index_endpoint.display_name = "display_name_value"
-    index_endpoint.network = "network_value"
 
     request = aiplatform_v1beta1.CreateIndexEndpointRequest(
-        parent="projects/{project}/locations/{location}",
+        parent="parent_value",
         index_endpoint=index_endpoint,
     )
 
@@ -49,6 +46,8 @@ async def sample_create_index_endpoint():
     print("Waiting for operation to complete...")
 
     response = await operation.result()
+
+    # Handle the response
     print(response)
 
 # [END aiplatform_generated_aiplatform_v1beta1_IndexEndpointService_CreateIndexEndpoint_async]

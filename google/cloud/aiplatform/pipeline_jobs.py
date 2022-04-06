@@ -16,6 +16,7 @@
 #
 
 import datetime
+import logging
 import time
 import re
 from typing import Any, Dict, List, Optional
@@ -76,7 +77,7 @@ def _set_enable_caching_value(
                 task["cachingOptions"] = {"enableCache": enable_caching}
 
 
-class PipelineJob(base.VertexAiResourceNounWithFutureManager):
+class PipelineJob(base.VertexAiStatefulResource):
 
     client_class = utils.PipelineJobClientWithOverride
     _resource_noun = "pipelineJobs"
@@ -86,8 +87,12 @@ class PipelineJob(base.VertexAiResourceNounWithFutureManager):
     _parse_resource_name_method = "parse_pipeline_job_path"
     _format_resource_name_method = "pipeline_job_path"
 
+    # Required by the done() method
+    _valid_done_states = _PIPELINE_COMPLETE_STATES
+
     def __init__(
         self,
+        # TODO(b/223262536): Make the display_name parameter optional in the next major release
         display_name: str,
         template_path: str,
         job_id: Optional[str] = None,
@@ -156,6 +161,8 @@ class PipelineJob(base.VertexAiResourceNounWithFutureManager):
         Raises:
             ValueError: If job_id or labels have incorrect format.
         """
+        if not display_name:
+            display_name = self.__class__._generate_display_name()
         utils.validate_display_name(display_name)
 
         if labels:
@@ -231,6 +238,7 @@ class PipelineJob(base.VertexAiResourceNounWithFutureManager):
         service_account: Optional[str] = None,
         network: Optional[str] = None,
         sync: Optional[bool] = True,
+        create_request_timeout: Optional[float] = None,
     ) -> None:
         """Run this configured PipelineJob and monitor the job until completion.
 
@@ -246,13 +254,22 @@ class PipelineJob(base.VertexAiResourceNounWithFutureManager):
                 If left unspecified, the job is not peered with any network.
             sync (bool):
                 Optional. Whether to execute this method synchronously. If False, this method will unblock and it will be executed in a concurrent Future.
+            create_request_timeout (float):
+                Optional. The timeout for the create request in seconds.
         """
-        self.submit(service_account=service_account, network=network)
+        self.submit(
+            service_account=service_account,
+            network=network,
+            create_request_timeout=create_request_timeout,
+        )
 
         self._block_until_complete()
 
     def submit(
-        self, service_account: Optional[str] = None, network: Optional[str] = None,
+        self,
+        service_account: Optional[str] = None,
+        network: Optional[str] = None,
+        create_request_timeout: Optional[float] = None,
     ) -> None:
         """Run this configured PipelineJob.
 
@@ -266,6 +283,8 @@ class PipelineJob(base.VertexAiResourceNounWithFutureManager):
 
                 Private services access must already be configured for the network.
                 If left unspecified, the job is not peered with any network.
+            create_request_timeout (float):
+                Optional. The timeout for the create request in seconds.
         """
         if service_account:
             self._gca_resource.service_account = service_account
@@ -273,12 +292,17 @@ class PipelineJob(base.VertexAiResourceNounWithFutureManager):
         if network:
             self._gca_resource.network = network
 
+        # Prevents logs from being supressed on TFX pipelines
+        if self._gca_resource.pipeline_spec.get("sdkVersion", "").startswith("tfx"):
+            _LOGGER.setLevel(logging.INFO)
+
         _LOGGER.log_create_with_lro(self.__class__)
 
         self._gca_resource = self.api_client.create_pipeline_job(
             parent=self._parent,
             pipeline_job=self._gca_resource,
             pipeline_job_id=self.job_id,
+            timeout=create_request_timeout,
         )
 
         _LOGGER.log_create_complete_with_getter(

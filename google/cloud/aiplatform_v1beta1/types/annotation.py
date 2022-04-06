@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# Copyright 2020 Google LLC
+# Copyright 2022 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -21,7 +21,10 @@ from google.protobuf import timestamp_pb2  # type: ignore
 
 
 __protobuf__ = proto.module(
-    package="google.cloud.aiplatform.v1beta1", manifest={"Annotation",},
+    package="google.cloud.aiplatform.v1beta1",
+    manifest={
+        "Annotation",
+    },
 )
 
 
@@ -53,8 +56,8 @@ class Annotation(proto.Message):
             Output only. Timestamp when this Annotation
             was last updated.
         etag (str):
-            Optional. Used to perform consistent read-
-            odify-write updates. If not set, a blind
+            Optional. Used to perform consistent
+            read-modify-write updates. If not set, a blind
             "overwrite" update happens.
         annotation_source (google.cloud.aiplatform_v1beta1.types.UserActionReference):
             Output only. The source of the Annotation.
@@ -84,16 +87,43 @@ class Annotation(proto.Message):
                title.
     """
 
-    name = proto.Field(proto.STRING, number=1,)
-    payload_schema_uri = proto.Field(proto.STRING, number=2,)
-    payload = proto.Field(proto.MESSAGE, number=3, message=struct_pb2.Value,)
-    create_time = proto.Field(proto.MESSAGE, number=4, message=timestamp_pb2.Timestamp,)
-    update_time = proto.Field(proto.MESSAGE, number=7, message=timestamp_pb2.Timestamp,)
-    etag = proto.Field(proto.STRING, number=8,)
-    annotation_source = proto.Field(
-        proto.MESSAGE, number=5, message=user_action_reference.UserActionReference,
+    name = proto.Field(
+        proto.STRING,
+        number=1,
     )
-    labels = proto.MapField(proto.STRING, proto.STRING, number=6,)
+    payload_schema_uri = proto.Field(
+        proto.STRING,
+        number=2,
+    )
+    payload = proto.Field(
+        proto.MESSAGE,
+        number=3,
+        message=struct_pb2.Value,
+    )
+    create_time = proto.Field(
+        proto.MESSAGE,
+        number=4,
+        message=timestamp_pb2.Timestamp,
+    )
+    update_time = proto.Field(
+        proto.MESSAGE,
+        number=7,
+        message=timestamp_pb2.Timestamp,
+    )
+    etag = proto.Field(
+        proto.STRING,
+        number=8,
+    )
+    annotation_source = proto.Field(
+        proto.MESSAGE,
+        number=5,
+        message=user_action_reference.UserActionReference,
+    )
+    labels = proto.MapField(
+        proto.STRING,
+        proto.STRING,
+        number=6,
+    )
 
 
 __all__ = tuple(sorted(__protobuf__.manifest))

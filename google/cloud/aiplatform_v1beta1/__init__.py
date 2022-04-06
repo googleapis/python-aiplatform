@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# Copyright 2020 Google LLC
+# Copyright 2022 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -348,6 +348,7 @@ from .types.model_service import ExportModelResponse
 from .types.model_service import GetModelEvaluationRequest
 from .types.model_service import GetModelEvaluationSliceRequest
 from .types.model_service import GetModelRequest
+from .types.model_service import ImportModelEvaluationRequest
 from .types.model_service import ListModelEvaluationSlicesRequest
 from .types.model_service import ListModelEvaluationSlicesResponse
 from .types.model_service import ListModelEvaluationsRequest
@@ -720,6 +721,7 @@ __all__ = (
     "ImportFeatureValuesOperationMetadata",
     "ImportFeatureValuesRequest",
     "ImportFeatureValuesResponse",
+    "ImportModelEvaluationRequest",
     "Index",
     "IndexEndpoint",
     "IndexEndpointServiceClient",

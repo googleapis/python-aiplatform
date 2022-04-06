@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# Copyright 2020 Google LLC
+# Copyright 2022 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -38,10 +38,14 @@ class AutoMlImageObjectDetection(proto.Message):
     """
 
     inputs = proto.Field(
-        proto.MESSAGE, number=1, message="AutoMlImageObjectDetectionInputs",
+        proto.MESSAGE,
+        number=1,
+        message="AutoMlImageObjectDetectionInputs",
     )
     metadata = proto.Field(
-        proto.MESSAGE, number=2, message="AutoMlImageObjectDetectionMetadata",
+        proto.MESSAGE,
+        number=2,
+        message="AutoMlImageObjectDetectionMetadata",
     )
 
 
@@ -87,9 +91,19 @@ class AutoMlImageObjectDetectionInputs(proto.Message):
         MOBILE_TF_VERSATILE_1 = 4
         MOBILE_TF_HIGH_ACCURACY_1 = 5
 
-    model_type = proto.Field(proto.ENUM, number=1, enum=ModelType,)
-    budget_milli_node_hours = proto.Field(proto.INT64, number=2,)
-    disable_early_stopping = proto.Field(proto.BOOL, number=3,)
+    model_type = proto.Field(
+        proto.ENUM,
+        number=1,
+        enum=ModelType,
+    )
+    budget_milli_node_hours = proto.Field(
+        proto.INT64,
+        number=2,
+    )
+    disable_early_stopping = proto.Field(
+        proto.BOOL,
+        number=3,
+    )
 
 
 class AutoMlImageObjectDetectionMetadata(proto.Message):
@@ -113,9 +127,14 @@ class AutoMlImageObjectDetectionMetadata(proto.Message):
         BUDGET_REACHED = 1
         MODEL_CONVERGED = 2
 
-    cost_milli_node_hours = proto.Field(proto.INT64, number=1,)
+    cost_milli_node_hours = proto.Field(
+        proto.INT64,
+        number=1,
+    )
     successful_stop_reason = proto.Field(
-        proto.ENUM, number=2, enum=SuccessfulStopReason,
+        proto.ENUM,
+        number=2,
+        enum=SuccessfulStopReason,
     )
 
 
