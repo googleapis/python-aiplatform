@@ -29,6 +29,7 @@ from google.auth import credentials as auth_credentials
 
 from google.cloud import aiplatform
 from google.cloud.aiplatform import base
+from google.cloud.aiplatform import explain
 from google.cloud.aiplatform import initializer
 from google.cloud.aiplatform import jobs
 from google.cloud.aiplatform import models
@@ -1750,7 +1751,7 @@ class PrivateEndpoint(Endpoint):
             )
 
     def predict(self, instances: List, parameters: Optional[Dict] = None) -> Prediction:
-        """Make a prediction against this private Endpoint using unauthenticated HTTP.
+        """Make a prediction against this private Endpoint using a HTTP request.
         This method must be called within the network the private Endpoint is peered to.
         The predict() call will fail otherwise. To check, use `PrivateEndpoint.network`.
 
@@ -1800,9 +1801,58 @@ class PrivateEndpoint(Endpoint):
             deployed_model_id=self._gca_resource.deployed_models[0].id,
         )
 
-    def explain(self):
-        raise NotImplementedError(
-            f"{self.__class__.__name__} class does not support 'explain' as of now."
+    def explain(self, instances: List, parameters: Optional[Dict] = None) -> Prediction:
+        """Make a prediction with an explanation against this private Endpoint using a HTTP 
+        request. An explanation will only be produced if the `explanation_metadata` and 
+        `explaination_parameters` fields are specified when deploying a model.
+
+        Example usage:
+
+            response = my_private_endpoint.explain(instances=[...])
+            my_explanations = response.explanations
+
+        Args:
+            instances (List):
+                Required. The instances that are the input to the
+                prediction call. A DeployedModel may have an upper limit
+                on the number of instances it supports per request, and
+                when it is exceeded the prediction call errors in case
+                of AutoML Models, or, in case of customer created
+                Models, the behaviour is as documented by that Model.
+                The schema of any single instance may be specified via
+                Endpoint's DeployedModels'
+                [Model's][google.cloud.aiplatform.v1beta1.DeployedModel.model]
+                [PredictSchemata's][google.cloud.aiplatform.v1beta1.Model.predict_schemata]
+                ``instance_schema_uri``.
+            parameters (Dict):
+                The parameters that govern the prediction. The schema of
+                the parameters may be specified via Endpoint's
+                DeployedModels' [Model's
+                ][google.cloud.aiplatform.v1beta1.DeployedModel.model]
+                [PredictSchemata's][google.cloud.aiplatform.v1beta1.Model.predict_schemata]
+                ``parameters_schema_uri``.
+
+        Returns:
+            prediction: Prediction with returned predictions and Model Id.
+        """
+        self.wait()
+        self._sync_gca_resource_if_skipped()
+
+        response = self._http_request(
+            method="POST",
+            url=self.explain_http_uri,
+            body=json.dumps({"instances": instances}),
+            headers={"Content-Type": "application/json"},
+        )
+
+        prediction_response = json.loads(response.data)
+        # testing prediction
+        print(prediction_response)
+
+        return Prediction(
+            predictions=prediction_response.get("predictions"),
+            deployed_model_id=self._gca_resource.deployed_models[0].id,
+            explanations=prediction_response.get("explanations"),
         )
 
     def health_check(self) -> bool:
@@ -2272,7 +2322,6 @@ class Model(base.VertexAiResourceNounWithFutureManager):
     @base.optional_sync()
     def upload(
         cls,
-        display_name: Optional[str] = None,
         serving_container_image_uri: str,
         *,
         artifact_uri: Optional[str] = None,
@@ -2288,6 +2337,7 @@ class Model(base.VertexAiResourceNounWithFutureManager):
         prediction_schema_uri: Optional[str] = None,
         explanation_metadata: Optional[explain.ExplanationMetadata] = None,
         explanation_parameters: Optional[explain.ExplanationParameters] = None,
+        display_name: Optional[str] = None,
         project: Optional[str] = None,
         location: Optional[str] = None,
         credentials: Optional[auth_credentials.Credentials] = None,
