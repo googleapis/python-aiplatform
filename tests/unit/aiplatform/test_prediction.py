@@ -49,6 +49,7 @@ from google.cloud.aiplatform.docker_utils import build
 from google.cloud.aiplatform.docker_utils import errors
 from google.cloud.aiplatform.docker_utils import local_util
 from google.cloud.aiplatform.docker_utils import run
+from google.cloud.aiplatform.docker_utils import utils
 from google.cloud.aiplatform.prediction import DEFAULT_HEALTH_ROUTE
 from google.cloud.aiplatform.prediction import DEFAULT_HTTP_PORT
 from google.cloud.aiplatform.prediction import DEFAULT_PREDICT_ROUTE
@@ -359,6 +360,24 @@ def run_print_container_logs_mock():
 
 
 @pytest.fixture
+def check_image_exists_locally_true_mock():
+    with mock.patch.object(
+        utils, "check_image_exists_locally"
+    ) as check_image_exists_locally_true_mock:
+        check_image_exists_locally_true_mock.return_value = True
+        yield check_image_exists_locally_true_mock
+
+
+@pytest.fixture
+def check_image_exists_locally_false_mock():
+    with mock.patch.object(
+        utils, "check_image_exists_locally"
+    ) as check_image_exists_locally_false_mock:
+        check_image_exists_locally_false_mock.return_value = False
+        yield check_image_exists_locally_false_mock
+
+
+@pytest.fixture
 def get_container_status_running_mock():
     with mock.patch.object(
         LocalEndpoint, "get_container_status"
@@ -406,6 +425,14 @@ def stop_container_if_exists_mock():
         LocalEndpoint, "_stop_container_if_exists"
     ) as stop_container_if_exists_mock:
         yield stop_container_if_exists_mock
+
+
+@pytest.fixture
+def pull_image_if_not_exists_mock():
+    with mock.patch.object(
+        LocalModel, "pull_image_if_not_exists"
+    ) as pull_image_if_not_exists_mock:
+        yield pull_image_if_not_exists_mock
 
 
 def get_requests_post_response():
@@ -1510,6 +1537,7 @@ class TestLocalModel:
 
     def test_copy_image(
         self,
+        pull_image_if_not_exists_mock,
         execute_command_mock,
     ):
         container_spec = gca_model_compat.ModelContainerSpec(image_uri=_TEST_IMAGE_URI)
@@ -1519,11 +1547,13 @@ class TestLocalModel:
 
         new_local_model = local_model.copy_image(dst_image_uri)
 
+        pull_image_if_not_exists_mock.assert_called_once_with()
         execute_command_mock.assert_called_once_with(expected_command)
         assert new_local_model.serving_container_spec.image_uri == dst_image_uri
 
     def test_copy_image_raises_exception(
         self,
+        pull_image_if_not_exists_mock,
         execute_command_return_code_1_mock,
     ):
         container_spec = gca_model_compat.ModelContainerSpec(image_uri=_TEST_IMAGE_URI)
@@ -1543,6 +1573,7 @@ class TestLocalModel:
             with pytest.raises(errors.DockerError) as exception:
                 local_model.copy_image(dst_image_uri)
 
+        pull_image_if_not_exists_mock.assert_called_once_with()
         execute_command_return_code_1_mock.assert_called_once_with(expected_command)
         assert exception.value.message == expected_message
         assert exception.value.cmd == expected_command
@@ -1603,6 +1634,31 @@ class TestLocalModel:
         assert exception.value.message == expected_message
         assert exception.value.cmd == expected_command
         assert exception.value.exit_code == expected_return_code
+
+    def test_pull_image_if_not_exists_image_exists(
+        self,
+        check_image_exists_locally_true_mock,
+        execute_command_mock,
+    ):
+        container_spec = gca_model_compat.ModelContainerSpec(image_uri=_TEST_IMAGE_URI)
+        local_model = LocalModel(container_spec)
+
+        local_model.pull_image_if_not_exists()
+
+        assert not execute_command_mock.called
+
+    def test_pull_image_if_not_exists_image_not_exists(
+        self,
+        check_image_exists_locally_false_mock,
+        execute_command_mock,
+    ):
+        container_spec = gca_model_compat.ModelContainerSpec(image_uri=_TEST_IMAGE_URI)
+        local_model = LocalModel(container_spec)
+        expected_command = ["docker", "pull", f"{_TEST_IMAGE_URI}"]
+
+        local_model.pull_image_if_not_exists()
+
+        execute_command_mock.assert_called_once_with(expected_command)
 
 
 class TestLocalEndpoint:

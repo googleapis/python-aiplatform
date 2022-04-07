@@ -21,6 +21,8 @@ import pytest
 import textwrap
 from unittest import mock
 
+import docker
+
 from google.cloud.aiplatform.constants import prediction
 from google.cloud.aiplatform.docker_utils import build
 from google.cloud.aiplatform.docker_utils import errors
@@ -38,6 +40,23 @@ def docker_client_mock():
     with mock.patch("docker.from_env") as from_env_mock:
         client = from_env_mock.return_value
         client().containers.run.return_value = None
+        client.images.get.return_value = None
+        yield client
+
+
+@pytest.fixture
+def docker_client_mock_image_get_not_found():
+    with mock.patch("docker.from_env") as from_env_mock:
+        client = from_env_mock.return_value
+        client.images.get.side_effect = docker.errors.ImageNotFound("")
+        yield client
+
+
+@pytest.fixture
+def docker_client_mock_image_get_api_error():
+    with mock.patch("docker.from_env") as from_env_mock:
+        client = from_env_mock.return_value
+        client.images.get.side_effect = docker.errors.APIError("")
         yield client
 
 
@@ -825,3 +844,20 @@ class TestErrors:
         assert exception.value.message == expected_message
         assert exception.value.cmd == command
         assert exception.value.exit_code == return_code
+
+
+class TestUtils:
+    IMAGE_URI = "test_image:latest"
+
+    def test_check_image_exists_locally(self, docker_client_mock):
+        assert utils.check_image_exists_locally(self.IMAGE_URI) is True
+
+    def test_check_image_exists_locally_image_not_found(
+        self, docker_client_mock_image_get_not_found
+    ):
+        assert utils.check_image_exists_locally(self.IMAGE_URI) is False
+
+    def test_check_image_exists_locally_image_api_error(
+        self, docker_client_mock_image_get_api_error
+    ):
+        assert utils.check_image_exists_locally(self.IMAGE_URI) is False
