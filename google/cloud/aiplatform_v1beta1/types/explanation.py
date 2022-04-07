@@ -717,7 +717,7 @@ class ExplanationMetadataOverride(proto.Message):
     time.
 
     Attributes:
-        inputs (Sequence[google.cloud.aiplatform_v1beta1.types.ExplanationMetadataOverride.InputsEntry]):
+        inputs (Mapping[str, google.cloud.aiplatform_v1beta1.types.ExplanationMetadataOverride.InputMetadataOverride]):
             Required. Overrides the [input
             metadata][google.cloud.aiplatform.v1beta1.ExplanationMetadata.inputs]
             of the features. The key is the name of the feature to be

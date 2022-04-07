@@ -804,9 +804,7 @@ class EndpointServiceAsyncClient:
         *,
         endpoint: str = None,
         deployed_model: gca_endpoint.DeployedModel = None,
-        traffic_split: Sequence[
-            endpoint_service.DeployModelRequest.TrafficSplitEntry
-        ] = None,
+        traffic_split: Mapping[str, int] = None,
         retry: OptionalRetry = gapic_v1.method.DEFAULT,
         timeout: float = None,
         metadata: Sequence[Tuple[str, str]] = (),
@@ -866,7 +864,7 @@ class EndpointServiceAsyncClient:
                 This corresponds to the ``deployed_model`` field
                 on the ``request`` instance; if ``request`` is provided, this
                 should not be set.
-            traffic_split (:class:`Sequence[google.cloud.aiplatform_v1beta1.types.DeployModelRequest.TrafficSplitEntry]`):
+            traffic_split (:class:`Mapping[str, int]`):
                 A map from a DeployedModel's ID to the percentage of
                 this Endpoint's traffic that should be forwarded to that
                 DeployedModel.
@@ -963,9 +961,7 @@ class EndpointServiceAsyncClient:
         *,
         endpoint: str = None,
         deployed_model_id: str = None,
-        traffic_split: Sequence[
-            endpoint_service.UndeployModelRequest.TrafficSplitEntry
-        ] = None,
+        traffic_split: Mapping[str, int] = None,
         retry: OptionalRetry = gapic_v1.method.DEFAULT,
         timeout: float = None,
         metadata: Sequence[Tuple[str, str]] = (),
@@ -1018,7 +1014,7 @@ class EndpointServiceAsyncClient:
                 This corresponds to the ``deployed_model_id`` field
                 on the ``request`` instance; if ``request`` is provided, this
                 should not be set.
-            traffic_split (:class:`Sequence[google.cloud.aiplatform_v1beta1.types.UndeployModelRequest.TrafficSplitEntry]`):
+            traffic_split (:class:`Mapping[str, int]`):
                 If this field is provided, then the Endpoint's
                 [traffic_split][google.cloud.aiplatform.v1beta1.Endpoint.traffic_split]
                 will be overwritten with it. If last DeployedModel is

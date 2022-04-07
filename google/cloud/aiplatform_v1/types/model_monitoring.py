@@ -131,14 +131,14 @@ class ModelMonitoringObjectiveConfig(proto.Message):
         parameters.
 
         Attributes:
-            skew_thresholds (Sequence[google.cloud.aiplatform_v1.types.ModelMonitoringObjectiveConfig.TrainingPredictionSkewDetectionConfig.SkewThresholdsEntry]):
+            skew_thresholds (Mapping[str, google.cloud.aiplatform_v1.types.ThresholdConfig]):
                 Key is the feature name and value is the
                 threshold. If a feature needs to be monitored
                 for skew, a value threshold must be configured
                 for that feature. The threshold here is against
                 feature distribution distance between the
                 training and prediction feature.
-            attribution_score_skew_thresholds (Sequence[google.cloud.aiplatform_v1.types.ModelMonitoringObjectiveConfig.TrainingPredictionSkewDetectionConfig.AttributionScoreSkewThresholdsEntry]):
+            attribution_score_skew_thresholds (Mapping[str, google.cloud.aiplatform_v1.types.ThresholdConfig]):
                 Key is the feature name and value is the
                 threshold. The threshold here is against
                 attribution score distance between the training
@@ -162,14 +162,14 @@ class ModelMonitoringObjectiveConfig(proto.Message):
         r"""The config for Prediction data drift detection.
 
         Attributes:
-            drift_thresholds (Sequence[google.cloud.aiplatform_v1.types.ModelMonitoringObjectiveConfig.PredictionDriftDetectionConfig.DriftThresholdsEntry]):
+            drift_thresholds (Mapping[str, google.cloud.aiplatform_v1.types.ThresholdConfig]):
                 Key is the feature name and value is the
                 threshold. If a feature needs to be monitored
                 for drift, a value threshold must be configured
                 for that feature. The threshold here is against
                 feature distribution distance between different
                 time windws.
-            attribution_score_drift_thresholds (Sequence[google.cloud.aiplatform_v1.types.ModelMonitoringObjectiveConfig.PredictionDriftDetectionConfig.AttributionScoreDriftThresholdsEntry]):
+            attribution_score_drift_thresholds (Mapping[str, google.cloud.aiplatform_v1.types.ThresholdConfig]):
                 Key is the feature name and value is the
                 threshold. The threshold here is against
                 attribution score distance between different

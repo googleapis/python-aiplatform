@@ -139,7 +139,7 @@ class Trial(proto.Message):
             Output only. The CustomJob name linked to the
             Trial. It's set for a HyperparameterTuningJob's
             Trial.
-        web_access_uris (Sequence[google.cloud.aiplatform_v1.types.Trial.WebAccessUrisEntry]):
+        web_access_uris (Mapping[str, str]):
             Output only. URIs for accessing `interactive
             shells <https://cloud.google.com/vertex-ai/docs/training/monitor-debug-interactive-shell>`__
             (one URI for each training node). Only available if this

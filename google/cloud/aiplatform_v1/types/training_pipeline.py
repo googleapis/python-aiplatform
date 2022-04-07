@@ -128,7 +128,7 @@ class TrainingPipeline(proto.Message):
         update_time (google.protobuf.timestamp_pb2.Timestamp):
             Output only. Time when the TrainingPipeline
             was most recently updated.
-        labels (Sequence[google.cloud.aiplatform_v1.types.TrainingPipeline.LabelsEntry]):
+        labels (Mapping[str, str]):
             The labels with user-defined metadata to
             organize TrainingPipelines.
             Label keys and values can be no longer than 64

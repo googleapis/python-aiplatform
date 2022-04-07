@@ -41,7 +41,7 @@ class Event(proto.Message):
             Output only. Time the Event occurred.
         type_ (google.cloud.aiplatform_v1.types.Event.Type):
             Required. The type of the Event.
-        labels (Sequence[google.cloud.aiplatform_v1.types.Event.LabelsEntry]):
+        labels (Mapping[str, str]):
             The labels with user-defined metadata to
             annotate Events.
             Label keys and values can be no longer than 64
