@@ -258,7 +258,7 @@ class Endpoint(base.VertexAiResourceNounWithFutureManager):
                 be immediately returned and synced when the Future has completed.
             create_request_timeout (float):
                 Optional. The timeout for the create request in seconds.
-                
+
         Returns:
             endpoint (endpoint.Endpoint):
                 Created endpoint.
@@ -1739,7 +1739,8 @@ class PrivateEndpoint(Endpoint):
                 return response
             else:
                 raise RuntimeError(
-                    f"{response.status} - Failed to make request, see response: " + response.data.decode("utf-8")
+                    f"{response.status} - Failed to make request, see response: "
+                    + response.data.decode("utf-8")
                 )
 
         except urllib3.exceptions.MaxRetryError:
@@ -1802,8 +1803,8 @@ class PrivateEndpoint(Endpoint):
         )
 
     def explain(self, instances: List, parameters: Optional[Dict] = None) -> Prediction:
-        """Make a prediction with an explanation against this private Endpoint using a HTTP 
-        request. An explanation will only be produced if the `explanation_metadata` and 
+        """Make a prediction with an explanation against this private Endpoint using a HTTP
+        request. An explanation will only be produced if the `explanation_metadata` and
         `explaination_parameters` fields are specified when deploying a model.
 
         Example usage:
@@ -1864,14 +1865,17 @@ class PrivateEndpoint(Endpoint):
 
             if my_private_endpoint.health_check():
                 print("Endpoint is healthy!")
-        
+
         Returns:
             bool: Checks if calls can be made to this private Endpoint.
         """
         self.wait()
         self._sync_gca_resource_if_skipped()
 
-        response = self._http_request(method="GET", url=self.health_http_uri,)
+        response = self._http_request(
+            method="GET",
+            url=self.health_http_uri,
+        )
 
         return response.status == 200
 
@@ -2041,7 +2045,11 @@ class PrivateEndpoint(Endpoint):
             sync=sync,
         )
 
-    def undeploy(self, deployed_model_id: str, sync=True,) -> None:
+    def undeploy(
+        self,
+        deployed_model_id: str,
+        sync=True,
+    ) -> None:
         """Undeploys a deployed model from the private Endpoint.
 
         Example Usage:
@@ -2061,12 +2069,13 @@ class PrivateEndpoint(Endpoint):
             deployed_model_id (str):
                 Required. The ID of the DeployedModel to be undeployed from the
                 private Endpoint. Use PrivateEndpoint.list_models() to get the
-                deployed model ID. 
+                deployed model ID.
         """
         self._sync_gca_resource_if_skipped()
 
         self._undeploy(
-            deployed_model_id=deployed_model_id, sync=sync,
+            deployed_model_id=deployed_model_id,
+            sync=sync,
         )
 
 
