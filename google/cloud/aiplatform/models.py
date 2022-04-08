@@ -1478,7 +1478,7 @@ class PrivateEndpoint(Endpoint):
             or (when project and location are initialized)
 
             my_private_endpoint = aiplatform.PrivateEndpoint(
-                endpoint_name='my_endpoint_id'
+                endpoint_name="my_endpoint_id"
             )
 
         Args:
@@ -1566,17 +1566,17 @@ class PrivateEndpoint(Endpoint):
         Example usage:
 
             my_private_endpoint = aiplatform.PrivateEndpoint.create(
-                display_name='my_endpoint_name',
-                project='123',
-                location='us-central1'
-                network='my_vpc'
+                display_name="my_endpoint_name",
+                project="my_project_id",
+                location="us-central1",
+                network="projects/123/global/networks/my_vpc"
             )
 
             or (when project and location are initialized)
 
             my_private_endpoint = aiplatform.PrivateEndpoint.create(
-                display_name='my_endpoint_name',
-                network='my_vpc'
+                display_name="my_endpoint_name",
+                network="projects/123/global/networks/my_vpc"
             )
 
         Args:
@@ -2216,8 +2216,8 @@ class Model(base.VertexAiResourceNounWithFutureManager):
         Example usage:
 
             my_model = my_model.update(
-                display_name='my-model',
-                description='my description',
+                display_name="my-model",
+                description="my description",
                 labels={'key': 'value'},
             )
 
@@ -2313,9 +2313,9 @@ class Model(base.VertexAiResourceNounWithFutureManager):
         Example usage:
 
             my_model = Model.upload(
-                display_name='my-model',
-                artifact_uri='gs://my-model/saved-model'
-                serving_container_image_uri='tensorflow/serving'
+                display_name="my-model",
+                artifact_uri="gs://my-model/saved-model",
+                serving_container_image_uri="tensorflow/serving"
             )
 
         Args:
@@ -3170,15 +3170,15 @@ class Model(base.VertexAiResourceNounWithFutureManager):
         Example Usage:
 
             my_model.export(
-                export_format_id='tf-saved-model'
-                artifact_destination='gs://my-bucket/models/'
+                export_format_id="tf-saved-model",
+                artifact_destination="gs://my-bucket/models/"
             )
 
             or
 
             my_model.export(
-                export_format_id='custom-model'
-                image_destination='us-central1-docker.pkg.dev/projectId/repo/image'
+                export_format_id="custom-model",
+                image_destination="us-central1-docker.pkg.dev/projectId/repo/image"
             )
 
         Args:
