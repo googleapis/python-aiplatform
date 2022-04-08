@@ -245,6 +245,13 @@ To train an AutoML tabular model:
 
 Models
 ------
+To get a model:
+
+
+.. code-block:: Python
+
+  model = aiplatform.Model('/projects/my-project/locations/us-central1/models/{MODEL_ID}')
+  
 
 To deploy a model:
 
@@ -269,11 +276,6 @@ To upload a model:
       serving_container_image_uri="us-docker.pkg.dev/vertex-ai/prediction/tf2-cpu.2-2:latest",
   )
 
-To get a model:
-
-.. code-block:: Python
-
-  model = aiplatform.Model('/projects/my-project/locations/us-central1/models/{MODEL_ID}')
 
 Please visit `Importing models to Vertex AI`_ for a detailed overview:
 
