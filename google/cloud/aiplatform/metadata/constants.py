@@ -23,8 +23,8 @@ SYSTEM_PIPELINE_RUN = "system.PipelineRun"
 SYSTEM_METRICS = "system.Metrics"
 
 _EXPERIMENTS_V2_SYSTEM_RUN = "google_dev.SystemRun"
-_EXPERIMENTS_V2_SYSTEM_RUN_SCHEMA_TITLE='google-dev-vertex-system-run-v0-0-1'
-_EXPERIMENTS_V2_TENSORBOARD_RUN = 'google_dev.VertexTensorboardRun'
+_EXPERIMENTS_V2_SYSTEM_RUN_SCHEMA_TITLE = "google-dev-vertex-system-run-v0-0-1"
+_EXPERIMENTS_V2_TENSORBOARD_RUN = "google_dev.VertexTensorboardRun"
 
 _DEFAULT_SCHEMA_VERSION = "0.0.1"
 _EXPERIMENT_V2_SCHEMA_VERSION = "0.0.2"
@@ -41,6 +41,6 @@ SCHEMA_VERSIONS = {
 # TODO: delete EXPERIMENT_METADATA once backend supports context deletion.
 EXPERIMENT_METADATA = {"experiment_deleted": False}
 
-PIPELINE_PARAM_PREFIX = 'input:'
+PIPELINE_PARAM_PREFIX = "input:"
 
-TENSORBOARD_CUSTOM_JOB_EXPERIMENT_FIELD = 'tensorboard_link'
+TENSORBOARD_CUSTOM_JOB_EXPERIMENT_FIELD = "tensorboard_link"

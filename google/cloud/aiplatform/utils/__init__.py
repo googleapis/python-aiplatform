@@ -385,7 +385,7 @@ class ClientWithOverride:
         if self._is_temporary:
             return client._client_options.api_endpoint
         else:
-            return client._transport._host.split(':')[0]
+            return client._transport._host.split(":")[0]
 
     def __init__(
         self,

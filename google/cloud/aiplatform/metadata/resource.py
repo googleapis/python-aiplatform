@@ -33,6 +33,7 @@ from google.cloud.aiplatform.compat.types import execution as gca_execution
 
 _LOGGER = base.Logger(__name__)
 
+
 class _Resource(base.VertexAiResourceNounWithFutureManager, abc.ABC):
     """Metadata Resource for Vertex AI"""
 
@@ -190,8 +191,8 @@ class _Resource(base.VertexAiResourceNounWithFutureManager, abc.ABC):
     def sync_resource(self):
         """Syncs local resource with the resource in metadata store."""
         self._gca_resource = getattr(self.api_client, self._getter_method)(
-                name=self.resource_name, retry=base._DEFAULT_RETRY
-            )
+            name=self.resource_name, retry=base._DEFAULT_RETRY
+        )
 
     def update(
         self,

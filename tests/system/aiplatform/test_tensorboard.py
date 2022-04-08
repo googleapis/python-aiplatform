@@ -133,5 +133,6 @@ class TestTensorboard(e2e_base.TestEndToEnd):
         tb_time_series = shared_state["tensorboard_time_series"]
 
         tb_run.write_tensorboard_scalar_data(
-            time_series_data={tb_time_series.display_name: 1.0}, step=1,
+            time_series_data={tb_time_series.display_name: 1.0},
+            step=1,
         )

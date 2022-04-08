@@ -31,6 +31,7 @@ from google.cloud.aiplatform import utils
 
 _LOGGER = base.Logger(__name__)
 
+
 class _Artifact(resource._Resource):
     """Metadata Artifact resource for Vertex AI"""
 
@@ -60,7 +61,7 @@ class _Artifact(resource._Resource):
             display_name=display_name,
             description=description,
             metadata=metadata if metadata else {},
-            state=gca_artifact.Artifact.State.LIVE
+            state=gca_artifact.Artifact.State.LIVE,
         )
         return client.create_artifact(
             parent=parent,
@@ -153,8 +154,6 @@ class _Artifact(resource._Resource):
             credentials=credentials,
         )
 
-
-
     @classmethod
     def _update_resource(
         cls,
@@ -197,7 +196,6 @@ class _Artifact(resource._Resource):
 
 
 class Artifact(_Artifact):
-
     @classmethod
     def create(
         cls,
@@ -250,18 +248,18 @@ class Artifact(_Artifact):
             Artifact: Instantiated representation of the managed Metadata Artifact.
         """
         return cls._create(
-                resource_id=resource_id,
-                schema_title=schema_title,
-                uri=uri,
-                display_name=display_name,
-                schema_version=schema_version,
-                description=description,
-                metadata=metadata,
-                metadata_store_id=metadata_store_id,
-                project=project,
-                location=location,
-                credentials=credentials
-            )
+            resource_id=resource_id,
+            schema_title=schema_title,
+            uri=uri,
+            display_name=display_name,
+            schema_version=schema_version,
+            description=description,
+            metadata=metadata,
+            metadata_store_id=metadata_store_id,
+            project=project,
+            location=location,
+            credentials=credentials,
+        )
 
     @property
     def uri(self):
@@ -272,37 +270,41 @@ class Artifact(_Artifact):
         return self.name
 
     @classmethod
-    def get_with_uri(cls,
+    def get_with_uri(
+        cls,
         uri: str,
         metadata_store_id: Optional[str] = "default",
         project: Optional[str] = None,
         location: Optional[str] = None,
-        credentials: Optional[auth_credentials.Credentials] = None,) -> 'Artifact':
+        credentials: Optional[auth_credentials.Credentials] = None,
+    ) -> "Artifact":
 
         matched_artifacts = Artifact.list(
             filter=f'uri = "{uri}"',
             metadata_store_id=metadata_store_id,
             project=project,
             location=location,
-            credentials=credentials)
+            credentials=credentials,
+        )
 
         if not matched_artifacts:
-            raise ValueError(f"No artifact with uri {uri} is in the `{metadata_store_id}` MetadataStore.")
+            raise ValueError(
+                f"No artifact with uri {uri} is in the `{metadata_store_id}` MetadataStore."
+            )
 
         if len(matched_artifacts) > 1:
-            resource_names = '\n'.join(a.resource_name for a in matched_artifacts)
+            resource_names = "\n".join(a.resource_name for a in matched_artifacts)
             _LOGGER.info(
-                f"Mutiple artifacts with uri {uri} were found: {resource_names}")
-            _LOGGER.info(
-                f"Returning {matched_artifacts[0].resource_name}")
-        
+                f"Mutiple artifacts with uri {uri} were found: {resource_names}"
+            )
+            _LOGGER.info(f"Returning {matched_artifacts[0].resource_name}")
+
         return matched_artifacts[0]
 
     @property
     def lineage_console_uri(self) -> str:
-        metadata_store = self._parse_resource_name(self.resource_name)['metadata_store']
+        metadata_store = self._parse_resource_name(self.resource_name)["metadata_store"]
         return f"https://console.cloud.google.com/vertex-ai/locations/{self.location}/metadata-stores/{metadata_store}/artifacts/{self.resource_id}?project={self.project}"
-    
 
     def __repr__(self) -> str:
         if self._gca_resource:

@@ -44,11 +44,11 @@ class _MetadataSchema(base.VertexAiResourceNounWithFutureManager):
     ):
 
         super().__init__(
-                project=project,
-                location=location,
-                credentials=credentials,
-                resource_name=metadata_schema_name,
-            )
+            project=project,
+            location=location,
+            credentials=credentials,
+            resource_name=metadata_schema_name,
+        )
         self._gca_resource = self._get_gca_resource(resource_name=metadata_schema_name)
 
     @classmethod
@@ -56,7 +56,7 @@ class _MetadataSchema(base.VertexAiResourceNounWithFutureManager):
         cls,
         metadata_schema: gca_metadata_schema.MetadataSchema,
         metadata_schema_id: str,
-        metadata_store_name: str = 'default',
+        metadata_store_name: str = "default",
         project: Optional[str] = None,
         location: Optional[str] = None,
         credentials: Optional[auth_credentials.Credentials] = None,
@@ -69,7 +69,7 @@ class _MetadataSchema(base.VertexAiResourceNounWithFutureManager):
             parse_resource_name_method=metadata_store._MetadataStore._parse_resource_name,
             format_resource_name_method=metadata_store._MetadataStore._format_resource_name,
             project=project,
-            location=location
+            location=location,
         )
 
         _LOGGER.log_create_with_lro(cls)
@@ -77,11 +77,12 @@ class _MetadataSchema(base.VertexAiResourceNounWithFutureManager):
         metadata_schema = api_client.create_metadata_schema(
             parent=parent,
             metadata_schema=metadata_schema,
-            metadata_schema_id=metadata_schema_id
+            metadata_schema_id=metadata_schema_id,
         )
-
 
         _LOGGER.log_create_complete(cls, metadata_schema, "ms")
 
-        return cls(metadata_schema_name=metadata_schema.name, credentials=credentials,)
-
+        return cls(
+            metadata_schema_name=metadata_schema.name,
+            credentials=credentials,
+        )

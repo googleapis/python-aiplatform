@@ -908,7 +908,8 @@ class TensorboardRun(_TensorboardServiceResource):
         ] = "SCALAR",
         plugin_name: str = "scalars",
         plugin_data: Optional[bytes] = None,
-        description: Optional[str] = None) -> 'TensorboardTimeseries':
+        description: Optional[str] = None,
+    ) -> "TensorboardTimeseries":
 
         tb_time_series = TensorboardTimeSeries.create(
             display_name=display_name,
@@ -917,10 +918,12 @@ class TensorboardRun(_TensorboardServiceResource):
             plugin_name=plugin_name,
             plugin_data=plugin_data,
             description=description,
-            credentials=self.credentials
+            credentials=self.credentials,
         )
 
-        self._time_series_display_name_to_id_mapping[tb_time_series.display_name] = tb_time_series.name
+        self._time_series_display_name_to_id_mapping[
+            tb_time_series.display_name
+        ] = tb_time_series.name
 
         return tb_time_series
 
@@ -934,24 +937,31 @@ class TensorboardRun(_TensorboardServiceResource):
         }
 
         time_series_resource_names = [
-            TensorboardTimeSeries._format_resource_name(time_series=resource_id, **resource_name_parts)
+            TensorboardTimeSeries._format_resource_name(
+                time_series=resource_id, **resource_name_parts
+            )
             for resource_id in inverted_mapping.keys()
         ]
 
-        resource_name_parts.pop('experiment')
-        resource_name_parts.pop('run')
+        resource_name_parts.pop("experiment")
+        resource_name_parts.pop("run")
 
-        tensorboard_resource_name = Tensorboard._format_resource_name(**resource_name_parts)
-
+        tensorboard_resource_name = Tensorboard._format_resource_name(
+            **resource_name_parts
+        )
 
         read_response = self.api_client.batch_read_tensorboard_time_series_data(
             request=gca_tensorboard_service.BatchReadTensorboardTimeSeriesDataRequest(
-                    tensorboard=tensorboard_resource_name,
-                    time_series=time_series_resource_names
-                )
+                tensorboard=tensorboard_resource_name,
+                time_series=time_series_resource_names,
+            )
         )
 
-        return {inverted_mapping[data.tensorboard_time_series_id]: data for data in read_response.time_series_data}
+        return {
+            inverted_mapping[data.tensorboard_time_series_id]: data
+            for data in read_response.time_series_data
+        }
+
 
 class TensorboardTimeSeries(_TensorboardServiceResource):
     """Managed tensorboard resource for Vertex AI."""
@@ -1132,12 +1142,14 @@ class TensorboardTimeSeries(_TensorboardServiceResource):
             location=location,
         )
 
-        gapic_tensorboard_time_series = gca_tensorboard_time_series.TensorboardTimeSeries(
-            display_name=display_name,
-            description=description,
-            value_type=value_type,
-            plugin_name=plugin_name,
-            plugin_data=plugin_data,
+        gapic_tensorboard_time_series = (
+            gca_tensorboard_time_series.TensorboardTimeSeries(
+                display_name=display_name,
+                description=description,
+                value_type=value_type,
+                plugin_name=plugin_name,
+                plugin_data=plugin_data,
+            )
         )
 
         _LOGGER.log_create_with_lro(cls)

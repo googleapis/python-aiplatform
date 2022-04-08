@@ -320,8 +320,10 @@ def delete_tensorboard_time_series_mock():
         "delete_tensorboard_time_series",
     ) as delete_tensorboard_time_series_mock:
         delete_tensorboard_lro_time_series_mock = mock.Mock(operation.Operation)
-        delete_tensorboard_lro_time_series_mock.result.return_value = gca_tensorboard_service.DeleteTensorboardTimeSeriesRequest(
-            name=_TEST_TENSORBOARD_TIME_SERIES_NAME,
+        delete_tensorboard_lro_time_series_mock.result.return_value = (
+            gca_tensorboard_service.DeleteTensorboardTimeSeriesRequest(
+                name=_TEST_TENSORBOARD_TIME_SERIES_NAME,
+            )
         )
         delete_tensorboard_time_series_mock.return_value = (
             delete_tensorboard_lro_time_series_mock
@@ -740,7 +742,9 @@ class TestTensorboardRun:
 
     @pytest.mark.usefixtures("list_tensorboard_time_series_mock")
     def test_create_tensorboard_run(
-        self, create_tensorboard_run_mock, get_tensorboard_run_mock,
+        self,
+        create_tensorboard_run_mock,
+        get_tensorboard_run_mock,
     ):
 
         aiplatform.init(
@@ -914,7 +918,9 @@ class TestTensorboardTimeSeries:
         self, create_tensorboard_time_series_mock, get_tensorboard_time_series_mock
     ):
 
-        aiplatform.init(project=_TEST_PROJECT,)
+        aiplatform.init(
+            project=_TEST_PROJECT,
+        )
 
         tensorboard.TensorboardTimeSeries.create(
             display_name=_TEST_TIME_SERIES_DISPLAY_NAME,

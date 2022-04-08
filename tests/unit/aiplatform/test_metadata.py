@@ -45,8 +45,8 @@ from google.cloud.aiplatform_v1 import (
 )
 from google.cloud.aiplatform_v1 import MetadataStore as GapicMetadataStore
 
-from test_pipeline_jobs import mock_pipeline_service_get # noqa: F401
-from test_pipeline_jobs import _TEST_PIPELINE_JOB_NAME # noqa: F401
+from test_pipeline_jobs import mock_pipeline_service_get  # noqa: F401
+from test_pipeline_jobs import _TEST_PIPELINE_JOB_NAME  # noqa: F401
 
 # project
 
@@ -391,7 +391,9 @@ class TestMetadata:
         initializer.global_pool.shutdown(wait=True)
 
     def test_init_experiment_with_existing_metadataStore_and_context(
-        self, get_metadata_store_mock, get_context_mock,
+        self,
+        get_metadata_store_mock,
+        get_context_mock,
     ):
         aiplatform.init(
             project=_TEST_PROJECT, location=_TEST_LOCATION, experiment=_TEST_EXPERIMENT
@@ -909,7 +911,10 @@ class TestExperimentsV2:
             )
 
     def test_init_experiment_with_credentials(
-        self, get_metadata_store_mock, get_context_mock_v2, monkeypatch,
+        self,
+        get_metadata_store_mock,
+        get_context_mock_v2,
+        monkeypatch,
     ):
         with monkeypatch.context() as m:
             m.setattr(metadata, "_EXPERIMENT_TRACKING_VERSION", "v2")
@@ -1139,7 +1144,9 @@ class TestExperimentsV2:
     @pytest.mark.usefixtures("get_artifact_mock")
     @pytest.mark.usefixtures("add_execution_events_mock")
     def test_log_params(
-        self, update_execution_mock, monkeypatch,
+        self,
+        update_execution_mock,
+        monkeypatch,
     ):
         with monkeypatch.context() as m:
             m.setattr(metadata, "_EXPERIMENT_TRACKING_VERSION", "v2")
@@ -1232,7 +1239,8 @@ class TestExperimentsV2:
             expected_filter = f'schema_title="{constants.SYSTEM_RUN}" AND (in_context("{_TEST_EXPERIMENT_RUN_CONTEXT_NAME}") OR in_context("{_TEST_OTHER_EXPERIMENT_RUN_CONTEXT_NAME}"))'
             list_executions_mock.assert_called_once_with(
                 request=ListExecutionsRequest(
-                    parent=_TEST_PARENT, filter=expected_filter,
+                    parent=_TEST_PARENT,
+                    filter=expected_filter,
                 )
             )
             query_execution_inputs_and_outputs_mock.assert_has_calls(
@@ -1278,14 +1286,3 @@ class TestExperimentsV2:
             aiplatform.init(project=_TEST_PROJECT, location=_TEST_LOCATION)
             with pytest.raises(ValueError):
                 aiplatform.get_experiment_df(_TEST_EXPERIMENT)
-
-    @pytest.mark.usefixtures("mock_pipeline_service_get")
-    def test_log_pipeline(self)
-        with monkeypatch.context() as m:
-            m.setattr(metadata, "_EXPERIMENT_TRACKING_VERSION", "v2")
-            reload(aiplatform)
-            aiplatform.init(project=_TEST_PROJECT, location=_TEST_LOCATION, experiment=_TEST_EXPERIMENT)
-            aiplatform.start_run(_TEST_RUN)
-            pipeline_job = PipelineJob.get(_TEST_PIPELINE)
-            aiplatform.log(_TEST_RUN)
-

@@ -126,7 +126,7 @@ class _Context(resource._Resource):
         )
         return client.list_contexts(request=list_request)
 
-    def add_context_children(self, contexts: List['_Context']):
+    def add_context_children(self, contexts: List["_Context"]):
         """Adds the provided contexts as children of this context.
 
         Args:
@@ -140,8 +140,6 @@ class _Context(resource._Resource):
     def query_lineage_subgraph(self) -> lineage_subgraph.LineageSubgraph:
         """Queries lineae subgraph of this context."""
 
-        return self.api_client.query_context_lineage_subgraph(context=self.resource_name, retry=base._DEFAULT_RETRY)
-
-
-
-
+        return self.api_client.query_context_lineage_subgraph(
+            context=self.resource_name, retry=base._DEFAULT_RETRY
+        )

@@ -119,25 +119,25 @@ __all__ = (
     "VideoDataset",
 )
 
-if metadata._EXPERIMENT_TRACKING_VERSION == "v2":
-    log_params = metadata.experiment_tracker.log_params
-    log_metrics = metadata.experiment_tracker.log_metrics
-    get_experiment_df = metadata.experiment_tracker.get_experiment_df
-    start_run = metadata.experiment_tracker.start_run
-    log = metadata.experiment_tracker.log
-    log_time_series_metrics = metadata.experiment_tracker.log_time_series_metrics
-    get_artifact = metadata.experiment_tracker.get_artifact
-    init=initializer.global_config.init_experiment_v2
-    end_run=metadata.experiment_tracker.end_run
-    Experiment = metadata.experiment_resources.Experiment
-    ExperimentRun = metadata.experiment_resources.ExperimentRun
-    Artifact = metadata.Artifact
+log_params = metadata.experiment_tracker.log_params
+log_metrics = metadata.experiment_tracker.log_metrics
+get_experiment_df = metadata.experiment_tracker.get_experiment_df
+start_run = metadata.experiment_tracker.start_run
+log = metadata.experiment_tracker.log
+log_time_series_metrics = metadata.experiment_tracker.log_time_series_metrics
+get_artifact = metadata.experiment_tracker.get_artifact
+init = initializer.global_config.init_experiment_v2
+end_run = metadata.experiment_tracker.end_run
+Experiment = metadata.experiment_resources.Experiment
+ExperimentRun = metadata.experiment_run.ExperimentRun
+Artifact = metadata.Artifact
 
-    __all__ = __all__ + (
-        "get_artifact",
-        "log",
-        "log_time_series_metrics",
-        "end_run",
-        "Artifact",
-        "Experiment",
-        "ExperimentRun")
+__all__ = __all__ + (
+    "get_artifact",
+    "log",
+    "log_time_series_metrics",
+    "end_run",
+    "Artifact",
+    "Experiment",
+    "ExperimentRun",
+)

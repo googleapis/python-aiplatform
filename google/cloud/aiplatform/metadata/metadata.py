@@ -30,6 +30,7 @@ from google.cloud.aiplatform.metadata.artifact import _Artifact
 from google.cloud.aiplatform.metadata.context import _Context
 from google.cloud.aiplatform.metadata.execution import _Execution
 from google.cloud.aiplatform.metadata import experiment_resources
+from google.cloud.aiplatform.metadata import experiment_run
 from google.cloud.aiplatform.metadata.metadata_store import _MetadataStore
 from google.cloud.aiplatform import pipeline_jobs
 from google.cloud.aiplatform.tensorboard import tensorboard_resource
@@ -38,6 +39,7 @@ _LOGGER = base.Logger(__name__)
 
 # runtime patch to v2 to use new data model
 _EXPERIMENT_TRACKING_VERSION = "v1"
+
 
 def _get_experiment_schema_version() -> str:
     """Helper method to get experiment schema version
@@ -98,7 +100,6 @@ class _MetadataService:
         _MetadataStore.get_or_create()
 
         self.reset()
-
 
         context = _Context.get_or_create(
             resource_id=experiment,
@@ -475,12 +476,15 @@ class _MetadataService:
         for pipeline_context in pipeline_contexts:
             pipeline_run_dict = {
                 "experiment_name": context_id,
-                #"run_name": run_context.display_name,
+                # "run_name": run_context.display_name,
                 "pipeline_run_name": pipeline_context.name,
             }
 
             context_lineage_subgraph = pipeline_context.query_lineage_subgraph()
-            artifact_map = {artifact.name:artifact for artifact in context_lineage_subgraph.artifacts}
+            artifact_map = {
+                artifact.name: artifact
+                for artifact in context_lineage_subgraph.artifacts
+            }
             output_execution_map = defaultdict(list)
             for event in context_lineage_subgraph.events:
                 if event.type_ == gca_event.Event.Type.OUTPUT:
@@ -492,17 +496,28 @@ class _MetadataService:
                     pipeline_params = self._execution_to_column_named_metadata(
                         metadata_type="param",
                         metadata=execution.metadata,
-                        filter_prefix=constants.PIPELINE_PARAM_PREFIX)
+                        filter_prefix=constants.PIPELINE_PARAM_PREFIX,
+                    )
                 else:
                     execution_dict = pipeline_run_dict.copy()
-                    execution_dict['execution_name'] = execution.display_name
+                    execution_dict["execution_name"] = execution.display_name
                     artifact_dicts = []
                     for artifact_name in output_execution_map[execution.name]:
                         artifact = artifact_map.get(artifact_name)
-                        if artifact and artifact.schema_title == constants.SYSTEM_METRICS and artifact.metadata:
+                        if (
+                            artifact
+                            and artifact.schema_title == constants.SYSTEM_METRICS
+                            and artifact.metadata
+                        ):
                             execution_with_metric_dict = execution_dict.copy()
-                            execution_with_metric_dict['output_name'] = artifact.display_name
-                            execution_with_metric_dict.update(self._execution_to_column_named_metadata("metric", artifact.metadata))
+                            execution_with_metric_dict[
+                                "output_name"
+                            ] = artifact.display_name
+                            execution_with_metric_dict.update(
+                                self._execution_to_column_named_metadata(
+                                    "metric", artifact.metadata
+                                )
+                            )
                             artifact_dicts.append(execution_with_metric_dict)
 
                     # if this is the only artifact then we only need one row for this execution
@@ -513,7 +528,6 @@ class _MetadataService:
                         execution_dicts.append(execution_dict)
                     elif len(artifact_dicts) >= 1:
                         execution_dicts.extend(artifact_dicts)
-
 
             for parent_context_name in pipeline_context.parent_contexts:
                 if parent_context_name in experiment_run_context_map:
@@ -536,11 +550,11 @@ class _MetadataService:
                             context_summary.append(execution_dict)
 
         column_name_sort_map = {
-            'experiment_name': -1,
-            'run_name': 1,
-            'pipeline_run_name': 2,
-            'execution_name': 3,
-            'output_name': 4
+            "experiment_name": -1,
+            "run_name": 1,
+            "pipeline_run_name": 2,
+            "execution_name": 3,
+            "output_name": 4,
         }
 
         def column_sort_key(key: str) -> int:
@@ -548,7 +562,7 @@ class _MetadataService:
             order = column_name_sort_map.get(key)
             if order:
                 return order
-            elif key.startswith('param'):
+            elif key.startswith("param"):
                 return 5
             else:
                 return 6
@@ -630,18 +644,17 @@ class _MetadataService:
         column_key_to_value = {}
         for key, value in metadata.items():
             if filter_prefix and key.startswith(filter_prefix):
-                key = key[len(filter_prefix):]
+                key = key[len(filter_prefix) :]
             column_key_to_value[".".join([metadata_type, key])] = value
 
         return column_key_to_value
 
 
 class ExperimentTracker:
-
     def __init__(self):
 
         self._experiment: Optional[experiment_resources.Experiment] = None
-        self._experiment_run: Optional[experiment_resources.ExperimentRun] = None
+        self._experiment_run: Optional[experiment_run.ExperimentRun] = None
 
     def reset(self):
         self._experiment = None
@@ -657,8 +670,11 @@ class ExperimentTracker:
     def set_experiment(
         self,
         experiment: str,
-        description: Optional[str]=None,
-        backing_tensorboard: Optional[Union[str, tensorboard_resource.Tensorboard]] = None):
+        description: Optional[str] = None,
+        backing_tensorboard: Optional[
+            Union[str, tensorboard_resource.Tensorboard]
+        ] = None,
+    ):
         """Setup a experiment to current session.
 
         Args:
@@ -675,9 +691,8 @@ class ExperimentTracker:
         self.reset()
 
         self._experiment = experiment_resources.Experiment.get_or_create(
-                experiment_name=experiment,
-                description=description
-            )
+            experiment_name=experiment, description=description
+        )
 
         if backing_tensorboard:
             self._experiment.assign_backing_tensorboard(tensorboard=backing_tensorboard)
@@ -686,7 +701,8 @@ class ExperimentTracker:
         self,
         run_name: str,
         tensorboard: Union[tensorboard_resource.Tensorboard, str, None] = None,
-        resume=False) -> experiment_resources.ExperimentRun:
+        resume=False,
+    ) -> experiment_run.ExperimentRun:
         """Setup a run to current session.
 
         Args:
@@ -710,19 +726,16 @@ class ExperimentTracker:
             )
 
         if resume:
-            self._experiment_run = experiment_resources.ExperimentRun(
-                    run_name=run_name,
-                    experiment=self._experiment
-                )
+            self._experiment_run = experiment_run.ExperimentRun(
+                run_name=run_name, experiment=self._experiment
+            )
 
             if tensorboard:
                 self._experiment_run.assign_backing_tensorboard(tensorboard=tensorboard)
         else:
-            self._experiment_run = experiment_resources.ExperimentRun.create(
-                    run_name=run_name,
-                    experiment=self._experiment,
-                    tensorboard=tensorboard
-                )
+            self._experiment_run = experiment_run.ExperimentRun.create(
+                run_name=run_name, experiment=self._experiment, tensorboard=tensorboard
+            )
 
         return self._experiment_run
 
@@ -778,36 +791,36 @@ class ExperimentTracker:
     ) -> "pd.DataFrame":  # noqa: F821
         """Returns a Pandas DataFrame of the parameters and metrics associated with one experiment.
 
-            Example:
+        Example:
 
-            aiplatform.init(experiment='exp-1')
-            aiplatform.start_run(run='run-1')
-            aiplatform.log_params({'learning_rate': 0.1})
-            aiplatform.log_metrics({'accuracy': 0.9})
+        aiplatform.init(experiment='exp-1')
+        aiplatform.start_run(run='run-1')
+        aiplatform.log_params({'learning_rate': 0.1})
+        aiplatform.log_metrics({'accuracy': 0.9})
 
-            aiplatform.start_run(run='run-2')
-            aiplatform.log_params({'learning_rate': 0.2})
-            aiplatform.log_metrics({'accuracy': 0.95})
+        aiplatform.start_run(run='run-2')
+        aiplatform.log_params({'learning_rate': 0.2})
+        aiplatform.log_metrics({'accuracy': 0.95})
 
-            Will result in the following DataFrame
-            ___________________________________________________________________________
-            | experiment_name | run_name      | param.learning_rate | metric.accuracy |
-            ---------------------------------------------------------------------------
-            | exp-1           | run-1         | 0.1                 | 0.9             |
-            | exp-1           | run-2         | 0.2                 | 0.95            |
-            ---------------------------------------------------------------------------
+        Will result in the following DataFrame
+        ___________________________________________________________________________
+        | experiment_name | run_name      | param.learning_rate | metric.accuracy |
+        ---------------------------------------------------------------------------
+        | exp-1           | run-1         | 0.1                 | 0.9             |
+        | exp-1           | run-2         | 0.2                 | 0.95            |
+        ---------------------------------------------------------------------------
 
-            Args:
-                experiment (str):
-                Name of the Experiment to filter results. If not set, return results of current active experiment.
+        Args:
+            experiment (str):
+            Name of the Experiment to filter results. If not set, return results of current active experiment.
 
-            Returns:
-                Pandas Dataframe of Experiment with metrics and parameters.
+        Returns:
+            Pandas Dataframe of Experiment with metrics and parameters.
 
-            Raise:
-                NotFound exception if experiment does not exist.
-                ValueError if given experiment is not associated with a wrong schema.
-            """
+        Raise:
+            NotFound exception if experiment does not exist.
+            ValueError if given experiment is not associated with a wrong schema.
+        """
 
         if not experiment:
             experiment = self._experiment
@@ -816,9 +829,12 @@ class ExperimentTracker:
 
         return experiment.get_dataframe()
 
-    def log(self, *,
-        pipeline_job: Optional[pipeline_jobs.PipelineJob]=None,
-        artifact: Optional[Artifact]=None):
+    def log(
+        self,
+        *,
+        pipeline_job: Optional[pipeline_jobs.PipelineJob] = None,
+        artifact: Optional[Artifact] = None,
+    ):
         """Log Vertex AI Resources and Artifacts to the current Experiment Run.
 
         Args:
@@ -837,8 +853,9 @@ class ExperimentTracker:
     def log_time_series_metrics(
         self,
         metrics: Dict[str, Union[float]],
-        step: Optional[int]=None,
-        wall_time: Optional[timestamp_pb2.Timestamp]=None):
+        step: Optional[int] = None,
+        wall_time: Optional[timestamp_pb2.Timestamp] = None,
+    ):
         """Logs time series metrics to to this Experiment Run.
 
         Requires the Experiment Run has a backing Vertex Tensorboard resource.
@@ -866,14 +883,22 @@ class ExperimentTracker:
         """
 
         self._experiment_run.log_time_series_metrics(
-            metrics=metrics, step=step, wall_time=wall_time)
+            metrics=metrics, step=step, wall_time=wall_time
+        )
 
-
-    def get_artifact(self, *, uri: Optional[str]=None, artifact_name: Optional[str]=None, assign_as_input=False):
-        self._validate_experiment_and_run(method_name='get_artifact')
+    def get_artifact(
+        self,
+        *,
+        uri: Optional[str] = None,
+        artifact_name: Optional[str] = None,
+        assign_as_input=False,
+    ):
+        self._validate_experiment_and_run(method_name="get_artifact")
 
         if bool(uri) == bool(artifact_name):
-            raise ValueError('To get an artifact, provide only one of `uri` or `artifact_name`')
+            raise ValueError(
+                "To get an artifact, provide only one of `uri` or `artifact_name`"
+            )
 
         if artifact_name:
             # TODO(compose artifact name if only provided resource_id)
@@ -885,6 +910,7 @@ class ExperimentTracker:
             self._experiment_run.assign_artifact_as_input(artifact=artifact)
 
         return artifact
+
 
 metadata_service = _MetadataService()
 experiment_tracker = ExperimentTracker()

@@ -22,39 +22,49 @@ from google.cloud.aiplatform.constants import base as constants
 from google.cloud.aiplatform.metadata import constants as metadata_constants
 
 
-_VERTEX_EXPERIMENT_TRACKING_LABEL = 'vertex_experiment_tracking'
+_VERTEX_EXPERIMENT_TRACKING_LABEL = "vertex_experiment_tracking"
 
 _TENSORBOARD_RUN_REFERENCE_ARTIFACT = types.artifact.Artifact(
-	name='google-dev-vertex-tensorboard-run-v0-0-1',
+    name="google-dev-vertex-tensorboard-run-v0-0-1",
     schema_title=metadata_constants._EXPERIMENTS_V2_TENSORBOARD_RUN,
-    schema_version='0.0.1',
+    schema_version="0.0.1",
     metadata={_VERTEX_EXPERIMENT_TRACKING_LABEL: True},
 )
 
 
 def make_gcp_resource_url(resource: base.VertexAiResourceNoun) -> str:
-	resource_name = resource.resource_name
-	location = resource.location
-	version = resource.api_client._default_version
-	api_uri = resource.api_client.api_endpoint
+    resource_name = resource.resource_name
+    location = resource.location
+    version = resource.api_client._default_version
+    api_uri = resource.api_client.api_endpoint
 
-	return f'https://{api_uri}/{version}/{resource_name}'
+    return f"https://{api_uri}/{version}/{resource_name}"
 
-def make_gcp_resource_metadata_schema(title: str) -> types.metadata_schema.MetadataSchema:
-	return types.metadata_schema.MetadataSchema(
-		schema_version='0.0.1',
-		schema= f"title: {title}\ntype: object\nproperties:\n  resourceName:\n    type: string\n",
-		schema_type=types.metadata_schema.MetadataSchema.MetadataSchemaType.ARTIFACT_TYPE
-	)
+
+def make_gcp_resource_metadata_schema(
+    title: str,
+) -> types.metadata_schema.MetadataSchema:
+    return types.metadata_schema.MetadataSchema(
+        schema_version="0.0.1",
+        schema=f"title: {title}\ntype: object\nproperties:\n  resourceName:\n    type: string\n",
+        schema_type=types.metadata_schema.MetadataSchema.MetadataSchemaType.ARTIFACT_TYPE,
+    )
+
 
 def make_experiment_v2_metadata_schema() -> types.metadata_schema.MetadataSchema:
-	return types.metadata_schema.MetadataSchema(
-		schema_version='0.0.1',
-		schema= f"title: {metadata_constants._EXPERIMENTS_V2_SYSTEM_RUN}\ntype: object\n",
-		schema_type=types.metadata_schema.MetadataSchema.MetadataSchemaType.EXECUTION_TYPE
-	)
+    return types.metadata_schema.MetadataSchema(
+        schema_version="0.0.1",
+        schema=f"title: {metadata_constants._EXPERIMENTS_V2_SYSTEM_RUN}\ntype: object\n",
+        schema_type=types.metadata_schema.MetadataSchema.MetadataSchemaType.EXECUTION_TYPE,
+    )
 
-def get_tensorboard_board_run_metadata_schema() -> Tuple[str, types.metadata_schema.MetadataSchema]:
-	return (
-		_TENSORBOARD_RUN_REFERENCE_ARTIFACT.name,
-		make_gcp_resource_metadata_schema(title=_TENSORBOARD_RUN_REFERENCE_ARTIFACT.schema_title))
+
+def get_tensorboard_board_run_metadata_schema() -> Tuple[
+    str, types.metadata_schema.MetadataSchema
+]:
+    return (
+        _TENSORBOARD_RUN_REFERENCE_ARTIFACT.name,
+        make_gcp_resource_metadata_schema(
+            title=_TENSORBOARD_RUN_REFERENCE_ARTIFACT.schema_title
+        ),
+    )

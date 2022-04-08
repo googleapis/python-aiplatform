@@ -124,7 +124,9 @@ class _Config:
         location: Optional[str] = None,
         experiment: Optional[str] = None,
         experiment_description: Optional[str] = None,
-        experiment_tensorboard: Optional[Union[str, tensorboard_resource.Tensorboard]]=None,
+        experiment_tensorboard: Optional[
+            Union[str, tensorboard_resource.Tensorboard]
+        ] = None,
         staging_bucket: Optional[str] = None,
         credentials: Optional[auth_credentials.Credentials] = None,
         encryption_spec_key_name: Optional[str] = None,
@@ -171,13 +173,14 @@ class _Config:
             location=location,
             staging_bucket=staging_bucket,
             credentials=credentials,
-            encryption_spec_key_name=encryption_spec_key_name)
+            encryption_spec_key_name=encryption_spec_key_name,
+        )
 
         if experiment:
             metadata.experiment_tracker.set_experiment(
                 experiment=experiment,
                 description=experiment_description,
-                backing_tensorboard=experiment_tensorboard
+                backing_tensorboard=experiment_tensorboard,
             )
 
         if experiment_description and experiment is None:
@@ -189,7 +192,6 @@ class _Config:
             raise ValueError(
                 "Experiment name needs to be set in `init` in order to add experiment_tensorboard."
             )
-
 
     def get_encryption_spec(
         self,
@@ -297,7 +299,6 @@ class _Config:
         if metadata._EXPERIMENT_TRACKING_VERSION == "v2":
             return metadata.experiment_tracker.experiment_name
         return metadata.metadata_service.experiment_name
-
 
     def get_client_options(
         self,

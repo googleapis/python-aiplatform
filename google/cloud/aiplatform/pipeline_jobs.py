@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-# Copyright 2021 Google LLC
+# Copyright 2022 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -16,15 +16,19 @@
 #
 
 import datetime
+import functools
 import logging
 import time
 import re
-from typing import Any, Dict, List, Optional
+from typing import Any, Dict, List, Optional, Union
 
 from google.auth import credentials as auth_credentials
 from google.cloud.aiplatform import base
 from google.cloud.aiplatform import initializer
 from google.cloud.aiplatform import utils
+from google.cloud.aiplatform.metadata import constants as metadata_constants
+from google.cloud.aiplatform.metadata import experiment_resources
+from google.cloud.aiplatform.metadata import resource
 from google.cloud.aiplatform.utils import json_utils
 from google.cloud.aiplatform.utils import pipeline_utils
 from google.protobuf import json_format
@@ -77,7 +81,11 @@ def _set_enable_caching_value(
                 task["cachingOptions"] = {"enableCache": enable_caching}
 
 
-class PipelineJob(base.VertexAiStatefulResource):
+class PipelineJob(
+    base.VertexAiStatefulResource,
+    experiment_resources.ExperimentLoggable,
+    metadata_schema_title=metadata_constants.SYSTEM_PIPELINE_RUN,
+):
 
     client_class = utils.PipelineJobClientWithOverride
     _resource_noun = "pipelineJobs"
@@ -270,6 +278,8 @@ class PipelineJob(base.VertexAiStatefulResource):
         service_account: Optional[str] = None,
         network: Optional[str] = None,
         create_request_timeout: Optional[float] = None,
+        *,
+        experiment: Optional[Union[str, experiment_resources.Experiment]] = None,
     ) -> None:
         """Run this configured PipelineJob.
 
@@ -285,6 +295,7 @@ class PipelineJob(base.VertexAiStatefulResource):
                 If left unspecified, the job is not peered with any network.
             create_request_timeout (float):
                 Optional. The timeout for the create request in seconds.
+            experiment (Union[str, experiments_resource.Experiment])
         """
         if service_account:
             self._gca_resource.service_account = service_account
@@ -295,6 +306,9 @@ class PipelineJob(base.VertexAiStatefulResource):
         # Prevents logs from being supressed on TFX pipelines
         if self._gca_resource.pipeline_spec.get("sdkVersion", "").startswith("tfx"):
             _LOGGER.setLevel(logging.INFO)
+
+        if experiment:
+            self._validate_experiment(experiment)
 
         _LOGGER.log_create_with_lro(self.__class__)
 
@@ -310,6 +324,9 @@ class PipelineJob(base.VertexAiStatefulResource):
         )
 
         _LOGGER.info("View Pipeline Job:\n%s" % self._dashboard_uri())
+
+        if experiment:
+            self._associate_to_experiment(experiment)
 
     def wait(self):
         """Wait for thie PipelineJob to complete."""
@@ -483,3 +500,62 @@ class PipelineJob(base.VertexAiStatefulResource):
             return False
 
         return self.state in _PIPELINE_ERROR_STATES
+
+    def _get_context(self) -> experiment_resources._Context:
+        """Returns the PipelineRun Context for this PipelineJob in the MetadataStore."""
+        self.wait_for_resource_creation()
+        resource_name_fields = self._parse_resource_name(self.resource_name)
+        pipeline_run_context = None
+
+        # PipelineJob context is created asynchronously so we need to poll until it exists.
+        while not self.done():
+            pipeline_run_context = self._gca_resource.job_detail.pipeline_run_context
+            if pipeline_run_context:
+                break
+            time.sleep(1)
+
+        if not pipeline_run_context:
+            if self.has_failed:
+                raise RuntimeError(
+                    f"Cannot associate PipelineJob to Experiment: {self.gca_resource.error}"
+                )
+            else:
+                raise RuntimeError(
+                    f"Cannot associate PipelineJob to Experiment because PipelineJob context could not be found."
+                )
+
+        return experiment_resources._Context(
+            resource=pipeline_run_context,
+            project=self.project,
+            location=self.location,
+            credentials=self.credentials,
+        )
+
+    @classmethod
+    def _query_experiment_row(
+        cls, context: experiment_resources._Context
+    ) -> experiment_resources.ExperimentRow:
+        context_lineage_subgraph = context.query_lineage_subgraph()
+
+        row = experiment_resources.ExperimentRow(
+            experiment_run_type=context.schema_title, name=context.display_name
+        )
+
+        for execution in context_lineage_subgraph.executions:
+            if execution.schema_title == metadata_constants.SYSTEM_RUN:
+                # TODO(remove prefix)
+                row.params = {
+                    key[len("input:") :]: value
+                    for key, value in execution.metadata.items()
+                }
+                row.state = execution.state.name
+                break
+        for artifact in context_lineage_subgraph.artifacts:
+            if artifact.schema_title == metadata_constants.SYSTEM_METRICS:
+                if row.metrics:
+                    # TODO(handlecollisions)
+                    row.metrics.update(artifact.metadata)
+                else:
+                    row.metrics = artifact.metadata
+
+        return row
