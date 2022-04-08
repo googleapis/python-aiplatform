@@ -316,13 +316,6 @@ You can also create a batch prediction job asynchronously by including the `sync
 Endpoints
 ---------
 
-To get predictions from endpoints:
-
-.. code-block:: Python
-
-  endpoint.predict(instances=[[6.7, 3.1, 4.7, 1.5], [4.6, 3.1, 1.5, 0.2]])
-
-
 To create an endpoint:
 
 .. code-block:: Python
@@ -341,6 +334,12 @@ To deploy a model to a created endpoint:
                   machine_type='n1-standard-4',
                   accelerator_type='NVIDIA_TESLA_K80',
                   accelerator_count=1)
+
+To get predictions from endpoints:
+
+.. code-block:: Python
+
+  endpoint.predict(instances=[[6.7, 3.1, 4.7, 1.5], [4.6, 3.1, 1.5, 0.2]])
 
 To undeploy models from an endpoint:
 
