@@ -323,11 +323,11 @@ To get predictions from endpoints:
   endpoint.predict(instances=[[6.7, 3.1, 4.7, 1.5], [4.6, 3.1, 1.5, 0.2]])
 
 
-To create an endpoint
+To create an endpoint:
 
 .. code-block:: Python
 
-  endpoint = endpoint.create(display_name='my-endpoint')
+  endpoint = aiplatform.Endpoint.create(display_name='my-endpoint')
 
 To deploy a model to a created endpoint:
 
