@@ -16,7 +16,7 @@
 from collections import OrderedDict
 import os
 import re
-from typing import Dict, Optional, Sequence, Tuple, Type, Union
+from typing import Dict, Mapping, Optional, Sequence, Tuple, Type, Union
 import pkg_resources
 
 from google.api_core import client_options as client_options_lib
@@ -495,7 +495,7 @@ class VizierServiceClient(metaclass=VizierServiceClientMeta):
 
         .. code-block:: python
 
-            from google.cloud import aiplatform_v1beta1
+                    from google.cloud import aiplatform_v1beta1
 
             def sample_create_study():
                 # Create a client
@@ -607,7 +607,7 @@ class VizierServiceClient(metaclass=VizierServiceClientMeta):
 
         .. code-block:: python
 
-            from google.cloud import aiplatform_v1beta1
+                    from google.cloud import aiplatform_v1beta1
 
             def sample_get_study():
                 # Create a client
@@ -702,7 +702,7 @@ class VizierServiceClient(metaclass=VizierServiceClientMeta):
 
         .. code-block:: python
 
-            from google.cloud import aiplatform_v1beta1
+                    from google.cloud import aiplatform_v1beta1
 
             def sample_list_studies():
                 # Create a client
@@ -811,7 +811,7 @@ class VizierServiceClient(metaclass=VizierServiceClientMeta):
 
         .. code-block:: python
 
-            from google.cloud import aiplatform_v1beta1
+                    from google.cloud import aiplatform_v1beta1
 
             def sample_delete_study():
                 # Create a client
@@ -897,7 +897,7 @@ class VizierServiceClient(metaclass=VizierServiceClientMeta):
 
         .. code-block:: python
 
-            from google.cloud import aiplatform_v1beta1
+                    from google.cloud import aiplatform_v1beta1
 
             def sample_lookup_study():
                 # Create a client
@@ -996,7 +996,7 @@ class VizierServiceClient(metaclass=VizierServiceClientMeta):
 
         .. code-block:: python
 
-            from google.cloud import aiplatform_v1beta1
+                    from google.cloud import aiplatform_v1beta1
 
             def sample_suggest_trials():
                 # Create a client
@@ -1090,7 +1090,7 @@ class VizierServiceClient(metaclass=VizierServiceClientMeta):
 
         .. code-block:: python
 
-            from google.cloud import aiplatform_v1beta1
+                    from google.cloud import aiplatform_v1beta1
 
             def sample_create_trial():
                 # Create a client
@@ -1196,7 +1196,7 @@ class VizierServiceClient(metaclass=VizierServiceClientMeta):
 
         .. code-block:: python
 
-            from google.cloud import aiplatform_v1beta1
+                    from google.cloud import aiplatform_v1beta1
 
             def sample_get_trial():
                 # Create a client
@@ -1294,7 +1294,7 @@ class VizierServiceClient(metaclass=VizierServiceClientMeta):
 
         .. code-block:: python
 
-            from google.cloud import aiplatform_v1beta1
+                    from google.cloud import aiplatform_v1beta1
 
             def sample_list_trials():
                 # Create a client
@@ -1405,7 +1405,7 @@ class VizierServiceClient(metaclass=VizierServiceClientMeta):
 
         .. code-block:: python
 
-            from google.cloud import aiplatform_v1beta1
+                    from google.cloud import aiplatform_v1beta1
 
             def sample_add_trial_measurement():
                 # Create a client
@@ -1484,7 +1484,7 @@ class VizierServiceClient(metaclass=VizierServiceClientMeta):
 
         .. code-block:: python
 
-            from google.cloud import aiplatform_v1beta1
+                    from google.cloud import aiplatform_v1beta1
 
             def sample_complete_trial():
                 # Create a client
@@ -1562,7 +1562,7 @@ class VizierServiceClient(metaclass=VizierServiceClientMeta):
 
         .. code-block:: python
 
-            from google.cloud import aiplatform_v1beta1
+                    from google.cloud import aiplatform_v1beta1
 
             def sample_delete_trial():
                 # Create a client
@@ -1648,7 +1648,7 @@ class VizierServiceClient(metaclass=VizierServiceClientMeta):
 
         .. code-block:: python
 
-            from google.cloud import aiplatform_v1beta1
+                    from google.cloud import aiplatform_v1beta1
 
             def sample_check_trial_early_stopping_state():
                 # Create a client
@@ -1742,7 +1742,7 @@ class VizierServiceClient(metaclass=VizierServiceClientMeta):
 
         .. code-block:: python
 
-            from google.cloud import aiplatform_v1beta1
+                    from google.cloud import aiplatform_v1beta1
 
             def sample_stop_trial():
                 # Create a client
@@ -1824,7 +1824,7 @@ class VizierServiceClient(metaclass=VizierServiceClientMeta):
 
         .. code-block:: python
 
-            from google.cloud import aiplatform_v1beta1
+                    from google.cloud import aiplatform_v1beta1
 
             def sample_list_optimal_trials():
                 # Create a client

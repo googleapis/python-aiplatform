@@ -16,7 +16,7 @@
 from collections import OrderedDict
 import os
 import re
-from typing import Dict, Optional, Sequence, Tuple, Type, Union
+from typing import Dict, Mapping, Optional, Sequence, Tuple, Type, Union
 import pkg_resources
 
 from google.api_core import client_options as client_options_lib
@@ -513,7 +513,7 @@ class EndpointServiceClient(metaclass=EndpointServiceClientMeta):
 
         .. code-block:: python
 
-            from google.cloud import aiplatform_v1
+                    from google.cloud import aiplatform_v1
 
             def sample_create_endpoint():
                 # Create a client
@@ -651,7 +651,7 @@ class EndpointServiceClient(metaclass=EndpointServiceClientMeta):
 
         .. code-block:: python
 
-            from google.cloud import aiplatform_v1
+                    from google.cloud import aiplatform_v1
 
             def sample_get_endpoint():
                 # Create a client
@@ -747,7 +747,7 @@ class EndpointServiceClient(metaclass=EndpointServiceClientMeta):
 
         .. code-block:: python
 
-            from google.cloud import aiplatform_v1
+                    from google.cloud import aiplatform_v1
 
             def sample_list_endpoints():
                 # Create a client
@@ -857,7 +857,7 @@ class EndpointServiceClient(metaclass=EndpointServiceClientMeta):
 
         .. code-block:: python
 
-            from google.cloud import aiplatform_v1
+                    from google.cloud import aiplatform_v1
 
             def sample_update_endpoint():
                 # Create a client
@@ -967,7 +967,7 @@ class EndpointServiceClient(metaclass=EndpointServiceClientMeta):
 
         .. code-block:: python
 
-            from google.cloud import aiplatform_v1
+                    from google.cloud import aiplatform_v1
 
             def sample_delete_endpoint():
                 # Create a client
@@ -1081,9 +1081,7 @@ class EndpointServiceClient(metaclass=EndpointServiceClientMeta):
         *,
         endpoint: str = None,
         deployed_model: gca_endpoint.DeployedModel = None,
-        traffic_split: Sequence[
-            endpoint_service.DeployModelRequest.TrafficSplitEntry
-        ] = None,
+        traffic_split: Mapping[str, int] = None,
         retry: OptionalRetry = gapic_v1.method.DEFAULT,
         timeout: float = None,
         metadata: Sequence[Tuple[str, str]] = (),
@@ -1094,7 +1092,7 @@ class EndpointServiceClient(metaclass=EndpointServiceClientMeta):
 
         .. code-block:: python
 
-            from google.cloud import aiplatform_v1
+                    from google.cloud import aiplatform_v1
 
             def sample_deploy_model():
                 # Create a client
@@ -1143,7 +1141,7 @@ class EndpointServiceClient(metaclass=EndpointServiceClientMeta):
                 This corresponds to the ``deployed_model`` field
                 on the ``request`` instance; if ``request`` is provided, this
                 should not be set.
-            traffic_split (Sequence[google.cloud.aiplatform_v1.types.DeployModelRequest.TrafficSplitEntry]):
+            traffic_split (Mapping[str, int]):
                 A map from a DeployedModel's ID to the percentage of
                 this Endpoint's traffic that should be forwarded to that
                 DeployedModel.
@@ -1239,9 +1237,7 @@ class EndpointServiceClient(metaclass=EndpointServiceClientMeta):
         *,
         endpoint: str = None,
         deployed_model_id: str = None,
-        traffic_split: Sequence[
-            endpoint_service.UndeployModelRequest.TrafficSplitEntry
-        ] = None,
+        traffic_split: Mapping[str, int] = None,
         retry: OptionalRetry = gapic_v1.method.DEFAULT,
         timeout: float = None,
         metadata: Sequence[Tuple[str, str]] = (),
@@ -1253,7 +1249,7 @@ class EndpointServiceClient(metaclass=EndpointServiceClientMeta):
 
         .. code-block:: python
 
-            from google.cloud import aiplatform_v1
+                    from google.cloud import aiplatform_v1
 
             def sample_undeploy_model():
                 # Create a client
@@ -1294,7 +1290,7 @@ class EndpointServiceClient(metaclass=EndpointServiceClientMeta):
                 This corresponds to the ``deployed_model_id`` field
                 on the ``request`` instance; if ``request`` is provided, this
                 should not be set.
-            traffic_split (Sequence[google.cloud.aiplatform_v1.types.UndeployModelRequest.TrafficSplitEntry]):
+            traffic_split (Mapping[str, int]):
                 If this field is provided, then the Endpoint's
                 [traffic_split][google.cloud.aiplatform.v1.Endpoint.traffic_split]
                 will be overwritten with it. If last DeployedModel is

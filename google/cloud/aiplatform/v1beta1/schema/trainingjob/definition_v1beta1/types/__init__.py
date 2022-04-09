@@ -62,7 +62,9 @@ from .automl_video_object_tracking import (
     AutoMlVideoObjectTracking,
     AutoMlVideoObjectTrackingInputs,
 )
-from .export_evaluated_data_items_config import ExportEvaluatedDataItemsConfig
+from .export_evaluated_data_items_config import (
+    ExportEvaluatedDataItemsConfig,
+)
 
 __all__ = (
     "AutoMlImageClassification",

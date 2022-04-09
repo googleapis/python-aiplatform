@@ -16,7 +16,7 @@
 from collections import OrderedDict
 import os
 import re
-from typing import Dict, Optional, Sequence, Tuple, Type, Union
+from typing import Dict, Mapping, Optional, Sequence, Tuple, Type, Union
 import pkg_resources
 
 from google.api_core import client_options as client_options_lib
@@ -697,7 +697,7 @@ class JobServiceClient(metaclass=JobServiceClientMeta):
 
         .. code-block:: python
 
-            from google.cloud import aiplatform_v1
+                    from google.cloud import aiplatform_v1
 
             def sample_create_custom_job():
                 # Create a client
@@ -811,7 +811,7 @@ class JobServiceClient(metaclass=JobServiceClientMeta):
 
         .. code-block:: python
 
-            from google.cloud import aiplatform_v1
+                    from google.cloud import aiplatform_v1
 
             def sample_get_custom_job():
                 # Create a client
@@ -912,7 +912,7 @@ class JobServiceClient(metaclass=JobServiceClientMeta):
 
         .. code-block:: python
 
-            from google.cloud import aiplatform_v1
+                    from google.cloud import aiplatform_v1
 
             def sample_list_custom_jobs():
                 # Create a client
@@ -1021,7 +1021,7 @@ class JobServiceClient(metaclass=JobServiceClientMeta):
 
         .. code-block:: python
 
-            from google.cloud import aiplatform_v1
+                    from google.cloud import aiplatform_v1
 
             def sample_delete_custom_job():
                 # Create a client
@@ -1155,7 +1155,7 @@ class JobServiceClient(metaclass=JobServiceClientMeta):
 
         .. code-block:: python
 
-            from google.cloud import aiplatform_v1
+                    from google.cloud import aiplatform_v1
 
             def sample_cancel_custom_job():
                 # Create a client
@@ -1239,7 +1239,7 @@ class JobServiceClient(metaclass=JobServiceClientMeta):
 
         .. code-block:: python
 
-            from google.cloud import aiplatform_v1
+                    from google.cloud import aiplatform_v1
 
             def sample_create_data_labeling_job():
                 # Create a client
@@ -1353,7 +1353,7 @@ class JobServiceClient(metaclass=JobServiceClientMeta):
 
         .. code-block:: python
 
-            from google.cloud import aiplatform_v1
+                    from google.cloud import aiplatform_v1
 
             def sample_get_data_labeling_job():
                 # Create a client
@@ -1449,7 +1449,7 @@ class JobServiceClient(metaclass=JobServiceClientMeta):
 
         .. code-block:: python
 
-            from google.cloud import aiplatform_v1
+                    from google.cloud import aiplatform_v1
 
             def sample_list_data_labeling_jobs():
                 # Create a client
@@ -1557,7 +1557,7 @@ class JobServiceClient(metaclass=JobServiceClientMeta):
 
         .. code-block:: python
 
-            from google.cloud import aiplatform_v1
+                    from google.cloud import aiplatform_v1
 
             def sample_delete_data_labeling_job():
                 # Create a client
@@ -1680,7 +1680,7 @@ class JobServiceClient(metaclass=JobServiceClientMeta):
 
         .. code-block:: python
 
-            from google.cloud import aiplatform_v1
+                    from google.cloud import aiplatform_v1
 
             def sample_cancel_data_labeling_job():
                 # Create a client
@@ -1764,7 +1764,7 @@ class JobServiceClient(metaclass=JobServiceClientMeta):
 
         .. code-block:: python
 
-            from google.cloud import aiplatform_v1
+                    from google.cloud import aiplatform_v1
 
             def sample_create_hyperparameter_tuning_job():
                 # Create a client
@@ -1885,7 +1885,7 @@ class JobServiceClient(metaclass=JobServiceClientMeta):
 
         .. code-block:: python
 
-            from google.cloud import aiplatform_v1
+                    from google.cloud import aiplatform_v1
 
             def sample_get_hyperparameter_tuning_job():
                 # Create a client
@@ -1985,7 +1985,7 @@ class JobServiceClient(metaclass=JobServiceClientMeta):
 
         .. code-block:: python
 
-            from google.cloud import aiplatform_v1
+                    from google.cloud import aiplatform_v1
 
             def sample_list_hyperparameter_tuning_jobs():
                 # Create a client
@@ -2096,7 +2096,7 @@ class JobServiceClient(metaclass=JobServiceClientMeta):
 
         .. code-block:: python
 
-            from google.cloud import aiplatform_v1
+                    from google.cloud import aiplatform_v1
 
             def sample_delete_hyperparameter_tuning_job():
                 # Create a client
@@ -2233,7 +2233,7 @@ class JobServiceClient(metaclass=JobServiceClientMeta):
 
         .. code-block:: python
 
-            from google.cloud import aiplatform_v1
+                    from google.cloud import aiplatform_v1
 
             def sample_cancel_hyperparameter_tuning_job():
                 # Create a client
@@ -2322,7 +2322,7 @@ class JobServiceClient(metaclass=JobServiceClientMeta):
 
         .. code-block:: python
 
-            from google.cloud import aiplatform_v1
+                    from google.cloud import aiplatform_v1
 
             def sample_create_batch_prediction_job():
                 # Create a client
@@ -2441,7 +2441,7 @@ class JobServiceClient(metaclass=JobServiceClientMeta):
 
         .. code-block:: python
 
-            from google.cloud import aiplatform_v1
+                    from google.cloud import aiplatform_v1
 
             def sample_get_batch_prediction_job():
                 # Create a client
@@ -2541,7 +2541,7 @@ class JobServiceClient(metaclass=JobServiceClientMeta):
 
         .. code-block:: python
 
-            from google.cloud import aiplatform_v1
+                    from google.cloud import aiplatform_v1
 
             def sample_list_batch_prediction_jobs():
                 # Create a client
@@ -2654,7 +2654,7 @@ class JobServiceClient(metaclass=JobServiceClientMeta):
 
         .. code-block:: python
 
-            from google.cloud import aiplatform_v1
+                    from google.cloud import aiplatform_v1
 
             def sample_delete_batch_prediction_job():
                 # Create a client
@@ -2789,7 +2789,7 @@ class JobServiceClient(metaclass=JobServiceClientMeta):
 
         .. code-block:: python
 
-            from google.cloud import aiplatform_v1
+                    from google.cloud import aiplatform_v1
 
             def sample_cancel_batch_prediction_job():
                 # Create a client
@@ -2880,7 +2880,7 @@ class JobServiceClient(metaclass=JobServiceClientMeta):
 
         .. code-block:: python
 
-            from google.cloud import aiplatform_v1
+                    from google.cloud import aiplatform_v1
 
             def sample_create_model_deployment_monitoring_job():
                 # Create a client
@@ -3004,7 +3004,7 @@ class JobServiceClient(metaclass=JobServiceClientMeta):
 
         .. code-block:: python
 
-            from google.cloud import aiplatform_v1
+                    from google.cloud import aiplatform_v1
 
             def sample_search_model_deployment_monitoring_stats_anomalies():
                 # Create a client
@@ -3138,7 +3138,7 @@ class JobServiceClient(metaclass=JobServiceClientMeta):
 
         .. code-block:: python
 
-            from google.cloud import aiplatform_v1
+                    from google.cloud import aiplatform_v1
 
             def sample_get_model_deployment_monitoring_job():
                 # Create a client
@@ -3241,7 +3241,7 @@ class JobServiceClient(metaclass=JobServiceClientMeta):
 
         .. code-block:: python
 
-            from google.cloud import aiplatform_v1
+                    from google.cloud import aiplatform_v1
 
             def sample_list_model_deployment_monitoring_jobs():
                 # Create a client
@@ -3357,7 +3357,7 @@ class JobServiceClient(metaclass=JobServiceClientMeta):
 
         .. code-block:: python
 
-            from google.cloud import aiplatform_v1
+                    from google.cloud import aiplatform_v1
 
             def sample_update_model_deployment_monitoring_job():
                 # Create a client
@@ -3522,7 +3522,7 @@ class JobServiceClient(metaclass=JobServiceClientMeta):
 
         .. code-block:: python
 
-            from google.cloud import aiplatform_v1
+                    from google.cloud import aiplatform_v1
 
             def sample_delete_model_deployment_monitoring_job():
                 # Create a client
@@ -3653,7 +3653,7 @@ class JobServiceClient(metaclass=JobServiceClientMeta):
 
         .. code-block:: python
 
-            from google.cloud import aiplatform_v1
+                    from google.cloud import aiplatform_v1
 
             def sample_pause_model_deployment_monitoring_job():
                 # Create a client
@@ -3746,7 +3746,7 @@ class JobServiceClient(metaclass=JobServiceClientMeta):
 
         .. code-block:: python
 
-            from google.cloud import aiplatform_v1
+                    from google.cloud import aiplatform_v1
 
             def sample_resume_model_deployment_monitoring_job():
                 # Create a client

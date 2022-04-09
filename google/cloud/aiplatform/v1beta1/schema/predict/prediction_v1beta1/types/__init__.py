@@ -13,17 +13,39 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
-from .classification import ClassificationPredictionResult
-from .image_object_detection import ImageObjectDetectionPredictionResult
-from .image_segmentation import ImageSegmentationPredictionResult
-from .tabular_classification import TabularClassificationPredictionResult
-from .tabular_regression import TabularRegressionPredictionResult
-from .text_extraction import TextExtractionPredictionResult
-from .text_sentiment import TextSentimentPredictionResult
-from .time_series_forecasting import TimeSeriesForecastingPredictionResult
-from .video_action_recognition import VideoActionRecognitionPredictionResult
-from .video_classification import VideoClassificationPredictionResult
-from .video_object_tracking import VideoObjectTrackingPredictionResult
+from .classification import (
+    ClassificationPredictionResult,
+)
+from .image_object_detection import (
+    ImageObjectDetectionPredictionResult,
+)
+from .image_segmentation import (
+    ImageSegmentationPredictionResult,
+)
+from .tabular_classification import (
+    TabularClassificationPredictionResult,
+)
+from .tabular_regression import (
+    TabularRegressionPredictionResult,
+)
+from .text_extraction import (
+    TextExtractionPredictionResult,
+)
+from .text_sentiment import (
+    TextSentimentPredictionResult,
+)
+from .time_series_forecasting import (
+    TimeSeriesForecastingPredictionResult,
+)
+from .video_action_recognition import (
+    VideoActionRecognitionPredictionResult,
+)
+from .video_classification import (
+    VideoClassificationPredictionResult,
+)
+from .video_object_tracking import (
+    VideoObjectTrackingPredictionResult,
+)
 
 __all__ = (
     "ClassificationPredictionResult",

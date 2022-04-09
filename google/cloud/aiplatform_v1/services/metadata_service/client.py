@@ -16,7 +16,7 @@
 from collections import OrderedDict
 import os
 import re
-from typing import Dict, Optional, Sequence, Tuple, Type, Union
+from typing import Dict, Mapping, Optional, Sequence, Tuple, Type, Union
 import pkg_resources
 
 from google.api_core import client_options as client_options_lib
@@ -559,7 +559,7 @@ class MetadataServiceClient(metaclass=MetadataServiceClientMeta):
 
         .. code-block:: python
 
-            from google.cloud import aiplatform_v1
+                    from google.cloud import aiplatform_v1
 
             def sample_create_metadata_store():
                 # Create a client
@@ -695,7 +695,7 @@ class MetadataServiceClient(metaclass=MetadataServiceClientMeta):
 
         .. code-block:: python
 
-            from google.cloud import aiplatform_v1
+                    from google.cloud import aiplatform_v1
 
             def sample_get_metadata_store():
                 # Create a client
@@ -792,7 +792,7 @@ class MetadataServiceClient(metaclass=MetadataServiceClientMeta):
 
         .. code-block:: python
 
-            from google.cloud import aiplatform_v1
+                    from google.cloud import aiplatform_v1
 
             def sample_list_metadata_stores():
                 # Create a client
@@ -903,7 +903,7 @@ class MetadataServiceClient(metaclass=MetadataServiceClientMeta):
 
         .. code-block:: python
 
-            from google.cloud import aiplatform_v1
+                    from google.cloud import aiplatform_v1
 
             def sample_delete_metadata_store():
                 # Create a client
@@ -1026,7 +1026,7 @@ class MetadataServiceClient(metaclass=MetadataServiceClientMeta):
 
         .. code-block:: python
 
-            from google.cloud import aiplatform_v1
+                    from google.cloud import aiplatform_v1
 
             def sample_create_artifact():
                 # Create a client
@@ -1144,7 +1144,7 @@ class MetadataServiceClient(metaclass=MetadataServiceClientMeta):
 
         .. code-block:: python
 
-            from google.cloud import aiplatform_v1
+                    from google.cloud import aiplatform_v1
 
             def sample_get_artifact():
                 # Create a client
@@ -1238,7 +1238,7 @@ class MetadataServiceClient(metaclass=MetadataServiceClientMeta):
 
         .. code-block:: python
 
-            from google.cloud import aiplatform_v1
+                    from google.cloud import aiplatform_v1
 
             def sample_list_artifacts():
                 # Create a client
@@ -1348,7 +1348,7 @@ class MetadataServiceClient(metaclass=MetadataServiceClientMeta):
 
         .. code-block:: python
 
-            from google.cloud import aiplatform_v1
+                    from google.cloud import aiplatform_v1
 
             def sample_update_artifact():
                 # Create a client
@@ -1457,7 +1457,7 @@ class MetadataServiceClient(metaclass=MetadataServiceClientMeta):
 
         .. code-block:: python
 
-            from google.cloud import aiplatform_v1
+                    from google.cloud import aiplatform_v1
 
             def sample_delete_artifact():
                 # Create a client
@@ -1578,7 +1578,7 @@ class MetadataServiceClient(metaclass=MetadataServiceClientMeta):
 
         .. code-block:: python
 
-            from google.cloud import aiplatform_v1
+                    from google.cloud import aiplatform_v1
 
             def sample_purge_artifacts():
                 # Create a client
@@ -1693,7 +1693,7 @@ class MetadataServiceClient(metaclass=MetadataServiceClientMeta):
 
         .. code-block:: python
 
-            from google.cloud import aiplatform_v1
+                    from google.cloud import aiplatform_v1
 
             def sample_create_context():
                 # Create a client
@@ -1811,7 +1811,7 @@ class MetadataServiceClient(metaclass=MetadataServiceClientMeta):
 
         .. code-block:: python
 
-            from google.cloud import aiplatform_v1
+                    from google.cloud import aiplatform_v1
 
             def sample_get_context():
                 # Create a client
@@ -1905,7 +1905,7 @@ class MetadataServiceClient(metaclass=MetadataServiceClientMeta):
 
         .. code-block:: python
 
-            from google.cloud import aiplatform_v1
+                    from google.cloud import aiplatform_v1
 
             def sample_list_contexts():
                 # Create a client
@@ -2015,7 +2015,7 @@ class MetadataServiceClient(metaclass=MetadataServiceClientMeta):
 
         .. code-block:: python
 
-            from google.cloud import aiplatform_v1
+                    from google.cloud import aiplatform_v1
 
             def sample_update_context():
                 # Create a client
@@ -2123,7 +2123,7 @@ class MetadataServiceClient(metaclass=MetadataServiceClientMeta):
 
         .. code-block:: python
 
-            from google.cloud import aiplatform_v1
+                    from google.cloud import aiplatform_v1
 
             def sample_delete_context():
                 # Create a client
@@ -2244,7 +2244,7 @@ class MetadataServiceClient(metaclass=MetadataServiceClientMeta):
 
         .. code-block:: python
 
-            from google.cloud import aiplatform_v1
+                    from google.cloud import aiplatform_v1
 
             def sample_purge_contexts():
                 # Create a client
@@ -2364,7 +2364,7 @@ class MetadataServiceClient(metaclass=MetadataServiceClientMeta):
 
         .. code-block:: python
 
-            from google.cloud import aiplatform_v1
+                    from google.cloud import aiplatform_v1
 
             def sample_add_context_artifacts_and_executions():
                 # Create a client
@@ -2494,7 +2494,7 @@ class MetadataServiceClient(metaclass=MetadataServiceClientMeta):
 
         .. code-block:: python
 
-            from google.cloud import aiplatform_v1
+                    from google.cloud import aiplatform_v1
 
             def sample_add_context_children():
                 # Create a client
@@ -2605,7 +2605,7 @@ class MetadataServiceClient(metaclass=MetadataServiceClientMeta):
 
         .. code-block:: python
 
-            from google.cloud import aiplatform_v1
+                    from google.cloud import aiplatform_v1
 
             def sample_query_context_lineage_subgraph():
                 # Create a client
@@ -2712,7 +2712,7 @@ class MetadataServiceClient(metaclass=MetadataServiceClientMeta):
 
         .. code-block:: python
 
-            from google.cloud import aiplatform_v1
+                    from google.cloud import aiplatform_v1
 
             def sample_create_execution():
                 # Create a client
@@ -2830,7 +2830,7 @@ class MetadataServiceClient(metaclass=MetadataServiceClientMeta):
 
         .. code-block:: python
 
-            from google.cloud import aiplatform_v1
+                    from google.cloud import aiplatform_v1
 
             def sample_get_execution():
                 # Create a client
@@ -2924,7 +2924,7 @@ class MetadataServiceClient(metaclass=MetadataServiceClientMeta):
 
         .. code-block:: python
 
-            from google.cloud import aiplatform_v1
+                    from google.cloud import aiplatform_v1
 
             def sample_list_executions():
                 # Create a client
@@ -3034,7 +3034,7 @@ class MetadataServiceClient(metaclass=MetadataServiceClientMeta):
 
         .. code-block:: python
 
-            from google.cloud import aiplatform_v1
+                    from google.cloud import aiplatform_v1
 
             def sample_update_execution():
                 # Create a client
@@ -3143,7 +3143,7 @@ class MetadataServiceClient(metaclass=MetadataServiceClientMeta):
 
         .. code-block:: python
 
-            from google.cloud import aiplatform_v1
+                    from google.cloud import aiplatform_v1
 
             def sample_delete_execution():
                 # Create a client
@@ -3264,7 +3264,7 @@ class MetadataServiceClient(metaclass=MetadataServiceClientMeta):
 
         .. code-block:: python
 
-            from google.cloud import aiplatform_v1
+                    from google.cloud import aiplatform_v1
 
             def sample_purge_executions():
                 # Create a client
@@ -3383,7 +3383,7 @@ class MetadataServiceClient(metaclass=MetadataServiceClientMeta):
 
         .. code-block:: python
 
-            from google.cloud import aiplatform_v1
+                    from google.cloud import aiplatform_v1
 
             def sample_add_execution_events():
                 # Create a client
@@ -3493,7 +3493,7 @@ class MetadataServiceClient(metaclass=MetadataServiceClientMeta):
 
         .. code-block:: python
 
-            from google.cloud import aiplatform_v1
+                    from google.cloud import aiplatform_v1
 
             def sample_query_execution_inputs_and_outputs():
                 # Create a client
@@ -3599,7 +3599,7 @@ class MetadataServiceClient(metaclass=MetadataServiceClientMeta):
 
         .. code-block:: python
 
-            from google.cloud import aiplatform_v1
+                    from google.cloud import aiplatform_v1
 
             def sample_create_metadata_schema():
                 # Create a client
@@ -3723,7 +3723,7 @@ class MetadataServiceClient(metaclass=MetadataServiceClientMeta):
 
         .. code-block:: python
 
-            from google.cloud import aiplatform_v1
+                    from google.cloud import aiplatform_v1
 
             def sample_get_metadata_schema():
                 # Create a client
@@ -3817,7 +3817,7 @@ class MetadataServiceClient(metaclass=MetadataServiceClientMeta):
 
         .. code-block:: python
 
-            from google.cloud import aiplatform_v1
+                    from google.cloud import aiplatform_v1
 
             def sample_list_metadata_schemas():
                 # Create a client
@@ -3931,7 +3931,7 @@ class MetadataServiceClient(metaclass=MetadataServiceClientMeta):
 
         .. code-block:: python
 
-            from google.cloud import aiplatform_v1
+                    from google.cloud import aiplatform_v1
 
             def sample_query_artifact_lineage_subgraph():
                 # Create a client

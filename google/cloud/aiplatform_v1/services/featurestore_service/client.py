@@ -16,7 +16,7 @@
 from collections import OrderedDict
 import os
 import re
-from typing import Dict, Optional, Sequence, Tuple, Type, Union
+from typing import Dict, Mapping, Optional, Sequence, Tuple, Type, Union
 import pkg_resources
 
 from google.api_core import client_options as client_options_lib
@@ -509,7 +509,7 @@ class FeaturestoreServiceClient(metaclass=FeaturestoreServiceClientMeta):
 
         .. code-block:: python
 
-            from google.cloud import aiplatform_v1
+                    from google.cloud import aiplatform_v1
 
             def sample_create_featurestore():
                 # Create a client
@@ -646,7 +646,7 @@ class FeaturestoreServiceClient(metaclass=FeaturestoreServiceClientMeta):
 
         .. code-block:: python
 
-            from google.cloud import aiplatform_v1
+                    from google.cloud import aiplatform_v1
 
             def sample_get_featurestore():
                 # Create a client
@@ -744,7 +744,7 @@ class FeaturestoreServiceClient(metaclass=FeaturestoreServiceClientMeta):
 
         .. code-block:: python
 
-            from google.cloud import aiplatform_v1
+                    from google.cloud import aiplatform_v1
 
             def sample_list_featurestores():
                 # Create a client
@@ -854,7 +854,7 @@ class FeaturestoreServiceClient(metaclass=FeaturestoreServiceClientMeta):
 
         .. code-block:: python
 
-            from google.cloud import aiplatform_v1
+                    from google.cloud import aiplatform_v1
 
             def sample_update_featurestore():
                 # Create a client
@@ -991,7 +991,7 @@ class FeaturestoreServiceClient(metaclass=FeaturestoreServiceClientMeta):
 
         .. code-block:: python
 
-            from google.cloud import aiplatform_v1
+                    from google.cloud import aiplatform_v1
 
             def sample_delete_featurestore():
                 # Create a client
@@ -1126,7 +1126,7 @@ class FeaturestoreServiceClient(metaclass=FeaturestoreServiceClientMeta):
 
         .. code-block:: python
 
-            from google.cloud import aiplatform_v1
+                    from google.cloud import aiplatform_v1
 
             def sample_create_entity_type():
                 # Create a client
@@ -1262,7 +1262,7 @@ class FeaturestoreServiceClient(metaclass=FeaturestoreServiceClientMeta):
 
         .. code-block:: python
 
-            from google.cloud import aiplatform_v1
+                    from google.cloud import aiplatform_v1
 
             def sample_get_entity_type():
                 # Create a client
@@ -1361,7 +1361,7 @@ class FeaturestoreServiceClient(metaclass=FeaturestoreServiceClientMeta):
 
         .. code-block:: python
 
-            from google.cloud import aiplatform_v1
+                    from google.cloud import aiplatform_v1
 
             def sample_list_entity_types():
                 # Create a client
@@ -1471,7 +1471,7 @@ class FeaturestoreServiceClient(metaclass=FeaturestoreServiceClientMeta):
 
         .. code-block:: python
 
-            from google.cloud import aiplatform_v1
+                    from google.cloud import aiplatform_v1
 
             def sample_update_entity_type():
                 # Create a client
@@ -1603,7 +1603,7 @@ class FeaturestoreServiceClient(metaclass=FeaturestoreServiceClientMeta):
 
         .. code-block:: python
 
-            from google.cloud import aiplatform_v1
+                    from google.cloud import aiplatform_v1
 
             def sample_delete_entity_type():
                 # Create a client
@@ -1737,7 +1737,7 @@ class FeaturestoreServiceClient(metaclass=FeaturestoreServiceClientMeta):
 
         .. code-block:: python
 
-            from google.cloud import aiplatform_v1
+                    from google.cloud import aiplatform_v1
 
             def sample_create_feature():
                 # Create a client
@@ -1877,7 +1877,7 @@ class FeaturestoreServiceClient(metaclass=FeaturestoreServiceClientMeta):
 
         .. code-block:: python
 
-            from google.cloud import aiplatform_v1
+                    from google.cloud import aiplatform_v1
 
             def sample_batch_create_features():
                 # Create a client
@@ -2008,7 +2008,7 @@ class FeaturestoreServiceClient(metaclass=FeaturestoreServiceClientMeta):
 
         .. code-block:: python
 
-            from google.cloud import aiplatform_v1
+                    from google.cloud import aiplatform_v1
 
             def sample_get_feature():
                 # Create a client
@@ -2106,7 +2106,7 @@ class FeaturestoreServiceClient(metaclass=FeaturestoreServiceClientMeta):
 
         .. code-block:: python
 
-            from google.cloud import aiplatform_v1
+                    from google.cloud import aiplatform_v1
 
             def sample_list_features():
                 # Create a client
@@ -2216,7 +2216,7 @@ class FeaturestoreServiceClient(metaclass=FeaturestoreServiceClientMeta):
 
         .. code-block:: python
 
-            from google.cloud import aiplatform_v1
+                    from google.cloud import aiplatform_v1
 
             def sample_update_feature():
                 # Create a client
@@ -2341,7 +2341,7 @@ class FeaturestoreServiceClient(metaclass=FeaturestoreServiceClientMeta):
 
         .. code-block:: python
 
-            from google.cloud import aiplatform_v1
+                    from google.cloud import aiplatform_v1
 
             def sample_delete_feature():
                 # Create a client
@@ -2483,7 +2483,7 @@ class FeaturestoreServiceClient(metaclass=FeaturestoreServiceClientMeta):
 
         .. code-block:: python
 
-            from google.cloud import aiplatform_v1
+                    from google.cloud import aiplatform_v1
 
             def sample_import_feature_values():
                 # Create a client
@@ -2613,7 +2613,7 @@ class FeaturestoreServiceClient(metaclass=FeaturestoreServiceClientMeta):
 
         .. code-block:: python
 
-            from google.cloud import aiplatform_v1
+                    from google.cloud import aiplatform_v1
 
             def sample_batch_read_feature_values():
                 # Create a client
@@ -2744,7 +2744,7 @@ class FeaturestoreServiceClient(metaclass=FeaturestoreServiceClientMeta):
 
         .. code-block:: python
 
-            from google.cloud import aiplatform_v1
+                    from google.cloud import aiplatform_v1
 
             def sample_export_feature_values():
                 # Create a client
@@ -2869,7 +2869,7 @@ class FeaturestoreServiceClient(metaclass=FeaturestoreServiceClientMeta):
 
         .. code-block:: python
 
-            from google.cloud import aiplatform_v1
+                    from google.cloud import aiplatform_v1
 
             def sample_search_features():
                 # Create a client

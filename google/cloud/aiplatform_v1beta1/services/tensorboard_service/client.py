@@ -16,7 +16,7 @@
 from collections import OrderedDict
 import os
 import re
-from typing import Dict, Optional, Iterable, Sequence, Tuple, Type, Union
+from typing import Dict, Mapping, Optional, Iterable, Sequence, Tuple, Type, Union
 import pkg_resources
 
 from google.api_core import client_options as client_options_lib
@@ -540,7 +540,7 @@ class TensorboardServiceClient(metaclass=TensorboardServiceClientMeta):
 
         .. code-block:: python
 
-            from google.cloud import aiplatform_v1beta1
+                    from google.cloud import aiplatform_v1beta1
 
             def sample_create_tensorboard():
                 # Create a client
@@ -663,7 +663,7 @@ class TensorboardServiceClient(metaclass=TensorboardServiceClientMeta):
 
         .. code-block:: python
 
-            from google.cloud import aiplatform_v1beta1
+                    from google.cloud import aiplatform_v1beta1
 
             def sample_get_tensorboard():
                 # Create a client
@@ -763,7 +763,7 @@ class TensorboardServiceClient(metaclass=TensorboardServiceClientMeta):
 
         .. code-block:: python
 
-            from google.cloud import aiplatform_v1beta1
+                    from google.cloud import aiplatform_v1beta1
 
             def sample_update_tensorboard():
                 # Create a client
@@ -894,7 +894,7 @@ class TensorboardServiceClient(metaclass=TensorboardServiceClientMeta):
 
         .. code-block:: python
 
-            from google.cloud import aiplatform_v1beta1
+                    from google.cloud import aiplatform_v1beta1
 
             def sample_list_tensorboards():
                 # Create a client
@@ -1003,7 +1003,7 @@ class TensorboardServiceClient(metaclass=TensorboardServiceClientMeta):
 
         .. code-block:: python
 
-            from google.cloud import aiplatform_v1beta1
+                    from google.cloud import aiplatform_v1beta1
 
             def sample_delete_tensorboard():
                 # Create a client
@@ -1128,7 +1128,7 @@ class TensorboardServiceClient(metaclass=TensorboardServiceClientMeta):
 
         .. code-block:: python
 
-            from google.cloud import aiplatform_v1beta1
+                    from google.cloud import aiplatform_v1beta1
 
             def sample_create_tensorboard_experiment():
                 # Create a client
@@ -1255,7 +1255,7 @@ class TensorboardServiceClient(metaclass=TensorboardServiceClientMeta):
 
         .. code-block:: python
 
-            from google.cloud import aiplatform_v1beta1
+                    from google.cloud import aiplatform_v1beta1
 
             def sample_get_tensorboard_experiment():
                 # Create a client
@@ -1358,7 +1358,7 @@ class TensorboardServiceClient(metaclass=TensorboardServiceClientMeta):
 
         .. code-block:: python
 
-            from google.cloud import aiplatform_v1beta1
+                    from google.cloud import aiplatform_v1beta1
 
             def sample_update_tensorboard_experiment():
                 # Create a client
@@ -1478,7 +1478,7 @@ class TensorboardServiceClient(metaclass=TensorboardServiceClientMeta):
 
         .. code-block:: python
 
-            from google.cloud import aiplatform_v1beta1
+                    from google.cloud import aiplatform_v1beta1
 
             def sample_list_tensorboard_experiments():
                 # Create a client
@@ -1594,7 +1594,7 @@ class TensorboardServiceClient(metaclass=TensorboardServiceClientMeta):
 
         .. code-block:: python
 
-            from google.cloud import aiplatform_v1beta1
+                    from google.cloud import aiplatform_v1beta1
 
             def sample_delete_tensorboard_experiment():
                 # Create a client
@@ -1721,7 +1721,7 @@ class TensorboardServiceClient(metaclass=TensorboardServiceClientMeta):
 
         .. code-block:: python
 
-            from google.cloud import aiplatform_v1beta1
+                    from google.cloud import aiplatform_v1beta1
 
             def sample_create_tensorboard_run():
                 # Create a client
@@ -1849,7 +1849,7 @@ class TensorboardServiceClient(metaclass=TensorboardServiceClientMeta):
 
         .. code-block:: python
 
-            from google.cloud import aiplatform_v1beta1
+                    from google.cloud import aiplatform_v1beta1
 
             def sample_batch_create_tensorboard_runs():
                 # Create a client
@@ -1969,7 +1969,7 @@ class TensorboardServiceClient(metaclass=TensorboardServiceClientMeta):
 
         .. code-block:: python
 
-            from google.cloud import aiplatform_v1beta1
+                    from google.cloud import aiplatform_v1beta1
 
             def sample_get_tensorboard_run():
                 # Create a client
@@ -2068,7 +2068,7 @@ class TensorboardServiceClient(metaclass=TensorboardServiceClientMeta):
 
         .. code-block:: python
 
-            from google.cloud import aiplatform_v1beta1
+                    from google.cloud import aiplatform_v1beta1
 
             def sample_update_tensorboard_run():
                 # Create a client
@@ -2185,7 +2185,7 @@ class TensorboardServiceClient(metaclass=TensorboardServiceClientMeta):
 
         .. code-block:: python
 
-            from google.cloud import aiplatform_v1beta1
+                    from google.cloud import aiplatform_v1beta1
 
             def sample_list_tensorboard_runs():
                 # Create a client
@@ -2295,7 +2295,7 @@ class TensorboardServiceClient(metaclass=TensorboardServiceClientMeta):
 
         .. code-block:: python
 
-            from google.cloud import aiplatform_v1beta1
+                    from google.cloud import aiplatform_v1beta1
 
             def sample_delete_tensorboard_run():
                 # Create a client
@@ -2423,7 +2423,7 @@ class TensorboardServiceClient(metaclass=TensorboardServiceClientMeta):
 
         .. code-block:: python
 
-            from google.cloud import aiplatform_v1beta1
+                    from google.cloud import aiplatform_v1beta1
 
             def sample_batch_create_tensorboard_time_series():
                 # Create a client
@@ -2549,7 +2549,7 @@ class TensorboardServiceClient(metaclass=TensorboardServiceClientMeta):
 
         .. code-block:: python
 
-            from google.cloud import aiplatform_v1beta1
+                    from google.cloud import aiplatform_v1beta1
 
             def sample_create_tensorboard_time_series():
                 # Create a client
@@ -2665,7 +2665,7 @@ class TensorboardServiceClient(metaclass=TensorboardServiceClientMeta):
 
         .. code-block:: python
 
-            from google.cloud import aiplatform_v1beta1
+                    from google.cloud import aiplatform_v1beta1
 
             def sample_get_tensorboard_time_series():
                 # Create a client
@@ -2766,7 +2766,7 @@ class TensorboardServiceClient(metaclass=TensorboardServiceClientMeta):
 
         .. code-block:: python
 
-            from google.cloud import aiplatform_v1beta1
+                    from google.cloud import aiplatform_v1beta1
 
             def sample_update_tensorboard_time_series():
                 # Create a client
@@ -2894,7 +2894,7 @@ class TensorboardServiceClient(metaclass=TensorboardServiceClientMeta):
 
         .. code-block:: python
 
-            from google.cloud import aiplatform_v1beta1
+                    from google.cloud import aiplatform_v1beta1
 
             def sample_list_tensorboard_time_series():
                 # Create a client
@@ -3010,7 +3010,7 @@ class TensorboardServiceClient(metaclass=TensorboardServiceClientMeta):
 
         .. code-block:: python
 
-            from google.cloud import aiplatform_v1beta1
+                    from google.cloud import aiplatform_v1beta1
 
             def sample_delete_tensorboard_time_series():
                 # Create a client
@@ -3143,7 +3143,7 @@ class TensorboardServiceClient(metaclass=TensorboardServiceClientMeta):
 
         .. code-block:: python
 
-            from google.cloud import aiplatform_v1beta1
+                    from google.cloud import aiplatform_v1beta1
 
             def sample_batch_read_tensorboard_time_series_data():
                 # Create a client
@@ -3259,7 +3259,7 @@ class TensorboardServiceClient(metaclass=TensorboardServiceClientMeta):
 
         .. code-block:: python
 
-            from google.cloud import aiplatform_v1beta1
+                    from google.cloud import aiplatform_v1beta1
 
             def sample_read_tensorboard_time_series_data():
                 # Create a client
@@ -3365,7 +3365,7 @@ class TensorboardServiceClient(metaclass=TensorboardServiceClientMeta):
 
         .. code-block:: python
 
-            from google.cloud import aiplatform_v1beta1
+                    from google.cloud import aiplatform_v1beta1
 
             def sample_read_tensorboard_blob_data():
                 # Create a client
@@ -3474,7 +3474,7 @@ class TensorboardServiceClient(metaclass=TensorboardServiceClientMeta):
 
         .. code-block:: python
 
-            from google.cloud import aiplatform_v1beta1
+                    from google.cloud import aiplatform_v1beta1
 
             def sample_write_tensorboard_experiment_data():
                 # Create a client
@@ -3595,7 +3595,7 @@ class TensorboardServiceClient(metaclass=TensorboardServiceClientMeta):
 
         .. code-block:: python
 
-            from google.cloud import aiplatform_v1beta1
+                    from google.cloud import aiplatform_v1beta1
 
             def sample_write_tensorboard_run_data():
                 # Create a client
@@ -3719,7 +3719,7 @@ class TensorboardServiceClient(metaclass=TensorboardServiceClientMeta):
 
         .. code-block:: python
 
-            from google.cloud import aiplatform_v1beta1
+                    from google.cloud import aiplatform_v1beta1
 
             def sample_export_tensorboard_time_series_data():
                 # Create a client
