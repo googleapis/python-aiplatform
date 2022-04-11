@@ -39,7 +39,9 @@ SCHEMA_VERSIONS = {
 
 # The EXPERIMENT_METADATA is needed until we support context deletion in backend service.
 # TODO: delete EXPERIMENT_METADATA once backend supports context deletion.
-EXPERIMENT_METADATA = {"experiment_deleted": False}
+_PARAM_KEY = '_params'
+_METRIC_KEY = '_metrics'
+EXPERIMENT_METADATA = {_PARAM_KEY:{}, _METRIC_KEY:{}}
 
 PIPELINE_PARAM_PREFIX = "input:"
 

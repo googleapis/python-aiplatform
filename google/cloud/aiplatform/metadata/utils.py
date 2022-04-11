@@ -14,11 +14,10 @@
 # limitations under the License.
 #
 
-from typing import Tuple
+from typing import List, Optional, Tuple
 
 from google.cloud.aiplatform import base
 from google.cloud.aiplatform.compat import types
-from google.cloud.aiplatform.constants import base as constants
 from google.cloud.aiplatform.metadata import constants as metadata_constants
 
 
@@ -68,3 +67,17 @@ def get_tensorboard_board_run_metadata_schema() -> Tuple[
             title=_TENSORBOARD_RUN_REFERENCE_ARTIFACT.schema_title
         ),
     )
+
+def make_filter_string(
+        schema_title: Optional[str]=None,
+        in_context: Optional[List[str]]=None,
+        parent_contexts: Optional[List[str]]=None) -> str:
+    parts = []
+    if schema_title:
+        parts.append(f'{schema_title}=schema_tile')
+    if in_context:
+        for context in in_context:
+            parts.append(f'in_context({context})')
+    if parent_contexts:
+        parts.append(f'parent_contexts:{",".join(parent_contexts)}')
+    return 'AND'.join(parts)

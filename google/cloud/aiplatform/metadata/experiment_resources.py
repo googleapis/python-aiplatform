@@ -16,10 +16,9 @@
 #
 
 import abc
-import concurrent.futures
 from dataclasses import dataclass
 import logging
-from typing import Dict, List, NamedTuple, Optional, Set, Union
+from typing import Dict, List, NamedTuple, Optional, Union
 
 from google.auth import credentials as auth_credentials
 
@@ -29,6 +28,7 @@ from google.cloud.aiplatform.metadata import constants
 from google.cloud.aiplatform.metadata.artifact import _Artifact
 from google.cloud.aiplatform.metadata.context import _Context
 from google.cloud.aiplatform.metadata import resource
+from google.cloud.aiplatform.metadata import utils as metadata_utils
 from google.cloud.aiplatform.tensorboard import tensorboard_resource
 
 _LOGGER = base.Logger(__name__)
@@ -158,7 +158,7 @@ class Experiment:
         credentials: Optional[auth_credentials.Credentials] = None,
     ) -> List["Experiment"]:
 
-        filter_str = f'schema_title="{constants.SYSTEM_EXPERIMENT}"'
+        filter_str = metadata_utils.make_filter_string(schema_title=constants.SYSTEM_EXPERIMENT)
 
         with _SetLoggerLevel(resource):
             experiment_contexts = _Context.list(
@@ -384,11 +384,11 @@ class ExperimentLoggable(abc.ABC):
         """
         pass
 
-    # @abc.abstractmethod
-    # @classmethod
-    # def _query_experiment_row(cls, context: _Context) -> Dict[str, Dict[str, Union[float, int, str]]]:
-    #     """Should returns parameters and metrics for this resource as an ExperimentRun row."""
-    #     pass
+    @abc.abstractmethod
+    @classmethod
+    def _query_experiment_row(cls, context: _Context) -> ExperimentRow:
+        """Should returns parameters and metrics for this resource as an ExperimentRun row."""
+        pass
 
     def _validate_experiment(self, experiment: Union[str, Experiment]):
         """Validates experiment is accessible. Can be used by subclass to throw before creating the intended resource."""

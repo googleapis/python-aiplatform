@@ -16,6 +16,7 @@
 #
 
 import abc
+import collections
 import re
 from copy import deepcopy
 from typing import Dict, Optional, Sequence, Union
@@ -215,7 +216,12 @@ class _Resource(base.VertexAiResourceNounWithFutureManager, abc.ABC):
 
         gca_resource = deepcopy(self._gca_resource)
         if gca_resource.metadata:
-            gca_resource.metadata.update(metadata)
+            for key, value in metadata.items():
+                # Note: This only support nested dictionaries one level deep
+                if isinstance(value, collections.Mapping):
+                    gca_resource.metadata[key].update(metadata)
+                else:
+                    gca_resource.metadata[key] = value
         else:
             gca_resource.metadata = metadata
         if description:
@@ -223,6 +229,7 @@ class _Resource(base.VertexAiResourceNounWithFutureManager, abc.ABC):
 
         api_client = self._instantiate_client(credentials=credentials)
 
+        # TODO: if etag is not valid sync and retry
         update_gca_resource = self._update_resource(
             client=api_client,
             resource=gca_resource,
