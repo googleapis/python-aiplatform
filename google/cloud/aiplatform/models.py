@@ -14,6 +14,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
+from optparse import Option
 import pathlib
 import proto
 import re
@@ -63,6 +64,12 @@ _SUPPORTED_MODEL_FILE_NAMES = [
     "saved_model.pbtxt",
 ]
 
+class Version(NamedTuple):
+    version_id: str
+    create_time: str
+    update_time: str
+    version_alias: Optional[str] = None
+    version_description: Optional[str] = None
 
 class Prediction(NamedTuple):
     """Prediction class envelopes returned Model predictions and the Model id.
@@ -1308,6 +1315,41 @@ class Endpoint(base.VertexAiResourceNounWithFutureManager):
             explanations=explain_response.explanations,
         )
 
+    def list_versions(
+        self,
+    ) -> List[Version]:
+        operation_future = self.api_client.list_versions(
+            name=self.name,
+        )
+
+    def delete_version(
+        self,
+        version: str,
+    ) -> None:
+        operation_future = self.api_client.delete_version(
+            name=f"{self.name}@{version}",
+        )
+
+    def add_version_alias(
+        self,
+        new_alias: str,
+        version: str,
+    ) -> None:
+        operation_future = self.api_client.merge_version_aliases(
+            name=f"{self.name}@{version}",
+            version_aliases = [new_alias]
+        )
+
+    def remove_version_alias(
+        self,
+        target_alias: str,
+        version: str,
+    ) -> None:
+        operation_future = self.api_client.merge_version_aliases(
+            name=f"{self.name}@{version}",
+            version_aliases = [f"-{target_alias}"]
+        )
+
     @classmethod
     def list(
         cls,
@@ -1681,6 +1723,9 @@ class Model(base.VertexAiResourceNounWithFutureManager):
         staging_bucket: Optional[str] = None,
         sync=True,
         upload_request_timeout: Optional[float] = None,
+        parent_model: Optional[str] = None,
+        version_alias: Optional[str] = None,
+        version_description: Optional[str] = None,
     ) -> "Model":
         """Uploads a model and returns a Model representing the uploaded Model
         resource.
@@ -1850,6 +1895,26 @@ class Model(base.VertexAiResourceNounWithFutureManager):
         env = None
         ports = None
 
+        model_name = utils.full_resource_name(
+            resource_name=display_name,
+            resource_noun="models",
+            parse_resource_name_method=cls._parse_resource_name,
+            format_resource_name_method=cls._format_resource_name,
+            project=project,
+            location=location,
+        )
+
+        # Check if this model_name is already registered
+        if not parent_model:
+            try:
+                # If the model_name is registered, this upload is for a new version, and model.name is the parent.
+                model = api_client.get_model(model_name)
+                parent_model = model.name
+            except:
+                # If the model_name is not registered already, it has no parent and this is a new model resource.
+                pass
+
+
         if serving_container_environment_variables:
             env = [
                 gca_env_var_compat.EnvVar(name=str(key), value=str(value))
@@ -1891,6 +1956,8 @@ class Model(base.VertexAiResourceNounWithFutureManager):
             predict_schemata=model_predict_schemata,
             labels=labels,
             encryption_spec=encryption_spec,
+            version_alias=version_alias,
+            version_description=version_description,
         )
 
         if artifact_uri and not artifact_uri.startswith("gs://"):
@@ -1937,6 +2004,7 @@ class Model(base.VertexAiResourceNounWithFutureManager):
             parent=initializer.global_config.common_location_path(project, location),
             model=managed_model,
             timeout=upload_request_timeout,
+            parent_model=parent_model,
         )
 
         _LOGGER.log_create_with_lro(cls, lro)
@@ -2257,6 +2325,7 @@ class Model(base.VertexAiResourceNounWithFutureManager):
         encryption_spec_key_name: Optional[str] = None,
         sync: bool = True,
         create_request_timeout: Optional[float] = None,
+        model_version_id: Optional[str] = None,
     ) -> jobs.BatchPredictionJob:
         """Creates a batch prediction job using this Model and outputs
         prediction results to the provided destination prefix in the specified
@@ -2445,6 +2514,7 @@ class Model(base.VertexAiResourceNounWithFutureManager):
             encryption_spec_key_name=encryption_spec_key_name,
             sync=sync,
             create_request_timeout=create_request_timeout,
+            model_version_id=model_version_id,
         )
 
     @classmethod
@@ -2504,6 +2574,7 @@ class Model(base.VertexAiResourceNounWithFutureManager):
         artifact_destination: Optional[str] = None,
         image_destination: Optional[str] = None,
         sync: bool = True,
+        version: Optional[str] = None,
     ) -> Dict[str, str]:
         """Exports a trained, exportable Model to a location specified by the user.
         A Model is considered to be exportable if it has at least one `supported_export_formats`.
@@ -2563,6 +2634,7 @@ class Model(base.VertexAiResourceNounWithFutureManager):
 
             ValueError: If invalid arguments or export formats are provided.
         """
+        version == True
 
         self.wait()
 
@@ -2620,8 +2692,10 @@ class Model(base.VertexAiResourceNounWithFutureManager):
 
         _LOGGER.log_action_start_against_resource("Exporting", "model", self)
 
+        model_name = f"{self.resource_name}@{version}" if version else self.resource_name
+
         operation_future = self.api_client.export_model(
-            name=self.resource_name, output_config=output_config
+            name=model_name, output_config=output_config
         )
 
         _LOGGER.log_action_started_against_resource_with_lro(
