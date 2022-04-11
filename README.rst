@@ -253,6 +253,19 @@ To get a model:
   model = aiplatform.Model('/projects/my-project/locations/us-central1/models/{MODEL_ID}')
   
 
+
+To upload a model:
+
+.. code-block:: Python
+
+  model = aiplatform.Model.upload(
+      display_name='my-model',
+      artifact_uri="gs://python/to/my/model/dir",
+      serving_container_image_uri="us-docker.pkg.dev/vertex-ai/prediction/tf2-cpu.2-2:latest",
+  )
+
+
+
 To deploy a model:
 
 
@@ -264,17 +277,6 @@ To deploy a model:
                           machine_type='n1-standard-4',
                           accelerator_type='NVIDIA_TESLA_K80',
                           accelerator_count=1)
-
-
-To upload a model:
-
-.. code-block:: Python
-
-  model = aiplatform.Model.upload(
-      display_name='my-model',
-      artifact_uri="gs://python/to/my/model/dir",
-      serving_container_image_uri="us-docker.pkg.dev/vertex-ai/prediction/tf2-cpu.2-2:latest",
-  )
 
 
 Please visit `Importing models to Vertex AI`_ for a detailed overview:
