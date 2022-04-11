@@ -1,3 +1,20 @@
+# -*- coding: utf-8 -*-
+
+# Copyright 2022 Google LLC
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+#
+
 import importlib
 import pytest
 from unittest import mock
@@ -341,6 +358,7 @@ class TestAutoMLTabularTrainingJob:
             disable_early_stopping=_TEST_TRAINING_DISABLE_EARLY_STOPPING,
             additional_experiments=_TEST_ADDITIONAL_EXPERIMENTS,
             sync=sync,
+            create_request_timeout=None,
         )
 
         job.wait_for_resource_creation()
@@ -373,6 +391,7 @@ class TestAutoMLTabularTrainingJob:
         mock_pipeline_service_create.assert_called_once_with(
             parent=initializer.global_config.common_location_path(),
             training_pipeline=true_training_pipeline,
+            timeout=None,
         )
 
         assert job._gca_resource is mock_pipeline_service_get.return_value
@@ -388,6 +407,75 @@ class TestAutoMLTabularTrainingJob:
         assert not job.has_failed
 
         assert job.state == gca_pipeline_state.PipelineState.PIPELINE_STATE_SUCCEEDED
+
+    @pytest.mark.parametrize("sync", [True, False])
+    def test_run_call_pipeline_service_create_with_timeout(
+        self,
+        mock_pipeline_service_create,
+        mock_pipeline_service_get,
+        mock_dataset_tabular,
+        mock_model_service_get,
+        sync,
+    ):
+        aiplatform.init(
+            project=_TEST_PROJECT,
+            staging_bucket=_TEST_BUCKET_NAME,
+            encryption_spec_key_name=_TEST_DEFAULT_ENCRYPTION_KEY_NAME,
+        )
+
+        job = training_jobs.AutoMLTabularTrainingJob(
+            display_name=_TEST_DISPLAY_NAME,
+            labels=_TEST_LABELS,
+            optimization_objective=_TEST_TRAINING_OPTIMIZATION_OBJECTIVE_NAME,
+            optimization_prediction_type=_TEST_TRAINING_OPTIMIZATION_PREDICTION_TYPE,
+            column_transformations=_TEST_TRAINING_COLUMN_TRANSFORMATIONS,
+            optimization_objective_recall_value=None,
+            optimization_objective_precision_value=None,
+        )
+
+        model_from_job = job.run(
+            dataset=mock_dataset_tabular,
+            target_column=_TEST_TRAINING_TARGET_COLUMN,
+            model_display_name=_TEST_MODEL_DISPLAY_NAME,
+            model_labels=_TEST_MODEL_LABELS,
+            weight_column=_TEST_TRAINING_WEIGHT_COLUMN,
+            budget_milli_node_hours=_TEST_TRAINING_BUDGET_MILLI_NODE_HOURS,
+            disable_early_stopping=_TEST_TRAINING_DISABLE_EARLY_STOPPING,
+            additional_experiments=_TEST_ADDITIONAL_EXPERIMENTS,
+            sync=sync,
+            create_request_timeout=180.0,
+        )
+
+        job.wait_for_resource_creation()
+
+        if not sync:
+            model_from_job.wait()
+
+        true_managed_model = gca_model.Model(
+            display_name=_TEST_MODEL_DISPLAY_NAME,
+            labels=_TEST_MODEL_LABELS,
+            encryption_spec=_TEST_DEFAULT_ENCRYPTION_SPEC,
+        )
+
+        true_input_data_config = gca_training_pipeline.InputDataConfig(
+            dataset_id=mock_dataset_tabular.name,
+        )
+
+        true_training_pipeline = gca_training_pipeline.TrainingPipeline(
+            display_name=_TEST_DISPLAY_NAME,
+            labels=_TEST_LABELS,
+            training_task_definition=schema.training_job.definition.automl_tabular,
+            training_task_inputs=_TEST_TRAINING_TASK_INPUTS_WITH_ADDITIONAL_EXPERIMENTS,
+            model_to_upload=true_managed_model,
+            input_data_config=true_input_data_config,
+            encryption_spec=_TEST_DEFAULT_ENCRYPTION_SPEC,
+        )
+
+        mock_pipeline_service_create.assert_called_once_with(
+            parent=initializer.global_config.common_location_path(),
+            training_pipeline=true_training_pipeline,
+            timeout=180.0,
+        )
 
     @pytest.mark.parametrize("sync", [True, False])
     def test_run_call_pipeline_service_create_with_export_eval_data_items(
@@ -424,6 +512,7 @@ class TestAutoMLTabularTrainingJob:
             export_evaluated_data_items_bigquery_destination_uri=_TEST_TRAINING_EXPORT_EVALUATED_DATA_ITEMS_BIGQUERY_DESTINATION_URI,
             export_evaluated_data_items_override_destination=_TEST_TRAINING_EXPORT_EVALUATED_DATA_ITEMS_OVERRIDE_DESTINATION,
             sync=sync,
+            create_request_timeout=None,
         )
 
         job.wait_for_resource_creation()
@@ -454,6 +543,7 @@ class TestAutoMLTabularTrainingJob:
         mock_pipeline_service_create.assert_called_once_with(
             parent=initializer.global_config.common_location_path(),
             training_pipeline=true_training_pipeline,
+            timeout=None,
         )
 
         assert job._gca_resource is mock_pipeline_service_get.return_value
@@ -499,6 +589,7 @@ class TestAutoMLTabularTrainingJob:
             weight_column=_TEST_TRAINING_WEIGHT_COLUMN,
             budget_milli_node_hours=_TEST_TRAINING_BUDGET_MILLI_NODE_HOURS,
             disable_early_stopping=_TEST_TRAINING_DISABLE_EARLY_STOPPING,
+            create_request_timeout=None,
         )
 
         job.wait_for_resource_creation()
@@ -532,6 +623,7 @@ class TestAutoMLTabularTrainingJob:
         mock_pipeline_service_create.assert_called_once_with(
             parent=initializer.global_config.common_location_path(),
             training_pipeline=true_training_pipeline,
+            timeout=None,
         )
 
     @pytest.mark.parametrize("sync", [True, False])
@@ -567,6 +659,7 @@ class TestAutoMLTabularTrainingJob:
             budget_milli_node_hours=_TEST_TRAINING_BUDGET_MILLI_NODE_HOURS,
             disable_early_stopping=_TEST_TRAINING_DISABLE_EARLY_STOPPING,
             sync=sync,
+            create_request_timeout=None,
         )
 
         job.wait_for_resource_creation()
@@ -597,6 +690,7 @@ class TestAutoMLTabularTrainingJob:
         mock_pipeline_service_create.assert_called_once_with(
             parent=initializer.global_config.common_location_path(),
             training_pipeline=true_training_pipeline,
+            timeout=None,
         )
 
     @pytest.mark.parametrize("sync", [True, False])
@@ -634,6 +728,7 @@ class TestAutoMLTabularTrainingJob:
             budget_milli_node_hours=_TEST_TRAINING_BUDGET_MILLI_NODE_HOURS,
             disable_early_stopping=_TEST_TRAINING_DISABLE_EARLY_STOPPING,
             sync=sync,
+            create_request_timeout=None,
         )
 
         job.wait_for_resource_creation()
@@ -664,6 +759,7 @@ class TestAutoMLTabularTrainingJob:
         mock_pipeline_service_create.assert_called_once_with(
             parent=initializer.global_config.common_location_path(),
             training_pipeline=true_training_pipeline,
+            timeout=None,
         )
 
     @pytest.mark.parametrize("sync", [True, False])
@@ -701,6 +797,7 @@ class TestAutoMLTabularTrainingJob:
             budget_milli_node_hours=_TEST_TRAINING_BUDGET_MILLI_NODE_HOURS,
             disable_early_stopping=_TEST_TRAINING_DISABLE_EARLY_STOPPING,
             sync=sync,
+            create_request_timeout=None,
         )
 
         if not sync:
@@ -723,6 +820,7 @@ class TestAutoMLTabularTrainingJob:
         mock_pipeline_service_create.assert_called_once_with(
             parent=initializer.global_config.common_location_path(),
             training_pipeline=true_training_pipeline,
+            timeout=None,
         )
 
     @pytest.mark.parametrize("sync", [True, False])
@@ -803,6 +901,7 @@ class TestAutoMLTabularTrainingJob:
             budget_milli_node_hours=_TEST_TRAINING_BUDGET_MILLI_NODE_HOURS,
             disable_early_stopping=_TEST_TRAINING_DISABLE_EARLY_STOPPING,
             sync=sync,
+            create_request_timeout=None,
         )
 
         if not sync:
@@ -825,6 +924,7 @@ class TestAutoMLTabularTrainingJob:
         mock_pipeline_service_create.assert_called_once_with(
             parent=initializer.global_config.common_location_path(),
             training_pipeline=true_training_pipeline,
+            timeout=None,
         )
 
     @pytest.mark.usefixtures(
@@ -1111,6 +1211,7 @@ class TestAutoMLTabularTrainingJob:
             test_fraction_split=_TEST_FRACTION_SPLIT_TEST,
             disable_early_stopping=_TEST_TRAINING_DISABLE_EARLY_STOPPING,
             sync=sync,
+            create_request_timeout=None,
         )
 
         if not sync:
@@ -1144,6 +1245,7 @@ class TestAutoMLTabularTrainingJob:
         mock_pipeline_service_create.assert_called_once_with(
             parent=initializer.global_config.common_location_path(),
             training_pipeline=true_training_pipeline,
+            timeout=None,
         )
 
     @pytest.mark.parametrize("sync", [True, False])
@@ -1185,6 +1287,7 @@ class TestAutoMLTabularTrainingJob:
             timestamp_split_column_name=_TEST_SPLIT_TIMESTAMP_COLUMN_NAME,
             disable_early_stopping=_TEST_TRAINING_DISABLE_EARLY_STOPPING,
             sync=sync,
+            create_request_timeout=None,
         )
 
         if not sync:
@@ -1219,6 +1322,7 @@ class TestAutoMLTabularTrainingJob:
         mock_pipeline_service_create.assert_called_once_with(
             parent=initializer.global_config.common_location_path(),
             training_pipeline=true_training_pipeline,
+            timeout=None,
         )
 
     @pytest.mark.parametrize("sync", [True, False])
@@ -1257,6 +1361,7 @@ class TestAutoMLTabularTrainingJob:
             predefined_split_column_name=_TEST_SPLIT_PREDEFINED_COLUMN_NAME,
             disable_early_stopping=_TEST_TRAINING_DISABLE_EARLY_STOPPING,
             sync=sync,
+            create_request_timeout=None,
         )
 
         if not sync:
@@ -1288,6 +1393,7 @@ class TestAutoMLTabularTrainingJob:
         mock_pipeline_service_create.assert_called_once_with(
             parent=initializer.global_config.common_location_path(),
             training_pipeline=true_training_pipeline,
+            timeout=None,
         )
 
     @pytest.mark.parametrize("sync", [True, False])
@@ -1325,6 +1431,7 @@ class TestAutoMLTabularTrainingJob:
             model_display_name=_TEST_MODEL_DISPLAY_NAME,
             disable_early_stopping=_TEST_TRAINING_DISABLE_EARLY_STOPPING,
             sync=sync,
+            create_request_timeout=None,
         )
 
         if not sync:
@@ -1351,4 +1458,5 @@ class TestAutoMLTabularTrainingJob:
         mock_pipeline_service_create.assert_called_once_with(
             parent=initializer.global_config.common_location_path(),
             training_pipeline=true_training_pipeline,
+            timeout=None,
         )

@@ -83,6 +83,7 @@ class TestEndToEndTabular(e2e_base.TestEndToEnd):
             display_name=self._make_display_name("dataset"),
             gcs_source=[dataset_gcs_source],
             sync=False,
+            create_request_timeout=180.0,
         )
 
         shared_state["resources"].extend([ds])
@@ -113,6 +114,7 @@ class TestEndToEndTabular(e2e_base.TestEndToEnd):
             restart_job_on_worker_restart=True,
             enable_web_access=True,
             sync=False,
+            create_request_timeout=None,
         )
 
         automl_model = automl_job.run(

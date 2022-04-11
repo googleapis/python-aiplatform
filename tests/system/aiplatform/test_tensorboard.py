@@ -32,7 +32,10 @@ class TestTensorboard(e2e_base.TestEndToEnd):
 
         display_name = self._make_display_name("tensorboard")
 
-        tb = aiplatform.Tensorboard.create(display_name=display_name)
+        tb = aiplatform.Tensorboard.create(
+            display_name=display_name,
+            create_request_timeout=None,
+        )
 
         shared_state["resources"] = [tb]
 
@@ -50,6 +53,7 @@ class TestTensorboard(e2e_base.TestEndToEnd):
             display_name=self._make_display_name("tensorboard_experiment"),
             description="Vertex SDK Integration test.",
             labels={"test": "labels"},
+            create_request_timeout=None,
         )
 
         shared_state["resources"].append(tb_experiment)
@@ -71,6 +75,7 @@ class TestTensorboard(e2e_base.TestEndToEnd):
             tensorboard_experiment_name=tb_experiment.resource_name,
             description="Vertex SDK Integration test run",
             labels={"test": "labels"},
+            create_request_timeout=None,
         )
 
         shared_state["resources"].append(tb_run)
