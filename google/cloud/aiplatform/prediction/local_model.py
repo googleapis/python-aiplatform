@@ -580,10 +580,7 @@ class LocalModel:
         Raises:
             DockerError: If the command fails.
         """
-        if (
-            utils.check_image_exists_locally(self.serving_container_spec.image_uri)
-            is False
-        ):
+        if not utils.check_image_exists_locally(self.serving_container_spec.image_uri):
             command = [
                 "docker",
                 "pull",
