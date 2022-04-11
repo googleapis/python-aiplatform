@@ -162,6 +162,7 @@ class TestRun:
             "VAR_1": "foo",
             "VAR_2": "$(VAR_3) bar",
             "VAR_3": "$(VAR_1) bar",
+            "VAR_4": "$$(VAR_1)",
         }
         environment = {k: v for k, v in serving_container_environment_variables.items()}
         environment[prediction.AIP_HTTP_PORT] = prediction.DEFAULT_AIP_HTTP_PORT
@@ -174,6 +175,8 @@ class TestRun:
         # Envs referencing earlier entries will be changed. Those envs referencing later
         # entries won't be changed.
         environment["VAR_3"] = "foo bar"
+        # Double $$ will be replaced with a single $.
+        environment["VAR_4"] = "$(VAR_1)"
 
         run.run_prediction_container(
             self.IMAGE_URI,
@@ -207,7 +210,7 @@ class TestRun:
             run._ADC_ENVIRONMENT_VARIABLE
         ] = run._DEFAULT_CONTAINER_CRED_KEY_PATH
         # Command references existing environment variables.
-        expected_entrypoint = ["foo", "$$(VAR_1)", "$(VAR_2)"]
+        expected_entrypoint = ["foo", "$(VAR_1)", "$(VAR_2)"]
 
         run.run_prediction_container(
             self.IMAGE_URI,
@@ -242,7 +245,7 @@ class TestRun:
             run._ADC_ENVIRONMENT_VARIABLE
         ] = run._DEFAULT_CONTAINER_CRED_KEY_PATH
         # Args references existing environment variables.
-        expected_command = ["foo", "$$(VAR_1)", "$(VAR_2)"]
+        expected_command = ["foo", "$(VAR_1)", "$(VAR_2)"]
 
         run.run_prediction_container(
             self.IMAGE_URI,

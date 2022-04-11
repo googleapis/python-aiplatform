@@ -71,8 +71,11 @@ def _replace_env_var_reference(
     Returns:
         The updated string.
     """
+    # Replace env var references with env vars.
     for key, value in env_vars.items():
         target = re.sub(rf"(?<!\$)\$\({key}\)", str(value), target)
+    # Replace $$ with $.
+    target = re.sub(r"\$\$", "$", target)
     return target
 
 
