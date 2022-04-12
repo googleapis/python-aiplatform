@@ -182,7 +182,6 @@ _TEST_LIST_ORDER_BY_DISPLAY_NAME = "display_name"
 _TEST_LABELS = {"my_key": "my_value"}
 
 
-
 """
 ----------------------------------------------------------------------------
 Endpoint Fixtures
@@ -237,7 +236,6 @@ def get_endpoint_with_models_mock():
             traffic_split=_TEST_TRAFFIC_SPLIT,
         )
         yield get_endpoint_mock
-
 
 
 @pytest.fixture
@@ -432,7 +430,7 @@ def create_private_endpoint_mock():
         create_private_endpoint_lro_mock.result.return_value = gca_endpoint.Endpoint(
             name=_TEST_ENDPOINT_NAME,
             display_name=_TEST_DISPLAY_NAME,
-            network=_TEST_NETWORK
+            network=_TEST_NETWORK,
         )
         create_private_endpoint_mock.return_value = create_private_endpoint_lro_mock
         yield create_private_endpoint_mock
@@ -462,7 +460,6 @@ def predict_private_endpoint_mock():
         )
         predict_mock.return_value.predictions.extend(_TEST_PREDICTION)
         yield predict_mock
-
 
 
 class TestEndpoint:
@@ -1573,8 +1570,7 @@ class TestPrivateEndpoint(TestEndpoint):
             my_endpoint.wait()
 
         expected_endpoint = gca_endpoint.Endpoint(
-            display_name=_TEST_DISPLAY_NAME,
-            network=_TEST_NETWORK
+            display_name=_TEST_DISPLAY_NAME, network=_TEST_NETWORK
         )
 
         create_private_endpoint_mock.assert_called_once_with(
