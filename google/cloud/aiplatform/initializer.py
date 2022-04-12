@@ -59,6 +59,9 @@ class _Config:
         location: Optional[str] = None,
         experiment: Optional[str] = None,
         experiment_description: Optional[str] = None,
+        experiment_tensorboard: Optional[
+            Union[str, tensorboard_resource.Tensorboard]
+        ] = None,
         staging_bucket: Optional[str] = None,
         credentials: Optional[auth_credentials.Credentials] = None,
         encryption_spec_key_name: Optional[str] = None,
@@ -91,9 +94,9 @@ class _Config:
         if (project and project != self._project) or (
             location and location != self._location
         ):
-            if metadata.metadata_service.experiment_name:
-                logging.info("project/location updated, reset Metadata config.")
-            metadata.metadata_service.reset()
+            if metadata.experiment_service.experiment_name:
+                logging.info("project/location updated, reset Experiment config.")
+            metadata.experiment_service.reset()
 
         if project:
             self._project = project
@@ -106,75 +109,6 @@ class _Config:
             self._credentials = credentials
         if encryption_spec_key_name:
             self._encryption_spec_key_name = encryption_spec_key_name
-
-        if experiment:
-            metadata.metadata_service.set_experiment(
-                experiment=experiment, description=experiment_description
-            )
-
-        if experiment_description and experiment is None:
-            raise ValueError(
-                "Experiment name needs to be set in `init` in order to add experiment descriptions."
-            )
-
-    def init_experiment_v2(
-        self,
-        *,
-        project: Optional[str] = None,
-        location: Optional[str] = None,
-        experiment: Optional[str] = None,
-        experiment_description: Optional[str] = None,
-        experiment_tensorboard: Optional[
-            Union[str, tensorboard_resource.Tensorboard]
-        ] = None,
-        staging_bucket: Optional[str] = None,
-        credentials: Optional[auth_credentials.Credentials] = None,
-        encryption_spec_key_name: Optional[str] = None,
-    ):
-        """Supports V2 Experiment Tracking.
-
-        Updates common initialization parameters with provided options.
-
-        Args:
-            project (str): The default project to use when making API calls.
-            location (str): The default location to use when making API calls. If not
-                set defaults to us-central-1.
-            experiment (str): Optional. The experiment name.
-            experiment_description (str): Optional. The description of the experiment.
-            experiment_tensorboard (Union[str, tensorboard_resource.Tensorboard]):
-                Optional. An instance, resource name, or resource ID of Tensorboard resource
-                to assign to `experiment` for time series metric logging. All Experiment Runs
-                created under this Experiment will use this Tensorboard for time series metric
-                logging.
-            staging_bucket (str): The default staging bucket to use to stage artifacts
-                when making API calls. In the form gs://...
-            credentials (google.auth.credentials.Credentials): The default custom
-                credentials to use when making API calls. If not provided credentials
-                will be ascertained from the environment.
-            encryption_spec_key_name (Optional[str]):
-                Optional. The Cloud KMS resource identifier of the customer
-                managed encryption key used to protect a resource. Has the
-                form:
-                ``projects/my-project/locations/my-region/keyRings/my-kr/cryptoKeys/my-key``.
-                The key needs to be in the same region as where the compute
-                resource is created.
-
-                If set, this resource and all sub-resources will be secured by this key.
-        """
-
-        # reset metadata_service config if project or location is updated.
-        if (project and project != self._project) or (
-            location and location != self._location
-        ):
-            metadata.experiment_tracker.reset()
-
-        self.init(
-            project=project,
-            location=location,
-            staging_bucket=staging_bucket,
-            credentials=credentials,
-            encryption_spec_key_name=encryption_spec_key_name,
-        )
 
         if experiment:
             metadata.experiment_tracker.set_experiment(

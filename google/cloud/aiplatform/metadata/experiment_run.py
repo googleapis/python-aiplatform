@@ -94,6 +94,18 @@ class ExperimentRun(experiment_resources.ExperimentLoggable,
     def name(self) -> str:
         return self._metadata_context.name
 
+    @property
+    def resource_name(self) -> str:
+        return self._metadata_context.resource_name
+
+    @property
+    def project(self) -> str:
+        return self._metadata_context.project
+
+    @property
+    def location(self) -> str:
+        return self._metadata_context.location
+
     @staticmethod
     def _get_experiment(
         experiment: Union[experiment_resources.Experiment, str, None] = None,
@@ -123,6 +135,9 @@ class ExperimentRun(experiment_resources.ExperimentLoggable,
         if not artifact.metadata.get(metadata_utils._VERTEX_EXPERIMENT_TRACKING_LABEL):
             return False
 
+        if artifact.name != self._tensorboard_run_id(self._metadata_context.name):
+            return False
+
         run_parts = tensorboard_resource.TensorboardRun._parse_resource_name(
             artifact.metadata["resourceName"]
         )
@@ -135,23 +150,21 @@ class ExperimentRun(experiment_resources.ExperimentLoggable,
 
         return False
 
-    def _lookup_tensorboard_run_artifact(
-        self,
-    ) -> Optional[experiment_resources.VertexResourceWithMetadata]:
-        metadata_artifacts = _Artifact.list(
-            filter=metadata_utils.make_filter_string(
-                schema_title=constants._EXPERIMENTS_V2_TENSORBOARD_RUN,
-                in_context=[self._metadata_context.resource_name])
+    def _lookup_tensorboard_run_artifact(self) -> Optional[experiment_resources.VertexResourceWithMetadata]:
+        artifact = _Artifact._get(
+            resource_name=self._tensorboard_run_id(self._metadata_context.name),
+            project=self._metadata_context.project,
+            location=self._metadata_context.location,
+            credentials=self._metadata_context.credentials
         )
 
-        for artifact in metadata_artifacts:
-            if self._is_backing_tensorboard_run_artifact(artifact):
-                return experiment_resources.VertexResourceWithMetadata(
-                    resource=tensorboard_resource.TensorboardRun(
-                        artifact.metadata["resourceName"]
-                    ),
-                    metadata=artifact,
-                )
+        if artifact and self._is_backing_tensorboard_run_artifact(artifact):
+            return experiment_resources.VertexResourceWithMetadata(
+                resource=tensorboard_resource.TensorboardRun(
+                    artifact.metadata["resourceName"]
+                ),
+                metadata=artifact,
+            )
 
     @classmethod
     def list(
@@ -181,25 +194,16 @@ class ExperimentRun(experiment_resources.ExperimentLoggable,
 
         run_contexts = _Context.list(filter=filter_str, **metadata_args)
 
-        def _initialize_experiment_run(context):
+        def _initialize_experiment_run(context: _Context) -> ExperimentRun:
             this_experiment_run = cls.__new__(cls)
             this_experiment_run._experiment = experiment
             this_experiment_run._run_name = context.display_name
             this_experiment_run._metadata_context = context
 
             with experiment_resources._SetLoggerLevel(resource):
-                tb_run_artifact = _Artifact._get(
-                    resource_name=context.name + "-tbrun", **metadata_args
-                )
-            if tb_run_artifact:
-                tb_run = tensorboard_resource.TensorboardRun(
-                    tb_run_artifact.metadata["resourceName"], **metadata_args
-                )
-                this_experiment_run._backing_tensorboard_run = (
-                    experiment_resources.VertexResourceWithMetadata(
-                        metadata=tb_run_artifact, resource=tb_run
-                    )
-                )
+                tb_run = this_experiment_run._lookup_tensorboard_run_artifact()
+            if tb_run:
+                this_experiment_run._backing_tensorboard_run = tb_run
             else:
                 this_experiment_run._backing_tensorboard_run = None
 
@@ -221,11 +225,15 @@ class ExperimentRun(experiment_resources.ExperimentLoggable,
     @classmethod
     def _query_experiment_row(cls, context: _Context) -> experiment_resources.ExperimentRow:
         # TODO(get tensorboard metrics)
+        this_experiment_run = cls.__new__(cls)
+        this_experiment_run._metadata_context = context
+        this_experiment_run._backing_tensorboard_run = this_experiment_run._lookup_tensorboard_run_artifact()
         return experiment_resources.ExperimentRow(
             experiment_run_type=context.schema_title,
             name=context.display_name,
             params=context.metadata[constants._PARAM_KEY],
-            metrics=context.metadata[constants._METRIC_KEY]
+            metrics=context.metadata[constants._METRIC_KEY],
+            time_series_metrics=this_experiment_run._get_latest_time_series_metric_columns(),
         )
 
     def _get_logged_pipeline_runs(self) -> List[_Context]:
@@ -252,7 +260,7 @@ class ExperimentRun(experiment_resources.ExperimentLoggable,
             )
 
             return {
-                f"time_series_metric.{display_name}": data.values[-1].scalar.value
+                display_name: data.values[-1].scalar.value
                 for display_name, data in time_series_metrics.items()
                 if data.value_type
                 == gca_tensorboard_time_series.TensorboardTimeSeries.ValueType.SCALAR
@@ -381,18 +389,9 @@ class ExperimentRun(experiment_resources.ExperimentLoggable,
             else:
                 cls._assign_to_experiment_backing_tensorboard(self=experiment_run)
 
-        with concurrent.futures.ThreadPoolExecutor(max_workers=2) as executor:
-            submissions = [
-                executor.submit(fn)
-                for fn in [
-                    _add_tensorboard_to_run,
-                    experiment_run._associate_to_experiment(experiment),
-                ]
-            ]
 
-            for submission in submissions:
-                submission.result()
-
+        _add_tensorboard_to_run
+        experiment_run._associate_to_experiment(experiment)
         return experiment_run
 
     def _assign_to_experiment_backing_tensorboard(self):
@@ -407,7 +406,9 @@ class ExperimentRun(experiment_resources.ExperimentLoggable,
         self, tensorboard: Union[tensorboard_resource.Tensorboard, str]
     ):
         if isinstance(tensorboard, str):
-            tensorboard = tensorboard_resource.Tensorboard(tensorboard)
+            tensorboard = tensorboard_resource.Tensorboard(
+                tensorboard,
+                credentials=self._metadata_context.credentials)
 
         tensorboard_resource_name_parts = tensorboard._parse_resource_name(
             tensorboard.resource_name
@@ -419,7 +420,8 @@ class ExperimentRun(experiment_resources.ExperimentLoggable,
         )
         try:
             tensorboard_experiment = tensorboard_resource.TensorboardExperiment(
-                tensorboard_experiment_resource_name
+                tensorboard_experiment_resource_name,
+                credentials=tensorboard.credentials
             )
         except exceptions.NotFound:
             with experiment_resources._SetLoggerLevel(tensorboard_resource):
@@ -459,6 +461,7 @@ class ExperimentRun(experiment_resources.ExperimentLoggable,
         with experiment_resources._SetLoggerLevel(resource):
             tensorboard_run_metadata_artifact = _Artifact._create(
                 uri=gcp_resource_url,
+                resource_id=self._tensorboard_run_id(self._metadata_context.name),
                 metadata={
                     "resourceName": tensorboard_run.resource_name,
                     metadata_utils._VERTEX_EXPERIMENT_TRACKING_LABEL: True,
@@ -473,6 +476,10 @@ class ExperimentRun(experiment_resources.ExperimentLoggable,
         self._backing_tensorboard_run = experiment_resources.VertexResourceWithMetadata(
             resource=tensorboard_run, metadata=tensorboard_run_metadata_artifact
         )
+
+    @staticmethod
+    def _tensorboard_run_id(run_id: str) -> str:
+        return f'{run_id}-tb-run'
 
     def assign_backing_tensorboard(
         self, tensorboard: Union[tensorboard_resource.Tensorboard, str]

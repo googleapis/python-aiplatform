@@ -384,8 +384,8 @@ class ExperimentLoggable(abc.ABC):
         """
         pass
 
-    @abc.abstractmethod
     @classmethod
+    @abc.abstractmethod
     def _query_experiment_row(cls, context: _Context) -> ExperimentRow:
         """Should returns parameters and metrics for this resource as an ExperimentRun row."""
         pass

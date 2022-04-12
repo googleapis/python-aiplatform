@@ -73,24 +73,37 @@ aiplatform.init(project='my_project')
 """
 init = initializer.global_config.init
 
-log_params = metadata.metadata_service.log_params
-log_metrics = metadata.metadata_service.log_metrics
-get_experiment_df = metadata.metadata_service.get_experiment_df
 get_pipeline_df = metadata.metadata_service.get_pipeline_df
-start_run = metadata.metadata_service.start_run
+
+log_params = metadata.experiment_tracker.log_params
+log_metrics = metadata.experiment_tracker.log_metrics
+get_experiment_df = metadata.experiment_tracker.get_experiment_df
+start_run = metadata.experiment_tracker.start_run
+log = metadata.experiment_tracker.log
+log_time_series_metrics = metadata.experiment_tracker.log_time_series_metrics
+get_artifact = metadata.experiment_tracker.get_artifact
+end_run = metadata.experiment_tracker.end_run
+Experiment = metadata.experiment_resources.Experiment
+ExperimentRun = metadata.experiment_run.ExperimentRun
+Artifact = metadata.Artifact
 
 
 __all__ = (
+    "end_run",
     "explain",
     "gapic",
+    "get_artifact",
     "init",
     "helpers",
     "hyperparameter_tuning",
+    "log",
     "log_params",
     "log_metrics",
+    "log_time_series_metrics",
     "get_experiment_df",
     "get_pipeline_df",
     "start_run",
+    "Artifact",
     "AutoMLImageTrainingJob",
     "AutoMLTabularTrainingJob",
     "AutoMLForecastingTrainingJob",
@@ -103,6 +116,8 @@ __all__ = (
     "CustomPythonPackageTrainingJob",
     "Endpoint",
     "EntityType",
+    "Experiment",
+    "ExperimentRun",
     "Feature",
     "Featurestore",
     "ImageDataset",
@@ -117,27 +132,4 @@ __all__ = (
     "TextDataset",
     "TimeSeriesDataset",
     "VideoDataset",
-)
-
-log_params = metadata.experiment_tracker.log_params
-log_metrics = metadata.experiment_tracker.log_metrics
-get_experiment_df = metadata.experiment_tracker.get_experiment_df
-start_run = metadata.experiment_tracker.start_run
-log = metadata.experiment_tracker.log
-log_time_series_metrics = metadata.experiment_tracker.log_time_series_metrics
-get_artifact = metadata.experiment_tracker.get_artifact
-init = initializer.global_config.init_experiment_v2
-end_run = metadata.experiment_tracker.end_run
-Experiment = metadata.experiment_resources.Experiment
-ExperimentRun = metadata.experiment_run.ExperimentRun
-Artifact = metadata.Artifact
-
-__all__ = __all__ + (
-    "get_artifact",
-    "log",
-    "log_time_series_metrics",
-    "end_run",
-    "Artifact",
-    "Experiment",
-    "ExperimentRun",
 )
