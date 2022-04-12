@@ -33,6 +33,7 @@ from google.cloud.aiplatform import jobs
 from google.cloud.aiplatform import models
 from google.cloud.aiplatform import utils
 from google.cloud.aiplatform.utils import gcs_utils
+from google.cloud.aiplatform.model_evaluation import ModelEvaluation
 
 from google.cloud.aiplatform.compat.services import endpoint_service_client
 
@@ -3209,4 +3210,29 @@ class Model(base.VertexAiResourceNounWithFutureManager):
             staging_bucket=staging_bucket,
             sync=sync,
             upload_request_timeout=upload_request_timeout,
+        )
+
+    @classmethod
+    def list_model_evaluations(
+        cls,
+        model_name: str,
+        project: Optional[str] = None,
+        location: Optional[str] = None,
+        credentials: Optional[auth_credentials.Credentials] = None,
+    ) -> List["ModelEvaluation"]:
+
+        parent = utils.full_resource_name(
+            resource_name=model_name,
+            resource_noun=Model._resource_noun,
+            parse_resource_name_method=Model._parse_resource_name,
+            format_resource_name_method=Model._format_resource_name,
+            project=project,
+            location=location,
+        )
+
+        return ModelEvaluation._list(
+            project=project,
+            location=location,
+            credentials=credentials,
+            parent=parent,
         )
