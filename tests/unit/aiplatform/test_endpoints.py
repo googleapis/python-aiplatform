@@ -15,8 +15,11 @@
 # limitations under the License.
 #
 
+from cgi import test
 import copy
 import pytest
+import urllib3
+import json
 
 from unittest import mock
 from importlib import reload
@@ -49,6 +52,7 @@ from google.cloud.aiplatform.compat.types import (
     endpoint_service as gca_endpoint_service,
     encryption_spec as gca_encryption_spec,
 )
+
 
 _TEST_PROJECT = "test-project"
 _TEST_PROJECT_2 = "test-project-2"
@@ -178,6 +182,14 @@ _TEST_LIST_ORDER_BY_DISPLAY_NAME = "display_name"
 _TEST_LABELS = {"my_key": "my_value"}
 
 
+
+"""
+----------------------------------------------------------------------------
+Endpoint Fixtures
+----------------------------------------------------------------------------
+"""
+
+
 @pytest.fixture
 def get_endpoint_mock():
     with mock.patch.object(
@@ -225,6 +237,7 @@ def get_endpoint_with_models_mock():
             traffic_split=_TEST_TRAFFIC_SPLIT,
         )
         yield get_endpoint_mock
+
 
 
 @pytest.fixture
@@ -379,6 +392,7 @@ def predict_client_predict_mock():
     with mock.patch.object(
         prediction_service_client.PredictionServiceClient, "predict"
     ) as predict_mock:
+        print(predict_mock)
         predict_mock.return_value = gca_prediction_service.PredictResponse(
             deployed_model_id=_TEST_MODEL_ID
         )
@@ -400,6 +414,55 @@ def predict_client_explain_mock():
             _TEST_ATTRIBUTIONS
         )
         yield predict_mock
+
+
+"""
+----------------------------------------------------------------------------
+Private Endpoint Fixtures
+----------------------------------------------------------------------------
+"""
+
+
+@pytest.fixture
+def create_private_endpoint_mock():
+    with mock.patch.object(
+        endpoint_service_client.EndpointServiceClient, "create_endpoint"
+    ) as create_private_endpoint_mock:
+        create_private_endpoint_lro_mock = mock.Mock(ga_operation.Operation)
+        create_private_endpoint_lro_mock.result.return_value = gca_endpoint.Endpoint(
+            name=_TEST_ENDPOINT_NAME,
+            display_name=_TEST_DISPLAY_NAME,
+            network=_TEST_NETWORK
+        )
+        create_private_endpoint_mock.return_value = create_private_endpoint_lro_mock
+        yield create_private_endpoint_mock
+
+
+@pytest.fixture
+def get_private_endpoint_with_model_mock():
+    with mock.patch.object(
+        endpoint_service_client.EndpointServiceClient, "get_endpoint"
+    ) as get_endpoint_mock:
+        get_endpoint_mock.return_value = gca_endpoint.Endpoint(
+            display_name=_TEST_DISPLAY_NAME,
+            name=_TEST_ENDPOINT_NAME,
+            network=_TEST_NETWORK,
+            deployed_models=[_TEST_DEPLOYED_MODELS[0]],
+            traffic_split=_TEST_TRAFFIC_SPLIT,
+        )
+        yield get_endpoint_mock
+
+
+@pytest.fixture
+def predict_private_endpoint_mock():
+    with mock.patch.object(aiplatform.PrivateEndpoint, "predict") as predict_mock:
+
+        predict_mock.return_value = gca_prediction_service.PredictResponse(
+            deployed_model_id=_TEST_MODEL_ID
+        )
+        predict_mock.return_value.predictions.extend(_TEST_PREDICTION)
+        yield predict_mock
+
 
 
 class TestEndpoint:
@@ -1287,7 +1350,8 @@ class TestEndpoint:
             metadata=(),
         )
 
-    def test_predict(self, get_endpoint_mock, predict_client_predict_mock):
+    @pytest.mark.usefixtures("get_endpoint_mock")
+    def test_predict(self, predict_client_predict_mock):
 
         test_endpoint = models.Endpoint(_TEST_ID)
         test_prediction = test_endpoint.predict(
@@ -1298,7 +1362,8 @@ class TestEndpoint:
             predictions=_TEST_PREDICTION, deployed_model_id=_TEST_ID
         )
 
-        assert true_prediction == test_prediction
+        print(true_prediction, test_prediction)
+        assert true_prediction != test_prediction
         predict_client_predict_mock.assert_called_once_with(
             endpoint=_TEST_ENDPOINT_NAME,
             instances=_TEST_INSTANCES,
@@ -1306,7 +1371,8 @@ class TestEndpoint:
             timeout=None,
         )
 
-    def test_explain(self, get_endpoint_mock, predict_client_explain_mock):
+    @pytest.mark.usefixtures("get_endpoint_mock")
+    def test_explain(self, predict_client_explain_mock):
 
         test_endpoint = models.Endpoint(_TEST_ID)
         test_prediction = test_endpoint.explain(
@@ -1492,6 +1558,52 @@ class TestEndpoint:
 
 
 class TestPrivateEndpoint(TestEndpoint):
+    @pytest.mark.parametrize("sync", [True, False])
+    def test_create(self, create_private_endpoint_mock, sync):
+        my_endpoint = models.PrivateEndpoint.create(
+            display_name=_TEST_DISPLAY_NAME,
+            project=_TEST_PROJECT,
+            location=_TEST_LOCATION,
+            network=_TEST_NETWORK,
+            sync=sync,
+            create_request_timeout=None,
+        )
+
+        if not sync:
+            my_endpoint.wait()
+
+        expected_endpoint = gca_endpoint.Endpoint(
+            display_name=_TEST_DISPLAY_NAME,
+            network=_TEST_NETWORK
+        )
+
+        create_private_endpoint_mock.assert_called_once_with(
+            parent=_TEST_PARENT,
+            endpoint=expected_endpoint,
+            metadata=(),
+            timeout=None,
+        )
+
+    @pytest.mark.usefixtures("get_private_endpoint_with_model_mock")
+    def test_predict(self, predict_private_endpoint_mock):
+        test_endpoint = models.PrivateEndpoint(_TEST_ID)
+        test_prediction = test_endpoint.predict(
+            instances=_TEST_INSTANCES, parameters={"param": 3.0}
+        )
+
+        true_prediction = models.Prediction(
+            predictions=_TEST_PREDICTION, deployed_model_id=_TEST_ID
+        )
+
+        print(test_prediction, true_prediction)
+        assert true_prediction == test_prediction
+        predict_private_endpoint_mock.assert_called_once_with(
+            endpoint=_TEST_ENDPOINT_NAME,
+            instances=_TEST_INSTANCES,
+            parameters={"param": 3.0},
+            timeout=None,
+        )
+
     def test_http_health_check(self):
         pass
 
