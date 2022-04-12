@@ -16,7 +16,7 @@
 from collections import OrderedDict
 import functools
 import re
-from typing import Dict, Optional, Sequence, Tuple, Type, Union
+from typing import Dict, Mapping, Optional, Sequence, Tuple, Type, Union
 import pkg_resources
 
 from google.api_core.client_options import ClientOptions
@@ -683,7 +683,6 @@ class ModelServiceAsyncClient:
         [deployed_models][google.cloud.aiplatform.v1.Endpoint.deployed_models]
         field.
 
-
         .. code-block:: python
 
             from google.cloud import aiplatform_v1
@@ -808,7 +807,6 @@ class ModelServiceAsyncClient:
         the user. A Model is considered to be exportable if it has at
         least one [supported export
         format][google.cloud.aiplatform.v1.Model.supported_export_formats].
-
 
         .. code-block:: python
 

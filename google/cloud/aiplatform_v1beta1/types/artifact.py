@@ -45,7 +45,7 @@ class Artifact(proto.Message):
             An eTag used to perform consistent
             read-modify-write updates. If not set, a blind
             "overwrite" update happens.
-        labels (Sequence[google.cloud.aiplatform_v1beta1.types.Artifact.LabelsEntry]):
+        labels (Mapping[str, str]):
             The labels with user-defined metadata to
             organize your Artifacts.
             Label keys and values can be no longer than 64

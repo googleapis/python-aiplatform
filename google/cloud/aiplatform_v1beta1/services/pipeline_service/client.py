@@ -16,7 +16,7 @@
 from collections import OrderedDict
 import os
 import re
-from typing import Dict, Optional, Sequence, Tuple, Type, Union
+from typing import Dict, Mapping, Optional, Sequence, Tuple, Type, Union
 import pkg_resources
 
 from google.api_core import client_options as client_options_lib
@@ -638,7 +638,6 @@ class PipelineServiceClient(metaclass=PipelineServiceClientMeta):
         r"""Creates a TrainingPipeline. A created
         TrainingPipeline right away will be attempted to be run.
 
-
         .. code-block:: python
 
             from google.cloud import aiplatform_v1beta1
@@ -1096,7 +1095,6 @@ class PipelineServiceClient(metaclass=PipelineServiceClientMeta):
         [TrainingPipeline.state][google.cloud.aiplatform.v1beta1.TrainingPipeline.state]
         is set to ``CANCELLED``.
 
-
         .. code-block:: python
 
             from google.cloud import aiplatform_v1beta1
@@ -1183,7 +1181,6 @@ class PipelineServiceClient(metaclass=PipelineServiceClientMeta):
     ) -> gca_pipeline_job.PipelineJob:
         r"""Creates a PipelineJob. A PipelineJob will run
         immediately when created.
-
 
         .. code-block:: python
 
@@ -1637,7 +1634,6 @@ class PipelineServiceClient(metaclass=PipelineServiceClientMeta):
         1, corresponding to ``Code.CANCELLED``, and
         [PipelineJob.state][google.cloud.aiplatform.v1beta1.PipelineJob.state]
         is set to ``CANCELLED``.
-
 
         .. code-block:: python
 

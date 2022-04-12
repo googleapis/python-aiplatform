@@ -16,7 +16,7 @@
 from collections import OrderedDict
 import os
 import re
-from typing import Dict, Optional, Sequence, Tuple, Type, Union
+from typing import Dict, Mapping, Optional, Sequence, Tuple, Type, Union
 import pkg_resources
 
 from google.api_core import client_options as client_options_lib
@@ -987,7 +987,6 @@ class ModelServiceClient(metaclass=ModelServiceClientMeta):
         [deployed_models][google.cloud.aiplatform.v1.Endpoint.deployed_models]
         field.
 
-
         .. code-block:: python
 
             from google.cloud import aiplatform_v1
@@ -1112,7 +1111,6 @@ class ModelServiceClient(metaclass=ModelServiceClientMeta):
         the user. A Model is considered to be exportable if it has at
         least one [supported export
         format][google.cloud.aiplatform.v1.Model.supported_export_formats].
-
 
         .. code-block:: python
 

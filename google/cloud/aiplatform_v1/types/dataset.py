@@ -64,7 +64,7 @@ class Dataset(proto.Message):
             Used to perform consistent read-modify-write
             updates. If not set, a blind "overwrite" update
             happens.
-        labels (Sequence[google.cloud.aiplatform_v1.types.Dataset.LabelsEntry]):
+        labels (Mapping[str, str]):
             The labels with user-defined metadata to organize your
             Datasets.
 
@@ -151,7 +151,7 @@ class ImportDataConfig(proto.Message):
             input content.
 
             This field is a member of `oneof`_ ``source``.
-        data_item_labels (Sequence[google.cloud.aiplatform_v1.types.ImportDataConfig.DataItemLabelsEntry]):
+        data_item_labels (Mapping[str, str]):
             Labels that will be applied to newly imported DataItems. If
             an identical DataItem as one being imported already exists
             in the Dataset, then these labels will be appended to these

@@ -71,7 +71,7 @@ class CustomJob(proto.Message):
         error (google.rpc.status_pb2.Status):
             Output only. Only populated when job's state is
             ``JOB_STATE_FAILED`` or ``JOB_STATE_CANCELLED``.
-        labels (Sequence[google.cloud.aiplatform_v1beta1.types.CustomJob.LabelsEntry]):
+        labels (Mapping[str, str]):
             The labels with user-defined metadata to
             organize CustomJobs.
             Label keys and values can be no longer than 64
@@ -86,7 +86,7 @@ class CustomJob(proto.Message):
             CustomJob. If this is set, then all resources
             created by the CustomJob will be encrypted with
             the provided encryption key.
-        web_access_uris (Sequence[google.cloud.aiplatform_v1beta1.types.CustomJob.WebAccessUrisEntry]):
+        web_access_uris (Mapping[str, str]):
             Output only. URIs for accessing `interactive
             shells <https://cloud.google.com/vertex-ai/docs/training/monitor-debug-interactive-shell>`__
             (one URI for each training node). Only available if

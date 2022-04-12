@@ -16,7 +16,7 @@
 from collections import OrderedDict
 import os
 import re
-from typing import Dict, Optional, Sequence, Tuple, Type, Union
+from typing import Dict, Mapping, Optional, Sequence, Tuple, Type, Union
 import pkg_resources
 
 from google.api_core import client_options as client_options_lib
@@ -696,7 +696,6 @@ class JobServiceClient(metaclass=JobServiceClientMeta):
         r"""Creates a CustomJob. A created CustomJob right away
         will be attempted to be run.
 
-
         .. code-block:: python
 
             from google.cloud import aiplatform_v1beta1
@@ -1153,7 +1152,6 @@ class JobServiceClient(metaclass=JobServiceClientMeta):
         1, corresponding to ``Code.CANCELLED``, and
         [CustomJob.state][google.cloud.aiplatform.v1beta1.CustomJob.state]
         is set to ``CANCELLED``.
-
 
         .. code-block:: python
 
@@ -1678,7 +1676,6 @@ class JobServiceClient(metaclass=JobServiceClientMeta):
     ) -> None:
         r"""Cancels a DataLabelingJob. Success of cancellation is
         not guaranteed.
-
 
         .. code-block:: python
 
@@ -2232,7 +2229,6 @@ class JobServiceClient(metaclass=JobServiceClientMeta):
         [HyperparameterTuningJob.state][google.cloud.aiplatform.v1beta1.HyperparameterTuningJob.state]
         is set to ``CANCELLED``.
 
-
         .. code-block:: python
 
             from google.cloud import aiplatform_v1beta1
@@ -2320,7 +2316,6 @@ class JobServiceClient(metaclass=JobServiceClientMeta):
     ) -> gca_batch_prediction_job.BatchPredictionJob:
         r"""Creates a BatchPredictionJob. A BatchPredictionJob
         once created will right away be attempted to start.
-
 
         .. code-block:: python
 
@@ -2653,7 +2648,6 @@ class JobServiceClient(metaclass=JobServiceClientMeta):
         r"""Deletes a BatchPredictionJob. Can only be called on
         jobs that already finished.
 
-
         .. code-block:: python
 
             from google.cloud import aiplatform_v1beta1
@@ -2788,7 +2782,6 @@ class JobServiceClient(metaclass=JobServiceClientMeta):
         is set to ``CANCELLED``. Any files already outputted by the job
         are not deleted.
 
-
         .. code-block:: python
 
             from google.cloud import aiplatform_v1beta1
@@ -2878,7 +2871,6 @@ class JobServiceClient(metaclass=JobServiceClientMeta):
     ) -> gca_model_deployment_monitoring_job.ModelDeploymentMonitoringJob:
         r"""Creates a ModelDeploymentMonitoringJob. It will run
         periodically on a configured interval.
-
 
         .. code-block:: python
 
@@ -3002,7 +2994,6 @@ class JobServiceClient(metaclass=JobServiceClientMeta):
     ) -> pagers.SearchModelDeploymentMonitoringStatsAnomaliesPager:
         r"""Searches Model Monitoring Statistics generated within
         a given time window.
-
 
         .. code-block:: python
 
@@ -3652,7 +3643,6 @@ class JobServiceClient(metaclass=JobServiceClientMeta):
         [ModelDeploymentMonitoringJob.state][google.cloud.aiplatform.v1beta1.ModelDeploymentMonitoringJob.state]
         to 'PAUSED'.
 
-
         .. code-block:: python
 
             from google.cloud import aiplatform_v1beta1
@@ -3744,7 +3734,6 @@ class JobServiceClient(metaclass=JobServiceClientMeta):
         r"""Resumes a paused ModelDeploymentMonitoringJob. It
         will start to run from next scheduled time. A deleted
         ModelDeploymentMonitoringJob can't be resumed.
-
 
         .. code-block:: python
 

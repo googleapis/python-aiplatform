@@ -61,7 +61,7 @@ class Annotation(proto.Message):
             "overwrite" update happens.
         annotation_source (google.cloud.aiplatform_v1.types.UserActionReference):
             Output only. The source of the Annotation.
-        labels (Sequence[google.cloud.aiplatform_v1.types.Annotation.LabelsEntry]):
+        labels (Mapping[str, str]):
             Optional. The labels with user-defined metadata to organize
             your Annotations.
 

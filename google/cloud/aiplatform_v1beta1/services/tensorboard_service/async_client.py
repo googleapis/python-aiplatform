@@ -18,6 +18,7 @@ import functools
 import re
 from typing import (
     Dict,
+    Mapping,
     Optional,
     AsyncIterable,
     Awaitable,
@@ -2122,7 +2123,6 @@ class TensorboardServiceAsyncClient:
         r"""Batch create TensorboardTimeSeries that belong to a
         TensorboardExperiment.
 
-
         .. code-block:: python
 
             from google.cloud import aiplatform_v1beta1
@@ -2818,7 +2818,6 @@ class TensorboardServiceAsyncClient:
         Otherwise, that limit number of data points will be
         randomly selected from this time series and returned.
 
-
         .. code-block:: python
 
             from google.cloud import aiplatform_v1beta1
@@ -2928,7 +2927,6 @@ class TensorboardServiceAsyncClient:
         from this time series and returned. This value can be changed by
         changing max_data_points, which can't be greater than 10k.
 
-
         .. code-block:: python
 
             from google.cloud import aiplatform_v1beta1
@@ -3029,7 +3027,6 @@ class TensorboardServiceAsyncClient:
         This is to allow reading blob data stored in consumer
         project's Cloud Storage bucket without users having to
         obtain Cloud Storage access permission.
-
 
         .. code-block:: python
 
@@ -3136,7 +3133,6 @@ class TensorboardServiceAsyncClient:
         r"""Write time series data points of multiple
         TensorboardTimeSeries in multiple TensorboardRun's. If
         any data fail to be ingested, an error will be returned.
-
 
         .. code-block:: python
 
@@ -3253,7 +3249,6 @@ class TensorboardServiceAsyncClient:
         r"""Write time series data points into multiple
         TensorboardTimeSeries under a TensorboardRun. If any
         data fail to be ingested, an error will be returned.
-
 
         .. code-block:: python
 
@@ -3375,7 +3370,6 @@ class TensorboardServiceAsyncClient:
     ) -> pagers.ExportTensorboardTimeSeriesDataAsyncPager:
         r"""Exports a TensorboardTimeSeries' data. Data is
         returned in paginated responses.
-
 
         .. code-block:: python
 

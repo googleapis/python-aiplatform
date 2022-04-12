@@ -84,7 +84,7 @@ class HyperparameterTuningJob(proto.Message):
         error (google.rpc.status_pb2.Status):
             Output only. Only populated when job's state is
             JOB_STATE_FAILED or JOB_STATE_CANCELLED.
-        labels (Sequence[google.cloud.aiplatform_v1beta1.types.HyperparameterTuningJob.LabelsEntry]):
+        labels (Mapping[str, str]):
             The labels with user-defined metadata to
             organize HyperparameterTuningJobs.
             Label keys and values can be no longer than 64
