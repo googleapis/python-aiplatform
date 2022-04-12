@@ -503,8 +503,8 @@ class Endpoint(base.VertexAiResourceNounWithFutureManager):
 
         return new_traffic_split
 
-    @staticmethod
     def _validate_deploy_args(
+        self,
         min_replica_count: int,
         max_replica_count: int,
         accelerator_type: Optional[str],
@@ -585,7 +585,7 @@ class Endpoint(base.VertexAiResourceNounWithFutureManager):
                 raise ValueError("Traffic percentage cannot be negative.")
 
         elif traffic_split:
-            # TODO(b/172678233) verify every referenced deployed model exists
+            self._validate_deployed_model_ids(list(traffic_split.keys()))
             if sum(traffic_split.values()) != 100:
                 raise ValueError(
                     "Sum of all traffic within traffic split needs to be 100."
@@ -1199,6 +1199,138 @@ class Endpoint(base.VertexAiResourceNounWithFutureManager):
             location_override=location,
             prediction_client=True,
         )
+
+    def _validate_deployed_model_ids(self, model_ids: List[str]):
+        """Validates if all deployed model ids can be found at the endpoint
+
+        Args:
+            model_ids (List[str]):
+                The list of deployed model ids.
+
+        Raise:
+            ValueError: if any deployed model id can not be found at the endpoint
+        """
+
+        list_model_ids = set([model.id for model in self.list_models() or []])
+        if any(
+            [
+                model_id != "0" and model_id not in list_model_ids
+                for model_id in model_ids
+            ]
+        ):
+            raise ValueError(
+                "One or more `model_id` can not be found at the endpoint."
+                f"The `model_ids` deployed to the endpoint are: {list_model_ids}, "
+                f"while the provided `model_ids` are: {model_ids}"
+            )
+
+    def update(
+        self,
+        display_name: Optional[str] = None,
+        description: Optional[str] = None,
+        labels: Optional[Dict[str, str]] = None,
+        traffic_split: Optional[Dict[str, int]] = None,
+        request_metadata: Optional[Sequence[Tuple[str, str]]] = (),
+        update_request_timeout: Optional[float] = None,
+    ) -> "Endpoint":
+        """Updates an endpoint.
+
+        Example usage:
+
+        my_endpoint = my_endpoint.update(
+            display_name='my-updated-endpoint',
+            description='my updated description',
+            labels={'key': 'value'},
+            traffic_split={
+                '123456': 20,
+                '234567': 80,
+            },
+        )
+
+        Args:
+            display_name (str):
+                Optional. The display name of the Endpoint.
+                The name can be up to 128 characters long and can be consist of any UTF-8
+                characters.
+            description (str):
+                Optional. The description of the Endpoint.
+            labels (Dict[str, str]):
+                Optional. The labels with user-defined metadata to organize your Endpoints.
+                Label keys and values can be no longer than 64 characters
+                (Unicode codepoints), can only contain lowercase letters, numeric
+                characters, underscores and dashes. International characters are allowed.
+                See https://goo.gl/xmQnxf for more information and examples of labels.
+            traffic_split (Dict[str, int]):
+                Optional. A map from a DeployedModel's ID to the percentage of this Endpoint's
+                traffic that should be forwarded to that DeployedModel.
+                If a DeployedModel's ID is not listed in this map, then it receives no traffic.
+                The traffic percentage values must add up to 100, or map must be empty if
+                the Endpoint is to not accept any traffic at a moment.
+            request_metadata (Sequence[Tuple[str, str]]):
+                Optional. Strings which should be sent along with the request as metadata.
+            update_request_timeout (float):
+                Optional. The timeout for the update request in seconds.
+
+        Returns:
+            Endpoint - Updated endpoint resource.
+
+        Raises:
+            ValueError: If `labels` is not the correct format.
+        """
+
+        self.wait()
+        update_mask: List[str] = []
+
+        if display_name:
+            utils.validate_display_name(display_name)
+            update_mask.append("display_name")
+
+        if description:
+            update_mask.append("description")
+
+        if labels:
+            utils.validate_labels(labels)
+            update_mask.append("labels")
+
+        if traffic_split:
+            self._validate_deployed_model_ids(list(traffic_split.keys()))
+            if sum(traffic_split.values()) != 100:
+                raise ValueError(
+                    "Sum of all traffic within traffic split needs to be 100."
+                )
+            update_mask.append("traffic_split")
+
+        update_mask = field_mask_pb2.FieldMask(paths=update_mask)
+
+        gapic_endpoint = gca_endpoint_compat.Endpoint(
+            display_name=display_name,
+            description=description,
+            labels=labels,
+            traffic_split=traffic_split,
+        )
+
+        _LOGGER.log_action_start_against_resource(
+            "Updating",
+            "endpoint",
+            self,
+        )
+
+        update_endpoint_lro = self.api_client.update_endpoint(
+            endpoint=gapic_endpoint,
+            update_mask=update_mask,
+            metadata=request_metadata,
+            timeout=update_request_timeout,
+        )
+
+        _LOGGER.log_action_started_against_resource_with_lro(
+            "Update", "endpoint", self.__class__, update_endpoint_lro
+        )
+
+        update_endpoint_lro.result()
+
+        _LOGGER.log_action_completed_against_resource("endpoint", "updated", self)
+
+        return self
 
     def predict(
         self,
