@@ -51,6 +51,8 @@ from google.cloud.aiplatform.compat.types import (
 
 from google.protobuf import field_mask_pb2, json_format
 
+from google.cloud.aiplatform_v1.types import model_evaluation
+
 _DEFAULT_MACHINE_TYPE = "n1-standard-2"
 
 _LOGGER = base.Logger(__name__)
@@ -3219,7 +3221,7 @@ class Model(base.VertexAiResourceNounWithFutureManager):
         project: Optional[str] = None,
         location: Optional[str] = None,
         credentials: Optional[auth_credentials.Credentials] = None,
-    ) -> List["ModelEvaluation"]:
+    ) -> Optional[List["ModelEvaluation"]]:
 
         parent = utils.full_resource_name(
             resource_name=model_name,
@@ -3236,3 +3238,20 @@ class Model(base.VertexAiResourceNounWithFutureManager):
             credentials=credentials,
             parent=parent,
         )
+    
+    def get_model_evaluation(
+        self,
+        evaluation_name: Optional[str] = None,
+        project: Optional[str] = None,
+        location: Optional[str] = None,
+        credentials: Optional[auth_credentials.Credentials] = None,
+    ) -> Optional[model_evaluation.ModelEvaluation]:
+        """Returns and instantiates the provided ModelEvaluation. If no evaluation_name is passed, 
+        it will return the first evaluation associated with this model.
+        """
+
+        if not evaluation_name:
+            evaluation_name = Model.list_model_evaluations(self.resource_name)[0].resource_name
+
+        return ModelEvaluation(evaluation_name=evaluation_name)
+        

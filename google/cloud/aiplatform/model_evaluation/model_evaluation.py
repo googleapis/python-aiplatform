@@ -48,8 +48,8 @@ class ModelEvaluation(base.VertexAiResourceNounWithFutureManager):
             pipeline output artifact. Returns None if the underlying
             PipelineJob has not yet completed.
         """
-        # print(self.api_client.get_model_evaluation())
-        # return self.api_client.get_model_evaluation()
+        if self._gca_resource.metrics:
+            return self.to_dict()['metrics']
 
     def __init__(
         self,
