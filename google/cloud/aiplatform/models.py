@@ -3222,7 +3222,34 @@ class Model(base.VertexAiResourceNounWithFutureManager):
         location: Optional[str] = None,
         credentials: Optional[auth_credentials.Credentials] = None,
     ) -> Optional[List["ModelEvaluation"]]:
+        """List all Model Evaluation resources associated with this model.
 
+        Example Usage:
+
+        aiplatform.Model.list_model_evaluations(
+            model_name="projects/123/locations/us-central1/models/456"
+        )
+
+        aiplatform.Model.list_model_evaluations(
+            model_name="456"
+        )
+
+        Args:
+            model_name (str):
+                Required. A fully-qualified model resource name or model ID.
+                Example: "projects/123/locations/us-central1/models/456" or
+                "456" when project and location are initialized or passed.
+            project: Optional[str]=None,
+                Project to get model evaluations from. Overrides project set in
+                aiplatform.init.
+            location: Optional[str]=None,
+                Location to get model evaluations from. Overrides location set in
+                aiplatform.init.
+            credentials: Optional[auth_credentials.Credentials]=None,
+                Custom credentials to get model evaluations from. Overrides credentials
+                set in aiplatform.init.
+        """
+    
         parent = utils.full_resource_name(
             resource_name=model_name,
             resource_noun=Model._resource_noun,
@@ -3246,8 +3273,33 @@ class Model(base.VertexAiResourceNounWithFutureManager):
         location: Optional[str] = None,
         credentials: Optional[auth_credentials.Credentials] = None,
     ) -> Optional[model_evaluation.ModelEvaluation]:
-        """Returns and instantiates the provided ModelEvaluation. If no evaluation_name is passed, 
-        it will return the first evaluation associated with this model.
+        """Returns a ModelEvaluation resource and instantiates its representation.
+        If no evaluation_name is passed, it will return the first evaluation associated
+        with this model.
+
+        Example usage:
+
+            my_evaluation = my_model.get_model_evaluation(
+                evaluation_name="projects/123/locations/us-central1/models/456/evaluations/789"
+            )
+
+            # Gets first ModelEvaluation
+            my_evaluation = my_model.get_model_evaluation()
+
+        Args:
+            evaluation_name (str):
+                Optional. A fully-qualified evaluation resource name or evaluation ID.
+                Example: "projects/123/locations/us-central1/models/456/evaluations/789" or
+                "789" when project and location are initialized or passed.
+            project: Optional[str]=None,
+                Project to get this evaluation from. Overrides project set in
+                aiplatform.init.
+            location: Optional[str]=None,
+                Location to get this evaluation from. Overrides location set in
+                aiplatform.init.
+            credentials: Optional[auth_credentials.Credentials]=None,
+                Custom credentials to get this evaluation from. Overrides credentials
+                set in aiplatform.init.
         """
 
         if not evaluation_name:

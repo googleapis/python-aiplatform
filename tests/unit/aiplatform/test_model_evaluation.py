@@ -44,12 +44,9 @@ from google.cloud.aiplatform_v1.services.model_service import (
 )
 
 
-
 from google.cloud.aiplatform.compat.types import model as gca_model
 
-from google.cloud.aiplatform_v1.types import (
-    model_evaluation as gca_model_evaluation,
-)
+from google.cloud.aiplatform_v1.types import model_evaluation as gca_model_evaluation
 
 # pipeline job
 _TEST_PROJECT = "test-project"
@@ -112,9 +109,7 @@ class TestModelEvaluation:
     def test_init_model_evaluation(self, mock_model_eval_get):
         aiplatform.init(project=_TEST_PROJECT)
 
-        aiplatform.ModelEvaluation(
-            evaluation_name=_TEST_EVAL_RESOURCE_NAME
-        )
+        aiplatform.ModelEvaluation(evaluation_name=_TEST_EVAL_RESOURCE_NAME)
 
         mock_model_eval_get.assert_called_once_with(
             name=_TEST_EVAL_RESOURCE_NAME, retry=base._DEFAULT_RETRY

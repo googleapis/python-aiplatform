@@ -40,16 +40,16 @@ class ModelEvaluation(base.VertexAiResourceNounWithFutureManager):
     _parse_resource_name_method = "parse_model_evaluation_path"
     _format_resource_name_method = "model_evaluation_path"
 
+    # TODO: should this have an option for only returning summary metrics?
     @property
     def evaluation_metrics(self) -> Optional[Dict[str, Any]]:
         """Gets the evaluation metrics from the Model Evaluation.
         Returns:
-            A dict with model metrics created from the system.Metrics
-            pipeline output artifact. Returns None if the underlying
-            PipelineJob has not yet completed.
+            A dict with model metrics created from the Model Evaluation or
+            None if the metrics for this evaluation are empty.
         """
         if self._gca_resource.metrics:
-            return self.to_dict()['metrics']
+            return self.to_dict()["metrics"]
 
     def __init__(
         self,
