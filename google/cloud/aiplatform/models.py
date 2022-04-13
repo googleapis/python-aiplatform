@@ -16,6 +16,7 @@
 #
 from optparse import Option
 import pathlib
+from mock import version_info
 import proto
 import re
 import shutil
@@ -50,6 +51,7 @@ from google.cloud.aiplatform.compat.types import (
 )
 
 from google.protobuf import field_mask_pb2, json_format
+from wcwidth import list_versions
 
 _DEFAULT_MACHINE_TYPE = "n1-standard-2"
 
@@ -64,11 +66,11 @@ _SUPPORTED_MODEL_FILE_NAMES = [
     "saved_model.pbtxt",
 ]
 
-class Version(NamedTuple):
+class VersionInfo(NamedTuple):
     version_id: str
     create_time: str
     update_time: str
-    version_alias: Optional[str] = None
+    version_aliases: Optional[Sequence[str]] = None
     version_description: Optional[str] = None
 
 class Prediction(NamedTuple):
@@ -1317,9 +1319,19 @@ class Endpoint(base.VertexAiResourceNounWithFutureManager):
 
     def list_versions(
         self,
-    ) -> List[Version]:
+    ) -> List[VersionInfo]:
         operation_future = self.api_client.list_versions(
             name=self.name,
+        )
+
+    def get_version_info(
+        self,
+        version: str
+    ) -> VersionInfo:
+        versions = self.list_versions()
+        return next(
+            (info for info in versions if info.version_id == version or version in info.version_aliases), 
+            None
         )
 
     def delete_version(
@@ -1597,6 +1609,7 @@ class Model(base.VertexAiResourceNounWithFutureManager):
         project: Optional[str] = None,
         location: Optional[str] = None,
         credentials: Optional[auth_credentials.Credentials] = None,
+        target_version: Optional[str] = None,
     ):
         """Retrieves the model resource and instantiates its representation.
 
@@ -1623,6 +1636,11 @@ class Model(base.VertexAiResourceNounWithFutureManager):
             resource_name=model_name,
         )
         self._gca_resource = self._get_gca_resource(resource_name=model_name)
+        
+        if not target_version and '@' in model_name:
+            self.target_version = self._parse_model_version(model_name)
+        else:
+            self.target_version = target_version
 
     def update(
         self,
@@ -1724,7 +1742,7 @@ class Model(base.VertexAiResourceNounWithFutureManager):
         sync=True,
         upload_request_timeout: Optional[float] = None,
         parent_model: Optional[str] = None,
-        version_alias: Optional[str] = None,
+        version_aliases: Optional[Sequence[str]] = None,
         version_description: Optional[str] = None,
     ) -> "Model":
         """Uploads a model and returns a Model representing the uploaded Model
@@ -1956,7 +1974,7 @@ class Model(base.VertexAiResourceNounWithFutureManager):
             predict_schemata=model_predict_schemata,
             labels=labels,
             encryption_spec=encryption_spec,
-            version_alias=version_alias,
+            version_aliases=version_aliases,
             version_description=version_description,
         )
 
@@ -2634,7 +2652,8 @@ class Model(base.VertexAiResourceNounWithFutureManager):
 
             ValueError: If invalid arguments or export formats are provided.
         """
-        version == True
+
+        version = self.target_version if not version else version
 
         self.wait()
 
@@ -3284,3 +3303,38 @@ class Model(base.VertexAiResourceNounWithFutureManager):
             sync=sync,
             upload_request_timeout=upload_request_timeout,
         )
+
+class ModelRegistry:
+    
+    def __init__(
+        self,
+        model: Union[Model, str] = None,
+        model_display_name: Optional[str] = None,
+        location: Optional[str] = None,
+        project: Optional[str] = None,
+    ) -> None:
+    
+        if isinstance(model, Model):
+            self.model_resource_name = model.name
+
+        elif isinstance(model, str):
+            self.model_resource_name = model
+        
+        elif model_display_name and location and project:
+            self.model_resource_name = utils.full_resource_name(
+                resource_name=model_display_name,
+                resource_noun="models",
+                parse_resource_name_method=Model._parse_resource_name,
+                format_resource_name_method=Model._format_resource_name,
+                project=project,
+                location=location,
+            )
+
+        else:
+            raise ValueError("A model instance, a fully-qualified model_resource_name, or a model_display_name with location and project must be given.")
+
+    def get_model(
+        self,
+        version: Optional[str] = None,
+    ) -> Model:
+        return Model(self.model_resource_name, target_version=version)
