@@ -3214,6 +3214,7 @@ class Model(base.VertexAiResourceNounWithFutureManager):
             upload_request_timeout=upload_request_timeout,
         )
 
+    # TODO: should this have a sync param?
     @classmethod
     def list_model_evaluations(
         cls,
@@ -3266,6 +3267,7 @@ class Model(base.VertexAiResourceNounWithFutureManager):
             parent=parent,
         )
     
+    # TODO: same question about a sync param
     def get_model_evaluation(
         self,
         evaluation_name: Optional[str] = None,

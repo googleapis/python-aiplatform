@@ -50,6 +50,7 @@ from google.cloud.aiplatform.compat.types import (
     explanation as gca_explanation,
     machine_resources as gca_machine_resources,
     model_service as gca_model_service,
+    model_evaluation as gca_model_evaluation,
     endpoint_service as gca_endpoint_service,
     encryption_spec as gca_encryption_spec,
 )
@@ -183,6 +184,52 @@ _TEST_SUPPORTED_EXPORT_FORMATS_BOTH = [
 _TEST_SUPPORTED_EXPORT_FORMATS_UNSUPPORTED = []
 _TEST_CONTAINER_REGISTRY_DESTINATION
 
+# Model Evaluation
+_TEST_EVAL_RESOURCE_NAME = f"{_TEST_MODEL_RESOURCE_NAME}/evaluations/{_TEST_ID}"
+_TEST_MODEL_EVAL_METRICS = {
+    "auPrc": 0.80592036,
+    "auRoc": 0.8100363,
+    "logLoss": 0.53061414,
+    "confidenceMetrics": [
+        {
+            "confidenceThreshold": -0.01,
+            "recall": 1.0,
+            "precision": 0.5,
+            "falsePositiveRate": 1.0,
+            "f1Score": 0.6666667,
+            "recallAt1": 1.0,
+            "precisionAt1": 0.5,
+            "falsePositiveRateAt1": 1.0,
+            "f1ScoreAt1": 0.6666667,
+            "truePositiveCount": "415",
+            "falsePositiveCount": "415",
+        },
+        {
+            "recall": 1.0,
+            "precision": 0.5,
+            "falsePositiveRate": 1.0,
+            "f1Score": 0.6666667,
+            "recallAt1": 0.74216866,
+            "precisionAt1": 0.74216866,
+            "falsePositiveRateAt1": 0.25783134,
+            "f1ScoreAt1": 0.74216866,
+            "truePositiveCount": "415",
+            "falsePositiveCount": "415",
+        },
+    ],
+}
+
+_TEST_MODEL_EVAL_LIST = [
+    gca_model_evaluation.ModelEvaluation(
+        name=_TEST_EVAL_RESOURCE_NAME,
+    ),
+    gca_model_evaluation.ModelEvaluation(
+        name=_TEST_EVAL_RESOURCE_NAME,
+    ),
+    gca_model_evaluation.ModelEvaluation(
+        name=_TEST_EVAL_RESOURCE_NAME,
+    ),
+]
 
 @pytest.fixture
 def mock_model():
@@ -469,6 +516,24 @@ def mock_storage_blob_upload_from_filename():
     ):
         yield mock_blob_upload_from_filename
 
+# ModelEvaluation mocks
+@pytest.fixture
+def mock_model_eval_get():
+    with mock.patch.object(
+        model_service_client.ModelServiceClient, "get_model_evaluation"
+    ) as mock_get_model_eval:
+        mock_get_model_eval.return_value = gca_model_evaluation.ModelEvaluation(
+            name=_TEST_EVAL_RESOURCE_NAME, metrics=_TEST_MODEL_EVAL_METRICS,
+        )
+        yield mock_get_model_eval
+
+@pytest.fixture
+def list_model_evaluations_mock():
+    with mock.patch.object(
+        model_service_client.ModelServiceClient, "list_model_evaluations"
+    ) as list_model_evaluations_mock:
+        list_model_evaluations_mock.return_value = _TEST_MODEL_EVAL_LIST
+        yield list_model_evaluations_mock
 
 class TestModel:
     def setup_method(self):
@@ -1856,3 +1921,33 @@ class TestModel:
         update_model_mock.assert_called_once_with(
             model=current_model_proto, update_mask=update_mask
         )
+
+    def test_get_model_evaluation(
+        self,
+        mock_model_eval_get,
+        get_model_mock,
+    ):
+        test_model = models.Model(_TEST_ID)
+
+        test_model.get_model_evaluation(evaluation_name=_TEST_EVAL_RESOURCE_NAME)
+
+        mock_model_eval_get.assert_called_once_with(
+            name=_TEST_EVAL_RESOURCE_NAME, retry=base._DEFAULT_RETRY
+        )
+    
+    def test_list_model_evaluations(
+        self,
+        get_model_mock,
+        mock_model_eval_get,
+        list_model_evaluations_mock,
+    ):
+        eval_list = aiplatform.Model.list_model_evaluations(
+            model_name=_TEST_MODEL_RESOURCE_NAME
+        )
+
+        list_model_evaluations_mock.assert_called_once_with(
+            request={"parent": _TEST_MODEL_RESOURCE_NAME, "filter": None}
+        )
+
+        assert len(eval_list) == len(_TEST_MODEL_EVAL_LIST)
+

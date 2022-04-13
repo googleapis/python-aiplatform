@@ -51,6 +51,7 @@ class ModelEvaluation(base.VertexAiResourceNounWithFutureManager):
         if self._gca_resource.metrics:
             return self.to_dict()["metrics"]
 
+    # TODO: can this be initialized with an eval ID only if a model is passed in?
     def __init__(
         self,
         evaluation_name: str,
