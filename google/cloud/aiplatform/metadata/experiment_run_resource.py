@@ -14,7 +14,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from collections import defaultdict
 import concurrent.futures
 import functools
 import time
@@ -24,7 +23,6 @@ from google.api_core import exceptions
 from google.auth import credentials as auth_credentials
 from google.protobuf import timestamp_pb2
 
-from google.cloud.aiplatform.compat.types import event as gca_event
 from google.cloud.aiplatform.compat.types import (
     tensorboard_time_series as gca_tensorboard_time_series,
 )
@@ -35,7 +33,6 @@ from google.cloud.aiplatform.metadata import experiment_resources
 from google.cloud.aiplatform.metadata.artifact import Artifact
 from google.cloud.aiplatform.metadata.artifact import _Artifact
 from google.cloud.aiplatform.metadata.context import _Context
-from google.cloud.aiplatform.metadata.execution import _Execution
 from google.cloud.aiplatform.metadata.metadata_store import _MetadataStore
 from google.cloud.aiplatform.metadata import resource
 from google.cloud.aiplatform.metadata.schema import _MetadataSchema

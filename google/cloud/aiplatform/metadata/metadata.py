@@ -28,7 +28,7 @@ from google.cloud.aiplatform.metadata import constants
 from google.cloud.aiplatform.metadata.artifact import Artifact
 from google.cloud.aiplatform.metadata.artifact import _Artifact
 from google.cloud.aiplatform.metadata.context import _Context
-from google.cloud.aiplatform.metadata.execution import _Execution
+from google.cloud.aiplatform.metadata.execution import Execution
 from google.cloud.aiplatform.metadata import experiment_resources
 from google.cloud.aiplatform.metadata import experiment_run_resource
 from google.cloud.aiplatform.metadata.metadata_store import _MetadataStore
@@ -176,7 +176,7 @@ class _MetadataService:
             )
 
         run_execution_id = f"{self._experiment.name}-{run}"
-        run_execution = _Execution.get_or_create(
+        run_execution = Execution.get_or_create(
             resource_id=run_execution_id,
             display_name=run,
             schema_title=constants.SYSTEM_RUN,
@@ -221,7 +221,7 @@ class _MetadataService:
 
         self._validate_experiment_and_run(method_name="log_params")
         # query the latest run execution resource before logging.
-        execution = _Execution.get_or_create(
+        execution = Execution.get_or_create(
             resource_id=self._run.name,
             schema_title=constants.SYSTEM_RUN,
             schema_version=constants.SCHEMA_VERSIONS[constants.SYSTEM_RUN],
@@ -430,7 +430,7 @@ class _MetadataService:
 
         filter = f'schema_title="{constants.SYSTEM_RUN}" AND ({in_context_query})'
 
-        run_executions = _Execution.list(filter=filter)
+        run_executions = Execution.list(filter=filter)
 
         experiment_run_context_map = {c.name: c for c in run_contexts}
 
@@ -592,7 +592,7 @@ class _MetadataService:
         """
 
         filter = f'schema_title="{constants.SYSTEM_RUN}" AND in_context("{context_resource_name}")'
-        run_executions = _Execution.list(filter=filter)
+        run_executions = Execution.list(filter=filter)
 
         context_summary = []
         for run_execution in run_executions:

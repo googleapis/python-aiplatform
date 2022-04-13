@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-# Copyright 2021 Google LLC
+# Copyright 2022 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -15,20 +15,20 @@
 # limitations under the License.
 #
 
-from typing import Optional, Dict, List, Sequence
+from typing import Any, Dict, List, Optional, Sequence
 
 import proto
 from google.api_core import exceptions
 
-from google.cloud.aiplatform import utils
+from google.cloud.aiplatform import utils, base
 from google.cloud.aiplatform.compat.types import event as gca_event
 from google.cloud.aiplatform.compat.types import execution as gca_execution
 from google.cloud.aiplatform.compat.types import metadata_service
-from google.cloud.aiplatform.metadata import artifact
+from google.cloud.aiplatform.metadata import artifact, metadata_store
 from google.cloud.aiplatform.metadata import resource
 
 
-class _Execution(resource._Resource):
+class Execution(resource._Resource):
     """Metadata Execution resource for Vertex AI"""
 
     _resource_noun = "executions"
@@ -36,6 +36,36 @@ class _Execution(resource._Resource):
     _delete_method = "delete_execution"
     _parse_resource_name_method = "parse_execution_path"
     _format_resource_name_method = "execution_path"
+
+    def __init__(self,
+                 schema_title: str,
+                 *,
+                 metadata: Optional[Dict[str, Any]] = None,
+                 resource_id: Optional[str] = None,):
+
+        # TODO pass in project/location/credentials
+        super(base.VertexAiResourceNounWithFutureManager, self).__init__()
+
+        resource = Execution._create_resource(
+            api_client=self.api_client,
+            parent=metadata_store._MetadataStore._format_resource_name(
+                project=self.project, location=self.location, metadata_store='default'
+            ),
+            schema_title=schema_title,
+            resource_id=resource_id,
+            metadata=metadata,
+        )
+        self._gca_resource = resource
+
+        if
+
+
+
+    def __enter__(self):
+        pass
+
+    def __exit__(self, exc_type, exc_val, exc_tb):
+        pass
 
     def add_artifact(
         self,
@@ -123,8 +153,8 @@ class _Execution(resource._Resource):
         cls,
         client: utils.MetadataClientWithOverride,
         parent: str,
-        resource_id: str,
         schema_title: str,
+        resource_id: Optional[str] = None,
         display_name: Optional[str] = None,
         schema_version: Optional[str] = None,
         description: Optional[str] = None,

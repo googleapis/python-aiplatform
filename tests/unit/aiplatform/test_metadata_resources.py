@@ -551,14 +551,14 @@ class TestExecution:
 
     def test_init_execution(self, get_execution_mock):
         aiplatform.init(project=_TEST_PROJECT)
-        execution._Execution(resource_name=_TEST_EXECUTION_NAME)
+        execution.Execution(resource_name=_TEST_EXECUTION_NAME)
         get_execution_mock.assert_called_once_with(
             name=_TEST_EXECUTION_NAME, retry=base._DEFAULT_RETRY
         )
 
     def test_init_execution_with_id(self, get_execution_mock):
         aiplatform.init(project=_TEST_PROJECT, location=_TEST_LOCATION)
-        execution._Execution(
+        execution.Execution(
             resource_name=_TEST_EXECUTION_ID, metadata_store_id=_TEST_METADATA_STORE
         )
         get_execution_mock.assert_called_once_with(
@@ -570,7 +570,7 @@ class TestExecution:
     ):
         aiplatform.init(project=_TEST_PROJECT)
 
-        my_execution = execution._Execution.get_or_create(
+        my_execution = execution.Execution.get_or_create(
             resource_id=_TEST_EXECUTION_ID,
             schema_title=_TEST_SCHEMA_TITLE,
             display_name=_TEST_DISPLAY_NAME,
@@ -604,7 +604,7 @@ class TestExecution:
     def test_update_execution(self, update_execution_mock):
         aiplatform.init(project=_TEST_PROJECT)
 
-        my_execution = execution._Execution._create(
+        my_execution = execution.Execution._create(
             resource_id=_TEST_EXECUTION_ID,
             schema_title=_TEST_SCHEMA_TITLE,
             display_name=_TEST_DISPLAY_NAME,
@@ -632,7 +632,7 @@ class TestExecution:
         aiplatform.init(project=_TEST_PROJECT)
 
         filter = "test-filter"
-        execution_list = execution._Execution.list(
+        execution_list = execution.Execution.list(
             filter=filter, metadata_store_id=_TEST_METADATA_STORE
         )
 
@@ -659,7 +659,7 @@ class TestExecution:
     def test_add_artifact(self, add_execution_events_mock):
         aiplatform.init(project=_TEST_PROJECT, location=_TEST_LOCATION)
 
-        my_execution = execution._Execution.get_or_create(
+        my_execution = execution.Execution.get_or_create(
             resource_id=_TEST_EXECUTION_ID,
             schema_title=_TEST_SCHEMA_TITLE,
             display_name=_TEST_DISPLAY_NAME,
@@ -682,7 +682,7 @@ class TestExecution:
         self, query_execution_inputs_and_outputs_mock
     ):
         aiplatform.init(project=_TEST_PROJECT, location=_TEST_LOCATION)
-        my_execution = execution._Execution.get_or_create(
+        my_execution = execution.Execution.get_or_create(
             resource_id=_TEST_EXECUTION_ID,
             schema_title=_TEST_SCHEMA_TITLE,
             display_name=_TEST_DISPLAY_NAME,
