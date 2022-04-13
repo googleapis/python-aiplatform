@@ -101,7 +101,6 @@ def get_model_mock():
 def mock_model():
     model = mock.MagicMock(models.Model)
     model.name = _TEST_ID
-    # model.resource_name = _TEST_MODEL_RESOURCE_NAME,
     model._latest_future = None
     model._exception = None
     model._gca_resource = gca_model.Model(

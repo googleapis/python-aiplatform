@@ -3222,19 +3222,13 @@ class Model(base.VertexAiResourceNounWithFutureManager):
 
         Example Usage:
 
-        aiplatform.Model.list_model_evaluations(
+        my_model = Model(
             model_name="projects/123/locations/us-central1/models/456"
         )
 
-        aiplatform.Model.list_model_evaluations(
-            model_name="456"
-        )
+        my_evaluations = my_model.list_model_evaluations()
 
         Args:
-            model_name (str):
-                Required. A fully-qualified model resource name or model ID.
-                Example: "projects/123/locations/us-central1/models/456" or
-                "456" when project and location are initialized or passed.
             project: Optional[str]=None,
                 Project to get model evaluations from. Overrides project set in
                 aiplatform.init.
@@ -3244,6 +3238,9 @@ class Model(base.VertexAiResourceNounWithFutureManager):
             credentials: Optional[auth_credentials.Credentials]=None,
                 Custom credentials to get model evaluations from. Overrides credentials
                 set in aiplatform.init.
+        Returns:
+            List[model_evaluation.ModelEvaluation]: List of ModelEvaluation resources
+            for the model.
         """
         parent = utils.full_resource_name(
             resource_name=self.resource_name,
@@ -3273,6 +3270,10 @@ class Model(base.VertexAiResourceNounWithFutureManager):
 
         Example usage:
 
+            my_model = Model(
+                model_name="projects/123/locations/us-central1/models/456"
+            )
+
             my_evaluation = my_model.get_model_evaluation(
                 evaluation_id="789"
             )
@@ -3283,6 +3284,9 @@ class Model(base.VertexAiResourceNounWithFutureManager):
         Args:
             evaluation_id (str):
                 Optional. The ID of the model evaluation to retrieve.
+        Returns:
+            model_evaluation.ModelEvaluation: Instantiated representation of the
+            ModelEvaluation resource.
         """
         if not evaluation_id:
             evaluation_resource_name = self.list_model_evaluations(self.resource_name)[
