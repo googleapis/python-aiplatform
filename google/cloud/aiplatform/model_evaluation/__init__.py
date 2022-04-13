@@ -17,6 +17,4 @@
 
 from google.cloud.aiplatform.model_evaluation.model_evaluation import ModelEvaluation
 
-__all__ = (
-    "ModelEvaluation",
-)
+__all__ = ("ModelEvaluation",)

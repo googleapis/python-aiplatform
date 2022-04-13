@@ -18,9 +18,6 @@
 from google.auth import credentials as auth_credentials
 
 from google.cloud.aiplatform import base
-from google.cloud.aiplatform import initializer
-from google.cloud.aiplatform import pipeline_jobs
-from google.cloud.aiplatform import jobs
 from google.cloud.aiplatform import utils
 from google.cloud.aiplatform import models
 
@@ -41,7 +38,6 @@ class ModelEvaluation(base.VertexAiResourceNounWithFutureManager):
     _parse_resource_name_method = "parse_model_evaluation_path"
     _format_resource_name_method = "model_evaluation_path"
 
-    # TODO: should this have an option for only returning summary metrics?
     @property
     def evaluation_metrics(self) -> Optional[Dict[str, Any]]:
         """Gets the evaluation metrics from the Model Evaluation.
@@ -51,6 +47,46 @@ class ModelEvaluation(base.VertexAiResourceNounWithFutureManager):
         """
         if self._gca_resource.metrics:
             return self.to_dict()["metrics"]
+
+    @property
+    def summary_metrics(self) -> Optional[Dict[str, Any]]:
+        """Gets the summary metrics for the Model Evaluation.
+
+        For classification models, this includes auPrc, auRoc, logLoss for the model overall,
+        and precision, recall, and F1 score at a confidence threshold of 0.5.
+
+        For regression models, the summary metrics are the same as `evaluation_metrics`.
+        This includes RMSE, MAE, MAPE, r^2, and RMSLE.
+
+        Returns:
+            A dict with model metrics created from the Model Evaluation or
+            None if the metrics for this evaluation are empty.
+        """
+
+        if self._gca_resource.metrics:
+            metrics = self.to_dict()["metrics"]
+            summary_metrics = {}
+
+            # classification
+            if "auPrc" in metrics:
+                summary_metrics["auPrc"] = metrics["auPrc"]
+                summary_metrics["auRoc"] = metrics["auRoc"]
+                summary_metrics["logLoss"] = metrics["logLoss"]
+
+                for confidence_slice in metrics["confidenceMetrics"]:
+                    if (
+                        "confidenceThreshold" in confidence_slice
+                        and confidence_slice["confidenceThreshold"] == 0.5
+                    ):
+                        summary_metrics["recall"] = confidence_slice["recall"]
+                        summary_metrics["precision"] = confidence_slice["precision"]
+                        summary_metrics["f1Score"] = confidence_slice["f1Score"]
+
+            # regression
+            if "rootMeanSquaredError" in metrics:
+                summary_metrics = metrics
+
+            return summary_metrics
 
     def __init__(
         self,
@@ -81,11 +117,6 @@ class ModelEvaluation(base.VertexAiResourceNounWithFutureManager):
                 credentials set in aiplatform.init will be used.
         """
 
-        if not evaluation_name.startswith("projects") and not model_id:
-            raise ValueError(
-                "model_id must be provided when passing in only an evaluation ID"
-            )
-
         super().__init__(
             project=project,
             location=location,
@@ -93,16 +124,9 @@ class ModelEvaluation(base.VertexAiResourceNounWithFutureManager):
             resource_name=evaluation_name,
         )
 
-        evaluation_name = utils.full_resource_name(
+        self._gca_resource = self._get_gca_resource(
             resource_name=evaluation_name,
-            resource_noun="evaluations",
-            parse_resource_name_method=self._parse_resource_name,
-            format_resource_name_method=self._format_resource_name,
-            project=project,
-            location=location,
-            parent_resource_name_fields={
-                models.Model._resource_noun: model_id,
-            }
+            parent_resource_name_fields={models.Model._resource_noun: model_id}
+            if model_id
+            else model_id,
         )
-
-        self._gca_resource = self._get_gca_resource(resource_name=evaluation_name,)

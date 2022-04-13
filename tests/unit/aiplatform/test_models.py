@@ -185,9 +185,7 @@ _TEST_SUPPORTED_EXPORT_FORMATS_UNSUPPORTED = []
 _TEST_CONTAINER_REGISTRY_DESTINATION
 
 # Model Evaluation
-_TEST_MODEL_EVAL_RESOURCE_NAME = model_service_client.ModelServiceClient.model_evaluation_path(
-    _TEST_PROJECT, _TEST_LOCATION, _TEST_MODEL_NAME, _TEST_ID,
-)
+_TEST_MODEL_EVAL_RESOURCE_NAME = f"{_TEST_MODEL_RESOURCE_NAME}/evaluations/{_TEST_ID}"
 _TEST_MODEL_EVAL_METRICS = {
     "auPrc": 0.80592036,
     "auRoc": 0.8100363,
@@ -232,6 +230,7 @@ _TEST_MODEL_EVAL_LIST = [
         name=_TEST_MODEL_EVAL_RESOURCE_NAME,
     ),
 ]
+
 
 @pytest.fixture
 def mock_model():
@@ -518,6 +517,7 @@ def mock_storage_blob_upload_from_filename():
     ):
         yield mock_blob_upload_from_filename
 
+
 # ModelEvaluation mocks
 @pytest.fixture
 def mock_model_eval_get():
@@ -525,9 +525,11 @@ def mock_model_eval_get():
         model_service_client.ModelServiceClient, "get_model_evaluation"
     ) as mock_get_model_eval:
         mock_get_model_eval.return_value = gca_model_evaluation.ModelEvaluation(
-            name=_TEST_MODEL_EVAL_RESOURCE_NAME, metrics=_TEST_MODEL_EVAL_METRICS,
+            name=_TEST_MODEL_EVAL_RESOURCE_NAME,
+            metrics=_TEST_MODEL_EVAL_METRICS,
         )
         yield mock_get_model_eval
+
 
 @pytest.fixture
 def list_model_evaluations_mock():
@@ -536,6 +538,7 @@ def list_model_evaluations_mock():
     ) as list_model_evaluations_mock:
         list_model_evaluations_mock.return_value = _TEST_MODEL_EVAL_LIST
         yield list_model_evaluations_mock
+
 
 class TestModel:
     def setup_method(self):
@@ -1924,32 +1927,47 @@ class TestModel:
             model=current_model_proto, update_mask=update_mask
         )
 
-    def test_get_model_evaluation(
+    def test_get_model_evaluation_with_id(
         self,
         mock_model_eval_get,
         get_model_mock,
     ):
-        test_model = models.Model(_TEST_ID)
+        test_model = models.Model(model_name=_TEST_MODEL_RESOURCE_NAME)
 
-        test_model.get_model_evaluation(evaluation_name=_TEST_MODEL_EVAL_RESOURCE_NAME)
+        test_model.get_model_evaluation(evaluation_id=_TEST_ID)
 
         mock_model_eval_get.assert_called_once_with(
             name=_TEST_MODEL_EVAL_RESOURCE_NAME, retry=base._DEFAULT_RETRY
         )
-    
+
+    def test_get_model_evaluation_without_id(
+        self,
+        mock_model_eval_get,
+        get_model_mock,
+    ):
+        test_model = models.Model(model_name=_TEST_MODEL_RESOURCE_NAME)
+
+        eval = test_model.get_model_evaluation()
+
+        mock_model_eval_get.assert_called_once_with(
+            name=_TEST_MODEL_EVAL_RESOURCE_NAME, retry=base._DEFAULT_RETRY
+        )
+
+        assert eval == _TEST_MODEL_EVAL_LIST[0]
+
     def test_list_model_evaluations(
         self,
         get_model_mock,
         mock_model_eval_get,
         list_model_evaluations_mock,
     ):
-        eval_list = aiplatform.Model.list_model_evaluations(
-            model_name=_TEST_MODEL_RESOURCE_NAME
-        )
+
+        test_model = models.Model(model_name=_TEST_MODEL_RESOURCE_NAME)
+
+        eval_list = test_model.list_model_evaluations()
 
         list_model_evaluations_mock.assert_called_once_with(
             request={"parent": _TEST_MODEL_RESOURCE_NAME, "filter": None}
         )
 
         assert len(eval_list) == len(_TEST_MODEL_EVAL_LIST)
-

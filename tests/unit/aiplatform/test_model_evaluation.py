@@ -15,29 +15,13 @@
 # limitations under the License.
 #
 
-from multiprocessing.sharedctypes import Value
-from google.cloud.aiplatform import model_evaluation
-import yaml
-import datetime
-import os
-from typing import Type
 import pytest
-import json
 
 from unittest import mock
-from unittest.mock import patch
-from importlib import reload
-
-from google.api_core import operation
-from google.protobuf import json_format
-from google.cloud import storage
 
 from google.cloud import aiplatform
 from google.cloud.aiplatform import base
 from google.cloud.aiplatform import models
-from google.cloud.aiplatform import pipeline_jobs
-
-from google.cloud.aiplatform.model_evaluation import ModelEvaluation
 
 from google.cloud.aiplatform_v1.services.model_service import (
     client as model_service_client,
@@ -57,8 +41,13 @@ _TEST_MODEL_RESOURCE_NAME = model_service_client.ModelServiceClient.model_path(
     _TEST_PROJECT, _TEST_LOCATION, _TEST_MODEL_NAME
 )
 
-_TEST_MODEL_EVAL_RESOURCE_NAME = model_service_client.ModelServiceClient.model_evaluation_path(
-    _TEST_PROJECT, _TEST_LOCATION, _TEST_MODEL_NAME, _TEST_ID,
+_TEST_MODEL_EVAL_RESOURCE_NAME = (
+    model_service_client.ModelServiceClient.model_evaluation_path(
+        _TEST_PROJECT,
+        _TEST_LOCATION,
+        _TEST_MODEL_NAME,
+        _TEST_ID,
+    )
 )
 
 _TEST_MODEL_EVAL_METRICS = {
@@ -101,7 +90,8 @@ def get_model_mock():
         model_service_client.ModelServiceClient, "get_model"
     ) as get_model_mock:
         get_model_mock.return_value = gca_model.Model(
-            display_name=_TEST_MODEL_NAME, name=_TEST_MODEL_RESOURCE_NAME,
+            display_name=_TEST_MODEL_NAME,
+            name=_TEST_MODEL_RESOURCE_NAME,
         )
 
         yield get_model_mock
@@ -129,7 +119,8 @@ def mock_model_eval_get():
         model_service_client.ModelServiceClient, "get_model_evaluation"
     ) as mock_get_model_eval:
         mock_get_model_eval.return_value = gca_model_evaluation.ModelEvaluation(
-            name=_TEST_MODEL_EVAL_RESOURCE_NAME, metrics=_TEST_MODEL_EVAL_METRICS,
+            name=_TEST_MODEL_EVAL_RESOURCE_NAME,
+            metrics=_TEST_MODEL_EVAL_METRICS,
         )
         yield mock_get_model_eval
 

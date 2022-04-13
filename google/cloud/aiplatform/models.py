@@ -33,7 +33,7 @@ from google.cloud.aiplatform import jobs
 from google.cloud.aiplatform import models
 from google.cloud.aiplatform import utils
 from google.cloud.aiplatform.utils import gcs_utils
-from google.cloud.aiplatform.model_evaluation import ModelEvaluation
+from google.cloud.aiplatform import model_evaluation
 
 from google.cloud.aiplatform.compat.services import endpoint_service_client
 
@@ -50,8 +50,6 @@ from google.cloud.aiplatform.compat.types import (
 )
 
 from google.protobuf import field_mask_pb2, json_format
-
-from google.cloud.aiplatform_v1.types import model_evaluation
 
 _DEFAULT_MACHINE_TYPE = "n1-standard-2"
 
@@ -3214,15 +3212,12 @@ class Model(base.VertexAiResourceNounWithFutureManager):
             upload_request_timeout=upload_request_timeout,
         )
 
-    # TODO: should this have a sync param?
-    @classmethod
     def list_model_evaluations(
-        cls,
-        model_name: str,
+        self,
         project: Optional[str] = None,
         location: Optional[str] = None,
         credentials: Optional[auth_credentials.Credentials] = None,
-    ) -> Optional[List["ModelEvaluation"]]:
+    ) -> List["model_evaluation.ModelEvaluation"]:
         """List all Model Evaluation resources associated with this model.
 
         Example Usage:
@@ -3250,9 +3245,8 @@ class Model(base.VertexAiResourceNounWithFutureManager):
                 Custom credentials to get model evaluations from. Overrides credentials
                 set in aiplatform.init.
         """
-    
         parent = utils.full_resource_name(
-            resource_name=model_name,
+            resource_name=self.resource_name,
             resource_noun=Model._resource_noun,
             parse_resource_name_method=Model._parse_resource_name,
             format_resource_name_method=Model._format_resource_name,
@@ -3260,52 +3254,46 @@ class Model(base.VertexAiResourceNounWithFutureManager):
             location=location,
         )
 
-        return ModelEvaluation._list(
+        self.wait()
+
+        return model_evaluation.ModelEvaluation._list(
             project=project,
             location=location,
             credentials=credentials,
             parent=parent,
         )
-    
-    # TODO: same question about a sync param
+
     def get_model_evaluation(
         self,
-        evaluation_name: Optional[str] = None,
-        project: Optional[str] = None,
-        location: Optional[str] = None,
-        credentials: Optional[auth_credentials.Credentials] = None,
+        evaluation_id: Optional[str] = None,
     ) -> Optional[model_evaluation.ModelEvaluation]:
         """Returns a ModelEvaluation resource and instantiates its representation.
-        If no evaluation_name is passed, it will return the first evaluation associated
+        If no evaluation_id is passed, it will return the first evaluation associated
         with this model.
 
         Example usage:
 
             my_evaluation = my_model.get_model_evaluation(
-                evaluation_name="projects/123/locations/us-central1/models/456/evaluations/789"
+                evaluation_id="789"
             )
 
-            # Gets first ModelEvaluation
+            # If no arguments are passed, this returns the first evaluation for the model
             my_evaluation = my_model.get_model_evaluation()
 
         Args:
-            evaluation_name (str):
-                Optional. A fully-qualified evaluation resource name or evaluation ID.
-                Example: "projects/123/locations/us-central1/models/456/evaluations/789" or
-                "789" when project and location are initialized or passed.
-            project: Optional[str]=None,
-                Project to get this evaluation from. Overrides project set in
-                aiplatform.init.
-            location: Optional[str]=None,
-                Location to get this evaluation from. Overrides location set in
-                aiplatform.init.
-            credentials: Optional[auth_credentials.Credentials]=None,
-                Custom credentials to get this evaluation from. Overrides credentials
-                set in aiplatform.init.
+            evaluation_id (str):
+                Optional. The ID of the model evaluation to retrieve.
         """
+        if not evaluation_id:
+            evaluation_resource_name = self.list_model_evaluations(self.resource_name)[
+                0
+            ].resource_name
+        else:
+            # TODO: validate evaluation_id
+            evaluation_resource_name = (
+                f"{self.resource_name}/evaluations/{evaluation_id}"
+            )
 
-        if not evaluation_name:
-            evaluation_name = Model.list_model_evaluations(self.resource_name)[0].resource_name
-
-        return ModelEvaluation(evaluation_name=evaluation_name)
-        
+        return model_evaluation.ModelEvaluation(
+            evaluation_name=evaluation_resource_name,
+        )
