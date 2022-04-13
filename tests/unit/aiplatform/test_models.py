@@ -185,7 +185,9 @@ _TEST_SUPPORTED_EXPORT_FORMATS_UNSUPPORTED = []
 _TEST_CONTAINER_REGISTRY_DESTINATION
 
 # Model Evaluation
-_TEST_EVAL_RESOURCE_NAME = f"{_TEST_MODEL_RESOURCE_NAME}/evaluations/{_TEST_ID}"
+_TEST_MODEL_EVAL_RESOURCE_NAME = model_service_client.ModelServiceClient.model_evaluation_path(
+    _TEST_PROJECT, _TEST_LOCATION, _TEST_MODEL_NAME, _TEST_ID,
+)
 _TEST_MODEL_EVAL_METRICS = {
     "auPrc": 0.80592036,
     "auRoc": 0.8100363,
@@ -221,13 +223,13 @@ _TEST_MODEL_EVAL_METRICS = {
 
 _TEST_MODEL_EVAL_LIST = [
     gca_model_evaluation.ModelEvaluation(
-        name=_TEST_EVAL_RESOURCE_NAME,
+        name=_TEST_MODEL_EVAL_RESOURCE_NAME,
     ),
     gca_model_evaluation.ModelEvaluation(
-        name=_TEST_EVAL_RESOURCE_NAME,
+        name=_TEST_MODEL_EVAL_RESOURCE_NAME,
     ),
     gca_model_evaluation.ModelEvaluation(
-        name=_TEST_EVAL_RESOURCE_NAME,
+        name=_TEST_MODEL_EVAL_RESOURCE_NAME,
     ),
 ]
 
@@ -523,7 +525,7 @@ def mock_model_eval_get():
         model_service_client.ModelServiceClient, "get_model_evaluation"
     ) as mock_get_model_eval:
         mock_get_model_eval.return_value = gca_model_evaluation.ModelEvaluation(
-            name=_TEST_EVAL_RESOURCE_NAME, metrics=_TEST_MODEL_EVAL_METRICS,
+            name=_TEST_MODEL_EVAL_RESOURCE_NAME, metrics=_TEST_MODEL_EVAL_METRICS,
         )
         yield mock_get_model_eval
 
@@ -1929,10 +1931,10 @@ class TestModel:
     ):
         test_model = models.Model(_TEST_ID)
 
-        test_model.get_model_evaluation(evaluation_name=_TEST_EVAL_RESOURCE_NAME)
+        test_model.get_model_evaluation(evaluation_name=_TEST_MODEL_EVAL_RESOURCE_NAME)
 
         mock_model_eval_get.assert_called_once_with(
-            name=_TEST_EVAL_RESOURCE_NAME, retry=base._DEFAULT_RETRY
+            name=_TEST_MODEL_EVAL_RESOURCE_NAME, retry=base._DEFAULT_RETRY
         )
     
     def test_list_model_evaluations(

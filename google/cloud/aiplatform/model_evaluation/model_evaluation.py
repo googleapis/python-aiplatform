@@ -22,6 +22,7 @@ from google.cloud.aiplatform import initializer
 from google.cloud.aiplatform import pipeline_jobs
 from google.cloud.aiplatform import jobs
 from google.cloud.aiplatform import utils
+from google.cloud.aiplatform import models
 
 from typing import (
     Any,
@@ -51,10 +52,10 @@ class ModelEvaluation(base.VertexAiResourceNounWithFutureManager):
         if self._gca_resource.metrics:
             return self.to_dict()["metrics"]
 
-    # TODO: can this be initialized with an eval ID only if a model is passed in?
     def __init__(
         self,
         evaluation_name: str,
+        model_id: Optional[str] = None,
         project: Optional[str] = None,
         location: Optional[str] = None,
         credentials: Optional[auth_credentials.Credentials] = None,
@@ -65,7 +66,10 @@ class ModelEvaluation(base.VertexAiResourceNounWithFutureManager):
             evaluation_name (str):
                 Required. A fully-qualified model evaluation resource name or evaluation ID.
                 Example: "projects/123/locations/us-central1/models/456/evaluations/789" or
-                "789" when project and location are initialized or passed.
+                "789". If passing only the evaluation ID, model_id must be provided.
+            model_id (str):
+                Optional. The ID of the model to retrieve this evaluation from. If passing
+                only the evaluation ID as evaluation_name, model_id must be provided.
             project (str):
                 Optional project to retrieve model evaluation from. If not set, project
                 set in aiplatform.init will be used.
@@ -77,6 +81,11 @@ class ModelEvaluation(base.VertexAiResourceNounWithFutureManager):
                 credentials set in aiplatform.init will be used.
         """
 
+        if not evaluation_name.startswith("projects") and not model_id:
+            raise ValueError(
+                "model_id must be provided when passing in only an evaluation ID"
+            )
+
         super().__init__(
             project=project,
             location=location,
@@ -84,4 +93,16 @@ class ModelEvaluation(base.VertexAiResourceNounWithFutureManager):
             resource_name=evaluation_name,
         )
 
-        self._gca_resource = self._get_gca_resource(resource_name=evaluation_name)
+        evaluation_name = utils.full_resource_name(
+            resource_name=evaluation_name,
+            resource_noun="evaluations",
+            parse_resource_name_method=self._parse_resource_name,
+            format_resource_name_method=self._format_resource_name,
+            project=project,
+            location=location,
+            parent_resource_name_fields={
+                models.Model._resource_noun: model_id,
+            }
+        )
+
+        self._gca_resource = self._get_gca_resource(resource_name=evaluation_name,)

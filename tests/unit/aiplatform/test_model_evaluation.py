@@ -50,14 +50,16 @@ from google.cloud.aiplatform_v1.types import model_evaluation as gca_model_evalu
 
 _TEST_PROJECT = "test-project"
 _TEST_LOCATION = "us-central1"
+_TEST_MODEL_NAME = "test-model"
 _TEST_ID = "1028944691210842416"
 
 _TEST_MODEL_RESOURCE_NAME = model_service_client.ModelServiceClient.model_path(
-    _TEST_PROJECT, _TEST_LOCATION, _TEST_ID
+    _TEST_PROJECT, _TEST_LOCATION, _TEST_MODEL_NAME
 )
 
-_TEST_MODEL_NAME = "test-model"
-_TEST_EVAL_RESOURCE_NAME = f"projects/{_TEST_ID}/locations/{_TEST_LOCATION}/models/{_TEST_ID}/evaluations/{_TEST_ID}"
+_TEST_MODEL_EVAL_RESOURCE_NAME = model_service_client.ModelServiceClient.model_evaluation_path(
+    _TEST_PROJECT, _TEST_LOCATION, _TEST_MODEL_NAME, _TEST_ID,
+)
 
 _TEST_MODEL_EVAL_METRICS = {
     "auPrc": 0.80592036,
@@ -127,7 +129,7 @@ def mock_model_eval_get():
         model_service_client.ModelServiceClient, "get_model_evaluation"
     ) as mock_get_model_eval:
         mock_get_model_eval.return_value = gca_model_evaluation.ModelEvaluation(
-            name=_TEST_EVAL_RESOURCE_NAME, metrics=_TEST_MODEL_EVAL_METRICS,
+            name=_TEST_MODEL_EVAL_RESOURCE_NAME, metrics=_TEST_MODEL_EVAL_METRICS,
         )
         yield mock_get_model_eval
 
@@ -136,10 +138,10 @@ class TestModelEvaluation:
     def test_init_model_evaluation_with_resource_name(self, mock_model_eval_get):
         aiplatform.init(project=_TEST_PROJECT)
 
-        aiplatform.ModelEvaluation(evaluation_name=_TEST_EVAL_RESOURCE_NAME)
+        aiplatform.ModelEvaluation(evaluation_name=_TEST_MODEL_EVAL_RESOURCE_NAME)
 
         mock_model_eval_get.assert_called_once_with(
-            name=_TEST_EVAL_RESOURCE_NAME, retry=base._DEFAULT_RETRY
+            name=_TEST_MODEL_EVAL_RESOURCE_NAME, retry=base._DEFAULT_RETRY
         )
 
     def test_init_model_evaluation_with_invalid_evaluation_resource_raises(
@@ -154,6 +156,6 @@ class TestModelEvaluation:
         aiplatform.init(project=_TEST_PROJECT)
 
         eval_metrics = aiplatform.ModelEvaluation(
-            evaluation_name=_TEST_EVAL_RESOURCE_NAME
+            evaluation_name=_TEST_MODEL_EVAL_RESOURCE_NAME
         ).evaluation_metrics
         assert eval_metrics == _TEST_MODEL_EVAL_METRICS
