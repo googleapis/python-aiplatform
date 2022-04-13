@@ -16,7 +16,7 @@
 from collections import OrderedDict
 import functools
 import re
-from typing import Dict, Optional, Sequence, Tuple, Type, Union
+from typing import Dict, Mapping, Optional, Sequence, Tuple, Type, Union
 import pkg_resources
 
 from google.api_core.client_options import ClientOptions
@@ -235,7 +235,6 @@ class MigrationServiceAsyncClient:
         ml.googleapis.com that can be migrated to Vertex AI's
         given location.
 
-
         .. code-block:: python
 
             from google.cloud import aiplatform_v1
@@ -351,7 +350,6 @@ class MigrationServiceAsyncClient:
         r"""Batch migrates resources from ml.googleapis.com,
         automl.googleapis.com, and datalabeling.googleapis.com
         to Vertex AI.
-
 
         .. code-block:: python
 

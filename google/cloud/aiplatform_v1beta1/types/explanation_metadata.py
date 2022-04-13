@@ -31,7 +31,7 @@ class ExplanationMetadata(proto.Message):
     explanation.
 
     Attributes:
-        inputs (Sequence[google.cloud.aiplatform_v1beta1.types.ExplanationMetadata.InputsEntry]):
+        inputs (Mapping[str, google.cloud.aiplatform_v1beta1.types.ExplanationMetadata.InputMetadata]):
             Required. Map from feature names to feature input metadata.
             Keys are the name of the features. Values are the
             specification of the feature.
@@ -48,7 +48,7 @@ class ExplanationMetadata(proto.Message):
 
             For custom images, the key must match with the key in
             [instance][google.cloud.aiplatform.v1beta1.ExplainRequest.instances].
-        outputs (Sequence[google.cloud.aiplatform_v1beta1.types.ExplanationMetadata.OutputsEntry]):
+        outputs (Mapping[str, google.cloud.aiplatform_v1beta1.types.ExplanationMetadata.OutputMetadata]):
             Required. Map from output names to output
             metadata.
             For Vertex AI-provided Tensorflow images, keys

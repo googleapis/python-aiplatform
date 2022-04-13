@@ -131,7 +131,7 @@ class ModelDeploymentMonitoringJob(proto.Message):
             the TTL and we take the ceil of TTL/86400(a
             day). e.g. { second: 3600} indicates ttl = 1
             day.
-        labels (Sequence[google.cloud.aiplatform_v1.types.ModelDeploymentMonitoringJob.LabelsEntry]):
+        labels (Mapping[str, str]):
             The labels with user-defined metadata to
             organize your ModelDeploymentMonitoringJob.
 

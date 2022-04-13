@@ -16,7 +16,7 @@
 from collections import OrderedDict
 import functools
 import re
-from typing import Dict, Optional, Sequence, Tuple, Type, Union
+from typing import Dict, Mapping, Optional, Sequence, Tuple, Type, Union
 import pkg_resources
 
 from google.api_core.client_options import ClientOptions
@@ -583,7 +583,6 @@ class SpecialistPoolServiceAsyncClient:
     ) -> operation_async.AsyncOperation:
         r"""Deletes a SpecialistPool as well as all Specialists
         in the pool.
-
 
         .. code-block:: python
 

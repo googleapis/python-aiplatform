@@ -16,7 +16,7 @@
 from collections import OrderedDict
 import os
 import re
-from typing import Dict, Optional, Sequence, Tuple, Type, Union
+from typing import Dict, Mapping, Optional, Sequence, Tuple, Type, Union
 import pkg_resources
 
 from google.api_core import client_options as client_options_lib
@@ -556,7 +556,6 @@ class MetadataServiceClient(metaclass=MetadataServiceClientMeta):
         r"""Initializes a MetadataStore, including allocation of
         resources.
 
-
         .. code-block:: python
 
             from google.cloud import aiplatform_v1beta1
@@ -899,7 +898,6 @@ class MetadataServiceClient(metaclass=MetadataServiceClientMeta):
     ) -> gac_operation.Operation:
         r"""Deletes a single MetadataStore and all its child
         resources (Artifacts, Executions, and Contexts).
-
 
         .. code-block:: python
 
@@ -2361,7 +2359,6 @@ class MetadataServiceClient(metaclass=MetadataServiceClientMeta):
         If any of the Artifacts or Executions have already been
         added to a Context, they are simply skipped.
 
-
         .. code-block:: python
 
             from google.cloud import aiplatform_v1beta1
@@ -2491,7 +2488,6 @@ class MetadataServiceClient(metaclass=MetadataServiceClientMeta):
         cycle or cause any Context to have more than 10 parents, the
         request will fail with an INVALID_ARGUMENT error.
 
-
         .. code-block:: python
 
             from google.cloud import aiplatform_v1beta1
@@ -2601,7 +2597,6 @@ class MetadataServiceClient(metaclass=MetadataServiceClientMeta):
         r"""Retrieves Artifacts and Executions within the
         specified Context, connected by Event edges and returned
         as a LineageSubgraph.
-
 
         .. code-block:: python
 
@@ -3380,7 +3375,6 @@ class MetadataServiceClient(metaclass=MetadataServiceClientMeta):
         between the Execution and the Artifact, the Event is
         skipped.
 
-
         .. code-block:: python
 
             from google.cloud import aiplatform_v1beta1
@@ -3489,7 +3483,6 @@ class MetadataServiceClient(metaclass=MetadataServiceClientMeta):
         r"""Obtains the set of input and output Artifacts for
         this Execution, in the form of LineageSubgraph that also
         contains the Execution and connecting Events.
-
 
         .. code-block:: python
 
@@ -3927,7 +3920,6 @@ class MetadataServiceClient(metaclass=MetadataServiceClientMeta):
         r"""Retrieves lineage of an Artifact represented through
         Artifacts and Executions connected by Event edges and
         returned as a LineageSubgraph.
-
 
         .. code-block:: python
 

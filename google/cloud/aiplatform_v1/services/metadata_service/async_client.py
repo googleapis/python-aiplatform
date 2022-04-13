@@ -16,7 +16,7 @@
 from collections import OrderedDict
 import functools
 import re
-from typing import Dict, Optional, Sequence, Tuple, Type, Union
+from typing import Dict, Mapping, Optional, Sequence, Tuple, Type, Union
 import pkg_resources
 
 from google.api_core.client_options import ClientOptions
@@ -247,7 +247,6 @@ class MetadataServiceAsyncClient:
     ) -> operation_async.AsyncOperation:
         r"""Initializes a MetadataStore, including allocation of
         resources.
-
 
         .. code-block:: python
 
@@ -591,7 +590,6 @@ class MetadataServiceAsyncClient:
     ) -> operation_async.AsyncOperation:
         r"""Deletes a single MetadataStore and all its child
         resources (Artifacts, Executions, and Contexts).
-
 
         .. code-block:: python
 
@@ -2053,7 +2051,6 @@ class MetadataServiceAsyncClient:
         If any of the Artifacts or Executions have already been
         added to a Context, they are simply skipped.
 
-
         .. code-block:: python
 
             from google.cloud import aiplatform_v1
@@ -2179,7 +2176,6 @@ class MetadataServiceAsyncClient:
         cycle or cause any Context to have more than 10 parents, the
         request will fail with an INVALID_ARGUMENT error.
 
-
         .. code-block:: python
 
             from google.cloud import aiplatform_v1
@@ -2289,7 +2285,6 @@ class MetadataServiceAsyncClient:
         r"""Retrieves Artifacts and Executions within the
         specified Context, connected by Event edges and returned
         as a LineageSubgraph.
-
 
         .. code-block:: python
 
@@ -3066,7 +3061,6 @@ class MetadataServiceAsyncClient:
         between the Execution and the Artifact, the Event is
         skipped.
 
-
         .. code-block:: python
 
             from google.cloud import aiplatform_v1
@@ -3175,7 +3169,6 @@ class MetadataServiceAsyncClient:
         r"""Obtains the set of input and output Artifacts for
         this Execution, in the form of LineageSubgraph that also
         contains the Execution and connecting Events.
-
 
         .. code-block:: python
 
@@ -3609,7 +3602,6 @@ class MetadataServiceAsyncClient:
         r"""Retrieves lineage of an Artifact represented through
         Artifacts and Executions connected by Event edges and
         returned as a LineageSubgraph.
-
 
         .. code-block:: python
 
