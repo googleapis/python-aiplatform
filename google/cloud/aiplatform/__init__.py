@@ -84,7 +84,7 @@ log_time_series_metrics = metadata.experiment_tracker.log_time_series_metrics
 get_artifact = metadata.experiment_tracker.get_artifact
 end_run = metadata.experiment_tracker.end_run
 Experiment = metadata.experiment_resources.Experiment
-ExperimentRun = metadata.experiment_run.ExperimentRun
+ExperimentRun = metadata.experiment_run_resource.ExperimentRun
 Artifact = metadata.Artifact
 
 

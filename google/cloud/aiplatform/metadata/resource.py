@@ -211,7 +211,6 @@ class _Resource(base.VertexAiResourceNounWithFutureManager, abc.ABC):
             credentials (auth_credentials.Credentials):
                 Custom credentials to use to update this resource. Overrides
                 credentials set in aiplatform.init.
-
         """
 
         gca_resource = deepcopy(self._gca_resource)
@@ -219,7 +218,7 @@ class _Resource(base.VertexAiResourceNounWithFutureManager, abc.ABC):
             for key, value in metadata.items():
                 # Note: This only support nested dictionaries one level deep
                 if isinstance(value, collections.Mapping):
-                    gca_resource.metadata[key].update(metadata)
+                    gca_resource.metadata[key].update(value)
                 else:
                     gca_resource.metadata[key] = value
         else:

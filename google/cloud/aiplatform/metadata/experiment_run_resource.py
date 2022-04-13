@@ -28,7 +28,7 @@ from google.cloud.aiplatform.compat.types import event as gca_event
 from google.cloud.aiplatform.compat.types import (
     tensorboard_time_series as gca_tensorboard_time_series,
 )
-from google.cloud.aiplatform import initializer
+from google.cloud.aiplatform import initializer, gapic
 from google.cloud.aiplatform.metadata import metadata
 from google.cloud.aiplatform.metadata import constants
 from google.cloud.aiplatform.metadata import experiment_resources
@@ -138,25 +138,19 @@ class ExperimentRun(experiment_resources.ExperimentLoggable,
         if artifact.name != self._tensorboard_run_id(self._metadata_context.name):
             return False
 
-        run_parts = tensorboard_resource.TensorboardRun._parse_resource_name(
-            artifact.metadata["resourceName"]
-        )
+        return True
 
-        if (run_parts["experiment"], run_parts["run"]) == (
-            self._experiment.name,
-            self._run_name,
-        ):
-            return True
-
-        return False
+    def update_state(self, state: gapic.Execution.State):
+        self._metadata_context.update(metadata={constants._STATE_KEY:state.name})
 
     def _lookup_tensorboard_run_artifact(self) -> Optional[experiment_resources.VertexResourceWithMetadata]:
-        artifact = _Artifact._get(
-            resource_name=self._tensorboard_run_id(self._metadata_context.name),
-            project=self._metadata_context.project,
-            location=self._metadata_context.location,
-            credentials=self._metadata_context.credentials
-        )
+        with experiment_resources._SetLoggerLevel(resource):
+            artifact = _Artifact._get(
+                resource_name=self._tensorboard_run_id(self._metadata_context.name),
+                project=self._metadata_context.project,
+                location=self._metadata_context.location,
+                credentials=self._metadata_context.credentials
+            )
 
         if artifact and self._is_backing_tensorboard_run_artifact(artifact):
             return experiment_resources.VertexResourceWithMetadata(
@@ -224,7 +218,6 @@ class ExperimentRun(experiment_resources.ExperimentLoggable,
 
     @classmethod
     def _query_experiment_row(cls, context: _Context) -> experiment_resources.ExperimentRow:
-        # TODO(get tensorboard metrics)
         this_experiment_run = cls.__new__(cls)
         this_experiment_run._metadata_context = context
         this_experiment_run._backing_tensorboard_run = this_experiment_run._lookup_tensorboard_run_artifact()
@@ -234,6 +227,7 @@ class ExperimentRun(experiment_resources.ExperimentLoggable,
             params=context.metadata[constants._PARAM_KEY],
             metrics=context.metadata[constants._METRIC_KEY],
             time_series_metrics=this_experiment_run._get_latest_time_series_metric_columns(),
+            state=context.metadata[constants._STATE_KEY]
         )
 
     def _get_logged_pipeline_runs(self) -> List[_Context]:
@@ -342,6 +336,7 @@ class ExperimentRun(experiment_resources.ExperimentLoggable,
         run_name: str,
         experiment: Union[experiment_resources.Experiment, str, None] = None,
         tensorboard: Union[tensorboard_resource.Tensorboard, str, None] = None,
+        state: gapic.Execution.State = gapic.Execution.State.RUNNING,
         project: Optional[str] = None,
         location: Optional[str] = None,
         credentials: Optional[auth_credentials.Credentials] = None,
@@ -362,7 +357,11 @@ class ExperimentRun(experiment_resources.ExperimentLoggable,
                     schema_version=constants.SCHEMA_VERSIONS[
                         constants.SYSTEM_EXPERIMENT_RUN
                     ],
-                    metadata=constants.EXPERIMENT_METADATA,
+                    metadata={
+                        constants._PARAM_KEY:{},
+                        constants._METRIC_KEY:{},
+                        constants._STATE_KEY:state.name
+                    },
                     project=project,
                     location=location,
                     credentials=credentials,
@@ -381,16 +380,11 @@ class ExperimentRun(experiment_resources.ExperimentLoggable,
         experiment_run._metadata_context = metadata_context
         experiment_run._largest_step = None
 
-        def _add_tensorboard_to_run():
-            if tensorboard:
-                cls._assign_backing_tensorboard(
-                    self=experiment_run, tensorboard=tensorboard
-                )
-            else:
-                cls._assign_to_experiment_backing_tensorboard(self=experiment_run)
+        if tensorboard:
+            cls._assign_backing_tensorboard(self=experiment_run, tensorboard=tensorboard)
+        else:
+            cls._assign_to_experiment_backing_tensorboard(self=experiment_run)
 
-
-        _add_tensorboard_to_run
         experiment_run._associate_to_experiment(experiment)
         return experiment_run
 
@@ -399,6 +393,7 @@ class ExperimentRun(experiment_resources.ExperimentLoggable,
         backing_tensorboard_resource = (
             self._experiment.get_backing_tensorboard_resource()
         )
+
         if backing_tensorboard_resource:
             self.assign_backing_tensorboard(tensorboard=backing_tensorboard_resource)
 
@@ -707,8 +702,16 @@ class ExperimentRun(experiment_resources.ExperimentLoggable,
         return self
 
     def __exit__(self, exc_type, exc_value, traceback):
-        if metadata.experiment_tracker._experiment_run is self:
-            metadata.experiment_tracker.end_run()
+        state = gapic.Execution.State.FAILED if exc_type else gapic.Execution.State.COMPLETE
+
+        if metadata.experiment_tracker.experiment_run is self:
+            metadata.experiment_tracker.end_run(state=state)
+        else:
+            self.end_run(state)
+
+
+    def end_run(self, state: gapic.Execution.State = gapic.Execution.State.COMPLETE):
+        self.update_state(state)
 
     # @TODO(add delete API)
     def delete(self, delete_backing_tensorboard_run=False):
@@ -721,10 +724,4 @@ class ExperimentRun(experiment_resources.ExperimentLoggable,
         return self._metadata_execution.get_output_artifacts()
 
     def get_params(self) -> Dict[str, Union[int, float, str]]:
-        execution_metadata = self._metadata_execution.metadata
-        return {
-            key: int(value)
-            if isinstance(value, float) and int(value) == value
-            else value
-            for key, value in execution_metadata.items()
-        }
+        return self._metadata_context.metadata[constants._PARAM_KEY]

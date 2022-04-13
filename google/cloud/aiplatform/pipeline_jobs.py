@@ -543,9 +543,8 @@ class PipelineJob(
 
         for execution in context_lineage_subgraph.executions:
             if execution.schema_title == metadata_constants.SYSTEM_RUN:
-                # TODO(remove prefix)
                 row.params = {
-                    key[len("input:") :]: value
+                    key[len(metadata_constants.PIPELINE_PARAM_PREFIX) :]: value
                     for key, value in execution.metadata.items()
                 }
                 row.state = execution.state.name

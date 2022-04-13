@@ -94,9 +94,9 @@ class _Config:
         if (project and project != self._project) or (
             location and location != self._location
         ):
-            if metadata.experiment_service.experiment_name:
+            if metadata.experiment_tracker.experiment_name:
                 logging.info("project/location updated, reset Experiment config.")
-            metadata.experiment_service.reset()
+            metadata.experiment_tracker.reset()
 
         if project:
             self._project = project

@@ -262,11 +262,17 @@ class Experiment:
 
     def _lookup_backing_tensorboard(self) -> Optional[tensorboard_resource.Tensorboard]:
         """Returns backing tensorboard if one is set."""
-        with _SetLoggerLevel(resource):
-            self._metadata_context.sync_resource()
         tensorboard_resource_name = self._metadata_context.metadata.get(
             "backing_tensorboard_resource"
         )
+
+        if not tensorboard_resource_name:
+            with _SetLoggerLevel(resource):
+                self._metadata_context.sync_resource()
+            tensorboard_resource_name = self._metadata_context.metadata.get(
+                "backing_tensorboard_resource"
+            )
+
         if tensorboard_resource_name:
             return tensorboard_resource.Tensorboard(
                 tensorboard_resource_name,
@@ -285,10 +291,12 @@ class Experiment:
 
         backing_tensorboard = self._lookup_backing_tensorboard()
         if backing_tensorboard:
-            # TODO: consider warning if tensorboard_resource matches backing tensorboard uri
-            raise ValueError(
-                f"Experiment {self._metadata_context.name} already associated to tensorboard resource {backing_tensorboard.resource_name}"
-            )
+            tensorboard_resource_name = tensorboard if isinstance(tensorboard, str) else tensorboard.resource_name
+            if tensorboard_resource_name != backing_tensorboard.resource_name:
+                raise ValueError(
+                    f"Experiment {self._metadata_context.name} already associated '"
+                    f"to tensorboard resource {backing_tensorboard.resource_name}"
+                )
 
         if isinstance(tensorboard, str):
             tensorboard = tensorboard_resource.Tensorboard(

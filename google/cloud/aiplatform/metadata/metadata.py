@@ -22,7 +22,7 @@ import time
 
 from google.protobuf import timestamp_pb2
 
-from google.cloud.aiplatform import base
+from google.cloud.aiplatform import base, gapic
 from google.cloud.aiplatform.compat.types import event as gca_event
 from google.cloud.aiplatform.metadata import constants
 from google.cloud.aiplatform.metadata.artifact import Artifact
@@ -30,7 +30,7 @@ from google.cloud.aiplatform.metadata.artifact import _Artifact
 from google.cloud.aiplatform.metadata.context import _Context
 from google.cloud.aiplatform.metadata.execution import _Execution
 from google.cloud.aiplatform.metadata import experiment_resources
-from google.cloud.aiplatform.metadata import experiment_run
+from google.cloud.aiplatform.metadata import experiment_run_resource
 from google.cloud.aiplatform.metadata.metadata_store import _MetadataStore
 from google.cloud.aiplatform import pipeline_jobs
 from google.cloud.aiplatform.tensorboard import tensorboard_resource
@@ -654,7 +654,7 @@ class ExperimentTracker:
     def __init__(self):
 
         self._experiment: Optional[experiment_resources.Experiment] = None
-        self._experiment_run: Optional[experiment_run.ExperimentRun] = None
+        self._experiment_run: Optional[experiment_run_resource.ExperimentRun] = None
 
     def reset(self):
         self._experiment = None
@@ -666,6 +666,14 @@ class ExperimentTracker:
         if self._experiment:
             return self._experiment.name
         return None
+
+    @property
+    def experiment(self) -> Optional[experiment_resources.Experiment]:
+        return self._experiment
+
+    @property
+    def experiment_run(self) -> Optional[experiment_run_resource.ExperimentRun]:
+        return self._experiment_run
 
     def set_experiment(
         self,
@@ -702,13 +710,13 @@ class ExperimentTracker:
         run_name: str,
         tensorboard: Union[tensorboard_resource.Tensorboard, str, None] = None,
         resume=False,
-    ) -> experiment_run.ExperimentRun:
+    ) -> experiment_run_resource.ExperimentRun:
         """Setup a run to current session.
 
         Args:
             run (str):
                 Required. Name of the run to assign current session with.
-            tensorboard Unoin[str, tensorboard_reosurce.Tensorboard]:
+            tensorboard Union[str, tensorboard_resource.Tensorboard]:
                 Optional. Backing Tensorboard Resource to enable and store time series metrics
                 logged to this Experiment Run using `log_time_series_metrics`.
             resume (bool):
@@ -722,25 +730,30 @@ class ExperimentTracker:
         if not self._experiment:
             raise ValueError(
                 "No experiment set for this run. Make sure to call aiplatform.init(experiment='my-experiment') "
-                "before trying to start_run. "
+                "before invoking start_run. "
             )
 
+        if self._experiment_run:
+            self.end_run()
+
         if resume:
-            self._experiment_run = experiment_run.ExperimentRun(
+            self._experiment_run = experiment_run_resource.ExperimentRun(
                 run_name=run_name, experiment=self._experiment
             )
 
             if tensorboard:
                 self._experiment_run.assign_backing_tensorboard(tensorboard=tensorboard)
         else:
-            self._experiment_run = experiment_run.ExperimentRun.create(
+            self._experiment_run = experiment_run_resource.ExperimentRun.create(
                 run_name=run_name, experiment=self._experiment, tensorboard=tensorboard
             )
 
         return self._experiment_run
 
-    def end_run(self):
+    def end_run(self, state: gapic.Execution.State = gapic.Execution.State.COMPLETE):
         "Ends the the current Experiment Run."
+        # TODO(throw informative exception if this is called without an ExperimentRun)
+        self._experiment_run.end_run(state=state)
         self._experiment_run = None
 
     def log_params(self, params: Dict[str, Union[float, int, str]]):
@@ -770,7 +783,7 @@ class ExperimentTracker:
         self._experiment_run.log_metrics(metrics=metrics)
 
     def _validate_experiment_and_run(self, method_name: str):
-        """Validates Expeirment and Run are set and raises informative error message.
+        """Validates Experiment and Run are set and raises informative error message.
 
         Raises:
             ValueError: If Experiment or Run are not set.
