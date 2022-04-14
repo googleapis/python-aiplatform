@@ -1948,7 +1948,7 @@ class TestModel:
     ):
         test_model = models.Model(model_name=_TEST_MODEL_RESOURCE_NAME)
 
-        eval = test_model.get_model_evaluation()
+        test_model.get_model_evaluation()
 
         mock_model_eval_get.assert_called_once_with(
             name=_TEST_MODEL_EVAL_RESOURCE_NAME, retry=base._DEFAULT_RETRY

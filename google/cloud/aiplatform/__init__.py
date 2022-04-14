@@ -108,6 +108,7 @@ __all__ = (
     "ImageDataset",
     "HyperparameterTuningJob",
     "Model",
+    "ModelEvaluation",
     "PipelineJob",
     "TabularDataset",
     "Tensorboard",
