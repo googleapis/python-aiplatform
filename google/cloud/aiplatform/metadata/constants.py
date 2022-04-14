@@ -42,7 +42,7 @@ SCHEMA_VERSIONS = {
 _PARAM_KEY = '_params'
 _METRIC_KEY = '_metrics'
 _STATE_KEY = '_state'
-EXPERIMENT_METADATA = {_PARAM_KEY:{}, _METRIC_KEY:{}}
+EXPERIMENT_METADATA = {'experiment_deleted':False}
 
 PIPELINE_PARAM_PREFIX = "input:"
 
