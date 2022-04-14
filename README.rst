@@ -245,6 +245,26 @@ To train an AutoML tabular model:
 
 Models
 ------
+To get a model:
+
+
+.. code-block:: Python
+
+  model = aiplatform.Model('/projects/my-project/locations/us-central1/models/{MODEL_ID}')
+  
+
+
+To upload a model:
+
+.. code-block:: Python
+
+  model = aiplatform.Model.upload(
+      display_name='my-model',
+      artifact_uri="gs://python/to/my/model/dir",
+      serving_container_image_uri="us-docker.pkg.dev/vertex-ai/prediction/tf2-cpu.2-2:latest",
+  )
+
+
 
 To deploy a model:
 
@@ -258,22 +278,6 @@ To deploy a model:
                           accelerator_type='NVIDIA_TESLA_K80',
                           accelerator_count=1)
 
-
-To upload a model:
-
-.. code-block:: Python
-
-  model = aiplatform.Model.upload(
-      display_name='my-model',
-      artifact_uri="gs://python/to/my/model/dir",
-      serving_container_image_uri="us-docker.pkg.dev/vertex-ai/prediction/tf2-cpu.2-2:latest",
-  )
-
-To get a model:
-
-.. code-block:: Python
-
-  model = aiplatform.Model('/projects/my-project/locations/us-central1/models/{MODEL_ID}')
 
 Please visit `Importing models to Vertex AI`_ for a detailed overview:
 
@@ -316,18 +320,11 @@ You can also create a batch prediction job asynchronously by including the `sync
 Endpoints
 ---------
 
-To get predictions from endpoints:
+To create an endpoint:
 
 .. code-block:: Python
 
-  endpoint.predict(instances=[[6.7, 3.1, 4.7, 1.5], [4.6, 3.1, 1.5, 0.2]])
-
-
-To create an endpoint
-
-.. code-block:: Python
-
-  endpoint = endpoint.create(display_name='my-endpoint')
+  endpoint = aiplatform.Endpoint.create(display_name='my-endpoint')
 
 To deploy a model to a created endpoint:
 
@@ -341,6 +338,12 @@ To deploy a model to a created endpoint:
                   machine_type='n1-standard-4',
                   accelerator_type='NVIDIA_TESLA_K80',
                   accelerator_count=1)
+
+To get predictions from endpoints:
+
+.. code-block:: Python
+
+  endpoint.predict(instances=[[6.7, 3.1, 4.7, 1.5], [4.6, 3.1, 1.5, 0.2]])
 
 To undeploy models from an endpoint:
 
