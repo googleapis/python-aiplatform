@@ -1944,6 +1944,7 @@ class TestModel:
         self,
         mock_model_eval_get,
         get_model_mock,
+        list_model_evaluations_mock,
     ):
         test_model = models.Model(model_name=_TEST_MODEL_RESOURCE_NAME)
 
@@ -1952,8 +1953,6 @@ class TestModel:
         mock_model_eval_get.assert_called_once_with(
             name=_TEST_MODEL_EVAL_RESOURCE_NAME, retry=base._DEFAULT_RETRY
         )
-
-        assert eval == _TEST_MODEL_EVAL_LIST[0]
 
     def test_list_model_evaluations(
         self,
