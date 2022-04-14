@@ -15,7 +15,6 @@
 # limitations under the License.
 #
 
-from cgi import test
 import copy
 import pytest
 import urllib3
@@ -175,12 +174,20 @@ _TEST_ENDPOINT_LIST = [
     ),
 ]
 
+_TEST_PRIVATE_ENDPOINT_LIST = [
+    gca_endpoint.Endpoint(
+        name=_TEST_ENDPOINT_NAME,
+        display_name="aac",
+        create_time=datetime.now() - timedelta(minutes=15),
+        network=_TEST_NETWORK,
+    ),
+]
+
 _TEST_LIST_FILTER = 'display_name="abc"'
 _TEST_LIST_ORDER_BY_CREATE_TIME = "create_time desc"
 _TEST_LIST_ORDER_BY_DISPLAY_NAME = "display_name"
 
 _TEST_LABELS = {"my_key": "my_value"}
-
 
 
 """
@@ -237,7 +244,6 @@ def get_endpoint_with_models_mock():
             traffic_split=_TEST_TRAFFIC_SPLIT,
         )
         yield get_endpoint_mock
-
 
 
 @pytest.fixture
@@ -392,7 +398,6 @@ def predict_client_predict_mock():
     with mock.patch.object(
         prediction_service_client.PredictionServiceClient, "predict"
     ) as predict_mock:
-        print(predict_mock)
         predict_mock.return_value = gca_prediction_service.PredictResponse(
             deployed_model_id=_TEST_MODEL_ID
         )
@@ -432,7 +437,7 @@ def create_private_endpoint_mock():
         create_private_endpoint_lro_mock.result.return_value = gca_endpoint.Endpoint(
             name=_TEST_ENDPOINT_NAME,
             display_name=_TEST_DISPLAY_NAME,
-            network=_TEST_NETWORK
+            network=_TEST_NETWORK,
         )
         create_private_endpoint_mock.return_value = create_private_endpoint_lro_mock
         yield create_private_endpoint_mock
@@ -448,21 +453,33 @@ def get_private_endpoint_with_model_mock():
             name=_TEST_ENDPOINT_NAME,
             network=_TEST_NETWORK,
             deployed_models=[_TEST_DEPLOYED_MODELS[0]],
-            traffic_split=_TEST_TRAFFIC_SPLIT,
         )
         yield get_endpoint_mock
 
 
 @pytest.fixture
 def predict_private_endpoint_mock():
-    with mock.patch.object(aiplatform.PrivateEndpoint, "predict") as predict_mock:
-
-        predict_mock.return_value = gca_prediction_service.PredictResponse(
-            deployed_model_id=_TEST_MODEL_ID
+    with mock.patch.object(urllib3.PoolManager, "request") as predict_mock:
+        predict_mock.return_value = urllib3.response.HTTPResponse(
+            status=200, body=json.dumps({"predictions": _TEST_PREDICTION})
         )
-        predict_mock.return_value.predictions.extend(_TEST_PREDICTION)
         yield predict_mock
 
+
+@pytest.fixture
+def health_check_private_endpoint_mock():
+    with mock.patch.object(urllib3.PoolManager, "request") as health_check_mock:
+        health_check_mock.return_value = urllib3.response.HTTPResponse(status=200)
+        yield health_check_mock
+
+
+@pytest.fixture
+def list_private_endpoints_mock():
+    with mock.patch.object(
+        endpoint_service_client.EndpointServiceClient, "list_endpoints"
+    ) as list_endpoints_mock:
+        list_endpoints_mock.return_value = _TEST_PRIVATE_ENDPOINT_LIST
+        yield list_endpoints_mock
 
 
 class TestEndpoint:
@@ -1236,7 +1253,6 @@ class TestEndpoint:
                 endpoint=test_endpoint.resource_name,
                 deployed_model_id="model1",
                 traffic_split={},
-                # traffic_split={"model1": 0},
                 metadata=(),
             )
 
@@ -1362,8 +1378,7 @@ class TestEndpoint:
             predictions=_TEST_PREDICTION, deployed_model_id=_TEST_ID
         )
 
-        print(true_prediction, test_prediction)
-        assert true_prediction != test_prediction
+        assert true_prediction == test_prediction
         predict_client_predict_mock.assert_called_once_with(
             endpoint=_TEST_ENDPOINT_NAME,
             instances=_TEST_INSTANCES,
@@ -1566,15 +1581,13 @@ class TestPrivateEndpoint(TestEndpoint):
             location=_TEST_LOCATION,
             network=_TEST_NETWORK,
             sync=sync,
-            create_request_timeout=None,
         )
 
         if not sync:
             my_endpoint.wait()
 
         expected_endpoint = gca_endpoint.Endpoint(
-            display_name=_TEST_DISPLAY_NAME,
-            network=_TEST_NETWORK
+            display_name=_TEST_DISPLAY_NAME, network=_TEST_NETWORK
         )
 
         create_private_endpoint_mock.assert_called_once_with(
@@ -1595,41 +1608,78 @@ class TestPrivateEndpoint(TestEndpoint):
             predictions=_TEST_PREDICTION, deployed_model_id=_TEST_ID
         )
 
-        print(test_prediction, true_prediction)
         assert true_prediction == test_prediction
         predict_private_endpoint_mock.assert_called_once_with(
-            endpoint=_TEST_ENDPOINT_NAME,
-            instances=_TEST_INSTANCES,
-            parameters={"param": 3.0},
-            timeout=None,
+            method="POST",
+            url="",
+            body='{"instances": [[1.0, 2.0, 3.0], [1.0, 3.0, 4.0]]}',
+            headers={"Content-Type": "application/json"},
         )
 
-    def test_http_health_check(self):
-        pass
+    @pytest.mark.usefixtures("get_private_endpoint_with_model_mock")
+    def test_health_check(self, health_check_private_endpoint_mock):
+        test_endpoint = models.PrivateEndpoint(_TEST_ID)
+        test_health_check = test_endpoint.health_check()
 
-    def test_http_health_check_unhealthy(self):
-        pass
+        true_health_check = True
 
-    def test_http_predict(self):
-        pass
+        assert true_health_check == test_health_check
+        health_check_private_endpoint_mock.assert_called_once_with(
+            method="GET", url="", body=None, headers=None
+        )
 
-    def test_http_predict_no_response(self):
-        pass
+    @pytest.mark.usefixtures("get_endpoint_mock", "get_model_mock")
+    @pytest.mark.parametrize("sync", [True, False])
+    def test_deploy(self, deploy_model_mock, sync):
+        test_endpoint = models.PrivateEndpoint(_TEST_ENDPOINT_NAME)
+        test_model = models.Model(_TEST_ID)
+        test_model._gca_resource.supported_deployment_resources_types.append(
+            aiplatform.gapic.Model.DeploymentResourcesType.AUTOMATIC_RESOURCES
+        )
+        test_endpoint.deploy(
+            test_model,
+            sync=sync,
+        )
 
-    def test_http_predict_404(self):
-        pass
+        if not sync:
+            test_endpoint.wait()
 
-    def test_http_predict_500(self):
-        pass
+        automatic_resources = gca_machine_resources.AutomaticResources(
+            min_replica_count=1,
+            max_replica_count=1,
+        )
 
-    def test_deploy_private_endpoint(self):
-        pass
+        deployed_model = gca_endpoint.DeployedModel(
+            automatic_resources=automatic_resources,
+            model=test_model.resource_name,
+            display_name=None,
+        )
 
-    def test_undeploy_private_endpoint(self):
-        pass
+        deploy_model_mock.assert_called_once_with(
+            endpoint=test_endpoint.resource_name,
+            deployed_model=deployed_model,
+            metadata=(),
+            timeout=None,
+            traffic_split=None,
+        )
 
-    def test_create_private_endpoint(self):
-        pass
+    @pytest.mark.usefixtures("get_private_endpoint_with_model_mock")
+    @pytest.mark.parametrize("sync", [True, False])
+    def test_undeploy(self, undeploy_model_mock, sync):
+        test_endpoint = models.PrivateEndpoint(_TEST_ENDPOINT_NAME)
+        test_endpoint.undeploy("model1", sync=sync)
 
-    def test_list_private_endpoints(self):
-        pass
+        if not sync:
+            test_endpoint.wait()
+
+        undeploy_model_mock.assert_called_once_with(
+            endpoint=test_endpoint.resource_name,
+            deployed_model_id="model1",
+            metadata=(),
+            traffic_split={},
+        )
+
+    @pytest.mark.usefixtures("list_private_endpoints_mock")
+    def test_list(self):
+        ep_list = aiplatform.PrivateEndpoint.list()
+        assert ep_list  # Ensure list is not empty
