@@ -154,7 +154,7 @@ def run_prediction_container(
     client = docker.from_env()
 
     envs = {}
-    if serving_container_environment_variables is not None:
+    if serving_container_environment_variables:
         for key, value in serving_container_environment_variables.items():
             envs[key] = _replace_env_var_reference(value, envs)
 
@@ -164,13 +164,13 @@ def run_prediction_container(
     envs[prediction.AIP_HEALTH_ROUTE] = serving_container_health_route
     envs[prediction.AIP_PREDICT_ROUTE] = serving_container_predict_route
 
-    if artifact_uri is not None and not artifact_uri.startswith("gs://"):
+    if artifact_uri and not artifact_uri.startswith("gs://"):
         raise ValueError(f'artifact_uri must be a GCS path but it is "{artifact_uri}".')
-    envs[prediction.AIP_STORAGE_URI] = artifact_uri if artifact_uri is not None else ""
+    envs[prediction.AIP_STORAGE_URI] = artifact_uri or ""
 
     credential_from_adc_env = credential_path is None
     credential_path = credential_path or _get_adc_environment_variable()
-    if credential_path is not None:
+    if credential_path:
         credential_path_on_host = Path(credential_path).expanduser().resolve()
         if not credential_path_on_host.exists() and credential_from_adc_env:
             raise ValueError(
@@ -182,21 +182,17 @@ def run_prediction_container(
     credential_mount_path = _DEFAULT_CONTAINER_CRED_KEY_PATH
     volumes = (
         [f"{credential_path_on_host}:{credential_mount_path}"]
-        if credential_path is not None
+        if credential_path
         else []
     )
     envs[_ADC_ENVIRONMENT_VARIABLE] = credential_mount_path
 
-    entrypoint = (
-        [_replace_env_var_reference(i, envs) for i in serving_container_command]
-        if serving_container_command is not None
-        else []
-    )
-    command = (
-        [_replace_env_var_reference(i, envs) for i in serving_container_args]
-        if serving_container_args is not None
-        else []
-    )
+    entrypoint = [
+        _replace_env_var_reference(i, envs) for i in serving_container_command or []
+    ]
+    command = [
+        _replace_env_var_reference(i, envs) for i in serving_container_args or []
+    ]
 
     container = client.containers.run(
         serving_container_image_uri,
