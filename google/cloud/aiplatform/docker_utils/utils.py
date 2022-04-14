@@ -17,6 +17,32 @@
 
 import collections
 
+try:
+    import docker
+except ImportError:
+    raise ImportError(
+        "Docker is not installed and is required to run containers. "
+        'Please install the SDK using "pip install python-aiplatform[prediction]"'
+    )
+
 
 Package = collections.namedtuple("Package", ["script", "package_path", "python_module"])
 Image = collections.namedtuple("Image", ["name", "default_home", "default_workdir"])
+
+
+def check_image_exists_locally(image_name: str) -> bool:
+    """Checks if an image exists locally.
+
+    Args:
+        image_name (str):
+            Required. The name of the image.
+
+    Returns:
+        Whether the image exists locally.
+    """
+    client = docker.from_env()
+    try:
+        _ = client.images.get(image_name)
+        return True
+    except (docker.errors.ImageNotFound, docker.errors.APIError):
+        return False
