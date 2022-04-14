@@ -1070,7 +1070,7 @@ class MetadataServiceAsyncClient:
                 on the ``request`` instance; if ``request`` is provided, this
                 should not be set.
             update_mask (:class:`google.protobuf.field_mask_pb2.FieldMask`):
-                Required. A FieldMask indicating
+                Optional. A FieldMask indicating
                 which fields should be updated.
                 Functionality of this field is not yet
                 supported.
@@ -1736,7 +1736,7 @@ class MetadataServiceAsyncClient:
                 on the ``request`` instance; if ``request`` is provided, this
                 should not be set.
             update_mask (:class:`google.protobuf.field_mask_pb2.FieldMask`):
-                Required. A FieldMask indicating
+                Optional. A FieldMask indicating
                 which fields should be updated.
                 Functionality of this field is not yet
                 supported.
@@ -2747,7 +2747,7 @@ class MetadataServiceAsyncClient:
                 on the ``request`` instance; if ``request`` is provided, this
                 should not be set.
             update_mask (:class:`google.protobuf.field_mask_pb2.FieldMask`):
-                Required. A FieldMask indicating
+                Optional. A FieldMask indicating
                 which fields should be updated.
                 Functionality of this field is not yet
                 supported.

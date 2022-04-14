@@ -81,19 +81,18 @@ class IndexEndpoint(proto.Message):
             network. If left unspecified, the Endpoint is not peered
             with any network.
 
-            Only one of the fields,
             [network][google.cloud.aiplatform.v1beta1.IndexEndpoint.network]
-            or
-            [enable_private_service_connect][google.cloud.aiplatform.v1beta1.IndexEndpoint.enable_private_service_connect],
-            can be set.
+            and
+            [private_service_connect_config][google.cloud.aiplatform.v1beta1.IndexEndpoint.private_service_connect_config]
+            are mutually exclusive.
 
             `Format <https://cloud.google.com/compute/docs/reference/rest/v1/networks/insert>`__:
             projects/{project}/global/networks/{network}. Where
             {project} is a project number, as in '12345', and {network}
             is network name.
         enable_private_service_connect (bool):
-            Optional. If true, expose the IndexEndpoint via private
-            service connect.
+            Optional. Deprecated: If true, expose the IndexEndpoint via
+            private service connect.
 
             Only one of the fields,
             [network][google.cloud.aiplatform.v1beta1.IndexEndpoint.network]

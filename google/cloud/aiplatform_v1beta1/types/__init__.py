@@ -85,6 +85,7 @@ from .encryption_spec import (
 from .endpoint import (
     DeployedModel,
     Endpoint,
+    PredictRequestResponseLoggingConfig,
     PrivateEndpoints,
 )
 from .endpoint_service import (
@@ -117,6 +118,7 @@ from .execution import (
 from .explanation import (
     Attribution,
     BlurBaselineConfig,
+    Examples,
     Explanation,
     ExplanationMetadataOverride,
     ExplanationParameters,
@@ -126,7 +128,6 @@ from .explanation import (
     IntegratedGradientsAttribution,
     ModelExplanation,
     SampledShapleyAttribution,
-    Similarity,
     SmoothGradConfig,
     XraiAttribution,
 )
@@ -295,6 +296,7 @@ from .machine_resources import (
     DedicatedResources,
     DiskSpec,
     MachineSpec,
+    NfsMount,
     ResourcesConsumed,
 )
 from .manual_batch_tuning_parameters import (
@@ -395,6 +397,7 @@ from .model_monitoring import (
 )
 from .model_service import (
     DeleteModelRequest,
+    DeleteModelVersionRequest,
     ExportModelOperationMetadata,
     ExportModelRequest,
     ExportModelResponse,
@@ -408,6 +411,9 @@ from .model_service import (
     ListModelEvaluationsResponse,
     ListModelsRequest,
     ListModelsResponse,
+    ListModelVersionsRequest,
+    ListModelVersionsResponse,
+    MergeVersionAliasesRequest,
     UpdateModelRequest,
     UploadModelOperationMetadata,
     UploadModelRequest,
@@ -621,6 +627,7 @@ __all__ = (
     "EncryptionSpec",
     "DeployedModel",
     "Endpoint",
+    "PredictRequestResponseLoggingConfig",
     "PrivateEndpoints",
     "CreateEndpointOperationMetadata",
     "CreateEndpointRequest",
@@ -641,6 +648,7 @@ __all__ = (
     "Execution",
     "Attribution",
     "BlurBaselineConfig",
+    "Examples",
     "Explanation",
     "ExplanationMetadataOverride",
     "ExplanationParameters",
@@ -650,7 +658,6 @@ __all__ = (
     "IntegratedGradientsAttribution",
     "ModelExplanation",
     "SampledShapleyAttribution",
-    "Similarity",
     "SmoothGradConfig",
     "XraiAttribution",
     "ExplanationMetadata",
@@ -786,6 +793,7 @@ __all__ = (
     "DedicatedResources",
     "DiskSpec",
     "MachineSpec",
+    "NfsMount",
     "ResourcesConsumed",
     "ManualBatchTuningParameters",
     "MetadataSchema",
@@ -862,6 +870,7 @@ __all__ = (
     "SamplingStrategy",
     "ThresholdConfig",
     "DeleteModelRequest",
+    "DeleteModelVersionRequest",
     "ExportModelOperationMetadata",
     "ExportModelRequest",
     "ExportModelResponse",
@@ -875,6 +884,9 @@ __all__ = (
     "ListModelEvaluationsResponse",
     "ListModelsRequest",
     "ListModelsResponse",
+    "ListModelVersionsRequest",
+    "ListModelVersionsResponse",
+    "MergeVersionAliasesRequest",
     "UpdateModelRequest",
     "UploadModelOperationMetadata",
     "UploadModelRequest",

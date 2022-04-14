@@ -718,6 +718,8 @@ def test_create_training_pipeline(request_type, transport: str = "grpc"):
             name="name_value",
             display_name="display_name_value",
             training_task_definition="training_task_definition_value",
+            model_id="model_id_value",
+            parent_model="parent_model_value",
             state=pipeline_state.PipelineState.PIPELINE_STATE_QUEUED,
         )
         response = client.create_training_pipeline(request)
@@ -732,6 +734,8 @@ def test_create_training_pipeline(request_type, transport: str = "grpc"):
     assert response.name == "name_value"
     assert response.display_name == "display_name_value"
     assert response.training_task_definition == "training_task_definition_value"
+    assert response.model_id == "model_id_value"
+    assert response.parent_model == "parent_model_value"
     assert response.state == pipeline_state.PipelineState.PIPELINE_STATE_QUEUED
 
 
@@ -777,6 +781,8 @@ async def test_create_training_pipeline_async(
                 name="name_value",
                 display_name="display_name_value",
                 training_task_definition="training_task_definition_value",
+                model_id="model_id_value",
+                parent_model="parent_model_value",
                 state=pipeline_state.PipelineState.PIPELINE_STATE_QUEUED,
             )
         )
@@ -792,6 +798,8 @@ async def test_create_training_pipeline_async(
     assert response.name == "name_value"
     assert response.display_name == "display_name_value"
     assert response.training_task_definition == "training_task_definition_value"
+    assert response.model_id == "model_id_value"
+    assert response.parent_model == "parent_model_value"
     assert response.state == pipeline_state.PipelineState.PIPELINE_STATE_QUEUED
 
 
@@ -987,6 +995,8 @@ def test_get_training_pipeline(request_type, transport: str = "grpc"):
             name="name_value",
             display_name="display_name_value",
             training_task_definition="training_task_definition_value",
+            model_id="model_id_value",
+            parent_model="parent_model_value",
             state=pipeline_state.PipelineState.PIPELINE_STATE_QUEUED,
         )
         response = client.get_training_pipeline(request)
@@ -1001,6 +1011,8 @@ def test_get_training_pipeline(request_type, transport: str = "grpc"):
     assert response.name == "name_value"
     assert response.display_name == "display_name_value"
     assert response.training_task_definition == "training_task_definition_value"
+    assert response.model_id == "model_id_value"
+    assert response.parent_model == "parent_model_value"
     assert response.state == pipeline_state.PipelineState.PIPELINE_STATE_QUEUED
 
 
@@ -1046,6 +1058,8 @@ async def test_get_training_pipeline_async(
                 name="name_value",
                 display_name="display_name_value",
                 training_task_definition="training_task_definition_value",
+                model_id="model_id_value",
+                parent_model="parent_model_value",
                 state=pipeline_state.PipelineState.PIPELINE_STATE_QUEUED,
             )
         )
@@ -1061,6 +1075,8 @@ async def test_get_training_pipeline_async(
     assert response.name == "name_value"
     assert response.display_name == "display_name_value"
     assert response.training_task_definition == "training_task_definition_value"
+    assert response.model_id == "model_id_value"
+    assert response.parent_model == "parent_model_value"
     assert response.state == pipeline_state.PipelineState.PIPELINE_STATE_QUEUED
 
 

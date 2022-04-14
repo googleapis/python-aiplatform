@@ -58,7 +58,7 @@ class PipelineJob(proto.Message):
             Output only. Timestamp when this PipelineJob
             was most recently updated.
         pipeline_spec (google.protobuf.struct_pb2.Struct):
-            Required. The spec of the pipeline.
+            The spec of the pipeline.
         state (google.cloud.aiplatform_v1.types.PipelineState):
             Output only. The detailed state of the job.
         job_detail (google.cloud.aiplatform_v1.types.PipelineJobDetail):

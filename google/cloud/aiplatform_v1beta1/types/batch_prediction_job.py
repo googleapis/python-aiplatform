@@ -64,6 +64,9 @@ class BatchPredictionJob(proto.Message):
             Starting this job has no impact on any existing deployments
             of the Model and their resources. Exactly one of model and
             unmanaged_container_model must be set.
+        model_version_id (str):
+            Output only. The version ID of the Model that
+            produces the predictions via this job.
         unmanaged_container_model (google.cloud.aiplatform_v1beta1.types.UnmanagedContainerModel):
             Contains model information necessary to perform batch
             prediction without requiring uploading to model registry.
@@ -413,6 +416,10 @@ class BatchPredictionJob(proto.Message):
     model = proto.Field(
         proto.STRING,
         number=3,
+    )
+    model_version_id = proto.Field(
+        proto.STRING,
+        number=30,
     )
     unmanaged_container_model = proto.Field(
         proto.MESSAGE,
