@@ -108,7 +108,8 @@ class Endpoint(proto.Message):
             ``{project}`` is a project number, as in ``12345``, and
             ``{network}`` is network name.
         enable_private_service_connect (bool):
-            If true, expose the Endpoint via private service connect.
+            Deprecated: If true, expose the Endpoint via private service
+            connect.
 
             Only one of the fields,
             [network][google.cloud.aiplatform.v1.Endpoint.network] or
@@ -390,7 +391,7 @@ class PredictRequestResponseLoggingConfig(proto.Message):
             Percentage of requests to be logged, expressed as a fraction
             in range(0,1].
         bigquery_destination (google.cloud.aiplatform_v1.types.BigQueryDestination):
-            BigQuery table for logging. If only given project, a new
+            BigQuery table for logging. If only given a project, a new
             dataset will be created with name
             ``logging_<endpoint-display-name>_<endpoint-id>`` where will
             be made BigQuery-dataset-name compatible (e.g. most special

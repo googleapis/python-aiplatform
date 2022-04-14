@@ -295,6 +295,7 @@ from .machine_resources import (
     DedicatedResources,
     DiskSpec,
     MachineSpec,
+    NfsMount,
     ResourcesConsumed,
 )
 from .manual_batch_tuning_parameters import (
@@ -786,6 +787,7 @@ __all__ = (
     'DedicatedResources',
     'DiskSpec',
     'MachineSpec',
+    'NfsMount',
     'ResourcesConsumed',
     'ManualBatchTuningParameters',
     'MetadataSchema',

@@ -61,8 +61,10 @@ class Featurestore(proto.Message):
             System reserved label keys are prefixed with
             "aiplatform.googleapis.com/" and are immutable.
         online_serving_config (google.cloud.aiplatform_v1.types.Featurestore.OnlineServingConfig):
-            Required. Config for online serving
-            resources.
+            Optional. Config for online storage
+            resources. If unset, the featurestore will not
+            have an online store and cannot be used for
+            online serving.
         state (google.cloud.aiplatform_v1.types.Featurestore.State):
             Output only. State of the featurestore.
         encryption_spec (google.cloud.aiplatform_v1.types.EncryptionSpec):
@@ -72,7 +74,7 @@ class Featurestore(proto.Message):
             by this key.
     """
     class State(proto.Enum):
-        r"""Possible states a Featurestore can have."""
+        r"""Possible states a featurestore can have."""
         STATE_UNSPECIFIED = 0
         STABLE = 1
         UPDATING = 2
@@ -83,11 +85,12 @@ class Featurestore(proto.Message):
 
         Attributes:
             fixed_node_count (int):
-                The number of nodes for each cluster. The number of nodes
-                will not scale automatically but can be scaled manually by
-                providing different values when updating. Only one of
-                ``fixed_node_count`` and ``scaling`` can be set. Setting one
-                will reset the other.
+                The number of nodes for the online store. The
+                number of nodes doesn't scale automatically, but
+                you can manually update the number of nodes. If
+                set to 0, the featurestore will not have an
+                online store and cannot be used for online
+                serving.
         """
 
         fixed_node_count = proto.Field(

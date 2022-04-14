@@ -254,6 +254,7 @@ from google.cloud.aiplatform_v1.types.machine_resources import BatchDedicatedRes
 from google.cloud.aiplatform_v1.types.machine_resources import DedicatedResources
 from google.cloud.aiplatform_v1.types.machine_resources import DiskSpec
 from google.cloud.aiplatform_v1.types.machine_resources import MachineSpec
+from google.cloud.aiplatform_v1.types.machine_resources import NfsMount
 from google.cloud.aiplatform_v1.types.machine_resources import ResourcesConsumed
 from google.cloud.aiplatform_v1.types.manual_batch_tuning_parameters import ManualBatchTuningParameters
 from google.cloud.aiplatform_v1.types.metadata_schema import MetadataSchema
@@ -712,6 +713,7 @@ __all__ = ('DatasetServiceClient',
     'DedicatedResources',
     'DiskSpec',
     'MachineSpec',
+    'NfsMount',
     'ResourcesConsumed',
     'ManualBatchTuningParameters',
     'MetadataSchema',

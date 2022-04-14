@@ -199,6 +199,15 @@ class CustomJobSpec(proto.Message):
 
             If this field is left unspecified, the job is not peered
             with any network.
+        reserved_ip_ranges (Sequence[str]):
+            Optional. A list of names for the reserved ip ranges under
+            the VPC network that can be used for this job.
+
+            If set, we will deploy the job within the provided ip
+            ranges. Otherwise, the job will be deployed to any ip ranges
+            under the provided VPC network.
+
+            Example: ['vertex-ai-ip-range'].
         base_output_directory (google.cloud.aiplatform_v1.types.GcsDestination):
             The Cloud Storage location to store the output of this
             CustomJob or HyperparameterTuningJob. For
@@ -265,6 +274,10 @@ class CustomJobSpec(proto.Message):
         proto.STRING,
         number=5,
     )
+    reserved_ip_ranges = proto.RepeatedField(
+        proto.STRING,
+        number=13,
+    )
     base_output_directory = proto.Field(
         proto.MESSAGE,
         number=6,
@@ -305,6 +318,8 @@ class WorkerPoolSpec(proto.Message):
         replica_count (int):
             Optional. The number of worker replicas to
             use for this worker pool.
+        nfs_mounts (Sequence[google.cloud.aiplatform_v1.types.NfsMount]):
+            Optional. List of NFS mount spec.
         disk_spec (google.cloud.aiplatform_v1.types.DiskSpec):
             Disk spec.
     """
@@ -329,6 +344,11 @@ class WorkerPoolSpec(proto.Message):
     replica_count = proto.Field(
         proto.INT64,
         number=2,
+    )
+    nfs_mounts = proto.RepeatedField(
+        proto.MESSAGE,
+        number=4,
+        message=machine_resources.NfsMount,
     )
     disk_spec = proto.Field(
         proto.MESSAGE,

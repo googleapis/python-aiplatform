@@ -30,7 +30,7 @@ __protobuf__ = proto.module(
 
 
 class ModelMonitoringObjectiveConfig(proto.Message):
-    r"""Next ID: 7
+    r"""Next ID: 8
 
     Attributes:
         training_dataset (google.cloud.aiplatform_v1.types.ModelMonitoringObjectiveConfig.TrainingDataset):
