@@ -147,5 +147,5 @@ class TestModelEvaluation:
 
         eval_metrics = aiplatform.ModelEvaluation(
             evaluation_name=_TEST_MODEL_EVAL_RESOURCE_NAME
-        ).evaluation_metrics
+        ).metrics
         assert eval_metrics == _TEST_MODEL_EVAL_METRICS

@@ -32,7 +32,7 @@ class ModelEvaluation(base.VertexAiResourceNounWithFutureManager):
 
     client_class = utils.ModelClientWithOverride
     _resource_noun = "evaluations"
-    _delete_method = "delete_pipeline_job"
+    _delete_method = None
     _getter_method = "get_model_evaluation"
     _list_method = "list_model_evaluations"
     _parse_resource_name_method = "parse_model_evaluation_path"
@@ -88,4 +88,9 @@ class ModelEvaluation(base.VertexAiResourceNounWithFutureManager):
             parent_resource_name_fields={models.Model._resource_noun: model_id}
             if model_id
             else model_id,
+        )
+
+    def delete(self):
+        raise NotImplementedError(
+            "Deleting a model evaluation has not been implemented yet."
         )

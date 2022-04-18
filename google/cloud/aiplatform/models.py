@@ -3277,9 +3277,11 @@ class Model(base.VertexAiResourceNounWithFutureManager):
             )
         else:
             resource_uri_parts = self._parse_resource_name(self.resource_name)
-            evaluation_resource_name = model_evaluation.ModelEvaluation._format_resource_name(
-                **resource_uri_parts,
-                evaluation=evaluation_id,
+            evaluation_resource_name = (
+                model_evaluation.ModelEvaluation._format_resource_name(
+                    **resource_uri_parts,
+                    evaluation=evaluation_id,
+                )
             )
 
         return model_evaluation.ModelEvaluation(
