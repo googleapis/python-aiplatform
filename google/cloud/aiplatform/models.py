@@ -3214,9 +3214,6 @@ class Model(base.VertexAiResourceNounWithFutureManager):
 
     def list_model_evaluations(
         self,
-        project: Optional[str] = None,
-        location: Optional[str] = None,
-        credentials: Optional[auth_credentials.Credentials] = None,
     ) -> List["model_evaluation.ModelEvaluation"]:
         """List all Model Evaluation resources associated with this model.
 
@@ -3228,16 +3225,6 @@ class Model(base.VertexAiResourceNounWithFutureManager):
 
         my_evaluations = my_model.list_model_evaluations()
 
-        Args:
-            project: Optional[str]=None,
-                Project to get model evaluations from. Overrides project set in
-                aiplatform.init.
-            location: Optional[str]=None,
-                Location to get model evaluations from. Overrides location set in
-                aiplatform.init.
-            credentials: Optional[auth_credentials.Credentials]=None,
-                Custom credentials to get model evaluations from. Overrides credentials
-                set in aiplatform.init.
         Returns:
             List[model_evaluation.ModelEvaluation]: List of ModelEvaluation resources
             for the model.
@@ -3247,16 +3234,11 @@ class Model(base.VertexAiResourceNounWithFutureManager):
             resource_noun=Model._resource_noun,
             parse_resource_name_method=Model._parse_resource_name,
             format_resource_name_method=Model._format_resource_name,
-            project=project,
-            location=location,
         )
 
         self.wait()
 
         return model_evaluation.ModelEvaluation._list(
-            project=project,
-            location=location,
-            credentials=credentials,
             parent=parent,
         )
 
@@ -3289,15 +3271,18 @@ class Model(base.VertexAiResourceNounWithFutureManager):
             ModelEvaluation resource.
         """
         if not evaluation_id:
-            evaluation_resource_name = self.list_model_evaluations(self.resource_name)[
-                0
-            ].resource_name
+            evaluation_resource_name = self.list_model_evaluations()[0].resource_name
+            _LOGGER.warning(
+                f"Your model has more than one model evaluation, this is returning only one evaluation resource: {evaluation_resource_name}"
+            )
         else:
-            # TODO: validate evaluation_id
-            evaluation_resource_name = (
-                f"{self.resource_name}/evaluations/{evaluation_id}"
+            resource_uri_parts = self._parse_resource_name(self.resource_name)
+            evaluation_resource_name = model_evaluation.ModelEvaluation._format_resource_name(
+                **resource_uri_parts,
+                evaluation=evaluation_id,
             )
 
         return model_evaluation.ModelEvaluation(
             evaluation_name=evaluation_resource_name,
+            credentials=self.credentials,
         )

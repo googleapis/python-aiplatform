@@ -39,54 +39,13 @@ class ModelEvaluation(base.VertexAiResourceNounWithFutureManager):
     _format_resource_name_method = "model_evaluation_path"
 
     @property
-    def evaluation_metrics(self) -> Optional[Dict[str, Any]]:
+    def metrics(self) -> Optional[Dict[str, Any]]:
         """Gets the evaluation metrics from the Model Evaluation.
         Returns:
             A dict with model metrics created from the Model Evaluation or
             None if the metrics for this evaluation are empty.
         """
-        if self._gca_resource.metrics:
-            return self.to_dict()["metrics"]
-
-    @property
-    def summary_metrics(self) -> Optional[Dict[str, Any]]:
-        """Gets the summary metrics for the Model Evaluation.
-
-        For classification models, this includes auPrc, auRoc, logLoss for the model overall,
-        and precision, recall, and F1 score at a confidence threshold of 0.5.
-
-        For regression models, the summary metrics are the same as `evaluation_metrics`.
-        This includes RMSE, MAE, MAPE, r^2, and RMSLE.
-
-        Returns:
-            A dict with model metrics created from the Model Evaluation or
-            None if the metrics for this evaluation are empty.
-        """
-
-        if self._gca_resource.metrics:
-            metrics = self.to_dict()["metrics"]
-            summary_metrics = {}
-
-            # classification
-            if "auPrc" in metrics:
-                summary_metrics["auPrc"] = metrics["auPrc"]
-                summary_metrics["auRoc"] = metrics["auRoc"]
-                summary_metrics["logLoss"] = metrics["logLoss"]
-
-                for confidence_slice in metrics["confidenceMetrics"]:
-                    if (
-                        "confidenceThreshold" in confidence_slice
-                        and confidence_slice["confidenceThreshold"] == 0.5
-                    ):
-                        summary_metrics["recall"] = confidence_slice["recall"]
-                        summary_metrics["precision"] = confidence_slice["precision"]
-                        summary_metrics["f1Score"] = confidence_slice["f1Score"]
-
-            # regression
-            if "rootMeanSquaredError" in metrics:
-                summary_metrics = metrics
-
-            return summary_metrics
+        return self._gca_resource.metrics
 
     def __init__(
         self,
