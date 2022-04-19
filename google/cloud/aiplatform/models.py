@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-# Copyright 2020 Google LLC
+# Copyright 2022 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -362,7 +362,7 @@ class Endpoint(base.VertexAiResourceNounWithFutureManager):
                 Optional. The timeout for the create request in seconds.
 
         Returns:
-            endpoint (endpoint.Endpoint):
+            endpoint (Endpoint):
                 Created endpoint.
         """
 
@@ -1552,15 +1552,15 @@ class PrivateEndpoint(Endpoint):
     def create(
         cls,
         display_name: str,
+        project: Optional[str] = None,
+        location: Optional[str] = None,
         network: Optional[str] = None,
         description: Optional[str] = None,
         labels: Optional[Dict[str, str]] = None,
-        project: Optional[str] = None,
-        location: Optional[str] = None,
         credentials: Optional[auth_credentials.Credentials] = None,
         encryption_spec_key_name: Optional[str] = None,
         sync=True,
-    ) -> "Endpoint":
+    ) -> "PrivateEndpoint":
         """Creates a new private Endpoint.
 
         Example usage:
@@ -1616,19 +1616,16 @@ class PrivateEndpoint(Endpoint):
                 form:
                 ``projects/my-project/locations/my-region/keyRings/my-kr/cryptoKeys/my-key``.
                 The key needs to be in the same region as where the compute
-                resource is created.
-
-                If set, this Endpoint and all sub-resources of this Endpoint will be secured by this key.
-
-                Overrides encryption_spec_key_name set in aiplatform.init.
-
+                resource is created. If set, this Endpoint and all sub-resources of this 
+                Endpoint will be secured by this key. Overrides encryption_spec_key_name 
+                set in aiplatform.init.
             sync (bool):
                 Whether to execute this method synchronously. If False, this method
                 will be executed in concurrent Future and any downstream object will
                 be immediately returned and synced when the Future has completed.
 
         Returns:
-            endpoint (endpoint.Endpoint):
+            endpoint (PrivateEndpoint):
                 Created endpoint.
         """
         api_client = cls._instantiate_client(location=location, credentials=credentials)
@@ -2022,6 +2019,10 @@ class PrivateEndpoint(Endpoint):
                 Required. The ID of the DeployedModel to be undeployed from the
                 private Endpoint. Use PrivateEndpoint.list_models() to get the
                 deployed model ID.
+            sync (bool):
+                Whether to execute this method synchronously. If False, this method
+                will be executed in concurrent Future and any downstream object will
+                be immediately returned and synced when the Future has completed.
         """
         self._sync_gca_resource_if_skipped()
 
@@ -2599,11 +2600,11 @@ class Model(base.VertexAiResourceNounWithFutureManager):
         network: Optional[str] = None,
         sync=True,
         deploy_request_timeout: Optional[float] = None,
-    ) -> Endpoint:
+    ) -> Union[Endpoint, PrivateEndpoint]:
         """Deploys model to endpoint. Endpoint will be created if unspecified.
 
         Args:
-            endpoint (Union["Endpoint", "PrivateEndpoint"]):
+            endpoint (Union[Endpoint, PrivateEndpoint]):
                 Optional. Public or private Endpoint to deploy model to. If not specified,
                 endpoint display name will be model display name+'_endpoint'.
             deployed_model_display_name (str):
@@ -2677,7 +2678,7 @@ class Model(base.VertexAiResourceNounWithFutureManager):
                 Optional. The timeout for the deploy request in seconds.
 
         Returns:
-            endpoint ("Endpoint"):
+            endpoint (Union[Endpoint, PrivateEndpoint]):
                 Endpoint with the deployed model.
         """
 
@@ -2744,11 +2745,11 @@ class Model(base.VertexAiResourceNounWithFutureManager):
         network: Optional[str] = None,
         sync: bool = True,
         deploy_request_timeout: Optional[float] = None,
-    ) -> Endpoint:
+    ) -> Union[Endpoint, PrivateEndpoint]:
         """Deploys model to endpoint. Endpoint will be created if unspecified.
 
         Args:
-            endpoint (Union["Endpoint", "PrivateEndpoint"]):
+            endpoint (Union[Endpoint, PrivateEndpoint]):
                 Optional. Public or private Endpoint to deploy model to. If not specified,
                 endpoint display name will be model display name+'_endpoint'.
             deployed_model_display_name (str):
@@ -2837,7 +2838,7 @@ class Model(base.VertexAiResourceNounWithFutureManager):
                 Optional. The timeout for the deploy request in seconds.
 
         Returns:
-            endpoint ("Endpoint"):
+            endpoint (Union[Endpoint, PrivateEndpoint]):
                 Endpoint with the deployed model.
         """
 
