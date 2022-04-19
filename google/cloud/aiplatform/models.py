@@ -1616,9 +1616,11 @@ class PrivateEndpoint(Endpoint):
                 form:
                 ``projects/my-project/locations/my-region/keyRings/my-kr/cryptoKeys/my-key``.
                 The key needs to be in the same region as where the compute
-                resource is created. If set, this Endpoint and all sub-resources of this 
-                Endpoint will be secured by this key. Overrides encryption_spec_key_name 
-                set in aiplatform.init.
+                resource is created.
+
+                If set, this Endpoint and all sub-resources of this Endpoint will be secured by this key.
+
+                Overrides encryption_spec_key_name set in aiplatform.init.
             sync (bool):
                 Whether to execute this method synchronously. If False, this method
                 will be executed in concurrent Future and any downstream object will
@@ -2660,9 +2662,9 @@ class Model(base.VertexAiResourceNounWithFutureManager):
                 The key needs to be in the same region as where the compute
                 resource is created.
 
-                If set, this Model and all sub-resources of this Model will be secured by this key.
+                If set, this Endpoint and all sub-resources of this Endpoint will be secured by this key.
 
-                Overrides encryption_spec_key_name set in aiplatform.init
+                Overrides encryption_spec_key_name set in aiplatform.init.
             network (str):
                 Optional. The full name of the Compute Engine network to which
                 this Endpoint will be peered. E.g. "projects/12345/global/networks/myVPC".
