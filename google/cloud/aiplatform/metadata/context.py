@@ -25,6 +25,9 @@ from google.cloud.aiplatform.compat.types import context as gca_context
 from google.cloud.aiplatform.compat.types import lineage_subgraph
 from google.cloud.aiplatform.compat.types import metadata_service
 from google.cloud.aiplatform import utils
+from google.cloud.aiplatform.metadata.artifact import Artifact
+from google.cloud.aiplatform.metadata import utils as metadata_utils
+from google.cloud.aiplatform.metadata.execution import Execution
 
 
 class _Context(resource._Resource):
@@ -59,6 +62,15 @@ class _Context(resource._Resource):
             artifacts=artifact_resource_names,
             executions=execution_resource_names,
         )
+
+    def get_artifacts(self) -> List[Artifact]:
+        filter_str = metadata_utils.make_filter_string(in_context=[self.resource_name])
+        print(filter_str)
+        return Artifact.list(
+            filter=filter_str,
+            project=self.project,
+            location=self.location,
+            credentials=self.credentials)
 
     @classmethod
     def _create_resource(
@@ -143,3 +155,10 @@ class _Context(resource._Resource):
         return self.api_client.query_context_lineage_subgraph(
             context=self.resource_name, retry=base._DEFAULT_RETRY
         )
+
+    def get_executions(self) -> List[Execution]:
+        return Execution.list(filter=metadata_utils.make_filter_string(in_context=[self.resource_name]),
+                              project=self.project,
+                              location=self.location,
+                              credentials=self.credentials
+                              )

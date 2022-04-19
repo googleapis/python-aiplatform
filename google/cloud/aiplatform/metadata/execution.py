@@ -14,17 +14,20 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
-
-from typing import Any, Dict, List, Optional, Sequence
+from copy import deepcopy
+from typing import Any, Dict, List, Optional, Sequence, Union
 
 import proto
 from google.api_core import exceptions
+from google.auth import credentials as auth_credentials
 
-from google.cloud.aiplatform import utils, base
+from google.cloud import aiplatform
+from google.cloud.aiplatform import utils, base, models
 from google.cloud.aiplatform.compat.types import event as gca_event
 from google.cloud.aiplatform.compat.types import execution as gca_execution
 from google.cloud.aiplatform.compat.types import metadata_service
-from google.cloud.aiplatform.metadata import artifact, metadata_store
+from google.cloud.aiplatform.metadata import artifact
+from google.cloud.aiplatform.metadata import metadata_store
 from google.cloud.aiplatform.metadata import resource
 
 
@@ -37,58 +40,84 @@ class Execution(resource._Resource):
     _parse_resource_name_method = "parse_execution_path"
     _format_resource_name_method = "execution_path"
 
-    def __init__(self,
-                 schema_title: str,
-                 *,
-                 metadata: Optional[Dict[str, Any]] = None,
-                 resource_id: Optional[str] = None,):
 
-        # TODO pass in project/location/credentials
+    @classmethod
+    def create(cls,
+               schema_title: str,
+               *,
+               metadata: Optional[Dict[str, Any]] = None,
+               resource_id: Optional[str] = None,
+               display_name: Optional[str] = None,
+               project: Optional[str] = None,
+               location: Optional[str] = None,
+               credentials = Optional[auth_credentials.Credentials]) -> 'Execution':
+        self = cls._empty_constructor(
+            project=project,
+            location=location,
+            credentials=credentials)
         super(base.VertexAiResourceNounWithFutureManager, self).__init__()
 
         resource = Execution._create_resource(
-            api_client=self.api_client,
+            client=self.api_client,
             parent=metadata_store._MetadataStore._format_resource_name(
                 project=self.project, location=self.location, metadata_store='default'
             ),
             schema_title=schema_title,
             resource_id=resource_id,
             metadata=metadata,
+            display_name=display_name
         )
         self._gca_resource = resource
 
-        if
-
-
+        return self
 
     def __enter__(self):
-        pass
+        return self
 
     def __exit__(self, exc_type, exc_val, exc_tb):
-        pass
+        state = gca_execution.Execution.State.FAILED if exc_type else gca_execution.Execution.State.COMPLETE
+        self.update(state=state)
 
-    def add_artifact(
+    def assign_input_artifacts(self, artifacts: List[Union[artifact.Artifact, models.Model]]):
+        self._add_artifact(
+            artifacts=artifacts,
+            input=True)
+
+    def assign_output_artifacts(self, artifacts: List[Union[artifact.Artifact, models.Model]]):
+        self._add_artifact(
+            artifacts=artifacts,
+            input=False)
+
+    def _add_artifact(
         self,
-        artifact_resource_name: str,
+        artifacts: List[Union[artifact.Artifact, models.Model]],
         input: bool,
     ):
         """Connect Artifact to a given Execution.
 
         Args:
-            artifact_resource_name (str):
+            artifact_resource_names (List[str]):
                 Required. The full resource name of the Artifact to connect to the Execution through an Event.
             input (bool)
                 Required. Whether Artifact is an input event to the Execution or not.
         """
 
-        event = gca_event.Event(
+        artifact_resource_names = []
+        for a in artifacts:
+            if isinstance(a, artifact.Artifact):
+                artifact_resource_names.append(a.resource_name)
+            else:
+                artifact_resource_names.append(
+                    artifact.VertexResourceArtifactResolver.resolve_or_create_resource_artifact(a).resource_name)
+
+        events = [gca_event.Event(
             artifact=artifact_resource_name,
             type_=gca_event.Event.Type.INPUT if input else gca_event.Event.Type.OUTPUT,
-        )
+        ) for artifact_resource_name in artifact_resource_names]
 
         self.api_client.add_execution_events(
             execution=self.resource_name,
-            events=[event],
+            events=events,
         )
 
     def query_input_and_output_artifacts(self) -> Sequence[artifact._Artifact]:
@@ -213,3 +242,17 @@ class Execution(resource._Resource):
         """
 
         return client.update_execution(execution=resource)
+
+    def update(self,
+               state: Optional[gca_execution.Execution.State]=None,
+               description: Optional[str]=None,
+               metadata: Optional[Dict[str, Any]]=None):
+
+        gca_resource = deepcopy(self._gca_resource)
+        if state:
+            gca_resource.state = state
+        if description:
+            gca_resource.description = description
+        self._nested_update_metadata(gca_resource=gca_resource, metadata=metadata)
+        self._update_resource(self.api_client, resource=gca_resource)
+

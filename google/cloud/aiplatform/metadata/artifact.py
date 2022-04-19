@@ -15,18 +15,19 @@
 # limitations under the License.
 #
 
-from typing import Optional, Dict
+from typing import Optional, Dict, Union, Any
 
 import proto
 
 from google.api_core import exceptions
 from google.auth import credentials as auth_credentials
 
-from google.cloud.aiplatform import base
+from google.cloud.aiplatform import base, models
 from google.cloud.aiplatform import initializer
 from google.cloud.aiplatform.compat.types import artifact as gca_artifact
 from google.cloud.aiplatform.compat.types import metadata_service
 from google.cloud.aiplatform.metadata import resource
+from google.cloud.aiplatform.metadata import utils as metadata_utils
 from google.cloud.aiplatform import utils
 
 _LOGGER = base.Logger(__name__)
@@ -199,8 +200,9 @@ class Artifact(_Artifact):
     @classmethod
     def create(
         cls,
-        resource_id: str,
         schema_title: str,
+        *,
+        resource_id: Optional[str] = None,
         uri: Optional[str] = None,
         display_name: Optional[str] = None,
         schema_version: Optional[str] = None,
@@ -310,4 +312,63 @@ class Artifact(_Artifact):
         if self._gca_resource:
             return f"{object.__repr__(self)} \nresource name: {self.resource_name}\nuri: {self.uri}\nschema_title:{self.gca_resource.schema_title}"
 
-        return FutureManager.__repr__(self)
+        return base.FutureManager.__repr__(self)
+
+
+class VertexResourceArtifactResolver:
+
+    _resource_to_artifact_type = {
+        models.Model : 'google.VertexModel'
+    }
+
+    # TODO: add validation that type is supported
+
+    @classmethod
+    def supports_metadata(cls, resource: Any) -> bool:
+        return type(resource) in cls._resource_to_artifact_type
+
+    @classmethod
+    def resolve_vertex_resource(cls, resource: Union[models.Model]) -> Optional[Artifact]:
+        resource.wait()
+        metadata_type = cls._resource_to_artifact_type[type(resource)]
+        uri = metadata_utils.make_gcp_resource_url(resource=resource)
+
+        artifacts = Artifact.list(
+            filter=metadata_utils.make_filter_string(
+                schema_title=metadata_type,
+                uri=uri,
+            ),
+            project=resource.project,
+            location=resource.location,
+            credentials=resource.credentials,
+        )
+
+        artifacts.sort(key=lambda a: a.create_time)
+        if artifacts:
+            # most recent
+            return artifacts[-1]
+
+    @classmethod
+    def create_vertex_resource_artifact(cls, resource: Union[models.Model]) -> Artifact:
+        resource.wait()
+        metadata_type = cls._resource_to_artifact_type[type(resource)]
+        uri = metadata_utils.make_gcp_resource_url(resource=resource)
+
+        return Artifact.create(
+            schema_title=metadata_type,
+            display_name=getattr(resource.gca_resource, 'display_name', None),
+            uri=uri,
+            metadata={
+                'resourceName': resource.resource_name
+            },
+            project=resource.project,
+            location=resource.location,
+            credentials=resource.credentials
+        )
+
+    @classmethod
+    def resolve_or_create_resource_artifact(cls, resource: Union[models.Model]) -> Artifact:
+        artifact = cls.resolve_vertex_resource(resource=resource)
+        if artifact:
+            return artifact
+        return cls.create_vertex_resource_artifact(resource=resource)

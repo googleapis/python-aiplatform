@@ -71,13 +71,17 @@ def get_tensorboard_board_run_metadata_schema() -> Tuple[
 def make_filter_string(
         schema_title: Optional[str]=None,
         in_context: Optional[List[str]]=None,
-        parent_contexts: Optional[List[str]]=None) -> str:
+        parent_contexts: Optional[List[str]]=None,
+        uri: Optional[str] = None) -> str:
     parts = []
     if schema_title:
-        parts.append(f'{schema_title}=schema_tile')
+        parts.append(f'schema_title="{schema_title}"')
     if in_context:
         for context in in_context:
-            parts.append(f'in_context({context})')
+            parts.append(f'in_context("{context}")')
     if parent_contexts:
-        parts.append(f'parent_contexts:{",".join(parent_contexts)}')
-    return 'AND'.join(parts)
+        parent_context_str = ','.join([f'"{c}"' for c in parent_contexts])
+        parts.append(f'parent_contexts:{parent_context_str}')
+    if uri:
+        parts.append(f'uri="{uri}"')
+    return ' AND '.join(parts)

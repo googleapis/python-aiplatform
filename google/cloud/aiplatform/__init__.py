@@ -79,6 +79,7 @@ log_params = metadata.experiment_tracker.log_params
 log_metrics = metadata.experiment_tracker.log_metrics
 get_experiment_df = metadata.experiment_tracker.get_experiment_df
 start_run = metadata.experiment_tracker.start_run
+start_execution = metadata.experiment_tracker.start_execution
 log = metadata.experiment_tracker.log
 log_time_series_metrics = metadata.experiment_tracker.log_time_series_metrics
 get_artifact = metadata.experiment_tracker.get_artifact
@@ -103,6 +104,7 @@ __all__ = (
     "get_experiment_df",
     "get_pipeline_df",
     "start_run",
+    "start_execution",
     "Artifact",
     "AutoMLImageTrainingJob",
     "AutoMLTabularTrainingJob",

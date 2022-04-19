@@ -17,7 +17,7 @@
 
 from collections import defaultdict
 import functools
-from typing import Dict, Union, Optional
+from typing import Dict, Union, Optional, Any
 import time
 
 from google.protobuf import timestamp_pb2
@@ -204,8 +204,8 @@ class _MetadataService:
                 f"Run name {run} has been used to create other type of resources ({metrics_artifact.schema_title}) "
                 "in this MetadataStore, please choose a different run name."
             )
-        run_execution.add_artifact(
-            artifact_resource_name=metrics_artifact.resource_name, input=False
+        run_execution._add_artifact(
+            artifact_resource_names=[metrics_artifact.resource_name], input=False
         )
 
         self._run = run_execution
@@ -846,7 +846,6 @@ class ExperimentTracker:
         self,
         *,
         pipeline_job: Optional[pipeline_jobs.PipelineJob] = None,
-        artifact: Optional[Artifact] = None,
     ):
         """Log Vertex AI Resources and Artifacts to the current Experiment Run.
 
@@ -861,7 +860,7 @@ class ExperimentTracker:
                 current Experiment Run.
         """
         self._validate_experiment_and_run(method_name="log")
-        self._experiment_run.log(pipeline_job=pipeline_job, artifact=artifact)
+        self._experiment_run.log(pipeline_job=pipeline_job)
 
     def log_time_series_metrics(
         self,
@@ -923,6 +922,37 @@ class ExperimentTracker:
             self._experiment_run.assign_artifact_as_input(artifact=artifact)
 
         return artifact
+
+    # TODO: move inside of experiment run
+    def start_execution(
+            self,
+            display_name: str,
+            schema_title: str,
+            *,
+            metadata: Optional[Dict[str, Any]] = None,
+            resource_id: Optional[str] = None) -> Execution:
+        execution = Execution.create(
+            display_name=display_name,
+            schema_title=schema_title,
+            metadata=metadata,
+            resource_id=resource_id,
+            project = self.experiment_run.project,
+            location = self.experiment_run.location,
+            credentials= self.experiment_run.credentials
+        )
+
+        if self.experiment_run:
+            self.experiment_run.associate_execution(execution)
+            # TODO(consider unwrapping if run is changed)
+            execution.assign_input_artifacts = self.experiment_run._association_wrapper(
+                execution.assign_input_artifacts
+            )
+            execution.assign_output_artifacts = self.experiment_run._association_wrapper(
+                execution.assign_output_artifacts
+            )
+
+        return execution
+
 
 
 metadata_service = _MetadataService()

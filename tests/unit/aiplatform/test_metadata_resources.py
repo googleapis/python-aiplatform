@@ -668,8 +668,8 @@ class TestExecution:
             metadata=_TEST_METADATA,
             metadata_store_id=_TEST_METADATA_STORE,
         )
-        my_execution.add_artifact(
-            artifact_resource_name=_TEST_ARTIFACT_NAME,
+        my_execution._add_artifact(
+            artifact_resource_names=[_TEST_ARTIFACT_NAME],
             input=False,
         )
         add_execution_events_mock.assert_called_once_with(

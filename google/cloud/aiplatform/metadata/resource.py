@@ -19,7 +19,7 @@ import abc
 import collections
 import re
 from copy import deepcopy
-from typing import Dict, Optional, Sequence, Union
+from typing import Dict, Optional, Sequence, Union, Any
 
 import proto
 from google.api_core import exceptions
@@ -195,6 +195,24 @@ class _Resource(base.VertexAiResourceNounWithFutureManager, abc.ABC):
             name=self.resource_name, retry=base._DEFAULT_RETRY
         )
 
+    @staticmethod
+    def _nested_update_metadata(
+            gca_resource: Union[gca_context.Context, gca_execution.Execution, gca_artifact.Artifact],
+            metadata: Optional[Dict[str, Any]] = None):
+        """Update gca_resource in place."""
+
+        if metadata:
+            if gca_resource.metadata:
+                for key, value in metadata.items():
+                    # Note: This only support nested dictionaries one level deep
+                    if isinstance(value, collections.Mapping):
+                        gca_resource.metadata[key].update(value)
+                    else:
+                        gca_resource.metadata[key] = value
+            else:
+                gca_resource.metadata = metadata
+
+
     def update(
         self,
         metadata: Dict,
@@ -214,15 +232,7 @@ class _Resource(base.VertexAiResourceNounWithFutureManager, abc.ABC):
         """
 
         gca_resource = deepcopy(self._gca_resource)
-        if gca_resource.metadata:
-            for key, value in metadata.items():
-                # Note: This only support nested dictionaries one level deep
-                if isinstance(value, collections.Mapping):
-                    gca_resource.metadata[key].update(value)
-                else:
-                    gca_resource.metadata[key] = value
-        else:
-            gca_resource.metadata = metadata
+        self._nested_update_metadata(gca_resource=gca_resource, metadata=metadata)
         if description:
             gca_resource.description = description
 

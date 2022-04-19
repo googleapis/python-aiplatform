@@ -13,11 +13,11 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-
+import collections
 import concurrent.futures
 import functools
 import time
-from typing import Dict, List, Optional, Set, Union
+from typing import Callable, Dict, List, Optional, Set, Union, Any
 
 from google.api_core import exceptions
 from google.auth import credentials as auth_credentials
@@ -30,9 +30,10 @@ from google.cloud.aiplatform import initializer, gapic
 from google.cloud.aiplatform.metadata import metadata
 from google.cloud.aiplatform.metadata import constants
 from google.cloud.aiplatform.metadata import experiment_resources
-from google.cloud.aiplatform.metadata.artifact import Artifact
+from google.cloud.aiplatform.metadata.artifact import Artifact, VertexResourceArtifactResolver
 from google.cloud.aiplatform.metadata.artifact import _Artifact
 from google.cloud.aiplatform.metadata.context import _Context
+from google.cloud.aiplatform.metadata.execution import Execution
 from google.cloud.aiplatform.metadata.metadata_store import _MetadataStore
 from google.cloud.aiplatform.metadata import resource
 from google.cloud.aiplatform.metadata.schema import _MetadataSchema
@@ -102,6 +103,10 @@ class ExperimentRun(experiment_resources.ExperimentLoggable,
     @property
     def location(self) -> str:
         return self._metadata_context.location
+
+    @property
+    def credentials(self) -> auth_credentials.Credentials:
+        return self._metadata_context.credentials
 
     @staticmethod
     def _get_experiment(
@@ -263,69 +268,29 @@ class ExperimentRun(experiment_resources.ExperimentLoggable,
 
         Args:
             pipeline_job (pipeline_jobs.PipelineJob):
-                Required. The PipelineJob to associated.
+                Required. The PipelineJob to associate.
         """
 
-        try:
-            pipeline_job.wait_for_resource_creation()
-        except Exception as e:
-            raise RuntimeError("Could not log PipelineJob to Experiment Run") from e
-
-        resource_name_fields = pipeline_jobs.PipelineJob._parse_resource_name(
-            pipeline_job.resource_name
-        )
-
-        pipeline_job_context = None
-        pipeline_job_context_getter = functools.partial(
-            _Context._get,
-            resource_name=resource_name_fields["pipeline_job"],
-            project=resource_name_fields["project"],
-            location=resource_name_fields["location"],
-        )
-
-        # PipelineJob context is created asynchronously so we need to poll until it exists.
-        while not pipeline_job_context:
-            with experiment_resources._SetLoggerLevel(resource):
-                pipeline_job_context = pipeline_job_context_getter()
-
-            if not pipeline_job_context:
-                if pipeline_job.done():
-                    with experiment_resources._SetLoggerLevel(resource):
-                        pipeline_job_context = pipeline_job_context_getter()
-                    if not pipeline_job_context:
-                        if pipeline_job.has_failed:
-                            raise RuntimeError(
-                                f"Cannot associate PipelineJob to Experiment Run: {pipeline_job.gca_resource.error}"
-                            )
-                        else:
-                            raise RuntimeError(
-                                f"Cannot associate PipelineJob to Experiment Run because PipelineJob context could not be found."
-                            )
-                else:
-                    time.sleep(1)
-
+        pipeline_job_context = pipeline_job._get_context()
         self._metadata_context.add_context_children([pipeline_job_context])
 
     def _log_artifact(self, artifact: Artifact):
-        self._metadata_execution.add_artifact(
-            artifact_resource_name=artifact.resource_name, input=False
+        self._metadata_execution._add_artifact(
+            artifact_resource_names=[artifact.resource_name], input=False
         )
 
     def _consume_artifact(self, artifact: Artifact):
-        self._metadata_execution.add_artifact(
-            artifact_resource_name=artifact.resource_name, input=True
+        self._metadata_execution._add_artifact(
+            artifact_resource_names=[artifact.resource_name], input=True
         )
 
     def log(
         self,
         *,
         pipeline_job: Optional[pipeline_jobs.PipelineJob] = None,
-        artifact: Optional[Artifact] = None,
     ):
         if pipeline_job:
             self._log_pipeline_job(pipeline_job=pipeline_job)
-        if artifact:
-            self._log_artifact(artifact=artifact)
 
     @classmethod
     def create(
@@ -679,7 +644,7 @@ class ExperimentRun(experiment_resources.ExperimentLoggable,
 
         return [
             pipeline_jobs.PipelineJob.get(
-                c.name,
+                c.display_name,
                 project=c.project,
                 location=c.location,
                 credentials=c.credentials,
@@ -714,11 +679,50 @@ class ExperimentRun(experiment_resources.ExperimentLoggable,
     def delete(self, delete_backing_tensorboard_run=False):
         raise NotImplemented("delete not implemented")
 
-    def get_input_artifacts(self) -> List[Artifact]:
-        return self._metadata_execution.get_input_artifacts()
+    def get_artifacts(self) -> List[Artifact]:
+        return self._metadata_context.get_artifacts()
 
-    def get_output_artifacts(self) -> List[Artifact]:
-        return self._metadata_execution.get_output_artifacts()
+    def get_executions(self) -> List[Execution]:
+        return self._metadata_context.get_executions()
 
     def get_params(self) -> Dict[str, Union[int, float, str]]:
         return self._metadata_context.metadata[constants._PARAM_KEY]
+
+    def associate_execution(self, execution: Execution):
+        self._metadata_context.add_artifacts_and_executions(
+            execution_resource_names=[execution.resource_name])
+
+    def _association_wrapper(self, f: Callable[..., Any]) -> Callable[..., Any]:
+        """Wraps methods and automatically associates all passed in Artifacts or Executions to this
+        ExperimentRun.
+
+        TODO: Also associate outputs of the method.
+        """
+
+        @functools.wraps(f)
+        def wrapper(*args, **kwargs):
+            artifacts = []
+            executions = []
+            for value in [*args, *kwargs.values()]:
+                value = value if isinstance(value, collections.Iterable) else [value]
+                for item in value:
+                    if isinstance(item, Execution):
+                        executions.append(item)
+                    elif isinstance(item, Artifact):
+                        artifacts.append(item)
+                    elif VertexResourceArtifactResolver.supports_metadata(item):
+                        artifacts.append(
+                            VertexResourceArtifactResolver.resolve_or_create_resource_artifact(item))
+
+            if artifacts or executions:
+                self._metadata_context.add_artifacts_and_executions(
+                    artifact_resource_names=[a.resource_name for a in artifacts],
+                    execution_resource_names=[e.resource_name for e in executions]
+                )
+
+            result = f(*args, **kwargs)
+            return result
+        return wrapper
+
+
+

@@ -16,7 +16,6 @@
 #
 
 import datetime
-import functools
 import logging
 import time
 import re
@@ -28,7 +27,6 @@ from google.cloud.aiplatform import initializer
 from google.cloud.aiplatform import utils
 from google.cloud.aiplatform.metadata import constants as metadata_constants
 from google.cloud.aiplatform.metadata import experiment_resources
-from google.cloud.aiplatform.metadata import resource
 from google.cloud.aiplatform.utils import json_utils
 from google.cloud.aiplatform.utils import pipeline_utils
 from google.protobuf import json_format
@@ -344,6 +342,11 @@ class PipelineJob(
         """Current pipeline state."""
         self._sync_gca_resource()
         return self._gca_resource.state
+
+    @property
+    def task_details(self) -> List[gca_pipeline_job_v1.PipelineTaskDetail]:
+        self._sync_gca_resource()
+        return list(self._gca_resource.job_detail.task_details)
 
     @property
     def has_failed(self) -> bool:
