@@ -20,12 +20,9 @@ from google.auth import credentials as auth_credentials
 from google.cloud.aiplatform import base
 from google.cloud.aiplatform import utils
 from google.cloud.aiplatform import models
+from google.protobuf import struct_pb2
 
-from typing import (
-    Any,
-    Dict,
-    Optional,
-)
+from typing import Optional
 
 
 class ModelEvaluation(base.VertexAiResourceNounWithFutureManager):
@@ -39,7 +36,7 @@ class ModelEvaluation(base.VertexAiResourceNounWithFutureManager):
     _format_resource_name_method = "model_evaluation_path"
 
     @property
-    def metrics(self) -> Optional[Dict[str, Any]]:
+    def metrics(self) -> Optional[struct_pb2.Value]:
         """Gets the evaluation metrics from the Model Evaluation.
         Returns:
             A dict with model metrics created from the Model Evaluation or

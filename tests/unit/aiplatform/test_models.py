@@ -1931,6 +1931,7 @@ class TestModel:
         self,
         mock_model_eval_get,
         get_model_mock,
+        list_model_evaluations_mock,
     ):
         test_model = models.Model(model_name=_TEST_MODEL_RESOURCE_NAME)
 
@@ -1950,8 +1951,8 @@ class TestModel:
 
         test_model.get_model_evaluation()
 
-        mock_model_eval_get.assert_called_once_with(
-            name=_TEST_MODEL_EVAL_RESOURCE_NAME, retry=base._DEFAULT_RETRY
+        list_model_evaluations_mock.assert_called_once_with(
+            request={"parent": _TEST_MODEL_RESOURCE_NAME, "filter": None}
         )
 
     def test_list_model_evaluations(

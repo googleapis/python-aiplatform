@@ -3229,17 +3229,12 @@ class Model(base.VertexAiResourceNounWithFutureManager):
             List[model_evaluation.ModelEvaluation]: List of ModelEvaluation resources
             for the model.
         """
-        parent = utils.full_resource_name(
-            resource_name=self.resource_name,
-            resource_noun=Model._resource_noun,
-            parse_resource_name_method=Model._parse_resource_name,
-            format_resource_name_method=Model._format_resource_name,
-        )
 
         self.wait()
 
         return model_evaluation.ModelEvaluation._list(
-            parent=parent,
+            parent=self.resource_name,
+            credentials=self.credentials,
         )
 
     def get_model_evaluation(
@@ -3270,11 +3265,15 @@ class Model(base.VertexAiResourceNounWithFutureManager):
             model_evaluation.ModelEvaluation: Instantiated representation of the
             ModelEvaluation resource.
         """
+
+        evaluations = self.list_model_evaluations()
+
         if not evaluation_id:
-            evaluation_resource_name = self.list_model_evaluations()[0].resource_name
-            _LOGGER.warning(
-                f"Your model has more than one model evaluation, this is returning only one evaluation resource: {evaluation_resource_name}"
-            )
+            if len(evaluations) > 1:
+                _LOGGER.warning(
+                    f"Your model has more than one model evaluation, this is returning only one evaluation resource: {evaluations[0].resource_name}"
+                )
+            return evaluations[0] if evaluations else evaluations
         else:
             resource_uri_parts = self._parse_resource_name(self.resource_name)
             evaluation_resource_name = (
@@ -3284,7 +3283,7 @@ class Model(base.VertexAiResourceNounWithFutureManager):
                 )
             )
 
-        return model_evaluation.ModelEvaluation(
-            evaluation_name=evaluation_resource_name,
-            credentials=self.credentials,
-        )
+            return model_evaluation.ModelEvaluation(
+                evaluation_name=evaluation_resource_name,
+                credentials=self.credentials,
+            )
