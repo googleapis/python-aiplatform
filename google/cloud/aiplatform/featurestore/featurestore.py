@@ -496,7 +496,7 @@ class Featurestore(base.VertexAiResourceNounWithFutureManager):
         """
         gapic_featurestore = gca_featurestore.Featurestore(
             online_serving_config=gca_featurestore.Featurestore.OnlineServingConfig(
-                fixed_node_count=online_store_fixed_node_count or 1
+                fixed_node_count=1 if online_store_fixed_node_count is None else online_store_fixed_node_count
             )
         )
 
