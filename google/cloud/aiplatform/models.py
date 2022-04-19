@@ -1616,8 +1616,8 @@ class PrivateEndpoint(Endpoint):
                 form:
                 ``projects/my-project/locations/my-region/keyRings/my-kr/cryptoKeys/my-key``.
                 The key needs to be in the same region as where the compute
-                resource is created. If set, this Endpoint and all sub-resources of this 
-                Endpoint will be secured by this key. Overrides encryption_spec_key_name 
+                resource is created. If set, this Endpoint and all sub-resources of this
+                Endpoint will be secured by this key. Overrides encryption_spec_key_name
                 set in aiplatform.init.
             sync (bool):
                 Whether to execute this method synchronously. If False, this method
