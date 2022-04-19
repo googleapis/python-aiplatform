@@ -2692,7 +2692,7 @@ class Model(base.VertexAiResourceNounWithFutureManager):
             explanation_parameters,
         )
 
-        if endpoint and endpoint.__class__ == "PrivateEndpoint"():
+        if endpoint and endpoint.__class__ == "PrivateEndpoint":
             if traffic_percentage or traffic_split:
                 raise ValueError(
                     "Traffic splitting is not yet supported for private Endpoints. "
