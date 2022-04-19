@@ -3439,7 +3439,7 @@ class Model(base.VertexAiResourceNounWithFutureManager):
                 Also if model directory does not contain a supported model file.
         """
         if not display_name:
-            display_name = cls.__class__.__generate_display_name("XGBoost model")
+            display_name = cls._generate_display_name("XGBoost model")
 
         XGBOOST_SUPPORTED_MODEL_FILE_EXTENSIONS = [
             ".pkl",
