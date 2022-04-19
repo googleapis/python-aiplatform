@@ -1732,7 +1732,7 @@ class PrivateEndpoint(Endpoint):
 
         try:
             response = self._http_client.request(
-                method, url, body=body, headers=headers
+                method=method, url=url, body=body, headers=headers
             )
 
             if response.status < 300:
@@ -1797,6 +1797,7 @@ class PrivateEndpoint(Endpoint):
 
         prediction_response = json.loads(response.data)
 
+        print(prediction_response)
         return Prediction(
             predictions=prediction_response.get("predictions"),
             deployed_model_id=self._gca_resource.deployed_models[0].id,
