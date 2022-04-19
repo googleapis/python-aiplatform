@@ -35,18 +35,19 @@ from google.cloud.aiplatform_v1.types import model_evaluation as gca_model_evalu
 _TEST_PROJECT = "test-project"
 _TEST_LOCATION = "us-central1"
 _TEST_MODEL_NAME = "test-model"
-_TEST_ID = "1028944691210842416"
+_TEST_MODEL_ID = "1028944691210842416"
+_TEST_EVAL_ID = "1028944691210842622"
 
 _TEST_MODEL_RESOURCE_NAME = model_service_client.ModelServiceClient.model_path(
-    _TEST_PROJECT, _TEST_LOCATION, _TEST_MODEL_NAME
+    _TEST_PROJECT, _TEST_LOCATION, _TEST_MODEL_ID
 )
 
 _TEST_MODEL_EVAL_RESOURCE_NAME = (
     model_service_client.ModelServiceClient.model_evaluation_path(
         _TEST_PROJECT,
         _TEST_LOCATION,
-        _TEST_MODEL_NAME,
-        _TEST_ID,
+        _TEST_MODEL_ID,
+        _TEST_EVAL_ID,
     )
 )
 
@@ -100,7 +101,7 @@ def get_model_mock():
 @pytest.fixture
 def mock_model():
     model = mock.MagicMock(models.Model)
-    model.name = _TEST_ID
+    model.name = _TEST_MODEL_ID
     model._latest_future = None
     model._exception = None
     model._gca_resource = gca_model.Model(
@@ -125,11 +126,36 @@ def mock_model_eval_get():
 
 
 class TestModelEvaluation:
-    def test_init_model_evaluation_with_resource_name(self, mock_model_eval_get):
+    def test_init_model_evaluation_with_only_resource_name(self, mock_model_eval_get):
         aiplatform.init(project=_TEST_PROJECT)
 
         aiplatform.ModelEvaluation(evaluation_name=_TEST_MODEL_EVAL_RESOURCE_NAME)
 
+        mock_model_eval_get.assert_called_once_with(
+            name=_TEST_MODEL_EVAL_RESOURCE_NAME, retry=base._DEFAULT_RETRY
+        )
+
+    def test_init_model_evaluation_with_eval_id_and_model_id(self, mock_model_eval_get):
+        aiplatform.init(project=_TEST_PROJECT)
+
+        aiplatform.ModelEvaluation(
+            evaluation_name=_TEST_EVAL_ID, model_id=_TEST_MODEL_ID
+        )
+
+        mock_model_eval_get.assert_called_once_with(
+            name=_TEST_MODEL_EVAL_RESOURCE_NAME, retry=base._DEFAULT_RETRY
+        )
+
+    def test_init_model_evaluatin_with_id_project_and_location(
+        self, mock_model_eval_get
+    ):
+        aiplatform.init(project=_TEST_PROJECT)
+
+        aiplatform.ModelEvaluation(
+            evaluation_name=_TEST_MODEL_EVAL_RESOURCE_NAME,
+            project=_TEST_PROJECT,
+            location=_TEST_LOCATION,
+        )
         mock_model_eval_get.assert_called_once_with(
             name=_TEST_MODEL_EVAL_RESOURCE_NAME, retry=base._DEFAULT_RETRY
         )
@@ -149,3 +175,12 @@ class TestModelEvaluation:
             evaluation_name=_TEST_MODEL_EVAL_RESOURCE_NAME
         ).metrics
         assert eval_metrics == _TEST_MODEL_EVAL_METRICS
+
+    def test_no_delete_model_evaluation_method(self, mock_model_eval_get):
+
+        my_eval = aiplatform.ModelEvaluation(
+            evaluation_name=_TEST_MODEL_EVAL_RESOURCE_NAME
+        )
+
+        with pytest.raises(NotImplementedError):
+            my_eval.delete()
