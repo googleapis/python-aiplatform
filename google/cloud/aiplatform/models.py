@@ -1563,78 +1563,78 @@ class PrivateEndpoint(Endpoint):
     ) -> "PrivateEndpoint":
         """Creates a new private Endpoint.
 
-        Example usage:
+                Example usage:
 
-            my_private_endpoint = aiplatform.PrivateEndpoint.create(
-                display_name="my_endpoint_name",
-                project="my_project_id",
-                location="us-central1",
-                network="projects/123/global/networks/my_vpc"
-            )
+                    my_private_endpoint = aiplatform.PrivateEndpoint.create(
+                        display_name="my_endpoint_name",
+                        project="my_project_id",
+                        location="us-central1",
+                        network="projects/123/global/networks/my_vpc"
+                    )
 
-            or (when project and location are initialized)
+                    or (when project and location are initialized)
 
-            my_private_endpoint = aiplatform.PrivateEndpoint.create(
-                display_name="my_endpoint_name",
-                network="projects/123/global/networks/my_vpc"
-            )
+                    my_private_endpoint = aiplatform.PrivateEndpoint.create(
+                        display_name="my_endpoint_name",
+                        network="projects/123/global/networks/my_vpc"
+                    )
 
-        Args:
-            display_name (str):
-                Required. The user-defined name of the Endpoint.
-                The name can be up to 128 characters long and can be consist
-                of any UTF-8 characters.
-            project (str):
-                Required. Project to retrieve endpoint from. If not set, project
-                set in aiplatform.init will be used.
-            location (str):
-                Required. Location to retrieve endpoint from. If not set, location
-                set in aiplatform.init will be used.
-            network (str):
-                Required. The full name of the Compute Engine network to which
-                this Endpoint will be peered. E.g. "projects/123/global/networks/my_vpc".
-                Private services access must already be configured for the network.
-                If not set, `network` set in aiplatform.init will be used.
-            description (str):
-                Optional. The description of the Endpoint.
-            labels (Dict[str, str]):
-                Optional. The labels with user-defined metadata to
-                organize your Endpoints.
-                Label keys and values can be no longer than 64
-                characters (Unicode codepoints), can only
-                contain lowercase letters, numeric characters,
-                underscores and dashes. International characters
-                are allowed.
-                See https://goo.gl/xmQnxf for more information
-                and examples of labels.
-            credentials (auth_credentials.Credentials):
-                Optional. Custom credentials to use to upload this model. Overrides
-                credentials set in aiplatform.init.
-            encryption_spec_key_name (str):
-                Optional. The Cloud KMS resource identifier of the customer
-                managed encryption key used to protect the model. Has the
-                form:
-                ``projects/my-project/locations/my-region/keyRings/my-kr/cryptoKeys/my-key``.
-                The key needs to be in the same region as where the compute
-<<<<<<< HEAD
-                resource is created.
+                Args:
+                    display_name (str):
+                        Required. The user-defined name of the Endpoint.
+                        The name can be up to 128 characters long and can be consist
+                        of any UTF-8 characters.
+                    project (str):
+                        Required. Project to retrieve endpoint from. If not set, project
+                        set in aiplatform.init will be used.
+                    location (str):
+                        Required. Location to retrieve endpoint from. If not set, location
+                        set in aiplatform.init will be used.
+                    network (str):
+                        Required. The full name of the Compute Engine network to which
+                        this Endpoint will be peered. E.g. "projects/123/global/networks/my_vpc".
+                        Private services access must already be configured for the network.
+                        If not set, `network` set in aiplatform.init will be used.
+                    description (str):
+                        Optional. The description of the Endpoint.
+                    labels (Dict[str, str]):
+                        Optional. The labels with user-defined metadata to
+                        organize your Endpoints.
+                        Label keys and values can be no longer than 64
+                        characters (Unicode codepoints), can only
+                        contain lowercase letters, numeric characters,
+                        underscores and dashes. International characters
+                        are allowed.
+                        See https://goo.gl/xmQnxf for more information
+                        and examples of labels.
+                    credentials (auth_credentials.Credentials):
+                        Optional. Custom credentials to use to upload this model. Overrides
+                        credentials set in aiplatform.init.
+                    encryption_spec_key_name (str):
+                        Optional. The Cloud KMS resource identifier of the customer
+                        managed encryption key used to protect the model. Has the
+                        form:
+                        ``projects/my-project/locations/my-region/keyRings/my-kr/cryptoKeys/my-key``.
+                        The key needs to be in the same region as where the compute
+        <<<<<<< HEAD
+                        resource is created.
 
-                If set, this Endpoint and all sub-resources of this Endpoint will be secured by this key.
+                        If set, this Endpoint and all sub-resources of this Endpoint will be secured by this key.
 
-                Overrides encryption_spec_key_name set in aiplatform.init.
-=======
-                resource is created. If set, this Endpoint and all sub-resources of this
-                Endpoint will be secured by this key. Overrides encryption_spec_key_name
-                set in aiplatform.init.
->>>>>>> c50954ff29be46941326a5b6e2415e1d1ad18460
-            sync (bool):
-                Whether to execute this method synchronously. If False, this method
-                will be executed in concurrent Future and any downstream object will
-                be immediately returned and synced when the Future has completed.
+                        Overrides encryption_spec_key_name set in aiplatform.init.
+        =======
+                        resource is created. If set, this Endpoint and all sub-resources of this
+                        Endpoint will be secured by this key. Overrides encryption_spec_key_name
+                        set in aiplatform.init.
+        >>>>>>> c50954ff29be46941326a5b6e2415e1d1ad18460
+                    sync (bool):
+                        Whether to execute this method synchronously. If False, this method
+                        will be executed in concurrent Future and any downstream object will
+                        be immediately returned and synced when the Future has completed.
 
-        Returns:
-            endpoint (PrivateEndpoint):
-                Created endpoint.
+                Returns:
+                    endpoint (PrivateEndpoint):
+                        Created endpoint.
         """
         api_client = cls._instantiate_client(location=location, credentials=credentials)
 
