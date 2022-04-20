@@ -623,7 +623,9 @@ class Endpoint(base.VertexAiResourceNounWithFutureManager):
         if deployed_model_display_name is not None:
             utils.validate_display_name(deployed_model_display_name)
         if traffic_percentage and traffic_split:
-            raise ValueError("Must choose either traffic percentage or traffic split, not both.")
+            raise ValueError(
+                "Must choose either traffic percentage or traffic split, not both."
+            )
         if traffic_percentage:
             if traffic_percentage > 100:
                 raise ValueError("Traffic percentage cannot be greater than 100.")
@@ -1993,7 +1995,7 @@ class PrivateEndpoint(Endpoint):
             accelerator_type,
             deployed_model_display_name,
             explanation_metadata,
-            explanation_parameters
+            explanation_parameters,
         )
 
         self._deploy(
