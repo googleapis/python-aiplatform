@@ -623,13 +623,7 @@ class Endpoint(base.VertexAiResourceNounWithFutureManager):
         if deployed_model_display_name is not None:
             utils.validate_display_name(deployed_model_display_name)
         if traffic_percentage and traffic_split:
-<<<<<<< HEAD
             raise ValueError("Optionally define either traffic percentage or traffic split, not both.")
-=======
-            raise ValueError(
-                "Must choose either traffic percentage or traffic split, not both."
-            )
->>>>>>> af4eabb0b49553480a5b862a12f7f530f9e12a83
         if traffic_percentage:
             if traffic_percentage > 100:
                 raise ValueError("Traffic percentage cannot be greater than 100.")
