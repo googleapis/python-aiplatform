@@ -4736,7 +4736,7 @@ class AutoMLImageTrainingJob(_TrainingJob):
         model_labels: Optional[Dict[str, str]] = None,
         disable_early_stopping: bool = False,
         sync: bool = True,
-        create_request_timeout: Optional[float] = False,
+        create_request_timeout: Optional[float] = None,
     ) -> models.Model:
         """Runs the AutoML Image training job and returns a model.
 
