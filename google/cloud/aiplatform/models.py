@@ -33,6 +33,7 @@ from google.cloud.aiplatform import jobs
 from google.cloud.aiplatform import models
 from google.cloud.aiplatform import utils
 from google.cloud.aiplatform.utils import gcs_utils
+from google.cloud.aiplatform import model_evaluation
 
 from google.cloud.aiplatform.compat.services import endpoint_service_client
 
@@ -3236,3 +3237,79 @@ class Model(base.VertexAiResourceNounWithFutureManager):
             sync=sync,
             upload_request_timeout=upload_request_timeout,
         )
+
+    def list_model_evaluations(
+        self,
+    ) -> List["model_evaluation.ModelEvaluation"]:
+        """List all Model Evaluation resources associated with this model.
+
+        Example Usage:
+
+        my_model = Model(
+            model_name="projects/123/locations/us-central1/models/456"
+        )
+
+        my_evaluations = my_model.list_model_evaluations()
+
+        Returns:
+            List[model_evaluation.ModelEvaluation]: List of ModelEvaluation resources
+            for the model.
+        """
+
+        self.wait()
+
+        return model_evaluation.ModelEvaluation._list(
+            parent=self.resource_name,
+            credentials=self.credentials,
+        )
+
+    def get_model_evaluation(
+        self,
+        evaluation_id: Optional[str] = None,
+    ) -> Optional[model_evaluation.ModelEvaluation]:
+        """Returns a ModelEvaluation resource and instantiates its representation.
+        If no evaluation_id is passed, it will return the first evaluation associated
+        with this model.
+
+        Example usage:
+
+            my_model = Model(
+                model_name="projects/123/locations/us-central1/models/456"
+            )
+
+            my_evaluation = my_model.get_model_evaluation(
+                evaluation_id="789"
+            )
+
+            # If no arguments are passed, this returns the first evaluation for the model
+            my_evaluation = my_model.get_model_evaluation()
+
+        Args:
+            evaluation_id (str):
+                Optional. The ID of the model evaluation to retrieve.
+        Returns:
+            model_evaluation.ModelEvaluation: Instantiated representation of the
+            ModelEvaluation resource.
+        """
+
+        evaluations = self.list_model_evaluations()
+
+        if not evaluation_id:
+            if len(evaluations) > 1:
+                _LOGGER.warning(
+                    f"Your model has more than one model evaluation, this is returning only one evaluation resource: {evaluations[0].resource_name}"
+                )
+            return evaluations[0] if evaluations else evaluations
+        else:
+            resource_uri_parts = self._parse_resource_name(self.resource_name)
+            evaluation_resource_name = (
+                model_evaluation.ModelEvaluation._format_resource_name(
+                    **resource_uri_parts,
+                    evaluation=evaluation_id,
+                )
+            )
+
+            return model_evaluation.ModelEvaluation(
+                evaluation_name=evaluation_resource_name,
+                credentials=self.credentials,
+            )
