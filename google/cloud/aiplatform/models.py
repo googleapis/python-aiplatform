@@ -623,7 +623,7 @@ class Endpoint(base.VertexAiResourceNounWithFutureManager):
         if deployed_model_display_name is not None:
             utils.validate_display_name(deployed_model_display_name)
         if traffic_percentage and traffic_split:
-            raise ValueError("Must choose either traffic percentage or traffic split, not both.")
+            raise ValueError("Optionally define either traffic percentage or traffic split, not both.")
         if traffic_percentage:
             if traffic_percentage > 100:
                 raise ValueError("Traffic percentage cannot be greater than 100.")
@@ -2592,7 +2592,7 @@ class Model(base.VertexAiResourceNounWithFutureManager):
 
         return this_model
 
-    # TODO(b/172502059) support deploying with endpoint resource name
+
     def deploy(
         self,
         endpoint: Optional[Union["Endpoint", "PrivateEndpoint"]] = None,
@@ -2707,7 +2707,7 @@ class Model(base.VertexAiResourceNounWithFutureManager):
             explanation_parameters,
         )
 
-        if endpoint and endpoint.__class__ == "PrivateEndpoint":
+        if isinstance(endpoint, PrivateEndpoint):
             if traffic_percentage or traffic_split:
                 raise ValueError(
                     "Traffic splitting is not yet supported for private Endpoints. "
