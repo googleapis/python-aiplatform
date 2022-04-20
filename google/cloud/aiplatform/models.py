@@ -1326,7 +1326,6 @@ class Endpoint(base.VertexAiResourceNounWithFutureManager):
         """Make a prediction with explanations against this Endpoint.
 
         Example usage:
-
             response = my_endpoint.explain(instances=[...])
             my_explanations = response.explanations
 
@@ -1389,10 +1388,9 @@ class Endpoint(base.VertexAiResourceNounWithFutureManager):
         """List all Endpoint resource instances.
 
         Example Usage:
-
-        aiplatform.Endpoint.list(
-            filter='labels.my_label="my_label_value" OR display_name=!"old_endpoint"',
-        )
+            aiplatform.Endpoint.list(
+                filter='labels.my_label="my_label_value" OR display_name=!"old_endpoint"',
+            )
 
         Args:
             filter (str):
@@ -1497,7 +1495,6 @@ class PrivateEndpoint(Endpoint):
         """Retrieves a private Endpoint resource.
 
         Example usage:
-
             my_private_endpoint = aiplatform.PrivateEndpoint(
                 endpoint_name="projects/123/locations/us-central1/endpoints/my_endpoint_id"
             )
@@ -1590,78 +1587,71 @@ class PrivateEndpoint(Endpoint):
     ) -> "PrivateEndpoint":
         """Creates a new private Endpoint.
 
-                Example usage:
+        Example usage:
+            my_private_endpoint = aiplatform.PrivateEndpoint.create(
+                display_name="my_endpoint_name",
+                project="my_project_id",
+                location="us-central1",
+                network="projects/123/global/networks/my_vpc"
+            )
 
-                    my_private_endpoint = aiplatform.PrivateEndpoint.create(
-                        display_name="my_endpoint_name",
-                        project="my_project_id",
-                        location="us-central1",
-                        network="projects/123/global/networks/my_vpc"
-                    )
+            or (when project and location are initialized)
 
-                    or (when project and location are initialized)
+            my_private_endpoint = aiplatform.PrivateEndpoint.create(
+                display_name="my_endpoint_name",
+                network="projects/123/global/networks/my_vpc"
+            )
 
-                    my_private_endpoint = aiplatform.PrivateEndpoint.create(
-                        display_name="my_endpoint_name",
-                        network="projects/123/global/networks/my_vpc"
-                    )
+        Args:
+            display_name (str):
+                Required. The user-defined name of the Endpoint.
+                The name can be up to 128 characters long and can be consist
+                of any UTF-8 characters.
+            project (str):
+                Required. Project to retrieve endpoint from. If not set, project
+                set in aiplatform.init will be used.
+            location (str):
+                Required. Location to retrieve endpoint from. If not set, location
+                set in aiplatform.init will be used.
+            network (str):
+                Required. The full name of the Compute Engine network to which
+                this Endpoint will be peered. E.g. "projects/123/global/networks/my_vpc".
+                Private services access must already be configured for the network.
+                If not set, `network` set in aiplatform.init will be used.
+            description (str):
+                Optional. The description of the Endpoint.
+            labels (Dict[str, str]):
+                Optional. The labels with user-defined metadata to
+                organize your Endpoints.
+                Label keys and values can be no longer than 64
+                characters (Unicode codepoints), can only
+                contain lowercase letters, numeric characters,
+                underscores and dashes. International characters
+                are allowed.
+                See https://goo.gl/xmQnxf for more information
+                and examples of labels.
+            credentials (auth_credentials.Credentials):
+                Optional. Custom credentials to use to upload this model. Overrides
+                credentials set in aiplatform.init.
+            encryption_spec_key_name (str):
+                Optional. The Cloud KMS resource identifier of the customer
+                managed encryption key used to protect the model. Has the
+                form:
+                ``projects/my-project/locations/my-region/keyRings/my-kr/cryptoKeys/my-key``.
+                The key needs to be in the same region as where the compute
+                resource is created.
 
-                Args:
-                    display_name (str):
-                        Required. The user-defined name of the Endpoint.
-                        The name can be up to 128 characters long and can be consist
-                        of any UTF-8 characters.
-                    project (str):
-                        Required. Project to retrieve endpoint from. If not set, project
-                        set in aiplatform.init will be used.
-                    location (str):
-                        Required. Location to retrieve endpoint from. If not set, location
-                        set in aiplatform.init will be used.
-                    network (str):
-                        Required. The full name of the Compute Engine network to which
-                        this Endpoint will be peered. E.g. "projects/123/global/networks/my_vpc".
-                        Private services access must already be configured for the network.
-                        If not set, `network` set in aiplatform.init will be used.
-                    description (str):
-                        Optional. The description of the Endpoint.
-                    labels (Dict[str, str]):
-                        Optional. The labels with user-defined metadata to
-                        organize your Endpoints.
-                        Label keys and values can be no longer than 64
-                        characters (Unicode codepoints), can only
-                        contain lowercase letters, numeric characters,
-                        underscores and dashes. International characters
-                        are allowed.
-                        See https://goo.gl/xmQnxf for more information
-                        and examples of labels.
-                    credentials (auth_credentials.Credentials):
-                        Optional. Custom credentials to use to upload this model. Overrides
-                        credentials set in aiplatform.init.
-                    encryption_spec_key_name (str):
-                        Optional. The Cloud KMS resource identifier of the customer
-                        managed encryption key used to protect the model. Has the
-                        form:
-                        ``projects/my-project/locations/my-region/keyRings/my-kr/cryptoKeys/my-key``.
-                        The key needs to be in the same region as where the compute
-        <<<<<<< HEAD
-                        resource is created.
+                If set, this Model and all sub-resources of this Model will be secured by this key.
 
-                        If set, this Endpoint and all sub-resources of this Endpoint will be secured by this key.
+                Overrides encryption_spec_key_name set in aiplatform.init.
+            sync (bool):
+                Whether to execute this method synchronously. If False, this method
+                will be executed in concurrent Future and any downstream object will
+                be immediately returned and synced when the Future has completed.
 
-                        Overrides encryption_spec_key_name set in aiplatform.init.
-        =======
-                        resource is created. If set, this Endpoint and all sub-resources of this
-                        Endpoint will be secured by this key. Overrides encryption_spec_key_name
-                        set in aiplatform.init.
-        >>>>>>> c50954ff29be46941326a5b6e2415e1d1ad18460
-                    sync (bool):
-                        Whether to execute this method synchronously. If False, this method
-                        will be executed in concurrent Future and any downstream object will
-                        be immediately returned and synced when the Future has completed.
-
-                Returns:
-                    endpoint (PrivateEndpoint):
-                        Created endpoint.
+        Returns:
+            endpoint (PrivateEndpoint):
+                Created endpoint.
         """
         api_client = cls._instantiate_client(location=location, credentials=credentials)
 
@@ -1789,7 +1779,6 @@ class PrivateEndpoint(Endpoint):
         The predict() call will fail otherwise. To check, use `PrivateEndpoint.network`.
 
         Example usage:
-
             response = my_private_endpoint.predict(instances=[...])
             my_predictions = response.predictions
 
@@ -1846,7 +1835,6 @@ class PrivateEndpoint(Endpoint):
         that this private Endpoint is in.
 
         Example Usage:
-
             if my_private_endpoint.health_check():
                 print("Endpoint is healthy!")
 
@@ -1875,7 +1863,6 @@ class PrivateEndpoint(Endpoint):
         """List all private Endpoint resource instances.
 
         Example Usage:
-
             my_private_endpoints = aiplatform.PrivateEndpoint.list()
 
             or
@@ -1937,7 +1924,6 @@ class PrivateEndpoint(Endpoint):
         """Deploys a Model to the private Endpoint.
 
         Example Usage:
-
             my_private_endpoint.deploy(
                 model=my_model
             )
@@ -2037,7 +2023,6 @@ class PrivateEndpoint(Endpoint):
         """Undeploys a deployed model from the private Endpoint.
 
         Example Usage:
-
             my_private_endpoint.undeploy(
                 deployed_model_id="1234567891232567891"
             )
@@ -2251,7 +2236,6 @@ class Model(base.VertexAiResourceNounWithFutureManager):
         """Updates a model.
 
         Example usage:
-
             my_model = my_model.update(
                 display_name="my-model",
                 description="my description",
@@ -2348,7 +2332,6 @@ class Model(base.VertexAiResourceNounWithFutureManager):
         resource.
 
         Example usage:
-
             my_model = Model.upload(
                 display_name="my-model",
                 artifact_uri="gs://my-model/saved-model",
@@ -2958,7 +2941,6 @@ class Model(base.VertexAiResourceNounWithFutureManager):
         required.
 
         Example usage:
-
             my_model.batch_predict(
                 job_display_name="prediction-123",
                 gcs_source="gs://example-bucket/instances.csv",
@@ -3154,7 +3136,6 @@ class Model(base.VertexAiResourceNounWithFutureManager):
         """List all Model resource instances.
 
         Example Usage:
-
             aiplatform.Model.list(
                 filter='labels.my_label="my_label_value" AND display_name="my_model"',
             )
@@ -3205,7 +3186,6 @@ class Model(base.VertexAiResourceNounWithFutureManager):
         Either `artifact_destination` or `image_destination` must be provided.
 
         Example Usage:
-
             my_model.export(
                 export_format_id="tf-saved-model",
                 artifact_destination="gs://my-bucket/models/"
@@ -3361,7 +3341,6 @@ class Model(base.VertexAiResourceNounWithFutureManager):
         Note: This function is *experimental* and can be changed in the future.
 
         Example usage:
-
             my_model = Model.upload_xgboost_model_file(
                 model_file_path="iris.xgboost_model.bst"
             )
@@ -3567,7 +3546,6 @@ class Model(base.VertexAiResourceNounWithFutureManager):
         Note: This function is *experimental* and can be changed in the future.
 
         Example usage:
-
             my_model = Model.upload_scikit_learn_model_file(
                 model_file_path="iris.sklearn_model.joblib"
             )
@@ -3773,7 +3751,6 @@ class Model(base.VertexAiResourceNounWithFutureManager):
         Note: This function is *experimental* and can be changed in the future.
 
         Example usage:
-
             my_model = Model.upload_scikit_learn_model_file(
                 model_file_path="iris.tensorflow_model.SavedModel"
             )
@@ -3925,12 +3902,11 @@ class Model(base.VertexAiResourceNounWithFutureManager):
         """List all Model Evaluation resources associated with this model.
 
         Example Usage:
+            my_model = Model(
+                model_name="projects/123/locations/us-central1/models/456"
+            )
 
-        my_model = Model(
-            model_name="projects/123/locations/us-central1/models/456"
-        )
-
-        my_evaluations = my_model.list_model_evaluations()
+            my_evaluations = my_model.list_model_evaluations()
 
         Returns:
             List[model_evaluation.ModelEvaluation]: List of ModelEvaluation resources
@@ -3953,7 +3929,6 @@ class Model(base.VertexAiResourceNounWithFutureManager):
         with this model.
 
         Example usage:
-
             my_model = Model(
                 model_name="projects/123/locations/us-central1/models/456"
             )
