@@ -208,6 +208,7 @@ class Endpoint(base.VertexAiResourceNounWithFutureManager):
         encryption_spec_key_name: Optional[str] = None,
         sync=True,
         create_request_timeout: Optional[float] = None,
+        endpoint_id: Optional[str] = None,
     ) -> "Endpoint":
         """Creates a new endpoint.
 
@@ -257,6 +258,17 @@ class Endpoint(base.VertexAiResourceNounWithFutureManager):
                 be immediately returned and synced when the Future has completed.
             create_request_timeout (float):
                 Optional. The timeout for the create request in seconds.
+            endpoint_id (str):
+                Optional. The ID to use for endpoint, which will become
+                the final component of the endpoint resource name. If
+                not provided, Vertex AI will generate a value for this
+                ID.
+
+                This value should be 1-10 characters, and valid
+                characters are /[0-9]/. When using HTTP/JSON, this field
+                is populated based on a query string argument, such as
+                ``?endpoint_id=12345``. This is the fallback for fields
+                that are not included in either the URI or the body.
         Returns:
             endpoint (endpoint.Endpoint):
                 Created endpoint.
@@ -288,6 +300,7 @@ class Endpoint(base.VertexAiResourceNounWithFutureManager):
             ),
             sync=sync,
             create_request_timeout=create_request_timeout,
+            endpoint_id=endpoint_id,
         )
 
     @classmethod
@@ -305,6 +318,7 @@ class Endpoint(base.VertexAiResourceNounWithFutureManager):
         encryption_spec: Optional[gca_encryption_spec.EncryptionSpec] = None,
         sync=True,
         create_request_timeout: Optional[float] = None,
+        endpoint_id: Optional[str] = None,
     ) -> "Endpoint":
         """Creates a new endpoint by calling the API client.
 
@@ -350,6 +364,17 @@ class Endpoint(base.VertexAiResourceNounWithFutureManager):
                 Whether to create this endpoint synchronously.
             create_request_timeout (float):
                 Optional. The timeout for the create request in seconds.
+            endpoint_id (str):
+                Optional. The ID to use for endpoint, which will become
+                the final component of the endpoint resource name. If
+                not provided, Vertex AI will generate a value for this
+                ID.
+
+                This value should be 1-10 characters, and valid
+                characters are /[0-9]/. When using HTTP/JSON, this field
+                is populated based on a query string argument, such as
+                ``?endpoint_id=12345``. This is the fallback for fields
+                that are not included in either the URI or the body.
         Returns:
             endpoint (endpoint.Endpoint):
                 Created endpoint.
@@ -369,6 +394,7 @@ class Endpoint(base.VertexAiResourceNounWithFutureManager):
         operation_future = api_client.create_endpoint(
             parent=parent,
             endpoint=gapic_endpoint,
+            endpoint_id=endpoint_id,
             metadata=metadata,
             timeout=create_request_timeout,
         )
