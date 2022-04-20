@@ -623,7 +623,9 @@ class Endpoint(base.VertexAiResourceNounWithFutureManager):
         if deployed_model_display_name is not None:
             utils.validate_display_name(deployed_model_display_name)
         if traffic_percentage and traffic_split:
-            raise ValueError("Optionally define either traffic percentage or traffic split, not both.")
+            raise ValueError(
+                "Optionally define either traffic percentage or traffic split, not both."
+            )
         if traffic_percentage:
             if traffic_percentage > 100:
                 raise ValueError("Traffic percentage cannot be greater than 100.")
@@ -2591,7 +2593,6 @@ class Model(base.VertexAiResourceNounWithFutureManager):
         _LOGGER.log_create_complete(cls, this_model._gca_resource, "model")
 
         return this_model
-
 
     def deploy(
         self,
