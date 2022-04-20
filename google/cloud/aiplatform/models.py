@@ -553,7 +553,7 @@ class Endpoint(base.VertexAiResourceNounWithFutureManager):
         accelerator_type: Optional[str],
         deployed_model_display_name: Optional[str],
         traffic_split: Optional[Dict[str, int]],
-        traffic_percentage: int,
+        traffic_percentage: Optional[int],
         explanation_metadata: Optional[aiplatform.explain.ExplanationMetadata] = None,
         explanation_parameters: Optional[
             aiplatform.explain.ExplanationParameters
@@ -622,27 +622,23 @@ class Endpoint(base.VertexAiResourceNounWithFutureManager):
             raise ValueError("Max replica cannot be negative.")
         if deployed_model_display_name is not None:
             utils.validate_display_name(deployed_model_display_name)
-
-        # TODO(b/221059294): private Endpoints do not yet support traffic splitting
-        if cls == Endpoint:
-            if traffic_split is None:
-                if traffic_percentage > 100:
-                    raise ValueError("Traffic percentage cannot be greater than 100.")
-                if traffic_percentage < 0:
-                    raise ValueError("Traffic percentage cannot be negative.")
-
-            elif traffic_split:
-                # TODO(b/172678233) verify every referenced deployed model exists
-                if sum(traffic_split.values()) != 100:
-                    raise ValueError(
-                        "Sum of all traffic within traffic split needs to be 100."
-                    )
-
+        if traffic_percentage and traffic_split:
+            raise ValueError("Must choose either traffic percentage or traffic split, not both.")
+        if traffic_percentage:
+            if traffic_percentage > 100:
+                raise ValueError("Traffic percentage cannot be greater than 100.")
+            if traffic_percentage < 0:
+                raise ValueError("Traffic percentage cannot be negative.")
+        if traffic_split:
+            # TODO(b/172678233) verify every referenced deployed model exists
+            if sum(traffic_split.values()) != 100:
+                raise ValueError(
+                    "Sum of all traffic within traffic split needs to be 100."
+                )
         if bool(explanation_metadata) != bool(explanation_parameters):
             raise ValueError(
                 "Both `explanation_metadata` and `explanation_parameters` should be specified or None."
             )
-
         # Raises ValueError if invalid accelerator
         if accelerator_type:
             utils.validate_accelerator_type(accelerator_type)
@@ -1608,16 +1604,16 @@ class PrivateEndpoint(Endpoint):
                 The name can be up to 128 characters long and can be consist
                 of any UTF-8 characters.
             project (str):
-                Required. Project to retrieve endpoint from. If not set, project
+                Optional. Project to retrieve endpoint from. If not set, project
                 set in aiplatform.init will be used.
             location (str):
-                Required. Location to retrieve endpoint from. If not set, location
+                Optional. Location to retrieve endpoint from. If not set, location
                 set in aiplatform.init will be used.
             network (str):
-                Required. The full name of the Compute Engine network to which
+                Optional. The full name of the Compute Engine network to which
                 this Endpoint will be peered. E.g. "projects/123/global/networks/my_vpc".
                 Private services access must already be configured for the network.
-                If not set, `network` set in aiplatform.init will be used.
+                If not set, network set in aiplatform.init will be used.
             description (str):
                 Optional. The description of the Endpoint.
             labels (Dict[str, str]):
@@ -1997,7 +1993,7 @@ class PrivateEndpoint(Endpoint):
             accelerator_type,
             deployed_model_display_name,
             explanation_metadata,
-            explanation_parameters,
+            explanation_parameters
         )
 
         self._deploy(
@@ -3943,6 +3939,7 @@ class Model(base.VertexAiResourceNounWithFutureManager):
         Args:
             evaluation_id (str):
                 Optional. The ID of the model evaluation to retrieve.
+
         Returns:
             model_evaluation.ModelEvaluation: Instantiated representation of the
             ModelEvaluation resource.
