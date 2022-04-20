@@ -628,6 +628,7 @@ class TestEndpoint:
         create_endpoint_mock.assert_called_once_with(
             parent=_TEST_PARENT,
             endpoint=expected_endpoint,
+            endpoint_id=None,
             metadata=(),
             timeout=None,
         )
@@ -654,12 +655,38 @@ class TestEndpoint:
         create_endpoint_mock.assert_called_once_with(
             parent=_TEST_PARENT,
             endpoint=expected_endpoint,
+            endpoint_id=None,
             metadata=(),
             timeout=None,
         )
 
         expected_endpoint.name = _TEST_ENDPOINT_NAME
         assert my_endpoint._gca_resource == expected_endpoint
+
+    @pytest.mark.usefixtures("get_endpoint_mock")
+    @pytest.mark.parametrize("sync", [True, False])
+    def test_create_with_endpoint_id(self, create_endpoint_mock, sync):
+        my_endpoint = models.Endpoint.create(
+            display_name=_TEST_DISPLAY_NAME,
+            endpoint_id=_TEST_ID,
+            description=_TEST_DESCRIPTION,
+            sync=sync,
+            create_request_timeout=None,
+        )
+        if not sync:
+            my_endpoint.wait()
+
+        expected_endpoint = gca_endpoint.Endpoint(
+            display_name=_TEST_DISPLAY_NAME,
+            description=_TEST_DESCRIPTION,
+        )
+        create_endpoint_mock.assert_called_once_with(
+            parent=_TEST_PARENT,
+            endpoint=expected_endpoint,
+            endpoint_id=_TEST_ID,
+            metadata=(),
+            timeout=None,
+        )
 
     @pytest.mark.usefixtures("get_endpoint_mock")
     @pytest.mark.parametrize("sync", [True, False])
@@ -680,6 +707,7 @@ class TestEndpoint:
         create_endpoint_mock.assert_called_once_with(
             parent=_TEST_PARENT,
             endpoint=expected_endpoint,
+            endpoint_id=None,
             metadata=(),
             timeout=180.0,
         )
@@ -723,6 +751,7 @@ class TestEndpoint:
         create_endpoint_mock.assert_called_once_with(
             parent=_TEST_PARENT,
             endpoint=expected_endpoint,
+            endpoint_id=None,
             metadata=(),
             timeout=None,
         )
@@ -746,6 +775,7 @@ class TestEndpoint:
         create_endpoint_mock.assert_called_once_with(
             parent=_TEST_PARENT,
             endpoint=expected_endpoint,
+            endpoint_id=None,
             metadata=(),
             timeout=None,
         )

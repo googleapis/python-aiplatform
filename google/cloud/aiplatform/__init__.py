@@ -42,6 +42,7 @@ from google.cloud.aiplatform.metadata import metadata
 from google.cloud.aiplatform.models import Endpoint
 from google.cloud.aiplatform.models import PrivateEndpoint
 from google.cloud.aiplatform.models import Model
+from google.cloud.aiplatform.model_evaluation import ModelEvaluation
 from google.cloud.aiplatform.jobs import (
     BatchPredictionJob,
     CustomJob,
@@ -108,6 +109,7 @@ __all__ = (
     "ImageDataset",
     "HyperparameterTuningJob",
     "Model",
+    "ModelEvaluation",
     "PipelineJob",
     "PrivateEndpoint",
     "TabularDataset",
