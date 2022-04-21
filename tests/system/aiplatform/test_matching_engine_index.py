@@ -224,9 +224,80 @@ class TestMatchingEngine(e2e_base.TestEndToEnd):
 
         assert updated_index.name == get_index.name
 
+        # Create endpoint and check that it is listed
+        my_index_endpoint = aiplatform.MatchingEngineIndexEndpoint.create(
+            display_name=_TEST_INDEX_ENDPOINT_DISPLAY_NAME,
+            description=_TEST_INDEX_ENDPOINT_DESCRIPTION,
+            network=_TEST_INDEX_ENDPOINT_VPC_NETWORK,
+            labels=_TEST_LABELS,
+        )
+        assert my_index_endpoint.resource_name in [
+            index_endpoint.resource_name
+            for index_endpoint in aiplatform.MatchingEngineIndexEndpoint.list()
+        ]
+
+        assert my_index_endpoint.labels == _TEST_LABELS
+        assert my_index_endpoint.display_name == _TEST_INDEX_ENDPOINT_DISPLAY_NAME
+        assert my_index_endpoint.description == _TEST_INDEX_ENDPOINT_DESCRIPTION
+
+        shared_state["resources"].append(my_index_endpoint)
+
+        # Deploy endpoint
+        my_index_endpoint = my_index_endpoint.deploy_index(
+            index=index,
+            deployed_index_id=_TEST_DEPLOYED_INDEX_ID,
+            display_name=_TEST_DEPLOYED_INDEX_DISPLAY_NAME,
+        )
+
+        # Update endpoint
+        updated_index_endpoint = my_index_endpoint.update(
+            display_name=_TEST_DISPLAY_NAME_UPDATE,
+            description=_TEST_DESCRIPTION_UPDATE,
+            labels=_TEST_LABELS_UPDATE,
+        )
+
+        assert updated_index_endpoint.labels == _TEST_LABELS
+        assert updated_index_endpoint.display_name == _TEST_DISPLAY_NAME_UPDATE
+        assert updated_index_endpoint.description == _TEST_DESCRIPTION_UPDATE
+
+        # Mutate deployed index
+        my_index_endpoint.mutate_deployed_index(
+            deployed_index_id=_TEST_DEPLOYED_INDEX_ID,
+            min_replica_count=_TEST_MIN_REPLICA_COUNT_UPDATED,
+            max_replica_count=_TEST_MAX_REPLICA_COUNT_UPDATED,
+        )
+
+        deployed_index = my_index_endpoint.deployed_indexes[0]
+
+        assert deployed_index == gca_matching_engine_index_endpoint.DeployedIndex(
+            id=_TEST_DEPLOYED_INDEX_ID,
+            index=index.name,
+            automatic_resources={
+                "min_replica_count": _TEST_MIN_REPLICA_COUNT_UPDATED,
+                "max_replica_count": _TEST_MAX_REPLICA_COUNT_UPDATED,
+            },
+        )
+
+        # Test `my_index_endpoint.match` request. This requires running this test in a VPC.
+        results = my_index_endpoint.match(
+            deployed_index_id=_TEST_DEPLOYED_INDEX_ID, queries=[_TEST_MATCH_QUERY]
+        )
+
+        assert results[0][0].id == 870
+
+        # Undeploy index
+        my_index_endpoint = my_index_endpoint.undeploy_index(index=index)
+
         # Delete index and check that it is no longer listed
         index.delete()
         list_indexes = aiplatform.MatchingEngineIndex.list()
         assert get_index.resource_name not in [
             index.resource_name for index in list_indexes
+        ]
+
+        # Delete index endpoint and check that it is no longer listed
+        my_index_endpoint.delete()
+        assert my_index_endpoint.resource_name not in [
+            index_endpoint.resource_name
+            for index_endpoint in aiplatform.MatchingEngineIndexEndpoint.list()
         ]
