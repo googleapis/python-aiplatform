@@ -44,7 +44,7 @@ lit_extra_require = [
 ]
 profiler_extra_require = [
     "tensorboard-plugin-profile >= 2.4.0, <3.0.0dev",
-    "werkzeug >= 2.0.0, <2.1.0dev",
+    "werkzeug >=2.1.1, <2.2.0",
     "tensorflow >=2.4.0, <3.0.0dev",
 ]
 featurestore_extra_require = [
@@ -53,7 +53,7 @@ featurestore_extra_require = [
     "pyarrow >= 6.0.1",
 ]
 pipelines_extra_requires = [
-    "pyyaml>=5.3,<6",
+    "pyyaml>=6,<7",
 ]
 full_extra_require = list(
     set(
@@ -102,7 +102,7 @@ setuptools.setup(
         "proto-plus >= 1.15.0",
         "packaging >= 14.3",
         "google-cloud-storage >= 1.32.0, < 3.0.0dev",
-        "google-cloud-bigquery >= 1.15.0, < 3.0.0dev",
+        "google-cloud-bigquery >=3.0.1, <3.1.0",
         "google-cloud-resource-manager >= 1.3.3, < 3.0.0dev",
     ),
     extras_require={
