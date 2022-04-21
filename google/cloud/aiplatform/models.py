@@ -623,7 +623,9 @@ class Endpoint(base.VertexAiResourceNounWithFutureManager):
         if deployed_model_display_name is not None:
             utils.validate_display_name(deployed_model_display_name)
         if traffic_percentage and traffic_split:
-            raise ValueError("Optionally define either traffic percentage or traffic split, not both.")
+            raise ValueError(
+                "Optionally define either traffic percentage or traffic split, not both."
+            )
         if traffic_percentage:
             if traffic_percentage > 100:
                 raise ValueError("Traffic percentage cannot be greater than 100.")
@@ -1523,10 +1525,6 @@ class PrivateEndpoint(Endpoint):
             credentials=credentials,
         )
 
-        self._custom_predict_uri = None
-        self._custom_explain_uri = None
-        self._custom_health_uri = None
-
         self._http_client = urllib3.PoolManager()
 
     @property
@@ -1537,10 +1535,7 @@ class PrivateEndpoint(Endpoint):
                 "Cannot make a predict request because a model has not been deployed on this private "
                 "Endpoint. Please ensure a model has been deployed."
             )
-        return (
-            self._custom_predict_uri
-            or self._gca_resource.deployed_models[0].private_endpoints.predict_http_uri
-        )
+        return self._gca_resource.deployed_models[0].private_endpoints.predict_http_uri
 
     @property
     def explain_http_uri(self) -> Optional[str]:
@@ -1550,10 +1545,7 @@ class PrivateEndpoint(Endpoint):
                 "Cannot make a explain request because a model has not been deployed on this private "
                 "Endpoint. Please ensure a model has been deployed."
             )
-        return (
-            self._custom_explain_uri
-            or self._gca_resource.deployed_models[0].private_endpoints.explain_http_uri
-        )
+        return self._gca_resource.deployed_models[0].private_endpoints.explain_http_uri
 
     @property
     def health_http_uri(self) -> Optional[str]:
@@ -1563,10 +1555,7 @@ class PrivateEndpoint(Endpoint):
                 "Cannot make a health check request because a model has not been deployed on this private "
                 "Endpoint. Please ensure a model has been deployed."
             )
-        return (
-            self._custom_health_uri
-            or self._gca_resource.deployed_models[0].private_endpoints.health_http_uri
-        )
+        return self._gca_resource.deployed_models[0].private_endpoints.health_http_uri
 
     @classmethod
     def create(
@@ -1714,10 +1703,6 @@ class PrivateEndpoint(Endpoint):
 
         endpoint._gca_resource = gapic_resource
 
-        endpoint._custom_predict_uri = None
-        endpoint._custom_explain_uri = None
-        endpoint._custom_health_uri = None
-
         endpoint._http_client = urllib3.PoolManager()
 
         return endpoint
@@ -1735,8 +1720,7 @@ class PrivateEndpoint(Endpoint):
             method (str):
                 Required. The HTTP request method to use. Example: "POST" or "GET"
             url (str):
-                Required. Project to construct Endpoint object from. If not set,
-                project set in aiplatform.init will be used.
+                Required. The url used to send requests and get responses from.
             body (Dict[Any, Any]):
                 Optional. Data sent to the url in the HTTP request. For private
                 Endpoint, an instance is sent and a prediction response is expected.
@@ -1745,7 +1729,7 @@ class PrivateEndpoint(Endpoint):
 
         Returns:
             urllib3.response.HTTPResponse:
-                An initialized PrivateEndpoint resource.
+                A HTTP Response container.
         """
 
         try:
@@ -1761,13 +1745,13 @@ class PrivateEndpoint(Endpoint):
                     + response.data.decode("utf-8")
                 )
 
-        except urllib3.exceptions.MaxRetryError:
+        except urllib3.exceptions.MaxRetryError as exc:
             raise RuntimeError(
                 f"Failed to make a {method} request to this URI, make sure: "
                 " this call is being made inside the network this private Endpoint is peered to "
                 f"({self._gca_resource.network}), calling health_check() returns True, "
                 f"and that {url} is a valid URL."
-            )
+            ) from exc
 
     def predict(self, instances: List, parameters: Optional[Dict] = None) -> Prediction:
         """Make a prediction against this private Endpoint using unauthenticated HTTP.
@@ -2591,7 +2575,6 @@ class Model(base.VertexAiResourceNounWithFutureManager):
         _LOGGER.log_create_complete(cls, this_model._gca_resource, "model")
 
         return this_model
-
 
     def deploy(
         self,

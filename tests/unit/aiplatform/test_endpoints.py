@@ -1625,6 +1625,7 @@ class TestPrivateEndpoint(TestEndpoint):
             endpoint=expected_endpoint,
             metadata=(),
             timeout=None,
+            endpoint_id=None,
         )
 
     @pytest.mark.usefixtures("get_private_endpoint_with_model_mock")
