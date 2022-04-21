@@ -33,6 +33,13 @@ _PROJECT_NUMBER = os.getenv("PROJECT_NUMBER")
 _VPC_NETWORK_NAME = os.getenv("private-net")
 _LOCATION = "us-central1"
 
+from google.cloud.aiplatform import base
+
+_LOGGER = base.Logger(__name__)
+
+_LOGGER._logger.info(f"INJECTED _PROJECT_NUMBER: {_PROJECT_NUMBER}")
+_LOGGER._logger.info(f"INJECTED _VPC_NETWORK_NAME: {_VPC_NETWORK_NAME}")
+
 
 class TestEndToEnd(metaclass=abc.ABCMeta):
     @property
@@ -142,11 +149,7 @@ class TestEndToEnd(metaclass=abc.ABCMeta):
         for resource in shared_state["resources"]:
             try:
                 if isinstance(
-                    resource,
-                    (
-                        aiplatform.Endpoint,
-                        aiplatform.Featurestore,
-                    ),
+                    resource, (aiplatform.Endpoint, aiplatform.Featurestore,),
                 ):
                     # For endpoint, undeploy model then delete endpoint
                     # For featurestore, force delete its entity_types and features with the featurestore
