@@ -126,9 +126,7 @@ def update_index_embeddings_mock():
         index_service_client.IndexServiceClient, "update_index"
     ) as update_index_mock:
         index_lro_mock = mock.Mock(operation.Operation)
-        index_lro_mock.result.return_value = gca_index.Index(
-            name=_TEST_INDEX_NAME,
-        )
+        index_lro_mock.result.return_value = gca_index.Index(name=_TEST_INDEX_NAME,)
         update_index_mock.return_value = index_lro_mock
         yield update_index_mock
 
@@ -167,7 +165,6 @@ def create_index_mock():
         yield create_index_mock
 
 
-@pytest.mark.skip(reason="MatchingEngineIndex not available")
 class TestMatchingEngineIndex:
     def setup_method(self):
         reload(initializer)
@@ -310,9 +307,7 @@ class TestMatchingEngineIndex:
         )
 
         create_index_mock.assert_called_once_with(
-            parent=_TEST_PARENT,
-            index=expected,
-            metadata=_TEST_REQUEST_METADATA,
+            parent=_TEST_PARENT, index=expected, metadata=_TEST_REQUEST_METADATA,
         )
 
     @pytest.mark.usefixtures("get_index_mock")
@@ -351,7 +346,6 @@ class TestMatchingEngineIndex:
         )
 
         create_index_mock.assert_called_once_with(
-            parent=_TEST_PARENT,
-            index=expected,
-            metadata=_TEST_REQUEST_METADATA,
+            parent=_TEST_PARENT, index=expected, metadata=_TEST_REQUEST_METADATA,
         )
+

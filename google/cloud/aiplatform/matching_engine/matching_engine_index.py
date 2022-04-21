@@ -25,7 +25,7 @@ from google.cloud.aiplatform.compat.types import (
     matching_engine_index as gca_matching_engine_index,
 )
 from google.cloud.aiplatform import initializer
-from google.cloud.aiplatform._matching_engine import matching_engine_index_config
+from google.cloud.aiplatform.matching_engine import matching_engine_index_config
 from google.cloud.aiplatform import utils
 
 _LOGGER = base.Logger(__name__)
@@ -264,15 +264,11 @@ class MatchingEngineIndex(base.VertexAiResourceNounWithFutureManager):
         )
 
         _LOGGER.log_action_start_against_resource(
-            "Updating",
-            "index",
-            self,
+            "Updating", "index", self,
         )
 
         update_lro = self.api_client.update_index(
-            index=gapic_index,
-            update_mask=update_mask,
-            metadata=request_metadata,
+            index=gapic_index, update_mask=update_mask, metadata=request_metadata,
         )
 
         _LOGGER.log_action_started_against_resource_with_lro(
@@ -330,15 +326,11 @@ class MatchingEngineIndex(base.VertexAiResourceNounWithFutureManager):
         )
 
         _LOGGER.log_action_start_against_resource(
-            "Updating",
-            "index",
-            self,
+            "Updating", "index", self,
         )
 
         update_lro = self.api_client.update_index(
-            index=gapic_index,
-            update_mask=update_mask,
-            metadata=request_metadata,
+            index=gapic_index, update_mask=update_mask, metadata=request_metadata,
         )
 
         _LOGGER.log_action_started_against_resource_with_lro(

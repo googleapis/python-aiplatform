@@ -233,8 +233,7 @@ def get_index_mock():
 
         index.deployed_indexes = [
             gca_matching_engine_deployed_index_ref.DeployedIndexRef(
-                index_endpoint=index.name,
-                deployed_index_id=_TEST_DEPLOYED_INDEX_ID,
+                index_endpoint=index.name, deployed_index_id=_TEST_DEPLOYED_INDEX_ID,
             )
         ]
 
@@ -299,8 +298,7 @@ def get_index_endpoint_mock():
 @pytest.fixture
 def deploy_index_mock():
     with patch.object(
-        index_endpoint_service_client.IndexEndpointServiceClient,
-        "deploy_index",
+        index_endpoint_service_client.IndexEndpointServiceClient, "deploy_index",
     ) as deploy_index_mock:
         deploy_index_lro_mock = mock.Mock(operation.Operation)
         deploy_index_mock.return_value = deploy_index_lro_mock
@@ -310,8 +308,7 @@ def deploy_index_mock():
 @pytest.fixture
 def undeploy_index_mock():
     with patch.object(
-        index_endpoint_service_client.IndexEndpointServiceClient,
-        "undeploy_index",
+        index_endpoint_service_client.IndexEndpointServiceClient, "undeploy_index",
     ) as undeploy_index_mock:
         undeploy_index_lro_mock = mock.Mock(operation.Operation)
         undeploy_index_mock.return_value = undeploy_index_lro_mock
@@ -372,18 +369,15 @@ def create_index_endpoint_mock():
         "create_index_endpoint",
     ) as create_index_endpoint_mock:
         create_index_endpoint_lro_mock = mock.Mock(operation.Operation)
-        create_index_endpoint_lro_mock.result.return_value = (
-            gca_index_endpoint.IndexEndpoint(
-                name=_TEST_INDEX_ENDPOINT_NAME,
-                display_name=_TEST_INDEX_ENDPOINT_DISPLAY_NAME,
-                description=_TEST_INDEX_ENDPOINT_DESCRIPTION,
-            )
+        create_index_endpoint_lro_mock.result.return_value = gca_index_endpoint.IndexEndpoint(
+            name=_TEST_INDEX_ENDPOINT_NAME,
+            display_name=_TEST_INDEX_ENDPOINT_DISPLAY_NAME,
+            description=_TEST_INDEX_ENDPOINT_DESCRIPTION,
         )
         create_index_endpoint_mock.return_value = create_index_endpoint_lro_mock
         yield create_index_endpoint_mock
 
 
-@pytest.mark.skip(reason="MatchingEngineIndexEndpoint not available")
 class TestMatchingEngineIndexEndpoint:
     def setup_method(self):
         reload(initializer)

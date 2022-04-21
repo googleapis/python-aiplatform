@@ -21,14 +21,14 @@ from typing import Dict, List, Optional, Sequence, Tuple
 from google.auth import credentials as auth_credentials
 from google.cloud.aiplatform import base
 from google.cloud.aiplatform import initializer
-from google.cloud.aiplatform import _matching_engine
+from google.cloud.aiplatform import matching_engine
 from google.cloud.aiplatform import utils
 from google.cloud.aiplatform.compat.types import (
     machine_resources as gca_machine_resources_compat,
     matching_engine_index_endpoint as gca_matching_engine_index_endpoint,
 )
-from google.cloud.aiplatform._matching_engine import match_service_pb2
-from google.cloud.aiplatform._matching_engine import match_service_pb2_grpc
+from google.cloud.aiplatform.matching_engine import match_service_pb2
+from google.cloud.aiplatform.matching_engine import match_service_pb2_grpc
 from google.protobuf import field_mask_pb2
 
 import grpc
@@ -183,9 +183,7 @@ class MatchingEngineIndexEndpoint(base.VertexAiResourceNounWithFutureManager):
 
         """
         gapic_index_endpoint = gca_matching_engine_index_endpoint.IndexEndpoint(
-            display_name=display_name,
-            description=description,
-            network=network,
+            display_name=display_name, description=description, network=network,
         )
 
         if labels:
@@ -413,26 +411,22 @@ class MatchingEngineIndexEndpoint(base.VertexAiResourceNounWithFutureManager):
                 machine_type=machine_type
             )
 
-            deployed_index.dedicated_resources = (
-                gca_machine_resources_compat.DedicatedResources(
-                    machine_spec=machine_spec,
-                    min_replica_count=min_replica_count,
-                    max_replica_count=max_replica_count,
-                )
+            deployed_index.dedicated_resources = gca_machine_resources_compat.DedicatedResources(
+                machine_spec=machine_spec,
+                min_replica_count=min_replica_count,
+                max_replica_count=max_replica_count,
             )
 
         else:
-            deployed_index.automatic_resources = (
-                gca_machine_resources_compat.AutomaticResources(
-                    min_replica_count=min_replica_count,
-                    max_replica_count=max_replica_count,
-                )
+            deployed_index.automatic_resources = gca_machine_resources_compat.AutomaticResources(
+                min_replica_count=min_replica_count,
+                max_replica_count=max_replica_count,
             )
         return deployed_index
 
     def deploy_index(
         self,
-        index: _matching_engine.MatchingEngineIndex,
+        index: matching_engine.MatchingEngineIndex,
         deployed_index_id: str,
         display_name: Optional[str] = None,
         machine_type: Optional[str] = None,
@@ -544,9 +538,7 @@ class MatchingEngineIndexEndpoint(base.VertexAiResourceNounWithFutureManager):
         self.wait()
 
         _LOGGER.log_action_start_against_resource(
-            "Deploying index",
-            "index_endpoint",
-            self,
+            "Deploying index", "index_endpoint", self,
         )
 
         deployed_index = self._build_deployed_index(
@@ -604,9 +596,7 @@ class MatchingEngineIndexEndpoint(base.VertexAiResourceNounWithFutureManager):
         self.wait()
 
         _LOGGER.log_action_start_against_resource(
-            "Undeploying index",
-            "index_endpoint",
-            self,
+            "Undeploying index", "index_endpoint", self,
         )
 
         undeploy_lro = self.api_client.undeploy_index(
@@ -669,9 +659,7 @@ class MatchingEngineIndexEndpoint(base.VertexAiResourceNounWithFutureManager):
         self.wait()
 
         _LOGGER.log_action_start_against_resource(
-            "Mutating index",
-            "index_endpoint",
-            self,
+            "Mutating index", "index_endpoint", self,
         )
 
         deployed_index = self._build_deployed_index(
