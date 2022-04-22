@@ -283,6 +283,47 @@ Please visit `Importing models to Vertex AI`_ for a detailed overview:
 
 .. _Importing models to Vertex AI: https://cloud.google.com/vertex-ai/docs/general/import-model
 
+Model Evaluation
+----------------
+
+The Vertex AI SDK for Python currently supports getting model evaluation metrics for all AutoML models.
+
+To list all model evaluations for a model:
+
+.. code-block:: Python
+
+  model = aiplatform.Model('/projects/my-project/locations/us-central1/models/{MODEL_ID}')
+
+  evaluations = model.list_model_evaluations()
+  
+
+To get the model evaluation resource for a given model:
+
+.. code-block:: Python
+
+  model = aiplatform.Model('/projects/my-project/locations/us-central1/models/{MODEL_ID}')
+
+  # returns the first evaluation with no arguments, you can also pass the evaluation ID
+  evaluation = model.get_model_evaluation()
+
+  eval_metrics = evaluation.metrics
+
+
+You can also create a reference to your model evaluation directly by passing in the resource name of the model evaluation:
+
+.. code-block:: Python
+
+  evaluation = aiplatform.ModelEvaluation(
+    evaluation_name='/projects/my-project/locations/us-central1/models/{MODEL_ID}/evaluations/{EVALUATION_ID}')
+
+Alternatively, you can create a reference to your evaluation by passing in the model and evaluation IDs:
+
+.. code-block:: Python
+
+  evaluation = aiplatform.ModelEvaluation(
+    evaluation_name={EVALUATION_ID},
+    model_id={MODEL_ID})
+
 
 Batch Prediction
 ----------------
