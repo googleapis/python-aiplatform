@@ -447,7 +447,7 @@ class Featurestore(base.VertexAiResourceNounWithFutureManager):
                 The value must be unique within the project and location.
             online_store_fixed_node_count (int):
                 Optional. Config for online serving resources.
-                When not specified, default node count is 1. The
+                When not specified, no fixed node count for online serving. The
                 number of nodes will not scale automatically but
                 can be scaled manually by providing different
                 values when updating.
@@ -496,7 +496,7 @@ class Featurestore(base.VertexAiResourceNounWithFutureManager):
         """
         gapic_featurestore = gca_featurestore.Featurestore(
             online_serving_config=gca_featurestore.Featurestore.OnlineServingConfig(
-                fixed_node_count=online_store_fixed_node_count or 1
+                fixed_node_count=online_store_fixed_node_count
             )
         )
 
