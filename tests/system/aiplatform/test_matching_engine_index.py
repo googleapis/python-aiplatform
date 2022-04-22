@@ -176,128 +176,128 @@ class TestMatchingEngine(e2e_base.TestEndToEnd):
             project=e2e_base._PROJECT, location=e2e_base._LOCATION,
         )
 
-        # Create an index
-        index = aiplatform.MatchingEngineIndex.create_tree_ah_index(
-            display_name=_TEST_INDEX_DISPLAY_NAME,
-            contents_delta_uri=_TEST_CONTENTS_DELTA_URI,
-            dimensions=_TEST_INDEX_CONFIG_DIMENSIONS,
-            approximate_neighbors_count=_TEST_INDEX_APPROXIMATE_NEIGHBORS_COUNT,
-            distance_measure_type=_TEST_INDEX_DISTANCE_MEASURE_TYPE,
-            leaf_node_embedding_count=_TEST_LEAF_NODE_EMBEDDING_COUNT,
-            leaf_nodes_to_search_percent=_TEST_LEAF_NODES_TO_SEARCH_PERCENT,
-            description=_TEST_INDEX_DESCRIPTION,
-            labels=_TEST_LABELS,
-        )
+        # # Create an index
+        # index = aiplatform.MatchingEngineIndex.create_tree_ah_index(
+        #     display_name=_TEST_INDEX_DISPLAY_NAME,
+        #     contents_delta_uri=_TEST_CONTENTS_DELTA_URI,
+        #     dimensions=_TEST_INDEX_CONFIG_DIMENSIONS,
+        #     approximate_neighbors_count=_TEST_INDEX_APPROXIMATE_NEIGHBORS_COUNT,
+        #     distance_measure_type=_TEST_INDEX_DISTANCE_MEASURE_TYPE,
+        #     leaf_node_embedding_count=_TEST_LEAF_NODE_EMBEDDING_COUNT,
+        #     leaf_nodes_to_search_percent=_TEST_LEAF_NODES_TO_SEARCH_PERCENT,
+        #     description=_TEST_INDEX_DESCRIPTION,
+        #     labels=_TEST_LABELS,
+        # )
 
-        shared_state["resources"] = [index]
-        shared_state["index"] = index
-        shared_state["index_name"] = index.resource_name
+        # shared_state["resources"] = [index]
+        # shared_state["index"] = index
+        # shared_state["index_name"] = index.resource_name
 
-        # Verify that the retrieved index is the same
-        get_index = aiplatform.MatchingEngineIndex(index_name=index.resource_name)
-        assert index.resource_name == get_index.resource_name
+        # # Verify that the retrieved index is the same
+        # get_index = aiplatform.MatchingEngineIndex(index_name=index.resource_name)
+        # assert index.resource_name == get_index.resource_name
 
-        # Create index and check that it is listed
-        list_indexes = aiplatform.MatchingEngineIndex.list()
-        assert get_index.resource_name in [
-            index.resource_name for index in list_indexes
-        ]
+        # # Create index and check that it is listed
+        # list_indexes = aiplatform.MatchingEngineIndex.list()
+        # assert get_index.resource_name in [
+        #     index.resource_name for index in list_indexes
+        # ]
 
-        # Update the index metadata
-        updated_index = get_index.update_metadata(
-            display_name=_TEST_DISPLAY_NAME_UPDATE,
-            description=_TEST_DESCRIPTION_UPDATE,
-            labels=_TEST_LABELS_UPDATE,
-        )
+        # # Update the index metadata
+        # updated_index = get_index.update_metadata(
+        #     display_name=_TEST_DISPLAY_NAME_UPDATE,
+        #     description=_TEST_DESCRIPTION_UPDATE,
+        #     labels=_TEST_LABELS_UPDATE,
+        # )
 
-        assert updated_index.name == get_index.name
-        # TODO: Reinstate assertions once b/220005272 is fixed.
-        # assert updated_index.display_name == _TEST_DISPLAY_NAME_UPDATE
-        # assert updated_index.description == _TEST_DESCRIPTION_UPDATE
-        # assert updated_index.labels == _TEST_LABELS_UPDATE
+        # assert updated_index.name == get_index.name
+        # # TODO: Reinstate assertions once b/220005272 is fixed.
+        # # assert updated_index.display_name == _TEST_DISPLAY_NAME_UPDATE
+        # # assert updated_index.description == _TEST_DESCRIPTION_UPDATE
+        # # assert updated_index.labels == _TEST_LABELS_UPDATE
 
-        # Update the index embeddings
-        updated_index = get_index.update_embeddings(
-            contents_delta_uri=_TEST_CONTENTS_DELTA_URI_UPDATE,
-            is_complete_overwrite=_TEST_IS_COMPLETE_OVERWRITE,
-        )
+        # # Update the index embeddings
+        # updated_index = get_index.update_embeddings(
+        #     contents_delta_uri=_TEST_CONTENTS_DELTA_URI_UPDATE,
+        #     is_complete_overwrite=_TEST_IS_COMPLETE_OVERWRITE,
+        # )
 
-        assert updated_index.name == get_index.name
+        # assert updated_index.name == get_index.name
 
-        # Create endpoint and check that it is listed
-        my_index_endpoint = aiplatform.MatchingEngineIndexEndpoint.create(
-            display_name=_TEST_INDEX_ENDPOINT_DISPLAY_NAME,
-            description=_TEST_INDEX_ENDPOINT_DESCRIPTION,
-            network=_TEST_INDEX_ENDPOINT_VPC_NETWORK,
-            labels=_TEST_LABELS,
-        )
-        assert my_index_endpoint.resource_name in [
-            index_endpoint.resource_name
-            for index_endpoint in aiplatform.MatchingEngineIndexEndpoint.list()
-        ]
+        # # Create endpoint and check that it is listed
+        # my_index_endpoint = aiplatform.MatchingEngineIndexEndpoint.create(
+        #     display_name=_TEST_INDEX_ENDPOINT_DISPLAY_NAME,
+        #     description=_TEST_INDEX_ENDPOINT_DESCRIPTION,
+        #     network=_TEST_INDEX_ENDPOINT_VPC_NETWORK,
+        #     labels=_TEST_LABELS,
+        # )
+        # assert my_index_endpoint.resource_name in [
+        #     index_endpoint.resource_name
+        #     for index_endpoint in aiplatform.MatchingEngineIndexEndpoint.list()
+        # ]
 
-        assert my_index_endpoint.labels == _TEST_LABELS
-        assert my_index_endpoint.display_name == _TEST_INDEX_ENDPOINT_DISPLAY_NAME
-        assert my_index_endpoint.description == _TEST_INDEX_ENDPOINT_DESCRIPTION
+        # assert my_index_endpoint.labels == _TEST_LABELS
+        # assert my_index_endpoint.display_name == _TEST_INDEX_ENDPOINT_DISPLAY_NAME
+        # assert my_index_endpoint.description == _TEST_INDEX_ENDPOINT_DESCRIPTION
 
-        shared_state["resources"].append(my_index_endpoint)
+        # shared_state["resources"].append(my_index_endpoint)
 
-        # Deploy endpoint
-        my_index_endpoint = my_index_endpoint.deploy_index(
-            index=index,
-            deployed_index_id=_TEST_DEPLOYED_INDEX_ID,
-            display_name=_TEST_DEPLOYED_INDEX_DISPLAY_NAME,
-        )
+        # # Deploy endpoint
+        # my_index_endpoint = my_index_endpoint.deploy_index(
+        #     index=index,
+        #     deployed_index_id=_TEST_DEPLOYED_INDEX_ID,
+        #     display_name=_TEST_DEPLOYED_INDEX_DISPLAY_NAME,
+        # )
 
-        # Update endpoint
-        updated_index_endpoint = my_index_endpoint.update(
-            display_name=_TEST_DISPLAY_NAME_UPDATE,
-            description=_TEST_DESCRIPTION_UPDATE,
-            labels=_TEST_LABELS_UPDATE,
-        )
+        # # Update endpoint
+        # updated_index_endpoint = my_index_endpoint.update(
+        #     display_name=_TEST_DISPLAY_NAME_UPDATE,
+        #     description=_TEST_DESCRIPTION_UPDATE,
+        #     labels=_TEST_LABELS_UPDATE,
+        # )
 
-        assert updated_index_endpoint.labels == _TEST_LABELS
-        assert updated_index_endpoint.display_name == _TEST_DISPLAY_NAME_UPDATE
-        assert updated_index_endpoint.description == _TEST_DESCRIPTION_UPDATE
+        # assert updated_index_endpoint.labels == _TEST_LABELS
+        # assert updated_index_endpoint.display_name == _TEST_DISPLAY_NAME_UPDATE
+        # assert updated_index_endpoint.description == _TEST_DESCRIPTION_UPDATE
 
-        # Mutate deployed index
-        my_index_endpoint.mutate_deployed_index(
-            deployed_index_id=_TEST_DEPLOYED_INDEX_ID,
-            min_replica_count=_TEST_MIN_REPLICA_COUNT_UPDATED,
-            max_replica_count=_TEST_MAX_REPLICA_COUNT_UPDATED,
-        )
+        # # Mutate deployed index
+        # my_index_endpoint.mutate_deployed_index(
+        #     deployed_index_id=_TEST_DEPLOYED_INDEX_ID,
+        #     min_replica_count=_TEST_MIN_REPLICA_COUNT_UPDATED,
+        #     max_replica_count=_TEST_MAX_REPLICA_COUNT_UPDATED,
+        # )
 
-        deployed_index = my_index_endpoint.deployed_indexes[0]
+        # deployed_index = my_index_endpoint.deployed_indexes[0]
 
-        assert deployed_index == gca_matching_engine_index_endpoint.DeployedIndex(
-            id=_TEST_DEPLOYED_INDEX_ID,
-            index=index.name,
-            automatic_resources={
-                "min_replica_count": _TEST_MIN_REPLICA_COUNT_UPDATED,
-                "max_replica_count": _TEST_MAX_REPLICA_COUNT_UPDATED,
-            },
-        )
+        # assert deployed_index == gca_matching_engine_index_endpoint.DeployedIndex(
+        #     id=_TEST_DEPLOYED_INDEX_ID,
+        #     index=index.name,
+        #     automatic_resources={
+        #         "min_replica_count": _TEST_MIN_REPLICA_COUNT_UPDATED,
+        #         "max_replica_count": _TEST_MAX_REPLICA_COUNT_UPDATED,
+        #     },
+        # )
 
-        # Test `my_index_endpoint.match` request. This requires running this test in a VPC.
-        results = my_index_endpoint.match(
-            deployed_index_id=_TEST_DEPLOYED_INDEX_ID, queries=[_TEST_MATCH_QUERY]
-        )
+        # # Test `my_index_endpoint.match` request. This requires running this test in a VPC.
+        # results = my_index_endpoint.match(
+        #     deployed_index_id=_TEST_DEPLOYED_INDEX_ID, queries=[_TEST_MATCH_QUERY]
+        # )
 
-        assert results[0][0].id == 870
+        # assert results[0][0].id == 870
 
-        # Undeploy index
-        my_index_endpoint = my_index_endpoint.undeploy_index(index=index)
+        # # Undeploy index
+        # my_index_endpoint = my_index_endpoint.undeploy_index(index=index)
 
-        # Delete index and check that it is no longer listed
-        index.delete()
-        list_indexes = aiplatform.MatchingEngineIndex.list()
-        assert get_index.resource_name not in [
-            index.resource_name for index in list_indexes
-        ]
+        # # Delete index and check that it is no longer listed
+        # index.delete()
+        # list_indexes = aiplatform.MatchingEngineIndex.list()
+        # assert get_index.resource_name not in [
+        #     index.resource_name for index in list_indexes
+        # ]
 
-        # Delete index endpoint and check that it is no longer listed
-        my_index_endpoint.delete()
-        assert my_index_endpoint.resource_name not in [
-            index_endpoint.resource_name
-            for index_endpoint in aiplatform.MatchingEngineIndexEndpoint.list()
-        ]
+        # # Delete index endpoint and check that it is no longer listed
+        # my_index_endpoint.delete()
+        # assert my_index_endpoint.resource_name not in [
+        #     index_endpoint.resource_name
+        #     for index_endpoint in aiplatform.MatchingEngineIndexEndpoint.list()
+        # ]
