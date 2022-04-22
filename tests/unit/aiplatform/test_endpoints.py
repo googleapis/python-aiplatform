@@ -92,6 +92,12 @@ _TEST_DEPLOYED_MODELS = [
 ]
 
 _TEST_TRAFFIC_SPLIT = {_TEST_ID: 0, _TEST_ID_2: 100, _TEST_ID_3: 0}
+_TEST_TRAFFIC_SPLIT_WITH_DEPLOYING_MODEL = {
+    _TEST_ID: 10,
+    _TEST_ID_2: 20,
+    _TEST_ID_3: 20,
+    "0": 50,
+}
 
 _TEST_LONG_TRAFFIC_SPLIT = {
     "m1": 40,
@@ -758,34 +764,74 @@ class TestEndpoint:
         )
 
     @pytest.mark.parametrize(
-        "model_ids",
+        "traffic_split, endpoint, deploy_model",
         [
-            [_TEST_ID, _TEST_ID_2, _TEST_ID_3],
-            [_TEST_ID_2, _TEST_ID],
-            [_TEST_ID_3],
-            [_TEST_ID, _TEST_ID_2, _TEST_ID_3, "0"],
-            [_TEST_ID_2, "0", _TEST_ID],
-            ["0", _TEST_ID_3],
+            ({_TEST_ID: 100}, True, False),
+            ({_TEST_ID: 80, _TEST_ID_2: 20}, True, False),
+            ({_TEST_ID: 50, _TEST_ID_2: 20, _TEST_ID_3: 30}, True, False),
+            ({_TEST_ID: 10, "0": 90}, True, True),
+            ({_TEST_ID: 10, _TEST_ID_2: 20, "0": 70}, True, True),
+            ({_TEST_ID: 10, _TEST_ID_2: 20, _TEST_ID_3: 30, "0": 40}, True, True),
+            ({"0": 100}, None, True),
         ],
     )
     @pytest.mark.usefixtures("get_endpoint_with_models_mock")
-    def test_validate_deployed_model_ids(self, model_ids):
-        endpoint = models.Endpoint(_TEST_ENDPOINT_NAME)
-        endpoint._validate_deployed_model_ids(model_ids)
+    def test_validate_traffic_split(self, traffic_split, endpoint, deploy_model):
+        if endpoint:
+            endpoint = models.Endpoint(_TEST_ENDPOINT_NAME)
+        aiplatform.Endpoint._validate_traffic_split(
+            traffic_split, endpoint, deploy_model
+        )
 
     @pytest.mark.parametrize(
-        "model_ids",
+        "traffic_split, endpoint, deploy_model",
         [
-            [_TEST_ID, _TEST_ID_2, _TEST_ID_3, _TEST_ID_INVALID],
-            [_TEST_ID_2, _TEST_ID_INVALID],
-            [_TEST_ID_INVALID],
+            ({_TEST_ID_INVALID: 100}, True, False),
+            ({_TEST_ID: 50, _TEST_ID_INVALID: 50}, True, False),
+            (
+                {_TEST_ID: 50, _TEST_ID_2: 20, _TEST_ID_3: 20, _TEST_ID_INVALID: 10},
+                True,
+                False,
+            ),
+            ({_TEST_ID: 90}, True, False),
+            ({_TEST_ID: 50, _TEST_ID_2: 20, _TEST_ID_3: 20}, True, False),
+            ({_TEST_ID: 10, "0": 90}, True, False),
+            ({_TEST_ID: 10, "0": 90}, None, True),
         ],
     )
     @pytest.mark.usefixtures("get_endpoint_with_models_mock")
-    def test_validate_deployed_model_ids_with_raise(self, model_ids):
-        endpoint = models.Endpoint(_TEST_ENDPOINT_NAME)
+    def test_validate_traffic_split_with_raise(
+        self, traffic_split, endpoint, deploy_model
+    ):
+        if endpoint:
+            endpoint = models.Endpoint(_TEST_ENDPOINT_NAME)
         with pytest.raises(ValueError):
-            endpoint._validate_deployed_model_ids(model_ids)
+            aiplatform.Endpoint._validate_traffic_split(
+                traffic_split, endpoint, deploy_model
+            )
+
+    @pytest.mark.parametrize(
+        "traffic_split, traffic_percentage",
+        [
+            ({"0": 100}, None),
+            (None, 0),
+            (None, 50),
+            (None, 100),
+        ],
+    )
+    def test_validate_traffic(self, traffic_split, traffic_percentage):
+        aiplatform.Endpoint._validate_traffic(traffic_split, traffic_percentage)
+
+    @pytest.mark.parametrize(
+        "traffic_split, traffic_percentage",
+        [
+            (None, -1),
+            (None, 101),
+        ],
+    )
+    def test_validate_traffic_with_raise(self, traffic_split, traffic_percentage):
+        with pytest.raises(ValueError):
+            aiplatform.Endpoint._validate_traffic(traffic_split, traffic_percentage)
 
     @pytest.mark.usefixtures("get_endpoint_mock", "get_model_mock")
     @pytest.mark.parametrize("sync", [True, False])
@@ -948,7 +994,7 @@ class TestEndpoint:
             )
             test_endpoint.deploy(model=test_model, max_replica_count=-2, sync=sync)
 
-    @pytest.mark.usefixtures("get_endpoint_mock", "get_model_mock")
+    @pytest.mark.usefixtures("get_endpoint_with_models_mock", "get_model_mock")
     @pytest.mark.parametrize("sync", [True, False])
     def test_deploy_raise_error_traffic_split(self, sync):
         with pytest.raises(ValueError):

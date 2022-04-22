@@ -52,6 +52,7 @@ from google.cloud.aiplatform.compat.types import (
 from google.protobuf import field_mask_pb2, json_format
 
 _DEFAULT_MACHINE_TYPE = "n1-standard-2"
+_DEPLOYING_MODEL_TRAFFIC_SPLIT_KEY = "0"
 
 _LOGGER = base.Logger(__name__)
 
@@ -486,7 +487,7 @@ class Endpoint(base.VertexAiResourceNounWithFutureManager):
                 new_traffic_split[deployed_model] += 1
                 unallocated_traffic -= 1
 
-        new_traffic_split["0"] = traffic_percentage
+        new_traffic_split[_DEPLOYING_MODEL_TRAFFIC_SPLIT_KEY] = traffic_percentage
 
         return new_traffic_split
 
@@ -530,14 +531,12 @@ class Endpoint(base.VertexAiResourceNounWithFutureManager):
 
         return new_traffic_split
 
+    @staticmethod
     def _validate_deploy_args(
-        self,
         min_replica_count: int,
         max_replica_count: int,
         accelerator_type: Optional[str],
         deployed_model_display_name: Optional[str],
-        traffic_split: Optional[Dict[str, int]],
-        traffic_percentage: int,
         explanation_metadata: Optional[explain.ExplanationMetadata] = None,
         explanation_parameters: Optional[explain.ExplanationParameters] = None,
     ):
@@ -567,21 +566,6 @@ class Endpoint(base.VertexAiResourceNounWithFutureManager):
             deployed_model_display_name (str):
                 Required. The display name of the DeployedModel. If not provided
                 upon creation, the Model's display_name is used.
-            traffic_split (Dict[str, int]):
-                Required. A map from a DeployedModel's ID to the percentage of
-                this Endpoint's traffic that should be forwarded to that DeployedModel.
-                If a DeployedModel's ID is not listed in this map, then it receives
-                no traffic. The traffic percentage values must add up to 100, or
-                map must be empty if the Endpoint is to not accept any traffic at
-                the moment. Key for model being deployed is "0". Should not be
-                provided if traffic_percentage is provided.
-            traffic_percentage (int):
-                Required. Desired traffic to newly deployed model. Defaults to
-                0 if there are pre-existing deployed models. Defaults to 100 if
-                there are no pre-existing deployed models. Negative values should
-                not be provided. Traffic of previously deployed models at the endpoint
-                will be scaled down to accommodate new deployed model's traffic.
-                Should not be provided if traffic_split is provided.
             explanation_metadata (explain.ExplanationMetadata):
                 Optional. Metadata describing the Model's input and output for explanation.
                 Both `explanation_metadata` and `explanation_parameters` must be
@@ -604,19 +588,6 @@ class Endpoint(base.VertexAiResourceNounWithFutureManager):
             raise ValueError("Max replica cannot be negative.")
         if deployed_model_display_name is not None:
             utils.validate_display_name(deployed_model_display_name)
-
-        if traffic_split is None:
-            if traffic_percentage > 100:
-                raise ValueError("Traffic percentage cannot be greater than 100.")
-            if traffic_percentage < 0:
-                raise ValueError("Traffic percentage cannot be negative.")
-
-        elif traffic_split:
-            self._validate_deployed_model_ids(list(traffic_split.keys()))
-            if sum(traffic_split.values()) != 100:
-                raise ValueError(
-                    "Sum of all traffic within traffic split needs to be 100."
-                )
 
         if bool(explanation_metadata) != bool(explanation_parameters):
             raise ValueError(
@@ -720,13 +691,13 @@ class Endpoint(base.VertexAiResourceNounWithFutureManager):
         """
         self._sync_gca_resource_if_skipped()
 
+        self._validate_traffic(traffic_split, traffic_percentage, endpoint=self)
+
         self._validate_deploy_args(
             min_replica_count,
             max_replica_count,
             accelerator_type,
             deployed_model_display_name,
-            traffic_split,
-            traffic_percentage,
             explanation_metadata,
             explanation_parameters,
         )
@@ -1227,29 +1198,95 @@ class Endpoint(base.VertexAiResourceNounWithFutureManager):
             prediction_client=True,
         )
 
-    def _validate_deployed_model_ids(self, model_ids: List[str]):
-        """Validates if all deployed model ids can be found at the endpoint
+    @staticmethod
+    def _validate_traffic_split(
+        traffic_split: Dict[str, int],
+        endpoint: Optional["Endpoint"] = None,
+        deploy_model: bool = False,
+    ):
+        """Helper method to validate traffic_split against endpoint.
 
         Args:
-            model_ids (List[str]):
-                The list of deployed model ids.
-
-        Raise:
-            ValueError: if any deployed model id can not be found at the endpoint
+            traffic_split (Dict[str, int]):
+                Required. A map from a DeployedModel's ID to the percentage of
+                this Endpoint's traffic that should be forwarded to that DeployedModel.
+                If a DeployedModel's ID is not listed in this map, then it receives
+                no traffic. The traffic percentage values must add up to 100, or
+                map must be empty if the Endpoint is to not accept any traffic at
+                the moment. Key for model being deployed is "0".
+            endpoint (Endpoint):
+                Optional. The endpoint against which to validate the
+                deployed model ids in the traffic_split.
+                If not set, the endpoint does not exist and there is no deployed model.
+            deploy_model (bool):
+                A boolean value indicate if the traffic_split contains
+                a key for model being deployed, if so, it should be "0". Default to False.
+        Raises:
+            ValueError: if an endpoint is not provided, or any deployed model id within
+                        the traffic_split can not be found at the endpoint
+            ValueError: if sum of all traffic within the traffic_split does not equal 100
         """
+        traffic_split_model_ids = list(traffic_split.keys())
+        endpoint_model_ids = set(
+            [] if not endpoint else [model.id for model in endpoint.list_models()]
+        )
 
-        list_model_ids = set([model.id for model in self.list_models() or []])
+        if deploy_model:
+            endpoint_model_ids.add(_DEPLOYING_MODEL_TRAFFIC_SPLIT_KEY)
+
         if any(
-            [
-                model_id != "0" and model_id not in list_model_ids
-                for model_id in model_ids
-            ]
+            [model_id not in endpoint_model_ids for model_id in traffic_split_model_ids]
         ):
             raise ValueError(
-                "One or more `model_id` can not be found at the endpoint."
-                f"The `model_ids` deployed to the endpoint are: {list_model_ids}, "
-                f"while the provided `model_ids` are: {model_ids}"
+                "Endpoint is not provided to validate existing deployed model ids in traffic split"
+                if not endpoint
+                else f"One or more existing deployed model ids in traffic split "
+                f"{endpoint_model_ids} not found at the endpoint {traffic_split_model_ids}"
             )
+
+        if sum(traffic_split.values()) != 100:
+            raise ValueError("Sum of all traffic within traffic split needs to be 100.")
+
+    @staticmethod
+    def _validate_traffic(
+        traffic_split: Optional[Dict[str, int]] = None,
+        traffic_percentage: Optional[int] = None,
+        endpoint: Optional["Endpoint"] = None,
+    ):
+        """Helper method to validate traffic.
+
+        Args:
+            traffic_percentage (int):
+                Optional. Desired traffic to newly deployed model. Defaults to
+                0 if there are pre-existing deployed models. Defaults to 100 if
+                there are no pre-existing deployed models. Negative values should
+                not be provided. Traffic of previously deployed models at the endpoint
+                will be scaled down to accommodate new deployed model's traffic.
+                Should not be provided if traffic_split is provided.
+            traffic_split (Dict[str, int]):
+                Optional. A map from a DeployedModel's ID to the percentage of
+                this Endpoint's traffic that should be forwarded to that DeployedModel.
+                If a DeployedModel's ID is not listed in this map, then it receives
+                no traffic. The traffic percentage values must add up to 100, or
+                map must be empty if the Endpoint is to not accept any traffic at
+                the moment. Key for model being deployed is "0". Should not be
+                provided if traffic_percentage is provided.
+            endpoint (Endpoint):
+                Optional. The endpoint against which to validate the
+                deployed model ids in the traffic_split.
+                If not set, the endpoint does not exist and there is no deployed model.
+        Raises:
+            ValueError: if traffic percentage is greater than 100 or less than 0
+        """
+
+        if traffic_split is None:
+            if traffic_percentage > 100:
+                raise ValueError("Traffic percentage cannot be greater than 100.")
+            if traffic_percentage < 0:
+                raise ValueError("Traffic percentage cannot be negative.")
+
+        elif traffic_split:
+            Endpoint._validate_traffic_split(traffic_split, endpoint, deploy_model=True)
 
     def update(
         self,
@@ -1320,11 +1357,7 @@ class Endpoint(base.VertexAiResourceNounWithFutureManager):
             update_mask.append("labels")
 
         if traffic_split:
-            self._validate_deployed_model_ids(list(traffic_split.keys()))
-            if sum(traffic_split.values()) != 100:
-                raise ValueError(
-                    "Sum of all traffic within traffic split needs to be 100."
-                )
+            self._validate_traffic_split(traffic_split, self)
             update_mask.append("traffic_split")
 
         update_mask = field_mask_pb2.FieldMask(paths=update_mask)
@@ -1514,15 +1547,15 @@ class Endpoint(base.VertexAiResourceNounWithFutureManager):
             credentials=credentials,
         )
 
-    def list_models(self) -> Sequence[gca_endpoint_v1.DeployedModel]:
+    def list_models(self) -> List[gca_endpoint_v1.DeployedModel]:
         """Returns a list of the models deployed to this Endpoint.
 
         Returns:
-            deployed_models (Sequence[aiplatform.gapic.DeployedModel]):
+            deployed_models (List[aiplatform.gapic.DeployedModel]):
                 A list of the models deployed in this Endpoint.
         """
         self._sync_gca_resource()
-        return self._gca_resource.deployed_models
+        return list(self._gca_resource.deployed_models)
 
     def undeploy_all(self, sync: bool = True) -> "Endpoint":
         """Undeploys every model deployed to this Endpoint.
@@ -2216,13 +2249,16 @@ class Model(base.VertexAiResourceNounWithFutureManager):
                 Endpoint with the deployed model.
         """
 
+        Endpoint._validate_traffic(
+            traffic_split,
+            traffic_percentage,
+            endpoint,
+        )
         Endpoint._validate_deploy_args(
             min_replica_count,
             max_replica_count,
             accelerator_type,
             deployed_model_display_name,
-            traffic_split,
-            traffic_percentage,
             explanation_metadata,
             explanation_parameters,
         )
