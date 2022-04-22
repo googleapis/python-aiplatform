@@ -65,7 +65,9 @@ class TestFeaturestore(e2e_base.TestEndToEnd):
         featurestore_id = self._make_display_name(key=_TEST_FEATURESTORE_ID).replace(
             "-", "_"
         )[:60]
-        featurestore = aiplatform.Featurestore.create(featurestore_id=featurestore_id)
+        featurestore = aiplatform.Featurestore.create(
+            featurestore_id=featurestore_id, online_store_fixed_node_count=1
+        )
 
         shared_state["resources"] = [featurestore]
         shared_state["featurestore"] = featurestore
