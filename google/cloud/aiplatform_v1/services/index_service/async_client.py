@@ -16,7 +16,7 @@
 from collections import OrderedDict
 import functools
 import re
-from typing import Dict, Optional, Sequence, Tuple, Type, Union
+from typing import Dict, Mapping, Optional, Sequence, Tuple, Type, Union
 import pkg_resources
 
 from google.api_core.client_options import ClientOptions
@@ -681,7 +681,6 @@ class IndexServiceAsyncClient:
         r"""Deletes an Index. An Index can only be deleted when all its
         [DeployedIndexes][google.cloud.aiplatform.v1.Index.deployed_indexes]
         had been undeployed.
-
 
         .. code-block:: python
 

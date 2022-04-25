@@ -16,7 +16,7 @@
 from collections import OrderedDict
 import os
 import re
-from typing import Dict, Optional, Iterable, Sequence, Tuple, Type, Union
+from typing import Dict, Mapping, Optional, Iterable, Sequence, Tuple, Type, Union
 import pkg_resources
 
 from google.api_core import client_options as client_options_lib
@@ -452,7 +452,6 @@ class FeaturestoreOnlineServingServiceClient(
         entities of an EntityType, please use
         StreamingReadFeatureValues.
 
-
         .. code-block:: python
 
             from google.cloud import aiplatform_v1
@@ -564,7 +563,6 @@ class FeaturestoreOnlineServingServiceClient(
         r"""Reads Feature values for multiple entities. Depending
         on their size, data for different entities may be broken
         up across multiple responses.
-
 
         .. code-block:: python
 

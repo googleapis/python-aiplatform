@@ -27,6 +27,7 @@ __protobuf__ = proto.module(
         "BatchDedicatedResources",
         "ResourcesConsumed",
         "DiskSpec",
+        "NfsMount",
         "AutoscalingMetricSpec",
     },
 )
@@ -107,6 +108,12 @@ class DedicatedResources(proto.Message):
             will use
             [min_replica_count][google.cloud.aiplatform.v1.DedicatedResources.min_replica_count]
             as the default value.
+
+            The value of this field impacts the charge against Vertex
+            CPU and GPU quotas. Specifically, you will be charged for
+            (max_replica_count \* number of cores in the selected
+            machine type) and (max_replica_count \* number of GPUs per
+            replica in the selected machine type).
         autoscaling_metric_specs (Sequence[google.cloud.aiplatform_v1.types.AutoscalingMetricSpec]):
             Immutable. The metric specifications that overrides a
             resource utilization metric (CPU utilization, accelerator's
@@ -273,6 +280,36 @@ class DiskSpec(proto.Message):
     boot_disk_size_gb = proto.Field(
         proto.INT32,
         number=2,
+    )
+
+
+class NfsMount(proto.Message):
+    r"""Represents a mount configuration for Network File System
+    (NFS) to mount.
+
+    Attributes:
+        server (str):
+            Required. IP address of the NFS server.
+        path (str):
+            Required. Source path exported from NFS server. Has to start
+            with '/', and combined with the ip address, it indicates the
+            source mount path in the form of ``server:path``
+        mount_point (str):
+            Required. Destination mount path. The NFS will be mounted
+            for the user under /mnt/nfs/<mount_point>
+    """
+
+    server = proto.Field(
+        proto.STRING,
+        number=1,
+    )
+    path = proto.Field(
+        proto.STRING,
+        number=2,
+    )
+    mount_point = proto.Field(
+        proto.STRING,
+        number=3,
     )
 
 
