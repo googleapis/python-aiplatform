@@ -16,7 +16,7 @@
 from collections import OrderedDict
 import functools
 import re
-from typing import Dict, Optional, Sequence, Tuple, Type, Union
+from typing import Dict, Mapping, Optional, Sequence, Tuple, Type, Union
 import pkg_resources
 
 from google.api_core.client_options import ClientOptions
@@ -791,7 +791,6 @@ class IndexEndpointServiceAsyncClient:
         DeployedIndex within it.
         Only non-empty Indexes can be deployed.
 
-
         .. code-block:: python
 
             from google.cloud import aiplatform_v1
@@ -923,7 +922,6 @@ class IndexEndpointServiceAsyncClient:
         DeployedIndex from it, and freeing all resources it's
         using.
 
-
         .. code-block:: python
 
             from google.cloud import aiplatform_v1
@@ -1049,7 +1047,6 @@ class IndexEndpointServiceAsyncClient:
     ) -> operation_async.AsyncOperation:
         r"""Update an existing DeployedIndex under an
         IndexEndpoint.
-
 
         .. code-block:: python
 
