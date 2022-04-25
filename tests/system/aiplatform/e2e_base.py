@@ -142,19 +142,21 @@ class TestEndToEnd(metaclass=abc.ABCMeta):
 
         # Bring all Endpoints to the front of the list
         # Ensures Models are undeployed first before we attempt deletion
-        shared_state["resources"].sort(
-            key=lambda r: 1 if isinstance(r, aiplatform.Endpoint) else 2
-        )
+        resources = shared_state["resources"]
 
-        for resource in shared_state["resources"]:
-            try:
-                if isinstance(
-                    resource, (aiplatform.Endpoint, aiplatform.Featurestore,),
-                ):
-                    # For endpoint, undeploy model then delete endpoint
-                    # For featurestore, force delete its entity_types and features with the featurestore
-                    resource.delete(force=True)
-                else:
-                    resource.delete()
-            except exceptions.GoogleAPIError as e:
-                print(f"Could not delete resource: {resource} due to: {e}")
+        if resources is not None:
+
+            resources.sort(key=lambda r: 1 if isinstance(r, aiplatform.Endpoint) else 2)
+
+            for resource in resources:
+                try:
+                    if isinstance(
+                        resource, (aiplatform.Endpoint, aiplatform.Featurestore,),
+                    ):
+                        # For endpoint, undeploy model then delete endpoint
+                        # For featurestore, force delete its entity_types and features with the featurestore
+                        resource.delete(force=True)
+                    else:
+                        resource.delete()
+                except exceptions.GoogleAPIError as e:
+                    print(f"Could not delete resource: {resource} due to: {e}")
