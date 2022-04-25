@@ -133,6 +133,8 @@ class TestDataset(e2e_base.TestEndToEnd):
 
     _temp_prefix = "temp-vertex-sdk-dataset-test"
 
+
+class TestDataset:
     def setup_method(self):
         importlib.reload(initializer)
         importlib.reload(aiplatform)
