@@ -485,9 +485,7 @@ def list_private_endpoints_mock():
 @pytest.fixture
 def sdk_undeploy_mock():
     """Mocks the high-level PrivateEndpoint.undeploy() SDK method"""
-    with mock.patch.object(
-        aiplatform.PrivateEndpoint, "undeploy"
-    ) as sdk_undeploy_mock:
+    with mock.patch.object(aiplatform.PrivateEndpoint, "undeploy") as sdk_undeploy_mock:
         sdk_undeploy_mock.return_value = None
         yield sdk_undeploy_mock
 
@@ -1722,9 +1720,7 @@ class TestPrivateEndpoint(TestEndpoint):
 
     @pytest.mark.usefixtures("get_private_endpoint_with_model_mock")
     @pytest.mark.parametrize("sync", [True, False])
-    def test_delete_without_force(
-        self, sdk_undeploy_mock, delete_endpoint_mock, sync
-    ):
+    def test_delete_without_force(self, sdk_undeploy_mock, delete_endpoint_mock, sync):
 
         test_endpoint = models.PrivateEndpoint(_TEST_ENDPOINT_NAME)
         test_endpoint.delete(sync=sync)
@@ -1739,25 +1735,19 @@ class TestPrivateEndpoint(TestEndpoint):
 
     @pytest.mark.usefixtures("get_private_endpoint_with_model_mock")
     @pytest.mark.parametrize("sync", [True, False])
-    def test_delete_with_force(
-        self, sdk_undeploy_mock, delete_endpoint_mock, sync
-    ):
+    def test_delete_with_force(self, sdk_undeploy_mock, delete_endpoint_mock, sync):
 
         test_endpoint = models.PrivateEndpoint(_TEST_ENDPOINT_NAME)
-        test_endpoint._gca_resource.deployed_models = [_TEST_DEPLOYED_MODELS[0]] 
+        test_endpoint._gca_resource.deployed_models = [_TEST_DEPLOYED_MODELS[0]]
         test_endpoint.delete(sync=sync)
 
         if not sync:
             test_endpoint.wait()
 
         # undeploy() should not be called unless force is set to True
-        sdk_undeploy_mock.called_once_with(
-            deployed_model_id=_TEST_ID,
-            sync=sync
-        )
+        sdk_undeploy_mock.called_once_with(deployed_model_id=_TEST_ID, sync=sync)
 
         delete_endpoint_mock.assert_called_once_with(name=_TEST_ENDPOINT_NAME)
-
 
     @pytest.mark.usefixtures("list_private_endpoints_mock")
     def test_list(self):
