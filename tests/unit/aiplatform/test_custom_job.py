@@ -362,6 +362,47 @@ class TestCustomJob:
         )
 
     @pytest.mark.parametrize("sync", [True, False])
+    def test_create_custom_job_with_timeout_not_explicitly_set(
+        self, create_custom_job_mock, get_custom_job_mock, sync
+    ):
+
+        aiplatform.init(
+            project=_TEST_PROJECT,
+            location=_TEST_LOCATION,
+            staging_bucket=_TEST_STAGING_BUCKET,
+            encryption_spec_key_name=_TEST_DEFAULT_ENCRYPTION_KEY_NAME,
+        )
+
+        job = aiplatform.CustomJob(
+            display_name=_TEST_DISPLAY_NAME,
+            worker_pool_specs=_TEST_WORKER_POOL_SPEC,
+            base_output_dir=_TEST_BASE_OUTPUT_DIR,
+            labels=_TEST_LABELS,
+        )
+
+        job.run(
+            service_account=_TEST_SERVICE_ACCOUNT,
+            network=_TEST_NETWORK,
+            timeout=_TEST_TIMEOUT,
+            restart_job_on_worker_restart=_TEST_RESTART_JOB_ON_WORKER_RESTART,
+            sync=sync,
+        )
+
+        job.wait_for_resource_creation()
+
+        assert job.resource_name == _TEST_CUSTOM_JOB_NAME
+
+        job.wait()
+
+        expected_custom_job = _get_custom_job_proto()
+
+        create_custom_job_mock.assert_called_once_with(
+            parent=_TEST_PARENT,
+            custom_job=expected_custom_job,
+            timeout=None,
+        )
+
+    @pytest.mark.parametrize("sync", [True, False])
     def test_run_custom_job_with_fail_raises(
         self, create_custom_job_mock, get_custom_job_mock_with_fail, sync
     ):

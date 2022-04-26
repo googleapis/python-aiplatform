@@ -676,6 +676,34 @@ class TestModel:
         )
 
     @pytest.mark.parametrize("sync", [True, False])
+    def test_upload_with_timeout_not_explicitly_set(
+        self, upload_model_mock, get_model_mock, sync
+    ):
+        my_model = models.Model.upload(
+            display_name=_TEST_MODEL_NAME,
+            serving_container_image_uri=_TEST_SERVING_CONTAINER_IMAGE,
+            sync=sync,
+        )
+
+        if not sync:
+            my_model.wait()
+
+        container_spec = gca_model.ModelContainerSpec(
+            image_uri=_TEST_SERVING_CONTAINER_IMAGE,
+        )
+
+        managed_model = gca_model.Model(
+            display_name=_TEST_MODEL_NAME,
+            container_spec=container_spec,
+        )
+
+        upload_model_mock.assert_called_once_with(
+            parent=initializer.global_config.common_location_path(),
+            model=managed_model,
+            timeout=None,
+        )
+
+    @pytest.mark.parametrize("sync", [True, False])
     def test_upload_uploads_and_gets_model_with_labels(
         self, upload_model_mock, get_model_mock, sync
     ):
@@ -1015,6 +1043,44 @@ class TestModel:
             traffic_split={"0": 100},
             metadata=(),
             timeout=180.0,
+        )
+
+    @pytest.mark.usefixtures(
+        "get_endpoint_mock", "get_model_mock", "create_endpoint_mock"
+    )
+    @pytest.mark.parametrize("sync", [True, False])
+    def test_deploy_with_timeout_not_explicitly_set(self, deploy_model_mock, sync):
+
+        test_model = models.Model(_TEST_ID)
+        test_model._gca_resource.supported_deployment_resources_types.append(
+            aiplatform.gapic.Model.DeploymentResourcesType.AUTOMATIC_RESOURCES
+        )
+
+        test_endpoint = models.Endpoint(_TEST_ID)
+
+        test_model.deploy(
+            test_endpoint,
+            sync=sync,
+        )
+
+        if not sync:
+            test_endpoint.wait()
+
+        automatic_resources = gca_machine_resources.AutomaticResources(
+            min_replica_count=1,
+            max_replica_count=1,
+        )
+        deployed_model = gca_endpoint.DeployedModel(
+            automatic_resources=automatic_resources,
+            model=test_model.resource_name,
+            display_name=None,
+        )
+        deploy_model_mock.assert_called_once_with(
+            endpoint=test_endpoint.resource_name,
+            deployed_model=deployed_model,
+            traffic_split={"0": 100},
+            metadata=(),
+            timeout=None,
         )
 
     @pytest.mark.usefixtures(

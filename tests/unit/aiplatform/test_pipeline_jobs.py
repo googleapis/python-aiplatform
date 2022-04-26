@@ -470,6 +470,78 @@ class TestPipelineJob:
     @pytest.mark.parametrize(
         "job_spec",
         [
+            _TEST_PIPELINE_SPEC_JSON,
+            _TEST_PIPELINE_SPEC_YAML,
+            _TEST_PIPELINE_JOB,
+        ],
+    )
+    @pytest.mark.parametrize("sync", [True, False])
+    def test_run_call_pipeline_service_create_with_timeout_not_explicitly_set(
+        self,
+        mock_pipeline_service_create,
+        mock_pipeline_service_get,
+        job_spec,
+        mock_load_yaml_and_json,
+        sync,
+    ):
+        aiplatform.init(
+            project=_TEST_PROJECT,
+            staging_bucket=_TEST_GCS_BUCKET_NAME,
+            location=_TEST_LOCATION,
+            credentials=_TEST_CREDENTIALS,
+        )
+
+        job = pipeline_jobs.PipelineJob(
+            display_name=_TEST_PIPELINE_JOB_DISPLAY_NAME,
+            template_path=_TEST_TEMPLATE_PATH,
+            job_id=_TEST_PIPELINE_JOB_ID,
+            parameter_values=_TEST_PIPELINE_PARAMETER_VALUES,
+            enable_caching=True,
+        )
+
+        job.run(
+            service_account=_TEST_SERVICE_ACCOUNT,
+            network=_TEST_NETWORK,
+            sync=sync,
+        )
+
+        if not sync:
+            job.wait()
+
+        expected_runtime_config_dict = {
+            "gcsOutputDirectory": _TEST_GCS_BUCKET_NAME,
+            "parameterValues": _TEST_PIPELINE_PARAMETER_VALUES,
+        }
+        runtime_config = gca_pipeline_job_v1.PipelineJob.RuntimeConfig()._pb
+        json_format.ParseDict(expected_runtime_config_dict, runtime_config)
+
+        job_spec = yaml.safe_load(job_spec)
+        pipeline_spec = job_spec.get("pipelineSpec") or job_spec
+
+        # Construct expected request
+        expected_gapic_pipeline_job = gca_pipeline_job_v1.PipelineJob(
+            display_name=_TEST_PIPELINE_JOB_DISPLAY_NAME,
+            pipeline_spec={
+                "components": {},
+                "pipelineInfo": pipeline_spec["pipelineInfo"],
+                "root": pipeline_spec["root"],
+                "schemaVersion": "2.1.0",
+            },
+            runtime_config=runtime_config,
+            service_account=_TEST_SERVICE_ACCOUNT,
+            network=_TEST_NETWORK,
+        )
+
+        mock_pipeline_service_create.assert_called_once_with(
+            parent=_TEST_PARENT,
+            pipeline_job=expected_gapic_pipeline_job,
+            pipeline_job_id=_TEST_PIPELINE_JOB_ID,
+            timeout=None,
+        )
+
+    @pytest.mark.parametrize(
+        "job_spec",
+        [
             _TEST_PIPELINE_SPEC_LEGACY_JSON,
             _TEST_PIPELINE_SPEC_LEGACY_YAML,
             _TEST_PIPELINE_JOB_LEGACY,
