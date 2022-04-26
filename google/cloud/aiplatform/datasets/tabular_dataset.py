@@ -19,12 +19,17 @@ from typing import Dict, Optional, Sequence, Tuple, Union
 
 from google.auth import credentials as auth_credentials
 
+from google.cloud import base
+from google.cloud import bigquery
 from google.cloud.aiplatform import datasets
 from google.cloud.aiplatform.datasets import _datasources
 from google.cloud.aiplatform import initializer
 from google.cloud.aiplatform import schema
 from google.cloud.aiplatform import utils
 
+_AUTOML_TRAINING_MIN_ROWS = 1000
+
+_LOGGER = base.Logger(__name__)
 
 class TabularDataset(datasets._ColumnNamesDataset):
     """Managed tabular dataset resource for Vertex AI."""
@@ -145,6 +150,89 @@ class TabularDataset(datasets._ColumnNamesDataset):
             sync=sync,
             create_request_timeout=create_request_timeout,
         )
+
+    @classmethod
+    def create_from_dataframe(
+        cls,
+        display_name: str,
+        df_source: "pd.DataFrame",  # noqa: F821 - skip check for undefined name 'pd'
+        staging_path: str = None,
+        project: Optional[str] = None,
+        location: Optional[str] = None,
+        credentials: Optional[auth_credentials.Credentials] = None,
+    ) -> "TabularDataset":
+        """Creates a new tabular dataset from a Pandas DataFrame.
+
+        Args:
+            display_name (str):
+                Required. User-defined name of the dataset.
+            df_source (pd.DataFrame):
+                Required. Pandas DataFrame containing the source data for
+                ingestion as a TabularDataset
+            staging_path (str):
+                Required. The BigQuery table to stage the data
+                for Vertex. Because Vertex maintains a reference to this source
+                to create the Vertex Dataset, this BigQuery table should
+                not be deleted. Example: `bq://my-project.my-dataset.my-table`
+            project (str):
+                Project to upload this model to. Overrides project set in
+                aiplatform.init.
+            location (str):
+                Location to upload this model to. Overrides location set in
+                aiplatform.init.
+            credentials (auth_credentials.Credentials):
+                Custom credentials to use to upload this model. Overrides
+                credentials set in aiplatform.init.
+        """
+
+        if len(df_source) < _AUTOML_TRAINING_MIN_ROWS:
+            _LOGGER.info(
+                "Your DataFrame has %s rows and AutoML requires %s rows to train on tabular data. You can still train a custom model once your dataset has been uploaded to Vertex, but you will not be able to use AutoML for training."
+                % (len(df_source), _AUTOML_TRAINING_MIN_ROWS),
+            )
+
+        try:
+            import pyarrow  # noqa: F401 - skip check for 'pyarrow' which is required when using 'google.cloud.bigquery'
+        except ImportError:
+            raise ImportError(
+                f"Pyarrow is not installed. Please install pyarrow to use the BigQuery client."
+            )
+
+        bigquery_client = bigquery.Client(
+            project=project or initializer.global_config.project,
+            credentials=credentials or initializer.global_config.credentials,
+        )
+
+        if staging_path.startswith("bq://"):
+            bq_staging_path = staging_path[len("bq://"):]
+        else:
+            raise ValueError("Only BigQuery staging paths are supported. Provide a staging path in the format `bq://your-project.your-dataset.your-table`.")
+
+        try:
+            parquet_options = bigquery.format_options.ParquetOptions()
+            parquet_options.enable_list_inference = True
+
+            job_config = bigquery.LoadJobConfig(
+                source_format=bigquery.SourceFormat.PARQUET,
+                parquet_options=parquet_options,
+            )
+
+            job = bigquery_client.load_table_from_dataframe(
+                dataframe=df_source, destination=bq_staging_path, job_config=job_config
+            )
+
+            job.result()
+
+        finally:
+            dataset_from_dataframe = cls.create(
+                display_name=display_name,
+                bq_source=staging_path,
+                project=project,
+                location=location,
+                credentials=credentials,
+            )
+
+        return dataset_from_dataframe
 
     def import_data(self):
         raise NotImplementedError(
