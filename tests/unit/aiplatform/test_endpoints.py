@@ -482,6 +482,16 @@ def list_private_endpoints_mock():
         yield list_endpoints_mock
 
 
+@pytest.fixture
+def sdk_undeploy_mock():
+    """Mocks the high-level PrivateEndpoint.undeploy() SDK method"""
+    with mock.patch.object(
+        aiplatform.PrivateEndpoint, "undeploy"
+    ) as sdk_undeploy_mock:
+        sdk_undeploy_mock.return_value = None
+        yield sdk_undeploy_mock
+
+
 class TestEndpoint:
     def setup_method(self):
         reload(initializer)
@@ -1605,7 +1615,7 @@ class TestEndpoint:
 class TestPrivateEndpoint(TestEndpoint):
     @pytest.mark.parametrize("sync", [True, False])
     def test_create(self, create_private_endpoint_mock, sync):
-        my_endpoint = models.PrivateEndpoint.create(
+        test_endpoint = models.PrivateEndpoint.create(
             display_name=_TEST_DISPLAY_NAME,
             project=_TEST_PROJECT,
             location=_TEST_LOCATION,
@@ -1614,7 +1624,7 @@ class TestPrivateEndpoint(TestEndpoint):
         )
 
         if not sync:
-            my_endpoint.wait()
+            test_endpoint.wait()
 
         expected_endpoint = gca_endpoint.Endpoint(
             display_name=_TEST_DISPLAY_NAME, network=_TEST_NETWORK
@@ -1709,6 +1719,45 @@ class TestPrivateEndpoint(TestEndpoint):
             metadata=(),
             traffic_split={},
         )
+
+    @pytest.mark.usefixtures("get_private_endpoint_with_model_mock")
+    @pytest.mark.parametrize("sync", [True, False])
+    def test_delete_without_force(
+        self, sdk_undeploy_mock, delete_endpoint_mock, sync
+    ):
+
+        test_endpoint = models.PrivateEndpoint(_TEST_ENDPOINT_NAME)
+        test_endpoint.delete(sync=sync)
+
+        if not sync:
+            test_endpoint.wait()
+
+        # undeploy() should not be called unless force is set to True
+        sdk_undeploy_mock.assert_not_called()
+
+        delete_endpoint_mock.assert_called_once_with(name=_TEST_ENDPOINT_NAME)
+
+    @pytest.mark.usefixtures("get_private_endpoint_with_model_mock")
+    @pytest.mark.parametrize("sync", [True, False])
+    def test_delete_with_force(
+        self, sdk_undeploy_mock, delete_endpoint_mock, sync
+    ):
+
+        test_endpoint = models.PrivateEndpoint(_TEST_ENDPOINT_NAME)
+        test_endpoint._gca_resource.deployed_models = [_TEST_DEPLOYED_MODELS[0]] 
+        test_endpoint.delete(sync=sync)
+
+        if not sync:
+            test_endpoint.wait()
+
+        # undeploy() should not be called unless force is set to True
+        sdk_undeploy_mock.called_once_with(
+            deployed_model_id=_TEST_ID,
+            sync=sync
+        )
+
+        delete_endpoint_mock.assert_called_once_with(name=_TEST_ENDPOINT_NAME)
+
 
     @pytest.mark.usefixtures("list_private_endpoints_mock")
     def test_list(self):

@@ -1798,7 +1798,6 @@ class PrivateEndpoint(Endpoint):
 
         prediction_response = json.loads(response.data)
 
-        print(prediction_response)
         return Prediction(
             predictions=prediction_response.get("predictions"),
             deployed_model_id=self._gca_resource.deployed_models[0].id,
@@ -2030,6 +2029,30 @@ class PrivateEndpoint(Endpoint):
             deployed_model_id=deployed_model_id,
             sync=sync,
         )
+
+    def delete(self, force: bool = False, sync: bool = True) -> None:
+        """Deletes this Vertex AI private Endpoint resource. If force is set to True,
+        all models on this private Endpoint will be undeployed prior to deletion.
+
+        Args:
+            force (bool):
+                Required. If force is set to True, all deployed models on this
+                Endpoint will be undeployed first. Default is False.
+            sync (bool):
+                Whether to execute this method synchronously. If False, this method
+                will be executed in concurrent Future and any downstream object will
+                be immediately returned and synced when the Future has completed.
+
+        Raises:
+            FailedPrecondition: If models are deployed on this Endpoint and force = False.
+        """
+        if force and self._gca_resource.deployed_models:
+            self.undeploy(
+                deployed_model_id=self._gca_resource.deployed_models[0].id,
+                sync=sync,
+            )
+
+        super().delete(sync=sync)
 
 
 class Model(base.VertexAiResourceNounWithFutureManager):
