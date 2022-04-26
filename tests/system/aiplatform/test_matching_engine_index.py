@@ -17,6 +17,7 @@
 
 import uuid
 import pytest
+from google.cloud.aiplatform import base
 
 from google.cloud import aiplatform
 
@@ -174,6 +175,13 @@ class TestMatchingEngine(e2e_base.TestEndToEnd):
     def test_create_get_list_matching_engine_index(self, shared_state):
         aiplatform.init(
             project=e2e_base._PROJECT, location=e2e_base._LOCATION,
+        )
+
+        _LOGGER = base.Logger(__name__)
+
+        _LOGGER._logger.info(f"INJECTED _PROJECT_NUMBER: {e2e_base._PROJECT_NUMBER}")
+        _LOGGER._logger.info(
+            f"INJECTED _VPC_NETWORK_NAME: {e2e_base._VPC_NETWORK_NAME}"
         )
 
         # # Create an index
