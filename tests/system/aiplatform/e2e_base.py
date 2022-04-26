@@ -255,7 +255,7 @@ class TestEndToEnd(metaclass=abc.ABCMeta):
             ],
             encoding="UTF-8",
         )
-        firewall_rules.append(f"{NETWORK_NAME}-allow-rdp")
+        firewall_rules.append(f"{NETWORK_NAME}-allow-ssh")
 
         # Reserve IP range
         # ! gcloud compute addresses create {PEERING_RANGE_NAME} --global --prefix-length=16 --network={NETWORK_NAME} --purpose=VPC_PEERING --project={PROJECT_ID} --description="peering range for uCAIP Haystack."
