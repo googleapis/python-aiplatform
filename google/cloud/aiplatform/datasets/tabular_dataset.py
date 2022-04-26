@@ -19,8 +19,8 @@ from typing import Dict, Optional, Sequence, Tuple, Union
 
 from google.auth import credentials as auth_credentials
 
-from google.cloud import base
 from google.cloud import bigquery
+from google.cloud.aiplatform import base
 from google.cloud.aiplatform import datasets
 from google.cloud.aiplatform.datasets import _datasources
 from google.cloud.aiplatform import initializer
