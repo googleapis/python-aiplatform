@@ -1344,51 +1344,6 @@ class Endpoint(base.VertexAiResourceNounWithFutureManager):
             explanations=explain_response.explanations,
         )
 
-    def list_versions(
-        self,
-    ) -> List[VersionInfo]:
-        operation_future = self.api_client.list_versions(
-            name=self.name,
-        )
-
-    def get_version_info(
-        self,
-        version: str
-    ) -> VersionInfo:
-        versions = self.list_versions()
-        return next(
-            (info for info in versions if info.version_id == version or version in info.version_aliases), 
-            None
-        )
-
-    def delete_version(
-        self,
-        version: str,
-    ) -> None:
-        operation_future = self.api_client.delete_version(
-            name=f"{self.name}@{version}",
-        )
-
-    def add_version_alias(
-        self,
-        new_alias: str,
-        version: str,
-    ) -> None:
-        operation_future = self.api_client.merge_version_aliases(
-            name=f"{self.name}@{version}",
-            version_aliases = [new_alias]
-        )
-
-    def remove_version_alias(
-        self,
-        target_alias: str,
-        version: str,
-    ) -> None:
-        operation_future = self.api_client.merge_version_aliases(
-            name=f"{self.name}@{version}",
-            version_aliases = [f"-{target_alias}"]
-        )
-
     @classmethod
     def list(
         cls,
@@ -1663,11 +1618,22 @@ class Model(base.VertexAiResourceNounWithFutureManager):
             resource_name=model_name,
         )
         self._gca_resource = self._get_gca_resource(resource_name=model_name)
+
+        parsed_version = self._parse_model_version_from_name(model_name)
+        if parsed_version:
+            if target_version and target_version != parsed_version:
+                raise ValueError(f'A target_version of {target_version} was passed that conflicts with the target version of {parsed_version} in the model_name.')
+            target_version = parsed_version
         
-        if not target_version and '@' in model_name:
-            self.target_version = self._parse_model_version(model_name)
+        self.target_version = target_version
+
+    def _parse_model_version_from_name(
+        model_name: str,
+    ) -> Optional[str]:
+        if not '@' in model_name:
+            return None
         else:
-            self.target_version = target_version
+            return model_name.split('@')[-1]
 
     def update(
         self,
@@ -1948,16 +1914,6 @@ class Model(base.VertexAiResourceNounWithFutureManager):
             project=project,
             location=location,
         )
-
-        # Check if this model_name is already registered
-        if not parent_model:
-            try:
-                # If the model_name is registered, this upload is for a new version, and model.name is the parent.
-                model = api_client.get_model(model_name)
-                parent_model = model.name
-            except:
-                # If the model_name is not registered already, it has no parent and this is a new model resource.
-                pass
 
 
         if serving_container_environment_variables:
@@ -3330,42 +3286,7 @@ class Model(base.VertexAiResourceNounWithFutureManager):
             sync=sync,
             upload_request_timeout=upload_request_timeout,
         )
-        
-class ModelRegistry:
-    
-    def __init__(
-        self,
-        model: Union[Model, str] = None,
-        model_display_name: Optional[str] = None,
-        location: Optional[str] = None,
-        project: Optional[str] = None,
-    ) -> None:
-    
-        if isinstance(model, Model):
-            self.model_resource_name = model.name
 
-        elif isinstance(model, str):
-            self.model_resource_name = model
-        
-        elif model_display_name and location and project:
-            self.model_resource_name = utils.full_resource_name(
-                resource_name=model_display_name,
-                resource_noun="models",
-                parse_resource_name_method=Model._parse_resource_name,
-                format_resource_name_method=Model._format_resource_name,
-                project=project,
-                location=location,
-            )
-
-        else:
-            raise ValueError("A model instance, a fully-qualified model_resource_name, or a model_display_name with location and project must be given.")
-
-    def get_model(
-        self,
-        version: Optional[str] = None,
-    ) -> Model:
-        return Model(self.model_resource_name, target_version=version)
-=======
     def list_model_evaluations(
         self,
     ) -> List["model_evaluation.ModelEvaluation"]:
@@ -3441,3 +3362,145 @@ class ModelRegistry:
                 evaluation_name=evaluation_resource_name,
                 credentials=self.credentials,
             )
+
+class ModelRegistry:
+    
+    def __init__(
+        self,
+        model: Union[Model, str] = None,
+        model_display_name: Optional[str] = None,
+        location: Optional[str] = None,
+        project: Optional[str] = None,
+    ) -> None:
+    
+        if isinstance(model, Model):
+            self.model_resource_name = model.name
+
+        elif isinstance(model, str):
+            self.model_resource_name = model
+        
+        elif model_display_name and location and project:
+            self.model_resource_name = utils.full_resource_name(
+                resource_name=model_display_name,
+                resource_noun="models",
+                parse_resource_name_method=Model._parse_resource_name,
+                format_resource_name_method=Model._format_resource_name,
+                project=project,
+                location=location,
+            )
+
+        else:
+            raise ValueError("A Model instance, a fully-qualified model resource identifier, or a model_display_name with location and project must be given.")
+
+        self.base_model = Model(self.model_resource_name)
+
+    def get_model(
+        self,
+        version: Optional[str] = None,
+    ) -> Model:
+        return Model(self.model_resource_name, target_version=version)
+
+    def list_versions(
+       self,
+    ) -> List[VersionInfo]:
+
+        page_result = self.base_model.api_client.list_model_versions(
+            name=self.model_resource_name,
+        )
+
+        _LOGGER.log_action_start_against_resource("Fetching", "versions", self.base_model)
+
+        versions = [VersionInfo(
+            model.version_id,
+            model.create_time,
+            model.update_time,
+            model.version_aliases,
+            model.version_description,
+            ) for model in page_result]
+
+        _LOGGER.log_action_completed_against_resource("versions", "fetched", self.base_model)
+
+        return versions
+
+    def get_version_info(
+       self,
+       version: str
+   ) -> VersionInfo:
+
+        lro = self.base_model.api_client.get_model(
+            name=self._versioned_name(version),
+        )
+
+        _LOGGER.log_action_start_against_resource("Fetching", "version", self.base_model)
+
+        model = lro.result()
+
+        _LOGGER.log_action_completed_against_resource("version", "fetched", self.base_model)
+
+        return VersionInfo(
+            model.version_id,
+            model.create_time,
+            model.update_time,
+            model.version_aliases,
+            model.version_description,
+            )
+
+    def delete_version(
+        self,
+        version: str
+    ) -> None:
+
+        lro = self.base_model.api_client.delete_model_version(
+            name=self._versioned_name(version),
+        )
+
+        _LOGGER.log_action_start_against_resource("Deleting", "version", self.base_model)
+
+        lro.result()
+
+        _LOGGER.log_action_completed_against_resource("version", "deleted", self.base_model)
+
+    def add_version_aliases(
+        self,
+        new_aliases: List[str],
+        version: str,
+    ) -> None:
+
+        self._merge_version_aliases(
+            new_aliases,
+            version,
+        )
+
+    def remove_version_aliases(
+        self,
+        target_aliases: List[str],
+        version: str,
+    ) -> None:
+
+        self._merge_version_aliases(
+            [f'-{alias}' for alias in target_aliases],
+            version,
+        )
+
+    def _merge_version_aliases(
+        self,
+        version_aliases: List[str],
+        version: str,
+    ) -> None:
+
+        lro = self.base_model.api_client.merge_version_aliases(
+            name=self._versioned_name(version),
+            version_aliases=version_aliases,
+        )
+
+        _LOGGER.log_action_start_against_resource("Merging", "version aliases", self.base_model)
+
+        lro.result()
+
+        _LOGGER.log_action_completed_against_resource("version aliases", "merged", self.base_model)
+
+    def _versioned_name(
+        self,
+        version: str,
+    ) -> str:
+        return f'{self.model_resource_name}@{version}'
