@@ -179,10 +179,13 @@ class TestMatchingEngine(e2e_base.TestEndToEnd):
 
         _LOGGER = base.Logger(__name__)
 
-        _LOGGER._logger.info(f"INJECTED _PROJECT_NUMBER: {e2e_base._PROJECT_NUMBER}")
-        _LOGGER._logger.info(
-            f"INJECTED _VPC_NETWORK_NAME: {e2e_base._VPC_NETWORK_NAME}"
+        raise ValueError(
+            f"INJECTED _PROJECT_NUMBER: {e2e_base._PROJECT_NUMBER}"
+            + f"\nINJECTED _VPC_NETWORK_NAME: {e2e_base._VPC_NETWORK_NAME}"
         )
+        # _LOGGER._logger.info(
+        #     f"INJECTED _VPC_NETWORK_NAME: {e2e_base._VPC_NETWORK_NAME}"
+        # )
 
         # # Create an index
         # index = aiplatform.MatchingEngineIndex.create_tree_ah_index(
