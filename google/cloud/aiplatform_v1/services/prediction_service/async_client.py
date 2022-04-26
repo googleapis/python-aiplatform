@@ -16,7 +16,7 @@
 from collections import OrderedDict
 import functools
 import re
-from typing import Dict, Optional, Sequence, Tuple, Type, Union
+from typing import Dict, Mapping, Optional, Sequence, Tuple, Type, Union
 import pkg_resources
 
 from google.api_core.client_options import ClientOptions
@@ -362,7 +362,6 @@ class PredictionServiceAsyncClient:
            [DeployedModel][google.cloud.aiplatform.v1.DeployedModel]
            that served this prediction.
 
-
         .. code-block:: python
 
             from google.cloud import aiplatform_v1
@@ -544,7 +543,6 @@ class PredictionServiceAsyncClient:
         [explanation_spec][google.cloud.aiplatform.v1.DeployedModel.explanation_spec]
         populated. Only deployed AutoML tabular Models have
         explanation_spec.
-
 
         .. code-block:: python
 

@@ -16,7 +16,7 @@
 from collections import OrderedDict
 import os
 import re
-from typing import Dict, Optional, Sequence, Tuple, Type, Union
+from typing import Dict, Mapping, Optional, Sequence, Tuple, Type, Union
 import pkg_resources
 
 from google.api_core import client_options as client_options_lib
@@ -492,7 +492,6 @@ class VizierServiceClient(metaclass=VizierServiceClientMeta):
         r"""Creates a Study. A resource name will be generated
         after creation of the Study.
 
-
         .. code-block:: python
 
             from google.cloud import aiplatform_v1beta1
@@ -699,7 +698,6 @@ class VizierServiceClient(metaclass=VizierServiceClientMeta):
         r"""Lists all the studies in a region for an associated
         project.
 
-
         .. code-block:: python
 
             from google.cloud import aiplatform_v1beta1
@@ -894,7 +892,6 @@ class VizierServiceClient(metaclass=VizierServiceClientMeta):
         r"""Looks a study up using the user-defined display_name field
         instead of the fully qualified resource name.
 
-
         .. code-block:: python
 
             from google.cloud import aiplatform_v1beta1
@@ -992,7 +989,6 @@ class VizierServiceClient(metaclass=VizierServiceClientMeta):
         associated with the generation of Trial suggestions. When this
         long-running operation succeeds, it will contain a
         [SuggestTrialsResponse][google.cloud.ml.v1.SuggestTrialsResponse].
-
 
         .. code-block:: python
 
@@ -1402,7 +1398,6 @@ class VizierServiceClient(metaclass=VizierServiceClientMeta):
         Trial. This measurement is assumed to have been taken
         before the Trial is complete.
 
-
         .. code-block:: python
 
             from google.cloud import aiplatform_v1beta1
@@ -1645,7 +1640,6 @@ class VizierServiceClient(metaclass=VizierServiceClientMeta):
         will contain a
         [CheckTrialEarlyStoppingStateResponse][google.cloud.ml.v1.CheckTrialEarlyStoppingStateResponse].
 
-
         .. code-block:: python
 
             from google.cloud import aiplatform_v1beta1
@@ -1820,7 +1814,6 @@ class VizierServiceClient(metaclass=VizierServiceClientMeta):
         optimal Trials for single-objective Study. The definition of
         pareto-optimal can be checked in wiki page.
         https://en.wikipedia.org/wiki/Pareto_efficiency
-
 
         .. code-block:: python
 

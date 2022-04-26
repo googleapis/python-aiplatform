@@ -51,7 +51,7 @@ class EntityType(proto.Message):
         update_time (google.protobuf.timestamp_pb2.Timestamp):
             Output only. Timestamp when this EntityType
             was most recently updated.
-        labels (Sequence[google.cloud.aiplatform_v1.types.EntityType.LabelsEntry]):
+        labels (Mapping[str, str]):
             Optional. The labels with user-defined
             metadata to organize your EntityTypes.
             Label keys and values can be no longer than 64
