@@ -31,6 +31,7 @@ _AUTOML_TRAINING_MIN_ROWS = 1000
 
 _LOGGER = base.Logger(__name__)
 
+
 class TabularDataset(datasets._ColumnNamesDataset):
     """Managed tabular dataset resource for Vertex AI."""
 
@@ -173,7 +174,11 @@ class TabularDataset(datasets._ColumnNamesDataset):
                 Required. The BigQuery table to stage the data
                 for Vertex. Because Vertex maintains a reference to this source
                 to create the Vertex Dataset, this BigQuery table should
-                not be deleted. Example: `bq://my-project.my-dataset.my-table`
+                not be deleted. Example: `bq://my-project.my-dataset.my-table`.
+                If the provided BigQuery table doesn't exist, this method will
+                create the table. If the provided BigQuery table already exists,
+                and the schemas of the BigQuery table and your DataFrame match,
+                this method will append the data in your local DataFrame to the table.
             project (str):
                 Project to upload this model to. Overrides project set in
                 aiplatform.init.
@@ -195,7 +200,7 @@ class TabularDataset(datasets._ColumnNamesDataset):
             import pyarrow  # noqa: F401 - skip check for 'pyarrow' which is required when using 'google.cloud.bigquery'
         except ImportError:
             raise ImportError(
-                f"Pyarrow is not installed. Please install pyarrow to use the BigQuery client."
+                "Pyarrow is not installed. Please install pyarrow to use the BigQuery client."
             )
 
         bigquery_client = bigquery.Client(
@@ -204,9 +209,11 @@ class TabularDataset(datasets._ColumnNamesDataset):
         )
 
         if staging_path.startswith("bq://"):
-            bq_staging_path = staging_path[len("bq://"):]
+            bq_staging_path = staging_path[len("bq://") :]
         else:
-            raise ValueError("Only BigQuery staging paths are supported. Provide a staging path in the format `bq://your-project.your-dataset.your-table`.")
+            raise ValueError(
+                "Only BigQuery staging paths are supported. Provide a staging path in the format `bq://your-project.your-dataset.your-table`."
+            )
 
         try:
             parquet_options = bigquery.format_options.ParquetOptions()

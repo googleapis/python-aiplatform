@@ -172,6 +172,7 @@ _TEST_DF_COLUMN_NAMES = [
     _TEST_BYTES_COL,
 ]
 
+
 @pytest.fixture
 def get_dataset_mock():
     with patch.object(
@@ -1509,6 +1510,7 @@ class TestTabularDataset:
                 df_source=source_df,
                 staging_path=_TEST_INVALID_SOURCE_URI_BQ,
             )
+
 
 class TestTextDataset:
     def setup_method(self):
