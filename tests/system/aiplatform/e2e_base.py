@@ -20,6 +20,8 @@ import importlib
 import os
 import pytest
 import uuid
+import subprocess
+
 from typing import Any, Dict, Generator
 
 from google.api_core import exceptions
@@ -124,6 +126,243 @@ class TestEndToEnd(metaclass=abc.ABCMeta):
         bigquery_client.delete_dataset(
             bigquery_dataset.dataset_id, delete_contents=True, not_found_ok=True
         )  # Make an API request.
+
+    @pytest.fixture(scope="class")
+    def prepare_vpc(
+        self, shared_state: Dict[str, Any]
+    ) -> Generator[bigquery.dataset.Dataset, None, None]:
+        """Create a bigquery dataset and store bigquery resource object in shared state."""
+
+        # bigquery_client = bigquery.Client(project=_PROJECT)
+        # shared_state["bigquery_client"] = bigquery_client
+
+        # dataset_name = f"{self._temp_prefix.lower()}_{uuid.uuid4()}".replace("-", "_")
+        # dataset_id = f"{_PROJECT}.{dataset_name}"
+        # shared_state["bigquery_dataset_id"] = dataset_id
+
+        # dataset = bigquery.Dataset(dataset_id)
+        # dataset.location = _LOCATION
+        # shared_state["bigquery_dataset"] = bigquery_client.create_dataset(dataset)
+
+        NETWORK_NAME = f"vpc-network-{uuid.uuid4()}"
+        PROJECT_ID = _PROJECT
+        PEERING_RANGE_NAME = f"vpc-network-range-{uuid.uuid4()}"
+
+        shared_state["vpc_network_name"] = NETWORK_NAME
+        shared_state["vpc_peering_range_name"] = PEERING_RANGE_NAME
+        firewall_rules = []
+
+        # ! gcloud compute networks create {NETWORK_NAME} --bgp-routing-mode=regional --subnet-mode=auto --project={PROJECT_ID}
+        subprocess.check_output(
+            [
+                "gcloud",
+                "compute",
+                "networks",
+                "create",
+                NETWORK_NAME,
+                "--bgp-routing-mode",
+                "regional",
+                "--subnet-mode",
+                "auto",
+                "--project",
+                PROJECT_ID,
+            ],
+            encoding="UTF-8",
+        )
+
+        # Add necessary firewall rules
+        # ! gcloud compute firewall-rules create {NETWORK_NAME}-allow-icmp --network {NETWORK_NAME} --priority 65534 --project {PROJECT_ID} --allow icmp
+        subprocess.check_output(
+            [
+                "gcloud",
+                "compute",
+                "firewall-rules",
+                "create",
+                f"{NETWORK_NAME}-allow-icmp",
+                "--network",
+                NETWORK_NAME,
+                "--priority",
+                "65534",
+                "--project",
+                PROJECT_ID,
+                "--allow",
+                "icmp",
+            ],
+            encoding="UTF-8",
+        )
+        firewall_rules.append(f"{NETWORK_NAME}-allow-icmp")
+
+        # ! gcloud compute firewall-rules create {NETWORK_NAME}-allow-internal --network {NETWORK_NAME} --priority 65534 --project {PROJECT_ID} --allow all --source-ranges 10.128.0.0/9
+        subprocess.check_output(
+            [
+                "gcloud",
+                "compute",
+                "firewall-rules",
+                "create",
+                f"{NETWORK_NAME}-allow-internal",
+                "--network",
+                NETWORK_NAME,
+                "--priority",
+                "65534",
+                "--project",
+                PROJECT_ID,
+                "--allow",
+                "all",
+                "--source-ranges",
+                "10.128.0.0/9",
+            ],
+            encoding="UTF-8",
+        )
+        firewall_rules.append(f"{NETWORK_NAME}-allow-internal")
+
+        # ! gcloud compute firewall-rules create {NETWORK_NAME}-allow-rdp --network {NETWORK_NAME} --priority 65534 --project {PROJECT_ID} --allow tcp:3389
+        subprocess.check_output(
+            [
+                "gcloud",
+                "compute",
+                "firewall-rules",
+                "create",
+                f"{NETWORK_NAME}-allow-rdp",
+                "--network",
+                NETWORK_NAME,
+                "--priority",
+                "65534",
+                "--project",
+                PROJECT_ID,
+                "--allow",
+                "tcp:3389",
+            ],
+            encoding="UTF-8",
+        )
+        firewall_rules.append(f"{NETWORK_NAME}-allow-rdp")
+
+        # ! gcloud compute firewall-rules create {NETWORK_NAME}-allow-ssh --network {NETWORK_NAME} --priority 65534 --project {PROJECT_ID} --allow tcp:22
+        subprocess.check_output(
+            [
+                "gcloud",
+                "compute",
+                "firewall-rules",
+                "create",
+                f"{NETWORK_NAME}-allow-ssh",
+                "--network",
+                NETWORK_NAME,
+                "--priority",
+                "65534",
+                "--project",
+                PROJECT_ID,
+                "--allow",
+                "tcp:22",
+            ],
+            encoding="UTF-8",
+        )
+        firewall_rules.append(f"{NETWORK_NAME}-allow-rdp")
+
+        # Reserve IP range
+        # ! gcloud compute addresses create {PEERING_RANGE_NAME} --global --prefix-length=16 --network={NETWORK_NAME} --purpose=VPC_PEERING --project={PROJECT_ID} --description="peering range for uCAIP Haystack."
+        subprocess.check_output(
+            [
+                "gcloud",
+                "compute",
+                "addresses",
+                "create",
+                PEERING_RANGE_NAME,
+                "--global",
+                "--prefix-length",
+                "16",
+                "--network",
+                NETWORK_NAME,
+                "--purpose",
+                "VPC_PEERING",
+                "--project",
+                PROJECT_ID,
+                "--description",
+                "peering range",
+            ],
+            encoding="UTF-8",
+        )
+
+        # Set up peering with service networking
+        # ! gcloud services vpc-peerings connect --service=servicenetworking.googleapis.com --network={NETWORK_NAME} --ranges={PEERING_RANGE_NAME} --project={PROJECT_ID}
+        # subprocess.check_output(
+        #     [
+        #         "gcloud",
+        #         "services",
+        #         "vpc-peerings",
+        #         "connect",
+        #         "--service",
+        #         "servicenetworking.googleapis.com",
+        #         "--network",
+        #         NETWORK_NAME,
+        #         "--ranges",
+        #         PEERING_RANGE_NAME,
+        #         "--project",
+        #         PROJECT_ID,
+        #     ],
+        #     encoding="UTF-8",
+        # )
+
+        shared_state["vpc_firewall_rules"] = firewall_rules
+
+        yield
+
+    @pytest.fixture(scope="class")
+    def delete_vpc(self, shared_state: Dict[str, Any]):
+        """Delete the VPC network resources"""
+
+        yield
+
+        network_name = shared_state["vpc_network_name"]
+        peering_range_name = shared_state["vpc_peering_range_name"]
+        firewall_rules = shared_state["vpc_firewall_rules"]
+
+        for firewall_rule in firewall_rules:
+            subprocess.check_output(
+                [
+                    "gcloud",
+                    "compute",
+                    "firewall-rules",
+                    "delete",
+                    firewall_rule,
+                    "--project",
+                    _PROJECT,
+                    "--quiet",
+                ],
+                encoding="UTF-8",
+            )
+
+        subprocess.check_output(
+            [
+                "gcloud",
+                "compute",
+                "addresses",
+                "delete",
+                peering_range_name,
+                "--project",
+                _PROJECT,
+                "--quiet",
+            ],
+            encoding="UTF-8",
+        )
+
+        subprocess.check_output(
+            [
+                "gcloud",
+                "compute",
+                "networks",
+                "delete",
+                network_name,
+                "--project",
+                _PROJECT,
+                "--quiet",
+            ],
+            encoding="UTF-8",
+        )
+        # Get the bigquery dataset id used for testing and wipe it
+        # bigquery_dataset = shared_state["bigquery_dataset"]
+        # bigquery_client = shared_state["bigquery_client"]
+        # bigquery_client.delete_dataset(
+        #     bigquery_dataset.dataset_id, delete_contents=True, not_found_ok=True
+        # )  # Make an API request.
 
     @pytest.fixture(scope="class", autouse=True)
     def tear_down_resources(self, shared_state: Dict[str, Any]):

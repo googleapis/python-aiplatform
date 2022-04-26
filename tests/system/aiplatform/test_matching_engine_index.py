@@ -168,6 +168,9 @@ _TEST_MATCH_QUERY = query = [
 ]
 
 
+@pytest.mark.usefixtures(
+    "prepare_vpc", "delete_vpc",
+)
 class TestMatchingEngine(e2e_base.TestEndToEnd):
 
     _temp_prefix = "temp_vertex_sdk_e2e_matching_engine_test"
@@ -177,12 +180,12 @@ class TestMatchingEngine(e2e_base.TestEndToEnd):
             project=e2e_base._PROJECT, location=e2e_base._LOCATION,
         )
 
-        _LOGGER = base.Logger(__name__)
+        # _LOGGER = base.Logger(__name__)
 
-        raise ValueError(
-            f"INJECTED _PROJECT_NUMBER: {e2e_base._PROJECT_NUMBER}"
-            + f"\nINJECTED _VPC_NETWORK_NAME: {e2e_base._VPC_NETWORK_NAME}"
-        )
+        # raise ValueError(
+        #     f"INJECTED _PROJECT_NUMBER: {e2e_base._PROJECT_NUMBER}"
+        #     + f"\nINJECTED _VPC_NETWORK_NAME: {e2e_base._VPC_NETWORK_NAME}"
+        # )
         # _LOGGER._logger.info(
         #     f"INJECTED _VPC_NETWORK_NAME: {e2e_base._VPC_NETWORK_NAME}"
         # )
