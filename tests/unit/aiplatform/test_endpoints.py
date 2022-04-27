@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-# Copyright 2020 Google LLC
+# Copyright 2022 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -63,7 +63,6 @@ _TEST_DISPLAY_NAME_3 = "test-display-name-3"
 _TEST_ID = "1028944691210842416"
 _TEST_ID_2 = "4366591682456584192"
 _TEST_ID_3 = "5820582938582924817"
-_TEST_ID_INVALID = "11111111111111111111"
 _TEST_DESCRIPTION = "test-description"
 _TEST_REQUEST_METADATA = ()
 _TEST_TIMEOUT = None
@@ -92,12 +91,6 @@ _TEST_DEPLOYED_MODELS = [
 ]
 
 _TEST_TRAFFIC_SPLIT = {_TEST_ID: 0, _TEST_ID_2: 100, _TEST_ID_3: 0}
-_TEST_TRAFFIC_SPLIT_WITH_DEPLOYING_MODEL = {
-    _TEST_ID: 10,
-    _TEST_ID_2: 20,
-    _TEST_ID_3: 20,
-    "0": 50,
-}
 
 _TEST_LONG_TRAFFIC_SPLIT = {
     "m1": 40,
@@ -762,76 +755,6 @@ class TestEndpoint:
             metadata=_TEST_REQUEST_METADATA,
             timeout=_TEST_TIMEOUT,
         )
-
-    @pytest.mark.parametrize(
-        "traffic_split, endpoint, deploy_model",
-        [
-            ({_TEST_ID: 100}, True, False),
-            ({_TEST_ID: 80, _TEST_ID_2: 20}, True, False),
-            ({_TEST_ID: 50, _TEST_ID_2: 20, _TEST_ID_3: 30}, True, False),
-            ({_TEST_ID: 10, "0": 90}, True, True),
-            ({_TEST_ID: 10, _TEST_ID_2: 20, "0": 70}, True, True),
-            ({_TEST_ID: 10, _TEST_ID_2: 20, _TEST_ID_3: 30, "0": 40}, True, True),
-            ({"0": 100}, None, True),
-        ],
-    )
-    @pytest.mark.usefixtures("get_endpoint_with_models_mock")
-    def test_validate_traffic_split(self, traffic_split, endpoint, deploy_model):
-        if endpoint:
-            endpoint = models.Endpoint(_TEST_ENDPOINT_NAME)
-        aiplatform.Endpoint._validate_traffic_split(
-            traffic_split, endpoint, deploy_model
-        )
-
-    @pytest.mark.parametrize(
-        "traffic_split, endpoint, deploy_model",
-        [
-            ({_TEST_ID_INVALID: 100}, True, False),
-            ({_TEST_ID: 50, _TEST_ID_INVALID: 50}, True, False),
-            (
-                {_TEST_ID: 50, _TEST_ID_2: 20, _TEST_ID_3: 20, _TEST_ID_INVALID: 10},
-                True,
-                False,
-            ),
-            ({_TEST_ID: 90}, True, False),
-            ({_TEST_ID: 50, _TEST_ID_2: 20, _TEST_ID_3: 20}, True, False),
-            ({_TEST_ID: 10, "0": 90}, True, False),
-            ({_TEST_ID: 10, "0": 90}, None, True),
-        ],
-    )
-    @pytest.mark.usefixtures("get_endpoint_with_models_mock")
-    def test_validate_traffic_split_with_raise(
-        self, traffic_split, endpoint, deploy_model
-    ):
-        if endpoint:
-            endpoint = models.Endpoint(_TEST_ENDPOINT_NAME)
-        with pytest.raises(ValueError):
-            aiplatform.Endpoint._validate_traffic_split(
-                traffic_split, endpoint, deploy_model
-            )
-
-    @pytest.mark.parametrize(
-        "traffic_split, traffic_percentage",
-        [
-            ({"0": 100}, None),
-            (None, 0),
-            (None, 50),
-            (None, 100),
-        ],
-    )
-    def test_validate_traffic(self, traffic_split, traffic_percentage):
-        aiplatform.Endpoint._validate_traffic(traffic_split, traffic_percentage)
-
-    @pytest.mark.parametrize(
-        "traffic_split, traffic_percentage",
-        [
-            (None, -1),
-            (None, 101),
-        ],
-    )
-    def test_validate_traffic_with_raise(self, traffic_split, traffic_percentage):
-        with pytest.raises(ValueError):
-            aiplatform.Endpoint._validate_traffic(traffic_split, traffic_percentage)
 
     @pytest.mark.usefixtures("get_endpoint_mock", "get_model_mock")
     @pytest.mark.parametrize("sync", [True, False])
