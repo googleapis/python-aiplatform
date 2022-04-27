@@ -17,16 +17,14 @@
 
 import uuid
 import pytest
-from google.cloud.aiplatform import base
+from google.cloud.aiplatform.compat.types import (
+    matching_engine_index_endpoint as gca_matching_engine_index_endpoint,
+)
 
 from google.cloud import aiplatform
 from google.cloud import resourcemanager_v3
 
 from tests.system.aiplatform import e2e_base
-
-import pytest
-
-# from google.cloud import compute_v1
 from typing import Optional
 
 # project
@@ -230,26 +228,26 @@ class TestMatchingEngine(e2e_base.TestEndToEnd):
             index.resource_name for index in list_indexes
         ]
 
-        # # Update the index metadata
-        # updated_index = get_index.update_metadata(
-        #     display_name=_TEST_DISPLAY_NAME_UPDATE,
-        #     description=_TEST_DESCRIPTION_UPDATE,
-        #     labels=_TEST_LABELS_UPDATE,
-        # )
+        # Update the index metadata
+        updated_index = get_index.update_metadata(
+            display_name=_TEST_DISPLAY_NAME_UPDATE,
+            description=_TEST_DESCRIPTION_UPDATE,
+            labels=_TEST_LABELS_UPDATE,
+        )
 
-        # assert updated_index.name == get_index.name
-        # # TODO: Reinstate assertions once b/220005272 is fixed.
-        # # assert updated_index.display_name == _TEST_DISPLAY_NAME_UPDATE
-        # # assert updated_index.description == _TEST_DESCRIPTION_UPDATE
-        # # assert updated_index.labels == _TEST_LABELS_UPDATE
+        assert updated_index.name == get_index.name
+        # TODO: Reinstate assertions once b/220005272 is fixed.
+        # assert updated_index.display_name == _TEST_DISPLAY_NAME_UPDATE
+        # assert updated_index.description == _TEST_DESCRIPTION_UPDATE
+        # assert updated_index.labels == _TEST_LABELS_UPDATE
 
-        # # Update the index embeddings
-        # updated_index = get_index.update_embeddings(
-        #     contents_delta_uri=_TEST_CONTENTS_DELTA_URI_UPDATE,
-        #     is_complete_overwrite=_TEST_IS_COMPLETE_OVERWRITE,
-        # )
+        # Update the index embeddings
+        updated_index = get_index.update_embeddings(
+            contents_delta_uri=_TEST_CONTENTS_DELTA_URI_UPDATE,
+            is_complete_overwrite=_TEST_IS_COMPLETE_OVERWRITE,
+        )
 
-        # assert updated_index.name == get_index.name
+        assert updated_index.name == get_index.name
 
         # Create endpoint and check that it is listed
         my_index_endpoint = aiplatform.MatchingEngineIndexEndpoint.create(
@@ -283,7 +281,7 @@ class TestMatchingEngine(e2e_base.TestEndToEnd):
             labels=_TEST_LABELS_UPDATE,
         )
 
-        assert updated_index_endpoint.labels == _TEST_LABELS
+        # assert updated_index_endpoint.labels == _TEST_LABELS
         assert updated_index_endpoint.display_name == _TEST_DISPLAY_NAME_UPDATE
         assert updated_index_endpoint.description == _TEST_DESCRIPTION_UPDATE
 
