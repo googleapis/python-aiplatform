@@ -258,6 +258,7 @@ from .types.machine_resources import BatchDedicatedResources
 from .types.machine_resources import DedicatedResources
 from .types.machine_resources import DiskSpec
 from .types.machine_resources import MachineSpec
+from .types.machine_resources import NfsMount
 from .types.machine_resources import ResourcesConsumed
 from .types.manual_batch_tuning_parameters import ManualBatchTuningParameters
 from .types.metadata_schema import MetadataSchema
@@ -826,6 +827,7 @@ __all__ = (
     "MutateDeployedIndexRequest",
     "MutateDeployedIndexResponse",
     "NearestNeighborSearchOperationMetadata",
+    "NfsMount",
     "PauseModelDeploymentMonitoringJobRequest",
     "PipelineJob",
     "PipelineJobDetail",

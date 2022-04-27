@@ -92,6 +92,7 @@ class MetadataServiceTransport(abc.ABC):
             always_use_jwt_access (Optional[bool]): Whether self signed JWT should
                 be used for service account credentials.
         """
+
         # Save the hostname. Default to port 443 (HTTPS) if none is specified.
         if ":" not in host:
             host += ":443"
@@ -138,10 +139,14 @@ class MetadataServiceTransport(abc.ABC):
                 client_info=client_info,
             ),
             self.get_metadata_store: gapic_v1.method.wrap_method(
-                self.get_metadata_store, default_timeout=5.0, client_info=client_info,
+                self.get_metadata_store,
+                default_timeout=5.0,
+                client_info=client_info,
             ),
             self.list_metadata_stores: gapic_v1.method.wrap_method(
-                self.list_metadata_stores, default_timeout=5.0, client_info=client_info,
+                self.list_metadata_stores,
+                default_timeout=5.0,
+                client_info=client_info,
             ),
             self.delete_metadata_store: gapic_v1.method.wrap_method(
                 self.delete_metadata_store,
@@ -149,40 +154,64 @@ class MetadataServiceTransport(abc.ABC):
                 client_info=client_info,
             ),
             self.create_artifact: gapic_v1.method.wrap_method(
-                self.create_artifact, default_timeout=5.0, client_info=client_info,
+                self.create_artifact,
+                default_timeout=5.0,
+                client_info=client_info,
             ),
             self.get_artifact: gapic_v1.method.wrap_method(
-                self.get_artifact, default_timeout=5.0, client_info=client_info,
+                self.get_artifact,
+                default_timeout=5.0,
+                client_info=client_info,
             ),
             self.list_artifacts: gapic_v1.method.wrap_method(
-                self.list_artifacts, default_timeout=5.0, client_info=client_info,
+                self.list_artifacts,
+                default_timeout=5.0,
+                client_info=client_info,
             ),
             self.update_artifact: gapic_v1.method.wrap_method(
-                self.update_artifact, default_timeout=5.0, client_info=client_info,
+                self.update_artifact,
+                default_timeout=5.0,
+                client_info=client_info,
             ),
             self.delete_artifact: gapic_v1.method.wrap_method(
-                self.delete_artifact, default_timeout=None, client_info=client_info,
+                self.delete_artifact,
+                default_timeout=None,
+                client_info=client_info,
             ),
             self.purge_artifacts: gapic_v1.method.wrap_method(
-                self.purge_artifacts, default_timeout=None, client_info=client_info,
+                self.purge_artifacts,
+                default_timeout=None,
+                client_info=client_info,
             ),
             self.create_context: gapic_v1.method.wrap_method(
-                self.create_context, default_timeout=5.0, client_info=client_info,
+                self.create_context,
+                default_timeout=5.0,
+                client_info=client_info,
             ),
             self.get_context: gapic_v1.method.wrap_method(
-                self.get_context, default_timeout=5.0, client_info=client_info,
+                self.get_context,
+                default_timeout=5.0,
+                client_info=client_info,
             ),
             self.list_contexts: gapic_v1.method.wrap_method(
-                self.list_contexts, default_timeout=5.0, client_info=client_info,
+                self.list_contexts,
+                default_timeout=5.0,
+                client_info=client_info,
             ),
             self.update_context: gapic_v1.method.wrap_method(
-                self.update_context, default_timeout=5.0, client_info=client_info,
+                self.update_context,
+                default_timeout=5.0,
+                client_info=client_info,
             ),
             self.delete_context: gapic_v1.method.wrap_method(
-                self.delete_context, default_timeout=5.0, client_info=client_info,
+                self.delete_context,
+                default_timeout=5.0,
+                client_info=client_info,
             ),
             self.purge_contexts: gapic_v1.method.wrap_method(
-                self.purge_contexts, default_timeout=None, client_info=client_info,
+                self.purge_contexts,
+                default_timeout=None,
+                client_info=client_info,
             ),
             self.add_context_artifacts_and_executions: gapic_v1.method.wrap_method(
                 self.add_context_artifacts_and_executions,
@@ -190,7 +219,9 @@ class MetadataServiceTransport(abc.ABC):
                 client_info=client_info,
             ),
             self.add_context_children: gapic_v1.method.wrap_method(
-                self.add_context_children, default_timeout=5.0, client_info=client_info,
+                self.add_context_children,
+                default_timeout=5.0,
+                client_info=client_info,
             ),
             self.query_context_lineage_subgraph: gapic_v1.method.wrap_method(
                 self.query_context_lineage_subgraph,
@@ -198,25 +229,39 @@ class MetadataServiceTransport(abc.ABC):
                 client_info=client_info,
             ),
             self.create_execution: gapic_v1.method.wrap_method(
-                self.create_execution, default_timeout=5.0, client_info=client_info,
+                self.create_execution,
+                default_timeout=5.0,
+                client_info=client_info,
             ),
             self.get_execution: gapic_v1.method.wrap_method(
-                self.get_execution, default_timeout=5.0, client_info=client_info,
+                self.get_execution,
+                default_timeout=5.0,
+                client_info=client_info,
             ),
             self.list_executions: gapic_v1.method.wrap_method(
-                self.list_executions, default_timeout=5.0, client_info=client_info,
+                self.list_executions,
+                default_timeout=5.0,
+                client_info=client_info,
             ),
             self.update_execution: gapic_v1.method.wrap_method(
-                self.update_execution, default_timeout=5.0, client_info=client_info,
+                self.update_execution,
+                default_timeout=5.0,
+                client_info=client_info,
             ),
             self.delete_execution: gapic_v1.method.wrap_method(
-                self.delete_execution, default_timeout=None, client_info=client_info,
+                self.delete_execution,
+                default_timeout=None,
+                client_info=client_info,
             ),
             self.purge_executions: gapic_v1.method.wrap_method(
-                self.purge_executions, default_timeout=None, client_info=client_info,
+                self.purge_executions,
+                default_timeout=None,
+                client_info=client_info,
             ),
             self.add_execution_events: gapic_v1.method.wrap_method(
-                self.add_execution_events, default_timeout=5.0, client_info=client_info,
+                self.add_execution_events,
+                default_timeout=5.0,
+                client_info=client_info,
             ),
             self.query_execution_inputs_and_outputs: gapic_v1.method.wrap_method(
                 self.query_execution_inputs_and_outputs,
@@ -229,7 +274,9 @@ class MetadataServiceTransport(abc.ABC):
                 client_info=client_info,
             ),
             self.get_metadata_schema: gapic_v1.method.wrap_method(
-                self.get_metadata_schema, default_timeout=5.0, client_info=client_info,
+                self.get_metadata_schema,
+                default_timeout=5.0,
+                client_info=client_info,
             ),
             self.list_metadata_schemas: gapic_v1.method.wrap_method(
                 self.list_metadata_schemas,
@@ -246,9 +293,9 @@ class MetadataServiceTransport(abc.ABC):
     def close(self):
         """Closes resources associated with the transport.
 
-       .. warning::
-            Only call this method if the transport is NOT shared
-            with other clients - this may cause errors in other clients!
+        .. warning::
+             Only call this method if the transport is NOT shared
+             with other clients - this may cause errors in other clients!
         """
         raise NotImplementedError()
 
@@ -572,6 +619,10 @@ class MetadataServiceTransport(abc.ABC):
             Awaitable[lineage_subgraph.LineageSubgraph],
         ],
     ]:
+        raise NotImplementedError()
+
+    @property
+    def kind(self) -> str:
         raise NotImplementedError()
 
 

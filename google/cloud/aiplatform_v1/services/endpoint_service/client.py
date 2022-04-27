@@ -16,7 +16,7 @@
 from collections import OrderedDict
 import os
 import re
-from typing import Dict, Optional, Sequence, Tuple, Type, Union
+from typing import Dict, Mapping, Optional, Sequence, Tuple, Type, Union
 import pkg_resources
 
 from google.api_core import client_options as client_options_lib
@@ -64,7 +64,10 @@ class EndpointServiceClientMeta(type):
     _transport_registry["grpc"] = EndpointServiceGrpcTransport
     _transport_registry["grpc_asyncio"] = EndpointServiceGrpcAsyncIOTransport
 
-    def get_transport_class(cls, label: str = None,) -> Type[EndpointServiceTransport]:
+    def get_transport_class(
+        cls,
+        label: str = None,
+    ) -> Type[EndpointServiceTransport]:
         """Returns an appropriate transport class.
 
         Args:
@@ -169,10 +172,16 @@ class EndpointServiceClient(metaclass=EndpointServiceClientMeta):
         return self._transport
 
     @staticmethod
-    def endpoint_path(project: str, location: str, endpoint: str,) -> str:
+    def endpoint_path(
+        project: str,
+        location: str,
+        endpoint: str,
+    ) -> str:
         """Returns a fully-qualified endpoint string."""
         return "projects/{project}/locations/{location}/endpoints/{endpoint}".format(
-            project=project, location=location, endpoint=endpoint,
+            project=project,
+            location=location,
+            endpoint=endpoint,
         )
 
     @staticmethod
@@ -185,10 +194,16 @@ class EndpointServiceClient(metaclass=EndpointServiceClientMeta):
         return m.groupdict() if m else {}
 
     @staticmethod
-    def model_path(project: str, location: str, model: str,) -> str:
+    def model_path(
+        project: str,
+        location: str,
+        model: str,
+    ) -> str:
         """Returns a fully-qualified model string."""
         return "projects/{project}/locations/{location}/models/{model}".format(
-            project=project, location=location, model=model,
+            project=project,
+            location=location,
+            model=model,
         )
 
     @staticmethod
@@ -202,7 +217,9 @@ class EndpointServiceClient(metaclass=EndpointServiceClientMeta):
 
     @staticmethod
     def model_deployment_monitoring_job_path(
-        project: str, location: str, model_deployment_monitoring_job: str,
+        project: str,
+        location: str,
+        model_deployment_monitoring_job: str,
     ) -> str:
         """Returns a fully-qualified model_deployment_monitoring_job string."""
         return "projects/{project}/locations/{location}/modelDeploymentMonitoringJobs/{model_deployment_monitoring_job}".format(
@@ -221,10 +238,14 @@ class EndpointServiceClient(metaclass=EndpointServiceClientMeta):
         return m.groupdict() if m else {}
 
     @staticmethod
-    def network_path(project: str, network: str,) -> str:
+    def network_path(
+        project: str,
+        network: str,
+    ) -> str:
         """Returns a fully-qualified network string."""
         return "projects/{project}/global/networks/{network}".format(
-            project=project, network=network,
+            project=project,
+            network=network,
         )
 
     @staticmethod
@@ -236,7 +257,9 @@ class EndpointServiceClient(metaclass=EndpointServiceClientMeta):
         return m.groupdict() if m else {}
 
     @staticmethod
-    def common_billing_account_path(billing_account: str,) -> str:
+    def common_billing_account_path(
+        billing_account: str,
+    ) -> str:
         """Returns a fully-qualified billing_account string."""
         return "billingAccounts/{billing_account}".format(
             billing_account=billing_account,
@@ -249,9 +272,13 @@ class EndpointServiceClient(metaclass=EndpointServiceClientMeta):
         return m.groupdict() if m else {}
 
     @staticmethod
-    def common_folder_path(folder: str,) -> str:
+    def common_folder_path(
+        folder: str,
+    ) -> str:
         """Returns a fully-qualified folder string."""
-        return "folders/{folder}".format(folder=folder,)
+        return "folders/{folder}".format(
+            folder=folder,
+        )
 
     @staticmethod
     def parse_common_folder_path(path: str) -> Dict[str, str]:
@@ -260,9 +287,13 @@ class EndpointServiceClient(metaclass=EndpointServiceClientMeta):
         return m.groupdict() if m else {}
 
     @staticmethod
-    def common_organization_path(organization: str,) -> str:
+    def common_organization_path(
+        organization: str,
+    ) -> str:
         """Returns a fully-qualified organization string."""
-        return "organizations/{organization}".format(organization=organization,)
+        return "organizations/{organization}".format(
+            organization=organization,
+        )
 
     @staticmethod
     def parse_common_organization_path(path: str) -> Dict[str, str]:
@@ -271,9 +302,13 @@ class EndpointServiceClient(metaclass=EndpointServiceClientMeta):
         return m.groupdict() if m else {}
 
     @staticmethod
-    def common_project_path(project: str,) -> str:
+    def common_project_path(
+        project: str,
+    ) -> str:
         """Returns a fully-qualified project string."""
-        return "projects/{project}".format(project=project,)
+        return "projects/{project}".format(
+            project=project,
+        )
 
     @staticmethod
     def parse_common_project_path(path: str) -> Dict[str, str]:
@@ -282,10 +317,14 @@ class EndpointServiceClient(metaclass=EndpointServiceClientMeta):
         return m.groupdict() if m else {}
 
     @staticmethod
-    def common_location_path(project: str, location: str,) -> str:
+    def common_location_path(
+        project: str,
+        location: str,
+    ) -> str:
         """Returns a fully-qualified location string."""
         return "projects/{project}/locations/{location}".format(
-            project=project, location=location,
+            project=project,
+            location=location,
         )
 
     @staticmethod
@@ -581,7 +620,12 @@ class EndpointServiceClient(metaclass=EndpointServiceClientMeta):
         )
 
         # Send the request.
-        response = rpc(request, retry=retry, timeout=timeout, metadata=metadata,)
+        response = rpc(
+            request,
+            retry=retry,
+            timeout=timeout,
+            metadata=metadata,
+        )
 
         # Wrap the response in an operation future.
         response = gac_operation.from_gapic(
@@ -680,7 +724,12 @@ class EndpointServiceClient(metaclass=EndpointServiceClientMeta):
         )
 
         # Send the request.
-        response = rpc(request, retry=retry, timeout=timeout, metadata=metadata,)
+        response = rpc(
+            request,
+            retry=retry,
+            timeout=timeout,
+            metadata=metadata,
+        )
 
         # Done; return the response.
         return response
@@ -775,12 +824,20 @@ class EndpointServiceClient(metaclass=EndpointServiceClientMeta):
         )
 
         # Send the request.
-        response = rpc(request, retry=retry, timeout=timeout, metadata=metadata,)
+        response = rpc(
+            request,
+            retry=retry,
+            timeout=timeout,
+            metadata=metadata,
+        )
 
         # This method is paged; wrap the response in a pager, which provides
         # an `__iter__` convenience method.
         response = pagers.ListEndpointsPager(
-            method=rpc, request=request, response=response, metadata=metadata,
+            method=rpc,
+            request=request,
+            response=response,
+            metadata=metadata,
         )
 
         # Done; return the response.
@@ -887,7 +944,12 @@ class EndpointServiceClient(metaclass=EndpointServiceClientMeta):
         )
 
         # Send the request.
-        response = rpc(request, retry=retry, timeout=timeout, metadata=metadata,)
+        response = rpc(
+            request,
+            retry=retry,
+            timeout=timeout,
+            metadata=metadata,
+        )
 
         # Done; return the response.
         return response
@@ -995,7 +1057,12 @@ class EndpointServiceClient(metaclass=EndpointServiceClientMeta):
         )
 
         # Send the request.
-        response = rpc(request, retry=retry, timeout=timeout, metadata=metadata,)
+        response = rpc(
+            request,
+            retry=retry,
+            timeout=timeout,
+            metadata=metadata,
+        )
 
         # Wrap the response in an operation future.
         response = gac_operation.from_gapic(
@@ -1014,16 +1081,13 @@ class EndpointServiceClient(metaclass=EndpointServiceClientMeta):
         *,
         endpoint: str = None,
         deployed_model: gca_endpoint.DeployedModel = None,
-        traffic_split: Sequence[
-            endpoint_service.DeployModelRequest.TrafficSplitEntry
-        ] = None,
+        traffic_split: Mapping[str, int] = None,
         retry: OptionalRetry = gapic_v1.method.DEFAULT,
         timeout: float = None,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> gac_operation.Operation:
         r"""Deploys a Model into this Endpoint, creating a
         DeployedModel within it.
-
 
         .. code-block:: python
 
@@ -1076,7 +1140,7 @@ class EndpointServiceClient(metaclass=EndpointServiceClientMeta):
                 This corresponds to the ``deployed_model`` field
                 on the ``request`` instance; if ``request`` is provided, this
                 should not be set.
-            traffic_split (Sequence[google.cloud.aiplatform_v1.types.DeployModelRequest.TrafficSplitEntry]):
+            traffic_split (Mapping[str, int]):
                 A map from a DeployedModel's ID to the percentage of
                 this Endpoint's traffic that should be forwarded to that
                 DeployedModel.
@@ -1148,7 +1212,12 @@ class EndpointServiceClient(metaclass=EndpointServiceClientMeta):
         )
 
         # Send the request.
-        response = rpc(request, retry=retry, timeout=timeout, metadata=metadata,)
+        response = rpc(
+            request,
+            retry=retry,
+            timeout=timeout,
+            metadata=metadata,
+        )
 
         # Wrap the response in an operation future.
         response = gac_operation.from_gapic(
@@ -1167,9 +1236,7 @@ class EndpointServiceClient(metaclass=EndpointServiceClientMeta):
         *,
         endpoint: str = None,
         deployed_model_id: str = None,
-        traffic_split: Sequence[
-            endpoint_service.UndeployModelRequest.TrafficSplitEntry
-        ] = None,
+        traffic_split: Mapping[str, int] = None,
         retry: OptionalRetry = gapic_v1.method.DEFAULT,
         timeout: float = None,
         metadata: Sequence[Tuple[str, str]] = (),
@@ -1177,7 +1244,6 @@ class EndpointServiceClient(metaclass=EndpointServiceClientMeta):
         r"""Undeploys a Model from an Endpoint, removing a
         DeployedModel from it, and freeing all resources it's
         using.
-
 
         .. code-block:: python
 
@@ -1222,7 +1288,7 @@ class EndpointServiceClient(metaclass=EndpointServiceClientMeta):
                 This corresponds to the ``deployed_model_id`` field
                 on the ``request`` instance; if ``request`` is provided, this
                 should not be set.
-            traffic_split (Sequence[google.cloud.aiplatform_v1.types.UndeployModelRequest.TrafficSplitEntry]):
+            traffic_split (Mapping[str, int]):
                 If this field is provided, then the Endpoint's
                 [traffic_split][google.cloud.aiplatform.v1.Endpoint.traffic_split]
                 will be overwritten with it. If last DeployedModel is
@@ -1288,7 +1354,12 @@ class EndpointServiceClient(metaclass=EndpointServiceClientMeta):
         )
 
         # Send the request.
-        response = rpc(request, retry=retry, timeout=timeout, metadata=metadata,)
+        response = rpc(
+            request,
+            retry=retry,
+            timeout=timeout,
+            metadata=metadata,
+        )
 
         # Wrap the response in an operation future.
         response = gac_operation.from_gapic(

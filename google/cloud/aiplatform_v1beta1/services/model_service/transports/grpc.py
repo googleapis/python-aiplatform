@@ -234,8 +234,7 @@ class ModelServiceGrpcTransport(ModelServiceTransport):
 
     @property
     def grpc_channel(self) -> grpc.Channel:
-        """Return the channel designed to connect to this service.
-        """
+        """Return the channel designed to connect to this service."""
         return self._grpc_channel
 
     @property
@@ -329,6 +328,35 @@ class ModelServiceGrpcTransport(ModelServiceTransport):
         return self._stubs["list_models"]
 
     @property
+    def list_model_versions(
+        self,
+    ) -> Callable[
+        [model_service.ListModelVersionsRequest],
+        model_service.ListModelVersionsResponse,
+    ]:
+        r"""Return a callable for the list model versions method over gRPC.
+
+        Lists versions of the specified model.
+
+        Returns:
+            Callable[[~.ListModelVersionsRequest],
+                    ~.ListModelVersionsResponse]:
+                A function that, when called, will call the underlying RPC
+                on the server.
+        """
+        # Generate a "stub function" on-the-fly which will actually make
+        # the request.
+        # gRPC handles serialization and deserialization, so we just need
+        # to pass in the functions for each.
+        if "list_model_versions" not in self._stubs:
+            self._stubs["list_model_versions"] = self.grpc_channel.unary_unary(
+                "/google.cloud.aiplatform.v1beta1.ModelService/ListModelVersions",
+                request_serializer=model_service.ListModelVersionsRequest.serialize,
+                response_deserializer=model_service.ListModelVersionsResponse.deserialize,
+            )
+        return self._stubs["list_model_versions"]
+
+    @property
     def update_model(
         self,
     ) -> Callable[[model_service.UpdateModelRequest], gca_model.Model]:
@@ -387,6 +415,64 @@ class ModelServiceGrpcTransport(ModelServiceTransport):
                 response_deserializer=operations_pb2.Operation.FromString,
             )
         return self._stubs["delete_model"]
+
+    @property
+    def delete_model_version(
+        self,
+    ) -> Callable[[model_service.DeleteModelVersionRequest], operations_pb2.Operation]:
+        r"""Return a callable for the delete model version method over gRPC.
+
+        Deletes a Model version.
+
+        Model version can only be deleted if there are no
+        [DeployedModels][] created from it. Deleting the only version in
+        the Model is not allowed. Use
+        [DeleteModel][google.cloud.aiplatform.v1beta1.ModelService.DeleteModel]
+        for deleting the Model instead.
+
+        Returns:
+            Callable[[~.DeleteModelVersionRequest],
+                    ~.Operation]:
+                A function that, when called, will call the underlying RPC
+                on the server.
+        """
+        # Generate a "stub function" on-the-fly which will actually make
+        # the request.
+        # gRPC handles serialization and deserialization, so we just need
+        # to pass in the functions for each.
+        if "delete_model_version" not in self._stubs:
+            self._stubs["delete_model_version"] = self.grpc_channel.unary_unary(
+                "/google.cloud.aiplatform.v1beta1.ModelService/DeleteModelVersion",
+                request_serializer=model_service.DeleteModelVersionRequest.serialize,
+                response_deserializer=operations_pb2.Operation.FromString,
+            )
+        return self._stubs["delete_model_version"]
+
+    @property
+    def merge_version_aliases(
+        self,
+    ) -> Callable[[model_service.MergeVersionAliasesRequest], model.Model]:
+        r"""Return a callable for the merge version aliases method over gRPC.
+
+        Merges a set of aliases for a Model version.
+
+        Returns:
+            Callable[[~.MergeVersionAliasesRequest],
+                    ~.Model]:
+                A function that, when called, will call the underlying RPC
+                on the server.
+        """
+        # Generate a "stub function" on-the-fly which will actually make
+        # the request.
+        # gRPC handles serialization and deserialization, so we just need
+        # to pass in the functions for each.
+        if "merge_version_aliases" not in self._stubs:
+            self._stubs["merge_version_aliases"] = self.grpc_channel.unary_unary(
+                "/google.cloud.aiplatform.v1beta1.ModelService/MergeVersionAliases",
+                request_serializer=model_service.MergeVersionAliasesRequest.serialize,
+                response_deserializer=model.Model.deserialize,
+            )
+        return self._stubs["merge_version_aliases"]
 
     @property
     def export_model(
@@ -563,6 +649,10 @@ class ModelServiceGrpcTransport(ModelServiceTransport):
 
     def close(self):
         self.grpc_channel.close()
+
+    @property
+    def kind(self) -> str:
+        return "grpc"
 
 
 __all__ = ("ModelServiceGrpcTransport",)

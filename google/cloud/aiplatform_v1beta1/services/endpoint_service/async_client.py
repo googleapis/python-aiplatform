@@ -16,7 +16,7 @@
 from collections import OrderedDict
 import functools
 import re
-from typing import Dict, Optional, Sequence, Tuple, Type, Union
+from typing import Dict, Mapping, Optional, Sequence, Tuple, Type, Union
 import pkg_resources
 
 from google.api_core.client_options import ClientOptions
@@ -343,7 +343,12 @@ class EndpointServiceAsyncClient:
         )
 
         # Send the request.
-        response = await rpc(request, retry=retry, timeout=timeout, metadata=metadata,)
+        response = await rpc(
+            request,
+            retry=retry,
+            timeout=timeout,
+            metadata=metadata,
+        )
 
         # Wrap the response in an operation future.
         response = operation_async.from_gapic(
@@ -442,7 +447,12 @@ class EndpointServiceAsyncClient:
         )
 
         # Send the request.
-        response = await rpc(request, retry=retry, timeout=timeout, metadata=metadata,)
+        response = await rpc(
+            request,
+            retry=retry,
+            timeout=timeout,
+            metadata=metadata,
+        )
 
         # Done; return the response.
         return response
@@ -537,12 +547,20 @@ class EndpointServiceAsyncClient:
         )
 
         # Send the request.
-        response = await rpc(request, retry=retry, timeout=timeout, metadata=metadata,)
+        response = await rpc(
+            request,
+            retry=retry,
+            timeout=timeout,
+            metadata=metadata,
+        )
 
         # This method is paged; wrap the response in a pager, which provides
         # an `__aiter__` convenience method.
         response = pagers.ListEndpointsAsyncPager(
-            method=rpc, request=request, response=response, metadata=metadata,
+            method=rpc,
+            request=request,
+            response=response,
+            metadata=metadata,
         )
 
         # Done; return the response.
@@ -649,7 +667,12 @@ class EndpointServiceAsyncClient:
         )
 
         # Send the request.
-        response = await rpc(request, retry=retry, timeout=timeout, metadata=metadata,)
+        response = await rpc(
+            request,
+            retry=retry,
+            timeout=timeout,
+            metadata=metadata,
+        )
 
         # Done; return the response.
         return response
@@ -757,7 +780,12 @@ class EndpointServiceAsyncClient:
         )
 
         # Send the request.
-        response = await rpc(request, retry=retry, timeout=timeout, metadata=metadata,)
+        response = await rpc(
+            request,
+            retry=retry,
+            timeout=timeout,
+            metadata=metadata,
+        )
 
         # Wrap the response in an operation future.
         response = operation_async.from_gapic(
@@ -776,16 +804,13 @@ class EndpointServiceAsyncClient:
         *,
         endpoint: str = None,
         deployed_model: gca_endpoint.DeployedModel = None,
-        traffic_split: Sequence[
-            endpoint_service.DeployModelRequest.TrafficSplitEntry
-        ] = None,
+        traffic_split: Mapping[str, int] = None,
         retry: OptionalRetry = gapic_v1.method.DEFAULT,
         timeout: float = None,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> operation_async.AsyncOperation:
         r"""Deploys a Model into this Endpoint, creating a
         DeployedModel within it.
-
 
         .. code-block:: python
 
@@ -838,7 +863,7 @@ class EndpointServiceAsyncClient:
                 This corresponds to the ``deployed_model`` field
                 on the ``request`` instance; if ``request`` is provided, this
                 should not be set.
-            traffic_split (:class:`Sequence[google.cloud.aiplatform_v1beta1.types.DeployModelRequest.TrafficSplitEntry]`):
+            traffic_split (:class:`Mapping[str, int]`):
                 A map from a DeployedModel's ID to the percentage of
                 this Endpoint's traffic that should be forwarded to that
                 DeployedModel.
@@ -911,7 +936,12 @@ class EndpointServiceAsyncClient:
         )
 
         # Send the request.
-        response = await rpc(request, retry=retry, timeout=timeout, metadata=metadata,)
+        response = await rpc(
+            request,
+            retry=retry,
+            timeout=timeout,
+            metadata=metadata,
+        )
 
         # Wrap the response in an operation future.
         response = operation_async.from_gapic(
@@ -930,9 +960,7 @@ class EndpointServiceAsyncClient:
         *,
         endpoint: str = None,
         deployed_model_id: str = None,
-        traffic_split: Sequence[
-            endpoint_service.UndeployModelRequest.TrafficSplitEntry
-        ] = None,
+        traffic_split: Mapping[str, int] = None,
         retry: OptionalRetry = gapic_v1.method.DEFAULT,
         timeout: float = None,
         metadata: Sequence[Tuple[str, str]] = (),
@@ -940,7 +968,6 @@ class EndpointServiceAsyncClient:
         r"""Undeploys a Model from an Endpoint, removing a
         DeployedModel from it, and freeing all resources it's
         using.
-
 
         .. code-block:: python
 
@@ -985,7 +1012,7 @@ class EndpointServiceAsyncClient:
                 This corresponds to the ``deployed_model_id`` field
                 on the ``request`` instance; if ``request`` is provided, this
                 should not be set.
-            traffic_split (:class:`Sequence[google.cloud.aiplatform_v1beta1.types.UndeployModelRequest.TrafficSplitEntry]`):
+            traffic_split (:class:`Mapping[str, int]`):
                 If this field is provided, then the Endpoint's
                 [traffic_split][google.cloud.aiplatform.v1beta1.Endpoint.traffic_split]
                 will be overwritten with it. If last DeployedModel is
@@ -1052,7 +1079,12 @@ class EndpointServiceAsyncClient:
         )
 
         # Send the request.
-        response = await rpc(request, retry=retry, timeout=timeout, metadata=metadata,)
+        response = await rpc(
+            request,
+            retry=retry,
+            timeout=timeout,
+            metadata=metadata,
+        )
 
         # Wrap the response in an operation future.
         response = operation_async.from_gapic(

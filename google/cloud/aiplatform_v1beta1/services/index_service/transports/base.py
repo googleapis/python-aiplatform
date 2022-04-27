@@ -83,6 +83,7 @@ class IndexServiceTransport(abc.ABC):
             always_use_jwt_access (Optional[bool]): Whether self signed JWT should
                 be used for service account credentials.
         """
+
         # Save the hostname. Default to port 443 (HTTPS) if none is specified.
         if ":" not in host:
             host += ":443"
@@ -124,28 +125,38 @@ class IndexServiceTransport(abc.ABC):
         # Precompute the wrapped methods.
         self._wrapped_methods = {
             self.create_index: gapic_v1.method.wrap_method(
-                self.create_index, default_timeout=5.0, client_info=client_info,
+                self.create_index,
+                default_timeout=5.0,
+                client_info=client_info,
             ),
             self.get_index: gapic_v1.method.wrap_method(
-                self.get_index, default_timeout=5.0, client_info=client_info,
+                self.get_index,
+                default_timeout=5.0,
+                client_info=client_info,
             ),
             self.list_indexes: gapic_v1.method.wrap_method(
-                self.list_indexes, default_timeout=5.0, client_info=client_info,
+                self.list_indexes,
+                default_timeout=5.0,
+                client_info=client_info,
             ),
             self.update_index: gapic_v1.method.wrap_method(
-                self.update_index, default_timeout=5.0, client_info=client_info,
+                self.update_index,
+                default_timeout=5.0,
+                client_info=client_info,
             ),
             self.delete_index: gapic_v1.method.wrap_method(
-                self.delete_index, default_timeout=5.0, client_info=client_info,
+                self.delete_index,
+                default_timeout=5.0,
+                client_info=client_info,
             ),
         }
 
     def close(self):
         """Closes resources associated with the transport.
 
-       .. warning::
-            Only call this method if the transport is NOT shared
-            with other clients - this may cause errors in other clients!
+        .. warning::
+             Only call this method if the transport is NOT shared
+             with other clients - this may cause errors in other clients!
         """
         raise NotImplementedError()
 
@@ -199,6 +210,10 @@ class IndexServiceTransport(abc.ABC):
         [index_service.DeleteIndexRequest],
         Union[operations_pb2.Operation, Awaitable[operations_pb2.Operation]],
     ]:
+        raise NotImplementedError()
+
+    @property
+    def kind(self) -> str:
         raise NotImplementedError()
 
 

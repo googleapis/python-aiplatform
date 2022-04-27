@@ -101,6 +101,7 @@ class JobServiceTransport(abc.ABC):
             always_use_jwt_access (Optional[bool]): Whether self signed JWT should
                 be used for service account credentials.
         """
+
         # Save the hostname. Default to port 443 (HTTPS) if none is specified.
         if ":" not in host:
             host += ":443"
@@ -142,19 +143,29 @@ class JobServiceTransport(abc.ABC):
         # Precompute the wrapped methods.
         self._wrapped_methods = {
             self.create_custom_job: gapic_v1.method.wrap_method(
-                self.create_custom_job, default_timeout=5.0, client_info=client_info,
+                self.create_custom_job,
+                default_timeout=5.0,
+                client_info=client_info,
             ),
             self.get_custom_job: gapic_v1.method.wrap_method(
-                self.get_custom_job, default_timeout=5.0, client_info=client_info,
+                self.get_custom_job,
+                default_timeout=5.0,
+                client_info=client_info,
             ),
             self.list_custom_jobs: gapic_v1.method.wrap_method(
-                self.list_custom_jobs, default_timeout=5.0, client_info=client_info,
+                self.list_custom_jobs,
+                default_timeout=5.0,
+                client_info=client_info,
             ),
             self.delete_custom_job: gapic_v1.method.wrap_method(
-                self.delete_custom_job, default_timeout=5.0, client_info=client_info,
+                self.delete_custom_job,
+                default_timeout=5.0,
+                client_info=client_info,
             ),
             self.cancel_custom_job: gapic_v1.method.wrap_method(
-                self.cancel_custom_job, default_timeout=5.0, client_info=client_info,
+                self.cancel_custom_job,
+                default_timeout=5.0,
+                client_info=client_info,
             ),
             self.create_data_labeling_job: gapic_v1.method.wrap_method(
                 self.create_data_labeling_job,
@@ -276,9 +287,9 @@ class JobServiceTransport(abc.ABC):
     def close(self):
         """Closes resources associated with the transport.
 
-       .. warning::
-            Only call this method if the transport is NOT shared
-            with other clients - this may cause errors in other clients!
+        .. warning::
+             Only call this method if the transport is NOT shared
+             with other clients - this may cause errors in other clients!
         """
         raise NotImplementedError()
 
@@ -581,6 +592,10 @@ class JobServiceTransport(abc.ABC):
         [job_service.ResumeModelDeploymentMonitoringJobRequest],
         Union[empty_pb2.Empty, Awaitable[empty_pb2.Empty]],
     ]:
+        raise NotImplementedError()
+
+    @property
+    def kind(self) -> str:
         raise NotImplementedError()
 
 

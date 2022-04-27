@@ -16,7 +16,7 @@
 from collections import OrderedDict
 import functools
 import re
-from typing import Dict, Optional, Sequence, Tuple, Type, Union
+from typing import Dict, Mapping, Optional, Sequence, Tuple, Type, Union
 import pkg_resources
 
 from google.api_core.client_options import ClientOptions
@@ -330,7 +330,12 @@ class PredictionServiceAsyncClient:
         )
 
         # Send the request.
-        response = await rpc(request, retry=retry, timeout=timeout, metadata=metadata,)
+        response = await rpc(
+            request,
+            retry=retry,
+            timeout=timeout,
+            metadata=metadata,
+        )
 
         # Done; return the response.
         return response
@@ -356,7 +361,6 @@ class PredictionServiceAsyncClient:
         -  ``X-Vertex-AI-Deployed-Model-Id``: ID of the Endpoint's
            [DeployedModel][google.cloud.aiplatform.v1.DeployedModel]
            that served this prediction.
-
 
         .. code-block:: python
 
@@ -505,7 +509,12 @@ class PredictionServiceAsyncClient:
         )
 
         # Send the request.
-        response = await rpc(request, retry=retry, timeout=timeout, metadata=metadata,)
+        response = await rpc(
+            request,
+            retry=retry,
+            timeout=timeout,
+            metadata=metadata,
+        )
 
         # Done; return the response.
         return response
@@ -534,7 +543,6 @@ class PredictionServiceAsyncClient:
         [explanation_spec][google.cloud.aiplatform.v1.DeployedModel.explanation_spec]
         populated. Only deployed AutoML tabular Models have
         explanation_spec.
-
 
         .. code-block:: python
 
@@ -656,7 +664,12 @@ class PredictionServiceAsyncClient:
         )
 
         # Send the request.
-        response = await rpc(request, retry=retry, timeout=timeout, metadata=metadata,)
+        response = await rpc(
+            request,
+            retry=retry,
+            timeout=timeout,
+            metadata=metadata,
+        )
 
         # Done; return the response.
         return response

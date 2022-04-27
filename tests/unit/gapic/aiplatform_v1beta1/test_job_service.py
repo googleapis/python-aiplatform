@@ -126,19 +126,25 @@ def test__get_default_mtls_endpoint():
     assert JobServiceClient._get_default_mtls_endpoint(non_googleapi) == non_googleapi
 
 
-@pytest.mark.parametrize("client_class", [JobServiceClient, JobServiceAsyncClient,])
-def test_job_service_client_from_service_account_info(client_class):
+@pytest.mark.parametrize(
+    "client_class,transport_name",
+    [
+        (JobServiceClient, "grpc"),
+        (JobServiceAsyncClient, "grpc_asyncio"),
+    ],
+)
+def test_job_service_client_from_service_account_info(client_class, transport_name):
     creds = ga_credentials.AnonymousCredentials()
     with mock.patch.object(
         service_account.Credentials, "from_service_account_info"
     ) as factory:
         factory.return_value = creds
         info = {"valid": True}
-        client = client_class.from_service_account_info(info)
+        client = client_class.from_service_account_info(info, transport=transport_name)
         assert client.transport._credentials == creds
         assert isinstance(client, client_class)
 
-        assert client.transport._host == "aiplatform.googleapis.com:443"
+        assert client.transport._host == ("aiplatform.googleapis.com:443")
 
 
 @pytest.mark.parametrize(
@@ -166,22 +172,32 @@ def test_job_service_client_service_account_always_use_jwt(
         use_jwt.assert_not_called()
 
 
-@pytest.mark.parametrize("client_class", [JobServiceClient, JobServiceAsyncClient,])
-def test_job_service_client_from_service_account_file(client_class):
+@pytest.mark.parametrize(
+    "client_class,transport_name",
+    [
+        (JobServiceClient, "grpc"),
+        (JobServiceAsyncClient, "grpc_asyncio"),
+    ],
+)
+def test_job_service_client_from_service_account_file(client_class, transport_name):
     creds = ga_credentials.AnonymousCredentials()
     with mock.patch.object(
         service_account.Credentials, "from_service_account_file"
     ) as factory:
         factory.return_value = creds
-        client = client_class.from_service_account_file("dummy/file/path.json")
+        client = client_class.from_service_account_file(
+            "dummy/file/path.json", transport=transport_name
+        )
         assert client.transport._credentials == creds
         assert isinstance(client, client_class)
 
-        client = client_class.from_service_account_json("dummy/file/path.json")
+        client = client_class.from_service_account_json(
+            "dummy/file/path.json", transport=transport_name
+        )
         assert client.transport._credentials == creds
         assert isinstance(client, client_class)
 
-        assert client.transport._host == "aiplatform.googleapis.com:443"
+        assert client.transport._host == ("aiplatform.googleapis.com:443")
 
 
 def test_job_service_client_get_transport_class():
@@ -521,7 +537,9 @@ def test_job_service_client_client_options_scopes(
     client_class, transport_class, transport_name
 ):
     # Check the case scopes are provided.
-    options = client_options.ClientOptions(scopes=["1", "2"],)
+    options = client_options.ClientOptions(
+        scopes=["1", "2"],
+    )
     with mock.patch.object(transport_class, "__init__") as patched:
         patched.return_value = None
         client = client_class(client_options=options, transport=transport_name)
@@ -649,10 +667,17 @@ def test_job_service_client_create_channel_credentials_file(
         )
 
 
-@pytest.mark.parametrize("request_type", [job_service.CreateCustomJobRequest, dict,])
+@pytest.mark.parametrize(
+    "request_type",
+    [
+        job_service.CreateCustomJobRequest,
+        dict,
+    ],
+)
 def test_create_custom_job(request_type, transport: str = "grpc"):
     client = JobServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(), transport=transport,
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport=transport,
     )
 
     # Everything is optional in proto3 as far as the runtime is concerned,
@@ -687,7 +712,8 @@ def test_create_custom_job_empty_call():
     # This test is a coverage failsafe to make sure that totally empty calls,
     # i.e. request == None and no flattened fields passed, work.
     client = JobServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(), transport="grpc",
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="grpc",
     )
 
     # Mock the actual call within the gRPC stub, and fake the request.
@@ -705,7 +731,8 @@ async def test_create_custom_job_async(
     transport: str = "grpc_asyncio", request_type=job_service.CreateCustomJobRequest
 ):
     client = JobServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(), transport=transport,
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport=transport,
     )
 
     # Everything is optional in proto3 as far as the runtime is concerned,
@@ -744,7 +771,9 @@ async def test_create_custom_job_async_from_dict():
 
 
 def test_create_custom_job_field_headers():
-    client = JobServiceClient(credentials=ga_credentials.AnonymousCredentials(),)
+    client = JobServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+    )
 
     # Any value that is part of the HTTP/1.1 URI should be sent as
     # a field header. Set these to a non-empty value.
@@ -766,12 +795,17 @@ def test_create_custom_job_field_headers():
 
     # Establish that the field header was sent.
     _, _, kw = call.mock_calls[0]
-    assert ("x-goog-request-params", "parent=parent/value",) in kw["metadata"]
+    assert (
+        "x-goog-request-params",
+        "parent=parent/value",
+    ) in kw["metadata"]
 
 
 @pytest.mark.asyncio
 async def test_create_custom_job_field_headers_async():
-    client = JobServiceAsyncClient(credentials=ga_credentials.AnonymousCredentials(),)
+    client = JobServiceAsyncClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+    )
 
     # Any value that is part of the HTTP/1.1 URI should be sent as
     # a field header. Set these to a non-empty value.
@@ -795,11 +829,16 @@ async def test_create_custom_job_field_headers_async():
 
     # Establish that the field header was sent.
     _, _, kw = call.mock_calls[0]
-    assert ("x-goog-request-params", "parent=parent/value",) in kw["metadata"]
+    assert (
+        "x-goog-request-params",
+        "parent=parent/value",
+    ) in kw["metadata"]
 
 
 def test_create_custom_job_flattened():
-    client = JobServiceClient(credentials=ga_credentials.AnonymousCredentials(),)
+    client = JobServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+    )
 
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(
@@ -827,7 +866,9 @@ def test_create_custom_job_flattened():
 
 
 def test_create_custom_job_flattened_error():
-    client = JobServiceClient(credentials=ga_credentials.AnonymousCredentials(),)
+    client = JobServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+    )
 
     # Attempting to call a method with both a request object and flattened
     # fields is an error.
@@ -841,7 +882,9 @@ def test_create_custom_job_flattened_error():
 
 @pytest.mark.asyncio
 async def test_create_custom_job_flattened_async():
-    client = JobServiceAsyncClient(credentials=ga_credentials.AnonymousCredentials(),)
+    client = JobServiceAsyncClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+    )
 
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(
@@ -874,7 +917,9 @@ async def test_create_custom_job_flattened_async():
 
 @pytest.mark.asyncio
 async def test_create_custom_job_flattened_error_async():
-    client = JobServiceAsyncClient(credentials=ga_credentials.AnonymousCredentials(),)
+    client = JobServiceAsyncClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+    )
 
     # Attempting to call a method with both a request object and flattened
     # fields is an error.
@@ -886,10 +931,17 @@ async def test_create_custom_job_flattened_error_async():
         )
 
 
-@pytest.mark.parametrize("request_type", [job_service.GetCustomJobRequest, dict,])
+@pytest.mark.parametrize(
+    "request_type",
+    [
+        job_service.GetCustomJobRequest,
+        dict,
+    ],
+)
 def test_get_custom_job(request_type, transport: str = "grpc"):
     client = JobServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(), transport=transport,
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport=transport,
     )
 
     # Everything is optional in proto3 as far as the runtime is concerned,
@@ -922,7 +974,8 @@ def test_get_custom_job_empty_call():
     # This test is a coverage failsafe to make sure that totally empty calls,
     # i.e. request == None and no flattened fields passed, work.
     client = JobServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(), transport="grpc",
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="grpc",
     )
 
     # Mock the actual call within the gRPC stub, and fake the request.
@@ -938,7 +991,8 @@ async def test_get_custom_job_async(
     transport: str = "grpc_asyncio", request_type=job_service.GetCustomJobRequest
 ):
     client = JobServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(), transport=transport,
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport=transport,
     )
 
     # Everything is optional in proto3 as far as the runtime is concerned,
@@ -975,7 +1029,9 @@ async def test_get_custom_job_async_from_dict():
 
 
 def test_get_custom_job_field_headers():
-    client = JobServiceClient(credentials=ga_credentials.AnonymousCredentials(),)
+    client = JobServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+    )
 
     # Any value that is part of the HTTP/1.1 URI should be sent as
     # a field header. Set these to a non-empty value.
@@ -995,12 +1051,17 @@ def test_get_custom_job_field_headers():
 
     # Establish that the field header was sent.
     _, _, kw = call.mock_calls[0]
-    assert ("x-goog-request-params", "name=name/value",) in kw["metadata"]
+    assert (
+        "x-goog-request-params",
+        "name=name/value",
+    ) in kw["metadata"]
 
 
 @pytest.mark.asyncio
 async def test_get_custom_job_field_headers_async():
-    client = JobServiceAsyncClient(credentials=ga_credentials.AnonymousCredentials(),)
+    client = JobServiceAsyncClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+    )
 
     # Any value that is part of the HTTP/1.1 URI should be sent as
     # a field header. Set these to a non-empty value.
@@ -1022,11 +1083,16 @@ async def test_get_custom_job_field_headers_async():
 
     # Establish that the field header was sent.
     _, _, kw = call.mock_calls[0]
-    assert ("x-goog-request-params", "name=name/value",) in kw["metadata"]
+    assert (
+        "x-goog-request-params",
+        "name=name/value",
+    ) in kw["metadata"]
 
 
 def test_get_custom_job_flattened():
-    client = JobServiceClient(credentials=ga_credentials.AnonymousCredentials(),)
+    client = JobServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+    )
 
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(type(client.transport.get_custom_job), "__call__") as call:
@@ -1034,7 +1100,9 @@ def test_get_custom_job_flattened():
         call.return_value = custom_job.CustomJob()
         # Call the method with a truthy value for each flattened field,
         # using the keyword arguments to the method.
-        client.get_custom_job(name="name_value",)
+        client.get_custom_job(
+            name="name_value",
+        )
 
         # Establish that the underlying call was made with the expected
         # request object values.
@@ -1046,19 +1114,24 @@ def test_get_custom_job_flattened():
 
 
 def test_get_custom_job_flattened_error():
-    client = JobServiceClient(credentials=ga_credentials.AnonymousCredentials(),)
+    client = JobServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+    )
 
     # Attempting to call a method with both a request object and flattened
     # fields is an error.
     with pytest.raises(ValueError):
         client.get_custom_job(
-            job_service.GetCustomJobRequest(), name="name_value",
+            job_service.GetCustomJobRequest(),
+            name="name_value",
         )
 
 
 @pytest.mark.asyncio
 async def test_get_custom_job_flattened_async():
-    client = JobServiceAsyncClient(credentials=ga_credentials.AnonymousCredentials(),)
+    client = JobServiceAsyncClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+    )
 
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(type(client.transport.get_custom_job), "__call__") as call:
@@ -1070,7 +1143,9 @@ async def test_get_custom_job_flattened_async():
         )
         # Call the method with a truthy value for each flattened field,
         # using the keyword arguments to the method.
-        response = await client.get_custom_job(name="name_value",)
+        response = await client.get_custom_job(
+            name="name_value",
+        )
 
         # Establish that the underlying call was made with the expected
         # request object values.
@@ -1083,20 +1158,30 @@ async def test_get_custom_job_flattened_async():
 
 @pytest.mark.asyncio
 async def test_get_custom_job_flattened_error_async():
-    client = JobServiceAsyncClient(credentials=ga_credentials.AnonymousCredentials(),)
+    client = JobServiceAsyncClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+    )
 
     # Attempting to call a method with both a request object and flattened
     # fields is an error.
     with pytest.raises(ValueError):
         await client.get_custom_job(
-            job_service.GetCustomJobRequest(), name="name_value",
+            job_service.GetCustomJobRequest(),
+            name="name_value",
         )
 
 
-@pytest.mark.parametrize("request_type", [job_service.ListCustomJobsRequest, dict,])
+@pytest.mark.parametrize(
+    "request_type",
+    [
+        job_service.ListCustomJobsRequest,
+        dict,
+    ],
+)
 def test_list_custom_jobs(request_type, transport: str = "grpc"):
     client = JobServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(), transport=transport,
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport=transport,
     )
 
     # Everything is optional in proto3 as far as the runtime is concerned,
@@ -1125,7 +1210,8 @@ def test_list_custom_jobs_empty_call():
     # This test is a coverage failsafe to make sure that totally empty calls,
     # i.e. request == None and no flattened fields passed, work.
     client = JobServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(), transport="grpc",
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="grpc",
     )
 
     # Mock the actual call within the gRPC stub, and fake the request.
@@ -1141,7 +1227,8 @@ async def test_list_custom_jobs_async(
     transport: str = "grpc_asyncio", request_type=job_service.ListCustomJobsRequest
 ):
     client = JobServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(), transport=transport,
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport=transport,
     )
 
     # Everything is optional in proto3 as far as the runtime is concerned,
@@ -1152,7 +1239,9 @@ async def test_list_custom_jobs_async(
     with mock.patch.object(type(client.transport.list_custom_jobs), "__call__") as call:
         # Designate an appropriate return value for the call.
         call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(
-            job_service.ListCustomJobsResponse(next_page_token="next_page_token_value",)
+            job_service.ListCustomJobsResponse(
+                next_page_token="next_page_token_value",
+            )
         )
         response = await client.list_custom_jobs(request)
 
@@ -1172,7 +1261,9 @@ async def test_list_custom_jobs_async_from_dict():
 
 
 def test_list_custom_jobs_field_headers():
-    client = JobServiceClient(credentials=ga_credentials.AnonymousCredentials(),)
+    client = JobServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+    )
 
     # Any value that is part of the HTTP/1.1 URI should be sent as
     # a field header. Set these to a non-empty value.
@@ -1192,12 +1283,17 @@ def test_list_custom_jobs_field_headers():
 
     # Establish that the field header was sent.
     _, _, kw = call.mock_calls[0]
-    assert ("x-goog-request-params", "parent=parent/value",) in kw["metadata"]
+    assert (
+        "x-goog-request-params",
+        "parent=parent/value",
+    ) in kw["metadata"]
 
 
 @pytest.mark.asyncio
 async def test_list_custom_jobs_field_headers_async():
-    client = JobServiceAsyncClient(credentials=ga_credentials.AnonymousCredentials(),)
+    client = JobServiceAsyncClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+    )
 
     # Any value that is part of the HTTP/1.1 URI should be sent as
     # a field header. Set these to a non-empty value.
@@ -1219,11 +1315,16 @@ async def test_list_custom_jobs_field_headers_async():
 
     # Establish that the field header was sent.
     _, _, kw = call.mock_calls[0]
-    assert ("x-goog-request-params", "parent=parent/value",) in kw["metadata"]
+    assert (
+        "x-goog-request-params",
+        "parent=parent/value",
+    ) in kw["metadata"]
 
 
 def test_list_custom_jobs_flattened():
-    client = JobServiceClient(credentials=ga_credentials.AnonymousCredentials(),)
+    client = JobServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+    )
 
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(type(client.transport.list_custom_jobs), "__call__") as call:
@@ -1231,7 +1332,9 @@ def test_list_custom_jobs_flattened():
         call.return_value = job_service.ListCustomJobsResponse()
         # Call the method with a truthy value for each flattened field,
         # using the keyword arguments to the method.
-        client.list_custom_jobs(parent="parent_value",)
+        client.list_custom_jobs(
+            parent="parent_value",
+        )
 
         # Establish that the underlying call was made with the expected
         # request object values.
@@ -1243,19 +1346,24 @@ def test_list_custom_jobs_flattened():
 
 
 def test_list_custom_jobs_flattened_error():
-    client = JobServiceClient(credentials=ga_credentials.AnonymousCredentials(),)
+    client = JobServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+    )
 
     # Attempting to call a method with both a request object and flattened
     # fields is an error.
     with pytest.raises(ValueError):
         client.list_custom_jobs(
-            job_service.ListCustomJobsRequest(), parent="parent_value",
+            job_service.ListCustomJobsRequest(),
+            parent="parent_value",
         )
 
 
 @pytest.mark.asyncio
 async def test_list_custom_jobs_flattened_async():
-    client = JobServiceAsyncClient(credentials=ga_credentials.AnonymousCredentials(),)
+    client = JobServiceAsyncClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+    )
 
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(type(client.transport.list_custom_jobs), "__call__") as call:
@@ -1267,7 +1375,9 @@ async def test_list_custom_jobs_flattened_async():
         )
         # Call the method with a truthy value for each flattened field,
         # using the keyword arguments to the method.
-        response = await client.list_custom_jobs(parent="parent_value",)
+        response = await client.list_custom_jobs(
+            parent="parent_value",
+        )
 
         # Establish that the underlying call was made with the expected
         # request object values.
@@ -1280,19 +1390,23 @@ async def test_list_custom_jobs_flattened_async():
 
 @pytest.mark.asyncio
 async def test_list_custom_jobs_flattened_error_async():
-    client = JobServiceAsyncClient(credentials=ga_credentials.AnonymousCredentials(),)
+    client = JobServiceAsyncClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+    )
 
     # Attempting to call a method with both a request object and flattened
     # fields is an error.
     with pytest.raises(ValueError):
         await client.list_custom_jobs(
-            job_service.ListCustomJobsRequest(), parent="parent_value",
+            job_service.ListCustomJobsRequest(),
+            parent="parent_value",
         )
 
 
 def test_list_custom_jobs_pager(transport_name: str = "grpc"):
     client = JobServiceClient(
-        credentials=ga_credentials.AnonymousCredentials, transport=transport_name,
+        credentials=ga_credentials.AnonymousCredentials,
+        transport=transport_name,
     )
 
     # Mock the actual call within the gRPC stub, and fake the request.
@@ -1307,12 +1421,21 @@ def test_list_custom_jobs_pager(transport_name: str = "grpc"):
                 ],
                 next_page_token="abc",
             ),
-            job_service.ListCustomJobsResponse(custom_jobs=[], next_page_token="def",),
             job_service.ListCustomJobsResponse(
-                custom_jobs=[custom_job.CustomJob(),], next_page_token="ghi",
+                custom_jobs=[],
+                next_page_token="def",
             ),
             job_service.ListCustomJobsResponse(
-                custom_jobs=[custom_job.CustomJob(), custom_job.CustomJob(),],
+                custom_jobs=[
+                    custom_job.CustomJob(),
+                ],
+                next_page_token="ghi",
+            ),
+            job_service.ListCustomJobsResponse(
+                custom_jobs=[
+                    custom_job.CustomJob(),
+                    custom_job.CustomJob(),
+                ],
             ),
             RuntimeError,
         )
@@ -1332,7 +1455,8 @@ def test_list_custom_jobs_pager(transport_name: str = "grpc"):
 
 def test_list_custom_jobs_pages(transport_name: str = "grpc"):
     client = JobServiceClient(
-        credentials=ga_credentials.AnonymousCredentials, transport=transport_name,
+        credentials=ga_credentials.AnonymousCredentials,
+        transport=transport_name,
     )
 
     # Mock the actual call within the gRPC stub, and fake the request.
@@ -1347,12 +1471,21 @@ def test_list_custom_jobs_pages(transport_name: str = "grpc"):
                 ],
                 next_page_token="abc",
             ),
-            job_service.ListCustomJobsResponse(custom_jobs=[], next_page_token="def",),
             job_service.ListCustomJobsResponse(
-                custom_jobs=[custom_job.CustomJob(),], next_page_token="ghi",
+                custom_jobs=[],
+                next_page_token="def",
             ),
             job_service.ListCustomJobsResponse(
-                custom_jobs=[custom_job.CustomJob(), custom_job.CustomJob(),],
+                custom_jobs=[
+                    custom_job.CustomJob(),
+                ],
+                next_page_token="ghi",
+            ),
+            job_service.ListCustomJobsResponse(
+                custom_jobs=[
+                    custom_job.CustomJob(),
+                    custom_job.CustomJob(),
+                ],
             ),
             RuntimeError,
         )
@@ -1363,7 +1496,9 @@ def test_list_custom_jobs_pages(transport_name: str = "grpc"):
 
 @pytest.mark.asyncio
 async def test_list_custom_jobs_async_pager():
-    client = JobServiceAsyncClient(credentials=ga_credentials.AnonymousCredentials,)
+    client = JobServiceAsyncClient(
+        credentials=ga_credentials.AnonymousCredentials,
+    )
 
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(
@@ -1379,19 +1514,30 @@ async def test_list_custom_jobs_async_pager():
                 ],
                 next_page_token="abc",
             ),
-            job_service.ListCustomJobsResponse(custom_jobs=[], next_page_token="def",),
             job_service.ListCustomJobsResponse(
-                custom_jobs=[custom_job.CustomJob(),], next_page_token="ghi",
+                custom_jobs=[],
+                next_page_token="def",
             ),
             job_service.ListCustomJobsResponse(
-                custom_jobs=[custom_job.CustomJob(), custom_job.CustomJob(),],
+                custom_jobs=[
+                    custom_job.CustomJob(),
+                ],
+                next_page_token="ghi",
+            ),
+            job_service.ListCustomJobsResponse(
+                custom_jobs=[
+                    custom_job.CustomJob(),
+                    custom_job.CustomJob(),
+                ],
             ),
             RuntimeError,
         )
-        async_pager = await client.list_custom_jobs(request={},)
+        async_pager = await client.list_custom_jobs(
+            request={},
+        )
         assert async_pager.next_page_token == "abc"
         responses = []
-        async for response in async_pager:
+        async for response in async_pager:  # pragma: no branch
             responses.append(response)
 
         assert len(responses) == 6
@@ -1400,7 +1546,9 @@ async def test_list_custom_jobs_async_pager():
 
 @pytest.mark.asyncio
 async def test_list_custom_jobs_async_pages():
-    client = JobServiceAsyncClient(credentials=ga_credentials.AnonymousCredentials,)
+    client = JobServiceAsyncClient(
+        credentials=ga_credentials.AnonymousCredentials,
+    )
 
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(
@@ -1416,26 +1564,44 @@ async def test_list_custom_jobs_async_pages():
                 ],
                 next_page_token="abc",
             ),
-            job_service.ListCustomJobsResponse(custom_jobs=[], next_page_token="def",),
             job_service.ListCustomJobsResponse(
-                custom_jobs=[custom_job.CustomJob(),], next_page_token="ghi",
+                custom_jobs=[],
+                next_page_token="def",
             ),
             job_service.ListCustomJobsResponse(
-                custom_jobs=[custom_job.CustomJob(), custom_job.CustomJob(),],
+                custom_jobs=[
+                    custom_job.CustomJob(),
+                ],
+                next_page_token="ghi",
+            ),
+            job_service.ListCustomJobsResponse(
+                custom_jobs=[
+                    custom_job.CustomJob(),
+                    custom_job.CustomJob(),
+                ],
             ),
             RuntimeError,
         )
         pages = []
-        async for page_ in (await client.list_custom_jobs(request={})).pages:
+        async for page_ in (
+            await client.list_custom_jobs(request={})
+        ).pages:  # pragma: no branch
             pages.append(page_)
         for page_, token in zip(pages, ["abc", "def", "ghi", ""]):
             assert page_.raw_page.next_page_token == token
 
 
-@pytest.mark.parametrize("request_type", [job_service.DeleteCustomJobRequest, dict,])
+@pytest.mark.parametrize(
+    "request_type",
+    [
+        job_service.DeleteCustomJobRequest,
+        dict,
+    ],
+)
 def test_delete_custom_job(request_type, transport: str = "grpc"):
     client = JobServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(), transport=transport,
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport=transport,
     )
 
     # Everything is optional in proto3 as far as the runtime is concerned,
@@ -1463,7 +1629,8 @@ def test_delete_custom_job_empty_call():
     # This test is a coverage failsafe to make sure that totally empty calls,
     # i.e. request == None and no flattened fields passed, work.
     client = JobServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(), transport="grpc",
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="grpc",
     )
 
     # Mock the actual call within the gRPC stub, and fake the request.
@@ -1481,7 +1648,8 @@ async def test_delete_custom_job_async(
     transport: str = "grpc_asyncio", request_type=job_service.DeleteCustomJobRequest
 ):
     client = JobServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(), transport=transport,
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport=transport,
     )
 
     # Everything is optional in proto3 as far as the runtime is concerned,
@@ -1513,7 +1681,9 @@ async def test_delete_custom_job_async_from_dict():
 
 
 def test_delete_custom_job_field_headers():
-    client = JobServiceClient(credentials=ga_credentials.AnonymousCredentials(),)
+    client = JobServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+    )
 
     # Any value that is part of the HTTP/1.1 URI should be sent as
     # a field header. Set these to a non-empty value.
@@ -1535,12 +1705,17 @@ def test_delete_custom_job_field_headers():
 
     # Establish that the field header was sent.
     _, _, kw = call.mock_calls[0]
-    assert ("x-goog-request-params", "name=name/value",) in kw["metadata"]
+    assert (
+        "x-goog-request-params",
+        "name=name/value",
+    ) in kw["metadata"]
 
 
 @pytest.mark.asyncio
 async def test_delete_custom_job_field_headers_async():
-    client = JobServiceAsyncClient(credentials=ga_credentials.AnonymousCredentials(),)
+    client = JobServiceAsyncClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+    )
 
     # Any value that is part of the HTTP/1.1 URI should be sent as
     # a field header. Set these to a non-empty value.
@@ -1564,11 +1739,16 @@ async def test_delete_custom_job_field_headers_async():
 
     # Establish that the field header was sent.
     _, _, kw = call.mock_calls[0]
-    assert ("x-goog-request-params", "name=name/value",) in kw["metadata"]
+    assert (
+        "x-goog-request-params",
+        "name=name/value",
+    ) in kw["metadata"]
 
 
 def test_delete_custom_job_flattened():
-    client = JobServiceClient(credentials=ga_credentials.AnonymousCredentials(),)
+    client = JobServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+    )
 
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(
@@ -1578,7 +1758,9 @@ def test_delete_custom_job_flattened():
         call.return_value = operations_pb2.Operation(name="operations/op")
         # Call the method with a truthy value for each flattened field,
         # using the keyword arguments to the method.
-        client.delete_custom_job(name="name_value",)
+        client.delete_custom_job(
+            name="name_value",
+        )
 
         # Establish that the underlying call was made with the expected
         # request object values.
@@ -1590,19 +1772,24 @@ def test_delete_custom_job_flattened():
 
 
 def test_delete_custom_job_flattened_error():
-    client = JobServiceClient(credentials=ga_credentials.AnonymousCredentials(),)
+    client = JobServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+    )
 
     # Attempting to call a method with both a request object and flattened
     # fields is an error.
     with pytest.raises(ValueError):
         client.delete_custom_job(
-            job_service.DeleteCustomJobRequest(), name="name_value",
+            job_service.DeleteCustomJobRequest(),
+            name="name_value",
         )
 
 
 @pytest.mark.asyncio
 async def test_delete_custom_job_flattened_async():
-    client = JobServiceAsyncClient(credentials=ga_credentials.AnonymousCredentials(),)
+    client = JobServiceAsyncClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+    )
 
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(
@@ -1616,7 +1803,9 @@ async def test_delete_custom_job_flattened_async():
         )
         # Call the method with a truthy value for each flattened field,
         # using the keyword arguments to the method.
-        response = await client.delete_custom_job(name="name_value",)
+        response = await client.delete_custom_job(
+            name="name_value",
+        )
 
         # Establish that the underlying call was made with the expected
         # request object values.
@@ -1629,20 +1818,30 @@ async def test_delete_custom_job_flattened_async():
 
 @pytest.mark.asyncio
 async def test_delete_custom_job_flattened_error_async():
-    client = JobServiceAsyncClient(credentials=ga_credentials.AnonymousCredentials(),)
+    client = JobServiceAsyncClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+    )
 
     # Attempting to call a method with both a request object and flattened
     # fields is an error.
     with pytest.raises(ValueError):
         await client.delete_custom_job(
-            job_service.DeleteCustomJobRequest(), name="name_value",
+            job_service.DeleteCustomJobRequest(),
+            name="name_value",
         )
 
 
-@pytest.mark.parametrize("request_type", [job_service.CancelCustomJobRequest, dict,])
+@pytest.mark.parametrize(
+    "request_type",
+    [
+        job_service.CancelCustomJobRequest,
+        dict,
+    ],
+)
 def test_cancel_custom_job(request_type, transport: str = "grpc"):
     client = JobServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(), transport=transport,
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport=transport,
     )
 
     # Everything is optional in proto3 as far as the runtime is concerned,
@@ -1670,7 +1869,8 @@ def test_cancel_custom_job_empty_call():
     # This test is a coverage failsafe to make sure that totally empty calls,
     # i.e. request == None and no flattened fields passed, work.
     client = JobServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(), transport="grpc",
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="grpc",
     )
 
     # Mock the actual call within the gRPC stub, and fake the request.
@@ -1688,7 +1888,8 @@ async def test_cancel_custom_job_async(
     transport: str = "grpc_asyncio", request_type=job_service.CancelCustomJobRequest
 ):
     client = JobServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(), transport=transport,
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport=transport,
     )
 
     # Everything is optional in proto3 as far as the runtime is concerned,
@@ -1718,7 +1919,9 @@ async def test_cancel_custom_job_async_from_dict():
 
 
 def test_cancel_custom_job_field_headers():
-    client = JobServiceClient(credentials=ga_credentials.AnonymousCredentials(),)
+    client = JobServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+    )
 
     # Any value that is part of the HTTP/1.1 URI should be sent as
     # a field header. Set these to a non-empty value.
@@ -1740,12 +1943,17 @@ def test_cancel_custom_job_field_headers():
 
     # Establish that the field header was sent.
     _, _, kw = call.mock_calls[0]
-    assert ("x-goog-request-params", "name=name/value",) in kw["metadata"]
+    assert (
+        "x-goog-request-params",
+        "name=name/value",
+    ) in kw["metadata"]
 
 
 @pytest.mark.asyncio
 async def test_cancel_custom_job_field_headers_async():
-    client = JobServiceAsyncClient(credentials=ga_credentials.AnonymousCredentials(),)
+    client = JobServiceAsyncClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+    )
 
     # Any value that is part of the HTTP/1.1 URI should be sent as
     # a field header. Set these to a non-empty value.
@@ -1767,11 +1975,16 @@ async def test_cancel_custom_job_field_headers_async():
 
     # Establish that the field header was sent.
     _, _, kw = call.mock_calls[0]
-    assert ("x-goog-request-params", "name=name/value",) in kw["metadata"]
+    assert (
+        "x-goog-request-params",
+        "name=name/value",
+    ) in kw["metadata"]
 
 
 def test_cancel_custom_job_flattened():
-    client = JobServiceClient(credentials=ga_credentials.AnonymousCredentials(),)
+    client = JobServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+    )
 
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(
@@ -1781,7 +1994,9 @@ def test_cancel_custom_job_flattened():
         call.return_value = None
         # Call the method with a truthy value for each flattened field,
         # using the keyword arguments to the method.
-        client.cancel_custom_job(name="name_value",)
+        client.cancel_custom_job(
+            name="name_value",
+        )
 
         # Establish that the underlying call was made with the expected
         # request object values.
@@ -1793,19 +2008,24 @@ def test_cancel_custom_job_flattened():
 
 
 def test_cancel_custom_job_flattened_error():
-    client = JobServiceClient(credentials=ga_credentials.AnonymousCredentials(),)
+    client = JobServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+    )
 
     # Attempting to call a method with both a request object and flattened
     # fields is an error.
     with pytest.raises(ValueError):
         client.cancel_custom_job(
-            job_service.CancelCustomJobRequest(), name="name_value",
+            job_service.CancelCustomJobRequest(),
+            name="name_value",
         )
 
 
 @pytest.mark.asyncio
 async def test_cancel_custom_job_flattened_async():
-    client = JobServiceAsyncClient(credentials=ga_credentials.AnonymousCredentials(),)
+    client = JobServiceAsyncClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+    )
 
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(
@@ -1817,7 +2037,9 @@ async def test_cancel_custom_job_flattened_async():
         call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(None)
         # Call the method with a truthy value for each flattened field,
         # using the keyword arguments to the method.
-        response = await client.cancel_custom_job(name="name_value",)
+        response = await client.cancel_custom_job(
+            name="name_value",
+        )
 
         # Establish that the underlying call was made with the expected
         # request object values.
@@ -1830,22 +2052,30 @@ async def test_cancel_custom_job_flattened_async():
 
 @pytest.mark.asyncio
 async def test_cancel_custom_job_flattened_error_async():
-    client = JobServiceAsyncClient(credentials=ga_credentials.AnonymousCredentials(),)
+    client = JobServiceAsyncClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+    )
 
     # Attempting to call a method with both a request object and flattened
     # fields is an error.
     with pytest.raises(ValueError):
         await client.cancel_custom_job(
-            job_service.CancelCustomJobRequest(), name="name_value",
+            job_service.CancelCustomJobRequest(),
+            name="name_value",
         )
 
 
 @pytest.mark.parametrize(
-    "request_type", [job_service.CreateDataLabelingJobRequest, dict,]
+    "request_type",
+    [
+        job_service.CreateDataLabelingJobRequest,
+        dict,
+    ],
 )
 def test_create_data_labeling_job(request_type, transport: str = "grpc"):
     client = JobServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(), transport=transport,
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport=transport,
     )
 
     # Everything is optional in proto3 as far as the runtime is concerned,
@@ -1892,7 +2122,8 @@ def test_create_data_labeling_job_empty_call():
     # This test is a coverage failsafe to make sure that totally empty calls,
     # i.e. request == None and no flattened fields passed, work.
     client = JobServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(), transport="grpc",
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="grpc",
     )
 
     # Mock the actual call within the gRPC stub, and fake the request.
@@ -1911,7 +2142,8 @@ async def test_create_data_labeling_job_async(
     request_type=job_service.CreateDataLabelingJobRequest,
 ):
     client = JobServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(), transport=transport,
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport=transport,
     )
 
     # Everything is optional in proto3 as far as the runtime is concerned,
@@ -1962,7 +2194,9 @@ async def test_create_data_labeling_job_async_from_dict():
 
 
 def test_create_data_labeling_job_field_headers():
-    client = JobServiceClient(credentials=ga_credentials.AnonymousCredentials(),)
+    client = JobServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+    )
 
     # Any value that is part of the HTTP/1.1 URI should be sent as
     # a field header. Set these to a non-empty value.
@@ -1984,12 +2218,17 @@ def test_create_data_labeling_job_field_headers():
 
     # Establish that the field header was sent.
     _, _, kw = call.mock_calls[0]
-    assert ("x-goog-request-params", "parent=parent/value",) in kw["metadata"]
+    assert (
+        "x-goog-request-params",
+        "parent=parent/value",
+    ) in kw["metadata"]
 
 
 @pytest.mark.asyncio
 async def test_create_data_labeling_job_field_headers_async():
-    client = JobServiceAsyncClient(credentials=ga_credentials.AnonymousCredentials(),)
+    client = JobServiceAsyncClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+    )
 
     # Any value that is part of the HTTP/1.1 URI should be sent as
     # a field header. Set these to a non-empty value.
@@ -2013,11 +2252,16 @@ async def test_create_data_labeling_job_field_headers_async():
 
     # Establish that the field header was sent.
     _, _, kw = call.mock_calls[0]
-    assert ("x-goog-request-params", "parent=parent/value",) in kw["metadata"]
+    assert (
+        "x-goog-request-params",
+        "parent=parent/value",
+    ) in kw["metadata"]
 
 
 def test_create_data_labeling_job_flattened():
-    client = JobServiceClient(credentials=ga_credentials.AnonymousCredentials(),)
+    client = JobServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+    )
 
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(
@@ -2045,7 +2289,9 @@ def test_create_data_labeling_job_flattened():
 
 
 def test_create_data_labeling_job_flattened_error():
-    client = JobServiceClient(credentials=ga_credentials.AnonymousCredentials(),)
+    client = JobServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+    )
 
     # Attempting to call a method with both a request object and flattened
     # fields is an error.
@@ -2059,7 +2305,9 @@ def test_create_data_labeling_job_flattened_error():
 
 @pytest.mark.asyncio
 async def test_create_data_labeling_job_flattened_async():
-    client = JobServiceAsyncClient(credentials=ga_credentials.AnonymousCredentials(),)
+    client = JobServiceAsyncClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+    )
 
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(
@@ -2092,7 +2340,9 @@ async def test_create_data_labeling_job_flattened_async():
 
 @pytest.mark.asyncio
 async def test_create_data_labeling_job_flattened_error_async():
-    client = JobServiceAsyncClient(credentials=ga_credentials.AnonymousCredentials(),)
+    client = JobServiceAsyncClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+    )
 
     # Attempting to call a method with both a request object and flattened
     # fields is an error.
@@ -2104,10 +2354,17 @@ async def test_create_data_labeling_job_flattened_error_async():
         )
 
 
-@pytest.mark.parametrize("request_type", [job_service.GetDataLabelingJobRequest, dict,])
+@pytest.mark.parametrize(
+    "request_type",
+    [
+        job_service.GetDataLabelingJobRequest,
+        dict,
+    ],
+)
 def test_get_data_labeling_job(request_type, transport: str = "grpc"):
     client = JobServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(), transport=transport,
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport=transport,
     )
 
     # Everything is optional in proto3 as far as the runtime is concerned,
@@ -2154,7 +2411,8 @@ def test_get_data_labeling_job_empty_call():
     # This test is a coverage failsafe to make sure that totally empty calls,
     # i.e. request == None and no flattened fields passed, work.
     client = JobServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(), transport="grpc",
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="grpc",
     )
 
     # Mock the actual call within the gRPC stub, and fake the request.
@@ -2172,7 +2430,8 @@ async def test_get_data_labeling_job_async(
     transport: str = "grpc_asyncio", request_type=job_service.GetDataLabelingJobRequest
 ):
     client = JobServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(), transport=transport,
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport=transport,
     )
 
     # Everything is optional in proto3 as far as the runtime is concerned,
@@ -2223,7 +2482,9 @@ async def test_get_data_labeling_job_async_from_dict():
 
 
 def test_get_data_labeling_job_field_headers():
-    client = JobServiceClient(credentials=ga_credentials.AnonymousCredentials(),)
+    client = JobServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+    )
 
     # Any value that is part of the HTTP/1.1 URI should be sent as
     # a field header. Set these to a non-empty value.
@@ -2245,12 +2506,17 @@ def test_get_data_labeling_job_field_headers():
 
     # Establish that the field header was sent.
     _, _, kw = call.mock_calls[0]
-    assert ("x-goog-request-params", "name=name/value",) in kw["metadata"]
+    assert (
+        "x-goog-request-params",
+        "name=name/value",
+    ) in kw["metadata"]
 
 
 @pytest.mark.asyncio
 async def test_get_data_labeling_job_field_headers_async():
-    client = JobServiceAsyncClient(credentials=ga_credentials.AnonymousCredentials(),)
+    client = JobServiceAsyncClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+    )
 
     # Any value that is part of the HTTP/1.1 URI should be sent as
     # a field header. Set these to a non-empty value.
@@ -2274,11 +2540,16 @@ async def test_get_data_labeling_job_field_headers_async():
 
     # Establish that the field header was sent.
     _, _, kw = call.mock_calls[0]
-    assert ("x-goog-request-params", "name=name/value",) in kw["metadata"]
+    assert (
+        "x-goog-request-params",
+        "name=name/value",
+    ) in kw["metadata"]
 
 
 def test_get_data_labeling_job_flattened():
-    client = JobServiceClient(credentials=ga_credentials.AnonymousCredentials(),)
+    client = JobServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+    )
 
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(
@@ -2288,7 +2559,9 @@ def test_get_data_labeling_job_flattened():
         call.return_value = data_labeling_job.DataLabelingJob()
         # Call the method with a truthy value for each flattened field,
         # using the keyword arguments to the method.
-        client.get_data_labeling_job(name="name_value",)
+        client.get_data_labeling_job(
+            name="name_value",
+        )
 
         # Establish that the underlying call was made with the expected
         # request object values.
@@ -2300,19 +2573,24 @@ def test_get_data_labeling_job_flattened():
 
 
 def test_get_data_labeling_job_flattened_error():
-    client = JobServiceClient(credentials=ga_credentials.AnonymousCredentials(),)
+    client = JobServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+    )
 
     # Attempting to call a method with both a request object and flattened
     # fields is an error.
     with pytest.raises(ValueError):
         client.get_data_labeling_job(
-            job_service.GetDataLabelingJobRequest(), name="name_value",
+            job_service.GetDataLabelingJobRequest(),
+            name="name_value",
         )
 
 
 @pytest.mark.asyncio
 async def test_get_data_labeling_job_flattened_async():
-    client = JobServiceAsyncClient(credentials=ga_credentials.AnonymousCredentials(),)
+    client = JobServiceAsyncClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+    )
 
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(
@@ -2326,7 +2604,9 @@ async def test_get_data_labeling_job_flattened_async():
         )
         # Call the method with a truthy value for each flattened field,
         # using the keyword arguments to the method.
-        response = await client.get_data_labeling_job(name="name_value",)
+        response = await client.get_data_labeling_job(
+            name="name_value",
+        )
 
         # Establish that the underlying call was made with the expected
         # request object values.
@@ -2339,22 +2619,30 @@ async def test_get_data_labeling_job_flattened_async():
 
 @pytest.mark.asyncio
 async def test_get_data_labeling_job_flattened_error_async():
-    client = JobServiceAsyncClient(credentials=ga_credentials.AnonymousCredentials(),)
+    client = JobServiceAsyncClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+    )
 
     # Attempting to call a method with both a request object and flattened
     # fields is an error.
     with pytest.raises(ValueError):
         await client.get_data_labeling_job(
-            job_service.GetDataLabelingJobRequest(), name="name_value",
+            job_service.GetDataLabelingJobRequest(),
+            name="name_value",
         )
 
 
 @pytest.mark.parametrize(
-    "request_type", [job_service.ListDataLabelingJobsRequest, dict,]
+    "request_type",
+    [
+        job_service.ListDataLabelingJobsRequest,
+        dict,
+    ],
 )
 def test_list_data_labeling_jobs(request_type, transport: str = "grpc"):
     client = JobServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(), transport=transport,
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport=transport,
     )
 
     # Everything is optional in proto3 as far as the runtime is concerned,
@@ -2385,7 +2673,8 @@ def test_list_data_labeling_jobs_empty_call():
     # This test is a coverage failsafe to make sure that totally empty calls,
     # i.e. request == None and no flattened fields passed, work.
     client = JobServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(), transport="grpc",
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="grpc",
     )
 
     # Mock the actual call within the gRPC stub, and fake the request.
@@ -2404,7 +2693,8 @@ async def test_list_data_labeling_jobs_async(
     request_type=job_service.ListDataLabelingJobsRequest,
 ):
     client = JobServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(), transport=transport,
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport=transport,
     )
 
     # Everything is optional in proto3 as far as the runtime is concerned,
@@ -2439,7 +2729,9 @@ async def test_list_data_labeling_jobs_async_from_dict():
 
 
 def test_list_data_labeling_jobs_field_headers():
-    client = JobServiceClient(credentials=ga_credentials.AnonymousCredentials(),)
+    client = JobServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+    )
 
     # Any value that is part of the HTTP/1.1 URI should be sent as
     # a field header. Set these to a non-empty value.
@@ -2461,12 +2753,17 @@ def test_list_data_labeling_jobs_field_headers():
 
     # Establish that the field header was sent.
     _, _, kw = call.mock_calls[0]
-    assert ("x-goog-request-params", "parent=parent/value",) in kw["metadata"]
+    assert (
+        "x-goog-request-params",
+        "parent=parent/value",
+    ) in kw["metadata"]
 
 
 @pytest.mark.asyncio
 async def test_list_data_labeling_jobs_field_headers_async():
-    client = JobServiceAsyncClient(credentials=ga_credentials.AnonymousCredentials(),)
+    client = JobServiceAsyncClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+    )
 
     # Any value that is part of the HTTP/1.1 URI should be sent as
     # a field header. Set these to a non-empty value.
@@ -2490,11 +2787,16 @@ async def test_list_data_labeling_jobs_field_headers_async():
 
     # Establish that the field header was sent.
     _, _, kw = call.mock_calls[0]
-    assert ("x-goog-request-params", "parent=parent/value",) in kw["metadata"]
+    assert (
+        "x-goog-request-params",
+        "parent=parent/value",
+    ) in kw["metadata"]
 
 
 def test_list_data_labeling_jobs_flattened():
-    client = JobServiceClient(credentials=ga_credentials.AnonymousCredentials(),)
+    client = JobServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+    )
 
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(
@@ -2504,7 +2806,9 @@ def test_list_data_labeling_jobs_flattened():
         call.return_value = job_service.ListDataLabelingJobsResponse()
         # Call the method with a truthy value for each flattened field,
         # using the keyword arguments to the method.
-        client.list_data_labeling_jobs(parent="parent_value",)
+        client.list_data_labeling_jobs(
+            parent="parent_value",
+        )
 
         # Establish that the underlying call was made with the expected
         # request object values.
@@ -2516,19 +2820,24 @@ def test_list_data_labeling_jobs_flattened():
 
 
 def test_list_data_labeling_jobs_flattened_error():
-    client = JobServiceClient(credentials=ga_credentials.AnonymousCredentials(),)
+    client = JobServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+    )
 
     # Attempting to call a method with both a request object and flattened
     # fields is an error.
     with pytest.raises(ValueError):
         client.list_data_labeling_jobs(
-            job_service.ListDataLabelingJobsRequest(), parent="parent_value",
+            job_service.ListDataLabelingJobsRequest(),
+            parent="parent_value",
         )
 
 
 @pytest.mark.asyncio
 async def test_list_data_labeling_jobs_flattened_async():
-    client = JobServiceAsyncClient(credentials=ga_credentials.AnonymousCredentials(),)
+    client = JobServiceAsyncClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+    )
 
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(
@@ -2542,7 +2851,9 @@ async def test_list_data_labeling_jobs_flattened_async():
         )
         # Call the method with a truthy value for each flattened field,
         # using the keyword arguments to the method.
-        response = await client.list_data_labeling_jobs(parent="parent_value",)
+        response = await client.list_data_labeling_jobs(
+            parent="parent_value",
+        )
 
         # Establish that the underlying call was made with the expected
         # request object values.
@@ -2555,19 +2866,23 @@ async def test_list_data_labeling_jobs_flattened_async():
 
 @pytest.mark.asyncio
 async def test_list_data_labeling_jobs_flattened_error_async():
-    client = JobServiceAsyncClient(credentials=ga_credentials.AnonymousCredentials(),)
+    client = JobServiceAsyncClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+    )
 
     # Attempting to call a method with both a request object and flattened
     # fields is an error.
     with pytest.raises(ValueError):
         await client.list_data_labeling_jobs(
-            job_service.ListDataLabelingJobsRequest(), parent="parent_value",
+            job_service.ListDataLabelingJobsRequest(),
+            parent="parent_value",
         )
 
 
 def test_list_data_labeling_jobs_pager(transport_name: str = "grpc"):
     client = JobServiceClient(
-        credentials=ga_credentials.AnonymousCredentials, transport=transport_name,
+        credentials=ga_credentials.AnonymousCredentials,
+        transport=transport_name,
     )
 
     # Mock the actual call within the gRPC stub, and fake the request.
@@ -2585,10 +2900,13 @@ def test_list_data_labeling_jobs_pager(transport_name: str = "grpc"):
                 next_page_token="abc",
             ),
             job_service.ListDataLabelingJobsResponse(
-                data_labeling_jobs=[], next_page_token="def",
+                data_labeling_jobs=[],
+                next_page_token="def",
             ),
             job_service.ListDataLabelingJobsResponse(
-                data_labeling_jobs=[data_labeling_job.DataLabelingJob(),],
+                data_labeling_jobs=[
+                    data_labeling_job.DataLabelingJob(),
+                ],
                 next_page_token="ghi",
             ),
             job_service.ListDataLabelingJobsResponse(
@@ -2615,7 +2933,8 @@ def test_list_data_labeling_jobs_pager(transport_name: str = "grpc"):
 
 def test_list_data_labeling_jobs_pages(transport_name: str = "grpc"):
     client = JobServiceClient(
-        credentials=ga_credentials.AnonymousCredentials, transport=transport_name,
+        credentials=ga_credentials.AnonymousCredentials,
+        transport=transport_name,
     )
 
     # Mock the actual call within the gRPC stub, and fake the request.
@@ -2633,10 +2952,13 @@ def test_list_data_labeling_jobs_pages(transport_name: str = "grpc"):
                 next_page_token="abc",
             ),
             job_service.ListDataLabelingJobsResponse(
-                data_labeling_jobs=[], next_page_token="def",
+                data_labeling_jobs=[],
+                next_page_token="def",
             ),
             job_service.ListDataLabelingJobsResponse(
-                data_labeling_jobs=[data_labeling_job.DataLabelingJob(),],
+                data_labeling_jobs=[
+                    data_labeling_job.DataLabelingJob(),
+                ],
                 next_page_token="ghi",
             ),
             job_service.ListDataLabelingJobsResponse(
@@ -2654,7 +2976,9 @@ def test_list_data_labeling_jobs_pages(transport_name: str = "grpc"):
 
 @pytest.mark.asyncio
 async def test_list_data_labeling_jobs_async_pager():
-    client = JobServiceAsyncClient(credentials=ga_credentials.AnonymousCredentials,)
+    client = JobServiceAsyncClient(
+        credentials=ga_credentials.AnonymousCredentials,
+    )
 
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(
@@ -2673,10 +2997,13 @@ async def test_list_data_labeling_jobs_async_pager():
                 next_page_token="abc",
             ),
             job_service.ListDataLabelingJobsResponse(
-                data_labeling_jobs=[], next_page_token="def",
+                data_labeling_jobs=[],
+                next_page_token="def",
             ),
             job_service.ListDataLabelingJobsResponse(
-                data_labeling_jobs=[data_labeling_job.DataLabelingJob(),],
+                data_labeling_jobs=[
+                    data_labeling_job.DataLabelingJob(),
+                ],
                 next_page_token="ghi",
             ),
             job_service.ListDataLabelingJobsResponse(
@@ -2687,10 +3014,12 @@ async def test_list_data_labeling_jobs_async_pager():
             ),
             RuntimeError,
         )
-        async_pager = await client.list_data_labeling_jobs(request={},)
+        async_pager = await client.list_data_labeling_jobs(
+            request={},
+        )
         assert async_pager.next_page_token == "abc"
         responses = []
-        async for response in async_pager:
+        async for response in async_pager:  # pragma: no branch
             responses.append(response)
 
         assert len(responses) == 6
@@ -2699,7 +3028,9 @@ async def test_list_data_labeling_jobs_async_pager():
 
 @pytest.mark.asyncio
 async def test_list_data_labeling_jobs_async_pages():
-    client = JobServiceAsyncClient(credentials=ga_credentials.AnonymousCredentials,)
+    client = JobServiceAsyncClient(
+        credentials=ga_credentials.AnonymousCredentials,
+    )
 
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(
@@ -2718,10 +3049,13 @@ async def test_list_data_labeling_jobs_async_pages():
                 next_page_token="abc",
             ),
             job_service.ListDataLabelingJobsResponse(
-                data_labeling_jobs=[], next_page_token="def",
+                data_labeling_jobs=[],
+                next_page_token="def",
             ),
             job_service.ListDataLabelingJobsResponse(
-                data_labeling_jobs=[data_labeling_job.DataLabelingJob(),],
+                data_labeling_jobs=[
+                    data_labeling_job.DataLabelingJob(),
+                ],
                 next_page_token="ghi",
             ),
             job_service.ListDataLabelingJobsResponse(
@@ -2733,18 +3067,25 @@ async def test_list_data_labeling_jobs_async_pages():
             RuntimeError,
         )
         pages = []
-        async for page_ in (await client.list_data_labeling_jobs(request={})).pages:
+        async for page_ in (
+            await client.list_data_labeling_jobs(request={})
+        ).pages:  # pragma: no branch
             pages.append(page_)
         for page_, token in zip(pages, ["abc", "def", "ghi", ""]):
             assert page_.raw_page.next_page_token == token
 
 
 @pytest.mark.parametrize(
-    "request_type", [job_service.DeleteDataLabelingJobRequest, dict,]
+    "request_type",
+    [
+        job_service.DeleteDataLabelingJobRequest,
+        dict,
+    ],
 )
 def test_delete_data_labeling_job(request_type, transport: str = "grpc"):
     client = JobServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(), transport=transport,
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport=transport,
     )
 
     # Everything is optional in proto3 as far as the runtime is concerned,
@@ -2772,7 +3113,8 @@ def test_delete_data_labeling_job_empty_call():
     # This test is a coverage failsafe to make sure that totally empty calls,
     # i.e. request == None and no flattened fields passed, work.
     client = JobServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(), transport="grpc",
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="grpc",
     )
 
     # Mock the actual call within the gRPC stub, and fake the request.
@@ -2791,7 +3133,8 @@ async def test_delete_data_labeling_job_async(
     request_type=job_service.DeleteDataLabelingJobRequest,
 ):
     client = JobServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(), transport=transport,
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport=transport,
     )
 
     # Everything is optional in proto3 as far as the runtime is concerned,
@@ -2823,7 +3166,9 @@ async def test_delete_data_labeling_job_async_from_dict():
 
 
 def test_delete_data_labeling_job_field_headers():
-    client = JobServiceClient(credentials=ga_credentials.AnonymousCredentials(),)
+    client = JobServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+    )
 
     # Any value that is part of the HTTP/1.1 URI should be sent as
     # a field header. Set these to a non-empty value.
@@ -2845,12 +3190,17 @@ def test_delete_data_labeling_job_field_headers():
 
     # Establish that the field header was sent.
     _, _, kw = call.mock_calls[0]
-    assert ("x-goog-request-params", "name=name/value",) in kw["metadata"]
+    assert (
+        "x-goog-request-params",
+        "name=name/value",
+    ) in kw["metadata"]
 
 
 @pytest.mark.asyncio
 async def test_delete_data_labeling_job_field_headers_async():
-    client = JobServiceAsyncClient(credentials=ga_credentials.AnonymousCredentials(),)
+    client = JobServiceAsyncClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+    )
 
     # Any value that is part of the HTTP/1.1 URI should be sent as
     # a field header. Set these to a non-empty value.
@@ -2874,11 +3224,16 @@ async def test_delete_data_labeling_job_field_headers_async():
 
     # Establish that the field header was sent.
     _, _, kw = call.mock_calls[0]
-    assert ("x-goog-request-params", "name=name/value",) in kw["metadata"]
+    assert (
+        "x-goog-request-params",
+        "name=name/value",
+    ) in kw["metadata"]
 
 
 def test_delete_data_labeling_job_flattened():
-    client = JobServiceClient(credentials=ga_credentials.AnonymousCredentials(),)
+    client = JobServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+    )
 
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(
@@ -2888,7 +3243,9 @@ def test_delete_data_labeling_job_flattened():
         call.return_value = operations_pb2.Operation(name="operations/op")
         # Call the method with a truthy value for each flattened field,
         # using the keyword arguments to the method.
-        client.delete_data_labeling_job(name="name_value",)
+        client.delete_data_labeling_job(
+            name="name_value",
+        )
 
         # Establish that the underlying call was made with the expected
         # request object values.
@@ -2900,19 +3257,24 @@ def test_delete_data_labeling_job_flattened():
 
 
 def test_delete_data_labeling_job_flattened_error():
-    client = JobServiceClient(credentials=ga_credentials.AnonymousCredentials(),)
+    client = JobServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+    )
 
     # Attempting to call a method with both a request object and flattened
     # fields is an error.
     with pytest.raises(ValueError):
         client.delete_data_labeling_job(
-            job_service.DeleteDataLabelingJobRequest(), name="name_value",
+            job_service.DeleteDataLabelingJobRequest(),
+            name="name_value",
         )
 
 
 @pytest.mark.asyncio
 async def test_delete_data_labeling_job_flattened_async():
-    client = JobServiceAsyncClient(credentials=ga_credentials.AnonymousCredentials(),)
+    client = JobServiceAsyncClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+    )
 
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(
@@ -2926,7 +3288,9 @@ async def test_delete_data_labeling_job_flattened_async():
         )
         # Call the method with a truthy value for each flattened field,
         # using the keyword arguments to the method.
-        response = await client.delete_data_labeling_job(name="name_value",)
+        response = await client.delete_data_labeling_job(
+            name="name_value",
+        )
 
         # Establish that the underlying call was made with the expected
         # request object values.
@@ -2939,22 +3303,30 @@ async def test_delete_data_labeling_job_flattened_async():
 
 @pytest.mark.asyncio
 async def test_delete_data_labeling_job_flattened_error_async():
-    client = JobServiceAsyncClient(credentials=ga_credentials.AnonymousCredentials(),)
+    client = JobServiceAsyncClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+    )
 
     # Attempting to call a method with both a request object and flattened
     # fields is an error.
     with pytest.raises(ValueError):
         await client.delete_data_labeling_job(
-            job_service.DeleteDataLabelingJobRequest(), name="name_value",
+            job_service.DeleteDataLabelingJobRequest(),
+            name="name_value",
         )
 
 
 @pytest.mark.parametrize(
-    "request_type", [job_service.CancelDataLabelingJobRequest, dict,]
+    "request_type",
+    [
+        job_service.CancelDataLabelingJobRequest,
+        dict,
+    ],
 )
 def test_cancel_data_labeling_job(request_type, transport: str = "grpc"):
     client = JobServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(), transport=transport,
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport=transport,
     )
 
     # Everything is optional in proto3 as far as the runtime is concerned,
@@ -2982,7 +3354,8 @@ def test_cancel_data_labeling_job_empty_call():
     # This test is a coverage failsafe to make sure that totally empty calls,
     # i.e. request == None and no flattened fields passed, work.
     client = JobServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(), transport="grpc",
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="grpc",
     )
 
     # Mock the actual call within the gRPC stub, and fake the request.
@@ -3001,7 +3374,8 @@ async def test_cancel_data_labeling_job_async(
     request_type=job_service.CancelDataLabelingJobRequest,
 ):
     client = JobServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(), transport=transport,
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport=transport,
     )
 
     # Everything is optional in proto3 as far as the runtime is concerned,
@@ -3031,7 +3405,9 @@ async def test_cancel_data_labeling_job_async_from_dict():
 
 
 def test_cancel_data_labeling_job_field_headers():
-    client = JobServiceClient(credentials=ga_credentials.AnonymousCredentials(),)
+    client = JobServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+    )
 
     # Any value that is part of the HTTP/1.1 URI should be sent as
     # a field header. Set these to a non-empty value.
@@ -3053,12 +3429,17 @@ def test_cancel_data_labeling_job_field_headers():
 
     # Establish that the field header was sent.
     _, _, kw = call.mock_calls[0]
-    assert ("x-goog-request-params", "name=name/value",) in kw["metadata"]
+    assert (
+        "x-goog-request-params",
+        "name=name/value",
+    ) in kw["metadata"]
 
 
 @pytest.mark.asyncio
 async def test_cancel_data_labeling_job_field_headers_async():
-    client = JobServiceAsyncClient(credentials=ga_credentials.AnonymousCredentials(),)
+    client = JobServiceAsyncClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+    )
 
     # Any value that is part of the HTTP/1.1 URI should be sent as
     # a field header. Set these to a non-empty value.
@@ -3080,11 +3461,16 @@ async def test_cancel_data_labeling_job_field_headers_async():
 
     # Establish that the field header was sent.
     _, _, kw = call.mock_calls[0]
-    assert ("x-goog-request-params", "name=name/value",) in kw["metadata"]
+    assert (
+        "x-goog-request-params",
+        "name=name/value",
+    ) in kw["metadata"]
 
 
 def test_cancel_data_labeling_job_flattened():
-    client = JobServiceClient(credentials=ga_credentials.AnonymousCredentials(),)
+    client = JobServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+    )
 
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(
@@ -3094,7 +3480,9 @@ def test_cancel_data_labeling_job_flattened():
         call.return_value = None
         # Call the method with a truthy value for each flattened field,
         # using the keyword arguments to the method.
-        client.cancel_data_labeling_job(name="name_value",)
+        client.cancel_data_labeling_job(
+            name="name_value",
+        )
 
         # Establish that the underlying call was made with the expected
         # request object values.
@@ -3106,19 +3494,24 @@ def test_cancel_data_labeling_job_flattened():
 
 
 def test_cancel_data_labeling_job_flattened_error():
-    client = JobServiceClient(credentials=ga_credentials.AnonymousCredentials(),)
+    client = JobServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+    )
 
     # Attempting to call a method with both a request object and flattened
     # fields is an error.
     with pytest.raises(ValueError):
         client.cancel_data_labeling_job(
-            job_service.CancelDataLabelingJobRequest(), name="name_value",
+            job_service.CancelDataLabelingJobRequest(),
+            name="name_value",
         )
 
 
 @pytest.mark.asyncio
 async def test_cancel_data_labeling_job_flattened_async():
-    client = JobServiceAsyncClient(credentials=ga_credentials.AnonymousCredentials(),)
+    client = JobServiceAsyncClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+    )
 
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(
@@ -3130,7 +3523,9 @@ async def test_cancel_data_labeling_job_flattened_async():
         call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(None)
         # Call the method with a truthy value for each flattened field,
         # using the keyword arguments to the method.
-        response = await client.cancel_data_labeling_job(name="name_value",)
+        response = await client.cancel_data_labeling_job(
+            name="name_value",
+        )
 
         # Establish that the underlying call was made with the expected
         # request object values.
@@ -3143,22 +3538,30 @@ async def test_cancel_data_labeling_job_flattened_async():
 
 @pytest.mark.asyncio
 async def test_cancel_data_labeling_job_flattened_error_async():
-    client = JobServiceAsyncClient(credentials=ga_credentials.AnonymousCredentials(),)
+    client = JobServiceAsyncClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+    )
 
     # Attempting to call a method with both a request object and flattened
     # fields is an error.
     with pytest.raises(ValueError):
         await client.cancel_data_labeling_job(
-            job_service.CancelDataLabelingJobRequest(), name="name_value",
+            job_service.CancelDataLabelingJobRequest(),
+            name="name_value",
         )
 
 
 @pytest.mark.parametrize(
-    "request_type", [job_service.CreateHyperparameterTuningJobRequest, dict,]
+    "request_type",
+    [
+        job_service.CreateHyperparameterTuningJobRequest,
+        dict,
+    ],
 )
 def test_create_hyperparameter_tuning_job(request_type, transport: str = "grpc"):
     client = JobServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(), transport=transport,
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport=transport,
     )
 
     # Everything is optional in proto3 as far as the runtime is concerned,
@@ -3199,7 +3602,8 @@ def test_create_hyperparameter_tuning_job_empty_call():
     # This test is a coverage failsafe to make sure that totally empty calls,
     # i.e. request == None and no flattened fields passed, work.
     client = JobServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(), transport="grpc",
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="grpc",
     )
 
     # Mock the actual call within the gRPC stub, and fake the request.
@@ -3218,7 +3622,8 @@ async def test_create_hyperparameter_tuning_job_async(
     request_type=job_service.CreateHyperparameterTuningJobRequest,
 ):
     client = JobServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(), transport=transport,
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport=transport,
     )
 
     # Everything is optional in proto3 as far as the runtime is concerned,
@@ -3263,7 +3668,9 @@ async def test_create_hyperparameter_tuning_job_async_from_dict():
 
 
 def test_create_hyperparameter_tuning_job_field_headers():
-    client = JobServiceClient(credentials=ga_credentials.AnonymousCredentials(),)
+    client = JobServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+    )
 
     # Any value that is part of the HTTP/1.1 URI should be sent as
     # a field header. Set these to a non-empty value.
@@ -3285,12 +3692,17 @@ def test_create_hyperparameter_tuning_job_field_headers():
 
     # Establish that the field header was sent.
     _, _, kw = call.mock_calls[0]
-    assert ("x-goog-request-params", "parent=parent/value",) in kw["metadata"]
+    assert (
+        "x-goog-request-params",
+        "parent=parent/value",
+    ) in kw["metadata"]
 
 
 @pytest.mark.asyncio
 async def test_create_hyperparameter_tuning_job_field_headers_async():
-    client = JobServiceAsyncClient(credentials=ga_credentials.AnonymousCredentials(),)
+    client = JobServiceAsyncClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+    )
 
     # Any value that is part of the HTTP/1.1 URI should be sent as
     # a field header. Set these to a non-empty value.
@@ -3314,11 +3726,16 @@ async def test_create_hyperparameter_tuning_job_field_headers_async():
 
     # Establish that the field header was sent.
     _, _, kw = call.mock_calls[0]
-    assert ("x-goog-request-params", "parent=parent/value",) in kw["metadata"]
+    assert (
+        "x-goog-request-params",
+        "parent=parent/value",
+    ) in kw["metadata"]
 
 
 def test_create_hyperparameter_tuning_job_flattened():
-    client = JobServiceClient(credentials=ga_credentials.AnonymousCredentials(),)
+    client = JobServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+    )
 
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(
@@ -3350,7 +3767,9 @@ def test_create_hyperparameter_tuning_job_flattened():
 
 
 def test_create_hyperparameter_tuning_job_flattened_error():
-    client = JobServiceClient(credentials=ga_credentials.AnonymousCredentials(),)
+    client = JobServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+    )
 
     # Attempting to call a method with both a request object and flattened
     # fields is an error.
@@ -3366,7 +3785,9 @@ def test_create_hyperparameter_tuning_job_flattened_error():
 
 @pytest.mark.asyncio
 async def test_create_hyperparameter_tuning_job_flattened_async():
-    client = JobServiceAsyncClient(credentials=ga_credentials.AnonymousCredentials(),)
+    client = JobServiceAsyncClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+    )
 
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(
@@ -3403,7 +3824,9 @@ async def test_create_hyperparameter_tuning_job_flattened_async():
 
 @pytest.mark.asyncio
 async def test_create_hyperparameter_tuning_job_flattened_error_async():
-    client = JobServiceAsyncClient(credentials=ga_credentials.AnonymousCredentials(),)
+    client = JobServiceAsyncClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+    )
 
     # Attempting to call a method with both a request object and flattened
     # fields is an error.
@@ -3418,11 +3841,16 @@ async def test_create_hyperparameter_tuning_job_flattened_error_async():
 
 
 @pytest.mark.parametrize(
-    "request_type", [job_service.GetHyperparameterTuningJobRequest, dict,]
+    "request_type",
+    [
+        job_service.GetHyperparameterTuningJobRequest,
+        dict,
+    ],
 )
 def test_get_hyperparameter_tuning_job(request_type, transport: str = "grpc"):
     client = JobServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(), transport=transport,
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport=transport,
     )
 
     # Everything is optional in proto3 as far as the runtime is concerned,
@@ -3463,7 +3891,8 @@ def test_get_hyperparameter_tuning_job_empty_call():
     # This test is a coverage failsafe to make sure that totally empty calls,
     # i.e. request == None and no flattened fields passed, work.
     client = JobServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(), transport="grpc",
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="grpc",
     )
 
     # Mock the actual call within the gRPC stub, and fake the request.
@@ -3482,7 +3911,8 @@ async def test_get_hyperparameter_tuning_job_async(
     request_type=job_service.GetHyperparameterTuningJobRequest,
 ):
     client = JobServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(), transport=transport,
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport=transport,
     )
 
     # Everything is optional in proto3 as far as the runtime is concerned,
@@ -3527,7 +3957,9 @@ async def test_get_hyperparameter_tuning_job_async_from_dict():
 
 
 def test_get_hyperparameter_tuning_job_field_headers():
-    client = JobServiceClient(credentials=ga_credentials.AnonymousCredentials(),)
+    client = JobServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+    )
 
     # Any value that is part of the HTTP/1.1 URI should be sent as
     # a field header. Set these to a non-empty value.
@@ -3549,12 +3981,17 @@ def test_get_hyperparameter_tuning_job_field_headers():
 
     # Establish that the field header was sent.
     _, _, kw = call.mock_calls[0]
-    assert ("x-goog-request-params", "name=name/value",) in kw["metadata"]
+    assert (
+        "x-goog-request-params",
+        "name=name/value",
+    ) in kw["metadata"]
 
 
 @pytest.mark.asyncio
 async def test_get_hyperparameter_tuning_job_field_headers_async():
-    client = JobServiceAsyncClient(credentials=ga_credentials.AnonymousCredentials(),)
+    client = JobServiceAsyncClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+    )
 
     # Any value that is part of the HTTP/1.1 URI should be sent as
     # a field header. Set these to a non-empty value.
@@ -3578,11 +4015,16 @@ async def test_get_hyperparameter_tuning_job_field_headers_async():
 
     # Establish that the field header was sent.
     _, _, kw = call.mock_calls[0]
-    assert ("x-goog-request-params", "name=name/value",) in kw["metadata"]
+    assert (
+        "x-goog-request-params",
+        "name=name/value",
+    ) in kw["metadata"]
 
 
 def test_get_hyperparameter_tuning_job_flattened():
-    client = JobServiceClient(credentials=ga_credentials.AnonymousCredentials(),)
+    client = JobServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+    )
 
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(
@@ -3592,7 +4034,9 @@ def test_get_hyperparameter_tuning_job_flattened():
         call.return_value = hyperparameter_tuning_job.HyperparameterTuningJob()
         # Call the method with a truthy value for each flattened field,
         # using the keyword arguments to the method.
-        client.get_hyperparameter_tuning_job(name="name_value",)
+        client.get_hyperparameter_tuning_job(
+            name="name_value",
+        )
 
         # Establish that the underlying call was made with the expected
         # request object values.
@@ -3604,19 +4048,24 @@ def test_get_hyperparameter_tuning_job_flattened():
 
 
 def test_get_hyperparameter_tuning_job_flattened_error():
-    client = JobServiceClient(credentials=ga_credentials.AnonymousCredentials(),)
+    client = JobServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+    )
 
     # Attempting to call a method with both a request object and flattened
     # fields is an error.
     with pytest.raises(ValueError):
         client.get_hyperparameter_tuning_job(
-            job_service.GetHyperparameterTuningJobRequest(), name="name_value",
+            job_service.GetHyperparameterTuningJobRequest(),
+            name="name_value",
         )
 
 
 @pytest.mark.asyncio
 async def test_get_hyperparameter_tuning_job_flattened_async():
-    client = JobServiceAsyncClient(credentials=ga_credentials.AnonymousCredentials(),)
+    client = JobServiceAsyncClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+    )
 
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(
@@ -3630,7 +4079,9 @@ async def test_get_hyperparameter_tuning_job_flattened_async():
         )
         # Call the method with a truthy value for each flattened field,
         # using the keyword arguments to the method.
-        response = await client.get_hyperparameter_tuning_job(name="name_value",)
+        response = await client.get_hyperparameter_tuning_job(
+            name="name_value",
+        )
 
         # Establish that the underlying call was made with the expected
         # request object values.
@@ -3643,22 +4094,30 @@ async def test_get_hyperparameter_tuning_job_flattened_async():
 
 @pytest.mark.asyncio
 async def test_get_hyperparameter_tuning_job_flattened_error_async():
-    client = JobServiceAsyncClient(credentials=ga_credentials.AnonymousCredentials(),)
+    client = JobServiceAsyncClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+    )
 
     # Attempting to call a method with both a request object and flattened
     # fields is an error.
     with pytest.raises(ValueError):
         await client.get_hyperparameter_tuning_job(
-            job_service.GetHyperparameterTuningJobRequest(), name="name_value",
+            job_service.GetHyperparameterTuningJobRequest(),
+            name="name_value",
         )
 
 
 @pytest.mark.parametrize(
-    "request_type", [job_service.ListHyperparameterTuningJobsRequest, dict,]
+    "request_type",
+    [
+        job_service.ListHyperparameterTuningJobsRequest,
+        dict,
+    ],
 )
 def test_list_hyperparameter_tuning_jobs(request_type, transport: str = "grpc"):
     client = JobServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(), transport=transport,
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport=transport,
     )
 
     # Everything is optional in proto3 as far as the runtime is concerned,
@@ -3689,7 +4148,8 @@ def test_list_hyperparameter_tuning_jobs_empty_call():
     # This test is a coverage failsafe to make sure that totally empty calls,
     # i.e. request == None and no flattened fields passed, work.
     client = JobServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(), transport="grpc",
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="grpc",
     )
 
     # Mock the actual call within the gRPC stub, and fake the request.
@@ -3708,7 +4168,8 @@ async def test_list_hyperparameter_tuning_jobs_async(
     request_type=job_service.ListHyperparameterTuningJobsRequest,
 ):
     client = JobServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(), transport=transport,
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport=transport,
     )
 
     # Everything is optional in proto3 as far as the runtime is concerned,
@@ -3743,7 +4204,9 @@ async def test_list_hyperparameter_tuning_jobs_async_from_dict():
 
 
 def test_list_hyperparameter_tuning_jobs_field_headers():
-    client = JobServiceClient(credentials=ga_credentials.AnonymousCredentials(),)
+    client = JobServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+    )
 
     # Any value that is part of the HTTP/1.1 URI should be sent as
     # a field header. Set these to a non-empty value.
@@ -3765,12 +4228,17 @@ def test_list_hyperparameter_tuning_jobs_field_headers():
 
     # Establish that the field header was sent.
     _, _, kw = call.mock_calls[0]
-    assert ("x-goog-request-params", "parent=parent/value",) in kw["metadata"]
+    assert (
+        "x-goog-request-params",
+        "parent=parent/value",
+    ) in kw["metadata"]
 
 
 @pytest.mark.asyncio
 async def test_list_hyperparameter_tuning_jobs_field_headers_async():
-    client = JobServiceAsyncClient(credentials=ga_credentials.AnonymousCredentials(),)
+    client = JobServiceAsyncClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+    )
 
     # Any value that is part of the HTTP/1.1 URI should be sent as
     # a field header. Set these to a non-empty value.
@@ -3794,11 +4262,16 @@ async def test_list_hyperparameter_tuning_jobs_field_headers_async():
 
     # Establish that the field header was sent.
     _, _, kw = call.mock_calls[0]
-    assert ("x-goog-request-params", "parent=parent/value",) in kw["metadata"]
+    assert (
+        "x-goog-request-params",
+        "parent=parent/value",
+    ) in kw["metadata"]
 
 
 def test_list_hyperparameter_tuning_jobs_flattened():
-    client = JobServiceClient(credentials=ga_credentials.AnonymousCredentials(),)
+    client = JobServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+    )
 
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(
@@ -3808,7 +4281,9 @@ def test_list_hyperparameter_tuning_jobs_flattened():
         call.return_value = job_service.ListHyperparameterTuningJobsResponse()
         # Call the method with a truthy value for each flattened field,
         # using the keyword arguments to the method.
-        client.list_hyperparameter_tuning_jobs(parent="parent_value",)
+        client.list_hyperparameter_tuning_jobs(
+            parent="parent_value",
+        )
 
         # Establish that the underlying call was made with the expected
         # request object values.
@@ -3820,19 +4295,24 @@ def test_list_hyperparameter_tuning_jobs_flattened():
 
 
 def test_list_hyperparameter_tuning_jobs_flattened_error():
-    client = JobServiceClient(credentials=ga_credentials.AnonymousCredentials(),)
+    client = JobServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+    )
 
     # Attempting to call a method with both a request object and flattened
     # fields is an error.
     with pytest.raises(ValueError):
         client.list_hyperparameter_tuning_jobs(
-            job_service.ListHyperparameterTuningJobsRequest(), parent="parent_value",
+            job_service.ListHyperparameterTuningJobsRequest(),
+            parent="parent_value",
         )
 
 
 @pytest.mark.asyncio
 async def test_list_hyperparameter_tuning_jobs_flattened_async():
-    client = JobServiceAsyncClient(credentials=ga_credentials.AnonymousCredentials(),)
+    client = JobServiceAsyncClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+    )
 
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(
@@ -3846,7 +4326,9 @@ async def test_list_hyperparameter_tuning_jobs_flattened_async():
         )
         # Call the method with a truthy value for each flattened field,
         # using the keyword arguments to the method.
-        response = await client.list_hyperparameter_tuning_jobs(parent="parent_value",)
+        response = await client.list_hyperparameter_tuning_jobs(
+            parent="parent_value",
+        )
 
         # Establish that the underlying call was made with the expected
         # request object values.
@@ -3859,19 +4341,23 @@ async def test_list_hyperparameter_tuning_jobs_flattened_async():
 
 @pytest.mark.asyncio
 async def test_list_hyperparameter_tuning_jobs_flattened_error_async():
-    client = JobServiceAsyncClient(credentials=ga_credentials.AnonymousCredentials(),)
+    client = JobServiceAsyncClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+    )
 
     # Attempting to call a method with both a request object and flattened
     # fields is an error.
     with pytest.raises(ValueError):
         await client.list_hyperparameter_tuning_jobs(
-            job_service.ListHyperparameterTuningJobsRequest(), parent="parent_value",
+            job_service.ListHyperparameterTuningJobsRequest(),
+            parent="parent_value",
         )
 
 
 def test_list_hyperparameter_tuning_jobs_pager(transport_name: str = "grpc"):
     client = JobServiceClient(
-        credentials=ga_credentials.AnonymousCredentials, transport=transport_name,
+        credentials=ga_credentials.AnonymousCredentials,
+        transport=transport_name,
     )
 
     # Mock the actual call within the gRPC stub, and fake the request.
@@ -3889,7 +4375,8 @@ def test_list_hyperparameter_tuning_jobs_pager(transport_name: str = "grpc"):
                 next_page_token="abc",
             ),
             job_service.ListHyperparameterTuningJobsResponse(
-                hyperparameter_tuning_jobs=[], next_page_token="def",
+                hyperparameter_tuning_jobs=[],
+                next_page_token="def",
             ),
             job_service.ListHyperparameterTuningJobsResponse(
                 hyperparameter_tuning_jobs=[
@@ -3924,7 +4411,8 @@ def test_list_hyperparameter_tuning_jobs_pager(transport_name: str = "grpc"):
 
 def test_list_hyperparameter_tuning_jobs_pages(transport_name: str = "grpc"):
     client = JobServiceClient(
-        credentials=ga_credentials.AnonymousCredentials, transport=transport_name,
+        credentials=ga_credentials.AnonymousCredentials,
+        transport=transport_name,
     )
 
     # Mock the actual call within the gRPC stub, and fake the request.
@@ -3942,7 +4430,8 @@ def test_list_hyperparameter_tuning_jobs_pages(transport_name: str = "grpc"):
                 next_page_token="abc",
             ),
             job_service.ListHyperparameterTuningJobsResponse(
-                hyperparameter_tuning_jobs=[], next_page_token="def",
+                hyperparameter_tuning_jobs=[],
+                next_page_token="def",
             ),
             job_service.ListHyperparameterTuningJobsResponse(
                 hyperparameter_tuning_jobs=[
@@ -3965,7 +4454,9 @@ def test_list_hyperparameter_tuning_jobs_pages(transport_name: str = "grpc"):
 
 @pytest.mark.asyncio
 async def test_list_hyperparameter_tuning_jobs_async_pager():
-    client = JobServiceAsyncClient(credentials=ga_credentials.AnonymousCredentials,)
+    client = JobServiceAsyncClient(
+        credentials=ga_credentials.AnonymousCredentials,
+    )
 
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(
@@ -3984,7 +4475,8 @@ async def test_list_hyperparameter_tuning_jobs_async_pager():
                 next_page_token="abc",
             ),
             job_service.ListHyperparameterTuningJobsResponse(
-                hyperparameter_tuning_jobs=[], next_page_token="def",
+                hyperparameter_tuning_jobs=[],
+                next_page_token="def",
             ),
             job_service.ListHyperparameterTuningJobsResponse(
                 hyperparameter_tuning_jobs=[
@@ -4000,10 +4492,12 @@ async def test_list_hyperparameter_tuning_jobs_async_pager():
             ),
             RuntimeError,
         )
-        async_pager = await client.list_hyperparameter_tuning_jobs(request={},)
+        async_pager = await client.list_hyperparameter_tuning_jobs(
+            request={},
+        )
         assert async_pager.next_page_token == "abc"
         responses = []
-        async for response in async_pager:
+        async for response in async_pager:  # pragma: no branch
             responses.append(response)
 
         assert len(responses) == 6
@@ -4015,7 +4509,9 @@ async def test_list_hyperparameter_tuning_jobs_async_pager():
 
 @pytest.mark.asyncio
 async def test_list_hyperparameter_tuning_jobs_async_pages():
-    client = JobServiceAsyncClient(credentials=ga_credentials.AnonymousCredentials,)
+    client = JobServiceAsyncClient(
+        credentials=ga_credentials.AnonymousCredentials,
+    )
 
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(
@@ -4034,7 +4530,8 @@ async def test_list_hyperparameter_tuning_jobs_async_pages():
                 next_page_token="abc",
             ),
             job_service.ListHyperparameterTuningJobsResponse(
-                hyperparameter_tuning_jobs=[], next_page_token="def",
+                hyperparameter_tuning_jobs=[],
+                next_page_token="def",
             ),
             job_service.ListHyperparameterTuningJobsResponse(
                 hyperparameter_tuning_jobs=[
@@ -4053,18 +4550,23 @@ async def test_list_hyperparameter_tuning_jobs_async_pages():
         pages = []
         async for page_ in (
             await client.list_hyperparameter_tuning_jobs(request={})
-        ).pages:
+        ).pages:  # pragma: no branch
             pages.append(page_)
         for page_, token in zip(pages, ["abc", "def", "ghi", ""]):
             assert page_.raw_page.next_page_token == token
 
 
 @pytest.mark.parametrize(
-    "request_type", [job_service.DeleteHyperparameterTuningJobRequest, dict,]
+    "request_type",
+    [
+        job_service.DeleteHyperparameterTuningJobRequest,
+        dict,
+    ],
 )
 def test_delete_hyperparameter_tuning_job(request_type, transport: str = "grpc"):
     client = JobServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(), transport=transport,
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport=transport,
     )
 
     # Everything is optional in proto3 as far as the runtime is concerned,
@@ -4092,7 +4594,8 @@ def test_delete_hyperparameter_tuning_job_empty_call():
     # This test is a coverage failsafe to make sure that totally empty calls,
     # i.e. request == None and no flattened fields passed, work.
     client = JobServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(), transport="grpc",
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="grpc",
     )
 
     # Mock the actual call within the gRPC stub, and fake the request.
@@ -4111,7 +4614,8 @@ async def test_delete_hyperparameter_tuning_job_async(
     request_type=job_service.DeleteHyperparameterTuningJobRequest,
 ):
     client = JobServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(), transport=transport,
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport=transport,
     )
 
     # Everything is optional in proto3 as far as the runtime is concerned,
@@ -4143,7 +4647,9 @@ async def test_delete_hyperparameter_tuning_job_async_from_dict():
 
 
 def test_delete_hyperparameter_tuning_job_field_headers():
-    client = JobServiceClient(credentials=ga_credentials.AnonymousCredentials(),)
+    client = JobServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+    )
 
     # Any value that is part of the HTTP/1.1 URI should be sent as
     # a field header. Set these to a non-empty value.
@@ -4165,12 +4671,17 @@ def test_delete_hyperparameter_tuning_job_field_headers():
 
     # Establish that the field header was sent.
     _, _, kw = call.mock_calls[0]
-    assert ("x-goog-request-params", "name=name/value",) in kw["metadata"]
+    assert (
+        "x-goog-request-params",
+        "name=name/value",
+    ) in kw["metadata"]
 
 
 @pytest.mark.asyncio
 async def test_delete_hyperparameter_tuning_job_field_headers_async():
-    client = JobServiceAsyncClient(credentials=ga_credentials.AnonymousCredentials(),)
+    client = JobServiceAsyncClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+    )
 
     # Any value that is part of the HTTP/1.1 URI should be sent as
     # a field header. Set these to a non-empty value.
@@ -4194,11 +4705,16 @@ async def test_delete_hyperparameter_tuning_job_field_headers_async():
 
     # Establish that the field header was sent.
     _, _, kw = call.mock_calls[0]
-    assert ("x-goog-request-params", "name=name/value",) in kw["metadata"]
+    assert (
+        "x-goog-request-params",
+        "name=name/value",
+    ) in kw["metadata"]
 
 
 def test_delete_hyperparameter_tuning_job_flattened():
-    client = JobServiceClient(credentials=ga_credentials.AnonymousCredentials(),)
+    client = JobServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+    )
 
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(
@@ -4208,7 +4724,9 @@ def test_delete_hyperparameter_tuning_job_flattened():
         call.return_value = operations_pb2.Operation(name="operations/op")
         # Call the method with a truthy value for each flattened field,
         # using the keyword arguments to the method.
-        client.delete_hyperparameter_tuning_job(name="name_value",)
+        client.delete_hyperparameter_tuning_job(
+            name="name_value",
+        )
 
         # Establish that the underlying call was made with the expected
         # request object values.
@@ -4220,19 +4738,24 @@ def test_delete_hyperparameter_tuning_job_flattened():
 
 
 def test_delete_hyperparameter_tuning_job_flattened_error():
-    client = JobServiceClient(credentials=ga_credentials.AnonymousCredentials(),)
+    client = JobServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+    )
 
     # Attempting to call a method with both a request object and flattened
     # fields is an error.
     with pytest.raises(ValueError):
         client.delete_hyperparameter_tuning_job(
-            job_service.DeleteHyperparameterTuningJobRequest(), name="name_value",
+            job_service.DeleteHyperparameterTuningJobRequest(),
+            name="name_value",
         )
 
 
 @pytest.mark.asyncio
 async def test_delete_hyperparameter_tuning_job_flattened_async():
-    client = JobServiceAsyncClient(credentials=ga_credentials.AnonymousCredentials(),)
+    client = JobServiceAsyncClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+    )
 
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(
@@ -4246,7 +4769,9 @@ async def test_delete_hyperparameter_tuning_job_flattened_async():
         )
         # Call the method with a truthy value for each flattened field,
         # using the keyword arguments to the method.
-        response = await client.delete_hyperparameter_tuning_job(name="name_value",)
+        response = await client.delete_hyperparameter_tuning_job(
+            name="name_value",
+        )
 
         # Establish that the underlying call was made with the expected
         # request object values.
@@ -4259,22 +4784,30 @@ async def test_delete_hyperparameter_tuning_job_flattened_async():
 
 @pytest.mark.asyncio
 async def test_delete_hyperparameter_tuning_job_flattened_error_async():
-    client = JobServiceAsyncClient(credentials=ga_credentials.AnonymousCredentials(),)
+    client = JobServiceAsyncClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+    )
 
     # Attempting to call a method with both a request object and flattened
     # fields is an error.
     with pytest.raises(ValueError):
         await client.delete_hyperparameter_tuning_job(
-            job_service.DeleteHyperparameterTuningJobRequest(), name="name_value",
+            job_service.DeleteHyperparameterTuningJobRequest(),
+            name="name_value",
         )
 
 
 @pytest.mark.parametrize(
-    "request_type", [job_service.CancelHyperparameterTuningJobRequest, dict,]
+    "request_type",
+    [
+        job_service.CancelHyperparameterTuningJobRequest,
+        dict,
+    ],
 )
 def test_cancel_hyperparameter_tuning_job(request_type, transport: str = "grpc"):
     client = JobServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(), transport=transport,
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport=transport,
     )
 
     # Everything is optional in proto3 as far as the runtime is concerned,
@@ -4302,7 +4835,8 @@ def test_cancel_hyperparameter_tuning_job_empty_call():
     # This test is a coverage failsafe to make sure that totally empty calls,
     # i.e. request == None and no flattened fields passed, work.
     client = JobServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(), transport="grpc",
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="grpc",
     )
 
     # Mock the actual call within the gRPC stub, and fake the request.
@@ -4321,7 +4855,8 @@ async def test_cancel_hyperparameter_tuning_job_async(
     request_type=job_service.CancelHyperparameterTuningJobRequest,
 ):
     client = JobServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(), transport=transport,
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport=transport,
     )
 
     # Everything is optional in proto3 as far as the runtime is concerned,
@@ -4351,7 +4886,9 @@ async def test_cancel_hyperparameter_tuning_job_async_from_dict():
 
 
 def test_cancel_hyperparameter_tuning_job_field_headers():
-    client = JobServiceClient(credentials=ga_credentials.AnonymousCredentials(),)
+    client = JobServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+    )
 
     # Any value that is part of the HTTP/1.1 URI should be sent as
     # a field header. Set these to a non-empty value.
@@ -4373,12 +4910,17 @@ def test_cancel_hyperparameter_tuning_job_field_headers():
 
     # Establish that the field header was sent.
     _, _, kw = call.mock_calls[0]
-    assert ("x-goog-request-params", "name=name/value",) in kw["metadata"]
+    assert (
+        "x-goog-request-params",
+        "name=name/value",
+    ) in kw["metadata"]
 
 
 @pytest.mark.asyncio
 async def test_cancel_hyperparameter_tuning_job_field_headers_async():
-    client = JobServiceAsyncClient(credentials=ga_credentials.AnonymousCredentials(),)
+    client = JobServiceAsyncClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+    )
 
     # Any value that is part of the HTTP/1.1 URI should be sent as
     # a field header. Set these to a non-empty value.
@@ -4400,11 +4942,16 @@ async def test_cancel_hyperparameter_tuning_job_field_headers_async():
 
     # Establish that the field header was sent.
     _, _, kw = call.mock_calls[0]
-    assert ("x-goog-request-params", "name=name/value",) in kw["metadata"]
+    assert (
+        "x-goog-request-params",
+        "name=name/value",
+    ) in kw["metadata"]
 
 
 def test_cancel_hyperparameter_tuning_job_flattened():
-    client = JobServiceClient(credentials=ga_credentials.AnonymousCredentials(),)
+    client = JobServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+    )
 
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(
@@ -4414,7 +4961,9 @@ def test_cancel_hyperparameter_tuning_job_flattened():
         call.return_value = None
         # Call the method with a truthy value for each flattened field,
         # using the keyword arguments to the method.
-        client.cancel_hyperparameter_tuning_job(name="name_value",)
+        client.cancel_hyperparameter_tuning_job(
+            name="name_value",
+        )
 
         # Establish that the underlying call was made with the expected
         # request object values.
@@ -4426,19 +4975,24 @@ def test_cancel_hyperparameter_tuning_job_flattened():
 
 
 def test_cancel_hyperparameter_tuning_job_flattened_error():
-    client = JobServiceClient(credentials=ga_credentials.AnonymousCredentials(),)
+    client = JobServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+    )
 
     # Attempting to call a method with both a request object and flattened
     # fields is an error.
     with pytest.raises(ValueError):
         client.cancel_hyperparameter_tuning_job(
-            job_service.CancelHyperparameterTuningJobRequest(), name="name_value",
+            job_service.CancelHyperparameterTuningJobRequest(),
+            name="name_value",
         )
 
 
 @pytest.mark.asyncio
 async def test_cancel_hyperparameter_tuning_job_flattened_async():
-    client = JobServiceAsyncClient(credentials=ga_credentials.AnonymousCredentials(),)
+    client = JobServiceAsyncClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+    )
 
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(
@@ -4450,7 +5004,9 @@ async def test_cancel_hyperparameter_tuning_job_flattened_async():
         call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(None)
         # Call the method with a truthy value for each flattened field,
         # using the keyword arguments to the method.
-        response = await client.cancel_hyperparameter_tuning_job(name="name_value",)
+        response = await client.cancel_hyperparameter_tuning_job(
+            name="name_value",
+        )
 
         # Establish that the underlying call was made with the expected
         # request object values.
@@ -4463,22 +5019,30 @@ async def test_cancel_hyperparameter_tuning_job_flattened_async():
 
 @pytest.mark.asyncio
 async def test_cancel_hyperparameter_tuning_job_flattened_error_async():
-    client = JobServiceAsyncClient(credentials=ga_credentials.AnonymousCredentials(),)
+    client = JobServiceAsyncClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+    )
 
     # Attempting to call a method with both a request object and flattened
     # fields is an error.
     with pytest.raises(ValueError):
         await client.cancel_hyperparameter_tuning_job(
-            job_service.CancelHyperparameterTuningJobRequest(), name="name_value",
+            job_service.CancelHyperparameterTuningJobRequest(),
+            name="name_value",
         )
 
 
 @pytest.mark.parametrize(
-    "request_type", [job_service.CreateBatchPredictionJobRequest, dict,]
+    "request_type",
+    [
+        job_service.CreateBatchPredictionJobRequest,
+        dict,
+    ],
 )
 def test_create_batch_prediction_job(request_type, transport: str = "grpc"):
     client = JobServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(), transport=transport,
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport=transport,
     )
 
     # Everything is optional in proto3 as far as the runtime is concerned,
@@ -4494,6 +5058,7 @@ def test_create_batch_prediction_job(request_type, transport: str = "grpc"):
             name="name_value",
             display_name="display_name_value",
             model="model_value",
+            model_version_id="model_version_id_value",
             service_account="service_account_value",
             generate_explanation=True,
             state=job_state.JobState.JOB_STATE_QUEUED,
@@ -4510,6 +5075,7 @@ def test_create_batch_prediction_job(request_type, transport: str = "grpc"):
     assert response.name == "name_value"
     assert response.display_name == "display_name_value"
     assert response.model == "model_value"
+    assert response.model_version_id == "model_version_id_value"
     assert response.service_account == "service_account_value"
     assert response.generate_explanation is True
     assert response.state == job_state.JobState.JOB_STATE_QUEUED
@@ -4519,7 +5085,8 @@ def test_create_batch_prediction_job_empty_call():
     # This test is a coverage failsafe to make sure that totally empty calls,
     # i.e. request == None and no flattened fields passed, work.
     client = JobServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(), transport="grpc",
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="grpc",
     )
 
     # Mock the actual call within the gRPC stub, and fake the request.
@@ -4538,7 +5105,8 @@ async def test_create_batch_prediction_job_async(
     request_type=job_service.CreateBatchPredictionJobRequest,
 ):
     client = JobServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(), transport=transport,
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport=transport,
     )
 
     # Everything is optional in proto3 as far as the runtime is concerned,
@@ -4555,6 +5123,7 @@ async def test_create_batch_prediction_job_async(
                 name="name_value",
                 display_name="display_name_value",
                 model="model_value",
+                model_version_id="model_version_id_value",
                 service_account="service_account_value",
                 generate_explanation=True,
                 state=job_state.JobState.JOB_STATE_QUEUED,
@@ -4572,6 +5141,7 @@ async def test_create_batch_prediction_job_async(
     assert response.name == "name_value"
     assert response.display_name == "display_name_value"
     assert response.model == "model_value"
+    assert response.model_version_id == "model_version_id_value"
     assert response.service_account == "service_account_value"
     assert response.generate_explanation is True
     assert response.state == job_state.JobState.JOB_STATE_QUEUED
@@ -4583,7 +5153,9 @@ async def test_create_batch_prediction_job_async_from_dict():
 
 
 def test_create_batch_prediction_job_field_headers():
-    client = JobServiceClient(credentials=ga_credentials.AnonymousCredentials(),)
+    client = JobServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+    )
 
     # Any value that is part of the HTTP/1.1 URI should be sent as
     # a field header. Set these to a non-empty value.
@@ -4605,12 +5177,17 @@ def test_create_batch_prediction_job_field_headers():
 
     # Establish that the field header was sent.
     _, _, kw = call.mock_calls[0]
-    assert ("x-goog-request-params", "parent=parent/value",) in kw["metadata"]
+    assert (
+        "x-goog-request-params",
+        "parent=parent/value",
+    ) in kw["metadata"]
 
 
 @pytest.mark.asyncio
 async def test_create_batch_prediction_job_field_headers_async():
-    client = JobServiceAsyncClient(credentials=ga_credentials.AnonymousCredentials(),)
+    client = JobServiceAsyncClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+    )
 
     # Any value that is part of the HTTP/1.1 URI should be sent as
     # a field header. Set these to a non-empty value.
@@ -4634,11 +5211,16 @@ async def test_create_batch_prediction_job_field_headers_async():
 
     # Establish that the field header was sent.
     _, _, kw = call.mock_calls[0]
-    assert ("x-goog-request-params", "parent=parent/value",) in kw["metadata"]
+    assert (
+        "x-goog-request-params",
+        "parent=parent/value",
+    ) in kw["metadata"]
 
 
 def test_create_batch_prediction_job_flattened():
-    client = JobServiceClient(credentials=ga_credentials.AnonymousCredentials(),)
+    client = JobServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+    )
 
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(
@@ -4668,7 +5250,9 @@ def test_create_batch_prediction_job_flattened():
 
 
 def test_create_batch_prediction_job_flattened_error():
-    client = JobServiceClient(credentials=ga_credentials.AnonymousCredentials(),)
+    client = JobServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+    )
 
     # Attempting to call a method with both a request object and flattened
     # fields is an error.
@@ -4684,7 +5268,9 @@ def test_create_batch_prediction_job_flattened_error():
 
 @pytest.mark.asyncio
 async def test_create_batch_prediction_job_flattened_async():
-    client = JobServiceAsyncClient(credentials=ga_credentials.AnonymousCredentials(),)
+    client = JobServiceAsyncClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+    )
 
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(
@@ -4719,7 +5305,9 @@ async def test_create_batch_prediction_job_flattened_async():
 
 @pytest.mark.asyncio
 async def test_create_batch_prediction_job_flattened_error_async():
-    client = JobServiceAsyncClient(credentials=ga_credentials.AnonymousCredentials(),)
+    client = JobServiceAsyncClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+    )
 
     # Attempting to call a method with both a request object and flattened
     # fields is an error.
@@ -4734,11 +5322,16 @@ async def test_create_batch_prediction_job_flattened_error_async():
 
 
 @pytest.mark.parametrize(
-    "request_type", [job_service.GetBatchPredictionJobRequest, dict,]
+    "request_type",
+    [
+        job_service.GetBatchPredictionJobRequest,
+        dict,
+    ],
 )
 def test_get_batch_prediction_job(request_type, transport: str = "grpc"):
     client = JobServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(), transport=transport,
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport=transport,
     )
 
     # Everything is optional in proto3 as far as the runtime is concerned,
@@ -4754,6 +5347,7 @@ def test_get_batch_prediction_job(request_type, transport: str = "grpc"):
             name="name_value",
             display_name="display_name_value",
             model="model_value",
+            model_version_id="model_version_id_value",
             service_account="service_account_value",
             generate_explanation=True,
             state=job_state.JobState.JOB_STATE_QUEUED,
@@ -4770,6 +5364,7 @@ def test_get_batch_prediction_job(request_type, transport: str = "grpc"):
     assert response.name == "name_value"
     assert response.display_name == "display_name_value"
     assert response.model == "model_value"
+    assert response.model_version_id == "model_version_id_value"
     assert response.service_account == "service_account_value"
     assert response.generate_explanation is True
     assert response.state == job_state.JobState.JOB_STATE_QUEUED
@@ -4779,7 +5374,8 @@ def test_get_batch_prediction_job_empty_call():
     # This test is a coverage failsafe to make sure that totally empty calls,
     # i.e. request == None and no flattened fields passed, work.
     client = JobServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(), transport="grpc",
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="grpc",
     )
 
     # Mock the actual call within the gRPC stub, and fake the request.
@@ -4798,7 +5394,8 @@ async def test_get_batch_prediction_job_async(
     request_type=job_service.GetBatchPredictionJobRequest,
 ):
     client = JobServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(), transport=transport,
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport=transport,
     )
 
     # Everything is optional in proto3 as far as the runtime is concerned,
@@ -4815,6 +5412,7 @@ async def test_get_batch_prediction_job_async(
                 name="name_value",
                 display_name="display_name_value",
                 model="model_value",
+                model_version_id="model_version_id_value",
                 service_account="service_account_value",
                 generate_explanation=True,
                 state=job_state.JobState.JOB_STATE_QUEUED,
@@ -4832,6 +5430,7 @@ async def test_get_batch_prediction_job_async(
     assert response.name == "name_value"
     assert response.display_name == "display_name_value"
     assert response.model == "model_value"
+    assert response.model_version_id == "model_version_id_value"
     assert response.service_account == "service_account_value"
     assert response.generate_explanation is True
     assert response.state == job_state.JobState.JOB_STATE_QUEUED
@@ -4843,7 +5442,9 @@ async def test_get_batch_prediction_job_async_from_dict():
 
 
 def test_get_batch_prediction_job_field_headers():
-    client = JobServiceClient(credentials=ga_credentials.AnonymousCredentials(),)
+    client = JobServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+    )
 
     # Any value that is part of the HTTP/1.1 URI should be sent as
     # a field header. Set these to a non-empty value.
@@ -4865,12 +5466,17 @@ def test_get_batch_prediction_job_field_headers():
 
     # Establish that the field header was sent.
     _, _, kw = call.mock_calls[0]
-    assert ("x-goog-request-params", "name=name/value",) in kw["metadata"]
+    assert (
+        "x-goog-request-params",
+        "name=name/value",
+    ) in kw["metadata"]
 
 
 @pytest.mark.asyncio
 async def test_get_batch_prediction_job_field_headers_async():
-    client = JobServiceAsyncClient(credentials=ga_credentials.AnonymousCredentials(),)
+    client = JobServiceAsyncClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+    )
 
     # Any value that is part of the HTTP/1.1 URI should be sent as
     # a field header. Set these to a non-empty value.
@@ -4894,11 +5500,16 @@ async def test_get_batch_prediction_job_field_headers_async():
 
     # Establish that the field header was sent.
     _, _, kw = call.mock_calls[0]
-    assert ("x-goog-request-params", "name=name/value",) in kw["metadata"]
+    assert (
+        "x-goog-request-params",
+        "name=name/value",
+    ) in kw["metadata"]
 
 
 def test_get_batch_prediction_job_flattened():
-    client = JobServiceClient(credentials=ga_credentials.AnonymousCredentials(),)
+    client = JobServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+    )
 
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(
@@ -4908,7 +5519,9 @@ def test_get_batch_prediction_job_flattened():
         call.return_value = batch_prediction_job.BatchPredictionJob()
         # Call the method with a truthy value for each flattened field,
         # using the keyword arguments to the method.
-        client.get_batch_prediction_job(name="name_value",)
+        client.get_batch_prediction_job(
+            name="name_value",
+        )
 
         # Establish that the underlying call was made with the expected
         # request object values.
@@ -4920,19 +5533,24 @@ def test_get_batch_prediction_job_flattened():
 
 
 def test_get_batch_prediction_job_flattened_error():
-    client = JobServiceClient(credentials=ga_credentials.AnonymousCredentials(),)
+    client = JobServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+    )
 
     # Attempting to call a method with both a request object and flattened
     # fields is an error.
     with pytest.raises(ValueError):
         client.get_batch_prediction_job(
-            job_service.GetBatchPredictionJobRequest(), name="name_value",
+            job_service.GetBatchPredictionJobRequest(),
+            name="name_value",
         )
 
 
 @pytest.mark.asyncio
 async def test_get_batch_prediction_job_flattened_async():
-    client = JobServiceAsyncClient(credentials=ga_credentials.AnonymousCredentials(),)
+    client = JobServiceAsyncClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+    )
 
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(
@@ -4946,7 +5564,9 @@ async def test_get_batch_prediction_job_flattened_async():
         )
         # Call the method with a truthy value for each flattened field,
         # using the keyword arguments to the method.
-        response = await client.get_batch_prediction_job(name="name_value",)
+        response = await client.get_batch_prediction_job(
+            name="name_value",
+        )
 
         # Establish that the underlying call was made with the expected
         # request object values.
@@ -4959,22 +5579,30 @@ async def test_get_batch_prediction_job_flattened_async():
 
 @pytest.mark.asyncio
 async def test_get_batch_prediction_job_flattened_error_async():
-    client = JobServiceAsyncClient(credentials=ga_credentials.AnonymousCredentials(),)
+    client = JobServiceAsyncClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+    )
 
     # Attempting to call a method with both a request object and flattened
     # fields is an error.
     with pytest.raises(ValueError):
         await client.get_batch_prediction_job(
-            job_service.GetBatchPredictionJobRequest(), name="name_value",
+            job_service.GetBatchPredictionJobRequest(),
+            name="name_value",
         )
 
 
 @pytest.mark.parametrize(
-    "request_type", [job_service.ListBatchPredictionJobsRequest, dict,]
+    "request_type",
+    [
+        job_service.ListBatchPredictionJobsRequest,
+        dict,
+    ],
 )
 def test_list_batch_prediction_jobs(request_type, transport: str = "grpc"):
     client = JobServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(), transport=transport,
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport=transport,
     )
 
     # Everything is optional in proto3 as far as the runtime is concerned,
@@ -5005,7 +5633,8 @@ def test_list_batch_prediction_jobs_empty_call():
     # This test is a coverage failsafe to make sure that totally empty calls,
     # i.e. request == None and no flattened fields passed, work.
     client = JobServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(), transport="grpc",
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="grpc",
     )
 
     # Mock the actual call within the gRPC stub, and fake the request.
@@ -5024,7 +5653,8 @@ async def test_list_batch_prediction_jobs_async(
     request_type=job_service.ListBatchPredictionJobsRequest,
 ):
     client = JobServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(), transport=transport,
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport=transport,
     )
 
     # Everything is optional in proto3 as far as the runtime is concerned,
@@ -5059,7 +5689,9 @@ async def test_list_batch_prediction_jobs_async_from_dict():
 
 
 def test_list_batch_prediction_jobs_field_headers():
-    client = JobServiceClient(credentials=ga_credentials.AnonymousCredentials(),)
+    client = JobServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+    )
 
     # Any value that is part of the HTTP/1.1 URI should be sent as
     # a field header. Set these to a non-empty value.
@@ -5081,12 +5713,17 @@ def test_list_batch_prediction_jobs_field_headers():
 
     # Establish that the field header was sent.
     _, _, kw = call.mock_calls[0]
-    assert ("x-goog-request-params", "parent=parent/value",) in kw["metadata"]
+    assert (
+        "x-goog-request-params",
+        "parent=parent/value",
+    ) in kw["metadata"]
 
 
 @pytest.mark.asyncio
 async def test_list_batch_prediction_jobs_field_headers_async():
-    client = JobServiceAsyncClient(credentials=ga_credentials.AnonymousCredentials(),)
+    client = JobServiceAsyncClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+    )
 
     # Any value that is part of the HTTP/1.1 URI should be sent as
     # a field header. Set these to a non-empty value.
@@ -5110,11 +5747,16 @@ async def test_list_batch_prediction_jobs_field_headers_async():
 
     # Establish that the field header was sent.
     _, _, kw = call.mock_calls[0]
-    assert ("x-goog-request-params", "parent=parent/value",) in kw["metadata"]
+    assert (
+        "x-goog-request-params",
+        "parent=parent/value",
+    ) in kw["metadata"]
 
 
 def test_list_batch_prediction_jobs_flattened():
-    client = JobServiceClient(credentials=ga_credentials.AnonymousCredentials(),)
+    client = JobServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+    )
 
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(
@@ -5124,7 +5766,9 @@ def test_list_batch_prediction_jobs_flattened():
         call.return_value = job_service.ListBatchPredictionJobsResponse()
         # Call the method with a truthy value for each flattened field,
         # using the keyword arguments to the method.
-        client.list_batch_prediction_jobs(parent="parent_value",)
+        client.list_batch_prediction_jobs(
+            parent="parent_value",
+        )
 
         # Establish that the underlying call was made with the expected
         # request object values.
@@ -5136,19 +5780,24 @@ def test_list_batch_prediction_jobs_flattened():
 
 
 def test_list_batch_prediction_jobs_flattened_error():
-    client = JobServiceClient(credentials=ga_credentials.AnonymousCredentials(),)
+    client = JobServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+    )
 
     # Attempting to call a method with both a request object and flattened
     # fields is an error.
     with pytest.raises(ValueError):
         client.list_batch_prediction_jobs(
-            job_service.ListBatchPredictionJobsRequest(), parent="parent_value",
+            job_service.ListBatchPredictionJobsRequest(),
+            parent="parent_value",
         )
 
 
 @pytest.mark.asyncio
 async def test_list_batch_prediction_jobs_flattened_async():
-    client = JobServiceAsyncClient(credentials=ga_credentials.AnonymousCredentials(),)
+    client = JobServiceAsyncClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+    )
 
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(
@@ -5162,7 +5811,9 @@ async def test_list_batch_prediction_jobs_flattened_async():
         )
         # Call the method with a truthy value for each flattened field,
         # using the keyword arguments to the method.
-        response = await client.list_batch_prediction_jobs(parent="parent_value",)
+        response = await client.list_batch_prediction_jobs(
+            parent="parent_value",
+        )
 
         # Establish that the underlying call was made with the expected
         # request object values.
@@ -5175,19 +5826,23 @@ async def test_list_batch_prediction_jobs_flattened_async():
 
 @pytest.mark.asyncio
 async def test_list_batch_prediction_jobs_flattened_error_async():
-    client = JobServiceAsyncClient(credentials=ga_credentials.AnonymousCredentials(),)
+    client = JobServiceAsyncClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+    )
 
     # Attempting to call a method with both a request object and flattened
     # fields is an error.
     with pytest.raises(ValueError):
         await client.list_batch_prediction_jobs(
-            job_service.ListBatchPredictionJobsRequest(), parent="parent_value",
+            job_service.ListBatchPredictionJobsRequest(),
+            parent="parent_value",
         )
 
 
 def test_list_batch_prediction_jobs_pager(transport_name: str = "grpc"):
     client = JobServiceClient(
-        credentials=ga_credentials.AnonymousCredentials, transport=transport_name,
+        credentials=ga_credentials.AnonymousCredentials,
+        transport=transport_name,
     )
 
     # Mock the actual call within the gRPC stub, and fake the request.
@@ -5205,10 +5860,13 @@ def test_list_batch_prediction_jobs_pager(transport_name: str = "grpc"):
                 next_page_token="abc",
             ),
             job_service.ListBatchPredictionJobsResponse(
-                batch_prediction_jobs=[], next_page_token="def",
+                batch_prediction_jobs=[],
+                next_page_token="def",
             ),
             job_service.ListBatchPredictionJobsResponse(
-                batch_prediction_jobs=[batch_prediction_job.BatchPredictionJob(),],
+                batch_prediction_jobs=[
+                    batch_prediction_job.BatchPredictionJob(),
+                ],
                 next_page_token="ghi",
             ),
             job_service.ListBatchPredictionJobsResponse(
@@ -5237,7 +5895,8 @@ def test_list_batch_prediction_jobs_pager(transport_name: str = "grpc"):
 
 def test_list_batch_prediction_jobs_pages(transport_name: str = "grpc"):
     client = JobServiceClient(
-        credentials=ga_credentials.AnonymousCredentials, transport=transport_name,
+        credentials=ga_credentials.AnonymousCredentials,
+        transport=transport_name,
     )
 
     # Mock the actual call within the gRPC stub, and fake the request.
@@ -5255,10 +5914,13 @@ def test_list_batch_prediction_jobs_pages(transport_name: str = "grpc"):
                 next_page_token="abc",
             ),
             job_service.ListBatchPredictionJobsResponse(
-                batch_prediction_jobs=[], next_page_token="def",
+                batch_prediction_jobs=[],
+                next_page_token="def",
             ),
             job_service.ListBatchPredictionJobsResponse(
-                batch_prediction_jobs=[batch_prediction_job.BatchPredictionJob(),],
+                batch_prediction_jobs=[
+                    batch_prediction_job.BatchPredictionJob(),
+                ],
                 next_page_token="ghi",
             ),
             job_service.ListBatchPredictionJobsResponse(
@@ -5276,7 +5938,9 @@ def test_list_batch_prediction_jobs_pages(transport_name: str = "grpc"):
 
 @pytest.mark.asyncio
 async def test_list_batch_prediction_jobs_async_pager():
-    client = JobServiceAsyncClient(credentials=ga_credentials.AnonymousCredentials,)
+    client = JobServiceAsyncClient(
+        credentials=ga_credentials.AnonymousCredentials,
+    )
 
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(
@@ -5295,10 +5959,13 @@ async def test_list_batch_prediction_jobs_async_pager():
                 next_page_token="abc",
             ),
             job_service.ListBatchPredictionJobsResponse(
-                batch_prediction_jobs=[], next_page_token="def",
+                batch_prediction_jobs=[],
+                next_page_token="def",
             ),
             job_service.ListBatchPredictionJobsResponse(
-                batch_prediction_jobs=[batch_prediction_job.BatchPredictionJob(),],
+                batch_prediction_jobs=[
+                    batch_prediction_job.BatchPredictionJob(),
+                ],
                 next_page_token="ghi",
             ),
             job_service.ListBatchPredictionJobsResponse(
@@ -5309,10 +5976,12 @@ async def test_list_batch_prediction_jobs_async_pager():
             ),
             RuntimeError,
         )
-        async_pager = await client.list_batch_prediction_jobs(request={},)
+        async_pager = await client.list_batch_prediction_jobs(
+            request={},
+        )
         assert async_pager.next_page_token == "abc"
         responses = []
-        async for response in async_pager:
+        async for response in async_pager:  # pragma: no branch
             responses.append(response)
 
         assert len(responses) == 6
@@ -5323,7 +5992,9 @@ async def test_list_batch_prediction_jobs_async_pager():
 
 @pytest.mark.asyncio
 async def test_list_batch_prediction_jobs_async_pages():
-    client = JobServiceAsyncClient(credentials=ga_credentials.AnonymousCredentials,)
+    client = JobServiceAsyncClient(
+        credentials=ga_credentials.AnonymousCredentials,
+    )
 
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(
@@ -5342,10 +6013,13 @@ async def test_list_batch_prediction_jobs_async_pages():
                 next_page_token="abc",
             ),
             job_service.ListBatchPredictionJobsResponse(
-                batch_prediction_jobs=[], next_page_token="def",
+                batch_prediction_jobs=[],
+                next_page_token="def",
             ),
             job_service.ListBatchPredictionJobsResponse(
-                batch_prediction_jobs=[batch_prediction_job.BatchPredictionJob(),],
+                batch_prediction_jobs=[
+                    batch_prediction_job.BatchPredictionJob(),
+                ],
                 next_page_token="ghi",
             ),
             job_service.ListBatchPredictionJobsResponse(
@@ -5357,18 +6031,25 @@ async def test_list_batch_prediction_jobs_async_pages():
             RuntimeError,
         )
         pages = []
-        async for page_ in (await client.list_batch_prediction_jobs(request={})).pages:
+        async for page_ in (
+            await client.list_batch_prediction_jobs(request={})
+        ).pages:  # pragma: no branch
             pages.append(page_)
         for page_, token in zip(pages, ["abc", "def", "ghi", ""]):
             assert page_.raw_page.next_page_token == token
 
 
 @pytest.mark.parametrize(
-    "request_type", [job_service.DeleteBatchPredictionJobRequest, dict,]
+    "request_type",
+    [
+        job_service.DeleteBatchPredictionJobRequest,
+        dict,
+    ],
 )
 def test_delete_batch_prediction_job(request_type, transport: str = "grpc"):
     client = JobServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(), transport=transport,
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport=transport,
     )
 
     # Everything is optional in proto3 as far as the runtime is concerned,
@@ -5396,7 +6077,8 @@ def test_delete_batch_prediction_job_empty_call():
     # This test is a coverage failsafe to make sure that totally empty calls,
     # i.e. request == None and no flattened fields passed, work.
     client = JobServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(), transport="grpc",
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="grpc",
     )
 
     # Mock the actual call within the gRPC stub, and fake the request.
@@ -5415,7 +6097,8 @@ async def test_delete_batch_prediction_job_async(
     request_type=job_service.DeleteBatchPredictionJobRequest,
 ):
     client = JobServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(), transport=transport,
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport=transport,
     )
 
     # Everything is optional in proto3 as far as the runtime is concerned,
@@ -5447,7 +6130,9 @@ async def test_delete_batch_prediction_job_async_from_dict():
 
 
 def test_delete_batch_prediction_job_field_headers():
-    client = JobServiceClient(credentials=ga_credentials.AnonymousCredentials(),)
+    client = JobServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+    )
 
     # Any value that is part of the HTTP/1.1 URI should be sent as
     # a field header. Set these to a non-empty value.
@@ -5469,12 +6154,17 @@ def test_delete_batch_prediction_job_field_headers():
 
     # Establish that the field header was sent.
     _, _, kw = call.mock_calls[0]
-    assert ("x-goog-request-params", "name=name/value",) in kw["metadata"]
+    assert (
+        "x-goog-request-params",
+        "name=name/value",
+    ) in kw["metadata"]
 
 
 @pytest.mark.asyncio
 async def test_delete_batch_prediction_job_field_headers_async():
-    client = JobServiceAsyncClient(credentials=ga_credentials.AnonymousCredentials(),)
+    client = JobServiceAsyncClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+    )
 
     # Any value that is part of the HTTP/1.1 URI should be sent as
     # a field header. Set these to a non-empty value.
@@ -5498,11 +6188,16 @@ async def test_delete_batch_prediction_job_field_headers_async():
 
     # Establish that the field header was sent.
     _, _, kw = call.mock_calls[0]
-    assert ("x-goog-request-params", "name=name/value",) in kw["metadata"]
+    assert (
+        "x-goog-request-params",
+        "name=name/value",
+    ) in kw["metadata"]
 
 
 def test_delete_batch_prediction_job_flattened():
-    client = JobServiceClient(credentials=ga_credentials.AnonymousCredentials(),)
+    client = JobServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+    )
 
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(
@@ -5512,7 +6207,9 @@ def test_delete_batch_prediction_job_flattened():
         call.return_value = operations_pb2.Operation(name="operations/op")
         # Call the method with a truthy value for each flattened field,
         # using the keyword arguments to the method.
-        client.delete_batch_prediction_job(name="name_value",)
+        client.delete_batch_prediction_job(
+            name="name_value",
+        )
 
         # Establish that the underlying call was made with the expected
         # request object values.
@@ -5524,19 +6221,24 @@ def test_delete_batch_prediction_job_flattened():
 
 
 def test_delete_batch_prediction_job_flattened_error():
-    client = JobServiceClient(credentials=ga_credentials.AnonymousCredentials(),)
+    client = JobServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+    )
 
     # Attempting to call a method with both a request object and flattened
     # fields is an error.
     with pytest.raises(ValueError):
         client.delete_batch_prediction_job(
-            job_service.DeleteBatchPredictionJobRequest(), name="name_value",
+            job_service.DeleteBatchPredictionJobRequest(),
+            name="name_value",
         )
 
 
 @pytest.mark.asyncio
 async def test_delete_batch_prediction_job_flattened_async():
-    client = JobServiceAsyncClient(credentials=ga_credentials.AnonymousCredentials(),)
+    client = JobServiceAsyncClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+    )
 
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(
@@ -5550,7 +6252,9 @@ async def test_delete_batch_prediction_job_flattened_async():
         )
         # Call the method with a truthy value for each flattened field,
         # using the keyword arguments to the method.
-        response = await client.delete_batch_prediction_job(name="name_value",)
+        response = await client.delete_batch_prediction_job(
+            name="name_value",
+        )
 
         # Establish that the underlying call was made with the expected
         # request object values.
@@ -5563,22 +6267,30 @@ async def test_delete_batch_prediction_job_flattened_async():
 
 @pytest.mark.asyncio
 async def test_delete_batch_prediction_job_flattened_error_async():
-    client = JobServiceAsyncClient(credentials=ga_credentials.AnonymousCredentials(),)
+    client = JobServiceAsyncClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+    )
 
     # Attempting to call a method with both a request object and flattened
     # fields is an error.
     with pytest.raises(ValueError):
         await client.delete_batch_prediction_job(
-            job_service.DeleteBatchPredictionJobRequest(), name="name_value",
+            job_service.DeleteBatchPredictionJobRequest(),
+            name="name_value",
         )
 
 
 @pytest.mark.parametrize(
-    "request_type", [job_service.CancelBatchPredictionJobRequest, dict,]
+    "request_type",
+    [
+        job_service.CancelBatchPredictionJobRequest,
+        dict,
+    ],
 )
 def test_cancel_batch_prediction_job(request_type, transport: str = "grpc"):
     client = JobServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(), transport=transport,
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport=transport,
     )
 
     # Everything is optional in proto3 as far as the runtime is concerned,
@@ -5606,7 +6318,8 @@ def test_cancel_batch_prediction_job_empty_call():
     # This test is a coverage failsafe to make sure that totally empty calls,
     # i.e. request == None and no flattened fields passed, work.
     client = JobServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(), transport="grpc",
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="grpc",
     )
 
     # Mock the actual call within the gRPC stub, and fake the request.
@@ -5625,7 +6338,8 @@ async def test_cancel_batch_prediction_job_async(
     request_type=job_service.CancelBatchPredictionJobRequest,
 ):
     client = JobServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(), transport=transport,
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport=transport,
     )
 
     # Everything is optional in proto3 as far as the runtime is concerned,
@@ -5655,7 +6369,9 @@ async def test_cancel_batch_prediction_job_async_from_dict():
 
 
 def test_cancel_batch_prediction_job_field_headers():
-    client = JobServiceClient(credentials=ga_credentials.AnonymousCredentials(),)
+    client = JobServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+    )
 
     # Any value that is part of the HTTP/1.1 URI should be sent as
     # a field header. Set these to a non-empty value.
@@ -5677,12 +6393,17 @@ def test_cancel_batch_prediction_job_field_headers():
 
     # Establish that the field header was sent.
     _, _, kw = call.mock_calls[0]
-    assert ("x-goog-request-params", "name=name/value",) in kw["metadata"]
+    assert (
+        "x-goog-request-params",
+        "name=name/value",
+    ) in kw["metadata"]
 
 
 @pytest.mark.asyncio
 async def test_cancel_batch_prediction_job_field_headers_async():
-    client = JobServiceAsyncClient(credentials=ga_credentials.AnonymousCredentials(),)
+    client = JobServiceAsyncClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+    )
 
     # Any value that is part of the HTTP/1.1 URI should be sent as
     # a field header. Set these to a non-empty value.
@@ -5704,11 +6425,16 @@ async def test_cancel_batch_prediction_job_field_headers_async():
 
     # Establish that the field header was sent.
     _, _, kw = call.mock_calls[0]
-    assert ("x-goog-request-params", "name=name/value",) in kw["metadata"]
+    assert (
+        "x-goog-request-params",
+        "name=name/value",
+    ) in kw["metadata"]
 
 
 def test_cancel_batch_prediction_job_flattened():
-    client = JobServiceClient(credentials=ga_credentials.AnonymousCredentials(),)
+    client = JobServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+    )
 
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(
@@ -5718,7 +6444,9 @@ def test_cancel_batch_prediction_job_flattened():
         call.return_value = None
         # Call the method with a truthy value for each flattened field,
         # using the keyword arguments to the method.
-        client.cancel_batch_prediction_job(name="name_value",)
+        client.cancel_batch_prediction_job(
+            name="name_value",
+        )
 
         # Establish that the underlying call was made with the expected
         # request object values.
@@ -5730,19 +6458,24 @@ def test_cancel_batch_prediction_job_flattened():
 
 
 def test_cancel_batch_prediction_job_flattened_error():
-    client = JobServiceClient(credentials=ga_credentials.AnonymousCredentials(),)
+    client = JobServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+    )
 
     # Attempting to call a method with both a request object and flattened
     # fields is an error.
     with pytest.raises(ValueError):
         client.cancel_batch_prediction_job(
-            job_service.CancelBatchPredictionJobRequest(), name="name_value",
+            job_service.CancelBatchPredictionJobRequest(),
+            name="name_value",
         )
 
 
 @pytest.mark.asyncio
 async def test_cancel_batch_prediction_job_flattened_async():
-    client = JobServiceAsyncClient(credentials=ga_credentials.AnonymousCredentials(),)
+    client = JobServiceAsyncClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+    )
 
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(
@@ -5754,7 +6487,9 @@ async def test_cancel_batch_prediction_job_flattened_async():
         call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(None)
         # Call the method with a truthy value for each flattened field,
         # using the keyword arguments to the method.
-        response = await client.cancel_batch_prediction_job(name="name_value",)
+        response = await client.cancel_batch_prediction_job(
+            name="name_value",
+        )
 
         # Establish that the underlying call was made with the expected
         # request object values.
@@ -5767,22 +6502,30 @@ async def test_cancel_batch_prediction_job_flattened_async():
 
 @pytest.mark.asyncio
 async def test_cancel_batch_prediction_job_flattened_error_async():
-    client = JobServiceAsyncClient(credentials=ga_credentials.AnonymousCredentials(),)
+    client = JobServiceAsyncClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+    )
 
     # Attempting to call a method with both a request object and flattened
     # fields is an error.
     with pytest.raises(ValueError):
         await client.cancel_batch_prediction_job(
-            job_service.CancelBatchPredictionJobRequest(), name="name_value",
+            job_service.CancelBatchPredictionJobRequest(),
+            name="name_value",
         )
 
 
 @pytest.mark.parametrize(
-    "request_type", [job_service.CreateModelDeploymentMonitoringJobRequest, dict,]
+    "request_type",
+    [
+        job_service.CreateModelDeploymentMonitoringJobRequest,
+        dict,
+    ],
 )
 def test_create_model_deployment_monitoring_job(request_type, transport: str = "grpc"):
     client = JobServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(), transport=transport,
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport=transport,
     )
 
     # Everything is optional in proto3 as far as the runtime is concerned,
@@ -5832,7 +6575,8 @@ def test_create_model_deployment_monitoring_job_empty_call():
     # This test is a coverage failsafe to make sure that totally empty calls,
     # i.e. request == None and no flattened fields passed, work.
     client = JobServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(), transport="grpc",
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="grpc",
     )
 
     # Mock the actual call within the gRPC stub, and fake the request.
@@ -5851,7 +6595,8 @@ async def test_create_model_deployment_monitoring_job_async(
     request_type=job_service.CreateModelDeploymentMonitoringJobRequest,
 ):
     client = JobServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(), transport=transport,
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport=transport,
     )
 
     # Everything is optional in proto3 as far as the runtime is concerned,
@@ -5905,7 +6650,9 @@ async def test_create_model_deployment_monitoring_job_async_from_dict():
 
 
 def test_create_model_deployment_monitoring_job_field_headers():
-    client = JobServiceClient(credentials=ga_credentials.AnonymousCredentials(),)
+    client = JobServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+    )
 
     # Any value that is part of the HTTP/1.1 URI should be sent as
     # a field header. Set these to a non-empty value.
@@ -5929,12 +6676,17 @@ def test_create_model_deployment_monitoring_job_field_headers():
 
     # Establish that the field header was sent.
     _, _, kw = call.mock_calls[0]
-    assert ("x-goog-request-params", "parent=parent/value",) in kw["metadata"]
+    assert (
+        "x-goog-request-params",
+        "parent=parent/value",
+    ) in kw["metadata"]
 
 
 @pytest.mark.asyncio
 async def test_create_model_deployment_monitoring_job_field_headers_async():
-    client = JobServiceAsyncClient(credentials=ga_credentials.AnonymousCredentials(),)
+    client = JobServiceAsyncClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+    )
 
     # Any value that is part of the HTTP/1.1 URI should be sent as
     # a field header. Set these to a non-empty value.
@@ -5958,11 +6710,16 @@ async def test_create_model_deployment_monitoring_job_field_headers_async():
 
     # Establish that the field header was sent.
     _, _, kw = call.mock_calls[0]
-    assert ("x-goog-request-params", "parent=parent/value",) in kw["metadata"]
+    assert (
+        "x-goog-request-params",
+        "parent=parent/value",
+    ) in kw["metadata"]
 
 
 def test_create_model_deployment_monitoring_job_flattened():
-    client = JobServiceClient(credentials=ga_credentials.AnonymousCredentials(),)
+    client = JobServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+    )
 
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(
@@ -5996,7 +6753,9 @@ def test_create_model_deployment_monitoring_job_flattened():
 
 
 def test_create_model_deployment_monitoring_job_flattened_error():
-    client = JobServiceClient(credentials=ga_credentials.AnonymousCredentials(),)
+    client = JobServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+    )
 
     # Attempting to call a method with both a request object and flattened
     # fields is an error.
@@ -6012,7 +6771,9 @@ def test_create_model_deployment_monitoring_job_flattened_error():
 
 @pytest.mark.asyncio
 async def test_create_model_deployment_monitoring_job_flattened_async():
-    client = JobServiceAsyncClient(credentials=ga_credentials.AnonymousCredentials(),)
+    client = JobServiceAsyncClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+    )
 
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(
@@ -6051,7 +6812,9 @@ async def test_create_model_deployment_monitoring_job_flattened_async():
 
 @pytest.mark.asyncio
 async def test_create_model_deployment_monitoring_job_flattened_error_async():
-    client = JobServiceAsyncClient(credentials=ga_credentials.AnonymousCredentials(),)
+    client = JobServiceAsyncClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+    )
 
     # Attempting to call a method with both a request object and flattened
     # fields is an error.
@@ -6067,13 +6830,17 @@ async def test_create_model_deployment_monitoring_job_flattened_error_async():
 
 @pytest.mark.parametrize(
     "request_type",
-    [job_service.SearchModelDeploymentMonitoringStatsAnomaliesRequest, dict,],
+    [
+        job_service.SearchModelDeploymentMonitoringStatsAnomaliesRequest,
+        dict,
+    ],
 )
 def test_search_model_deployment_monitoring_stats_anomalies(
     request_type, transport: str = "grpc"
 ):
     client = JobServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(), transport=transport,
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport=transport,
     )
 
     # Everything is optional in proto3 as far as the runtime is concerned,
@@ -6086,8 +6853,10 @@ def test_search_model_deployment_monitoring_stats_anomalies(
         "__call__",
     ) as call:
         # Designate an appropriate return value for the call.
-        call.return_value = job_service.SearchModelDeploymentMonitoringStatsAnomaliesResponse(
-            next_page_token="next_page_token_value",
+        call.return_value = (
+            job_service.SearchModelDeploymentMonitoringStatsAnomaliesResponse(
+                next_page_token="next_page_token_value",
+            )
         )
         response = client.search_model_deployment_monitoring_stats_anomalies(request)
 
@@ -6110,7 +6879,8 @@ def test_search_model_deployment_monitoring_stats_anomalies_empty_call():
     # This test is a coverage failsafe to make sure that totally empty calls,
     # i.e. request == None and no flattened fields passed, work.
     client = JobServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(), transport="grpc",
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="grpc",
     )
 
     # Mock the actual call within the gRPC stub, and fake the request.
@@ -6133,7 +6903,8 @@ async def test_search_model_deployment_monitoring_stats_anomalies_async(
     request_type=job_service.SearchModelDeploymentMonitoringStatsAnomaliesRequest,
 ):
     client = JobServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(), transport=transport,
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport=transport,
     )
 
     # Everything is optional in proto3 as far as the runtime is concerned,
@@ -6178,7 +6949,9 @@ async def test_search_model_deployment_monitoring_stats_anomalies_async_from_dic
 
 
 def test_search_model_deployment_monitoring_stats_anomalies_field_headers():
-    client = JobServiceClient(credentials=ga_credentials.AnonymousCredentials(),)
+    client = JobServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+    )
 
     # Any value that is part of the HTTP/1.1 URI should be sent as
     # a field header. Set these to a non-empty value.
@@ -6211,7 +6984,9 @@ def test_search_model_deployment_monitoring_stats_anomalies_field_headers():
 
 @pytest.mark.asyncio
 async def test_search_model_deployment_monitoring_stats_anomalies_field_headers_async():
-    client = JobServiceAsyncClient(credentials=ga_credentials.AnonymousCredentials(),)
+    client = JobServiceAsyncClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+    )
 
     # Any value that is part of the HTTP/1.1 URI should be sent as
     # a field header. Set these to a non-empty value.
@@ -6243,7 +7018,9 @@ async def test_search_model_deployment_monitoring_stats_anomalies_field_headers_
 
 
 def test_search_model_deployment_monitoring_stats_anomalies_flattened():
-    client = JobServiceClient(credentials=ga_credentials.AnonymousCredentials(),)
+    client = JobServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+    )
 
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(
@@ -6274,7 +7051,9 @@ def test_search_model_deployment_monitoring_stats_anomalies_flattened():
 
 
 def test_search_model_deployment_monitoring_stats_anomalies_flattened_error():
-    client = JobServiceClient(credentials=ga_credentials.AnonymousCredentials(),)
+    client = JobServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+    )
 
     # Attempting to call a method with both a request object and flattened
     # fields is an error.
@@ -6288,7 +7067,9 @@ def test_search_model_deployment_monitoring_stats_anomalies_flattened_error():
 
 @pytest.mark.asyncio
 async def test_search_model_deployment_monitoring_stats_anomalies_flattened_async():
-    client = JobServiceAsyncClient(credentials=ga_credentials.AnonymousCredentials(),)
+    client = JobServiceAsyncClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+    )
 
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(
@@ -6324,7 +7105,9 @@ async def test_search_model_deployment_monitoring_stats_anomalies_flattened_asyn
 
 @pytest.mark.asyncio
 async def test_search_model_deployment_monitoring_stats_anomalies_flattened_error_async():
-    client = JobServiceAsyncClient(credentials=ga_credentials.AnonymousCredentials(),)
+    client = JobServiceAsyncClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+    )
 
     # Attempting to call a method with both a request object and flattened
     # fields is an error.
@@ -6340,7 +7123,8 @@ def test_search_model_deployment_monitoring_stats_anomalies_pager(
     transport_name: str = "grpc",
 ):
     client = JobServiceClient(
-        credentials=ga_credentials.AnonymousCredentials, transport=transport_name,
+        credentials=ga_credentials.AnonymousCredentials,
+        transport=transport_name,
     )
 
     # Mock the actual call within the gRPC stub, and fake the request.
@@ -6359,7 +7143,8 @@ def test_search_model_deployment_monitoring_stats_anomalies_pager(
                 next_page_token="abc",
             ),
             job_service.SearchModelDeploymentMonitoringStatsAnomaliesResponse(
-                monitoring_stats=[], next_page_token="def",
+                monitoring_stats=[],
+                next_page_token="def",
             ),
             job_service.SearchModelDeploymentMonitoringStatsAnomaliesResponse(
                 monitoring_stats=[
@@ -6400,7 +7185,8 @@ def test_search_model_deployment_monitoring_stats_anomalies_pages(
     transport_name: str = "grpc",
 ):
     client = JobServiceClient(
-        credentials=ga_credentials.AnonymousCredentials, transport=transport_name,
+        credentials=ga_credentials.AnonymousCredentials,
+        transport=transport_name,
     )
 
     # Mock the actual call within the gRPC stub, and fake the request.
@@ -6419,7 +7205,8 @@ def test_search_model_deployment_monitoring_stats_anomalies_pages(
                 next_page_token="abc",
             ),
             job_service.SearchModelDeploymentMonitoringStatsAnomaliesResponse(
-                monitoring_stats=[], next_page_token="def",
+                monitoring_stats=[],
+                next_page_token="def",
             ),
             job_service.SearchModelDeploymentMonitoringStatsAnomaliesResponse(
                 monitoring_stats=[
@@ -6444,7 +7231,9 @@ def test_search_model_deployment_monitoring_stats_anomalies_pages(
 
 @pytest.mark.asyncio
 async def test_search_model_deployment_monitoring_stats_anomalies_async_pager():
-    client = JobServiceAsyncClient(credentials=ga_credentials.AnonymousCredentials,)
+    client = JobServiceAsyncClient(
+        credentials=ga_credentials.AnonymousCredentials,
+    )
 
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(
@@ -6463,7 +7252,8 @@ async def test_search_model_deployment_monitoring_stats_anomalies_async_pager():
                 next_page_token="abc",
             ),
             job_service.SearchModelDeploymentMonitoringStatsAnomaliesResponse(
-                monitoring_stats=[], next_page_token="def",
+                monitoring_stats=[],
+                next_page_token="def",
             ),
             job_service.SearchModelDeploymentMonitoringStatsAnomaliesResponse(
                 monitoring_stats=[
@@ -6484,7 +7274,7 @@ async def test_search_model_deployment_monitoring_stats_anomalies_async_pager():
         )
         assert async_pager.next_page_token == "abc"
         responses = []
-        async for response in async_pager:
+        async for response in async_pager:  # pragma: no branch
             responses.append(response)
 
         assert len(responses) == 6
@@ -6498,7 +7288,9 @@ async def test_search_model_deployment_monitoring_stats_anomalies_async_pager():
 
 @pytest.mark.asyncio
 async def test_search_model_deployment_monitoring_stats_anomalies_async_pages():
-    client = JobServiceAsyncClient(credentials=ga_credentials.AnonymousCredentials,)
+    client = JobServiceAsyncClient(
+        credentials=ga_credentials.AnonymousCredentials,
+    )
 
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(
@@ -6517,7 +7309,8 @@ async def test_search_model_deployment_monitoring_stats_anomalies_async_pages():
                 next_page_token="abc",
             ),
             job_service.SearchModelDeploymentMonitoringStatsAnomaliesResponse(
-                monitoring_stats=[], next_page_token="def",
+                monitoring_stats=[],
+                next_page_token="def",
             ),
             job_service.SearchModelDeploymentMonitoringStatsAnomaliesResponse(
                 monitoring_stats=[
@@ -6536,18 +7329,23 @@ async def test_search_model_deployment_monitoring_stats_anomalies_async_pages():
         pages = []
         async for page_ in (
             await client.search_model_deployment_monitoring_stats_anomalies(request={})
-        ).pages:
+        ).pages:  # pragma: no branch
             pages.append(page_)
         for page_, token in zip(pages, ["abc", "def", "ghi", ""]):
             assert page_.raw_page.next_page_token == token
 
 
 @pytest.mark.parametrize(
-    "request_type", [job_service.GetModelDeploymentMonitoringJobRequest, dict,]
+    "request_type",
+    [
+        job_service.GetModelDeploymentMonitoringJobRequest,
+        dict,
+    ],
 )
 def test_get_model_deployment_monitoring_job(request_type, transport: str = "grpc"):
     client = JobServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(), transport=transport,
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport=transport,
     )
 
     # Everything is optional in proto3 as far as the runtime is concerned,
@@ -6597,7 +7395,8 @@ def test_get_model_deployment_monitoring_job_empty_call():
     # This test is a coverage failsafe to make sure that totally empty calls,
     # i.e. request == None and no flattened fields passed, work.
     client = JobServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(), transport="grpc",
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="grpc",
     )
 
     # Mock the actual call within the gRPC stub, and fake the request.
@@ -6616,7 +7415,8 @@ async def test_get_model_deployment_monitoring_job_async(
     request_type=job_service.GetModelDeploymentMonitoringJobRequest,
 ):
     client = JobServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(), transport=transport,
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport=transport,
     )
 
     # Everything is optional in proto3 as far as the runtime is concerned,
@@ -6670,7 +7470,9 @@ async def test_get_model_deployment_monitoring_job_async_from_dict():
 
 
 def test_get_model_deployment_monitoring_job_field_headers():
-    client = JobServiceClient(credentials=ga_credentials.AnonymousCredentials(),)
+    client = JobServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+    )
 
     # Any value that is part of the HTTP/1.1 URI should be sent as
     # a field header. Set these to a non-empty value.
@@ -6694,12 +7496,17 @@ def test_get_model_deployment_monitoring_job_field_headers():
 
     # Establish that the field header was sent.
     _, _, kw = call.mock_calls[0]
-    assert ("x-goog-request-params", "name=name/value",) in kw["metadata"]
+    assert (
+        "x-goog-request-params",
+        "name=name/value",
+    ) in kw["metadata"]
 
 
 @pytest.mark.asyncio
 async def test_get_model_deployment_monitoring_job_field_headers_async():
-    client = JobServiceAsyncClient(credentials=ga_credentials.AnonymousCredentials(),)
+    client = JobServiceAsyncClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+    )
 
     # Any value that is part of the HTTP/1.1 URI should be sent as
     # a field header. Set these to a non-empty value.
@@ -6723,11 +7530,16 @@ async def test_get_model_deployment_monitoring_job_field_headers_async():
 
     # Establish that the field header was sent.
     _, _, kw = call.mock_calls[0]
-    assert ("x-goog-request-params", "name=name/value",) in kw["metadata"]
+    assert (
+        "x-goog-request-params",
+        "name=name/value",
+    ) in kw["metadata"]
 
 
 def test_get_model_deployment_monitoring_job_flattened():
-    client = JobServiceClient(credentials=ga_credentials.AnonymousCredentials(),)
+    client = JobServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+    )
 
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(
@@ -6739,7 +7551,9 @@ def test_get_model_deployment_monitoring_job_flattened():
         )
         # Call the method with a truthy value for each flattened field,
         # using the keyword arguments to the method.
-        client.get_model_deployment_monitoring_job(name="name_value",)
+        client.get_model_deployment_monitoring_job(
+            name="name_value",
+        )
 
         # Establish that the underlying call was made with the expected
         # request object values.
@@ -6751,19 +7565,24 @@ def test_get_model_deployment_monitoring_job_flattened():
 
 
 def test_get_model_deployment_monitoring_job_flattened_error():
-    client = JobServiceClient(credentials=ga_credentials.AnonymousCredentials(),)
+    client = JobServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+    )
 
     # Attempting to call a method with both a request object and flattened
     # fields is an error.
     with pytest.raises(ValueError):
         client.get_model_deployment_monitoring_job(
-            job_service.GetModelDeploymentMonitoringJobRequest(), name="name_value",
+            job_service.GetModelDeploymentMonitoringJobRequest(),
+            name="name_value",
         )
 
 
 @pytest.mark.asyncio
 async def test_get_model_deployment_monitoring_job_flattened_async():
-    client = JobServiceAsyncClient(credentials=ga_credentials.AnonymousCredentials(),)
+    client = JobServiceAsyncClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+    )
 
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(
@@ -6779,7 +7598,9 @@ async def test_get_model_deployment_monitoring_job_flattened_async():
         )
         # Call the method with a truthy value for each flattened field,
         # using the keyword arguments to the method.
-        response = await client.get_model_deployment_monitoring_job(name="name_value",)
+        response = await client.get_model_deployment_monitoring_job(
+            name="name_value",
+        )
 
         # Establish that the underlying call was made with the expected
         # request object values.
@@ -6792,22 +7613,30 @@ async def test_get_model_deployment_monitoring_job_flattened_async():
 
 @pytest.mark.asyncio
 async def test_get_model_deployment_monitoring_job_flattened_error_async():
-    client = JobServiceAsyncClient(credentials=ga_credentials.AnonymousCredentials(),)
+    client = JobServiceAsyncClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+    )
 
     # Attempting to call a method with both a request object and flattened
     # fields is an error.
     with pytest.raises(ValueError):
         await client.get_model_deployment_monitoring_job(
-            job_service.GetModelDeploymentMonitoringJobRequest(), name="name_value",
+            job_service.GetModelDeploymentMonitoringJobRequest(),
+            name="name_value",
         )
 
 
 @pytest.mark.parametrize(
-    "request_type", [job_service.ListModelDeploymentMonitoringJobsRequest, dict,]
+    "request_type",
+    [
+        job_service.ListModelDeploymentMonitoringJobsRequest,
+        dict,
+    ],
 )
 def test_list_model_deployment_monitoring_jobs(request_type, transport: str = "grpc"):
     client = JobServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(), transport=transport,
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport=transport,
     )
 
     # Everything is optional in proto3 as far as the runtime is concerned,
@@ -6838,7 +7667,8 @@ def test_list_model_deployment_monitoring_jobs_empty_call():
     # This test is a coverage failsafe to make sure that totally empty calls,
     # i.e. request == None and no flattened fields passed, work.
     client = JobServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(), transport="grpc",
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="grpc",
     )
 
     # Mock the actual call within the gRPC stub, and fake the request.
@@ -6857,7 +7687,8 @@ async def test_list_model_deployment_monitoring_jobs_async(
     request_type=job_service.ListModelDeploymentMonitoringJobsRequest,
 ):
     client = JobServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(), transport=transport,
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport=transport,
     )
 
     # Everything is optional in proto3 as far as the runtime is concerned,
@@ -6892,7 +7723,9 @@ async def test_list_model_deployment_monitoring_jobs_async_from_dict():
 
 
 def test_list_model_deployment_monitoring_jobs_field_headers():
-    client = JobServiceClient(credentials=ga_credentials.AnonymousCredentials(),)
+    client = JobServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+    )
 
     # Any value that is part of the HTTP/1.1 URI should be sent as
     # a field header. Set these to a non-empty value.
@@ -6914,12 +7747,17 @@ def test_list_model_deployment_monitoring_jobs_field_headers():
 
     # Establish that the field header was sent.
     _, _, kw = call.mock_calls[0]
-    assert ("x-goog-request-params", "parent=parent/value",) in kw["metadata"]
+    assert (
+        "x-goog-request-params",
+        "parent=parent/value",
+    ) in kw["metadata"]
 
 
 @pytest.mark.asyncio
 async def test_list_model_deployment_monitoring_jobs_field_headers_async():
-    client = JobServiceAsyncClient(credentials=ga_credentials.AnonymousCredentials(),)
+    client = JobServiceAsyncClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+    )
 
     # Any value that is part of the HTTP/1.1 URI should be sent as
     # a field header. Set these to a non-empty value.
@@ -6943,11 +7781,16 @@ async def test_list_model_deployment_monitoring_jobs_field_headers_async():
 
     # Establish that the field header was sent.
     _, _, kw = call.mock_calls[0]
-    assert ("x-goog-request-params", "parent=parent/value",) in kw["metadata"]
+    assert (
+        "x-goog-request-params",
+        "parent=parent/value",
+    ) in kw["metadata"]
 
 
 def test_list_model_deployment_monitoring_jobs_flattened():
-    client = JobServiceClient(credentials=ga_credentials.AnonymousCredentials(),)
+    client = JobServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+    )
 
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(
@@ -6957,7 +7800,9 @@ def test_list_model_deployment_monitoring_jobs_flattened():
         call.return_value = job_service.ListModelDeploymentMonitoringJobsResponse()
         # Call the method with a truthy value for each flattened field,
         # using the keyword arguments to the method.
-        client.list_model_deployment_monitoring_jobs(parent="parent_value",)
+        client.list_model_deployment_monitoring_jobs(
+            parent="parent_value",
+        )
 
         # Establish that the underlying call was made with the expected
         # request object values.
@@ -6969,7 +7814,9 @@ def test_list_model_deployment_monitoring_jobs_flattened():
 
 
 def test_list_model_deployment_monitoring_jobs_flattened_error():
-    client = JobServiceClient(credentials=ga_credentials.AnonymousCredentials(),)
+    client = JobServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+    )
 
     # Attempting to call a method with both a request object and flattened
     # fields is an error.
@@ -6982,7 +7829,9 @@ def test_list_model_deployment_monitoring_jobs_flattened_error():
 
 @pytest.mark.asyncio
 async def test_list_model_deployment_monitoring_jobs_flattened_async():
-    client = JobServiceAsyncClient(credentials=ga_credentials.AnonymousCredentials(),)
+    client = JobServiceAsyncClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+    )
 
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(
@@ -7011,7 +7860,9 @@ async def test_list_model_deployment_monitoring_jobs_flattened_async():
 
 @pytest.mark.asyncio
 async def test_list_model_deployment_monitoring_jobs_flattened_error_async():
-    client = JobServiceAsyncClient(credentials=ga_credentials.AnonymousCredentials(),)
+    client = JobServiceAsyncClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+    )
 
     # Attempting to call a method with both a request object and flattened
     # fields is an error.
@@ -7024,7 +7875,8 @@ async def test_list_model_deployment_monitoring_jobs_flattened_error_async():
 
 def test_list_model_deployment_monitoring_jobs_pager(transport_name: str = "grpc"):
     client = JobServiceClient(
-        credentials=ga_credentials.AnonymousCredentials, transport=transport_name,
+        credentials=ga_credentials.AnonymousCredentials,
+        transport=transport_name,
     )
 
     # Mock the actual call within the gRPC stub, and fake the request.
@@ -7042,7 +7894,8 @@ def test_list_model_deployment_monitoring_jobs_pager(transport_name: str = "grpc
                 next_page_token="abc",
             ),
             job_service.ListModelDeploymentMonitoringJobsResponse(
-                model_deployment_monitoring_jobs=[], next_page_token="def",
+                model_deployment_monitoring_jobs=[],
+                next_page_token="def",
             ),
             job_service.ListModelDeploymentMonitoringJobsResponse(
                 model_deployment_monitoring_jobs=[
@@ -7077,7 +7930,8 @@ def test_list_model_deployment_monitoring_jobs_pager(transport_name: str = "grpc
 
 def test_list_model_deployment_monitoring_jobs_pages(transport_name: str = "grpc"):
     client = JobServiceClient(
-        credentials=ga_credentials.AnonymousCredentials, transport=transport_name,
+        credentials=ga_credentials.AnonymousCredentials,
+        transport=transport_name,
     )
 
     # Mock the actual call within the gRPC stub, and fake the request.
@@ -7095,7 +7949,8 @@ def test_list_model_deployment_monitoring_jobs_pages(transport_name: str = "grpc
                 next_page_token="abc",
             ),
             job_service.ListModelDeploymentMonitoringJobsResponse(
-                model_deployment_monitoring_jobs=[], next_page_token="def",
+                model_deployment_monitoring_jobs=[],
+                next_page_token="def",
             ),
             job_service.ListModelDeploymentMonitoringJobsResponse(
                 model_deployment_monitoring_jobs=[
@@ -7118,7 +7973,9 @@ def test_list_model_deployment_monitoring_jobs_pages(transport_name: str = "grpc
 
 @pytest.mark.asyncio
 async def test_list_model_deployment_monitoring_jobs_async_pager():
-    client = JobServiceAsyncClient(credentials=ga_credentials.AnonymousCredentials,)
+    client = JobServiceAsyncClient(
+        credentials=ga_credentials.AnonymousCredentials,
+    )
 
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(
@@ -7137,7 +7994,8 @@ async def test_list_model_deployment_monitoring_jobs_async_pager():
                 next_page_token="abc",
             ),
             job_service.ListModelDeploymentMonitoringJobsResponse(
-                model_deployment_monitoring_jobs=[], next_page_token="def",
+                model_deployment_monitoring_jobs=[],
+                next_page_token="def",
             ),
             job_service.ListModelDeploymentMonitoringJobsResponse(
                 model_deployment_monitoring_jobs=[
@@ -7153,10 +8011,12 @@ async def test_list_model_deployment_monitoring_jobs_async_pager():
             ),
             RuntimeError,
         )
-        async_pager = await client.list_model_deployment_monitoring_jobs(request={},)
+        async_pager = await client.list_model_deployment_monitoring_jobs(
+            request={},
+        )
         assert async_pager.next_page_token == "abc"
         responses = []
-        async for response in async_pager:
+        async for response in async_pager:  # pragma: no branch
             responses.append(response)
 
         assert len(responses) == 6
@@ -7168,7 +8028,9 @@ async def test_list_model_deployment_monitoring_jobs_async_pager():
 
 @pytest.mark.asyncio
 async def test_list_model_deployment_monitoring_jobs_async_pages():
-    client = JobServiceAsyncClient(credentials=ga_credentials.AnonymousCredentials,)
+    client = JobServiceAsyncClient(
+        credentials=ga_credentials.AnonymousCredentials,
+    )
 
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(
@@ -7187,7 +8049,8 @@ async def test_list_model_deployment_monitoring_jobs_async_pages():
                 next_page_token="abc",
             ),
             job_service.ListModelDeploymentMonitoringJobsResponse(
-                model_deployment_monitoring_jobs=[], next_page_token="def",
+                model_deployment_monitoring_jobs=[],
+                next_page_token="def",
             ),
             job_service.ListModelDeploymentMonitoringJobsResponse(
                 model_deployment_monitoring_jobs=[
@@ -7206,18 +8069,23 @@ async def test_list_model_deployment_monitoring_jobs_async_pages():
         pages = []
         async for page_ in (
             await client.list_model_deployment_monitoring_jobs(request={})
-        ).pages:
+        ).pages:  # pragma: no branch
             pages.append(page_)
         for page_, token in zip(pages, ["abc", "def", "ghi", ""]):
             assert page_.raw_page.next_page_token == token
 
 
 @pytest.mark.parametrize(
-    "request_type", [job_service.UpdateModelDeploymentMonitoringJobRequest, dict,]
+    "request_type",
+    [
+        job_service.UpdateModelDeploymentMonitoringJobRequest,
+        dict,
+    ],
 )
 def test_update_model_deployment_monitoring_job(request_type, transport: str = "grpc"):
     client = JobServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(), transport=transport,
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport=transport,
     )
 
     # Everything is optional in proto3 as far as the runtime is concerned,
@@ -7245,7 +8113,8 @@ def test_update_model_deployment_monitoring_job_empty_call():
     # This test is a coverage failsafe to make sure that totally empty calls,
     # i.e. request == None and no flattened fields passed, work.
     client = JobServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(), transport="grpc",
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="grpc",
     )
 
     # Mock the actual call within the gRPC stub, and fake the request.
@@ -7264,7 +8133,8 @@ async def test_update_model_deployment_monitoring_job_async(
     request_type=job_service.UpdateModelDeploymentMonitoringJobRequest,
 ):
     client = JobServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(), transport=transport,
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport=transport,
     )
 
     # Everything is optional in proto3 as far as the runtime is concerned,
@@ -7296,7 +8166,9 @@ async def test_update_model_deployment_monitoring_job_async_from_dict():
 
 
 def test_update_model_deployment_monitoring_job_field_headers():
-    client = JobServiceClient(credentials=ga_credentials.AnonymousCredentials(),)
+    client = JobServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+    )
 
     # Any value that is part of the HTTP/1.1 URI should be sent as
     # a field header. Set these to a non-empty value.
@@ -7328,7 +8200,9 @@ def test_update_model_deployment_monitoring_job_field_headers():
 
 @pytest.mark.asyncio
 async def test_update_model_deployment_monitoring_job_field_headers_async():
-    client = JobServiceAsyncClient(credentials=ga_credentials.AnonymousCredentials(),)
+    client = JobServiceAsyncClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+    )
 
     # Any value that is part of the HTTP/1.1 URI should be sent as
     # a field header. Set these to a non-empty value.
@@ -7361,7 +8235,9 @@ async def test_update_model_deployment_monitoring_job_field_headers_async():
 
 
 def test_update_model_deployment_monitoring_job_flattened():
-    client = JobServiceClient(credentials=ga_credentials.AnonymousCredentials(),)
+    client = JobServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+    )
 
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(
@@ -7393,7 +8269,9 @@ def test_update_model_deployment_monitoring_job_flattened():
 
 
 def test_update_model_deployment_monitoring_job_flattened_error():
-    client = JobServiceClient(credentials=ga_credentials.AnonymousCredentials(),)
+    client = JobServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+    )
 
     # Attempting to call a method with both a request object and flattened
     # fields is an error.
@@ -7409,7 +8287,9 @@ def test_update_model_deployment_monitoring_job_flattened_error():
 
 @pytest.mark.asyncio
 async def test_update_model_deployment_monitoring_job_flattened_async():
-    client = JobServiceAsyncClient(credentials=ga_credentials.AnonymousCredentials(),)
+    client = JobServiceAsyncClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+    )
 
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(
@@ -7446,7 +8326,9 @@ async def test_update_model_deployment_monitoring_job_flattened_async():
 
 @pytest.mark.asyncio
 async def test_update_model_deployment_monitoring_job_flattened_error_async():
-    client = JobServiceAsyncClient(credentials=ga_credentials.AnonymousCredentials(),)
+    client = JobServiceAsyncClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+    )
 
     # Attempting to call a method with both a request object and flattened
     # fields is an error.
@@ -7461,11 +8343,16 @@ async def test_update_model_deployment_monitoring_job_flattened_error_async():
 
 
 @pytest.mark.parametrize(
-    "request_type", [job_service.DeleteModelDeploymentMonitoringJobRequest, dict,]
+    "request_type",
+    [
+        job_service.DeleteModelDeploymentMonitoringJobRequest,
+        dict,
+    ],
 )
 def test_delete_model_deployment_monitoring_job(request_type, transport: str = "grpc"):
     client = JobServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(), transport=transport,
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport=transport,
     )
 
     # Everything is optional in proto3 as far as the runtime is concerned,
@@ -7493,7 +8380,8 @@ def test_delete_model_deployment_monitoring_job_empty_call():
     # This test is a coverage failsafe to make sure that totally empty calls,
     # i.e. request == None and no flattened fields passed, work.
     client = JobServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(), transport="grpc",
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="grpc",
     )
 
     # Mock the actual call within the gRPC stub, and fake the request.
@@ -7512,7 +8400,8 @@ async def test_delete_model_deployment_monitoring_job_async(
     request_type=job_service.DeleteModelDeploymentMonitoringJobRequest,
 ):
     client = JobServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(), transport=transport,
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport=transport,
     )
 
     # Everything is optional in proto3 as far as the runtime is concerned,
@@ -7544,7 +8433,9 @@ async def test_delete_model_deployment_monitoring_job_async_from_dict():
 
 
 def test_delete_model_deployment_monitoring_job_field_headers():
-    client = JobServiceClient(credentials=ga_credentials.AnonymousCredentials(),)
+    client = JobServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+    )
 
     # Any value that is part of the HTTP/1.1 URI should be sent as
     # a field header. Set these to a non-empty value.
@@ -7566,12 +8457,17 @@ def test_delete_model_deployment_monitoring_job_field_headers():
 
     # Establish that the field header was sent.
     _, _, kw = call.mock_calls[0]
-    assert ("x-goog-request-params", "name=name/value",) in kw["metadata"]
+    assert (
+        "x-goog-request-params",
+        "name=name/value",
+    ) in kw["metadata"]
 
 
 @pytest.mark.asyncio
 async def test_delete_model_deployment_monitoring_job_field_headers_async():
-    client = JobServiceAsyncClient(credentials=ga_credentials.AnonymousCredentials(),)
+    client = JobServiceAsyncClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+    )
 
     # Any value that is part of the HTTP/1.1 URI should be sent as
     # a field header. Set these to a non-empty value.
@@ -7595,11 +8491,16 @@ async def test_delete_model_deployment_monitoring_job_field_headers_async():
 
     # Establish that the field header was sent.
     _, _, kw = call.mock_calls[0]
-    assert ("x-goog-request-params", "name=name/value",) in kw["metadata"]
+    assert (
+        "x-goog-request-params",
+        "name=name/value",
+    ) in kw["metadata"]
 
 
 def test_delete_model_deployment_monitoring_job_flattened():
-    client = JobServiceClient(credentials=ga_credentials.AnonymousCredentials(),)
+    client = JobServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+    )
 
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(
@@ -7609,7 +8510,9 @@ def test_delete_model_deployment_monitoring_job_flattened():
         call.return_value = operations_pb2.Operation(name="operations/op")
         # Call the method with a truthy value for each flattened field,
         # using the keyword arguments to the method.
-        client.delete_model_deployment_monitoring_job(name="name_value",)
+        client.delete_model_deployment_monitoring_job(
+            name="name_value",
+        )
 
         # Establish that the underlying call was made with the expected
         # request object values.
@@ -7621,19 +8524,24 @@ def test_delete_model_deployment_monitoring_job_flattened():
 
 
 def test_delete_model_deployment_monitoring_job_flattened_error():
-    client = JobServiceClient(credentials=ga_credentials.AnonymousCredentials(),)
+    client = JobServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+    )
 
     # Attempting to call a method with both a request object and flattened
     # fields is an error.
     with pytest.raises(ValueError):
         client.delete_model_deployment_monitoring_job(
-            job_service.DeleteModelDeploymentMonitoringJobRequest(), name="name_value",
+            job_service.DeleteModelDeploymentMonitoringJobRequest(),
+            name="name_value",
         )
 
 
 @pytest.mark.asyncio
 async def test_delete_model_deployment_monitoring_job_flattened_async():
-    client = JobServiceAsyncClient(credentials=ga_credentials.AnonymousCredentials(),)
+    client = JobServiceAsyncClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+    )
 
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(
@@ -7662,22 +8570,30 @@ async def test_delete_model_deployment_monitoring_job_flattened_async():
 
 @pytest.mark.asyncio
 async def test_delete_model_deployment_monitoring_job_flattened_error_async():
-    client = JobServiceAsyncClient(credentials=ga_credentials.AnonymousCredentials(),)
+    client = JobServiceAsyncClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+    )
 
     # Attempting to call a method with both a request object and flattened
     # fields is an error.
     with pytest.raises(ValueError):
         await client.delete_model_deployment_monitoring_job(
-            job_service.DeleteModelDeploymentMonitoringJobRequest(), name="name_value",
+            job_service.DeleteModelDeploymentMonitoringJobRequest(),
+            name="name_value",
         )
 
 
 @pytest.mark.parametrize(
-    "request_type", [job_service.PauseModelDeploymentMonitoringJobRequest, dict,]
+    "request_type",
+    [
+        job_service.PauseModelDeploymentMonitoringJobRequest,
+        dict,
+    ],
 )
 def test_pause_model_deployment_monitoring_job(request_type, transport: str = "grpc"):
     client = JobServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(), transport=transport,
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport=transport,
     )
 
     # Everything is optional in proto3 as far as the runtime is concerned,
@@ -7705,7 +8621,8 @@ def test_pause_model_deployment_monitoring_job_empty_call():
     # This test is a coverage failsafe to make sure that totally empty calls,
     # i.e. request == None and no flattened fields passed, work.
     client = JobServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(), transport="grpc",
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="grpc",
     )
 
     # Mock the actual call within the gRPC stub, and fake the request.
@@ -7724,7 +8641,8 @@ async def test_pause_model_deployment_monitoring_job_async(
     request_type=job_service.PauseModelDeploymentMonitoringJobRequest,
 ):
     client = JobServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(), transport=transport,
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport=transport,
     )
 
     # Everything is optional in proto3 as far as the runtime is concerned,
@@ -7754,7 +8672,9 @@ async def test_pause_model_deployment_monitoring_job_async_from_dict():
 
 
 def test_pause_model_deployment_monitoring_job_field_headers():
-    client = JobServiceClient(credentials=ga_credentials.AnonymousCredentials(),)
+    client = JobServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+    )
 
     # Any value that is part of the HTTP/1.1 URI should be sent as
     # a field header. Set these to a non-empty value.
@@ -7776,12 +8696,17 @@ def test_pause_model_deployment_monitoring_job_field_headers():
 
     # Establish that the field header was sent.
     _, _, kw = call.mock_calls[0]
-    assert ("x-goog-request-params", "name=name/value",) in kw["metadata"]
+    assert (
+        "x-goog-request-params",
+        "name=name/value",
+    ) in kw["metadata"]
 
 
 @pytest.mark.asyncio
 async def test_pause_model_deployment_monitoring_job_field_headers_async():
-    client = JobServiceAsyncClient(credentials=ga_credentials.AnonymousCredentials(),)
+    client = JobServiceAsyncClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+    )
 
     # Any value that is part of the HTTP/1.1 URI should be sent as
     # a field header. Set these to a non-empty value.
@@ -7803,11 +8728,16 @@ async def test_pause_model_deployment_monitoring_job_field_headers_async():
 
     # Establish that the field header was sent.
     _, _, kw = call.mock_calls[0]
-    assert ("x-goog-request-params", "name=name/value",) in kw["metadata"]
+    assert (
+        "x-goog-request-params",
+        "name=name/value",
+    ) in kw["metadata"]
 
 
 def test_pause_model_deployment_monitoring_job_flattened():
-    client = JobServiceClient(credentials=ga_credentials.AnonymousCredentials(),)
+    client = JobServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+    )
 
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(
@@ -7817,7 +8747,9 @@ def test_pause_model_deployment_monitoring_job_flattened():
         call.return_value = None
         # Call the method with a truthy value for each flattened field,
         # using the keyword arguments to the method.
-        client.pause_model_deployment_monitoring_job(name="name_value",)
+        client.pause_model_deployment_monitoring_job(
+            name="name_value",
+        )
 
         # Establish that the underlying call was made with the expected
         # request object values.
@@ -7829,19 +8761,24 @@ def test_pause_model_deployment_monitoring_job_flattened():
 
 
 def test_pause_model_deployment_monitoring_job_flattened_error():
-    client = JobServiceClient(credentials=ga_credentials.AnonymousCredentials(),)
+    client = JobServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+    )
 
     # Attempting to call a method with both a request object and flattened
     # fields is an error.
     with pytest.raises(ValueError):
         client.pause_model_deployment_monitoring_job(
-            job_service.PauseModelDeploymentMonitoringJobRequest(), name="name_value",
+            job_service.PauseModelDeploymentMonitoringJobRequest(),
+            name="name_value",
         )
 
 
 @pytest.mark.asyncio
 async def test_pause_model_deployment_monitoring_job_flattened_async():
-    client = JobServiceAsyncClient(credentials=ga_credentials.AnonymousCredentials(),)
+    client = JobServiceAsyncClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+    )
 
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(
@@ -7868,22 +8805,30 @@ async def test_pause_model_deployment_monitoring_job_flattened_async():
 
 @pytest.mark.asyncio
 async def test_pause_model_deployment_monitoring_job_flattened_error_async():
-    client = JobServiceAsyncClient(credentials=ga_credentials.AnonymousCredentials(),)
+    client = JobServiceAsyncClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+    )
 
     # Attempting to call a method with both a request object and flattened
     # fields is an error.
     with pytest.raises(ValueError):
         await client.pause_model_deployment_monitoring_job(
-            job_service.PauseModelDeploymentMonitoringJobRequest(), name="name_value",
+            job_service.PauseModelDeploymentMonitoringJobRequest(),
+            name="name_value",
         )
 
 
 @pytest.mark.parametrize(
-    "request_type", [job_service.ResumeModelDeploymentMonitoringJobRequest, dict,]
+    "request_type",
+    [
+        job_service.ResumeModelDeploymentMonitoringJobRequest,
+        dict,
+    ],
 )
 def test_resume_model_deployment_monitoring_job(request_type, transport: str = "grpc"):
     client = JobServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(), transport=transport,
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport=transport,
     )
 
     # Everything is optional in proto3 as far as the runtime is concerned,
@@ -7911,7 +8856,8 @@ def test_resume_model_deployment_monitoring_job_empty_call():
     # This test is a coverage failsafe to make sure that totally empty calls,
     # i.e. request == None and no flattened fields passed, work.
     client = JobServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(), transport="grpc",
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="grpc",
     )
 
     # Mock the actual call within the gRPC stub, and fake the request.
@@ -7930,7 +8876,8 @@ async def test_resume_model_deployment_monitoring_job_async(
     request_type=job_service.ResumeModelDeploymentMonitoringJobRequest,
 ):
     client = JobServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(), transport=transport,
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport=transport,
     )
 
     # Everything is optional in proto3 as far as the runtime is concerned,
@@ -7960,7 +8907,9 @@ async def test_resume_model_deployment_monitoring_job_async_from_dict():
 
 
 def test_resume_model_deployment_monitoring_job_field_headers():
-    client = JobServiceClient(credentials=ga_credentials.AnonymousCredentials(),)
+    client = JobServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+    )
 
     # Any value that is part of the HTTP/1.1 URI should be sent as
     # a field header. Set these to a non-empty value.
@@ -7982,12 +8931,17 @@ def test_resume_model_deployment_monitoring_job_field_headers():
 
     # Establish that the field header was sent.
     _, _, kw = call.mock_calls[0]
-    assert ("x-goog-request-params", "name=name/value",) in kw["metadata"]
+    assert (
+        "x-goog-request-params",
+        "name=name/value",
+    ) in kw["metadata"]
 
 
 @pytest.mark.asyncio
 async def test_resume_model_deployment_monitoring_job_field_headers_async():
-    client = JobServiceAsyncClient(credentials=ga_credentials.AnonymousCredentials(),)
+    client = JobServiceAsyncClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+    )
 
     # Any value that is part of the HTTP/1.1 URI should be sent as
     # a field header. Set these to a non-empty value.
@@ -8009,11 +8963,16 @@ async def test_resume_model_deployment_monitoring_job_field_headers_async():
 
     # Establish that the field header was sent.
     _, _, kw = call.mock_calls[0]
-    assert ("x-goog-request-params", "name=name/value",) in kw["metadata"]
+    assert (
+        "x-goog-request-params",
+        "name=name/value",
+    ) in kw["metadata"]
 
 
 def test_resume_model_deployment_monitoring_job_flattened():
-    client = JobServiceClient(credentials=ga_credentials.AnonymousCredentials(),)
+    client = JobServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+    )
 
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(
@@ -8023,7 +8982,9 @@ def test_resume_model_deployment_monitoring_job_flattened():
         call.return_value = None
         # Call the method with a truthy value for each flattened field,
         # using the keyword arguments to the method.
-        client.resume_model_deployment_monitoring_job(name="name_value",)
+        client.resume_model_deployment_monitoring_job(
+            name="name_value",
+        )
 
         # Establish that the underlying call was made with the expected
         # request object values.
@@ -8035,19 +8996,24 @@ def test_resume_model_deployment_monitoring_job_flattened():
 
 
 def test_resume_model_deployment_monitoring_job_flattened_error():
-    client = JobServiceClient(credentials=ga_credentials.AnonymousCredentials(),)
+    client = JobServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+    )
 
     # Attempting to call a method with both a request object and flattened
     # fields is an error.
     with pytest.raises(ValueError):
         client.resume_model_deployment_monitoring_job(
-            job_service.ResumeModelDeploymentMonitoringJobRequest(), name="name_value",
+            job_service.ResumeModelDeploymentMonitoringJobRequest(),
+            name="name_value",
         )
 
 
 @pytest.mark.asyncio
 async def test_resume_model_deployment_monitoring_job_flattened_async():
-    client = JobServiceAsyncClient(credentials=ga_credentials.AnonymousCredentials(),)
+    client = JobServiceAsyncClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+    )
 
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(
@@ -8074,13 +9040,16 @@ async def test_resume_model_deployment_monitoring_job_flattened_async():
 
 @pytest.mark.asyncio
 async def test_resume_model_deployment_monitoring_job_flattened_error_async():
-    client = JobServiceAsyncClient(credentials=ga_credentials.AnonymousCredentials(),)
+    client = JobServiceAsyncClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+    )
 
     # Attempting to call a method with both a request object and flattened
     # fields is an error.
     with pytest.raises(ValueError):
         await client.resume_model_deployment_monitoring_job(
-            job_service.ResumeModelDeploymentMonitoringJobRequest(), name="name_value",
+            job_service.ResumeModelDeploymentMonitoringJobRequest(),
+            name="name_value",
         )
 
 
@@ -8091,7 +9060,8 @@ def test_credentials_transport_error():
     )
     with pytest.raises(ValueError):
         client = JobServiceClient(
-            credentials=ga_credentials.AnonymousCredentials(), transport=transport,
+            credentials=ga_credentials.AnonymousCredentials(),
+            transport=transport,
         )
 
     # It is an error to provide a credentials file and a transport instance.
@@ -8111,7 +9081,10 @@ def test_credentials_transport_error():
     options = client_options.ClientOptions()
     options.api_key = "api_key"
     with pytest.raises(ValueError):
-        client = JobServiceClient(client_options=options, transport=transport,)
+        client = JobServiceClient(
+            client_options=options,
+            transport=transport,
+        )
 
     # It is an error to provide an api_key and a credential.
     options = mock.Mock()
@@ -8127,7 +9100,8 @@ def test_credentials_transport_error():
     )
     with pytest.raises(ValueError):
         client = JobServiceClient(
-            client_options={"scopes": ["1", "2"]}, transport=transport,
+            client_options={"scopes": ["1", "2"]},
+            transport=transport,
         )
 
 
@@ -8157,7 +9131,10 @@ def test_transport_get_channel():
 
 @pytest.mark.parametrize(
     "transport_class",
-    [transports.JobServiceGrpcTransport, transports.JobServiceGrpcAsyncIOTransport,],
+    [
+        transports.JobServiceGrpcTransport,
+        transports.JobServiceGrpcAsyncIOTransport,
+    ],
 )
 def test_transport_adc(transport_class):
     # Test default credentials are used if not provided.
@@ -8167,10 +9144,28 @@ def test_transport_adc(transport_class):
         adc.assert_called_once()
 
 
+@pytest.mark.parametrize(
+    "transport_name",
+    [
+        "grpc",
+    ],
+)
+def test_transport_kind(transport_name):
+    transport = JobServiceClient.get_transport_class(transport_name)(
+        credentials=ga_credentials.AnonymousCredentials(),
+    )
+    assert transport.kind == transport_name
+
+
 def test_transport_grpc_default():
     # A client should use the gRPC transport by default.
-    client = JobServiceClient(credentials=ga_credentials.AnonymousCredentials(),)
-    assert isinstance(client.transport, transports.JobServiceGrpcTransport,)
+    client = JobServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+    )
+    assert isinstance(
+        client.transport,
+        transports.JobServiceGrpcTransport,
+    )
 
 
 def test_job_service_base_transport_error():
@@ -8236,6 +9231,14 @@ def test_job_service_base_transport():
     with pytest.raises(NotImplementedError):
         transport.operations_client
 
+    # Catch all for all remaining methods and properties
+    remainder = [
+        "kind",
+    ]
+    for r in remainder:
+        with pytest.raises(NotImplementedError):
+            getattr(transport, r)()
+
 
 def test_job_service_base_transport_with_credentials_file():
     # Instantiate the base transport with a credentials file
@@ -8247,7 +9250,8 @@ def test_job_service_base_transport_with_credentials_file():
         Transport.return_value = None
         load_creds.return_value = (ga_credentials.AnonymousCredentials(), None)
         transport = transports.JobServiceTransport(
-            credentials_file="credentials.json", quota_project_id="octopus",
+            credentials_file="credentials.json",
+            quota_project_id="octopus",
         )
         load_creds.assert_called_once_with(
             "credentials.json",
@@ -8282,7 +9286,10 @@ def test_job_service_auth_adc():
 
 @pytest.mark.parametrize(
     "transport_class",
-    [transports.JobServiceGrpcTransport, transports.JobServiceGrpcAsyncIOTransport,],
+    [
+        transports.JobServiceGrpcTransport,
+        transports.JobServiceGrpcAsyncIOTransport,
+    ],
 )
 def test_job_service_transport_auth_adc(transport_class):
     # If credentials and host are not provided, the transport class should use
@@ -8374,24 +9381,40 @@ def test_job_service_grpc_transport_client_cert_source_for_mtls(transport_class)
             )
 
 
-def test_job_service_host_no_port():
+@pytest.mark.parametrize(
+    "transport_name",
+    [
+        "grpc",
+        "grpc_asyncio",
+    ],
+)
+def test_job_service_host_no_port(transport_name):
     client = JobServiceClient(
         credentials=ga_credentials.AnonymousCredentials(),
         client_options=client_options.ClientOptions(
             api_endpoint="aiplatform.googleapis.com"
         ),
+        transport=transport_name,
     )
-    assert client.transport._host == "aiplatform.googleapis.com:443"
+    assert client.transport._host == ("aiplatform.googleapis.com:443")
 
 
-def test_job_service_host_with_port():
+@pytest.mark.parametrize(
+    "transport_name",
+    [
+        "grpc",
+        "grpc_asyncio",
+    ],
+)
+def test_job_service_host_with_port(transport_name):
     client = JobServiceClient(
         credentials=ga_credentials.AnonymousCredentials(),
         client_options=client_options.ClientOptions(
             api_endpoint="aiplatform.googleapis.com:8000"
         ),
+        transport=transport_name,
     )
-    assert client.transport._host == "aiplatform.googleapis.com:8000"
+    assert client.transport._host == ("aiplatform.googleapis.com:8000")
 
 
 def test_job_service_grpc_transport_channel():
@@ -8399,7 +9422,8 @@ def test_job_service_grpc_transport_channel():
 
     # Check that channel is used if provided.
     transport = transports.JobServiceGrpcTransport(
-        host="squid.clam.whelk", channel=channel,
+        host="squid.clam.whelk",
+        channel=channel,
     )
     assert transport.grpc_channel == channel
     assert transport._host == "squid.clam.whelk:443"
@@ -8411,7 +9435,8 @@ def test_job_service_grpc_asyncio_transport_channel():
 
     # Check that channel is used if provided.
     transport = transports.JobServiceGrpcAsyncIOTransport(
-        host="squid.clam.whelk", channel=channel,
+        host="squid.clam.whelk",
+        channel=channel,
     )
     assert transport.grpc_channel == channel
     assert transport._host == "squid.clam.whelk:443"
@@ -8512,12 +9537,16 @@ def test_job_service_transport_channel_mtls_with_adc(transport_class):
 
 def test_job_service_grpc_lro_client():
     client = JobServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(), transport="grpc",
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="grpc",
     )
     transport = client.transport
 
     # Ensure that we have a api-core operations client.
-    assert isinstance(transport.operations_client, operations_v1.OperationsClient,)
+    assert isinstance(
+        transport.operations_client,
+        operations_v1.OperationsClient,
+    )
 
     # Ensure that subsequent calls to the property send the exact same object.
     assert transport.operations_client is transport.operations_client
@@ -8525,12 +9554,16 @@ def test_job_service_grpc_lro_client():
 
 def test_job_service_grpc_lro_async_client():
     client = JobServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(), transport="grpc_asyncio",
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="grpc_asyncio",
     )
     transport = client.transport
 
     # Ensure that we have a api-core operations client.
-    assert isinstance(transport.operations_client, operations_v1.OperationsAsyncClient,)
+    assert isinstance(
+        transport.operations_client,
+        operations_v1.OperationsAsyncClient,
+    )
 
     # Ensure that subsequent calls to the property send the exact same object.
     assert transport.operations_client is transport.operations_client
@@ -8541,7 +9574,9 @@ def test_batch_prediction_job_path():
     location = "clam"
     batch_prediction_job = "whelk"
     expected = "projects/{project}/locations/{location}/batchPredictionJobs/{batch_prediction_job}".format(
-        project=project, location=location, batch_prediction_job=batch_prediction_job,
+        project=project,
+        location=location,
+        batch_prediction_job=batch_prediction_job,
     )
     actual = JobServiceClient.batch_prediction_job_path(
         project, location, batch_prediction_job
@@ -8567,7 +9602,9 @@ def test_custom_job_path():
     location = "mussel"
     custom_job = "winkle"
     expected = "projects/{project}/locations/{location}/customJobs/{custom_job}".format(
-        project=project, location=location, custom_job=custom_job,
+        project=project,
+        location=location,
+        custom_job=custom_job,
     )
     actual = JobServiceClient.custom_job_path(project, location, custom_job)
     assert expected == actual
@@ -8591,7 +9628,9 @@ def test_data_labeling_job_path():
     location = "clam"
     data_labeling_job = "whelk"
     expected = "projects/{project}/locations/{location}/dataLabelingJobs/{data_labeling_job}".format(
-        project=project, location=location, data_labeling_job=data_labeling_job,
+        project=project,
+        location=location,
+        data_labeling_job=data_labeling_job,
     )
     actual = JobServiceClient.data_labeling_job_path(
         project, location, data_labeling_job
@@ -8617,7 +9656,9 @@ def test_dataset_path():
     location = "mussel"
     dataset = "winkle"
     expected = "projects/{project}/locations/{location}/datasets/{dataset}".format(
-        project=project, location=location, dataset=dataset,
+        project=project,
+        location=location,
+        dataset=dataset,
     )
     actual = JobServiceClient.dataset_path(project, location, dataset)
     assert expected == actual
@@ -8641,7 +9682,9 @@ def test_endpoint_path():
     location = "clam"
     endpoint = "whelk"
     expected = "projects/{project}/locations/{location}/endpoints/{endpoint}".format(
-        project=project, location=location, endpoint=endpoint,
+        project=project,
+        location=location,
+        endpoint=endpoint,
     )
     actual = JobServiceClient.endpoint_path(project, location, endpoint)
     assert expected == actual
@@ -8693,7 +9736,9 @@ def test_model_path():
     location = "clam"
     model = "whelk"
     expected = "projects/{project}/locations/{location}/models/{model}".format(
-        project=project, location=location, model=model,
+        project=project,
+        location=location,
+        model=model,
     )
     actual = JobServiceClient.model_path(project, location, model)
     assert expected == actual
@@ -8744,7 +9789,8 @@ def test_network_path():
     project = "squid"
     network = "clam"
     expected = "projects/{project}/global/networks/{network}".format(
-        project=project, network=network,
+        project=project,
+        network=network,
     )
     actual = JobServiceClient.network_path(project, network)
     assert expected == actual
@@ -8766,8 +9812,12 @@ def test_tensorboard_path():
     project = "oyster"
     location = "nudibranch"
     tensorboard = "cuttlefish"
-    expected = "projects/{project}/locations/{location}/tensorboards/{tensorboard}".format(
-        project=project, location=location, tensorboard=tensorboard,
+    expected = (
+        "projects/{project}/locations/{location}/tensorboards/{tensorboard}".format(
+            project=project,
+            location=location,
+            tensorboard=tensorboard,
+        )
     )
     actual = JobServiceClient.tensorboard_path(project, location, tensorboard)
     assert expected == actual
@@ -8791,8 +9841,13 @@ def test_trial_path():
     location = "abalone"
     study = "squid"
     trial = "clam"
-    expected = "projects/{project}/locations/{location}/studies/{study}/trials/{trial}".format(
-        project=project, location=location, study=study, trial=trial,
+    expected = (
+        "projects/{project}/locations/{location}/studies/{study}/trials/{trial}".format(
+            project=project,
+            location=location,
+            study=study,
+            trial=trial,
+        )
     )
     actual = JobServiceClient.trial_path(project, location, study, trial)
     assert expected == actual
@@ -8834,7 +9889,9 @@ def test_parse_common_billing_account_path():
 
 def test_common_folder_path():
     folder = "winkle"
-    expected = "folders/{folder}".format(folder=folder,)
+    expected = "folders/{folder}".format(
+        folder=folder,
+    )
     actual = JobServiceClient.common_folder_path(folder)
     assert expected == actual
 
@@ -8852,7 +9909,9 @@ def test_parse_common_folder_path():
 
 def test_common_organization_path():
     organization = "scallop"
-    expected = "organizations/{organization}".format(organization=organization,)
+    expected = "organizations/{organization}".format(
+        organization=organization,
+    )
     actual = JobServiceClient.common_organization_path(organization)
     assert expected == actual
 
@@ -8870,7 +9929,9 @@ def test_parse_common_organization_path():
 
 def test_common_project_path():
     project = "squid"
-    expected = "projects/{project}".format(project=project,)
+    expected = "projects/{project}".format(
+        project=project,
+    )
     actual = JobServiceClient.common_project_path(project)
     assert expected == actual
 
@@ -8890,7 +9951,8 @@ def test_common_location_path():
     project = "whelk"
     location = "octopus"
     expected = "projects/{project}/locations/{location}".format(
-        project=project, location=location,
+        project=project,
+        location=location,
     )
     actual = JobServiceClient.common_location_path(project, location)
     assert expected == actual
@@ -8915,7 +9977,8 @@ def test_client_with_default_client_info():
         transports.JobServiceTransport, "_prep_wrapped_messages"
     ) as prep:
         client = JobServiceClient(
-            credentials=ga_credentials.AnonymousCredentials(), client_info=client_info,
+            credentials=ga_credentials.AnonymousCredentials(),
+            client_info=client_info,
         )
         prep.assert_called_once_with(client_info)
 
@@ -8924,7 +9987,8 @@ def test_client_with_default_client_info():
     ) as prep:
         transport_class = JobServiceClient.get_transport_class()
         transport = transport_class(
-            credentials=ga_credentials.AnonymousCredentials(), client_info=client_info,
+            credentials=ga_credentials.AnonymousCredentials(),
+            client_info=client_info,
         )
         prep.assert_called_once_with(client_info)
 
@@ -8932,7 +9996,8 @@ def test_client_with_default_client_info():
 @pytest.mark.asyncio
 async def test_transport_close_async():
     client = JobServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(), transport="grpc_asyncio",
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="grpc_asyncio",
     )
     with mock.patch.object(
         type(getattr(client.transport, "grpc_channel")), "close"

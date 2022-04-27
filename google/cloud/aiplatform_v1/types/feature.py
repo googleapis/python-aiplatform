@@ -20,7 +20,10 @@ from google.protobuf import timestamp_pb2  # type: ignore
 
 
 __protobuf__ = proto.module(
-    package="google.cloud.aiplatform.v1", manifest={"Feature",},
+    package="google.cloud.aiplatform.v1",
+    manifest={
+        "Feature",
+    },
 )
 
 
@@ -49,7 +52,7 @@ class Feature(proto.Message):
         update_time (google.protobuf.timestamp_pb2.Timestamp):
             Output only. Timestamp when this EntityType
             was most recently updated.
-        labels (Sequence[google.cloud.aiplatform_v1.types.Feature.LabelsEntry]):
+        labels (Mapping[str, str]):
             Optional. The labels with user-defined
             metadata to organize your Features.
             Label keys and values can be no longer than 64
@@ -122,7 +125,9 @@ class Feature(proto.Message):
             SNAPSHOT_ANALYSIS = 2
 
         objective = proto.Field(
-            proto.ENUM, number=1, enum="Feature.MonitoringStatsAnomaly.Objective",
+            proto.ENUM,
+            number=1,
+            enum="Feature.MonitoringStatsAnomaly.Objective",
         )
         feature_stats_anomaly = proto.Field(
             proto.MESSAGE,
@@ -130,16 +135,46 @@ class Feature(proto.Message):
             message=feature_monitoring_stats.FeatureStatsAnomaly,
         )
 
-    name = proto.Field(proto.STRING, number=1,)
-    description = proto.Field(proto.STRING, number=2,)
-    value_type = proto.Field(proto.ENUM, number=3, enum=ValueType,)
-    create_time = proto.Field(proto.MESSAGE, number=4, message=timestamp_pb2.Timestamp,)
-    update_time = proto.Field(proto.MESSAGE, number=5, message=timestamp_pb2.Timestamp,)
-    labels = proto.MapField(proto.STRING, proto.STRING, number=6,)
-    etag = proto.Field(proto.STRING, number=7,)
-    disable_monitoring = proto.Field(proto.BOOL, number=12,)
+    name = proto.Field(
+        proto.STRING,
+        number=1,
+    )
+    description = proto.Field(
+        proto.STRING,
+        number=2,
+    )
+    value_type = proto.Field(
+        proto.ENUM,
+        number=3,
+        enum=ValueType,
+    )
+    create_time = proto.Field(
+        proto.MESSAGE,
+        number=4,
+        message=timestamp_pb2.Timestamp,
+    )
+    update_time = proto.Field(
+        proto.MESSAGE,
+        number=5,
+        message=timestamp_pb2.Timestamp,
+    )
+    labels = proto.MapField(
+        proto.STRING,
+        proto.STRING,
+        number=6,
+    )
+    etag = proto.Field(
+        proto.STRING,
+        number=7,
+    )
+    disable_monitoring = proto.Field(
+        proto.BOOL,
+        number=12,
+    )
     monitoring_stats_anomalies = proto.RepeatedField(
-        proto.MESSAGE, number=11, message=MonitoringStatsAnomaly,
+        proto.MESSAGE,
+        number=11,
+        message=MonitoringStatsAnomaly,
     )
 
 

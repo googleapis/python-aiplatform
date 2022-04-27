@@ -47,8 +47,6 @@ from google.cloud.aiplatform import utils
 from google.cloud.aiplatform.compat.types import encryption_spec as gca_encryption_spec
 from google.protobuf import json_format
 
-logging.basicConfig(level=logging.INFO, stream=sys.stdout)
-
 # This is the default retry callback to be used with get methods.
 _DEFAULT_RETRY = retry.Retry()
 
@@ -56,13 +54,19 @@ _DEFAULT_RETRY = retry.Retry()
 class Logger:
     """Logging wrapper class with high level helper methods."""
 
-    def __init__(self, name: str = ""):
-        """Initializes logger with name.
+    def __init__(self, name: str):
+        """Initializes logger with optional name.
 
         Args:
             name (str): Name to associate with logger.
         """
         self._logger = logging.getLogger(name)
+        self._logger.setLevel(logging.INFO)
+
+        handler = logging.StreamHandler(sys.stdout)
+        handler.setLevel(logging.INFO)
+
+        self._logger.addHandler(handler)
 
     def log_create_with_lro(
         self,
@@ -681,6 +685,13 @@ class VertexAiResourceNoun(metaclass=abc.ABCMeta):
     def to_dict(self) -> Dict[str, Any]:
         """Returns the resource proto as a dictionary."""
         return json_format.MessageToDict(self.gca_resource._pb)
+
+    @classmethod
+    def _generate_display_name(cls, prefix: Optional[str] = None) -> str:
+        """Returns a display name containing class name and time string."""
+        if not prefix:
+            prefix = cls.__name__
+        return prefix + " " + datetime.datetime.now().isoformat(sep=" ")
 
 
 def optional_sync(

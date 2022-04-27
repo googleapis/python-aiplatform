@@ -81,7 +81,7 @@ class _TrainingJob(base.VertexAiStatefulResource):
 
     def __init__(
         self,
-        display_name: str,
+        display_name: Optional[str] = None,
         project: Optional[str] = None,
         location: Optional[str] = None,
         credentials: Optional[auth_credentials.Credentials] = None,
@@ -93,7 +93,7 @@ class _TrainingJob(base.VertexAiStatefulResource):
 
         Args:
             display_name (str):
-                Required. The user-defined name of this TrainingPipeline.
+                Optional. The user-defined name of this TrainingPipeline.
             project (str):
                 Optional project to retrieve model from. If not set, project set in
                 aiplatform.init will be used.
@@ -138,6 +138,8 @@ class _TrainingJob(base.VertexAiStatefulResource):
 
                 Overrides encryption_spec_key_name set in aiplatform.init.
         """
+        if not display_name:
+            display_name = self.__class__._generate_display_name()
         utils.validate_display_name(display_name)
         if labels:
             utils.validate_labels(labels)
@@ -568,6 +570,7 @@ class _TrainingJob(base.VertexAiStatefulResource):
         model: Optional[gca_model.Model] = None,
         gcs_destination_uri_prefix: Optional[str] = None,
         bigquery_destination: Optional[str] = None,
+        create_request_timeout: Optional[float] = None,
     ) -> Optional[models.Model]:
         """Runs the training job.
 
@@ -713,6 +716,8 @@ class _TrainingJob(base.VertexAiStatefulResource):
                 -  AIP_TRAINING_DATA_URI ="bigquery_destination.dataset_*.training"
                 -  AIP_VALIDATION_DATA_URI = "bigquery_destination.dataset_*.validation"
                 -  AIP_TEST_DATA_URI = "bigquery_destination.dataset_*.test"
+            create_request_timeout (float):
+                Optional. The timeout for the create request in seconds.
         """
 
         input_data_config = self._create_input_data_config(
@@ -746,6 +751,7 @@ class _TrainingJob(base.VertexAiStatefulResource):
                 self.project, self.location
             ),
             training_pipeline=training_pipeline,
+            timeout=create_request_timeout,
         )
 
         self._gca_resource = training_pipeline
@@ -1016,6 +1022,7 @@ class _CustomTrainingJob(_TrainingJob):
 
     def __init__(
         self,
+        # TODO(b/223262536): Make display_name parameter fully optional in next major release
         display_name: str,
         container_uri: str,
         model_serving_container_image_uri: Optional[str] = None,
@@ -1176,6 +1183,8 @@ class _CustomTrainingJob(_TrainingJob):
                 Bucket used to stage source and training artifacts. Overrides
                 staging_bucket set in aiplatform.init.
         """
+        if not display_name:
+            display_name = self.__class__._generate_display_name()
         super().__init__(
             display_name=display_name,
             project=project,
@@ -1351,16 +1360,18 @@ class _CustomTrainingJob(_TrainingJob):
             model_display_name = model_display_name or self._display_name + "-model"
 
         # validates args and will raise
-        worker_pool_specs = worker_spec_utils._DistributedTrainingSpec.chief_worker_pool(
-            replica_count=replica_count,
-            machine_type=machine_type,
-            accelerator_count=accelerator_count,
-            accelerator_type=accelerator_type,
-            boot_disk_type=boot_disk_type,
-            boot_disk_size_gb=boot_disk_size_gb,
-            reduction_server_replica_count=reduction_server_replica_count,
-            reduction_server_machine_type=reduction_server_machine_type,
-        ).pool_specs
+        worker_pool_specs = (
+            worker_spec_utils._DistributedTrainingSpec.chief_worker_pool(
+                replica_count=replica_count,
+                machine_type=machine_type,
+                accelerator_count=accelerator_count,
+                accelerator_type=accelerator_type,
+                boot_disk_type=boot_disk_type,
+                boot_disk_size_gb=boot_disk_size_gb,
+                reduction_server_replica_count=reduction_server_replica_count,
+                reduction_server_machine_type=reduction_server_machine_type,
+            ).pool_specs
+        )
 
         managed_model = self._managed_model
         if model_display_name:
@@ -1492,7 +1503,12 @@ class _CustomTrainingJob(_TrainingJob):
             if uri not in self._logged_web_access_uris:
                 _LOGGER.info(
                     "%s %s access the interactive shell terminals for the backing custom job:\n%s:\n%s"
-                    % (self.__class__.__name__, self._gca_resource.name, worker, uri,),
+                    % (
+                        self.__class__.__name__,
+                        self._gca_resource.name,
+                        worker,
+                        uri,
+                    ),
                 )
                 self._logged_web_access_uris.add(uri)
 
@@ -1553,6 +1569,7 @@ class CustomTrainingJob(_CustomTrainingJob):
 
     def __init__(
         self,
+        # TODO(b/223262536): Make display_name parameter fully optional in next major release
         display_name: str,
         script_path: str,
         container_uri: str,
@@ -1752,6 +1769,8 @@ class CustomTrainingJob(_CustomTrainingJob):
                 Bucket used to stage source and training artifacts. Overrides
                 staging_bucket set in aiplatform.init.
         """
+        if not display_name:
+            display_name = self.__class__._generate_display_name()
         super().__init__(
             display_name=display_name,
             project=project,
@@ -1819,6 +1838,7 @@ class CustomTrainingJob(_CustomTrainingJob):
         enable_web_access: bool = False,
         tensorboard: Optional[str] = None,
         sync=True,
+        create_request_timeout: Optional[float] = None,
     ) -> Optional[models.Model]:
         """Runs the custom training job.
 
@@ -2062,6 +2082,8 @@ class CustomTrainingJob(_CustomTrainingJob):
                 `service_account` is required with provided `tensorboard`.
                 For more information on configuring your service account please visit:
                 https://cloud.google.com/vertex-ai/docs/experiments/tensorboard-training
+            create_request_timeout (float):
+                Optional. The timeout for the create request in seconds.
             sync (bool):
                 Whether to execute this method synchronously. If False, this method
                 will be executed in concurrent Future and any downstream object will
@@ -2117,6 +2139,7 @@ class CustomTrainingJob(_CustomTrainingJob):
             if reduction_server_replica_count > 0
             else None,
             sync=sync,
+            create_request_timeout=create_request_timeout,
         )
 
     @base.optional_sync(construct_object_on_arg="managed_model")
@@ -2154,6 +2177,7 @@ class CustomTrainingJob(_CustomTrainingJob):
         tensorboard: Optional[str] = None,
         reduction_server_container_uri: Optional[str] = None,
         sync=True,
+        create_request_timeout: Optional[float] = None,
     ) -> Optional[models.Model]:
         """Packages local script and launches training_job.
 
@@ -2302,6 +2326,8 @@ class CustomTrainingJob(_CustomTrainingJob):
                 Whether to execute this method synchronously. If False, this method
                 will be executed in concurrent Future and any downstream object will
                 be immediately returned and synced when the Future has completed.
+            create_request_timeout (float)
+                Optional. The timeout for the create request in seconds
 
         Returns:
             model: The trained Vertex AI Model resource or None if training did not
@@ -2371,6 +2397,7 @@ class CustomTrainingJob(_CustomTrainingJob):
             model=managed_model,
             gcs_destination_uri_prefix=base_output_dir,
             bigquery_destination=bigquery_destination,
+            create_request_timeout=create_request_timeout,
         )
 
         return model
@@ -2382,6 +2409,7 @@ class CustomContainerTrainingJob(_CustomTrainingJob):
 
     def __init__(
         self,
+        # TODO(b/223262536): Make display_name parameter fully optional in next major release
         display_name: str,
         container_uri: str,
         command: Sequence[str] = None,
@@ -2579,6 +2607,8 @@ class CustomContainerTrainingJob(_CustomTrainingJob):
                 Bucket used to stage source and training artifacts. Overrides
                 staging_bucket set in aiplatform.init.
         """
+        if not display_name:
+            display_name = self.__class__._generate_display_name()
         super().__init__(
             display_name=display_name,
             project=project,
@@ -2645,6 +2675,7 @@ class CustomContainerTrainingJob(_CustomTrainingJob):
         enable_web_access: bool = False,
         tensorboard: Optional[str] = None,
         sync=True,
+        create_request_timeout: Optional[float] = None,
     ) -> Optional[models.Model]:
         """Runs the custom training job.
 
@@ -2885,6 +2916,8 @@ class CustomContainerTrainingJob(_CustomTrainingJob):
                 Whether to execute this method synchronously. If False, this method
                 will be executed in concurrent Future and any downstream object will
                 be immediately returned and synced when the Future has completed.
+            create_request_timeout (float):
+                Optional. The timeout for the create request in seconds.
 
         Returns:
             model: The trained Vertex AI Model resource or None if training did not
@@ -2935,6 +2968,7 @@ class CustomContainerTrainingJob(_CustomTrainingJob):
             if reduction_server_replica_count > 0
             else None,
             sync=sync,
+            create_request_timeout=create_request_timeout,
         )
 
     @base.optional_sync(construct_object_on_arg="managed_model")
@@ -2971,6 +3005,7 @@ class CustomContainerTrainingJob(_CustomTrainingJob):
         tensorboard: Optional[str] = None,
         reduction_server_container_uri: Optional[str] = None,
         sync=True,
+        create_request_timeout: Optional[float] = None,
     ) -> Optional[models.Model]:
         """Packages local script and launches training_job.
         Args:
@@ -3115,6 +3150,8 @@ class CustomContainerTrainingJob(_CustomTrainingJob):
                 Whether to execute this method synchronously. If False, this method
                 will be executed in concurrent Future and any downstream object will
                 be immediately returned and synced when the Future has completed.
+            create_request_timeout (float):
+                Optional. The timeout for the create request in seconds.
 
         Returns:
             model: The trained Vertex AI Model resource or None if training did not
@@ -3178,6 +3215,7 @@ class CustomContainerTrainingJob(_CustomTrainingJob):
             model=managed_model,
             gcs_destination_uri_prefix=base_output_dir,
             bigquery_destination=bigquery_destination,
+            create_request_timeout=create_request_timeout,
         )
 
         return model
@@ -3188,6 +3226,7 @@ class AutoMLTabularTrainingJob(_TrainingJob):
 
     def __init__(
         self,
+        # TODO(b/223262536): Make display_name parameter fully optional in next major release
         display_name: str,
         optimization_prediction_type: str,
         optimization_objective: Optional[str] = None,
@@ -3265,9 +3304,9 @@ class AutoMLTabularTrainingJob(_TrainingJob):
                 ignored by the training, except for the targetColumn, which should have
                 no transformations defined on.
                 Only one of column_transformations or column_specs should be passed. If none
-                of column_transformations or column_specs is passed, the service account
-                being used will try setting column_specs to "auto". To do this, the service
-                account needes read access to the GCS or BigQuery training data source.
+                of column_transformations or column_specs is passed, the local credentials
+                being used will try setting column_specs to "auto". To do this, the local
+                credentials require read access to the GCS or BigQuery training data source.
             column_transformations (List[Dict[str, Dict[str, str]]]):
                 Optional. Transformations to apply to the input columns (i.e. columns other
                 than the targetColumn). Each transformation may produce multiple
@@ -3281,9 +3320,9 @@ class AutoMLTabularTrainingJob(_TrainingJob):
                 Only one of column_transformations or column_specs should be passed.
                 Consider using column_specs as column_transformations will be deprecated
                 eventually. If none of column_transformations or column_specs is passed,
-                the service account being used will try setting column_transformations
-                to "auto". To do this, the service account needes read access to the GCS
-                or BigQuery training data source.
+                the local credentials being used will try setting column_transformations to
+                "auto". To do this, the local credentials require read access to the GCS or
+                BigQuery training data source.
             optimization_objective_recall_value (float):
                 Optional. Required when maximize-precision-at-recall optimizationObjective was
                 picked, represents the recall value at which the optimization is done.
@@ -3341,6 +3380,8 @@ class AutoMLTabularTrainingJob(_TrainingJob):
         Raises:
             ValueError: If both column_transformations and column_specs were provided.
         """
+        if not display_name:
+            display_name = self.__class__._generate_display_name()
         super().__init__(
             display_name=display_name,
             project=project,
@@ -3351,8 +3392,10 @@ class AutoMLTabularTrainingJob(_TrainingJob):
             model_encryption_spec_key_name=model_encryption_spec_key_name,
         )
 
-        self._column_transformations = column_transformations_utils.validate_and_get_column_transformations(
-            column_specs, column_transformations
+        self._column_transformations = (
+            column_transformations_utils.validate_and_get_column_transformations(
+                column_specs, column_transformations
+            )
         )
 
         self._optimization_objective = optimization_objective
@@ -3383,6 +3426,7 @@ class AutoMLTabularTrainingJob(_TrainingJob):
         export_evaluated_data_items_override_destination: bool = False,
         additional_experiments: Optional[List[str]] = None,
         sync: bool = True,
+        create_request_timeout: Optional[float] = None,
     ) -> models.Model:
         """Runs the training job and returns a model.
 
@@ -3514,6 +3558,8 @@ class AutoMLTabularTrainingJob(_TrainingJob):
                 Whether to execute this method synchronously. If False, this method
                 will be executed in concurrent Future and any downstream object will
                 be immediately returned and synced when the Future has completed.
+            create_request_timeout (float):
+                Optional. The timeout for the create request in seconds.
         Returns:
             model: The trained Vertex AI Model resource or None if training did not
                 produce a Vertex AI Model.
@@ -3552,6 +3598,7 @@ class AutoMLTabularTrainingJob(_TrainingJob):
             export_evaluated_data_items_bigquery_destination_uri=export_evaluated_data_items_bigquery_destination_uri,
             export_evaluated_data_items_override_destination=export_evaluated_data_items_override_destination,
             sync=sync,
+            create_request_timeout=create_request_timeout,
         )
 
     @base.optional_sync()
@@ -3573,6 +3620,7 @@ class AutoMLTabularTrainingJob(_TrainingJob):
         export_evaluated_data_items_bigquery_destination_uri: Optional[str] = None,
         export_evaluated_data_items_override_destination: bool = False,
         sync: bool = True,
+        create_request_timeout: Optional[float] = None,
     ) -> models.Model:
         """Runs the training job and returns a model.
 
@@ -3702,6 +3750,8 @@ class AutoMLTabularTrainingJob(_TrainingJob):
                 Whether to execute this method synchronously. If False, this method
                 will be executed in concurrent Future and any downstream object will
                 be immediately returned and synced when the Future has completed.
+            create_request_timeout (float):
+                Optional. The timeout for the create request in seconds.
 
         Returns:
             model: The trained Vertex AI Model resource or None if training did not
@@ -3775,6 +3825,7 @@ class AutoMLTabularTrainingJob(_TrainingJob):
             predefined_split_column_name=predefined_split_column_name,
             timestamp_split_column_name=timestamp_split_column_name,
             model=model,
+            create_request_timeout=create_request_timeout,
         )
 
     @property
@@ -3795,7 +3846,8 @@ class AutoMLTabularTrainingJob(_TrainingJob):
 
     @staticmethod
     def get_auto_column_specs(
-        dataset: datasets.TabularDataset, target_column: str,
+        dataset: datasets.TabularDataset,
+        target_column: str,
     ) -> Dict[str, str]:
         """Returns a dict with all non-target columns as keys and 'auto' as values.
 
@@ -3837,7 +3889,7 @@ class AutoMLForecastingTrainingJob(_TrainingJob):
 
     def __init__(
         self,
-        display_name: str,
+        display_name: Optional[str] = None,
         optimization_objective: Optional[str] = None,
         column_specs: Optional[Dict[str, str]] = None,
         column_transformations: Optional[List[Dict[str, Dict[str, str]]]] = None,
@@ -3852,7 +3904,7 @@ class AutoMLForecastingTrainingJob(_TrainingJob):
 
         Args:
             display_name (str):
-                Required. The user-defined name of this TrainingPipeline.
+                Optional. The user-defined name of this TrainingPipeline.
             optimization_objective (str):
                 Optional. Objective function the model is to be optimized towards.
                 The training process creates a Model that optimizes the value of the objective
@@ -3934,6 +3986,8 @@ class AutoMLForecastingTrainingJob(_TrainingJob):
         Raises:
             ValueError: If both column_transformations and column_specs were provided.
         """
+        if not display_name:
+            display_name = self.__class__._generate_display_name()
         super().__init__(
             display_name=display_name,
             project=project,
@@ -3944,8 +3998,10 @@ class AutoMLForecastingTrainingJob(_TrainingJob):
             model_encryption_spec_key_name=model_encryption_spec_key_name,
         )
 
-        self._column_transformations = column_transformations_utils.validate_and_get_column_transformations(
-            column_specs, column_transformations
+        self._column_transformations = (
+            column_transformations_utils.validate_and_get_column_transformations(
+                column_specs, column_transformations
+            )
         )
 
         self._optimization_objective = optimization_objective
@@ -3979,6 +4035,7 @@ class AutoMLForecastingTrainingJob(_TrainingJob):
         model_labels: Optional[Dict[str, str]] = None,
         additional_experiments: Optional[List[str]] = None,
         sync: bool = True,
+        create_request_timeout: Optional[float] = None,
     ) -> models.Model:
         """Runs the training job and returns a model.
 
@@ -4128,6 +4185,8 @@ class AutoMLForecastingTrainingJob(_TrainingJob):
                 and examples of labels.
             additional_experiments (List[str]):
                 Optional. Additional experiment flags for the time series forcasting training.
+            create_request_timeout (float):
+                Optional. The timeout for the create request in seconds.
             sync (bool):
                 Whether to execute this method synchronously. If False, this method
                 will be executed in concurrent Future and any downstream object will
@@ -4182,6 +4241,7 @@ class AutoMLForecastingTrainingJob(_TrainingJob):
             model_display_name=model_display_name,
             model_labels=model_labels,
             sync=sync,
+            create_request_timeout=create_request_timeout,
         )
 
     @base.optional_sync()
@@ -4212,6 +4272,7 @@ class AutoMLForecastingTrainingJob(_TrainingJob):
         model_display_name: Optional[str] = None,
         model_labels: Optional[Dict[str, str]] = None,
         sync: bool = True,
+        create_request_timeout: Optional[float] = None,
     ) -> models.Model:
         """Runs the training job and returns a model.
 
@@ -4371,6 +4432,8 @@ class AutoMLForecastingTrainingJob(_TrainingJob):
                 Whether to execute this method synchronously. If False, this method
                 will be executed in concurrent Future and any downstream object will
                 be immediately returned and synced when the Future has completed.
+            create_request_timeout (float):
+                Optional. The timeout for the create request in seconds.
         Returns:
             model: The trained Vertex AI Model resource or None if training did not
                 produce a Vertex AI Model.
@@ -4450,6 +4513,7 @@ class AutoMLForecastingTrainingJob(_TrainingJob):
             predefined_split_column_name=predefined_split_column_name,
             timestamp_split_column_name=None,  # Not supported by AutoMLForecasting
             model=model,
+            create_request_timeout=create_request_timeout,
         )
 
         if export_evaluated_data_items:
@@ -4502,7 +4566,7 @@ class AutoMLImageTrainingJob(_TrainingJob):
 
     def __init__(
         self,
-        display_name: str,
+        display_name: Optional[str] = None,
         prediction_type: str = "classification",
         multi_label: bool = False,
         model_type: str = "CLOUD",
@@ -4518,7 +4582,7 @@ class AutoMLImageTrainingJob(_TrainingJob):
 
         Args:
             display_name (str):
-                Required. The user-defined name of this TrainingPipeline.
+                Optional. The user-defined name of this TrainingPipeline.
             prediction_type (str):
                 The type of prediction the Model is to produce, one of:
                     "classification" - Predict one out of multiple target values is
@@ -4614,6 +4678,8 @@ class AutoMLImageTrainingJob(_TrainingJob):
         Raises:
             ValueError: When an invalid prediction_type or model_type is provided.
         """
+        if not display_name:
+            display_name = self.__class__._generate_display_name()
 
         valid_model_types = constants.AUTOML_IMAGE_PREDICTION_MODEL_TYPES.get(
             prediction_type, None
@@ -4670,6 +4736,7 @@ class AutoMLImageTrainingJob(_TrainingJob):
         model_labels: Optional[Dict[str, str]] = None,
         disable_early_stopping: bool = False,
         sync: bool = True,
+        create_request_timeout: Optional[float] = None,
     ) -> models.Model:
         """Runs the AutoML Image training job and returns a model.
 
@@ -4775,6 +4842,8 @@ class AutoMLImageTrainingJob(_TrainingJob):
                 Whether to execute this method synchronously. If False, this method
                 will be executed in concurrent Future and any downstream object will
                 be immediately returned and synced when the Future has completed.
+            create_request_timeout (float):
+                Optional. The timeout for the create request in seconds.
         Returns:
             model: The trained Vertex AI Model resource or None if training did not
                 produce a Vertex AI Model.
@@ -4808,6 +4877,7 @@ class AutoMLImageTrainingJob(_TrainingJob):
             model_labels=model_labels,
             disable_early_stopping=disable_early_stopping,
             sync=sync,
+            create_request_timeout=create_request_timeout,
         )
 
     @base.optional_sync()
@@ -4826,6 +4896,7 @@ class AutoMLImageTrainingJob(_TrainingJob):
         model_labels: Optional[Dict[str, str]] = None,
         disable_early_stopping: bool = False,
         sync: bool = True,
+        create_request_timeout: Optional[float] = None,
     ) -> models.Model:
         """Runs the training job and returns a model.
 
@@ -4931,6 +5002,8 @@ class AutoMLImageTrainingJob(_TrainingJob):
                 Whether to execute this method synchronously. If False, this method
                 will be executed in concurrent Future and any downstream object will
                 be immediately returned and synced when the Future has completed.
+            create_request_timeout (float):
+                Optional. The timeout for the create request in seconds.
 
         Returns:
             model: The trained Vertex AI Model resource or None if training did not
@@ -4979,6 +5052,7 @@ class AutoMLImageTrainingJob(_TrainingJob):
             validation_filter_split=validation_filter_split,
             test_filter_split=test_filter_split,
             model=model_tbt,
+            create_request_timeout=create_request_timeout,
         )
 
     @property
@@ -5000,6 +5074,7 @@ class CustomPythonPackageTrainingJob(_CustomTrainingJob):
 
     def __init__(
         self,
+        # TODO(b/223262536): Make display_name parameter fully optional in next major release
         display_name: str,
         python_package_gcs_uri: str,
         python_module_name: str,
@@ -5202,6 +5277,8 @@ class CustomPythonPackageTrainingJob(_CustomTrainingJob):
                 Bucket used to stage source and training artifacts. Overrides
                 staging_bucket set in aiplatform.init.
         """
+        if not display_name:
+            display_name = self.__class__._generate_display_name()
         super().__init__(
             display_name=display_name,
             project=project,
@@ -5269,6 +5346,7 @@ class CustomPythonPackageTrainingJob(_CustomTrainingJob):
         enable_web_access: bool = False,
         tensorboard: Optional[str] = None,
         sync=True,
+        create_request_timeout: Optional[float] = None,
     ) -> Optional[models.Model]:
         """Runs the custom training job.
 
@@ -5509,6 +5587,8 @@ class CustomPythonPackageTrainingJob(_CustomTrainingJob):
                 Whether to execute this method synchronously. If False, this method
                 will be executed in concurrent Future and any downstream object will
                 be immediately returned and synced when the Future has completed.
+            create_request_timeout (float):
+                Optional. The timeout for the create request in seconds.
 
         Returns:
             model: The trained Vertex AI Model resource or None if training did not
@@ -5554,6 +5634,7 @@ class CustomPythonPackageTrainingJob(_CustomTrainingJob):
             if reduction_server_replica_count > 0
             else None,
             sync=sync,
+            create_request_timeout=create_request_timeout,
         )
 
     @base.optional_sync(construct_object_on_arg="managed_model")
@@ -5590,6 +5671,7 @@ class CustomPythonPackageTrainingJob(_CustomTrainingJob):
         tensorboard: Optional[str] = None,
         reduction_server_container_uri: Optional[str] = None,
         sync=True,
+        create_request_timeout: Optional[float] = None,
     ) -> Optional[models.Model]:
         """Packages local script and launches training_job.
 
@@ -5721,6 +5803,8 @@ class CustomPythonPackageTrainingJob(_CustomTrainingJob):
                 Whether to execute this method synchronously. If False, this method
                 will be executed in concurrent Future and any downstream object will
                 be immediately returned and synced when the Future has completed.
+            create_request_timeout (float):
+                Optional. The timeout for the create request in seconds.
 
         Returns:
             model: The trained Vertex AI Model resource or None if training did not
@@ -5784,6 +5868,7 @@ class CustomPythonPackageTrainingJob(_CustomTrainingJob):
             model=managed_model,
             gcs_destination_uri_prefix=base_output_dir,
             bigquery_destination=bigquery_destination,
+            create_request_timeout=create_request_timeout,
         )
 
         return model
@@ -5799,7 +5884,7 @@ class AutoMLVideoTrainingJob(_TrainingJob):
 
     def __init__(
         self,
-        display_name: str,
+        display_name: Optional[str] = None,
         prediction_type: str = "classification",
         model_type: str = "CLOUD",
         project: Optional[str] = None,
@@ -5893,6 +5978,9 @@ class AutoMLVideoTrainingJob(_TrainingJob):
         Raises:
             ValueError: When an invalid prediction_type and/or model_type is provided.
         """
+        if not display_name:
+            display_name = self.__class__._generate_display_name()
+
         valid_model_types = constants.AUTOML_VIDEO_PREDICTION_MODEL_TYPES.get(
             prediction_type, None
         )
@@ -5932,6 +6020,7 @@ class AutoMLVideoTrainingJob(_TrainingJob):
         model_display_name: Optional[str] = None,
         model_labels: Optional[Dict[str, str]] = None,
         sync: bool = True,
+        create_request_timeout: Optional[float] = None,
     ) -> models.Model:
         """Runs the AutoML Video training job and returns a model.
 
@@ -5999,6 +6088,8 @@ class AutoMLVideoTrainingJob(_TrainingJob):
                 Whether to execute this method synchronously. If False, this method
                 will be executed in concurrent Future and any downstream object will
                 be immediately returned and synced when the Future has completed.
+            create_request_timeout (float):
+                Optional. The timeout for the create request in seconds.
         Returns:
             model: The trained Vertex AI Model resource or None if training did not
                 produce a Vertex AI Model.
@@ -6027,6 +6118,7 @@ class AutoMLVideoTrainingJob(_TrainingJob):
             model_display_name=model_display_name,
             model_labels=model_labels,
             sync=sync,
+            create_request_timeout=create_request_timeout,
         )
 
     @base.optional_sync()
@@ -6040,6 +6132,7 @@ class AutoMLVideoTrainingJob(_TrainingJob):
         model_display_name: Optional[str] = None,
         model_labels: Optional[Dict[str, str]] = None,
         sync: bool = True,
+        create_request_timeout: Optional[float] = None,
     ) -> models.Model:
         """Runs the training job and returns a model.
 
@@ -6109,6 +6202,8 @@ class AutoMLVideoTrainingJob(_TrainingJob):
                 Whether to execute this method synchronously. If False, this method
                 will be executed in concurrent Future and any downstream object will
                 be immediately returned and synced when the Future has completed.
+            create_request_timeout (float):
+                Optional. The timeout for the create request in seconds.
 
         Returns:
             model: The trained Vertex AI Model resource or None if training did not
@@ -6146,6 +6241,7 @@ class AutoMLVideoTrainingJob(_TrainingJob):
             validation_filter_split=validation_filter_split,
             test_filter_split=test_filter_split,
             model=model_tbt,
+            create_request_timeout=create_request_timeout,
         )
 
     @property
@@ -6166,6 +6262,7 @@ class AutoMLTextTrainingJob(_TrainingJob):
 
     def __init__(
         self,
+        # TODO(b/223262536): Make display_name parameter fully optional in next major release
         display_name: str,
         prediction_type: str,
         multi_label: bool = False,
@@ -6253,6 +6350,8 @@ class AutoMLTextTrainingJob(_TrainingJob):
 
                 Overrides encryption_spec_key_name set in aiplatform.init.
         """
+        if not display_name:
+            display_name = self.__class__._generate_display_name()
         super().__init__(
             display_name=display_name,
             project=project,
@@ -6271,8 +6370,10 @@ class AutoMLTextTrainingJob(_TrainingJob):
                 schema.training_job.definition.automl_text_classification
             )
 
-            training_task_inputs_dict = training_job_inputs.AutoMlTextClassificationInputs(
-                multi_label=multi_label
+            training_task_inputs_dict = (
+                training_job_inputs.AutoMlTextClassificationInputs(
+                    multi_label=multi_label
+                )
             )
         elif prediction_type == "extraction":
             training_task_definition = (
@@ -6308,6 +6409,7 @@ class AutoMLTextTrainingJob(_TrainingJob):
         model_display_name: Optional[str] = None,
         model_labels: Optional[Dict[str, str]] = None,
         sync: bool = True,
+        create_request_timeout: Optional[float] = None,
     ) -> models.Model:
         """Runs the training job and returns a model.
 
@@ -6382,11 +6484,13 @@ class AutoMLTextTrainingJob(_TrainingJob):
                 underscores and dashes. International characters
                 are allowed.
                 See https://goo.gl/xmQnxf for more information
-                and examples of labels.
+                and examples of labels..
             sync (bool):
                 Whether to execute this method synchronously. If False, this method
                 will be executed in concurrent Future and any downstream object will
                 be immediately returned and synced when the Future has completed.
+            create_request_timeout (float):
+                Optional. The timeout for the create request in seconds
         Returns:
             model: The trained Vertex AI Model resource.
 
@@ -6416,6 +6520,7 @@ class AutoMLTextTrainingJob(_TrainingJob):
             model_display_name=model_display_name,
             model_labels=model_labels,
             sync=sync,
+            create_request_timeout=create_request_timeout,
         )
 
     @base.optional_sync()
@@ -6431,6 +6536,7 @@ class AutoMLTextTrainingJob(_TrainingJob):
         model_display_name: Optional[str] = None,
         model_labels: Optional[Dict[str, str]] = None,
         sync: bool = True,
+        create_request_timeout: Optional[float] = None,
     ) -> models.Model:
         """Runs the training job and returns a model.
 
@@ -6512,6 +6618,8 @@ class AutoMLTextTrainingJob(_TrainingJob):
                 Whether to execute this method synchronously. If False, this method
                 will be executed in concurrent Future and any downstream object will
                 be immediately returned and synced when the Future has completed.
+            create_request_timeout (float):
+                Optional. The timeout for the create request in seconds.
 
         Returns:
             model: The trained Vertex AI Model resource or None if training did not
@@ -6535,6 +6643,7 @@ class AutoMLTextTrainingJob(_TrainingJob):
             validation_filter_split=validation_filter_split,
             test_filter_split=test_filter_split,
             model=model,
+            create_request_timeout=create_request_timeout,
         )
 
     @property

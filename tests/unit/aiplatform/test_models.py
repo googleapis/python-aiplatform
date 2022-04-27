@@ -50,6 +50,7 @@ from google.cloud.aiplatform.compat.types import (
     explanation as gca_explanation,
     machine_resources as gca_machine_resources,
     model_service as gca_model_service,
+    model_evaluation as gca_model_evaluation,
     endpoint_service as gca_endpoint_service,
     encryption_spec as gca_encryption_spec,
 )
@@ -100,8 +101,10 @@ _TEST_BATCH_PREDICTION_BQ_DEST_PREFIX_WITH_PROTOCOL = (
     f"bq://{_TEST_BATCH_PREDICTION_BQ_PREFIX}"
 )
 _TEST_BATCH_PREDICTION_DISPLAY_NAME = "test-batch-prediction-job"
-_TEST_BATCH_PREDICTION_JOB_NAME = job_service_client.JobServiceClient.batch_prediction_job_path(
-    project=_TEST_PROJECT, location=_TEST_LOCATION, batch_prediction_job=_TEST_ID
+_TEST_BATCH_PREDICTION_JOB_NAME = (
+    job_service_client.JobServiceClient.batch_prediction_job_path(
+        project=_TEST_PROJECT, location=_TEST_LOCATION, batch_prediction_job=_TEST_ID
+    )
 )
 
 _TEST_INSTANCE_SCHEMA_URI = "gs://test/schema/instance.yaml"
@@ -135,11 +138,15 @@ _TEST_ENCRYPTION_SPEC = gca_encryption_spec.EncryptionSpec(
 _TEST_MODEL_RESOURCE_NAME = model_service_client.ModelServiceClient.model_path(
     _TEST_PROJECT, _TEST_LOCATION, _TEST_ID
 )
-_TEST_MODEL_RESOURCE_NAME_CUSTOM_PROJECT = model_service_client.ModelServiceClient.model_path(
-    _TEST_PROJECT_2, _TEST_LOCATION, _TEST_ID
+_TEST_MODEL_RESOURCE_NAME_CUSTOM_PROJECT = (
+    model_service_client.ModelServiceClient.model_path(
+        _TEST_PROJECT_2, _TEST_LOCATION, _TEST_ID
+    )
 )
-_TEST_MODEL_RESOURCE_NAME_CUSTOM_LOCATION = model_service_client.ModelServiceClient.model_path(
-    _TEST_PROJECT, _TEST_LOCATION_2, _TEST_ID
+_TEST_MODEL_RESOURCE_NAME_CUSTOM_LOCATION = (
+    model_service_client.ModelServiceClient.model_path(
+        _TEST_PROJECT, _TEST_LOCATION_2, _TEST_ID
+    )
 )
 
 _TEST_OUTPUT_DIR = "gs://my-output-bucket"
@@ -177,6 +184,53 @@ _TEST_SUPPORTED_EXPORT_FORMATS_BOTH = [
 _TEST_SUPPORTED_EXPORT_FORMATS_UNSUPPORTED = []
 _TEST_CONTAINER_REGISTRY_DESTINATION
 
+# Model Evaluation
+_TEST_MODEL_EVAL_RESOURCE_NAME = f"{_TEST_MODEL_RESOURCE_NAME}/evaluations/{_TEST_ID}"
+_TEST_MODEL_EVAL_METRICS = {
+    "auPrc": 0.80592036,
+    "auRoc": 0.8100363,
+    "logLoss": 0.53061414,
+    "confidenceMetrics": [
+        {
+            "confidenceThreshold": -0.01,
+            "recall": 1.0,
+            "precision": 0.5,
+            "falsePositiveRate": 1.0,
+            "f1Score": 0.6666667,
+            "recallAt1": 1.0,
+            "precisionAt1": 0.5,
+            "falsePositiveRateAt1": 1.0,
+            "f1ScoreAt1": 0.6666667,
+            "truePositiveCount": "415",
+            "falsePositiveCount": "415",
+        },
+        {
+            "recall": 1.0,
+            "precision": 0.5,
+            "falsePositiveRate": 1.0,
+            "f1Score": 0.6666667,
+            "recallAt1": 0.74216866,
+            "precisionAt1": 0.74216866,
+            "falsePositiveRateAt1": 0.25783134,
+            "f1ScoreAt1": 0.74216866,
+            "truePositiveCount": "415",
+            "falsePositiveCount": "415",
+        },
+    ],
+}
+
+_TEST_MODEL_EVAL_LIST = [
+    gca_model_evaluation.ModelEvaluation(
+        name=_TEST_MODEL_EVAL_RESOURCE_NAME,
+    ),
+    gca_model_evaluation.ModelEvaluation(
+        name=_TEST_MODEL_EVAL_RESOURCE_NAME,
+    ),
+    gca_model_evaluation.ModelEvaluation(
+        name=_TEST_MODEL_EVAL_RESOURCE_NAME,
+    ),
+]
+
 
 @pytest.fixture
 def mock_model():
@@ -204,11 +258,14 @@ def get_endpoint_mock():
     with mock.patch.object(
         endpoint_service_client.EndpointServiceClient, "get_endpoint"
     ) as get_endpoint_mock:
-        test_endpoint_resource_name = endpoint_service_client.EndpointServiceClient.endpoint_path(
-            _TEST_PROJECT, _TEST_LOCATION, _TEST_ID
+        test_endpoint_resource_name = (
+            endpoint_service_client.EndpointServiceClient.endpoint_path(
+                _TEST_PROJECT, _TEST_LOCATION, _TEST_ID
+            )
         )
         get_endpoint_mock.return_value = gca_endpoint.Endpoint(
-            display_name=_TEST_MODEL_NAME, name=test_endpoint_resource_name,
+            display_name=_TEST_MODEL_NAME,
+            name=test_endpoint_resource_name,
         )
         yield get_endpoint_mock
 
@@ -219,7 +276,8 @@ def get_model_mock():
         model_service_client.ModelServiceClient, "get_model"
     ) as get_model_mock:
         get_model_mock.return_value = gca_model.Model(
-            display_name=_TEST_MODEL_NAME, name=_TEST_MODEL_RESOURCE_NAME,
+            display_name=_TEST_MODEL_NAME,
+            name=_TEST_MODEL_RESOURCE_NAME,
         )
 
         yield get_model_mock
@@ -390,11 +448,14 @@ def deploy_model_mock():
         endpoint_service_client.EndpointServiceClient, "deploy_model"
     ) as deploy_model_mock:
         deployed_model = gca_endpoint.DeployedModel(
-            model=_TEST_MODEL_RESOURCE_NAME, display_name=_TEST_MODEL_NAME,
+            model=_TEST_MODEL_RESOURCE_NAME,
+            display_name=_TEST_MODEL_NAME,
         )
         deploy_model_lro_mock = mock.Mock(ga_operation.Operation)
-        deploy_model_lro_mock.result.return_value = gca_endpoint_service.DeployModelResponse(
-            deployed_model=deployed_model,
+        deploy_model_lro_mock.result.return_value = (
+            gca_endpoint_service.DeployModelResponse(
+                deployed_model=deployed_model,
+            )
         )
         deploy_model_mock.return_value = deploy_model_lro_mock
         yield deploy_model_mock
@@ -455,6 +516,28 @@ def mock_storage_blob_upload_from_filename():
         "google.cloud.storage.Bucket.exists", return_value=True
     ):
         yield mock_blob_upload_from_filename
+
+
+# ModelEvaluation mocks
+@pytest.fixture
+def mock_model_eval_get():
+    with mock.patch.object(
+        model_service_client.ModelServiceClient, "get_model_evaluation"
+    ) as mock_get_model_eval:
+        mock_get_model_eval.return_value = gca_model_evaluation.ModelEvaluation(
+            name=_TEST_MODEL_EVAL_RESOURCE_NAME,
+            metrics=_TEST_MODEL_EVAL_METRICS,
+        )
+        yield mock_get_model_eval
+
+
+@pytest.fixture
+def list_model_evaluations_mock():
+    with mock.patch.object(
+        model_service_client.ModelServiceClient, "list_model_evaluations"
+    ) as list_model_evaluations_mock:
+        list_model_evaluations_mock.return_value = _TEST_MODEL_EVAL_LIST
+        yield list_model_evaluations_mock
 
 
 class TestModel:
@@ -538,6 +621,7 @@ class TestModel:
             serving_container_predict_route=_TEST_SERVING_CONTAINER_PREDICTION_ROUTE,
             serving_container_health_route=_TEST_SERVING_CONTAINER_HEALTH_ROUTE,
             sync=sync,
+            upload_request_timeout=None,
         )
 
         if not sync:
@@ -550,16 +634,45 @@ class TestModel:
         )
 
         managed_model = gca_model.Model(
-            display_name=_TEST_MODEL_NAME, container_spec=container_spec,
+            display_name=_TEST_MODEL_NAME,
+            container_spec=container_spec,
         )
 
         upload_model_mock.assert_called_once_with(
             parent=initializer.global_config.common_location_path(),
             model=managed_model,
+            timeout=None,
         )
 
         get_model_mock.assert_called_once_with(
             name=_TEST_MODEL_RESOURCE_NAME, retry=base._DEFAULT_RETRY
+        )
+
+    @pytest.mark.parametrize("sync", [True, False])
+    def test_upload_with_timeout(self, upload_model_mock, get_model_mock, sync):
+        my_model = models.Model.upload(
+            display_name=_TEST_MODEL_NAME,
+            serving_container_image_uri=_TEST_SERVING_CONTAINER_IMAGE,
+            sync=sync,
+            upload_request_timeout=180.0,
+        )
+
+        if not sync:
+            my_model.wait()
+
+        container_spec = gca_model.ModelContainerSpec(
+            image_uri=_TEST_SERVING_CONTAINER_IMAGE,
+        )
+
+        managed_model = gca_model.Model(
+            display_name=_TEST_MODEL_NAME,
+            container_spec=container_spec,
+        )
+
+        upload_model_mock.assert_called_once_with(
+            parent=initializer.global_config.common_location_path(),
+            model=managed_model,
+            timeout=180.0,
         )
 
     @pytest.mark.parametrize("sync", [True, False])
@@ -573,6 +686,7 @@ class TestModel:
             serving_container_predict_route=_TEST_SERVING_CONTAINER_PREDICTION_ROUTE,
             serving_container_health_route=_TEST_SERVING_CONTAINER_HEALTH_ROUTE,
             labels=_TEST_LABEL,
+            upload_request_timeout=None,
             sync=sync,
         )
 
@@ -594,6 +708,7 @@ class TestModel:
         upload_model_mock.assert_called_once_with(
             parent=initializer.global_config.common_location_path(),
             model=managed_model,
+            timeout=None,
         )
 
         get_model_mock.assert_called_once_with(
@@ -636,6 +751,7 @@ class TestModel:
             explanation_parameters=_TEST_EXPLANATION_PARAMETERS,
             labels=_TEST_LABEL,
             sync=sync,
+            upload_request_timeout=None,
         )
 
         if not sync:
@@ -681,6 +797,7 @@ class TestModel:
         upload_model_mock.assert_called_once_with(
             parent=initializer.global_config.common_location_path(),
             model=managed_model,
+            timeout=None,
         )
         get_model_mock.assert_called_once_with(
             name=_TEST_MODEL_RESOURCE_NAME, retry=base._DEFAULT_RETRY
@@ -707,6 +824,7 @@ class TestModel:
             serving_container_health_route=_TEST_SERVING_CONTAINER_HEALTH_ROUTE,
             project=_TEST_PROJECT_2,
             sync=sync,
+            upload_request_timeout=None,
         )
 
         if not sync:
@@ -727,6 +845,7 @@ class TestModel:
         upload_model_with_custom_project_mock.assert_called_once_with(
             parent=f"projects/{_TEST_PROJECT_2}/locations/{_TEST_LOCATION}",
             model=managed_model,
+            timeout=None,
         )
 
         get_model_with_custom_project_mock.assert_called_once_with(
@@ -741,7 +860,9 @@ class TestModel:
         assert my_model.description == _TEST_DESCRIPTION
 
     @pytest.mark.usefixtures("get_model_with_custom_project_mock")
-    def test_accessing_properties_with_no_resource_raises(self,):
+    def test_accessing_properties_with_no_resource_raises(
+        self,
+    ):
 
         test_model_resource_name = model_service_client.ModelServiceClient.model_path(
             _TEST_PROJECT_2, _TEST_LOCATION, _TEST_ID
@@ -794,6 +915,7 @@ class TestModel:
             serving_container_health_route=_TEST_SERVING_CONTAINER_HEALTH_ROUTE,
             location=_TEST_LOCATION_2,
             sync=sync,
+            upload_request_timeout=None,
         )
 
         if not sync:
@@ -814,6 +936,7 @@ class TestModel:
         upload_model_with_custom_location_mock.assert_called_once_with(
             parent=f"projects/{_TEST_PROJECT}/locations/{_TEST_LOCATION_2}",
             model=managed_model,
+            timeout=None,
         )
 
         get_model_with_custom_location_mock.assert_called_once_with(
@@ -831,13 +954,20 @@ class TestModel:
 
         test_endpoint = models.Endpoint(_TEST_ID)
 
-        assert test_model.deploy(test_endpoint, sync=sync,) == test_endpoint
+        assert (
+            test_model.deploy(
+                test_endpoint,
+                sync=sync,
+            )
+            == test_endpoint
+        )
 
         if not sync:
             test_endpoint.wait()
 
         automatic_resources = gca_machine_resources.AutomaticResources(
-            min_replica_count=1, max_replica_count=1,
+            min_replica_count=1,
+            max_replica_count=1,
         )
         deployed_model = gca_endpoint.DeployedModel(
             automatic_resources=automatic_resources,
@@ -849,6 +979,42 @@ class TestModel:
             deployed_model=deployed_model,
             traffic_split={"0": 100},
             metadata=(),
+            timeout=None,
+        )
+
+    @pytest.mark.usefixtures(
+        "get_endpoint_mock", "get_model_mock", "create_endpoint_mock"
+    )
+    @pytest.mark.parametrize("sync", [True, False])
+    def test_deploy_with_timeout(self, deploy_model_mock, sync):
+
+        test_model = models.Model(_TEST_ID)
+        test_model._gca_resource.supported_deployment_resources_types.append(
+            aiplatform.gapic.Model.DeploymentResourcesType.AUTOMATIC_RESOURCES
+        )
+
+        test_endpoint = models.Endpoint(_TEST_ID)
+
+        test_model.deploy(test_endpoint, sync=sync, deploy_request_timeout=180.0)
+
+        if not sync:
+            test_endpoint.wait()
+
+        automatic_resources = gca_machine_resources.AutomaticResources(
+            min_replica_count=1,
+            max_replica_count=1,
+        )
+        deployed_model = gca_endpoint.DeployedModel(
+            automatic_resources=automatic_resources,
+            model=test_model.resource_name,
+            display_name=None,
+        )
+        deploy_model_mock.assert_called_once_with(
+            endpoint=test_endpoint.resource_name,
+            deployed_model=deployed_model,
+            traffic_split={"0": 100},
+            metadata=(),
+            timeout=180.0,
         )
 
     @pytest.mark.usefixtures(
@@ -867,7 +1033,8 @@ class TestModel:
             test_endpoint.wait()
 
         automatic_resources = gca_machine_resources.AutomaticResources(
-            min_replica_count=1, max_replica_count=1,
+            min_replica_count=1,
+            max_replica_count=1,
         )
         deployed_model = gca_endpoint.DeployedModel(
             automatic_resources=automatic_resources,
@@ -879,6 +1046,7 @@ class TestModel:
             deployed_model=deployed_model,
             traffic_split={"0": 100},
             metadata=(),
+            timeout=None,
         )
 
     @pytest.mark.usefixtures(
@@ -897,6 +1065,7 @@ class TestModel:
             accelerator_count=_TEST_ACCELERATOR_COUNT,
             service_account=_TEST_SERVICE_ACCOUNT,
             sync=sync,
+            deploy_request_timeout=None,
         )
 
         if not sync:
@@ -921,6 +1090,7 @@ class TestModel:
             deployed_model=expected_deployed_model,
             traffic_split={"0": 100},
             metadata=(),
+            timeout=None,
         )
 
     @pytest.mark.usefixtures(
@@ -939,6 +1109,7 @@ class TestModel:
             explanation_metadata=_TEST_EXPLANATION_METADATA,
             explanation_parameters=_TEST_EXPLANATION_PARAMETERS,
             sync=sync,
+            deploy_request_timeout=None,
         )
 
         if not sync:
@@ -966,6 +1137,7 @@ class TestModel:
             deployed_model=expected_deployed_model,
             traffic_split={"0": 100},
             metadata=(),
+            timeout=None,
         )
 
     @pytest.mark.usefixtures(
@@ -1007,33 +1179,39 @@ class TestModel:
             gcs_source=_TEST_BATCH_PREDICTION_GCS_SOURCE,
             gcs_destination_prefix=_TEST_BATCH_PREDICTION_GCS_DEST_PREFIX,
             sync=sync,
+            create_request_timeout=None,
         )
 
         if not sync:
             batch_prediction_job.wait()
 
         # Construct expected request
-        expected_gapic_batch_prediction_job = gca_batch_prediction_job.BatchPredictionJob(
-            display_name=_TEST_BATCH_PREDICTION_DISPLAY_NAME,
-            model=model_service_client.ModelServiceClient.model_path(
-                _TEST_PROJECT, _TEST_LOCATION, _TEST_ID
-            ),
-            input_config=gca_batch_prediction_job.BatchPredictionJob.InputConfig(
-                instances_format="jsonl",
-                gcs_source=gca_io.GcsSource(uris=[_TEST_BATCH_PREDICTION_GCS_SOURCE]),
-            ),
-            output_config=gca_batch_prediction_job.BatchPredictionJob.OutputConfig(
-                gcs_destination=gca_io.GcsDestination(
-                    output_uri_prefix=_TEST_BATCH_PREDICTION_GCS_DEST_PREFIX
+        expected_gapic_batch_prediction_job = (
+            gca_batch_prediction_job.BatchPredictionJob(
+                display_name=_TEST_BATCH_PREDICTION_DISPLAY_NAME,
+                model=model_service_client.ModelServiceClient.model_path(
+                    _TEST_PROJECT, _TEST_LOCATION, _TEST_ID
                 ),
-                predictions_format="jsonl",
-            ),
-            encryption_spec=_TEST_ENCRYPTION_SPEC,
+                input_config=gca_batch_prediction_job.BatchPredictionJob.InputConfig(
+                    instances_format="jsonl",
+                    gcs_source=gca_io.GcsSource(
+                        uris=[_TEST_BATCH_PREDICTION_GCS_SOURCE]
+                    ),
+                ),
+                output_config=gca_batch_prediction_job.BatchPredictionJob.OutputConfig(
+                    gcs_destination=gca_io.GcsDestination(
+                        output_uri_prefix=_TEST_BATCH_PREDICTION_GCS_DEST_PREFIX
+                    ),
+                    predictions_format="jsonl",
+                ),
+                encryption_spec=_TEST_ENCRYPTION_SPEC,
+            )
         )
 
         create_batch_prediction_job_mock.assert_called_once_with(
             parent=_TEST_PARENT,
             batch_prediction_job=expected_gapic_batch_prediction_job,
+            timeout=None,
         )
 
     @pytest.mark.parametrize("sync", [True, False])
@@ -1050,32 +1228,38 @@ class TestModel:
             gcs_source=_TEST_BATCH_PREDICTION_GCS_SOURCE,
             gcs_destination_prefix=_TEST_BATCH_PREDICTION_GCS_DEST_PREFIX,
             sync=sync,
+            create_request_timeout=None,
         )
 
         if not sync:
             batch_prediction_job.wait()
 
         # Construct expected request
-        expected_gapic_batch_prediction_job = gca_batch_prediction_job.BatchPredictionJob(
-            display_name=_TEST_BATCH_PREDICTION_DISPLAY_NAME,
-            model=model_service_client.ModelServiceClient.model_path(
-                _TEST_PROJECT, _TEST_LOCATION, _TEST_ID
-            ),
-            input_config=gca_batch_prediction_job.BatchPredictionJob.InputConfig(
-                instances_format="jsonl",
-                gcs_source=gca_io.GcsSource(uris=[_TEST_BATCH_PREDICTION_GCS_SOURCE]),
-            ),
-            output_config=gca_batch_prediction_job.BatchPredictionJob.OutputConfig(
-                gcs_destination=gca_io.GcsDestination(
-                    output_uri_prefix=_TEST_BATCH_PREDICTION_GCS_DEST_PREFIX
+        expected_gapic_batch_prediction_job = (
+            gca_batch_prediction_job.BatchPredictionJob(
+                display_name=_TEST_BATCH_PREDICTION_DISPLAY_NAME,
+                model=model_service_client.ModelServiceClient.model_path(
+                    _TEST_PROJECT, _TEST_LOCATION, _TEST_ID
                 ),
-                predictions_format="jsonl",
-            ),
+                input_config=gca_batch_prediction_job.BatchPredictionJob.InputConfig(
+                    instances_format="jsonl",
+                    gcs_source=gca_io.GcsSource(
+                        uris=[_TEST_BATCH_PREDICTION_GCS_SOURCE]
+                    ),
+                ),
+                output_config=gca_batch_prediction_job.BatchPredictionJob.OutputConfig(
+                    gcs_destination=gca_io.GcsDestination(
+                        output_uri_prefix=_TEST_BATCH_PREDICTION_GCS_DEST_PREFIX
+                    ),
+                    predictions_format="jsonl",
+                ),
+            )
         )
 
         create_batch_prediction_job_mock.assert_called_once_with(
             parent=_TEST_PARENT,
             batch_prediction_job=expected_gapic_batch_prediction_job,
+            timeout=None,
         )
 
     @pytest.mark.parametrize("sync", [True, False])
@@ -1092,32 +1276,38 @@ class TestModel:
             gcs_source=_TEST_BATCH_PREDICTION_GCS_SOURCE,
             bigquery_destination_prefix=_TEST_BATCH_PREDICTION_BQ_PREFIX,
             sync=sync,
+            create_request_timeout=None,
         )
 
         if not sync:
             batch_prediction_job.wait()
 
         # Construct expected request
-        expected_gapic_batch_prediction_job = gca_batch_prediction_job.BatchPredictionJob(
-            display_name=_TEST_BATCH_PREDICTION_DISPLAY_NAME,
-            model=model_service_client.ModelServiceClient.model_path(
-                _TEST_PROJECT, _TEST_LOCATION, _TEST_ID
-            ),
-            input_config=gca_batch_prediction_job.BatchPredictionJob.InputConfig(
-                instances_format="jsonl",
-                gcs_source=gca_io.GcsSource(uris=[_TEST_BATCH_PREDICTION_GCS_SOURCE]),
-            ),
-            output_config=gca_batch_prediction_job.BatchPredictionJob.OutputConfig(
-                bigquery_destination=gca_io.BigQueryDestination(
-                    output_uri=_TEST_BATCH_PREDICTION_BQ_DEST_PREFIX_WITH_PROTOCOL
+        expected_gapic_batch_prediction_job = (
+            gca_batch_prediction_job.BatchPredictionJob(
+                display_name=_TEST_BATCH_PREDICTION_DISPLAY_NAME,
+                model=model_service_client.ModelServiceClient.model_path(
+                    _TEST_PROJECT, _TEST_LOCATION, _TEST_ID
                 ),
-                predictions_format="bigquery",
-            ),
+                input_config=gca_batch_prediction_job.BatchPredictionJob.InputConfig(
+                    instances_format="jsonl",
+                    gcs_source=gca_io.GcsSource(
+                        uris=[_TEST_BATCH_PREDICTION_GCS_SOURCE]
+                    ),
+                ),
+                output_config=gca_batch_prediction_job.BatchPredictionJob.OutputConfig(
+                    bigquery_destination=gca_io.BigQueryDestination(
+                        output_uri=_TEST_BATCH_PREDICTION_BQ_DEST_PREFIX_WITH_PROTOCOL
+                    ),
+                    predictions_format="bigquery",
+                ),
+            )
         )
 
         create_batch_prediction_job_mock.assert_called_once_with(
             parent=_TEST_PARENT,
             batch_prediction_job=expected_gapic_batch_prediction_job,
+            timeout=None,
         )
 
     @pytest.mark.parametrize("sync", [True, False])
@@ -1145,48 +1335,54 @@ class TestModel:
             credentials=creds,
             encryption_spec_key_name=_TEST_ENCRYPTION_KEY_NAME,
             sync=sync,
+            create_request_timeout=None,
         )
 
         if not sync:
             batch_prediction_job.wait()
 
         # Construct expected request
-        expected_gapic_batch_prediction_job = gca_batch_prediction_job.BatchPredictionJob(
-            display_name=_TEST_BATCH_PREDICTION_DISPLAY_NAME,
-            model=model_service_client.ModelServiceClient.model_path(
-                _TEST_PROJECT, _TEST_LOCATION, _TEST_ID
-            ),
-            input_config=gca_batch_prediction_job.BatchPredictionJob.InputConfig(
-                instances_format="jsonl",
-                gcs_source=gca_io.GcsSource(uris=[_TEST_BATCH_PREDICTION_GCS_SOURCE]),
-            ),
-            output_config=gca_batch_prediction_job.BatchPredictionJob.OutputConfig(
-                gcs_destination=gca_io.GcsDestination(
-                    output_uri_prefix=_TEST_BATCH_PREDICTION_GCS_DEST_PREFIX
+        expected_gapic_batch_prediction_job = (
+            gca_batch_prediction_job.BatchPredictionJob(
+                display_name=_TEST_BATCH_PREDICTION_DISPLAY_NAME,
+                model=model_service_client.ModelServiceClient.model_path(
+                    _TEST_PROJECT, _TEST_LOCATION, _TEST_ID
                 ),
-                predictions_format="csv",
-            ),
-            dedicated_resources=gca_machine_resources.BatchDedicatedResources(
-                machine_spec=gca_machine_resources.MachineSpec(
-                    machine_type=_TEST_MACHINE_TYPE,
-                    accelerator_type=_TEST_ACCELERATOR_TYPE,
-                    accelerator_count=_TEST_ACCELERATOR_COUNT,
+                input_config=gca_batch_prediction_job.BatchPredictionJob.InputConfig(
+                    instances_format="jsonl",
+                    gcs_source=gca_io.GcsSource(
+                        uris=[_TEST_BATCH_PREDICTION_GCS_SOURCE]
+                    ),
                 ),
-                starting_replica_count=_TEST_STARTING_REPLICA_COUNT,
-                max_replica_count=_TEST_MAX_REPLICA_COUNT,
-            ),
-            generate_explanation=True,
-            explanation_spec=gca_explanation.ExplanationSpec(
-                metadata=_TEST_EXPLANATION_METADATA,
-                parameters=_TEST_EXPLANATION_PARAMETERS,
-            ),
-            labels=_TEST_LABEL,
-            encryption_spec=_TEST_ENCRYPTION_SPEC,
+                output_config=gca_batch_prediction_job.BatchPredictionJob.OutputConfig(
+                    gcs_destination=gca_io.GcsDestination(
+                        output_uri_prefix=_TEST_BATCH_PREDICTION_GCS_DEST_PREFIX
+                    ),
+                    predictions_format="csv",
+                ),
+                dedicated_resources=gca_machine_resources.BatchDedicatedResources(
+                    machine_spec=gca_machine_resources.MachineSpec(
+                        machine_type=_TEST_MACHINE_TYPE,
+                        accelerator_type=_TEST_ACCELERATOR_TYPE,
+                        accelerator_count=_TEST_ACCELERATOR_COUNT,
+                    ),
+                    starting_replica_count=_TEST_STARTING_REPLICA_COUNT,
+                    max_replica_count=_TEST_MAX_REPLICA_COUNT,
+                ),
+                generate_explanation=True,
+                explanation_spec=gca_explanation.ExplanationSpec(
+                    metadata=_TEST_EXPLANATION_METADATA,
+                    parameters=_TEST_EXPLANATION_PARAMETERS,
+                ),
+                labels=_TEST_LABEL,
+                encryption_spec=_TEST_ENCRYPTION_SPEC,
+            )
         )
 
         create_batch_prediction_job_mock.assert_called_once_with(
             parent=f"projects/{_TEST_PROJECT}/locations/{_TEST_LOCATION}",
             batch_prediction_job=expected_gapic_batch_prediction_job,
+            timeout=None,
         )
 
     @pytest.mark.usefixtures("get_model_mock", "get_batch_prediction_job_mock")
@@ -1427,7 +1623,8 @@ class TestModel:
             test_model = models.Model(_TEST_ID)
 
             test_model.export_model(
-                export_format_id=_TEST_EXPORT_FORMAT_ID_IMAGE, sync=sync,
+                export_format_id=_TEST_EXPORT_FORMAT_ID_IMAGE,
+                sync=sync,
             )
 
             if not sync:
@@ -1486,7 +1683,7 @@ class TestModel:
         assert e.match(
             regexp=(
                 r"The training job used to create this model could not be found: "
-                fr"{_TEST_PIPELINE_RESOURCE_NAME}"
+                rf"{_TEST_PIPELINE_RESOURCE_NAME}"
             )
         )
 
@@ -1514,6 +1711,7 @@ class TestModel:
             project=_TEST_PROJECT,
             location=_TEST_LOCATION,
             sync=sync,
+            upload_request_timeout=None,
         )
 
         if not sync:
@@ -1602,7 +1800,8 @@ class TestModel:
 
     @pytest.mark.parametrize("sync", [True, False])
     @pytest.mark.parametrize(
-        "model_file_name", ["my_model.pkl", "my_model.joblib"],
+        "model_file_name",
+        ["my_model.pkl", "my_model.joblib"],
     )
     def test_upload_scikit_learn_model_file_uploads_and_gets_model(
         self,
@@ -1623,6 +1822,7 @@ class TestModel:
             project=_TEST_PROJECT,
             location=_TEST_LOCATION,
             sync=sync,
+            upload_request_timeout=None,
         )
 
         if not sync:
@@ -1672,6 +1872,7 @@ class TestModel:
             project=_TEST_PROJECT,
             location=_TEST_LOCATION,
             sync=sync,
+            upload_request_timeout=None,
         )
 
         if not sync:
@@ -1725,3 +1926,48 @@ class TestModel:
         update_model_mock.assert_called_once_with(
             model=current_model_proto, update_mask=update_mask
         )
+
+    def test_get_model_evaluation_with_id(
+        self,
+        mock_model_eval_get,
+        get_model_mock,
+        list_model_evaluations_mock,
+    ):
+        test_model = models.Model(model_name=_TEST_MODEL_RESOURCE_NAME)
+
+        test_model.get_model_evaluation(evaluation_id=_TEST_ID)
+
+        mock_model_eval_get.assert_called_once_with(
+            name=_TEST_MODEL_EVAL_RESOURCE_NAME, retry=base._DEFAULT_RETRY
+        )
+
+    def test_get_model_evaluation_without_id(
+        self,
+        mock_model_eval_get,
+        get_model_mock,
+        list_model_evaluations_mock,
+    ):
+        test_model = models.Model(model_name=_TEST_MODEL_RESOURCE_NAME)
+
+        test_model.get_model_evaluation()
+
+        list_model_evaluations_mock.assert_called_once_with(
+            request={"parent": _TEST_MODEL_RESOURCE_NAME, "filter": None}
+        )
+
+    def test_list_model_evaluations(
+        self,
+        get_model_mock,
+        mock_model_eval_get,
+        list_model_evaluations_mock,
+    ):
+
+        test_model = models.Model(model_name=_TEST_MODEL_RESOURCE_NAME)
+
+        eval_list = test_model.list_model_evaluations()
+
+        list_model_evaluations_mock.assert_called_once_with(
+            request={"parent": _TEST_MODEL_RESOURCE_NAME, "filter": None}
+        )
+
+        assert len(eval_list) == len(_TEST_MODEL_EVAL_LIST)

@@ -16,7 +16,7 @@
 from collections import OrderedDict
 import os
 import re
-from typing import Dict, Optional, Iterable, Sequence, Tuple, Type, Union
+from typing import Dict, Mapping, Optional, Iterable, Sequence, Tuple, Type, Union
 import pkg_resources
 
 from google.api_core import client_options as client_options_lib
@@ -76,7 +76,8 @@ class TensorboardServiceClientMeta(type):
     _transport_registry["grpc_asyncio"] = TensorboardServiceGrpcAsyncIOTransport
 
     def get_transport_class(
-        cls, label: str = None,
+        cls,
+        label: str = None,
     ) -> Type[TensorboardServiceTransport]:
         """Returns an appropriate transport class.
 
@@ -182,10 +183,18 @@ class TensorboardServiceClient(metaclass=TensorboardServiceClientMeta):
         return self._transport
 
     @staticmethod
-    def tensorboard_path(project: str, location: str, tensorboard: str,) -> str:
+    def tensorboard_path(
+        project: str,
+        location: str,
+        tensorboard: str,
+    ) -> str:
         """Returns a fully-qualified tensorboard string."""
-        return "projects/{project}/locations/{location}/tensorboards/{tensorboard}".format(
-            project=project, location=location, tensorboard=tensorboard,
+        return (
+            "projects/{project}/locations/{location}/tensorboards/{tensorboard}".format(
+                project=project,
+                location=location,
+                tensorboard=tensorboard,
+            )
         )
 
     @staticmethod
@@ -199,7 +208,10 @@ class TensorboardServiceClient(metaclass=TensorboardServiceClientMeta):
 
     @staticmethod
     def tensorboard_experiment_path(
-        project: str, location: str, tensorboard: str, experiment: str,
+        project: str,
+        location: str,
+        tensorboard: str,
+        experiment: str,
     ) -> str:
         """Returns a fully-qualified tensorboard_experiment string."""
         return "projects/{project}/locations/{location}/tensorboards/{tensorboard}/experiments/{experiment}".format(
@@ -220,7 +232,11 @@ class TensorboardServiceClient(metaclass=TensorboardServiceClientMeta):
 
     @staticmethod
     def tensorboard_run_path(
-        project: str, location: str, tensorboard: str, experiment: str, run: str,
+        project: str,
+        location: str,
+        tensorboard: str,
+        experiment: str,
+        run: str,
     ) -> str:
         """Returns a fully-qualified tensorboard_run string."""
         return "projects/{project}/locations/{location}/tensorboards/{tensorboard}/experiments/{experiment}/runs/{run}".format(
@@ -269,7 +285,9 @@ class TensorboardServiceClient(metaclass=TensorboardServiceClientMeta):
         return m.groupdict() if m else {}
 
     @staticmethod
-    def common_billing_account_path(billing_account: str,) -> str:
+    def common_billing_account_path(
+        billing_account: str,
+    ) -> str:
         """Returns a fully-qualified billing_account string."""
         return "billingAccounts/{billing_account}".format(
             billing_account=billing_account,
@@ -282,9 +300,13 @@ class TensorboardServiceClient(metaclass=TensorboardServiceClientMeta):
         return m.groupdict() if m else {}
 
     @staticmethod
-    def common_folder_path(folder: str,) -> str:
+    def common_folder_path(
+        folder: str,
+    ) -> str:
         """Returns a fully-qualified folder string."""
-        return "folders/{folder}".format(folder=folder,)
+        return "folders/{folder}".format(
+            folder=folder,
+        )
 
     @staticmethod
     def parse_common_folder_path(path: str) -> Dict[str, str]:
@@ -293,9 +315,13 @@ class TensorboardServiceClient(metaclass=TensorboardServiceClientMeta):
         return m.groupdict() if m else {}
 
     @staticmethod
-    def common_organization_path(organization: str,) -> str:
+    def common_organization_path(
+        organization: str,
+    ) -> str:
         """Returns a fully-qualified organization string."""
-        return "organizations/{organization}".format(organization=organization,)
+        return "organizations/{organization}".format(
+            organization=organization,
+        )
 
     @staticmethod
     def parse_common_organization_path(path: str) -> Dict[str, str]:
@@ -304,9 +330,13 @@ class TensorboardServiceClient(metaclass=TensorboardServiceClientMeta):
         return m.groupdict() if m else {}
 
     @staticmethod
-    def common_project_path(project: str,) -> str:
+    def common_project_path(
+        project: str,
+    ) -> str:
         """Returns a fully-qualified project string."""
-        return "projects/{project}".format(project=project,)
+        return "projects/{project}".format(
+            project=project,
+        )
 
     @staticmethod
     def parse_common_project_path(path: str) -> Dict[str, str]:
@@ -315,10 +345,14 @@ class TensorboardServiceClient(metaclass=TensorboardServiceClientMeta):
         return m.groupdict() if m else {}
 
     @staticmethod
-    def common_location_path(project: str, location: str,) -> str:
+    def common_location_path(
+        project: str,
+        location: str,
+    ) -> str:
         """Returns a fully-qualified location string."""
         return "projects/{project}/locations/{location}".format(
-            project=project, location=location,
+            project=project,
+            location=location,
         )
 
     @staticmethod
@@ -598,7 +632,12 @@ class TensorboardServiceClient(metaclass=TensorboardServiceClientMeta):
         )
 
         # Send the request.
-        response = rpc(request, retry=retry, timeout=timeout, metadata=metadata,)
+        response = rpc(
+            request,
+            retry=retry,
+            timeout=timeout,
+            metadata=metadata,
+        )
 
         # Wrap the response in an operation future.
         response = gac_operation.from_gapic(
@@ -700,7 +739,12 @@ class TensorboardServiceClient(metaclass=TensorboardServiceClientMeta):
         )
 
         # Send the request.
-        response = rpc(request, retry=retry, timeout=timeout, metadata=metadata,)
+        response = rpc(
+            request,
+            retry=retry,
+            timeout=timeout,
+            metadata=metadata,
+        )
 
         # Done; return the response.
         return response
@@ -819,7 +863,12 @@ class TensorboardServiceClient(metaclass=TensorboardServiceClientMeta):
         )
 
         # Send the request.
-        response = rpc(request, retry=retry, timeout=timeout, metadata=metadata,)
+        response = rpc(
+            request,
+            retry=retry,
+            timeout=timeout,
+            metadata=metadata,
+        )
 
         # Wrap the response in an operation future.
         response = gac_operation.from_gapic(
@@ -922,12 +971,20 @@ class TensorboardServiceClient(metaclass=TensorboardServiceClientMeta):
         )
 
         # Send the request.
-        response = rpc(request, retry=retry, timeout=timeout, metadata=metadata,)
+        response = rpc(
+            request,
+            retry=retry,
+            timeout=timeout,
+            metadata=metadata,
+        )
 
         # This method is paged; wrap the response in a pager, which provides
         # an `__iter__` convenience method.
         response = pagers.ListTensorboardsPager(
-            method=rpc, request=request, response=response, metadata=metadata,
+            method=rpc,
+            request=request,
+            response=response,
+            metadata=metadata,
         )
 
         # Done; return the response.
@@ -1036,7 +1093,12 @@ class TensorboardServiceClient(metaclass=TensorboardServiceClientMeta):
         )
 
         # Send the request.
-        response = rpc(request, retry=retry, timeout=timeout, metadata=metadata,)
+        response = rpc(
+            request,
+            retry=retry,
+            timeout=timeout,
+            metadata=metadata,
+        )
 
         # Wrap the response in an operation future.
         response = gac_operation.from_gapic(
@@ -1168,7 +1230,12 @@ class TensorboardServiceClient(metaclass=TensorboardServiceClientMeta):
         )
 
         # Send the request.
-        response = rpc(request, retry=retry, timeout=timeout, metadata=metadata,)
+        response = rpc(
+            request,
+            retry=retry,
+            timeout=timeout,
+            metadata=metadata,
+        )
 
         # Done; return the response.
         return response
@@ -1265,7 +1332,12 @@ class TensorboardServiceClient(metaclass=TensorboardServiceClientMeta):
         )
 
         # Send the request.
-        response = rpc(request, retry=retry, timeout=timeout, metadata=metadata,)
+        response = rpc(
+            request,
+            retry=retry,
+            timeout=timeout,
+            metadata=metadata,
+        )
 
         # Done; return the response.
         return response
@@ -1381,7 +1453,12 @@ class TensorboardServiceClient(metaclass=TensorboardServiceClientMeta):
         )
 
         # Send the request.
-        response = rpc(request, retry=retry, timeout=timeout, metadata=metadata,)
+        response = rpc(
+            request,
+            retry=retry,
+            timeout=timeout,
+            metadata=metadata,
+        )
 
         # Done; return the response.
         return response
@@ -1483,12 +1560,20 @@ class TensorboardServiceClient(metaclass=TensorboardServiceClientMeta):
         )
 
         # Send the request.
-        response = rpc(request, retry=retry, timeout=timeout, metadata=metadata,)
+        response = rpc(
+            request,
+            retry=retry,
+            timeout=timeout,
+            metadata=metadata,
+        )
 
         # This method is paged; wrap the response in a pager, which provides
         # an `__iter__` convenience method.
         response = pagers.ListTensorboardExperimentsPager(
-            method=rpc, request=request, response=response, metadata=metadata,
+            method=rpc,
+            request=request,
+            response=response,
+            metadata=metadata,
         )
 
         # Done; return the response.
@@ -1603,7 +1688,12 @@ class TensorboardServiceClient(metaclass=TensorboardServiceClientMeta):
         )
 
         # Send the request.
-        response = rpc(request, retry=retry, timeout=timeout, metadata=metadata,)
+        response = rpc(
+            request,
+            retry=retry,
+            timeout=timeout,
+            metadata=metadata,
+        )
 
         # Wrap the response in an operation future.
         response = gac_operation.from_gapic(
@@ -1733,7 +1823,12 @@ class TensorboardServiceClient(metaclass=TensorboardServiceClientMeta):
         )
 
         # Send the request.
-        response = rpc(request, retry=retry, timeout=timeout, metadata=metadata,)
+        response = rpc(
+            request,
+            retry=retry,
+            timeout=timeout,
+            metadata=metadata,
+        )
 
         # Done; return the response.
         return response
@@ -1851,7 +1946,12 @@ class TensorboardServiceClient(metaclass=TensorboardServiceClientMeta):
         )
 
         # Send the request.
-        response = rpc(request, retry=retry, timeout=timeout, metadata=metadata,)
+        response = rpc(
+            request,
+            retry=retry,
+            timeout=timeout,
+            metadata=metadata,
+        )
 
         # Done; return the response.
         return response
@@ -1944,7 +2044,12 @@ class TensorboardServiceClient(metaclass=TensorboardServiceClientMeta):
         )
 
         # Send the request.
-        response = rpc(request, retry=retry, timeout=timeout, metadata=metadata,)
+        response = rpc(
+            request,
+            retry=retry,
+            timeout=timeout,
+            metadata=metadata,
+        )
 
         # Done; return the response.
         return response
@@ -2057,7 +2162,12 @@ class TensorboardServiceClient(metaclass=TensorboardServiceClientMeta):
         )
 
         # Send the request.
-        response = rpc(request, retry=retry, timeout=timeout, metadata=metadata,)
+        response = rpc(
+            request,
+            retry=retry,
+            timeout=timeout,
+            metadata=metadata,
+        )
 
         # Done; return the response.
         return response
@@ -2153,12 +2263,20 @@ class TensorboardServiceClient(metaclass=TensorboardServiceClientMeta):
         )
 
         # Send the request.
-        response = rpc(request, retry=retry, timeout=timeout, metadata=metadata,)
+        response = rpc(
+            request,
+            retry=retry,
+            timeout=timeout,
+            metadata=metadata,
+        )
 
         # This method is paged; wrap the response in a pager, which provides
         # an `__iter__` convenience method.
         response = pagers.ListTensorboardRunsPager(
-            method=rpc, request=request, response=response, metadata=metadata,
+            method=rpc,
+            request=request,
+            response=response,
+            metadata=metadata,
         )
 
         # Done; return the response.
@@ -2267,7 +2385,12 @@ class TensorboardServiceClient(metaclass=TensorboardServiceClientMeta):
         )
 
         # Send the request.
-        response = rpc(request, retry=retry, timeout=timeout, metadata=metadata,)
+        response = rpc(
+            request,
+            retry=retry,
+            timeout=timeout,
+            metadata=metadata,
+        )
 
         # Wrap the response in an operation future.
         response = gac_operation.from_gapic(
@@ -2296,7 +2419,6 @@ class TensorboardServiceClient(metaclass=TensorboardServiceClientMeta):
     ) -> tensorboard_service.BatchCreateTensorboardTimeSeriesResponse:
         r"""Batch create TensorboardTimeSeries that belong to a
         TensorboardExperiment.
-
 
         .. code-block:: python
 
@@ -2400,7 +2522,12 @@ class TensorboardServiceClient(metaclass=TensorboardServiceClientMeta):
         )
 
         # Send the request.
-        response = rpc(request, retry=retry, timeout=timeout, metadata=metadata,)
+        response = rpc(
+            request,
+            retry=retry,
+            timeout=timeout,
+            metadata=metadata,
+        )
 
         # Done; return the response.
         return response
@@ -2512,7 +2639,12 @@ class TensorboardServiceClient(metaclass=TensorboardServiceClientMeta):
         )
 
         # Send the request.
-        response = rpc(request, retry=retry, timeout=timeout, metadata=metadata,)
+        response = rpc(
+            request,
+            retry=retry,
+            timeout=timeout,
+            metadata=metadata,
+        )
 
         # Done; return the response.
         return response
@@ -2607,7 +2739,12 @@ class TensorboardServiceClient(metaclass=TensorboardServiceClientMeta):
         )
 
         # Send the request.
-        response = rpc(request, retry=retry, timeout=timeout, metadata=metadata,)
+        response = rpc(
+            request,
+            retry=retry,
+            timeout=timeout,
+            metadata=metadata,
+        )
 
         # Done; return the response.
         return response
@@ -2731,7 +2868,12 @@ class TensorboardServiceClient(metaclass=TensorboardServiceClientMeta):
         )
 
         # Send the request.
-        response = rpc(request, retry=retry, timeout=timeout, metadata=metadata,)
+        response = rpc(
+            request,
+            retry=retry,
+            timeout=timeout,
+            metadata=metadata,
+        )
 
         # Done; return the response.
         return response
@@ -2833,12 +2975,20 @@ class TensorboardServiceClient(metaclass=TensorboardServiceClientMeta):
         )
 
         # Send the request.
-        response = rpc(request, retry=retry, timeout=timeout, metadata=metadata,)
+        response = rpc(
+            request,
+            retry=retry,
+            timeout=timeout,
+            metadata=metadata,
+        )
 
         # This method is paged; wrap the response in a pager, which provides
         # an `__iter__` convenience method.
         response = pagers.ListTensorboardTimeSeriesPager(
-            method=rpc, request=request, response=response, metadata=metadata,
+            method=rpc,
+            request=request,
+            response=response,
+            metadata=metadata,
         )
 
         # Done; return the response.
@@ -2953,7 +3103,12 @@ class TensorboardServiceClient(metaclass=TensorboardServiceClientMeta):
         )
 
         # Send the request.
-        response = rpc(request, retry=retry, timeout=timeout, metadata=metadata,)
+        response = rpc(
+            request,
+            retry=retry,
+            timeout=timeout,
+            metadata=metadata,
+        )
 
         # Wrap the response in an operation future.
         response = gac_operation.from_gapic(
@@ -2983,7 +3138,6 @@ class TensorboardServiceClient(metaclass=TensorboardServiceClientMeta):
         is less than the limit, all data will be returned.
         Otherwise, that limit number of data points will be
         randomly selected from this time series and returned.
-
 
         .. code-block:: python
 
@@ -3073,7 +3227,12 @@ class TensorboardServiceClient(metaclass=TensorboardServiceClientMeta):
         )
 
         # Send the request.
-        response = rpc(request, retry=retry, timeout=timeout, metadata=metadata,)
+        response = rpc(
+            request,
+            retry=retry,
+            timeout=timeout,
+            metadata=metadata,
+        )
 
         # Done; return the response.
         return response
@@ -3094,7 +3253,6 @@ class TensorboardServiceClient(metaclass=TensorboardServiceClientMeta):
         returned. Otherwise, 1000 data points will be randomly selected
         from this time series and returned. This value can be changed by
         changing max_data_points, which can't be greater than 10k.
-
 
         .. code-block:: python
 
@@ -3177,7 +3335,12 @@ class TensorboardServiceClient(metaclass=TensorboardServiceClientMeta):
         )
 
         # Send the request.
-        response = rpc(request, retry=retry, timeout=timeout, metadata=metadata,)
+        response = rpc(
+            request,
+            retry=retry,
+            timeout=timeout,
+            metadata=metadata,
+        )
 
         # Done; return the response.
         return response
@@ -3195,7 +3358,6 @@ class TensorboardServiceClient(metaclass=TensorboardServiceClientMeta):
         This is to allow reading blob data stored in consumer
         project's Cloud Storage bucket without users having to
         obtain Cloud Storage access permission.
-
 
         .. code-block:: python
 
@@ -3277,7 +3439,12 @@ class TensorboardServiceClient(metaclass=TensorboardServiceClientMeta):
         )
 
         # Send the request.
-        response = rpc(request, retry=retry, timeout=timeout, metadata=metadata,)
+        response = rpc(
+            request,
+            retry=retry,
+            timeout=timeout,
+            metadata=metadata,
+        )
 
         # Done; return the response.
         return response
@@ -3299,7 +3466,6 @@ class TensorboardServiceClient(metaclass=TensorboardServiceClientMeta):
         r"""Write time series data points of multiple
         TensorboardTimeSeries in multiple TensorboardRun's. If
         any data fail to be ingested, an error will be returned.
-
 
         .. code-block:: python
 
@@ -3397,7 +3563,12 @@ class TensorboardServiceClient(metaclass=TensorboardServiceClientMeta):
         )
 
         # Send the request.
-        response = rpc(request, retry=retry, timeout=timeout, metadata=metadata,)
+        response = rpc(
+            request,
+            retry=retry,
+            timeout=timeout,
+            metadata=metadata,
+        )
 
         # Done; return the response.
         return response
@@ -3415,7 +3586,6 @@ class TensorboardServiceClient(metaclass=TensorboardServiceClientMeta):
         r"""Write time series data points into multiple
         TensorboardTimeSeries under a TensorboardRun. If any
         data fail to be ingested, an error will be returned.
-
 
         .. code-block:: python
 
@@ -3516,7 +3686,12 @@ class TensorboardServiceClient(metaclass=TensorboardServiceClientMeta):
         )
 
         # Send the request.
-        response = rpc(request, retry=retry, timeout=timeout, metadata=metadata,)
+        response = rpc(
+            request,
+            retry=retry,
+            timeout=timeout,
+            metadata=metadata,
+        )
 
         # Done; return the response.
         return response
@@ -3534,7 +3709,6 @@ class TensorboardServiceClient(metaclass=TensorboardServiceClientMeta):
     ) -> pagers.ExportTensorboardTimeSeriesDataPager:
         r"""Exports a TensorboardTimeSeries' data. Data is
         returned in paginated responses.
-
 
         .. code-block:: python
 
@@ -3623,12 +3797,20 @@ class TensorboardServiceClient(metaclass=TensorboardServiceClientMeta):
         )
 
         # Send the request.
-        response = rpc(request, retry=retry, timeout=timeout, metadata=metadata,)
+        response = rpc(
+            request,
+            retry=retry,
+            timeout=timeout,
+            metadata=metadata,
+        )
 
         # This method is paged; wrap the response in a pager, which provides
         # an `__iter__` convenience method.
         response = pagers.ExportTensorboardTimeSeriesDataPager(
-            method=rpc, request=request, response=response, metadata=metadata,
+            method=rpc,
+            request=request,
+            response=response,
+            metadata=metadata,
         )
 
         # Done; return the response.

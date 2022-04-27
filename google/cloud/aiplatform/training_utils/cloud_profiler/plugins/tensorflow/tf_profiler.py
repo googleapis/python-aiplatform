@@ -277,7 +277,9 @@ class TFProfiler(base_plugin.BasePlugin):
     def __init__(self):
         """Build a TFProfiler object."""
         context = _create_profiling_context()
-        self._profile_request_sender: profile_uploader.ProfileRequestSender = tensorboard_api.create_profile_request_sender()
+        self._profile_request_sender: profile_uploader.ProfileRequestSender = (
+            tensorboard_api.create_profile_request_sender()
+        )
         self._profile_plugin: ProfilePlugin = ProfilePlugin(context)
 
     def get_routes(

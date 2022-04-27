@@ -21,7 +21,10 @@ from google.protobuf import timestamp_pb2  # type: ignore
 
 
 __protobuf__ = proto.module(
-    package="google.cloud.aiplatform.v1", manifest={"ModelEvaluation",},
+    package="google.cloud.aiplatform.v1",
+    manifest={
+        "ModelEvaluation",
+    },
 )
 
 
@@ -106,23 +109,55 @@ class ModelEvaluation(proto.Message):
                 Explanation spec details.
         """
 
-        explanation_type = proto.Field(proto.STRING, number=1,)
+        explanation_type = proto.Field(
+            proto.STRING,
+            number=1,
+        )
         explanation_spec = proto.Field(
-            proto.MESSAGE, number=2, message=explanation.ExplanationSpec,
+            proto.MESSAGE,
+            number=2,
+            message=explanation.ExplanationSpec,
         )
 
-    name = proto.Field(proto.STRING, number=1,)
-    metrics_schema_uri = proto.Field(proto.STRING, number=2,)
-    metrics = proto.Field(proto.MESSAGE, number=3, message=struct_pb2.Value,)
-    create_time = proto.Field(proto.MESSAGE, number=4, message=timestamp_pb2.Timestamp,)
-    slice_dimensions = proto.RepeatedField(proto.STRING, number=5,)
-    data_item_schema_uri = proto.Field(proto.STRING, number=6,)
-    annotation_schema_uri = proto.Field(proto.STRING, number=7,)
+    name = proto.Field(
+        proto.STRING,
+        number=1,
+    )
+    metrics_schema_uri = proto.Field(
+        proto.STRING,
+        number=2,
+    )
+    metrics = proto.Field(
+        proto.MESSAGE,
+        number=3,
+        message=struct_pb2.Value,
+    )
+    create_time = proto.Field(
+        proto.MESSAGE,
+        number=4,
+        message=timestamp_pb2.Timestamp,
+    )
+    slice_dimensions = proto.RepeatedField(
+        proto.STRING,
+        number=5,
+    )
+    data_item_schema_uri = proto.Field(
+        proto.STRING,
+        number=6,
+    )
+    annotation_schema_uri = proto.Field(
+        proto.STRING,
+        number=7,
+    )
     model_explanation = proto.Field(
-        proto.MESSAGE, number=8, message=explanation.ModelExplanation,
+        proto.MESSAGE,
+        number=8,
+        message=explanation.ModelExplanation,
     )
     explanation_specs = proto.RepeatedField(
-        proto.MESSAGE, number=9, message=ModelEvaluationExplanationSpec,
+        proto.MESSAGE,
+        number=9,
+        message=ModelEvaluationExplanationSpec,
     )
 
 
