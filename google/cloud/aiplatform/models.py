@@ -67,12 +67,31 @@ _SUPPORTED_MODEL_FILE_NAMES = [
     "saved_model.pbtxt",
 ]
 
+
 class VersionInfo(NamedTuple):
+    """VersionInfo class envelops returned Model version information.
+
+    Attributes:
+        version_id:
+            The version ID of the model.
+        create_time:
+            Timestamp when this Model was uploaded into Vertex AI.
+        update_time:
+            Timestamp when this Model was most recently updated.
+        version_aliases:
+            User provided version aliases so that a model version can be referenced via
+            alias (i.e. projects/{project}/locations/{location}/models/{model_id}@{version_alias}).
+            Default is None.
+        version_description:
+            The description of this version.
+            Default is None.
+    """
     version_id: str
     create_time: str
     update_time: str
     version_aliases: Optional[Sequence[str]] = None
     version_description: Optional[str] = None
+
 
 class Prediction(NamedTuple):
     """Prediction class envelopes returned Model predictions and the Model id.
@@ -1216,7 +1235,6 @@ class Endpoint(base.VertexAiResourceNounWithFutureManager):
         location: Optional[str] = None,
         credentials: Optional[auth_credentials.Credentials] = None,
     ) -> utils.PredictionClientWithOverride:
-
         """Helper method to instantiates prediction client with optional
         overrides for this endpoint.
 
@@ -1591,7 +1609,7 @@ class Model(base.VertexAiResourceNounWithFutureManager):
         project: Optional[str] = None,
         location: Optional[str] = None,
         credentials: Optional[auth_credentials.Credentials] = None,
-        target_version: Optional[str] = None,
+        target_version: Optional[str] = "default",
     ):
         """Retrieves the model resource and instantiates its representation.
 
@@ -1600,6 +1618,8 @@ class Model(base.VertexAiResourceNounWithFutureManager):
                 Required. A fully-qualified model resource name or model ID.
                 Example: "projects/123/locations/us-central1/models/456" or
                 "456" when project and location are initialized or passed.
+                May optionally contain a target version ID or alias in
+                {model_name}@{target_version} form. See target_version arg.
             project (str):
                 Optional project to retrieve model from. If not set, project
                 set in aiplatform.init will be used.
@@ -1609,6 +1629,13 @@ class Model(base.VertexAiResourceNounWithFutureManager):
             credentials: Optional[auth_credentials.Credentials]=None,
                 Custom credentials to use to upload this model. If not set,
                 credentials set in aiplatform.init will be used.
+            target_version (str):
+                Optional version ID or version alias.
+                When given, the specified model version will be targeted
+                unless overridden in method calls.
+                When not given, the model with the "default" alias will
+                be targeted unless overridden in method calls.
+                No behavior change if only one version of a model exists.
         """
 
         super().__init__(
@@ -1624,7 +1651,7 @@ class Model(base.VertexAiResourceNounWithFutureManager):
             if target_version and target_version != parsed_version:
                 raise ValueError(f'A target_version of {target_version} was passed that conflicts with the target version of {parsed_version} in the model_name.')
             target_version = parsed_version
-        
+
         self.target_version = target_version
 
     def _parse_model_version_from_name(
@@ -1914,7 +1941,6 @@ class Model(base.VertexAiResourceNounWithFutureManager):
             project=project,
             location=location,
         )
-
 
         if serving_container_environment_variables:
             env = [
@@ -3363,46 +3389,79 @@ class Model(base.VertexAiResourceNounWithFutureManager):
                 credentials=self.credentials,
             )
 
+
 class ModelRegistry:
-    
+
     def __init__(
         self,
-        model: Union[Model, str] = None,
-        model_display_name: Optional[str] = None,
+        model: Union[Model, str],
         location: Optional[str] = None,
         project: Optional[str] = None,
     ) -> None:
-    
+        """Creates a ModelRegistry instance for version management of a registered model.
+
+        Args:
+            model (Union[Model, str]): 
+                One of the following:
+                    1. A Model instance
+                    2. A fully-qualified model resource name
+                    3. A model id. A location and project must be provided.
+            location (Optional[str], optional):
+                The model location. Required when passing a model id as model. Defaults to None.
+            project (Optional[str], optional):
+                The model project. Required when passing a model id as model. Defaults to None.
+
+        Raises:
+            ValueError: If a model id is passed as model without an accompanying location and project.
+        """
+
         if isinstance(model, Model):
             self.model_resource_name = model.name
-
-        elif isinstance(model, str):
+ 
+        elif not location and not project:
             self.model_resource_name = model
-        
-        elif model_display_name and location and project:
+      
+        elif location and project:
             self.model_resource_name = utils.full_resource_name(
-                resource_name=model_display_name,
-                resource_noun="models",
-                parse_resource_name_method=Model._parse_resource_name,
-                format_resource_name_method=Model._format_resource_name,
-                project=project,
-                location=location,
+               resource_name=model,
+               resource_noun="models",
+               parse_resource_name_method=Model._parse_resource_name,
+               format_resource_name_method=Model._format_resource_name,
+               project=project,
+               location=location,
             )
-
+ 
         else:
-            raise ValueError("A Model instance, a fully-qualified model resource identifier, or a model_display_name with location and project must be given.")
-
+            raise ValueError("A model instance, a fully-qualified model resource name, or a model displayname with accompanying location and project must be given.")
+        
         self.base_model = Model(self.model_resource_name)
 
     def get_model(
         self,
-        version: Optional[str] = None,
+        version: Optional[str] = "default",
     ) -> Model:
+        """Gets a registered model with optional target version.
+
+        Args:
+            version (Optional[str], optional): 
+                A model version ID or alias to target.
+                Defaults to the model with the "default" alias.
+
+        Returns:
+            Model: An instance of a Model from this ModelRegistry.
+        """
         return Model(self.model_resource_name, target_version=version)
 
     def list_versions(
-       self,
+        self,
     ) -> List[VersionInfo]:
+        """Lists the versions and version info of a model.
+
+        Returns:
+            List[VersionInfo]: 
+                A list of VersionInfo tuples, each containing
+                info about specific model versions.
+        """
 
         page_result = self.base_model.api_client.list_model_versions(
             name=self.model_resource_name,
@@ -3416,16 +3475,24 @@ class ModelRegistry:
             model.update_time,
             model.version_aliases,
             model.version_description,
-            ) for model in page_result]
+        ) for model in page_result]
 
         _LOGGER.log_action_completed_against_resource("versions", "fetched", self.base_model)
 
         return versions
 
     def get_version_info(
-       self,
-       version: str
-   ) -> VersionInfo:
+        self,
+        version: str
+    ) -> VersionInfo:
+        """Gets information about a specific model version.
+
+        Args:
+            version (str): The model version to obtain info for.
+
+        Returns:
+            VersionInfo: Contains info about the model version.
+        """
 
         lro = self.base_model.api_client.get_model(
             name=self._versioned_name(version),
@@ -3443,12 +3510,20 @@ class ModelRegistry:
             model.update_time,
             model.version_aliases,
             model.version_description,
-            )
+        )
 
     def delete_version(
         self,
         version: str
     ) -> None:
+        """Deletes a model version from the registry.
+        
+        Cannot delete the a version if its the last remaining version.
+        Use Model.delete() in that case.
+
+        Args:
+            version (str): The model version to delete.
+        """
 
         lro = self.base_model.api_client.delete_model_version(
             name=self._versioned_name(version),
@@ -3465,6 +3540,12 @@ class ModelRegistry:
         new_aliases: List[str],
         version: str,
     ) -> None:
+        """Adds version alias(es) to a model version.
+
+        Args:
+            new_aliases (List[str]): The alias(es) to add to a model version.
+            version (str): The version ID to receive the new alias(es).
+        """
 
         self._merge_version_aliases(
             new_aliases,
@@ -3476,6 +3557,12 @@ class ModelRegistry:
         target_aliases: List[str],
         version: str,
     ) -> None:
+        """Removes version alias(es) from a model version.
+
+        Args:
+            target_aliases (List[str]): The alias(es) to remove from a model version.
+            version (str): The version ID to be stripped of the target alias(es).
+        """
 
         self._merge_version_aliases(
             [f'-{alias}' for alias in target_aliases],
@@ -3487,6 +3574,12 @@ class ModelRegistry:
         version_aliases: List[str],
         version: str,
     ) -> None:
+        """Merges a list of version aliases with a model's existing alias list.
+
+        Args:
+            version_aliases (List[str]): The version alias change list.
+            version (str): The version ID to have its alias list changed.
+        """
 
         lro = self.base_model.api_client.merge_version_aliases(
             name=self._versioned_name(version),
@@ -3503,4 +3596,12 @@ class ModelRegistry:
         self,
         version: str,
     ) -> str:
+        """Creates a versioned form of a model resource name.
+
+        Args:
+            version (str): The model version
+
+        Returns:
+            str: The model resource name with an included model version.
+        """
         return f'{self.model_resource_name}@{version}'
