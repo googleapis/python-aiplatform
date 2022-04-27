@@ -817,7 +817,7 @@ def test_create_training_pipeline_field_headers():
     # a field header. Set these to a non-empty value.
     request = pipeline_service.CreateTrainingPipelineRequest()
 
-    request.parent = "parent/value"
+    request.parent = "parent_value"
 
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(
@@ -835,7 +835,7 @@ def test_create_training_pipeline_field_headers():
     _, _, kw = call.mock_calls[0]
     assert (
         "x-goog-request-params",
-        "parent=parent/value",
+        "parent=parent_value",
     ) in kw["metadata"]
 
 
@@ -849,7 +849,7 @@ async def test_create_training_pipeline_field_headers_async():
     # a field header. Set these to a non-empty value.
     request = pipeline_service.CreateTrainingPipelineRequest()
 
-    request.parent = "parent/value"
+    request.parent = "parent_value"
 
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(
@@ -869,7 +869,7 @@ async def test_create_training_pipeline_field_headers_async():
     _, _, kw = call.mock_calls[0]
     assert (
         "x-goog-request-params",
-        "parent=parent/value",
+        "parent=parent_value",
     ) in kw["metadata"]
 
 
@@ -1094,7 +1094,7 @@ def test_get_training_pipeline_field_headers():
     # a field header. Set these to a non-empty value.
     request = pipeline_service.GetTrainingPipelineRequest()
 
-    request.name = "name/value"
+    request.name = "name_value"
 
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(
@@ -1112,7 +1112,7 @@ def test_get_training_pipeline_field_headers():
     _, _, kw = call.mock_calls[0]
     assert (
         "x-goog-request-params",
-        "name=name/value",
+        "name=name_value",
     ) in kw["metadata"]
 
 
@@ -1126,7 +1126,7 @@ async def test_get_training_pipeline_field_headers_async():
     # a field header. Set these to a non-empty value.
     request = pipeline_service.GetTrainingPipelineRequest()
 
-    request.name = "name/value"
+    request.name = "name_value"
 
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(
@@ -1146,7 +1146,7 @@ async def test_get_training_pipeline_field_headers_async():
     _, _, kw = call.mock_calls[0]
     assert (
         "x-goog-request-params",
-        "name=name/value",
+        "name=name_value",
     ) in kw["metadata"]
 
 
@@ -1341,7 +1341,7 @@ def test_list_training_pipelines_field_headers():
     # a field header. Set these to a non-empty value.
     request = pipeline_service.ListTrainingPipelinesRequest()
 
-    request.parent = "parent/value"
+    request.parent = "parent_value"
 
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(
@@ -1359,7 +1359,7 @@ def test_list_training_pipelines_field_headers():
     _, _, kw = call.mock_calls[0]
     assert (
         "x-goog-request-params",
-        "parent=parent/value",
+        "parent=parent_value",
     ) in kw["metadata"]
 
 
@@ -1373,7 +1373,7 @@ async def test_list_training_pipelines_field_headers_async():
     # a field header. Set these to a non-empty value.
     request = pipeline_service.ListTrainingPipelinesRequest()
 
-    request.parent = "parent/value"
+    request.parent = "parent_value"
 
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(
@@ -1393,7 +1393,7 @@ async def test_list_training_pipelines_field_headers_async():
     _, _, kw = call.mock_calls[0]
     assert (
         "x-goog-request-params",
-        "parent=parent/value",
+        "parent=parent_value",
     ) in kw["metadata"]
 
 
@@ -1530,7 +1530,7 @@ def test_list_training_pipelines_pager(transport_name: str = "grpc"):
 
         assert pager._metadata == metadata
 
-        results = [i for i in pager]
+        results = list(pager)
         assert len(results) == 6
         assert all(isinstance(i, training_pipeline.TrainingPipeline) for i in results)
 
@@ -1778,7 +1778,7 @@ def test_delete_training_pipeline_field_headers():
     # a field header. Set these to a non-empty value.
     request = pipeline_service.DeleteTrainingPipelineRequest()
 
-    request.name = "name/value"
+    request.name = "name_value"
 
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(
@@ -1796,7 +1796,7 @@ def test_delete_training_pipeline_field_headers():
     _, _, kw = call.mock_calls[0]
     assert (
         "x-goog-request-params",
-        "name=name/value",
+        "name=name_value",
     ) in kw["metadata"]
 
 
@@ -1810,7 +1810,7 @@ async def test_delete_training_pipeline_field_headers_async():
     # a field header. Set these to a non-empty value.
     request = pipeline_service.DeleteTrainingPipelineRequest()
 
-    request.name = "name/value"
+    request.name = "name_value"
 
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(
@@ -1830,7 +1830,7 @@ async def test_delete_training_pipeline_field_headers_async():
     _, _, kw = call.mock_calls[0]
     assert (
         "x-goog-request-params",
-        "name=name/value",
+        "name=name_value",
     ) in kw["metadata"]
 
 
@@ -2017,7 +2017,7 @@ def test_cancel_training_pipeline_field_headers():
     # a field header. Set these to a non-empty value.
     request = pipeline_service.CancelTrainingPipelineRequest()
 
-    request.name = "name/value"
+    request.name = "name_value"
 
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(
@@ -2035,7 +2035,7 @@ def test_cancel_training_pipeline_field_headers():
     _, _, kw = call.mock_calls[0]
     assert (
         "x-goog-request-params",
-        "name=name/value",
+        "name=name_value",
     ) in kw["metadata"]
 
 
@@ -2049,7 +2049,7 @@ async def test_cancel_training_pipeline_field_headers_async():
     # a field header. Set these to a non-empty value.
     request = pipeline_service.CancelTrainingPipelineRequest()
 
-    request.name = "name/value"
+    request.name = "name_value"
 
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(
@@ -2067,7 +2067,7 @@ async def test_cancel_training_pipeline_field_headers_async():
     _, _, kw = call.mock_calls[0]
     assert (
         "x-goog-request-params",
-        "name=name/value",
+        "name=name_value",
     ) in kw["metadata"]
 
 
@@ -2276,7 +2276,7 @@ def test_create_pipeline_job_field_headers():
     # a field header. Set these to a non-empty value.
     request = pipeline_service.CreatePipelineJobRequest()
 
-    request.parent = "parent/value"
+    request.parent = "parent_value"
 
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(
@@ -2294,7 +2294,7 @@ def test_create_pipeline_job_field_headers():
     _, _, kw = call.mock_calls[0]
     assert (
         "x-goog-request-params",
-        "parent=parent/value",
+        "parent=parent_value",
     ) in kw["metadata"]
 
 
@@ -2308,7 +2308,7 @@ async def test_create_pipeline_job_field_headers_async():
     # a field header. Set these to a non-empty value.
     request = pipeline_service.CreatePipelineJobRequest()
 
-    request.parent = "parent/value"
+    request.parent = "parent_value"
 
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(
@@ -2328,7 +2328,7 @@ async def test_create_pipeline_job_field_headers_async():
     _, _, kw = call.mock_calls[0]
     assert (
         "x-goog-request-params",
-        "parent=parent/value",
+        "parent=parent_value",
     ) in kw["metadata"]
 
 
@@ -2552,7 +2552,7 @@ def test_get_pipeline_job_field_headers():
     # a field header. Set these to a non-empty value.
     request = pipeline_service.GetPipelineJobRequest()
 
-    request.name = "name/value"
+    request.name = "name_value"
 
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(type(client.transport.get_pipeline_job), "__call__") as call:
@@ -2568,7 +2568,7 @@ def test_get_pipeline_job_field_headers():
     _, _, kw = call.mock_calls[0]
     assert (
         "x-goog-request-params",
-        "name=name/value",
+        "name=name_value",
     ) in kw["metadata"]
 
 
@@ -2582,7 +2582,7 @@ async def test_get_pipeline_job_field_headers_async():
     # a field header. Set these to a non-empty value.
     request = pipeline_service.GetPipelineJobRequest()
 
-    request.name = "name/value"
+    request.name = "name_value"
 
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(type(client.transport.get_pipeline_job), "__call__") as call:
@@ -2600,7 +2600,7 @@ async def test_get_pipeline_job_field_headers_async():
     _, _, kw = call.mock_calls[0]
     assert (
         "x-goog-request-params",
-        "name=name/value",
+        "name=name_value",
     ) in kw["metadata"]
 
 
@@ -2791,7 +2791,7 @@ def test_list_pipeline_jobs_field_headers():
     # a field header. Set these to a non-empty value.
     request = pipeline_service.ListPipelineJobsRequest()
 
-    request.parent = "parent/value"
+    request.parent = "parent_value"
 
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(
@@ -2809,7 +2809,7 @@ def test_list_pipeline_jobs_field_headers():
     _, _, kw = call.mock_calls[0]
     assert (
         "x-goog-request-params",
-        "parent=parent/value",
+        "parent=parent_value",
     ) in kw["metadata"]
 
 
@@ -2823,7 +2823,7 @@ async def test_list_pipeline_jobs_field_headers_async():
     # a field header. Set these to a non-empty value.
     request = pipeline_service.ListPipelineJobsRequest()
 
-    request.parent = "parent/value"
+    request.parent = "parent_value"
 
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(
@@ -2843,7 +2843,7 @@ async def test_list_pipeline_jobs_field_headers_async():
     _, _, kw = call.mock_calls[0]
     assert (
         "x-goog-request-params",
-        "parent=parent/value",
+        "parent=parent_value",
     ) in kw["metadata"]
 
 
@@ -2980,7 +2980,7 @@ def test_list_pipeline_jobs_pager(transport_name: str = "grpc"):
 
         assert pager._metadata == metadata
 
-        results = [i for i in pager]
+        results = list(pager)
         assert len(results) == 6
         assert all(isinstance(i, pipeline_job.PipelineJob) for i in results)
 
@@ -3228,7 +3228,7 @@ def test_delete_pipeline_job_field_headers():
     # a field header. Set these to a non-empty value.
     request = pipeline_service.DeletePipelineJobRequest()
 
-    request.name = "name/value"
+    request.name = "name_value"
 
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(
@@ -3246,7 +3246,7 @@ def test_delete_pipeline_job_field_headers():
     _, _, kw = call.mock_calls[0]
     assert (
         "x-goog-request-params",
-        "name=name/value",
+        "name=name_value",
     ) in kw["metadata"]
 
 
@@ -3260,7 +3260,7 @@ async def test_delete_pipeline_job_field_headers_async():
     # a field header. Set these to a non-empty value.
     request = pipeline_service.DeletePipelineJobRequest()
 
-    request.name = "name/value"
+    request.name = "name_value"
 
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(
@@ -3280,7 +3280,7 @@ async def test_delete_pipeline_job_field_headers_async():
     _, _, kw = call.mock_calls[0]
     assert (
         "x-goog-request-params",
-        "name=name/value",
+        "name=name_value",
     ) in kw["metadata"]
 
 
@@ -3467,7 +3467,7 @@ def test_cancel_pipeline_job_field_headers():
     # a field header. Set these to a non-empty value.
     request = pipeline_service.CancelPipelineJobRequest()
 
-    request.name = "name/value"
+    request.name = "name_value"
 
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(
@@ -3485,7 +3485,7 @@ def test_cancel_pipeline_job_field_headers():
     _, _, kw = call.mock_calls[0]
     assert (
         "x-goog-request-params",
-        "name=name/value",
+        "name=name_value",
     ) in kw["metadata"]
 
 
@@ -3499,7 +3499,7 @@ async def test_cancel_pipeline_job_field_headers_async():
     # a field header. Set these to a non-empty value.
     request = pipeline_service.CancelPipelineJobRequest()
 
-    request.name = "name/value"
+    request.name = "name_value"
 
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(
@@ -3517,7 +3517,7 @@ async def test_cancel_pipeline_job_field_headers_async():
     _, _, kw = call.mock_calls[0]
     assert (
         "x-goog-request-params",
-        "name=name/value",
+        "name=name_value",
     ) in kw["metadata"]
 
 
