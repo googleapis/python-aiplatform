@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-# Copyright 2020 Google LLC
+# Copyright 2022 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -157,6 +157,7 @@ class TabularDataset(datasets._ColumnNamesDataset):
         cls,
         df_source: "pd.DataFrame",  # noqa: F821 - skip check for undefined name 'pd'
         staging_path: str,
+        bq_schema: Optional[Union[str, bigquery.SchemaField]] = None,
         display_name: Optional[str] = None,
         project: Optional[str] = None,
         location: Optional[str] = None,
@@ -164,10 +165,11 @@ class TabularDataset(datasets._ColumnNamesDataset):
     ) -> "TabularDataset":
         """Creates a new tabular dataset from a Pandas DataFrame.
 
-        Args:ers.
+        Args:
             df_source (pd.DataFrame):
                 Required. Pandas DataFrame containing the source data for
-                ingestion as a TabularDataset.
+                ingestion as a TabularDataset. This method will use the data
+                types from the provided DataFrame when creating the dataset.
             staging_path (str):
                 Required. The BigQuery table to stage the data
                 for Vertex. Because Vertex maintains a reference to this source
@@ -177,6 +179,14 @@ class TabularDataset(datasets._ColumnNamesDataset):
                 create the table. If the provided BigQuery table already exists,
                 and the schemas of the BigQuery table and your DataFrame match,
                 this method will append the data in your local DataFrame to the table.
+                The location of the provided BigQuery table should conform to the location requirements
+                specified here: https://cloud.google.com/vertex-ai/docs/general/locations#bq-locations.
+            bq_schema (Optional[Union[str, bigquery.SchemaField]]):
+                Optional. The schema to use when creating the staging table in BigQuery. For more details,
+                see: https://cloud.google.com/python/docs/reference/bigquery/latest/google.cloud.bigquery.job.LoadJobConfig#google_cloud_bigquery_job_LoadJobConfig_schema
+                This is not needed if the BigQuery table provided in `staging_path` already exists.
+                If this is not provided and the provided BigQuery table does not exist, the column types
+                will be autodetected using the data types in your Pandas DataFrame.
             display_name (str):
                 Optional. The user-defined name of the Dataset.
                 The name can be up to 128 characters long and can be consist
@@ -190,25 +200,10 @@ class TabularDataset(datasets._ColumnNamesDataset):
             credentials (auth_credentials.Credentials):
                 Optional. Custom credentials to use to upload this dataset. Overrides
                 credentials set in aiplatform.init.
+        Returns:
+            tabular_dataset (TabularDataset):
+                Instantiated representation of the managed tabular dataset resource.
         """
-
-        if len(df_source) < _AUTOML_TRAINING_MIN_ROWS:
-            _LOGGER.info(
-                "Your DataFrame has %s rows and AutoML requires %s rows to train on tabular data. You can still train a custom model once your dataset has been uploaded to Vertex, but you will not be able to use AutoML for training."
-                % (len(df_source), _AUTOML_TRAINING_MIN_ROWS),
-            )
-
-        try:
-            import pyarrow  # noqa: F401 - skip check for 'pyarrow' which is required when using 'google.cloud.bigquery'
-        except ImportError:
-            raise ImportError(
-                "Pyarrow is not installed. Please install pyarrow to use the BigQuery client."
-            )
-
-        bigquery_client = bigquery.Client(
-            project=project or initializer.global_config.project,
-            credentials=credentials or initializer.global_config.credentials,
-        )
 
         if staging_path.startswith("bq://"):
             bq_staging_path = staging_path[len("bq://") :]
@@ -218,6 +213,30 @@ class TabularDataset(datasets._ColumnNamesDataset):
             )
 
         try:
+            import pyarrow  # noqa: F401 - skip check for 'pyarrow' which is required when using 'google.cloud.bigquery'
+        except ImportError:
+            raise ImportError(
+                "Pyarrow is not installed, and is required to use the BigQuery client."
+                'Please install the SDK using "pip install google-cloud-aiplatform[datasets]"'
+            )
+
+        if bq_schema:
+            print(type(bq_schema))
+            print(bq_schema[0])
+            print(type(bq_schema[0]))
+
+        if len(df_source) < _AUTOML_TRAINING_MIN_ROWS:
+            _LOGGER.info(
+                "Your DataFrame has %s rows and AutoML requires %s rows to train on tabular data. You can still train a custom model once your dataset has been uploaded to Vertex, but you will not be able to use AutoML for training."
+                % (len(df_source), _AUTOML_TRAINING_MIN_ROWS),
+            )
+
+        bigquery_client = bigquery.Client(
+            project=project or initializer.global_config.project,
+            credentials=credentials or initializer.global_config.credentials,
+        )
+
+        try:
             parquet_options = bigquery.format_options.ParquetOptions()
             parquet_options.enable_list_inference = True
 
@@ -225,6 +244,9 @@ class TabularDataset(datasets._ColumnNamesDataset):
                 source_format=bigquery.SourceFormat.PARQUET,
                 parquet_options=parquet_options,
             )
+
+            if bq_schema:
+                job_config.schema = bq_schema
 
             job = bigquery_client.load_table_from_dataframe(
                 dataframe=df_source, destination=bq_staging_path, job_config=job_config

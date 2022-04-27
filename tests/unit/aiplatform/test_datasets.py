@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-# Copyright 2020 Google LLC
+# Copyright 2022 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -17,12 +17,13 @@
 
 import os
 
+import pandas as pd
+
 import pytest
 
 from unittest import mock
 from importlib import reload
 from unittest.mock import patch
-import pandas as pd
 
 from google.api_core import operation
 from google.auth.exceptions import GoogleAuthError
@@ -171,6 +172,34 @@ _TEST_DF_COLUMN_NAMES = [
     _TEST_STR_ARR_COL,
     _TEST_BYTES_COL,
 ]
+_TEST_DATAFRAME = pd.DataFrame(
+    data=[
+        [
+            False,
+            [True, False],
+            1.2,
+            [1.2, 3.4],
+            1,
+            [1, 2],
+            "test",
+            ["test1", "test2"],
+            b"1",
+        ],
+        [
+            True,
+            [True, True],
+            2.2,
+            [2.2, 4.4],
+            2,
+            [2, 3],
+            "test1",
+            ["test2", "test3"],
+            b"0",
+        ],
+    ],
+    columns=_TEST_DF_COLUMN_NAMES,
+)
+_TEST_CREDENTIALS = mock.Mock(spec=auth_credentials.AnonymousCredentials())
 
 
 @pytest.fixture
@@ -1406,50 +1435,26 @@ class TestTabularDataset:
     @pytest.mark.usefixtures("get_dataset_tabular_bq_mock")
     @pytest.mark.parametrize(
         "source_df",
-        [
-            pd.DataFrame(
-                data=[
-                    [
-                        False,
-                        [True, False],
-                        1.2,
-                        [1.2, 3.4],
-                        1,
-                        [1, 2],
-                        "test",
-                        ["test1", "test2"],
-                        b"1",
-                    ],
-                    [
-                        True,
-                        [True, True],
-                        2.2,
-                        [2.2, 4.4],
-                        2,
-                        [2, 3],
-                        "test1",
-                        ["test2", "test3"],
-                        b"0",
-                    ],
-                ],
-                columns=_TEST_DF_COLUMN_NAMES,
-            ),
-        ],
+        [_TEST_DATAFRAME],
     )
-    @pytest.mark.parametrize("sync", [True, False])
     def test_create_dataset_tabular_from_dataframe(
-        self, create_dataset_mock, source_df, bq_client_mock, sync
+        self,
+        create_dataset_mock,
+        source_df,
+        bq_client_mock,
     ):
-        aiplatform.init(project=_TEST_PROJECT)
 
+        aiplatform.init(
+            project=_TEST_PROJECT,
+            credentials=_TEST_CREDENTIALS,
+        )
         dataset_from_df = datasets.TabularDataset.create_from_dataframe(
             display_name=_TEST_DISPLAY_NAME,
             df_source=source_df,
             staging_path=_TEST_SOURCE_URI_BQ,
         )
 
-        if not sync:
-            dataset_from_df.wait()
+        dataset_from_df.wait()
 
         assert dataset_from_df.metadata_schema_uri == _TEST_METADATA_SCHEMA_URI_TABULAR
 
@@ -1466,42 +1471,21 @@ class TestTabularDataset:
             timeout=None,
         )
 
+        assert bq_client_mock.call_args_list[0] == mock.call(
+            project=_TEST_PROJECT,
+            credentials=_TEST_CREDENTIALS,
+        )
+
     @pytest.mark.usefixtures("get_dataset_tabular_bq_mock")
     @pytest.mark.parametrize(
         "source_df",
-        [
-            pd.DataFrame(
-                data=[
-                    [
-                        False,
-                        [True, False],
-                        1.2,
-                        [1.2, 3.4],
-                        1,
-                        [1, 2],
-                        "test",
-                        ["test1", "test2"],
-                        b"1",
-                    ],
-                    [
-                        True,
-                        [True, True],
-                        2.2,
-                        [2.2, 4.4],
-                        2,
-                        [2, 3],
-                        "test1",
-                        ["test2", "test3"],
-                        b"0",
-                    ],
-                ],
-                columns=_TEST_DF_COLUMN_NAMES,
-            ),
-        ],
+        [_TEST_DATAFRAME],
     )
-    @pytest.mark.parametrize("sync", [True, False])
     def test_create_dataset_tabular_from_dataframe_with_invalid_bq_uri(
-        self, create_dataset_mock, source_df, bq_client_mock, sync
+        self,
+        create_dataset_mock,
+        source_df,
+        bq_client_mock,
     ):
         aiplatform.init(project=_TEST_PROJECT)
         with pytest.raises(ValueError):
