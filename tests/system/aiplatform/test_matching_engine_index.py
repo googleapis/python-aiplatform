@@ -20,11 +20,14 @@ import pytest
 from google.cloud.aiplatform import base
 
 from google.cloud import aiplatform
+from google.cloud import resourcemanager_v3
 
 from tests.system.aiplatform import e2e_base
 
 import pytest
-from google.cloud import compute_v1
+
+# from google.cloud import compute_v1
+from typing import Optional
 
 # project
 _TEST_INDEX_DISPLAY_NAME = "index_display_name"
@@ -55,10 +58,6 @@ _TEST_LABELS_UPDATE = {"my_key_update": "my_value_update"}
 # ENDPOINT
 _TEST_INDEX_ENDPOINT_DISPLAY_NAME = "endpoint_name"
 _TEST_INDEX_ENDPOINT_DESCRIPTION = "my endpoint"
-
-_TEST_INDEX_ENDPOINT_VPC_NETWORK = "projects/{}/global/networks/{}".format(
-    e2e_base._PROJECT_NUMBER, e2e_base._VPC_NETWORK_NAME
-)
 
 # DEPLOYED INDEX
 _TEST_DEPLOYED_INDEX_ID = f"deployed_index_id_{uuid.uuid4()}"
@@ -171,85 +170,38 @@ _TEST_MATCH_QUERY = query = [
 ]
 
 
-# from google.cloud.compute.services.networks import NetworksClient
+def get_project_number(project_id) -> Optional[str]:
+    """Given a project id, return the project number"""
+    # Create a client
+    client = resourcemanager_v3.ProjectsClient()
+    # Initialize request argument(s)
+    request = resourcemanager_v3.SearchProjectsRequest(query=f"id:{project_id}")
+    # Make the request
+    page_result = client.search_projects(request=request)
+    # Handle the response
+    for response in page_result:
+        if response.project_id == project_id:
+            project = response.name
+            return project.replace("projects/", "")
 
 
-# client = NetworksClient()
-
-# client.
-
-PROJECT = "python-docs-samples-tests"
-
-
-# <INGREDIENT wait_for_operation>
-def wait_for_operation(
-    operation: compute_v1.Operation, project_id: str
-) -> compute_v1.Operation:
-    """
-    This method waits for an operation to be completed. Calling this function
-    will block until the operation is finished.
-    Args:
-        operation: The Operation object representing the operation you want to
-            wait on.
-        project_id: project ID or project number of the Cloud project you want to use.
-    Returns:
-        Finished Operation object.
-    """
-    kwargs = {"project": project_id, "operation": operation.name}
-    if operation.zone:
-        client = compute_v1.ZoneOperationsClient()
-        # Operation.zone is a full URL address of a zone, so we need to extract just the name
-        kwargs["zone"] = operation.zone.rsplit("/", maxsplit=1)[1]
-    elif operation.region:
-        client = compute_v1.RegionOperationsClient()
-        # Operation.region is a full URL address of a region, so we need to extract just the name
-        kwargs["region"] = operation.region.rsplit("/", maxsplit=1)[1]
-    else:
-        client = compute_v1.GlobalOperationsClient()
-    return client.wait(**kwargs)
-
-
-@pytest.fixture()
-def vpc_network():
-    network_client = compute_v1.NetworksClient()
-    network = compute_v1.Network()
-    network.name = "test-network-" + uuid.uuid4().hex[:10]
-    network.auto_create_subnetworks = True
-    op = network_client.insert(project=PROJECT, network_resource=network)
-    wait_for_operation(op, PROJECT)
-
-    network = network_client.get(project=PROJECT, network=network.name)
-
-    yield network
-
-    op = network_client.delete(project=PROJECT, network=network.name)
-    wait_for_operation(op, PROJECT)
-
-
-@pytest.mark.usefixtures("vpc_network")
 class TestMatchingEngine(e2e_base.TestEndToEnd):
 
     _temp_prefix = "temp_vertex_sdk_e2e_matching_engine_test"
 
-    def test_create_get_list_matching_engine_index(self, shared_state, vpc_network):
+    def test_create_get_list_matching_engine_index(self, shared_state):
         aiplatform.init(
             project=e2e_base._PROJECT, location=e2e_base._LOCATION,
         )
 
-        # vpc_network_name = shared_state["staging_bucket_name"]
+        project_number = get_project_number(e2e_base._PROJECT)
+
+        if project_number is None:
+            raise RuntimeError("Project number not found")
+
         network_name = "projects/{}/global/networks/{}".format(
-            e2e_base._PROJECT, vpc_network.name
+            project_number, "system-tests"
         )
-
-        # _LOGGER = base.Logger(__name__)
-
-        # raise ValueError(
-        #     f"INJECTED _PROJECT_NUMBER: {e2e_base._PROJECT_NUMBER}"
-        #     + f"\nINJECTED _VPC_NETWORK_NAME: {e2e_base._VPC_NETWORK_NAME}"
-        # )
-        # _LOGGER._logger.info(
-        #     f"INJECTED _VPC_NETWORK_NAME: {e2e_base._VPC_NETWORK_NAME}"
-        # )
 
         # Create an index
         index = aiplatform.MatchingEngineIndex.create_tree_ah_index(
@@ -278,26 +230,26 @@ class TestMatchingEngine(e2e_base.TestEndToEnd):
             index.resource_name for index in list_indexes
         ]
 
-        # Update the index metadata
-        updated_index = get_index.update_metadata(
-            display_name=_TEST_DISPLAY_NAME_UPDATE,
-            description=_TEST_DESCRIPTION_UPDATE,
-            labels=_TEST_LABELS_UPDATE,
-        )
+        # # Update the index metadata
+        # updated_index = get_index.update_metadata(
+        #     display_name=_TEST_DISPLAY_NAME_UPDATE,
+        #     description=_TEST_DESCRIPTION_UPDATE,
+        #     labels=_TEST_LABELS_UPDATE,
+        # )
 
-        assert updated_index.name == get_index.name
-        # TODO: Reinstate assertions once b/220005272 is fixed.
-        # assert updated_index.display_name == _TEST_DISPLAY_NAME_UPDATE
-        # assert updated_index.description == _TEST_DESCRIPTION_UPDATE
-        # assert updated_index.labels == _TEST_LABELS_UPDATE
+        # assert updated_index.name == get_index.name
+        # # TODO: Reinstate assertions once b/220005272 is fixed.
+        # # assert updated_index.display_name == _TEST_DISPLAY_NAME_UPDATE
+        # # assert updated_index.description == _TEST_DESCRIPTION_UPDATE
+        # # assert updated_index.labels == _TEST_LABELS_UPDATE
 
-        # Update the index embeddings
-        updated_index = get_index.update_embeddings(
-            contents_delta_uri=_TEST_CONTENTS_DELTA_URI_UPDATE,
-            is_complete_overwrite=_TEST_IS_COMPLETE_OVERWRITE,
-        )
+        # # Update the index embeddings
+        # updated_index = get_index.update_embeddings(
+        #     contents_delta_uri=_TEST_CONTENTS_DELTA_URI_UPDATE,
+        #     is_complete_overwrite=_TEST_IS_COMPLETE_OVERWRITE,
+        # )
 
-        assert updated_index.name == get_index.name
+        # assert updated_index.name == get_index.name
 
         # Create endpoint and check that it is listed
         my_index_endpoint = aiplatform.MatchingEngineIndexEndpoint.create(
