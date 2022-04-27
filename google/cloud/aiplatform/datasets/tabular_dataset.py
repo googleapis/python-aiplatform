@@ -155,21 +155,19 @@ class TabularDataset(datasets._ColumnNamesDataset):
     @classmethod
     def create_from_dataframe(
         cls,
-        display_name: str,
         df_source: "pd.DataFrame",  # noqa: F821 - skip check for undefined name 'pd'
-        staging_path: str = None,
+        staging_path: str,
+        display_name: Optional[str] = None,
         project: Optional[str] = None,
         location: Optional[str] = None,
         credentials: Optional[auth_credentials.Credentials] = None,
     ) -> "TabularDataset":
         """Creates a new tabular dataset from a Pandas DataFrame.
 
-        Args:
-            display_name (str):
-                Required. User-defined name of the dataset.
+        Args:ers.
             df_source (pd.DataFrame):
                 Required. Pandas DataFrame containing the source data for
-                ingestion as a TabularDataset
+                ingestion as a TabularDataset.
             staging_path (str):
                 Required. The BigQuery table to stage the data
                 for Vertex. Because Vertex maintains a reference to this source
@@ -179,14 +177,18 @@ class TabularDataset(datasets._ColumnNamesDataset):
                 create the table. If the provided BigQuery table already exists,
                 and the schemas of the BigQuery table and your DataFrame match,
                 this method will append the data in your local DataFrame to the table.
+            display_name (str):
+                Optional. The user-defined name of the Dataset.
+                The name can be up to 128 characters long and can be consist
+                of any UTF-8 charact
             project (str):
-                Project to upload this model to. Overrides project set in
+                Optional. Project to upload this dataset to. Overrides project set in
                 aiplatform.init.
             location (str):
-                Location to upload this model to. Overrides location set in
+                Optional. Location to upload this dataset to. Overrides location set in
                 aiplatform.init.
             credentials (auth_credentials.Credentials):
-                Custom credentials to use to upload this model. Overrides
+                Optional. Custom credentials to use to upload this dataset. Overrides
                 credentials set in aiplatform.init.
         """
 
