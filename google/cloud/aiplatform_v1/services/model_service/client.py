@@ -16,7 +16,7 @@
 from collections import OrderedDict
 import os
 import re
-from typing import Dict, Optional, Sequence, Tuple, Type, Union
+from typing import Dict, Mapping, Optional, Sequence, Tuple, Type, Union
 import pkg_resources
 
 from google.api_core import client_options as client_options_lib
@@ -899,8 +899,29 @@ class ModelServiceClient(metaclass=ModelServiceClientMeta):
                 The request object. Request message for
                 [ModelService.UpdateModel][google.cloud.aiplatform.v1.ModelService.UpdateModel].
             model (google.cloud.aiplatform_v1.types.Model):
-                Required. The Model which replaces
-                the resource on the server.
+                Required. The Model which replaces the resource on the
+                server. When Model Versioning is enabled, the model.name
+                will be used to determine whether to update the model or
+                model version.
+
+                1. model.name with the @ value, e.g. models/123@1,
+                   refers to a version specific update.
+                2. model.name without the @ value, e.g. models/123,
+                   refers to a model update.
+                3. model.name with @-, e.g. models/123@-, refers to a
+                   model update.
+                4. Supported model fields: display_name, description;
+                   supported version-specific fields:
+                   version_description. Labels are supported in both
+                   scenarios. Both the model labels and the version
+                   labels are merged when a model is returned. When
+                   updating labels, if the request is for model-specific
+                   update, model label gets updated. Otherwise, version
+                   labels get updated.
+                5. A model name or model version name fields update
+                   mismatch will cause a precondition error.
+                6. One request cannot update both the model and the
+                   version fields. You must update them separately.
 
                 This corresponds to the ``model`` field
                 on the ``request`` instance; if ``request`` is provided, this
@@ -986,7 +1007,6 @@ class ModelServiceClient(metaclass=ModelServiceClientMeta):
         on the model in its
         [deployed_models][google.cloud.aiplatform.v1.Endpoint.deployed_models]
         field.
-
 
         .. code-block:: python
 
@@ -1112,7 +1132,6 @@ class ModelServiceClient(metaclass=ModelServiceClientMeta):
         the user. A Model is considered to be exportable if it has at
         least one [supported export
         format][google.cloud.aiplatform.v1.Model.supported_export_formats].
-
 
         .. code-block:: python
 

@@ -16,7 +16,7 @@
 from collections import OrderedDict
 import functools
 import re
-from typing import Dict, Optional, Sequence, Tuple, Type, Union
+from typing import Dict, Mapping, Optional, Sequence, Tuple, Type, Union
 import pkg_resources
 
 from google.api_core.client_options import ClientOptions
@@ -240,7 +240,6 @@ class FeaturestoreServiceAsyncClient:
     ) -> operation_async.AsyncOperation:
         r"""Creates a new Featurestore in a given project and
         location.
-
 
         .. code-block:: python
 
@@ -722,7 +721,6 @@ class FeaturestoreServiceAsyncClient:
         r"""Deletes a single Featurestore. The Featurestore must not contain
         any EntityTypes or ``force`` must be set to true for the request
         to succeed.
-
 
         .. code-block:: python
 
@@ -1334,7 +1332,6 @@ class FeaturestoreServiceAsyncClient:
         r"""Deletes a single EntityType. The EntityType must not have any
         Features or ``force`` must be set to true for the request to
         succeed.
-
 
         .. code-block:: python
 
@@ -2215,7 +2212,6 @@ class FeaturestoreServiceAsyncClient:
         or retention policy.
          - Online serving cluster is under-provisioned.
 
-
         .. code-block:: python
 
             from google.cloud import aiplatform_v1
@@ -2345,7 +2341,6 @@ class FeaturestoreServiceAsyncClient:
         correctness is guaranteed for Feature values of each
         read instance as of each instance's read timestamp.
 
-
         .. code-block:: python
 
             from google.cloud import aiplatform_v1
@@ -2474,7 +2469,6 @@ class FeaturestoreServiceAsyncClient:
         r"""Exports Feature values from all the entities of a
         target EntityType.
 
-
         .. code-block:: python
 
             from google.cloud import aiplatform_v1
@@ -2598,7 +2592,6 @@ class FeaturestoreServiceAsyncClient:
     ) -> pagers.SearchFeaturesAsyncPager:
         r"""Searches Features matching a query in a given
         project.
-
 
         .. code-block:: python
 
