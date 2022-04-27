@@ -1981,7 +1981,6 @@ class PrivateEndpoint(Endpoint):
             traffic_percentage,
             explanation_metadata,
             explanation_parameters,
-
         )
 
         self._deploy(
