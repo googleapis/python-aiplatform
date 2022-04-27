@@ -50,6 +50,7 @@ from google.cloud.aiplatform.jobs import (
     CustomJob,
     HyperparameterTuningJob,
 )
+from google.cloud.aiplatform.vizier import Study
 from google.cloud.aiplatform.pipeline_jobs import PipelineJob
 from google.cloud.aiplatform.tensorboard import (
     Tensorboard,
