@@ -1887,6 +1887,8 @@ class PrivateEndpoint(Endpoint):
         self,
         model: "Model",
         deployed_model_display_name: Optional[str] = None,
+        traffic_percentage: Optional[int] = 100,
+        traffic_split: Optional[Dict[str, int]] = None,
         machine_type: Optional[str] = None,
         min_replica_count: int = 1,
         max_replica_count: int = 1,
@@ -1975,8 +1977,11 @@ class PrivateEndpoint(Endpoint):
             max_replica_count,
             accelerator_type,
             deployed_model_display_name,
+            traffic_split,
+            traffic_percentage,
             explanation_metadata,
             explanation_parameters,
+
         )
 
         self._deploy(
