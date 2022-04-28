@@ -220,11 +220,6 @@ class TabularDataset(datasets._ColumnNamesDataset):
                 'Please install the SDK using "pip install google-cloud-aiplatform[datasets]"'
             )
 
-        if bq_schema:
-            print(type(bq_schema))
-            print(bq_schema[0])
-            print(type(bq_schema[0]))
-
         if len(df_source) < _AUTOML_TRAINING_MIN_ROWS:
             _LOGGER.info(
                 "Your DataFrame has %s rows and AutoML requires %s rows to train on tabular data. You can still train a custom model once your dataset has been uploaded to Vertex, but you will not be able to use AutoML for training."
