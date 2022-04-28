@@ -107,9 +107,16 @@ _TEST_DATAFRAME = pd.DataFrame(
     ],
     columns=_TEST_DF_COLUMN_NAMES,
 )
-_TEST_PARTIAL_BQ_SCHEMA = [
-    bigquery.SchemaField("bytes_col", "STRING"),
-    bigquery.SchemaField("int64_col", "FLOAT"),
+_TEST_DATAFRAME_BQ_SCHEMA = [
+    bigquery.SchemaField(name="bool_col", field_type="BOOL"),
+    bigquery.SchemaField(name="bool_array_col", field_type="BOOL", mode="REPEATED"),
+    bigquery.SchemaField(name="double_col", field_type="FLOAT"),
+    bigquery.SchemaField(name="double_array_col", field_type="FLOAT", mode="REPEATED"),
+    bigquery.SchemaField(name="int64_col", field_type="INTEGER"),
+    bigquery.SchemaField(name="int64_array_col", field_type="INTEGER", mode="REPEATED"),
+    bigquery.SchemaField(name="string_col", field_type="STRING"),
+    bigquery.SchemaField(name="string_array_col", field_type="STRING", mode="REPEATED"),
+    bigquery.SchemaField(name="bytes_col", field_type="STRING"),
 ]
 
 
@@ -334,7 +341,7 @@ class TestDataset:
         self, dataset_gapic_client, shared_state
     ):
         """Use the Dataset.create_from_dataframe() method to create a new tabular dataset.
-        Then confirm the dataset was successfully created and references GCS source."""
+        Then confirm the dataset was successfully created and references the BQ source."""
 
         assert shared_state["dataset_name"]
         assert shared_state["bigquery_dataset"]
@@ -365,8 +372,9 @@ class TestDataset:
     def test_create_tabular_dataset_from_dataframe_with_provided_schema(
         self, dataset_gapic_client, shared_state
     ):
-        """Use the Dataset.create_from_dataframe() method to create a new tabular dataset.
-        Then confirm the dataset was successfully created and references GCS source."""
+        """Use the Dataset.create_from_dataframe() method to create a new tabular dataset,
+        passing in the optional `bq_schema` argument. Then confirm the dataset was successfully
+        created and references the BQ source."""
 
         assert shared_state["dataset_name"]
         assert shared_state["bigquery_dataset"]
@@ -380,7 +388,7 @@ class TestDataset:
             df_source=_TEST_DATAFRAME,
             staging_path=bq_staging_table,
             display_name=f"temp_sdk_integration_create_and_import_dataset_from_dataframe{uuid.uuid4()}",
-            bq_schema=_TEST_PARTIAL_BQ_SCHEMA,
+            bq_schema=_TEST_DATAFRAME_BQ_SCHEMA,
         )
 
         shared_state["dataset_name"] = tabular_dataset.resource_name

@@ -20,6 +20,7 @@ from typing import Dict, Optional, Sequence, Tuple, Union
 from google.auth import credentials as auth_credentials
 
 from google.cloud import bigquery
+from google.cloud.bigquery import _pandas_helpers
 from google.cloud.aiplatform import base
 from google.cloud.aiplatform import datasets
 from google.cloud.aiplatform.datasets import _datasources
@@ -152,6 +153,25 @@ class TabularDataset(datasets._ColumnNamesDataset):
             create_request_timeout=create_request_timeout,
         )
 
+    @staticmethod
+    def _validate_bq_schema(dataframe, schema) -> bool:
+        """Validates whether the user-provided BigQuery schema is compatible
+        with the data types in their Pandas DataFrame.
+
+        Args:
+            dataframe (pd.DataFrame):
+                Required. Pandas DataFrame containing the source data for
+                ingestion as a TabularDataset.
+            bq_schema (Optional[Union[str, bigquery.SchemaField]]):
+                Required. The user-provided BigQuery schema.
+        """
+        try:
+            _pandas_helpers.dataframe_to_arrow(dataframe, schema)
+            return True
+        except Exception as e:
+            _LOGGER.warning(f"Warning: {e}")
+            return False
+
     @classmethod
     def create_from_dataframe(
         cls,
@@ -186,7 +206,7 @@ class TabularDataset(datasets._ColumnNamesDataset):
                 see: https://cloud.google.com/python/docs/reference/bigquery/latest/google.cloud.bigquery.job.LoadJobConfig#google_cloud_bigquery_job_LoadJobConfig_schema
                 This is not needed if the BigQuery table provided in `staging_path` already exists.
                 If this is not provided and the provided BigQuery table does not exist, the column types
-                will be autodetected using the data types in your Pandas DataFrame.
+                will be auto-detected using the data types in your Pandas DataFrame.
             display_name (str):
                 Optional. The user-defined name of the Dataset.
                 The name can be up to 128 characters long and can be consist
@@ -219,6 +239,11 @@ class TabularDataset(datasets._ColumnNamesDataset):
                 "Pyarrow is not installed, and is required to use the BigQuery client."
                 'Please install the SDK using "pip install google-cloud-aiplatform[datasets]"'
             )
+
+        if bq_schema and not TabularDataset._validate_bq_schema(
+            dataframe=df_source, schema=bq_schema
+        ):
+            raise ValueError("The provided `bq_schema` is not valid.")
 
         if len(df_source) < _AUTOML_TRAINING_MIN_ROWS:
             _LOGGER.info(

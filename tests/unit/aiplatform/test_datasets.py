@@ -200,6 +200,20 @@ _TEST_DATAFRAME = pd.DataFrame(
     columns=_TEST_DF_COLUMN_NAMES,
 )
 _TEST_CREDENTIALS = mock.Mock(spec=auth_credentials.AnonymousCredentials())
+_TEST_DATAFRAME_BQ_SCHEMA = [
+    bigquery.SchemaField(name="bool_col", field_type="BOOL"),
+    bigquery.SchemaField(name="bool_array_col", field_type="BOOL", mode="REPEATED"),
+    bigquery.SchemaField(name="double_col", field_type="FLOAT"),
+    bigquery.SchemaField(name="double_array_col", field_type="FLOAT", mode="REPEATED"),
+    bigquery.SchemaField(name="int64_col", field_type="INTEGER"),
+    bigquery.SchemaField(name="int64_array_col", field_type="INTEGER", mode="REPEATED"),
+    bigquery.SchemaField(name="string_col", field_type="STRING"),
+    bigquery.SchemaField(name="string_array_col", field_type="STRING", mode="REPEATED"),
+    bigquery.SchemaField(name="bytes_col", field_type="STRING"),
+]
+_TEST_DATAFRAME_INVALID_BQ_SCHEMA = [
+    bigquery.SchemaField(name="bool_col", field_type="BOOL"),
+]
 
 
 @pytest.fixture
@@ -1475,6 +1489,77 @@ class TestTabularDataset:
             project=_TEST_PROJECT,
             credentials=_TEST_CREDENTIALS,
         )
+
+    @pytest.mark.usefixtures("get_dataset_tabular_bq_mock")
+    @pytest.mark.parametrize(
+        "source_df",
+        [_TEST_DATAFRAME],
+    )
+    def test_create_dataset_tabular_from_dataframe_with_schema(
+        self,
+        create_dataset_mock,
+        source_df,
+        bq_client_mock,
+    ):
+
+        aiplatform.init(
+            project=_TEST_PROJECT,
+            credentials=_TEST_CREDENTIALS,
+        )
+
+        dataset_from_df = datasets.TabularDataset.create_from_dataframe(
+            display_name=_TEST_DISPLAY_NAME,
+            df_source=source_df,
+            staging_path=_TEST_SOURCE_URI_BQ,
+            bq_schema=_TEST_DATAFRAME_BQ_SCHEMA,
+        )
+
+        dataset_from_df.wait()
+
+        assert dataset_from_df.metadata_schema_uri == _TEST_METADATA_SCHEMA_URI_TABULAR
+
+        expected_dataset = gca_dataset.Dataset(
+            display_name=_TEST_DISPLAY_NAME,
+            metadata_schema_uri=_TEST_METADATA_SCHEMA_URI_TABULAR,
+            metadata=_TEST_METADATA_TABULAR_BQ,
+        )
+
+        create_dataset_mock.assert_called_once_with(
+            parent=_TEST_PARENT,
+            dataset=expected_dataset,
+            metadata=_TEST_REQUEST_METADATA,
+            timeout=None,
+        )
+
+        assert bq_client_mock.call_args_list[0] == mock.call(
+            project=_TEST_PROJECT,
+            credentials=_TEST_CREDENTIALS,
+        )
+
+    @pytest.mark.usefixtures("get_dataset_tabular_bq_mock")
+    @pytest.mark.parametrize(
+        "source_df",
+        [_TEST_DATAFRAME],
+    )
+    def test_create_dataset_tabular_from_dataframe_with_invalid_schema_raises(
+        self,
+        create_dataset_mock,
+        source_df,
+        bq_client_mock,
+    ):
+
+        aiplatform.init(
+            project=_TEST_PROJECT,
+            credentials=_TEST_CREDENTIALS,
+        )
+
+        with pytest.raises(ValueError):
+            datasets.TabularDataset.create_from_dataframe(
+                display_name=_TEST_DISPLAY_NAME,
+                df_source=source_df,
+                staging_path=_TEST_SOURCE_URI_BQ,
+                bq_schema=_TEST_DATAFRAME_INVALID_BQ_SCHEMA,
+            )
 
     @pytest.mark.usefixtures("get_dataset_tabular_bq_mock")
     @pytest.mark.parametrize(
