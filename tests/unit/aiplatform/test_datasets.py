@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-# Copyright 2020 Google LLC
+# Copyright 2022 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -659,6 +659,37 @@ class TestDataset:
         )
 
     @pytest.mark.usefixtures("get_dataset_mock")
+    @pytest.mark.parametrize("sync", [True, False])
+    def test_create_dataset_nontabular_with_timeout_not_explicitly_set(
+        self, create_dataset_mock, sync
+    ):
+        aiplatform.init(project=_TEST_PROJECT)
+
+        my_dataset = datasets._Dataset.create(
+            display_name=_TEST_DISPLAY_NAME,
+            metadata_schema_uri=_TEST_METADATA_SCHEMA_URI_NONTABULAR,
+            encryption_spec_key_name=_TEST_ENCRYPTION_KEY_NAME,
+            sync=sync,
+        )
+
+        if not sync:
+            my_dataset.wait()
+
+        expected_dataset = gca_dataset.Dataset(
+            display_name=_TEST_DISPLAY_NAME,
+            metadata_schema_uri=_TEST_METADATA_SCHEMA_URI_NONTABULAR,
+            metadata=_TEST_NONTABULAR_DATASET_METADATA,
+            encryption_spec=_TEST_ENCRYPTION_SPEC,
+        )
+
+        create_dataset_mock.assert_called_once_with(
+            parent=_TEST_PARENT,
+            dataset=expected_dataset,
+            metadata=_TEST_REQUEST_METADATA,
+            timeout=None,
+        )
+
+    @pytest.mark.usefixtures("get_dataset_mock")
     def test_create_dataset_tabular(self, create_dataset_mock):
         aiplatform.init(project=_TEST_PROJECT)
 
@@ -792,6 +823,35 @@ class TestDataset:
             name=_TEST_NAME,
             import_configs=[expected_import_config],
             timeout=180.0,
+        )
+
+    @pytest.mark.usefixtures("get_dataset_mock")
+    @pytest.mark.parametrize("sync", [True, False])
+    def test_import_data_with_timeout_not_explicitly_set(self, import_data_mock, sync):
+        aiplatform.init(project=_TEST_PROJECT)
+
+        my_dataset = datasets._Dataset(dataset_name=_TEST_NAME)
+
+        my_dataset.import_data(
+            gcs_source=_TEST_SOURCE_URI_GCS,
+            import_schema_uri=_TEST_IMPORT_SCHEMA_URI,
+            data_item_labels=_TEST_DATA_LABEL_ITEMS,
+            sync=sync,
+        )
+
+        if not sync:
+            my_dataset.wait()
+
+        expected_import_config = gca_dataset.ImportDataConfig(
+            gcs_source=gca_io.GcsSource(uris=[_TEST_SOURCE_URI_GCS]),
+            import_schema_uri=_TEST_IMPORT_SCHEMA_URI,
+            data_item_labels=_TEST_DATA_LABEL_ITEMS,
+        )
+
+        import_data_mock.assert_called_once_with(
+            name=_TEST_NAME,
+            import_configs=[expected_import_config],
+            timeout=None,
         )
 
     @pytest.mark.usefixtures("get_dataset_mock")
