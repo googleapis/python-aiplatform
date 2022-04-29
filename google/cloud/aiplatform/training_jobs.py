@@ -1810,6 +1810,11 @@ class CustomTrainingJob(_CustomTrainingJob):
         annotation_schema_uri: Optional[str] = None,
         model_display_name: Optional[str] = None,
         model_labels: Optional[Dict[str, str]] = None,
+        parent_model: Optional[str] = None,
+        is_version_increment: Optional[bool] = False,
+        is_default_version: Optional[bool] = True,
+        model_version_aliases: Optional[Sequence[str]] = None,
+        model_version_description: Optional[str] = None,
         base_output_dir: Optional[str] = None,
         service_account: Optional[str] = None,
         network: Optional[str] = None,
@@ -1839,6 +1844,7 @@ class CustomTrainingJob(_CustomTrainingJob):
         tensorboard: Optional[str] = None,
         sync=True,
         create_request_timeout: Optional[float] = None,
+
     ) -> Optional[models.Model]:
         """Runs the custom training job.
 
@@ -2088,6 +2094,39 @@ class CustomTrainingJob(_CustomTrainingJob):
                 Whether to execute this method synchronously. If False, this method
                 will be executed in concurrent Future and any downstream object will
                 be immediately returned and synced when the Future has completed.
+            parent_model (str):
+                Optional. The resource name of an existing model. The new model uploaded
+                by this job will be a version of `parent_model`.
+
+                Only set this field when training a new version of an existing model.
+            is_version_increment (bool):
+                Optional. When set to True, the job will upload a new version of
+                the model referenced in `model_display_name`. Acts as shorthand 
+                for setting `parent_model` to target the existing resource name of 
+                `model_display_name`. A `model_display_name` must be provided.
+
+                When set to False, the job will try to upload a 
+                brand new model resource, i.e. version 1.
+            is_default_version (bool):
+                Optional. When set to True, the newly uploaded model version will
+                automatically have alias "default" included. Subsequent uses of
+                the model produced by this job without a version specified will 
+                use this "default" version.
+
+                When set to False, the "default" alias will not be moved.
+                Actions targeting the model version produced by this job will need
+                to specifically reference this version by ID or alias.
+
+                New model uploads, i.e. version 1, will always be "default" aliased.
+            model_version_aliases (Sequence[str]):
+                Optional. User provided version aliases so that the model version
+                uploaded by this job can be referenced via alias instead of 
+                auto-generated version ID. A default version alias will be created 
+                for the first version of the model.
+
+                The format is [a-z][a-zA-Z0-9-]{0,126}[a-z0-9]
+            model_version_description (str):
+                Optional. The description of the model version being uploaded by this job.
 
         Returns:
             model: The trained Vertex AI Model resource or None if training did not

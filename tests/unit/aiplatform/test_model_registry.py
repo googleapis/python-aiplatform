@@ -17,3 +17,9 @@
 
 #If i give conflicting model_name@version and target_version to Model init, should fail
 def test_failure_with_conflicting_versions()
+
+def test_init_with_model_instance
+
+def test_init_with_model_resource_id
+
+def test_init_with_with_name_location_project
