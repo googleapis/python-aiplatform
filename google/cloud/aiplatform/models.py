@@ -872,10 +872,11 @@ class Endpoint(base.VertexAiResourceNounWithFutureManager):
         )
 
         self._deploy_call(
-            self.api_client,
-            self.resource_name,
-            model,
-            self._gca_resource.traffic_split,
+            api_client=self.api_client,
+            endpoint_resource_name=self.resource_name,
+            model=model,
+            endpoint_resource_traffic_split=self._gca_resource.traffic_split,
+            network=self.network,
             deployed_model_display_name=deployed_model_display_name,
             traffic_percentage=traffic_percentage,
             traffic_split=traffic_split,
@@ -902,6 +903,7 @@ class Endpoint(base.VertexAiResourceNounWithFutureManager):
         endpoint_resource_name: str,
         model: "Model",
         endpoint_resource_traffic_split: Optional[proto.MapField] = None,
+        network: str = "",
         deployed_model_display_name: Optional[str] = None,
         traffic_percentage: Optional[int] = 0,
         traffic_split: Optional[Dict[str, int]] = None,
@@ -929,6 +931,11 @@ class Endpoint(base.VertexAiResourceNounWithFutureManager):
                 Required. Model to be deployed.
             endpoint_resource_traffic_split (proto.MapField):
                 Optional. Endpoint current resource traffic split.
+            network (str):
+                Optional. The full name of the Compute Engine network to which
+                this Endpoint will be peered. E.g. "projects/123/global/networks/my_vpc".
+                Private services access must already be configured for the network.
+                If not set, network set in aiplatform.init will be used.
             deployed_model_display_name (str):
                 Optional. The display name of the DeployedModel. If not provided
                 upon creation, the Model's display_name is used.
@@ -1079,7 +1086,7 @@ class Endpoint(base.VertexAiResourceNounWithFutureManager):
             deployed_model.explanation_spec = explanation_spec
 
         # TODO(b/221059294): Remove check for class once PrivateEndpoint supports traffic split
-        if traffic_split is None and cls == Endpoint:
+        if traffic_split is None and not network:
             # new model traffic needs to be 100 if no pre-existing models
             if not endpoint_resource_traffic_split:
                 # default scenario
@@ -1203,7 +1210,7 @@ class Endpoint(base.VertexAiResourceNounWithFutureManager):
 
         # TODO(b/211351292): Remove check once traffic split is supported
         # Skip unallocating traffic and raise if new split is provided
-        if self.__class__ == PrivateEndpoint:
+        if self.network:
             if traffic_split:
                 raise ValueError(
                     "Traffic splitting is not yet supported by private Endpoints. "
@@ -1531,30 +1538,21 @@ class PrivateEndpoint(Endpoint):
     def predict_http_uri(self) -> Optional[str]:
         """Http(s) path to send prediction requests to, used when calling `PrivateEndpoint.predict()`"""
         if not self._gca_resource.deployed_models:
-            raise RuntimeError(
-                "Cannot make a predict request because a model has not been deployed on this private "
-                "Endpoint. Please ensure a model has been deployed."
-            )
+            return None
         return self._gca_resource.deployed_models[0].private_endpoints.predict_http_uri
 
     @property
     def explain_http_uri(self) -> Optional[str]:
         """Http(s) path to send explain requests to, used when calling `PrivateEndpoint.explain()`"""
         if not self._gca_resource.deployed_models:
-            raise RuntimeError(
-                "Cannot make a explain request because a model has not been deployed on this private "
-                "Endpoint. Please ensure a model has been deployed."
-            )
+            return None
         return self._gca_resource.deployed_models[0].private_endpoints.explain_http_uri
 
     @property
     def health_http_uri(self) -> Optional[str]:
         """Http(s) path to send health check requests to, used when calling `PrivateEndpoint.health_check()`"""
         if not self._gca_resource.deployed_models:
-            raise RuntimeError(
-                "Cannot make a health check request because a model has not been deployed on this private "
-                "Endpoint. Please ensure a model has been deployed."
-            )
+            return None
         return self._gca_resource.deployed_models[0].private_endpoints.health_http_uri
 
     @classmethod
@@ -1789,6 +1787,12 @@ class PrivateEndpoint(Endpoint):
         self.wait()
         self._sync_gca_resource_if_skipped()
 
+        if not self._gca_resource.deployed_models:
+            raise RuntimeError(
+                "Cannot make a predict request because a model has not been deployed on this private "
+                "Endpoint. Please ensure a model has been deployed."
+            )
+
         response = self._http_request(
             method="POST",
             url=self.predict_http_uri,
@@ -1822,6 +1826,12 @@ class PrivateEndpoint(Endpoint):
         """
         self.wait()
         self._sync_gca_resource_if_skipped()
+
+        if not self._gca_resource.deployed_models:
+            raise RuntimeError(
+                "Cannot make a health check request because a model has not been deployed on this private "
+                "Endpoint. Please ensure a model has been deployed."
+            )
 
         response = self._http_request(
             method="GET",
@@ -1981,7 +1991,6 @@ class PrivateEndpoint(Endpoint):
             traffic_percentage,
             explanation_metadata,
             explanation_parameters,
-
         )
 
         self._deploy(

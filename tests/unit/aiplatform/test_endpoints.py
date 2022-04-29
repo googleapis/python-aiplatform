@@ -444,6 +444,19 @@ def create_private_endpoint_mock():
 
 
 @pytest.fixture
+def get_private_endpoint_mock():
+    with mock.patch.object(
+        endpoint_service_client.EndpointServiceClient, "get_endpoint"
+    ) as get_endpoint_mock:
+        get_endpoint_mock.return_value = gca_endpoint.Endpoint(
+            display_name=_TEST_DISPLAY_NAME,
+            name=_TEST_ENDPOINT_NAME,
+            network=_TEST_NETWORK,
+        )
+        yield get_endpoint_mock
+
+
+@pytest.fixture
 def get_private_endpoint_with_model_mock():
     with mock.patch.object(
         endpoint_service_client.EndpointServiceClient, "get_endpoint"
@@ -1667,7 +1680,7 @@ class TestPrivateEndpoint(TestEndpoint):
             method="GET", url="", body=None, headers=None
         )
 
-    @pytest.mark.usefixtures("get_endpoint_mock", "get_model_mock")
+    @pytest.mark.usefixtures("get_private_endpoint_mock", "get_model_mock")
     @pytest.mark.parametrize("sync", [True, False])
     def test_deploy(self, deploy_model_mock, sync):
         test_endpoint = models.PrivateEndpoint(_TEST_ENDPOINT_NAME)
