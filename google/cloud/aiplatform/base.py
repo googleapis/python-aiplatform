@@ -483,6 +483,7 @@ class VertexAiResourceNoun(metaclass=abc.ABCMeta):
         cls,
         location: Optional[str] = None,
         credentials: Optional[auth_credentials.Credentials] = None,
+        appended_user_agent: Optional[List[str]] = None,
     ) -> utils.VertexAiServiceClientWithOverride:
         """Helper method to instantiate service client for resource noun.
 
@@ -491,6 +492,9 @@ class VertexAiResourceNoun(metaclass=abc.ABCMeta):
             credentials (google.auth.credentials.Credentials):
                 Optional custom credentials to use when accessing interacting with
                 resource noun.
+            appended_user_agent (List[str]):
+                Optional. User agent appended in the client info. If more than one,
+                it will be separated by semicolons.
         Returns:
             client (utils.VertexAiServiceClientWithOverride):
                 Initialized service client for this service noun with optional overrides.
@@ -499,6 +503,7 @@ class VertexAiResourceNoun(metaclass=abc.ABCMeta):
             client_class=cls.client_class,
             credentials=credentials,
             location_override=location,
+            appended_user_agent=appended_user_agent,
         )
 
     @classmethod

@@ -78,6 +78,7 @@ _TEST_SERVING_CONTAINER_ENVIRONMENT_VARIABLES = {
 _TEST_SERVING_CONTAINER_PORTS = [8888, 10000]
 _TEST_ID = "1028944691210842416"
 _TEST_LABEL = {"team": "experimentation", "trial_id": "x435"}
+_TEST_APPENDED_USER_AGENT = ["fake_user_agent", "another_fake_user_agent"]
 
 _TEST_MACHINE_TYPE = "n1-standard-4"
 _TEST_ACCELERATOR_TYPE = "NVIDIA_TESLA_P100"
@@ -490,6 +491,7 @@ class TestModel:
             client_class=utils.ModelClientWithOverride,
             credentials=initializer.global_config.credentials,
             location_override=_TEST_LOCATION,
+            appended_user_agent=None,
         )
 
     def test_constructor_create_client_with_custom_location(self, create_client_mock):
@@ -503,6 +505,7 @@ class TestModel:
             client_class=utils.ModelClientWithOverride,
             credentials=initializer.global_config.credentials,
             location_override=_TEST_LOCATION_2,
+            appended_user_agent=None,
         )
 
     def test_constructor_creates_client_with_custom_credentials(
@@ -514,6 +517,7 @@ class TestModel:
             client_class=utils.ModelClientWithOverride,
             credentials=creds,
             location_override=_TEST_LOCATION,
+            appended_user_agent=None,
         )
 
     def test_constructor_gets_model(self, get_model_mock):
@@ -649,6 +653,7 @@ class TestModel:
             explanation_metadata=_TEST_EXPLANATION_METADATA,
             explanation_parameters=_TEST_EXPLANATION_PARAMETERS,
             labels=_TEST_LABEL,
+            appended_user_agent=_TEST_APPENDED_USER_AGENT,
             sync=sync,
         )
 

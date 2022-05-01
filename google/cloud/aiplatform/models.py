@@ -1604,6 +1604,7 @@ class Model(base.VertexAiResourceNounWithFutureManager):
         labels: Optional[Dict[str, str]] = None,
         encryption_spec_key_name: Optional[str] = None,
         staging_bucket: Optional[str] = None,
+        appended_user_agent: Optional[List[str]] = None,
         sync=True,
     ) -> "Model":
         """Uploads a model and returns a Model representing the uploaded Model
@@ -1750,6 +1751,9 @@ class Model(base.VertexAiResourceNounWithFutureManager):
             staging_bucket (str):
                 Optional. Bucket to stage local model artifacts. Overrides
                 staging_bucket set in aiplatform.init.
+            appended_user_agent (List[str]):
+                Optional. User agent appended in the client info. If more than one, it will be
+                separated by semicolons.
         Returns:
             model: Instantiated representation of the uploaded model resource.
         Raises:
@@ -1766,7 +1770,9 @@ class Model(base.VertexAiResourceNounWithFutureManager):
                 "Both `explanation_metadata` and `explanation_parameters` should be specified or None."
             )
 
-        api_client = cls._instantiate_client(location, credentials)
+        api_client = cls._instantiate_client(
+            location, credentials, appended_user_agent=appended_user_agent
+        )
         env = None
         ports = None
 

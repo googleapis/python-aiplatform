@@ -30,18 +30,16 @@ from fastapi import Response
 from starlette.datastructures import Headers
 from starlette.testclient import TestClient
 
-from google.api_core import operation as ga_operation
 from google.auth.exceptions import GoogleAuthError
 
 from google.cloud import aiplatform
-from google.cloud.aiplatform import base
 from google.cloud.aiplatform import helpers
 from google.cloud.aiplatform import initializer
+from google.cloud.aiplatform import models
 
 from google.cloud.aiplatform.compat.types import (
     model as gca_model_compat,
     env_var as gca_env_var,
-    model_service as gca_model_service,
 )
 
 from google.cloud.aiplatform.constants import prediction
@@ -86,7 +84,7 @@ _TEST_MODEL_NAME = "test-model"
 _TEST_ARTIFACT_URI = "gs://test/artifact/uri"
 _TEST_SERVING_CONTAINER_IMAGE = "gcr.io/test-serving/container:image"
 _TEST_SERVING_CONTAINER_PREDICTION_ROUTE = "predict"
-_TEST_SERVING_CONTAINER_HEALTH_ROUTE = "metadata"
+_TEST_SERVING_CONTAINER_HEALTH_ROUTE = "health"
 _TEST_DESCRIPTION = "test description"
 _TEST_SERVING_CONTAINER_COMMAND = ["python3", "run_my_model.py"]
 _TEST_SERVING_CONTAINER_ARGS = ["--test", "arg"]
@@ -97,6 +95,7 @@ _TEST_SERVING_CONTAINER_ENVIRONMENT_VARIABLES = {
 _TEST_SERVING_CONTAINER_PORTS = [8888, 10000]
 _TEST_ID = "1028944691210842416"
 _TEST_LABEL = {"team": "experimentation", "trial_id": "x435"}
+_TEST_APPENDED_USER_AGENT = ["fake_user_agent"]
 
 _TEST_INSTANCE_SCHEMA_URI = "gs://test/schema/instance.yaml"
 _TEST_PARAMETERS_SCHEMA_URI = "gs://test/schema/parameters.yaml"
@@ -488,27 +487,8 @@ def requests_get_raises_exception_mock():
 
 
 @pytest.fixture
-def get_model_mock():
-    with mock.patch.object(
-        model_service_client.ModelServiceClient, "get_model"
-    ) as get_model_mock:
-        get_model_mock.return_value = gca_model_compat.Model(
-            display_name=_TEST_MODEL_NAME,
-            name=_TEST_MODEL_RESOURCE_NAME,
-        )
-        yield get_model_mock
-
-
-@pytest.fixture
 def upload_model_mock():
-    with mock.patch.object(
-        model_service_client.ModelServiceClient, "upload_model"
-    ) as upload_model_mock:
-        mock_lro = mock.Mock(ga_operation.Operation)
-        mock_lro.result.return_value = gca_model_service.UploadModelResponse(
-            model=_TEST_MODEL_RESOURCE_NAME
-        )
-        upload_model_mock.return_value = mock_lro
+    with mock.patch.object(models.Model, "upload") as upload_model_mock:
         yield upload_model_mock
 
 
@@ -1364,9 +1344,7 @@ class TestLocalModel:
         )
 
     @pytest.mark.parametrize("sync", [True, False])
-    def test_upload_uploads_and_gets_model(
-        self, upload_model_mock, get_model_mock, sync
-    ):
+    def test_upload_uploads_and_gets_model(self, upload_model_mock, sync):
 
         container_spec = gca_model_compat.ModelContainerSpec(
             image_uri=_TEST_SERVING_CONTAINER_IMAGE,
@@ -1376,32 +1354,39 @@ class TestLocalModel:
 
         local_model = LocalModel(container_spec)
 
-        my_model = local_model.upload(
+        _ = local_model.upload(
             display_name=_TEST_MODEL_NAME,
             sync=sync,
         )
 
-        if not sync:
-            my_model.wait()
-
-        managed_model = gca_model_compat.Model(
-            display_name=_TEST_MODEL_NAME,
-            container_spec=container_spec,
-        )
-
         upload_model_mock.assert_called_once_with(
-            parent=initializer.global_config.common_location_path(),
-            model=managed_model,
-        )
-
-        get_model_mock.assert_called_once_with(
-            name=_TEST_MODEL_RESOURCE_NAME, retry=base._DEFAULT_RETRY
+            display_name=_TEST_MODEL_NAME,
+            serving_container_image_uri=_TEST_SERVING_CONTAINER_IMAGE,
+            artifact_uri=None,
+            serving_container_predict_route=_TEST_SERVING_CONTAINER_PREDICTION_ROUTE,
+            serving_container_health_route=_TEST_SERVING_CONTAINER_HEALTH_ROUTE,
+            description=None,
+            serving_container_command=[],
+            serving_container_args=[],
+            serving_container_environment_variables={},
+            serving_container_ports=[],
+            instance_schema_uri=None,
+            parameters_schema_uri=None,
+            prediction_schema_uri=None,
+            explanation_metadata=None,
+            explanation_parameters=None,
+            project=None,
+            location=None,
+            credentials=None,
+            labels=None,
+            encryption_spec_key_name=None,
+            staging_bucket=None,
+            appended_user_agent=[prediction.CUSTOM_PREDICTION_ROUTINES],
+            sync=sync,
         )
 
     @pytest.mark.parametrize("sync", [True, False])
-    def test_upload_uploads_and_gets_model_with_all_args(
-        self, upload_model_mock, get_model_mock, sync
-    ):
+    def test_upload_uploads_and_gets_model_with_all_args(self, upload_model_mock, sync):
 
         env = [
             gca_env_var.EnvVar(name=str(key), value=str(value))
@@ -1425,7 +1410,7 @@ class TestLocalModel:
 
         local_model = LocalModel(container_spec)
 
-        my_model = local_model.upload(
+        _ = local_model.upload(
             display_name=_TEST_MODEL_NAME,
             artifact_uri=_TEST_ARTIFACT_URI,
             instance_schema_uri=_TEST_INSTANCE_SCHEMA_URI,
@@ -1438,32 +1423,33 @@ class TestLocalModel:
             sync=sync,
         )
 
-        if not sync:
-            my_model.wait()
-
-        managed_model = gca_model_compat.Model(
-            display_name=_TEST_MODEL_NAME,
-            description=_TEST_DESCRIPTION,
-            artifact_uri=_TEST_ARTIFACT_URI,
-            container_spec=container_spec,
-            predict_schemata=gca_model_compat.PredictSchemata(
-                instance_schema_uri=_TEST_INSTANCE_SCHEMA_URI,
-                parameters_schema_uri=_TEST_PARAMETERS_SCHEMA_URI,
-                prediction_schema_uri=_TEST_PREDICTION_SCHEMA_URI,
-            ),
-            explanation_spec=gca_model_compat.explanation.ExplanationSpec(
-                metadata=_TEST_EXPLANATION_METADATA,
-                parameters=_TEST_EXPLANATION_PARAMETERS,
-            ),
-            labels=_TEST_LABEL,
-        )
-
         upload_model_mock.assert_called_once_with(
-            parent=initializer.global_config.common_location_path(),
-            model=managed_model,
-        )
-        get_model_mock.assert_called_once_with(
-            name=_TEST_MODEL_RESOURCE_NAME, retry=base._DEFAULT_RETRY
+            display_name=_TEST_MODEL_NAME,
+            serving_container_image_uri=_TEST_SERVING_CONTAINER_IMAGE,
+            artifact_uri=_TEST_ARTIFACT_URI,
+            serving_container_predict_route=_TEST_SERVING_CONTAINER_PREDICTION_ROUTE,
+            serving_container_health_route=_TEST_SERVING_CONTAINER_HEALTH_ROUTE,
+            description=_TEST_DESCRIPTION,
+            serving_container_command=_TEST_SERVING_CONTAINER_COMMAND,
+            serving_container_args=_TEST_SERVING_CONTAINER_ARGS,
+            serving_container_environment_variables={
+                key: str(value)
+                for key, value in _TEST_SERVING_CONTAINER_ENVIRONMENT_VARIABLES.items()
+            },
+            serving_container_ports=_TEST_SERVING_CONTAINER_PORTS,
+            instance_schema_uri=_TEST_INSTANCE_SCHEMA_URI,
+            parameters_schema_uri=_TEST_PARAMETERS_SCHEMA_URI,
+            prediction_schema_uri=_TEST_PREDICTION_SCHEMA_URI,
+            explanation_metadata=_TEST_EXPLANATION_METADATA,
+            explanation_parameters=_TEST_EXPLANATION_PARAMETERS,
+            project=None,
+            location=None,
+            credentials=None,
+            labels=_TEST_LABEL,
+            encryption_spec_key_name=None,
+            staging_bucket=None,
+            appended_user_agent=[prediction.CUSTOM_PREDICTION_ROUTINES],
+            sync=sync,
         )
 
     def test_deploy_to_local_endpoint(

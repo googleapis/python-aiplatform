@@ -156,6 +156,21 @@ class TestInit:
             user_agent = wrapped_method._metadata[0][1]
             assert user_agent.startswith("model-builder/")
 
+    def test_create_client_appended_user_agent(self):
+        appended_user_agent = ["fake_user_agent", "another_fake_user_agent"]
+        initializer.global_config.init(project=_TEST_PROJECT, location=_TEST_LOCATION)
+        client = initializer.global_config.create_client(
+            client_class=utils.ModelClientWithOverride,
+            appended_user_agent=appended_user_agent,
+        )
+
+        for wrapped_method in client._transport._wrapped_methods.values():
+            # wrapped_method._metadata looks like:
+            # [('x-goog-api-client', 'model-builder/0.3.1 gl-python/3.7.6 grpc/1.30.0 gax/1.22.2 gapic/0.3.1')]
+            user_agent = wrapped_method._metadata[0][1]
+            assert ";" + appended_user_agent[0] in user_agent
+            assert ";" + appended_user_agent[1] in user_agent
+
     @pytest.mark.parametrize(
         "init_location, location_override, expected_endpoint",
         [

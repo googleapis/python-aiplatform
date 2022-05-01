@@ -20,7 +20,7 @@ from concurrent import futures
 import logging
 import pkg_resources
 import os
-from typing import Optional, Type, Union
+from typing import List, Optional, Type, Union
 
 from google.api_core import client_options
 from google.api_core import gapic_v1
@@ -264,6 +264,7 @@ class _Config:
         location_override: Optional[str] = None,
         prediction_client: bool = False,
         api_base_path_override: Optional[str] = None,
+        appended_user_agent: Optional[List[str]] = None,
     ) -> utils.VertexAiServiceClientWithOverride:
         """Instantiates a given VertexAiServiceClient with optional
         overrides.
@@ -276,15 +277,23 @@ class _Config:
             location_override (str): Optional. location override.
             prediction_client (str): Optional. flag to use a prediction endpoint.
             api_base_path_override (str): Optional. Override default api base path.
+            appended_user_agent (List[str]):
+                Optional. User agent appended in the client info. If more than one, it will be
+                separated by semicolons.
         Returns:
             client: Instantiated Vertex AI Service client with optional overrides
         """
         gapic_version = pkg_resources.get_distribution(
             "google-cloud-aiplatform",
         ).version
+
+        user_agent = f"{constants.USER_AGENT_PRODUCT}/{gapic_version}"
+        if appended_user_agent:
+            user_agent = f"{user_agent};{';'.join(appended_user_agent)}"
+
         client_info = gapic_v1.client_info.ClientInfo(
             gapic_version=gapic_version,
-            user_agent=f"{constants.USER_AGENT_PRODUCT}/{gapic_version}",
+            user_agent=user_agent,
         )
 
         kwargs = {

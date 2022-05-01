@@ -32,6 +32,7 @@ from google.cloud.aiplatform.compat.types import (
     env_var as gca_env_var_compat,
 )
 
+from google.cloud.aiplatform.constants import prediction
 from google.cloud.aiplatform.docker_utils import build
 from google.cloud.aiplatform.docker_utils import errors
 from google.cloud.aiplatform.docker_utils import local_util
@@ -421,6 +422,7 @@ class LocalModel:
             labels=labels,
             encryption_spec_key_name=encryption_spec_key_name,
             staging_bucket=staging_bucket,
+            appended_user_agent=[prediction.CUSTOM_PREDICTION_ROUTINES],
             sync=sync,
         )
 
