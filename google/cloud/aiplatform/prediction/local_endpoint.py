@@ -168,11 +168,7 @@ class LocalEndpoint:
             )
         if (self.gpu_count or self.gpu_device_ids) and self.gpu_capabilities is None:
             self.gpu_capabilities = prediction.DEFAULT_LOCAL_RUN_GPU_CAPABILITIES
-        if (
-            self.gpu_capabilities
-            and self.gpu_count is None
-            and self.gpu_device_ids is None
-        ):
+        if self.gpu_capabilities and not self.gpu_count and not self.gpu_device_ids:
             self.gpu_count = prediction.DEFAULT_LOCAL_RUN_GPU_COUNT
 
         self.container_ready_timeout = (

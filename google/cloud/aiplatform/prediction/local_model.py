@@ -32,7 +32,6 @@ from google.cloud.aiplatform.compat.types import (
     env_var as gca_env_var_compat,
 )
 
-from google.cloud.aiplatform.constants import prediction
 from google.cloud.aiplatform.docker_utils import build
 from google.cloud.aiplatform.docker_utils import errors
 from google.cloud.aiplatform.docker_utils import local_util
@@ -500,15 +499,6 @@ class LocalModel:
         """
         envs = {env.name: env.value for env in self.serving_container_spec.env}
         ports = [port.container_port for port in self.serving_container_spec.ports]
-
-        if gpu_count and gpu_device_ids:
-            raise ValueError(
-                "At most one gpu_count or gpu_device_ids can be set but both are set."
-            )
-        if (gpu_count or gpu_device_ids) and gpu_capabilities is None:
-            gpu_capabilities = prediction.DEFAULT_LOCAL_RUN_GPU_CAPABILITIES
-        if gpu_capabilities and gpu_count is None and gpu_device_ids is None:
-            gpu_count = prediction.DEFAULT_LOCAL_RUN_GPU_COUNT
 
         try:
             with LocalEndpoint(
