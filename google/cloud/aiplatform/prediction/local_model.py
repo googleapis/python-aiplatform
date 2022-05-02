@@ -36,6 +36,7 @@ from google.cloud.aiplatform.constants import prediction
 from google.cloud.aiplatform.docker_utils import build
 from google.cloud.aiplatform.docker_utils import errors
 from google.cloud.aiplatform.docker_utils import local_util
+from google.cloud.aiplatform.docker_utils import utils
 from google.cloud.aiplatform.prediction import LocalEndpoint
 from google.cloud.aiplatform.prediction.handler import Handler
 from google.cloud.aiplatform.prediction.handler import PredictionHandler
@@ -553,6 +554,8 @@ class LocalModel:
         Raises:
             DockerError: If the command fails.
         """
+        self.pull_image_if_not_exists()
+
         command = [
             "docker",
             "tag",
@@ -603,3 +606,19 @@ class LocalModel:
         return_code = local_util.execute_command(command)
         if return_code != 0:
             errors.raise_docker_error_with_command(command, return_code)
+
+    def pull_image_if_not_exists(self):
+        """Pulls the image if the image does not exist locally.
+
+        Raises:
+            DockerError: If the command fails.
+        """
+        if not utils.check_image_exists_locally(self.serving_container_spec.image_uri):
+            command = [
+                "docker",
+                "pull",
+                f"{self.serving_container_spec.image_uri}",
+            ]
+            return_code = local_util.execute_command(command)
+            if return_code != 0:
+                errors.raise_docker_error_with_command(command, return_code)

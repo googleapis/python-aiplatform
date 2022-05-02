@@ -40,6 +40,23 @@ def docker_client_mock():
     with mock.patch("docker.from_env") as from_env_mock:
         client = from_env_mock.return_value
         client().containers.run.return_value = None
+        client.images.get.return_value = None
+        yield client
+
+
+@pytest.fixture
+def docker_client_mock_image_get_not_found():
+    with mock.patch("docker.from_env") as from_env_mock:
+        client = from_env_mock.return_value
+        client.images.get.side_effect = docker.errors.ImageNotFound("")
+        yield client
+
+
+@pytest.fixture
+def docker_client_mock_image_get_api_error():
+    with mock.patch("docker.from_env") as from_env_mock:
+        client = from_env_mock.return_value
+        client.images.get.side_effect = docker.errors.APIError("")
         yield client
 
 
@@ -154,6 +171,118 @@ class TestRun:
             ports={serving_container_ports[0]: host_port},
             environment=environment,
             volumes=volumes,
+            device_requests=None,
+            detach=True,
+        )
+
+    @mock.patch.dict(os.environ, {}, clear=True)
+    def test_run_prediction_container_with_envs_replaced_by_envs(
+        self, tmp_path, docker_client_mock
+    ):
+        serving_container_environment_variables = {
+            "VAR_1": "foo",
+            "VAR_2": "$(VAR_3) bar",
+            "VAR_3": "$(VAR_1) bar",
+            "VAR_4": "$$(VAR_1)",
+        }
+        environment = {k: v for k, v in serving_container_environment_variables.items()}
+        environment[prediction.AIP_HTTP_PORT] = prediction.DEFAULT_AIP_HTTP_PORT
+        environment[prediction.AIP_HEALTH_ROUTE] = None
+        environment[prediction.AIP_PREDICT_ROUTE] = None
+        environment[prediction.AIP_STORAGE_URI] = ""
+        environment[
+            run._ADC_ENVIRONMENT_VARIABLE
+        ] = run._DEFAULT_CONTAINER_CRED_KEY_PATH
+        # Envs referencing earlier entries will be changed. Those envs referencing later
+        # entries won't be changed.
+        environment["VAR_3"] = "foo bar"
+        # Double $$ will be replaced with a single $.
+        environment["VAR_4"] = "$(VAR_1)"
+
+        run.run_prediction_container(
+            self.IMAGE_URI,
+            serving_container_environment_variables=serving_container_environment_variables,
+        )
+
+        docker_client_mock.containers.run.assert_called_once_with(
+            self.IMAGE_URI,
+            command=None,
+            entrypoint=None,
+            ports={prediction.DEFAULT_AIP_HTTP_PORT: None},
+            environment=environment,
+            volumes=[],
+            device_requests=None,
+            detach=True,
+        )
+
+    @mock.patch.dict(os.environ, {}, clear=True)
+    def test_run_prediction_container_with_command_replaced_by_envs(
+        self, tmp_path, docker_client_mock
+    ):
+        serving_container_command = ["$(VAR_1)", "$$(VAR_1)", "$(VAR_2)"]
+        serving_container_environment_variables = {
+            "VAR_1": "foo",
+        }
+        environment = {k: v for k, v in serving_container_environment_variables.items()}
+        environment[prediction.AIP_HTTP_PORT] = prediction.DEFAULT_AIP_HTTP_PORT
+        environment[prediction.AIP_HEALTH_ROUTE] = None
+        environment[prediction.AIP_PREDICT_ROUTE] = None
+        environment[prediction.AIP_STORAGE_URI] = ""
+        environment[
+            run._ADC_ENVIRONMENT_VARIABLE
+        ] = run._DEFAULT_CONTAINER_CRED_KEY_PATH
+        # Command references existing environment variables.
+        expected_entrypoint = ["foo", "$(VAR_1)", "$(VAR_2)"]
+
+        run.run_prediction_container(
+            self.IMAGE_URI,
+            serving_container_command=serving_container_command,
+            serving_container_environment_variables=serving_container_environment_variables,
+        )
+
+        docker_client_mock.containers.run.assert_called_once_with(
+            self.IMAGE_URI,
+            command=None,
+            entrypoint=expected_entrypoint,
+            ports={prediction.DEFAULT_AIP_HTTP_PORT: None},
+            environment=environment,
+            volumes=[],
+            device_requests=None,
+            detach=True,
+        )
+
+    @mock.patch.dict(os.environ, {}, clear=True)
+    def test_run_prediction_container_with_args_replaced_by_envs(
+        self, tmp_path, docker_client_mock
+    ):
+        serving_container_args = ["$(VAR_1)", "$$(VAR_1)", "$(VAR_2)"]
+        serving_container_environment_variables = {
+            "VAR_1": "foo",
+        }
+        environment = {k: v for k, v in serving_container_environment_variables.items()}
+        environment[prediction.AIP_HTTP_PORT] = prediction.DEFAULT_AIP_HTTP_PORT
+        environment[prediction.AIP_HEALTH_ROUTE] = None
+        environment[prediction.AIP_PREDICT_ROUTE] = None
+        environment[prediction.AIP_STORAGE_URI] = ""
+        environment[
+            run._ADC_ENVIRONMENT_VARIABLE
+        ] = run._DEFAULT_CONTAINER_CRED_KEY_PATH
+        # Args references existing environment variables.
+        expected_command = ["foo", "$(VAR_1)", "$(VAR_2)"]
+
+        run.run_prediction_container(
+            self.IMAGE_URI,
+            serving_container_args=serving_container_args,
+            serving_container_environment_variables=serving_container_environment_variables,
+        )
+
+        docker_client_mock.containers.run.assert_called_once_with(
+            self.IMAGE_URI,
+            command=expected_command,
+            entrypoint=None,
+            ports={prediction.DEFAULT_AIP_HTTP_PORT: None},
+            environment=environment,
+            volumes=[],
             device_requests=None,
             detach=True,
         )
@@ -894,3 +1023,20 @@ class TestErrors:
         assert exception.value.message == expected_message
         assert exception.value.cmd == command
         assert exception.value.exit_code == return_code
+
+
+class TestUtils:
+    IMAGE_URI = "test_image:latest"
+
+    def test_check_image_exists_locally(self, docker_client_mock):
+        assert utils.check_image_exists_locally(self.IMAGE_URI) is True
+
+    def test_check_image_exists_locally_image_not_found(
+        self, docker_client_mock_image_get_not_found
+    ):
+        assert utils.check_image_exists_locally(self.IMAGE_URI) is False
+
+    def test_check_image_exists_locally_image_api_error(
+        self, docker_client_mock_image_get_api_error
+    ):
+        assert utils.check_image_exists_locally(self.IMAGE_URI) is False
