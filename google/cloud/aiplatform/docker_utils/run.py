@@ -147,8 +147,6 @@ def run_prediction_container(
         gpu_count (int):
             Optional. Number of devices to request. Set to -1 to request all available devices.
             To use GPU, set either `gpu_count` or `gpu_device_ids`.
-            The default value is -1 if gpu_capabilities is set but both of gpu_count and
-            gpu_device_ids are not set.
         gpu_device_ids (List[str]):
             Optional. This parameter corresponds to `NVIDIA_VISIBLE_DEVICES` in the NVIDIA
             Runtime.
@@ -159,8 +157,6 @@ def run_prediction_container(
             sub-list acts like an AND. The driver will try to satisfy one of the sub-lists.
             Available capabilities for the NVIDIA driver can be found in
             https://docs.nvidia.com/datacenter/cloud-native/container-toolkit/user-guide.html#driver-capabilities.
-            The default value is `[["utility", "compute"]]` if gpu_count or gpu_device_ids is
-            set.
 
     Returns:
         The container object running in the background.

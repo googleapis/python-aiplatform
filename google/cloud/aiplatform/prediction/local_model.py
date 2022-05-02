@@ -481,8 +481,8 @@ class LocalModel:
                 To use GPU, set either `gpu_count` or `gpu_device_ids`.
             gpu_capabilities (List[List[str]]):
                 Optional. This parameter corresponds to `NVIDIA_DRIVER_CAPABILITIES` in the NVIDIA
-                Runtime. This must be set to use GPU. The outer list acts like an OR, and each
-                sub-list acts like an AND. The driver will try to satisfy one of the sub-lists.
+                Runtime. The outer list acts like an OR, and each sub-list acts like an AND. The
+                driver will try to satisfy one of the sub-lists.
                 Available capabilities for the NVIDIA driver can be found in
                 https://docs.nvidia.com/datacenter/cloud-native/container-toolkit/user-guide.html#driver-capabilities.
                 The default value is `[["utility", "compute"]]` if gpu_count or gpu_device_ids is
