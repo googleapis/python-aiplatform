@@ -22,7 +22,6 @@ import re
 import shutil
 import tempfile
 from typing import Dict, List, NamedTuple, Optional, Sequence, Tuple, Union
-import warnings
 
 from google.api_core import operation
 from google.api_core import exceptions as api_exceptions
@@ -1623,7 +1622,7 @@ class Model(base.VertexAiResourceNounWithFutureManager):
     
     @version.setter
     def version(self, new_version: str) -> None:
-        """Sets a new Model `version`"""
+        """Sets a new Model `version` to target"""
         self._version = new_version
 
     @property
@@ -1995,10 +1994,6 @@ class Model(base.VertexAiResourceNounWithFutureManager):
             raise ValueError(
                 "Both `explanation_metadata` and `explanation_parameters` should be specified or None."
             )
-        if is_version_increment and parent_model:
-            warnings.warn(
-                'Setting both `is_version_increment` and `parent_model` introduces ambiguity. Defaulting to `parent_model`.'
-                )
 
         api_client = cls._instantiate_client(location, credentials)
         env = None
@@ -2038,15 +2033,28 @@ class Model(base.VertexAiResourceNounWithFutureManager):
             encryption_spec_key_name=encryption_spec_key_name,
         )
 
+        parent_model = Model._get_true_version_parent(
+            display_name=display_name,
+            location=location,
+            project=project,
+            parent_model=parent_model,
+            is_version_increment=is_version_increment,
+        )
+
+        version_aliases = Model._get_true_alias_list(
+            version_aliases=version_aliases,
+            is_default_version=is_default_version
+        )
+
         managed_model = gca_model_compat.Model(
             display_name=display_name,
             description=description,
+            version_aliases=version_aliases,
+            version_description=version_description,
             container_spec=container_spec,
             predict_schemata=model_predict_schemata,
             labels=labels,
             encryption_spec=encryption_spec,
-            version_aliases=version_aliases,
-            version_description=version_description,
         )
 
         if artifact_uri and not artifact_uri.startswith("gs://"):
@@ -3476,7 +3484,7 @@ class Model(base.VertexAiResourceNounWithFutureManager):
             is_version_increment=is_version_increment,
             is_default_version=is_default_version,
             version_aliases=version_aliases,
-            version_description=version_description
+            version_description=version_description,
             instance_schema_uri=instance_schema_uri,
             parameters_schema_uri=parameters_schema_uri,
             prediction_schema_uri=prediction_schema_uri,
@@ -3568,6 +3576,43 @@ class Model(base.VertexAiResourceNounWithFutureManager):
                 credentials=self.credentials,
             )
 
+    def _get_true_version_parent(
+        display_name: str,
+        project: Optional[str],
+        location: Optional[str],
+        parent_model: Optional[str] = None,
+        is_version_increment: bool = False,
+    ) -> Optional[str]:
+        """Gets the true `parent_model` based on `is_version_increment`.
+        """
+        if is_version_increment and parent_model:
+            _LOGGER.warning(
+                'Setting both `is_version_increment` and `parent_model` introduces ambiguity. Using `parent_model`.'
+            )
+        if not parent_model and is_version_increment:
+            existing_resource = utils.full_resource_name(
+                resource_name=display_name,
+                resource_noun="models",
+                parse_resource_name_method=Model._parse_resource_name,
+                format_resource_name_method=Model._format_resource_name,
+                project=project,
+                location=location,
+            )
+            parent_model = existing_resource
+        return parent_model
+
+    def _get_true_alias_list(
+        version_aliases: Optional[Sequence[str]] = None,
+        is_default_version: bool = True,
+    ) -> Optional[Sequence[str]]:
+        """Gets the true `version_aliases` list based on `is_default_version`.
+        """
+        if is_default_version:
+            if version_aliases and 'default' not in version_aliases:
+                version_aliases.append('default')
+            elif not version_aliases:
+                version_aliases = ['default']
+        return version_aliases
 
 class ModelRegistry:
 
