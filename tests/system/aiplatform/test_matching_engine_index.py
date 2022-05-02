@@ -281,7 +281,7 @@ class TestMatchingEngine(e2e_base.TestEndToEnd):
             labels=_TEST_LABELS_UPDATE,
         )
 
-        # assert updated_index_endpoint.labels == _TEST_LABELS
+        assert updated_index_endpoint.labels == _TEST_LABELS_UPDATE
         assert updated_index_endpoint.display_name == _TEST_DISPLAY_NAME_UPDATE
         assert updated_index_endpoint.description == _TEST_DESCRIPTION_UPDATE
 
@@ -294,24 +294,28 @@ class TestMatchingEngine(e2e_base.TestEndToEnd):
 
         deployed_index = my_index_endpoint.deployed_indexes[0]
 
-        assert deployed_index == gca_matching_engine_index_endpoint.DeployedIndex(
-            id=_TEST_DEPLOYED_INDEX_ID,
-            index=index.name,
-            automatic_resources={
-                "min_replica_count": _TEST_MIN_REPLICA_COUNT_UPDATED,
-                "max_replica_count": _TEST_MAX_REPLICA_COUNT_UPDATED,
-            },
+        assert deployed_index.id == _TEST_DEPLOYED_INDEX_ID
+        assert deployed_index.index == index.resource_name
+        assert (
+            deployed_index.automatic_resources.min_replica_count
+            == _TEST_MIN_REPLICA_COUNT_UPDATED
+        )
+        assert (
+            deployed_index.automatic_resources.max_replica_count
+            == _TEST_MAX_REPLICA_COUNT_UPDATED
         )
 
-        # Test `my_index_endpoint.match` request. This requires running this test in a VPC.
-        results = my_index_endpoint.match(
-            deployed_index_id=_TEST_DEPLOYED_INDEX_ID, queries=[_TEST_MATCH_QUERY]
-        )
+        # TODO: Test `my_index_endpoint.match` request. This requires running this test in a VPC.
+        # results = my_index_endpoint.match(
+        #     deployed_index_id=_TEST_DEPLOYED_INDEX_ID, queries=[_TEST_MATCH_QUERY]
+        # )
 
-        assert results[0][0].id == 870
+        # assert results[0][0].id == 870
 
         # Undeploy index
-        my_index_endpoint = my_index_endpoint.undeploy_index(index=index)
+        my_index_endpoint = my_index_endpoint.undeploy_index(
+            deployed_index_id=deployed_index.id
+        )
 
         # Delete index and check that it is no longer listed
         index.delete()
