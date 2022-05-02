@@ -19,7 +19,7 @@ import logging
 import os
 from pathlib import Path
 import re
-from typing import Dict, Optional, Sequence
+from typing import Dict, List, Optional, Sequence
 
 try:
     import docker
@@ -90,6 +90,9 @@ def run_prediction_container(
     serving_container_ports: Optional[Sequence[int]] = None,
     credential_path: Optional[str] = None,
     host_port: Optional[int] = None,
+    gpu_count: Optional[int] = None,
+    gpu_device_ids: Optional[List[str]] = None,
+    gpu_capabilities: Optional[List[List[str]]] = None,
 ) -> docker.models.containers.Container:
     """Runs a prediction container locally.
 
@@ -141,6 +144,19 @@ def run_prediction_container(
         host_port (int):
             Optional. The port on the host that the port, AIP_HTTP_PORT, inside the container
             will be exposed as. If it's unset, a random host port will be assigned.
+        gpu_count (int):
+            Optional. Number of devices to request. Set to -1 to request all available devices.
+            To use GPU, set either `gpu_count` or `gpu_device_ids`.
+        gpu_device_ids (List[str]):
+            Optional. This parameter corresponds to `NVIDIA_VISIBLE_DEVICES` in the NVIDIA
+            Runtime.
+            To use GPU, set either `gpu_count` or `gpu_device_ids`.
+        gpu_capabilities (List[List[str]]):
+            Optional. This parameter corresponds to `NVIDIA_DRIVER_CAPABILITIES` in the NVIDIA
+            Runtime. This must be set to use GPU. The outer list acts like an OR, and each
+            sub-list acts like an AND. The driver will try to satisfy one of the sub-lists.
+            Available capabilities for the NVIDIA driver can be found in
+            https://docs.nvidia.com/datacenter/cloud-native/container-toolkit/user-guide.html#driver-capabilities.
 
     Returns:
         The container object running in the background.
@@ -194,6 +210,16 @@ def run_prediction_container(
         _replace_env_var_reference(i, envs) for i in serving_container_args or []
     ]
 
+    device_requests = None
+    if gpu_count or gpu_device_ids or gpu_capabilities:
+        device_requests = [
+            docker.types.DeviceRequest(
+                count=gpu_count,
+                device_ids=gpu_device_ids,
+                capabilities=gpu_capabilities,
+            )
+        ]
+
     container = client.containers.run(
         serving_container_image_uri,
         command=command if len(command) > 0 else None,
@@ -201,6 +227,7 @@ def run_prediction_container(
         ports={port: host_port},
         environment=envs,
         volumes=volumes,
+        device_requests=device_requests,
         detach=True,
     )
 

@@ -154,5 +154,7 @@ AIP_STORAGE_URI = "AIP_STORAGE_URI"
 # Default values for Prediction local experience.
 DEFAULT_LOCAL_PREDICT_ROUTE = "/predict"
 DEFAULT_LOCAL_HEALTH_ROUTE = "/health"
+DEFAULT_LOCAL_RUN_GPU_CAPABILITIES = [["utility", "compute"]]
+DEFAULT_LOCAL_RUN_GPU_COUNT = -1
 
 CUSTOM_PREDICTION_ROUTINES = "custom-prediction-routines"
