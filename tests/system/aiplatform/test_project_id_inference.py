@@ -30,7 +30,6 @@ assert not aiplatform.initializer.global_config.project.endswith("-tp")
 """
 
 
-@pytest.mark.skip(reason="Debug")
 @pytest.mark.usefixtures("prepare_staging_bucket", "delete_staging_bucket")
 class TestProjectIDInference(e2e_base.TestEndToEnd):
 

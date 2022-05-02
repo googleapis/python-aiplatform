@@ -17,14 +17,13 @@
 
 from google.cloud import aiplatform
 from tests.system.aiplatform import e2e_base
-import pytest
+
 
 PARAMS = {"sdk-param-test-1": 0.1, "sdk-param-test-2": 0.2}
 
 METRICS = {"sdk-metric-test-1": 0.8, "sdk-metric-test-2": 100}
 
 
-@pytest.mark.skip(reason="Debug")
 class TestMetadata(e2e_base.TestEndToEnd):
 
     _temp_prefix = "temp-vertex-sdk-e2e-test"

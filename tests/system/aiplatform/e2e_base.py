@@ -20,7 +20,6 @@ import importlib
 import os
 import pytest
 import uuid
-import subprocess
 
 from typing import Any, Dict, Generator
 
