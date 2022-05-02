@@ -219,12 +219,6 @@ class Endpoint(base.VertexAiResourceNounWithFutureManager):
                 Optional. The user-defined name of the Endpoint.
                 The name can be up to 128 characters long and can be consist
                 of any UTF-8 characters.
-            project (str):
-                Required. Project to retrieve endpoint from. If not set, project
-                set in aiplatform.init will be used.
-            location (str):
-                Required. Location to retrieve endpoint from. If not set, location
-                set in aiplatform.init will be used.
             description (str):
                 Optional. The description of the Endpoint.
             labels (Dict[str, str]):
@@ -240,6 +234,12 @@ class Endpoint(base.VertexAiResourceNounWithFutureManager):
             metadata (Sequence[Tuple[str, str]]):
                 Optional. Strings which should be sent along with the request as
                 metadata.
+            project (str):
+                Required. Project to retrieve endpoint from. If not set, project
+                set in aiplatform.init will be used.
+            location (str):
+                Required. Location to retrieve endpoint from. If not set, location
+                set in aiplatform.init will be used.
             credentials (auth_credentials.Credentials):
                 Optional. Custom credentials to use to upload this model. Overrides
                 credentials set in aiplatform.init.
@@ -973,6 +973,12 @@ class Endpoint(base.VertexAiResourceNounWithFutureManager):
                 is not provided, the larger value of min_replica_count or 1 will
                 be used. If value provided is smaller than min_replica_count, it
                 will automatically be increased to be min_replica_count.
+            accelerator_type (str):
+                Optional. Hardware accelerator type. Must also set accelerator_count if used.
+                One of ACCELERATOR_TYPE_UNSPECIFIED, NVIDIA_TESLA_K80, NVIDIA_TESLA_P100,
+                NVIDIA_TESLA_V100, NVIDIA_TESLA_P4, NVIDIA_TESLA_T4
+            accelerator_count (int):
+                Optional. The number of accelerators to attach to a worker replica.
             service_account (str):
                 The service account that the DeployedModel's container runs as. Specify the
                 email address of the service account. If this service account is not
@@ -991,10 +997,6 @@ class Endpoint(base.VertexAiResourceNounWithFutureManager):
             metadata (Sequence[Tuple[str, str]]):
                 Optional. Strings which should be sent along with the request as
                 metadata.
-            sync (bool):
-                Whether to execute this method synchronously. If False, this method
-                will be executed in concurrent Future and any downstream object will
-                be immediately returned and synced when the Future has completed.
             deploy_request_timeout (float):
                 Optional. The timeout for the deploy request in seconds.
 
@@ -1536,21 +1538,21 @@ class PrivateEndpoint(Endpoint):
 
     @property
     def predict_http_uri(self) -> Optional[str]:
-        """Http(s) path to send prediction requests to, used when calling `PrivateEndpoint.predict()`"""
+        """HTTP path to send prediction requests to, used when calling `PrivateEndpoint.predict()`"""
         if not self._gca_resource.deployed_models:
             return None
         return self._gca_resource.deployed_models[0].private_endpoints.predict_http_uri
 
     @property
     def explain_http_uri(self) -> Optional[str]:
-        """Http(s) path to send explain requests to, used when calling `PrivateEndpoint.explain()`"""
+        """HTTP path to send explain requests to, used when calling `PrivateEndpoint.explain()`"""
         if not self._gca_resource.deployed_models:
             return None
         return self._gca_resource.deployed_models[0].private_endpoints.explain_http_uri
 
     @property
     def health_http_uri(self) -> Optional[str]:
-        """Http(s) path to send health check requests to, used when calling `PrivateEndpoint.health_check()`"""
+        """HTTP path to send health check requests to, used when calling `PrivateEndpoint.health_check()`"""
         if not self._gca_resource.deployed_models:
             return None
         return self._gca_resource.deployed_models[0].private_endpoints.health_http_uri
@@ -1752,7 +1754,7 @@ class PrivateEndpoint(Endpoint):
             ) from exc
 
     def predict(self, instances: List, parameters: Optional[Dict] = None) -> Prediction:
-        """Make a prediction against this private Endpoint using unauthenticated HTTP.
+        """Make a prediction against this private Endpoint using a HTTP request.
         This method must be called within the network the private Endpoint is peered to.
         The predict() call will fail otherwise. To check, use `PrivateEndpoint.network`.
 
@@ -1814,7 +1816,7 @@ class PrivateEndpoint(Endpoint):
 
     def health_check(self) -> bool:
         """
-        Makes GET request to this private Endpoint's health check URI. Must be within network
+        Makes a request to this private Endpoint's health check URI. Must be within network
         that this private Endpoint is in.
 
         Example Usage:
@@ -1925,6 +1927,21 @@ class PrivateEndpoint(Endpoint):
             deployed_model_display_name (str):
                 Optional. The display name of the DeployedModel. If not provided
                 upon creation, the Model's display_name is used.
+            traffic_percentage (int):
+                Optional. Desired traffic to newly deployed model. Defaults to
+                0 if there are pre-existing deployed models. Defaults to 100 if
+                there are no pre-existing deployed models. Negative values should
+                not be provided. Traffic of previously deployed models at the endpoint
+                will be scaled down to accommodate new deployed model's traffic.
+                Should not be provided if traffic_split is provided.
+            traffic_split (Dict[str, int]):
+                Optional. A map from a DeployedModel's ID to the percentage of
+                this Endpoint's traffic that should be forwarded to that DeployedModel.
+                If a DeployedModel's ID is not listed in this map, then it receives
+                no traffic. The traffic percentage values must add up to 100, or
+                map must be empty if the Endpoint is to not accept any traffic at
+                the moment. Key for model being deployed is "0". Should not be
+                provided if traffic_percentage is provided.
             machine_type (str):
                 Optional. The type of machine. Not specifying machine type will
                 result in model to be deployed with automatic resources.
@@ -2356,9 +2373,6 @@ class Model(base.VertexAiResourceNounWithFutureManager):
             )
 
         Args:
-            display_name (str):
-                Optional. The display name of the Model. The name can be up to 128
-                characters long and can be consist of any UTF-8 characters.
             serving_container_image_uri (str):
                 Required. The URI of the Model serving container.
             artifact_uri (str):
@@ -2455,6 +2469,9 @@ class Model(base.VertexAiResourceNounWithFutureManager):
             explanation_parameters (aiplatform.explain.ExplanationParameters):
                 Optional. Parameters to configure explaining for Model's predictions.
                 For more details, see `Ref docs <http://tinyurl.com/1an4zake>`
+            display_name (str):
+                Optional. The display name of the Model. The name can be up to 128
+                characters long and can be consist of any UTF-8 characters.
             project: Optional[str]=None,
                 Project to upload this model to. Overrides project set in
                 aiplatform.init.
@@ -2644,6 +2661,21 @@ class Model(base.VertexAiResourceNounWithFutureManager):
             deployed_model_display_name (str):
                 Optional. The display name of the DeployedModel. If not provided
                 upon creation, the Model's display_name is used.
+            traffic_percentage (int):
+                Optional. Desired traffic to newly deployed model. Defaults to
+                0 if there are pre-existing deployed models. Defaults to 100 if
+                there are no pre-existing deployed models. Negative values should
+                not be provided. Traffic of previously deployed models at the endpoint
+                will be scaled down to accommodate new deployed model's traffic.
+                Should not be provided if traffic_split is provided.
+            traffic_split (Dict[str, int]):
+                Optional. A map from a DeployedModel's ID to the percentage of
+                this Endpoint's traffic that should be forwarded to that DeployedModel.
+                If a DeployedModel's ID is not listed in this map, then it receives
+                no traffic. The traffic percentage values must add up to 100, or
+                map must be empty if the Endpoint is to not accept any traffic at
+                the moment. Key for model being deployed is "0". Should not be
+                provided if traffic_percentage is provided.
             machine_type (str):
                 Optional. The type of machine. Not specifying machine type will
                 result in model to be deployed with automatic resources.
@@ -3664,6 +3696,10 @@ class Model(base.VertexAiResourceNounWithFutureManager):
             staging_bucket (str):
                 Optional. Bucket to stage local model artifacts. Overrides
                 staging_bucket set in aiplatform.init.
+            sync (bool):
+                Whether to execute this method synchronously. If False, this method
+                will be executed in concurrent Future and any downstream object will
+                be immediately returned and synced when the Future has completed.
             upload_request_timeout (float):
                 Optional. The timeout for the upload request in seconds.
 
@@ -3871,6 +3907,10 @@ class Model(base.VertexAiResourceNounWithFutureManager):
             staging_bucket (str):
                 Optional. Bucket to stage local model artifacts. Overrides
                 staging_bucket set in aiplatform.init.
+            sync (bool):
+                Whether to execute this method synchronously. If False, this method
+                will be executed in concurrent Future and any downstream object will
+                be immediately returned and synced when the Future has completed.
             upload_request_timeout (float):
                 Optional. The timeout for the upload request in seconds.
 
@@ -3953,7 +3993,7 @@ class Model(base.VertexAiResourceNounWithFutureManager):
                 evaluation_id="789"
             )
 
-            # If no arguments are passed, this returns the first evaluation for the model
+            # If no arguments are passed, this method returns the first evaluation for the model
             my_evaluation = my_model.get_model_evaluation()
 
         Args:
