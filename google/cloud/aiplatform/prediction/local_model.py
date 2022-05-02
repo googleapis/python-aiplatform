@@ -430,6 +430,9 @@ class LocalModel:
         artifact_uri: Optional[str] = None,
         credential_path: Optional[str] = None,
         host_port: Optional[str] = None,
+        gpu_count: Optional[int] = None,
+        gpu_device_ids: Optional[List[str]] = None,
+        gpu_capabilities: Optional[List[List[str]]] = None,
         container_ready_timeout: Optional[int] = None,
         container_ready_check_interval: Optional[int] = None,
     ):
@@ -467,6 +470,23 @@ class LocalModel:
             host_port (str):
                 Optional. The port on the host that the port, AIP_HTTP_PORT, inside the container
                 will be exposed as. If it's unset, a random host port will be assigned.
+            gpu_count (int):
+                Optional. Number of devices to request. Set to -1 to request all available devices.
+                To use GPU, set either `gpu_count` or `gpu_device_ids`.
+                The default value is -1 if gpu_capabilities is set but both of gpu_count and
+                gpu_device_ids are not set.
+            gpu_device_ids (List[str]):
+                Optional. This parameter corresponds to `NVIDIA_VISIBLE_DEVICES` in the NVIDIA
+                Runtime.
+                To use GPU, set either `gpu_count` or `gpu_device_ids`.
+            gpu_capabilities (List[List[str]]):
+                Optional. This parameter corresponds to `NVIDIA_DRIVER_CAPABILITIES` in the NVIDIA
+                Runtime. The outer list acts like an OR, and each sub-list acts like an AND. The
+                driver will try to satisfy one of the sub-lists.
+                Available capabilities for the NVIDIA driver can be found in
+                https://docs.nvidia.com/datacenter/cloud-native/container-toolkit/user-guide.html#driver-capabilities.
+                The default value is `[["utility", "compute"]]` if gpu_count or gpu_device_ids is
+                set.
             container_ready_timeout (int):
                 Optional. The timeout in second used for starting the container or succeeding the
                 first health check.
@@ -492,6 +512,9 @@ class LocalModel:
                 serving_container_ports=ports,
                 credential_path=credential_path,
                 host_port=host_port,
+                gpu_count=gpu_count,
+                gpu_device_ids=gpu_device_ids,
+                gpu_capabilities=gpu_capabilities,
                 container_ready_timeout=container_ready_timeout,
                 container_ready_check_interval=container_ready_check_interval,
             ) as local_endpoint:
