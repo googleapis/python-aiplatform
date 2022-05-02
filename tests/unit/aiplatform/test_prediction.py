@@ -1595,7 +1595,7 @@ class TestLocalModel:
         container_spec = gca_model_compat.ModelContainerSpec(image_uri=_TEST_IMAGE_URI)
         local_model = LocalModel(container_spec)
         expected_message = (
-            "Either gpu_count or gpu_device_ids can be set but both are set."
+            "At most one gpu_count or gpu_device_ids can be set but both are set."
         )
 
         with pytest.raises(ValueError) as exception:
@@ -1608,7 +1608,7 @@ class TestLocalModel:
 
         assert str(exception.value) == expected_message
 
-    def test_deploy_to_local_endpoint_with_gpu_count_but_capabilities_unset_throw_error(
+    def test_deploy_to_local_endpoint_with_gpu_count_but_capabilities_unset(
         self,
         local_endpoint_init_mock,
         local_endpoint_enter_mock,
@@ -1616,18 +1616,31 @@ class TestLocalModel:
     ):
         container_spec = gca_model_compat.ModelContainerSpec(image_uri=_TEST_IMAGE_URI)
         local_model = LocalModel(container_spec)
-        expected_message = (
-            "To use GPU, either gpu_count or gpu_device_ids should be set "
-            "and gpu_capabilities should be set."
+
+        with local_model.deploy_to_local_endpoint(gpu_count=_TEST_GPU_COUNT):
+            pass
+
+        local_endpoint_init_mock.assert_called_once_with(
+            serving_container_image_uri=_TEST_IMAGE_URI,
+            artifact_uri=None,
+            serving_container_predict_route="",
+            serving_container_health_route="",
+            serving_container_command=[],
+            serving_container_args=[],
+            serving_container_environment_variables={},
+            serving_container_ports=[],
+            credential_path=None,
+            host_port=None,
+            gpu_count=_TEST_GPU_COUNT,
+            gpu_device_ids=None,
+            gpu_capabilities=prediction.DEFAULT_LOCAL_RUN_GPU_CAPABILITIES,
+            container_ready_timeout=None,
+            container_ready_check_interval=None,
         )
+        assert local_endpoint_enter_mock.called
+        assert local_endpoint_exit_mock.called
 
-        with pytest.raises(ValueError) as exception:
-            with local_model.deploy_to_local_endpoint(gpu_count=_TEST_GPU_COUNT):
-                pass
-
-        assert str(exception.value) == expected_message
-
-    def test_deploy_to_local_endpoint_with_gpu_device_ids_but_capabilities_unset_throw_error(
+    def test_deploy_to_local_endpoint_with_gpu_device_ids_but_capabilities_unset(
         self,
         local_endpoint_init_mock,
         local_endpoint_enter_mock,
@@ -1635,20 +1648,31 @@ class TestLocalModel:
     ):
         container_spec = gca_model_compat.ModelContainerSpec(image_uri=_TEST_IMAGE_URI)
         local_model = LocalModel(container_spec)
-        expected_message = (
-            "To use GPU, either gpu_count or gpu_device_ids should be set "
-            "and gpu_capabilities should be set."
+
+        with local_model.deploy_to_local_endpoint(gpu_device_ids=_TEST_GPU_DEVICE_IDS):
+            pass
+
+        local_endpoint_init_mock.assert_called_once_with(
+            serving_container_image_uri=_TEST_IMAGE_URI,
+            artifact_uri=None,
+            serving_container_predict_route="",
+            serving_container_health_route="",
+            serving_container_command=[],
+            serving_container_args=[],
+            serving_container_environment_variables={},
+            serving_container_ports=[],
+            credential_path=None,
+            host_port=None,
+            gpu_count=None,
+            gpu_device_ids=_TEST_GPU_DEVICE_IDS,
+            gpu_capabilities=prediction.DEFAULT_LOCAL_RUN_GPU_CAPABILITIES,
+            container_ready_timeout=None,
+            container_ready_check_interval=None,
         )
+        assert local_endpoint_enter_mock.called
+        assert local_endpoint_exit_mock.called
 
-        with pytest.raises(ValueError) as exception:
-            with local_model.deploy_to_local_endpoint(
-                gpu_device_ids=_TEST_GPU_DEVICE_IDS
-            ):
-                pass
-
-        assert str(exception.value) == expected_message
-
-    def test_deploy_to_local_endpoint_with_gpu_capabilities_but_count_and_device_ids_unset_throw_error(
+    def test_deploy_to_local_endpoint_with_gpu_capabilities_but_count_and_device_ids_unset(
         self,
         local_endpoint_init_mock,
         local_endpoint_enter_mock,
@@ -1656,18 +1680,31 @@ class TestLocalModel:
     ):
         container_spec = gca_model_compat.ModelContainerSpec(image_uri=_TEST_IMAGE_URI)
         local_model = LocalModel(container_spec)
-        expected_message = (
-            "To use GPU, either gpu_count or gpu_device_ids should be set "
-            "and gpu_capabilities should be set."
+
+        with local_model.deploy_to_local_endpoint(
+            gpu_capabilities=_TEST_GPU_CAPABILITIES
+        ):
+            pass
+
+        local_endpoint_init_mock.assert_called_once_with(
+            serving_container_image_uri=_TEST_IMAGE_URI,
+            artifact_uri=None,
+            serving_container_predict_route="",
+            serving_container_health_route="",
+            serving_container_command=[],
+            serving_container_args=[],
+            serving_container_environment_variables={},
+            serving_container_ports=[],
+            credential_path=None,
+            host_port=None,
+            gpu_count=prediction.DEFAULT_LOCAL_RUN_GPU_COUNT,
+            gpu_device_ids=None,
+            gpu_capabilities=_TEST_GPU_CAPABILITIES,
+            container_ready_timeout=None,
+            container_ready_check_interval=None,
         )
-
-        with pytest.raises(ValueError) as exception:
-            with local_model.deploy_to_local_endpoint(
-                gpu_capabilities=_TEST_GPU_CAPABILITIES
-            ):
-                pass
-
-        assert str(exception.value) == expected_message
+        assert local_endpoint_enter_mock.called
+        assert local_endpoint_exit_mock.called
 
     def test_copy_image(
         self,
@@ -1961,7 +1998,7 @@ class TestLocalEndpoint:
         stop_container_if_exists_mock,
     ):
         expected_message = (
-            "Either gpu_count or gpu_device_ids can be set but both are set."
+            "At most one gpu_count or gpu_device_ids can be set but both are set."
         )
 
         with pytest.raises(ValueError) as exception:
@@ -1975,7 +2012,7 @@ class TestLocalEndpoint:
 
         assert str(exception.value) == expected_message
 
-    def test_init_with_gpu_count_but_capabilities_unset_throw_error(
+    def test_init_with_gpu_count_but_capabilities_unset(
         self,
         initializer_project_none_mock,
         run_prediction_container_mock,
@@ -1983,18 +2020,29 @@ class TestLocalEndpoint:
         wait_until_health_check_succeeds_mock,
         stop_container_if_exists_mock,
     ):
-        expected_message = (
-            "To use GPU, either gpu_count or gpu_device_ids should be set "
-            "and gpu_capabilities should be set."
+        with LocalEndpoint(_TEST_IMAGE_URI, gpu_count=_TEST_GPU_COUNT):
+            pass
+
+        run_prediction_container_mock.assert_called_once_with(
+            _TEST_IMAGE_URI,
+            artifact_uri=None,
+            serving_container_predict_route=prediction.DEFAULT_LOCAL_PREDICT_ROUTE,
+            serving_container_health_route=prediction.DEFAULT_LOCAL_HEALTH_ROUTE,
+            serving_container_command=None,
+            serving_container_args=None,
+            serving_container_environment_variables={},
+            serving_container_ports=None,
+            credential_path=None,
+            host_port=None,
+            gpu_count=_TEST_GPU_COUNT,
+            gpu_device_ids=None,
+            gpu_capabilities=prediction.DEFAULT_LOCAL_RUN_GPU_CAPABILITIES,
         )
+        wait_until_container_runs_mock.assert_called_once_with()
+        wait_until_health_check_succeeds_mock.assert_called_once_with()
+        stop_container_if_exists_mock.assert_called_once_with()
 
-        with pytest.raises(ValueError) as exception:
-            with LocalEndpoint(_TEST_IMAGE_URI, gpu_count=_TEST_GPU_COUNT):
-                pass
-
-        assert str(exception.value) == expected_message
-
-    def test_init_with_gpu_device_ids_but_capabilities_unset_throw_error(
+    def test_init_with_gpu_device_ids_but_capabilities_unset(
         self,
         initializer_project_none_mock,
         run_prediction_container_mock,
@@ -2002,18 +2050,29 @@ class TestLocalEndpoint:
         wait_until_health_check_succeeds_mock,
         stop_container_if_exists_mock,
     ):
-        expected_message = (
-            "To use GPU, either gpu_count or gpu_device_ids should be set "
-            "and gpu_capabilities should be set."
+        with LocalEndpoint(_TEST_IMAGE_URI, gpu_device_ids=_TEST_GPU_DEVICE_IDS):
+            pass
+
+        run_prediction_container_mock.assert_called_once_with(
+            _TEST_IMAGE_URI,
+            artifact_uri=None,
+            serving_container_predict_route=prediction.DEFAULT_LOCAL_PREDICT_ROUTE,
+            serving_container_health_route=prediction.DEFAULT_LOCAL_HEALTH_ROUTE,
+            serving_container_command=None,
+            serving_container_args=None,
+            serving_container_environment_variables={},
+            serving_container_ports=None,
+            credential_path=None,
+            host_port=None,
+            gpu_count=None,
+            gpu_device_ids=_TEST_GPU_DEVICE_IDS,
+            gpu_capabilities=prediction.DEFAULT_LOCAL_RUN_GPU_CAPABILITIES,
         )
+        wait_until_container_runs_mock.assert_called_once_with()
+        wait_until_health_check_succeeds_mock.assert_called_once_with()
+        stop_container_if_exists_mock.assert_called_once_with()
 
-        with pytest.raises(ValueError) as exception:
-            with LocalEndpoint(_TEST_IMAGE_URI, gpu_device_ids=_TEST_GPU_DEVICE_IDS):
-                pass
-
-        assert str(exception.value) == expected_message
-
-    def test_init_with_gpu_capabilities_but_count_and_device_ids_unset_throw_error(
+    def test_init_with_gpu_capabilities_but_count_and_device_ids_unset(
         self,
         initializer_project_none_mock,
         run_prediction_container_mock,
@@ -2021,18 +2080,27 @@ class TestLocalEndpoint:
         wait_until_health_check_succeeds_mock,
         stop_container_if_exists_mock,
     ):
-        expected_message = (
-            "To use GPU, either gpu_count or gpu_device_ids should be set "
-            "and gpu_capabilities should be set."
+        with LocalEndpoint(_TEST_IMAGE_URI, gpu_capabilities=_TEST_GPU_CAPABILITIES):
+            pass
+
+        run_prediction_container_mock.assert_called_once_with(
+            _TEST_IMAGE_URI,
+            artifact_uri=None,
+            serving_container_predict_route=prediction.DEFAULT_LOCAL_PREDICT_ROUTE,
+            serving_container_health_route=prediction.DEFAULT_LOCAL_HEALTH_ROUTE,
+            serving_container_command=None,
+            serving_container_args=None,
+            serving_container_environment_variables={},
+            serving_container_ports=None,
+            credential_path=None,
+            host_port=None,
+            gpu_count=prediction.DEFAULT_LOCAL_RUN_GPU_COUNT,
+            gpu_device_ids=None,
+            gpu_capabilities=_TEST_GPU_CAPABILITIES,
         )
-
-        with pytest.raises(ValueError) as exception:
-            with LocalEndpoint(
-                _TEST_IMAGE_URI, gpu_capabilities=_TEST_GPU_CAPABILITIES
-            ):
-                pass
-
-        assert str(exception.value) == expected_message
+        wait_until_container_runs_mock.assert_called_once_with()
+        wait_until_health_check_succeeds_mock.assert_called_once_with()
+        stop_container_if_exists_mock.assert_called_once_with()
 
     def test_predict_request(
         self,
