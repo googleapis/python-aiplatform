@@ -37,6 +37,7 @@ from google.cloud.aiplatform.compat.types import (
     io as gca_io_compat,
     job_state as gca_job_state_compat,
     machine_resources as gca_machine_resources_compat,
+    manual_batch_tuning_parameters as gca_manual_batch_tuning_parameters_compat,
 )
 
 from google.cloud.aiplatform_v1.services.job_service import client as job_service_client
@@ -132,6 +133,7 @@ _TEST_ACCELERATOR_TYPE = "NVIDIA_TESLA_P100"
 _TEST_ACCELERATOR_COUNT = 2
 _TEST_STARTING_REPLICA_COUNT = 2
 _TEST_MAX_REPLICA_COUNT = 12
+_TEST_BATCH_SIZE = 16
 
 _TEST_LABEL = {"team": "experimentation", "trial_id": "x435"}
 
@@ -674,6 +676,7 @@ class TestBatchPredictionJob:
             accelerator_count=_TEST_ACCELERATOR_COUNT,
             starting_replica_count=_TEST_STARTING_REPLICA_COUNT,
             max_replica_count=_TEST_MAX_REPLICA_COUNT,
+            batch_size=_TEST_BATCH_SIZE,
             generate_explanation=True,
             explanation_metadata=_TEST_EXPLANATION_METADATA,
             explanation_parameters=_TEST_EXPLANATION_PARAMETERS,
@@ -711,6 +714,9 @@ class TestBatchPredictionJob:
                 ),
                 starting_replica_count=_TEST_STARTING_REPLICA_COUNT,
                 max_replica_count=_TEST_MAX_REPLICA_COUNT,
+            ),
+            manual_batch_tuning_parameters=gca_manual_batch_tuning_parameters_compat.ManualBatchTuningParameters(
+                batch_size=_TEST_BATCH_SIZE
             ),
             generate_explanation=True,
             explanation_spec=gca_explanation_compat.ExplanationSpec(

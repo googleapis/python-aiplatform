@@ -2276,6 +2276,7 @@ class Model(base.VertexAiResourceNounWithFutureManager):
         accelerator_count: Optional[int] = None,
         starting_replica_count: Optional[int] = None,
         max_replica_count: Optional[int] = None,
+        batch_size: Optional[int] = None,
         generate_explanation: Optional[bool] = False,
         explanation_metadata: Optional[explain.ExplanationMetadata] = None,
         explanation_parameters: Optional[explain.ExplanationParameters] = None,
@@ -2391,6 +2392,13 @@ class Model(base.VertexAiResourceNounWithFutureManager):
                 The maximum number of machine replicas the batch operation may
                 be scaled to. Only used if `machine_type` is set.
                 Default is 10.
+            batch_size (Optional[int]):
+                The number of the records (e.g. instances) of the operation given in each batch
+                to a machine replica. Machine type, and size of a single record should be considered
+                when setting this parameter, higher value speeds up the batch operation's execution,
+                but too high value will result in a whole batch not fitting in a machine's memory,
+                and the whole operation will fail.
+                The default value is 64.
             generate_explanation (bool):
                 Optional. Generate explanation along with the batch prediction
                 results. This will cause the batch prediction output to include
@@ -2462,6 +2470,7 @@ class Model(base.VertexAiResourceNounWithFutureManager):
             accelerator_count=accelerator_count,
             starting_replica_count=starting_replica_count,
             max_replica_count=max_replica_count,
+            batch_size=batch_size,
             generate_explanation=generate_explanation,
             explanation_metadata=explanation_metadata,
             explanation_parameters=explanation_parameters,

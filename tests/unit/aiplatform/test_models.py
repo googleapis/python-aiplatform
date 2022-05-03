@@ -49,6 +49,7 @@ from google.cloud.aiplatform.compat.types import (
     env_var as gca_env_var,
     explanation as gca_explanation,
     machine_resources as gca_machine_resources,
+    manual_batch_tuning_parameters as gca_manual_batch_tuning_parameters_compat,
     model_service as gca_model_service,
     model_evaluation as gca_model_evaluation,
     endpoint_service as gca_endpoint_service,
@@ -85,6 +86,8 @@ _TEST_ACCELERATOR_TYPE = "NVIDIA_TESLA_P100"
 _TEST_ACCELERATOR_COUNT = 2
 _TEST_STARTING_REPLICA_COUNT = 2
 _TEST_MAX_REPLICA_COUNT = 12
+
+_TEST_BATCH_SIZE = 16
 
 _TEST_PIPELINE_RESOURCE_NAME = (
     "projects/my-project/locations/us-central1/trainingPipeline/12345"
@@ -1328,6 +1331,7 @@ class TestModel:
             accelerator_count=_TEST_ACCELERATOR_COUNT,
             starting_replica_count=_TEST_STARTING_REPLICA_COUNT,
             max_replica_count=_TEST_MAX_REPLICA_COUNT,
+            batch_size=_TEST_BATCH_SIZE,
             generate_explanation=True,
             explanation_metadata=_TEST_EXPLANATION_METADATA,
             explanation_parameters=_TEST_EXPLANATION_PARAMETERS,
@@ -1342,41 +1346,40 @@ class TestModel:
             batch_prediction_job.wait()
 
         # Construct expected request
-        expected_gapic_batch_prediction_job = (
-            gca_batch_prediction_job.BatchPredictionJob(
-                display_name=_TEST_BATCH_PREDICTION_DISPLAY_NAME,
-                model=model_service_client.ModelServiceClient.model_path(
-                    _TEST_PROJECT, _TEST_LOCATION, _TEST_ID
+        expected_gapic_batch_prediction_job = gca_batch_prediction_job.BatchPredictionJob(
+            display_name=_TEST_BATCH_PREDICTION_DISPLAY_NAME,
+            model=model_service_client.ModelServiceClient.model_path(
+                _TEST_PROJECT, _TEST_LOCATION, _TEST_ID
+            ),
+            input_config=gca_batch_prediction_job.BatchPredictionJob.InputConfig(
+                instances_format="jsonl",
+                gcs_source=gca_io.GcsSource(uris=[_TEST_BATCH_PREDICTION_GCS_SOURCE]),
+            ),
+            output_config=gca_batch_prediction_job.BatchPredictionJob.OutputConfig(
+                gcs_destination=gca_io.GcsDestination(
+                    output_uri_prefix=_TEST_BATCH_PREDICTION_GCS_DEST_PREFIX
                 ),
-                input_config=gca_batch_prediction_job.BatchPredictionJob.InputConfig(
-                    instances_format="jsonl",
-                    gcs_source=gca_io.GcsSource(
-                        uris=[_TEST_BATCH_PREDICTION_GCS_SOURCE]
-                    ),
+                predictions_format="csv",
+            ),
+            dedicated_resources=gca_machine_resources.BatchDedicatedResources(
+                machine_spec=gca_machine_resources.MachineSpec(
+                    machine_type=_TEST_MACHINE_TYPE,
+                    accelerator_type=_TEST_ACCELERATOR_TYPE,
+                    accelerator_count=_TEST_ACCELERATOR_COUNT,
                 ),
-                output_config=gca_batch_prediction_job.BatchPredictionJob.OutputConfig(
-                    gcs_destination=gca_io.GcsDestination(
-                        output_uri_prefix=_TEST_BATCH_PREDICTION_GCS_DEST_PREFIX
-                    ),
-                    predictions_format="csv",
-                ),
-                dedicated_resources=gca_machine_resources.BatchDedicatedResources(
-                    machine_spec=gca_machine_resources.MachineSpec(
-                        machine_type=_TEST_MACHINE_TYPE,
-                        accelerator_type=_TEST_ACCELERATOR_TYPE,
-                        accelerator_count=_TEST_ACCELERATOR_COUNT,
-                    ),
-                    starting_replica_count=_TEST_STARTING_REPLICA_COUNT,
-                    max_replica_count=_TEST_MAX_REPLICA_COUNT,
-                ),
-                generate_explanation=True,
-                explanation_spec=gca_explanation.ExplanationSpec(
-                    metadata=_TEST_EXPLANATION_METADATA,
-                    parameters=_TEST_EXPLANATION_PARAMETERS,
-                ),
-                labels=_TEST_LABEL,
-                encryption_spec=_TEST_ENCRYPTION_SPEC,
-            )
+                starting_replica_count=_TEST_STARTING_REPLICA_COUNT,
+                max_replica_count=_TEST_MAX_REPLICA_COUNT,
+            ),
+            manual_batch_tuning_parameters=gca_manual_batch_tuning_parameters_compat.ManualBatchTuningParameters(
+                batch_size=_TEST_BATCH_SIZE
+            ),
+            generate_explanation=True,
+            explanation_spec=gca_explanation.ExplanationSpec(
+                metadata=_TEST_EXPLANATION_METADATA,
+                parameters=_TEST_EXPLANATION_PARAMETERS,
+            ),
+            labels=_TEST_LABEL,
+            encryption_spec=_TEST_ENCRYPTION_SPEC,
         )
 
         create_batch_prediction_job_mock.assert_called_once_with(
