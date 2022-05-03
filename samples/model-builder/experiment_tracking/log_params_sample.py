@@ -12,6 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+from typing import Dict, Union
 
 from google.cloud import aiplatform
 
@@ -20,7 +21,7 @@ from google.cloud import aiplatform
 def log_params_sample(
     experiment_name: str,
     run_name: str,
-    params: Dict[str, str],
+    params: Dict[str, Union[float, int, str]],
     project: str,
     location: str,
 ):
