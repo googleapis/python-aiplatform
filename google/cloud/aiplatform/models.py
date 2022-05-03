@@ -16,6 +16,7 @@
 #
 from optparse import Option
 import pathlib
+from importlib_metadata import version
 from mock import version_info
 import proto
 import re
@@ -3030,6 +3031,11 @@ class Model(base.VertexAiResourceNounWithFutureManager):
                 artifact_uri=prepared_model_dir,
                 display_name=display_name,
                 description=description,
+                parent_model=parent_model,
+                is_default_version=is_default_version,
+                is_version_increment=is_version_increment,
+                version_aliases=version_aliases,
+                version_description=version_description,
                 instance_schema_uri=instance_schema_uri,
                 parameters_schema_uri=parameters_schema_uri,
                 prediction_schema_uri=prediction_schema_uri,
@@ -3270,6 +3276,11 @@ class Model(base.VertexAiResourceNounWithFutureManager):
                 artifact_uri=prepared_model_dir,
                 display_name=display_name,
                 description=description,
+                parent_model=parent_model,
+                is_default_version=is_default_version,
+                is_version_increment=is_version_increment,
+                version_aliases=version_aliases,
+                version_description=version_description,
                 instance_schema_uri=instance_schema_uri,
                 parameters_schema_uri=parameters_schema_uri,
                 prediction_schema_uri=prediction_schema_uri,
