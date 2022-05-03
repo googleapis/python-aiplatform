@@ -545,9 +545,8 @@ class Endpoint(base.VertexAiResourceNounWithFutureManager):
 
         return new_traffic_split
 
-    @classmethod
+    @staticmethod
     def _validate_deploy_args(
-        cls,
         min_replica_count: int,
         max_replica_count: int,
         accelerator_type: Optional[str],
@@ -622,10 +621,6 @@ class Endpoint(base.VertexAiResourceNounWithFutureManager):
             raise ValueError("Max replica cannot be negative.")
         if deployed_model_display_name is not None:
             utils.validate_display_name(deployed_model_display_name)
-        if traffic_percentage and traffic_split:
-            raise ValueError(
-                "Optionally define either traffic percentage or traffic split, not both."
-            )
         if traffic_percentage:
             if traffic_percentage > 100:
                 raise ValueError("Traffic percentage cannot be greater than 100.")
@@ -741,14 +736,14 @@ class Endpoint(base.VertexAiResourceNounWithFutureManager):
         self._sync_gca_resource_if_skipped()
 
         self._validate_deploy_args(
-            min_replica_count,
-            max_replica_count,
-            accelerator_type,
-            deployed_model_display_name,
-            traffic_split,
-            traffic_percentage,
-            explanation_metadata,
-            explanation_parameters,
+            min_replica_count=min_replica_count,
+            max_replica_count=max_replica_count,
+            accelerator_type=accelerator_type,
+            deployed_model_display_name=deployed_model_display_name,
+            traffic_split=traffic_split,
+            traffic_percentage=traffic_percentage,
+            explanation_metadata=explanation_metadata,
+            explanation_parameters=explanation_parameters,
         )
 
         self._deploy(
@@ -903,7 +898,7 @@ class Endpoint(base.VertexAiResourceNounWithFutureManager):
         endpoint_resource_name: str,
         model: "Model",
         endpoint_resource_traffic_split: Optional[proto.MapField] = None,
-        network: str = "",
+        network: Optional[str] = None,
         deployed_model_display_name: Optional[str] = None,
         traffic_percentage: Optional[int] = 0,
         traffic_split: Optional[Dict[str, int]] = None,
@@ -1899,8 +1894,6 @@ class PrivateEndpoint(Endpoint):
         self,
         model: "Model",
         deployed_model_display_name: Optional[str] = None,
-        traffic_percentage: Optional[int] = 100,
-        traffic_split: Optional[Dict[str, int]] = None,
         machine_type: Optional[str] = None,
         min_replica_count: int = 1,
         max_replica_count: int = 1,
@@ -1927,21 +1920,6 @@ class PrivateEndpoint(Endpoint):
             deployed_model_display_name (str):
                 Optional. The display name of the DeployedModel. If not provided
                 upon creation, the Model's display_name is used.
-            traffic_percentage (int):
-                Optional. Desired traffic to newly deployed model. Defaults to
-                0 if there are pre-existing deployed models. Defaults to 100 if
-                there are no pre-existing deployed models. Negative values should
-                not be provided. Traffic of previously deployed models at the endpoint
-                will be scaled down to accommodate new deployed model's traffic.
-                Should not be provided if traffic_split is provided.
-            traffic_split (Dict[str, int]):
-                Optional. A map from a DeployedModel's ID to the percentage of
-                this Endpoint's traffic that should be forwarded to that DeployedModel.
-                If a DeployedModel's ID is not listed in this map, then it receives
-                no traffic. The traffic percentage values must add up to 100, or
-                map must be empty if the Endpoint is to not accept any traffic at
-                the moment. Key for model being deployed is "0". Should not be
-                provided if traffic_percentage is provided.
             machine_type (str):
                 Optional. The type of machine. Not specifying machine type will
                 result in model to be deployed with automatic resources.
@@ -2000,19 +1978,21 @@ class PrivateEndpoint(Endpoint):
             )
 
         self._validate_deploy_args(
-            min_replica_count,
-            max_replica_count,
-            accelerator_type,
-            deployed_model_display_name,
-            traffic_split,
-            traffic_percentage,
-            explanation_metadata,
-            explanation_parameters,
+            min_replica_count=min_replica_count,
+            max_replica_count=max_replica_count,
+            accelerator_type=accelerator_type,
+            deployed_model_display_name=deployed_model_display_name,
+            traffic_split=None,
+            traffic_percentage=100,
+            explanation_metadata=explanation_metadata,
+            explanation_parameters=explanation_parameters,
         )
 
         self._deploy(
             model=model,
             deployed_model_display_name=deployed_model_display_name,
+            traffic_percentage=100,
+            traffic_split=None,
             machine_type=machine_type,
             min_replica_count=min_replica_count,
             max_replica_count=max_replica_count,
@@ -2061,6 +2041,7 @@ class PrivateEndpoint(Endpoint):
             sync=sync,
         )
 
+'''
     def delete(self, force: bool = False, sync: bool = True) -> None:
         """Deletes this Vertex AI private Endpoint resource. If force is set to True,
         all models on this private Endpoint will be undeployed prior to deletion.
@@ -2084,7 +2065,7 @@ class PrivateEndpoint(Endpoint):
             )
 
         super().delete(sync=sync)
-
+'''
 
 class Model(base.VertexAiResourceNounWithFutureManager):
 
@@ -2749,14 +2730,14 @@ class Model(base.VertexAiResourceNounWithFutureManager):
         """
 
         Endpoint._validate_deploy_args(
-            min_replica_count,
-            max_replica_count,
-            accelerator_type,
-            deployed_model_display_name,
-            traffic_split,
-            traffic_percentage,
-            explanation_metadata,
-            explanation_parameters,
+            min_replica_count=min_replica_count,
+            max_replica_count=max_replica_count,
+            accelerator_type=accelerator_type,
+            deployed_model_display_name=deployed_model_display_name,
+            traffic_split=traffic_split,
+            traffic_percentage=traffic_percentage,
+            explanation_metadata=explanation_metadata,
+            explanation_parameters=explanation_parameters,
         )
 
         if isinstance(endpoint, PrivateEndpoint):
