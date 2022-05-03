@@ -1601,31 +1601,6 @@ class TestTabularDataset:
         "source_df",
         [_TEST_DATAFRAME],
     )
-    def test_create_dataset_tabular_from_dataframe_with_invalid_schema_raises(
-        self,
-        create_dataset_mock,
-        source_df,
-        bq_client_mock,
-    ):
-
-        aiplatform.init(
-            project=_TEST_PROJECT,
-            credentials=_TEST_CREDENTIALS,
-        )
-
-        with pytest.raises(ValueError):
-            datasets.TabularDataset.create_from_dataframe(
-                display_name=_TEST_DISPLAY_NAME,
-                df_source=source_df,
-                staging_path=_TEST_SOURCE_URI_BQ,
-                bq_schema=_TEST_DATAFRAME_INVALID_BQ_SCHEMA,
-            )
-
-    @pytest.mark.usefixtures("get_dataset_tabular_bq_mock")
-    @pytest.mark.parametrize(
-        "source_df",
-        [_TEST_DATAFRAME],
-    )
     def test_create_dataset_tabular_from_dataframe_with_invalid_bq_uri(
         self,
         create_dataset_mock,

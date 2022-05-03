@@ -37,6 +37,8 @@ from google.cloud.aiplatform_v1beta1.services import dataset_service
 
 from test_utils.vpcsc_config import vpcsc_config
 
+from tests.system.aiplatform import e2e_base
+
 # TODO(vinnys): Replace with env var `BUILD_SPECIFIC_GCP_PROJECT` once supported
 _, _TEST_PROJECT = google_auth.default()
 TEST_BUCKET = os.environ.get(
@@ -120,57 +122,29 @@ _TEST_DATAFRAME_BQ_SCHEMA = [
 ]
 
 
-class TestDataset:
+@pytest.mark.usefixtures(
+    "prepare_staging_bucket",
+    "delete_staging_bucket",
+    "prepare_bigquery_dataset",
+    "delete_bigquery_dataset",
+    "tear_down_resources",
+)
+class TestDataset(e2e_base.TestEndToEnd):
+
+    _temp_prefix = "temp-vertex-sdk-dataset-test"
+
     def setup_method(self):
         importlib.reload(initializer)
         importlib.reload(aiplatform)
 
     @pytest.fixture()
-    def shared_state(self):
-        shared_state = {}
-        yield shared_state
-
-    @pytest.fixture()
-    def prepare_bigquery_dataset(self, shared_state):
-        """Create a bigquery dataset and store bigquery resource object in shared state."""
-
-        bigquery_client = bigquery.Client(project=_TEST_PROJECT)
-        shared_state["bigquery_client"] = bigquery_client
-
-        dataset_name = f"tabulardatasettest_{uuid.uuid4()}".replace("-", "_")
-        shared_state["dataset_name"] = dataset_name
-
-        dataset_id = f"{_TEST_PROJECT}.{dataset_name}"
-        shared_state["bigquery_dataset_id"] = dataset_id
-
-        dataset = bigquery.Dataset(dataset_id)
-        dataset.location = _TEST_LOCATION
-        shared_state["bigquery_dataset"] = bigquery_client.create_dataset(dataset)
-
-        yield
-
-    @pytest.fixture()
     def create_staging_bucket(self, shared_state):
         new_staging_bucket = f"temp-sdk-integration-{uuid.uuid4()}"
-
         storage_client = storage.Client()
         storage_client.create_bucket(new_staging_bucket)
         shared_state["storage_client"] = storage_client
         shared_state["staging_bucket"] = new_staging_bucket
         yield
-
-    @pytest.fixture()
-    def delete_staging_bucket(self, shared_state):
-        yield
-        storage_client = shared_state["storage_client"]
-
-        # Delete temp staging bucket
-        bucket_to_delete = storage_client.get_bucket(shared_state["staging_bucket"])
-        bucket_to_delete.delete(force=True)
-
-        # Close Storage Client
-        storage_client._http._auth_request.session.close()
-        storage_client._http.close()
 
     @pytest.fixture()
     def dataset_gapic_client(self):
@@ -336,15 +310,16 @@ class TestDataset:
             == aiplatform.schema.dataset.metadata.tabular
         )
 
-    @pytest.mark.usefixtures("delete_new_dataset", "prepare_bigquery_dataset")
+    @pytest.mark.usefixtures("delete_new_dataset")
     def test_create_tabular_dataset_from_dataframe(
         self, dataset_gapic_client, shared_state
     ):
         """Use the Dataset.create_from_dataframe() method to create a new tabular dataset.
         Then confirm the dataset was successfully created and references the BQ source."""
 
-        assert shared_state["dataset_name"]
         assert shared_state["bigquery_dataset"]
+
+        shared_state["resources"] = []
 
         bigquery_dataset_id = shared_state["bigquery_dataset_id"]
         bq_staging_table = f"bq://{bigquery_dataset_id}.test_table{uuid.uuid4()}"
@@ -356,7 +331,7 @@ class TestDataset:
             staging_path=bq_staging_table,
             display_name=f"temp_sdk_integration_create_and_import_dataset_from_dataframe{uuid.uuid4()}",
         )
-
+        shared_state["resources"].extend([tabular_dataset])
         shared_state["dataset_name"] = tabular_dataset.resource_name
 
         gapic_metadata = tabular_dataset.to_dict()["metadata"]
@@ -368,7 +343,7 @@ class TestDataset:
             == aiplatform.schema.dataset.metadata.tabular
         )
 
-    @pytest.mark.usefixtures("delete_new_dataset", "prepare_bigquery_dataset")
+    @pytest.mark.usefixtures("delete_new_dataset")
     def test_create_tabular_dataset_from_dataframe_with_provided_schema(
         self, dataset_gapic_client, shared_state
     ):
@@ -376,8 +351,9 @@ class TestDataset:
         passing in the optional `bq_schema` argument. Then confirm the dataset was successfully
         created and references the BQ source."""
 
-        assert shared_state["dataset_name"]
         assert shared_state["bigquery_dataset"]
+
+        shared_state["resources"] = []
 
         bigquery_dataset_id = shared_state["bigquery_dataset_id"]
         bq_staging_table = f"bq://{bigquery_dataset_id}.test_table{uuid.uuid4()}"
@@ -390,7 +366,7 @@ class TestDataset:
             display_name=f"temp_sdk_integration_create_and_import_dataset_from_dataframe{uuid.uuid4()}",
             bq_schema=_TEST_DATAFRAME_BQ_SCHEMA,
         )
-
+        shared_state["resources"].extend([tabular_dataset])
         shared_state["dataset_name"] = tabular_dataset.resource_name
 
         gapic_metadata = tabular_dataset.to_dict()["metadata"]
