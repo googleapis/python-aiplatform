@@ -2041,6 +2041,7 @@ class PrivateEndpoint(Endpoint):
             sync=sync,
         )
 
+
 '''
     def delete(self, force: bool = False, sync: bool = True) -> None:
         """Deletes this Vertex AI private Endpoint resource. If force is set to True,
@@ -2066,6 +2067,7 @@ class PrivateEndpoint(Endpoint):
 
         super().delete(sync=sync)
 '''
+
 
 class Model(base.VertexAiResourceNounWithFutureManager):
 
