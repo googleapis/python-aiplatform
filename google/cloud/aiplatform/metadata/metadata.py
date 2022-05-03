@@ -740,9 +740,11 @@ class ExperimentTracker:
             self._experiment_run = experiment_run_resource.ExperimentRun(
                 run_name=run_name, experiment=self._experiment
             )
-
             if tensorboard:
                 self._experiment_run.assign_backing_tensorboard(tensorboard=tensorboard)
+
+            self._experiment_run.update_state(state=gapic.Execution.State.RUNNING)
+
         else:
             self._experiment_run = experiment_run_resource.ExperimentRun.create(
                 run_name=run_name, experiment=self._experiment, tensorboard=tensorboard
