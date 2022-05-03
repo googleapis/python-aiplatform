@@ -48,7 +48,7 @@ class TensorboardRun(proto.Message):
         update_time (google.protobuf.timestamp_pb2.Timestamp):
             Output only. Timestamp when this
             TensorboardRun was last updated.
-        labels (Sequence[google.cloud.aiplatform_v1.types.TensorboardRun.LabelsEntry]):
+        labels (Mapping[str, str]):
             The labels with user-defined metadata to organize your
             TensorboardRuns.
 

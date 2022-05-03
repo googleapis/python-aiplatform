@@ -18,6 +18,7 @@ import functools
 import re
 from typing import (
     Dict,
+    Mapping,
     Optional,
     AsyncIterable,
     Awaitable,
@@ -244,7 +245,6 @@ class FeaturestoreOnlineServingServiceAsyncClient:
         entities of an EntityType, please use
         StreamingReadFeatureValues.
 
-
         .. code-block:: python
 
             from google.cloud import aiplatform_v1beta1
@@ -356,7 +356,6 @@ class FeaturestoreOnlineServingServiceAsyncClient:
         r"""Reads Feature values for multiple entities. Depending
         on their size, data for different entities may be broken
         up across multiple responses.
-
 
         .. code-block:: python
 

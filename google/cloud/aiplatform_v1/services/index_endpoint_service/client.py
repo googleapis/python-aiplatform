@@ -16,7 +16,7 @@
 from collections import OrderedDict
 import os
 import re
-from typing import Dict, Optional, Sequence, Tuple, Type, Union
+from typing import Dict, Mapping, Optional, Sequence, Tuple, Type, Union
 import pkg_resources
 
 from google.api_core import client_options as client_options_lib
@@ -1032,7 +1032,6 @@ class IndexEndpointServiceClient(metaclass=IndexEndpointServiceClientMeta):
         DeployedIndex within it.
         Only non-empty Indexes can be deployed.
 
-
         .. code-block:: python
 
             from google.cloud import aiplatform_v1
@@ -1164,7 +1163,6 @@ class IndexEndpointServiceClient(metaclass=IndexEndpointServiceClientMeta):
         DeployedIndex from it, and freeing all resources it's
         using.
 
-
         .. code-block:: python
 
             from google.cloud import aiplatform_v1
@@ -1290,7 +1288,6 @@ class IndexEndpointServiceClient(metaclass=IndexEndpointServiceClientMeta):
     ) -> gac_operation.Operation:
         r"""Update an existing DeployedIndex under an
         IndexEndpoint.
-
 
         .. code-block:: python
 
