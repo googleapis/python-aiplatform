@@ -97,6 +97,7 @@ s.move(
     excludes=[
         ".coveragerc",
         ".kokoro/continuous/common.cfg",
+        ".kokoro/continuous/continuous.cfg",
         ".kokoro/presubmit/presubmit.cfg",
         ".github/CODEOWNERS",
         ".github/workflows",  # exclude gh actions as credentials are needed for tests
