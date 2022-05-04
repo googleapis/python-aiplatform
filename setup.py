@@ -52,9 +52,13 @@ featurestore_extra_require = [
     "pandas >= 1.0.0",
     "pyarrow >= 6.0.1",
 ]
-pipelines_extra_requires = [
+pipelines_extra_require = [
     "pyyaml>=5.3,<6",
 ]
+private_endpoint_extra_require = [
+    "urllib3 >=1.21.1, <1.27",
+]
+
 full_extra_require = list(
     set(
         tensorboard_extra_require
@@ -62,7 +66,8 @@ full_extra_require = list(
         + xai_extra_require
         + lit_extra_require
         + featurestore_extra_require
-        + pipelines_extra_requires
+        + pipelines_extra_require
+        + private_endpoint_extra_require
     )
 )
 testing_extra_require = (
@@ -101,7 +106,6 @@ setuptools.setup(
         "google-api-core[grpc] >= 1.31.5, <3.0.0dev,!=2.0.*,!=2.1.*,!=2.2.*,!=2.3.0",
         "proto-plus >= 1.15.0",
         "packaging >= 14.3",
-        "urllib3 >=1.21.1, <1.27",
         "google-cloud-storage >= 1.32.0, < 3.0.0dev",
         "google-cloud-bigquery >= 1.15.0, < 3.0.0dev",
         "google-cloud-resource-manager >= 1.3.3, < 3.0.0dev",
@@ -114,7 +118,8 @@ setuptools.setup(
         "xai": xai_extra_require,
         "lit": lit_extra_require,
         "cloud_profiler": profiler_extra_require,
-        "pipelines": pipelines_extra_requires,
+        "pipelines": pipelines_extra_require,
+        "private_endpoint": private_endpoint_extra_require,
     },
     python_requires=">=3.6",
     classifiers=[

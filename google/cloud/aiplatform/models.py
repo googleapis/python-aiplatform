@@ -20,7 +20,16 @@ import proto
 import re
 import shutil
 import tempfile
-import urllib3
+
+try:
+    import urllib3
+except ImportError:
+    raise ImportError(
+        """cannot import the urllib3 HTTP client.
+    Please ensure the correct version of urllib3 has been installed.
+    Check `setup.py` in the root directory for details."""
+    )
+
 from typing import Any, Dict, List, NamedTuple, Optional, Sequence, Tuple, Union
 
 from google.api_core import operation
@@ -1205,16 +1214,7 @@ class Endpoint(base.VertexAiResourceNounWithFutureManager):
         self._sync_gca_resource_if_skipped()
         current_traffic_split = traffic_split or dict(self._gca_resource.traffic_split)
 
-        # TODO(b/211351292): Remove check once traffic split is supported
-        # Skip unallocating traffic and raise if new split is provided
-        if self.network:
-            if traffic_split:
-                raise ValueError(
-                    "Traffic splitting is not yet supported by private Endpoints. "
-                    "Undeploy the current model without providing a `traffic_split`."
-                )
-
-        elif deployed_model_id in current_traffic_split:
+        if deployed_model_id in current_traffic_split:
             current_traffic_split = self._unallocate_traffic(
                 traffic_split=current_traffic_split,
                 deployed_model_id=deployed_model_id,
@@ -1973,7 +1973,7 @@ class PrivateEndpoint(Endpoint):
         if len(self._gca_resource.deployed_models):
             raise ValueError(
                 "A maximum of one model can be deployed to each private Endpoint. "
-                "Please call PrivateEndpoint.undeploy_all() before deploying another "
+                "Please call PrivateEndpoint.undeploy() before deploying another "
                 "model."
             )
 
@@ -2008,6 +2008,7 @@ class PrivateEndpoint(Endpoint):
     def undeploy(
         self,
         deployed_model_id: str,
+        traffic_split: Optional[Dict[str, int]] = None,
         sync=True,
     ) -> None:
         """Undeploys a deployed model from the private Endpoint.
@@ -2036,12 +2037,20 @@ class PrivateEndpoint(Endpoint):
         """
         self._sync_gca_resource_if_skipped()
 
+        # TODO(b/211351292): Remove check once traffic split is supported
+        # Skip unallocating traffic and raise if new split is provided
+        if traffic_split:
+            raise ValueError(
+                "Traffic splitting is not yet supported by private Endpoints. "
+                "Undeploy the model without providing the `traffic_split` argument."
+            )
+
         self._undeploy(
             deployed_model_id=deployed_model_id,
+            traffic_split=traffic_split,
             sync=sync,
         )
 
-'''
     def delete(self, force: bool = False, sync: bool = True) -> None:
         """Deletes this Vertex AI private Endpoint resource. If force is set to True,
         all models on this private Endpoint will be undeployed prior to deletion.
@@ -2064,8 +2073,8 @@ class PrivateEndpoint(Endpoint):
                 sync=sync,
             )
 
-        super().delete(sync=sync)
-'''
+        super(Endpoint, self).delete(sync=sync)
+
 
 class Model(base.VertexAiResourceNounWithFutureManager):
 
