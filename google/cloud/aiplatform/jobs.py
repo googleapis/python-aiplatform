@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-# Copyright 2020 Google LLC
+# Copyright 2022 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -40,7 +40,7 @@ from google.cloud.aiplatform.compat.types import (
     job_state as gca_job_state,
     hyperparameter_tuning_job as gca_hyperparameter_tuning_job_compat,
     machine_resources as gca_machine_resources_compat,
-    manual_batch_tuning_parameters as gca_manual_batch_tuning_parameters_compact,
+    manual_batch_tuning_parameters as gca_manual_batch_tuning_parameters_compat,
     study as gca_study_compat,
 )
 from google.cloud.aiplatform.constants import base as constants
@@ -365,7 +365,6 @@ class BatchPredictionJob(_Job):
         accelerator_count: Optional[int] = None,
         starting_replica_count: Optional[int] = None,
         max_replica_count: Optional[int] = None,
-        batch_size: Optional[int] = None,
         generate_explanation: Optional[bool] = False,
         explanation_metadata: Optional["aiplatform.explain.ExplanationMetadata"] = None,
         explanation_parameters: Optional[
@@ -378,6 +377,7 @@ class BatchPredictionJob(_Job):
         encryption_spec_key_name: Optional[str] = None,
         sync: bool = True,
         create_request_timeout: Optional[float] = None,
+        batch_size: Optional[int] = None,
     ) -> "BatchPredictionJob":
         """Create a batch prediction job.
 
@@ -479,13 +479,6 @@ class BatchPredictionJob(_Job):
                 The maximum number of machine replicas the batch operation may
                 be scaled to. Only used if `machine_type` is set.
                 Default is 10.
-            batch_size (Optional[int]):
-                The number of the records (e.g. instances) of the operation given in each batch
-                to a machine replica. Machine type, and size of a single record should be considered
-                when setting this parameter, higher value speeds up the batch operation's execution,
-                but too high value will result in a whole batch not fitting in a machine's memory,
-                and the whole operation will fail.
-                The default value is 64.
             generate_explanation (bool):
                 Optional. Generate explanation along with the batch prediction
                 results. This will cause the batch prediction output to include
@@ -543,6 +536,13 @@ class BatchPredictionJob(_Job):
                 be immediately returned and synced when the Future has completed.
             create_request_timeout (float):
                 Optional. The timeout for the create request in seconds.
+            batch_size (Optional[int]):
+                The number of the records (e.g. instances) of the operation given in each batch
+                to a machine replica. Machine type, and size of a single record should be considered
+                when setting this parameter, higher value speeds up the batch operation's execution,
+                but too high value will result in a whole batch not fitting in a machine's memory,
+                and the whole operation will fail.
+                The default value is 64.
         Returns:
             (jobs.BatchPredictionJob):
                 Instantiated representation of the created batch prediction job.
@@ -657,7 +657,7 @@ class BatchPredictionJob(_Job):
             gapic_batch_prediction_job.dedicated_resources = dedicated_resources
 
             manual_batch_tuning_parameters = (
-                gca_manual_batch_tuning_parameters_compact.ManualBatchTuningParameters()
+                gca_manual_batch_tuning_parameters_compat.ManualBatchTuningParameters()
             )
             manual_batch_tuning_parameters.batch_size = batch_size
 

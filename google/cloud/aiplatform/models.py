@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-# Copyright 2020 Google LLC
+# Copyright 2022 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -2276,7 +2276,6 @@ class Model(base.VertexAiResourceNounWithFutureManager):
         accelerator_count: Optional[int] = None,
         starting_replica_count: Optional[int] = None,
         max_replica_count: Optional[int] = None,
-        batch_size: Optional[int] = None,
         generate_explanation: Optional[bool] = False,
         explanation_metadata: Optional[explain.ExplanationMetadata] = None,
         explanation_parameters: Optional[explain.ExplanationParameters] = None,
@@ -2285,6 +2284,7 @@ class Model(base.VertexAiResourceNounWithFutureManager):
         encryption_spec_key_name: Optional[str] = None,
         sync: bool = True,
         create_request_timeout: Optional[float] = None,
+        batch_size: Optional[int] = None,
     ) -> jobs.BatchPredictionJob:
         """Creates a batch prediction job using this Model and outputs
         prediction results to the provided destination prefix in the specified
@@ -2392,13 +2392,6 @@ class Model(base.VertexAiResourceNounWithFutureManager):
                 The maximum number of machine replicas the batch operation may
                 be scaled to. Only used if `machine_type` is set.
                 Default is 10.
-            batch_size (Optional[int]):
-                The number of the records (e.g. instances) of the operation given in each batch
-                to a machine replica. Machine type, and size of a single record should be considered
-                when setting this parameter, higher value speeds up the batch operation's execution,
-                but too high value will result in a whole batch not fitting in a machine's memory,
-                and the whole operation will fail.
-                The default value is 64.
             generate_explanation (bool):
                 Optional. Generate explanation along with the batch prediction
                 results. This will cause the batch prediction output to include
@@ -2450,6 +2443,13 @@ class Model(base.VertexAiResourceNounWithFutureManager):
                 Overrides encryption_spec_key_name set in aiplatform.init.
             create_request_timeout (float):
                 Optional. The timeout for the create request in seconds.
+            batch_size (Optional[int]):
+                The number of the records (e.g. instances) of the operation given in each batch
+                to a machine replica. Machine type, and size of a single record should be considered
+                when setting this parameter, higher value speeds up the batch operation's execution,
+                but too high value will result in a whole batch not fitting in a machine's memory,
+                and the whole operation will fail.
+                The default value is 64.
         Returns:
             (jobs.BatchPredictionJob):
                 Instantiated representation of the created batch prediction job.

@@ -720,7 +720,6 @@ class TestBatchPredictionJob:
             accelerator_count=_TEST_ACCELERATOR_COUNT,
             starting_replica_count=_TEST_STARTING_REPLICA_COUNT,
             max_replica_count=_TEST_MAX_REPLICA_COUNT,
-            batch_size=_TEST_BATCH_SIZE,
             generate_explanation=True,
             explanation_metadata=_TEST_EXPLANATION_METADATA,
             explanation_parameters=_TEST_EXPLANATION_PARAMETERS,
@@ -728,6 +727,7 @@ class TestBatchPredictionJob:
             credentials=creds,
             sync=sync,
             create_request_timeout=None,
+            batch_size=_TEST_BATCH_SIZE,
         )
 
         batch_prediction_job.wait_for_resource_creation()
