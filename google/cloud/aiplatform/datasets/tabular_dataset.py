@@ -182,11 +182,9 @@ class TabularDataset(datasets._ColumnNamesDataset):
                 The location of the provided BigQuery table should conform to the location requirements
                 specified here: https://cloud.google.com/vertex-ai/docs/general/locations#bq-locations.
             bq_schema (Optional[Union[str, bigquery.SchemaField]]):
-                Optional. The schema to use when creating the staging table in BigQuery. For more details,
+                Optional. If not set, BigQuery will autodetect the schema using your DataFrame's column types.
+                If set, BigQuery will use the schema you provide when creating the staging table. For more details,
                 see: https://cloud.google.com/python/docs/reference/bigquery/latest/google.cloud.bigquery.job.LoadJobConfig#google_cloud_bigquery_job_LoadJobConfig_schema
-                This is not needed if the BigQuery table provided in `staging_path` already exists.
-                If this is not provided and the provided BigQuery table does not exist, the column types
-                will be auto-detected using the data types in your Pandas DataFrame.
             display_name (str):
                 Optional. The user-defined name of the Dataset.
                 The name can be up to 128 characters long and can be consist
