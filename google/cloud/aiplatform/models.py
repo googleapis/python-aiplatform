@@ -1725,6 +1725,9 @@ class PrivateEndpoint(Endpoint):
         Returns:
             urllib3.response.HTTPResponse:
                 A HTTP Response container.
+
+        Raises:
+            RuntimeError: If a HTTP request could not be made.
         """
 
         try:
@@ -1780,6 +1783,9 @@ class PrivateEndpoint(Endpoint):
 
         Returns:
             prediction: Prediction with returned predictions and Model Id.
+
+        Raises:
+            RuntimeError: If a model has not been deployed a request cannot be made.
         """
         self.wait()
         self._sync_gca_resource_if_skipped()
@@ -1820,6 +1826,9 @@ class PrivateEndpoint(Endpoint):
 
         Returns:
             bool: Checks if calls can be made to this private Endpoint.
+
+        Raises:
+            RuntimeError: If a model has not been deployed a request cannot be made.
         """
         self.wait()
         self._sync_gca_resource_if_skipped()
@@ -1876,7 +1885,7 @@ class PrivateEndpoint(Endpoint):
                 credentials set in aiplatform.init.
 
         Returns:
-            List[models.PrivateEndpoint] - A list of PrivateEndpoint resource objects
+            List[models.PrivateEndpoint] - A list of PrivateEndpoint resource objects.
         """
 
         return cls._list_with_local_order(
@@ -1967,6 +1976,10 @@ class PrivateEndpoint(Endpoint):
                 Whether to execute this method synchronously. If False, this method
                 will be executed in concurrent Future and any downstream object will
                 be immediately returned and synced when the Future has completed.
+
+        Raises:
+            ValueError: If a model has already been deployed another one cannot be
+                deployed with private Endpoint.
         """
         self._sync_gca_resource_if_skipped()
 
@@ -2034,6 +2047,10 @@ class PrivateEndpoint(Endpoint):
                 Whether to execute this method synchronously. If False, this method
                 will be executed in concurrent Future and any downstream object will
                 be immediately returned and synced when the Future has completed.
+
+        Raises:
+            ValueError: If the `traffic_split` argument is passed when undeploying
+                a private Endpoint.
         """
         self._sync_gca_resource_if_skipped()
 
@@ -3268,10 +3285,12 @@ class Model(base.VertexAiResourceNounWithFutureManager):
                 Whether to execute this export synchronously. If False, this method
                 will be executed in concurrent Future and any downstream object will
                 be immediately returned and synced when the Future has completed.
+
         Returns:
             output_info (Dict[str, str]):
                 Details of the completed export with output destination paths to
                 the artifacts or container image.
+
         Raises:
             ValueError: If model does not support exporting.
 
