@@ -16,10 +16,6 @@
 #
 
 import uuid
-import pytest
-from google.cloud.aiplatform.compat.types import (
-    matching_engine_index_endpoint as gca_matching_engine_index_endpoint,
-)
 
 from google.cloud import aiplatform
 from google.cloud import resourcemanager_v3

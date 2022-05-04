@@ -27,8 +27,8 @@ from google.cloud.aiplatform.compat.types import (
     machine_resources as gca_machine_resources_compat,
     matching_engine_index_endpoint as gca_matching_engine_index_endpoint,
 )
-from google.cloud.aiplatform.matching_engine import match_service_pb2
-from google.cloud.aiplatform.matching_engine import match_service_pb2_grpc
+from google.cloud.aiplatform.matching_engine._protos import match_service_pb2
+from google.cloud.aiplatform.matching_engine._protos import match_service_pb2_grpc
 from google.protobuf import field_mask_pb2
 
 import grpc
