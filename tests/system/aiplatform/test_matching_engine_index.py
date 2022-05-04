@@ -164,21 +164,6 @@ _TEST_MATCH_QUERY = query = [
 ]
 
 
-def get_project_number(project_id) -> Optional[str]:
-    """Given a project id, return the project number"""
-    # Create a client
-    client = resourcemanager_v3.ProjectsClient()
-    # Initialize request argument(s)
-    request = resourcemanager_v3.SearchProjectsRequest(query=f"id:{project_id}")
-    # Make the request
-    page_result = client.search_projects(request=request)
-    # Handle the response
-    for response in page_result:
-        if response.project_id == project_id:
-            project = response.name
-            return project.replace("projects/", "")
-
-
 class TestMatchingEngine(e2e_base.TestEndToEnd):
 
     _temp_prefix = "temp_vertex_sdk_e2e_matching_engine_test"
@@ -187,15 +172,6 @@ class TestMatchingEngine(e2e_base.TestEndToEnd):
         aiplatform.init(
             project=e2e_base._PROJECT,
             location=e2e_base._LOCATION,
-        )
-
-        project_number = get_project_number(e2e_base._PROJECT)
-
-        if project_number is None:
-            raise RuntimeError("Project number not found")
-
-        network_name = "projects/{}/global/networks/{}".format(
-            project_number, "system-tests"
         )
 
         # Create an index
@@ -250,7 +226,7 @@ class TestMatchingEngine(e2e_base.TestEndToEnd):
         my_index_endpoint = aiplatform.MatchingEngineIndexEndpoint.create(
             display_name=_TEST_INDEX_ENDPOINT_DISPLAY_NAME,
             description=_TEST_INDEX_ENDPOINT_DESCRIPTION,
-            network=network_name,
+            network=e2e_base._VPC_NETWORK_URI,
             labels=_TEST_LABELS,
         )
         assert my_index_endpoint.resource_name in [
