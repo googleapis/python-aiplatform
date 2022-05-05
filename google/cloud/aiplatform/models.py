@@ -2048,6 +2048,8 @@ class Model(base.VertexAiResourceNounWithFutureManager):
         encryption_spec_key_name: Optional[str] = None,
         sync=True,
         deploy_request_timeout: Optional[float] = None,
+        autoscaling_target_cpu_utilization: Optional[int] = None,
+        autoscaling_target_accelerator_duty_cycle: Optional[int] = None,
     ) -> Endpoint:
         """Deploys model to endpoint. Endpoint will be created if unspecified.
 
@@ -2132,6 +2134,13 @@ class Model(base.VertexAiResourceNounWithFutureManager):
                 be immediately returned and synced when the Future has completed.
             deploy_request_timeout (float):
                 Optional. The timeout for the deploy request in seconds.
+            autoscaling_target_cpu_utilization (int):
+                Target CPU Utilization to use for Autoscaling Replicas.
+                A default value of 60 will be used if not specified.
+            autoscaling_target_accelerator_duty_cycle (int):
+                Target Accelerator Duty Cycle.
+                Must also set accelerator_type and accelerator_count if specified.
+                A default value of 60 will be used if not specified.
         Returns:
             endpoint ("Endpoint"):
                 Endpoint with the deployed model.
@@ -2166,6 +2175,8 @@ class Model(base.VertexAiResourceNounWithFutureManager):
             or initializer.global_config.encryption_spec_key_name,
             sync=sync,
             deploy_request_timeout=deploy_request_timeout,
+            autoscaling_target_cpu_utilization=autoscaling_target_cpu_utilization,
+            autoscaling_target_accelerator_duty_cycle=autoscaling_target_accelerator_duty_cycle,
         )
 
     @base.optional_sync(return_input_arg="endpoint", bind_future_to_self=False)
@@ -2187,6 +2198,8 @@ class Model(base.VertexAiResourceNounWithFutureManager):
         encryption_spec_key_name: Optional[str] = None,
         sync: bool = True,
         deploy_request_timeout: Optional[float] = None,
+        autoscaling_target_cpu_utilization: Optional[int] = None,
+        autoscaling_target_accelerator_duty_cycle: Optional[int] = None,
     ) -> Endpoint:
         """Deploys model to endpoint. Endpoint will be created if unspecified.
 
@@ -2271,6 +2284,13 @@ class Model(base.VertexAiResourceNounWithFutureManager):
                 be immediately returned and synced when the Future has completed.
             deploy_request_timeout (float):
                 Optional. The timeout for the deploy request in seconds.
+            autoscaling_target_cpu_utilization (int):
+                Target CPU Utilization to use for Autoscaling Replicas.
+                A default value of 60 will be used if not specified.
+            autoscaling_target_accelerator_duty_cycle (int):
+                Target Accelerator Duty Cycle.
+                Must also set accelerator_type and accelerator_count if specified.
+                A default value of 60 will be used if not specified.
         Returns:
             endpoint ("Endpoint"):
                 Endpoint with the deployed model.
@@ -2306,6 +2326,8 @@ class Model(base.VertexAiResourceNounWithFutureManager):
             explanation_parameters=explanation_parameters,
             metadata=metadata,
             deploy_request_timeout=deploy_request_timeout,
+            autoscaling_target_cpu_utilization=autoscaling_target_cpu_utilization,
+            autoscaling_target_accelerator_duty_cycle=autoscaling_target_accelerator_duty_cycle,
         )
 
         _LOGGER.log_action_completed_against_resource("model", "deployed", endpoint)
