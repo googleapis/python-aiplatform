@@ -25,7 +25,7 @@ try:
     import urllib3
 except ImportError:
     raise ImportError(
-        """cannot import the urllib3 HTTP client. 
+    """cannot import the urllib3 HTTP client. 
     Please install google-cloud-aiplatform[private_endpoints]."""
     )
 
