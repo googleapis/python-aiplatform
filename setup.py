@@ -55,7 +55,7 @@ featurestore_extra_require = [
 pipelines_extra_require = [
     "pyyaml>=5.3,<6",
 ]
-private_endpoint_extra_require = [
+private_endpoints_extra_require = [
     "urllib3 >=1.21.1, <1.27",
 ]
 
@@ -67,7 +67,7 @@ full_extra_require = list(
         + lit_extra_require
         + featurestore_extra_require
         + pipelines_extra_require
-        + private_endpoint_extra_require
+        + private_endpoints_extra_require
     )
 )
 testing_extra_require = (
@@ -119,7 +119,7 @@ setuptools.setup(
         "lit": lit_extra_require,
         "cloud_profiler": profiler_extra_require,
         "pipelines": pipelines_extra_require,
-        "private_endpoint": private_endpoint_extra_require,
+        "private_endpoints": private_endpoints_extra_require,
     },
     python_requires=">=3.6",
     classifiers=[

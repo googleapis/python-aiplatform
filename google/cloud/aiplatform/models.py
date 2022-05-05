@@ -25,9 +25,8 @@ try:
     import urllib3
 except ImportError:
     raise ImportError(
-        """cannot import the urllib3 HTTP client.
-    Please ensure the correct version of urllib3 has been installed.
-    Check `setup.py` in the root directory for details."""
+        """cannot import the urllib3 HTTP client. 
+    Please install google-cloud-aiplatform[private_endpoints]."""
     )
 
 from typing import Any, Dict, List, NamedTuple, Optional, Sequence, Tuple, Union
@@ -1522,6 +1521,15 @@ class PrivateEndpoint(Endpoint):
                 Optional. Custom credentials to use to upload this model. Overrides
                 credentials set in aiplatform.init.
         """
+        if not self.list(
+            filter='display_name="{}"'.format(endpoint_name)
+        ) or not self.list(
+            filter='display_name="{}"'.format(endpoint_name.rsplit("/", 1)[-1])
+        ):
+            raise ValueError(
+                "Please ensure the Endpoint being retrieved is a private Endpoint."
+            )
+
         super().__init__(
             endpoint_name=endpoint_name,
             project=project,
@@ -1729,7 +1737,6 @@ class PrivateEndpoint(Endpoint):
         Raises:
             RuntimeError: If a HTTP request could not be made.
         """
-
         try:
             response = self._http_client.request(
                 method=method, url=url, body=body, headers=headers
@@ -1981,8 +1988,6 @@ class PrivateEndpoint(Endpoint):
             ValueError: If a model has already been deployed another one cannot be
                 deployed with private Endpoint.
         """
-        self._sync_gca_resource_if_skipped()
-
         if len(self._gca_resource.deployed_models):
             raise ValueError(
                 "A maximum of one model can be deployed to each private Endpoint. "
