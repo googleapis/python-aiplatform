@@ -30,7 +30,7 @@ from google.cloud import storage
 from google.cloud.aiplatform import initializer
 
 _PROJECT = os.getenv("BUILD_SPECIFIC_GCLOUD_PROJECT")
-_VPC_NETWORK_URI = os.getenv("VPC_NETWORK_URI")
+_VPC_NETWORK_URI = os.getenv("_VPC_NETWORK_URI")
 _LOCATION = "us-central1"
 
 
