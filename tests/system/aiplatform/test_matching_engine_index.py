@@ -18,10 +18,8 @@
 import uuid
 
 from google.cloud import aiplatform
-from google.cloud import resourcemanager_v3
 
 from tests.system.aiplatform import e2e_base
-from typing import Optional
 
 # project
 _TEST_INDEX_DISPLAY_NAME = "index_display_name"
