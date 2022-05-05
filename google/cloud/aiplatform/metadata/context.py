@@ -65,7 +65,6 @@ class _Context(resource._Resource):
 
     def get_artifacts(self) -> List[Artifact]:
         filter_str = metadata_utils.make_filter_string(in_context=[self.resource_name])
-        print(filter_str)
         return Artifact.list(
             filter=filter_str,
             project=self.project,

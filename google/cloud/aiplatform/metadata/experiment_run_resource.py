@@ -16,13 +16,13 @@
 import collections
 import concurrent.futures
 import functools
-import time
 from typing import Callable, Dict, List, Optional, Set, Union, Any
 
 from google.api_core import exceptions
 from google.auth import credentials as auth_credentials
 from google.protobuf import timestamp_pb2
 
+from google.cloud.aiplatform import base
 from google.cloud.aiplatform.compat.types import (
     tensorboard_time_series as gca_tensorboard_time_series,
 )
@@ -42,6 +42,8 @@ from google.cloud.aiplatform import pipeline_jobs
 from google.cloud.aiplatform.tensorboard import tensorboard_resource
 
 
+_LOGGER = base.Logger(__name__)
+
 def _format_experiment_run_name(experiment_name: str, run_name: str) -> str:
     return f"{experiment_name}-{run_name}"
 
@@ -51,7 +53,7 @@ class ExperimentRun(experiment_resources.ExperimentLoggable,
     def __init__(
         self,
         run_name: str,
-        experiment: Union[experiment_resources.Experiment, str, None] = None,
+        experiment: Union[experiment_resources.Experiment, str],
         project: Optional[str] = None,
         location: Optional[str] = None,
         credentials: Optional[auth_credentials.Credentials] = None,
@@ -89,8 +91,12 @@ class ExperimentRun(experiment_resources.ExperimentLoggable,
         return self._metadata_context
 
     @property
-    def name(self) -> str:
+    def resource_id(self) -> str:
         return self._metadata_context.name
+
+    @property
+    def name(self) -> str:
+        return self._run_name
 
     @property
     def resource_name(self) -> str:
@@ -675,9 +681,30 @@ class ExperimentRun(experiment_resources.ExperimentLoggable,
     def end_run(self, state: gapic.Execution.State = gapic.Execution.State.COMPLETE):
         self.update_state(state)
 
-    # @TODO(add delete API)
-    def delete(self, delete_backing_tensorboard_run=False):
-        raise NotImplemented("delete not implemented")
+    def delete(self, *,
+               delete_backing_tensorboard_run: bool=False,
+               delete_artifacts: bool=False,
+               delete_executions: bool=False,
+               ):
+        if delete_backing_tensorboard_run:
+            if not self._backing_tensorboard_run:
+                self._backing_tensorboard_run=self._lookup_tensorboard_run_artifact()
+            if self._backing_tensorboard_run:
+                self._backing_tensorboard_run.resource.delete()
+                self._backing_tensorboard_run.metadata.delete()
+            else:
+                _LOGGER.warn(f'Experiment run {self.name} does not have a backing tensorboard run.'
+                             "Skipping deletion.")
+
+        if delete_artifacts:
+            for artifact in self.get_artifacts():
+                artifact.delete()
+
+        if delete_executions:
+            for execution in self.get_executions():
+                execution.delete()
+
+        self._metadata_context.delete()
 
     def get_artifacts(self) -> List[Artifact]:
         return self._metadata_context.get_artifacts()

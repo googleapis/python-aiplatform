@@ -181,6 +181,22 @@ class Experiment:
     def resource_name(self):
         return self._metadata_context.resource_name
 
+    def delete(self, *,
+               delete_experiment_runs: bool=False,
+               delete_backing_tensorboard_runs: bool=False,
+               delete_artifacts: bool=False,
+               delete_executions: bool=False):
+
+        if delete_experiment_runs:
+            experiment_runs =_SUPPORTED_LOGGABLE_RESOURCES[constants.SYSTEM_EXPERIMENT_RUN].list(experiment=self)
+            for experiment_run in experiment_runs:
+                experiment_run.delete(
+                    delete_backing_tensorboard_run=delete_backing_tensorboard_runs,
+                    delete_artifacts=delete_artifacts,
+                    delete_executions=delete_executions
+                )
+        self._metadata_context.delete()
+
     def get_dataframe(self) -> "pd.DataFrame":  # noqa: F821
         """Get metrics and parameters all Runs in this Experiment as Dataframe.
 
