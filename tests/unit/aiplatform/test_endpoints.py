@@ -1741,9 +1741,7 @@ class TestPrivateEndpoint(TestEndpoint):
             endpoint_id=None,
         )
 
-    @pytest.mark.usefixtures(
-        "get_private_endpoint_with_model_mock", "list_private_endpoints_mock"
-    )
+    @pytest.mark.usefixtures("get_private_endpoint_with_model_mock")
     def test_predict(self, predict_private_endpoint_mock):
         test_endpoint = models.PrivateEndpoint(_TEST_ID)
         test_prediction = test_endpoint.predict(
@@ -1762,9 +1760,7 @@ class TestPrivateEndpoint(TestEndpoint):
             headers={"Content-Type": "application/json"},
         )
 
-    @pytest.mark.usefixtures(
-        "get_private_endpoint_with_model_mock", "list_private_endpoints_mock"
-    )
+    @pytest.mark.usefixtures("get_private_endpoint_with_model_mock")
     def test_health_check(self, health_check_private_endpoint_mock):
         test_endpoint = models.PrivateEndpoint(_TEST_ID)
         test_health_check = test_endpoint.health_check()
@@ -1776,9 +1772,7 @@ class TestPrivateEndpoint(TestEndpoint):
             method="GET", url="", body=None, headers=None
         )
 
-    @pytest.mark.usefixtures(
-        "get_private_endpoint_mock", "get_model_mock", "list_private_endpoints_mock"
-    )
+    @pytest.mark.usefixtures("get_private_endpoint_mock", "get_model_mock")
     @pytest.mark.parametrize("sync", [True, False])
     def test_deploy(self, deploy_model_mock, sync):
         test_endpoint = models.PrivateEndpoint(_TEST_ENDPOINT_NAME)
@@ -1813,9 +1807,7 @@ class TestPrivateEndpoint(TestEndpoint):
             traffic_split=None,
         )
 
-    @pytest.mark.usefixtures(
-        "get_private_endpoint_with_model_mock", "list_private_endpoints_mock"
-    )
+    @pytest.mark.usefixtures("get_private_endpoint_with_model_mock")
     @pytest.mark.parametrize("sync", [True, False])
     def test_undeploy(self, undeploy_model_mock, sync):
         test_endpoint = models.PrivateEndpoint(_TEST_ENDPOINT_NAME)
@@ -1831,9 +1823,7 @@ class TestPrivateEndpoint(TestEndpoint):
             traffic_split={},
         )
 
-    @pytest.mark.usefixtures(
-        "get_private_endpoint_with_model_mock", "list_private_endpoints_mock"
-    )
+    @pytest.mark.usefixtures("get_private_endpoint_with_model_mock")
     @pytest.mark.parametrize("sync", [True, False])
     def test_delete_without_force(self, sdk_undeploy_mock, delete_endpoint_mock, sync):
 
@@ -1848,9 +1838,7 @@ class TestPrivateEndpoint(TestEndpoint):
 
         delete_endpoint_mock.assert_called_once_with(name=_TEST_ENDPOINT_NAME)
 
-    @pytest.mark.usefixtures(
-        "get_private_endpoint_with_model_mock", "list_private_endpoints_mock"
-    )
+    @pytest.mark.usefixtures("get_private_endpoint_with_model_mock")
     @pytest.mark.parametrize("sync", [True, False])
     def test_delete_with_force(self, sdk_undeploy_mock, delete_endpoint_mock, sync):
 

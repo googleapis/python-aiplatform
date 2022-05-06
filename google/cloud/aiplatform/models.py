@@ -21,14 +21,6 @@ import re
 import shutil
 import tempfile
 
-try:
-    import urllib3
-except ImportError:
-    raise ImportError(
-    """cannot import the urllib3 HTTP client. 
-    Please install google-cloud-aiplatform[private_endpoints]."""
-    )
-
 from typing import Any, Dict, List, NamedTuple, Optional, Sequence, Tuple, Union
 
 from google.api_core import operation
@@ -1521,13 +1513,11 @@ class PrivateEndpoint(Endpoint):
                 Optional. Custom credentials to use to upload this model. Overrides
                 credentials set in aiplatform.init.
         """
-        if not self.list(
-            filter='display_name="{}"'.format(endpoint_name)
-        ) or not self.list(
-            filter='display_name="{}"'.format(endpoint_name.rsplit("/", 1)[-1])
-        ):
-            raise ValueError(
-                "Please ensure the Endpoint being retrieved is a private Endpoint."
+        try:
+            import urllib3
+        except ImportError:
+            raise ImportError(
+                "Cannot import the urllib3 HTTP client. Please install google-cloud-aiplatform[private_endpoints]."
             )
 
         super().__init__(
@@ -1536,6 +1526,11 @@ class PrivateEndpoint(Endpoint):
             location=location,
             credentials=credentials,
         )
+
+        if not self.network:
+            raise ValueError(
+                "Please ensure the Endpoint being retrieved is a private Endpoint."
+            )
 
         self._http_client = urllib3.PoolManager()
 
@@ -1700,6 +1695,13 @@ class PrivateEndpoint(Endpoint):
             PrivateEndpoint:
                 An initialized PrivateEndpoint resource.
         """
+        try:
+            import urllib3
+        except ImportError:
+            raise ImportError(
+                "Cannot import the urllib3 HTTP client. Please install google-cloud-aiplatform[private_endpoints]."
+            )
+
         endpoint = cls._empty_constructor(
             project=project, location=location, credentials=credentials
         )
@@ -1716,7 +1718,7 @@ class PrivateEndpoint(Endpoint):
         url: str,
         body: Optional[Dict[Any, Any]] = None,
         headers: Optional[Dict[str, str]] = None,
-    ) -> urllib3.response.HTTPResponse:
+    ):
         """Helper function used to perform HTTP requests for private Endpoint.
 
         Args:
@@ -1737,6 +1739,13 @@ class PrivateEndpoint(Endpoint):
         Raises:
             RuntimeError: If a HTTP request could not be made.
         """
+        try:
+            import urllib3
+        except ImportError:
+            raise ImportError(
+                "Cannot import the urllib3 HTTP client. Please install google-cloud-aiplatform[private_endpoints]."
+            )
+
         try:
             response = self._http_client.request(
                 method=method, url=url, body=body, headers=headers
