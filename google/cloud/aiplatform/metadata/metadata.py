@@ -16,14 +16,13 @@
 #
 
 from collections import defaultdict
-import functools
 from typing import Dict, Union, Optional, Any
-import time
 
 from google.protobuf import timestamp_pb2
 
 from google.cloud.aiplatform import base, gapic
 from google.cloud.aiplatform.compat.types import event as gca_event
+from google.cloud.aiplatform.compat.types import execution as gca_execution
 from google.cloud.aiplatform.metadata import constants
 from google.cloud.aiplatform.metadata.artifact import Artifact
 from google.cloud.aiplatform.metadata.artifact import _Artifact
@@ -928,22 +927,41 @@ class ExperimentTracker:
     # TODO: move inside of experiment run
     def start_execution(
             self,
-            display_name: str,
-            schema_title: str,
             *,
+            schema_title: str,
+            display_name: str,
+            resource_id: Optional[str] = None,
             metadata: Optional[Dict[str, Any]] = None,
-            resource_id: Optional[str] = None) -> Execution:
-        execution = Execution.create(
-            display_name=display_name,
-            schema_title=schema_title,
-            metadata=metadata,
-            resource_id=resource_id,
-            project = self.experiment_run.project,
-            location = self.experiment_run.location,
-            credentials= self.experiment_run.credentials
-        )
+            schema_version: Optional[str] = None,
+            resume: bool=False) -> Execution:
+
+        if resume:
+            if not resource_id:
+                raise ValueError('resource_id is required when resume=True')
+
+            execution = Execution(
+                resource_name=resource_id,
+                project=self.experiment_run.project,
+                location=self.experiment_run.location,
+                credentials=self.experiment_run.credentials
+            )
+
+            execution.update(state=gca_execution.Execution.State.RUNNING)
+        else:
+            execution = Execution.create(
+                display_name=display_name,
+                schema_title=schema_title,
+                schema_version=schema_version,
+                metadata=metadata,
+                resource_id=resource_id,
+                project = self.experiment_run.project,
+                location = self.experiment_run.location,
+                credentials= self.experiment_run.credentials
+            )
 
         if self.experiment_run:
+            if resume:
+                pass # TODO handle case where execution is already associated with run
             self.experiment_run.associate_execution(execution)
             # TODO(consider unwrapping if run is changed)
             execution.assign_input_artifacts = self.experiment_run._association_wrapper(

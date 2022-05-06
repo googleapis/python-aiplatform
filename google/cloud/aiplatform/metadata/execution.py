@@ -45,6 +45,8 @@ class Execution(resource._Resource):
     def create(cls,
                schema_title: str,
                *,
+               state: gca_execution.Execution.State=gca_execution.Execution.State.RUNNING,
+               schema_version: Optional[str] = None,
                metadata: Optional[Dict[str, Any]] = None,
                resource_id: Optional[str] = None,
                display_name: Optional[str] = None,
@@ -65,7 +67,9 @@ class Execution(resource._Resource):
             schema_title=schema_title,
             resource_id=resource_id,
             metadata=metadata,
-            display_name=display_name
+            display_name=display_name,
+            schema_version=schema_version,
+            state=state
         )
         self._gca_resource = resource
 
@@ -183,6 +187,7 @@ class Execution(resource._Resource):
         client: utils.MetadataClientWithOverride,
         parent: str,
         schema_title: str,
+        state: gca_execution.Execution.State=gca_execution.Execution.State.RUNNING,
         resource_id: Optional[str] = None,
         display_name: Optional[str] = None,
         schema_version: Optional[str] = None,
@@ -195,6 +200,7 @@ class Execution(resource._Resource):
             display_name=display_name,
             description=description,
             metadata=metadata if metadata else {},
+            state=state
         )
         return client.create_execution(
             parent=parent,
@@ -254,5 +260,5 @@ class Execution(resource._Resource):
         if description:
             gca_resource.description = description
         self._nested_update_metadata(gca_resource=gca_resource, metadata=metadata)
-        self._update_resource(self.api_client, resource=gca_resource)
+        self._gca_resource=self._update_resource(self.api_client, resource=gca_resource)
 

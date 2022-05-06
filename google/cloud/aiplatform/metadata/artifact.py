@@ -144,9 +144,11 @@ class _Artifact(resource._Resource):
                 description=description,
                 metadata=metadata,
             )
-        except exceptions.AlreadyExists:
-            _LOGGER.info(f"Resource '{resource_id}' already exist")
-            return
+        except exceptions.AlreadyExists as e:
+            raise e
+            # TODO(reenable for backward compatibility)
+            # _LOGGER.info(f"Resource '{resource_id}' already exist")
+            # return
 
         return cls(
             resource=resource,

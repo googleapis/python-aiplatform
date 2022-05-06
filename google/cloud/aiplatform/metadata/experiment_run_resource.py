@@ -213,16 +213,19 @@ class ExperimentRun(experiment_resources.ExperimentLoggable,
 
             return this_experiment_run
 
-        with concurrent.futures.ThreadPoolExecutor(
-            max_workers=len(run_contexts)
-        ) as executor:
-            submissions = [
-                executor.submit(_initialize_experiment_run, context)
-                for context in run_contexts
-            ]
-            experiment_runs = [submission.result() for submission in submissions]
+        if run_contexts:
+            with concurrent.futures.ThreadPoolExecutor(
+                max_workers=len(run_contexts)
+            ) as executor:
+                submissions = [
+                    executor.submit(_initialize_experiment_run, context)
+                    for context in run_contexts
+                ]
+                experiment_runs = [submission.result() for submission in submissions]
 
-        return experiment_runs
+            return experiment_runs
+        else:
+            return []
 
     @classmethod
     def _query_experiment_row(cls, context: _Context) -> experiment_resources.ExperimentRow:
@@ -365,6 +368,9 @@ class ExperimentRun(experiment_resources.ExperimentLoggable,
         if backing_tensorboard_resource:
             self.assign_backing_tensorboard(tensorboard=backing_tensorboard_resource)
 
+    def _format_tensorboard_experiment_display_name(self, experiment_name: str) -> str:
+        return f'{experiment_name} Backing Tensorboard Experiment'
+
     def _assign_backing_tensorboard(
         self, tensorboard: Union[tensorboard_resource.Tensorboard, str]
     ):
@@ -378,7 +384,8 @@ class ExperimentRun(experiment_resources.ExperimentLoggable,
         )
         tensorboard_experiment_resource_name = (
             tensorboard_resource.TensorboardExperiment._format_resource_name(
-                experiment=self._experiment.name, **tensorboard_resource_name_parts
+                experiment=self._experiment.name,
+                **tensorboard_resource_name_parts
             )
         )
         try:
@@ -391,6 +398,7 @@ class ExperimentRun(experiment_resources.ExperimentLoggable,
                 tensorboard_experiment = (
                     tensorboard_resource.TensorboardExperiment.create(
                         tensorboard_experiment_id=self._experiment.name,
+                        display_name=self._format_tensorboard_experiment_display_name(self._experiment.name),
                         tensorboard_name=tensorboard.resource_name,
                         credentials=tensorboard.credentials,
                     )
@@ -694,7 +702,7 @@ class ExperimentRun(experiment_resources.ExperimentLoggable,
                 self._backing_tensorboard_run.metadata.delete()
             else:
                 _LOGGER.warn(f'Experiment run {self.name} does not have a backing tensorboard run.'
-                             "Skipping deletion.")
+                             " Skipping deletion.")
 
         if delete_artifacts:
             for artifact in self.get_artifacts():
