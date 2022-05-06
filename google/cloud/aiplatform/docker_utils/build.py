@@ -26,11 +26,13 @@ from six.moves import shlex_quote
 
 from google.cloud.aiplatform.docker_utils import local_util
 from google.cloud.aiplatform.docker_utils.errors import DockerError
-from google.cloud.aiplatform.docker_utils.utils import Image, Package
+from google.cloud.aiplatform.docker_utils.utils import (
+    DEFAULT_HOME,
+    DEFAULT_WORKDIR,
+    Image,
+    Package,
+)
 from google.cloud.aiplatform.utils import path_utils
-
-_DEFAULT_HOME = "/home"
-_DEFAULT_WORKDIR = "/usr/app"
 
 _logger = logging.getLogger(__name__)
 
@@ -467,8 +469,8 @@ def build_image(
         ]
     )
 
-    home_dir = container_home or _DEFAULT_HOME
-    work_dir = container_workdir or _DEFAULT_WORKDIR
+    home_dir = container_home or DEFAULT_HOME
+    work_dir = container_workdir or DEFAULT_WORKDIR
 
     # The package will be used in Docker, thus norm it to POSIX path format.
     main_package = Package(

@@ -24,11 +24,11 @@ class Predictor:
     def __init__(self):
         raise NotImplementedError("Predictor.__init__ has not been implemented yet.")
 
-    def load(self, gcs_artifacts_uri: str):
+    def load(self, artifacts_uri: str):
         """Loads the model artifact.
 
         Args:
-            gcs_artifacts_uri (str):
+            artifacts_uri (str):
                 Required. The value of the environment variable AIP_STORAGE_URI.
         """
         raise NotImplementedError("Predictor.load has not been implemented yet.")

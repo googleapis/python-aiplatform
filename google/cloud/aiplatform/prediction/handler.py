@@ -36,13 +36,13 @@ class Handler:
 
     def __init__(
         self,
-        gcs_artifacts_uri: str,
+        artifacts_uri: str,
         predictor: Optional[Type[Predictor]] = None,
     ):
         """Initializes a Handler instance.
 
         Args:
-            gcs_artifacts_uri (str):
+            artifacts_uri (str):
                 Required. The value of the environment variable AIP_STORAGE_URI.
             predictor (Type[Predictor]):
                 Optional. The Predictor class this handler uses to initiate predictor
@@ -68,13 +68,13 @@ class PredictionHandler(Handler):
 
     def __init__(
         self,
-        gcs_artifacts_uri: str,
+        artifacts_uri: str,
         predictor: Optional[Type[Predictor]] = None,
     ):
         """Initializes a Handler instance.
 
         Args:
-            gcs_artifacts_uri (str):
+            artifacts_uri (str):
                 Required. The value of the environment variable AIP_STORAGE_URI.
             predictor (Type[Predictor]):
                 Optional. The Predictor class this handler uses to initiate predictor
@@ -86,7 +86,7 @@ class PredictionHandler(Handler):
             )
 
         self._predictor = predictor()
-        self._predictor.load(gcs_artifacts_uri)
+        self._predictor.load(artifacts_uri)
 
     async def handle(self, request: Request) -> Response:
         """Handles a prediction request.

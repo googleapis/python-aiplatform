@@ -428,6 +428,7 @@ class LocalModel:
     def deploy_to_local_endpoint(
         self,
         artifact_uri: Optional[str] = None,
+        artifact_workdir: Optional[str] = None,
         credential_path: Optional[str] = None,
         host_port: Optional[str] = None,
         gpu_count: Optional[int] = None,
@@ -460,9 +461,24 @@ class LocalModel:
 
         Args:
             artifact_uri (str):
-                Optional. The Cloud Storage path to the directory containing the Model artifact
-                and any of its supporting files. The AIP_STORAGE_URI environment variable will
-                be set to this uri if given; otherwise, an empty string.
+                Optional. The path to the directory containing the Model artifact and any of its
+                supporting files. The path is either a GCS uri or the path to a local directory.
+                If this parameter is set to a GCS uri, you may need to specify `credential_path`.
+                If this parameter is set to a path to a local directory, you may also provide
+                `artifact_workdir` to explicitly specify the directory that the files in the local
+                directory will be mounted to.
+                The AIP_STORAGE_URI environment variable will be set to this parameter if it's a
+                GCS uri; if it's a local path, AIP_STORAGE_URI will be set to `artifact_workdir` in
+                the container; otherwise, an empty string.
+            artifact_workdir (str):
+                Optional. The absolute path to the directory in the container that the artifacts
+                in the artifact_uri will be copied to if the artifact_uri is a path to a local
+                directory. This field is required if the provided artifact_uri is not a GCS uri.
+                The default is "/usr/app" which is the default working directory of images built by
+                CPR.
+                The AIP_STORAGE_URI environment variable will be set to `artifact_uri` if it's a
+                GCS uri; If it's a local path, AIP_STORAGE_URI will be set to this parameter in
+                the container; otherwise, an empty string.
             credential_path (str):
                 Optional. The path to the credential key that will be mounted to the container.
                 If it's unset, the environment variable, GOOGLE_APPLICATION_CREDENTIALS, will
@@ -504,6 +520,7 @@ class LocalModel:
             with LocalEndpoint(
                 serving_container_image_uri=self.serving_container_spec.image_uri,
                 artifact_uri=artifact_uri,
+                artifact_workdir=artifact_workdir,
                 serving_container_predict_route=self.serving_container_spec.predict_route,
                 serving_container_health_route=self.serving_container_spec.health_route,
                 serving_container_command=self.serving_container_spec.command,

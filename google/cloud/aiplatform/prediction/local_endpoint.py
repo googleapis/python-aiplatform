@@ -44,6 +44,7 @@ class LocalEndpoint:
         self,
         serving_container_image_uri: str,
         artifact_uri: Optional[str] = None,
+        artifact_workdir: Optional[str] = None,
         serving_container_predict_route: Optional[str] = None,
         serving_container_health_route: Optional[str] = None,
         serving_container_command: Optional[Sequence[str]] = None,
@@ -64,9 +65,24 @@ class LocalEndpoint:
             serving_container_image_uri (str):
                 Required. The URI of the Model serving container.
             artifact_uri (str):
-                Optional. The Cloud Storage path to the directory containing the Model artifact
-                and any of its supporting files. The AIP_STORAGE_URI environment variable will
-                be set to this uri if given; otherwise, an empty string.
+                Optional. The path to the directory containing the Model artifact and any of its
+                supporting files. The path is either a GCS uri or the path to a local directory.
+                If this parameter is set to a GCS uri, you may need to specify `credential_path`.
+                If this parameter is set to a path to a local directory, you may also provide
+                `artifact_workdir` to explicitly specify the directory that the files in the local
+                directory will be mounted to.
+                The AIP_STORAGE_URI environment variable will be set to this parameter if it's a
+                GCS uri; if it's a local path, AIP_STORAGE_URI will be set to `artifact_workdir` in
+                the container; otherwise, an empty string.
+            artifact_workdir (str):
+                Optional. The absolute path to the directory in the container that the artifacts
+                in the artifact_uri will be copied to if the artifact_uri is a path to a local
+                directory. This field is required if the provided artifact_uri is not a GCS uri.
+                The default is "/usr/app" which is the default working directory of images built by
+                CPR.
+                The AIP_STORAGE_URI environment variable will be set to `artifact_uri` if it's a
+                GCS uri; If it's a local path, AIP_STORAGE_URI will be set to this parameter in
+                the container; otherwise, an empty string.
             serving_container_predict_route (str):
                 Optional. An HTTP path to send prediction requests to the container, and
                 which must be supported by it. If not specified a default HTTP path will
@@ -139,6 +155,7 @@ class LocalEndpoint:
         self.log_start_index = 0
         self.serving_container_image_uri = serving_container_image_uri
         self.artifact_uri = artifact_uri
+        self.artifact_workdir = artifact_workdir
         self.serving_container_predict_route = (
             serving_container_predict_route or prediction.DEFAULT_LOCAL_PREDICT_ROUTE
         )
@@ -209,6 +226,7 @@ class LocalEndpoint:
             self.container = run.run_prediction_container(
                 self.serving_container_image_uri,
                 artifact_uri=self.artifact_uri,
+                artifact_workdir=self.artifact_workdir,
                 serving_container_predict_route=self.serving_container_predict_route,
                 serving_container_health_route=self.serving_container_health_route,
                 serving_container_command=self.serving_container_command,
