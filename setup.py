@@ -55,10 +55,12 @@ featurestore_extra_require = [
 pipelines_extra_require = [
     "pyyaml>=5.3,<6",
 ]
+datasets_extra_require = [
+    "pyarrow >= 3.0.0, < 8.0dev",
+]
 private_endpoints_extra_require = [
     "urllib3 >=1.21.1, <1.27",
 ]
-
 full_extra_require = list(
     set(
         tensorboard_extra_require
@@ -68,6 +70,7 @@ full_extra_require = list(
         + featurestore_extra_require
         + pipelines_extra_require
         + private_endpoints_extra_require
+        + datasets_extra_require
     )
 )
 testing_extra_require = (
@@ -119,6 +122,7 @@ setuptools.setup(
         "lit": lit_extra_require,
         "cloud_profiler": profiler_extra_require,
         "pipelines": pipelines_extra_require,
+        "datasets": datasets_extra_require,
         "private_endpoints": private_endpoints_extra_require,
     },
     python_requires=">=3.6",
