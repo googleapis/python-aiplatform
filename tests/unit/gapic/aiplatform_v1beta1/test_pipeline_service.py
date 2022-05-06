@@ -2183,6 +2183,7 @@ def test_create_pipeline_job(request_type, transport: str = "grpc"):
             state=pipeline_state.PipelineState.PIPELINE_STATE_QUEUED,
             service_account="service_account_value",
             network="network_value",
+            template_uri="template_uri_value",
         )
         response = client.create_pipeline_job(request)
 
@@ -2198,6 +2199,7 @@ def test_create_pipeline_job(request_type, transport: str = "grpc"):
     assert response.state == pipeline_state.PipelineState.PIPELINE_STATE_QUEUED
     assert response.service_account == "service_account_value"
     assert response.network == "network_value"
+    assert response.template_uri == "template_uri_value"
 
 
 def test_create_pipeline_job_empty_call():
@@ -2244,6 +2246,7 @@ async def test_create_pipeline_job_async(
                 state=pipeline_state.PipelineState.PIPELINE_STATE_QUEUED,
                 service_account="service_account_value",
                 network="network_value",
+                template_uri="template_uri_value",
             )
         )
         response = await client.create_pipeline_job(request)
@@ -2260,6 +2263,7 @@ async def test_create_pipeline_job_async(
     assert response.state == pipeline_state.PipelineState.PIPELINE_STATE_QUEUED
     assert response.service_account == "service_account_value"
     assert response.network == "network_value"
+    assert response.template_uri == "template_uri_value"
 
 
 @pytest.mark.asyncio
@@ -2464,6 +2468,7 @@ def test_get_pipeline_job(request_type, transport: str = "grpc"):
             state=pipeline_state.PipelineState.PIPELINE_STATE_QUEUED,
             service_account="service_account_value",
             network="network_value",
+            template_uri="template_uri_value",
         )
         response = client.get_pipeline_job(request)
 
@@ -2479,6 +2484,7 @@ def test_get_pipeline_job(request_type, transport: str = "grpc"):
     assert response.state == pipeline_state.PipelineState.PIPELINE_STATE_QUEUED
     assert response.service_account == "service_account_value"
     assert response.network == "network_value"
+    assert response.template_uri == "template_uri_value"
 
 
 def test_get_pipeline_job_empty_call():
@@ -2520,6 +2526,7 @@ async def test_get_pipeline_job_async(
                 state=pipeline_state.PipelineState.PIPELINE_STATE_QUEUED,
                 service_account="service_account_value",
                 network="network_value",
+                template_uri="template_uri_value",
             )
         )
         response = await client.get_pipeline_job(request)
@@ -2536,6 +2543,7 @@ async def test_get_pipeline_job_async(
     assert response.state == pipeline_state.PipelineState.PIPELINE_STATE_QUEUED
     assert response.service_account == "service_account_value"
     assert response.network == "network_value"
+    assert response.template_uri == "template_uri_value"
 
 
 @pytest.mark.asyncio
