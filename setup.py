@@ -58,7 +58,9 @@ pipelines_extra_require = [
 private_endpoints_extra_require = [
     "urllib3 >=1.21.1, <1.27",
 ]
-
+datasets_extra_require = [
+    "pyarrow >= 3.0.0, < 8.0dev",
+]
 full_extra_require = list(
     set(
         tensorboard_extra_require
@@ -68,6 +70,8 @@ full_extra_require = list(
         + featurestore_extra_require
         + pipelines_extra_require
         + private_endpoints_extra_require
+        + pipelines_extra_requires
+        + datasets_extra_require
     )
 )
 testing_extra_require = (
