@@ -126,7 +126,6 @@ _TEST_DATAFRAME_BQ_SCHEMA = [
     "delete_staging_bucket",
     "prepare_bigquery_dataset",
     "delete_bigquery_dataset",
-    "tear_down_resources",
 )
 class TestDataset(e2e_base.TestEndToEnd):
 
@@ -222,9 +221,11 @@ class TestDataset(e2e_base.TestEndToEnd):
         assert flowers_dataset.name == _TEST_IMAGE_DATASET_ID
         assert flowers_dataset.display_name == _TEST_DATASET_DISPLAY_NAME
 
-    def test_get_nonexistent_dataset(self):
+    def test_get_nonexistent_dataset(self, shared_state):
         """Ensure attempting to retrieve a dataset that doesn't exist raises
         a Google API core 404 exception."""
+
+        shared_state["resources"] = []
 
         aiplatform.init(project=_TEST_PROJECT, location=_TEST_LOCATION)
 
@@ -238,9 +239,13 @@ class TestDataset(e2e_base.TestEndToEnd):
         Then verify data items were successfully imported."""
 
         assert shared_state["dataset_name"]
+
+        shared_state["resources"] = []
+
         aiplatform.init(project=_TEST_PROJECT, location=_TEST_LOCATION)
 
         my_dataset = aiplatform.TextDataset(dataset_name=shared_state["dataset_name"])
+        shared_state["resources"].extend([my_dataset])
 
         data_items_pre_import = dataset_gapic_client.list_data_items(
             parent=my_dataset.resource_name
@@ -267,6 +272,8 @@ class TestDataset(e2e_base.TestEndToEnd):
         """Use the Dataset.create() method to create a new image obj detection
         dataset and import images. Then confirm images were successfully imported."""
 
+        shared_state["resources"] = []
+
         aiplatform.init(project=_TEST_PROJECT, location=_TEST_LOCATION)
 
         img_dataset = aiplatform.ImageDataset.create(
@@ -275,6 +282,7 @@ class TestDataset(e2e_base.TestEndToEnd):
             import_schema_uri=_TEST_IMAGE_OBJ_DET_IMPORT_SCHEMA,
             create_request_timeout=None,
         )
+        shared_state["resources"].extend([img_dataset])
 
         shared_state["dataset_name"] = img_dataset.resource_name
 
@@ -289,6 +297,8 @@ class TestDataset(e2e_base.TestEndToEnd):
         """Use the Dataset.create() method to create a new tabular dataset.
         Then confirm the dataset was successfully created and references GCS source."""
 
+        shared_state["resources"] = []
+
         aiplatform.init(project=_TEST_PROJECT, location=_TEST_LOCATION)
 
         tabular_dataset = aiplatform.TabularDataset.create(
@@ -296,6 +306,7 @@ class TestDataset(e2e_base.TestEndToEnd):
             gcs_source=[_TEST_TABULAR_CLASSIFICATION_GCS_SOURCE],
             create_request_timeout=None,
         )
+        shared_state["resources"].extend([tabular_dataset])
 
         shared_state["dataset_name"] = tabular_dataset.resource_name
 

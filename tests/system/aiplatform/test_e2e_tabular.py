@@ -53,7 +53,6 @@ class TestEndToEndTabular(e2e_base.TestEndToEnd):
 
     _temp_prefix = "temp-vertex-sdk-e2e-tabular"
 
-    @pytest.mark.skip(reason="Temporarily skipping to only run dataframe tests")
     def test_end_to_end_tabular(self, shared_state):
         """Build dataset, train a custom and AutoML model, deploy, and get predictions"""
 

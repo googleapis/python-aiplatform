@@ -33,7 +33,6 @@ class TestModel(e2e_base.TestEndToEnd):
 
     _temp_prefix = "temp_vertex_sdk_e2e_model_upload_test"
 
-    @pytest.mark.skip(reason="Temporarily skipping to only run dataframe tests")
     def test_upload_and_deploy_xgboost_model(self, shared_state):
         """Upload XGBoost model from local file and deploy it for prediction. Additionally, update model name, description and labels"""
 
