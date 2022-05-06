@@ -229,32 +229,32 @@ class TabularDataset(datasets._ColumnNamesDataset):
             credentials=credentials or initializer.global_config.credentials,
         )
 
-        # try:
-        parquet_options = bigquery.format_options.ParquetOptions()
-        parquet_options.enable_list_inference = True
+        try:
+            parquet_options = bigquery.format_options.ParquetOptions()
+            parquet_options.enable_list_inference = True
 
-        job_config = bigquery.LoadJobConfig(
-            source_format=bigquery.SourceFormat.PARQUET,
-            parquet_options=parquet_options,
-        )
+            job_config = bigquery.LoadJobConfig(
+                source_format=bigquery.SourceFormat.PARQUET,
+                parquet_options=parquet_options,
+            )
 
-        if bq_schema:
-            job_config.schema = bq_schema
+            if bq_schema:
+                job_config.schema = bq_schema
 
-        job = bigquery_client.load_table_from_dataframe(
-            dataframe=df_source, destination=bq_staging_path, job_config=job_config
-        )
+            job = bigquery_client.load_table_from_dataframe(
+                dataframe=df_source, destination=bq_staging_path, job_config=job_config
+            )
 
-        job.result()
+            job.result()
 
-        # finally:
-        dataset_from_dataframe = cls.create(
-            display_name=display_name,
-            bq_source=staging_path,
-            project=project,
-            location=location,
-            credentials=credentials,
-        )
+        finally:
+            dataset_from_dataframe = cls.create(
+                display_name=display_name,
+                bq_source=staging_path,
+                project=project,
+                location=location,
+                credentials=credentials,
+            )
 
         return dataset_from_dataframe
 

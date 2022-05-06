@@ -39,13 +39,12 @@ from test_utils.vpcsc_config import vpcsc_config
 
 from tests.system.aiplatform import e2e_base
 
-# TODO(vinnys): Replace with env var `BUILD_SPECIFIC_GCP_PROJECT` once supported
-_, _TEST_PROJECT = google_auth.default()
+_TEST_PROJECT = e2e_base._PROJECT
+_TEST_LOCATION = e2e_base._LOCATION
 TEST_BUCKET = os.environ.get(
     "GCLOUD_TEST_SAMPLES_BUCKET", "cloud-samples-data-us-central1"
 )
 
-_TEST_LOCATION = "us-central1"
 _TEST_PARENT = f"projects/{_TEST_PROJECT}/locations/{_TEST_LOCATION}"
 _TEST_API_ENDPOINT = f"{_TEST_LOCATION}-aiplatform.googleapis.com"
 _TEST_IMAGE_DATASET_ID = "1084241610289446912"  # permanent_50_flowers_dataset
@@ -223,7 +222,6 @@ class TestDataset(e2e_base.TestEndToEnd):
         assert flowers_dataset.name == _TEST_IMAGE_DATASET_ID
         assert flowers_dataset.display_name == _TEST_DATASET_DISPLAY_NAME
 
-    @pytest.mark.skip(reason="Temporarily skipping to only run dataframe tests")
     def test_get_nonexistent_dataset(self):
         """Ensure attempting to retrieve a dataset that doesn't exist raises
         a Google API core 404 exception."""
@@ -234,7 +232,6 @@ class TestDataset(e2e_base.TestEndToEnd):
         with pytest.raises(exceptions.NotFound):
             aiplatform.ImageDataset(dataset_name="0")
 
-    @pytest.mark.skip(reason="Temporarily skipping to only run dataframe tests")
     @pytest.mark.usefixtures("create_text_dataset", "delete_new_dataset")
     def test_get_new_dataset_and_import(self, dataset_gapic_client, shared_state):
         """Retrieve new, empty dataset and import a text dataset using import().
@@ -264,7 +261,6 @@ class TestDataset(e2e_base.TestEndToEnd):
 
         assert len(list(data_items_post_import)) == 469
 
-    @pytest.mark.skip(reason="Temporarily skipping to only run dataframe tests")
     @vpcsc_config.skip_if_inside_vpcsc
     @pytest.mark.usefixtures("delete_new_dataset")
     def test_create_and_import_image_dataset(self, dataset_gapic_client, shared_state):
@@ -288,7 +284,6 @@ class TestDataset(e2e_base.TestEndToEnd):
 
         assert len(list(data_items_iterator)) == 14
 
-    @pytest.mark.skip(reason="Temporarily skipping to only run dataframe tests")
     @pytest.mark.usefixtures("delete_new_dataset")
     def test_create_tabular_dataset(self, dataset_gapic_client, shared_state):
         """Use the Dataset.create() method to create a new tabular dataset.
