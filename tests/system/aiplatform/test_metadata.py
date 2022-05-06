@@ -28,6 +28,7 @@ class TestMetadata(e2e_base.TestEndToEnd):
 
     _temp_prefix = "temp-vertex-sdk-e2e-test"
 
+    @pytest.mark.skip(reason="Temporarily skipping to only run dataframe tests")
     def test_experiment_logging(self, shared_state):
 
         # Truncating the name because of resource id constraints from the service

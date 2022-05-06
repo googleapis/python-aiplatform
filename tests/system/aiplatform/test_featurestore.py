@@ -56,6 +56,7 @@ class TestFeaturestore(e2e_base.TestEndToEnd):
 
     _temp_prefix = "temp_vertex_sdk_e2e_featurestore_test"
 
+    @pytest.mark.skip(reason="Temporarily skipping to only run dataframe tests")
     def test_create_get_list_featurestore(self, shared_state):
         aiplatform.init(
             project=e2e_base._PROJECT,
@@ -83,6 +84,7 @@ class TestFeaturestore(e2e_base.TestEndToEnd):
             featurestore.resource_name for featurestore in list_featurestores
         ]
 
+    @pytest.mark.skip(reason="Temporarily skipping to only run dataframe tests")
     def test_create_get_list_entity_types(self, shared_state):
 
         assert shared_state["featurestore"]
@@ -128,6 +130,7 @@ class TestFeaturestore(e2e_base.TestEndToEnd):
             entity_type.resource_name for entity_type in list_entity_types
         ]
 
+    @pytest.mark.skip(reason="Temporarily skipping to only run dataframe tests")
     def test_create_get_list_features(self, shared_state):
 
         assert shared_state["user_entity_type"]
@@ -194,6 +197,7 @@ class TestFeaturestore(e2e_base.TestEndToEnd):
             in list_user_feature_resource_names
         )
 
+    @pytest.mark.skip(reason="Temporarily skipping to only run dataframe tests")
     def test_ingest_feature_values(self, shared_state, caplog):
 
         assert shared_state["user_entity_type"]
@@ -223,6 +227,7 @@ class TestFeaturestore(e2e_base.TestEndToEnd):
 
         caplog.clear()
 
+    @pytest.mark.skip(reason="Temporarily skipping to only run dataframe tests")
     def test_batch_create_features(self, shared_state):
         assert shared_state["movie_entity_type"]
         movie_entity_type = shared_state["movie_entity_type"]
@@ -261,6 +266,7 @@ class TestFeaturestore(e2e_base.TestEndToEnd):
             get_movie_avg_rating_feature.resource_name in movie_feature_resource_names
         )
 
+    @pytest.mark.skip(reason="Temporarily skipping to only run dataframe tests")
     def test_ingest_feature_values_from_df_using_feature_time_column_and_online_read_multiple_entities(
         self, shared_state, caplog
     ):
@@ -365,6 +371,7 @@ class TestFeaturestore(e2e_base.TestEndToEnd):
         assert "EntityType feature values imported." in caplog.text
         caplog.clear()
 
+    @pytest.mark.skip(reason="Temporarily skipping to only run dataframe tests")
     def test_ingest_feature_values_from_df_using_feature_time_datetime_and_online_read_single_entity(
         self, shared_state, caplog
     ):
@@ -433,6 +440,7 @@ class TestFeaturestore(e2e_base.TestEndToEnd):
 
         caplog.clear()
 
+    @pytest.mark.skip(reason="Temporarily skipping to only run dataframe tests")
     def test_search_features(self, shared_state):
 
         aiplatform.init(
@@ -443,6 +451,7 @@ class TestFeaturestore(e2e_base.TestEndToEnd):
         list_searched_features = aiplatform.Feature.search()
         assert len(list_searched_features) >= 1
 
+    @pytest.mark.skip(reason="Temporarily skipping to only run dataframe tests")
     def test_batch_serve_to_df(self, shared_state, caplog):
 
         assert shared_state["featurestore"]
@@ -520,6 +529,7 @@ class TestFeaturestore(e2e_base.TestEndToEnd):
 
         caplog.clear()
 
+    @pytest.mark.skip(reason="Temporarily skipping to only run dataframe tests")
     def test_batch_serve_to_gcs(self, shared_state, caplog):
 
         assert shared_state["featurestore"]
@@ -571,6 +581,7 @@ class TestFeaturestore(e2e_base.TestEndToEnd):
 
         caplog.clear()
 
+    @pytest.mark.skip(reason="Temporarily skipping to only run dataframe tests")
     def test_batch_serve_to_bq(self, shared_state, caplog):
 
         assert shared_state["featurestore"]
@@ -621,6 +632,7 @@ class TestFeaturestore(e2e_base.TestEndToEnd):
         assert "Featurestore feature values served." in caplog.text
         caplog.clear()
 
+    @pytest.mark.skip(reason="Temporarily skipping to only run dataframe tests")
     def test_online_reads(self, shared_state):
         assert shared_state["user_entity_type"]
         assert shared_state["movie_entity_type"]

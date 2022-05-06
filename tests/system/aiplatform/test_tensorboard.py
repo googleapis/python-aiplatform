@@ -23,6 +23,7 @@ class TestTensorboard(e2e_base.TestEndToEnd):
 
     _temp_prefix = "temp-vertex-sdk-e2e-test"
 
+    @pytest.mark.skip(reason="Temporarily skipping to only run dataframe tests")
     def test_create_and_get_tensorboard(self, shared_state):
 
         aiplatform.init(
