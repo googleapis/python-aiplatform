@@ -69,8 +69,8 @@ full_extra_require = list(
         + lit_extra_require
         + featurestore_extra_require
         + pipelines_extra_require
-        + private_endpoints_extra_require
         + datasets_extra_require
+        + private_endpoints_extra_require
     )
 )
 testing_extra_require = (
