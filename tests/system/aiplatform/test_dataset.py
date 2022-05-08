@@ -189,7 +189,7 @@ class TestDataset(e2e_base.TestEndToEnd):
             my_dataset.import_data(
                 gcs_source=_TEST_TEXT_ENTITY_EXTRACTION_GCS_SOURCE,
                 import_schema_uri=_TEST_TEXT_ENTITY_IMPORT_SCHEMA,
-                import_request_timeout=None,
+                import_request_timeout=600.0,
             )
 
             data_items_post_import = dataset_gapic_client.list_data_items(
@@ -215,7 +215,7 @@ class TestDataset(e2e_base.TestEndToEnd):
             )
 
             data_items_iterator = dataset_gapic_client.list_data_items(
-                parent=image_dataset.resource_name
+                parent=img_dataset.resource_name
             )
 
             assert len(list(data_items_iterator)) == 14
