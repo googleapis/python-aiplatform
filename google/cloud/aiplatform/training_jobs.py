@@ -1564,6 +1564,8 @@ class _CustomTrainingJob(_TrainingJob):
 class _ForecastingTrainingJob(_TrainingJob):
     """ABC for Forecasting Training Pipelines."""
 
+    _supported_training_schemas = tuple()
+
     def __init__(
         self,
         display_name: Optional[str] = None,
