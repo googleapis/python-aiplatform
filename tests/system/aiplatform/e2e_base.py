@@ -20,6 +20,7 @@ import importlib
 import os
 import pytest
 import uuid
+
 from typing import Any, Dict, Generator
 
 from google.api_core import exceptions
@@ -29,8 +30,7 @@ from google.cloud import storage
 from google.cloud.aiplatform import initializer
 
 _PROJECT = os.getenv("BUILD_SPECIFIC_GCLOUD_PROJECT")
-_PROJECT_NUMBER = os.getenv("PROJECT_NUMBER")
-_VPC_NETWORK_NAME = os.getenv("private-net")
+_VPC_NETWORK_URI = os.getenv("_VPC_NETWORK_URI")
 _LOCATION = "us-central1"
 
 
@@ -155,7 +155,10 @@ class TestEndToEnd(metaclass=abc.ABCMeta):
         # Bring all Endpoints to the front of the list
         # Ensures Models are undeployed first before we attempt deletion
         shared_state["resources"].sort(
-            key=lambda r: 1 if isinstance(r, aiplatform.Endpoint) else 2
+            key=lambda r: 1
+            if isinstance(r, aiplatform.Endpoint)
+            or isinstance(r, aiplatform.MatchingEngineIndexEndpoint)
+            else 2
         )
 
         for resource in shared_state["resources"]:
@@ -165,6 +168,7 @@ class TestEndToEnd(metaclass=abc.ABCMeta):
                     (
                         aiplatform.Endpoint,
                         aiplatform.Featurestore,
+                        aiplatform.MatchingEngineIndexEndpoint,
                     ),
                 ):
                     # For endpoint, undeploy model then delete endpoint
