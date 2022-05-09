@@ -1962,8 +1962,7 @@ class _ForecastingTrainingJob(_TrainingJob):
 
         if self._has_run:
             raise RuntimeError(
-                f"{self.__class__._model_type} Forecasting Training has "
-                "already run."
+                f"{self.__class__._model_type} Forecasting Training has already run."
             )
 
         if additional_experiments:
@@ -4741,8 +4740,7 @@ class AutoMLTabularTrainingJob(_TrainingJob):
 
 class AutoMLForecastingTrainingJob(_ForecastingTrainingJob):
     _model_type = "AutoML"
-    _training_task_definition = (
-            schema.training_job.definition.automl_forecasting)
+    _training_task_definition = schema.training_job.definition.automl_forecasting
     _supported_training_schemas = (schema.training_job.definition.automl_forecasting,)
 
     def __init__(
@@ -5154,8 +5152,7 @@ class AutoMLForecastingTrainingJob(_ForecastingTrainingJob):
 
 class SequenceToSequencePlusForecastingTrainingJob(_ForecastingTrainingJob):
     _model_type = "Seq2Seq"
-    _training_task_definition = (
-            schema.training_job.definition.seq2seq_forecasting)
+    _training_task_definition = schema.training_job.definition.seq2seq_forecasting
     _supported_training_schemas = (schema.training_job.definition.seq2seq_forecasting,)
 
     def __init__(
