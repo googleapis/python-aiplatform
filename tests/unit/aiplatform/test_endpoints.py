@@ -32,15 +32,12 @@ from google.cloud.aiplatform import explain
 from google.cloud.aiplatform import models
 from google.cloud.aiplatform import utils
 
-from google.cloud.aiplatform_v1.services.model_service import (
-    client as model_service_client,
+from google.cloud.aiplatform.compat.services import (
+    model_service_client,
+    endpoint_service_client,
+    prediction_service_client,
 )
-from google.cloud.aiplatform_v1.services.endpoint_service import (
-    client as endpoint_service_client,
-)
-from google.cloud.aiplatform_v1.services.prediction_service import (
-    client as prediction_service_client,
-)
+
 from google.cloud.aiplatform.compat.types import (
     endpoint as gca_endpoint,
     model as gca_model,
