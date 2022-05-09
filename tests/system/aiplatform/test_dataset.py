@@ -33,7 +33,7 @@ from google.cloud.aiplatform import utils
 from google.cloud.aiplatform import initializer
 from google.cloud.aiplatform_v1beta1.services import dataset_service
 
-# from test_utils.vpcsc_config import vpcsc_config
+from test_utils.vpcsc_config import vpcsc_config
 
 from tests.system.aiplatform import e2e_base
 
@@ -201,7 +201,7 @@ class TestDataset(e2e_base.TestEndToEnd):
             if text_dataset is not None:
                 text_dataset.delete()
 
-    # @vpcsc_config.skip_if_inside_vpcsc
+    @vpcsc_config.skip_if_inside_vpcsc
     def test_create_and_import_image_dataset(self, dataset_gapic_client):
         """Use the Dataset.create() method to create a new image obj detection
         dataset and import images. Then confirm images were successfully imported."""
