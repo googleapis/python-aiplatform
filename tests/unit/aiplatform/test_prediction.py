@@ -315,6 +315,12 @@ def local_endpoint_exit_mock():
 
 
 @pytest.fixture
+def local_endpoint_deploy_mock():
+    with mock.patch.object(LocalEndpoint, "deploy") as local_endpoint_deploy_mock:
+        yield local_endpoint_deploy_mock
+
+
+@pytest.fixture
 def initializer_mock():
     global_config = initializer.global_config
     type(global_config).project = mock.PropertyMock(return_value=_TEST_PROJECT)
@@ -1613,6 +1619,65 @@ class TestLocalModel:
         assert local_endpoint_enter_mock.called
         assert local_endpoint_exit_mock.called
 
+    def test_deploy_to_local_endpoint_lastingly(
+        self,
+        local_endpoint_deploy_mock,
+    ):
+        container_spec = gca_model_compat.ModelContainerSpec(image_uri=_TEST_IMAGE_URI)
+        local_model = LocalModel(container_spec)
+
+        _ = local_model.deploy_to_local_endpoint_lastingly()
+
+        local_endpoint_deploy_mock.assert_called_once_with(
+            serving_container_image_uri=_TEST_IMAGE_URI,
+            artifact_uri=None,
+            serving_container_predict_route="",
+            serving_container_health_route="",
+            serving_container_command=[],
+            serving_container_args=[],
+            serving_container_environment_variables={},
+            serving_container_ports=[],
+            credential_path=None,
+            host_port=None,
+            container_ready_timeout=None,
+            container_ready_check_interval=None,
+        )
+
+    def test_deploy_to_local_endpoint_lastingly_with_all_parameters(
+        self,
+        local_endpoint_deploy_mock,
+    ):
+        container_spec = gca_model_compat.ModelContainerSpec(image_uri=_TEST_IMAGE_URI)
+        local_model = LocalModel(container_spec)
+        artifact_uri = "gs://myproject/mymodel"
+        credential_path = "key.json"
+        host_port = 6666
+        container_ready_timeout = 60
+        container_ready_check_interval = 5
+
+        _ = local_model.deploy_to_local_endpoint_lastingly(
+            artifact_uri=artifact_uri,
+            credential_path=credential_path,
+            host_port=host_port,
+            container_ready_timeout=container_ready_timeout,
+            container_ready_check_interval=container_ready_check_interval,
+        )
+
+        local_endpoint_deploy_mock.assert_called_once_with(
+            serving_container_image_uri=_TEST_IMAGE_URI,
+            artifact_uri=artifact_uri,
+            serving_container_predict_route="",
+            serving_container_health_route="",
+            serving_container_command=[],
+            serving_container_args=[],
+            serving_container_environment_variables={},
+            serving_container_ports=[],
+            credential_path=credential_path,
+            host_port=host_port,
+            container_ready_timeout=container_ready_timeout,
+            container_ready_check_interval=container_ready_check_interval,
+        )
+
     def test_copy_image(
         self,
         pull_image_if_not_exists_mock,
@@ -1768,7 +1833,7 @@ class TestLocalEndpoint:
         )
         wait_until_container_runs_mock.assert_called_once_with()
         wait_until_health_check_succeeds_mock.assert_called_once_with()
-        stop_container_if_exists_mock.assert_called_once_with()
+        assert stop_container_if_exists_mock.called
 
     def test_init_with_all_parameters(
         self,
@@ -1823,7 +1888,7 @@ class TestLocalEndpoint:
         )
         wait_until_container_runs_mock.assert_called_once_with()
         wait_until_health_check_succeeds_mock.assert_called_once_with()
-        stop_container_if_exists_mock.assert_called_once_with()
+        assert stop_container_if_exists_mock.called
 
     def test_init_with_initializer_project(
         self,
@@ -1855,7 +1920,7 @@ class TestLocalEndpoint:
         )
         wait_until_container_runs_mock.assert_called_once_with()
         wait_until_health_check_succeeds_mock.assert_called_once_with()
-        stop_container_if_exists_mock.assert_called_once_with()
+        assert stop_container_if_exists_mock.called
 
     def test_init_with_gpu_count(
         self,
@@ -1889,7 +1954,7 @@ class TestLocalEndpoint:
         )
         wait_until_container_runs_mock.assert_called_once_with()
         wait_until_health_check_succeeds_mock.assert_called_once_with()
-        stop_container_if_exists_mock.assert_called_once_with()
+        assert stop_container_if_exists_mock.called
 
     def test_init_with_gpu_device_ids(
         self,
@@ -1923,7 +1988,7 @@ class TestLocalEndpoint:
         )
         wait_until_container_runs_mock.assert_called_once_with()
         wait_until_health_check_succeeds_mock.assert_called_once_with()
-        stop_container_if_exists_mock.assert_called_once_with()
+        assert stop_container_if_exists_mock.called
 
     def test_init_with_gpu_count_and_device_ids_throw_error(
         self,
@@ -1976,7 +2041,7 @@ class TestLocalEndpoint:
         )
         wait_until_container_runs_mock.assert_called_once_with()
         wait_until_health_check_succeeds_mock.assert_called_once_with()
-        stop_container_if_exists_mock.assert_called_once_with()
+        assert stop_container_if_exists_mock.called
 
     def test_init_with_gpu_device_ids_but_capabilities_unset(
         self,
@@ -2006,7 +2071,7 @@ class TestLocalEndpoint:
         )
         wait_until_container_runs_mock.assert_called_once_with()
         wait_until_health_check_succeeds_mock.assert_called_once_with()
-        stop_container_if_exists_mock.assert_called_once_with()
+        assert stop_container_if_exists_mock.called
 
     def test_init_with_gpu_capabilities_but_count_and_device_ids_unset(
         self,
@@ -2036,7 +2101,91 @@ class TestLocalEndpoint:
         )
         wait_until_container_runs_mock.assert_called_once_with()
         wait_until_health_check_succeeds_mock.assert_called_once_with()
-        stop_container_if_exists_mock.assert_called_once_with()
+        assert stop_container_if_exists_mock.called
+
+    def test_deploy(
+        self,
+        local_endpoint_init_mock,
+        local_endpoint_enter_mock,
+        local_endpoint_exit_mock,
+    ):
+        _ = LocalEndpoint.deploy(_TEST_IMAGE_URI)
+
+        local_endpoint_init_mock.assert_called_once_with(
+            serving_container_image_uri=_TEST_IMAGE_URI,
+            artifact_uri=None,
+            serving_container_predict_route=None,
+            serving_container_health_route=None,
+            serving_container_command=None,
+            serving_container_args=None,
+            serving_container_environment_variables=None,
+            serving_container_ports=None,
+            credential_path=None,
+            host_port=None,
+            container_ready_timeout=None,
+            container_ready_check_interval=None,
+        )
+        local_endpoint_enter_mock.assert_called_once_with()
+
+    def test_deploy_with_all_parameters(
+        self,
+        local_endpoint_init_mock,
+        local_endpoint_enter_mock,
+        local_endpoint_exit_mock,
+    ):
+        artifact_uri = "gs://myproject/mymodel"
+        serving_container_predict_route = "/custom_predict"
+        serving_container_health_route = "/custom_health"
+        serving_container_command = ["echo", "hello"]
+        serving_container_args = [">", "tmp.log"]
+        serving_container_environment_variables = {"custom_key": "custom_value"}
+        serving_container_ports = [5555]
+        credential_path = "key.json"
+        host_port = 6666
+        container_ready_timeout = 60
+        container_ready_check_interval = 5
+
+        _ = LocalEndpoint.deploy(
+            _TEST_IMAGE_URI,
+            artifact_uri=artifact_uri,
+            serving_container_predict_route=serving_container_predict_route,
+            serving_container_health_route=serving_container_health_route,
+            serving_container_command=serving_container_command,
+            serving_container_args=serving_container_args,
+            serving_container_environment_variables=serving_container_environment_variables,
+            serving_container_ports=serving_container_ports,
+            credential_path=credential_path,
+            host_port=host_port,
+            container_ready_timeout=container_ready_timeout,
+            container_ready_check_interval=container_ready_check_interval,
+        )
+
+        local_endpoint_init_mock.assert_called_once_with(
+            serving_container_image_uri=_TEST_IMAGE_URI,
+            artifact_uri=artifact_uri,
+            serving_container_predict_route=serving_container_predict_route,
+            serving_container_health_route=serving_container_health_route,
+            serving_container_command=serving_container_command,
+            serving_container_args=serving_container_args,
+            serving_container_environment_variables=serving_container_environment_variables,
+            serving_container_ports=serving_container_ports,
+            credential_path=credential_path,
+            host_port=host_port,
+            container_ready_timeout=container_ready_timeout,
+            container_ready_check_interval=container_ready_check_interval,
+        )
+        local_endpoint_enter_mock.assert_called_once_with()
+
+    def test_undeploy(
+        self,
+        local_endpoint_exit_mock,
+        stop_container_if_exists_mock,
+    ):
+        endpoint = LocalEndpoint(_TEST_IMAGE_URI)
+
+        endpoint.undeploy()
+
+        local_endpoint_exit_mock.assert_called_once_with(None, None, None)
 
     def test_predict_request(
         self,
@@ -2147,6 +2296,26 @@ class TestLocalEndpoint:
         )
         assert response.status_code == get_requests_post_response().status_code
         assert response._content == get_requests_post_response()._content
+
+    def test_predict_container_exited_raises_exception(
+        self,
+        run_prediction_container_mock,
+        wait_until_container_runs_mock,
+        wait_until_health_check_succeeds_mock,
+        stop_container_if_exists_mock,
+        requests_post_mock,
+    ):
+        request = '{"instances": [{"x": [[1.1, 2.2, 3.3, 5.5]]}]}'
+        endpoint = LocalEndpoint(
+            _TEST_IMAGE_URI,
+        )
+        endpoint.container_exited = True
+        expected_message = "The local endpoint has been undeployed. Please re-deploy to a local endpoint."
+
+        with pytest.raises(RuntimeError) as exception:
+            endpoint.predict(request=request)
+
+        assert str(exception.value) == expected_message
 
     def test_predict_both_request_and_request_file_specified_raises_exception(
         self,
@@ -2296,6 +2465,25 @@ class TestLocalEndpoint:
         requests_get_mock.assert_called_once_with(url)
         assert response.status_code == get_requests_get_response().status_code
         assert response._content == get_requests_get_response()._content
+
+    def test_run_health_check_container_exited_raises_exception(
+        self,
+        run_prediction_container_mock,
+        wait_until_container_runs_mock,
+        wait_until_health_check_succeeds_mock,
+        stop_container_if_exists_mock,
+        requests_get_mock,
+    ):
+        endpoint = LocalEndpoint(
+            _TEST_IMAGE_URI,
+        )
+        endpoint.container_exited = True
+        expected_message = "The local endpoint has been undeployed. Please re-deploy to a local endpoint."
+
+        with pytest.raises(RuntimeError) as exception:
+            endpoint.run_health_check()
+
+        assert str(exception.value) == expected_message
 
     def test_run_health_check_raises_exception(
         self,

@@ -66,6 +66,19 @@ class TestPredictionCpr(e2e_base.TestEndToEnd):
             )
         assert len(json.loads(local_predict_response.content)["predictions"]) == 1
 
+        lasting_local_endpoint = local_model.deploy_to_local_endpoint_lastingly(
+            artifact_uri=_ARTIFACT_URI,
+            credential_path=os.environ.get("GOOGLE_APPLICATION_CREDENTIALS"),
+        )
+        lasting_local_predict_response = lasting_local_endpoint.predict(
+            request=f'{{"instances": {_PREDICTION_INPUT}}}',
+            headers={"Content-Type": "application/json"},
+        )
+        lasting_local_endpoint.undeploy()
+        assert (
+            len(json.loads(lasting_local_predict_response.content)["predictions"]) == 1
+        )
+
         # Configure docker.
         logging.info(
             subprocess.run(["gcloud", "auth", "configure-docker"], capture_output=True)
