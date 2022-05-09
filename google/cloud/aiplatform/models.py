@@ -621,21 +621,25 @@ class Endpoint(base.VertexAiResourceNounWithFutureManager):
             raise ValueError("Max replica cannot be negative.")
         if deployed_model_display_name is not None:
             utils.validate_display_name(deployed_model_display_name)
-        if traffic_percentage:
+
+        if traffic_split is None:
             if traffic_percentage > 100:
                 raise ValueError("Traffic percentage cannot be greater than 100.")
             if traffic_percentage < 0:
                 raise ValueError("Traffic percentage cannot be negative.")
-        if traffic_split:
+
+        elif traffic_split:
             # TODO(b/172678233) verify every referenced deployed model exists
             if sum(traffic_split.values()) != 100:
                 raise ValueError(
                     "Sum of all traffic within traffic split needs to be 100."
                 )
+
         if bool(explanation_metadata) != bool(explanation_parameters):
             raise ValueError(
                 "Both `explanation_metadata` and `explanation_parameters` should be specified or None."
             )
+
         # Raises ValueError if invalid accelerator
         if accelerator_type:
             utils.validate_accelerator_type(accelerator_type)
