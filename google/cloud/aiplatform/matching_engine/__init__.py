@@ -15,15 +15,15 @@
 # limitations under the License.
 #
 
-from google.cloud.aiplatform._matching_engine.matching_engine_index import (
+from google.cloud.aiplatform.matching_engine.matching_engine_index import (
     MatchingEngineIndex,
 )
-from google.cloud.aiplatform._matching_engine.matching_engine_index_config import (
+from google.cloud.aiplatform.matching_engine.matching_engine_index_config import (
     BruteForceConfig as MatchingEngineBruteForceAlgorithmConfig,
     MatchingEngineIndexConfig as MatchingEngineIndexConfig,
     TreeAhConfig as MatchingEngineTreeAhAlgorithmConfig,
 )
-from google.cloud.aiplatform._matching_engine.matching_engine_index_endpoint import (
+from google.cloud.aiplatform.matching_engine.matching_engine_index_endpoint import (
     MatchingEngineIndexEndpoint,
 )
 
