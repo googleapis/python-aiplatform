@@ -30,6 +30,7 @@ __protobuf__ = proto.module(
     package="google.cloud.aiplatform.v1beta1",
     manifest={
         "PipelineJob",
+        "PipelineTemplateMetadata",
         "PipelineJobDetail",
         "PipelineTaskDetail",
         "PipelineTaskExecutorDetail",
@@ -109,6 +110,15 @@ class PipelineJob(proto.Message):
             to the GCP resources being launched, if applied, such as
             Vertex AI Training or Dataflow job. If left unspecified, the
             workload is not peered with any network.
+        template_uri (str):
+            A template uri from where the
+            [PipelineJob.pipeline_spec][google.cloud.aiplatform.v1beta1.PipelineJob.pipeline_spec],
+            if empty, will be downloaded.
+        template_metadata (google.cloud.aiplatform_v1beta1.types.PipelineTemplateMetadata):
+            Output only. Pipeline template metadata. Will fill up fields
+            if
+            [PipelineJob.template_uri][google.cloud.aiplatform.v1beta1.PipelineJob.template_uri]
+            is from supported template registry.
     """
 
     class RuntimeConfig(proto.Message):
@@ -233,6 +243,38 @@ class PipelineJob(proto.Message):
     network = proto.Field(
         proto.STRING,
         number=18,
+    )
+    template_uri = proto.Field(
+        proto.STRING,
+        number=19,
+    )
+    template_metadata = proto.Field(
+        proto.MESSAGE,
+        number=20,
+        message="PipelineTemplateMetadata",
+    )
+
+
+class PipelineTemplateMetadata(proto.Message):
+    r"""Pipeline template metadata if
+    [PipelineJob.template_uri][google.cloud.aiplatform.v1beta1.PipelineJob.template_uri]
+    is from supported template registry. Currently, the only supported
+    registry is Artifact Registry.
+
+    Attributes:
+        version (str):
+            The version_name in artifact registry.
+
+            Will always be presented in output if the
+            [PipelineJob.template_uri][google.cloud.aiplatform.v1beta1.PipelineJob.template_uri]
+            is from supported template registry.
+
+            Format is "sha256:abcdef123456...".
+    """
+
+    version = proto.Field(
+        proto.STRING,
+        number=3,
     )
 
 
