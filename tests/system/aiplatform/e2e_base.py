@@ -125,7 +125,26 @@ class TestEndToEnd(metaclass=abc.ABCMeta):
             bigquery_dataset.dataset_id, delete_contents=True, not_found_ok=True
         )  # Make an API request.
 
-    @pytest.fixture(scope="class", autouse=True)
+    @pytest.fixture(scope="class")
+    def bigquery_dataset(self) -> Generator[bigquery.dataset.Dataset, None, None]:
+        """Create a bigquery dataset and store bigquery resource object in shared state."""
+
+        bigquery_client = bigquery.Client(project=_PROJECT)
+
+        dataset_name = f"{self._temp_prefix.lower()}_{uuid.uuid4()}".replace("-", "_")
+        dataset_id = f"{_PROJECT}.{dataset_name}"
+
+        dataset = bigquery.Dataset(dataset_id)
+        dataset.location = _LOCATION
+        dataset = bigquery_client.create_dataset(dataset)
+
+        yield dataset
+
+        bigquery_client.delete_dataset(
+            dataset.dataset_id, delete_contents=True, not_found_ok=True
+        )  # Make an API request.
+
+    @pytest.fixture(scope="class")
     def tear_down_resources(self, shared_state: Dict[str, Any]):
         """Delete every Vertex AI resource created during test"""
 
