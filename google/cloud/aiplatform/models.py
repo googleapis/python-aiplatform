@@ -1722,7 +1722,7 @@ class PrivateEndpoint(Endpoint):
         url: str,
         body: Optional[Dict[Any, Any]] = None,
         headers: Optional[Dict[str, str]] = None,
-    ):
+    ) -> "urllib3.response.HTTPResponse": # type: ignore
         """Helper function used to perform HTTP requests for private Endpoint.
 
         Args:
