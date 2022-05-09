@@ -2137,9 +2137,10 @@ class _ForecastingTrainingJob(_TrainingJob):
                 Optional. Column names that should be used as attribute columns.
                 Each column is constant within a time series.
             context_window (int):
-                Optional. The number of periods offset into the past to restrict past sequence, where each
-                period is one unit of granularity as defined by [period]. When not provided uses the
-                default value of 0 which means the model sets each series historical window to be 0 (also
+                Optional. The amount of time into the past training and prediction data is used for
+                model training and prediction respectively. Expressed in number of units defined by the
+                [data_granularity_unit] and [data_granularity_count] fields. When not provided uses the
+                default value of 0 which means the model sets each series context window to be 0 (also
                 known as "cold start"). Inclusive.
             export_evaluated_data_items (bool):
                 Whether to export the test set predictions to a BigQuery table.
