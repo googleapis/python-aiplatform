@@ -52,6 +52,9 @@ _PIPELINE_ERROR_STATES = set(
 # Pattern for valid names used as a Vertex resource name.
 _VALID_NAME_PATTERN = re.compile("^[a-z][-a-z0-9]{0,127}$")
 
+# Pattern for an Artifact Registry address.
+_VALID_AR_ADDRESS = re.compile("^https://([w-]+)-kfp.pkg.dev/.*")
+
 
 def _get_current_time() -> datetime.datetime:
     """Gets the current timestamp."""
@@ -225,6 +228,10 @@ class PipelineJob(base.VertexAiStatefulResource):
         if enable_caching is not None:
             _set_enable_caching_value(pipeline_job["pipelineSpec"], enable_caching)
 
+        template_uri = None
+        if _VALID_AR_ADDRESS.match(template_path):
+            template_uri = template_path
+
         self._gca_resource = gca_pipeline_job_v1.PipelineJob(
             display_name=display_name,
             pipeline_spec=pipeline_job["pipelineSpec"],
@@ -233,6 +240,7 @@ class PipelineJob(base.VertexAiStatefulResource):
             encryption_spec=initializer.global_config.get_encryption_spec(
                 encryption_spec_key_name=encryption_spec_key_name
             ),
+            template_uri=template_uri,
         )
 
     @base.optional_sync()

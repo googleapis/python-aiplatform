@@ -22,6 +22,7 @@ import os
 from typing import Callable, Dict, Optional
 
 import pytest
+import requests
 import yaml
 from google.api_core import client_options, gapic_v1
 from google.cloud import aiplatform
@@ -558,14 +559,26 @@ def json_file(tmp_path):
         json.dump(data, f)
     yield json_file_path
 
+@pytest.fixture(scope="function")
+def mock_requests_get(job_spec):
+    data = {"key": "val", "list": ["1", 2, 3.0]}
+    with patch.object(requests, "get") as mock_get:
+        mock_get.return_value.content = json.dumps(data)
+        yield "https://us-central1-kfp.pkg.dev/proj/repo/pack/tag1"
+
 
 class TestYamlUtils:
-    def test_load_yaml_from_local_file__with_json(self, yaml_file):
+    def test_load_yaml_from_local_file__with_yaml(self, yaml_file):
         actual = yaml_utils.load_yaml(yaml_file)
         expected = {"key": "val", "list": ["1", 2, 3.0]}
         assert actual == expected
 
-    def test_load_yaml_from_local_file__with_yaml(self, json_file):
+    def test_load_yaml_from_local_file__with_json(self, json_file):
+        actual = yaml_utils.load_yaml(json_file)
+        expected = {"key": "val", "list": ["1", 2, 3.0]}
+        assert actual == expected
+
+    def test_load_yaml_from_ar_uri__with_yaml(self, mock_requests_get):
         actual = yaml_utils.load_yaml(json_file)
         expected = {"key": "val", "list": ["1", 2, 3.0]}
         assert actual == expected

@@ -15,10 +15,25 @@
 # limitations under the License.
 #
 
+import requests
 from typing import Any, Dict, Optional
 
 from google.auth import credentials as auth_credentials
 from google.cloud import storage
+
+# Pattern for an Artifact Registry address.
+_VALID_AR_ADDRESS = re.compile("^https://([w-]+)-kfp.pkg.dev/.*")
+
+class ApiAuth(requests.auth.AuthBase):
+    """Class for requests authentication using API token."""
+
+    def __init__(self, token: str) -> None:
+        self._token = token
+
+    def __call__(self,
+                 request: requests.PreparedRequest) -> requests.PreparedRequest:
+        request.headers['authorization'] = 'Bearer ' + self._token
+        return request
 
 
 def load_yaml(
@@ -42,6 +57,8 @@ def load_yaml(
     """
     if path.startswith("gs://"):
         return _load_yaml_from_gs_uri(path, project, credentials)
+    else if _VALID_AR_ADDRESS.match(path):
+        return _load_yaml_from_ar_uri(path, project, credentials)
     else:
         return _load_yaml_from_local_file(path)
 
@@ -95,3 +112,33 @@ def _load_yaml_from_local_file(file_path: str) -> Dict[str, Any]:
         )
     with open(file_path) as f:
         return yaml.safe_load(f)
+
+def _load_yaml_from_ar_uri(
+    uri: str,
+    project: Optional[str] = None,
+    credentials: Optional[auth_credentials.Credentials] = None,
+) -> Dict[str, Any]:
+    """Loads data from a YAML document referenced by a Artifact Registry URI.
+
+    Args:
+      path (str):
+          Required. Artifact Registry URI for YAML document.
+      project (str):
+          Optional. Project to initiate the Storage client with.
+      credentials (auth_credentials.Credentials):
+          Optional. Credentials to use with Artifact Registry.
+
+    Returns:
+      A Dict object representing the YAML document.
+    """
+    try:
+        import yaml
+    except ImportError:
+        raise ImportError(
+            "pyyaml is not installed and is required to parse PipelineJob or PipelineSpec files. "
+            'Please install the SDK using "pip install google-cloud-aiplatform[pipelines]"'
+        )
+    response = requests.get(url=path, auth=ApiAuth(credentials.token))
+    response.raise_for_status()
+
+    return yaml.safe_load(response.content)
