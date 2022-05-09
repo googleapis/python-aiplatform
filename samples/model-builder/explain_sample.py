@@ -1,4 +1,4 @@
-# Copyright 2021 Google LLC
+# Copyright 2022 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -17,10 +17,8 @@ from typing import Dict
 from google.cloud import aiplatform
 
 
-#  [START aiplatform_sdk_explain_tabular_sample]
-def explain_tabular_sample(
-    project: str, location: str, endpoint_id: str, instance_dict: Dict
-):
+#  [START aiplatform_sdk_explain_sample]
+def explain_sample(project: str, location: str, endpoint_id: str, instance_dict: Dict):
 
     aiplatform.init(project=project, location=location)
 
@@ -47,4 +45,4 @@ def explain_tabular_sample(
         print(prediction)
 
 
-#  [END aiplatform_sdk_explain_tabular_sample]
+#  [END aiplatform_sdk_explain_sample]

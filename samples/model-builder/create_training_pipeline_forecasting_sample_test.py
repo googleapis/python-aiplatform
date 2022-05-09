@@ -1,4 +1,4 @@
-# Copyright 2021 Google LLC
+# Copyright 2022 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -13,19 +13,19 @@
 # limitations under the License.
 
 
-import create_training_pipeline_tabular_regression_sample
+import create_training_pipeline_forecasting_sample
 import test_constants as constants
 
 
-def test_create_training_pipeline_tabular_regression_sample(
+def test_create_training_pipeline_forecasting_sample(
     mock_sdk_init,
-    mock_tabular_dataset,
-    mock_get_automl_tabular_training_job,
-    mock_run_automl_tabular_training_job,
-    mock_get_tabular_dataset,
+    mock_time_series_dataset,
+    mock_get_automl_forecasting_training_job,
+    mock_run_automl_forecasting_training_job,
+    mock_get_time_series_dataset,
 ):
 
-    create_training_pipeline_tabular_regression_sample.create_training_pipeline_tabular_regression_sample(
+    create_training_pipeline_forecasting_sample.create_training_pipeline_forecasting_sample(
         project=constants.PROJECT,
         display_name=constants.DISPLAY_NAME,
         dataset_id=constants.RESOURCE_ID,
@@ -35,25 +35,31 @@ def test_create_training_pipeline_tabular_regression_sample(
         validation_fraction_split=constants.VALIDATION_FRACTION_SPLIT,
         test_fraction_split=constants.TEST_FRACTION_SPLIT,
         budget_milli_node_hours=constants.BUDGET_MILLI_NODE_HOURS_8000,
-        disable_early_stopping=False,
     )
 
-    mock_get_tabular_dataset.assert_called_once_with(dataset_name=constants.RESOURCE_ID)
+    mock_get_time_series_dataset.assert_called_once_with(constants.RESOURCE_ID)
 
     mock_sdk_init.assert_called_once_with(
         project=constants.PROJECT, location=constants.LOCATION
     )
-    mock_get_automl_tabular_training_job.assert_called_once_with(
-        display_name=constants.DISPLAY_NAME, optimization_prediction_type="regression"
+    mock_get_automl_forecasting_training_job.assert_called_once_with(
+        display_name=constants.DISPLAY_NAME,
+        optimization_objective="minimize-rmse",
     )
-    mock_run_automl_tabular_training_job.assert_called_once_with(
-        dataset=mock_tabular_dataset,
-        model_display_name=constants.DISPLAY_NAME_2,
+    mock_run_automl_forecasting_training_job.assert_called_once_with(
+        dataset=mock_time_series_dataset,
         target_column=constants.TABULAR_TARGET_COLUMN,
+        time_column=constants.FORECASTNG_TIME_COLUMN,
+        time_series_identifier_column=constants.FORECASTNG_TIME_SERIES_IDENTIFIER_COLUMN,
+        unavailable_at_forecast_columns=constants.FORECASTNG_UNAVAILABLE_AT_FORECAST_COLUMNS,
+        available_at_forecast_columns=constants.FORECASTNG_AVAILABLE_AT_FORECAST_COLUMNS,
+        forecast_horizon=constants.FORECASTNG_FORECAST_HORIZON,
+        data_granularity_unit=constants.DATA_GRANULARITY_UNIT,
+        data_granularity_count=constants.DATA_GRANULARITY_COUNT,
         training_fraction_split=constants.TRAINING_FRACTION_SPLIT,
         validation_fraction_split=constants.VALIDATION_FRACTION_SPLIT,
         test_fraction_split=constants.TEST_FRACTION_SPLIT,
         budget_milli_node_hours=constants.BUDGET_MILLI_NODE_HOURS_8000,
-        disable_early_stopping=False,
+        model_display_name=constants.DISPLAY_NAME_2,
         sync=True,
     )

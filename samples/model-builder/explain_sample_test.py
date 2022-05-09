@@ -1,4 +1,4 @@
-# Copyright 2021 Google LLC
+# Copyright 2022 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -13,15 +13,15 @@
 # limitations under the License.
 
 
-import explain_tabular_sample
+import explain_sample
 import test_constants as constants
 
 
-def test_explain_tabular_sample(
+def test_explain_sample(
     mock_sdk_init, mock_endpoint, mock_get_endpoint, mock_endpoint_explain
 ):
 
-    explain_tabular_sample.explain_tabular_sample(
+    explain_sample.explain_sample(
         project=constants.PROJECT,
         location=constants.LOCATION,
         endpoint_id=constants.ENDPOINT_NAME,
@@ -32,7 +32,9 @@ def test_explain_tabular_sample(
         project=constants.PROJECT, location=constants.LOCATION
     )
 
-    mock_get_endpoint.assert_called_once_with(constants.ENDPOINT_NAME,)
+    mock_get_endpoint.assert_called_once_with(
+        constants.ENDPOINT_NAME,
+    )
 
     mock_endpoint_explain.assert_called_once_with(
         instances=[constants.PREDICTION_TABULAR_INSTANCE], parameters={}
