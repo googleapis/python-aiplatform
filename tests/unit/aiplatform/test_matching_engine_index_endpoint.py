@@ -383,7 +383,6 @@ def create_index_endpoint_mock():
         yield create_index_endpoint_mock
 
 
-@pytest.mark.skip(reason="MatchingEngineIndexEndpoint not available")
 class TestMatchingEngineIndexEndpoint:
     def setup_method(self):
         reload(initializer)

@@ -409,7 +409,8 @@ class _TrainingJob(base.VertexAiStatefulResource):
                 that piece is ignored by the pipeline.
 
                 Supported only for tabular and time series Datasets.
-                This parameter must be used with training_fraction_split, validation_fraction_split and test_fraction_split.
+                This parameter must be used with training_fraction_split,
+                validation_fraction_split, and test_fraction_split.
             gcs_destination_uri_prefix (str):
                 Optional. The Google Cloud Storage location.
 
@@ -675,7 +676,8 @@ class _TrainingJob(base.VertexAiStatefulResource):
                 that piece is ignored by the pipeline.
 
                 Supported only for tabular and time series Datasets.
-                This parameter must be used with training_fraction_split, validation_fraction_split and test_fraction_split.
+                This parameter must be used with training_fraction_split,
+                validation_fraction_split, and test_fraction_split.
             model (~.model.Model):
                 Optional. Describes the Model that may be uploaded (via
                 [ModelService.UploadMode][]) by this TrainingPipeline. The
@@ -3768,9 +3770,9 @@ class AutoMLTabularTrainingJob(_TrainingJob):
                 `time-offset` = `"Z"` (e.g. 1985-04-12T23:20:50.52Z). If for a
                 piece of data the key is not present or has an invalid value,
                 that piece is ignored by the pipeline.
-
                 Supported only for tabular and time series Datasets.
-                This parameter must be used with training_fraction_split, validation_fraction_split and test_fraction_split.
+                This parameter must be used with training_fraction_split,
+                validation_fraction_split, and test_fraction_split.
             weight_column (str):
                 Optional. Name of the column that should be used as the weight column.
                 Higher values in this column give more importance to the row
@@ -4005,9 +4007,9 @@ class AutoMLTabularTrainingJob(_TrainingJob):
                 `time-offset` = `"Z"` (e.g. 1985-04-12T23:20:50.52Z). If for a
                 piece of data the key is not present or has an invalid value,
                 that piece is ignored by the pipeline.
-
                 Supported only for tabular and time series Datasets.
-                This parameter must be used with training_fraction_split, validation_fraction_split and test_fraction_split.
+                This parameter must be used with training_fraction_split,
+                validation_fraction_split, and test_fraction_split.
             weight_column (str):
                 Optional. Name of the column that should be used as the weight column.
                 Higher values in this column give more importance to the row
@@ -4386,6 +4388,7 @@ class AutoMLForecastingTrainingJob(_TrainingJob):
         validation_fraction_split: Optional[float] = None,
         test_fraction_split: Optional[float] = None,
         predefined_split_column_name: Optional[str] = None,
+        timestamp_split_column_name: Optional[str] = None,
         weight_column: Optional[str] = None,
         time_series_attribute_columns: Optional[List[str]] = None,
         context_window: Optional[int] = None,
@@ -4475,6 +4478,16 @@ class AutoMLForecastingTrainingJob(_TrainingJob):
                 ignored by the pipeline.
 
                 Supported only for tabular and time series Datasets.
+            timestamp_split_column_name (str):
+                Optional. The key is a name of one of the Dataset's data
+                columns. The value of the key values of the key (the values in
+                the column) must be in RFC 3339 `date-time` format, where
+                `time-offset` = `"Z"` (e.g. 1985-04-12T23:20:50.52Z). If for a
+                piece of data the key is not present or has an invalid value,
+                that piece is ignored by the pipeline.
+                Supported only for tabular and time series Datasets.
+                This parameter must be used with training_fraction_split,
+                validation_fraction_split, and test_fraction_split.
             weight_column (str):
                 Optional. Name of the column that should be used as the weight column.
                 Higher values in this column give more importance to the row
@@ -4644,6 +4657,7 @@ class AutoMLForecastingTrainingJob(_TrainingJob):
             validation_fraction_split=validation_fraction_split,
             test_fraction_split=test_fraction_split,
             predefined_split_column_name=predefined_split_column_name,
+            timestamp_split_column_name=timestamp_split_column_name,
             weight_column=weight_column,
             time_series_attribute_columns=time_series_attribute_columns,
             context_window=context_window,
@@ -4678,6 +4692,7 @@ class AutoMLForecastingTrainingJob(_TrainingJob):
         validation_fraction_split: Optional[float] = None,
         test_fraction_split: Optional[float] = None,
         predefined_split_column_name: Optional[str] = None,
+        timestamp_split_column_name: Optional[str] = None,
         weight_column: Optional[str] = None,
         time_series_attribute_columns: Optional[List[str]] = None,
         context_window: Optional[int] = None,
@@ -4775,6 +4790,16 @@ class AutoMLForecastingTrainingJob(_TrainingJob):
                 ignored by the pipeline.
 
                 Supported only for tabular and time series Datasets.
+            timestamp_split_column_name (str):
+                Optional. The key is a name of one of the Dataset's data
+                columns. The value of the key values of the key (the values in
+                the column) must be in RFC 3339 `date-time` format, where
+                `time-offset` = `"Z"` (e.g. 1985-04-12T23:20:50.52Z). If for a
+                piece of data the key is not present or has an invalid value,
+                that piece is ignored by the pipeline.
+                Supported only for tabular and time series Datasets.
+                This parameter must be used with training_fraction_split,
+                validation_fraction_split, and test_fraction_split.
             weight_column (str):
                 Optional. Name of the column that should be used as the weight column.
                 Higher values in this column give more importance to the row
@@ -4969,7 +4994,7 @@ class AutoMLForecastingTrainingJob(_TrainingJob):
             validation_fraction_split=validation_fraction_split,
             test_fraction_split=test_fraction_split,
             predefined_split_column_name=predefined_split_column_name,
-            timestamp_split_column_name=None,  # Not supported by AutoMLForecasting
+            timestamp_split_column_name=timestamp_split_column_name,
             model=model,
             parent_model=parent_model,
             is_version_increment=is_version_increment,

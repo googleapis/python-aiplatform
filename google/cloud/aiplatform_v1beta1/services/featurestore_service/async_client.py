@@ -246,9 +246,9 @@ class FeaturestoreServiceAsyncClient:
 
             from google.cloud import aiplatform_v1beta1
 
-            def sample_create_featurestore():
+            async def sample_create_featurestore():
                 # Create a client
-                client = aiplatform_v1beta1.FeaturestoreServiceClient()
+                client = aiplatform_v1beta1.FeaturestoreServiceAsyncClient()
 
                 # Initialize request argument(s)
                 request = aiplatform_v1beta1.CreateFeaturestoreRequest(
@@ -261,7 +261,7 @@ class FeaturestoreServiceAsyncClient:
 
                 print("Waiting for operation to complete...")
 
-                response = operation.result()
+                response = await operation.result()
 
                 # Handle the response
                 print(response)
@@ -383,9 +383,9 @@ class FeaturestoreServiceAsyncClient:
 
             from google.cloud import aiplatform_v1beta1
 
-            def sample_get_featurestore():
+            async def sample_get_featurestore():
                 # Create a client
-                client = aiplatform_v1beta1.FeaturestoreServiceClient()
+                client = aiplatform_v1beta1.FeaturestoreServiceAsyncClient()
 
                 # Initialize request argument(s)
                 request = aiplatform_v1beta1.GetFeaturestoreRequest(
@@ -393,7 +393,7 @@ class FeaturestoreServiceAsyncClient:
                 )
 
                 # Make the request
-                response = client.get_featurestore(request=request)
+                response = await client.get_featurestore(request=request)
 
                 # Handle the response
                 print(response)
@@ -481,9 +481,9 @@ class FeaturestoreServiceAsyncClient:
 
             from google.cloud import aiplatform_v1beta1
 
-            def sample_list_featurestores():
+            async def sample_list_featurestores():
                 # Create a client
-                client = aiplatform_v1beta1.FeaturestoreServiceClient()
+                client = aiplatform_v1beta1.FeaturestoreServiceAsyncClient()
 
                 # Initialize request argument(s)
                 request = aiplatform_v1beta1.ListFeaturestoresRequest(
@@ -494,7 +494,7 @@ class FeaturestoreServiceAsyncClient:
                 page_result = client.list_featurestores(request=request)
 
                 # Handle the response
-                for response in page_result:
+                async for response in page_result:
                     print(response)
 
         Args:
@@ -591,9 +591,9 @@ class FeaturestoreServiceAsyncClient:
 
             from google.cloud import aiplatform_v1beta1
 
-            def sample_update_featurestore():
+            async def sample_update_featurestore():
                 # Create a client
-                client = aiplatform_v1beta1.FeaturestoreServiceClient()
+                client = aiplatform_v1beta1.FeaturestoreServiceAsyncClient()
 
                 # Initialize request argument(s)
                 request = aiplatform_v1beta1.UpdateFeaturestoreRequest(
@@ -604,7 +604,7 @@ class FeaturestoreServiceAsyncClient:
 
                 print("Waiting for operation to complete...")
 
-                response = operation.result()
+                response = await operation.result()
 
                 # Handle the response
                 print(response)
@@ -727,9 +727,9 @@ class FeaturestoreServiceAsyncClient:
 
             from google.cloud import aiplatform_v1beta1
 
-            def sample_delete_featurestore():
+            async def sample_delete_featurestore():
                 # Create a client
-                client = aiplatform_v1beta1.FeaturestoreServiceClient()
+                client = aiplatform_v1beta1.FeaturestoreServiceAsyncClient()
 
                 # Initialize request argument(s)
                 request = aiplatform_v1beta1.DeleteFeaturestoreRequest(
@@ -741,7 +741,7 @@ class FeaturestoreServiceAsyncClient:
 
                 print("Waiting for operation to complete...")
 
-                response = operation.result()
+                response = await operation.result()
 
                 # Handle the response
                 print(response)
@@ -862,9 +862,9 @@ class FeaturestoreServiceAsyncClient:
 
             from google.cloud import aiplatform_v1beta1
 
-            def sample_create_entity_type():
+            async def sample_create_entity_type():
                 # Create a client
-                client = aiplatform_v1beta1.FeaturestoreServiceClient()
+                client = aiplatform_v1beta1.FeaturestoreServiceAsyncClient()
 
                 # Initialize request argument(s)
                 request = aiplatform_v1beta1.CreateEntityTypeRequest(
@@ -877,7 +877,7 @@ class FeaturestoreServiceAsyncClient:
 
                 print("Waiting for operation to complete...")
 
-                response = operation.result()
+                response = await operation.result()
 
                 # Handle the response
                 print(response)
@@ -998,9 +998,9 @@ class FeaturestoreServiceAsyncClient:
 
             from google.cloud import aiplatform_v1beta1
 
-            def sample_get_entity_type():
+            async def sample_get_entity_type():
                 # Create a client
-                client = aiplatform_v1beta1.FeaturestoreServiceClient()
+                client = aiplatform_v1beta1.FeaturestoreServiceAsyncClient()
 
                 # Initialize request argument(s)
                 request = aiplatform_v1beta1.GetEntityTypeRequest(
@@ -1008,7 +1008,7 @@ class FeaturestoreServiceAsyncClient:
                 )
 
                 # Make the request
-                response = client.get_entity_type(request=request)
+                response = await client.get_entity_type(request=request)
 
                 # Handle the response
                 print(response)
@@ -1097,9 +1097,9 @@ class FeaturestoreServiceAsyncClient:
 
             from google.cloud import aiplatform_v1beta1
 
-            def sample_list_entity_types():
+            async def sample_list_entity_types():
                 # Create a client
-                client = aiplatform_v1beta1.FeaturestoreServiceClient()
+                client = aiplatform_v1beta1.FeaturestoreServiceAsyncClient()
 
                 # Initialize request argument(s)
                 request = aiplatform_v1beta1.ListEntityTypesRequest(
@@ -1110,7 +1110,7 @@ class FeaturestoreServiceAsyncClient:
                 page_result = client.list_entity_types(request=request)
 
                 # Handle the response
-                for response in page_result:
+                async for response in page_result:
                     print(response)
 
         Args:
@@ -1207,16 +1207,16 @@ class FeaturestoreServiceAsyncClient:
 
             from google.cloud import aiplatform_v1beta1
 
-            def sample_update_entity_type():
+            async def sample_update_entity_type():
                 # Create a client
-                client = aiplatform_v1beta1.FeaturestoreServiceClient()
+                client = aiplatform_v1beta1.FeaturestoreServiceAsyncClient()
 
                 # Initialize request argument(s)
                 request = aiplatform_v1beta1.UpdateEntityTypeRequest(
                 )
 
                 # Make the request
-                response = client.update_entity_type(request=request)
+                response = await client.update_entity_type(request=request)
 
                 # Handle the response
                 print(response)
@@ -1338,9 +1338,9 @@ class FeaturestoreServiceAsyncClient:
 
             from google.cloud import aiplatform_v1beta1
 
-            def sample_delete_entity_type():
+            async def sample_delete_entity_type():
                 # Create a client
-                client = aiplatform_v1beta1.FeaturestoreServiceClient()
+                client = aiplatform_v1beta1.FeaturestoreServiceAsyncClient()
 
                 # Initialize request argument(s)
                 request = aiplatform_v1beta1.DeleteEntityTypeRequest(
@@ -1352,7 +1352,7 @@ class FeaturestoreServiceAsyncClient:
 
                 print("Waiting for operation to complete...")
 
-                response = operation.result()
+                response = await operation.result()
 
                 # Handle the response
                 print(response)
@@ -1472,9 +1472,9 @@ class FeaturestoreServiceAsyncClient:
 
             from google.cloud import aiplatform_v1beta1
 
-            def sample_create_feature():
+            async def sample_create_feature():
                 # Create a client
-                client = aiplatform_v1beta1.FeaturestoreServiceClient()
+                client = aiplatform_v1beta1.FeaturestoreServiceAsyncClient()
 
                 # Initialize request argument(s)
                 feature = aiplatform_v1beta1.Feature()
@@ -1491,7 +1491,7 @@ class FeaturestoreServiceAsyncClient:
 
                 print("Waiting for operation to complete...")
 
-                response = operation.result()
+                response = await operation.result()
 
                 # Handle the response
                 print(response)
@@ -1612,9 +1612,9 @@ class FeaturestoreServiceAsyncClient:
 
             from google.cloud import aiplatform_v1beta1
 
-            def sample_batch_create_features():
+            async def sample_batch_create_features():
                 # Create a client
-                client = aiplatform_v1beta1.FeaturestoreServiceClient()
+                client = aiplatform_v1beta1.FeaturestoreServiceAsyncClient()
 
                 # Initialize request argument(s)
                 requests = aiplatform_v1beta1.CreateFeatureRequest()
@@ -1632,7 +1632,7 @@ class FeaturestoreServiceAsyncClient:
 
                 print("Waiting for operation to complete...")
 
-                response = operation.result()
+                response = await operation.result()
 
                 # Handle the response
                 print(response)
@@ -1743,9 +1743,9 @@ class FeaturestoreServiceAsyncClient:
 
             from google.cloud import aiplatform_v1beta1
 
-            def sample_get_feature():
+            async def sample_get_feature():
                 # Create a client
-                client = aiplatform_v1beta1.FeaturestoreServiceClient()
+                client = aiplatform_v1beta1.FeaturestoreServiceAsyncClient()
 
                 # Initialize request argument(s)
                 request = aiplatform_v1beta1.GetFeatureRequest(
@@ -1753,7 +1753,7 @@ class FeaturestoreServiceAsyncClient:
                 )
 
                 # Make the request
-                response = client.get_feature(request=request)
+                response = await client.get_feature(request=request)
 
                 # Handle the response
                 print(response)
@@ -1841,9 +1841,9 @@ class FeaturestoreServiceAsyncClient:
 
             from google.cloud import aiplatform_v1beta1
 
-            def sample_list_features():
+            async def sample_list_features():
                 # Create a client
-                client = aiplatform_v1beta1.FeaturestoreServiceClient()
+                client = aiplatform_v1beta1.FeaturestoreServiceAsyncClient()
 
                 # Initialize request argument(s)
                 request = aiplatform_v1beta1.ListFeaturesRequest(
@@ -1854,7 +1854,7 @@ class FeaturestoreServiceAsyncClient:
                 page_result = client.list_features(request=request)
 
                 # Handle the response
-                for response in page_result:
+                async for response in page_result:
                     print(response)
 
         Args:
@@ -1951,9 +1951,9 @@ class FeaturestoreServiceAsyncClient:
 
             from google.cloud import aiplatform_v1beta1
 
-            def sample_update_feature():
+            async def sample_update_feature():
                 # Create a client
-                client = aiplatform_v1beta1.FeaturestoreServiceClient()
+                client = aiplatform_v1beta1.FeaturestoreServiceAsyncClient()
 
                 # Initialize request argument(s)
                 feature = aiplatform_v1beta1.Feature()
@@ -1964,7 +1964,7 @@ class FeaturestoreServiceAsyncClient:
                 )
 
                 # Make the request
-                response = client.update_feature(request=request)
+                response = await client.update_feature(request=request)
 
                 # Handle the response
                 print(response)
@@ -2076,9 +2076,9 @@ class FeaturestoreServiceAsyncClient:
 
             from google.cloud import aiplatform_v1beta1
 
-            def sample_delete_feature():
+            async def sample_delete_feature():
                 # Create a client
-                client = aiplatform_v1beta1.FeaturestoreServiceClient()
+                client = aiplatform_v1beta1.FeaturestoreServiceAsyncClient()
 
                 # Initialize request argument(s)
                 request = aiplatform_v1beta1.DeleteFeatureRequest(
@@ -2090,7 +2090,7 @@ class FeaturestoreServiceAsyncClient:
 
                 print("Waiting for operation to complete...")
 
-                response = operation.result()
+                response = await operation.result()
 
                 # Handle the response
                 print(response)
@@ -2217,9 +2217,9 @@ class FeaturestoreServiceAsyncClient:
 
             from google.cloud import aiplatform_v1beta1
 
-            def sample_import_feature_values():
+            async def sample_import_feature_values():
                 # Create a client
-                client = aiplatform_v1beta1.FeaturestoreServiceClient()
+                client = aiplatform_v1beta1.FeaturestoreServiceAsyncClient()
 
                 # Initialize request argument(s)
                 avro_source = aiplatform_v1beta1.AvroSource()
@@ -2240,7 +2240,7 @@ class FeaturestoreServiceAsyncClient:
 
                 print("Waiting for operation to complete...")
 
-                response = operation.result()
+                response = await operation.result()
 
                 # Handle the response
                 print(response)
@@ -2346,9 +2346,9 @@ class FeaturestoreServiceAsyncClient:
 
             from google.cloud import aiplatform_v1beta1
 
-            def sample_batch_read_feature_values():
+            async def sample_batch_read_feature_values():
                 # Create a client
-                client = aiplatform_v1beta1.FeaturestoreServiceClient()
+                client = aiplatform_v1beta1.FeaturestoreServiceAsyncClient()
 
                 # Initialize request argument(s)
                 csv_read_instances = aiplatform_v1beta1.CsvSource()
@@ -2373,7 +2373,7 @@ class FeaturestoreServiceAsyncClient:
 
                 print("Waiting for operation to complete...")
 
-                response = operation.result()
+                response = await operation.result()
 
                 # Handle the response
                 print(response)
@@ -2474,9 +2474,9 @@ class FeaturestoreServiceAsyncClient:
 
             from google.cloud import aiplatform_v1beta1
 
-            def sample_export_feature_values():
+            async def sample_export_feature_values():
                 # Create a client
-                client = aiplatform_v1beta1.FeaturestoreServiceClient()
+                client = aiplatform_v1beta1.FeaturestoreServiceAsyncClient()
 
                 # Initialize request argument(s)
                 destination = aiplatform_v1beta1.FeatureValueDestination()
@@ -2496,7 +2496,7 @@ class FeaturestoreServiceAsyncClient:
 
                 print("Waiting for operation to complete...")
 
-                response = operation.result()
+                response = await operation.result()
 
                 # Handle the response
                 print(response)
@@ -2598,9 +2598,9 @@ class FeaturestoreServiceAsyncClient:
 
             from google.cloud import aiplatform_v1beta1
 
-            def sample_search_features():
+            async def sample_search_features():
                 # Create a client
-                client = aiplatform_v1beta1.FeaturestoreServiceClient()
+                client = aiplatform_v1beta1.FeaturestoreServiceAsyncClient()
 
                 # Initialize request argument(s)
                 request = aiplatform_v1beta1.SearchFeaturesRequest(
@@ -2611,7 +2611,7 @@ class FeaturestoreServiceAsyncClient:
                 page_result = client.search_features(request=request)
 
                 # Handle the response
-                for response in page_result:
+                async for response in page_result:
                     print(response)
 
         Args:
