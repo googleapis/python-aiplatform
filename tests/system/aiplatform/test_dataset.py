@@ -22,7 +22,6 @@ import importlib
 
 import pandas as pd
 
-from google import auth as google_auth
 from google.api_core import exceptions
 from google.api_core import client_options
 
@@ -32,20 +31,18 @@ from google.cloud import aiplatform
 from google.cloud import storage
 from google.cloud.aiplatform import utils
 from google.cloud.aiplatform import initializer
-from google.cloud.aiplatform_v1beta1.types import dataset as gca_dataset
 from google.cloud.aiplatform_v1beta1.services import dataset_service
 
 from test_utils.vpcsc_config import vpcsc_config
 
 from tests.system.aiplatform import e2e_base
 
-# TODO(vinnys): Replace with env var `BUILD_SPECIFIC_GCP_PROJECT` once supported
-_, _TEST_PROJECT = google_auth.default()
+_TEST_PROJECT = e2e_base._PROJECT
+_TEST_LOCATION = e2e_base._LOCATION
 TEST_BUCKET = os.environ.get(
     "GCLOUD_TEST_SAMPLES_BUCKET", "cloud-samples-data-us-central1"
 )
 
-_TEST_LOCATION = "us-central1"
 _TEST_PARENT = f"projects/{_TEST_PROJECT}/locations/{_TEST_LOCATION}"
 _TEST_API_ENDPOINT = f"{_TEST_LOCATION}-aiplatform.googleapis.com"
 _TEST_IMAGE_DATASET_ID = "1084241610289446912"  # permanent_50_flowers_dataset
@@ -122,13 +119,6 @@ _TEST_DATAFRAME_BQ_SCHEMA = [
 ]
 
 
-@pytest.mark.usefixtures(
-    "prepare_staging_bucket",
-    "delete_staging_bucket",
-    "prepare_bigquery_dataset",
-    "delete_bigquery_dataset",
-    "tear_down_resources",
-)
 class TestDataset(e2e_base.TestEndToEnd):
 
     _temp_prefix = "temp-vertex-sdk-dataset-test"
@@ -137,14 +127,20 @@ class TestDataset(e2e_base.TestEndToEnd):
         importlib.reload(initializer)
         importlib.reload(aiplatform)
 
+        aiplatform.init(project=_TEST_PROJECT, location=_TEST_LOCATION)
+
     @pytest.fixture()
-    def create_staging_bucket(self, shared_state):
+    def storage_client(self):
+        yield storage.Client(project=e2e_base._PROJECT)
+
+    @pytest.fixture()
+    def staging_bucket(self, storage_client):
         new_staging_bucket = f"temp-sdk-integration-{uuid.uuid4()}"
-        storage_client = storage.Client()
-        storage_client.create_bucket(new_staging_bucket)
-        shared_state["storage_client"] = storage_client
-        shared_state["staging_bucket"] = new_staging_bucket
-        yield
+        bucket = storage_client.create_bucket(new_staging_bucket)
+
+        yield bucket
+
+        bucket.delete(force=True)
 
     @pytest.fixture()
     def dataset_gapic_client(self):
@@ -154,70 +150,11 @@ class TestDataset(e2e_base.TestEndToEnd):
 
         yield gapic_client
 
-    @pytest.fixture()
-    def create_text_dataset(self, dataset_gapic_client, shared_state):
-
-        gapic_dataset = gca_dataset.Dataset(
-            display_name=f"temp_sdk_integration_test_create_text_dataset_{uuid.uuid4()}",
-            metadata_schema_uri=aiplatform.schema.dataset.metadata.text,
-        )
-
-        create_lro = dataset_gapic_client.create_dataset(
-            parent=_TEST_PARENT, dataset=gapic_dataset
-        )
-        new_dataset = create_lro.result()
-        shared_state["dataset_name"] = new_dataset.name
-        yield
-
-    @pytest.fixture()
-    def create_tabular_dataset(self, dataset_gapic_client, shared_state):
-
-        gapic_dataset = gca_dataset.Dataset(
-            display_name=f"temp_sdk_integration_test_create_tabular_dataset_{uuid.uuid4()}",
-            metadata_schema_uri=aiplatform.schema.dataset.metadata.tabular,
-        )
-
-        create_lro = dataset_gapic_client.create_dataset(
-            parent=_TEST_PARENT, dataset=gapic_dataset
-        )
-        new_dataset = create_lro.result()
-        shared_state["dataset_name"] = new_dataset.name
-        yield
-
-    @pytest.fixture()
-    def create_image_dataset(self, dataset_gapic_client, shared_state):
-
-        gapic_dataset = gca_dataset.Dataset(
-            display_name=f"temp_sdk_integration_test_create_image_dataset_{uuid.uuid4()}",
-            metadata_schema_uri=aiplatform.schema.dataset.metadata.image,
-        )
-
-        create_lro = dataset_gapic_client.create_dataset(
-            parent=_TEST_PARENT, dataset=gapic_dataset
-        )
-        new_dataset = create_lro.result()
-        shared_state["dataset_name"] = new_dataset.name
-        yield
-
-    @pytest.fixture()
-    def delete_new_dataset(self, dataset_gapic_client, shared_state):
-        yield
-        assert shared_state["dataset_name"]
-
-        deletion_lro = dataset_gapic_client.delete_dataset(
-            name=shared_state["dataset_name"]
-        )
-        deletion_lro.result()
-
-        shared_state["dataset_name"] = None
-
     # TODO(vinnys): Remove pytest skip once persistent resources are accessible
     @pytest.mark.skip(reason="System tests cannot access persistent test resources")
     def test_get_existing_dataset(self):
         """Retrieve a known existing dataset, ensure SDK successfully gets the
         dataset resource."""
-
-        aiplatform.init(project=_TEST_PROJECT, location=_TEST_LOCATION)
 
         flowers_dataset = aiplatform.ImageDataset(dataset_name=_TEST_IMAGE_DATASET_ID)
         assert flowers_dataset.name == _TEST_IMAGE_DATASET_ID
@@ -227,185 +164,155 @@ class TestDataset(e2e_base.TestEndToEnd):
         """Ensure attempting to retrieve a dataset that doesn't exist raises
         a Google API core 404 exception."""
 
-        aiplatform.init(project=_TEST_PROJECT, location=_TEST_LOCATION)
-
         # AI Platform service returns 404
         with pytest.raises(exceptions.NotFound):
             aiplatform.ImageDataset(dataset_name="0")
 
-    @pytest.mark.usefixtures("create_text_dataset", "delete_new_dataset")
-    def test_get_new_dataset_and_import(self, dataset_gapic_client, shared_state):
+    def test_get_new_dataset_and_import(self, dataset_gapic_client):
         """Retrieve new, empty dataset and import a text dataset using import().
         Then verify data items were successfully imported."""
 
-        assert shared_state["dataset_name"]
-        aiplatform.init(project=_TEST_PROJECT, location=_TEST_LOCATION)
+        try:
+            text_dataset = aiplatform.TextDataset.create(
+                display_name=f"temp_sdk_integration_test_create_text_dataset_{uuid.uuid4()}",
+            )
 
-        my_dataset = aiplatform.TextDataset(dataset_name=shared_state["dataset_name"])
+            my_dataset = aiplatform.TextDataset(dataset_name=text_dataset.name)
 
-        data_items_pre_import = dataset_gapic_client.list_data_items(
-            parent=my_dataset.resource_name
-        )
+            data_items_pre_import = dataset_gapic_client.list_data_items(
+                parent=my_dataset.resource_name
+            )
 
-        assert len(list(data_items_pre_import)) == 0
+            assert len(list(data_items_pre_import)) == 0
 
-        # Blocking call to import
-        my_dataset.import_data(
-            gcs_source=_TEST_TEXT_ENTITY_EXTRACTION_GCS_SOURCE,
-            import_schema_uri=_TEST_TEXT_ENTITY_IMPORT_SCHEMA,
-            import_request_timeout=None,
-        )
+            # Blocking call to import
+            my_dataset.import_data(
+                gcs_source=_TEST_TEXT_ENTITY_EXTRACTION_GCS_SOURCE,
+                import_schema_uri=_TEST_TEXT_ENTITY_IMPORT_SCHEMA,
+                import_request_timeout=600.0,
+            )
 
-        data_items_post_import = dataset_gapic_client.list_data_items(
-            parent=my_dataset.resource_name
-        )
+            data_items_post_import = dataset_gapic_client.list_data_items(
+                parent=my_dataset.resource_name
+            )
 
-        assert len(list(data_items_post_import)) == 469
+            assert len(list(data_items_post_import)) == 469
+        finally:
+            if text_dataset is not None:
+                text_dataset.delete()
 
     @vpcsc_config.skip_if_inside_vpcsc
-    @pytest.mark.usefixtures("delete_new_dataset")
-    def test_create_and_import_image_dataset(self, dataset_gapic_client, shared_state):
+    def test_create_and_import_image_dataset(self, dataset_gapic_client):
         """Use the Dataset.create() method to create a new image obj detection
         dataset and import images. Then confirm images were successfully imported."""
 
-        aiplatform.init(project=_TEST_PROJECT, location=_TEST_LOCATION)
+        try:
+            img_dataset = aiplatform.ImageDataset.create(
+                display_name=f"temp_sdk_integration_create_and_import_dataset_{uuid.uuid4()}",
+                gcs_source=_TEST_IMAGE_OBJECT_DETECTION_GCS_SOURCE,
+                import_schema_uri=_TEST_IMAGE_OBJ_DET_IMPORT_SCHEMA,
+                create_request_timeout=None,
+            )
 
-        img_dataset = aiplatform.ImageDataset.create(
-            display_name=f"temp_sdk_integration_create_and_import_dataset_{uuid.uuid4()}",
-            gcs_source=_TEST_IMAGE_OBJECT_DETECTION_GCS_SOURCE,
-            import_schema_uri=_TEST_IMAGE_OBJ_DET_IMPORT_SCHEMA,
-            create_request_timeout=None,
-        )
+            data_items_iterator = dataset_gapic_client.list_data_items(
+                parent=img_dataset.resource_name
+            )
 
-        shared_state["dataset_name"] = img_dataset.resource_name
+            assert len(list(data_items_iterator)) == 14
 
-        data_items_iterator = dataset_gapic_client.list_data_items(
-            parent=img_dataset.resource_name
-        )
+        finally:
+            if img_dataset is not None:
+                img_dataset.delete()
 
-        assert len(list(data_items_iterator)) == 14
-
-    @pytest.mark.usefixtures("delete_new_dataset")
-    def test_create_tabular_dataset(self, dataset_gapic_client, shared_state):
+    def test_create_tabular_dataset(self):
         """Use the Dataset.create() method to create a new tabular dataset.
         Then confirm the dataset was successfully created and references GCS source."""
 
-        aiplatform.init(project=_TEST_PROJECT, location=_TEST_LOCATION)
+        try:
+            tabular_dataset = aiplatform.TabularDataset.create(
+                display_name=f"temp_sdk_integration_create_and_import_dataset_{uuid.uuid4()}",
+                gcs_source=[_TEST_TABULAR_CLASSIFICATION_GCS_SOURCE],
+                create_request_timeout=None,
+            )
 
-        tabular_dataset = aiplatform.TabularDataset.create(
-            display_name=f"temp_sdk_integration_create_and_import_dataset_{uuid.uuid4()}",
-            gcs_source=[_TEST_TABULAR_CLASSIFICATION_GCS_SOURCE],
-            create_request_timeout=None,
-        )
+            gapic_metadata = tabular_dataset.to_dict()["metadata"]
+            gcs_source_uris = gapic_metadata["inputConfig"]["gcsSource"]["uri"]
 
-        shared_state["dataset_name"] = tabular_dataset.resource_name
+            assert len(gcs_source_uris) == 1
+            assert _TEST_TABULAR_CLASSIFICATION_GCS_SOURCE == gcs_source_uris[0]
+            assert (
+                tabular_dataset.metadata_schema_uri
+                == aiplatform.schema.dataset.metadata.tabular
+            )
 
-        gapic_metadata = tabular_dataset.to_dict()["metadata"]
-        gcs_source_uris = gapic_metadata["inputConfig"]["gcsSource"]["uri"]
+        finally:
+            if tabular_dataset is not None:
+                tabular_dataset.delete()
 
-        assert len(gcs_source_uris) == 1
-        assert _TEST_TABULAR_CLASSIFICATION_GCS_SOURCE == gcs_source_uris[0]
-        assert (
-            tabular_dataset.metadata_schema_uri
-            == aiplatform.schema.dataset.metadata.tabular
-        )
+    def test_create_tabular_dataset_from_dataframe(self, bigquery_dataset):
+        bq_staging_table = f"bq://{e2e_base._PROJECT}.{bigquery_dataset.dataset_id}.test_table{uuid.uuid4()}"
 
-    @pytest.mark.usefixtures("delete_new_dataset")
-    def test_create_tabular_dataset_from_dataframe(
-        self, dataset_gapic_client, shared_state
-    ):
-        """Use the Dataset.create_from_dataframe() method to create a new tabular dataset.
-        Then confirm the dataset was successfully created and references the BQ source."""
+        try:
+            tabular_dataset = aiplatform.TabularDataset.create_from_dataframe(
+                df_source=_TEST_DATAFRAME,
+                staging_path=bq_staging_table,
+                display_name=f"temp_sdk_integration_create_and_import_dataset_from_dataframe{uuid.uuid4()}",
+            )
 
-        assert shared_state["bigquery_dataset"]
+            """Use the Dataset.create_from_dataframe() method to create a new tabular dataset.
+            Then confirm the dataset was successfully created and references the BQ source."""
+            gapic_metadata = tabular_dataset.to_dict()["metadata"]
+            bq_source = gapic_metadata["inputConfig"]["bigquerySource"]["uri"]
 
-        shared_state["resources"] = []
+            assert bq_staging_table == bq_source
+            assert (
+                tabular_dataset.metadata_schema_uri
+                == aiplatform.schema.dataset.metadata.tabular
+            )
+        finally:
+            if tabular_dataset is not None:
+                tabular_dataset.delete()
 
-        bigquery_dataset_id = shared_state["bigquery_dataset_id"]
-        bq_staging_table = f"bq://{bigquery_dataset_id}.test_table{uuid.uuid4()}"
-
-        aiplatform.init(project=_TEST_PROJECT, location=_TEST_LOCATION)
-
-        tabular_dataset = aiplatform.TabularDataset.create_from_dataframe(
-            df_source=_TEST_DATAFRAME,
-            staging_path=bq_staging_table,
-            display_name=f"temp_sdk_integration_create_and_import_dataset_from_dataframe{uuid.uuid4()}",
-        )
-        shared_state["resources"].extend([tabular_dataset])
-        shared_state["dataset_name"] = tabular_dataset.resource_name
-
-        gapic_metadata = tabular_dataset.to_dict()["metadata"]
-        bq_source = gapic_metadata["inputConfig"]["bigquerySource"]["uri"]
-
-        assert bq_staging_table == bq_source
-        assert (
-            tabular_dataset.metadata_schema_uri
-            == aiplatform.schema.dataset.metadata.tabular
-        )
-
-    @pytest.mark.usefixtures("delete_new_dataset")
     def test_create_tabular_dataset_from_dataframe_with_provided_schema(
-        self, dataset_gapic_client, shared_state
+        self, bigquery_dataset
     ):
         """Use the Dataset.create_from_dataframe() method to create a new tabular dataset,
         passing in the optional `bq_schema` argument. Then confirm the dataset was successfully
         created and references the BQ source."""
 
-        assert shared_state["bigquery_dataset"]
+        try:
+            bq_staging_table = f"bq://{e2e_base._PROJECT}.{bigquery_dataset.dataset_id}.test_table{uuid.uuid4()}"
 
-        shared_state["resources"] = []
+            tabular_dataset = aiplatform.TabularDataset.create_from_dataframe(
+                df_source=_TEST_DATAFRAME,
+                staging_path=bq_staging_table,
+                display_name=f"temp_sdk_integration_create_and_import_dataset_from_dataframe{uuid.uuid4()}",
+                bq_schema=_TEST_DATAFRAME_BQ_SCHEMA,
+            )
 
-        bigquery_dataset_id = shared_state["bigquery_dataset_id"]
-        bq_staging_table = f"bq://{bigquery_dataset_id}.test_table{uuid.uuid4()}"
+            gapic_metadata = tabular_dataset.to_dict()["metadata"]
+            bq_source = gapic_metadata["inputConfig"]["bigquerySource"]["uri"]
 
-        aiplatform.init(project=_TEST_PROJECT, location=_TEST_LOCATION)
+            assert bq_staging_table == bq_source
+            assert (
+                tabular_dataset.metadata_schema_uri
+                == aiplatform.schema.dataset.metadata.tabular
+            )
+        finally:
+            tabular_dataset.delete()
 
-        tabular_dataset = aiplatform.TabularDataset.create_from_dataframe(
-            df_source=_TEST_DATAFRAME,
-            staging_path=bq_staging_table,
-            display_name=f"temp_sdk_integration_create_and_import_dataset_from_dataframe{uuid.uuid4()}",
-            bq_schema=_TEST_DATAFRAME_BQ_SCHEMA,
-        )
-        shared_state["resources"].extend([tabular_dataset])
-        shared_state["dataset_name"] = tabular_dataset.resource_name
-
-        gapic_metadata = tabular_dataset.to_dict()["metadata"]
-        bq_source = gapic_metadata["inputConfig"]["bigquerySource"]["uri"]
-
-        assert bq_staging_table == bq_source
-        assert (
-            tabular_dataset.metadata_schema_uri
-            == aiplatform.schema.dataset.metadata.tabular
-        )
-
-    # TODO(vinnys): Remove pytest skip once persistent resources are accessible
-    @pytest.mark.skip(reason="System tests cannot access persistent test resources")
-    @pytest.mark.usefixtures("create_staging_bucket", "delete_staging_bucket")
-    def test_export_data(self, shared_state):
+    def test_export_data(self, storage_client, staging_bucket):
         """Get an existing dataset, export data to a newly created folder in
         Google Cloud Storage, then verify data was successfully exported."""
 
-        assert shared_state["staging_bucket"]
-        assert shared_state["storage_client"]
+        dataset = aiplatform.TextDataset(dataset_name=_TEST_TEXT_DATASET_ID)
 
-        aiplatform.init(
-            project=_TEST_PROJECT,
-            location=_TEST_LOCATION,
-            staging_bucket=f"gs://{shared_state['staging_bucket']}",
-        )
-
-        text_dataset = aiplatform.TextDataset(dataset_name=_TEST_TEXT_DATASET_ID)
-
-        exported_files = text_dataset.export_data(
-            output_dir=f"gs://{shared_state['staging_bucket']}"
-        )
+        exported_files = dataset.export_data(output_dir=f"gs://{staging_bucket.name}")
 
         assert len(exported_files)  # Ensure at least one GCS path was returned
 
         exported_file = exported_files[0]
         bucket, prefix = utils.extract_bucket_and_prefix_from_gcs_path(exported_file)
-
-        storage_client = shared_state["storage_client"]
 
         bucket = storage_client.get_bucket(bucket)
         blob = bucket.get_blob(prefix)

@@ -783,7 +783,7 @@ def test_create_index_endpoint_field_headers():
     # a field header. Set these to a non-empty value.
     request = index_endpoint_service.CreateIndexEndpointRequest()
 
-    request.parent = "parent/value"
+    request.parent = "parent_value"
 
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(
@@ -801,7 +801,7 @@ def test_create_index_endpoint_field_headers():
     _, _, kw = call.mock_calls[0]
     assert (
         "x-goog-request-params",
-        "parent=parent/value",
+        "parent=parent_value",
     ) in kw["metadata"]
 
 
@@ -815,7 +815,7 @@ async def test_create_index_endpoint_field_headers_async():
     # a field header. Set these to a non-empty value.
     request = index_endpoint_service.CreateIndexEndpointRequest()
 
-    request.parent = "parent/value"
+    request.parent = "parent_value"
 
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(
@@ -835,7 +835,7 @@ async def test_create_index_endpoint_field_headers_async():
     _, _, kw = call.mock_calls[0]
     assert (
         "x-goog-request-params",
-        "parent=parent/value",
+        "parent=parent_value",
     ) in kw["metadata"]
 
 
@@ -1060,7 +1060,7 @@ def test_get_index_endpoint_field_headers():
     # a field header. Set these to a non-empty value.
     request = index_endpoint_service.GetIndexEndpointRequest()
 
-    request.name = "name/value"
+    request.name = "name_value"
 
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(
@@ -1078,7 +1078,7 @@ def test_get_index_endpoint_field_headers():
     _, _, kw = call.mock_calls[0]
     assert (
         "x-goog-request-params",
-        "name=name/value",
+        "name=name_value",
     ) in kw["metadata"]
 
 
@@ -1092,7 +1092,7 @@ async def test_get_index_endpoint_field_headers_async():
     # a field header. Set these to a non-empty value.
     request = index_endpoint_service.GetIndexEndpointRequest()
 
-    request.name = "name/value"
+    request.name = "name_value"
 
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(
@@ -1112,7 +1112,7 @@ async def test_get_index_endpoint_field_headers_async():
     _, _, kw = call.mock_calls[0]
     assert (
         "x-goog-request-params",
-        "name=name/value",
+        "name=name_value",
     ) in kw["metadata"]
 
 
@@ -1307,7 +1307,7 @@ def test_list_index_endpoints_field_headers():
     # a field header. Set these to a non-empty value.
     request = index_endpoint_service.ListIndexEndpointsRequest()
 
-    request.parent = "parent/value"
+    request.parent = "parent_value"
 
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(
@@ -1325,7 +1325,7 @@ def test_list_index_endpoints_field_headers():
     _, _, kw = call.mock_calls[0]
     assert (
         "x-goog-request-params",
-        "parent=parent/value",
+        "parent=parent_value",
     ) in kw["metadata"]
 
 
@@ -1339,7 +1339,7 @@ async def test_list_index_endpoints_field_headers_async():
     # a field header. Set these to a non-empty value.
     request = index_endpoint_service.ListIndexEndpointsRequest()
 
-    request.parent = "parent/value"
+    request.parent = "parent_value"
 
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(
@@ -1359,7 +1359,7 @@ async def test_list_index_endpoints_field_headers_async():
     _, _, kw = call.mock_calls[0]
     assert (
         "x-goog-request-params",
-        "parent=parent/value",
+        "parent=parent_value",
     ) in kw["metadata"]
 
 
@@ -1496,7 +1496,7 @@ def test_list_index_endpoints_pager(transport_name: str = "grpc"):
 
         assert pager._metadata == metadata
 
-        results = [i for i in pager]
+        results = list(pager)
         assert len(results) == 6
         assert all(isinstance(i, index_endpoint.IndexEndpoint) for i in results)
 
@@ -1770,7 +1770,7 @@ def test_update_index_endpoint_field_headers():
     # a field header. Set these to a non-empty value.
     request = index_endpoint_service.UpdateIndexEndpointRequest()
 
-    request.index_endpoint.name = "index_endpoint.name/value"
+    request.index_endpoint.name = "name_value"
 
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(
@@ -1788,7 +1788,7 @@ def test_update_index_endpoint_field_headers():
     _, _, kw = call.mock_calls[0]
     assert (
         "x-goog-request-params",
-        "index_endpoint.name=index_endpoint.name/value",
+        "index_endpoint.name=name_value",
     ) in kw["metadata"]
 
 
@@ -1802,7 +1802,7 @@ async def test_update_index_endpoint_field_headers_async():
     # a field header. Set these to a non-empty value.
     request = index_endpoint_service.UpdateIndexEndpointRequest()
 
-    request.index_endpoint.name = "index_endpoint.name/value"
+    request.index_endpoint.name = "name_value"
 
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(
@@ -1822,7 +1822,7 @@ async def test_update_index_endpoint_field_headers_async():
     _, _, kw = call.mock_calls[0]
     assert (
         "x-goog-request-params",
-        "index_endpoint.name=index_endpoint.name/value",
+        "index_endpoint.name=name_value",
     ) in kw["metadata"]
 
 
@@ -2021,7 +2021,7 @@ def test_delete_index_endpoint_field_headers():
     # a field header. Set these to a non-empty value.
     request = index_endpoint_service.DeleteIndexEndpointRequest()
 
-    request.name = "name/value"
+    request.name = "name_value"
 
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(
@@ -2039,7 +2039,7 @@ def test_delete_index_endpoint_field_headers():
     _, _, kw = call.mock_calls[0]
     assert (
         "x-goog-request-params",
-        "name=name/value",
+        "name=name_value",
     ) in kw["metadata"]
 
 
@@ -2053,7 +2053,7 @@ async def test_delete_index_endpoint_field_headers_async():
     # a field header. Set these to a non-empty value.
     request = index_endpoint_service.DeleteIndexEndpointRequest()
 
-    request.name = "name/value"
+    request.name = "name_value"
 
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(
@@ -2073,7 +2073,7 @@ async def test_delete_index_endpoint_field_headers_async():
     _, _, kw = call.mock_calls[0]
     assert (
         "x-goog-request-params",
-        "name=name/value",
+        "name=name_value",
     ) in kw["metadata"]
 
 
@@ -2256,7 +2256,7 @@ def test_deploy_index_field_headers():
     # a field header. Set these to a non-empty value.
     request = index_endpoint_service.DeployIndexRequest()
 
-    request.index_endpoint = "index_endpoint/value"
+    request.index_endpoint = "index_endpoint_value"
 
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(type(client.transport.deploy_index), "__call__") as call:
@@ -2272,7 +2272,7 @@ def test_deploy_index_field_headers():
     _, _, kw = call.mock_calls[0]
     assert (
         "x-goog-request-params",
-        "index_endpoint=index_endpoint/value",
+        "index_endpoint=index_endpoint_value",
     ) in kw["metadata"]
 
 
@@ -2286,7 +2286,7 @@ async def test_deploy_index_field_headers_async():
     # a field header. Set these to a non-empty value.
     request = index_endpoint_service.DeployIndexRequest()
 
-    request.index_endpoint = "index_endpoint/value"
+    request.index_endpoint = "index_endpoint_value"
 
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(type(client.transport.deploy_index), "__call__") as call:
@@ -2304,7 +2304,7 @@ async def test_deploy_index_field_headers_async():
     _, _, kw = call.mock_calls[0]
     assert (
         "x-goog-request-params",
-        "index_endpoint=index_endpoint/value",
+        "index_endpoint=index_endpoint_value",
     ) in kw["metadata"]
 
 
@@ -2493,7 +2493,7 @@ def test_undeploy_index_field_headers():
     # a field header. Set these to a non-empty value.
     request = index_endpoint_service.UndeployIndexRequest()
 
-    request.index_endpoint = "index_endpoint/value"
+    request.index_endpoint = "index_endpoint_value"
 
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(type(client.transport.undeploy_index), "__call__") as call:
@@ -2509,7 +2509,7 @@ def test_undeploy_index_field_headers():
     _, _, kw = call.mock_calls[0]
     assert (
         "x-goog-request-params",
-        "index_endpoint=index_endpoint/value",
+        "index_endpoint=index_endpoint_value",
     ) in kw["metadata"]
 
 
@@ -2523,7 +2523,7 @@ async def test_undeploy_index_field_headers_async():
     # a field header. Set these to a non-empty value.
     request = index_endpoint_service.UndeployIndexRequest()
 
-    request.index_endpoint = "index_endpoint/value"
+    request.index_endpoint = "index_endpoint_value"
 
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(type(client.transport.undeploy_index), "__call__") as call:
@@ -2541,7 +2541,7 @@ async def test_undeploy_index_field_headers_async():
     _, _, kw = call.mock_calls[0]
     assert (
         "x-goog-request-params",
-        "index_endpoint=index_endpoint/value",
+        "index_endpoint=index_endpoint_value",
     ) in kw["metadata"]
 
 
@@ -2736,7 +2736,7 @@ def test_mutate_deployed_index_field_headers():
     # a field header. Set these to a non-empty value.
     request = index_endpoint_service.MutateDeployedIndexRequest()
 
-    request.index_endpoint = "index_endpoint/value"
+    request.index_endpoint = "index_endpoint_value"
 
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(
@@ -2754,7 +2754,7 @@ def test_mutate_deployed_index_field_headers():
     _, _, kw = call.mock_calls[0]
     assert (
         "x-goog-request-params",
-        "index_endpoint=index_endpoint/value",
+        "index_endpoint=index_endpoint_value",
     ) in kw["metadata"]
 
 
@@ -2768,7 +2768,7 @@ async def test_mutate_deployed_index_field_headers_async():
     # a field header. Set these to a non-empty value.
     request = index_endpoint_service.MutateDeployedIndexRequest()
 
-    request.index_endpoint = "index_endpoint/value"
+    request.index_endpoint = "index_endpoint_value"
 
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(
@@ -2788,7 +2788,7 @@ async def test_mutate_deployed_index_field_headers_async():
     _, _, kw = call.mock_calls[0]
     assert (
         "x-goog-request-params",
-        "index_endpoint=index_endpoint/value",
+        "index_endpoint=index_endpoint_value",
     ) in kw["metadata"]
 
 
