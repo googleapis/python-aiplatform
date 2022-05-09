@@ -1639,6 +1639,9 @@ class TestLocalModel:
             serving_container_ports=[],
             credential_path=None,
             host_port=None,
+            gpu_count=None,
+            gpu_device_ids=None,
+            gpu_capabilities=None,
             container_ready_timeout=None,
             container_ready_check_interval=None,
         )
@@ -1674,8 +1677,69 @@ class TestLocalModel:
             serving_container_ports=[],
             credential_path=credential_path,
             host_port=host_port,
+            gpu_count=None,
+            gpu_device_ids=None,
+            gpu_capabilities=None,
             container_ready_timeout=container_ready_timeout,
             container_ready_check_interval=container_ready_check_interval,
+        )
+
+    def test_deploy_to_local_endpoint_lastingly_with_gpu_count(
+        self,
+        local_endpoint_deploy_mock,
+    ):
+        container_spec = gca_model_compat.ModelContainerSpec(image_uri=_TEST_IMAGE_URI)
+        local_model = LocalModel(container_spec)
+
+        _ = local_model.deploy_to_local_endpoint_lastingly(
+            gpu_count=_TEST_GPU_COUNT, gpu_capabilities=_TEST_GPU_CAPABILITIES
+        )
+
+        local_endpoint_deploy_mock.assert_called_once_with(
+            serving_container_image_uri=_TEST_IMAGE_URI,
+            artifact_uri=None,
+            serving_container_predict_route="",
+            serving_container_health_route="",
+            serving_container_command=[],
+            serving_container_args=[],
+            serving_container_environment_variables={},
+            serving_container_ports=[],
+            credential_path=None,
+            host_port=None,
+            gpu_count=_TEST_GPU_COUNT,
+            gpu_device_ids=None,
+            gpu_capabilities=_TEST_GPU_CAPABILITIES,
+            container_ready_timeout=None,
+            container_ready_check_interval=None,
+        )
+
+    def test_deploy_to_local_endpoint_lastingly_with_gpu_device_ids(
+        self,
+        local_endpoint_deploy_mock,
+    ):
+        container_spec = gca_model_compat.ModelContainerSpec(image_uri=_TEST_IMAGE_URI)
+        local_model = LocalModel(container_spec)
+
+        _ = local_model.deploy_to_local_endpoint_lastingly(
+            gpu_device_ids=_TEST_GPU_DEVICE_IDS, gpu_capabilities=_TEST_GPU_CAPABILITIES
+        )
+
+        local_endpoint_deploy_mock.assert_called_once_with(
+            serving_container_image_uri=_TEST_IMAGE_URI,
+            artifact_uri=None,
+            serving_container_predict_route="",
+            serving_container_health_route="",
+            serving_container_command=[],
+            serving_container_args=[],
+            serving_container_environment_variables={},
+            serving_container_ports=[],
+            credential_path=None,
+            host_port=None,
+            gpu_count=None,
+            gpu_device_ids=_TEST_GPU_DEVICE_IDS,
+            gpu_capabilities=_TEST_GPU_CAPABILITIES,
+            container_ready_timeout=None,
+            container_ready_check_interval=None,
         )
 
     def test_copy_image(
@@ -2122,6 +2186,9 @@ class TestLocalEndpoint:
             serving_container_ports=None,
             credential_path=None,
             host_port=None,
+            gpu_count=None,
+            gpu_device_ids=None,
+            gpu_capabilities=None,
             container_ready_timeout=None,
             container_ready_check_interval=None,
         )
@@ -2171,8 +2238,73 @@ class TestLocalEndpoint:
             serving_container_ports=serving_container_ports,
             credential_path=credential_path,
             host_port=host_port,
+            gpu_count=None,
+            gpu_device_ids=None,
+            gpu_capabilities=None,
             container_ready_timeout=container_ready_timeout,
             container_ready_check_interval=container_ready_check_interval,
+        )
+        local_endpoint_enter_mock.assert_called_once_with()
+
+    def test_deploy_with_gpu_count(
+        self,
+        local_endpoint_init_mock,
+        local_endpoint_enter_mock,
+        local_endpoint_exit_mock,
+    ):
+        _ = LocalEndpoint.deploy(
+            _TEST_IMAGE_URI,
+            gpu_count=_TEST_GPU_COUNT,
+            gpu_capabilities=_TEST_GPU_CAPABILITIES,
+        )
+
+        local_endpoint_init_mock.assert_called_once_with(
+            serving_container_image_uri=_TEST_IMAGE_URI,
+            artifact_uri=None,
+            serving_container_predict_route=None,
+            serving_container_health_route=None,
+            serving_container_command=None,
+            serving_container_args=None,
+            serving_container_environment_variables=None,
+            serving_container_ports=None,
+            credential_path=None,
+            host_port=None,
+            gpu_count=_TEST_GPU_COUNT,
+            gpu_device_ids=None,
+            gpu_capabilities=_TEST_GPU_CAPABILITIES,
+            container_ready_timeout=None,
+            container_ready_check_interval=None,
+        )
+        local_endpoint_enter_mock.assert_called_once_with()
+
+    def test_deploy_with_gpu_device_ids(
+        self,
+        local_endpoint_init_mock,
+        local_endpoint_enter_mock,
+        local_endpoint_exit_mock,
+    ):
+        _ = LocalEndpoint.deploy(
+            _TEST_IMAGE_URI,
+            gpu_device_ids=_TEST_GPU_DEVICE_IDS,
+            gpu_capabilities=_TEST_GPU_CAPABILITIES,
+        )
+
+        local_endpoint_init_mock.assert_called_once_with(
+            serving_container_image_uri=_TEST_IMAGE_URI,
+            artifact_uri=None,
+            serving_container_predict_route=None,
+            serving_container_health_route=None,
+            serving_container_command=None,
+            serving_container_args=None,
+            serving_container_environment_variables=None,
+            serving_container_ports=None,
+            credential_path=None,
+            host_port=None,
+            gpu_count=None,
+            gpu_device_ids=_TEST_GPU_DEVICE_IDS,
+            gpu_capabilities=_TEST_GPU_CAPABILITIES,
+            container_ready_timeout=None,
+            container_ready_check_interval=None,
         )
         local_endpoint_enter_mock.assert_called_once_with()
 
