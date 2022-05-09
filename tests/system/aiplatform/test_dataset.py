@@ -131,7 +131,7 @@ class TestDataset(e2e_base.TestEndToEnd):
 
     @pytest.fixture()
     def storage_client(self):
-        yield storage.Client()
+        yield storage.Client(project=e2e_base._PROJECT)
 
     @pytest.fixture()
     def staging_bucket(self, storage_client):
@@ -301,8 +301,6 @@ class TestDataset(e2e_base.TestEndToEnd):
         finally:
             tabular_dataset.delete()
 
-    # TODO(vinnys): Remove pytest skip once persistent resources are accessible
-    # @pytest.mark.skip(reason="System tests cannot access persistent test resources")
     def test_export_data(self, storage_client, staging_bucket):
         """Get an existing dataset, export data to a newly created folder in
         Google Cloud Storage, then verify data was successfully exported."""
