@@ -46,7 +46,7 @@ class TensorboardExperiment(proto.Message):
         update_time (google.protobuf.timestamp_pb2.Timestamp):
             Output only. Timestamp when this
             TensorboardExperiment was last updated.
-        labels (Sequence[google.cloud.aiplatform_v1beta1.types.TensorboardExperiment.LabelsEntry]):
+        labels (Mapping[str, str]):
             The labels with user-defined metadata to organize your
             Datasets.
 

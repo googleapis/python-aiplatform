@@ -16,7 +16,7 @@
 from collections import OrderedDict
 import functools
 import re
-from typing import Dict, Optional, Sequence, Tuple, Type, Union
+from typing import Dict, Mapping, Optional, Sequence, Tuple, Type, Union
 import pkg_resources
 
 from google.api_core.client_options import ClientOptions
@@ -231,9 +231,9 @@ class IndexEndpointServiceAsyncClient:
 
             from google.cloud import aiplatform_v1beta1
 
-            def sample_create_index_endpoint():
+            async def sample_create_index_endpoint():
                 # Create a client
-                client = aiplatform_v1beta1.IndexEndpointServiceClient()
+                client = aiplatform_v1beta1.IndexEndpointServiceAsyncClient()
 
                 # Initialize request argument(s)
                 index_endpoint = aiplatform_v1beta1.IndexEndpoint()
@@ -249,7 +249,7 @@ class IndexEndpointServiceAsyncClient:
 
                 print("Waiting for operation to complete...")
 
-                response = operation.result()
+                response = await operation.result()
 
                 # Handle the response
                 print(response)
@@ -354,9 +354,9 @@ class IndexEndpointServiceAsyncClient:
 
             from google.cloud import aiplatform_v1beta1
 
-            def sample_get_index_endpoint():
+            async def sample_get_index_endpoint():
                 # Create a client
-                client = aiplatform_v1beta1.IndexEndpointServiceClient()
+                client = aiplatform_v1beta1.IndexEndpointServiceAsyncClient()
 
                 # Initialize request argument(s)
                 request = aiplatform_v1beta1.GetIndexEndpointRequest(
@@ -364,7 +364,7 @@ class IndexEndpointServiceAsyncClient:
                 )
 
                 # Make the request
-                response = client.get_index_endpoint(request=request)
+                response = await client.get_index_endpoint(request=request)
 
                 # Handle the response
                 print(response)
@@ -451,9 +451,9 @@ class IndexEndpointServiceAsyncClient:
 
             from google.cloud import aiplatform_v1beta1
 
-            def sample_list_index_endpoints():
+            async def sample_list_index_endpoints():
                 # Create a client
-                client = aiplatform_v1beta1.IndexEndpointServiceClient()
+                client = aiplatform_v1beta1.IndexEndpointServiceAsyncClient()
 
                 # Initialize request argument(s)
                 request = aiplatform_v1beta1.ListIndexEndpointsRequest(
@@ -464,7 +464,7 @@ class IndexEndpointServiceAsyncClient:
                 page_result = client.list_index_endpoints(request=request)
 
                 # Handle the response
-                for response in page_result:
+                async for response in page_result:
                     print(response)
 
         Args:
@@ -561,9 +561,9 @@ class IndexEndpointServiceAsyncClient:
 
             from google.cloud import aiplatform_v1beta1
 
-            def sample_update_index_endpoint():
+            async def sample_update_index_endpoint():
                 # Create a client
-                client = aiplatform_v1beta1.IndexEndpointServiceClient()
+                client = aiplatform_v1beta1.IndexEndpointServiceAsyncClient()
 
                 # Initialize request argument(s)
                 index_endpoint = aiplatform_v1beta1.IndexEndpoint()
@@ -574,7 +574,7 @@ class IndexEndpointServiceAsyncClient:
                 )
 
                 # Make the request
-                response = client.update_index_endpoint(request=request)
+                response = await client.update_index_endpoint(request=request)
 
                 # Handle the response
                 print(response)
@@ -671,9 +671,9 @@ class IndexEndpointServiceAsyncClient:
 
             from google.cloud import aiplatform_v1beta1
 
-            def sample_delete_index_endpoint():
+            async def sample_delete_index_endpoint():
                 # Create a client
-                client = aiplatform_v1beta1.IndexEndpointServiceClient()
+                client = aiplatform_v1beta1.IndexEndpointServiceAsyncClient()
 
                 # Initialize request argument(s)
                 request = aiplatform_v1beta1.DeleteIndexEndpointRequest(
@@ -685,7 +685,7 @@ class IndexEndpointServiceAsyncClient:
 
                 print("Waiting for operation to complete...")
 
-                response = operation.result()
+                response = await operation.result()
 
                 # Handle the response
                 print(response)
@@ -791,14 +791,13 @@ class IndexEndpointServiceAsyncClient:
         DeployedIndex within it.
         Only non-empty Indexes can be deployed.
 
-
         .. code-block:: python
 
             from google.cloud import aiplatform_v1beta1
 
-            def sample_deploy_index():
+            async def sample_deploy_index():
                 # Create a client
-                client = aiplatform_v1beta1.IndexEndpointServiceClient()
+                client = aiplatform_v1beta1.IndexEndpointServiceAsyncClient()
 
                 # Initialize request argument(s)
                 deployed_index = aiplatform_v1beta1.DeployedIndex()
@@ -815,7 +814,7 @@ class IndexEndpointServiceAsyncClient:
 
                 print("Waiting for operation to complete...")
 
-                response = operation.result()
+                response = await operation.result()
 
                 # Handle the response
                 print(response)
@@ -923,14 +922,13 @@ class IndexEndpointServiceAsyncClient:
         DeployedIndex from it, and freeing all resources it's
         using.
 
-
         .. code-block:: python
 
             from google.cloud import aiplatform_v1beta1
 
-            def sample_undeploy_index():
+            async def sample_undeploy_index():
                 # Create a client
-                client = aiplatform_v1beta1.IndexEndpointServiceClient()
+                client = aiplatform_v1beta1.IndexEndpointServiceAsyncClient()
 
                 # Initialize request argument(s)
                 request = aiplatform_v1beta1.UndeployIndexRequest(
@@ -943,7 +941,7 @@ class IndexEndpointServiceAsyncClient:
 
                 print("Waiting for operation to complete...")
 
-                response = operation.result()
+                response = await operation.result()
 
                 # Handle the response
                 print(response)
@@ -1050,14 +1048,13 @@ class IndexEndpointServiceAsyncClient:
         r"""Update an existing DeployedIndex under an
         IndexEndpoint.
 
-
         .. code-block:: python
 
             from google.cloud import aiplatform_v1beta1
 
-            def sample_mutate_deployed_index():
+            async def sample_mutate_deployed_index():
                 # Create a client
-                client = aiplatform_v1beta1.IndexEndpointServiceClient()
+                client = aiplatform_v1beta1.IndexEndpointServiceAsyncClient()
 
                 # Initialize request argument(s)
                 deployed_index = aiplatform_v1beta1.DeployedIndex()
@@ -1074,7 +1071,7 @@ class IndexEndpointServiceAsyncClient:
 
                 print("Waiting for operation to complete...")
 
-                response = operation.result()
+                response = await operation.result()
 
                 # Handle the response
                 print(response)

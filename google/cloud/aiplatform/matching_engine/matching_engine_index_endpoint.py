@@ -21,14 +21,14 @@ from typing import Dict, List, Optional, Sequence, Tuple
 from google.auth import credentials as auth_credentials
 from google.cloud.aiplatform import base
 from google.cloud.aiplatform import initializer
-from google.cloud.aiplatform import _matching_engine
+from google.cloud.aiplatform import matching_engine
 from google.cloud.aiplatform import utils
 from google.cloud.aiplatform.compat.types import (
     machine_resources as gca_machine_resources_compat,
     matching_engine_index_endpoint as gca_matching_engine_index_endpoint,
 )
-from google.cloud.aiplatform._matching_engine import match_service_pb2
-from google.cloud.aiplatform._matching_engine import match_service_pb2_grpc
+from google.cloud.aiplatform.matching_engine._protos import match_service_pb2
+from google.cloud.aiplatform.matching_engine._protos import match_service_pb2_grpc
 from google.protobuf import field_mask_pb2
 
 import grpc
@@ -432,7 +432,7 @@ class MatchingEngineIndexEndpoint(base.VertexAiResourceNounWithFutureManager):
 
     def deploy_index(
         self,
-        index: _matching_engine.MatchingEngineIndex,
+        index: matching_engine.MatchingEngineIndex,
         deployed_index_id: str,
         display_name: Optional[str] = None,
         machine_type: Optional[str] = None,

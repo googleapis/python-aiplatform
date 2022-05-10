@@ -16,7 +16,7 @@
 from collections import OrderedDict
 import functools
 import re
-from typing import Dict, Optional, Sequence, Tuple, Type, Union
+from typing import Dict, Mapping, Optional, Sequence, Tuple, Type, Union
 import pkg_resources
 
 from google.api_core.client_options import ClientOptions
@@ -238,9 +238,9 @@ class EndpointServiceAsyncClient:
 
             from google.cloud import aiplatform_v1
 
-            def sample_create_endpoint():
+            async def sample_create_endpoint():
                 # Create a client
-                client = aiplatform_v1.EndpointServiceClient()
+                client = aiplatform_v1.EndpointServiceAsyncClient()
 
                 # Initialize request argument(s)
                 endpoint = aiplatform_v1.Endpoint()
@@ -256,7 +256,7 @@ class EndpointServiceAsyncClient:
 
                 print("Waiting for operation to complete...")
 
-                response = operation.result()
+                response = await operation.result()
 
                 # Handle the response
                 print(response)
@@ -376,9 +376,9 @@ class EndpointServiceAsyncClient:
 
             from google.cloud import aiplatform_v1
 
-            def sample_get_endpoint():
+            async def sample_get_endpoint():
                 # Create a client
-                client = aiplatform_v1.EndpointServiceClient()
+                client = aiplatform_v1.EndpointServiceAsyncClient()
 
                 # Initialize request argument(s)
                 request = aiplatform_v1.GetEndpointRequest(
@@ -386,7 +386,7 @@ class EndpointServiceAsyncClient:
                 )
 
                 # Make the request
-                response = client.get_endpoint(request=request)
+                response = await client.get_endpoint(request=request)
 
                 # Handle the response
                 print(response)
@@ -472,9 +472,9 @@ class EndpointServiceAsyncClient:
 
             from google.cloud import aiplatform_v1
 
-            def sample_list_endpoints():
+            async def sample_list_endpoints():
                 # Create a client
-                client = aiplatform_v1.EndpointServiceClient()
+                client = aiplatform_v1.EndpointServiceAsyncClient()
 
                 # Initialize request argument(s)
                 request = aiplatform_v1.ListEndpointsRequest(
@@ -485,7 +485,7 @@ class EndpointServiceAsyncClient:
                 page_result = client.list_endpoints(request=request)
 
                 # Handle the response
-                for response in page_result:
+                async for response in page_result:
                     print(response)
 
         Args:
@@ -582,9 +582,9 @@ class EndpointServiceAsyncClient:
 
             from google.cloud import aiplatform_v1
 
-            def sample_update_endpoint():
+            async def sample_update_endpoint():
                 # Create a client
-                client = aiplatform_v1.EndpointServiceClient()
+                client = aiplatform_v1.EndpointServiceAsyncClient()
 
                 # Initialize request argument(s)
                 endpoint = aiplatform_v1.Endpoint()
@@ -595,7 +595,7 @@ class EndpointServiceAsyncClient:
                 )
 
                 # Make the request
-                response = client.update_endpoint(request=request)
+                response = await client.update_endpoint(request=request)
 
                 # Handle the response
                 print(response)
@@ -692,9 +692,9 @@ class EndpointServiceAsyncClient:
 
             from google.cloud import aiplatform_v1
 
-            def sample_delete_endpoint():
+            async def sample_delete_endpoint():
                 # Create a client
-                client = aiplatform_v1.EndpointServiceClient()
+                client = aiplatform_v1.EndpointServiceAsyncClient()
 
                 # Initialize request argument(s)
                 request = aiplatform_v1.DeleteEndpointRequest(
@@ -706,7 +706,7 @@ class EndpointServiceAsyncClient:
 
                 print("Waiting for operation to complete...")
 
-                response = operation.result()
+                response = await operation.result()
 
                 # Handle the response
                 print(response)
@@ -804,9 +804,7 @@ class EndpointServiceAsyncClient:
         *,
         endpoint: str = None,
         deployed_model: gca_endpoint.DeployedModel = None,
-        traffic_split: Sequence[
-            endpoint_service.DeployModelRequest.TrafficSplitEntry
-        ] = None,
+        traffic_split: Mapping[str, int] = None,
         retry: OptionalRetry = gapic_v1.method.DEFAULT,
         timeout: float = None,
         metadata: Sequence[Tuple[str, str]] = (),
@@ -814,14 +812,13 @@ class EndpointServiceAsyncClient:
         r"""Deploys a Model into this Endpoint, creating a
         DeployedModel within it.
 
-
         .. code-block:: python
 
             from google.cloud import aiplatform_v1
 
-            def sample_deploy_model():
+            async def sample_deploy_model():
                 # Create a client
-                client = aiplatform_v1.EndpointServiceClient()
+                client = aiplatform_v1.EndpointServiceAsyncClient()
 
                 # Initialize request argument(s)
                 deployed_model = aiplatform_v1.DeployedModel()
@@ -838,7 +835,7 @@ class EndpointServiceAsyncClient:
 
                 print("Waiting for operation to complete...")
 
-                response = operation.result()
+                response = await operation.result()
 
                 # Handle the response
                 print(response)
@@ -866,7 +863,7 @@ class EndpointServiceAsyncClient:
                 This corresponds to the ``deployed_model`` field
                 on the ``request`` instance; if ``request`` is provided, this
                 should not be set.
-            traffic_split (:class:`Sequence[google.cloud.aiplatform_v1.types.DeployModelRequest.TrafficSplitEntry]`):
+            traffic_split (:class:`Mapping[str, int]`):
                 A map from a DeployedModel's ID to the percentage of
                 this Endpoint's traffic that should be forwarded to that
                 DeployedModel.
@@ -963,9 +960,7 @@ class EndpointServiceAsyncClient:
         *,
         endpoint: str = None,
         deployed_model_id: str = None,
-        traffic_split: Sequence[
-            endpoint_service.UndeployModelRequest.TrafficSplitEntry
-        ] = None,
+        traffic_split: Mapping[str, int] = None,
         retry: OptionalRetry = gapic_v1.method.DEFAULT,
         timeout: float = None,
         metadata: Sequence[Tuple[str, str]] = (),
@@ -974,14 +969,13 @@ class EndpointServiceAsyncClient:
         DeployedModel from it, and freeing all resources it's
         using.
 
-
         .. code-block:: python
 
             from google.cloud import aiplatform_v1
 
-            def sample_undeploy_model():
+            async def sample_undeploy_model():
                 # Create a client
-                client = aiplatform_v1.EndpointServiceClient()
+                client = aiplatform_v1.EndpointServiceAsyncClient()
 
                 # Initialize request argument(s)
                 request = aiplatform_v1.UndeployModelRequest(
@@ -994,7 +988,7 @@ class EndpointServiceAsyncClient:
 
                 print("Waiting for operation to complete...")
 
-                response = operation.result()
+                response = await operation.result()
 
                 # Handle the response
                 print(response)
@@ -1018,7 +1012,7 @@ class EndpointServiceAsyncClient:
                 This corresponds to the ``deployed_model_id`` field
                 on the ``request`` instance; if ``request`` is provided, this
                 should not be set.
-            traffic_split (:class:`Sequence[google.cloud.aiplatform_v1.types.UndeployModelRequest.TrafficSplitEntry]`):
+            traffic_split (:class:`Mapping[str, int]`):
                 If this field is provided, then the Endpoint's
                 [traffic_split][google.cloud.aiplatform.v1.Endpoint.traffic_split]
                 will be overwritten with it. If last DeployedModel is

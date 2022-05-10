@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-# Copyright 2021 Google LLC
+# Copyright 2022 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -430,6 +430,32 @@ class TestTensorboard:
         )
 
     @pytest.mark.usefixtures("get_tensorboard_mock")
+    def test_create_tensorboard_with_timeout_not_explicitly_set(
+        self, create_tensorboard_mock
+    ):
+
+        aiplatform.init(
+            project=_TEST_PROJECT,
+        )
+
+        tensorboard.Tensorboard.create(
+            display_name=_TEST_DISPLAY_NAME,
+            encryption_spec_key_name=_TEST_ENCRYPTION_KEY_NAME,
+        )
+
+        expected_tensorboard = gca_tensorboard.Tensorboard(
+            display_name=_TEST_DISPLAY_NAME,
+            encryption_spec=_TEST_ENCRYPTION_SPEC,
+        )
+
+        create_tensorboard_mock.assert_called_once_with(
+            parent=_TEST_PARENT,
+            tensorboard=expected_tensorboard,
+            metadata=_TEST_REQUEST_METADATA,
+            timeout=None,
+        )
+
+    @pytest.mark.usefixtures("get_tensorboard_mock")
     def test_delete_tensorboard(self, delete_tensorboard_mock):
         aiplatform.init(project=_TEST_PROJECT)
 
@@ -581,6 +607,34 @@ class TestTensorboardExperiment:
             timeout=180.0,
         )
 
+    def test_create_tensorboard_experiment_with_timeout_not_explicitly_set(
+        self, create_tensorboard_experiment_mock, get_tensorboard_experiment_mock
+    ):
+
+        aiplatform.init(
+            project=_TEST_PROJECT,
+        )
+
+        tensorboard.TensorboardExperiment.create(
+            tensorboard_experiment_id=_TEST_TENSORBOARD_EXPERIMENT_ID,
+            tensorboard_name=_TEST_NAME,
+            display_name=_TEST_DISPLAY_NAME,
+        )
+
+        expected_tensorboard_experiment = (
+            gca_tensorboard_experiment.TensorboardExperiment(
+                display_name=_TEST_DISPLAY_NAME,
+            )
+        )
+
+        create_tensorboard_experiment_mock.assert_called_once_with(
+            parent=_TEST_NAME,
+            tensorboard_experiment=expected_tensorboard_experiment,
+            tensorboard_experiment_id=_TEST_TENSORBOARD_EXPERIMENT_ID,
+            metadata=_TEST_REQUEST_METADATA,
+            timeout=None,
+        )
+
     @pytest.mark.usefixtures("get_tensorboard_experiment_mock")
     def test_delete_tensorboard_experiement(self, delete_tensorboard_experiment_mock):
         aiplatform.init(project=_TEST_PROJECT)
@@ -702,6 +756,31 @@ class TestTensorboardRun:
             tensorboard_run_id=_TEST_TENSORBOARD_RUN_ID,
             metadata=_TEST_REQUEST_METADATA,
             timeout=180.0,
+        )
+
+    def test_create_tensorboard_run_with_timeout_not_explicitly_set(
+        self, create_tensorboard_run_mock, get_tensorboard_run_mock
+    ):
+
+        aiplatform.init(
+            project=_TEST_PROJECT,
+        )
+
+        tensorboard.TensorboardRun.create(
+            tensorboard_run_id=_TEST_TENSORBOARD_RUN_ID,
+            tensorboard_experiment_name=_TEST_TENSORBOARD_EXPERIMENT_NAME,
+        )
+
+        expected_tensorboard_run = gca_tensorboard_run.TensorboardRun(
+            display_name=_TEST_TENSORBOARD_RUN_ID,
+        )
+
+        create_tensorboard_run_mock.assert_called_once_with(
+            parent=_TEST_TENSORBOARD_EXPERIMENT_NAME,
+            tensorboard_run=expected_tensorboard_run,
+            tensorboard_run_id=_TEST_TENSORBOARD_RUN_ID,
+            metadata=_TEST_REQUEST_METADATA,
+            timeout=None,
         )
 
     @pytest.mark.usefixtures("get_tensorboard_run_mock")

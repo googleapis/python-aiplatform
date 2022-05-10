@@ -16,7 +16,7 @@
 from collections import OrderedDict
 import functools
 import re
-from typing import Dict, Optional, Sequence, Tuple, Type, Union
+from typing import Dict, Mapping, Optional, Sequence, Tuple, Type, Union
 import pkg_resources
 
 from google.api_core.client_options import ClientOptions
@@ -247,9 +247,9 @@ class ModelServiceAsyncClient:
 
             from google.cloud import aiplatform_v1beta1
 
-            def sample_upload_model():
+            async def sample_upload_model():
                 # Create a client
-                client = aiplatform_v1beta1.ModelServiceClient()
+                client = aiplatform_v1beta1.ModelServiceAsyncClient()
 
                 # Initialize request argument(s)
                 model = aiplatform_v1beta1.Model()
@@ -265,7 +265,7 @@ class ModelServiceAsyncClient:
 
                 print("Waiting for operation to complete...")
 
-                response = operation.result()
+                response = await operation.result()
 
                 # Handle the response
                 print(response)
@@ -371,9 +371,9 @@ class ModelServiceAsyncClient:
 
             from google.cloud import aiplatform_v1beta1
 
-            def sample_get_model():
+            async def sample_get_model():
                 # Create a client
-                client = aiplatform_v1beta1.ModelServiceClient()
+                client = aiplatform_v1beta1.ModelServiceAsyncClient()
 
                 # Initialize request argument(s)
                 request = aiplatform_v1beta1.GetModelRequest(
@@ -381,7 +381,7 @@ class ModelServiceAsyncClient:
                 )
 
                 # Make the request
-                response = client.get_model(request=request)
+                response = await client.get_model(request=request)
 
                 # Handle the response
                 print(response)
@@ -464,9 +464,9 @@ class ModelServiceAsyncClient:
 
             from google.cloud import aiplatform_v1beta1
 
-            def sample_list_models():
+            async def sample_list_models():
                 # Create a client
-                client = aiplatform_v1beta1.ModelServiceClient()
+                client = aiplatform_v1beta1.ModelServiceAsyncClient()
 
                 # Initialize request argument(s)
                 request = aiplatform_v1beta1.ListModelsRequest(
@@ -477,7 +477,7 @@ class ModelServiceAsyncClient:
                 page_result = client.list_models(request=request)
 
                 # Handle the response
-                for response in page_result:
+                async for response in page_result:
                     print(response)
 
         Args:
@@ -558,6 +558,114 @@ class ModelServiceAsyncClient:
         # Done; return the response.
         return response
 
+    async def list_model_versions(
+        self,
+        request: Union[model_service.ListModelVersionsRequest, dict] = None,
+        *,
+        name: str = None,
+        retry: OptionalRetry = gapic_v1.method.DEFAULT,
+        timeout: float = None,
+        metadata: Sequence[Tuple[str, str]] = (),
+    ) -> pagers.ListModelVersionsAsyncPager:
+        r"""Lists versions of the specified model.
+
+        .. code-block:: python
+
+            from google.cloud import aiplatform_v1beta1
+
+            async def sample_list_model_versions():
+                # Create a client
+                client = aiplatform_v1beta1.ModelServiceAsyncClient()
+
+                # Initialize request argument(s)
+                request = aiplatform_v1beta1.ListModelVersionsRequest(
+                    name="name_value",
+                )
+
+                # Make the request
+                page_result = client.list_model_versions(request=request)
+
+                # Handle the response
+                async for response in page_result:
+                    print(response)
+
+        Args:
+            request (Union[google.cloud.aiplatform_v1beta1.types.ListModelVersionsRequest, dict]):
+                The request object. Request message for
+                [ModelService.ListModelVersions][google.cloud.aiplatform.v1beta1.ModelService.ListModelVersions].
+            name (:class:`str`):
+                Required. The name of the model to
+                list versions for.
+
+                This corresponds to the ``name`` field
+                on the ``request`` instance; if ``request`` is provided, this
+                should not be set.
+            retry (google.api_core.retry.Retry): Designation of what errors, if any,
+                should be retried.
+            timeout (float): The timeout for this request.
+            metadata (Sequence[Tuple[str, str]]): Strings which should be
+                sent along with the request as metadata.
+
+        Returns:
+            google.cloud.aiplatform_v1beta1.services.model_service.pagers.ListModelVersionsAsyncPager:
+                Response message for
+                [ModelService.ListModelVersions][google.cloud.aiplatform.v1beta1.ModelService.ListModelVersions]
+
+                Iterating over this object will yield results and
+                resolve additional pages automatically.
+
+        """
+        # Create or coerce a protobuf request object.
+        # Quick check: If we got a request object, we should *not* have
+        # gotten any keyword arguments that map to the request.
+        has_flattened_params = any([name])
+        if request is not None and has_flattened_params:
+            raise ValueError(
+                "If the `request` argument is set, then none of "
+                "the individual field arguments should be set."
+            )
+
+        request = model_service.ListModelVersionsRequest(request)
+
+        # If we have keyword arguments corresponding to fields on the
+        # request, apply these.
+        if name is not None:
+            request.name = name
+
+        # Wrap the RPC method; this adds retry and timeout information,
+        # and friendly error handling.
+        rpc = gapic_v1.method_async.wrap_method(
+            self._client._transport.list_model_versions,
+            default_timeout=None,
+            client_info=DEFAULT_CLIENT_INFO,
+        )
+
+        # Certain fields should be provided within the metadata header;
+        # add these here.
+        metadata = tuple(metadata) + (
+            gapic_v1.routing_header.to_grpc_metadata((("name", request.name),)),
+        )
+
+        # Send the request.
+        response = await rpc(
+            request,
+            retry=retry,
+            timeout=timeout,
+            metadata=metadata,
+        )
+
+        # This method is paged; wrap the response in a pager, which provides
+        # an `__aiter__` convenience method.
+        response = pagers.ListModelVersionsAsyncPager(
+            method=rpc,
+            request=request,
+            response=response,
+            metadata=metadata,
+        )
+
+        # Done; return the response.
+        return response
+
     async def update_model(
         self,
         request: Union[model_service.UpdateModelRequest, dict] = None,
@@ -574,9 +682,9 @@ class ModelServiceAsyncClient:
 
             from google.cloud import aiplatform_v1beta1
 
-            def sample_update_model():
+            async def sample_update_model():
                 # Create a client
-                client = aiplatform_v1beta1.ModelServiceClient()
+                client = aiplatform_v1beta1.ModelServiceAsyncClient()
 
                 # Initialize request argument(s)
                 model = aiplatform_v1beta1.Model()
@@ -587,7 +695,7 @@ class ModelServiceAsyncClient:
                 )
 
                 # Make the request
-                response = client.update_model(request=request)
+                response = await client.update_model(request=request)
 
                 # Handle the response
                 print(response)
@@ -597,8 +705,29 @@ class ModelServiceAsyncClient:
                 The request object. Request message for
                 [ModelService.UpdateModel][google.cloud.aiplatform.v1beta1.ModelService.UpdateModel].
             model (:class:`google.cloud.aiplatform_v1beta1.types.Model`):
-                Required. The Model which replaces
-                the resource on the server.
+                Required. The Model which replaces the resource on the
+                server. When Model Versioning is enabled, the model.name
+                will be used to determine whether to update the model or
+                model version.
+
+                1. model.name with the @ value, e.g. models/123@1,
+                   refers to a version specific update.
+                2. model.name without the @ value, e.g. models/123,
+                   refers to a model update.
+                3. model.name with @-, e.g. models/123@-, refers to a
+                   model update.
+                4. Supported model fields: display_name, description;
+                   supported version-specific fields:
+                   version_description. Labels are supported in both
+                   scenarios. Both the model labels and the version
+                   labels are merged when a model is returned. When
+                   updating labels, if the request is for model-specific
+                   update, model label gets updated. Otherwise, version
+                   labels get updated.
+                5. A model name or model version name fields update
+                   mismatch will cause a precondition error.
+                6. One request cannot update both the model and the
+                   version fields. You must update them separately.
 
                 This corresponds to the ``model`` field
                 on the ``request`` instance; if ``request`` is provided, this
@@ -686,14 +815,13 @@ class ModelServiceAsyncClient:
         [deployed_models][google.cloud.aiplatform.v1beta1.Endpoint.deployed_models]
         field.
 
-
         .. code-block:: python
 
             from google.cloud import aiplatform_v1beta1
 
-            def sample_delete_model():
+            async def sample_delete_model():
                 # Create a client
-                client = aiplatform_v1beta1.ModelServiceClient()
+                client = aiplatform_v1beta1.ModelServiceAsyncClient()
 
                 # Initialize request argument(s)
                 request = aiplatform_v1beta1.DeleteModelRequest(
@@ -705,7 +833,7 @@ class ModelServiceAsyncClient:
 
                 print("Waiting for operation to complete...")
 
-                response = operation.result()
+                response = await operation.result()
 
                 # Handle the response
                 print(response)
@@ -797,6 +925,255 @@ class ModelServiceAsyncClient:
         # Done; return the response.
         return response
 
+    async def delete_model_version(
+        self,
+        request: Union[model_service.DeleteModelVersionRequest, dict] = None,
+        *,
+        name: str = None,
+        retry: OptionalRetry = gapic_v1.method.DEFAULT,
+        timeout: float = None,
+        metadata: Sequence[Tuple[str, str]] = (),
+    ) -> operation_async.AsyncOperation:
+        r"""Deletes a Model version.
+
+        Model version can only be deleted if there are no
+        [DeployedModels][] created from it. Deleting the only version in
+        the Model is not allowed. Use
+        [DeleteModel][google.cloud.aiplatform.v1beta1.ModelService.DeleteModel]
+        for deleting the Model instead.
+
+        .. code-block:: python
+
+            from google.cloud import aiplatform_v1beta1
+
+            async def sample_delete_model_version():
+                # Create a client
+                client = aiplatform_v1beta1.ModelServiceAsyncClient()
+
+                # Initialize request argument(s)
+                request = aiplatform_v1beta1.DeleteModelVersionRequest(
+                    name="name_value",
+                )
+
+                # Make the request
+                operation = client.delete_model_version(request=request)
+
+                print("Waiting for operation to complete...")
+
+                response = await operation.result()
+
+                # Handle the response
+                print(response)
+
+        Args:
+            request (Union[google.cloud.aiplatform_v1beta1.types.DeleteModelVersionRequest, dict]):
+                The request object. Request message for
+                [ModelService.DeleteModelVersion][google.cloud.aiplatform.v1beta1.ModelService.DeleteModelVersion].
+            name (:class:`str`):
+                Required. The name of the model version to be deleted,
+                with a version ID explicitly included.
+
+                Example:
+                ``projects/{project}/locations/{location}/models/{model}@1234``
+
+                This corresponds to the ``name`` field
+                on the ``request`` instance; if ``request`` is provided, this
+                should not be set.
+            retry (google.api_core.retry.Retry): Designation of what errors, if any,
+                should be retried.
+            timeout (float): The timeout for this request.
+            metadata (Sequence[Tuple[str, str]]): Strings which should be
+                sent along with the request as metadata.
+
+        Returns:
+            google.api_core.operation_async.AsyncOperation:
+                An object representing a long-running operation.
+
+                The result type for the operation will be :class:`google.protobuf.empty_pb2.Empty` A generic empty message that you can re-use to avoid defining duplicated
+                   empty messages in your APIs. A typical example is to
+                   use it as the request or the response type of an API
+                   method. For instance:
+
+                      service Foo {
+                         rpc Bar(google.protobuf.Empty) returns
+                         (google.protobuf.Empty);
+
+                      }
+
+                   The JSON representation for Empty is empty JSON
+                   object {}.
+
+        """
+        # Create or coerce a protobuf request object.
+        # Quick check: If we got a request object, we should *not* have
+        # gotten any keyword arguments that map to the request.
+        has_flattened_params = any([name])
+        if request is not None and has_flattened_params:
+            raise ValueError(
+                "If the `request` argument is set, then none of "
+                "the individual field arguments should be set."
+            )
+
+        request = model_service.DeleteModelVersionRequest(request)
+
+        # If we have keyword arguments corresponding to fields on the
+        # request, apply these.
+        if name is not None:
+            request.name = name
+
+        # Wrap the RPC method; this adds retry and timeout information,
+        # and friendly error handling.
+        rpc = gapic_v1.method_async.wrap_method(
+            self._client._transport.delete_model_version,
+            default_timeout=None,
+            client_info=DEFAULT_CLIENT_INFO,
+        )
+
+        # Certain fields should be provided within the metadata header;
+        # add these here.
+        metadata = tuple(metadata) + (
+            gapic_v1.routing_header.to_grpc_metadata((("name", request.name),)),
+        )
+
+        # Send the request.
+        response = await rpc(
+            request,
+            retry=retry,
+            timeout=timeout,
+            metadata=metadata,
+        )
+
+        # Wrap the response in an operation future.
+        response = operation_async.from_gapic(
+            response,
+            self._client._transport.operations_client,
+            empty_pb2.Empty,
+            metadata_type=gca_operation.DeleteOperationMetadata,
+        )
+
+        # Done; return the response.
+        return response
+
+    async def merge_version_aliases(
+        self,
+        request: Union[model_service.MergeVersionAliasesRequest, dict] = None,
+        *,
+        name: str = None,
+        version_aliases: Sequence[str] = None,
+        retry: OptionalRetry = gapic_v1.method.DEFAULT,
+        timeout: float = None,
+        metadata: Sequence[Tuple[str, str]] = (),
+    ) -> model.Model:
+        r"""Merges a set of aliases for a Model version.
+
+        .. code-block:: python
+
+            from google.cloud import aiplatform_v1beta1
+
+            async def sample_merge_version_aliases():
+                # Create a client
+                client = aiplatform_v1beta1.ModelServiceAsyncClient()
+
+                # Initialize request argument(s)
+                request = aiplatform_v1beta1.MergeVersionAliasesRequest(
+                    name="name_value",
+                    version_aliases=['version_aliases_value_1', 'version_aliases_value_2'],
+                )
+
+                # Make the request
+                response = await client.merge_version_aliases(request=request)
+
+                # Handle the response
+                print(response)
+
+        Args:
+            request (Union[google.cloud.aiplatform_v1beta1.types.MergeVersionAliasesRequest, dict]):
+                The request object. Request message for
+                [ModelService.MergeVersionAliases][google.cloud.aiplatform.v1beta1.ModelService.MergeVersionAliases].
+            name (:class:`str`):
+                Required. The name of the model version to merge
+                aliases, with a version ID explicitly included.
+
+                Example:
+                ``projects/{project}/locations/{location}/models/{model}@1234``
+
+                This corresponds to the ``name`` field
+                on the ``request`` instance; if ``request`` is provided, this
+                should not be set.
+            version_aliases (:class:`Sequence[str]`):
+                Required. The set of version aliases to merge. The alias
+                should be at most 128 characters, and match
+                ``[a-z][a-z0-9-]{0,126}[a-z-0-9]``. Add the ``-`` prefix
+                to an alias means removing that alias from the version.
+                ``-`` is NOT counted in the 128 characters. Example:
+                ``-golden`` means removing the ``golden`` alias from the
+                version.
+
+                There is NO ordering in aliases, which means
+
+                1) The aliases returned from GetModel API might not have
+                   the exactly same order from this MergeVersionAliases
+                   API. 2) Adding and deleting the same alias in the
+                   request is not recommended, and the 2 operations will
+                   be cancelled out.
+
+                This corresponds to the ``version_aliases`` field
+                on the ``request`` instance; if ``request`` is provided, this
+                should not be set.
+            retry (google.api_core.retry.Retry): Designation of what errors, if any,
+                should be retried.
+            timeout (float): The timeout for this request.
+            metadata (Sequence[Tuple[str, str]]): Strings which should be
+                sent along with the request as metadata.
+
+        Returns:
+            google.cloud.aiplatform_v1beta1.types.Model:
+                A trained machine learning Model.
+        """
+        # Create or coerce a protobuf request object.
+        # Quick check: If we got a request object, we should *not* have
+        # gotten any keyword arguments that map to the request.
+        has_flattened_params = any([name, version_aliases])
+        if request is not None and has_flattened_params:
+            raise ValueError(
+                "If the `request` argument is set, then none of "
+                "the individual field arguments should be set."
+            )
+
+        request = model_service.MergeVersionAliasesRequest(request)
+
+        # If we have keyword arguments corresponding to fields on the
+        # request, apply these.
+        if name is not None:
+            request.name = name
+        if version_aliases:
+            request.version_aliases.extend(version_aliases)
+
+        # Wrap the RPC method; this adds retry and timeout information,
+        # and friendly error handling.
+        rpc = gapic_v1.method_async.wrap_method(
+            self._client._transport.merge_version_aliases,
+            default_timeout=None,
+            client_info=DEFAULT_CLIENT_INFO,
+        )
+
+        # Certain fields should be provided within the metadata header;
+        # add these here.
+        metadata = tuple(metadata) + (
+            gapic_v1.routing_header.to_grpc_metadata((("name", request.name),)),
+        )
+
+        # Send the request.
+        response = await rpc(
+            request,
+            retry=retry,
+            timeout=timeout,
+            metadata=metadata,
+        )
+
+        # Done; return the response.
+        return response
+
     async def export_model(
         self,
         request: Union[model_service.ExportModelRequest, dict] = None,
@@ -812,14 +1189,13 @@ class ModelServiceAsyncClient:
         least one [supported export
         format][google.cloud.aiplatform.v1beta1.Model.supported_export_formats].
 
-
         .. code-block:: python
 
             from google.cloud import aiplatform_v1beta1
 
-            def sample_export_model():
+            async def sample_export_model():
                 # Create a client
-                client = aiplatform_v1beta1.ModelServiceClient()
+                client = aiplatform_v1beta1.ModelServiceAsyncClient()
 
                 # Initialize request argument(s)
                 request = aiplatform_v1beta1.ExportModelRequest(
@@ -831,7 +1207,7 @@ class ModelServiceAsyncClient:
 
                 print("Waiting for operation to complete...")
 
-                response = operation.result()
+                response = await operation.result()
 
                 # Handle the response
                 print(response)
@@ -939,9 +1315,9 @@ class ModelServiceAsyncClient:
 
             from google.cloud import aiplatform_v1beta1
 
-            def sample_import_model_evaluation():
+            async def sample_import_model_evaluation():
                 # Create a client
-                client = aiplatform_v1beta1.ModelServiceClient()
+                client = aiplatform_v1beta1.ModelServiceAsyncClient()
 
                 # Initialize request argument(s)
                 request = aiplatform_v1beta1.ImportModelEvaluationRequest(
@@ -949,7 +1325,7 @@ class ModelServiceAsyncClient:
                 )
 
                 # Make the request
-                response = client.import_model_evaluation(request=request)
+                response = await client.import_model_evaluation(request=request)
 
                 # Handle the response
                 print(response)
@@ -1045,9 +1421,9 @@ class ModelServiceAsyncClient:
 
             from google.cloud import aiplatform_v1beta1
 
-            def sample_get_model_evaluation():
+            async def sample_get_model_evaluation():
                 # Create a client
-                client = aiplatform_v1beta1.ModelServiceClient()
+                client = aiplatform_v1beta1.ModelServiceAsyncClient()
 
                 # Initialize request argument(s)
                 request = aiplatform_v1beta1.GetModelEvaluationRequest(
@@ -1055,7 +1431,7 @@ class ModelServiceAsyncClient:
                 )
 
                 # Make the request
-                response = client.get_model_evaluation(request=request)
+                response = await client.get_model_evaluation(request=request)
 
                 # Handle the response
                 print(response)
@@ -1143,9 +1519,9 @@ class ModelServiceAsyncClient:
 
             from google.cloud import aiplatform_v1beta1
 
-            def sample_list_model_evaluations():
+            async def sample_list_model_evaluations():
                 # Create a client
-                client = aiplatform_v1beta1.ModelServiceClient()
+                client = aiplatform_v1beta1.ModelServiceAsyncClient()
 
                 # Initialize request argument(s)
                 request = aiplatform_v1beta1.ListModelEvaluationsRequest(
@@ -1156,7 +1532,7 @@ class ModelServiceAsyncClient:
                 page_result = client.list_model_evaluations(request=request)
 
                 # Handle the response
-                for response in page_result:
+                async for response in page_result:
                     print(response)
 
         Args:
@@ -1252,9 +1628,9 @@ class ModelServiceAsyncClient:
 
             from google.cloud import aiplatform_v1beta1
 
-            def sample_get_model_evaluation_slice():
+            async def sample_get_model_evaluation_slice():
                 # Create a client
-                client = aiplatform_v1beta1.ModelServiceClient()
+                client = aiplatform_v1beta1.ModelServiceAsyncClient()
 
                 # Initialize request argument(s)
                 request = aiplatform_v1beta1.GetModelEvaluationSliceRequest(
@@ -1262,7 +1638,7 @@ class ModelServiceAsyncClient:
                 )
 
                 # Make the request
-                response = client.get_model_evaluation_slice(request=request)
+                response = await client.get_model_evaluation_slice(request=request)
 
                 # Handle the response
                 print(response)
@@ -1350,9 +1726,9 @@ class ModelServiceAsyncClient:
 
             from google.cloud import aiplatform_v1beta1
 
-            def sample_list_model_evaluation_slices():
+            async def sample_list_model_evaluation_slices():
                 # Create a client
-                client = aiplatform_v1beta1.ModelServiceClient()
+                client = aiplatform_v1beta1.ModelServiceAsyncClient()
 
                 # Initialize request argument(s)
                 request = aiplatform_v1beta1.ListModelEvaluationSlicesRequest(
@@ -1363,7 +1739,7 @@ class ModelServiceAsyncClient:
                 page_result = client.list_model_evaluation_slices(request=request)
 
                 # Handle the response
-                for response in page_result:
+                async for response in page_result:
                     print(response)
 
         Args:

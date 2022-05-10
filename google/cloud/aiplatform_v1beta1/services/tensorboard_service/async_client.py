@@ -18,6 +18,7 @@ import functools
 import re
 from typing import (
     Dict,
+    Mapping,
     Optional,
     AsyncIterable,
     Awaitable,
@@ -266,9 +267,9 @@ class TensorboardServiceAsyncClient:
 
             from google.cloud import aiplatform_v1beta1
 
-            def sample_create_tensorboard():
+            async def sample_create_tensorboard():
                 # Create a client
-                client = aiplatform_v1beta1.TensorboardServiceClient()
+                client = aiplatform_v1beta1.TensorboardServiceAsyncClient()
 
                 # Initialize request argument(s)
                 tensorboard = aiplatform_v1beta1.Tensorboard()
@@ -284,7 +285,7 @@ class TensorboardServiceAsyncClient:
 
                 print("Waiting for operation to complete...")
 
-                response = operation.result()
+                response = await operation.result()
 
                 # Handle the response
                 print(response)
@@ -389,9 +390,9 @@ class TensorboardServiceAsyncClient:
 
             from google.cloud import aiplatform_v1beta1
 
-            def sample_get_tensorboard():
+            async def sample_get_tensorboard():
                 # Create a client
-                client = aiplatform_v1beta1.TensorboardServiceClient()
+                client = aiplatform_v1beta1.TensorboardServiceAsyncClient()
 
                 # Initialize request argument(s)
                 request = aiplatform_v1beta1.GetTensorboardRequest(
@@ -399,7 +400,7 @@ class TensorboardServiceAsyncClient:
                 )
 
                 # Make the request
-                response = client.get_tensorboard(request=request)
+                response = await client.get_tensorboard(request=request)
 
                 # Handle the response
                 print(response)
@@ -489,9 +490,9 @@ class TensorboardServiceAsyncClient:
 
             from google.cloud import aiplatform_v1beta1
 
-            def sample_update_tensorboard():
+            async def sample_update_tensorboard():
                 # Create a client
-                client = aiplatform_v1beta1.TensorboardServiceClient()
+                client = aiplatform_v1beta1.TensorboardServiceAsyncClient()
 
                 # Initialize request argument(s)
                 tensorboard = aiplatform_v1beta1.Tensorboard()
@@ -506,7 +507,7 @@ class TensorboardServiceAsyncClient:
 
                 print("Waiting for operation to complete...")
 
-                response = operation.result()
+                response = await operation.result()
 
                 # Handle the response
                 print(response)
@@ -620,9 +621,9 @@ class TensorboardServiceAsyncClient:
 
             from google.cloud import aiplatform_v1beta1
 
-            def sample_list_tensorboards():
+            async def sample_list_tensorboards():
                 # Create a client
-                client = aiplatform_v1beta1.TensorboardServiceClient()
+                client = aiplatform_v1beta1.TensorboardServiceAsyncClient()
 
                 # Initialize request argument(s)
                 request = aiplatform_v1beta1.ListTensorboardsRequest(
@@ -633,7 +634,7 @@ class TensorboardServiceAsyncClient:
                 page_result = client.list_tensorboards(request=request)
 
                 # Handle the response
-                for response in page_result:
+                async for response in page_result:
                     print(response)
 
         Args:
@@ -729,9 +730,9 @@ class TensorboardServiceAsyncClient:
 
             from google.cloud import aiplatform_v1beta1
 
-            def sample_delete_tensorboard():
+            async def sample_delete_tensorboard():
                 # Create a client
-                client = aiplatform_v1beta1.TensorboardServiceClient()
+                client = aiplatform_v1beta1.TensorboardServiceAsyncClient()
 
                 # Initialize request argument(s)
                 request = aiplatform_v1beta1.DeleteTensorboardRequest(
@@ -743,7 +744,7 @@ class TensorboardServiceAsyncClient:
 
                 print("Waiting for operation to complete...")
 
-                response = operation.result()
+                response = await operation.result()
 
                 # Handle the response
                 print(response)
@@ -854,9 +855,9 @@ class TensorboardServiceAsyncClient:
 
             from google.cloud import aiplatform_v1beta1
 
-            def sample_create_tensorboard_experiment():
+            async def sample_create_tensorboard_experiment():
                 # Create a client
-                client = aiplatform_v1beta1.TensorboardServiceClient()
+                client = aiplatform_v1beta1.TensorboardServiceAsyncClient()
 
                 # Initialize request argument(s)
                 request = aiplatform_v1beta1.CreateTensorboardExperimentRequest(
@@ -865,7 +866,7 @@ class TensorboardServiceAsyncClient:
                 )
 
                 # Make the request
-                response = client.create_tensorboard_experiment(request=request)
+                response = await client.create_tensorboard_experiment(request=request)
 
                 # Handle the response
                 print(response)
@@ -977,9 +978,9 @@ class TensorboardServiceAsyncClient:
 
             from google.cloud import aiplatform_v1beta1
 
-            def sample_get_tensorboard_experiment():
+            async def sample_get_tensorboard_experiment():
                 # Create a client
-                client = aiplatform_v1beta1.TensorboardServiceClient()
+                client = aiplatform_v1beta1.TensorboardServiceAsyncClient()
 
                 # Initialize request argument(s)
                 request = aiplatform_v1beta1.GetTensorboardExperimentRequest(
@@ -987,7 +988,7 @@ class TensorboardServiceAsyncClient:
                 )
 
                 # Make the request
-                response = client.get_tensorboard_experiment(request=request)
+                response = await client.get_tensorboard_experiment(request=request)
 
                 # Handle the response
                 print(response)
@@ -1078,16 +1079,16 @@ class TensorboardServiceAsyncClient:
 
             from google.cloud import aiplatform_v1beta1
 
-            def sample_update_tensorboard_experiment():
+            async def sample_update_tensorboard_experiment():
                 # Create a client
-                client = aiplatform_v1beta1.TensorboardServiceClient()
+                client = aiplatform_v1beta1.TensorboardServiceAsyncClient()
 
                 # Initialize request argument(s)
                 request = aiplatform_v1beta1.UpdateTensorboardExperimentRequest(
                 )
 
                 # Make the request
-                response = client.update_tensorboard_experiment(request=request)
+                response = await client.update_tensorboard_experiment(request=request)
 
                 # Handle the response
                 print(response)
@@ -1194,9 +1195,9 @@ class TensorboardServiceAsyncClient:
 
             from google.cloud import aiplatform_v1beta1
 
-            def sample_list_tensorboard_experiments():
+            async def sample_list_tensorboard_experiments():
                 # Create a client
-                client = aiplatform_v1beta1.TensorboardServiceClient()
+                client = aiplatform_v1beta1.TensorboardServiceAsyncClient()
 
                 # Initialize request argument(s)
                 request = aiplatform_v1beta1.ListTensorboardExperimentsRequest(
@@ -1207,7 +1208,7 @@ class TensorboardServiceAsyncClient:
                 page_result = client.list_tensorboard_experiments(request=request)
 
                 # Handle the response
-                for response in page_result:
+                async for response in page_result:
                     print(response)
 
         Args:
@@ -1306,9 +1307,9 @@ class TensorboardServiceAsyncClient:
 
             from google.cloud import aiplatform_v1beta1
 
-            def sample_delete_tensorboard_experiment():
+            async def sample_delete_tensorboard_experiment():
                 # Create a client
-                client = aiplatform_v1beta1.TensorboardServiceClient()
+                client = aiplatform_v1beta1.TensorboardServiceAsyncClient()
 
                 # Initialize request argument(s)
                 request = aiplatform_v1beta1.DeleteTensorboardExperimentRequest(
@@ -1320,7 +1321,7 @@ class TensorboardServiceAsyncClient:
 
                 print("Waiting for operation to complete...")
 
-                response = operation.result()
+                response = await operation.result()
 
                 # Handle the response
                 print(response)
@@ -1429,9 +1430,9 @@ class TensorboardServiceAsyncClient:
 
             from google.cloud import aiplatform_v1beta1
 
-            def sample_create_tensorboard_run():
+            async def sample_create_tensorboard_run():
                 # Create a client
-                client = aiplatform_v1beta1.TensorboardServiceClient()
+                client = aiplatform_v1beta1.TensorboardServiceAsyncClient()
 
                 # Initialize request argument(s)
                 tensorboard_run = aiplatform_v1beta1.TensorboardRun()
@@ -1444,7 +1445,7 @@ class TensorboardServiceAsyncClient:
                 )
 
                 # Make the request
-                response = client.create_tensorboard_run(request=request)
+                response = await client.create_tensorboard_run(request=request)
 
                 # Handle the response
                 print(response)
@@ -1557,9 +1558,9 @@ class TensorboardServiceAsyncClient:
 
             from google.cloud import aiplatform_v1beta1
 
-            def sample_batch_create_tensorboard_runs():
+            async def sample_batch_create_tensorboard_runs():
                 # Create a client
-                client = aiplatform_v1beta1.TensorboardServiceClient()
+                client = aiplatform_v1beta1.TensorboardServiceAsyncClient()
 
                 # Initialize request argument(s)
                 requests = aiplatform_v1beta1.CreateTensorboardRunRequest()
@@ -1573,7 +1574,7 @@ class TensorboardServiceAsyncClient:
                 )
 
                 # Make the request
-                response = client.batch_create_tensorboard_runs(request=request)
+                response = await client.batch_create_tensorboard_runs(request=request)
 
                 # Handle the response
                 print(response)
@@ -1673,9 +1674,9 @@ class TensorboardServiceAsyncClient:
 
             from google.cloud import aiplatform_v1beta1
 
-            def sample_get_tensorboard_run():
+            async def sample_get_tensorboard_run():
                 # Create a client
-                client = aiplatform_v1beta1.TensorboardServiceClient()
+                client = aiplatform_v1beta1.TensorboardServiceAsyncClient()
 
                 # Initialize request argument(s)
                 request = aiplatform_v1beta1.GetTensorboardRunRequest(
@@ -1683,7 +1684,7 @@ class TensorboardServiceAsyncClient:
                 )
 
                 # Make the request
-                response = client.get_tensorboard_run(request=request)
+                response = await client.get_tensorboard_run(request=request)
 
                 # Handle the response
                 print(response)
@@ -1772,9 +1773,9 @@ class TensorboardServiceAsyncClient:
 
             from google.cloud import aiplatform_v1beta1
 
-            def sample_update_tensorboard_run():
+            async def sample_update_tensorboard_run():
                 # Create a client
-                client = aiplatform_v1beta1.TensorboardServiceClient()
+                client = aiplatform_v1beta1.TensorboardServiceAsyncClient()
 
                 # Initialize request argument(s)
                 tensorboard_run = aiplatform_v1beta1.TensorboardRun()
@@ -1785,7 +1786,7 @@ class TensorboardServiceAsyncClient:
                 )
 
                 # Make the request
-                response = client.update_tensorboard_run(request=request)
+                response = await client.update_tensorboard_run(request=request)
 
                 # Handle the response
                 print(response)
@@ -1889,9 +1890,9 @@ class TensorboardServiceAsyncClient:
 
             from google.cloud import aiplatform_v1beta1
 
-            def sample_list_tensorboard_runs():
+            async def sample_list_tensorboard_runs():
                 # Create a client
-                client = aiplatform_v1beta1.TensorboardServiceClient()
+                client = aiplatform_v1beta1.TensorboardServiceAsyncClient()
 
                 # Initialize request argument(s)
                 request = aiplatform_v1beta1.ListTensorboardRunsRequest(
@@ -1902,7 +1903,7 @@ class TensorboardServiceAsyncClient:
                 page_result = client.list_tensorboard_runs(request=request)
 
                 # Handle the response
-                for response in page_result:
+                async for response in page_result:
                     print(response)
 
         Args:
@@ -1999,9 +2000,9 @@ class TensorboardServiceAsyncClient:
 
             from google.cloud import aiplatform_v1beta1
 
-            def sample_delete_tensorboard_run():
+            async def sample_delete_tensorboard_run():
                 # Create a client
-                client = aiplatform_v1beta1.TensorboardServiceClient()
+                client = aiplatform_v1beta1.TensorboardServiceAsyncClient()
 
                 # Initialize request argument(s)
                 request = aiplatform_v1beta1.DeleteTensorboardRunRequest(
@@ -2013,7 +2014,7 @@ class TensorboardServiceAsyncClient:
 
                 print("Waiting for operation to complete...")
 
-                response = operation.result()
+                response = await operation.result()
 
                 # Handle the response
                 print(response)
@@ -2122,14 +2123,13 @@ class TensorboardServiceAsyncClient:
         r"""Batch create TensorboardTimeSeries that belong to a
         TensorboardExperiment.
 
-
         .. code-block:: python
 
             from google.cloud import aiplatform_v1beta1
 
-            def sample_batch_create_tensorboard_time_series():
+            async def sample_batch_create_tensorboard_time_series():
                 # Create a client
-                client = aiplatform_v1beta1.TensorboardServiceClient()
+                client = aiplatform_v1beta1.TensorboardServiceAsyncClient()
 
                 # Initialize request argument(s)
                 requests = aiplatform_v1beta1.CreateTensorboardTimeSeriesRequest()
@@ -2143,7 +2143,7 @@ class TensorboardServiceAsyncClient:
                 )
 
                 # Make the request
-                response = client.batch_create_tensorboard_time_series(request=request)
+                response = await client.batch_create_tensorboard_time_series(request=request)
 
                 # Handle the response
                 print(response)
@@ -2247,9 +2247,9 @@ class TensorboardServiceAsyncClient:
 
             from google.cloud import aiplatform_v1beta1
 
-            def sample_create_tensorboard_time_series():
+            async def sample_create_tensorboard_time_series():
                 # Create a client
-                client = aiplatform_v1beta1.TensorboardServiceClient()
+                client = aiplatform_v1beta1.TensorboardServiceAsyncClient()
 
                 # Initialize request argument(s)
                 tensorboard_time_series = aiplatform_v1beta1.TensorboardTimeSeries()
@@ -2262,7 +2262,7 @@ class TensorboardServiceAsyncClient:
                 )
 
                 # Make the request
-                response = client.create_tensorboard_time_series(request=request)
+                response = await client.create_tensorboard_time_series(request=request)
 
                 # Handle the response
                 print(response)
@@ -2359,9 +2359,9 @@ class TensorboardServiceAsyncClient:
 
             from google.cloud import aiplatform_v1beta1
 
-            def sample_get_tensorboard_time_series():
+            async def sample_get_tensorboard_time_series():
                 # Create a client
-                client = aiplatform_v1beta1.TensorboardServiceClient()
+                client = aiplatform_v1beta1.TensorboardServiceAsyncClient()
 
                 # Initialize request argument(s)
                 request = aiplatform_v1beta1.GetTensorboardTimeSeriesRequest(
@@ -2369,7 +2369,7 @@ class TensorboardServiceAsyncClient:
                 )
 
                 # Make the request
-                response = client.get_tensorboard_time_series(request=request)
+                response = await client.get_tensorboard_time_series(request=request)
 
                 # Handle the response
                 print(response)
@@ -2458,9 +2458,9 @@ class TensorboardServiceAsyncClient:
 
             from google.cloud import aiplatform_v1beta1
 
-            def sample_update_tensorboard_time_series():
+            async def sample_update_tensorboard_time_series():
                 # Create a client
-                client = aiplatform_v1beta1.TensorboardServiceClient()
+                client = aiplatform_v1beta1.TensorboardServiceAsyncClient()
 
                 # Initialize request argument(s)
                 tensorboard_time_series = aiplatform_v1beta1.TensorboardTimeSeries()
@@ -2472,7 +2472,7 @@ class TensorboardServiceAsyncClient:
                 )
 
                 # Make the request
-                response = client.update_tensorboard_time_series(request=request)
+                response = await client.update_tensorboard_time_series(request=request)
 
                 # Handle the response
                 print(response)
@@ -2582,9 +2582,9 @@ class TensorboardServiceAsyncClient:
 
             from google.cloud import aiplatform_v1beta1
 
-            def sample_list_tensorboard_time_series():
+            async def sample_list_tensorboard_time_series():
                 # Create a client
-                client = aiplatform_v1beta1.TensorboardServiceClient()
+                client = aiplatform_v1beta1.TensorboardServiceAsyncClient()
 
                 # Initialize request argument(s)
                 request = aiplatform_v1beta1.ListTensorboardTimeSeriesRequest(
@@ -2595,7 +2595,7 @@ class TensorboardServiceAsyncClient:
                 page_result = client.list_tensorboard_time_series(request=request)
 
                 # Handle the response
-                for response in page_result:
+                async for response in page_result:
                     print(response)
 
         Args:
@@ -2694,9 +2694,9 @@ class TensorboardServiceAsyncClient:
 
             from google.cloud import aiplatform_v1beta1
 
-            def sample_delete_tensorboard_time_series():
+            async def sample_delete_tensorboard_time_series():
                 # Create a client
-                client = aiplatform_v1beta1.TensorboardServiceClient()
+                client = aiplatform_v1beta1.TensorboardServiceAsyncClient()
 
                 # Initialize request argument(s)
                 request = aiplatform_v1beta1.DeleteTensorboardTimeSeriesRequest(
@@ -2708,7 +2708,7 @@ class TensorboardServiceAsyncClient:
 
                 print("Waiting for operation to complete...")
 
-                response = operation.result()
+                response = await operation.result()
 
                 # Handle the response
                 print(response)
@@ -2818,14 +2818,13 @@ class TensorboardServiceAsyncClient:
         Otherwise, that limit number of data points will be
         randomly selected from this time series and returned.
 
-
         .. code-block:: python
 
             from google.cloud import aiplatform_v1beta1
 
-            def sample_batch_read_tensorboard_time_series_data():
+            async def sample_batch_read_tensorboard_time_series_data():
                 # Create a client
-                client = aiplatform_v1beta1.TensorboardServiceClient()
+                client = aiplatform_v1beta1.TensorboardServiceAsyncClient()
 
                 # Initialize request argument(s)
                 request = aiplatform_v1beta1.BatchReadTensorboardTimeSeriesDataRequest(
@@ -2834,7 +2833,7 @@ class TensorboardServiceAsyncClient:
                 )
 
                 # Make the request
-                response = client.batch_read_tensorboard_time_series_data(request=request)
+                response = await client.batch_read_tensorboard_time_series_data(request=request)
 
                 # Handle the response
                 print(response)
@@ -2928,14 +2927,13 @@ class TensorboardServiceAsyncClient:
         from this time series and returned. This value can be changed by
         changing max_data_points, which can't be greater than 10k.
 
-
         .. code-block:: python
 
             from google.cloud import aiplatform_v1beta1
 
-            def sample_read_tensorboard_time_series_data():
+            async def sample_read_tensorboard_time_series_data():
                 # Create a client
-                client = aiplatform_v1beta1.TensorboardServiceClient()
+                client = aiplatform_v1beta1.TensorboardServiceAsyncClient()
 
                 # Initialize request argument(s)
                 request = aiplatform_v1beta1.ReadTensorboardTimeSeriesDataRequest(
@@ -2943,7 +2941,7 @@ class TensorboardServiceAsyncClient:
                 )
 
                 # Make the request
-                response = client.read_tensorboard_time_series_data(request=request)
+                response = await client.read_tensorboard_time_series_data(request=request)
 
                 # Handle the response
                 print(response)
@@ -3030,14 +3028,13 @@ class TensorboardServiceAsyncClient:
         project's Cloud Storage bucket without users having to
         obtain Cloud Storage access permission.
 
-
         .. code-block:: python
 
             from google.cloud import aiplatform_v1beta1
 
-            def sample_read_tensorboard_blob_data():
+            async def sample_read_tensorboard_blob_data():
                 # Create a client
-                client = aiplatform_v1beta1.TensorboardServiceClient()
+                client = aiplatform_v1beta1.TensorboardServiceAsyncClient()
 
                 # Initialize request argument(s)
                 request = aiplatform_v1beta1.ReadTensorboardBlobDataRequest(
@@ -3045,10 +3042,10 @@ class TensorboardServiceAsyncClient:
                 )
 
                 # Make the request
-                stream = client.read_tensorboard_blob_data(request=request)
+                stream = await client.read_tensorboard_blob_data(request=request)
 
                 # Handle the response
-                for response in stream:
+                async for response in stream:
                     print(response)
 
         Args:
@@ -3137,14 +3134,13 @@ class TensorboardServiceAsyncClient:
         TensorboardTimeSeries in multiple TensorboardRun's. If
         any data fail to be ingested, an error will be returned.
 
-
         .. code-block:: python
 
             from google.cloud import aiplatform_v1beta1
 
-            def sample_write_tensorboard_experiment_data():
+            async def sample_write_tensorboard_experiment_data():
                 # Create a client
-                client = aiplatform_v1beta1.TensorboardServiceClient()
+                client = aiplatform_v1beta1.TensorboardServiceAsyncClient()
 
                 # Initialize request argument(s)
                 write_run_data_requests = aiplatform_v1beta1.WriteTensorboardRunDataRequest()
@@ -3158,7 +3154,7 @@ class TensorboardServiceAsyncClient:
                 )
 
                 # Make the request
-                response = client.write_tensorboard_experiment_data(request=request)
+                response = await client.write_tensorboard_experiment_data(request=request)
 
                 # Handle the response
                 print(response)
@@ -3254,14 +3250,13 @@ class TensorboardServiceAsyncClient:
         TensorboardTimeSeries under a TensorboardRun. If any
         data fail to be ingested, an error will be returned.
 
-
         .. code-block:: python
 
             from google.cloud import aiplatform_v1beta1
 
-            def sample_write_tensorboard_run_data():
+            async def sample_write_tensorboard_run_data():
                 # Create a client
-                client = aiplatform_v1beta1.TensorboardServiceClient()
+                client = aiplatform_v1beta1.TensorboardServiceAsyncClient()
 
                 # Initialize request argument(s)
                 time_series_data = aiplatform_v1beta1.TimeSeriesData()
@@ -3274,7 +3269,7 @@ class TensorboardServiceAsyncClient:
                 )
 
                 # Make the request
-                response = client.write_tensorboard_run_data(request=request)
+                response = await client.write_tensorboard_run_data(request=request)
 
                 # Handle the response
                 print(response)
@@ -3376,14 +3371,13 @@ class TensorboardServiceAsyncClient:
         r"""Exports a TensorboardTimeSeries' data. Data is
         returned in paginated responses.
 
-
         .. code-block:: python
 
             from google.cloud import aiplatform_v1beta1
 
-            def sample_export_tensorboard_time_series_data():
+            async def sample_export_tensorboard_time_series_data():
                 # Create a client
-                client = aiplatform_v1beta1.TensorboardServiceClient()
+                client = aiplatform_v1beta1.TensorboardServiceAsyncClient()
 
                 # Initialize request argument(s)
                 request = aiplatform_v1beta1.ExportTensorboardTimeSeriesDataRequest(
@@ -3394,7 +3388,7 @@ class TensorboardServiceAsyncClient:
                 page_result = client.export_tensorboard_time_series_data(request=request)
 
                 # Handle the response
-                for response in page_result:
+                async for response in page_result:
                     print(response)
 
         Args:

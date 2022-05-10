@@ -16,7 +16,7 @@
 from collections import OrderedDict
 import functools
 import re
-from typing import Dict, Optional, Sequence, Tuple, Type, Union
+from typing import Dict, Mapping, Optional, Sequence, Tuple, Type, Union
 import pkg_resources
 
 from google.api_core.client_options import ClientOptions
@@ -245,9 +245,9 @@ class ModelServiceAsyncClient:
 
             from google.cloud import aiplatform_v1
 
-            def sample_upload_model():
+            async def sample_upload_model():
                 # Create a client
-                client = aiplatform_v1.ModelServiceClient()
+                client = aiplatform_v1.ModelServiceAsyncClient()
 
                 # Initialize request argument(s)
                 model = aiplatform_v1.Model()
@@ -263,7 +263,7 @@ class ModelServiceAsyncClient:
 
                 print("Waiting for operation to complete...")
 
-                response = operation.result()
+                response = await operation.result()
 
                 # Handle the response
                 print(response)
@@ -369,9 +369,9 @@ class ModelServiceAsyncClient:
 
             from google.cloud import aiplatform_v1
 
-            def sample_get_model():
+            async def sample_get_model():
                 # Create a client
-                client = aiplatform_v1.ModelServiceClient()
+                client = aiplatform_v1.ModelServiceAsyncClient()
 
                 # Initialize request argument(s)
                 request = aiplatform_v1.GetModelRequest(
@@ -379,7 +379,7 @@ class ModelServiceAsyncClient:
                 )
 
                 # Make the request
-                response = client.get_model(request=request)
+                response = await client.get_model(request=request)
 
                 # Handle the response
                 print(response)
@@ -462,9 +462,9 @@ class ModelServiceAsyncClient:
 
             from google.cloud import aiplatform_v1
 
-            def sample_list_models():
+            async def sample_list_models():
                 # Create a client
-                client = aiplatform_v1.ModelServiceClient()
+                client = aiplatform_v1.ModelServiceAsyncClient()
 
                 # Initialize request argument(s)
                 request = aiplatform_v1.ListModelsRequest(
@@ -475,7 +475,7 @@ class ModelServiceAsyncClient:
                 page_result = client.list_models(request=request)
 
                 # Handle the response
-                for response in page_result:
+                async for response in page_result:
                     print(response)
 
         Args:
@@ -572,9 +572,9 @@ class ModelServiceAsyncClient:
 
             from google.cloud import aiplatform_v1
 
-            def sample_update_model():
+            async def sample_update_model():
                 # Create a client
-                client = aiplatform_v1.ModelServiceClient()
+                client = aiplatform_v1.ModelServiceAsyncClient()
 
                 # Initialize request argument(s)
                 model = aiplatform_v1.Model()
@@ -585,7 +585,7 @@ class ModelServiceAsyncClient:
                 )
 
                 # Make the request
-                response = client.update_model(request=request)
+                response = await client.update_model(request=request)
 
                 # Handle the response
                 print(response)
@@ -595,8 +595,29 @@ class ModelServiceAsyncClient:
                 The request object. Request message for
                 [ModelService.UpdateModel][google.cloud.aiplatform.v1.ModelService.UpdateModel].
             model (:class:`google.cloud.aiplatform_v1.types.Model`):
-                Required. The Model which replaces
-                the resource on the server.
+                Required. The Model which replaces the resource on the
+                server. When Model Versioning is enabled, the model.name
+                will be used to determine whether to update the model or
+                model version.
+
+                1. model.name with the @ value, e.g. models/123@1,
+                   refers to a version specific update.
+                2. model.name without the @ value, e.g. models/123,
+                   refers to a model update.
+                3. model.name with @-, e.g. models/123@-, refers to a
+                   model update.
+                4. Supported model fields: display_name, description;
+                   supported version-specific fields:
+                   version_description. Labels are supported in both
+                   scenarios. Both the model labels and the version
+                   labels are merged when a model is returned. When
+                   updating labels, if the request is for model-specific
+                   update, model label gets updated. Otherwise, version
+                   labels get updated.
+                5. A model name or model version name fields update
+                   mismatch will cause a precondition error.
+                6. One request cannot update both the model and the
+                   version fields. You must update them separately.
 
                 This corresponds to the ``model`` field
                 on the ``request`` instance; if ``request`` is provided, this
@@ -683,14 +704,13 @@ class ModelServiceAsyncClient:
         [deployed_models][google.cloud.aiplatform.v1.Endpoint.deployed_models]
         field.
 
-
         .. code-block:: python
 
             from google.cloud import aiplatform_v1
 
-            def sample_delete_model():
+            async def sample_delete_model():
                 # Create a client
-                client = aiplatform_v1.ModelServiceClient()
+                client = aiplatform_v1.ModelServiceAsyncClient()
 
                 # Initialize request argument(s)
                 request = aiplatform_v1.DeleteModelRequest(
@@ -702,7 +722,7 @@ class ModelServiceAsyncClient:
 
                 print("Waiting for operation to complete...")
 
-                response = operation.result()
+                response = await operation.result()
 
                 # Handle the response
                 print(response)
@@ -809,14 +829,13 @@ class ModelServiceAsyncClient:
         least one [supported export
         format][google.cloud.aiplatform.v1.Model.supported_export_formats].
 
-
         .. code-block:: python
 
             from google.cloud import aiplatform_v1
 
-            def sample_export_model():
+            async def sample_export_model():
                 # Create a client
-                client = aiplatform_v1.ModelServiceClient()
+                client = aiplatform_v1.ModelServiceAsyncClient()
 
                 # Initialize request argument(s)
                 request = aiplatform_v1.ExportModelRequest(
@@ -828,7 +847,7 @@ class ModelServiceAsyncClient:
 
                 print("Waiting for operation to complete...")
 
-                response = operation.result()
+                response = await operation.result()
 
                 # Handle the response
                 print(response)
@@ -936,9 +955,9 @@ class ModelServiceAsyncClient:
 
             from google.cloud import aiplatform_v1
 
-            def sample_import_model_evaluation():
+            async def sample_import_model_evaluation():
                 # Create a client
-                client = aiplatform_v1.ModelServiceClient()
+                client = aiplatform_v1.ModelServiceAsyncClient()
 
                 # Initialize request argument(s)
                 request = aiplatform_v1.ImportModelEvaluationRequest(
@@ -946,7 +965,7 @@ class ModelServiceAsyncClient:
                 )
 
                 # Make the request
-                response = client.import_model_evaluation(request=request)
+                response = await client.import_model_evaluation(request=request)
 
                 # Handle the response
                 print(response)
@@ -1042,9 +1061,9 @@ class ModelServiceAsyncClient:
 
             from google.cloud import aiplatform_v1
 
-            def sample_get_model_evaluation():
+            async def sample_get_model_evaluation():
                 # Create a client
-                client = aiplatform_v1.ModelServiceClient()
+                client = aiplatform_v1.ModelServiceAsyncClient()
 
                 # Initialize request argument(s)
                 request = aiplatform_v1.GetModelEvaluationRequest(
@@ -1052,7 +1071,7 @@ class ModelServiceAsyncClient:
                 )
 
                 # Make the request
-                response = client.get_model_evaluation(request=request)
+                response = await client.get_model_evaluation(request=request)
 
                 # Handle the response
                 print(response)
@@ -1140,9 +1159,9 @@ class ModelServiceAsyncClient:
 
             from google.cloud import aiplatform_v1
 
-            def sample_list_model_evaluations():
+            async def sample_list_model_evaluations():
                 # Create a client
-                client = aiplatform_v1.ModelServiceClient()
+                client = aiplatform_v1.ModelServiceAsyncClient()
 
                 # Initialize request argument(s)
                 request = aiplatform_v1.ListModelEvaluationsRequest(
@@ -1153,7 +1172,7 @@ class ModelServiceAsyncClient:
                 page_result = client.list_model_evaluations(request=request)
 
                 # Handle the response
-                for response in page_result:
+                async for response in page_result:
                     print(response)
 
         Args:
@@ -1249,9 +1268,9 @@ class ModelServiceAsyncClient:
 
             from google.cloud import aiplatform_v1
 
-            def sample_get_model_evaluation_slice():
+            async def sample_get_model_evaluation_slice():
                 # Create a client
-                client = aiplatform_v1.ModelServiceClient()
+                client = aiplatform_v1.ModelServiceAsyncClient()
 
                 # Initialize request argument(s)
                 request = aiplatform_v1.GetModelEvaluationSliceRequest(
@@ -1259,7 +1278,7 @@ class ModelServiceAsyncClient:
                 )
 
                 # Make the request
-                response = client.get_model_evaluation_slice(request=request)
+                response = await client.get_model_evaluation_slice(request=request)
 
                 # Handle the response
                 print(response)
@@ -1347,9 +1366,9 @@ class ModelServiceAsyncClient:
 
             from google.cloud import aiplatform_v1
 
-            def sample_list_model_evaluation_slices():
+            async def sample_list_model_evaluation_slices():
                 # Create a client
-                client = aiplatform_v1.ModelServiceClient()
+                client = aiplatform_v1.ModelServiceAsyncClient()
 
                 # Initialize request argument(s)
                 request = aiplatform_v1.ListModelEvaluationSlicesRequest(
@@ -1360,7 +1379,7 @@ class ModelServiceAsyncClient:
                 page_result = client.list_model_evaluation_slices(request=request)
 
                 # Handle the response
-                for response in page_result:
+                async for response in page_result:
                     print(response)
 
         Args:
