@@ -119,11 +119,10 @@ class Prediction(NamedTuple):
 
     predictions: Dict[str, List]
     deployed_model_id: str
-    model_version_id: str
-    model_resource_name: str
+    model_version_id: Optional[str] = None
+    model_resource_name: Optional[str] = None
     explanations: Optional[Sequence[gca_explanation_compat.Explanation]] = None
-
-
+    
 class Endpoint(base.VertexAiResourceNounWithFutureManager):
 
     client_class = utils.EndpointClientWithOverride
@@ -1311,6 +1310,8 @@ class Endpoint(base.VertexAiResourceNounWithFutureManager):
                 for item in prediction_response.predictions.pb
             ],
             deployed_model_id=prediction_response.deployed_model_id,
+            model_version_id=prediction_response.model_version_id,
+            model_resource_name=prediction_response.model,
         )
 
     def explain(
