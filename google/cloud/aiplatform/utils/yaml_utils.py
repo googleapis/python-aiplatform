@@ -57,7 +57,7 @@ def load_yaml(
     """
     if path.startswith("gs://"):
         return _load_yaml_from_gs_uri(path, project, credentials)
-    else if _VALID_AR_ADDRESS.match(path):
+    elif _VALID_AR_ADDRESS.match(path):
         return _load_yaml_from_ar_uri(path, project, credentials)
     else:
         return _load_yaml_from_local_file(path)
