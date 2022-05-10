@@ -12,21 +12,19 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+from typing import Optional, Union
 
 from google.cloud import aiplatform
 
 
-#  [START aiplatform_sdk_delete_experiment_sample]
-def delete_experiment_sample(
-    experiment_name: str,
+#  [START aiplatform_sdk_get_artifact_sample]
+def get_artifact_sample(
+    uri: str,
     project: str,
     location: str,
-    delete_backing_tensorboard_runs: bool=False
 ):
-    experiment = aiplatform.Experiment(experiment_name,
-                                       project=project,
-                                       location=location)
+    artifact = aiplatform.Artifact.get_with_uri(uri=uri, project=project, location=location)
 
-    experiment.delete(delete_backing_tensorboard_runs=delete_backing_tensorboard_runs)
+    return artifact
 
-#  [END aiplatform_sdk_delete_experiment_sample]
+#  [END aiplatform_sdk_get_artifact_sample]
